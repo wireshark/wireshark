@@ -1470,7 +1470,6 @@ void MainWindow::reloadLuaPlugins()
     closePacketDialogs();
 
     // Preferences may have been deleted so close all widgets using prefs
-    proto_tree_->closeContextMenu();
     main_ui_->preferenceEditorFrame->animatedHide();
 
     wsApp->readConfigurationFiles(true);

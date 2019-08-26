@@ -101,11 +101,6 @@ void ProtoTree::clear() {
     updateContentWidth();
 }
 
-void ProtoTree::closeContextMenu()
-{
-    ctx_menu_.close();
-}
-
 void ProtoTree::protoTreeContextMenu(QContextMenuEvent * event)
 {
     QMenu ctxMenu(this);
@@ -306,20 +301,20 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         return;
     }
 
-    ctx_menu_.clear();
+    QMenu ctx_menu(this);
 
     QMenu *main_menu_item, *submenu;
     QAction *action;
 
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandSubtrees"));
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionViewCollapseSubtrees"));
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandAll"));
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionViewCollapseAll"));
-    ctx_menu_.addSeparator();
+    ctx_menu.addAction(window()->findChild<QAction *>("actionViewExpandSubtrees"));
+    ctx_menu.addAction(window()->findChild<QAction *>("actionViewCollapseSubtrees"));
+    ctx_menu.addAction(window()->findChild<QAction *>("actionViewExpandAll"));
+    ctx_menu.addAction(window()->findChild<QAction *>("actionViewCollapseAll"));
+    ctx_menu.addSeparator();
 
     action = window()->findChild<QAction *>("actionAnalyzeCreateAColumn");
-    ctx_menu_.addAction(action);
-    ctx_menu_.addSeparator();
+    ctx_menu.addAction(action);
+    ctx_menu.addSeparator();
 
     QModelIndex index = indexAt(event->pos());
     FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
@@ -327,14 +322,14 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
     char * selectedfilter = proto_construct_match_selected_string(finfo.fieldInfo(), edt);
     bool can_match_selected = proto_can_match_selected(finfo.fieldInfo(), edt);
-    main_menu_item = new QMenu(tr("Apply as Filter"), &ctx_menu_);
-    QActionGroup * group = FilterAction::createFilterGroup(selectedfilter, false, can_match_selected, &ctx_menu_);
+    main_menu_item = new QMenu(tr("Apply as Filter"), &ctx_menu);
+    QActionGroup * group = FilterAction::createFilterGroup(selectedfilter, false, can_match_selected, &ctx_menu);
     main_menu_item->addActions(group->actions());
-    ctx_menu_.addMenu(main_menu_item);
-    main_menu_item = new QMenu(tr("Prepare as Filter"), &ctx_menu_);
-    group = FilterAction::createFilterGroup(selectedfilter, true, can_match_selected, &ctx_menu_);
+    ctx_menu.addMenu(main_menu_item);
+    main_menu_item = new QMenu(tr("Prepare as Filter"), &ctx_menu);
+    group = FilterAction::createFilterGroup(selectedfilter, true, can_match_selected, &ctx_menu);
     main_menu_item->addActions(group->actions());
-    ctx_menu_.addMenu(main_menu_item);
+    ctx_menu.addMenu(main_menu_item);
     if ( selectedfilter )
         wmem_free(Q_NULLPTR, selectedfilter);
 
@@ -345,23 +340,23 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         conv_menu_.addAction(action);
     }
 
-    ctx_menu_.addMenu(&conv_menu_);
+    ctx_menu.addMenu(&conv_menu_);
 
     colorize_menu_.setTitle(tr("Colorize with Filter"));
-    ctx_menu_.addMenu(&colorize_menu_);
+    ctx_menu.addMenu(&colorize_menu_);
 
     main_menu_item = window()->findChild<QMenu *>("menuFollow");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
-    ctx_menu_.addMenu(submenu);
+    submenu = new QMenu(main_menu_item->title(), &ctx_menu);
+    ctx_menu.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTLSStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTPStream"));
-    ctx_menu_.addSeparator();
+    ctx_menu.addSeparator();
 
     main_menu_item = window()->findChild<QMenu *>("menuEditCopy");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
-    ctx_menu_.addMenu(submenu);
+    submenu = new QMenu(main_menu_item->title(), &ctx_menu);
+    ctx_menu.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionCopyAllVisibleItems"));
     submenu->addAction(window()->findChild<QAction *>("actionCopyAllVisibleSelectedTreeItems"));
     submenu->addAction(window()->findChild<QAction *>("actionEditCopyDescription"));
@@ -376,23 +371,23 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     submenu->addActions(copyEntries->actions());
 
     action = window()->findChild<QAction *>("actionAnalyzeShowPacketBytes");
-    ctx_menu_.addAction(action);
+    ctx_menu.addAction(action);
     action = window()->findChild<QAction *>("actionFileExportPacketBytes");
-    ctx_menu_.addAction(action);
+    ctx_menu.addAction(action);
 
-    ctx_menu_.addSeparator();
+    ctx_menu.addSeparator();
 
     action = window()->findChild<QAction *>("actionContextWikiProtocolPage");
-    ctx_menu_.addAction(action);
+    ctx_menu.addAction(action);
     action = window()->findChild<QAction *>("actionContextFilterFieldReference");
-    ctx_menu_.addAction(action);
-    ctx_menu_.addMenu(&proto_prefs_menu_);
-    ctx_menu_.addSeparator();
+    ctx_menu.addAction(action);
+    ctx_menu.addMenu(&proto_prefs_menu_);
+    ctx_menu.addSeparator();
     decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
-    ctx_menu_.addAction(decode_as_);
+    ctx_menu.addAction(decode_as_);
 
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionGoGoToLinkedPacket"));
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionContextShowLinkedPacketInNewWindow"));
+    ctx_menu.addAction(window()->findChild<QAction *>("actionGoGoToLinkedPacket"));
+    ctx_menu.addAction(window()->findChild<QAction *>("actionContextShowLinkedPacketInNewWindow"));
 
     // The "text only" header field will not give preferences for the selected protocol.
     // Use parent in this case.
@@ -405,7 +400,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
     decode_as_->setData(QVariant::fromValue(true));
 
-    ctx_menu_.exec(event->globalPos());
+    ctx_menu.exec(event->globalPos());
     decode_as_->setData(QVariant());
 }
 

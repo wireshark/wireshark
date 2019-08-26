@@ -88,7 +88,6 @@ private:
     PacketListHeader * packet_list_header_;
     ProtoTree *proto_tree_;
     capture_file *cap_file_;
-    QMenu ctx_menu_;
     QMenu conv_menu_;
     QMenu colorize_menu_;
     ProtocolPreferencesMenu proto_prefs_menu_;
