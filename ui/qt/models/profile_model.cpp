@@ -136,6 +136,7 @@ ProfileModel::ProfileModel(QObject * parent) :
         profile_files_ << static_cast<char *>(file->data);
         file = gxx_list_next(file);
     }
+    g_list_free(files);
 
     loadProfiles();
 }
