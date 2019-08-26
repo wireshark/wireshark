@@ -887,7 +887,7 @@ QModelIndex ProfileModel::activeProfile() const
         if ( prof->is_global || checkDuplicate(index(row, ProfileModel::COL_NAME) ) )
             return QModelIndex();
 
-        if ( ( set_profile_.compare(prof->name) == 0 &&  prof->status == PROF_STAT_EXISTS ) ||
+        if ( ( set_profile_.compare(prof->name) == 0 && ( prof->status == PROF_STAT_EXISTS || prof->status == PROF_STAT_DEFAULT ) ) ||
              ( set_profile_.compare(prof->reference) == 0 &&  prof->status == PROF_STAT_CHANGED ) )
             return index(row, ProfileModel::COL_NAME);
     }
