@@ -77,6 +77,7 @@ static gint ett_smtp_data_fragment = -1;
 static gint ett_smtp_data_fragments = -1;
 
 static expert_field ei_smtp_base64_decode = EI_INIT;
+static expert_field ei_smtp_rsp_code = EI_INIT;
 
 static gboolean    smtp_auth_parameter_decoding_enabled     = FALSE;
 /* desegmentation of SMTP command and response lines */
@@ -154,6 +155,14 @@ typedef enum {
   SMTP_AUTH_STATE_SUCCESS,            /* Password received, authentication successful, start decoding */
   SMTP_AUTH_STATE_FAILED              /* authentication failed, no decoding */
 } smtp_auth_state_t;
+
+typedef enum {
+  SMTP_MULTILINE_NONE,
+  SMTP_MULTILINE_START,
+  SMTP_MULTILINE_CONTINUE,
+  SMTP_MULTILINE_END
+
+} smtp_multiline_state_t;
 
 struct smtp_session_state {
   smtp_state_t smtp_state;      /* Current state */
@@ -739,10 +748,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMTP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (tree) { /* Build the tree info ... */
-    ti = proto_tree_add_item(tree, proto_smtp, tvb, offset, -1, ENC_NA);
-    smtp_tree = proto_item_add_subtree(ti, ett_smtp);
-  }
+  ti = proto_tree_add_item(tree, proto_smtp, tvb, offset, -1, ENC_NA);
+  smtp_tree = proto_item_add_subtree(ti, ett_smtp);
 
   if (request) {
     /*
@@ -1058,13 +1065,16 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * Process the response, a line at a time, until we hit a line
      * that doesn't have a continuation indication on it.
      */
-    if (tree) {
-      hidden_item = proto_tree_add_boolean(smtp_tree, hf_smtp_rsp, tvb,
-                                           0, 0, TRUE);
-      proto_item_set_hidden(hidden_item);
-    }
+    hidden_item = proto_tree_add_boolean(smtp_tree, hf_smtp_rsp, tvb, 0, 0, TRUE);
+    proto_item_set_hidden(hidden_item);
 
     loffset = offset;
+
+    //Multiline information
+    smtp_multiline_state_t multiline_state = SMTP_MULTILINE_NONE;
+    guint32 multiline_code = 0;
+    proto_item* code_item = NULL;
+
     while (tvb_offset_exists(tvb, offset)) {
       /*
        * Find the end of the line.
@@ -1076,16 +1086,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       else
           col_append_str(pinfo->cinfo, COL_INFO, " | ");
 
-      if (tree) {
-        /*
-         * Put it into the protocol tree.
-         */
-        ti =  proto_tree_add_item(smtp_tree, hf_smtp_response, tvb,
-                          offset, next_offset - offset, ENC_ASCII|ENC_NA);
-        cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
-      } else
-        cmdresp_tree = NULL;
-
       if (linelen >= 3) {
           line_code[0] = tvb_get_guint8(tvb, offset);
           line_code[1] = tvb_get_guint8(tvb, offset+1);
@@ -1096,6 +1096,16 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
              * We have a 3-digit response code.
              */
             code = (line_code[0] - '0')*100 + (line_code[1] - '0')*10 + (line_code[2] - '0');
+            if ((linelen > 3) && (tvb_get_guint8(tvb, offset + 3) == '-')) {
+              if (multiline_state == SMTP_MULTILINE_NONE) {
+                multiline_state = SMTP_MULTILINE_START;
+                multiline_code = code;
+              } else {
+                multiline_state = SMTP_MULTILINE_CONTINUE;
+              }
+            } else if ((multiline_state == SMTP_MULTILINE_START) || (multiline_state == SMTP_MULTILINE_CONTINUE)) {
+              multiline_state = SMTP_MULTILINE_END;
+            }
 
             /*
              * If we're awaiting the response to a STARTTLS code, this
@@ -1155,9 +1165,19 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
             /*
              * Put the response code and parameters into the protocol tree.
+             * Only create a new response tree when not in the middle of multiline response.
              */
-            proto_tree_add_uint(cmdresp_tree, hf_smtp_rsp_code, tvb, offset, 3,
-                                code);
+            if ((multiline_state != SMTP_MULTILINE_CONTINUE) &&
+                (multiline_state != SMTP_MULTILINE_END))
+            {
+              ti = proto_tree_add_item(smtp_tree, hf_smtp_response, tvb,
+                offset, next_offset - offset, ENC_ASCII | ENC_NA);
+              cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
+
+              code_item = proto_tree_add_uint(cmdresp_tree, hf_smtp_rsp_code, tvb, offset, 3, code);
+            } else if (multiline_code != code) {
+              expert_add_info_format(pinfo, code_item, &ei_smtp_rsp_code, "Unexpected response code %u in multiline response. Expected %u", code, multiline_code);
+            }
 
             decrypt = NULL;
             if (linelen >= 4) {
@@ -1187,14 +1207,24 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     proto_tree_add_item(cmdresp_tree, hf_smtp_rsp_parameter, tvb,
                                       offset + 4, linelen - 4, ENC_ASCII|ENC_NA);
 
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                    if ((multiline_state != SMTP_MULTILINE_CONTINUE) &&
+                        (multiline_state != SMTP_MULTILINE_END)) {
+                      col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
                                     tvb_format_text(tvb, offset, linelen));
+                    } else {
+                      col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                        tvb_format_text(tvb, offset+4, linelen-4));
+                    }
                 }
             } else {
                col_append_str(pinfo->cinfo, COL_INFO,
                               tvb_format_text(tvb, offset, linelen));
             }
           }
+
+          //Clear multiline state if this is the last line
+          if (multiline_state == SMTP_MULTILINE_END)
+            multiline_state = SMTP_MULTILINE_NONE;
       }
       /*
        * Step past this line.
@@ -1318,6 +1348,7 @@ proto_register_smtp(void)
 
   static ei_register_info ei[] = {
     { &ei_smtp_base64_decode, { "smtp.base64_decode", PI_PROTOCOL, PI_WARN, "base64 decode failed or is not enabled (check SMTP preferences)", EXPFILL }},
+    { &ei_smtp_rsp_code,{ "smtp.response.code.unexpected", PI_PROTOCOL, PI_WARN, "Unexpected response code in multiline response", EXPFILL } },
   };
 
   module_t *smtp_module;
