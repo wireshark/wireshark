@@ -7772,15 +7772,15 @@ proto_register_isakmp(void)
 
     /* SA TEK Payload */
     { &hf_isakmp_sat_next_payload,
-      { "Next Payload", "isakmp.sak.nextpayload",
+      { "Next Payload", "isakmp.sat.nextpayload",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
     { &hf_isakmp_sat_reserved,
-      { "Reserved", "isakmp.sak.reserved",
+      { "Reserved", "isakmp.sat.reserved",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
     { &hf_isakmp_sat_payload_len ,
-      { "Payload length", "isakmp.sak.payload_len",
+      { "Payload length", "isakmp.sat.payload_len",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
     { &hf_isakmp_sat_protocol_id,
