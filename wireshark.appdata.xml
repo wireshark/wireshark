@@ -47,4 +47,10 @@
 	<screenshot>https://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Stevens-graph.png</screenshot>
     </screenshots>
     <updatecontact>wireshark-dev_at_wireshark.org</updatecontact>
+    <releases>
+        <release version="3.0.3" date="2019-07-17"/>
+        <release version="3.0.2" date="2019-05-21"/>
+        <release version="3.0.1" date="2019-04-08"/>
+        <release version="3.0.0" date="2019-02-28"/>
+    </releases>
 </application>
