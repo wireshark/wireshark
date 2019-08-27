@@ -203,7 +203,7 @@ DIAG_ON_PEDANTIC
         new_plug->type_name = type_to_name(type);
 
         /* Add it to the list of plugins. */
-        g_hash_table_insert(plugins_module, new_plug->name, new_plug);
+        g_hash_table_replace(plugins_module, new_plug->name, new_plug);
     }
     ws_dir_close(dir);
     g_free(plugin_folder);

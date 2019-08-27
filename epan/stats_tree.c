@@ -521,7 +521,7 @@ new_stat_node(stats_tree *st, const gchar *name, int parent_id, stat_node_dataty
     }
 
     if(node->parent->hash) {
-        g_hash_table_insert(node->parent->hash,node->name,node);
+        g_hash_table_replace(node->parent->hash,node->name,node);
     }
 
     if (st->cfg->setup_node_pr) {
