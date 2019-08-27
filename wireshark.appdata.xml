@@ -46,7 +46,7 @@
 	<screenshot type="default">https://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Http-cap.png</screenshot>
 	<screenshot>https://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Stevens-graph.png</screenshot>
     </screenshots>
-    <updatecontact>wireshark-dev_at_wireshark.org</updatecontact>
+    <update_contact>wireshark-dev_at_wireshark.org</update_contact>
     <releases>
         <release version="3.0.4" date="2019-09-11"/>
         <release version="3.0.3" date="2019-07-17"/>
