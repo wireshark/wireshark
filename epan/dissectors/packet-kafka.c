@@ -74,7 +74,6 @@ static int hf_kafka_message_codec = -1;
 static int hf_kafka_message_timestamp_type = -1;
 static int hf_kafka_message_timestamp = -1;
 static int hf_kafka_batch_crc = -1;
-static int hf_kafka_batch_magic = -1;
 static int hf_kafka_batch_codec = -1;
 static int hf_kafka_batch_timestamp_type = -1;
 static int hf_kafka_batch_transactional = -1;
@@ -86,7 +85,6 @@ static int hf_kafka_batch_base_sequence = -1;
 static int hf_kafka_batch_size = -1;
 static int hf_kafka_message_key = -1;
 static int hf_kafka_message_value = -1;
-static int hf_kafka_message_value_compressed = -1;
 static int hf_kafka_message_compression_reduction = -1;
 static int hf_kafka_request_frame = -1;
 static int hf_kafka_response_frame = -1;
@@ -254,7 +252,6 @@ static int ett_kafka_token = -1;
 static expert_field ei_kafka_request_missing = EI_INIT;
 static expert_field ei_kafka_unknown_api_key = EI_INIT;
 static expert_field ei_kafka_unsupported_api_version = EI_INIT;
-static expert_field ei_kafka_message_decompress = EI_INIT;
 static expert_field ei_kafka_bad_string_length = EI_INIT;
 static expert_field ei_kafka_bad_bytes_length = EI_INIT;
 static expert_field ei_kafka_unknown_message_magic = EI_INIT;
@@ -8392,11 +8389,6 @@ proto_register_kafka(void)
                 FT_UINT32, BASE_HEX, 0, 0,
                 NULL, HFILL }
         },
-        { &hf_kafka_batch_magic,
-            { "Magic Byte", "kafka.batch_magic",
-                FT_INT8, BASE_DEC, 0, 0,
-                NULL, HFILL }
-        },
         { &hf_kafka_batch_codec,
             { "Compression Codec", "kafka.batch_codec",
                 FT_UINT16, BASE_DEC, VALS(kafka_message_codecs), KAFKA_MESSAGE_CODEC_MASK,
@@ -8455,11 +8447,6 @@ proto_register_kafka(void)
         { &hf_kafka_message_value,
             { "Value", "kafka.message_value",
                FT_BYTES, BASE_SHOW_ASCII_PRINTABLE, 0, 0,
-               NULL, HFILL }
-        },
-        { &hf_kafka_message_value_compressed,
-            { "Compressed Value", "kafka.message_value_compressed",
-               FT_BYTES, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_message_compression_reduction,
@@ -9036,8 +9023,6 @@ proto_register_kafka(void)
           { "kafka.unknown_api_key", PI_UNDECODED, PI_WARN, "Unknown API key", EXPFILL }},
         { &ei_kafka_unsupported_api_version,
           { "kafka.unsupported_api_version", PI_UNDECODED, PI_WARN, "Unsupported API version", EXPFILL }},
-        { &ei_kafka_message_decompress,
-          { "kafka.decompress_failed", PI_UNDECODED, PI_WARN, "Failed to decompress message", EXPFILL }},
         { &ei_kafka_bad_string_length,
           { "kafka.bad_string_length", PI_MALFORMED, PI_WARN, "Invalid string length field", EXPFILL }},
         { &ei_kafka_bad_bytes_length,
