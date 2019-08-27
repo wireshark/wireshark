@@ -1139,7 +1139,7 @@ ws_find_package(LZ4 ENABLE_LZ4 HAVE_LZ4)
 ws_find_package(SNAPPY ENABLE_SNAPPY HAVE_SNAPPY)
 
 # zstd compression
-ws_find_package(ZSTD ENABLE_ZSTD HAVE_ZSTD)
+ws_find_package(ZSTD ENABLE_ZSTD HAVE_ZSTD "1.0.0")
 
 # Enhanced HTTP/2 dissection
 ws_find_package(NGHTTP2 ENABLE_NGHTTP2 HAVE_NGHTTP2)
