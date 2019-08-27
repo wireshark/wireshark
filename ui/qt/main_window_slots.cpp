@@ -1145,8 +1145,6 @@ void MainWindow::setMenusForSelectedPacket()
        than one time reference frame or the current frame isn't a
        time reference frame). (XXX - why check frame_selected?) */
     bool another_is_time_ref = false;
-    /* We have a valid filter expression */
-    bool have_filter_expr = false;
 
     QList<QAction *> cc_actions = QList<QAction *>()
             << main_ui_->actionViewColorizeConversation1 << main_ui_->actionViewColorizeConversation2
@@ -1178,8 +1176,6 @@ void MainWindow::setMenusForSelectedPacket()
         }
     }
 
-    have_filter_expr = !packet_list_->getFilterFromRowAndColumn(packet_list_->currentIndex()).isEmpty();
-
     main_ui_->actionEditMarkPacket->setEnabled(frame_selected);
     main_ui_->actionEditMarkAllDisplayed->setEnabled(have_frames);
     /* Unlike un-ignore, do not allow unmark of all frames when no frames are displayed  */
@@ -1204,20 +1200,6 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionGoGoToLinkedPacket->setEnabled(false);
     main_ui_->actionGoNextHistoryPacket->setEnabled(next_selection_history);
     main_ui_->actionGoPreviousHistoryPacket->setEnabled(previous_selection_history);
-
-    main_ui_->actionAnalyzeAAFSelected->setEnabled(have_filter_expr);
-    main_ui_->actionAnalyzeAAFNotSelected->setEnabled(have_filter_expr);
-    main_ui_->actionAnalyzeAAFAndSelected->setEnabled(have_filter_expr);
-    main_ui_->actionAnalyzeAAFOrSelected->setEnabled(have_filter_expr);
-    main_ui_->actionAnalyzeAAFAndNotSelected->setEnabled(have_filter_expr);
-    main_ui_->actionAnalyzeAAFOrNotSelected->setEnabled(have_filter_expr);
-
-    main_ui_->actionAnalyzePAFSelected->setEnabled(have_filter_expr);
-    main_ui_->actionAnalyzePAFNotSelected->setEnabled(have_filter_expr);
-    main_ui_->actionAnalyzePAFAndSelected->setEnabled(have_filter_expr);
-    main_ui_->actionAnalyzePAFOrSelected->setEnabled(have_filter_expr);
-    main_ui_->actionAnalyzePAFAndNotSelected->setEnabled(have_filter_expr);
-    main_ui_->actionAnalyzePAFOrNotSelected->setEnabled(have_filter_expr);
 
     main_ui_->actionAnalyzeFollowTCPStream->setEnabled(is_tcp);
     main_ui_->actionAnalyzeFollowUDPStream->setEnabled(is_udp);
@@ -1356,19 +1338,6 @@ void MainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
     //                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
     //                                            gbl_resolv_flags.transport_name));
 
-    main_ui_->actionAnalyzeAAFSelected->setEnabled(can_match_selected);
-    main_ui_->actionAnalyzeAAFNotSelected->setEnabled(can_match_selected);
-    main_ui_->actionAnalyzeAAFAndSelected->setEnabled(can_match_selected);
-    main_ui_->actionAnalyzeAAFOrSelected->setEnabled(can_match_selected);
-    main_ui_->actionAnalyzeAAFAndNotSelected->setEnabled(can_match_selected);
-    main_ui_->actionAnalyzeAAFOrNotSelected->setEnabled(can_match_selected);
-
-    main_ui_->actionAnalyzePAFSelected->setEnabled(can_match_selected);
-    main_ui_->actionAnalyzePAFNotSelected->setEnabled(can_match_selected);
-    main_ui_->actionAnalyzePAFAndSelected->setEnabled(can_match_selected);
-    main_ui_->actionAnalyzePAFOrSelected->setEnabled(can_match_selected);
-    main_ui_->actionAnalyzePAFAndNotSelected->setEnabled(can_match_selected);
-    main_ui_->actionAnalyzePAFOrNotSelected->setEnabled(can_match_selected);
 }
 
 void MainWindow::interfaceSelectionChanged()
@@ -2587,6 +2556,25 @@ void MainWindow::on_actionViewReload_as_File_Format_or_Capture_triggered()
 
 // Analyze Menu
 
+void MainWindow::filterMenuAboutToShow()
+{
+    QMenu * menu = qobject_cast<QMenu *>(sender());
+    QString field_filter;
+
+    if (capture_file_.capFile() && capture_file_.capFile()->finfo_selected) {
+        char *tmp_field = proto_construct_match_selected_string(capture_file_.capFile()->finfo_selected,
+                                                                capture_file_.capFile()->edt);
+        field_filter = QString(tmp_field);
+        wmem_free(NULL, tmp_field);
+    }
+    bool enable = ! field_filter.isEmpty();
+    bool prepare = menu->objectName().compare("menuPrepareAFilter") == 0;
+
+    menu->clear();
+    QActionGroup * group = FilterAction::createFilterGroup(field_filter, prepare, enable, menu);
+    menu->addActions(group->actions());
+}
+
 void MainWindow::matchFieldFilter(FilterAction::Action action, FilterAction::ActionType filter_type)
 {
     QString field_filter;
@@ -2676,69 +2664,6 @@ void MainWindow::applyExportObject()
     connect(export_dialog->getExportObjectView(), SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
 
-}
-
-// XXX We could probably create the analyze and prepare actions
-// dynamically using FilterActions and consolidate the methods
-// below into one callback.
-void MainWindow::on_actionAnalyzeAAFSelected_triggered()
-{
-    matchFieldFilter(FilterAction::ActionApply, FilterAction::ActionTypePlain);
-}
-
-void MainWindow::on_actionAnalyzeAAFNotSelected_triggered()
-{
-    matchFieldFilter(FilterAction::ActionApply, FilterAction::ActionTypeNot);
-}
-
-void MainWindow::on_actionAnalyzeAAFAndSelected_triggered()
-{
-    matchFieldFilter(FilterAction::ActionApply, FilterAction::ActionTypeAnd);
-}
-
-void MainWindow::on_actionAnalyzeAAFOrSelected_triggered()
-{
-    matchFieldFilter(FilterAction::ActionApply, FilterAction::ActionTypeOr);
-}
-
-void MainWindow::on_actionAnalyzeAAFAndNotSelected_triggered()
-{
-    matchFieldFilter(FilterAction::ActionApply, FilterAction::ActionTypeAndNot);
-}
-
-void MainWindow::on_actionAnalyzeAAFOrNotSelected_triggered()
-{
-    matchFieldFilter(FilterAction::ActionApply, FilterAction::ActionTypeOrNot);
-}
-
-void MainWindow::on_actionAnalyzePAFSelected_triggered()
-{
-    matchFieldFilter(FilterAction::ActionPrepare, FilterAction::ActionTypePlain);
-}
-
-void MainWindow::on_actionAnalyzePAFNotSelected_triggered()
-{
-    matchFieldFilter(FilterAction::ActionPrepare, FilterAction::ActionTypeNot);
-}
-
-void MainWindow::on_actionAnalyzePAFAndSelected_triggered()
-{
-    matchFieldFilter(FilterAction::ActionPrepare, FilterAction::ActionTypeAnd);
-}
-
-void MainWindow::on_actionAnalyzePAFOrSelected_triggered()
-{
-    matchFieldFilter(FilterAction::ActionPrepare, FilterAction::ActionTypeOr);
-}
-
-void MainWindow::on_actionAnalyzePAFAndNotSelected_triggered()
-{
-    matchFieldFilter(FilterAction::ActionPrepare, FilterAction::ActionTypeAndNot);
-}
-
-void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
-{
-    matchFieldFilter(FilterAction::ActionPrepare, FilterAction::ActionTypeOrNot);
 }
 
 void MainWindow::on_actionAnalyzeEnabledProtocols_triggered()

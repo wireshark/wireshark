@@ -533,18 +533,8 @@ private slots:
     void on_actionAnalyzeDisplayFilterMacros_triggered();
     void matchFieldFilter(FilterAction::Action action, FilterAction::ActionType filter_type);
     void on_actionAnalyzeCreateAColumn_triggered();
-    void on_actionAnalyzeAAFSelected_triggered();
-    void on_actionAnalyzeAAFNotSelected_triggered();
-    void on_actionAnalyzeAAFAndSelected_triggered();
-    void on_actionAnalyzeAAFOrSelected_triggered();
-    void on_actionAnalyzeAAFAndNotSelected_triggered();
-    void on_actionAnalyzeAAFOrNotSelected_triggered();
-    void on_actionAnalyzePAFSelected_triggered();
-    void on_actionAnalyzePAFNotSelected_triggered();
-    void on_actionAnalyzePAFAndSelected_triggered();
-    void on_actionAnalyzePAFOrSelected_triggered();
-    void on_actionAnalyzePAFAndNotSelected_triggered();
-    void on_actionAnalyzePAFOrNotSelected_triggered();
+
+    void filterMenuAboutToShow();
 
     void applyConversationFilter();
     void applyExportObject();

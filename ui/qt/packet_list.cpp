@@ -510,14 +510,8 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     }
 
     bool have_filter_expr = !selectedfilter.isEmpty();
-    QMenu * submenu = new QMenu(tr("Apply as Filter"), &ctx_menu);
-    QActionGroup * group = FilterAction::createFilterGroup(selectedfilter, false, have_filter_expr, &ctx_menu);
-    submenu->addActions(group->actions());
-    ctx_menu.addMenu(submenu);
-    submenu = new QMenu(tr("Prepare as Filter"), &ctx_menu);
-    group = FilterAction::createFilterGroup(selectedfilter, true, have_filter_expr, &ctx_menu);
-    submenu->addActions(group->actions());
-    ctx_menu.addMenu(submenu);
+    ctx_menu.addMenu(FilterAction::createFilterMenu(FilterAction::ActionApply, selectedfilter, have_filter_expr, &ctx_menu));
+    ctx_menu.addMenu(FilterAction::createFilterMenu(FilterAction::ActionPrepare, selectedfilter, have_filter_expr, &ctx_menu));
 
     const char *conv_menu_name = "menuConversationFilter";
     QMenu * main_menu_item = window()->findChild<QMenu *>(conv_menu_name);
@@ -532,7 +526,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     ctx_menu.addMenu(&colorize_menu_);
 
     main_menu_item = window()->findChild<QMenu *>("menuSCTP");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu);
+    QMenu * submenu = new QMenu(main_menu_item->title(), &ctx_menu);
     ctx_menu.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
     submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));

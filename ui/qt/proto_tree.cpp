@@ -152,14 +152,9 @@ void ProtoTree::protoTreeContextMenu(QContextMenuEvent * event)
     {
         char * selectedfilter = proto_construct_match_selected_string(fi, edt);
         bool can_match_selected = proto_can_match_selected(fi, edt);
-        QMenu * main_menu_item = new QMenu(tr("Apply as Filter"), &ctxMenu);
-        QActionGroup * group = FilterAction::createFilterGroup(selectedfilter, false, can_match_selected, &ctxMenu);
-        main_menu_item->addActions(group->actions());
-        ctxMenu.addMenu(main_menu_item);
-        main_menu_item = new QMenu(tr("Prepare as Filter"), &ctxMenu);
-        group = FilterAction::createFilterGroup(selectedfilter, true, can_match_selected, &ctxMenu);
-        main_menu_item->addActions(group->actions());
-        ctxMenu.addMenu(main_menu_item);
+        ctxMenu.addMenu(FilterAction::createFilterMenu(FilterAction::ActionApply, selectedfilter, can_match_selected, &ctxMenu));
+        ctxMenu.addMenu(FilterAction::createFilterMenu(FilterAction::ActionPrepare, selectedfilter, can_match_selected, &ctxMenu));
+
         if ( selectedfilter )
             wmem_free(Q_NULLPTR, selectedfilter);
         ctxMenu.addSeparator();
@@ -341,14 +336,8 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
     char * selectedfilter = proto_construct_match_selected_string(finfo.fieldInfo(), edt);
     bool can_match_selected = proto_can_match_selected(finfo.fieldInfo(), edt);
-    main_menu_item = new QMenu(tr("Apply as Filter"), &ctx_menu);
-    QActionGroup * group = FilterAction::createFilterGroup(selectedfilter, false, can_match_selected, &ctx_menu);
-    main_menu_item->addActions(group->actions());
-    ctx_menu.addMenu(main_menu_item);
-    main_menu_item = new QMenu(tr("Prepare as Filter"), &ctx_menu);
-    group = FilterAction::createFilterGroup(selectedfilter, true, can_match_selected, &ctx_menu);
-    main_menu_item->addActions(group->actions());
-    ctx_menu.addMenu(main_menu_item);
+    ctx_menu.addMenu(FilterAction::createFilterMenu(FilterAction::ActionApply, selectedfilter, can_match_selected, &ctx_menu));
+    ctx_menu.addMenu(FilterAction::createFilterMenu(FilterAction::ActionPrepare, selectedfilter, can_match_selected, &ctx_menu));
     if ( selectedfilter )
         wmem_free(Q_NULLPTR, selectedfilter);
 

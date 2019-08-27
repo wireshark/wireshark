@@ -651,6 +651,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->statusBar, SIGNAL(editCaptureComment()),
             this, SLOT(on_actionStatisticsCaptureFileProperties_triggered()));
 
+    connect(main_ui_->menuApplyAsFilter, &QMenu::aboutToShow,
+            this, &MainWindow::filterMenuAboutToShow);
+    connect(main_ui_->menuPrepareAFilter, &QMenu::aboutToShow,
+            this, &MainWindow::filterMenuAboutToShow);
+
 #ifdef HAVE_LIBPCAP
     QTreeWidget *iface_tree = findChild<QTreeWidget *>("interfaceTree");
     if (iface_tree) {

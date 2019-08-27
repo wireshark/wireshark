@@ -12,6 +12,8 @@
 #include <ui/qt/wireshark_application.h>
 #include <ui/qt/main_window.h>
 
+#include <QMenu>
+
 FilterAction::FilterAction(QObject *parent, FilterAction::Action action, FilterAction::ActionType type, FilterAction::ActionDirection direction) :
     QAction(parent),
     action_(action),
@@ -218,6 +220,18 @@ QActionGroup * FilterAction::createFilterGroup(QString filter, bool prepare, boo
         connect(group, &QActionGroup::triggered, filterAction, &FilterAction::groupTriggered);
 
     return group;
+}
+
+QMenu * FilterAction::createFilterMenu(FilterAction::Action act, QString filter, bool enabled, QWidget * par)
+{
+    QString title = ( act == FilterAction::ActionApply) ? QObject::tr("Apply as Filter") : QObject::tr("Prepare as Filter");
+    bool prepare = ( act == FilterAction::ActionApply) ? false : true;
+
+    QMenu * submenu = new QMenu(title, par);
+    QActionGroup * group = FilterAction::createFilterGroup(filter, prepare, enabled, par);
+    submenu->addActions(group->actions());
+
+    return submenu;
 }
 
 void FilterAction::groupTriggered(QAction * action)
