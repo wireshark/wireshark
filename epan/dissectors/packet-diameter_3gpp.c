@@ -26,7 +26,6 @@
 #include "packet-gtpv2.h"
 #include "packet-e164.h"
 #include "packet-e212.h"
-#include "packet-ntp.h"
 #include "packet-s1ap.h"
 #include "packet-sip.h"
 #include "packet-lcsap.h"
@@ -1417,10 +1416,8 @@ static int
 dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
-    const gchar *time_str;
 
-    time_str = tvb_ntp_fmt_ts(tvb, offset);
-    proto_tree_add_string(tree, hf_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer, tvb, offset, 8, time_str);
+    proto_tree_add_item(tree, hf_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
     offset+=8;
 
     return offset;
@@ -4675,7 +4672,7 @@ proto_register_diameter_3gpp(void)
         },
         { &hf_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer,
             { "Absolute Time of MBMS Data Transfer", "diameter.3gpp.mbms_abs_time_ofmbms_data_tfer",
-            FT_STRING, BASE_NONE, NULL, 0x0,
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_udp_port ,

@@ -413,6 +413,7 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_TIME_SECS_NTP      0x00000018
 #define ENC_TIME_RFC_3971      0x00000020
 #define ENC_TIME_MSEC_NTP      0x00000022
+#define ENC_TIME_MIP6          0x00000024
 
 /*
  * This is a modifier for FT_UINT_STRING and FT_UINT_BYTES values;
@@ -1307,13 +1308,13 @@ text label registered to that item.
 This provides a string that is a display representation of the value,
 similar to what proto_tree_add_item_ret_string() does.
 
-@param scope the wmem scope to use to allocate the string
 @param tree the tree to append this item to
 @param hfindex field
 @param tvb the tv buffer of the current data
 @param start start of data in tvb (cannot be negative)
 @param length length of data in tvb (for strings can be -1 for remaining)
 @param encoding data encoding (e.g, ENC_ASCII, ENC_UTF_8, etc.)
+@param scope the wmem scope to use to allocate the string
 @param[out] retval points to a guint8 * that will be set to point to the
 string value
 @return the newly created item, *retval is set to the display string
@@ -1323,6 +1324,27 @@ proto_tree_add_item_ret_display_string(proto_tree *tree, int hfindex,
     tvbuff_t *tvb,
     const gint start, gint length, const guint encoding,
     wmem_allocator_t *scope, char **retval);
+
+/** Add a time item to a proto_tree, using thetext label registered to that item.
+
+This provides a string that is a display representation of the time value
+
+@param tree the tree to append this item to
+@param hfindex field
+@param tvb the tv buffer of the current data
+@param start start of data in tvb (cannot be negative)
+@param length length of data in tvb (for strings can be -1 for remaining)
+@param encoding data encoding (e.g, ENC_ASCII, ENC_UTF_8, etc.)
+@param scope the wmem scope to use to allocate the string
+@param[out] retval points to a guint8 * that will be set to point to the
+string value
+@return the newly created item, *retval is set to the display string
+*/
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_time_string(proto_tree *tree, int hfindex,
+	tvbuff_t *tvb,
+	const gint start, gint length, const guint encoding,
+	wmem_allocator_t *scope, char **retval);
 
 /** (INTERNAL USE ONLY) Add a text-only node to a proto_tree.
  @param tree the tree to append this item to

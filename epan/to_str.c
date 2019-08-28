@@ -439,6 +439,7 @@ abs_time_to_str(wmem_allocator_t *scope, const nstime_t *abs_time, const absolut
 
 		case ABSOLUTE_TIME_UTC:
 		case ABSOLUTE_TIME_DOY_UTC:
+		case ABSOLUTE_TIME_NTP_UTC:
 			tmp = gmtime(&abs_time->secs);
 			zonename = "UTC";
 			break;
@@ -475,6 +476,12 @@ abs_time_to_str(wmem_allocator_t *scope, const nstime_t *abs_time, const absolut
 							(long)abs_time->nsecs);
 				}
 				break;
+			case ABSOLUTE_TIME_NTP_UTC:
+				if ((abs_time->secs == 0) && (abs_time->nsecs == 0)) {
+					buf = wmem_strdup(scope, "NULL");
+					break;
+				}
+				/* FALLTHROUGH */
 
 			case ABSOLUTE_TIME_UTC:
 			case ABSOLUTE_TIME_LOCAL:
@@ -519,6 +526,7 @@ abs_time_secs_to_str(wmem_allocator_t *scope, const time_t abs_time, const absol
 
 		case ABSOLUTE_TIME_UTC:
 		case ABSOLUTE_TIME_DOY_UTC:
+		case ABSOLUTE_TIME_NTP_UTC:
 			tmp = gmtime(&abs_time);
 			zonename = "UTC";
 			break;
@@ -554,6 +562,12 @@ abs_time_secs_to_str(wmem_allocator_t *scope, const time_t abs_time, const absol
 				}
 				break;
 
+			case ABSOLUTE_TIME_NTP_UTC:
+				if (abs_time == 0) {
+					buf = wmem_strdup(scope, "NULL");
+					break;
+				}
+				/* FALLTHROUGH */
 			case ABSOLUTE_TIME_UTC:
 			case ABSOLUTE_TIME_LOCAL:
 				if (show_zone) {

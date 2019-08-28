@@ -23,7 +23,6 @@
 #include "packet-per.h"
 #include "packet-e212.h"
 #include "packet-gtpv2.h"
-#include "packet-ntp.h"
 
 #define PNAME  "M3 Application Protocol"
 #define PSNAME "M3AP"
@@ -135,7 +134,7 @@ void proto_register_m3ap(void) {
   static hf_register_info hf[] = {
     { &hf_m3ap_Absolute_Time_ofMBMS_Data_value,
       { "Absolute-Time-ofMBMS-Data-value", "m3ap.Absolute_Time_ofMBMS_Data_value",
-         FT_STRING, BASE_NONE, NULL, 0,
+         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0,
          NULL, HFILL }
     },
     { &hf_m3ap_IPAddress_v4,

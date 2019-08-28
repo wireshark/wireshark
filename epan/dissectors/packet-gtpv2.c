@@ -6442,13 +6442,12 @@ dissect_gtpv2_apco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
 
 /* 8.95 Absolute Time of MBMS Data Transfer */
 static void
-dissect_gtpv2_abs_mbms_data_tf_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_abs_mbms_data_tf_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     int          offset = 0;
-    const gchar *time_str;
+    char        *time_str;
 
-    time_str = tvb_ntp_fmt_ts(tvb, offset);
-    proto_tree_add_string(tree, hf_gtpv2_abs_time_mbms_data, tvb, offset, 8, time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_gtpv2_abs_time_mbms_data, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
     proto_item_append_text(item, "%s", time_str);
 
     offset += 8;
@@ -6657,14 +6656,13 @@ dissect_gtpv2_twan_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static void
 dissect_gtpv2_uli_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    const gchar *time_str;
+    char *time_str;
 
     /* Octets 5 to 8 are encoded in the same format as the first four octets of the 64-bit timestamp
      * format as defined in section 6 of IETF RFC 5905
      */
 
-    time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
-    proto_tree_add_string(tree, hf_gtpv2_uli_timestamp, tvb, 0, 4, time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_gtpv2_uli_timestamp, tvb, 0, 4, ENC_TIME_NTP|ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
     proto_item_append_text(item, "%s", time_str);
 
 }
@@ -7060,15 +7058,14 @@ dissect_gtpv2_pres_rep_area_information(tvbuff_t *tvb, packet_info *pinfo _U_, p
 static void
 dissect_gtpv2_twan_identifier_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    const gchar *time_str;
+    char *time_str;
 
     /* TWAN Identifier Timestamp value */
     /* Octets 5 to 8 are encoded in the same format as the first four octets of the 64-bit timestamp
     * format as defined in section 6 of IETF RFC 5905
     */
 
-    time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
-    proto_tree_add_string(tree, hf_gtpv2_twan_id_ts, tvb, 0, 4, time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_gtpv2_twan_id_ts, tvb, 0, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
     proto_item_append_text(item, "%s", time_str);
 
 }
@@ -7354,7 +7351,6 @@ dissect_gtpv2_serv_plmn_rate_control(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 static void
 dissect_gtpv2_counter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    const gchar *time_str;
     int offset = 0;
 
     /* Timestamp value */
@@ -7362,8 +7358,7 @@ dissect_gtpv2_counter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
      *format as defined in section 6 of IETF RFC 5905
      */
 
-    time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
-    proto_tree_add_string(tree, hf_gtpv2_timestamp_value, tvb, offset, 4, time_str);
+    proto_tree_add_item(tree, hf_gtpv2_timestamp_value, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_gtpv2_counter_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
@@ -7394,7 +7389,6 @@ static void
 dissect_gtpv2_secondary_rat_usage_data_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
    int offset = 0;
-   const gchar *time_str;
    static const int *secondary_rat_usage_data_report_flags[] = {
        &hf_gtpv2_secondary_rat_usage_data_report_spare_bits,
        &hf_gtpv2_secondary_rat_usage_data_report_bit2,
@@ -7429,13 +7423,11 @@ dissect_gtpv2_secondary_rat_usage_data_report(tvbuff_t *tvb, packet_info *pinfo,
     */
 
     /* Octets 8 to 11 Start timestamp */
-    time_str = tvb_ntp_fmt_ts_sec(tvb, offset);
-    proto_tree_add_string(tree, hf_gtpv2_secondary_rat_usage_data_report_start_timestamp, tvb, offset, 4, time_str);
+    proto_tree_add_item(tree, hf_gtpv2_secondary_rat_usage_data_report_start_timestamp, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN);
     offset += 4;
 
     /* Octets 12 to 15 End timestamp */
-    time_str = tvb_ntp_fmt_ts_sec(tvb, offset);
-    proto_tree_add_string(tree, hf_gtpv2_secondary_rat_usage_data_report_end_timestamp, tvb, offset, 4, time_str);
+    proto_tree_add_item(tree, hf_gtpv2_secondary_rat_usage_data_report_end_timestamp, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN);
     offset += 4;
 
     /* 16 to 23 Usage Data DL */
@@ -10445,12 +10437,12 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_uli_timestamp,
         { "ULI Timestamp", "gtpv2.uli_timestamp",
-        FT_STRING, BASE_NONE, NULL, 0,
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0,
         NULL, HFILL }
         },
         { &hf_gtpv2_abs_time_mbms_data,
         { "Absolute Time of MBMS Data Transfer", "gtpv2.abs_time_mbms_data",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0,
         NULL, HFILL }
         },
         { &hf_gtpv2_mbms_session_duration_days,
@@ -10766,7 +10758,7 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_fq_csid_node_id, { "Node-ID", "gtpv2.fq_csid_node_id", FT_UINT32, BASE_DEC, NULL, 0x00000FFF, NULL, HFILL }},
       { &hf_gtpv2_fq_csid_mcc_mnc, { "MCC+MNC", "gtpv2.fq_csid_mcc_mnc", FT_UINT32, BASE_DEC, NULL, 0xFFFFF000, NULL, HFILL }},
 
-      { &hf_gtpv2_twan_id_ts, { "TWAN Identifier Timestamp", "gtpv2.twan.id_ts", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_gtpv2_twan_id_ts, { "TWAN Identifier Timestamp", "gtpv2.twan.id_ts", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0, NULL, HFILL } },
       { &hf_gtpv2_twan_flags,{ "Flags", "gtpv2.twan_id.flags", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_twan_bssidi,{ "BSSIDI", "gtpv2.twan_id.bssidi", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01, NULL, HFILL } },
       { &hf_gtpv2_twan_civai,{ "CIVAI", "gtpv2.twan_id.civai", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02, NULL, HFILL } },
@@ -10912,7 +10904,7 @@ void proto_register_gtpv2(void)
       },
       { &hf_gtpv2_timestamp_value,
       { "Timestamp value", "gtpv2.timestamp_value",
-          FT_STRING, BASE_NONE, NULL, 0x0,
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_gtpv2_counter_value,
@@ -10957,12 +10949,12 @@ void proto_register_gtpv2(void)
       },
       { &hf_gtpv2_secondary_rat_usage_data_report_start_timestamp,
       { "Start timestamp", "gtpv2.secondary_rat_usage_data_report.start_timestamp",
-          FT_STRING, BASE_NONE, NULL, 0x0,
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_gtpv2_secondary_rat_usage_data_report_end_timestamp,
       { "End timestamp", "gtpv2.secondary_rat_usage_data_report.end_timestamp",
-          FT_STRING, BASE_NONE, NULL, 0x0,
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_gtpv2_secondary_rat_usage_data_report_usage_data_dl,

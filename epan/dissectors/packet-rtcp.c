@@ -60,7 +60,6 @@
 
 #include "packet-rtcp.h"
 #include "packet-rtp.h"
-#include "packet-ntp.h"
 #include <epan/conversation.h>
 
 #include <epan/prefs.h>
@@ -1803,7 +1802,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
                 /* Request timestamp (optional) */
                 if (code == 103)
                 {
-                    const gchar *buff;
+                    char *buff;
 
                     item_len    = tvb_get_guint8(tvb, offset);
                     offset     += 1;
@@ -1811,9 +1810,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
                     if (item_len != 8) /* SHALL be 8 */
                         return offset;
 
-                    proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_request_ts,
-                                        tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-                    buff = tvb_ntp_fmt_ts(tvb, offset);
+                    proto_tree_add_item_ret_time_string(PoC1_tree, hf_rtcp_app_poc1_request_ts, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN, wmem_packet_scope(), &buff);
 
                     offset     += 8;
                     packet_len -= 8;
@@ -4396,7 +4393,7 @@ proto_register_rtcp(void)
                 "Talk Burst Request Timestamp",
                 "rtcp.app.poc1.request.ts",
                 FT_ABSOLUTE_TIME,
-                ABSOLUTE_TIME_UTC,
+                ABSOLUTE_TIME_NTP_UTC,
                 NULL,
                 0x0,
                 NULL, HFILL

@@ -1016,95 +1016,6 @@ static tvbparse_wanted_t *want_ignore;
 #define NTP_FLOAT_DENOM 4294967296.0
 #define NTP_TS_SIZE 100
 
-/* Modified tvb_ntp_fmt_ts
- * tvb_mip6_fmt_ts - converts MIP6 timestamp to human readable string.
- *      Timestamp
- *
- *         A 64-bit unsigned integer field containing a timestamp.  The
- *          value indicates the number of seconds since January 1, 1970,
- *          00:00 UTC, by using a fixed point format.  In this format, the
- *          integer number of seconds is contained in the first 48 bits of
- *          the field, and the remaining 16 bits indicate the number of
- *          1/65536 fractions of a second.
- *
- * TVB and an offset (IN).
- * returns pointer to filled buffer.  This buffer will be freed automatically once
- * dissection of the next packet occurs.
- */
-const char *
-tvb_mip6_fmt_ts(tvbuff_t *tvb, gint offset)
-{
-	guint64 tempstmp;
-	guint32 tempfrac;
-	time_t temptime;
-	struct tm *bd;
-	double fractime;
-
-	tempstmp = tvb_get_ntoh48(tvb, offset);
-	tempfrac = tvb_get_ntohs(tvb, offset+6);
-	tempfrac <<= 16;
-	if ((tempstmp == 0) && (tempfrac == 0)) {
-		return "NULL";
-	}
-
-	temptime = (time_t)(tempstmp /*- NTP_BASETIME*/);
-	bd = gmtime(&temptime);
-	if(!bd){
-		return "Not representable";
-	}
-
-	fractime = bd->tm_sec + tempfrac / NTP_FLOAT_DENOM;
-	return wmem_strdup_printf(wmem_packet_scope(), "%s %2d, %d %02d:%02d:%07.4f UTC",
-		 mon_names[bd->tm_mon],
-		 bd->tm_mday,
-		 bd->tm_year + 1900,
-		 bd->tm_hour,
-		 bd->tm_min,
-		 fractime);
-}
-/* tvb_ntp_fmt_ts - converts NTP timestamp to human readable string.
- * TVB and an offset (IN).
- * returns pointer to filled buffer.  This buffer will be freed automatically once
- * dissection of the next packet occurs.
- */
-const char *
-tvb_ntp_fmt_ts(tvbuff_t *tvb, gint offset)
-{
-	guint32 tempstmp, tempfrac;
-	time_t temptime;
-	struct tm *bd;
-	double fractime;
-	char *buff;
-
-	tempstmp = tvb_get_ntohl(tvb, offset);
-	tempfrac = tvb_get_ntohl(tvb, offset+4);
-	if ((tempstmp == 0) && (tempfrac == 0)) {
-		return "NULL";
-	}
-
-	/* We need a temporary variable here so the unsigned math
-	 * works correctly (for years > 2036 according to RFC 2030
-	 * chapter 3).
-	 */
-	temptime = (time_t)(tempstmp - NTP_BASETIME);
-	bd = gmtime(&temptime);
-	if(!bd){
-		return "Not representable";
-	}
-
-	fractime = bd->tm_sec + tempfrac / NTP_FLOAT_DENOM;
-	buff=(char *)wmem_alloc(wmem_packet_scope(), NTP_TS_SIZE);
-	g_snprintf(buff, NTP_TS_SIZE,
-		 "%s %2d, %d %02d:%02d:%09.6f UTC",
-		 mon_names[bd->tm_mon],
-		 bd->tm_mday,
-		 bd->tm_year + 1900,
-		 bd->tm_hour,
-		 bd->tm_min,
-		 fractime);
-	return buff;
-}
-
 /* tvb_ntp_fmt_ts_sec - converts an NTP timestamps second part (32bits) to an human readable string.
 * TVB and an offset (IN).
 * returns pointer to filled buffer.  This buffer will be freed automatically once
@@ -2753,16 +2664,16 @@ proto_register_ntp(void)
 			"Reference ID", "ntp.refid", FT_BYTES, BASE_NONE,
 			NULL, 0, "Particular server or reference clock being used", HFILL }},
 		{ &hf_ntp_reftime, {
-			"Reference Timestamp", "ntp.reftime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			"Reference Timestamp", "ntp.reftime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC,
 			NULL, 0, "Time when the system clock was last set or corrected", HFILL }},
 		{ &hf_ntp_org, {
-			"Origin Timestamp", "ntp.org", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			"Origin Timestamp", "ntp.org", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC,
 			NULL, 0, "Time at the client when the request departed for the server", HFILL }},
 		{ &hf_ntp_rec, {
-			"Receive Timestamp", "ntp.rec", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			"Receive Timestamp", "ntp.rec", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC,
 			NULL, 0, "Time at the server when the request arrived from the client", HFILL }},
 		{ &hf_ntp_xmt, {
-			"Transmit Timestamp", "ntp.xmt", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			"Transmit Timestamp", "ntp.xmt", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC,
 			NULL, 0, "Time at the server when the response left for the client", HFILL }},
 		{ &hf_ntp_keyid, {
 			"Key ID", "ntp.keyid", FT_BYTES, BASE_NONE,
@@ -3011,7 +2922,7 @@ proto_register_ntp(void)
 			"ipv6 local addr", "ntp.priv.monlist.daddr6", FT_IPv6, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_tstamp, {
-			"Authentication timestamp", "ntp.priv.tstamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			"Authentication timestamp", "ntp.priv.tstamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_addr, {
 			"Address", "ntp.priv.mode7.address", FT_IPv4, BASE_NONE,

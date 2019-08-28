@@ -1794,6 +1794,7 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 	       const gboolean is_relative)
 {
 	guint32     tmpsecs;
+	guint64     tmp64secs;
 	guint64     todsecs;
 
 	switch (encoding) {
@@ -1911,10 +1912,18 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				 * Convert 1/2^32s of a second to nanoseconds.
 				 */
 				time_stamp->nsecs = (int)(1000000000*(tvb_get_ntohl(tvb, start+4)/4294967296.0));
+				if ((time_stamp->nsecs == 0) && (tmpsecs == 0)) {
+					//This is "NULL" time
+					time_stamp->secs = 0;
+				}
 			} else if (length == 4) {
 				/*
 				 * Backwards compatibility.
 				 */
+				if (tmpsecs == 0) {
+					//This is "NULL" time
+					time_stamp->secs = 0;
+				}
 				time_stamp->nsecs = 0;
 			} else {
 				time_stamp->secs  = 0;
@@ -1950,10 +1959,18 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				 * Convert 1/2^32s of a second to nanoseconds.
 				 */
 				time_stamp->nsecs = (int)(1000000000*(tvb_get_letohl(tvb, start+4)/4294967296.0));
+				if ((time_stamp->nsecs == 0) && (tmpsecs == 0)) {
+					//This is "NULL" time
+					time_stamp->secs = 0;
+				}
 			} else if (length == 4) {
 				/*
 				 * Backwards compatibility.
 				 */
+				if (tmpsecs == 0) {
+					//This is "NULL" time
+					time_stamp->secs = 0;
+				}
 				time_stamp->nsecs = 0;
 			} else {
 				time_stamp->secs  = 0;
@@ -2046,6 +2063,43 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				time_stamp->secs  = 0;
 				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "an RTPS time stamp", length, (length < 4));
+			}
+			break;
+
+		case ENC_TIME_MIP6 | ENC_BIG_ENDIAN:
+			/*
+			* MIP6 time stamp, big-endian.
+			* A 64-bit unsigned integer field containing a timestamp.  The
+			* value indicates the number of seconds since January 1, 1970,
+			* 00:00 UTC, by using a fixed point format.  In this format, the
+			* integer number of seconds is contained in the first 48 bits of
+			* the field, and the remaining 16 bits indicate the number of
+			* 1/65536 fractions of a second.
+
+			* Only supported for absolute times.
+			*/
+			DISSECTOR_ASSERT(!is_relative);
+
+			if (length == 8) {
+				/* We need a temporary variable here so the casting and fractions
+				* of a second work correctly.
+				*/
+				tmp64secs = tvb_get_ntoh48(tvb, start);
+				tmpsecs = tvb_get_ntohs(tvb, start + 6);
+				tmpsecs <<= 16;
+
+				if ((tmp64secs == 0) && (tmpsecs == 0)) {
+					//This is "NULL" time
+					time_stamp->secs = 0;
+					time_stamp->nsecs = 0;
+				} else {
+					time_stamp->secs = (time_t)tmp64secs;
+					time_stamp->nsecs = (int)((tmpsecs / 4294967296.0) * 1000000000);
+				}
+			} else {
+				time_stamp->secs = 0;
+				time_stamp->nsecs = 0;
+				report_type_length_mismatch(tree, "an NTP time stamp", length, (length != 8));
 			}
 			break;
 
@@ -3430,19 +3484,19 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
 	switch (hfinfo->type) {
 	case FT_STRING:
 		value = get_string_value(scope, tvb, start, length, lenretval, encoding);
-		*retval = hfinfo_format_text(scope, hfinfo, value);;
+		*retval = hfinfo_format_text(scope, hfinfo, value);
 		break;
 	case FT_STRINGZ:
 		value = get_stringz_value(scope, tree, tvb, start, length, lenretval, encoding);
-		*retval = hfinfo_format_text(scope, hfinfo, value);;
+		*retval = hfinfo_format_text(scope, hfinfo, value);
 		break;
 	case FT_UINT_STRING:
 		value = get_uint_string_value(scope, tree, tvb, start, length, lenretval, encoding);
-		*retval = hfinfo_format_text(scope, hfinfo, value);;
+		*retval = hfinfo_format_text(scope, hfinfo, value);
 		break;
 	case FT_STRINGZPAD:
 		value = get_stringzpad_value(scope, tvb, start, length, lenretval, encoding);
-		*retval = hfinfo_format_text(scope, hfinfo, value);;
+		*retval = hfinfo_format_text(scope, hfinfo, value);
 		break;
 	case FT_BYTES:
 		value = tvb_get_ptr(tvb, start, length);
@@ -3520,6 +3574,56 @@ proto_tree_add_item_ret_display_string(proto_tree *tree, int hfindex,
 {
 	return proto_tree_add_item_ret_display_string_and_length(tree, hfindex,
 	    tvb, start, length, encoding, scope, retval, &length);
+}
+
+proto_item *
+proto_tree_add_item_ret_time_string(proto_tree *tree, int hfindex,
+	tvbuff_t *tvb,
+	const gint start, gint length, const guint encoding,
+	wmem_allocator_t *scope, char **retval)
+{
+	proto_item *pi;
+	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	field_info	  *new_fi;
+	nstime_t    time_stamp;
+
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+
+	switch (hfinfo->type) {
+	case FT_ABSOLUTE_TIME:
+		get_time_value(tree, tvb, start, length, encoding, &time_stamp, FALSE);
+		*retval = abs_time_to_str(scope, &time_stamp, (absolute_time_display_e)hfinfo->display, TRUE);
+		break;
+	case FT_RELATIVE_TIME:
+		get_time_value(tree, tvb, start, length, encoding, &time_stamp, TRUE);
+		*retval = rel_time_to_secs_str(scope, &time_stamp);
+		break;
+	default:
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_ABSOLUTE_TIME or FT_RELATIVE_TIME",
+			hfinfo->abbrev);
+	}
+
+	CHECK_FOR_NULL_TREE(tree);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfinfo->id, hfinfo);
+
+	new_fi = new_field_info(tree, hfinfo, tvb, start, length);
+
+	switch (hfinfo->type) {
+
+	case FT_ABSOLUTE_TIME:
+	case FT_RELATIVE_TIME:
+		proto_tree_set_time(new_fi, &time_stamp);
+		break;
+	default:
+		g_assert_not_reached();
+	}
+
+	new_fi->flags |= (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
+
+	pi = proto_tree_add_node(tree, new_fi);
+
+	return pi;
 }
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
@@ -8037,6 +8141,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		case FT_ABSOLUTE_TIME:
 			if (!(hfinfo->display == ABSOLUTE_TIME_LOCAL ||
 			      hfinfo->display == ABSOLUTE_TIME_UTC   ||
+			      hfinfo->display == ABSOLUTE_TIME_NTP_UTC   ||
 			      hfinfo->display == ABSOLUTE_TIME_DOY_UTC)) {
 				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
 				g_error("Field '%s' (%s) is a %s but is being displayed as %s instead of as a time\n",

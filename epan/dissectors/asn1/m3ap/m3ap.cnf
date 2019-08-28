@@ -148,18 +148,13 @@ ProtocolIE-Field/value ie_field_value
 
 #.FN_BODY Absolute-Time-ofMBMS-Data VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
-  const gchar *time_str;
-  gint tvb_len;
 
 %(DEFAULT_BODY)s
 
   if (!parameter_tvb)
     return offset;
 
-  tvb_len = tvb_reported_length(parameter_tvb);
-
-  time_str = tvb_ntp_fmt_ts(parameter_tvb, 0);
-  proto_tree_add_string(tree, hf_m3ap_Absolute_Time_ofMBMS_Data_value, parameter_tvb, 0, tvb_len, time_str);
+  proto_tree_add_item(tree, hf_m3ap_Absolute_Time_ofMBMS_Data_value, parameter_tvb, 0, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 #.END
 
 #.TYPE_ATTR

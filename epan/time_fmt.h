@@ -30,7 +30,8 @@ typedef enum {
 	/* Start at 1000 to avoid duplicating the values used in field_display_e */
 	ABSOLUTE_TIME_LOCAL = 1000,	/* local time in our time zone, with month and day */
 	ABSOLUTE_TIME_UTC,	/* UTC, with month and day */
-	ABSOLUTE_TIME_DOY_UTC	/* UTC, with 1-origin day-of-year */
+	ABSOLUTE_TIME_DOY_UTC,	/* UTC, with 1-origin day-of-year */
+	ABSOLUTE_TIME_NTP_UTC	/* UTC, with "NULL" when timestamp is all zeros */
 } absolute_time_display_e;
 
 #endif /* __TIME_FMT_H__  */
