@@ -130,6 +130,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define MGT_DPT_RSP 58
 #define MGT_DPT_ACK 59
 #define MGT_DPT_INFO 60
+#define MGT_RBA_SW 61
 
 #define UCD_SYMBOL_RATE 1
 #define UCD_FREQUENCY 2
@@ -638,6 +639,7 @@ static int proto_docsis_type51ucd = -1;
 static int proto_docsis_optreq = -1;
 static int proto_docsis_optrsp = -1;
 static int proto_docsis_optack = -1;
+static int proto_docsis_rba = -1;
 
 static int hf_docsis_sync_cmts_timestamp = -1;
 
@@ -1200,6 +1202,18 @@ static int hf_docsis_optrsp_tlv_rxmer_snr_margin_data_snr_margin = -1;
 static int hf_docsis_optack_prof_id = -1;
 static int hf_docsis_optack_reserved = -1;
 
+static int hf_docsis_rba_tg_id = -1;
+static int hf_docsis_rba_ccc = -1;
+static int hf_docsis_rba_dcid = -1;
+static int hf_docsis_rba_control_byte_bitmask = -1;
+static int hf_docsis_rba_resource_block_change_bit = -1;
+static int hf_docsis_rba_expiration_time_valid_bit = -1;
+static int hf_docsis_rba_control_byte_bitmask_rsvd = -1;
+static int hf_docsis_rba_rba_time = -1;
+static int hf_docsis_rba_rba_expiration_time = -1;
+static int hf_docsis_rba_number_of_subbands = -1;
+static int hf_docsis_rba_subband_direction = -1;
+
 static int hf_docsis_mgt_upstream_chid = -1;
 static int hf_docsis_mgt_down_chid = -1;
 static int hf_docsis_mgt_tranid = -1;
@@ -1375,6 +1389,9 @@ static gint ett_docsis_optrsp_tlv_rxmer_snr_margin_tlv =-1;
 
 static gint ett_docsis_optack = -1;
 
+static gint ett_docsis_rba = -1;
+static gint ett_docsis_rba_control_byte = -1;
+
 static gint ett_docsis_mgmt = -1;
 static gint ett_mgmt_pay = -1;
 
@@ -1515,6 +1532,7 @@ static const value_string mgmt_type_vals[] = {
   {MGT_DPT_RSP,        "DOCSIS Time Protocol Response"},
   {MGT_DPT_ACK,        "DOCSIS Time Protocol Acknowledge"},
   {MGT_DPT_INFO,       "DOCSIS Time Protocol Information"},
+  {MGT_RBA_SW,         "DOCSIS Resource Block Assignment"},
   {0, NULL}
 };
 
@@ -2436,6 +2454,12 @@ static const value_string sid_field_bit15_14_vals [] = {
   {0, NULL}
 };
 
+static const value_string rba_subband_direction_vals [] = {
+  {0, "Direction of this sub-band is downstream"},
+  {1, "Direction of this sub-band is upstream"},
+  {2, "Direction of this sub-band is undefined for this RBA"},
+  {0, NULL}
+};
 
 /* Windows does not allow data copy between dlls */
 static const true_false_string mdd_tfs_on_off = { "On", "Off" };
@@ -7256,6 +7280,41 @@ dissect_optack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 }
 
 static int
+dissect_rba (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data  _U_)
+{
+  proto_item *it, *rba_direction_it;
+  proto_tree *rba_tree;
+
+  guint32 tg_id, dcid;
+  guint32 subband_index, nr_of_subbands;
+
+  static const int * rba_control_byte[] = {
+    &hf_docsis_rba_resource_block_change_bit,
+    &hf_docsis_rba_expiration_time_valid_bit,
+    &hf_docsis_rba_control_byte_bitmask_rsvd,
+    NULL
+  };
+
+  it = proto_tree_add_item(tree, proto_docsis_rba, tvb, 0, -1, ENC_NA);
+  rba_tree = proto_item_add_subtree (it, ett_docsis_rba);
+  proto_tree_add_item_ret_uint (rba_tree, hf_docsis_rba_tg_id, tvb, 0, 1, ENC_BIG_ENDIAN, &tg_id);
+  proto_tree_add_item (rba_tree, hf_docsis_rba_ccc, tvb, 1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (rba_tree, hf_docsis_rba_dcid, tvb, 2, 1, ENC_BIG_ENDIAN, &dcid);
+  proto_tree_add_bitmask (rba_tree, tvb, 3, hf_docsis_rba_control_byte_bitmask, ett_docsis_rba_control_byte, rba_control_byte, ENC_BIG_ENDIAN);
+  proto_tree_add_item (rba_tree, hf_docsis_rba_rba_time, tvb, 4, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item (rba_tree, hf_docsis_rba_rba_expiration_time, tvb, 8, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (rba_tree, hf_docsis_rba_number_of_subbands, tvb, 12, 1, ENC_BIG_ENDIAN, &nr_of_subbands);
+  for (subband_index =0; subband_index < nr_of_subbands; ++subband_index) {
+      rba_direction_it = proto_tree_add_item (rba_tree, hf_docsis_rba_subband_direction, tvb, 13 + subband_index, 1, ENC_BIG_ENDIAN);
+      proto_item_prepend_text(rba_direction_it, "Sub-band %d: ", subband_index);
+  }
+
+  col_add_fstr (pinfo->cinfo, COL_INFO, "RBA: TG_ID: %u, DCID: %u", tg_id, dcid);
+
+  return tvb_captured_length(tvb);
+}
+
+static int
 dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   guint32 type, version, dsap, ssap, msg_len;
@@ -10132,7 +10191,40 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_optack_reserved,
      {"Reserved", "docsis_optack.reserved", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-
+    /*RBA*/
+    {&hf_docsis_rba_tg_id,
+     {"Transmission Group ID", "docsis_rba.tg_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_rba_ccc,
+     {"Change Count", "docsis_rba.ccc", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_rba_dcid,
+     {"Current Channel DCID", "docsis_rba.dcid", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_rba_control_byte_bitmask,
+     {"Control byte bitmask", "docsis_rba.control_byte_bitmask", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL}
+    },
+    {&hf_docsis_rba_resource_block_change_bit,
+     {"Resource Block Change bit", "docsis_rba.rb_change_bit", FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL}
+    },
+    {&hf_docsis_rba_expiration_time_valid_bit,
+     {"Expiration Time Valid bit", "docsis_rba.exp_time_valid_bit", FT_UINT8, BASE_HEX, NULL, 0x02, NULL, HFILL}
+    },
+    {&hf_docsis_rba_control_byte_bitmask_rsvd,
+     {"Control byte bitmask reserved", "docsis_rba.control_byte_bitmask_rsvd", FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL}
+    },
+    {&hf_docsis_rba_rba_time,
+     {"RBA Time", "docsis_rba.rba_time", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_rba_rba_expiration_time,
+     {"RBA Expiration Time", "docsis_rba.rba_expiration_time", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_rba_number_of_subbands,
+     {"Number of Sub-bands", "docsis_rba.nr_subbands", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_rba_subband_direction,
+     {"Sub-band direction", "docsis_rba.subband_direction", FT_UINT8, BASE_DEC, VALS(rba_subband_direction_vals), 0x0, NULL, HFILL}
+    },
 
     /* MAC Management */
     {&hf_docsis_mgt_upstream_chid,
@@ -10395,6 +10487,8 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_optrsp_tlv_rxmer_snr_margin_data,
     &ett_docsis_optrsp_tlv_rxmer_snr_margin_tlv,
     &ett_docsis_optack,
+    &ett_docsis_rba,
+    &ett_docsis_rba_control_byte,
     &ett_docsis_mgmt,
     &ett_mgmt_pay,
     &ett_docsis_tlv_fragment,
@@ -10471,6 +10565,7 @@ proto_register_docsis_mgmt (void)
   proto_docsis_optreq = proto_register_protocol_in_name_only("OFDM Downstream Profile Test Request", "DOCSIS OPT-REQ", "docsis_optreq", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_optrsp = proto_register_protocol_in_name_only("OFDM Downstream Profile Test Response", "DOCSIS OPT-RSP", "docsis_optrsp", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_optack = proto_register_protocol_in_name_only("OFDM Downstream Profile Test Acknowledge", "DOCSIS OPT-ACK", "docsis_optack", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_rba = proto_register_protocol_in_name_only("DOCSIS Resource Block Assignment Message", "DOCSIS RBA", "docsis_rba", proto_docsis_mgmt, FT_BYTES);
 
   register_dissector ("docsis_mgmt", dissect_macmgmt, proto_docsis_mgmt);
   docsis_ucd_handle = register_dissector ("docsis_ucd", dissect_ucd, proto_docsis_ucd);
@@ -10529,6 +10624,7 @@ proto_reg_handoff_docsis_mgmt (void)
   dissector_add_uint ("docsis_mgmt", MGT_OPT_REQ, create_dissector_handle( dissect_optreq, proto_docsis_optreq ));
   dissector_add_uint ("docsis_mgmt", MGT_OPT_RSP, create_dissector_handle( dissect_optrsp, proto_docsis_optrsp ));
   dissector_add_uint ("docsis_mgmt", MGT_OPT_ACK, create_dissector_handle( dissect_optack, proto_docsis_optack ));
+  dissector_add_uint ("docsis_mgmt", MGT_RBA_SW, create_dissector_handle( dissect_rba, proto_docsis_rba ));
 
   docsis_tlv_handle = find_dissector ("docsis_tlv");
 
