@@ -2383,7 +2383,7 @@ test_length(header_field_info *hfinfo, tvbuff_t *tvb,
 		return;
 
 	if ((hfinfo->type == FT_STRINGZ) ||
-	    ((encoding & (ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC)) &&
+	    ((encoding & (ENC_VARIANT_MASK)) &&
 	     (IS_FT_UINT(hfinfo->type) || IS_FT_INT(hfinfo->type)))) {
 		/* If we're fetching until the end of the TVB, only validate
 		 * that the offset is within range.
@@ -2488,7 +2488,12 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			} else if (encoding & ENC_VARINT_QUIC) {
 				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64, encoding);
 				value = (guint32)value64;
-			} else {
+			} else if (encoding & ENC_VARINT_ZIGZAG) {
+				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64, encoding);
+				new_fi->flags |= FI_VARINT;
+				value = (guint32)value64;
+			}
+			else {
 				/*
 				 * Map all non-zero values to little-endian for
 				 * backwards compatibility.
@@ -2511,7 +2516,11 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				new_fi->flags |= FI_VARINT;
 			} else if (encoding & ENC_VARINT_QUIC) {
 				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64, encoding);
-			} else {
+			} else if (encoding & ENC_VARINT_ZIGZAG) {
+				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64, encoding);
+				new_fi->flags |= FI_VARINT;
+			}
+			else {
 				/*
 				 * Map all other non-zero values to little-endian for
 				 * backwards compatibility.
@@ -2973,7 +2982,7 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	}
 	/* I believe it's ok if this is called with a NULL tree */
 	/* XXX - modify if we ever support EBCDIC FT_CHAR */
-	if (encoding & (ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC)) {
+	if (encoding & (ENC_VARIANT_MASK)) {
 		guint64 temp64;
 		tvb_get_varint(tvb, start, length, &temp64, encoding);
 		value = (guint32)temp64;
@@ -3000,7 +3009,7 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	proto_tree_set_uint(new_fi, value);
 
 	new_fi->flags |= (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
-	if (encoding & ENC_VARINT_PROTOBUF) {
+	if (encoding & (ENC_VARINT_PROTOBUF|ENC_VARINT_ZIGZAG)) {
 		new_fi->flags |= FI_VARINT;
 	}
 	return proto_tree_add_node(tree, new_fi);
@@ -3253,14 +3262,14 @@ proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	/* length validation for native number encoding caught by get_uint64_value() */
 	/* length has to be -1 or > 0 regardless of encoding */
 	if (length < -1 || length == 0)
-		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_uint",
+		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_uint64",
 			length);
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
 	}
 	/* I believe it's ok if this is called with a NULL tree */
-	if (encoding & (ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC)) {
+	if (encoding & (ENC_VARIANT_MASK)) {
 		tvb_get_varint(tvb, start, length, &value, encoding);
 	} else {
 		value = get_uint64_value(tree, tvb, start, length, encoding);
@@ -3285,7 +3294,65 @@ proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	proto_tree_set_uint64(new_fi, value);
 
 	new_fi->flags |= (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
-	if (encoding & ENC_VARINT_PROTOBUF) {
+	if (encoding & (ENC_VARINT_PROTOBUF|ENC_VARINT_ZIGZAG)) {
+		new_fi->flags |= FI_VARINT;
+	}
+
+	return proto_tree_add_node(tree, new_fi);
+}
+
+proto_item *
+proto_tree_add_item_ret_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	const gint start, gint length, const guint encoding, gint64 *retval)
+{
+	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	field_info	  *new_fi;
+	gint64		   value;
+
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+
+	switch (hfinfo->type) {
+	case FT_INT40:
+	case FT_INT48:
+	case FT_INT56:
+	case FT_INT64:
+		break;
+	default:
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_INT40, FT_INT48, FT_INT56, or FT_INT64",
+			hfinfo->abbrev);
+	}
+
+	/* length validation for native number encoding caught by get_uint64_value() */
+	/* length has to be -1 or > 0 regardless of encoding */
+	if (length < -1 || length == 0)
+		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_int64",
+			length);
+
+	if (encoding & ENC_STRING) {
+		REPORT_DISSECTOR_BUG("wrong encoding");
+	}
+	/* I believe it's ok if this is called with a NULL tree */
+	if (encoding & (ENC_VARIANT_MASK)) {
+		tvb_get_varint(tvb, start, length, &value, encoding);
+	}
+	else {
+		value = get_int64_value(tree, tvb, start, length, encoding);
+	}
+
+	if (retval) {
+		*retval = value;
+	}
+
+	CHECK_FOR_NULL_TREE(tree);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfinfo->id, hfinfo);
+
+	new_fi = new_field_info(tree, hfinfo, tvb, start, length);
+
+	proto_tree_set_int64(new_fi, value);
+
+	new_fi->flags |= (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
+	if (encoding & (ENC_VARINT_PROTOBUF | ENC_VARINT_ZIGZAG)) {
 		new_fi->flags |= FI_VARINT;
 	}
 
@@ -3342,7 +3409,7 @@ proto_tree_add_item_ret_varint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	proto_tree_set_uint64(new_fi, value);
 
 	new_fi->flags |= (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
-	if (encoding & ENC_VARINT_PROTOBUF) {
+	if (encoding & (ENC_VARINT_PROTOBUF|ENC_VARINT_ZIGZAG)) {
 		new_fi->flags |= FI_VARINT;
 	}
 
@@ -5700,7 +5767,7 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 		 * of the string", and if the tvbuff if short, we just
 		 * throw an exception.
 		 *
-		 * For ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC, it means "find the end of the string",
+		 * For ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC|ENC_VARIANT_ZIGZAG, it means "find the end of the string",
 		 * and if the tvbuff if short, we just throw an exception.
 		 *
 		 * It's not valid for any other type of field.  For those
@@ -5711,7 +5778,7 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 		 * Length would run past the end of the packet.
 		 */
 		if ((IS_FT_INT(hfinfo->type)) || (IS_FT_UINT(hfinfo->type))) {
-			if (encoding & ENC_VARINT_PROTOBUF) {
+			if (encoding & (ENC_VARINT_PROTOBUF|ENC_VARINT_ZIGZAG)) {
 				/*
 				 * Leave the length as -1, so our caller knows
 				 * it was -1.
@@ -5847,7 +5914,7 @@ get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start,
 	case FT_INT48:
 	case FT_INT56:
 	case FT_INT64:
-		if (encoding & (ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC)) {
+		if (encoding & (ENC_VARIANT_MASK)) {
 			if (length < -1) {
 				report_type_length_mismatch(NULL, "a FT_[U]INT", length, TRUE);
 			}

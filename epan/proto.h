@@ -539,6 +539,13 @@ void proto_report_dissector_bug(const char *format, ...)
  * See https://tools.ietf.org/html/draft-ietf-quic-transport-08#section-8.1
  */
 #define ENC_VARINT_QUIC          0x00000004
+ /*
+ * Use "zig-zag" varint format as described in Protobuf protocol
+ * See https://developers.google.com/protocol-buffers/docs/encoding?csw=1#types
+ */
+#define ENC_VARINT_ZIGZAG        0x00000008
+
+#define ENC_VARIANT_MASK         (ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC|ENC_VARINT_ZIGZAG)
 
 /* For cases where a string encoding contains hex, bit-or one or more
  * of these for the allowed separator(s), as well as with ENC_STR_HEX.
@@ -1193,6 +1200,10 @@ with the _ret_uint64 function; Boolean values of 8, 16, 24, 32, 40, 48,
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const gint start, gint length, const guint encoding, gint32 *retval);
+
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    const gint start, gint length, const guint encoding, gint64 *retval);
 
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
