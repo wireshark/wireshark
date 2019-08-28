@@ -157,6 +157,7 @@ static expert_field ei_data_length          = EI_INIT;
 static expert_field ei_c_bit                = EI_INIT;
 static expert_field ei_fault_notif          = EI_INIT;
 static expert_field ei_number_faults        = EI_INIT;
+static expert_field ei_ecpri_not_dis_yet    = EI_INIT;
 
 /**************************************************************************************************/
 /* Field Encoding of Message Types                                                                */
@@ -171,8 +172,12 @@ static const range_string ecpri_msg_types[] = {
         { 0x5,    0x5,    "One-Way Delay Measurement" },
         { 0x6,    0x6,    "Remote Reset"              },
         { 0x7,    0x7,    "Event Indication"          },
-        /* Message Types 8 -  63*/
-        { 0x8,    0x3F,   "Reserved"                  },
+        { 0x8,    0x8,    "IWF Start-Up"              },
+        { 0x9,    0x9,    "IWF Operation"             },
+        { 0xa,    0xa,    "IWF Mapping"               },
+        { 0xb,    0xb,    "IWF Delay Control"         },
+        /* Message Types 12 -  63*/
+        { 0xc,    0x3F,   "Reserved"                  },
         /* Message Types 64 - 255 */
         { 0x40,   0xFF,   "Vendor Specific"           },
         { 0,      0,      NULL                        }
@@ -701,6 +706,16 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size %d is too small for encoding Message Type %d. Should be min. %d", payload_size, msg_type, ECPRI_MSG_TYPE_7_PAYLOAD_MIN_LENGTH);
                 }
                 break;
+            case 8:
+                /* IWF Start-Up 3.2.4.9 */
+            case 9:
+                /* IWF Operation 3.2.4.10 */
+            case 10:
+                /* IWF Mapping 3.2.4.11 */
+            case 11:
+                /* IWF Delay Control 3.2.4.12 */
+                proto_tree_add_expert(payload_tree, pinfo, &ei_ecpri_not_dis_yet, tvb, offset, -1);
+                break;
             default:
                 /* Reserved or Vendor Specific */
                 break;
@@ -797,7 +812,8 @@ void proto_register_ecpri(void)
             { &ei_time_stamp,           { "ecpri.time.stamp.invalid",   PI_PROTOCOL, PI_ERROR, "Invalid Time Stamp",         EXPFILL }},
             { &ei_c_bit,                { "ecpri.concat.bit.invalid",   PI_PROTOCOL, PI_ERROR, "Invalid Concatenation Bit",  EXPFILL }},
             { &ei_fault_notif,          { "ecpri.fault.notif.invalid",  PI_PROTOCOL, PI_ERROR, "Invalid Fault/Notification", EXPFILL }},
-            { &ei_number_faults,        { "ecpri.num.faults.invalid",   PI_PROTOCOL, PI_ERROR, "Invalid Number of Faults",   EXPFILL }}
+            { &ei_number_faults,        { "ecpri.num.faults.invalid",   PI_PROTOCOL, PI_ERROR, "Invalid Number of Faults",   EXPFILL }},
+            { &ei_ecpri_not_dis_yet,    { "ecpri.not_dissected_yet",    PI_PROTOCOL, PI_NOTE,  "Not dissected yet",   EXPFILL }}
     };
 
     expert_module_t* expert_ecpri;
