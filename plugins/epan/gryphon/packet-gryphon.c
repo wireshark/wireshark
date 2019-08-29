@@ -1193,7 +1193,11 @@ dissect_gryphon_message_with_offset(tvbuff_t *tvb, int offset, packet_info *pinf
          * Unknown message type.
          */
         proto_tree_add_item(gryphon_tree, hf_gryphon_data, tvb, offset, msglen, ENC_NA);
-        offset += msglen;
+        if (msglen != 0) {
+            offset += msglen;
+        } else {
+            offset = tvb_reported_length_remaining(tvb, offset);
+        }
         return offset;
     }
 
