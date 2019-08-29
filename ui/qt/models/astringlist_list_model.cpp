@@ -87,13 +87,21 @@ AStringListListSortFilterProxyModel::AStringListListSortFilterProxyModel(QObject
 : QSortFilterProxyModel(parent)
 {
     filter_ = QString();
-    type_ = FilterByContains;
+    types_[-1] = FilterByContains;
 }
 
 bool AStringListListSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    QString leftData = sourceModel()->data(left).toStringList().join(",");
-    QString rightData = sourceModel()->data(right).toStringList().join(",");
+    QString leftData = left.data().toString();
+    QString rightData = right.data().toString();
+
+    if ( numericColumns_.contains(left.column()) || numericColumns_.contains(right.column() ) )
+    {
+        float left = leftData.toFloat();
+        float right = rightData.toFloat();
+
+        return left < right;
+    }
 
     return leftData.compare(rightData, sortCaseSensitivity()) < 0;
 }
@@ -104,14 +112,23 @@ void AStringListListSortFilterProxyModel::setFilter(const QString & filter)
     invalidateFilter();
 }
 
-static bool AContainsB(const QString &a, const QString &b, Qt::CaseSensitivity cs)
+static bool AContainsB(const QVariant &a, const QVariant &b, Qt::CaseSensitivity cs)
 {
-    return a.contains(b, cs);
+    if ( ! a.canConvert(QVariant::String) || ! b.canConvert(QVariant::String) )
+        return false;
+    return a.toString().contains(b.toString(), cs);
 }
 
-static bool AStartsWithB(const QString &a, const QString &b, Qt::CaseSensitivity cs)
+static bool AStartsWithB(const QVariant &a, const QVariant &b, Qt::CaseSensitivity cs)
 {
-    return a.startsWith(b, cs);
+    if ( ! a.canConvert(QVariant::String) || ! b.canConvert(QVariant::String) )
+        return false;
+    return a.toString().startsWith(b.toString(), cs);
+}
+
+static bool AIsEquivalentToB(const QVariant &a, const QVariant &b, Qt::CaseSensitivity)
+{
+    return a == b;
 }
 
 bool AStringListListSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
@@ -125,12 +142,28 @@ bool AStringListListSortFilterProxyModel::filterAcceptsRow(int sourceRow, const 
             continue;
 
         QModelIndex chkIdx = sourceModel()->index(sourceRow, column, sourceParent);
-        QString dataString = sourceModel()->data(chkIdx).toString();
+        QString dataString = chkIdx.data().toString();
 
         /* Default is filter by string a contains string b */
-        bool (*compareFunc)(const QString&, const QString&, Qt::CaseSensitivity) = AContainsB;
-        if ( type_ == FilterByStart )
-            compareFunc = AStartsWithB;
+        bool (*compareFunc)(const QVariant&, const QVariant&, Qt::CaseSensitivity) = AContainsB;
+        if ( types_.keys().contains(column) )
+        {
+            switch (types_.value(column, FilterByContains))
+            {
+            case  FilterByStart:
+                compareFunc = AStartsWithB;
+                break;
+            case  FilterByEquivalent:
+                compareFunc = AIsEquivalentToB;
+                break;
+            case FilterNone:
+                return true;
+                break;
+            default:
+                compareFunc = AContainsB;
+                break;
+            }
+        }
 
         if ( compareFunc(dataString, filter_, filterCaseSensitivity()) )
             return true;
@@ -139,12 +172,20 @@ bool AStringListListSortFilterProxyModel::filterAcceptsRow(int sourceRow, const 
     return false;
 }
 
-void AStringListListSortFilterProxyModel::setFilterType(AStringListListFilterType type)
+void AStringListListSortFilterProxyModel::setFilterType(AStringListListFilterType type, int column)
 {
-    if ( type != type_ )
+    if ( column >= -1 && column < columnCount() )
     {
-        type_ = type;
-        invalidateFilter();
+        if ( ! types_.keys().contains(column) )
+        {
+            types_.insert(column, type);
+            invalidateFilter();
+        }
+        else if ( types_.keys().contains(column) && type != types_[column] )
+        {
+            types_[column] = type;
+            invalidateFilter();
+        }
     }
 }
 
@@ -161,6 +202,49 @@ void AStringListListSortFilterProxyModel::clearColumnsToFilter()
 {
     columnsToFilter_.clear();
     invalidateFilter();
+}
+
+void AStringListListSortFilterProxyModel::clearHiddenColumns()
+{
+    hiddenColumns_.clear();
+    invalidateFilter();
+}
+
+void AStringListListSortFilterProxyModel::setColumnToHide(int col)
+{
+    if ( ! hiddenColumns_.contains(col) && col > -1 && sourceModel() && sourceModel()->columnCount() > col )
+    {
+        hiddenColumns_ << col;
+        invalidateFilter();
+    }
+}
+
+bool AStringListListSortFilterProxyModel::filterAcceptsColumn(int sourceColumn, const QModelIndex &sourceParent) const
+{
+    QModelIndex realIndex = sourceModel()->index(0, sourceColumn, sourceParent);
+
+    if ( ! realIndex.isValid() )
+        return false;
+
+    if ( hiddenColumns_.contains(sourceColumn) )
+        return false;
+
+    return true;
+}
+
+void AStringListListSortFilterProxyModel::clearNumericColumns()
+{
+    numericColumns_.clear();
+    invalidateFilter();
+}
+
+void AStringListListSortFilterProxyModel::setColumnAsNumeric(int col)
+{
+    if ( ! numericColumns_.contains(col) && col > -1 && sourceModel() && sourceModel()->columnCount() > col )
+    {
+        numericColumns_ << col;
+        invalidateFilter();
+    }
 }
 
 AStringListListUrlProxyModel::AStringListListUrlProxyModel(QObject * parent):

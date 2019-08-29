@@ -50,27 +50,38 @@ public:
     enum AStringListListFilterType
     {
         FilterByContains = 0,
-        FilterByStart = 1
+        FilterByStart,
+        FilterByEquivalent,
+        FilterNone
     };
+    Q_ENUM(AStringListListFilterType)
 
     explicit AStringListListSortFilterProxyModel(QObject * parent = Q_NULLPTR);
 
     virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
     virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+    virtual bool filterAcceptsColumn(int column, const QModelIndex &sourceParent) const;
 
-    void setFilterType(AStringListListFilterType type);
+    void setFilterType(AStringListListFilterType type, int column = -1);
 
     void setColumnToFilter(int);
     void clearColumnsToFilter();
+
+    void clearHiddenColumns();
+    void setColumnToHide(int col);
+
+    void clearNumericColumns();
+    void setColumnAsNumeric(int col);
 
 public slots:
     void setFilter(const QString&);
 
 private:
-
     QString filter_;
-    AStringListListFilterType type_;
+    QMap<int, AStringListListFilterType> types_;
     QList<int> columnsToFilter_;
+    QList<int> hiddenColumns_;
+    QList<int> numericColumns_;
 };
 
 class AStringListListUrlProxyModel : public QIdentityProxyModel
