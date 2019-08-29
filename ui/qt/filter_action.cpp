@@ -255,6 +255,30 @@ void FilterAction::groupTriggered(QAction * action)
     }
 }
 
+QAction * FilterAction::copyFilterAction(QString filter, QWidget *par)
+{
+    FilterAction * filterAction = new FilterAction(par, ActionCopy);
+    QAction * action = new QAction(QObject::tr("Copy"), par);
+    action->setProperty("filter", qVariantFromValue(filter));
+    connect(action, &QAction::triggered, filterAction, &FilterAction::copyActionTriggered);
+
+    if ( filter.isEmpty() )
+        action->setEnabled(false);
+
+    return action;
+}
+
+void FilterAction::copyActionTriggered()
+{
+    QAction * sendAction = qobject_cast<QAction *>(sender());
+    if ( ! sendAction )
+        return;
+
+    QString filter = sendAction->property("filter").toString();
+    if ( filter.length() > 0 )
+        wsApp->clipboard()->setText(filter);
+}
+
 /*
  * Editor modelines
  *

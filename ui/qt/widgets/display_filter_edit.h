@@ -77,10 +77,6 @@ signals:
     void filterPackets(QString new_filter, bool force);
     void showPreferencesDialog(QString pane_name);
 
-private slots:
-
-    void dropActionMenuEvent();
-
 };
 
 #endif // DISPLAYFILTEREDIT_H

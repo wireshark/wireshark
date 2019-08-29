@@ -11,6 +11,7 @@
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/models/uat_model.h>
+#include <ui/qt/filter_action.h>
 #include <ui/qt/wireshark_application.h>
 
 #include <epan/filter_expressions.h>
@@ -70,11 +71,11 @@ void FilterExpressionToolBar::onCustomMenuHandler(const QPoint& pos)
 
     QMenu * filterMenu = new QMenu(this);
 
-    QAction *actFilter = filterMenu->addAction(tr("Filter Button Preferences..."));
-    connect(actFilter, &QAction::triggered, this, &FilterExpressionToolBar::toolBarShowPreferences);
-    actFilter->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
-    actFilter->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
-    actFilter->setData(filterAction->data());
+    QString filterText = filterAction->property(dfe_property_expression_).toString();
+    filterMenu->addMenu(FilterAction::createFilterMenu(FilterAction::ActionApply, filterText, true, this));
+    filterMenu->addMenu(FilterAction::createFilterMenu(FilterAction::ActionPrepare, filterText, true, this));
+    filterMenu->addSeparator();
+    filterMenu->addAction(FilterAction::copyFilterAction(filterText, this));
     filterMenu->addSeparator();
     QAction * actEdit = filterMenu->addAction(tr("Edit"));
     connect(actEdit, &QAction::triggered, this, &FilterExpressionToolBar::editFilter);
@@ -91,6 +92,13 @@ void FilterExpressionToolBar::onCustomMenuHandler(const QPoint& pos)
     actRemove->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
     actRemove->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
     actRemove->setData(filterAction->data());
+    filterMenu->addSeparator();
+    QAction *actFilter = filterMenu->addAction(tr("Filter Button Preferences..."));
+    connect(actFilter, &QAction::triggered, this, &FilterExpressionToolBar::toolBarShowPreferences);
+    actFilter->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
+    actFilter->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
+    actFilter->setData(filterAction->data());
+
 
     filterMenu->exec(mapToGlobal(pos));
 }

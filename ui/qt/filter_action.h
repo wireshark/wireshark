@@ -74,6 +74,7 @@ public:
 
     static QActionGroup * createFilterGroup(QString filter, bool prepare, bool enabled, QWidget * parent);
     static QMenu * createFilterMenu(FilterAction::Action act, QString filter, bool enabled, QWidget * parent);
+    static QAction * copyFilterAction(QString filter, QWidget *par);
 
 signals:
 
@@ -86,6 +87,7 @@ private:
 
 private slots:
     void groupTriggered(QAction *);
+    void copyActionTriggered();
 
 };
 
