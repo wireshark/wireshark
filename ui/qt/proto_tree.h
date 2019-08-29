@@ -48,7 +48,6 @@ protected:
     } CopyInfos;
 
     virtual void contextMenuEvent(QContextMenuEvent *event);
-    void protoTreeContextMenu(QContextMenuEvent * event);
     virtual void timerEvent(QTimerEvent *event);
     virtual void keyReleaseEvent(QKeyEvent *event);
     virtual bool eventFilter(QObject * obj, QEvent * ev);

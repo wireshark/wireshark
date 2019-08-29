@@ -101,104 +101,6 @@ void ProtoTree::clear() {
     updateContentWidth();
 }
 
-void ProtoTree::protoTreeContextMenu(QContextMenuEvent * event)
-{
-    QMenu ctxMenu(this);
-    QAction * action;
-
-    bool have_subtree = false;
-#if 0
-    bool have_packet_bytes = false;
-#endif
-
-    QModelIndex index = indexAt(event->pos());
-    field_info * fi = Q_NULLPTR;
-    if ( index.isValid() )
-    {
-        FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
-        fi = finfo.fieldInfo();
-
-        bool is_selected = false;
-
-        if (cap_file_ && cap_file_->finfo_selected == fi)
-            is_selected = true;
-        else if (! window()->findChild<QAction *>("actionViewExpandSubtrees"))
-            is_selected = true;
-
-        if ( is_selected )
-        {
-            if (fi && fi->tree_type != -1) {
-                have_subtree = true;
-            }
-#if 0
-            if (fi && fi->ds_tvb) {
-                have_packet_bytes = true;
-            }
-#endif
-        }
-    }
-
-
-    action = ctxMenu.addAction(tr("Expand Subtrees"), this, SLOT(expandSubtrees()));
-    action->setEnabled(have_subtree);
-    action = ctxMenu.addAction(tr("Collapse Subtrees"), this, SLOT(collapseSubtrees()));
-    action->setEnabled(have_subtree);
-    ctxMenu.addAction(tr("Expand All"), this, SLOT(expandAll()));
-    ctxMenu.addAction(tr("Collapse All"), this, SLOT(collapseAll()));
-    ctxMenu.addSeparator();
-
-    epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
-    if ( fi && edt )
-    {
-        char * selectedfilter = proto_construct_match_selected_string(fi, edt);
-        bool can_match_selected = proto_can_match_selected(fi, edt);
-        ctxMenu.addMenu(FilterAction::createFilterMenu(FilterAction::ActionApply, selectedfilter, can_match_selected, &ctxMenu));
-        ctxMenu.addMenu(FilterAction::createFilterMenu(FilterAction::ActionPrepare, selectedfilter, can_match_selected, &ctxMenu));
-
-        if ( selectedfilter )
-            wmem_free(Q_NULLPTR, selectedfilter);
-        ctxMenu.addSeparator();
-    }
-
-    QMenu *submenu = ctxMenu.addMenu(tr("Copy"));
-    submenu->addAction(tr("All Visible Items"), this, SLOT(ctxCopyVisibleItems()));
-    action = submenu->addAction(tr("All Visible Selected Tree Items"), this, SLOT(ctxCopyVisibleItems()));
-    action->setProperty("selected_tree", qVariantFromValue(true));
-    action = submenu->addAction(tr("Desription"), this, SLOT(ctxCopySelectedInfo()));
-    action->setProperty("field_type", ProtoTree::Description);
-    action = submenu->addAction(tr("Field Name"), this, SLOT(ctxCopySelectedInfo()));
-    action->setProperty("field_type", ProtoTree::Name);
-    action = submenu->addAction(tr("Value"), this, SLOT(ctxCopySelectedInfo()));
-    action->setProperty("field_type", ProtoTree::Value);
-    submenu->addSeparator();
-    submenu->addAction(tr("As Filter"), this, SLOT(ctxCopyAsFilter()));
-
-    ctxMenu.addSeparator();
-
-    ctxMenu.addAction(tr("Wiki Protocol Page"), this, SLOT(ctxOpenUrlWiki()));
-    action = ctxMenu.addAction(tr("Filter Field Reference"), this, SLOT(ctxOpenUrlWiki()));
-    action->setProperty("field_reference", qVariantFromValue(true));
-    ctxMenu.addMenu(&proto_prefs_menu_);
-
-    QModelIndex idx = indexAt(event->pos());
-    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx).protoNode());
-    QActionGroup * copyEntries = DataPrinter::copyActions(this, &finfo);
-    submenu->addActions(copyEntries->actions());
-
-
-    // The "text only" header field will not give preferences for the selected protocol.
-    // Use parent in this case.
-    proto_node *node = proto_tree_model_->protoNodeFromIndex(idx).protoNode();
-    while (node && node->finfo && node->finfo->hfinfo && node->finfo->hfinfo->id == hf_text_only)
-        node = node->parent;
-
-    FieldInformation pref_finfo(node);
-    proto_prefs_menu_.setModule(pref_finfo.moduleName());
-
-
-    ctxMenu.exec(event->globalPos());
-}
-
 void ProtoTree::ctxCopyVisibleItems()
 {
     bool selected_tree = false;
@@ -308,32 +210,53 @@ void ProtoTree::ctxOpenUrlWiki()
 
 void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 {
-    // We're in a PacketDialog
-    if (! window()->findChild<QAction *>("actionViewExpandSubtrees"))
-    {
-        protoTreeContextMenu(event);
+    QModelIndex index = indexAt(event->pos());
+    if ( ! index.isValid() )
         return;
-    }
+
+    // We're in a PacketDialog
+    bool buildForDialog = false;
+    if (! window()->findChild<QAction *>("actionViewExpandSubtrees"))
+        buildForDialog = true;
 
     QMenu ctx_menu(this);
 
     QMenu *main_menu_item, *submenu;
     QAction *action;
 
-    ctx_menu.addAction(window()->findChild<QAction *>("actionViewExpandSubtrees"));
-    ctx_menu.addAction(window()->findChild<QAction *>("actionViewCollapseSubtrees"));
-    ctx_menu.addAction(window()->findChild<QAction *>("actionViewExpandAll"));
-    ctx_menu.addAction(window()->findChild<QAction *>("actionViewCollapseAll"));
-    ctx_menu.addSeparator();
-
-    action = window()->findChild<QAction *>("actionAnalyzeCreateAColumn");
-    ctx_menu.addAction(action);
-    ctx_menu.addSeparator();
-
-    QModelIndex index = indexAt(event->pos());
+     bool have_subtree = false;
     FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
-
+    field_info * fi = finfo.fieldInfo();
+    bool is_selected = false;
     epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
+
+    if (cap_file_ && cap_file_->finfo_selected == fi)
+        is_selected = true;
+    else if (! window()->findChild<QAction *>("actionViewExpandSubtrees"))
+        is_selected = true;
+
+    if ( is_selected )
+    {
+        if (fi && fi->tree_type != -1) {
+            have_subtree = true;
+        }
+    }
+
+    action = ctx_menu.addAction(tr("Expand Subtrees"), this, SLOT(expandSubtrees()));
+    action->setEnabled(have_subtree);
+    action = ctx_menu.addAction(tr("Collapse Subtrees"), this, SLOT(collapseSubtrees()));
+    action->setEnabled(have_subtree);
+    ctx_menu.addAction(tr("Expand All"), this, SLOT(expandAll()));
+    ctx_menu.addAction(tr("Collapse All"), this, SLOT(collapseAll()));
+    ctx_menu.addSeparator();
+
+    if ( ! buildForDialog )
+    {
+        action = window()->findChild<QAction *>("actionAnalyzeCreateAColumn");
+        ctx_menu.addAction(action);
+        ctx_menu.addSeparator();
+    }
+
     char * selectedfilter = proto_construct_match_selected_string(finfo.fieldInfo(), edt);
     bool can_match_selected = proto_can_match_selected(finfo.fieldInfo(), edt);
     ctx_menu.addMenu(FilterAction::createFilterMenu(FilterAction::ActionApply, selectedfilter, can_match_selected, &ctx_menu));
@@ -341,75 +264,85 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     if ( selectedfilter )
         wmem_free(Q_NULLPTR, selectedfilter);
 
-    QMenu *main_conv_menu = window()->findChild<QMenu *>("menuConversationFilter");
-    conv_menu_.setTitle(main_conv_menu->title());
-    conv_menu_.clear();
-    foreach (QAction *action, main_conv_menu->actions()) {
-        conv_menu_.addAction(action);
+    if ( ! buildForDialog )
+    {
+        QMenu *main_conv_menu = window()->findChild<QMenu *>("menuConversationFilter");
+        conv_menu_.setTitle(main_conv_menu->title());
+        conv_menu_.clear();
+        foreach (QAction *action, main_conv_menu->actions()) {
+            conv_menu_.addAction(action);
+        }
+
+        ctx_menu.addMenu(&conv_menu_);
+
+        colorize_menu_.setTitle(tr("Colorize with Filter"));
+        ctx_menu.addMenu(&colorize_menu_);
+
+        main_menu_item = window()->findChild<QMenu *>("menuFollow");
+        submenu = new QMenu(main_menu_item->title(), &ctx_menu);
+        ctx_menu.addMenu(submenu);
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTLSStream"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTPStream"));
+        ctx_menu.addSeparator();
     }
 
-    ctx_menu.addMenu(&conv_menu_);
-
-    colorize_menu_.setTitle(tr("Colorize with Filter"));
-    ctx_menu.addMenu(&colorize_menu_);
-
-    main_menu_item = window()->findChild<QMenu *>("menuFollow");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu);
-    ctx_menu.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTLSStream"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTPStream"));
-    ctx_menu.addSeparator();
-
-    main_menu_item = window()->findChild<QMenu *>("menuEditCopy");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu);
-    ctx_menu.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionCopyAllVisibleItems"));
-    submenu->addAction(window()->findChild<QAction *>("actionCopyAllVisibleSelectedTreeItems"));
-    submenu->addAction(window()->findChild<QAction *>("actionEditCopyDescription"));
-    submenu->addAction(window()->findChild<QAction *>("actionEditCopyFieldName"));
-    submenu->addAction(window()->findChild<QAction *>("actionEditCopyValue"));
+    submenu = ctx_menu.addMenu(tr("Copy"));
+    submenu->addAction(tr("All Visible Items"), this, SLOT(ctxCopyVisibleItems()));
+    action = submenu->addAction(tr("All Visible Selected Tree Items"), this, SLOT(ctxCopyVisibleItems()));
+    action->setProperty("selected_tree", qVariantFromValue(true));
+    action = submenu->addAction(tr("Desription"), this, SLOT(ctxCopySelectedInfo()));
+    action->setProperty("field_type", ProtoTree::Description);
+    action = submenu->addAction(tr("Field Name"), this, SLOT(ctxCopySelectedInfo()));
+    action->setProperty("field_type", ProtoTree::Name);
+    action = submenu->addAction(tr("Value"), this, SLOT(ctxCopySelectedInfo()));
+    action->setProperty("field_type", ProtoTree::Value);
     submenu->addSeparator();
-
-    submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
-    submenu->addSeparator();
-
+    submenu->addAction(tr("As Filter"), this, SLOT(ctxCopyAsFilter()));
     QActionGroup * copyEntries = DataPrinter::copyActions(this, &finfo);
     submenu->addActions(copyEntries->actions());
-
-    action = window()->findChild<QAction *>("actionAnalyzeShowPacketBytes");
-    ctx_menu.addAction(action);
-    action = window()->findChild<QAction *>("actionFileExportPacketBytes");
-    ctx_menu.addAction(action);
-
     ctx_menu.addSeparator();
 
-    action = window()->findChild<QAction *>("actionContextWikiProtocolPage");
-    ctx_menu.addAction(action);
-    action = window()->findChild<QAction *>("actionContextFilterFieldReference");
-    ctx_menu.addAction(action);
+    if ( ! buildForDialog )
+    {
+        action = window()->findChild<QAction *>("actionAnalyzeShowPacketBytes");
+        ctx_menu.addAction(action);
+        action = window()->findChild<QAction *>("actionFileExportPacketBytes");
+        ctx_menu.addAction(action);
+
+        ctx_menu.addSeparator();
+    }
+
+    ctx_menu.addAction(tr("Wiki Protocol Page"), this, SLOT(ctxOpenUrlWiki()));
+    action = ctx_menu.addAction(tr("Filter Field Reference"), this, SLOT(ctxOpenUrlWiki()));
+    action->setProperty("field_reference", qVariantFromValue(true));
     ctx_menu.addMenu(&proto_prefs_menu_);
     ctx_menu.addSeparator();
     decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
     ctx_menu.addAction(decode_as_);
 
-    ctx_menu.addAction(window()->findChild<QAction *>("actionGoGoToLinkedPacket"));
-    ctx_menu.addAction(window()->findChild<QAction *>("actionContextShowLinkedPacketInNewWindow"));
+    if ( ! buildForDialog )
+    {
+        ctx_menu.addAction(window()->findChild<QAction *>("actionGoGoToLinkedPacket"));
+        ctx_menu.addAction(window()->findChild<QAction *>("actionContextShowLinkedPacketInNewWindow"));
 
-    // The "text only" header field will not give preferences for the selected protocol.
-    // Use parent in this case.
-    proto_node *node = proto_tree_model_->protoNodeFromIndex(index).protoNode();
-    while (node && node->finfo && node->finfo->hfinfo && node->finfo->hfinfo->id == hf_text_only)
-        node = node->parent;
+        // The "text only" header field will not give preferences for the selected protocol.
+        // Use parent in this case.
+        proto_node *node = proto_tree_model_->protoNodeFromIndex(index).protoNode();
+        while (node && node->finfo && node->finfo->hfinfo && node->finfo->hfinfo->id == hf_text_only)
+            node = node->parent;
 
-    FieldInformation pref_finfo(node);
-    proto_prefs_menu_.setModule(pref_finfo.moduleName());
+        FieldInformation pref_finfo(node);
+        proto_prefs_menu_.setModule(pref_finfo.moduleName());
 
-    decode_as_->setData(QVariant::fromValue(true));
+        decode_as_->setData(QVariant::fromValue(true));
+    }
 
     ctx_menu.exec(event->globalPos());
-    decode_as_->setData(QVariant());
+
+    if ( ! buildForDialog )
+        decode_as_->setData(QVariant());
 }
 
 void ProtoTree::timerEvent(QTimerEvent *event)
