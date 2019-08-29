@@ -289,54 +289,6 @@ void EnabledProtocolsModel::populate()
     emit endResetModel();
 }
 
-void EnabledProtocolsModel::invertEnabled()
-{
-    emit beginResetModel();
-
-    for (int proto_index = 0; proto_index < root_->childCount(); proto_index++) {
-        EnabledProtocolItem* proto = root_->child(proto_index);
-        proto->setEnabled(!proto->enabled());
-        for (int heur_index = 0; heur_index < proto->childCount(); heur_index++) {
-            EnabledProtocolItem* heur = proto->child(heur_index);
-            heur->setEnabled(!heur->enabled());
-        }
-    }
-
-    emit endResetModel();
-}
-
-void EnabledProtocolsModel::enableAll()
-{
-    emit beginResetModel();
-
-    for (int proto_index = 0; proto_index < root_->childCount(); proto_index++) {
-        EnabledProtocolItem* proto = root_->child(proto_index);
-        proto->setEnabled(true);
-        for (int heur_index = 0; heur_index < proto->childCount(); heur_index++) {
-            EnabledProtocolItem* heur = proto->child(heur_index);
-            heur->setEnabled(true);
-        }
-    }
-
-    emit endResetModel();
-}
-
-void EnabledProtocolsModel::disableAll()
-{
-    emit beginResetModel();
-
-    for (int proto_index = 0; proto_index < root_->childCount(); proto_index++) {
-        EnabledProtocolItem* proto = root_->child(proto_index);
-        proto->setEnabled(false);
-        for (int heur_index = 0; heur_index < proto->childCount(); heur_index++) {
-            EnabledProtocolItem* heur = proto->child(heur_index);
-            heur->setEnabled(false);
-        }
-    }
-
-    emit endResetModel();
-}
-
 void EnabledProtocolsModel::applyChanges(bool writeChanges)
 {
     bool redissect = false;
@@ -377,9 +329,9 @@ void EnabledProtocolsModel::saveChanges(bool writeChanges)
 
 EnabledProtocolsProxyModel::EnabledProtocolsProxyModel(QObject * parent)
 : QSortFilterProxyModel(parent),
+type_(EnabledProtocolsProxyModel::EveryWhere),
 filter_()
-{
-}
+{}
 
 bool EnabledProtocolsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
@@ -407,10 +359,10 @@ bool EnabledProtocolsProxyModel::filterAcceptItem(EnabledProtocolItem& item) con
 {
     QRegExp regex(filter_, Qt::CaseInsensitive);
 
-    if (item.name().contains(regex))
+    if (item.name().contains(regex) && type_ != OnlyDescription)
         return true;
 
-    if (item.description().contains(regex))
+    if (item.description().contains(regex) && type_ != OnlyProtocol)
         return true;
 
     return false;
@@ -418,7 +370,6 @@ bool EnabledProtocolsProxyModel::filterAcceptItem(EnabledProtocolItem& item) con
 
 bool EnabledProtocolsProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-
     QModelIndex nameIdx = sourceModel()->index(sourceRow, EnabledProtocolsModel::colProtocol, sourceParent);
     EnabledProtocolItem* item = static_cast<EnabledProtocolItem*>(nameIdx.internalPointer());
     if (item == NULL)
@@ -445,12 +396,42 @@ bool EnabledProtocolsProxyModel::filterAcceptsRow(int sourceRow, const QModelInd
     return true;
 }
 
-void EnabledProtocolsProxyModel::setFilter(const QString& filter)
+void EnabledProtocolsProxyModel::setFilter(const QString& filter, EnabledProtocolsProxyModel::SearchType type)
 {
     filter_ = filter;
+    type_ = type;
     invalidateFilter();
 }
 
+void EnabledProtocolsProxyModel::setItemsEnable(EnabledProtocolsProxyModel::EnableType enableType, QModelIndex parent)
+{
+    if ( ! sourceModel() )
+        return;
+
+    if ( ! parent.isValid() )
+        emit beginResetModel();
+
+    for ( int row = 0; row < rowCount(parent); row++ )
+    {
+        QModelIndex idx = index(row, EnabledProtocolsModel::colProtocol, parent);
+
+        Qt::CheckState enable = idx.data(Qt::CheckStateRole).value<Qt::CheckState>();
+        if ( enableType == Enable )
+            enable = Qt::Checked;
+        else if ( enableType == Disable )
+            enable = Qt::Unchecked;
+        else
+            enable = enable == Qt::Checked ? Qt::Unchecked : Qt::Checked;
+
+        sourceModel()->setData(mapToSource(idx), qVariantFromValue(enable), Qt::CheckStateRole);
+
+        setItemsEnable(enableType, idx);
+    }
+
+
+    if ( ! parent.isValid() )
+        emit endResetModel();
+}
 
 /*
  * Editor modelines

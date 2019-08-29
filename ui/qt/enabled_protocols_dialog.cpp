@@ -35,6 +35,10 @@ EnabledProtocolsDialog::EnabledProtocolsDialog(QWidget *parent) :
     int one_em = ui->protocol_tree_->fontMetrics().height();
     ui->protocol_tree_->setColumnWidth(EnabledProtocolsModel::colProtocol, one_em * 18);
 
+    ui->cmbSearchType->addItem(tr("Everywhere"), qVariantFromValue(EnabledProtocolsProxyModel::EveryWhere));
+    ui->cmbSearchType->addItem(tr("Only Protocols"), qVariantFromValue(EnabledProtocolsProxyModel::OnlyProtocol));
+    ui->cmbSearchType->addItem(tr("Only Description"), qVariantFromValue(EnabledProtocolsProxyModel::OnlyDescription));
+
     QTimer::singleShot(0, this, SLOT(fillTree()));
 }
 
@@ -55,25 +59,44 @@ void EnabledProtocolsDialog::fillTree()
 
 void EnabledProtocolsDialog::on_invert_button__clicked()
 {
-    enabled_protocols_model_->invertEnabled();
+    proxyModel_->setItemsEnable(EnabledProtocolsProxyModel::Invert);
+    ui->protocol_tree_->expandAll();
 }
 
 void EnabledProtocolsDialog::on_enable_all_button__clicked()
 {
-    enabled_protocols_model_->enableAll();
+    proxyModel_->setItemsEnable(EnabledProtocolsProxyModel::Enable);
+    ui->protocol_tree_->expandAll();
 }
 
 void EnabledProtocolsDialog::on_disable_all_button__clicked()
 {
-    enabled_protocols_model_->disableAll();
+    proxyModel_->setItemsEnable(EnabledProtocolsProxyModel::Disable);
+    ui->protocol_tree_->expandAll();
 }
 
-void EnabledProtocolsDialog::on_search_line_edit__textChanged(const QString &search_re)
+void EnabledProtocolsDialog::searchFilterChange()
 {
-    proxyModel_->setFilter(search_re);
+    EnabledProtocolsProxyModel::SearchType type = EnabledProtocolsProxyModel::EveryWhere;
+    QString search_re = ui->search_line_edit_->text();
+
+    if ( ui->cmbSearchType->currentData().canConvert<EnabledProtocolsProxyModel::SearchType>() )
+        type = ui->cmbSearchType->currentData().value<EnabledProtocolsProxyModel::SearchType>();
+
+    proxyModel_->setFilter(search_re, type);
     /* If items are filtered out, then filtered back in, the tree remains collapsed
        Force an expansion */
     ui->protocol_tree_->expandAll();
+}
+
+void EnabledProtocolsDialog::on_search_line_edit__textChanged(const QString &)
+{
+    searchFilterChange();
+}
+
+void EnabledProtocolsDialog::on_cmbSearchType_currentIndexChanged(int)
+{
+    searchFilterChange();
 }
 
 void EnabledProtocolsDialog::on_buttonBox_accepted()

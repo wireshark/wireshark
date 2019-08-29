@@ -55,6 +55,10 @@ public:
         colLast
     };
 
+    enum EnableProtocolData {
+        DATA_ENABLE = Qt::UserRole
+    };
+
     QModelIndex index(int row, int column,
                       const QModelIndex & = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &) const;
@@ -69,9 +73,6 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
     void populate();
-    void invertEnabled();
-    void enableAll();
-    void disableAll();
 
     void applyChanges(bool writeChanges = true);
     static void disableProtocol(struct _protocol *protocol);
@@ -88,18 +89,35 @@ class EnabledProtocolsProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 public:
 
+    enum SearchType
+    {
+        EveryWhere,
+        OnlyProtocol,
+        OnlyDescription
+    };
+    Q_ENUM(SearchType)
+
     explicit EnabledProtocolsProxyModel(QObject * parent = Q_NULLPTR);
 
     virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
-    void setFilter(const QString& filter);
+    void setFilter(const QString& filter, EnabledProtocolsProxyModel::SearchType type);
+
+    enum EnableType
+    {
+        Enable,
+        Disable,
+        Invert
+    };
+
+    void setItemsEnable(EnabledProtocolsProxyModel::EnableType enable, QModelIndex parent = QModelIndex());
 
 protected:
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
     bool filterAcceptItem(EnabledProtocolItem& item) const;
 
 private:
-
+    EnabledProtocolsProxyModel::SearchType type_;
     QString filter_;
 };
 
