@@ -1654,6 +1654,8 @@ dissect_dsmcc_un_session_resources(
                 proto_tree_add_item(sub_sub_sub_tree, hf_dsmcc_un_sess_rsrc_type_owner_value, tvb, offset, 3, ENC_NA);
                 offset += 3;
                 break;
+            default:
+                break;
         }
     }
 
