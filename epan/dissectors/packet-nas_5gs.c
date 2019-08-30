@@ -6117,10 +6117,10 @@ disect_nas_5gs_updp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int off
 
 const value_string nas_5gs_pdu_session_id_vals[] = {
     { 0x00, "No PDU session identity assigned" },
-    { 0x01, "Reserved" },
-    { 0x02, "Reserved" },
-    { 0x03, "Reserved" },
-    { 0x04, "Reserved" },
+    { 0x01, "PDU session identity value 1" },
+    { 0x02, "PDU session identity value 2" },
+    { 0x03, "PDU session identity value 3" },
+    { 0x04, "PDU session identity value 4" },
     { 0x05, "PDU session identity value 5" },
     { 0x06, "PDU session identity value 6" },
     { 0x07, "PDU session identity value 7" },
