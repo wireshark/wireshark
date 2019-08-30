@@ -170,7 +170,6 @@
 
 #define CMD_SCHED_TX            (SD_SCHED * 256 + 0x70)    /* schedule transmission list */
 #define CMD_SCHED_KILL_TX       (SD_SCHED * 256 + 0x71)    /* stop and destroy job */
-#define CMD_SCHED_STOP_TX       (SD_SCHED * 256 + 0x71)    /* deprecated */
 #define CMD_SCHED_MSG_REPLACE   (SD_SCHED * 256 + 0x72)    /* replace a scheduled message */
 
 /* USDT (SD_USDT) target commands: */
@@ -564,27 +563,20 @@
 #define GDGLIN08        0x01    /* DG HC08 SUBTYPE */
 #define GDGLIN_BEACON   0x03    /* DG BEACON LIN SUBTYPE */
 
-#define MEMCPY(dest, src, size)             \
-    memcpy (dest, src, size);                \
-    *((dest)+size) = 0;
+typedef struct {
+    guint32 cmd;
+    guint32 cmd_context;    //typically just guint8, but let's room for expansion/improvement
+    guint32 ioctl_command;  //should be more generic, but IOCTL is currently the only user
+    guint32 req_frame_num;
+    guint32 rsp_frame_num;
+    nstime_t req_time;
+} gryphon_pkt_info_t;
 
+/* List contains request data  */
+typedef struct {
+    wmem_list_t *request_frame_data;
+} gryphon_conversation;
 
-typedef struct val_str_dsp {
-    int        value;
-    const char    *strptr;
-    int        (*cmd_fnct)(tvbuff_t *, int, proto_tree*);
-    int        (*rsp_fnct)(tvbuff_t *, int, proto_tree*);
-} val_str_dsp;
-
-typedef struct val_str_dsp_with_context {
-    int value;
-    const char *strptr;
-    int (*cmd_fnct)(tvbuff_t *, int, proto_tree*, guint32 ulCommand);
-    int (*rsp_fnct)(tvbuff_t *, int, proto_tree*, guint32 ulCommand);
-    unsigned char ucContext;
-    unsigned short usRsvd;
-    unsigned char ucRsvd;
-} val_str_dsp_with_context;
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
