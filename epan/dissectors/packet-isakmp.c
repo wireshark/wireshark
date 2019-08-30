@@ -5619,8 +5619,6 @@ dissect_tek_key_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
                            &headerlen, &value_len, &attr_type,
                            &attr_item, &attr_tree);
 
-  offset += headerlen;
-
   if (value_len == 0)
   {
     expert_add_info(pinfo, attr_item, &ei_isakmp_attribute_value_empty);
