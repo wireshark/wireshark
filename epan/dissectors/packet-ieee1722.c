@@ -2635,7 +2635,6 @@ static int dissect_1722_acf_can_common(tvbuff_t *tvb, packet_info *pinfo, proto_
     if (pad_length > 0 && tvb_reported_length_remaining(tvb, offset) >= (gint)pad_length)
     {
         proto_tree_add_item(tree_acf_can, hf_1722_can_padding, tvb, offset, pad_length, ENC_NA);
-        offset += pad_length;
     }
 
     return captured_length;
@@ -2855,7 +2854,6 @@ static int dissect_1722_acf_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     if (pad_length > 0 && tvb_reported_length_remaining(tvb, offset) >= (gint)pad_length)
     {
         proto_tree_add_item(tree_lin, hf_1722_lin_padding, tvb, offset, pad_length, ENC_NA);
-        offset += pad_length;
     }
 
     return captured_length;
