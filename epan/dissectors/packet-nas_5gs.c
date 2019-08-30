@@ -222,6 +222,7 @@ static int hf_nas_5gs_allow_pdu_ses_sts_psi_8_b0 = -1;
 static int hf_nas_5gs_sm_pdu_session_type = -1;
 static int hf_nas_5gs_sm_sc_mode = -1;
 static int hf_nas_5gs_sm_sel_sc_mode = -1;
+static int hf_nas_5gs_sm_mh6_pdu_b1 = -1;
 static int hf_nas_5gs_sm_rqos_b0 = -1;
 static int hf_nas_5gs_sm_5gsm_cause = -1;
 static int hf_nas_5gs_sm_int_prot_max_data_rate_ul = -1;
@@ -2383,7 +2384,7 @@ de_nas_5gs_sm_5gsm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         &hf_nas_5gs_spare_b4,
         &hf_nas_5gs_spare_b3,
         &hf_nas_5gs_spare_b2,
-        &hf_nas_5gs_spare_b1,
+        &hf_nas_5gs_sm_mh6_pdu_b1,
         &hf_nas_5gs_sm_rqos_b0,
         NULL
     };
@@ -7236,8 +7237,13 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, VALS(nas_5gs_sc_mode_values), 0xf0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_sm_mh6_pdu_b1,
+        { "Multi-homed IPv6 PDU session (MH6-PDU)",   "nas_5gs.sm.mh6_pdu",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_sm_rqos_b0,
-        { "Reflective QoS(RqoS)",   "nas_5gs.sm.rqos",
+        { "Reflective QoS (RqoS)",   "nas_5gs.sm.rqos",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
             NULL, HFILL }
         },
