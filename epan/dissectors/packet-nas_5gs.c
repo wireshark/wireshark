@@ -435,7 +435,6 @@ nas5gs_get_private_data(packet_info *pinfo)
     struct nas5gs_private_data *nas5gs_data = (struct nas5gs_private_data*)p_get_proto_data(pinfo->pool, pinfo, proto_nas_5gs, pinfo->curr_layer_num);
     if (!nas5gs_data) {
         nas5gs_data = wmem_new0(pinfo->pool, struct nas5gs_private_data);
-        nas5gs_data->payload_container_type = 0;
         p_add_proto_data(pinfo->pool, pinfo, proto_nas_5gs, pinfo->curr_layer_num, nas5gs_data);
     }
     return nas5gs_data;
@@ -5917,8 +5916,6 @@ get_nas_5gsmm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *
         *ett_tree = ett_nas_5gs_mm_msg[idx];
         *msg_fcn_p = nas_5gs_mm_msg_fcn[idx];
     }
-
-    return;
 }
 
 static void
@@ -5932,8 +5929,6 @@ get_nas_5gssm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *
         *ett_tree = ett_nas_5gs_sm_msg[idx];
         *msg_fcn_p = nas_5gs_sm_msg_fcn[idx];
     }
-
-    return;
 }
 
 static void
@@ -5947,8 +5942,6 @@ get_nas_5gs_updp_msg_params(guint8 oct, const gchar** msg_str, int* ett_tree, in
         *ett_tree = ett_nas_5gs_updp_msg[idx];
         *msg_fcn_p = nas_5gs_updp_msg_fcn[idx];
     }
-
-    return;
 }
 
 static void
@@ -6413,7 +6406,7 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     } else if (!strcmp(n1_msg_class, "UPDP")) {
         /* UD policy delivery service */
         disect_nas_5gs_updp(tvb, pinfo, tree, 0);
-        return tvb_captured_length(tvb);;
+        return tvb_captured_length(tvb);
     } else {
         subdissector = NULL;
     }
