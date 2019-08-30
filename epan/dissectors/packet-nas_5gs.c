@@ -324,6 +324,9 @@ static int hf_nas_5gs_mm_tal_t_li = -1;
 static int hf_nas_5gs_mm_tal_num_e = -1;
 static int hf_nas_5gs_sm_mapd_eps_b_cont_eps_param_cont = -1;
 
+static int hf_nas_5gs_sm_max_nb_sup_pkt_flt_nb = -1;
+static int hf_nas_5gs_sm_max_nb_sup_pkt_flt_spare = -1;
+
 static int hf_nas_5gs_kacf = -1;
 static int hf_nas_5gs_ncc = -1;
 
@@ -2699,13 +2702,19 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
  *     9.11.4.9    Maximum number of supported packet filters
  */
 static guint16
-de_nas_5gs_sm_max_num_sup_pkt_flt(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-    guint32 offset, guint len,
+de_nas_5gs_sm_max_num_sup_pkt_flt(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+    guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    static const int * flags[] = {
+        &hf_nas_5gs_sm_max_nb_sup_pkt_flt_nb,
+        &hf_nas_5gs_sm_max_nb_sup_pkt_flt_spare,
+        NULL
+    };
 
-    return len;
+    proto_tree_add_bitmask_list(tree, tvb, offset, 2, flags, ENC_BIG_ENDIAN);
+
+    return 2;
 }
 
 /*
@@ -7545,6 +7554,16 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_sm_mapd_eps_b_cont_eps_param_cont,
         { "EPS parameter contents",   "nas_5gs.sm.mapd_eps_b_cont_eps_param_cont",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_max_nb_sup_pkt_flt_nb,
+        { "Maximum number of supported packet filters", "nas_5gs.sm.max_nb_sup_pkt_flt.nb",
+            FT_UINT16, BASE_DEC, NULL, 0xffe0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_max_nb_sup_pkt_flt_spare,
+        { "Spare", "nas_5gs.sm.max_nb_sup_pkt_flt.spare",
+            FT_UINT16, BASE_HEX, NULL, 0x001f,
             NULL, HFILL }
         },
         { &hf_nas_5gs_kacf,
