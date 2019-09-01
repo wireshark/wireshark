@@ -120,7 +120,7 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
         apply_button_ = new StockIconToolButton(this, "x-filter-apply");
         apply_button_->setCursor(Qt::ArrowCursor);
         apply_button_->setEnabled(false);
-        apply_button_->setToolTip(tr("Apply this filter string to the display."));
+        apply_button_->setToolTip(tr("Apply display filter"));
         apply_button_->setIconSize(QSize(24, 14));
         apply_button_->setStyleSheet(
                 "QToolButton {"
