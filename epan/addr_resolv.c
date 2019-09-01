@@ -94,6 +94,7 @@
 #include <epan/to_str-int.h>
 #include <epan/maxmind_db.h>
 #include <epan/prefs.h>
+#include <epan/uat.h>
 
 #define ENAME_HOSTS     "hosts"
 #define ENAME_SUBNETS   "subnets"
@@ -365,6 +366,52 @@ static  gboolean  async_dns_initialized = FALSE;
 static  guint       async_dns_in_flight = 0;
 static  wmem_list_t *async_dns_queue_head = NULL;
 
+//UAT for providing a list of DNS servers to C-ARES for name resolution
+gboolean use_custom_dns_server_list = FALSE;
+struct dns_server_data {
+    char *ipaddr;
+};
+
+UAT_CSTRING_CB_DEF(dnsserverlist_uats, ipaddr, struct dns_server_data)
+
+static uat_t *dnsserver_uat = NULL;
+static struct dns_server_data  *dnsserverlist_uats = NULL;
+static guint ndnsservers = 0;
+
+static void
+dns_server_free_cb(void *data)
+{
+    struct dns_server_data *h = (struct dns_server_data*)data;
+
+    g_free(h->ipaddr);
+}
+
+static void*
+dns_server_copy_cb(void *dst_, const void *src_, size_t len _U_)
+{
+    const struct dns_server_data *src = (const struct dns_server_data *)src_;
+    struct dns_server_data       *dst = (struct dns_server_data *)dst_;
+
+    dst->ipaddr = g_strdup(src->ipaddr);
+
+    return dst;
+}
+
+static gboolean
+dnsserver_uat_fld_ip_chk_cb(void* r _U_, const char* ipaddr, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
+{
+    //Check for a valid IPv4 or IPv6 address.
+    if (ipaddr && g_hostname_is_ip_address(ipaddr)) {
+        *err = NULL;
+        return TRUE;
+    }
+
+    *err = g_strdup_printf("No valid IP address given.");
+    return FALSE;
+}
+
+
+
 static void
 c_ares_ghba_sync_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
     sync_dns_data_t *sdd = (sync_dns_data_t *)arg;
@@ -504,6 +551,63 @@ set_resolution_synchrony(gboolean synchronous)
 {
     resolve_synchronously = synchronous;
 }
+
+static void
+c_ares_set_dns_servers(void)
+{
+    if ((!async_dns_initialized) || (!use_custom_dns_server_list))
+        return;
+
+    if (ndnsservers == 0) {
+        //clear the list of servers.  This may effectively disable name resolution
+        ares_set_servers(ghba_chan, NULL);
+        ares_set_servers(ghbn_chan, NULL);
+    } else {
+        struct ares_addr_node* servers = wmem_alloc_array(NULL, struct ares_addr_node, ndnsservers);
+        ws_in4_addr ipv4addr;
+        ws_in6_addr ipv6addr;
+        gboolean invalid_IP_found = FALSE;
+        struct ares_addr_node* server;
+        guint i;
+        for (i = 0, server = servers; i < ndnsservers-1; i++, server++) {
+            if (ws_inet_pton6(dnsserverlist_uats[i].ipaddr, &ipv6addr)) {
+                server->family = AF_INET6;
+                memcpy(&server->addr.addr6, &ipv6addr, 16);
+            } else if (ws_inet_pton4(dnsserverlist_uats[i].ipaddr, &ipv4addr)) {
+                server->family = AF_INET;
+                memcpy(&server->addr.addr4, &ipv4addr, 4);
+            } else {
+                //This shouldn't happen, but just in case...
+                invalid_IP_found = TRUE;
+                server->family = 0;
+                memset(&server->addr.addr4, 0, 4);
+                break;
+            }
+
+            server->next = (server+1);
+        }
+        if (!invalid_IP_found) {
+            if (ws_inet_pton6(dnsserverlist_uats[i].ipaddr, &ipv6addr)) {
+                server->family = AF_INET6;
+                memcpy(&server->addr.addr6, &ipv6addr, 16);
+            }
+            else if (ws_inet_pton4(dnsserverlist_uats[i].ipaddr, &ipv4addr)) {
+                server->family = AF_INET;
+                memcpy(&server->addr.addr4, &ipv4addr, 4);
+            } else {
+                //This shouldn't happen, but just in case...
+                server->family = 0;
+                memset(&server->addr.addr4, 0, 4);
+            }
+        }
+        server->next = NULL;
+
+        ares_set_servers(ghba_chan, servers);
+        ares_set_servers(ghbn_chan, servers);
+        wmem_free(NULL, servers);
+    }
+}
+
 #else
 void
 set_resolution_synchrony(gboolean synchronous _U_)
@@ -2692,6 +2796,35 @@ addr_resolve_pref_init(module_t *nameres)
             " is enabled.",
             &gbl_resolv_flags.use_external_net_name_resolver);
 
+    prefs_register_bool_preference(nameres, "use_custom_dns_servers",
+        "Use custom list of DNS servers for name resolution",
+        "Uses DNS Servers list to resolve network names if TRUE.  If FALSE, default information is used",
+        &use_custom_dns_server_list);
+
+    static uat_field_t dns_server_uats_flds[] = {
+        UAT_FLD_CSTRING_OTHER(dnsserverlist_uats, ipaddr, "IP address", dnsserver_uat_fld_ip_chk_cb, "IPv4 or IPv6 address"),
+        UAT_END_FIELDS
+    };
+
+    dnsserver_uat = uat_new("DNS Servers",
+        sizeof(struct dns_server_data),
+        "addr_resolve_dns_servers",        /* filename */
+        TRUE,                       /* from_profile */
+        &dnsserverlist_uats,        /* data_ptr */
+        &ndnsservers,               /* numitems_ptr */
+        UAT_AFFECTS_DISSECTION,
+        NULL,
+        dns_server_copy_cb,
+        NULL,
+        dns_server_free_cb,
+        c_ares_set_dns_servers,
+        NULL,
+        dns_server_uats_flds);
+    prefs_register_uat_preference(nameres, "dns_servers",
+        "DNS Servers",
+        "A table of IPv4 and IPv6 addresses that will be used resolve IP names and addresses",
+        dnsserver_uat);
+
     prefs_register_obsolete_preference(nameres, "concurrent_dns");
 
     prefs_register_uint_preference(nameres, "name_resolve_concurrency",
@@ -2729,6 +2862,13 @@ addr_resolve_pref_init(module_t *nameres)
             " One line per Point Code, e.g.: 2-1234 MyPointCode1",
             &gbl_resolv_flags.ss7pc_name);
 
+}
+
+void addr_resolve_pref_apply(void)
+{
+#ifdef HAVE_C_ARES
+    c_ares_set_dns_servers();
+#endif
 }
 
 void
@@ -2995,6 +3135,7 @@ host_name_lookup_init(void)
 #endif
         if (ares_init(&ghba_chan) == ARES_SUCCESS && ares_init(&ghbn_chan) == ARES_SUCCESS) {
             async_dns_initialized = TRUE;
+            c_ares_set_dns_servers();
         }
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
     }

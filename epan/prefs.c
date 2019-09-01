@@ -3535,7 +3535,7 @@ prefs_register_modules(void)
 
     /* Name Resolution */
     nameres_module = prefs_register_module(NULL, "nameres", "Name Resolution",
-        "Name Resolution", NULL, TRUE);
+        "Name Resolution", addr_resolve_pref_apply, TRUE);
     addr_resolve_pref_init(nameres_module);
     oid_pref_init(nameres_module);
     maxmind_db_pref_init(nameres_module);

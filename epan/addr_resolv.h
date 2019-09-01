@@ -174,6 +174,7 @@ WS_DLL_PUBLIC int port_with_resolution_to_str_buf(gchar *buf, gulong buf_size,
 /* Setup name resolution preferences */
 struct pref_module;
 extern void addr_resolve_pref_init(struct pref_module *nameres);
+extern void addr_resolve_pref_apply(void);
 
 /*
  * disable_name_resolution() sets all relevant gbl_resolv_flags to FALSE.
