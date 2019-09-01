@@ -510,12 +510,12 @@ of the types and example of how to express them.
 Unsigned integer::
   Can be 8, 16, 24, 32, or 64 bits. You can express integers in decimal, octal,
   or hexadecimal. The following display filters are equivalent:
-
-  ip.len le 1500
-
-  ip.len le 02734
-
-  ip.len le 0x5dc
++
+`ip.len le 1500`
++
+`ip.len le 02734`
++
+`ip.len le 0x5dc`
 
 Signed integer::
   Can be 8, 16, 24, 32, or 64 bits. As with unsigned integers you can use
@@ -523,40 +523,40 @@ Signed integer::
 
 Boolean::
   Can be 1, if true, or 0, if false.
-
-  Because an expression containing a field name, but not comparing it
-  with a value, matches all packets that contain that field, an
-  expression such as `tcp.flags.syn` will match all TCP segments
-  containing the flags field, regardless of whether the SYN flag is set.
-
-  To match only TCP segments in which the SYN flag is set, the
-  expression `tcp.flags.syn == 1` must be used.  Similarly, to find
-  source-routed token ring packets, a filter expression of `tr.sr == 1`
-  must be used; `tr.sr` will match all packets not cut short before the
-  source-routed flag.
++
+Because an expression containing a field name, but not comparing it
+with a value, matches all packets that contain that field, an
+expression such as `tcp.flags.syn` will match all TCP segments
+containing the flags field, regardless of whether the SYN flag is set.
++
+To match only TCP segments in which the SYN flag is set, the
+expression `tcp.flags.syn == 1` must be used.  Similarly, to find
+source-routed token ring packets, a filter expression of `tr.sr == 1`
+must be used; `tr.sr` will match all packets not cut short before the
+source-routed flag.
 
 Ethernet address::
   6 bytes separated by a colon (:), dot (.) or dash (-) with one or two bytes between separators:
-
-  eth.dst == ff:ff:ff:ff:ff:ff
-
-  eth.dst == ff-ff-ff-ff-ff-ff
-
-  eth.dst == ffff.ffff.ffff
++
+`eth.dst == ff:ff:ff:ff:ff:ff`
++
+`eth.dst == ff-ff-ff-ff-ff-ff`
++
+`eth.dst == ffff.ffff.ffff`
 
 IPv4 address::
-  ip.addr == 192.168.0.1
-
-  Classless InterDomain Routing (CIDR) notation can be used to test if
-  an IPv4 address is in a certain subnet. For example, this display
-  filter will find all packets in the 129.111 Class-B network:
-
-  ip.addr == 129.111.0.0/16
+  `ip.addr == 192.168.0.1`
++
+Classless InterDomain Routing (CIDR) notation can be used to test if
+an IPv4 address is in a certain subnet. For example, this display
+filter will find all packets in the 129.111 Class-B network:
++
+`ip.addr == 129.111.0.0/16`
 
 IPv6 address::
   `ipv6.addr == ::1`
-
-  As with IPv4 addresses, IPv6 addresses can match a subnet.
++
+As with IPv4 addresses, IPv6 addresses can match a subnet.
 
 Text string::
   `http.request.uri == "https://www.wireshark.org/"`
