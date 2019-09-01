@@ -522,14 +522,18 @@ Signed integer::
   decimal, octal, or hexadecimal.
 
 Boolean::
-  A boolean field is present in the protocol decode only if its value is true. For
-  example, `tcp.flags.syn` is present, and thus true, only if the SYN flag is
-  present in a TCP segment header.
+  Can be 1, if true, or 0, if false.
 
-  The filter expression `tcp.flags.syn` will select only those packets for which
-  this flag exists, that is, TCP segments where the segment header contains the
-  SYN flag. Similarly, to find source-routed token ring packets, use a filter
-  expression of `tr.sr`.
+  Because an expression containing a field name, but not comparing it
+  with a value, matches all packets that contain that field, an
+  expression such as `tcp.flags.syn` will match all TCP segments
+  containing the flags field, regardless of whether the SYN flag is set.
+
+  To match only TCP segments in which the SYN flag is set, the
+  expression `tcp.flags.syn == 1` must be used.  Similarly, to find
+  source-routed token ring packets, a filter expression of `tr.sr == 1`
+  must be used; `tr.sr` will match all packets not cut short before the
+  source-routed flag.
 
 Ethernet address::
   6 bytes separated by a colon (:), dot (.) or dash (-) with one or two bytes between separators:
