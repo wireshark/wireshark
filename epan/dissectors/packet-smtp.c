@@ -133,6 +133,7 @@ struct smtp_proto_data {
  * State information stored with a conversation.
  */
 typedef enum {
+  SMTP_STATE_START,                     /* Start of SMTP conversion */
   SMTP_STATE_READING_CMDS,              /* reading commands */
   SMTP_STATE_READING_DATA,              /* reading message data */
   SMTP_STATE_AWAITING_STARTTLS_RESPONSE /* sent STARTTLS, awaiting response */
@@ -429,7 +430,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * No - create one and attach it.
      */
     session_state                    = (struct smtp_session_state *)wmem_alloc0(wmem_file_scope(), sizeof(struct smtp_session_state));
-    session_state->smtp_state        = SMTP_STATE_READING_CMDS;
+    session_state->smtp_state        = SMTP_STATE_START;
     session_state->auth_state        = SMTP_AUTH_STATE_NONE;
     session_state->msg_last          = TRUE;
 
@@ -727,7 +728,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             /*
              * Assume it's message data.
              */
-            spd_frame_data->pdu_type = session_state->data_seen ? SMTP_PDU_MESSAGE : SMTP_PDU_CMD;
+            spd_frame_data->pdu_type = (session_state->data_seen || (session_state->smtp_state == SMTP_STATE_START)) ? SMTP_PDU_MESSAGE : SMTP_PDU_CMD;
           }
         }
       }
