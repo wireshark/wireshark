@@ -77,7 +77,8 @@ typedef struct tcpheader {
 	guint32 th_rawseq;  /* raw value */
 	guint32 th_seq;     /* raw or relative value depending on tcp_relative_seq */
 
-	guint32 th_ack;
+	guint32 th_rawack;  /* raw value */
+	guint32 th_ack;     /* raw or relative value depending on tcp_relative_seq */
 	gboolean th_have_seglen;	/* TRUE if th_seglen is valid */
 	guint32 th_seglen;  /* in bytes */
 	guint32 th_win;   /* make it 32 bits so we can handle some scaling */

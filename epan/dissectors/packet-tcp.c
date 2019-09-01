@@ -140,8 +140,10 @@ static int hf_tcp_dstport = -1;
 static int hf_tcp_port = -1;
 static int hf_tcp_stream = -1;
 static int hf_tcp_seq = -1;
+static int hf_tcp_seq_abs = -1;
 static int hf_tcp_nxtseq = -1;
 static int hf_tcp_ack = -1;
+static int hf_tcp_ack_abs = -1;
 static int hf_tcp_hdr_len = -1;
 static int hf_tcp_flags = -1;
 static int hf_tcp_flags_res = -1;
@@ -5986,7 +5988,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     guint32 th_urp;
     proto_tree *tcp_tree = NULL, *field_tree = NULL;
     proto_item *ti = NULL, *tf, *hidden_item;
-    proto_item *options_item;
+    proto_item *options_item, *hide_seqack_abs_item;
     proto_tree *options_tree;
     int        offset = 0;
     const char *flags_str, *flags_str_first_letter;
@@ -6070,7 +6072,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     tcph->th_rawseq = tvb_get_ntohl(tvb, offset + 4);
     tcph->th_seq = tcph->th_rawseq;
-    tcph->th_ack = tvb_get_ntohl(tvb, offset + 8);
+    tcph->th_rawack = tvb_get_ntohl(tvb, offset + 8);
+    tcph->th_ack = tcph->th_rawack;
     th_off_x2 = tvb_get_guint8(tvb, offset + 12);
     tcpinfo.flags = tcph->th_flags = tvb_get_ntohs(tvb, offset + 12) & TH_MASK;
     tcph->th_win = tvb_get_ntohs(tvb, offset + 14);
@@ -6258,8 +6261,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (!icmp_ip) {
         if(tcp_relative_seq) {
             proto_tree_add_uint_format_value(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq, "%u    (relative sequence number)", tcph->th_seq);
+            proto_tree_add_uint(tcp_tree, hf_tcp_seq_abs, tvb, offset + 4, 4, tcph->th_rawseq);
         } else {
             proto_tree_add_uint(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq);
+            hide_seqack_abs_item = proto_tree_add_uint(tcp_tree, hf_tcp_seq_abs, tvb, offset + 4, 4, tcph->th_rawseq);
+            proto_item_set_hidden(hide_seqack_abs_item);
         }
     }
 
@@ -6297,9 +6303,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
 
     tf = proto_tree_add_uint(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack);
+    hide_seqack_abs_item = proto_tree_add_uint(tcp_tree, hf_tcp_ack_abs, tvb, offset + 8, 4, tcph->th_rawack);
     if (tcph->th_flags & TH_ACK) {
         if (tcp_relative_seq) {
             proto_item_append_text(tf, "    (relative ack number)");
+        } else {
+            proto_item_set_hidden(hide_seqack_abs_item);
         }
     } else {
         /* Note if the ACK field is non-zero */
@@ -6822,6 +6831,10 @@ proto_register_tcp(void)
         { "Sequence number",        "tcp.seq", FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_tcp_seq_abs,
+        { "Sequence number (raw)",        "tcp.seq_raw", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "This shows the raw value of the sequence number", HFILL }},
+
         { &hf_tcp_nxtseq,
         { "Next sequence number",   "tcp.nxtseq", FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
@@ -6829,6 +6842,10 @@ proto_register_tcp(void)
         { &hf_tcp_ack,
         { "Acknowledgment number", "tcp.ack", FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
+
+        { &hf_tcp_ack_abs,
+        { "Acknowledgment number (raw)", "tcp.ack_raw", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "This shows the raw value of the acknowledgment number", HFILL } },
 
         { &hf_tcp_hdr_len,
         { "Header Length",      "tcp.hdr_len", FT_UINT8, BASE_DEC, NULL, 0x0,
