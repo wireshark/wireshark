@@ -94,7 +94,7 @@ Resize the column to fit its values.
 |menu:Resolve Names[] |
 If this column contains addresses, resolve them.
 
-| _No., Time, Source, et al_ |
+| _No., Time, Source, et al._ |
 Show or hide a column by selecting its item.
 
 |menu:Remove Column[] |
@@ -388,14 +388,15 @@ Use EBCDIC encoding when displaying “hexdump” text.
 
 === Filtering Packets While Viewing
 
-Wireshark has two filtering languages: One used when capturing packets, and one
-used when displaying packets. In this section we explore that second type of
-filter: Display filters. The first one has already been dealt with in
-<<ChCapCaptureFilterSection>>.
+Wireshark has two filtering languages: _capture filters_ and _display filters_.
+_Capture filters_ are used for filtering
+when capturing packets and are discussed in <<ChCapCaptureFilterSection>>.
+_Display filters_ are used for filtering
+which packets are displayed and are discussed below.
 
 Display filters allow you to concentrate on the packets you are interested in
-while hiding the currently uninteresting ones. They allow you to select packets
-by:
+while hiding the currently uninteresting ones. They allow you to only display packets
+based on:
 
 * Protocol
 
@@ -407,15 +408,20 @@ by:
 
 * ... and a lot more!
 
-To select packets based on protocol type, simply type the protocol in which you
-are interested in the _Filter:_ field in the filter toolbar of the Wireshark
-window and press enter to initiate the filter. <<ChWorkTCPFilter>> shows an
-example of what happens when you type _tcp_ in the filter field.
-
+To only display packets containing a particular protocol, type the protocol name
+in the display filter toolbar of the Wireshark
+window and press enter to apply the filter. <<ChWorkTCPFilter>> shows an
+example of what happens when you type _tcp_ in the display filter toolbar.
 
 [NOTE]
 ====
-All protocol and field names are entered in lowercase. Also, don’t forget to press enter after entering the filter expression.
+Protocol and field names are usually in lowercase.
+====
+
+[NOTE]
+====
+Don’t forget to press enter or click on the apply display filter button after entering the filter
+expression.
 ====
 
 
@@ -424,9 +430,9 @@ All protocol and field names are entered in lowercase. Also, don’t forget to p
 .Filtering on the TCP protocol
 image::wsug_graphics/ws-display-filter-tcp.png[{screenshot-attrs}]
 
-As you might have noticed, only packets of the TCP protocol are displayed now
-(e.g. packets 1-10 are hidden). The packet numbering will remain as before, so
-the first packet shown is now packet number 11.
+As you may have noticed, only packets containing the TCP protocol are now displayed,
+so packets 1-10 are hidden and packet number 11
+is the first packet displayed.
 
 [NOTE]
 ====
@@ -434,42 +440,53 @@ When using a display filter, all packets remain in the capture file. The display
 filter only changes the display of the capture file but not its content!
 ====
 
-You can filter on any protocol that Wireshark understands. You can also filter
-on any field that a dissector adds to the tree view, but only if the dissector
-has added an abbreviation for the field. A list of such fields is available in
-Wireshark in the _Add Expression..._ dialog box. You can find more information
-on the _Add Expression..._ dialog box in <<ChWorkFilterAddExpressionSection>>.
+To remove the filter, click on the btn:[Clear] button to the right of the
+display filter field. All packets will become visible again.
 
-For example, to narrow the packet list pane down to only those packets to or
-from the IP address 192.168.0.1, use `ip.addr==192.168.0.1`.
+Display filters can be very powerful and are discussed in further detail in
+<<ChWorkBuildDisplayFilterSection>>
 
-[NOTE]
-====
-To remove the filter, click on the btn:[Clear] button to the right of the filter field.
-====
+It's also possible to create display filters with the
+_Display Filter Expression_ dialog box. More information about
+the _Display Filter Expression_ dialog box is available in
+<<ChWorkFilterAddExpressionSection>>.
+
 
 [[ChWorkBuildDisplayFilterSection]]
 
 === Building Display Filter Expressions
 
-Wireshark provides a simple but powerful display filter language that allows you
-to build quite complex filter expressions. You can compare values in packets as
-well as combine expressions into more specific expressions. The following
-sections provide more information on doing this.
+Wireshark provides a display filter language that enables you
+to precisely control which packets are displayed. They can be used
+to check for the presence of a protocol or field, the value of a field, or
+even compare two fields to each other. These comparisons can be combined
+with logical operators, like "and" and "or", and parentheses
+into complex expressions.
+
+The following sections will go into the display filter functionality in
+more detail.
 
 [TIP]
 ====
-You will find a lot of Display Filter examples at the _Wireshark Wiki Display
+There are many display filter examples on the _Wireshark Wiki Display
 Filter page_ at: link:{wireshark-wiki-url}DisplayFilters[].
 ====
 
 ==== Display Filter Fields
 
-Every field in the packet details pane can be used as a filter string, this will
-result in showing only the packets where this field exists. For example: the
-filter string: _tcp_ will show all packets containing the tcp protocol.
+The simplest display filter is one that displays a single protocol.
+To only display packets containing a particular protocol, type the protocol
+into Wireshark's display filter toolbar. For example, to only
+display TCP packets, type _tcp_ into Wireshark's display filter toolbar.
+Similarly, to only display
+packets containing a particular field, type the field
+into Wireshark's display filter toolbar. For example, to only display
+HTTP requests, type _http.request_ into Wireshark's display filter toolbar.
 
-There is a complete list of all filter fields available through the menu item
+You can filter on any protocol that Wireshark supports. You can
+also filter on any field that a dissector adds to the tree view, if the dissector
+has added an abbreviation for that field. A full list of the available protocols
+and fields is available through the menu item
 menu:View[Internals,Supported Protocols].
 
 // XXX - add some more info here and a link to the statusbar info.
@@ -477,32 +494,35 @@ menu:View[Internals,Supported Protocols].
 ==== Comparing Values
 
 You can build display filters that compare values using a number of different
-comparison operators. They are shown in <<DispCompOps>>.
+comparison operators. For example, to only display packets to or
+from the IP address 192.168.0.1, use `ip.addr==192.168.0.1`.
+
+A complete list of available comparison operators is shown in <<DispCompOps>>.
 
 [TIP]
 ====
-You can use English and C-like terms in the same way, they can even be mixed in a filter string.
+English and C-like operators are interchangeable and can be mixed within a filter string.
 ====
 
 [[DispCompOps]]
 
 .Display Filter comparison operators
-[options="header",cols="1,1,4"]
+[options="header",cols="1,1,1,4"]
 |===============
-|English|C-like|Description and example
-|eq |== |Equal. `ip.src==10.0.0.5`
-|ne |!= |Not equal. `ip.src!=10.0.0.5`
-|gt |>  |Greater than. `frame.len > 10`
-|lt |<  |Less than. `frame.len < 128`
-|ge |>= |Greater than or equal to. `frame.len ge 0x100`
-|le |\<= |Less than or equal to. `frame.len <= 0x20`
-|contains||Protocol, field or slice contains a value. `sip.To contains "a1762"`
-|matches|~|Protocol or text field match Perl regualar expression. `http.host matches "acme\.(org\|com\|net)"`
-|bitwise_and|&|Compare bit field value. `tcp.flags & 0x02`
+|English|C-like|Description|Example
+|eq |== |Equal| `ip.src==10.0.0.5`
+|ne |!= |Not equal| `ip.src!=10.0.0.5`
+|gt |>  |Greater than| `frame.len > 10`
+|lt |<  |Less than| `frame.len < 128`
+|ge |>= |Greater than or equal to| `frame.len ge 0x100`
+|le |\<= |Less than or equal to| `frame.len <= 0x20`
+|contains||Protocol, field or slice contains a value| `sip.To contains "a1762"`
+|matches|~|Protocol or text field matches a Perl-compatible regular expression| `http.host matches "acme\.(org\|com\|net)"`
+|bitwise_and|&|Bitwise AND is non-zero| `tcp.flags & 0x02`
 |===============
 
-In addition, all protocol fields have a type. <<ChWorkFieldTypes>> provides a list
-of the types and example of how to express them.
+All protocol fields have a type. <<ChWorkFieldTypes>> provides a list
+of the types with examples of how to use them in display filters.
 
 [[ChWorkFieldTypes]]
 
@@ -522,21 +542,15 @@ Signed integer::
   decimal, octal, or hexadecimal.
 
 Boolean::
-  Can be 1, if true, or 0, if false.
+  Can be 1 (for true), or 0 (for false).
 +
-Because an expression containing a field name, but not comparing it
-with a value, matches all packets that contain that field, an
-expression such as `tcp.flags.syn` will match all TCP segments
-containing the flags field, regardless of whether the SYN flag is set.
-+
-To match only TCP segments in which the SYN flag is set, the
-expression `tcp.flags.syn == 1` must be used.  Similarly, to find
-source-routed token ring packets, a filter expression of `tr.sr == 1`
-must be used; `tr.sr` will match all packets not cut short before the
-source-routed flag.
+A Boolean field is present whether its value is true or false. For example,
+`tcp.flags.syn` is present in all TCP packets containing the flag, whether
+the SYN flag is 0 or 1. To only match TCP packets with the SYN flag set, you need
+to use `tcp.flags.syn == 1`.
 
 Ethernet address::
-  6 bytes separated by a colon (:), dot (.) or dash (-) with one or two bytes between separators:
+  6 bytes separated by a colon (:), dot (.), or dash (-) with one or two bytes between separators:
 +
 `eth.dst == ff:ff:ff:ff:ff:ff`
 +
@@ -564,23 +578,24 @@ Text string::
 ----
 udp contains 81:60:03
 ----
-The example above match packets that contains the 3-byte sequence 0x81, 0x60,
+The display filter above matches packets that contains the 3-byte sequence 0x81, 0x60,
 0x03 anywhere in the UDP header or payload.
 ----
 sip.To contains "a1762"
 ----
-Above example match packets where SIP To-header contains the string "a1762"
+The display filter above matches packets where the SIP To-header contains the string "a1762"
 anywhere in the header.
 ----
 http.host matches "acme\.(org|com|net)"
 ----
-The example above match HTTP packets where the HOST header contains acme.org or acme.com
-or acme.net. Comparisons are case-insensitive. Note: Wireshark needs to be built with
-libpcre in order to be able to use the `matches` resp. `{tilde}` operator.
+The display filter above matches HTTP packets where the HOST header contains
+acme.org, acme.com, or acme.net.
+Comparisons are case-insensitive.
+
 ----
 tcp.flags & 0x02
 ----
-That expression will match all packets that contain a “tcp.flags” field with the 0x02 bit,
+That display filter will match all packets that contain the “tcp.flags” field with the 0x02 bit,
 i.e. the SYN bit, set.
 
 ==== Combining Expressions
@@ -590,19 +605,19 @@ You can combine filter expressions in Wireshark using the logical operators show
 [[FiltLogOps]]
 
 .Display Filter Logical Operations
-[options="header",cols="1,1,4"]
+[options="header",cols="1,1,1,4"]
 |===============
-|English|C-like|Description and example
-|and     |&amp;&amp;| Logical AND. `ip.src==10.0.0.5 and tcp.flags.fin`
-|or      |\|\|      | Logical OR. `ip.scr==10.0.0.5 or ip.src==192.1.1.1`
-|xor     |^^        | Logical XOR. `tr.dst[0:3] == 0.6.29 xor tr.src[0:3] == 0.6.29`
-|not     |!         | Logical NOT. `not llc`
-|[...]   |          | See “Slice Operator” below.
-|in      |          | See “Membership Operator” below.
+|English |C-like    |Description    | Example
+|and     |&amp;&amp;| Logical AND   | `ip.src==10.0.0.5 and tcp.flags.fin`
+|or      |\|\|      | Logical OR    |`ip.scr==10.0.0.5 or ip.src==192.1.1.1`
+|xor     |^^        | Logical XOR   | `tr.dst[0:3] == 0.6.29 xor tr.src[0:3] == 0.6.29`
+|not     |!         | Logical NOT   | `not llc`
+|[...]   |          | Subsequence   | See “Slice Operator” below.
+|in      |          | Set Membership| http.request.method in {"HEAD" "GET"}. See “Membership Operator” below.
 |===============
 
 ==== Slice Operator
-Wireshark allows you to select subsequences of a sequence in rather elaborate
+Wireshark allows you to select a subsequence of a sequence in rather elaborate
 ways. After a label you can place a pair of brackets [] containing a comma
 separated list of range specifiers.
 ----
@@ -639,26 +654,37 @@ to form compound ranges as shown above.
 
 ==== Membership Operator
 Wireshark allows you to test a field for membership in a set of values or
-fields. After the field name, use the in operator followed by the set items
-surrounded by braces {}.
+fields. After the field name, use the `in` operator followed by the set items
+surrounded by braces {}. For example, to display packets with a TCP source or
+destination port of 80, 443, or 8080, you can use `tcp.port in {80 443 8080}`.
+The set of values can also contain ranges: `tcp.port in {443 4430..4434}`.
+
+[NOTE]
+====
+The display filter
 ----
 tcp.port in {80 443 8080}
 ----
-This can be considered a shortcut operator, as the previous expression could
-have been expressed as:
+is equivalent to
 ----
 tcp.port == 80 || tcp.port == 443 || tcp.port == 8080
 ----
-
-The set of values can also contain ranges:
+However, the display filter
 ----
 tcp.port in {443 4430..4434}
 ----
-This is not merely a shortcut for `tcp.port == 443 || (tcp.port >= 4430 &&
-tcp.port <= 4434)`. Comparison operators are usually satisfied when any field
-matches the filter, and thus a packet with ports 80 and 56789 would match this
-alternative display filter since `56789 >= 4430 && 80 <= 4434` is true. The
-membership operator instead tests the same field against the range condition.
+is not equivalent to
+----
+tcp.port == 443 || (tcp.port >= 4430 && tcp.port \<= 4434)
+----
+This is because comparison operators are satisfied when _any_ field
+matches the filter, so a packet with a source port of 56789 and
+destination port of port 80 would also match the second filter
+since `56789 >= 4430 && 80 \<= 4434` is true. In contrast, the
+membership operator tests a single field against the range condition.
+====
+
+
 
 Sets are not just limited to numbers, other types can be used as well:
 ----
@@ -705,35 +731,35 @@ For example, to match odd frame numbers:
 string(frame.number) matches "[13579]$"
 ----
 
-to match IP addresses ending in 255 in a block of subnets (172.16 to 172.31):
+To match IP addresses ending in 255 in a block of subnets (172.16 to 172.31):
 ----
 string(ip.dst) matches "^172\.(1[6-9]|2[0-9]|3[0-1])\..{1,3}\.255"
 ----
 
 [[ChWorkBuildDisplayFilterMistake]]
 
-==== A Common Mistake
+==== A Common Mistake with !=
 
-Using the != operator on combined expressions like eth.addr, ip.addr,
-tcp.port, and udp.port will probably not work as expected. Wireshark
+Using the != operator on combined expressions like `eth.addr`, `ip.addr`,
+`tcp.port`, and `udp.port` will probably not work as expected. Wireshark
 will show the warning “"!=" is deprecated or may have unexpected
 results” when you use it.
 
-Often people use a filter string to display something like `ip.addr == 1.2.3.4`
-which will display all packets containing the IP address 1.2.3.4.
+People often use a filter string like `ip.addr == 1.2.3.4`
+to display all packets containing the IP address 1.2.3.4.
 
-Then they use `ip.addr != 1.2.3.4` to see all packets not containing the IP
+Then they use `ip.addr != 1.2.3.4` expecting to see all packets not containing the IP
 address 1.2.3.4 in it. Unfortunately, this does _not_ do the expected.
 
-Instead, that expression will even be true for packets where either source or
-destination IP address equals 1.2.3.4. The reason for this, is that the
-expression `ip.addr != 1.2.3.4` must be read as “the packet contains a field
+Instead, that expression will even be true for packets where either the source or
+destination IP address equals 1.2.3.4. The reason for this is because the
+expression `ip.addr != 1.2.3.4` is read as “the packet contains a field
 named ip.addr with a value different from 1.2.3.4”. As an IP datagram contains
 both a source and a destination address, the expression will evaluate to true
 whenever at least one of the two addresses differs from 1.2.3.4.
 
 If you want to filter out all packets containing IP datagrams to or from IP
-address 1.2.3.4, then the correct filter is `!(ip.addr == 1.2.3.4)` as it reads
+address 1.2.3.4, then the correct filter is `!(ip.addr == 1.2.3.4)` as it is read
 “show me all the packets for which it is not true that a field named ip.addr
 exists with a value of 1.2.3.4”, or in other words, “filter out all packets
 for which there are no occurrences of a field named ip.addr with the value
@@ -761,27 +787,28 @@ the deprecated fields may be removed in the future.
 
 [[ChWorkFilterAddExpressionSection]]
 
-=== The “Filter Expression” Dialog Box
+=== The “Display Filter Expression” Dialog Box
 
 When you are accustomed to Wireshark’s filtering system and know what labels you
 wish to use in your filters it can be very quick to simply type a filter string.
 However if you are new to Wireshark or are working with a slightly unfamiliar
 protocol it can be very confusing to try to figure out what to type. The
-“Filter Expression” dialog box helps with this.
+“Display Filter Expression” dialog box helps with this.
 
 [TIP]
 ====
-The “Filter Expression” dialog box is an excellent way to learn how to write
+The “Display Filter Expression” dialog box is an excellent way to learn how to write
 Wireshark display filter strings.
 ====
 
 
 [[ChWorkFilterAddExpression1]]
 
-.The “Filter Expression” dialog box
+.The “Display Filter Expression” dialog box
 image::wsug_graphics/ws-filter-add-expression.png[{screenshot-attrs}]
+// Screenshot from Wireshark 3.1.1
 
-When you first bring up the Filter Expression dialog box you are shown a tree
+When you first bring up the Display Filter Expression dialog box you are shown a tree
 of field names, organized by protocol, and a box for selecting a relation.
 
 _Field Name_::
@@ -858,7 +885,7 @@ are empty, it will be set to “new”.
 
 
 _Delete_::
-This button deletes the selected filter. It will be greyed out, if no filter is
+This button deletes the selected filter. It will be greyed out if no filter is
 selected.
 
 
