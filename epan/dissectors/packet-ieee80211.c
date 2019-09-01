@@ -14691,6 +14691,9 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   proto_tree_add_item(tree, hf_ieee80211_rsn_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
+  if (offset >= tag_end)
+    return offset;
+
   /* 7.3.2.25.1 Group Cipher suites */
   rsn_gcs_item = proto_tree_add_item(tree, hf_ieee80211_rsn_gcs, tvb, offset, 4, ENC_BIG_ENDIAN);
   rsn_gcs_tree = proto_item_add_subtree(rsn_gcs_item, ett_rsn_gcs_tree);
@@ -14704,6 +14707,9 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     proto_tree_add_item(rsn_gcs_tree, hf_ieee80211_rsn_gcs_type, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
   }
   offset += 4;
+
+  if (offset >= tag_end)
+    return offset;
 
   /* 7.3.2.25.2 Pairwise Cipher suites */
   rsn_pcs_count = proto_tree_add_item(tree, hf_ieee80211_rsn_pcs_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -19978,9 +19984,9 @@ ieee80211_tag_rsn_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  if (tag_len < 18)
+  if (tag_len < 2)
   {
-    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 18", tag_len);
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 2", tag_len);
     return tvb_captured_length(tvb);
   }
 
