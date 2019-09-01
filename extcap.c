@@ -1541,7 +1541,7 @@ static gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gcha
     int fd = 0;
 
     gchar *pfx = g_strconcat(pipe_prefix, "_", ifname, NULL);
-    if ((fd = create_tempfile(&temp_name, pfx, NULL)) < 0)
+    if ((fd = create_tempfile(&temp_name, pfx, NULL, NULL)) < 0)
     {
         g_free(pfx);
         return FALSE;
@@ -1560,9 +1560,12 @@ static gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gcha
 
     if (mkfifo(temp_name, 0600) == 0)
     {
-        *fifo = g_strdup(temp_name);
+        *fifo = temp_name;
     }
-
+    else
+    {
+        g_free(temp_name);
+    }
     return TRUE;
 }
 #endif

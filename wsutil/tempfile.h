@@ -22,27 +22,18 @@ extern "C" {
  */
 
 /**
- * Construct the path name of a file in the appropriate temporary
- * file directory.
- *
- * @param filename the file name to be given to the file.
- * @return the pathname of the file, g_malloced so the caller
- * should g_free it.
- */
-WS_DLL_PUBLIC char *get_tempfile_path(const char *filename);
-
-/**
  * Create a tempfile with the given prefix (e.g. "wireshark"). The path
- * is created using g_get_tmp_dir and mkstemp.
+ * is created using g_file_open_tmp.
  *
  * @param namebuf [in,out] If not NULL, receives the full path of the temp file.
- *                Must NOT be freed.
+ *                Must be freed.
  * @param pfx [in] A prefix for the temporary file.
  * @param sfx [in] A file extension for the temporary file. NULL can be passed
  *                 if no file extension is needed
+ * @param sfx [out] Any error returned by g_file_open_tmp. May be NULL.
  * @return The file descriptor of the new tempfile, from mkstemps().
  */
-WS_DLL_PUBLIC int create_tempfile(char **namebuf, const char *pfx, const char *sfx);
+WS_DLL_PUBLIC int create_tempfile(gchar **namebuf, const char *pfx, const char *sfx, GError **err);
 
 #ifdef __cplusplus
 }

@@ -3428,10 +3428,10 @@ static gboolean
 capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                          char *errmsg, int errmsg_len)
 {
-    char     *tmpname;
     gchar    *capfile_name;
     gchar    *prefix, *suffix;
     gboolean  is_tempfile;
+    GError   *err_tempfile = NULL;
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_output: %s",
           (capture_opts->save_file) ? capture_opts->save_file : "(not specified)");
@@ -3556,9 +3556,8 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         } else {
             suffix = ".pcap";
         }
-        *save_file_fd = create_tempfile(&tmpname, prefix, suffix);
+        *save_file_fd = create_tempfile(&capfile_name, prefix, suffix, &err_tempfile);
         g_free(prefix);
-        capfile_name = g_strdup(tmpname);
         is_tempfile = TRUE;
     }
 
@@ -3567,7 +3566,8 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         if (is_tempfile) {
             g_snprintf(errmsg, errmsg_len,
                        "The temporary file to which the capture would be saved (\"%s\") "
-                       "could not be opened: %s.", capfile_name, g_strerror(errno));
+                       "could not be opened: %s.", capfile_name, err_tempfile->message);
+            g_error_free(err_tempfile);
         } else {
             if (capture_opts->multi_files_on) {
                 /* Ensures that the ringbuffer is not used. This ensures that

@@ -94,7 +94,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_progfile_dir@Base 1.12.0~rc1
  get_resource_usage@Base 2.3.0
  get_systemfile_dir@Base 1.12.0~rc1
- get_tempfile_path@Base 1.12.0~rc1
  has_global_profiles@Base 1.12.0~rc1
  hkdf_expand@Base 2.5.1
  ieee80211_chan_to_mhz@Base 1.99.7

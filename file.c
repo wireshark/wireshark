@@ -18,7 +18,6 @@
 #include <ctype.h>
 #include <errno.h>
 
-#include <wsutil/tempfile.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/json_dumper.h>

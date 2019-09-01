@@ -2422,7 +2422,6 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 	int fd;
 	const char *ext;
 	char sfx[16];
-	char *tmpname;
 	wtap_dumper *wdh;
 	WFILE_T fh;
 
@@ -2444,13 +2443,12 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 	g_strlcat(sfx, ext, 16);
 
 	/* Choose a random name for the file */
-	fd = create_tempfile(&tmpname, pfx, sfx);
+	fd = create_tempfile(filenamep, pfx, sfx, NULL);
 	if (fd == -1) {
-		*err = errno;
+		*err = WTAP_ERR_CANT_OPEN;
 		g_free(wdh);
 		return NULL;	/* can't create file */
 	}
-	*filenamep = g_strdup(tmpname);
 
 	/* In case "fopen()" fails but doesn't set "errno", set "errno"
 	   to a generic "the open failed" error. */
@@ -2468,7 +2466,7 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 		/* Get rid of the file we created; we couldn't finish
 		   opening it. */
 		wtap_dump_file_close(wdh);
-		ws_unlink(tmpname);
+		ws_unlink(*filenamep);
 		g_free(wdh);
 		return NULL;
 	}
