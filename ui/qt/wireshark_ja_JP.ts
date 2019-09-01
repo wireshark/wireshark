@@ -1598,7 +1598,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy from</source>
-        <translation>からコピー</translation>
+        <translation type="vanished">からコピー</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
@@ -1760,10 +1760,25 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>CopyFromProfileButton</name>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished">からコピー</translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>System default</source>
+        <translation type="unfinished">システム デフォルト</translation>
+    </message>
+</context>
+<context>
     <name>CopyFromProfileMenu</name>
     <message>
         <source>System default</source>
-        <translation>システム デフォルト</translation>
+        <translation type="vanished">システム デフォルト</translation>
     </message>
 </context>
 <context>
@@ -1947,6 +1962,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>保存したブックマークを管理</translation>
     </message>
     <message>
+        <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Apply this filter string to the display.</source>
         <translation>このフィルタ文字列を表示に適用</translation>
     </message>
@@ -1984,11 +2003,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Selected</source>
-        <translation>選択済</translation>
+        <translation type="vanished">選択済</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation>未選択</translation>
+        <translation type="vanished">未選択</translation>
     </message>
 </context>
 <context>
@@ -2149,6 +2168,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Enabled Protocols</source>
         <translation>有効にしたプロトコル</translation>
+    </message>
+    <message>
+        <source>Everywhere</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Description</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2545,6 +2576,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FilterAction</name>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3597,10 +3639,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Copy</source>
         <translation>コピー</translation>
-    </message>
-    <message>
-        <source>Copy from</source>
-        <translation type="unfinished">からコピー</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
@@ -6193,15 +6231,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Selected</source>
-        <translation>選択済(&amp;S)</translation>
+        <translation type="vanished">選択済(&amp;S)</translation>
     </message>
     <message>
         <source>&amp;Not Selected</source>
-        <translation>未選択(&amp;N)</translation>
+        <translation type="vanished">未選択(&amp;N)</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation>選択されていません</translation>
+        <translation type="vanished">選択されていません</translation>
     </message>
     <message>
         <source>Close this capture file</source>
@@ -6950,35 +6988,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…&amp;and Selected</source>
-        <translation>…かつ選択内容と一致(&amp;a)</translation>
+        <translation type="vanished">…かつ選択内容と一致(&amp;a)</translation>
     </message>
     <message>
         <source>…and Selected</source>
-        <translation>…かつ選択内容と一致</translation>
+        <translation type="vanished">…かつ選択内容と一致</translation>
     </message>
     <message>
         <source>…&amp;or Selected</source>
-        <translation>…または選択内容と一致(&amp;o)</translation>
+        <translation type="vanished">…または選択内容と一致(&amp;o)</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation>…または選択内容と一致</translation>
+        <translation type="vanished">…または選択内容と一致</translation>
     </message>
     <message>
         <source>…a&amp;nd not Selected</source>
-        <translation>…かつ選択内容と不一致(&amp;n)</translation>
+        <translation type="vanished">…かつ選択内容と不一致(&amp;n)</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation>…かつ選択内容と不一致</translation>
+        <translation type="vanished">…かつ選択内容と不一致</translation>
     </message>
     <message>
         <source>…o&amp;r not Selected</source>
-        <translation>…または選択内容と不一致(&amp;r)</translation>
+        <translation type="vanished">…または選択内容と不一致(&amp;r)</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation>…または選択内容と不一致</translation>
+        <translation type="vanished">…または選択内容と不一致</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -9087,6 +9125,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Any </source>
         <translation>すべて </translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>
@@ -12862,14 +12904,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unknown User Accessible Table</source>
         <translation>ユーザがアクセスできる表が不明</translation>
-    </message>
-    <message>
-        <source>Copy from</source>
-        <translation type="unfinished">からコピー</translation>
-    </message>
-    <message>
-        <source>Copy entries from another profile.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Open </source>

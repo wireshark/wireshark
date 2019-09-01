@@ -1606,7 +1606,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Copy from</source>
-        <translation>Kopieren von</translation>
+        <translation type="vanished">Kopieren von</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
@@ -1768,10 +1768,25 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
 </context>
 <context>
+    <name>CopyFromProfileButton</name>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished">Kopieren von</translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished">Einträge von einem anderen Profil kopieren.</translation>
+    </message>
+    <message>
+        <source>System default</source>
+        <translation type="unfinished">Standard</translation>
+    </message>
+</context>
+<context>
     <name>CopyFromProfileMenu</name>
     <message>
         <source>System default</source>
-        <translation>Standard</translation>
+        <translation type="vanished">Standard</translation>
     </message>
 </context>
 <context>
@@ -1955,6 +1970,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Gespeicherte Lesezeichen verwalten</translation>
     </message>
     <message>
+        <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Apply this filter string to the display.</source>
         <translation>Diesen Filter zur Anzeige anwenden.</translation>
     </message>
@@ -1992,11 +2011,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Selected</source>
-        <translation>Ausgewählt</translation>
+        <translation type="vanished">Ausgewählt</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation>Nicht Ausgewählt</translation>
+        <translation type="vanished">Nicht Ausgewählt</translation>
     </message>
 </context>
 <context>
@@ -2157,6 +2176,18 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Enabled Protocols</source>
         <translation>Protokolle aktivieren</translation>
+    </message>
+    <message>
+        <source>Everywhere</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Description</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2555,6 +2586,17 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Size</source>
         <translation>Größe</translation>
+    </message>
+</context>
+<context>
+    <name>FilterAction</name>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished">Ausgewählt</translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3615,7 +3657,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Copy from</source>
-        <translation>Kopieren von</translation>
+        <translation type="vanished">Kopieren von</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
@@ -6208,15 +6250,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&amp;Selected</source>
-        <translation>das Au&amp;sgewählte</translation>
+        <translation type="vanished">das Au&amp;sgewählte</translation>
     </message>
     <message>
         <source>&amp;Not Selected</source>
-        <translation>&amp;nicht das Ausgewählte</translation>
+        <translation type="vanished">&amp;nicht das Ausgewählte</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation>nicht das Ausgewählte</translation>
+        <translation type="vanished">nicht das Ausgewählte</translation>
     </message>
     <message>
         <source>Close this capture file</source>
@@ -6965,35 +7007,35 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>…&amp;and Selected</source>
-        <translation>...und das Ausgewählte</translation>
+        <translation type="vanished">...und das Ausgewählte</translation>
     </message>
     <message>
         <source>…and Selected</source>
-        <translation>...und das Ausgewählte</translation>
+        <translation type="vanished">...und das Ausgewählte</translation>
     </message>
     <message>
         <source>…&amp;or Selected</source>
-        <translation>...oder das Ausgewählte</translation>
+        <translation type="vanished">...oder das Ausgewählte</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation>...oder das Ausgewählte</translation>
+        <translation type="vanished">...oder das Ausgewählte</translation>
     </message>
     <message>
         <source>…a&amp;nd not Selected</source>
-        <translation>...und nicht das Ausgewählte</translation>
+        <translation type="vanished">...und nicht das Ausgewählte</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation>...und nicht das Ausgewählte</translation>
+        <translation type="vanished">...und nicht das Ausgewählte</translation>
     </message>
     <message>
         <source>…o&amp;r not Selected</source>
-        <translation>...oder nicht das Ausgewählte</translation>
+        <translation type="vanished">...oder nicht das Ausgewählte</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation>...oder nicht das Ausgewählte</translation>
+        <translation type="vanished">...oder nicht das Ausgewählte</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -9116,6 +9158,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Any </source>
         <translation>Alle</translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>
@@ -12921,11 +12967,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Copy from</source>
-        <translation>Kopieren von</translation>
+        <translation type="vanished">Kopieren von</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation>Einträge von einem anderen Profil kopieren.</translation>
+        <translation type="vanished">Einträge von einem anderen Profil kopieren.</translation>
     </message>
     <message>
         <source>Open </source>

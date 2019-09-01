@@ -1613,7 +1613,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy from</source>
-        <translation>Копировать из</translation>
+        <translation type="vanished">Копировать из</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
@@ -1775,7 +1775,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>CopyFromProfileMenu</name>
+    <name>CopyFromProfileButton</name>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished">Копировать из</translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished">Копировать записи из другого профиля.</translation>
+    </message>
     <message>
         <source>System default</source>
         <translation type="unfinished"></translation>
@@ -1962,6 +1970,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Управлять сохранёнными закладками.</translation>
     </message>
     <message>
+        <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Apply this filter string to the display.</source>
         <translation>Применить эту строку фильтра к отображённому на экране.</translation>
     </message>
@@ -1996,14 +2008,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Manage Filter Expressions</source>
         <translation>Управлять Выражениями Фильтра</translation>
-    </message>
-    <message>
-        <source>Selected</source>
-        <translation type="unfinished">Выбрано</translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
-        <translation type="unfinished">Не Выбрано</translation>
     </message>
 </context>
 <context>
@@ -2164,6 +2168,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Enabled Protocols</source>
         <translation>Разрешённые Протоколы</translation>
+    </message>
+    <message>
+        <source>Everywhere</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Description</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2563,6 +2579,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Size</source>
         <translation>Размер</translation>
+    </message>
+</context>
+<context>
+    <name>FilterAction</name>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished">Выбрано</translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation type="unfinished">Не Выбрано</translation>
     </message>
 </context>
 <context>
@@ -3629,7 +3656,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy from</source>
-        <translation>Копировать из</translation>
+        <translation type="vanished">Копировать из</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
@@ -6226,15 +6253,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Selected</source>
-        <translation>&amp;Выбрано</translation>
+        <translation type="vanished">&amp;Выбрано</translation>
     </message>
     <message>
         <source>&amp;Not Selected</source>
-        <translation>&amp;Не Выбрано</translation>
+        <translation type="vanished">&amp;Не Выбрано</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation>Не Выбрано</translation>
+        <translation type="vanished">Не Выбрано</translation>
     </message>
     <message>
         <source>Close this capture file</source>
@@ -6983,35 +7010,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…&amp;and Selected</source>
-        <translation>…&amp;и Выбранное</translation>
+        <translation type="vanished">…&amp;и Выбранное</translation>
     </message>
     <message>
         <source>…and Selected</source>
-        <translation>…и Выбранное</translation>
+        <translation type="vanished">…и Выбранное</translation>
     </message>
     <message>
         <source>…&amp;or Selected</source>
-        <translation>…&amp;или Выбранное</translation>
+        <translation type="vanished">…&amp;или Выбранное</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation>…или Выбранное</translation>
+        <translation type="vanished">…или Выбранное</translation>
     </message>
     <message>
         <source>…a&amp;nd not Selected</source>
-        <translation>…&amp;и не Выбранное</translation>
+        <translation type="vanished">…&amp;и не Выбранное</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation>…и не Выбранное</translation>
+        <translation type="vanished">…и не Выбранное</translation>
     </message>
     <message>
         <source>…o&amp;r not Selected</source>
-        <translation>…&amp;или не Выбранное</translation>
+        <translation type="vanished">…&amp;или не Выбранное</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation>…или не Выбранное</translation>
+        <translation type="vanished">…или не Выбранное</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -9134,6 +9161,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Any </source>
         <translation>Любой</translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>
@@ -12943,11 +12974,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy from</source>
-        <translation>Копировать из</translation>
+        <translation type="vanished">Копировать из</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation>Копировать записи из другого профиля.</translation>
+        <translation type="vanished">Копировать записи из другого профиля.</translation>
     </message>
     <message>
         <source>Open </source>

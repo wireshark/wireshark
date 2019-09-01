@@ -1581,10 +1581,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy from</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Copy coloring rules from another profile.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1744,7 +1740,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>CopyFromProfileMenu</name>
+    <name>CopyFromProfileButton</name>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>System default</source>
         <translation type="unfinished"></translation>
@@ -1931,6 +1935,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Apply this filter string to the display.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1965,14 +1973,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Manage Filter Expressions</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Selected</source>
-        <translation type="unfinished">Sélectionné</translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
-        <translation type="unfinished">Non Sélectionné</translation>
     </message>
 </context>
 <context>
@@ -2131,6 +2131,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Enabled Protocols</source>
         <translation>Protocoles activés</translation>
+    </message>
+    <message>
+        <source>Everywhere</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Description</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2529,6 +2541,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Size</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FilterAction</name>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished">Sélectionné</translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation type="unfinished">Non Sélectionné</translation>
     </message>
 </context>
 <context>
@@ -3588,10 +3611,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Copy</source>
         <translation>Copier</translation>
-    </message>
-    <message>
-        <source>Copy from</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
@@ -6184,15 +6203,15 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>&amp;Selected</source>
-        <translation>&amp;Sélectionné</translation>
+        <translation type="vanished">&amp;Sélectionné</translation>
     </message>
     <message>
         <source>&amp;Not Selected</source>
-        <translation>&amp;Non Sélectionné</translation>
+        <translation type="vanished">&amp;Non Sélectionné</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation>Non Sélectionné</translation>
+        <translation type="vanished">Non Sélectionné</translation>
     </message>
     <message>
         <source>Close this capture file</source>
@@ -6941,35 +6960,35 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>…&amp;and Selected</source>
-        <translation>...&amp;et Sélectionné</translation>
+        <translation type="vanished">...&amp;et Sélectionné</translation>
     </message>
     <message>
         <source>…and Selected</source>
-        <translation>...et Sélectionné</translation>
+        <translation type="vanished">...et Sélectionné</translation>
     </message>
     <message>
         <source>…&amp;or Selected</source>
-        <translation>...&amp;ou Sélectionné</translation>
+        <translation type="vanished">...&amp;ou Sélectionné</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation>...ou Sélectionné</translation>
+        <translation type="vanished">...ou Sélectionné</translation>
     </message>
     <message>
         <source>…a&amp;nd not Selected</source>
-        <translation>...e&amp;t non Sélectionné</translation>
+        <translation type="vanished">...e&amp;t non Sélectionné</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation>...et non Sélectionné</translation>
+        <translation type="vanished">...et non Sélectionné</translation>
     </message>
     <message>
         <source>…o&amp;r not Selected</source>
-        <translation>...o&amp;u non Sélectionné</translation>
+        <translation type="vanished">...o&amp;u non Sélectionné</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation>...ou non Sélectionné</translation>
+        <translation type="vanished">...ou non Sélectionné</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -9081,6 +9100,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Any </source>
         <translation>Tout</translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>
@@ -12855,14 +12878,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Unknown User Accessible Table</source>
         <translation>inconnu UAT</translation>
-    </message>
-    <message>
-        <source>Copy from</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy entries from another profile.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Open </source>

@@ -1606,7 +1606,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Copy from</source>
-        <translation>Copia da</translation>
+        <translation type="vanished">Copia da</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
@@ -1768,10 +1768,25 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
 </context>
 <context>
+    <name>CopyFromProfileButton</name>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished">Copia da</translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished">Copia voci da un altro profilo.</translation>
+    </message>
+    <message>
+        <source>System default</source>
+        <translation type="unfinished">Predefinito di sistema</translation>
+    </message>
+</context>
+<context>
     <name>CopyFromProfileMenu</name>
     <message>
         <source>System default</source>
-        <translation>Predefinito di sistema</translation>
+        <translation type="vanished">Predefinito di sistema</translation>
     </message>
 </context>
 <context>
@@ -1955,6 +1970,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Gestisci i segnalibri salvati.</translation>
     </message>
     <message>
+        <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Apply this filter string to the display.</source>
         <translation>Applica questa stringa di filtro alla visualizzazione.</translation>
     </message>
@@ -1992,11 +2011,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Selected</source>
-        <translation>Selezionati</translation>
+        <translation type="vanished">Selezionati</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation>Non selezionati</translation>
+        <translation type="vanished">Non selezionati</translation>
     </message>
 </context>
 <context>
@@ -2157,6 +2176,18 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Enabled Protocols</source>
         <translation>Protocolli abilitati</translation>
+    </message>
+    <message>
+        <source>Everywhere</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Description</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2555,6 +2586,17 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Size</source>
         <translation>Dimensione</translation>
+    </message>
+</context>
+<context>
+    <name>FilterAction</name>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished">Selezionati</translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation type="unfinished">Non selezionati</translation>
     </message>
 </context>
 <context>
@@ -3615,7 +3657,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Copy from</source>
-        <translation>Copia da</translation>
+        <translation type="vanished">Copia da</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
@@ -6208,15 +6250,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>&amp;Selected</source>
-        <translation>&amp;Selezionati</translation>
+        <translation type="vanished">&amp;Selezionati</translation>
     </message>
     <message>
         <source>&amp;Not Selected</source>
-        <translation>&amp;Non selezionati</translation>
+        <translation type="vanished">&amp;Non selezionati</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation>Non selezionati</translation>
+        <translation type="vanished">Non selezionati</translation>
     </message>
     <message>
         <source>Close this capture file</source>
@@ -6965,35 +7007,35 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>…&amp;and Selected</source>
-        <translation>... &amp;e selezionati</translation>
+        <translation type="vanished">... &amp;e selezionati</translation>
     </message>
     <message>
         <source>…and Selected</source>
-        <translation>... e selezionati</translation>
+        <translation type="vanished">... e selezionati</translation>
     </message>
     <message>
         <source>…&amp;or Selected</source>
-        <translation>... &amp;o selezionati</translation>
+        <translation type="vanished">... &amp;o selezionati</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation>... o selezionati</translation>
+        <translation type="vanished">... o selezionati</translation>
     </message>
     <message>
         <source>…a&amp;nd not Selected</source>
-        <translation>... &amp;e non selezionati</translation>
+        <translation type="vanished">... &amp;e non selezionati</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation>... e non selezionati</translation>
+        <translation type="vanished">... e non selezionati</translation>
     </message>
     <message>
         <source>…o&amp;r not Selected</source>
-        <translation>... &amp;o non selezionati</translation>
+        <translation type="vanished">... &amp;o non selezionati</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation>... o non selezionati</translation>
+        <translation type="vanished">... o non selezionati</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -9116,6 +9158,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Any </source>
         <translation>Tutti </translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>
@@ -12916,11 +12962,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Copy from</source>
-        <translation>Copia da</translation>
+        <translation type="vanished">Copia da</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation>Copia voci da un altro profilo.</translation>
+        <translation type="vanished">Copia voci da un altro profilo.</translation>
     </message>
     <message>
         <source>Open </source>

@@ -1606,7 +1606,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Copy from</source>
-        <translation>Kopiera ifrån</translation>
+        <translation type="vanished">Kopiera ifrån</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
@@ -1768,7 +1768,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
 </context>
 <context>
-    <name>CopyFromProfileMenu</name>
+    <name>CopyFromProfileButton</name>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished">Kopiera ifrån</translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished">Kopiera poster från en annan profil.</translation>
+    </message>
     <message>
         <source>System default</source>
         <translation type="unfinished"></translation>
@@ -1955,6 +1963,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Hantera sparade bokmärken.</translation>
     </message>
     <message>
+        <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Apply this filter string to the display.</source>
         <translation>Använd denna filtersträng på det visade.</translation>
     </message>
@@ -1989,14 +2001,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Manage Filter Expressions</source>
         <translation>Hantera filteruttryck</translation>
-    </message>
-    <message>
-        <source>Selected</source>
-        <translation type="unfinished">Vald</translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
-        <translation type="unfinished">Ej vald</translation>
     </message>
 </context>
 <context>
@@ -2157,6 +2161,18 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Enabled Protocols</source>
         <translation>Aktiverade protokoll</translation>
+    </message>
+    <message>
+        <source>Everywhere</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Description</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2555,6 +2571,17 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Size</source>
         <translation>Storlek</translation>
+    </message>
+</context>
+<context>
+    <name>FilterAction</name>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished">Vald</translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation type="unfinished">Ej vald</translation>
     </message>
 </context>
 <context>
@@ -3615,7 +3642,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Copy from</source>
-        <translation>Kopiera ifrån</translation>
+        <translation type="vanished">Kopiera ifrån</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
@@ -6208,15 +6235,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>&amp;Selected</source>
-        <translation>&amp;Vald</translation>
+        <translation type="vanished">&amp;Vald</translation>
     </message>
     <message>
         <source>&amp;Not Selected</source>
-        <translation>&amp;Ej vald</translation>
+        <translation type="vanished">&amp;Ej vald</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation>Ej vald</translation>
+        <translation type="vanished">Ej vald</translation>
     </message>
     <message>
         <source>Close this capture file</source>
@@ -6965,35 +6992,35 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>…&amp;and Selected</source>
-        <translation>… &amp;och valda</translation>
+        <translation type="vanished">… &amp;och valda</translation>
     </message>
     <message>
         <source>…and Selected</source>
-        <translation>… och valda</translation>
+        <translation type="vanished">… och valda</translation>
     </message>
     <message>
         <source>…&amp;or Selected</source>
-        <translation>… &amp;eller valda</translation>
+        <translation type="vanished">… &amp;eller valda</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation>… eller valda</translation>
+        <translation type="vanished">… eller valda</translation>
     </message>
     <message>
         <source>…a&amp;nd not Selected</source>
-        <translation>… o&amp;ch inte valda</translation>
+        <translation type="vanished">… o&amp;ch inte valda</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation>… och inte valda</translation>
+        <translation type="vanished">… och inte valda</translation>
     </message>
     <message>
         <source>…o&amp;r not Selected</source>
-        <translation>… e&amp;ller inte valda</translation>
+        <translation type="vanished">… e&amp;ller inte valda</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation>… eller inte valda</translation>
+        <translation type="vanished">… eller inte valda</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -9109,6 +9136,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Any </source>
         <translation>Godtycklig</translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>
@@ -12914,11 +12945,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Copy from</source>
-        <translation>Kopiera ifrån</translation>
+        <translation type="vanished">Kopiera ifrån</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation>Kopiera poster från en annan profil.</translation>
+        <translation type="vanished">Kopiera poster från en annan profil.</translation>
     </message>
     <message>
         <source>Open </source>

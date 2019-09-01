@@ -1610,7 +1610,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy from</source>
-        <translation>Kopiuj z</translation>
+        <translation type="vanished">Kopiuj z</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
@@ -1772,7 +1772,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>CopyFromProfileMenu</name>
+    <name>CopyFromProfileButton</name>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished">Kopiuj z</translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished">Kopiuj z innego profilu.</translation>
+    </message>
     <message>
         <source>System default</source>
         <translation type="unfinished"></translation>
@@ -1959,6 +1967,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Zarządzaj zapisanymi zakładkami.</translation>
     </message>
     <message>
+        <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Apply this filter string to the display.</source>
         <translation>Zastosuj filtr.</translation>
     </message>
@@ -1993,14 +2005,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Manage Filter Expressions</source>
         <translation>Zarządzaj wyrażeniami filtrów</translation>
-    </message>
-    <message>
-        <source>Selected</source>
-        <translation type="unfinished">Wybrany</translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2161,6 +2165,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Enabled Protocols</source>
         <translation>Używane protokoły</translation>
+    </message>
+    <message>
+        <source>Everywhere</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Description</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2560,6 +2576,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Size</source>
         <translation>Rozmiar</translation>
+    </message>
+</context>
+<context>
+    <name>FilterAction</name>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished">Wybrany</translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3616,10 +3643,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Copy</source>
         <translation>Kopiuj</translation>
-    </message>
-    <message>
-        <source>Copy from</source>
-        <translation type="unfinished">Kopiuj z</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
@@ -6216,15 +6239,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Selected</source>
-        <translation>&amp;Wybrane</translation>
+        <translation type="vanished">&amp;Wybrane</translation>
     </message>
     <message>
         <source>&amp;Not Selected</source>
-        <translation>&amp;Nie wybrane</translation>
+        <translation type="vanished">&amp;Nie wybrane</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation>Nie wybrane</translation>
+        <translation type="vanished">Nie wybrane</translation>
     </message>
     <message>
         <source>Close this capture file</source>
@@ -6973,35 +6996,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…&amp;and Selected</source>
-        <translation>…i wybrane</translation>
+        <translation type="vanished">…i wybrane</translation>
     </message>
     <message>
         <source>…and Selected</source>
-        <translation>…i wybrane</translation>
+        <translation type="vanished">…i wybrane</translation>
     </message>
     <message>
         <source>…&amp;or Selected</source>
-        <translation>…lub wybrane</translation>
+        <translation type="vanished">…lub wybrane</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation>…lub wybrane</translation>
+        <translation type="vanished">…lub wybrane</translation>
     </message>
     <message>
         <source>…a&amp;nd not Selected</source>
-        <translation>…i nie wybrane</translation>
+        <translation type="vanished">…i nie wybrane</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation>…i nie wybrane</translation>
+        <translation type="vanished">…i nie wybrane</translation>
     </message>
     <message>
         <source>…o&amp;r not Selected</source>
-        <translation>…lub nie wybrane</translation>
+        <translation type="vanished">…lub nie wybrane</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation>…lub nie wybrane</translation>
+        <translation type="vanished">…lub nie wybrane</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -9123,6 +9146,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Any </source>
         <translation>Każdy</translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>
@@ -12927,11 +12954,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy from</source>
-        <translation>Kopiuj z</translation>
+        <translation type="vanished">Kopiuj z</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation>Kopiuj z innego profilu.</translation>
+        <translation type="vanished">Kopiuj z innego profilu.</translation>
     </message>
     <message>
         <source>Open </source>
