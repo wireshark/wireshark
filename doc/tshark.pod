@@ -1311,10 +1311,11 @@ on those calls that match that filter.
 Example: B<-z "h225,srt,ip.addr==1.2.3.4"> will only collect stats for
 ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
 
-=item B<-z> hosts[,ipv4][,ipv6]
+=item B<-z> hosts[,ip][,ipv4][,ipv6]
 
 Dump any collected IPv4 and/or IPv6 addresses in "hosts" format.  Both IPv4
-and IPv6 addresses are dumped by default.
+and IPv6 addresses are dumped by default. "ip" argument will dump only ipv4
+addresses.
 
 Addresses are collected from a number of sources, including standard "hosts"
 files and captured traffic.

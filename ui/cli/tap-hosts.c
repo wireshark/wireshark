@@ -102,12 +102,13 @@ hosts_init(const char *opt_arg, void *userdata _U_)
 		tokens = g_strsplit(opt_arg, ",", 0);
 		opt_count = 0;
 		while (tokens[opt_count]) {
-			if (strcmp("ipv4", tokens[opt_count]) == 0) {
+			if ((strcmp("ipv4", tokens[opt_count]) == 0) ||
+				(strcmp("ip", tokens[opt_count]) == 0)) {
 				dump_v4 = TRUE;
 			} else if (strcmp("ipv6", tokens[opt_count]) == 0) {
 				dump_v6 = TRUE;
 			} else if (opt_count > 0) {
-				cmdarg_err("invalid \"-z " TAP_NAME "[,ipv4|ipv6]\" argument");
+				cmdarg_err("invalid \"-z " TAP_NAME "[,ip|ipv4|ipv6]\" argument");
 				exit(1);
 			}
 			opt_count++;
