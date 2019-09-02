@@ -52,6 +52,7 @@
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/widgets/drag_label.h>
 #include <ui/qt/filter_action.h>
+#include <ui/qt/decode_as_dialog.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -212,7 +213,6 @@ PacketList::PacketList(QWidget *parent) :
     QTreeView(parent),
     proto_tree_(NULL),
     cap_file_(NULL),
-    decode_as_(NULL),
     ctx_column_(-1),
     overlay_timer_id_(0),
     create_near_overlay_(true),
@@ -487,19 +487,19 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     FrameInformation * frameData =
             new FrameInformation(new CaptureFile(this, cap_file_), packet_list_model_->getRowFdata(ctxIndex.row()));
 
-    QMenu ctx_menu(this);
+    QMenu * ctx_menu = new QMenu(this);
     // XXX We might want to reimplement setParent() and fill in the context
     // menu there.
-    ctx_menu.addAction(window()->findChild<QAction *>("actionEditMarkPacket"));
-    ctx_menu.addAction(window()->findChild<QAction *>("actionEditIgnorePacket"));
-    ctx_menu.addAction(window()->findChild<QAction *>("actionEditSetTimeReference"));
-    ctx_menu.addAction(window()->findChild<QAction *>("actionEditTimeShift"));
-    ctx_menu.addAction(window()->findChild<QAction *>("actionEditPacketComment"));
+    ctx_menu->addAction(window()->findChild<QAction *>("actionEditMarkPacket"));
+    ctx_menu->addAction(window()->findChild<QAction *>("actionEditIgnorePacket"));
+    ctx_menu->addAction(window()->findChild<QAction *>("actionEditSetTimeReference"));
+    ctx_menu->addAction(window()->findChild<QAction *>("actionEditTimeShift"));
+    ctx_menu->addAction(window()->findChild<QAction *>("actionEditPacketComment"));
 
-    ctx_menu.addSeparator();
+    ctx_menu->addSeparator();
 
-    ctx_menu.addAction(window()->findChild<QAction *>("actionViewEditResolvedName"));
-    ctx_menu.addSeparator();
+    ctx_menu->addAction(window()->findChild<QAction *>("actionViewEditResolvedName"));
+    ctx_menu->addSeparator();
 
     QString selectedfilter = getFilterFromRowAndColumn(currentIndex());
 
@@ -510,41 +510,41 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     }
 
     bool have_filter_expr = !selectedfilter.isEmpty();
-    ctx_menu.addMenu(FilterAction::createFilterMenu(FilterAction::ActionApply, selectedfilter, have_filter_expr, &ctx_menu));
-    ctx_menu.addMenu(FilterAction::createFilterMenu(FilterAction::ActionPrepare, selectedfilter, have_filter_expr, &ctx_menu));
+    ctx_menu->addMenu(FilterAction::createFilterMenu(FilterAction::ActionApply, selectedfilter, have_filter_expr, ctx_menu));
+    ctx_menu->addMenu(FilterAction::createFilterMenu(FilterAction::ActionPrepare, selectedfilter, have_filter_expr, ctx_menu));
 
     const char *conv_menu_name = "menuConversationFilter";
     QMenu * main_menu_item = window()->findChild<QMenu *>(conv_menu_name);
     conv_menu_.setTitle(main_menu_item->title());
     conv_menu_.setObjectName(conv_menu_name);
-    ctx_menu.addMenu(&conv_menu_);
+    ctx_menu->addMenu(&conv_menu_);
 
     const char *colorize_menu_name = "menuColorizeConversation";
     main_menu_item = window()->findChild<QMenu *>(colorize_menu_name);
     colorize_menu_.setTitle(main_menu_item->title());
     colorize_menu_.setObjectName(colorize_menu_name);
-    ctx_menu.addMenu(&colorize_menu_);
+    ctx_menu->addMenu(&colorize_menu_);
 
     main_menu_item = window()->findChild<QMenu *>("menuSCTP");
-    QMenu * submenu = new QMenu(main_menu_item->title(), &ctx_menu);
-    ctx_menu.addMenu(submenu);
+    QMenu * submenu = new QMenu(main_menu_item->title(), ctx_menu);
+    ctx_menu->addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
     submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
     submenu->addAction(window()->findChild<QAction *>("actionSCTPFilterThisAssociation"));
 
     main_menu_item = window()->findChild<QMenu *>("menuFollow");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu);
-    ctx_menu.addMenu(submenu);
+    submenu = new QMenu(main_menu_item->title(), ctx_menu);
+    ctx_menu->addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTLSStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTPStream"));
 
-    ctx_menu.addSeparator();
+    ctx_menu->addSeparator();
 
     main_menu_item = window()->findChild<QMenu *>("menuEditCopy");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu);
-    ctx_menu.addMenu(submenu);
+    submenu = new QMenu(main_menu_item->title(), ctx_menu);
+    ctx_menu->addMenu(submenu);
 
     QAction * action = submenu->addAction(tr("Summary as Text"));
     action->setData(copy_summary_text_);
@@ -565,15 +565,14 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     copyEntries->setParent(submenu);
     frameData->setParent(submenu);
 
-    ctx_menu.addSeparator();
-    ctx_menu.addMenu(&proto_prefs_menu_);
-    decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
-    ctx_menu.addAction(decode_as_);
+    ctx_menu->addSeparator();
+    ctx_menu->addMenu(&proto_prefs_menu_);
+    action = ctx_menu->addAction(tr("Decode As" UTF8_HORIZONTAL_ELLIPSIS));
+    connect(action, &QAction::triggered, this, &PacketList::ctxDecodeAsDialog);
     // "Print" not ported intentionally
     action = window()->findChild<QAction *>("actionViewShowPacketInNewWindow");
-    ctx_menu.addAction(action);
+    ctx_menu->addAction(action);
 
-    decode_as_->setData(QVariant::fromValue(true));
 
     // Set menu sensitivity for the current column and set action data.
     if ( frameData )
@@ -581,8 +580,22 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     else
         emit frameSelected(-1);
 
-    ctx_menu.exec(event->globalPos());
-    decode_as_->setData(QVariant());
+    ctx_menu->exec(event->globalPos());
+}
+
+void PacketList::ctxDecodeAsDialog()
+{
+    QAction *da_action = qobject_cast<QAction*>(sender());
+    if ( ! da_action )
+        return;
+    bool create_new = da_action->property("create_new").toBool();
+
+    DecodeAsDialog da_dialog(this, cap_file_, create_new);
+    da_dialog.exec();
+
+    // Emitting PacketDissectionChanged directly from a QDialog can cause
+    // problems on macOS.
+    wsApp->flushAppSignals();
 }
 
 // Auto scroll if:

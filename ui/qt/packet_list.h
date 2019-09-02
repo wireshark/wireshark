@@ -91,7 +91,6 @@ private:
     QMenu conv_menu_;
     QMenu colorize_menu_;
     ProtocolPreferencesMenu proto_prefs_menu_;
-    QAction *decode_as_;
     int ctx_column_;
     QByteArray column_state_;
     OverlayScrollBar *overlay_sb_;
@@ -170,6 +169,7 @@ private slots:
     void drawFarOverlay();
     void drawNearOverlay();
     void updatePackets(bool redraw);
+    void ctxDecodeAsDialog();
 };
 
 #endif // PACKET_LIST_H
