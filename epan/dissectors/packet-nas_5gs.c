@@ -244,7 +244,18 @@ static int hf_nas_5gs_sm_nof_params = -1;
 static int hf_nas_5gs_sm_param_id = -1;
 static int hf_nas_5gs_sm_param_len = -1;
 static int hf_nas_5gs_sm_qos_rule_precedence = -1;
-static int hf_nas_5gs_sm_pal_cont = -1;
+static int hf_nas_5gs_sm_param_cont = -1;
+static int hf_nas_5gs_sm_5qi = -1;
+static int hf_nas_5gs_sm_unit_for_gfbr_ul = -1;
+static int hf_nas_5gs_sm_gfbr_ul = -1;
+static int hf_nas_5gs_sm_unit_for_gfbr_dl = -1;
+static int hf_nas_5gs_sm_gfbr_dl = -1;
+static int hf_nas_5gs_sm_unit_for_mfbr_ul = -1;
+static int hf_nas_5gs_sm_mfbr_ul = -1;
+static int hf_nas_5gs_sm_unit_for_mfbr_dl = -1;
+static int hf_nas_5gs_sm_mfbr_dl = -1;
+static int hf_nas_5gs_sm_averaging_window = -1;
+static int hf_nas_5gs_sm_eps_bearer_id = -1;
 static int hf_nas_5gs_sm_qfi = -1;
 static int hf_nas_5gs_sm_mapd_eps_b_cont_id = -1;
 static int hf_nas_5gs_sm_mapd_eps_b_cont_opt_code = -1;
@@ -2835,8 +2846,9 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     guint32 param_len, param_id;
     guint32 curr_offset, start_offset;
     guint8 num_param;
-    guint32 unit, mult, ambr_val;
+    guint32 unit, mult, val;
     const char *unit_str;
+    int hf_unit, hf_val;
 
     static const int * param_flags[] = {
         &hf_nas_5gs_sm_e,
@@ -2885,37 +2897,46 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
             switch (param_id) {
                 /* 01H (5QI)*/
             case 0x01:
-                proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_pal_cont, tvb, curr_offset, param_len, ENC_BIG_ENDIAN);
+                proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_5qi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                 curr_offset += param_len;
                 break;
                 /* 02H (GFBR uplink); 04H (MFBR uplink);*/
             case 0x02:
+            case 0x03:
             case 0x04:
-                /* Unit for Session-AMBR for uplink */
-                proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_sm_unit_for_session_ambr_ul, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &unit);
+            case 0x05:
+                if (param_id == 2) {
+                    hf_unit = hf_nas_5gs_sm_unit_for_gfbr_ul;
+                    hf_val = hf_nas_5gs_sm_gfbr_ul;
+                } else if (param_id == 3) {
+                    hf_unit = hf_nas_5gs_sm_unit_for_gfbr_dl;
+                    hf_val = hf_nas_5gs_sm_gfbr_dl;
+                } else if (param_id == 4) {
+                    hf_unit = hf_nas_5gs_sm_unit_for_mfbr_ul;
+                    hf_val = hf_nas_5gs_sm_mfbr_ul;
+                } else {
+                    hf_unit = hf_nas_5gs_sm_unit_for_mfbr_dl;
+                    hf_val = hf_nas_5gs_sm_mfbr_dl;
+                }
+                proto_tree_add_item_ret_uint(sub_tree2, hf_unit, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &unit);
                 curr_offset++;
-                /* Session-AMBR for downlink */
                 mult = get_ext_ambr_unit(unit, &unit_str);
-                ambr_val = tvb_get_ntohs(tvb, curr_offset);
-                proto_tree_add_uint_format_value(sub_tree2, hf_nas_5gs_sm_session_ambr_ul, tvb, curr_offset, param_len - 1,
-                    ambr_val, "%u %s (%u)", ambr_val * mult, unit_str, ambr_val);
+                val = tvb_get_ntohs(tvb, curr_offset);
+                proto_tree_add_uint_format_value(sub_tree2, hf_val, tvb, curr_offset, param_len - 1,
+                    val, "%u %s (%u)", val * mult, unit_str, val);
                 curr_offset += (param_len - 1);
                 break;
-                /* 03H (GFBR downlink); 05H (MFBR downlink);*/
-            case 0x03:
-            case 0x05:
-                /* Unit for Session-AMBR for uplink */
-                proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_sm_unit_for_session_ambr_dl, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &unit);
-                curr_offset++;
-                /* Session-AMBR for downlink*/
-                mult = get_ext_ambr_unit(unit, &unit_str);
-                ambr_val = tvb_get_ntohs(tvb, curr_offset);
-                proto_tree_add_uint_format_value(sub_tree2, hf_nas_5gs_sm_session_ambr_dl, tvb, curr_offset, param_len - 1,
-                    ambr_val, "%u %s (%u)", ambr_val * mult, unit_str, ambr_val);
-                curr_offset += (param_len - 1);
+                break;
+            case 0x06:
+                proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_averaging_window, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                curr_offset += param_len;
+                break;
+            case 0x07:
+                proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_eps_bearer_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset += param_len;
                 break;
             default:
-                proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_pal_cont, tvb, curr_offset, param_len, ENC_BIG_ENDIAN);
+                proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_param_cont, tvb, curr_offset, param_len, ENC_NA);
                 curr_offset += param_len;
                 break;
             }
@@ -2981,20 +3002,6 @@ static const value_string nas_5gs_sm_pkt_flt_dir_values[] = {
     { 0x03, "Bidirectional" },
     { 0, NULL }
  };
-
-static const value_string nas_5gs_rule_param_cont[] = {
-    { 0x0, "Reserved" },
-    { 0x01, "5QI 1" },
-    { 0x02, "5QI 2" },
-    { 0x03, "5QI 3" },
-    { 0x04, "5QI 4" },
-    { 0x05, "5QI 5" },
-    { 0x06, "5QI 6" },
-    { 0x07, "5QI 7" },
-    { 0x08, "5QI 8" },
-    { 0x09, "5QI 9" },
-    { 0, NULL }
-};
 
 guint16
 de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
@@ -7357,9 +7364,64 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_nas_5gs_sm_pal_cont,
-        { "Parameters content",   "nas_5gs.sm.pal_cont",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_rule_param_cont), 0x0,
+        { &hf_nas_5gs_sm_param_cont,
+        { "Parameter content",   "nas_5gs.sm.param_content",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_5qi,
+        { "5QI",   "nas_5gs.sm.5qi",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_unit_for_gfbr_ul,
+        { "Unit for GFBR uplink",   "nas_5gs.sm.unit_for_gfbr_ul",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_unit_for_session_ambr_values), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_gfbr_ul,
+        { "GFBR uplink",   "nas_5gs.sm.gfbr_ul",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_unit_for_gfbr_dl,
+        { "Unit for GFBR downlink",   "nas_5gs.sm.unit_for_gfbr_dl",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_unit_for_session_ambr_values), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_gfbr_dl,
+        { "GFBR downlink",   "nas_5gs.sm.gfbr_dl",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_unit_for_mfbr_ul,
+        { "Unit for MFBR uplink",   "nas_5gs.sm.unit_for_mfbr_ul",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_unit_for_session_ambr_values), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_mfbr_ul,
+        { "MFBR uplink",   "nas_5gs.sm.mfbr_ul",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_unit_for_mfbr_dl,
+        { "Unit for MFBR downlink",   "nas_5gs.sm.unit_for_mfbr_dl",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_unit_for_session_ambr_values), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_mfbr_dl,
+        { "MFBR downlink",   "nas_5gs.sm.mfbr_dl",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_averaging_window,
+        { "Averaging window",   "nas_5gs.sm.averaging_window",
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_millisecond_milliseconds, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_eps_bearer_id,
+        { "EPS bearer identity",   "nas_5gs.sm.eps_bearer_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_qfi,
