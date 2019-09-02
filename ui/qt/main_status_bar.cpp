@@ -477,6 +477,11 @@ void MainStatusBar::showCaptureStatistics()
                                    .arg(cap_file_->ignored_count)
                                    .arg((100.0*cap_file_->ignored_count)/cap_file_->count, 0, 'f', 1));
             }
+            if (cap_file_->packet_comment_count > 0) {
+                packets_str.append(QString(tr(" %1 Comments: %2"))
+                    .arg(UTF8_MIDDLE_DOT)
+                    .arg(cap_file_->packet_comment_count));
+            }
             if(prefs.gui_qt_show_file_load_time && !cap_file_->is_tempfile) {
                 /* Loading an existing file */
                 gulong computed_elapsed = cf_get_computed_elapsed(cap_file_);
