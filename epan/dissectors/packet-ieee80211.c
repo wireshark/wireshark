@@ -18711,7 +18711,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 {
   tvbuff_t     *tag_tvb;
   guint32       tag_no, tag_len;
-  guint32       ext_tag_no, ext_tag_len;
+  guint32       ext_tag_no;
   proto_tree   *orig_tree = tree;
   proto_item   *ti        = NULL;
   proto_item   *ti_len, *ti_tag;
@@ -18738,9 +18738,8 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
   }
 
   if (tag_no == TAG_ELEMENT_ID_EXTENSION) {
-    ext_tag_len = tag_len - 1;
     proto_tree_add_item(tree, hf_ieee80211_tag_number, tvb, offset, 1, ENC_NA);
-    ti_len = proto_tree_add_uint(tree, hf_ieee80211_ext_tag_length, tvb, offset + 1, 1, ext_tag_len);
+    ti_len = proto_tree_add_uint(tree, hf_ieee80211_ext_tag_length, tvb, offset + 1, 1, tag_len - 1);
     ti_tag = proto_tree_add_item(tree, hf_ieee80211_ext_tag_number, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
   } else {
     ti_tag = proto_tree_add_item(tree, hf_ieee80211_tag_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -20263,45 +20262,6 @@ static const val64_string he_mimo_cntrl_feedback_vals[] = {
   { 0, NULL }
 };
 
-static const int *he_mac_headers[] = {
-  &hf_he_htc_he_support,                           /* 0 */
-  &hf_he_twt_requester_support,                    /* 1 */
-  &hf_he_twt_responder_support,                    /* 2 */
-  &hf_he_fragmentation_support,                    /* 3 */
-  &hf_he_max_number_fragmented_msdus,              /* 4 */
-  &hf_he_min_fragment_size,                        /* 5 */
-  &hf_he_trigger_frame_mac_padding_dur,            /* 6 */
-  &hf_he_multi_tid_aggregation_support,            /* 7 */
-  &hf_he_he_link_adaptation_support,               /* 8 */
-  &hf_he_all_ack_support,                          /* 9 */
-  &hf_he_trs_support,                              /* 10 */
-  &hf_he_bsr_support,                              /* 11 */
-  &hf_he_broadcast_twt_support,                    /* 12 */
-  &hf_he_32_bit_ba_bitmap_support,                 /* 13 */
-  &hf_he_mu_cascading_support,                     /* 14 */
-  &hf_he_ack_enabled_aggregation_support,          /* 15 */
-  &hf_he_reserved_b24,                             /* 16 */
-  &hf_he_om_control_support,                       /* 17 */
-  &hf_he_ofdma_ra_support,                         /* 18 */
-  &hf_he_max_a_mpdu_length_exponent_ext,           /* 19 */
-  &hf_he_a_msdu_fragmentation_support,             /* 20 */
-  &hf_he_flexible_twt_schedule_support,            /* 21 */
-  &hf_he_rx_control_frame_to_multibss,             /* 22 */
-  &hf_he_bsrp_bqrp_a_mpdu_aggregation,             /* 23 */
-  &hf_he_qtp_support,                              /* 24 */
-  &hf_he_bqr_support,                              /* 25 */
-  &hf_he_srp_responder,                            /* 26 */
-  &hf_he_ndp_feedback_report_support,              /* 27 */
-  &hf_he_ops_support,                              /* 28 */
-  &hf_he_a_msdu_in_a_mpdu_support,                 /* 29 */
-  &hf_he_multi_tid_aggregation_tx_support,         /* 30 */
-  &hf_he_subchannel_selective_trans_support,       /* 31 */
-  &hf_he_2_996_tone_ru_support,                    /* 32 */
-  &hf_he_om_control_ul_mu_data_disable_rx_support, /* 33 */
-  &hf_he_reserved_bits_45_47,                      /* 34 */
-  NULL
-};
-
 static const int *he_phy_first_byte_headers[] = {
   &hf_he_phy_cap_reserved_b0,
   NULL,
@@ -20491,6 +20451,45 @@ static void
 dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   int offset, int len)
 {
+  int *he_mac_headers[] = {
+    &hf_he_htc_he_support,                           /* 0 */
+    &hf_he_twt_requester_support,                    /* 1 */
+    &hf_he_twt_responder_support,                    /* 2 */
+    &hf_he_fragmentation_support,                    /* 3 */
+    &hf_he_max_number_fragmented_msdus,              /* 4 */
+    &hf_he_min_fragment_size,                        /* 5 */
+    &hf_he_trigger_frame_mac_padding_dur,            /* 6 */
+    &hf_he_multi_tid_aggregation_support,            /* 7 */
+    &hf_he_he_link_adaptation_support,               /* 8 */
+    &hf_he_all_ack_support,                          /* 9 */
+    &hf_he_trs_support,                              /* 10 */
+    &hf_he_bsr_support,                              /* 11 */
+    &hf_he_broadcast_twt_support,                    /* 12 */
+    &hf_he_32_bit_ba_bitmap_support,                 /* 13 */
+    &hf_he_mu_cascading_support,                     /* 14 */
+    &hf_he_ack_enabled_aggregation_support,          /* 15 */
+    &hf_he_reserved_b24,                             /* 16 */
+    &hf_he_om_control_support,                       /* 17 */
+    &hf_he_ofdma_ra_support,                         /* 18 */
+    &hf_he_max_a_mpdu_length_exponent_ext,           /* 19 */
+    &hf_he_a_msdu_fragmentation_support,             /* 20 */
+    &hf_he_flexible_twt_schedule_support,            /* 21 */
+    &hf_he_rx_control_frame_to_multibss,             /* 22 */
+    &hf_he_bsrp_bqrp_a_mpdu_aggregation,             /* 23 */
+    &hf_he_qtp_support,                              /* 24 */
+    &hf_he_bqr_support,                              /* 25 */
+    &hf_he_srp_responder,                            /* 26 */
+    &hf_he_ndp_feedback_report_support,              /* 27 */
+    &hf_he_ops_support,                              /* 28 */
+    &hf_he_a_msdu_in_a_mpdu_support,                 /* 29 */
+    &hf_he_multi_tid_aggregation_tx_support,         /* 30 */
+    &hf_he_subchannel_selective_trans_support,       /* 31 */
+    &hf_he_2_996_tone_ru_support,                    /* 32 */
+    &hf_he_om_control_ul_mu_data_disable_rx_support, /* 33 */
+    &hf_he_reserved_bits_45_47,                      /* 34 */
+    NULL
+  };
+
   guint64 he_mac_caps = tvb_get_letoh40(tvb, offset);
   guint8 phy_channel_width_set = 0;
   proto_tree *phy_cap_tree = NULL;
@@ -20513,7 +20512,7 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   }
 
   proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_he_mac_capabilities,
-                        ett_he_mac_capabilities, he_mac_headers,
+                        ett_he_mac_capabilities, (const int**)he_mac_headers,
                         ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   offset += 6;
 
