@@ -7349,7 +7349,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_protocol_identifier_or_next_hd,
         { "Protocol identifier/Next header type", "nas_5gs.protocol_identifier_or_next_hd",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_qos_rule_precedence,
@@ -7803,7 +7803,7 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_ursp_traff_desc_next_hdr,
-        { "protocol identifier/next header type", "nas_5gs.ursp.desc_next_hdr",
+        { "Protocol identifier/next header type", "nas_5gs.ursp.desc_next_hdr",
             FT_UINT8,  BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
             NULL, HFILL }
         },
