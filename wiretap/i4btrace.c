@@ -101,51 +101,51 @@ wtap_open_return_val i4btrace_open(wtap *wth, int *err, gchar **err_info)
 	    err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
 			return WTAP_OPEN_ERROR;
-	}
-
-	/*
-	 * Now try reading a few more packets.
-	 */
-	for (int i = 1; i < PACKETS_TO_CHECK; i++) {
+	} else {
 		/*
-		 * Read and check the file header; we've already
-		 * decided whether this would be a byte-swapped file
-		 * or not, so we swap iff we decided it was.
+		 * Now try reading a few more packets.
 		 */
-		if (!wtap_read_bytes_or_eof(wth->fh, &hdr, sizeof(hdr), err,
-		    err_info)) {
-			if (*err == 0) {
-				/* EOF; no more packets to try. */
+		for (int i = 1; i < PACKETS_TO_CHECK; i++) {
+			/*
+			 * Read and check the file header; we've already
+			 * decided whether this would be a byte-swapped file
+			 * or not, so we swap iff we decided it was.
+			 */
+			if (!wtap_read_bytes_or_eof(wth->fh, &hdr, sizeof(hdr), err,
+			    err_info)) {
+				if (*err == 0) {
+					/* EOF; no more packets to try. */
+					break;
+				}
+				if (*err != WTAP_ERR_SHORT_READ)
+					return WTAP_OPEN_ERROR;
+				return WTAP_OPEN_NOT_MINE;
+			}
+
+			if (byte_swapped)
+				I4B_BYTESWAP_HEADER(hdr);
+			if (!I4B_HDR_IS_OK(hdr)) {
+				/*
+				 * It doesn't look valid.
+				 */
+				return WTAP_OPEN_NOT_MINE;
+			}
+
+			/*
+			 * Now try to read past the packet bytes; if that
+			 * fails with a short read, we don't fail, so that
+			 * we can report the file as a truncated I4B file.
+			 */
+			if (!wtap_read_bytes(wth->fh, NULL,
+			    hdr.length - (guint32)sizeof(hdr), err, err_info)) {
+				if (*err != WTAP_ERR_SHORT_READ)
+					return WTAP_OPEN_ERROR;
+
+				/*
+				 * Probably a truncated file, so just quit.
+				 */
 				break;
 			}
-			if (*err != WTAP_ERR_SHORT_READ)
-				return WTAP_OPEN_ERROR;
-			return WTAP_OPEN_NOT_MINE;
-		}
-
-		if (byte_swapped)
-			I4B_BYTESWAP_HEADER(hdr);
-		if (!I4B_HDR_IS_OK(hdr)) {
-			/*
-			 * It doesn't look valid in either byte order.
-			 */
-			return WTAP_OPEN_NOT_MINE;
-		}
-
-		/*
-		 * Now try to read past the packet bytes; if that fails with
-		 * a short read, we don't fail, so that we can report
-		 * the file as a truncated I4B file.
-		 */
-		if (!wtap_read_bytes(wth->fh, NULL, hdr.length - (guint32)sizeof(hdr),
-		    err, err_info)) {
-			if (*err != WTAP_ERR_SHORT_READ)
-				return WTAP_OPEN_ERROR;
-
-			/*
-			 * Probably a truncated file, so just quit.
-			 */
-			break;
 		}
 	}
 
