@@ -15,8 +15,8 @@
  *---------------------------------------------------------------------------*/
 typedef struct {
 	guint32 length;		/* length of the following mbuf		*/
-	gint32 unit;		/* controller unit number		*/
-	gint32 type;		/* type of channel			*/
+	guint32 unit;		/* controller unit number		*/
+	guint32 type;		/* type of channel			*/
 #define TRC_CH_I	0		/* Layer 1 INFO's		*/
 #define TRC_CH_D	1		/* D channel			*/
 #define TRC_CH_B1	2		/* B1 channel			*/
@@ -24,7 +24,7 @@ typedef struct {
 	gint32 dir;		/* direction				*/
 #define FROM_TE	0			/* user -> network		*/
 #define FROM_NT 1			/* network -> user		*/
-	gint32 trunc;		/* # of truncated bytes (frame > MCLBYTES) */
+	guint32 trunc;		/* # of truncated bytes (frame > MCLBYTES) */
 	guint32 count;		/* frame count for this unit/type	*/
 	guint32 ts_sec;		/* timestamp seconds */
 	guint32 ts_usec;	/* timestamp microseconds */

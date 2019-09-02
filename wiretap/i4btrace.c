@@ -28,12 +28,36 @@ static int i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info);
 
 /*
+ * Byte-swap the header.
+ */
+#define I4B_BYTESWAP_HEADER(hdr) \
+	{ \
+		hdr.length = GUINT32_SWAP_LE_BE(hdr.length); \
+		hdr.unit = GUINT32_SWAP_LE_BE(hdr.unit); \
+		hdr.type = GUINT32_SWAP_LE_BE(hdr.type); \
+		hdr.dir = GUINT32_SWAP_LE_BE(hdr.dir); \
+		hdr.trunc = GUINT32_SWAP_LE_BE(hdr.trunc); \
+		hdr.count = GUINT32_SWAP_LE_BE(hdr.count); \
+		hdr.ts_sec = GUINT32_SWAP_LE_BE(hdr.ts_sec); \
+		hdr.ts_usec = GUINT32_SWAP_LE_BE(hdr.ts_usec); \
+	}
+
+/*
  * Test some fields in the header to see if they make sense.
  */
 #define	I4B_HDR_IS_OK(hdr) \
-	(!((unsigned int)hdr.length < 3 || (unsigned int)hdr.length > 16384 || \
-	    (unsigned int)hdr.unit > 4 || (unsigned int)hdr.type > 4 || \
-	    (unsigned int)hdr.dir > 2 || (unsigned int)hdr.trunc > 2048))
+	(!(hdr.length < sizeof(hdr) || \
+	    hdr.length > 16384 || \
+	    hdr.unit > 4 || \
+	    hdr.type > TRC_CH_B2 || \
+	    hdr.dir > FROM_NT || \
+	    hdr.trunc > 2048 || \
+	    hdr.ts_usec >= 1000000))
+
+/*
+ * Number of packets to try reading.
+ */
+#define PACKETS_TO_CHECK	5
 
 wtap_open_return_val i4btrace_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -53,11 +77,7 @@ wtap_open_return_val i4btrace_open(wtap *wth, int *err, gchar **err_info)
 		/*
 		 * OK, try byte-swapping the header fields.
 		 */
-		hdr.length = GUINT32_SWAP_LE_BE(hdr.length);
-		hdr.unit = GUINT32_SWAP_LE_BE(hdr.unit);
-		hdr.type = GUINT32_SWAP_LE_BE(hdr.type);
-		hdr.dir = GUINT32_SWAP_LE_BE(hdr.dir);
-		hdr.trunc = GUINT32_SWAP_LE_BE(hdr.trunc);
+		I4B_BYTESWAP_HEADER(hdr);
 		if (!I4B_HDR_IS_OK(hdr)) {
 			/*
 			 * It doesn't look valid in either byte order.
@@ -70,6 +90,63 @@ wtap_open_return_val i4btrace_open(wtap *wth, int *err, gchar **err_info)
 		 * trace written in the opposite byte order.
 		 */
 		byte_swapped = TRUE;
+	}
+
+	/*
+	 * Now try to read past the packet bytes; if that fails with
+	 * a short read, we don't fail, so that we can report
+	 * the file as a truncated I4B file.
+	 */
+	if (!wtap_read_bytes(wth->fh, NULL, hdr.length - (guint32)sizeof(hdr),
+	    err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
+			return WTAP_OPEN_ERROR;
+	}
+
+	/*
+	 * Now try reading a few more packets.
+	 */
+	for (int i = 1; i < PACKETS_TO_CHECK; i++) {
+		/*
+		 * Read and check the file header; we've already
+		 * decided whether this would be a byte-swapped file
+		 * or not, so we swap iff we decided it was.
+		 */
+		if (!wtap_read_bytes_or_eof(wth->fh, &hdr, sizeof(hdr), err,
+		    err_info)) {
+			if (*err == 0) {
+				/* EOF; no more packets to try. */
+				break;
+			}
+			if (*err != WTAP_ERR_SHORT_READ)
+				return WTAP_OPEN_ERROR;
+			return WTAP_OPEN_NOT_MINE;
+		}
+
+		if (byte_swapped)
+			I4B_BYTESWAP_HEADER(hdr);
+		if (!I4B_HDR_IS_OK(hdr)) {
+			/*
+			 * It doesn't look valid in either byte order.
+			 */
+			return WTAP_OPEN_NOT_MINE;
+		}
+
+		/*
+		 * Now try to read past the packet bytes; if that fails with
+		 * a short read, we don't fail, so that we can report
+		 * the file as a truncated I4B file.
+		 */
+		if (!wtap_read_bytes(wth->fh, NULL, hdr.length - (guint32)sizeof(hdr),
+		    err, err_info)) {
+			if (*err != WTAP_ERR_SHORT_READ)
+				return WTAP_OPEN_ERROR;
+
+			/*
+			 * Probably a truncated file, so just quit.
+			 */
+			break;
+		}
 	}
 
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
@@ -134,14 +211,7 @@ i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		/*
 		 * Byte-swap the header.
 		 */
-		hdr.length = GUINT32_SWAP_LE_BE(hdr.length);
-		hdr.unit = GUINT32_SWAP_LE_BE(hdr.unit);
-		hdr.type = GUINT32_SWAP_LE_BE(hdr.type);
-		hdr.dir = GUINT32_SWAP_LE_BE(hdr.dir);
-		hdr.trunc = GUINT32_SWAP_LE_BE(hdr.trunc);
-		hdr.count = GUINT32_SWAP_LE_BE(hdr.count);
-		hdr.ts_sec = GUINT32_SWAP_LE_BE(hdr.ts_sec);
-		hdr.ts_usec = GUINT32_SWAP_LE_BE(hdr.ts_usec);
+		I4B_BYTESWAP_HEADER(hdr);
 	}
 
 	if (hdr.length < sizeof(hdr)) {
