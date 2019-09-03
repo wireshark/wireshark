@@ -32,6 +32,7 @@ private slots:
     void on_disable_all_button__clicked();
     void on_search_line_edit__textChanged(const QString &);
     void on_cmbSearchType_currentIndexChanged(int);
+    void on_cmbProtocolType_currentIndexChanged(int);
     void on_buttonBox_accepted();
     void on_buttonBox_helpRequested();
     void fillTree();

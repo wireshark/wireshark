@@ -29,6 +29,16 @@
      <item>
       <widget class="QComboBox" name="cmbSearchType"/>
      </item>
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>in</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cmbProtocolType"/>
+     </item>
     </layout>
    </item>
    <item>

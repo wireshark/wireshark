@@ -39,6 +39,10 @@ EnabledProtocolsDialog::EnabledProtocolsDialog(QWidget *parent) :
     ui->cmbSearchType->addItem(tr("Only Protocols"), qVariantFromValue(EnabledProtocolsProxyModel::OnlyProtocol));
     ui->cmbSearchType->addItem(tr("Only Description"), qVariantFromValue(EnabledProtocolsProxyModel::OnlyDescription));
 
+    ui->cmbProtocolType->addItem(tr("any protocol"), qVariantFromValue(EnabledProtocolItem::Any));
+    ui->cmbProtocolType->addItem(tr("non-heuristic protocols"), qVariantFromValue(EnabledProtocolItem::Standard));
+    ui->cmbProtocolType->addItem(tr("heuristic protocols"), qVariantFromValue(EnabledProtocolItem::Heuristic));
+
     QTimer::singleShot(0, this, SLOT(fillTree()));
 }
 
@@ -78,12 +82,16 @@ void EnabledProtocolsDialog::on_disable_all_button__clicked()
 void EnabledProtocolsDialog::searchFilterChange()
 {
     EnabledProtocolsProxyModel::SearchType type = EnabledProtocolsProxyModel::EveryWhere;
+    EnabledProtocolItem::EnableProtocolType protocol = EnabledProtocolItem::Any;
     QString search_re = ui->search_line_edit_->text();
 
     if ( ui->cmbSearchType->currentData().canConvert<EnabledProtocolsProxyModel::SearchType>() )
         type = ui->cmbSearchType->currentData().value<EnabledProtocolsProxyModel::SearchType>();
 
-    proxyModel_->setFilter(search_re, type);
+    if ( ui->cmbProtocolType->currentData().canConvert<EnabledProtocolItem::EnableProtocolType>() )
+        protocol = ui->cmbProtocolType->currentData().value<EnabledProtocolItem::EnableProtocolType>();
+
+    proxyModel_->setFilter(search_re, type, protocol);
     /* If items are filtered out, then filtered back in, the tree remains collapsed
        Force an expansion */
     ui->protocol_tree_->expandAll();
@@ -95,6 +103,11 @@ void EnabledProtocolsDialog::on_search_line_edit__textChanged(const QString &)
 }
 
 void EnabledProtocolsDialog::on_cmbSearchType_currentIndexChanged(int)
+{
+    searchFilterChange();
+}
+
+void EnabledProtocolsDialog::on_cmbProtocolType_currentIndexChanged(int)
 {
     searchFilterChange();
 }

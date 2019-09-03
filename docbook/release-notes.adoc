@@ -58,7 +58,7 @@ since version 3.0.0:
 * Editcap can now split files on floating point intervals.
 * Windows .msi packages are now https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-signing-support-requirement-for-windows-and-wsus[signed using SHA-2].
   .exe installers are still dual-signed using SHA-1 and SHA-2.
-* "Enable Protocols" Dialog now only enables/disables and inverts protocols based on the set filter selection
+* "Enable Protocols" Dialog now only enables/disables and inverts protocols based on the set filter selection. Also the protocol type (standard or heuristic) may be choosen as filter value
 
 // === Removed Features and Support
 

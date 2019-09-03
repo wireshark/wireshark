@@ -21,7 +21,15 @@
 
 class EnabledProtocolItem : public ModelHelperTreeItem<EnabledProtocolItem>
 {
+    Q_GADGET
 public:
+    enum EnableProtocolType{
+        Any,
+        Standard,
+        Heuristic
+    };
+    Q_ENUM(EnableProtocolType)
+
     EnabledProtocolItem(QString name, QString description, bool enabled, EnabledProtocolItem* parent);
     virtual ~EnabledProtocolItem();
 
@@ -29,6 +37,8 @@ public:
     QString description() const {return description_;}
     bool enabled() const {return enabled_;}
     void setEnabled(bool enable) {enabled_ = enable;}
+
+    EnableProtocolType type() const;
 
     bool applyValue();
 
@@ -39,6 +49,7 @@ protected:
     QString description_;
     bool enabled_;
     bool enabledInit_;      //value that model starts with to determine change
+    EnableProtocolType type_;
 };
 
 class EnabledProtocolsModel : public QAbstractItemModel
@@ -56,7 +67,8 @@ public:
     };
 
     enum EnableProtocolData {
-        DATA_ENABLE = Qt::UserRole
+        DATA_ENABLE = Qt::UserRole,
+        DATA_PROTOCOL_TYPE
     };
 
     QModelIndex index(int row, int column,
@@ -97,12 +109,6 @@ public:
     };
     Q_ENUM(SearchType)
 
-    explicit EnabledProtocolsProxyModel(QObject * parent = Q_NULLPTR);
-
-    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
-
-    void setFilter(const QString& filter, EnabledProtocolsProxyModel::SearchType type);
-
     enum EnableType
     {
         Enable,
@@ -110,15 +116,26 @@ public:
         Invert
     };
 
+    explicit EnabledProtocolsProxyModel(QObject * parent = Q_NULLPTR);
+
+    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
+
+    void setFilter(const QString& filter, EnabledProtocolsProxyModel::SearchType type,
+        EnabledProtocolItem::EnableProtocolType protocolType);
+
     void setItemsEnable(EnabledProtocolsProxyModel::EnableType enable, QModelIndex parent = QModelIndex());
 
 protected:
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
-    bool filterAcceptItem(EnabledProtocolItem& item) const;
 
 private:
     EnabledProtocolsProxyModel::SearchType type_;
+    EnabledProtocolItem::EnableProtocolType protocolType_;
     QString filter_;
+
+    bool filterAcceptsSelf(int sourceRow, const QModelIndex &sourceParent) const;
+    bool filterAcceptsChild(int sourceRow, const QModelIndex &sourceParent) const;
 };
 
 #endif // ENABLED_PROTOCOLS_MODEL_H
