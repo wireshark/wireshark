@@ -573,7 +573,7 @@ proto_reg_handoff_cattp(void)
     /* Create dissector handle */
     cattp_handle = create_dissector_handle(dissect_cattp, proto_cattp);
 
-    heur_dissector_add("udp", dissect_cattp_heur, "CAT-TP over UDP", "cattp_udp", proto_cattp, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_cattp_heur, "CAT-TP over UDP", "cattp_udp", proto_cattp, HEURISTIC_DISABLE);
     dissector_add_for_decode_as_with_preference("udp.port", cattp_handle);
 }
 
