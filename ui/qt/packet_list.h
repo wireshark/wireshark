@@ -70,18 +70,19 @@ public:
     frame_data * getFDataForRow(int row) const;
 
 protected:
-    void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
-    void contextMenuEvent(QContextMenuEvent *event);
-    void timerEvent(QTimerEvent *event);
-    void paintEvent(QPaintEvent *event);
-    virtual void mousePressEvent (QMouseEvent *event);
-    virtual void mouseReleaseEvent (QMouseEvent *event);
-    virtual void mouseMoveEvent (QMouseEvent *event);
-    virtual void resizeEvent(QResizeEvent *event);
+    void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected) override;
+    virtual void contextMenuEvent(QContextMenuEvent *event) override;
+    void timerEvent(QTimerEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
+    virtual void mousePressEvent (QMouseEvent *event) override;
+    virtual void mouseReleaseEvent (QMouseEvent *event) override;
+    virtual void mouseMoveEvent (QMouseEvent *event) override;
+    virtual void resizeEvent(QResizeEvent *event) override;
 
 protected slots:
-    void rowsInserted(const QModelIndex &parent, int start, int end);
-    void drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void rowsInserted(const QModelIndex &parent, int start, int end) override;
+    virtual void drawRow(QPainter *painter, const QStyleOptionViewItem &option,
+        const QModelIndex &index) const override;
 
 private:
     PacketListModel *packet_list_model_;
@@ -117,7 +118,7 @@ private:
 
     void setFrameReftime(gboolean set, frame_data *fdata);
     void setColumnVisibility();
-    int sizeHintForColumn(int column) const;
+    int sizeHintForColumn(int column) const override;
     void setRecentColumnWidth(int column);
     void drawCurrentPacket();
     void applyRecentColumnWidths();
