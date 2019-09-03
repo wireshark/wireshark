@@ -36,6 +36,18 @@ json_validate(const guint8 *buf, const size_t len)
     if (!t)
         return FALSE;
 
+    /*
+     * Make sure the first octet isn't a NUL; otherwise, the parser will
+     * immediately stop parsing and not validate anything after that,
+     * so it'll just think it was handed an empty string.
+     *
+     * XXX - should we check for NULs anywhere in the buffer?
+     */
+    if (buf[0] == '\0') {
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "jsmn: invalid character inside JSON string");
+        return FALSE;
+    }
+
     jsmn_init(&p);
     rcode = jsmn_parse(&p, buf, len, t, max_tokens);
     if (rcode < 0) {
