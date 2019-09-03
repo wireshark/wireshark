@@ -24,12 +24,14 @@ find_path(GMODULE2_INCLUDE_DIR
 		${PC_GMODULE2_INCLUDE_DIRS}
 		"${GMODULE2_HINTS}/include"
 )
-find_library(GMODULE2_LIBRARY
+include(FindWSLibrary)
+FindWSLibrary(GMODULE2_LIBRARY
 	NAMES
 		gmodule-2.0 gmodule
 	HINTS
 		${PC_GMODULE2_LIBRARY_DIRS}
-		"${GMODULE2_HINTS}/lib"
+	WIN32_HINTS
+		${GMODULE2_HINTS}
 )
 
 include(FindPackageHandleStandardArgs)

@@ -24,12 +24,14 @@ find_path(GTHREAD2_INCLUDE_DIR
 		${PC_GTHREAD2_INCLUDE_DIRS}
 		"${GTHREAD2_HINTS}/include"
 )
-find_library(GTHREAD2_LIBRARY
+include(FindWSLibrary)
+FindWSLibrary(GTHREAD2_LIBRARY
 	NAMES
 		gthread-2.0 gthread
 	HINTS
 		${PC_GTHREAD2_LIBRARY_DIRS}
-		"${GTHREAD2_HINTS}/lib"
+	WIN32_HINTS
+		${GTHREAD2_HINTS}
 )
 
 include(FindPackageHandleStandardArgs)

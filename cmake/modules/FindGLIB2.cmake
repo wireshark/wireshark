@@ -2,11 +2,13 @@
 # - Try to find the GLIB2 libraries
 # Once done this will define
 #
-#  GLIB2_FOUND        - system has glib2
-#  GLIB2_INCLUDE_DIRS - the glib2 include directory
-#  GLIB2_LIBRARIES    - glib2 library
-#  GLIB2_DLL_DIR      - (Windows) Path to required GLib2 DLLs.
-#  GLIB2_DLLS         - (Windows) List of required GLib2 DLLs.
+#  GLIB2_FOUND           - system has glib2
+#  GLIB2_INCLUDE_DIRS    - the glib2 include directory
+#  GLIB2_LIBRARIES       - glib2 library
+#  GLIB2_DLL_DIR_DEBUG   - (Windows) Path to required GLib2 DLLs in debug build.
+#  GLIB2_DLL_DIR_RELEASE - (Windows) Path to required GLib2 DLLs in release builds.
+#  GLIB2_DLLS_DEBUG      - (Windows) List of required GLib2 DLLs in debug builds.
+#  GLIB2_DLLS_RELEASE    - (Windows) List of required GLib2 DLLs in release builds.
 
 # Copyright (c) 2008 Laurent Montel, <montel@kde.org>
 #
@@ -44,13 +46,15 @@ find_path( GLIB2_MAIN_INCLUDE_DIR
 		/usr/local/include
 )
 
-find_library( GLIB2_LIBRARY
+include(FindWSLibrary)
+FindWSLibrary( GLIB2_LIBRARY
 	NAMES
 		glib-2.0
 		libglib-2.0
 	HINTS
 		"${PC_GLIB2_LIBDIR}"
-		"${GLIB2_HINTS}/lib"
+	WIN32_HINTS
+	    ${GLIB2_HINTS}
 	PATHS
 		/opt/gnome/lib64
 		/opt/gnome/lib
@@ -113,53 +117,94 @@ if( GLIB2_FOUND )
 	endif()
 	set( GLIB2_INCLUDE_DIRS ${GLIB2_MAIN_INCLUDE_DIR} ${GLIB2_INTERNAL_INCLUDE_DIR} )
 	if ( WIN32 AND GLIB2_FOUND )
-		set ( GLIB2_DLL_DIR "${GLIB2_HINTS}/bin"
-			CACHE PATH "Path to GLib2 DLLs"
+		set ( GLIB2_DLL_DIR_RELEASE "${GLIB2_HINTS}/bin"
+			CACHE PATH "Path to GLib2 release DLLs"
 		)
+		set ( GLIB2_DLL_DIR_DEBUG "${GLIB2_HINTS}/debug/bin"
+			CACHE PATH "Path to GLib2 debug DLLs"
+		)
+
 		# GTK+ required GObject and GIO. We probably don't.
-		file( GLOB _glib2_dlls RELATIVE "${GLIB2_DLL_DIR}"
-			# "${GLIB2_DLL_DIR}/gio-2.dll"
-			"${GLIB2_DLL_DIR}/glib-2.dll"
-			"${GLIB2_DLL_DIR}/gmodule-2.dll"
-			# "${GLIB2_DLL_DIR}/gobject-2.dll"
-			"${GLIB2_DLL_DIR}/gthread-2.dll"
-			"${GLIB2_DLL_DIR}/libcharset.dll"
+		file( GLOB _glib2_dlls_release RELATIVE "${GLIB2_DLL_DIR_RELEASE}"
+			# "${GLIB2_DLL_DIR_RELEASE}/gio-2.dll"
+			"${GLIB2_DLL_DIR_RELEASE}/glib-2.dll"
+			"${GLIB2_DLL_DIR_RELEASE}/gmodule-2.dll"
+			# "${GLIB2_DLL_DIR_RELEASE}/gobject-2.dll"
+			"${GLIB2_DLL_DIR_RELEASE}/gthread-2.dll"
+			"${GLIB2_DLL_DIR_RELEASE}/libcharset.dll"
 			# gnutls-3.6.3-1-win64ws ships with libffi-6.dll
-			# "${GLIB2_DLL_DIR}/libffi.dll"
-			"${GLIB2_DLL_DIR}/libiconv.dll"
-			"${GLIB2_DLL_DIR}/libintl.dll"
-			"${GLIB2_DLL_DIR}/pcre.dll"
-			# "${GLIB2_DLL_DIR}/pcre16.dll"
-			# "${GLIB2_DLL_DIR}/pcre32.dll"
-			# "${GLIB2_DLL_DIR}/pcrecpp.dll"
-			# "${GLIB2_DLL_DIR}/pcreposix.dll"
+			# "${GLIB2_DLL_DIR_RELEASE}/libffi.dll"
+			"${GLIB2_DLL_DIR_RELEASE}/libiconv.dll"
+			"${GLIB2_DLL_DIR_RELEASE}/libintl.dll"
+			"${GLIB2_DLL_DIR_RELEASE}/pcre.dll"
+			# "${GLIB2_DLL_DIR_RELEASE}/pcre16.dll"
+			# "${GLIB2_DLL_DIR_RELEASE}/pcre32.dll"
+			# "${GLIB2_DLL_DIR_RELEASE}/pcrecpp.dll"
+			# "${GLIB2_DLL_DIR_RELEASE}/pcreposix.dll"
 		)
-		set ( GLIB2_DLLS ${_glib2_dlls}
+		set ( GLIB2_DLLS_RELEASE ${_glib2_dlls_release}
 			# We're storing filenames only. Should we use STRING instead?
-			CACHE FILEPATH "GLib 2 DLL list"
+			CACHE FILEPATH "GLib 2 release DLL list"
+		)
+		file( GLOB _glib2_dlls_debug RELATIVE "${GLIB2_DLL_DIR_DEBUG}"
+			# "${GLIB2_DLL_DIR_DEBUG}/gio-2.dll"
+			"${GLIB2_DLL_DIR_DEBUG}/glib-2.dll"
+			"${GLIB2_DLL_DIR_DEBUG}/gmodule-2.dll"
+			# "${GLIB2_DLL_DIR_DEBUG}/gobject-2.dll"
+			"${GLIB2_DLL_DIR_DEBUG}/gthread-2.dll"
+			"${GLIB2_DLL_DIR_DEBUG}/libcharset.dll"
+			# gnutls-3.6.3-1-win64ws ships with libffi-6.dll
+			# "${GLIB2_DLL_DIR_DEBUG}/libffi.dll"
+			"${GLIB2_DLL_DIR_DEBUG}/libiconv.dll"
+			"${GLIB2_DLL_DIR_DEBUG}/libintl.dll"
+			"${GLIB2_DLL_DIR_DEBUG}/pcred.dll"
+			# "${GLIB2_DLL_DIR_DEBUG}/pcre16d.dll"
+			# "${GLIB2_DLL_DIR_DEBUG}/pcre32d.dll"
+			# "${GLIB2_DLL_DIR_DEBUG}/pcrecppd.dll"
+			# "${GLIB2_DLL_DIR_DEBUG}/pcreposixd.dll"
+		)
+		set ( GLIB2_DLLS_DEBUG ${_glib2_dlls_debug}
+			# We're storing filenames only. Should we use STRING instead?
+			CACHE FILEPATH "GLib 2 debug DLL list"
 		)
 
-		file( GLOB _glib2_pdbs RELATIVE "${GLIB2_DLL_DIR}"
-			"${GLIB2_DLL_DIR}/glib-2.pdb"
-			"${GLIB2_DLL_DIR}/gmodule-2.pdb"
-			"${GLIB2_DLL_DIR}/gthread-2.pdb"
-			"${GLIB2_DLL_DIR}/libcharset.pdb"
-			"${GLIB2_DLL_DIR}/libiconv.pdb"
-			"${GLIB2_DLL_DIR}/libintl.pdb"
-			"${GLIB2_DLL_DIR}/pcre.pdb"
+		file( GLOB _glib2_pdbs_release RELATIVE "${GLIB2_DLL_DIR_RELEASE}"
+			"${GLIB2_DLL_DIR_RELEASE}/glib-2.pdb"
+			"${GLIB2_DLL_DIR_RELEASE}/gmodule-2.pdb"
+			"${GLIB2_DLL_DIR_RELEASE}/gthread-2.pdb"
+			"${GLIB2_DLL_DIR_RELEASE}/libcharset.pdb"
+			"${GLIB2_DLL_DIR_RELEASE}/libiconv.pdb"
+			"${GLIB2_DLL_DIR_RELEASE}/libintl.pdb"
+			"${GLIB2_DLL_DIR_RELEASE}/pcre.pdb"
 		)
-		set ( GLIB2_PDBS ${_glib2_pdbs}
-			CACHE FILEPATH "GLib2 PDB list"
+		set ( GLIB2_PDBS_RELEASE ${_glib2_pdbs_release}
+			CACHE FILEPATH "GLib2 debug release PDB list"
+		)
+		file( GLOB _glib2_pdbs_debug RELATIVE "${GLIB2_DLL_DIR_DEBUG}"
+			"${GLIB2_DLL_DIR_DEBUG}/glib-2.pdb"
+			"${GLIB2_DLL_DIR_DEBUG}/gmodule-2.pdb"
+			"${GLIB2_DLL_DIR_DEBUG}/gthread-2.pdb"
+			"${GLIB2_DLL_DIR_DEBUG}/libcharset.pdb"
+			"${GLIB2_DLL_DIR_DEBUG}/libiconv.pdb"
+			"${GLIB2_DLL_DIR_DEBUG}/libintl.pdb"
+			"${GLIB2_DLL_DIR_DEBUG}/pcred.pdb"
+		)
+		set ( GLIB2_PDBS_DEBUG ${_glib2_pdbs_debug}
+			CACHE FILEPATH "GLib2 debug debug PDB list"
 		)
 
-		mark_as_advanced( GLIB2_DLL_DIR GLIB2_DLLS GLIB2_PDBS )
+		mark_as_advanced( GLIB2_DLL_DIR_RELEASE GLIB2_DLLS_RELEASE GLIB2_PDBS_RELEASE )
+		mark_as_advanced( GLIB2_DLL_DIR_DEBUG GLIB2_DLLS_DEBUG GLIB2_PDBS_DEBUG )
 	endif()
 elseif( GLIB2_FIND_REQUIRED )
 	message( SEND_ERROR "Package required but not found" )
 else()
 	set( GLIB2_LIBRARIES )
 	set( GLIB2_MAIN_INCLUDE_DIRS )
-	set( GLIB2_DLL_DIR )
+	set( GLIB2_DLL_DIR_RELEASE )
+	set( GLIB2_DLL_DIR_DEBUG )
+	set( GLIB2_PDBS_RELEASE )
+	set( GLIB2_PDBS_DEBUG )
 	set( GLIB2_DLLS )
 endif()
 

@@ -8,8 +8,8 @@
 #
 
 if(WIN32)
-	# Needed for GREATER_EQUAL operator
-	cmake_minimum_required(VERSION 3.7)
+	# Needed for add_custom_command() WORKING_DIRECTORY generator expressions
+	cmake_minimum_required(VERSION 3.13)
 else()
 	cmake_minimum_required(VERSION 3.5)
 endif()
@@ -1797,10 +1797,11 @@ if(WIN32)
 	# Required DLLs and their corresponding PDBs.
 	add_custom_command(TARGET copy_cli_dlls PRE_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			${GLIB2_DLLS}
-			${GLIB2_PDBS}
+			"$<IF:$<CONFIG:Debug>,${GLIB2_DLLS_DEBUG},${GLIB2_DLLS_RELEASE}>"
+			"$<IF:$<CONFIG:Debug>,${GLIB2_PDBS_DEBUG},${GLIB2_PDBS_RELEASE}>"
 			"${_dll_output_dir}"
-		WORKING_DIRECTORY "${GLIB2_DLL_DIR}"
+		WORKING_DIRECTORY $<IF:$<CONFIG:Debug>,${GLIB2_DLL_DIR_DEBUG},${GLIB2_DLL_DIR_RELEASE}>
+		COMMAND_EXPAND_LISTS
 	)
 
 	# Optional DLLs and PDBs.
