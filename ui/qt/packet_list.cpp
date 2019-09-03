@@ -241,6 +241,10 @@ PacketList::PacketList(QWidget *parent) :
     connect(packet_list_header_, &PacketListHeader::columnsChanged, this, &PacketList::columnsChanged);
     setHeader(packet_list_header_);
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+    header()->setFirstSectionMovable(true);
+#endif
+
     // Shrink down to a small but nonzero size in the main splitter.
     int one_em = fontMetrics().height();
     setMinimumSize(one_em, one_em);
