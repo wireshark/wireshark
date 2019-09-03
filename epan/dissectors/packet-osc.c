@@ -1285,7 +1285,7 @@ proto_reg_handoff_osc(void)
     /*      (The UDP heuristic is a bit expensive    */
     osc_udp_handle = create_dissector_handle(dissect_osc_udp, proto_osc);
     /* register as heuristic dissector for UDP connections */
-    heur_dissector_add("udp", dissect_osc_heur_udp, "Open Sound Control over UDP", "osc_udp", proto_osc, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_osc_heur_udp, "Open Sound Control over UDP", "osc_udp", proto_osc, HEURISTIC_DISABLE);
 
     dissector_add_for_decode_as_with_preference("tcp.port", osc_tcp_handle);
 }
