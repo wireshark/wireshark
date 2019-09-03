@@ -462,22 +462,21 @@ get_ext_ambr_unit(guint32 unit, const char **unit_str)
         *unit_str = "Unit value 0, Illegal";
         return mult;
     }
-    unit = unit - 1;
 
     if (unit <= 0x05) {
-        mult = pow4(guint32, unit);
+        mult = pow4(guint32, unit - 0x01);
         *unit_str = "Kbps";
     } else if (unit <= 0x0a) {
-        mult = pow4(guint32, unit - 0x05);
+        mult = pow4(guint32, unit - 0x06);
         *unit_str = "Mbps";
-    } else if (unit <= 0x0e) {
-        mult = pow4(guint32, unit - 0x07);
+    } else if (unit <= 0x0f) {
+        mult = pow4(guint32, unit - 0x0b);
         *unit_str = "Gbps";
     } else if (unit <= 0x14) {
-        mult = pow4(guint32, unit - 0x0c);
+        mult = pow4(guint32, unit - 0x10);
         *unit_str = "Tbps";
     } else if (unit <= 0x19) {
-        mult = pow4(guint32, unit - 0x11);
+        mult = pow4(guint32, unit - 0x15);
         *unit_str = "Pbps";
     } else {
         mult = 256;
