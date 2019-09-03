@@ -41,26 +41,37 @@ static gboolean packetlogger_seek_read(wtap *wth, gint64 seek_off,
 static gboolean packetlogger_read_header(packetlogger_header_t *pl_hdr,
 					 FILE_T fh, gboolean byte_swapped,
 					 int *err, gchar **err_info);
+static void packetlogger_byte_swap_header(packetlogger_header_t *pl_hdr);
+static wtap_open_return_val packetlogger_check_record(wtap *wth,
+						      packetlogger_header_t *pl_hdr,
+						      int *err,
+						      gchar **err_info);
 static gboolean packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 					 Buffer *buf, int *err,
 					 gchar **err_info);
+
+/*
+ * Number of packets to try reading.
+ */
+#define PACKETS_TO_CHECK	5
 
 wtap_open_return_val packetlogger_open(wtap *wth, int *err, gchar **err_info)
 {
 	gboolean byte_swapped = FALSE;
 	packetlogger_header_t pl_hdr;
-	guint8 type;
+	wtap_open_return_val ret;
 	packetlogger_t *packetlogger;
 
+	/*
+	 * Try to read the first record.
+	 */
 	if(!packetlogger_read_header(&pl_hdr, wth->fh, byte_swapped,
 	    err, err_info)) {
+		/*
+		 * Either an immediate EOF or a short read indicates
+		 * that the file is probably not a PacketLogger file.
+		 */
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-			return WTAP_OPEN_ERROR;
-		return WTAP_OPEN_NOT_MINE;
-	}
-
-	if (!wtap_read_bytes(wth->fh, &type, 1, err, err_info)) {
-		if (*err != WTAP_ERR_SHORT_READ)
 			return WTAP_OPEN_ERROR;
 		return WTAP_OPEN_NOT_MINE;
 	}
@@ -73,18 +84,91 @@ wtap_open_return_val packetlogger_open(wtap *wth, int *err, gchar **err_info)
 	if ((pl_hdr.len & 0x0000FFFF) == 0 &&
 	    (pl_hdr.len & 0xFFFF0000) != 0) {
 		/*
-		 * Byte-swap the upper 16 bits (the lower 16 bits are
-		 * zero, so we don't have to look at them).
+		 * Byte-swap the header.
 		 */
-		pl_hdr.len = ((pl_hdr.len >> 24) & 0xFF) |
-			     (((pl_hdr.len >> 16) & 0xFF) << 8);
+		packetlogger_byte_swap_header(&pl_hdr);
 		byte_swapped = TRUE;
 	}
 
-	/* Verify this file belongs to us */
-	if (!((8 <= pl_hdr.len) && (pl_hdr.len < 65536) &&
-	      (type < 0x04 || type == 0xFB || type == 0xFC || type == 0xFE || type == 0xFF)))
-		return WTAP_OPEN_NOT_MINE;
+	/*
+	 * Check whether the first record looks like a PacketLogger
+	 * record.
+	 */
+	ret = packetlogger_check_record(wth, &pl_hdr, err, err_info);
+	if (ret != WTAP_OPEN_MINE) {
+		/*
+		 * Either we got an error or it's not valid.
+		 */
+		if (ret == WTAP_OPEN_NOT_MINE) {
+			/*
+			 * Not valid, so not a PacketLogger file.
+			 */
+			return WTAP_OPEN_NOT_MINE;
+		}
+
+		/*
+		 * Error. If it failed with a short read, we don't fail,
+		 * so we treat it as a valid file and can then report
+		 * it as a truncated file.
+		 */
+		if (*err != WTAP_ERR_SHORT_READ)
+			return WTAP_OPEN_ERROR;
+	} else {
+		/*
+		 * Now try reading a few more packets.
+		 */
+		for (int i = 1; i < PACKETS_TO_CHECK; i++) {
+			/*
+			 * Read and check the file header; we've already
+			 * decided whether this would be a byte-swapped file
+			 * or not, so we swap iff we decided it was.
+			 */
+			if (!packetlogger_read_header(&pl_hdr, wth->fh,
+			    byte_swapped, err, err_info)) {
+				if (*err == 0) {
+					/* EOF; no more packets to try. */
+					break;
+				}
+
+				/*
+				 * A short read indicates that the file
+				 * is probably not a PacketLogger file.
+				 */
+				if (*err != WTAP_ERR_SHORT_READ)
+					return WTAP_OPEN_ERROR;
+				return WTAP_OPEN_NOT_MINE;
+			}
+
+			/*
+			 * Check whether this record looks like a PacketLogger
+			 * record.
+			 */
+			ret = packetlogger_check_record(wth, &pl_hdr, err,
+			    err_info);
+			if (ret != WTAP_OPEN_MINE) {
+				/*
+				 * Either we got an error or it's not valid.
+				 */
+				if (ret == WTAP_OPEN_NOT_MINE) {
+					/*
+					 * Not valid, so not a PacketLogger
+					 * file.
+					 */
+					return WTAP_OPEN_NOT_MINE;
+				}
+
+				/*
+				 * Error. If it failed with a short read,
+				 * we don't fail, we just stop checking
+				 * records, so we treat it as a valid file
+				 * and can then report it as a truncated file.
+				 */
+				if (*err != WTAP_ERR_SHORT_READ)
+					return WTAP_OPEN_ERROR;
+				break;
+			}
+		}
+	}
 
 	/* No file header. Reset the fh to 0 so we can read the first packet */
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
@@ -143,13 +227,68 @@ packetlogger_read_header(packetlogger_header_t *pl_hdr, FILE_T fh,
 		return FALSE;
 
 	/* Convert multi-byte values to host endian */
-	if (byte_swapped) {
-		pl_hdr->len = GUINT32_SWAP_LE_BE(pl_hdr->len);
-		pl_hdr->ts_secs = GUINT32_SWAP_LE_BE(pl_hdr->ts_secs);
-		pl_hdr->ts_usecs = GUINT32_SWAP_LE_BE(pl_hdr->ts_usecs);
-	}
+	if (byte_swapped)
+		packetlogger_byte_swap_header(pl_hdr);
 
 	return TRUE;
+}
+
+static void
+packetlogger_byte_swap_header(packetlogger_header_t *pl_hdr)
+{
+	pl_hdr->len = GUINT32_SWAP_LE_BE(pl_hdr->len);
+	pl_hdr->ts_secs = GUINT32_SWAP_LE_BE(pl_hdr->ts_secs);
+	pl_hdr->ts_usecs = GUINT32_SWAP_LE_BE(pl_hdr->ts_usecs);
+}
+
+static wtap_open_return_val
+packetlogger_check_record(wtap *wth, packetlogger_header_t *pl_hdr, int *err,
+    gchar **err_info)
+{
+	guint32 length;
+	guint8 type;
+
+	/* Is the header length valid?  If not, assume it's not ours. */
+	if (pl_hdr->len < 8 || pl_hdr->len >= 65536)
+		return WTAP_OPEN_NOT_MINE;
+
+	/* Is the microseconds field of the time stap out of range? */
+	if (pl_hdr->ts_usecs >= 1000000)
+		return WTAP_OPEN_NOT_MINE;
+
+	/*
+	 * If we have any payload, it's a type field; read and check it.
+	 */
+	length = pl_hdr->len - 8;
+	if (length != 0) {
+		/*
+		 * Check the type field.
+		 */
+		if (!wtap_read_bytes(wth->fh, &type, 1, err, err_info)) {
+			if (*err != WTAP_ERR_SHORT_READ)
+				return WTAP_OPEN_ERROR;
+			return WTAP_OPEN_NOT_MINE;
+		}
+
+		/* Verify this file belongs to us */
+		if (!(type < 0x04 || type == 0xFB || type == 0xFC || type == 0xFE || type == 0xFF))
+			return WTAP_OPEN_NOT_MINE;
+
+		length--;
+
+		if (length != 0) {
+			/*
+			 * Now try to read past the rest of the packet bytes;
+			 * if that fails with a short read, we don't fail,
+			 * so that we can report the file as a truncated
+			 * PacketLogger file.
+			 */
+			if (!wtap_read_bytes(wth->fh, NULL, length,
+			    err, err_info))
+				return WTAP_OPEN_ERROR;
+		}
+	}
+	return WTAP_OPEN_MINE;
 }
 
 static gboolean
