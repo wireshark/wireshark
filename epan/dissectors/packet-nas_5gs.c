@@ -18,6 +18,7 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/ipproto.h>
+#include <epan/etypes.h>
 
 #include <wsutil/pow2.h>
 #include <wsutil/wsjson.h>
@@ -244,6 +245,7 @@ static int hf_nas_5gs_sm_nof_params = -1;
 static int hf_nas_5gs_sm_param_id = -1;
 static int hf_nas_5gs_sm_param_len = -1;
 static int hf_nas_5gs_sm_qos_rule_precedence = -1;
+static int hf_nas_5gs_sm_segregation = -1;
 static int hf_nas_5gs_sm_param_cont = -1;
 static int hf_nas_5gs_sm_5qi = -1;
 static int hf_nas_5gs_sm_unit_for_gfbr_ul = -1;
@@ -274,6 +276,8 @@ static int hf_nas_5gs_sm_all_ssc_mode_b0 = -1;
 static int hf_nas_5gs_sm_all_ssc_mode_b1 = -1;
 static int hf_nas_5gs_sm_all_ssc_mode_b2 = -1;
 static int hf_nas_5gs_addr_mask_ipv4 = -1;
+static int hf_nas_5gs_ipv6 = -1;
+static int hf_nas_5gs_ipv6_prefix_len = -1;
 static int hf_nas_5gs_protocol_identifier_or_next_hd = -1;
 static int hf_nas_5gs_mm_rinmr = -1;
 static int hf_nas_5gs_mm_hdp = -1;
@@ -364,6 +368,17 @@ static int hf_nas_5gs_acces_tech_o2_b4 = -1;
 static int hf_nas_5gs_acces_tech_o2_b3 = -1;
 static int hf_nas_5gs_acces_tech_o2_b2 = -1;
 static int hf_nas_5gs_single_port_type = -1;
+static int hf_nas_5gs_port_range_type_low = -1;
+static int hf_nas_5gs_port_range_type_high = -1;
+static int hf_nas_5gs_sec_param_idx = -1;
+static int hf_nas_5gs_tos_tc_val = -1;
+static int hf_nas_5gs_tos_tc_mask = -1;
+static int hf_nas_5gs_flow_label = -1;
+static int hf_nas_5gs_mac_addr = -1;
+static int hf_nas_5gs_vlan_tag_vid = -1;
+static int hf_nas_5gs_vlan_tag_pcp = -1;
+static int hf_nas_5gs_vlan_tag_dei = -1;
+static int hf_nas_5gs_ethertype = -1;
 static int hf_nas_5gs_updp_ue_pol_sect_sublst_len = -1;
 static int hf_nas_5gs_updp_instr_len = -1;
 static int hf_nas_5gs_updp_upsc = -1;
@@ -3012,7 +3027,7 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     proto_item *item, *item2;
     int i = 1, j, k = 1;
     guint32 qos_rule_id, pf_len, pf_type, pfc_len;
-    guint32 length, curr_offset, start_offset;
+    guint32 length, curr_offset, saved_offset, start_offset;
     guint8 num_pkt_flt, rop;
 
     static const int * pkt_flt_flags[] = {
@@ -3036,6 +3051,7 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_sm_length, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &length);
         curr_offset += 2;
 
+        saved_offset = curr_offset;
         proto_item_set_len(item, length + 3);
 
         /* Rule operation code    DQR bit    Number of packet filters */
@@ -3122,20 +3138,71 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                         curr_offset += 4;
                         pfc_len = 8;
                         break;
+                    case 33:
+                    case 35:
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_ipv6, tvb, curr_offset, 16, ENC_NA);
+                        curr_offset += 16;
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_ipv6_prefix_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                        curr_offset++;
+                        pfc_len = 17;
+                        break;
                     case 48:
                         proto_tree_add_item(sub_tree3, hf_nas_5gs_protocol_identifier_or_next_hd, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                         curr_offset++;
                         pfc_len = 1;
                         break;
                     case 64:
-                        /* Single local port type */
+                    case 80:
                         proto_tree_add_item(sub_tree3, hf_nas_5gs_single_port_type, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
                         curr_offset += 2;
                         pfc_len = 2;
                         break;
-                    case 80:
-                        /* Single remote port type */
-                        proto_tree_add_item(sub_tree3, hf_nas_5gs_single_port_type, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                    case 65:
+                    case 81:
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_port_range_type_low, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                        curr_offset += 2;
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_port_range_type_high, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                        curr_offset += 2;
+                        pfc_len = 4;
+                        break;
+                    case 96:
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_sec_param_idx, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+                        curr_offset += 4;
+                        pfc_len = 4;
+                        break;
+                    case 112:
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_tos_tc_val, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                        curr_offset++;
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_tos_tc_mask, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                        curr_offset++;
+                        pfc_len = 2;
+                        break;
+                    case 128:
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_flow_label, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+                        curr_offset += 3;
+                        pfc_len = 3;
+                        break;
+                    case 129:
+                    case 130:
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_mac_addr, tvb, curr_offset, 6, ENC_NA);
+                        curr_offset += 6;
+                        pfc_len = 6;
+                        break;
+                    case 131:
+                    case 132:
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_vlan_tag_vid, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                        curr_offset += 2;
+                        pfc_len = 2;
+                        break;
+                    case 133:
+                    case 134:
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_vlan_tag_pcp, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_vlan_tag_dei, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                        curr_offset++;
+                        pfc_len = 1;
+                        break;
+                    case 135:
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_ethertype, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
                         curr_offset += 2;
                         pfc_len = 2;
                         break;
@@ -3155,21 +3222,28 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             proto_item_set_len(item, curr_offset - start_offset);
 
         }
-        /* QoS rule precedence (octet z+1)
-         * For the "delete existing QoS rule" operation, the QoS rule precedence value field shall not be included.
-         * For the "create new QoS rule" operation, the QoS rule precedence value field shall be included.
-         */
-        if (rop != 2) { /* Delete existing QoS rule */
+        if (rop != 2 && (curr_offset - saved_offset) < length) { /* Delete existing QoS rule */
+            /* QoS rule precedence (octet z+1)
+            * For the "delete existing QoS rule" operation, the QoS rule precedence value field shall not be included.
+            * For the "create new QoS rule" operation, the QoS rule precedence value field shall be included.
+            */
             proto_tree_add_item(sub_tree, hf_nas_5gs_sm_qos_rule_precedence, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             curr_offset++;
+            if ((curr_offset - saved_offset) < length) {
+                /* QoS flow identifier (QFI) (bits 6 to 1 of octet z+2)
+                * For the "delete existing QoS rule" operation, the QoS flow identifier value field shall not be included.
+                * For the "create new QoS rule" operation, the QoS flow identifier value field shall be included.
+                */
+                proto_tree_add_item(sub_tree, hf_nas_5gs_spare_b7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* Segregation bit (bit 7 of octet z+2) */
+                if (pinfo->link_dir == P2P_DIR_UL)
+                    proto_tree_add_item(sub_tree, hf_nas_5gs_sm_segregation, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                else
+                    proto_tree_add_item(sub_tree, hf_nas_5gs_spare_b6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_nas_5gs_sm_qfi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset++;
+            }
         }
-        /* QoS flow identifier (QFI) (bits 6 to 1 of octet z+2)
-         * For the "delete existing QoS rule" operation, the QoS flow identifier value field shall not be included.
-         * For the "create new QoS rule" operation, the QoS flow identifier value field shall be included.
-         */
-        /* Segregation bit (bit 7 of octet z+2) */
-        proto_tree_add_item(sub_tree, hf_nas_5gs_sm_qfi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        curr_offset += 1;
 
         i++;
     }
@@ -7353,6 +7427,16 @@ proto_register_nas_5gs(void)
             FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_ipv6,
+        { "IPv6 address", "nas_5gs.ipv6_address",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ipv6_prefix_len,
+        { "IPv6 prefix length", "nas_5gs.ipv6_prefix_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_protocol_identifier_or_next_hd,
         { "Protocol identifier/Next header type", "nas_5gs.protocol_identifier_or_next_hd",
             FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
@@ -7361,6 +7445,11 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_sm_qos_rule_precedence,
         { "QoS rule precedence",   "nas_5gs.sm.qos_rule_precedence",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_segregation,
+        { "Segregation",   "nas_5gs.sm.segregation",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x40,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_param_cont,
@@ -7789,8 +7878,63 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_single_port_type,
-        { "Port number", "nas_5gs.port_type",
+        { "Port number", "nas_5gs.single_port_number",
             FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_port_range_type_low,
+        { "Port range low limit", "nas_5gs.port_range_low_limit",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_port_range_type_high,
+        { "Port range high limit", "nas_5gs.port_range_high_limit",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sec_param_idx,
+        { "Security parameter index", "nas_5gs.security_parameter_index",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_tos_tc_val,
+        { "Type of service/Traffic class value", "nas_5gs.tos_tc_value",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_tos_tc_mask,
+        { "Type of service/Traffic class mask", "nas_5gs.tos_tc_mask",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_flow_label,
+        { "Flow label", "nas_5gs.flow_label",
+            FT_UINT24, BASE_HEX, NULL, 0x0fffff,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mac_addr,
+        { "MAC address", "nas_5gs.mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_vlan_tag_vid,
+        { "VID", "nas_5gs.vlan_tag_vid",
+            FT_UINT16, BASE_HEX, NULL, 0x0fff,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_vlan_tag_pcp,
+        { "PCP", "nas_5gs.vlan_tag_pcp",
+            FT_UINT8, BASE_HEX, NULL, 0x0e,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_vlan_tag_dei,
+        { "DEI", "nas_5gs.vlan_tag_dei",
+            FT_UINT8, BASE_HEX, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ethertype,
+        { "Ethertype", "nas_5gs.ethertype",
+            FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_updp_ue_pol_sect_sublst_len,
