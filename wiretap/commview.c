@@ -579,9 +579,9 @@ static gboolean commview_dump(wtap_dumper *wdh,
 		return FALSE;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.direction, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.signal_level_dbm, 2, err))
+	if (!wtap_dump_file_write(wdh, &cv_hdr.signal_level_dbm, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.noise_level, 2, err))
+	if (!wtap_dump_file_write(wdh, &cv_hdr.noise_level, 1, err))
 		return FALSE;
 	wdh->bytes_dumped += COMMVIEW_HEADER_SIZE;
 
