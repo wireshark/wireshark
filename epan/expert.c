@@ -174,7 +174,7 @@ static void uat_expert_post_update_cb(void)
 }
 
 #define EXPERT_REGISTRAR_GET_NTH(eiindex, expinfo)                                               \
-	if((guint)eiindex >= gpa_expertinfo.len && getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG"))   \
+	if((guint)eiindex >= gpa_expertinfo.len && wireshark_abort_on_dissector_bug)   \
 		g_error("Unregistered expert info! index=%d", eiindex);                          \
 	DISSECTOR_ASSERT_HINT((guint)eiindex < gpa_expertinfo.len, "Unregistered expert info!"); \
 	DISSECTOR_ASSERT_HINT(gpa_expertinfo.ei[eiindex] != NULL, "Unregistered expert info!");	\

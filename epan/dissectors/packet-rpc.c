@@ -557,7 +557,7 @@ rpc_init_prog(int proto, guint32 prog, int ett, size_t nvers,
 				    proc->strptr);
 
 				/* Abort out if desired - but don't throw an exception here! */
-				if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+				if (wireshark_abort_on_dissector_bug)
 					REPORT_DISSECTOR_BUG("RPC: No call handler!");
 
 				continue;
@@ -572,7 +572,7 @@ rpc_init_prog(int proto, guint32 prog, int ett, size_t nvers,
 				    proc->strptr);
 
 				/* Abort out if desired - but don't throw an exception here! */
-				if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+				if (wireshark_abort_on_dissector_bug)
 					REPORT_DISSECTOR_BUG("RPC: No reply handler!");
 
 				continue;

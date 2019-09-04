@@ -363,7 +363,7 @@ static GHashTable* prefixes = NULL;
 	wmem_free(pool, il);
 
 #define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo)						\
-	if((guint)hfindex >= gpa_hfinfo.len && getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG"))	\
+	if((guint)hfindex >= gpa_hfinfo.len && wireshark_abort_on_dissector_bug)	\
 		g_error("Unregistered hf! index=%d", hfindex);					\
 	DISSECTOR_ASSERT_HINT((guint)hfindex < gpa_hfinfo.len, "Unregistered hf!");	\
 	DISSECTOR_ASSERT_HINT(gpa_hfinfo.hfi[hfindex] != NULL, "Unregistered hf!");	\
@@ -1454,7 +1454,7 @@ void proto_report_dissector_bug(const char *format, ...)
 {
 	va_list args;
 
-	if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL) {
+	if (wireshark_abort_on_dissector_bug) {
 		/*
 		 * Try to have the error message show up in the crash
 		 * information.
