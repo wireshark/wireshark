@@ -118,7 +118,7 @@ public:
 
     explicit EnabledProtocolsProxyModel(QObject * parent = Q_NULLPTR);
 
-    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     void setFilter(const QString& filter, EnabledProtocolsProxyModel::SearchType type,
@@ -127,7 +127,7 @@ public:
     void setItemsEnable(EnabledProtocolsProxyModel::EnableType enable, QModelIndex parent = QModelIndex());
 
 protected:
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
 
 private:
     EnabledProtocolsProxyModel::SearchType type_;
