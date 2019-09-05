@@ -142,6 +142,7 @@ static int hf_rsl_codec_list = -1;
 static int hf_rsl_cb_cmd_type = -1;
 static int hf_rsl_cb_def_bcast = -1;
 static int hf_rsl_cb_last_block = -1;
+static int hf_rsl_etws_pn = -1;
 
 /* Encapsulating paging messages into a packet REF: EP2192796 - proprietor Huawei */
 static int hf_rsl_paging_spare                 = -1;
@@ -227,6 +228,7 @@ static int ett_ie_remote_port = -1;
 static int ett_ie_local_port = -1;
 static int ett_ie_local_ip = -1;
 static int ett_ie_rtp_payload = -1;
+static int ett_ie_etws_pn = -1;
 
 /* Encapsulating paging messages into a packet REF: EP2192796 - proprietor Huawei */
 static int ett_ie_paging_package               = -1;
@@ -390,6 +392,7 @@ static const value_string rsl_msg_disc_vals[] = {
 #define RSL_MSG_TYPE_IPAC_DLCX            0x77
 #define RSL_MSG_TYPE_IPAC_DLCX_ACK        0x78
 #define RSL_MSG_TYPE_IPAC_DLCX_NACK       0x79
+#define RSL_MSG_TYPE_OSMO_ETWS_CMD        0x7f
 
 #define RSL_IE_IPAC_SRTP_CONFIG           0xe0
 #define RSL_IE_IPAC_PROXY_UDP             0xe1
@@ -497,6 +500,7 @@ static const value_string rsl_msg_type_vals[] = {
 /* 0x77 */ {  RSL_MSG_TYPE_IPAC_DLCX,           "ip.access DLCX" },
 /* 0x78 */ {  RSL_MSG_TYPE_IPAC_DLCX_ACK,       "ip.access DLCX ACK" },
 /* 0x79 */ {  RSL_MSG_TYPE_IPAC_DLCX_NACK,      "ip.access DLCX NACK" },
+/* 0x7f */ {  RSL_MSG_TYPE_OSMO_ETWS_CMD,       "Osmocom PRIMARY ETWS CMD" },
 /* 0x48 */ { 0,        NULL }
 };
 static value_string_ext rsl_msg_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_msg_type_vals);
@@ -2693,6 +2697,37 @@ dissect_rsl_ie_smscb_mess(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     return offset;
 }
 
+static int
+dissect_rsl_ie_etws_pn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    proto_item *ti;
+    proto_tree *ie_tree;
+    guint       length;
+    int         ie_offset;
+
+    ie_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_ie_smscb_mess, &ti, "SMSCB Message IE");
+
+    /* Element identifier */
+    proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* Length */
+    length = tvb_get_guint8(tvb, offset);
+    proto_item_set_len(ti, length+2);
+    proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    ie_offset = offset;
+
+    /*
+     * ETWS Primary Notification
+     */
+
+    proto_tree_add_item(ie_tree, hf_rsl_etws_pn, tvb, offset, length, ENC_NA);
+
+    offset = ie_offset + length;
+
+    return offset;
+}
+
 /*
  * 9.3.43 CBCH Load Information
  */
@@ -4312,6 +4347,13 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
        paging_package_number = dissect_rsl_paging_package_number(tvb, pinfo, tree, &offset);
        offset = dissect_rsl_paging_package(tvb, pinfo, tree, offset, paging_package_number);
        break;
+    case RSL_MSG_TYPE_OSMO_ETWS_CMD:
+        /* See http://ftp.osmocom.org/docs/latest/osmobts-abis.pdf Section 5.5 on ETWS */
+        /* Channel number           9.3.1   M TV 2 */
+        offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
+        /* ETWS PN (Osmocom)  Osmo 5.6.17   M TLV 2-58 */
+        offset = dissect_rsl_ie_etws_pn(tvb, pinfo, tree, offset);
+        break;
     /* the following messages are ip.access specific but sent without
      * ip.access memssage discriminator */
     case RSL_MSG_TYPE_IPAC_MEAS_PP_DEF:
@@ -4998,6 +5040,11 @@ void proto_register_rsl(void)
             FT_UINT8, BASE_HEX, VALS(rsl_cb_cmd_type_last_block_vals), 0x03,
             NULL, HFILL }
         },
+        { &hf_rsl_etws_pn,
+          { "ETWS Primary Notification", "gsm_abis_rsl.etws_pn",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_rsl_channel_description_tag, { "Channel Description Tag", "gsm_abis_rsl.channel_description_tag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsl_mobile_allocation_tag, { "Mobile Allocation Tag+Length(0)", "gsm_abis_rsl.mobile_allocation_tag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -5087,7 +5134,8 @@ void proto_register_rsl(void)
         &ett_phy_ctx_ie,
         &ett_phy_ctx_ie_ext_rand_access,
         &ett_phy_ctx_ab_rx_lvl_err_bits,
-        &ett_phy_ctx_rxlvl_ext
+        &ett_phy_ctx_rxlvl_ext,
+        &ett_ie_etws_pn,
     };
     static ei_register_info ei[] = {
       /* Generated from convert_proto_tree_add_text.pl */
