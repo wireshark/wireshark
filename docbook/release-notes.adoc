@@ -85,6 +85,7 @@ Bluetooth Mesh Proxy
 CableLabs Layer-3 Protocol IEEE EtherType 0xb4e3 (CL3)
 DCOM IProvideClassInfo
 DCOM ITypeInfo
+Diagnostic Log and Trace (DLT)
 Distributed Replicated Block Device (DRBD)
 Dual Channel Wi-Fi (CL3DCW)
 EBHSCR Protocol (EBHSCR)
