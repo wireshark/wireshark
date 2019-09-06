@@ -40,6 +40,7 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include "packet-ber.h"
 #include "packet-gsm_a_common.h"
 #include "packet-ppp.h"
@@ -556,6 +557,7 @@ static int hf_gsm_a_rr_apdu_id = -1;
 static int hf_gsm_a_rr_apdu_flags_cr = -1;
 static int hf_gsm_a_rr_apdu_flags_fs = -1;
 static int hf_gsm_a_rr_apdu_flags_ls = -1;
+static int hf_gsm_a_rr_apdu_data = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8 = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b7 = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b6 = -1;
@@ -1223,6 +1225,7 @@ static gint ett_ccch_msg = -1;
 static gint ett_ec_ccch_msg = -1;
 static gint ett_ccch_oct_1 = -1;
 static gint ett_sacch_msg = -1;
+static gint ett_apdu = -1;
 
 static expert_field ei_gsm_a_rr_ie_overrun = EI_INIT;
 static expert_field ei_gsm_a_rr_ie_underrun = EI_INIT;
@@ -8779,12 +8782,15 @@ de_rr_sus_cau(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
  */
 static const value_string gsm_a_rr_apdu_id_vals[] = {
     { 0, "RRLP (GSM 04.31) LCS" },
+    { 1, "ETWS (3GPP TS 23.041)" },
     { 0, NULL },
 };
 static guint16
 de_rr_apdu_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_item(tree, hf_gsm_a_rr_apdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    guint32 *ppi = wmem_new(pinfo->pool, guint32);
+    proto_tree_add_item_ret_uint(tree, hf_gsm_a_rr_apdu_id, tvb, offset, 1, ENC_BIG_ENDIAN, ppi);
+    p_add_proto_data(pinfo->pool, pinfo, proto_a_rr, pinfo->curr_layer_num, ppi);
 
     return 0;
 }
@@ -8822,12 +8828,18 @@ de_rr_apdu_flags(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 static guint16
 de_rr_apdu_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
+    proto_item *apdu_pi;
+    proto_tree *apdu_tree;
     tvbuff_t *sub_tvb;
+    guint32 *ppi;
 
+    apdu_pi = proto_tree_add_item(tree, hf_gsm_a_rr_apdu_data, tvb, offset, len, ENC_NA);
+    apdu_tree = proto_item_add_subtree(apdu_pi, ett_apdu);
     sub_tvb = tvb_new_subset_length(tvb, offset, len);
 
-    if (rrlp_dissector)
-        call_dissector(rrlp_dissector, sub_tvb,pinfo, tree);
+    ppi = (guint32 *) p_get_proto_data(pinfo->pool, pinfo, proto_a_rr, pinfo->curr_layer_num);
+    if (ppi && *ppi == 0 && rrlp_dissector)
+        call_dissector(rrlp_dissector, sub_tvb,pinfo, apdu_tree);
 
     return len;
 }
@@ -12660,6 +12672,11 @@ proto_register_gsm_a_rr(void)
                 FT_BOOLEAN, 8, TFS(&gsm_a_rr_apdu_flags_ls_value), 0x40,
                 NULL, HFILL }
             },
+            { &hf_gsm_a_rr_apdu_data,
+              { "APDU Data","gsm_a.rr.apdu_data",
+                FT_BYTES, BASE_NONE, NULL, 0,
+                NULL, HFILL }
+            },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8,
               { "12,2 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b8",
                 FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x80,
@@ -14693,7 +14710,7 @@ proto_register_gsm_a_rr(void)
         };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    4
+#define NUM_INDIVIDUAL_ELEMS    5
     gint *ett[NUM_INDIVIDUAL_ELEMS +
               NUM_GSM_DTAP_MSG_RR +
               NUM_GSM_RR_ELEM +
@@ -14715,6 +14732,7 @@ proto_register_gsm_a_rr(void)
     ett[1] = &ett_ccch_oct_1;
     ett[2] = &ett_sacch_msg;
     ett[3] = &ett_ec_ccch_msg;
+    ett[4] = &ett_apdu;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
