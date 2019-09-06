@@ -31,11 +31,6 @@ json_validate(const guint8 *buf, const size_t len)
     jsmn_parser p;
     int rcode;
 
-    t = g_new0(jsmntok_t, max_tokens);
-
-    if (!t)
-        return FALSE;
-
     /*
      * Make sure the buffer isn't empty and the first octet isn't a NUL;
      * otherwise, the parser will immediately stop parsing and not validate
@@ -51,6 +46,11 @@ json_validate(const guint8 *buf, const size_t len)
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "jsmn: invalid character inside JSON string");
         return FALSE;
     }
+
+    t = g_new0(jsmntok_t, max_tokens);
+
+    if (!t)
+        return FALSE;
 
     jsmn_init(&p);
     rcode = jsmn_parse(&p, buf, len, t, max_tokens);
