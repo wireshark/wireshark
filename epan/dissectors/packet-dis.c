@@ -6075,6 +6075,134 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
     return offset;
 }
 
+static int dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    static guint32 entitySite;
+    static guint32 entityApplication;
+    static guint32 entityEntity;
+    proto_item *ti;
+    proto_tree *sub_tree;
+    guint8 variableParameterType, numVariable;
+    guint32 i;
+
+    entitySite = tvb_get_ntohs(tvb, offset);
+    entityApplication = tvb_get_ntohs(tvb, offset+2);
+    entityEntity = tvb_get_ntohs(tvb, offset+4);
+
+    offset = parseField_Entity(tvb, tree, offset, "Entity ID");
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    numVariable = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_item(tree, hf_dis_num_variable_records, tvb, offset, 1, ENC_BIG_ENDIAN); //number of variable parameter records
+
+    col_append_fstr( pinfo->cinfo, COL_INFO, ", (%u:%u:%u)",
+                    entitySite , entityApplication , entityEntity
+                    );
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_entity_linear_velocity, NULL, "Entity Linear Velocity");
+    proto_tree_add_item(sub_tree, hf_dis_entity_linear_velocity_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_linear_velocity_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_linear_velocity_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 24, ett_entity_location, NULL, "Entity Location");
+    proto_tree_add_item(sub_tree, hf_dis_entity_location_x_double, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(sub_tree, hf_dis_entity_location_y_double, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(sub_tree, hf_dis_entity_location_z_double, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_entity_orientation, NULL, "Entity Orientation");
+    proto_tree_add_item(sub_tree, hf_dis_entity_orientation_psi, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_orientation_theta, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_orientation_phi, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    if ((entityKind == DIS_ENTITYKIND_PLATFORM) &&
+        (entityDomain == DIS_DOMAIN_LAND))
+    {
+        static const int *entity_appearance_domain_land_bitmask[] =
+        {
+            &hf_appearance_landform_paint_scheme,
+            &hf_appearance_landform_mobility,
+            &hf_appearance_landform_fire_power,
+            &hf_appearance_landform_damage,
+            &hf_appearance_landform_smoke_entity,
+            &hf_appearance_landform_trailing_effects_entity,
+            &hf_appearance_landform_hatch,
+            &hf_appearance_landform_head_lights,
+            &hf_appearance_landform_tail_lights,
+            &hf_appearance_landform_brake_lights,
+            &hf_appearance_landform_flaming,
+            &hf_appearance_landform_launcher,
+            &hf_appearance_landform_camouflage_type,
+            &hf_appearance_landform_concealed,
+            &hf_appearance_landform_frozen_status,
+            &hf_appearance_landform_power_plant_status,
+            &hf_appearance_landform_state,
+            &hf_appearance_landform_tent,
+            &hf_appearance_landform_ramp,
+            &hf_appearance_landform_blackout_lights,
+            &hf_appearance_landform_blackout_brake_lights,
+            &hf_appearance_landform_spot_lights,
+            &hf_appearance_landform_interior_lights,
+            &hf_appearance_landform_surrender_state,
+            &hf_appearance_landform_masked_cloaked,
+            NULL
+        };
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_domain_land_bitmask, ENC_BIG_ENDIAN);
+    }
+    else if (entityKind == DIS_ENTITYKIND_LIFE_FORM)
+    {
+        static const int *entity_appearance_kind_life_form_bitmask[] =
+        {
+            &hf_appearance_lifeform_paint_scheme,
+            &hf_appearance_lifeform_health,
+            &hf_appearance_lifeform_compliance,
+            &hf_appearance_lifeform_flash_lights,
+            &hf_appearance_lifeform_state,
+            &hf_appearance_frozen_status,
+            &hf_appearance_state,
+            &hf_appearance_weapon_1,
+            &hf_appearance_weapon_2,
+            &hf_appearance_camouflage_type,
+            &hf_appearance_concealed_stationary,
+            &hf_appearance_concealed_movement,
+            NULL
+        };
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_kind_life_form_bitmask, ENC_BIG_ENDIAN);
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_entity_appearance, tvb, offset, 4, ENC_BIG_ENDIAN);
+    }
+    offset += 4;
+
+    for (i = 0; i < numVariable; i++)
+    {
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_variable_parameter, &ti, "Variable Parameter");
+
+        proto_tree_add_item(sub_tree, hf_dis_variable_parameter_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        variableParameterType = tvb_get_guint8(tvb, offset);
+        offset++;
+
+        offset = parseField_VariableParameter(tvb, sub_tree, offset, variableParameterType);
+        proto_item_set_end(ti, tvb, offset);
+    }
+
+    return offset;
+}
 /* DIS Collision PDUs
  */
 static int dissect_DIS_PARSER_COLLISION_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
@@ -8152,7 +8280,9 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         case DIS_PDUTYPE_REMOVE_ENTITY_R:
             pduFunc = &dissect_DIS_PARSER_SIMAN_ENTITY_R_PDU;
             break;
-
+        case DIS_PDUTYPE_ENTITY_STATE_UPDATE:
+            pduFunc = &dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU;
+            break;
         /* DIS Experimental V-DIS PDUs */
         case DIS_PDUTYPE_APPLICATION_CONTROL:
             pduFunc = &dissect_DIS_PARSER_APPLICATION_CONTROL_PDU;
