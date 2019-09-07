@@ -81,6 +81,28 @@ static const value_string nvme_tcp_pdu_type_vals[] = {
     { 0, NULL }
 };
 
+static const value_string nvme_tcp_termreq_fes[] = {
+    {0x0, "Reserved"                        },
+    {0x1, "Invalid PDU Header Field"        },
+    {0x2, "PDU Sequence Error"              },
+    {0x3, "Header Digest Error"             },
+    {0x4, "Data Transfer Out of Range"      },
+    {0x5, "R2T Limit Exceeded"              },
+    {0x6, "Unsupported Parameter"           },
+    {0,   NULL                              },
+};
+
+enum nvme_tcp_fatal_error_status
+{
+    NVME_TCP_FES_INVALID_PDU_HDR =      0x01,
+    NVME_TCP_FES_PDU_SEQ_ERR =          0x02,
+    NVME_TCP_FES_HDR_DIGEST_ERR =       0x03,
+    NVME_TCP_FES_DATA_OUT_OF_RANGE =    0x04,
+    NVME_TCP_FES_R2T_LIMIT_EXCEEDED =   0x05,
+    NVME_TCP_FES_DATA_LIMIT_EXCEEDED =  0x05,
+    NVME_TCP_FES_UNSUPPORTED_PARAM =    0x06,
+};
+
 enum nvme_tcp_pdu_flags {
     NVME_TCP_F_HDGST         = (1 << 0),
     NVME_TCP_F_DDGST         = (1 << 1),
@@ -188,6 +210,22 @@ static int hf_nvme_tcp_icresp_pfv = -1;
 static int hf_nvme_tcp_icresp_cpda = -1;
 static int hf_nvme_tcp_icresp_digest = -1;
 static int hf_nvme_tcp_icresp_maxdata = -1;
+
+/* NVMe tcp c2h/h2c termreq fields */
+static int hf_nvme_tcp_c2htermreq = -1;
+static int hf_nvme_tcp_c2htermreq_fes = -1;
+static int hf_nvme_tcp_c2htermreq_phfo = -1;
+static int hf_nvme_tcp_c2htermreq_phd = -1;
+static int hf_nvme_tcp_c2htermreq_upfo = -1;
+static int hf_nvme_tcp_c2htermreq_reserved = -1;
+static int hf_nvme_tcp_c2htermreq_data = -1;
+static int hf_nvme_tcp_h2ctermreq = -1;
+static int hf_nvme_tcp_h2ctermreq_fes = -1;
+static int hf_nvme_tcp_h2ctermreq_phfo = -1;
+static int hf_nvme_tcp_h2ctermreq_phd = -1;
+static int hf_nvme_tcp_h2ctermreq_upfo = -1;
+static int hf_nvme_tcp_h2ctermreq_reserved = -1;
+static int hf_nvme_tcp_h2ctermreq_data = -1;
 
 /* NVMe fabrics command */
 static int hf_nvme_fabrics_cmd = -1;
@@ -885,6 +923,84 @@ dissect_nvme_tcp_h2c_data(tvbuff_t *tvb,
 }
 
 static void
+dissect_nvme_tcp_h2ctermreq(tvbuff_t *tvb, packet_info *pinfo,
+                            proto_tree *tree, guint32 packet_len, int offset)
+{
+    proto_item *tf;
+    proto_item *h2ctermreq_tree;
+    guint16 fes;
+
+    col_set_str(pinfo->cinfo, COL_INFO,
+                "Host to Controller Termination Request");
+    tf = proto_tree_add_item(tree, hf_nvme_tcp_h2ctermreq,
+                             tvb, offset, 8, ENC_NA);
+    h2ctermreq_tree = proto_item_add_subtree(tf, ett_nvme_tcp);
+
+    proto_tree_add_item(h2ctermreq_tree, hf_nvme_tcp_h2ctermreq_fes,
+                        tvb, offset + 8, 2, ENC_LITTLE_ENDIAN);
+    fes = tvb_get_guint16(tvb, offset + 8, ENC_LITTLE_ENDIAN);
+    switch (fes) {
+    case NVME_TCP_FES_INVALID_PDU_HDR:
+        proto_tree_add_item(h2ctermreq_tree, hf_nvme_tcp_h2ctermreq_phfo,
+                            tvb, offset + 10, 4, ENC_LITTLE_ENDIAN);
+        break;
+    case NVME_TCP_FES_HDR_DIGEST_ERR:
+        proto_tree_add_item(h2ctermreq_tree, hf_nvme_tcp_h2ctermreq_phd,
+                            tvb, offset + 10, 4, ENC_LITTLE_ENDIAN);
+        break;
+    case NVME_TCP_FES_UNSUPPORTED_PARAM:
+        proto_tree_add_item(h2ctermreq_tree, hf_nvme_tcp_h2ctermreq_upfo,
+                            tvb, offset + 10, 4, ENC_LITTLE_ENDIAN);
+        break;
+    default:
+        proto_tree_add_item(h2ctermreq_tree, hf_nvme_tcp_h2ctermreq_reserved,
+                            tvb, offset + 10, 4, ENC_LITTLE_ENDIAN);
+        break;
+    }
+    proto_tree_add_item(h2ctermreq_tree, hf_nvme_tcp_h2ctermreq_data,
+                        tvb, offset + 24, packet_len - 24, ENC_NA);
+}
+
+static void
+dissect_nvme_tcp_c2htermreq(tvbuff_t *tvb, packet_info *pinfo,
+                            proto_tree *tree, guint32 packet_len, int offset)
+{
+    proto_item *tf;
+    proto_item *c2htermreq_tree;
+    guint16 fes;
+
+    col_set_str(pinfo->cinfo, COL_INFO,
+                "Controller to Host Termination Request");
+    tf = proto_tree_add_item(tree, hf_nvme_tcp_c2htermreq,
+                             tvb, offset, 8, ENC_NA);
+    c2htermreq_tree = proto_item_add_subtree(tf, ett_nvme_tcp);
+
+    proto_tree_add_item(tree, hf_nvme_tcp_c2htermreq_fes, tvb, offset + 8, 2,
+                        ENC_LITTLE_ENDIAN);
+    fes = tvb_get_guint16(tvb, offset + 8, ENC_LITTLE_ENDIAN);
+    switch (fes) {
+    case NVME_TCP_FES_INVALID_PDU_HDR:
+        proto_tree_add_item(c2htermreq_tree, hf_nvme_tcp_c2htermreq_phfo,
+                            tvb, offset + 10, 4, ENC_LITTLE_ENDIAN);
+        break;
+    case NVME_TCP_FES_HDR_DIGEST_ERR:
+        proto_tree_add_item(c2htermreq_tree, hf_nvme_tcp_c2htermreq_phd,
+                            tvb, offset + 10, 4, ENC_LITTLE_ENDIAN);
+        break;
+    case NVME_TCP_FES_UNSUPPORTED_PARAM:
+        proto_tree_add_item(c2htermreq_tree, hf_nvme_tcp_c2htermreq_upfo,
+                            tvb, offset + 10, 4, ENC_LITTLE_ENDIAN);
+        break;
+    default:
+        proto_tree_add_item(c2htermreq_tree, hf_nvme_tcp_c2htermreq_reserved,
+                            tvb, offset + 10, 4, ENC_LITTLE_ENDIAN);
+        break;
+    }
+    proto_tree_add_item(c2htermreq_tree, hf_nvme_tcp_c2htermreq_data,
+                        tvb, offset + 24, packet_len - 24, ENC_NA);
+}
+
+static void
 dissect_nvme_tcp_cqe(tvbuff_t *tvb,
                      packet_info *pinfo,
                      proto_tree *root_tree,
@@ -1121,7 +1237,11 @@ dissect_nvme_tcp_pdu(tvbuff_t *tvb,
         dissect_nvme_tcp_r2t(tvb, pinfo, nvme_tcp_pdu_offset, nvme_tcp_tree);
         break;
     case nvme_tcp_h2c_term:
+        dissect_nvme_tcp_h2ctermreq(tvb, pinfo, tree, plen, offset);
+        break;
     case nvme_tcp_c2h_term:
+        dissect_nvme_tcp_c2htermreq(tvb, pinfo, tree, plen, offset);
+        break;
     default:
         proto_tree_add_item(nvme_tcp_tree, hf_nvme_tcp_unknown_data, tvb,
                 offset, plen, ENC_NA);
@@ -1226,6 +1346,51 @@ void proto_register_nvme_tcp(void) {
            { "Maximum data capsules per r2t supported",
                    "nvme-tcp.icresp.maxdata",
              FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+       /* NVMe tcp c2h/h2c termreq fields */
+       { &hf_nvme_tcp_c2htermreq,
+           { "C2HTermReq", "nvme-tcp.c2htermreq",
+             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+       { &hf_nvme_tcp_c2htermreq_fes,
+           { "Fatal error status", "nvme-tcp.c2htermreq.fes",
+             FT_UINT16, BASE_HEX, VALS(nvme_tcp_termreq_fes),
+             0xffff, NULL, HFILL } },
+       { &hf_nvme_tcp_c2htermreq_phfo,
+           { "PDU header field offset", "nvme-tcp.c2htermreq.phfo",
+             FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+       { &hf_nvme_tcp_c2htermreq_phd,
+           { "PDU header digest", "nvme-tcp.c2htermreq.phd",
+             FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+       { &hf_nvme_tcp_c2htermreq_upfo,
+           { "Unsupported pararmeter field offset", "nvme-tcp.c2htermreq.upfo",
+             FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+       { &hf_nvme_tcp_c2htermreq_reserved,
+           { "Reserved", "nvme-tcp.c2htermreq.reserved",
+             FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+       { &hf_nvme_tcp_c2htermreq_data,
+           { "Terminated PDU header", "nvme-tcp.c2htermreq.data",
+             FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+       { &hf_nvme_tcp_h2ctermreq,
+           { "H2CTermReq", "nvme-tcp.h2ctermreq",
+             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+       { &hf_nvme_tcp_h2ctermreq_fes,
+           { "Fatal error status", "nvme-tcp.h2ctermreq.fes",
+             FT_UINT16, BASE_HEX, VALS(nvme_tcp_termreq_fes),
+             0xffff, NULL, HFILL } },
+       { &hf_nvme_tcp_h2ctermreq_phfo,
+           { "PDU header field offset", "nvme-tcp.h2ctermreq.phfo",
+             FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+       { &hf_nvme_tcp_h2ctermreq_phd,
+           { "PDU header digest", "nvme-tcp.h2ctermreq.phd",
+             FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+       { &hf_nvme_tcp_h2ctermreq_upfo,
+           { "Unsupported pararmeter field offset", "nvme-tcp.h2ctermreq.upfo",
+             FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+       { &hf_nvme_tcp_h2ctermreq_reserved,
+           { "Reserved", "nvme-tcp.h2ctermreq.reserved",
+             FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+       { &hf_nvme_tcp_h2ctermreq_data,
+           { "Terminated PDU header", "nvme-tcp.h2ctermreq.data",
+             FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
        /* NVMe fabrics command */
        { &hf_nvme_fabrics_cmd,
            { "NVM Express Fabrics (Cmd)", "nvme-tcp.cmd",
