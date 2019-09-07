@@ -21,6 +21,7 @@
 #include "epan/dissectors/packet-rtp.h"
 
 #include "ui/help_url.h"
+#include "ui/simple_dialog.h"
 #include <wsutil/utf8_entities.h>
 
 #include <wsutil/g711.h>
@@ -1108,6 +1109,7 @@ gboolean RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTempora
         if (*stop_flag) {
             return FALSE;
         }
+
         ui->progressFrame->setValue(int(tempfile->pos() * 100 / tempfile->size()));
 
         sample_count=convert_payload_to_samples(save_data.payload_type, tempfile ,pd_out, save_data.payload_len);
@@ -1414,10 +1416,18 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction, 
             ((rev_statinfo_.rtp_stats.clock_rate != 0) && (rev_statinfo_.rtp_stats.clock_rate != 8000))
            ) {
             QMessageBox::warning(this, tr("Warning"), tr("Can save audio with 8000 Hz clock rate only"));
-        } else {
-            if (! saveAudioAU(direction, &save_file, &stop_flag, sync)) {
+            goto copy_file_err;
+        }
+
+        if (((fwd_statinfo_.first_payload_type != PT_PCMU) && (fwd_statinfo_.first_payload_type != PT_PCMA)) ||
+            ((rev_statinfo_.rtp_stats.clock_rate != 0) &&
+             ((rev_statinfo_.first_payload_type != PT_PCMU) && (rev_statinfo_.first_payload_type != PT_PCMA)))) {
+            QMessageBox::warning(this, tr("Warning"), tr("Can save audio with PCM u-law or A-law encoding only"));
+            goto copy_file_err;
+        }
+
+        if (! saveAudioAU(direction, &save_file, &stop_flag, sync)) {
                 goto copy_file_err;
-            }
         }
     } else if (save_format == save_audio_raw_) { /* raw format */
         if (! saveAudioRAW(direction, &save_file, &stop_flag)) {
