@@ -755,7 +755,7 @@ quic_connection_find(packet_info *pinfo, guint8 long_packet_type,
 
 /** Create a new QUIC Connection based on a Client Initial packet. */
 static quic_info_data_t *
-quic_connection_create(packet_info *pinfo, guint32 version, const quic_cid_t *scid, const quic_cid_t *dcid)
+quic_connection_create(packet_info *pinfo, guint32 version)
 {
     quic_info_data_t *conn = NULL;
 
@@ -766,6 +766,18 @@ quic_connection_create(packet_info *pinfo, guint32 version, const quic_cid_t *sc
     copy_address_wmem(wmem_file_scope(), &conn->server_address, &pinfo->dst);
     conn->server_port = pinfo->destport;
 
+    // For faster lookups without having to check DCID
+    conversation_t *conv = find_or_create_conversation(pinfo);
+    conversation_add_proto_data(conv, proto_quic, conn);
+
+    return conn;
+}
+
+/** Update client/server connection identifiers, assuming the information is
+ * from the Client Initial. */
+static void
+quic_connection_update_initial(quic_info_data_t *conn, const quic_cid_t *scid, const quic_cid_t *dcid)
+{
     // Key connection by Client CID (if provided).
     if (scid->len) {
         memcpy(&conn->client_cids.data, scid, sizeof(quic_cid_t));
@@ -777,12 +789,6 @@ quic_connection_create(packet_info *pinfo, guint32 version, const quic_cid_t *sc
         memcpy(&conn->client_dcid_initial, dcid, sizeof(quic_cid_t));
         wmem_map_insert(quic_initial_connections, &conn->client_dcid_initial, conn);
     }
-
-    // For faster lookups without having to check DCID
-    conversation_t *conv = find_or_create_conversation(pinfo);
-    conversation_add_proto_data(conv, proto_quic, conn);
-
-    return conn;
 }
 
 #ifdef HAVE_LIBGCRYPT_AEAD
@@ -826,15 +832,15 @@ quic_connection_create_or_update(quic_info_data_t **conn_p,
         if (!from_server) {
             if (!conn) {
                 // The first Initial Packet from the client creates a new connection.
-                *conn_p = quic_connection_create(pinfo, version, scid, dcid);
-            } else if (conn->client_dcid_initial.len == 0 && dcid->len &&
-                       scid->len && !quic_cids_has_match(&conn->server_cids, scid)) {
+                *conn_p = quic_connection_create(pinfo, version);
+                quic_connection_update_initial(*conn_p, scid, dcid);
+            } else if (conn->client_dcid_initial.len == 0 && dcid->len) {
                 // If this client Initial Packet responds to a Retry Packet,
-                // then remember the new DCID for the new Initial cipher and
-                // clear the first server CID such that the next server Initial
-                // Packet can link the connection with that new SCID.
-                memcpy(&conn->client_dcid_initial, dcid, sizeof(quic_cid_t));
-                wmem_map_insert(quic_initial_connections, &conn->client_dcid_initial, conn);
+                // then remember the new client SCID and initial DCID for the
+                // new Initial cipher and clear the first server CID such that
+                // the next server Initial Packet can link the connection with
+                // that new SCID.
+                quic_connection_update_initial(conn, scid, dcid);
                 wmem_map_remove(quic_server_connections, &conn->server_cids.data);
                 memset(&conn->server_cids, 0, sizeof(quic_cid_t));
             }
@@ -847,7 +853,7 @@ quic_connection_create_or_update(quic_info_data_t **conn_p,
         // (or from the first server Initial packet, since draft -13).
         if (from_server && conn) {
             if (long_packet_type == QUIC_LPT_RETRY) {
-                // Stateless Retry Packet: the next Initial Packet from the
+                // Retry Packet: the next Initial Packet from the
                 // client should start a new cryptographic handshake. Erase the
                 // current "Initial DCID" such that the next client Initial
                 // packet populates the new value.
