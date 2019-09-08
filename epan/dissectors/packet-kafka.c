@@ -1079,10 +1079,10 @@ dissect_kafka_string_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         pi = proto_tree_add_item(tree, hf_item, tvb, offset+len, (gint)val, ENC_NA | ENC_UTF_8);
     } else if (val == 0) {
         // there is empty payload (0 octets)
-        pi = proto_tree_add_string_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<EMPTY>");
+        proto_tree_add_string_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<EMPTY>");
     } else if (val == -1) {
         // there is no payload (null)
-        pi = proto_tree_add_string_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<NULL>");
+        proto_tree_add_string_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<NULL>");
         val = 0;
     } else {
         pi = proto_tree_add_string_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<INVALID>");
@@ -1134,13 +1134,13 @@ dissect_kafka_bytes_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         val = 0;
     } else if (val > 0) {
         // there is payload available, possibly with 0 octets
-        pi = proto_tree_add_item(tree, hf_item, tvb, offset+len, (gint)val, ENC_NA);
+        proto_tree_add_item(tree, hf_item, tvb, offset+len, (gint)val, ENC_NA);
     } else if (val == 0) {
         // there is empty payload (0 octets)
-        pi = proto_tree_add_bytes_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<EMPTY>");
+        proto_tree_add_bytes_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<EMPTY>");
     } else if (val == -1) {
         // there is no payload (null)
-        pi = proto_tree_add_bytes_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<NULL>");
+        proto_tree_add_bytes_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<NULL>");
         val = 0;
     } else {
         pi = proto_tree_add_bytes_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<INVALID>");
