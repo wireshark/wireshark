@@ -1605,10 +1605,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Regole di colorazione %1</translation>
     </message>
     <message>
-        <source>Copy from</source>
-        <translation type="vanished">Copia da</translation>
-    </message>
-    <message>
         <source>Copy coloring rules from another profile.</source>
         <translation>Copia regole di colorazione da un altro profilo.</translation>
     </message>
@@ -1771,22 +1767,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>CopyFromProfileButton</name>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">Copia da</translation>
+        <translation>Copia da</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation type="unfinished">Copia voci da un altro profilo.</translation>
+        <translation>Copia voci da un altro profilo.</translation>
     </message>
     <message>
         <source>System default</source>
-        <translation type="unfinished">Predefinito di sistema</translation>
-    </message>
-</context>
-<context>
-    <name>CopyFromProfileMenu</name>
-    <message>
-        <source>System default</source>
-        <translation type="vanished">Predefinito di sistema</translation>
+        <translation>Predefinito di sistema</translation>
     </message>
 </context>
 <context>
@@ -1970,12 +1959,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Gestisci i segnalibri salvati.</translation>
     </message>
     <message>
-        <source>Clear display filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Apply this filter string to the display.</source>
-        <translation>Applica questa stringa di filtro alla visualizzazione.</translation>
+        <source>Apply display filter</source>
+        <oldsource>Apply this filter string to the display.</oldsource>
+        <translation type="unfinished">Applica questa stringa di filtro alla visualizzazione.</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
@@ -1984,6 +1970,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Enter a display filter %1</source>
         <translation>Digita un filtro di visualizzazione %1</translation>
+    </message>
+    <message>
+        <source>Clear display filter</source>
+        <translation>Cancella filtro di visualizzazione</translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
@@ -2008,14 +1998,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Manage Filter Expressions</source>
         <translation>Gestisci espressioni di filtro</translation>
-    </message>
-    <message>
-        <source>Selected</source>
-        <translation type="vanished">Selezionati</translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
-        <translation type="vanished">Non selezionati</translation>
     </message>
 </context>
 <context>
@@ -2162,6 +2144,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Cerca:</translation>
     </message>
     <message>
+        <source>in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enable All</source>
         <translation>Abilita tutto</translation>
     </message>
@@ -2179,14 +2165,26 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Everywhere</source>
-        <translation type="unfinished"></translation>
+        <translation>Ovunque</translation>
     </message>
     <message>
         <source>Only Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Solo protocolli</translation>
     </message>
     <message>
         <source>Only Description</source>
+        <translation>Solo descrizione</translation>
+    </message>
+    <message>
+        <source>any protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>non-heuristic protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>heuristic protocols</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2238,6 +2236,53 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Failed to save map file %1.</source>
         <translation>Impossibile salvare il file di mappa %1.</translation>
+    </message>
+</context>
+<context>
+    <name>EthernetAddressModel</name>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Tipo</translation>
+    </message>
+    <message>
+        <source>Mac Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hash Table</source>
+        <translation type="unfinished">Tabella hash IPv4</translation>
+    </message>
+    <message>
+        <source>IPv6 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv6 Hash Table</source>
+        <translation type="unfinished">Tabella hash IPv6</translation>
+    </message>
+    <message>
+        <source>Ethernet Addresses</source>
+        <translation type="unfinished">Indirizzi Ethernet</translation>
+    </message>
+    <message>
+        <source>Ethernet Manufacturers</source>
+        <translation type="unfinished">Produttori Ethernet</translation>
+    </message>
+    <message>
+        <source>Ethernet Well-Known Addresses</source>
+        <translation type="unfinished">Indirizzi Ethernet conosciuti</translation>
     </message>
 </context>
 <context>
@@ -2592,11 +2637,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>FilterAction</name>
     <message>
         <source>Selected</source>
-        <translation type="unfinished">Selezionati</translation>
+        <translation>Selezionati</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation type="unfinished">Non selezionati</translation>
+        <translation>Non selezionati</translation>
     </message>
 </context>
 <context>
@@ -3654,10 +3699,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Copy</source>
         <translation>Copia</translation>
-    </message>
-    <message>
-        <source>Copy from</source>
-        <translation type="vanished">Copia da</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
@@ -5815,6 +5856,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation> %1 ignorati: %2 (%3%)</translation>
     </message>
     <message>
+        <source> %1 Comments: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1  Load time: %2:%3.%4</source>
         <translation> %1  Tempo di caricamento: %2:%3.%4</translation>
     </message>
@@ -6247,18 +6292,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>As Filter</source>
         <translation>Come filtro</translation>
-    </message>
-    <message>
-        <source>&amp;Selected</source>
-        <translation type="vanished">&amp;Selezionati</translation>
-    </message>
-    <message>
-        <source>&amp;Not Selected</source>
-        <translation type="vanished">&amp;Non selezionati</translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
-        <translation type="vanished">Non selezionati</translation>
     </message>
     <message>
         <source>Close this capture file</source>
@@ -7004,38 +7037,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>All Visible Selected Tree Items</source>
         <translation>Tutti gli elementi visibili dell&apos;albero selezionato</translation>
-    </message>
-    <message>
-        <source>…&amp;and Selected</source>
-        <translation type="vanished">... &amp;e selezionati</translation>
-    </message>
-    <message>
-        <source>…and Selected</source>
-        <translation type="vanished">... e selezionati</translation>
-    </message>
-    <message>
-        <source>…&amp;or Selected</source>
-        <translation type="vanished">... &amp;o selezionati</translation>
-    </message>
-    <message>
-        <source>…or Selected</source>
-        <translation type="vanished">... o selezionati</translation>
-    </message>
-    <message>
-        <source>…a&amp;nd not Selected</source>
-        <translation type="vanished">... &amp;e non selezionati</translation>
-    </message>
-    <message>
-        <source>…and not Selected</source>
-        <translation type="vanished">... e non selezionati</translation>
-    </message>
-    <message>
-        <source>…o&amp;r not Selected</source>
-        <translation type="vanished">... &amp;o non selezionati</translation>
-    </message>
-    <message>
-        <source>…or not Selected</source>
-        <translation type="vanished">... o non selezionati</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -8336,6 +8337,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Riepilogo come testo</translation>
     </message>
     <message>
+        <source>Decode As</source>
+        <translation type="unfinished">Decodifica come</translation>
+    </message>
+    <message>
         <source>Frame %1: %2
 
 </source>
@@ -8481,6 +8486,41 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Path</source>
         <translation>Percorso</translation>
+    </message>
+</context>
+<context>
+    <name>PortsModel</name>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>tcp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>udp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sctp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>dccp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Tipo</translation>
     </message>
 </context>
 <context>
@@ -9161,7 +9201,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Prepara come filtro</translation>
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>
@@ -9564,6 +9604,26 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Finestra</translation>
     </message>
     <message>
+        <source>Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for entry (min 3 characters)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for port or name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture File Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Comment</source>
         <translation>Commento</translation>
     </message>
@@ -9654,7 +9714,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Show</source>
-        <translation>Mostra</translation>
+        <translation type="vanished">Mostra</translation>
     </message>
     <message>
         <source># Resolved addresses found in %1</source>
@@ -9672,7 +9732,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source># Hosts
 #
 # </source>
-        <translation># Host
+        <translation type="vanished"># Host
 #
 # </translation>
     </message>
@@ -9680,7 +9740,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source># IPv4 Hash Table
 #
 # </source>
-        <translation># Tabella hash IPv4
+        <translation type="vanished"># Tabella hash IPv4
 #
 # </translation>
     </message>
@@ -9688,7 +9748,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source>
 
 </source>
-        <translation>
+        <translation type="vanished">
 
 </translation>
     </message>
@@ -9696,7 +9756,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source># IPv6 Hash Table
 #
 # </source>
-        <translation># Tabella hash IPv6
+        <translation type="vanished"># Tabella hash IPv6
 #
 # </translation>
     </message>
@@ -9704,7 +9764,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source># Services
 #
 # </source>
-        <translation># Servizi
+        <translation type="vanished"># Servizi
 #
 # </translation>
     </message>
@@ -9712,7 +9772,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source># Ethernet addresses
 #
 # </source>
-        <translation># Indirizzi Ethernet
+        <translation type="vanished"># Indirizzi Ethernet
 #
 # </translation>
     </message>
@@ -9720,7 +9780,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source># Ethernet manufacturers
 #
 # </source>
-        <translation># Produttori Ethernet
+        <translation type="vanished"># Produttori Ethernet
 #
 # </translation>
     </message>
@@ -9728,7 +9788,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source># Well known Ethernet addresses
 #
 # </source>
-        <translation># Indirizzi Ethernet conosciuti
+        <translation type="vanished"># Indirizzi Ethernet conosciuti
 #
 # </translation>
     </message>
@@ -10247,6 +10307,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Puoi salvare audio solo con una frequenza di clock di 8000 Hz</translation>
     </message>
     <message>
+        <source>Can save audio with PCM u-law or A-law encoding only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>Salva CSV del flusso diretto</translation>
     </message>
@@ -10384,7 +10448,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>
@@ -12959,14 +13023,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Unknown User Accessible Table</source>
         <translation>Tabella accessibile dall&apos;utente sconosciuta</translation>
-    </message>
-    <message>
-        <source>Copy from</source>
-        <translation type="vanished">Copia da</translation>
-    </message>
-    <message>
-        <source>Copy entries from another profile.</source>
-        <translation type="vanished">Copia voci da un altro profilo.</translation>
     </message>
     <message>
         <source>Open </source>

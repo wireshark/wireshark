@@ -1605,10 +1605,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Einfärbungsregeln %1</translation>
     </message>
     <message>
-        <source>Copy from</source>
-        <translation type="vanished">Kopieren von</translation>
-    </message>
-    <message>
         <source>Copy coloring rules from another profile.</source>
         <translation>Einfärbungsregeln von einem anderen Profil kopieren.</translation>
     </message>
@@ -1771,22 +1767,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>CopyFromProfileButton</name>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">Kopieren von</translation>
+        <translation>Kopieren von</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation type="unfinished">Einträge von einem anderen Profil kopieren.</translation>
+        <translation>Einträge von einem anderen Profil kopieren.</translation>
     </message>
     <message>
         <source>System default</source>
-        <translation type="unfinished">Standard</translation>
-    </message>
-</context>
-<context>
-    <name>CopyFromProfileMenu</name>
-    <message>
-        <source>System default</source>
-        <translation type="vanished">Standard</translation>
+        <translation>Standard</translation>
     </message>
 </context>
 <context>
@@ -1970,12 +1959,9 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Gespeicherte Lesezeichen verwalten</translation>
     </message>
     <message>
-        <source>Clear display filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Apply this filter string to the display.</source>
-        <translation>Diesen Filter zur Anzeige anwenden.</translation>
+        <source>Apply display filter</source>
+        <oldsource>Apply this filter string to the display.</oldsource>
+        <translation type="unfinished">Diesen Filter zur Anzeige anwenden.</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
@@ -1984,6 +1970,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Enter a display filter %1</source>
         <translation>Geben Sie einen Anzeigefilter ein %1</translation>
+    </message>
+    <message>
+        <source>Clear display filter</source>
+        <translation>Anzeigefilter zurücksetzen</translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
@@ -2008,14 +1998,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Manage Filter Expressions</source>
         <translation>Filterausdrücke verwalten</translation>
-    </message>
-    <message>
-        <source>Selected</source>
-        <translation type="vanished">Ausgewählt</translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
-        <translation type="vanished">Nicht Ausgewählt</translation>
     </message>
 </context>
 <context>
@@ -2162,6 +2144,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Suchen:</translation>
     </message>
     <message>
+        <source>in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enable All</source>
         <translation>Alle aktivieren</translation>
     </message>
@@ -2179,14 +2165,26 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Everywhere</source>
-        <translation type="unfinished"></translation>
+        <translation>Überall</translation>
     </message>
     <message>
         <source>Only Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur Protokolle</translation>
     </message>
     <message>
         <source>Only Description</source>
+        <translation>Nur Beschreibungen</translation>
+    </message>
+    <message>
+        <source>any protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>non-heuristic protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>heuristic protocols</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2238,6 +2236,53 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Failed to save map file %1.</source>
         <translation>Fehler beim Speichern der Kartendatei %1.</translation>
+    </message>
+</context>
+<context>
+    <name>EthernetAddressModel</name>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Typ</translation>
+    </message>
+    <message>
+        <source>Mac Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Name</translation>
+    </message>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hash Table</source>
+        <translation type="unfinished">IPv4 Hashtabelle</translation>
+    </message>
+    <message>
+        <source>IPv6 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv6 Hash Table</source>
+        <translation type="unfinished">IPv6 Hashtabelle</translation>
+    </message>
+    <message>
+        <source>Ethernet Addresses</source>
+        <translation type="unfinished">Ethernet Adressen</translation>
+    </message>
+    <message>
+        <source>Ethernet Manufacturers</source>
+        <translation type="unfinished">Ethernet Hersteller</translation>
+    </message>
+    <message>
+        <source>Ethernet Well-Known Addresses</source>
+        <translation type="unfinished">Bekannte Ethernet Adressen</translation>
     </message>
 </context>
 <context>
@@ -2592,11 +2637,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>FilterAction</name>
     <message>
         <source>Selected</source>
-        <translation type="unfinished">Ausgewählt</translation>
+        <translation>Ausgewählt</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>nicht das Ausgewählte</translation>
     </message>
 </context>
 <context>
@@ -3654,10 +3699,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Copy</source>
         <translation>Kopieren</translation>
-    </message>
-    <message>
-        <source>Copy from</source>
-        <translation type="vanished">Kopieren von</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
@@ -5815,6 +5856,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>%1 Ignoriert: %2 (%3%)</translation>
     </message>
     <message>
+        <source> %1 Comments: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1  Load time: %2:%3.%4</source>
         <translation>%1 Ladezeit: %2:%3.%4</translation>
     </message>
@@ -6247,18 +6292,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>As Filter</source>
         <translation>Als Filter</translation>
-    </message>
-    <message>
-        <source>&amp;Selected</source>
-        <translation type="vanished">das Au&amp;sgewählte</translation>
-    </message>
-    <message>
-        <source>&amp;Not Selected</source>
-        <translation type="vanished">&amp;nicht das Ausgewählte</translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
-        <translation type="vanished">nicht das Ausgewählte</translation>
     </message>
     <message>
         <source>Close this capture file</source>
@@ -7004,38 +7037,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>All Visible Selected Tree Items</source>
         <translation>Alle sichtbare ausgewählten Elemente</translation>
-    </message>
-    <message>
-        <source>…&amp;and Selected</source>
-        <translation type="vanished">...und das Ausgewählte</translation>
-    </message>
-    <message>
-        <source>…and Selected</source>
-        <translation type="vanished">...und das Ausgewählte</translation>
-    </message>
-    <message>
-        <source>…&amp;or Selected</source>
-        <translation type="vanished">...oder das Ausgewählte</translation>
-    </message>
-    <message>
-        <source>…or Selected</source>
-        <translation type="vanished">...oder das Ausgewählte</translation>
-    </message>
-    <message>
-        <source>…a&amp;nd not Selected</source>
-        <translation type="vanished">...und nicht das Ausgewählte</translation>
-    </message>
-    <message>
-        <source>…and not Selected</source>
-        <translation type="vanished">...und nicht das Ausgewählte</translation>
-    </message>
-    <message>
-        <source>…o&amp;r not Selected</source>
-        <translation type="vanished">...oder nicht das Ausgewählte</translation>
-    </message>
-    <message>
-        <source>…or not Selected</source>
-        <translation type="vanished">...oder nicht das Ausgewählte</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -8336,6 +8337,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Zusammenfassung als Text</translation>
     </message>
     <message>
+        <source>Decode As</source>
+        <translation type="unfinished">Dekodieren als</translation>
+    </message>
+    <message>
         <source>Frame %1: %2
 
 </source>
@@ -8481,6 +8486,41 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Path</source>
         <translation>Pfad</translation>
+    </message>
+</context>
+<context>
+    <name>PortsModel</name>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>tcp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>udp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sctp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>dccp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Name</translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Typ</translation>
     </message>
 </context>
 <context>
@@ -9161,7 +9201,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Filter vorbereiten</translation>
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>
@@ -9564,6 +9604,26 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Dialog</translation>
     </message>
     <message>
+        <source>Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for entry (min 3 characters)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for port or name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture File Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Comment</source>
         <translation>Kommentare</translation>
     </message>
@@ -9654,7 +9714,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Show</source>
-        <translation>Zeige</translation>
+        <translation type="vanished">Zeige</translation>
     </message>
     <message>
         <source># Resolved addresses found in %1</source>
@@ -9672,7 +9732,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source># Hosts
 #
 # </source>
-        <translation># Hosts
+        <translation type="vanished"># Hosts
 #
 # </translation>
     </message>
@@ -9680,7 +9740,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source># IPv4 Hash Table
 #
 # </source>
-        <translation># IPv4 Hash Table
+        <translation type="vanished"># IPv4 Hash Table
 #
 # </translation>
     </message>
@@ -9688,7 +9748,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source>
 
 </source>
-        <translation>
+        <translation type="vanished">
 
 </translation>
     </message>
@@ -9696,7 +9756,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source># IPv6 Hash Table
 #
 # </source>
-        <translation># IPv6 Hash Table
+        <translation type="vanished"># IPv6 Hash Table
 #
 # </translation>
     </message>
@@ -9704,7 +9764,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source># Services
 #
 # </source>
-        <translation># Services
+        <translation type="vanished"># Services
 #
 # </translation>
     </message>
@@ -9712,7 +9772,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source># Ethernet addresses
 #
 # </source>
-        <translation># Ethernet addresses
+        <translation type="vanished"># Ethernet addresses
 #
 # </translation>
     </message>
@@ -9720,7 +9780,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source># Ethernet manufacturers
 #
 # </source>
-        <translation># Ethernet manufacturers
+        <translation type="vanished"># Ethernet manufacturers
 #
 # </translation>
     </message>
@@ -9728,7 +9788,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source># Well known Ethernet addresses
 #
 # </source>
-        <translation># Well known Ethernet addresses
+        <translation type="vanished"># Well known Ethernet addresses
 #
 # </translation>
     </message>
@@ -10247,6 +10307,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Audio kann nur mit 8000 Hz gespeichert werden</translation>
     </message>
     <message>
+        <source>Can save audio with PCM u-law or A-law encoding only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>Hinweg Stream als CSV speichern</translation>
     </message>
@@ -10384,7 +10448,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>
@@ -12964,14 +13028,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Unknown User Accessible Table</source>
         <translation>Unbekannte User Accessible Table </translation>
-    </message>
-    <message>
-        <source>Copy from</source>
-        <translation type="vanished">Kopieren von</translation>
-    </message>
-    <message>
-        <source>Copy entries from another profile.</source>
-        <translation type="vanished">Einträge von einem anderen Profil kopieren.</translation>
     </message>
     <message>
         <source>Open </source>

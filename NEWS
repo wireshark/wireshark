@@ -58,7 +58,8 @@ Wireshark 3.1.1 Release Notes
        installers are still dual-signed using SHA-1 and SHA-2.
 
      • "Enable Protocols" Dialog now only enables/disables and inverts
-       protocols based on the set filter selection
+       protocols based on the set filter selection. Also the protocol
+       type (standard or heuristic) may be choosen as filter value
 
   New Protocol Support
 
@@ -71,11 +72,11 @@ Wireshark 3.1.1 Release Notes
    EERO Protocol (EERO), evolved Common Public Radio Interface (eCPRI),
    File Server Remote VSS Protocol (FSRVP), FTDI FT USB Bridging Devices
    (FTDI FT), Graylog Extended Log Format over UDP (GELF), GSM/3GPP CBSP
-   (Cell Broadcast Service Protocol), MIDI System Exclusive DigiTech
-   (SYSEX DigiTech), Network Controller Sideband Interface (NCSI), NR
-   Positioning Protocol A (NRPPa) TS 38.455, NVM Express over Fabrics
-   for TCP (nvme-tcp), and OsmoTRX Protocol (GSM Transceiver control and
-   data)
+   (Cell Broadcast Service Protocol), Linux net_dm (network drop
+   monitor) protocol, MIDI System Exclusive DigiTech (SYSEX DigiTech),
+   Network Controller Sideband Interface (NCSI), NR Positioning Protocol
+   A (NRPPa) TS 38.455, NVM Express over Fabrics for TCP (nvme-tcp), and
+   OsmoTRX Protocol (GSM Transceiver control and data)
 
   Updated Protocol Support
 
@@ -123,7 +124,7 @@ Wireshark 3.1.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[10].
 
-  Last updated 2019-09-01 08:06:40 UTC
+  Last updated 2019-09-08 08:10:00 UTC
 
  References
 

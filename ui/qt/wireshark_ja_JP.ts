@@ -1597,10 +1597,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>色付けルール %1</translation>
     </message>
     <message>
-        <source>Copy from</source>
-        <translation type="vanished">からコピー</translation>
-    </message>
-    <message>
         <source>Copy coloring rules from another profile.</source>
         <translation>別のプロファイルから色付けルールをコピーします</translation>
     </message>
@@ -1763,7 +1759,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>CopyFromProfileButton</name>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">からコピー</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
@@ -1771,14 +1767,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>System default</source>
-        <translation type="unfinished">システム デフォルト</translation>
-    </message>
-</context>
-<context>
-    <name>CopyFromProfileMenu</name>
-    <message>
-        <source>System default</source>
-        <translation type="vanished">システム デフォルト</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1962,12 +1951,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>保存したブックマークを管理</translation>
     </message>
     <message>
-        <source>Clear display filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Apply this filter string to the display.</source>
-        <translation>このフィルタ文字列を表示に適用</translation>
+        <source>Apply display filter</source>
+        <oldsource>Apply this filter string to the display.</oldsource>
+        <translation type="unfinished">このフィルタ文字列を表示に適用</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
@@ -1976,6 +1962,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Enter a display filter %1</source>
         <translation>表示フィルタ %1 を入力</translation>
+    </message>
+    <message>
+        <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
@@ -2000,14 +1990,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Manage Filter Expressions</source>
         <translation>フィルタ書式を管理</translation>
-    </message>
-    <message>
-        <source>Selected</source>
-        <translation type="vanished">選択済</translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
-        <translation type="vanished">未選択</translation>
     </message>
 </context>
 <context>
@@ -2154,6 +2136,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>検索:</translation>
     </message>
     <message>
+        <source>in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enable All</source>
         <translation>すべて有効</translation>
     </message>
@@ -2179,6 +2165,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Only Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>any protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>non-heuristic protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>heuristic protocols</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2230,6 +2228,53 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Failed to save map file %1.</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EthernetAddressModel</name>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">種別</translation>
+    </message>
+    <message>
+        <source>Mac Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">名前</translation>
+    </message>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hash Table</source>
+        <translation type="unfinished">IPv4ハッシュ表</translation>
+    </message>
+    <message>
+        <source>IPv6 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv6 Hash Table</source>
+        <translation type="unfinished">IPv6ハッシュ表</translation>
+    </message>
+    <message>
+        <source>Ethernet Addresses</source>
+        <translation type="unfinished">Ethernetアドレス</translation>
+    </message>
+    <message>
+        <source>Ethernet Manufacturers</source>
+        <translation type="unfinished">Ethernet製造元</translation>
+    </message>
+    <message>
+        <source>Ethernet Well-Known Addresses</source>
+        <translation type="unfinished">Ethernet既知のアドレス</translation>
     </message>
 </context>
 <context>
@@ -2583,11 +2628,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>FilterAction</name>
     <message>
         <source>Selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">選択済み</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">選択されていません</translation>
     </message>
 </context>
 <context>
@@ -5797,6 +5842,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation> %1 無視: %2 (%3%)</translation>
     </message>
     <message>
+        <source> %1 Comments: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1  Load time: %2:%3.%4</source>
         <translation> %1  読込時間: %2:%3.%4</translation>
     </message>
@@ -6228,18 +6277,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>As Filter</source>
         <translation>フィルタとして</translation>
-    </message>
-    <message>
-        <source>&amp;Selected</source>
-        <translation type="vanished">選択済(&amp;S)</translation>
-    </message>
-    <message>
-        <source>&amp;Not Selected</source>
-        <translation type="vanished">未選択(&amp;N)</translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
-        <translation type="vanished">選択されていません</translation>
     </message>
     <message>
         <source>Close this capture file</source>
@@ -6985,38 +7022,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>All Visible Selected Tree Items</source>
         <translation>すべての見えている選択されたツリー項目</translation>
-    </message>
-    <message>
-        <source>…&amp;and Selected</source>
-        <translation type="vanished">…かつ選択内容と一致(&amp;a)</translation>
-    </message>
-    <message>
-        <source>…and Selected</source>
-        <translation type="vanished">…かつ選択内容と一致</translation>
-    </message>
-    <message>
-        <source>…&amp;or Selected</source>
-        <translation type="vanished">…または選択内容と一致(&amp;o)</translation>
-    </message>
-    <message>
-        <source>…or Selected</source>
-        <translation type="vanished">…または選択内容と一致</translation>
-    </message>
-    <message>
-        <source>…a&amp;nd not Selected</source>
-        <translation type="vanished">…かつ選択内容と不一致(&amp;n)</translation>
-    </message>
-    <message>
-        <source>…and not Selected</source>
-        <translation type="vanished">…かつ選択内容と不一致</translation>
-    </message>
-    <message>
-        <source>…o&amp;r not Selected</source>
-        <translation type="vanished">…または選択内容と不一致(&amp;r)</translation>
-    </message>
-    <message>
-        <source>…or not Selected</source>
-        <translation type="vanished">…または選択内容と不一致</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -8315,6 +8320,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>テキストとしての概要</translation>
     </message>
     <message>
+        <source>Decode As</source>
+        <translation type="unfinished">としてデコード</translation>
+    </message>
+    <message>
         <source>Frame %1: %2
 
 </source>
@@ -8460,6 +8469,41 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Path</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PortsModel</name>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>tcp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>udp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sctp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>dccp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">名前</translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">種別</translation>
     </message>
 </context>
 <context>
@@ -9531,6 +9575,26 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>ダイアログ</translation>
     </message>
     <message>
+        <source>Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for entry (min 3 characters)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for port or name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture File Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Comment</source>
         <translation>コメント</translation>
     </message>
@@ -9621,7 +9685,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show</source>
-        <translation>表示</translation>
+        <translation type="vanished">表示</translation>
     </message>
     <message>
         <source># Resolved addresses found in %1</source>
@@ -9639,7 +9703,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Hosts
 #
 # </source>
-        <translation># ホスト
+        <translation type="vanished"># ホスト
 #
 # </translation>
     </message>
@@ -9647,7 +9711,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># IPv4 Hash Table
 #
 # </source>
-        <translation>IPv4 ハッシュ表
+        <translation type="vanished">IPv4 ハッシュ表
 #
 # </translation>
     </message>
@@ -9655,7 +9719,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>
 
 </source>
-        <translation>
+        <translation type="vanished">
 
 </translation>
     </message>
@@ -9663,7 +9727,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># IPv6 Hash Table
 #
 # </source>
-        <translation># IPv6 ハッシュ表
+        <translation type="vanished"># IPv6 ハッシュ表
 #
 # </translation>
     </message>
@@ -9671,7 +9735,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Services
 #
 # </source>
-        <translation># サービス
+        <translation type="vanished"># サービス
 #
 # </translation>
     </message>
@@ -9679,7 +9743,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Ethernet addresses
 #
 # </source>
-        <translation># Ethernet アドレス
+        <translation type="vanished"># Ethernet アドレス
 #
 # </translation>
     </message>
@@ -9687,7 +9751,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Ethernet manufacturers
 #
 # </source>
-        <translation># Ethernet 製造元
+        <translation type="vanished"># Ethernet 製造元
 #
 # </translation>
     </message>
@@ -9695,7 +9759,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Well known Ethernet addresses
 #
 # </source>
-        <translation># 既知のEthernetアドレス
+        <translation type="vanished"># 既知のEthernetアドレス
 #
 # </translation>
     </message>
@@ -10214,6 +10278,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Can save audio with PCM u-law or A-law encoding only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>順方向ストリームをCSVで保存</translation>
     </message>
@@ -10351,7 +10419,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>
@@ -12946,7 +13014,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">からコピー</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>

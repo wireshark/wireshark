@@ -1935,11 +1935,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Clear display filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Apply this filter string to the display.</source>
+        <source>Apply display filter</source>
+        <oldsource>Apply this filter string to the display.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1948,6 +1945,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Enter a display filter %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear display filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2117,6 +2118,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Recherche :</translation>
     </message>
     <message>
+        <source>in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enable All</source>
         <translation>Activer tout</translation>
     </message>
@@ -2142,6 +2147,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Only Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>any protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>non-heuristic protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>heuristic protocols</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2193,6 +2210,53 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Failed to save map file %1.</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EthernetAddressModel</name>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Type</translation>
+    </message>
+    <message>
+        <source>Mac Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Nom</translation>
+    </message>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hash Table</source>
+        <translation type="unfinished">Table Hash IPv4</translation>
+    </message>
+    <message>
+        <source>IPv6 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv6 Hash Table</source>
+        <translation type="unfinished">Table Hash IPv6</translation>
+    </message>
+    <message>
+        <source>Ethernet Addresses</source>
+        <translation type="unfinished">Adresses Ethernet</translation>
+    </message>
+    <message>
+        <source>Ethernet Manufacturers</source>
+        <translation type="unfinished">Fabricants Ethernet</translation>
+    </message>
+    <message>
+        <source>Ethernet Well-Known Addresses</source>
+        <translation type="unfinished">Adresses Ethernet Bien-Connues</translation>
     </message>
 </context>
 <context>
@@ -5768,6 +5832,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>%1 Ignorés: %2 (%3%)</translation>
     </message>
     <message>
+        <source> %1 Comments: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1  Load time: %2:%3.%4</source>
         <translation>%1  Temps de chargement: %2:%3.%4</translation>
     </message>
@@ -6200,18 +6268,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>As Filter</source>
         <translation>Comme un Filtre</translation>
-    </message>
-    <message>
-        <source>&amp;Selected</source>
-        <translation type="vanished">&amp;Sélectionné</translation>
-    </message>
-    <message>
-        <source>&amp;Not Selected</source>
-        <translation type="vanished">&amp;Non Sélectionné</translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
-        <translation type="vanished">Non Sélectionné</translation>
     </message>
     <message>
         <source>Close this capture file</source>
@@ -6957,38 +7013,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>All Visible Selected Tree Items</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…&amp;and Selected</source>
-        <translation type="vanished">...&amp;et Sélectionné</translation>
-    </message>
-    <message>
-        <source>…and Selected</source>
-        <translation type="vanished">...et Sélectionné</translation>
-    </message>
-    <message>
-        <source>…&amp;or Selected</source>
-        <translation type="vanished">...&amp;ou Sélectionné</translation>
-    </message>
-    <message>
-        <source>…or Selected</source>
-        <translation type="vanished">...ou Sélectionné</translation>
-    </message>
-    <message>
-        <source>…a&amp;nd not Selected</source>
-        <translation type="vanished">...e&amp;t non Sélectionné</translation>
-    </message>
-    <message>
-        <source>…and not Selected</source>
-        <translation type="vanished">...et non Sélectionné</translation>
-    </message>
-    <message>
-        <source>…o&amp;r not Selected</source>
-        <translation type="vanished">...o&amp;u non Sélectionné</translation>
-    </message>
-    <message>
-        <source>…or not Selected</source>
-        <translation type="vanished">...ou non Sélectionné</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -8283,6 +8307,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Résumé en Texte</translation>
     </message>
     <message>
+        <source>Decode As</source>
+        <translation type="unfinished">Décoder comme</translation>
+    </message>
+    <message>
         <source>Frame %1: %2
 
 </source>
@@ -8428,6 +8456,41 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Path</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PortsModel</name>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>tcp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>udp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sctp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>dccp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Nom</translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Type</translation>
     </message>
 </context>
 <context>
@@ -9506,6 +9569,26 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Dialogue</translation>
     </message>
     <message>
+        <source>Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for entry (min 3 characters)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for port or name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture File Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Comment</source>
         <translation>Commentaire</translation>
     </message>
@@ -9596,7 +9679,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Show</source>
-        <translation>Afficher</translation>
+        <translation type="vanished">Afficher</translation>
     </message>
     <message>
         <source># Resolved addresses found in %1</source>
@@ -9614,7 +9697,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <source># Hosts
 #
 # </source>
-        <translation># Hôtes
+        <translation type="vanished"># Hôtes
 #
 # </translation>
     </message>
@@ -9622,7 +9705,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <source># IPv4 Hash Table
 #
 # </source>
-        <translation># Table Hash IPv4
+        <translation type="vanished"># Table Hash IPv4
 #
 #</translation>
     </message>
@@ -9630,7 +9713,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <source>
 
 </source>
-        <translation>
+        <translation type="vanished">
 
 </translation>
     </message>
@@ -9638,7 +9721,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <source># IPv6 Hash Table
 #
 # </source>
-        <translation># Table Hash IPv6
+        <translation type="vanished"># Table Hash IPv6
 #
 #</translation>
     </message>
@@ -9646,7 +9729,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <source># Services
 #
 # </source>
-        <translation># Services
+        <translation type="vanished"># Services
 #
 #</translation>
     </message>
@@ -9654,7 +9737,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <source># Ethernet addresses
 #
 # </source>
-        <translation># Adresses ethernet
+        <translation type="vanished"># Adresses ethernet
 #
 #</translation>
     </message>
@@ -9662,7 +9745,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <source># Ethernet manufacturers
 #
 # </source>
-        <translation># Fabricants ethernet
+        <translation type="vanished"># Fabricants ethernet
 #
 #</translation>
     </message>
@@ -9670,7 +9753,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <source># Well known Ethernet addresses
 #
 # </source>
-        <translation># Adresses Ethernet Bien connues</translation>
+        <translation type="vanished"># Adresses Ethernet Bien connues</translation>
     </message>
 </context>
 <context>
@@ -10187,6 +10270,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Can save audio with PCM u-law or A-law encoding only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>Sauvegarder CSV flux aller</translation>
     </message>
@@ -10324,7 +10411,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>

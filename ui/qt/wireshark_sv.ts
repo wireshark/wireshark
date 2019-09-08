@@ -1605,10 +1605,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Färgläggningsregler %1</translation>
     </message>
     <message>
-        <source>Copy from</source>
-        <translation type="vanished">Kopiera ifrån</translation>
-    </message>
-    <message>
         <source>Copy coloring rules from another profile.</source>
         <translation>Kopiera färgläggningsregler från en annan profil.</translation>
     </message>
@@ -1963,12 +1959,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Hantera sparade bokmärken.</translation>
     </message>
     <message>
-        <source>Clear display filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Apply this filter string to the display.</source>
-        <translation>Använd denna filtersträng på det visade.</translation>
+        <source>Apply display filter</source>
+        <oldsource>Apply this filter string to the display.</oldsource>
+        <translation type="unfinished">Använd denna filtersträng på det visade.</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
@@ -1977,6 +1970,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Enter a display filter %1</source>
         <translation>Skriv in ett visningsfilter %1</translation>
+    </message>
+    <message>
+        <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
@@ -2147,6 +2144,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Sök:</translation>
     </message>
     <message>
+        <source>in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enable All</source>
         <translation>Aktivera allt</translation>
     </message>
@@ -2172,6 +2173,18 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Only Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>any protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>non-heuristic protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>heuristic protocols</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2223,6 +2236,53 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Failed to save map file %1.</source>
         <translation>Misslyckades att spara kartfilen %1.</translation>
+    </message>
+</context>
+<context>
+    <name>EthernetAddressModel</name>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Typ</translation>
+    </message>
+    <message>
+        <source>Mac Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Namn</translation>
+    </message>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hash Table</source>
+        <translation type="unfinished">IPv4-hashtabell</translation>
+    </message>
+    <message>
+        <source>IPv6 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv6 Hash Table</source>
+        <translation type="unfinished">IPv6-hashtabell</translation>
+    </message>
+    <message>
+        <source>Ethernet Addresses</source>
+        <translation type="unfinished">Ethernet-adresser</translation>
+    </message>
+    <message>
+        <source>Ethernet Manufacturers</source>
+        <translation type="unfinished">Ethernet-tillverkare</translation>
+    </message>
+    <message>
+        <source>Ethernet Well-Known Addresses</source>
+        <translation type="unfinished">Välkända Ethernet-adresser</translation>
     </message>
 </context>
 <context>
@@ -3639,10 +3699,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Copy</source>
         <translation>Kopiera</translation>
-    </message>
-    <message>
-        <source>Copy from</source>
-        <translation type="vanished">Kopiera ifrån</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
@@ -5800,6 +5856,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation> %1 ignorerade: %2 (%3 %)</translation>
     </message>
     <message>
+        <source> %1 Comments: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1  Load time: %2:%3.%4</source>
         <translation> %1 inläsningstid: %2.%3.%4</translation>
     </message>
@@ -6232,18 +6292,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>As Filter</source>
         <translation>Som filter</translation>
-    </message>
-    <message>
-        <source>&amp;Selected</source>
-        <translation type="vanished">&amp;Vald</translation>
-    </message>
-    <message>
-        <source>&amp;Not Selected</source>
-        <translation type="vanished">&amp;Ej vald</translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
-        <translation type="vanished">Ej vald</translation>
     </message>
     <message>
         <source>Close this capture file</source>
@@ -6989,38 +7037,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>All Visible Selected Tree Items</source>
         <translation>Alla synliga valda trädobjekt</translation>
-    </message>
-    <message>
-        <source>…&amp;and Selected</source>
-        <translation type="vanished">… &amp;och valda</translation>
-    </message>
-    <message>
-        <source>…and Selected</source>
-        <translation type="vanished">… och valda</translation>
-    </message>
-    <message>
-        <source>…&amp;or Selected</source>
-        <translation type="vanished">… &amp;eller valda</translation>
-    </message>
-    <message>
-        <source>…or Selected</source>
-        <translation type="vanished">… eller valda</translation>
-    </message>
-    <message>
-        <source>…a&amp;nd not Selected</source>
-        <translation type="vanished">… o&amp;ch inte valda</translation>
-    </message>
-    <message>
-        <source>…and not Selected</source>
-        <translation type="vanished">… och inte valda</translation>
-    </message>
-    <message>
-        <source>…o&amp;r not Selected</source>
-        <translation type="vanished">… e&amp;ller inte valda</translation>
-    </message>
-    <message>
-        <source>…or not Selected</source>
-        <translation type="vanished">… eller inte valda</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -8321,6 +8337,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Sammanfattning som text</translation>
     </message>
     <message>
+        <source>Decode As</source>
+        <translation type="unfinished">Avkoda som</translation>
+    </message>
+    <message>
         <source>Frame %1: %2
 
 </source>
@@ -8466,6 +8486,41 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Path</source>
         <translation>Sökväg</translation>
+    </message>
+</context>
+<context>
+    <name>PortsModel</name>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>tcp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>udp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sctp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>dccp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Namn</translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Typ</translation>
     </message>
 </context>
 <context>
@@ -9542,6 +9597,26 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Dialog</translation>
     </message>
     <message>
+        <source>Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for entry (min 3 characters)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for port or name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture File Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Comment</source>
         <translation>Kommentar</translation>
     </message>
@@ -9632,7 +9707,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Show</source>
-        <translation>Visa</translation>
+        <translation type="vanished">Visa</translation>
     </message>
     <message>
         <source># Resolved addresses found in %1</source>
@@ -9650,7 +9725,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source># Hosts
 #
 # </source>
-        <translation># Värdar
+        <translation type="vanished"># Värdar
 #
 #</translation>
     </message>
@@ -9658,7 +9733,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source># IPv4 Hash Table
 #
 # </source>
-        <translation># IPv4-hashtabell
+        <translation type="vanished"># IPv4-hashtabell
 #
 #</translation>
     </message>
@@ -9666,7 +9741,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>
 
 </source>
-        <translation>
+        <translation type="vanished">
 
 </translation>
     </message>
@@ -9674,7 +9749,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source># IPv6 Hash Table
 #
 # </source>
-        <translation># IPv6-hashtabell
+        <translation type="vanished"># IPv6-hashtabell
 #
 #</translation>
     </message>
@@ -9682,7 +9757,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source># Services
 #
 # </source>
-        <translation># Tjänster
+        <translation type="vanished"># Tjänster
 #
 #</translation>
     </message>
@@ -9690,7 +9765,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source># Ethernet addresses
 #
 # </source>
-        <translation># Ethernet-adresser
+        <translation type="vanished"># Ethernet-adresser
 #
 #</translation>
     </message>
@@ -9698,7 +9773,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source># Ethernet manufacturers
 #
 # </source>
-        <translation># Ethernet-tillverkare
+        <translation type="vanished"># Ethernet-tillverkare
 #
 #</translation>
     </message>
@@ -9706,7 +9781,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source># Well known Ethernet addresses
 #
 # </source>
-        <translation># Välkända Ethernet-adresser
+        <translation type="vanished"># Välkända Ethernet-adresser
 #
 #</translation>
     </message>
@@ -10225,6 +10300,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Kan endast spara ljud med 8000 Hz klockhastighet</translation>
     </message>
     <message>
+        <source>Can save audio with PCM u-law or A-law encoding only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>Spara framåtströms-CSV</translation>
     </message>
@@ -10362,7 +10441,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>
@@ -12942,14 +13021,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Unknown User Accessible Table</source>
         <translation>Okänd användaråtkomlig tabell</translation>
-    </message>
-    <message>
-        <source>Copy from</source>
-        <translation type="vanished">Kopiera ifrån</translation>
-    </message>
-    <message>
-        <source>Copy entries from another profile.</source>
-        <translation type="vanished">Kopiera poster från en annan profil.</translation>
     </message>
     <message>
         <source>Open </source>

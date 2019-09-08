@@ -1612,10 +1612,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Цветовые Правила %1</translation>
     </message>
     <message>
-        <source>Copy from</source>
-        <translation type="vanished">Копировать из</translation>
-    </message>
-    <message>
         <source>Copy coloring rules from another profile.</source>
         <translation>Копировать цветовые правила из другого профиля.</translation>
     </message>
@@ -1970,12 +1966,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Управлять сохранёнными закладками.</translation>
     </message>
     <message>
-        <source>Clear display filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Apply this filter string to the display.</source>
-        <translation>Применить эту строку фильтра к отображённому на экране.</translation>
+        <source>Apply display filter</source>
+        <oldsource>Apply this filter string to the display.</oldsource>
+        <translation type="unfinished">Применить эту строку фильтра к отображённому на экране.</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
@@ -1984,6 +1977,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Enter a display filter %1</source>
         <translation>Введите дисплейный фильтр %1</translation>
+    </message>
+    <message>
+        <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
@@ -2154,6 +2151,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Поиск:</translation>
     </message>
     <message>
+        <source>in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enable All</source>
         <translation>Включить Все</translation>
     </message>
@@ -2179,6 +2180,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Only Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>any protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>non-heuristic protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>heuristic protocols</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2230,6 +2243,53 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Failed to save map file %1.</source>
         <translation>Не удалось сохранить файл карты %1.</translation>
+    </message>
+</context>
+<context>
+    <name>EthernetAddressModel</name>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Тип</translation>
+    </message>
+    <message>
+        <source>Mac Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Имя</translation>
+    </message>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hash Table</source>
+        <translation type="unfinished">Хэш-таблица IPv4</translation>
+    </message>
+    <message>
+        <source>IPv6 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv6 Hash Table</source>
+        <translation type="unfinished">Хэш-таблица IPv6</translation>
+    </message>
+    <message>
+        <source>Ethernet Addresses</source>
+        <translation type="unfinished">Адреса Ethernet</translation>
+    </message>
+    <message>
+        <source>Ethernet Manufacturers</source>
+        <translation type="unfinished">Производители Ethernet</translation>
+    </message>
+    <message>
+        <source>Ethernet Well-Known Addresses</source>
+        <translation type="unfinished">Широко известные Ethernet-адреса</translation>
     </message>
 </context>
 <context>
@@ -3653,10 +3713,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Copy</source>
         <translation>Копировать</translation>
-    </message>
-    <message>
-        <source>Copy from</source>
-        <translation type="vanished">Копировать из</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
@@ -5817,6 +5873,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation> %1 Игнорировано: %2 (%3%)</translation>
     </message>
     <message>
+        <source> %1 Comments: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1  Load time: %2:%3.%4</source>
         <translation> %1  Время загрузки: %2:%3.%4</translation>
     </message>
@@ -6250,18 +6310,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>As Filter</source>
         <translation>Как Фильтр</translation>
-    </message>
-    <message>
-        <source>&amp;Selected</source>
-        <translation type="vanished">&amp;Выбрано</translation>
-    </message>
-    <message>
-        <source>&amp;Not Selected</source>
-        <translation type="vanished">&amp;Не Выбрано</translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
-        <translation type="vanished">Не Выбрано</translation>
     </message>
     <message>
         <source>Close this capture file</source>
@@ -7007,38 +7055,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>All Visible Selected Tree Items</source>
         <translation>Все Видимые Пункты Выбранного Дерева</translation>
-    </message>
-    <message>
-        <source>…&amp;and Selected</source>
-        <translation type="vanished">…&amp;и Выбранное</translation>
-    </message>
-    <message>
-        <source>…and Selected</source>
-        <translation type="vanished">…и Выбранное</translation>
-    </message>
-    <message>
-        <source>…&amp;or Selected</source>
-        <translation type="vanished">…&amp;или Выбранное</translation>
-    </message>
-    <message>
-        <source>…or Selected</source>
-        <translation type="vanished">…или Выбранное</translation>
-    </message>
-    <message>
-        <source>…a&amp;nd not Selected</source>
-        <translation type="vanished">…&amp;и не Выбранное</translation>
-    </message>
-    <message>
-        <source>…and not Selected</source>
-        <translation type="vanished">…и не Выбранное</translation>
-    </message>
-    <message>
-        <source>…o&amp;r not Selected</source>
-        <translation type="vanished">…&amp;или не Выбранное</translation>
-    </message>
-    <message>
-        <source>…or not Selected</source>
-        <translation type="vanished">…или не Выбранное</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -8341,6 +8357,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Итоги как Текст</translation>
     </message>
     <message>
+        <source>Decode As</source>
+        <translation type="unfinished">Декодировать Как</translation>
+    </message>
+    <message>
         <source>Frame %1: %2
 
 </source>
@@ -8486,6 +8506,41 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Path</source>
         <translation>Путь</translation>
+    </message>
+</context>
+<context>
+    <name>PortsModel</name>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>tcp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>udp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sctp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>dccp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Имя</translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Тип</translation>
     </message>
 </context>
 <context>
@@ -9567,6 +9622,26 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Диалог</translation>
     </message>
     <message>
+        <source>Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for entry (min 3 characters)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for port or name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture File Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Comment</source>
         <translation>Комментарий</translation>
     </message>
@@ -9657,7 +9732,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show</source>
-        <translation>Показать</translation>
+        <translation type="vanished">Показать</translation>
     </message>
     <message>
         <source># Resolved addresses found in %1</source>
@@ -9675,7 +9750,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Hosts
 #
 # </source>
-        <translation># Хосты
+        <translation type="vanished"># Хосты
 #
 # </translation>
     </message>
@@ -9683,7 +9758,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># IPv4 Hash Table
 #
 # </source>
-        <translation># Хэш-таблица IPv4
+        <translation type="vanished"># Хэш-таблица IPv4
 #
 # </translation>
     </message>
@@ -9691,7 +9766,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>
 
 </source>
-        <translation>
+        <translation type="vanished">
 
 </translation>
     </message>
@@ -9699,7 +9774,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># IPv6 Hash Table
 #
 # </source>
-        <translation># Хэш-таблица IPv6
+        <translation type="vanished"># Хэш-таблица IPv6
 #
 # </translation>
     </message>
@@ -9707,7 +9782,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Services
 #
 # </source>
-        <translation># Службы
+        <translation type="vanished"># Службы
 #
 # </translation>
     </message>
@@ -9715,7 +9790,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Ethernet addresses
 #
 # </source>
-        <translation># Адреса Ethernet
+        <translation type="vanished"># Адреса Ethernet
 #
 # </translation>
     </message>
@@ -9723,7 +9798,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Ethernet manufacturers
 #
 # </source>
-        <translation># Производители Ethernet
+        <translation type="vanished"># Производители Ethernet
 #
 # </translation>
     </message>
@@ -9731,7 +9806,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Well known Ethernet addresses
 #
 # </source>
-        <translation># Широко известные Ethernet-адреса
+        <translation type="vanished"># Широко известные Ethernet-адреса
 #
 # </translation>
     </message>
@@ -10250,6 +10325,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Возможно сохранение аудио только с тактовой частотой 8000 Гц</translation>
     </message>
     <message>
+        <source>Can save audio with PCM u-law or A-law encoding only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>Сохранить прямой поток CSV</translation>
     </message>
@@ -10387,7 +10466,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>
@@ -12971,14 +13050,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unknown User Accessible Table</source>
         <translation>Неизвестная Таблица Доступа Пользователей</translation>
-    </message>
-    <message>
-        <source>Copy from</source>
-        <translation type="vanished">Копировать из</translation>
-    </message>
-    <message>
-        <source>Copy entries from another profile.</source>
-        <translation type="vanished">Копировать записи из другого профиля.</translation>
     </message>
     <message>
         <source>Open </source>

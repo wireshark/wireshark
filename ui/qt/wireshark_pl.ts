@@ -1609,10 +1609,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Reguły kolorowania %1</translation>
     </message>
     <message>
-        <source>Copy from</source>
-        <translation type="vanished">Kopiuj z</translation>
-    </message>
-    <message>
         <source>Copy coloring rules from another profile.</source>
         <translation>Kopiuj reguły kolorowania z innego profilu.</translation>
     </message>
@@ -1967,12 +1963,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Zarządzaj zapisanymi zakładkami.</translation>
     </message>
     <message>
-        <source>Clear display filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Apply this filter string to the display.</source>
-        <translation>Zastosuj filtr.</translation>
+        <source>Apply display filter</source>
+        <oldsource>Apply this filter string to the display.</oldsource>
+        <translation type="unfinished">Zastosuj filtr.</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
@@ -1981,6 +1974,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Enter a display filter %1</source>
         <translation>Wpisz filtr wyświetlania %1</translation>
+    </message>
+    <message>
+        <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
@@ -2151,6 +2148,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Szukaj:</translation>
     </message>
     <message>
+        <source>in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enable All</source>
         <translation>Włącz wszystkie</translation>
     </message>
@@ -2176,6 +2177,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Only Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>any protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>non-heuristic protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>heuristic protocols</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2227,6 +2240,53 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Failed to save map file %1.</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EthernetAddressModel</name>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mac Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hash Table</source>
+        <translation type="unfinished">Tablica mieszająca IPv4</translation>
+    </message>
+    <message>
+        <source>IPv6 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv6 Hash Table</source>
+        <translation type="unfinished">Tablica mieszająca IPv6</translation>
+    </message>
+    <message>
+        <source>Ethernet Addresses</source>
+        <translation type="unfinished">Adresy Ethernet</translation>
+    </message>
+    <message>
+        <source>Ethernet Manufacturers</source>
+        <translation type="unfinished">Producenci Ethernet</translation>
+    </message>
+    <message>
+        <source>Ethernet Well-Known Addresses</source>
+        <translation type="unfinished">Dobrze znane adresy Ethernet</translation>
     </message>
 </context>
 <context>
@@ -2586,7 +2646,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nie wybrany</translation>
     </message>
 </context>
 <context>
@@ -5803,6 +5863,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation> %1 Ignorowanych: %2 (%3%)</translation>
     </message>
     <message>
+        <source> %1 Comments: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1  Load time: %2:%3.%4</source>
         <translation> %1  Czas ładowania: %2:%3.%4</translation>
     </message>
@@ -6236,18 +6300,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>As Filter</source>
         <translation>Jako filtr</translation>
-    </message>
-    <message>
-        <source>&amp;Selected</source>
-        <translation type="vanished">&amp;Wybrane</translation>
-    </message>
-    <message>
-        <source>&amp;Not Selected</source>
-        <translation type="vanished">&amp;Nie wybrane</translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
-        <translation type="vanished">Nie wybrane</translation>
     </message>
     <message>
         <source>Close this capture file</source>
@@ -6993,38 +7045,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>All Visible Selected Tree Items</source>
         <translation>Wszystkie widoczne pozycje wybranego poddrzewa</translation>
-    </message>
-    <message>
-        <source>…&amp;and Selected</source>
-        <translation type="vanished">…i wybrane</translation>
-    </message>
-    <message>
-        <source>…and Selected</source>
-        <translation type="vanished">…i wybrane</translation>
-    </message>
-    <message>
-        <source>…&amp;or Selected</source>
-        <translation type="vanished">…lub wybrane</translation>
-    </message>
-    <message>
-        <source>…or Selected</source>
-        <translation type="vanished">…lub wybrane</translation>
-    </message>
-    <message>
-        <source>…a&amp;nd not Selected</source>
-        <translation type="vanished">…i nie wybrane</translation>
-    </message>
-    <message>
-        <source>…and not Selected</source>
-        <translation type="vanished">…i nie wybrane</translation>
-    </message>
-    <message>
-        <source>…o&amp;r not Selected</source>
-        <translation type="vanished">…lub nie wybrane</translation>
-    </message>
-    <message>
-        <source>…or not Selected</source>
-        <translation type="vanished">…lub nie wybrane</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -8327,6 +8347,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Podsumowanie jako tekst</translation>
     </message>
     <message>
+        <source>Decode As</source>
+        <translation type="unfinished">Dekoduj jako</translation>
+    </message>
+    <message>
         <source>Frame %1: %2
 
 </source>
@@ -8471,6 +8495,41 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Path</source>
         <translation>Ścieżka</translation>
+    </message>
+</context>
+<context>
+    <name>PortsModel</name>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>tcp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>udp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sctp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>dccp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9552,6 +9611,26 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Okno</translation>
     </message>
     <message>
+        <source>Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for entry (min 3 characters)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for port or name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture File Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Comment</source>
         <translation>Komentarz</translation>
     </message>
@@ -9642,7 +9721,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show</source>
-        <translation>Pokaż</translation>
+        <translation type="vanished">Pokaż</translation>
     </message>
     <message>
         <source># Resolved addresses found in %1</source>
@@ -9660,7 +9739,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Hosts
 #
 # </source>
-        <translation># Gospodarze
+        <translation type="vanished"># Gospodarze
 #
 #</translation>
     </message>
@@ -9668,7 +9747,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># IPv4 Hash Table
 #
 # </source>
-        <translation># Tablica mieszająca IPv4
+        <translation type="vanished"># Tablica mieszająca IPv4
 #
 #</translation>
     </message>
@@ -9676,7 +9755,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>
 
 </source>
-        <translation>
+        <translation type="vanished">
 
 </translation>
     </message>
@@ -9684,7 +9763,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># IPv6 Hash Table
 #
 # </source>
-        <translation># Tablica mieszająca IPv6
+        <translation type="vanished"># Tablica mieszająca IPv6
 #
 #</translation>
     </message>
@@ -9692,7 +9771,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Services
 #
 # </source>
-        <translation># Usługi
+        <translation type="vanished"># Usługi
 #
 # </translation>
     </message>
@@ -9700,7 +9779,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Ethernet addresses
 #
 # </source>
-        <translation># Adresy Ethernet
+        <translation type="vanished"># Adresy Ethernet
 #
 # </translation>
     </message>
@@ -9708,7 +9787,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Ethernet manufacturers
 #
 # </source>
-        <translation># Producenci Ethernet
+        <translation type="vanished"># Producenci Ethernet
 #
 #</translation>
     </message>
@@ -9716,7 +9795,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Well known Ethernet addresses
 #
 # </source>
-        <translation># Dobrze znane adresy Ethernet
+        <translation type="vanished"># Dobrze znane adresy Ethernet
 #
 # </translation>
     </message>
@@ -10235,6 +10314,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Może zapisać audio tylko z próbkowaniem 8000 Hz</translation>
     </message>
     <message>
+        <source>Can save audio with PCM u-law or A-law encoding only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>Zapisz przewodni strumień jako CSV</translation>
     </message>
@@ -10372,7 +10455,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>
@@ -12951,14 +13034,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unknown User Accessible Table</source>
         <translation>Nieznana Tabela Użytkownika</translation>
-    </message>
-    <message>
-        <source>Copy from</source>
-        <translation type="vanished">Kopiuj z</translation>
-    </message>
-    <message>
-        <source>Copy entries from another profile.</source>
-        <translation type="vanished">Kopiuj z innego profilu.</translation>
     </message>
     <message>
         <source>Open </source>
