@@ -5620,7 +5620,9 @@ static int hf_he_multi_tid_aggregation_tx_support = -1;
 static int hf_he_subchannel_selective_trans_support = -1;
 static int hf_he_2_996_tone_ru_support = -1;
 static int hf_he_om_control_ul_mu_data_disable_rx_support = -1;
-static int hf_he_reserved_bits_45_47 = -1;
+static int hf_he_dynamic_sm_power_save = -1;
+static int hf_he_punctured_sounding_support = -1;
+static int hf_he_ht_and_vht_trigger_frame_rx_support = -1;
 static int hf_he_reserved_bit_18 = -1;
 static int hf_he_reserved_bit_19 = -1;
 static int hf_he_reserved_bit_25 = -1;
@@ -20480,7 +20482,9 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     &hf_he_subchannel_selective_trans_support,       /* 31 */
     &hf_he_2_996_tone_ru_support,                    /* 32 */
     &hf_he_om_control_ul_mu_data_disable_rx_support, /* 33 */
-    &hf_he_reserved_bits_45_47,                      /* 34 */
+    &hf_he_dynamic_sm_power_save,                    /* 34 */
+    &hf_he_punctured_sounding_support,               /* 35 */
+    &hf_he_ht_and_vht_trigger_frame_rx_support,      /* 36 */
     NULL
   };
 
@@ -36243,9 +36247,20 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported),
       0x100000000000, NULL, HFILL }},
 
-    {&hf_he_reserved_bits_45_47,
-     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_45_47",
-      FT_UINT48, BASE_HEX, NULL, 0xE00000000000, NULL, HFILL }},
+    {&hf_he_dynamic_sm_power_save,
+     {"HE Dynamic SM Power Save", "wlan.ext_tag.he_dynamic_sm_power_save",
+      FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported),
+      0x200000000000, NULL, HFILL }},
+
+    {&hf_he_punctured_sounding_support,
+     {"Punctured Sounding Support", "wlan.ext_tag.he_punctured_sounding_support",
+      FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported),
+      0x400000000000, NULL, HFILL }},
+
+    {&hf_he_ht_and_vht_trigger_frame_rx_support,
+     {"HT And VHT Trigger Frame RX Support", "wlan.ext_tag.he_ht_and_vht_trigger_frame_rx_support",
+      FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported),
+      0x800000000000, NULL, HFILL }},
 
     {&hf_he_reserved_bits_5_7,
      {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bits_5_7",
