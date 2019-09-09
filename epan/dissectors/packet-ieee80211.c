@@ -5627,8 +5627,6 @@ static int hf_he_reserved_bit_25 = -1;
 static int hf_he_reserved_bits_5_7 = -1;
 static int hf_he_reserved_bits_8_9 = -1;
 static int hf_he_reserved_bits_15_16 = -1;
-static int hf_he_phy_reserved_b0 = -1;
-static int hf_he_phy_cap_reserved_b0 = -1;
 static int hf_he_phy_chan_width_set = -1;
 static int hf_he_40mhz_channel_2_4ghz = -1;
 static int hf_he_40_and_80_mhz_5ghz = -1;
@@ -20262,12 +20260,8 @@ static const val64_string he_mimo_cntrl_feedback_vals[] = {
   { 0, NULL }
 };
 
-static const int *he_phy_first_byte_headers[] = {
-  &hf_he_phy_cap_reserved_b0,
-  NULL,
-};
 
-static const int *he_phy_channel_width_set_headers[] _U_ = {
+static const int *he_phy_channel_width_set_headers[] = {
   &hf_he_40mhz_channel_2_4ghz,
   &hf_he_40_and_80_mhz_5ghz,
   &hf_he_160_mhz_5ghz,
@@ -20521,9 +20515,6 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   phy_cap_tree = proto_tree_add_subtree(tree, tvb, offset, 11, ett_he_phy_capabilities,
                         NULL,
                         "HE Phy Capabilities Information");
-  proto_tree_add_bitmask_with_flags(phy_cap_tree, tvb, offset,
-                        hf_he_phy_reserved_b0, ett_he_phy_cap_first_byte,
-                        he_phy_first_byte_headers, ENC_NA, BMT_NO_APPEND);
   proto_tree_add_bitmask_with_flags(phy_cap_tree, tvb, offset,
                         hf_he_phy_chan_width_set,  ett_he_phy_cap_chan_width_set,
                         he_phy_channel_width_set_headers, ENC_NA, BMT_NO_APPEND);
@@ -36280,46 +36271,37 @@ proto_register_ieee80211(void)
      {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_25",
       FT_UINT48, BASE_HEX, NULL, 0x000002000000, NULL, HFILL }},
 
-    {&hf_he_phy_reserved_b0,
-     {"Reserved", "wlan.ext_tag.he_phy_cap.reserved_b0",
-      FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }},
-
-    {&hf_he_phy_cap_reserved_b0,
-     {"Reserved", "wlan.ext_tag.he_phy_cap.fbyte.reserved_b0",
-      FT_UINT8, BASE_HEX, NULL, 0x01,
-      NULL, HFILL }},
-
     {&hf_he_phy_chan_width_set,
      {"Channel Width Set", "wlan.ext_tag.he_phy_cap.fbytes",
-      FT_UINT8, BASE_HEX, NULL, 0xFE, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_he_40mhz_channel_2_4ghz,
      {"40MHz in 2.4GHz band", "wlan.ext_tag.he_phy_cap.chan_width_set.40mhz_in_2_4ghz",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }},
 
     {&hf_he_40_and_80_mhz_5ghz,
      {"40 & 80MHz in the 5GHz band", "wlan.ext_tag.he_phy_cap.chan_width_set.40_80_in_5ghz",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }},
 
     {&hf_he_160_mhz_5ghz,
      {"160MHz in the 5GHz band", "wlan.ext_tag.he_phy_cap.chan_width_set.160_in_5ghz",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04, NULL, HFILL }},
 
     {&hf_he_160_80_plus_80_mhz_5ghz,
      {"160/80+80MHz in the 5GHz band", "wlan.ext_tag.he_phy_cap.chan_width_set.160_80_80_in_5ghz",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08, NULL, HFILL }},
 
     {&hf_he_242_tone_rus_in_2_4ghz,
      {"242 tone RUs in the 2.4GHz band", "wlan.ext_tag.he_phy_cap.chan_width_set.242_tone_in_2_4ghz",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10, NULL, HFILL }},
 
     {&hf_he_242_tone_rus_in_5ghz,
      {"242 tone RUs in the 5GHz band", "wlan.ext_tag.he_phy_cap.chan_width_set.242_tone_in_5ghz",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20, NULL, HFILL }},
 
     {&hf_he_chan_width_reserved,
      {"Reserved", "wlan.ext_tag.he_phy_cap.chan_width_set.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }},
 
     {&hf_he_phy_b8_to_b23,
      {"Bits 8 to 23", "wlan.ext_tag.he_phy_cap.bits_8_to_23",
