@@ -19,6 +19,8 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 
+#include <wsutil/cmdarg_err.h>
+
 #define RANDPKT_EXTCAP_INTERFACE "randpkt"
 #define RANDPKTDUMP_VERSION_MAJOR "0"
 #define RANDPKTDUMP_VERSION_MINOR "1"
@@ -115,6 +117,11 @@ static int list_config(char *interface)
 	return EXIT_SUCCESS;
 }
 
+static void failure_warning_message(const char *msg_format, va_list ap)
+{
+	g_logv(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, msg_format, ap);
+}
+
 int main(int argc, char *argv[])
 {
 	char* init_progfile_dir_error;
@@ -137,6 +144,8 @@ int main(int argc, char *argv[])
 	extcap_parameters * extcap_conf = g_new0(extcap_parameters, 1);
 	char* help_url;
 	char* help_header = NULL;
+
+	cmdarg_err_init(failure_warning_message, failure_warning_message);
 
 	/*
 	 * Get credential information for later use.
