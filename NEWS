@@ -82,7 +82,8 @@ Wireshark 3.1.1 Release Notes
    System Exclusive DigiTech (SYSEX DigiTech), Network Controller
    Sideband Interface (NCSI), NR Positioning Protocol A (NRPPa) TS
    38.455, NVM Express over Fabrics for TCP (nvme-tcp), and OsmoTRX
-   Protocol (GSM Transceiver control and data)
+   Protocol (GSM Transceiver control and data), and Scalable
+   service-Oriented MiddlewarE over IP (SOME/IP)
 
   Updated Protocol Support
 

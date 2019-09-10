@@ -102,6 +102,7 @@ Network Controller Sideband Interface (NCSI)
 NR Positioning Protocol A (NRPPa) TS 38.455
 NVM Express over Fabrics for TCP (nvme-tcp)
 OsmoTRX Protocol (GSM Transceiver control and data)
+Scalable service-Oriented MiddlewarE over IP (SOME/IP)
 Linux net_dm (network drop monitor) protocol
 --
 
