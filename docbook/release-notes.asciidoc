@@ -18,12 +18,12 @@ used for troubleshooting, analysis, development and education.
 The following vulnerabilities have been fixed:
 
 * wssalink:2019-21[]
-A dissector went awry.
-// wsbuglink:XXXXX[].
+Gryphon dissector infinite loop.
+wsbuglink:16020[].
 // cveidlink:2019-XXXXX[].
-// Fixed in master: XXXXX
-// Fixed in master-3.0: XXXXX
-// Fixed in master-2.6: XXXXX
+// Fixed in master: 627917faff
+// Fixed in master-3.0: 02ddd49885
+// Fixed in master-2.6: eae9aa28b4
 
 The following bugs have been fixed:
 
@@ -31,7 +31,50 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark slowly leaked water under the kitchen sink over the course of several months, causing a big mess.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.4rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.5rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Coloring Rules dialog - enable/disable coloring rule issues. wsbuglink:15153[].
+
+* Enabling Time-Of-Day in IO Graph causes the x-axis origin to be set to 01.01.1970. wsbuglink:15247[].
+
+* Wireshark GUI crashes when attempting to DnD multiple (possibly corrupted) pcapng files. wsbuglink:15377[].
+
+* Buildbot crash output: randpkt-2019-06-14-14291.pcap. wsbuglink:15848[].
+
+* 802.11 RSN IE may be shorter than 18 bytes. wsbuglink:15905[].
+
+* Tshark outputs two data rate instead of one. wsbuglink:15928[].
+
+* Typo in checkbox label at bottom of sshdump configuration screen (save parameters). wsbuglink:15929[].
+
+* Invalid pkcs11_libs entry crashes on Windows. wsbuglink:15957[].
+
+* Add additional text output for DNS types (DNSSEC). wsbuglink:15970[].
+
+* LSD bittorent. wsbuglink:15971[].
+
+* dfilter_macros is missing from Configuration Files article. wsbuglink:15973[].
+
+* Pane configuration inconsistencies. wsbuglink:15976[].
+
+* Packet list is sorted in reverse order after applying a display filter in Qt 5.13. wsbuglink:15979[].
+
+* EAP-TLS fragments are repeatedly displayed. wsbuglink:15982[].
+
+* Broken TLS handshake reassembly in EAP-TTLS with multiple TLS sessions. wsbuglink:15983[].
+
+* Wireshark does not support USB packets with size greater than 256 KiB. wsbuglink:15985[].
+
+* "Unable to drop files during capture." when drag'n'drop entry to create display filter or filter button. wsbuglink:15986[].
+
+* Packet Bytes highlight for dns.qry.name.len and dns.count.labels off by one. wsbuglink:15999[].
+
+* Segmentation fault in nfs_name_snoop_fh. wsbuglink:16017[].
+
+* Changing the protocol preferences caused a crash. wsbuglink:16019[].
+
+* DCERPC dissector broken for functions with only scalar variables. wsbuglink:16022[].
+
 
 === New and Updated Features
 
@@ -54,15 +97,27 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+BACnet
+DCERPC
+DNS
+EAP
+FC-dNS
+Gryphon
+IEEE 802.11
+LSD
+NFS
+Radiotap
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+CommView
+PacketLogger
+--
 
 === New and Updated Capture Interfaces support
 
