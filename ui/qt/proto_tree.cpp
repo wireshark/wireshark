@@ -158,9 +158,9 @@ void ProtoTree::ctxCopySelectedInfo()
         break;
 
     case ProtoTree::Value:
-        if ( edt_ )
         {
-            gchar* field_str = get_node_field_value(finfo.fieldInfo(), edt_);
+            epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
+            gchar* field_str = get_node_field_value(finfo.fieldInfo(), edt);
             clip.append(field_str);
             g_free(field_str);
         }
