@@ -113,7 +113,7 @@ LIBGCRYPT_VERSION=1.7.7
 # packet data pane; see, for example, Qt bugs QTBUG-31937, QTBUG-41017,
 # and QTBUG-43464, all of which seem to be the same bug.
 #
-QT_VERSION=${QT_VERSION-5.12.1}
+QT_VERSION=${QT_VERSION-5.12.4}
 
 if [ "$QT_VERSION" ]; then
     QT_MAJOR_VERSION="`expr $QT_VERSION : '\([0-9][0-9]*\).*'`"
@@ -783,7 +783,7 @@ install_qt() {
         # 5.2.0:      qt-mac-opensource-{version}.dmg
         # 5.2.1:      qt-opensource-mac-x64-clang-{version}.dmg
         # 5.3 - 5.8:  qt-opensource-mac-x64-clang-{version}.dmg
-        # 5.9 - 5.10: qt-opensource-mac-x64-{version}.dmg
+        # 5.9 - 5.13: qt-opensource-mac-x64-{version}.dmg
         #
         case $QT_MAJOR_VERSION in
 
@@ -848,7 +848,7 @@ uninstall_qt() {
             # 5.2.0:      qt-mac-opensource-{version}.dmg
             # 5.2.1:      qt-opensource-mac-x64-clang-{version}.dmg
             # 5.3 - 5.8:  qt-opensource-mac-x64-clang-{version}.dmg
-            # 5.9 - 5.10: qt-opensource-mac-x64-{version}.dmg
+            # 5.9 - 5.13: qt-opensource-mac-x64-{version}.dmg
             #
             installed_qt_major_version="`expr $installed_qt_version : '\([0-9][0-9]*\).*'`"
             installed_qt_minor_version="`expr $installed_qt_version : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
