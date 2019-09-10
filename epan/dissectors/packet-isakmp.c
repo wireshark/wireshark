@@ -159,6 +159,7 @@ static int hf_isakmp_notify_data_unity_load_balance = -1;
 static int hf_isakmp_notify_data_accepted_dh_group = -1;
 static int hf_isakmp_notify_data_ipcomp_cpi = -1;
 static int hf_isakmp_notify_data_ipcomp_transform_id = -1;
+static int hf_isakmp_notify_data_auth_lifetime = -1;
 static int hf_isakmp_notify_data_redirect_gw_ident_type = -1;
 static int hf_isakmp_notify_data_redirect_gw_ident_len = -1;
 static int hf_isakmp_notify_data_redirect_new_resp_gw_ident_ipv4 = -1;
@@ -4830,6 +4831,23 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
         proto_tree_add_item(tree, hf_isakmp_notify_data_ipcomp_cpi, tvb, offset, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_isakmp_notify_data_ipcomp_transform_id, tvb, offset+2, 1, ENC_BIG_ENDIAN);
         break;
+      case 16403: /* AUTH_LIFETIME" */
+      {
+        guint32 hours;
+        guint32 minutes;
+        guint32 seconds;
+        guint32 durations_seconds;
+
+        durations_seconds = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+
+        hours = durations_seconds / 3600;
+        minutes = (durations_seconds % 3600) / 60;
+        seconds = (durations_seconds % 3600) % 60;
+
+        proto_tree_add_uint_format_value(tree, hf_isakmp_notify_data_auth_lifetime, tvb, offset, length, durations_seconds,
+                    "%u seconds (%u hour(s) %02u minute(s) %02u second(s))", durations_seconds, hours, minutes, seconds);
+        break;
+      }
       case 16407: /* REDIRECT */
         proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_gw_ident_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_gw_ident_len, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -6805,6 +6823,10 @@ proto_register_isakmp(void)
     { &hf_isakmp_notify_data_ipcomp_transform_id,
       { "IPCOMP Transform ID", "isakmp.notify.data.ipcomp.transform_id",
         FT_UINT8, BASE_DEC, VALS(transform_id_ipcomp), 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_auth_lifetime,
+      { "Authentication Lifetime", "isakmp.notify.data.auth_lifetime",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
     { &hf_isakmp_notify_data_redirect_gw_ident_type,
       { "Gateway Identity Type", "isakmp.notify.data.redirect.gw_ident.type",
