@@ -2006,6 +2006,10 @@ proto_register_fcdns (void)
         &hfi_fcdns_fc4features,
         &hfi_fcdns_fc4features_i,
         &hfi_fcdns_fc4features_t,
+        &hfi_fcdns_id_length,
+        &hfi_fcdns_zone_flags,
+        &hfi_fcdns_zonelen,
+        &hfi_fcdns_num_entries
     };
 #endif
 
