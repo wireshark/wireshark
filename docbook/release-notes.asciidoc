@@ -18,12 +18,12 @@ used for troubleshooting, analysis, development and education.
 The following vulnerabilities have been fixed:
 
 * wssalink:2019-21[]
-A dissector went awry.
-// wsbuglink:XXXXX[].
+Gryphon dissector infinite loop.
+wsbuglink:16020[].
 // cveidlink:2019-XXXXX[].
-// Fixed in master: XXXXX
-// Fixed in master-3.0: XXXXX
-// Fixed in master-2.6: XXXXX
+// Fixed in master: 627917faff
+// Fixed in master-3.0: 02ddd49885
+// Fixed in master-2.6: eae9aa28b4
 
 The following bugs have been fixed:
 
@@ -31,8 +31,23 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.11rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.12rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* Coloring Rules dialog - enable/disable coloring rule issues. wsbuglink:15153[].
+
+* Enabling Time-Of-Day in IO Graph causes the x-axis origin to be set to 01.01.1970. wsbuglink:15247[].
+
+* Tshark outputs two data rate instead of one. wsbuglink:15928[].
+
+* Typo in checkbox label at bottom of sshdump configuration screen (save parameters). wsbuglink:15929[].
+
+* Pane configuration inconsistencies. wsbuglink:15976[].
+
+* Packet Bytes highlight for dns.qry.name.len and dns.count.labels off by one. wsbuglink:15999[].
+
+* Segmentation fault in nfs_name_snoop_fh. wsbuglink:16017[].
+
+* Changing the protocol preferences caused a crash. wsbuglink:16019[].
 
 === New and Updated Features
 
@@ -51,15 +66,23 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+BACnet
+DNS
+FC-dNS
+Gryphon
+NFS
+Radiotap
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+CommView
+PacketLogger
+--
 
 === New and Updated Capture Interfaces support
 
