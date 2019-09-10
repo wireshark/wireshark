@@ -22,6 +22,7 @@
 #include <wsutil/please_report_bug.h>
 
 #include <cli_main.h>
+#include <ui/cmdarg_err.h>
 
 #define RANDPKT_EXTCAP_INTERFACE "randpkt"
 #define RANDPKTDUMP_VERSION_MAJOR "0"
@@ -124,6 +125,11 @@ static int list_config(char *interface)
 	return EXIT_SUCCESS;
 }
 
+static void failure_warning_message(const char *msg_format, va_list ap)
+{
+	g_logv(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, msg_format, ap);
+}
+
 int main(int argc, char *argv[])
 {
 	char* err_msg;
@@ -143,6 +149,8 @@ int main(int argc, char *argv[])
 	extcap_parameters * extcap_conf = g_new0(extcap_parameters, 1);
 	char* help_url;
 	char* help_header = NULL;
+
+	cmdarg_err_init(failure_warning_message, failure_warning_message);
 
 	/*
 	 * Get credential information for later use.
