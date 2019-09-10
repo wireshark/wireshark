@@ -66,7 +66,7 @@ macro(set_extcap_executable_properties _executable)
 				# target in the application bundle.
 				add_custom_target(${_executable}-symlink
 					COMMAND ln -s -f
-						Wireshark.app/Contents/MacOS/${_executable}
+						Wireshark.app/Contents/MacOS/extcap/${_executable}
 						${CMAKE_BINARY_DIR}/run/${_executable}
 				)
 				add_dependencies(${_executable} ${_executable}-symlink)
