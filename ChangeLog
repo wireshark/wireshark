@@ -1,0 +1,463 @@
+commit a32b3cfbcf
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Sep 10 15:38:57 2019 -0700
+
+    Prep for 2.6.11.
+    
+    Change-Id: Ic9fd475388d736387c03818ac3586eba183f33a4
+    Reviewed-on: https://code.wireshark.org/review/34501
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 74df710691
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Sep 10 15:42:23 2019 +0200
+
+    FC-dNS: add missing fields registration
+    
+    Issue reported by Christian Svensson in
+    https://www.wireshark.org/lists/wireshark-dev/201909/msg00016.html
+    
+    Change-Id: I362bb9ad861d5b87d3d21997621011654a8b86ef
+    Reviewed-on: https://code.wireshark.org/review/34492
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    (cherry picked from commit 0eecdf653e4b16830b168311195c5eb37d79452c)
+    Reviewed-on: https://code.wireshark.org/review/34494
+
+commit e7a0c212e8
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Sep 10 08:35:41 2019 +0200
+
+    BACNET: Update vendor ID list
+    
+    Update build-in vendor ID list with last years additions.
+    
+    Change-Id: Ida26d24d55fab5ff0b32badc3cb195f2b3f52ae7
+    Reviewed-on: https://code.wireshark.org/review/34489
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit f6c8e60765
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 8 08:49:05 2019 +0000
+
+    [Automatic update for 2019-09-08]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I9518f2b5fecfdfc4f2d5dc34602d33cf47af3c9a
+    Reviewed-on: https://code.wireshark.org/review/34476
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit db5e966316
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Sep 4 13:27:45 2019 -0700
+
+    Put the year field of the timestamp out in little-endian byte order.
+    
+    Change-Id: I9de300b05e8d66e71359241fddfe10d90f3f8d33
+    Reviewed-on: https://code.wireshark.org/review/34454
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 05e39afb3fdbf76452a05c1c2a2c3164af9702ed)
+    Reviewed-on: https://code.wireshark.org/review/34456
+
+commit d91e7e57fb
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Sep 4 21:56:27 2019 +0200
+
+    Wiretap: Write commview files with valid headers
+    
+    When writing a capture as a commview file the header written is two
+    bytes longer than the specification. Even though we count 24, we
+    actually write 26. This makes the commview file corrupt, as is apparent
+    when reading such file, eg., after using Save As... with this format.
+    
+    Replace writing 2 bytes for the last two fields in the header by 1 byte
+    each, as per the header specification.
+    
+    Change-Id: I9436f7837b2e3617a389619884bf93ad146e95f3
+    Reviewed-on: https://code.wireshark.org/review/34450
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit d58f8f57c110254a72b3329c457e748830808667)
+    Reviewed-on: https://code.wireshark.org/review/34453
+
+commit 45f6b400e2
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Sep 2 16:09:24 2019 -0700
+
+    What we're testing for is byte-swappedness, not raw endianness.
+    
+    On a big-endian machine, if the upper 16 bits of the length are non-zero
+    and the lower 16 bits are zero, that means that the length is
+    *little*-endian.
+    
+    What we really care about is whether the file is in the reading host's
+    native format, so we can just fetch integral values without swapping, or
+    not in that format, in which case we have to byte-swap integral values.
+    
+    Rename the variable and redo the code to match.
+    
+    (This may have caused the PacketLogger reader to fail on big-endian
+    machines.)
+    
+    Change-Id: Ie1a82a7d40e2c58c0b8d482d7c95ab60061ca980
+    Ping-Bug: 10861
+    Reviewed-on: https://code.wireshark.org/review/34434
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 45eadc049e5dce4d0181050f55a0d5709ac9c3c8)
+    Reviewed-on: https://code.wireshark.org/review/34436
+
+commit a3825d7e7a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 1 08:52:11 2019 +0000
+
+    [Automatic update for 2019-09-01]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I86bf2849cb79755dc97dee3ef17af056a49897aa
+    Reviewed-on: https://code.wireshark.org/review/34417
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit eae9aa28b4
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Wed Aug 28 22:27:58 2019 -0400
+
+    Gryphon: Prevent endless loop
+    
+    Bug: 16020
+    Change-Id: I59c24d3bdb3f3a85f6e498683594ee12db9642a8
+    Reviewed-on: https://code.wireshark.org/review/34392
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 627917faff4889f763bf8e6570f62d66656047bd)
+    Reviewed-on: https://code.wireshark.org/review/34397
+
+commit bbc327f73b
+Author: Tomasz Moń <desowin@gmail.com>
+Date:   Sun Aug 25 20:28:47 2019 +0200
+
+    NFS: Fix hash table key memory corruption
+    
+    When the same (as determined by key_equal_func) key gets added to the
+    GHashTable, old value gets freed and replaced with the new one. This is
+    fine for hash tables where the key validity is not tightly coupled to
+    the actual data.
+    
+    In the nfs_name_snoop_matched hash table the key becomes invalid once
+    the value gets destroyed (because it shares the data pointed to by fh,
+    which gets freed once the value is destroyed).
+    
+    A problematic capture includes packets such that the matching fh gets
+    added twice to the nfs_name_snoop_matched hash table. Prior to this
+    change the hash table would end up in a state where the new value is
+    associated with the old key (which contains pointer to already freed
+    memory). According to the nfs_name_snoop_matched_equal(), the old key
+    was equal to the key intended for new value *at the time* of insertion.
+    
+    This change fixes the bug by using g_hash_table_replace() which does
+    update the key in case it already exists in the GHashTable.
+    
+    Bug: 16017
+    Bug: 16019
+    Change-Id: Ib3943f1e27e82c05d9abaa1e436554b37a98488e
+    Reviewed-on: https://code.wireshark.org/review/34360
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit efe2926a66d3d7187a260226678daeb2aa6e4832)
+    Reviewed-on: https://code.wireshark.org/review/34362
+    Reviewed-by: Tomasz Moń <desowin@gmail.com>
+
+commit 4a81438295
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Aug 24 21:53:21 2019 +0200
+
+    tshark: Complement manual page synopsis
+    
+    Add '-J' option to synopsis and reshuffle '-j' to correct place.
+    
+    Change-Id: I351b3ce464fca3b52a75614e1e8f8c91f9a30df2
+    Reviewed-on: https://code.wireshark.org/review/34352
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit ef014f76d587918f6e6e305626e56daca6b11d64)
+    Reviewed-on: https://code.wireshark.org/review/34359
+
+commit 3f7f177ef0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 25 09:45:36 2019 +0000
+
+    [Automatic update for 2019-08-25]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Ideacc56f840b89ff3a1438dba32283b69471f1e4
+    Reviewed-on: https://code.wireshark.org/review/34355
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit a1e2c03f23
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 18 08:46:03 2019 +0000
+
+    [Automatic update for 2019-08-18]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: If65cea1bdc917d22b437a3a41a625b808d1e80d6
+    Reviewed-on: https://code.wireshark.org/review/34317
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit a25cf4f867
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Sat Aug 17 16:04:17 2019 +0200
+
+    Windows: upgrade nghttp2 to 1.39.2
+    
+    Change-Id: I9996430c96b46168d9dc2d8660968166fbfbc1fe
+    Reviewed-on: https://code.wireshark.org/review/34313
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+
+commit fe43ffd631
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Fri Aug 16 12:52:16 2019 +0200
+
+    DNS: fix bytes highlight for name length and labels count
+    
+    Those generated fields are linked to the dns.qry.name field, so highlight
+    the same bytes.
+    
+    Bug: 15999
+    Change-Id: Ia989b79a9ec14140472b79fdf7acea6e67baee68
+    Reviewed-on: https://code.wireshark.org/review/34299
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    (cherry picked from commit 32102247cefcdbf582131b4564aa8ccc46b741c2)
+    Conflicts:
+            epan/dissectors/packet-dns.c
+    Reviewed-on: https://code.wireshark.org/review/34302
+
+commit e2b8bca7d3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Aug 14 10:08:35 2019 -0700
+
+    macos-setup: Update nghttp2 to 1.39.2.
+    
+    1.39.2 fixes CVE-2019-9511 and CVE-2019-9513.
+    
+    Change-Id: Id8f8ed52769522671ffc80c90014cf3b4c6f38ec
+    Reviewed-on: https://code.wireshark.org/review/34287
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit b48b1c0e8094c0276da8129dd211a9aa520b8aef)
+    Reviewed-on: https://code.wireshark.org/review/34290
+
+commit bbaefaaca9
+Author: Richard Sharpe <realrichardsharpe@gmail.com>
+Date:   Sun Aug 11 11:35:24 2019 -0400
+
+    radiotap: Comment that there are no more header bit numbers left.
+    
+    The new approach for radiotap headers is TLVs. Let people know there
+    are no more bits available for headers and point them to the correct
+    place: www.radiotap.org.
+    
+    (This also adds some bits not supported by 2.6.x but supported by 3.0.x
+    and later, just to indicate that they're already in use as well.)
+    Change-Id: I8393c6ea32edd3cb09bcbf8c5e624c222b422c06
+    Reviewed-on: https://code.wireshark.org/review/34233
+    Reviewed-by: Richard Sharpe <realrichardsharpe@gmail.com>
+    Petri-Dish: Richard Sharpe <realrichardsharpe@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 4ce6f6040dcda9bacbf742a3a4017a8976b127e1)
+    Reviewed-on: https://code.wireshark.org/review/34241
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+
+commit c7bd54e33b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 11 08:45:32 2019 +0000
+
+    [Automatic update for 2019-08-11]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I4c73b9d81828d79d694426019e502e924ff299dd
+    Reviewed-on: https://code.wireshark.org/review/34230
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 6598ff7534
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Thu Aug 8 08:40:34 2019 +0200
+
+    Qt: Respect recent values on startup
+    
+    Do not call showHideMainWidgets() in initShowHideMainWidgets() because
+    this will override loaded recent values on startup.
+    
+    Setting checked and visible based on recent values is done in layoutPanes()
+    and updateRecentActions().
+    
+    This affects the following View settings: Main Toolbar, Filter Toolbar,
+    Wireless Toolbar, Status Bar, Packet List, Packet Details and Packet Bytes.
+    
+    Also always hide empty_pane because it's never useful to show this.
+    
+    Bug: 15976
+    Change-Id: Id63b8a5fdd263793a283137134f424d7cb4caf82
+    Reviewed-on: https://code.wireshark.org/review/34209
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Roland Knall <rknall@gmail.com>
+    (cherry picked from commit dc4084fb822e4669aac95a6dc8c0b6b36597e9bd)
+    Reviewed-on: https://code.wireshark.org/review/34212
+    (cherry picked from commit 8142e4229a5cb4121308f3ca4839641933ff68b5)
+    Reviewed-on: https://code.wireshark.org/review/34213
+
+commit 95ecbd1119
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Mon Jul 29 22:10:49 2019 +0100
+
+    Qt: do not adjust the time origin for empty graphs
+    
+    If a graph does not contain any visible data (for example, "TCP Errors"
+    in a capture without TCP packets), the start offset is bogus. Ignore it
+    to avoid Time of Day being displayed as 01.01.1970.
+    
+    Bug: 15247
+    Change-Id: I0e0a113dac6aebd42a4b48b89bbf563e96a8807a
+    Reviewed-on: https://code.wireshark.org/review/34129
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit c11fe6483408817255980281828c6edbaece60fe)
+    Reviewed-on: https://code.wireshark.org/review/34193
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 5874a6f2c9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 4 08:44:06 2019 +0000
+
+    [Automatic update for 2019-08-04]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Ice73c83de5e0541c401d1570707813862e5b95b0
+    Reviewed-on: https://code.wireshark.org/review/34179
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit b0af997292
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Thu Aug 1 12:27:51 2019 +0200
+
+    Qt: Fix typo in extcap options dialog
+    
+    Bug: 15929
+    Change-Id: Ibdc689691711866ab4ed5bb8239a2219f86555bc
+    Reviewed-on: https://code.wireshark.org/review/34147
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit 61004d728c35a95e4b7ed24460164d28b62c168d)
+    Reviewed-on: https://code.wireshark.org/review/34149
+
+commit 780eae82e9
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Sun Jul 28 17:58:53 2019 +0100
+
+    proto: fix proto_item_add_bitmask_tree with zero length
+    
+    packet-frame.c calls proto_item_add_bitmask_tree with a zero length, be
+    sure not to trigger undefined behavior (right shift by 64). Observed
+    with the capture from Bug 15247.
+    
+    Change-Id: I5b5b7f920a37365295603be7b915f51b39d99faf
+    Fixes: v2.1.0rc0-1776-gb9fb2ceb88 ("Add heuristic dissectors for the variable part of COTP CR and CC PDUs.")
+    Reviewed-on: https://code.wireshark.org/review/34108
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 77b6160696cf316434319ba83d49b074152241bd)
+    Reviewed-on: https://code.wireshark.org/review/34127
+
+commit 17ae1c0299
+Author: Roland Knall <rknall@gmail.com>
+Date:   Thu Jul 25 23:08:16 2019 +0200
+
+    Qt: Fix coloring rules dialog
+    
+    Invalid filters now lead to the correct enable/disable behavior of the button
+    
+    Bug: 15153
+    Change-Id: I3ea9e27e246146dbeedab89be841bccbb00739e4
+    Reviewed-on: https://code.wireshark.org/review/34085
+    Petri-Dish: Roland Knall <rknall@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Roland Knall <rknall@gmail.com>
+    Reviewed-on: https://code.wireshark.org/review/34093
+
+commit 668acabe1d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 28 08:46:24 2019 +0000
+
+    [Automatic update for 2019-07-28]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I12bc46a82f4f06671dd4a04ca137763b3105f5d1
+    Reviewed-on: https://code.wireshark.org/review/34106
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit efafd53e2f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 21 08:54:10 2019 +0000
+
+    [Automatic update for 2019-07-21]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I7f9cc366d32ae6393f689708463ec6341cffd3d2
+    Reviewed-on: https://code.wireshark.org/review/34037
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit c3bdaef855
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Jul 19 11:42:19 2019 -0700
+
+    Provide only one data rate per user for VHT frames.
+    
+    Don't provide an extra not-per-user data rate equal to the data rate for
+    the highest user number; that makes no sense.
+    
+    Bug: 15928
+    Change-Id: Ie6bf5853d630bbf33afd423dc7a8eca26abdf83a
+    Reviewed-on: https://code.wireshark.org/review/34018
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 3c7ec127f91aeb51e9ac4af767eaa83453546d9b)
+    Reviewed-on: https://code.wireshark.org/review/34020
+
+commit 129b3f52c3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jul 17 12:11:01 2019 -0700
+
+    2.6.10 → 2.6.11.
+    
+    Change-Id: I593c82331b76843a01cbd89bccf0f21ce34d023f
+    Reviewed-on: https://code.wireshark.org/review/33994
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
