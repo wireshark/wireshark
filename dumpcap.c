@@ -1589,7 +1589,7 @@ cap_pipe_open_live(char *pipename,
 #else /* _WIN32 */
     char    *pncopy, *pos;
     wchar_t *err_str;
-    char* extcap_pipe_name;
+    guintptr extcap_pipe_handle;
 #endif
     gboolean extcap_pipe = FALSE;
     ssize_t  b;
@@ -1710,63 +1710,63 @@ cap_pipe_open_live(char *pipename,
         }
 
 #else /* _WIN32 */
+        if (sscanf(pipename, EXTCAP_PIPE_PREFIX "%" G_GUINTPTR_FORMAT, &extcap_pipe_handle) == 1)
+        {
+            /* The client is already connected to extcap pipe.
+             * We have inherited the handle from parent process.
+             */
+            extcap_pipe = TRUE;
+            pcap_src->cap_pipe_h = (HANDLE)extcap_pipe_handle;
+        }
+        else
+        {
 #define PIPE_STR "\\pipe\\"
-        /* Under Windows, named pipes _must_ have the form
-         * "\\<server>\pipe\<pipename>".  <server> may be "." for localhost.
-         */
-        pncopy = g_strdup(pipename);
-        if ( (pos=strstr(pncopy, "\\\\")) == pncopy) {
-            pos = strchr(pncopy + 3, '\\');
-            if (pos && g_ascii_strncasecmp(pos, PIPE_STR, strlen(PIPE_STR)) != 0)
-                pos = NULL;
-        }
+            /* Under Windows, named pipes _must_ have the form
+             * "\\<server>\pipe\<pipename>".  <server> may be "." for localhost.
+             */
+            pncopy = g_strdup(pipename);
+            if ((pos = strstr(pncopy, "\\\\")) == pncopy) {
+                pos = strchr(pncopy + 3, '\\');
+                if (pos && g_ascii_strncasecmp(pos, PIPE_STR, strlen(PIPE_STR)) != 0)
+                    pos = NULL;
+            }
 
-        g_free(pncopy);
+            g_free(pncopy);
 
-        if (!pos) {
-            g_snprintf(errmsg, (gulong)errmsgl,
-                       "The capture session could not be initiated because\n"
-                       "\"%s\" is neither an interface nor a pipe.", pipename);
-            pcap_src->cap_pipe_err = PIPNEXIST;
-            return;
-        }
-        extcap_pipe_name = g_strconcat("\\\\.\\pipe\\", EXTCAP_PIPE_PREFIX, NULL);
-        extcap_pipe = strstr(pipename, extcap_pipe_name) ? TRUE : FALSE;
-        g_free(extcap_pipe_name);
-
-        /* Wait for the pipe to appear */
-        while (1) {
-            if(extcap_pipe)
-                pcap_src->cap_pipe_h = GetStdHandle(STD_INPUT_HANDLE);
-            else
-                pcap_src->cap_pipe_h = CreateFile(utf_8to16(pipename), GENERIC_READ, 0, NULL,
-                                                   OPEN_EXISTING, 0, NULL);
-
-            if (pcap_src->cap_pipe_h != INVALID_HANDLE_VALUE)
-                break;
-
-            if (GetLastError() != ERROR_PIPE_BUSY) {
-                FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-                              NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
+            if (!pos) {
                 g_snprintf(errmsg, (gulong)errmsgl,
-                           "The capture session on \"%s\" could not be started "
-                           "due to error on pipe open: %s (error %lu).",
-                           pipename, utf_16to8(err_str), GetLastError());
-                LocalFree(err_str);
-                pcap_src->cap_pipe_err = PIPERR;
+                    "The capture session could not be initiated because\n"
+                    "\"%s\" is neither an interface nor a pipe.", pipename);
+                pcap_src->cap_pipe_err = PIPNEXIST;
                 return;
             }
 
-            if (!WaitNamedPipe(utf_8to16(pipename), 30 * 1000)) {
-                FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-                             NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
-                g_snprintf(errmsg, (gulong)errmsgl,
-                           "The capture session on \"%s\" timed out during "
-                           "pipe open: %s (error %lu).",
-                           pipename, utf_16to8(err_str), GetLastError());
-                LocalFree(err_str);
-                pcap_src->cap_pipe_err = PIPERR;
-                return;
+
+            /* Wait for the pipe to appear */
+            while (1) {
+                pcap_src->cap_pipe_h = CreateFile(utf_8to16(pipename), GENERIC_READ, 0, NULL,
+                        OPEN_EXISTING, 0, NULL);
+
+                if (pcap_src->cap_pipe_h != INVALID_HANDLE_VALUE)
+                    break;
+
+                if (GetLastError() != ERROR_PIPE_BUSY) {
+                    g_snprintf(errmsg, (gulong)errmsgl,
+                        "The capture session on \"%s\" could not be started "
+                        "due to error on pipe open: %s.",
+                        pipename, win32strerror(GetLastError()));
+                    pcap_src->cap_pipe_err = PIPERR;
+                    return;
+                }
+
+                if (!WaitNamedPipe(utf_8to16(pipename), 30 * 1000)) {
+                    g_snprintf(errmsg, (gulong)errmsgl,
+                        "The capture session on \"%s\" timed out during "
+                        "pipe open: %s.",
+                        pipename, win32strerror(GetLastError()));
+                    pcap_src->cap_pipe_err = PIPERR;
+                    return;
+                }
             }
         }
 #endif /* _WIN32 */
