@@ -1,6 +1,6 @@
 // Common attributes
 
-:wireshark-version: 2.6.11
+:wireshark-version: 2.6.12
 
 // We're migrating from AsciiDoc.
 :compat-mode:
