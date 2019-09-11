@@ -1150,7 +1150,7 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 				&hf_radiotap_spatial_reuse_4_unknown;
 		proto_tree_add_bitmask(he_info_tree, tvb, offset,
 			hf_radiotap_he_info_data_4, ett_radiotap_he_info_data_4,
-			data4_he_mu_headers, ENC_LITTLE_ENDIAN);
+			data4_he_trig_headers, ENC_LITTLE_ENDIAN);
 	} else {
 		if (!spatial_reuse_1_known)
 			data4_he_mu_headers[0] =
