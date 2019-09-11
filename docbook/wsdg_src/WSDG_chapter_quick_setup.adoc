@@ -71,12 +71,12 @@ command `choco install` (or its shorthand, `cinst`), e.g.
 You need to install, in exactly this order:
 
 . C compiler:
-https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=15[Download]
-and install “Microsoft Visual Studio 2017 Community Edition.” This is a small
+https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16[Download]
+and install “Microsoft Visual Studio 2019 Community Edition.” This is a small
 download that then downloads all the other required parts (which are quite large).
 
 Check the checkbox for “Desktop development with {cpp}” and then uncheck
-all the optional components other than the “V{cpp} 2017” item with the
+all the optional components other than the “V{cpp} 2019” item with the
 “latest ... tools”, the “Windows 10 SDK”, and the “Visual {cpp} tools for
 CMake” (unless you want to use them for purposes other than Wireshark).
 
@@ -88,7 +88,7 @@ and pass the path the file to the chocolatey install command:
 PS$>choco install -y VisualStudio2015Community --timeout 0 -package-parameters "--AdminFile path\to\msvc2015AdminDeployment.xml"
 ----
 
-You can use other Microsoft C compiler variants, but VS2017 is used to
+You can use other Microsoft C compiler variants, but VS2019 is used to
 build the development releases and is the preferred option. It’s
 possible to compile Wireshark with a wide range of Microsoft C compiler
 variants. For details see <<ChToolsMSChain>>.
@@ -106,9 +106,9 @@ of Visual Studio add more cross-platform support.
 // required components
 
 Why is this recommended? While this is a huge download,
-Visual Studio 2017 Community Edition is the only free (as in beer)
-versions that includes the Visual Studio integrated
-debugger. Visual Studio 2017 is also used to create official
+Visual Studio 2019 Community Edition is the only free (as in beer)
+version that includes the Visual Studio integrated
+debugger. Visual Studio 2019 is also used to create official
 Wireshark builds, so it will likely have fewer development-related
 problems.
 
@@ -313,12 +313,12 @@ Make sure your repository path doesn't contain spaces.
 ==== Open a Visual Studio Command Prompt
 
 From the Start Menu (or Start Screen), navigate to the “Visual Studio
-2017” folder and choose the Command Prompt appropriate for the build you
-wish to make, e.g. “x64 Native Tools Command Prompt for VS 2017” for a
-64-bit version or “x86 Native Tools Command Prompt for VS 2017” for a
+2019” folder and choose the Command Prompt appropriate for the build you
+wish to make, e.g. “x64 Native Tools Command Prompt for VS 2019” for a
+64-bit version or “x86 Native Tools Command Prompt for VS 2019” for a
 32-bit version.  Depending on your version of Windows the Command Prompt
-list might be directly under “Visual Studio 2017” or you might have to
-dig for it under multiple folders, e.g. menu:Visual Studio 2017[Visual
+list might be directly under “Visual Studio 2019” or you might have to
+dig for it under multiple folders, e.g. menu:Visual Studio 2019[Visual
 Studio Tools,Windows Desktop Command Prompts].
 
 [TIP]
@@ -392,7 +392,7 @@ If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,pre
 
 To generate the build files enter the following at the Visual Studio command prompt:
 ----
-> cmake -G "Visual Studio 15 2017" ..\wireshark
+> cmake -G "Visual Studio 16 2019" -A Win32 ..\wireshark
 ----
 
 Adjusting the paths as required to Python and the wireshark source tree.
@@ -400,11 +400,11 @@ To use a different generator modify the `-G` parameter. `cmake -G` lists
 all the CMake supported generators, but only Visual Studio is supported
 for Wireshark builds.
 
-To build an x64 version, the `-G` parameter must have a Win64 suffix,
-e.g. `-G "Visual Studio 15 2017 Win64"`:
+To build an x64 version, specify it as the architecture,
+e.g. `-G "Visual Studio 16 2019" -A x64`:
 
 ----
-> cmake -G "Visual Studio 15 2017 Win64" ..\wireshark
+> cmake -G "Visual Studio 16 2019" -A x64 ..\wireshark
 ----
 
 The CMake generation process will download the required 3rd party libraries (apart from Qt)
@@ -499,7 +499,7 @@ _vcredist_x64.exe_).  You can use Windows Explorer and examine the
 “Properties -> Details” tab for a vcredist file to determine which
 compiler version the file is for use with.
 
-For Visual Studio 2017 and later, all editions include the
+For Visual Studio 2019 and later, all editions include the
 redistributables, so you do not need to download them.
 
 If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
