@@ -324,7 +324,15 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
 
         argv = sync_pipe_add_arg(argv, &argc, "-i");
         if (interface_opts->extcap_fifo != NULL)
+        {
+#ifdef _WIN32
+            char *pipe = g_strdup_printf("%s%" G_GUINTPTR_FORMAT, EXTCAP_PIPE_PREFIX, interface_opts->extcap_pipe_h);
+            argv = sync_pipe_add_arg(argv, &argc, pipe);
+            g_free(pipe);
+#else
             argv = sync_pipe_add_arg(argv, &argc, interface_opts->extcap_fifo);
+#endif
+        }
         else
             argv = sync_pipe_add_arg(argv, &argc, interface_opts->name);
 
@@ -500,11 +508,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
 #else
     si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
     si.wShowWindow  = SW_HIDE;  /* this hides the console window */
-    if(interface_opts->extcap_pipe_h != INVALID_HANDLE_VALUE)
-        si.hStdInput = interface_opts->extcap_pipe_h;
-    else
-        si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
-
+    si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
     si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
     si.hStdError = sync_pipe_write;
     /*si.hStdError = (HANDLE) _get_osfhandle(2);*/

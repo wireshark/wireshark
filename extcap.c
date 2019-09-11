@@ -1511,7 +1511,7 @@ static gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, HANDLE *ha
     }
     else
     {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "\nWireshark Created pipe =>(%s)", pipename);
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "\nWireshark Created pipe =>(%s) handle (%" G_GUINTPTR_FORMAT ")", pipename, *handle_out);
         *fifo = g_strdup(pipename);
     }
 
