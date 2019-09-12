@@ -62,6 +62,25 @@ typedef enum {
     BYTES_ENC_EBCDIC
 } bytes_encoding_type;
 
+typedef enum {
+    SEARCH_IN_PACKET_LIST,
+    SEARCH_IN_PACKET_DETAILS,
+    SEARCH_IN_PACKET_BYTES
+} search_in_type;
+
+typedef enum {
+    SEARCH_CHAR_SET_NARROW_AND_WIDE,
+    SEARCH_CHAR_SET_NARROW,
+    SEARCH_CHAR_SET_WIDE
+} search_char_set_type;
+
+typedef enum {
+    SEARCH_TYPE_DISPLAY_FILTER,
+    SEARCH_TYPE_HEX_VALUE,
+    SEARCH_TYPE_STRING,
+    SEARCH_TYPE_REGEX
+} search_type_type;
+
 /** Recent settings. */
 typedef struct recent_settings_tag {
     gboolean    main_toolbar_show;
@@ -78,6 +97,11 @@ typedef struct recent_settings_tag {
     gint        gui_zoom_level;
     bytes_view_type gui_bytes_view;
     bytes_encoding_type gui_bytes_encoding;
+
+    search_in_type  gui_search_in;
+    search_char_set_type gui_search_char_set;
+    gboolean    gui_search_case_sensitive;
+    search_type_type gui_search_type;
 
     gint        gui_geometry_main_x;
     gint        gui_geometry_main_y;

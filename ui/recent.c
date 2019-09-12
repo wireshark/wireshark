@@ -61,6 +61,10 @@
 #define RECENT_GUI_CUSTOM_COLORS              "gui.custom_colors"
 #define RECENT_GUI_TOOLBAR_SHOW               "gui.additional_toolbar_show"
 #define RECENT_GUI_INTERFACE_TOOLBAR_SHOW     "gui.interface_toolbar_show"
+#define RECENT_GUI_SEARCH_IN                  "gui.search_in"
+#define RECENT_GUI_SEARCH_CHAR_SET            "gui.search_char_set"
+#define RECENT_GUI_SEARCH_CASE_SENSITIVE      "gui.search_case_sensitive"
+#define RECENT_GUI_SEARCH_TYPE                "gui.search_type"
 
 #define RECENT_GUI_GEOMETRY                   "gui.geom."
 
@@ -115,6 +119,28 @@ static const value_string bytes_encoding_type_values[] = {
     { BYTES_ENC_FROM_PACKET,    "FROM_PACKET"  },
     { BYTES_ENC_ASCII,          "ASCII"  },
     { BYTES_ENC_EBCDIC,         "EBCDIC"  },
+    { 0, NULL }
+};
+
+static const value_string search_in_values[] = {
+    { SEARCH_IN_PACKET_LIST,    "PACKET_LIST" },
+    { SEARCH_IN_PACKET_DETAILS, "PACKET_DETAILS" },
+    { SEARCH_IN_PACKET_BYTES,   "PACKET_BYTES" },
+    { 0, NULL }
+};
+
+static const value_string search_char_set_values[] = {
+    { SEARCH_CHAR_SET_NARROW_AND_WIDE, "NARROW_AND_WIDE" },
+    { SEARCH_CHAR_SET_NARROW,          "NARROW" },
+    { SEARCH_CHAR_SET_WIDE,            "WIDE" },
+    { 0, NULL }
+};
+
+static const value_string search_type_values[] = {
+    { SEARCH_TYPE_DISPLAY_FILTER, "DISPLAY_FILTER" },
+    { SEARCH_TYPE_HEX_VALUE,      "HEX_VALUE" },
+    { SEARCH_TYPE_STRING,         "STRING" },
+    { SEARCH_TYPE_REGEX,          "REGEX" },
     { 0, NULL }
 };
 
@@ -716,6 +742,16 @@ write_recent(void)
             RECENT_KEY_PRIVS_WARN_IF_NO_NPF,
             recent.privs_warn_if_no_npf);
 
+    write_recent_enum(rf, "Find packet search in", RECENT_GUI_SEARCH_IN, search_in_values,
+                      recent.gui_search_in);
+    write_recent_enum(rf, "Find packet character set", RECENT_GUI_SEARCH_CHAR_SET, search_char_set_values,
+                      recent.gui_search_char_set);
+    write_recent_boolean(rf, "Find packet case sensitive search",
+                         RECENT_GUI_SEARCH_CASE_SENSITIVE,
+                         recent.gui_search_case_sensitive);
+    write_recent_enum(rf, "Find packet search type", RECENT_GUI_SEARCH_TYPE, search_type_values,
+                      recent.gui_search_type);
+
     window_geom_recent_write_all(rf);
 
     fprintf(rf, "\n# Custom colors.\n");
@@ -969,6 +1005,14 @@ read_set_recent_common_pair_static(gchar *key, const gchar *value,
         parse_recent_boolean(value, &recent.privs_warn_if_elevated);
     } else if (strcmp(key, RECENT_KEY_PRIVS_WARN_IF_NO_NPF) == 0) {
         parse_recent_boolean(value, &recent.privs_warn_if_no_npf);
+    } else if (strcmp(key, RECENT_GUI_SEARCH_IN) == 0) {
+        recent.gui_search_in = (search_in_type)str_to_val(value, search_in_values, SEARCH_IN_PACKET_LIST);
+    } else if (strcmp(key, RECENT_GUI_SEARCH_CHAR_SET) == 0) {
+        recent.gui_search_char_set = (search_char_set_type)str_to_val(value, search_char_set_values, SEARCH_CHAR_SET_NARROW_AND_WIDE);
+    } else if (strcmp(key, RECENT_GUI_SEARCH_CASE_SENSITIVE) == 0) {
+        parse_recent_boolean(value, &recent.gui_search_case_sensitive);
+    } else if (strcmp(key, RECENT_GUI_SEARCH_TYPE) == 0) {
+        recent.gui_search_type = (search_type_type)str_to_val(value, search_type_values, SEARCH_TYPE_DISPLAY_FILTER);
     } else if (strcmp(key, RECENT_GUI_CUSTOM_COLORS) == 0) {
         recent.custom_colors = prefs_get_string_list(value);
     }
