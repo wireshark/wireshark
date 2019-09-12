@@ -3176,6 +3176,14 @@ static const true_false_string twt_flow_type = {
   "TWT is announced, the TWT Requesting STA will send trigger frames",
 };
 
+static const value_string nominal_packet_padding_vals[] = {
+  { 0, "0 µs for all Constellations" },
+  { 1, "8 µs for all Constellations" },
+  { 2, "16 µs for all Constellations" },
+  { 3, "Reserved" },
+  { 0, NULL }
+};
+
 static int proto_wlan = -1;
 static int proto_centrino = -1;
 static int proto_aggregate = -1;
@@ -5751,9 +5759,10 @@ static int hf_he_phy_cap_longer_than_16_he_sigb_ofdm_symbol_support = -1;
 static int hf_he_phy_cap_non_triggered_cqi_feedback = -1;
 static int hf_he_phy_cap_tx_1024_qam_242_tone_ru_support = -1;
 static int hf_he_phy_cap_rx_1024_qam_242_tone_ru_support = -1;
-static int hf_rx_full_bw_su_using_he_muppdu_w_compressed_sigb = -1;
-static int hf_rx_full_bw_su_using_he_muppdu_w_non_compressed_sigb = -1;
-static int hf_he_phy_cap_b78_b87_reserved = -1;
+static int hf_he_phy_cap_rx_full_bw_su_using_he_muppdu_w_compressed_sigb = -1;
+static int hf_he_phy_cap_rx_full_bw_su_using_he_muppdu_w_non_compressed_sigb = -1;
+static int hf_he_phy_cap_nominal_packet_padding = -1;
+static int hf_he_phy_cap_b80_b87_reserved = -1;
 static int hf_he_operation_parameter = -1;
 static int hf_he_operation_default_pe_duration = -1;
 static int hf_he_operation_twt_required = -1;
@@ -20342,9 +20351,10 @@ static const int *he_phy_b72_to_b87_headers[] = {
   &hf_he_phy_cap_non_triggered_cqi_feedback,
   &hf_he_phy_cap_tx_1024_qam_242_tone_ru_support,
   &hf_he_phy_cap_rx_1024_qam_242_tone_ru_support,
-  &hf_rx_full_bw_su_using_he_muppdu_w_compressed_sigb,
-  &hf_rx_full_bw_su_using_he_muppdu_w_non_compressed_sigb,
-  &hf_he_phy_cap_b78_b87_reserved,
+  &hf_he_phy_cap_rx_full_bw_su_using_he_muppdu_w_compressed_sigb,
+  &hf_he_phy_cap_rx_full_bw_su_using_he_muppdu_w_non_compressed_sigb,
+  &hf_he_phy_cap_nominal_packet_padding,
+  &hf_he_phy_cap_b80_b87_reserved,
   NULL
 };
 
@@ -36544,17 +36554,21 @@ proto_register_ieee80211(void)
      {"Rx 1024-QAM Support < 242-tone RU", "wlan.ext_tag.he_phy_cap.nbytes.rx_1024_qam_support_lt_242_tone_ru",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0008, NULL, HFILL }},
 
-    {&hf_rx_full_bw_su_using_he_muppdu_w_compressed_sigb,
+    {&hf_he_phy_cap_rx_full_bw_su_using_he_muppdu_w_compressed_sigb,
      {"Rx Full BW SU Using HE MU PPDU With Compressed SIGB", "wlan.ext_tag.he_phy_cap.nbytes.rx_full_bw_su_using_he_mu_ppdu_with_compressed_sigb",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0010, NULL, HFILL }},
 
-    {&hf_rx_full_bw_su_using_he_muppdu_w_non_compressed_sigb,
+    {&hf_he_phy_cap_rx_full_bw_su_using_he_muppdu_w_non_compressed_sigb,
      {"Rx Full BW SU Using HE MU PPDU With Non-Compressed SIGB", "wlan.ext_tag.he_phy_cap.nbytes.rx_full_bw_su_using_he_mu_ppdu_with_non_compressed_sigb",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0020, NULL, HFILL }},
 
-    {&hf_he_phy_cap_b78_b87_reserved,
-     {"Reserved", "wlan.ext_tag.he_phy_cap.nbytes.reserved_b78_b87",
-      FT_UINT16, BASE_HEX, NULL, 0xFFC0, NULL, HFILL }},
+    {&hf_he_phy_cap_nominal_packet_padding,
+     {"Nominal Packet Padding", "wlan.ext_tag.he_phy_cap.nominal_packet_padding",
+      FT_UINT16, BASE_DEC, VALS(nominal_packet_padding_vals), 0x00C0, NULL, HFILL }},
+
+    {&hf_he_phy_cap_b80_b87_reserved,
+     {"Reserved", "wlan.ext_tag.he_phy_cap.nbytes.reserved_b80_b87",
+      FT_UINT16, BASE_HEX, NULL, 0xFF00, NULL, HFILL }},
 
     {&hf_he_mcs_max_he_mcs_80_rx_1_ss,
      {"Max HE-MCS for 1 SS", "wlan.ext_tag.he_mcs_map.max_he_mcs_80_rx_1_ss",
