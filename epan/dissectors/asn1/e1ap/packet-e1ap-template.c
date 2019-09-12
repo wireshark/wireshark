@@ -19,6 +19,7 @@
 #include <epan/sctpppids.h>
 #include <epan/proto_data.h>
 
+#include "packet-e1ap.h"
 #include "packet-per.h"
 #include "packet-e212.h"
 #include "packet-ntp.h"
@@ -59,13 +60,6 @@ typedef struct {
   guint32 protocol_ie_id;
   const char *obj_id;
 } e1ap_private_data_t;
-
-typedef struct {
-  guint32 message_type;
-  guint32 ProcedureCode;
-  guint32 ProtocolIE_ID;
-  guint32 ProtocolExtensionID;
-} e1ap_ctx_t;
 
 /* Global variables */
 static dissector_handle_t e1ap_handle;

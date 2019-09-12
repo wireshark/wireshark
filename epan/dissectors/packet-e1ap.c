@@ -27,6 +27,7 @@
 #include <epan/sctpppids.h>
 #include <epan/proto_data.h>
 
+#include "packet-e1ap.h"
 #include "packet-per.h"
 #include "packet-e212.h"
 #include "packet-ntp.h"
@@ -169,7 +170,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-e1ap-val.h ---*/
-#line 36 "./asn1/e1ap/packet-e1ap-template.c"
+#line 37 "./asn1/e1ap/packet-e1ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_e1ap = -1;
@@ -610,7 +611,7 @@ static int hf_e1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_e1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-e1ap-hf.c ---*/
-#line 43 "./asn1/e1ap/packet-e1ap-template.c"
+#line 44 "./asn1/e1ap/packet-e1ap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_e1ap = -1;
@@ -854,7 +855,7 @@ static gint ett_e1ap_SuccessfulOutcome = -1;
 static gint ett_e1ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-e1ap-ett.c ---*/
-#line 49 "./asn1/e1ap/packet-e1ap-template.c"
+#line 50 "./asn1/e1ap/packet-e1ap-template.c"
 
 enum{
   INITIATING_MESSAGE,
@@ -868,13 +869,6 @@ typedef struct {
   guint32 protocol_ie_id;
   const char *obj_id;
 } e1ap_private_data_t;
-
-typedef struct {
-  guint32 message_type;
-  guint32 ProcedureCode;
-  guint32 ProtocolIE_ID;
-  guint32 ProtocolExtensionID;
-} e1ap_ctx_t;
 
 /* Global variables */
 static dissector_handle_t e1ap_handle;
@@ -7634,7 +7628,7 @@ static int dissect_E1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-e1ap-fn.c ---*/
-#line 110 "./asn1/e1ap/packet-e1ap-template.c"
+#line 104 "./asn1/e1ap/packet-e1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -9434,7 +9428,7 @@ void proto_register_e1ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-e1ap-hfarr.c ---*/
-#line 189 "./asn1/e1ap/packet-e1ap-template.c"
+#line 183 "./asn1/e1ap/packet-e1ap-template.c"
   };
 
   /* List of subtrees */
@@ -9680,7 +9674,7 @@ void proto_register_e1ap(void) {
     &ett_e1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-e1ap-ettarr.c ---*/
-#line 197 "./asn1/e1ap/packet-e1ap-template.c"
+#line 191 "./asn1/e1ap/packet-e1ap-template.c"
   };
 
   /* Register protocol */
@@ -9828,7 +9822,7 @@ proto_reg_handoff_e1ap(void)
 
 
 /*--- End of included file: packet-e1ap-dis-tab.c ---*/
-#line 222 "./asn1/e1ap/packet-e1ap-template.c"
+#line 216 "./asn1/e1ap/packet-e1ap-template.c"
 }
 
 /*
