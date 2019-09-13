@@ -66,14 +66,10 @@ command `choco install` (or its shorthand, `cinst`), e.g.
 
 [[ChSetupMSVC]]
 
-==== Install Microsoft C compiler and SDK
+==== Install Microsoft Visual Studio
 
-You need to install, in exactly this order:
-
-. C compiler:
-https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16[Download]
-and install “Microsoft Visual Studio 2019 Community Edition.” This is a small
-download that then downloads all the other required parts (which are quite large).
+https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16[Download] and install “Microsoft Visual Studio 2019 Community Edition.”
+This is a small utility that downloads all the other required parts (which are quite large).
 
 Check the checkbox for “Desktop development with {cpp}” and then uncheck
 all the optional components other than the “V{cpp} 2019” item with the
@@ -105,12 +101,9 @@ of Visual Studio add more cross-platform support.
 // which significantly reduce download size - and find out the
 // required components
 
-Why is this recommended? While this is a huge download,
-Visual Studio 2019 Community Edition is the only free (as in beer)
-version that includes the Visual Studio integrated
-debugger. Visual Studio 2019 is also used to create official
-Wireshark builds, so it will likely have fewer development-related
-problems.
+Why is this recommended?
+While this is a huge download, the Community Editions of Visual Studio are free (as in beer) and include the Visual Studio integrated debugger.
+Visual Studio 2019 is also used to create official Wireshark builds, so it will likely have fewer development-related problems.
 
 [[ChSetupQt]]
 
@@ -499,8 +492,7 @@ _vcredist_x64.exe_).  You can use Windows Explorer and examine the
 “Properties -> Details” tab for a vcredist file to determine which
 compiler version the file is for use with.
 
-For Visual Studio 2019 and later, all editions include the
-redistributables, so you do not need to download them.
+For Visual Studio 2017 and later, all editions include the redistributables, so you do not need to download them.
 
 If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
 
