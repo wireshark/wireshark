@@ -12,11 +12,11 @@
 
 /*
  * See https://quicwg.org
- * https://tools.ietf.org/html/draft-ietf-quic-transport-22
- * https://tools.ietf.org/html/draft-ietf-quic-tls-22
- * https://tools.ietf.org/html/draft-ietf-quic-invariants-06
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-23
+ * https://tools.ietf.org/html/draft-ietf-quic-tls-23
+ * https://tools.ietf.org/html/draft-ietf-quic-invariants-07
  *
- * Currently supported QUIC version(s): draft -21, draft -22.
+ * Currently supported QUIC version(s): draft -21, draft -22, draft -23.
  * For a table of supported QUIC versions per Wireshark version, see
  * https://github.com/quicwg/base-drafts/wiki/Tools#wireshark
  *
@@ -294,12 +294,10 @@ static inline guint8 quic_draft_version(guint32 version) {
     return 0;
 }
 
-#if 0
 static inline gboolean is_quic_draft_max(guint32 version, guint8 max_version) {
     guint8 draft_version = quic_draft_version(version);
     return draft_version && draft_version <= max_version;
 }
-#endif
 
 const value_string quic_version_vals[] = {
     { 0x00000000, "Version Negotiation" },
@@ -323,6 +321,7 @@ const value_string quic_version_vals[] = {
     { 0xff000014, "draft-20" },
     { 0xff000015, "draft-21" },
     { 0xff000016, "draft-22" },
+    { 0xff000017, "draft-23" },
     { 0, NULL }
 };
 
@@ -423,7 +422,6 @@ static const range_string quic_transport_error_code_vals[] = {
     { 0x0007, 0x0007, "FRAME_ENCODING_ERROR" },
     { 0x0008, 0x0008, "TRANSPORT_PARAMETER_ERROR" },
     { 0x000A, 0x000A, "PROTOCOL_VIOLATION" },
-    { 0x000C, 0x000C, "INVALID_MIGRATION" },
     { 0x000D, 0x000D, "CRYPTO_BUFFER_EXCEEDED" },
     { 0x0100, 0x01FF, "CRYPTO_ERROR" },
     /* 0x40 - 0x3fff Assigned via Specification Required policy. */
@@ -1364,12 +1362,13 @@ static gboolean
 quic_derive_initial_secrets(const quic_cid_t *cid,
                             guint8 client_initial_secret[HASH_SHA2_256_LENGTH],
                             guint8 server_initial_secret[HASH_SHA2_256_LENGTH],
+                            guint32 version,
                             const gchar **error)
 {
     /*
-     * https://tools.ietf.org/html/draft-ietf-quic-tls-22#section-5.2
+     * https://tools.ietf.org/html/draft-ietf-quic-tls-23#section-5.2
      *
-     * initial_salt = 0x7fbcdb0e7c66bbe9193a96cd21519ebd7a02644a
+     * initial_salt = 0xc3eef712c72ebb5a11a7d2432bb46365bef9f502
      * initial_secret = HKDF-Extract(initial_salt, client_dst_connection_id)
      *
      * client_initial_secret = HKDF-Expand-Label(initial_secret,
@@ -1379,15 +1378,25 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
      *
      * Hash for handshake packets is SHA-256 (output size 32).
      */
-    static const guint8 handshake_salt[20] = {
+    static const guint8 handshake_salt_draft_22[20] = {
         0x7f, 0xbc, 0xdb, 0x0e, 0x7c, 0x66, 0xbb, 0xe9, 0x19, 0x3a,
         0x96, 0xcd, 0x21, 0x51, 0x9e, 0xbd, 0x7a, 0x02, 0x64, 0x4a
     };
+    static const guint8 handshake_salt_draft_23[20] = {
+        0xc3, 0xee, 0xf7, 0x12, 0xc7, 0x2e, 0xbb, 0x5a, 0x11, 0xa7,
+        0xd2, 0x43, 0x2b, 0xb4, 0x63, 0x65, 0xbe, 0xf9, 0xf5, 0x02,
+    };
+
     gcry_error_t    err;
     guint8          secret[HASH_SHA2_256_LENGTH];
 
-    err = hkdf_extract(GCRY_MD_SHA256, handshake_salt, sizeof(handshake_salt),
-                       cid->cid, cid->len, secret);
+    if (is_quic_draft_max(version, 22)) {
+        err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_draft_22, sizeof(handshake_salt_draft_22),
+                           cid->cid, cid->len, secret);
+    } else {
+        err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_draft_23, sizeof(handshake_salt_draft_23),
+                           cid->cid, cid->len, secret);
+    }
     if (err) {
         *error = wmem_strdup_printf(wmem_packet_scope(), "Failed to extract secrets: %s", gcry_strerror(err));
         return FALSE;
@@ -1473,7 +1482,7 @@ quic_create_initial_decoders(const quic_cid_t *cid, const gchar **error, quic_in
     guint8          client_secret[HASH_SHA2_256_LENGTH];
     guint8          server_secret[HASH_SHA2_256_LENGTH];
 
-    if (!quic_derive_initial_secrets(cid, client_secret, server_secret, error)) {
+    if (!quic_derive_initial_secrets(cid, client_secret, server_secret, quic_info->version, error)) {
         return FALSE;
     }
 

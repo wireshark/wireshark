@@ -162,7 +162,7 @@ typedef enum {
 #define SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_UNI             9
 #define SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT                  10
 #define SSL_HND_QUIC_TP_MAX_ACK_DELAY                       11
-#define SSL_HND_QUIC_TP_DISABLE_MIGRATION                   12
+#define SSL_HND_QUIC_TP_DISABLE_ACTIVE_MIGRATION            12
 #define SSL_HND_QUIC_TP_PREFERRED_ADDRESS                   13
 #define SSL_HND_QUIC_TP_ACTIVE_CONNECTION_ID_LIMIT          14
 

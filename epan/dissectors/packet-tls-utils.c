@@ -1385,7 +1385,7 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_BIDI, "initial_max_streams_bidi" },
     { SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT, "ack_delay_exponent" },
     { SSL_HND_QUIC_TP_MAX_ACK_DELAY, "max_ack_delay" },
-    { SSL_HND_QUIC_TP_DISABLE_MIGRATION, "disable_migration" },
+    { SSL_HND_QUIC_TP_DISABLE_ACTIVE_MIGRATION, "disable_active_migration" },
     { SSL_HND_QUIC_TP_PREFERRED_ADDRESS, "preferred_address" },
     { SSL_HND_QUIC_TP_ACTIVE_CONNECTION_ID_LIMIT, "active_connection_id_limit" },
     { 0, NULL }
@@ -6756,7 +6756,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                 proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
                 offset += len;
             break;
-            case SSL_HND_QUIC_TP_DISABLE_MIGRATION:
+            case SSL_HND_QUIC_TP_DISABLE_ACTIVE_MIGRATION:
                 /* No Payload */
             break;
             case SSL_HND_QUIC_TP_PREFERRED_ADDRESS: {
@@ -6777,7 +6777,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                 offset += 2;
 
                 if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &connectionid_length,
-                                    hf->hf.hs_ext_quictp_parameter_pa_connectionid_length, 0, 18)) {
+                                    hf->hf.hs_ext_quictp_parameter_pa_connectionid_length, 0, 20)) {
                     break;
                 }
                 offset += 1;
