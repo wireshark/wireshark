@@ -211,7 +211,7 @@ void MainWindow::applyRecentPaneGeometry()
         if (master_sizes.length() > 2) {
             master_sizes[1] = master_last_size / 2;
             master_last_size -= master_last_size / 2;
-        } else {
+        } else if (extra_sizes.length() > 0) {
             extra_sizes[0] = extra_last_size / 2;
             extra_last_size -= extra_last_size / 2;
             extra_sizes.last() = extra_last_size;
