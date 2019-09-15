@@ -490,7 +490,8 @@ capture_info_packet(info_data_t* cap_info, gint wtap_linktype, const guchar *pd,
 }
 
 /* new packets arrived */
-static void capture_info_new_packets(int to_read, wtap *wth, info_data_t* cap_info)
+static void
+capture_info_new_packets(int to_read, wtap *wth, info_data_t* cap_info)
 {
     int err;
     gchar *err_info;
