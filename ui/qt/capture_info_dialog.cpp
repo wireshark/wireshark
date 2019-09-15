@@ -37,7 +37,7 @@
 
 extern "C" {
 
-// Callbacks defined in capture_info.h.
+// Callbacks defined in ui/capture_info.h.
 
 /* create the capture info dialog */
 /* will keep pointers to the fields in the counts parameter */
