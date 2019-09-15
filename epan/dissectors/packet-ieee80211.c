@@ -3689,14 +3689,14 @@ static int hf_ieee80211_ff_qos_info_ap_edca_param_set_counter = -1;
 static int hf_ieee80211_ff_qos_info_ap_q_ack = -1;
 static int hf_ieee80211_ff_qos_info_ap_queue_req = -1;
 static int hf_ieee80211_ff_qos_info_ap_txop_request = -1;
-static int hf_ieee80211_ff_qos_info_ap_reserved = -1;
+static int hf_ieee80211_ff_qos_info_ap_more_data_ack = -1;
 
 static const int *ieee80211_ff_qos_info_ap_fields[] = {
   &hf_ieee80211_ff_qos_info_ap_edca_param_set_counter,
   &hf_ieee80211_ff_qos_info_ap_q_ack,
   &hf_ieee80211_ff_qos_info_ap_queue_req,
   &hf_ieee80211_ff_qos_info_ap_txop_request,
-  &hf_ieee80211_ff_qos_info_ap_reserved,
+  &hf_ieee80211_ff_qos_info_ap_more_data_ack,
   NULL
 };
 
@@ -28747,8 +28747,8 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 8, TFS(&ff_qos_info_ap_txop_request_flag), 0x40,
       "Transmit Opportunity (TXOP) Request", HFILL }},
 
-    {&hf_ieee80211_ff_qos_info_ap_reserved,
-     {"Reserved", "wlan.fixed.qosinfo.ap.reserved",
+    {&hf_ieee80211_ff_qos_info_ap_more_data_ack,
+     {"More Data Ack", "wlan.fixed.qosinfo.ap.more_data_ack",
       FT_BOOLEAN, 8, NULL, 0x80,
       NULL, HFILL }},
 
