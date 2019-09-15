@@ -3176,7 +3176,35 @@ static const true_false_string twt_flow_type = {
   "TWT is announced, the TWT Requesting STA will send trigger frames",
 };
 
-static const value_string nominal_packet_padding_vals[] = {
+static const value_string he_phy_device_class_vals[] = {
+  { 0, "Class A Device" },
+  { 1, "Class B Device" },
+  { 0, NULL }
+};
+
+static const value_string he_phy_midamble_rx_max_nsts_vals[] = {
+  { 0, "1 Space-Time Stream" },
+  { 1, "2 Space-Time Streams" },
+  { 2, "3 Space-Time Streams" },
+  { 3, "4 Space-Time Streams" },
+  { 0, NULL }
+};
+
+static const value_string he_phy_dcm_max_constellation_vals[] = {
+  { 0, "DCM is not supported" },
+  { 1, "BPSK" },
+  { 2, "QPSK" },
+  { 3, "16-QAM" },
+  { 0, NULL }
+};
+
+static const value_string he_phy_dcm_max_nss_vals[] = {
+  { 0, "1 Space-Time Stream" },
+  { 1, "2 Space-Time Streams" },
+  { 0, NULL }
+};
+
+static const value_string he_phy_nominal_packet_padding_vals[] = {
   { 0, "0 µs for all Constellations" },
   { 1, "8 µs for all Constellations" },
   { 2, "16 µs for all Constellations" },
@@ -36338,7 +36366,7 @@ proto_register_ieee80211(void)
 
     {&hf_he_phy_cap_device_class,
      {"Device Class", "wlan.ext_tag.he_phy_cap.device_class",
-      FT_UINT16, BASE_HEX, NULL, 0x0010, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(he_phy_device_class_vals), 0x0010, NULL, HFILL }},
 
     {&hf_he_phy_cap_ldpc_coding_in_payload,
      {"LDPC Coding In Payload", "wlan.ext_tag.he_phy_cap.ldpc_coding_in_payload",
@@ -36351,7 +36379,7 @@ proto_register_ieee80211(void)
 
     {&hf_he_phy_cap_midamble_rx_max_nsts,
      {"Midamble Rx Max NSTS", "wlan.ext_tag.he_phy_cap.midamble_rx_max_nsts",
-      FT_UINT16, BASE_HEX, NULL, 0x0180, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(he_phy_midamble_rx_max_nsts_vals), 0x0180, NULL, HFILL }},
 
     {&hf_he_phy_cap_ndp_with_4x_he_ltf_32us,
      {"NDP With 4x HE-LTF and 3.2us GI",
@@ -36388,19 +36416,19 @@ proto_register_ieee80211(void)
 
     {&hf_he_phy_cap_dcm_max_constellation_tx,
      {"DCM Max Constellation Tx", "wlan.ext_tag.he_phy_cap.dcm_max_const_tx",
-      FT_UINT16, BASE_HEX, NULL, 0x0003, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(he_phy_dcm_max_constellation_vals), 0x0003, NULL, HFILL }},
 
     {&hf_he_phy_cap_dcm_max_nss_tx,
      {"DCM Max NSS Tx", "wlan.ext_tag.he_phy_cap.dcm_max_nss_tx",
-      FT_UINT16, BASE_HEX, NULL, 0x0004, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(he_phy_dcm_max_nss_vals), 0x0004, NULL, HFILL }},
 
     {&hf_he_phy_cap_dcm_max_constellation_rx,
      {"DCM Max Constellation Rx", "wlan.ext_tag.he_phy_cap.dcm_max_const_rx",
-      FT_UINT16, BASE_HEX, NULL, 0x0018, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(he_phy_dcm_max_constellation_vals), 0x0018, NULL, HFILL }},
 
     {&hf_he_phy_cap_dcm_max_nss_rx,
      {"DCM Max NSS Rx", "wlan.ext_tag.he_phy_cap.dcm_max_nss_tx",
-      FT_UINT16, BASE_HEX, NULL, 0x0020, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(he_phy_dcm_max_nss_vals), 0x0020, NULL, HFILL }},
 
     {&hf_he_phy_cap_rx_he_muppdu_from_non_ap,
      {"Rx HE MU PPDU from Non-AP STA", "wlan.ext_tag.he_phy_cap.rx_he_mu_ppdu",
@@ -36564,7 +36592,7 @@ proto_register_ieee80211(void)
 
     {&hf_he_phy_cap_nominal_packet_padding,
      {"Nominal Packet Padding", "wlan.ext_tag.he_phy_cap.nominal_packet_padding",
-      FT_UINT16, BASE_DEC, VALS(nominal_packet_padding_vals), 0x00C0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, VALS(he_phy_nominal_packet_padding_vals), 0x00C0, NULL, HFILL }},
 
     {&hf_he_phy_cap_b80_b87_reserved,
      {"Reserved", "wlan.ext_tag.he_phy_cap.reserved_b80_b87",
