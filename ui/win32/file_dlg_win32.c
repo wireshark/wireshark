@@ -1477,7 +1477,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 }
 
 static UINT_PTR CALLBACK
-save_as_statstree_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
+save_as_statstree_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param _U_, LPARAM l_param _U_) {
 
     switch(msg) {
         case WM_INITDIALOG:

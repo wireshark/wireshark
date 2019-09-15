@@ -57,6 +57,7 @@
 #include <stdlib.h>
 
 #include "file_util.h"
+#include "ws_attributes.h"
 
 static gchar *program_path = NULL;
 static gchar *system_path = NULL;
@@ -189,7 +190,7 @@ ws_stdio_rename (const gchar *oldfilename, const gchar *newfilename)
  * Since: 2.6
  */
 int
-ws_stdio_mkdir (const gchar *filename, int mode)
+ws_stdio_mkdir (const gchar *filename, int mode _U_)
 {
     wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
     int retval;

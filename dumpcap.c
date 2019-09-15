@@ -591,9 +591,10 @@ relinquish_all_capabilities(void)
 
 static const char *
 get_pcap_failure_secondary_error_message(cap_device_open_err open_err,
+#ifdef __hpux
                                          const char *open_err_str
-#ifndef __hpux
-                                                                  _U_
+#else
+                                         const char* open_err_str _U_
 #endif
                                          )
 {

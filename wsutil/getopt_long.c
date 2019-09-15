@@ -19,6 +19,7 @@
 #endif
 
 #include "config.h"
+#include "ws_attributes.h"
 
 #include <stdio.h>
 
@@ -271,7 +272,13 @@ exchange (char **argv, struct _getopt_data *d)
 /* Initialize the internal data when the first call is made.  */
 
 static const char *
-_getopt_initialize (int argc, char *const *argv, const char *optstring,
+_getopt_initialize (
+#if defined _LIBC && defined USE_NONOPTION_FLAGS
+                    int argc, char *const *argv,
+#else
+                    int argc _U_, char *const *argv _U_,
+#endif
+                    const char *optstring,
                     struct _getopt_data *d, int posixly_correct)
 {
   /* Start processing options with ARGV-element 1 (since ARGV-element 0

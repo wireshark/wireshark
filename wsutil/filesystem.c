@@ -469,9 +469,11 @@ get_executable_path(void)
  * g_mallocated string containing an error on failure.
  */
 char *
-init_progfile_dir(const char *arg0
+init_progfile_dir(
 #ifdef _WIN32
-    _U_
+    const char* arg0 _U_
+#else
+    const char* arg0
 #endif
 )
 {
