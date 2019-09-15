@@ -947,14 +947,14 @@ if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC" AND NOT OSS_FUZZ)
 	# independent may fail, the user can set CMAKE_EXE_LINKER_FLAGS=-no-pie
 	# as a workaround.
 	#
-	if(CMAKE_VERSION VERSION_GREATER "3.13.999")
-		include(CheckPIESupported)
-		check_pie_supported()
-	else()
+	if(CMAKE_VERSION VERSION_LESS "3.14")
 		check_c_linker_flag(-pie LINK_pie_VALID)
 		if(LINK_pie_VALID)
 			set(CMAKE_EXE_LINKER_FLAGS "-pie ${CMAKE_EXE_LINKER_FLAGS}")
 		endif()
+	else()
+		include(CheckPIESupported)
+		check_pie_supported()
 	endif()
 endif()
 
