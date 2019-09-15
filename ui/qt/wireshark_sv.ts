@@ -1767,57 +1767,57 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>CopyFromProfileButton</name>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">Kopiera ifrån</translation>
+        <translation>Kopiera ifrån</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation type="unfinished">Kopiera poster från en annan profil.</translation>
+        <translation>Kopiera poster från en annan profil.</translation>
     </message>
     <message>
         <source>System default</source>
-        <translation type="unfinished"></translation>
+        <translation>Systemstandard</translation>
     </message>
 </context>
 <context>
     <name>CredentialsDialog</name>
     <message>
         <source>Wireshark - Credentials</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark – kreditiv</translation>
     </message>
     <message>
         <source>Credentials</source>
-        <translation type="unfinished"></translation>
+        <translation>Kreditiv</translation>
     </message>
 </context>
 <context>
     <name>CredentialsModel</name>
     <message>
         <source>Click to select the packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Klicka för att välja paketet</translation>
     </message>
     <message>
         <source>Click to select the packet with username</source>
-        <translation type="unfinished"></translation>
+        <translation>Klicka för att välja paketet med användarnamnet</translation>
     </message>
     <message>
         <source>Username not available</source>
-        <translation type="unfinished"></translation>
+        <translation>Användarnamnet är inte tillgängligt</translation>
     </message>
     <message>
         <source>Packet No.</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket nr.</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished">Protokoll</translation>
+        <translation>Protokoll</translation>
     </message>
     <message>
         <source>Username</source>
-        <translation type="unfinished"></translation>
+        <translation>Användarnamn</translation>
     </message>
     <message>
         <source>Additional Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Ytterligare information</translation>
     </message>
 </context>
 <context>
@@ -1959,11 +1959,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Hantera sparade bokmärken.</translation>
     </message>
     <message>
-        <source>Apply display filter</source>
-        <oldsource>Apply this filter string to the display.</oldsource>
-        <translation type="unfinished">Använd denna filtersträng på det visade.</translation>
-    </message>
-    <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation>Använd ett visningsfilter %1 &lt;%2/&gt;</translation>
     </message>
@@ -1973,7 +1968,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Clear display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Töm visningsfiltret</translation>
+    </message>
+    <message>
+        <source>Apply display filter</source>
+        <translation>Använd visningsfiltret</translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
@@ -2145,7 +2144,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>in</source>
-        <translation type="unfinished"></translation>
+        <translation>i</translation>
     </message>
     <message>
         <source>Enable All</source>
@@ -2165,27 +2164,27 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Everywhere</source>
-        <translation type="unfinished"></translation>
+        <translation>Överallt</translation>
     </message>
     <message>
         <source>Only Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast protokoll</translation>
     </message>
     <message>
         <source>Only Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast beskrivning</translation>
     </message>
     <message>
         <source>any protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>alla protokoll</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>icke-heuristiska protokoll</translation>
     </message>
     <message>
         <source>heuristic protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>heuristiska protokoll</translation>
     </message>
 </context>
 <context>
@@ -2242,47 +2241,47 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>EthernetAddressModel</name>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Mac Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Mac-adress</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Namn</translation>
+        <translation>Namn</translation>
     </message>
     <message>
         <source>All entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Alla poster</translation>
     </message>
     <message>
         <source>IPv4 Hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4-värdar</translation>
     </message>
     <message>
         <source>IPv4 Hash Table</source>
-        <translation type="unfinished">IPv4-hashtabell</translation>
+        <translation>IPv4-hashtabell</translation>
     </message>
     <message>
         <source>IPv6 Hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv6-värdar</translation>
     </message>
     <message>
         <source>IPv6 Hash Table</source>
-        <translation type="unfinished">IPv6-hashtabell</translation>
+        <translation>IPv6-hashtabell</translation>
     </message>
     <message>
         <source>Ethernet Addresses</source>
-        <translation type="unfinished">Ethernet-adresser</translation>
+        <translation>Ethernet-adresser</translation>
     </message>
     <message>
         <source>Ethernet Manufacturers</source>
-        <translation type="unfinished">Ethernet-tillverkare</translation>
+        <translation>Ethernet-tillverkare</translation>
     </message>
     <message>
         <source>Ethernet Well-Known Addresses</source>
-        <translation type="unfinished">Välkända Ethernet-adresser</translation>
+        <translation>Välkända Ethernet-adresser</translation>
     </message>
 </context>
 <context>
@@ -2565,7 +2564,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Save parameter(s) on capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara parametrarna vid fångststart</translation>
     </message>
 </context>
 <context>
@@ -2637,11 +2636,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>FilterAction</name>
     <message>
         <source>Selected</source>
-        <translation type="unfinished">Vald</translation>
+        <translation>Vald</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation type="unfinished">Ej vald</translation>
+        <translation>Ej vald</translation>
     </message>
 </context>
 <context>
@@ -3154,11 +3153,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>System Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Systemstandard</translation>
     </message>
     <message>
         <source>Solid</source>
-        <translation type="unfinished"></translation>
+        <translation>Enfärgad</translation>
     </message>
     <message>
         <source>Sample ignored packet text</source>
@@ -3694,7 +3693,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>I/O Graphs</source>
-        <translation type="unfinished"></translation>
+        <translation>I/O-grafer</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -3710,7 +3709,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>5 ms</source>
-        <translation type="unfinished">100 ms {5 ?}</translation>
+        <translation>5 ms</translation>
     </message>
     <message>
         <source>10 ms</source>
@@ -3722,7 +3721,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark I/O-grafer: %1</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -4344,7 +4343,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Start capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Börja fångst</translation>
     </message>
 </context>
 <context>
@@ -5769,19 +5768,19 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished">Importera</translation>
+        <translation>Importera</translation>
     </message>
     <message>
         <source>from zip file</source>
-        <translation type="unfinished"></translation>
+        <translation>från en zip-fil</translation>
     </message>
     <message>
         <source>from directory</source>
-        <translation type="unfinished"></translation>
+        <translation>från en katalog</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Exportera</translation>
+        <translation>Exportera</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -5820,9 +5819,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message numerus="yes">
         <source>%Ln byte(s)</source>
         <oldsource>, %1 bytes</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln byte</numerusform>
+            <numerusform>%Ln byte</numerusform>
         </translation>
     </message>
     <message>
@@ -5857,7 +5856,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source> %1 Comments: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 kommentarer: %2</translation>
     </message>
     <message>
         <source> %1  Load time: %2:%3.%4</source>
@@ -5881,11 +5880,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>selected personal profile</source>
-        <translation type="unfinished"></translation>
+        <translation>vald personlig profil</translation>
     </message>
     <message>
         <source>all personal profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>alla personliga profiler</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7012,7 +7011,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Credentials</source>
-        <translation type="unfinished"></translation>
+        <translation>Kreditiv</translation>
     </message>
     <message>
         <source>&amp;Options…</source>
@@ -8338,7 +8337,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Decode As</source>
-        <translation type="unfinished">Avkoda som</translation>
+        <translation>Avkoda som</translation>
     </message>
     <message>
         <source>Frame %1: %2
@@ -8357,47 +8356,47 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>PacketListHeader</name>
     <message>
         <source>Align Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Vänsterjustera</translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation type="unfinished"></translation>
+        <translation>Centrera</translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Högerjustera</translation>
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolumninställningar</translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigera kolumnen</translation>
     </message>
     <message>
         <source>Resize to Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändra storlek till innehåll</translation>
     </message>
     <message>
         <source>Resize Column to Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändra kolumnstorlek till bredden</translation>
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå upp namn</translation>
     </message>
     <message>
         <source>Remove this Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort denna kolumn</translation>
     </message>
     <message>
         <source>Column %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolumn %1</translation>
     </message>
     <message>
         <source>Width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bredd:</translation>
     </message>
 </context>
 <context>
@@ -8492,35 +8491,35 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>PortsModel</name>
     <message>
         <source>All entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Alla poster</translation>
     </message>
     <message>
         <source>tcp</source>
-        <translation type="unfinished"></translation>
+        <translation>tcp</translation>
     </message>
     <message>
         <source>udp</source>
-        <translation type="unfinished"></translation>
+        <translation>udp</translation>
     </message>
     <message>
         <source>sctp</source>
-        <translation type="unfinished"></translation>
+        <translation>sctp</translation>
     </message>
     <message>
         <source>dccp</source>
-        <translation type="unfinished"></translation>
+        <translation>dccp</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Namn</translation>
+        <translation>Namn</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
 </context>
 <context>
@@ -8647,7 +8646,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>ProfileDialog</name>
     <message>
         <source>Search for profile …</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök efter profil …</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
@@ -8655,7 +8654,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be resetted upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ta bort denna profil.  Profiler som tillhandahålls av systemet kan inte tas bort.  Standardprofilen kommer återställas vid radering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
@@ -8668,16 +8667,16 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Import</source>
         <comment>noun</comment>
-        <translation type="unfinished">Importera</translation>
+        <translation>Importera</translation>
     </message>
     <message>
         <source>Export</source>
         <comment>noun</comment>
-        <translation type="unfinished">Exportera</translation>
+        <translation>Exportera</translation>
     </message>
     <message>
         <source>New profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Ny profil</translation>
     </message>
     <message>
         <source>Profile Error</source>
@@ -8685,69 +8684,76 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Exporting profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporterar profiler</translation>
     </message>
     <message>
         <source>No profiles found for export</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga profiler finns att exportera</translation>
     </message>
     <message>
         <source>Select zip file for export</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj zip-fil för exporten</translation>
+    </message>
+    <message numerus="yes">
+        <source>… %Ln selected personal profile(s)</source>
+        <translation type="vanished">
+            <numerusform>… %Ln vad personlig profil</numerusform>
+            <numerusform>… %Ln valda personliga profiler</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>%Ln selected personal profile(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln vald personlig profil</numerusform>
+            <numerusform>%Ln valda personliga profiler</numerusform>
         </translation>
     </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending</source>
-        <translation type="unfinished"></translation>
+        <translation>En import av profiler är inte tillåtet medans ändringar väntar</translation>
     </message>
     <message>
         <source>An import is pending to be saved. Additional imports are not allowed</source>
-        <translation type="unfinished"></translation>
+        <translation>En import väntar på att sparas.  Ytterligare importer är inte tillåtna</translation>
     </message>
     <message>
         <source>An export of profiles is only allowed for personal profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>En export av profiler är endast tillåtet för personliga profiler</translation>
     </message>
     <message>
         <source>An export of profiles is not allowed, while changes are pending</source>
-        <translation type="unfinished"></translation>
+        <translation>En export av profiler är inte tillåtet medans ändringar väntar</translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln profil exporterad</numerusform>
+            <numerusform>%Ln profiler exporterade</numerusform>
         </translation>
     </message>
     <message>
         <source>Select zip file for import</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj zip-fil för importen</translation>
     </message>
     <message>
         <source>Select directory for import</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj katalog för importen</translation>
     </message>
     <message>
         <source>Zip File (*.zip)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zip-fil (*.zip)</translation>
     </message>
     <message>
         <source>from zip file</source>
-        <translation type="unfinished"></translation>
+        <translation>från en zip-fil</translation>
     </message>
     <message>
         <source>from directory</source>
-        <translation type="unfinished"></translation>
+        <translation>från en katalog</translation>
     </message>
     <message>
         <source>all personal profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>alla personliga profiler</translation>
     </message>
     <message>
         <source>Error</source>
@@ -9706,10 +9712,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Uppslagna adresser</translation>
     </message>
     <message>
-        <source>Show</source>
-        <translation type="vanished">Visa</translation>
-    </message>
-    <message>
         <source># Resolved addresses found in %1</source>
         <translation># Uppslagna adresser hittade i %1</translation>
     </message>
@@ -9718,70 +9720,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
 #
 # </source>
         <translation># Kommentarer
-#
-#</translation>
-    </message>
-    <message>
-        <source># Hosts
-#
-# </source>
-        <translation type="vanished"># Värdar
-#
-#</translation>
-    </message>
-    <message>
-        <source># IPv4 Hash Table
-#
-# </source>
-        <translation type="vanished"># IPv4-hashtabell
-#
-#</translation>
-    </message>
-    <message>
-        <source>
-
-</source>
-        <translation type="vanished">
-
-</translation>
-    </message>
-    <message>
-        <source># IPv6 Hash Table
-#
-# </source>
-        <translation type="vanished"># IPv6-hashtabell
-#
-#</translation>
-    </message>
-    <message>
-        <source># Services
-#
-# </source>
-        <translation type="vanished"># Tjänster
-#
-#</translation>
-    </message>
-    <message>
-        <source># Ethernet addresses
-#
-# </source>
-        <translation type="vanished"># Ethernet-adresser
-#
-#</translation>
-    </message>
-    <message>
-        <source># Ethernet manufacturers
-#
-# </source>
-        <translation type="vanished"># Ethernet-tillverkare
-#
-#</translation>
-    </message>
-    <message>
-        <source># Well known Ethernet addresses
-#
-# </source>
-        <translation type="vanished"># Välkända Ethernet-adresser
 #
 #</translation>
     </message>
@@ -10438,10 +10376,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Output Device:</source>
         <translation>Utmatningsenhet:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>

@@ -1959,11 +1959,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Gestisci i segnalibri salvati.</translation>
     </message>
     <message>
-        <source>Apply display filter</source>
-        <oldsource>Apply this filter string to the display.</oldsource>
-        <translation type="unfinished">Applica questa stringa di filtro alla visualizzazione.</translation>
-    </message>
-    <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation>Applica un filtro di visualizzazione %1 &lt;%2/&gt;</translation>
     </message>
@@ -1974,6 +1969,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Clear display filter</source>
         <translation>Cancella filtro di visualizzazione</translation>
+    </message>
+    <message>
+        <source>Apply display filter</source>
+        <translation>Applica filtro alla visualizzazione.</translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
@@ -2145,7 +2144,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>in</source>
-        <translation type="unfinished"></translation>
+        <translation>in</translation>
     </message>
     <message>
         <source>Enable All</source>
@@ -2177,15 +2176,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>any protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>qualsiasi protocollo</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>protocolli non euristici</translation>
     </message>
     <message>
         <source>heuristic protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>protocolli euristici</translation>
     </message>
 </context>
 <context>
@@ -2242,47 +2241,47 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>EthernetAddressModel</name>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Tipo</translation>
+        <translation>Tipo</translation>
     </message>
     <message>
         <source>Mac Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Indirizzo MAC</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <source>All entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutte le voci.</translation>
     </message>
     <message>
         <source>IPv4 Hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>Host IPv4</translation>
     </message>
     <message>
         <source>IPv4 Hash Table</source>
-        <translation type="unfinished">Tabella hash IPv4</translation>
+        <translation>Tabella hash IPv4</translation>
     </message>
     <message>
         <source>IPv6 Hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>Host IPv6</translation>
     </message>
     <message>
         <source>IPv6 Hash Table</source>
-        <translation type="unfinished">Tabella hash IPv6</translation>
+        <translation>Tabella hash IPv6</translation>
     </message>
     <message>
         <source>Ethernet Addresses</source>
-        <translation type="unfinished">Indirizzi Ethernet</translation>
+        <translation>Indirizzi Ethernet</translation>
     </message>
     <message>
         <source>Ethernet Manufacturers</source>
-        <translation type="unfinished">Produttori Ethernet</translation>
+        <translation>Produttori Ethernet</translation>
     </message>
     <message>
         <source>Ethernet Well-Known Addresses</source>
-        <translation type="unfinished">Indirizzi Ethernet conosciuti</translation>
+        <translation>Indirizzi Ethernet conosciuti</translation>
     </message>
 </context>
 <context>
@@ -5857,7 +5856,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source> %1 Comments: %2</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 commenti: %2</translation>
     </message>
     <message>
         <source> %1  Load time: %2:%3.%4</source>
@@ -8338,7 +8337,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Decode As</source>
-        <translation type="unfinished">Decodifica come</translation>
+        <translation>Decodifica come</translation>
     </message>
     <message>
         <source>Frame %1: %2
@@ -8492,35 +8491,35 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>PortsModel</name>
     <message>
         <source>All entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutte le voci.</translation>
     </message>
     <message>
         <source>tcp</source>
-        <translation type="unfinished"></translation>
+        <translation>tcp</translation>
     </message>
     <message>
         <source>udp</source>
-        <translation type="unfinished"></translation>
+        <translation>udp</translation>
     </message>
     <message>
         <source>sctp</source>
-        <translation type="unfinished"></translation>
+        <translation>sctp</translation>
     </message>
     <message>
         <source>dccp</source>
-        <translation type="unfinished"></translation>
+        <translation>dccp</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Porta</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Tipo</translation>
+        <translation>Tipo</translation>
     </message>
 </context>
 <context>
@@ -9605,23 +9604,23 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>Host:</translation>
     </message>
     <message>
         <source>Search for entry (min 3 characters)</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca voci (min 3 caratteri)</translation>
     </message>
     <message>
         <source>Ports</source>
-        <translation type="unfinished"></translation>
+        <translation>Porte</translation>
     </message>
     <message>
         <source>Search for port or name</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca porta o nome</translation>
     </message>
     <message>
         <source>Capture File Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Commenti file di cattura</translation>
     </message>
     <message>
         <source>Comment</source>
@@ -9713,10 +9712,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Indirizzi risolti</translation>
     </message>
     <message>
-        <source>Show</source>
-        <translation type="vanished">Mostra</translation>
-    </message>
-    <message>
         <source># Resolved addresses found in %1</source>
         <translation># Trovati indirizzi risolti in %1</translation>
     </message>
@@ -9725,70 +9720,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 #
 # </source>
         <translation># Commenti
-#
-# </translation>
-    </message>
-    <message>
-        <source># Hosts
-#
-# </source>
-        <translation type="vanished"># Host
-#
-# </translation>
-    </message>
-    <message>
-        <source># IPv4 Hash Table
-#
-# </source>
-        <translation type="vanished"># Tabella hash IPv4
-#
-# </translation>
-    </message>
-    <message>
-        <source>
-
-</source>
-        <translation type="vanished">
-
-</translation>
-    </message>
-    <message>
-        <source># IPv6 Hash Table
-#
-# </source>
-        <translation type="vanished"># Tabella hash IPv6
-#
-# </translation>
-    </message>
-    <message>
-        <source># Services
-#
-# </source>
-        <translation type="vanished"># Servizi
-#
-# </translation>
-    </message>
-    <message>
-        <source># Ethernet addresses
-#
-# </source>
-        <translation type="vanished"># Indirizzi Ethernet
-#
-# </translation>
-    </message>
-    <message>
-        <source># Ethernet manufacturers
-#
-# </source>
-        <translation type="vanished"># Produttori Ethernet
-#
-# </translation>
-    </message>
-    <message>
-        <source># Well known Ethernet addresses
-#
-# </source>
-        <translation type="vanished"># Indirizzi Ethernet conosciuti
 #
 # </translation>
     </message>
@@ -10308,7 +10239,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Can save audio with PCM u-law or A-law encoding only</source>
-        <translation type="unfinished"></translation>
+        <translation>Puoi salvare audio solo con codifica u-law e A-law</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
@@ -10445,10 +10376,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Output Device:</source>
         <translation>Dispositivo di uscita:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>

@@ -1966,11 +1966,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Управлять сохранёнными закладками.</translation>
     </message>
     <message>
-        <source>Apply display filter</source>
-        <oldsource>Apply this filter string to the display.</oldsource>
-        <translation type="unfinished">Применить эту строку фильтра к отображённому на экране.</translation>
-    </message>
-    <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation>Применить дисплейный фильтр %1 &lt;%2/&gt;</translation>
     </message>
@@ -1980,6 +1975,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply display filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9731,10 +9730,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Разрешенные Адреса</translation>
     </message>
     <message>
-        <source>Show</source>
-        <translation type="vanished">Показать</translation>
-    </message>
-    <message>
         <source># Resolved addresses found in %1</source>
         <translation># Разрешённые адреса найдены в %1</translation>
     </message>
@@ -9743,70 +9738,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 #
 # </source>
         <translation># Комментарии
-#
-# </translation>
-    </message>
-    <message>
-        <source># Hosts
-#
-# </source>
-        <translation type="vanished"># Хосты
-#
-# </translation>
-    </message>
-    <message>
-        <source># IPv4 Hash Table
-#
-# </source>
-        <translation type="vanished"># Хэш-таблица IPv4
-#
-# </translation>
-    </message>
-    <message>
-        <source>
-
-</source>
-        <translation type="vanished">
-
-</translation>
-    </message>
-    <message>
-        <source># IPv6 Hash Table
-#
-# </source>
-        <translation type="vanished"># Хэш-таблица IPv6
-#
-# </translation>
-    </message>
-    <message>
-        <source># Services
-#
-# </source>
-        <translation type="vanished"># Службы
-#
-# </translation>
-    </message>
-    <message>
-        <source># Ethernet addresses
-#
-# </source>
-        <translation type="vanished"># Адреса Ethernet
-#
-# </translation>
-    </message>
-    <message>
-        <source># Ethernet manufacturers
-#
-# </source>
-        <translation type="vanished"># Производители Ethernet
-#
-# </translation>
-    </message>
-    <message>
-        <source># Well known Ethernet addresses
-#
-# </source>
-        <translation type="vanished"># Широко известные Ethernet-адреса
 #
 # </translation>
     </message>
@@ -10463,10 +10394,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Output Device:</source>
         <translation>Выходное Устройство:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>

@@ -1935,11 +1935,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Apply display filter</source>
-        <oldsource>Apply this filter string to the display.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1949,6 +1944,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply display filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9678,10 +9677,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Adresses résolues</translation>
     </message>
     <message>
-        <source>Show</source>
-        <translation type="vanished">Afficher</translation>
-    </message>
-    <message>
         <source># Resolved addresses found in %1</source>
         <translation># Adresses résolues trouvées dans %1</translation>
     </message>
@@ -9692,68 +9687,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation># Commentaires
 #
 # </translation>
-    </message>
-    <message>
-        <source># Hosts
-#
-# </source>
-        <translation type="vanished"># Hôtes
-#
-# </translation>
-    </message>
-    <message>
-        <source># IPv4 Hash Table
-#
-# </source>
-        <translation type="vanished"># Table Hash IPv4
-#
-#</translation>
-    </message>
-    <message>
-        <source>
-
-</source>
-        <translation type="vanished">
-
-</translation>
-    </message>
-    <message>
-        <source># IPv6 Hash Table
-#
-# </source>
-        <translation type="vanished"># Table Hash IPv6
-#
-#</translation>
-    </message>
-    <message>
-        <source># Services
-#
-# </source>
-        <translation type="vanished"># Services
-#
-#</translation>
-    </message>
-    <message>
-        <source># Ethernet addresses
-#
-# </source>
-        <translation type="vanished"># Adresses ethernet
-#
-#</translation>
-    </message>
-    <message>
-        <source># Ethernet manufacturers
-#
-# </source>
-        <translation type="vanished"># Fabricants ethernet
-#
-#</translation>
-    </message>
-    <message>
-        <source># Well known Ethernet addresses
-#
-# </source>
-        <translation type="vanished"># Adresses Ethernet Bien connues</translation>
     </message>
 </context>
 <context>
@@ -10408,10 +10341,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Output Device:</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>

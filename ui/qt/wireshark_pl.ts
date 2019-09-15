@@ -1963,11 +1963,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Zarządzaj zapisanymi zakładkami.</translation>
     </message>
     <message>
-        <source>Apply display filter</source>
-        <oldsource>Apply this filter string to the display.</oldsource>
-        <translation type="unfinished">Zastosuj filtr.</translation>
-    </message>
-    <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation>Zastosuj filtr wyświetlania %1 &lt;%2/&gt;</translation>
     </message>
@@ -1977,6 +1972,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply display filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9720,10 +9719,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Rozwiązane Adresy</translation>
     </message>
     <message>
-        <source>Show</source>
-        <translation type="vanished">Pokaż</translation>
-    </message>
-    <message>
         <source># Resolved addresses found in %1</source>
         <translation># Rozwiązane adresy znalezione w %1</translation>
     </message>
@@ -9734,70 +9729,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation># Komentarze
 #
 #</translation>
-    </message>
-    <message>
-        <source># Hosts
-#
-# </source>
-        <translation type="vanished"># Gospodarze
-#
-#</translation>
-    </message>
-    <message>
-        <source># IPv4 Hash Table
-#
-# </source>
-        <translation type="vanished"># Tablica mieszająca IPv4
-#
-#</translation>
-    </message>
-    <message>
-        <source>
-
-</source>
-        <translation type="vanished">
-
-</translation>
-    </message>
-    <message>
-        <source># IPv6 Hash Table
-#
-# </source>
-        <translation type="vanished"># Tablica mieszająca IPv6
-#
-#</translation>
-    </message>
-    <message>
-        <source># Services
-#
-# </source>
-        <translation type="vanished"># Usługi
-#
-# </translation>
-    </message>
-    <message>
-        <source># Ethernet addresses
-#
-# </source>
-        <translation type="vanished"># Adresy Ethernet
-#
-# </translation>
-    </message>
-    <message>
-        <source># Ethernet manufacturers
-#
-# </source>
-        <translation type="vanished"># Producenci Ethernet
-#
-#</translation>
-    </message>
-    <message>
-        <source># Well known Ethernet addresses
-#
-# </source>
-        <translation type="vanished"># Dobrze znane adresy Ethernet
-#
-# </translation>
     </message>
 </context>
 <context>
@@ -10452,10 +10383,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Output Device:</source>
         <translation>Urządzenie do odtwarzania</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>

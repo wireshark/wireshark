@@ -1949,11 +1949,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>管理保存的书签。</translation>
     </message>
     <message>
-        <source>Apply display filter</source>
-        <oldsource>Apply this filter string to the display.</oldsource>
-        <translation type="unfinished">将此过滤字符串应用于显示。</translation>
-    </message>
-    <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation>应用显示过滤器 %1 &lt;%2/&gt;</translation>
     </message>
@@ -1963,6 +1958,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply display filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9675,10 +9674,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>解析后的地址</translation>
     </message>
     <message>
-        <source>Show</source>
-        <translation type="vanished">显示</translation>
-    </message>
-    <message>
         <source># Resolved addresses found in %1</source>
         <translation># 在 %1 中找到的解析后的地址</translation>
     </message>
@@ -9687,70 +9682,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 #
 # </source>
         <translation># 注释
-#
-# </translation>
-    </message>
-    <message>
-        <source># Hosts
-#
-# </source>
-        <translation type="vanished"># Hosts
-#
-# </translation>
-    </message>
-    <message>
-        <source># IPv4 Hash Table
-#
-# </source>
-        <translation type="vanished"># IPv4 哈希表
-#
-# </translation>
-    </message>
-    <message>
-        <source>
-
-</source>
-        <translation type="vanished">
-
-</translation>
-    </message>
-    <message>
-        <source># IPv6 Hash Table
-#
-# </source>
-        <translation type="vanished"># IPv6 哈希表
-#
-# </translation>
-    </message>
-    <message>
-        <source># Services
-#
-# </source>
-        <translation type="vanished"># 服务
-#
-# </translation>
-    </message>
-    <message>
-        <source># Ethernet addresses
-#
-# </source>
-        <translation type="vanished"># 以太网地址簿
-#
-# </translation>
-    </message>
-    <message>
-        <source># Ethernet manufacturers
-#
-# </source>
-        <translation type="vanished"># 以太网制造商
-#
-# </translation>
-    </message>
-    <message>
-        <source># Well known Ethernet addresses
-#
-# </source>
-        <translation type="vanished"># 以太网著名地址簿
 #
 # </translation>
     </message>
@@ -10407,10 +10338,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Output Device:</source>
         <translation>输出设备：</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>

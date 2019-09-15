@@ -1959,11 +1959,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Gespeicherte Lesezeichen verwalten</translation>
     </message>
     <message>
-        <source>Apply display filter</source>
-        <oldsource>Apply this filter string to the display.</oldsource>
-        <translation type="unfinished">Diesen Filter zur Anzeige anwenden.</translation>
-    </message>
-    <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation>Anzeigefilter anwenden %1 &lt;%2/&gt;</translation>
     </message>
@@ -1974,6 +1969,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Clear display filter</source>
         <translation>Anzeigefilter zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Apply display filter</source>
+        <translation>Anzeigenfilter anwenden</translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
@@ -2145,7 +2144,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>in</source>
-        <translation type="unfinished"></translation>
+        <translation>in</translation>
     </message>
     <message>
         <source>Enable All</source>
@@ -2177,15 +2176,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>any protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>alle Protokolle</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokolle die keine Heuristik verwenden</translation>
     </message>
     <message>
         <source>heuristic protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokolle die Heuristik verwenden</translation>
     </message>
 </context>
 <context>
@@ -2242,47 +2241,47 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>EthernetAddressModel</name>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Mac Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Mac Adresse</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>All entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Einträge</translation>
     </message>
     <message>
         <source>IPv4 Hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 Hosts</translation>
     </message>
     <message>
         <source>IPv4 Hash Table</source>
-        <translation type="unfinished">IPv4 Hashtabelle</translation>
+        <translation>IPv4 Hashtabelle</translation>
     </message>
     <message>
         <source>IPv6 Hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv6 Hosts</translation>
     </message>
     <message>
         <source>IPv6 Hash Table</source>
-        <translation type="unfinished">IPv6 Hashtabelle</translation>
+        <translation>IPv6 Hashtabelle</translation>
     </message>
     <message>
         <source>Ethernet Addresses</source>
-        <translation type="unfinished">Ethernet Adressen</translation>
+        <translation>Ethernet Adressen</translation>
     </message>
     <message>
         <source>Ethernet Manufacturers</source>
-        <translation type="unfinished">Ethernet Hersteller</translation>
+        <translation>Ethernet Hersteller</translation>
     </message>
     <message>
         <source>Ethernet Well-Known Addresses</source>
-        <translation type="unfinished">Bekannte Ethernet Adressen</translation>
+        <translation>Bekannte Ethernet Adressen</translation>
     </message>
 </context>
 <context>
@@ -5857,7 +5856,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source> %1 Comments: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Kommentare: %2</translation>
     </message>
     <message>
         <source> %1  Load time: %2:%3.%4</source>
@@ -8338,7 +8337,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Decode As</source>
-        <translation type="unfinished">Dekodieren als</translation>
+        <translation>Dekodieren als</translation>
     </message>
     <message>
         <source>Frame %1: %2
@@ -8492,35 +8491,35 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>PortsModel</name>
     <message>
         <source>All entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Einträge</translation>
     </message>
     <message>
         <source>tcp</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP</translation>
     </message>
     <message>
         <source>udp</source>
-        <translation type="unfinished"></translation>
+        <translation>UDP</translation>
     </message>
     <message>
         <source>sctp</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP</translation>
     </message>
     <message>
         <source>dccp</source>
-        <translation type="unfinished"></translation>
+        <translation>DCCP</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
 </context>
 <context>
@@ -9605,23 +9604,23 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>Hosts</translation>
     </message>
     <message>
         <source>Search for entry (min 3 characters)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach Eintrag suchen (min. 3 Zeichen)</translation>
     </message>
     <message>
         <source>Ports</source>
-        <translation type="unfinished"></translation>
+        <translation>Ports</translation>
     </message>
     <message>
         <source>Search for port or name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach Port oder Name suchen</translation>
     </message>
     <message>
         <source>Capture File Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Mitschnittdateikommentare</translation>
     </message>
     <message>
         <source>Comment</source>
@@ -9713,10 +9712,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Aufgelöste Adressen</translation>
     </message>
     <message>
-        <source>Show</source>
-        <translation type="vanished">Zeige</translation>
-    </message>
-    <message>
         <source># Resolved addresses found in %1</source>
         <translation># Resolved addresses found in %1 </translation>
     </message>
@@ -9725,70 +9720,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 #
 # </source>
         <translation># Comments
-#
-# </translation>
-    </message>
-    <message>
-        <source># Hosts
-#
-# </source>
-        <translation type="vanished"># Hosts
-#
-# </translation>
-    </message>
-    <message>
-        <source># IPv4 Hash Table
-#
-# </source>
-        <translation type="vanished"># IPv4 Hash Table
-#
-# </translation>
-    </message>
-    <message>
-        <source>
-
-</source>
-        <translation type="vanished">
-
-</translation>
-    </message>
-    <message>
-        <source># IPv6 Hash Table
-#
-# </source>
-        <translation type="vanished"># IPv6 Hash Table
-#
-# </translation>
-    </message>
-    <message>
-        <source># Services
-#
-# </source>
-        <translation type="vanished"># Services
-#
-# </translation>
-    </message>
-    <message>
-        <source># Ethernet addresses
-#
-# </source>
-        <translation type="vanished"># Ethernet addresses
-#
-# </translation>
-    </message>
-    <message>
-        <source># Ethernet manufacturers
-#
-# </source>
-        <translation type="vanished"># Ethernet manufacturers
-#
-# </translation>
-    </message>
-    <message>
-        <source># Well known Ethernet addresses
-#
-# </source>
-        <translation type="vanished"># Well known Ethernet addresses
 #
 # </translation>
     </message>
@@ -10308,7 +10239,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Can save audio with PCM u-law or A-law encoding only</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio kann nur mit PCM u-law oder A-law Codierung gespeichert werden</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
@@ -10445,10 +10376,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Output Device:</source>
         <translation>Ausgabegerät:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>

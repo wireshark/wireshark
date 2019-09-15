@@ -5,6 +5,7 @@
 # Translators:
 # Simon Paillard <spaillard@debian.org>, 2009
 # Yann Domingo, 2019
+# Yann Domingo, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: Wireshark\n"
