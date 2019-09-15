@@ -228,6 +228,12 @@ QMenu * FilterAction::createFilterMenu(FilterAction::Action act, QString filter,
     bool prepare = ( act == FilterAction::ActionApply) ? false : true;
 
     QMenu * submenu = new QMenu(title, par);
+    if ( filter.length() > 0 )
+    {
+        QAction * comment = submenu->addAction(QString("%1: %2").arg(title).arg(filter));
+        comment->setEnabled(false);
+        submenu->addSeparator();
+    }
     QActionGroup * group = FilterAction::createFilterGroup(filter, prepare, enabled, par);
     submenu->addActions(group->actions());
 
