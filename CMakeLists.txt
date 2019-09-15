@@ -2162,7 +2162,6 @@ set_target_properties(version_info shark_common cli_main capture_opts
 
 if(BUILD_wireshark AND QT_FOUND)
 	set(WIRESHARK_SRC
-		capture_info.c
 		file.c
 		fileset.c
 		${PLATFORM_UI_SRC}

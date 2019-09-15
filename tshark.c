@@ -109,7 +109,7 @@
 #endif /* _WIN32 */
 #include <capchild/capture_session.h>
 #include <capchild/capture_sync.h>
-#include <capture_info.h>
+#include <ui/capture_info.h>
 #endif /* HAVE_LIBPCAP */
 #include "log.h"
 #include <epan/funnel.h>

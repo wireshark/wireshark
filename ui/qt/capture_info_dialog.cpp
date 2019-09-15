@@ -11,7 +11,7 @@
 
 #include <glib.h>
 
-#include "capture_info.h"
+#include "ui/capture_info.h"
 
 #include "epan/capture_dissectors.h"
 #include "epan/proto.h"

@@ -1,5 +1,5 @@
 /* capture_info.h
- * capture info functions
+ * Declarations of platform-dependent capture info functions.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -41,9 +41,6 @@ typedef struct _info_data {
     capture_info      ui;         /* user interface data */
 } info_data_t;
 
-/* new packets arrived - read from wtap, count */
-extern void capture_info_new_packets(int to_read, wtap *wtap, info_data_t* cap_info);
-
 /** Create the capture info dialog */
 extern void
 capture_info_ui_create(capture_info *cinfo, capture_session *cap_session);
@@ -60,7 +57,7 @@ capture_info    *cinfo);
 }
 #endif /* __cplusplus */
 
-#endif /* capture_info.h */
+#endif /* ui/capture_info.h */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
