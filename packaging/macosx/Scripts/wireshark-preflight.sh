@@ -8,6 +8,9 @@
 
 OLD_APP="$2/Wireshark.app"
 
-if [ -d "$OLD_APP" ] ; then
-	rm -rf "$OLD_APP"
-fi
+# This is the wrong way to go about ensuring that our installation is
+# deterministic.
+# https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16050
+#if [ -d "$OLD_APP" ] ; then
+#	rm -rf "$OLD_APP"
+#fi
