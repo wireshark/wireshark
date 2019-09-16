@@ -381,6 +381,7 @@ static int hf_subdoc_flags_xattrpath = -1;
 static int hf_subdoc_flags_expandmacros = -1;
 static int hf_subdoc_flags_reserved = -1;
 static int hf_extras_seqno = -1;
+static int hf_extras_mutation_seqno = -1;
 static int hf_extras_opaque = -1;
 static int hf_extras_reserved = -1;
 static int hf_extras_start_seqno = -1;
@@ -1097,8 +1098,11 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(extras_tree, hf_extras_expiration, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
       } else {
-        /* Response shall not have extras */
-        illegal = TRUE;
+        proto_tree_add_item(extras_tree, hf_extras_vbucket_uuid, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+
+        proto_tree_add_item(extras_tree, hf_extras_mutation_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
       }
     } else if (request) {
       /* Request must have extras */
@@ -1121,8 +1125,11 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(extras_tree, hf_extras_expiration, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
       } else {
-        /* Response must not have extras (response is in Value) */
-        illegal = TRUE;
+        proto_tree_add_item(extras_tree, hf_extras_vbucket_uuid, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+
+        proto_tree_add_item(extras_tree, hf_extras_mutation_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
       }
     } else if (request) {
       /* Request must have extras */
@@ -1140,13 +1147,27 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case PROTOCOL_BINARY_CMD_DELETE:
   case PROTOCOL_BINARY_CMD_DELETEQ:
-  case PROTOCOL_BINARY_CMD_QUIT:
-  case PROTOCOL_BINARY_CMD_QUITQ:
-  case PROTOCOL_BINARY_CMD_VERSION:
   case PROTOCOL_BINARY_CMD_APPEND:
   case PROTOCOL_BINARY_CMD_APPENDQ:
   case PROTOCOL_BINARY_CMD_PREPEND:
   case PROTOCOL_BINARY_CMD_PREPENDQ:
+    if (extlen) {
+      if (request) {
+        /* Must not have extras */
+        illegal = TRUE;
+      } else {
+        proto_tree_add_item(extras_tree, hf_extras_vbucket_uuid, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+
+        proto_tree_add_item(extras_tree, hf_extras_mutation_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+      }
+    }
+    break;
+
+  case PROTOCOL_BINARY_CMD_QUIT:
+  case PROTOCOL_BINARY_CMD_QUITQ:
+  case PROTOCOL_BINARY_CMD_VERSION:
   case PROTOCOL_BINARY_CMD_STAT:
   case PROTOCOL_BINARY_CMD_OBSERVE:
   case PROTOCOL_BINARY_CMD_OBSERVE_SEQNO:
@@ -2860,6 +2881,7 @@ proto_register_couchbase(void)
     { &hf_extras_flags_dcp_collections, {"Enable Collections", "couchbase.extras.flags.dcp_collections", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x10, "Indicates the server should stream collections", HFILL} },
     { &hf_extras_flags_dcp_include_delete_times, {"Include Delete Times", "couchbase.extras.flags.dcp_include_delete_times", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x20, "Indicates the server should include delete timestamps", HFILL} },
     { &hf_extras_seqno, { "Sequence number", "couchbase.extras.seqno", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_mutation_seqno, { "Mutation Sequence Number", "couchbase.extras.mutation_seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_opaque, { "Opaque (vBucket identifier)", "couchbase.extras.opaque", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_reserved, { "Reserved", "couchbase.extras.reserved", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_start_seqno, { "Start Sequence Number", "couchbase.extras.start_seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
