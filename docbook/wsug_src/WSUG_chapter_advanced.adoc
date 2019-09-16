@@ -210,13 +210,13 @@ detail below.
 
 .Some example expert infos
 [options="header"]
-|===============
+|===
 |Packet #|Severity|Group|Protocol|Summary
 |1|Note|Sequence|TCP|Duplicate ACK (#1)
 |2|Chat|Sequence|TCP|Connection reset (RST)
 |8|Note|Sequence|TCP|Keep-Alive
 |9|Warn|Sequence|TCP|Fast retransmission (suspected)
-|===============
+|===
 
 [[ChAdvExpertSeverity]]
 
@@ -764,12 +764,12 @@ in which the packet was captured.
 
 .Time zone examples for UTC arrival times (without DST)
 [options="header"]
-|===============
+|===
 ||Los Angeles|New York|Madrid|London|Berlin|Tokyo
 |_Capture File (UTC)_|10:00|10:00|10:00|10:00|10:00|10:00
 |_Local Offset to UTC_|-8|-5|-1|0|+1|+9
 |_Displayed Time (Local Time)_|02:00|05:00|09:00|10:00|11:00|19:00
-|===============
+|===
 
 For example let’s assume that someone in Los Angeles captured a packet with
 Wireshark at exactly 2 o’clock local time and sends you this capture file. The

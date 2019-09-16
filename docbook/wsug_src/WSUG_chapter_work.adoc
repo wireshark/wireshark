@@ -70,7 +70,7 @@ menu, and a description of each item.
 [[ColumnHeaderPopupMenuTable]]
 .The menu items of the “Packet List” column header pop-up menu
 [options="header",cols="3,7"]
-|===============
+|===
 |Item |Description
 
 |menu:Align Left[] |
@@ -100,7 +100,7 @@ Show or hide a column by selecting its item.
 |menu:Remove Column[] |
 Remove this column, similar to deleting it in the “Preferences” dialog.
 
-|===============
+|===
 
 [[ChWorkPacketListPanePopUpMenuSection]]
 
@@ -118,7 +118,7 @@ and a short description of each item.
 [[PacketListPopupMenuTable]]
 .The menu items of the “Packet List” pop-up menu
 [options="header",cols="3,1,6"]
-|===============
+|===
 |Item |Corresponding main menu item |Description
 |menu:Mark Packet (toggle)[]|menu:Edit[]| Mark or unmark a packet.
 |menu:Ignore Packet (toggle)[]|menu:Edit[]| Ignore or inspect this packet while dissecting the capture file.
@@ -214,7 +214,7 @@ Shows the selected packet in a separate window. The separate window
 shows only the packet details and bytes. See <<ChWorkPacketSepView>> for
 details.
 
-|===============
+|===
 
 
 [[ChWorkPacketDetailsPanePopUpMenuSection]]
@@ -234,7 +234,7 @@ description of each item.
 
 .The menu items of the “Packet Details” pop-up menu
 [options="header",cols="3,1,6"]
-|===============
+|===
 |Item |Corresponding main menu item |Description
 |menu:Expand Subtrees[]|menu:View[]| Expand the currently selected subtree.
 |menu:Collapse Subtrees[]|menu:View[]| Collapse the currently selected subtree.
@@ -324,7 +324,7 @@ request for a DNS response, show the selected packet in a separate
 window. See <<ChWorkPacketSepView>> for details.
 
 
-|===============
+|===
 
 [[ChWorkPacketBytesPanePopUpMenuSection]]
 
@@ -342,7 +342,7 @@ in this pane along with a short description of each item.
 
 .The menu items of the “Packet Bytes” pop-up menu
 [options="header",cols="3,7"]
-|===============
+|===
 |Item |Description
 
 |menu:Copy Bytes as Hex + ASCII Dump[] |
@@ -382,7 +382,7 @@ Use ASCII encoding when displaying “hexdump” text.
 |menu:...as EBCDIC[] |
 Use EBCDIC encoding when displaying “hexdump” text.
 
-|===============
+|===
 
 [[ChWorkDisplayFilterSection]]
 
@@ -508,7 +508,7 @@ English and C-like operators are interchangeable and can be mixed within a filte
 
 .Display Filter comparison operators
 [options="header",cols="1,1,1,4"]
-|===============
+|===
 |English|C-like|Description|Example
 |eq |== |Equal| `ip.src==10.0.0.5`
 |ne |!= |Not equal| `ip.src!=10.0.0.5`
@@ -519,7 +519,7 @@ English and C-like operators are interchangeable and can be mixed within a filte
 |contains||Protocol, field or slice contains a value| `sip.To contains "a1762"`
 |matches|~|Protocol or text field matches a Perl-compatible regular expression| `http.host matches "acme\.(org\|com\|net)"`
 |bitwise_and|&|Bitwise AND is non-zero| `tcp.flags & 0x02`
-|===============
+|===
 
 All protocol fields have a type. <<ChWorkFieldTypes>> provides a list
 of the types with examples of how to use them in display filters.
@@ -606,7 +606,7 @@ You can combine filter expressions in Wireshark using the logical operators show
 
 .Display Filter Logical Operations
 [options="header",cols="1,1,1,4"]
-|===============
+|===
 |English |C-like    |Description    | Example
 |and     |&amp;&amp;| Logical AND   | `ip.src==10.0.0.5 and tcp.flags.fin`
 |or      |\|\|      | Logical OR    |`ip.scr==10.0.0.5 or ip.src==192.1.1.1`
@@ -614,7 +614,7 @@ You can combine filter expressions in Wireshark using the logical operators show
 |not     |!         | Logical NOT   | `not llc`
 |[...]   |          | Subsequence   | See “Slice Operator” below.
 |in      |          | Set Membership| http.request.method in {"HEAD" "GET"}. See “Membership Operator” below.
-|===============
+|===
 
 ==== Slice Operator
 Wireshark allows you to select a subsequence of a sequence in rather elaborate
@@ -701,14 +701,14 @@ The display filter language has a number of functions to convert fields, see
 [[DispFunctions]]
 .Display Filter Functions
 [options="header",cols="1,4"]
-|===============
+|===
 |Function|Description
 |upper   |Converts a string field to uppercase.
 |lower   |Converts a string field to lowercase.
 |len     |Returns the byte length of a string or bytes field.
 |count   |Returns the number of field occurrences in a frame.
 |string  |Converts a non-string field to a string.
-|===============
+|===
 
 The `upper` and `lower` functions can used to force case-insensitive matches:
 `lower(http.server) contains "apache"`.

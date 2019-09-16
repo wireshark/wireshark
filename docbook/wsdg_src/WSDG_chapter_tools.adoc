@@ -338,10 +338,10 @@ The following table gives an overview of the possible
 Microsoft toolchain variants and their specific C compiler
 versions ordered by release date.
 
-|===============
+|===
 |Compiler Package|cl.exe|_MSC_VER|CRT DLL
 |Visual Studio 2015|14.0|1900|msvcr140.dll
-|===============
+|===
 
 After correct installation of the toolchain, typing
 at the Visual Studio Command line prompt (cmd.exe):

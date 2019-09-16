@@ -796,7 +796,7 @@ Wireshark currently supports the following metadata tags:
 
 .Commit message tags
 [options="header"]
-|===============
+|===
 |Tag|Meaning
 |`Change-id`|A unique hash describing the change, which is generated automatically by
 the git commit-msg hook which you installed during setup. This should not be changed,
@@ -806,7 +806,7 @@ to git commit you will have to add this line yourself.
 commit is merged. For use when the change does fully fix the issue.
 |`Ping-Bug`|Make Gerrit just add a comment to the referenced bug. For use when the change
 is related but does not fully fix the issue.
-|===============
+|===
 
 [NOTE]
 ====

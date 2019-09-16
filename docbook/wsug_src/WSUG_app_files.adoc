@@ -157,7 +157,7 @@ _/usr/local/etc_.
 [[AppFilesTabFolders]]
 .Configuration files overview
 [options="header"]
-|===============
+|===
 |File/Folder|Description
 |_preferences_|Settings from the Preferences dialog box.
 |_recent_|Recent GUI settings (e.g. recent files lists).
@@ -174,7 +174,7 @@ _/usr/local/etc_.
 |_ipxnets_|IPX name resolution.
 |_vlans_|VLAN ID name resolution.
 |_ss7pcs_|SS7 point code resolution.
-|===============
+|===
 
 [float]
 ===== File contents
