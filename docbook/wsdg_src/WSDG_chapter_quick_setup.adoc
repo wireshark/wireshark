@@ -146,7 +146,7 @@ Chocolatey installs Python in _C:\Python37_ by default.
 
 ==== Install Perl
 
-Get a Perl installer from http://strawberryperl.com/
+Get a Perl installer from http://strawberryperl.com/ or
 https://www.activestate.com/ and install Perl into the default location.
 
 Alternatively you can install Perl using Chocolatey:
