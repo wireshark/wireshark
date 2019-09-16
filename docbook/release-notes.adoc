@@ -53,12 +53,13 @@ since version 3.0.0:
 * WireGuard decryption can now be enabled through keys embedded in a pcapng in
   addition to the existing key log preference (wsbuglink:15571[]).
 * A new tap for extracting credentials from the capture file has been added.
-  It can be accessed through the "-z credentials" option in tshark or from the
-  "tools" menu in Wireshark.
+  It can be accessed through the `-z credentials` option in tshark or from the
+  “Tools” menu in Wireshark.
 * Editcap can now split files on floating point intervals.
 * Windows .msi packages are now https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-signing-support-requirement-for-windows-and-wsus[signed using SHA-2].
   .exe installers are still dual-signed using SHA-1 and SHA-2.
-* "Enable Protocols" Dialog now only enables/disables and inverts protocols based on the set filter selection. Also the protocol type (standard or heuristic) may be choosen as filter value
+* The “Enabled Protocols” Dialog now only enables, disables and inverts protocols based on the set filter selection. The protocol type (standard or heuristic) may also be choosen as a filter value.
+* The “Analyze -> Apply as Filter” and “Analyze -> Prepare a Filter” packet list and detail popup menus now show a preview of their respective filters.
 
 // === Removed Features and Support
 
