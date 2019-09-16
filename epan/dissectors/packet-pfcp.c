@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V15.6.0 (2019-06-13)
+ * Ref 3GPP TS 29.244 V16.0.0 (2019-06-13)
  */
 #include "config.h"
 
@@ -252,6 +252,11 @@ static int hf_pfcp_report_type_b0_dldr = -1;
 
 static int hf_pfcp_offending_ie = -1;
 
+static int hf_pfcp_up_function_features_o7_b3_sset = -1;
+static int hf_pfcp_up_function_features_o7_b2_ueip = -1;
+static int hf_pfcp_up_function_features_o7_b1_adpdp = -1;
+static int hf_pfcp_up_function_features_o7_b0_dpdra = -1;
+static int hf_pfcp_up_function_features_o6_b7_epfar = -1;
 static int hf_pfcp_up_function_features_o6_b6_pfde = -1;
 static int hf_pfcp_up_function_features_o6_b5_frrt = -1;
 static int hf_pfcp_up_function_features_o6_b4_trace = -1;
@@ -2251,7 +2256,7 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     static const int * pfcp_up_function_features_o6_flags[] = {
-        &hf_pfcp_spare_b7,
+        &hf_pfcp_up_function_features_o6_b7_epfar,
         &hf_pfcp_up_function_features_o6_b6_pfde,
         &hf_pfcp_up_function_features_o6_b5_frrt,
         &hf_pfcp_up_function_features_o6_b4_trace,
@@ -2261,9 +2266,29 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         &hf_pfcp_up_function_features_o6_b0_empu,
         NULL
     };
-    /* Octet 6  Spare   PFDE   FRRT    TRACE   QUOAC   UDBC    PDIU    EMPU */
+    /* Octet 6  EPFAR   PFDE   FRRT    TRACE   QUOAC   UDBC    PDIU    EMPU */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o6_flags, ENC_BIG_ENDIAN);
     offset++;
+
+    if (offset == length) {
+        return;
+    }
+
+    static const int * pfcp_up_function_features_o7_flags[] = {
+        &hf_pfcp_spare_b7_b4,
+        &hf_pfcp_up_function_features_o7_b3_sset,
+        &hf_pfcp_up_function_features_o7_b2_ueip,
+        &hf_pfcp_up_function_features_o7_b1_adpdp,
+        &hf_pfcp_up_function_features_o7_b0_dpdra,
+        NULL
+    };
+    /* Octet 7  Spare   Spare   Spare    Spare   SSET   UEIP    ADPDP    DPDRA */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o7_flags, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* Octet 8  Spare */
+    proto_tree_add_item(tree, hf_pfcp_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -7750,6 +7775,31 @@ proto_register_pfcp(void)
         { "PFDE", "pfcp.up_function_features.pfde",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
             "The UP function supports a PFD Contents including a property with multiple values", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o6_b7_epfar,
+        { "EPFAR", "pfcp.up_function_features.epfar",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            "The UP function supports the Enhanced PFCP Association Release feature", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o7_b0_dpdra,
+        { "DPDRA", "pfcp.up_function_features.dpdra",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            "The UP function supports Deferred PDR Activation or Deactivation", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o7_b1_adpdp,
+        { "ADPDP", "pfcp.up_function_features.adpdp",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            "The UP function supports the Activation and Deactivation of Pre-defined PDRs", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o7_b2_ueip,
+        { "UEIP", "pfcp.up_function_features.ueip",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            "The UP function supports allocating UE IP addresses or prefixes", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o7_b3_sset,
+        { "SSET", "pfcp.up_function_features.sset",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            "UP function support of PFCP sessions successively controlled by different SMFs of a same SMF", HFILL }
         },
         { &hf_pfcp_sequence_number,
         { "Sequence Number", "pfcp.sequence_number",
