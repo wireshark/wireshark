@@ -159,10 +159,6 @@ CARES_VERSION=1.15.0
 LIBSSH_VERSION=0.9.0
 # mmdbresolve
 MAXMINDDB_VERSION=1.3.2
-
-ASCIIDOCTOR_VERSION=${ASCIIDOCTOR_VERSION-1.5.7.1}
-ASCIIDOCTORPDF_VERSION=${ASCIIDOCTORPDF_VERSION-1.5.0.alpha.16}
-
 NGHTTP2_VERSION=1.39.2
 SPANDSP_VERSION=0.0.6
 if [ "$SPANDSP_VERSION" ]; then
@@ -174,6 +170,14 @@ fi
 BCG729_VERSION=1.0.2
 PYTHON3_VERSION=3.7.1
 BROTLI_VERSION=1.0.7
+# minizip
+ZLIB_VERSION=1.2.11
+
+#
+# Asciidoctor is required to build the documentation.
+#
+ASCIIDOCTOR_VERSION=${ASCIIDOCTOR_VERSION-1.5.7.1}
+ASCIIDOCTORPDF_VERSION=${ASCIIDOCTORPDF_VERSION-1.5.0.alpha.16}
 
 #
 # GNU autotools; they're provided with releases up to Snow Leopard, but
@@ -1794,6 +1798,44 @@ uninstall_brotli() {
     fi
 }
 
+install_minizip() {
+    if [ "$ZLIB_VERSION" ] && [ ! -f minizip-$ZLIB_VERSION-done ] ; then
+        echo "Downloading, building, and installing zlib for minizip:"
+        [ -f zlib-$ZLIB_VERSION.tar.gz ] || curl -L -o zlib-$ZLIB_VERSION.tar.gz https://zlib.net/zlib-$ZLIB_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
+        gzcat zlib-$ZLIB_VERSION.tar.gz | tar xf - || exit 1
+        cd zlib-$ZLIB_VERSION/contrib/minizip || exit 1
+        LIBTOOLIZE=glibtoolize autoreconf --force --install
+        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ../../..
+        touch minizip-$ZLIB_VERSION-done
+    fi
+}
+
+uninstall_minizip() {
+    if [ -n "$installed_minizip_version" ] ; then
+        echo "Uninstalling minizip:"
+        cd zlib-$installed_minizip_version/contrib/minizip
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ../../..
+
+        rm zlib-$installed_minizip_version-done
+
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf zlib-$installed_minizip_version
+            rm -rf zlib-$installed_minizip_version.tar.gz
+        fi
+
+        installed_minizip_version=""
+    fi
+}
+
 install_all() {
     #
     # Check whether the versions we have installed are the versions
@@ -2181,6 +2223,17 @@ install_all() {
         uninstall_curl -r
     fi
 
+    if [ ! -z "$installed_minizip_version" -a \
+              "$installed_minizip_version" != "$ZLIB_VERSION" ] ; then
+        echo "Installed minizip (zlib) version is $installed_minizip_version"
+        if [ -z "$ZLIB_VERSION" ] ; then
+            echo "minizip is not requested"
+        else
+            echo "Requested minizip (zlib) version is $ZLIB_VERSION"
+        fi
+        uninstall_minizip -r
+    fi
+
     #
     # Start with curl: we may need it to download and install xz.
     #
@@ -2286,6 +2339,8 @@ install_all() {
     install_python3
 
     install_brotli
+
+    install_minizip
 }
 
 uninstall_all() {
@@ -2302,6 +2357,8 @@ uninstall_all() {
         # We also do a "make distclean", so that we don't have leftovers from
         # old configurations.
         #
+        uninstall_minizip
+
         uninstall_brotli
 
         uninstall_python3
@@ -2510,6 +2567,7 @@ then
     installed_bcg729_version=`ls bcg729-*-done 2>/dev/null | sed 's/bcg729-\(.*\)-done/\1/'`
     installed_python3_version=`ls python3-*-done 2>/dev/null | sed 's/python3-\(.*\)-done/\1/'`
     installed_brotli_version=`ls brotli-*-done 2>/dev/null | sed 's/brotli-\(.*\)-done/\1/'`
+    installed_minizip_version=`ls minizip-*-done 2>/dev/null | sed 's/minizip-\(.*\)-done/\1/'`
 
     cd $topdir
 fi
