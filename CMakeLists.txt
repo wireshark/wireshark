@@ -41,6 +41,8 @@ set(PROJECT_VERSION "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT
 
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 
+include( CMakeOptions.txt )
+
 # We require minimum C++11
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -199,11 +201,8 @@ if(NOT (WIN32 OR APPLE OR USE_STATIC))
 		# binaries. In other cases, only absolute paths can be used.
 		# https://www.lekensteyn.nl/rpath.html
 		if(CMAKE_SYSTEM_NAME MATCHES "^(Linux|SunOS|FreeBSD)$")
-			# Provide a knob to optionally force absolute rpaths,
-			# to support old/buggy systems and as a user preference
-			# for hardening.
 			set(_enable_rpath_origin TRUE)
-			if(BUILD_dumpcap AND PCAP_FOUND)
+			if(BUILD_dumpcap)
 				# dumpcap will most likely be installed with
 				# capabilities or setuid. Relative RPATHs that
 				# resolve to non-standard library directories
@@ -212,6 +211,9 @@ if(NOT (WIN32 OR APPLE OR USE_STATIC))
 				# disable it by default.
 				set(_enable_rpath_origin FALSE)
 			endif()
+			# Provide a knob to optionally force absolute rpaths,
+			# to support old/buggy systems and as a user preference
+			# for hardening.
 			set(ENABLE_RPATH_ORIGIN ${_enable_rpath_origin} CACHE BOOL
 				"Use $ORIGIN with INSTALL_RPATH")
 			mark_as_advanced(ENABLE_RPATH_ORIGIN)
@@ -310,7 +312,6 @@ include_directories(
 	${CMAKE_SOURCE_DIR}
 )
 
-include( CMakeOptions.txt )
 if( DUMPCAP_INSTALL_OPTION STREQUAL "suid" )
 	set( DUMPCAP_SETUID "SETUID" )
 else()
