@@ -56,7 +56,7 @@ public:
 
     // reimplemented virtual methods:
     virtual void clearData() { data_->clear(); }
-    virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const;
+    virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const Q_DECL_OVERRIDE;
 
 public slots:
     void setSelectedPacket(int selected_packet);

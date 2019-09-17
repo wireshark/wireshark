@@ -85,7 +85,6 @@ enum {
 
 #ifdef QT_MULTIMEDIA_LIB
 static const double wf_graph_normal_width_ = 0.5;
-static const double wf_graph_selected_width_ = 2.0;
 #endif
 
 RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :

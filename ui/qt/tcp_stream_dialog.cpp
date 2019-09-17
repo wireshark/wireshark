@@ -57,8 +57,10 @@ const int moving_avg_period_ = 20;
 const QRgb graph_color_1 = tango_sky_blue_5;
 const QRgb graph_color_2 = tango_butter_6;
 const QRgb graph_color_3 = tango_chameleon_5;
+#if 0 // Deactivated due to function not implemented in v2
 const QRgb graph_color_4 = tango_scarlet_red_4;
 const QRgb graph_color_5 = tango_scarlet_red_6;
+#endif
 
 // Size of selectable packet points in the base graph
 const double pkt_point_size_ = 3.0;
