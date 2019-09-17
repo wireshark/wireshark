@@ -156,9 +156,9 @@ def extcap_config(interface, option):
         multi_values.append ( ((12, "m1c2", "Checkable Child 2", "false", "true" ), "m1") )
         multi_values.append ( ((12, "m2", "Checkable Parent 2", "false", "true" ), None) )
         multi_values.append ( ((12, "m2c1", "Checkable Child 1", "false", "true" ), "m2") )
-        multi_values.append ( ((12, "m2c1g1", "Checkable Granchild", "false", "true" ), "m2c1") )
+        multi_values.append ( ((12, "m2c1g1", "Checkable Grandchild", "false", "true" ), "m2c1") )
         multi_values.append ( ((12, "m2c2", "Uncheckable Child 2", "false", "false" ), "m2") )
-        multi_values.append ( ((12, "m2c2g1", "Uncheckable Granchild", "false", "false" ), "m2c2") )
+        multi_values.append ( ((12, "m2c2g1", "Uncheckable Grandchild", "false", "false" ), "m2c2") )
 
     for value in values:
         print ("value {arg=%d}{value=%s}{display=%s}{default=%s}" % value)
