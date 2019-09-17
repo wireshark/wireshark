@@ -3160,7 +3160,7 @@ QCPRange QCPDataContainer<DataType>::valueRange(bool &foundRange, QCP::SignDomai
 template <class DataType>
 void QCPDataContainer<DataType>::limitIteratorsToDataRange(const_iterator &begin, const_iterator &end, const QCPDataRange &dataRange) const
 {
-  QCPDataRange iteratorRange(begin-constBegin(), end-constBegin());
+  QCPDataRange iteratorRange(int(begin-constBegin()), int(end-constBegin()));
   iteratorRange = iteratorRange.bounded(dataRange.bounded(this->dataRange()));
   begin = constBegin()+iteratorRange.begin();
   end = constBegin()+iteratorRange.end();
@@ -4239,16 +4239,16 @@ QCPDataSelection QCPAbstractPlottable1D<DataType>::selectTestRect(const QRectF &
     if (currentSegmentBegin == -1)
     {
       if (valueRange.contains(it->mainValue()) && keyRange.contains(it->mainKey())) // start segment
-        currentSegmentBegin = it-mDataContainer->constBegin();
+        currentSegmentBegin = int(it-mDataContainer->constBegin());
     } else if (!valueRange.contains(it->mainValue()) || !keyRange.contains(it->mainKey())) // segment just ended
     {
-      result.addDataRange(QCPDataRange(currentSegmentBegin, it-mDataContainer->constBegin()), false);
+      result.addDataRange(QCPDataRange(currentSegmentBegin, int(it-mDataContainer->constBegin())), false);
       currentSegmentBegin = -1;
     }
   }
   // process potential last segment:
   if (currentSegmentBegin != -1)
-    result.addDataRange(QCPDataRange(currentSegmentBegin, end-mDataContainer->constBegin()), false);
+    result.addDataRange(QCPDataRange(currentSegmentBegin, int(end-mDataContainer->constBegin())), false);
 
   result.simplify();
   return result;
@@ -4260,7 +4260,7 @@ QCPDataSelection QCPAbstractPlottable1D<DataType>::selectTestRect(const QRectF &
 template <class DataType>
 int QCPAbstractPlottable1D<DataType>::findBegin(double sortKey, bool expandedRange) const
 {
-  return mDataContainer->findBegin(sortKey, expandedRange)-mDataContainer->constBegin();
+  return int(mDataContainer->findBegin(sortKey, expandedRange)-mDataContainer->constBegin());
 }
 
 /*!
@@ -4269,7 +4269,7 @@ int QCPAbstractPlottable1D<DataType>::findBegin(double sortKey, bool expandedRan
 template <class DataType>
 int QCPAbstractPlottable1D<DataType>::findEnd(double sortKey, bool expandedRange) const
 {
-  return mDataContainer->findEnd(sortKey, expandedRange)-mDataContainer->constBegin();
+  return int(mDataContainer->findEnd(sortKey, expandedRange)-mDataContainer->constBegin());
 }
 
 /*!
@@ -4321,7 +4321,7 @@ double QCPAbstractPlottable1D<DataType>::selectTest(const QPointF &pos, bool onl
       if (currentDistSqr < minDistSqr)
       {
         minDistSqr = currentDistSqr;
-        minDistIndex = it-mDataContainer->constBegin();
+        minDistIndex = int(it-mDataContainer->constBegin());
       }
     }
   }
@@ -5967,8 +5967,8 @@ Q_DECLARE_TYPEINFO(QCPErrorBarsData, Q_PRIMITIVE_TYPE);
 
 /*! \typedef QCPErrorBarsDataContainer
 
-  Container for storing \ref QCPErrorBarsData points. It is a typedef for <tt>QVector<\ref
-  QCPErrorBarsData></tt>.
+  Container for storing \ref QCPErrorBarsData points. It is a typedef for <tt>QVector</tt> (\ref
+  QCPErrorBarsData).
 
   This is the container in which \ref QCPErrorBars holds its data. Unlike most other data
   containers for plottables, it is not based on \ref QCPDataContainer. This is because the error

@@ -5708,7 +5708,7 @@ QVector<double> QCPAxisTicker::createTickVector(double tickStep, const QCPRange 
   // Generate tick positions according to tickStep:
   qint64 firstStep = floor((range.lower-mTickOrigin)/tickStep); // do not use qFloor here, or we'll lose 64 bit precision
   qint64 lastStep = ceil((range.upper-mTickOrigin)/tickStep); // do not use qCeil here, or we'll lose 64 bit precision
-  int tickcount = lastStep-firstStep+1;
+  int tickcount = int(lastStep-firstStep+1);
   if (tickcount < 0) tickcount = 0;
   result.resize(tickcount);
   for (int i=0; i<tickcount; ++i)
@@ -14481,7 +14481,7 @@ void QCustomPlot::rescaleAxes(bool onlyVisiblePlottables)
 
   Returns true on success.
 
-  \warning
+  \warning Please consider the following:
   \li If you plan on editing the exported PDF file with a vector graphics editor like Inkscape, it
   is advised to set \a exportPen to \ref QCP::epNoCosmetic to avoid losing those cosmetic lines
   (which might be quite many, because cosmetic pens are the default for e.g. axes and tick marks).
@@ -15281,7 +15281,7 @@ void QCustomPlot::legendRemoved(QCPLegend *legend)
 
   Then, the actual selection is done by calling the plottables' \ref
   QCPAbstractPlottable::selectEvent, placing the found selected data points in the \a details
-  parameter as <tt>QVariant(\ref QCPDataSelection)</tt>. All plottables that weren't touched by \a
+  parameter as <tt>QVariant</tt> (\ref QCPDataSelection). All plottables that weren't touched by \a
   rect receive a \ref QCPAbstractPlottable::deselectEvent.
 
   \see processRectZoom
@@ -20318,7 +20318,7 @@ double QCPGraph::selectTest(const QPointF &pos, bool onlySelectable, QVariant *d
     double result = pointDistance(pos, closestDataPoint);
     if (details)
     {
-      int pointIndex = closestDataPoint-mDataContainer->constBegin();
+      int pointIndex = int(closestDataPoint-mDataContainer->constBegin());
       details->setValue(QCPDataSelection(QCPDataRange(pointIndex, pointIndex+1)));
     }
     return result;
@@ -20901,7 +20901,7 @@ void QCPGraph::getOptimizedLineData(QVector<QCPGraphData> *lineData, const QCPGr
   if (!keyAxis || !valueAxis) { qDebug() << Q_FUNC_INFO << "invalid key or value axis"; return; }
   if (begin == end) return;
 
-  int dataCount = end-begin;
+  int dataCount = int(end-begin);
   int maxCount = (std::numeric_limits<int>::max)();
   if (mAdaptiveSampling)
   {
@@ -20994,15 +20994,15 @@ void QCPGraph::getOptimizedScatterData(QVector<QCPGraphData> *scatterData, QCPGr
 
   const int scatterModulo = mScatterSkip+1;
   const bool doScatterSkip = mScatterSkip > 0;
-  int beginIndex = begin-mDataContainer->constBegin();
-  int endIndex = end-mDataContainer->constBegin();
+  int beginIndex = int(begin-mDataContainer->constBegin());
+  int endIndex = int(end-mDataContainer->constBegin());
   while (doScatterSkip && begin != end && beginIndex % scatterModulo != 0) // advance begin iterator to first non-skipped scatter
   {
     ++beginIndex;
     ++begin;
   }
   if (begin == end) return;
-  int dataCount = end-begin;
+  int dataCount = int(end-begin);
   int maxCount = (std::numeric_limits<int>::max)();
   if (mAdaptiveSampling)
   {
@@ -21107,7 +21107,7 @@ void QCPGraph::getOptimizedScatterData(QVector<QCPGraphData> *scatterData, QCPGr
       double valuePixelSpan = qAbs(valueAxis->coordToPixel(minValue)-valueAxis->coordToPixel(maxValue));
       int dataModulo = qMax(1, qRound(intervalDataCount/(valuePixelSpan/4.0))); // approximately every 4 value pixels one data point on average
       QCPGraphDataContainer::const_iterator intervalIt = currentIntervalStart;
-      int intervalItIndex = intervalIt-mDataContainer->constBegin();
+      int intervalItIndex = int(intervalIt-mDataContainer->constBegin());
       int c = 0;
       while (intervalIt != it)
       {
@@ -22080,7 +22080,7 @@ double QCPCurve::selectTest(const QPointF &pos, bool onlySelectable, QVariant *d
     double result = pointDistance(pos, closestDataPoint);
     if (details)
     {
-      int pointIndex = closestDataPoint-mDataContainer->constBegin();
+      int pointIndex = int(closestDataPoint-mDataContainer->constBegin());
       details->setValue(QCPDataSelection(QCPDataRange(pointIndex, pointIndex+1)));
     }
     return result;
@@ -22381,7 +22381,7 @@ void QCPCurve::getScatters(QVector<QPointF> *scatters, const QCPDataRange &dataR
     return;
   const int scatterModulo = mScatterSkip+1;
   const bool doScatterSkip = mScatterSkip > 0;
-  int endIndex = end-mDataContainer->constBegin();
+  int endIndex = int(end-mDataContainer->constBegin());
 
   QCPRange keyRange = keyAxis->range();
   QCPRange valueRange = valueAxis->range();
@@ -22392,7 +22392,7 @@ void QCPCurve::getScatters(QVector<QPointF> *scatters, const QCPDataRange &dataR
   valueRange.upper = valueAxis->pixelToCoord(valueAxis->coordToPixel(valueRange.upper)+scatterWidth*valueAxis->pixelOrientation());
 
   QCPCurveDataContainer::const_iterator it = begin;
-  int itIndex = begin-mDataContainer->constBegin();
+  int itIndex = int(begin-mDataContainer->constBegin());
   while (doScatterSkip && it != end && itIndex % scatterModulo != 0) // advance begin iterator to first non-skipped scatter
   {
     ++itIndex;
@@ -23890,7 +23890,7 @@ QCPDataSelection QCPBars::selectTestRect(const QRectF &rect, bool onlySelectable
   for (QCPBarsDataContainer::const_iterator it=visibleBegin; it!=visibleEnd; ++it)
   {
     if (rect.intersects(getBarRect(it->key, it->value)))
-      result.addDataRange(QCPDataRange(it-mDataContainer->constBegin(), it-mDataContainer->constBegin()+1), false);
+      result.addDataRange(QCPDataRange(int(it-mDataContainer->constBegin()), int(it-mDataContainer->constBegin())+1), false);
   }
   result.simplify();
   return result;
@@ -23923,7 +23923,7 @@ double QCPBars::selectTest(const QPointF &pos, bool onlySelectable, QVariant *de
       {
         if (details)
         {
-          int pointIndex = it-mDataContainer->constBegin();
+          int pointIndex = int(it-mDataContainer->constBegin());
           details->setValue(QCPDataSelection(QCPDataRange(pointIndex, pointIndex+1)));
         }
         return mParentPlot->selectionTolerance()*0.99;
@@ -24722,7 +24722,7 @@ QCPDataSelection QCPStatisticalBox::selectTestRect(const QRectF &rect, bool only
   for (QCPStatisticalBoxDataContainer::const_iterator it=visibleBegin; it!=visibleEnd; ++it)
   {
     if (rect.intersects(getQuartileBox(it)))
-      result.addDataRange(QCPDataRange(it-mDataContainer->constBegin(), it-mDataContainer->constBegin()+1), false);
+      result.addDataRange(QCPDataRange(int(it-mDataContainer->constBegin()), int(it-mDataContainer->constBegin())+1), false);
   }
   result.simplify();
   return result;
@@ -24777,7 +24777,7 @@ double QCPStatisticalBox::selectTest(const QPointF &pos, bool onlySelectable, QV
     }
     if (details)
     {
-      int pointIndex = closestDataPoint-mDataContainer->constBegin();
+      int pointIndex = int(closestDataPoint-mDataContainer->constBegin());
       details->setValue(QCPDataSelection(QCPDataRange(pointIndex, pointIndex+1)));
     }
     return qSqrt(minDistSqr);
@@ -26519,7 +26519,7 @@ QCPDataSelection QCPFinancial::selectTestRect(const QRectF &rect, bool onlySelec
   for (QCPFinancialDataContainer::const_iterator it=visibleBegin; it!=visibleEnd; ++it)
   {
     if (rect.intersects(selectionHitBox(it)))
-      result.addDataRange(QCPDataRange(it-mDataContainer->constBegin(), it-mDataContainer->constBegin()+1), false);
+      result.addDataRange(QCPDataRange(int(it-mDataContainer->constBegin()), int(it-mDataContainer->constBegin())+1), false);
   }
   result.simplify();
   return result;
@@ -26558,7 +26558,7 @@ double QCPFinancial::selectTest(const QPointF &pos, bool onlySelectable, QVarian
     }
     if (details)
     {
-      int pointIndex = closestDataPoint-mDataContainer->constBegin();
+      int pointIndex = int(closestDataPoint-mDataContainer->constBegin());
       details->setValue(QCPDataSelection(QCPDataRange(pointIndex, pointIndex+1)));
     }
     return result;
@@ -27483,7 +27483,7 @@ QCPDataSelection QCPErrorBars::selectTestRect(const QRectF &rect, bool onlySelec
     {
       if (rectIntersectsLine(rect, backbones.at(i)))
       {
-        result.addDataRange(QCPDataRange(it-mDataContainer->constBegin(), it-mDataContainer->constBegin()+1), false);
+        result.addDataRange(QCPDataRange(int(it-mDataContainer->constBegin()), int(it-mDataContainer->constBegin())+1), false);
         break;
       }
     }
@@ -27547,7 +27547,7 @@ double QCPErrorBars::selectTest(const QPointF &pos, bool onlySelectable, QVarian
     double result = pointDistance(pos, closestDataPoint);
     if (details)
     {
-      int pointIndex = closestDataPoint-mDataContainer->constBegin();
+      int pointIndex = int(closestDataPoint-mDataContainer->constBegin());
       details->setValue(QCPDataSelection(QCPDataRange(pointIndex, pointIndex+1)));
     }
     return result;
@@ -27605,7 +27605,7 @@ void QCPErrorBars::draw(QCPPainter *painter)
     whiskers.clear();
     for (QCPErrorBarsDataContainer::const_iterator it=begin; it!=end; ++it)
     {
-      if (!checkPointVisibility || errorBarVisible(it-mDataContainer->constBegin()))
+      if (!checkPointVisibility || errorBarVisible(int(it-mDataContainer->constBegin())))
         getErrorBarLines(it, backbones, whiskers);
     }
     painter->drawLines(backbones);
@@ -27653,7 +27653,7 @@ QCPRange QCPErrorBars::getKeyRange(bool &foundRange, QCP::SignDomain inSignDomai
     if (mErrorType == etValueError)
     {
       // error bar doesn't extend in key dimension (except whisker but we ignore that here), so only use data point center
-      const double current = mDataPlottable->interface1D()->dataMainKey(it-mDataContainer->constBegin());
+      const double current = mDataPlottable->interface1D()->dataMainKey(int(it-mDataContainer->constBegin()));
       if (qIsNaN(current)) continue;
       if (inSignDomain == QCP::sdBoth || (inSignDomain == QCP::sdNegative && current < 0) || (inSignDomain == QCP::sdPositive && current > 0))
       {
@@ -27670,7 +27670,7 @@ QCPRange QCPErrorBars::getKeyRange(bool &foundRange, QCP::SignDomain inSignDomai
       }
     } else // mErrorType == etKeyError
     {
-      const double dataKey = mDataPlottable->interface1D()->dataMainKey(it-mDataContainer->constBegin());
+      const double dataKey = mDataPlottable->interface1D()->dataMainKey(int(it-mDataContainer->constBegin()));
       if (qIsNaN(dataKey)) continue;
       // plus error:
       double current = dataKey + (qIsNaN(it->errorPlus) ? 0 : it->errorPlus);
@@ -27733,13 +27733,13 @@ QCPRange QCPErrorBars::getValueRange(bool &foundRange, QCP::SignDomain inSignDom
   {
     if (restrictKeyRange)
     {
-      const double dataKey = mDataPlottable->interface1D()->dataMainKey(it-mDataContainer->constBegin());
+      const double dataKey = mDataPlottable->interface1D()->dataMainKey(int(it-mDataContainer->constBegin()));
       if (dataKey < inKeyRange.lower || dataKey > inKeyRange.upper)
         continue;
     }
     if (mErrorType == etValueError)
     {
-      const double dataValue = mDataPlottable->interface1D()->dataMainValue(it-mDataContainer->constBegin());
+      const double dataValue = mDataPlottable->interface1D()->dataMainValue(int(it-mDataContainer->constBegin()));
       if (qIsNaN(dataValue)) continue;
       // plus error:
       double current = dataValue + (qIsNaN(it->errorPlus) ? 0 : it->errorPlus);
@@ -27764,7 +27764,7 @@ QCPRange QCPErrorBars::getValueRange(bool &foundRange, QCP::SignDomain inSignDom
     } else // mErrorType == etKeyError
     {
       // error bar doesn't extend in value dimension (except whisker but we ignore that here), so only use data point center
-      const double current = mDataPlottable->interface1D()->dataMainValue(it-mDataContainer->constBegin());
+      const double current = mDataPlottable->interface1D()->dataMainValue(int(it-mDataContainer->constBegin()));
       if (qIsNaN(current)) continue;
       if (inSignDomain == QCP::sdBoth || (inSignDomain == QCP::sdNegative && current < 0) || (inSignDomain == QCP::sdPositive && current > 0))
       {
@@ -27811,7 +27811,7 @@ void QCPErrorBars::getErrorBarLines(QCPErrorBarsDataContainer::const_iterator it
 {
   if (!mDataPlottable) return;
 
-  int index = it-mDataContainer->constBegin();
+  int index = int(it-mDataContainer->constBegin());
   QPointF centerPixel = mDataPlottable->interface1D()->dataPixelPosition(index);
   if (qIsNaN(centerPixel.x()) || qIsNaN(centerPixel.y()))
     return;
