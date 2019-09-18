@@ -26031,12 +26031,14 @@ try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, gboolean
       default:
         return NULL;
     }
-    /* allocate buffer for decrypted payload                      */
-    tmp = (guint8 *)wmem_memdup(pinfo->pool, dec_data+offset, dec_caplen-offset);
-    len = dec_caplen-offset;
+    if (dec_caplen > offset) {
+        /* allocate buffer for decrypted payload */
+        tmp = (guint8 *)wmem_memdup(pinfo->pool, dec_data+offset, dec_caplen-offset);
+        len = dec_caplen-offset;
 
-    /* decrypt successful, let's set up a new data tvb.              */
-    decr_tvb = tvb_new_child_real_data(tvb, tmp, len, len);
+        /* decrypt successful, let's set up a new data tvb. */
+        decr_tvb = tvb_new_child_real_data(tvb, tmp, len, len);
+    }
   } else if (ret == DOT11DECRYPT_RET_SUCCESS_HANDSHAKE && dec_caplen > 0) {
       proto_eapol_keydata_t *eapol;
       eapol = (proto_eapol_keydata_t *)wmem_alloc(wmem_file_scope(),

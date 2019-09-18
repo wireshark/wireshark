@@ -403,8 +403,6 @@ Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decrypt
     static DOT11DECRYPT_KEY_ITEM dummy_key; /* needed in case Dot11DecryptRsnaMng() wants the key structure */
     DOT11DECRYPT_SEC_ASSOCIATION *tmp_sa;
 
-    *decrypted_len = 0;
-
     /* We skip verifying the MIC of the key. If we were implementing a WPA supplicant we'd want to verify, but for a sniffer it's not needed. */
 
     /* Preparation for decrypting the group key -  determine group key data length */
