@@ -31783,7 +31783,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_duration,
-     {"Measurement Duration", "wlan.measure.req.channelnumber",
+     {"Measurement Duration", "wlan.measure.req.duration",
       FT_UINT16, BASE_HEX, NULL, 0,
       "in TU (1 TU = 1024 us)", HFILL }},
 
@@ -31950,7 +31950,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_duration,
-     {"Measurement Duration", "wlan.measure.rep.channelnumber",
+     {"Measurement Duration", "wlan.measure.rep.duration",
       FT_UINT16, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
