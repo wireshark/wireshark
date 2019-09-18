@@ -387,11 +387,9 @@ install_libtool() {
         $no_build && echo "Skipping installation" && return
         xzcat libtool-$LIBTOOL_VERSION.tar.xz | tar xf - || exit 1
         cd libtool-$LIBTOOL_VERSION
-        ./configure || exit 1
+        ./configure --program-prefix=g || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
-        $DO_MV /usr/local/bin/libtool /usr/local/bin/glibtool
-        $DO_MV /usr/local/bin/libtoolize /usr/local/bin/glibtoolize
         cd ..
        touch libtool-$LIBTOOL_VERSION-done
     fi
