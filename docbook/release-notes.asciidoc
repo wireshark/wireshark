@@ -16,6 +16,18 @@ used for troubleshooting, analysis, development and education.
 The Windows installers now ship with Qt 5.12.5. They previously shipped
 with Qt 5.12.4.
 
+[[npcap_upgrade]]
+If you have Npcap 0.994 or 0.995 installed, your system might crash when upgrading.
+See Npcap bugs https://github.com/nmap/nmap/issues/1591[1591] and https://github.com/nmap/nmap/issues/1675[1675] for more details.
+You can uninstall either version manually by doing the following:
+
+. At an administrative command propmpt, run `sc config npcap start=disabled`.
+. If Npcap was installed with WinPcap compatibility enabled, run `sc config npcap npf=disabled`.
+. Reboot (optional).
+. Uninstall Npcap using “Programs and Features” in the Control Panel or “Apps & features” in Settings.
+. Open “Device Manager” (`devmgmt.msc`) in the control panel and expand the “Network adapters” section.
+Uninstall each “Npcap Loopback Adapter” that you find.
+
 === Bug Fixes
 
 The following vulnerabilities have been fixed:

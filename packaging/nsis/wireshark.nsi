@@ -1293,7 +1293,21 @@ lbl_npcap_installed:
 
     ; Compare the installed build against the one we have.
     ReadRegStr $REG_NPCAP_DISPLAY_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NpcapInst" "DisplayVersion"
+
+    ; https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16052
+    StrCmp $REG_NPCAP_DISPLAY_VERSION "0.994" lbl_npcap_upgrade_warning
+    StrCmp $REG_NPCAP_DISPLAY_VERSION "0.995" lbl_npcap_upgrade_warning
+    Goto lbl_npcap_upgrade_ok
+
+lbl_npcap_upgrade_warning:
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 8" "Text" "$NPCAP_NAME can cause system crashes. We recommend removing it manually."
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 9" "Text" "Learn more about this issue."
+    ; MessageBox MB_OK "Please uninstall Npcap manually."
+    ; Abort
+
+lbl_npcap_upgrade_ok:
     StrCmp $REG_NPCAP_DISPLAY_VERSION "" lbl_npcap_do_install ; Npcap wasn't installed improperly?
+
     ${VersionConvert} $REG_NPCAP_DISPLAY_VERSION "" $R0 ; 0.99-r7 -> 0.99.114.7
     ${VersionConvert} "${NPCAP_PACKAGE_VERSION}" "" $R1
     ${VersionCompare} $R0 $R1 $1
@@ -1301,7 +1315,7 @@ lbl_npcap_installed:
 
     WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 4" "State" "0"
     WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 4" "Flags" "DISABLED"
-    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "If you wish to install Npcap, please uninstall $NPCAP_NAME manually first."
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "If you wish to install this version, please uninstall $NPCAP_NAME manually first."
     WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Flags" "DISABLED"
     Goto lbl_npcap_done
 
