@@ -1587,7 +1587,7 @@ protocol or field labels to the proto_tree:
 
     proto_item *
     proto_tree_add_bitmask_len(tree, tvb, start, len, header, ett, fields,
-        encoding);
+        exp, encoding);
 
     proto_item *
     proto_tree_add_bitmask_text(tree, tvb, offset, len, name, fallback,
