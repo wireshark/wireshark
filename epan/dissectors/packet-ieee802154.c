@@ -1,5 +1,9 @@
 /* packet-ieee802154.c
  *
+ * Multipurpose frame support
+ * By Devan Lai <devanl@davisinstruments.com>
+ * Copyright 2019 Davis Instruments
+ *
  * IEEE 802.15.4-2015 CCM* nonce for TSCH mode
  * By Maxime Brunelle <Maxime.Brunelle@trilliant.com>
  * Copyright 2019 Trilliant Inc.
@@ -36,9 +40,14 @@
  *  bit ordering).
  *------------------------------------------------------------
  *
- *  IEEE 802.15.4 Packets have the following format:
+ *  Most IEEE 802.15.4 Packets have the following format:
  *  |  FCF  |Seq No|  Addressing |         Data          |   FCS   |
  *  |2 bytes|1 byte|0 to 20 bytes|Length-(Overhead) bytes|2/4 Bytes|
+ *------------------------------------------------------------
+ *
+ *  Multipurpose frame packets have the following format:
+ *  |   FCF   | Seq No  |  Addressing |         Data          |  FCS  |
+ *  |1/2 bytes|0/1 bytes|0 to 20 bytes|Length-(Overhead) bytes|2 bytes|
  *------------------------------------------------------------
  *
  *  CRC16 is calculated using the x^16 + x^12 + x^5 + 1 polynomial
@@ -412,6 +421,18 @@ static int hf_ieee802154_ie_present = -1;
 static int hf_ieee802154_src_addr_mode = -1;
 static int hf_ieee802154_version = -1;
 static int hf_ieee802154_dst_addr_mode = -1;
+
+static int hf_ieee802154_mpf_long_frame_control = -1;
+static int hf_ieee802154_mpf_dst_addr_mode = -1;
+static int hf_ieee802154_mpf_src_addr_mode = -1;
+static int hf_ieee802154_mpf_pan_id_present = -1;
+static int hf_ieee802154_mpf_security = -1;
+static int hf_ieee802154_mpf_seqno_suppression = -1;
+static int hf_ieee802154_mpf_pending = -1;
+static int hf_ieee802154_mpf_version = -1;
+static int hf_ieee802154_mpf_ack_request = -1;
+static int hf_ieee802154_mpf_ie_present = -1;
+
 static int hf_ieee802154_header_ies = -1;
 static int hf_ieee802154_header_ie_tlv = -1;
 static int hf_ieee802154_header_ie_type = -1;
@@ -725,6 +746,7 @@ static gint ett_ieee802154_p_ie_6top_cell = -1;
 static gint ett_ieee802159_mpx = -1;
 static gint ett_ieee802159_mpx_transaction_control = -1;
 
+static expert_field ei_ieee802154_fcs_bitmask_len = EI_INIT;
 static expert_field ei_ieee802154_invalid_addressing = EI_INIT;
 static expert_field ei_ieee802154_invalid_panid_compression = EI_INIT;
 static expert_field ei_ieee802154_invalid_panid_compression2 = EI_INIT;
@@ -1452,7 +1474,7 @@ static void
 dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet, guint *offset)
 {
     guint16     fcf;
-    static const int * fields[] = {
+    static const int * ieee802154_fields[] = {
         &hf_ieee802154_frame_type,
         &hf_ieee802154_security,
         &hf_ieee802154_pending,
@@ -1467,21 +1489,72 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
         NULL
     };
 
+    static const int* ieee802154_mpf_short_fields[] = {
+        &hf_ieee802154_frame_type,
+        &hf_ieee802154_mpf_long_frame_control,
+        &hf_ieee802154_mpf_dst_addr_mode,
+        &hf_ieee802154_mpf_src_addr_mode,
+        NULL
+    };
+
+    static const int* ieee802154_mpf_long_fields[] = {
+        &hf_ieee802154_frame_type,
+        &hf_ieee802154_mpf_long_frame_control,
+        &hf_ieee802154_mpf_dst_addr_mode,
+        &hf_ieee802154_mpf_src_addr_mode,
+        &hf_ieee802154_mpf_pan_id_present,
+        &hf_ieee802154_mpf_security,
+        &hf_ieee802154_mpf_seqno_suppression,
+        &hf_ieee802154_mpf_pending,
+        &hf_ieee802154_mpf_version,
+        &hf_ieee802154_mpf_ack_request,
+        &hf_ieee802154_mpf_ie_present,
+        NULL
+    };
+
     /* Get the FCF field. */
     fcf = tvb_get_letohs(tvb, *offset);
 
      /* Parse FCF Flags. */
     packet->frame_type          = (fcf & IEEE802154_FCF_TYPE_MASK);
-    packet->security_enable     = (fcf & IEEE802154_FCF_SEC_EN) >> 3;
-    packet->frame_pending       = (fcf & IEEE802154_FCF_FRAME_PND) >> 4;
-    packet->ack_request         = (fcf & IEEE802154_FCF_ACK_REQ) >> 5;
-    packet->pan_id_compression  = (fcf & IEEE802154_FCF_PAN_ID_COMPRESSION) >> 6;
-    /* bit 7 reserved */
-    packet->seqno_suppression   = (fcf & IEEE802154_FCF_SEQNO_SUPPRESSION) >> 8;
-    packet->ie_present          = (fcf & IEEE802154_FCF_IE_PRESENT) >> 9;
-    packet->dst_addr_mode       = (fcf & IEEE802154_FCF_DADDR_MASK) >> 10;
-    packet->version             = (fcf & IEEE802154_FCF_VERSION) >> 12;
-    packet->src_addr_mode       = (fcf & IEEE802154_FCF_SADDR_MASK) >> 14;
+
+    if (packet->frame_type == IEEE802154_FCF_MULTIPURPOSE) {
+        /* Multipurpose frames use a different 1 or 2 byte FCF */
+        packet->long_frame_control  = (fcf & IEEE802154_MPF_FCF_LONG_FC) >> 3;
+        packet->dst_addr_mode       = (fcf & IEEE802154_MPF_FCF_DADDR_MASK) >> 4;
+        packet->src_addr_mode       = (fcf & IEEE802154_MPF_FCF_SADDR_MASK) >> 6;
+
+        /* The second octet of the FCF is only present if the long frame control bit is set */
+        if (packet->long_frame_control) {
+            packet->security_enable = (fcf & IEEE802154_MPF_FCF_SEC_EN) >> 9;
+            packet->seqno_suppression = (fcf & IEEE802154_MPF_FCF_SEQNO_SUPPRESSION) >> 10;
+            packet->frame_pending   = (fcf & IEEE802154_MPF_FCF_FRAME_PND) >> 11;
+            packet->version         = (fcf & IEEE802154_MPF_FCF_VERSION) >> 12;
+            packet->ack_request     = (fcf & IEEE802154_MPF_FCF_ACK_REQ) >> 14;
+            packet->ie_present      = (fcf & IEEE802154_MPF_FCF_IE_PRESENT) >> 15;
+        }
+        else {
+            packet->security_enable = FALSE;
+            packet->seqno_suppression = FALSE;
+            packet->frame_pending   = FALSE;
+            packet->version         = 0;
+            packet->ack_request     = FALSE;
+            packet->ie_present      = FALSE;
+        }
+    }
+    else {
+        /* Standard 802.15.4 FCF */
+        packet->security_enable     = (fcf & IEEE802154_FCF_SEC_EN) >> 3;
+        packet->frame_pending       = (fcf & IEEE802154_FCF_FRAME_PND) >> 4;
+        packet->ack_request         = (fcf & IEEE802154_FCF_ACK_REQ) >> 5;
+        packet->pan_id_compression  = (fcf & IEEE802154_FCF_PAN_ID_COMPRESSION) >> 6;
+        /* bit 7 reserved */
+        packet->seqno_suppression   = (fcf & IEEE802154_FCF_SEQNO_SUPPRESSION) >> 8;
+        packet->ie_present          = (fcf & IEEE802154_FCF_IE_PRESENT) >> 9;
+        packet->dst_addr_mode       = (fcf & IEEE802154_FCF_DADDR_MASK) >> 10;
+        packet->version             = (fcf & IEEE802154_FCF_VERSION) >> 12;
+        packet->src_addr_mode       = (fcf & IEEE802154_FCF_SADDR_MASK) >> 14;
+    }
 
     if ((packet->version == IEEE802154_VERSION_2015) && (packet->frame_type == IEEE802154_FCF_BEACON)) {
         proto_item_append_text(tree, " Enhanced Beacon");
@@ -1492,10 +1565,25 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet->frame_type, ieee802154_frame_types, "Reserved"));
     }
 
-    proto_tree_add_bitmask(tree, tvb, *offset, hf_ieee802154_fcf,
-                           ett_ieee802154_fcf, fields, ENC_LITTLE_ENDIAN);
+    if (packet->frame_type == IEEE802154_FCF_MULTIPURPOSE) {
+        if (packet->long_frame_control) {
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_ieee802154_fcf,
+                                   ett_ieee802154_fcf, ieee802154_mpf_long_fields, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+        }
+        else {
+            proto_tree_add_bitmask_len(tree, tvb, *offset, 1, hf_ieee802154_fcf,
+                                       ett_ieee802154_fcf, ieee802154_mpf_short_fields,
+                                       &ei_ieee802154_fcs_bitmask_len, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+        }
+    }
+    else {
+        proto_tree_add_bitmask(tree, tvb, *offset, hf_ieee802154_fcf,
+                               ett_ieee802154_fcf, ieee802154_fields, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+    }
 
-    *offset += 2;
 } /* dissect_ieee802154_fcf */
 
 void register_ieee802154_mac_key_hash_handler(guint hash_identifier, ieee802154_set_key_func key_func)
@@ -2153,7 +2241,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* Sequence Number */
     if (packet->seqno_suppression) {
-        if (packet->version != IEEE802154_VERSION_2015) {
+        if (packet->version != IEEE802154_VERSION_2015 && packet->frame_type != IEEE802154_FCF_MULTIPURPOSE) {
             expert_add_info(pinfo, proto_root, &ei_ieee802154_seqno_suppression);
         }
     } else { /* IEEE 802.15.4 Sequence Number Suppression */
@@ -2191,7 +2279,22 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         return 0;
     }
 
-    if (packet->version == IEEE802154_VERSION_RESERVED) {
+    if (packet->frame_type == IEEE802154_FCF_MULTIPURPOSE) {
+        /* Multipurpose frames have a different set of frame versions, with 0 as the only valid version */
+        if (packet->version != 0) {
+            /* Unknown Frame Version for Multipurpose frames. Abort Dissection */
+            expert_add_info(pinfo, proto_root, &ei_ieee802154_frame_ver);
+            return 0;
+        }
+
+        /* The source PAN ID is always omitted in multipurpose frames */
+        srcPanPresent = FALSE;
+
+        if (packet->pan_id_present) {
+            dstPanPresent = TRUE;
+        }
+    }
+    else if (packet->version == IEEE802154_VERSION_RESERVED) {
         /* Unknown Frame Version. Abort Dissection. */
         expert_add_info(pinfo, proto_root, &ei_ieee802154_frame_ver);
         return 0;
@@ -2562,7 +2665,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
      *
      */
     /* All of the beacon fields, except the beacon payload are considered nonpayload. */
-    if ((packet->version == IEEE802154_VERSION_2003) || (packet->version == IEEE802154_VERSION_2006)) {
+    if (((packet->version == IEEE802154_VERSION_2003) || (packet->version == IEEE802154_VERSION_2006)) && (packet->frame_type != IEEE802154_FCF_MULTIPURPOSE)) {
         if (packet->frame_type == IEEE802154_FCF_BEACON) { /* Regular Beacon. Some are not present in frame version (Enhanced) Beacons */
             dissect_ieee802154_superframe(tvb, pinfo, ieee802154_tree, &offset); /* superframe spec */
             dissect_ieee802154_gtsinfo(tvb, pinfo, ieee802154_tree, &offset);    /* GTS information fields */
@@ -5437,21 +5540,62 @@ void proto_register_ieee802154(void)
         { "Information Elements Present",   "wpan.ie_present", FT_BOOLEAN, 16, NULL, IEEE802154_FCF_IE_PRESENT,
             "Whether this packet contains the Information Elements or not.", HFILL }},
 
-        { &hf_ieee802154_seqno,
-        { "Sequence Number",                "wpan.seq_no", FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
         { &hf_ieee802154_dst_addr_mode,
         { "Destination Addressing Mode",    "wpan.dst_addr_mode", FT_UINT16, BASE_HEX, VALS(ieee802154_addr_modes),
             IEEE802154_FCF_DADDR_MASK, NULL, HFILL }},
+
+        { &hf_ieee802154_version,
+        { "Frame Version",                  "wpan.version", FT_UINT16, BASE_DEC, VALS(ieee802154_frame_versions),
+            IEEE802154_FCF_VERSION, NULL, HFILL }},
 
         { &hf_ieee802154_src_addr_mode,
         { "Source Addressing Mode",         "wpan.src_addr_mode", FT_UINT16, BASE_HEX, VALS(ieee802154_addr_modes),
             IEEE802154_FCF_SADDR_MASK, NULL, HFILL }},
 
-        { &hf_ieee802154_version,
-        { "Frame Version",                  "wpan.version", FT_UINT16, BASE_DEC, VALS(ieee802154_frame_versions),
-            IEEE802154_FCF_VERSION, NULL, HFILL }},
+        /* 802.15.4-2015 Multipurpose frame control fields */
+        { &hf_ieee802154_mpf_long_frame_control,
+        { "Long Frame Control",             "wpan.long_frame_control", FT_BOOLEAN, 16, NULL, IEEE802154_MPF_FCF_LONG_FC,
+            "Whether this frame control field uses one or two octets.", HFILL }},
+
+        { &hf_ieee802154_mpf_dst_addr_mode,
+        { "Destination Addressing Mode",    "wpan.dst_addr_mode", FT_UINT16, BASE_HEX, VALS(ieee802154_addr_modes),
+            IEEE802154_MPF_FCF_DADDR_MASK, NULL, HFILL }},
+
+        { &hf_ieee802154_mpf_src_addr_mode,
+        { "Source Addressing Mode",         "wpan.src_addr_mode", FT_UINT16, BASE_HEX, VALS(ieee802154_addr_modes),
+            IEEE802154_MPF_FCF_SADDR_MASK, NULL, HFILL }},
+
+        { &hf_ieee802154_mpf_pan_id_present,
+        { "PAN ID Present",                 "wpan.pan_id_present", FT_BOOLEAN, 16, NULL, IEEE802154_MPF_FCF_PAN_ID_PRESENT,
+            "Whether this packet contains the destination PAN ID or not", HFILL }},
+
+        { &hf_ieee802154_mpf_security,
+        { "Security Enabled",               "wpan.security", FT_BOOLEAN, 16, NULL, IEEE802154_MPF_FCF_SEC_EN,
+            "Whether security operations are performed at the MAC layer or not.", HFILL }},
+
+        { &hf_ieee802154_mpf_seqno_suppression,
+        { "Sequence Number Suppression",    "wpan.seqno_suppression", FT_BOOLEAN, 16, NULL, IEEE802154_MPF_FCF_SEQNO_SUPPRESSION,
+            "Whether this packet contains the Sequence Number or not.", HFILL }},
+
+        { &hf_ieee802154_mpf_pending,
+        { "Frame Pending",                  "wpan.pending", FT_BOOLEAN, 16, NULL, IEEE802154_MPF_FCF_FRAME_PND,
+            "Indication of additional packets waiting to be transferred from the source device.", HFILL }},
+
+        { &hf_ieee802154_mpf_version,
+        { "Multipurpose Frame Version",     "wpan.mpf_version", FT_UINT16, BASE_DEC, NULL,
+            IEEE802154_MPF_FCF_VERSION, NULL, HFILL }},
+
+        { &hf_ieee802154_mpf_ack_request,
+        { "Acknowledge Request",            "wpan.ack_request", FT_BOOLEAN, 16, NULL, IEEE802154_MPF_FCF_ACK_REQ,
+            "Whether the sender of this packet requests acknowledgment or not.", HFILL }},
+
+        { &hf_ieee802154_mpf_ie_present,
+        { "Information Elements Present",   "wpan.ie_present", FT_BOOLEAN, 16, NULL, IEEE802154_MPF_FCF_IE_PRESENT,
+            "Whether this packet contains the Information Elements or not.", HFILL }},
+
+        { &hf_ieee802154_seqno,
+        { "Sequence Number",                "wpan.seq_no", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
 
         { &hf_ieee802154_dst_panID,
         { "Destination PAN",                "wpan.dst_pan", FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -6436,6 +6580,8 @@ void proto_register_ieee802154(void)
     };
 
     static ei_register_info ei[] = {
+        { &ei_ieee802154_fcs_bitmask_len, { "wpan.bitmask_len_error", PI_UNDECODED, PI_WARN,
+                "Only least-significant bytes decoded", EXPFILL }},
         { &ei_ieee802154_invalid_addressing, { "wpan.invalid_addressing", PI_MALFORMED, PI_WARN,
                 "Invalid Addressing", EXPFILL }},
         { &ei_ieee802154_invalid_panid_compression, { "wpan.invalid_panid_compression", PI_MALFORMED, PI_ERROR,
