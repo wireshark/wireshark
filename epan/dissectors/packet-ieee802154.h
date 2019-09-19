@@ -210,6 +210,9 @@
 #define IEEE802154_THR_WELL_KNOWN_KEY_SRC   0xffffffff
 #define IEEE802154_THR_WELL_KNOWN_EXT_ADDR  0x3506feb823d48712ULL
 
+/* 802.15.4e LE-multipurpose Wake-up frame length */
+#define IEEE802154E_LE_WUF_LEN              12
+
 typedef enum {
     SECURITY_LEVEL_NONE = 0x00,
     SECURITY_LEVEL_MIC_32 = 0x01,

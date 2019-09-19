@@ -1541,6 +1541,22 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
             packet->ack_request     = FALSE;
             packet->ie_present      = FALSE;
         }
+
+        if (ieee802154e_compatibility) {
+            if (((tvb_reported_length(tvb) == IEEE802154E_LE_WUF_LEN)) && !packet->long_frame_control) {
+                /* Check if this is an IEEE 802.15.4e LE-multipurpose Wake-up Frame, which has a single-octet FCF
+                 * and a static layout that cannot be inferred from the FCF alone. */
+                guint16 ie_header = tvb_get_letohs(tvb, (*offset) + 6);
+                guint16 id = (guint16)((ie_header & IEEE802154_HEADER_IE_ID_MASK) >> 7);
+                guint16 length = (guint16)(ie_header & IEEE802154_HEADER_IE_LENGTH_MASK);
+                if ((id == IEEE802154_HEADER_IE_RENDEZVOUS) && (length == 2)) {
+                    /* This appears to be a WUF, as identified by containing a single
+                     * Rendezvous Time Header IE with only a rendezvous time. */
+                    packet->ie_present = TRUE;
+                    packet->pan_id_present = TRUE;
+                }
+            }
+        }
     }
     else {
         /* Standard 802.15.4 FCF */
