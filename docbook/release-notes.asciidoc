@@ -13,28 +13,12 @@ used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-The Windows installers now ship with Qt 5.12.5. They previously shipped
-with Qt 5.12.4.
-
-[[npcap_upgrade]]
-If you have Npcap 0.994 or 0.995 installed, your system might crash when upgrading.
-We recommend that you uninstall these versions manually prior to installing Wireshark.
-See Npcap bugs https://github.com/nmap/nmap/issues/1591[1591] and https://github.com/nmap/nmap/issues/1675[1675] for more details.
-You can uninstall either version manually by doing the following:
-
-. Open a command or PowerShell prompt as Administrator and run `sc.exe config npcap start=disabled`.
-. Run `sc.exe config npf start=disabled`. This will fail if WinPcap compatibility mode isn't enabled, but is otherwise harmless.
-. Reboot (optional).
-. Open “Programs and Features” in the Control Panel or “Apps & features” in Settings and uninstall Npcap.
-. Open “Device Manager” (`devmgmt.msc`) in the Control Panel and expand the “Network adapters” section.
-Uninstall each “Npcap Loopback Adapter” that you find.
-
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
-// * wssalink:2019-22[]
-// Foo dissector {crash,infinite loop}.
+* wssalink:2019-22[]
+Foo dissector {crash,infinite loop}.
 // wsbuglink:xxxxx[].
 // cveidlink:2019-XXXXX[].
 // Fixed in master: xxxxx
@@ -48,16 +32,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark slowly leaked water under the kitchen sink over the course of several months, causing a big mess.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.6rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* Qt interface crashes on a profile with packet list only. wsbuglink:16048[].
-
-* Wireshark 3.0.4 does not start on macOS 10.13 after an upgrade from 3.0.3. wsbuglink:16050[].
-
-* NET-SNMP EngineID Length handling Warning. wsbuglink:16051[].
-
-* Upgrade from Wireshark 3.0.2/3.0.3 to 3.0.4/later is confusing and may not complete properly. wsbuglink:16052[].
-
-* Crash SIGSEGV when decrypting IEEE 802.11 EAP re-authentications. wsbuglink:16058[].
 
 === New and Updated Features
 
