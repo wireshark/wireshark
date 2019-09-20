@@ -158,6 +158,9 @@ static gboolean ieee802154_fcs_ok = TRUE;
 /* boolean value set to enable ack tracking */
 static gboolean ieee802154_ack_tracking = FALSE;
 
+/* boolean value set to enable 802.15.4e dissection compatibility */
+static gboolean ieee802154e_compatibility = FALSE;
+
 /* TSCH ASN for nonce in decryption */
 static guint64 ieee802154_tsch_asn = 0;
 
@@ -2328,21 +2331,21 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) && /*  Short     */
                      (packet->pan_id_compression == 0)) {
                         dstPanPresent = TRUE;
-                        srcPanPresent = TRUE;
+                        srcPanPresent = (ieee802154e_compatibility ? FALSE : TRUE);
             }
             /* Row 10 */
             else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) && /*  Short    */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&   /*  Extended */
                      (packet->pan_id_compression == 0)) {
                         dstPanPresent = TRUE;
-                        srcPanPresent = TRUE;
+                        srcPanPresent = (ieee802154e_compatibility ? FALSE : TRUE);
             }
             /* Row 11 */
             else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)   &&   /*  Extended */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&   /*  Short    */
                      (packet->pan_id_compression == 0)) {
                         dstPanPresent = TRUE;
-                        srcPanPresent = TRUE;
+                        srcPanPresent = (ieee802154e_compatibility ? FALSE : TRUE);
             }
             /* Row 12 */
             else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&   /*  Short    */
@@ -6579,6 +6582,10 @@ void proto_register_ieee802154(void)
                                    "Enable ACK tracking",
                                    "Match frames with ACK request to ACK packets",
                                    &ieee802154_ack_tracking);
+    prefs_register_bool_preference(ieee802154_module, "802154e_compatibility",
+                                    "Assume 802.15.4e-2012 for compatibility",
+                                    "Parse assuming 802.15.4e quirks for compatibility",
+                                    &ieee802154e_compatibility);
 
     /* Create a UAT for static address mappings. */
     static_addr_uat = uat_new("Static Addresses",
