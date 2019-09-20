@@ -20,14 +20,13 @@ ifneq (,$(filter $(distrelease),wheezy))
 export DEB_LDFLAGS_MAINT_APPEND = -Wl,-Bsymbolic
 endif
 
-DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 VERSION := $(shell dpkg-parsechangelog | sed -n 's/^Version: \(.*\)-.*/\1/p')
 export docdir = /usr/share/doc/wireshark-doc
 %:
 	dh $@ --with python2 --buildsystem cmake --with quilt --parallel
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DBUILD_xxx2deb=ON -DCMAKE_INSTALL_LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
+	dh_auto_configure -- -DBUILD_xxx2deb=ON \
 	-DBUILD_wireshark_gtk=ON \
 #	-DENABLE_QT5=OFF
 
