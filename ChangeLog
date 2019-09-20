@@ -1,0 +1,200 @@
+commit 21f80b6288
+Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
+Date:   Tue Sep 17 19:07:54 2019 +0100
+
+    Fix build with non-standard install prefix
+    
+    The variables BUILD_dumpcap and PCAP_FOUND are defined after the if
+    condition, therefore wireshark is built with a relative RPATH and
+    library loading for privileged processes fails with glibc.
+    
+    Move the definition of BUILD_dumpcap before it is used and drop
+    the test for PCAP_FOUND.
+    
+    Move a comment to the proper line while at it.
+    
+    Change-Id: Ie151a3781898e712f9e324e9ef995022bbea40b6
+    Reviewed-on: https://code.wireshark.org/review/34564
+    Petri-Dish: João Valverde <j@v6e.pt>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    Reviewed-on: https://code.wireshark.org/review/34572
+    Reviewed-by: João Valverde <j@v6e.pt>
+
+commit 6d452f0f08
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Sep 19 09:04:21 2019 -0700
+
+    NSIS: Tell the user to uninstall Npcap 0.99[45] manually.
+    
+    Npcap 0.994 and 0.995 might crash the system while being removed. Later
+    versions of the installer warn about this, but a MessageBox doesn't
+    provide much space to describe what's going on.
+    
+    Add manual uninstallation instructions to the release notes.
+    
+    If we find a problematic version of Npcap in the NSIS installer, tell
+    the user that they should uninstall it manually. Link to the relevant
+    section in the release notes.
+    
+    Bug: 16052
+    Change-Id: Ie8d811b5169ef253ffbd24a5f24a470b3a846e4f
+    Reviewed-on: https://code.wireshark.org/review/34565
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit ff5fc4ec4d
+Author: Aleksej Matis <amat@magure.de>
+Date:   Wed Sep 18 20:39:06 2019 +0200
+
+    ieee80211: Fix nameclash in RM Report
+    
+    RM Report channel number and duration share the same abbreviation.
+    Rename duration to wlan.measure.re[qp].duration.
+    
+    Change-Id: I0a24ffb69e1b0f1c81626ccaeaa7ce1675158465
+    Reviewed-on: https://code.wireshark.org/review/34562
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 6cb9f32cf2eb6ca3320dba4af5cad2f2f57f8309)
+    Reviewed-on: https://code.wireshark.org/review/34563
+
+commit 0b4f9e9a2b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Sep 16 08:45:56 2019 -0700
+
+    macOS: Don't clobber Wireshark.app during installation.
+    
+    Removing Wireshark.app during preflight is the wrong way to ensure that
+    we uninstall old assets.
+    
+    Bug: 16050
+    Change-Id: I39a0129e29830f8b6bc7ef228f3886db51d963ec
+    Reviewed-on: https://code.wireshark.org/review/34542
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 71b99dfa39c2f57b3adbb505c73f8a48de6c61f8)
+    Reviewed-on: https://code.wireshark.org/review/34561
+
+commit e0cfa5c657
+Author: Mikael Kanstrup <mikael.kanstrup@sony.com>
+Date:   Wed Sep 18 14:25:12 2019 +0200
+
+    dot11crypt: Fix crash on failure finding GTK in decrypted frame
+    
+    If GTK cannot be found inside a successfully decrypted wireless frame
+    the dot11crypt engine returns incorrect decrypted data length of 0
+    bytes. As the IEEE802.11 dissector does not check the length of the
+    decrypted frame the number of bytes allocated and copied to wmem ends
+    up being a negative number (i.e. a huge unsigned number). This results
+    in a SIGSEGV crash while copying data.
+    
+    Fix this both by returning a correct length from dot11crypt engine
+    and add extra an protection to the IEEE802.11 dissector if the length
+    for any (other) reason still would end up being a negative number.
+    
+    Bug: 16058
+    Change-Id: I9d0d1cf50498dece2e008222eebbb3edc8f10159
+    Reviewed-on: https://code.wireshark.org/review/34558
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    (cherry picked from commit 74bccadff2080a45b6758a355e3c7737409832c4)
+    Reviewed-on: https://code.wireshark.org/review/34559
+
+commit 5c80264032
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 15 09:29:04 2019 +0000
+
+    [Automatic update for 2019-09-15]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I647bfcb704283f0bf7fadc6a90605c1abd29f601
+    Reviewed-on: https://code.wireshark.org/review/34531
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 021d581e9a
+Author: Evan Welsh <noreply@evanwelsh.com>
+Date:   Sat Sep 14 16:02:26 2019 -0400
+
+    Qt: Prevent crash in main window layout.
+    
+    Add length check for extra_sizes array in geometry calculations when using
+    recent  sizes, prevents crash in case where user creates a new user profile
+    with a layout of 1) filled pane 2) empty pane 3) empty pane.
+    
+    Bug: 16048
+    Change-Id: I5f30d6e4148703504029efab75a77f2cdb6619ff
+    Reviewed-on: https://code.wireshark.org/review/34524
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit c0224eeeb833c3ee0b2625c71b9915f13afadb23)
+    Reviewed-on: https://code.wireshark.org/review/34527
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit c9bfeb2a3b
+Author: Tomasz Moń <desowin@gmail.com>
+Date:   Tue Sep 10 19:53:18 2019 +0200
+
+    randpktdump: Initialize print error handler
+    
+    When there is a problem with output pipe, randpktdump will call
+    cfile_write_failure_message() which in turn calls cmdarg_err() which
+    calls print_err. Call cmdarg_err_init() so print_err is not NULL.
+    
+    Change-Id: Ie459596a473c83204e9aa1d48bb2d2d3717b340a
+    Reviewed-on: https://code.wireshark.org/review/34495
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 4853fb93b2e64a882f233cd91743976075faf6da)
+    Reviewed-on: https://code.wireshark.org/review/34525
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 9541420798
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Sep 14 09:42:57 2019 +0200
+
+    SNMP: handle Net-SNMP Engine Id of 12 octets
+    
+    The Net-SNMP code creates an Engine Id size based on the compilation
+    size, either 8 or 12 octets long. Current implementation handles 32 bit
+    compilation of Net-SNMP (resulting in 8 octets), this change adds
+    handling of 64 bit compilation of Net-SNMP (resulting in 12 octets).
+    
+    Bug: 16051
+    Change-Id: I256f9a7ad2fd219492e4ebc413ef24cd2c210e0b
+    Reviewed-on: https://code.wireshark.org/review/34520
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 608dbda8eeefeb1c79fd93c1848515d8bc6b4ca1)
+    Reviewed-on: https://code.wireshark.org/review/34522
+
+commit a1dd797cd4
+Author: Gerald Combs <gerald@zing.org>
+Date:   Wed Sep 11 17:12:00 2019 -0700
+
+    Release notes: The Windows installers ship with Qt 5.12.5.
+    
+    Change-Id: I2fc89181d9a79c3d305c4f76ea6281dcc5c209f4
+    Reviewed-on: https://code.wireshark.org/review/34511
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 99c612eb70
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Sep 11 15:45:17 2019 -0700
+
+    3.0.4 → 3.0.5.
+    
+    Change-Id: I5af564dbf3c0ce971833837d5b0833aabcd33f2e
+    Reviewed-on: https://code.wireshark.org/review/34509
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
