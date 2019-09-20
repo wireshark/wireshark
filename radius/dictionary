@@ -148,6 +148,7 @@ $INCLUDE dictionary.alcatel-lucent.aaa
 $INCLUDE dictionary.alteon
 $INCLUDE dictionary.alvarion
 $INCLUDE dictionary.apc
+$INCLUDE dictionary.aptilo
 $INCLUDE dictionary.arbor
 $INCLUDE dictionary.aruba
 $INCLUDE dictionary.azaire
