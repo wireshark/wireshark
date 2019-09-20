@@ -15,5 +15,6 @@ grep -q WIRESHARK_BIN_DIR ~/.profile || echo "export WIRESHARK_BIN_DIR=~/build/r
 mkdir -p build
 cd build
 cmake -DENABLE_CCACHE=ON ../wireshark
-make -j6
+make -j4
+make test-programs
 make test
