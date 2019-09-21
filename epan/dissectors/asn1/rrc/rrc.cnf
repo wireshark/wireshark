@@ -973,6 +973,127 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
     wmem_strbuf_append_c(digits_strbuf, digit_char);
   }
 
+#.FN_BODY CompleteSIBshort
+  private_data_set_curr_sib_segment_type(actx,RRC_SIB_SEG_COMP);
+%(DEFAULT_BODY)s
+  private_data_set_curr_sib_segment_type(actx,RRC_SIB_SEG_NO_SEGMENT); /* Resetting value */
+
+#.FN_BODY SIB-Type VAL_PTR = &sib_type
+  guint32 sib_type;
+%(DEFAULT_BODY)s
+  private_data_set_curr_sib_type(actx,sib_type);
+
+#.FN_BODY SIB-Data-variable VAL_PTR = &sib_data_tvb
+  tvbuff_t *sib_data_tvb;
+  guint32 sib_type;
+  proto_tree *subtree;
+  guint32 seg_type;
+
+%(DEFAULT_BODY)s
+
+  seg_type = (guint32)private_data_get_curr_sib_segment_type(actx);
+  if(seg_type != RRC_SIB_SEG_COMP) {
+      /* TODO: The Dissector only handles 'complete SIBs' right now.
+       * Reassembly logic should be implemented, taking into acocunt that
+       * different fragments might arrive in different frames.
+       */
+      return offset;
+  }
+
+  /* This is a complete SIB - Call handler according to previous SIB-Type field*/
+  subtree = proto_item_add_subtree(actx->created_item, ett_rrc_sib_data_var);
+  sib_type = private_data_get_curr_sib_type(actx);
+  switch(sib_type){
+    case 0:
+      /* mIB */
+      dissect_rrc_MasterInformationBlock_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 1:
+      dissect_rrc_SysInfoType1_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 2:
+      dissect_rrc_SysInfoType2_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 3:
+      dissect_rrc_SysInfoType3_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 4:
+      dissect_rrc_SysInfoType4_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 5:
+      dissect_rrc_SysInfoType5_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 6:
+      dissect_rrc_SysInfoType6_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 7:
+      dissect_rrc_SysInfoType7_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 11:
+      dissect_rrc_SysInfoType11_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 12:
+      dissect_rrc_SysInfoType12_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 13:
+      dissect_rrc_SysInfoType13_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 14:
+      /* SIB-Type: systemInformationBlockType13-1 */
+      dissect_rrc_SysInfoType13_1_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 15:
+      /* SIB-Type: systemInformationBlockType13-2 */
+      dissect_rrc_SysInfoType13_2_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 16:
+      /* SIB-Type: systemInformationBlockType13-3 */
+      dissect_rrc_SysInfoType13_3_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 17:
+      /* SIB-Type: systemInformationBlockType13-4 */
+      dissect_rrc_SysInfoType13_4_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 18:
+      /* SIB-Type: systemInformationBlockType14 */
+      dissect_rrc_SysInfoType14_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 19:
+      /* SIB-Type: systemInformationBlockType15 */
+      dissect_rrc_SysInfoType15_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 20:
+      /* SIB-Type: systemInformationBlockType15-1 */
+      dissect_rrc_SysInfoType15_1_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 21:
+      /* SIB-Type: systemInformationBlockType15-2 */
+      dissect_rrc_SysInfoType15_2_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 22:
+      /* SIB-Type: systemInformationBlockType15-3 */
+      dissect_rrc_SysInfoType15_3_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 23:
+      /* SIB-Type: systemInformationBlockType16 */
+      dissect_rrc_SysInfoType16_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 24:
+      /* SIB-Type: systemInformationBlockType17 */
+      dissect_rrc_SysInfoType17_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 25:
+      /* SIB-Type: systemInformationBlockType15-4 */
+      dissect_rrc_SysInfoType15_4_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 26:
+      /* SIB-Type: systemInformationBlockType18 */
+      dissect_rrc_SysInfoType18_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    default:
+      break;
+    }
+
 #.FN_BODY RSR-VCC-Info/ims-Information VAL_PTR = &imsInformation_tvb
   tvbuff_t *imsInformation_tvb=NULL;
 %(DEFAULT_BODY)s
