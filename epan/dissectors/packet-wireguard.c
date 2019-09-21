@@ -26,6 +26,7 @@
 #include <epan/proto_data.h>
 #include <epan/uat.h>
 #include <wsutil/file_util.h>
+#include <wsutil/filesystem.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/curve25519.h>
 
@@ -617,27 +618,6 @@ wg_psk_iter_next(wg_psk_iter_context *psk_iter, const wg_handshake_state_t *hs,
 /* PSK handling. }}} */
 
 /* UAT and key configuration. {{{ */
-/* XXX this is copied verbatim from packet-tls-utils.c - create new common API
- * for retrieval of runtime secrets? */
-static gboolean
-file_needs_reopen(FILE *fp, const char *filename)
-{
-    ws_statb64 open_stat, current_stat;
-
-    /* consider a file deleted when stat fails for either file,
-     * or when the residing device / inode has changed. */
-    if (0 != ws_fstat64(ws_fileno(fp), &open_stat))
-        return TRUE;
-    if (0 != ws_stat64(filename, &current_stat))
-        return TRUE;
-
-    /* Note: on Windows, ino may be 0. Existing files cannot be deleted on
-     * Windows, but hopefully the size is a good indicator when a file got
-     * removed and recreated */
-    return  open_stat.st_dev != current_stat.st_dev ||
-            open_stat.st_ino != current_stat.st_ino ||
-            open_stat.st_size > current_stat.st_size;
-}
 
 static void
 wg_keylog_reset(void)

@@ -5175,26 +5175,6 @@ ssl_compile_keyfile_regex(void)
     return regex;
 }
 
-static gboolean
-file_needs_reopen(FILE *fp, const char *filename)
-{
-    ws_statb64 open_stat, current_stat;
-
-    /* consider a file deleted when stat fails for either file,
-     * or when the residing device / inode has changed. */
-    if (0 != ws_fstat64(ws_fileno(fp), &open_stat))
-        return TRUE;
-    if (0 != ws_stat64(filename, &current_stat))
-        return TRUE;
-
-    /* Note: on Windows, ino may be 0. Existing files cannot be deleted on
-     * Windows, but hopefully the size is a good indicator when a file got
-     * removed and recreated */
-    return  open_stat.st_dev != current_stat.st_dev ||
-            open_stat.st_ino != current_stat.st_ino ||
-            open_stat.st_size > current_stat.st_size;
-}
-
 typedef struct ssl_master_key_match_group {
     const char *re_group_name;
     GHashTable *master_key_ht;
