@@ -1648,7 +1648,7 @@
     <string>Throughput</string>
    </property>
    <property name="toolTip">
-    <string>TCP througput</string>
+    <string>TCP throughput</string>
    </property>
   </action>
   <action name="actionStatisticsTcpStreamRoundTripTime">

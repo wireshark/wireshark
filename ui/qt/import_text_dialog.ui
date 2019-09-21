@@ -159,7 +159,7 @@
         <item>
          <widget class="QLabel" name="label_3">
           <property name="toolTip">
-           <string>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</string>
+           <string>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</string>
           </property>
           <property name="text">
            <string>Timestamp format:</string>
@@ -169,7 +169,7 @@
         <item>
          <widget class="QLineEdit" name="dateTimeLineEdit">
           <property name="toolTip">
-           <string>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</string>
+           <string>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</string>
           </property>
          </widget>
         </item>

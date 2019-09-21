@@ -772,10 +772,9 @@ and is highlighted so that you can more easily change it.
 
 Delete (-)::
 Deletes the selected profile. This includes all configuration files used
-in this profile. It is not possible to delete the “Default” profile or global
-profiles. Multiple profiles can be selected and deleted at the same time, if global
-profiles are selected they will be skipped, a selected "Default" profile will be
-resetted.
+in this profile. Multiple profiles can be selected and deleted at the same time.
+It is not possible to delete the “Default” profile or global profiles.
+Deletion of the "Default" profile will reset this profile.
 
 Copy::
 Copies the selected profile. This copies the configuration of the

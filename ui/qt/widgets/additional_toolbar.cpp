@@ -64,7 +64,7 @@ AdditionalToolBar * AdditionalToolBar::create(QWidget * parent, ext_toolbar_t * 
             if ( newAction )
             {
                 result->addAction(newAction);
-                /* Necessary, because enable state is resetted upon adding the action */
+                /* Necessary, because enable state is reset upon adding the action */
                 result->actions()[result->actions().count() - 1]->setEnabled(!item->capture_only);
             }
         }

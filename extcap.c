@@ -53,7 +53,7 @@
 static void extcap_child_watch_cb(GPid pid, gint status, gpointer user_data);
 
 /* internal container, for all the extcap executables that have been found.
- * Will be resetted if extcap_clear_interfaces() is being explicitly called
+ * Will be reset if extcap_clear_interfaces() is being explicitly called
  * and is being used for printing information about all extcap interfaces found,
  * as well as storing all sub-interfaces
  */

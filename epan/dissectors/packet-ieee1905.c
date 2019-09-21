@@ -4673,7 +4673,7 @@ proto_register_ieee1905(void)
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_mac_throughput_capacity,
-          { "MAC througput capacity", "ieee1905.macThroughputCapacity",
+          { "MAC throughput capacity", "ieee1905.macThroughputCapacity",
             FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_link_availability,
