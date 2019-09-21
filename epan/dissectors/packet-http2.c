@@ -2401,13 +2401,8 @@ dissect_http2_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http2_tree,
 
 /* Headers */
 static int
-#ifdef HAVE_NGHTTP2
 dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http2_tree,
                       guint offset, guint8 flags)
-#else
-dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree,
-                      guint offset, guint8 flags)
-#endif
 {
     guint16 padding;
     gint headlen;
@@ -2453,6 +2448,9 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_t
 #ifdef HAVE_NGHTTP2
     /* decompress the header block */
     inflate_http2_header_block(tvb, pinfo, offset, http2_tree, headlen, h2session, flags);
+#else
+    proto_tree_add_expert_format(http2_tree, pinfo, &ei_http2_header_size, tvb, offset, headlen,
+            "Wireshark must be built with nghttp2 for HTTP/2 HEADERS support");
 #endif
 
     offset += headlen;
