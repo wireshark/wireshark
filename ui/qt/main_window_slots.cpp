@@ -1967,7 +1967,7 @@ void MainWindow::on_actionEditCopyAsFilter_triggered()
 
 void MainWindow::on_actionEditFindPacket_triggered()
 {
-    if (packet_list_->model()->rowCount() < 1) {
+    if (! packet_list_->model() || packet_list_->model()->rowCount() < 1) {
         return;
     }
     previous_focus_ = wsApp->focusWidget();
@@ -2453,6 +2453,8 @@ void MainWindow::on_actionViewResetLayout_triggered()
 
 void MainWindow::on_actionViewResizeColumns_triggered()
 {
+    if ( ! packet_list_->model() )
+        return;
     for (int col = 0; col < packet_list_->model()->columnCount(); col++) {
         packet_list_->resizeColumnToContents(col);
         recent_set_column_width(col, packet_list_->columnWidth(col));
@@ -3413,7 +3415,7 @@ void MainWindow::on_actionHelpAbout_triggered()
 }
 
 void MainWindow::on_actionGoGoToPacket_triggered() {
-    if (packet_list_->model()->rowCount() < 1) {
+    if (! packet_list_->model() || packet_list_->model()->rowCount() < 1) {
         return;
     }
     previous_focus_ = wsApp->focusWidget();
