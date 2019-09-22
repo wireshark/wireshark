@@ -202,7 +202,7 @@ if(NOT (WIN32 OR APPLE OR USE_STATIC))
 		# https://www.lekensteyn.nl/rpath.html
 		if(CMAKE_SYSTEM_NAME MATCHES "^(Linux|SunOS|FreeBSD)$")
 			set(_enable_rpath_origin TRUE)
-			if(BUILD_dumpcap)
+			if(BUILD_dumpcap AND ENABLE_PCAP)
 				# dumpcap will most likely be installed with
 				# capabilities or setuid. Relative RPATHs that
 				# resolve to non-standard library directories
@@ -2660,7 +2660,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		wsutil
 		caputils
 		ui
-		$<$<BOOL:${PCAP_FOUND}>:pcap::pcap>
+		pcap::pcap
 		${CAP_LIBRARIES}
 		${GLIB2_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
@@ -2705,6 +2705,9 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 			endif()"
 		)
 	endif()
+elseif(BUILD_dumpcap AND ENABLE_PCAP)
+	message(WARNING "Dumpcap was requested but libpcap dependency is not available. "
+		"Wireshark will be built without packet capture capability.")
 endif()
 
 # We have two idl2wrs utilities: this and the CORBA version in tools.
