@@ -9991,10 +9991,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Выходное Устройство:</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>Jitter Buffer:</source>
         <translation>Буфер Джиттера:</translation>
     </message>

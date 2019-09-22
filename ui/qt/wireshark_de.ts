@@ -9833,7 +9833,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Can save audio with PCM u-law or A-law encoding only</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio kann nur mit PCM u-law oder A-law Codierung gespeichert werden</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
@@ -9970,10 +9970,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Output Device:</source>
         <translation>Ausgabegerät:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>
