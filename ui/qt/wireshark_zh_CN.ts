@@ -218,8 +218,9 @@
         <translation>标记/取消标记行</translation>
     </message>
     <message>
-        <source>CtrlM</source>
-        <translation>CtrlM</translation>
+        <source>Ctrl-M</source>
+        <oldsource>CtrlM</oldsource>
+        <translation type="unfinished">CtrlM</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -261,8 +262,9 @@
         <translation>LMP 版本</translation>
     </message>
     <message>
-        <source>LMP Subverion</source>
-        <translation>LMP 子版本</translation>
+        <source>LMP Subversion</source>
+        <oldsource>LMP Subverion</oldsource>
+        <translation type="unfinished">LMP 子版本</translation>
     </message>
     <message>
         <source>Manufacturer</source>
@@ -361,8 +363,9 @@
         <translation>标记/取消标记行</translation>
     </message>
     <message>
-        <source>CtrlM</source>
-        <translation>CtrlM</translation>
+        <source>Ctrl-M</source>
+        <oldsource>CtrlM</oldsource>
+        <translation type="unfinished">CtrlM</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -472,8 +475,9 @@
         <translation>标记/取消标记行</translation>
     </message>
     <message>
-        <source>CtrlM</source>
-        <translation>CtrlM</translation>
+        <source>Ctrl-M</source>
+        <oldsource>CtrlM</oldsource>
+        <translation type="unfinished">CtrlM</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -3058,6 +3062,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Please make sure you have a %1 packet selected.</source>
         <translation>请确保您已选中一个 %1 分组。</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln total sub stream(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Entire conversation (%1)</source>
         <translation>整个对话（%1）</translation>
@@ -3104,6 +3114,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Stream</source>
         <translation>流</translation>
+    </message>
+    <message>
+        <source>Substream</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Find:</source>
@@ -4080,8 +4094,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>十进制</translation>
     </message>
     <message>
-        <source>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
-        <translation>解析文本文件中时间戳所用的格式 (如 %H:%M:%S)。格式指定符号根据 strptime(3) 确定</translation>
+        <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
+        <oldsource>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</oldsource>
+        <translation type="unfinished">解析文本文件中时间戳所用的格式 (如 %H:%M:%S)。格式指定符号根据 strptime(3) 确定</translation>
     </message>
     <message>
         <source>Timestamp format:</source>
@@ -6588,7 +6603,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>TCP througput</source>
-        <translation>TCP 吞吐量</translation>
+        <translation type="vanished">TCP 吞吐量</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
@@ -6613,6 +6628,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>HTTP Stream</source>
         <translation>HTTP 流</translation>
+    </message>
+    <message>
+        <source>HTTP/2 Stream</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Time Sequence (tcptrace)</source>
@@ -7041,6 +7060,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&amp;Preferences…</source>
         <translation>首选项(&amp;P)…</translation>
+    </message>
+    <message>
+        <source>TCP throughput</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TCP Stream</source>
@@ -8627,7 +8650,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>用默认设置创建新的配置文件。</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be resetted upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be resetted upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8920,8 +8944,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">选中树的所有可见项目</translation>
     </message>
     <message>
-        <source>Desription</source>
-        <translation type="unfinished"></translation>
+        <source>Description</source>
+        <translation type="unfinished">描述</translation>
     </message>
     <message>
         <source>Field Name</source>

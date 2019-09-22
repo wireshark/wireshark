@@ -219,8 +219,9 @@
         <translation>Marca/Deseleziona riga</translation>
     </message>
     <message>
-        <source>CtrlM</source>
-        <translation>CtrlM</translation>
+        <source>Ctrl-M</source>
+        <oldsource>CtrlM</oldsource>
+        <translation type="unfinished">CtrlM</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -262,8 +263,9 @@
         <translation>Versione LMP</translation>
     </message>
     <message>
-        <source>LMP Subverion</source>
-        <translation>Sottoversione LMP</translation>
+        <source>LMP Subversion</source>
+        <oldsource>LMP Subverion</oldsource>
+        <translation type="unfinished">Sottoversione LMP</translation>
     </message>
     <message>
         <source>Manufacturer</source>
@@ -362,8 +364,9 @@
         <translation>Marca/Deseleziona riga</translation>
     </message>
     <message>
-        <source>CtrlM</source>
-        <translation>CtrlM</translation>
+        <source>Ctrl-M</source>
+        <oldsource>CtrlM</oldsource>
+        <translation type="unfinished">CtrlM</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -473,8 +476,9 @@
         <translation>Marca/Deseleziona riga</translation>
     </message>
     <message>
-        <source>CtrlM</source>
-        <translation>CtrlM</translation>
+        <source>Ctrl-M</source>
+        <oldsource>CtrlM</oldsource>
+        <translation type="unfinished">CtrlM</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -3076,6 +3080,13 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source>Please make sure you have a %1 packet selected.</source>
         <translation>Assicurati di aver selezionato un pacchetto %1.</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln total sub stream(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Entire conversation (%1)</source>
         <translation>Conversazione intera (%1)</translation>
@@ -3123,6 +3134,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Stream</source>
         <translation>Flusso</translation>
+    </message>
+    <message>
+        <source>Substream</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Find:</source>
@@ -4099,8 +4114,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Decimale</translation>
     </message>
     <message>
-        <source>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
-        <translation>Il formato in cui leggere le marche temporali nel file di testo (es. %H:%M:%S.). Le specifiche di formato sono basati sulla strptime(3)</translation>
+        <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
+        <oldsource>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</oldsource>
+        <translation type="unfinished">Il formato in cui leggere le marche temporali nel file di testo (es. %H:%M:%S.). Le specifiche di formato sono basati sulla strptime(3)</translation>
     </message>
     <message>
         <source>Timestamp format:</source>
@@ -6611,7 +6627,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>TCP througput</source>
-        <translation>Capacità trasmissiva TCP</translation>
+        <translation type="vanished">Capacità trasmissiva TCP</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
@@ -6636,6 +6652,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>HTTP Stream</source>
         <translation>Flusso HTTP</translation>
+    </message>
+    <message>
+        <source>HTTP/2 Stream</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Time Sequence (tcptrace)</source>
@@ -7064,6 +7084,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>&amp;Preferences…</source>
         <translation>&amp;Preferenze...</translation>
+    </message>
+    <message>
+        <source>TCP throughput</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TCP Stream</source>
@@ -8653,8 +8677,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Crea un nuovo profilo usando le impostazioni predefinite.</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be resetted upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi questo profilo. I profili forniti dal sistema non possono essere rimossi. Il profilo predefinito sarà ripristinato dopo l&apos;eliminazione.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be resetted upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi questo profilo. I profili forniti dal sistema non possono essere rimossi. Il profilo predefinito sarà ripristinato dopo l&apos;eliminazione.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
@@ -8958,8 +8983,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Tutti gli elementi visibili dell&apos;albero selezionato</translation>
     </message>
     <message>
+        <source>Description</source>
+        <translation type="unfinished">Descrizione</translation>
+    </message>
+    <message>
         <source>Desription</source>
-        <translation>Descrizione</translation>
+        <translation type="vanished">Descrizione</translation>
     </message>
     <message>
         <source>Field Name</source>

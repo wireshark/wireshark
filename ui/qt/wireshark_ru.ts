@@ -220,8 +220,9 @@
         <translation>Пометить Строку/Отменить Пометку</translation>
     </message>
     <message>
-        <source>CtrlM</source>
-        <translation>CtrlM</translation>
+        <source>Ctrl-M</source>
+        <oldsource>CtrlM</oldsource>
+        <translation type="unfinished">CtrlM</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -263,8 +264,9 @@
         <translation>Версия LMP</translation>
     </message>
     <message>
-        <source>LMP Subverion</source>
-        <translation>Подверсия LMP</translation>
+        <source>LMP Subversion</source>
+        <oldsource>LMP Subverion</oldsource>
+        <translation type="unfinished">Подверсия LMP</translation>
     </message>
     <message>
         <source>Manufacturer</source>
@@ -363,8 +365,9 @@
         <translation>Пометить Строку/Убрать пометку строки</translation>
     </message>
     <message>
-        <source>CtrlM</source>
-        <translation>CtrlM</translation>
+        <source>Ctrl-M</source>
+        <oldsource>CtrlM</oldsource>
+        <translation type="unfinished">CtrlM</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -474,8 +477,9 @@
         <translation>Пометить Строку/Убрать пометку строки</translation>
     </message>
     <message>
-        <source>CtrlM</source>
-        <translation>CtrlM</translation>
+        <source>Ctrl-M</source>
+        <oldsource>CtrlM</oldsource>
+        <translation type="unfinished">CtrlM</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -3089,6 +3093,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Please make sure you have a %1 packet selected.</source>
         <translation>Пожалуйста, удостоверьтесь, что Вы выбрали пакет %1.</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln total sub stream(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Entire conversation (%1)</source>
         <translation>Весь диалог (%1)</translation>
@@ -3137,6 +3149,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Stream</source>
         <translation>Поток</translation>
+    </message>
+    <message>
+        <source>Substream</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Find:</source>
@@ -4113,8 +4129,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Десятичный</translation>
     </message>
     <message>
-        <source>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
-        <translation>Формат, в котором анализировать временные метки в текстовом файле (например, %H:%M:%S.). Определители формата базируются на strptime(3)</translation>
+        <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
+        <oldsource>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</oldsource>
+        <translation type="unfinished">Формат, в котором анализировать временные метки в текстовом файле (например, %H:%M:%S.). Определители формата базируются на strptime(3)</translation>
     </message>
     <message>
         <source>Timestamp format:</source>
@@ -6629,7 +6646,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>TCP througput</source>
-        <translation>Пропускная способность TCP</translation>
+        <translation type="vanished">Пропускная способность TCP</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
@@ -6654,6 +6671,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>HTTP Stream</source>
         <translation>Поток HTTP</translation>
+    </message>
+    <message>
+        <source>HTTP/2 Stream</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Time Sequence (tcptrace)</source>
@@ -7082,6 +7103,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&amp;Preferences…</source>
         <translation>&amp;Параметры...</translation>
+    </message>
+    <message>
+        <source>TCP throughput</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TCP Stream</source>
@@ -8673,7 +8698,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Создать новый профиль, используя настройки по умолчанию.</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be resetted upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be resetted upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8976,8 +9002,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">Все Видимые Пункты Выбранного Дерева</translation>
     </message>
     <message>
-        <source>Desription</source>
-        <translation type="unfinished"></translation>
+        <source>Description</source>
+        <translation type="unfinished">Описание</translation>
     </message>
     <message>
         <source>Field Name</source>

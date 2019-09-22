@@ -49,17 +49,22 @@ Wireshark 3.1.1 Release Notes
        15571[1]).
 
      • A new tap for extracting credentials from the capture file has
-       been added. It can be accessed through the "-z credentials"
-       option in tshark or from the "tools" menu in Wireshark.
+       been added. It can be accessed through the -z credentials option
+       in tshark or from the “Tools” menu in Wireshark.
 
      • Editcap can now split files on floating point intervals.
 
      • Windows .msi packages are now signed using SHA-2[2]. .exe
        installers are still dual-signed using SHA-1 and SHA-2.
 
-     • "Enable Protocols" Dialog now only enables/disables and inverts
-       protocols based on the set filter selection. Also the protocol
-       type (standard or heuristic) may be choosen as filter value
+     • The “Enabled Protocols” Dialog now only enables, disables and
+       inverts protocols based on the set filter selection. The protocol
+       type (standard or heuristic) may also be choosen as a filter
+       value.
+
+     • The “Analyze → Apply as Filter” and “Analyze → Prepare a Filter”
+       packet list and detail popup menus now show a preview of their
+       respective filters.
 
   New Protocol Support
 
@@ -125,7 +130,7 @@ Wireshark 3.1.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[10].
 
-  Last updated 2019-09-15 09:02:06 UTC
+  Last updated 2019-09-22 08:08:45 UTC
 
  References
 
