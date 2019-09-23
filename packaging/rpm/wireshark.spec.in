@@ -51,11 +51,10 @@ BuildRoot:	/tmp/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %if 0%{?rhel}
 BuildRequires:	cmake3 >= 3.5
-BuildRequires:  python34
 %else
 BuildRequires:	cmake >= 3.5
-BuildRequires:  python3
 %endif
+BuildRequires:  python3
 BuildRequires:	gcc
 BuildRequires:	perl
 BuildRequires:	flex
@@ -506,7 +505,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libdir}/pkgconfig/wireshark.pc
 
 %changelog
-* Wed Aug 15 2019 Gerald Combs
+* Thu Aug 15 2019 Gerald Combs
 - Add zstd
 
 * Mon Apr 22 2019 Daniel Bakai

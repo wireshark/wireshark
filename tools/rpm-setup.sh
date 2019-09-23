@@ -43,6 +43,7 @@ BASIC_LIST="cmake \
 	gcc-c++ \
 	flex \
 	bison \
+	python3 \
 	perl \
 	desktop-file-utils \
 	git \
@@ -117,11 +118,6 @@ add_packages() {
 	# all packages are found, append it to list
 	eval "${list}=\"\${${list}} \${pkgnames}\""
 }
-
-# python3: OpenSUSE 43.3, Fedora 26
-# python34: Centos 7
-add_package BASIC_LIST python3 || add_package BASIC_LIST python34 ||
-echo "python3 is unavailable" >&2
 
 add_package BASIC_LIST cmake3 || add_package BASIC_LIST cmake ||
 echo "cmake is unavailable" >&2
