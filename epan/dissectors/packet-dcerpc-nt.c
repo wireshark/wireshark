@@ -896,6 +896,28 @@ dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	return offset;
 }
 
+/* Dissect a HRESULT status code */
+
+int
+dissect_hresult(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+	       proto_tree *tree, dcerpc_info *di, guint8 *drep,
+	       int hfindex, guint32 *pdata)
+{
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+				    hfindex, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+				val_to_str_ext(status, &HRES_errors_ext,
+					   "Unknown error 0x%08x"));
+	if (pdata)
+		*pdata = status;
+
+	return offset;
+}
+
 /* Dissect a NT policy handle */
 
 static int hf_nt_policy_open_frame = -1;

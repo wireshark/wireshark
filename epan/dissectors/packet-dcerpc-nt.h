@@ -214,6 +214,11 @@ dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		 int hfindex, guint32 *pdata);
 
 int
+dissect_hresult(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		proto_tree *tree, dcerpc_info *di, guint8 *drep,
+		int hfindex, guint32 *pdata);
+
+int
 dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex,
 		      e_ctx_hnd *pdata, proto_item **pitem,
