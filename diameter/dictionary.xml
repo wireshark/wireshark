@@ -3898,6 +3898,9 @@
 			<enum name="3GPP2" 		code="4"/>
 			<enum name="3GPP-EPS" 		code="5"/>
 			<enum name="Non-3GPP-EPS" 	code="6"/>
+			<enum name="FBA" 	code="7"/>
+			<enum name="3GPP-5GS" 	code="8"/>
+			<enum name="Non-3GPP-5GS" 	code="9"/>
 		</avp>
 		<avp name="QoS-Class-Identifier" code="1028" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
@@ -3964,6 +3967,7 @@
 			<enum name="HSPA_EVOLUTION"	code="1003"/>
 			<enum name="EUTRAN"		code="1004"/>
 			<enum name="EUTRAN-NB-IoT"	code="1005"/>
+			<enum name="NG-RAN"	code="1006"/>
 			<enum name="CDMA2000_1X"	code="2000"/>
 			<enum name="HRPD"		code="2001"/>
 			<enum name="UMB"		code="2002"/>
