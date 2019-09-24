@@ -2452,7 +2452,7 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
         num_eps_parms = tvb_get_guint8(tvb, curr_offset);
 
-        opt_code = num_eps_parms & 0xc0;
+        opt_code = (num_eps_parms & 0xc0) >> 6;
         num_eps_parms = num_eps_parms & 0x0f;
 
         /* operation code = 3 Modify existing EPS bearer */
