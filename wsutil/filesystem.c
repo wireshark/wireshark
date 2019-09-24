@@ -2255,8 +2255,6 @@ data_file_url(const gchar *filename)
     /* Absolute path? */
     if(g_path_is_absolute(filename)) {
         file_path = g_strdup(filename);
-    } else if(running_in_build_directory()) {
-        file_path = g_strdup_printf("%s/doc/%s", get_datafile_dir(), filename);
     } else {
         file_path = g_strdup_printf("%s/%s", get_datafile_dir(), filename);
     }
