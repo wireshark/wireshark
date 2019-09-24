@@ -187,6 +187,7 @@ struct s1ap_private_data {
   const char *obj_id;
   struct s1ap_tai *tai;
   guint16 enb_ue_s1ap_id;
+  gboolean srvcc_ho_cs_only;
 };
 
 enum {

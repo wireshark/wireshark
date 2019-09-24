@@ -55,6 +55,7 @@ HandoverType
 ProcedureCode
 ProtocolIE-ID
 RAT-Type
+SRVCCHOIndication
 
 #.NO_EMIT
 TBCD-STRING
@@ -353,10 +354,18 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
 
+#.FN_BODY SRVCCHOIndication VAL_PTR = &srvcc_ho_ind
+  guint32 srvcc_ho_ind;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+  if (srvcc_ho_ind == cSonly)
+    s1ap_data->srvcc_ho_cs_only = TRUE;
+
 #Undef the value before use
 #.FN_HDR HandoverRequired
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
   s1ap_data->handover_type_value = 0xff;
+  s1ap_data->srvcc_ho_cs_only = FALSE;
 #.FN_HDR HandoverCommand
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
   s1ap_data->handover_type_value = 0xff;
@@ -416,8 +425,14 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
       /* ltetogeran
         Source BSS to Target BSS
         Transparent Container 48.018
+        or
+        Old BSS to New BSS information elements
+        Transparent Container 48.008
       */
-      de_bssgp_source_BSS_to_target_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
+      if (s1ap_data->srvcc_ho_cs_only)
+        bssmap_old_bss_to_new_bss_info(parameter_tvb, subtree, actx->pinfo);
+      else
+        de_bssgp_source_BSS_to_target_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
       break;
       case utrantolte:
       /* utrantolte */
