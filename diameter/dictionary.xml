@@ -4728,6 +4728,7 @@
 			<enum name="INITIAL_LOCATION" code="2"/>
 			<enum name="ACTIVATE_DEFERRED_LOCATION" code="3"/>
 			<enum name="CANCEL_DEFERRED_LOCATION" code="4"/>
+			<enum name="NOTIFICATION_VERIFICATION_ONLY" code="5"/>
 		</avp>
 		<avp name="Location-Type" code="1244" mandatory="may" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
