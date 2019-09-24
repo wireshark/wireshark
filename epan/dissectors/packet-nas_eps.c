@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.301 V15.6.0 (2019-03)
+ * References: 3GPP TS 24.301 V16.1.1 (2019-06)
  */
 
 #include "config.h"
@@ -284,6 +284,12 @@ static int hf_nas_eps_emm_switch_off = -1;
 static int hf_nas_eps_emm_detach_type_UL = -1;
 static int hf_nas_eps_emm_detach_type_DL = -1;
 
+static int hf_emm_5g_up_ciot_b3 = -1;
+static int hf_emm_5g_hc_cp_ciot = -1;
+static int hf_emm_n3_data = -1;
+static int hf_emm_5g_cp_ciot = -1;
+
+
 static int hf_nas_eps_esm_qci = -1;
 static int hf_nas_eps_esm_mbr_ul = -1;
 static int hf_nas_eps_esm_mbr_dl = -1;
@@ -373,6 +379,8 @@ static int hf_nas_eps_gen_msg_cont = -1;
 
 static int hf_nas_eps_cmn_add_info = -1;
 static int hf_nas_eps_esm_request_type = -1;
+
+static int hf_nas_eps_spare_b7_b4 = -1;
 
 /* ESM */
 static int hf_nas_eps_msg_esm_type = -1;
@@ -861,6 +869,7 @@ static const value_string nas_emm_elem_strings[] = {
     { DE_EMM_UE_STATUS, "UE status" },                                         /* 9.9.3.54 UE status */
     { DE_EMM_ADD_INFO_REQ, "Additional information requested" },               /* 9.9.3.55 Additional information requested */
     { DE_EMM_CIPH_KEY_DATA, "Ciphering key data" },                            /* 9.9.3.56 Ciphering key data */
+    { DE_EMM_N1_UE_NETWORK_CAP, "N1 UE network capability" },                  /* 9.9.3.57 N1 UE network capability */
     { 0, NULL }
 };
 value_string_ext nas_emm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_emm_elem_strings);
@@ -946,6 +955,7 @@ typedef enum
     DE_EMM_UE_STATUS,           /* 9.9.3.54 UE status */
     DE_EMM_ADD_INFO_REQ         /* 9.9.3.55 Additional information requested */
     DE_EMM_CIPH_KEY_DATA,       /* 9.9.3.56 Ciphering key data */
+    DE_EMM_N1_UE_NETWORK_CAP,   /* 9.9.3.57 N1 UE network capability */
     DE_EMM_NONE                 /* NONE */
 }
 nas_emm_elem_idx_t;
@@ -1198,6 +1208,7 @@ const value_string nas_eps_emm_cause_values[] = {
     { 0x18, "Security mode rejected, unspecified"},
     { 0x19, "Not authorized for this CSG"},
     { 0x1a, "Non-EPS authentication unacceptable"},
+    { 0x1f, "Redirection to 5GCN required"},
     { 0x23, "Requested service option not authorized in this PLMN"},
     { 0x27, "CS service temporarily not available"},
     { 0x28, "No EPS bearer context activated"},
@@ -2788,6 +2799,26 @@ de_emm_ciph_key_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 }
 
 /*
+ * 9.9.3.57    N1 UE network capability
+ */
+static guint16
+de_emm_n1_ue_network_cap(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    guint32 offset, guint len _U_, gchar* add_string _U_, int string_len _U_)
+{
+    static const int* flags_oct1[] = {
+        &hf_nas_eps_spare_b7_b4,
+        &hf_emm_5g_up_ciot_b3,
+        &hf_emm_5g_hc_cp_ciot,
+        &hf_emm_n3_data,
+        &hf_emm_5g_cp_ciot,
+        NULL
+    };
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_oct1, ENC_NA);
+
+    return 1;
+}
+/*
  * 9.9.4    EPS Session Management (ESM) information elements
  */
 
@@ -3839,7 +3870,7 @@ de_esm_ext_apn_agr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 }
 
 /*
- * 9.9.4.29 Extended EPS quality of service
+ * 9.9.4.30 Extended EPS quality of service
  */
 static const range_string nas_eps_ext_eps_qos_unit_vals[] = {
     { 0x00, 0x00, "Not used" },
@@ -3998,6 +4029,7 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     NULL,                       /* 9.9.3.54 UE status */
     de_emm_add_info_req,        /* 9.9.3.55 Additional information requested */
     de_emm_ciph_key_data,       /* 9.9.3.56 Ciphering key data */
+    de_emm_n1_ue_network_cap,   /* 9.9.3.57 N1 UE network capability */
     NULL,   /* NONE */
 };
 
@@ -4336,6 +4368,8 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TLV(0x6D, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_STATUS, NULL);
     /* 17   Additional information requested Additional information requested 9.9.3.55 O TV 2 */
     ELEM_OPT_TV(0x17, NAS_PDU_TYPE_EMM, DE_EMM_ADD_INFO_REQ, NULL);
+    /* 32    N1 UE network capability    N1 UE network capability 9.9.3.57    O    TLV    3-15 */
+    ELEM_OPT_TLV(0x32, NAS_PDU_TYPE_EMM, DE_EMM_N1_UE_NETWORK_CAP, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5104,6 +5138,8 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TLV(0x6D, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_STATUS, NULL);
     /* 17   Additional information requested Additional information requested 9.9.3.55 O TV 2 */
     ELEM_OPT_TV(0x17, NAS_PDU_TYPE_EMM, DE_EMM_ADD_INFO_REQ, NULL);
+    /* 32    N1 UE network capability    N1 UE network capability 9.9.3.57    O    TLV    3-15 */
+    ELEM_OPT_TLV(0x32, NAS_PDU_TYPE_EMM, DE_EMM_N1_UE_NETWORK_CAP, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -8182,6 +8218,31 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_esm_request_type,
         { "Request type", "nas_eps.esm_request_type",
         FT_UINT8, BASE_DEC, VALS(nas_eps_esm_request_type_values), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_emm_5g_up_ciot_b3,
+        { "Control plane CIoT 5GS optimization", "nas_eps.emm.5g_up_ciot",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_emm_5g_hc_cp_ciot,
+        { "Header compression for control plane CIoT 5GS optimization", "nas_eps.emm.5g_hc_cp_ciot",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+        NULL, HFILL }
+    },
+    { &hf_emm_n3_data,
+        { "N3 data transfer", "nas_eps.emm.n3_data",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+        NULL, HFILL }
+    },
+    { &hf_emm_5g_cp_ciot,
+        { "User plane CIoT 5GS optimization", "nas_eps.emm.5g_cp_ciot",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_spare_b7_b4,
+        { "Spare",   "nas_eps.spare_b7_b4",
+        FT_UINT8, BASE_DEC, NULL, 0xf0,
         NULL, HFILL }
     },
   };
