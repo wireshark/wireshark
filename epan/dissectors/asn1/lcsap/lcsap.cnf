@@ -19,7 +19,6 @@ ProtocolIE-ID
 
 #.NO_EMIT
 TBCD-STRING
-Coverage-Level
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
@@ -263,7 +262,7 @@ id-Connection-Oriented-Information-Transfer    ProcedureCode
 id-Connectionless-Information-Transfer         ProcedureCode
 id-Location-Abort                              ProcedureCode
 id-Reset                                       ProcedureCode
-id-Ciphering-Key-Data                          ProcedureCode
+id-Ciphering-Key-Data-Delivery                 ProcedureCode
 
 # ProtocolIE-ID
 id-Correlation-ID                   ProtocolIE-ID
@@ -297,6 +296,7 @@ id-RAT-Type                         ProtocolIE-ID
 id-Ciphering-Data                   ProtocolIE-ID
 id-Ciphering-Data-Ack               ProtocolIE-ID
 id-Ciphering-Data-Error-Report      ProtocolIE-ID
+id-Coverage-Level                   ProtocolIE-ID
 
 #.REGISTER
 
@@ -329,7 +329,7 @@ RAT-Type                                N lcsap.ies id-RAT-Type
 Ciphering-Data                          N lcsap.ies id-Ciphering-Data
 Ciphering-Data-Ack                      N lcsap.ies id-Ciphering-Data-Ack
 Ciphering-Data-Error-Report             N lcsap.ies id-Ciphering-Data-Error-Report
-
+Coverage-Level                          N lcsap.ies id-Coverage-Level
 
 #LCS-AP-PROTOCOL-EXTENSION
 LCS-Service-Type-ID                     N lcsap.extension id-LCS-Service-Type-ID
@@ -353,9 +353,9 @@ Location-Response                       N lcsap.proc.sout id-Location-Abort
 Reset-Request                           N lcsap.proc.imsg id-Reset
 Reset-Acknowledge                       N lcsap.proc.sout id-Reset
 
-Ciphering-Key-Data                      N lcsap.proc.imsg id-Ciphering-Key-Data
-Ciphering-Key-Data-Result               N lcsap.proc.sout id-Ciphering-Key-Data
-Ciphering-Key-Data-Result               N lcsap.proc.uout id-Ciphering-Key-Data
+Ciphering-Key-Data                      N lcsap.proc.imsg id-Ciphering-Key-Data-Delivery
+Ciphering-Key-Data-Result               N lcsap.proc.sout id-Ciphering-Key-Data-Delivery
+Ciphering-Key-Data-Result               N lcsap.proc.uout id-Ciphering-Key-Data-Delivery
 
 
 

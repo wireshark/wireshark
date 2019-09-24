@@ -1,4 +1,4 @@
--- ETSI TS 129 171  V15.2.0 (2019-03)
+-- ETSI TS 129 171  V15.3.0 (2019-09)
 --
 -- 7.5.5	Information element definitions
 -- ************************************************************** 
@@ -8,10 +8,10 @@
 -- **************************************************************  
 
 LCS-AP-IEs {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) lcs-AP (4) version1 (1) lcs-AP-IEs (2)}
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -159,7 +159,7 @@ Ellipsoid-Point-With-Altitude	::= SEQUENCE {
 	altitude-And-Direction	Altitude-And-Direction,
 	iE-Extensions		ProtocolExtensionContainer { { Ellipsoid-Point-With-Altitude-ExtIEs} } OPTIONAL,
 	...}
- 
+
 Ellipsoid-Point-With-Altitude-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= {
 	...
 }
@@ -173,7 +173,7 @@ Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid	::= SEQUENCE {
 	confidence			Confidence,
 	iE-Extensions		ProtocolExtensionContainer { { Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid-ExtIEs} } OPTIONAL,
 	...}
- 
+
 Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= {
 	...
 }
@@ -195,7 +195,7 @@ Ellipsoid-Arc-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= {
 }
 
 
-ENB-ID		::= CHOICE { 
+ENB-ID		::= CHOICE {
 	macro-eNB-ID	Macro-eNB-ID,
 	home-eNB-ID	Home-eNB-ID,
 	...,
@@ -219,7 +219,9 @@ Geographical-Area		::= CHOICE {
 	ellipsoid-Point-With-Altitude				Ellipsoid-Point-With-Altitude,
 	ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid	Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid,	
 	ellipsoid-Arc						Ellipsoid-Arc,
-	...
+	...,
+	high-Accuracy-Ellipsoid-Point-With-Uncertainty-Ellipse	High-Accuracy-Ellipsoid-Point-With-Uncertainty-Ellipse,
+	high-Accuracy-Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid	High-Accuracy-Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid
 }
 
 Geographical-Coordinates	::= SEQUENCE {
@@ -247,6 +249,62 @@ GNSS-Positioning-Data-Set ::= SEQUENCE (SIZE (1..max-GNSS-Set)) OF GNSS-Position
 
 
 -- H
+
+
+High-Accuracy-Altitude ::= INTEGER (-64000..128000)
+
+High-Accuracy-DegreesLatitude	::= INTEGER(-2147483648..2147483647)
+
+High-Accuracy-DegreesLongitude	::= INTEGER(-2147483648..2147483647)
+
+
+High-Accuracy-Ellipsoid-Point-With-Uncertainty-Ellipse  ::= SEQUENCE {
+	high-Accuracy-Geographical-Coordinates	High-Accuracy-Geographical-Coordinates,
+	high-Accuracy-Uncertainty-Ellipse		High-Accuracy-Uncertainty-Ellipse,
+	confidence			Confidence,
+	iE-Extensions		ProtocolExtensionContainer { { High-Accuracy-Ellipsoid-Point-With-Uncertainty-Ellipse-ExtIEs} } OPTIONAL,
+	...}
+
+High-Accuracy-Ellipsoid-Point-With-Uncertainty-Ellipse-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+High-Accuracy-Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid	::= SEQUENCE {
+	high-Accuracy-Geographical-Coordinates	High-Accuracy-Geographical-Coordinates,
+	high-Accuracy-Altitude	High-Accuracy-Altitude,
+	high-Accuracy-Uncertainty-Ellipse	High-Accuracy-Uncertainty-Ellipse,
+	confidence			Confidence,
+	high-Accuracy-Uncertainty-Altitude	Uncertainty-Altitude,
+	vertical-Confidence	Confidence,
+	iE-Extensions		ProtocolExtensionContainer { { High-Accuracy-Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid-ExtIEs} } OPTIONAL,
+	...}
+
+
+High-Accuracy-Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+High-Accuracy-Geographical-Coordinates	::= SEQUENCE {
+	high-Accuracy-DegreesLatitude	High-Accuracy-DegreesLatitude,
+	high-Accuracy-DegreesLongitude	High-Accuracy-DegreesLongitude,
+	iE-Extensions		ProtocolExtensionContainer { { High-Accuracy-Geographical-Coordinates-ExtIEs} } OPTIONAL,
+	...
+}
+
+
+High-Accuracy-Geographical-Coordinates-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+High-Accuracy-Uncertainty-Ellipse	::= SEQUENCE {
+	high-Accuracy-Uncertainty-SemiMajor	Uncertainty-Code,
+	high-Accuracy-Uncertainty-SemiMinor	Uncertainty-Code,
+	orientation-Major-Axis	INTEGER (0..179)
+}
+
 
 Home-eNB-ID ::= BIT STRING (SIZE (28))
 
@@ -386,9 +444,9 @@ Misc-Cause	::= ENUMERATED {
 	processing-Overload,
 	hardware-Failure,
 	o-And-M-Intervention,
-	ciphering-key-data-lost,
 	unspecified,
-...
+...,
+	ciphering-key-data-lost
 }
 
 MultipleAPDUs ::= SEQUENCE (SIZE (1.. 3)) OF APDU
@@ -413,7 +471,7 @@ lPPa,
 ...
 }
 
-PLMN-ID ::= TBCD-STRING 
+PLMN-ID ::= TBCD-STRING
 
 Point				::= SEQUENCE {
 	geographical-Coordinates	Geographical-Coordinates,

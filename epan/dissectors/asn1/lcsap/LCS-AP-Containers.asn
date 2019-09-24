@@ -1,4 +1,4 @@
--- ETSI TS 129 171 V15.2.0 (2019-03)
+-- ETSI TS 129 171 V15.3.0 (2019-09)
 --
 -- 7.5.8	Container Definitions
 -- ************************************************************** 
@@ -8,10 +8,10 @@
 -- ************************************************************** 
  
 LCS-AP-Containers {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) lcs-AP (4) version1 (1) lcs-AP-Containers (5)}
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -76,7 +76,7 @@ WITH SYNTAX {
 --
 -- **************************************************************
 
-ProtocolIE-Container {LCS-AP-PROTOCOL-IES : IEsSetParam} ::= 
+ProtocolIE-Container {LCS-AP-PROTOCOL-IES : IEsSetParam} ::=
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-Field {{IEsSetParam}}
 
@@ -102,7 +102,7 @@ ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, LCS-AP-PRO
 --
 -- **************************************************************
 
-ProtocolExtensionContainer {LCS-AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= 
+ProtocolExtensionContainer {LCS-AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::=
 	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
 	ProtocolExtensionField {{ExtensionSetParam}}
 

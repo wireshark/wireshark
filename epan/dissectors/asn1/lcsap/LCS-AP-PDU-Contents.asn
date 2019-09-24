@@ -1,4 +1,4 @@
--- ETSI TS 129 171 V15.2.0 (2019-03)
+-- ETSI TS 129 171 V15.3.0 (2019-09)
 --
 -- 7.5.4	PDU definitions
 -- ************************************************************** 
@@ -7,11 +7,12 @@
 -- 
 -- ************************************************************** 
  
+
 LCS-AP-PDU-Contents {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) lcs-AP (4) version1 (1) lcs-AP-PDU-Contents (1)}
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -24,7 +25,7 @@ BEGIN
 IMPORTS
 	
 	APDU,
-	Accuracy-Fulfillment-Indicator, 
+	Accuracy-Fulfillment-Indicator,
 	Barometric-Pressure,
 	Cell-Portion-ID,
 	Ciphering-Data,
@@ -62,7 +63,7 @@ FROM LCS-AP-IEs
 FROM LCS-AP-Containers
 
 	id-Accuracy-Fulfillment-Indicator,
-	id-APDU, 
+	id-APDU,
 	id-Barometric-Pressure,
 	id-Cell-Portion-ID,
 	id-Ciphering-Data,
@@ -157,8 +158,7 @@ Location-Response-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
 { ID id-E-UTRAN-Cell-Identifier		CRITICALITY ignore	EXTENSION E-CGI	PRESENCE optional  } |
 { ID id-Cell-Portion-ID			CRITICALITY ignore	EXTENSION Cell-Portion-ID		PRESENCE optional  } |
 { ID id-Civic-Address			CRITICALITY ignore	EXTENSION Civic-Address		PRESENCE optional  } |
-{ ID id-Barometric-Pressure			CRITICALITY ignore	EXTENSION Barometric-Pressure	PRESENCE optional  } |
-{ ID id-Coverage-Level			CRITICALITY ignore	EXTENSION Coverage-Level		PRESENCE optional},
+{ ID id-Barometric-Pressure			CRITICALITY ignore	EXTENSION Barometric-Pressure	PRESENCE optional  },
 	...
 }
 
@@ -186,7 +186,7 @@ Location-Abort-Request-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
 
 -- **************************************************************
 --
--- Connection-Oriented-Information 
+-- Connection-Oriented-Information
 --
 -- **************************************************************
 
@@ -235,7 +235,7 @@ Connectionless-Information-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
 
 -- **************************************************************
 --
--- Reset-Request 
+-- Reset-Request
 --
 -- **************************************************************
 
@@ -258,7 +258,7 @@ Reset-Request-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
 
 -- **************************************************************
 --
--- Reset-Acknowledge 
+-- Reset-Acknowledge
 --
 -- **************************************************************
 
@@ -279,7 +279,7 @@ Reset-Acknowledge-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
 
 -- **************************************************************
 --
--- Ciphering-Key-Data 
+-- Ciphering-Key-Data
 --
 -- **************************************************************
 
@@ -302,7 +302,7 @@ Ciphering-Key-Data-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
 
 -- **************************************************************
 --
--- Ciphering-Key-Data 
+-- Ciphering-Key-Data-Result
 --
 -- **************************************************************
 
@@ -313,7 +313,7 @@ Ciphering-Key-Data-Result ::= SEQUENCE {
 }
 
 Ciphering-Key-Data-Result-IEs LCS-AP-PROTOCOL-IES ::= {
-	{ ID id-Ciphering-Data-Ack	CRITICALITY reject	TYPE Ciphering-Data-Ack		PRESENCE conditional } ,
+	{ ID id-Ciphering-Data-Ack	CRITICALITY reject	TYPE Ciphering-Data-Ack		PRESENCE conditional } |
 	{ ID id-Ciphering-Data-Error-Report	CRITICALITY reject	TYPE Ciphering-Data-Error-Report		PRESENCE conditional } ,
 	...
 }
