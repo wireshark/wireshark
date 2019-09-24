@@ -2502,6 +2502,17 @@ dissect_diameter_3gpp_eutran_positioning_data(tvbuff_t *tvb, packet_info *pinfo,
     return dissect_lcsap_Positioning_Data_PDU(tvb, pinfo, tree, NULL);
 }
 
+/* AVP Code: 2530 LRR-Flags */
+/*
+    static const int *flags[] = {
+        &hf_diameter_3gpp_lrr_flags_spare_bits,
+        &hf_diameter_3gpp_mo_lr_shortcircuit_req_bit2,
+        &hf_diameter_3gpp_mo_lr_shortcircuit_ind_bit1,
+        &hf_diameter_3gpp_Lgd_SLg_Ind_bit0,
+        NULL
+    };
+
+*/
 /* AVP Code: 2532 Deferred-Location-Type */
 static int
 dissect_diameter_3gpp_deferred_location_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
