@@ -320,6 +320,15 @@ function DownloadArchive($fileName, $checksum, $subDir) {
     if ($subDir -and -not (Test-Path $archiveDir -PathType 'Container')) {
         New-Item -ItemType Directory -Path $archiveDir > $null
     }
+    if (Test-Path 'env:WIRESHARK_DO_NOT_USE_7ZIP') {
+        # Display a progress bar while extracting and overwriting existing files.
+        Expand-Archive $archiveFile $archiveDir -Force -ErrorVariable $expandError
+        if ($expandError) {
+            exit 1
+        }
+        return
+    }
+
     $activity = "Extracting into $($archiveDir)"
     Write-Progress -Activity "$activity" -Status "Running 7z x $archiveFile ..."
     & "$SevenZip" x "-o$archiveDir" -y "$archiveFile" 2>&1 |
