@@ -636,8 +636,8 @@ wg_keylog_read(void)
         return;
     }
 
-    // Reopen file if it got deleted.
-    if (wg_keylog_file && file_needs_reopen(wg_keylog_file, pref_keylog_file)) {
+    // Reopen file if it got deleted/overwritten.
+    if (wg_keylog_file && file_needs_reopen(ws_fileno(wg_keylog_file), pref_keylog_file)) {
         g_debug("Key log file got changed or deleted, trying to re-open.");
         wg_keylog_reset();
     }

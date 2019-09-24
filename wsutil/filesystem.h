@@ -11,7 +11,6 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-#include <stdio.h>
 #include "ws_symbol_export.h"
 #include "ws_attributes.h"
 
@@ -301,7 +300,7 @@ WS_DLL_PUBLIC gboolean files_identical(const char *fname1, const char *fname2);
 /*
  * Check if file has been recreated since it was opened.
  */
-WS_DLL_PUBLIC gboolean file_needs_reopen(FILE* fp, const char* filename);
+WS_DLL_PUBLIC gboolean file_needs_reopen(int fd, const char* filename);
 
 /*
  * Copy a file in binary mode, for those operating systems that care about

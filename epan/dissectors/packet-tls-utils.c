@@ -5334,8 +5334,8 @@ ssl_load_keyfile(const gchar *tls_keylog_filename, FILE **keylog_file,
 
     ssl_debug_printf("trying to use TLS keylog in %s\n", tls_keylog_filename);
 
-    /* if the keylog file was deleted, re-open it */
-    if (*keylog_file && file_needs_reopen(*keylog_file, tls_keylog_filename)) {
+    /* if the keylog file was deleted/overwritten, re-open it */
+    if (*keylog_file && file_needs_reopen(ws_fileno(*keylog_file), tls_keylog_filename)) {
         ssl_debug_printf("%s file got deleted, trying to re-open\n", G_STRFUNC);
         fclose(*keylog_file);
         *keylog_file = NULL;
