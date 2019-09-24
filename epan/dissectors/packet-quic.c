@@ -1051,7 +1051,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_STREAM_D:
         case FT_STREAM_E:
         case FT_STREAM_F: {
-            guint64 stream_id, length;
+            guint64 stream_id, stream_offset = 0, length;
             guint32 lenvar;
 
             offset -= 1;
@@ -1067,20 +1067,24 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &lenvar);
             offset += lenvar;
 
-            proto_item_append_text(ti_ft, " Stream ID: %" G_GINT64_MODIFIER "u", stream_id);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(%" G_GINT64_MODIFIER "u)", stream_id);
+            proto_item_append_text(ti_ft, " id=%#" G_GINT64_MODIFIER "x", stream_id);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(%#" G_GINT64_MODIFIER "x)", stream_id);
+
+            proto_item_append_text(ti_ft, " fin=%d", !!(frame_type & FTFLAGS_STREAM_FIN));
 
             if (frame_type & FTFLAGS_STREAM_OFF) {
-                proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_offset, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_offset, tvb, offset, -1, ENC_VARINT_QUIC, &stream_offset, &lenvar);
                 offset += lenvar;
             }
+            proto_item_append_text(ti_ft, " off=%" G_GINT64_MODIFIER "u", stream_offset);
 
             if (frame_type & FTFLAGS_STREAM_LEN) {
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_length, tvb, offset, -1, ENC_VARINT_QUIC, &length, &lenvar);
                 offset += lenvar;
             } else {
-               length = tvb_reported_length_remaining(tvb, offset);
+                length = tvb_reported_length_remaining(tvb, offset);
             }
+            proto_item_append_text(ti_ft, " len=%" G_GINT64_MODIFIER "u uni=%d", length, !!(stream_id & 2U));
 
             proto_tree_add_item(ft_tree, hf_quic_stream_data, tvb, offset, (int)length, ENC_NA);
             offset += (int)length;
