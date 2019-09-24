@@ -2124,7 +2124,7 @@ files_identical(const char *fname1, const char *fname2)
 }
 
 gboolean
-file_needs_reopen(FILE* fp, const char* filename)
+file_needs_reopen(int fd, const char* filename)
 {
 #ifdef _WIN32
     /* Windows handles st_dev in a way unsuitable here:
@@ -2139,7 +2139,7 @@ file_needs_reopen(FILE* fp, const char* filename)
      * Thus instead of using fstat(), use Windows specific API.
      */
 
-    HANDLE open_handle = (HANDLE)_get_osfhandle(ws_fileno(fp));
+    HANDLE open_handle = (HANDLE)_get_osfhandle(fd);
     HANDLE current_handle = CreateFile(utf_8to16(filename), FILE_READ_ATTRIBUTES,
                             FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                             NULL, OPEN_EXISTING, 0, NULL);
@@ -2177,7 +2177,7 @@ file_needs_reopen(FILE* fp, const char* filename)
 
     /* consider a file deleted when stat fails for either file,
      * or when the residing device / inode has changed. */
-    if (0 != ws_fstat64(ws_fileno(fp), &open_stat))
+    if (0 != ws_fstat64(fd, &open_stat))
         return TRUE;
     if (0 != ws_stat64(filename, &current_stat))
         return TRUE;
