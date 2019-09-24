@@ -95,7 +95,7 @@ static int list_config(char *interface)
 		"{type=unsigned}{range=1,5000}{default=5000}{tooltip=The max number of bytes in a packet}\n",
 		inc++);
 	printf("arg {number=%u}{call=--count}{display=Number of packets}"
-		"{type=long}{default=1000}{tooltip=Number of packets to generate (-1 for infinite)}\n",
+		"{type=long}{default=1000}{tooltip=Number of packets to generate}\n",
 		inc++);
 	printf("arg {number=%u}{call=--delay}{display=Packet delay (ms)}"
 		"{type=long}{default=0}{tooltip=Milliseconds to wait after writing each packet}\n",
