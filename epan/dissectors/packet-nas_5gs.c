@@ -90,8 +90,8 @@ static int hf_nas_5gs_mm_5gmm_cause = -1;
 static int hf_nas_5gs_mm_pld_cont_type = -1;
 static int hf_nas_5gs_mm_sst = -1;
 static int hf_nas_5gs_mm_sd = -1;
-static int hf_nas_5gs_mm_mapped_conf_sst = -1;
-static int hf_nas_5gs_mm_mapped_conf_ssd = -1;
+static int hf_nas_5gs_mm_mapped_hplmn_sst = -1;
+static int hf_nas_5gs_mm_mapped_hplmn_ssd = -1;
 static int hf_nas_5gs_mm_switch_off = -1;
 static int hf_nas_5gs_mm_re_reg_req = -1;
 static int hf_nas_5gs_mm_acc_type = -1;
@@ -3420,7 +3420,7 @@ de_nas_5gs_cmn_dnn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
 }
 
-/* 9.10.2.2    EAP message*/
+/* 9.11.2.2    EAP message*/
 
 static guint16
 de_nas_5gs_cmn_eap_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
@@ -3437,13 +3437,13 @@ de_nas_5gs_cmn_eap_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     return len;
 }
 
-/* 9.10.2.3    GPRS timer */
+/* 9.11.2.3    GPRS timer */
 /* See subclause 10.5.7.3 in 3GPP TS 24.008 */
 
-/* 9.10.2.4    GPRS timer 2*/
+/* 9.11.2.4    GPRS timer 2*/
 /* See subclause 10.5.7.4 in 3GPP TS 24.008 */
 
-/* 9.10.2.5    GPRS timer 3*/
+/* 9.11.2.5    GPRS timer 3*/
 
 /* 9.11.2.6     Intra N1 mode NAS transparent container*/
 static guint16
@@ -3456,7 +3456,7 @@ de_nas_5gs_cmn_intra_n1_mode_nas_trans_cont(tvbuff_t *tvb, proto_tree *tree, pac
     return len;
 }
 
-/* 9.10.2.7     N1 mode to S1 mode NAS transparent containe */
+/* 9.11.2.7     N1 mode to S1 mode NAS transparent containe */
 static guint16
 de_nas_5gs_cmn_n1_to_s1_mode_trans_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
@@ -3467,7 +3467,7 @@ de_nas_5gs_cmn_n1_to_s1_mode_trans_cont(tvbuff_t *tvb, proto_tree *tree, packet_
     return len;
 }
 
-/* 9.10.2.8    S-NSSAI */
+/* 9.11.2.8    S-NSSAI */
 guint16
 de_nas_5gs_cmn_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
@@ -3487,14 +3487,14 @@ de_nas_5gs_cmn_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         return len;
     }
     offset += 3;
-    /* Mapped configured SST    octet 7* */
-    proto_tree_add_item(tree, hf_nas_5gs_mm_mapped_conf_sst, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* Mapped HPLMN SST    octet 7* */
+    proto_tree_add_item(tree, hf_nas_5gs_mm_mapped_hplmn_sst, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (len == 5) {
         return len;
     }
     offset += 1;
-    /* Mapped configured SD    octet 8 - octet 10* */
-    proto_tree_add_item(tree, hf_nas_5gs_mm_mapped_conf_ssd, tvb, offset, 3, ENC_BIG_ENDIAN);
+    /* Mapped HPLMN SD    octet 8 - octet 10* */
+    proto_tree_add_item(tree, hf_nas_5gs_mm_mapped_hplmn_ssd, tvb, offset, 3, ENC_BIG_ENDIAN);
 
     return len;
 }
@@ -3515,31 +3515,31 @@ de_nas_5gs_cmn_s1_to_n1_mode_trans_cont(tvbuff_t *tvb, proto_tree *tree, packet_
  */
 typedef enum
 {
-    DE_NAS_5GS_CMN_ADD_INF,                      /* 9.10.2.1     Additional information*/
-    DE_NAS_5GS_CMN_DNN,                          /* 9.10.2.1A    DNN*/
-    DE_NAS_5GS_CMN_EAP_MESSAGE,                  /* 9.10.2.2     EAP message*/
-    DE_NAS_5GS_CMN_GPRS_TIMER,                   /* 9.10.2.3     GPRS timer */
-    DE_NAS_5GS_CMN_GPRS_TIMER2,                  /* 9.10.2.4     GPRS timer 2*/
-    DE_NAS_5GS_CMN_GPRS_TIMER3,                  /* 9.10.2.5     GPRS timer 3*/
+    DE_NAS_5GS_CMN_ADD_INF,                      /* 9.11.2.1     Additional information*/
+    DE_NAS_5GS_CMN_DNN,                          /* 9.11.2.1A    DNN*/
+    DE_NAS_5GS_CMN_EAP_MESSAGE,                  /* 9.11.2.2     EAP message*/
+    DE_NAS_5GS_CMN_GPRS_TIMER,                   /* 9.11.2.3     GPRS timer */
+    DE_NAS_5GS_CMN_GPRS_TIMER2,                  /* 9.11.2.4     GPRS timer 2*/
+    DE_NAS_5GS_CMN_GPRS_TIMER3,                  /* 9.11.2.5     GPRS timer 3*/
     DE_NAS_5GS_CMN_INTRA_N1_MODE_NAS_TRANS_CONT, /* 9.11.2.6     Intra N1 mode NAS transparent container*/
-    DE_NAS_5GS_CMN_N1_TO_S1_MODE_TRANS_CONT,     /* 9.10.2.7     N1 mode to S1 mode NAS transparent containe */
-    DE_NAS_5GS_CMN_S_NSSAI,                      /* 9.10.2.8     S-NSSAI */
-    DE_NAS_5GS_CMN_S1_TO_N1_MODE_TRANS_CONT,     /* 9.10.2.9     S1 mode to N1 mode NAS transparent container */
+    DE_NAS_5GS_CMN_N1_TO_S1_MODE_TRANS_CONT,     /* 9.11.2.7     N1 mode to S1 mode NAS transparent containe */
+    DE_NAS_5GS_CMN_S_NSSAI,                      /* 9.11.2.8     S-NSSAI */
+    DE_NAS_5GS_CMN_S1_TO_N1_MODE_TRANS_CONT,     /* 9.11.2.9     S1 mode to N1 mode NAS transparent container */
     DE_NAS_5GS_COMMON_NONE                       /* NONE */
 }
 nas_5gs_common_elem_idx_t;
 
 static const value_string nas_5gs_common_elem_strings[] = {
-    { DE_NAS_5GS_CMN_ADD_INF,                       "Additional information" },                          /* 9.10.2.1     Additional information*/
-    { DE_NAS_5GS_CMN_DNN,                           "DNN" },                                             /* 9.10.2.1A    DNN*/
-    { DE_NAS_5GS_CMN_EAP_MESSAGE,                   "EAP message" },                                     /* 9.10.2.2     EAP message*/
-    { DE_NAS_5GS_CMN_GPRS_TIMER,                    "GPRS timer" },                                      /* 9.10.2.3     GPRS timer*/
-    { DE_NAS_5GS_CMN_GPRS_TIMER2,                   "GPRS timer 2" },                                    /* 9.10.2.4     GPRS timer 2*/
-    { DE_NAS_5GS_CMN_GPRS_TIMER3,                   "GPRS timer 3" },                                    /* 9.10.2.5     GPRS timer 3*/
+    { DE_NAS_5GS_CMN_ADD_INF,                       "Additional information" },                          /* 9.11.2.1     Additional information*/
+    { DE_NAS_5GS_CMN_DNN,                           "DNN" },                                             /* 9.11.2.1A    DNN*/
+    { DE_NAS_5GS_CMN_EAP_MESSAGE,                   "EAP message" },                                     /* 9.11.2.2     EAP message*/
+    { DE_NAS_5GS_CMN_GPRS_TIMER,                    "GPRS timer" },                                      /* 9.11.2.3     GPRS timer*/
+    { DE_NAS_5GS_CMN_GPRS_TIMER2,                   "GPRS timer 2" },                                    /* 9.11.2.4     GPRS timer 2*/
+    { DE_NAS_5GS_CMN_GPRS_TIMER3,                   "GPRS timer 3" },                                    /* 9.11.2.5     GPRS timer 3*/
     { DE_NAS_5GS_CMN_INTRA_N1_MODE_NAS_TRANS_CONT,  "Intra N1 mode NAS transparent container" },         /* 9.11.2.6     Intra N1 mode NAS transparent container*/
-    { DE_NAS_5GS_CMN_N1_TO_S1_MODE_TRANS_CONT,      "N1 mode to S1 mode NAS transparent container" },    /* 9.10.2.7     N1 mode to S1 mode NAS transparent container */
-    { DE_NAS_5GS_CMN_S_NSSAI,                       "S-NSSAI" },                                         /* 9.10.2.8     S-NSSAI */
-    { DE_NAS_5GS_CMN_S1_TO_N1_MODE_TRANS_CONT,      "S1 mode to N1 mode NAS transparent container" },    /* 9.10.2.9     S1 mode to N1 mode NAS transparent container */
+    { DE_NAS_5GS_CMN_N1_TO_S1_MODE_TRANS_CONT,      "N1 mode to S1 mode NAS transparent container" },    /* 9.11.2.7     N1 mode to S1 mode NAS transparent container */
+    { DE_NAS_5GS_CMN_S_NSSAI,                       "S-NSSAI" },                                         /* 9.11.2.8     S-NSSAI */
+    { DE_NAS_5GS_CMN_S1_TO_N1_MODE_TRANS_CONT,      "S1 mode to N1 mode NAS transparent container" },    /* 9.11.2.9     S1 mode to N1 mode NAS transparent container */
     { 0, NULL }
 };
 value_string_ext nas_5gs_common_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_common_elem_strings);
@@ -3552,16 +3552,16 @@ guint16(*nas_5gs_common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info
     guint32 offset, guint len,
     gchar *add_string, int string_len) = {
         /*  9.10.2    Common information elements */
-        de_nas_5gs_cmn_add_inf,                      /* 9.10.2.1     Additional information*/
-        de_nas_5gs_cmn_dnn,                          /* 9.10.2.1A    DNN*/
-        de_nas_5gs_cmn_eap_msg,                      /* 9.10.2.2     EAP message*/
-        NULL,                                        /* 9.10.2.3     GPRS timer*/
-        NULL,                                        /* 9.10.2.4     GPRS timer 2*/
-        NULL,                                        /* 9.10.2.5     GPRS timer 3*/
+        de_nas_5gs_cmn_add_inf,                      /* 9.11.2.1     Additional information*/
+        de_nas_5gs_cmn_dnn,                          /* 9.11.2.1A    DNN*/
+        de_nas_5gs_cmn_eap_msg,                      /* 9.11.2.2     EAP message*/
+        NULL,                                        /* 9.11.2.3     GPRS timer*/
+        NULL,                                        /* 9.11.2.4     GPRS timer 2*/
+        NULL,                                        /* 9.11.2.5     GPRS timer 3*/
         de_nas_5gs_cmn_intra_n1_mode_nas_trans_cont, /* 9.11.2.6     Intra N1 mode NAS transparent container*/
-        de_nas_5gs_cmn_n1_to_s1_mode_trans_cont,     /* 9.10.2.7     N1 mode to S1 mode NAS transparent containe */
-        de_nas_5gs_cmn_s_nssai,                      /* 9.10.2.8     S-NSSAI */
-        de_nas_5gs_cmn_s1_to_n1_mode_trans_cont,     /* 9.10.2.9     S1 mode to N1 mode NAS transparent container */
+        de_nas_5gs_cmn_n1_to_s1_mode_trans_cont,     /* 9.11.2.7     N1 mode to S1 mode NAS transparent containe */
+        de_nas_5gs_cmn_s_nssai,                      /* 9.11.2.8     S-NSSAI */
+        de_nas_5gs_cmn_s1_to_n1_mode_trans_cont,     /* 9.11.2.9     S1 mode to N1 mode NAS transparent container */
         NULL,   /* NONE */
 };
 
@@ -5438,7 +5438,7 @@ de_nas_5gs_ursp_r_sel_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                subclause 9.11.3.37 of 3GPP TS 24.501 [11].*/
             proto_tree_add_item_ret_uint(tree, hf_nas_5gs_mm_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
             offset++;
-            de_nas_5gs_cmn_s_nssai(tvb, tree, pinfo, offset, length, NULL, 0);
+            de_nas_5gs_mm_nssai(tvb, tree, pinfo, offset, length, NULL, 0);
             offset += length;
             break;
         case 0x04: /* DNN */
@@ -6761,13 +6761,13 @@ proto_register_nas_5gs(void)
             FT_UINT24, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_nas_5gs_mm_mapped_conf_sst,
-        { "Mapped configured SST",   "nas_5gs.mm.mapped_conf_sst",
+        { &hf_nas_5gs_mm_mapped_hplmn_sst,
+        { "Mapped HPLMN SST",   "nas_5gs.mm.mapped_hplmn_sst",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_nas_5gs_mm_mapped_conf_ssd,
-        { "Mapped configured SD",   "nas_5gs.mm.mapped_conf_ssd",
+        { &hf_nas_5gs_mm_mapped_hplmn_ssd,
+        { "Mapped HPLMN SD",   "nas_5gs.mm.mapped_hplmn_ssd",
             FT_UINT24, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
