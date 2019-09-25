@@ -152,8 +152,8 @@ DEV_NAME=$( /usr/bin/hdiutil attach -readwrite -noverify -noautoopen "$rw_name" 
 
 # Set icon positions and background image
 # Work around 'Finder got an error: Can’t get disk "Wireshark 3.1.1". (-1728)'
-sleep 5
-osascript ../packaging/macosx/arrange_dmg.applescript || exit 1
+#sleep 5
+#osascript ../packaging/macosx/arrange_dmg.applescript || exit 1
 
 # Have the disk image window open automatically when mounted.
 bless -openfolder "/Volumes/$volume_name"
