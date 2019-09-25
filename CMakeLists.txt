@@ -3383,7 +3383,6 @@ if(SHELLCHECK_EXECUTABLE)
 			image/stock_icons/svg-to-png.sh
 			packaging/appimage/AppRun
 			packaging/macosx/osx-app.sh.in
-			packaging/macosx/osx-dmg.sh.in
 			packaging/source/git-export-release.sh.in
 			tools/compress-pngs.sh
 			tools/debian-setup.sh
