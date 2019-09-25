@@ -242,13 +242,14 @@ WinPcap you won’t be able to capture anything with Wireshark.
 
 === Installing Wireshark under macOS
 
-The official macOS packages are distributed as disk images (.dmg) containing
-the application installer. To install Wireshark simply open the disk image and
-run the enclosed installer.
+The official macOS packages are distributed as disk images (.dmg) containing the application bundle.
+To install Wireshark simply open the disk image and drag _Wireshark_ to your _/Applications_ folder.
 
-The installer package includes Wireshark, its related command line utilities,
-and a launch daemon that adjusts capture permissions at system startup. See the
-included _Read me first_ file for more details.
+In order to capture packets, you must install the “ChmodBPF” launch daemon.
+You can do so by opening the _Install ChmodBPF.pkg_ file in the Wireshark .dmg or from Wireshark iself by opening menu:Wireshark[About Wireshark] selecting the “Folders” tab, and double-clicking “macOS Extras”.
+
+The installer package includes Wireshark along with ChmodBPF and system path packages.
+See the included _Read me first.html_ file for more details.
 
 [[ChBuildInstallUnixBuild]]
 
