@@ -45,7 +45,7 @@ ws_uninstall_path_helper = 'Remove Wireshark from the system path.pkg'
 format = defines.get('format', 'UDBZ')
 
 # Compression level (if relevant)
-# compression_level = 9
+compression_level = 9
 
 # Volume size
 size = None
