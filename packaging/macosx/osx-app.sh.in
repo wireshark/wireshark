@@ -491,6 +491,12 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 		codesign_file "$plugin"
 	done
 
+	echo "Signing extra packages"
+	find $bundle/Contents/Resources/Extras -type f -name "*.pkg" | \
+	while read -r extra_pkg ; do
+		codesign_file "$extra_pkg"
+	done
+
 	echo "Signing secondary executables"
 	if [ -z "$secondary_binary_list" ] ; then
 		echo "No executables specified for code signing."
