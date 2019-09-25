@@ -326,7 +326,6 @@ static int hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv6_prefix = -1;
 static int hf_nas_eps_esm_pkmf_address_type = -1;
 static int hf_nas_eps_esm_pkmf_ipv4 = -1;
 static int hf_nas_eps_esm_pkmf_ipv6 = -1;
-static int hf_nas_eps_esm_spare_bit0x80 = -1;
 static int hf_nas_eps_esm_hdr_comp_config_prof_0104 = -1;
 static int hf_nas_eps_esm_hdr_comp_config_prof_0103 = -1;
 static int hf_nas_eps_esm_hdr_comp_config_prof_0102 = -1;
@@ -3624,7 +3623,7 @@ de_esm_hdr_compr_config(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 curr_offset = offset;
 
     static const int * flags[] = {
-        &hf_nas_eps_esm_spare_bit0x80,
+        &hf_nas_eps_spare_b7,
         &hf_nas_eps_esm_hdr_comp_config_prof_0104,
         &hf_nas_eps_esm_hdr_comp_config_prof_0103,
         &hf_nas_eps_esm_hdr_comp_config_prof_0102,
@@ -6628,7 +6627,7 @@ proto_register_nas_eps(void)
         NULL, HFILL }
     },
     { &hf_nas_eps_spare_b7,
-        { "Spare", "nas_eps.spare.b7",
+        { "Spare bit(s)", "nas_eps.spare_bits",
         FT_UINT8, BASE_HEX, NULL, 0x80,
         NULL, HFILL }
     },
@@ -7949,11 +7948,6 @@ proto_register_nas_eps(void)
         FT_IPv6, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_esm_spare_bit0x80,
-        { "Spare bit(s)", "nas_eps.spare_bits",
-        FT_UINT8, BASE_HEX, NULL, 0x80,
-        NULL, HFILL }
-    },
     { &hf_nas_eps_esm_hdr_comp_config_prof_0104,
         { "RoHC profile 0x0104 (IP)", "nas_eps.esm.hdr_comp_config.prof_0104",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
@@ -8055,7 +8049,7 @@ proto_register_nas_eps(void)
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_spare_bits0x0100,
-        { "Spare bit", "nas_eps.spare_bits",
+        { "Spare bit(s)", "nas_eps.spare_bits",
         FT_UINT16, BASE_HEX, NULL, 0x0100,
         NULL, HFILL }
     },
@@ -8241,8 +8235,8 @@ proto_register_nas_eps(void)
         NULL, HFILL }
     },
     { &hf_nas_eps_spare_b7_b4,
-        { "Spare",   "nas_eps.spare_b7_b4",
-        FT_UINT8, BASE_DEC, NULL, 0xf0,
+        { "Spare bit(s)", "nas_eps.spare_bits",
+        FT_UINT8, BASE_HEX, NULL, 0xf0,
         NULL, HFILL }
     },
   };
