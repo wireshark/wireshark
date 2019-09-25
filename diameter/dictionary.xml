@@ -8633,6 +8633,27 @@
 			<enum name="Active" code="0"/>
 			<enum name="Inactive" code="1"/>
 		</avp>
+		<avp name="Unused-Quota-Timer" code="4407" mandatory="must" vendor-bit="must" protected="may" may-encrypt="yes" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Announcing-PLMN-ID" code="4408" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ProSe-UE-to-Network-Relay-UE-ID" code="4409" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="ProSe-Target-Layer-2-ID" code="4410" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Relay-IP-address" code="4411" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="Target-IP-Address" code="4412" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="FE-Identifier-List" code="4413" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
 		<!--
 		Note: The AVP codes from 4400 to 4499 are reserved for TS 32.299
 		-->
