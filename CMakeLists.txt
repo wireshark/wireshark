@@ -1235,6 +1235,9 @@ if (QT_FOUND)
 			HINTS "${QT_BIN_PATH}"
 			DOC "Path to the macdeployqt utility."
 		)
+		find_program(DMGBUILD_EXECUTABLE dmgbuild
+			DOC "Path to the dmgbuild utility"
+		)
 		# https://doc.qt.io/qt-5.11/supported-platforms-and-configurations.html
 		# CMake < 3.7 doesn't support VERSION_GREATER_EQUAL.
 		if(Qt5Widgets_VERSION VERSION_GREATER "5.11.999")
@@ -1495,9 +1498,8 @@ set(CFG_OUT_FILES
 	image/wiretap.rc
 	image/wireshark.exe.manifest
 	packaging/macosx/Info.plist
-	packaging/macosx/arrange_dmg.applescript
+	packaging/macosx/dmgbuild-settings.py
 	packaging/macosx/osx-app.sh
-	packaging/macosx/osx-dmg.sh
 	packaging/source/git-export-release.sh
 	wireshark.pc
 )
@@ -2822,37 +2824,38 @@ if(ENABLE_APPLICATION_BUNDLE)
 	)
 	add_dependencies(app_bundle ${PROGLIST} chmodbpf path_helper)
 
-	add_custom_target(dmg_package_prep DEPENDS app_bundle)
+	if( DMGBUILD_EXECUTABLE AND ASCIIDOCTOR_FOUND)
+		add_custom_target(dmg_package_prep DEPENDS app_bundle)
 
-	if( ASCIIDOCTOR_FOUND )
+		set(_read_me_first "packaging/macosx/Read me first.html")
 		ADD_CUSTOM_COMMAND(
 		OUTPUT
-			packaging/macosx/Read_me_first.html
+			${_read_me_first}
 		COMMAND ${ASCIIDOCTOR_EXECUTABLE}
 			--backend html
-			--out-file packaging/macosx/Read_me_first.html
+			--out-file ${_read_me_first}
 			--attribute include-dir=${CMAKE_SOURCE_DIR}/docbook
 			--attribute min-macos-version=${MIN_MACOS_VERSION}
 			${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Read_me_first.adoc
 		DEPENDS
 			${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Read_me_first.adoc
 		)
-		add_custom_target(read_me_first_html DEPENDS packaging/macosx/Read_me_first.html )
+		add_custom_target(read_me_first_html DEPENDS ${_read_me_first} )
 		add_dependencies(dmg_package_prep read_me_first_html)
-	endif()
 
-	ADD_CUSTOM_TARGET( dmg_package
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-					${CMAKE_SOURCE_DIR}/COPYING
-					${CMAKE_BINARY_DIR}/run/COPYING.txt
-		COMMAND bash -x ${CMAKE_BINARY_DIR}/packaging/macosx/osx-dmg.sh
-			--source-directory ${CMAKE_SOURCE_DIR}/packaging/macosx
-		# Unlike nsis_package_prep + nsis_package, we can add a direct
-		# dependency here.
-		DEPENDS dmg_package_prep
-		# We create Wireshark.app in "run". Do our work there.
-		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/run
-	)
+		ADD_CUSTOM_TARGET( dmg_package
+			COMMAND ${DMGBUILD_EXECUTABLE}
+				--no-hidpi
+				-s ${CMAKE_BINARY_DIR}/packaging/macosx/dmgbuild-settings.py
+				"Wireshark ${VERSION}"
+				"Wireshark ${VERSION} Intel 64.dmg"
+			# Unlike nsis_package_prep + nsis_package, we can add a direct
+			# dependency here.
+			DEPENDS dmg_package_prep
+			# We create Wireshark.app in "run". Do our work there.
+			WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/run
+		)
+	endif()
 
 endif()
 
