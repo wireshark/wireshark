@@ -13,6 +13,9 @@ used for troubleshooting, analysis, development and education.
 
 == What’s New
 
+* The macOS installer now ships with Qt 5.12.5. It previously
+  shipped with Qt 5.12.3.
+
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
