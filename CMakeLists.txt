@@ -1500,6 +1500,7 @@ set(CFG_OUT_FILES
 	packaging/macosx/Info.plist
 	packaging/macosx/dmgbuild-settings.py
 	packaging/macosx/osx-app.sh
+	packaging/macosx/osx-dmg.sh
 	packaging/source/git-export-release.sh
 	wireshark.pc
 )
@@ -2844,11 +2845,7 @@ if(ENABLE_APPLICATION_BUNDLE)
 		add_dependencies(dmg_package_prep read_me_first_html)
 
 		ADD_CUSTOM_TARGET( dmg_package
-			COMMAND ${DMGBUILD_EXECUTABLE}
-				--no-hidpi
-				-s ${CMAKE_BINARY_DIR}/packaging/macosx/dmgbuild-settings.py
-				"Wireshark ${VERSION}"
-				"Wireshark ${VERSION} Intel 64.dmg"
+			COMMAND bash -x ${CMAKE_BINARY_DIR}/packaging/macosx/osx-dmg.sh
 			# Unlike nsis_package_prep + nsis_package, we can add a direct
 			# dependency here.
 			DEPENDS dmg_package_prep
