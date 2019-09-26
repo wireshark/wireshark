@@ -2042,7 +2042,7 @@ dissect_someip_payload_base_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
             }
 
             value_set = TRUE;
-            proto_item_append_text(ti, ": %ld (0x%lx)", value, value);
+            proto_item_append_text(ti, ": %" G_GINT64_FORMAT "d (0x%" G_GINT64_FORMAT "x)", value, value);
 
         }
     } else {
