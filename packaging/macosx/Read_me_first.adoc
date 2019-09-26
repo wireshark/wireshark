@@ -68,5 +68,3 @@ You can also uninstall it manually by doing the following:
 
 . Remove _/etc/paths.d/Wireshark_
 . Remove _/etc/manpaths.d/Wireshark_
-
-If you move Wireshark.app the script should automatically find it. If it doesn't you will have to set WIRESHARK_APP_DIR to the path to (and including) Wireshark.app. Automatic discovery might fail if you have multiple copies of Wireshark installed on your system or if Spotlight indexing isn't working properly.
