@@ -1729,41 +1729,7 @@ set(INSTALL_FILES
 	smi_modules
 	wka
 	docbook/ws.css
-	${CMAKE_BINARY_DIR}/doc/AUTHORS-SHORT
-	${CMAKE_BINARY_DIR}/doc/androiddump.html
-	${CMAKE_BINARY_DIR}/doc/udpdump.html
-	${CMAKE_BINARY_DIR}/doc/capinfos.html
-	${CMAKE_BINARY_DIR}/doc/captype.html
-	${CMAKE_BINARY_DIR}/doc/ciscodump.html
-	${CMAKE_BINARY_DIR}/doc/dftest.html
-	${CMAKE_BINARY_DIR}/doc/dumpcap.html
-	${CMAKE_BINARY_DIR}/doc/editcap.html
-	${CMAKE_BINARY_DIR}/doc/extcap.html
-	${CMAKE_BINARY_DIR}/doc/mergecap.html
-	${CMAKE_BINARY_DIR}/doc/randpkt.html
-	${CMAKE_BINARY_DIR}/doc/randpktdump.html
-	${CMAKE_BINARY_DIR}/doc/rawshark.html
-	${CMAKE_BINARY_DIR}/doc/reordercap.html
-	${CMAKE_BINARY_DIR}/doc/sshdump.html
-	${CMAKE_BINARY_DIR}/doc/text2pcap.html
-	${CMAKE_BINARY_DIR}/doc/tshark.html
-	${CMAKE_BINARY_DIR}/doc/wireshark.html
-	${CMAKE_BINARY_DIR}/doc/wireshark-filter.html
 )
-
-if(MAXMINDDB_FOUND)
-	list(APPEND INSTALL_FILES ${CMAKE_BINARY_DIR}/doc/mmdbresolve.html)
-endif()
-
-if (BUILD_corbaidl2wrs)
-	list(APPEND INSTALL_FILES ${CMAKE_BINARY_DIR}/doc/idl2wrs.html)
-endif()
-if (BUILD_xxx2deb)
-	list(APPEND INSTALL_FILES
-		${CMAKE_BINARY_DIR}/doc/asn2deb.html
-		${CMAKE_BINARY_DIR}/doc/idl2deb.html
-	)
-endif()
 
 if(WIN32)
 	set(TEXTIFY_FILES COPYING NEWS README.windows)
@@ -2006,7 +1972,6 @@ foreach(_install_file ${INSTALL_FILES})
 			"${_install_file_src}"
 			"${_output_file}"
 		DEPENDS
-			docs
 			"${_install_file}"
 	)
 	list(APPEND copy_data_files_depends "${_output_file}")
@@ -2035,7 +2000,6 @@ if(LUA_FOUND AND ENABLE_LUA)
 		)
 	endforeach()
 endif(LUA_FOUND AND ENABLE_LUA)
-# doc/*.html handled elsewhere.
 
 # Glob patterns relative to the source directory that should be copied to
 # ${DATAFILE_DIR} (including directory prefixes)

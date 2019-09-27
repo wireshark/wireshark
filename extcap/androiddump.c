@@ -2528,7 +2528,7 @@ int main(int argc, char *argv[]) {
 
     extcap_conf = g_new0(extcap_parameters, 1);
 
-    help_url = data_file_url("androiddump.html");
+    help_url = help_file_url("androiddump.html");
     extcap_base_set_util_info(extcap_conf, argv[0], ANDROIDDUMP_VERSION_MAJOR, ANDROIDDUMP_VERSION_MINOR,
         ANDROIDDUMP_VERSION_RELEASE, help_url);
     g_free(help_url);

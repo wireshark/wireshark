@@ -7,6 +7,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
+include(CopyStaging)
+
 add_custom_command(
 	OUTPUT AUTHORS-SHORT
 	COMMAND ${PERL_EXECUTABLE}
@@ -211,6 +213,23 @@ add_custom_target(
 )
 set_target_properties(docs PROPERTIES FOLDER "Docs")
 
+if(ENABLE_APPLICATION_BUNDLE)
+	set(DOC_STAGING_DIR "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/Wireshark.app/Contents/Resources/share/doc/wireshark")
+else()
+	set(DOC_STAGING_DIR "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/doc")
+endif()
+
+add_staging_target(docs_copy_staging
+	DEST "${DOC_STAGING_DIR}"
+	DEPENDS docs
+	FILES ${HTML_INSTALL_FILES}
+)
+
+add_staging_target(authors_copy_staging
+	DEST "${DATAFILE_DIR}"
+	FILES ${CMAKE_CURRENT_BINARY_DIR}/AUTHORS-SHORT
+)
+
 install(
 	FILES
 		${MAN1_INSTALL_FILES}
@@ -230,6 +249,13 @@ install(
 		${HTML_INSTALL_FILES}
 	DESTINATION
 		${CMAKE_INSTALL_DOCDIR}
+)
+
+install(
+	FILES
+		${CMAKE_CURRENT_BINARY_DIR}/AUTHORS-SHORT
+	DESTINATION
+		${CMAKE_INSTALL_DATADIR}
 )
 
 #

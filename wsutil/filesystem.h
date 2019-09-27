@@ -66,6 +66,11 @@ WS_DLL_PUBLIC const char *get_plugins_pers_dir_with_version(void);
 WS_DLL_PUBLIC const char *get_extcap_dir(void);
 
 /*
+ * Get the directory in which document files are stored.
+ */
+WS_DLL_PUBLIC const char *get_docfile_dir(void);
+
+/*
  * Get the flag indicating whether we're running from a build
  * directory.
  */
@@ -321,15 +326,15 @@ WS_DLL_PUBLIC gboolean copy_file_binary_mode(const char *from_filename,
 
 
 /*
- * Given a filename return a filesystem URL. Relative paths are prefixed with
- * the datafile directory path.
+ * Given a help filename return a filesystem URL. Relative paths are prefixed with
+ * the directory path.
  *
  * @param filename A file name or path. Relative paths will be prefixed with
- * the data file directory path.
+ * the directory path.
  * @return A filesystem URL for the file or NULL on failure. A non-NULL return
  * value must be freed with g_free().
  */
-WS_DLL_PUBLIC gchar* data_file_url(const gchar *filename);
+WS_DLL_PUBLIC gchar* help_file_url(const gchar *filename);
 
 /*
  * Free the internal structtures

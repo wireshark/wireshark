@@ -547,7 +547,7 @@ int main(int argc, char *argv[])
 		g_free(err_msg);
 	}
 
-	help_url = data_file_url("ciscodump.html");
+	help_url = help_file_url("ciscodump.html");
 	extcap_base_set_util_info(extcap_conf, argv[0], CISCODUMP_VERSION_MAJOR, CISCODUMP_VERSION_MINOR,
 		CISCODUMP_VERSION_RELEASE, help_url);
 	g_free(help_url);

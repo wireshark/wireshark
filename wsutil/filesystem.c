@@ -57,6 +57,7 @@ char *persconffile_dir = NULL;
 char *datafile_dir = NULL;
 char *persdatafile_dir = NULL;
 char *persconfprofile = NULL;
+char *docfile_dir = NULL;
 
 static gboolean do_store_persconffiles = FALSE;
 static GHashTable *profile_files = NULL;
@@ -1883,6 +1884,32 @@ get_datafile_path(const char *filename)
     }
 }
 
+static void init_docfile_dir(void)
+{
+    if (running_in_build_directory_flag) {
+         docfile_dir = g_build_filename(get_progfile_dir(), "doc", NULL);
+         return;
+    }
+#ifdef _WIN32
+    docfile_dir = g_strdup(get_progfile_dir());
+#else
+#ifdef __APPLE__
+    if (appbundle_dir != NULL) {
+        docfile_dir = g_build_filename(appbundle_dir, "Contents/Resources/share/doc/wireshark", (gchar *)NULL);
+        return;
+    }
+#endif
+    docfile_dir = g_strdup(DOC_DIR);
+#endif
+}
+
+const char *get_docfile_dir(void)
+{
+    if (!docfile_dir)
+        init_docfile_dir();
+    return docfile_dir;
+}
+
 /*
  * Return an error message for UNIX-style errno indications on open or
  * create operations.
@@ -2261,7 +2288,7 @@ done:
 }
 
 gchar *
-data_file_url(const gchar *filename)
+help_file_url(const gchar *filename)
 {
     gchar *file_path;
     gchar *uri;
@@ -2270,7 +2297,7 @@ data_file_url(const gchar *filename)
     if(g_path_is_absolute(filename)) {
         file_path = g_strdup(filename);
     } else {
-        file_path = g_strdup_printf("%s/%s", get_datafile_dir(), filename);
+        file_path = g_build_filename(get_docfile_dir(), filename, NULL);
     }
 
     /* XXX - check, if the file is really existing, otherwise display a simple_dialog about the problem */
@@ -2306,6 +2333,8 @@ free_progdirs(void)
 #endif
     g_free(extcap_dir);
     extcap_dir = NULL;
+    g_free(docfile_dir);
+    docfile_dir = NULL;
 }
 
 /*
