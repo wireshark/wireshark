@@ -3872,6 +3872,22 @@ tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, gui
     return secret->data_len;
 }
 
+const char *
+tls_get_alpn(packet_info *pinfo)
+{
+    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    if (!conv) {
+        return NULL;
+    }
+
+    SslDecryptSession *session = (SslDecryptSession *)conversation_get_proto_data(conv, proto_tls);
+    if (session == NULL) {
+        return NULL;
+    }
+
+    return session->session.alpn_name;
+}
+
 /* TLS Exporters {{{ */
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 /**

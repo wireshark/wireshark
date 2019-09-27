@@ -5927,6 +5927,8 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     if (proto_name) {
         dissector_handle_t handle;
 
+        session->alpn_name = wmem_strdup(wmem_file_scope(), proto_name);
+
         if (is_dtls) {
             handle = dissector_get_string_handle(dtls_alpn_dissector_table,
                                                  proto_name);
