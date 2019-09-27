@@ -132,17 +132,3 @@ assembler-language routines, which will fail.  The workaround for this
 is to run the configure script with the --disable-asm argument, so that
 the assembler-language routines are not used.  The tools/macos-setup.sh
 will configure libgcrypt with that option.
-
-If you want to build Wireshark installer packages on a system that
-doesn't include Xcode 3.x or earlier, you will need to install some
-additional tools.  From the Xcode menu, select the Open Developer Tool
-menu, and then select More Developer Tools... from that menu.  That will
-open up a page on the Apple Developer Connection Web site; you may need
-a developer account to download the additional tools.  Download the
-Auxiliary Tools for Xcode package; when the dmg opens, drag all its
-contents to the Contents/Applications subdirectory of the Xcode.app
-directory (normally /Applications/Xcode.app/Contents/Applications); then
-copy .../Contents/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
-to /usr/bin/packagemaker (the PackageMaker app, when run from the
-command line rather than as a double-clicked app, is the packagemaker
-command).
