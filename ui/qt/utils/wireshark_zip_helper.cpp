@@ -18,6 +18,7 @@
 
 #include <iosfwd>
 #include <iostream>
+#include <zlib.h>  // For Z_DEFLATED, etc.
 #include <minizip/unzip.h>
 #include <minizip/zip.h>
 
