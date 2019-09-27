@@ -867,10 +867,13 @@ is_sslv3_or_tls(tvbuff_t *tvb)
     guint16             protocol_version, record_length;
 
     /*
-     * Heuristics should match a non-empty TLS record:
-     * ContentType (1), ProtocolVersion (2), Length (2), fragment (...)
+     * Heuristics should match the TLS record header.
+     * ContentType (1), ProtocolVersion (2), Length (2)
+     *
+     * We do not check for an actual payload, IBM WebSphere is known
+     * to separate the record header and payload over two separate packets.
      */
-    if (tvb_captured_length(tvb) < 6) {
+    if (tvb_captured_length(tvb) < 5) {
         return FALSE;
     }
 
