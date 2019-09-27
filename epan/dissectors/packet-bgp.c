@@ -133,6 +133,9 @@ static dissector_handle_t bgp_handle;
 #define AS_CONFED_SET      4   /* RFC1965 has the wrong values, corrected in  */
 #define AS_CONFED_SEQUENCE 3   /* draft-ietf-idr-bgp-confed-rfc1965bis-01.txt */
 
+/* BGPsec_PATH attributes */
+#define SEC_PATH_SEG_SIZE 6
+
 /* OPEN message Optional Parameter types  */
 #define BGP_OPTION_AUTHENTICATION    1   /* RFC1771 */
 #define BGP_OPTION_CAPABILITY        2   /* RFC2842 */
@@ -224,7 +227,7 @@ static dissector_handle_t bgp_handle;
 #define BGPTYPE_30                  30 /* Deprecated [RFC8093] */
 #define BGPTYPE_31                  31 /* Deprecated [RFC8093] */
 #define BGPTYPE_LARGE_COMMUNITY     32 /* RFC8092 */
-#define BGPTYPE_BGPSEC_PATH         33 /* BGPsec_Path [RFC-ietf-sidr-bgpsec-protocol-22] */
+#define BGPTYPE_BGPSEC_PATH         33 /* BGPsec_PATH [RFC8205] */
 #define BGPTYPE_BGP_PREFIX_SID      40 /* BGP Prefix-SID [draft-ietf-idr-bgp-prefix-sid] */
 #define BGPTYPE_LINK_STATE_OLD_ATTR 99 /* squatted value used by at least 2
                                           implementations before IANA assignment */
@@ -978,7 +981,7 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_30,                  "Deprecated" },
     { BGPTYPE_31,                  "Deprecated" },
     { BGPTYPE_LARGE_COMMUNITY,     "LARGE_COMMUNITY" },
-    { BGPTYPE_BGPSEC_PATH,         "BGPsec_Path" },
+    { BGPTYPE_BGPSEC_PATH,         "BGPsec_PATH" },
     { BGPTYPE_BGP_PREFIX_SID,      "BGP Prefix-SID" },
     { BGPTYPE_LINK_STATE_OLD_ATTR, "LINK_STATE (unofficial code point)" },
     { BGPTYPE_ATTR_SET,            "ATTR_SET" },
@@ -1361,6 +1364,13 @@ static const value_string orf_entry_match_vals[] = {
     { 0,        NULL }
 };
 
+/* BGPsec Send/Receive, RFC8205 */
+static const value_string bgpsec_send_receive_vals[] = {
+    { 0,        "Receive" },
+    { 1,        "Send" },
+    { 0,        NULL }
+};
+
 static const value_string capability_vals[] = {
     { BGP_CAPABILITY_RESERVED,                      "Reserved capability" },
     { BGP_CAPABILITY_MULTIPROTOCOL,                 "Multiprotocol extensions capability" },
@@ -1601,6 +1611,11 @@ static int hf_bgp_cap_fqdn_hostname = -1;
 static int hf_bgp_cap_fqdn_domain_name_len = -1;
 static int hf_bgp_cap_fqdn_domain_name = -1;
 static int hf_bgp_cap_multisession_flags = -1;
+static int hf_bgp_cap_bgpsec_flags = -1;
+static int hf_bgp_cap_bgpsec_version = -1;
+static int hf_bgp_cap_bgpsec_sendreceive = -1;
+static int hf_bgp_cap_bgpsec_reserved = -1;
+static int hf_bgp_cap_bgpsec_afi = -1;
 
 /* BGP update global header field */
 static int hf_bgp_update_withdrawn_routes_length = -1;
@@ -1650,6 +1665,15 @@ static int hf_bgp_update_path_attribute_mp_reach_nlri_snpa = -1;
 static int hf_bgp_update_path_attribute_mp_unreach_nlri_address_family = -1;
 static int hf_bgp_update_path_attribute_mp_unreach_nlri_safi = -1;
 static int hf_bgp_update_path_attribute_aigp = -1;
+static int hf_bgp_update_path_attribute_bgpsec_sb_len = -1;
+static int hf_bgp_update_path_attribute_bgpsec_algo_id = -1;
+static int hf_bgp_update_path_attribute_bgpsec_sps_pcount = -1;
+static int hf_bgp_update_path_attribute_bgpsec_sps_flags = -1;
+static int hf_bgp_update_path_attribute_bgpsec_sps_as = -1;
+static int hf_bgp_update_path_attribute_bgpsec_sp_len = -1;
+static int hf_bgp_update_path_attribute_bgpsec_ski = -1;
+static int hf_bgp_update_path_attribute_bgpsec_sig_len = -1;
+static int hf_bgp_update_path_attribute_bgpsec_sig = -1;
 static int hf_bgp_evpn_nlri = -1;
 static int hf_bgp_evpn_nlri_rt = -1;
 static int hf_bgp_evpn_nlri_len = -1;
@@ -2223,6 +2247,10 @@ static gint ett_bgp_prefix_sid_originator_srgb_block = -1;
 static gint ett_bgp_prefix_sid_originator_srgb_blocks = -1;
 static gint ett_bgp_prefix_sid_label_index = -1;
 static gint ett_bgp_prefix_sid_ipv6 = -1;
+static gint ett_bgp_bgpsec_secure_path = -1;
+static gint ett_bgp_bgpsec_secure_path_segment = -1;
+static gint ett_bgp_bgpsec_signature_block = -1;
+static gint ett_bgp_bgpsec_signature_segment = -1;
 
 static expert_field ei_bgp_marker_invalid = EI_INIT;
 static expert_field ei_bgp_cap_len_bad = EI_INIT;
@@ -6226,6 +6254,30 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             }
 
             break;
+        case BGP_CAPABILITY_BGPSEC:
+            if (clen != 3) {
+                expert_add_info_format(pinfo, ti_len, &ei_bgp_cap_len_bad, "Capability length %u is wrong, must be = 3", clen);
+                proto_tree_add_item(cap_tree, hf_bgp_cap_unknown, tvb, offset, clen, ENC_NA);
+                offset += clen;
+            }
+            else {
+                static const int * bgpsec_flags[] = {
+                    &hf_bgp_cap_bgpsec_version,
+                    &hf_bgp_cap_bgpsec_sendreceive,
+                    &hf_bgp_cap_bgpsec_reserved,
+                    NULL
+                };
+
+                /* BGPsec Flags */
+                proto_tree_add_bitmask(cap_tree, tvb, offset, hf_bgp_cap_bgpsec_flags, ett_bgp_cap, bgpsec_flags, ENC_BIG_ENDIAN);
+                offset += 1;
+
+                /* BGPsec AFI */
+                proto_tree_add_item(cap_tree, hf_bgp_cap_bgpsec_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+            }
+
+            break;
             /* unknown capability */
         default:
             if (clen != 0) {
@@ -7239,6 +7291,10 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
     guint16       prefix_sid_sublen;          /* BGP Prefix-SID TLV Length */
     gint          prefix_sid_sub_tlv_offset;  /* BGP Prefix-SID SRGB Length */
     gint          check_srgb;                 /* BGP Prefix-SID SRGB counter */
+    guint16       secpathlen;                 /* BGPsec Secure Path length */
+    guint16       sigblocklen;                /* BGPsec Signature Block length */
+    guint8        secpathcount;               /* Number of Secure Path Segments */
+    guint16       sig_len;                    /* Length of BGPsec Signature */
 
     o = tvb_off;
     junk_emstr = wmem_strbuf_new_label(wmem_packet_scope());
@@ -7923,6 +7979,98 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 }
 
                 proto_item_append_text(ti_pa, ":%s", wmem_strbuf_get_str(comm_strbuf));
+
+                break;
+            case BGPTYPE_BGPSEC_PATH:
+                q = o + i + aoff;
+                end = q + tlen;
+                secpathlen = tvb_get_ntohs(tvb, q); /* Secure Path Length */
+
+                if (((secpathlen - 2) % SEC_PATH_SEG_SIZE) != 0) { /* SEC_PATH_SEG_SIZE = 6 */
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, alen,
+                        "Invalid BGPsec Secure Path length: %u bytes", secpathlen);
+                }
+
+                subtree3 = proto_tree_add_subtree_format(subtree2, tvb, q, secpathlen,
+                                                         ett_bgp_bgpsec_secure_path,
+                                                         NULL,
+                                                         "Secure Path (%d byte%s)",
+                                                         secpathlen,
+                                                         plurality(secpathlen, "", "s"));
+
+                /* Secure Path Length */
+                proto_tree_add_item(subtree3, hf_bgp_update_path_attribute_bgpsec_sp_len, tvb, q, 2, ENC_BIG_ENDIAN);
+                q += 2;
+
+                secpathcount = (secpathlen - 2) / SEC_PATH_SEG_SIZE; /* Amount of Secure Path Segments */
+                j = 0;
+                while (j < secpathcount) {
+                    subtree4 = proto_tree_add_subtree_format(subtree3, tvb, q, SEC_PATH_SEG_SIZE,
+                                                             ett_bgp_bgpsec_secure_path_segment,
+                                                             NULL,
+                                                             "Secure Path Segment (%d byte%s)",
+                                                             SEC_PATH_SEG_SIZE,
+                                                             plurality(SEC_PATH_SEG_SIZE, "", "s"));
+
+                    /* pCount field */
+                    proto_tree_add_item(subtree4, hf_bgp_update_path_attribute_bgpsec_sps_pcount, tvb,
+                                        q, 1, ENC_BIG_ENDIAN);
+                    q += 1;
+
+                    /* Flags field */
+                    proto_tree_add_item(subtree4, hf_bgp_update_path_attribute_bgpsec_sps_flags, tvb,
+                                        q, 1, ENC_BIG_ENDIAN);
+                    q += 1;
+
+                    /* ASN field */
+                    proto_tree_add_item(subtree4, hf_bgp_update_path_attribute_bgpsec_sps_as, tvb,
+                                        q, 4, ENC_BIG_ENDIAN);
+                    q += 4;
+                    j++;
+                }
+
+                sigblocklen = tvb_get_ntohs(tvb, q); /* Signature Block Length */
+
+                subtree3 = proto_tree_add_subtree_format(subtree2, tvb, q, sigblocklen,
+                                                         ett_bgp_bgpsec_signature_block,
+                                                         NULL,
+                                                         "Signature Block (%d byte%s)",
+                                                         sigblocklen,
+                                                         plurality(sigblocklen, "", "s"));
+
+                /* Signature Block Length */
+                proto_tree_add_item(subtree3, hf_bgp_update_path_attribute_bgpsec_sb_len, tvb, q, 2, ENC_BIG_ENDIAN);
+                q += 2;
+
+                /* Algorithm Suite ID */
+                proto_tree_add_item(subtree3, hf_bgp_update_path_attribute_bgpsec_algo_id, tvb, q, 1, ENC_BIG_ENDIAN);
+                q += 1;
+
+                while (q < end) {
+                    sig_len = tvb_get_ntohs(tvb, q+20); /* Signature Length of current Segment */
+
+                    subtree4 = proto_tree_add_subtree_format(subtree3, tvb, q, 22+sig_len,
+                                                             ett_bgp_bgpsec_signature_segment,
+                                                             NULL,
+                                                             "Signature Segment (%d byte%s)",
+                                                             22+sig_len,
+                                                             plurality(22+sig_len, "", "s"));
+
+                    /* Subject Key Identifier */
+                    proto_tree_add_item(subtree4, hf_bgp_update_path_attribute_bgpsec_ski, tvb,
+                                        q, 20, ENC_NA);
+                    q += 20;
+
+                    /* Signature Length */
+                    proto_tree_add_item(subtree4, hf_bgp_update_path_attribute_bgpsec_sig_len, tvb,
+                                        q, 2, ENC_BIG_ENDIAN);
+                    q += 2;
+
+                    /* Signature */
+                    proto_tree_add_item(subtree4, hf_bgp_update_path_attribute_bgpsec_sig, tvb,
+                                        q, sig_len, ENC_NA);
+                    q += sig_len;
+                }
 
                 break;
             case BGPTYPE_BGP_PREFIX_SID:
@@ -8923,6 +9071,21 @@ proto_register_bgp(void)
       { &hf_bgp_cap_multisession_flags,
         { "Flag", "bgp.cap.multisession.flags", FT_UINT8, BASE_HEX,
           NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_cap_bgpsec_flags,
+        { "Flag", "bgp.cap.bgpsec.flags", FT_UINT8, BASE_HEX,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_cap_bgpsec_version,
+        { "Version", "bgp.cap.bgpsec.version", FT_UINT8, BASE_DEC,
+          NULL, 0xF0, NULL, HFILL }},
+      { &hf_bgp_cap_bgpsec_sendreceive,
+        { "Send/Receive", "bgp.cap.bgpsec.sendreceive", FT_UINT8, BASE_DEC,
+          VALS(bgpsec_send_receive_vals), 0x8, NULL, HFILL }},
+      { &hf_bgp_cap_bgpsec_reserved,
+        { "Reserved", "bgp.cap.bgpsec.reserved", FT_UINT8, BASE_HEX,
+          NULL, 0x7, "Must be Zero", HFILL }},
+      { &hf_bgp_cap_bgpsec_afi,
+        { "AFI", "bgp.cap.bgpsec.afi", FT_UINT16, BASE_DEC,
+          VALS(afn_vals), 0x0, NULL, HFILL }},
       /* BGP update */
 
       { &hf_bgp_update_withdrawn_routes_length,
@@ -9022,6 +9185,35 @@ proto_register_bgp(void)
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_path_attribute_link_state,
         { "Link State", "bgp.update.path_attribute.link_state", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+
+      /* BGPsec Path Attributes, RFC8205*/
+      { &hf_bgp_update_path_attribute_bgpsec_sp_len,
+        { "Length", "bgp.update.path_attribute.bgpsec.sp.length", FT_UINT16, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_bgpsec_sps_pcount,
+        { "pCount", "bgp.update.path_attribute.bgpsec.sps.pcount", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_bgpsec_sps_flags,
+        { "Flags", "bgp.update.path_attribute.bgpsec.sps.flags", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_bgpsec_sps_as,
+        { "AS Number", "bgp.update.path_attribute.bgpsec.sps.as", FT_UINT32, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_bgpsec_sb_len,
+        { "Length", "bgp.update.path_attribute.bgpsec.sb.length", FT_UINT16, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_bgpsec_algo_id,
+        { "Algo ID", "bgp.update.path_attribute.bgpsec.sb.algo_id", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_bgpsec_ski,
+        { "SKI", "bgp.update.path_attribute.bgpsec.ss.ski", FT_BYTES, SEP_SPACE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_bgpsec_sig_len,
+        { "Length", "bgp.update.path_attribute.bgpsec.ss.length", FT_UINT16, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_bgpsec_sig,
+        { "Signature", "bgp.update.path_attribute.bgpsec.ss.sig", FT_BYTES, SEP_SPACE,
           NULL, 0x0, NULL, HFILL}},
 
       { &hf_bgp_update_path_attribute_mp_reach_nlri_address_family,
@@ -10459,6 +10651,10 @@ proto_register_bgp(void)
       &ett_bgp_prefix_sid_originator_srgb,
       &ett_bgp_prefix_sid_originator_srgb_block,
       &ett_bgp_prefix_sid_originator_srgb_blocks,
+      &ett_bgp_bgpsec_secure_path,
+      &ett_bgp_bgpsec_secure_path_segment,
+      &ett_bgp_bgpsec_signature_block,
+      &ett_bgp_bgpsec_signature_segment,
     };
     static ei_register_info ei[] = {
         { &ei_bgp_marker_invalid, { "bgp.marker_invalid", PI_MALFORMED, PI_ERROR, "Marker is not all ones", EXPFILL }},
