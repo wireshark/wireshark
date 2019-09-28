@@ -6032,7 +6032,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             break;
         case BGP_CAPABILITY_EXTENDED_NEXT_HOP: {
             int eclen = offset + clen;
-	        while (offset <= eclen - 6) {
+                while (offset <= eclen - 6) {
                     /* AFI */
                     proto_tree_add_item(cap_tree, hf_bgp_cap_enh_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
@@ -6044,13 +6044,13 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                     /* AFI */
                     proto_tree_add_item(cap_tree, hf_bgp_cap_enh_nhafi, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
-	        }
+                }
                 if (offset != eclen) {
                     expert_add_info_format(pinfo, ti_len, &ei_bgp_cap_len_bad, "Capability length %u is wrong, must be multiple of 6", clen);
                     proto_tree_add_item(cap_tree, hf_bgp_cap_unknown, tvb, offset, eclen - offset, ENC_NA);
                     offset = eclen;
                 }
-	    }
+            }
             break;
         case BGP_CAPABILITY_GRACEFUL_RESTART:
             if ((clen < 6) && (clen != 2)) {
