@@ -1067,8 +1067,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &lenvar);
             offset += lenvar;
 
-            proto_item_append_text(ti_ft, " id=%#" G_GINT64_MODIFIER "x", stream_id);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(%#" G_GINT64_MODIFIER "x)", stream_id);
+            proto_item_append_text(ti_ft, " id=%" G_GINT64_MODIFIER "u", stream_id);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(%" G_GINT64_MODIFIER "u)", stream_id);
 
             proto_item_append_text(ti_ft, " fin=%d", !!(frame_type & FTFLAGS_STREAM_FIN));
 
