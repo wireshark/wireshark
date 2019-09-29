@@ -99,6 +99,15 @@ static const value_string erspan_encap_vals[] = {
 	{0, NULL}
 };
 
+static const value_string erspan_bso_vals[] = {
+	{0, "Good or unknown integrity"},
+	{1, "Short frame"},
+	{2, "Oversized frame"},
+	{3, "CRC or alignment error"},
+
+	{0, NULL},
+};
+
 static const value_string erspan_truncated_vals[] = {
 	{0, "Not truncated"},
 	{1, "Truncated"},
@@ -380,7 +389,7 @@ proto_register_erspan(void)
 			0x1800, NULL, HFILL }},
 
 		{ &hf_erspan_bso,
-		{ "Bad/Short/Oversized",	"erspan.bso", FT_UINT16, BASE_DEC, VALS(erspan_truncated_vals),
+		{ "Bad/Short/Oversized",	"erspan.bso", FT_UINT16, BASE_DEC, VALS(erspan_bso_vals),
 			0x1800, NULL, HFILL }},
 
 
