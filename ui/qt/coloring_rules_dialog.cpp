@@ -25,6 +25,7 @@
 #include "ui/qt/widgets/copy_from_profile_button.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
+#include <functional>
 #include <QColorDialog>
 #include <QMessageBox>
 #include <QPushButton>
@@ -127,13 +128,15 @@ ColoringRulesDialog::~ColoringRulesDialog()
 void ColoringRulesDialog::checkUnknownColorfilters()
 {
     if (prefs.unknown_colorfilters) {
-        QMessageBox mb;
-        mb.setText(tr("Your coloring rules file contains unknown rules"));
-        mb.setInformativeText(tr("Wireshark doesn't recognize one or more of your coloring rules. "
+        QMessageBox *mb = new QMessageBox();
+        mb->setText(tr("Your coloring rules file contains unknown rules"));
+        mb->setInformativeText(tr("Wireshark doesn't recognize one or more of your coloring rules. "
                                  "They have been disabled."));
-        mb.setStandardButtons(QMessageBox::Ok);
+        mb->setStandardButtons(QMessageBox::Ok);
 
-        mb.exec();
+        mb->setWindowModality(Qt::ApplicationModal);
+        mb->setAttribute(Qt::WA_DeleteOnClose);
+        mb->show();
         prefs.unknown_colorfilters = FALSE;
     }
 }
@@ -336,13 +339,23 @@ void ColoringRulesDialog::changeColor(bool foreground)
     if (!current.isValid())
         return;
 
-    QColorDialog color_dlg;
+    QColorDialog *color_dlg = new QColorDialog();
+    color_dlg->setCurrentColor(colorRuleModel_.data(current, foreground ? Qt::ForegroundRole : Qt::BackgroundRole).toString());
 
-    color_dlg.setCurrentColor(colorRuleModel_.data(current, foreground ? Qt::ForegroundRole : Qt::BackgroundRole).toString());
-    if (color_dlg.exec() == QDialog::Accepted) {
-        colorRuleModel_.setData(current, color_dlg.currentColor(), foreground ? Qt::ForegroundRole : Qt::BackgroundRole);
-        setColorButtons(current);
-    }
+    connect(color_dlg, &QColorDialog::colorSelected, std::bind(&ColoringRulesDialog::colorChanged, this, foreground, std::placeholders::_1));
+    color_dlg->setWindowModality(Qt::ApplicationModal);
+    color_dlg->setAttribute(Qt::WA_DeleteOnClose);
+    color_dlg->show();
+}
+
+void ColoringRulesDialog::colorChanged(bool foreground, const QColor &cc)
+{
+    QModelIndex current = ui->coloringRulesTreeView->currentIndex();
+    if (!current.isValid())
+        return;
+
+    colorRuleModel_.setData(current, cc, foreground ? Qt::ForegroundRole : Qt::BackgroundRole);
+    setColorButtons(current);
 }
 
 void ColoringRulesDialog::on_fGPushButton_clicked()

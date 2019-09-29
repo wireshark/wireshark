@@ -1637,8 +1637,10 @@ void MainWindow::exportDissections(export_type_e export_type) {
     capture_file *cf = capture_file_.capFile();
     g_return_if_fail(cf);
 
-    ExportDissectionDialog ed_dlg(this, cf, export_type);
-    ed_dlg.exec();
+    ExportDissectionDialog *ed_dlg = new ExportDissectionDialog(this, cf, export_type);
+    ed_dlg->setWindowModality(Qt::ApplicationModal);
+    ed_dlg->setAttribute(Qt::WA_DeleteOnClose);
+    ed_dlg->show();
 }
 
 #ifdef Q_OS_WIN

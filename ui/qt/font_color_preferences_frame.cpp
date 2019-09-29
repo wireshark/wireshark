@@ -16,6 +16,7 @@
 #include <ui/qt/utils/color_utils.h>
 #include "wireshark_application.h"
 
+#include <functional>
 #include <QFontDialog>
 #include <QColorDialog>
 
@@ -285,23 +286,29 @@ void FontColorPreferencesFrame::updateWidgets()
 
 void FontColorPreferencesFrame::changeColor(pref_t *pref)
 {
-    QColorDialog color_dlg;
+    QColorDialog *color_dlg = new QColorDialog();
     color_t* color = prefs_get_color_value(pref, pref_stashed);
 
-    color_dlg.setCurrentColor(QColor(
+    color_dlg->setCurrentColor(QColor(
                                   color->red >> 8,
                                   color->green >> 8,
                                   color->blue >> 8
                                   ));
-    if (color_dlg.exec() == QDialog::Accepted) {
-        QColor cc = color_dlg.currentColor();
-        color_t new_color;
-        new_color.red = cc.red() << 8 | cc.red();
-        new_color.green = cc.green() << 8 | cc.green();
-        new_color.blue = cc.blue() << 8 | cc.blue();
-        prefs_set_color_value(pref, new_color, pref_stashed);
-        updateWidgets();
-    }
+
+    connect(color_dlg, &QColorDialog::colorSelected, std::bind(&FontColorPreferencesFrame::colorChanged, this, pref, std::placeholders::_1));
+    color_dlg->setWindowModality(Qt::ApplicationModal);
+    color_dlg->setAttribute(Qt::WA_DeleteOnClose);
+    color_dlg->show();
+}
+
+void FontColorPreferencesFrame::colorChanged(pref_t *pref, const QColor &cc)
+{
+    color_t new_color;
+    new_color.red = cc.red() << 8 | cc.red();
+    new_color.green = cc.green() << 8 | cc.green();
+    new_color.blue = cc.blue() << 8 | cc.blue();
+    prefs_set_color_value(pref, new_color, pref_stashed);
+    updateWidgets();
 }
 
 void FontColorPreferencesFrame::on_fontPushButton_clicked()

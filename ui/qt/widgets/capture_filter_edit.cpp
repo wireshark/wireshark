@@ -493,8 +493,10 @@ void CaptureFilterEdit::applyCaptureFilter()
 
 void CaptureFilterEdit::saveFilter()
 {
-    FilterDialog capture_filter_dlg(window(), FilterDialog::CaptureFilter, text());
-    capture_filter_dlg.exec();
+    FilterDialog *capture_filter_dlg = new FilterDialog(window(), FilterDialog::CaptureFilter, text());
+    capture_filter_dlg->setWindowModality(Qt::ApplicationModal);
+    capture_filter_dlg->setAttribute(Qt::WA_DeleteOnClose);
+    capture_filter_dlg->show();
 }
 
 void CaptureFilterEdit::removeFilter()
@@ -521,8 +523,10 @@ void CaptureFilterEdit::removeFilter()
 
 void CaptureFilterEdit::showFilters()
 {
-    FilterDialog capture_filter_dlg(window(), FilterDialog::CaptureFilter);
-    capture_filter_dlg.exec();
+    FilterDialog *capture_filter_dlg = new FilterDialog(window(), FilterDialog::CaptureFilter);
+    capture_filter_dlg->setWindowModality(Qt::ApplicationModal);
+    capture_filter_dlg->setAttribute(Qt::WA_DeleteOnClose);
+    capture_filter_dlg->show();
 }
 
 void CaptureFilterEdit::prepareFilter()

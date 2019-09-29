@@ -78,9 +78,6 @@ public:
     // dialogs on macOS can be problematic. Dialogs should call queueAppSignal
     // instead.
     void queueAppSignal(AppSignal signal) { app_signals_ << signal; }
-    // Flush queued app signals. Should be called from the main window after
-    // each dialog that calls queueAppSignal closes.
-    void flushAppSignals();
     void emitStatCommandSignal(const QString &menu_path, const char *arg, void *userdata);
     void emitTapParameterSignal(const QString cfg_abbr, const QString arg, void *userdata);
     void addDynamicMenuGroupItem(int group, QAction *sg_action);
@@ -205,6 +202,10 @@ public slots:
     void refreshRecentCaptures();
 
     void captureEventHandler(CaptureEvent);
+
+    // Flush queued app signals. Should be called from the main window after
+    // each dialog that calls queueAppSignal closes.
+    void flushAppSignals();
 
 private slots:
     void updateTaps();

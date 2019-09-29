@@ -57,6 +57,7 @@ private:
     void changeColor(pref_t *pref);
 
 private slots:
+    void colorChanged(pref_t *pref, const QColor &cc);
     void on_fontPushButton_clicked();
 
     void on_activeFGPushButton_clicked();

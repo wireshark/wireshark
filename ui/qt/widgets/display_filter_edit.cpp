@@ -482,8 +482,10 @@ void DisplayFilterEdit::changeEvent(QEvent* event)
 
 void DisplayFilterEdit::saveFilter()
 {
-    FilterDialog display_filter_dlg(window(), FilterDialog::DisplayFilter, text());
-    display_filter_dlg.exec();
+    FilterDialog *display_filter_dlg = new FilterDialog(window(), FilterDialog::DisplayFilter, text());
+    display_filter_dlg->setWindowModality(Qt::ApplicationModal);
+    display_filter_dlg->setAttribute(Qt::WA_DeleteOnClose);
+    display_filter_dlg->show();
 }
 
 void DisplayFilterEdit::removeFilter()
@@ -510,8 +512,10 @@ void DisplayFilterEdit::removeFilter()
 
 void DisplayFilterEdit::showFilters()
 {
-    FilterDialog display_filter_dlg(window(), FilterDialog::DisplayFilter);
-    display_filter_dlg.exec();
+    FilterDialog *display_filter_dlg = new FilterDialog(window(), FilterDialog::DisplayFilter);
+    display_filter_dlg->setWindowModality(Qt::ApplicationModal);
+    display_filter_dlg->setAttribute(Qt::WA_DeleteOnClose);
+    display_filter_dlg->show();
 }
 
 void DisplayFilterEdit::showExpressionPrefs()

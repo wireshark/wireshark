@@ -84,6 +84,7 @@ class FileSetDialog;
 class FilterDialog;
 class FunnelStatistics;
 class WelcomePage;
+class PacketCommentDialog;
 class PacketList;
 class ProtoTree;
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
@@ -477,8 +478,11 @@ private slots:
     void on_actionEditNextTimeReference_triggered();
     void on_actionEditPreviousTimeReference_triggered();
     void on_actionEditTimeShift_triggered();
+    void editTimeShiftFinished(int);
     void on_actionEditPacketComment_triggered();
+    void editPacketCommentFinished(PacketCommentDialog* pc_dialog, int result);
     void on_actionDeleteAllPacketComments_triggered();
+    void deleteAllPacketCommentsFinished(int result);
     void on_actionEditConfigurationProfiles_triggered();
     void showPreferencesDialog(QString pane_name);
     void on_actionEditPreferences_triggered();

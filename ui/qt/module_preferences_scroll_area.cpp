@@ -476,8 +476,10 @@ void ModulePreferencesScrollArea::uatPushButtonClicked()
     pref_t *pref = VariantPointer<pref_t>::asPtr(uat_pb->property(pref_prop_));
     if (!pref) return;
 
-    UatDialog uat_dlg(this, prefs_get_uat_value(pref));
-    uat_dlg.exec();
+    UatDialog *uat_dlg = new UatDialog(this, prefs_get_uat_value(pref));
+    uat_dlg->setWindowModality(Qt::ApplicationModal);
+    uat_dlg->setAttribute(Qt::WA_DeleteOnClose);
+    uat_dlg->show();
 }
 
 void ModulePreferencesScrollArea::saveFilenamePushButtonClicked()

@@ -213,8 +213,10 @@ void FieldFilterEdit::changeEvent(QEvent* event)
 
 void FieldFilterEdit::showFilters()
 {
-    FilterDialog display_filter_dlg(window(), FilterDialog::DisplayFilter);
-    display_filter_dlg.exec();
+    FilterDialog *display_filter_dlg = new FilterDialog(window(), FilterDialog::DisplayFilter);
+    display_filter_dlg->setWindowModality(Qt::ApplicationModal);
+    display_filter_dlg->setAttribute(Qt::WA_DeleteOnClose);
+    display_filter_dlg->show();
 }
 
 void FieldFilterEdit::prepareFilter()

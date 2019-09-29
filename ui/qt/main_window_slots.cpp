@@ -156,6 +156,7 @@ DIAG_ON(frame-larger-than=)
 #include "wlan_statistics_dialog.h"
 #include <ui/qt/widgets/wireless_timeline.h>
 
+#include <functional>
 #include <QClipboard>
 #include <QFileInfo>
 #include <QMessageBox>
@@ -1645,7 +1646,6 @@ void MainWindow::softwareUpdateRequested() {
 }
 #endif
 
-
 // File Menu
 
 void MainWindow::on_actionFileOpen_triggered()
@@ -1877,7 +1877,8 @@ void MainWindow::on_actionFilePrint_triggered()
         pdlg_->cap_file_ = cf;
     }
 
-    pdlg_->exec();
+    pdlg_->setWindowModality(Qt::ApplicationModal);
+    pdlg_->show();
 }
 
 // Edit Menu
@@ -2074,11 +2075,20 @@ void MainWindow::on_actionEditPreviousTimeReference_triggered()
 
 void MainWindow::on_actionEditTimeShift_triggered()
 {
-    TimeShiftDialog ts_dialog(this, capture_file_.capFile());
+    TimeShiftDialog *ts_dialog = new TimeShiftDialog(this, capture_file_.capFile());
+    connect(ts_dialog, SIGNAL(finished(int)), this, SLOT(editTimeShiftFinished(int)));
+
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            &ts_dialog, SLOT(setCaptureFile(capture_file*)));
-    connect(&ts_dialog, SIGNAL(timeShifted()), packet_list_, SLOT(applyTimeShift()));
-            ts_dialog.exec();
+            ts_dialog, SLOT(setCaptureFile(capture_file*)));
+    connect(ts_dialog, SIGNAL(timeShifted()), packet_list_, SLOT(applyTimeShift()));
+
+    ts_dialog->setWindowModality(Qt::ApplicationModal);
+    ts_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    ts_dialog->show();
+}
+
+void MainWindow::editTimeShiftFinished(int)
+{
     if (capture_file_.capFile()->unsaved_changes) {
         updateForUnsavedChanges();
     }
@@ -2086,25 +2096,41 @@ void MainWindow::on_actionEditTimeShift_triggered()
 
 void MainWindow::on_actionEditPacketComment_triggered()
 {
-    PacketCommentDialog pc_dialog(capture_file_.capFile()->current_frame->num, this, packet_list_->packetComment());
-    if (pc_dialog.exec() == QDialog::Accepted) {
-        packet_list_->setPacketComment(pc_dialog.text());
+    PacketCommentDialog* pc_dialog;
+    pc_dialog = new PacketCommentDialog(capture_file_.capFile()->current_frame->num, this, packet_list_->packetComment());
+    connect(pc_dialog, &QDialog::finished, std::bind(&MainWindow::editPacketCommentFinished, this, pc_dialog, std::placeholders::_1));
+    pc_dialog->setWindowModality(Qt::ApplicationModal);
+    pc_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    pc_dialog->show();
+}
+
+void MainWindow::editPacketCommentFinished(PacketCommentDialog* pc_dialog, int result)
+{
+    if (result == QDialog::Accepted) {
+        packet_list_->setPacketComment(pc_dialog->text());
         updateForUnsavedChanges();
     }
 }
 
 void MainWindow::on_actionDeleteAllPacketComments_triggered()
 {
-    QMessageBox msg_dialog;
+    QMessageBox *msg_dialog = new QMessageBox();
+    connect(msg_dialog, SIGNAL(finished(int)), this, SLOT(deleteAllPacketCommentsFinished(int)));
 
-    msg_dialog.setIcon(QMessageBox::Question);
-    msg_dialog.setText(tr("Are you sure you want to remove all packet comments?"));
+    msg_dialog->setIcon(QMessageBox::Question);
+    msg_dialog->setText(tr("Are you sure you want to remove all packet comments?"));
 
-    msg_dialog.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-    msg_dialog.setDefaultButton(QMessageBox::Ok);
+    msg_dialog->setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    msg_dialog->setDefaultButton(QMessageBox::Ok);
 
-    if (msg_dialog.exec() == QMessageBox::Ok)
-    {
+    msg_dialog->setWindowModality(Qt::ApplicationModal);
+    msg_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    msg_dialog->show();
+}
+
+void MainWindow::deleteAllPacketCommentsFinished(int result)
+{
+    if (result == QMessageBox::Ok) {
         /* XXX Do we need a wait/hourglass for large files? */
         packet_list_->deleteAllPacketComments();
         updateForUnsavedChanges();
@@ -2113,23 +2139,23 @@ void MainWindow::on_actionDeleteAllPacketComments_triggered()
 
 void MainWindow::on_actionEditConfigurationProfiles_triggered()
 {
-    ProfileDialog cp_dialog;
-
-    cp_dialog.exec();
+    ProfileDialog *cp_dialog = new ProfileDialog();
+    cp_dialog->setWindowModality(Qt::ApplicationModal);
+    cp_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    cp_dialog->show();
 }
 
 void MainWindow::showPreferencesDialog(QString pane_name)
 {
-    PreferencesDialog pref_dialog(this);
+    PreferencesDialog *pref_dialog = new PreferencesDialog(this);
+    connect(pref_dialog, SIGNAL(finished(int)), wsApp, SLOT(flushAppSignals()));
 
     saveWindowGeometry();  // Save in case the layout panes are rearranged
 
-    pref_dialog.setPane(pane_name);
-    pref_dialog.exec();
-
-    // Emitting PacketDissectionChanged directly from a QDialog can cause
-    // problems on macOS.
-    wsApp->flushAppSignals();
+    pref_dialog->setPane(pane_name);
+    pref_dialog->setWindowModality(Qt::ApplicationModal);
+    pref_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    pref_dialog->show();
 }
 
 void MainWindow::on_actionEditPreferences_triggered()
@@ -2341,12 +2367,15 @@ void MainWindow::on_actionViewColorizePacketList_triggered(bool checked) {
 
 void MainWindow::on_actionViewColoringRules_triggered()
 {
-    ColoringRulesDialog coloring_rules_dialog(this);
-    connect(&coloring_rules_dialog, SIGNAL(accepted()),
+    ColoringRulesDialog *coloring_rules_dialog = new ColoringRulesDialog(this);
+    connect(coloring_rules_dialog, SIGNAL(accepted()),
             packet_list_, SLOT(recolorPackets()));
-    connect(&coloring_rules_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
+    connect(coloring_rules_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
             this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    coloring_rules_dialog.exec();
+
+    coloring_rules_dialog->setWindowModality(Qt::ApplicationModal);
+    coloring_rules_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    coloring_rules_dialog->show();
 }
 
 // actionViewColorizeConversation1 - 10
@@ -2623,12 +2652,12 @@ void MainWindow::on_actionAnalyzeDisplayFilterMacros_triggered()
 {
     struct epan_uat* dfm_uat;
     dfilter_macro_get_uat(&dfm_uat);
-    UatDialog uat_dlg(parentWidget(), dfm_uat);
+    UatDialog *uat_dlg = new UatDialog(parentWidget(), dfm_uat);
+    connect(uat_dlg, SIGNAL(finished(int)), wsApp, SLOT(flushAppSignals()));
 
-    uat_dlg.exec();
-    // Emitting PacketDissectionChanged directly from a QDialog can cause
-    // problems on macOS.
-    wsApp->flushAppSignals();
+    uat_dlg->setWindowModality(Qt::ApplicationModal);
+    uat_dlg->setAttribute(Qt::WA_DeleteOnClose);
+    uat_dlg->show();
 }
 
 void MainWindow::on_actionAnalyzeCreateAColumn_triggered()
@@ -2672,12 +2701,12 @@ void MainWindow::applyExportObject()
 
 void MainWindow::on_actionAnalyzeEnabledProtocols_triggered()
 {
-    EnabledProtocolsDialog enable_proto_dialog(this);
-    enable_proto_dialog.exec();
+    EnabledProtocolsDialog *enable_proto_dialog = new EnabledProtocolsDialog(this);
+    connect(enable_proto_dialog, SIGNAL(finished(int)), wsApp, SLOT(flushAppSignals()));
 
-    // Emitting PacketDissectionChanged directly from a QDialog can cause
-    // problems on macOS.
-    wsApp->flushAppSignals();
+    enable_proto_dialog->setWindowModality(Qt::ApplicationModal);
+    enable_proto_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    enable_proto_dialog->show();
 }
 
 void MainWindow::on_actionAnalyzeDecodeAs_triggered()
@@ -2688,12 +2717,12 @@ void MainWindow::on_actionAnalyzeDecodeAs_triggered()
         create_new = true;
     }
 
-    DecodeAsDialog da_dialog(this, capture_file_.capFile(), create_new);
-    da_dialog.exec();
+    DecodeAsDialog *da_dialog = new DecodeAsDialog(this, capture_file_.capFile(), create_new);
+    connect(da_dialog, SIGNAL(finished(int)), wsApp, SLOT(flushAppSignals()));
 
-    // Emitting PacketDissectionChanged directly from a QDialog can cause
-    // problems on macOS.
-    wsApp->flushAppSignals();
+    da_dialog->setWindowModality(Qt::ApplicationModal);
+    da_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    da_dialog->show();
 }
 
 void MainWindow::on_actionAnalyzeReloadLuaPlugins_triggered()
