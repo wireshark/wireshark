@@ -21,6 +21,9 @@ Wireshark 3.1.1 Release Notes
      • You can once again mark and unmark packets using the middle mouse
        button. This feature went missing around 2009 or so.
 
+     • On macOS, Wireshark can now be installed by dropping it onto the
+       Applications folder.
+
    The following features are new (or have been significantly updated)
    since version 3.0.0:
 
@@ -81,9 +84,9 @@ Wireshark 3.1.1 Release Notes
    Service Protocol), Linux net_dm (network drop monitor) protocol, MIDI
    System Exclusive DigiTech (SYSEX DigiTech), Network Controller
    Sideband Interface (NCSI), NR Positioning Protocol A (NRPPa) TS
-   38.455, NVM Express over Fabrics for TCP (nvme-tcp), and OsmoTRX
-   Protocol (GSM Transceiver control and data), and Scalable
-   service-Oriented MiddlewarE over IP (SOME/IP)
+   38.455, NVM Express over Fabrics for TCP (nvme-tcp), OsmoTRX Protocol
+   (GSM Transceiver control and data), and Scalable service-Oriented
+   MiddlewarE over IP (SOME/IP)
 
   Updated Protocol Support
 
@@ -131,7 +134,7 @@ Wireshark 3.1.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[10].
 
-  Last updated 2019-09-22 08:08:45 UTC
+  Last updated 2019-09-29 08:08:30 UTC
 
  References
 

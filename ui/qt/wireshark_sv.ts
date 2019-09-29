@@ -220,8 +220,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <oldsource>CtrlM</oldsource>
-        <translation type="unfinished">Ctrl-M</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -264,7 +263,6 @@
     </message>
     <message>
         <source>LMP Subversion</source>
-        <oldsource>LMP Subverion</oldsource>
         <translation type="unfinished">LMP-underversion</translation>
     </message>
     <message>
@@ -365,8 +363,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <oldsource>CtrlM</oldsource>
-        <translation type="unfinished">Ctrl-M</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -477,8 +474,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <oldsource>CtrlM</oldsource>
-        <translation type="unfinished">Ctrl-M</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -2945,6 +2941,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>SMI MIB/PIB-sökväg</translation>
     </message>
     <message>
+        <source>macOS Extras</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extra macOS packages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Name</source>
         <translation>Namn</translation>
     </message>
@@ -4114,11 +4118,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Decimalt</translation>
     </message>
     <message>
-        <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
-        <oldsource>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</oldsource>
-        <translation type="unfinished">Formatet i vilket tidsstämplar i textfilen skall tolkas (t.ex. %H:%M:%S).  Formatspecifikationer baseras på strptime(3).</translation>
-    </message>
-    <message>
         <source>Timestamp format:</source>
         <translation>Tidsstämpelformat:</translation>
     </message>
@@ -4153,6 +4152,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>None</source>
         <translation>Ingen</translation>
+    </message>
+    <message>
+        <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Encapsulation Type:</source>
@@ -4356,6 +4359,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>External capture interfaces disabled.</source>
         <translation>Externa fångstgränssnitt avaktiverade.</translation>
+    </message>
+    <message>
+        <source>Interfaces not loaded (due to preference). Go to Capture </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Start capture</source>
@@ -6626,10 +6637,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Genomströmning</translation>
     </message>
     <message>
-        <source>TCP througput</source>
-        <translation type="vanished">TCP-genomströmning</translation>
-    </message>
-    <message>
         <source>Round Trip Time</source>
         <translation>Rundturstid</translation>
     </message>
@@ -8678,8 +8685,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be resetted upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ta bort denna profil.  Profiler som tillhandahålls av systemet kan inte tas bort.  Standardprofilen kommer återställas vid radering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy this profile.</source>
@@ -8985,10 +8991,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Description</source>
         <translation type="unfinished">Beskrivning</translation>
-    </message>
-    <message>
-        <source>Desription</source>
-        <translation type="vanished">Beskrivning</translation>
     </message>
     <message>
         <source>Field Name</source>

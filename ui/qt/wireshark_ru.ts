@@ -221,8 +221,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <oldsource>CtrlM</oldsource>
-        <translation type="unfinished">CtrlM</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -265,7 +264,6 @@
     </message>
     <message>
         <source>LMP Subversion</source>
-        <oldsource>LMP Subverion</oldsource>
         <translation type="unfinished">Подверсия LMP</translation>
     </message>
     <message>
@@ -366,8 +364,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <oldsource>CtrlM</oldsource>
-        <translation type="unfinished">CtrlM</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -478,8 +475,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <oldsource>CtrlM</oldsource>
-        <translation type="unfinished">CtrlM</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -2953,6 +2949,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Путь поиска SMI MIB/PIB</translation>
     </message>
     <message>
+        <source>macOS Extras</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extra macOS packages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Name</source>
         <translation>Имя</translation>
     </message>
@@ -4129,11 +4133,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Десятичный</translation>
     </message>
     <message>
-        <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
-        <oldsource>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</oldsource>
-        <translation type="unfinished">Формат, в котором анализировать временные метки в текстовом файле (например, %H:%M:%S.). Определители формата базируются на strptime(3)</translation>
-    </message>
-    <message>
         <source>Timestamp format:</source>
         <translation>Формат временной метки:</translation>
     </message>
@@ -4168,6 +4167,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>None</source>
         <translation>Никакой</translation>
+    </message>
+    <message>
+        <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Encapsulation Type:</source>
@@ -4371,6 +4374,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>External capture interfaces disabled.</source>
         <translation>Внешние интерфейсы захвата отключены. </translation>
+    </message>
+    <message>
+        <source>Interfaces not loaded (due to preference). Go to Capture </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Start capture</source>
@@ -6645,10 +6656,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Пропускная способность</translation>
     </message>
     <message>
-        <source>TCP througput</source>
-        <translation type="vanished">Пропускная способность TCP</translation>
-    </message>
-    <message>
         <source>Round Trip Time</source>
         <translation>Время Передачи От Отправителя К Получателю И Обратно</translation>
     </message>
@@ -8699,7 +8706,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be resetted upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

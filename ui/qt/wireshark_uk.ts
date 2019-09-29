@@ -221,7 +221,6 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <oldsource>CtrlM</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -265,7 +264,6 @@
     </message>
     <message>
         <source>LMP Subversion</source>
-        <oldsource>LMP Subverion</oldsource>
         <translation type="unfinished">Підверсія LMP</translation>
     </message>
     <message>
@@ -366,7 +364,6 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <oldsource>CtrlM</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -478,7 +475,6 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <oldsource>CtrlM</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2924,6 +2920,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>macOS Extras</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extra macOS packages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4071,11 +4075,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Десяткові</translation>
     </message>
     <message>
-        <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
-        <oldsource>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</oldsource>
-        <translation type="unfinished">Формат, на основі котрого відбувається розбір міток часу в текстовому файлі (напр. %H:%M:%S.). Використовуються модифікатори формату з strptime(3)</translation>
-    </message>
-    <message>
         <source>Timestamp format:</source>
         <translation>Формат міток часу:</translation>
     </message>
@@ -4110,6 +4109,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>None</source>
         <translation type="unfinished">Відсутня</translation>
+    </message>
+    <message>
+        <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Encapsulation Type:</source>
@@ -4312,6 +4315,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>External capture interfaces disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interfaces not loaded (due to preference). Go to Capture </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6562,10 +6573,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Пропускна Здатність</translation>
     </message>
     <message>
-        <source>TCP througput</source>
-        <translation type="vanished">Пропускна здатність TCP</translation>
-    </message>
-    <message>
         <source>Round Trip Time</source>
         <translation>Час Обороту</translation>
     </message>
@@ -8605,7 +8612,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be resetted upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

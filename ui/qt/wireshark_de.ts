@@ -220,8 +220,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <oldsource>CtrlM</oldsource>
-        <translation type="unfinished">CtrlM</translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -264,8 +263,7 @@
     </message>
     <message>
         <source>LMP Subversion</source>
-        <oldsource>LMP Subverion</oldsource>
-        <translation type="unfinished">LMP-Subversion</translation>
+        <translation>LMP-Subversion</translation>
     </message>
     <message>
         <source>Manufacturer</source>
@@ -365,8 +363,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <oldsource>CtrlM</oldsource>
-        <translation type="unfinished">CtrlM</translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -477,8 +474,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <oldsource>CtrlM</oldsource>
-        <translation type="unfinished">CtrlM</translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -2945,6 +2941,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Suchpfad für SMI MIB/PIB</translation>
     </message>
     <message>
+        <source>macOS Extras</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extra macOS packages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Name</source>
         <translation>Name</translation>
     </message>
@@ -3082,9 +3086,9 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message numerus="yes">
         <source>%Ln total sub stream(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>&amp;Ln Sub-Stream insgesamt.</numerusform>
+            <numerusform>&amp;Ln Sub-Streams insgesamt.</numerusform>
         </translation>
     </message>
     <message>
@@ -3137,7 +3141,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Substream</source>
-        <translation type="unfinished"></translation>
+        <translation>Sub-Stream</translation>
     </message>
     <message>
         <source>Find:</source>
@@ -4114,11 +4118,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Dezimal</translation>
     </message>
     <message>
-        <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
-        <oldsource>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</oldsource>
-        <translation type="unfinished">Format um den Zeitstempel in der Textdatei einzulesen (z.B. %H:%M:%S.). Format basiert auf strptime(3)</translation>
-    </message>
-    <message>
         <source>Timestamp format:</source>
         <translation>Zeitstempelformat:</translation>
     </message>
@@ -4153,6 +4152,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>None</source>
         <translation>Keine</translation>
+    </message>
+    <message>
+        <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
+        <translation>Format um den Zeitstempel in der Textdatei einzulesen (z.B. %H:%M:%S.). Format basiert auf strptime(3)</translation>
     </message>
     <message>
         <source>Encapsulation Type:</source>
@@ -4356,6 +4359,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>External capture interfaces disabled.</source>
         <translation>Externe Mitschnittschnittstellen deaktiviert.</translation>
+    </message>
+    <message>
+        <source>Interfaces not loaded (due to preference). Go to Capture </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Start capture</source>
@@ -6626,10 +6637,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Durchsatz</translation>
     </message>
     <message>
-        <source>TCP througput</source>
-        <translation type="vanished">TCP Durchsatz</translation>
-    </message>
-    <message>
         <source>Round Trip Time</source>
         <translation>Round-Trip-Zeit</translation>
     </message>
@@ -6655,7 +6662,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>HTTP/2 Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP/2 Stream</translation>
     </message>
     <message>
         <source>Time Sequence (tcptrace)</source>
@@ -7087,7 +7094,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>TCP throughput</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP Durchsatz</translation>
     </message>
     <message>
         <source>TCP Stream</source>
@@ -8678,8 +8685,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be resetted upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dieses Profil löschen. Systemprofile können nicht gelöscht werden. Das Standardprofil wird beim Löschen zurückgesetzt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dieses Profil löschen. Systemprofile können nicht gelöscht werden. Das Standardprofil wird beim Löschen zurückgesetzt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
@@ -8984,11 +8990,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Beschreibung</translation>
-    </message>
-    <message>
-        <source>Desription</source>
-        <translation type="vanished">Beschreibung</translation>
+        <translation>Beschreibung</translation>
     </message>
     <message>
         <source>Field Name</source>

@@ -126,6 +126,7 @@ smpp.reassemble_smpp_over_tcp: FALSE
 smtp.desegment_lines: FALSE
 smtp.desegment_data: FALSE
 snmp.desegment: FALSE
+someip.reassemble_tp: FALSE
 slsk.desegment: FALSE
 soupbintcp.desegment: FALSE
 srvloc.desegment_tcp: FALSE
