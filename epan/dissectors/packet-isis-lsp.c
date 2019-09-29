@@ -3764,6 +3764,12 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
         dissect_lsp_hostname_clv
     },
     {
+        ISIS_CLV_SHARED_RISK_GROUP,
+        "Shared Risk Link Group",
+        &ett_isis_lsp_clv_srlg,
+        dissect_lsp_srlg_clv
+    },
+    {
         ISIS_CLV_TE_ROUTER_ID,
         "Traffic Engineering Router ID",
         &ett_isis_lsp_clv_te_router_id,
