@@ -3082,6 +3082,8 @@ static int hf_ieee80211_addr_staa_resolved = -1;  /* station address resolved*/
 static int hf_ieee80211_addr = -1;  /* Source or destination address subfield */
 static int hf_ieee80211_addr_resolved = -1;/*Src/dst address subfield resolved*/
 
+static int hf_ieee80211_mgt = -1;
+
 /* ************************************************************************* */
 /*                Header values for QoS control field                        */
 /* ************************************************************************* */
@@ -22462,7 +22464,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
   ieee80211_tvb_invalid = FALSE;
 
-  ti = proto_tree_add_item(tree, proto_wlan, tvb, 0, -1, ENC_NA);
+  ti = proto_tree_add_item(tree, hf_ieee80211_mgt, tvb, 0, -1, ENC_NA);
   mgt_tree = proto_item_add_subtree(ti, ett_80211_mgt);
 
   switch (COMPOSE_FRAME_TYPE(fcf))
@@ -26523,6 +26525,11 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_fc_analysis_gtk,
      {"GTK", "wlan.analysis.gtk",
       FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mgt,
+     {"IEEE 802.11 Wireless Management", "wlan.mgt",
+      FT_PROTOCOL, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_block_ack_control,
