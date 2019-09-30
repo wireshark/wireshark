@@ -16,9 +16,15 @@
  *
  * For ERSPAN packets, the "protocol type" field value in the GRE header
  * is 0x88BE (types I and II) or 0x22EB (type III).
- *   ERSPAN type I   has no extra gre header bytes (all flags 0), e.g. Broadcom Trident 2 ASIC
- *   ERSPAN type II  has version = 1
- *   ERSPAN type III has version = 2
+ *
+ * For 0x88BE, if the GRE header doesn't have the "sequence number present"
+ * flag set, it's type I, with no ERSPAN header, otherwise it has an
+ * ERSPAN header (it's supposed to be type II, but we look at the version
+ * in the ERSPAN header; should we report an error if it's not version 1?).
+ *
+ * For 0x22EB, it always has an ERSPAN header (it's supposed to be type III,
+ * but we look at the version in the ERSPAN header; should we report an
+ * error if it's not version 2?).
  */
 
 #include "config.h"
@@ -128,7 +134,6 @@ static const value_string erspan_ft_vals[] = {
 static const value_string erspan_version_vals[] = {
 	{1, "Type II"},
 	{2, "Type III"},
-	{G_MAXUINT16, "Type I"},
 
 	{0, NULL},
 };
@@ -145,50 +150,39 @@ static const value_string erspan_granularity_vals[] = {
 static dissector_handle_t ethnofcs_handle;
 
 static int
-dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *erspan_tree = NULL;
 	tvbuff_t *frame_tvb;
 	guint32 offset = 0;
-	guint16 version;
+	guint32 version;
 	guint32 frame_type = ERSPAN_FT_ETHERNET;
-
-	if (data == NULL) {
-		/*
-		 * We weren't handed the GRE flags or version.
-		 *
-		 * This can happen if a Linux cooked capture is done and
-		 * we get a packet from an "ipgre" interface.
-		 */
-		version = G_MAXUINT16; /* Possible values are 0...15 */
-	} else {
-		guint16 gre_flags_and_ver = *(guint16 *)data;
-
-		if (gre_flags_and_ver == 0) {
-			version = G_MAXUINT16; /* Possible values are 0...15 */
-		} else {
-			version = tvb_get_ntohs(tvb, offset) >> 12;
-		}
-	}
 
 	ti = proto_tree_add_item(tree, proto_erspan, tvb, offset, -1,
 	    ENC_NA);
-	proto_item_append_text(ti, " %s", val_to_str_const(version, erspan_version_vals, "Unknown"));
 	erspan_tree = proto_item_add_subtree(ti, ett_erspan);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
 
+	/*
+	 * Dissect the version field, which is present in all versions
+	 * of the header.
+	 */
+	proto_tree_add_item_ret_uint(erspan_tree, hf_erspan_version, tvb,
+		offset, 2, ENC_BIG_ENDIAN, &version);
+
+	/* Put the version in the header. */
+	proto_item_append_text(ti, " %s", val_to_str_const(version, erspan_version_vals, "Unknown"));
+
+	/*
+	 * Now dissect the rest of the header, based on the version.
+	 */
 	switch (version) {
-	case G_MAXUINT16:
-		/* Nothing to do, GRE header only */
-		break;
 	case 1: {
 		guint32 vlan, vlan_encap;
 
-		proto_tree_add_item(erspan_tree, hf_erspan_version, tvb, offset, 2,
-			ENC_BIG_ENDIAN);
 		proto_tree_add_item_ret_uint(erspan_tree, hf_erspan_vlan, tvb, offset, 2,
 			ENC_BIG_ENDIAN, &vlan);
 		offset += 2;
@@ -217,8 +211,6 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		guint32 subheader = 0;
 		guint32 vlan;
 
-		proto_tree_add_item(erspan_tree, hf_erspan_version, tvb, offset, 2,
-			ENC_BIG_ENDIAN);
 		proto_tree_add_item_ret_uint(erspan_tree, hf_erspan_vlan, tvb, offset, 2,
 			ENC_BIG_ENDIAN, &vlan);
 		pinfo->vlan_id = vlan;
@@ -363,6 +355,79 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		break;
 	}
 	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_erspan_88BE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	gboolean has_erspan_header;
+
+	/*
+	 * Frames with a GRE type of 0x88BE have an ERSPAN header iff
+	 * the "sequence number present" flag is set in the GRE header.
+	 */
+	if (data == NULL) {
+		/*
+		 * We weren't handed the GRE flags or version.
+		 *
+		 * This can happen if a Linux cooked capture is done and
+		 * we get a packet from an "ipgre" interface.
+		 *
+		 * For now, we just assume this is Type I, with no
+		 * header.
+		 */
+		has_erspan_header = FALSE;
+	} else {
+		guint16 gre_flags_and_ver = *(guint16 *)data;
+
+		if (gre_flags_and_ver & GRE_SEQUENCE) {
+			/*
+			 * "sequence number present" set, so it has a
+			 * header.
+			 */
+			has_erspan_header = TRUE;
+		} else {
+			/*
+			 * Not present, so no header.
+			 */
+			has_erspan_header = FALSE;
+		}
+	}
+
+	if (has_erspan_header) {
+		/*
+		 * We have a header, so dissect it, and then handle
+		 * the payload.
+		 */
+		return dissect_erspan(tvb, pinfo, tree);
+	} else {
+		/*
+		 * No header, so just hand the payload off to the
+		 * Ethernet dissector.  Put in a placeholder for
+		 * ERSPAN.
+		 */
+		proto_item *ti;
+
+		ti = proto_tree_add_item(tree, proto_erspan, tvb, 0, 0,
+		    ENC_NA);
+		proto_item_append_text(ti, " Type I");
+
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+		col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
+
+		call_dissector(ethnofcs_handle, tvb, pinfo, tree);
+		return tvb_captured_length(tvb);
+	}
+}
+
+static int
+dissect_erspan_22EB(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	/*
+	 * Frames with a GRE type of 0x22EB always have an ERSPAN
+	 * header.
+	 */
+	return dissect_erspan(tvb, pinfo, tree);
 }
 
 void
@@ -538,13 +603,15 @@ proto_register_erspan(void)
 void
 proto_reg_handoff_erspan(void)
 {
-	dissector_handle_t erspan_handle;
+	dissector_handle_t erspan_88BE_handle;
+	dissector_handle_t erspan_22EB_handle;
 
 	ethnofcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_erspan);
 
-	erspan_handle = create_dissector_handle(dissect_erspan, proto_erspan);
-	dissector_add_uint("gre.proto", GRE_ERSPAN_88BE, erspan_handle);
-	dissector_add_uint("gre.proto", GRE_ERSPAN_22EB, erspan_handle);
+	erspan_88BE_handle = create_dissector_handle(dissect_erspan_88BE, proto_erspan);
+	dissector_add_uint("gre.proto", GRE_ERSPAN_88BE, erspan_88BE_handle);
+	erspan_22EB_handle = create_dissector_handle(dissect_erspan_22EB, proto_erspan);
+	dissector_add_uint("gre.proto", GRE_ERSPAN_22EB, erspan_22EB_handle);
 
 }
 
