@@ -65,6 +65,11 @@ static int hf_sacch_l1h_power_lev = -1;
 static int hf_sacch_l1h_fpc = -1;
 static int hf_sacch_l1h_ta = -1;
 
+static int hf_ptcch_spare = -1;
+static int hf_ptcch_ta_idx = -1;
+static int hf_ptcch_ta_val = -1;
+static int hf_ptcch_padding = -1;
+
 static gint ett_gsmtap = -1;
 
 enum {
@@ -427,6 +432,42 @@ dissect_sacch_l1h(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_ta, tvb, 1, 1, ENC_BIG_ENDIAN);
 }
 
+/* Dissect a PTCCH/D (Packet Timing Advance Control Channel) message.
+ * See 3GPP TS 45.010, section 5.6.2 and 3GPP TS 45.002, section 3.3.4.2.
+ *
+ *   +--------------+--------------+-----+---------------+------------------+
+ *   |    Octet 1   |    Octet 2   |     |    Octet 16   |  Octet 17 .. 23  |
+ *   +---+----------+---+----------+-----+---+-----------+------------------+
+ *   | 0 | TA TAI=0 | 0 | TA TAI=1 | ... | 0 | TA TAI=15 | Padding 00101011 |
+ *   +---+----------+---+----------+-----+---+-----------+------------------+
+ */
+static void
+dissect_ptcch_dl(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree *sub_tree;
+	proto_item *ti, *gi;
+	int offset;
+
+	if (!tree)
+		return;
+
+	ti = proto_tree_add_protocol_format(tree, proto_gsmtap, tvb, 0, 23,
+		"PTCCH (Packet Timing Advance Control Channel) on Downlink");
+	sub_tree = proto_item_add_subtree(ti, ett_gsmtap);
+
+	for (offset = 0; offset < 16; offset++) {
+		/* Meta info: Timing Advance Index */
+		gi = proto_tree_add_uint(sub_tree, hf_ptcch_ta_idx, tvb, 0, 0, offset);
+		proto_item_set_generated(gi);
+
+		proto_tree_add_item(sub_tree, hf_ptcch_spare, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(sub_tree, hf_ptcch_ta_val, tvb, offset, 1, ENC_NA);
+	}
+
+	/* Spare padding */
+	proto_tree_add_item(sub_tree, hf_ptcch_padding, tvb, offset, -1, ENC_NA);
+}
+
 static void
 handle_lapdm(guint8 sub_type, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -640,6 +681,17 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 				sub_handle = GSMTAP_SUB_UM_RLC_MAC_DL;
 			}
 			break;
+		/* See 3GPP TS 45.003, section 5.2 "Packet control channels" */
+		case GSMTAP_CHANNEL_PTCCH:
+			/* PTCCH/D carries Timing Advance updates encoded with CS-1 */
+			if (pinfo->p2p_dir == P2P_DIR_RECV) {
+				dissect_ptcch_dl(payload_tvb, tree);
+				return tvb_captured_length(tvb);
+			}
+
+			/* PTCCH/U carries Access Bursts for Timing Advance estimation */
+			sub_handle = GSMTAP_SUB_DATA;
+			break;
 
 	        case GSMTAP_CHANNEL_CBCH51:
 		case GSMTAP_CHANNEL_CBCH52:
@@ -789,6 +841,16 @@ proto_register_gsmtap(void)
 		  NULL, HFILL } },
 		{ &hf_sacch_l1h_ta, { "Actual Timing Advance", "gsmtap.sacch_l1.ta",
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+
+		/* PTCCH (Packet Timing Advance Control Channel) on Downlink */
+		{ &hf_ptcch_spare, { "Spare Bit", "gsmtap.ptcch.spare",
+		  FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL } },
+		{ &hf_ptcch_ta_idx, { "Timing Advance Index", "gsmtap.ptcch.ta_idx",
+		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_ptcch_ta_val, { "Timing Advance Value", "gsmtap.ptcch.ta_val",
+		  FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL } },
+		{ &hf_ptcch_padding, { "Spare Padding", "gsmtap.ptcch.padding",
+		  FT_BYTES, SEP_SPACE, NULL, 0, NULL, HFILL } },
 	};
 	static gint *ett[] = {
 		&ett_gsmtap
