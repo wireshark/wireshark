@@ -131,10 +131,20 @@ static int hf_smb2_flags = -1;
 static int hf_smb2_required_buffer_size = -1;
 static int hf_smb2_getinfo_input_size = -1;
 static int hf_smb2_getinfo_input_offset = -1;
-static int hf_smb2_getinfo_additional = -1;
+static int hf_smb2_getsetinfo_additional = -1;
+static int hf_smb2_getsetinfo_additionals = -1;
+static int hf_smb2_getsetinfo_additional_owner = -1;
+static int hf_smb2_getsetinfo_additional_group = -1;
+static int hf_smb2_getsetinfo_additional_dacl = -1;
+static int hf_smb2_getsetinfo_additional_sacl = -1;
+static int hf_smb2_getsetinfo_additional_label = -1;
+static int hf_smb2_getsetinfo_additional_attribute = -1;
+static int hf_smb2_getsetinfo_additional_scope = -1;
+static int hf_smb2_getsetinfo_additional_backup = -1;
 static int hf_smb2_getinfo_flags = -1;
 static int hf_smb2_setinfo_size = -1;
 static int hf_smb2_setinfo_offset = -1;
+static int hf_smb2_setinfo_reserved = -1;
 static int hf_smb2_file_basic_info = -1;
 static int hf_smb2_file_standard_info = -1;
 static int hf_smb2_file_internal_info = -1;
@@ -573,6 +583,7 @@ static gint ett_smb2_fs_info_06 = -1;
 static gint ett_smb2_fs_info_07 = -1;
 static gint ett_smb2_fs_objectid_info = -1;
 static gint ett_smb2_sec_info_00 = -1;
+static gint ett_smb2_additional_information_sec_mask = -1;
 static gint ett_smb2_quota_info = -1;
 static gint ett_smb2_query_quota_info = -1;
 static gint ett_smb2_tid_tree = -1;
@@ -4898,16 +4909,92 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	return offset;
 }
 
+static const true_false_string tfs_additional_owner = {
+	"Requesting OWNER security information",
+	"NOT requesting owner security information",
+};
+
+static const true_false_string tfs_additional_group = {
+	"Requesting GROUP security information",
+	"NOT requesting group security information",
+};
+
+static const true_false_string tfs_additional_dacl = {
+	"Requesting DACL security information",
+	"NOT requesting DACL security information",
+};
+
+static const true_false_string tfs_additional_sacl = {
+	"Requesting SACL security information",
+	"NOT requesting SACL security information",
+};
+
+static const true_false_string tfs_additional_label = {
+	"Requesting integrity label security information",
+	"NOT requesting integrity label security information",
+};
+
+static const true_false_string tfs_additional_attribute = {
+	"Requesting resource attribute security information",
+	"NOT requesting resource attribute security information",
+};
+
+static const true_false_string tfs_additional_scope = {
+	"Requesting central access policy security information",
+	"NOT requesting central access policy security information",
+};
+
+static const true_false_string tfs_additional_backup = {
+	"Requesting backup operation security information",
+	"NOT requesting backup operation security information",
+};
+
+#ifndef _MSC_VER
+/*  Those macros are already defined by winnt.h for Windows build */
+#define OWNER_SECURITY_INFORMATION 0x00000001
+#define GROUP_SECURITY_INFORMATION 0x00000002
+#define DACL_SECURITY_INFORMATION 0x00000004
+#define SACL_SECURITY_INFORMATION 0x00000008
+#define LABEL_SECURITY_INFORMATION 0x00000010
+#define ATTRIBUTE_SECURITY_INFORMATION 0x00000020
+#define SCOPE_SECURITY_INFORMATION 0x00000040
+#define BACKUP_SECURITY_INFORMATION 0x00010000
+#endif
+
+static int
+dissect_additional_information_sec_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
+{
+	/*	Note that in SMB1 protocol some security flags were not defined yet - see dissect_security_information_mask()
+		So for SMB2 we have to use own dissector */
+	static const int * flags[] = {
+		&hf_smb2_getsetinfo_additional_owner,
+		&hf_smb2_getsetinfo_additional_group,
+		&hf_smb2_getsetinfo_additional_dacl,
+		&hf_smb2_getsetinfo_additional_sacl,
+		&hf_smb2_getsetinfo_additional_label,
+		&hf_smb2_getsetinfo_additional_attribute,
+		&hf_smb2_getsetinfo_additional_scope,
+		&hf_smb2_getsetinfo_additional_backup,
+		NULL
+	};
+
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_smb2_getsetinfo_additionals,
+		ett_smb2_additional_information_sec_mask, flags, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
+
 static int
 dissect_smb2_getinfo_parameters(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	/* Additional Info */
 	switch (si->saved->smb2_class) {
 	case SMB2_CLASS_SEC_INFO:
-		dissect_security_information_mask(tvb, tree, offset);
+		dissect_additional_information_sec_mask(tvb, tree, offset);
 		break;
 	default:
-		proto_tree_add_item(tree, hf_smb2_getinfo_additional, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_smb2_getsetinfo_additional, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	}
 	offset += 4;
 
@@ -8536,16 +8623,27 @@ dissect_smb2_setinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree_add_item(tree, hf_smb2_setinfo_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 6, ENC_NA);
-	offset += 6;
+	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_setinfo_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	if (si->saved && si->saved->smb2_class == SMB2_CLASS_SEC_INFO) {
+		/* AdditionalInformation (4 bytes): Provides additional information to the server.
+			If security information is being set, this value MUST contain a 4-byte bit field
+			of flags indicating what security attributes MUST be applied.  */
+		offset = dissect_additional_information_sec_mask(tvb, tree, offset);
+	} else {
+		/* For all other set requests, this field MUST be 0. */
+		proto_tree_add_item(tree, hf_smb2_getsetinfo_additional, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+	}
 
 	/* fid */
 	dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
 
 	/* data */
 	if (si->saved)
-	  dissect_smb2_infolevel(tvb, pinfo, tree, setinfo_offset, si, si->saved->smb2_class, si->saved->infolevel);
+		dissect_smb2_infolevel(tvb, pinfo, tree, setinfo_offset, si, si->saved->smb2_class, si->saved->infolevel);
 	offset = setinfo_offset + setinfo_size;
 
 	return offset;
@@ -10176,10 +10274,47 @@ proto_register_smb2(void)
 			NULL, 0, NULL, HFILL }
 		},
 
-		{ &hf_smb2_getinfo_additional,
-			{ "Additional Info", "smb2.getinfo_additional", FT_UINT32, BASE_HEX,
+		{ &hf_smb2_getsetinfo_additional,
+			{ "Additional Info", "smb2.getsetinfo_additional", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }
 		},
+
+		{ &hf_smb2_getsetinfo_additionals,
+			{ "Additional Info", "smb2.getsetinfo_additionals", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_getsetinfo_additional_owner,
+			{ "Owner", "smb2.getsetinfo_additional_secinfo.owner", FT_BOOLEAN, 32,
+			TFS(&tfs_additional_owner), OWNER_SECURITY_INFORMATION, "Is owner security information being queried?", HFILL }},
+
+		{ &hf_smb2_getsetinfo_additional_group,
+			{ "Group", "smb2.getsetinfo_additional_secinfo.group", FT_BOOLEAN, 32,
+			TFS(&tfs_additional_group), GROUP_SECURITY_INFORMATION, "Is group security information being queried?", HFILL }},
+
+		{ &hf_smb2_getsetinfo_additional_dacl,
+			{ "DACL", "smb2.getsetinfo_additional_secinfo.dacl", FT_BOOLEAN, 32,
+			TFS(&tfs_additional_dacl), DACL_SECURITY_INFORMATION, "Is DACL security information being queried?", HFILL }},
+
+		{ &hf_smb2_getsetinfo_additional_sacl,
+			{ "SACL", "smb2.getsetinfo_additional_secinfo.sacl", FT_BOOLEAN, 32,
+			TFS(&tfs_additional_sacl), SACL_SECURITY_INFORMATION, "Is SACL security information being queried?", HFILL }},
+
+		{ &hf_smb2_getsetinfo_additional_label,
+			{ "Integrity label", "smb2.getsetinfo_additional_secinfo.label", FT_BOOLEAN, 32,
+			TFS(&tfs_additional_label), LABEL_SECURITY_INFORMATION, "Is integrity label security information being queried?", HFILL }},
+
+		{ &hf_smb2_getsetinfo_additional_attribute,
+			{ "Resource attribute", "smb2.getsetinfo_additional_secinfo.attribute", FT_BOOLEAN, 32,
+			TFS(&tfs_additional_attribute), ATTRIBUTE_SECURITY_INFORMATION, "Is resource attribute security information being queried?", HFILL }},
+
+		{ &hf_smb2_getsetinfo_additional_scope,
+			{ "Central access policy", "smb2.getsetinfo_additional_secinfo.scope", FT_BOOLEAN, 32,
+			TFS(&tfs_additional_scope), SCOPE_SECURITY_INFORMATION, "Is central access policy security information being queried?", HFILL }},
+
+		{ &hf_smb2_getsetinfo_additional_backup,
+			{ "Backup operation", "smb2.getsetinfo_additional_secinfo.backup", FT_BOOLEAN, 32,
+			TFS(&tfs_additional_backup), BACKUP_SECURITY_INFORMATION, "Is backup operation security information being queried?", HFILL }},
 
 		{ &hf_smb2_getinfo_flags,
 			{ "Flags", "smb2.getinfo_flags", FT_UINT32, BASE_HEX,
@@ -10193,6 +10328,11 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_setinfo_offset,
 			{ "Setinfo Offset", "smb2.setinfo_offset", FT_UINT16, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_setinfo_reserved,
+			{ "Reserved", "smb2.setinfo_reserved", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -12457,6 +12597,7 @@ proto_register_smb2(void)
 		&ett_smb2_fs_info_07,
 		&ett_smb2_fs_objectid_info,
 		&ett_smb2_sec_info_00,
+		&ett_smb2_additional_information_sec_mask,
 		&ett_smb2_quota_info,
 		&ett_smb2_query_quota_info,
 		&ett_smb2_tid_tree,
