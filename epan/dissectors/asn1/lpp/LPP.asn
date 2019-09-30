@@ -1,4 +1,4 @@
--- 3GPP TS 36.355 V15.4.0 (2019-06)
+-- 3GPP TS 36.355 V15.5.0 (2019-09)
 --
 
 LPP-PDU-Definitions {
@@ -751,7 +751,8 @@ LocationSource-r13 ::= BIT STRING {	a-gnss				(0),
 									bt					(2),
 									tbs					(3),
 									sensor				(4),
-									ha-gnss-v1510		(5) } (SIZE(1..16))
+									ha-gnss-v1510		(5),
+									motion-sensor-v1550 (6) } (SIZE(1..16))
 
 
 CommonIEsAbort ::= SEQUENCE {
@@ -2912,7 +2913,7 @@ GNSS-GenericAssistanceDataSupport ::=
 
 GNSS-GenericAssistDataSupportElement ::= SEQUENCE {
 	gnss-ID								GNSS-ID,
-	sbas-ID								SBAS-ID						OPTIONAL, -- Cond GNSS-ID-SBAS
+	sbas-ID								SBAS-ID						OPTIONAL, -- Cond GNSS‑ID‑SBAS
 	gnss-TimeModelsSupport				GNSS-TimeModelListSupport
 																	OPTIONAL, -- Cond TimeModSup
 	gnss-DifferentialCorrectionsSupport	GNSS-DifferentialCorrectionsSupport

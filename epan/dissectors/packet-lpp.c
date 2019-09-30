@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 36.355 version 15.4.0 Release 15
+ * Ref 3GPP TS 36.355 version 15.5.0 Release 15
  * http://www.3gpp.org
  */
 
@@ -1542,6 +1542,7 @@ static int hf_lpp_LocationSource_r13_bt = -1;
 static int hf_lpp_LocationSource_r13_tbs = -1;
 static int hf_lpp_LocationSource_r13_sensor = -1;
 static int hf_lpp_LocationSource_r13_ha_gnss_v1510 = -1;
+static int hf_lpp_LocationSource_r13_motion_sensor_v1550 = -1;
 static int hf_lpp_T_adType_r14_prs = -1;
 static int hf_lpp_T_adType_r14_nprs = -1;
 static int hf_lpp_T_otdoa_Mode_ue_assisted = -1;
@@ -16088,13 +16089,14 @@ static const int * LocationSource_r13_bits[] = {
   &hf_lpp_LocationSource_r13_tbs,
   &hf_lpp_LocationSource_r13_sensor,
   &hf_lpp_LocationSource_r13_ha_gnss_v1510,
+  &hf_lpp_LocationSource_r13_motion_sensor_v1550,
   NULL
 };
 
 static int
 dissect_lpp_LocationSource_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, LocationSource_r13_bits, 6, NULL, NULL);
+                                     1, 16, FALSE, LocationSource_r13_bits, 7, NULL, NULL);
 
   return offset;
 }
@@ -24448,6 +24450,10 @@ void proto_register_lpp(void) {
     { &hf_lpp_LocationSource_r13_ha_gnss_v1510,
       { "ha-gnss-v1510", "lpp.LocationSource.r13.ha.gnss.v1510",
         FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_lpp_LocationSource_r13_motion_sensor_v1550,
+      { "motion-sensor-v1550", "lpp.LocationSource.r13.motion.sensor.v1550",
+        FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lpp_T_adType_r14_prs,
       { "prs", "lpp.T.adType.r14.prs",
