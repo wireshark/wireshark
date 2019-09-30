@@ -3030,8 +3030,8 @@ void MainWindow::statCommandConversations(const char *arg, void *userdata)
     ConversationDialog *conv_dialog = new ConversationDialog(*this, capture_file_, GPOINTER_TO_INT(userdata), arg);
     connect(conv_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
         this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    connect(conv_dialog, SIGNAL(openFollowStreamDialog(follow_type_t, guint)),
-        this, SLOT(openFollowStreamDialog(follow_type_t, guint)));
+    connect(conv_dialog, SIGNAL(openFollowStreamDialog(follow_type_t, guint, guint)),
+        this, SLOT(openFollowStreamDialog(follow_type_t, guint, guint)));
     connect(conv_dialog, SIGNAL(openTcpStreamGraph(int)),
         this, SLOT(openTcpStreamDialog(int)));
     conv_dialog->show();

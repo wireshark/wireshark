@@ -212,7 +212,8 @@ void ConversationDialog::followStream()
     }
 
     // Will set the display filter too.
-    emit openFollowStreamDialog(ftype, conv_item->conv_id);
+    // TCP and UDP do not have a "sub-stream", so set a dummy value.
+    emit openFollowStreamDialog(ftype, conv_item->conv_id, 0);
 }
 
 void ConversationDialog::graphTcp()
