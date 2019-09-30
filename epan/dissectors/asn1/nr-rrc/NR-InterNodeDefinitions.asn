@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V15.6.0 (2019-06)
+-- 3GPP TS 38.331 V15.7.0 (2019-09)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -312,8 +312,18 @@ CG-ConfigInfo-v1560-IEs ::=	 SEQUENCE {
     }                                                                                             OPTIONAL,
     measResultCellListSFTD-EUTRA        MeasResultCellListSFTD-EUTRA                              OPTIONAL,
     fr-InfoListMCG                      FR-InfoList                                               OPTIONAL,
+    nonCriticalExtension                CG-ConfigInfo-v1570-IEs                                   OPTIONAL
+}
+
+CG-ConfigInfo-v1570-IEs ::=  SEQUENCE {
+    sftdFrequencyList-NR                SFTD-FrequencyList-NR                                     OPTIONAL,
+    sftdFrequencyList-EUTRA             SFTD-FrequencyList-EUTRA                                  OPTIONAL,
     nonCriticalExtension                SEQUENCE {}                                               OPTIONAL
 }
+
+SFTD-FrequencyList-NR ::=               SEQUENCE (SIZE (1..maxCellSFTD)) OF ARFCN-ValueNR
+
+SFTD-FrequencyList-EUTRA ::=            SEQUENCE (SIZE (1..maxCellSFTD)) OF ARFCN-ValueEUTRA
 
 ConfigRestrictInfoSCG ::=       SEQUENCE {
     allowedBC-ListMRDC              BandCombinationInfoList                                       OPTIONAL,
@@ -331,11 +341,13 @@ ConfigRestrictInfoSCG ::=       SEQUENCE {
     maxMeasIdentitiesSCG-NR             INTEGER(1..maxMeasIdentitiesMN)                           OPTIONAL,
     ...,
     [[
-    selectedBandEntriesMN            SEQUENCE (SIZE (1..maxSimultaneousBands)) OF BandEntryIndex  OPTIONAL,
+    selectedBandEntriesMNList        SEQUENCE (SIZE (1..maxBandComb)) OF SelectedBandEntriesMN    OPTIONAL,
     pdcch-BlindDetectionSCG          INTEGER (1..15)                                              OPTIONAL,
     maxNumberROHC-ContextSessionsSN  INTEGER(0.. 16384)                                           OPTIONAL
     ]]
 }
+
+SelectedBandEntriesMN ::=       SEQUENCE (SIZE (1..maxSimultaneousBands)) OF BandEntryIndex
 
 BandEntryIndex ::=              INTEGER (0.. maxNrofServingCells) 
 
@@ -445,14 +457,14 @@ MeasurementTimingConfiguration ::=      SEQUENCE {
 }
 
 MeasurementTimingConfiguration-IEs ::=  SEQUENCE {
-    measTiming                              MeasTimingList                           OPTIONAL,
-    nonCriticalExtension                    MeasurementTimingConfiguration-v1550-IEs OPTIONAL
+    measTiming                              MeasTimingList                              OPTIONAL,
+    nonCriticalExtension                    MeasurementTimingConfiguration-v1550-IEs    OPTIONAL
 }
 
 MeasurementTimingConfiguration-v1550-IEs ::= SEQUENCE {
     campOnFirstSSB                               BOOLEAN,
     psCellOnlyOnFirstSSB                         BOOLEAN,
-    nonCriticalExtension                         SEQUENCE {}                        OPTIONAL
+    nonCriticalExtension                         SEQUENCE {}                            OPTIONAL
 }
 
 MeasTimingList ::= SEQUENCE (SIZE (1..maxMeasFreqsMN)) OF MeasTiming
@@ -462,12 +474,12 @@ MeasTiming ::= SEQUENCE {
         carrierFreq                             ARFCN-ValueNR,
         ssbSubcarrierSpacing                    SubcarrierSpacing,
         ssb-MeasurementTimingConfiguration      SSB-MTC,
-        ss-RSSI-Measurement                     SS-RSSI-Measurement                 OPTIONAL
-    }                                                                               OPTIONAL,
+        ss-RSSI-Measurement                     SS-RSSI-Measurement                         OPTIONAL
+    }                                                                                   OPTIONAL,
 ...,
-    [[
-    ssb-ToMeasure-v1540                     SSB-ToMeasure                           OPTIONAL,
-    physCellId                              PhysCellId                              OPTIONAL
+    [[    
+    ssb-ToMeasure-v1540                     SSB-ToMeasure                               OPTIONAL,
+    physCellId                              PhysCellId                                  OPTIONAL
     ]]
 }
 
@@ -508,8 +520,8 @@ UERadioAccessCapabilityInformation ::= SEQUENCE {
 }
 
 UERadioAccessCapabilityInformation-IEs ::= SEQUENCE {
-    ue-RadioAccessCapabilityInfo        OCTET STRING (CONTAINING UE-CapabilityRAT-ContainerList),
-    nonCriticalExtension                SEQUENCE {}                           OPTIONAL
+    ue-RadioAccessCapabilityInfo               OCTET STRING (CONTAINING UE-CapabilityRAT-ContainerList),
+    nonCriticalExtension                       SEQUENCE {}                                                   OPTIONAL
 }
 
 -- TAG-UE-RADIO-ACCESS-CAPABILITY-INFORMATION-STOP

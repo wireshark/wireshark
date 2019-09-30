@@ -371,15 +371,6 @@ RAT-Type TYPE_PREFIX
     nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, eutra_scg_tvb, actx->pinfo, subtree);
   }
 
-#.FN_BODY RRCReconfigurationComplete-v1560-IEs/scg-Response/nr-SCG-Response VAL_PTR = &nr_scg_response_tvb
-  tvbuff_t *nr_scg_response_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (nr_scg_response_tvb) {
-    proto_tree *subtree;
-    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_nr_SCG_Response);
-    dissect_nr_rrc_RRCReconfigurationComplete_PDU(nr_scg_response_tvb, actx->pinfo, subtree, NULL);
-  }
-
 #.FN_BODY RRCReconfigurationComplete-v1560-IEs/scg-Response/eutra-SCG-Response VAL_PTR = &eutra_scg_response_tvb
   tvbuff_t *eutra_scg_response_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -910,8 +901,6 @@ T-Reselection DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 #.TYPE_ATTR
 EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-
-
 #.FN_BODY RLC-BearerConfig
   struct mac_nr_info *p_mac_nr_info;
   /* Get the struct and clear it out */
@@ -926,13 +915,11 @@ EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
     set_mac_nr_bearer_mapping(drb_mapping);
   }
 
-
 #.FN_BODY DRB-Identity VAL_PTR=&value
   guint32 value;
   nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
 %(DEFAULT_BODY)s
   mapping->drbid = (guint8)value;
-
 
 #.FN_BODY RLC-Config VAL_PTR=&value
   guint32 value;
@@ -941,14 +928,12 @@ EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
   mapping->rlcMode = (value==0) ? RLC_AM_MODE : RLC_UM_MODE;
   mapping->rlcMode_present = TRUE;
 
-
 #.FN_BODY LogicalChannelIdentity VAL_PTR=&value
   guint32 value;
   nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
 %(DEFAULT_BODY)s
   mapping->lcid = (guint8)value;
   mapping->lcid_present = TRUE;
-
 
 #.FN_BODY UL-UM-RLC
   nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
@@ -984,8 +969,6 @@ EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
     mapping->rlcDlSnLength = (value=0) ? 6 : 12;
   }
 
-
-
 #.FN_BODY SN-FieldLengthAM  VAL_PTR=&value
   guint32 value;
 %(DEFAULT_BODY)s
@@ -998,9 +981,6 @@ EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
     mapping->rlcDlSnLength_present = TRUE;
     mapping->rlcDlSnLength = (value=0) ? 12 : 18;
   }
-
-
-
 
 #.FN_BODY DRB-ToAddMod
   nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
@@ -1029,6 +1009,9 @@ EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
 %(DEFAULT_BODY)s
   mapping->pdcpDlSnLength_present = TRUE;
   mapping->pdcpDlSnLength = (value) ? 18 : 12;
+
+#.TYPE_ATTR
+CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_dl_1024QAM_TotalWeightedLayers_fmt)
 
 #.FN_BODY AS-Config/eag_1/sourceSCG-EUTRA-Config VAL_PTR = &src_scg_eutra_config_tvb
   tvbuff_t *src_scg_eutra_config_tvb = NULL;

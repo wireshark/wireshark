@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V15.6.0 (2019-06)
+-- 3GPP TS 38.331 V15.7.0 (2019-09)
 
 NR-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -147,7 +147,7 @@ UL-DCCH-MessageType ::=         CHOICE {
         ueCapabilityInformation         UECapabilityInformation,
         counterCheckResponse            CounterCheckResponse,
         ueAssistanceInformation         UEAssistanceInformation,
-        failureInformation              FailureInformation, 
+        failureInformation              FailureInformation,
         ulInformationTransferMRDC       ULInformationTransferMRDC,
         scgFailureInformation           SCGFailureInformation,
         scgFailureInformationEUTRA      SCGFailureInformationEUTRA
@@ -243,7 +243,7 @@ FailureInformation-IEs ::=     SEQUENCE {
 FailureInfoRLC-Bearer ::=      SEQUENCE {
     cellGroupId                    CellGroupId,
     logicalChannelIdentity         LogicalChannelIdentity,
-    failureType                    ENUMERATED {duplication, spare3, spare2, spare1}
+    failureType                    ENUMERATED {rlc-failure, spare3, spare2, spare1}
 }
 
 -- TAG-FAILUREINFORMATION-STOP
@@ -257,10 +257,9 @@ LocationMeasurementIndication ::=   SEQUENCE {
 }
 
 LocationMeasurementIndication-IEs ::=       SEQUENCE {
-    measurementIndication       CHOICE {release NULL, setup LocationMeasurementInfo},
-
-    lateNonCriticalExtension                OCTET STRING                                                            OPTIONAL,
-    nonCriticalExtension                    SEQUENCE{}                                                              OPTIONAL
+    measurementIndication                       CHOICE {release NULL, setup LocationMeasurementInfo},
+    lateNonCriticalExtension                    OCTET STRING                                                            OPTIONAL,
+    nonCriticalExtension                        SEQUENCE{}                                                              OPTIONAL
 }
 
 -- TAG-LOCATIONMEASUREMENTINDICATION-STOP
@@ -436,7 +435,7 @@ RRCReconfiguration-v1560-IEs ::=            SEQUENCE {
 MRDC-SecondaryCellGroupConfig ::=       SEQUENCE {
     mrdc-ReleaseAndAdd                  ENUMERATED {true}                                                         OPTIONAL,   -- Need N
     mrdc-SecondaryCellGroup             CHOICE {
-        nr-SCG                              OCTET STRING  (CONTAINING RRCReconfiguration), 
+        nr-SCG                              OCTET STRING  (CONTAINING RRCReconfiguration),
         eutra-SCG                           OCTET STRING
     }
 }
@@ -471,7 +470,7 @@ RRCReconfigurationComplete-v1530-IEs ::=    SEQUENCE {
 
 RRCReconfigurationComplete-v1560-IEs ::=    SEQUENCE {
     scg-Response                                CHOICE {
-        nr-SCG-Response                                 OCTET STRING,
+        nr-SCG-Response                                 OCTET STRING (CONTAINING RRCReconfigurationComplete),
         eutra-SCG-Response                              OCTET STRING
     }                                                                                                                   OPTIONAL,
     nonCriticalExtension                        SEQUENCE {}                                                             OPTIONAL
@@ -905,7 +904,7 @@ SIB1 ::=        SEQUENCE {
         }                                                                                               OPTIONAL    -- Need S
     }                                                                                                   OPTIONAL,   -- Need R
 
-    useFullResumeID                     ENUMERATED {true}                                               OPTIONAL,   -- Need N
+    useFullResumeID                     ENUMERATED {true}                                               OPTIONAL,   -- Need R
 
     lateNonCriticalExtension            OCTET STRING                                                    OPTIONAL,
     nonCriticalExtension                SEQUENCE{}                                                      OPTIONAL
@@ -1116,10 +1115,10 @@ SIB2 ::=                            SEQUENCE {
         t-ReselectionNR                     T-Reselection,
         frequencyBandList                   MultiFrequencyBandListNR-SIB                    OPTIONAL,       -- Need S
         frequencyBandListSUL                MultiFrequencyBandListNR-SIB                    OPTIONAL,       -- Need R
-        p-Max                               P-Max                                           OPTIONAL,       -- Need R
-        smtc                                SSB-MTC                                         OPTIONAL,       -- Need R
+        p-Max                               P-Max                                           OPTIONAL,       -- Need S
+        smtc                                SSB-MTC                                         OPTIONAL,       -- Need S
         ss-RSSI-Measurement                 SS-RSSI-Measurement                             OPTIONAL,       -- Need R
-        ssb-ToMeasure                       SSB-ToMeasure                                   OPTIONAL,       -- Need R
+        ssb-ToMeasure                       SSB-ToMeasure                                   OPTIONAL,       -- Need S
         deriveSSB-IndexFromCell             BOOLEAN,
         ...,
         [[
@@ -1169,19 +1168,19 @@ InterFreqCarrierFreqInfo ::=        SEQUENCE {
     dl-CarrierFreq                      ARFCN-ValueNR,
     frequencyBandList                   MultiFrequencyBandListNR-SIB                OPTIONAL,   -- Cond Mandatory
     frequencyBandListSUL                MultiFrequencyBandListNR-SIB                OPTIONAL,   -- Need R
-    nrofSS-BlocksToAverage              INTEGER (2..maxNrofSS-BlocksToAverage)      OPTIONAL,   -- Need R
-    absThreshSS-BlocksConsolidation     ThresholdNR                                 OPTIONAL,   -- Need R
-    smtc                                SSB-MTC                                     OPTIONAL,   -- Need R
+    nrofSS-BlocksToAverage              INTEGER (2..maxNrofSS-BlocksToAverage)      OPTIONAL,   -- Need S
+    absThreshSS-BlocksConsolidation     ThresholdNR                                 OPTIONAL,   -- Need S
+    smtc                                SSB-MTC                                     OPTIONAL,   -- Need S
     ssbSubcarrierSpacing                SubcarrierSpacing,
-    ssb-ToMeasure                       SSB-ToMeasure                               OPTIONAL,   -- Need R
+    ssb-ToMeasure                       SSB-ToMeasure                               OPTIONAL,   -- Need S
     deriveSSB-IndexFromCell             BOOLEAN,
     ss-RSSI-Measurement                 SS-RSSI-Measurement                         OPTIONAL,
     q-RxLevMin                          Q-RxLevMin,
     q-RxLevMinSUL                       Q-RxLevMin                                  OPTIONAL,   -- Need R
-    q-QualMin                           Q-QualMin                                   OPTIONAL,   -- Need S,
-    p-Max                               P-Max                                       OPTIONAL,   -- Need R
+    q-QualMin                           Q-QualMin                                   OPTIONAL,   -- Need S
+    p-Max                               P-Max                                       OPTIONAL,   -- Need S
     t-ReselectionNR                     T-Reselection,
-    t-ReselectionNR-SF                  SpeedStateScaleFactors                      OPTIONAL,    -- Need S
+    t-ReselectionNR-SF                  SpeedStateScaleFactors                      OPTIONAL,   -- Need S
     threshX-HighP                       ReselectionThreshold,
     threshX-LowP                        ReselectionThreshold,
     threshX-Q                           SEQUENCE {
@@ -1372,6 +1371,19 @@ BFR-CSIRS-Resource ::=              SEQUENCE {
 }
 
 -- TAG-BEAMFAILURERECOVERYCONFIG-STOP
+-- TAG-BETAOFFSETS-START
+
+BetaOffsets ::=                     SEQUENCE {
+    betaOffsetACK-Index1                INTEGER(0..31)                                                          OPTIONAL, -- Need S
+    betaOffsetACK-Index2                INTEGER(0..31)                                                          OPTIONAL, -- Need S
+    betaOffsetACK-Index3                INTEGER(0..31)                                                          OPTIONAL, -- Need S
+    betaOffsetCSI-Part1-Index1          INTEGER(0..31)                                                          OPTIONAL, -- Need S
+    betaOffsetCSI-Part1-Index2          INTEGER(0..31)                                                          OPTIONAL, -- Need S
+    betaOffsetCSI-Part2-Index1          INTEGER(0..31)                                                          OPTIONAL, -- Need S
+    betaOffsetCSI-Part2-Index2          INTEGER(0..31)                                                          OPTIONAL  -- Need S
+}
+
+-- TAG-BETAOFFSETS-STOP
 -- TAG-BSR-CONFIG-START
 
 BSR-Config ::=                      SEQUENCE {
@@ -1694,7 +1706,7 @@ CodebookConfig ::=                                  SEQUENCE {
 -- TAG-CONFIGUREDGRANTCONFIG-START
 
 ConfiguredGrantConfig ::=           SEQUENCE {
-    frequencyHopping                    ENUMERATED {intraSlot, interSlot}                                       OPTIONAL,   -- Need S,
+    frequencyHopping                    ENUMERATED {intraSlot, interSlot}                                       OPTIONAL,   -- Need S
     cg-DMRS-Configuration               DMRS-UplinkConfig,
     mcs-Table                           ENUMERATED {qam256, qam64LowSE}                                         OPTIONAL,   -- Need S
     mcs-TableTransformPrecoder          ENUMERATED {qam256, qam64LowSE}                                         OPTIONAL,   -- Need S
@@ -2237,7 +2249,7 @@ DownlinkConfigCommonSIB ::=     SEQUENCE {
 }
 
 
-BCCH-Config ::=                 SEQUENCE { 
+BCCH-Config ::=                 SEQUENCE {
     modificationPeriodCoeff         ENUMERATED {n2, n4, n8, n16},
     ...
 }
@@ -2524,7 +2536,7 @@ GapConfig ::=                       SEQUENCE {
     mgta                                ENUMERATED {ms0, ms0dot25, ms0dot5},
     ...,
     [[
-    refServCellIndicator            ENUMERATED {pCell, pSCell, mcg-FR2}                                         OPTIONAL   -- Cond NEDCorNRDC
+    refServCellIndicator                ENUMERATED {pCell, pSCell, mcg-FR2}                                         OPTIONAL   -- Cond NEDCorNRDC
     ]]
 
 }
@@ -2722,7 +2734,10 @@ MeasResults ::=                         SEQUENCE {
     measResultServFreqListNR-SCG            MeasResultServFreqListNR-SCG                                                OPTIONAL,
     measResultSFTD-EUTRA                    MeasResultSFTD-EUTRA                                                        OPTIONAL,
     measResultSFTD-NR                       MeasResultCellSFTD-NR                                                       OPTIONAL
-     ]]
+     ]],
+    [[
+    measResultCellListSFTD-NR                       MeasResultCellListSFTD-NR                                                                       OPTIONAL
+    ]]
 
 }
 
@@ -2829,6 +2844,20 @@ MeasResultSCG-Failure ::=           SEQUENCE {
 MeasResultList2NR ::=               SEQUENCE (SIZE (1..maxFreq)) OF MeasResult2NR
 
 -- TAG-MEASRESULTSCG-FAILURE-STOP
+-- TAG-MEASTRIGGERQUANTITYEUTRA-START
+
+MeasTriggerQuantityEUTRA::=                         CHOICE {
+    rsrp                                        RSRP-RangeEUTRA,
+    rsrq                                        RSRQ-RangeEUTRA,
+    sinr                                        SINR-RangeEUTRA
+}
+
+RSRP-RangeEUTRA ::=                 INTEGER (0..97)
+RSRQ-RangeEUTRA ::=                 INTEGER (0..34)
+SINR-RangeEUTRA ::=                 INTEGER (0..127)
+
+
+-- TAG-MEASTRIGGERQUANTITYEUTRA-STOP
 -- TAG-MOBILITYSTATEPARAMETERS-START
 
 MobilityStateParameters ::=         SEQUENCE{
@@ -3291,7 +3320,7 @@ PUCCH-Config ::=                        SEQUENCE {
     format3                                 CHOICE {release NULL, setup PUCCH-FormatConfig }                                   OPTIONAL, -- Need M
     format4                                 CHOICE {release NULL, setup PUCCH-FormatConfig }                                   OPTIONAL, -- Need M
 
-    schedulingRequestResourceToAddModList   SEQUENCE (SIZE (1..maxNrofSR-Resources)) OF SchedulingRequestResourceConfig   
+    schedulingRequestResourceToAddModList   SEQUENCE (SIZE (1..maxNrofSR-Resources)) OF SchedulingRequestResourceConfig
                                                                                                                   OPTIONAL, -- Need N
     schedulingRequestResourceToReleaseList  SEQUENCE (SIZE (1..maxNrofSR-Resources)) OF SchedulingRequestResourceId
                                                                                                                   OPTIONAL, -- Need N
@@ -3321,7 +3350,7 @@ PUCCH-MaxCodeRate ::=                   ENUMERATED {zeroDot08, zeroDot15, zeroDo
 PUCCH-ResourceSet ::=                   SEQUENCE {
     pucch-ResourceSetId                     PUCCH-ResourceSetId,
     resourceList                            SEQUENCE (SIZE (1..maxNrofPUCCH-ResourcesPerSet)) OF PUCCH-ResourceId,
-    maxPayloadMinus1                        INTEGER (4..256)                                                      OPTIONAL  -- Need R
+    maxPayloadSize                          INTEGER (4..256)                                                      OPTIONAL  -- Need R
 }
 
 PUCCH-ResourceSetId ::=                 INTEGER (0..maxNrofPUCCH-ResourceSets-1)
@@ -3547,16 +3576,6 @@ SRI-PUSCH-PowerControl ::=          SEQUENCE {
 
 SRI-PUSCH-PowerControlId ::=        INTEGER (0..maxNrofSRI-PUSCH-Mappings-1)
 
-BetaOffsets ::=                     SEQUENCE {
-    betaOffsetACK-Index1                INTEGER(0..31)                                                          OPTIONAL, -- Need S
-    betaOffsetACK-Index2                INTEGER(0..31)                                                          OPTIONAL, -- Need S
-    betaOffsetACK-Index3                INTEGER(0..31)                                                          OPTIONAL, -- Need S
-    betaOffsetCSI-Part1-Index1          INTEGER(0..31)                                                          OPTIONAL, -- Need S
-    betaOffsetCSI-Part1-Index2          INTEGER(0..31)                                                          OPTIONAL, -- Need S
-    betaOffsetCSI-Part2-Index1          INTEGER(0..31)                                                          OPTIONAL, -- Need S
-    betaOffsetCSI-Part2-Index2          INTEGER(0..31)                                                          OPTIONAL  -- Need S
-}
-
 -- TAG-PUSCH-POWERCONTROL-STOP
 -- TAG-PUSCH-SERVINGCELLCONFIG-START
 
@@ -3775,8 +3794,8 @@ DRB-ToAddModList ::=                    SEQUENCE (SIZE (1..maxDRB)) OF DRB-ToAdd
 
 DRB-ToAddMod ::=                        SEQUENCE {
     cnAssociation                           CHOICE {
-        eps-BearerIdentity                      INTEGER (0..15),                                                -- EPS-DRB-Setup
-        sdap-Config                             SDAP-Config                                                     -- 5GC
+        eps-BearerIdentity                      INTEGER (0..15),
+        sdap-Config                             SDAP-Config
     }                                                                                               OPTIONAL,   -- Cond DRBSetup
     drb-Identity                            DRB-Identity,
     reestablishPDCP                         ENUMERATED{true}                                        OPTIONAL,   -- Need N
@@ -3787,7 +3806,7 @@ DRB-ToAddMod ::=                        SEQUENCE {
 DRB-ToReleaseList ::=                   SEQUENCE (SIZE (1..maxDRB)) OF DRB-Identity
 
 SecurityConfig ::=                      SEQUENCE {
-    securityAlgorithmConfig                 SecurityAlgorithmConfig                                 OPTIONAL,   -- Cond RBTermChange
+    securityAlgorithmConfig                 SecurityAlgorithmConfig                                 OPTIONAL,   -- Cond RBTermChange1
     keyToUse                                ENUMERATED{master, secondary}                           OPTIONAL,   -- Cond RBTermChange
     ...
 }
@@ -3945,16 +3964,6 @@ PeriodicalReportConfigInterRAT ::=              SEQUENCE {
     ...
 }
 
-MeasTriggerQuantityEUTRA::=                         CHOICE {
-    rsrp                                        RSRP-RangeEUTRA,
-    rsrq                                        RSRQ-RangeEUTRA,
-    sinr                                        SINR-RangeEUTRA
-}
-
-RSRP-RangeEUTRA ::=                 INTEGER (0..97)
-RSRQ-RangeEUTRA ::=                 INTEGER (0..34)
-SINR-RangeEUTRA ::=                 INTEGER (0..127)
-
 -- TAG-REPORTCONFIGINTERRAT-STOP
 -- TAG-REPORTCONFIGNR-START
 
@@ -3964,9 +3973,7 @@ ReportConfigNR ::=                          SEQUENCE {
         eventTriggered                              EventTriggerConfig,
         ...,
         reportCGI                                   ReportCGI,
-        [[
         reportSFTD                                  ReportSFTD-NR
-        ]]
     }
 }
 
@@ -3978,7 +3985,12 @@ ReportCGI ::=                     SEQUENCE {
 ReportSFTD-NR ::=                 SEQUENCE {
     reportSFTD-Meas                  BOOLEAN,
     reportRSRP                       BOOLEAN,
-    ...
+    ...,
+    [[
+    reportSFTD-NeighMeas             ENUMERATED {true}                                OPTIONAL,   -- Need R
+    drx-SFTD-NeighMeas               ENUMERATED {true}                                OPTIONAL,   -- Need R
+    cellsForWhichToReportSFTD        SEQUENCE (SIZE (1..maxCellSFTD)) OF PhysCellId   OPTIONAL    -- Need R
+    ]]
 }
 
 EventTriggerConfig::=                       SEQUENCE {
@@ -4117,7 +4129,7 @@ ResumeCause ::=             ENUMERATED {emergency, highPriorityAccess, mt-Access
                                         mo-Data, mo-VoiceCall, mo-VideoCall, mo-SMS, rna-Update, mps-PriorityAccess,
                                         mcs-PriorityAccess, spare1, spare2, spare3, spare4, spare5 }
 
--- TAG-RESUME-CAUSE-STOP
+-- TAG-RESUMECAUSE-STOP
 -- TAG-RLC-BEARERCONFIG-START
 
 RLC-BearerConfig ::=                        SEQUENCE {
@@ -5063,7 +5075,8 @@ UplinkTxDirectCurrentList ::=           SEQUENCE (SIZE (1..maxNrofServingCells))
 
 UplinkTxDirectCurrentCell ::=           SEQUENCE {
     servCellIndex                           ServCellIndex,
-    uplinkDirectCurrentBWP                  SEQUENCE (SIZE (1..maxNrofBWPs)) OF UplinkTxDirectCurrentBWP,    ...,
+    uplinkDirectCurrentBWP                  SEQUENCE (SIZE (1..maxNrofBWPs)) OF UplinkTxDirectCurrentBWP,
+    ...,
     [[
     uplinkDirectCurrentBWP-SUL              SEQUENCE (SIZE (1..maxNrofBWPs)) OF UplinkTxDirectCurrentBWP               OPTIONAL
     ]]
@@ -5118,6 +5131,8 @@ BandCombinationList-v1550 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandComb
 
 BandCombinationList-v1560 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1560
 
+BandCombinationList-v1570 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1570
+
 BandCombination ::=                 SEQUENCE {
     bandList                            SEQUENCE (SIZE (1..maxSimultaneousBands)) OF BandParameters,
     featureSetCombination               FeatureSetCombinationId,
@@ -5142,6 +5157,10 @@ BandCombination-v1560::=            SEQUENCE {
     ca-ParametersNRDC                       CA-ParametersNRDC                      OPTIONAL,
     ca-ParametersEUTRA-v1560                CA-ParametersEUTRA-v1560               OPTIONAL,
     ca-ParametersNR-v1560                   CA-ParametersNR-v1560                  OPTIONAL
+}
+
+BandCombination-v1570 ::=           SEQUENCE {
+    ca-ParametersEUTRA-v1570            CA-ParametersEUTRA-v1570
 }
 
 BandParameters ::=                      CHOICE {
@@ -5197,7 +5216,11 @@ CA-ParametersEUTRA ::=                          SEQUENCE {
 }
 
 CA-ParametersEUTRA-v1560 ::=                    SEQUENCE {
-    totalWeightedLayers                             INTEGER (2..128)                                 OPTIONAL
+    fd-MIMO-TotalWeightedLayers                             INTEGER (2..128)                                 OPTIONAL
+}
+
+CA-ParametersEUTRA-v1570 ::=                    SEQUENCE {
+    dl-1024QAM-TotalWeightedLayers                  INTEGER (0..10)                                 OPTIONAL
 }
 
 -- TAG-CA-PARAMETERSEUTRA-STOP
@@ -5218,8 +5241,8 @@ CA-ParametersNR ::=                 SEQUENCE {
 CA-ParametersNR-v1540 ::=           SEQUENCE {
     simultaneousSRS-AssocCSI-RS-AllCC                       INTEGER (5..32)         OPTIONAL,
     csi-RS-IM-ReceptionForFeedbackPerBandComb               SEQUENCE {
-        maxNumberSimultaneousNZP-CSI-RS-ActBWP-AllCC            INTEGER (1..64)     OPTIONAL,
-        totalNumberPortsSimultaneousNZP-CSI-RS-ActBWP-AllCC     INTEGER (2..256)    OPTIONAL
+        maxNumberSimultaneousNZP-CSI-RS-ActBWP-AllCC            INTEGER (1..64)         OPTIONAL,
+        totalNumberPortsSimultaneousNZP-CSI-RS-ActBWP-AllCC     INTEGER (2..256)        OPTIONAL
     }                                                                               OPTIONAL,
     simultaneousCSI-ReportsAllCC                            INTEGER (5..32)         OPTIONAL,
     dualPA-Architecture                                     ENUMERATED {supported}  OPTIONAL
@@ -5248,29 +5271,29 @@ CA-ParametersNRDC ::=					SEQUENCE {
 -- TAG-CODEBOOKPARAMETERS-START
 
 CodebookParameters ::=             SEQUENCE {
-    type1                                SEQUENCE {
-        singlePanel                          SEQUENCE {
-            supportedCSI-RS-ResourceList       SEQUENCE (SIZE (1.. maxNrofCSI-RS-Resources)) OF SupportedCSI-RS-Resource,
-            modes                                 ENUMERATED {mode1, mode1andMode2},
+    type1                                  SEQUENCE {
+        singlePanel                           SEQUENCE {
+            supportedCSI-RS-ResourceList      SEQUENCE (SIZE (1.. maxNrofCSI-RS-Resources)) OF SupportedCSI-RS-Resource,
+            modes                                  ENUMERATED {mode1, mode1andMode2},
             maxNumberCSI-RS-PerResourceSet    INTEGER (1..8)
         },
-        multiPanel                           SEQUENCE {
+        multiPanel                            SEQUENCE {
             supportedCSI-RS-ResourceList      SEQUENCE (SIZE (1.. maxNrofCSI-RS-Resources)) OF SupportedCSI-RS-Resource,
-            modes                                 ENUMERATED {mode1, mode2, both},
-            nrofPanels                           ENUMERATED {n2, n4},
+            modes                                  ENUMERATED {mode1, mode2, both},
+            nrofPanels                            ENUMERATED {n2, n4},
             maxNumberCSI-RS-PerResourceSet    INTEGER (1..8)
         }                                                                                                               OPTIONAL
     },
-    type2                                SEQUENCE {
+    type2                                  SEQUENCE {
         supportedCSI-RS-ResourceList      SEQUENCE (SIZE (1.. maxNrofCSI-RS-Resources)) OF SupportedCSI-RS-Resource,
-        parameterLx                         INTEGER (2..4),
-        amplitudeScalingType               ENUMERATED {wideband, widebandAndSubband},
-        amplitudeSubsetRestriction        ENUMERATED {supported}              OPTIONAL
-    }                                                                                                                   OPTIONAL,
-    type2-PortSelection                  SEQUENCE {
-        supportedCSI-RS-ResourceList        SEQUENCE (SIZE (1.. maxNrofCSI-RS-Resources)) OF SupportedCSI-RS-Resource,
         parameterLx                           INTEGER (2..4),
-        amplitudeScalingType                 ENUMERATED {wideband, widebandAndSubband}
+        amplitudeScalingType                ENUMERATED {wideband, widebandAndSubband},
+        amplitudeSubsetRestriction         ENUMERATED {supported}              OPTIONAL
+    }                                                                                                                   OPTIONAL,
+    type2-PortSelection                 SEQUENCE {
+        supportedCSI-RS-ResourceList      SEQUENCE (SIZE (1.. maxNrofCSI-RS-Resources)) OF SupportedCSI-RS-Resource,
+        parameterLx                              INTEGER (2..4),
+        amplitudeScalingType                   ENUMERATED {wideband, widebandAndSubband}
     }                                                                                                                   OPTIONAL
 }
 
@@ -5323,13 +5346,13 @@ FeatureSetDownlink ::=                  SEQUENCE {
     timeDurationForQCL                      SEQUENCE {
         scs-60kHz                           ENUMERATED {s7, s14, s28}                                               OPTIONAL,
         scs-120kHz                          ENUMERATED {s14, s28}                                                   OPTIONAL
-    }                                                                                                               OPTIONAL,
+    }                                                                                                           OPTIONAL,
     pdsch-ProcessingType1-DifferentTB-PerSlot SEQUENCE {
         scs-15kHz                               ENUMERATED {upto2, upto4, upto7}                                    OPTIONAL,
         scs-30kHz                               ENUMERATED {upto2, upto4, upto7}                                    OPTIONAL,
         scs-60kHz                               ENUMERATED {upto2, upto4, upto7}                                    OPTIONAL,
         scs-120kHz                              ENUMERATED {upto2, upto4, upto7}                                    OPTIONAL
-    }                                                                                                               OPTIONAL,
+    }                                                                                                           OPTIONAL,
     dummy3                                  DummyA                                                                  OPTIONAL,
     dummy4                                  SEQUENCE (SIZE (1.. maxNrofCodebooks)) OF DummyB                        OPTIONAL,
     dummy5                                  SEQUENCE (SIZE (1.. maxNrofCodebooks)) OF DummyC                        OPTIONAL,
@@ -5343,16 +5366,16 @@ FeatureSetDownlink-v1540 ::= SEQUENCE {
     twoFL-DMRS-TwoAdditionalDMRS-DL         ENUMERATED {supported}                       OPTIONAL,
     oneFL-DMRS-ThreeAdditionalDMRS-DL       ENUMERATED {supported}                       OPTIONAL,
     pdcch-MonitoringAnyOccasionsWithSpanGap SEQUENCE {
-        scs-15kHz                               ENUMERATED {set1, set2, set3}            OPTIONAL,
-        scs-30kHz                               ENUMERATED {set1, set2, set3}            OPTIONAL,
-        scs-60kHz                               ENUMERATED {set1, set2, set3}            OPTIONAL,
-        scs-120kHz                              ENUMERATED {set1, set2, set3}            OPTIONAL
-    } OPTIONAL,
+        scs-15kHz                               ENUMERATED {set1, set2, set3}                OPTIONAL,
+        scs-30kHz                               ENUMERATED {set1, set2, set3}                OPTIONAL,
+        scs-60kHz                               ENUMERATED {set1, set2, set3}                OPTIONAL,
+        scs-120kHz                              ENUMERATED {set1, set2, set3}                OPTIONAL
+    }                                                                                    OPTIONAL,
     pdsch-SeparationWithGap                 ENUMERATED {supported}                       OPTIONAL,
     pdsch-ProcessingType2                   SEQUENCE {
-        scs-15kHz                               ProcessingParameters                     OPTIONAL,
-        scs-30kHz                               ProcessingParameters                     OPTIONAL,
-        scs-60kHz                               ProcessingParameters                     OPTIONAL
+        scs-15kHz                               ProcessingParameters                         OPTIONAL,
+        scs-30kHz                               ProcessingParameters                         OPTIONAL,
+        scs-60kHz                               ProcessingParameters                         OPTIONAL
     } OPTIONAL,
     pdsch-ProcessingType2-Limited           SEQUENCE {
         differentTB-PerSlot-SCS-30kHz           ENUMERATED {upto1, upto2, upto4, upto7}
@@ -5462,22 +5485,22 @@ FeatureSets ::=    SEQUENCE {
 
 FeatureSetUplink ::=                SEQUENCE {
     featureSetListPerUplinkCC           SEQUENCE (SIZE (1.. maxNrofServingCells)) OF FeatureSetUplinkPerCC-Id,
-    scalingFactor                       ENUMERATED {f0p4, f0p75, f0p8}              OPTIONAL,
-    crossCarrierScheduling-OtherSCS     ENUMERATED {supported}                      OPTIONAL,
-    intraBandFreqSeparationUL           FreqSeparationClass                         OPTIONAL,
-    searchSpaceSharingCA-UL             ENUMERATED {supported}                      OPTIONAL,
-    dummy1                  DummyI                          OPTIONAL,
-    supportedSRS-Resources              SRS-Resources                               OPTIONAL,
-    twoPUCCH-Group                      ENUMERATED {supported}                      OPTIONAL,
-    dynamicSwitchSUL                    ENUMERATED {supported}                      OPTIONAL,
-    simultaneousTxSUL-NonSUL            ENUMERATED {supported}                      OPTIONAL,
+    scalingFactor                       ENUMERATED {f0p4, f0p75, f0p8}                                          OPTIONAL,
+    crossCarrierScheduling-OtherSCS     ENUMERATED {supported}                                                  OPTIONAL,
+    intraBandFreqSeparationUL           FreqSeparationClass                                                     OPTIONAL,
+    searchSpaceSharingCA-UL             ENUMERATED {supported}                                                  OPTIONAL,
+    dummy1                              DummyI                                                                  OPTIONAL,
+    supportedSRS-Resources              SRS-Resources                                                           OPTIONAL,
+    twoPUCCH-Group                      ENUMERATED {supported}                                                  OPTIONAL,
+    dynamicSwitchSUL                    ENUMERATED {supported}                                                  OPTIONAL,
+    simultaneousTxSUL-NonSUL            ENUMERATED {supported}                                                  OPTIONAL,
     pusch-ProcessingType1-DifferentTB-PerSlot SEQUENCE {
-        scs-15kHz                                 ENUMERATED {upto2, upto4, upto7}  OPTIONAL,
-        scs-30kHz                                 ENUMERATED {upto2, upto4, upto7}  OPTIONAL,
-        scs-60kHz                                 ENUMERATED {upto2, upto4, upto7}  OPTIONAL,
-        scs-120kHz                                ENUMERATED {upto2, upto4, upto7}  OPTIONAL
-    }                                                                               OPTIONAL,
-    dummy2                               DummyF                                     OPTIONAL
+        scs-15kHz                                 ENUMERATED {upto2, upto4, upto7}                                  OPTIONAL,
+        scs-30kHz                                 ENUMERATED {upto2, upto4, upto7}                                  OPTIONAL,
+        scs-60kHz                                 ENUMERATED {upto2, upto4, upto7}                                  OPTIONAL,
+        scs-120kHz                                ENUMERATED {upto2, upto4, upto7}                                  OPTIONAL
+    }                                                                                                           OPTIONAL,
+    dummy2                               DummyF                                                                 OPTIONAL
 }
 
 FeatureSetUplink-v1540 ::=           SEQUENCE {
@@ -5485,10 +5508,10 @@ FeatureSetUplink-v1540 ::=           SEQUENCE {
     pa-PhaseDiscontinuityImpacts         ENUMERATED {supported}                     OPTIONAL,
     pusch-SeparationWithGap              ENUMERATED {supported}                     OPTIONAL,
     pusch-ProcessingType2                SEQUENCE {
-        scs-15kHz                            ProcessingParameters                   OPTIONAL,
-        scs-30kHz                            ProcessingParameters                   OPTIONAL,
-        scs-60kHz                            ProcessingParameters                   OPTIONAL
-    } OPTIONAL,
+        scs-15kHz                            ProcessingParameters                       OPTIONAL,
+        scs-30kHz                            ProcessingParameters                       OPTIONAL,
+        scs-60kHz                            ProcessingParameters                       OPTIONAL
+    }                                                                               OPTIONAL,
     ul-MCS-TableAlt-DynamicIndication    ENUMERATED {supported}                     OPTIONAL
 }
 
@@ -5522,7 +5545,7 @@ FeatureSetUplinkPerCC ::=               SEQUENCE {
     supportedBandwidthUL                    SupportedBandwidth,
     channelBW-90mhz                         ENUMERATED {supported}                      OPTIONAL,
     mimo-CB-PUSCH                           SEQUENCE {
-        maxNumberMIMO-LayersCB-PUSCH            MIMO-LayersUL                           OPTIONAL,
+        maxNumberMIMO-LayersCB-PUSCH            MIMO-LayersUL                               OPTIONAL,
         maxNumberSRS-ResourcePerSet             INTEGER (1..2)
     }                                                                                   OPTIONAL,
     maxNumberMIMO-LayersNonCB-PUSCH         MIMO-LayersUL                               OPTIONAL,
@@ -5609,7 +5632,7 @@ InterRAT-Parameters ::=             SEQUENCE {
 
 EUTRA-Parameters ::=                SEQUENCE {
     supportedBandListEUTRA          SEQUENCE (SIZE (1..maxBandsEUTRA)) OF FreqBandIndicatorEUTRA,
-    eutra-ParametersCommon          EUTRA-ParametersCommon                                          OPTIONAL,
+    eutra-ParametersCommon              EUTRA-ParametersCommon                                      OPTIONAL,
     eutra-ParametersXDD-Diff            EUTRA-ParametersXDD-Diff                                    OPTIONAL,
     ...
 }
@@ -5620,7 +5643,7 @@ EUTRA-ParametersCommon ::=      SEQUENCE {
     multiNS-Pmax-EUTRA                  ENUMERATED {supported}          OPTIONAL,
     rs-SINR-MeasEUTRA                   ENUMERATED {supported}          OPTIONAL,
     ...,
-    [[ 
+    [[
     ne-DC                               ENUMERATED {supported}          OPTIONAL
     ]]
 
@@ -5687,38 +5710,42 @@ MeasAndMobParametersCommon ::=          SEQUENCE {
     maxNumberCSI-RS-RRM-RS-SINR             ENUMERATED {n4, n8, n16, n32, n64, n96} OPTIONAL
     ]],
     [[
-    nr-CGI-Reporting-ENDC                   ENUMERATED {supported}      OPTIONAL
+    nr-CGI-Reporting-ENDC                   ENUMERATED {supported}                  OPTIONAL
     ]]
 }
 
 MeasAndMobParametersXDD-Diff ::=            SEQUENCE {
-    intraAndInterF-MeasAndReport        ENUMERATED {supported}  OPTIONAL,
-    eventA-MeasAndReport                ENUMERATED {supported}  OPTIONAL,
+    intraAndInterF-MeasAndReport        ENUMERATED {supported}                      OPTIONAL,
+    eventA-MeasAndReport                ENUMERATED {supported}                      OPTIONAL,
     ...,
     [[
-    handoverInterF                      ENUMERATED {supported}  OPTIONAL,
-    handoverLTE-EPC                     ENUMERATED {supported}  OPTIONAL,
-    handoverLTE-5GC                     ENUMERATED {supported}  OPTIONAL
+    handoverInterF                      ENUMERATED {supported}                      OPTIONAL,
+    handoverLTE-EPC                     ENUMERATED {supported}                      OPTIONAL,
+    handoverLTE-5GC                     ENUMERATED {supported}                      OPTIONAL
+    ]],
+    [[
+    sftd-MeasNR-Neigh                   ENUMERATED {supported}                      OPTIONAL,
+    sftd-MeasNR-Neigh-DRX               ENUMERATED {supported}                      OPTIONAL
     ]]
 }
 
 MeasAndMobParametersFRX-Diff ::=            SEQUENCE {
-    ss-SINR-Meas                                ENUMERATED {supported}      OPTIONAL,
-    csi-RSRP-AndRSRQ-MeasWithSSB                ENUMERATED {supported}      OPTIONAL,
-    csi-RSRP-AndRSRQ-MeasWithoutSSB             ENUMERATED {supported}      OPTIONAL,
-    csi-SINR-Meas                               ENUMERATED {supported}      OPTIONAL,
-    csi-RS-RLM                                  ENUMERATED {supported}      OPTIONAL,
+    ss-SINR-Meas                                ENUMERATED {supported}              OPTIONAL,
+    csi-RSRP-AndRSRQ-MeasWithSSB                ENUMERATED {supported}              OPTIONAL,
+    csi-RSRP-AndRSRQ-MeasWithoutSSB             ENUMERATED {supported}              OPTIONAL,
+    csi-SINR-Meas                               ENUMERATED {supported}              OPTIONAL,
+    csi-RS-RLM                                  ENUMERATED {supported}              OPTIONAL,
     ...,
     [[
-    handoverInterF                              ENUMERATED {supported}  OPTIONAL,
-    handoverLTE-EPC                             ENUMERATED {supported}  OPTIONAL,
-    handoverLTE-5GC                             ENUMERATED {supported}  OPTIONAL
+    handoverInterF                              ENUMERATED {supported}              OPTIONAL,
+    handoverLTE-EPC                             ENUMERATED {supported}              OPTIONAL,
+    handoverLTE-5GC                             ENUMERATED {supported}              OPTIONAL
     ]],
     [[
-    maxNumberResource-CSI-RS-RLM                ENUMERATED {n2, n4, n6, n8}     OPTIONAL
+    maxNumberResource-CSI-RS-RLM                ENUMERATED {n2, n4, n6, n8}         OPTIONAL
     ]],
     [[
-    simultaneousRxDataSSB-DiffNumerology        ENUMERATED {supported}  OPTIONAL
+    simultaneousRxDataSSB-DiffNumerology        ENUMERATED {supported}              OPTIONAL
     ]]
 }
 
@@ -5736,16 +5763,16 @@ MeasAndMobParametersMRDC-v1560 ::=      SEQUENCE {
 }
 
 MeasAndMobParametersMRDC-Common ::=     SEQUENCE {
-    independentGapConfig                    ENUMERATED {supported}              OPTIONAL
+    independentGapConfig                    ENUMERATED {supported}                      OPTIONAL
 }
 
 MeasAndMobParametersMRDC-XDD-Diff ::=   SEQUENCE {
-    sftd-MeasPSCell                         ENUMERATED {supported}              OPTIONAL,
-    sftd-MeasNR-Cell                        ENUMERATED {supported}              OPTIONAL
+    sftd-MeasPSCell                         ENUMERATED {supported}                      OPTIONAL,
+    sftd-MeasNR-Cell                        ENUMERATED {supported}                      OPTIONAL
 }
 
 MeasAndMobParametersMRDC-XDD-Diff-v1560 ::=    SEQUENCE {
-    sftd-MeasPSCell-NEDC                           ENUMERATED {supported}        OPTIONAL
+    sftd-MeasPSCell-NEDC                           ENUMERATED {supported}              OPTIONAL
 }
 
 MeasAndMobParametersMRDC-FRX-Diff ::=          SEQUENCE {
@@ -5764,8 +5791,8 @@ MIMO-LayersUL ::=   ENUMERATED {oneLayer, twoLayers, fourLayers}
 
 MIMO-ParametersPerBand ::=          SEQUENCE {
     tci-StatePDSCH                      SEQUENCE {
-        maxNumberConfiguredTCIstatesPerCC   ENUMERATED {n4, n8, n16, n32, n64, n128}                               OPTIONAL,
-        maxNumberActiveTCI-PerBWP           ENUMERATED {n1, n2, n4, n8}                                            OPTIONAL
+        maxNumberConfiguredTCIstatesPerCC   ENUMERATED {n4, n8, n16, n32, n64, n128}                                   OPTIONAL,
+        maxNumberActiveTCI-PerBWP           ENUMERATED {n1, n2, n4, n8}                                                OPTIONAL
     }                                                                                                              OPTIONAL,
     additionalActiveTCI-StatePDCCH              ENUMERATED {supported}                                             OPTIONAL,
     pusch-TransCoherence                        ENUMERATED {nonCoherent, partialCoherent, fullCoherent}            OPTIONAL,
@@ -5777,11 +5804,11 @@ MIMO-ParametersPerBand ::=          SEQUENCE {
     dummy1                                      DummyG                                                             OPTIONAL,
     maxNumberRxBeam                             INTEGER (2..8)                                                     OPTIONAL,
     maxNumberRxTxBeamSwitchDL                   SEQUENCE {
-        scs-15kHz                                   ENUMERATED {n4, n7, n14}                                       OPTIONAL,
-        scs-30kHz                                   ENUMERATED {n4, n7, n14}                                       OPTIONAL,
-        scs-60kHz                                   ENUMERATED {n4, n7, n14}                                       OPTIONAL,
-        scs-120kHz                                  ENUMERATED {n4, n7, n14}                                       OPTIONAL,
-        scs-240kHz                                  ENUMERATED {n4, n7, n14}                                       OPTIONAL
+        scs-15kHz                                   ENUMERATED {n4, n7, n14}                                           OPTIONAL,
+        scs-30kHz                                   ENUMERATED {n4, n7, n14}                                           OPTIONAL,
+        scs-60kHz                                   ENUMERATED {n4, n7, n14}                                           OPTIONAL,
+        scs-120kHz                                  ENUMERATED {n4, n7, n14}                                           OPTIONAL,
+        scs-240kHz                                  ENUMERATED {n4, n7, n14}                                           OPTIONAL
     }                                                                                                              OPTIONAL,
     maxNumberNonGroupBeamReporting              ENUMERATED {n1, n2, n4}                                            OPTIONAL,
     groupBeamReporting                          ENUMERATED {supported}                                             OPTIONAL,
@@ -5797,22 +5824,22 @@ MIMO-ParametersPerBand ::=          SEQUENCE {
     dummy5                              SRS-Resources                                                              OPTIONAL,
     dummy3                              INTEGER (1..4)                                                             OPTIONAL,
     beamReportTiming                    SEQUENCE {
-        scs-15kHz                           ENUMERATED {sym2, sym4, sym8}                                          OPTIONAL,
-        scs-30kHz                           ENUMERATED {sym4, sym8, sym14, sym28}                                  OPTIONAL,
-        scs-60kHz                           ENUMERATED {sym8, sym14, sym28}                                        OPTIONAL,
-        scs-120kHz                          ENUMERATED {sym14, sym28, sym56}                                       OPTIONAL
+        scs-15kHz                           ENUMERATED {sym2, sym4, sym8}                                              OPTIONAL,
+        scs-30kHz                           ENUMERATED {sym4, sym8, sym14, sym28}                                      OPTIONAL,
+        scs-60kHz                           ENUMERATED {sym8, sym14, sym28}                                            OPTIONAL,
+        scs-120kHz                          ENUMERATED {sym14, sym28, sym56}                                           OPTIONAL
     }                                                                                                              OPTIONAL,
     ptrs-DensityRecommendationSetDL     SEQUENCE {
-        scs-15kHz                           PTRS-DensityRecommendationDL                                           OPTIONAL,
-        scs-30kHz                           PTRS-DensityRecommendationDL                                           OPTIONAL,
-        scs-60kHz                           PTRS-DensityRecommendationDL                                           OPTIONAL,
-        scs-120kHz                          PTRS-DensityRecommendationDL                                           OPTIONAL
+        scs-15kHz                           PTRS-DensityRecommendationDL                                               OPTIONAL,
+        scs-30kHz                           PTRS-DensityRecommendationDL                                               OPTIONAL,
+        scs-60kHz                           PTRS-DensityRecommendationDL                                               OPTIONAL,
+        scs-120kHz                          PTRS-DensityRecommendationDL                                               OPTIONAL
     }                                                                                                              OPTIONAL,
     ptrs-DensityRecommendationSetUL     SEQUENCE {
-        scs-15kHz                           PTRS-DensityRecommendationUL                                           OPTIONAL,
-        scs-30kHz                           PTRS-DensityRecommendationUL                                           OPTIONAL,
-        scs-60kHz                           PTRS-DensityRecommendationUL                                           OPTIONAL,
-        scs-120kHz                          PTRS-DensityRecommendationUL                                           OPTIONAL
+        scs-15kHz                           PTRS-DensityRecommendationUL                                               OPTIONAL,
+        scs-30kHz                           PTRS-DensityRecommendationUL                                               OPTIONAL,
+        scs-60kHz                           PTRS-DensityRecommendationUL                                               OPTIONAL,
+        scs-120kHz                          PTRS-DensityRecommendationUL                                               OPTIONAL
     }                                                                                                              OPTIONAL,
     dummy4                              DummyH                                                                     OPTIONAL,
     aperiodicTRS                        ENUMERATED {supported}                                                     OPTIONAL,
@@ -5821,8 +5848,8 @@ MIMO-ParametersPerBand ::=          SEQUENCE {
     dummy6                              ENUMERATED {true}                                                          OPTIONAL,
     beamManagementSSB-CSI-RS            BeamManagementSSB-CSI-RS                                                   OPTIONAL,
     beamSwitchTiming                    SEQUENCE {
-        scs-60kHz                           ENUMERATED {sym14, sym28, sym48, sym224, sym336}                       OPTIONAL,
-        scs-120kHz                          ENUMERATED {sym14, sym28, sym48, sym224, sym336}                       OPTIONAL
+        scs-60kHz                           ENUMERATED {sym14, sym28, sym48, sym224, sym336}                           OPTIONAL,
+        scs-120kHz                          ENUMERATED {sym14, sym28, sym48, sym224, sym336}                           OPTIONAL
     }                                                                                                              OPTIONAL,
     codebookParameters                  CodebookParameters                                                         OPTIONAL,
     csi-RS-IM-ReceptionForFeedback      CSI-RS-IM-ReceptionForFeedback                                             OPTIONAL,
@@ -5956,7 +5983,11 @@ NRDC-Parameters ::=                 SEQUENCE {
     fr1-Add-UE-NRDC-Capabilities        UE-MRDC-CapabilityAddFRX-Mode               OPTIONAL,
     fr2-Add-UE-NRDC-Capabilities        UE-MRDC-CapabilityAddFRX-Mode               OPTIONAL,
     lateNonCriticalExtension            OCTET STRING                                OPTIONAL,
-    nonCriticalExtension                SEQUENCE {}                                 OPTIONAL
+    dummy                               SEQUENCE {}                                 OPTIONAL
+}
+
+NRDC-Parameters-v1570 ::=           SEQUENCE {
+    sfn-SyncNRDC                        ENUMERATED {supported}                      OPTIONAL
 }
 
 -- TAG-NRDC-PARAMETERS-STOP
@@ -6080,8 +6111,8 @@ Phy-ParametersFRX-Diff ::=                  SEQUENCE {
     pucch-F2-WithFH                             ENUMERATED {supported}                      OPTIONAL,
     pucch-F3-WithFH                             ENUMERATED {supported}                      OPTIONAL,
     pucch-F4-WithFH                             ENUMERATED {supported}                      OPTIONAL,
-    freqHoppingPUCCH-F0-2                       ENUMERATED {notSupported}                   OPTIONAL,
-    freqHoppingPUCCH-F1-3-4                     ENUMERATED {notSupported}                   OPTIONAL,
+    pucch-F0-2WithoutFH                         ENUMERATED {notSupported}                   OPTIONAL,
+    pucch-F1-3-4WithoutFH                       ENUMERATED {notSupported}                   OPTIONAL,
     mux-SR-HARQ-ACK-CSI-PUCCH-MultiPerSlot      ENUMERATED {supported}                      OPTIONAL,
     uci-CodeBlockSegmentation                   ENUMERATED {supported}                      OPTIONAL,
     onePUCCH-LongAndShortFormat                 ENUMERATED {supported}                      OPTIONAL,
@@ -6108,8 +6139,8 @@ Phy-ParametersFRX-Diff ::=                  SEQUENCE {
     csi-RS-ProcFrameworkForSRS                  CSI-RS-ProcFrameworkForSRS                  OPTIONAL,
     csi-ReportFramework                         CSI-ReportFramework                         OPTIONAL,
     mux-SR-HARQ-ACK-CSI-PUCCH-OncePerSlot       SEQUENCE {
-        sameSymbol                                  ENUMERATED {supported}                  OPTIONAL,
-        diffSymbol                                  ENUMERATED {supported}                  OPTIONAL
+        sameSymbol                                  ENUMERATED {supported}                      OPTIONAL,
+        diffSymbol                                  ENUMERATED {supported}                      OPTIONAL
     } OPTIONAL,
     mux-SR-HARQ-ACK-PUCCH                       ENUMERATED {supported}                      OPTIONAL,
     mux-MultipleGroupCtrlCH-Overlap             ENUMERATED {supported}                      OPTIONAL,
@@ -6145,11 +6176,11 @@ Phy-ParametersFR1 ::=                       SEQUENCE {
 }
 
 Phy-ParametersFR2 ::=                       SEQUENCE {
-    dummy                                       ENUMERATED {supported}                      OPTIONAL,
-    pdsch-RE-MappingFR2-PerSymbol               ENUMERATED {n6, n20}                        OPTIONAL,
+    dummy                                       ENUMERATED {supported}                                  OPTIONAL,
+    pdsch-RE-MappingFR2-PerSymbol               ENUMERATED {n6, n20}                                    OPTIONAL,
     ...,
     [[
-    pCell-FR2                                   ENUMERATED {supported}                      OPTIONAL,
+    pCell-FR2                                   ENUMERATED {supported}                                  OPTIONAL,
     pdsch-RE-MappingFR2-PerSlot                 ENUMERATED {n16, n32, n48, n64, n80, n96, n112, n128,
                                                     n144, n160, n176, n192, n208, n224, n240, n256}     OPTIONAL
     ]]
@@ -6212,47 +6243,47 @@ RF-Parameters ::=                   SEQUENCE {
 
 BandNR ::=                          SEQUENCE {
     bandNR                              FreqBandIndicatorNR,
-    modifiedMPR-Behaviour               BIT STRING (SIZE (8))                       OPTIONAL,
-    mimo-ParametersPerBand              MIMO-ParametersPerBand                      OPTIONAL,
-    extendedCP                          ENUMERATED {supported}                      OPTIONAL,
-    multipleTCI                         ENUMERATED {supported}                      OPTIONAL,
-    bwp-WithoutRestriction              ENUMERATED {supported}                      OPTIONAL,
-    bwp-SameNumerology                  ENUMERATED {upto2, upto4}                   OPTIONAL,
-    bwp-DiffNumerology                  ENUMERATED {upto4}                          OPTIONAL,
-    crossCarrierScheduling-SameSCS      ENUMERATED {supported}                      OPTIONAL,
-    pdsch-256QAM-FR2                    ENUMERATED {supported}                      OPTIONAL,
-    pusch-256QAM                        ENUMERATED {supported}                      OPTIONAL,
-    ue-PowerClass                       ENUMERATED {pc1, pc2, pc3, pc4}             OPTIONAL,
-    rateMatchingLTE-CRS                 ENUMERATED {supported}                      OPTIONAL,
+    modifiedMPR-Behaviour               BIT STRING (SIZE (8))                           OPTIONAL,
+    mimo-ParametersPerBand              MIMO-ParametersPerBand                          OPTIONAL,
+    extendedCP                          ENUMERATED {supported}                          OPTIONAL,
+    multipleTCI                         ENUMERATED {supported}                          OPTIONAL,
+    bwp-WithoutRestriction              ENUMERATED {supported}                          OPTIONAL,
+    bwp-SameNumerology                  ENUMERATED {upto2, upto4}                       OPTIONAL,
+    bwp-DiffNumerology                  ENUMERATED {upto4}                              OPTIONAL,
+    crossCarrierScheduling-SameSCS      ENUMERATED {supported}                          OPTIONAL,
+    pdsch-256QAM-FR2                    ENUMERATED {supported}                          OPTIONAL,
+    pusch-256QAM                        ENUMERATED {supported}                          OPTIONAL,
+    ue-PowerClass                       ENUMERATED {pc1, pc2, pc3, pc4}                 OPTIONAL,
+    rateMatchingLTE-CRS                 ENUMERATED {supported}                          OPTIONAL,
     channelBWs-DL-v1530                 CHOICE {
         fr1                                 SEQUENCE {
-            scs-15kHz                           BIT STRING (SIZE (10))              OPTIONAL,
-            scs-30kHz                           BIT STRING (SIZE (10))              OPTIONAL,
-            scs-60kHz                           BIT STRING (SIZE (10))              OPTIONAL
+            scs-15kHz                           BIT STRING (SIZE (10))                      OPTIONAL,
+            scs-30kHz                           BIT STRING (SIZE (10))                      OPTIONAL,
+            scs-60kHz                           BIT STRING (SIZE (10))                      OPTIONAL
         },
         fr2                                 SEQUENCE {
-            scs-60kHz                           BIT STRING (SIZE (3))               OPTIONAL,
-            scs-120kHz                          BIT STRING (SIZE (3))               OPTIONAL
+            scs-60kHz                           BIT STRING (SIZE (3))                       OPTIONAL,
+            scs-120kHz                          BIT STRING (SIZE (3))                       OPTIONAL
         }
-    }                                                                               OPTIONAL,
+    }                                                                                   OPTIONAL,
     channelBWs-UL-v1530                 CHOICE {
         fr1                                 SEQUENCE {
-            scs-15kHz                           BIT STRING (SIZE (10))              OPTIONAL,
-            scs-30kHz                           BIT STRING (SIZE (10))              OPTIONAL,
-            scs-60kHz                           BIT STRING (SIZE (10))              OPTIONAL
+            scs-15kHz                           BIT STRING (SIZE (10))                      OPTIONAL,
+            scs-30kHz                           BIT STRING (SIZE (10))                      OPTIONAL,
+            scs-60kHz                           BIT STRING (SIZE (10))                      OPTIONAL
         },
         fr2                                 SEQUENCE {
-            scs-60kHz                           BIT STRING (SIZE (3))               OPTIONAL,
-            scs-120kHz                          BIT STRING (SIZE (3))               OPTIONAL
+            scs-60kHz                           BIT STRING (SIZE (3))                       OPTIONAL,
+            scs-120kHz                          BIT STRING (SIZE (3))                       OPTIONAL
         }
-    }                                                                               OPTIONAL,
+    }                                                                                   OPTIONAL,
     ...,
     [[
-    maxUplinkDutyCycle-PC2-FR1                  ENUMERATED {n60, n70, n80, n90, n100}           OPTIONAL
+    maxUplinkDutyCycle-PC2-FR1                  ENUMERATED {n60, n70, n80, n90, n100}   OPTIONAL
     ]],
     [[
-    pucch-SpatialRelInfoMAC-CE          ENUMERATED {supported}                      OPTIONAL,
-    powerBoosting-pi2BPSK               ENUMERATED {supported}                      OPTIONAL
+    pucch-SpatialRelInfoMAC-CE          ENUMERATED {supported}                          OPTIONAL,
+    powerBoosting-pi2BPSK               ENUMERATED {supported}                          OPTIONAL
     ]],
     [[
     maxUplinkDutyCycle-FR2          ENUMERATED {n15, n20, n25, n30, n40, n50, n60, n70, n80, n90, n100}     OPTIONAL
@@ -6276,6 +6307,9 @@ RF-ParametersMRDC ::=                   SEQUENCE {
     [[
     supportedBandCombinationList-v1560      BandCombinationList-v1560           OPTIONAL,
     supportedBandCombinationListNEDC-Only   BandCombinationList                 OPTIONAL
+    ]],
+    [[
+    supportedBandCombinationList-v1570      BandCombinationList-v1570           OPTIONAL
     ]]
 }
 
@@ -6348,10 +6382,10 @@ UE-CapabilityRAT-Request ::=            SEQUENCE {
 
 UE-CapabilityRequestFilterCommon ::=            SEQUENCE {
     mrdc-Request                                SEQUENCE {
-        omitEN-DC                                   ENUMERATED {true}                  OPTIONAL,    -- Need N
-        includeNR-DC                                ENUMERATED {true}                  OPTIONAL,    -- Need N
-        includeNE-DC                                ENUMERATED {true}                  OPTIONAL     -- Need N
-    }                                                                                  OPTIONAL,    -- Need N
+        omitEN-DC                                   ENUMERATED {true}                      OPTIONAL,    -- Need N
+        includeNR-DC                                ENUMERATED {true}                      OPTIONAL,    -- Need N
+        includeNE-DC                                ENUMERATED {true}                      OPTIONAL     -- Need N
+    }                                                                                  OPTIONAL,        -- Need N
     ...
 }
 
@@ -6372,35 +6406,35 @@ UE-CapabilityRequestFilterNR-v1540 ::=      SEQUENCE {
 -- TAG-UE-MRDC-CAPABILITY-START
 
 UE-MRDC-Capability ::=              SEQUENCE {
-    measAndMobParametersMRDC            MeasAndMobParametersMRDC                    OPTIONAL,
-    phy-ParametersMRDC-v1530            Phy-ParametersMRDC                          OPTIONAL,
+    measAndMobParametersMRDC            MeasAndMobParametersMRDC                                                        OPTIONAL,
+    phy-ParametersMRDC-v1530            Phy-ParametersMRDC                                                              OPTIONAL,
     rf-ParametersMRDC                   RF-ParametersMRDC,
-    generalParametersMRDC               GeneralParametersMRDC-XDD-Diff              OPTIONAL,
-    fdd-Add-UE-MRDC-Capabilities        UE-MRDC-CapabilityAddXDD-Mode               OPTIONAL,
-    tdd-Add-UE-MRDC-Capabilities        UE-MRDC-CapabilityAddXDD-Mode               OPTIONAL,
-    fr1-Add-UE-MRDC-Capabilities        UE-MRDC-CapabilityAddFRX-Mode               OPTIONAL,
-    fr2-Add-UE-MRDC-Capabilities        UE-MRDC-CapabilityAddFRX-Mode               OPTIONAL,
+    generalParametersMRDC               GeneralParametersMRDC-XDD-Diff                                                  OPTIONAL,
+    fdd-Add-UE-MRDC-Capabilities        UE-MRDC-CapabilityAddXDD-Mode                                                   OPTIONAL,
+    tdd-Add-UE-MRDC-Capabilities        UE-MRDC-CapabilityAddXDD-Mode                                                   OPTIONAL,
+    fr1-Add-UE-MRDC-Capabilities        UE-MRDC-CapabilityAddFRX-Mode                                                   OPTIONAL,
+    fr2-Add-UE-MRDC-Capabilities        UE-MRDC-CapabilityAddFRX-Mode                                                   OPTIONAL,
     featureSetCombinations              SEQUENCE (SIZE (1..maxFeatureSetCombinations)) OF FeatureSetCombination         OPTIONAL,
-    pdcp-ParametersMRDC-v1530           PDCP-ParametersMRDC                         OPTIONAL,
-    lateNonCriticalExtension            OCTET STRING                                OPTIONAL,
-    nonCriticalExtension                UE-MRDC-Capability-v1560                    OPTIONAL
+    pdcp-ParametersMRDC-v1530           PDCP-ParametersMRDC                                                             OPTIONAL,
+    lateNonCriticalExtension            OCTET STRING                                                                    OPTIONAL,
+    nonCriticalExtension                UE-MRDC-Capability-v1560                                                        OPTIONAL
 }
 
 UE-MRDC-Capability-v1560 ::=        SEQUENCE {
-    receivedFilters                     OCTET STRING (CONTAINING UECapabilityEnquiry-v1560-IEs)             OPTIONAL,
-    measAndMobParametersMRDC-v1560      MeasAndMobParametersMRDC-v1560                                      OPTIONAL,
-    fdd-Add-UE-MRDC-Capabilities-v1560  UE-MRDC-CapabilityAddXDD-Mode-v1560                                 OPTIONAL,
-    tdd-Add-UE-MRDC-Capabilities-v1560  UE-MRDC-CapabilityAddXDD-Mode-v1560                                 OPTIONAL,
-    nonCriticalExtension                SEQUENCE {}                                                         OPTIONAL
+    receivedFilters                     OCTET STRING (CONTAINING UECapabilityEnquiry-v1560-IEs)                         OPTIONAL,
+    measAndMobParametersMRDC-v1560      MeasAndMobParametersMRDC-v1560                                                  OPTIONAL,
+    fdd-Add-UE-MRDC-Capabilities-v1560  UE-MRDC-CapabilityAddXDD-Mode-v1560                                             OPTIONAL,
+    tdd-Add-UE-MRDC-Capabilities-v1560  UE-MRDC-CapabilityAddXDD-Mode-v1560                                             OPTIONAL,
+    nonCriticalExtension                SEQUENCE {}                                                                     OPTIONAL
 }
 
 UE-MRDC-CapabilityAddXDD-Mode ::=   SEQUENCE {
-    measAndMobParametersMRDC-XDD-Diff       MeasAndMobParametersMRDC-XDD-Diff       OPTIONAL,
-    generalParametersMRDC-XDD-Diff          GeneralParametersMRDC-XDD-Diff          OPTIONAL
+    measAndMobParametersMRDC-XDD-Diff       MeasAndMobParametersMRDC-XDD-Diff                                           OPTIONAL,
+    generalParametersMRDC-XDD-Diff          GeneralParametersMRDC-XDD-Diff                                              OPTIONAL
 }
 
 UE-MRDC-CapabilityAddXDD-Mode-v1560 ::=    SEQUENCE {
-    measAndMobParametersMRDC-XDD-Diff-v1560    MeasAndMobParametersMRDC-XDD-Diff-v1560      OPTIONAL
+    measAndMobParametersMRDC-XDD-Diff-v1560    MeasAndMobParametersMRDC-XDD-Diff-v1560                                  OPTIONAL
 }
 
 UE-MRDC-CapabilityAddFRX-Mode ::=   SEQUENCE {
@@ -6409,10 +6443,10 @@ UE-MRDC-CapabilityAddFRX-Mode ::=   SEQUENCE {
 
 
 GeneralParametersMRDC-XDD-Diff ::= SEQUENCE {
-    splitSRB-WithOneUL-Path             ENUMERATED {supported}              OPTIONAL,
-    splitDRB-withUL-Both-MCG-SCG        ENUMERATED {supported}              OPTIONAL,
-    srb3                                ENUMERATED {supported}              OPTIONAL,
-    v2x-EUTRA                           ENUMERATED {supported}              OPTIONAL,
+    splitSRB-WithOneUL-Path             ENUMERATED {supported}                                                          OPTIONAL,
+    splitDRB-withUL-Both-MCG-SCG        ENUMERATED {supported}                                                          OPTIONAL,
+    srb3                                ENUMERATED {supported}                                                          OPTIONAL,
+    v2x-EUTRA                           ENUMERATED {supported}                                                          OPTIONAL,
     ...
 }
 
@@ -6422,57 +6456,62 @@ GeneralParametersMRDC-XDD-Diff ::= SEQUENCE {
 UE-NR-Capability ::=            SEQUENCE {
     accessStratumRelease            AccessStratumRelease,
     pdcp-Parameters                 PDCP-Parameters,
-    rlc-Parameters                  RLC-Parameters                      OPTIONAL,
-    mac-Parameters                  MAC-Parameters                      OPTIONAL,
+    rlc-Parameters                  RLC-Parameters                                                        OPTIONAL,
+    mac-Parameters                  MAC-Parameters                                                        OPTIONAL,
     phy-Parameters                  Phy-Parameters,
     rf-Parameters                   RF-Parameters,
-    measAndMobParameters            MeasAndMobParameters                OPTIONAL,
-    fdd-Add-UE-NR-Capabilities      UE-NR-CapabilityAddXDD-Mode         OPTIONAL,
-    tdd-Add-UE-NR-Capabilities      UE-NR-CapabilityAddXDD-Mode         OPTIONAL,
-    fr1-Add-UE-NR-Capabilities      UE-NR-CapabilityAddFRX-Mode         OPTIONAL,
-    fr2-Add-UE-NR-Capabilities      UE-NR-CapabilityAddFRX-Mode         OPTIONAL,
-    featureSets                     FeatureSets                         OPTIONAL,
+    measAndMobParameters            MeasAndMobParameters                                                  OPTIONAL,
+    fdd-Add-UE-NR-Capabilities      UE-NR-CapabilityAddXDD-Mode                                           OPTIONAL,
+    tdd-Add-UE-NR-Capabilities      UE-NR-CapabilityAddXDD-Mode                                           OPTIONAL,
+    fr1-Add-UE-NR-Capabilities      UE-NR-CapabilityAddFRX-Mode                                           OPTIONAL,
+    fr2-Add-UE-NR-Capabilities      UE-NR-CapabilityAddFRX-Mode                                           OPTIONAL,
+    featureSets                     FeatureSets                                                           OPTIONAL,
     featureSetCombinations          SEQUENCE (SIZE (1..maxFeatureSetCombinations)) OF FeatureSetCombination         OPTIONAL,
 
-    lateNonCriticalExtension        OCTET STRING                        OPTIONAL,
-    nonCriticalExtension            UE-NR-Capability-v1530              OPTIONAL
+    lateNonCriticalExtension        OCTET STRING                                                          OPTIONAL,
+    nonCriticalExtension            UE-NR-Capability-v1530                                                OPTIONAL
 }
 
 UE-NR-Capability-v1530 ::=               SEQUENCE {
-    fdd-Add-UE-NR-Capabilities-v1530         UE-NR-CapabilityAddXDD-Mode-v1530      OPTIONAL,
-    tdd-Add-UE-NR-Capabilities-v1530         UE-NR-CapabilityAddXDD-Mode-v1530      OPTIONAL,
-    dummy                                    ENUMERATED {supported}                 OPTIONAL,
-    interRAT-Parameters                      InterRAT-Parameters                    OPTIONAL,
-    inactiveState                            ENUMERATED {supported}                 OPTIONAL,
-    delayBudgetReporting                     ENUMERATED {supported}                 OPTIONAL,
-    nonCriticalExtension                     UE-NR-Capability-v1540                 OPTIONAL
+    fdd-Add-UE-NR-Capabilities-v1530         UE-NR-CapabilityAddXDD-Mode-v1530                            OPTIONAL,
+    tdd-Add-UE-NR-Capabilities-v1530         UE-NR-CapabilityAddXDD-Mode-v1530                            OPTIONAL,
+    dummy                                    ENUMERATED {supported}                                       OPTIONAL,
+    interRAT-Parameters                      InterRAT-Parameters                                          OPTIONAL,
+    inactiveState                            ENUMERATED {supported}                                       OPTIONAL,
+    delayBudgetReporting                     ENUMERATED {supported}                                       OPTIONAL,
+    nonCriticalExtension                     UE-NR-Capability-v1540                                       OPTIONAL
 }
 
 UE-NR-Capability-v1540 ::=              SEQUENCE {
-    sdap-Parameters                         SDAP-Parameters                         OPTIONAL,
-    overheatingInd                          ENUMERATED {supported}                  OPTIONAL,
-    ims-Parameters                          IMS-Parameters                          OPTIONAL,
-    fr1-Add-UE-NR-Capabilities-v1540        UE-NR-CapabilityAddFRX-Mode-v1540       OPTIONAL,
-    fr2-Add-UE-NR-Capabilities-v1540        UE-NR-CapabilityAddFRX-Mode-v1540       OPTIONAL,
-    fr1-fr2-Add-UE-NR-Capabilities          UE-NR-CapabilityAddFRX-Mode             OPTIONAL,
-    nonCriticalExtension                    UE-NR-Capability-v1550                  OPTIONAL
+    sdap-Parameters                         SDAP-Parameters                                               OPTIONAL,
+    overheatingInd                          ENUMERATED {supported}                                        OPTIONAL,
+    ims-Parameters                          IMS-Parameters                                                OPTIONAL,
+    fr1-Add-UE-NR-Capabilities-v1540        UE-NR-CapabilityAddFRX-Mode-v1540                             OPTIONAL,
+    fr2-Add-UE-NR-Capabilities-v1540        UE-NR-CapabilityAddFRX-Mode-v1540                             OPTIONAL,
+    fr1-fr2-Add-UE-NR-Capabilities          UE-NR-CapabilityAddFRX-Mode                                   OPTIONAL,
+    nonCriticalExtension                    UE-NR-Capability-v1550                                        OPTIONAL
 }
 
 UE-NR-Capability-v1550 ::=               SEQUENCE {
-    reducedCP-Latency                        ENUMERATED {supported}                 OPTIONAL,
-    nonCriticalExtension                     UE-NR-Capability-v1560                 OPTIONAL
+    reducedCP-Latency                        ENUMERATED {supported}                                       OPTIONAL,
+    nonCriticalExtension                     UE-NR-Capability-v1560                                       OPTIONAL
 }
 
 UE-NR-Capability-v1560 ::=               SEQUENCE {
-    nrdc-Parameters                         NRDC-Parameters                         OPTIONAL,
+    nrdc-Parameters                         NRDC-Parameters                                               OPTIONAL,
     receivedFilters                         OCTET STRING (CONTAINING UECapabilityEnquiry-v1560-IEs)       OPTIONAL,
-    nonCriticalExtension                    SEQUENCE {}                             OPTIONAL
+    nonCriticalExtension                    UE-NR-Capability-v1570                                        OPTIONAL
+}
+
+UE-NR-Capability-v1570 ::=               SEQUENCE {
+    nrdc-Parameters-v1570                   NRDC-Parameters-v1570                                         OPTIONAL,
+    nonCriticalExtension                    SEQUENCE {}                                                   OPTIONAL
 }
 
 UE-NR-CapabilityAddXDD-Mode ::=         SEQUENCE {
-    phy-ParametersXDD-Diff                  Phy-ParametersXDD-Diff                  OPTIONAL,
-    mac-ParametersXDD-Diff                  MAC-ParametersXDD-Diff                  OPTIONAL,
-    measAndMobParametersXDD-Diff            MeasAndMobParametersXDD-Diff            OPTIONAL
+    phy-ParametersXDD-Diff                  Phy-ParametersXDD-Diff                                        OPTIONAL,
+    mac-ParametersXDD-Diff                  MAC-ParametersXDD-Diff                                        OPTIONAL,
+    measAndMobParametersXDD-Diff            MeasAndMobParametersXDD-Diff                                  OPTIONAL
 }
 
 UE-NR-CapabilityAddXDD-Mode-v1530 ::=    SEQUENCE {
@@ -6480,12 +6519,12 @@ UE-NR-CapabilityAddXDD-Mode-v1530 ::=    SEQUENCE {
 }
 
 UE-NR-CapabilityAddFRX-Mode ::= SEQUENCE {
-    phy-ParametersFRX-Diff              Phy-ParametersFRX-Diff                      OPTIONAL,
-    measAndMobParametersFRX-Diff        MeasAndMobParametersFRX-Diff                OPTIONAL
+    phy-ParametersFRX-Diff              Phy-ParametersFRX-Diff                                            OPTIONAL,
+    measAndMobParametersFRX-Diff        MeasAndMobParametersFRX-Diff                                      OPTIONAL
 }
 
 UE-NR-CapabilityAddFRX-Mode-v1540 ::=    SEQUENCE {
-    ims-ParametersFRX-Diff                   IMS-ParametersFRX-Diff                 OPTIONAL
+    ims-ParametersFRX-Diff                   IMS-ParametersFRX-Diff                                       OPTIONAL
 }
 
 -- TAG-UE-NR-CAPABILITY-STOP
@@ -6698,7 +6737,7 @@ maxNrofPUCCH-Resources                  INTEGER ::= 128
 maxNrofPUCCH-Resources-1                INTEGER ::= 127
 maxNrofPUCCH-ResourceSets               INTEGER ::= 4       -- Maximum number of PUCCH Resource Sets
 maxNrofPUCCH-ResourceSets-1             INTEGER ::= 3       -- Maximum number of PUCCH Resource Sets minus 1.
-maxNrofPUCCH-ResourcesPerSet            INTEGER ::= 32      -- Maximum number of PUCCH Resources per PUCCH-Resour©ceSet
+maxNrofPUCCH-ResourcesPerSet            INTEGER ::= 32      -- Maximum number of PUCCH Resources per PUCCH-ResourceSet
 maxNrofPUCCH-P0-PerSet                  INTEGER ::= 8       -- Maximum number of P0-pucch present in a p0-pucch set
 maxNrofPUCCH-PathlossReferenceRSs       INTEGER ::= 4       -- Maximum number of RSs used as pathloss reference for PUCCH power control.
 maxNrofPUCCH-PathlossReferenceRSs-1     INTEGER ::= 3       -- Maximum number of RSs used as pathloss reference for PUCCH power
