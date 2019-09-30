@@ -9,6 +9,19 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/* bit positions for flags in header */
+#define GRE_CHECKSUM            0x8000
+#define GRE_ROUTING             0x4000
+#define GRE_KEY                 0x2000
+#define GRE_SEQUENCE            0x1000
+#define GRE_STRICTSOURCE        0x0800
+#define GRE_RECURSION           0x0700
+#define GRE_ACK                 0x0080  /* only in special PPTPized GRE header */
+#define GRE_RESERVED_PPP        0x0078  /* only in special PPTPized GRE header */
+#define GRE_RESERVED            0x00F8
+#define GRE_VERSION             0x0007
+
+/* GRE type values that aren't also Ethernet type values */
 #define GRE_KEEPALIVE		0x0000
 #define GRE_CISCO_CDP		0x2000
 #define GRE_NHRP		0x2001
