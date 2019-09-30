@@ -42,6 +42,7 @@
 #include "packet-rtp.h"
 #include "packet-gsm_map.h"
 #include "packet-bicc_mst.h"
+#include "packet-s1ap.h"
 
 void proto_register_gsm_a_bssmap(void);
 void proto_reg_handoff_gsm_a_bssmap(void);
@@ -4926,6 +4927,27 @@ be_fe_dtm_ho_command_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     return(curr_offset - offset);
 }
 
+/* 3.2.3.17 Source Cell ID */
+static guint16
+be_fe_source_cell_id(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_, guint32 offset, guint len, gchar* add_string _U_, int string_len _U_)
+{
+    tvbuff_t* new_tvb;
+    guint32 curr_offset;
+
+    curr_offset = offset;
+
+    /* Tracking Area Identity: Octets 3 to 7 contain the value part of the Tracking Area Identity IE defined in 3GPP TS 24.301, not including 3GPP TS 24.301 IEI. */
+    curr_offset += de_emm_trac_area_id(tvb, tree, pinfo, curr_offset, 5, NULL, 0);
+    /* E-UTRAN CGI: Octets 8 - m contain the value part of the E-UTRAN CGI IE defined 3GPP TS 36.413 for the source cell. */
+    new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
+    curr_offset += dissect_s1ap_EUTRAN_CGI_PDU(new_tvb , pinfo, tree, NULL);
+    /* Global eNB ID: Octets (m+1) - n contain the value part of the Global eNB ID IE defined 3GPP TS 36.413 for the source eNB. */
+    new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
+    curr_offset += dissect_s1ap_Global_ENB_ID_PDU(new_tvb, pinfo, tree, NULL);
+
+    return(len);
+}
+
 static guint16 (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_) = {
     be_fe_extra_info,              /* { 0x01,       "Extra information" }, */
     be_fe_cur_chan_type2,          /* { 0x02,       "Current Channel Type 2" }, */
@@ -4941,6 +4963,8 @@ static guint16 (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tre
     be_fe_cell_load_info,          /* { 0x0c,       "Cell Load Information" }, */
     be_fe_ps_indication,           /* { 0x0d,       "PS Indication" }, */
     be_fe_dtm_ho_command_ind,      /* { 0x0e,       "DTM Handover Command Indication" }, */
+    NULL,                          /* { 0x0f,       "IRAT Measurement Configuration" },                       3.2.3.16 */
+    be_fe_source_cell_id,          /* { 0x10,       "BSSMAP Field Element: Source Cell ID" },                 3.2.3.17 */
     be_vgcs_talker_mode,           /* { 0x6f,       "VGCS talker mode" }, */ /* not really a field element
                                                      but does appear in old bss to new bss info */
     NULL,   /* NONE */

@@ -35,6 +35,7 @@ SONtransferResponseContainer
 SONtransferCause_PDU
 TargeteNB-ToSourceeNB-TransparentContainer_PDU
 UE-HistoryInformation_PDU
+EUTRAN-CGI_PDU
 
 #.PDU
 EN-DCSONConfigurationTransfer
@@ -49,6 +50,7 @@ SONtransferResponseContainer
 SONtransferCause
 TargeteNB-ToSourceeNB-TransparentContainer
 UE-HistoryInformation
+EUTRAN-CGI
 
 #.MAKE_ENUM
 HandoverType
