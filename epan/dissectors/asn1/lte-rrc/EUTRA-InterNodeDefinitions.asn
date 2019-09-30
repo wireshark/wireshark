@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.6.0 (2019-06)
+-- 3GPP TS 36.331 V15.7.0 (2019-09)
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -210,23 +210,22 @@ SCG-Config-r12 ::=					SEQUENCE {
 
 SCG-Config-r12-IEs ::=				SEQUENCE {
 	scg-RadioConfig-r12					SCG-ConfigPartSCG-r12				OPTIONAL,
-	nonCriticalExtension					SCG-Config-v12x0-IEs				OPTIONAL
+	nonCriticalExtension					SCG-Config-v12i0a-IEs				OPTIONAL
 }
 
-SCG-Config-v12x0-IEs ::=				SEQUENCE {
+SCG-Config-v12i0a-IEs ::=				SEQUENCE {
 	-- Following field is only for late non-critical extensions from REL-12
-	lateNonCriticalExtension			OCTET STRING (CONTAINING SCG-Config-v12i0-IEs)	OPTIONAL,
+	lateNonCriticalExtension			OCTET STRING (CONTAINING SCG-Config-v12i0b-IEs)	OPTIONAL,
 	nonCriticalExtension				SCG-Config-v13c0-IEs				OPTIONAL
 }
 
-SCG-Config-v12i0-IEs ::=				SEQUENCE {
+SCG-Config-v12i0b-IEs ::=				SEQUENCE {
 	scg-RadioConfig-v12i0				SCG-ConfigPartSCG-v12f0			OPTIONAL,	-- Need ON
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
 SCG-Config-v13c0-IEs ::=				SEQUENCE {
 	scg-RadioConfig-v13c0				SCG-ConfigPartSCG-v13c0				OPTIONAL,
-
 	-- Following field is only for late non-critical extensions from REL-13 onwards
 	nonCriticalExtension				SEQUENCE {}							OPTIONAL
 }
@@ -439,6 +438,8 @@ AS-Config ::=				SEQUENCE {
 	[[	as-ConfigNR-r15						AS-ConfigNR-r15					OPTIONAL
 	]],
 	[[	as-Config-v1550						AS-Config-v1550					OPTIONAL
+	]],
+	[[	as-ConfigNR-v1570					AS-ConfigNR-v1570				OPTIONAL
 	]]
 }
 
@@ -478,6 +479,10 @@ AS-ConfigNR-r15 ::=				SEQUENCE {
 	sourceRB-ConfigNR-r15				OCTET STRING			OPTIONAL,
 	sourceRB-ConfigSN-NR-r15				OCTET STRING			OPTIONAL,
 	sourceOtherConfigSN-NR-r15			OCTET STRING			OPTIONAL
+}
+
+AS-ConfigNR-v1570 ::=				SEQUENCE {
+	sourceSCG-ConfiguredNR-r15			ENUMERATED {true}
 }
 
 AS-Config-v1550 ::=			SEQUENCE {

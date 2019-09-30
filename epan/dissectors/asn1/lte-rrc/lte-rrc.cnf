@@ -466,6 +466,9 @@ if(ue_cap_tvb){
     proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_31, modifiedMPR_Behavior_r10_tvb, 31, 1, ENC_BIG_ENDIAN);
   }
 
+#.TYPE_ATTR
+RF-Parameters-v1570/dl-1024QAM-TotalWeightedLayers-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_dl_1024QAM_TotalWeightedLayers_r15_fmt)
+
   #.TYPE_RENAME
 IRAT-ParametersWLAN-r13/supportedBandListWLAN-r13 SupportedBandListWLAN_r13
 

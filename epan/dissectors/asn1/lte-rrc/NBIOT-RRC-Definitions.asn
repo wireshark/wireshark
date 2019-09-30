@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.6.0 (2019-06)
+-- 3GPP TS 36.331 V15.7.0 (2019-09)
 --
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -1117,8 +1117,8 @@ SystemInformationBlockType22-NB-r14 ::=	SEQUENCE {
 	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
 	...,
 	[[	mixedOperationModeConfig-r15	SEQUENCE {
-			dl-ConfigListMixed-r15			DL-ConfigCommonList-NB-r14	OPTIONAL,	-- Need OR
-			ul-ConfigListMixed-r15			UL-ConfigCommonList-NB-r14	OPTIONAL,	-- Need OR
+			dl-ConfigListMixed-r15			DL-ConfigCommonList-NB-r14	OPTIONAL,	-- Cond dl-ConfigList
+			ul-ConfigListMixed-r15			UL-ConfigCommonList-NB-r14	OPTIONAL,	-- Cond ul-ConfigList
 			pagingDistribution-r15			ENUMERATED {true}			OPTIONAL,	-- Need OR
 			nprach-Distribution-r15			ENUMERATED {true}			OPTIONAL 	-- Need OR
 		}																OPTIONAL,	-- Need OR
