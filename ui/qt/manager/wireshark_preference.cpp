@@ -148,18 +148,25 @@ public:
     ColorPreference(QObject * parent = Q_NULLPTR) : WiresharkPreference(parent) {}
     virtual QWidget * editor(QWidget * parent, const QStyleOptionViewItem &option, const QModelIndex &index)
     {
-        QColorDialog color_dlg;
-        color_t color = *prefs_get_color_value(prefsItem()->getPref(), pref_stashed);
+        QColorDialog* color_dlg = new QColorDialog(parent);
+        color_dlg->setWindowModality(Qt::ApplicationModal);
+        color_dlg->show();
+        return color_dlg;
+    }
 
-        color_dlg.setCurrentColor(QColor(
-                                      color.red >> 8,
-                                      color.green >> 8,
-                                      color.blue >> 8
-                                      ));
-        if (color_dlg.exec() == QDialog::Accepted)
-            ((QAbstractItemModel*)index.model())->setData(index, color_dlg.currentColor().name(), Qt::EditRole);
+    virtual void setData(QWidget *editor, const QModelIndex &index)
+    {
+        QColorDialog* color_dlg = static_cast<QColorDialog*>(editor);
+        QColor color = QColor("#" + index.model()->data(index, Qt::DisplayRole).toString());
+        color_dlg->setCurrentColor(color);
+    }
 
-        return WiresharkPreference::editor(parent, option, index);
+    virtual void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index)
+    {
+        QColorDialog* color_dlg = static_cast<QColorDialog*>(editor);
+        if (color_dlg->result() == QDialog::Accepted) {
+            model->setData(index, color_dlg->currentColor().name(), Qt::EditRole);
+        }
     }
 };
 REGISTER_PREFERENCE_TYPE(PREF_COLOR, ColorPreference)
