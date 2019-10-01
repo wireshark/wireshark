@@ -1035,12 +1035,12 @@ typedef enum
     BE_CS_TO_PS_SRVCC_IND,              /* CS to PS SRVCC Indication           3.2.2.124    */
     BE_CN_TO_MS_TRANSP,                 /* CN to MS transparent information    3.2.2.125    */
     BE_SELECTED_PLMN_ID,                /* Selected PLMN ID                    3.2.2.126    */
-    BE_UDEF_149,                         /* Undefined */
-    BE_UDEF_150,                         /* Undefined */
-    BE_UDEF_151,                         /* Undefined */
-    BE_UDEF_152,                         /* Undefined */
-    BE_UDEF_153,                         /* Undefined */
-    BE_UDEF_154,                         /* Undefined */
+    BE_LAST_USED_E_UTRAN_PLMN_ID,       /* Last used E-UTRAN PLMN ID           3.2.2.127    */
+    BE_UDEF_150,                         /* Undefined Old Location Area Identification    3.2.2.128 */
+    BE_UDEF_151,                         /* Undefined Attach Indicator    3.2.2.129 */
+    BE_UDEF_152,                         /* Undefined Selected Operator    3.2.2.130 */
+    BE_UDEF_153,                         /* Undefined PS Registered Operator    3.2.2.131 */
+    BE_UDEF_154,                         /* Undefined CS Registered Operator    3.2.2.132*/
     BE_UDEF_155,                         /* Undefined */
     BE_UDEF_156,                         /* Undefined */
     BE_UDEF_157,                         /* Undefined */
