@@ -8184,7 +8184,7 @@ proto_register_homeplug_av(void)
             FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_mfct_data,
-          { "Update Data", "homeplug_av.st_iotecha.mfct.length",
+          { "Update Data", "homeplug_av.st_iotecha.mfct.data",
             FT_BYTES, SEP_SPACE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_mfct_timeout,
