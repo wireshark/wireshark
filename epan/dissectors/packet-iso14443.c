@@ -2014,7 +2014,7 @@ proto_register_iso14443(void)
                 FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_iso14443_write_block_data,
-            { "Block data", "iso14443.write_block.number",
+            { "Block data", "iso14443.write_block.data",
                 FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
         }
    };
