@@ -1004,7 +1004,7 @@ void RtpAnalysisDialog::showPlayer()
 #ifdef QT_MULTIMEDIA_LIB
     if (num_streams_ < 1) return;
 
-    RtpPlayerDialog rtp_player_dialog(*this, cap_file_);
+    RtpPlayerDialog *rtp_player_dialog = new RtpPlayerDialog(*this, cap_file_);
     rtpstream_info_t stream_info;
 
     // XXX We might want to create an "rtp_stream_id_t" struct with only
@@ -1014,7 +1014,7 @@ void RtpAnalysisDialog::showPlayer()
     stream_info.packet_count = fwd_statinfo_.packet_count;
     stream_info.setup_frame_number = fwd_statinfo_.setup_frame_number;
     nstime_copy(&stream_info.start_rel_time, &fwd_statinfo_.start_rel_time);
-    rtp_player_dialog.addRtpStream(&stream_info);
+    rtp_player_dialog->addRtpStream(&stream_info);
 
     if (num_streams_ > 1) {
         rtpstream_info_init(&stream_info);
@@ -1022,12 +1022,14 @@ void RtpAnalysisDialog::showPlayer()
         stream_info.packet_count = rev_statinfo_.packet_count;
         stream_info.setup_frame_number = rev_statinfo_.setup_frame_number;
         nstime_copy(&stream_info.start_rel_time, &rev_statinfo_.start_rel_time);
-        rtp_player_dialog.addRtpStream(&stream_info);
+        rtp_player_dialog->addRtpStream(&stream_info);
     }
 
-    connect(&rtp_player_dialog, SIGNAL(goToPacket(int)), this, SIGNAL(goToPacket(int)));
+    connect(rtp_player_dialog, SIGNAL(goToPacket(int)), this, SIGNAL(goToPacket(int)));
 
-    rtp_player_dialog.exec();
+    rtp_player_dialog->setWindowModality(Qt::ApplicationModal);
+    rtp_player_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    rtp_player_dialog->show();
 #endif // QT_MULTIMEDIA_LIB
 }
 
@@ -1538,7 +1540,7 @@ void RtpAnalysisDialog::graphClicked(QMouseEvent *event)
 {
     updateWidgets();
     if (event->button() == Qt::RightButton) {
-        graph_ctx_menu_.exec(event->globalPos());
+        graph_ctx_menu_.popup(event->globalPos());
     }
 }
 

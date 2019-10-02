@@ -56,7 +56,7 @@ public:
     void reject();
 
     /** Add an RTP stream to play.
-     * MUST be called before exec().
+     * MUST be called before show().
      * Requires src_addr, src_port, dest_addr, dest_port, ssrc, packet_count,
      * setup_frame_number, and start_rel_time.
      *

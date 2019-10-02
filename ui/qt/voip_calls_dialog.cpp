@@ -390,13 +390,14 @@ void VoipCallsDialog::showSequence()
     }
 
     SequenceDialog *sequence_dialog = new SequenceDialog(parent_, cap_file_, sequence_info_);
+    sequence_dialog->setAttribute(Qt::WA_DeleteOnClose);
     sequence_dialog->show();
 }
 
 void VoipCallsDialog::showPlayer()
 {
 #ifdef QT_MULTIMEDIA_LIB
-    RtpPlayerDialog rtp_player_dialog(*this, cap_file_);
+    RtpPlayerDialog *rtp_player_dialog = new RtpPlayerDialog(*this, cap_file_);
 
     foreach (QModelIndex index, ui->callTreeView->selectionModel()->selectedIndexes()) {
         voip_calls_info_t *vci = VoipCallsInfoModel::indexToCallInfo(index);
@@ -411,14 +412,16 @@ void VoipCallsDialog::showPlayer()
             //                rsi->call_num, rsi->start_fd->num, rsi->setup_frame_number);
             if (vci->call_num == static_cast<guint>(rsi->call_num)) {
                 //VOIP_CALLS_DEBUG("adding call number %u", vci->call_num);
-                rtp_player_dialog.addRtpStream(rsi);
+                rtp_player_dialog->addRtpStream(rsi);
             }
         }
     }
 
-    connect(&rtp_player_dialog, SIGNAL(goToPacket(int)), this, SIGNAL(goToPacket(int)));
+    connect(rtp_player_dialog, SIGNAL(goToPacket(int)), this, SIGNAL(goToPacket(int)));
 
-    rtp_player_dialog.exec();
+    rtp_player_dialog->setWindowModality(Qt::ApplicationModal);
+    rtp_player_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    rtp_player_dialog->show();
 #endif // QT_MULTIMEDIA_LIB
 }
 
