@@ -31,6 +31,12 @@
  * configured either at the TLS Protocol preferences, or embedded in a pcapng
  * file. Sample captures and secrets can be found at:
  * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13881
+ *
+ * Limitations:
+ * - STREAM offsets larger than 32-bit are unsupported.
+ * - STREAM with sizes larger than 32 bit are unsupported. STREAM sizes can be
+ *   up to 62 bit in QUIC, but the TVB and reassembly API is limited to 32 bit.
+ * - Out-of-order and overlapping STREAM frame data is not handled.
  */
 
 #include <config.h>
@@ -41,7 +47,9 @@
 #include <epan/to_str.h>
 #include "packet-tls-utils.h"
 #include "packet-tls.h"
+#include "packet-tcp.h"     /* used for STREAM reassembly. */
 #include "packet-quic.h"
+#include <epan/reassemble.h>
 #include <epan/prefs.h>
 #include <wsutil/pint.h>
 
@@ -154,6 +162,17 @@ static int hf_quic_af_sequence_number = -1;
 static int hf_quic_af_packet_tolerance = -1;
 static int hf_quic_af_update_max_ack_delay = -1;
 static int hf_quic_ts = -1;
+static int hf_quic_reassembled_in = -1;
+static int hf_quic_reassembled_length = -1;
+static int hf_quic_reassembled_data = -1;
+static int hf_quic_fragments = -1;
+static int hf_quic_fragment = -1;
+static int hf_quic_fragment_overlap = -1;
+static int hf_quic_fragment_overlap_conflict = -1;
+static int hf_quic_fragment_multiple_tails = -1;
+static int hf_quic_fragment_too_long_fragment = -1;
+static int hf_quic_fragment_error = -1;
+static int hf_quic_fragment_count = -1;
 
 static expert_field ei_quic_connection_unknown = EI_INIT;
 static expert_field ei_quic_ft_unknown = EI_INIT;
@@ -166,9 +185,31 @@ static gint ett_quic_short_header = -1;
 static gint ett_quic_connection_info = -1;
 static gint ett_quic_ft = -1;
 static gint ett_quic_ftflags = -1;
+static gint ett_quic_fragments = -1;
+static gint ett_quic_fragment = -1;
 
 static dissector_handle_t quic_handle;
 static dissector_handle_t tls13_handshake_handle;
+
+static dissector_table_t quic_proto_dissector_table;
+
+/* Fields for showing reassembly results for fragments of QUIC stream data. */
+static const fragment_items quic_stream_fragment_items = {
+    &ett_quic_fragment,
+    &ett_quic_fragments,
+    &hf_quic_fragments,
+    &hf_quic_fragment,
+    &hf_quic_fragment_overlap,
+    &hf_quic_fragment_overlap_conflict,
+    &hf_quic_fragment_multiple_tails,
+    &hf_quic_fragment_too_long_fragment,
+    &hf_quic_fragment_error,
+    &hf_quic_fragment_count,
+    &hf_quic_reassembled_in,
+    &hf_quic_reassembled_length,
+    &hf_quic_reassembled_data,
+    "Fragments"
+};
 
 /*
  * PROTECTED PAYLOAD DECRYPTION (done in first pass)
@@ -259,6 +300,8 @@ struct quic_cid_item {
  */
 typedef struct _quic_stream_state {
     guint64         stream_id;
+    wmem_tree_t    *multisegment_pdus;
+    void           *subdissector_private;
 } quic_stream_state;
 
 /**
@@ -287,6 +330,7 @@ typedef struct quic_info_data {
     quic_cid_item_t client_cids;    /**< SCID of client from first Initial Packet. */
     quic_cid_item_t server_cids;    /**< SCID of server from first Retry/Handshake. */
     quic_cid_t      client_dcid_initial;    /**< DCID from Initial Packet. */
+    dissector_handle_t app_handle;  /**< Application protocol handle (NULL if unknown). */
     wmem_map_t     *client_streams; /**< Map from Stream ID -> STREAM info (guint64 -> quic_stream_state), sent by the client. */
     wmem_map_t     *server_streams; /**< Map from Stream ID -> STREAM info (guint64 -> quic_stream_state), sent by the server. */
 } quic_info_data_t;
@@ -974,6 +1018,399 @@ quic_connection_destroy(gpointer data, gpointer user_data _U_)
 }
 /* QUIC Connection tracking. }}} */
 
+/* QUIC Streams tracking and reassembly. {{{ */
+static reassembly_table quic_reassembly_table;
+
+#ifdef HAVE_LIBGCRYPT_AEAD
+/** Perform sequence analysis for STREAM frames. */
+static quic_stream_state *
+quic_get_stream_state(packet_info *pinfo, quic_info_data_t *quic_info, gboolean from_server, guint64 stream_id)
+{
+    wmem_map_t **streams_p = from_server ? &quic_info->server_streams : &quic_info->client_streams;
+    wmem_map_t *streams = *streams_p;
+    quic_stream_state *stream = NULL;
+
+    if (PINFO_FD_VISITED(pinfo)) {
+        DISSECTOR_ASSERT(streams);
+        stream = (quic_stream_state *)wmem_map_lookup(streams, &stream_id);
+        DISSECTOR_ASSERT(stream);
+        return stream;
+    }
+
+    // Initialize per-connection and per-stream state.
+    if (!streams) {
+        streams = wmem_map_new(wmem_file_scope(), wmem_int64_hash, g_int64_equal);
+        *streams_p = streams;
+    } else {
+        stream = (quic_stream_state *)wmem_map_lookup(streams, &stream_id);
+    }
+    if (!stream) {
+        stream = wmem_new0(wmem_file_scope(), quic_stream_state);
+        stream->stream_id = stream_id;
+        stream->multisegment_pdus = wmem_tree_new(wmem_file_scope());
+        wmem_map_insert(streams, &stream->stream_id, stream);
+    }
+    return stream;
+}
+
+static void
+process_quic_stream(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
+                    quic_info_data_t *quic_info, quic_stream_info *stream_info)
+{
+    if (quic_info->app_handle) {
+        tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
+        // Traverse the STREAM frame tree.
+        proto_tree *top_tree = proto_tree_get_parent_tree(tree);
+        //top_tree = proto_tree_get_parent_tree(top_tree);
+        call_dissector_with_data(quic_info->app_handle, next_tvb, pinfo, top_tree, stream_info);
+    }
+}
+
+/**
+ * Reassemble stream data within a STREAM frame.
+ */
+static void
+desegment_quic_stream(tvbuff_t *tvb, int offset, int length, packet_info *pinfo,
+                      proto_tree *tree, quic_info_data_t *quic_info,
+                      quic_stream_info *stream_info,
+                      quic_stream_state *stream)
+{
+    fragment_head *fh;
+    int last_fragment_len;
+    gboolean must_desegment;
+    gboolean called_dissector;
+    int another_pdu_follows;
+    int deseg_offset;
+    struct tcp_multisegment_pdu *msp;
+    guint32 seq = (guint32)stream_info->stream_offset;
+    const guint32 nxtseq = seq + (guint32)length;
+    guint32 reassembly_id = 0;
+
+    // XXX fix the tvb accessors below such that no new tvb is needed.
+    tvb = tvb_new_subset_length(tvb, 0, offset + length);
+
+again:
+    fh = NULL;
+    last_fragment_len = 0;
+    must_desegment = FALSE;
+    called_dissector = FALSE;
+    another_pdu_follows = 0;
+    msp = NULL;
+
+    /*
+     * Initialize these to assume no desegmentation.
+     * If that's not the case, these will be set appropriately
+     * by the subdissector.
+     */
+    pinfo->desegment_offset = 0;
+    pinfo->desegment_len = 0;
+
+    /*
+     * Initialize this to assume that this segment will just be
+     * added to the middle of a desegmented chunk of data, so
+     * that we should show it all as data.
+     * If that's not the case, it will be set appropriately.
+     */
+    deseg_offset = offset;
+
+    /* Have we seen this PDU before (and is it the start of a multi-
+     * segment PDU)?
+     */
+    if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(stream->multisegment_pdus, seq)) &&
+            nxtseq <= msp->nxtpdu) {
+        // TODO show expert info for retransmission? Additional checks may be
+        // necessary here to tell a retransmission apart from other (normal?)
+        // conditions. See also similar code in packet-tcp.c.
+#if 0
+        proto_tree_add_debug_text(tree, "TODO retransmission expert info frame %d stream_id=%" G_GINT64_MODIFIER "u offset=%d visited=%d reassembly_id=0x%08x",
+                pinfo->num, stream->stream_id, offset, PINFO_FD_VISITED(pinfo), reassembly_id);
+#endif
+        return;
+    }
+    /* Else, find the most previous PDU starting before this sequence number */
+    if (!msp && seq > 0) {
+        msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(stream->multisegment_pdus, seq-1);
+    }
+
+    {
+        // A single stream can contain multiple fragments (e.g. for HTTP/3
+        // HEADERS and DATA frames). Let's hope that a single stream within a
+        // QUIC packet does not contain multiple partial fragments, that would
+        // result in a reassembly ID collision here. If that collision becomes
+        // an issue, we would have to replace "msp->first_frame" with a new
+        // field in "msp" that is initialized with "stream_info->stream_offset".
+#if 0
+        guint64 reassembly_id_data[2];
+        reassembly_id_data[0] = stream_info->stream_id;
+        reassembly_id_data[1] = msp ? msp->first_frame : pinfo->num;
+        reassembly_id = wmem_strong_hash((const guint8 *)&reassembly_id_data, sizeof(reassembly_id_data));
+#else
+        // XXX for debug (visibility) purposes, do not use a hash but concatenate
+        reassembly_id = ((msp ? msp->first_frame : pinfo->num) << 16) | (guint32)stream_info->stream_id;
+#endif
+    }
+
+    if (msp && msp->seq <= seq && msp->nxtpdu > seq) {
+        int len;
+
+        if (!PINFO_FD_VISITED(pinfo)) {
+            msp->last_frame=pinfo->num;
+            msp->last_frame_time=pinfo->abs_ts;
+        }
+
+        /* OK, this PDU was found, which means the segment continues
+         * a higher-level PDU and that we must desegment it.
+         */
+        if (msp->flags & MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT) {
+            /* The dissector asked for the entire segment */
+            len = tvb_captured_length_remaining(tvb, offset);
+        } else {
+            len = MIN(nxtseq, msp->nxtpdu) - seq;
+        }
+        last_fragment_len = len;
+
+        fh = fragment_add(&quic_reassembly_table, tvb, offset,
+                          pinfo, reassembly_id, NULL,
+                          seq - msp->seq, len,
+                          nxtseq < msp->nxtpdu);
+
+        if (!PINFO_FD_VISITED(pinfo)
+        && msp->flags & MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT) {
+            msp->flags &= (~MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT);
+
+            /* If we consumed the entire segment there is no
+             * other pdu starting anywhere inside this segment.
+             * So update nxtpdu to point at least to the start
+             * of the next segment.
+             * (If the subdissector asks for even more data we
+             * will advance nxtpdu even further later down in
+             * the code.)
+             */
+            msp->nxtpdu = nxtseq;
+        }
+
+        if( (msp->nxtpdu < nxtseq)
+        &&  (msp->nxtpdu >= seq)
+        &&  (len > 0)) {
+            another_pdu_follows=msp->nxtpdu - seq;
+        }
+    } else {
+        /* This segment was not found in our table, so it doesn't
+         * contain a continuation of a higher-level PDU.
+         * Call the normal subdissector.
+         */
+
+        stream_info->offset = seq;
+        process_quic_stream(tvb, offset, pinfo, tree, quic_info, stream_info);
+        called_dissector = TRUE;
+
+        /* Did the subdissector ask us to desegment some more data
+         * before it could handle the packet?
+         * If so we have to create some structures in our table but
+         * this is something we only do the first time we see this
+         * packet.
+         */
+        if (pinfo->desegment_len) {
+            if (!PINFO_FD_VISITED(pinfo))
+                must_desegment = TRUE;
+
+            /*
+             * Set "deseg_offset" to the offset in "tvb"
+             * of the first byte of data that the
+             * subdissector didn't process.
+             */
+            deseg_offset = offset + pinfo->desegment_offset;
+        }
+
+        /* Either no desegmentation is necessary, or this is
+         * segment contains the beginning but not the end of
+         * a higher-level PDU and thus isn't completely
+         * desegmented.
+         */
+        fh = NULL;
+    }
+
+    /* is it completely desegmented? */
+    if (fh) {
+        /*
+         * Yes, we think it is.
+         * We only call subdissector for the last segment.
+         * Note that the last segment may include more than what
+         * we needed.
+         */
+        if (fh->reassembled_in == pinfo->num) {
+            /*
+             * OK, this is the last segment.
+             * Let's call the subdissector with the desegmented data.
+             */
+
+            tvbuff_t *next_tvb = tvb_new_chain(tvb, fh->tvb_data);
+            add_new_data_source(pinfo, next_tvb, "Reassembled QUIC");
+            stream_info->offset = seq;
+            process_quic_stream(next_tvb, 0, pinfo, tree, quic_info, stream_info);
+            called_dissector = TRUE;
+
+            int old_len = (int)(tvb_reported_length(next_tvb) - last_fragment_len);
+            if (pinfo->desegment_len &&
+                pinfo->desegment_offset <= old_len) {
+                /*
+                 * "desegment_len" isn't 0, so it needs more
+                 * data for something - and "desegment_offset"
+                 * is before "old_len", so it needs more data
+                 * to dissect the stuff we thought was
+                 * completely desegmented (as opposed to the
+                 * stuff at the beginning being completely
+                 * desegmented, but the stuff at the end
+                 * being a new higher-level PDU that also
+                 * needs desegmentation).
+                 */
+                fragment_set_partial_reassembly(&quic_reassembly_table,
+                                                pinfo, reassembly_id, NULL);
+
+                /* Update msp->nxtpdu to point to the new next
+                 * pdu boundary.
+                 */
+                if (pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
+                    /* We want reassembly of at least one
+                     * more segment so set the nxtpdu
+                     * boundary to one byte into the next
+                     * segment.
+                     * This means that the next segment
+                     * will complete reassembly even if it
+                     * is only one single byte in length.
+                     * If this is an OoO segment, then increment the MSP end.
+                     */
+                    msp->nxtpdu = MAX(seq + tvb_reported_length_remaining(tvb, offset), msp->nxtpdu) + 1;
+                    msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+#if 0
+                } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
+                    tcpd->fwd->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
+#endif
+                } else {
+                    if (seq + last_fragment_len >= msp->nxtpdu) {
+                        /* This is the segment (overlapping) the end of the MSP. */
+                        msp->nxtpdu = seq + last_fragment_len + pinfo->desegment_len;
+                    } else {
+                        /* This is a segment before the end of the MSP, so it
+                         * must be an out-of-order segmented that completed the
+                         * MSP. The requested additional data is relative to
+                         * that end.
+                         */
+                        msp->nxtpdu += pinfo->desegment_len;
+                    }
+                }
+
+                /* Since we need at least some more data
+                 * there can be no pdu following in the
+                 * tail of this segment.
+                 */
+                another_pdu_follows = 0;
+                offset += last_fragment_len;
+                seq += last_fragment_len;
+                if (tvb_captured_length_remaining(tvb, offset) > 0)
+                    goto again;
+            } else {
+                proto_item *frag_tree_item;
+                proto_tree *parent_tree = proto_tree_get_parent(tree);
+                show_fragment_tree(fh, &quic_stream_fragment_items,
+                        parent_tree, pinfo, next_tvb, &frag_tree_item);
+                // TODO move tree item if needed.
+
+                if(pinfo->desegment_len) {
+                    if (!PINFO_FD_VISITED(pinfo))
+                        must_desegment = TRUE;
+                    /* See packet-tcp.h for details about this. */
+                    deseg_offset = fh->datalen - pinfo->desegment_offset;
+                    deseg_offset = tvb_reported_length(tvb) - deseg_offset;
+                }
+            }
+        }
+    }
+
+    if (must_desegment && !PINFO_FD_VISITED(pinfo)) {
+        // TODO handle DESEGMENT_UNTIL_FIN if needed, maybe use the FIN bit?
+
+        guint32 deseg_seq = seq + (deseg_offset - offset);
+
+        if (((nxtseq - deseg_seq) <= 1024*1024)
+            && (!PINFO_FD_VISITED(pinfo))) {
+            if(pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
+                /* The subdissector asked to reassemble using the
+                 * entire next segment.
+                 * Just ask reassembly for one more byte
+                 * but set this msp flag so we can pick it up
+                 * above.
+                 */
+                msp = pdu_store_sequencenumber_of_next_pdu(pinfo, deseg_seq,
+                    nxtseq+1, stream->multisegment_pdus);
+                msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+            } else {
+                msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
+                    deseg_seq, nxtseq+pinfo->desegment_len, stream->multisegment_pdus);
+            }
+
+            /* add this segment as the first one for this new pdu */
+            fragment_add(&quic_reassembly_table, tvb, deseg_offset,
+                         pinfo, reassembly_id, NULL,
+                         0, nxtseq - deseg_seq,
+                         nxtseq < msp->nxtpdu);
+        }
+    }
+
+    if (!called_dissector || pinfo->desegment_len != 0) {
+        if (fh != NULL && fh->reassembled_in != 0 &&
+            !(fh->flags & FD_PARTIAL_REASSEMBLY)) {
+            /*
+             * We know what frame this PDU is reassembled in;
+             * let the user know.
+             */
+            proto_item *item = proto_tree_add_uint(tree, hf_quic_reassembled_in, tvb, 0,
+                                                   0, fh->reassembled_in);
+            proto_item_set_generated(item);
+        }
+    }
+    pinfo->can_desegment = 0;
+    pinfo->desegment_offset = 0;
+    pinfo->desegment_len = 0;
+
+    if (another_pdu_follows) {
+        /* there was another pdu following this one. */
+        pinfo->can_desegment = 2;
+        offset += another_pdu_follows;
+        seq += another_pdu_follows;
+        goto again;
+    }
+}
+
+static void
+dissect_quic_stream_payload(tvbuff_t *tvb, int offset, int length, packet_info *pinfo,
+                            proto_tree *tree, quic_info_data_t *quic_info,
+                            quic_stream_info *stream_info,
+                            quic_stream_state *stream)
+{
+    /* QUIC application data is most likely not properly dissected when
+     * reassembly is not enabled. Therefore we do not even offer "desegment"
+     * preference to disable reassembly.
+     */
+
+    pinfo->can_desegment = 2;
+    desegment_quic_stream(tvb, offset, length, pinfo, tree, quic_info, stream_info, stream);
+}
+#endif /* HAVE_LIBGCRYPT_AEAD */
+/* QUIC Streams tracking and reassembly. }}} */
+
+void
+quic_stream_add_proto_data(packet_info *pinfo, quic_stream_info *stream_info, void *proto_data)
+{
+    quic_stream_state *stream = quic_get_stream_state(pinfo, stream_info->quic_info, stream_info->from_server, stream_info->stream_id);
+    stream->subdissector_private = proto_data;
+}
+
+void *quic_stream_get_proto_data(packet_info *pinfo, quic_stream_info *stream_info)
+{
+    quic_stream_state *stream = quic_get_stream_state(pinfo, stream_info->quic_info, stream_info->from_server, stream_info->stream_id);
+    return stream->subdissector_private;
+}
 
 #ifdef HAVE_LIBGCRYPT_AEAD
 static int
@@ -1186,6 +1623,14 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             if (have_tap_listener(quic_follow_tap)) {
                 tap_queue_packet(quic_follow_tap, pinfo, tvb_new_subset_length(tvb, offset, (int)length));
             }
+            quic_stream_state *stream = quic_get_stream_state(pinfo, quic_info, from_server, stream_id);
+            quic_stream_info stream_info = {
+                .stream_id = stream_id,
+                .stream_offset = stream_offset,
+                .quic_info = quic_info,
+                .from_server = from_server,
+            };
+            dissect_quic_stream_payload(tvb, offset, (int)length, pinfo, ft_tree, quic_info, &stream_info, stream);
             offset += (int)length;
         }
         break;
@@ -1784,7 +2229,7 @@ quic_update_key(guint32 version, int hash_algo, quic_pp_state_t *pp_state)
 
 /**
  * Retrieves the header protection cipher for short header packets and prepares
- * the packet protection cipher.
+ * the packet protection cipher. The application layer protocol is also queried.
  */
 static gcry_cipher_hd_t
 quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolean from_server)
@@ -1833,6 +2278,17 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
         // Rotate the 1-RTT key for the client and server for the next key update.
         quic_update_key(quic_info->version, quic_info->hash_algo, client_pp);
         quic_update_key(quic_info->version, quic_info->hash_algo, server_pp);
+
+        // For efficiency, look up the application layer protocol once. The
+        // handshake must have been completed before, so ALPN is known.
+        const char *proto_name = tls_get_alpn(pinfo);
+        if (proto_name) {
+            quic_info->app_handle = dissector_get_string_handle(quic_proto_dissector_table, proto_name);
+            // If no specific handle is found, alias "h3-*" to "h3".
+            if (!quic_info->app_handle && g_str_has_prefix(proto_name, "h3-")) {
+                quic_info->app_handle = dissector_get_string_handle(quic_proto_dissector_table, "h3");
+            }
+        }
     }
 
     // Note: Header Protect cipher does not change after Key Update.
@@ -3068,6 +3524,7 @@ proto_register_quic(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+
         /* MAX_DATA */
         { &hf_quic_md_maximum_data,
             { "Maximum Data", "quic.md.maximum_data",
@@ -3221,6 +3678,63 @@ proto_register_quic(void)
               FT_UINT64, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
+
+        /* Fields for QUIC Stream data reassembly. */
+        { &hf_quic_fragment_overlap,
+          { "Fragment overlap", "quic.fragment.overlap",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Fragment overlaps with other fragments", HFILL }
+        },
+        { &hf_quic_fragment_overlap_conflict,
+          { "Conflicting data in fragment overlap", "quic.fragment.overlap.conflict",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Overlapping fragments contained conflicting data", HFILL }
+        },
+        { &hf_quic_fragment_multiple_tails,
+          { "Multiple tail fragments found", "quic.fragment.multipletails",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Several tails were found when reassembling the pdu", HFILL }
+        },
+        { &hf_quic_fragment_too_long_fragment,
+          { "Fragment too long", "quic.fragment.toolongfragment",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Fragment contained data past end of the pdu", HFILL }
+        },
+        { &hf_quic_fragment_error,
+          { "Reassembling error", "quic.fragment.error",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "Reassembling error due to illegal fragments", HFILL }
+        },
+        { &hf_quic_fragment_count,
+          { "Fragment count", "quic.fragment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_fragment,
+          { "QUIC STREAM Data Fragment", "quic.fragment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_fragments,
+          { "Reassembled QUIC STREAM Data Fragments", "quic.fragments",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "QUIC STREAM Data Fragments", HFILL }
+        },
+        { &hf_quic_reassembled_in,
+          { "Reassembled PDU in frame", "quic.reassembled_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "The PDU that doesn't end in this fragment is reassembled in this frame", HFILL }
+        },
+        { &hf_quic_reassembled_length,
+          { "Reassembled QUIC STREAM Data length", "quic.reassembled.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "The total length of the reassembled payload", HFILL }
+        },
+        { &hf_quic_reassembled_data,
+          { "Reassembled QUIC STREAM Data", "quic.reassembled.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "The reassembled payload", HFILL }
+        },
     };
 
     static gint *ett[] = {
@@ -3228,7 +3742,9 @@ proto_register_quic(void)
         &ett_quic_short_header,
         &ett_quic_connection_info,
         &ett_quic_ft,
-        &ett_quic_ftflags
+        &ett_quic_ftflags,
+        &ett_quic_fragments,
+        &ett_quic_fragment,
     };
 
     static ei_register_info ei[] = {
@@ -3269,6 +3785,19 @@ proto_register_quic(void)
 
     register_follow_stream(proto_quic, "quic_follow", quic_follow_conv_filter, quic_follow_index_filter, quic_follow_address_filter,
                            udp_port_to_display, follow_quic_tap_listener);
+
+    // TODO implement custom reassembly functions that uses the QUIC Connection
+    // ID instead of address and port numbers.
+    reassembly_table_register(&quic_reassembly_table,
+                              &addresses_ports_reassembly_table_functions);
+
+    /*
+     * Application protocol. QUIC with TLS uses ALPN.
+     * https://tools.ietf.org/html/draft-ietf-quic-transport-23#section-7
+     * This could in theory be an arbitrary octet string with embedded NUL
+     * bytes, but in practice these do not exist yet.
+     */
+    quic_proto_dissector_table = register_dissector_table("quic.proto", "QUIC Protocol", proto_quic, FT_STRING, FALSE);
 }
 
 void
