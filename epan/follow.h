@@ -43,7 +43,8 @@ typedef enum {
     FOLLOW_TLS,
     FOLLOW_UDP,
     FOLLOW_HTTP,
-    FOLLOW_HTTP2
+    FOLLOW_HTTP2,
+    FOLLOW_QUIC,
 } follow_type_t;
 
 /* Show Type */

@@ -501,6 +501,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-q931.h
 	packet-q932.h
 	packet-qsig.h
+	packet-quic.h
 	packet-radius.h
 	packet-raknet.h
 	packet-ranap.h

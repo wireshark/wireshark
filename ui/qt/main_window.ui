@@ -416,6 +416,7 @@
      <addaction name="actionAnalyzeFollowTLSStream"/>
      <addaction name="actionAnalyzeFollowHTTPStream"/>
      <addaction name="actionAnalyzeFollowHTTP2Stream"/>
+     <addaction name="actionAnalyzeFollowQUICStream"/>
     </widget>
     <widget class="QMenu" name="menuConversationFilter">
      <property name="title">
@@ -1718,6 +1719,14 @@
    </property>
    <property name="text">
     <string>HTTP/2 Stream</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeFollowQUICStream">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>QUIC Stream</string>
    </property>
   </action>
   <action name="actionStatisticsTcpStreamTcptrace">

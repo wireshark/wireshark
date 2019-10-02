@@ -340,7 +340,7 @@ follow_arg_filter(const char **opt_argp, follow_info_t *follow_info)
   {
     *opt_argp += len;
 
-    /* if it's HTTP2 protocol we should read substream id otherwise it's a range parameter from follow_arg_range */
+    /* if it's HTTP2 or QUIC protocol we should read substream id otherwise it's a range parameter from follow_arg_range */
     if (cli_follow_info->sub_stream_index == -1 && sscanf(*opt_argp, ",%d%n", &cli_follow_info->sub_stream_index, &len) == 1 &&
         ((*opt_argp)[len] == 0 || (*opt_argp)[len] == ','))
     {
@@ -454,8 +454,9 @@ static void follow_stream(const char *opt_argp, void *userdata)
 
   cli_follow_info = g_new0(cli_follow_info_t, 1);
   cli_follow_info->stream_index = -1;
-  /* use second parameter only for HTTP2 substream */
-  if (strncmp(proto_filter_name, "http2", 5) == 0) {
+  /* use second parameter only for HTTP2 or QUIC substream */
+  if (g_str_equal(proto_filter_name, "http2") ||
+      g_str_equal(proto_filter_name, "quic")) {
       cli_follow_info->sub_stream_index = -1;
   } else {
       cli_follow_info->sub_stream_index = 0;

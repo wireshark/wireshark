@@ -34,8 +34,13 @@
 #include <epan/to_str.h>
 #include "packet-tls-utils.h"
 #include "packet-tls.h"
+#include "packet-quic.h"
 #include <epan/prefs.h>
 #include <wsutil/pint.h>
+
+#include <epan/tap.h>
+#include <epan/follow.h>
+#include <epan/addr_resolv.h>
 
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 /* Whether to provide support for authentication in addition to decryption. */
@@ -49,6 +54,8 @@
 /* Prototypes */
 void proto_reg_handoff_quic(void);
 void proto_register_quic(void);
+
+static int quic_follow_tap = -1;
 
 /* Initialize the protocol and registered fields */
 static int proto_quic = -1;
@@ -229,6 +236,17 @@ struct quic_cid_item {
 };
 
 /**
+ * Per-STREAM state, identified by QUIC Stream ID.
+ *
+ * Assume that every QUIC Short Header packet has no STREAM frames that overlap
+ * each other in the same QUIC packet (identified by "frame_num"). Thus, the
+ * Stream ID and offset uniquely identifies the STREAM Frame info in per packet.
+ */
+typedef struct _quic_stream_state {
+    guint64         stream_id;
+} quic_stream_state;
+
+/**
  * State for a single QUIC connection, identified by one or more Destination
  * Connection IDs (DCID).
  */
@@ -253,6 +271,8 @@ typedef struct quic_info_data {
     quic_cid_item_t client_cids;    /**< SCID of client from first Initial Packet. */
     quic_cid_item_t server_cids;    /**< SCID of server from first Retry/Handshake. */
     quic_cid_t      client_dcid_initial;    /**< DCID from Initial Packet. */
+    wmem_map_t     *client_streams; /**< Map from Stream ID -> STREAM info (guint64 -> quic_stream_state), sent by the client. */
+    wmem_map_t     *server_streams; /**< Map from Stream ID -> STREAM info (guint64 -> quic_stream_state), sent by the server. */
 } quic_info_data_t;
 
 /** Per-packet information about QUIC, populated on the first pass. */
@@ -642,6 +662,21 @@ quic_cids_is_known_length(const quic_cid_t *cid)
 }
 
 /**
+ * Returns the QUIC connection for the current UDP stream. This may return NULL
+ * after connection migration if the new UDP association was not properly linked
+ * via a match based on the Connection ID.
+ */
+static quic_info_data_t *
+quic_connection_from_conv(packet_info *pinfo)
+{
+    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    if (conv) {
+        return (quic_info_data_t *)conversation_get_proto_data(conv, proto_quic);
+    }
+    return NULL;
+}
+
+/**
  * Tries to lookup a matching connection (Connection ID is optional).
  * If connection is found, "from_server" is set accordingly.
  */
@@ -676,10 +711,9 @@ quic_connection_find_dcid(packet_info *pinfo, const quic_cid_t *dcid, gboolean *
             }
         }
     } else {
-        conversation_t *conv = find_conversation_pinfo(pinfo, 0);
-        if (conv) {
-            conn = (quic_info_data_t *)conversation_get_proto_data(conv, proto_quic);
-            check_ports = !!conn;
+        conn = quic_connection_from_conv(pinfo);
+        if (conn) {
+            check_ports = TRUE;
         }
     }
 
@@ -1087,6 +1121,9 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_item_append_text(ti_ft, " len=%" G_GINT64_MODIFIER "u uni=%d", length, !!(stream_id & 2U));
 
             proto_tree_add_item(ft_tree, hf_quic_stream_data, tvb, offset, (int)length, ENC_NA);
+            if (have_tap_listener(quic_follow_tap)) {
+                tap_queue_packet(quic_follow_tap, pinfo, tvb_new_subset_length(tvb, offset, (int)length));
+            }
             offset += (int)length;
         }
         break;
@@ -2417,6 +2454,58 @@ quic_cleanup(void)
     quic_server_connections = NULL;
 }
 
+/* Follow QUIC Stream functionality {{{ */
+
+static gchar *
+quic_follow_conv_filter(packet_info *pinfo, guint *stream, guint *sub_stream)
+{
+    if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
+        (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))) {
+        gboolean from_server;
+        quic_info_data_t *conn = quic_connection_find_dcid(pinfo, NULL, &from_server);
+        if (!conn) {
+            return NULL;
+        }
+        // XXX Look up stream ID for the current packet.
+        guint stream_id = 0;
+        *stream = conn->number;
+        *sub_stream = stream_id;
+        return g_strdup_printf("quic.connection.number eq %u and quic.stream.stream_id eq %u", conn->number, stream_id);
+    }
+
+    return NULL;
+}
+
+static gchar *
+quic_follow_index_filter(guint stream, guint sub_stream)
+{
+    return g_strdup_printf("quic.connection.number eq %u and quic.stream.stream_id eq %u", stream, sub_stream);
+}
+
+static gchar *
+quic_follow_address_filter(address *src_addr _U_, address *dst_addr _U_, int src_port _U_, int dst_port _U_)
+{
+    // This appears to be solely used for tshark. Let's not support matching by
+    // IP addresses and UDP ports for now since that fails after connection
+    // migration. If necessary, use udp_follow_address_filter.
+    return NULL;
+}
+
+static tap_packet_status
+follow_quic_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+{
+    // TODO fix filtering for multiple streams, see
+    // https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16093
+    follow_tvb_tap_listener(tapdata, pinfo, NULL, data);
+    return TAP_PACKET_DONT_REDRAW;
+}
+
+guint32 get_quic_connections_count(void)
+{
+    return quic_connections_count;
+}
+/* Follow QUIC Stream functionality }}} */
+
 void
 proto_register_quic(void)
 {
@@ -2885,6 +2974,9 @@ proto_register_quic(void)
 
     register_init_routine(quic_init);
     register_cleanup_routine(quic_cleanup);
+
+    register_follow_stream(proto_quic, "quic_follow", quic_follow_conv_filter, quic_follow_index_filter, quic_follow_address_filter,
+                           udp_port_to_display, follow_quic_tap_listener);
 }
 
 void
@@ -2893,6 +2985,7 @@ proto_reg_handoff_quic(void)
     tls13_handshake_handle = find_dissector("tls13-handshake");
     dissector_add_uint_with_preference("udp.port", 0, quic_handle);
     heur_dissector_add("udp", dissect_quic_heur, "QUIC", "quic", proto_quic, HEURISTIC_ENABLE);
+    quic_follow_tap = register_tap("quic_follow");
 }
 
 /*

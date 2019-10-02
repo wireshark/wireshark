@@ -1228,6 +1228,8 @@ I<prot> specifies the transport protocol.  It can be one of:
   tcp   TCP
   udp   UDP
   tls   TLS or SSL
+  http2 HTTP/2 streams
+  quic  QUIC streams
 
 I<mode> specifies the output mode.  It can be one of:
 
@@ -1295,6 +1297,10 @@ stream on the first TCP session (index 0) with HTTP/2 Stream ID 1.
       00000010  57 54 df 61 96 c3 61 be  94 03 8a 61 2c 6a 08 2f  WT.a..a. ...a,j./
       00000020  34 a0 5b b8 21 5c 0b ea  62 d1 bf                 4.[.!\.. b..
       0000002B  00 40 00 00 00 00 00 00  01 89 50 4e 47 0d 0a 1a  .@...... ..PNG...
+
+QUIC streams can be selected through B<-z "follow,quic,hex,3,0">, the first
+number indicates the UDP stream index whereas the second number selects the QUIC
+Stream ID.
 
 =item B<-z> h225,counter[I<,filter>]
 

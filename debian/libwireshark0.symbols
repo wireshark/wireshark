@@ -852,6 +852,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_utf_16_string@Base 1.12.0~rc1
  get_vlan_hash_table@Base 2.1.0
  get_wka_hashtable@Base 1.12.0~rc1
+ get_quic_connections_count@Base 3.1.1
  giop_add_CDR_string@Base 3.0.1
  golay_decode@Base 1.9.1
  golay_encode@Base 1.9.1

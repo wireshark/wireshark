@@ -17,6 +17,7 @@
 #include "epan/dissectors/packet-tcp.h"
 #include "epan/dissectors/packet-udp.h"
 #include "epan/dissectors/packet-http2.h"
+#include "epan/dissectors/packet-quic.h"
 #include "epan/prefs.h"
 #include "epan/addr_resolv.h"
 #include "epan/charsets.h"
@@ -98,6 +99,9 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
         break;
     case FOLLOW_HTTP2:
         follower_ = get_follow_by_name("HTTP2");
+        break;
+    case FOLLOW_QUIC:
+        follower_ = get_follow_by_name("QUIC");
         break;
     default :
         g_assert_not_reached();
@@ -405,10 +409,18 @@ void FollowStreamDialog::on_subStreamNumberSpinBox_valueChanged(int sub_stream_n
         // Stream ID 0 should always exist as it is used for control messages.
         sub_stream_num_new = 0;
         ok = TRUE;
-    } else if (previous_sub_stream_num_ < sub_stream_num){
-        ok = http2_get_stream_id_ge(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+    } else if (follow_type_ == FOLLOW_HTTP2) {
+        if (previous_sub_stream_num_ < sub_stream_num){
+            ok = http2_get_stream_id_ge(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+        } else {
+            ok = http2_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+        }
+    } else if (follow_type_ == FOLLOW_QUIC) {
+        // TODO clamp the stream IDs correctly for QUIC
+        ok = TRUE;
     } else {
-        ok = http2_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+        // Should not happen, this field is only visible for suitable protocols.
+        return;
     }
     sub_stream_num = static_cast<gint>(sub_stream_num_new);
 
@@ -502,6 +514,7 @@ FollowStreamDialog::readStream()
     case FOLLOW_UDP :
     case FOLLOW_HTTP :
     case FOLLOW_HTTP2:
+    case FOLLOW_QUIC:
     case FOLLOW_TLS :
         ret = readFollowStream();
         break;
@@ -891,7 +904,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         return false;
     }
 
-    /* disable substream spin box for all protocols except HTTP2 */
+    /* disable substream spin box for all protocols except HTTP2 and QUIC */
     ui->subStreamNumberSpinBox->blockSignals(true);
     ui->subStreamNumberSpinBox->setEnabled(false);
     ui->subStreamNumberSpinBox->setValue(0);
@@ -939,6 +952,30 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         guint substream_max_id = 0;
         http2_get_stream_id_le(static_cast<guint>(stream_num), G_MAXINT32, &substream_max_id);
         stream_count = static_cast<gint>(substream_max_id);
+        ui->subStreamNumberSpinBox->blockSignals(true);
+        ui->subStreamNumberSpinBox->setEnabled(true);
+        ui->subStreamNumberSpinBox->setMaximum(stream_count);
+        ui->subStreamNumberSpinBox->setValue(sub_stream_num);
+        ui->subStreamNumberSpinBox->blockSignals(false);
+        ui->subStreamNumberSpinBox->setToolTip(tr("%Ln total sub stream(s).", "", stream_count));
+        ui->subStreamNumberSpinBox->setToolTip(ui->subStreamNumberSpinBox->toolTip());
+        ui->subStreamNumberSpinBox->setVisible(true);
+        ui->subStreamNumberLabel->setVisible(true);
+
+        break;
+    }
+    case FOLLOW_QUIC:
+    {
+        int stream_count = get_quic_connections_count();
+        ui->streamNumberSpinBox->blockSignals(true);
+        ui->streamNumberSpinBox->setMaximum(stream_count-1);
+        ui->streamNumberSpinBox->setValue(stream_num);
+        ui->streamNumberSpinBox->blockSignals(false);
+        ui->streamNumberSpinBox->setToolTip(tr("%Ln total stream(s).", "", stream_count));
+        ui->streamNumberLabel->setToolTip(ui->streamNumberSpinBox->toolTip());
+
+        // TODO extract number of QUIC streams?
+        stream_count = G_MAXINT32;
         ui->subStreamNumberSpinBox->blockSignals(true);
         ui->subStreamNumberSpinBox->setEnabled(true);
         ui->subStreamNumberSpinBox->setMaximum(stream_count);
