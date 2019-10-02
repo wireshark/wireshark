@@ -146,7 +146,7 @@ class ColorPreference : public WiresharkPreference
 {
 public:
     ColorPreference(QObject * parent = Q_NULLPTR) : WiresharkPreference(parent) {}
-    virtual QWidget * editor(QWidget * parent, const QStyleOptionViewItem &option, const QModelIndex &index)
+    virtual QWidget * editor(QWidget * parent, const QStyleOptionViewItem &/*option*/, const QModelIndex &/*index*/)
     {
         QColorDialog* color_dlg = new QColorDialog(parent);
         color_dlg->setWindowModality(Qt::ApplicationModal);
