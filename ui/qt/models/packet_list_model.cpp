@@ -352,7 +352,6 @@ QElapsedTimer busy_timer_;
 const int busy_timeout_ = 65; // ms, approximately 15 fps
 void PacketListModel::sort(int column, Qt::SortOrder order)
 {
-    // packet_list_store.c:packet_list_dissect_and_cache_all
     if (!cap_file_ || visible_rows_.count() < 1) return;
     if (column < 0) return;
 
@@ -361,28 +360,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     sort_order_ = order;
     sort_cap_file_ = cap_file_;
 
-    gboolean stop_flag = FALSE;
     QString col_title = get_column_title(column);
-
-    busy_timer_.start();
-    emit pushProgressStatus(tr("Dissecting"), true, true, &stop_flag);
-    int row_num = 0;
-    foreach (PacketListRecord *row, physical_rows_) {
-        row->columnString(sort_cap_file_, column);
-        row_num++;
-        if (busy_timer_.elapsed() > busy_timeout_) {
-            if (stop_flag) {
-                emit popProgressStatus();
-                return;
-            }
-            emit updateProgressStatus(row_num * 100 / physical_rows_.count());
-            // What's the least amount of processing that we can do which will draw
-            // the progress indicator?
-            wsApp->processEvents(QEventLoop::AllEvents, 1);
-            busy_timer_.restart();
-        }
-    }
-    emit popProgressStatus();
 
     // XXX Use updateProgress instead. We'd have to switch from std::sort to
     // something we can interrupt.
@@ -391,7 +369,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
         emit pushBusyStatus(busy_msg);
     }
 
-    busy_timer_.restart();
+    busy_timer_.start();
     sort_column_is_numeric_ = isNumericColumn(sort_column_);
     std::sort(physical_rows_.begin(), physical_rows_.end(), recordLessThan);
 
