@@ -4,11 +4,12 @@
 #  library directory structure
 
 function(FindWSLibrary OUTPUT_LIBRARY)
-    cmake_parse_arguments(PARSE_ARGV 1
+    cmake_parse_arguments(
         WS_LIB
         ""
         "WIN32_HINTS"
         "NAMES;HINTS;PATHS"
+        ${ARGN}
     )
 
     if (WIN32)
