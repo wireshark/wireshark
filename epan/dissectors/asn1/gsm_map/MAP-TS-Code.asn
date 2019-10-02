@@ -1,4 +1,4 @@
--- 3GPP TS 29.002 V15.4.0 (2018-12)
+-- 3GPP TS 29.002 V15.5.0 (2019-06)
 -- 17.7.9	Teleservice Codes
  
 MAP-TS-Code {
@@ -32,7 +32,7 @@ Ext-TeleserviceCode ::= OCTET STRING (SIZE (1..5))
 
 	-- OCTETS 2-5: reserved for future use. If received the
     -- Ext-TeleserviceCode shall be
- 	-- treated according to the exception handling defined for the
+	-- treated according to the exception handling defined for the
 	-- operation that uses this type.
 
 	-- Ext-TeleserviceCode includes all values defined for TeleserviceCode.

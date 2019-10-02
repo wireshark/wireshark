@@ -1,4 +1,4 @@
--- 3GPP TS 29.002 V15.4.0 (2018-12)
+-- 3GPP TS 29.002 V15.5.0 (2019-06)
 --17.5	MAP operation and error codes
 
 MAP-Protocol {
@@ -175,3 +175,4 @@ releaseResources | mt-ForwardSM-VGCS | sendGroupCallInfo }
 
 
 END
+

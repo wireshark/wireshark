@@ -1,4 +1,4 @@
--- 3GPP TS 29.002 V15.4.0 (2018-12)
+-- 3GPP TS 29.002 V15.5.0 (2019-06)
 -- 17.7.3	Call handling data types
  
 MAP-CH-DataTypes {
@@ -110,7 +110,7 @@ SendRoutingInfoArg ::= SEQUENCE {
 	basicServiceGroup	[9] Ext-BasicServiceCode	OPTIONAL,
 	networkSignalInfo	[10] ExternalSignalInfo	OPTIONAL,
 	camelInfo	[11] CamelInfo	OPTIONAL,
-	suppressionOfAnnouncement	[12] SuppressionOfAnnouncement 	OPTIONAL,
+	suppressionOfAnnouncement	[12] SuppressionOfAnnouncement	OPTIONAL,
 	extensionContainer	[13] ExtensionContainer	OPTIONAL,
 	...,
 	alertingPattern	[14] AlertingPattern	OPTIONAL,
@@ -285,7 +285,7 @@ ResumeCallHandlingArg ::= SEQUENCE {
 	allInformationSent	[11] NULL	OPTIONAL,
 	...,
 	d-csi	[12]	D-CSI	OPTIONAL,
-	o-BcsmCamelTDPCriteriaList 	[13]	O-BcsmCamelTDPCriteriaList 	OPTIONAL,
+	o-BcsmCamelTDPCriteriaList	[13]	O-BcsmCamelTDPCriteriaList	OPTIONAL,
 	basicServiceGroup2	[14] Ext-BasicServiceCode	OPTIONAL,
 	mtRoamingRetry	[15] NULL	OPTIONAL
 	}
@@ -349,13 +349,13 @@ ReportingState ::= ENUMERATED {
 	-- reception of values > 10 shall be mapped to 'startMonitoring'
 
 SetReportingStateRes ::= SEQUENCE{
-	ccbs-SubscriberStatus 	[0]	CCBS-SubscriberStatus	OPTIONAL,
+	ccbs-SubscriberStatus	[0]	CCBS-SubscriberStatus	OPTIONAL,
 	extensionContainer	[1]	ExtensionContainer	OPTIONAL,
 	...}
 
 CCBS-SubscriberStatus ::= ENUMERATED {
-	ccbsNotIdle 	(0),
-	ccbsIdle 	(1),
+	ccbsNotIdle	(0),
+	ccbsIdle	(1),
 	ccbsNotReachable	(2),
 	...}
 	--  exception handling: 
@@ -364,7 +364,7 @@ CCBS-SubscriberStatus ::= ENUMERATED {
 	--  reception of values > 20 shall be mapped to 'ccbsNotReachable' 
 
 StatusReportArg ::= SEQUENCE{
-	imsi 	[0]	IMSI,
+	imsi	[0]	IMSI,
 	eventReportData	[1]	EventReportData	OPTIONAL,
 	callReportdata	[2]	CallReportData	OPTIONAL,
 	extensionContainer	[3]	ExtensionContainer	OPTIONAL,
@@ -408,7 +408,7 @@ RemoteUserFreeArg ::= SEQUENCE{
 	callInfo	[1]	ExternalSignalInfo,
 	ccbs-Feature	[2]	CCBS-Feature,
 	translatedB-Number	[3]	ISDN-AddressString,
-	replaceB-Number	[4] 	NULL	OPTIONAL,
+	replaceB-Number	[4]	NULL	OPTIONAL,
 	alertingPattern	[5]	AlertingPattern	OPTIONAL,
 	extensionContainer	[6]	ExtensionContainer	OPTIONAL,
 	...}
@@ -440,7 +440,7 @@ IST-AlertArg ::= SEQUENCE{
 	...}
 
 IST-AlertRes ::= SEQUENCE{
-	istAlertTimer	[0]	IST-AlertTimerValue 	OPTIONAL,
+	istAlertTimer	[0]	IST-AlertTimerValue	OPTIONAL,
 	istInformationWithdraw	[1]	NULL	OPTIONAL,
 	callTerminationIndicator	[2]	CallTerminationIndicator	OPTIONAL,
 	extensionContainer	[3]	ExtensionContainer	OPTIONAL,

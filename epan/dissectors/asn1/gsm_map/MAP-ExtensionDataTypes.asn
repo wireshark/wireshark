@@ -1,6 +1,6 @@
 -- MAP-ExtensionDataTypes.asn
 --
--- Taken from 3GPP TS 29.002 V15.4.0 (2018-12)
+-- Taken from 3GPP TS 29.002 V15.5.0 (2019-06)
 --
 -- 17.7.11 Extension data types
 --
@@ -29,7 +29,7 @@ EXPORTS
 
 MAP-EXTENSION  ::= CLASS {
 	&ExtensionType		OPTIONAL,
-	&extensionId 	OBJECT IDENTIFIER }
+	&extensionId	OBJECT IDENTIFIER }
 	-- The length of the Object Identifier shall not exceed 16 octets and the
 	-- number of components of the Object Identifier shall not exceed 16
 

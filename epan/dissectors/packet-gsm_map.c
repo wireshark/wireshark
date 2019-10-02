@@ -316,6 +316,7 @@ static int hf_gsm_map_sm_imsi = -1;               /* IMSI */
 static int hf_gsm_map_sm_t4_Trigger_Indicator = -1;  /* NULL */
 static int hf_gsm_map_sm_singleAttemptDelivery = -1;  /* NULL */
 static int hf_gsm_map_sm_correlationID = -1;      /* CorrelationID */
+static int hf_gsm_map_sm_smsf_supportIndicator = -1;  /* NULL */
 static int hf_gsm_map_sm_locationInfoWithLMSI = -1;  /* LocationInfoWithLMSI */
 static int hf_gsm_map_sm_ip_sm_gwGuidance = -1;   /* IP_SM_GW_Guidance */
 static int hf_gsm_map_sm_minimumDeliveryTimeValue = -1;  /* SM_DeliveryTimerValue */
@@ -329,6 +330,12 @@ static int hf_gsm_map_sm_additionalNetworkNodeDiameterAddress = -1;  /* NetworkN
 static int hf_gsm_map_sm_thirdNumber = -1;        /* Additional_Number */
 static int hf_gsm_map_sm_thirdNetworkNodeDiameterAddress = -1;  /* NetworkNodeDiameterAddress */
 static int hf_gsm_map_sm_imsNodeIndicator = -1;   /* NULL */
+static int hf_gsm_map_sm_smsf_3gpp_Number = -1;   /* ISDN_AddressString */
+static int hf_gsm_map_sm_smsf_3gpp_DiameterAddress = -1;  /* NetworkNodeDiameterAddress */
+static int hf_gsm_map_sm_smsf_non_3gpp_Number = -1;  /* ISDN_AddressString */
+static int hf_gsm_map_sm_smsf_non_3gpp_DiameterAddress = -1;  /* NetworkNodeDiameterAddress */
+static int hf_gsm_map_sm_smsf_3gpp_address_indicator = -1;  /* NULL */
+static int hf_gsm_map_sm_smsf_non_3gpp_address_indicator = -1;  /* NULL */
 static int hf_gsm_map_sm_msc_Number = -1;         /* ISDN_AddressString */
 static int hf_gsm_map_sm_sgsn_Number = -1;        /* ISDN_AddressString */
 static int hf_gsm_map_sm_sm_RP_DA = -1;           /* SM_RP_DA */
@@ -359,6 +366,12 @@ static int hf_gsm_map_sm_additionalAbsentSubscriberDiagnosticSM = -1;  /* Absent
 static int hf_gsm_map_sm_ip_sm_gw_Indicator = -1;  /* NULL */
 static int hf_gsm_map_sm_ip_sm_gw_sm_deliveryOutcome = -1;  /* SM_DeliveryOutcome */
 static int hf_gsm_map_sm_ip_sm_gw_absentSubscriberDiagnosticSM = -1;  /* AbsentSubscriberDiagnosticSM */
+static int hf_gsm_map_sm_smsf_3gpp_deliveryOutcomeIndicator = -1;  /* NULL */
+static int hf_gsm_map_sm_smsf_3gpp_deliveryOutcome = -1;  /* SM_DeliveryOutcome */
+static int hf_gsm_map_sm_smsf_3gpp_absentSubscriberDiagSM = -1;  /* AbsentSubscriberDiagnosticSM */
+static int hf_gsm_map_sm_smsf_non_3gpp_deliveryOutcomeIndicator = -1;  /* NULL */
+static int hf_gsm_map_sm_smsf_non_3gpp_deliveryOutcome = -1;  /* SM_DeliveryOutcome */
+static int hf_gsm_map_sm_smsf_non_3gpp_absentSubscriberDiagSM = -1;  /* AbsentSubscriberDiagnosticSM */
 static int hf_gsm_map_sm_storedMSISDN = -1;       /* ISDN_AddressString */
 static int hf_gsm_map_sm_maximumUeAvailabilityTime = -1;  /* Time */
 static int hf_gsm_map_sm_smsGmscAlertEvent = -1;  /* SmsGmsc_Alert_Event */
@@ -6715,6 +6728,7 @@ static const ber_sequence_t gsm_map_sm_RoutingInfoForSM_Arg_sequence[] = {
   { &hf_gsm_map_sm_t4_Trigger_Indicator, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_NULL },
   { &hf_gsm_map_sm_singleAttemptDelivery, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_NULL },
   { &hf_gsm_map_sm_correlationID, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_CorrelationID },
+  { &hf_gsm_map_sm_smsf_supportIndicator, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_NULL },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -6760,6 +6774,12 @@ static const ber_sequence_t gsm_map_sm_LocationInfoWithLMSI_sequence[] = {
   { &hf_gsm_map_sm_thirdNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gsm_map_sm_Additional_Number },
   { &hf_gsm_map_sm_thirdNetworkNodeDiameterAddress, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_NetworkNodeDiameterAddress },
   { &hf_gsm_map_sm_imsNodeIndicator, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_NULL },
+  { &hf_gsm_map_sm_smsf_3gpp_Number, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ISDN_AddressString },
+  { &hf_gsm_map_sm_smsf_3gpp_DiameterAddress, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_NetworkNodeDiameterAddress },
+  { &hf_gsm_map_sm_smsf_non_3gpp_Number, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ISDN_AddressString },
+  { &hf_gsm_map_sm_smsf_non_3gpp_DiameterAddress, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_NetworkNodeDiameterAddress },
+  { &hf_gsm_map_sm_smsf_3gpp_address_indicator, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_NULL },
+  { &hf_gsm_map_sm_smsf_non_3gpp_address_indicator, BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_NULL },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -7171,6 +7191,12 @@ static const ber_sequence_t gsm_map_sm_ReportSM_DeliveryStatusArg_sequence[] = {
   { &hf_gsm_map_sm_imsi     , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
   { &hf_gsm_map_sm_singleAttemptDelivery, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_NULL },
   { &hf_gsm_map_sm_correlationID, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_CorrelationID },
+  { &hf_gsm_map_sm_smsf_3gpp_deliveryOutcomeIndicator, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_NULL },
+  { &hf_gsm_map_sm_smsf_3gpp_deliveryOutcome, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_SM_DeliveryOutcome },
+  { &hf_gsm_map_sm_smsf_3gpp_absentSubscriberDiagSM, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_er_AbsentSubscriberDiagnosticSM },
+  { &hf_gsm_map_sm_smsf_non_3gpp_deliveryOutcomeIndicator, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_NULL },
+  { &hf_gsm_map_sm_smsf_non_3gpp_deliveryOutcome, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_SM_DeliveryOutcome },
+  { &hf_gsm_map_sm_smsf_non_3gpp_absentSubscriberDiagSM, BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_er_AbsentSubscriberDiagnosticSM },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -25310,6 +25336,10 @@ void proto_register_gsm_map(void) {
       { "correlationID", "gsm_map.sm.correlationID_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gsm_map_sm_smsf_supportIndicator,
+      { "smsf-supportIndicator", "gsm_map.sm.smsf_supportIndicator_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_gsm_map_sm_locationInfoWithLMSI,
       { "locationInfoWithLMSI", "gsm_map.sm.locationInfoWithLMSI_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -25360,6 +25390,30 @@ void proto_register_gsm_map(void) {
         "NetworkNodeDiameterAddress", HFILL }},
     { &hf_gsm_map_sm_imsNodeIndicator,
       { "imsNodeIndicator", "gsm_map.sm.imsNodeIndicator_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_sm_smsf_3gpp_Number,
+      { "smsf-3gpp-Number", "gsm_map.sm.smsf_3gpp_Number",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "ISDN_AddressString", HFILL }},
+    { &hf_gsm_map_sm_smsf_3gpp_DiameterAddress,
+      { "smsf-3gpp-DiameterAddress", "gsm_map.sm.smsf_3gpp_DiameterAddress_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NetworkNodeDiameterAddress", HFILL }},
+    { &hf_gsm_map_sm_smsf_non_3gpp_Number,
+      { "smsf-non-3gpp-Number", "gsm_map.sm.smsf_non_3gpp_Number",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "ISDN_AddressString", HFILL }},
+    { &hf_gsm_map_sm_smsf_non_3gpp_DiameterAddress,
+      { "smsf-non-3gpp-DiameterAddress", "gsm_map.sm.smsf_non_3gpp_DiameterAddress_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NetworkNodeDiameterAddress", HFILL }},
+    { &hf_gsm_map_sm_smsf_3gpp_address_indicator,
+      { "smsf-3gpp-address-indicator", "gsm_map.sm.smsf_3gpp_address_indicator_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_sm_smsf_non_3gpp_address_indicator,
+      { "smsf-non-3gpp-address-indicator", "gsm_map.sm.smsf_non_3gpp_address_indicator_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gsm_map_sm_msc_Number,
@@ -25480,6 +25534,30 @@ void proto_register_gsm_map(void) {
         "SM_DeliveryOutcome", HFILL }},
     { &hf_gsm_map_sm_ip_sm_gw_absentSubscriberDiagnosticSM,
       { "ip-sm-gw-absentSubscriberDiagnosticSM", "gsm_map.sm.ip_sm_gw_absentSubscriberDiagnosticSM",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "AbsentSubscriberDiagnosticSM", HFILL }},
+    { &hf_gsm_map_sm_smsf_3gpp_deliveryOutcomeIndicator,
+      { "smsf-3gpp-deliveryOutcomeIndicator", "gsm_map.sm.smsf_3gpp_deliveryOutcomeIndicator_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_sm_smsf_3gpp_deliveryOutcome,
+      { "smsf-3gpp-deliveryOutcome", "gsm_map.sm.smsf_3gpp_deliveryOutcome",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_sm_SM_DeliveryOutcome_vals), 0,
+        "SM_DeliveryOutcome", HFILL }},
+    { &hf_gsm_map_sm_smsf_3gpp_absentSubscriberDiagSM,
+      { "smsf-3gpp-absentSubscriberDiagSM", "gsm_map.sm.smsf_3gpp_absentSubscriberDiagSM",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "AbsentSubscriberDiagnosticSM", HFILL }},
+    { &hf_gsm_map_sm_smsf_non_3gpp_deliveryOutcomeIndicator,
+      { "smsf-non-3gpp-deliveryOutcomeIndicator", "gsm_map.sm.smsf_non_3gpp_deliveryOutcomeIndicator_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_sm_smsf_non_3gpp_deliveryOutcome,
+      { "smsf-non-3gpp-deliveryOutcome", "gsm_map.sm.smsf_non_3gpp_deliveryOutcome",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_sm_SM_DeliveryOutcome_vals), 0,
+        "SM_DeliveryOutcome", HFILL }},
+    { &hf_gsm_map_sm_smsf_non_3gpp_absentSubscriberDiagSM,
+      { "smsf-non-3gpp-absentSubscriberDiagSM", "gsm_map.sm.smsf_non_3gpp_absentSubscriberDiagSM",
         FT_UINT32, BASE_DEC, NULL, 0,
         "AbsentSubscriberDiagnosticSM", HFILL }},
     { &hf_gsm_map_sm_storedMSISDN,
@@ -31403,12 +31481,12 @@ void proto_register_gsm_map(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_gsm_ss_occurrenceInfo,
-      { "occurrenceInfo", "gsm_ss.occurrenceInfo_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "occurrenceInfo", "gsm_ss.occurrenceInfo",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_lcs_OccurrenceInfo_vals), 0,
         NULL, HFILL }},
     { &hf_gsm_ss_intervalTime,
-      { "intervalTime", "gsm_ss.intervalTime_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "intervalTime", "gsm_ss.intervalTime",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_gsm_ss_maximumInterval,
       { "maximumInterval", "gsm_ss.maximumInterval",

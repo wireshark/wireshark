@@ -1,4 +1,4 @@
--- 3GPP TS 29.002 V15.4.0 (2018-12)
+-- 3GPP TS 29.002 V15.5.0 (2019-06)
 -- 17.7.7	Error data types
 
 MAP-ER-DataTypes {
@@ -176,7 +176,7 @@ AbsentSubscriberSM-Param ::= SEQUENCE {
 	-- or for GPRS
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...,
-	additionalAbsentSubscriberDiagnosticSM  	[0] 	AbsentSubscriberDiagnosticSM	OPTIONAL,
+	additionalAbsentSubscriberDiagnosticSM 	[0]	AbsentSubscriberDiagnosticSM	OPTIONAL,
 	-- if received, additionalAbsentSubscriberDiagnosticSM 
 	-- is for GPRS and absentSubscriberDiagnosticSM is 
 	-- for non-GPRS
@@ -240,7 +240,7 @@ UnknownSubscriberDiagnostic ::= ENUMERATED {
 	gprs-eps-SubscriptionUnknown  (1),
 	...,
 	npdbMismatch  (2)}
-	-- if unknown values are received in 	
+	-- if unknown values are received in	
 	-- UnknownSubscriberDiagnostic they shall be discarded
 
 NumberChangedParam ::= SEQUENCE {

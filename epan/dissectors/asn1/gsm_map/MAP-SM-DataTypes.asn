@@ -1,4 +1,4 @@
--- 3GPP TS 29.002  V15.4.0 (2018-12)
+-- 3GPP TS 29.002 V15.5.0 (2019-06)
 -- 17.7.6	Short message data types
 
 MAP-SM-DataTypes {
@@ -76,7 +76,8 @@ RoutingInfoForSM-Arg ::= SEQUENCE {
 	imsi		[12] IMSI	OPTIONAL,
 	t4-Trigger-Indicator	[14] NULL	OPTIONAL,
 	singleAttemptDelivery	[13]	NULL	OPTIONAL,
-	correlationID	[15] CorrelationID	OPTIONAL }
+	correlationID	[15] CorrelationID	OPTIONAL,
+	smsf-supportIndicator	[16] NULL		OPTIONAL }
 
 SM-DeliveryNotIntended ::= ENUMERATED {
 	onlyIMSI-requested  (0),
@@ -92,9 +93,9 @@ SM-RP-MTI ::= INTEGER (0..10)
 SM-RP-SMEA ::= OCTET STRING (SIZE (1..12))
 	-- this parameter contains an address field which is encoded 
 	-- as defined in 3GPP TS 23.040. An address field contains 3 elements :
-	-- 	address-length
-	-- 	type-of-address
-	-- 	address-value
+	--	address-length
+	--	type-of-address
+	--	address-value
 
 RoutingInfoForSM-Res ::= SEQUENCE {
 	imsi		IMSI,
@@ -119,12 +120,36 @@ LocationInfoWithLMSI ::= SEQUENCE {
 	-- Network Node Number
 	additional-Number	[6] Additional-Number	OPTIONAL,
 	networkNodeDiameterAddress	[7] NetworkNodeDiameterAddress	OPTIONAL,
-	additionalNetworkNodeDiameterAddress	[8] NetworkNodeDiameterAddress 	OPTIONAL,
+	additionalNetworkNodeDiameterAddress	[8] NetworkNodeDiameterAddress	OPTIONAL,
 	thirdNumber	[9] Additional-Number	OPTIONAL,
 	thirdNetworkNodeDiameterAddress	[10] NetworkNodeDiameterAddress	OPTIONAL,
-	imsNodeIndicator	[11] NULL	OPTIONAL 
+	imsNodeIndicator	[11] NULL	OPTIONAL, 
 	-- gprsNodeIndicator and imsNodeIndicator shall not both be present.
-	-- additionalNumber and thirdNumber shall not both contain the same type of number.
+	-- additionalNumber and thirdNumber shall not both contain the same type of number. 
+	smsf-3gpp-Number	[12]	ISDN-AddressString	OPTIONAL,
+	smsf-3gpp-DiameterAddress	[13]	NetworkNodeDiameterAddress	OPTIONAL,
+	smsf-non-3gpp-Number	[14]	ISDN-AddressString	OPTIONAL,
+	smsf-non-3gpp-DiameterAddress	[15]	NetworkNodeDiameterAddress	OPTIONAL,
+	smsf-3gpp-address-indicator	[16]	NULL		OPTIONAL,
+	smsf-non-3gpp-address-indicator	[17]	NULL		OPTIONAL
+	--
+	-- If smsf-supportIndicator was not included in the request, in RoutingInfoForSM-Arg, 
+	-- then smsf-3gpp Number/DiameterAddress, smsf-non-3gpp Number/DiameterAddress and
+	-- smsf-address-indicator and smsf-non-3gpp-address-indicator shall be absent.
+	--
+	-- If smsf-3gpp-address-indicator is present, it indicates that the networkNode-Number
+	-- (and networkNodeDiameterAddress, if present) contains the address of an SMSF for
+	-- 3GPP access.
+	--
+	-- If smsf-non-3gpp-address-indicator is present, it indicates that the
+	-- networkNode-Number (and networkNodeDiameterAddress, if present) contains the
+	-- address of an SMSF for non 3GPP access.
+	--
+	-- At most one of gprsNodeIndicator, imsNodeIndicator, smsf-3gpp-address-indicator
+	-- and smsf-non-3gpp-address-indicator shall be present. Absence of all these
+	-- indicators indicate that the networkNode-Number (and networkNodeDiameterAddress,
+	-- if present) contains the address of an MSC/MME.
+
 	}
 
 Additional-Number ::= CHOICE {
@@ -140,13 +165,13 @@ MO-ForwardSM-Arg ::= SEQUENCE {
 	sm-RP-UI	SignalInfo,
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	... ,
-	imsi		IMSI 	OPTIONAL,
+	imsi		IMSI	OPTIONAL,
 	correlationID	[0] CorrelationID	OPTIONAL,
 	sm-DeliveryOutcome	[1] SM-DeliveryOutcome	OPTIONAL
  }
 
 MO-ForwardSM-Res ::= SEQUENCE {
-	sm-RP-UI	SignalInfo 	OPTIONAL,
+	sm-RP-UI	SignalInfo	OPTIONAL,
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...}
 
@@ -203,21 +228,21 @@ ReportSM-DeliveryStatusArg ::= SEQUENCE {
 	gprsSupportIndicator	[2]	NULL	OPTIONAL,
 	-- gprsSupportIndicator is set only if the SMS-GMSC supports 
 	-- handling of two delivery outcomes
-	deliveryOutcomeIndicator	[3] 	NULL	OPTIONAL,
+	deliveryOutcomeIndicator	[3]	NULL	OPTIONAL,
 	-- DeliveryOutcomeIndicator is set when the SM-DeliveryOutcome
 	-- is for GPRS
-	additionalSM-DeliveryOutcome	[4] 	SM-DeliveryOutcome 	OPTIONAL,
+	additionalSM-DeliveryOutcome	[4]	SM-DeliveryOutcome	OPTIONAL,
 	-- If received, additionalSM-DeliveryOutcome is for GPRS
 	-- If DeliveryOutcomeIndicator is set, then AdditionalSM-DeliveryOutcome shall be absent
-	additionalAbsentSubscriberDiagnosticSM	[5] 	AbsentSubscriberDiagnosticSM OPTIONAL,
+	additionalAbsentSubscriberDiagnosticSM	[5]	AbsentSubscriberDiagnosticSM OPTIONAL,
 	-- If received additionalAbsentSubscriberDiagnosticSM is for GPRS
 	-- If DeliveryOutcomeIndicator is set, then AdditionalAbsentSubscriberDiagnosticSM 
 	-- shall be absent
-	ip-sm-gw-Indicator	[6] 	NULL	OPTIONAL,
+	ip-sm-gw-Indicator	[6]	NULL	OPTIONAL,
 	-- the ip-sm-gw indicator indicates by its presence that sm-deliveryOutcome
 	-- is for delivery via IMS
 	-- If present, deliveryOutcomeIndicator shall be absent.
-	ip-sm-gw-sm-deliveryOutcome	[7] 	SM-DeliveryOutcome	OPTIONAL, 
+	ip-sm-gw-sm-deliveryOutcome	[7]	SM-DeliveryOutcome	OPTIONAL, 
 	-- If received ip-sm-gw-sm-deliveryOutcome is for delivery via IMS
 	-- If ip-sm-gw-Indicator is set, then ip-sm-gw-sm-deliveryOutcome shall be absent
 	ip-sm-gw-absentSubscriberDiagnosticSM	[8]	AbsentSubscriberDiagnosticSM	OPTIONAL,
@@ -226,7 +251,26 @@ ReportSM-DeliveryStatusArg ::= SEQUENCE {
 	-- shall be absent
 	imsi		[9] IMSI	OPTIONAL,
 	singleAttemptDelivery	[10] NULL	OPTIONAL,
-	correlationID	[11]	CorrelationID	OPTIONAL
+	correlationID	[11]	CorrelationID	OPTIONAL,
+	smsf-3gpp-deliveryOutcomeIndicator	[12]	NULL		OPTIONAL,
+	-- smsf-3gpp-deliveryOutcome is set when the SM-DeliveryOutcome
+	-- is for 3GPP-SMSF
+	smsf-3gpp-deliveryOutcome	[13]	SM-DeliveryOutcome	OPTIONAL,
+	-- If smsf-3gpp-deliveryOutcomeIndicator is set, then smsf-3gpp-deliveryOutcome
+	-- shall be absent
+	smsf-3gpp-absentSubscriberDiagSM	[14]	AbsentSubscriberDiagnosticSM	OPTIONAL,
+	-- If smsf-3gpp-deliveryOutcomeIndicator is set, then
+	-- smsf-3gpp-absentSubscriberDiagSM shall be absent
+	smsf-non-3gpp-deliveryOutcomeIndicator	[15]	NULL	OPTIONAL,
+	-- smsf-non-3gpp-deliveryOutcomeIndicator is set when the SM-DeliveryOutcome
+	-- is for non-3GPP-SMSF
+	smsf-non-3gpp-deliveryOutcome	[16]	SM-DeliveryOutcome	OPTIONAL,
+	-- If smsf-non-3gpp-deliveryOutcomeIndicator is set, then smsf-non-3gpp-deliveryOutcome
+	-- shall be absent
+	smsf-non-3gpp-absentSubscriberDiagSM	[17]	AbsentSubscriberDiagnosticSM	OPTIONAL
+	-- If smsf-non-3gpp-deliveryOutcomeIndicator is set, then
+	-- smsf-non-3gpp-absentSubscriberDiagSM shall be absent
+
 }
 
 SM-DeliveryOutcome ::= ENUMERATED {
@@ -274,7 +318,7 @@ MW-Status ::= BIT STRING {
 	sc-AddressNotIncluded  (0),
 	mnrf-Set  (1),
 	mcef-Set  (2) ,
-	mnrg-Set	 (3)} (SIZE (6..16))
+	mnrg-Set	(3)} (SIZE (6..16))
 	-- exception handling:
 	-- bits 4 to 15 shall be ignored if received and not understood
 

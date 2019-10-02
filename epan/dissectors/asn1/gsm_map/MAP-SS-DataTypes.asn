@@ -1,4 +1,4 @@
--- 3GPP TS 29.002 V15.4.0 (2018-12)
+-- 3GPP TS 29.002 V15.5.0 (2019-06)
 -- 17.7.4	Supplementary service data types
  
 MAP-SS-DataTypes {
@@ -112,8 +112,8 @@ SS-Status ::= OCTET STRING (SIZE (1))
 
 	-- bits 8765: 0000 (unused)
 	-- bits 4321: Used to convey the "P bit","R bit","A bit" and "Q bit",
-	--	   representing supplementary service state information
-	--	   as defined in TS 3GPP TS 23.011 [22]
+	--	  representing supplementary service state information
+	--	  as defined in TS 3GPP TS 23.011 [22]
 
 	-- bit 4: "Q bit"
 
@@ -144,7 +144,7 @@ ForwardingOptions ::= OCTET STRING (SIZE (1))
 	--	01  ms busy
 	--	10  no reply
 	--	11  unconditional when used in a SRI Result, 
-	--	   or call deflection when used in a RCH Argument
+	--	  or call deflection when used in a RCH Argument
 	-- bits 21: 00 (unused)
 
 CallBarringInfo ::= SEQUENCE {
@@ -285,9 +285,9 @@ SS-InvocationNotificationArg ::= SEQUENCE {
 	}
 
 CCBS-RequestState ::= ENUMERATED {
-	request  	(0),
-	recall  	(1),
-	active  	(2),
+	request 	(0),
+	recall 	(1),
+	active 	(2),
 	completed	(3),
 	suspended	(4),
 	frozen	(5),

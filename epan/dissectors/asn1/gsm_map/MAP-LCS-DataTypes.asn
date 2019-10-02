@@ -1,6 +1,6 @@
 -- MAP-LCS-DataTypes.asn
 --
--- Taken from 3GPP TS 29.002 V15.4.0 (2018-12)
+-- Taken from 3GPP TS 29.002 V15.5.0 (2019-06)
 --
 -- 17.7.13 Location service data types
 --
@@ -39,7 +39,9 @@ ReportingPLMNList,
 PeriodicLDRInfo,
 SequenceNumber,
 LCSClientType,
-LCS-Priority
+LCS-Priority,
+OccurrenceInfo,
+IntervalTime
 ;
 
 IMPORTS
@@ -108,7 +110,7 @@ LCSLocationInfo ::= SEQUENCE {
 	lmsi		[0] LMSI	OPTIONAL,
 	extensionContainer	[1] ExtensionContainer	OPTIONAL,
 	... ,
-	gprsNodeIndicator 	[2] NULL	OPTIONAL,
+	gprsNodeIndicator	[2] NULL	OPTIONAL,
 	-- gprsNodeIndicator is set only if the SGSN number is sent as the Network Node Number
 	additional-Number	[3] Additional-Number	OPTIONAL,
 	supportedLCS-CapabilitySets	[4]	SupportedLCS-CapabilitySets	OPTIONAL,
@@ -376,7 +378,7 @@ maxReportingInterval INTEGER ::= 8639999
 
 ReportingPLMNList::= SEQUENCE {
 	plmn-ListPrioritized		[0] NULL			OPTIONAL,
-	plmn-List 			[1] PLMNList,
+	plmn-List			[1] PLMNList,
 	...}
 
 PLMNList::= SEQUENCE SIZE (1..maxNumOfReportingPLMN) OF
@@ -385,8 +387,8 @@ PLMNList::= SEQUENCE SIZE (1..maxNumOfReportingPLMN) OF
 maxNumOfReportingPLMN INTEGER ::= 20
 
 ReportingPLMN::= SEQUENCE {
-	plmn-Id 			[0] PLMN-Id,
-	ran-Technology 			[1] RAN-Technology		OPTIONAL,
+	plmn-Id			[0] PLMN-Id,
+	ran-Technology			[1] RAN-Technology		OPTIONAL,
 	ran-PeriodicLocationSupport	[2] NULL			OPTIONAL,
 	...}
 
@@ -400,7 +402,7 @@ ProvideSubscriberLocation-Res ::= SEQUENCE {
 	ageOfLocationEstimate	[0] AgeOfLocationInformation	OPTIONAL,
 	extensionContainer	[1] ExtensionContainer	OPTIONAL,
 	... ,
-	add-LocationEstimate	[2] Add-GeographicalInformation 	OPTIONAL,
+	add-LocationEstimate	[2] Add-GeographicalInformation	OPTIONAL,
 	deferredmt-lrResponseIndicator	[3] NULL	OPTIONAL,
 	geranPositioningData	[4] PositioningDataInformation	OPTIONAL,
 	utranPositioningData	[5] UtranPositioningDataInfo	OPTIONAL,
@@ -624,7 +626,7 @@ SubscriberLocationReport-Arg ::= SEQUENCE {
 	utranGANSSpositioningData	[25] UtranGANSSpositioningData	OPTIONAL,
 	targetServingNodeForHandover	[26] ServingNodeAddress	OPTIONAL,
 	utranAdditionalPositioningData	[27] UtranAdditionalPositioningData	OPTIONAL,
-	utranBaroPressureMeas 	[28] UtranBaroPressureMeas	OPTIONAL,
+	utranBaroPressureMeas	[28] UtranBaroPressureMeas	OPTIONAL,
 	utranCivicAddress	[29] UtranCivicAddress	OPTIONAL }
 
 	-- one of msisdn or imsi is mandatory

@@ -1,4 +1,4 @@
--- 3GPP TS 29.002 V15.4.0 (2018-12)
+-- 3GPP TS 29.002 V15.5.0 (2019-06)
 -- 17.7.8	Common data types
 
 MAP-CommonDataTypes {
@@ -22,8 +22,8 @@ EXPORTS
 	FTN-AddressString,
 	ISDN-SubaddressString,
 	ExternalSignalInfo, 
-	Ext-ExternalSignalInfo,
-	AccessNetworkSignalInfo,
+	Ext-ExternalSignalInfo, 
+AccessNetworkSignalInfo,
 	SignalInfo,
 	maxSignalInfoLength,
 	AlertingPattern,
@@ -75,8 +75,7 @@ EXPORTS
 	LCSClientInternalID,
 	LCSServiceTypeID,
 -- WS added exports needed by gsm_map.asn (extra asn1 file to handle older protocol versions)
-	ProtocolId,
-
+    ProtocolId,
 	-- gprs location registration types
 	GSN-Address
 
@@ -576,7 +575,7 @@ CellGlobalIdOrServiceAreaIdFixedLength ::= OCTET STRING (SIZE (7))
 	--         bits 8765	Mobile Network Code 2nd digit
 	-- octets 4 and 5	Location Area Code according to 3GPP TS 24.008
 	-- octets 6 and 7	Cell Identity (CI) value or 
-	-- 		Service Area Code (SAC) value 
+	--		Service Area Code (SAC) value 
 	--		according to 3GPP TS 23.003
 
 LAIFixedLength ::= OCTET STRING (SIZE (5))
@@ -641,8 +640,8 @@ Ext-SS-Status ::= OCTET STRING (SIZE (1..5))
 	--
 	-- bits 8765: 0000 (unused)
 	-- bits 4321: Used to convey the "P bit","R bit","A bit" and "Q bit",
-	--	   representing supplementary service state information
-	--	   as defined in TS 3GPP TS 23.011 [22]
+	--	  representing supplementary service state information
+	--	  as defined in TS 3GPP TS 23.011 [22]
 
 	-- bit 4: "Q bit"
 
