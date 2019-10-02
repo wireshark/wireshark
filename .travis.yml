@@ -114,7 +114,7 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" == "windows" ]; then cmake -A $PLATFORM ..; fi
 script:
   # Enable parallelism for msbuild too (since CMake 3.12; ninja does not need it)
-  - export CMAKE_BUILD_PARALLEL_LEVEL=0
+  - export CMAKE_BUILD_PARALLEL_LEVEL=
   - if [ "$TRAVIS_OS_NAME" == "windows" ]; then cmake() { ../tools/filter-msbuild.py cmake "$@"; }; fi
   # Invoke ninja (Linux/macOS, --config is ignored) or msbuild (Windows)
   - cmake --build . --config RelWithDebInfo
