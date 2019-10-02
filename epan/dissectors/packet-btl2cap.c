@@ -161,12 +161,15 @@ static expert_field ei_btl2cap_unknown_command_code = EI_INIT;
 static dissector_table_t l2cap_psm_dissector_table;
 static dissector_table_t l2cap_cid_dissector_table;
 
+/* This table maps command identity values to psm values. */
+static wmem_tree_t *cmd_ident_to_psm_table;
+
 /* This table maps cid values to psm values.
  * The same table is used both for SCID and DCID.
  * For Remote CIDs (Receive Request SCID or Sent Response DCID)
  * we 'or' the CID with 0x80000000 in this table
  */
-static wmem_tree_t *cid_to_psm_table  = NULL;
+static wmem_tree_t *cid_to_psm_table;
 
 /* 5.4 RETRANSMISSION AND FLOW CONTROL OPTION
  * Table 5.2
@@ -808,7 +811,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 static int
 dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, proto_tree *command_tree, gboolean is_ch_request _U_,
+    proto_tree *tree, proto_tree *command_tree, guint16 cid, guint8 cmd_ident,
     bthci_acl_data_t *acl_data, btl2cap_data_t *l2cap_data)
 {
 
@@ -837,11 +840,12 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
     offset += 2;
 
     if (!pinfo->fd->visited) {
-        wmem_tree_key_t    key[6];
+        wmem_tree_key_t    key[7];
         guint32            k_interface_id;
         guint32            k_adapter_id;
         guint32            k_chandle;
         guint32            k_cid;
+        guint32            k_cmd_ident;
         guint32            k_frame_number;
         guint32            interface_id;
         guint32            adapter_id;
@@ -858,7 +862,8 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
         k_interface_id = interface_id;
         k_adapter_id = adapter_id;
         k_chandle = chandle;
-        k_cid = scid;
+        k_cid = cid;
+        k_cmd_ident = cmd_ident;
         k_frame_number = pinfo->num;
 
         psm_data = wmem_new0(wmem_file_scope(), psm_data_t);
@@ -886,6 +891,17 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
         key[2].key = &k_chandle;
         key[3].length = 1;
         key[3].key = &k_cid;
+        key[4].length = 1;
+        key[4].key = &k_cmd_ident;
+        key[5].length = 1;
+        key[5].key = &k_frame_number;
+        key[6].length = 0;
+        key[6].key = NULL;
+
+        wmem_tree_insert32_array(cmd_ident_to_psm_table, key, psm_data);
+
+        k_cid = scid;
+
         key[4].length = 1;
         key[4].key = &k_frame_number;
         key[5].length = 0;
@@ -962,7 +978,7 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
 
 static int
 dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, bthci_acl_data_t *acl_data)
+    proto_tree *tree, guint16 cid, guint8 cmd_ident, bthci_acl_data_t *acl_data)
 {
     guint32            dcid;
 
@@ -984,16 +1000,16 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
 
     if (pinfo->fd->visited == 0) {
         psm_data_t        *psm_data;
-        wmem_tree_key_t    key[6];
+        wmem_tree_key_t    key[7];
         guint32            k_interface_id;
         guint32            k_adapter_id;
         guint32            k_chandle;
         guint32            k_cid;
+        guint32            k_cmd_ident;
         guint32            k_frame_number;
         guint32            interface_id;
         guint32            adapter_id;
         guint32            chandle;
-        guint32            cid;
 
         if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
             interface_id = pinfo->rec->rec_header.packet_header.interface_id;
@@ -1001,12 +1017,12 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
             interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
         chandle = (acl_data) ? acl_data->chandle : 0;
-        cid = dcid;
 
         k_interface_id = interface_id;
         k_adapter_id = adapter_id;
         k_chandle = chandle;
         k_cid = cid;
+        k_cmd_ident = cmd_ident;
         k_frame_number = pinfo->num;
 
         key[0].length = 1;
@@ -1018,25 +1034,25 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
         key[3].length = 1;
         key[3].key = &k_cid;
         key[4].length = 1;
-        key[4].key = &k_frame_number;
-        key[5].length = 0;
-        key[5].key = NULL;
+        key[4].key = &k_cmd_ident;
+        key[5].length = 1;
+        key[5].key = &k_frame_number;
+        key[6].length = 0;
+        key[6].key = NULL;
 
-        psm_data = (psm_data_t *)wmem_tree_lookup32_array_le(cid_to_psm_table, key);
+        psm_data = (psm_data_t *)wmem_tree_lookup32_array_le(cmd_ident_to_psm_table, key);
         if (psm_data &&
             psm_data->interface_id == interface_id &&
             psm_data->adapter_id == adapter_id &&
             psm_data->chandle == chandle &&
-            ((pinfo->p2p_dir == P2P_DIR_SENT && psm_data->remote_cid == cid) ||
-             (pinfo->p2p_dir == P2P_DIR_RECV && psm_data->local_cid == cid)) &&
             psm_data->disconnect_in_frame > pinfo->num)
         {
-            cid = dcid | 0x80000000;
+            dcid |= 0x80000000;
 
             k_interface_id = interface_id;
             k_adapter_id = adapter_id;
             k_chandle = chandle;
-            k_cid = cid;
+            k_cid = dcid;
             k_frame_number = pinfo->num;
 
             key[0].length = 1;
@@ -1053,9 +1069,9 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
             key[5].key = NULL;
 
             if (pinfo->p2p_dir == P2P_DIR_RECV)
-                psm_data->remote_cid = cid;
+                psm_data->remote_cid = dcid;
             else
-                psm_data->local_cid = cid;
+                psm_data->local_cid = dcid;
 
             wmem_tree_insert32_array(cid_to_psm_table, key, psm_data);
         }
@@ -2468,6 +2484,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_item  *ti_command;
             proto_tree  *btl2cap_cmd_tree;
             guint8       cmd_code;
+            guint8       cmd_ident;
             guint16      cmd_length;
             const gchar *cmd_str;
 
@@ -2481,6 +2498,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_code,   tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
+            cmd_ident = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_ident,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
@@ -2573,14 +2591,14 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
 
             case 0x14: /* LE Credit Based Connection Request */
-                offset = dissect_le_credit_based_connrequest(tvb, offset, pinfo, btl2cap_tree, btl2cap_cmd_tree, TRUE, acl_data, l2cap_data);
+                offset = dissect_le_credit_based_connrequest(tvb, offset, pinfo, btl2cap_tree, btl2cap_cmd_tree, cid, cmd_ident, acl_data, l2cap_data);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (CID: %04x, Initial Credits: %u)",
                                 tvb_get_letohs(tvb, offset - 8), tvb_get_letohs(tvb, offset - 2));
                 break;
 
             case 0x15: /* LE Credit Based Connection Response */
-                offset = dissect_le_credit_based_connresponse(tvb, offset, pinfo, btl2cap_cmd_tree, acl_data);
+                offset = dissect_le_credit_based_connresponse(tvb, offset, pinfo, btl2cap_cmd_tree, cid, cmd_ident, acl_data);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (CID: %04x, Initial Credits: %u)",
                                 tvb_get_letohs(tvb, offset - 10), tvb_get_letohs(tvb, offset - 4));
@@ -3378,6 +3396,7 @@ proto_register_btl2cap(void)
     expert_btl2cap = expert_register_protocol(proto_btl2cap);
     expert_register_field_array(expert_btl2cap, ei, array_length(ei));
 
+    cmd_ident_to_psm_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     cid_to_psm_table     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     register_decode_as(&btl2cap_cid_da);
