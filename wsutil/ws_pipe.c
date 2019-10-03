@@ -135,7 +135,7 @@ ws_pipe_create_overlapped_read(HANDLE *read_pipe_handle, HANDLE *write_pipe_hand
                                 PIPE_TYPE_BYTE | PIPE_WAIT, 1,
                                 suggested_buffer_size, suggested_buffer_size,
                                 0, sa);
-    if (!read_pipe)
+    if (INVALID_HANDLE_VALUE == read_pipe)
     {
         g_free(wname);
         return FALSE;
