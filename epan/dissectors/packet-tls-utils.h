@@ -204,7 +204,6 @@ extern const value_string tls13_key_update_request[];
 extern const value_string compress_certificate_algorithm_vals[];
 extern const value_string quic_transport_parameter_id[];
 extern const value_string quic_version_vals[];
-extern const value_string quic_tp_preferred_address_vals[];
 
 /* XXX Should we use GByteArray instead? */
 typedef struct _StringInfo {
@@ -909,8 +908,6 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_ack_delay_exponent;
         gint hs_ext_quictp_parameter_max_ack_delay;
         gint hs_ext_quictp_parameter_max_packet_size;
-        gint hs_ext_quictp_parameter_pa_ipversion;          // Remove in draft -18
-        gint hs_ext_quictp_parameter_pa_ipaddress_length;   // Remove in draft -18
         gint hs_ext_quictp_parameter_pa_ipv4address;
         gint hs_ext_quictp_parameter_pa_ipv6address;
         gint hs_ext_quictp_parameter_pa_ipv4port;
@@ -1147,7 +1144,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1,                                             \
+        -1, -1, -1,                                                     \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1987,16 +1984,6 @@ ssl_common_dissect_t name = {   \
       { "max_ack_delay", prefix ".quic.parameter.max_ack_delay",        \
         FT_UINT64, BASE_DEC, NULL, 0x00,                                \
         "Indicating the maximum amount of time in milliseconds by which it will delay sending of acknowledgments", HFILL } \
-    },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_pa_ipversion,                  \
-      { "ipVersion", prefix ".quic.parameter.preferred_address.ipversion",  \
-        FT_UINT8, BASE_DEC, VALS(quic_tp_preferred_address_vals), 0x00, \
-        "IP Version (until draft -17)", HFILL }                         \
-    },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_pa_ipaddress_length,           \
-      { "Length", prefix ".quic.parameter.preferred_address.ipaddress.length",  \
-        FT_UINT8, BASE_DEC, NULL, 0x00,                                 \
-        "Length of ipAddress field (until draft -17)", HFILL }          \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_pa_ipv4address,                \
       { "ipv4Address", prefix ".quic.parameter.preferred_address.ipv4address",  \

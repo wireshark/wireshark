@@ -1391,13 +1391,6 @@ const value_string quic_transport_parameter_id[] = {
     { 0, NULL }
 };
 
-// Removed in QUIC draft -18
-const value_string quic_tp_preferred_address_vals[] = {
-    { 4, "IPv4" },
-    { 6, "IPv6" },
-    { 0, NULL }
-};
-
 /* Lookup tables }}} */
 
 void
@@ -6762,7 +6755,6 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_PREFERRED_ADDRESS: {
                 guint32 connectionid_length;
 
-                // Since draft -18
                 proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv4address,
                                     tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
