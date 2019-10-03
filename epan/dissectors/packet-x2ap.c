@@ -20,7 +20,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V15.6.0 (2019-06)
+ * 3GPP TS 36.423 V15.7.0 (2019-09)
  */
 
 #include "config.h"
@@ -501,7 +501,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_additionalPLMNs_Item = 334,
   id_InterfaceInstanceIndication = 335,
   id_BPLMN_ID_Info_EUTRA = 336,
-  id_BPLMN_ID_Info_NR = 337
+  id_BPLMN_ID_Info_NR = 337,
+  id_NBIoT_UL_DL_AlignmentOffset = 338
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-x2ap-val.h ---*/
@@ -660,6 +661,7 @@ static int hf_x2ap_MultibandInfoList_PDU = -1;    /* MultibandInfoList */
 static int hf_x2ap_MeNBtoSgNBContainer_PDU = -1;  /* MeNBtoSgNBContainer */
 static int hf_x2ap_SplitSRBs_PDU = -1;            /* SplitSRBs */
 static int hf_x2ap_SplitSRB_PDU = -1;             /* SplitSRB */
+static int hf_x2ap_NBIoT_UL_DL_AlignmentOffset_PDU = -1;  /* NBIoT_UL_DL_AlignmentOffset */
 static int hf_x2ap_NewDRBIDrequest_PDU = -1;      /* NewDRBIDrequest */
 static int hf_x2ap_Number_of_Antennaports_PDU = -1;  /* Number_of_Antennaports */
 static int hf_x2ap_NRCGI_PDU = -1;                /* NRCGI */
@@ -2706,6 +2708,7 @@ static const value_string x2ap_ProtocolIE_ID_vals[] = {
   { id_InterfaceInstanceIndication, "id-InterfaceInstanceIndication" },
   { id_BPLMN_ID_Info_EUTRA, "id-BPLMN-ID-Info-EUTRA" },
   { id_BPLMN_ID_Info_NR, "id-BPLMN-ID-Info-NR" },
+  { id_NBIoT_UL_DL_AlignmentOffset, "id-NBIoT-UL-DL-AlignmentOffset" },
   { 0, NULL }
 };
 
@@ -8063,6 +8066,23 @@ dissect_x2ap_SplitSRB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 }
 
 
+static const value_string x2ap_NBIoT_UL_DL_AlignmentOffset_vals[] = {
+  {   0, "khz-7dot5" },
+  {   1, "khz0" },
+  {   2, "khz7dot5" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_x2ap_NBIoT_UL_DL_AlignmentOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
 
 static int
 dissect_x2ap_PCI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -8420,6 +8440,10 @@ static const value_string x2ap_OffsetOfNbiotChannelNumberToEARFCN_vals[] = {
   {  18, "seven" },
   {  19, "eight" },
   {  20, "nine" },
+  {  21, "minusEightDotFive" },
+  {  22, "minusFourDotFive" },
+  {  23, "threeDotFive" },
+  {  24, "sevenDotFive" },
   { 0, NULL }
 };
 
@@ -8429,7 +8453,7 @@ static value_string_ext x2ap_OffsetOfNbiotChannelNumberToEARFCN_vals_ext = VALUE
 static int
 dissect_x2ap_OffsetOfNbiotChannelNumberToEARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     21, NULL, TRUE, 0, NULL);
+                                     21, NULL, TRUE, 4, NULL);
 
   return offset;
 }
@@ -16139,6 +16163,14 @@ static int dissect_SplitSRB_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_NBIoT_UL_DL_AlignmentOffset_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_x2ap_NBIoT_UL_DL_AlignmentOffset(tvb, offset, &asn1_ctx, tree, hf_x2ap_NBIoT_UL_DL_AlignmentOffset_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_NewDRBIDrequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -19088,6 +19120,10 @@ void proto_register_x2ap(void) {
     { &hf_x2ap_SplitSRB_PDU,
       { "SplitSRB", "x2ap.SplitSRB_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x2ap_NBIoT_UL_DL_AlignmentOffset_PDU,
+      { "NBIoT-UL-DL-AlignmentOffset", "x2ap.NBIoT_UL_DL_AlignmentOffset",
+        FT_UINT32, BASE_DEC, VALS(x2ap_NBIoT_UL_DL_AlignmentOffset_vals), 0,
         NULL, HFILL }},
     { &hf_x2ap_NewDRBIDrequest_PDU,
       { "NewDRBIDrequest", "x2ap.NewDRBIDrequest",
@@ -23700,6 +23736,7 @@ proto_reg_handoff_x2ap(void)
   dissector_add_uint("x2ap.extension", id_additionalPLMNs_Item, create_dissector_handle(dissect_AdditionalPLMNs_Item_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_BPLMN_ID_Info_EUTRA, create_dissector_handle(dissect_BPLMN_ID_Info_EUTRA_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_BPLMN_ID_Info_NR, create_dissector_handle(dissect_BPLMN_ID_Info_NR_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.extension", id_NBIoT_UL_DL_AlignmentOffset, create_dissector_handle(dissect_NBIoT_UL_DL_AlignmentOffset_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.imsg", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequest_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.sout", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.uout", id_handoverPreparation, create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_x2ap));

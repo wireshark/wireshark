@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.6.0 (2019-06)
+-- 3GPP TS 36.423 V15.7.0 (2019-09)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -620,7 +620,7 @@ HandoverRequestAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-TargeteNBtoSource-eNBTransparentContainer	CRITICALITY ignore	TYPE TargeteNBtoSource-eNBTransparentContainer	PRESENCE mandatory}|
 	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics	PRESENCE optional}|
 	{ ID id-UE-ContextKeptIndicator						CRITICALITY ignore	TYPE UE-ContextKeptIndicator	PRESENCE optional}|
-	{ ID id-SeNB-UE-X2AP-ID-Extension					CRITICALITY ignore	TYPE UE-X2AP-ID-Extension	PRESENCE optional}|
+	{ ID id-SeNB-UE-X2AP-ID-Extension					CRITICALITY ignore	TYPE UE-X2AP-ID-Extension	PRESENCE optional}-- The id-SeNB-UE-X2AP-ID-Extension shall not be sent shall not be sent and shall be ignored, if received.--|
 	{ ID id-Old-eNB-UE-X2AP-ID-Extension				CRITICALITY ignore	TYPE UE-X2AP-ID-Extension	PRESENCE optional}|
 	{ ID id-New-eNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension	PRESENCE optional}|
 	{ ID id-WT-UE-ContextKeptIndicator					CRITICALITY ignore	TYPE UE-ContextKeptIndicator	PRESENCE optional},
@@ -1477,7 +1477,8 @@ E-RABs-ToBeAdded-Item-SCG-Bearer ::= SEQUENCE {
 
 E-RABs-ToBeAdded-Item-SCG-BearerExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-Correlation-ID				CRITICALITY ignore	EXTENSION Correlation-ID		PRESENCE optional}|
-	{ ID id-SIPTO-Correlation-ID		CRITICALITY ignore	EXTENSION Correlation-ID		PRESENCE optional},
+	{ ID id-SIPTO-Correlation-ID		CRITICALITY ignore	EXTENSION Correlation-ID		PRESENCE optional}|
+	{ ID id-BearerType					CRITICALITY ignore	EXTENSION BearerType			PRESENCE optional},
 	...
 }
 
@@ -1687,7 +1688,8 @@ E-RABs-ToBeAdded-ModReqItem-SCG-Bearer ::= SEQUENCE {
 
 E-RABs-ToBeAdded-ModReqItem-SCG-BearerExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-Correlation-ID				CRITICALITY ignore	EXTENSION Correlation-ID		PRESENCE optional}|
-	{ ID id-SIPTO-Correlation-ID		CRITICALITY ignore	EXTENSION Correlation-ID		PRESENCE optional},
+	{ ID id-SIPTO-Correlation-ID		CRITICALITY ignore	EXTENSION Correlation-ID		PRESENCE optional}|
+	{ ID id-BearerType					CRITICALITY ignore	EXTENSION BearerType			PRESENCE optional},
 	...
 }
 
@@ -2422,7 +2424,8 @@ E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPpresent ::= SEQUENCE {
 }
 
 E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-RLCMode-transferred					CRITICALITY ignore	EXTENSION RLCMode					PRESENCE optional},
+	{ ID id-RLCMode-transferred					CRITICALITY ignore	EXTENSION RLCMode					PRESENCE optional}|
+	{ ID id-BearerType							CRITICALITY ignore	EXTENSION BearerType				PRESENCE optional},
 	...
 }
 
@@ -2678,7 +2681,8 @@ E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPpresent ::= SEQUENCE {
 }
 
 E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-RLCMode-transferred					CRITICALITY ignore	EXTENSION RLCMode					PRESENCE optional},
+	{ ID id-RLCMode-transferred					CRITICALITY ignore	EXTENSION RLCMode					PRESENCE optional}|
+	{ ID id-BearerType							CRITICALITY ignore	EXTENSION BearerType				PRESENCE optional},
 	...
 }
 
@@ -4209,6 +4213,7 @@ DataForwardingAddressIndication ::= SEQUENCE {
 }
 
 DataForwardingAddressIndication-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-New-eNB-UE-X2AP-ID					CRITICALITY ignore	TYPE UE-X2AP-ID									PRESENCE mandatory}|
 	{ ID id-New-eNB-UE-X2AP-ID-Extension		CRITICALITY ignore	TYPE UE-X2AP-ID-Extension						PRESENCE optional }|
 	{ ID id-Old-eNB-UE-X2AP-ID					CRITICALITY ignore	TYPE UE-X2AP-ID									PRESENCE mandatory}|
 	{ ID id-Old-eNB-UE-X2AP-ID-Extension		CRITICALITY ignore	TYPE UE-X2AP-ID-Extension						PRESENCE optional }|

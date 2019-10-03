@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.6.0 (2019-06)
+-- 3GPP TS 36.423 V15.7.0 (2019-09)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -75,6 +75,7 @@ IMPORTS
 	id-NRNeighbourInfoToAdd,
 	id-LastNG-RANPLMNIdentity,
 	id-BPLMN-ID-Info-EUTRA,
+	id-NBIoT-UL-DL-AlignmentOffset,
 
 	maxnoofBearers,
 	maxCellineNB,
@@ -1539,6 +1540,13 @@ SplitSRB-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 -- N
 
+NBIoT-UL-DL-AlignmentOffset ::= ENUMERATED {
+	khz-7dot5,
+	khz0,
+	khz7dot5,
+	...
+}
+
 Neighbour-Information ::= SEQUENCE (SIZE (0..maxnoofNeighbours)) OF SEQUENCE {
 	eCGI						ECGI,
 	pCI							PCI,
@@ -1690,7 +1698,11 @@ OffsetOfNbiotChannelNumberToEARFCN ::= ENUMERATED {
 		seven,
 		eight,
 		nine,
-		...
+		...,
+		minusEightDotFive,
+		minusFourDotFive,
+		threeDotFive,
+		sevenDotFive
 }
 
 Oneframe ::= BIT STRING (SIZE (6))
@@ -2413,7 +2425,9 @@ TDD-Info ::= SEQUENCE {
 TDD-Info-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-AdditionalSpecialSubframe-Info			CRITICALITY ignore	EXTENSION AdditionalSpecialSubframe-Info				PRESENCE optional}|
 	{ ID id-eARFCNExtension							CRITICALITY reject	EXTENSION EARFCNExtension									PRESENCE optional}|
-	{ ID id-AdditionalSpecialSubframeExtension-Info	CRITICALITY ignore	EXTENSION AdditionalSpecialSubframeExtension-Info	PRESENCE optional},
+	{ ID id-AdditionalSpecialSubframeExtension-Info	CRITICALITY ignore	EXTENSION AdditionalSpecialSubframeExtension-Info	PRESENCE optional}|
+	{ ID id-OffsetOfNbiotChannelNumberToDL-EARFCN	CRITICALITY reject	EXTENSION OffsetOfNbiotChannelNumberToEARFCN		PRESENCE optional}|
+	{ ID id-NBIoT-UL-DL-AlignmentOffset				CRITICALITY reject	EXTENSION NBIoT-UL-DL-AlignmentOffset					PRESENCE optional},
 	...
 }
 

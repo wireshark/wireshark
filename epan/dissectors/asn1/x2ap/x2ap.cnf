@@ -1242,6 +1242,7 @@ id-additionalPLMNs-Item						ProtocolIE-ID
 id-InterfaceInstanceIndication					ProtocolIE-ID
 id-BPLMN-ID-Info-EUTRA						ProtocolIE-ID
 id-BPLMN-ID-Info-NR						ProtocolIE-ID
+id-NBIoT-UL-DL-AlignmentOffset					ProtocolIE-ID
 
 #.REGISTER
 
@@ -1574,6 +1575,7 @@ PLMN-Identity							N x2ap.extension id-LastNG-RANPLMNIdentity
 AdditionalPLMNs-Item						N x2ap.extension id-additionalPLMNs-Item
 BPLMN-ID-Info-EUTRA						N x2ap.extension id-BPLMN-ID-Info-EUTRA
 BPLMN-ID-Info-NR						N x2ap.extension id-BPLMN-ID-Info-NR
+NBIoT-UL-DL-AlignmentOffset					N x2ap.extension id-NBIoT-UL-DL-AlignmentOffset
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
