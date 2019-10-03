@@ -1400,6 +1400,18 @@ const value_string quic_tp_preferred_address_vals[] = {
 
 /* Lookup tables }}} */
 
+void
+quic_transport_parameter_id_base_custom(gchar *result, guint32 parameter_id)
+{
+
+    /* GREASE ? https://tools.ietf.org/html/draft-ietf-quic-transport-23#section-18.1 */
+    if ( ( (parameter_id - 27) % 31) == 0 ) {
+        g_snprintf(result, ITEM_LABEL_LENGTH, "GREASE (0x%04x)", parameter_id);
+    } else {
+        g_snprintf(result, ITEM_LABEL_LENGTH, "%s (0x%04x)", val_to_str_const(parameter_id, quic_transport_parameter_id, "Unknown"), parameter_id);
+    }
+}
+
 /* we keep this internal to packet-tls-utils, as there should be
    no need to access it any other way.
 
@@ -6651,7 +6663,13 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
         proto_tree_add_item_ret_uint(parameter_tree, hf->hf.hs_ext_quictp_parameter_type,
                                      tvb, offset, 2, ENC_BIG_ENDIAN, &parameter_type);
         offset += 2;
-        proto_item_append_text(parameter_tree, ": %s", val_to_str(parameter_type, quic_transport_parameter_id, "Unknown"));
+
+        /* GREASE ? https://tools.ietf.org/html/draft-ietf-quic-transport-23#section-18.1 */
+        if ( ( (parameter_type - 27) % 31) == 0 ) {
+            proto_item_append_text(parameter_tree, ": GREASE");
+        } else {
+            proto_item_append_text(parameter_tree, ": %s", val_to_str(parameter_type, quic_transport_parameter_id, "Unknown"));
+        }
 
         /* opaque value<0..2^16-1> */
         if (!ssl_add_vector(hf, tvb, pinfo, parameter_tree, offset, next_offset, &parameter_length,

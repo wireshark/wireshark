@@ -502,6 +502,8 @@ typedef struct {
 
 gint ssl_get_keyex_alg(gint cipher);
 
+void quic_transport_parameter_id_base_custom(gchar *result, guint32 parameter_id);
+
 gboolean ssldecrypt_uat_fld_ip_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
 gboolean ssldecrypt_uat_fld_port_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
 gboolean ssldecrypt_uat_fld_fileopen_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
@@ -1913,7 +1915,7 @@ ssl_common_dissect_t name = {   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_type,                          \
       { "Type", prefix ".quic.parameter.type",                          \
-        FT_UINT16, BASE_HEX, VALS(quic_transport_parameter_id), 0x00,   \
+        FT_UINT16, BASE_CUSTOM, CF_FUNC(quic_transport_parameter_id_base_custom), 0x00,    \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_len,                           \
