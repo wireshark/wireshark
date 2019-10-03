@@ -9022,7 +9022,7 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
     data->u.MESSAGE_TYPE = tvb_get_bits8(tvb, message_type_offset, 6);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, ":", "GPRS DL:%s", val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Message Type"));
-    ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, message_type_offset >> 3, -1,
+    ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1,
                                         "GSM RLC/MAC: %s (%d) (Downlink)",
                                         val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Message Type"),
                                         data->u.MESSAGE_TYPE);
