@@ -5180,8 +5180,13 @@ dissect_pfcp_frame_route(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 {
     /* Octet 5 to (n+4) Frame-Route
     * The Frame-Route field shall be encoded as an Octet String as the value part of the Framed-Route AVP specified in IETF RFC 2865
+    * RFC 2865:
+    * The Text field is one or more octets, and its contents are
+    *  implementation dependent.  It is intended to be human readable and
+    *  MUST NOT affect operation of the protocol.  It is recommended that
+    *  the message contain UTF-8 encoded 10646 [7] characters.
     */
-    proto_tree_add_item(tree, hf_pfcp_frame_route, tvb, 0, length, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_frame_route, tvb, 0, length, ENC_UTF_8|ENC_NA);
 }
 
 /*
@@ -5197,15 +5202,17 @@ dissect_pfcp_frame_routing(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 }
 
 /*
- * 8.2.111    Frame-IPv6-Route
+ * 8.2.111    Framed-IPv6-Route
  */
 static void
-dissect_pfcp_frame_ipv6_route(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_framed_ipv6_route(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     /* Octet 5 to (n+4) Frame-IPv6-Route
-    * The Frame-IPv6-Route field shall be encoded as an Octet String as the value part of the Framed-IPv6-Route AVP specified in IETF RFC 2865
+    * The Frame-IPv6-Route field shall be encoded as an Octet String as the value part of the Framed-IPv6-Route AVP specified in RFC 3162
+    * RFC 3162
+    * "...It is intended to be human readable..."
     */
-    proto_tree_add_item(tree, hf_pfcp_frame_ipv6_route, tvb, 0, length, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_frame_ipv6_route, tvb, 0, length, ENC_UTF_8|ENC_NA);
 }
 
 /*
@@ -5816,7 +5823,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    152 */    { dissect_pfcp_trace_information },                             /* Trace Information                               Extendable / Subclause 8.2.108  */
 /*    153 */    { dissect_pfcp_frame_route },                                   /* Frame-Route                                     Variable Length / Subclause 8.2.109  */
 /*    154 */    { dissect_pfcp_frame_routing },                                 /* Frame-Routing                                   Fixed Length / Subclause 8.2.110  */
-/*    155 */    { dissect_pfcp_frame_ipv6_route },                              /* Frame-IPv6-Route                                Variable Length / Subclause 8.2.111  */
+/*    155 */    { dissect_pfcp_framed_ipv6_route },                             /* Framed-IPv6-Route                               Variable Length / Subclause 8.2.111  */
 /*    156 */    { dissect_pfcp_event_time_stamp },                              /* Event Time Stamp                                Extendable / Subclause 8.2.114  */
 /*    157 */    { dissect_pfcp_averaging_window },                              /* Averaging Window                                Extendable / Subclause 8.2.115  */
 /*    158 */    { dissect_pfcp_paging_policy_indicator },                       /* Paging Policy Indicator                         Extendable / Subclause 8.2.116  */
@@ -8725,7 +8732,7 @@ proto_register_pfcp(void)
 
         { &hf_pfcp_frame_route,
         { "Frame-Route", "pfcp.frame_route",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_frame_routing,
@@ -8735,7 +8742,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_frame_ipv6_route,
         { "Frame-IPv6-Route", "pfcp.frame_ipv6_route",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
