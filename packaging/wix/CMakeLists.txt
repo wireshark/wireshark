@@ -115,8 +115,23 @@ file(APPEND "${_all_manifest_wix}" "  <!-- Files required for all sections. Gene
 file(APPEND "${_all_manifest_wix}"  "<?include InputPaths.wxi ?>\n")
 file(APPEND "${_all_manifest_wix}" "  <Fragment>\n")
 file(APPEND "${_all_manifest_wix}" "    <DirectoryRef Id=\"INSTALLFOLDER\">\n")
+file(APPEND "${_all_manifest_wix}" "      <?ifdef BUNDLE_DEBUG_DLLS ?>\n")
+foreach(_dll ${GLIB2_DLLS_DEBUG})
+	STRING(REGEX REPLACE "[-|\\.]" "_" _wix_name ${_dll})
+	file(APPEND "${_all_manifest_wix}" "        <Component Id=\"cmp${_wix_name}\" Guid=\"*\">\n")
+	file(APPEND "${_all_manifest_wix}" "          <File Id=\"fil${_wix_name}\" KeyPath=\"yes\" Source=\"$(var.Staging.Dir)\\${_dll}\"/>\n")
+	file(APPEND "${_all_manifest_wix}" "        </Component>\n")
+endforeach()
+file(APPEND "${_all_manifest_wix}" "      <?else?>\n")
+foreach(_dll ${GLIB2_DLLS_RELEASE})
+	STRING(REGEX REPLACE "[-|\\.]" "_" _wix_name ${_dll})
+	file(APPEND "${_all_manifest_wix}" "        <Component Id=\"cmp${_wix_name}\" Guid=\"*\">\n")
+	file(APPEND "${_all_manifest_wix}" "          <File Id=\"fil${_wix_name}\" KeyPath=\"yes\" Source=\"$(var.Staging.Dir)\\${_dll}\"/>\n")
+	file(APPEND "${_all_manifest_wix}" "        </Component>\n")
+endforeach()
+file(APPEND "${_all_manifest_wix}" "      <?endif?>\n")
 SET(unique_component "")
-foreach(_dll ${GLIB2_DLLS} ${CARES_DLL} ${GCRYPT_DLLS}
+foreach(_dll ${CARES_DLL} ${GCRYPT_DLLS}
 		${GNUTLS_DLLS} ${KERBEROS_DLLS} ${LIBSSH_DLL} ${LUA_DLL}
 		${LZ4_DLL} ${NGHTTP2_DLL} ${SBC_DLL} ${SMI_DLL} ${SNAPPY_DLL}
 		${SPANDSP_DLL} ${BCG729_DLL} ${LIBXML2_DLLS} ${WINSPARKLE_DLL}
@@ -127,24 +142,35 @@ foreach(_dll ${GLIB2_DLLS} ${CARES_DLL} ${GCRYPT_DLLS}
 	#ensure uniqueness of files
 	IF(NOT "${unique_component}" MATCHES "(^|;)${_dll}(;|$)")
 		STRING(REGEX REPLACE "[-|\\.]" "_" _wix_name ${_dll})
-		file(APPEND "${_all_manifest_wix}" "       <Component Id=\"cmp${_wix_name}\" Guid=\"*\">\n")
-		file(APPEND "${_all_manifest_wix}" "         <File Id=\"fil${_wix_name}\" KeyPath=\"yes\" Source=\"$(var.Staging.Dir)\\${_dll}\"/>\n")
-		file(APPEND "${_all_manifest_wix}" "       </Component>\n")
+		file(APPEND "${_all_manifest_wix}" "      <Component Id=\"cmp${_wix_name}\" Guid=\"*\">\n")
+		file(APPEND "${_all_manifest_wix}" "        <File Id=\"fil${_wix_name}\" KeyPath=\"yes\" Source=\"$(var.Staging.Dir)\\${_dll}\"/>\n")
+		file(APPEND "${_all_manifest_wix}" "      </Component>\n")
 		SET(unique_component ${unique_component} ${_dll})
 	ENDIF(NOT "${unique_component}" MATCHES "(^|;)${_dll}(;|$)")
 endforeach()
 foreach(_script "init.lua" "console.lua" "dtd_gen.lua")
 	STRING(REGEX REPLACE "[-|\\.]" "_" _wix_name ${_script})
-	file(APPEND "${_all_manifest_wix}" "       <Component Id=\"cmp${_wix_name}\" Guid=\"*\">\n")
-	file(APPEND "${_all_manifest_wix}" "         <File Id=\"fil${_wix_name}\" KeyPath=\"yes\" Source=\"$(var.Staging.Dir)\\${_script}\"/>\n")
-	file(APPEND "${_all_manifest_wix}" "       </Component>\n")
+	file(APPEND "${_all_manifest_wix}" "      <Component Id=\"cmp${_wix_name}\" Guid=\"*\">\n")
+	file(APPEND "${_all_manifest_wix}" "        <File Id=\"fil${_wix_name}\" KeyPath=\"yes\" Source=\"$(var.Staging.Dir)\\${_script}\"/>\n")
+	file(APPEND "${_all_manifest_wix}" "      </Component>\n")
 endforeach()
 file(APPEND "${_all_manifest_wix}" "    </DirectoryRef>\n")
 file(APPEND "${_all_manifest_wix}" "  </Fragment>\n")
 file(APPEND "${_all_manifest_wix}" "  <Fragment>\n")
 file(APPEND "${_all_manifest_wix}" "    <ComponentGroup Id=\"CG.RequiredDependencies\">\n")
+file(APPEND "${_all_manifest_wix}" "      <?ifdef BUNDLE_DEBUG_DLLS ?>\n")
+foreach(_dll ${GLIB2_DLLS_DEBUG})
+	STRING(REGEX REPLACE "[-|\\.]" "_" _wix_name ${_dll})
+	file(APPEND "${_all_manifest_wix}" "        <ComponentRef Id=\"cmp${_wix_name}\" />\n")
+endforeach()
+file(APPEND "${_all_manifest_wix}" "      <?else?>\n")
+foreach(_dll ${GLIB2_DLLS_RELEASE})
+	STRING(REGEX REPLACE "[-|\\.]" "_" _wix_name ${_dll})
+	file(APPEND "${_all_manifest_wix}" "        <ComponentRef Id=\"cmp${_wix_name}\" />\n")
+endforeach()
+file(APPEND "${_all_manifest_wix}" "      <?endif?>\n")
 SET(unique_file "")
-foreach(_dll ${GLIB2_DLLS} ${CARES_DLL} ${GCRYPT_DLLS}
+foreach(_dll ${CARES_DLL} ${GCRYPT_DLLS}
 		${GNUTLS_DLLS} ${KERBEROS_DLLS} ${LIBSSH_DLL} ${LUA_DLL}
 		${LZ4_DLL} ${NGHTTP2_DLL} ${SBC_DLL} ${SMI_DLL} ${SNAPPY_DLL}
 		${SPANDSP_DLL} ${BCG729_DLL} ${LIBXML2_DLLS} ${WINSPARKLE_DLL}
@@ -155,13 +181,13 @@ foreach(_dll ${GLIB2_DLLS} ${CARES_DLL} ${GCRYPT_DLLS}
 	#ensure uniqueness of files
 	IF(NOT "${unique_file}" MATCHES "(^|;)${_dll}(;|$)")
 		STRING(REGEX REPLACE "[-|\\.]" "_" _wix_name ${_dll})
-		file(APPEND "${_all_manifest_wix}" "       <ComponentRef Id=\"cmp${_wix_name}\" />\n")
+		file(APPEND "${_all_manifest_wix}" "      <ComponentRef Id=\"cmp${_wix_name}\" />\n")
 		SET(unique_file ${unique_file} ${_dll})
 	ENDIF(NOT "${unique_file}" MATCHES "(^|;)${_dll}(;|$)")
 endforeach()
 foreach(_script "init.lua" "console.lua" "dtd_gen.lua")
 	STRING(REGEX REPLACE "[-|\\.]" "_" _wix_name ${_script})
-	file(APPEND "${_all_manifest_wix}" "       <ComponentRef Id=\"cmp${_wix_name}\" />\n")
+	file(APPEND "${_all_manifest_wix}" "      <ComponentRef Id=\"cmp${_wix_name}\" />\n")
 endforeach()
 file(APPEND "${_all_manifest_wix}" "    </ComponentGroup>\n")
 file(APPEND "${_all_manifest_wix}" "  </Fragment>\n")
@@ -293,7 +319,9 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		# ${CMAKE_CURRENT_SOURCE_DIR}/packaging/wix
 		# Note that executables and DLLs *must* be built separately
 		add_custom_target(wix_package
-			COMMAND ${WIX_CANDLE_EXECUTABLE} ${WIX_CANDLE_DEFINES} ${WIX_SOURCE_FILES}
+			COMMAND ${WIX_CANDLE_EXECUTABLE} ${WIX_CANDLE_DEFINES}
+				$<$<CONFIG:Debug>:-dBUNDLE_DEBUG_DLLS>
+				${WIX_SOURCE_FILES}
 			WORKING_DIRECTORY ${_wix_source_dir}
 
 			COMMAND ${WIX_LIGHT_EXECUTABLE} ${WIX_LIGHT_DEFINES} ${WIX_OUT_FILES}
