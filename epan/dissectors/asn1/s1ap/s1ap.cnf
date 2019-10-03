@@ -926,6 +926,16 @@ Time-UE-StayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 #.TYPE_ATTR
 Time-UE-StayedInCell-EnhancedGranularity DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_Time_UE_StayedInCell_EnhancedGranularity_fmt)
 
+#.FN_BODY TimeSinceSecondaryNodeRelease VAL_PTR=&parameter_tvb HF_INDEX=-1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+TimeSinceSecondaryNodeRelease TYPE=FT_UINT32 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
 #.FN_BODY LastVisitedNGRANCellInformation VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
@@ -1680,6 +1690,9 @@ id-ConnectedengNBToAddList                          ProtocolIE-ID
 id-ConnectedengNBToRemoveList                       ProtocolIE-ID
 id-EN-DCSONConfigurationTransfer-ECT                ProtocolIE-ID
 id-EN-DCSONConfigurationTransfer-MCT                ProtocolIE-ID
+id-IMSvoiceEPSfallbackfrom5G                        ProtocolIE-ID
+id-TimeSinceSecondaryNodeRelease                    ProtocolIE-ID
+id-RequestTypeAdditionalInfo                        ProtocolIE-ID
 
 #.END
 
@@ -1909,6 +1922,7 @@ ConnectedengNBList                              N s1ap.ies id-ConnectedengNBToAd
 ConnectedengNBList                              N s1ap.ies id-ConnectedengNBToRemoveList
 EN-DCSONConfigurationTransfer                   N s1ap.ies id-EN-DCSONConfigurationTransfer-ECT
 EN-DCSONConfigurationTransfer                   N s1ap.ies id-EN-DCSONConfigurationTransfer-MCT
+TimeSinceSecondaryNodeRelease                   N s1ap.ies id-TimeSinceSecondaryNodeRelease
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -1968,6 +1982,8 @@ WLANMeasurementConfiguration            N s1ap.extension id-WLANMeasurementConfi
 NRrestrictionin5GS                      N s1ap.extension id-NRrestrictionin5GS
 PLMNidentity                            N s1ap.extension id-LastNG-RANPLMNIdentity
 PSCellInformation                       N s1ap.extension id-PSCellInformation
+IMSvoiceEPSfallbackfrom5G               N s1ap.extension id-IMSvoiceEPSfallbackfrom5G
+RequestTypeAdditionalInfo               N s1ap.extension id-TimeSinceSecondaryNodeRelease
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired                        N s1ap.proc.imsg id-HandoverPreparation

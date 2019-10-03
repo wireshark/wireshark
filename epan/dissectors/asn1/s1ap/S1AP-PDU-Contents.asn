@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.6.0 (2019-06)
+-- 3GPP TS 36.413 V15.7.0 (2019-09)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -184,7 +184,8 @@ IMPORTS
 	PSCellInformation,
 	NR-CGI,
 	ConnectedengNBList,
-	EN-DCSONConfigurationTransfer
+	EN-DCSONConfigurationTransfer,
+	TimeSinceSecondaryNodeRelease
 
 
 
@@ -441,7 +442,8 @@ FROM S1AP-Containers
 	id-ConnectedengNBToAddList,
 	id-ConnectedengNBToRemoveList,
 	id-EN-DCSONConfigurationTransfer-ECT,
-	id-EN-DCSONConfigurationTransfer-MCT
+	id-EN-DCSONConfigurationTransfer-MCT,
+	id-TimeSinceSecondaryNodeRelease
 
 
 
@@ -1464,7 +1466,8 @@ UEContextReleaseComplete-IEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-InformationOnRecommendedCellsAndENBsForPaging	CRITICALITY ignore	TYPE InformationOnRecommendedCellsAndENBsForPaging		PRESENCE optional}|
 -- Extension for Release 13 to support coverage enhancement paging –
 	{ ID id-CellIdentifierAndCELevelForCECapableUEs		CRITICALITY ignore	TYPE CellIdentifierAndCELevelForCECapableUEs	PRESENCE optional}|
-	{ ID id-SecondaryRATDataUsageReportList				CRITICALITY ignore	TYPE SecondaryRATDataUsageReportList		PRESENCE optional },
+	{ ID id-SecondaryRATDataUsageReportList				CRITICALITY ignore	TYPE SecondaryRATDataUsageReportList		PRESENCE optional }|
+	{ ID id-TimeSinceSecondaryNodeRelease				CRITICALITY ignore	TYPE TimeSinceSecondaryNodeRelease				PRESENCE optional },
 	...
 }
 
@@ -2885,7 +2888,9 @@ UEContextSuspendRequestIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-eNB-UE-S1AP-ID									CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory}|
 	{ ID id-InformationOnRecommendedCellsAndENBsForPaging	CRITICALITY ignore	TYPE InformationOnRecommendedCellsAndENBsForPaging PRESENCE optional}|
 	{ ID id-CellIdentifierAndCELevelForCECapableUEs			CRITICALITY ignore	TYPE CellIdentifierAndCELevelForCECapableUEs	PRESENCE optional}|
-	{ ID id-SecondaryRATDataUsageReportList				CRITICALITY ignore	TYPE SecondaryRATDataUsageReportList		PRESENCE optional },
+	{ ID id-SecondaryRATDataUsageReportList				CRITICALITY ignore	TYPE SecondaryRATDataUsageReportList		PRESENCE optional }|
+	{ ID id-UserLocationInformation							CRITICALITY ignore	TYPE UserLocationInformation			PRESENCE optional }|
+	{ ID id-TimeSinceSecondaryNodeRelease					CRITICALITY ignore	TYPE TimeSinceSecondaryNodeRelease	PRESENCE optional },
 	...
 }
 
@@ -3124,7 +3129,9 @@ SecondaryRATDataUsageReportIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-MME-UE-S1AP-ID							CRITICALITY ignore	TYPE MME-UE-S1AP-ID				PRESENCE mandatory}|
 	{ ID id-eNB-UE-S1AP-ID						CRITICALITY ignore	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory}|
 	{ ID id-SecondaryRATDataUsageReportList			CRITICALITY ignore	TYPE SecondaryRATDataUsageReportList	PRESENCE mandatory}|
-	{ ID id-HandoverFlag							CRITICALITY ignore	TYPE HandoverFlag					PRESENCE optional},
+	{ ID id-HandoverFlag							CRITICALITY ignore	TYPE HandoverFlag					PRESENCE optional}|
+	{ ID id-UserLocationInformation				CRITICALITY ignore	TYPE UserLocationInformation			PRESENCE optional}|
+	{ ID id-TimeSinceSecondaryNodeRelease		CRITICALITY ignore	TYPE TimeSinceSecondaryNodeRelease	PRESENCE optional },
 	...
 }
 

@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.6.0 (2019-06)
+-- 3GPP TS 36.413 V15.7.0 (2019-09)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -474,5 +474,8 @@ id-ConnectedengNBToAddList							ProtocolIE-ID ::= 292
 id-ConnectedengNBToRemoveList						ProtocolIE-ID ::= 293
 id-EN-DCSONConfigurationTransfer-ECT				ProtocolIE-ID ::= 294
 id-EN-DCSONConfigurationTransfer-MCT				ProtocolIE-ID ::= 295
+id-IMSvoiceEPSfallbackfrom5G						ProtocolIE-ID ::= 296
+id-TimeSinceSecondaryNodeRelease					ProtocolIE-ID ::= 297
+id-RequestTypeAdditionalInfo						ProtocolIE-ID ::= 298
 
 END
