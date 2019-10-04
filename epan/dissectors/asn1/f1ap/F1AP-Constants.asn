@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.6.0 (2019-06)
+-- 3GPP TS 38.473 V15.7.0 (2019-09)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -350,5 +350,9 @@ id-portNumber										ProtocolIE-ID ::= 230
 id-AdditionalSIBMessageList							ProtocolIE-ID ::= 231
 id-Cell-Type										ProtocolIE-ID ::= 232
 id-IgnorePRACHConfiguration							ProtocolIE-ID ::= 233
+id-CG-Config										ProtocolIE-ID ::= 234
+id-PDCCH-BlindDetectionSCG							ProtocolIE-ID ::= 235
+id-Requested-PDCCH-BlindDetectionSCG					ProtocolIE-ID ::= 236
+id-Ph-InfoMCG										ProtocolIE-ID ::= 237
 
 END

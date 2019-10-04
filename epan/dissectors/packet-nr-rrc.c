@@ -259,6 +259,7 @@ static int hf_nr_rrc_nr_rrc_BandCombinationIndex_PDU = -1;  /* BandCombinationIn
 static int hf_nr_rrc_nr_rrc_BandCombinationInfoSN_PDU = -1;  /* BandCombinationInfoSN */
 static int hf_nr_rrc_nr_rrc_CG_ConfigInfo_PDU = -1;  /* CG_ConfigInfo */
 static int hf_nr_rrc_nr_rrc_ConfigRestrictInfoSCG_PDU = -1;  /* ConfigRestrictInfoSCG */
+static int hf_nr_rrc_nr_rrc_PH_TypeListMCG_PDU = -1;  /* PH_TypeListMCG */
 static int hf_nr_rrc_nr_rrc_FeatureSetEntryIndex_PDU = -1;  /* FeatureSetEntryIndex */
 static int hf_nr_rrc_nr_rrc_MeasurementTimingConfiguration_PDU = -1;  /* MeasurementTimingConfiguration */
 static int hf_nr_rrc_nr_rrc_UERadioPagingInformation_PDU = -1;  /* UERadioPagingInformation */
@@ -43877,6 +43878,16 @@ int dissect_nr_rrc_ConfigRestrictInfoSCG_PDU(tvbuff_t *tvb _U_, packet_info *pin
   offset += 7; offset >>= 3;
   return offset;
 }
+int dissect_nr_rrc_PH_TypeListMCG_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  proto_item_set_hidden(prot_ti);
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_PH_TypeListMCG(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_PH_TypeListMCG_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 int dissect_nr_rrc_FeatureSetEntryIndex_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
   proto_item_set_hidden(prot_ti);
@@ -44342,6 +44353,10 @@ proto_register_nr_rrc(void) {
     { &hf_nr_rrc_nr_rrc_ConfigRestrictInfoSCG_PDU,
       { "ConfigRestrictInfoSCG", "nr-rrc.ConfigRestrictInfoSCG_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_PH_TypeListMCG_PDU,
+      { "PH-TypeListMCG", "nr-rrc.PH_TypeListMCG",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_FeatureSetEntryIndex_PDU,
       { "FeatureSetEntryIndex", "nr-rrc.FeatureSetEntryIndex",

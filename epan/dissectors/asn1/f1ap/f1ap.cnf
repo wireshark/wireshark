@@ -239,7 +239,7 @@ id-EUTRA-NR-CellResourceCoordinationReq-Container    ProtocolIE-ID
 id-EUTRA-NR-CellResourceCoordinationReqAck-Container ProtocolIE-ID
 id-Protected-EUTRA-Resources-List                    ProtocolIE-ID
 id-RequestType                                       ProtocolIE-ID
-id-ServCellIndex                                      ProtocolIE-ID
+id-ServCellIndex                                     ProtocolIE-ID
 id-RAT-FrequencyPriorityInformation                  ProtocolIE-ID
 id-ExecuteDuplication                                ProtocolIE-ID
 id-NRCGI                                             ProtocolIE-ID
@@ -361,6 +361,10 @@ id-portNumber                                        ProtocolIE-ID
 id-AdditionalSIBMessageList                          ProtocolIE-ID
 id-Cell-Type                                         ProtocolIE-ID
 id-IgnorePRACHConfiguration                          ProtocolIE-ID
+id-CG-Config                                         ProtocolIE-ID
+id-PDCCH-BlindDetectionSCG                           ProtocolIE-ID
+id-Requested-PDCCH-BlindDetectionSCG                 ProtocolIE-ID
+id-Ph-InfoMCG                                        ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -591,6 +595,10 @@ PortNumber                                        N f1ap.extension id-portNumber
 AdditionalSIBMessageList                          N f1ap.extension id-AdditionalSIBMessageList
 CellType                                          N f1ap.extension id-Cell-Type
 IgnorePRACHConfiguration                          N f1ap.extension id-IgnorePRACHConfiguration
+CG-Config                                         N f1ap.extension id-CG-Config
+PDCCH-BlindDetectionSCG                           N f1ap.extension id-PDCCH-BlindDetectionSCG
+Requested-PDCCH-BlindDetectionSCG                 N f1ap.extension id-Requested-PDCCH-BlindDetectionSCG
+Ph-InfoMCG                                        N f1ap.extension id-Ph-InfoMCG
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                               N f1ap.proc.imsg id-Reset
@@ -819,11 +827,19 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
 #.TYPE_ATTR
 BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
 
+#.FN_BODY CG-Config VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_CG_Config);
+    dissect_nr_rrc_CG_Config_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_BODY CG-ConfigInfo VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
 %(DEFAULT_BODY)s
   if (param_tvb) {
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SCG_Config_Info);
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_CG_ConfigInfo);
     dissect_nr_rrc_CG_ConfigInfo_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
@@ -1034,6 +1050,34 @@ UACReductionIndication DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_DRX_Config);
     dissect_nr_rrc_DRX_Config_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY PDCCH-BlindDetectionSCG VAL_PTR=&parameter_tvb HF_INDEX=-1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+PDCCH-BlindDetectionSCG TYPE=FT_UINT8 DISPLAY=BASE_DEC
+
+#.FN_BODY Requested-PDCCH-BlindDetectionSCG VAL_PTR=&parameter_tvb HF_INDEX=-1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+Requested-PDCCH-BlindDetectionSCG TYPE=FT_UINT8 DISPLAY=BASE_DEC
+
+#.FN_BODY Ph-InfoMCG VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_Ph_InfoMCG);
+    dissect_nr_rrc_PH_TypeListMCG_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY Ph-InfoSCG VAL_PTR = &param_tvb

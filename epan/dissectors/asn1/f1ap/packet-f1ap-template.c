@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V15.6.0 (2019-06)
+ * References: 3GPP TS 38.473 V15.7.0 (2019-09)
  */
 
 #include "config.h"
@@ -48,7 +48,7 @@ static gint ett_f1ap_ResourceCoordinationTransferContainer = -1;
 static gint ett_f1ap_PLMN_Identity = -1;
 static gint ett_f1ap_MIB_message = -1;
 static gint ett_f1ap_SIB1_message = -1;
-static gint ett_f1ap_SCG_Config_Info = -1;
+static gint ett_f1ap_CG_ConfigInfo = -1;
 static gint ett_f1ap_CellGroupConfig = -1;
 static gint ett_f1ap_TransportLayerAddress = -1;
 static gint ett_f1ap_UE_CapabilityRAT_ContainerList = -1;
@@ -70,6 +70,8 @@ static gint ett_f1ap_RequestedBandCombinationIndex = -1;
 static gint ett_f1ap_RequestedFeatureSetEntryIndex = -1;
 static gint ett_f1ap_RequestedP_MaxFR2 = -1;
 static gint ett_f1ap_UEAssistanceInformation = -1;
+static gint ett_f1ap_CG_Config = -1;
+static gint ett_f1ap_Ph_InfoMCG = -1;
 #include "packet-f1ap-ett.c"
 
 enum{
@@ -225,7 +227,7 @@ void proto_register_f1ap(void) {
     &ett_f1ap_PLMN_Identity,
     &ett_f1ap_MIB_message,
     &ett_f1ap_SIB1_message,
-    &ett_f1ap_SCG_Config_Info,
+    &ett_f1ap_CG_ConfigInfo,
     &ett_f1ap_CellGroupConfig,
     &ett_f1ap_TransportLayerAddress,
     &ett_f1ap_UE_CapabilityRAT_ContainerList,
@@ -247,6 +249,8 @@ void proto_register_f1ap(void) {
     &ett_f1ap_RequestedFeatureSetEntryIndex,
     &ett_f1ap_RequestedP_MaxFR2,
     &ett_f1ap_UEAssistanceInformation,
+    &ett_f1ap_CG_Config,
+    &ett_f1ap_Ph_InfoMCG,
 #include "packet-f1ap-ettarr.c"
   };
 

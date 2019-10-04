@@ -57,6 +57,7 @@ MeasResultSCG-Failure_PDU
 MeasurementTimingConfiguration_PDU
 MIB_PDU
 P-Max_PDU
+PH-TypeListMCG_PDU
 PH-TypeListSCG_PDU
 RadioBearerConfig_PDU
 RRCReconfiguration_PDU
@@ -103,6 +104,7 @@ MeasurementTimingConfiguration
 MIB
 P-Max
 PCCH-Message                       @pcch
+PH-TypeListMCG
 PH-TypeListSCG
 RadioBearerConfig
 RRCReconfiguration                 @rrc_reconf
