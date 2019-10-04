@@ -421,7 +421,7 @@ static expert_field ei_nas_5gs_unknown_value = EI_INIT;
 static expert_field ei_nas_5gs_num_pkt_flt = EI_INIT;
 static expert_field ei_nas_5gs_not_diss = EI_INIT;
 
-#define NAS_5GS_PLAN_NAS_MSG 0
+#define NAS_5GS_PLAIN_NAS_MSG 0
 
 static void disect_nas_5gs_updp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset);
 
@@ -6365,7 +6365,7 @@ dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     * PDU session identity                                         octet 2 */
     /* Determine if it's a plain 5GS NAS Message or not */
     seq_hdr_type = tvb_get_guint8(tvb, offset + 1);
-    if (seq_hdr_type == NAS_5GS_PLAN_NAS_MSG) {
+    if (seq_hdr_type == NAS_5GS_PLAIN_NAS_MSG) {
         return dissect_nas_5gs_common(tvb, pinfo, nas_5gs_tree, offset, data);
     }
     /* Security protected NAS 5GS message*/
