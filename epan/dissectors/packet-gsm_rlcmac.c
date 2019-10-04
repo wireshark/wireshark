@@ -9980,7 +9980,7 @@ proto_register_gsm_rlcmac(void)
        }
      },
      { &hf_global_tfi,
-       { "UL TFI",
+       { "Uplink (0) or Downlink (1) TFI",
          "gsm_rlcmac.global.tfi",
          FT_UINT8, BASE_DEC, NULL, 0x0,
          NULL, HFILL
