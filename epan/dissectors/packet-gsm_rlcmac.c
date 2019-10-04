@@ -183,6 +183,12 @@ static int hf_timing_advance_value_exist = -1;
 static int hf_timing_advance_index = -1;
 static int hf_timing_advance_index_exist = -1;
 static int hf_timing_advance_timeslot_number = -1;
+static int hf_ul_timing_advance_index_exist = -1;
+static int hf_ul_timing_advance_index = -1;
+static int hf_ul_timing_advance_timeslot_number = -1;
+static int hf_dl_timing_advance_index_exist = -1;
+static int hf_dl_timing_advance_index = -1;
+static int hf_dl_timing_advance_timeslot_number = -1;
 
 /* < Power Control Parameters IE > */
 static int hf_alpha = -1;
@@ -1954,13 +1960,13 @@ CSN_DESCR_BEGIN(Global_Packet_Timing_Advance_t)
   M_NEXT_EXIST (Global_Packet_Timing_Advance_t, Exist_TIMING_ADVANCE_VALUE, 1, &hf_timing_advance_value_exist),
   M_UINT       (Global_Packet_Timing_Advance_t,  TIMING_ADVANCE_VALUE,  6, &hf_timing_advance_value),
 
-  M_NEXT_EXIST (Global_Packet_Timing_Advance_t, Exist_UPLINK_TIMING_ADVANCE, 2, &hf_timing_advance_index_exist),
-  M_UINT       (Global_Packet_Timing_Advance_t,  UPLINK_TIMING_ADVANCE_INDEX,  4, &hf_timing_advance_index),
-  M_UINT       (Global_Packet_Timing_Advance_t,  UPLINK_TIMING_ADVANCE_TIMESLOT_NUMBER,  3, &hf_timing_advance_timeslot_number),
+  M_NEXT_EXIST (Global_Packet_Timing_Advance_t, Exist_UPLINK_TIMING_ADVANCE, 2, &hf_ul_timing_advance_index_exist),
+  M_UINT       (Global_Packet_Timing_Advance_t,  UPLINK_TIMING_ADVANCE_INDEX,  4, &hf_ul_timing_advance_index),
+  M_UINT       (Global_Packet_Timing_Advance_t,  UPLINK_TIMING_ADVANCE_TIMESLOT_NUMBER,  3, &hf_ul_timing_advance_timeslot_number),
 
-  M_NEXT_EXIST (Global_Packet_Timing_Advance_t, Exist_DOWNLINK_TIMING_ADVANCE, 2, &hf_timing_advance_index_exist),
-  M_UINT       (Global_Packet_Timing_Advance_t,  DOWNLINK_TIMING_ADVANCE_INDEX,  4, &hf_timing_advance_index),
-  M_UINT       (Global_Packet_Timing_Advance_t,  DOWNLINK_TIMING_ADVANCE_TIMESLOT_NUMBER,  3, &hf_timing_advance_timeslot_number),
+  M_NEXT_EXIST (Global_Packet_Timing_Advance_t, Exist_DOWNLINK_TIMING_ADVANCE, 2, &hf_dl_timing_advance_index_exist),
+  M_UINT       (Global_Packet_Timing_Advance_t,  DOWNLINK_TIMING_ADVANCE_INDEX,  4, &hf_dl_timing_advance_index),
+  M_UINT       (Global_Packet_Timing_Advance_t,  DOWNLINK_TIMING_ADVANCE_TIMESLOT_NUMBER,  3, &hf_dl_timing_advance_timeslot_number),
 CSN_DESCR_END  (Global_Packet_Timing_Advance_t)
 
 /* < Channel Quality Report struct > */
@@ -10283,6 +10289,43 @@ proto_register_gsm_rlcmac(void)
     },
 
 /* < Global Packet Timing Advance IE > */
+    { &hf_ul_timing_advance_index_exist,
+      { "UPLINK_TIMING_ADVANCE_INDEX Exist", "gsm_rlcmac.ul.timing_advance_index_exist",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_ul_timing_advance_index,
+      { "UPLINK_TIMING_ADVANCE_INDEX", "gsm_rlcmac.ul.timing_advance_index",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_ul_timing_advance_timeslot_number,
+      { "UPLINK_TIMING_ADVANCE_TIMESLOT_NUMBER", "gsm_rlcmac.ul.timing_advance_timeslot_number",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+
+    { &hf_dl_timing_advance_index_exist,
+      { "DOWNLINK_TIMING_ADVANCE_INDEX Exist", "gsm_rlcmac.dl.timing_advance_index_exist",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_dl_timing_advance_index,
+      { "DOWNLINK_TIMING_ADVANCE_INDEX", "gsm_rlcmac.dl.timing_advance_index",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_dl_timing_advance_timeslot_number,
+      { "DOWNLINK_TIMING_ADVANCE_TIMESLOT_NUMBER", "gsm_rlcmac.dl.timing_advance_timeslot_number",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
 
 /* < Channel Quality Report struct > */
     { &hf_channel_quality_report_c_value,
