@@ -376,7 +376,7 @@ static cborObj cbor_info(tvbuff_t *tvb, int offset)
 }
 
 void
-dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int offset)
+dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
     guint64 messages = 0;
     unsigned int i=0;
@@ -407,8 +407,6 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
     cborObj tmpObj4;
     int reportHasTimestamp = 0;
     int report_types_offset = 0;
-
-    pinfo = pinfo;
 
     amp_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_amp_proto,
                                        &payload_item, "Payload Data: AMP Protocol");
