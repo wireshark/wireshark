@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V15.4.0 (2019-07)
+-- 3GPP TS 38.423 V15.5.0 (2019-09)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -22,7 +22,6 @@ BEGIN
 
 IMPORTS
 
-	ActivationIDforCellActivation,
 	ActivationIDforCellActivation,
 	AMF-Region-Information,
 	AMF-UE-NGAP-ID,
@@ -111,15 +110,14 @@ IMPORTS
 	RRCResumeCause,
 	SCGConfigurationQuery,
 	SecurityIndication,
-	ServedCells-NR,
 	S-NG-RANnode-SecurityKey,
 	SpectrumSharingGroupID,
 	SplitSRBsTypes,
+	S-NG-RANnode-Addition-Trigger-Ind,
 	S-NSSAI,
 	TAISupport-List,
 	Target-CGI,
 	TimeToWait,
-	TraceActivation,
 	TraceActivation,
 	UEAggregateMaximumBitRate,
 	UEContextID,
@@ -224,7 +222,6 @@ FROM XnAP-Containers
 	id-TNLA-Setup-List,
 	id-TNLA-Failed-To-Setup-List,
 	id-TraceActivation,
-	id-TraceActivation,
 	id-UEContextInfoHORequest,
 	id-UEContextInfoRetrUECtxtResp,
 	id-UEContextKeptIndicator,
@@ -238,13 +235,11 @@ FROM XnAP-Containers
 	id-PDUSessionAdmittedAddedAddReqAck,
 	id-PDUSessionNotAdmittedAddReqAck,
 	id-SN-to-MN-Container,
-	id-admittedSplitSRB,
 	id-RRCConfigIndication,
 	id-SplitSRB-RRCTransfer,
 	id-UEReportRRCTransfer,
 	id-PDUSessionReleasedList-RelConf,
 	id-BearersSubjectToCounterCheck,
-	id-PDUSessionReleasedList-RelConf,
 	id-PDUSessionToBeReleasedList-RelRqd,
 	id-ResponseInfo-ReconfCompl,
 	id-initiatingNodeType-ResourceCoordRequest,
@@ -275,6 +270,7 @@ FROM XnAP-Containers
 	id-Secondary-MN-Xn-U-TNLInfoatM,
 	id-NE-DC-TDM-Pattern,
 	id-InterfaceInstanceIndication,
+	id-S-NG-RANnode-Addition-Trigger-Ind,
 
 
 	maxnoofCellsinNG-RANnode,
@@ -580,7 +576,8 @@ SNodeAdditionRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-LocationInformationSNReporting		CRITICALITY ignore		TYPE LocationInformationSNReporting			PRESENCE optional}|
 	{ ID id-MR-DC-ResourceCoordinationInfo		CRITICALITY ignore		TYPE MR-DC-ResourceCoordinationInfo			PRESENCE optional }|
 	{ ID id-MaskedIMEISV						CRITICALITY ignore		TYPE MaskedIMEISV									PRESENCE optional}|
-	{ ID id-NE-DC-TDM-Pattern					CRITICALITY ignore		TYPE NE-DC-TDM-Pattern							PRESENCE optional},
+	{ ID id-NE-DC-TDM-Pattern					CRITICALITY ignore		TYPE NE-DC-TDM-Pattern								PRESENCE optional}|
+	{ ID id-S-NG-RANnode-Addition-Trigger-Ind	CRITICALITY reject		TYPE S-NG-RANnode-Addition-Trigger-Ind		PRESENCE optional},
 	...
 }
 
@@ -867,7 +864,8 @@ SNodeModificationRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics							PRESENCE optional }|
 	{ ID id-LocationInformationSN					CRITICALITY ignore		TYPE Target-CGI											PRESENCE optional }|
 	{ ID id-MR-DC-ResourceCoordinationInfo			CRITICALITY ignore		TYPE MR-DC-ResourceCoordinationInfo				PRESENCE optional }|
-	{ ID id-PDUSessionDataForwarding-SNModResponse	CRITICALITY ignore		TYPE PDUSessionDataForwarding-SNModResponse	PRESENCE optional },
+	{ ID id-PDUSessionDataForwarding-SNModResponse	CRITICALITY ignore		TYPE PDUSessionDataForwarding-SNModResponse	PRESENCE optional }|
+	{ ID id-RRCConfigIndication						CRITICALITY reject		TYPE RRCConfigIndication								PRESENCE optional },
 	...
 }
 PDUSessionAdmitted-SNModResponse ::= SEQUENCE {
@@ -991,7 +989,8 @@ SNodeModificationRequired-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-SpareDRBIDs								CRITICALITY ignore		TYPE DRB-List										PRESENCE optional }|
 	{ ID id-RequiredNumberOfDRBIDs					CRITICALITY ignore		TYPE DRB-Number										PRESENCE optional }|
 	{ ID id-LocationInformationSN					CRITICALITY ignore		TYPE Target-CGI										PRESENCE optional }|
-	{ ID id-MR-DC-ResourceCoordinationInfo			CRITICALITY ignore		TYPE MR-DC-ResourceCoordinationInfo			PRESENCE optional },
+	{ ID id-MR-DC-ResourceCoordinationInfo			CRITICALITY ignore		TYPE MR-DC-ResourceCoordinationInfo			PRESENCE optional }|
+	{ ID id-RRCConfigIndication						CRITICALITY reject		TYPE RRCConfigIndication							PRESENCE optional },
 	...
 }
 PDUSessionToBeModifiedSNModRequired::= SEQUENCE (SIZE (1.. maxnoofPDUSessions)) OF 	PDUSessionToBeModifiedSNModRequired-Item

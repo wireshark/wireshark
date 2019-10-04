@@ -707,7 +707,8 @@ id-PDUSessionCommonNetworkInstance            ProtocolIE-ID
 id-BPLMN-ID-Info-EUTRA                        ProtocolIE-ID
 id-BPLMN-ID-Info-NR                           ProtocolIE-ID
 id-InterfaceInstanceIndication                ProtocolIE-ID
-
+id-S-NG-RANnode-Addition-Trigger-Ind          ProtocolIE-ID
+id-DefaultDRB-Allowed                         ProtocolIE-ID
 #.REGISTER
 
 #XNAP-PROTOCOL-IES
@@ -829,6 +830,7 @@ UERadioCapabilityForPaging                        N xnap.ies id-UERadioCapabilit
 PDUSessionDataForwarding-SNModResponse            N xnap.ies id-PDUSessionDataForwarding-SNModResponse
 NE-DC-TDM-Pattern                                 N xnap.ies id-NE-DC-TDM-Pattern
 InterfaceInstanceIndication                       N xnap.ies id-InterfaceInstanceIndication
+S-NG-RANnode-Addition-Trigger-Ind                 N xnap.ies id-S-NG-RANnode-Addition-Trigger-Ind
 
 #XNAP-PROTOCOL-EXTENSION
 Additional-UL-NG-U-TNLatUPF-List                  N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List
@@ -843,6 +845,7 @@ UPTransportLayerInformation                       N xnap.extension id-Secondary-
 PDUSessionCommonNetworkInstance                   N xnap.extension id-PDUSessionCommonNetworkInstance
 BPLMN-ID-Info-EUTRA                               N xnap.extension id-BPLMN-ID-Info-EUTRA
 BPLMN-ID-Info-NR                                  N xnap.extension id-BPLMN-ID-Info-NR
+DefaultDRB-Allowed                                N xnap.extension id-DefaultDRB-Allowed
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation
