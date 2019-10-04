@@ -12,6 +12,8 @@
 
 #include "geometry_state_dialog.h"
 
+#include <wiretap/wtap.h>
+
 class CaptureFile;
 class AStringListListSortFilterProxyModel;
 
@@ -24,7 +26,7 @@ class ResolvedAddressesDialog : public GeometryStateDialog
     Q_OBJECT
 
 public:
-    explicit ResolvedAddressesDialog(QWidget *parent, CaptureFile *capture_file);
+    explicit ResolvedAddressesDialog(QWidget *parent, QString captureFile, wtap* wth);
     ~ResolvedAddressesDialog();
 
 protected slots:

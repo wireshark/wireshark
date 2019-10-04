@@ -3637,7 +3637,15 @@ void MainWindow::on_actionStatisticsCaptureFileProperties_triggered()
 
 void MainWindow::on_actionStatisticsResolvedAddresses_triggered()
 {
-    ResolvedAddressesDialog *resolved_addresses_dialog = new ResolvedAddressesDialog(this, &capture_file_);
+    QString capFileName;
+    wtap* wth = Q_NULLPTR;
+    if ( capture_file_.isValid() )
+    {
+        capFileName = capture_file_.capFile()->filename;
+        wth = capture_file_.capFile()->provider.wth;
+    }
+    ResolvedAddressesDialog *resolved_addresses_dialog =
+            new ResolvedAddressesDialog(this, capFileName, wth);
     resolved_addresses_dialog->show();
 }
 
