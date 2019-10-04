@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V15.4.0 (2019-07)
+-- 3GPP TS 38.413 V15.5.0 (2019-09)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -320,6 +320,11 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-ULForwardingUP-TNLInformation						ProtocolIE-ID ::= 164
 	id-CNAssistedRANTuning									ProtocolIE-ID ::= 165
 	id-CommonNetworkInstance								ProtocolIE-ID ::= 166
+	id-NGRAN-TNLAssociationToRemoveList						ProtocolIE-ID ::= 167
+	id-TNLAssociationTransportLayerAddressNGRAN				ProtocolIE-ID ::= 168
+	id-EndpointIPAddressAndPort								ProtocolIE-ID ::= 169
+	id-LocationReportingAdditionalInfo						ProtocolIE-ID ::= 170
+	id-SourceToTarget-AMFInformationReroute					ProtocolIE-ID ::= 171
 
 
 END

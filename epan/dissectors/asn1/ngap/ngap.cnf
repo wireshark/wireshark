@@ -960,6 +960,11 @@ id-ULForwarding                                 ProtocolIE-ID
 id-ULForwardingUP-TNLInformation                ProtocolIE-ID
 id-CNAssistedRANTuning                          ProtocolIE-ID
 id-CommonNetworkInstance                        ProtocolIE-ID
+id-NGRAN-TNLAssociationToRemoveList             ProtocolIE-ID
+id-TNLAssociationTransportLayerAddressNGRAN     ProtocolIE-ID
+id-EndpointIPAddressAndPort                     ProtocolIE-ID
+id-LocationReportingAdditionalInfo              ProtocolIE-ID
+id-SourceToTarget-AMFInformationReroute         ProtocolIE-ID
 #.END
 
 
@@ -1117,6 +1122,9 @@ EN-DCSONConfigurationTransfer               N ngap.ies id-ENDC-SONConfigurationT
 GUAMI                                       N ngap.ies id-NewGUAMI
 CNAssistedRANTuning                         N ngap.ies id-CNAssistedRANTuning
 CommonNetworkInstance                       N ngap.ies id-CommonNetworkInstance
+NGRAN-TNLAssociationToRemoveList            N ngap.ies id-NGRAN-TNLAssociationToRemoveList
+EndpointIPAddressAndPort                    N ngap.ies id-EndpointIPAddressAndPort
+SourceToTarget-AMFInformationReroute        N ngap.ies id-SourceToTarget-AMFInformationReroute
 
 #NGAP-PROTOCOL-EXTENSION
 
@@ -1135,6 +1143,8 @@ CNTypeRestrictionsForEquivalent                        N ngap.extension id-CNTyp
 CNTypeRestrictionsForServing                           N ngap.extension id-CNTypeRestrictionsForServing
 ULForwarding                                           N ngap.extension id-ULForwarding
 UPTransportLayerInformation                            N ngap.extension id-ULForwardingUP-TNLInformation
+CPTransportLayerInformation                            N ngap.extension id-TNLAssociationTransportLayerAddressNGRAN
+LocationReportingAdditionalInfo                        N ngap.extension id-LocationReportingAdditionalInfo
 
 #NGAP-ELEMENTARY-PROCEDURE
 

@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V15.4.0 (2019-07)
+-- 3GPP TS 38.413 V15.5.0 (2019-09)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -27,7 +27,9 @@ IMPORTS
 	id-CommonNetworkInstance,
 	id-DataForwardingNotPossible,
 	id-DL-NGU-UP-TNLInformation,
+	id-EndpointIPAddressAndPort,
 	id-LastEUTRAN-PLMNIdentity,
+	id-LocationReportingAdditionalInfo,
 	id-MaximumIntegrityProtectedDataRate-DL,
 	id-NetworkInstance,
 	id-OldAssociatedQosFlowList-ULendmarkerexpected,
@@ -43,6 +45,7 @@ IMPORTS
 	id-SecurityIndication,
 	id-SecurityResult,
 	id-S-NSSAI,
+	id-TNLAssociationTransportLayerAddressNGRAN,
 	id-UL-NGU-UP-TNLInformation,
 	id-UL-NGU-UP-TNLModifyList,
 	id-ULForwarding,
@@ -205,6 +208,7 @@ AMF-TNLAssociationToRemoveItem ::= SEQUENCE {
 }
 
 AMF-TNLAssociationToRemoveItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	{ID id-TNLAssociationTransportLayerAddressNGRAN	CRITICALITY reject	EXTENSION CPTransportLayerInformation	PRESENCE optional},
 	...
 }
 
@@ -736,6 +740,7 @@ CPTransportLayerInformation ::= CHOICE {
 }
 
 CPTransportLayerInformation-ExtIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-EndpointIPAddressAndPort		CRITICALITY reject	TYPE EndpointIPAddressAndPort		PRESENCE mandatory},
 	...
 }
 
@@ -1008,6 +1013,16 @@ EmergencyServiceTargetCN ::= ENUMERATED {
 }
 
 EN-DCSONConfigurationTransfer ::= OCTET STRING
+
+EndpointIPAddressAndPort ::=SEQUENCE {
+	endpointIPAddress TransportLayerAddress,
+	portNumber			PortNumber,
+	iE-Extensions					ProtocolExtensionContainer { { EndpointIPAddressAndPort-ExtIEs} } OPTIONAL
+}
+
+EndpointIPAddressAndPort-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 EquivalentPLMNs ::= SEQUENCE (SIZE(1..maxnoofEPLMNs)) OF PLMNIdentity
 
@@ -1414,6 +1429,11 @@ LastVisitedNGRANCellInformation-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 
 LastVisitedUTRANCellInformation ::= OCTET STRING
 
+LocationReportingAdditionalInfo ::= ENUMERATED {
+	includePSCell,
+	...
+}
+
 LocationReportingReferenceID ::= INTEGER (1..64, ...)
 
 LocationReportingRequestType ::= SEQUENCE {
@@ -1427,6 +1447,7 @@ LocationReportingRequestType ::= SEQUENCE {
 }
 
 LocationReportingRequestType-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-LocationReportingAdditionalInfo	CRITICALITY ignore	EXTENSION LocationReportingAdditionalInfo		PRESENCE optional },
 	...
 }
 
@@ -1515,6 +1536,18 @@ NGRAN-CGI ::= CHOICE {
 }
 
 NGRAN-CGI-ExtIEs NGAP-PROTOCOL-IES ::= {
+	...
+}
+
+NGRAN-TNLAssociationToRemoveList ::= SEQUENCE (SIZE(1..maxnoofTNLAssociations)) OF NGRAN-TNLAssociationToRemoveItem
+
+NGRAN-TNLAssociationToRemoveItem::= SEQUENCE {
+	tNLAssociationTransportLayerAddress		CPTransportLayerInformation,
+	tNLAssociationTransportLayerAddressAMF		CPTransportLayerInformation		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { NGRAN-TNLAssociationToRemoveItem-ExtIEs} } OPTIONAL
+}
+
+NGRAN-TNLAssociationToRemoveItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -2931,6 +2964,28 @@ SourceRANNodeID-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 SourceToTarget-TransparentContainer ::= OCTET STRING
 -- This IE includes a transparent container from the source RAN node to the target RAN node. 
 -- The octets of the OCTET STRING are encoded according to the specifications of the target system.
+
+SourceToTarget-AMFInformationReroute ::= SEQUENCE {
+configuredNSSAI						ConfiguredNSSAI													OPTIONAL,
+rejectedNSSAIinPLMN					RejectedNSSAIinPLMN												OPTIONAL,
+rejectedNSSAIinTA						RejectedNSSAIinTA													OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {SourceToTarget-AMFInformationReroute-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SourceToTarget-AMFInformationReroute-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- This IE includes information from the source Core node to the target Core node for reroute information provide by NSSF. 
+-- The octets of the OCTET STRING are encoded according to the specifications of the Core network.
+
+
+ConfiguredNSSAI  ::=  OCTET STRING (SIZE(128))
+
+RejectedNSSAIinPLMN ::= OCTET STRING (SIZE(32))
+
+RejectedNSSAIinTA ::= OCTET STRING (SIZE(32))
 
 SST ::= OCTET STRING (SIZE(1))
 
