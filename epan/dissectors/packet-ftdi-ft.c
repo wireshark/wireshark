@@ -1120,6 +1120,9 @@ proto_reg_handoff_ftdi_ft(void)
     dissector_add_uint("usb.product", (0x0403 << 16) | 0x6014, ftdi_ft_handle);
     dissector_add_uint("usb.product", (0x0403 << 16) | 0x6015, ftdi_ft_handle);
 
+    /* Devices that use FTDI FT converter with changed Vendor ID */
+    dissector_add_uint("usb.product", (0x1d50 << 16) | 0x607c, ftdi_ft_handle); /* OpenVizsla USB sniffer/analyzer */
+
     dissector_add_for_decode_as("usb.device", ftdi_ft_handle);
 }
 
