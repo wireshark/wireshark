@@ -4535,6 +4535,23 @@ real_main(int argc, char *argv[])
 
     cmdarg_err_init(dumpcap_cmdarg_err, dumpcap_cmdarg_err_cont);
 
+#ifdef _WIN32
+    create_app_running_mutex();
+
+    /*
+     * Initialize our DLL search path. MUST be called before LoadLibrary
+     * or g_module_open.
+     */
+    ws_init_dll_search_path();
+
+    /* Load wpcap if possible. Do this before collecting the run-time version information */
+    load_wpcap();
+
+    /* ... and also load the packet.dll from wpcap */
+    /* XXX - currently not required, may change later. */
+    /*wpcap_packet_load();*/
+#endif
+
     /* Get the compile-time version information string */
     comp_info_str = get_compiled_version_info(NULL, get_dumpcap_compiled_info);
 
@@ -4550,16 +4567,6 @@ real_main(int argc, char *argv[])
         get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
     g_string_free(comp_info_str, TRUE);
     g_string_free(runtime_info_str, TRUE);
-
-#ifdef _WIN32
-    create_app_running_mutex();
-
-    /*
-     * Initialize our DLL search path. MUST be called before LoadLibrary
-     * or g_module_open.
-     */
-    ws_init_dll_search_path();
-#endif
 
 #ifdef HAVE_BPF_IMAGE
 #define OPTSTRING_d "d"
@@ -4689,13 +4696,6 @@ real_main(int argc, char *argv[])
 #endif
 
 #ifdef _WIN32
-    /* Load wpcap if possible. Do this before collecting the run-time version information */
-    load_wpcap();
-
-    /* ... and also load the packet.dll from wpcap */
-    /* XXX - currently not required, may change later. */
-    /*wpcap_packet_load();*/
-
     /* Start windows sockets */
     result = WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
     if (result != 0)
