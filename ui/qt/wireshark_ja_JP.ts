@@ -9818,7 +9818,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Can save audio with PCM u-law or A-law encoding only</source>
-        <translation type="unfinished"></translation>
+        <translation>PCM u-law か A-law エンコーディングのみ保存できます</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
