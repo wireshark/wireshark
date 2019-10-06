@@ -4731,10 +4731,6 @@ main(int argc, char *argv[])
 
     cmdarg_err_init(dumpcap_cmdarg_err, dumpcap_cmdarg_err_cont);
 
-    /* Initialize the version information. */
-    ws_init_version_info("Dumpcap (Wireshark)", NULL, get_dumpcap_compiled_info,
-                         get_dumpcap_runtime_info);
-
 #ifdef _WIN32
     create_app_running_mutex();
 
@@ -4743,7 +4739,18 @@ main(int argc, char *argv[])
      * or g_module_open.
      */
     ws_init_dll_search_path();
+
+    /* Load wpcap if possible. Do this before collecting the run-time version information */
+    load_wpcap();
+
+    /* ... and also load the packet.dll from wpcap */
+    /* XXX - currently not required, may change later. */
+    /*wpcap_packet_load();*/
 #endif
+
+    /* Initialize the version information. */
+    ws_init_version_info("Dumpcap (Wireshark)", NULL, get_dumpcap_compiled_info,
+                         get_dumpcap_runtime_info);
 
 #ifdef HAVE_BPF_IMAGE
 #define OPTSTRING_d "d"
@@ -4871,13 +4878,6 @@ main(int argc, char *argv[])
     global_ld.saved_idbs = g_array_new(FALSE, TRUE, sizeof(saved_idb_t));
 
 #ifdef _WIN32
-    /* Load wpcap if possible. Do this before collecting the run-time version information */
-    load_wpcap();
-
-    /* ... and also load the packet.dll from wpcap */
-    /* XXX - currently not required, may change later. */
-    /*wpcap_packet_load();*/
-
     /* Start windows sockets */
     result = WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
     if (result != 0)
