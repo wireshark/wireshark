@@ -2942,11 +2942,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>macOS Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>macOS Extras</translation>
     </message>
     <message>
         <source>Extra macOS packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Pacchetti aggiuntivi di macOS</translation>
     </message>
     <message>
         <source>Name</source>
@@ -4362,11 +4362,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Interfaces not loaded (due to preference). Go to Capture </source>
-        <translation type="unfinished"></translation>
+        <translation>Interfacce non caricate (a causa delle preferenze). Vai in Cattura</translation>
     </message>
     <message>
         <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Non hai i permessi per catturare. Puoi &lt;a href=&quot;file://%1&quot;&gt;installare ChmodBPF per correggere&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>Start capture</source>
@@ -6665,6 +6665,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Flusso HTTP/2</translation>
     </message>
     <message>
+        <source>QUIC Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Time Sequence (tcptrace)</source>
         <translation>Sequenza temporale (tcptrace)</translation>
     </message>
@@ -8434,7 +8438,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>PacketListModel</name>
     <message>
         <source>Dissecting</source>
-        <translation>Decodifica</translation>
+        <translation type="vanished">Decodifica</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;</source>

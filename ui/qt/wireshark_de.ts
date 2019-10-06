@@ -2942,11 +2942,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>macOS Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>macOS Extras</translation>
     </message>
     <message>
         <source>Extra macOS packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Extra macOS Pakete</translation>
     </message>
     <message>
         <source>Name</source>
@@ -4362,11 +4362,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Interfaces not loaded (due to preference). Go to Capture </source>
-        <translation type="unfinished"></translation>
+        <translation>Schnittstellen (aufgrund der Einstellungen) nicht geladen. Gehe zu Mitschnitt</translation>
     </message>
     <message>
         <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie haben keine Berechtigung zum mitschneiden. Sie können &lt;a href=&quot;file://%1&quot;&gt;ChmodBPF installieren&lt;/a&gt; um dies zu beheben.</translation>
     </message>
     <message>
         <source>Start capture</source>
@@ -6665,6 +6665,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>HTTP/2 Stream</translation>
     </message>
     <message>
+        <source>QUIC Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Time Sequence (tcptrace)</source>
         <translation>Zeit / Sequenznummern (tcptrace)</translation>
     </message>
@@ -8434,7 +8438,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>PacketListModel</name>
     <message>
         <source>Dissecting</source>
-        <translation>Analysiere</translation>
+        <translation type="vanished">Analysiere</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;</source>

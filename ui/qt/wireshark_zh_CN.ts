@@ -6641,6 +6641,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>QUIC Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Time Sequence (tcptrace)</source>
         <translation>时间序列 (tcptrace)</translation>
     </message>
@@ -8407,7 +8411,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketListModel</name>
     <message>
         <source>Dissecting</source>
-        <translation>解析</translation>
+        <translation type="vanished">解析</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;</source>

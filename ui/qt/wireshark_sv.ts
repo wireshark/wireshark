@@ -6665,6 +6665,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>QUIC Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Time Sequence (tcptrace)</source>
         <translation>Tidssekvens (tcptrace)</translation>
     </message>
@@ -8434,7 +8438,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>PacketListModel</name>
     <message>
         <source>Dissecting</source>
-        <translation>Dissekerar</translation>
+        <translation type="vanished">Dissekerar</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;</source>

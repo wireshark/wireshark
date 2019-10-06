@@ -3308,7 +3308,7 @@ trendchip-dcp	3608/tcp/udp	# Trendchip control protocol
 cpdi-pidas-cm	3609/tcp/udp	# CPDI PIDAS Connection Mon
 echonet		3610/tcp/udp	# ECHONET
 six-degrees	3611/tcp/udp	# Six Degrees Port
-hp-dataprotect	3612/tcp/udp	# HP Data Protector
+dataprotector	3612/tcp/udp	# Micro Focus Data Protector
 alaris-disc	3613/tcp/udp	# Alaris Device Discovery
 sigma-port	3614/tcp/udp	# Satchwell Sigma
 start-network	3615/tcp/udp	# Start Messaging Network
@@ -4516,7 +4516,7 @@ sgi-esphttp	5554/tcp/udp	# SGI ESP HTTP
 personal-agent	5555/tcp/udp	# Personal Agent
 freeciv		5556/tcp/udp	# Freeciv gameplay
 farenet		5557/tcp	# Sandlab FARENET
-hpe-dp-bura	5565/tcp	# HPE Advanced BURA
+dp-bura		5565/tcp	# Data Protector BURA
 westec-connect	5566/tcp	# Westec Connect
 dof-dps-mc-sec	5567/tcp/udp	# DOF Protocol Stack Multicast/Secure Transport
 sdt		5568/tcp/udp	# Session Data Transport Multicast
@@ -5513,6 +5513,7 @@ sstp-2		9801/tcp/udp	# Sakura Script Transfer Protocol-2
 davsrcs		9802/tcp/udp	# WebDAV Source TLS/SSL
 sapv1		9875/tcp/udp	# Session Announcement v1
 sd		9876/tcp	# Session Director
+x510		9877/tcp	# The X.510 wrapper protocol
 kca-service	9878/udp	# The KX509 Kerberized Certificate Issuance Protocol in Use in 2012
 cyborg-systems	9888/tcp/udp	# CYBORG Systems
 gt-proxy	9889/tcp/udp	# Port for Cable network related data proxy or repeater
