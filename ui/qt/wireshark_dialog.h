@@ -39,6 +39,11 @@ public:
     // XXX Unlike the entire QWidget API, parent is mandatory here.
     explicit WiresharkDialog(QWidget &parent, CaptureFile &capture_file);
 
+protected:
+    virtual void keyPressEvent(QKeyEvent *event) { QDialog::keyPressEvent(event); }
+    virtual void accept();
+    virtual void reject();
+
     /**
      * @brief Mark the start of a code block that retaps packets. If the user
      * closes the dialog while tapping, the dialog will not be destroyed until
@@ -59,11 +64,6 @@ public:
      * accessed after tapping is finished.
      */
     virtual void endRetapPackets();
-
-protected:
-    virtual void keyPressEvent(QKeyEvent *event) { QDialog::keyPressEvent(event); }
-    virtual void accept();
-    virtual void reject();
 
     /**
      * @brief Set the window subtitle, e.g. "Foo Timeouts". The subtitle and
@@ -121,15 +121,12 @@ protected:
      * file_closed_.
      */
     virtual void captureFileClosing();
-    virtual void captureFileClosed();
 
 protected slots:
     void captureEvent(CaptureEvent);
 
 private:
-    void setWindowTitleFromSubtitle();
-
-    void tryDeleteLater();
+    void dialogCleanup(bool closeDialog = false);
 
     QString subtitle_;
     QList<void *> tap_listeners_;

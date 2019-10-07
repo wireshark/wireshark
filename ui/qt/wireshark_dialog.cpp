@@ -37,7 +37,7 @@ WiresharkDialog::WiresharkDialog(QWidget &parent, CaptureFile &capture_file) :
     dialog_closed_(false)
 {
     setWindowIcon(wsApp->normalIcon());
-    setWindowTitleFromSubtitle();
+    setWindowSubtitle(QString());
 
     connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
             this, SLOT(captureEvent(CaptureEvent)));
@@ -46,35 +46,20 @@ WiresharkDialog::WiresharkDialog(QWidget &parent, CaptureFile &capture_file) :
 void WiresharkDialog::accept()
 {
     QDialog::accept();
-
-    // Cancel any taps in progress?
-    // cap_file_.setCaptureStopFlag();
-    removeTapListeners();
-    dialog_closed_ = true;
-    tryDeleteLater();
+    dialogCleanup(true);
 }
 
 // XXX Should we do this in WiresharkDialog?
 void WiresharkDialog::reject()
 {
     QDialog::reject();
-
-    // Cancel any taps in progress?
-    // cap_file_.setCaptureStopFlag();
-    removeTapListeners();
-    dialog_closed_ = true;
-    tryDeleteLater();
+    dialogCleanup(true);
 }
-
 
 void WiresharkDialog::setWindowSubtitle(const QString &subtitle)
 {
     subtitle_ = subtitle;
-    setWindowTitleFromSubtitle();
-}
 
-void WiresharkDialog::setWindowTitleFromSubtitle()
-{
     QString title = wsApp->windowTitleString(QStringList() << subtitle_ << cap_file_.fileTitle());
     QDialog::setWindowTitle(title);
 }
@@ -90,8 +75,16 @@ void WiresharkDialog::setWindowTitleFromSubtitle()
 // effectively says "don't do that." However, we don't really have a choice
 // if we want to have a usable application that retaps packets.
 
-void WiresharkDialog::tryDeleteLater()
+void WiresharkDialog::dialogCleanup(bool closeDialog)
 {
+    if ( closeDialog )
+    {
+        // Cancel any taps in progress?
+        // cap_file_.setCaptureStopFlag();
+        removeTapListeners();
+        dialog_closed_ = true;
+    }
+
     if (retap_depth_ < 1 && dialog_closed_) {
         disconnect();
         deleteLater();
@@ -100,7 +93,7 @@ void WiresharkDialog::tryDeleteLater()
 
 void WiresharkDialog::updateWidgets()
 {
-    setWindowTitleFromSubtitle();
+    setWindowSubtitle(subtitle_);
 }
 
 bool WiresharkDialog::registerTapListener(const char *tap_name, void *tap_data, const char *filter, guint flags, void (*tap_reset)(void *), tap_packet_status (*tap_packet)(void *, struct _packet_info *, struct epan_dissect *, const void *), void (*tap_draw)(void *))
@@ -142,7 +135,8 @@ void WiresharkDialog::captureEvent(CaptureEvent e)
             captureFileClosing();
             break;
         case CaptureEvent::Closed:
-            captureFileClosed();
+            captureFileClosing();
+            file_closed_ = true;
             break;
         default:
             break;
@@ -162,7 +156,7 @@ void WiresharkDialog::beginRetapPackets()
 void WiresharkDialog::endRetapPackets()
 {
     retap_depth_--;
-    tryDeleteLater();
+    dialogCleanup();
 }
 
 void WiresharkDialog::removeTapListeners()
@@ -179,16 +173,6 @@ void WiresharkDialog::captureFileClosing()
 
     removeTapListeners();
     updateWidgets();
-}
-
-void WiresharkDialog::captureFileClosed()
-{
-    if (file_closed_)
-        return;
-
-    removeTapListeners();
-    updateWidgets();
-    file_closed_ = true;
 }
 
 /*
