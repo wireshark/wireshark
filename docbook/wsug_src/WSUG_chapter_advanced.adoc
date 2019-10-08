@@ -382,7 +382,7 @@ the following”:
 
 // tcp_analyze_seq_info->nextseq
 Next expected sequence number:: The last-seen sequence number plus
-segment length. Set when there are no analysis flags and and for zero
+segment length. Set when there are no analysis flags and for zero
 window probes. This is initially zero and calculated based on the
 previous packet in the same TCP flow. Note that this may not be the same
 as the tcp.nxtseq protocol field.

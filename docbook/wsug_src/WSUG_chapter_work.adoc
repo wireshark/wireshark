@@ -1017,7 +1017,7 @@ This toolbar can be opened by selecting menu:Go[Go to packet...] from
 the main menu. It appears between the main toolbar and the packet list,
 similar to the <<ChWorkFindPacketToolbar,”Find Packet” toolbar>>.
 
-When you enter a packet number and press press btn:[Go to packet]
+When you enter a packet number and press btn:[Go to packet]
 Wireshark will jump to that packet.
 
 ==== The “Go to Corresponding Packet” Command

@@ -266,7 +266,7 @@ further in <<ChIOExportSection>>).
 
 |menu:Export Packet Dissections...[]|kbd:[Ctrl+H]|
 These menu items allow you to export the currently selected bytes in the packet
-bytes pane to a text file file in a number of formats including plain, CSV,
+bytes pane to a text file in a number of formats including plain, CSV,
 and XML. It is discussed further in <<ChIOExportSelectedDialog>>.
 
 |menu:Export Objects[]           ||
@@ -765,7 +765,7 @@ preferences dialog.
 
 === The “Main” Toolbar
 
-The main toolbar provides provides quick access to frequently used items
+The main toolbar provides quick access to frequently used items
 from the menu. This toolbar cannot be customized by the user, but it can
 be hidden using the View menu if the space on the screen is needed to
 show more packet data.

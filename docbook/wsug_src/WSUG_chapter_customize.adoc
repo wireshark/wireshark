@@ -526,7 +526,7 @@ picker is shown. Select the color you desire for the selected packets and click
 btn:[OK].
 
 <<ChCustColorFilterMany>> shows an example of several color filters being used
-in Wireshark. Note that the frame detail shows that the “Bad TCP” rule rule
+in Wireshark. Note that the frame detail shows that the “Bad TCP” rule
 was applied, along with the matching filter.
 
 [[ChCustColorFilterMany]]
