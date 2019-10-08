@@ -104,6 +104,7 @@
 /**#define DEBUG_CHILD_DUMPCAP**/
 
 #ifdef _WIN32
+#include "wsutil/win32-utils.h"
 #ifdef DEBUG_DUMPCAP
 #include <conio.h>          /* _getch() */
 #endif
@@ -1588,7 +1589,6 @@ cap_pipe_open_live(char *pipename,
     struct sockaddr_un sa;
 #else /* _WIN32 */
     char    *pncopy, *pos;
-    wchar_t *err_str;
     guintptr extcap_pipe_handle;
 #endif
     gboolean extcap_pipe = FALSE;
