@@ -8,9 +8,8 @@
 
 === What is Wireshark?
 
-Wireshark is a network packet analyzer. A network packet analyzer will try to
-capture network packets and tries to display that packet data as detailed as
-possible.
+Wireshark is a network packet analyzer. A network packet analyzer
+presents captured packet data in as much detail as possible.
 
 You could think of a network packet analyzer as a measuring device for
 examining what’s happening inside a network cable, just like an electrician uses
