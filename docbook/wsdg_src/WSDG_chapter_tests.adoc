@@ -110,7 +110,7 @@ actually request fixture dependencies.
 
 Tests can be run via the `test/test.py` Python script. To run all tests,
 either run `test/test.py` in the directory that contains the Wireshark
-executables (`wireshark`, `tshark`, etc.), or pass the the executable
+executables (`wireshark`, `tshark`, etc.), or pass the executable
 path via the `-p` flag:
 
 [source,sh]
