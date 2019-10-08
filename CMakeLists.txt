@@ -1171,6 +1171,8 @@ endif()
 # Windows version updates
 ws_find_package(WINSPARKLE ENABLE_WINSPARKLE HAVE_SOFTWARE_UPDATE)
 
+find_package( Asciidoctor 1.5 )
+
 find_package(POD)
 
 find_package(DOXYGEN)
