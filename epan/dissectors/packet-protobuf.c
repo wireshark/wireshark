@@ -93,7 +93,15 @@ static int protobuf_wire_to_field_type[6][9] = {
 void proto_register_protobuf(void);
 void proto_reg_handoff_protobuf(void);
 
+#define PREFS_UPDATE_PROTOBUF_SEARCH_PATHS            1
+#define PREFS_UPDATE_PROTOBUF_UDP_MESSAGE_TYPES       2
+#define PREFS_UPDATE_ALL   (PREFS_UPDATE_PROTOBUF_SEARCH_PATHS | PREFS_UPDATE_PROTOBUF_UDP_MESSAGE_TYPES)
+
+static void protobuf_reinit(int target);
+
 static int proto_protobuf = -1;
+
+static gboolean protobuf_dissector_called = FALSE;
 
 /* information get from *.proto files */
 static int hf_protobuf_message_name = -1;
@@ -134,9 +142,10 @@ static int ett_protobuf_value = -1;
 static int ett_protobuf_packed_repeated = -1;
 
 /* preferences */
-gboolean try_dissect_as_string = FALSE;
-gboolean show_all_possible_field_types = FALSE;
-gboolean dissect_bytes_as_string = FALSE;
+static gboolean try_dissect_as_string = FALSE;
+static gboolean show_all_possible_field_types = FALSE;
+static gboolean dissect_bytes_as_string = FALSE;
+static gboolean show_details = FALSE;
 
 static dissector_handle_t protobuf_handle;
 
@@ -147,7 +156,6 @@ typedef struct {
     guint64 value;
 } protobuf_varint_tvb_info_t;
 
-/* preferences */
 static PbwDescriptorPool* pbw_pool = NULL;
 
 /* protobuf source files search paths */
@@ -276,7 +284,7 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
  * Return consumed bytes
  */
 static guint
-dissect_packed_repeated_field_values(proto_tree *value_tree, tvbuff_t *tvb, guint start, guint length, packet_info *pinfo,
+dissect_packed_repeated_field_values(tvbuff_t *tvb, guint start, guint length, packet_info *pinfo,
     proto_item *ti_field, int wire_type, int field_type, const gchar* prepend_text, const PbwFieldDescriptor* field_desc)
 {
     guint64 sub_value;
@@ -294,7 +302,7 @@ dissect_packed_repeated_field_values(proto_tree *value_tree, tvbuff_t *tvb, guin
 
     /* prepare subtree */
     proto_item_append_text(ti_field, "%s [", prepend_text);
-    proto_item *ti = proto_tree_add_item(value_tree, hf_protobuf_value_repeated, tvb, start, length, ENC_NA);
+    proto_item *ti = proto_tree_add_item(proto_item_get_subtree(ti_field), hf_protobuf_value_repeated, tvb, start, length, ENC_NA);
     proto_tree *subtree = proto_item_add_subtree(ti, ett_protobuf_packed_repeated);
 
     prepend_text = "";
@@ -545,7 +553,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
     guint64 value_uint64; /* uint64 value of numeric field (type of varint, 64-bit, 32-bit */
     guint value_length;
     guint value_length_size = 0; /* only Length-delimited field has it */
-    proto_item *ti_field, *ti_wire;
+    proto_item *ti_field, *ti_field_number, *ti_wire, *ti_value_length = NULL;
     proto_item *ti_value, *ti_field_name, *ti_field_type = NULL;
     proto_tree *field_tree;
     proto_tree *value_tree;
@@ -579,7 +587,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
         return FALSE;
     }
 
-    proto_tree_add_item_ret_uint64(field_tree, hf_protobuf_field_number, tvb, *offset, tag_length, ENC_LITTLE_ENDIAN|ENC_VARINT_PROTOBUF, &field_number);
+    ti_field_number = proto_tree_add_item_ret_uint64(field_tree, hf_protobuf_field_number, tvb, *offset, tag_length, ENC_LITTLE_ENDIAN|ENC_VARINT_PROTOBUF, &field_number);
     ti_wire = proto_tree_add_item_ret_uint(field_tree, hf_protobuf_wire_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN|ENC_VARINT_PROTOBUF, &wire_type);
     (*offset) += tag_length;
 
@@ -644,7 +652,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
             return FALSE;
         }
 
-        proto_tree_add_uint64(field_tree, hf_protobuf_value_length, tvb, *offset, value_length_size, value_uint64);
+        ti_value_length = proto_tree_add_uint64(field_tree, hf_protobuf_value_length, tvb, *offset, value_length_size, value_uint64);
         (*offset) += value_length_size;
 
         /* we believe the length of following value will not be bigger than guint */
@@ -670,7 +678,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
 
     if (field_desc) {
         if (is_packed_repeated) {
-            dissect_packed_repeated_field_values(value_tree, tvb, *offset, value_length, pinfo, ti_field,
+            dissect_packed_repeated_field_values(tvb, *offset, value_length, pinfo, ti_field,
                 wire_type, field_type, "", field_desc);
         } else {
             protobuf_dissect_field_value(value_tree, tvb, *offset, value_length, pinfo, ti_field, field_type, value_uint64, "", field_desc);
@@ -690,6 +698,17 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
 
             protobuf_try_dissect_field_value_on_multi_types(value_tree, tvb, *offset, value_length, pinfo,
                 ti_field, field_types, value_uint64, "");
+        }
+    }
+
+    if (field_desc && !show_details) {
+        proto_item_set_hidden(ti_field_number);
+        proto_item_set_hidden(ti_wire);
+        proto_item_set_hidden(ti_value_length);
+        proto_item_set_hidden(ti_field_name);
+        proto_item_set_hidden(ti_field_type);
+        if (field_type != PROTOBUF_TYPE_BYTES && field_type != PROTOBUF_TYPE_GROUP) {
+            proto_item_set_hidden(ti_value);
         }
     }
 
@@ -715,6 +734,9 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
     /* support filtering with message name */
     ti = proto_tree_add_string(message_tree, hf_protobuf_message_name, tvb, offset, length, message_name);
     proto_item_set_generated(ti);
+    if (!show_details) {
+        proto_item_set_hidden(ti);
+    }
 
     /* each time we dissec one protobuf field. */
     while (offset < max_offset)
@@ -754,6 +776,12 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     guint i;
     const PbwDescriptor* message_desc = NULL;
     const gchar* data_str = NULL;
+
+    /* initialize only the first time the protobuf dissector is called */
+    if (!protobuf_dissector_called) {
+        protobuf_dissector_called = TRUE;
+        protobuf_reinit(PREFS_UPDATE_ALL);
+    }
 
     /* may set col_set_str(pinfo->cinfo, COL_PROTOCOL, "PROTOBUF"); */
     col_append_str(pinfo->cinfo, COL_INFO, " (PROTOBUF)");
@@ -876,8 +904,52 @@ load_all_files_in_dir(PbwDescriptorPool* pool, const gchar* dir_path)
     return TRUE;
 }
 
-void
-protobuf_reinit(void)
+/* There might be a lot of errors to be found during parsing .proto files.
+   We buffer the errors first, and print them in one list finally. */
+static wmem_strbuf_t* err_msg_buf = NULL;
+#define MIN_ERR_STR_BUF_SIZE 512
+#define MAX_ERR_STR_BUF_SIZE 1024
+
+static void
+buffer_error(const gchar *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+
+    if (err_msg_buf == NULL)
+        err_msg_buf = wmem_strbuf_sized_new(wmem_epan_scope(), MIN_ERR_STR_BUF_SIZE, MAX_ERR_STR_BUF_SIZE);
+
+    wmem_strbuf_append_vprintf(err_msg_buf, fmt, ap);
+
+    va_end(ap);
+}
+
+static void
+flush_and_report_error(void)
+{
+    char* str;
+    if (err_msg_buf) {
+        str = wmem_strbuf_finalize(err_msg_buf);
+        err_msg_buf = NULL;
+        report_failure("Protobuf: Error(s):\n%s", str);
+        wmem_free(wmem_epan_scope(), str);
+    }
+}
+
+static void
+update_protobuf_search_paths(void)
+{
+    protobuf_reinit(PREFS_UPDATE_PROTOBUF_SEARCH_PATHS);
+}
+
+static void
+update_protobuf_udp_message_types(void)
+{
+    protobuf_reinit(PREFS_UPDATE_PROTOBUF_UDP_MESSAGE_TYPES);
+}
+
+static void
+protobuf_reinit(int target)
 {
     guint i;
     gchar **source_paths;
@@ -886,56 +958,71 @@ protobuf_reinit(void)
     const gchar* message_type;
     gboolean loading_completed = TRUE;
 
-    /* convert protobuf_search_path_t array to char* array. should release by g_free(). */
-    source_paths = g_new0(char *, num_protobuf_search_paths + 1);
+    if (target & PREFS_UPDATE_PROTOBUF_UDP_MESSAGE_TYPES) {
+        /* delete protobuf dissector from old udp ports */
+        for (it = old_udp_port_ranges; it; it = it->next) {
+            udp_port_range = (range_t*) it->data;
+            dissector_delete_uint_range("udp.port", udp_port_range, protobuf_handle);
+            wmem_free(NULL, udp_port_range);
+        }
 
-    for (i = 0; i < num_protobuf_search_paths; ++i) {
-        source_paths[i] = protobuf_search_paths[i].path;
-    }
+        if (old_udp_port_ranges) {
+            g_slist_free(old_udp_port_ranges);
+            old_udp_port_ranges = NULL;
+        }
 
-    /* init DescriptorPool of protobuf */
-    pbw_reinit_DescriptorPool(&pbw_pool, (const char**)source_paths, report_failure);
-
-    /* load all .proto files in the marked search paths, we can invoke FindMethodByName etc later. */
-    for (i = 0; i < num_protobuf_search_paths; ++i) {
-        if (protobuf_search_paths[i].load_all) {
-            if (!load_all_files_in_dir(pbw_pool, protobuf_search_paths[i].path)) {
-                report_failure("Protobuf: Loading .proto files action stopped!");
-                loading_completed = FALSE;
-                break; /* stop loading when error occurs */
+        /* add protobuf dissector to new udp ports */
+        for (i = 0; i < num_protobuf_udp_message_types; ++i) {
+            udp_port_range = protobuf_udp_message_types[i].udp_port_range;
+            if (udp_port_range) {
+                udp_port_range = range_copy(NULL, udp_port_range);
+                old_udp_port_ranges = g_slist_append(old_udp_port_ranges, udp_port_range);
+                dissector_add_uint_range("udp.port", udp_port_range, protobuf_handle);
             }
         }
     }
 
-    g_free(source_paths);
-
-    /* delete protobuf dissector from old udp ports */
-    for (it = old_udp_port_ranges; it; it = it->next) {
-        udp_port_range = (range_t*) it->data;
-        dissector_delete_uint_range("udp.port", udp_port_range, protobuf_handle);
-        wmem_free(NULL, udp_port_range);
+    /* loading .proto files and checking message types of UDP port will be done only after dissector is called */
+    if (!protobuf_dissector_called) {
+        return;
     }
 
-    if (old_udp_port_ranges) {
-        g_slist_free(old_udp_port_ranges);
-        old_udp_port_ranges = NULL;
-    }
+    if (target & PREFS_UPDATE_PROTOBUF_SEARCH_PATHS) {
+        /* convert protobuf_search_path_t array to char* array. should release by g_free(). */
+        source_paths = g_new0(char *, num_protobuf_search_paths + 1);
 
-    /* add protobuf dissector to new udp ports */
-    for (i = 0; i < num_protobuf_udp_message_types; ++i) {
-        udp_port_range = protobuf_udp_message_types[i].udp_port_range;
-        if (udp_port_range) {
-            udp_port_range = range_copy(NULL, udp_port_range);
-            old_udp_port_ranges = g_slist_append(old_udp_port_ranges, udp_port_range);
-            dissector_add_uint_range("udp.port", udp_port_range, protobuf_handle);
+        for (i = 0; i < num_protobuf_search_paths; ++i) {
+            source_paths[i] = protobuf_search_paths[i].path;
         }
 
+        /* init DescriptorPool of protobuf */
+        pbw_reinit_DescriptorPool(&pbw_pool, (const char**)source_paths, buffer_error);
+
+        /* load all .proto files in the marked search paths, we can invoke FindMethodByName etc later. */
+        for (i = 0; i < num_protobuf_search_paths; ++i) {
+            if (protobuf_search_paths[i].load_all) {
+                if (!load_all_files_in_dir(pbw_pool, protobuf_search_paths[i].path)) {
+                    buffer_error("Protobuf: Loading .proto files action stopped!\n");
+                    loading_completed = FALSE;
+                    break; /* stop loading when error occurs */
+                }
+            }
+        }
+
+        g_free(source_paths);
+    }
+
+    /* check if the message types of UDP port exist */
+    for (i = 0; i < num_protobuf_udp_message_types; ++i) {
         message_type = protobuf_udp_message_types[i].message_type;
         if (loading_completed && message_type && strlen(message_type) > 0
             && pbw_DescriptorPool_FindMessageTypeByName(pbw_pool, message_type) == NULL) {
-            report_failure("Protobuf: the message type \"%s\" of UDP Message Type preferences does not exist!", message_type);
+            buffer_error("Protobuf: the message type \"%s\" of UDP Message Type preferences does not exist!\n", message_type);
         }
     }
+
+    /* report error if encountered */
+    flush_and_report_error();
 }
 
 void
@@ -1086,7 +1173,7 @@ proto_register_protobuf(void)
     proto_register_field_array(proto_protobuf, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    protobuf_module = prefs_register_protocol(proto_protobuf, protobuf_reinit);
+    protobuf_module = prefs_register_protocol(proto_protobuf, NULL);
 
     protobuf_search_paths_uat = uat_new("Protobuf Search Paths",
         sizeof(protobuf_search_path_t),
@@ -1099,7 +1186,7 @@ proto_register_protobuf(void)
         protobuf_search_paths_copy_cb,
         NULL,
         protobuf_search_paths_free_cb,
-        protobuf_reinit,
+        update_protobuf_search_paths,
         NULL,
         protobuf_search_paths_table_columns
     );
@@ -1107,6 +1194,13 @@ proto_register_protobuf(void)
     prefs_register_uat_preference(protobuf_module, "search_paths", "Protobuf search paths",
         "Specify the directories where .proto files are recursively loaded from, or in which to search for imports.",
         protobuf_search_paths_uat);
+
+    prefs_register_bool_preference(protobuf_module, "show_details",
+        "Show details of message, fields and enums.",
+        "Show the names of message, field, enum and enum_value."
+        " Show the wire type and field number format of field."
+        " Show value nodes of field and enum_value.",
+        &show_details);
 
     prefs_register_bool_preference(protobuf_module, "bytes_as_string",
         "Show all fields of bytes type as string.",
@@ -1124,7 +1218,7 @@ proto_register_protobuf(void)
         protobuf_udp_message_types_copy_cb,
         protobuf_udp_message_types_update_cb,
         protobuf_udp_message_types_free_cb,
-        protobuf_reinit,
+        update_protobuf_udp_message_types,
         NULL,
         protobuf_udp_message_types_table_columns
     );
@@ -1157,8 +1251,6 @@ proto_reg_handoff_protobuf(void)
 {
     dissector_add_string("grpc_message_type", "application/grpc", protobuf_handle);
     dissector_add_string("grpc_message_type", "application/grpc+proto", protobuf_handle);
-
-    protobuf_reinit();
 }
 
 /*

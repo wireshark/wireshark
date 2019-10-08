@@ -176,13 +176,13 @@ to                     yylval->sval = strdup_and_store(yyscanner, yytext); retur
 \'(\\.|\'\'|[^"\n"])*\'     yylval->sval = g_strndup(yytext + 1, strlen(yytext) - 2); return PT_STRLIT;
 
     /* comments */
-"//".*\n
+"//"[^\r\n]*
 "/*"                   { old_status = YY_START; BEGIN COMMENT; }
 <COMMENT>"*/"          { BEGIN old_status; }
 <COMMENT>([^*]|\n)+|.
 
     /* space & tab */
-[ \t\n]
+[ \t\r\n]
     /* prevent flex jam */
 .           { protobuf_langerrorv(yyscanner, protobuf_langget_extra(yyscanner), "unexpected token in proto file!\n"); }
 

@@ -606,7 +606,7 @@ int run_pbl_parser(pbl_descriptor_pool_t* pool, gboolean debug)
         status = protobuf_langparse(scanner, &state);
         fclose(fp);
         if (status != 0) {
-            protobuf_langerrorv(NULL, &state, "Parsing grammers failed!\n");
+            /* grammar errors should have been reported during parsing */
             pbl_clear_state(&state);
             return status;
         }

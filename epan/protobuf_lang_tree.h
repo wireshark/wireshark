@@ -1,6 +1,6 @@
 /* protobuf_lang_tree.h
  *
- * Routines of building and reading Protocol Buffers Language grammer tree.
+ * Routines of building and reading Protocol Buffers Language grammar tree.
  * Copyright 2019, Huang Qiangxiong <qiangxiong.huang@qq.com>
  *
  * Wireshark - Network traffic analyzer
