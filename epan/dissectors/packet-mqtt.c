@@ -514,6 +514,7 @@ static int hf_mqtt_will_topic_len = -1;
 static int hf_mqtt_will_topic = -1;
 static int hf_mqtt_will_msg_len = -1;
 static int hf_mqtt_will_msg = -1;
+static int hf_mqtt_will_msg_text = -1;
 static int hf_mqtt_username_len = -1;
 static int hf_mqtt_username = -1;
 static int hf_mqtt_passwd_len = -1;
@@ -1031,7 +1032,14 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         proto_tree_add_item_ret_uint(mqtt_tree, hf_mqtt_will_msg_len, tvb, offset, 2, ENC_BIG_ENDIAN, &mqtt_str_len);
         offset += 2;
 
-        proto_tree_add_item(mqtt_tree, hf_mqtt_will_msg, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA);
+        if (show_msg_as_text)
+        {
+          proto_tree_add_item(mqtt_tree, hf_mqtt_will_msg_text, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA);
+        }
+        else
+        {
+          proto_tree_add_item(mqtt_tree, hf_mqtt_will_msg, tvb, offset, mqtt_str_len, ENC_NA);
+        }
         offset += mqtt_str_len;
       }
 
@@ -1413,6 +1421,10 @@ void proto_register_mqtt(void)
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_mqtt_will_msg,
+      { "Will Message", "mqtt.willmsg",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mqtt_will_msg_text,
       { "Will Message", "mqtt.willmsg",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
