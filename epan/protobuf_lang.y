@@ -515,9 +515,9 @@ protobuf_langerror(void* yyscanner, protobuf_lang_state_t *state, const char *ms
     lineno = yyscanner ? protobuf_langget_lineno(yyscanner) : -1;
 
     if (lineno > -1) {
-        error_cb("Protobuf: Parsing file [%s:%d] faield: %s\n", filepath, lineno, msg);
+        error_cb("Protobuf: Parsing file [%s:%d] failed: %s\n", filepath, lineno, msg);
     } else {
-        error_cb("Protobuf: Parsing file [%s] faield: %s\n", filepath, msg);
+        error_cb("Protobuf: Parsing file [%s] failed: %s\n", filepath, msg);
     }
 }
 
