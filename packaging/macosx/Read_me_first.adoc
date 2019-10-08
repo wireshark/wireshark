@@ -2,7 +2,7 @@
 // include-dir
 // min-macos-version
 
-include::{include-dir}/attributes.adoc[]
+include::{include-dir}/attributes.asciidoc[]
 :stylesheet: {include-dir}/ws.css
 
 = Before You Begin
