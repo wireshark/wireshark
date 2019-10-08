@@ -176,8 +176,8 @@ ZLIB_VERSION=1.2.11
 #
 # Asciidoctor is required to build the documentation.
 #
-ASCIIDOCTOR_VERSION=${ASCIIDOCTOR_VERSION-1.5.7.1}
-ASCIIDOCTORPDF_VERSION=${ASCIIDOCTORPDF_VERSION-1.5.0.alpha.16}
+ASCIIDOCTOR_VERSION=${ASCIIDOCTOR_VERSION-2.0.10}
+ASCIIDOCTORPDF_VERSION=${ASCIIDOCTORPDF_VERSION-1.5.0.beta.5}
 
 #
 # GNU autotools; they're provided with releases up to Snow Leopard, but
