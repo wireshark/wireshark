@@ -19081,6 +19081,8 @@ proto_register_netflow(void)
 
     proto_netflow = proto_register_protocol("Cisco NetFlow/IPFIX", "CFLOW", "cflow");
 
+    register_dissector("cflow", dissect_netflow, proto_netflow);
+
     proto_register_field_array(proto_netflow, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_netflow = expert_register_protocol(proto_netflow);
