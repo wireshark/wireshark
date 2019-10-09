@@ -791,7 +791,7 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 			guint8 *decrypted_buffer = (guint8*)wmem_alloc0(pinfo->pool, padded_length);
 			guint8 *encrypted_buffer = (guint8*)wmem_alloc0(pinfo->pool, padded_length);
 			memcpy(encrypted_buffer, tvb_get_ptr(tvb, current_offset, frmpayload_length), frmpayload_length);
-			if (decrypt_lorawan_frame_payload(encrypted_buffer, padded_length, decrypted_buffer, encryption_keys->appskey->data, 0, dev_address, fcnt)) {
+			if (decrypt_lorawan_frame_payload(encrypted_buffer, padded_length, decrypted_buffer, encryption_keys->appskey->data, !uplink, dev_address, fcnt)) {
 				tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_buffer,frmpayload_length, frmpayload_length);
 				add_new_data_source(pinfo, next_tvb, "Decrypted payload");
 				frame_payload_decrypted_tree = proto_item_add_subtree(ti, ett_lorawan_frame_payload_decrypted);
