@@ -160,6 +160,10 @@ pbl_find_node_in_pool(const pbl_descriptor_pool_t* pool, const char* full_name, 
         return NULL;
     }
 
+    if (full_name[0] == '.') {
+        full_name++; /* skip leading dot */
+    }
+
     full_name_buf = g_strdup(full_name);
     len = (int)strlen(full_name_buf);
     /* scan from end to begin, and replace '.' to '\0' */
@@ -246,6 +250,15 @@ pbl_find_node_in_context(const pbl_node_t* context, const char* name, pbl_node_t
         return NULL;
     }
 
+    if (name[0] == '.') {
+        /* A leading '.' (for example, .foo.bar.Baz) means to start from the outermost scope. */
+        if (context->file && context->file->pool) {
+            return pbl_find_node_in_pool(context->file->pool, name, nodetype);
+        } else {
+            return NULL;
+        }
+    }
+
     /* try find node in context first */
     if (context->children_by_name) {
         node = (pbl_node_t*) g_hash_table_lookup(context->children_by_name, name);
@@ -262,7 +275,7 @@ pbl_find_node_in_context(const pbl_node_t* context, const char* name, pbl_node_t
         }
     }
     /* find pool */
-    if (context && context->file) {
+    if (context->file) {
         pool = context->file->pool;
     }
 
