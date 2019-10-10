@@ -1908,6 +1908,26 @@ static const value_string nas_5gs_mm_sal_t_li_values[] = {
     { 0x03, "All TAIs belonging to the PLMN are in the allowed area" },
     { 0, NULL } };
 
+static const value_string nas_5gs_mm_sal_num_e_vals[] = {
+    { 0x00, "1" },
+    { 0x01, "2" },
+    { 0x02, "3" },
+    { 0x03, "4" },
+    { 0x04, "4" },
+    { 0x05, "6" },
+    { 0x06, "7" },
+    { 0x07, "8" },
+    { 0x08, "9" },
+    { 0x09, "10" },
+    { 0x0a, "11" },
+    { 0x0b, "12" },
+    { 0x0c, "13" },
+    { 0x0d, "14" },
+    { 0x0e, "15" },
+    { 0x0f, "16" },
+    { 0, NULL } };
+
+
 
 static guint16
 de_nas_5gs_mm_sal(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
@@ -7043,7 +7063,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_sal_num_e,
         { "Number of elements",   "nas_5gs.mm.sal_num_e",
-            FT_UINT8, BASE_DEC, NULL, 0x1f,
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_sal_num_e_vals), 0x1f,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_pdu_session_type,
