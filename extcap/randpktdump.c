@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
 		g_free(err_msg);
 	}
 
-	help_url = help_file_url("randpktdump.html");
+	help_url = data_file_url("randpktdump.html");
 	extcap_base_set_util_info(extcap_conf, argv[0], RANDPKTDUMP_VERSION_MAJOR, RANDPKTDUMP_VERSION_MINOR,
 		RANDPKTDUMP_VERSION_RELEASE, help_url);
 	g_free(help_url);

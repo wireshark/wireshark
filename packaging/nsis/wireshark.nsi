@@ -497,11 +497,11 @@ File "${STAGING_DIR}\wka"
 File "${STAGING_DIR}\services"
 File "${STAGING_DIR}\pdml2html.xsl"
 File "${STAGING_DIR}\ws.css"
-File "${STAGING_DIR}\doc\wireshark.html"
-File "${STAGING_DIR}\doc\wireshark-filter.html"
+File "${STAGING_DIR}\wireshark.html"
+File "${STAGING_DIR}\wireshark-filter.html"
 File "${STAGING_DIR}\dumpcap.exe"
-File "${STAGING_DIR}\doc\dumpcap.html"
-File "${STAGING_DIR}\doc\extcap.html"
+File "${STAGING_DIR}\dumpcap.html"
+File "${STAGING_DIR}\extcap.html"
 File "${STAGING_DIR}\ipmap.html"
 
 ; C-runtime redistributable
@@ -974,7 +974,7 @@ Section "TShark" SecTShark
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\tshark.exe"
-File "${STAGING_DIR}\doc\tshark.html"
+File "${STAGING_DIR}\tshark.html"
 SectionEnd
 
 SectionGroup "Plugins & Extensions" SecPluginsGroup
@@ -1064,63 +1064,63 @@ Section "Editcap" SecEditcap
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\editcap.exe"
-File "${STAGING_DIR}\doc\editcap.html"
+File "${STAGING_DIR}\editcap.html"
 SectionEnd
 
 Section "Text2Pcap" SecText2Pcap
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\text2pcap.exe"
-File "${STAGING_DIR}\doc\text2pcap.html"
+File "${STAGING_DIR}\text2pcap.html"
 SectionEnd
 
 Section "Mergecap" SecMergecap
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\mergecap.exe"
-File "${STAGING_DIR}\doc\mergecap.html"
+File "${STAGING_DIR}\mergecap.html"
 SectionEnd
 
 Section "Reordercap" SecReordercap
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\reordercap.exe"
-File "${STAGING_DIR}\doc\reordercap.html"
+File "${STAGING_DIR}\reordercap.html"
 SectionEnd
 
 Section "DFTest" SecDFTest
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\dftest.exe"
-File "${STAGING_DIR}\doc\dftest.html"
+File "${STAGING_DIR}\dftest.html"
 SectionEnd
 
 Section "Capinfos" SecCapinfos
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\capinfos.exe"
-File "${STAGING_DIR}\doc\capinfos.html"
+File "${STAGING_DIR}\capinfos.html"
 SectionEnd
 
 Section "Rawshark" SecRawshark
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\rawshark.exe"
-File "${STAGING_DIR}\doc\rawshark.html"
+File "${STAGING_DIR}\rawshark.html"
 SectionEnd
 
 Section /o "Randpkt" SecRandpkt
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\randpkt.exe"
-File "${STAGING_DIR}\doc\randpkt.html"
+File "${STAGING_DIR}\randpkt.html"
 SectionEnd
 
 !ifdef MMDBRESOLVE_EXE
 Section "MMDBResolve" SecMMDBResolve
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "${STAGING_DIR}\doc\mmdbresolve.html"
+File "${STAGING_DIR}\mmdbresolve.html"
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\mmdbresolve.exe"
 SectionEnd
@@ -1129,7 +1129,7 @@ SectionEnd
 Section /o "Androiddump" SecAndroiddumpinfos
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "${STAGING_DIR}\doc\androiddump.html"
+File "${STAGING_DIR}\androiddump.html"
 SetOutPath $INSTDIR\extcap
 File "${STAGING_DIR}\extcap\androiddump.exe"
 SectionEnd
@@ -1137,8 +1137,8 @@ SectionEnd
 Section /o "SSHdump" SecSSHdumpinfos
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "${STAGING_DIR}\doc\sshdump.html"
-File "${STAGING_DIR}\doc\ciscodump.html"
+File "${STAGING_DIR}\sshdump.html"
+File "${STAGING_DIR}\ciscodump.html"
 SetOutPath $INSTDIR\extcap
 File "${STAGING_DIR}\extcap\sshdump.exe"
 File "${STAGING_DIR}\extcap\ciscodump.exe"
@@ -1147,7 +1147,7 @@ SectionEnd
 Section /o "UDPdump" SecUDPdumpinfos
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "${STAGING_DIR}\doc\udpdump.html"
+File "${STAGING_DIR}\udpdump.html"
 SetOutPath $INSTDIR\extcap
 File "${STAGING_DIR}\extcap\udpdump.exe"
 SectionEnd
@@ -1155,7 +1155,7 @@ SectionEnd
 Section /o "Randpktdump" SecRandpktdumpinfos
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "${STAGING_DIR}\doc\randpktdump.html"
+File "${STAGING_DIR}\randpktdump.html"
 SetOutPath $INSTDIR\extcap
 File "${STAGING_DIR}\extcap\randpktdump.exe"
 SectionEnd

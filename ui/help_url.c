@@ -130,34 +130,34 @@ topic_action_url(topic_action_e action)
     switch(action) {
     /* local manual pages */
     case(LOCALPAGE_MAN_WIRESHARK):
-        url = help_file_url("wireshark.html");
+        url = data_file_url("wireshark.html");
         break;
     case(LOCALPAGE_MAN_WIRESHARK_FILTER):
-        url = help_file_url("wireshark-filter.html");
+        url = data_file_url("wireshark-filter.html");
         break;
     case(LOCALPAGE_MAN_CAPINFOS):
-        url = help_file_url("capinfos.html");
+        url = data_file_url("capinfos.html");
         break;
     case(LOCALPAGE_MAN_DUMPCAP):
-        url = help_file_url("dumpcap.html");
+        url = data_file_url("dumpcap.html");
         break;
     case(LOCALPAGE_MAN_EDITCAP):
-        url = help_file_url("editcap.html");
+        url = data_file_url("editcap.html");
         break;
     case(LOCALPAGE_MAN_MERGECAP):
-        url = help_file_url("mergecap.html");
+        url = data_file_url("mergecap.html");
         break;
     case(LOCALPAGE_MAN_RAWSHARK):
-        url = help_file_url("rawshark.html");
+        url = data_file_url("rawshark.html");
         break;
     case(LOCALPAGE_MAN_REORDERCAP):
-        url = help_file_url("reordercap.html");
+        url = data_file_url("reordercap.html");
         break;
     case(LOCALPAGE_MAN_TEXT2PCAP):
-        url = help_file_url("text2pcap.html");
+        url = data_file_url("text2pcap.html");
         break;
     case(LOCALPAGE_MAN_TSHARK):
-        url = help_file_url("tshark.html");
+        url = data_file_url("tshark.html");
         break;
 
     /* local help pages (User's Guide) */
@@ -228,7 +228,7 @@ topic_action_url(topic_action_e action)
         url = user_guide_url("ChAdvExpert.html");
         break;
     case(HELP_EXTCAP_OPTIONS_DIALOG):
-        url = help_file_url("extcap.html");
+        url = data_file_url("extcap.html");
         break;
     case(HELP_STATS_SUMMARY_DIALOG):
         url = user_guide_url("ChStatSummary.html");

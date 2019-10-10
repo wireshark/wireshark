@@ -58,19 +58,19 @@
           <File Id="filWs_css" KeyPath="yes" Source="$(var.Staging.Dir)\ws.css" />
         </Component>
         <Component Id="cmpWireshark_html" Guid="*">
-          <File Id="filWireshark_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\wireshark.html" />
+          <File Id="filWireshark_html" KeyPath="yes" Source="$(var.Staging.Dir)\wireshark.html" />
         </Component>
         <Component Id="cmpWireshark_filter_html" Guid="*">
-          <File Id="filWireshark_filter_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\wireshark-filter.html" />
+          <File Id="filWireshark_filter_html" KeyPath="yes" Source="$(var.Staging.Dir)\wireshark-filter.html" />
         </Component>
         <Component Id="cmpDumpcap_exe" Guid="*">
           <File Id="filDumpcap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\dumpcap.exe" />
         </Component>
         <Component Id="cmpDumpcap_html" Guid="*">
-          <File Id="filDumpcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\dumpcap.html" />
+          <File Id="filDumpcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\dumpcap.html" />
         </Component>
         <Component Id="cmpExtcap_html" Guid="*">
-          <File Id="filExtcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\extcap.html" />
+          <File Id="filExtcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\extcap.html" />
         </Component>
         <Component Id="cmpIpmap_html" Guid="*">
           <File Id="filIpmap_html" KeyPath="yes" Source="$(var.Staging.Dir)\ipmap.html" />
@@ -228,7 +228,7 @@
                 <File Id="filTShark_exe" KeyPath="yes" Source="$(var.Staging.Dir)\tshark.exe" />
             </Component>
             <Component Id="cmpTShark_html" Guid="*">
-                <File Id="filTShark_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\tshark.html" />
+                <File Id="filTShark_html" KeyPath="yes" Source="$(var.Staging.Dir)\tshark.html" />
             </Component>
         </DirectoryRef>
     </Fragment>
@@ -274,7 +274,7 @@
               <File Id="filEditcap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\editcap.exe" />
           </Component>
           <Component Id="cmpEditcap_html" Guid="*">
-              <File Id="filEditcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\editcap.html" />
+              <File Id="filEditcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\editcap.html" />
           </Component>
       </DirectoryRef>
   </Fragment>
@@ -292,7 +292,7 @@
         <File Id="filText2pcap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\text2pcap.exe" />
       </Component>
       <Component Id="cmpText2pcap_html" Guid="*">
-        <File Id="filText2pcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\text2pcap.html" />
+        <File Id="filText2pcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\text2pcap.html" />
       </Component>
     </DirectoryRef>
   </Fragment>
@@ -310,7 +310,7 @@
         <File Id="filMergecap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\mergecap.exe" />
       </Component>
       <Component Id="cmpMergecap_html" Guid="*">
-        <File Id="filMergecap_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\mergecap.html" />
+        <File Id="filMergecap_html" KeyPath="yes" Source="$(var.Staging.Dir)\mergecap.html" />
       </Component>
     </DirectoryRef>
   </Fragment>
@@ -328,7 +328,7 @@
         <File Id="filReordercap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\reordercap.exe" />
       </Component>
       <Component Id="cmpReordercap_html" Guid="*">
-        <File Id="filReordercap_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\reordercap.html" />
+        <File Id="filReordercap_html" KeyPath="yes" Source="$(var.Staging.Dir)\reordercap.html" />
       </Component>
     </DirectoryRef>
   </Fragment>
@@ -346,7 +346,7 @@
         <File Id="filDFTest_exe" KeyPath="yes" Source="$(var.Staging.Dir)\dftest.exe" />
       </Component>
       <Component Id="cmpDFTest_html" Guid="*">
-        <File Id="filDFTest_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\dftest.html" />
+        <File Id="filDFTest_html" KeyPath="yes" Source="$(var.Staging.Dir)\dftest.html" />
       </Component>
     </DirectoryRef>
   </Fragment>
@@ -364,7 +364,7 @@
         <File Id="filCapinfos_exe" KeyPath="yes" Source="$(var.Staging.Dir)\capinfos.exe" />
       </Component>
       <Component Id="cmpCapinfos_html" Guid="*">
-        <File Id="filCapinfos_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\capinfos.html" />
+        <File Id="filCapinfos_html" KeyPath="yes" Source="$(var.Staging.Dir)\capinfos.html" />
       </Component>
     </DirectoryRef>
   </Fragment>
@@ -382,7 +382,7 @@
         <File Id="filRawshark_exe" KeyPath="yes" Source="$(var.Staging.Dir)\rawshark.exe" />
       </Component>
       <Component Id="cmpRawshark_html" Guid="*">
-        <File Id="filRawshark_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\rawshark.html" />
+        <File Id="filRawshark_html" KeyPath="yes" Source="$(var.Staging.Dir)\rawshark.html" />
       </Component>
     </DirectoryRef>
   </Fragment>
@@ -400,7 +400,7 @@
         <File Id="filRandpkt_exe" KeyPath="yes" Source="$(var.Staging.Dir)\randpkt.exe" />
       </Component>
       <Component Id="cmpRandpkt_html" Guid="*">
-        <File Id="filRandpkt_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\randpkt.html" />
+        <File Id="filRandpkt_html" KeyPath="yes" Source="$(var.Staging.Dir)\randpkt.html" />
       </Component>
     </DirectoryRef>
   </Fragment>
@@ -419,7 +419,7 @@
         <File Id="filMmdbresolve_exe" KeyPath="yes" Source="$(var.Staging.Dir)\mmdbresolve.exe" />
       </Component>
       <Component Id="cmpMmdbresolve_html" Guid="*">
-        <File Id="filMmdbresolve_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\mmdbresolve.html" />
+        <File Id="filMmdbresolve_html" KeyPath="yes" Source="$(var.Staging.Dir)\mmdbresolve.html" />
       </Component>
     </DirectoryRef>
   </Fragment>
@@ -440,7 +440,7 @@
     </DirectoryRef>
     <DirectoryRef Id="INSTALLFOLDER">
       <Component Id="cmpAndroiddump_html" Guid="*">
-        <File Id="filAndroiddump_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\androiddump.html" />
+        <File Id="filAndroiddump_html" KeyPath="yes" Source="$(var.Staging.Dir)\androiddump.html" />
       </Component>
     </DirectoryRef>
   </Fragment>
@@ -460,7 +460,7 @@
     </DirectoryRef>
     <DirectoryRef Id="INSTALLFOLDER">
       <Component Id="cmpRandpktdump_html" Guid="*">
-        <File Id="filRandpktdump_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\randpktdump.html" />
+        <File Id="filRandpktdump_html" KeyPath="yes" Source="$(var.Staging.Dir)\randpktdump.html" />
       </Component>
     </DirectoryRef>
   </Fragment>
@@ -480,7 +480,7 @@
     </DirectoryRef>
     <DirectoryRef Id="INSTALLFOLDER">
       <Component Id="cmpSshdump_html" Guid="*">
-        <File Id="filSshdump_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\sshdump.html" />
+        <File Id="filSshdump_html" KeyPath="yes" Source="$(var.Staging.Dir)\sshdump.html" />
       </Component>
     </DirectoryRef>
   </Fragment>
@@ -500,7 +500,7 @@
     </DirectoryRef>
     <DirectoryRef Id="INSTALLFOLDER">
       <Component Id="cmpCiscodump_html" Guid="*">
-        <File Id="filCiscodump_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\Ciscodump.html" />
+        <File Id="filCiscodump_html" KeyPath="yes" Source="$(var.Staging.Dir)\Ciscodump.html" />
       </Component>
     </DirectoryRef>
   </Fragment>
@@ -520,7 +520,7 @@
     </DirectoryRef>
     <DirectoryRef Id="INSTALLFOLDER">
       <Component Id="cmpUdpdump_html" Guid="*">
-        <File Id="filUdpdump_html" KeyPath="yes" Source="$(var.Staging.Dir)\doc\Udpdump.html" />
+        <File Id="filUdpdump_html" KeyPath="yes" Source="$(var.Staging.Dir)\Udpdump.html" />
       </Component>
     </DirectoryRef>
   </Fragment>

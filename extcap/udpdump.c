@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
 		g_free(err_msg);
 	}
 
-	help_url = help_file_url("udpdump.html");
+	help_url = data_file_url("udpdump.html");
 	extcap_base_set_util_info(extcap_conf, argv[0], UDPDUMP_VERSION_MAJOR, UDPDUMP_VERSION_MINOR, UDPDUMP_VERSION_RELEASE,
 		help_url);
 	g_free(help_url);

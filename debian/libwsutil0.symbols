@@ -56,7 +56,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  crypt_des_ecb@Base 2.3.0
  crypto_scalarmult_curve25519@Base 2.9.0
  crypto_scalarmult_curve25519_base@Base 2.9.0
- help_file_url@Base 3.1.1
+ data_file_url@Base 2.3.0
  decrypt_xtea_ecb@Base 2.5.0
  decrypt_xtea_le_ecb@Base 2.5.0
  delete_persconffile_profile@Base 1.12.0~rc1
@@ -79,7 +79,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_datafile_dir@Base 1.12.0~rc1
  get_datafile_path@Base 1.12.0~rc1
  get_dirname@Base 1.12.0~rc1
- get_docfile_dir@Base 3.1.1
  get_extcap_dir@Base 1.99.0
  get_global_profiles_dir@Base 1.12.0~rc1
  get_os_version_info@Base 1.99.0
