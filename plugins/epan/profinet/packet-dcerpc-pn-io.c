@@ -1627,7 +1627,7 @@ static const value_string pn_io_index[] = {
     /*0xF843 - 0xF84F reserved */
     { 0xF850, "AutoConfigurarion" },
     { 0xF880, "AssetManagementData" },
-    /*0xF851 - 0xFBFF reserved */
+    /*0xF851 - 0xFBFF reserved except 0xF880*/
     /*0xFC00 - 0xFFFF reserved for profiles */
     { 0, NULL }
 };
@@ -13380,7 +13380,7 @@ proto_register_pn_io (void)
     { &hf_pn_io_mrp_lnknrmax,
       { "MRP_LNKNRmax", "pn_io.mrp_lnknrmax",
         FT_UINT16, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }
+        "number of iterations", HFILL }
     },
     { &hf_pn_io_mrp_version,
       { "MRP_Version", "pn_io.mrp_version",

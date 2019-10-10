@@ -153,10 +153,9 @@ static const value_string pn_dcp_block_error[] = {
     { 0, NULL }
 };
 
-static const value_string pn_dcp_block_info[] = {
-    { 0x0000, "Reserved" },
-    /*0x0001 - 0xffff reserved */
-    { 0, NULL }
+static const range_string pn_dcp_block_info[] = {
+    { 0x0000, 0xFFFF, "Reserved" },
+    { 0, 0, NULL }
 };
 
 static const value_string pn_dcp_block_qualifier[] = {
@@ -197,33 +196,22 @@ static const value_string pn_dcp_BlockQualifier[] = {
 #define PNDCP_OPTION_CONTROL            0x05
 #define PNDCP_OPTION_DEVICEINITIATIVE   0x06
 #define PNDCP_OPTION_MANUF_X80          0x80
-#define PNDCP_OPTION_MANUF_X81          0x81
-#define PNDCP_OPTION_MANUF_X82          0x82
-#define PNDCP_OPTION_MANUF_X83          0x83
-#define PNDCP_OPTION_MANUF_X84          0x84
-#define PNDCP_OPTION_MANUF_X85          0x85
-#define PNDCP_OPTION_MANUF_X86          0x86
-#define PNDCP_OPTION_ALLSELECTOR        0xff
+#define PNDCP_OPTION_MANUF_XFE          0xFE
+#define PNDCP_OPTION_ALLSELECTOR        0xFF
 
-static const value_string pn_dcp_option[] = {
-    { 0x00, "reserved" },
-    { PNDCP_OPTION_IP,                  "IP" },
-    { PNDCP_OPTION_DEVICE,              "Device properties" },
-    { PNDCP_OPTION_DHCP,                "DHCP" },
-    { PNDCP_OPTION_RESERVED,            "Reserved" },
-    { PNDCP_OPTION_CONTROL,             "Control" },
-    { PNDCP_OPTION_DEVICEINITIATIVE,    "Device Initiative" },
-    /*0x07 - 0x7f reserved */
-    /*0x80 - 0xfe manufacturer specific */
-    { PNDCP_OPTION_MANUF_X80,           "Manufacturer specific" },
-    { PNDCP_OPTION_MANUF_X81,           "Manufacturer specific" },
-    { PNDCP_OPTION_MANUF_X82,           "Manufacturer specific" },
-    { PNDCP_OPTION_MANUF_X83,           "Manufacturer specific" },
-    { PNDCP_OPTION_MANUF_X84,           "Manufacturer specific" },
-    { PNDCP_OPTION_MANUF_X85,           "Manufacturer specific" },
-    { PNDCP_OPTION_MANUF_X86,           "Manufacturer specific" },
-    { PNDCP_OPTION_ALLSELECTOR,         "All Selector" },
-    { 0, NULL }
+static const range_string pn_dcp_option[] = {
+    { 0x00, 0x00, "Reserved" },
+    { PNDCP_OPTION_IP              , PNDCP_OPTION_IP              , "IP" },
+    { PNDCP_OPTION_DEVICE          , PNDCP_OPTION_DEVICE          , "Device properties" },
+    { PNDCP_OPTION_DHCP            , PNDCP_OPTION_DHCP            , "DHCP" },
+    { PNDCP_OPTION_RESERVED        , PNDCP_OPTION_RESERVED        , "Reserved" },
+    { PNDCP_OPTION_CONTROL         , PNDCP_OPTION_CONTROL         , "Control" },
+    { PNDCP_OPTION_DEVICEINITIATIVE, PNDCP_OPTION_DEVICEINITIATIVE, "Device Initiative" },
+    /*0x07 - 0x7F reserved */
+    /*0x80 - 0xFE manufacturer specific */
+    { PNDCP_OPTION_MANUF_X80  , PNDCP_OPTION_MANUF_XFE  , "Manufacturer specific" },
+    { PNDCP_OPTION_ALLSELECTOR, PNDCP_OPTION_ALLSELECTOR, "All Selector" },
+    { 0, 0, NULL }
 };
 
 #define PNDCP_SUBOPTION_IP_MAC  0x01
@@ -399,7 +387,7 @@ dissect_PNDCP_Option(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     proto_item_append_text(block_item, ", Status from %s - %s",
-        val_to_str(option, pn_dcp_option, "Unknown"), val_to_str(suboption, val_str, "Unknown"));
+        rval_to_str(option, pn_dcp_option, "Unknown"), val_to_str(suboption, val_str, "Unknown"));
 
     if (append_col) {
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(suboption, val_str, "Unknown"));
@@ -460,7 +448,7 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         if (have_block_info) {
             proto_item_append_text(block_item, ", BlockInfo: %s",
-                val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+                rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
         }
 
         offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_mac_address, mac);
@@ -539,7 +527,7 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         if (have_block_info) {
             proto_item_append_text(block_item, ", BlockInfo: %s",
-                val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+                rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
         }
 
         /* IPAddress */
@@ -657,7 +645,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         if (have_block_info){
             proto_item_append_text(block_item, ", BlockInfo: %s",
-                                   val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+                                   rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
         }
         proto_item_append_text(block_item, ", DeviceVendorValue: \"%s\"", typeofstation);
 
@@ -714,7 +702,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         if (have_block_info) {
             proto_item_append_text(block_item, ", BlockInfo: %s",
-                                   val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+                                   rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
         }
         proto_item_append_text(block_item, ", \"%s\"", nameofstation);
 
@@ -784,7 +772,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         if (have_block_info) {
             proto_item_append_text(block_item, ", BlockInfo: %s",
-                                   val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+                                   rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
         }
         proto_item_append_text(block_item, ", VendorID: 0x%04x / DeviceID: 0x%04x", vendor_id, device_id);
         break;
@@ -798,7 +786,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                    val_to_str(block_qualifier, pn_dcp_block_qualifier, "Unknown"));
         }
         if (have_block_info)
-            proto_item_append_text(block_item, ", BlockInfo: %s", val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+            proto_item_append_text(block_item, ", BlockInfo: %s", rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
         if (device_role & 0x01)
             proto_item_append_text(block_item, ", IO-Device");
         if (device_role & 0x02)
@@ -818,7 +806,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         if (have_block_info) {
             proto_item_append_text(block_item, ", BlockInfo: %s",
-                                   val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+                                   rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
         }
         proto_item_append_text(block_item, ", %u options", block_length/2);
         for( ; block_length != 0; block_length -= 2) {
@@ -862,7 +850,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         if (have_block_info) {
             proto_item_append_text(block_item, ", BlockInfo: %s",
-                                   val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+                                   rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
         }
         proto_item_append_text(block_item, ", \"%s\"", aliasname);
         offset += block_length;
@@ -878,7 +866,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         if (have_block_info) {
             proto_item_append_text(block_item, ", BlockInfo: %s",
-                                   val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+                                   rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
         }
         proto_item_append_text(block_item, ", InstanceHigh: %d, Instance Low: %d",
                                device_instance_high, device_instance_low);
@@ -894,7 +882,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         if(have_block_info) {
             proto_item_append_text(block_item, ", BlockInfo: %s",
-                                   val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+                                   rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
         }
         proto_item_append_text(block_item, ", OEMVendorID: 0x%04x / OEMDeviceID: 0x%04x", oem_vendor_id, oem_device_id);
         break;
@@ -952,7 +940,7 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         if (have_block_info) {
             proto_item_append_text(block_item, ", BlockInfo: %s",
-                                   val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+                                   rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
         }
         offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp_option_code, &option_code);
         offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp_parameter_length, &dhcpparameterlength);
@@ -993,7 +981,7 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         if (have_block_info) {
             proto_item_append_text(block_item, ", BlockInfo: %s",
-                val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+                rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
         }
         offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp_option_code, &option_code);
         offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp_parameter_length, &dhcpparameterlength);
@@ -1118,7 +1106,7 @@ dissect_PNDCP_Suboption_DeviceInitiative(tvbuff_t *tvb, int offset, packet_info 
         ((service_id == PNDCP_SERVICE_ID_GET)      &&  is_response)) {
         offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_info, &block_info);
         proto_item_append_text(block_item, ", BlockInfo: %s",
-                               val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+                               rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
         block_length -= 2;
     }
 
@@ -1201,29 +1189,38 @@ dissect_PNDCP_Block(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, block_tree, hf_pn_dcp_option, &option);
 
-    switch (option) {
-    case PNDCP_OPTION_IP:
+    if (option == PNDCP_OPTION_IP)
+    {
         offset = dissect_PNDCP_Suboption_IP(tvb, offset, pinfo, block_tree, block_item, dcp_item, service_id, is_response);
-        break;
-    case PNDCP_OPTION_DEVICE:
+    }
+    else if (option == PNDCP_OPTION_DEVICE)
+    {
         offset = dissect_PNDCP_Suboption_Device(tvb, offset, pinfo, block_tree, block_item, dcp_item, service_id, is_response);
-        break;
-    case PNDCP_OPTION_DHCP:
+    }
+    else if (option == PNDCP_OPTION_DHCP)
+    {
         offset = dissect_PNDCP_Suboption_DHCP(tvb, offset, pinfo, block_tree, block_item, dcp_item, service_id, is_response);
-        break;
-    case PNDCP_OPTION_CONTROL:
+    }
+    else if (option == PNDCP_OPTION_CONTROL)
+    {
         offset = dissect_PNDCP_Suboption_Control(tvb, offset, pinfo, block_tree, block_item, dcp_item, service_id, is_response);
-        break;
-    case PNDCP_OPTION_DEVICEINITIATIVE:
+    }
+    else if (option == PNDCP_OPTION_DEVICEINITIATIVE)
+    {
         offset = dissect_PNDCP_Suboption_DeviceInitiative(tvb, offset, pinfo, block_tree, block_item, dcp_item, service_id, is_response);
-        break;
-    case PNDCP_OPTION_ALLSELECTOR:
+    }
+    else if (option == PNDCP_OPTION_ALLSELECTOR)
+    {
         offset = dissect_PNDCP_Suboption_All(tvb, offset, pinfo, block_tree, block_item, dcp_item, service_id, is_response);
-        break;
-    case PNDCP_OPTION_MANUF_X80:
-    case PNDCP_OPTION_MANUF_X81:
-    default:
+    }
+    else if (PNDCP_OPTION_MANUF_X80 <= option && option <= PNDCP_OPTION_MANUF_XFE)
+    {
         offset = dissect_PNDCP_Suboption_Manuf(tvb, offset, pinfo, block_tree, block_item, dcp_item, service_id, is_response);
+    }
+    else
+    {
+        pn_append_info(pinfo, dcp_item, ", Reserved");
+        proto_item_append_text(block_item, "Reserved");
     }
 
     proto_item_set_len(block_item, offset-ori_offset);
@@ -1403,7 +1400,7 @@ proto_register_pn_dcp (void)
 
         { &hf_pn_dcp_option,
           { "Option", "pn_dcp.option",
-            FT_UINT8, BASE_DEC, VALS(pn_dcp_option), 0x0,
+            FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(pn_dcp_option), 0x0,
             NULL, HFILL }},
 
 #if 0
@@ -1425,7 +1422,7 @@ proto_register_pn_dcp (void)
 
         { &hf_pn_dcp_block_info,
           { "BlockInfo", "pn_dcp.block_info",
-            FT_UINT16, BASE_DEC, VALS(pn_dcp_block_info), 0x0,
+            FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(pn_dcp_block_info), 0x0,
             NULL, HFILL }},
 
         { &hf_pn_dcp_block_qualifier,
@@ -1565,7 +1562,7 @@ proto_register_pn_dcp (void)
 
         { &hf_pn_dcp_suboption_control_option,
           { "Option", "pn_dcp.suboption_control_option",
-            FT_UINT8, BASE_DEC, VALS(pn_dcp_option), 0x0,
+            FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(pn_dcp_option), 0x0,
             NULL, HFILL }},
 
         { &hf_pn_dcp_suboption_control_signal_value,
