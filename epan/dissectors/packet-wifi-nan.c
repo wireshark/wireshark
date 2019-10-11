@@ -59,6 +59,7 @@ static int proto_nan = -1;
 static expert_field ei_nan_elem_len_invalid = EI_INIT;
 static expert_field ei_nan_unknown_attr_id = EI_INIT;
 static expert_field ei_nan_unknown_op_class = EI_INIT;
+static expert_field ei_nan_unknown_beacon_type = EI_INIT;
 
 static gint ett_nan = -1;
 static gint ett_attributes = -1;
@@ -2416,13 +2417,18 @@ dissect_nan_beacon(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
     // Workaround to identify NAN Discovery vs Synchronization beacon frames.
     // Compares the BI=... digits in Info column populated by IEEE 802.11 dissector
     const gchar* info_text = col_get_text(pinfo->cinfo, COL_INFO);
-    if (g_str_has_suffix(info_text, "100"))
+    if (info_text != NULL && g_str_has_suffix(info_text, "100"))
     {
         col_prepend_fstr(pinfo->cinfo, COL_INFO, "Discovery ");
     }
-    else if (g_str_has_suffix(info_text, "512"))
+    else if (info_text != NULL && g_str_has_suffix(info_text, "512"))
     {
         col_prepend_fstr(pinfo->cinfo, COL_INFO, "Sync ");
+    }
+    else
+    {
+        expert_add_info(pinfo, tree, &ei_nan_unknown_beacon_type);
+        col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Unknown] ");
     }
 
     proto_item* ti = proto_tree_add_item(tree, proto_nan, tvb, 0, -1, ENC_NA);
@@ -4105,6 +4111,14 @@ proto_register_nan(void)
             "nan.expert.unknown_op_class",
             PI_PROTOCOL, PI_COMMENT,
             "Unknown Operating Class - Channel Set unavailable",
+            EXPFILL
+            }
+        },
+        { &ei_nan_unknown_beacon_type,
+            {
+            "nan.expert.unknown_beacon_type",
+            PI_PROTOCOL, PI_WARN,
+            "Unknown beacon type - Beacon type detection error",
             EXPFILL
             }
         },
