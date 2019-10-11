@@ -747,7 +747,6 @@ static const range_channel_set op_class_channel[] = {
     {181, 191, {-1}},
     {192, 254, {-2}},
     {255, 255, {-1}},
-    {0, 0, {0}}
 };
 
 static const range_string op_channel_spacing[] = {
@@ -1580,12 +1579,14 @@ dissect_attr_availability(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, gui
                 {
                     if (bitmap & (1u << i_bitmap))
                     {
-                        gint channel = rval_to_channel_set(op_class, op_class_channel)[i_bitmap];
-                        if (!channel)
+
+                        const gint *channel_set = rval_to_channel_set(op_class, op_class_channel);
+                        if (channel_set == NULL)
                         {
                             expert_add_info(pinfo, channel_tree, &ei_nan_unknown_op_class);
                             break;
                         }
+                        gint channel = channel_set[i_bitmap];
 
                         switch (channel)
                         {
