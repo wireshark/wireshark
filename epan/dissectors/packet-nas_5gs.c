@@ -8268,8 +8268,8 @@ proto_register_nas_5gs(void)
 
     prefs_register_bool_preference(nas_5GS_module,
         "null_decipher",
-        "Try to detect and decode EEA0 ciphered messages",
-        "This should work when the NAS ciphering algorithm is NULL (128-EEA0)",
+        "Try to detect and decode 5G-EA0 ciphered messages",
+        "This should work when the NAS ciphering algorithm is NULL (5G-EEA0)",
         &g_nas_5gs_null_decipher);
 
 
