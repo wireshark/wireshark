@@ -2779,6 +2779,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>SMI MIB/PIB 検索パス</translation>
     </message>
     <message>
+        <source>macOS Extras</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extra macOS packages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Name</source>
         <translation>名前</translation>
     </message>
@@ -4172,6 +4180,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>External capture interfaces disabled.</source>
         <translation>外部のキャプチャインターフェース無効化</translation>
+    </message>
+    <message>
+        <source>Interfaces not loaded (due to preference). Go to Capture </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

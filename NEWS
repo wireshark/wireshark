@@ -7,6 +7,9 @@ Wireshark 3.0.6 Release Notes
 
  What’s New
 
+    • On macOS, Wireshark can now be installed by dropping it onto the
+      Applications folder.
+
     • The macOS installer now ships with Qt 5.12.5. It previously
       shipped with Qt 5.12.3.
 
@@ -73,7 +76,7 @@ Wireshark 3.0.6 Release Notes
 
   A complete FAQ is available on the Wireshark web site[9].
 
-  Last updated 2019-10-06 08:22:14 UTC
+  Last updated 2019-10-13 08:22:28 UTC
 
  References
 
