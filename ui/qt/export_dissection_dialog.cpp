@@ -142,6 +142,7 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
     // Grow the dialog to account for the extra widgets.
     resize(width(), height() + (packet_range_group_box_.height() * 2 / 3));
 
+    connect(this, SIGNAL(accepted()), this, SLOT(dialogAccepted()));
 #else // Q_OS_WIN
 #endif // Q_OS_WIN
 }
@@ -154,16 +155,21 @@ ExportDissectionDialog::~ExportDissectionDialog()
 #endif
 }
 
-int ExportDissectionDialog::exec()
+void ExportDissectionDialog::show()
 {
 #if !defined(Q_OS_WIN)
-    int retval;
+    if (cap_file_) {
+        QFileDialog::show();
+    }
+#else // Q_OS_WIN
+    win32_export_file((HWND)parentWidget()->effectiveWinId(), cap_file_, export_type_);
+#endif // Q_OS_WIN
+}
 
-    if (!cap_file_) return QDialog::Rejected;
-
-    retval = QFileDialog::exec();
-
-    if (retval ==  QDialog::Accepted && selectedFiles().length() > 0) {
+#ifndef Q_OS_WIN
+void ExportDissectionDialog::dialogAccepted()
+{
+    if (selectedFiles().length() > 0) {
         cf_print_status_t status;
         QString file_name = selectedFiles()[0];
 
@@ -196,7 +202,7 @@ int ExportDissectionDialog::exec()
             print_args_.stream = print_stream_text_new(TRUE, print_args_.file);
             if (print_args_.stream == NULL) {
                 open_failure_alert_box(print_args_.file, errno, TRUE);
-                return QDialog::Rejected;
+                return;
             }
             status = cf_print_packets(cap_file_, &print_args_, TRUE);
             break;
@@ -216,7 +222,7 @@ int ExportDissectionDialog::exec()
             status = cf_write_json_packets(cap_file_, &print_args_);
             break;
         default:
-            return QDialog::Rejected;
+            return;
         }
 
         switch (status) {
@@ -237,15 +243,8 @@ int ExportDissectionDialog::exec()
             set_last_open_dir(dirname);
         }
     }
-
-    return retval;
-#else // Q_OS_WIN
-    win32_export_file((HWND)parentWidget()->effectiveWinId(), cap_file_, export_type_);
-    return QDialog::Accepted;
-#endif // Q_OS_WIN
 }
 
-#ifndef Q_OS_WIN
 void ExportDissectionDialog::exportTypeChanged(QString name_filter)
 {
     export_type_ = export_type_map_.value(name_filter);

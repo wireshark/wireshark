@@ -36,10 +36,11 @@ public:
     ~ExportDissectionDialog();
 
 public slots:
-    int exec();
+    void show();
 
 private slots:
 #ifndef Q_OS_WIN
+    void dialogAccepted();
     void exportTypeChanged(QString name_filter);
     void checkValidity();
     void on_buttonBox_helpRequested();
