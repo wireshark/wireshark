@@ -774,7 +774,7 @@ uninstall_glib() {
 
 install_qt() {
     if [ "$QT_VERSION" -a ! -f qt-$QT_VERSION-done ]; then
-        echo "Downloading, building, and installing Qt:"
+        echo "Downloading and installing Qt:"
         #
         # What you get for this URL might just be a 302 Found reply, so use
         # -L so we get redirected.
