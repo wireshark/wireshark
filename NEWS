@@ -21,9 +21,6 @@ Wireshark 3.1.1 Release Notes
      • You can once again mark and unmark packets using the middle mouse
        button. This feature went missing around 2009 or so.
 
-     • On macOS, Wireshark can now be installed by dropping it onto the
-       Applications folder.
-
    The following features are new (or have been significantly updated)
    since version 3.0.0:
 
@@ -68,6 +65,9 @@ Wireshark 3.1.1 Release Notes
      • The “Analyze → Apply as Filter” and “Analyze → Prepare a Filter”
        packet list and detail popup menus now show a preview of their
        respective filters.
+
+     • Protobuf files (*.proto) can now be configured to enable more
+       precise parsing of serialized Protobuf data (such as gRPC).
 
   New Protocol Support
 
@@ -134,7 +134,7 @@ Wireshark 3.1.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[10].
 
-  Last updated 2019-10-06 08:08:11 UTC
+  Last updated 2019-10-13 08:08:30 UTC
 
  References
 

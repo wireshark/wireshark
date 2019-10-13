@@ -6666,7 +6666,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>QUIC Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Flusso QUIC</translation>
     </message>
     <message>
         <source>Time Sequence (tcptrace)</source>
@@ -8436,10 +8436,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 </context>
 <context>
     <name>PacketListModel</name>
-    <message>
-        <source>Dissecting</source>
-        <translation type="vanished">Decodifica</translation>
-    </message>
     <message>
         <source>Sorting &quot;%1&quot;</source>
         <translation>Ordinamento di &quot;%1&quot;</translation>

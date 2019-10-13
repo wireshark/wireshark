@@ -8458,10 +8458,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>PacketListModel</name>
     <message>
-        <source>Dissecting</source>
-        <translation type="vanished">Анализ</translation>
-    </message>
-    <message>
         <source>Sorting &quot;%1&quot;</source>
         <translation>Сортировка &quot;%1&quot;</translation>
     </message>

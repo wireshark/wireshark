@@ -6666,7 +6666,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>QUIC Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>QUIC Stream</translation>
     </message>
     <message>
         <source>Time Sequence (tcptrace)</source>
@@ -8436,10 +8436,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 </context>
 <context>
     <name>PacketListModel</name>
-    <message>
-        <source>Dissecting</source>
-        <translation type="vanished">Analysiere</translation>
-    </message>
     <message>
         <source>Sorting &quot;%1&quot;</source>
         <translation>&quot;%1&quot; wird sortiert</translation>

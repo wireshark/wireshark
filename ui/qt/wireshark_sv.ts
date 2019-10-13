@@ -8437,10 +8437,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
 <context>
     <name>PacketListModel</name>
     <message>
-        <source>Dissecting</source>
-        <translation type="vanished">Dissekerar</translation>
-    </message>
-    <message>
         <source>Sorting &quot;%1&quot;</source>
         <translation>Sorterar ”%1”</translation>
     </message>
