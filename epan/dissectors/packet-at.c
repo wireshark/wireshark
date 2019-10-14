@@ -114,6 +114,7 @@ static int hf_gmm_model_id                                                 = -1;
 static int hf_gmr_revision_id                                              = -1;
 static int hf_zpas_network                                                 = -1;
 static int hf_zpas_srv_domain                                              = -1;
+static int hf_zusim_usim_card                                              = -1;
 static int hf_indicator[20] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 static expert_field ei_unknown_command                                = EI_INIT;
@@ -470,6 +471,12 @@ static const value_string csq_rssi_vals[] = {
     {   0, NULL }
 };
 
+static const value_string zusim_usim_card_vals[] = {
+    { 0,   "SIM" },
+    { 1,   "USIM" },
+    { 0, NULL }
+};
+
 extern value_string_ext csd_data_rate_vals_ext;
 
 typedef struct _at_cmd_t {
@@ -722,6 +729,13 @@ static gboolean check_vts(gint role, guint16 type) {
 
 static gboolean check_zpas(gint role, guint16 type) {
     if (role == ROLE_DTE && type == TYPE_READ) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
+static gboolean check_zusim(gint role, guint16 type) {
+    if (role == ROLE_DTE && type == TYPE_TEST) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
     return FALSE;
@@ -1654,6 +1668,25 @@ dissect_zpas_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static gboolean
+dissect_zusim_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    guint32      value;
+
+    if (!(role == ROLE_DCE && type == TYPE_RESPONSE)) {
+        return FALSE;
+    }
+
+    if (parameter_number > 0) return FALSE;
+
+    value = get_uint_parameter(parameter_stream, parameter_length);
+    proto_tree_add_uint(tree, hf_zusim_usim_card, tvb, offset, parameter_length, value);
+
+    return TRUE;
+}
+
+static gboolean
 dissect_no_parameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
         gint offset _U_, gint role _U_, guint16 type _U_, guint8 *parameter_stream _U_,
         guint parameter_number _U_, gint parameter_length _U_, void **data _U_)
@@ -1699,6 +1732,7 @@ static const at_cmd_t at_cmds[] = {
     { "+GSN",       "Request Product Serial Number Identification (ESN/IMEI)", check_gsn,  dissect_no_parameter },
     { "+VTS",       "DTMF and tone generation",                                check_vts,  dissect_vts_parameter },
     { "+ZPAS",      "Check Card Status",                                       check_zpas, dissect_zpas_parameter },
+    { "+ZUSIM",     "Check USIM Card Type",                                    check_zusim, dissect_zusim_parameter },
     { "ERROR",      "ERROR",                                                   check_only_dce_role, dissect_no_parameter },
     { "RING",       "Incoming Call Indication",                                check_only_dce_role, dissect_no_parameter },
     { "OK",         "OK",                                                      check_only_dce_role, dissect_no_parameter },
@@ -2579,6 +2613,12 @@ proto_register_at_command(void)
            { "Service domain",                    "at.zpas.srv_domain",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
+        },
+        { &hf_zusim_usim_card,
+           { "USIM card type",                    "at.zusim.usim_card",
+           FT_UINT8, BASE_DEC, VALS(zusim_usim_card_vals), 0,
+           "The type of the current (U)SIM card",
+           HFILL}
         },
         { &hf_indicator[0],
            { "Indicator 1",                      "at.indicator.1",
