@@ -7593,7 +7593,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_sm_eps_bearer_id,
         { "EPS bearer identity",   "nas_5gs.sm.eps_bearer_id",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_qfi,
