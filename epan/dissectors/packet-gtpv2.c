@@ -4675,6 +4675,11 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         proto_tree_add_expert_format(sc_tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, ue_nr_sec_cap_len, "The rest of the IE not dissected yet");
         offset += ue_nr_sec_cap_len;
     }
+
+    if (offset == (gint)length) {
+        return;
+    }
+
     /* (y+1) to (y+2) Length of APN Rate Control Statuses */
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_mm_context_apn_rte_ctrl_sts_len, tvb, offset, 1, ENC_BIG_ENDIAN, &apn_rte_ctrl_sts_len);
     offset += 1;
@@ -4684,6 +4689,9 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         proto_tree_add_expert_format(sc_tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, apn_rte_ctrl_sts_len, "The rest of the IE not dissected yet");
         offset += apn_rte_ctrl_sts_len;
     }
+
+    /* (l+1) 	Length of Core Network Restrictions */
+    /* (l+2) to (l+5)	Core Network Restrictions */
     if (offset < (gint)length){
         proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length - offset, "The rest of the IE not dissected yet");
     }
