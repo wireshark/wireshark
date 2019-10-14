@@ -333,7 +333,6 @@ struct _protocol {
 
 /* List of all protocols */
 static GList *protocols = NULL;
-static GList *pino_protocols = NULL;
 
 /* Deregistered fields */
 static GPtrArray *deregistered_fields = NULL;
@@ -559,22 +558,17 @@ proto_cleanup_base(void)
 		DISSECTOR_ASSERT(protocol->proto_id == hfinfo->id);
 
 		g_slice_free(header_field_info, hfinfo);
-		if (protocol->fields) {
-			g_ptr_array_free(protocol->fields, TRUE);
+		if (protocol->parent_proto_id != -1) {
+			// pino protocol
+			DISSECTOR_ASSERT(protocol->fields == NULL); //helpers should not have any registered fields
+			DISSECTOR_ASSERT(protocol->heur_list == NULL); //helpers should not have a heuristic list
+		} else {
+			if (protocol->fields) {
+				g_ptr_array_free(protocol->fields, TRUE);
+			}
+			g_list_free(protocol->heur_list);
 		}
-		g_list_free(protocol->heur_list);
 		protocols = g_list_remove(protocols, protocol);
-		g_free(protocol);
-	}
-
-	while (pino_protocols) {
-		protocol = (protocol_t *)pino_protocols->data;
-		PROTO_REGISTRAR_GET_NTH(protocol->proto_id, hfinfo);
-		DISSECTOR_ASSERT(protocol->proto_id == hfinfo->id);
-		DISSECTOR_ASSERT(protocol->fields == NULL); //helpers should not have any registered fields
-		g_slice_free(header_field_info, hfinfo);
-		DISSECTOR_ASSERT(protocol->heur_list == NULL); //helpers should not have a heuristic list
-		pino_protocols = g_list_remove(pino_protocols, protocol);
 		g_free(protocol);
 	}
 
@@ -6793,7 +6787,7 @@ proto_register_protocol_in_name_only(const char *name, const char *short_name, c
 	protocol->heur_list = NULL;
 
 	/* List will be sorted later by name, when all protocols completed registering */
-	pino_protocols = g_list_prepend(pino_protocols, protocol);
+	protocols = g_list_prepend(protocols, protocol);
 
 	/* Here we allocate a new header_field_info struct */
 	hfinfo = g_slice_new(header_field_info);
