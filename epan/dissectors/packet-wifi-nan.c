@@ -2414,8 +2414,24 @@ dissect_nan_beacon(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NAN");
 
+    //
     // Workaround to identify NAN Discovery vs Synchronization beacon frames.
-    // Compares the BI=... digits in Info column populated by IEEE 802.11 dissector
+    //
+    // We have to determine the beacon interval, but there is, unfortunately,
+    // no mechanism by which a subdissector can request that an arbitrary
+    // field value be provided to it by the calling dissector, so we can't
+    // just ask for "wlan.fixed.beacon".
+    //
+    // Fortunaely, we are currently putting the Discovery vs. Sync information
+    // only in the Info column, and the beacon interval is put at the end
+    // of the Info column, as "BI={interval}", by the 802.11 dissector, so
+    // we can just fetch the Info column string and, if it's present, extract
+    // that value.
+    //
+    // An interval of 100, meaning .1024 seconds, means it's a Discovery
+    // beacon, and an interval of 512, meaning .524288 seconds, means
+    // it's a Sync beacon.
+    //
     const gchar* info_text = col_get_text(pinfo->cinfo, COL_INFO);
     if (info_text != NULL && g_str_has_suffix(info_text, "100"))
     {
