@@ -408,12 +408,12 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                             return 0;
                         }
 
-			/*
-			 * The address is not guaranteed to be aligned on a
-			 * 32-bit boundary, so we can't safely dereference
-			 * the pointer as if it were so aligned.
-			 */
-			memcpy(&addr_value, addr->data, sizeof addr_value);
+                        /*
+                         * The address is not guaranteed to be aligned on a
+                         * 32-bit boundary, so we can't safely dereference
+                         * the pointer as if it were so aligned.
+                         */
+                        memcpy(&addr_value, addr->data, sizeof addr_value);
                         item = proto_tree_add_ipv4(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,addr_value);
                     }
                     break;
