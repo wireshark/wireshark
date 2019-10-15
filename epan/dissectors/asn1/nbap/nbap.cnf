@@ -722,10 +722,20 @@ actx->pinfo->link_dir=P2P_DIR_UL;
   }
 
   subtree = proto_item_add_subtree(ti, ett_nbap_ib_sg_data);
+  col_set_fence(actx->pinfo->cinfo, COL_INFO);
+  col_append_str(actx->pinfo->cinfo, COL_INFO," (");
   switch(nbap_private_data->ib_type){
     case 0:
       /* mIB */
       dissect_rrc_MasterInformationBlock_PDU(final_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 1:
+      /* iB-Type: sB1 (1) */
+      dissect_rrc_SysInfoTypeSB1_PDU(final_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 2:
+      /* iB-Type: sB2 (2) */
+      dissect_rrc_SysInfoTypeSB2_PDU(final_tvb, actx->pinfo, subtree, NULL);
       break;
     case 3:
       /* iB-Type: sIB1 (3) */
@@ -826,6 +836,8 @@ actx->pinfo->link_dir=P2P_DIR_UL;
     default:
       break;
     }
+  col_append_str(actx->pinfo->cinfo, COL_INFO,")");
+  col_set_fence(actx->pinfo->cinfo, COL_INFO);
 
 #.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
