@@ -29,6 +29,7 @@ WSLUA_CLASS_DEFINE(ProtoField,FAIL_ON_NULL("null ProtoField"));
 static const wslua_ft_types_t ftenums[] = {
     {"ftypes.NONE", FT_NONE},
     {"ftypes.BOOLEAN", FT_BOOLEAN},
+    {"ftypes.CHAR", FT_CHAR},
     {"ftypes.UINT8", FT_UINT8},
     {"ftypes.UINT16", FT_UINT16},
     {"ftypes.UINT24", FT_UINT24},
@@ -403,7 +404,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
                                            appears in the tree). */
 #define WSLUA_ARG_ProtoField_new_ABBR 2 /* Filter name of the field (the string that
                                            is used in filters). */
-#define WSLUA_ARG_ProtoField_new_TYPE 3 /* Field Type: one of: `ftypes.BOOLEAN`, `ftypes.UINT8`,
+#define WSLUA_ARG_ProtoField_new_TYPE 3 /* Field Type: one of: `ftypes.BOOLEAN`, `ftypes.CHAR`, `ftypes.UINT8`,
         `ftypes.UINT16`, `ftypes.UINT24`, `ftypes.UINT32`, `ftypes.UINT64`, `ftypes.INT8`,
         `ftypes.INT16`, `ftypes.INT24`, `ftypes.INT32`, `ftypes.INT64`, `ftypes.FLOAT`,
         `ftypes.DOUBLE` , `ftypes.ABSOLUTE_TIME`, `ftypes.RELATIVE_TIME`, `ftypes.STRING`,
@@ -475,6 +476,14 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
         }
         break;
     case FT_CHAR:
+        if (nargs < WSLUA_OPTARG_ProtoField_new_BASE || lua_isnil(L, WSLUA_OPTARG_ProtoField_new_BASE)) {
+            base = BASE_OCT; /* Default base for characters (BASE_HEX instead?) */
+        }
+        if (base & BASE_UNIT_STRING) {
+            WSLUA_OPTARG_ERROR(ProtoField_new, BASE, "Character type can not use base.UNIT_STRING");
+            return 0;
+        }
+        /* FALLTHRU */
     case FT_UINT8:
     case FT_UINT16:
     case FT_UINT24:
@@ -485,17 +494,19 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     case FT_INT24:
     case FT_INT32:
     case FT_INT64:
-        if (type != FT_CHAR && base & BASE_UNIT_STRING) {
+        if (base & BASE_UNIT_STRING) {
             unit_string = TRUE;
             base &= ~BASE_UNIT_STRING;
         }
-        if (base == BASE_NONE) {
-            if (type == FT_CHAR)
-                base = BASE_OCT; /* default base for characters (BASE_HEX instead?) */
-            else
-                base = BASE_DEC;  /* Default base for integer */
+        if (type != FT_CHAR && base == BASE_NONE) {
+            base = BASE_DEC;  /* Default base for integer */
         }
-        if ((base != BASE_DEC) &&
+        if (type == FT_CHAR) {
+            if (base != BASE_NONE && base != BASE_HEX && base != BASE_OCT) {
+                luaL_argerror(L, 3, "Base must be either base.NONE, base.HEX or base.OCT");
+                return 0;
+            }
+        } else if ((base != BASE_DEC) &&
             (type == FT_INT8 || type == FT_INT16 || type == FT_INT24 || type == FT_INT32 || type == FT_INT64))
         {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be either base.DEC or base.UNIT_STRING");
@@ -513,6 +524,10 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
             } else {
                 vs32 = value_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING);
             }
+        }
+        if (type == FT_CHAR && base == BASE_NONE && vs32 == NULL) {
+            luaL_argerror(L, 3, "Base base.NONE must be used with a valuestring");
+            return 0;
         }
         break;
     case FT_BOOLEAN:
