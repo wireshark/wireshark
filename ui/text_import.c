@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  *
- * This utility reads in an ASCII hexdump of this common format:
+ * This code reads in an ASCII hexdump of this common format:
  *
  * 00000000  00 E0 1E A7 05 6F 00 10 5A A0 B9 12 08 00 46 00 .....o..Z.....F.
  * 00000010  03 68 00 00 00 00 0A 2E EE 33 0F 19 08 7F 0F 19 .h.......3......
@@ -30,11 +30,11 @@
  * - No text appears between the offset and the bytes (any bytes appearing after
  *   such text would be ignored)
  *
- * - The offset must be arithmetically correct, i.e. if the offset is 00000020, then
- *   exactly 32 bytes must have been read into this packet before this. If the offset
- *   is wrong, the packet is immediately terminated
+ * - The offset must be arithmetically correct, i.e. if the offset is 00000020,
+ *   then exactly 32 bytes must have been read into this packet before this.
+ *   If the offset is wrong, the packet is immediately terminated
  *
- * A packet start is signalled by a zero offset.
+ * A packet start is signaled by a zero offset.
  *
  * Lines starting with #TEXT2PCAP are directives. These allow the user
  * to embed instructions into the capture file which allows text2pcap
@@ -48,7 +48,7 @@
  *
  * The output is a libpcap packet containing Ethernet frames by
  * default. This program takes options which allow the user to add
- * dummy Ethernet, IP and UDP or TCP headers to the packets in order
+ * dummy Ethernet, IP and UDP, TCP or SCTP headers to the packets in order
  * to allow dumps of L3 or higher protocols to be decoded.
  *
  * Considerable flexibility is built into this code to read hexdumps
@@ -56,8 +56,9 @@
  * hexdump line is dropped (including mail forwarding '>'). The offset
  * can be any hex number of four digits or greater.
  *
- * This converter cannot read a single packet greater than 64KiB-1. Packet
- * snaplength is automatically set to 64KiB-1.
+ * This converter cannot read a single packet greater than
+ * WTAP_MAX_PACKET_SIZE_STANDARD.  The snapshot length is automatically
+ * set to WTAP_MAX_PACKET_SIZE_STANDARD.
  */
 
 #include "config.h"
@@ -121,29 +122,35 @@
 static int debug = 0;
 
 /* Dummy Ethernet header */
-static int hdr_ethernet = FALSE;
+static gboolean hdr_ethernet = FALSE;
+static guint8 hdr_eth_dest_addr[6] = {0x20, 0x52, 0x45, 0x43, 0x56, 0x00};
+static guint8 hdr_eth_src_addr[6]  = {0x20, 0x53, 0x45, 0x4E, 0x44, 0x00};
 static guint32 hdr_ethernet_proto = 0;
 
 /* Dummy IP header */
-static int hdr_ip = FALSE;
+static gboolean hdr_ip = FALSE;
 static guint hdr_ip_proto = 0;
 
 /* Dummy UDP header */
-static int hdr_udp = FALSE;
+static gboolean hdr_udp = FALSE;
 static guint32 hdr_dest_port = 0;
 static guint32 hdr_src_port = 0;
 
 /* Dummy TCP header */
-static int hdr_tcp = FALSE;
+static gboolean hdr_tcp = FALSE;
+
+/* TCP sequence numbers when has_direction is true */
+static guint32 tcp_in_seq_num = 0;
+static guint32 tcp_out_seq_num = 0;
 
 /* Dummy SCTP header */
-static int hdr_sctp = FALSE;
+static gboolean hdr_sctp = FALSE;
 static guint32 hdr_sctp_src  = 0;
 static guint32 hdr_sctp_dest = 0;
 static guint32 hdr_sctp_tag  = 0;
 
 /* Dummy DATA chunk header */
-static int hdr_data_chunk = FALSE;
+static gboolean hdr_data_chunk = FALSE;
 static guint8  hdr_data_chunk_type = 0;
 static guint8  hdr_data_chunk_bits = 3;
 static guint32 hdr_data_chunk_tsn  = 0;
@@ -151,15 +158,19 @@ static guint16 hdr_data_chunk_sid  = 0;
 static guint16 hdr_data_chunk_ssn  = 0;
 static guint32 hdr_data_chunk_ppid = 0;
 
+/* Dummy ExportPdu header */
+static gboolean hdr_export_pdu = FALSE;
+static gchar* hdr_export_pdu_payload = NULL;
+
 static gboolean has_direction = FALSE;
-static guint32 direction = 0;
+static guint32 direction = PACK_FLAGS_RECEPTION_TYPE_UNSPECIFIED;
 
 /*--- Local data -----------------------------------------------------------------*/
 
 /* This is where we store the packet currently being built */
 static guint8 *packet_buf;
 static guint32 curr_offset = 0;
-static guint32 max_offset = IMPORT_MAX_PACKET;
+static guint32 max_offset = WTAP_MAX_PACKET_SIZE_STANDARD;
 static guint32 packet_start = 0;
 static void start_new_packet (void);
 
@@ -214,10 +225,7 @@ typedef struct {
     guint16 l3pid;
 } hdr_ethernet_t;
 
-static hdr_ethernet_t HDR_ETHERNET = {
-    {0x20, 0x52, 0x45, 0x43, 0x56, 0x00},
-    {0x20, 0x53, 0x45, 0x4E, 0x44, 0x00},
-    0};
+static hdr_ethernet_t HDR_ETHERNET;
 
 typedef struct {
     guint8  ver_hdrlen;
@@ -233,8 +241,18 @@ typedef struct {
     guint32 dest_addr;
 } hdr_ip_t;
 
+#if G_BYTE_ORDER == G_BIG_ENDIAN
+#define IP_ID  0x1234
+#define IP_SRC 0x01010101
+#define IP_DST 0x02020202
+#else
+#define IP_ID  0x3412
+#define IP_SRC 0x01010101
+#define IP_DST 0x02020202
+#endif
+
 static hdr_ip_t HDR_IP =
-  {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0, 0x01010101, 0x02020202};
+  {0x45, 0, 0, IP_ID, 0, 0, 0xff, 0, 0, IP_SRC, IP_DST};
 
 static struct {         /* pseudo header for checksum calculation */
     guint32 src_addr;
@@ -288,6 +306,15 @@ typedef struct {
 
 static hdr_data_chunk_t HDR_DATA_CHUNK = {0, 0, 0, 0, 0, 0, 0};
 
+typedef struct {
+    guint16 tag_type;
+    guint16 payload_len;
+} hdr_export_pdu_t;
+
+static hdr_export_pdu_t HDR_EXPORT_PDU = {0, 0};
+
+#define EXPORT_PDU_END_OF_OPTIONS_SIZE 4
+
 /* Link-layer type; see net/bpf.h for details */
 static guint pcap_link_type = 1;   /* Default is DLT_EN10MB */
 
@@ -308,7 +335,7 @@ parse_num (const char *str, int offset)
     }
 
     num = strtoul(str, &c, offset ? offset_base : 16);
-    if (c==str) {
+    if (c == str) {
         fprintf(stderr, "FATAL ERROR: Bad hex number? [%s]\n", str);
     }
     return (guint32)num;
@@ -339,7 +366,7 @@ unwrite_bytes (guint32 nbytes)
 }
 
 /*----------------------------------------------------------------------
- * Determin SCTP chunk padding length
+ * Determine SCTP chunk padding length
  */
 static guint32
 number_of_padding_bytes (guint32 length)
@@ -357,7 +384,7 @@ number_of_padding_bytes (guint32 length)
 /*----------------------------------------------------------------------
  * Write current packet out
  */
-void
+static void
 write_current_packet (void)
 {
     int prefix_length = 0;
@@ -370,8 +397,15 @@ write_current_packet (void)
     if (curr_offset > 0) {
         /* Write the packet */
 
+        /* Is direction indication on with an inbound packet? */
+        gboolean isOutbound = has_direction && (direction == PACK_FLAGS_DIRECTION_OUTBOUND);
+
         /* Compute packet length */
         prefix_length = 0;
+        if (hdr_export_pdu) {
+            prefix_length += (int)sizeof(HDR_EXPORT_PDU) + (int)strlen(hdr_export_pdu_payload) + EXPORT_PDU_END_OF_OPTIONS_SIZE;
+            proto_length = prefix_length + curr_offset;
+        }
         if (hdr_data_chunk) { prefix_length += (int)sizeof(HDR_DATA_CHUNK); }
         if (hdr_sctp) { prefix_length += (int)sizeof(HDR_SCTP); }
         if (hdr_udp) { prefix_length += (int)sizeof(HDR_UDP); proto_length = prefix_length + curr_offset; }
@@ -394,6 +428,14 @@ write_current_packet (void)
 
         /* Write Ethernet header */
         if (hdr_ethernet) {
+            if (isOutbound)
+            {
+                memcpy(HDR_ETHERNET.dest_addr, hdr_eth_src_addr, 6);
+                memcpy(HDR_ETHERNET.src_addr, hdr_eth_dest_addr, 6);
+            } else {
+                memcpy(HDR_ETHERNET.dest_addr, hdr_eth_dest_addr, 6);
+                memcpy(HDR_ETHERNET.src_addr, hdr_eth_src_addr, 6);
+            }
             HDR_ETHERNET.l3pid = g_htons(hdr_ethernet_proto);
             memcpy(&packet_buf[prefix_index], &HDR_ETHERNET, sizeof(HDR_ETHERNET));
             prefix_index += (int)sizeof(HDR_ETHERNET);
@@ -403,6 +445,13 @@ write_current_packet (void)
         if (hdr_ip) {
             vec_t cksum_vector[1];
 
+            if (isOutbound) {
+                HDR_IP.src_addr = IP_DST;
+                HDR_IP.dest_addr = IP_SRC;
+            } else {
+                HDR_IP.src_addr = IP_SRC;
+                HDR_IP.dest_addr = IP_DST;
+            }
             HDR_IP.packet_length = g_htons(ip_length);
             HDR_IP.protocol = (guint8) hdr_ip_proto;
             HDR_IP.hdr_checksum = 0;
@@ -424,8 +473,8 @@ write_current_packet (void)
         if (hdr_udp) {
             vec_t cksum_vector[3];
 
-            HDR_UDP.source_port = g_htons(hdr_src_port);
-            HDR_UDP.dest_port = g_htons(hdr_dest_port);
+            HDR_UDP.source_port = isOutbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
+            HDR_UDP.dest_port = isOutbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
             HDR_UDP.length = g_htons(proto_length);
 
             HDR_UDP.checksum = 0;
@@ -442,9 +491,19 @@ write_current_packet (void)
         if (hdr_tcp) {
             vec_t cksum_vector[3];
 
-            HDR_TCP.source_port = g_htons(hdr_src_port);
-            HDR_TCP.dest_port = g_htons(hdr_dest_port);
-            /* HDR_TCP.seq_num already correct */
+            HDR_TCP.source_port = isOutbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
+            HDR_TCP.dest_port = isOutbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
+            /* set ack number if we have direction */
+            if (has_direction) {
+                HDR_TCP.flags = 0x10;
+                HDR_TCP.ack_num = g_ntohl(isOutbound ? tcp_out_seq_num : tcp_in_seq_num);
+                HDR_TCP.ack_num = g_htonl(HDR_TCP.ack_num);
+            }
+            else {
+                HDR_TCP.flags = 0;
+                HDR_TCP.ack_num = 0;
+            }
+            HDR_TCP.seq_num = isOutbound ? tcp_in_seq_num : tcp_out_seq_num;
             HDR_TCP.window = g_htons(0x2000);
 
             HDR_TCP.checksum = 0;
@@ -455,6 +514,14 @@ write_current_packet (void)
 
             memcpy(&packet_buf[prefix_index], &HDR_TCP, sizeof(HDR_TCP));
             prefix_index += (int)sizeof(HDR_TCP);
+            if (isOutbound) {
+                tcp_in_seq_num = g_ntohl(tcp_in_seq_num) + curr_offset;
+                tcp_in_seq_num = g_htonl(tcp_in_seq_num);
+            }
+            else {
+                tcp_out_seq_num = g_ntohl(tcp_out_seq_num) + curr_offset;
+                tcp_out_seq_num = g_htonl(tcp_out_seq_num);
+            }
         }
 
         /* Compute DATA chunk header and append padding */
@@ -475,8 +542,8 @@ write_current_packet (void)
 
         /* Write SCTP header */
         if (hdr_sctp) {
-            HDR_SCTP.src_port  = g_htons(hdr_sctp_src);
-            HDR_SCTP.dest_port = g_htons(hdr_sctp_dest);
+            HDR_SCTP.src_port  = isOutbound ? g_htons(hdr_sctp_dest): g_htons(hdr_sctp_src);
+            HDR_SCTP.dest_port = isOutbound ? g_htons(hdr_sctp_src) : g_htons(hdr_sctp_dest);
             HDR_SCTP.tag       = g_htonl(hdr_sctp_tag);
             HDR_SCTP.checksum  = g_htonl(0);
 
@@ -493,6 +560,19 @@ write_current_packet (void)
         if (hdr_data_chunk) {
             memcpy(&packet_buf[prefix_index], &HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK));
             /*prefix_index += (int)sizeof(HDR_DATA_CHUNK);*/
+        }
+
+        /* Write ExportPDU header */
+        if (hdr_export_pdu) {
+            guint payload_len = (guint)strlen(hdr_export_pdu_payload);
+            HDR_EXPORT_PDU.tag_type = g_htons(0x0c); // EXP_PDU_TAG_PROTO_NAME;
+            HDR_EXPORT_PDU.payload_len = g_htons(payload_len);
+            memcpy(&packet_buf[prefix_index], &HDR_EXPORT_PDU, sizeof(HDR_EXPORT_PDU));
+            prefix_index += sizeof(HDR_EXPORT_PDU);
+            memcpy(&packet_buf[prefix_index], hdr_export_pdu_payload, payload_len);
+            prefix_index += payload_len;
+            /* Add end-of-options tag */
+            memset(&packet_buf[prefix_index], 0x00, 4);
         }
 
         /* Write Ethernet trailer */
@@ -596,16 +676,16 @@ parse_preamble (void)
         switch (packet_preamble[0]) {
         case 'i':
         case 'I':
-            direction = 0x00000001;
+            direction = PACK_FLAGS_DIRECTION_INBOUND;
             packet_preamble[0] = ' ';
             break;
         case 'o':
         case 'O':
-            direction = 0x00000002;
+            direction = PACK_FLAGS_DIRECTION_OUTBOUND;
             packet_preamble[0] = ' ';
             break;
         default:
-            direction = 0x00000000;
+            direction = PACK_FLAGS_DIRECTION_UNKNOWN;
             break;
         }
         i = 0;
@@ -620,8 +700,8 @@ parse_preamble (void)
     }
 
     /*
-     * If no "-t" flag was specified, don't attempt to parse a packet
-     * preamble to extract a time stamp.
+     * If no time stamp format was specified, don't attempt to parse
+     * the packet preamble to extract a time stamp.
      */
     if (ts_fmt == NULL)
         return;
@@ -782,6 +862,9 @@ parse_token (token_t token, char *str)
                 state = READ_BYTE;
             }
             break;
+        case T_EOF:
+            write_current_packet();
+            break;
         default:
             break;
         }
@@ -833,6 +916,9 @@ parse_token (token_t token, char *str)
                 state = READ_BYTE;
             }
             break;
+        case T_EOF:
+            write_current_packet();
+            break;
         default:
             break;
         }
@@ -854,6 +940,9 @@ parse_token (token_t token, char *str)
         case T_EOL:
             state = START_OF_LINE;
             break;
+        case T_EOF:
+            write_current_packet();
+            break;
         default:
             break;
         }
@@ -874,6 +963,9 @@ parse_token (token_t token, char *str)
         case T_EOL:
             state = START_OF_LINE;
             break;
+        case T_EOF:
+            write_current_packet();
+            break;
         default:
             break;
         }
@@ -884,6 +976,9 @@ parse_token (token_t token, char *str)
         switch(token) {
         case T_EOL:
             state = START_OF_LINE;
+            break;
+        case T_EOF:
+            write_current_packet();
             break;
         default:
             break;
@@ -911,7 +1006,7 @@ text_import(text_import_info_t *info)
 
     packet_buf = (guint8 *)g_malloc(sizeof(HDR_ETHERNET) + sizeof(HDR_IP) +
                                     sizeof(HDR_SCTP) + sizeof(HDR_DATA_CHUNK) +
-                                    IMPORT_MAX_PACKET);
+                                    sizeof(HDR_EXPORT_PDU) + WTAP_MAX_PACKET_SIZE_STANDARD);
 
     if (!packet_buf)
     {
@@ -946,6 +1041,7 @@ text_import(text_import_info_t *info)
     hdr_tcp = FALSE;
     hdr_sctp = FALSE;
     hdr_data_chunk = FALSE;
+    hdr_export_pdu = FALSE;
 
     offset_base = (info->offset_type == OFFSET_NONE) ? 0 :
                   (info->offset_type == OFFSET_HEX) ? 16 :
@@ -1023,6 +1119,11 @@ text_import(text_import_info_t *info)
             hdr_ethernet_proto = 0x800;
             break;
 
+        case HEADER_EXPORT_PDU:
+            hdr_export_pdu = TRUE;
+            hdr_export_pdu_payload = info->payload;
+            break;
+
         default:
             break;
     }
@@ -1035,14 +1136,14 @@ text_import(text_import_info_t *info)
 }
 
 /*
- * Editor modelines
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
- * Local Variables:
+ * Local variables:
  * c-basic-offset: 4
  * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */

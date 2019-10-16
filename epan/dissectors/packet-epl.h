@@ -89,7 +89,6 @@ subobject_equal(gconstpointer _a, gconstpointer _b)
 	    && g_str_equal(a->name, b->name);
 }
 
-void epl_xdd_init(void);
 struct profile *epl_xdd_load(struct profile *profile, const char *xml_file);
 
 void epl_eds_init(void);

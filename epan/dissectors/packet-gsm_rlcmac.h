@@ -5778,7 +5778,7 @@ extern const guint8 gsm_rlcmac_egprs_mcs_to_data_block_length[];
 #endif /* __PACKET_GSM_RLCMAC_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

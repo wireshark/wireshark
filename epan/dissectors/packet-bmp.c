@@ -802,7 +802,7 @@ proto_reg_handoff_bmp(void)
     dissector_bgp = find_dissector_add_dependency("bgp", proto_bmp);
 }
 /*
-* Editor modelines - http://www.wireshark.org/tools/modelines.html
+* Editor modelines - https://www.wireshark.org/tools/modelines.html
 *
 * Local variables:
 * c-basic-offset: 4

@@ -259,7 +259,7 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
             }
             bag_type = (gnutls_pkcs12_bag_type_t)ret;
             if (bag_type >= GNUTLS_BAG_UNKNOWN) {
-                *err = g_strdup_printf("gnutls_pkcs12_bag_get_type returnd unknown bag type %u",
+                *err = g_strdup_printf("gnutls_pkcs12_bag_get_type returned unknown bag type %u",
                                        ret);
                 goto done;
             }
@@ -275,7 +275,7 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
                     }
                     bag_type = (gnutls_pkcs12_bag_type_t)ret;
                     if (bag_type >= GNUTLS_BAG_UNKNOWN) {
-                        *err = g_strdup_printf("gnutls_pkcs12_bag_get_type returnd unknown bag type %u",
+                        *err = g_strdup_printf("gnutls_pkcs12_bag_get_type returned unknown bag type %u",
                                                ret);
                         goto done;
                     }
@@ -319,7 +319,6 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
                     /* Private key found, return it. */
                     priv_key = rsa_pkey;
                     goto done;
-                    break;
                 }
 
                 default: ;
@@ -364,7 +363,7 @@ rsa_private_key_free(gpointer key _U_)
 #endif /* HAVE_LIBGNUTLS */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

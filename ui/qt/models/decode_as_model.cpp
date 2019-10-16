@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "decode_as_model.h"
 #include <epan/to_str.h>
@@ -114,7 +115,7 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
             if (IS_FT_UINT(selector_type)) {
                 return entryString(item->tableName_, GUINT_TO_POINTER(item->selectorUint_));
             } else if (IS_FT_STRING(selector_type)) {
-                return entryString(item->tableName_, (gpointer)item->selectorString_.toUtf8().constData());
+                return entryString(item->tableName_, (gconstpointer)item->selectorString_.toUtf8().constData());
             } else if (selector_type == FT_GUID) {
                 if (item->selectorDCERPC_ != NULL) {
                     return item->selectorDCERPC_->ctx_id;
@@ -277,6 +278,8 @@ bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/
     beginInsertRows(QModelIndex(), row, row);
 
     DecodeAsItem* item = new DecodeAsItem();
+    DecodeAsItem* alternativeItem = NULL;
+    bool lastItemIsOk = false;
 
     if (cap_file_ && cap_file_->edt) {
         //populate the new Decode As item with the last protocol layer
@@ -293,6 +296,7 @@ bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/
                 if (g_strcmp0(proto_name, entry->name) == 0) {
                     dissector_handle_t dissector = NULL;
                     ftenum_t selector_type = get_dissector_table_selector_type(entry->table_name);
+                    bool itemOk = false;
 
                     //reset the default and current protocols in case previous layer
                     //populated it and this layer doesn't have a handle for it
@@ -313,23 +317,35 @@ bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/
                         } else {
                             item->selectorString_ = "";
                         }
+                        itemOk = !item->selectorString_.isEmpty();
 
                     } else if (IS_FT_UINT(selector_type)) {
 
                         //pick the first value in the packet as the default
                         cap_file_->edt->pi.curr_layer_num = curr_layer_num;
                         item->selectorUint_ = GPOINTER_TO_UINT(entry->values[0].build_values[0](&cap_file_->edt->pi));
+                        itemOk = item->selectorUint_ != 0;
 
                         dissector = dissector_get_default_uint_handle(entry->table_name, item->selectorUint_);
                     } else if (selector_type == FT_NONE) {
                         // There is no default for an FT_NONE dissector table
                         dissector = NULL;
+                        itemOk = true;
                     } else if (selector_type == FT_GUID) {
                         /* Special handling for DCE/RPC dissectors */
                         if (strcmp(entry->name, "dcerpc") == 0) {
                             item->selectorDCERPC_ = (decode_dcerpc_bind_values_t*)entry->values[0].build_values[0](&cap_file_->edt->pi);
+                            itemOk = true;
                         }
                     }
+
+                    if (itemOk) {
+                        if (!alternativeItem) {
+                            alternativeItem = new DecodeAsItem();
+                        }
+                        *alternativeItem = *item;
+                    }
+                    lastItemIsOk = itemOk;
 
                     if (dissector != NULL) {
                         item->default_proto_ = dissector_handle_get_short_name(dissector);
@@ -346,6 +362,16 @@ bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/
         cap_file_->edt->pi.curr_layer_num = curr_layer_num_saved;
     }
 
+    // If the last item has an empty selector (e.g. an empty port number),
+    // prefer an entry that has a valid selector.
+    if (alternativeItem) {
+        if (lastItemIsOk) {
+            delete alternativeItem;
+        } else {
+            delete item;
+            item = alternativeItem;
+        }
+    }
     decode_as_items_ << item;
 
     endInsertRows();
@@ -363,6 +389,16 @@ bool DecodeAsModel::removeRows(int row, int count, const QModelIndex &/*parent*/
     endRemoveRows();
 
     return true;
+}
+
+void DecodeAsModel::clearAll()
+{
+    if (rowCount() < 1)
+        return;
+
+    beginResetModel();
+    decode_as_items_.clear();
+    endResetModel();
 }
 
 bool DecodeAsModel::copyRow(int dst_row, int src_row)
@@ -390,7 +426,7 @@ bool DecodeAsModel::copyRow(int dst_row, int src_row)
     return true;
 }
 
-QString DecodeAsModel::entryString(const gchar *table_name, gpointer value)
+QString DecodeAsModel::entryString(const gchar *table_name, gconstpointer value)
 {
     QString entry_str;
     ftenum_t selector_type = get_dissector_table_selector_type(table_name);
@@ -443,7 +479,7 @@ QString DecodeAsModel::entryString(const gchar *table_name, gpointer value)
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
-        entry_str = (char *)value;
+        entry_str = (const char *)value;
         break;
 
     case FT_GUID:
@@ -630,7 +666,7 @@ void DecodeAsModel::applyChanges()
             if (!g_strcmp0(decode_as_entry->table_name, item->tableName_)) {
 
                 ftenum_t selector_type = get_dissector_table_selector_type(item->tableName_);
-                gpointer  selector_value;
+                gconstpointer  selector_value;
                 QByteArray byteArray;
 
                 switch (selector_type) {
@@ -645,7 +681,7 @@ void DecodeAsModel::applyChanges()
                 case FT_UINT_STRING:
                 case FT_STRINGZPAD:
                     byteArray = item->selectorString_.toUtf8();
-                    selector_value = (gpointer) byteArray.constData();
+                    selector_value = (gconstpointer) byteArray.constData();
                     break;
                 case FT_NONE:
                     //selector value is ignored, but dissector table needs to happen
@@ -653,7 +689,7 @@ void DecodeAsModel::applyChanges()
                     break;
                 case FT_GUID:
                     if (item->selectorDCERPC_ != NULL) {
-                        selector_value = (gpointer)item->selectorDCERPC_;
+                        selector_value = (gconstpointer)item->selectorDCERPC_;
                     } else {
                         //TODO: Support normal GUID dissector tables
                         selector_value = NULL;
@@ -680,7 +716,7 @@ void DecodeAsModel::applyChanges()
                     }
                     break;
                 } else {
-                    decode_as_entry->change_value(decode_as_entry->table_name, selector_value, &item->dissector_handle_, (char *) item->current_proto_.toUtf8().constData());
+                    decode_as_entry->change_value(decode_as_entry->table_name, selector_value, &item->dissector_handle_, item->current_proto_.toUtf8().constData());
                     sub_dissectors = find_dissector_table(decode_as_entry->table_name);
 
                     /* For now, only numeric dissector tables can use preferences */

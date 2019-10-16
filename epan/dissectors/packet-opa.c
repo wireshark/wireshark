@@ -109,6 +109,7 @@ void proto_register_opa_9b(void);
 #define ATOMICETH                   21
 #define IETH_PAYLD                  22
 #define KDETH_PSM                   23
+#define KDETH_TIDRDMA               24
 
 /* PSM */
 #define PSM_RESERVED                    0xC0
@@ -138,6 +139,16 @@ void proto_register_opa_9b(void);
 #define PSM_AM_REQUEST_NOREPLY          0xD8
 #define PSM_AM_REQUEST                  0xD9
 #define PSM_AM_REPLY                    0xDA
+
+/* TID RDMA */
+#define TID_RDMA_WRITE_REQUEST          0xE0
+#define TID_RDMA_WRITE_RESPONSE         0xE1
+#define TID_RDMA_WRITE_DATA             0xE2
+#define TID_RDMA_WRITE_DATA_LAST        0xE3
+#define TID_RDMA_READ_REQUEST           0xE4
+#define TID_RDMA_READ_RESPONSE          0xE5
+#define TID_RDMA_RESYNC                 0xE6
+#define TID_RDMA_ACK                    0xE7
 
 /* Array of all availavle OpCodes to make matching a bit easier. The OpCodes
  * dictate the header sequence following in the packet. These arrays tell the
@@ -242,70 +253,115 @@ static guint32 opCode_PSM[] = {
     PSM_DISCONNECT_REPLY,
     PSM_AM_REQUEST_NOREPLY,
     PSM_AM_REQUEST,
-    PSM_AM_REPLY,
+    PSM_AM_REPLY
+};
+static guint opCode_TIDRDMA[] = {
+    TID_RDMA_WRITE_REQUEST,
+    TID_RDMA_WRITE_RESPONSE,
+    TID_RDMA_WRITE_DATA,
+    TID_RDMA_WRITE_DATA_LAST,
+    TID_RDMA_READ_REQUEST,
+    TID_RDMA_READ_RESPONSE,
+    TID_RDMA_RESYNC,
+    TID_RDMA_ACK
 };
 
 /* OP Codes */
 static const value_string vals_opa_bth_opcode[] = {
-    { RC_SEND_FIRST,                "RC Send First " },
-    { RC_SEND_MIDDLE,               "RC Send Middle " },
-    { RC_SEND_LAST,                 "RC Send Last " },
-    { RC_SEND_LAST_IMM,             "RC Send Last Immediate " },
-    { RC_SEND_ONLY,                 "RC Send Only " },
-    { RC_SEND_ONLY_IMM,             "RC Send Only Immediate " },
-    { RC_RDMA_WRITE_FIRST,          "RC RDMA Write First " },
-    { RC_RDMA_WRITE_MIDDLE,         "RC RDMA Write Middle " },
-    { RC_RDMA_WRITE_LAST,           "RC RDMA Write Last " },
-    { RC_RDMA_WRITE_LAST_IMM,       "RC RDMA Write Last Immediate " },
-    { RC_RDMA_WRITE_ONLY,           "RC RDMA Write Only " },
-    { RC_RDMA_WRITE_ONLY_IMM,       "RC RDMA Write Only Immediate " },
-    { RC_RDMA_READ_REQUEST,         "RC RDMA Read Request " },
-    { RC_RDMA_READ_RESPONSE_FIRST,  "RC RDMA Read Response First " },
-    { RC_RDMA_READ_RESPONSE_MIDDLE, "RC RDMA Read Response Middle " },
-    { RC_RDMA_READ_RESPONSE_LAST,   "RC RDMA Read Response Last " },
-    { RC_RDMA_READ_RESPONSE_ONLY,   "RC RDMA Read Response Only " },
-    { RC_ACKNOWLEDGE,               "RC Acknowledge " },
-    { RC_ATOMIC_ACKNOWLEDGE,        "RC Atomic Acknowledge " },
-    { RC_CMP_SWAP,                  "RC Compare Swap " },
-    { RC_FETCH_ADD,                 "RC Fetch Add " },
-    { RC_SEND_LAST_INVAL,           "RC Send Last Invalidate " },
-    { RC_SEND_ONLY_INVAL,           "RC Send Only Invalidate " },
-    { RD_SEND_FIRST,                "RD Send First " },
-    { RD_SEND_MIDDLE,               "RD Send Middle " },
-    { RD_SEND_LAST,                 "RD Send Last " },
-    { RD_SEND_LAST_IMM,             "RD Last Immediate " },
-    { RD_SEND_ONLY,                 "RD Send Only " },
-    { RD_SEND_ONLY_IMM,             "RD Send Only Immediate " },
-    { RD_RDMA_WRITE_FIRST,          "RD RDMA Write First " },
-    { RD_RDMA_WRITE_MIDDLE,         "RD RDMA Write Middle " },
-    { RD_RDMA_WRITE_LAST,           "RD RDMA Write Last " },
-    { RD_RDMA_WRITE_LAST_IMM,       "RD RDMA Write Last Immediate " },
-    { RD_RDMA_WRITE_ONLY,           "RD RDMA Write Only " },
-    { RD_RDMA_WRITE_ONLY_IMM,       "RD RDMA Write Only Immediate " },
-    { RD_RDMA_READ_REQUEST,         "RD RDMA Read Request " },
-    { RD_RDMA_READ_RESPONSE_FIRST,  "RD RDMA Read Response First " },
-    { RD_RDMA_READ_RESPONSE_MIDDLE, "RD RDMA Read Response Middle " },
-    { RD_RDMA_READ_RESPONSE_LAST,   "RD RDMA Read Response Last " },
-    { RD_RDMA_READ_RESPONSE_ONLY,   "RD RDMA Read Response Only " },
-    { RD_ACKNOWLEDGE,               "RD Acknowledge " },
-    { RD_ATOMIC_ACKNOWLEDGE,        "RD Atomic Acknowledge " },
-    { RD_CMP_SWAP,                  "RD Compare Swap " },
-    { RD_FETCH_ADD,                 "RD Fetch Add " },
-    { RD_RESYNC,                    "RD RESYNC " },
-    { UD_SEND_ONLY,                 "UD Send Only " },
-    { UD_SEND_ONLY_IMM,             "UD Send Only Immediate " },
-    { UC_SEND_FIRST,                "UC Send First " },
-    { UC_SEND_MIDDLE,               "UC Send Middle " },
-    { UC_SEND_LAST,                 "UC Send Last " },
-    { UC_SEND_LAST_IMM,             "UC Send Last Immediate " },
-    { UC_SEND_ONLY,                 "UC Send Only " },
-    { UC_SEND_ONLY_IMM,             "UC Send Only Immediate " },
+    { RC_SEND_FIRST,                "RC Send First" },
+    { RC_SEND_MIDDLE,               "RC Send Middle" },
+    { RC_SEND_LAST,                 "RC Send Last" },
+    { RC_SEND_LAST_IMM,             "RC Send Last Immediate" },
+    { RC_SEND_ONLY,                 "RC Send Only" },
+    { RC_SEND_ONLY_IMM,             "RC Send Only Immediate" },
+    { RC_RDMA_WRITE_FIRST,          "RC RDMA Write First" },
+    { RC_RDMA_WRITE_MIDDLE,         "RC RDMA Write Middle" },
+    { RC_RDMA_WRITE_LAST,           "RC RDMA Write Last" },
+    { RC_RDMA_WRITE_LAST_IMM,       "RC RDMA Write Last Immediate" },
+    { RC_RDMA_WRITE_ONLY,           "RC RDMA Write Only" },
+    { RC_RDMA_WRITE_ONLY_IMM,       "RC RDMA Write Only Immediate" },
+    { RC_RDMA_READ_REQUEST,         "RC RDMA Read Request" },
+    { RC_RDMA_READ_RESPONSE_FIRST,  "RC RDMA Read Response First" },
+    { RC_RDMA_READ_RESPONSE_MIDDLE, "RC RDMA Read Response Middle" },
+    { RC_RDMA_READ_RESPONSE_LAST,   "RC RDMA Read Response Last" },
+    { RC_RDMA_READ_RESPONSE_ONLY,   "RC RDMA Read Response Only" },
+    { RC_ACKNOWLEDGE,               "RC Acknowledge" },
+    { RC_ATOMIC_ACKNOWLEDGE,        "RC Atomic Acknowledge" },
+    { RC_CMP_SWAP,                  "RC Compare Swap" },
+    { RC_FETCH_ADD,                 "RC Fetch Add" },
+    { RC_SEND_LAST_INVAL,           "RC Send Last Invalidate" },
+    { RC_SEND_ONLY_INVAL,           "RC Send Only Invalidate" },
+    { RD_SEND_FIRST,                "RD Send First" },
+    { RD_SEND_MIDDLE,               "RD Send Middle" },
+    { RD_SEND_LAST,                 "RD Send Last" },
+    { RD_SEND_LAST_IMM,             "RD Last Immediate" },
+    { RD_SEND_ONLY,                 "RD Send Only" },
+    { RD_SEND_ONLY_IMM,             "RD Send Only Immediate" },
+    { RD_RDMA_WRITE_FIRST,          "RD RDMA Write First" },
+    { RD_RDMA_WRITE_MIDDLE,         "RD RDMA Write Middle" },
+    { RD_RDMA_WRITE_LAST,           "RD RDMA Write Last" },
+    { RD_RDMA_WRITE_LAST_IMM,       "RD RDMA Write Last Immediate" },
+    { RD_RDMA_WRITE_ONLY,           "RD RDMA Write Only" },
+    { RD_RDMA_WRITE_ONLY_IMM,       "RD RDMA Write Only Immediate" },
+    { RD_RDMA_READ_REQUEST,         "RD RDMA Read Request" },
+    { RD_RDMA_READ_RESPONSE_FIRST,  "RD RDMA Read Response First" },
+    { RD_RDMA_READ_RESPONSE_MIDDLE, "RD RDMA Read Response Middle" },
+    { RD_RDMA_READ_RESPONSE_LAST,   "RD RDMA Read Response Last" },
+    { RD_RDMA_READ_RESPONSE_ONLY,   "RD RDMA Read Response Only" },
+    { RD_ACKNOWLEDGE,               "RD Acknowledge" },
+    { RD_ATOMIC_ACKNOWLEDGE,        "RD Atomic Acknowledge" },
+    { RD_CMP_SWAP,                  "RD Compare Swap" },
+    { RD_FETCH_ADD,                 "RD Fetch Add" },
+    { RD_RESYNC,                    "RD RESYNC" },
+    { UD_SEND_ONLY,                 "UD Send Only" },
+    { UD_SEND_ONLY_IMM,             "UD Send Only Immediate" },
+    { UC_SEND_FIRST,                "UC Send First" },
+    { UC_SEND_MIDDLE,               "UC Send Middle" },
+    { UC_SEND_LAST,                 "UC Send Last" },
+    { UC_SEND_LAST_IMM,             "UC Send Last Immediate" },
+    { UC_SEND_ONLY,                 "UC Send Only" },
+    { UC_SEND_ONLY_IMM,             "UC Send Only Immediate" },
     { UC_RDMA_WRITE_FIRST,          "UC RDMA Write First" },
-    { UC_RDMA_WRITE_MIDDLE,         "Unreliable Connection RDMA Write Middle " },
-    { UC_RDMA_WRITE_LAST,           "UC RDMA Write Last " },
-    { UC_RDMA_WRITE_LAST_IMM,       "UC RDMA Write Last Immediate " },
-    { UC_RDMA_WRITE_ONLY,           "UC RDMA Write Only " },
-    { UC_RDMA_WRITE_ONLY_IMM,       "UC RDMA Write Only Immediate " },
+    { UC_RDMA_WRITE_MIDDLE,         "Unreliable Connection RDMA Write Middle" },
+    { UC_RDMA_WRITE_LAST,           "UC RDMA Write Last" },
+    { UC_RDMA_WRITE_LAST_IMM,       "UC RDMA Write Last Immediate" },
+    { UC_RDMA_WRITE_ONLY,           "UC RDMA Write Only" },
+    { UC_RDMA_WRITE_ONLY_IMM,       "UC RDMA Write Only Immediate" },
+    { PSM_RESERVED,                 "PSM Reserved" },
+    { PSM_TINY,                     "PSM TINY" },
+    { PSM_SHORT,                    "PSM SHORT" },
+    { PSM_MEDIUM,                   "PSM MEDIUM" },
+    { PSM_MEDIUM_DATA,              "PSM MEDIUM_DATA" },
+    { PSM_LONG_RTS,                 "PSM LONG RTS" },
+    { PSM_LONG_CTS,                 "PSM LONG CTS" },
+    { PSM_LONG_DATA,                "PSM LONG DATA" },
+    { PSM_TIDS_GRANT,               "PSM TIDS GRANT" },
+    { PSM_TIDS_GRANT_ACK,           "PSM TIDS GRANT ACK" },
+    { PSM_TIDS_RELEASE,             "PSM TIDS RELEASE" },
+    { PSM_TIDS_RELEASE_CONFIRM,     "PSM TIDS RELEASE CONFIRM" },
+    { PSM_EXPTID_UNALIGNED,         "PSM EXPTID UNALIGNED" },
+    { PSM_EXPTID,                   "PSM EXPTID" },
+    { PSM_ACK,                      "PSM ACK" },
+    { PSM_NAK,                      "PSM NAK" },
+    { PSM_ERR_CHK,                  "PSM ERR CHK" },
+    { PSM_ERR_CHK_BAD,              "PSM ERR CHK BAD" },
+    { PSM_ERR_CHK_GEN,              "PSM ERR CHK GEN" },
+    { PSM_FLOW_CCA_BECN,            "PSM FLOW CCA BECN" },
+    { PSM_CONNECT_REQUEST,          "PSM CONNECT REQUEST" },
+    { PSM_CONNECT_REPLY,            "PSM CONNECT REPLY" },
+    { PSM_DISCONNECT_REQUEST,       "PSM DISCONNECT REQUEST" },
+    { PSM_DISCONNECT_REPLY,         "PSM DISCONNECT REPLY" },
+    { PSM_AM_REQUEST_NOREPLY,       "PSM AM REQUEST NOREPLY" },
+    { PSM_AM_REQUEST,               "PSM AM REQUEST" },
+    { PSM_AM_REPLY,                 "PSM AM REPLY" },
+    { TID_RDMA_WRITE_REQUEST,       "TID RDMA Write Request" },
+    { TID_RDMA_WRITE_RESPONSE,      "TID RDMA Write Response" },
+    { TID_RDMA_WRITE_DATA,          "TID RDMA Write Data" },
+    { TID_RDMA_WRITE_DATA_LAST,     "TID RDMA Write Data Last" },
+    { TID_RDMA_READ_REQUEST,        "TID RDMA Read Request" },
+    { TID_RDMA_READ_RESPONSE,       "TID RDMA Read Response" },
+    { TID_RDMA_RESYNC,              "TID RDMA ReSync" },
+    { TID_RDMA_ACK,                 "TID RDMA Ack" },
     { 0, NULL }
 };
 static const value_string vals_opa_9b_lnh[] = {
@@ -350,6 +406,7 @@ static gint ett_immdt = -1;
 static gint ett_ieth = -1;
 static gint ett_kdeth = -1;
 static gint ett_psm = -1;
+static gint ett_tidrdma = -1;
 
 /* 9B Header Fields */
 static gint hf_opa_9B = -1;
@@ -468,6 +525,18 @@ static gint hf_opa_psm_nargs = -1;
 static gint hf_opa_psm_hidx = -1;
 static gint hf_opa_psm_arg = -1;
 static gint hf_opa_psm_payload = -1;
+/* TID RDMA */
+static gint hf_opa_TIDRDMA = -1;
+static gint hf_opa_TIDRDMA_reserved = -1;
+static gint hf_opa_TIDRDMA_TIDFlowPSN_reserved = -1;
+static gint hf_opa_TIDRDMA_TIDFlowPSN = -1;
+static gint hf_opa_TIDRDMA_TIDFlowQP_reserved = -1;
+static gint hf_opa_TIDRDMA_TIDFlowQP = -1;
+static gint hf_opa_TIDRDMA_VerbsPSN_reserved = -1;
+static gint hf_opa_TIDRDMA_VerbsPSN = -1;
+static gint hf_opa_TIDRDMA_VerbsQP_reserved = -1;
+static gint hf_opa_TIDRDMA_VerbsQP = -1;
+
 
 /* Custom Functions */
 static void cf_opa_dw_to_b(gchar *buf, guint32 value)
@@ -582,7 +651,7 @@ static void parse_opa_bth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     proto_tree_add_item(base_transport_header_tree, hf_opa_bth_opcode, tvb, local_offset, 1, ENC_LITTLE_ENDIAN);
     *opCode = tvb_get_guint8(tvb, local_offset);
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str((guint32)(*opCode), vals_opa_bth_opcode, "Unknown OpCode (0x%0x)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str((guint32)(*opCode), vals_opa_bth_opcode, "Unknown OpCode (0x%0x)"));
     local_offset += 1;
 
     proto_tree_add_item(base_transport_header_tree, hf_opa_bth_solicited_event, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -655,6 +724,9 @@ static gint32 find_next_header_sequence(guint32 OpCode)
 
     if (contains(OpCode, &opCode_PSM[0], (gint32)array_length(opCode_PSM)))
         return KDETH_PSM;
+
+    if (contains(OpCode, &opCode_TIDRDMA[0], (gint32)array_length(opCode_TIDRDMA)))
+        return KDETH_TIDRDMA;
 
     if ((OpCode ^ RC_ACKNOWLEDGE) == 0)
         return AETH;
@@ -1044,7 +1116,164 @@ static void parse_PSM(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
     }
     *offset = local_offset;
 }
+static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, gint opCode, gboolean *parsePayload)
+{
+    gint local_offset = *offset;
+    proto_item *TIDRDMA_header_item;
+    proto_tree *TIDRDMA_header_tree;
 
+    switch (opCode) {
+    case TID_RDMA_WRITE_REQUEST:
+        parse_RETH(tvb, pinfo, tree, &local_offset);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Write Request: ");
+        TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 12, ENC_NA);
+        proto_item_set_text(TIDRDMA_header_item, "TID RDMA Write Request Header");
+        TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);
+
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_reserved, tvb, local_offset, 8, ENC_NA);
+        local_offset += 8;
+
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+
+        *parsePayload = FALSE;
+        break;
+    case TID_RDMA_WRITE_RESPONSE:
+        parse_AETH(tvb, pinfo, tree, &local_offset);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Write Response: ");
+        TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 24, ENC_NA);
+        proto_item_set_text(TIDRDMA_header_item, "TID RDMA Write Response Header");
+        TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);
+
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_reserved, tvb, local_offset, 12, ENC_NA);
+        local_offset += 12;
+
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_TIDFlowPSN_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_TIDFlowPSN, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_TIDFlowQP_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_TIDFlowQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+
+        *parsePayload = FALSE;
+        break;
+    case TID_RDMA_WRITE_DATA:
+        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Write Data: ");
+        TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 28, ENC_NA);
+        proto_item_set_text(TIDRDMA_header_item, "TID RDMA Write Data Header");
+        TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);
+
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_reserved, tvb, local_offset, 24, ENC_NA);
+        local_offset += 24;
+
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+
+        *parsePayload = TRUE;
+        break;
+    case TID_RDMA_WRITE_DATA_LAST:
+        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Write Data Last: ");
+        TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 28, ENC_NA);
+        proto_item_set_text(TIDRDMA_header_item, "TID RDMA Write Data Last Header");
+        TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);
+
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_reserved, tvb, local_offset, 24, ENC_NA);
+        local_offset += 24;
+
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+
+        *parsePayload = TRUE;
+        break;
+    case TID_RDMA_READ_REQUEST:
+        parse_RETH(tvb, pinfo, tree, &local_offset);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Read Request: ");
+        TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 12, ENC_NA);
+        proto_item_set_text(TIDRDMA_header_item, "TID RDMA Read Request Header");
+        TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);
+
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_TIDFlowPSN_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_TIDFlowPSN, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_TIDFlowQP_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_TIDFlowQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+
+        *parsePayload = FALSE;
+        break;
+    case TID_RDMA_READ_RESPONSE:
+        parse_AETH(tvb, pinfo, tree, &local_offset);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Read Response: ");
+        TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 24, ENC_NA);
+        proto_item_set_text(TIDRDMA_header_item, "TID RDMA Read Response Header");
+        TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);
+
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_reserved, tvb, local_offset, 16, ENC_NA);
+        local_offset += 16;
+
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsPSN_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsPSN, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+
+        *parsePayload = TRUE;
+        break;
+    case TID_RDMA_RESYNC:
+        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Read ReSync: ");
+        TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 28, ENC_NA);
+        proto_item_set_text(TIDRDMA_header_item, "TID RDMA Read ReSync Header");
+        TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);
+
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_reserved, tvb, local_offset, 24, ENC_NA);
+        local_offset += 24;
+
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+
+        *parsePayload = FALSE;
+        break;
+    case TID_RDMA_ACK:
+        parse_AETH(tvb, pinfo, tree, &local_offset);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA ACK: ");
+        TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 24, ENC_NA);
+        proto_item_set_text(TIDRDMA_header_item, "TID RDMA ACK Header");
+        TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);
+
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_reserved, tvb, local_offset, 8, ENC_NA);
+        local_offset += 8;
+
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_TIDFlowPSN_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_TIDFlowPSN, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsPSN_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsPSN, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_TIDFlowQP_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_TIDFlowQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+
+        *parsePayload = FALSE;
+        break;
+    default:
+        *parsePayload = FALSE;
+    }
+    *offset = local_offset;
+}
 static void parse_IPvSix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
 {
     call_dissector(ipv6_handle, tvb_new_subset_remaining(tvb, *offset), pinfo, tree);
@@ -1251,6 +1480,11 @@ static int dissect_opa_9b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         case KDETH_PSM:
             parse_KDETH(tvb, pinfo, tree, &offset);
             parse_PSM(tvb, pinfo, tree, &offset, opCode);
+
+            break;
+        case KDETH_TIDRDMA:
+            parse_KDETH(tvb, pinfo, tree, &offset);
+            parse_TIDRDMA(tvb, pinfo, tree, &offset, opCode, &parsePayload);
 
             break;
         default:
@@ -1685,6 +1919,46 @@ void proto_register_opa_9b(void)
         { &hf_opa_psm_payload, {
                 "Payload", "opa.psm.payload",
                 FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_opa_TIDRDMA, {
+                "TID RDMA Header", "opa.tidrdma",
+                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_opa_TIDRDMA_reserved, {
+                "Reserved", "opa.tidrdma.reserved",
+                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_opa_TIDRDMA_TIDFlowPSN_reserved, {
+                "Reserved (1 bit)", "opa.tidrdma.tidflowpsn.reserved",
+                FT_UINT32, BASE_HEX, NULL, 0x80000000, NULL, HFILL }
+        },
+        { &hf_opa_TIDRDMA_TIDFlowPSN, {
+                "TID Flow PSN", "opa.tidrdma.tidflowpsn",
+                FT_UINT32, BASE_HEX, NULL, 0x7FFFFFFF, NULL, HFILL }
+        },
+        { &hf_opa_TIDRDMA_TIDFlowQP_reserved, {
+                "Reserved (8 bits)", "opa.tidrdma.tidflowqp.reserved",
+                FT_UINT32, BASE_HEX, NULL, 0xFF000000, NULL, HFILL }
+        },
+        { &hf_opa_TIDRDMA_TIDFlowQP, {
+                "TID Flow QP", "opa.tidrdma.tidflowqp",
+                FT_UINT32, BASE_HEX, NULL, 0x00FFFFFF, NULL, HFILL }
+        },
+        { &hf_opa_TIDRDMA_VerbsPSN_reserved, {
+                "Reserved (1 bit)", "opa.tidrdma.verbspsn.reserved",
+                FT_UINT32, BASE_HEX, NULL, 0x80000000, NULL, HFILL }
+        },
+        { &hf_opa_TIDRDMA_VerbsPSN, {
+                "Verbs PSN", "opa.tidrdma.verbspsn",
+                FT_UINT32, BASE_HEX, NULL, 0x7FFFFFFF, NULL, HFILL }
+        },
+        { &hf_opa_TIDRDMA_VerbsQP_reserved, {
+                "Reserved (8 bits)", "opa.tidrdma.verbsqp.reserved",
+                FT_UINT32, BASE_HEX, NULL, 0xFF000000, NULL, HFILL }
+        },
+        { &hf_opa_TIDRDMA_VerbsQP, {
+                "Verbs QP", "opa.tidrdma.verbsqp",
+                FT_UINT32, BASE_HEX, NULL, 0x00FFFFFF, NULL, HFILL }
         }
     };
 
@@ -1702,7 +1976,8 @@ void proto_register_opa_9b(void)
         &ett_immdt,
         &ett_ieth,
         &ett_kdeth,
-        &ett_psm
+        &ett_psm,
+        &ett_tidrdma
     };
 
     proto_opa_9b = proto_register_protocol("Intel Omni-Path", "OPA", "opa");

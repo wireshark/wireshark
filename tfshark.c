@@ -32,13 +32,13 @@
 #include <epan/exceptions.h>
 #include <epan/epan.h>
 
-#include <wsutil/clopts_common.h>
-#include <wsutil/cmdarg_err.h>
-#include <wsutil/crash_info.h>
+#include <ui/clopts_common.h>
+#include <ui/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
+#include <cli_main.h>
 #include <version_info.h>
 
 #include "globals.h"
@@ -57,7 +57,6 @@
 #include "ui/util.h"
 #include "ui/decode_as_utils.h"
 #include "ui/dissect_opts.h"
-#include "epan/register.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
@@ -66,10 +65,6 @@
 
 #include <wiretap/wtap-int.h>
 #include <wiretap/file_wrappers.h>
-
-#ifdef _WIN32
-#include <wsutil/unicode-utils.h>
-#endif /* _WIN32 */
 
 #include "log.h"
 #include <epan/funnel.h>
@@ -232,7 +227,7 @@ glossary_option_help(void)
 
   output = stdout;
 
-  fprintf(output, "TFShark (Wireshark) %s\n", get_ws_vcs_version_info());
+  fprintf(output, "%s\n", get_appname_and_version());
 
   fprintf(output, "\n");
   fprintf(output, "Usage: tfshark -G [report]\n");
@@ -307,8 +302,6 @@ get_tfshark_runtime_version_info(GString *str)
 int
 main(int argc, char *argv[])
 {
-  GString             *comp_info_str;
-  GString             *runtime_info_str;
   char                *init_progfile_dir_error;
   int                  opt;
   static const struct option long_options[] = {
@@ -361,11 +354,7 @@ main(int argc, char *argv[])
   cmdarg_err_init(failure_warning_message, failure_message_cont);
 
 #ifdef _WIN32
-  arg_list_utf_16to8(argc, argv);
   create_app_running_mutex();
-#if !GLIB_CHECK_VERSION(2,31,0)
-  g_thread_init(NULL);
-#endif
 #endif /* _WIN32 */
 
   /*
@@ -381,7 +370,7 @@ main(int argc, char *argv[])
    * Attempt to get the pathname of the directory containing the
    * executable file.
    */
-  init_progfile_dir_error = init_progfile_dir(argv[0], main);
+  init_progfile_dir_error = init_progfile_dir(argv[0]);
   if (init_progfile_dir_error != NULL) {
     fprintf(stderr,
             "tfshark: Can't get pathname of directory containing the tfshark program: %s.\n",
@@ -391,21 +380,10 @@ main(int argc, char *argv[])
 
   initialize_funnel_ops();
 
-  /* Get the compile-time version information string */
-  comp_info_str = get_compiled_version_info(NULL, epan_get_compiled_version_info);
-
-  /* Get the run-time version information string */
-  runtime_info_str = get_runtime_version_info(get_tfshark_runtime_version_info);
-
-  /* Add it to the information to be reported on a crash. */
-  ws_add_crash_info("TFShark (Wireshark) %s\n"
-         "\n"
-         "%s"
-         "\n"
-         "%s",
-      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
-  g_string_free(comp_info_str, TRUE);
-  g_string_free(runtime_info_str, TRUE);
+  /* Initialize the version information. */
+  ws_init_version_info("TFShark (Wireshark)", NULL,
+                       epan_get_compiled_version_info,
+                       get_tfshark_runtime_version_info);
 
   /*
    * In order to have the -X opts assigned before the wslua machine starts
@@ -494,8 +472,7 @@ main(int argc, char *argv[])
      "-G" flag, as the "-G" flag dumps information registered by the
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
-  if (!epan_init(register_all_protocols, register_all_protocol_handoffs, NULL,
-                 NULL)) {
+  if (!epan_init(NULL, NULL, TRUE)) {
     exit_status = INIT_ERROR;
     goto clean_exit;
   }
@@ -629,10 +606,7 @@ main(int argc, char *argv[])
       break;
 
     case 'h':        /* Print help and exit */
-      printf("TFShark (Wireshark) %s\n"
-             "Dump and analyze network traffic.\n"
-             "See https://www.wireshark.org for more information.\n",
-             get_ws_vcs_version_info());
+      show_help_header("Analyze file structure.");
       print_usage(stdout);
       goto clean_exit;
       break;
@@ -745,11 +719,7 @@ main(int argc, char *argv[])
       }
       break;
     case 'v':         /* Show version and exit */
-      comp_info_str = get_compiled_version_info(NULL, epan_get_compiled_version_info);
-      runtime_info_str = get_runtime_version_info(get_tfshark_runtime_version_info);
-      show_version("TFShark (Wireshark)", comp_info_str, runtime_info_str);
-      g_string_free(comp_info_str, TRUE);
-      g_string_free(runtime_info_str, TRUE);
+      show_version();
       goto clean_exit;
     case 'O':        /* Only output these protocols */
       /* already processed; just ignore it now */
@@ -830,7 +800,7 @@ main(int argc, char *argv[])
      line arguments, treat them as the tokens of a display filter. */
   if (optind < argc) {
     if (dfilter != NULL) {
-      cmdarg_err("Display filters were specified both with \"-d\" "
+      cmdarg_err("Display filters were specified both with \"-Y\" "
           "and with additional command-line arguments.");
       exit_status = INVALID_OPTION;
       goto clean_exit;
@@ -1206,7 +1176,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
   if (edt) {
     epan_dissect_reset(edt);
   }
-  return passed || fdata->flags.dependent_of_displayed;
+  return passed || fdata->dependent_of_displayed;
 }
 
 static gboolean
@@ -1337,8 +1307,7 @@ process_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
       edt = epan_dissect_new(cf->epan, create_proto_tree, FALSE);
     }
     while (local_wtap_read(cf, &file_rec, &err, &err_info, &data_offset, &raw_data)) {
-      if (process_packet_first_pass(cf, edt, data_offset, &file_rec/*wtap_get_rec(cf->provider.wth)*/,
-                                    wtap_get_buf_ptr(cf->provider.wth))) {
+      if (process_packet_first_pass(cf, edt, data_offset, &file_rec, raw_data)) {
 
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count
@@ -1368,7 +1337,7 @@ process_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
 
     cf->provider.prev_dis = NULL;
     cf->provider.prev_cap = NULL;
-    ws_buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1514);
 
     if (do_dissection) {
       gboolean create_proto_tree;

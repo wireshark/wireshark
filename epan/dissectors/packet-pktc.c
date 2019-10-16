@@ -24,7 +24,6 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/asn1.h>
-#include "packet-pktc.h"
 #include "packet-ber.h"
 #include "packet-kerberos.h"
 #include "packet-snmp.h"
@@ -264,7 +263,7 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
       proto_item_append_text(tree, " (%d):", len);
     }
     hidden_item = proto_tree_add_uint(tree, hf_pktc_list_of_ciphersuites_len, tvb, offset, 1, len);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
     offset+=1;
 
     switch(doi){
@@ -804,7 +803,7 @@ proto_reg_handoff_pktc_mtafqdn(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -1836,14 +1836,14 @@ dissect_usb_vid_get_set(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
         ti = proto_tree_add_uint(tree, hf_usb_vid_control_interface, tvb, 0, 0,
                                  usb_trans_info->setup.wIndex & 0xFF);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         ti = proto_tree_add_uint(tree, hf_usb_vid_control_entity, tvb, 0, 0, entity_id);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         ti = proto_tree_add_uint_format_value(tree, hf_usb_vid_control_selector, tvb,
                                      0, 0, control_sel, "%s (0x%02x)", short_name, control_sel);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     if (!is_request || (usb_trans_info->setup.request == USB_SETUP_SET_CUR))
@@ -3256,7 +3256,7 @@ proto_reg_handoff_usb_vid(void)
     dissector_add_uint("usb.interrupt", IF_CLASS_VIDEO, usb_vid_interrupt_handle);
 }
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -29,6 +29,7 @@
 #define TCP_CONVERGENCE_REFUSE_BUNDLE   0x30
 #define TCP_CONVERGENCE_KEEP_ALIVE      0x40
 #define TCP_CONVERGENCE_SHUTDOWN        0x50
+#define TCP_CONVERGENCE_LENGTH          0x60
 
 /* TCP Convergence Layer - Contact Header Flags */
 #define TCP_CONV_BUNDLE_ACK_FLAG        0x01
@@ -44,6 +45,14 @@
 #define TCP_CONVERGENCE_SHUTDOWN_FLAGS  0x03
 #define TCP_CONVERGENCE_SHUTDOWN_REASON 0x02
 #define TCP_CONVERGENCE_SHUTDOWN_DELAY  0x01
+
+/* REFUSE-BUNDLE Reason-Codes */
+#define TCP_REFUSE_BUNDLE_REASON_UNKNOWN       0x00
+#define TCP_REFUSE_BUNDLE_REASON_RX_COMPLETE   0x01
+#define TCP_REFUSE_BUNDLE_REASON_RX_EXHAUSTED  0x02
+#define TCP_REFUSE_BUNDLE_REASON_RX_RETRANSMIT 0x03
+/* 0x4-0x7 - Unassigned
+ * 0x8-0xf - Reserved for future Use */
 
 /*
  * TCP Convergence Layer - Minimum buffer sizes
@@ -89,7 +98,7 @@
 #define BUNDLE_BLOCK_TYPE_EXTENSION_SECURITY    0x09 /* RFC6257 */
 #define BUNDLE_BLOCK_TYPE_CUSTODY_TRANSFER      0x0a /* http://bioserve.colorado.edu/bp-acs/ */
 #define BUNDLE_BLOCK_TYPE_EXTENDED_COS          0x13 /* http://tools.ietf.org/html/draft-irtf-dtnrg-ecos-02 */
-#define BUNDLE_BLOCK_TYPE_BUNDLE_AGE_EXTENSION  0x14 /* ION NASA specific */
+#define BUNDLE_BLOCK_TYPE_BUNDLE_AGE            0x14 /* https://tools.ietf.org/html/draft-irtf-dtnrg-bundle-age-block-01 */
 
 /* Payload Header Processing Flags */
 #define PAYLOAD_PROCFLAGS_REPLICATE_MASK        0x01
@@ -135,6 +144,9 @@
 #define ECOS_FLAGS_FLOWLABEL            0x04
 #define ECOS_FLAGS_RELIABLE             0x08
 
+/* Ciphersuite Flags */
+#define BLOCK_CIPHERSUITE_PARAMS        0x01
+
 #define DTN_SCHEME_STR                  "dtn"
 #define IPN_SCHEME_STR                  "ipn"
 
@@ -152,7 +164,7 @@ int evaluate_sdnv32(tvbuff_t *tvb, int offset, int *bytecount, guint32 *value);
 int evaluate_sdnv64(tvbuff_t *tvb, int offset, int *bytecount, guint64 *value);
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

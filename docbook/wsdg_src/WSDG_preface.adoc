@@ -1,0 +1,85 @@
+// WSDG Preface
+
+[[PreForeword]]
+
+=== Foreword
+
+This book tries to give you a guide to start your own experiments into
+the wonderful world of Wireshark development.
+
+Developers who are new to Wireshark often have a hard time getting
+their development environment up and running. This is
+especially true for Win32 developers, as a lot of the tools and methods
+used when building Wireshark are much more common in the UNIX world than
+on Win32.
+
+The first part of this book will describe how to set up the environment
+needed to develop Wireshark.
+
+The second part of this book will describe how to change the Wireshark
+source code.
+
+We hope that you find this book useful, and look forward to your comments.
+
+[[PreAudience]]
+
+=== Who should read this document?
+
+The intended audience of this book is anyone going into the development of
+Wireshark.
+
+This book is not intended to explain the usage of Wireshark in general.
+Please refer the
+{wireshark-users-guide-url}[Wireshark User’s Guide] about Wireshark usage.
+
+By reading this book, you will learn how to develop Wireshark. It will
+hopefully guide you around some common problems that frequently appear for
+new (and sometimes even advanced) developers of Wireshark.
+
+[[PreAck]]
+
+=== Acknowledgements
+
+The authors would like to thank the whole Wireshark team for their
+assistance. In particular, the authors would like to thank:
+
+* Gerald Combs, for initiating the Wireshark project.
+
+* Guy Harris, for many helpful hints and his effort in maintaining
+the various contributions on the mailing lists.
+
+* Frank Singleton from whose `README.idl2wrs` <<ChDissectIdl2wrs>> is derived.
+
+The authors would also like to thank the following people for their
+helpful feedback on this document:
+
+* XXX - Please give feedback :-)
+
+And of course a big thank you to the many, many contributors of the
+Wireshark development community!
+
+[[PreAbout]]
+
+=== About this document
+
+This book was developed by mailto:{wsdg-author-email}[Ulf Lamping],
+updated for VS2013 by mailto:{wsdg-author-email2}[Graham Bloice],
+and updated for later versions of Visual Studio by various contributors.
+
+It is written in AsciiDoc.
+
+[[PreDownload]]
+
+=== Where to get the latest copy of this document?
+
+The latest copy of this documentation can always be found at
+{wireshark-developers-guide-url}.
+
+[[PreFeedback]]
+
+=== Providing feedback about this document
+
+Should you have any feedback about this document, please send it to the
+authors through mailto:{wireshark-dev-list-email}[].
+
+

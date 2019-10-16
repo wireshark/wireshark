@@ -13,7 +13,7 @@
 /* The official Documentation for the Peer Name Resolution Protocol
  * ([MS-PNRP]) can be found at
  *
- *    http://msdn.microsoft.com/en-us/library/cc239047.aspx
+ *    https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-pnrp
  *
  * This dissector is based on Revision 6.1.2
  */
@@ -1467,7 +1467,7 @@ void proto_reg_handoff_pnrp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

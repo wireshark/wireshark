@@ -174,6 +174,7 @@ WS_DLL_PUBLIC int port_with_resolution_to_str_buf(gchar *buf, gulong buf_size,
 /* Setup name resolution preferences */
 struct pref_module;
 extern void addr_resolve_pref_init(struct pref_module *nameres);
+extern void addr_resolve_pref_apply(void);
 
 /*
  * disable_name_resolution() sets all relevant gbl_resolv_flags to FALSE.
@@ -350,21 +351,23 @@ WS_DLL_PUBLIC
 wmem_map_t *get_ipv6_hash_table(void);
 
 /*
+ * XXX - if we ever have per-session host name etc. information, we
+ * should probably have the "resolve synchronously or asynchronously"
+ * flag be per-session, set with an epan API.
+ */
+WS_DLL_PUBLIC
+void set_resolution_synchrony(gboolean synchronous);
+
+/*
  * private functions (should only be called by epan directly)
  */
 
 WS_DLL_LOCAL
 void name_resolver_init(void);
 
-/* (Re)Initialize hostname resolution subsystem */
+/* Reinitialize hostname resolution subsystem */
 WS_DLL_LOCAL
-void host_name_lookup_init(void);
-
-/* Clean up only hostname resolutions (so they don't "leak" from one
- * file to the next).
- */
-WS_DLL_LOCAL
-void host_name_lookup_cleanup(void);
+void host_name_lookup_reset(void);
 
 WS_DLL_LOCAL
 void addr_resolv_init(void);
@@ -380,6 +383,9 @@ gboolean str_to_ip(const char *str, void *dst);
 
 WS_DLL_PUBLIC
 gboolean str_to_ip6(const char *str, void *dst);
+
+WS_DLL_LOCAL
+gboolean str_to_eth(const char *str, char *eth_bytes);
 
 WS_DLL_LOCAL
 guint ipv6_oat_hash(gconstpointer key);

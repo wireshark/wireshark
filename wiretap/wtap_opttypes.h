@@ -44,7 +44,9 @@ extern "C" {
                                      */
 #define OPT_IDB_DESCR        3     /**< A UTF-8 string containing the description
                                      *     of the device used to capture data.
-                                     *     "Broadcom NetXtreme" / "First Ethernet Interface"
+                                     *     "Wi-Fi" / "Local Area Connection" /
+                                     *     "Wireless Network Connection" /
+                                     *     "First Ethernet Interface"
                                      */
 #define OPT_IDB_IP4ADDR      4     /**< XXX: if_IPv4addr Interface network address and netmask.
                                      *     This option can be repeated multiple times within the same Interface Description Block
@@ -98,6 +100,14 @@ extern "C" {
                                      *     option if_tzone. TODO: won't a if_tsoffset_low for fractional
                                      *     second offsets be useful for highly syncronized capture systems?
                                      */
+#define OPT_IDB_HARDWARE     15     /**< A UTF-8 string containing the description
+                                     *     of the hardware of the device used
+                                     *     to capture data.
+                                     *     "Broadcom NetXtreme" /
+                                     *     "Intel(R) PRO/1000 MT Network Connection" /
+                                     *     "NETGEAR WNA1000Mv2 N150 Wireless USB Micro Adapter"
+                                     */
+
 
 #define OPT_NS_DNSNAME       2
 #define OPT_NS_DNSIP4ADDR    3
@@ -123,6 +133,7 @@ typedef enum {
     WTAP_BLOCK_IF_DESCR,
     WTAP_BLOCK_NG_NRB,
     WTAP_BLOCK_IF_STATS,
+    WTAP_BLOCK_DSB,
     WTAP_BLOCK_END_OF_LIST
 } wtap_block_type_t;
 

@@ -29,7 +29,7 @@
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
-* SPDX-License-Identifier: GPL-2.0-or-later *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 /*
@@ -147,8 +147,8 @@ XMIT-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.51) 20 octet
 #include <wsutil/buffer.h>
 #include "ascendtext.h"
 #include "ascend-int.h"
-#include "ascend.h"
 DIAG_OFF_BYACC
+#include "ascend.h"
 #include "ascend_scanner_lex.h"
 DIAG_ON_BYACC
 #include "file_wrappers.h"
@@ -382,8 +382,8 @@ wdd_hdr: WDD_CHUNK hexnum KEYWORD KEYWORD hexnum KEYWORD decnum decnum decnum KE
 ;
 
 byte: HEXBYTE {
-  /* remember the position of the data group in the trace, to tip
-     off ascend_seek() as to where to look for the next header. */
+  /* remember the position of the data group in the trace, to tip off
+     ascend_find_next_packet() as to where to look for the next header. */
   if (parser_state->first_hexbyte == 0)
     parser_state->first_hexbyte = file_tell(fh);
 
@@ -485,6 +485,8 @@ run_ascend_parser(FILE_T fh, wtap_rec *rec, guint8 *pd,
   parser_state->pseudo_header->call_num[0] = '\0';
 
   status = yyparse(scanner, parser_state, fh);
+  ascendlex_destroy(scanner);
+
   *err = parser_state->err;
   *err_info = parser_state->err_info;
   return status;

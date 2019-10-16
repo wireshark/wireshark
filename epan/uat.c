@@ -529,7 +529,7 @@ void uat_load_all(void) {
 
         if (!u->loaded) {
             err = NULL;
-            if (!uat_load(u, &err)) {
+            if (!uat_load(u, NULL, &err)) {
                 report_failure("Error loading table '%s': %s",u->name,err);
                 g_free(err);
             }
@@ -606,32 +606,36 @@ gboolean uat_fld_chk_proto(void* u1 _U_, const char* strptr, guint len, const vo
 
 static gboolean uat_fld_chk_num(int base, const char* strptr, guint len, char** err) {
     if (len > 0) {
-        char* str = g_strndup(strptr,len);
-        char* strn;
-        long i;
+        char* str = g_strndup(strptr, len);
+        const char* strn;
+        gboolean result;
+        guint32 value;
 
-        errno = 0;
-        i = strtol(str,&strn,base);
+        result = ws_basestrtou32(str, &strn, &value, base);
+        if (result && ((*strn != '\0') && (*strn != ' '))) {
+            /* string valid, but followed by something other than a space */
+            result = FALSE;
+            errno = EINVAL;
+        }
+        if (!result) {
+            switch (errno) {
 
-        if (((i == G_MAXLONG || i == G_MINLONG) && errno == ERANGE)
-            || (errno != 0 && i == 0)) {
-            *err = g_strdup(g_strerror(errno));
-            g_free(str);
-            return FALSE;
-        }
-        if ((*strn != '\0') && (*strn != ' ')) {
-            *err = g_strdup("Invalid value");
-            g_free(str);
-            return FALSE;
-        }
-        /* Allow only 32bit values */
-        if ((sizeof(long) > 4) && ((i < G_MININT) || (i > G_MAXINT))) {
-            *err = g_strdup("Value too large");
-            g_free(str);
-            return FALSE;
-        }
+            case EINVAL:
+                *err = g_strdup("Invalid value");
+                break;
 
+            case ERANGE:
+                *err = g_strdup("Value too large");
+                break;
+
+            default:
+                *err = g_strdup(g_strerror(errno));
+                break;
+            }
+        }
         g_free(str);
+
+        return result;
     }
 
     *err = NULL;
@@ -644,6 +648,44 @@ gboolean uat_fld_chk_num_dec(void* u1 _U_, const char* strptr, guint len, const 
 
 gboolean uat_fld_chk_num_hex(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err) {
     return uat_fld_chk_num(16, strptr, len, err);
+}
+
+gboolean uat_fld_chk_num_signed_dec(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err) {
+    if (len > 0) {
+        char* str = g_strndup(strptr,len);
+        const char* strn;
+        gboolean result;
+        gint32 value;
+
+        result = ws_strtoi32(str, &strn, &value);
+        if (result && ((*strn != '\0') && (*strn != ' '))) {
+            /* string valid, but followed by something other than a space */
+            result = FALSE;
+            errno = EINVAL;
+        }
+        if (!result) {
+            switch (errno) {
+
+            case EINVAL:
+                *err = g_strdup("Invalid value");
+                break;
+
+            case ERANGE:
+                *err = g_strdup("Value too large");
+                break;
+
+            default:
+                *err = g_strdup(g_strerror(errno));
+                break;
+            }
+        }
+        g_free(str);
+
+        return result;
+    }
+
+    *err = NULL;
+    return TRUE;
 }
 
 gboolean uat_fld_chk_bool(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err)
@@ -754,7 +796,7 @@ char* uat_unesc(const char* si, guint in_len, guint* len_p) {
     const char* s;
     const char* in_end = si+in_len;
 
-    for (s = (const char *)si; s < in_end; s++) {
+    for (s = si; s < in_end; s++) {
         switch(*s) {
             case '\\':
                 switch(*(++s)) {

@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "packet_range_group_box.h"
 #include <ui_packet_range_group_box.h>
@@ -24,8 +25,6 @@ PacketRangeGroupBox::PacketRangeGroupBox(QWidget *parent) :
 
 PacketRangeGroupBox::~PacketRangeGroupBox()
 {
-    if (range_)
-        wmem_free(NULL, range_->user_range);
     delete pr_ui_;
 }
 
@@ -109,7 +108,7 @@ void PacketRangeGroupBox::updateCounts() {
         pr_ui_->selectedCapturedLabel->setEnabled(false);
         pr_ui_->selectedDisplayedLabel->setEnabled(false);
     }
-    if ((range_->remove_ignored && can_select && range_->cf->current_frame->flags.ignored) || selected_num < 1) {
+    if ((range_->remove_ignored && can_select && range_->cf->current_frame->ignored) || selected_num < 1) {
         pr_ui_->selectedCapturedLabel->setText("0");
         pr_ui_->selectedDisplayedLabel->setText("0");
     } else {
@@ -223,7 +222,7 @@ void PacketRangeGroupBox::updateCounts() {
         displayed_ignored_cnt = range_->displayed_ignored_cnt;
         break;
     case(range_process_selected):
-        ignored_cnt = (can_select && range_->cf->current_frame->flags.ignored) ? 1 : 0;
+        ignored_cnt = (can_select && range_->cf->current_frame->ignored) ? 1 : 0;
         displayed_ignored_cnt = ignored_cnt;
         break;
     case(range_process_marked):

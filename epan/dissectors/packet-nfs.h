@@ -187,6 +187,11 @@
 #define LAYOUT4_FLEX_FILES                4
 #define LAYOUT4_SCSI                      5
 
+#define NFL4_UFLG_MASK                   0x0000003F
+#define NFL4_UFLG_DENSE                  0x00000001
+#define NFL4_UFLG_COMMIT_THRU_MDS        0x00000002
+#define NFL4_UFLG_STRIPE_UNIT_SIZE_MASK  0xFFFFFFC0
+
 /* NFSv4.2 */
 
 /* netloc types */

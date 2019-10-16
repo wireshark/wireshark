@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 
 #include "config.h"
@@ -21,9 +22,11 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/dissectors/packet-sv.h>
 
+#include <ui/cmdarg_err.h>
+
 void register_tap_listener_sv(void);
 
-static int
+static tap_packet_status
 sv_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
 	int i;
@@ -37,7 +40,7 @@ sv_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 
 	printf("\n");
 
-	return 0;
+	return TAP_PACKET_DONT_REDRAW;
 }
 
 static void
@@ -52,10 +55,11 @@ svstat_init(const char *opt_arg _U_, void *userdata _U_)
 		0,
 		NULL,
 		sv_packet,
+		NULL,
 		NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
-		fprintf(stderr, "tshark: Couldn't register sv,stat tap: %s\n",
+		cmdarg_err("Couldn't register sv,stat tap: %s",
 				error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -78,7 +82,7 @@ register_tap_listener_sv(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

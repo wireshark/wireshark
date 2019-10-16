@@ -25,7 +25,6 @@ extern "C" {
  */
 
 typedef struct filter_expression {
-	gpointer button;	/* Filter toolbar (GTK only) */
 	gchar	*label;
 	gchar	*expression;
 	gchar	*comment;
@@ -39,6 +38,7 @@ WS_DLL_PUBLIC void filter_expression_iterate_expressions(wmem_foreach_func func,
  *
  * @param label Label (button) text for the expression.
  * @param expr The display filter for the expression.
+ * @param comment A comment about the filter.
  * @param enabled Determines if the expression is shown in the UI.
  * @return A newly allocated and initialized struct filter_expression.
  */

@@ -14,25 +14,34 @@
 
 #include <epan/packet.h>
 
-#include "packet-ssl-utils.h"
+#include "packet-tls-utils.h"
 #include "packet-tcp.h"
 
 void proto_register_pgsql(void);
 void proto_reg_handoff_pgsql(void);
 
 static dissector_handle_t pgsql_handle;
-static dissector_handle_t ssl_handle;
+static dissector_handle_t tls_handle;
 
 static int proto_pgsql = -1;
 static int hf_frontend = -1;
 static int hf_type = -1;
 static int hf_length = -1;
+static int hf_version_major = -1;
+static int hf_version_minor = -1;
+static int hf_supported_minor_version = -1;
+static int hf_number_nonsupported_options = -1;
+static int hf_nonsupported_option = -1;
 static int hf_parameter_name = -1;
 static int hf_parameter_value = -1;
 static int hf_query = -1;
 static int hf_authtype = -1;
 static int hf_passwd = -1;
 static int hf_salt = -1;
+static int hf_gssapi_sspi_data = -1;
+static int hf_sasl_auth_mech = -1;
+static int hf_sasl_auth_data = -1;
+static int hf_sasl_auth_data_length = -1;
 static int hf_statement = -1;
 static int hf_portal = -1;
 static int hf_return = -1;
@@ -79,12 +88,20 @@ static gint ett_values = -1;
 static gboolean pgsql_desegment = TRUE;
 static gboolean first_message = TRUE;
 
+typedef enum {
+  PGSQL_AUTH_STATE_NONE,               /*  No authentication seen or used */
+  PGSQL_AUTH_SASL_REQUESTED,           /* Server sends SASL auth request with supported SASL mechanisms*/
+  PGSQL_AUTH_SASL_CONTINUE,            /* Server and/or client send further SASL challange-response messages */
+  PGSQL_AUTH_GSSAPI_SSPI_DATA,         /* GSSAPI/SSPI in use */
+} pgsql_auth_state_t;
+
 typedef struct pgsql_conn_data {
     gboolean    ssl_requested;
+    pgsql_auth_state_t auth_state; /* Current authentication state */
 } pgsql_conn_data_t;
 
 static const value_string fe_messages[] = {
-    { 'p', "Password message" },
+    { 'p', "Authentication message" },
     { 'Q', "Simple query" },
     { 'P', "Parse" },
     { 'B', "Bind" },
@@ -124,24 +141,38 @@ static const value_string be_messages[] = {
     { 'H', "CopyOut response" },
     { 'd', "Copy data" },
     { 'c', "Copy completion" },
+    { 'v', "Negotiate protocol version" },
     { 0, NULL }
 };
 
+#define PGSQL_AUTH_TYPE_SUCCESS 0
+#define PGSQL_AUTH_TYPE_KERBEROS4 1
+#define PGSQL_AUTH_TYPE_KERBEROS5 2
+#define PGSQL_AUTH_TYPE_PLAINTEXT 3
+#define PGSQL_AUTH_TYPE_CRYPT 4
+#define PGSQL_AUTH_TYPE_MD5 5
+#define PGSQL_AUTH_TYPE_SCM 6
+#define PGSQL_AUTH_TYPE_GSSAPI 7
+#define PGSQL_AUTH_TYPE_GSSAPI_SSPI_CONTINUE 8
+#define PGSQL_AUTH_TYPE_SSPI 9
+#define PGSQL_AUTH_TYPE_SASL 10
+#define PGSQL_AUTH_TYPE_SASL_CONTINUE 11
+#define PGSQL_AUTH_TYPE_SASL_COMPLETE 12
 
 static const value_string auth_types[] = {
-    { 0, "Success" },
-    { 1, "Kerberos V4" },
-    { 2, "Kerberos V5" },
-    { 3, "Plaintext password" },
-    { 4, "crypt()ed password" },
-    { 5, "MD5 password" },
-    { 6, "SCM credentials" },
-    { 7, "GSSAPI" },
-    { 8, "GSSAPI/SSPI continue" },
-    { 9, "SSPI" },
-    {10, "SASL" },
-    {11, "SASL continue" },
-    {12, "SASL complete" },
+    { PGSQL_AUTH_TYPE_SUCCESS              , "Success" },
+    { PGSQL_AUTH_TYPE_KERBEROS4            , "Kerberos V4" },
+    { PGSQL_AUTH_TYPE_KERBEROS5            , "Kerberos V5" },
+    { PGSQL_AUTH_TYPE_PLAINTEXT            , "Plaintext password" },
+    { PGSQL_AUTH_TYPE_CRYPT                , "crypt()ed password" },
+    { PGSQL_AUTH_TYPE_MD5                  , "MD5 password" },
+    { PGSQL_AUTH_TYPE_SCM                  , "SCM credentials" },
+    { PGSQL_AUTH_TYPE_GSSAPI               , "GSSAPI" },
+    { PGSQL_AUTH_TYPE_GSSAPI_SSPI_CONTINUE , "GSSAPI/SSPI continue" },
+    { PGSQL_AUTH_TYPE_SSPI                 , "SSPI" },
+    { PGSQL_AUTH_TYPE_SASL                 , "SASL" },
+    { PGSQL_AUTH_TYPE_SASL_CONTINUE        , "SASL continue" },
+    { PGSQL_AUTH_TYPE_SASL_COMPLETE        , "SASL complete" },
     { 0, NULL }
 };
 
@@ -166,12 +197,38 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
     gint i, siz;
     char *s;
     proto_tree *shrub;
+    gint32 data_length;
 
     switch (type) {
-    /* Password */
+    /* Password, SASL or GSSAPI Response, depending on context */
     case 'p':
-        siz = tvb_strsize(tvb, n);
-        proto_tree_add_item(tree, hf_passwd, tvb, n, siz, ENC_ASCII|ENC_NA);
+        switch(conv_data->auth_state) {
+
+            case PGSQL_AUTH_SASL_REQUESTED:
+                /* SASLInitResponse */
+                siz = tvb_strsize(tvb, n);
+                proto_tree_add_item(tree, hf_sasl_auth_mech, tvb, n, siz, ENC_ASCII|ENC_NA);
+                n += siz;
+                proto_tree_add_item_ret_int(tree, hf_sasl_auth_data_length, tvb, n, 4, ENC_BIG_ENDIAN, &data_length);
+                n += 4;
+                if (data_length) {
+                    proto_tree_add_item(tree, hf_sasl_auth_data, tvb, n, data_length, ENC_NA);
+                }
+                break;
+
+            case PGSQL_AUTH_SASL_CONTINUE:
+                proto_tree_add_item(tree, hf_sasl_auth_data, tvb, n, length-4, ENC_NA);
+                break;
+
+            case PGSQL_AUTH_GSSAPI_SSPI_DATA:
+                proto_tree_add_item(tree, hf_gssapi_sspi_data, tvb, n, length-4, ENC_NA);
+                break;
+
+            default:
+                siz = tvb_strsize(tvb, n);
+                proto_tree_add_item(tree, hf_passwd, tvb, n, siz, ENC_ASCII|ENC_NA);
+                break;
+        }
         break;
 
     /* Simple query */
@@ -274,6 +331,8 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         switch (i) {
         /* Startup message */
         case 196608:
+            proto_tree_add_item(tree, hf_version_major, tvb, n-4, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_version_minor, tvb, n-2, 2, ENC_BIG_ENDIAN);
             while ((signed)length > 0) {
                 siz = tvb_strsize(tvb, n);
                 length -= siz;
@@ -349,26 +408,49 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
 
 
 static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
-                                 gint n, proto_tree *tree)
+                                 gint n, proto_tree *tree,
+                                 pgsql_conn_data_t *conv_data)
 {
     guchar c;
     gint i, siz;
     char *s, *t;
+    gint32 num_nonsupported_options;
     proto_item *ti;
     proto_tree *shrub;
+    guint32 auth_type;
 
     switch (type) {
     /* Authentication request */
     case 'R':
-        proto_tree_add_item(tree, hf_authtype, tvb, n, 4, ENC_BIG_ENDIAN);
-        i = tvb_get_ntohl(tvb, n);
-        if (i == 4 || i == 5) {
-            /* i -= (6-i); :-) */
+        proto_tree_add_item_ret_uint(tree, hf_authtype, tvb, n, 4, ENC_BIG_ENDIAN, &auth_type);
+        switch (auth_type) {
+        case PGSQL_AUTH_TYPE_CRYPT:
+        case PGSQL_AUTH_TYPE_MD5:
             n += 4;
-            siz = (i == 4 ? 2 : 4);
+            siz = (auth_type == PGSQL_AUTH_TYPE_CRYPT ? 2 : 4);
             proto_tree_add_item(tree, hf_salt, tvb, n, siz, ENC_NA);
-        }else if (i == 8) {
-            proto_tree_add_item(tree, hf_salt, tvb, n, length-8, ENC_NA);
+            break;
+        case PGSQL_AUTH_TYPE_GSSAPI_SSPI_CONTINUE:
+            conv_data->auth_state = PGSQL_AUTH_GSSAPI_SSPI_DATA;
+            proto_tree_add_item(tree, hf_gssapi_sspi_data, tvb, n, length-8, ENC_NA);
+            break;
+        case PGSQL_AUTH_TYPE_SASL:
+            conv_data->auth_state = PGSQL_AUTH_SASL_REQUESTED;
+            n += 4;
+            while ((guint)n < length) {
+                siz = tvb_strsize(tvb, n);
+                proto_tree_add_item(tree, hf_sasl_auth_mech, tvb, n, siz, ENC_ASCII|ENC_NA);
+                n += siz;
+            }
+            break;
+        case PGSQL_AUTH_TYPE_SASL_CONTINUE:
+        case PGSQL_AUTH_TYPE_SASL_COMPLETE:
+            conv_data->auth_state = PGSQL_AUTH_SASL_CONTINUE;
+            n += 4;
+            if ((guint)n < length) {
+                proto_tree_add_item(tree, hf_sasl_auth_data, tvb, n, length-8, ENC_NA);
+            }
+            break;
         }
         break;
 
@@ -526,6 +608,20 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
         if (siz > 0)
             proto_tree_add_item(tree, hf_val_data, tvb, n+4, siz, ENC_NA);
         break;
+
+    /* Negotiate Protocol Version */
+    case 'v':
+        proto_tree_add_item(tree, hf_supported_minor_version, tvb, n, 4, ENC_BIG_ENDIAN);
+        n += 4;
+        proto_tree_add_item_ret_int(tree, hf_number_nonsupported_options, tvb, n, 4, ENC_BIG_ENDIAN, &num_nonsupported_options);
+        n += 4;
+        while (num_nonsupported_options > 0) {
+            siz = tvb_strsize(tvb, n);
+            proto_tree_add_item(tree, hf_nonsupported_option, tvb, n, siz, ENC_ASCII|ENC_NA);
+            n += siz;
+            num_nonsupported_options--;
+        }
+        break;
     }
 }
 
@@ -569,6 +665,7 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     if (!conn_data) {
         conn_data = wmem_new(wmem_file_scope(), pgsql_conn_data_t);
         conn_data->ssl_requested = FALSE;
+        conn_data->auth_state = PGSQL_AUTH_STATE_NONE;
         conversation_add_proto_data(conversation, proto_pgsql, conn_data);
     }
 
@@ -596,6 +693,21 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                 typestr = "Startup message";
             else
                 typestr = "Unknown";
+        } else if (type == 'p') {
+            switch (conn_data->auth_state) {
+                case PGSQL_AUTH_SASL_REQUESTED:
+                    typestr = "SASLInitialResponse message";
+                    break;
+                case PGSQL_AUTH_SASL_CONTINUE:
+                    typestr = "SASLResponse message";
+                    break;
+                case PGSQL_AUTH_GSSAPI_SSPI_DATA:
+                    typestr = "GSSResponse message";
+                    break;
+                default:
+                    typestr = "Password message";
+                    break;
+            }
         } else
             typestr = val_to_str_const(type, fe_messages, "Unknown");
     }
@@ -620,13 +732,13 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         proto_tree_add_string(ptree, hf_type, tvb, 0, n, typestr);
         proto_tree_add_item(ptree, hf_length, tvb, n, 4, ENC_BIG_ENDIAN);
         hidden_item = proto_tree_add_boolean(ptree, hf_frontend, tvb, 0, 0, fe);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
         n += 4;
 
         if (fe)
             dissect_pgsql_fe_msg(type, length, tvb, n, ptree, conn_data);
         else
-            dissect_pgsql_be_msg(type, length, tvb, n, ptree);
+            dissect_pgsql_be_msg(type, length, tvb, n, ptree, conn_data);
     }
 
     return tvb_captured_length(tvb);
@@ -657,7 +769,7 @@ dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         switch (tvb_get_guint8(tvb, 0)) {
         case 'S':   /* Willing to perform SSL */
             /* Next packet will start using SSL. */
-            ssl_starttls_ack(ssl_handle, pinfo, pgsql_handle);
+            ssl_starttls_ack(tls_handle, pinfo, pgsql_handle);
             break;
         case 'N':   /* Unwilling to perform SSL */
         default:    /* ErrorMessage when server does not support SSL. */
@@ -691,6 +803,26 @@ proto_register_pgsql(void)
             "The length of the message (not including the type).",
             HFILL }
         },
+        { &hf_version_major,
+          { "Protocol major version", "pgsql.version_major", FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_version_minor,
+          { "Protocol minor version", "pgsql.version_minor", FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_supported_minor_version,
+          { "Supported minor version", "pgsql.version_supported_minor", FT_UINT32, BASE_DEC, NULL, 0,
+            "Newest minor protocol version supported by the server for the major protocol version requested by the client.", HFILL }
+        },
+        { &hf_number_nonsupported_options,
+          { "Number nonsupported options", "pgsql.number_nonsupported_options", FT_INT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_nonsupported_option,
+          { "Nonsupported option", "pgsql.nonsupported_option", FT_STRINGZ, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
         { &hf_parameter_name,
           { "Parameter name", "pgsql.parameter_name", FT_STRINGZ,
             BASE_NONE, NULL, 0, "The name of a database parameter.",
@@ -710,13 +842,29 @@ proto_register_pgsql(void)
             "A password.", HFILL }
         },
         { &hf_authtype,
-          { "Authentication type", "pgsql.authtype", FT_INT32, BASE_DEC,
+          { "Authentication type", "pgsql.authtype", FT_UINT32, BASE_DEC,
             VALS(auth_types), 0,
             "The type of authentication requested by the backend.", HFILL }
         },
         { &hf_salt,
           { "Salt value", "pgsql.salt", FT_BYTES, BASE_NONE, NULL, 0,
             "The salt to use while encrypting a password.", HFILL }
+        },
+        { &hf_gssapi_sspi_data,
+          { "GSSAPI or SSPI data", "pgsql.auth.gssapi_sspi.data", FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_sasl_auth_mech,
+          { "SASL authentication mechanism", "pgsql.auth.sasl.mech", FT_STRINGZ, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_sasl_auth_data_length,
+          { "SASL authentication data length", "pgsql.auth.sasl.data.length", FT_INT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_sasl_auth_data,
+          { "SASL authentication data", "pgsql.auth.sasl.data", FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
         },
         { &hf_statement,
           { "Statement", "pgsql.statement", FT_STRINGZ, BASE_NONE, NULL, 0,
@@ -891,11 +1039,11 @@ proto_reg_handoff_pgsql(void)
 
     dissector_add_uint_with_preference("tcp.port", PGSQL_PORT, pgsql_handle);
 
-    ssl_handle = find_dissector_add_dependency("ssl", proto_pgsql);
+    tls_handle = find_dissector_add_dependency("tls", proto_pgsql);
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

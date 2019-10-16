@@ -26,7 +26,7 @@ extern "C" {
 #define IEEE_802_3_MAX_LEN		1500
 
 /*
- * Minimum length of an Ethernet II frame;  Ethernet type/length values
+ * Minimum length of an Ethernet II frame; Ethernet type/length values
  * greater than or equal to it are types.
  */
 #define ETHERNET_II_MIN_LEN		1536
@@ -47,6 +47,7 @@ extern "C" {
  * Public Assignments" link on the page at
  *
  *	http://standards.ieee.org/regauth/ethertype/index.shtml
+ *      http://standards-oui.ieee.org/ethertype/eth.txt
  *
  * goes to, but it is redirected to the second of those - i.e., both
  * of the IEEE URLs ultimately go to the same page.)
@@ -71,7 +72,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_WOL
-#define ETHERTYPE_WOL			0x0842	/* Wake on LAN.  Not offically registered. */
+#define ETHERTYPE_WOL			0x0842	/* Wake on LAN. Not offically registered. */
 #endif
 
 #ifndef ETHERTYPE_WMX_M2M
@@ -181,7 +182,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_RAW_FR
-#define ETHERTYPE_RAW_FR		0x6559	/* Raw Frame Relay        [RFC1701] */
+#define ETHERTYPE_RAW_FR		0x6559	/* Raw Frame Relay [RFC1701] */
 #endif
 
 #ifndef ETHERTYPE_REVARP
@@ -297,7 +298,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_LINK_CTL
-#define ETHERTYPE_LINK_CTL              0x886C  /* HPNA, wlan link local tunnel */
+#define ETHERTYPE_LINK_CTL		0x886C	/* HPNA, wlan link local tunnel */
 #endif
 
 #ifndef ETHERTYPE_INTEL_ANS
@@ -377,13 +378,13 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_WAI
-#define ETHERTYPE_WAI			0x88B4	/*  Instant Wireless Network Communications, Co. Ltd. */
-#endif						/*  WAI is a new authentication protocol that
-						    will be used to access authentication in
-						    IP based networks. This protocol establishes
-						    a logic channel between a station and access
-						    equipment by using an EtherType Field to
-						    accomplish authentication. */
+#define ETHERTYPE_WAI			0x88B4	/* Instant Wireless Network Communications, Co. Ltd. */
+#endif						/* WAI is a new authentication protocol that
+						   will be used to access authentication in
+						   IP based networks. This protocol establishes
+						   a logic channel between a station and access
+						   equipment by using an EtherType Field to
+						   accomplish authentication. */
 
 #ifndef ETHERTYPE_EXPERIMENTAL_ETH1
 #define ETHERTYPE_EXPERIMENTAL_ETH1	0x88B5	/* IEEE Std 802 - Local Experimental Ethertype 1. */
@@ -401,14 +402,14 @@ extern "C" {
 #define ETHERTYPE_IEC61850_GOOSE	0x88B8	/* IEC 61850 is a global standard for the use in utility communication,*/
 #endif						/* in particular for the information exchange between IED's in a power */
 						/* transmission or distribution substation. */
-						/*  There are three types of application services
-						    that use a specific EtherType. GOOSE uses
-						    EtherType field 88b8, GSE management services
-						    uses EtherType field 88b9. These two protocols
-						    are defined in IEC 61850-8-1. SV (Sampled
-						    Value Transmission) uses EtherType field
-						    88ba; the protocol is defined in IEC 61850-9-1
-						    and IEC 61850-9-2. */
+						/* There are three types of application services
+						   that use a specific EtherType. GOOSE uses
+						   EtherType field 88b8, GSE management services
+						   uses EtherType field 88b9. These two protocols
+						   are defined in IEC 61850-8-1. SV (Sampled
+						   Value Transmission) uses EtherType field
+						   88ba; the protocol is defined in IEC 61850-9-1
+						   and IEC 61850-9-2. */
 
 #ifndef ETHERTYPE_IEC61850_GSE
 #define ETHERTYPE_IEC61850_GSE		0x88B9	/* IEC 61850 is a global standard for the use in utility communication,*/
@@ -419,7 +420,7 @@ extern "C" {
 #endif						/* in particular for the information exchange between IED's in a power */
 
 #ifndef ETHERTYPE_TIPC
-#define ETHERTYPE_TIPC			0x88CA	/* TIPC  (Transparent Inter Process Communication, */
+#define ETHERTYPE_TIPC			0x88CA	/* TIPC (Transparent Inter Process Communication, */
 #endif						/* http://tipc.sourceforge.net/) Ericsson Research Canada Inc */
 
 #ifndef ETHERTYPE_RSN_PREAUTH
@@ -487,10 +488,10 @@ extern "C" {
 #define ETHERTYPE_PTP			0x88F7	/* IEEE1588v2 (PTPv2) over Ethernet */
 #endif						/* in particular for the information exchange between IED's in a power */
 						/* transmission or distribution substation. */
-						/*  There are three types of application services */
+						/* There are three types of application services */
 
 #ifndef ETHERTYPE_NCSI
-#define ETHERTYPE_NCSI			0x88F8	/*  DMTF NC-SI: Network Controller Sideband Interface */
+#define ETHERTYPE_NCSI			0x88F8	/* DMTF NC-SI: Network Controller Sideband Interface */
 #endif
 
 #ifndef ETHERTYPE_PRP
@@ -558,7 +559,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_IEEE_1905
-#define ETHERTYPE_IEEE_1905		0x893A  /* IEEE 1905 */
+#define ETHERTYPE_IEEE_1905		0x893A	/* IEEE 1905 */
 #endif
 
 #ifndef ETHERTYPE_IEEE_802_1BR
@@ -567,6 +568,10 @@ extern "C" {
 
 #ifndef ETHERTYPE_ECP
 #define ETHERTYPE_ECP			0x8940	/* Edge Control Protocol */
+#endif
+
+#ifndef ETHERTYPE_GEONETWORKING
+#define ETHERTYPE_GEONETWORKING		0x8947	/* GeoNetworking as defined in ETSI EN 302 636-4-1. */
 #endif
 
 #ifndef ETHERTYPE_NSH
@@ -589,8 +594,16 @@ extern "C" {
 #define ETHERTYPE_QINQ_OLD		0x9100	/* QinQ: old non-standard 802.1ad */
 #endif
 
+#ifndef ETHERTYPE_EERO
+#define ETHERTYPE_EERO			0x9104	/* EERO: broadcast packets sent by EERO MESH AP's (not officially registered) */
+#endif
+
 #ifndef ETHERTYPE_6LOWPAN
 #define ETHERTYPE_6LOWPAN		0xA0ED	/* RFC 4944: Transmission of IPv6 Packets over IEEE 802.15.4 Networks */
+#endif
+
+#ifndef ETHERTYPE_ECPRI
+#define ETHERTYPE_ECPRI			0xAEFE /* Ethernet type of eCPRI */
 #endif
 
 #ifndef ETHERTYPE_LLT
@@ -617,6 +630,10 @@ extern "C" {
 #define ETHERTYPE_AVSP			0xD28B /* Ethernet type for Arista vendor specific packet frames */
 #endif
 
+#ifndef ETHERTYPE_CABLELABS
+#define ETHERTYPE_CABLELABS		0xB4E3 /* Ethernet type for CableLabs layer-3 protocol */
+#endif
+
 WS_DLL_PUBLIC const value_string etype_vals[];
 
 #ifdef __cplusplus
@@ -626,7 +643,7 @@ WS_DLL_PUBLIC const value_string etype_vals[];
 #endif /* __ETYPES_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

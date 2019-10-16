@@ -7,9 +7,7 @@
 #.IMPORT ../x509sat/x509sat-exp.cnf
 
 #.OMIT_ASSIGNMENT
-KeyWrapAlgorithm
 CBCParameter
-IV
 ExtendedCertificateOrCertificate
 #.END
 
@@ -53,9 +51,36 @@ SMIMECapabilities 	B "1.2.840.113549.1.9.15" "id-smime-capabilities"
 SMIMEEncryptionKeyPreference B "1.2.840.113549.1.9.16.2.11" "id-encryption-key-preference"
 
 # I think the following should be RC2CBCParameter - but that appears to be incorrect
-RC2CBCParameters 	B "1.2.840.113549.3.2" "id-alg-rc2-cbc"
 RC2CBCParameters 	B "1.2.840.113549.3.4" "id-alg-rc4"
-RC2WrapParameter	B "1.2.840.113549.1.9.16.3.7" "id-alg-cmsrc2-wrap"
+
+# EC algorithms from RFC 3278 / RFC 5753
+KeyWrapAlgorithm B "1.3.133.16.840.63.0.2"  "dhSinglePass-stdDH-sha1kdf-scheme"
+KeyWrapAlgorithm B "1.3.132.1.11.0"         "dhSinglePass-stdDH-sha224kdf-scheme"
+KeyWrapAlgorithm B "1.3.132.1.11.1"         "dhSinglePass-stdDH-sha256kdf-scheme"
+KeyWrapAlgorithm B "1.3.132.1.11.2"         "dhSinglePass-stdDH-sha384kdf-scheme"
+KeyWrapAlgorithm B "1.3.132.1.11.3"         "dhSinglePass-stdDH-sha512kdf-scheme"
+KeyWrapAlgorithm B "1.3.133.16.840.63.0.3"  "dhSinglePass-cofactorDH-sha1kdf-scheme"
+KeyWrapAlgorithm B "1.3.132.1.14.0"         "dhSinglePass-cofactorDH-sha224kdf-scheme"
+KeyWrapAlgorithm B "1.3.132.1.14.1"         "dhSinglePass-cofactorDH-sha256kdf-scheme"
+KeyWrapAlgorithm B "1.3.132.1.14.2"         "dhSinglePass-cofactorDH-sha384kdf-scheme"
+KeyWrapAlgorithm B "1.3.132.1.14.3"         "dhSinglePass-cofactorDH-sha512kdf-scheme"
+KeyWrapAlgorithm B "1.3.133.16.840.63.0.16" "mqvSinglePass-sha1kdf-scheme"
+KeyWrapAlgorithm B "1.3.132.1.15.0"         "mqvSinglePass-sha224kdf-scheme"
+KeyWrapAlgorithm B "1.3.132.1.15.1"         "mqvSinglePass-sha256kdf-scheme"
+KeyWrapAlgorithm B "1.3.132.1.15.2"         "mqvSinglePass-sha384kdf-scheme"
+KeyWrapAlgorithm B "1.3.132.1.15.3"         "mqvSinglePass-sha512kdf-scheme"
+
+# RFC 3370 [CMS-ASN] (and RFC 5911 section 3)
+# - section 4.3.1 - registered in packet-cms-template.c
+# NULL B "1.2.840.113549.1.9.16.3.6" "id-alg-CMS3DESwrap"
+# - section 4.3.2
+RC2WrapParameter	B "1.2.840.113549.1.9.16.3.7" "id-alg-CMSRC2-wrap"
+# - section 4.4.1 - PBKDF2-params defined in PKCS#5 / RFC 8018 - not yet implemented
+# PBKDF2-params	B "1.2.840.113549.1.5.12" "id-PBKDF2"
+# - section 5.1
+IV 	B "1.2.840.113549.3.7" "des-ede3-cbc"
+# - section 5.2
+RC2CBCParameters 	B "1.2.840.113549.3.2" "rc2-cbc"
 
 # RFC 2798 Attributes - see master list in x509sat.cnf
 SignedData		B "2.16.840.1.113730.3.1.40"      "userSMIMECertificate"

@@ -36,25 +36,71 @@
  *
  * Some other compressed file formats we might want to support:
  *
- *      XZ format: http://tukaani.org/xz/
+ *      XZ format: https://tukaani.org/xz/
  *
- *      Bzip2 format: http://bzip.org/
+ *      Bzip2 format: https://www.sourceware.org/bzip2/
  *
- *      Lzip format: http://www.nongnu.org/lzip/
+ *      Lzip format: https://www.nongnu.org/lzip/
  */
 
 /*
- * List of extensions for compressed files.
- * If we add support for more compressed file types, this table
- * might be expanded to include routines to handle the various
- * compression types.
+ * List of compression types supported.
  */
-const char *compressed_file_extension_table[] = {
+static struct compression_type {
+    wtap_compression_type  type;
+    const char            *extension;
+    const char            *description;
+} compression_types[] = {
 #ifdef HAVE_ZLIB
-    "gz",
+    { WTAP_GZIP_COMPRESSED, "gz", "gzip compressed" },
 #endif
-    NULL
+    { WTAP_UNCOMPRESSED, NULL, NULL }
 };
+
+wtap_compression_type
+wtap_get_compression_type(wtap *wth)
+{
+	gboolean is_compressed;
+
+	is_compressed = file_iscompressed((wth->fh == NULL) ? wth->random_fh : wth->fh);
+	return is_compressed ? WTAP_GZIP_COMPRESSED : WTAP_UNCOMPRESSED;
+}
+
+const char *
+wtap_compression_type_description(wtap_compression_type compression_type)
+{
+	for (struct compression_type *p = compression_types;
+	    p->type != WTAP_UNCOMPRESSED; p++) {
+		if (p->type == compression_type)
+			return p->description;
+	}
+	return NULL;
+}
+
+const char *
+wtap_compression_type_extension(wtap_compression_type compression_type)
+{
+	for (struct compression_type *p = compression_types;
+	    p->type != WTAP_UNCOMPRESSED; p++) {
+		if (p->type == compression_type)
+			return p->extension;
+	}
+	return NULL;
+}
+
+GSList *
+wtap_get_all_compression_type_extensions_list(void)
+{
+	GSList *extensions;
+
+	extensions = NULL;	/* empty list, to start with */
+
+	for (struct compression_type *p = compression_types;
+	    p->type != WTAP_UNCOMPRESSED; p++)
+		extensions = g_slist_prepend(extensions, (gpointer)p->extension);
+
+	return extensions;
+}
 
 /* #define GZBUFSIZE 8192 */
 #define GZBUFSIZE 4096
@@ -808,7 +854,25 @@ gz_reset(FILE_T state)
 FILE_T
 file_fdopen(int fd)
 {
-#ifdef _STATBUF_ST_BLKSIZE      /* XXX, _STATBUF_ST_BLKSIZE portable? */
+    /*
+     * XXX - we now check whether we have st_blksize in struct stat;
+     * it's not available on all platforms.
+     *
+     * I'm not sure why we're testing _STATBUF_ST_BLKSIZE; it's not
+     * set on all platforms that have st_blksize in struct stat.
+     * (Not all platforms have st_blksize in struct stat.)
+     *
+     * Is there some reason *not* to make the buffer size the maximum
+     * of GBUFSIZE and st_blksize?  On most UN*Xes, the standard I/O
+     * library does I/O with st_blksize as the buffer size; on others,
+     * and on Windows, it's a 4K buffer size.  If st_blksize is bigger
+     * than GBUFSIZE (which is currently 4KB), that's probably a
+     * hint that reading in st_blksize chunks is considered a good
+     * idea (e.g., an 8K/1K Berkeley fast file system with st_blksize
+     * being 8K, or APFS, where st_blksize is big on at least some
+     * versions of macOS).
+     */
+#ifdef _STATBUF_ST_BLKSIZE
     ws_statb64 st;
 #endif
     int want = GZBUFSIZE;
@@ -1398,8 +1462,9 @@ file_getc(FILE_T file)
     return ret < 1 ? -1 : buf[0];
 }
 
+/* Like file_gets, but returns a pointer to the terminating NUL. */
 char *
-file_gets(char *buf, int len, FILE_T file)
+file_getsp(char *buf, int len, FILE_T file)
 {
     guint left, n;
     char *str;
@@ -1461,9 +1526,17 @@ file_gets(char *buf, int len, FILE_T file)
             buf += n;
         } while (left && eol == NULL);
 
-    /* found end-of-line or out of space -- terminate string and return it */
+    /* found end-of-line or out of space -- add a terminator and return
+       a pointer to it */
     buf[0] = 0;
-    return str;
+    return buf;
+}
+
+char *
+file_gets(char *buf, int len, FILE_T file)
+{
+    if (!file_getsp(buf, len, file)) return NULL;
+    return buf;
 }
 
 int
@@ -1827,7 +1900,7 @@ gzwfile_geterr(GZWFILE_T state)
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

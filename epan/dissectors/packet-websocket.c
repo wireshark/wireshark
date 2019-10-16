@@ -36,6 +36,7 @@
 void proto_register_websocket(void);
 void proto_reg_handoff_websocket(void);
 
+static dissector_handle_t websocket_handle;
 static dissector_handle_t text_lines_handle;
 static dissector_handle_t json_handle;
 static dissector_handle_t sip_handle;
@@ -793,7 +794,7 @@ proto_register_websocket(void)
   expert_websocket = expert_register_protocol(proto_websocket);
   expert_register_field_array(expert_websocket, ei, array_length(ei));
 
-  register_dissector("websocket", dissect_websocket, proto_websocket);
+  websocket_handle = register_dissector("websocket", dissect_websocket, proto_websocket);
 
   websocket_module = prefs_register_protocol(proto_websocket, proto_reg_handoff_websocket);
 
@@ -808,6 +809,8 @@ proto_register_websocket(void)
 void
 proto_reg_handoff_websocket(void)
 {
+  dissector_add_string("http.upgrade", "websocket", websocket_handle);
+
   text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_websocket);
   json_handle = find_dissector_add_dependency("json", proto_websocket);
   sip_handle = find_dissector_add_dependency("sip", proto_websocket);

@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -36,44 +37,29 @@ WiresharkDialog::WiresharkDialog(QWidget &parent, CaptureFile &capture_file) :
     dialog_closed_(false)
 {
     setWindowIcon(wsApp->normalIcon());
-    setWindowTitleFromSubtitle();
+    setWindowSubtitle(QString());
 
-    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent *)),
-            this, SLOT(captureEvent(CaptureEvent *)));
+    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
+            this, SLOT(captureEvent(CaptureEvent)));
 }
 
 void WiresharkDialog::accept()
 {
     QDialog::accept();
-
-    // Cancel any taps in progress?
-    // cap_file_.setCaptureStopFlag();
-    removeTapListeners();
-    dialog_closed_ = true;
-    tryDeleteLater();
+    dialogCleanup(true);
 }
 
 // XXX Should we do this in WiresharkDialog?
 void WiresharkDialog::reject()
 {
     QDialog::reject();
-
-    // Cancel any taps in progress?
-    // cap_file_.setCaptureStopFlag();
-    removeTapListeners();
-    dialog_closed_ = true;
-    tryDeleteLater();
+    dialogCleanup(true);
 }
-
 
 void WiresharkDialog::setWindowSubtitle(const QString &subtitle)
 {
     subtitle_ = subtitle;
-    setWindowTitleFromSubtitle();
-}
 
-void WiresharkDialog::setWindowTitleFromSubtitle()
-{
     QString title = wsApp->windowTitleString(QStringList() << subtitle_ << cap_file_.fileTitle());
     QDialog::setWindowTitle(title);
 }
@@ -82,12 +68,23 @@ void WiresharkDialog::setWindowTitleFromSubtitle()
 // we were deep in the bowels of a routine that retaps packets. Track our
 // tapping state using retap_depth_ and our closed state using dialog_closed_.
 //
-// The Delta Object Rules (http://delta.affinix.com/dor/) page on nested
-// event loops effectively says "don't do that." However, we don't really
-// have a choice if we want to have a usable application that retaps packets.
+// The Delta Object Rules page on nested event loops:
+//
+//    https://jblog.andbit.net/2007/04/28/delta-object-rules/
+//
+// effectively says "don't do that." However, we don't really have a choice
+// if we want to have a usable application that retaps packets.
 
-void WiresharkDialog::tryDeleteLater()
+void WiresharkDialog::dialogCleanup(bool closeDialog)
 {
+    if ( closeDialog )
+    {
+        // Cancel any taps in progress?
+        // cap_file_.setCaptureStopFlag();
+        removeTapListeners();
+        dialog_closed_ = true;
+    }
+
     if (retap_depth_ < 1 && dialog_closed_) {
         disconnect();
         deleteLater();
@@ -96,13 +93,13 @@ void WiresharkDialog::tryDeleteLater()
 
 void WiresharkDialog::updateWidgets()
 {
-    setWindowTitleFromSubtitle();
+    setWindowSubtitle(subtitle_);
 }
 
-bool WiresharkDialog::registerTapListener(const char *tap_name, void *tap_data, const char *filter, guint flags, void(*tap_reset)(void *), gboolean(*tap_packet)(void *, struct _packet_info *, struct epan_dissect *, const void *), void(*tap_draw)(void *))
+bool WiresharkDialog::registerTapListener(const char *tap_name, void *tap_data, const char *filter, guint flags, void (*tap_reset)(void *), tap_packet_status (*tap_packet)(void *, struct _packet_info *, struct epan_dissect *, const void *), void (*tap_draw)(void *))
 {
     GString *error_string = register_tap_listener(tap_name, tap_data, filter, flags,
-                                                  tap_reset, tap_packet, tap_draw);
+                                                  tap_reset, tap_packet, tap_draw, NULL);
     if (error_string) {
         QMessageBox::warning(this, tr("Failed to attach to tap \"%1\"").arg(tap_name),
                              error_string->str);
@@ -114,12 +111,12 @@ bool WiresharkDialog::registerTapListener(const char *tap_name, void *tap_data, 
     return true;
 }
 
-void WiresharkDialog::captureEvent(CaptureEvent *e)
+void WiresharkDialog::captureEvent(CaptureEvent e)
 {
-    switch (e->captureContext())
+    switch (e.captureContext())
     {
     case CaptureEvent::Retap:
-        switch (e->eventType())
+        switch (e.eventType())
         {
         case CaptureEvent::Started:
             beginRetapPackets();
@@ -132,13 +129,14 @@ void WiresharkDialog::captureEvent(CaptureEvent *e)
         }
         break;
     case CaptureEvent::File:
-        switch (e->eventType())
+        switch (e.eventType())
         {
         case CaptureEvent::Closing:
             captureFileClosing();
             break;
         case CaptureEvent::Closed:
-            captureFileClosed();
+            captureFileClosing();
+            file_closed_ = true;
             break;
         default:
             break;
@@ -158,7 +156,7 @@ void WiresharkDialog::beginRetapPackets()
 void WiresharkDialog::endRetapPackets()
 {
     retap_depth_--;
-    tryDeleteLater();
+    dialogCleanup();
 }
 
 void WiresharkDialog::removeTapListeners()
@@ -175,16 +173,6 @@ void WiresharkDialog::captureFileClosing()
 
     removeTapListeners();
     updateWidgets();
-}
-
-void WiresharkDialog::captureFileClosed()
-{
-    if (file_closed_)
-        return;
-
-    removeTapListeners();
-    updateWidgets();
-    file_closed_ = true;
 }
 
 /*

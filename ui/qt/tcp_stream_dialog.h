@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef TCP_STREAM_DIALOG_H
 #define TCP_STREAM_DIALOG_H
@@ -61,7 +62,7 @@ private:
     double seq_offset_;
     bool seq_origin_zero_;
     struct tcp_graph graph_;
-    QCPPlotTitle *title_;
+    QCPTextElement *title_;
     QString stream_desc_;
     QCPGraph *base_graph_; // Clickable packets
     QCPGraph *tput_graph_;

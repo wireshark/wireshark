@@ -108,7 +108,8 @@ PADATA-TYPE ::= INTEGER {
 	kRB5-PADATA-PKINIT-KX(147),		-- krb-wg-anon
 	kRB5-PADATA-PKU2U-NAME(148),		-- zhu-pku2u
 	kRB5-PADATA-REQ-ENC-PA-REP(149),	--
-	kRB5-PADATA-SUPPORTED-ETYPES(165)	-- MS-KILE
+	kRB5-PADATA-SUPPORTED-ETYPES(165),	-- MS-KILE
+	kRB5-PADATA-PAC-OPTIONS(167)		-- MS-KILE
 }
 AUTHDATA-TYPE ::= INTEGER {
 	kRB5-AUTHDATA-IF-RELEVANT(1),
@@ -158,7 +159,7 @@ CKSUMTYPE ::= INTEGER {
 	cKSUMTYPE-HMAC-MD5-ENC(-1138)	-- even more unofficial
 }
 
---enctypes http://www.iana.org/assignments/kerberos-parameters/kerberos-parameters.xhtml#kerberos-parameters-1
+--enctypes https://www.iana.org/assignments/kerberos-parameters/kerberos-parameters.xhtml#kerberos-parameters-1
 ENCTYPE ::= INTEGER {
 	eTYPE-NULL(0),
 	eTYPE-DES-CBC-CRC(1),
@@ -766,6 +767,20 @@ PA-S4U2Self ::= SEQUENCE {
         auth[3]		GeneralString
 }
 
+PA-S4U-X509-USER::= SEQUENCE {
+	user-id[0] S4UUserID,
+	checksum[1] Checksum
+}
+
+S4UUserID ::= SEQUENCE {
+	nonce [0] UInt32, -- the nonce in KDC-REQ-BODY
+	cname [1] PrincipalName OPTIONAL, -- Certificate mapping hints
+	crealm [2] Realm,
+	subject-certificate [3] OCTET STRING OPTIONAL,
+	options [4] BIT STRING OPTIONAL,
+	...
+}
+
 KRB5SignedPathPrincipals ::= SEQUENCE OF Principal
 
 -- never encoded on the wire, just used to checksum over
@@ -813,13 +828,26 @@ PA-ServerReferralData ::= SEQUENCE {
 	referral-valid-until     [3] KerberosTime OPTIONAL,
 	...
 }
--- WS put extensions found elsewere here
--- http://msdn.microsoft.com/en-us/library/cc206948.aspx
---
+-- WS put extensions found elsewhere here
+-- MS-KILE: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-kile
+-- MS-SFU: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-sfu
+
 KERB-PA-PAC-REQUEST ::= SEQUENCE { 
 include-pac[0] BOOLEAN --If TRUE, and no pac present, include PAC. 
                        --If FALSE, and PAC present, remove PAC 
-} 
+}
+
+PAC-OPTIONS-FLAGS ::= BIT STRING {
+	claims(0),
+	branch-aware(1),
+	forward-to-full-dc(2),
+	resource-based-constrained-delegation(3)
+}
+
+PA-PAC-OPTIONS ::= SEQUENCE {
+	flags [0] PAC-OPTIONS-FLAGS
+}
+
 END
 
 -- etags -r '/\([A-Za-z][-A-Za-z0-9]*\).*::=/\1/' k5.asn1

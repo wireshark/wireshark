@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef UI_QT_EXTCAP_ARGUMENT_MULTISELECT_H_
 #define UI_QT_EXTCAP_ARGUMENT_MULTISELECT_H_
@@ -31,12 +32,12 @@ public:
 
 protected:
     virtual QList<QStandardItem *> valueWalker(ExtcapValueList list, QStringList &defaults);
-    void selectItemsWalker(QStandardItem * item, QStringList defaults);
+    void checkItemsWalker(QStandardItem * item, QStringList defaults);
     virtual QWidget * createEditor(QWidget * parent);
 
 private Q_SLOTS:
 
-    void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
+    void itemChanged(QStandardItem *);
 
 private:
 

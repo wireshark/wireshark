@@ -66,7 +66,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     guint32                   k_adapter_id;
     remote_bdaddr_t          *remote_bdaddr;
     const gchar              *localhost_name;
-    guint8                    localhost_bdaddr[6];
+    guint8                   *localhost_bdaddr;
     const gchar              *localhost_ether_addr;
     gchar                    *localhost_addr_name;
     gint                      localhost_length;
@@ -221,6 +221,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 
     localhost_bdaddr_entry = (localhost_bdaddr_entry_t *)wmem_tree_lookup32_array_le(bluetooth_data->localhost_bdaddr, key);
+    localhost_bdaddr = (guint8 *) wmem_alloc(pinfo->pool, 6);
     if (localhost_bdaddr_entry && localhost_bdaddr_entry->interface_id == bluetooth_data->interface_id &&
         localhost_bdaddr_entry->adapter_id == bluetooth_data->adapter_id) {
 
@@ -258,16 +259,16 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     if (chandle_session) {
         sub_item = proto_tree_add_uint(bthci_sco_tree, hf_bthci_sco_connect_in, tvb, 0, 0, chandle_session->connect_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         if (chandle_session->disconnect_in_frame < G_MAXUINT32) {
             sub_item = proto_tree_add_uint(bthci_sco_tree, hf_bthci_sco_disconnect_in, tvb, 0, 0, chandle_session->disconnect_in_frame);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
     }
     if (sco_stream_number) {
         sub_item = proto_tree_add_uint(bthci_sco_tree, hf_bthci_sco_stream_number, tvb, 0, 0, sco_stream_number->stream_number);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     return tvb_reported_length(tvb);
@@ -345,7 +346,7 @@ proto_reg_handoff_bthci_sco(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

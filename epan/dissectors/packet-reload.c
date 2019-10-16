@@ -27,7 +27,7 @@
 #include <epan/uat.h>
 #include <epan/to_str.h>
 #include "packet-x509af.h"
-#include "packet-ssl-utils.h"
+#include "packet-tls-utils.h"
 #include "packet-reload.h"
 
 void proto_register_reload(void);
@@ -4114,7 +4114,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   message_code = tvb_get_ntohs(tvb, offset);
 
-  if (!pinfo->fd->flags.visited) {
+  if (!pinfo->fd->visited) {
 
     if ((reload_trans = (reload_transaction_t *)
            wmem_tree_lookup32_array(reload_info->transaction_pdus, transaction_id_key)) == NULL) {
@@ -4157,12 +4157,12 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     if (reload_trans->req_frame != pinfo->num) {
       proto_item *it;
       it = proto_tree_add_uint(reload_tree, hf_reload_duplicate, tvb, 0, 0, reload_trans->req_frame);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
     }
     if (reload_trans->rep_frame) {
       proto_item *it;
       it = proto_tree_add_uint(reload_tree, hf_reload_response_in, tvb, 0, 0, reload_trans->rep_frame);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
     }
   }
   else {
@@ -4170,7 +4170,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     if (reload_trans->rep_frame != pinfo->num) {
       proto_item *it;
       it = proto_tree_add_uint(reload_tree, hf_reload_duplicate, tvb, 0, 0, reload_trans->rep_frame);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
     }
 
     if (reload_trans->req_frame) {
@@ -4178,11 +4178,11 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       nstime_t ns;
 
       it = proto_tree_add_uint(reload_tree, hf_reload_response_to, tvb, 0, 0, reload_trans->req_frame);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
 
       nstime_delta(&ns, &pinfo->abs_ts, &reload_trans->req_time);
       it = proto_tree_add_time(reload_tree, hf_reload_time, tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
     }
   }
 
@@ -4761,7 +4761,7 @@ proto_register_reload(void)
       }
     },
     { &hf_reload_signature_value,
-      { "signature_value",  "reload.signature.value.",  FT_NONE,
+      { "signature_value",  "reload.signature.value",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }
     },
@@ -5171,7 +5171,7 @@ proto_register_reload(void)
     },
 
     { &hf_reload_configupdatereq,
-      { "ConfigUpdateReq",  "reload.configupdatereq.",  FT_NONE,
+      { "ConfigUpdateReq",  "reload.configupdatereq",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }
     },
@@ -5888,7 +5888,7 @@ proto_reg_handoff_reload(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

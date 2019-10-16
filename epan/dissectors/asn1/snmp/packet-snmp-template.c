@@ -1201,16 +1201,16 @@ dissect_snmp_engineid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int o
 			/* most common enterprise-specific format: (ucd|net)-snmp random */
 			if ((enterpriseid==2021)||(enterpriseid==8072)) {
 				proto_item_append_text(item, (enterpriseid==2021) ? ": UCD-SNMP Random" : ": Net-SNMP Random");
-				/* demystify: 4B random, 4B epoch seconds */
-				if (len_remain==8) {
-					proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, 4, ENC_NA);
-					seconds = tvb_get_letohl(tvb, offset+4);
+				/* demystify: 4B/8B random, 4B epoch seconds */
+				if ((len_remain==8) || (len_remain==12)) {
+					proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, len_remain - 4, ENC_NA);
+					seconds = tvb_get_letohl(tvb, offset + (len_remain - 4));
 					ts.secs = seconds;
 					ts.nsecs = 0;
-					proto_tree_add_time_format_value(tree, hf_snmp_engineid_time, tvb, offset+4, 4,
+					proto_tree_add_time_format_value(tree, hf_snmp_engineid_time, tvb, offset + (len_remain - 4), 4,
 									 &ts, "%s",
 									 abs_time_secs_to_str(wmem_packet_scope(), seconds, ABSOLUTE_TIME_LOCAL, TRUE));
-					offset+=8;
+					offset+=len_remain;
 					len_remain=0;
 				}
 			break;
@@ -2516,7 +2516,7 @@ proto_reg_handoff_smux(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

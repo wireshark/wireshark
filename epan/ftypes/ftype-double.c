@@ -16,8 +16,6 @@
 
 #include "strutil.h"
 
-#define DOUBLE_REPR_LENGTH  27
-
 static void
 double_fvalue_new(fvalue_t *fv)
 {
@@ -72,38 +70,25 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 static int
 float_val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
-	/*
-	 * 1 character for a sign.
-	 * 26 characters for a Really Big Number.
-	 * XXX - is that platform-dependent?
-	 * XXX - smaller for float than for double?
-	 * XXX - can we compute it from FLT_DIG and the like?
-	 */
-	return DOUBLE_REPR_LENGTH;
+	return G_ASCII_DTOSTR_BUF_SIZE;
 }
 
 static void
 float_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
-	g_snprintf(buf, size, "%." G_STRINGIFY(FLT_DIG) "g", fv->value.floating);
+	g_ascii_formatd(buf, size, "%." G_STRINGIFY(FLT_DIG) "g", fv->value.floating);
 }
 
 static int
 double_val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
-	/*
-	 * 1 character for a sign.
-	 * 26 characters for a Really Big Number.
-	 * XXX - is that platform-dependent?
-	 * XXX - can we compute it from DBL_DIG and the like?
-	 */
-	return DOUBLE_REPR_LENGTH;
+	return G_ASCII_DTOSTR_BUF_SIZE;
 }
 
 static void
 double_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
-	g_snprintf(buf, size, "%." G_STRINGIFY(DBL_DIG) "g", fv->value.floating);
+	g_ascii_formatd(buf, size, "%." G_STRINGIFY(DBL_DIG) "g", fv->value.floating);
 }
 
 static gboolean
@@ -207,3 +192,16 @@ ftype_register_double(void)
 	ftype_register(FT_FLOAT, &float_type);
 	ftype_register(FT_DOUBLE, &double_type);
 }
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

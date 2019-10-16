@@ -15,8 +15,17 @@
 #include <wiretap/pcapng.h>
 
 #include <epan/packet.h>
+#include <wsutil/file_util.h>
+#include <wsutil/wsgcrypt.h>
 #include "cfile.h"
 #include "ui/summary.h"
+
+// Strongest to weakest
+#define HASH_SIZE_SHA256 32
+#define HASH_SIZE_RMD160 20
+#define HASH_SIZE_SHA1   20
+
+#define HASH_BUF_SIZE (1024 * 1024)
 
 static void
 tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
@@ -24,19 +33,19 @@ tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
   double cur_time;
 
   sum_tally->bytes += cur_frame->pkt_len;
-  if (cur_frame->flags.passed_dfilter){
+  if (cur_frame->passed_dfilter){
     sum_tally->filtered_count++;
     sum_tally->filtered_bytes += cur_frame->pkt_len;
   }
-  if (cur_frame->flags.marked){
+  if (cur_frame->marked){
     sum_tally->marked_count++;
     sum_tally->marked_bytes += cur_frame->pkt_len;
   }
-  if (cur_frame->flags.ignored){
+  if (cur_frame->ignored){
     sum_tally->ignored_count++;
   }
 
-  if (cur_frame->flags.has_ts) {
+  if (cur_frame->has_ts) {
     /* This packet has a time stamp. */
     cur_time = nstime_to_sec(&cur_frame->abs_ts);
 
@@ -47,7 +56,7 @@ tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
     if (cur_time > sum_tally->stop_time){
       sum_tally->stop_time = cur_time;
     }
-    if (cur_frame->flags.passed_dfilter){
+    if (cur_frame->passed_dfilter){
       sum_tally->filtered_count_ts++;
       /*
        * If we've seen one filtered packet, this is the first
@@ -65,7 +74,7 @@ tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
         }
       }
     }
-    if (cur_frame->flags.marked){
+    if (cur_frame->marked){
       sum_tally->marked_count_ts++;
       /*
        * If we've seen one marked packet, this is the first
@@ -86,12 +95,21 @@ tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
   }
 }
 
+static void
+hash_to_str(const unsigned char *hash, size_t length, char *str) {
+  int i;
+
+  for (i = 0; i < (int) length; i++) {
+    g_snprintf(str+(i*2), 3, "%02x", hash[i]);
+  }
+}
+
 void
 summary_fill_in(capture_file *cf, summary_tally *st)
 {
   frame_data    *first_frame, *cur_frame;
   guint32        framenum;
-  iface_options iface;
+  iface_summary_info iface;
   guint i;
   wtapng_iface_descriptions_t* idb_info;
   wtap_block_t wtapng_if_descr;
@@ -100,6 +118,11 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   guint64 isb_ifdrop;
   char* if_string;
   wtapng_if_descr_filter_t* if_filter;
+
+  FILE  *fh;
+  char  *hash_buf;
+  gcry_md_hd_t hd;
+  size_t hash_bytes;
 
   st->packet_count_ts = 0;
   st->start_time = 0;
@@ -132,7 +155,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   st->filename = cf->filename;
   st->file_length = cf->f_datalen;
   st->file_type = cf->cd_t;
-  st->iscompressed = cf->iscompressed;
+  st->compression_type = cf->compression_type;
   st->is_tempfile = cf->is_tempfile;
   st->file_encap_type = cf->lnk_t;
   st->packet_encap_types = cf->linktypes;
@@ -143,7 +166,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   st->drops = cf->drops;
   st->dfilter = cf->dfilter;
 
-  st->ifaces  = g_array_new(FALSE, FALSE, sizeof(iface_options));
+  st->ifaces  = g_array_new(FALSE, FALSE, sizeof(iface_summary_info));
   idb_info = wtap_file_get_idb_info(cf->provider.wth);
   for (i = 0; i < idb_info->interface_data->len; i++) {
     wtapng_if_descr = g_array_index(idb_info->interface_data, wtap_block_t, i);
@@ -184,13 +207,38 @@ summary_fill_in(capture_file *cf, summary_tally *st)
     g_array_append_val(st->ifaces, iface);
   }
   g_free(idb_info);
+
+  g_strlcpy(st->file_sha256, "<unknown>", HASH_STR_SIZE);
+  g_strlcpy(st->file_rmd160, "<unknown>", HASH_STR_SIZE);
+  g_strlcpy(st->file_sha1, "<unknown>", HASH_STR_SIZE);
+
+  gcry_md_open(&hd, GCRY_MD_SHA256, 0);
+  if (hd) {
+    gcry_md_enable(hd, GCRY_MD_RMD160);
+    gcry_md_enable(hd, GCRY_MD_SHA1);
+  }
+  hash_buf = (char *)g_malloc(HASH_BUF_SIZE);
+
+  fh = ws_fopen(cf->filename, "rb");
+  if (fh && hash_buf && hd) {
+    while((hash_bytes = fread(hash_buf, 1, HASH_BUF_SIZE, fh)) > 0) {
+      gcry_md_write(hd, hash_buf, hash_bytes);
+    }
+    gcry_md_final(hd);
+    hash_to_str(gcry_md_read(hd, GCRY_MD_SHA256), HASH_SIZE_SHA256, st->file_sha256);
+    hash_to_str(gcry_md_read(hd, GCRY_MD_RMD160), HASH_SIZE_RMD160, st->file_rmd160);
+    hash_to_str(gcry_md_read(hd, GCRY_MD_SHA1), HASH_SIZE_SHA1, st->file_sha1);
+  }
+  if (fh) fclose(fh);
+  g_free(hash_buf);
+  gcry_md_close(hd);
 }
 
 #ifdef HAVE_LIBPCAP
 void
 summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_tally *st)
 {
-  iface_options iface;
+  iface_summary_info iface;
   interface_t *device;
   guint i;
 
@@ -217,7 +265,7 @@ summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 /* This module provides rpc call/reply SRT statistics to tshark.
  * It is only used by tshark and not wireshark
@@ -23,6 +24,8 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/dissectors/packet-rpc.h>
+
+#include <ui/cmdarg_err.h>
 
 #define MICROSECS_PER_SEC   1000000
 #define NANOSECS_PER_SEC    1000000000
@@ -43,7 +46,7 @@ typedef struct _rpc_program_t {
 static rpc_program_t *prog_list = NULL;
 static int already_enabled = 0;
 
-static int
+static tap_packet_status
 rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
 	const rpc_call_info_value *ri = (const rpc_call_info_value *)pri;
@@ -117,7 +120,7 @@ rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
 	/* we are only interested in reply packets */
 	if (ri->request || !rp) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	/* calculate time delta between request and reply */
@@ -157,7 +160,7 @@ rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 	}
 	rp->num++;
 
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 
@@ -205,9 +208,9 @@ rpcprogs_init(const char *opt_arg _U_, void *userdata _U_)
 	}
 	already_enabled = 1;
 
-	error_string = register_tap_listener("rpc", NULL, NULL, 0, NULL, rpcprogs_packet, rpcprogs_draw);
+	error_string = register_tap_listener("rpc", NULL, NULL, 0, NULL, rpcprogs_packet, rpcprogs_draw, NULL);
 	if (error_string) {
-		fprintf(stderr, "tshark: Couldn't register rpc,programs tap: %s\n",
+		cmdarg_err("Couldn't register rpc,programs tap: %s",
 			error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -230,7 +233,7 @@ register_tap_listener_rpcprogs(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

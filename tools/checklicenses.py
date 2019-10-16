@@ -98,9 +98,6 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'cmake/TestFileOffsetBits.c': [
         'UNKNOWN',
     ],
-    'cmake/TestWindowsFSeek.c': [
-        'UNKNOWN',
-    ],
     # Generated header files by lex/yacc/whatever
     'epan/dtd_grammar.h': [
         'UNKNOWN',
@@ -111,14 +108,8 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'epan/dfilter/grammar.c': [
         'UNKNOWN',
     ],
-    'epan/dissectors/packet-dtn.c': [
-        'GPL (v2 or later) GPL (v2 or later)' # TODO: make licensecheck handle this better
-    ],
     'epan/dissectors/packet-ieee80211-radiotap-iter.': [ # Using ISC license only
          'ISC GPL (v2)'
-    ],
-    'epan/dissectors/packet-ppi.c': [ # Using BSD (3 clause) license
-        'BSD (3 clause) GPL (v2)'
     ],
     'plugins/mate/mate_grammar.h': [
         'UNKNOWN',
@@ -158,40 +149,6 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     ],
     'ui/gtk/wireshark-gresources.c': [
         'UNKNOWN',
-    ],
-    # The airpcap code is using BSD (3 clause)
-    'epan/crypt/dot11decrypt_interop.h': [
-        'BSD (3 clause) GPL (v2)'
-    ],
-    'epan/crypt/dot11decrypt_tkip.c': [
-        'BSD (3 clause) GPL (v2)'
-    ],
-    'epan/crypt/dot11decrypt_ws.h': [
-        'BSD (3 clause) GPL (v2)'
-    ],
-    'epan/crypt/wep-wpadefs.h': [
-        'BSD (3 clause) GPL (v2)'
-    ],
-    'epan/crypt/dot11decrypt_system.h': [
-        'BSD (3 clause) GPL (v2)'
-    ],
-    'epan/crypt/dot11decrypt_user.h': [
-        'BSD (3 clause) GPL (v2)'
-    ],
-    'epan/crypt/dot11decrypt_ccmp.c': [
-        'BSD (3 clause) GPL (v2)'
-    ],
-    'epan/crypt/dot11decrypt_int.h': [
-        'BSD (3 clause) GPL (v2)'
-    ],
-    'epan/crypt/dot11decrypt.c': [
-        'BSD (3 clause) GPL (v2)'
-    ],
-    'epan/crypt/dot11decrypt_debug.h': [
-        'BSD (3 clause) GPL (v2)'
-    ],
-    'wsutil/dot11decrypt_wep.c': [
-        'BSD (3 clause) GPL (v2)'
     ],
 }
 
@@ -255,7 +212,8 @@ def check_licenses(options, args):
     if 'GENERATED FILE' in license:
       continue
 
-    if license in WHITELISTED_LICENSES:
+    # Support files which provide a choice between licenses.
+    if any(item in WHITELISTED_LICENSES for item in license.split(';')):
       continue
 
     if not options.ignore_suppressions:

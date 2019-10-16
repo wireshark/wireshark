@@ -22,8 +22,6 @@
 #include <epan/proto_data.h>
 #include <epan/uat.h>
 
-#include <wsutil/ws_printf.h> /* ws_g_warning */
-
 #include "packet-per.h"
 #include "packet-isup.h"
 #include "packet-umts_fp.h"
@@ -48,7 +46,7 @@
 #define DEBUG_NBAP 0
 #if DEBUG_NBAP
 #include <epan/to_str.h>
-#define nbap_debug(...) ws_g_warning(__VA_ARGS__)
+#define nbap_debug(...) g_warning(__VA_ARGS__)
 #else
 #define nbap_debug(...)
 #endif
@@ -78,7 +76,6 @@ static int ett_nbap_ib_sg_data = -1;
 
 #include "packet-nbap-ett.c"
 
-static expert_field ei_nbap_no_find_comm_context_id = EI_INIT;
 static expert_field ei_nbap_no_find_port_info = EI_INIT;
 static expert_field ei_nbap_no_set_comm_context_id = EI_INIT;
 static expert_field ei_nbap_hsdsch_entity_not_specified = EI_INIT;
@@ -185,7 +182,7 @@ typedef struct nbap_ib_segment_t {
   guint8* data;
 } nbap_ib_segment_t;
 
-static nbap_ib_segment_t* nbap_parse_ib_segment_t(tvbuff_t *tvb,gboolean is_short)
+static nbap_ib_segment_t* nbap_parse_ib_sg_data_var1(tvbuff_t *tvb,gboolean is_short)
 {
   guint8 bit_length;
   guint8* data;
@@ -234,6 +231,7 @@ typedef struct nbap_private_data_t
   guint32 common_physical_channel_id;
   guint32 e_dch_macdflow_id;
   guint32 hsdsch_macdflow_id;
+  gboolean max_mac_d_pdu_size_ext_ie_present;
   guint32 e_dch_ddi_value;
   guint32 logical_channel_id;
   guint32 common_macdflow_id;
@@ -266,10 +264,7 @@ static nbap_private_data_t* nbap_get_private_data(packet_info *pinfo)
   * can't be passes to/from them.
   */
   nbap_private_data_t *private_data = (nbap_private_data_t *)p_get_proto_data(pinfo->pool, pinfo, proto_nbap, 0);
-  if(private_data != NULL ) {
-    return private_data;
-  }
-  else {
+  if(private_data == NULL ) {
     private_data = wmem_new0(pinfo->pool, nbap_private_data_t);
     p_add_proto_data(pinfo->pool, pinfo, proto_nbap, 0, private_data);
     /* Setting  default values */
@@ -281,406 +276,14 @@ static nbap_private_data_t* nbap_get_private_data(packet_info *pinfo)
     for (i = 0; i < maxNrOfMACdFlows; i++) {
         private_data->nbap_hsdsch_channel_info[i].entity = hs;
     }
-    return private_data;
   }
+  return private_data;
 }
 
 /* Helper function to reset the private data struct*/
 static void nbap_reset_private_data(packet_info *pinfo)
 {
   p_remove_proto_data(pinfo->pool, pinfo, proto_nbap, 0);
-}
-
-static guint32 private_data_get_transportLayerAddress_ipv4(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->transportLayerAddress_ipv4;
-}
-
-static void private_data_set_transportLayerAddress_ipv4(packet_info *pinfo, guint32 transportLayerAddress_ipv4)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->transportLayerAddress_ipv4 = transportLayerAddress_ipv4;
-}
-
-static guint16 private_data_get_binding_id_port(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->binding_id_port;
-}
-
-static void private_data_set_binding_id_port(packet_info *pinfo, guint16 binding_id_port)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->binding_id_port = binding_id_port;
-}
-
-static guint32 private_data_get_ul_scrambling_code(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->ul_scrambling_code;
-}
-
-static void private_data_set_ul_scrambling_code(packet_info *pinfo, guint32 ul_scrambling_code)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->ul_scrambling_code = ul_scrambling_code;
-}
-
-static enum TransportFormatSet_type_enum private_data_get_transport_format_set_type(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->transport_format_set_type;
-}
-
-static void private_data_set_transport_format_set_type(packet_info *pinfo, enum TransportFormatSet_type_enum transport_format_set_type)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->transport_format_set_type = transport_format_set_type;
-}
-
-static guint32 private_data_get_procedure_code(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->procedure_code;
-}
-
-static void private_data_set_procedure_code(packet_info *pinfo, guint32 procedure_code)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->procedure_code = procedure_code;
-}
-
-static guint private_data_get_num_items(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->num_items;
-}
-
-static void private_data_set_num_items(packet_info *pinfo, guint num_items)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->num_items = num_items;
-}
-
-static guint private_data_increment_num_items(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->num_items++;
-  return private_data->num_items;
-}
-
-static guint32 private_data_get_com_context_id(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->com_context_id;
-}
-
-static void private_data_set_com_context_id(packet_info *pinfo, guint32 com_context_id)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->com_context_id = com_context_id;
-}
-
-static gint private_data_get_num_dch_in_flow(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->num_dch_in_flow;
-}
-
-static void private_data_set_num_dch_in_flow(packet_info *pinfo, gint num_dch_in_flow)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->num_dch_in_flow = num_dch_in_flow;
-}
-
-static gint private_data_increment_num_dch_in_flow(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->num_dch_in_flow++;
-  return private_data->num_dch_in_flow;
-}
-
-static gint private_data_get_hrnti(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->hrnti;
-}
-
-static void private_data_set_hrnti(packet_info *pinfo, gint hrnti)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->hrnti = hrnti;
-}
-
-static guint32 private_data_get_protocol_ie_id(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->protocol_ie_id;
-}
-
-static void private_data_set_protocol_ie_id(packet_info *pinfo, guint32 protocol_ie_id)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->protocol_ie_id = protocol_ie_id;
-}
-
-static guint32 private_data_get_dd_mode(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->dd_mode;
-}
-
-static void private_data_set_dd_mode(packet_info *pinfo, guint32 dd_mode)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->dd_mode = dd_mode;
-}
-
-static guint32 private_data_get_transaction_id(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->transaction_id;
-}
-
-static void private_data_set_transaction_id(packet_info *pinfo, guint32 transaction_id)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->transaction_id = transaction_id;
-}
-
-static guint32 private_data_get_t_dch_id(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->t_dch_id;
-}
-
-static void private_data_set_t_dch_id(packet_info *pinfo, guint32 t_dch_id)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->t_dch_id = t_dch_id;
-}
-
-static guint32 private_data_get_dch_id(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->dch_id;
-}
-
-static void private_data_set_dch_id(packet_info *pinfo, guint32 dch_id)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->dch_id = dch_id;
-}
-
-static guint32 private_data_get_prev_dch_id(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->prev_dch_id;
-}
-
-static void private_data_set_prev_dch_id(packet_info *pinfo, guint32 prev_dch_id)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->prev_dch_id = prev_dch_id;
-}
-
-static guint32 private_data_get_common_physical_channel_id(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->common_physical_channel_id;
-}
-
-static void private_data_set_common_physical_channel_id(packet_info *pinfo, guint32 common_physical_channel_id)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->common_physical_channel_id = common_physical_channel_id;
-}
-
-static guint32 private_data_get_e_dch_macdflow_id(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->e_dch_macdflow_id;
-}
-
-static void private_data_set_e_dch_macdflow_id(packet_info *pinfo, guint32 e_dch_macdflow_id)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->e_dch_macdflow_id = e_dch_macdflow_id;
-}
-
-static guint32 private_data_get_hsdsch_macdflow_id(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->hsdsch_macdflow_id;
-}
-
-static void private_data_set_hsdsch_macdflow_id(packet_info *pinfo, guint32 hsdsch_macdflow_id)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->hsdsch_macdflow_id = hsdsch_macdflow_id;
-}
-
-static guint32 private_data_get_e_dch_ddi_value(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->e_dch_ddi_value;
-}
-
-static void private_data_set_e_dch_ddi_value(packet_info *pinfo, guint32 e_dch_ddi_value)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->e_dch_ddi_value = e_dch_ddi_value;
-}
-
-static guint32 private_data_get_logical_channel_id(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->logical_channel_id;
-}
-
-static void private_data_set_logical_channel_id(packet_info *pinfo, guint32 logical_channel_id)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->logical_channel_id = logical_channel_id;
-}
-
-static guint32 private_data_get_common_macdflow_id(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->common_macdflow_id;
-}
-
-static void private_data_set_common_macdflow_id(packet_info *pinfo, guint32 common_macdflow_id)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->common_macdflow_id = common_macdflow_id;
-}
-
-static guint32 private_data_get_mac_d_pdu_size(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->mac_d_pdu_size;
-}
-
-static void private_data_set_mac_d_pdu_size(packet_info *pinfo, guint32 mac_d_pdu_size)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->mac_d_pdu_size = mac_d_pdu_size;
-}
-
-static guint32 private_data_get_common_transport_channel_id(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->common_transport_channel_id;
-}
-
-static void private_data_set_common_transport_channel_id(packet_info *pinfo, guint32 common_transport_channel_id)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->common_transport_channel_id = common_transport_channel_id;
-}
-
-static gint private_data_get_paging_indications(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->paging_indications;
-}
-
-static void private_data_set_paging_indications(packet_info *pinfo, gint paging_indications)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->paging_indications = paging_indications;
-}
-
-static guint32 private_data_get_ib_type(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->ib_type;
-}
-
-static void private_data_set_ib_type(packet_info *pinfo, guint32 ib_type)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->ib_type = ib_type;
-}
-
-static guint32 private_data_get_segment_type(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->segment_type;
-}
-
-static void private_data_set_segment_type(packet_info *pinfo, guint32 segment_type)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->segment_type = segment_type;
-}
-
-static gboolean private_data_get_crnc_context_present(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->crnc_context_present;
-}
-
-static void private_data_set_crnc_context_present(packet_info *pinfo, gboolean crnc_context_present)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->crnc_context_present = crnc_context_present;
-}
-
-static guint8 private_data_get_dch_crc_present(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->dch_crc_present;
-}
-
-static void private_data_set_dch_crc_present(packet_info *pinfo, guint8 dch_crc_present)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->dch_crc_present = dch_crc_present;
-}
-
-static nbap_dch_channel_info_t* private_data_get_nbap_dch_chnl_info(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->nbap_dch_chnl_info;
-}
-
-static nbap_edch_channel_info_t* private_data_get_nbap_edch_channel_info(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->nbap_edch_channel_info;
-}
-
-static gint* private_data_get_hsdsch_macdflow_ids(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->hsdsch_macdflow_ids;
-}
-
-static nbap_hsdsch_channel_info_t* private_data_get_nbap_hsdsch_channel_info(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->nbap_hsdsch_channel_info;
-}
-
-static nbap_common_channel_info_t* private_data_get_nbap_common_channel_info(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->nbap_common_channel_info;
-}
-
-static wmem_list_t* private_data_get_ib_segments(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->ib_segments;
-}
-
-static void private_data_set_ib_segments(packet_info *pinfo, wmem_list_t* ib_segments)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->ib_segments = ib_segments;
 }
 
 /*****************************************************************************/
@@ -792,6 +395,21 @@ static const preference_strings ch_strings[] = {
   {"lch15_content", "Logical Channel 15 Content", "foo"},
   {"lch16_content", "Logical Channel 16 Content", "foo"}};
 
+enum ib_sg_enc_type {
+  IB_SG_DATA_ENC_VAR_1,
+  IB_SG_DATA_ENC_VAR_2
+};
+
+static const enum_val_t ib_sg_enc_vals[] = {
+  {"Encoding Variant 1 (TS 25.433 Annex D.2)",
+   "Encoding Variant 1 (TS 25.433 Annex D.2)", IB_SG_DATA_ENC_VAR_1},
+  {"Encoding Variant 2 (TS 25.433 Annex D.3)",
+   "Encoding Variant 2 (TS 25.433 Annex D.3)", IB_SG_DATA_ENC_VAR_2},
+  {NULL, NULL, -1}
+};
+
+static gint preferences_ib_sg_data_encoding = IB_SG_DATA_ENC_VAR_1;
+
 /* Dissector tables */
 static dissector_table_t nbap_ies_dissector_table;
 static dissector_table_t nbap_extension_dissector_table;
@@ -819,14 +437,14 @@ static void add_hsdsch_bind(packet_info * pinfo);
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   guint32 protocol_ie_id;
-  protocol_ie_id = private_data_get_protocol_ie_id(pinfo);
+  protocol_ie_id = nbap_get_private_data(pinfo)->protocol_ie_id;
   return (dissector_try_uint_new(nbap_ies_dissector_table, protocol_ie_id, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   guint32 protocol_ie_id;
-  protocol_ie_id = private_data_get_protocol_ie_id(pinfo);
+  protocol_ie_id = nbap_get_private_data(pinfo)->protocol_ie_id;
   return (dissector_try_uint_new(nbap_extension_dissector_table, protocol_ie_id, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
@@ -855,11 +473,11 @@ static void add_hsdsch_bind(packet_info *pinfo){
   guint32 i;
   nbap_hsdsch_channel_info_t* nbap_hsdsch_channel_info;
 
-  if (pinfo->fd->flags.visited){
+  if (PINFO_FD_VISITED(pinfo)){
     return;
   }
 
-  nbap_hsdsch_channel_info = private_data_get_nbap_hsdsch_channel_info(pinfo);
+  nbap_hsdsch_channel_info = nbap_get_private_data(pinfo)->nbap_hsdsch_channel_info;
   /* Set port to zero use that as an indication of whether we have data or not */
   clear_address(&null_addr);
   for (i = 0; i < maxNrOfMACdFlows; i++) {
@@ -1045,7 +663,9 @@ dissect_nbap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   }
 
   pdu_type = tvb_get_guint8(tvb, PDU_TYPE_OFFSET);
-  if (pdu_type != 0x00 && pdu_type != 0x20 && pdu_type != 0x40 && pdu_type != 0x60) {
+  if (pdu_type & 0x1f) {
+    /* pdu_type is not 0x00 (initiatingMessage), 0x20 (succesfulOutcome),
+       0x40 (unsuccesfulOutcome) or 0x60 (outcome), ignore extension bit (0x80) */
     return FALSE;
   }
 
@@ -1055,12 +675,14 @@ dissect_nbap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   }
 
   dd_mode = tvb_get_guint8(tvb, DD_CRIT_OFFSET) >> 5;
-  if (dd_mode != 0x00 && dd_mode != 0x01 && dd_mode != 0x02) {
+  if (dd_mode >= 0x03) {
+    /* dd_mode is not 0x00 (tdd), 0x01 (fdd) or 0x02 (common) */
     return FALSE;
   }
 
   criticality = (tvb_get_guint8(tvb, DD_CRIT_OFFSET) & 0x18) >> 3;
-  if (criticality != 0x00 && criticality != 0x01 && criticality != 0x02) {
+  if (criticality == 0x03) {
+    /* criticality is not 0x00 (reject), 0x01 (ignore) or 0x02 (notify) */
     return FALSE;
   }
 
@@ -1077,7 +699,7 @@ dissect_nbap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
      to avoid exceptions and info added to tree, info column and expert info */
   length = tvb_get_guint8(tvb, length_field_offset);
   length_field_offset += 1;
-  if ((length & 0x80) == 0x80) {
+  if (length & 0x80) {
     if ((length & 0xc0) == 0x80) {
       length &= 0x3f;
       length <<= 8;
@@ -1134,7 +756,6 @@ void proto_register_nbap(void)
 
   static ei_register_info ei[] = {
     { &ei_nbap_no_set_comm_context_id, { "nbap.no_set_comm_context_id", PI_MALFORMED, PI_WARN, "Couldn't not set Communication Context-ID, fragments over reconfigured channels might fail", EXPFILL }},
-    { &ei_nbap_no_find_comm_context_id, { "nbap.no_find_comm_context_id", PI_MALFORMED, PI_WARN, "Couldn't not find Communication Context-ID, unable to reconfigure this E-DCH flow.", EXPFILL }},
     { &ei_nbap_no_find_port_info, { "nbap.no_find_port_info", PI_MALFORMED, PI_WARN, "Couldn't not find port information for reconfigured E-DCH flow, unable to reconfigure", EXPFILL }},
     { &ei_nbap_hsdsch_entity_not_specified, { "nbap.hsdsch_entity_not_specified", PI_MALFORMED,PI_ERROR, "HSDSCH Entity not specified!", EXPFILL }},
   };
@@ -1158,6 +779,10 @@ void proto_register_nbap(void)
   for (i = 0; i < 16; i++) {
     prefs_register_enum_preference(nbap_module, ch_strings[i].name, ch_strings[i].title, ch_strings[i].description, &lch_contents[i], content_types, FALSE);
   }
+  prefs_register_enum_preference(nbap_module, "ib_sg_data_encoding",
+    "IB_SG_DATA encoding",
+    "Encoding used for the IB-SG-DATA element carrying segments of information blocks",
+    &preferences_ib_sg_data_encoding, ib_sg_enc_vals, FALSE);
 
   /* Register dissector tables */
   nbap_ies_dissector_table = register_dissector_table("nbap.ies", "NBAP-PROTOCOL-IES", proto_nbap, FT_UINT32, BASE_DEC);

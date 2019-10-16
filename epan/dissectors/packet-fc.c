@@ -195,7 +195,7 @@ static const char* fc_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e
 
 static ct_dissector_info_t fc_ct_dissector_info = {&fc_conv_get_filter_type};
 
-static int
+static tap_packet_status
 fc_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
@@ -203,7 +203,7 @@ fc_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
     add_conversation_table_data(hash, &fchdr->s_id, &fchdr->d_id, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &fc_ct_dissector_info, ENDPOINT_NONE);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static const char* fc_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
@@ -216,7 +216,7 @@ static const char* fc_host_get_filter_type(hostlist_talker_t* host, conv_filter_
 
 static hostlist_dissector_info_t fc_host_dissector_info = {&fc_host_get_filter_type};
 
-static int
+static tap_packet_status
 fc_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
@@ -228,18 +228,18 @@ fc_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
     add_hostlist_table_data(hash, &fchdr->s_id, 0, TRUE, 1, pinfo->fd->pkt_len, &fc_host_dissector_info, ENDPOINT_NONE);
     add_hostlist_table_data(hash, &fchdr->d_id, 0, FALSE, 1, pinfo->fd->pkt_len, &fc_host_dissector_info, ENDPOINT_NONE);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 #define FC_NUM_PROCEDURES     256
 
 static void
-fcstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+fcstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
     srt_stat_table *fc_srt_table;
     guint32 i;
 
-    fc_srt_table = init_srt_table("Fibre Channel Types", NULL, srt_array, FC_NUM_PROCEDURES, NULL, NULL, gui_callback, gui_data, NULL);
+    fc_srt_table = init_srt_table("Fibre Channel Types", NULL, srt_array, FC_NUM_PROCEDURES, NULL, NULL, NULL);
     for (i = 0; i < FC_NUM_PROCEDURES; i++)
     {
         gchar* tmp_str = val_to_str_wmem(NULL, i, fc_fc4_val, "Unknown(0x%02x)");
@@ -248,7 +248,7 @@ fcstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui
     }
 }
 
-static int
+static tap_packet_status
 fcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
     guint i = 0;
@@ -258,17 +258,17 @@ fcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 
     /* we are only interested in reply packets */
     if(!(fc->fctl&FC_FCTL_EXCHANGE_RESPONDER)){
-	    return 0;
+	    return TAP_PACKET_DONT_REDRAW;
     }
     /* if we havnt seen the request, just ignore it */
     if ( (!fc->fc_ex) || (fc->fc_ex->first_exchange_frame==0) ){
-	    return 0;
+	    return TAP_PACKET_DONT_REDRAW;
     }
 
     fc_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
     add_srt_table_data(fc_srt_table, fc->type, &fc->fc_ex->fc_time, pinfo);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 
@@ -752,7 +752,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     /* Set up LUN data. OXID + LUN make up unique exchanges, but LUN is populated in subdissectors
        and not necessarily in every frame. Stub it here for now */
     fchdr->lun = 0xFFFF;
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         fchdr->lun = (guint16)GPOINTER_TO_UINT(wmem_tree_lookup32(fc_conv_data->luns, fchdr->oxid));
     }
 
@@ -886,13 +886,13 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     hidden_item = proto_tree_add_uint (fc_tree, hf_fc_ftype, tvb, offset, 1,
                                        ftype);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     /* XXX - use "fc_wka_vals[]" on this? */
     set_address(&addr, AT_FC, 3, fchdr->d_id.data);
     proto_tree_add_item(fc_tree, hf_fc_did, tvb, offset+1, 3, ENC_NA);
     hidden_item = proto_tree_add_item (fc_tree, hf_fc_id, tvb, offset+1, 3, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     proto_tree_add_uint (fc_tree, hf_fc_csctl, tvb, offset+4, 1, fchdr->cs_ctl);
 
@@ -900,7 +900,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     set_address(&addr, AT_FC, 3, fchdr->s_id.data);
     proto_tree_add_item(fc_tree, hf_fc_sid, tvb, offset+5, 3, ENC_NA);
     hidden_item = proto_tree_add_item (fc_tree, hf_fc_id, tvb, offset+5, 3, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     if (ftype == FC_FTYPE_LINKCTL) {
         if (((fchdr->r_ctl & 0x0F) == FC_LCTL_FBSYB) ||
@@ -1105,12 +1105,12 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
                   hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
                           tvb, offset+9, 1, 1);
-                  PROTO_ITEM_SET_HIDDEN(hidden_item);
+                  proto_item_set_hidden(hidden_item);
              }
              else {
                  hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
                          tvb, offset+9, 1, 0);
-                 PROTO_ITEM_SET_HIDDEN(hidden_item);
+                 proto_item_set_hidden(hidden_item);
                  next_tvb = tvb_new_subset_remaining (tvb, next_offset);
                  call_data_dissector(next_tvb, pinfo, tree);
                  return;
@@ -1119,7 +1119,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     } else {
         hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
                 tvb, offset+9, 1, 0);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
         next_tvb = tvb_new_subset_remaining (tvb, next_offset);
     }
 
@@ -1150,7 +1150,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
        key) when packets are guaranteed to be parsed consecutively */
 
     /* Set up LUN data */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         wmem_tree_insert32(fc_conv_data->luns, fchdr->oxid, GUINT_TO_POINTER((guint)fchdr->lun));
     }
 
@@ -1173,7 +1173,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     fchdr->fc_ex = fc_ex;
 
     /* populate the exchange struct */
-    if(!pinfo->fd->flags.visited){
+    if(!pinfo->fd->visited){
         if(fchdr->fctl&FC_FCTL_EXCHANGE_FIRST){
             fc_ex->first_exchange_frame=pinfo->num;
             fc_ex->fc_time = pinfo->abs_ts;
@@ -1187,18 +1187,18 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     if(!(fchdr->fctl&FC_FCTL_EXCHANGE_FIRST)){
         proto_item *it;
         it=proto_tree_add_uint(fc_tree, hf_fc_exchange_first_frame, tvb, 0, 0, fc_ex->first_exchange_frame);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
         if(fchdr->fctl&FC_FCTL_EXCHANGE_LAST){
             nstime_t delta_ts;
             nstime_delta(&delta_ts, &pinfo->abs_ts, &fc_ex->fc_time);
             it=proto_tree_add_time(ti, hf_fc_time, tvb, 0, 0, &delta_ts);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
     }
     if(!(fchdr->fctl&FC_FCTL_EXCHANGE_LAST)){
         proto_item *it;
         it=proto_tree_add_uint(fc_tree, hf_fc_exchange_last_frame, tvb, 0, 0, fc_ex->last_exchange_frame);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
     }
 
     tap_queue_packet(fc_tap, pinfo, fchdr);
@@ -1282,7 +1282,7 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     proto_tree_add_uint(fcsof_tree, hf_fceof, tvb, eof_offset, 4, eof);
 
-    next_tvb = tvb_new_subset_remaining(tvb, 4);
+    next_tvb = tvb_new_subset_length(tvb, 4, crc_offset-4);
 
     fc_data.ethertype = 0;
     fc_data.sof_eof = 0;
@@ -1580,7 +1580,7 @@ proto_reg_handoff_fc (void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

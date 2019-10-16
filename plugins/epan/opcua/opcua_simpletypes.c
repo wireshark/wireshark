@@ -20,6 +20,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/dissectors/packet-windows-common.h>
+#include <epan/proto_data.h>
 #include "opcua_simpletypes.h"
 #include "opcua_hfindeces.h"
 #include "opcua_statuscode.h"
@@ -80,6 +81,7 @@
 
 /* Chosen arbitrarily */
 #define MAX_ARRAY_LEN 10000
+#define MAX_NESTING_DEPTH 100
 
 static int hf_opcua_diag_mask = -1;
 static int hf_opcua_diag_mask_symbolicflag = -1;
@@ -168,6 +170,9 @@ int hf_opcua_resultMask_displayname = -1;
 int hf_opcua_resultMask_typedefinition = -1;
 
 static expert_field ei_array_length = EI_INIT;
+static expert_field ei_nesting_depth = EI_INIT;
+
+extern int proto_opcua;
 
 /** NodeId encoding mask table */
 static const value_string g_nodeidmasks[] = {
@@ -526,6 +531,7 @@ void registerSimpleTypes(int proto)
 
     static ei_register_info ei[] = {
         { &ei_array_length, { "opcua.array.length", PI_UNDECODED, PI_ERROR, "Max array length exceeded", EXPFILL }},
+        { &ei_nesting_depth, { "opcua.nestingdepth", PI_UNDECODED, PI_ERROR, "Max nesting depth exceeded", EXPFILL }},
     };
 
     proto_register_field_array(proto, hf, array_length(hf));
@@ -802,8 +808,19 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
     guint8      EncodingMask;
     proto_tree *subtree;
     proto_item *ti;
+    guint       opcua_nested_count;
 
     subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_diagnosticinfo, &ti, "%s: DiagnosticInfo", szFieldName);
+
+    /* prevent a too high nesting depth */
+    opcua_nested_count = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_opcua, 0));
+    if (opcua_nested_count >= MAX_NESTING_DEPTH)
+    {
+        expert_add_info(pinfo, ti, &ei_nesting_depth);
+        return;
+    }
+    opcua_nested_count++;
+    p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 
     /* parse encoding mask */
     EncodingMask = tvb_get_guint8(tvb, iOffset);
@@ -841,6 +858,9 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
 
     proto_item_set_end(ti, tvb, iOffset);
     *pOffset = iOffset;
+
+    opcua_nested_count--;
+    p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 }
 
 void parseQualifiedName(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
@@ -912,6 +932,17 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOf
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
     gint32  ArrayDimensions = 0;
+    guint   opcua_nested_count;
+
+    /* prevent a too high nesting depth */
+    opcua_nested_count = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_opcua, 0));
+    if (opcua_nested_count >= MAX_NESTING_DEPTH)
+    {
+        expert_add_info(pinfo, ti, &ei_nesting_depth);
+        return;
+    }
+    opcua_nested_count++;
+    p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     proto_tree_add_item(subtree, hf_opcua_variant_encodingmask, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
@@ -1011,6 +1042,9 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOf
 
     proto_item_set_end(ti, tvb, iOffset);
     *pOffset = iOffset;
+
+    opcua_nested_count--;
+    p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 }
 
 /** General parsing function for arrays of simple types.
@@ -1167,9 +1201,20 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, g
     guint32 TypeId;
     proto_tree *extobj_tree;
     proto_item *ti;
+    guint       opcua_nested_count;
 
     /* add extension object subtree */
     extobj_tree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_extensionobject, &ti, "%s: ExtensionObject", szFieldName);
+
+    /* prevent a too high nesting depth */
+    opcua_nested_count = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_opcua, 0));
+    if (opcua_nested_count >= MAX_NESTING_DEPTH)
+    {
+        expert_add_info(pinfo, ti, &ei_nesting_depth);
+        return;
+    }
+    opcua_nested_count++;
+    p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 
     /* add nodeid subtree */
     TypeId = getExtensionObjectType(tvb, &iOffset);
@@ -1187,6 +1232,9 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, g
 
     proto_item_set_end(ti, tvb, iOffset);
     *pOffset = iOffset;
+
+    opcua_nested_count--;
+    p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 }
 
 void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
@@ -1274,7 +1322,7 @@ guint32 getExtensionObjectType(tvbuff_t *tvb, gint *pOffset)
         Numeric = tvb_get_letohs(tvb, iOffset);
         break;
     case 0x02: /* numeric, that does not fit into four bytes */
-        iOffset+=4;
+        iOffset+=2;
         Numeric = tvb_get_letohl(tvb, iOffset);
         break;
     case 0x03: /* string */
@@ -1337,7 +1385,7 @@ void parseResultMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gi
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

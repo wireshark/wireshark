@@ -657,15 +657,15 @@ static value_string_ext vals_xser_service_ext = VALUE_STRING_EXT_INIT(vals_xser_
 static void
 ucp_stats_tree_init(stats_tree* st)
 {
-    st_ucp_messages    = stats_tree_create_node(st, st_str_ucp, 0, TRUE);
-    st_ucp_ops         = stats_tree_create_node(st, st_str_ops, st_ucp_messages, TRUE);
-    st_ucp_res         = stats_tree_create_node(st, st_str_res, st_ucp_messages, TRUE);
-    st_ucp_results     = stats_tree_create_node(st, st_str_ucp_res, 0, TRUE);
-    st_ucp_results_pos = stats_tree_create_node(st, st_str_pos, st_ucp_results, TRUE);
-    st_ucp_results_neg = stats_tree_create_node(st, st_str_neg, st_ucp_results, TRUE);
+    st_ucp_messages    = stats_tree_create_node(st, st_str_ucp, 0, STAT_DT_INT, TRUE);
+    st_ucp_ops         = stats_tree_create_node(st, st_str_ops, st_ucp_messages, STAT_DT_INT, TRUE);
+    st_ucp_res         = stats_tree_create_node(st, st_str_res, st_ucp_messages, STAT_DT_INT, TRUE);
+    st_ucp_results     = stats_tree_create_node(st, st_str_ucp_res, 0, STAT_DT_INT, TRUE);
+    st_ucp_results_pos = stats_tree_create_node(st, st_str_pos, st_ucp_results, STAT_DT_INT, TRUE);
+    st_ucp_results_neg = stats_tree_create_node(st, st_str_neg, st_ucp_results, STAT_DT_INT, TRUE);
 }
 
-static int
+static tap_packet_status
 ucp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
                                       packet_info *pinfo _U_,
                                       epan_dissect_t *edt _U_,
@@ -701,7 +701,7 @@ ucp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
         }
     }
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 /*!
@@ -2837,7 +2837,7 @@ proto_reg_handoff_ucp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -6,7 +6,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "capture_file_properties_dialog.h"
 #include <ui_capture_file_properties_dialog.h>
@@ -160,9 +161,25 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         << table_data_tmpl.arg(file_size_to_qstring(summary.file_length))
         << table_row_end;
 
+    out << table_row_begin
+        << table_vheader_tmpl.arg(tr("Hash (SHA256)"))
+        << table_data_tmpl.arg(summary.file_sha256)
+        << table_row_end;
+
+    out << table_row_begin
+        << table_vheader_tmpl.arg(tr("Hash (RIPEMD160)"))
+        << table_data_tmpl.arg(summary.file_rmd160)
+        << table_row_end;
+
+    out << table_row_begin
+        << table_vheader_tmpl.arg(tr("Hash (SHA1)"))
+        << table_data_tmpl.arg(summary.file_sha1)
+        << table_row_end;
+
     QString format_str = wtap_file_type_subtype_string(summary.file_type);
-    if (summary.iscompressed) {
-        format_str.append(tr(" (gzip compressed)"));
+    const char *compression_type_description = wtap_compression_type_description(summary.compression_type);
+    if (compression_type_description != NULL) {
+        format_str += QString(" (%1)").arg(compression_type_description);
     }
     out << table_row_begin
         << table_vheader_tmpl.arg(tr("Format"))
@@ -173,10 +190,10 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     if (summary.file_encap_type == WTAP_ENCAP_PER_PACKET) {
         for (guint i = 0; i < summary.packet_encap_types->len; i++)
         {
-            encaps_str = QString(wtap_encap_string(g_array_index(summary.packet_encap_types, int, i)));
+            encaps_str = QString(wtap_encap_description(g_array_index(summary.packet_encap_types, int, i)));
         }
     } else {
-        encaps_str = QString(wtap_encap_string(summary.file_encap_type));
+        encaps_str = QString(wtap_encap_description(summary.file_encap_type));
     }
     out << table_row_begin
         << table_vheader_tmpl.arg(tr("Encapsulation"))
@@ -295,8 +312,8 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     }
 
     for (guint i = 0; i < summary.ifaces->len; i++) {
-        iface_options iface;
-        iface = g_array_index(summary.ifaces, iface_options, i);
+        iface_summary_info iface;
+        iface = g_array_index(summary.ifaces, iface_summary_info, i);
 
         /* interface */
         QString interface_name(unknown);
@@ -329,7 +346,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
             << table_data_tmpl.arg(interface_name)
             << table_data_tmpl.arg(interface_drops)
             << table_data_tmpl.arg(interface_cfilter)
-            << table_data_tmpl.arg(wtap_encap_string(iface.encap_type))
+            << table_data_tmpl.arg(wtap_encap_description(iface.encap_type))
             << table_data_tmpl.arg(interface_snaplen)
             << table_row_end;
 
@@ -525,7 +542,7 @@ void CaptureFilePropertiesDialog::fillDetails()
 
             if (pkt_comment) {
                 QString frame_comment_html = tr("<p>Frame %1: ").arg(framenum);
-                QString raw_comment = pkt_comment;
+                QString raw_comment = gchar_free_to_qstring(pkt_comment);
 
                 frame_comment_html += html_escape(raw_comment).replace('\n', "<br>");
                 frame_comment_html += "</p>\n";

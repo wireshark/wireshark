@@ -69,7 +69,13 @@ G_GNUC_MALLOC;
 /**
  * Splits a string into a maximum of max_tokens pieces, using the given
  * delimiter. If max_tokens is reached, the remainder of string is appended
- * to the last token. Consecutive delimiters are treated as a single delimiter.
+ * to the last token. Successive tokens are not folded and will instead result
+ * in an empty string as element.
+ *
+ * If src or delimiter are NULL, or if delimiter is empty, this will return
+ * NULL.
+ *
+ * Do not use with a NULL allocator, use g_strsplit instead.
  */
 WS_DLL_PUBLIC
 gchar **
@@ -105,7 +111,7 @@ wmem_ascii_strdown(wmem_allocator_t *allocator, const gchar *str, gssize len);
 #endif /* __WMEM_STRUTL_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -1,4 +1,4 @@
-Editcap (Wireshark) 2.5.0 (v2.5.0rc0-1171-g33c00a67)
+Editcap (Wireshark) 3.1.1 (v3.1.1rc0-10-g22e7952e06f0)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
@@ -25,21 +25,13 @@ Duplicate packet removal:
                          LESS THAN <dup time window> prior to current packet.
                          A <dup time window> is specified in relative seconds
                          (e.g. 0.000001).
-  -a <framenum>:<comment> Add or replace comment for given frame number
-
-  -I <bytes to ignore>   ignore the specified number of bytes at the beginning
-                         of the frame during MD5 hash calculation, unless the
-                         frame is too short, then the full frame is used.
-                         Useful to remove duplicated packets taken on
-                         several routers (different mac addresses for
-                         example).
-                         e.g. -I 26 in case of Ether/IP will ignore
-                         ether(14) and IP header(20 - 4(src ip) - 4(dst ip)).
-
            NOTE: The use of the 'Duplicate packet removal' options with
            other editcap options except -v may not always work as expected.
            Specifically the -r, -t or -S options will very likely NOT have the
            desired effect if combined with the -d, -D or -w.
+  --skip-radiotap-header skip radiotap header when checking for packet duplicates.
+                         Useful when processing packets captured by multiple radios
+                         on the same channel in the vicinity of each other.
 
 Packet manipulation:
   -s <snaplen>           truncate each packet to max. <snaplen> bytes of data.
@@ -69,6 +61,18 @@ Packet manipulation:
   -o <change offset>     When used in conjunction with -E, skip some bytes from the
                          beginning of the packet. This allows one to preserve some
                          bytes, in order to have some headers untouched.
+  --seed <seed>          When used in conjunction with -E, set the seed to use for
+                         the pseudo-random number generator. This allows one to
+                         repeat a particular sequence of errors.
+  -I <bytes to ignore>   ignore the specified number of bytes at the beginning
+                         of the frame during MD5 hash calculation, unless the
+                         frame is too short, then the full frame is used.
+                         Useful to remove duplicated packets taken on
+                         several routers (different mac addresses for
+                         example).
+                         e.g. -I 26 in case of Ether/IP will ignore
+                         ether(14) and IP header(20 - 4(src ip) - 4(dst ip)).
+  -a <framenum>:<comment> Add or replace comment for given frame number
 
 Output File(s):
   -c <packets per file>  split the packet output to different files based on
@@ -77,11 +81,17 @@ Output File(s):
   -i <seconds per file>  split the packet output to different files based on
                          uniform time intervals with a maximum of
                          <seconds per file> each.
-  -F <capture type>      set the output file type; default is pcapng. An empty
-                         "-F" option will list the file types.
+  -F <capture type>      set the output file type; default is pcapng.
+                         An empty "-F" option will list the file types.
   -T <encap type>        set the output file encapsulation type; default is the
                          same as the input file. An empty "-T" option will
                          list the encapsulation types.
+  --inject-secrets <type>,<file>  Insert decryption secrets from <file>. List
+                         supported secret types with "--inject-secrets help".
+  --discard-all-secrets  Discard all decryption secrets from the input file
+                         when writing the output file.  Does not discard
+                         secrets added by "--inject-secrets" in the same
+                         command line.
 
 Miscellaneous:
   -h                     display this help and exit.

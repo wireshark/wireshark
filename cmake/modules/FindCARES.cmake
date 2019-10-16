@@ -45,13 +45,18 @@ IF(CARES_FOUND)
       CACHE PATH "Path to C-Ares DLL"
     )
     file( GLOB _cares_dll RELATIVE "${CARES_DLL_DIR}"
-      "${CARES_DLL_DIR}/libcares-*.dll"
+      "${CARES_DLL_DIR}/cares.dll"
     )
     set ( CARES_DLL ${_cares_dll}
-      # We're storing filenames only. Should we use STRING instead?
       CACHE FILEPATH "C-Ares DLL file name"
     )
-    mark_as_advanced( CARES_DLL_DIR CARES_DLL )
+    file( GLOB _cares_pdb RELATIVE "${CARES_DLL_DIR}"
+      "${CARES_DLL_DIR}/cares.pdb"
+    )
+    set ( CARES_PDB ${_cares_pdb}
+      CACHE FILEPATH "C-Ares PDB file name"
+    )
+    mark_as_advanced( CARES_DLL_DIR CARES_DLL CARES_PDB )
   endif()
 ELSE(CARES_FOUND)
   SET( CARES_LIBRARIES )

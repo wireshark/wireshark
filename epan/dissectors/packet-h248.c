@@ -1245,7 +1245,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
         proto_tree* ctx_tree = proto_item_add_subtree(ctx_item,ids->ett.ctx);
         gcp_terms_t *ctx_term;
 
-        PROTO_ITEM_SET_GENERATED(ctx_item);
+        proto_item_set_generated(ctx_item);
 
         if (ctx->cmds) {
             proto_tree* history_tree = proto_tree_add_subtree(ctx_tree,gcp_tvb,0,0,ids->ett.ctx_cmds,NULL,"[ Command History ]");
@@ -1253,7 +1253,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
             for (c = ctx->cmds; c; c = c->next) {
                 proto_item* cmd_item = proto_tree_add_uint(history_tree,ids->hf.ctx_cmd,gcp_tvb,0,0,c->cmd->msg->framenum);
                 if (c->cmd->str) proto_item_append_text(cmd_item,"  %s ",c->cmd->str);
-                PROTO_ITEM_SET_GENERATED(cmd_item);
+                proto_item_set_generated(cmd_item);
                 if (c->cmd->error) {
                     expert_add_info(pinfo, cmd_item, command_err);
                 }
@@ -1268,21 +1268,21 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
                     proto_item* pi = proto_tree_add_string(terms_tree,ids->hf.ctx_term,gcp_tvb,0,0,ctx_term->term->str);
                     proto_tree* term_tree = proto_item_add_subtree(pi,ids->ett.ctx_term);
 
-                    PROTO_ITEM_SET_GENERATED(pi);
+                    proto_item_set_generated(pi);
 
                     if (ctx_term->term->type) {
                         pi = proto_tree_add_uint(term_tree,ids->hf.ctx_term_type,gcp_tvb,0,0,ctx_term->term->type);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                     }
 
                     if (ctx_term->term->bir) {
                         pi = proto_tree_add_string(term_tree,ids->hf.ctx_term_bir,gcp_tvb,0,0,ctx_term->term->bir);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                     }
 
                     if (ctx_term->term->nsap) {
                         pi = proto_tree_add_string(term_tree,ids->hf.ctx_term_nsap,gcp_tvb,0,0,ctx_term->term->nsap);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                     }
 
                     if (ctx_term->term->bir && ctx_term->term->nsap) {
@@ -3917,19 +3917,19 @@ dissect_h248_SignalType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const asn_namedbit NotifyCompletion_bits[] = {
-  {  0, &hf_h248_NotifyCompletion_onTimeOut, -1, -1, "onTimeOut", NULL },
-  {  1, &hf_h248_NotifyCompletion_onInterruptByEvent, -1, -1, "onInterruptByEvent", NULL },
-  {  2, &hf_h248_NotifyCompletion_onInterruptByNewSignalDescr, -1, -1, "onInterruptByNewSignalDescr", NULL },
-  {  3, &hf_h248_NotifyCompletion_otherReason, -1, -1, "otherReason", NULL },
-  {  4, &hf_h248_NotifyCompletion_onIteration, -1, -1, "onIteration", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * NotifyCompletion_bits[] = {
+  &hf_h248_NotifyCompletion_onTimeOut,
+  &hf_h248_NotifyCompletion_onInterruptByEvent,
+  &hf_h248_NotifyCompletion_onInterruptByNewSignalDescr,
+  &hf_h248_NotifyCompletion_otherReason,
+  &hf_h248_NotifyCompletion_onIteration,
+  NULL
 };
 
 static int
 dissect_h248_NotifyCompletion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NotifyCompletion_bits, hf_index, ett_h248_NotifyCompletion,
+                                    NotifyCompletion_bits, 5, hf_index, ett_h248_NotifyCompletion,
                                     NULL);
 
   return offset;
@@ -4401,24 +4401,24 @@ dissect_h248_DigitMapDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const asn_namedbit T_auditToken_bits[] = {
-  {  0, &hf_h248_T_auditToken_muxToken, -1, -1, "muxToken", NULL },
-  {  1, &hf_h248_T_auditToken_modemToken, -1, -1, "modemToken", NULL },
-  {  2, &hf_h248_T_auditToken_mediaToken, -1, -1, "mediaToken", NULL },
-  {  3, &hf_h248_T_auditToken_eventsToken, -1, -1, "eventsToken", NULL },
-  {  4, &hf_h248_T_auditToken_signalsToken, -1, -1, "signalsToken", NULL },
-  {  5, &hf_h248_T_auditToken_digitMapToken, -1, -1, "digitMapToken", NULL },
-  {  6, &hf_h248_T_auditToken_statsToken, -1, -1, "statsToken", NULL },
-  {  7, &hf_h248_T_auditToken_observedEventsToken, -1, -1, "observedEventsToken", NULL },
-  {  8, &hf_h248_T_auditToken_packagesToken, -1, -1, "packagesToken", NULL },
-  {  9, &hf_h248_T_auditToken_eventBufferToken, -1, -1, "eventBufferToken", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_auditToken_bits[] = {
+  &hf_h248_T_auditToken_muxToken,
+  &hf_h248_T_auditToken_modemToken,
+  &hf_h248_T_auditToken_mediaToken,
+  &hf_h248_T_auditToken_eventsToken,
+  &hf_h248_T_auditToken_signalsToken,
+  &hf_h248_T_auditToken_digitMapToken,
+  &hf_h248_T_auditToken_statsToken,
+  &hf_h248_T_auditToken_observedEventsToken,
+  &hf_h248_T_auditToken_packagesToken,
+  &hf_h248_T_auditToken_eventBufferToken,
+  NULL
 };
 
 static int
 dissect_h248_T_auditToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_auditToken_bits, hf_index, ett_h248_T_auditToken,
+                                    T_auditToken_bits, 10, hf_index, ett_h248_T_auditToken,
                                     NULL);
 
   return offset;
@@ -6119,7 +6119,7 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             guint32 magic_num = 0, offset = 0;
             magic_num = tvb_get_ntohl(tvb, offset);
             hidden_item = proto_tree_add_uint(tree, hf_248_magic_num, tvb, offset, 4, magic_num);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
             if( dissector_try_uint(subdissector_table, magic_num, tvb, pinfo, tree) ) {
                 return tvb_captured_length(tvb);
             }
@@ -7436,63 +7436,63 @@ void proto_register_h248(void) {
         FT_BYTES, BASE_NONE, NULL, 0,
         "SigParamValueV1", HFILL }},
     { &hf_h248_T_auditToken_muxToken,
-      { "muxToken", "h248.muxToken",
+      { "muxToken", "h248.T.auditToken.muxToken",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_h248_T_auditToken_modemToken,
-      { "modemToken", "h248.modemToken",
+      { "modemToken", "h248.T.auditToken.modemToken",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_h248_T_auditToken_mediaToken,
-      { "mediaToken", "h248.mediaToken",
+      { "mediaToken", "h248.T.auditToken.mediaToken",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_h248_T_auditToken_eventsToken,
-      { "eventsToken", "h248.eventsToken",
+      { "eventsToken", "h248.T.auditToken.eventsToken",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_h248_T_auditToken_signalsToken,
-      { "signalsToken", "h248.signalsToken",
+      { "signalsToken", "h248.T.auditToken.signalsToken",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_h248_T_auditToken_digitMapToken,
-      { "digitMapToken", "h248.digitMapToken",
+      { "digitMapToken", "h248.T.auditToken.digitMapToken",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_h248_T_auditToken_statsToken,
-      { "statsToken", "h248.statsToken",
+      { "statsToken", "h248.T.auditToken.statsToken",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_h248_T_auditToken_observedEventsToken,
-      { "observedEventsToken", "h248.observedEventsToken",
+      { "observedEventsToken", "h248.T.auditToken.observedEventsToken",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_h248_T_auditToken_packagesToken,
-      { "packagesToken", "h248.packagesToken",
+      { "packagesToken", "h248.T.auditToken.packagesToken",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_h248_T_auditToken_eventBufferToken,
-      { "eventBufferToken", "h248.eventBufferToken",
+      { "eventBufferToken", "h248.T.auditToken.eventBufferToken",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_h248_NotifyCompletion_onTimeOut,
-      { "onTimeOut", "h248.onTimeOut",
+      { "onTimeOut", "h248.NotifyCompletion.onTimeOut",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_h248_NotifyCompletion_onInterruptByEvent,
-      { "onInterruptByEvent", "h248.onInterruptByEvent",
+      { "onInterruptByEvent", "h248.NotifyCompletion.onInterruptByEvent",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_h248_NotifyCompletion_onInterruptByNewSignalDescr,
-      { "onInterruptByNewSignalDescr", "h248.onInterruptByNewSignalDescr",
+      { "onInterruptByNewSignalDescr", "h248.NotifyCompletion.onInterruptByNewSignalDescr",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_h248_NotifyCompletion_otherReason,
-      { "otherReason", "h248.otherReason",
+      { "otherReason", "h248.NotifyCompletion.otherReason",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_h248_NotifyCompletion_onIteration,
-      { "onIteration", "h248.onIteration",
+      { "onIteration", "h248.NotifyCompletion.onIteration",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
 

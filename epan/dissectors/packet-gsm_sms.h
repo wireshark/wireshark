@@ -32,6 +32,8 @@ typedef struct {
 void dis_field_udh(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offset, guint32 *length,
                    guint8 *udl, enum character_set cset, guint8 *fill_bits, gsm_sms_udh_fields_t *p_udh_fields);
 
+void dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offset_p, const gchar *title);
+
 /* Data structure that can be optionally given to gsm_sms dissector */
 typedef struct _gsm_sms_data_t {
     gboolean stk_packing_required;

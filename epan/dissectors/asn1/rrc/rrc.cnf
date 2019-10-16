@@ -5,6 +5,7 @@
 #.OPT
 PER
 UNALIGNED
+PROTO_ROOT_NAME    proto_rrc
 #.END
 
 #.USE_VALS_EXT
@@ -74,6 +75,7 @@ SysInfoType17_PDU
 SysInfoType18_PDU
 SysInfoType19_PDU
 MasterInformationBlock_PDU
+MeasurementReport_PDU
 
 #.OMIT_ASSIGNMENT
 # Omit System-Information-Container for now it messes up the
@@ -109,6 +111,7 @@ SystemInformation-BCH        @sysinfo
 SystemInformation2-BCH       @sysinfo2
 System-Information-Container @sysinfo.cont
 MasterInformationBlock       @si.mib
+MeasurementReport
 SysInfoType1                 @si.sib1
 SysInfoType2                 @si.sib2
 SysInfoType3                 @si.sib3
@@ -230,7 +233,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   guint32 u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdateConfirm-CCCH");
 %(DEFAULT_BODY)s
-  if(actx->pinfo->fd->flags.visited) {
+  if(PINFO_FD_VISITED(actx->pinfo)) {
     return offset;
   }
 
@@ -254,7 +257,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   guint32 u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdateConfirm");
 %(DEFAULT_BODY)s
-  if(actx->pinfo->fd->flags.visited) {
+  if(PINFO_FD_VISITED(actx->pinfo)) {
     return offset;
   }
 
@@ -382,7 +385,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   guint32 u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "PhysicalChannelReconfiguration");
 %(DEFAULT_BODY)s
-  if(actx->pinfo->fd->flags.visited) {
+  if(PINFO_FD_VISITED(actx->pinfo)) {
     return offset;
   }
 
@@ -423,7 +426,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   guint32 u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerReconfiguration");
 %(DEFAULT_BODY)s
-  if(actx->pinfo->fd->flags.visited) {
+  if(PINFO_FD_VISITED(actx->pinfo)) {
     return offset;
   }
 
@@ -498,7 +501,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   guint32 new_u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup");
 %(DEFAULT_BODY)s
-  if (actx->pinfo->fd->flags.visited) {
+  if (PINFO_FD_VISITED(actx->pinfo)) {
     return offset;
   }
 
@@ -588,7 +591,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   guint32 u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "TransportChannelReconfiguration");
 %(DEFAULT_BODY)s
-  if(actx->pinfo->fd->flags.visited) {
+  if(PINFO_FD_VISITED(actx->pinfo)) {
     return offset;
   }
 
@@ -674,85 +677,6 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 #.FN_BODY UTRANMobilityInformationFailure
   col_append_str(actx->pinfo->cinfo, COL_INFO, "UTRANMobilityInformationFailure");
 %(DEFAULT_BODY)s
-
-#.FN_BODY SecurityCapability/cipheringAlgorithmCap VAL_PTR = &cap_tvb
-    tvbuff_t *cap_tvb=NULL;
-    proto_tree *subtree;
-
-%(DEFAULT_BODY)s
-
-  if (cap_tvb) {
-    subtree = proto_item_add_subtree(actx->created_item, ett_rrc_cipheringAlgorithmCap);
-    /* NOTE: If one of the lines below fail to compile after updating the RRC .asn files
-     * it probably means one of the 'spare' bits has been utilized and the hf member has a new name
-     */
-    /* First octet */
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_spare15, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_spare14, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_spare13, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_spare12, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_spare11, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_spare10, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_spare9, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_spare8, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    /* Second octet */
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_spare7, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_spare6, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_spare5, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_spare4, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_spare3, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_uea2, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_uea1, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_cipheringAlgorithmCap_uea0, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-  }
-
-#.FN_BODY SecurityCapability/integrityProtectionAlgorithmCap VAL_PTR = &cap_tvb
-    tvbuff_t *cap_tvb=NULL;
-    proto_tree *subtree;
-
-%(DEFAULT_BODY)s
-
-  if (cap_tvb) {
-    subtree = proto_item_add_subtree(actx->created_item, ett_rrc_integrityProtectionAlgorithmCap);
-    /* NOTE: If one of the lines below fail to compile after updating the RRC .asn files
-     * it probably means one of the 'spare' bits has been utilized and the hf member has a new name
-     */
-    /* First octet */
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_spare15, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_spare14, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_spare13, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_spare12, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_spare11, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_spare10, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_spare9, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_spare8, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    /* Second octet */
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_spare7, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_spare6, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_spare5, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_spare4, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_spare3, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_uia2, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_uia1, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_T_integrityProtectionAlgorithmCap_spare0, cap_tvb, 1, 1, ENC_BIG_ENDIAN);
-  }
-
-#.FN_BODY GsmSecurityCapability VAL_PTR = &cap_tvb
-    tvbuff_t *cap_tvb=NULL;
-    proto_tree *subtree;
-
-%(DEFAULT_BODY)s
-
-  if (cap_tvb) {
-    subtree = proto_item_add_subtree(actx->created_item, ett_rrc_GsmSecurityCapability);
-    proto_tree_add_item(subtree, hf_rrc_GsmSecurityCapability_a5_7, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_GsmSecurityCapability_a5_6, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_GsmSecurityCapability_a5_5, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_GsmSecurityCapability_a5_4, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_GsmSecurityCapability_a5_3, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_GsmSecurityCapability_a5_2, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_rrc_GsmSecurityCapability_a5_1, cap_tvb, 0, 1, ENC_BIG_ENDIAN);
-  }
 
 #.FN_BODY TargetRNC-ToSourceRNC-Container/dL-DCCHmessage VAL_PTR = &dl_dcch_message_tvb
   tvbuff_t *dl_dcch_message_tvb=NULL;
@@ -894,6 +818,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 #.FN_BODY PLMN-Identity
   wmem_strbuf_t* mcc_mnc_strbuf;
+  wmem_strbuf_t* mcc_strbuf;
   guint32 string_len;
   gchar* mcc_mnc_string;
   tvbuff_t* mcc_mnc_tvb;
@@ -915,6 +840,17 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   string_len = (guint32)wmem_strbuf_get_len(mcc_mnc_strbuf);
   mcc_mnc_string = wmem_strbuf_finalize(mcc_mnc_strbuf);
 
+  if(string_len >= 3)
+  {
+    /* 3 MCC digits were found, keep for later in case MCC is missing in other PLMN ids*/
+    mcc_strbuf = wmem_strbuf_sized_new(actx->pinfo->pool,4,4);
+    wmem_strbuf_append_c(mcc_strbuf,mcc_mnc_string[0]);
+    wmem_strbuf_append_c(mcc_strbuf,mcc_mnc_string[1]);
+    wmem_strbuf_append_c(mcc_strbuf,mcc_mnc_string[2]);
+    wmem_strbuf_append_c(mcc_strbuf,'\0');
+    private_data_set_last_mcc_strbuf(actx,mcc_strbuf);
+  }
+
   /* Creating TVB from extracted string*/
   mcc_mnc_tvb = tvb_new_child_real_data(tvb, (guint8*)mcc_mnc_string, string_len, string_len);
   add_new_data_source(actx->pinfo, mcc_mnc_tvb, "MCC-MNC");
@@ -924,6 +860,8 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 #.FN_BODY PLMN-IdentityWithOptionalMCC-r6
   wmem_strbuf_t* mcc_mnc_strbuf;
+  wmem_strbuf_t* temp_strbuf;
+  wmem_strbuf_t* last_mcc_strbuf;
   guint32 string_len;
   gchar* mcc_mnc_string;
   tvbuff_t* mcc_mnc_tvb;
@@ -943,10 +881,35 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
   /* Extracting the string collected in the strbuf */
   string_len = (guint32)wmem_strbuf_get_len(mcc_mnc_strbuf);
+  mcc_mnc_string = wmem_strbuf_finalize(mcc_mnc_strbuf);
+  if (string_len > 3) {
+      /* 3 MCC digits and at least 1 MNC digit were found, keep MCC for later
+         in case it's missing in other PLMN ids*/
+    temp_strbuf = wmem_strbuf_sized_new(actx->pinfo->pool,4,4);
+    wmem_strbuf_append_c(temp_strbuf,mcc_mnc_string[0]);
+    wmem_strbuf_append_c(temp_strbuf,mcc_mnc_string[1]);
+    wmem_strbuf_append_c(temp_strbuf,mcc_mnc_string[2]);
+    wmem_strbuf_append_c(temp_strbuf,'\0');
+    private_data_set_last_mcc_strbuf(actx,temp_strbuf);
+  }
+  else {
+      /* mcc_mnc_strbuf Probably only has 3/2 digits of MNC */
+      /* Try to fill MCC form "last MCC" if we have it stored */
+      last_mcc_strbuf = private_data_get_last_mcc_strbuf(actx);
+      if(last_mcc_strbuf)
+      {
+        /* Concat MCC and MNC in temp buffer */
+        temp_strbuf = wmem_strbuf_sized_new(actx->pinfo->pool,7,7);
+        wmem_strbuf_append_printf(temp_strbuf,"%%s",wmem_strbuf_get_str(last_mcc_strbuf));
+        wmem_strbuf_append_printf(temp_strbuf,"%%s",mcc_mnc_string);
+        /* Update length of recovered MCC-MNC pair */
+        string_len = (guint32)wmem_strbuf_get_len(temp_strbuf);
+        mcc_mnc_string = wmem_strbuf_finalize(temp_strbuf);
+      }
+  }
+
   if (string_len >= 5) {
-    /* optional MCC was present, we can call E.212 dissector */
-    /* if not present, we could apply the algorithm in 25.331 chapter 8.1.1.5 */
-    mcc_mnc_string = wmem_strbuf_finalize(mcc_mnc_strbuf);
+    /* optional MCC was present (or restored above), we can call E.212 dissector */
 
     /* Creating TVB from extracted string*/
     mcc_mnc_tvb = tvb_new_child_real_data(tvb, (guint8*)mcc_mnc_string, string_len, string_len);
@@ -1009,6 +972,127 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
     /* Appending to the digits string */
     wmem_strbuf_append_c(digits_strbuf, digit_char);
   }
+
+#.FN_BODY CompleteSIBshort
+  private_data_set_curr_sib_segment_type(actx,RRC_SIB_SEG_COMP);
+%(DEFAULT_BODY)s
+  private_data_set_curr_sib_segment_type(actx,RRC_SIB_SEG_NO_SEGMENT); /* Resetting value */
+
+#.FN_BODY SIB-Type VAL_PTR = &sib_type
+  guint32 sib_type;
+%(DEFAULT_BODY)s
+  private_data_set_curr_sib_type(actx,sib_type);
+
+#.FN_BODY SIB-Data-variable VAL_PTR = &sib_data_tvb
+  tvbuff_t *sib_data_tvb;
+  guint32 sib_type;
+  proto_tree *subtree;
+  guint32 seg_type;
+
+%(DEFAULT_BODY)s
+
+  seg_type = (guint32)private_data_get_curr_sib_segment_type(actx);
+  if(seg_type != RRC_SIB_SEG_COMP) {
+      /* TODO: The Dissector only handles 'complete SIBs' right now.
+       * Reassembly logic should be implemented, taking into acocunt that
+       * different fragments might arrive in different frames.
+       */
+      return offset;
+  }
+
+  /* This is a complete SIB - Call handler according to previous SIB-Type field*/
+  subtree = proto_item_add_subtree(actx->created_item, ett_rrc_sib_data_var);
+  sib_type = private_data_get_curr_sib_type(actx);
+  switch(sib_type){
+    case 0:
+      /* mIB */
+      dissect_rrc_MasterInformationBlock_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 1:
+      dissect_rrc_SysInfoType1_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 2:
+      dissect_rrc_SysInfoType2_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 3:
+      dissect_rrc_SysInfoType3_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 4:
+      dissect_rrc_SysInfoType4_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 5:
+      dissect_rrc_SysInfoType5_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 6:
+      dissect_rrc_SysInfoType6_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 7:
+      dissect_rrc_SysInfoType7_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 11:
+      dissect_rrc_SysInfoType11_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 12:
+      dissect_rrc_SysInfoType12_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 13:
+      dissect_rrc_SysInfoType13_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 14:
+      /* SIB-Type: systemInformationBlockType13-1 */
+      dissect_rrc_SysInfoType13_1_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 15:
+      /* SIB-Type: systemInformationBlockType13-2 */
+      dissect_rrc_SysInfoType13_2_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 16:
+      /* SIB-Type: systemInformationBlockType13-3 */
+      dissect_rrc_SysInfoType13_3_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 17:
+      /* SIB-Type: systemInformationBlockType13-4 */
+      dissect_rrc_SysInfoType13_4_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 18:
+      /* SIB-Type: systemInformationBlockType14 */
+      dissect_rrc_SysInfoType14_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 19:
+      /* SIB-Type: systemInformationBlockType15 */
+      dissect_rrc_SysInfoType15_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 20:
+      /* SIB-Type: systemInformationBlockType15-1 */
+      dissect_rrc_SysInfoType15_1_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 21:
+      /* SIB-Type: systemInformationBlockType15-2 */
+      dissect_rrc_SysInfoType15_2_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 22:
+      /* SIB-Type: systemInformationBlockType15-3 */
+      dissect_rrc_SysInfoType15_3_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 23:
+      /* SIB-Type: systemInformationBlockType16 */
+      dissect_rrc_SysInfoType16_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 24:
+      /* SIB-Type: systemInformationBlockType17 */
+      dissect_rrc_SysInfoType17_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 25:
+      /* SIB-Type: systemInformationBlockType15-4 */
+      dissect_rrc_SysInfoType15_4_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 26:
+      /* SIB-Type: systemInformationBlockType18 */
+      dissect_rrc_SysInfoType18_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    default:
+      break;
+    }
 
 #.FN_BODY RSR-VCC-Info/ims-Information VAL_PTR = &imsInformation_tvb
   tvbuff_t *imsInformation_tvb=NULL;
@@ -1123,22 +1207,40 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
   guint32 s_rnc_id;
   guint32 s_rnti;
   guint32 u_rnti_value;
+  guint32 original_offset;
+  proto_item *ti;
+  guint32 item_len;
+  proto_tree *sub_tree;
+  gboolean is_new_urnti;
+  int generated_field_hf;
+  original_offset = offset;
 %(DEFAULT_BODY)s
-  gboolean is_new_urnti = hf_index != hf_rrc_u_RNTI; /* hf_rrc_u_RNTI is for current U-RNTI, any other hf is for new U-RNTI */
+
+  /* Reconstructing the U-RNTI from the parsed components */
   s_rnc_id = private_data_get_s_rnc_id(actx);
   s_rnti = private_data_get_s_rnti(actx);
-  if(s_rnc_id != 0 && s_rnti != 0) {
-      u_rnti_value = (s_rnc_id << 20) | s_rnti;
-      /* Distinguishing between new allocated U-RNTIs and previously used ones */
-      if (is_new_urnti) {
-          private_data_set_new_u_rnti(actx, u_rnti_value);
-      }
-      else {
-          private_data_set_current_u_rnti(actx, u_rnti_value);
-      }
-      /* Adding U-RNTI value to it's tree item */
-      proto_item_append_text(actx->created_item,": %%08x", u_rnti_value);
+  u_rnti_value = (s_rnc_id << 20) | s_rnti;
+
+  /* Distinguishing between new allocated U-RNTIs and previously used ones */
+  /* hf_rrc_u_RNTI is for current U-RNTI, any other hf is for new U-RNTI */
+  is_new_urnti = hf_index != hf_rrc_u_RNTI;
+  if (is_new_urnti) {
+    private_data_set_new_u_rnti(actx, u_rnti_value);
+    generated_field_hf = hf_urnti_new;
   }
+  else {
+    private_data_set_current_u_rnti(actx, u_rnti_value);
+    generated_field_hf = hf_urnti_current;
+  }
+
+  /* Adding a "Current U-RNTI" or "New U-RNTI" as generated field */
+  sub_tree = proto_item_get_subtree(actx->created_item);
+  item_len = proto_item_get_len(actx->created_item);
+  ti = proto_tree_add_uint(sub_tree, generated_field_hf, tvb, original_offset/8, item_len, u_rnti_value);
+  proto_item_set_generated(ti);
+  ti = proto_tree_add_uint(sub_tree, hf_urnti, tvb, original_offset/8, item_len, u_rnti_value);
+  proto_item_set_hidden(ti);
+
   private_data_set_s_rnc_id(actx, 0);
   private_data_set_s_rnti(actx, 0);
 
@@ -1161,7 +1263,7 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
     c_rnti = tvb_get_ntohs(c_rnti_tvb,0);
   }
 
-  if(actx->pinfo->fd->flags.visited) /* Frame was already checked*/
+  if(PINFO_FD_VISITED(actx->pinfo)) /* Frame was already checked*/
     return offset;
 
   /* Trying to figure where to get the U-RNTI from Either from an ASN.1 field (if this is CCCH) or RLC's attached info (if this is DCCH) */
@@ -1234,9 +1336,9 @@ if(state_dec >= 0 && state_dec <= 3) {
   if(cell_id_tvb != NULL) {
       cell_identity_tree = proto_item_add_subtree(actx->created_item, ett_rrc_cellIdentity);
       temp_ti = proto_tree_add_bits_item(cell_identity_tree, hf_rrc_cellIdentity_rnc_id,cell_id_tvb, 0, 12, ENC_BIG_ENDIAN);
-      PROTO_ITEM_SET_GENERATED(temp_ti);
+      proto_item_set_generated(temp_ti);
       temp_ti = proto_tree_add_bits_item(cell_identity_tree, hf_rrc_cellIdentity_c_id, cell_id_tvb, 12, 16, ENC_BIG_ENDIAN);
-      PROTO_ITEM_SET_GENERATED(temp_ti);
+      proto_item_set_generated(temp_ti);
   }
 
 #.FN_BODY DL-TransportChannelType-r5 VAL_PTR = &type

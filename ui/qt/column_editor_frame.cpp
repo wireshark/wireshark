@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -13,6 +14,7 @@
 #include <epan/column-info.h>
 #include <epan/column.h>
 #include <epan/prefs.h>
+#include <ui/recent.h>
 
 #include <ui/preference_utils.h>
 
@@ -139,15 +141,17 @@ void ColumnEditorFrame::on_buttonBox_accepted()
         set_column_title(cur_column_, col_str.constData());
         set_column_format(cur_column_, ui->typeComboBox->currentIndex());
         if (ui->typeComboBox->currentIndex() == COL_CUSTOM) {
+            gint width = recent_get_column_width(cur_column_);
+            gchar xalign = recent_get_column_xalign(cur_column_);
             col_str = ui->fieldsNameLineEdit->text().toUtf8();
             set_column_custom_fields(cur_column_, col_str.constData());
+            recent_set_column_width(cur_column_, width);
+            recent_set_column_xalign(cur_column_, xalign);
             if (!ui->occurrenceLineEdit->text().isEmpty()) {
                 set_column_custom_occurrence(cur_column_, ui->occurrenceLineEdit->text().toInt());
             }
         }
-        if (!prefs.gui_use_pref_save) {
-            prefs_main_write();
-        }
+        prefs_main_write();
         emit columnEdited();
     }
 

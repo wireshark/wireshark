@@ -33,7 +33,6 @@
 #include <wiretap/wtap.h>
 
 #include "ui/util.h"
-#include "epan/register.h"
 
 static void failure_warning_message(const char *msg_format, va_list ap);
 static void open_failure_message(const char *filename, int err,
@@ -58,7 +57,7 @@ main(int argc, char **argv)
 	 * Attempt to get the pathname of the directory containing the
 	 * executable file.
 	 */
-	init_progfile_dir_error = init_progfile_dir(argv[0], main);
+	init_progfile_dir_error = init_progfile_dir(argv[0]);
 	if (init_progfile_dir_error != NULL) {
 		fprintf(stderr, "dftest: Can't get pathname of directory containing the dftest program: %s.\n",
 			init_progfile_dir_error);
@@ -78,8 +77,7 @@ main(int argc, char **argv)
 	   "-g" flag, as the "-g" flag dumps a list of fields registered
 	   by the dissectors, and we must do it before we read the preferences,
 	   in case any dissectors register preferences. */
-	if (!epan_init(register_all_protocols, register_all_protocol_handoffs,
-	    NULL, NULL))
+	if (!epan_init(NULL, NULL, FALSE))
 		return 2;
 
 	/* set the c-language locale to the native environment. */
@@ -109,6 +107,7 @@ main(int argc, char **argv)
 		fprintf(stderr, "dftest: %s\n", err_msg);
 		g_free(err_msg);
 		epan_cleanup();
+		g_free(text);
 		exit(2);
 	}
 
@@ -121,6 +120,7 @@ main(int argc, char **argv)
 
 	dfilter_free(df);
 	epan_cleanup();
+	g_free(text);
 	exit(0);
 }
 
@@ -168,7 +168,7 @@ write_failure_message(const char *filename, int err)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

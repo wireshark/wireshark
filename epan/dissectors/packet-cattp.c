@@ -321,13 +321,19 @@ static gboolean
 dissect_cattp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (tvb_captured_length(tvb) >= CATTP_HBLEN) { /* check of data is big enough for base header. */
-        guint8  flags, hlen;
+        guint8  flags, ver, hlen;
         guint16 plen;
 
         hlen = tvb_get_guint8(tvb, 3); /* header len  */
         plen = tvb_get_ntohs(tvb, 8);  /* payload len */
 
         if (hlen+plen != tvb_reported_length(tvb)) /* check if data length is ok. */
+            return FALSE;
+
+        /* ETSI TS 102 127 V15.0.0 and earlier releases say explicitly that
+           the version bits must be 0. */
+        ver = tvb_get_guint8(tvb, 0) & M_VERSION;
+        if (ver != 0)
             return FALSE;
 
         flags = tvb_get_guint8(tvb, 0) & M_FLAGS;
@@ -567,7 +573,7 @@ proto_reg_handoff_cattp(void)
     /* Create dissector handle */
     cattp_handle = create_dissector_handle(dissect_cattp, proto_cattp);
 
-    heur_dissector_add("udp", dissect_cattp_heur, "CAT-TP over UDP", "cattp_udp", proto_cattp, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_cattp_heur, "CAT-TP over UDP", "cattp_udp", proto_cattp, HEURISTIC_DISABLE);
     dissector_add_for_decode_as_with_preference("udp.port", cattp_handle);
 }
 

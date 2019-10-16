@@ -1,4 +1,4 @@
--- 3GPP TS 24.080 V14.0.0 (2017-03)
+-- 3GPP TS 24.080 V15.0.0 (2018-06)
 -- 4.3.1	Errors ASN.1 specification
 -- The following ASN.1 module provides an ASN.1 specification of errors. Errors from MAP are imported in the SS Protocol module in subclause 4.5. The module defines errors by allocating them a local value. For the involved errors the same local values as in MAP are allocated.
 
@@ -22,7 +22,7 @@ Remote-Operations-Information-Objects {joint-iso-itu-t remote-operations(4)
 -- ss-Incompatibility, systemFailure, dataMissing, unexpectedDataValue, facilityNotSupported,
 -- pw-RegistrationFailure, negativePW-Check, callBarred, numberOfPW-AttemptsViolation,
 -- absentSubscriber, illegalSubscriber, illegalEquipment, ussd-Busy, unknownAlphabet,
--- forwardingViolation, forwardingFailed
+-- forwardingViolation, forwardingFailed, resourceLimitation
 -- are imported from MAP-Errors in SS-Protocol module.
 
 -- errors definition

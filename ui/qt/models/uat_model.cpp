@@ -7,7 +7,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "uat_model.h"
 #include <epan/to_str.h>
@@ -41,6 +42,50 @@ void UatModel::loadUat(epan_uat * uat)
         // Assume that records are initially not modified.
         dirty_records.push_back(false);
     }
+}
+
+void UatModel::reloadUat()
+{
+    beginResetModel();
+    loadUat(uat_);
+    endResetModel();
+}
+
+bool UatModel::applyChanges(QString &error)
+{
+    if (uat_->changed) {
+        gchar *err = NULL;
+
+        if (!uat_save(uat_, &err)) {
+            error = QString("Error while saving %1: %2").arg(uat_->name).arg(err);
+            g_free(err);
+        }
+
+        if (uat_->post_update_cb) {
+            uat_->post_update_cb();
+        }
+        return true;
+    }
+
+    return false;
+}
+
+bool UatModel::revertChanges(QString &error)
+{
+    // Ideally this model should remember the changes made and try to undo them
+    // to avoid calling post_update_cb. Calling uat_clear + uat_load is a lazy
+    // option and might fail (e.g. when the UAT file is removed).
+    if (uat_->changed) {
+        gchar *err = NULL;
+        uat_clear(uat_);
+        if (!uat_load(uat_, NULL, &err)) {
+            error = QString("Error while loading %1: %2").arg(uat_->name).arg(err);
+            g_free(err);
+        }
+        return true;
+    }
+
+    return false;
 }
 
 Qt::ItemFlags UatModel::flags(const QModelIndex &index) const
@@ -236,7 +281,9 @@ bool UatModel::setData(const QModelIndex &index, const QVariant &value, int role
     }
 
     if (record_errors[row].isEmpty()) {
-        // If all fields are valid, invoke the update callback
+        // If all individual fields are valid, invoke the update callback. This
+        // might detect additional issues in either individual fields, or the
+        // combination of them.
         if (uat_->update_cb) {
             char *err = NULL;
             if (!uat_->update_cb(rec, &err)) {
@@ -245,10 +292,8 @@ bool UatModel::setData(const QModelIndex &index, const QVariant &value, int role
                 g_free(err);
             }
         }
-        uat_update_record(uat_, rec, TRUE);
-    } else {
-        uat_update_record(uat_, rec, FALSE);
     }
+    uat_update_record(uat_, rec, record_errors[row].isEmpty());
     dirty_records[row] = true;
     uat_->changed = TRUE;
 

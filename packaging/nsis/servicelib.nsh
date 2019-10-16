@@ -1,4 +1,4 @@
-; from http://nsis.sourceforge.net/wiki/NSIS_Service_Lib
+; from https://nsis.sourceforge.io/mediawiki/index.php?title=NSIS_Service_Lib&oldid=4726
 ; un. functions disabled to prevent a NSIS warning
 ;
 ; NSIS SERVICE LIBRARY - servicelib.nsh

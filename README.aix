@@ -22,7 +22,7 @@ they're also preserved for historical reasons.
 
 After much work and toil, Craig Rodrigues was able to compile libpcap
 and Ethereal on AIX 4.3.2.  His odyssey is document in various e-mails
-at http://www.ethereal.com/lists/ethereal-dev/199911/
+at https://www.wireshark.org/lists/ethereal-dev/199911/
 
 Here are a few excerpts.  Note that, to configure "libpcap" to use DLPI
 rather than BPF (which it'll apparently use by default on AIX),

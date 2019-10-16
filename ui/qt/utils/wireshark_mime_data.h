@@ -4,14 +4,21 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef UI_QT_UTILS_WIRESHARK_MIME_DATA_H_
 #define UI_QT_UTILS_WIRESHARK_MIME_DATA_H_
 
 #include <QMimeData>
 
-class DisplayFilterMimeData: public QMimeData {
+class WiresharkMimeData: public QMimeData {
+public:
+    virtual QString labelText() const = 0;
+    virtual void allowPlainText();
+};
+
+class DisplayFilterMimeData: public WiresharkMimeData {
     Q_OBJECT
 public:
 
@@ -21,7 +28,8 @@ public:
     QString field() const;
     QString filter() const;
 
-    QString labelText() const;
+    QString labelText() const override;
+    void allowPlainText() override;
 
 private:
 
@@ -31,7 +39,7 @@ private:
 
 };
 
-class ToolbarEntryMimeData: public QMimeData {
+class ToolbarEntryMimeData: public WiresharkMimeData {
     Q_OBJECT
 public:
 
@@ -40,7 +48,7 @@ public:
     int position() const;
     QString element() const;
 
-    QString labelText() const;
+    QString labelText() const override;
 
 private:
 

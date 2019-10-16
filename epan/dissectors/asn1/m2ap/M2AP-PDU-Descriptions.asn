@@ -1,4 +1,4 @@
--- 3GPP TS 36.443 V14.0.0 (2017-03)
+-- 3GPP TS 36.443 V15.0.0 (2018-09)
 -- **************************************************************
 --
 -- Elementary Procedure definitions
@@ -6,10 +6,10 @@
 -- **************************************************************
 
 M2AP-PDU-Descriptions {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 eps-Access (21) modules (3) m2ap (4) version1 (1) m2ap-PDU-Descriptions (0) }
 
-DEFINITIONS AUTOMATIC TAGS ::=
+DEFINITIONS AUTOMATIC TAGS ::= 
 
 BEGIN
 
@@ -29,7 +29,7 @@ FROM M2AP-CommonDataTypes
 	SessionStartResponse,
 	SessionStartFailure,
 	SessionStopRequest,
-	SessionStopResponse,
+	SessionStopResponse, 
 	SessionUpdateRequest,
 	SessionUpdateResponse,
 	SessionUpdateFailure,
@@ -56,7 +56,7 @@ FROM M2AP-CommonDataTypes
 FROM M2AP-PDU-Contents
 
 	id-sessionStart,
-	id-sessionStop,
+	id-sessionStop, 
 	id-sessionUpdate,
 	id-mbmsServiceCounting,
 	id-mbmsServiceCountingResultsReport,

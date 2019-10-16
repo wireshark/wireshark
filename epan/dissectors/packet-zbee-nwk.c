@@ -18,15 +18,19 @@
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
+#include <epan/address_types.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/conversation_table.h>
+#include <epan/dissector_filters.h>
+#include <epan/tap.h>
 #include <wsutil/bits_ctz.h>    /* for ws_ctz */
+#include <wsutil/pint.h>
 #include "packet-ieee802154.h"
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"
 #include "packet-zbee-aps.h"    /* for ZBEE_APS_CMD_KEY_LENGTH */
 #include "packet-zbee-security.h"
-#include <wsutil/glib-compat.h>
 
 /*************************/
 /* Function Declarations */
@@ -83,6 +87,7 @@ static int hf_zbee_nwk_ext_src = -1;
 static int hf_zbee_nwk_end_device_initiator = -1;
 static int hf_zbee_nwk_dst = -1;
 static int hf_zbee_nwk_src = -1;
+static int hf_zbee_nwk_addr = -1;
 static int hf_zbee_nwk_radius = -1;
 static int hf_zbee_nwk_seqno = -1;
 static int hf_zbee_nwk_mcast = -1;
@@ -91,6 +96,7 @@ static int hf_zbee_nwk_mcast_radius = -1;
 static int hf_zbee_nwk_mcast_max_radius = -1;
 static int hf_zbee_nwk_dst64 = -1;
 static int hf_zbee_nwk_src64 = -1;
+static int hf_zbee_nwk_addr64 = -1;
 static int hf_zbee_nwk_src64_origin = -1;
 static int hf_zbee_nwk_relay_count = -1;
 static int hf_zbee_nwk_relay_index = -1;
@@ -203,6 +209,10 @@ static expert_field ei_zbee_nwk_missing_payload = EI_INIT;
 
 static dissector_handle_t   aps_handle;
 static dissector_handle_t   zbee_gp_handle;
+
+static int zbee_nwk_address_type = -1;
+
+static int zbee_nwk_tap = -1;
 
 /********************/
 /* Field Names      */
@@ -357,6 +367,28 @@ ieee802154_map_tab_t zbee_nwk_map = { NULL, NULL };
 GHashTable *zbee_table_nwk_keyring = NULL;
 GHashTable *zbee_table_link_keyring = NULL;
 
+static int zbee_nwk_address_to_str(const address* addr, gchar *buf, int buf_len)
+{
+    guint16 zbee_nwk_addr = pletoh16(addr->data);
+
+    if ((zbee_nwk_addr == ZBEE_BCAST_ALL) || (zbee_nwk_addr == ZBEE_BCAST_ACTIVE) || (zbee_nwk_addr == ZBEE_BCAST_ROUTERS)) {
+        return (int)g_strlcpy(buf, "Broadcast", buf_len) + 1;
+    }
+    else {
+        return g_snprintf(buf, buf_len, "0x%04x", zbee_nwk_addr) + 1;
+    }
+}
+
+static int zbee_nwk_address_str_len(const address* addr _U_)
+{
+    return sizeof("Broadcast");
+}
+
+static int zbee_nwk_address_len(void)
+{
+    return sizeof(guint16);
+}
+
 /**
  *Extracts an integer sub-field from an int with a given mask
  *
@@ -477,7 +509,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     memset(&packet, 0, sizeof(packet));
 
     /* Set up hint structures */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* Allocate frame data with hints for upper layers */
         nwk_hints = wmem_new0(wmem_file_scope(), zbee_nwk_hints_t);
         p_add_proto_data(wmem_file_scope(), pinfo, proto_zbee_nwk, 0, nwk_hints);
@@ -522,49 +554,44 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     if (packet.type != ZBEE_NWK_FCF_INTERPAN) {
         /* Get the destination address. */
         packet.dst = tvb_get_letohs(tvb, offset);
-        proto_tree_add_uint(nwk_tree, hf_zbee_nwk_dst, tvb, offset, 2, packet.dst);
 
-        offset += 2;
-
-        /* Display the destination address. */
-        if (   (packet.dst == ZBEE_BCAST_ALL)
-               || (packet.dst == ZBEE_BCAST_ACTIVE)
-               || (packet.dst == ZBEE_BCAST_ROUTERS)){
-            dst_addr = wmem_strdup(pinfo->pool, "Broadcast");
-        }
-        else {
-            dst_addr = wmem_strdup_printf(pinfo->pool, "0x%04x", packet.dst);
-        }
-
-        set_address(&pinfo->net_dst, AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);
+        set_address_tvb(&pinfo->net_dst, zbee_nwk_address_type, 2, tvb, offset);
         copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+        dst_addr = address_to_str(wmem_packet_scope(), &pinfo->dst);
+
+        proto_tree_add_uint(nwk_tree, hf_zbee_nwk_dst, tvb, offset, 2, packet.dst);
+        ti = proto_tree_add_uint(nwk_tree, hf_zbee_nwk_addr, tvb, offset, 2, packet.dst);
+        proto_item_set_generated(ti);
+        proto_item_set_hidden(ti);
+        offset += 2;
 
         proto_item_append_text(proto_root, ", Dst: %s", dst_addr);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", dst_addr);
 
-
         /* Get the short nwk source address and pass it to upper layers */
         packet.src = tvb_get_letohs(tvb, offset);
+
+        set_address_tvb(&pinfo->net_src, zbee_nwk_address_type, 2, tvb, offset);
+        copy_address_shallow(&pinfo->src, &pinfo->net_src);
+        src_addr = address_to_str(wmem_packet_scope(), &pinfo->src);
+
         if (nwk_hints)
             nwk_hints->src = packet.src;
         proto_tree_add_uint(nwk_tree, hf_zbee_nwk_src, tvb, offset, 2, packet.src);
+        ti = proto_tree_add_uint(nwk_tree, hf_zbee_nwk_addr, tvb, offset, 2, packet.src);
+        proto_item_set_generated(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
-        /* Display the source address. */
         if (   (packet.src == ZBEE_BCAST_ALL)
                || (packet.src == ZBEE_BCAST_ACTIVE)
                || (packet.src == ZBEE_BCAST_ROUTERS)){
             /* Source Broadcast doesn't make much sense. */
-            src_addr = wmem_strdup(pinfo->pool, "Unexpected Source Broadcast");
             unicast_src = FALSE;
         }
         else {
-            src_addr = wmem_strdup_printf(pinfo->pool, "0x%04x", packet.src);
             unicast_src = TRUE;
         }
-
-        set_address(&pinfo->net_src, AT_STRINGZ, (int)strlen(src_addr)+1, src_addr);
-        copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
         proto_item_append_text(proto_root, ", Src: %s", src_addr);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", src_addr);
@@ -583,6 +610,9 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         if ((packet.version >= ZBEE_VERSION_2007) && packet.ext_dst) {
             packet.dst64 = tvb_get_letoh64(tvb, offset);
             proto_tree_add_item(nwk_tree, hf_zbee_nwk_dst64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            ti = proto_tree_add_eui64(nwk_tree, hf_zbee_nwk_addr64, tvb, offset, 8, packet.dst64);
+            proto_item_set_generated(ti);
+            proto_item_set_hidden(ti);
             offset += 8;
         }
 
@@ -593,9 +623,12 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             if (packet.ext_src) {
                 packet.src64 = tvb_get_letoh64(tvb, offset);
                 proto_tree_add_item(nwk_tree, hf_zbee_nwk_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+                ti = proto_tree_add_eui64(nwk_tree, hf_zbee_nwk_addr64, tvb, offset, 8, packet.src64);
+                proto_item_set_generated(ti);
+                proto_item_set_hidden(ti);
                 offset += 8;
 
-                if (!pinfo->fd->flags.visited && nwk_hints) {
+                if (!pinfo->fd->visited && nwk_hints) {
                     /* Provide hints to upper layers */
                     nwk_hints->src_pan = ieee_packet->src_pan;
 
@@ -608,7 +641,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             }
             else {
                 /* See if extended source info was previously sniffed */
-                if (!pinfo->fd->flags.visited && nwk_hints) {
+                if (!pinfo->fd->visited && nwk_hints) {
                     nwk_hints->src_pan = ieee_packet->src_pan;
                     addr16.addr = packet.src;
 
@@ -622,13 +655,16 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                         map_rec = (ieee802154_map_rec *) g_hash_table_lookup(ieee_packet->short_table, &addr16);
                         if (map_rec) nwk_hints->map_rec = map_rec;
                     }
-                } /* (!pinfo->fd->flags.visited) */
+                } /* (!pinfo->fd->visited) */
                 else {
                     if (nwk_hints && nwk_hints->map_rec ) {
                         /* Display inferred source address info */
                         ti = proto_tree_add_eui64(nwk_tree, hf_zbee_nwk_src64, tvb, offset, 0,
                                                   nwk_hints->map_rec->addr64);
-                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_set_generated(ti);
+                        ti = proto_tree_add_eui64(nwk_tree, hf_zbee_nwk_addr64, tvb, offset, 0, nwk_hints->map_rec->addr64);
+                        proto_item_set_generated(ti);
+                        proto_item_set_hidden(ti);
 
                         if ( nwk_hints->map_rec->start_fnum ) {
                             ti = proto_tree_add_uint(nwk_tree, hf_zbee_nwk_src64_origin, tvb, 0, 0,
@@ -637,13 +673,13 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                         else {
                             ti = proto_tree_add_uint_format_value(nwk_tree, hf_zbee_nwk_src64_origin, tvb, 0, 0, 0, "Pre-configured");
                         }
-                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_set_generated(ti);
                     }
                 }
             }
 
             /* If ieee layer didn't know its extended source address, and nwk layer does, fill it in */
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 if ( (ieee_packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&
                      ieee_hints && !ieee_hints->map_rec ) {
                     addr16.pan = ieee_packet->src_pan;
@@ -655,7 +691,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                         ieee_hints->map_rec = map_rec;
                     }
                 }
-            } /* (!pinfo->fd->flags.visited */
+            } /* (!pinfo->fd->visited */
         } /* (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) */
 
         /* Add multicast control field (ZigBee 2006 and later). */
@@ -742,6 +778,8 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         /* Invalid type. */
         call_data_dissector(payload_tvb, pinfo, tree);
     }
+
+    tap_queue_packet(zbee_nwk_tap, pinfo, NULL);
 
     return tvb_captured_length(tvb);
 } /* dissect_zbee_nwk */
@@ -1759,6 +1797,70 @@ dissect_ieee802154_zigbee_rejoin(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 } /* dissect_ieee802154_zigbee_rejoin */
 
+static const char* zbee_nwk_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
+{
+    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == zbee_nwk_address_type))
+        return "zbee_nwk.src";
+
+    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == zbee_nwk_address_type))
+        return "zbee_nwk.dst";
+
+    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == zbee_nwk_address_type))
+        return "zbee_nwk.addr";
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t zbee_nwk_ct_dissector_info = {&zbee_nwk_conv_get_filter_type };
+
+static tap_packet_status zbee_nwk_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
+{
+    conv_hash_t *hash = (conv_hash_t*)pct;
+
+    add_conversation_table_data(hash, &pinfo->net_src, &pinfo->net_dst, 0, 0, 1,
+            pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
+            &zbee_nwk_ct_dissector_info, ENDPOINT_NONE);
+
+    return TAP_PACKET_REDRAW;
+}
+
+static const char* zbee_nwk_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+{
+    if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == zbee_nwk_address_type))
+        return "zbee_nwk.addr";
+
+    return CONV_FILTER_INVALID;
+}
+
+static hostlist_dissector_info_t zbee_nwk_host_dissector_info = {&zbee_nwk_host_get_filter_type };
+
+static tap_packet_status zbee_nwk_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
+{
+    conv_hash_t *hash = (conv_hash_t*)pit;
+
+    /* Take two "add" passes per packet, adding for each direction, ensures that all
+     packets are counted properly (even if address is sending to itself)
+     XXX - this could probably be done more efficiently inside hostlist_table */
+    add_hostlist_table_data(hash, &pinfo->net_src, 0, TRUE, 1,
+            pinfo->fd->pkt_len, &zbee_nwk_host_dissector_info, ENDPOINT_NONE);
+    add_hostlist_table_data(hash, &pinfo->net_dst, 0, FALSE, 1,
+            pinfo->fd->pkt_len, &zbee_nwk_host_dissector_info, ENDPOINT_NONE);
+
+    return TAP_PACKET_REDRAW;
+}
+
+static gboolean zbee_nwk_filter_valid(packet_info *pinfo)
+{
+    return proto_is_frame_protocol(pinfo->layers, "zbee_nwk");
+}
+
+static gchar* zbee_nwk_build_filter(packet_info *pinfo)
+{
+    return g_strdup_printf("zbee_nwk.addr eq %s and zbee_nwk.addr eq %s",
+            address_to_str(pinfo->pool, &pinfo->net_src),
+            address_to_str(pinfo->pool, &pinfo->net_dst));
+}
+
 /**
  *ZigBee protocol registration routine.
  *
@@ -1816,6 +1918,10 @@ void proto_register_zbee_nwk(void)
             { "Source",                 "zbee_nwk.src", FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
 
+            { &hf_zbee_nwk_addr,
+            { "Address",                 "zbee_nwk.addr", FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
             { &hf_zbee_nwk_radius,
             { "Radius",                 "zbee_nwk.radius", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Number of hops remaining for a range-limited broadcast packet.", HFILL }},
@@ -1847,6 +1953,10 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_nwk_src64,
             { "Extended Source",        "zbee_nwk.src64", FT_EUI64, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
+            { &hf_zbee_nwk_addr64,
+            { "Extended Address",        "zbee_nwk.addr64", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_src64_origin,
@@ -2238,8 +2348,16 @@ void proto_register_zbee_nwk(void)
     register_dissector("zbip_beacon", dissect_zbip_beacon, proto_zbip_beacon);
     register_dissector("zbee_ie", dissect_zbee_ie, proto_zbee_ie);
 
+    zbee_nwk_address_type = address_type_dissector_register("AT_ZIGBEE", "ZigBee 16-bit address",
+            zbee_nwk_address_to_str, zbee_nwk_address_str_len, NULL, NULL, zbee_nwk_address_len, NULL, NULL);
+
     /* Register the Security dissector. */
     zbee_security_register(NULL, proto_zbee_nwk);
+
+    zbee_nwk_tap = register_tap(ZBEE_PROTOABBREV_NWK);
+
+    register_conversation_table(proto_zbee_nwk, TRUE, zbee_nwk_conversation_packet, zbee_nwk_hostlist_packet);
+    register_conversation_filter(ZBEE_PROTOABBREV_NWK, "ZigBee Network Layer", zbee_nwk_filter_valid, zbee_nwk_build_filter);
 } /* proto_register_zbee_nwk */
 
 /**
@@ -2254,9 +2372,9 @@ void proto_reg_handoff_zbee_nwk(void)
 
     /* Register our dissector with IEEE 802.15.4 */
     dissector_add_for_decode_as(IEEE802154_PROTOABBREV_WPAN_PANID, find_dissector(ZBEE_PROTOABBREV_NWK));
-    heur_dissector_add(IEEE802154_PROTOABBREV_WPAN_BEACON, dissect_zbee_beacon_heur, "ZigBee Beacon", "zbee_wlan_beacon", proto_zbee_beacon, HEURISTIC_ENABLE);
-    heur_dissector_add(IEEE802154_PROTOABBREV_WPAN_BEACON, dissect_zbip_beacon_heur, "ZigBee IP Beacon", "zbip_wlan_beacon", proto_zbip_beacon, HEURISTIC_ENABLE);
-    heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_zbee_nwk_heur, "ZigBee Network Layer over IEEE 802.15.4", "zbee_nwk_wlan", proto_zbee_nwk, HEURISTIC_ENABLE);
+    heur_dissector_add(IEEE802154_PROTOABBREV_WPAN_BEACON, dissect_zbee_beacon_heur, "ZigBee Beacon", "zbee_wpan_beacon", proto_zbee_beacon, HEURISTIC_ENABLE);
+    heur_dissector_add(IEEE802154_PROTOABBREV_WPAN_BEACON, dissect_zbip_beacon_heur, "ZigBee IP Beacon", "zbip_wpan_beacon", proto_zbip_beacon, HEURISTIC_ENABLE);
+    heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_zbee_nwk_heur, "ZigBee Network Layer over IEEE 802.15.4", "zbee_nwk_wpan", proto_zbee_nwk, HEURISTIC_ENABLE);
 } /* proto_reg_handoff_zbee */
 
 static void free_keyring_key(gpointer key)
@@ -2292,7 +2410,7 @@ proto_cleanup_zbee_nwk(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

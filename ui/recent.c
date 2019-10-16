@@ -28,12 +28,10 @@
 #include "ui/simple_dialog.h"
 
 #include <wsutil/file_util.h>
-#include <wsutil/glib-compat.h>
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW          "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW        "gui.filter_toolbar_show"
 #define RECENT_KEY_WIRELESS_TOOLBAR_SHOW      "gui.wireless_toolbar_show"
-#define RECENT_KEY_DRIVER_CHECK_SHOW          "gui.airpcap_driver_check_show"
 #define RECENT_KEY_PACKET_LIST_SHOW           "gui.packet_list_show"
 #define RECENT_KEY_TREE_VIEW_SHOW             "gui.tree_view_show"
 #define RECENT_KEY_BYTE_VIEW_SHOW             "gui.byte_view_show"
@@ -47,8 +45,6 @@
 #define RECENT_GUI_BYTES_ENCODING             "gui.bytes_encoding"
 #define RECENT_GUI_GEOMETRY_MAIN_X            "gui.geometry_main_x"
 #define RECENT_GUI_GEOMETRY_MAIN_Y            "gui.geometry_main_y"
-#define RECENT_GUI_GTK_GEOMETRY_MAIN_X        "gui.gtk.geometry_main_x"
-#define RECENT_GUI_GTK_GEOMETRY_MAIN_Y        "gui.gtk.geometry_main_y"
 #define RECENT_GUI_GEOMETRY_MAIN_WIDTH        "gui.geometry_main_width"
 #define RECENT_GUI_GEOMETRY_MAIN_HEIGHT       "gui.geometry_main_height"
 #define RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED    "gui.geometry_main_maximized"
@@ -65,6 +61,10 @@
 #define RECENT_GUI_CUSTOM_COLORS              "gui.custom_colors"
 #define RECENT_GUI_TOOLBAR_SHOW               "gui.additional_toolbar_show"
 #define RECENT_GUI_INTERFACE_TOOLBAR_SHOW     "gui.interface_toolbar_show"
+#define RECENT_GUI_SEARCH_IN                  "gui.search_in"
+#define RECENT_GUI_SEARCH_CHAR_SET            "gui.search_char_set"
+#define RECENT_GUI_SEARCH_CASE_SENSITIVE      "gui.search_case_sensitive"
+#define RECENT_GUI_SEARCH_TYPE                "gui.search_type"
 
 #define RECENT_GUI_GEOMETRY                   "gui.geom."
 
@@ -119,6 +119,28 @@ static const value_string bytes_encoding_type_values[] = {
     { BYTES_ENC_FROM_PACKET,    "FROM_PACKET"  },
     { BYTES_ENC_ASCII,          "ASCII"  },
     { BYTES_ENC_EBCDIC,         "EBCDIC"  },
+    { 0, NULL }
+};
+
+static const value_string search_in_values[] = {
+    { SEARCH_IN_PACKET_LIST,    "PACKET_LIST" },
+    { SEARCH_IN_PACKET_DETAILS, "PACKET_DETAILS" },
+    { SEARCH_IN_PACKET_BYTES,   "PACKET_BYTES" },
+    { 0, NULL }
+};
+
+static const value_string search_char_set_values[] = {
+    { SEARCH_CHAR_SET_NARROW_AND_WIDE, "NARROW_AND_WIDE" },
+    { SEARCH_CHAR_SET_NARROW,          "NARROW" },
+    { SEARCH_CHAR_SET_WIDE,            "WIDE" },
+    { 0, NULL }
+};
+
+static const value_string search_type_values[] = {
+    { SEARCH_TYPE_DISPLAY_FILTER, "DISPLAY_FILTER" },
+    { SEARCH_TYPE_HEX_VALUE,      "HEX_VALUE" },
+    { SEARCH_TYPE_STRING,         "STRING" },
+    { SEARCH_TYPE_REGEX,          "REGEX" },
     { 0, NULL }
 };
 
@@ -252,9 +274,6 @@ window_geom_recent_read_pair(const char *name,
         geom.set_size   = FALSE;
         geom.width      = -1;
         geom.height     = -1;
-
-        geom.set_maximized = FALSE;/* this is valid in GTK2 only */
-        geom.maximized  = FALSE;   /* this is valid in GTK2 only */
     }
 
     if (strcmp(key, "x") == 0) {
@@ -593,6 +612,7 @@ write_recent_enum(FILE *rf, const char *description, const char *name,
 {
     const char *if_invalid = NULL;
     const value_string *valp;
+    const gchar *str_value;
 
     fprintf(rf, "\n# %s.\n", description);
     fprintf(rf, "# One of: ");
@@ -606,8 +626,11 @@ write_recent_enum(FILE *rf, const char *description, const char *name,
             fprintf(rf, ", ");
     }
     fprintf(rf, "\n");
-    fprintf(rf, "%s: %s\n", name,
-            val_to_str(value, values, if_invalid != NULL ? if_invalid : "Unknown"));
+    str_value = try_val_to_str(value, values);
+    if (str_value != NULL)
+        fprintf(rf, "%s: %s\n", name, str_value);
+    else
+        fprintf(rf, "%s: %s\n", name, if_invalid != NULL ? if_invalid : "Unknown");
 }
 
 /* Attempt to write out "recent common" to the user's recent common file.
@@ -681,8 +704,6 @@ write_recent(void)
     fprintf(rf, "# Decimal numbers.\n");
     fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_X ": %d\n", recent.gui_geometry_main_x);
     fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_Y ": %d\n", recent.gui_geometry_main_y);
-    fprintf(rf, RECENT_GUI_GTK_GEOMETRY_MAIN_X ": %d\n", recent.gui_gtk_geometry_main_x);
-    fprintf(rf, RECENT_GUI_GTK_GEOMETRY_MAIN_Y ": %d\n", recent.gui_gtk_geometry_main_y);
     fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_WIDTH ": %d\n",
             recent.gui_geometry_main_width);
     fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_HEIGHT ": %d\n",
@@ -720,6 +741,16 @@ write_recent(void)
     write_recent_boolean(rf, "Warn if npf.sys isn't loaded on Windows >= 6.0",
             RECENT_KEY_PRIVS_WARN_IF_NO_NPF,
             recent.privs_warn_if_no_npf);
+
+    write_recent_enum(rf, "Find packet search in", RECENT_GUI_SEARCH_IN, search_in_values,
+                      recent.gui_search_in);
+    write_recent_enum(rf, "Find packet character set", RECENT_GUI_SEARCH_CHAR_SET, search_char_set_values,
+                      recent.gui_search_char_set);
+    write_recent_boolean(rf, "Find packet case sensitive search",
+                         RECENT_GUI_SEARCH_CASE_SENSITIVE,
+                         recent.gui_search_case_sensitive);
+    write_recent_enum(rf, "Find packet search type", RECENT_GUI_SEARCH_TYPE, search_type_values,
+                      recent.gui_search_type);
 
     window_geom_recent_write_all(rf);
 
@@ -794,12 +825,6 @@ write_profile_recent(void)
     write_recent_boolean(rf, "Wireless Settings Toolbar show (hide)",
             RECENT_KEY_WIRELESS_TOOLBAR_SHOW,
             recent.wireless_toolbar_show);
-
-#ifdef HAVE_AIRPCAP
-    write_recent_boolean(rf, "Show (hide) old AirPcap driver warning dialog box",
-            RECENT_KEY_DRIVER_CHECK_SHOW,
-            recent.airpcap_driver_check_show);
-#endif
 
     write_recent_boolean(rf, "Packet list show (hide)",
             RECENT_KEY_PACKET_LIST_SHOW,
@@ -926,16 +951,6 @@ read_set_recent_common_pair_static(gchar *key, const gchar *value,
         if (p == value || *p != '\0')
             return PREFS_SET_SYNTAX_ERR;      /* number was bad */
         recent.gui_geometry_main_y = (gint)num;
-    } else if (strcmp(key, RECENT_GUI_GTK_GEOMETRY_MAIN_X) == 0) {
-        num = strtol(value, &p, 0);
-        if (p == value || *p != '\0')
-            return PREFS_SET_SYNTAX_ERR;      /* number was bad */
-        recent.gui_gtk_geometry_main_x = (gint)num;
-    } else if (strcmp(key, RECENT_GUI_GTK_GEOMETRY_MAIN_Y) == 0) {
-        num = strtol(value, &p, 0);
-        if (p == value || *p != '\0')
-            return PREFS_SET_SYNTAX_ERR;      /* number was bad */
-        recent.gui_gtk_geometry_main_y = (gint)num;
     } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_WIDTH) == 0) {
         num = strtol(value, &p, 0);
         if (p == value || *p != '\0')
@@ -990,6 +1005,14 @@ read_set_recent_common_pair_static(gchar *key, const gchar *value,
         parse_recent_boolean(value, &recent.privs_warn_if_elevated);
     } else if (strcmp(key, RECENT_KEY_PRIVS_WARN_IF_NO_NPF) == 0) {
         parse_recent_boolean(value, &recent.privs_warn_if_no_npf);
+    } else if (strcmp(key, RECENT_GUI_SEARCH_IN) == 0) {
+        recent.gui_search_in = (search_in_type)str_to_val(value, search_in_values, SEARCH_IN_PACKET_LIST);
+    } else if (strcmp(key, RECENT_GUI_SEARCH_CHAR_SET) == 0) {
+        recent.gui_search_char_set = (search_char_set_type)str_to_val(value, search_char_set_values, SEARCH_CHAR_SET_NARROW_AND_WIDE);
+    } else if (strcmp(key, RECENT_GUI_SEARCH_CASE_SENSITIVE) == 0) {
+        parse_recent_boolean(value, &recent.gui_search_case_sensitive);
+    } else if (strcmp(key, RECENT_GUI_SEARCH_TYPE) == 0) {
+        recent.gui_search_type = (search_type_type)str_to_val(value, search_type_values, SEARCH_TYPE_DISPLAY_FILTER);
     } else if (strcmp(key, RECENT_GUI_CUSTOM_COLORS) == 0) {
         recent.custom_colors = prefs_get_string_list(value);
     }
@@ -1017,8 +1040,6 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
         /* check both the old and the new keyword */
     } else if (strcmp(key, RECENT_KEY_WIRELESS_TOOLBAR_SHOW) == 0 || (strcmp(key, "gui.airpcap_toolbar_show") == 0)) {
         parse_recent_boolean(value, &recent.wireless_toolbar_show);
-    } else if (strcmp(key, RECENT_KEY_DRIVER_CHECK_SHOW) == 0) {
-        parse_recent_boolean(value, &recent.airpcap_driver_check_show);
     } else if (strcmp(key, RECENT_KEY_PACKET_LIST_SHOW) == 0) {
         parse_recent_boolean(value, &recent.packet_list_show);
     } else if (strcmp(key, RECENT_KEY_TREE_VIEW_SHOW) == 0) {
@@ -1238,8 +1259,6 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
     /* set defaults */
     recent.gui_geometry_main_x        =        20;
     recent.gui_geometry_main_y        =        20;
-    recent.gui_gtk_geometry_main_x    =        20;
-    recent.gui_gtk_geometry_main_y    =        20;
     recent.gui_geometry_main_width    = DEF_WIDTH;
     recent.gui_geometry_main_height   = DEF_HEIGHT;
     recent.gui_geometry_main_maximized=     FALSE;
@@ -1291,7 +1310,6 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     recent.main_toolbar_show         = TRUE;
     recent.filter_toolbar_show       = TRUE;
     recent.wireless_toolbar_show     = FALSE;
-    recent.airpcap_driver_check_show = TRUE;
     recent.packet_list_show          = TRUE;
     recent.tree_view_show            = TRUE;
     recent.byte_view_show            = TRUE;

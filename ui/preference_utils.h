@@ -63,13 +63,13 @@ extern gboolean prefs_store_ext_multiple(const char * module, GHashTable * pref_
  * @param fmt column format
  * @param title column title
  * @param custom_field column custom field
- * @param custom_occurrence custom occurrence
+ * @param position the intended position of the insert
  *
  * @return The index of the inserted column
  */
 gint column_prefs_add_custom(gint fmt, const gchar *title,
                              const gchar *custom_field,
-                             gint custom_occurrence);
+                             gint position);
 
 /** Remove a column.
  *
@@ -83,6 +83,10 @@ void column_prefs_remove_link(GList* col_link);
  */
 void column_prefs_remove_nth(gint col);
 
+/** Save the UAT and complete migration of old preferences by writing the main
+ * preferences file (if necessary).
+ */
+void save_migrated_uat(const char *uat_name, gboolean *old_pref);
 
 #ifdef __cplusplus
 }

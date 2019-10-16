@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef INTERFACE_TREE_MODEL_H
 #define INTERFACE_TREE_MODEL_H
@@ -31,8 +32,9 @@ enum InterfaceTreeColumns
     IFTREE_COL_EXTCAP,
     IFTREE_COL_EXTCAP_PATH,
     IFTREE_COL_NAME,
-    IFTREE_COL_INTERFACE_NAME,
-    IFTREE_COL_INTERFACE_COMMENT,
+    IFTREE_COL_DESCRIPTION,
+    IFTREE_COL_DISPLAY_NAME,
+    IFTREE_COL_COMMENT,
     IFTREE_COL_HIDDEN,
     IFTREE_COL_DLT,
     IFTREE_COL_PROMISCUOUSMODE,

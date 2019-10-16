@@ -59,7 +59,7 @@
 
 #define MPLOG_BLOCK_SIZE 8
 
-/* ISO14443 pseudo-header, see http://www.kaiser.cx/pcap-iso14443.html */
+/* ISO14443 pseudo-header, see https://www.kaiser.cx/pcap-iso14443.html */
 #define ISO14443_PSEUDO_HDR_VER  0
 #define ISO14443_PSEUDO_HDR_LEN  4
 /*  the two transfer events are the types that include a trailing CRC
@@ -183,12 +183,12 @@ static gboolean mplog_read_packet(FILE_T fh, wtap_rec *rec,
 
 
 static gboolean
-mplog_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+mplog_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+        gchar **err_info, gint64 *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
-    return mplog_read_packet(
-            wth->fh, &wth->rec, wth->rec_data, err, err_info);
+    return mplog_read_packet(wth->fh, rec, buf, err, err_info);
 }
 
 
@@ -243,7 +243,7 @@ wtap_open_return_val mplog_open(wtap *wth, int *err, gchar **err_info)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

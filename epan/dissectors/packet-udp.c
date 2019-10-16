@@ -77,7 +77,7 @@ static header_field_info hfi_udp_length UDP_HFI_INIT =
 
 static header_field_info hfi_udp_checksum UDP_HFI_INIT =
 { "Checksum", "udp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-  "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL };
+  "Details at: https://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL };
 
 static header_field_info hfi_udp_checksum_calculated UDP_HFI_INIT =
 { "Calculated Checksum", "udp.checksum_calculated", FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -123,6 +123,14 @@ static header_field_info hfi_udp_pdu_size UDP_HFI_INIT =
 { "PDU Size", "udp.pdu.size", FT_UINT32, BASE_DEC, NULL, 0x0,
   "The size of this PDU", HFILL };
 
+static header_field_info hfi_udp_ts_relative UDP_HFI_INIT =
+{ "Time since first frame", "udp.time_relative", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+  "Time relative to first frame in this UDP stream", HFILL };
+
+static header_field_info hfi_udp_ts_delta UDP_HFI_INIT =
+{ "Time since previous frame", "udp.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+  "Time delta from previous frame in this UDP stream", HFILL };
+
 static header_field_info hfi_udplite_checksum_coverage UDPLITE_HFI_INIT =
 { "Checksum coverage", "udp.checksum_coverage", FT_UINT16, BASE_DEC, NULL, 0x0,
   NULL, HFILL };
@@ -130,6 +138,7 @@ static header_field_info hfi_udplite_checksum_coverage UDPLITE_HFI_INIT =
 static gint ett_udp = -1;
 static gint ett_udp_checksum = -1;
 static gint ett_udp_process_info = -1;
+static gint ett_udp_timestamps = -1;
 
 static expert_field ei_udp_possible_traceroute = EI_INIT;
 static expert_field ei_udp_length_bad = EI_INIT;
@@ -165,10 +174,15 @@ static guint32 udp_stream_count;
 
 static gboolean try_heuristic_first = FALSE;
 
+static gboolean udp_calculate_ts = TRUE;
+static gboolean udplite_calculate_ts = TRUE;
+
 /* Per-packet-info for UDP */
 typedef struct
 {
     heur_dtbl_entry_t *heur_dtbl_entry;
+    nstime_t ts_delta;
+    gboolean ts_delta_valid;
 }   udp_p_info_t;
 
 static void
@@ -209,7 +223,7 @@ udp_both_prompt(packet_info *pinfo, gchar *result)
 
 /* Conversation and process code originally copied from packet-tcp.c */
 static struct udp_analysis *
-init_udp_conversation_data(void)
+init_udp_conversation_data(packet_info *pinfo)
 {
   struct udp_analysis *udpd;
 
@@ -223,6 +237,8 @@ init_udp_conversation_data(void)
   */
 
   udpd->stream = udp_stream_count++;
+  udpd->ts_first = pinfo->abs_ts;
+  udpd->ts_prev = pinfo->abs_ts;
 
   return udpd;
 }
@@ -246,7 +262,7 @@ get_udp_conversation_data(conversation_t *conv, packet_info *pinfo)
    * a new udpd structure for the conversation.
    */
   if (!udpd) {
-    udpd = init_udp_conversation_data();
+    udpd = init_udp_conversation_data(pinfo);
     conversation_add_proto_data(conv, hfi_udp->id, udpd);
   }
 
@@ -312,7 +328,7 @@ static const char* udp_conv_get_filter_type(conv_item_t* conv, conv_filter_type_
 
 static ct_dissector_info_t udp_ct_dissector_info = {&udp_conv_get_filter_type};
 
-static int
+static tap_packet_status
 udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
@@ -320,7 +336,7 @@ udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
 
     add_conversation_table_data_with_conv_id(hash, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, (conv_id_t) udphdr->uh_stream, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &udp_ct_dissector_info, ENDPOINT_UDP);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static const char* udp_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
@@ -366,7 +382,7 @@ static const char* udp_host_get_filter_type(hostlist_talker_t* host, conv_filter
 
 static hostlist_dissector_info_t udp_host_dissector_info = {&udp_host_get_filter_type};
 
-static int
+static tap_packet_status
 udpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
@@ -378,7 +394,7 @@ udpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
     add_hostlist_table_data(hash, &udphdr->ip_src, udphdr->uh_sport, TRUE, 1, pinfo->fd->pkt_len, &udp_host_dissector_info, ENDPOINT_UDP);
     add_hostlist_table_data(hash, &udphdr->ip_dst, udphdr->uh_dport, FALSE, 1, pinfo->fd->pkt_len, &udp_host_dissector_info, ENDPOINT_UDP);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static gboolean
@@ -409,7 +425,7 @@ udp_build_filter(packet_info *pinfo)
     return NULL;
 }
 
-static gchar* udp_follow_conv_filter(packet_info *pinfo, int* stream)
+static gchar *udp_follow_conv_filter(packet_info *pinfo, guint *stream, guint *sub_stream _U_)
 {
     conversation_t *conv;
     struct udp_analysis *udpd;
@@ -424,18 +440,18 @@ static gchar* udp_follow_conv_filter(packet_info *pinfo, int* stream)
             return NULL;
 
         *stream = udpd->stream;
-        return g_strdup_printf("udp.stream eq %d", udpd->stream);
+        return g_strdup_printf("udp.stream eq %u", udpd->stream);
     }
 
     return NULL;
 }
 
-static gchar* udp_follow_index_filter(int stream)
+static gchar *udp_follow_index_filter(guint stream, guint sub_stream _U_)
 {
-    return g_strdup_printf("udp.stream eq %d", stream);
+    return g_strdup_printf("udp.stream eq %u", stream);
 }
 
-static gchar* udp_follow_address_filter(address* src_addr, address* dst_addr, int src_port, int dst_port)
+static gchar *udp_follow_address_filter(address *src_addr, address *dst_addr, int src_port, int dst_port)
 {
     const gchar  *ip_version = src_addr->type == AT_IPv6 ? "v6" : "";
     gchar         src_addr_str[WS_INET6_ADDRSTRLEN];
@@ -581,11 +597,14 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   tvbuff_t *next_tvb;
   int low_port, high_port;
   gint len, reported_len;
-  udp_p_info_t *udp_p_info = NULL;
+  udp_p_info_t *udp_p_info;
   /* Save curr_layer_num as it might be changed by subdissector */
   guint8 curr_layer_num = pinfo->curr_layer_num;
   heur_dtbl_entry_t *hdtbl_entry;
   exp_pdu_data_t *exp_pdu_data;
+
+  /* populate per packet data variable */
+  udp_p_info = (udp_p_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, pinfo->curr_layer_num);
 
   len = tvb_captured_length_remaining(tvb, offset);
   reported_len = tvb_reported_length_remaining(tvb, offset);
@@ -608,9 +627,8 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   if (have_tap_listener(udp_follow_tap))
     tap_queue_packet(udp_follow_tap, pinfo, next_tvb);
 
-  if (pinfo->fd->flags.visited) {
-    udp_p_info = (udp_p_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, pinfo->curr_layer_num);
-    if (udp_p_info) {
+  if (PINFO_FD_VISITED(pinfo)) {
+    if (udp_p_info && udp_p_info->heur_dtbl_entry != NULL) {
       call_heur_dissector_direct(udp_p_info->heur_dtbl_entry, next_tvb, pinfo, tree, NULL);
       handle_export_pdu_heuristic(pinfo, next_tvb, udp_p_info->heur_dtbl_entry);
       return;
@@ -630,9 +648,10 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
       if (!udp_p_info) {
         udp_p_info = wmem_new0(wmem_file_scope(), udp_p_info_t);
-        udp_p_info->heur_dtbl_entry = hdtbl_entry;
         p_add_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, curr_layer_num, udp_p_info);
       }
+
+      udp_p_info->heur_dtbl_entry = hdtbl_entry;
 
       handle_export_pdu_heuristic(pinfo, next_tvb, udp_p_info->heur_dtbl_entry);
       return;
@@ -678,9 +697,10 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
       if (!udp_p_info) {
         udp_p_info = wmem_new0(wmem_file_scope(), udp_p_info_t);
-        udp_p_info->heur_dtbl_entry = hdtbl_entry;
         p_add_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, curr_layer_num, udp_p_info);
       }
+
+      udp_p_info->heur_dtbl_entry = hdtbl_entry;
 
       handle_export_pdu_heuristic(pinfo, next_tvb, udp_p_info->heur_dtbl_entry);
       return;
@@ -783,7 +803,7 @@ udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      item=proto_tree_add_uint((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, hfi_udp->id, curr_layer_num),
                                     &hfi_udp_pdu_size,
                                     tvb, offset, plen, plen);
-     PROTO_ITEM_SET_GENERATED(item);
+     proto_item_set_generated(item);
 
      /*
       * Construct a tvbuff containing the amount of the payload we have
@@ -872,6 +892,71 @@ capture_udp(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_in
   return TRUE;
 }
 
+/* Calculate the timestamps relative to this conversation */
+static void
+udp_compute_timestamps(packet_info *pinfo, struct udp_analysis *udp_data, int proto)
+{
+  if (!udp_data)
+      return;
+
+  /* get per packet date for UDP/UDP-Lite based on protocol id */
+  udp_p_info_t *udp_per_packet_data = (udp_p_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto, pinfo->curr_layer_num);
+
+  if(!udp_per_packet_data) {
+      udp_per_packet_data = wmem_new0(wmem_file_scope(), udp_p_info_t);
+      p_add_proto_data(wmem_file_scope(), pinfo, proto, pinfo->curr_layer_num, udp_per_packet_data);
+  }
+
+  nstime_delta(&udp_per_packet_data->ts_delta, &pinfo->abs_ts, &udp_data->ts_prev);
+  udp_per_packet_data->ts_delta_valid = TRUE;
+
+  udp_data->ts_prev = pinfo->abs_ts;
+}
+
+/* Add a subtree with the timestamps relative to this conversation */
+static void
+udp_print_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree, struct udp_analysis *udp_data, int proto)
+{
+  proto_item  *item;
+  proto_tree  *tree;
+  nstime_t    ts;
+
+  if (!udp_data)
+      return;
+
+  /* get per packet date for UDP/UDP-Lite based on protocol id */
+  udp_p_info_t *udp_per_packet_data = (udp_p_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto, pinfo->curr_layer_num);
+
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, 0, ett_udp_timestamps, &item, "Timestamps");
+  proto_item_set_generated(item);
+
+  nstime_delta(&ts, &pinfo->abs_ts, &udp_data->ts_first);
+  item = proto_tree_add_time(tree, &hfi_udp_ts_relative, tvb, 0, 0, &ts);
+  proto_item_set_generated(item);
+
+  if (udp_per_packet_data && udp_per_packet_data->ts_delta_valid) {
+      item = proto_tree_add_time(tree, &hfi_udp_ts_delta, tvb, 0, 0,
+          &udp_per_packet_data->ts_delta);
+      proto_item_set_generated(item);
+  }
+}
+
+static void
+udp_handle_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, struct udp_analysis *udp_data, guint32 ip_proto)
+{
+  int proto_id = (ip_proto == IP_PROTO_UDP ? hfi_udp->id : hfi_udplite->id);
+
+  /*
+   * Calculate the timestamps relative to this conversation (but only on the
+   * first run when frames are accessed sequentially)
+   */
+  if (!PINFO_FD_VISITED(pinfo))
+      udp_compute_timestamps(pinfo, udp_data, proto_id);
+
+  /* handle conversation timestamps */
+  udp_print_timestamps(pinfo, tvb, tree, udp_data, proto_id);
+}
+
 static void
 dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
 {
@@ -920,9 +1005,9 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   p_add_proto_data(pinfo->pool, pinfo, hfi_udp_dstport.id, pinfo->curr_layer_num, GUINT_TO_POINTER(udph->uh_dport));
 
   hidden_item = proto_tree_add_item(udp_tree, &hfi_udp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
   hidden_item = proto_tree_add_item(udp_tree, &hfi_udp_port, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   /* The beginning port number, 32768 + 666 (33434), is from LBL's traceroute.c source code and this code
    * further assumes that 3 attempts are made per hop */
@@ -969,7 +1054,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       udph->uh_sum_cov = reported_len;
     }
     item = proto_tree_add_uint(udp_tree, &hfi_udp_length, tvb, offset + 4, 0, udph->uh_ulen);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     if ((udph->uh_sum_cov < 8) || (udph->uh_sum_cov > udph->uh_ulen)) {
       /* Bogus coverage - it includes the header, so it must be >= 8, and no larger then the IP payload size. */
       proto_item_append_text(len_cov_item, " (bogus, must be >= 8 and <= %u)", udph->uh_ulen);
@@ -991,10 +1076,10 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   if (udph->uh_sum == 0) {
     /* No checksum supplied in the packet. */
     if (((ip_proto == IP_PROTO_UDP) && (pinfo->src.type == AT_IPv4)) || pinfo->flags.in_error_pkt) {
-      proto_tree_add_checksum(udp_tree, tvb, offset + 6, hfi_udp_checksum.id, hfi_udp_checksum_status.id, &ei_udp_checksum_bad,
+      proto_tree_add_checksum(udp_tree, tvb, offset + 6, &hfi_udp_checksum, hfi_udp_checksum_status.id, &ei_udp_checksum_bad,
                               pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
     } else {
-      item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb, offset + 6, 2, 0, "0 (Illegal)");
+      item = proto_tree_add_uint_format_value(udp_tree, &hfi_udp_checksum, tvb, offset + 6, 2, 0, "0 (Illegal)%s", "");
       checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
 
       expert_add_info(pinfo, item, &ei_udp_checksum_zero);
@@ -1003,7 +1088,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       /* XXX - What should this special status be? */
       item = proto_tree_add_uint(checksum_tree, &hfi_udp_checksum_status, tvb,
                                         offset + 6, 0, 4);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
     }
   } else if (!pinfo->fragmented && (len >= reported_len) &&
              (len >= udph->uh_sum_cov) && (reported_len >= udph->uh_sum_cov) &&
@@ -1045,7 +1130,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, offset, udph->uh_sum_cov);
       computed_cksum = in_cksum(&cksum_vec[0], 4);
 
-      item = proto_tree_add_checksum(udp_tree, tvb, offset+6, hfi_udp_checksum.id, hfi_udp_checksum_status.id, &ei_udp_checksum_bad,
+      item = proto_tree_add_checksum(udp_tree, tvb, offset + 6, &hfi_udp_checksum, hfi_udp_checksum_status.id, &ei_udp_checksum_bad,
                                       pinfo, computed_cksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
       checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
 
@@ -1058,13 +1143,13 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
          calc_item = proto_tree_add_uint(checksum_tree, &hfi_udp_checksum_calculated,
                                    tvb, offset + 6, 2, udph->uh_sum);
       }
-      PROTO_ITEM_SET_GENERATED(calc_item);
+      proto_item_set_generated(calc_item);
 
     } else {
-      proto_tree_add_checksum(udp_tree, tvb, offset + 6, hfi_udp_checksum.id, hfi_udp_checksum_status.id, &ei_udp_checksum_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+      proto_tree_add_checksum(udp_tree, tvb, offset + 6, &hfi_udp_checksum, hfi_udp_checksum_status.id, &ei_udp_checksum_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     }
   } else {
-    proto_tree_add_checksum(udp_tree, tvb, offset + 6, hfi_udp_checksum.id, hfi_udp_checksum_status.id, &ei_udp_checksum_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+    proto_tree_add_checksum(udp_tree, tvb, offset + 6, &hfi_udp_checksum, hfi_udp_checksum_status.id, &ei_udp_checksum_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   }
 
   /* Skip over header */
@@ -1079,7 +1164,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   udpd = get_udp_conversation_data(conv, pinfo);
   if (udpd) {
     item = proto_tree_add_uint(udp_tree, &hfi_udp_stream, tvb, offset, 0, udpd->stream);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     /* Copy the stream index into the header as well to make it available
     * to tap listeners.
@@ -1091,7 +1176,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
 
   if (udpd && ((udpd->fwd && udpd->fwd->command) || (udpd->rev && udpd->rev->command))) {
     process_tree = proto_tree_add_subtree(udp_tree, tvb, offset, 0, ett_udp_process_info, &ti, "Process Information");
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     if (udpd->fwd && udpd->fwd->command) {
       proto_tree_add_uint(process_tree, &hfi_udp_proc_dst_uid, tvb, 0, 0, udpd->fwd->process_uid);
       proto_tree_add_uint(process_tree, &hfi_udp_proc_dst_pid, tvb, 0, 0, udpd->fwd->process_pid);
@@ -1109,6 +1194,16 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   if (udph->uh_ulen == 8) {
     /* Empty UDP payload, nothing left to do. */
     return;
+  }
+
+  /* Do we need to calculate timestamps relative to the udp-stream? */
+  /* Different boolean preferences have to be checked. */
+  /* If the protocol is UDP then the UDP preference */
+  if (!pinfo->flags.in_error_pkt &&
+      ((ip_proto == IP_PROTO_UDP && udp_calculate_ts)
+       /* Otherwise the UDP-Lite preference */
+       || (ip_proto == IP_PROTO_UDPLITE && udplite_calculate_ts))) {
+    udp_handle_timestamps(pinfo, tvb, udp_tree, udpd, ip_proto);
   }
 
   /*
@@ -1173,6 +1268,8 @@ proto_register_udp(void)
     &hfi_udp_proc_dst_uname,
     &hfi_udp_proc_dst_cmd,
     &hfi_udp_pdu_size,
+    &hfi_udp_ts_relative,
+    &hfi_udp_ts_delta
   };
 
   static header_field_info *hfi_lite[] = {
@@ -1183,7 +1280,8 @@ proto_register_udp(void)
   static gint *ett[] = {
     &ett_udp,
     &ett_udp_checksum,
-    &ett_udp_process_info
+    &ett_udp_process_info,
+    &ett_udp_timestamps
   };
 
   static ei_register_info ei[] = {
@@ -1199,7 +1297,7 @@ proto_register_udp(void)
   static build_valid_func udp_da_dst_values[1] = {udp_dst_value};
   static build_valid_func udp_da_both_values[2] = {udp_src_value, udp_dst_value};
   static decode_as_value_t udp_da_values[3] = {{udp_src_prompt, 1, udp_da_src_values}, {udp_dst_prompt, 1, udp_da_dst_values}, {udp_both_prompt, 2, udp_da_both_values}};
-  static decode_as_t udp_da = {"udp", "Transport", "udp.port", 3, 2, udp_da_values, "UDP", "port(s) as",
+  static decode_as_t udp_da = {"udp", "udp.port", 3, 2, udp_da_values, "UDP", "port(s) as",
                                decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
   int proto_udp, proto_udplite;
@@ -1246,6 +1344,10 @@ proto_register_udp(void)
                                  "Collect process flow information",
                                  "Collect process flow information from IPFIX",
                                  &udp_process_info);
+  prefs_register_bool_preference(udp_module, "calculate_timestamps",
+                                 "Calculate conversation timestamps",
+                                 "Calculate timestamps relative to the first frame and the previous frame in the udp conversation",
+                                 &udp_calculate_ts);
 
   udplite_module = prefs_register_protocol(proto_udplite, NULL);
   prefs_register_bool_preference(udplite_module, "ignore_checksum_coverage",
@@ -1256,6 +1358,10 @@ proto_register_udp(void)
                                  "Validate the UDP-Lite checksum if possible",
                                  "Whether to validate the UDP-Lite checksum",
                                  &udplite_check_checksum);
+  prefs_register_bool_preference(udplite_module, "calculate_timestamps",
+                                  "Calculate conversation timestamps",
+                                  "Calculate timestamps relative to the first frame and the previous frame in the udp-lite conversation",
+                                  &udplite_calculate_ts);
 
   register_decode_as(&udp_da);
   register_conversation_table(proto_udp, FALSE, udpip_conversation_packet, udpip_hostlist_packet);
@@ -1286,7 +1392,7 @@ proto_reg_handoff_udp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

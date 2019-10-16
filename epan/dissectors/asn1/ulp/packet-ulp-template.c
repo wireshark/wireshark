@@ -1,6 +1,7 @@
 /* packet-ulp.c
  * Routines for OMA UserPlane Location Protocol packet dissection
  * Copyright 2006, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2014-2019, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * ref OMA-TS-ULP-V2_0_2-20140708-A
+ * ref OMA-TS-ULP-V2_0_4-20181213-A
  * http://www.openmobilealliance.org
  */
 

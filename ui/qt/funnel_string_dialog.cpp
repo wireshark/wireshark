@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "funnel_string_dialog.h"
 #include <ui_funnel_string_dialog.h>
@@ -73,9 +74,8 @@ void FunnelStringDialog::on_buttonBox_accepted()
     }
     g_ptr_array_add(returns, NULL);
 
-    dialog_cb_((gchar**)returns->pdata, dialog_cb_data_);
-
-    g_ptr_array_free(returns, FALSE);
+    gchar **user_input = (gchar **)g_ptr_array_free(returns, FALSE);
+    dialog_cb_(user_input, dialog_cb_data_);
 }
 
 void FunnelStringDialog::stringDialogNew(const QString title, const QStringList field_name_list, funnel_dlg_cb_t dialog_cb, void *dialog_cb_data)

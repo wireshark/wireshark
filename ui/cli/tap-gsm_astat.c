@@ -7,7 +7,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 /*
  * This TAP provides statistics for the GSM A Interface:
@@ -44,7 +45,7 @@ typedef struct _gsm_a_stat_t {
 } gsm_a_stat_t;
 
 
-static int
+static tap_packet_status
 gsm_a_stat_packet(
     void                        *tapdata,
     packet_info                 *pinfo _U_,
@@ -91,31 +92,30 @@ gsm_a_stat_packet(
             /*
              * unsupported PD
              */
-            return(0);
+            return(TAP_PACKET_DONT_REDRAW);
         }
         break;
 
    case GSM_A_PDU_TYPE_SACCH:
-   switch (tap_p->protocol_disc)
-   {
-   case 0:
-      stat_p->sacch_rr_message_type[tap_p->message_type]++;
-      break;
-   default:
-      /* unknown Short PD */
-      break;
-   }
-   break;
-
+        switch (tap_p->protocol_disc)
+        {
+        case 0:
+            stat_p->sacch_rr_message_type[tap_p->message_type]++;
+            break;
+        default:
+            /* unknown Short PD */
+            break;
+        }
+        break;
 
     default:
         /*
          * unknown PDU type !!!
          */
-        return(0);
+        return(TAP_PACKET_DONT_REDRAW);
     }
 
-    return(1);
+    return(TAP_PACKET_REDRAW);
 }
 
 
@@ -317,7 +317,8 @@ gsm_a_stat_init(const char *opt_arg _U_, void *userdata _U_)
         register_tap_listener("gsm_a", stat_p, NULL, 0,
             NULL,
             gsm_a_stat_packet,
-            gsm_a_stat_draw);
+            gsm_a_stat_draw,
+            NULL);
 
     if (err_p != NULL)
     {
@@ -344,7 +345,7 @@ register_tap_listener_gsm_astat(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

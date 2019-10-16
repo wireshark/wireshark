@@ -9,7 +9,8 @@
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
-* SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 #include "wtap-int.h"
@@ -59,13 +60,15 @@ static const char dct3trace_magic_end[]  = "</dump>";
 
 #define MAX_PACKET_LEN 23
 
-static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
-	gint64 *data_offset);
+static gboolean dct3trace_read(wtap *wth, wtap_rec *rec,
+	Buffer *buf, int *err, gchar **err_info, gint64 *data_offset);
 static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
 	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
 /*
- * Following 3 functions taken from gsmdecode-0.7bis, with permission - http://wiki.thc.org/gsm
+ * Following 3 functions taken from gsmdecode-0.7bis, with permission:
+ *
+ *   https://web.archive.org/web/20091218112927/http://wiki.thc.org/gsm
  */
 
 static int
@@ -366,13 +369,12 @@ static gboolean dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean dct3trace_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return dct3trace_get_packet(wth->fh, &wth->rec, wth->rec_data,
-	    err, err_info);
+	return dct3trace_get_packet(wth->fh, rec, buf, err, err_info);
 }
 
 
@@ -389,7 +391,7 @@ static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

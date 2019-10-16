@@ -8,8 +8,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __PACKET_DCERPC_DCOM_H
-#define __PACKET_DCERPC_DCOM_H
+#ifndef __PACKET_DCOM_H
+#define __PACKET_DCOM_H
 
 #include "ws_symbol_export.h"
 
@@ -217,4 +217,4 @@ WS_DLL_PUBLIC int
 dissect_dcom_simple_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep);
 
-#endif /* packet-dcerpc-dcom.h */
+#endif /* packet-dcom.h */

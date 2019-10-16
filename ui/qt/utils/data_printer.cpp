@@ -114,7 +114,7 @@ int DataPrinter::hexChars()
     return (row_width * chars_per_byte) + ((row_width - 1) / separatorInterval());
 }
 
-QString DataPrinter::hexTextDump(const QByteArray printData, bool showText)
+QString DataPrinter::hexTextDump(const QByteArray printData, bool showASCII)
 {
     QString clipboard_text;
 
@@ -125,12 +125,13 @@ QString DataPrinter::hexTextDump(const QByteArray printData, bool showText)
     while ( cnt < printData.length() )
     {
         byteStr += QString(" %1").arg((uint8_t) printData[cnt], 2, 16, QChar('0'));
-        if ( showText )
+        if ( showASCII )
         {
             QChar ch(printData[cnt]);
-            if (!ch.isPrint())
-                ch = '.';
-            dataStr += ch;
+            if (g_ascii_isprint(printData[cnt]))
+                dataStr += printData[cnt];
+            else
+                dataStr += '.';
         }
         cnt++;
     }
@@ -146,7 +147,7 @@ QString DataPrinter::hexTextDump(const QByteArray printData, bool showText)
         clipboard_text += QString("%1  ").arg(offset, 4, 16, QChar('0'));
         clipboard_text += byteStr.mid(offset * 3, byteLineLength_ * 3);
 
-        if ( showText )
+        if ( showASCII )
         {
             /* separation bytes for byte and text */
             clipboard_text += QString(3, ' ');
@@ -191,41 +192,35 @@ QActionGroup * DataPrinter::copyActions(QObject * copyClass, QObject * data)
         actions->setProperty("idataprintable", VariantPointer<QObject>::asQVariant(copyClass));
 
     // Mostly duplicated from main_window.ui
-    QAction * action = new QAction(tr("Copy Bytes as Hex + ASCII Dump"), dpi);
+    QAction * action = new QAction(tr("Copy Bytes as Hex + ASCII Dump"), actions);
     action->setToolTip(tr("Copy packet bytes as a hex and ASCII dump."));
     action->setProperty("printertype", DataPrinter::DP_HexDump);
-    connect(action, SIGNAL(triggered(bool)), dpi, SLOT(copyIDataBytes(bool)));
-    actions->addAction(action);
+    connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
-    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Hex Dump"), dpi);
+    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Hex Dump"), actions);
     action->setToolTip(tr("Copy packet bytes as a hex dump."));
     action->setProperty("printertype", DataPrinter::DP_HexOnly);
-    connect(action, SIGNAL(triggered(bool)), dpi, SLOT(copyIDataBytes(bool)));
-    actions->addAction(action);
+    connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
-    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Printable Text"), dpi);
+    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Printable Text"), actions);
     action->setToolTip(tr("Copy only the printable text in the packet."));
     action->setProperty("printertype", DataPrinter::DP_PrintableText);
-    connect(action, SIGNAL(triggered(bool)), dpi, SLOT(copyIDataBytes(bool)));
-    actions->addAction(action);
+    connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
-    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as a Hex Stream"), dpi);
+    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as a Hex Stream"), actions);
     action->setToolTip(tr("Copy packet bytes as a stream of hex."));
     action->setProperty("printertype", DataPrinter::DP_HexStream);
-    connect(action, SIGNAL(triggered(bool)), dpi, SLOT(copyIDataBytes(bool)));
-    actions->addAction(action);
+    connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
-    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Raw Binary"), dpi);
+    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Raw Binary"), actions);
     action->setToolTip(tr("Copy packet bytes as application/octet-stream MIME data."));
     action->setProperty("printertype", DataPrinter::DP_Binary);
-    connect(action, SIGNAL(triggered(bool)), dpi, SLOT(copyIDataBytes(bool)));
-    actions->addAction(action);
+    connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
-    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Escaped String"), dpi);
+    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Escaped String"), actions);
     action->setToolTip(tr("Copy packet bytes as an escaped string."));
     action->setProperty("printertype", DataPrinter::DP_EscapedString);
-    connect(action, SIGNAL(triggered(bool)), dpi, SLOT(copyIDataBytes(bool)));
-    actions->addAction(action);
+    connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
     return actions;
 }

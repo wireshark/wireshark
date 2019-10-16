@@ -63,7 +63,7 @@ const char* address_type_column_filter_string(const address* addr, gboolean src)
 #endif /* __ADDRESS_TYPES_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

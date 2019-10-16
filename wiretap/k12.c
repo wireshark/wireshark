@@ -25,7 +25,7 @@
 /*
  * See
  *
- *  http://www.tek.com/manual/record-file-api-programmer-manual
+ *  https://www.tek.com/manual/record-file-api-programmer-manual
  *
  * for some information about the file format.  You may have to fill in
  * a form to download the document ("Record File API Programmer Manual").
@@ -658,7 +658,7 @@ process_packet_data(wtap_rec *rec, Buffer *target, guint8 *buffer,
     return TRUE;
 }
 
-static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset) {
+static gboolean k12_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info, gint64 *data_offset) {
     k12_t *k12 = (k12_t *)wth->priv;
     k12_src_desc_t* src_desc;
     guint8* buffer;
@@ -721,7 +721,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
     } while ( ((type & K12_MASK_PACKET) != K12_REC_PACKET && (type & K12_MASK_PACKET) != K12_REC_D0020) || !src_id || !src_desc );
 
-    return process_packet_data(&wth->rec, wth->rec_data, buffer, (guint)len, k12, err, err_info);
+    return process_packet_data(rec, buf, buffer, (guint)len, k12, err, err_info);
 }
 
 
@@ -1219,7 +1219,7 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
             obj.record.hwpart_len = g_htons(0x18);
             for( i=0; i<32; i++ ) {
                 obj.record.extra.desc.ds0mask.mask[i] =
-                (src_desc->input_info.ds0mask & (1 << i)) ? 0xff : 0x00;
+                (src_desc->input_info.ds0mask & (1UL << i)) ? 0xff : 0x00;
             }
             offset = 0x3c;
             break;
@@ -1271,6 +1271,15 @@ static gboolean k12_dump(wtap_dumper *wdh, const wtap_rec *rec,
     /* We can only write packet records. */
     if (rec->rec_type != REC_TYPE_PACKET) {
         *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
+        return FALSE;
+    }
+
+    /*
+     * Make sure this packet doesn't have a link-layer type that
+     * differs from the one for the file.
+     */
+    if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+        *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
         return FALSE;
     }
 
@@ -1373,7 +1382,7 @@ gboolean k12_dump_open(wtap_dumper *wdh, int *err) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -1,0 +1,626 @@
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- ISO TS 19321
+--
+-- This ASN.1 was generateds: 30.08.2016
+--
+-- Due to typos in the published version,
+-- small ASN.1 syntax adaptations have been executed
+--
+-- Published version location:
+-- http://standards.iso.org/iso/ts/19321
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+IVI {iso (1) standard (0) ivi (19321) version1 (1)}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+IMPORTS
+ItsPduHeader, Altitude, DangerousGoodsBasic , DeltaLatitude, DeltaLongitude, DeltaReferencePosition, Heading, HeadingValue, Latitude, LanePosition, Longitude, ReferencePosition, RoadType, SpecialTransportType, Speed, StationType, TimestampIts, VehicleRole
+FROM ITS-Container {  itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (2) }
+
+AxleWeightLimits, DieselEmissionValues, ExhaustEmissionValues, EngineCharacteristics, EnvironmentalCharacteristics, PassengerCapacity , Provider, SoundLevel, VehicleDimensions,  VehicleWeightLimits 
+FROM EfcDsrcApplication {iso(1) standard(0) 14906 application(0) version5(5)}
+
+EuVehicleCategoryCode, Iso3833VehicleType
+FROM ElectronicRegistrationIdentificationVehicleDataModule {iso(1) standard(0) iso24534 (24534) vehicleData (1) version1 (1)}
+
+
+VarLengthNumber
+FROM CITSapplMgmtIDs {iso(1) standard(0) cits-applMgmt (17419) ids (1) version1 (1)}
+
+;
+-- End of IMPORTS
+
+
+--Definition of IVI message to be send over the air is outside of the scope and given for information only:
+
+IVI::= SEQUENCE {
+	header 	ItsPduHeader,
+	ivi 	IviStructure
+}
+
+--Definition of IVI Structure
+
+
+
+IviStructure::= SEQUENCE{
+	mandatory		IVIManagementContainer,
+	optional		SEQUENCE (SIZE (1..8,...)) OF IviContainer OPTIONAL
+	}
+
+--Definition of Containers
+
+IviContainer::= CHOICE {
+	glc		GeographicLocationContainer,
+	giv		GeneralIviContainer,
+	rcc		RoadConfigurationContainer,
+	tc		TextContainer,
+	lac		LayoutContainer,
+	...	-- extension for future containers
+	}
+
+-- Prefix IVI added due to naming collision with data element ManagementContainer of Module DENM-PDU-Descriptions
+IVIManagementContainer::= SEQUENCE {
+	serviceProviderId			Provider, 
+	iviIdentificationNumber		IviIdentificationNumber,
+	timeStamp					TimestampIts OPTIONAL,
+	validFrom					TimestampIts OPTIONAL,
+	validTo						TimestampIts OPTIONAL,
+	connectedIviStructures		SEQUENCE (SIZE(1..8)) OF IviIdentificationNumber OPTIONAL,
+	iviStatus					IviStatus,
+	...
+	}
+	
+GeographicLocationContainer::= SEQUENCE {
+	referencePosition			ReferencePosition,
+	referencePositionTime 		TimestampIts OPTIONAL,
+	referencePositionHeading	Heading OPTIONAL, 
+	referencePositionSpeed		Speed OPTIONAL,
+	parts 						SEQUENCE (SIZE (1..16,...)) OF GlcPart, 
+	...
+	}
+
+GlcPart::= SEQUENCE {
+	zoneId						Zid, 
+	laneNumber					LanePosition OPTIONAL,
+	zoneExtension				INTEGER (0..255) OPTIONAL,
+	zoneHeading					HeadingValue OPTIONAL,
+	zone						Zone OPTIONAL,
+	... 
+	}
+
+GeneralIviContainer::= SEQUENCE (SIZE (1..16,...)) OF GicPart  
+
+GicPart::= SEQUENCE {
+	detectionZoneIds			SEQUENCE (SIZE (1..8,...)) OF Zid OPTIONAL, 
+	its-Rrid				VarLengthNumber OPTIONAL,
+	relevanceZoneIds		SEQUENCE (SIZE (1..8,...)) OF Zid OPTIONAL, 
+	direction				Direction OPTIONAL,
+	driverAwarenessZoneIds	SEQUENCE (SIZE (1..8,...)) OF Zid OPTIONAL, 
+	minimumAwarenessTime	INTEGER (0..255) OPTIONAL,
+	applicableLanes			SEQUENCE (SIZE (1..8,...)) OF LanePosition OPTIONAL,
+	iviType					IviType,
+	iviPurpose				IviPurpose OPTIONAL,
+	laneStatus				LaneStatus OPTIONAL,	
+	vehicleCharacteristics	SEQUENCE (SIZE (1..8, ...)) OF CompleteVehicleCharacteristics OPTIONAL,
+	driverCharacteristics	DriverCharacteristics OPTIONAL,
+	layoutId				INTEGER(1..4,...) OPTIONAL,
+	preStoredlayoutId		INTEGER(1..64,...) OPTIONAL,
+	roadSignCodes			SEQUENCE (SIZE (1..4,...)) OF RSCode,
+	extraText				SEQUENCE (SIZE (1..4,...)) OF Text (WITH COMPONENTS {layoutComponentId, language, textContent (SIZE(1..32))}) OPTIONAL,
+	...
+	}
+
+RoadConfigurationContainer::= SEQUENCE (SIZE (1..16,...)) OF RccPart
+
+RccPart::= SEQUENCE{
+	zoneIds				SEQUENCE (SIZE (1..8,...)) OF Zid,
+	roadType			RoadType, 
+	laneConfiguration	SEQUENCE (SIZE (1..16,...)) OF LaneInformation,
+	...
+	}
+
+TextContainer::= SEQUENCE (SIZE (1..16,...)) OF TcPart
+
+TcPart::= SEQUENCE {
+	detectionZoneIds			SEQUENCE (SIZE (1..8,...)) OF Zid OPTIONAL, 
+	relevanceZoneIds		SEQUENCE (SIZE (1..8,...)) OF Zid, 
+	direction				Direction OPTIONAL, 
+	driverAwarenessZoneIds	SEQUENCE (SIZE (1..8,...)) OF Zid OPTIONAL, 
+	minimumAwarenessTime	INTEGER (0..255) OPTIONAL,
+	applicableLanes			SEQUENCE (SIZE (1..8,...)) OF LanePosition OPTIONAL,
+	layoutId				INTEGER(1..4,...) OPTIONAL,
+	preStoredlayoutId		INTEGER(1..64,...) OPTIONAL,
+	text					SEQUENCE (SIZE (1..4,...)) OF Text OPTIONAL,
+	data					OCTET STRING,
+	...
+	}
+
+LayoutContainer::=SEQUENCE{
+	layoutId			INTEGER(1..4,...),
+	height				INTEGER(10..73) OPTIONAL, 
+	width				INTEGER(10..265) OPTIONAL,
+	layoutComponents	SEQUENCE SIZE (1..4,...) OF LayoutComponent,
+	...  
+		}
+
+--  Definition of Data Frames & Elements
+
+AbsolutePosition::= SEQUENCE{
+	latitude Latitude,
+	longitude Longitude
+		}
+
+AbsolutePositionWAltitude::= SEQUENCE{
+	latitude Latitude,
+	longitude Longitude,
+	altitude Altitude 
+	}
+
+AnyCatalogue::=SEQUENCE{
+	owner			Provider,
+	version			INTEGER(0..255),
+	pictogramCode	INTEGER(0..65535),
+	value			INTEGER (0..65535) OPTIONAL, 
+	unit			RSCUnit OPTIONAL,
+	attributes		ISO14823Attributes OPTIONAL
+	}	
+
+ComparisonOperator ::= INTEGER {
+	greaterThan				(0),
+	greaterThanOrEqualTo	(1),
+	lessThan				(2),
+	lessThanOrEqualTo		(3)
+} (0..3)
+
+CompleteVehicleCharacteristics::= SEQUENCE{
+	tractor		TractorCharacteristics OPTIONAL,
+	trailer		SEQUENCE (SIZE (1..3)) OF TrailerCharacteristics OPTIONAL,
+	train		TrainCharacteristics OPTIONAL
+	}
+
+ComputedSegment::= SEQUENCE {
+	zoneId				Zid, 
+	laneNumber			LanePosition,  
+	laneWidth			IVILaneWidth,
+	offsetDistance 		INTEGER (-32768..32767) OPTIONAL, 
+	offsetPosition 		DeltaReferencePosition 	OPTIONAL 
+	}
+
+DeltaPosition::=SEQUENCE{
+	deltaLatitude 		DeltaLatitude,
+	deltaLongitude		DeltaLongitude
+		}
+
+Direction::= INTEGER{
+	sameDirection			(0),
+	oppositeDirection		(1),
+	bothDirections			(2),
+	valueNotUsed			(3)
+	} (0..3)
+
+Distance::= SEQUENCE {
+	value	INTEGER(1..16384),
+	unit	RSCUnit (2..4|6..8)
+		}
+
+DistanceOrDuration::= SEQUENCE {
+	value	INTEGER(1..16384),
+	unit	RSCUnit (2..9)
+		} 
+
+DriverCharacteristics::= INTEGER{
+	unexperiencedDrivers		(0),
+	experiencedDrivers			(1),
+	rfu1						(2),	
+	rfu2						(3)
+	} (0..3)
+
+GoodsType::= INTEGER {
+	ammunition					(0),
+	chemicals					(1),
+	empty 						(2),
+	fuel						(3),
+	glass						(4),
+	dangerous					(5),
+	liquid						(6),
+	liveStock					(7),
+	dangerousForPeople			(8),
+	dangerousForTheEnvironment	(9),
+	dangerousForWater			(10),
+	perishableProducts			(11),
+	pharmaceutical				(12),
+	vehicles					(13)
+	-- other values  reserved for future use
+	} (0..15,...)
+
+
+ISO14823Attributes::= SEQUENCE (SIZE(1..8,...)) OF CHOICE{
+	dtm DTM, 	-- Date/Time/Period	
+	edt	EDT,	-- Exemption status of Date/Time/Period	
+	dfl	DFL,	-- Directional Flow of Lane	
+	ved	VED, 	-- Vehicle Dimensions
+	spe	SPE, 	-- Speed
+	roi	ROI,	-- Rate of Incline
+	dbv	DBV,	-- Distance Between Vehicles
+	ddd	DDD 	-- Destination/Direction/Distance
+	}
+
+ISO14823Code ::= SEQUENCE{
+	pictogramCode           SEQUENCE {  
+		countryCode             OCTET STRING (SIZE (2)) OPTIONAL, 
+        serviceCategoryCode     CHOICE { 
+			trafficSignPictogram              ENUMERATED {dangerWarning, regulatory, informative,...},
+			publicFacilitiesPictogram         ENUMERATED {publicFacilities, ...},  
+            ambientOrRoadConditionPictogram   ENUMERATED {ambientCondition, roadCondition,...},
+		 ...},
+         pictogramCategoryCode   SEQUENCE {
+                  nature            INTEGER (1..9),
+                  serialNumber      INTEGER (0..99)
+            }},
+      attributes        ISO14823Attributes OPTIONAL 
+      }
+
+IviIdentificationNumber::= INTEGER(1..32767,...)
+
+IviPurpose::= INTEGER { 
+	safety 					(0), 
+	environmental 			(1), 
+	trafficOptimisation 	(2)
+	} (0..3) 
+
+IviStatus::= INTEGER {
+	new 			(0),	
+	update			(1),	
+	cancellation	(2),	
+	negation 		(3)	
+	-- other values  reserved for future use
+	}(0..7)
+
+IviType::= INTEGER {
+	immediateDangerWarningMessages 			(0),
+	regulatoryMessages 						(1),
+	trafficRelatedInformationMessages 		(2), 
+	pollutionMessages 						(3),
+	notTrafficRelatedInformationMessages 	(4)
+	-- other values  reserved for future use
+	} (0..7)
+
+LaneInformation::= SEQUENCE{
+	laneNumber			LanePosition, 
+	direction			Direction,
+	validity			DTM OPTIONAL,
+	laneType			LaneType, 
+	laneTypeQualifier	CompleteVehicleCharacteristics OPTIONAL,
+	laneStatus			LaneStatus, 	 
+	laneWidth       	IVILaneWidth OPTIONAL,       
+	...
+	}
+
+LaneStatus::= INTEGER {
+	open 				(0),
+	closed 				(1),
+	mergeR 				(2),
+	mergeL 				(3),
+	mergeLR 			(4),
+	provisionallyOpen 	(5),
+	diverging 			(6)	
+	-- value 7 reserved for future use 
+} (0..7, ...)
+
+LaneType::= INTEGER{
+	traffic 			(0),
+	through				(1),
+	reversible			(2),
+	acceleration		(3),
+	deceleration		(4),
+	leftHandTurning		(5),
+	rightHandTurning	(6),
+	dedicatedVehicle	(7),
+	bus					(8),
+	taxi				(9),
+	hov					(10),
+	hot					(11),
+	pedestrian			(12),
+	bikeLane			(13),
+	median              (14),   
+	striping			(15),
+	trackedVehicle		(16),
+	parking				(17),
+	emergency			(18),
+	verge 				(19)
+-- values 20 to 31 reserved for future use 
+	}(0..31)
+
+-- Prefix IVI added due to naming collision with data element LaneWidth of Module DSRC
+IVILaneWidth::= INTEGER (0..1023)
+
+LayoutComponent::=SEQUENCE{
+	layoutComponentId	INTEGER(1..8,...),
+	height				INTEGER(10..73), 
+	width				INTEGER(10..265), 
+	x					INTEGER(10..265),
+	y					INTEGER(10..73), 
+	textScripting		INTEGER {horizontal (0),  vertical (1)}(0..1)
+	} 
+
+LoadType::= SEQUENCE{
+	goodsType				GoodsType,
+	dangerousGoodsType		DangerousGoodsBasic,
+	specialTransportType	SpecialTransportType
+	}
+
+PolygonalLine::= CHOICE {
+	deltaPositions					SEQUENCE (SIZE (1..32,...)) OF DeltaPosition, 
+	deltaPositionsWithAltitude		SEQUENCE (SIZE (1..32,...)) OF DeltaReferencePosition, 	
+	absolutePositions				SEQUENCE (SIZE (1..8,...)) OF AbsolutePosition, 
+	absolutePositionsWithAltitude	SEQUENCE (SIZE (1..8,...)) OF AbsolutePositionWAltitude, 
+	...
+	}
+	
+RSCode::= SEQUENCE{
+	layoutComponentId	INTEGER(1..4,...) OPTIONAL,
+	code				CHOICE {
+		viennaConvention	VcCode, -- see Vienna Convention Annex A
+		iso14823			ISO14823Code, 
+		itisCodes			INTEGER (0..65535), -- see SAE J2540
+		anyCatalogue		AnyCatalogue,
+		...
+		}}
+
+RSCUnit::= INTEGER {
+	kmperh				(0),
+	milesperh			(1),
+	kilometer			(2),
+	meter				(3),
+	decimeter			(4),
+	centimeter			(5),
+	mile				(6),
+	yard				(7),
+	foot				(8),
+	minutesOfTime		(9),
+	tonnes				(10), --1000 kg, not Ton!
+	hundredkg			(11),
+	pound				(12), --lbs
+	rateOfIncline		(13)
+	-- other value reserved for future use
+	} (0..15)
+
+
+Segment::= SEQUENCE {
+	line			PolygonalLine,
+	laneWidth		IVILaneWidth OPTIONAL
+	}
+
+Text::= SEQUENCE {
+	layoutComponentId	INTEGER(1..4,...) OPTIONAL,
+	language			BIT STRING (SIZE(10)), 	
+	textContent			UTF8String
+	}
+
+TractorCharacteristics::=SEQUENCE{
+	equalTo			SEQUENCE (SIZE (1..4,...)) OF  VehicleCharacteristicsFixValues OPTIONAL,
+    notEqualTo		SEQUENCE (SIZE (1..4,...)) OF  VehicleCharacteristicsFixValues OPTIONAL, 
+	ranges      	SEQUENCE (SIZE (1..4,...)) OF  VehicleCharacteristicsRanges OPTIONAL
+}
+    
+TrailerCharacteristics::=SEQUENCE{
+	equalTo		SEQUENCE (SIZE (1..4,...)) OF VehicleCharacteristicsFixValues (WITH COMPONENTS {..., euroAndCo2value ABSENT, engineCharacteristics ABSENT}) OPTIONAL,
+	notEqualTo	SEQUENCE (SIZE (1..4,...)) OF VehicleCharacteristicsFixValues (WITH COMPONENTS {..., euroAndCo2value ABSENT, engineCharacteristics ABSENT}) OPTIONAL, 
+	ranges		SEQUENCE (SIZE (1..4,...)) OF VehicleCharacteristicsRanges (WITH COMPONENTS {comparisonOperator, limits (WITH COMPONENTS {..., exhaustEmissionValues ABSENT, dieselEmissionValues ABSENT, soundLevel ABSENT})})  OPTIONAL     
+	}
+
+TrainCharacteristics::= TractorCharacteristics
+
+VcClass::= INTEGER {
+	classA 	(0),
+	classB	(1),
+	classC	(2),
+	classD	(3),
+	classE	(4),
+	classF	(5),
+	classG	(6),
+	classH	(7)
+	} (0..7)
+
+VcCode::= SEQUENCE {
+	roadSignClass 	VcClass,  -- see Vienna Convention 
+	roadSignCode	INTEGER (1..64),
+	vcOption		VcOption, -- e.g. the "a" in H, 3a
+	validity		SEQUENCE (SIZE (1..8,...)) OF DTM OPTIONAL, 
+	value			INTEGER (0..65535) OPTIONAL, 
+	unit			RSCUnit OPTIONAL			
+	}
+
+VcOption::= INTEGER {
+	none 	(0),
+	a 		(1),
+	b		(2),
+	c		(3),
+	d		(4),
+	e		(5),
+	f		(6),
+	g		(7)
+	} (0..7)
+
+VehicleCharacteristicsFixValues::= CHOICE{
+	simpleVehicleType			StationType,	
+	euVehicleCategoryCode	 	EuVehicleCategoryCode,
+	iso3833VehicleType	 		Iso3833VehicleType,
+	euroAndCo2value				EnvironmentalCharacteristics,
+	engineCharacteristics		EngineCharacteristics,
+	loadType					LoadType,
+	usage						VehicleRole,
+	...}
+
+VehicleCharacteristicsRanges::= SEQUENCE{
+	comparisonOperator			ComparisonOperator,
+	limits					CHOICE{
+		numberOfAxles				INTEGER(0..7),
+		vehicleDimensions			VehicleDimensions,
+		vehicleWeightLimits			VehicleWeightLimits,
+		axleWeightLimits			AxleWeightLimits,
+		passengerCapacity 			PassengerCapacity, 
+		exhaustEmissionValues		ExhaustEmissionValues,
+		dieselEmissionValues  		DieselEmissionValues,
+		soundLevel					SoundLevel, 
+		...}}
+
+Weight::= SEQUENCE {
+			value	INTEGER(1..16384),
+			unit	RSCUnit (10..12)
+		} 
+
+Zid::= INTEGER (1..32,...)
+
+Zone::= CHOICE {
+	segment				Segment,
+	area				PolygonalLine,
+	computedSegment		ComputedSegment,
+	...
+	}
+
+-- Definition of the single ISO 14823 Attributes
+
+
+DTM ::= SEQUENCE {
+	year 		SEQUENCE { -- contains SYR and EYR
+		syr 	INTEGER(2000..2127,...),
+		eyr		INTEGER(2000..2127,...)
+					} OPTIONAL,
+	month-day 	SEQUENCE { -- contains SMD and EMD
+		smd		MonthDay,
+		emd 	MonthDay
+					} OPTIONAL,
+	pmd 		PMD OPTIONAL, 
+	hourMinutes SEQUENCE { -- contains SHM and EHM
+		shm 	HoursMinutes,
+		ehm 	HoursMinutes
+	} OPTIONAL,
+	dayOfWeek  DayOfWeek OPTIONAL, -- corresponds to SDY and EDY
+	period HoursMinutes OPTIONAL -- corresponds to LDM
+}
+
+MonthDay ::= SEQUENCE {
+	month	INTEGER (1..12),
+	day		INTEGER (1..31) 
+}
+
+PMD::= BIT STRING {national-holiday (0), even-days(1), odd-days(2), market-day(3) } (SIZE (4))
+
+HoursMinutes ::= SEQUENCE {
+	hours		INTEGER (0..23), -- number of hours after midnight
+	mins	 	INTEGER (0..59) -- number of minutes after the hour
+	}
+
+-- Prefix IVI added due to naming collision with data element DayOfWeek	of Module DSRC
+DayOfWeek ::= BIT STRING {unused(0), monday(1), tuesday(2), wednesday(3), thursday(4), friday(5), saturday(6), sunday(7)} (SIZE (8))
+
+EDT ::= DTM
+
+
+
+DFL::= INTEGER {
+    sDL	(1) , -- Straight Direction Only
+    sLT	(2) , -- Straight and Left Turn Only
+    sRT	(3) , -- Straight and Right Turn Only
+    lTO	(4) , -- Left Turn Only
+    rTO (5) , -- Right Turn Only
+    cLL	(6) , -- Convergence from the Left Lane
+    cRI	(7) , -- Convergence from the Right Lane
+    oVL	(8)   -- Oncoming Vehicles Lane
+               } (1..8)
+
+VED::=SEQUENCE{
+	hei				Distance OPTIONAL,
+	wid				Distance OPTIONAL,
+	vln				Distance OPTIONAL,
+	wei				Weight OPTIONAL
+		}
+
+SPE::=SEQUENCE{
+	spm		INTEGER(0..250) OPTIONAL,
+	mns		INTEGER(0..250) OPTIONAL,
+	unit	RSCUnit(0..1)
+	}
+
+ROI::= INTEGER(1..32)
+
+DBV::= Distance 
+-- changes: from DDD_IO to DDD-IO
+DDD::= SEQUENCE{
+	dcj			INTEGER(1..128) OPTIONAL,
+	dcr			INTEGER(1..128)OPTIONAL,
+	tpl			INTEGER(1..128)OPTIONAL,
+	ioList		SEQUENCE (SIZE (1..8,...)) OF DDD-IO
+	}
+-- changes: from DDD_IO to DDD-IO
+DDD-IO::= SEQUENCE{ 
+		drn			INTEGER(0..7),
+		dp			SEQUENCE (SIZE (1..4,...)) OF DestinationPlace OPTIONAL,
+		dr			SEQUENCE (SIZE (1..4,...)) OF DestinationRoad OPTIONAL,
+		rne			INTEGER(1..999) OPTIONAL,
+		stnId		INTEGER(1..999) OPTIONAL,
+		stnText		UTF8String OPTIONAL, 
+		dcp			DistanceOrDuration OPTIONAL,
+		ddp			DistanceOrDuration OPTIONAL 
+		}
+-- changes: from DDD_DEP to DDD-DEP
+DestinationPlace::= SEQUENCE{
+		depType 	DDD-DEP,
+		-- Encoding problem: to be checked if the statement is ASN.1 compatible
+		-- depRSCode	ISO14823Code (WITH COMPONENTS {..., attributes ABSENT}) OPTIONAL,
+		depRSCode	ISO14823Code OPTIONAL,
+		depBlob		OCTET STRING OPTIONAL,  
+		plnId 		INTEGER(1..999) OPTIONAL,
+		plnText		UTF8String OPTIONAL
+		} 
+-- changes: from DDD_DER to DDD-DER
+DestinationRoad::=SEQUENCE{
+		derType		DDD-DER,
+		ronId		INTEGER(1..999) OPTIONAL,
+		ronText		UTF8String OPTIONAL  
+		}
+-- changes: from DDD_DER to DDD-DER
+DDD-DER::= INTEGER { 
+	none					(0), 
+	nationalHighway			(1), 
+	localHighway			(2), 
+	tollExpresswayMotorway	(3),
+	internationalHighway	(4), 
+	highway 				(5),
+	expressway 				(6),
+	nationalRoad			(7), 		
+	regionalProvincialRoad	(8),
+	localRoad				(9), 	
+	motorwayJunction		(10),
+	diversion				(11),
+	rfu1					(12),
+	rfu2					(13),
+	rfu3					(14),
+	rfu4					(15)
+	} (0..15, ...) 
+-- changes: from DDD_DEP to DDD-DEP
+DDD-DEP::= INTEGER { 
+	none				(0), 
+	importantArea		(1), 
+	principalArea		(2), 
+	generalArea			(3), 
+	wellKnownPoint		(4),
+	country 			(5),
+	city				(6),
+	street				(7),
+	industrialArea 		(8),
+	historicArea		(9),
+	touristicArea		(10),
+	culturalArea 		(11),
+	touristicRoute		(12), 
+	recommendedRoute	(13),  
+	touristicAttraction	(14),
+	geographicArea		(15)
+	} (0..15, ...) 
+
+
+
+END
+

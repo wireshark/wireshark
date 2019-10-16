@@ -12,7 +12,13 @@
  */
 
 /* A brief description of this file format is available at:
- *    http://www.tamos.com/htmlhelp/commview/logformat.htm
+ *    https://www.tamos.com/htmlhelp/commview/logformat.htm
+ *
+ * Use
+ *
+ *    https://web.archive.org/web/20171022225753/http://www.tamos.com/htmlhelp/commview/logformat.htm
+ *
+ * if that doesn't display anything.
  */
 
 #include "config.h"
@@ -73,8 +79,8 @@ typedef struct commview_header {
 #define MEDIUM_WIFI		1
 #define MEDIUM_TOKEN_RING	2
 
-static gboolean commview_read(wtap *wth, int *err, gchar **err_info,
-			      gint64 *data_offset);
+static gboolean commview_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                              int *err, gchar **err_info, gint64 *data_offset);
 static gboolean commview_seek_read(wtap *wth, gint64 seek_off,
 				   wtap_rec *rec,
 				   Buffer *buf, int *err, gchar **err_info);
@@ -281,12 +287,12 @@ commview_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 }
 
 static gboolean
-commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+commview_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+              gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return commview_read_packet(wth->fh, &wth->rec, wth->rec_data, err,
-	    err_info);
+	return commview_read_packet(wth->fh, rec, buf, err, err_info);
 }
 
 static gboolean
@@ -410,7 +416,7 @@ static gboolean commview_dump(wtap_dumper *wdh,
 
 	tm = localtime(&rec->ts.secs);
 	if (tm != NULL) {
-		cv_hdr.year = tm->tm_year + 1900;
+		cv_hdr.year = GUINT16_TO_LE(tm->tm_year + 1900);
 		cv_hdr.month = tm->tm_mon + 1;
 		cv_hdr.day = tm->tm_mday;
 		cv_hdr.hours = tm->tm_hour;
@@ -421,7 +427,7 @@ static gboolean commview_dump(wtap_dumper *wdh,
 		/*
 		 * Second before the Epoch.
 		 */
-		cv_hdr.year = 1969;
+		cv_hdr.year = GUINT16_TO_LE(1969);
 		cv_hdr.month = 12;
 		cv_hdr.day = 31;
 		cv_hdr.hours = 23;
@@ -579,9 +585,9 @@ static gboolean commview_dump(wtap_dumper *wdh,
 		return FALSE;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.direction, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.signal_level_dbm, 2, err))
+	if (!wtap_dump_file_write(wdh, &cv_hdr.signal_level_dbm, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.noise_level, 2, err))
+	if (!wtap_dump_file_write(wdh, &cv_hdr.noise_level, 1, err))
 		return FALSE;
 	wdh->bytes_dumped += COMMVIEW_HEADER_SIZE;
 
@@ -593,7 +599,7 @@ static gboolean commview_dump(wtap_dumper *wdh,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -52,7 +52,8 @@ CHECKAPI(
 	NAME
 	  transum
 	SWITCHES
-	  -g abort -g termoutput -build
+	  --group abort
+	  --group termoutput:1 --summary-group termoutput --build
 	SOURCES
 	  ${DISSECTOR_SRC}
 	  ${DISSECTOR_SUPPORT_SRC}
@@ -60,7 +61,7 @@ CHECKAPI(
 )
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

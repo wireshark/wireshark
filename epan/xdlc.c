@@ -120,7 +120,7 @@ const value_string modifier_vals_resp[] = {
 };
 
 int
-get_xdlc_control(const guchar *pd, int offset, gboolean is_extended)
+get_xdlc_control(const guint8 *pd, int offset, gboolean is_extended)
 {
     guint16 control;
 
@@ -361,7 +361,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

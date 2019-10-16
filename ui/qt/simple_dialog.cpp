@@ -4,10 +4,12 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "simple_dialog.h"
 
+#include "log.h"
 #include "file.h"
 
 #include "epan/strutil.h"
@@ -20,8 +22,10 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
+#include <functional>
 #include <QCheckBox>
 #include <QMessageBox>
+#include <QMutex>
 #include <QRegExp>
 #include <QTextCodec>
 
@@ -42,6 +46,31 @@ QList<MessagePair> message_queue_;
 ESD_TYPE_E max_severity_ = ESD_TYPE_INFO;
 
 const char *primary_delimiter_ = "__CB754A38-94A2-4E59-922D-DD87EDC80E22__";
+
+struct VisibleAsyncMessage
+{
+    QMessageBox *box;
+    int counter;
+
+    VisibleAsyncMessage(QMessageBox *box) : box(box), counter(0) {}
+};
+
+static QList<VisibleAsyncMessage> visible_messages;
+static QMutex visible_messages_mutex;
+
+static void visible_message_finished(QMessageBox *box, int result _U_)
+{
+    visible_messages_mutex.lock();
+    for (int i = 0; i < visible_messages.size(); i++) {
+        if (visible_messages[i].box == box) {
+            g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_WARNING, "%d duplicates of \"%s\" were suppressed",
+                visible_messages[i].counter, box->text().toStdString().c_str());
+            visible_messages.removeAt(i);
+            break;
+        }
+    }
+    visible_messages_mutex.unlock();
+}
 
 const char *
 simple_dialog_primary_start(void) {
@@ -69,6 +98,19 @@ simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
     va_end(ap);
 
     sd.exec();
+    return NULL;
+}
+
+gpointer
+simple_dialog_async(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
+{
+    va_list ap;
+
+    va_start(ap, msg_format);
+    SimpleDialog sd(wsApp->mainWindow(), type, btn_mask, msg_format, ap);
+    va_end(ap);
+
+    sd.show();
     return NULL;
 }
 
@@ -121,7 +163,7 @@ vsimple_error_message_box(const char *msg_format, va_list ap)
 #endif
 
     SimpleDialog sd(wsApp->mainWindow(), ESD_TYPE_ERROR, ESD_BTN_OK, msg_format, ap);
-    sd.exec();
+    sd.show();
 }
 
 /*
@@ -138,7 +180,7 @@ vsimple_warning_message_box(const char *msg_format, va_list ap)
 #endif
 
     SimpleDialog sd(wsApp->mainWindow(), ESD_TYPE_WARN, ESD_BTN_OK, msg_format, ap);
-    sd.exec();
+    sd.show();
 }
 
 /*
@@ -162,7 +204,19 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
     QString message;
 
     vmessage = g_strdup_vprintf(msg_format, ap);
+#ifdef _WIN32
+    //
+    // On Windows, filename strings inside Wireshark are UTF-8 strings,
+    // so error messages containing file names are UTF-8 strings.  Convert
+    // from UTF-8, not from the local code page.
+    //
+    message = QString().fromUtf8(vmessage, -1);
+#else
+    //
+    // On UN*X, who knows?  Assume the locale's encoding.
+    //
     message = QTextCodec::codecForLocale()->toUnicode(vmessage);
+#endif
     g_free(vmessage);
 
     MessagePair msg_pair = splitMessage(message);
@@ -318,6 +372,53 @@ int SimpleDialog::exec()
     default:
         return ESD_BTN_CANCEL;
     }
+}
+
+void SimpleDialog::show()
+{
+    if (!message_box_) {
+        return;
+    }
+
+    message_box_->setDetailedText(detailed_text_);
+    message_box_->setCheckBox(check_box_);
+
+    visible_messages_mutex.lock();
+    bool found = false;
+    for (int i = 0; i < visible_messages.size(); i++) {
+        VisibleAsyncMessage &msg = visible_messages[i];
+        if ((msg.box->icon() == message_box_->icon()) &&
+            (msg.box->checkBox() == message_box_->checkBox()) &&
+            (msg.box->text() == message_box_->text()) &&
+            (msg.box->informativeText() == message_box_->informativeText()) &&
+            (msg.box->detailedText() == message_box_->detailedText()))
+        {
+            /* Message box of same type with same text is already visible. */
+            msg.counter++;
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        visible_messages.append(VisibleAsyncMessage(message_box_));
+    }
+    visible_messages_mutex.unlock();
+
+    if (found)
+    {
+        delete message_box_;
+    }
+    else
+    {
+        QObject::connect(message_box_, &QMessageBox::finished,
+            std::bind(visible_message_finished,message_box_,std::placeholders::_1));
+        message_box_->setModal(Qt::WindowModal);
+        message_box_->setAttribute(Qt::WA_DeleteOnClose);
+        message_box_->show();
+    }
+
+    /* Message box was shown and will be deleted once user closes it */
+    message_box_ = 0;
 }
 
 const MessagePair SimpleDialog::splitMessage(QString &message) const

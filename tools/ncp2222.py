@@ -13,9 +13,9 @@ Many thanks to Novell for letting him work on this.
 Additional data sources:
 "Programmer's Guide to the NetWare Core Protocol" by Steve Conner and Dianne Conner.
 
-Novell provides info at:
+At one time, Novell provided a list of NCPs by number at:
 
-http://developer.novell.com/ndk/ncp.htm  (where you can download an
+http://developer.novell.com/ndk/ncp.htm  (where you could download an
 *.exe file which installs a PDF, although you may have to create a login
 to do this)
 
@@ -24,6 +24,9 @@ or
 http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
+Currently, a list of NCPs by number can be found at
+
+https://www.microfocus.com/documentation/open-enterprise-server-developer-documentation/ncp/ncpdocs/main.htm
 
 Portions Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>.
 Portions Copyright (c) Novell, Inc. 2000-2003.
@@ -1252,6 +1255,7 @@ AbortQueueFlag                  = val_string8("abort_q_flag", "Abort Queue Flag"
         [ 0x01, "Do Not Place Spool File, Examine Flags" ],
 ])
 AcceptedMaxSize                 = uint16("accepted_max_size", "Accepted Max Size")
+AcceptedMaxSize64               = uint64("accepted_max_size64", "Accepted Max Size")
 AccessControl                   = val_string8("access_control", "Access Control", [
         [ 0x00, "Open for read by this client" ],
         [ 0x01, "Open for write by this client" ],
@@ -3405,6 +3409,7 @@ PropertyType                    = val_string8("property_type", "Property Type", 
 ])
 PropertyValue                   = fw_string("property_value", "Property Value", 128)
 ProposedMaxSize                 = uint16("proposed_max_size", "Proposed Max Size")
+ProposedMaxSize64               = uint64("proposed_max_size64", "Proposed Max Size")
 protocolFlags                   = uint32("protocol_flags", "Protocol Flags")
 protocolFlags.Display("BASE_HEX")
 PurgeableBlocks                 = uint32("purgeable_blocks", "Purgeable Blocks")
@@ -6855,7 +6860,7 @@ proto_register_ncp2222(void)
     /*
      * XXX - the page at
      *
-     *      http://www.odyssea.com/whats_new/tcpipnet/tcpipnet.html
+     *      https://web.archive.org/web/20030629082113/http://www.odyssea.com/whats_new/tcpipnet/tcpipnet.html
      *
      * says of the connection status "The Connection Code field may
      * contain values that indicate the status of the client host to
@@ -6865,7 +6870,7 @@ proto_register_ncp2222(void)
      *
      * The page at
      *
-     *      http://www.unm.edu/~network/presentations/course/appendix/appendix_f/tsld088.htm
+     *      https://web.archive.org/web/20090809191415/http://www.unm.edu/~network/presentations/course/appendix/appendix_f/tsld088.htm
      *
      * says that bit 0 is "bad service", bit 2 is "no connection
      * available", bit 4 is "service down", and bit 6 is "server
@@ -15530,6 +15535,16 @@ rec( 9, 4, ObjectID ),
             rec( 12, 1, SecurityFlag ),
     ])
     pkt.CompletionCodes([0x0000])
+    # 2222/62, 98
+    pkt = NCP(0x62, "Negotiate NDS connection buffer size", 'connection')
+    pkt.Request(15, [
+            rec( 7, 8, ProposedMaxSize64, ENC_BIG_ENDIAN, Info_str=(ProposedMaxSize, "Negotiate NDS connection - %d", ", %d")),
+    ])
+    pkt.Reply(18, [
+            rec( 8, 8, AcceptedMaxSize64, ENC_BIG_ENDIAN ),
+            rec( 16, 2, EchoSocket, ENC_BIG_ENDIAN ),
+    ])
+    pkt.CompletionCodes([0x0000])
     # 2222/63, 99
     pkt = NCP(0x63, "Undocumented Packet Burst", 'pburst')
     pkt.Request(7)
@@ -16852,7 +16867,7 @@ if __name__ == '__main__':
     main()
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 4

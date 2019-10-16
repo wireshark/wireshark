@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef SIMPLE_DIALOG_H
 #define SIMPLE_DIALOG_H
@@ -37,6 +38,7 @@ public:
     void setDetailedText(QString text) { detailed_text_ = text; }
     void setCheckBox(QCheckBox *cb) { check_box_ = cb; }
     int exec();
+    void show();
 
 private:
     const MessagePair splitMessage(QString &message) const;

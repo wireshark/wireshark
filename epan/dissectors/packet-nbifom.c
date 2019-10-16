@@ -1,7 +1,7 @@
 /* packet-nbifom.c
  * Routines for Network-Based IP Flow Mobility (NBIFOM) dissection
  * 3GPP TS 24.161 V13.3.0 (2016-12) Release 13
- * Copyright 2016, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2016, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -524,7 +524,7 @@ proto_register_nbifom(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

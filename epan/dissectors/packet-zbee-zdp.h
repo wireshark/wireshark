@@ -62,7 +62,6 @@
 #define ZBEE_ZDP_REQ_MGMT_NWKUPDATE               0x0038  /* ZigBee 2007 & later. */
 #define ZBEE_ZDP_REQ_MGMT_NWKUPDATE_ENH           0x0039  /* R22 */
 #define ZBEE_ZDP_REQ_MGMT_IEEE_JOIN_LIST          0x003a  /* R22 */
-#define ZBEE_ZDP_REQ_MGMT_UNSOLICITED_NWKUPDATE   0x003b  /* R22 */
 
 #define ZBEE_ZDP_RSP_NWK_ADDR                     0x8000
 #define ZBEE_ZDP_RSP_IEEE_ADDR                    0x8001
@@ -105,9 +104,10 @@
 #define ZBEE_ZDP_RSP_MGMT_DIRECT_JOIN             0x8035
 #define ZBEE_ZDP_RSP_MGMT_PERMIT_JOIN             0x8036  /* ZigBee 2006 & later. */
 #define ZBEE_ZDP_RSP_MGMT_CACHE                   0x8037  /* ZigBee 2006 & later. */
-#define ZBEE_ZDP_RSP_MGMT_NWKUPDATE               0x8038  /* ZigBee 2007 & later. */
-#define ZBEE_ZDP_RSP_MGMT_NWKUPDATE_ENH           0x8039  /* R22 */
+#define ZBEE_ZDP_NOT_MGMT_NWKUPDATE               0x8038  /* ZigBee 2007 & later. */
+#define ZBEE_ZDP_NOT_MGMT_NWKUPDATE_ENH           0x8039  /* R22 */
 #define ZBEE_ZDP_RSP_MGMT_IEEE_JOIN_LIST          0x803a  /* R22 */
+#define ZBEE_ZDP_NOT_MGMT_UNSOLICITED_NWKUPDATE   0x803b  /* R22 */
 
 #define ZBEE_ZDP_MSG_RESPONSE_BIT                 0x8000
 #define ZBEE_ZDP_MSG_MASK                         (ZBEE_ZDP_MSG_RESPONSE_BIT-1)
@@ -386,7 +386,6 @@ extern void dissect_zbee_zdp_req_mgmt_cache             (tvbuff_t *tvb, packet_i
 extern void dissect_zbee_zdp_req_mgmt_nwkupdate         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_req_mgmt_nwkupdate_enh     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_req_mgmt_ieee_join_list    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-extern void dissect_zbee_zdp_req_mgmt_unsolicited_nwkupdate    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 extern void dissect_zbee_zdp_rsp_nwk_addr               (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_rsp_ext_addr               (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -430,8 +429,9 @@ extern void dissect_zbee_zdp_rsp_mgmt_leave             (tvbuff_t *tvb, packet_i
 extern void dissect_zbee_zdp_rsp_mgmt_direct_join       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_rsp_mgmt_permit_join       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_rsp_mgmt_cache             (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-extern void dissect_zbee_zdp_rsp_mgmt_nwkupdate         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+extern void dissect_zbee_zdp_not_mgmt_nwkupdate         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_rsp_mgmt_ieee_join_list    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+extern void dissect_zbee_zdp_not_mgmt_unsolicited_nwkupdate    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 extern const value_string zbee_zdp_cluster_names[];
 extern const value_string zbee_zdp_rtg_status_vals[];
@@ -439,7 +439,7 @@ extern const value_string zbee_zdp_rtg_status_vals[];
 #endif /* PACKET_ZBEE_ZDP_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

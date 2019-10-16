@@ -73,7 +73,7 @@ update_crc10_by_bytes(guint16 crc10_accum, const guint8 *data_blk_ptr,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

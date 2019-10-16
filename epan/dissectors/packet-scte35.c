@@ -448,7 +448,7 @@ static int
 dissect_component(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint8 sif, int idx)
 {
     gint offset = 0;
-    guint8 component_tag, tsf;
+    guint8 component_tag, tsf = 0;
     proto_tree *component_tree;
     gint tvb_len, min_length = sif ? 1 : 2;
 
@@ -1506,7 +1506,7 @@ proto_reg_handoff_scte35(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -147,7 +147,7 @@ wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str)
 }
 
 #ifndef _WIN32
-static void
+void
 wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const gchar *fmt, va_list ap)
 {
     va_list ap2;
@@ -176,7 +176,7 @@ wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const gchar *fmt, va_list ap)
  * vasnprintf when compiled under MinGW. If GLib ever ends up using the
  * native Windows v*printf routines this can be removed.
  */
-static void
+void
 wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const gchar *fmt, va_list ap)
 {
     va_list ap2;
@@ -281,7 +281,7 @@ wmem_strbuf_finalize(wmem_strbuf_t *strbuf)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

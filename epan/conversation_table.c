@@ -648,7 +648,6 @@ add_conversation_table_data_with_conv_id(
         new_conv_item.tx_frames = 0;
         new_conv_item.rx_bytes = 0;
         new_conv_item.tx_bytes = 0;
-        new_conv_item.modified = TRUE;
 
         if (ts) {
             memcpy(&new_conv_item.start_time, ts, sizeof(new_conv_item.start_time));
@@ -674,7 +673,6 @@ add_conversation_table_data_with_conv_id(
     }
 
     /* update the conversation struct */
-    conv_item->modified = TRUE;
     if ( (!cmp_address(src, addr1)) && (!cmp_address(dst, addr2)) && (src_port==port1) && (dst_port==port2) ) {
         conv_item->tx_frames += num_frames;
         conv_item->tx_bytes += num_bytes;

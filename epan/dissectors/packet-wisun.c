@@ -62,7 +62,7 @@ static reassembly_table netricity_reassembly_table;
 #define WISUN_CHANNEL_EXCLUDE   0xc0
 
 #define WISUN_CHANNEL_PLAN_REGULATORY   0
-#define WISUN_CHANNEL_PLAN_SPACING      1
+#define WISUN_CHANNEL_PLAN_EXPLICIT     1
 #define WISUN_CHANNEL_FUNCTION_FIXED    0
 #define WISUN_CHANNEL_FUNCTION_TR51CF   1
 #define WISUN_CHANNEL_FUNCTION_DH1CF    2
@@ -70,6 +70,10 @@ static reassembly_table netricity_reassembly_table;
 #define WISUN_CHANNEL_EXCLUDE_NONE      0
 #define WISUN_CHANNEL_EXCLUDE_RANGE     1
 #define WISUN_CHANNEL_EXCLUDE_MASK      2
+
+#define WISUN_CH_PLAN_EXPLICIT_FREQ     0x00ffffff
+#define WISUN_CH_PLAN_EXPLICIT_RESERVED 0xf0000000
+#define WISUN_CH_PLAN_EXPLICIT_SPACING  0x0f000000
 
 #define WISUN_EAPOL_RELAY_UDP_PORT 10253
 
@@ -110,8 +114,10 @@ static int hf_wisun_usie_channel_function = -1;
 static int hf_wisun_usie_channel_exclude = -1;
 static int hf_wisun_usie_regulatory_domain = -1;
 static int hf_wisun_usie_operating_class = -1;
-static int hf_wisun_usie_channel_frequency = -1;
-static int hf_wisun_usie_channel_spacing = -1;
+static int hf_wisun_usie_explicit = -1;
+static int hf_wisun_usie_explicit_frequency = -1;
+static int hf_wisun_usie_explicit_reserved = -1;
+static int hf_wisun_usie_explicit_spacing = -1;
 static int hf_wisun_usie_number_channels = -1;
 static int hf_wisun_usie_fixed_channel = -1;
 static int hf_wisun_usie_hop_count = -1;
@@ -130,7 +136,6 @@ static int hf_wisun_panie_cost = -1;
 static int hf_wisun_panie_flags = -1;
 static int hf_wisun_panie_flag_parent_bsie = -1;
 static int hf_wisun_panie_flag_routing_method = -1;
-static int hf_wisun_panie_flag_eapol_ready = -1;
 static int hf_wisun_panie_flag_version = -1;
 static int hf_wisun_netnameie = -1;
 static int hf_wisun_netnameie_name = -1;
@@ -193,6 +198,7 @@ static gint ett_wisun_usie = -1;
 static gint ett_wisun_bsie = -1;
 static gint ett_wisun_vpie = -1;
 static gint ett_wisun_usie_channel_control;
+static gint ett_wisun_usie_explicit;
 static gint ett_wisun_panie = -1;
 static gint ett_wisun_panie_flags = -1;
 static gint ett_wisun_netnameie = -1;
@@ -284,7 +290,7 @@ static const value_string wisun_usie_clock_drift_names[] = {
 
 static const value_string wisun_channel_plan_names[] = {
     { WISUN_CHANNEL_PLAN_REGULATORY,    "Regulatory Domain and Operating Class" },
-    { WISUN_CHANNEL_PLAN_SPACING,       "Channel Spacing and Number" },
+    { WISUN_CHANNEL_PLAN_EXPLICIT,      "Explicit Spacing and Number" },
     { 0, NULL }
 };
 
@@ -374,8 +380,9 @@ static expert_field ei_wisun_subid_unsupported = EI_INIT;
 static expert_field ei_wisun_wsie_unsupported = EI_INIT;
 static expert_field ei_wisun_usie_channel_plan_invalid = EI_INIT;
 static expert_field ei_wisun_edfe_start_not_found = EI_INIT;
+static expert_field ei_wisun_usie_explicit_reserved_bits_not_zero = EI_INIT;
 
-static int
+static guint
 wisun_add_wbxml_uint(tvbuff_t *tvb, proto_tree *tree, int hf, guint offset)
 {
     guint val = 0;
@@ -480,9 +487,9 @@ dissect_wisun_fcie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
                 set_address(&pinfo->dl_src, AT_EUI64, 8, p_addr);
                 copy_address_shallow(&pinfo->src, &pinfo->dl_src);
                 proto_item* src = proto_tree_add_eui64(tree, hf_wisun_fcie_src, tvb, 0, 0, hints->map_rec->addr64);
-                PROTO_ITEM_SET_GENERATED(src);
+                proto_item_set_generated(src);
                 proto_item* frm = proto_tree_add_uint(tree, hf_wisun_fcie_initial_frame, tvb, 0, 0, hints->map_rec->start_fnum);
-                PROTO_ITEM_SET_GENERATED(frm);
+                proto_item_set_generated(frm);
             } else {
                 expert_add_info(pinfo, tree, &ei_wisun_edfe_start_not_found);
             }
@@ -538,15 +545,15 @@ dissect_wisun_netricity_lqiie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     switch (lqi) {
         case 0:
             // "-10 dB or lower (0x00)" [IEEE1901.2-2013]
-            proto_tree_add_uint_format_value(tree, hf_wisun_netricity_lqiie_lqi, tvb, offset, 1, lqi, "-10 dB or lower");
+            proto_tree_add_uint_format_value(tree, hf_wisun_netricity_lqiie_lqi, tvb, offset, 1, lqi, "0 (SNR -10 dB or lower)");
             break;
-        case 0xff:
+        case 255:
             // "A value of 255 MUST be used to indicate 'not measured'" [NTPS 1v04]
-            proto_tree_add_uint_format_value(tree, hf_wisun_netricity_lqiie_lqi, tvb, offset, 1, lqi, "not measured");
+            proto_tree_add_uint_format_value(tree, hf_wisun_netricity_lqiie_lqi, tvb, offset, 1, lqi, "255 (not measured)");
             break;
         default:
             // "where the value of -9.75 dB is represented as 0x01 and the value of 52.75 dB is represented as 0xFE" [IEEE1901.2-2013]
-            proto_tree_add_uint_format_value(tree, hf_wisun_netricity_lqiie_lqi, tvb, offset, 1, lqi, "%1.2f dB",
+            proto_tree_add_uint_format_value(tree, hf_wisun_netricity_lqiie_lqi, tvb, offset, 1, lqi, "%d (SNR %1.2f dB)", lqi,
                                              (lqi-1) * (52.75+9.75) / (0xfe - 0x01) - 9.75);
     }
     return 1;
@@ -625,7 +632,14 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
             NULL
     };
 
+    static const int * fields_usie_channel_plan_explicit[] = {
+            &hf_wisun_usie_explicit_frequency,
+            &hf_wisun_usie_explicit_spacing,
+            &hf_wisun_usie_explicit_reserved,
+            NULL
+    };
     gint count;
+    proto_item *ti;
 
     proto_tree_add_item(tree, hf_wisun_usie_dwell_interval, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
@@ -648,10 +662,13 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
             offset++;
             break;
 
-        case WISUN_CHANNEL_PLAN_SPACING:
-            proto_tree_add_item(tree, hf_wisun_usie_channel_frequency, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        case WISUN_CHANNEL_PLAN_EXPLICIT:
+            ti = proto_tree_add_bitmask(tree, tvb, offset, hf_wisun_usie_explicit, ett_wisun_usie_explicit,
+                                        fields_usie_channel_plan_explicit, ENC_LITTLE_ENDIAN);
             offset += 3;
-            proto_tree_add_item(tree, hf_wisun_usie_channel_spacing, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            if (tvb_get_guint8(tvb, offset) & 0xf0) {
+                expert_add_info(pinfo, ti, &ei_wisun_usie_explicit_reserved_bits_not_zero);
+            }
             offset++;
             proto_tree_add_item(tree, hf_wisun_usie_number_channels, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
@@ -767,10 +784,10 @@ dissect_wisun_panie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
     proto_item *item;
     proto_tree *subtree;
     guint offset = 0;
+    guint32 routingCost;
     static const int * fields_panie_flags[] = {
         &hf_wisun_panie_flag_parent_bsie,
         &hf_wisun_panie_flag_routing_method,
-        &hf_wisun_panie_flag_eapol_ready,
         &hf_wisun_panie_flag_version,
         NULL
     };
@@ -782,11 +799,14 @@ dissect_wisun_panie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
     offset += 2;
     proto_tree_add_item(subtree, hf_wisun_panie_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    proto_tree_add_item(subtree, hf_wisun_panie_cost, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(subtree, hf_wisun_panie_cost, tvb, offset, 2, ENC_LITTLE_ENDIAN, &routingCost);
     offset += 2;
     proto_tree_add_bitmask_with_flags(subtree, tvb, offset, hf_wisun_panie_flags, ett_wisun_panie_flags,
                             fields_panie_flags, ENC_LITTLE_ENDIAN, BMT_NO_FLAGS);
     offset++;
+
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "Routing Cost: %d", routingCost);
+
     return offset;
 }
 
@@ -971,7 +991,7 @@ static int dissect_wisun_eapol_relay(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         up = (tvb_get_guint8(tvb, offset+6) & 0x80) == 0;  // Key Info ACK==0
     }
     proto_item* diritem = proto_tree_add_boolean(subtree, hf_wisun_eapol_relay_direction, tvb, offset, 0, (guint32) up);
-    PROTO_ITEM_SET_GENERATED(diritem);
+    proto_item_set_generated(diritem);
 
     int r = call_dissector(eapol_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 
@@ -1049,8 +1069,6 @@ static int dissect_wisun_netricity_sc(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
         pinfo->fragmented = save_fragmented;
     } else {
-        // the decryption function expects the tvb with the FCS as part of the reported length
-        frame = tvb_new_subset_length_caplen(frame, 0, -1, tvb_reported_length(frame)+IEEE802154_FCS_LEN);
         tvbuff_t *payload = ieee802154_decrypt_payload(frame, mhr_len, pinfo, ieee802154_tree, packet);
         if (payload) {
             guint pie_size = ieee802154_dissect_payload_ies(payload, pinfo, ieee802154_tree, packet);
@@ -1250,13 +1268,23 @@ void proto_register_wisun(void)
             NULL, HFILL }
         },
 
-        { &hf_wisun_usie_channel_frequency,
-          { "CH0 Frequency", "wisun.usie.channel_frequency", FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_khz, 0x0,
+        { &hf_wisun_usie_explicit,
+          { "Explicit Channel Plan", "wisun.usie.explicit", FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
 
-        { &hf_wisun_usie_channel_spacing,
-          { "Channel Spacing", "wisun.usie.channel_spacing", FT_UINT8, BASE_DEC, VALS(wisun_channel_spacing_names), 0x0,
+        { &hf_wisun_usie_explicit_frequency,
+          { "CH0 Frequency", "wisun.usie.explicit.frequency", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_khz, WISUN_CH_PLAN_EXPLICIT_FREQ,
+            NULL, HFILL }
+        },
+
+        { &hf_wisun_usie_explicit_reserved,
+          { "Reserved", "wisun.usie.explicit.reserved", FT_UINT32, BASE_DEC, NULL, WISUN_CH_PLAN_EXPLICIT_RESERVED,
+            NULL, HFILL }
+        },
+
+        { &hf_wisun_usie_explicit_spacing,
+          { "Channel Spacing", "wisun.usie.explicit.spacing", FT_UINT32, BASE_DEC, VALS(wisun_channel_spacing_names), WISUN_CH_PLAN_EXPLICIT_SPACING,
             NULL, HFILL }
         },
 
@@ -1350,11 +1378,6 @@ void proto_register_wisun(void)
             NULL, HFILL }
         },
 
-        { &hf_wisun_panie_flag_eapol_ready,
-          { "EAPOL Ready", "wisun.panie.flags.eapol", FT_BOOLEAN, 8, NULL, 0x04,
-            NULL, HFILL }
-        },
-
         { &hf_wisun_panie_flag_version,
           { "FAN TPS Version", "wisun.panie.flags.version", FT_UINT8, BASE_DEC, NULL, 0xe0,
             NULL, HFILL }
@@ -1436,7 +1459,7 @@ void proto_register_wisun(void)
 
         /* Wi-SUN Netricity */
         { &hf_wisun_netricity_nftie,
-          { "Unicast Timing IE", "wisun.netricity.nftie", FT_NONE, BASE_NONE, NULL, 0x0,
+          { "Netricity Frame Type IE", "wisun.netricity.nftie", FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
@@ -1571,6 +1594,8 @@ void proto_register_wisun(void)
                 "Unsupported Sub-IE ID", EXPFILL }},
         { &ei_wisun_edfe_start_not_found, { "wisun.edfe.start_not_found", PI_SEQUENCE, PI_WARN,
                 "EDFE Transfer: start frame not found", EXPFILL }},
+        { &ei_wisun_usie_explicit_reserved_bits_not_zero, { "wisun.usie.explicit.reserved.invalid", PI_MALFORMED, PI_ERROR,
+                "Reserved bits not zero", EXPFILL }},
     };
 
     expert_module_t* expert_wisun;
@@ -1610,7 +1635,7 @@ void proto_reg_handoff_wisun(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

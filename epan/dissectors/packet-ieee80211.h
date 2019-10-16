@@ -23,9 +23,23 @@ typedef struct {
   gboolean association_has_mobility_domain_element;
   gboolean has_ft_akm_suite;
   gboolean has_non_ft_akm_suite;
+  gboolean has_fils_session;
+  guint32 last_akm_suite;
+  guint16 owe_group;
   proto_node *rsn_first_ft_akm_suite;
   proto_node *rsn_first_non_ft_akm_suite;
+  guint8 ampe_frame;
 } association_sanity_check_t;
+
+typedef struct {
+  guint32 last_akm_suite;
+  guint16 owe_group;
+} ieee80211_conversation_data_t;
+
+typedef struct {
+  guint32 last_akm_suite;
+  guint16 owe_group;
+} ieee80211_packet_data_t;
 
 typedef struct ieee80211_tagged_field_data
 {
@@ -228,6 +242,7 @@ gboolean is_broadcast_bssid(const address *bssid);
  * COMPOSE_FRAME_TYPE() values for extension frames.
  */
 #define EXTENSION_DMG_BEACON         0x30  /* Extension DMG beacon */
+#define EXTENSION_S1G_BEACON         0x31  /* Extension S1G beacon */
 
 typedef struct _wlan_stats {
   guint8 channel;
@@ -259,6 +274,7 @@ typedef struct {
 #define ANV_PROTO_ID_MIH_IS    1
 #define ADV_PROTO_ID_MIH_CESCD 2
 #define ADV_PROTO_ID_EAS       3
+#define ADV_PROTO_ID_RLQP       4
 #define ADV_PROTO_ID_VS        221
 
 typedef struct anqp_info_dissector_data {
@@ -274,8 +290,217 @@ typedef struct anqp_info_dissector_data {
 #define WFA_SUBTYPE_HS20_INDICATION            16
 #define WFA_SUBTYPE_HS20_ANQP                  17
 #define WFA_SUBTYPE_OSEN                       18
+#define WFA_SUBTYPE_NAN_IE                     19
+#define WFA_SUBTYPE_NAN_ACTION                 24
 #define WFA_SUBTYPE_DPP                        26
 #define WFA_SUBTYPE_IEEE1905_MULTI_AP          27 /* ox1B */
+#define WFA_SUBTYPE_OWE_TRANSITION_MODE        28
+
+/* Information Element tags */
+#define TAG_SSID                       0
+#define TAG_SUPP_RATES                 1
+#define TAG_FH_PARAMETER               2
+#define TAG_DS_PARAMETER               3
+#define TAG_CF_PARAMETER               4
+#define TAG_TIM                        5
+#define TAG_IBSS_PARAMETER             6
+#define TAG_COUNTRY_INFO               7
+#define TAG_FH_HOPPING_PARAMETER       8
+#define TAG_FH_HOPPING_TABLE           9
+#define TAG_REQUEST                   10
+#define TAG_QBSS_LOAD                 11
+#define TAG_EDCA_PARAM_SET            12
+#define TAG_TSPEC                     13
+#define TAG_TCLAS                     14
+#define TAG_SCHEDULE                  15
+#define TAG_CHALLENGE_TEXT            16
+
+#define TAG_POWER_CONSTRAINT          32
+#define TAG_POWER_CAPABILITY          33
+#define TAG_TPC_REQUEST               34
+#define TAG_TPC_REPORT                35
+#define TAG_SUPPORTED_CHANNELS        36
+#define TAG_CHANNEL_SWITCH_ANN        37
+#define TAG_MEASURE_REQ               38
+#define TAG_MEASURE_REP               39
+#define TAG_QUIET                     40
+#define TAG_IBSS_DFS                  41
+#define TAG_ERP_INFO                  42
+#define TAG_TS_DELAY                  43
+#define TAG_TCLAS_PROCESS             44
+#define TAG_HT_CAPABILITY             45 /* IEEE Stc 802.11n/D2.0 */
+#define TAG_QOS_CAPABILITY            46
+#define TAG_ERP_INFO_OLD              47 /* IEEE Std 802.11g/D4.0 */
+#define TAG_RSN_IE                    48
+/* Reserved 49 */
+#define TAG_EXT_SUPP_RATES            50
+#define TAG_AP_CHANNEL_REPORT         51
+#define TAG_NEIGHBOR_REPORT           52
+#define TAG_RCPI                      53
+#define TAG_MOBILITY_DOMAIN           54  /* IEEE Std 802.11r-2008 */
+#define TAG_FAST_BSS_TRANSITION       55  /* IEEE Std 802.11r-2008 */
+#define TAG_TIMEOUT_INTERVAL          56  /* IEEE Std 802.11r-2008 */
+#define TAG_RIC_DATA                  57  /* IEEE Std 802.11r-2008 */
+#define TAG_DSE_REG_LOCATION          58
+#define TAG_SUPPORTED_OPERATING_CLASSES             59 /* IEEE Std 802.11w-2009 */
+#define TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT    60 /* IEEE Std 802.11w-2009 */
+#define TAG_HT_INFO                   61  /* IEEE Stc 802.11n/D2.0 */
+#define TAG_SECONDARY_CHANNEL_OFFSET  62  /* IEEE Stc 802.11n/D1.10/D2.0 */
+#define TAG_BSS_AVG_ACCESS_DELAY      63
+#define TAG_ANTENNA                   64
+#define TAG_RSNI                      65
+#define TAG_MEASURE_PILOT_TRANS       66
+#define TAG_BSS_AVB_ADM_CAPACITY      67
+#define TAG_IE_68_CONFLICT            68  /* Conflict: WAPI Vs. IEEE */
+#define TAG_WAPI_PARAM_SET            68
+#define TAG_BSS_AC_ACCESS_DELAY       68
+#define TAG_TIME_ADV                  69  /* IEEE Std 802.11p-2010 */
+#define TAG_RM_ENABLED_CAPABILITY     70
+#define TAG_MULTIPLE_BSSID            71
+#define TAG_20_40_BSS_CO_EX           72  /* IEEE P802.11n/D6.0 */
+#define TAG_20_40_BSS_INTOL_CH_REP    73  /* IEEE P802.11n/D6.0 */
+#define TAG_OVERLAP_BSS_SCAN_PAR      74  /* IEEE P802.11n/D6.0 */
+#define TAG_RIC_DESCRIPTOR            75  /* IEEE Std 802.11r-2008 */
+#define TAG_MMIE                      76  /* IEEE Std 802.11w-2009 */
+#define TAG_EVENT_REQUEST             78
+#define TAG_EVENT_REPORT              79
+#define TAG_DIAGNOSTIC_REQUEST        80
+#define TAG_DIAGNOSTIC_REPORT         81
+#define TAG_LOCATION_PARAMETERS       82
+#define TAG_NO_BSSID_CAPABILITY       83
+#define TAG_SSID_LIST                 84
+#define TAG_MULTIPLE_BSSID_INDEX      85
+#define TAG_FMS_DESCRIPTOR            86
+#define TAG_FMS_REQUEST               87
+#define TAG_FMS_RESPONSE              88
+#define TAG_QOS_TRAFFIC_CAPABILITY    89
+#define TAG_BSS_MAX_IDLE_PERIOD       90
+#define TAG_TFS_REQUEST               91
+#define TAG_TFS_RESPONSE              92
+#define TAG_WNM_SLEEP_MODE            93
+#define TAG_TIM_BROADCAST_REQUEST     94
+#define TAG_TIM_BROADCAST_RESPONSE    95
+#define TAG_COLLOCATED_INTER_REPORT   96
+#define TAG_CHANNEL_USAGE             97
+#define TAG_TIME_ZONE                 98  /* IEEE Std 802.11v-2011 */
+#define TAG_DMS_REQUEST               99
+#define TAG_DMS_RESPONSE             100
+#define TAG_LINK_IDENTIFIER          101  /* IEEE Std 802.11z-2010 */
+#define TAG_WAKEUP_SCHEDULE          102  /* IEEE Std 802.11z-2010 */
+#define TAG_CHANNEL_SWITCH_TIMING    104  /* IEEE Std 802.11z-2010 */
+#define TAG_PTI_CONTROL              105  /* IEEE Std 802.11z-2010 */
+#define TAG_PU_BUFFER_STATUS         106  /* IEEE Std 802.11z-2010 */
+#define TAG_INTERWORKING             107  /* IEEE Std 802.11u-2011 */
+#define TAG_ADVERTISEMENT_PROTOCOL   108  /* IEEE Std 802.11u-2011 */
+#define TAG_EXPIDITED_BANDWIDTH_REQ  109  /* IEEE Std 802.11u-2011 */
+#define TAG_QOS_MAP_SET              110  /* IEEE Std 802.11u-2011 */
+#define TAG_ROAMING_CONSORTIUM       111  /* IEEE Std 802.11u-2011 */
+#define TAG_EMERGENCY_ALERT_ID       112  /* IEEE Std 802.11u-2011 */
+#define TAG_MESH_CONFIGURATION       113  /* IEEE Std 802.11s-2011 */
+#define TAG_MESH_ID                  114  /* IEEE Std 802.11s-2011 */
+#define TAG_MESH_LINK_METRIC_REPORT  115
+#define TAG_CONGESTION_NOTIFICATION  116
+#define TAG_MESH_PEERING_MGMT        117  /* IEEE Std 802.11s-2011 */
+#define TAG_MESH_CHANNEL_SWITCH      118
+#define TAG_MESH_AWAKE_WINDOW        119  /* IEEE Std 802.11s-2011 */
+#define TAG_BEACON_TIMING            120
+#define TAG_MCCAOP_SETUP_REQUEST     121
+#define TAG_MCCAOP_SETUP_REPLY       122
+#define TAG_MCCAOP_ADVERTISEMENT     123
+#define TAG_MCCAOP_TEARDOWN          124
+#define TAG_GANN                     125
+#define TAG_RANN                     126  /* IEEE Std 802.11s-2011 */
+#define TAG_EXTENDED_CAPABILITIES    127  /* IEEE Stc 802.11n/D1.10/D2.0 */
+#define TAG_AGERE_PROPRIETARY        128
+#define TAG_MESH_PREQ                130  /* IEEE Std 802.11s-2011 */
+#define TAG_MESH_PREP                131  /* IEEE Std 802.11s-2011 */
+#define TAG_MESH_PERR                132  /* IEEE Std 802.11s-2011 */
+#define TAG_CISCO_CCX1_CKIP          133  /* Cisco Compatible eXtensions v1 */
+#define TAG_CISCO_CCX2               136  /* Cisco Compatible eXtensions v2 */
+#define TAG_PXU                      137
+#define TAG_PXUC                     138
+#define TAG_AUTH_MESH_PEERING_EXCH   139
+#define TAG_MIC                      140
+#define TAG_DESTINATION_URI          141
+#define TAG_U_APSD_COEX              142
+#define TAG_WAKEUP_SCHEDULE_AD       143  /* IEEE Std 802.11ad */
+#define TAG_EXTENDED_SCHEDULE        144  /* IEEE Std 802.11ad */
+#define TAG_STA_AVAILABILITY         145  /* IEEE Std 802.11ad */
+#define TAG_DMG_TSPEC                146  /* IEEE Std 802.11ad */
+#define TAG_NEXT_DMG_ATI             147  /* IEEE Std 802.11ad */
+#define TAG_DMG_CAPABILITIES         148  /* IEEE Std 802.11ad */
+#define TAG_CISCO_CCX3               149  /* Cisco Compatible eXtensions v3 */
+#define TAG_CISCO_VENDOR_SPECIFIC    150  /* Cisco Compatible eXtensions */
+#define TAG_DMG_OPERATION            151  /* IEEE Std 802.11ad */
+#define TAG_DMG_BSS_PARAMETER_CHANGE 152  /* IEEE Std 802.11ad */
+#define TAG_DMG_BEAM_REFINEMENT      153  /* IEEE Std 802.11ad */
+#define TAG_CHANNEL_MEASURMENT_FB    154  /* IEEE Std 802.11ad */
+#define TAG_AWAKE_WINDOW             157  /* IEEE Std 802.11ad */
+#define TAG_MULTI_BAND               158  /* IEEE Std 802.11ad */
+#define TAG_ADDBA_EXT                159  /* IEEE Std 802.11ad */
+#define TAG_NEXTPCP_LIST             160  /* IEEE Std 802.11ad */
+#define TAG_PCP_HANDOVER             161  /* IEEE Std 802.11ad */
+#define TAG_DMG_LINK_MARGIN          162  /* IEEE Std 802.11ad */
+#define TAG_SWITCHING_STREAM         163  /* IEEE Std 802.11ad */
+#define TAG_SESSION_TRANSMISSION     164  /* IEEE Std 802.11ad */
+#define TAG_DYN_TONE_PAIR_REP        165  /* IEEE Std 802.11ad */
+#define TAG_CLUSTER_REP              166  /* IEEE Std 802.11ad */
+#define TAG_RELAY_CAPABILITIES       167  /* IEEE Std 802.11ad */
+#define TAG_RELAY_TRANSFER_PARAM     168  /* IEEE Std 802.11ad */
+#define TAG_BEAMLINK_MAINTENANCE     169  /* IEEE Std 802.11ad */
+#define TAG_MULTIPLE_MAC_SUBLAYERS   170  /* IEEE Std 802.11ad */
+#define TAG_U_PID                    171  /* IEEE Std 802.11ad */
+#define TAG_DMG_LINK_ADAPTION_ACK    172  /* IEEE Std 802.11ad */
+#define TAG_SYMBOL_PROPRIETARY       173
+#define TAG_MCCAOP_ADVERTISEMENT_OV  174
+#define TAG_QUIET_PERIOD_REQ         175  /* IEEE Std 802.11ad */
+#define TAG_QUIET_PERIOD_RES         177  /* IEEE Std 802.11ad */
+#define TAG_ECAPC_POLICY             182  /* IEEE Std 802.11ad */
+#define TAG_CLUSTER_TIME_OFFSET      183  /* IEEE Std 802.11ad */
+#define TAG_ANTENNA_SECTOR_ID        190  /* IEEE Std 802.11ad */
+#define TAG_VHT_CAPABILITY           191  /* IEEE Std 802.11ac/D3.1 */
+#define TAG_VHT_OPERATION            192  /* IEEE Std 802.11ac/D3.1 */
+#define TAG_EXT_BSS_LOAD             193  /* IEEE Std 802.11ac */
+#define TAG_WIDE_BW_CHANNEL_SWITCH   194  /* IEEE Std 802.11ac */
+#define TAG_VHT_TX_PWR_ENVELOPE      195  /* IEEE Std 802.11ac/D5.0 */
+#define TAG_CHANNEL_SWITCH_WRAPPER   196  /* IEEE Std 802.11ac */
+#define TAG_OPERATING_MODE_NOTIFICATION 199  /* IEEE Std 802.11ac */
+#define TAG_FINE_TIME_MEASUREMENT_PARAM 206  /* IEEE Std 802.11-REVmd/D2.0 */
+#define TAG_S1G_OPEN_LOOP_LINK_MARGIN_INDEX 207 /* IEEE Std 802.11ah */
+#define TAG_RPS                      208  /* IEEE Stf 802.11ah */
+#define TAG_PAGE_SLICE               209  /* IEEE Stf 802.11ah */
+#define TAG_AID_REQUEST              210  /* IEEE Stf 802.11ah */
+#define TAG_AID_RESPONSE             211  /* IEEE Stf 802.11ah */
+#define TAG_S1G_SECTOR_OPERATION     212  /* IEEE Stf 802.11ah */
+#define TAG_S1G_BEACON_COMPATIBILITY 213  /* IEEE Stf 802.11ah */
+#define TAG_SHORT_BEACON_INTERVAL    214  /* IEEE Stf 802.11ah */
+#define TAG_CHANGE_SEQUENCE          215  /* IEEE Stf 802.11ah */
+#define TAG_TWT                      216  /* IEEE Std 802.11ah */
+#define TAG_S1G_CAPABILITIES         217  /* IEEE Stf 802.11ah */
+#define TAG_SUBCHANNEL_SELECTIVE_TRANSMISSION 220  /* IEEE Stf 802.11ah */
+#define TAG_VENDOR_SPECIFIC_IE       221
+#define TAG_AUTHENTICATION_CONTROL   222  /* IEEE Stf 802.11ah */
+#define TAG_TSF_TIMER_ACCURACY       223  /* IEEE Stf 802.11ah */
+#define TAG_S1G_RELAY                224  /* IEEE Stf 802.11ah */
+#define TAG_REACHABLE_ADDRESS        225  /* IEEE Stf 802.11ah */
+#define TAG_S1G_RELAY_DISCOVERY      226  /* IEEE Stf 802.11ah */
+#define TAG_AID_ANNOUNCEMENT         228  /* IEEE Stf 802.11ah */
+#define TAG_PV1_PROBE_RESPONSE_OPTION 229  /* IEEE Stf 802.11ah */
+#define TAG_EL_OPERATION             230  /* IEEE Stf 802.11ah */
+#define TAG_SECTORIZED_GROUP_ID_LIST 231  /* IEEE Stf 802.11ah */
+#define TAG_S1G_OPERATION            232  /* IEEE Stf 802.11ah */
+#define TAG_HEADER_COMPRESSION       233  /* IEEE Stf 802.11ah */
+#define TAG_SST_OPERATION            234  /* IEEE Stf 802.11ah */
+#define TAG_MAD                      235  /* IEEE Stf 802.11ah */
+#define TAG_S1G_RELAY_ACTIVATION     236  /* IEEE Stf 802.11ah */
+#define TAG_CAG_NUMBER               237  /* IEEE Std 802.11ai */
+#define TAG_AP_CSN                   239  /* IEEE Std 802.11ai */
+#define TAG_FILS_INDICATION          240  /* IEEE Std 802.11ai */
+#define TAG_DIFF_INITIAL_LINK_SETUP  241  /* IEEE Std 802.11ai */
+#define TAG_FRAGMENT                 242  /* IEEE Std 802.11ai */
+#define TAG_ELEMENT_ID_EXTENSION     255  /* IEEE Std 802.11ai */
+
+extern const value_string ie_tag_num_vals[];
 
 /*
  * Editor modelines

@@ -183,6 +183,12 @@ static int hf_timing_advance_value_exist = -1;
 static int hf_timing_advance_index = -1;
 static int hf_timing_advance_index_exist = -1;
 static int hf_timing_advance_timeslot_number = -1;
+static int hf_ul_timing_advance_index_exist = -1;
+static int hf_ul_timing_advance_index = -1;
+static int hf_ul_timing_advance_timeslot_number = -1;
+static int hf_dl_timing_advance_index_exist = -1;
+static int hf_dl_timing_advance_index = -1;
+static int hf_dl_timing_advance_timeslot_number = -1;
 
 /* < Power Control Parameters IE > */
 static int hf_alpha = -1;
@@ -572,6 +578,7 @@ static int hf_psi_message_exist = -1;
 static int hf_psi_message_list = -1;
 
 /* < Packet SI Status message content > */
+static int hf_si_message_type = -1;
 static int hf_si_message_mess_rec = -1;
 static int hf_si_message_list_exist = -1;
 static int hf_si_message_list = -1;
@@ -1953,13 +1960,13 @@ CSN_DESCR_BEGIN(Global_Packet_Timing_Advance_t)
   M_NEXT_EXIST (Global_Packet_Timing_Advance_t, Exist_TIMING_ADVANCE_VALUE, 1, &hf_timing_advance_value_exist),
   M_UINT       (Global_Packet_Timing_Advance_t,  TIMING_ADVANCE_VALUE,  6, &hf_timing_advance_value),
 
-  M_NEXT_EXIST (Global_Packet_Timing_Advance_t, Exist_UPLINK_TIMING_ADVANCE, 2, &hf_timing_advance_index_exist),
-  M_UINT       (Global_Packet_Timing_Advance_t,  UPLINK_TIMING_ADVANCE_INDEX,  4, &hf_timing_advance_index),
-  M_UINT       (Global_Packet_Timing_Advance_t,  UPLINK_TIMING_ADVANCE_TIMESLOT_NUMBER,  3, &hf_timing_advance_timeslot_number),
+  M_NEXT_EXIST (Global_Packet_Timing_Advance_t, Exist_UPLINK_TIMING_ADVANCE, 2, &hf_ul_timing_advance_index_exist),
+  M_UINT       (Global_Packet_Timing_Advance_t,  UPLINK_TIMING_ADVANCE_INDEX,  4, &hf_ul_timing_advance_index),
+  M_UINT       (Global_Packet_Timing_Advance_t,  UPLINK_TIMING_ADVANCE_TIMESLOT_NUMBER,  3, &hf_ul_timing_advance_timeslot_number),
 
-  M_NEXT_EXIST (Global_Packet_Timing_Advance_t, Exist_DOWNLINK_TIMING_ADVANCE, 2, &hf_timing_advance_index_exist),
-  M_UINT       (Global_Packet_Timing_Advance_t,  DOWNLINK_TIMING_ADVANCE_INDEX,  4, &hf_timing_advance_index),
-  M_UINT       (Global_Packet_Timing_Advance_t,  DOWNLINK_TIMING_ADVANCE_TIMESLOT_NUMBER,  3, &hf_timing_advance_timeslot_number),
+  M_NEXT_EXIST (Global_Packet_Timing_Advance_t, Exist_DOWNLINK_TIMING_ADVANCE, 2, &hf_dl_timing_advance_index_exist),
+  M_UINT       (Global_Packet_Timing_Advance_t,  DOWNLINK_TIMING_ADVANCE_INDEX,  4, &hf_dl_timing_advance_index),
+  M_UINT       (Global_Packet_Timing_Advance_t,  DOWNLINK_TIMING_ADVANCE_TIMESLOT_NUMBER,  3, &hf_dl_timing_advance_timeslot_number),
 CSN_DESCR_END  (Global_Packet_Timing_Advance_t)
 
 /* < Channel Quality Report struct > */
@@ -3274,7 +3281,7 @@ CSN_DESCR_END  (Packet_PSI_Status_t)
 
 static const
 CSN_DESCR_BEGIN(SI_Message_t)
-  M_UINT       (SI_Message_t,  SI_MESSAGE_TYPE, 8, &hf_dl_message_type),
+  M_UINT       (SI_Message_t,  SI_MESSAGE_TYPE, 8, &hf_si_message_type),
   M_UINT       (SI_Message_t,  MESS_REC,  2, &hf_si_message_mess_rec),
 CSN_DESCR_END  (SI_Message_t)
 
@@ -8418,6 +8425,38 @@ static const value_string access_tech_type_vals[] = {
   { 0, NULL}
 };
 
+static const value_string si_message_type_vals[] = {
+  {0x00, "SYSTEM INFORMATION TYPE 13"},
+  {0x01, "SYSTEM INFORMATION TYPE 14"},
+  {0x02, "SYSTEM INFORMATION TYPE 2bis"},
+  {0x03, "SYSTEM INFORMATION TYPE 2ter"},
+  {0x04, "SYSTEM INFORMATION TYPE 9"},
+  {0x05, "SYSTEM INFORMATION TYPE 5bis"},
+  {0x06, "SYSTEM INFORMATION TYPE 5ter"},
+  {0x07, "SYSTEM INFORMATION TYPE 2quater"},
+  {0x18, "SYSTEM INFORMATION TYPE 8"},
+  {0x19, "SYSTEM INFORMATION TYPE 1"},
+  {0x1a, "SYSTEM INFORMATION TYPE 2"},
+  {0x1b, "SYSTEM INFORMATION TYPE 3"},
+  {0x1c, "SYSTEM INFORMATION TYPE 4"},
+  {0x1d, "SYSTEM INFORMATION TYPE 5"},
+  {0x1e, "SYSTEM INFORMATION TYPE 6"},
+  {0x1f, "SYSTEM INFORMATION TYPE 7"},
+  {0x3d, "SYSTEM INFORMATION TYPE 16"},
+  {0x3e, "SYSTEM INFORMATION TYPE 17"},
+  {0x40, "SYSTEM INFORMATION TYPE 18"},
+  {0x41, "SYSTEM INFORMATION TYPE 19"},
+  {0x42, "SYSTEM INFORMATION TYPE 20"},
+  {0x43, "SYSTEM INFORMATION TYPE 15"},
+  {0x44, "SYSTEM INFORMATION TYPE 13alt"},
+  {0x45, "SYSTEM INFORMATION TYPE 2n"},
+  {0x46, "SYSTEM INFORMATION TYPE 21"},
+  {0x47, "SYSTEM INFORMATION TYPE 22"},
+  {0x4f, "SYSTEM INFORMATION TYPE 23"},
+  { 0, NULL }
+};
+static value_string_ext si_message_type_vals_ext = VALUE_STRING_EXT_INIT(si_message_type_vals);
+
 static gint construct_gprs_data_segment_li_array(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 initial_offset, guint8 *li_count, length_indicator_t *li_array, guint64 *e)
 {
   gint        offset = initial_offset;
@@ -8989,7 +9028,7 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
     data->u.MESSAGE_TYPE = tvb_get_bits8(tvb, message_type_offset, 6);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, ":", "GPRS DL:%s", val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Message Type"));
-    ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, message_type_offset >> 3, -1,
+    ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1,
                                         "GSM RLC/MAC: %s (%d) (Downlink)",
                                         val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Message Type"),
                                         data->u.MESSAGE_TYPE);
@@ -9941,7 +9980,7 @@ proto_register_gsm_rlcmac(void)
        }
      },
      { &hf_global_tfi,
-       { "UL TFI",
+       { "Uplink (0) or Downlink (1) TFI",
          "gsm_rlcmac.global.tfi",
          FT_UINT8, BASE_DEC, NULL, 0x0,
          NULL, HFILL
@@ -10250,6 +10289,43 @@ proto_register_gsm_rlcmac(void)
     },
 
 /* < Global Packet Timing Advance IE > */
+    { &hf_ul_timing_advance_index_exist,
+      { "UPLINK_TIMING_ADVANCE_INDEX Exist", "gsm_rlcmac.ul.timing_advance_index_exist",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_ul_timing_advance_index,
+      { "UPLINK_TIMING_ADVANCE_INDEX", "gsm_rlcmac.ul.timing_advance_index",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_ul_timing_advance_timeslot_number,
+      { "UPLINK_TIMING_ADVANCE_TIMESLOT_NUMBER", "gsm_rlcmac.ul.timing_advance_timeslot_number",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+
+    { &hf_dl_timing_advance_index_exist,
+      { "DOWNLINK_TIMING_ADVANCE_INDEX Exist", "gsm_rlcmac.dl.timing_advance_index_exist",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_dl_timing_advance_index,
+      { "DOWNLINK_TIMING_ADVANCE_INDEX", "gsm_rlcmac.dl.timing_advance_index",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_dl_timing_advance_timeslot_number,
+      { "DOWNLINK_TIMING_ADVANCE_TIMESLOT_NUMBER", "gsm_rlcmac.dl.timing_advance_timeslot_number",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
 
 /* < Channel Quality Report struct > */
     { &hf_channel_quality_report_c_value,
@@ -12339,6 +12415,12 @@ proto_register_gsm_rlcmac(void)
     },
 
 /* < Packet SI Status message content > */
+    { &hf_si_message_type,
+      { "MESSAGE_TYPE",        "gsm_rlcmac.ul.si_message_type",
+        FT_UINT8, BASE_HEX|BASE_EXT_STRING, &si_message_type_vals_ext, 0x0,
+        NULL, HFILL
+      }
+    },
     { &hf_si_message_mess_rec,
       { "MESS_REC",        "gsm_rlcmac.ul.si_message_mess_rec",
         FT_UINT8, BASE_DEC, NULL, 0x0,

@@ -311,7 +311,8 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 {
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
-	guint32 fh_hash, svid, start_offset=0, end_offset=0;
+	guint32 fh_hash, svid;
+	guint64 start_offset=0, end_offset=0;
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_nlm_lock, tvb,
@@ -332,9 +333,9 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 	col_append_fstr(pinfo->cinfo, COL_INFO, " svid:%d", svid);
 
 	if (version == 4) {
-		start_offset = tvb_get_ntohl(tvb, offset);
+		start_offset = tvb_get_ntoh64(tvb, offset);
 		offset = dissect_rpc_uint64(tvb, lock_tree, hf_nlm_lock_l_offset64, offset);
-		end_offset = tvb_get_ntohl(tvb, offset);
+		end_offset = tvb_get_ntoh64(tvb, offset);
 		offset = dissect_rpc_uint64(tvb, lock_tree, hf_nlm_lock_l_len64, offset);
 	}
 	else {
@@ -344,7 +345,7 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 		offset = dissect_rpc_uint32(tvb, lock_tree, hf_nlm_lock_l_len, offset);
 	}
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " pos:%d-%d", start_offset, end_offset);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " pos:%" G_GINT64_MODIFIER "u-%" G_GINT64_MODIFIER "u", start_offset, end_offset);
 
 	return offset;
 }
@@ -356,7 +357,7 @@ dissect_nlm_test(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	if(nlm_match_msgres){
 		if(rpc_call->proc==6){	/* NLM_TEST_MSG */
-			if( (!pinfo->fd->flags.visited) ){
+			if( (!pinfo->fd->visited) ){
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
@@ -382,7 +383,7 @@ dissect_nlm_lock(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	if(nlm_match_msgres){
 		if(rpc_call->proc==7){	/* NLM_LOCK_MSG */
-			if( (!pinfo->fd->flags.visited) ){
+			if( (!pinfo->fd->visited) ){
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
@@ -410,7 +411,7 @@ dissect_nlm_cancel(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	if(nlm_match_msgres){
 		if(rpc_call->proc==8){	/* NLM_CANCEL_MSG */
-			if( (!pinfo->fd->flags.visited) ){
+			if( (!pinfo->fd->visited) ){
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
@@ -436,7 +437,7 @@ dissect_nlm_unlock(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	if(nlm_match_msgres){
 		if(rpc_call->proc==9){	/* NLM_UNLOCK_MSG */
-			if( (!pinfo->fd->flags.visited) ){
+			if( (!pinfo->fd->visited) ){
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
@@ -460,7 +461,7 @@ dissect_nlm_granted(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	if(nlm_match_msgres){
 		if(rpc_call->proc==10){	/* NLM_GRANTED_MSG */
-			if( (!pinfo->fd->flags.visited) ){
+			if( (!pinfo->fd->visited) ){
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
@@ -489,7 +490,7 @@ dissect_nlm_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	if(nlm_match_msgres){
 		if(rpc_call->proc==11){	/* NLM_TEST_RES */
-			if( (!pinfo->fd->flags.visited) ){
+			if( (!pinfo->fd->visited) ){
 				nlm_register_unmatched_res(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_reply(pinfo, tree, tvb);
@@ -631,7 +632,7 @@ dissect_nlm_gen_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 		|| (rpc_call->proc==13)  /* NLM_CANCEL_RES */
 		|| (rpc_call->proc==14)  /* NLM_UNLOCK_RES */
 		|| (rpc_call->proc==15) ){	/* NLM_GRENTED_RES */
-			if( (!pinfo->fd->flags.visited) ){
+			if( (!pinfo->fd->visited) ){
 				nlm_register_unmatched_res(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_reply(pinfo, tree, tvb);
@@ -1179,7 +1180,7 @@ proto_reg_handoff_nlm(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

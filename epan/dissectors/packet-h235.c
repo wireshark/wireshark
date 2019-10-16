@@ -256,7 +256,7 @@ dissect_h235_Identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int
 dissect_h235_KeyMaterial(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 2048, FALSE, NULL, NULL);
+                                     1, 2048, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -300,7 +300,7 @@ dissect_h235_NonStandardParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_h235_BIT_STRING_SIZE_0_2048(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     0, 2048, FALSE, NULL, NULL);
+                                     0, 2048, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -326,7 +326,7 @@ dissect_h235_DHset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 static int
 dissect_h235_BIT_STRING_SIZE_0_511(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     0, 511, FALSE, NULL, NULL);
+                                     0, 511, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -546,7 +546,7 @@ dissect_h235_ENCRYPTED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 #line 63 "./asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_ENCRYPTED, ENCRYPTED_sequence);
@@ -559,7 +559,7 @@ dissect_h235_ENCRYPTED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static int
 dissect_h235_BIT_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, NULL, NULL);
+                                     NO_BOUND, NO_BOUND, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -578,7 +578,7 @@ dissect_h235_SIGNED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 #line 58 "./asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_SIGNED, SIGNED_sequence);
@@ -743,7 +743,7 @@ dissect_h235_ClearToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 #line 74 "./asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_ClearToken, ClearToken_sequence);
@@ -764,7 +764,7 @@ dissect_h235_HASHED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 #line 68 "./asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_HASHED, HASHED_sequence);
@@ -840,7 +840,7 @@ dissect_h235_CryptoToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 #line 80 "./asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h235_CryptoToken, CryptoToken_choice,

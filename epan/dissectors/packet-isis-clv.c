@@ -26,6 +26,17 @@ static const value_string algorithm_vals[] = {
     { 0,  NULL }
 };
 
+static const value_string mt_id_vals[] = {
+    { 0, "IPv4 Unicast" },
+    { 1, "IPv4 In-Band Management" },
+    { 2, "IPv6 Unicast" },
+    { 3, "IPv4 Multicast" },
+    { 4, "IPv6 Multicast" },
+    { 5, "IPv6 In-Band Management" },
+    { 4095, "Development, Experimental or Proprietary" },
+    { 0,  NULL }
+};
+
 /*
  * Name: isis_dissect_area_address_clv()
  *
@@ -256,33 +267,13 @@ isis_dissect_mt_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int off
         /* fetch two bytes */
         mt_block=tvb_get_ntohs(tvb, offset);
 
-        /* mask out the lower 12 bits */
-        switch(mt_block&0x0fff) {
-        case 0:
-            mt_desc="IPv4 unicast";
-            break;
-        case 1:
-            mt_desc="In-Band Management";
-            break;
-        case 2:
-            mt_desc="IPv6 unicast";
-            break;
-        case 3:
-            mt_desc="Multicast";
-            break;
-        case 4095:
-            mt_desc="Development, Experimental or Proprietary";
-            break;
-        default:
-            mt_desc="Reserved for IETF Consensus";
-            break;
-        }
+        mt_desc = val_to_str(mt_block&0x0fff, mt_id_vals, "Unknown");
         proto_tree_add_uint_format ( tree, tree_id, tvb, offset, 2,
             mt_block,
-            "%s Topology (0x%03x), %ssubTLVs present%s",
+            "%s Topology (0x%03x)%s%s",
                       mt_desc,
                       mt_block&0xfff,
-                      (mt_block&0x8000) ? "" : "no ",
+                      (mt_block&0x8000) ? ", Overload bit set" : "",
                       (mt_block&0x4000) ? ", ATT bit set" : "" );
         } else {
         proto_tree_add_expert( tree, pinfo, mtid_expert, tvb, offset, 1);
@@ -490,7 +481,7 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int hf_nlpid, int offset
  */
 void
 isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-    const isis_clv_handle_t *opts, expert_field* expert_short_len, int len, int id_length,
+    const isis_clv_handle_t *opts, expert_field* expert_short_len, guint len, int id_length,
     int unknown_tree_id _U_, int tree_type, int tree_length, expert_field ei_unknown)
 {
     guint8 code;
@@ -498,7 +489,7 @@ isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offse
     int q;
     proto_tree    *clv_tree;
 
-    while ( len > 0 ) {
+    while ( len != 0 ) {
         code = tvb_get_guint8(tvb, offset);
         offset += 1;
         len -= 1;
@@ -537,7 +528,7 @@ isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offse
                     code, length);
             proto_tree_add_item(clv_tree, tree_type, tvb, offset - 2, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(clv_tree, tree_length, tvb, offset - 1, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_expert_format(clv_tree, pinfo, &ei_unknown, tvb, offset, length -2, "Dissector for IS-IS CLV (%d)"
+            proto_tree_add_expert_format(clv_tree, pinfo, &ei_unknown, tvb, offset, length, "Dissector for IS-IS CLV (%d)"
               " code not implemented, Contact Wireshark developers if you want this supported", code);
         }
         offset += length;
@@ -546,7 +537,7 @@ isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offse
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -46,4 +46,17 @@
       <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>
     </application>
   </compatibility>
+  <!--
+    MSDN recommends setting our DPI awareness to PerMonitorV2 instead
+    of PerMonitor. Unfortunately that causes layout issues with Qt
+    5.6 and 5.9. For now enable PerMonitor DPI awareness by enabling
+    Qt::AA_EnableHighDpiScaling in ui/qt/main.cpp.
+  -->
+  <!--
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+    <windowsSettings>
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
+    </windowsSettings>
+  </application>
+  -->
 </assembly>

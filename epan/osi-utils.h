@@ -28,7 +28,7 @@
 #define RFC1237_AA_LEN         3
 #define RFC1237_RSVD_LEN       2
 #define RFC1237_RD_LEN         2
-#define RFC1237_AREA_LEN       3
+#define RFC1237_AREA_LEN       3	/* XXX - this not the length of the Area field in RFC 1237; what is it? */
 
 /*
  * NSAP AFI values.

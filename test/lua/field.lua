@@ -67,8 +67,8 @@ local f_ip_src      = Field.new("ip.src")
 local f_ip_dst      = Field.new("ip.dst")
 local f_udp_srcport = Field.new("udp.srcport")
 local f_udp_dstport = Field.new("udp.dstport")
-local f_bootp_hw    = Field.new("bootp.hw.mac_addr")
-local f_bootp_opt   = Field.new("bootp.option.type")
+local f_dhcp_hw    = Field.new("dhcp.hw.mac_addr")
+local f_dhcp_opt   = Field.new("dhcp.option.type")
 
 test("Field__tostring-1", tostring(f_frame_proto) == "frame.protocols")
 
@@ -82,7 +82,7 @@ test("Field.type-1", f_frame_proto.type == ftypes.STRING)
 test("Field.type-2", f_eth_src.type == ftypes.ETHER)
 test("Field.type-3", f_ip_src.type == ftypes.IPv4)
 test("Field.type-4", f_udp_srcport.type == ftypes.UINT16)
-test("Field.type-5", f_bootp_opt.type == ftypes.UINT8)
+test("Field.type-5", f_dhcp_opt.type == ftypes.UINT8)
 
 -- make sure can't create a FieldInfo outside tap
 test("Field__call-1",not pcall(makeFieldInfo,f_eth_src))
@@ -112,7 +112,7 @@ function tap.packet(pinfo,tvb)
     test("Field.type-7", f_eth_src.type == ftypes.ETHER)
     test("Field.type-8", f_ip_src.type == ftypes.IPv4)
     test("Field.type-9", f_udp_srcport.type == ftypes.UINT16)
-    test("Field.type-10", f_bootp_opt.type == ftypes.UINT8)
+    test("Field.type-10", f_dhcp_opt.type == ftypes.UINT8)
 
     testing("FieldInfo")
 

@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef UAT_FRAME_H
 #define UAT_FRAME_H
@@ -32,6 +33,9 @@ public:
     void acceptChanges();
     void rejectChanges();
 
+protected:
+    void showEvent(QShowEvent *);
+
 private:
     Ui::UatFrame *ui;
 
@@ -45,6 +49,7 @@ private:
     void applyChanges();
 
 private slots:
+    void copyFromProfile(QString filename);
     void modelDataChanged(const QModelIndex &topLeft);
     void modelRowsRemoved();
     void modelRowsReset();

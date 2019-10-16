@@ -40,13 +40,6 @@ void set_console_wait(gboolean console_wait);
  */
 gboolean get_console_wait(void);
 
-/** Set has console. GTK+ only.
- * @param has_console set/no set has_console
- */
-void set_has_console(gboolean has_console);
-
-gboolean get_has_console(void);
-
 /** Set stdin capture.
  * @param console_wait set/no stdin_capture
  */

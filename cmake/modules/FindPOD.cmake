@@ -1,16 +1,12 @@
 #
-# - Find unix commands from cygwin
-# This module looks for some usual Unix commands.
+# - Find pod2man and pod2html.
 #
-
-include(FindCygwin)
 
 find_program(POD2MAN_EXECUTABLE
 	NAMES
 		pod2man
 		pod2man.bat
 	PATHS
-		${CYGWIN_INSTALL_PATH}/bin
 		/bin
 		/usr/bin
 		/usr/local/bin
@@ -22,7 +18,6 @@ find_program(POD2HTML_EXECUTABLE
 		pod2html
 		pod2html.bat
 	PATHS
-		${CYGWIN_INSTALL_PATH}/bin
 		/bin
 		/usr/bin
 		/usr/local/bin
@@ -76,7 +71,7 @@ macro(pod2manhtml _sourcefile _manext)
 endmacro(pod2manhtml)
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

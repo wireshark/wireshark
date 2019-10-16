@@ -154,7 +154,7 @@ set_last_open_dir(const char *dirname)
  */
 /*
  * XXX - We might want to call SHAddToRecentDocs under Windows 7:
- * http://stackoverflow.com/questions/437212/how-do-you-register-a-most-recently-used-list-with-windows-in-preparation-for-win
+ * https://stackoverflow.com/questions/437212/how-do-you-register-a-most-recently-used-list-with-windows-in-preparation-for-win
  */
 extern "C" void
 add_menu_recent_capture_file(const gchar *cf_name) {
@@ -304,7 +304,7 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
         }
     }
 
-    // http://en.wikipedia.org/wiki/Category:Monospaced_typefaces
+    // https://en.wikipedia.org/wiki/Category:Monospaced_typefaces
     const char *win_default_font = "Consolas";
     const char *win_alt_font = "Lucida Console";
     // SF Mono might be a system font someday. Right now (Oct 2016) it appears
@@ -315,7 +315,7 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
     const QStringList osx_alt_fonts = QStringList() << "Menlo" << "Monaco";
     // XXX Detect Ubuntu systems (e.g. via /etc/os-release and/or
     // /etc/lsb_release) and add "Ubuntu Mono Regular" there.
-    // http://font.ubuntu.com/
+    // https://design.ubuntu.com/font/
     const char *x11_default_font = "Liberation Mono";
     const QStringList x11_alt_fonts = QStringList() << "DejaVu Sans Mono" << "Bitstream Vera Sans Mono";
     const QStringList fallback_fonts = QStringList() << "Lucida Sans Typewriter" << "Inconsolata" << "Droid Sans Mono" << "Andale Mono" << "Courier New" << "monospace";
@@ -349,9 +349,11 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
 
 int WiresharkApplication::monospaceTextSize(const char *str)
 {
-    QFontMetrics fm(mono_font_);
-
-    return fm.width(str);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+    return QFontMetrics(mono_font_).horizontalAdvance(str);
+#else
+    return QFontMetrics(mono_font_).width(str);
+#endif
 }
 
 void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bool write_recent)
@@ -423,7 +425,6 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bo
     timestamp_set_type(recent.gui_time_format);
     timestamp_set_precision(recent.gui_time_precision);
     timestamp_set_seconds_type (recent.gui_seconds_format);
-    packet_list_enable_color(recent.packet_list_colorize);
     tap_update_timer_.setInterval(prefs.tap_update_interval);
 
     prefs_to_capture_opts();
@@ -524,11 +525,11 @@ void WiresharkApplication::storeCustomColorsInRecent()
 // Dell Backup and Recovery is awful and terrible.
 // https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036
 // https://bugreports.qt.io/browse/QTBUG-41416
-// http://en.community.dell.com/support-forums/software-os/f/3526/t/19634253
-// http://stackoverflow.com/a/33697140/82195
+// https://www.dell.com/community/Productivity-Software/Backup-and-Recovery-causing-applications-using-Qt5-DLLs-to-crash/m-p/4590325
+// https://stackoverflow.com/questions/30833889/dll-hell-with-sqlite/33697140#33697140
 //
 // According to https://www.portraitprofessional.com/support/?qid=79 , which
-// points to http://cloudfront.portraitprofessional.com/Tools/unregister_dell_backup.cmd
+// points to https://cloudfrontsecure.anthropics.com/Tools/unregister_dell_backup.cmd
 // DBAR's shell extension DLLs are named DBROverlayIconBackuped.dll,
 // DBROverlayIconNotBackuped.dll, and DBRShellExtension.dll.
 //
@@ -572,7 +573,7 @@ void WiresharkApplication::checkForDbar()
         << "DBRShellExtension.dll";
     // List of HKCR subkeys in which to look for "shellex\ContextMenuHandlers".
     // This may be incomplete.
-    // https://msdn.microsoft.com/en-us/library/windows/desktop/cc144110
+    // https://docs.microsoft.com/en-us/windows/win32/shell/reg-shell-exts
     QStringList hkcr_subkeys = QStringList()
         << "*"
         << "AllFileSystemObjects"
@@ -1054,7 +1055,7 @@ void WiresharkApplication::clearRemovedMenuGroupItems()
 #ifdef HAVE_LIBPCAP
 
 static void
-iface_mon_event_cb(const char *iface, int up)
+iface_mon_event_cb(const char *iface, int added, int up)
 {
     int present = 0;
     guint ifs, j;
@@ -1081,6 +1082,7 @@ iface_mon_event_cb(const char *iface, int up)
         }
     }
 
+    wsApp->emitLocalInterfaceEvent(iface, added, up);
     if (present != up) {
         /*
          * We've been told that there's a new interface or that an old
@@ -1104,6 +1106,11 @@ void WiresharkApplication::ifChangeEventsAvailable()
      */
     iface_mon_event();
 #endif
+}
+
+void WiresharkApplication::emitLocalInterfaceEvent(const char *ifname, int added, int up)
+{
+    emit localInterfaceEvent(ifname, added, up);
 }
 
 void WiresharkApplication::refreshLocalInterfaces()
@@ -1326,14 +1333,14 @@ void WiresharkApplication::softwareUpdateShutdownRequest() {
 }
 #endif
 
-void WiresharkApplication::captureEventHandler(CaptureEvent * ev)
+void WiresharkApplication::captureEventHandler(CaptureEvent ev)
 {
-    switch(ev->captureContext())
+    switch(ev.captureContext())
     {
 #ifdef HAVE_LIBPCAP
     case CaptureEvent::Update:
     case CaptureEvent::Fixed:
-        switch ( ev->eventType() )
+        switch ( ev.eventType() )
         {
         case CaptureEvent::Started:
             active_captures_++;
@@ -1351,7 +1358,7 @@ void WiresharkApplication::captureEventHandler(CaptureEvent * ev)
     case CaptureEvent::File:
     case CaptureEvent::Reload:
     case CaptureEvent::Rescan:
-        switch ( ev->eventType() )
+        switch ( ev.eventType() )
         {
         case CaptureEvent::Started:
             QTimer::singleShot(TAP_UPDATE_DEFAULT_INTERVAL / 5, this, SLOT(updateTaps()));

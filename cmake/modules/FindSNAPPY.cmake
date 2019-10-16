@@ -32,7 +32,7 @@ find_library(SNAPPY_LIBRARY
 )
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args( SNAPPY DEFAULT_MSG SNAPPY_INCLUDE_DIR SNAPPY_LIBRARY )
+find_package_handle_standard_args( SNAPPY DEFAULT_MSG SNAPPY_LIBRARY SNAPPY_INCLUDE_DIR )
 
 if( SNAPPY_FOUND )
   set( SNAPPY_INCLUDE_DIRS ${SNAPPY_INCLUDE_DIR} )

@@ -232,7 +232,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* First of all, if it's the first time we see this packet
 		 * then check whether we are in the middle of reassembly or not
 		 */
-		if( (!pinfo->fd->flags.visited)
+		if( (!pinfo->fd->visited)
 		&&  (gss_info->do_reassembly)
 		&&  (gssapi_reassembly) ){
 			fi=(gssapi_frag_info_t *)wmem_tree_lookup32(gss_info->frags, gss_info->first_frame);
@@ -261,7 +261,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* We have seen this packet before.
 		 * Is this blob part of reassembly or a normal blob ?
 		 */
-		if( (pinfo->fd->flags.visited)
+		if( (pinfo->fd->visited)
 		&&  (gssapi_reassembly) ){
 			fi=(gssapi_frag_info_t *)wmem_tree_lookup32(gss_info->frags, pinfo->num);
 			if(fi){
@@ -269,14 +269,14 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					pinfo, fi->first_frame, NULL);
 				if(fd_head && (fd_head->flags&FD_DEFRAGMENTED)){
 					if(pinfo->num==fi->reassembled_in){
-					        proto_item *frag_tree_item;
+						proto_item *frag_tree_item;
 						gss_tvb=tvb_new_chain(tvb, fd_head->tvb_data);
 						add_new_data_source(pinfo, gss_tvb, "Reassembled GSSAPI");
 						show_fragment_tree(fd_head, &gssapi_frag_items, tree, pinfo, tvb, &frag_tree_item);
 					} else {
 						proto_item *it;
 						it=proto_tree_add_uint(tree, hf_gssapi_reassembled_in, tvb, 0, 0, fi->reassembled_in);
-					        PROTO_ITEM_SET_GENERATED(it);
+					        proto_item_set_generated(it);
 						goto done;
 					}
 				}
@@ -289,8 +289,8 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 		if (!(appclass == BER_CLASS_APP && pc && tag == 0)) {
-		  /* It could be NTLMSSP, with no OID.  This can happen
-		     for anything that microsoft calls 'Negotiate' or GSS-SPNEGO */
+			/* It could be NTLMSSP, with no OID.  This can happen
+			for anything that microsoft calls 'Negotiate' or GSS-SPNEGO */
 			if ((tvb_captured_length_remaining(gss_tvb, start_offset)>7) && (tvb_strneql(gss_tvb, start_offset, "NTLMSSP", 7) == 0)) {
 				return_offset = call_dissector(ntlmssp_handle,
 							tvb_new_subset_remaining(gss_tvb, start_offset),
@@ -319,69 +319,85 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 									pinfo, subtree, &encrypt_info->gssapi_decrypted_tvb);
 					encrypt_info->gssapi_data_encrypted = TRUE;
 				}
-		   		goto done;
-		  	}
+				goto done;
+			}
 
-		  /* Maybe it's new GSSKRB5 CFX Wrapping */
-		  if ((tvb_captured_length_remaining(gss_tvb, start_offset)>2) &&
-		      ((tvb_memeql(gss_tvb, start_offset, "\04\x04", 2) == 0) ||
-		       (tvb_memeql(gss_tvb, start_offset, "\05\x04", 2) == 0))) {
-		    return_offset = call_dissector_with_data(spnego_krb5_wrap_handle,
-						   tvb_new_subset_remaining(gss_tvb, start_offset),
-						   pinfo, subtree, encrypt_info);
-		    goto done;
-		  }
+			/* Maybe it's new GSSKRB5 CFX Wrapping */
+			if ((tvb_captured_length_remaining(gss_tvb, start_offset)>2) &&
+			   ((tvb_memeql(gss_tvb, start_offset, "\04\x04", 2) == 0) ||
+			    (tvb_memeql(gss_tvb, start_offset, "\05\x04", 2) == 0))) {
+				return_offset = call_dissector_with_data(spnego_krb5_wrap_handle,
+							tvb_new_subset_remaining(gss_tvb, start_offset),
+							pinfo, subtree, encrypt_info);
+				goto done;
+			}
 
-		  /*
-		   * If we do not recognise an Application class,
-		   * then we are probably dealing with an inner context
-		   * token or a wrap token, and we should retrieve the
-		   * gssapi_oid_value pointer from the per-frame data or,
-		   * if there is no per-frame data (as would be the case
-		   * the first time we dissect this frame), from the
-		   * conversation that exists or that we created from
-		   * pinfo (and then make it per-frame data).
-		   * We need to make it per-frame data as there can be
-		   * more than one GSS-API negotiation in a conversation.
-		   *
-		   * Note! We "cheat". Since we only need the pointer,
-		   * we store that as the data.  (That's not really
-		   * "cheating" - the per-frame data and per-conversation
-		   * data code doesn't care what you supply as a data
-		   * pointer; it just treats it as an opaque pointer, it
-		   * doesn't dereference it or free what it points to.)
-		   */
-		  oidvalue = (gssapi_oid_value *)p_get_proto_data(wmem_file_scope(), pinfo, proto_gssapi, 0);
-		  if (!oidvalue && !pinfo->fd->flags.visited)
-		  {
-		    /* No handle attached to this frame, but it's the first */
-		    /* pass, so it'd be attached to the conversation. */
-		    oidvalue = gss_info->oid;
-		    if (gss_info->oid)
-		      p_add_proto_data(wmem_file_scope(), pinfo, proto_gssapi, 0, gss_info->oid);
-		  }
-		  if (!oidvalue)
-		  {
-			  proto_tree_add_expert_format(subtree, pinfo, &ei_gssapi_unknown_header, gss_tvb, start_offset, 0,
-					      "Unknown header (class=%d, pc=%d, tag=%d)",
-					      appclass, pc, tag);
-		    return_offset = tvb_captured_length(gss_tvb);
-		    goto done;
-		  } else {
-		    tvbuff_t *oid_tvb_local;
+			/*
+			* If we do not recognise an Application class,
+			* then we are probably dealing with an inner context
+			* token or a wrap token, and we should retrieve the
+			* gssapi_oid_value pointer from the per-frame data or,
+			* if there is no per-frame data (as would be the case
+			* the first time we dissect this frame), from the
+			* conversation that exists or that we created from
+			* pinfo (and then make it per-frame data).
+			* We need to make it per-frame data as there can be
+			* more than one GSS-API negotiation in a conversation.
+			*
+			* Note! We "cheat". Since we only need the pointer,
+			* we store that as the data.  (That's not really
+			* "cheating" - the per-frame data and per-conversation
+			* data code doesn't care what you supply as a data
+			* pointer; it just treats it as an opaque pointer, it
+			* doesn't dereference it or free what it points to.)
+			*/
+			oidvalue = (gssapi_oid_value *)p_get_proto_data(wmem_file_scope(), pinfo, proto_gssapi, 0);
+			if (!oidvalue && !pinfo->fd->visited) {
+				/* No handle attached to this frame, but it's the first */
+				/* pass, so it'd be attached to the conversation. */
+				oidvalue = gss_info->oid;
+				if (gss_info->oid)
+					p_add_proto_data(wmem_file_scope(), pinfo, proto_gssapi, 0, gss_info->oid);
+			}
+			if (!oidvalue) {
+				proto_tree_add_expert_format(subtree, pinfo, &ei_gssapi_unknown_header, gss_tvb, start_offset, 0,
+						"Unknown header (class=%d, pc=%d, tag=%d)",
+						appclass, pc, tag);
+				return_offset = tvb_captured_length(gss_tvb);
+				goto done;
+			} else {
+				tvbuff_t *oid_tvb_local;
 
-		    oid_tvb_local = tvb_new_subset_remaining(gss_tvb, start_offset);
-		    if (is_verifier)
-			handle = oidvalue->wrap_handle;
-		    else
-			handle = oidvalue->handle;
-		    len = call_dissector_with_data(handle, oid_tvb_local, pinfo, subtree, encrypt_info);
-		    if (len == 0)
-			return_offset = tvb_captured_length(gss_tvb);
-		    else
-			return_offset = start_offset + len;
-		    goto done; /* We are finished here */
-		  }
+				if (is_verifier) {
+					handle = oidvalue->wrap_handle;
+					if (handle != NULL) {
+						oid_tvb_local = tvb_new_subset_remaining(gss_tvb, start_offset);
+						len = call_dissector_with_data(handle, oid_tvb_local, pinfo, subtree, encrypt_info);
+						if (len == 0)
+							return_offset = tvb_captured_length(gss_tvb);
+						else
+							return_offset = start_offset + len;
+					} else {
+						proto_tree_add_item(subtree, hf_gssapi_auth_verifier, gss_tvb, offset, -1, ENC_NA);
+						return_offset = tvb_captured_length(gss_tvb);
+					}
+				} else {
+					handle = oidvalue->handle;
+					if (handle != NULL) {
+						oid_tvb_local = tvb_new_subset_remaining(gss_tvb, start_offset);
+						len = call_dissector_with_data(handle, oid_tvb_local, pinfo, subtree, encrypt_info);
+						if (len == 0)
+							return_offset = tvb_captured_length(gss_tvb);
+						else
+							return_offset = start_offset + len;
+					} else {
+						proto_tree_add_item(subtree, hf_gssapi_auth_credentials, gss_tvb, offset, -1, ENC_NA);
+						return_offset = tvb_captured_length(gss_tvb);
+					}
+				}
+
+				goto done; /* We are finished here */
+			}
 		}
 
 		/* Read oid */
@@ -401,7 +417,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * instead for simplicity we assume there will not be several
 		 * such authentication at once on a single tcp session
 		 */
-		if( (!pinfo->fd->flags.visited)
+		if( (!pinfo->fd->visited)
 		&&  (oidvalue)
 		&&  (tvb_captured_length(gss_tvb)==tvb_reported_length(gss_tvb))
 		&&  (len1>(guint32)tvb_captured_length_remaining(gss_tvb, oid_start_offset))
@@ -428,8 +444,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * Hand off to subdissector.
 		 */
 
-		if ((oidvalue == NULL) ||
-		    !proto_is_protocol_enabled(oidvalue->proto)) {
+		if ((oidvalue == NULL) || !proto_is_protocol_enabled(oidvalue->proto)) {
 			/* No dissector for this oid */
 			proto_tree_add_item(subtree, hf_gssapi_token_object, gss_tvb, oid_start_offset, -1, ENC_NA);
 
@@ -445,7 +460,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * Now add the proto data ...
 		 * but only if it is not already there.
 		 */
-		if(!gss_info->oid){
+		if(!gss_info->oid) {
 		  gss_info->oid=oidvalue;
 		}
 
@@ -713,7 +728,7 @@ proto_reg_handoff_gssapi(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

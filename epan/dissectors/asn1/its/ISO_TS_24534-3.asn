@@ -1,0 +1,86 @@
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- ISO TS 24534-3:2015 
+--
+-- This ASN.1 was generateds: 30.08.2016
+--
+-- This document contains only the data element needed for the encoding of an IVI message
+-- as defined in ISO TS 19321(2015) 
+--
+-- Published version location:
+-- http://standards.iso.org/iso/24534/-3/
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-- ISO 24534-3:2015
+-- Version 29.4.2015
+
+
+ElectronicRegistrationIdentificationVehicleDataModule {iso(1) standard(0) iso24534 (24534) vehicleData (1) version1 (1)} 
+
+
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+IMPORTS;
+
+-- Electronic Registration Identification (ERI)- Vehicle Data
+
+EuVehicleCategoryCode ::= CHOICE {
+	euVehicleCategoryL	EuVehicleCategoryL,   -- conforms to EU 2002/24 and UNECE 1999
+	euVehicleCategoryM	EuVehicleCategoryM,   -- conforms to EU 2001/116 and UNECE 1999
+	euVehicleCategoryN	EuVehicleCategoryN,   -- conforms to EU 2001/116 and UNECE 1999
+	euVehicleCategoryO	EuVehicleCategoryO,   -- conforms to EU 2001/116 and UNECE 1999
+	euVehilcleCategoryT	NULL,    -- conforms to UNECE 1999
+	euVehilcleCategoryG	NULL     -- conforms to EU 2001/116 and UNECE 1999
+	}
+
+EuVehicleCategoryL ::= ENUMERATED { l1, l2, l3, l4, l5, l6, l7 }
+
+EuVehicleCategoryM ::= ENUMERATED {m1, m2, m3}
+
+EuVehicleCategoryN ::= ENUMERATED {n1, n2, n3}
+
+EuVehicleCategoryO ::= ENUMERATED {o1, o2, o3, o4}
+
+Iso3833VehicleType ::= INTEGER {
+	passengerCar	(0),	-- term No 3.1.1
+	saloon	(1),	-- term No 3.1.1.1 (sedan)
+	convertibleSaloon	(2),	-- term No 3.1.1.2
+	pullmanSaloon	(3),	-- term No 3.1.1.3
+	stationWagon	(4),	-- term No 3.1.1.4
+	truckStationWagon	(5),	-- term No 3.1.1.4.1
+	coupe	(6),	-- term No 3.1.1.5 (coupé)
+	convertible	(7),	-- term No 3.1.1.6 (open tourer, roadstar, spider)
+	multipurposePassengerCar	(8),	-- term No 3.1.1.7
+	forwardControlPassengerCar	(9),	-- term No 3.1.1.8
+	specialPassengerCar	(10),	-- term No 3.1.1.9
+	bus	(11),	-- term No 3.1.2
+	minibus	(12),	-- term No 3.1.2.1
+	urbanBus	(13),	-- term No 3.1.2.2
+	interurbanCoach	(14),	-- term No 3.1.2.3
+	longDistanceCoach	(15),	-- term No 3.1.2.4
+	articulatedBus	(16),	-- term No 3.1.2.5
+	trolleyBus	(17),	-- term No 3.1.2.6
+	specialBus	(18),	-- term No 3.1.2.7
+	commercialVehicle	(19),	-- term No 3.1.3
+	specialCommercialVehicle	(20),	-- term No 3.1.3.1
+	specialVehicle	(21),	-- term No 3.1.4
+	trailingTowingVehicle	(22),	-- term No 3.1.5 (draw-bar tractor)
+	semiTrailerTowingVehicle	(23),	-- term No 3.1.6 (fifth wheel tractor)
+	trailer	(24),	-- term No 3.2.1
+	busTrailer	(25),	-- term No 3.2.1.1
+	generalPurposeTrailer	(26),	-- term No 3.2.1.2
+	caravan	(27),	-- term No 3.2.1.3
+	specialTrailer	(28),	-- term No 3.2.1.4
+	semiTrailer	(29),	-- term No 3.2.2
+	busSemiTrailer	(30),	-- term No 3.2.2.1
+	generalPurposeSemiTrailer	(31),	-- term No 3.2.2.2
+	specialSemiTrailer	(32),	-- term No 3.2.2.3
+	roadTrain	(33),	-- term No 3.3.1
+	passengerRoadTrain	(34),	-- term No 3.3.2
+	articulatedRoadTrain	(35),	-- term No 3.3.3
+	doubleRoadTrain	(36),	-- term No 3.3.4
+	compositeRoadTrain	(37),	-- term No 3.3.5
+	specialRoadTrain	(38),	-- term No 3.3.6
+	moped	(39),	-- term No 3.4
+	motorCycle	(40)	-- term No 3.5
+	} (0..255)
+
+END

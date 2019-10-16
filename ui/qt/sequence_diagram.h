@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef SEQUENCE_DIAGRAM_H
 #define SEQUENCE_DIAGRAM_H
@@ -55,16 +56,16 @@ public:
 
     // reimplemented virtual methods:
     virtual void clearData() { data_->clear(); }
-    virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const;
+    virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const Q_DECL_OVERRIDE;
 
 public slots:
     void setSelectedPacket(int selected_packet);
 
 protected:
-    virtual void draw(QCPPainter *painter);
-    virtual void drawLegendIcon(QCPPainter *painter, const QRectF &rect) const;
-    virtual QCPRange getKeyRange(bool &validRange, SignDomain inSignDomain=sdBoth) const;
-    virtual QCPRange getValueRange(bool &validRange, SignDomain inSignDomain=sdBoth) const;
+    virtual void draw(QCPPainter *painter) Q_DECL_OVERRIDE;
+    virtual void drawLegendIcon(QCPPainter *painter, const QRectF &rect) const Q_DECL_OVERRIDE;
+    virtual QCPRange getKeyRange(bool &validRange, QCP::SignDomain inSignDomain=QCP::sdBoth) const Q_DECL_OVERRIDE;
+    virtual QCPRange getValueRange(bool &validRange, QCP::SignDomain inSignDomain=QCP::sdBoth, const QCPRange &inKeyRange = QCPRange()) const Q_DECL_OVERRIDE;
 
 private:
     QCPAxis *key_axis_;

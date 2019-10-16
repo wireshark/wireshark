@@ -300,17 +300,14 @@ dissect_ipmi_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		col_set_str(pinfo->cinfo, COL_INFO,
 				"Channel State Change Notification");
 	} else if (block_type == HPM2_EMBED_ASCII_MSG) {
-		char str[257];
+		gchar *str;
 
 		/* get data length */
 		guint str_len = tvb_get_guint8(tvb, 10);
 
 		if (str_len) {
 			/* copy string */
-			tvb_memcpy(tvb, str, 11, str_len);
-
-			/* pad with nul */
-			str[str_len] = 0;
+			str = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, 11, str_len, ENC_ASCII|ENC_NA);
 
 			/* print the string right inside the column */
 			col_add_str(pinfo->cinfo, COL_INFO, str);
@@ -449,7 +446,7 @@ proto_reg_handoff_ipmi_trace(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

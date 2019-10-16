@@ -1,29 +1,28 @@
 Source: wireshark
 Section: net
 Priority: optional
-Maintainer: Balint Reczey <balint@balintreczey.hu>
-Standards-Version: 3.9.7
-Build-Depends: lsb-release,
+Maintainer: Balint Reczey <rbalint@ubuntu.com>
+Standards-Version: 3.9.8
+Build-Depends:
  qtbase5-dev, qtbase5-dev-tools, qttools5-dev, qttools5-dev-tools,
  qtmultimedia5-dev, libqt5svg5-dev,
- libpcap0.8-dev, flex, libz-dev, debhelper (>= 9), po-debconf, libtool,
- python (>= 2.6.6-3~), python-ply, libc-ares-dev, xsltproc,
+ libpcap0.8-dev, flex, libz-dev, debhelper (>= 9), po-debconf,
+ python3, python3-ply, libc-ares-dev, xsltproc, dh-python,
  docbook-xsl (>= 1.64.1.0-0), docbook-xml, libxml2-utils, libpcre3-dev,
- libcap2-dev [linux-any] | libcap-dev (>= 2.17) [linux-any],
+ libcap2-dev [linux-any] | libcap-dev (>= 2.17) [linux-any], lsb-release,
  bison, quilt, libparse-yapp-perl,
-# enable versioned libgnutls28-dev below to have GPLv2+ compatible GMP
-# libgnutls28-dev (>= 3.2.14-1~),
-# enable backports-compatible libgnutls-dev
- libgnutls-dev,
+# libgnutls28-dev >= 3.2.14-1 is GPLv2+ compatible.
+ libgnutls28-dev (>= 3.2.14-1~),
  libgcrypt-dev, libkrb5-dev, liblua5.2-dev, libsmi2-dev,
- libmaxminddb-dev, dpkg-dev (>= 1.16.1~),
+ libmaxminddb-dev, dpkg-dev (>= 1.16.1~), libsystemd-dev | libsystemd-journal-dev,
  libnl-genl-3-dev [linux-any], libnl-route-3-dev [linux-any], asciidoctor,
- cmake (>= 2.8.12), libsbc-dev, libnghttp2-dev, libssh-gcrypt-dev,
- liblz4-dev, libsnappy-dev, libspandsp-dev, libxml2-dev
+ cmake (>= 3.5) | cmake3, libsbc-dev, libnghttp2-dev, libssh-gcrypt-dev,
+ liblz4-dev, libsnappy-dev, libzstd-dev, libspandsp-dev, libxml2-dev, libbrotli-dev,
+ libspeexdsp-dev
 Build-Conflicts: libsnmp4.2-dev, libsnmp-dev
-Vcs-Svn: svn://svn.debian.org/svn/collab-maint/ext-maint/wireshark/trunk
-Vcs-Browser: http://svn.debian.org/wsvn/collab-maint/ext-maint/wireshark/trunk/
-Homepage: http://www.wireshark.org/
+Vcs-Git: https://salsa.debian.org/debian/wireshark -b debian/master
+Vcs-Browser: https://salsa.debian.org/debian/wireshark.git
+Homepage: https://www.wireshark.org/
 
 Package: wireshark-common
 Architecture: any
@@ -32,6 +31,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, libwireshark0 (>= ${binary:Version}
 Recommends: wireshark (>= ${binary:Version}) | tshark (>= ${binary:Version})
 Breaks: ethereal (<< 1.0.0-3),
         wireshark (<< 2.0.0~),
+        wireshark-gtk (<< 3.0.0),
         wireshark-qt (<< 2.0.0~rc3+g841d5e1)
 Replaces: ethereal (<< 1.0.0-3),
         wireshark (<< 2.0.0~),
@@ -41,7 +41,8 @@ Description: network traffic analyzer - common files
  packets off the wire. Wireshark can decode too many protocols to list
  here.
  .
- This package provides files common to both wireshark and tshark (the console version).
+ This package provides files common to both wireshark and tshark
+ (the console version).
 
 Package: wireshark
 Architecture: any
@@ -59,8 +60,8 @@ Package: wireshark-qt
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, wireshark-common (= ${binary:Version})
 Recommends: libqt5multimedia5-plugins
-Replaces: ethereal (<< 1.0.0-3), wireshark (<< 2.0.0~)
-Breaks: ethereal (<< 1.0.0-3), wireshark (<< 2.0.0~)
+Replaces: ethereal (<< 1.0.0-3), wireshark (<< 2.0.0~), wireshark-gtk (<< 3.0.0~)
+Breaks: ethereal (<< 1.0.0-3), wireshark (<< 2.0.0~), wireshark-gtk (<< 3.0.0~)
 Description: network traffic analyzer - Qt version
  Wireshark is a network "sniffer" - a tool that captures and analyzes
  packets off the wire. Wireshark can decode too many protocols to list
@@ -84,9 +85,9 @@ Description: network traffic analyzer - console version
 Package: wireshark-dev
 Architecture: any
 Section: devel
-Depends: ${misc:Depends}, omniidl (>= 4.0.1-2), libpcap0.8-dev, libtool,
- libglib2.0-dev, ${python:Depends}, python-ply, snacc, autotools-dev, debhelper,
- cdbs, automake, autoconf, libwireshark-dev, libwiretap-dev
+Depends: ${misc:Depends}, omniidl (>= 4.0.1-2), libpcap0.8-dev,
+ libglib2.0-dev, python3:any, python3-ply, snacc,
+ libwireshark-dev, libwiretap-dev
 Replaces: ethereal-dev (<< 1.0.0-3)
 Conflicts: ethereal-dev (<< 1.0.0-3)
 Description: network traffic analyzer - development tools
@@ -98,7 +99,6 @@ Description: network traffic analyzer - development tools
  new packet dissectors.
 
 Package: wireshark-dbg
-Priority: extra
 Architecture: any
 Section: debug
 Depends: ${misc:Depends}, wireshark-common (= ${binary:Version}) | wireshark (= ${binary:Version}) | tshark (= ${binary:Version})
@@ -111,7 +111,6 @@ Description: network traffic analyzer - debug symbols
  programs and libraries.
 
 Package: wireshark-doc
-Priority: extra
 Architecture: all
 Multi-Arch: foreign
 Section: doc
@@ -130,7 +129,7 @@ Architecture: any
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends}, ${misc:Depends}, libwireshark-data (>= ${source:Version}),
- libwsutil0 (>= ${source:Version}), libwscodecs0 (>= ${source:Version})
+ libwsutil0 (>= ${source:Version})
 Suggests: wireshark-doc (>= ${source:Version})
 Conflicts: wireshark-common (<< 1.4.0~rc2-1)
 Replaces: wireshark-common (<< 1.4.0~rc2-1)
@@ -163,17 +162,6 @@ Description: network packet dissection utilities library -- development files
  This package contains the static library and the C header files that are
  needed for applications to use the libwsutil library.
 
-Package: libwscodecs0
-Section: libs
-Architecture: any
-Multi-Arch: same
-Pre-Depends: ${misc:Pre-Depends}
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Conflicts: wireshark-common (<< 1.4.0~rc2-1), libwireshark1 (<< 1.4.2-2)
-Replaces: wireshark-common (<< 1.4.0~rc2-1), libwireshark1 (<< 1.4.2-2)
-Description: network packet dissection codecs library -- shared library
- The libwscodecs library provides codec functions for libwireshark0.
-
 Package: libwireshark-data
 Section: libs
 Architecture: all
@@ -191,7 +179,8 @@ Description: network packet dissection library -- data files
 
 Package: libwireshark-dev
 Section: libdevel
-Depends: ${misc:Depends}, libwsutil-dev, libwireshark0 (= ${binary:Version})
+Depends: ${misc:Depends}, libwsutil-dev, libwiretap-dev,
+ libwireshark0 (= ${binary:Version})
 Conflicts: wireshark-dev (<< 1.4.0~rc2-1)
 Replaces: wireshark-dev (<< 1.4.0~rc2-1)
 Architecture: any

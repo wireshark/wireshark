@@ -1696,7 +1696,7 @@ static const struct epl_datatype {
 	{ "Time_of_Day",    &hf_epl_od_time,    ENC_NA },
 	{ "Time_Diff",      &hf_epl_od_time_difference, ENC_NA  },
 #endif
-	{ "NETTIME",        &hf_epl_od_time, ENC_TIME_TIMESPEC, 8 },
+	{ "NETTIME",        &hf_epl_od_time, ENC_TIME_SECS_NSECS, 8 },
 
 	{ 0, 0, 0, 0 }
 };
@@ -2053,7 +2053,7 @@ dissect_epl_pdo(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, pa
 	if ( payload_len < len )
 	{
 		item = proto_tree_add_uint(epl_tree, hf_epl_payload_real, tvb, offset, payload_len, payload_len);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 		expert_add_info(pinfo, item, &ei_real_length_differs );
 	}
 
@@ -2077,12 +2077,12 @@ dissect_epl_pdo(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, pa
 		pdo_tree = proto_item_add_subtree(item, map->ett);
 
 		item = proto_tree_add_uint_format_value(pdo_tree, hf_epl_pdo_index, payload_tvb, 0, 0, map->pdo.idx, "%04X", map->pdo.idx);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 		if (map->info)
 			proto_item_append_text (item, " (%s)", map->index_name);
 
 		item = proto_tree_add_uint_format_value(pdo_tree, hf_epl_pdo_subindex, payload_tvb, 0, 0, map->pdo.subindex, "%02X", map->pdo.subindex);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 
 		if (map->info && map->info->name != map->index_name)
 			proto_item_append_text (item, " (%s)", map->info->name);
@@ -2106,7 +2106,7 @@ dissect_epl_pdo(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, pa
 			proto_item_append_text (item, " bits");
 
 
-			PROTO_ITEM_SET_GENERATED(meta_item);
+			proto_item_set_generated(meta_item);
 		}
 
 		dissect_epl_payload(
@@ -2128,7 +2128,8 @@ dissect_epl_pdo(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, pa
 	return offset + payload_len;
 }
 
-static address epl_placeholder_mac;
+static guint8 epl_placeholder_mac_addr[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+static address epl_placeholder_mac = ADDRESS_INIT(AT_ETHER, 6, epl_placeholder_mac_addr);
 
 static struct epl_convo *
 epl_get_convo(packet_info *pinfo, int opts)
@@ -2574,13 +2575,13 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 	if (tree && !udpencap)
 	{
 		epl_dest_item = proto_tree_add_item(epl_tree, hf_epl_node, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(epl_dest_item);
+		proto_item_set_hidden(epl_dest_item);
 		epl_dest_item = proto_tree_add_item(epl_tree, hf_epl_dest, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		proto_item_append_text (epl_dest_item, "%s", dest_str);
 		offset += 1;
 
 		epl_src_item = proto_tree_add_item(epl_tree, hf_epl_node, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(epl_src_item);
+		proto_item_set_hidden(epl_src_item);
 		epl_src_item = proto_tree_add_item(epl_tree, hf_epl_src, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		proto_item_append_text (epl_src_item, "%s", src_str);
 		offset += 1;
@@ -2689,7 +2690,7 @@ dissect_epl_payload(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gin
 	if ( payload_len < len )
 	{
 		item = proto_tree_add_uint(epl_tree, hf_epl_payload_real, tvb, offset, payload_len, payload_len);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 		expert_add_info(pinfo, item, &ei_real_length_differs );
 	}
 
@@ -2746,7 +2747,6 @@ dissect_epl_payload(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gin
 static gint
 dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
-	nstime_t nettime;
 	guint8  flags;
 	static const int * soc_flags[] = {
 		&hf_epl_soc_mc,
@@ -2767,12 +2767,11 @@ dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
 				((EPL_SOC_MC_MASK & flags) >> 7), ((EPL_SOC_PS_MASK & flags) >> 6));
 	}
 
-	nettime.secs  = tvb_get_letohl(tvb, offset);
-	nettime.nsecs = tvb_get_letohl(tvb, offset+4);
-	proto_tree_add_time(epl_tree, hf_epl_soc_nettime, tvb, offset, 8, &nettime);
+	proto_tree_add_item(epl_tree, hf_epl_soc_nettime, tvb, offset, 8, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
+	offset += 8;
 
-	proto_tree_add_item(epl_tree, hf_epl_soc_relativetime, tvb, offset+8, 8, ENC_LITTLE_ENDIAN);
-	offset += 16;
+	proto_tree_add_item(epl_tree, hf_epl_soc_relativetime, tvb, offset, 8, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	return offset;
 }
@@ -2851,7 +2850,7 @@ dissect_epl_pres(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 	offset += 1;
 
 	pdoversion = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(epl_tree, hf_epl_pres_pdov, tvb, offset, 1, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(epl_tree, hf_epl_pres_pdov, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* get size of payload */
@@ -3345,7 +3344,7 @@ dissect_epl_asnd_ires(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *t
 	if (convo->profile && convo->profile->path)
 	{
 		ti = proto_tree_add_string(epl_tree, hf_epl_asnd_identresponse_profile_path, tvb, offset, 2, convo->profile->path);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 	}
 
 	offset += 4;
@@ -4175,7 +4174,7 @@ dissect_object_mapping(struct profile *profile, wmem_array_t *mappings, proto_tr
 		}
 		else
 		{
-			PROTO_ITEM_SET_HIDDEN(ti_subobj);
+			proto_item_set_hidden(ti_subobj);
 		}
 	}
 
@@ -4424,7 +4423,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 
 			/* size of embedded data */
 			psf_item = proto_tree_add_uint_format(psf_od_tree, hf_epl_asnd_sdo_cmd_data_size, tvb, dataoffset, size, size, "Data size: %d byte", size);
-			PROTO_ITEM_SET_GENERATED(psf_item);
+			proto_item_set_generated(psf_item);
 
 			/* if the frame is a PDO Mapping and the subindex is bigger than 0x00 */
 			if((idx == EPL_SOD_PDO_TX_MAPP && subindex > 0x00) ||(idx == EPL_SOD_PDO_RX_MAPP && subindex > 0x00))
@@ -5073,7 +5072,7 @@ dissect_epl_sdo_command_read_by_index(struct epl_convo *convo, proto_tree *epl_t
 		{
 			proto_item *ti;
 			ti = proto_tree_add_uint_format_value(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, 0, 0, req->idx, "%04X", req->idx);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 			if (req->info)
 			{
 				proto_item_append_text (ti, " (%s)", req->index_name);
@@ -5081,7 +5080,7 @@ dissect_epl_sdo_command_read_by_index(struct epl_convo *convo, proto_tree *epl_t
 			}
 
 			ti = proto_tree_add_uint_format_value(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, 0, 0, req->subindex, "%02X", req->subindex);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 
 			if (req->info && req->info->name != req->index_name)
 				proto_item_append_text (ti, " (%s)", req->info->name);
@@ -5250,7 +5249,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_pres_pdov,
 			{ "PDOVersion", "epl.pres.pdov",
-				FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+				FT_UINT8, BASE_CUSTOM, CF_FUNC(elp_version), 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_pres_size,
 			{ "Size", "epl.pres.size",
@@ -6181,11 +6180,6 @@ proto_register_epl(void)
 	epl_profiles_by_nodeid = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 	epl_profiles_by_address = wmem_map_new(wmem_epan_scope(), epl_address_hash, epl_address_equal);
 
-	set_address(&epl_placeholder_mac, AT_ETHER, 6, "\xFF\xFF\xFF\xFF\xFF\xFF");
-
-#ifdef HAVE_LIBXML2
-	epl_xdd_init();
-#endif
 	epl_eds_init();
 
 	prefs_register_filename_preference(epl_module, "default_profile", "Default Profile to use if no specific profiles exist",
@@ -6246,6 +6240,7 @@ proto_reg_handoff_epl(void)
 
 	dissector_add_uint("ethertype", ETHERTYPE_EPL_V2, epl_handle);
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_EPL, epl_udp_handle);
+        apply_prefs();
 
 	/* register frame init routine */
 	register_init_routine( setup_dissector );
@@ -6573,7 +6568,7 @@ nodeid_profile_list_uats_nodeid_set_cb(void *_rec, const char *str, unsigned len
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -1,17 +1,17 @@
 /* packet-nfapi.c
-* Routines for Network Function Application Platform Interface (nFAPI) dissection
-* Copyright 2017 Cisco Systems, Inc.
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*
-* References:
-* SCF082.09.04  http://scf.io/en/documents/082_-_nFAPI_and_FAPI_specifications.php
-*
-*/
+ * Routines for Network Function Application Platform Interface (nFAPI) dissection
+ * Copyright 2017 Cisco Systems, Inc.
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * References:
+ * SCF082.09.04  http://scf.io/en/documents/082_-_nFAPI_and_FAPI_specifications.php
+ *
+ */
 
 #include "config.h"
 
@@ -632,12 +632,6 @@ static const value_string dlsch_re13_pdsch_payload_type_vals[] = {
 	{ 1, "PDSCH carrying SI message (except for SIB1-BR or PCH)" },
 	{ 2, "PDSCH carrying other" },
 	{ 0, NULL }
-};
-
-static const value_string csi_rs_flags_strname[] = {
-	{ 0, "CSI - RS parameters are not valid" },
-	{ 1, "CSI - RS parameters are valid" },
-	{ 0, NULL}
 };
 
 
@@ -1621,7 +1615,7 @@ static void dissect_pnf_phy_instance_value(ptvcursor_t * ptvc, packet_info* pinf
 											hf_nfapi_uplink_channel_bandwidth_supported, ett_nfapi_uplink_bandwidth_support, ul_bandwidth_support_fields, ENC_BIG_ENDIAN, &test_value64);
 	if (test_value64 > 0x3F)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid uplink channel bandwidht supported bits [0..0x3F]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid uplink channel bandwidth supported bits [0..0x3F]");
 	}
 	ptvcursor_advance(ptvc, 2);
 
@@ -8258,6 +8252,21 @@ static int dissect_p45_param_response_msg_id(tvbuff_t *tvb, packet_info *pinfo, 
 	return tvb_captured_length(tvb);
 }
 
+static int dissect_p45_config_request_msg_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+	int offset = dissect_p45_header(tvb, pinfo, tree, data);
+	ptvcursor_t *ptvc;
+
+	proto_tree_add_item(tree, hf_nfapi_num_tlv, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	ptvc = ptvcursor_new(tree, tvb, offset);
+	dissect_tlv_list(ptvc, pinfo, tvb_reported_length(tvb));
+	ptvcursor_free(ptvc);
+
+	return tvb_captured_length(tvb);
+}
+
 static int dissect_p7_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint8* m, guint8* seg, guint8* seq)
 {
 	proto_tree *header_tree;
@@ -9111,7 +9120,7 @@ void proto_register_nfapi(void)
 			"The number of cell specific transmit antenna ports within the DRS occasions", HFILL }
 		},
 		{ &hf_nfapi_transmission_power_for_drs,
-			{ "Transmission power for DRS", "nfapi.transmission.power.for.drs.",
+			{ "Transmission power for DRS", "nfapi.transmission.power.for.drs",
 			FT_UINT16, BASE_CUSTOM, CF_FUNC(power_offset_conversion_fn), 0x0,
 			"Offset of cell specific Reference signals power within DRS occasions to the reference signal power", HFILL }
 		},
@@ -9960,7 +9969,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_csi_rs_flag,
 			{ "CSI RS Flag", "nfapi.csi.rs.flag",
-			FT_BOOLEAN, 8, TFS(&csi_rs_flags_strname), 0x0,
+			FT_BOOLEAN, 8, TFS(&tfs_valid_not_valid), 0x0,
 			"Indicates if parameters related to CSI-RS are valid or not.", HFILL }
 		},
 		{ &hf_nfapi_csi_rs_resource_config_r10,
@@ -10205,7 +10214,7 @@ void proto_register_nfapi(void)
 			"Valid for DCI format 6-2", HFILL }
 		},
 		{ &hf_nfapi_number_of_tx_antenna_ports,
-			{ "Number of TX Antenna ports", "nfapi.num.of.tx.antenna.ports.",
+			{ "Number of TX Antenna ports", "nfapi.num.of.tx.antenna.ports",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Number of TX physical antenna ports", HFILL }
 		},
@@ -10435,7 +10444,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_laa_end_partial_sf_flag,
 			{ "LAA end partial SF flag", "nfapi.laa.end.partial.sf.flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Indicates if DCI format 1C is being used to signal LAA end partial SF (valid if end partial SF support configuraton is set)", HFILL }
+			"Indicates if DCI format 1C is being used to signal LAA end partial SF (valid if end partial SF support configuration is set)", HFILL }
 		},
 		{ &hf_nfapi_laa_end_partial_sf_configuration,
 			{ "LAA end partial SF configuration", "nfapi.laa.end.partial.sf.configuration",
@@ -11135,7 +11144,7 @@ void proto_register_nfapi(void)
 			"Indicates HARQ results", HFILL }
 		},
 		{ &hf_nfapi_harq_tb_1,
-			{ "HARQ TB1", "nfapi.harq.tb.",
+			{ "HARQ TB1", "nfapi.harq.tb.1",
 			FT_UINT8, BASE_DEC, VALS(harq_value_vals), 0x0,
 			"HARQ feedback of 1st TB.", HFILL }
 		},
@@ -11680,7 +11689,6 @@ void proto_reg_handoff_nfapi(void)
 
 	handle = create_dissector_handle( dissect_p45_header_with_error_and_list, -1 );
 	dissector_add_uint("nfapi.msg_id", NFAPI_PNF_PARAM_RESPONSE_MSG_ID, handle);
-	dissector_add_uint("nfapi.msg_id", NFAPI_CONFIG_REQUEST_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_MEASUREMENT_RESPONSE_MSG_ID, handle);
 
 	handle = create_dissector_handle( dissect_p45_header_with_p4_error_and_list, -1 );
@@ -11697,6 +11705,7 @@ void proto_reg_handoff_nfapi(void)
 	dissector_add_uint("nfapi.msg_id", NFAPI_SYSTEM_INFORMATION_SCHEDULE_REQUEST_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_SYSTEM_INFORMATION_REQUEST_MSG_ID, handle);
 
+	dissector_add_uint("nfapi.msg_id", NFAPI_CONFIG_REQUEST_MSG_ID, create_dissector_handle( dissect_p45_config_request_msg_id, -1 ));
 	dissector_add_uint("nfapi.msg_id", NFAPI_PARAM_RESPONSE_MSG_ID, create_dissector_handle( dissect_p45_param_response_msg_id, -1 ));
 	dissector_add_uint("nfapi.msg_id", NFAPI_DL_NODE_SYNC_MSG_ID, create_dissector_handle( dissect_p7_dl_node_sync_msg_id, -1 ));
 	dissector_add_uint("nfapi.msg_id", NFAPI_UL_NODE_SYNC_MSG_ID, create_dissector_handle( dissect_p7_ul_node_sync_msg_id, -1 ));
@@ -11708,7 +11717,7 @@ void proto_reg_handoff_nfapi(void)
 
 
 /*
-* Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+* Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 *
 * Local variables:
 * c-basic-offset: 8

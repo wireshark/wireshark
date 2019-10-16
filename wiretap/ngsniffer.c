@@ -200,7 +200,7 @@ struct frame2_rec {
  */
 #define FS_FDDI_INVALID		0x10	/* frame indicators are invalid */
 #define FS_FDDI_ERROR		0x20	/* "frame error bit 1" */
-#define FS_FDDI_PCI_VDL		0x01	/* VDL error on frame on PCI adapter */
+#define FS_FDDI_PCI_VDL		0x01	/* VDL (Valid Data Length?) error on frame on PCI adapter */
 #define FS_FDDI_PCI_CRC		0x02	/* CRC error on frame on PCI adapter */
 #define FS_FDDI_ISA_CRC		0x20	/* CRC error on frame on ISA adapter */
 
@@ -495,15 +495,15 @@ static int process_rec_header2_v2(wtap *wth, unsigned char *buffer,
     guint16 length, int *err, gchar **err_info);
 static int process_rec_header2_v145(wtap *wth, unsigned char *buffer,
     guint16 length, gint16 maj_vers, int *err, gchar **err_info);
-static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean ngsniffer_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean ngsniffer_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static int ngsniffer_process_record(wtap *wth, gboolean is_random,
     guint *padding, wtap_rec *rec, Buffer *buf, int *err,
     gchar **err_info);
-static void set_pseudo_header_frame2(wtap *wth,
-    union wtap_pseudo_header *pseudo_header, struct frame2_rec *frame2);
+static void set_metadata_frame2(wtap *wth, wtap_rec *rec,
+    struct frame2_rec *frame2);
 static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
     struct frame4_rec *frame4);
 static void set_pseudo_header_frame6(wtap *wth,
@@ -1007,7 +1007,8 @@ process_rec_header2_v145(wtap *wth, unsigned char *buffer, guint16 length,
 
 /* Read the next packet */
 static gboolean
-ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+ngsniffer_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+    gchar **err_info, gint64 *data_offset)
 {
 	ngsniffer_t *ngsniffer;
 	int	ret;
@@ -1025,7 +1026,7 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		 * Process the record.
 		 */
 		ret = ngsniffer_process_record(wth, FALSE, &padding,
-		    &wth->rec, wth->rec_data, err, err_info);
+		    rec, buf, err, err_info);
 		if (ret < 0) {
 			/* Read error or short read */
 			return FALSE;
@@ -1145,6 +1146,9 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 	rec_type = pletoh16(record_type);
 	rec_length_remaining = pletoh16(record_length);
 
+	/* Initialize - we'll be setting some presence flags below. */
+	rec->presence_flags = 0;
+
 	ngsniffer = (ngsniffer_t *)wth->priv;
 	switch (rec_type) {
 
@@ -1179,7 +1183,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 
 		rec_length_remaining -= (guint)sizeof frame2;	/* we already read that much */
 
-		set_pseudo_header_frame2(wth, &rec->rec_header.packet_header.pseudo_header, &frame2);
+		set_metadata_frame2(wth, rec, &frame2);
 		break;
 
 	case REC_FRAME4:
@@ -1301,7 +1305,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 	}
 
 	rec->rec_type = REC_TYPE_PACKET;
-	rec->presence_flags = true_size ? WTAP_HAS_TS|WTAP_HAS_CAP_LEN : WTAP_HAS_TS;
+	rec->presence_flags |= true_size ? WTAP_HAS_TS|WTAP_HAS_CAP_LEN : WTAP_HAS_TS;
 	rec->rec_header.packet_header.len = true_size ? true_size : size;
 	rec->rec_header.packet_header.caplen = size;
 
@@ -1351,9 +1355,13 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 }
 
 static void
-set_pseudo_header_frame2(wtap *wth, union wtap_pseudo_header *pseudo_header,
-    struct frame2_rec *frame2)
+set_metadata_frame2(wtap *wth, wtap_rec *rec, struct frame2_rec *frame2)
 {
+	ngsniffer_t *ngsniffer;
+	union wtap_pseudo_header *pseudo_header;
+
+	ngsniffer = (ngsniffer_t *)wth->priv;
+
 	/*
 	 * In one PPP "Internetwork analyzer" capture:
 	 *
@@ -1396,6 +1404,36 @@ set_pseudo_header_frame2(wtap *wth, union wtap_pseudo_header *pseudo_header,
 	 *	correlation with anything.  See previous comment
 	 *	about display filters.
 	 */
+	switch (ngsniffer->network) {
+
+	case NETWORK_ENET:
+		rec->presence_flags |= WTAP_HAS_PACK_FLAGS;
+		rec->rec_header.packet_header.pack_flags = 0;
+		if (frame2->fs & FS_ETH_CRC)
+			rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_CRC_ERROR;
+		if (frame2->fs & FS_ETH_ALIGN)
+			rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_UNALIGNED_FRAME;
+		if (frame2->fs & FS_ETH_RUNT)
+			rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_PACKET_TOO_SHORT;;
+		break;
+
+	case NETWORK_FDDI:
+		rec->presence_flags |= WTAP_HAS_PACK_FLAGS;
+		rec->rec_header.packet_header.pack_flags = 0;
+		if (!(frame2->fs & FS_FDDI_INVALID) &&
+		    (frame2->fs & (FS_FDDI_PCI_CRC|FS_FDDI_ISA_CRC)))
+			rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_CRC_ERROR;
+		break;
+
+	case NETWORK_SYNCHRO:
+		rec->presence_flags |= WTAP_HAS_PACK_FLAGS;
+		rec->rec_header.packet_header.pack_flags = 0;
+		if (frame2->fs & FS_SYNC_CRC)
+			rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_CRC_ERROR;
+		break;
+	}
+
+	pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 	switch (wth->file_encap) {
 
 	case WTAP_ENCAP_ETHERNET:
@@ -1417,7 +1455,7 @@ set_pseudo_header_frame2(wtap *wth, union wtap_pseudo_header *pseudo_header,
 	case WTAP_ENCAP_LAPB:
 	case WTAP_ENCAP_FRELAY_WITH_PHDR:
 	case WTAP_ENCAP_PER_PACKET:
-		pseudo_header->x25.flags = (frame2->fs & FS_WAN_DTE) ? 0x00 : FROM_DCE;
+		pseudo_header->dte_dce.flags = (frame2->fs & FS_WAN_DTE) ? 0x00 : FROM_DCE;
 		break;
 
 	case WTAP_ENCAP_ISDN:
@@ -1766,7 +1804,7 @@ infer_pkt_encap(const guint8 *pd, int len)
 		 * although there might be other frame types as well.
 		 * Scan forward until we see the last DLCI byte, with
 		 * the low-order bit being 1, and then check the next
-		 * byte to see if it's a control byte.
+		 * byte, if it exists, to see if it's a control byte.
 		 *
 		 * XXX - in version 4 and 5 captures, wouldn't this just
 		 * have a capture subtype of NET_FRAME_RELAY?  Or is this
@@ -1774,22 +1812,27 @@ infer_pkt_encap(const guint8 *pd, int len)
 		 * file, where we might just not yet have found where
 		 * the subtype is specified in the capture?
 		 *
-		 * Bay^H^H^HNortel Networks has a mechanism in the Optivity
+		 * Bay Networks/Nortel Networks had a mechanism in the Optivity
 		 * software for some of their routers to save captures
 		 * in Sniffer format; they use a version number of 4.9, but
 		 * don't put out any header records before the first FRAME2
-		 * record.  That means we have to use heuristics to guess
+		 * record. That means we have to use heuristics to guess
 		 * what type of packet we have.
 		 */
 		for (i = 0; i < len && (pd[i] & 0x01) == 0; i++)
 			;
-		i++;	/* advance to the byte after the last DLCI byte */
-		if (i == len) {
+		if (i >= len - 1) {
 			/*
-			 * No control byte.
+			 * Either all the bytes have the low-order bit
+			 * clear, so we didn't even find the last DLCI
+			 * byte, or the very last byte had the low-order
+			 * bit set, so, if that's a DLCI, it fills the
+			 * buffer, so there is no control byte after
+			 * the last DLCI byte.
 			 */
 			return WTAP_ENCAP_LAPB;
 		}
+		i++;	/* advance to the byte after the last DLCI byte */
 		if (pd[i] == 0x03)
 			return WTAP_ENCAP_FRELAY_WITH_PHDR;
 	}
@@ -1830,14 +1873,14 @@ fix_pseudo_header(int encap, Buffer *buf, int len,
 		case WTAP_ENCAP_WFLEET_HDLC:
 		case WTAP_ENCAP_CHDLC_WITH_PHDR:
 		case WTAP_ENCAP_PPP_WITH_PHDR:
-			if (pseudo_header->x25.flags == 0)
+			if (pseudo_header->dte_dce.flags == 0)
 				pseudo_header->p2p.sent = TRUE;
 			else
 				pseudo_header->p2p.sent = FALSE;
 			break;
 
 		case WTAP_ENCAP_ISDN:
-			if (pseudo_header->x25.flags == 0x00)
+			if (pseudo_header->dte_dce.flags == 0x00)
 				pseudo_header->isdn.uton = FALSE;
 			else
 				pseudo_header->isdn.uton = TRUE;
@@ -2026,6 +2069,15 @@ ngsniffer_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		return FALSE;
 	}
 
+	/*
+	 * Make sure this packet doesn't have a link-layer type that
+	 * differs from the one for the file.
+	 */
+	if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+		return FALSE;
+	}
+
 	/* The captured length field is 16 bits, so there's a hard
 	   limit of 65535. */
 	if (rec->rec_header.packet_header.caplen > 65535) {
@@ -2099,7 +2151,7 @@ ngsniffer_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
 	case WTAP_ENCAP_LAPB:
 	case WTAP_ENCAP_FRELAY_WITH_PHDR:
-		rec_hdr.fs = (pseudo_header->x25.flags & FROM_DCE) ? 0x00 : FS_WAN_DTE;
+		rec_hdr.fs = (pseudo_header->dte_dce.flags & FROM_DCE) ? 0x00 : FS_WAN_DTE;
 		break;
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
@@ -2764,7 +2816,7 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

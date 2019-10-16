@@ -1,13 +1,13 @@
 /* packet-grpc.c
-* Routines for GRPC dissection
-* Copyright 2017, Huang Qiangxiong <qiangxiong.huang@qq.com>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ * Routines for GRPC dissection
+ * Copyright 2017, Huang Qiangxiong <qiangxiong.huang@qq.com>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 /*
 * The information used comes from:
@@ -116,7 +116,7 @@ static dissector_handle_t grpc_handle;
 /* GRPC message type dissector table list.
 * Dissectors can register themselves in this table as grpc message data dissectors.
 * Dissectors registered in this table may use pattern that
-* contains content-type,grpc-method-path(http2_path),request/reponse info, like:
+* contains content-type,grpc-method-path(http2_path),request/response info, like:
 *     application/grpc,/helloworld.Greeter/SayHello,request
 * or just contains content-type:
 *     application/grpc
@@ -314,7 +314,7 @@ dissect_grpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         http2_path = http2_get_header_value(pinfo, HTTP2_HEADER_PATH, FALSE);
         is_request = (http2_path != NULL);
 
-        if (http2_path == NULL) { /* this reponse, so we get it from http2 request stream */
+        if (http2_path == NULL) { /* this response, so we get it from http2 request stream */
             http2_path = http2_get_header_value(pinfo, HTTP2_HEADER_PATH, TRUE);
         }
 
@@ -411,7 +411,7 @@ proto_reg_handoff_grpc(void)
 }
 
 /*
-* Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+* Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 *
 * Local variables:
 * c-basic-offset: 4

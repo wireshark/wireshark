@@ -1,16 +1,16 @@
 /* packet-pw-oam.c
-*
-* Routines for Pseudowire Status for static pseudowires : RFC 6478
-*
-* (c) Copyright 2012, Krishnamurthy Mayya <krishnamurthymayya@gmail.com>
-*                     Nikitha Malgi <nikitha01@gmail.com>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ *
+ * Routines for Pseudowire Status for static pseudowires : RFC 6478
+ *
+ * (c) Copyright 2012, Krishnamurthy Mayya <krishnamurthymayya@gmail.com>
+ *                     Nikitha Malgi <nikitha01@gmail.com>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 #include <epan/packet.h>
@@ -200,7 +200,7 @@ proto_reg_handoff_pw_oam(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

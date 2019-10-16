@@ -16,7 +16,6 @@
 #include <epan/proto_data.h>
 #include "packet-scsi.h"
 #include "packet-fc.h"
-#include "packet-fcp.h"
 #include "packet-fcels.h"
 
 void proto_register_fcp(void);
@@ -86,6 +85,9 @@ typedef struct fcp_request_data {
    nstime_t request_time;
    itlq_nexus_t *itlq;
 } fcp_request_data_t;
+
+#define FCP_DEF_CMND_LEN         32 /* by default cmnd is 32 bytes */
+#define FCP_DEF_RSP_LEN          24 /* default FCP_RSP len */
 
 /* Information Categories based on lower 4 bits of R_CTL */
 #define FCP_IU_DATA              0x1
@@ -324,7 +326,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
       lun = tvb_get_guint8(tvb, offset+1);
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         proto_data = wmem_new(wmem_file_scope(), fcp_proto_data_t);
         proto_data->lun = lun;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_fcp, 0, proto_data);
@@ -354,7 +356,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     }
 
     /* populate the exchange struct */
-    if(!pinfo->fd->flags.visited){
+    if(!pinfo->fd->visited){
         if(fchdr->fctl&FC_FCTL_EXCHANGE_FIRST){
             request_data->itlq->first_exchange_frame=pinfo->num;
             request_data->itlq->fc_time = pinfo->abs_ts;
@@ -472,7 +474,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
         request_data->response_frame = pinfo->num;
 
         /* populate the exchange struct */
-        if(!pinfo->fd->flags.visited){
+        if(!pinfo->fd->visited){
             if(fchdr->fctl&FC_FCTL_EXCHANGE_FIRST){
                 request_data->itlq->first_exchange_frame=pinfo->num;
                 request_data->itlq->fc_time = pinfo->abs_ts;
@@ -660,7 +662,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     /* Lun is only populated by FCP_IU_CMD, and subsequent packets assume the same lun.
        The only way that consistently works is to save the lun on the first pass when packets
        are guaranteed to be parsed consecutively */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         proto_data = wmem_new(wmem_file_scope(), fcp_proto_data_t);
         proto_data->lun = fchdr->lun;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_fcp, 0, proto_data);
@@ -677,16 +679,16 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         (request_data != NULL) && (request_data->itlq->first_exchange_frame)) {
         proto_item *it;
         it = proto_tree_add_uint(fcp_tree, hf_fcp_singlelun, tvb, 0, 0, proto_data->lun);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
         if (request_data != NULL) {
             it = proto_tree_add_uint(fcp_tree, hf_fcp_request_in, tvb, 0, 0, request_data->request_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
             /* only put the response time in the actual response frame */
             if (r_ctl == FCP_IU_RSP) {
                 nstime_t delta_ts;
                 nstime_delta(&delta_ts, &pinfo->abs_ts, &request_data->request_time);
                 it = proto_tree_add_time(ti, hf_fcp_time, tvb, 0, 0, &delta_ts);
-                PROTO_ITEM_SET_GENERATED(it);
+                proto_item_set_generated(it);
             }
         }
     }
@@ -695,7 +697,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         (request_data != NULL) && (request_data->response_frame)) {
         proto_item *it;
         it = proto_tree_add_uint(fcp_tree, hf_fcp_response_in, tvb, 0, 0, request_data->response_frame);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
     }
 
     if (els) {
@@ -972,7 +974,7 @@ proto_reg_handoff_fcp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

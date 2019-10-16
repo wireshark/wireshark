@@ -153,6 +153,7 @@ static int hf_ssh_kex_reserved = -1;
 
 /* Key exchange common elements */
 static int hf_ssh_hostkey_length = -1;
+static int hf_ssh_hostkey_type_length = -1;
 static int hf_ssh_hostkey_type = -1;
 static int hf_ssh_hostkey_data = -1;
 static int hf_ssh_hostkey_rsa_n = -1;
@@ -604,7 +605,7 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
             val_to_str(msg_code, ssh1_msg_vals, "Unknown (%u)"));
         offset += 1;
         len = plen -1;
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             if (peer_data->frame_key_start == 0)
                 peer_data->frame_key_start = pinfo->num;
             peer_data->frame_key_end = pinfo->num;
@@ -649,7 +650,7 @@ ssh_tree_add_string(tvbuff_t *tvb, int offset, proto_tree *tree,
     return 4+len;
 }
 
-static int
+static guint
 ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const char *tree_name,
                      int ett_idx)
 {
@@ -671,10 +672,12 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const c
     key_type = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, type_len, ENC_ASCII|ENC_NA);
 
     tree_title = wmem_strdup_printf(wmem_packet_scope(), "%s (type: %s)", tree_name, key_type);
-    tree = proto_tree_add_subtree(parent_tree, tvb, last_offset, key_len, ett_idx, NULL,
+    tree = proto_tree_add_subtree(parent_tree, tvb, last_offset, key_len + 4, ett_idx, NULL,
                                   tree_title);
 
     proto_tree_add_uint(tree, hf_ssh_hostkey_length, tvb, last_offset, 4, key_len);
+    last_offset += 4;
+    proto_tree_add_uint(tree, hf_ssh_hostkey_type_length, tvb, last_offset, 4, type_len);
     proto_tree_add_string(tree, hf_ssh_hostkey_type, tvb, offset, type_len, key_type);
     offset += type_len;
 
@@ -837,7 +840,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
     offset +=len;
 
     /* padding */
-    proto_tree_add_item(key_ex_tree, hf_ssh_padding_string, tvb, offset, padding_length, ENC_NA);
+    proto_tree_add_item(tree, hf_ssh_padding_string, tvb, offset, padding_length, ENC_NA);
     offset+= padding_length;
 
     return offset;
@@ -1436,6 +1439,11 @@ proto_register_ssh(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_ssh_hostkey_type_length,
+          { "Host key type length",         "ssh.host_key.type_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_ssh_hostkey_type,
           { "Host key type",         "ssh.host_key.type",
             FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1608,7 +1616,7 @@ proto_reg_handoff_ssh(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

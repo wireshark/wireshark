@@ -344,7 +344,7 @@ dissect_ble_delta_time(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
     /* end-to-start */
     proto_tree_add_item_ret_uint(tree, hf_nordic_ble_delta_time, tvb, offset, 4, ENC_LITTLE_ENDIAN, &delta_time);
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* First time visiting this packet, store previous BLE packet time */
         p_add_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, 0, GUINT_TO_POINTER(previous_ble_packet_time));
         prev_packet_time = previous_ble_packet_time;
@@ -356,11 +356,11 @@ dissect_ble_delta_time(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
         /* Calculated start-to-start is not valid for the first packet because we don't have the previous packet */
         delta_time_ss = prev_packet_time + delta_time;
         pi = proto_tree_add_uint(tree, hf_nordic_ble_delta_time_ss, tvb, offset, 4, delta_time_ss);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
     }
     offset += 4;
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* Calculate packet time according to this packets PHY */
         guint16 ble_payload_length = nordic_ble_context->payload_length - nordic_ble_context->event_packet_length;
         if (nordic_ble_context->phy == LE_1M_PHY) {
@@ -398,7 +398,7 @@ dissect_packet_header(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree
 
     if (nordic_ble_context->protover == 0) {
         proto_item *item = proto_tree_add_uint(header_tree, hf_nordic_ble_protover, tvb, 0, 0, 0);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
 
         proto_tree_add_item(header_tree, hf_nordic_ble_packet_id, tvb, offset, 1, ENC_NA);
         offset += 1;
@@ -604,7 +604,7 @@ proto_register_nordic_ble(void)
         },
         { &hf_nordic_ble_le_phy,
             { "PHY", "nordic_ble.phy",
-                FT_UINT8, BASE_NONE, VALS(le_phys), 0x70,
+                FT_UINT8, BASE_DEC, VALS(le_phys), 0x70,
                 "Physical Layer", HFILL }
         },
         { &hf_nordic_ble_rfu,
@@ -681,7 +681,7 @@ proto_reg_handoff_nordic_ble(void)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

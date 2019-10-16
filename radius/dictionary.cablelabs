@@ -151,7 +151,7 @@ ATTRIBUTE	Related_ICID				98	string
 #VALUE	CableLabs-Event-Message		Policy-Update		33
 
 VALUE	CableLabs-Query-Type		Reserved		0
-VALUE	CableLabs-Query-Type		Toll-Free-Number-Looukp	1
+VALUE	CableLabs-Query-Type		Toll-Free-Number-Lookup	1
 VALUE	CableLabs-Query-Type		LNP-Number-Lookup	2
 VALUE	CableLabs-Query-Type		Calling-Name-Delivery-Lookup 3
 

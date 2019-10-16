@@ -40,7 +40,7 @@ void lbttcp_transport_sid_add(const address * source_address, guint16 source_por
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

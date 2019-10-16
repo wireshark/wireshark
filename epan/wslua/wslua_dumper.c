@@ -205,8 +205,10 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
     int encap  = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_ENCAP,WTAP_ENCAP_ETHERNET);
     int err = 0;
     const char* filename = cross_plat_fname(fname);
+    wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
 
-    d = wtap_dump_open(filename, filetype, encap, 0, FALSE, &err);
+    params.encap = encap;
+    d = wtap_dump_open(filename, filetype, WTAP_UNCOMPRESSED, &params, &err);
 
     if (! d ) {
         /* WSLUA_ERROR("Error while opening file for writing"); */
@@ -219,7 +221,7 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
         case WTAP_ERR_UNWRITABLE_ENCAP:
             luaL_error(L,"Files of file type %s don't support encapsulation %s",
                        wtap_file_type_subtype_string(filetype),
-                       wtap_encap_short_string(encap));
+                       wtap_encap_name(encap));
             break;
 
         default:
@@ -357,6 +359,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
     int encap;
     int err = 0;
     const char* filename = cross_plat_fname(fname);
+    wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
 
     if (! lua_pinfo ) {
         WSLUA_ERROR(Dumper_new_for_current,"Cannot be used outside a tap or a dissector");
@@ -368,8 +371,8 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
     }
 
     encap = lua_pinfo->rec->rec_header.packet_header.pkt_encap;
-
-    d = wtap_dump_open(filename, filetype, encap, 0, FALSE, &err);
+    params.encap = encap;
+    d = wtap_dump_open(filename, filetype, WTAP_UNCOMPRESSED, &params, &err);
 
     if (! d ) {
         switch (err) {
@@ -381,7 +384,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
         case WTAP_ERR_UNWRITABLE_ENCAP:
             luaL_error(L,"Files of file type %s don't support encapsulation %s",
                        wtap_file_type_subtype_string(filetype),
-                       wtap_encap_short_string(encap));
+                       wtap_encap_name(encap));
             break;
 
         default:
@@ -437,10 +440,15 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
     rec.rec_header.packet_header.pkt_encap = lua_pinfo->rec->rec_header.packet_header.pkt_encap;
     rec.rec_header.packet_header.pseudo_header = *lua_pinfo->pseudo_header;
 
-    if (lua_pinfo->fd->flags.has_user_comment) {
+    /*
+     * wtap_dump does not modify rec.opt_comment, so it should be possible to
+     * pass epan_get_user_comment() or lua_pinfo->rec->opt_comment directly.
+     * Temporarily duplicating the memory should not hurt though.
+     */
+    if (lua_pinfo->fd->has_user_comment) {
         rec.opt_comment = wmem_strdup(wmem_packet_scope(), epan_get_user_comment(lua_pinfo->epan, lua_pinfo->fd));
         rec.has_comment_changed = TRUE;
-    } else if (lua_pinfo->fd->flags.has_phdr_comment) {
+    } else if (lua_pinfo->fd->has_phdr_comment) {
         rec.opt_comment = wmem_strdup(wmem_packet_scope(), lua_pinfo->rec->opt_comment);
     }
 
@@ -507,7 +515,7 @@ int Dumper_register(lua_State* L) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

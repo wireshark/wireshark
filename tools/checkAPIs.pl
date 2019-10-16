@@ -20,6 +20,8 @@
 #
 
 use strict;
+use Encode;
+use English;
 use Getopt::Long;
 use Text::Balanced qw(extract_bracketed);
 
@@ -41,9 +43,9 @@ my %APIs = (
                 # Microsoft provides lists of unsafe functions and their
                 # recommended replacements in "Security Development Lifecycle
                 # (SDL) Banned Function Calls"
-                # https://msdn.microsoft.com/en-us/library/bb288454.aspx
+                # https://docs.microsoft.com/en-us/previous-versions/bb288454(v=msdn.10)
                 # and "Deprecated CRT Functions"
-                # https://msdn.microsoft.com/en-us/library/ms235384.aspx
+                # https://docs.microsoft.com/en-us/previous-versions/ms235384(v=vs.100)
                 #
                 'atoi', # use wsutil/strtoi.h functions
                 'gets',
@@ -283,1033 +285,9 @@ my %APIs = (
                 'g_warning',
                 ] },
 
-        # Deprecated GTK APIs
-        #  which SHOULD NOT be used in Wireshark (any more).
-        #  (Filled in from 'E' entries in %deprecatedGtkFunctions below)
-        'deprecated-gtk' => { 'count_errors' => 1, 'functions' => [
-                ] },
-
-        # Deprecated GTK APIs yet to be replaced
-        #  (Filled in from 'W' entries in %deprecatedGtkFunctions below)
-        'deprecated-gtk-todo' => { 'count_errors' => 0, 'functions' => [
-                ] },
-
 );
 
 my @apiGroups = qw(prohibited deprecated soft-deprecated);
-
-
-# Deprecated GTK+ (and GDK) functions/macros with (E)rror or (W)arning flag:
-# (The list is based upon the GTK+ 2.24.8 documentation;
-# E: There should be no current Wireshark use so Error if seen;
-# W: Not all Wireshark use yet fixed so Warn if seen; (Change to E as fixed)
-
-# Note: Wireshark currently (Jan 2012) requires GTK 2.12 or newer.
-#       The Wireshark build currently (Jan 2012) defines GTK_DISABLE_DEPRECATED.
-#       However: Wireshark source still has a few uses of deprecated GTK functions
-#                (which either are ifdef'd out or GTK_DISABLE_DEPRECATED is undef'd).
-#                Thus: there a few GTK functions still marked as 'W' below.
-#       Deprecated GDK functions are included in the list of deprecated GTK functions.
-#       The Wireshark build currently (Jan 2012) does not define GDK_DISABLE_DEPRECATED
-#         since there are still some uses of deprecated GDK functions.
-#         They are marked with 'W' below.
-
-my %deprecatedGtkFunctions = (
-                'gtk_about_dialog_get_name',                    'E',
-                'gtk_about_dialog_set_name',                    'E',
-                'gtk_about_dialog_set_email_hook',              'E', # since 2.24
-                'gtk_about_dialog_set_url_hook',                'E', # since 2.24
-                'gtk_accel_group_ref',                          'E',
-                'gtk_accel_group_unref',                        'E',
-                'gtk_action_block_activate_from',               'E', # since 2.16
-                'gtk_action_connect_proxy',                     'E', # since 2.16: use gtk_activatable_set_related_action() (as of 2.16)
-                'gtk_action_disconnect_proxy',                  'E', # since 2.16: use gtk_activatable_set_related_action() (as of 2.16)
-                'gtk_action_unblock_activate_from',             'E', # since 2.16
-                'gtk_binding_entry_add',                        'E',
-                'gtk_binding_entry_add_signal',                 'E',
-                'gtk_binding_entry_clear',                      'E',
-                'gtk_binding_parse_binding',                    'E',
-                'gtk_box_pack_end_defaults',                    'E',
-                'gtk_box_pack_start_defaults',                  'E',
-                'gtk_button_box_get_child_ipadding',            'E',
-                'gtk_button_box_get_child_size',                'E',
-                'gtk_button_box_get_spacing',                   'E',
-                'gtk_button_box_set_child_ipadding',            'E', # style properties child-internal-pad-x/-y
-                'gtk_button_box_set_child_size',                'E', # style properties child-min-width/-height
-                'gtk_button_box_set_spacing',                   'E', # gtk_box_set_spacing [==]
-                'gtk_button_enter',                             'E', # since 2.20
-                'gtk_button_leave',                             'E', # since 2.20
-                'gtk_button_pressed',                           'E', # since 2.20
-                'gtk_button_released',                          'E', # since 2.20
-                'gtk_calendar_display_options',                 'E',
-                'gtk_calendar_freeze',                          'E',
-                'gtk_calendar_thaw',                            'E',
-                'GTK_CELL_PIXMAP',                              'E', # GtkTreeView (& related) ...
-                'GTK_CELL_PIXTEXT',                             'E',
-                'gtk_cell_renderer_editing_canceled',           'E',
-                'GTK_CELL_TEXT',                                'E',
-                'gtk_cell_view_get_cell_renderers',             'E', # gtk_cell_layout_get_cells ()             (avail since 2.12)
-                'GTK_CELL_WIDGET',                              'E',
-                'GTK_CHECK_CAST',                               'E', # G_TYPE_CHECK_INSTANCE_CAST [==]
-                'GTK_CHECK_CLASS_CAST',                         'E', # G_TYPE_CHECK_CLASS_CAST [==]
-                'GTK_CHECK_CLASS_TYPE',                         'E', # G_TYPE_CHECK_CLASS_TYPE [==]
-                'GTK_CHECK_GET_CLASS',                          'E', # G_TYPE_INSTANCE_GET_CLASS [==]
-                'gtk_check_menu_item_set_show_toggle',          'E', # Does nothing; remove; [show_toggle is always TRUE]
-                'gtk_check_menu_item_set_state',                'E',
-                'GTK_CHECK_TYPE',                               'E', # G_TYPE_CHECK_INSTANCE_TYPE [==]
-                'GTK_CLASS_NAME',                               'E',
-                'GTK_CLASS_TYPE',                               'E',
-                'GTK_CLIST_ADD_MODE',                           'E', # GtkTreeView (& related) ...
-                'gtk_clist_append',                             'E',
-                'GTK_CLIST_AUTO_RESIZE_BLOCKED',                'E',
-                'GTK_CLIST_AUTO_SORT',                          'E',
-                'gtk_clist_clear',                              'E',
-                'gtk_clist_column_title_active',                'E',
-                'gtk_clist_column_title_passive',               'E',
-                'gtk_clist_column_titles_active',               'E',
-                'gtk_clist_column_titles_hide',                 'E',
-                'gtk_clist_column_titles_passive',              'E',
-                'gtk_clist_column_titles_show',                 'E',
-                'gtk_clist_columns_autosize',                   'E',
-                'GTK_CLIST_DRAW_DRAG_LINE',                     'E',
-                'GTK_CLIST_DRAW_DRAG_RECT',                     'E',
-                'gtk_clist_find_row_from_data',                 'E',
-                'GTK_CLIST_FLAGS',                              'E',
-                'gtk_clist_freeze',                             'E',
-                'gtk_clist_get_cell_style',                     'E',
-                'gtk_clist_get_cell_type',                      'E',
-                'gtk_clist_get_column_title',                   'E',
-                'gtk_clist_get_column_widget',                  'E',
-                'gtk_clist_get_hadjustment',                    'E',
-                'gtk_clist_get_pixmap',                         'E',
-                'gtk_clist_get_pixtext',                        'E',
-                'gtk_clist_get_row_data',                       'E',
-                'gtk_clist_get_row_style',                      'E',
-                'gtk_clist_get_selectable',                     'E',
-                'gtk_clist_get_selection_info',                 'E',
-                'gtk_clist_get_text',                           'E',
-                'gtk_clist_get_vadjustment',                    'E',
-                'GTK_CLIST_IN_DRAG',                            'E',
-                'gtk_clist_insert',                             'E',
-                'gtk_clist_moveto',                             'E',
-                'gtk_clist_new',                                'E',
-                'gtk_clist_new_with_titles',                    'E',
-                'gtk_clist_optimal_column_width',               'E',
-                'gtk_clist_prepend',                            'E',
-                'gtk_clist_remove',                             'E',
-                'GTK_CLIST_REORDERABLE',                        'E',
-                'GTK_CLIST_ROW',                                'E',
-                'GTK_CLIST_ROW_HEIGHT_SET',                     'E',
-                'gtk_clist_row_is_visible',                     'E',
-                'gtk_clist_row_move',                           'E',
-                'gtk_clist_select_all',                         'E',
-                'gtk_clist_select_row',                         'E',
-                'gtk_clist_set_auto_sort',                      'E',
-                'gtk_clist_set_background',                     'E',
-                'gtk_clist_set_button_actions',                 'E',
-                'gtk_clist_set_cell_style',                     'E',
-                'gtk_clist_set_column_auto_resize',             'E',
-                'gtk_clist_set_column_justification',           'E',
-                'gtk_clist_set_column_max_width',               'E',
-                'gtk_clist_set_column_min_width',               'E',
-                'gtk_clist_set_column_resizeable',              'E',
-                'gtk_clist_set_column_title',                   'E',
-                'gtk_clist_set_column_visibility',              'E',
-                'gtk_clist_set_column_widget',                  'E',
-                'gtk_clist_set_column_width',                   'E',
-                'gtk_clist_set_compare_func',                   'E',
-                'GTK_CLIST_SET_FLAG',                           'E',
-                'gtk_clist_set_foreground',                     'E',
-                'gtk_clist_set_hadjustment',                    'E',
-                'gtk_clist_set_pixmap',                         'E',
-                'gtk_clist_set_pixtext',                        'E',
-                'gtk_clist_set_reorderable',                    'E',
-                'gtk_clist_set_row_data',                       'E',
-                'gtk_clist_set_row_data_full',                  'E',
-                'gtk_clist_set_row_height',                     'E',
-                'gtk_clist_set_row_style',                      'E',
-                'gtk_clist_set_selectable',                     'E',
-                'gtk_clist_set_selection_mode',                 'E',
-                'gtk_clist_set_shadow_type',                    'E',
-                'gtk_clist_set_shift',                          'E',
-                'gtk_clist_set_sort_column',                    'E',
-                'gtk_clist_set_sort_type',                      'E',
-                'gtk_clist_set_text',                           'E',
-                'gtk_clist_set_use_drag_icons',                 'E',
-                'gtk_clist_set_vadjustment',                    'E',
-                'GTK_CLIST_SHOW_TITLES',                        'E',
-                'gtk_clist_sort',                               'E',
-                'gtk_clist_swap_rows',                          'E',
-                'gtk_clist_thaw',                               'E',
-                'gtk_clist_undo_selection',                     'E',
-                'gtk_clist_unselect_all',                       'E',
-                'gtk_clist_unselect_row',                       'E',
-                'GTK_CLIST_UNSET_FLAG',                         'E',
-                'GTK_CLIST_USE_DRAG_ICONS',                     'E',
-                'gtk_color_selection_get_color',                'E',
-                'gtk_color_selection_set_change_palette_hook',  'E',
-                'gtk_color_selection_set_color',                'E',
-                'gtk_color_selection_set_update_policy',        'E',
-                'gtk_combo_box_append_text',                    'E', #
-                'gtk_combo_box_entry_get_text_column',          'E', #
-                'gtk_combo_box_entry_new',                      'E', #
-                'gtk_combo_box_entry_new_text',                 'E', #
-                'gtk_combo_box_entry_new_with_model',           'E', #
-                'gtk_combo_box_entry_set_text_column',          'E', #
-                'gtk_combo_box_get_active_text',                'E', #
-                'gtk_combo_box_insert_text',                    'E', #
-                'gtk_combo_box_new_text',                       'E', #
-                'gtk_combo_box_prepend_text',                   'E', #
-                'gtk_combo_box_remove_text',                    'E', #
-                'gtk_combo_disable_activate',                   'E', # GtkComboBoxEntry ... (avail since 2.4/2.6/2.10/2.14)
-                'gtk_combo_new',                                'E',
-                'gtk_combo_set_case_sensitive',                 'E',
-                'gtk_combo_set_item_string',                    'E',
-                'gtk_combo_set_popdown_strings',                'E',
-                'gtk_combo_set_use_arrows',                     'E',
-                'gtk_combo_set_use_arrows_always',              'E',
-                'gtk_combo_set_value_in_list',                  'E',
-                'gtk_container_border_width',                   'E', # gtk_container_set_border_width [==]
-                'gtk_container_children',                       'E', # gtk_container_get_children [==]
-                'gtk_container_foreach_full',                   'E',
-                'gtk_ctree_collapse',                           'E',
-                'gtk_ctree_collapse_recursive',                 'E',
-                'gtk_ctree_collapse_to_depth',                  'E',
-                'gtk_ctree_expand',                             'E',
-                'gtk_ctree_expand_recursive',                   'E',
-                'gtk_ctree_expand_to_depth',                    'E',
-                'gtk_ctree_export_to_gnode',                    'E',
-                'gtk_ctree_find',                               'E',
-                'gtk_ctree_find_all_by_row_data',               'E',
-                'gtk_ctree_find_all_by_row_data_custom',        'E',
-                'gtk_ctree_find_by_row_data',                   'E',
-                'gtk_ctree_find_by_row_data_custom',            'E',
-                'gtk_ctree_find_node_ptr',                      'E',
-                'GTK_CTREE_FUNC',                               'E',
-                'gtk_ctree_get_node_info',                      'E',
-                'gtk_ctree_insert_gnode',                       'E',
-                'gtk_ctree_insert_node',                        'E',
-                'gtk_ctree_is_ancestor',                        'E',
-                'gtk_ctree_is_hot_spot',                        'E',
-                'gtk_ctree_is_viewable',                        'E',
-                'gtk_ctree_last',                               'E',
-                'gtk_ctree_move',                               'E',
-                'gtk_ctree_new',                                'E',
-                'gtk_ctree_new_with_titles',                    'E',
-                'GTK_CTREE_NODE',                               'E',
-                'gtk_ctree_node_get_cell_style',                'E',
-                'gtk_ctree_node_get_cell_type',                 'E',
-                'gtk_ctree_node_get_pixmap',                    'E',
-                'gtk_ctree_node_get_pixtext',                   'E',
-                'gtk_ctree_node_get_row_data',                  'E',
-                'gtk_ctree_node_get_row_style',                 'E',
-                'gtk_ctree_node_get_selectable',                'E',
-                'gtk_ctree_node_get_text',                      'E',
-                'gtk_ctree_node_is_visible',                    'E',
-                'gtk_ctree_node_moveto',                        'E',
-                'GTK_CTREE_NODE_NEXT',                          'E',
-                'gtk_ctree_node_nth',                           'E',
-                'GTK_CTREE_NODE_PREV',                          'E',
-                'gtk_ctree_node_set_background',                'E',
-                'gtk_ctree_node_set_cell_style',                'E',
-                'gtk_ctree_node_set_foreground',                'E',
-                'gtk_ctree_node_set_pixmap',                    'E',
-                'gtk_ctree_node_set_pixtext',                   'E',
-                'gtk_ctree_node_set_row_data',                  'E',
-                'gtk_ctree_node_set_row_data_full',             'E',
-                'gtk_ctree_node_set_row_style',                 'E',
-                'gtk_ctree_node_set_selectable',                'E',
-                'gtk_ctree_node_set_shift',                     'E',
-                'gtk_ctree_node_set_text',                      'E',
-                'gtk_ctree_post_recursive',                     'E',
-                'gtk_ctree_post_recursive_to_depth',            'E',
-                'gtk_ctree_pre_recursive',                      'E',
-                'gtk_ctree_pre_recursive_to_depth',             'E',
-                'gtk_ctree_real_select_recursive',              'E',
-                'gtk_ctree_remove_node',                        'E',
-                'GTK_CTREE_ROW',                                'E',
-                'gtk_ctree_select',                             'E',
-                'gtk_ctree_select_recursive',                   'E',
-                'gtk_ctree_set_drag_compare_func',              'E',
-                'gtk_ctree_set_expander_style',                 'E',
-                'gtk_ctree_set_indent',                         'E',
-                'gtk_ctree_set_line_style',                     'E',
-                'gtk_ctree_set_node_info',                      'E',
-                'gtk_ctree_set_reorderable',                    'E',
-                'gtk_ctree_set_show_stub',                      'E',
-                'gtk_ctree_set_spacing',                        'E',
-                'gtk_ctree_sort_node',                          'E',
-                'gtk_ctree_sort_recursive',                     'E',
-                'gtk_ctree_toggle_expansion',                   'E',
-                'gtk_ctree_toggle_expansion_recursive',         'E',
-                'gtk_ctree_unselect',                           'E',
-                'gtk_ctree_unselect_recursive',                 'E',
-                'gtk_curve_get_vector',                         'E', # since 2.20
-                'gtk_curve_new',                                'E', # since 2.20
-                'gtk_curve_reset',                              'E', # since 2.20
-                'gtk_curve_set_curve_type',                     'E', # since 2.20
-                'gtk_curve_set_gamma',                          'E', # since 2.20
-                'gtk_curve_set_range',                          'E', # since 2.20
-                'gtk_curve_set_vector',                         'E', # since 2.20
-                'gtk_dialog_get_has_separator',                 'E', # This function will be removed in GTK+ 3
-                'gtk_dialog_set_has_separator',                 'E', # This function will be removed in GTK+ 3
-                'gtk_drag_set_default_icon',                    'E',
-                'gtk_draw_arrow',                               'E',
-                'gtk_draw_box',                                 'E',
-                'gtk_draw_box_gap',                             'E',
-                'gtk_draw_check',                               'E',
-                'gtk_draw_diamond',                             'E',
-                'gtk_draw_expander',                            'E',
-                'gtk_draw_extension',                           'E',
-                'gtk_draw_flat_box',                            'E',
-                'gtk_draw_focus',                               'E',
-                'gtk_draw_handle',                              'E',
-                'gtk_draw_hline',                               'E',
-                'gtk_draw_layout',                              'E',
-                'gtk_draw_option',                              'E',
-                'gtk_draw_polygon',                             'E',
-                'gtk_draw_resize_grip',                         'E',
-                'gtk_draw_shadow',                              'E',
-                'gtk_draw_shadow_gap',                          'E',
-                'gtk_draw_slider',                              'E',
-                'gtk_draw_string',                              'E',
-                'gtk_draw_tab',                                 'E',
-                'gtk_draw_vline',                               'E',
-                'gtk_drawing_area_size',                        'E', # >> g_object_set() [==] ?
-                                                                     #    gtk_widget_set_size_request() [==?]
-                'gtk_entry_append_text',                        'E', # >> gtk_editable_insert_text() [==?]
-                'gtk_entry_new_with_max_length',                'E', # gtk_entry_new(); gtk_entry_set_max_length()
-                'gtk_entry_prepend_text',                       'E',
-                'gtk_entry_select_region',                      'E',
-                'gtk_entry_set_editable',                       'E', # >> gtk_editable_set_editable() [==?]
-                'gtk_entry_set_position',                       'E',
-                'gtk_exit',                                     'E', # exit() [==]
-                'gtk_file_chooser_button_new_with_backend',     'E',
-                'gtk_file_chooser_dialog_new_with_backend',     'E',
-                'gtk_file_chooser_widget_new_with_backend',     'E',
-                'gtk_file_selection_complete',                  'E',
-                'gtk_file_selection_get_filename',              'E', # GtkFileChooser ...
-                'gtk_file_selection_get_select_multiple',       'E',
-                'gtk_file_selection_get_selections',            'E',
-                'gtk_file_selection_hide_fileop_buttons',       'E',
-                'gtk_file_selection_new',                       'E',
-                'gtk_file_selection_set_filename',              'E',
-                'gtk_file_selection_set_select_multiple',       'E',
-                'gtk_file_selection_show_fileop_buttons',       'E',
-                'gtk_fixed_get_has_window',                     'E', # gtk_widget_get_has_window() (available since 2.18)
-                'gtk_fixed_set_has_window',                     'E', # gtk_widget_set_has_window() (available since 2.18)
-                'gtk_font_selection_dialog_get_apply_button',   'E',
-                'gtk_font_selection_dialog_get_font',           'E',
-                'gtk_font_selection_get_font',                  'E', # gtk_font_selection_get_font_name() [!=]
-                'GTK_FUNDAMENTAL_TYPE',                         'E',
-                'gtk_gamma_curve_new',                          'E', # since 2.20
-                'gtk_hbox_new',                                 'W', # gtk_box_new
-                'gtk_hbutton_box_get_layout_default',           'E',
-                'gtk_hbutton_box_get_spacing_default',          'E',
-                'gtk_hbutton_box_new',                          'W', # gtk_button_box_new
-                'gtk_hbutton_box_set_layout_default',           'E',
-                'gtk_hbutton_box_set_spacing_default',          'E',
-                'gtk_hruler_new',                               'E', # since 2.24
-                'gtk_icon_view_get_orientation',                'E', # gtk_icon_view_get_item_orientation()
-                'gtk_icon_view_set_orientation',                'E', # gtk_icon_view_set_item_orientation()
-                'gtk_idle_add',                                 'E',
-                'gtk_idle_add_full',                            'E',
-                'gtk_idle_add_priority',                        'E',
-                'gtk_idle_remove',                              'E',
-                'gtk_idle_remove_by_data',                      'E',
-                'gtk_image_get',                                'E',
-                'gtk_image_set',                                'E',
-                'gtk_init_add',                                 'E', # removed in 3.0
-                'gtk_input_add_full',                           'E', # >>> g_io_add_watch_full()
-                'gtk_input_dialog_new',                         'E', # since 2.20
-                'gtk_input_remove',                             'E', # >>> g_source_remove()
-                'GTK_IS_ROOT_TREE',                             'E',
-                'gtk_item_deselect',                            'E', # gtk_menu_item_deselect()
-                'gtk_item_select',                              'E', # gtk_menu_item_select()
-                'gtk_item_toggle',                              'E', #
-                'gtk_item_factories_path_delete',               'E', # GtkUIManager (avail since 2.4) ...
-                'gtk_item_factory_add_foreign',                 'E',
-                'gtk_item_factory_construct',                   'E',
-                'gtk_item_factory_create_item',                 'W',
-                'gtk_item_factory_create_items',                'E',
-                'gtk_item_factory_create_items_ac',             'E',
-                'gtk_item_factory_create_menu_entries',         'E',
-                'gtk_item_factory_delete_entries',              'E',
-                'gtk_item_factory_delete_entry',                'E',
-                'gtk_item_factory_delete_item',                 'E',
-                'gtk_item_factory_from_path',                   'E',
-                'gtk_item_factory_from_widget',                 'W',
-                'gtk_item_factory_get_item',                    'W',
-                'gtk_item_factory_get_item_by_action',          'E',
-                'gtk_item_factory_get_widget',                  'W',
-                'gtk_item_factory_get_widget_by_action',        'E',
-                'gtk_item_factory_new',                         'E',
-                'gtk_item_factory_path_from_widget',            'E',
-                'gtk_item_factory_popup',                       'E',
-                'gtk_item_factory_popup_data',                  'E',
-                'gtk_item_factory_popup_data_from_widget',      'E',
-                'gtk_item_factory_popup_with_data',             'E',
-                'gtk_item_factory_set_translate_func',          'E',
-                'gtk_label_get',                                'E', # gtk_label_get_text() [!=]
-                'gtk_label_parse_uline',                        'E',
-                'gtk_label_set',                                'E', # gtk_label_set_text() [==]
-                'gtk_layout_freeze',                            'E',
-                'gtk_layout_thaw',                              'E',
-                'gtk_link_button_set_uri_hook',                 'E', # since 2.24
-                'gtk_list_append_items',                        'E',
-                'gtk_list_child_position',                      'E',
-                'gtk_list_clear_items',                         'E',
-                'gtk_list_end_drag_selection',                  'E',
-                'gtk_list_end_selection',                       'E',
-                'gtk_list_extend_selection',                    'E',
-                'gtk_list_insert_items',                        'E',
-                'gtk_list_item_deselect',                       'E',
-                'gtk_list_item_new',                            'E',
-                'gtk_list_item_new_with_label',                 'E',
-                'gtk_list_item_select',                         'E',
-                'gtk_list_new',                                 'E',
-                'gtk_list_prepend_items',                       'E',
-                'gtk_list_remove_items',                        'E',
-                'gtk_list_remove_items_no_unref',               'E',
-                'gtk_list_scroll_horizontal',                   'E',
-                'gtk_list_scroll_vertical',                     'E',
-                'gtk_list_select_all',                          'E',
-                'gtk_list_select_child',                        'E',
-                'gtk_list_select_item',                         'E',
-                'gtk_list_set_selection_mode',                  'E',
-                'gtk_list_start_selection',                     'E',
-                'gtk_list_toggle_add_mode',                     'E',
-                'gtk_list_toggle_focus_row',                    'E',
-                'gtk_list_toggle_row',                          'E',
-                'gtk_list_undo_selection',                      'E',
-                'gtk_list_unselect_all',                        'E',
-                'gtk_list_unselect_child',                      'E',
-                'gtk_list_unselect_item',                       'E',
-                'gtk_menu_append',                              'E', # gtk_menu_shell_append() [==?]
-                'gtk_menu_bar_append',                          'E',
-                'gtk_menu_bar_insert',                          'E',
-                'gtk_menu_bar_prepend',                         'E',
-                'gtk_menu_insert',                              'E',
-                'gtk_menu_item_remove_submenu',                 'E',
-                'gtk_menu_item_right_justify',                  'E',
-                'gtk_menu_prepend',                             'E', # gtk_menu_shell_prepend() [==?]
-                'gtk_menu_tool_button_set_arrow_tooltip',       'E',
-                'gtk_notebook_current_page',                    'E',
-                'gtk_notebook_get_group',                       'E', # since 2.24
-                'gtk_notebook_get_group_id',                    'E',
-                'gtk_notebook_query_tab_label_packing',         'E', # since 2.20
-                'gtk_nitebook_set_group',                       'E', # since 2.24
-                'gtk_notebook_set_group_id',                    'E',
-                'gtk_notebook_set_homogeneous_tabs',            'E',
-                'gtk_notebook_set_page',                        'E', # gtk_notebook_set_current_page() [==]
-                'gtk_notebook_set_tab_border',                  'E',
-                'gtk_notebook_set_tab_hborder',                 'E',
-                'gtk_notebook_set_tab_label_packing',           'E', # since 2.20
-                'gtk_notebook_set_tab_vborder',                 'E',
-                'gtk_notebook_set_window_creation_hook',        'E', # since 2.24
-                'gtk_object_add_arg_type',                      'E',
-                'gtk_object_data_force_id',                     'E',
-                'gtk_object_data_try_key',                      'E',
-                'gtk_object_destroy',                           'E', # since 2.24
-                'GTK_OBJECT_FLAGS',                             'E', # since 2.22
-                'GTK_OBJECT_FLOATING',                          'E',
-                'gtk_object_get',                               'E',
-                'gtk_object_get_data',                          'E',
-                'gtk_object_get_data_by_id',                    'E',
-                'gtk_object_get_user_data',                     'E',
-                'gtk_object_new',                               'E',
-                'gtk_object_ref',                               'E',
-                'gtk_object_remove_data',                       'E',
-                'gtk_object_remove_data_by_id',                 'E',
-                'gtk_object_remove_no_notify',                  'E',
-                'gtk_object_remove_no_notify_by_id',            'E',
-                'gtk_object_set',                               'E',
-                'gtk_object_set_data',                          'E',
-                'gtk_object_set_data_by_id',                    'E',
-                'gtk_object_set_data_by_id_full',               'E',
-                'gtk_object_set_data_full',                     'E',
-                'gtk_object_set_user_data',                     'E',
-                'gtk_object_sink',                              'E',
-                'GTK_OBJECT_TYPE',                              'E', # G_OBJECT_TYPE
-                'GTK_OBJECT_TYPE_NAME',                         'E', # G_OBJECT_TYPE_NAME
-                'gtk_object_unref',                             'E',
-                'gtk_object_weakref',                           'E',
-                'gtk_object_weakunref',                         'E',
-                'gtk_old_editable_changed',                     'E',
-                'gtk_old_editable_claim_selection',             'E',
-                'gtk_option_menu_get_history',                  'E', # GtkComboBox ... (avail since 2.4/2.6/2.10/2.14)
-                'gtk_option_menu_get_menu',                     'E',
-                'gtk_option_menu_new',                          'E',
-                'gtk_option_menu_remove_menu',                  'E',
-                'gtk_option_menu_set_history',                  'E',
-                'gtk_option_menu_set_menu',                     'E',
-                'gtk_paint_string',                             'E',
-                'gtk_paned_gutter_size',                        'E', # gtk_paned_set_gutter_size()
-                'gtk_paned_set_gutter_size',                    'E', # "does nothing"
-                'gtk_pixmap_get',                               'E', # GtkImage ...
-                'gtk_pixmap_new',                               'E',
-                'gtk_pixmap_set',                               'E',
-                'gtk_pixmap_set_build_insensitive',             'E',
-                'gtk_preview_draw_row',                         'E',
-                'gtk_preview_get_cmap',                         'E',
-                'gtk_preview_get_info',                         'E',
-                'gtk_preview_get_visual',                       'E',
-                'gtk_preview_new',                              'E',
-                'gtk_preview_put',                              'E',
-                'gtk_preview_reset',                            'E',
-                'gtk_preview_set_color_cube',                   'E',
-                'gtk_preview_set_dither',                       'E',
-                'gtk_preview_set_expand',                       'E',
-                'gtk_preview_set_gamma',                        'E',
-                'gtk_preview_set_install_cmap',                 'E',
-                'gtk_preview_set_reserved',                     'E',
-                'gtk_preview_size',                             'E',
-                'gtk_preview_uninit',                           'E',
-                'GTK_PRIORITY_DEFAULT',                         'E',
-                'GTK_PRIORITY_HIGH',                            'E',
-                'GTK_PRIORITY_INTERNAL',                        'E',
-                'GTK_PRIORITY_LOW',                             'E',
-                'GTK_PRIORITY_REDRAW',                          'E',
-                'gtk_progress_bar_new_with_adjustment',         'E',
-                'gtk_progress_bar_set_activity_blocks',         'E',
-                'gtk_progress_bar_set_activity_step',           'E',
-                'gtk_progress_bar_set_bar_style',               'E',
-                'gtk_progress_bar_set_discrete_blocks',         'E',
-                'gtk_progress_bar_update',                      'E', # >>> "gtk_progress_set_value() or
-                                                                     #    gtk_progress_set_percentage()"
-                                                                     ##  Actually: GtkProgress is deprecated so the
-                                                                     ##  right answer appears to be to use
-                                                                     ##  gtk_progress_bar_set_fraction()
-                'gtk_progress_configure',                       'E',
-                'gtk_progress_get_current_percentage',          'E',
-                'gtk_progress_get_current_text',                'E',
-                'gtk_progress_get_percentage_from_value',       'E',
-                'gtk_progress_get_text_from_value',             'E',
-                'gtk_progress_get_value',                       'E',
-                'gtk_progress_set_activity_mode',               'E',
-                'gtk_progress_set_adjustment',                  'E',
-                'gtk_progress_set_format_string',               'E',
-                'gtk_progress_set_percentage',                  'E',
-                'gtk_progress_set_show_text',                   'E',
-                'gtk_progress_set_text_alignment',              'E',
-                'gtk_progress_set_value',                       'E',
-                'gtk_quit_add',                                 'E', # removed in 3.0
-                'gtk_quit_add_destroy',                         'E',
-                'gtk_quit_add_full',                            'E',
-                'gtk_quit_remove',                              'E',
-                'gtk_quit_remove_by_data',                      'E',
-                'gtk_radio_button_group',                       'E', # gtk_radio_button_get_group() [==]
-                'gtk_radio_menu_item_group',                    'E',
-                'gtk_range_get_update_policy',                  'E',
-                'gtk_range_set_update_policy',                  'E',
-                'gtk_rc_add_class_style',                       'E',
-                'gtk_rc_add_widget_class_style',                'E',
-                'gtk_rc_add_widget_name_style',                 'E',
-                'gtk_rc_style_ref',                             'E',
-                'gtk_rc_style_unref',                           'E',
-                'gtk_recent_chooser_get_show_numbers',          'E',
-                'gtk_recent_chooser_set_show_numbers',          'E',
-                'gtk_recent_manager_get_for_screen',            'E',
-                'gtk_recent_manager_get_limit',                 'E', # Use GtkRecentChooser
-                'gtk_recent_manager_set_limit',                 'E', #
-                'gtk_recent_manager_set_screen',                'E',
-                'GTK_RETLOC_BOOL',                              'E',
-                'GTK_RETLOC_BOXED',                             'E',
-                'GTK_RETLOC_CHAR',                              'E',
-                'GTK_RETLOC_DOUBLE',                            'E',
-                'GTK_RETLOC_ENUM',                              'E',
-                'GTK_RETLOC_FLAGS',                             'E',
-                'GTK_RETLOC_FLOAT',                             'E',
-                'GTK_RETLOC_INT',                               'E',
-                'GTK_RETLOC_LONG',                              'E',
-                'GTK_RETLOC_OBJECT',                            'E',
-                'GTK_RETLOC_POINTER',                           'E',
-                'GTK_RETLOC_STRING',                            'E',
-                'GTK_RETLOC_UCHAR',                             'E',
-                'GTK_RETLOC_UINT',                              'E',
-                'GTK_RETLOC_ULONG',                             'E',
-                'gtk_ruler_get_metric',                         'E',
-                'gtk_ruler_get_range',                          'E',
-                'gtk_ruler_set_metric',                         'E',
-                'gtk_ruler_set_range',                          'E',
-                'gtk_scale_button_get_orientation',             'E', # gtk_orientable_get_orientation()         (avail since 2.16)
-                'gtk_scale_button_set_orientation',             'E', # gtk_orientable_set_orientation()         (avail since 2.16)
-                'gtk_status_icon_set_tooltip',                  'E', # gtk_status_icon_set_tooltip_text()       (avail since 2.16)
-                'gtk_selection_clear',                          'E',
-                'gtk_set_locale',                               'E',
-                'gtk_signal_connect',                           'E', # GSignal ...
-                'gtk_signal_connect_after',                     'E',
-                'gtk_signal_connect_full',                      'E',
-                'gtk_signal_connect_object',                    'E',
-                'gtk_signal_connect_object_after',              'E',
-                'gtk_signal_connect_object_while_alive',        'E',
-                'gtk_signal_connect_while_alive',               'E',
-                'gtk_signal_default_marshaller',                'E',
-                'gtk_signal_disconnect',                        'E',
-                'gtk_signal_disconnect_by_data',                'E',
-                'gtk_signal_disconnect_by_func',                'E',
-                'gtk_signal_emit',                              'E',
-                'gtk_signal_emit_by_name',                      'E',
-                'gtk_signal_emit_stop',                         'E',
-                'gtk_signal_emit_stop_by_name',                 'E',
-                'gtk_signal_emitv',                             'E',
-                'gtk_signal_emitv_by_name',                     'E',
-                'GTK_SIGNAL_FUNC',                              'E',
-                'gtk_signal_handler_block',                     'E',
-                'gtk_signal_handler_block_by_data',             'E',
-                'gtk_signal_handler_block_by_func',             'E',
-                'gtk_signal_handler_pending',                   'E',
-                'gtk_signal_handler_pending_by_func',           'E',
-                'gtk_signal_handler_unblock',                   'E',
-                'gtk_signal_handler_unblock_by_data',           'E',
-                'gtk_signal_handler_unblock_by_func',           'E',
-                'gtk_signal_lookup',                            'E',
-                'gtk_signal_name',                              'E',
-                'gtk_signal_new',                               'E',
-                'gtk_signal_newv',                              'E',
-                'GTK_SIGNAL_OFFSET',                            'E',
-                'gtk_socket_steal',                             'E',
-                'gtk_spin_button_get_value_as_float',           'E', # gtk_spin_button_get_value() [==]
-                'gtk_status_icon_get_blinking',                 'E',
-                'gtk_status_icon_set_blinking',                 'E',
-                'GTK_STRUCT_OFFSET',                            'E',
-                'gtk_style_apply_default_pixmap',               'E',
-                'gtk_style_get_font',                           'E',
-                'gtk_style_ref',                                'E',
-                'gtk_style_set_font',                           'E',
-                'gtk_style_unref',                              'E', # g_object_unref() [==?]
-                'gtk_text_backward_delete',                     'E',
-                'gtk_text_forward_delete',                      'E',
-                'gtk_text_freeze',                              'E',
-                'gtk_text_get_length',                          'E',
-                'gtk_text_get_point',                           'E',
-                'GTK_TEXT_INDEX',                               'E',
-                'gtk_text_insert',                              'E', # GtkTextView (GtkText "known to be buggy" !)
-                'gtk_text_new',                                 'E',
-                'gtk_text_set_adjustments',                     'E',
-                'gtk_text_set_editable',                        'E',
-                'gtk_text_set_line_wrap',                       'E',
-                'gtk_text_set_point',                           'E',
-                'gtk_text_set_word_wrap',                       'E',
-                'gtk_text_thaw',                                'E',
-                'gtk_timeout_add',                              'E', # g_timeout_add()
-                'gtk_timeout_add_full',                         'E',
-                'gtk_timeout_remove',                           'E', # g_source_remove()
-                'gtk_tips_query_new',                           'E',
-                'gtk_tips_query_set_caller',                    'E',
-                'gtk_tips_query_set_labels',                    'E',
-                'gtk_tips_query_start_query',                   'E',
-                'gtk_tips_query_stop_query',                    'E',
-                'gtk_toggle_button_set_state',                  'E', # gtk_toggle_button_set_active [==]
-                'gtk_toolbar_append_element',                   'E',
-                'gtk_toolbar_append_item',                      'E',
-                'gtk_toolbar_append_space',                     'E', # Use gtk_toolbar_insert() instead
-                'gtk_toolbar_append_widget',                    'E', # ??
-                'gtk_toolbar_get_orientation',                  'E', # gtk_orientable_get_orientation()         (avail since 2.16)
-                'gtk_toolbar_get_tooltips',                     'E',
-                'gtk_toolbar_insert_element',                   'E',
-                'gtk_toolbar_insert_item',                      'E',
-                'gtk_toolbar_insert_space',                     'E',
-                'gtk_toolbar_insert_stock',                     'E',
-                'gtk_toolbar_insert_widget',                    'E',
-                'gtk_toolbar_prepend_element',                  'E',
-                'gtk_toolbar_prepend_item',                     'E',
-                'gtk_toolbar_prepend_space',                    'E',
-                'gtk_toolbar_prepend_widget',                   'E',
-                'gtk_toolbar_remove_space',                     'E',
-                'gtk_toolbar_set_orientation',                  'E', # gtk_orientable_set_orientation()         (avail since 2.16)
-                'gtk_toolbar_set_tooltips',                     'E',
-                'gtk_tooltips_data_get',                        'E', # new API: GtkToolTip (avail since 2.12) ...
-                'gtk_tooltips_disable',                         'E',
-                'gtk_tooltips_enable',                          'E',
-                'gtk_tooltips_force_window',                    'E',
-                'gtk_tooltips_get_info_from_tip_window',        'E',
-                'gtk_tooltips_new',                             'E',
-                'gtk_tooltips_set_delay',                       'E',
-                'gtk_tooltips_set_tip',                         'E',
-                'gtk_tool_item_set_tooltip',                    'E', # gtk_tool_item_set_tooltip_text() (avail since 2.12)
-                'gtk_tree_append',                              'E',
-                'gtk_tree_child_position',                      'E',
-                'gtk_tree_clear_items',                         'E',
-                'gtk_tree_insert',                              'E',
-                'gtk_tree_item_collapse',                       'E',
-                'gtk_tree_item_deselect',                       'E',
-                'gtk_tree_item_expand',                         'E',
-                'gtk_tree_item_new',                            'E',
-                'gtk_tree_item_new_with_label',                 'E',
-                'gtk_tree_item_remove_subtree',                 'E',
-                'gtk_tree_item_select',                         'E',
-                'gtk_tree_item_set_subtree',                    'E',
-                'GTK_TREE_ITEM_SUBTREE',                        'E',
-                'gtk_tree_model_get_iter_root',                 'E',
-                'gtk_tree_new',                                 'E',
-                'gtk_tree_path_new_root',                       'E',
-                'gtk_tree_prepend',                             'E',
-                'gtk_tree_remove_item',                         'E',
-                'gtk_tree_remove_items',                        'E',
-                'GTK_TREE_ROOT_TREE',                           'E',
-                'gtk_tree_select_child',                        'E',
-                'gtk_tree_select_item',                         'E',
-                'GTK_TREE_SELECTION_OLD',                       'E',
-                'gtk_tree_set_selection_mode',                  'E',
-                'gtk_tree_set_view_lines',                      'E',
-                'gtk_tree_set_view_mode',                       'E',
-                'gtk_tree_unselect_child',                      'E',
-                'gtk_tree_unselect_item',                       'E',
-                'gtk_tree_view_column_get_cell_renderers',      'E', # gtk_cell_layout_get_cells ()             (avail since 2.12)
-                'gtk_tree_view_tree_to_widget_coords',          'E',
-                'gtk_tree_view_widget_to_tree_coords',          'E',
-                'gtk_type_class',                               'E', # g_type_class_peek() or g_type_class_ref()
-                'GTK_TYPE_CTREE_NODE',                          'E',
-                'gtk_type_enum_find_value',                     'E',
-                'gtk_type_enum_get_values',                     'E',
-                'gtk_type_flags_find_value',                    'E',
-                'gtk_type_flags_get_values',                    'E',
-                'gtk_type_from_name',                           'E',
-                'gtk_type_init',                                'E',
-                'gtk_type_is_a',                                'E',
-                'GTK_TYPE_FUNDAMENTAL_LAST',                    'E',
-                'GTK_TYPE_FUNDAMENTAL_MAX',                     'E',
-                'GTK_TYPE_IS_OBJECT',                           'E',
-                'gtk_type_name',                                'E',
-                'gtk_type_new',                                 'E',
-                'gtk_type_parent',                              'E',
-                'gtk_type_unique',                              'E',
-                'GTK_VALUE_BOOL',                               'E',
-                'GTK_VALUE_BOXED',                              'E',
-                'GTK_VALUE_CHAR',                               'E',
-                'GTK_VALUE_DOUBLE',                             'E',
-                'GTK_VALUE_ENUM',                               'E',
-                'GTK_VALUE_FLAGS',                              'E',
-                'GTK_VALUE_FLOAT',                              'E',
-                'GTK_VALUE_INT',                                'E',
-                'GTK_VALUE_LONG',                               'E',
-                'GTK_VALUE_OBJECT',                             'E',
-                'GTK_VALUE_POINTER',                            'E',
-                'GTK_VALUE_SIGNAL',                             'E',
-                'GTK_VALUE_STRING',                             'E',
-                'GTK_VALUE_UCHAR',                              'E',
-                'GTK_VALUE_UINT',                               'E',
-                'GTK_VALUE_ULONG',                              'E',
-                'gtk_vbox_new',                                 'W', # ws_gtk_box_new
-                'gtk_vbutton_box_get_layout_default',           'E',
-                'gtk_vbutton_box_get_spacing_default',          'E',
-                'gtk_vbutton_box_set_layout_default',           'E',
-                'gtk_vbutton_box_set_spacing_default',          'E',
-                'gtk_vruler_new',                               'E',
-                'GTK_WIDGET_APP_PAINTABLE',                     'E', # gtk_widget_get_app_paintable()    (avail since 2.18)
-                'GTK_WIDGET_CAN_DEFAULT',                       'E', # gtk_widget_get_can_default()      (avail since 2.18)
-                'GTK_WIDGET_CAN_FOCUS',                         'E', # gtk_widget_get_can_focus()        (avail since 2.18)
-                'GTK_WIDGET_COMPOSITE_CHILD',                   'E', # gtk_widget_get_composite_child()  (avail since 2.18)
-                'GTK_WIDGET_DOUBLE_BUFFERED',                   'E', # gtk_widget_get_double_buffered()  (avail since 2.18)
-                'GTK_WIDGET_DRAWABLE',                          'E', # gtk_widget_get_drawable()         (avail since 2.18)
-                'GTK_WIDGET_FLAGS',                             'E', # gtk_widget_get_flags()            (avail since 2.18)
-                'GTK_WIDGET_HAS_DEFAULT',                       'E', # gtk_widget_get_has_default()      (avail since 2.18)
-                'GTK_WIDGET_HAS_FOCUS',                         'E', # gtk_widget_get_has_focus()        (avail since 2.18)
-                'GTK_WIDGET_HAS_GRAB',                          'E', # gtk_widget_get_has_grab()         (avail since 2.18)
-                'GTK_WIDGET_IS_SENSITIVE',                      'E', # gtk_widget_get_is_sensitive()     (avail since 2.18)
-                'GTK_WIDGET_MAPPED',                            'E', # gtk_widget_get_mapped()           (avail since 2.18)
-                'GTK_WIDGET_NO_WINDOW',                         'E', # gtk_widget_get_no_window()        (avail since 2.18)
-                'GTK_WIDGET_PARENT_SENSITIVE',                  'E', # gtk_widget_get_parent_sensitive() (avail since 2.18)
-                'GTK_WIDGET_RC_STYLE',                          'E', # gtk_widget_get_rc_style()         (avail since 2.18)
-                'GTK_WIDGET_REALIZED',                          'E', # gtk_widget_get_realized()         (avail since 2.18)
-                'GTK_WIDGET_RECEIVES_DEFAULT',                  'E', # gtk_widget_get_receives_default() (avail since 2.18)
-                'GTK_WIDGET_SAVED_STATE',                       'E', # gtk_widget_get_saved_state()      (avail since 2.18)
-                'GTK_WIDGET_SENSITIVE',                         'E', # gtk_widget_get_sensitive()        (avail since 2.18)
-                'GTK_WIDGET_SET_FLAGS',                         'W', # since GTK 2.22
-                'GTK_WIDGET_STATE',                             'E', # gtk_widget_get_state()            (avail since 2.18)
-                'GTK_WIDGET_TOPLEVEL',                          'E', # gtk_widget_get_toplevel()         (avail since 2.18)
-                'GTK_WIDGET_TYPE',                              'E', # gtk_widget_get_type()             (avail since 2.18)
-                'GTK_WIDGET_UNSET_FLAGS',                       'E',
-                'GTK_WIDGET_VISIBLE',                           'E', # gtk_widget_get_visible()          (avail since 2.18)
-                'gtk_widget_draw',                              'E', # gtk_widget_queue_draw_area():
-                                                                     #  "in general a better choice if you want
-                                                                     #  to draw a region of a widget."
-                'gtk_widget_get_action',                        'E', # gtk_activatable_get_related_action() (avail since 2.16)
-                'gtk_widget_hide_all',                          'E',
-                'gtk_widget_pop_visual',                        'E',
-                'gtk_widget_push_visual',                       'E',
-                'gtk_widget_queue_clear',                       'E',
-                'gtk_widget_queue_clear_area',                  'E',
-                'gtk_widget_ref',                               'E', # g_object_ref() [==]
-                'gtk_widget_reset_shapes',                      'E',
-                'gtk_widget_restore_default_style',             'E',
-                'gtk_widget_set',                               'E', # g_object_set() [==]
-                'gtk_widget_set_default_visual',                'E',
-                'gtk_widget_set_rc_style',                      'E',
-                'gtk_widget_set_uposition',                     'E', # ?? (see GTK documentation)
-                'gtk_widget_set_usize',                         'E', # gtk_widget_set_size_request()
-                'gtk_widget_set_visual',                        'E',
-                'gtk_widget_unref',                             'E',
-                'gtk_window_get_frame_dimensions',              'E',
-                'gtk_window_get_has_frame',                     'E',
-                'gtk_window_set_frame_dimensions',              'E',
-                'gtk_window_set_has_frame',                     'E',
-                'gtk_window_position',                          'E',
-                'gtk_window_set_policy',                        'E', # >>? gtk_window_set_resizable()
-
-## GDK deprecated functions:
-                'gdk_bitmap_create_from_data',                  'E', #
-                'gdk_bitmap_ref',                               'E', #
-                'gdk_bitmap_unref',                             'E', #
-                'gdk_cairo_set_source_pixmap',                  'W', # deprecated since version 2.24.
-                                                                     # Use gdk_cairo_set_source_window() where appropriate(Since 2.24).
-                'gdk_char_height',                              'E', #
-                'gdk_char_measure',                             'E', #
-                'gdk_char_width',                               'E', #
-                'gdk_char_width_wc',                            'E', #
-                'gdk_colormap_change',                          'E', #
-                'gdk_colormap_get_system_size',                 'E', #
-                'gdk_colormap_ref',                             'E', #
-                'gdk_colormap_unref',                           'E', #
-                'gdk_colors_alloc',                             'E', #
-                'gdk_colors_free',                              'E', #
-                'gdk_colors_store',                             'E', #
-                'gdk_color_alloc',                              'E', #
-                'gdk_color_black',                              'E', #
-                'gdk_color_change',                             'E', #
-                'gdk_color_white',                              'E', #
-                'gdk_cursor_destroy',                           'E', #
-                'GdkDestroyNotify',                             'E', #
-                'gdk_DISPLAY',                                  'E', #
-                'gdk_display_set_pointer_hooks',                'E', #
-                'gdk_drag_context_new',                         'E', #
-                'gdk_drag_context_ref',                         'E', #
-                'gdk_drag_context_unref',                       'E', #
-                'gdk_drag_find_window',                         'E', #
-                'gdk_drag_get_protocol',                        'E', #
-                'gdk_drawable_copy_to_image',                   'E', #
-                'gdk_drawable_get_data',                        'E', #
-                'gdk_drawable_get_display',                     'E', #
-                'gdk_drawable_get_image',                       'E', #
-                'gdk_drawable_get_screen',                      'E', #
-                'gdk_drawable_get_size',                        'W', # deprecated since version 2.24 Use gdk_window_get_width()
-                                                                     #  and gdk_window_get_height() for GdkWindows.
-                                                                     # Use gdk_pixmap_get_size() for GdkPixmaps
-                'gdk_drawable_get_visual',                      'E', #
-                'gdk_drawable_ref',                             'E', #
-                'gdk_drawable_set_data',                        'E', #
-                'gdk_drawable_unref',                           'E', #
-                'gdk_draw_arc',                                 'E', # deprecated since version 2.22. Use cairo_arc() and
-                                                                     #  cairo_fill() or cairo_stroke() instead.
-                'gdk_draw_drawable',                            'E', # deprecated since version 2.22. Use  gdk_cairo_set_source_pixmap(),
-                                                                     #  cairo_rectangle() and cairo_fill() to draw pixmap
-                                                                     #  on top of other drawables
-                'gdk_draw_glyphs',                              'E', #
-                'gdk_draw_glyphs_transformed',                  'E', #
-                'gdk_draw_gray_image',                          'E', #
-                'gdk_draw_image',                               'E', #
-                'gdk_draw_indexed_image',                       'E', #
-                'gdk_draw_layout',                              'E', #
-                'gdk_draw_layout_line',                         'E', #
-                'gdk_draw_layout_line_with_colors',             'E', #
-                'gdk_draw_layout_with_colors',                  'E', #
-                'gdk_draw_line',                                'W', # deprecated since version 2.22. Use cairo_line_to() and cairo_stroke()
-                'gdk_draw_lines',                               'E', # deprecated since version 2.22. Use cairo_line_to() and cairo_stroke()
-                'gdk_draw_pixbuf',                              'E', # gdk_cairo_set_source_pixbuf() and cairo_paint() or
-                                                                     #  cairo_rectangle() and cairo_fill() instead.
-                'gdk_draw_pixmap',                              'E', # gdk_draw_drawable() (gdk_draw_drawable has been
-                                                                     #  deprecated since version 2.22 )
-                'gdk_draw_point',                               'E', #
-                'gdk_draw_points',                              'E', #
-                'gdk_draw_polygon',                             'E', # deprecated since version 2.22. Use cairo_line_to()
-                                                                     #  or cairo_append_path() and cairo_fill()
-                                                                     #  or cairo_stroke() instead.
-                'gdk_draw_rectangle',                           'E', # deprecated since version 2.22, Use cairo_rectangle()
-                                                                     #  and cairo_fill() or cairo_stroke()
-                'gdk_draw_rgb_32_image',                        'E', #
-                'gdk_draw_rgb_32_image_dithalign',              'E', #
-                'gdk_draw_rgb_image',                           'E', #
-                'gdk_draw_rgb_image_dithalign',                 'E', #
-                'gdk_draw_segments',                            'E', #
-                'gdk_draw_string',                              'E', #
-                'gdk_draw_text',                                'E', #
-                'gdk_draw_text_wc',                             'E', #
-                'gdk_draw_trapezoids',                          'E', #
-                'gdk_event_get_graphics_expose',                'E', #
-                'gdk_exit',                                     'E', #
-                'GdkFillRule',                                  'E', #
-                'GdkFont',                                      'E', #
-                'gdk_fontset_load',                             'E', #
-                'gdk_fontset_load_for_display',                 'E', #
-                'GdkFontType',                                  'E', #
-                'gdk_font_equal',                               'E', #
-                'gdk_font_from_description',                    'E', #
-                'gdk_font_from_description_for_display',        'E', #
-                'gdk_font_get_display',                         'E', #
-                'gdk_font_id',                                  'E', #
-                'gdk_font_load',                                'E', #
-                'gdk_font_load_for_display',                    'E', #
-                'gdk_font_lookup',                              'E', #
-                'gdk_font_lookup_for_display',                  'E', #
-                'gdk_font_ref',                                 'E', #
-                'gdk_font_unref',                               'E', #
-                'gdk_FONT_XDISPLAY',                            'E', #
-                'gdk_FONT_XFONT',                               'E', #
-                'gdk_free_compound_text',                       'E', #
-                'gdk_free_text_list',                           'E', #
-                'gdk_gc_copy',                                  'E', #
-                'gdk_gc_destroy',                               'E', #
-                'gdk_gc_get_colormap',                          'E', #
-                'gdk_gc_get_screen',                            'E', #
-                'gdk_gc_get_values',                            'E', #
-                'gdk_gc_new',                                   'W', # deprecated since version 2.22 and should not be used
-                                                                     #  in newly-written code. Use Cairo for rendering.
-                'gdk_gc_new_with_values',                       'E', # deprecated since version 2.22
-                'gdk_gc_offset',                                'E', #
-                'gdk_gc_ref',                                   'E', #
-                'gdk_gc_set_background',                        'E', #
-                'gdk_gc_set_clip_mask',                         'E', #
-                'gdk_gc_set_clip_origin',                       'E', #
-                'gdk_gc_set_clip_rectangle',                    'E', #
-                'gdk_gc_set_clip_region',                       'E', #
-                'gdk_gc_set_colormap',                          'E', #
-                'gdk_gc_set_dashes',                            'E', #
-                'gdk_gc_set_exposures',                         'E', #
-                'gdk_gc_set_fill',                              'E', # deprecated since version 2.22. Use cairo_pattern_set_extend()
-                                                                     #  on the source.
-                'gdk_gc_set_font',                              'E', #
-                'gdk_gc_set_foreground',                        'W', # deprecated since version 2.22. Use gdk_cairo_set_source_color()
-                                                                     #  to use a GdkColor as the source in Cairo.
-                'gdk_gc_set_function',                          'W', # deprecated since version 2.22. Use cairo_set_operator() with Cairo.
-                'gdk_gc_set_line_attributes',                   'E', #
-                'gdk_gc_set_rgb_bg_color',                      'E', #
-                'gdk_gc_set_rgb_fg_color',                      'E', # deprecated since version 2.22.
-                                                                     #  Use gdk_cairo_set_source_color() instead.
-                'gdk_gc_set_stipple',                           'E', #
-                'gdk_gc_set_subwindow',                         'E', #
-                'gdk_gc_set_tile',                              'E', # deprecated since version 2.22.
-                                                                     # The following code snippet sets a tiling GdkPixmap as the
-                                                                     #   source in Cairo:
-                                                                     # gdk_cairo_set_source_pixmap (cr, tile, ts_origin_x, ts_origin_y);
-                                                                     # cairo_pattern_set_extend (cairo_get_source (cr),
-                                                                     #  CAIRO_EXTEND_REPEAT);
-                'gdk_gc_set_ts_origin',                         'E', #
-                'gdk_gc_set_values',                            'E', #
-                'gdk_gc_unref',                                 'E', # deprecated since version 2.0. Use g_object_unref()
-                'gdk_get_use_xshm',                             'E', #
-                'gdk_image_destroy',                            'E', #
-                'gdk_image_get',                                'E', #
-                'gdk_image_get_bits_per_pixel',                 'E', #
-                'gdk_image_get_bytes_per_line',                 'E', #
-                'gdk_image_get_bytes_per_pixel',                'E', #
-                'gdk_image_get_byte_order',                     'E', #
-                'gdk_image_get_colormap',                       'E', #
-                'gdk_image_get_depth',                          'E', #
-                'gdk_image_get_height',                         'E', #
-                'gdk_image_get_image_type',                     'E', #
-                'gdk_image_get_pixel',                          'E', #
-                'gdk_image_get_pixels',                         'E', #
-                'gdk_image_get_visual',                         'E', #
-                'gdk_image_get_width',                          'E', #
-                'gdk_image_new',                                'E', #
-                'gdk_image_new_bitmap',                         'E', #
-                'gdk_image_put_pixel',                          'E', #
-                'gdk_image_ref',                                'E', #
-                'gdk_image_set_colormap',                       'E', #
-                'gdk_image_unref',                              'E', #
-                'gdk_input_add',                                'E', #
-                'gdk_input_add_full',                           'E', #
-                'gdk_input_remove',                             'E', #
-                'gdk_mbstowcs',                                 'E', #
-                'gdk_net_wm_supports',                          'E', #
-                'gdk_pango_context_set_colormap',               'E', #
-                'gdk_pixbuf_render_to_drawable',                'E', #
-                'gdk_pixbuf_render_to_drawable_alpha',          'E', #
-                'gdk_pixmap_colormap_create_from_xpm',          'E', #
-                'gdk_pixmap_colormap_create_from_xpm_d',        'E', #
-                'gdk_pixmap_create_from_data',                  'E', #
-                'gdk_pixmap_create_from_xpm',                   'E', #
-                'gdk_pixmap_create_from_xpm_d',                 'E', # deprecated since version 2.22. Use a GdkPixbuf instead. You can
-                                                                     #  use gdk_pixbuf_new_from_xpm_data() to create it.
-                                                                     # If you must use a pixmap, use gdk_pixmap_new() to create it
-                                                                     #  and Cairo to draw the pixbuf onto it.
-                'gdk_pixmap_ref',                               'E', #
-                'gdk_pixmap_unref',                             'E', # Deprecated equivalent of g_object_unref().
-                'gdk_region_polygon',                           'E', #
-                'gdk_region_rect_equal',                        'E', #
-                'gdk_region_shrink',                            'E', #
-                'gdk_region_spans_intersect_foreach',           'E', #
-                'GdkRgbCmap',                                   'E', #
-                'gdk_rgb_cmap_free',                            'E', #
-                'gdk_rgb_cmap_new',                             'E', #
-                'gdk_rgb_colormap_ditherable',                  'E', #
-                'gdk_rgb_ditherable',                           'E', #
-                'gdk_rgb_find_color',                           'E', #
-                'gdk_rgb_gc_set_background',                    'E', #
-                'gdk_rgb_gc_set_foreground',                    'E', #
-                'gdk_rgb_get_cmap',                             'E', #
-                'gdk_rgb_get_colormap',                         'E', #
-                'gdk_rgb_get_visual',                           'E', #
-                'gdk_rgb_init',                                 'E', #
-                'gdk_rgb_set_install',                          'E', #
-                'gdk_rgb_set_min_colors',                       'E', #
-                'gdk_rgb_set_verbose',                          'E', #
-                'gdk_rgb_xpixel_from_rgb',                      'E', #
-                'gdk_ROOT_PARENT',                              'E', #
-                'gdk_screen_get_rgb_colormap',                  'E', #
-                'gdk_screen_get_rgb_visual',                    'E', #
-                'GdkSelection',                                 'E', #
-                'GdkSelectionType',                             'E', #
-                'gdk_set_locale',                               'E', #
-                'gdk_set_pointer_hooks',                        'E', #
-                'gdk_set_sm_client_id',                         'E', #
-                'gdk_set_use_xshm',                             'E', #
-                'GdkSpanFunc',                                  'E', #
-                'gdk_spawn_command_line_on_screen',             'E', #
-                'gdk_spawn_on_screen',                          'E', #
-                'gdk_spawn_on_screen_with_pipes',               'E', #
-                'gdk_string_extents',                           'E', #
-                'gdk_string_height',                            'E', #
-                'gdk_string_measure',                           'E', #
-                'gdk_string_to_compound_text',                  'E', #
-                'gdk_string_to_compound_text_for_display',      'E', #
-                'gdk_string_width',                             'E', #
-                'GdkTarget',                                    'E', #
-                'gdk_text_extents',                             'E', #
-                'gdk_text_extents_wc',                          'E', #
-                'gdk_text_height',                              'E', #
-                'gdk_text_measure',                             'E', #
-                'gdk_text_property_to_text_list',               'E', #
-                'gdk_text_property_to_text_list_for_display',   'E', #
-                'gdk_text_property_to_utf8_list',               'E', #
-                'gdk_text_width',                               'E', #
-                'gdk_text_width_wc',                            'E', #
-                'gdk_threads_mutex',                            'E', #
-                'gdk_utf8_to_compound_text',                    'E', #
-                'gdk_utf8_to_compound_text_for_display',        'E', #
-                'gdk_visual_ref',                               'E', #
-                'gdk_visual_unref',                             'E', #
-                'gdk_wcstombs',                                 'E', #
-                'gdk_window_copy_area',                         'E', #
-                'gdk_window_foreign_new',                       'E', #
-                'gdk_window_foreign_new_for_display',           'E', #
-                'gdk_window_get_colormap',                      'E', # Deprecated equivalent of gdk_drawable_get_colormap().
-                'gdk_window_get_deskrelative_origin',           'E', #
-                'gdk_window_get_size',                          'E', # Deprecated equivalent of gdk_drawable_get_size().
-                'gdk_window_get_toplevels',                     'E', #
-                'gdk_window_get_type',                          'E', #
-                'gdk_window_lookup',                            'E', #
-                'gdk_window_lookup_for_display',                'E', #
-                'gdk_window_ref',                               'E', #
-                'gdk_window_set_colormap',                      'E', #
-                'gdk_window_set_hints',                         'E', #
-                'gdk_window_unref',                             'E', #
-                'gdk_x11_font_get_name',                        'E', #
-                'gdk_x11_font_get_xdisplay',                    'E', #
-                'gdk_x11_font_get_xfont',                       'E', #
-                'gdk_x11_gc_get_xdisplay',                      'E', #
-                'gdk_x11_gc_get_xgc',                           'E', #
-                'gdk_xid_table_lookup',                         'E', #
-                'gdk_xid_table_lookup_for_display',             'E', #
-                'gdkx_colormap_get',                            'E', #
-                'gdkx_visual_get',                              'E', #
-
-);
-
-@{$APIs{'deprecated-gtk'}->{'functions'}}      = grep {$deprecatedGtkFunctions{$_} eq 'E'} keys %deprecatedGtkFunctions;
-@{$APIs{'deprecated-gtk-todo'}->{'functions'}} = grep {$deprecatedGtkFunctions{$_} eq 'W'} keys %deprecatedGtkFunctions;
-
 
 
 # Given a ref to a hash containing "functions" and "functions_count" entries:
@@ -1327,7 +305,12 @@ sub findAPIinFile($$$)
         for my $api ( @{$groupHashRef->{functions}} )
         {
                 my $cnt = 0;
-                while (${$fileContentsRef} =~ m/ \W $api \W* \( /gx)
+                # Match function calls, but ignore false positives from:
+                # C++ method definition: int MyClass::open(...)
+                # Method invocation: myClass->open(...);
+                # Function declaration: int open(...);
+                # Method invocation: QString().sprintf(...)
+                while (${$fileContentsRef} =~ m/ \W (?<!::|->|\w\ ) (?<!\.) $api \W* \( /gx)
                 {
                         $cnt += 1;
                 }
@@ -1425,7 +408,7 @@ my $StaticRegex             = qr/ static \s+                                    
 my $ConstRegex              = qr/ const  \s+                                                            /xs;
 my $Static_andor_ConstRegex = qr/ (?: $StaticRegex $ConstRegex | $StaticRegex | $ConstRegex)            /xs;
 my $ValueStringVarnameRegex = qr/ (?:value|val64|string|range|bytes)_string                             /xs;
-my $ValueStringRegex        = qr/ ^ \s* $Static_andor_ConstRegex ($ValueStringVarnameRegex) \ + [^;*]+ = [^;]+ [{] .+? [}] \s*? ;  /xms;
+my $ValueStringRegex        = qr/ $Static_andor_ConstRegex ($ValueStringVarnameRegex) \ + [^;*#]+ = [^;]+ [{] .+? [}] \s*? ;  /xs;
 my $EnumValRegex            = qr/ $Static_andor_ConstRegex enum_val_t \ + [^;*]+ = [^;]+ [{] .+? [}] \s*? ;  /xs;
 my $NewlineStringRegex      = qr/ ["] [^"]* \\n [^"]* ["] /xs;
 
@@ -1547,14 +530,14 @@ sub check_included_files($$)
                 }
         }
 
-        # only our wrapper file wsutils/wspcap.h may include pcap.h
+        # only our wrapper file wspcap.h may include pcap.h
         # all other files should include the wrapper
         if ($filename !~ /wspcap\.h/) {
                 foreach (@incFiles) {
                         if ( m#([<"]|/+)pcap\.h[>"]$# ) {
                                 print STDERR "Warning: ".$filename.
                                         " includes pcap.h directly. ".
-                                        "Include wsutil/wspcap.h instead.\n";
+                                        "Include wspcap.h instead.\n";
                                 last;
                         }
                 }
@@ -1642,22 +625,19 @@ sub check_ett_registration($$)
 {
         my ($fileContentsRef, $filename) = @_;
         my @ett_declarations;
-        my %ett_registrations;
-        my @unRegisteredEtts;
+        my @ett_address_uses;
+        my %ett_uses;
+        my @unUsedEtts;
         my $errorCount = 0;
 
         # A pattern to match ett variable names.  Obviously this assumes that
-        # they start with ett_
+        # they start with `ett_`
         my $EttVarName = qr{ (?: ett_[a-z0-9_]+ (?:\[[0-9]+\])? ) }xi;
 
-        # Remove macro lines
-        my $fileContents = ${$fileContentsRef};
-        $fileContents =~ s { ^\s*\#.*$} []xogm;
-
         # Find all the ett_ variables declared in the file
-        @ett_declarations = ($fileContents =~ m{
-                ^\s*static              # assume declarations are on their own line
-                \s+
+        @ett_declarations = (${$fileContentsRef} =~ m{
+                ^                       # assume declarations are on their own line
+                (?:static\s+)?          # some declarations aren't static
                 g?int                   # could be int or gint
                 \s+
                 ($EttVarName)           # variable name
@@ -1666,71 +646,41 @@ sub check_ett_registration($$)
         }xgiom);
 
         if (!@ett_declarations) {
-                print STDERR "Found no etts in ".$filename."\n";
+                # Only complain if the file looks like a dissector
+                #print STDERR "Found no etts in ".$filename."\n" if
+                #        (${$fileContentsRef} =~ m{proto_register_field_array}os);
                 return;
         }
+        #print "Found these etts in ".$filename.": ".join(' ', @ett_declarations)."\n\n";
 
-        #print "Found these etts in ".$filename.": ".join(',', @ett_declarations)."\n\n";
+        # Find all the uses of the *addresses* of ett variables in the file.
+        # (We assume if someone is using the address they're using it to
+        # register the ett.)
+        @ett_address_uses = (${$fileContentsRef} =~ m{
+                &\s*($EttVarName)
+        }xgiom);
 
-        # Find the array used for registering the etts
-        # Save off the block of code containing just the variables
-        my @reg_blocks;
-        @reg_blocks = ($fileContents =~ m{
-                static
-                \s+
-                g?int
-                \s*\*\s*                # it's an array of pointers
-                [a-z0-9_]+              # array name; usually (always?) "ett"
-                \s*\[\s*\]\s*           # array brackets
-                =
-                \s*\{
-                ((?:\s*&\s*             # address of the following variable
-                $EttVarName             # variable name
-                \s*,?                   # the comma is optional (for the last entry)
-                \s*)+)                  # match one or more variable names
-                \}
-                \s*
-                ;
-        }xgios);
-        #print "Found this ett registration block in ".$filename.": ".join(',', @reg_blocks)."\n";
-
-        if (@reg_blocks == 0) {
-                print STDERR "Hmm, found ".@reg_blocks." ett registration blocks in ".$filename."\n";
-                # For now...
+        if (!@ett_address_uses) {
+                print STDERR "Found no ett address uses in ".$filename."\n";
+                # Don't treat this as an error.
+                # It's more likely a problem with checkAPIs.
                 return;
         }
+        #print "Found these etts addresses used in ".$filename.": ".join(' ', @ett_address_uses)."\n\n";
 
-        while (@reg_blocks) {
-                my ($block) = @reg_blocks;
-                shift @reg_blocks;
+        # Convert to a hash for fast lookup
+        $ett_uses{$_}++ for (@ett_address_uses);
 
-                # Convert the list returned by the match into a hash of the
-                # form ett_variable_name -> 1.  Then combine this new hash with
-                # the hash from the last registration block.
-                # (Of course) using hashes makes the lookups much faster.
-                %ett_registrations = map { $_ => 1 } ($block =~ m{
-                        \s*&\s*                 # address of the following variable
-                        ($EttVarName)           # variable name
-                        \s*,?                   # the comma is optional (for the last entry)
-                }xgios, %ett_registrations);
-        }
-        #print "Found these ett registrations in ".$filename.": ";
-        #while( my ($k, $v) = each %ett_registrations ) {
-        #          print "$k\n";
-        #}
-
-        # Find which declared etts are not registered.
-        # XXX - using <@ett_declarations> and $_ instead of $ett_var makes this
-        # MUCH slower...  Why?
+        # Find which declared etts are not used.
         while (@ett_declarations) {
                 my ($ett_var) = @ett_declarations;
                 shift @ett_declarations;
 
-                push(@unRegisteredEtts, $ett_var) if (!$ett_registrations{$ett_var});
+                push(@unUsedEtts, $ett_var) if (not exists $ett_uses{$ett_var});
         }
 
-        if (@unRegisteredEtts) {
-                print STDERR "Error: found these unregistered ett variables in ".$filename.": ".join(',', @unRegisteredEtts)."\n";
+        if (@unUsedEtts) {
+                print STDERR "Error: found these unused ett variables in ".$filename.": ".join(' ', @unUsedEtts)."\n";
                 $errorCount++;
         }
 
@@ -1745,11 +695,23 @@ sub check_hf_entries($$)
         my $errorCount = 0;
 
         my @items;
-        @items = (${$fileContentsRef} =~ m{
+        my $hfRegex = qr{
                                   \{
                                   \s*
                                   &\s*([A-Z0-9_\[\]-]+)         # &hf
                                   \s*,\s*
+        }xis;
+        if (${$fileContentsRef} =~ /^#define\s+NEW_PROTO_TREE_API/m) {
+                $hfRegex = qr{
+                                  \sheader_field_info\s+
+                                  ([A-Z0-9_]+)
+                                  \s+
+                                  [A-Z0-9_]*
+                                  \s*=\s*
+                }xis;
+        }
+        @items = (${$fileContentsRef} =~ m{
+                                  $hfRegex                      # &hf or "new" hfi name
                                   \{\s*
                                   ("[A-Z0-9 '\./\(\)_:-]+")     # name
                                   \s*,\s*
@@ -1757,7 +719,7 @@ sub check_hf_entries($$)
                                   \s*,\s*
                                   (FT_[A-Z0-9_]+)               # field type
                                   \s*,\s*
-                                  ([A-Z0-9x\|_]+)               # display
+                                  ([A-Z0-9x\|_\s]+)             # display
                                   \s*,\s*
                                   ([^,]+?)                      # convert
                                   \s*,\s*
@@ -1773,6 +735,11 @@ sub check_hf_entries($$)
                 ##my $errorCount_save = $errorCount;
                 my ($hf, $name, $abbrev, $ft, $display, $convert, $bitmask, $blurb) = @items;
                 shift @items; shift @items; shift @items; shift @items; shift @items; shift @items; shift @items; shift @items;
+
+                $display =~ s/\s+//g;
+                $convert =~ s/\s+//g;
+                # GET_VALS_EXTP is a macro in packet-mq.h for packet-mq.c and packet-mq-pcf.c
+                $convert =~ s/\bGET_VALS_EXTP\(/VALS_EXT_PTR\(/;
 
                 #print "name=$name, abbrev=$abbrev, ft=$ft, display=$display, convert=>$convert<, bitmask=$bitmask, blurb=$blurb\n";
 
@@ -1840,12 +807,24 @@ sub check_hf_entries($$)
                         print STDERR "Error: $hf uses RVALS but 'display' does not include BASE_RANGE_STRING in $filename\n";
                         $errorCount++;
                 }
-                if ($convert =~ m/^VALS\(&.*\)/) {
-                        print STDERR "Error: $hf is passing the address of a pointer to VALS in $filename\n";
+                if ($convert =~ m/VALS64/ && $display !~ m/BASE_VAL64_STRING/) {
+                        print STDERR "Error: $hf uses VALS64 but 'display' does not include BASE_VAL64_STRING in $filename\n";
                         $errorCount++;
                 }
-                if ($convert =~ m/^RVALS\(&.*\)/) {
-                        print STDERR "Error: $hf is passing the address of a pointer to RVALS in $filename\n";
+                if ($display =~ /BASE_EXT_STRING/ && $convert !~ /^(VALS_EXT_PTR\(|&)/) {
+                        print STDERR "Error: $hf: BASE_EXT_STRING should use VALS_EXT_PTR for 'strings' instead of '$convert' in $filename\n";
+                        $errorCount++;
+                }
+                if ($ft =~ m/^FT_U?INT(8|16|24|32)$/ && $convert =~ m/^VALS64\(/) {
+                        print STDERR "Error: $hf: 32-bit field must use VALS instead of VALS64 in $filename\n";
+                        $errorCount++;
+                }
+                if ($ft =~ m/^FT_U?INT(40|48|56|64)$/ && $convert =~ m/^VALS\(/) {
+                        print STDERR "Error: $hf: 64-bit field must use VALS64 instead of VALS in $filename\n";
+                        $errorCount++;
+                }
+                if ($convert =~ m/^(VALS|VALS64|RVALS)\(&.*\)/) {
+                        print STDERR "Error: $hf is passing the address of a pointer to $1 in $filename\n";
                         $errorCount++;
                 }
                 if ($convert !~ m/^((0[xX]0?)?0$|NULL$|VALS|VALS64|VALS_EXT_PTR|RVALS|TFS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES)/ && $display !~ /BASE_CUSTOM/) {
@@ -1907,10 +886,42 @@ sub check_pref_var_dupes($$)
         return $errorcount;
 }
 
+# Check for forbidden control flow changes, see epan/exceptions.h
+sub check_try_catch($$)
+{
+        my ($fileContentsRef, $filename) = @_;
+        my $errorCount = 0;
+
+        # Match TRY { ... } ENDTRY (with an optional '\' in case of a macro).
+        my @items = (${$fileContentsRef} =~ m/ \bTRY\s*\{ (.+?) \}\s* \\? \s*ENDTRY\b /xsg);
+        for my $block (@items) {
+                if ($block =~ m/ \breturn\b /x) {
+                        print STDERR "Error: return is forbidden in TRY/CATCH in $filename\n";
+                        $errorCount++;
+                }
+
+                my @gotoLabels = $block =~ m/ \bgoto\s+ (\w+) /xsg;
+                my %seen = ();
+                for my $gotoLabel (@gotoLabels) {
+                        if ($seen{$gotoLabel}) {
+                                next;
+                        }
+                        $seen{$gotoLabel} = 1;
+
+                        if ($block !~ /^ \s* $gotoLabel \s* :/xsgm) {
+                                print STDERR "Error: goto to label '$gotoLabel' outside TRY/CATCH is forbidden in $filename\n";
+                                $errorCount++;
+                        }
+                }
+        }
+
+        return $errorCount;
+}
+
 sub print_usage
 {
-        print "Usage: checkAPIs.pl [-M] [-h] [-g group1] [-g group2] ... \n";
-        print "                    [--build] [-s group1] [-s group2] ... \n";
+        print "Usage: checkAPIs.pl [-M] [-h] [-g group1[:count]] [-g group2] ... \n";
+        print "                    [--build] [-summary-group group1] [-summary-group group2] ... \n";
         print "                    [--sourcedir=srcdir] \n";
         print "                    [--nocheck-value-string-array] \n";
         print "                    [--nocheck-addtext] [--nocheck-hf] [--debug]\n";
@@ -1922,7 +933,8 @@ sub print_usage
         print "       -h: help, print usage message\n";
         print "       -g <group>:  Check input files for use of APIs in <group>\n";
         print "                    (in addition to the default groups)\n";
-        print "       -s <group>:  Output summary (count) for each API in <group>\n";
+        print "                    Maximum uses can be specified with <group>:<count>\n";
+        print "       -summary-group <group>:  Output summary (count) for each API in <group>\n";
         print "                    (-g <group> also req'd)\n";
         print "       ---nocheck-value-string-array: UNDOCUMENTED\n";
         print "       ---nocheck-addtext: UNDOCUMENTED\n";
@@ -1939,91 +951,75 @@ sub print_usage
 # args     codeRef, fileName
 # returns: codeRef
 #
-# Essentially: Use s//patsub/meg to pass each line to patsub.
-#              patsub monitors #if/#if 0/etc and determines
-#               if a particular code line should be removed.
-# XXX: This is probably pretty inefficient;
-#      I could imagine using another approach such as converting
-#       the input string to an array of lines and then making
-#       a pass through the array deleting lines as needed.
+# Essentially: split the input into blocks of code or lines of #if/#if 0/etc.
+#               Remove blocks that follow '#if 0' until '#else/#endif' is found.
 
 {  # block begin
-my ($if_lvl, $if0_lvl, $if0); # shared vars
 my $debug = 0;
 
     sub remove_if0_code {
         my ($codeRef, $fileName)  = @_;
 
-        my ($preprocRegEx) = qr {
-                                    (                                    # $1 [complete line)
-                                        ^
-                                        (?:                              # non-capturing
-                                            \s* \# \s*
-                                            (if \s 0| if | else | endif) # $2 (only if #...)
-                                        ) ?
-                                        .*
-                                        $
-                                    )
-                            }xom;
+        # Preprocess output (ensure trailing LF and no leading WS before '#')
+        $$codeRef =~ s/^\s*#/#/m;
+        if ($$codeRef !~ /\n$/) { $$codeRef .= "\n"; }
 
-        ($if_lvl, $if0_lvl, $if0) = (0,0,0);
-        $$codeRef =~ s{ $preprocRegEx }{patsub($1,$2)}xegm;
+        # Split into blocks of normal code or lines with conditionals.
+        my $ifRegExp = qr/if 0|if|else|endif/;
+        my @blocks = split(/^(#\s*(?:$ifRegExp).*\n)/m, $$codeRef);
+
+        my ($if_lvl, $if0_lvl, $if0) = (0,0,0);
+        my $lines = '';
+        for my $block (@blocks) {
+            my $if;
+            if ($block =~ /^#\s*($ifRegExp)/) {
+                # #if/#if 0/#else/#endif processing
+                $if = $1;
+                if ($debug == 99) {
+                    print(STDERR "if0=$if0 if0_lvl=$if0_lvl lvl=$if_lvl [$if] - $block");
+                }
+                if ($if eq 'if') {
+                    $if_lvl += 1;
+                } elsif ($if eq 'if 0') {
+                    $if_lvl += 1;
+                    if ($if0_lvl == 0) {
+                        $if0_lvl = $if_lvl;
+                        $if0     = 1;  # inside #if 0
+                    }
+                } elsif ($if eq 'else') {
+                    if ($if0_lvl == $if_lvl) {
+                        $if0 = 0;
+                    }
+                } elsif ($if eq 'endif') {
+                    if ($if0_lvl == $if_lvl) {
+                        $if0     = 0;
+                        $if0_lvl = 0;
+                    }
+                    $if_lvl -= 1;
+                    if ($if_lvl < 0) {
+                        die "patsub: #if/#endif mismatch in $fileName"
+                    }
+                }
+            }
+
+            if ($debug == 99) {
+                print(STDERR "if0=$if0 if0_lvl=$if0_lvl lvl=$if_lvl\n");
+            }
+            # Keep preprocessor lines and blocks that are not enclosed in #if 0
+            if ($if or $if0 != 1) {
+                $lines .= $block;
+            }
+        }
+        $$codeRef = $lines;
 
         ($debug == 2) && print "==> After Remove if0: code: [$fileName]\n$$codeRef\n===<\n";
         return $codeRef;
     }
-
-    sub patsub {
-        if ($debug == 99) {
-            print "-->$_[0]\n";
-            (defined $_[1]) && print "  >$_[1]<\n";
-        }
-
-        # #if/#if 0/#else/#endif processing
-        if (defined $_[1]) {
-            my ($if) = $_[1];
-            if ($if eq 'if') {
-                $if_lvl += 1;
-            } elsif ($if eq 'if 0') {
-                $if_lvl += 1;
-                if ($if0_lvl == 0) {
-                    $if0_lvl = $if_lvl;
-                    $if0     = 1;  # inside #if 0
-                }
-            } elsif ($if eq 'else') {
-                if ($if0_lvl == $if_lvl) {
-                    $if0 = 0;
-                }
-            } elsif ($if eq 'endif') {
-                if ($if0_lvl == $if_lvl) {
-                    $if0     = 0;
-                    $if0_lvl = 0;
-                }
-                $if_lvl -= 1;
-                if ($if_lvl < 0) {
-                    die "patsub: #if/#endif mismatch"
-                }
-            }
-            return $_[0];  # don't remove preprocessor lines themselves
-        }
-
-        # not preprocessor line: See if under #if 0: If so, remove
-        if ($if0 == 1) {
-            return '';  # remove
-        }
-        return $_[0];
-    }
 }  # block end
 
 # The below Regexp are based on those from:
-# http://aspn.activestate.com/ASPN/Cookbook/Rx/Recipe/59811
+# https://web.archive.org/web/20080614012925/http://aspn.activestate.com/ASPN/Cookbook/Rx/Recipe/59811
 # They are in the public domain.
-
-# 1. A complicated regex which matches C-style comments.
-my $CComment = qr{ / [*] [^*]* [*]+ (?: [^/*] [^*]* [*]+ )* / }x;
-
-# 1.a A regex that matches C++-style comments.
-#my $CppComment = qr{ // (.*?) \n }x;
 
 # 2. A regex which matches double-quoted strings.
 #    ?s added so that strings containing a 'line continuation'
@@ -2032,18 +1028,6 @@ my $DoubleQuotedStr = qr{ (?: ["] (?s: \\. | [^\"\\])* ["]) }x;
 
 # 3. A regex which matches single-quoted strings.
 my $SingleQuotedStr = qr{ (?: \' (?: \\. | [^\'\\])* [']) }x;
-
-# 4. Now combine 1 through 3 to produce a regex which
-#    matches _either_ double or single quoted strings
-#    OR comments. We surround the comment-matching
-#    regex in capturing parenthesis to store the contents
-#    of the comment in $1.
-#    my $commentAndStringRegex = qr{(?:$DoubleQuotedStr|$SingleQuotedStr)|($CComment)|($CppComment)};
-
-# 4. Wireshark is strictly a C program so don't take out C++ style comments
-#    since they shouldn't be there anyway...
-#    Also: capturing the comment isn't necessary.
-## my $commentAndStringRegex = qr{ (?: $DoubleQuotedStr | $SingleQuotedStr | $CComment) }x;
 
 #
 # MAIN
@@ -2099,6 +1083,11 @@ for my $apiGroup (keys %APIs) {
 
         $APIs{$apiGroup}->{function_counts}   = {};
         @{$APIs{$apiGroup}->{function_counts}}{@functions} = ();  # Add fcn names as keys to the anonymous hash
+        $APIs{$apiGroup}->{max_function_count}   = -1;
+        if ($APIs{$apiGroup}->{count_errors}) {
+                $APIs{$apiGroup}->{max_function_count}   = 0;
+        }
+        $APIs{$apiGroup}->{cur_function_count}   = 0;
 }
 
 my @filelist;
@@ -2145,8 +1134,9 @@ while ($_ = pop @filelist)
         $line = 1;
         while (<FC>) {
                 $fileContents .= $_;
-                if ($_ =~ m{ [\x80-\xFF] }xo) {
-                        print STDERR "Error: Found non-ASCII characters on line " .$line. " of " .$filename."\n";
+                eval { decode( 'UTF-8', $_, Encode::FB_CROAK ) };
+                if ($EVAL_ERROR) {
+                        print STDERR "Error: Found an invalid UTF-8 sequence on line " .$line. " of " .$filename."\n";
                         $errorCount++;
                 }
                 $line++;
@@ -2173,8 +1163,10 @@ while ($_ = pop @filelist)
                 $errorCount++;
         }
 
-        # Remove all the C-comments
-        $fileContents =~ s{ $CComment } []xog;
+        # Remove C/C++ comments
+        # The below pattern is modified (to keep newlines at the end of C++-style comments) from that at:
+        # https://perldoc.perl.org/perlfaq6.html#How-do-I-use-a-regular-expression-to-strip-C-style-comments-from-a-file?
+        $fileContents =~ s#/\*[^*]*\*+([^/*][^*]*\*+)*/|//([^\\]|[^\n][\n]?)*?\n|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)#defined $3 ? $3 : "\n"#gse;
 
         # optionally check the hf entries (including those under #if 0)
         if ($check_hf) {
@@ -2214,7 +1206,6 @@ while ($_ = pop @filelist)
         # Remove all the quoted strings
         $fileContents =~ s{ $DoubleQuotedStr | $SingleQuotedStr } []xog;
 
-        #$errorCount += check_ett_registration(\$fileContents, $filename);
         $errorCount += check_pref_var_dupes(\$fileContents, $filename);
 
         # Remove all blank lines
@@ -2222,6 +1213,8 @@ while ($_ = pop @filelist)
 
         # Remove all '#if 0'd' code
         remove_if0_code(\$fileContents, $filename);
+
+        $errorCount += check_ett_registration(\$fileContents, $filename);
 
         #checkAPIsCalledWithTvbGetPtr(\@TvbPtrAPIs, \$fileContents, \@foundAPIs);
         #if (@foundAPIs) {
@@ -2238,13 +1231,39 @@ while ($_ = pop @filelist)
 
         $errorCount += check_proto_tree_add_XXX(\$fileContents, $filename);
 
+        $errorCount += check_try_catch(\$fileContents, $filename);
+
 
         # Check and count APIs
-        for my $apiGroup (@apiGroups) {
+        for my $groupArg (@apiGroups) {
                 my $pfx = "Warning";
                 @foundAPIs = ();
+                my @groupParts = split(/:/, $groupArg);
+                my $apiGroup = $groupParts[0];
+                my $curFuncCount = 0;
+
+                if (scalar @groupParts > 1) {
+                        $APIs{$apiGroup}->{max_function_count} = $groupParts[1];
+                }
 
                 findAPIinFile($APIs{$apiGroup}, \$fileContents, \@foundAPIs);
+
+                for my $api (keys %{$APIs{$apiGroup}->{function_counts}}   ) {
+                        $curFuncCount += $APIs{$apiGroup}{function_counts}{$api};
+                }
+
+                # If we have a max function count and we've exceeded it, treat it
+                # as an error.
+                if (!$APIs{$apiGroup}->{count_errors} && $APIs{$apiGroup}->{max_function_count} >= 0) {
+                        if ($curFuncCount > $APIs{$apiGroup}->{max_function_count}) {
+                                print STDERR $pfx . ": " . $apiGroup . " exceeds maximum function count: " . $APIs{$apiGroup}->{max_function_count} . "\n";
+                                $APIs{$apiGroup}->{count_errors} = 1;
+                        }
+                }
+
+                if ($curFuncCount <= $APIs{$apiGroup}->{max_function_count}) {
+                        next;
+                }
 
                 if ($APIs{$apiGroup}->{count_errors}) {
                         # the use of "prohibited" APIs is an error, increment the error count
@@ -2265,17 +1284,23 @@ while ($_ = pop @filelist)
 
 # Summary: Print Use Counts of each API in each requested summary group
 
-for my $apiGroup (@apiSummaryGroups) {
-        printf "\n\nUse Counts\n";
-        for my $api (sort {"\L$a" cmp "\L$b"} (keys %{$APIs{$apiGroup}->{function_counts}}   )) {
-                printf "%-20.20s %5d  %-40.40s\n", $apiGroup . ':', $APIs{$apiGroup}{function_counts}{$api}, $api;
+if (scalar @apiSummaryGroups > 0) {
+        my $fileline = join(", ", @ARGV);
+        printf "\nSummary for " . substr($fileline, 0, 65) . "…\n";
+
+        for my $apiGroup (@apiSummaryGroups) {
+                printf "\nUse counts for %s (maximum allowed total is %d)\n", $apiGroup, $APIs{$apiGroup}->{max_function_count};
+                for my $api (sort {"\L$a" cmp "\L$b"} (keys %{$APIs{$apiGroup}->{function_counts}}   )) {
+                        if ($APIs{$apiGroup}{function_counts}{$api} < 1) { next; }
+                        printf "%5d  %-40.40s\n", $APIs{$apiGroup}{function_counts}{$api}, $api;
+                }
         }
 }
 
-exit($errorCount);
+exit($errorCount > 120 ? 120 : $errorCount);
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

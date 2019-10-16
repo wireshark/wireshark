@@ -389,7 +389,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     /* decide if the packet is server to client or client to server
      * then check its fragmentation
      */
-    if(!(pinfo->fd->flags.visited))
+    if(!(pinfo->fd->visited))
     {
         if(conversation_data->server_port == pinfo->srcport)
         {
@@ -623,13 +623,13 @@ static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree)
         proto_tree_add_item(ts2_tree, hf_ts2_max_users, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset+=2;
         tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &string_len, ENC_ASCII);
-        proto_tree_add_item(ts2_tree, hf_ts2_channel_name, tvb, offset,string_len , ENC_ASCII|ENC_NA);
+        proto_tree_add_item(ts2_tree, hf_ts2_channel_name, tvb, offset, string_len, ENC_ASCII|ENC_NA);
         offset+=string_len;
         tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &string_len, ENC_ASCII);
-        proto_tree_add_item(ts2_tree, hf_ts2_channel_topic, tvb, offset,string_len ,ENC_ASCII|ENC_NA);
+        proto_tree_add_item(ts2_tree, hf_ts2_channel_topic, tvb, offset, string_len, ENC_ASCII|ENC_NA);
         offset+=string_len;
         tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &string_len, ENC_ASCII);
-        proto_tree_add_item(ts2_tree, hf_ts2_channel_description, tvb, offset,string_len , ENC_ASCII|ENC_NA);
+        proto_tree_add_item(ts2_tree, hf_ts2_channel_description, tvb, offset, string_len, ENC_ASCII|ENC_NA);
         offset+=string_len;
     }
 }
@@ -1219,7 +1219,7 @@ void proto_reg_handoff_ts2(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

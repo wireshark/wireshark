@@ -140,11 +140,13 @@ static gboolean dissect_lanesscop = FALSE;
 
 static dissector_table_t atm_type_aal2_table;
 static dissector_table_t atm_type_aal5_table;
+static dissector_table_t atm_cell_payload_vpi_vci_table;
+static dissector_table_t atm_reassembled_vpi_vci_table;
 
 /*
  * See
  *
- *      http://www.atmforum.org/atmforum/specs/approved.html
+ *      https://www.broadband-forum.org/index.php?option=com_sppagebuilder&view=page&id=185
  *
  * for a number of ATM Forum specifications, e.g. the LAN Emulation
  * over ATM 1.0 spec, whence I got most of this.
@@ -927,6 +929,16 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
     }
   }
+  /*
+   * First check whether custom dissection table
+   * was set up to dissect this VPI+VCI combination
+   */
+  if (dissector_try_uint_new(atm_reassembled_vpi_vci_table,
+                             ((atm_info->vpi) << 16) | atm_info->vci,
+                             next_tvb, pinfo, tree, TRUE, atm_info))
+  {
+    return;
+  }
 
   decoded = FALSE;
   /*
@@ -1315,7 +1327,8 @@ static const value_string ft_ad_vals[] = {
 
 static void
 dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                         proto_tree *tree, guint aal, gboolean fill_columns)
+                         proto_tree *tree, guint aal, gboolean fill_columns,
+                         struct atm_phdr *atm_info)
 {
   proto_tree *aal_tree;
   proto_item *ti;
@@ -1323,6 +1336,18 @@ dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
   gint        length;
   guint16     aal3_4_hdr, crc10;
   tvbuff_t   *next_tvb;
+
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
+  /*
+   * First check whether custom dissection table
+   * was set up to dissect this VPI+VCI combination
+   */
+  if (dissector_try_uint_new(atm_cell_payload_vpi_vci_table,
+                             ((atm_info->vpi) << 16) | atm_info->vci,
+                             next_tvb, pinfo, tree, TRUE, atm_info))
+  {
+    return;
+  }
 
   switch (aal) {
 
@@ -1440,13 +1465,14 @@ atm_is_oam_cell(const guint16 vci, const guint8 pt)
 static void
 dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  proto_tree *atm_tree, guint aal, gboolean nni,
-                 gboolean crc_stripped)
+                 gboolean crc_stripped, const struct atm_phdr *atm_info)
 {
   int         offset;
   proto_item *ti;
   guint8      octet, pt;
   int         err;
   guint16     vpi, vci;
+  struct atm_phdr atm_info_local;
 
   if (!nni) {
     /*
@@ -1540,7 +1566,28 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
   }
 
-  dissect_atm_cell_payload(tvb, offset, pinfo, tree, aal, TRUE);
+  memset(&atm_info_local, 0, sizeof(atm_info_local));
+  if (atm_info) {
+    atm_info_local.flags = atm_info->flags;
+    atm_info_local.aal = atm_info->aal;
+    atm_info_local.type = atm_info->type;
+    atm_info_local.subtype = atm_info->subtype;
+    atm_info_local.vpi = atm_info->vpi;
+    atm_info_local.vci = atm_info->vci;
+    atm_info_local.aal2_cid = atm_info->aal2_cid;
+    atm_info_local.channel = atm_info->channel;
+    atm_info_local.cells = atm_info->cells;
+    atm_info_local.aal5t_u2u = atm_info->aal5t_u2u;
+    atm_info_local.aal5t_len = atm_info->aal5t_len;
+    atm_info_local.aal5t_chksum = atm_info->aal5t_chksum;
+  } else {
+    atm_info_local.aal = aal;
+    atm_info_local.type = pt;
+    atm_info_local.vpi = vpi;
+    atm_info_local.vci = vci;
+  }
+
+  dissect_atm_cell_payload(tvb, offset, pinfo, tree, aal, TRUE, &atm_info_local);
 }
 
 static int
@@ -1609,7 +1656,7 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     dissect_atm_cell(tvb, pinfo, tree, atm_tree,
                      atm_info->aal, FALSE,
-                     atm_info->flags & ATM_NO_HEC);
+                     atm_info->flags & ATM_NO_HEC, atm_info);
   } else {
     /* This is a reassembled PDU. */
 
@@ -1677,19 +1724,22 @@ dissect_atm_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   atm_ti   = proto_tree_add_item(tree, proto_atm, tvb, 0, 0, ENC_NA);
   atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
 
-  dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL, FALSE, FALSE);
+  dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL, FALSE, FALSE, NULL);
   return tvb_reported_length(tvb);
 }
 
 static int
 dissect_atm_pw_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  const pwatm_private_data_t *pwpd = (const pwatm_private_data_t *)data;
+  struct pw_atm_phdr *pw_atm_info = (struct pw_atm_phdr *)data;
+
+  DISSECTOR_ASSERT(pw_atm_info != NULL);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
 
   dissect_atm_cell_payload(tvb, 0, pinfo, tree, AAL_OAMCELL,
-                           pwpd->enable_fill_columns_by_atm_dissector);
+                           pw_atm_info->enable_fill_columns_by_atm_dissector,
+                           &pw_atm_info->info);
 
   return tvb_reported_length(tvb);
 }
@@ -1951,7 +2001,7 @@ proto_register_atm(void)
   /* Decode As handling */
   static build_valid_func atm_da_build_value[1] = {atm_value};
   static decode_as_value_t atm_da_values = {atm_prompt, 1, atm_da_build_value};
-  static decode_as_t atm_da = {"atm", "Network", "atm.aal2.type", 1, 0, &atm_da_values, NULL, NULL,
+  static decode_as_t atm_da = {"atm", "atm.aal2.type", 1, 0, &atm_da_values, NULL, NULL,
                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
   proto_atm    = proto_register_protocol("Asynchronous Transfer Mode", "ATM", "atm");
@@ -1969,6 +2019,10 @@ proto_register_atm(void)
 
   atm_type_aal2_table = register_dissector_table("atm.aal2.type", "ATM AAL_2 type", proto_atm, FT_UINT32, BASE_DEC);
   atm_type_aal5_table = register_dissector_table("atm.aal5.type", "ATM AAL_5 type", proto_atm, FT_UINT32, BASE_DEC);
+  atm_cell_payload_vpi_vci_table = register_dissector_table("atm.cell_payload.vpi_vci", "ATM Cell Payload VPI VCI",
+                                                            proto_atm, FT_UINT32, BASE_DEC);
+  atm_reassembled_vpi_vci_table = register_dissector_table("atm.reassembled.vpi_vci", "ATM Reassembled VPI VCI",
+                                                           proto_atm, FT_UINT32, BASE_DEC);
 
   register_capture_dissector_table("atm.aal5.type", "ATM AAL_5");
   register_capture_dissector_table("atm_lane", "ATM LAN Emulation");
@@ -2021,7 +2075,7 @@ proto_reg_handoff_atm(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

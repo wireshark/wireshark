@@ -16,7 +16,6 @@
 #include <epan/packet_info.h>
 #include <epan/tap.h>
 #include <epan/stat_groups.h>
-#include "register.h"
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
@@ -47,16 +46,21 @@ extern "C" {
 typedef struct _stats_tree stats_tree;
 
 /* tap packet callback for stats_tree */
-typedef int  (*stat_tree_packet_cb)(stats_tree*,
-                                    packet_info *,
-                                    epan_dissect_t *,
-                                    const void *);
+typedef tap_packet_status (*stat_tree_packet_cb)(stats_tree*,
+                                                 packet_info *,
+                                                 epan_dissect_t *,
+                                                 const void *);
 
 /* stats_tree initialization callback */
 typedef void  (*stat_tree_init_cb)(stats_tree *);
 
 /* stats_tree cleanup callback */
 typedef void  (*stat_tree_cleanup_cb)(stats_tree *);
+
+typedef enum _stat_node_datatype {
+    STAT_DT_INT,
+    STAT_DT_FLOAT
+} stat_node_datatype;
 
 /* registers a new stats tree with default group REGISTER_STAT_GROUP_UNSORTED
  * abbr: protocol abbr
@@ -114,17 +118,20 @@ WS_DLL_PUBLIC int stats_tree_parent_id_by_name(stats_tree *st, const gchar *pare
  * st: the stats_tree in which to create it
  * name: the name of the new node
  * parent_name: the name of the parent_node (NULL for root)
+ * datatype: datatype used for the value of the node
  * with_children: TRUE if this node will have "dynamically created" children
  */
 WS_DLL_PUBLIC int stats_tree_create_node(stats_tree *st,
                                          const gchar *name,
                                          int parent_id,
+                                         stat_node_datatype datatype,
                                          gboolean with_children);
 
 /* creates a node using its parent's tree name */
 WS_DLL_PUBLIC int stats_tree_create_node_by_pname(stats_tree *st,
                                                   const gchar *name,
                                                   const gchar *parent_name,
+                                                  stat_node_datatype datatype,
                                                   gboolean with_children);
 
 /* creates a node in the tree, that will contain a ranges list.
@@ -187,24 +194,31 @@ typedef enum _manip_node_mode {
     MN_SET_FLAGS,
     MN_CLEAR_FLAGS
 } manip_node_mode;
-WS_DLL_PUBLIC int stats_tree_manip_node(manip_node_mode mode,
+WS_DLL_PUBLIC int stats_tree_manip_node_int(manip_node_mode mode,
                                         stats_tree *st,
                                         const gchar *name,
                                         int parent_id,
                                         gboolean with_children,
                                         gint value);
 
+WS_DLL_PUBLIC int stats_tree_manip_node_float(manip_node_mode mode,
+                                        stats_tree *st,
+                                        const gchar *name,
+                                        int parent_id,
+                                        gboolean with_children,
+                                        gfloat value);
+
 #define increase_stat_node(st,name,parent_id,with_children,value)       \
-    (stats_tree_manip_node(MN_INCREASE,(st),(name),(parent_id),(with_children),(value)))
+    (stats_tree_manip_node_int(MN_INCREASE,(st),(name),(parent_id),(with_children),(value)))
 
 #define tick_stat_node(st,name,parent_id,with_children)                 \
-    (stats_tree_manip_node(MN_INCREASE,(st),(name),(parent_id),(with_children),1))
+    (stats_tree_manip_node_int(MN_INCREASE,(st),(name),(parent_id),(with_children),1))
 
 #define set_stat_node(st,name,parent_id,with_children,value)            \
-    (stats_tree_manip_node(MN_SET,(st),(name),(parent_id),(with_children),value))
+    (stats_tree_manip_node_int(MN_SET,(st),(name),(parent_id),(with_children),value))
 
 #define zero_stat_node(st,name,parent_id,with_children)                 \
-    (stats_tree_manip_node(MN_SET,(st),(name),(parent_id),(with_children),0))
+    (stats_tree_manip_node_int(MN_SET,(st),(name),(parent_id),(with_children),0))
 
 /*
  * Add value to average calculation WITHOUT ticking node. Node MUST be ticked separately!
@@ -214,19 +228,22 @@ WS_DLL_PUBLIC int stats_tree_manip_node(manip_node_mode mode,
  * least show a count instead of 0.
  */
 #define avg_stat_node_add_value_notick(st,name,parent_id,with_children,value) \
-    (stats_tree_manip_node(MN_AVERAGE_NOTICK,(st),(name),(parent_id),(with_children),value))
+    (stats_tree_manip_node_int(MN_AVERAGE_NOTICK,(st),(name),(parent_id),(with_children),value))
 
 /* Tick node and add a new value to the average calculation for this stats node. */
-#define avg_stat_node_add_value(st,name,parent_id,with_children,value)  \
-    (stats_tree_manip_node(MN_AVERAGE,(st),(name),(parent_id),(with_children),value))
+#define avg_stat_node_add_value_int(st,name,parent_id,with_children,value)  \
+    (stats_tree_manip_node_int(MN_AVERAGE,(st),(name),(parent_id),(with_children),value))
+
+#define avg_stat_node_add_value_float(st,name,parent_id,with_children,value)  \
+    (stats_tree_manip_node_float(MN_AVERAGE,(st),(name),(parent_id),(with_children),value))
 
 /* Set flags for this node. Node created if it does not yet exist. */
 #define stat_node_set_flags(st,name,parent_id,with_children,flags)      \
-    (stats_tree_manip_node(MN_SET_FLAGS,(st),(name),(parent_id),(with_children),flags))
+    (stats_tree_manip_node_int(MN_SET_FLAGS,(st),(name),(parent_id),(with_children),flags))
 
 /* Clear flags for this node. Node created if it does not yet exist. */
 #define stat_node_clear_flags(st,name,parent_id,with_children,flags)    \
-    (stats_tree_manip_node(MN_CLEAR_FLAGS,(st),(name),(parent_id),(with_children),flags))
+    (stats_tree_manip_node_int(MN_CLEAR_FLAGS,(st),(name),(parent_id),(with_children),flags))
 
 #ifdef __cplusplus
 }
@@ -235,7 +252,7 @@ WS_DLL_PUBLIC int stats_tree_manip_node(manip_node_mode mode,
 #endif /* __STATS_TREE_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

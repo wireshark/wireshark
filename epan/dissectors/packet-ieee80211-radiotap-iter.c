@@ -47,9 +47,11 @@ static const struct radiotap_align_size rtap_namespace_sizes[] = {
 	/* [IEEE80211_RADIOTAP_AMPDU_STATUS] = 20 */		{ 4, 8 },
 	/* [IEEE80211_RADIOTAP_VHT] = 21 */			{ 2, 12 },
 	/* [IEEE80211_RADIOTAP_TIMESTAMP] = 22 */		{ 8, 12 },
-	/* [IEEE80211_RADIOTAP_HE] = 23 */                      { 2, 12 },
-	/* [IEEE80211_RADIOTAP_HE_MU] = 24 */			{ 2, 8 },
-
+	/* [IEEE80211_RADIOTAP_HE] = 23 */			{ 2, 12 },
+	/* [IEEE80211_RADIOTAP_HE_MU] = 24 */			{ 2, 12 },
+	/* [IEEE80211_RADIOTAP_HE_MU_USER = 25 notdef */	{ 0, 0 },
+	/* [IEEE80211_RADIOTAP_0_LENGTH_PSDU = 26 */		{ 1, 1 },
+	/* [IEEE80211_RADIOTAP_L_SIG = 27 */			{ 2, 4 },
 	/*
 	 * add more here as they are defined in
 	 * include/net/ieee80211_radiotap.h
@@ -114,14 +116,17 @@ int ieee80211_radiotap_iterator_init(
 	struct ieee80211_radiotap_header *radiotap_header,
 	int max_length, const struct ieee80211_radiotap_vendor_namespaces *vns)
 {
+	/* XXX - in Wireshark, we've already checked for this */
 	if (max_length < (int)sizeof(struct ieee80211_radiotap_header))
 		return -EINVAL;
 
 	/* Linux only supports version 0 radiotap format */
+	/* XXX - this is Wireshark, not Linux, and we should report an expert info */
 	if (radiotap_header->it_version)
 		return -EINVAL;
 
 	/* sanity check for allowed length and radiotap length field */
+	/* XXX - in Wireshark, this compares the length against itself. */
 	if (max_length < get_unaligned_le16(&radiotap_header->it_len))
 		return -EINVAL;
 
@@ -131,6 +136,7 @@ int ieee80211_radiotap_iterator_init(
 	iterator->_bitmap_shifter = get_unaligned_le32(&radiotap_header->it_present);
 	iterator->_arg = (guint8 *)radiotap_header + sizeof(*radiotap_header);
 	iterator->_reset_on_ext = 0;
+	iterator->_next_ns_data = NULL;
 	iterator->_next_bitmap = &radiotap_header->it_present;
 	iterator->_next_bitmap++;
 	iterator->_vns = vns;
@@ -143,6 +149,7 @@ int ieee80211_radiotap_iterator_init(
 
 	/* find payload start allowing for extended bitmap(s) */
 	if (iterator->_bitmap_shifter & (1U << IEEE80211_RADIOTAP_EXT)) {
+		/* XXX - we should report an expert info here */
 		if (!ITERATOR_VALID(iterator, sizeof(guint32)))
 			return -EINVAL;
 		while (get_unaligned_le32(iterator->_arg) &
@@ -154,7 +161,7 @@ int ieee80211_radiotap_iterator_init(
 			 * keep claiming to extend up to or even beyond the
 			 * stated radiotap header length
 			 */
-
+			/* XXX - we should report an expert info here */
 			if (!ITERATOR_VALID(iterator, sizeof(guint32)))
 				return -EINVAL;
 		}
@@ -287,9 +294,16 @@ int ieee80211_radiotap_iterator_next(
 			}
 			if (!align) {
 				/* skip all subsequent data */
+				/* XXX - we should report an expert info here */
+				if (!iterator->_next_ns_data)
+					return -EINVAL;
 				iterator->_arg = iterator->_next_ns_data;
 				/* give up on this namespace */
 				iterator->current_namespace = NULL;
+				iterator->_next_ns_data = NULL;
+				/* XXX - we should report an expert info here */
+				if (!ITERATOR_VALID(iterator, 0))
+					return -EINVAL;
 				goto next_entry;
 			}
 			break;
@@ -315,6 +329,7 @@ int ieee80211_radiotap_iterator_next(
 		if (iterator->_arg_index % 32 == IEEE80211_RADIOTAP_VENDOR_NAMESPACE) {
 			int vnslen;
 
+			/* XXX - we should report an expert info here */
 			if (!ITERATOR_VALID(iterator, size))
 				return -EINVAL;
 
@@ -348,7 +363,7 @@ int ieee80211_radiotap_iterator_next(
 		 * radiotap section.  We will normally end up equalling this
 		 * max_length on the last arg, never exceeding it.
 		 */
-
+		/* XXX - we should report an expert info here */
 		if (!ITERATOR_VALID(iterator, 0))
 			return -EINVAL;
 
@@ -403,7 +418,7 @@ int ieee80211_radiotap_iterator_next(
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

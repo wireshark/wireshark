@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.1.0 (2018-03)
+-- 3GPP TS 36.331 V15.7.0 (2019-09)
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -15,6 +15,7 @@ IMPORTS
 	DL-DCCH-Message,
 	DRB-Identity,
 	DRB-ToReleaseList,
+	DRB-ToReleaseList-r15,
 	FreqBandIndicator-r11,
 	InDeviceCoexIndication-r11,
 	LWA-Config-r13,
@@ -22,6 +23,8 @@ IMPORTS
 	maxBands,
 	maxFreq,
 	maxDRB,
+	maxDRBExt-r15,
+	maxDRB-r15,
 	maxSCell-r10,
 	maxSCell-r13,
 	maxServCell-r10,
@@ -39,15 +42,23 @@ IMPORTS
 	SidelinkUEInformation-r12,
 	SL-CommConfig-r12,
 	SL-DiscConfig-r12,
+	SubframeAssignment-r15,
 	RadioResourceConfigDedicated,
+	RadioResourceConfigDedicated-v13c0,
+	RadioResourceConfigDedicated-v1370,
+	RAN-NotificationAreaInfo-r15,
 	RCLWI-Configuration-r13,
 	RSRP-Range,
 	RSRQ-Range,
 	RSRQ-Range-v1250,
 	RS-SINR-Range-r13,
 	SCellToAddModList-r10,
+	SCellToAddModList-v13c0,
 	SCellToAddModListExt-r13,
+	SCellToAddModListExt-v13c0,
 	SCG-ConfigPartSCG-r12,
+	SCG-ConfigPartSCG-v12f0,
+	SCG-ConfigPartSCG-v13c0,
 	SecurityAlgorithmConfig,
 	SCellIndex-r10,
 	SCellIndex-r13,
@@ -130,8 +141,19 @@ HandoverPreparationInformation-v9j0-IEs ::= SEQUENCE {
 
 HandoverPreparationInformation-v10j0-IEs ::= SEQUENCE {
 	as-Config-v10j0						AS-Config-v10j0			OPTIONAL,
-	-- Following field is only for late non-critical extensions from REL-10
-	nonCriticalExtension				SEQUENCE {}				OPTIONAL
+	nonCriticalExtension				HandoverPreparationInformation-v10x0-IEs		OPTIONAL
+}
+
+HandoverPreparationInformation-v10x0-IEs ::= SEQUENCE {
+	-- Following field is only for late non-critical extensions from REL-10 to REL-12
+	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
+	nonCriticalExtension				HandoverPreparationInformation-v13c0-IEs 		OPTIONAL
+}
+
+HandoverPreparationInformation-v13c0-IEs ::= SEQUENCE {
+	as-Config-v13c0						AS-Config-v13c0			OPTIONAL,
+	-- Following field is only for late non-critical extensions from REL-13
+	nonCriticalExtension				SEQUENCE {}					OPTIONAL
 }
 
 -- Regular non-critical extensions:
@@ -160,7 +182,17 @@ HandoverPreparationInformation-v1320-IEs ::= SEQUENCE {
 HandoverPreparationInformation-v1430-IEs ::= SEQUENCE {
 	as-Config-v1430					AS-Config-v1430						OPTIONAL,	-- Cond HO2
 	makeBeforeBreakReq-r14			ENUMERATED {true}				OPTIONAL,	-- Cond HO2
-	nonCriticalExtension			SEQUENCE {}							OPTIONAL
+	nonCriticalExtension			HandoverPreparationInformation-v1530-IEs			OPTIONAL
+}
+
+HandoverPreparationInformation-v1530-IEs ::= SEQUENCE {
+	ran-NotificationAreaInfo-r15		RAN-NotificationAreaInfo-r15			OPTIONAL,
+	nonCriticalExtension				HandoverPreparationInformation-v1540-IEs							OPTIONAL
+}
+
+HandoverPreparationInformation-v1540-IEs ::= SEQUENCE {
+	sourceRB-ConfigIntra5GC-r15		OCTET STRING						OPTIONAL,	--Cond HO4
+	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
 
@@ -178,6 +210,23 @@ SCG-Config-r12 ::=					SEQUENCE {
 
 SCG-Config-r12-IEs ::=				SEQUENCE {
 	scg-RadioConfig-r12					SCG-ConfigPartSCG-r12				OPTIONAL,
+	nonCriticalExtension					SCG-Config-v12i0a-IEs				OPTIONAL
+}
+
+SCG-Config-v12i0a-IEs ::=				SEQUENCE {
+	-- Following field is only for late non-critical extensions from REL-12
+	lateNonCriticalExtension			OCTET STRING (CONTAINING SCG-Config-v12i0b-IEs)	OPTIONAL,
+	nonCriticalExtension				SCG-Config-v13c0-IEs				OPTIONAL
+}
+
+SCG-Config-v12i0b-IEs ::=				SEQUENCE {
+	scg-RadioConfig-v12i0				SCG-ConfigPartSCG-v12f0			OPTIONAL,	-- Need ON
+	nonCriticalExtension				SEQUENCE {}						OPTIONAL
+}
+
+SCG-Config-v13c0-IEs ::=				SEQUENCE {
+	scg-RadioConfig-v13c0				SCG-ConfigPartSCG-v13c0				OPTIONAL,
+	-- Following field is only for late non-critical extensions from REL-13 onwards
 	nonCriticalExtension				SEQUENCE {}							OPTIONAL
 }
 
@@ -214,7 +263,8 @@ SCG-ConfigInfo-r12-IEs ::=			SEQUENCE {
 }
 
 SCG-ConfigInfo-v1310-IEs ::=		SEQUENCE {
-	measResultSSTD-r13				MeasResultSSTD-r13					OPTIONAL,	sCellToAddModListMCG-Ext-r13		SCellToAddModListExt-r13			OPTIONAL,
+	measResultSSTD-r13				MeasResultSSTD-r13					OPTIONAL,
+	sCellToAddModListMCG-Ext-r13		SCellToAddModListExt-r13			OPTIONAL,
 	measResultServCellListSCG-Ext-r13	MeasResultServCellListSCG-Ext-r13	OPTIONAL,
 	sCellToAddModListSCG-Ext-r13		SCellToAddModListSCG-Ext-r13			OPTIONAL,
 	sCellToReleaseListSCG-Ext-r13	SCellToReleaseListExt-r13			OPTIONAL,
@@ -229,10 +279,17 @@ SCG-ConfigInfo-v1330-IEs ::=		SEQUENCE {
 SCG-ConfigInfo-v1430-IEs ::=		SEQUENCE {
 	makeBeforeBreakSCG-Req-r14		ENUMERATED {true}					OPTIONAL,
 	measGapConfigPerCC-List		MeasGapConfigPerCC-List-r14			OPTIONAL,
+	nonCriticalExtension			SCG-ConfigInfo-v1530-IEs					OPTIONAL
+}
+
+SCG-ConfigInfo-v1530-IEs ::=		SEQUENCE {
+	drb-ToAddModListSCG-r15			DRB-InfoListSCG-r15					OPTIONAL,
+	drb-ToReleaseListSCG-r15		DRB-ToReleaseList-r15				OPTIONAL,
 	nonCriticalExtension			SEQUENCE {}							OPTIONAL
 }
 
 DRB-InfoListSCG-r12 ::=				SEQUENCE (SIZE (1..maxDRB)) OF DRB-InfoSCG-r12
+DRB-InfoListSCG-r15 ::=				SEQUENCE (SIZE (1..maxDRB-r15)) OF DRB-InfoSCG-r12
 
 DRB-InfoSCG-r12 ::=				SEQUENCE {
 	eps-BearerIdentity-r12			INTEGER (0..15)				OPTIONAL,	-- Cond DRB-Setup
@@ -379,6 +436,10 @@ AS-Config ::=				SEQUENCE {
 	[[	sourceConfigSCG-r12					SCG-Config-r12		OPTIONAL
 	]],
 	[[	as-ConfigNR-r15						AS-ConfigNR-r15					OPTIONAL
+	]],
+	[[	as-Config-v1550						AS-Config-v1550					OPTIONAL
+	]],
+	[[	as-ConfigNR-v1570					AS-ConfigNR-v1570				OPTIONAL
 	]]
 }
 
@@ -401,6 +462,13 @@ AS-Config-v1320 ::=				SEQUENCE {
 	sourceRCLWI-Configuration-r13		RCLWI-Configuration-r13				OPTIONAL
 }
 
+AS-Config-v13c0 ::=				SEQUENCE {
+	radioResourceConfigDedicated-v13c01	RadioResourceConfigDedicated-v1370	OPTIONAL,
+	radioResourceConfigDedicated-v13c02	RadioResourceConfigDedicated-v13c0	OPTIONAL,
+	sCellToAddModList-v13c0				SCellToAddModList-v13c0				OPTIONAL,
+	sCellToAddModListExt-v13c0			SCellToAddModListExt-v13c0			OPTIONAL
+}
+
 AS-Config-v1430 ::=				SEQUENCE {
 	sourceSL-V2X-CommConfig-r14			SL-V2X-ConfigDedicated-r14					OPTIONAL,
 	sourceLWA-Config-r14				LWA-Config-r13						OPTIONAL,
@@ -411,6 +479,18 @@ AS-ConfigNR-r15 ::=				SEQUENCE {
 	sourceRB-ConfigNR-r15				OCTET STRING			OPTIONAL,
 	sourceRB-ConfigSN-NR-r15				OCTET STRING			OPTIONAL,
 	sourceOtherConfigSN-NR-r15			OCTET STRING			OPTIONAL
+}
+
+AS-ConfigNR-v1570 ::=				SEQUENCE {
+	sourceSCG-ConfiguredNR-r15			ENUMERATED {true}
+}
+
+AS-Config-v1550 ::=			SEQUENCE {
+	tdm-PatternConfig-r15		SEQUENCE {
+		subframeAssignment-r15		SubframeAssignment-r15,
+		harq-Offset-r15				INTEGER (0.. 9)
+	}												OPTIONAL,
+	p-MaxEUTRA-r15				P-Max		OPTIONAL
 }
 
 
@@ -429,7 +509,9 @@ AS-Context-v1130 ::=					SEQUENCE {
 	[[	sidelinkUEInformation-r12				OCTET STRING (CONTAINING
 												SidelinkUEInformation-r12)	OPTIONAL	-- Cond HO2
 	]],
-	[[	sourceContextENDC-r15				OCTET STRING					OPTIONAL	-- Cond HO2
+	[[	sourceContextEN-DC-r15				OCTET STRING					OPTIONAL	-- Cond HO2
+	]],
+	[[	selectedbandCombinationInfoEN-DC-v1540		OCTET STRING			OPTIONAL	-- Cond HO2
 	]]
 }
 

@@ -71,8 +71,8 @@ struct shomiti_trailer {
 #define RX_STATUS_FIFO_ERROR		0x0080	/* receive FIFO error */
 #define RX_STATUS_TRIGGERED		0x0001	/* frame did trigger */
 
-static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean snoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean snoop_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static int snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
@@ -88,14 +88,14 @@ static gboolean snoop_dump(wtap_dumper *wdh, const wtap_rec *rec,
 /*
  * See
  *
- *	http://www.opengroup.org/onlinepubs/9638599/apdxf.htm
+ *	https://pubs.opengroup.org/onlinepubs/9638599/apdxf.htm
  *
  * for the "dlpi.h" header file specified by The Open Group, which lists
  * the DL_ values for various protocols; Solaris 7 uses the same values.
  *
  * See
  *
- *	http://www.iana.org/assignments/snoop-datalink-types/snoop-datalink-types.xml
+ *	https://www.iana.org/assignments/snoop-datalink-types
  *
  * for the IETF list of snoop datalink types.
  *
@@ -155,7 +155,7 @@ static gboolean snoop_dump(wtap_dumper *wdh, const wtap_rec *rec,
  * if it can't, this may be useful reference information for anybody doing
  * code to use DLPI to do raw packet captures on those network types.
  *
- *	http://web.archive.org/web/20010906213807/http://www.shomiti.com/support/TNCapFileFormat.htm
+ *	https://web.archive.org/web/20010906213807/http://www.shomiti.com/support/TNCapFileFormat.htm
  *
  * gives information on Shomiti's mutant flavor of snoop.  For some unknown
  * reason, they decided not to just Go With The DLPI Flow, and instead used
@@ -417,15 +417,14 @@ typedef struct {
 
 
 /* Read the next packet */
-static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean snoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	int	padbytes;
 
 	*data_offset = file_tell(wth->fh);
 
-	padbytes = snoop_read_packet(wth, wth->fh, &wth->rec,
-	    wth->rec_data, err, err_info);
+	padbytes = snoop_read_packet(wth, wth->fh, rec, buf, err, err_info);
 	if (padbytes == -1)
 		return FALSE;
 
@@ -818,6 +817,15 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 		return FALSE;
 	}
 
+	/*
+	 * Make sure this packet doesn't have a link-layer type that
+	 * differs from the one for the file.
+	 */
+	if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+		return FALSE;
+	}
+
 	if (wdh->encap == WTAP_ENCAP_ATM_PDUS)
 		atm_hdrsize = sizeof (struct snoop_atm_hdr);
 	else
@@ -895,7 +903,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

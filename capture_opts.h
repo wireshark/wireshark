@@ -18,9 +18,7 @@
 #ifndef __CAPTURE_OPTS_H__
 #define __CAPTURE_OPTS_H__
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>     /* for gid_t */
-#endif
+#include <sys/types.h>     /* for gid_t */
 
 #include <caputils/capture_ifinfo.h>
 
@@ -199,9 +197,9 @@ typedef struct link_row_tag {
 } link_row;
 
 typedef struct interface_options_tag {
-    gchar            *name;                 /* the name of the interface provided to winpcap/libpcap to specify the interface */
-    gchar            *descr;
-    gchar            *console_display_name; /* the name displayed in the console, also the basis for autonamed pcap filenames */
+    gchar            *name;                 /* the name of the interface supplied to libpcap/WinPcap/Npcap to specify the interface */
+    gchar            *descr;                /* a more user-friendly description of the interface; may be NULL if none */
+    gchar            *display_name;         /* the name displayed in the console and title bar */
     gchar            *cfilter;
     gboolean          has_snaplen;
     int               snaplen;
@@ -284,7 +282,7 @@ typedef struct capture_options_tag {
 
     /* GUI related */
     gboolean           real_time_mode;        /**< Update list of packets in real time */
-    gboolean           show_info;             /**< show the info dialog. GTK+ only. */
+    gboolean           show_info;             /**< show the info dialog. */
     gboolean           restart;               /**< restart after closing is done */
     gchar             *orig_save_file;        /**< the original capture file name (saved for a restart) */
 
@@ -292,26 +290,29 @@ typedef struct capture_options_tag {
     gboolean           multi_files_on;        /**< TRUE if ring buffer in use */
 
     gboolean           has_file_duration;     /**< TRUE if ring duration specified */
-    gint32             file_duration;         /**< Switch file after n seconds */
+    gdouble            file_duration;         /**< Switch file after n seconds */
     gboolean           has_file_interval;     /**< TRUE if ring interval specified */
     gint32             file_interval;         /**< Create time intervals of n seconds */
+    gboolean           has_file_packets;      /**< TRUE if ring packet count is
+                                                   specified */
+    int                file_packets;          /**< Switch file after n packets */
     gboolean           has_ring_num_files;    /**< TRUE if ring num_files specified */
     guint32            ring_num_files;        /**< Number of multiple buffer files */
 
     /* autostop conditions */
     gboolean           has_autostop_files;    /**< TRUE if maximum number of capture files
                                                    are specified */
-    gint32             autostop_files;        /**< Maximum number of capture files */
+    int                autostop_files;        /**< Maximum number of capture files */
 
     gboolean           has_autostop_packets;  /**< TRUE if maximum packet count is
                                                    specified */
     int                autostop_packets;      /**< Maximum packet count */
     gboolean           has_autostop_filesize; /**< TRUE if maximum capture file size
                                                    is specified */
-    guint32            autostop_filesize;     /**< Maximum capture file size */
+    guint32            autostop_filesize;     /**< Maximum capture file size in kB */
     gboolean           has_autostop_duration; /**< TRUE if maximum capture duration
                                                    is specified */
-    gint32             autostop_duration;     /**< Maximum capture duration */
+    gdouble            autostop_duration;     /**< Maximum capture duration */
 
     gchar             *capture_comment;       /** capture comment to write to the
                                                   output file */
@@ -383,7 +384,7 @@ capture_opts_free_interface_t(interface_t *device);
 #endif /* capture_opts.h */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

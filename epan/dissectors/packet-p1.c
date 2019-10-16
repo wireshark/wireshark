@@ -569,8 +569,12 @@ static int hf_p1_PerMessageIndicators_U_reserved = -1;
 static int hf_p1_PerMessageIndicators_U_bit_5 = -1;
 static int hf_p1_PerMessageIndicators_U_bit_6 = -1;
 static int hf_p1_PerMessageIndicators_U_service_message = -1;
+static int hf_p1_OriginatorReportRequest_spare_bit0 = -1;
+static int hf_p1_OriginatorReportRequest_spare_bit1 = -1;
+static int hf_p1_OriginatorReportRequest_spare_bit2 = -1;
 static int hf_p1_OriginatorReportRequest_report = -1;
 static int hf_p1_OriginatorReportRequest_non_delivery_report = -1;
+static int hf_p1_DeliveryFlags_spare_bit0 = -1;
 static int hf_p1_DeliveryFlags_implicit_conversion_prohibited = -1;
 static int hf_p1_Criticality_for_submission = -1;
 static int hf_p1_Criticality_for_transfer = -1;
@@ -593,29 +597,77 @@ static int hf_p1_BuiltInEncodedInformationTypes_videotex = -1;
 static int hf_p1_BuiltInEncodedInformationTypes_voice = -1;
 static int hf_p1_BuiltInEncodedInformationTypes_sfd = -1;
 static int hf_p1_BuiltInEncodedInformationTypes_mixed_mode = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit0 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit1 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit2 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit3 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit4 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit5 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit6 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit7 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_two_dimensional = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_fine_resolution = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit10 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit11 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit12 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit13 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit14 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit15 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit16 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit17 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit18 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit19 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_unlimited_length = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_b4_length = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_a3_width = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_b4_width = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit24 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_t6_coding = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit26 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit27 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit28 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit29 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_uncompressed = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit31 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit32 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit33 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit34 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit35 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit36 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_width_middle_864_of_1728 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_width_middle_1216_of_1728 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit39 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit40 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit41 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit42 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit43 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_resolution_type = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_resolution_400x400 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_resolution_300x300 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_resolution_8x15 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit48 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_edi = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_dtm = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_bft = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit52 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit53 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit54 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit55 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit56 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit57 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_mixed_mode = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit59 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_character_mode = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit61 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit62 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit63 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit64 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_twelve_bits = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_preferred_huffmann = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_full_colour = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_jpeg = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit69 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit70 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_processable_mode_26 = -1;
 
 /*--- End of included file: packet-p1-hf.c ---*/
@@ -1091,7 +1143,7 @@ dissect_p1_StrongCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_p1_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -2319,62 +2371,110 @@ dissect_p1_MTAOriginatorName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const asn_namedbit BuiltInEncodedInformationTypes_bits[] = {
-  {  0, &hf_p1_BuiltInEncodedInformationTypes_unknown, -1, -1, "unknown", NULL },
-  {  1, &hf_p1_BuiltInEncodedInformationTypes_telex, -1, -1, "telex", NULL },
-  {  2, &hf_p1_BuiltInEncodedInformationTypes_ia5_text, -1, -1, "ia5-text", NULL },
-  {  3, &hf_p1_BuiltInEncodedInformationTypes_g3_facsimile, -1, -1, "g3-facsimile", NULL },
-  {  4, &hf_p1_BuiltInEncodedInformationTypes_g4_class_1, -1, -1, "g4-class-1", NULL },
-  {  5, &hf_p1_BuiltInEncodedInformationTypes_teletex, -1, -1, "teletex", NULL },
-  {  6, &hf_p1_BuiltInEncodedInformationTypes_videotex, -1, -1, "videotex", NULL },
-  {  7, &hf_p1_BuiltInEncodedInformationTypes_voice, -1, -1, "voice", NULL },
-  {  8, &hf_p1_BuiltInEncodedInformationTypes_sfd, -1, -1, "sfd", NULL },
-  {  9, &hf_p1_BuiltInEncodedInformationTypes_mixed_mode, -1, -1, "mixed-mode", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * BuiltInEncodedInformationTypes_bits[] = {
+  &hf_p1_BuiltInEncodedInformationTypes_unknown,
+  &hf_p1_BuiltInEncodedInformationTypes_telex,
+  &hf_p1_BuiltInEncodedInformationTypes_ia5_text,
+  &hf_p1_BuiltInEncodedInformationTypes_g3_facsimile,
+  &hf_p1_BuiltInEncodedInformationTypes_g4_class_1,
+  &hf_p1_BuiltInEncodedInformationTypes_teletex,
+  &hf_p1_BuiltInEncodedInformationTypes_videotex,
+  &hf_p1_BuiltInEncodedInformationTypes_voice,
+  &hf_p1_BuiltInEncodedInformationTypes_sfd,
+  &hf_p1_BuiltInEncodedInformationTypes_mixed_mode,
+  NULL
 };
 
 static int
 dissect_p1_BuiltInEncodedInformationTypes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_built_in_encoded_information_types, BuiltInEncodedInformationTypes_bits, hf_index, ett_p1_BuiltInEncodedInformationTypes,
+                                                0, ub_built_in_encoded_information_types, BuiltInEncodedInformationTypes_bits, 10, hf_index, ett_p1_BuiltInEncodedInformationTypes,
                                                 NULL);
 
   return offset;
 }
 
 
-static const asn_namedbit G3FacsimileNonBasicParameters_bits[] = {
-  {  8, &hf_p1_G3FacsimileNonBasicParameters_two_dimensional, -1, -1, "two-dimensional", NULL },
-  {  9, &hf_p1_G3FacsimileNonBasicParameters_fine_resolution, -1, -1, "fine-resolution", NULL },
-  { 20, &hf_p1_G3FacsimileNonBasicParameters_unlimited_length, -1, -1, "unlimited-length", NULL },
-  { 21, &hf_p1_G3FacsimileNonBasicParameters_b4_length, -1, -1, "b4-length", NULL },
-  { 22, &hf_p1_G3FacsimileNonBasicParameters_a3_width, -1, -1, "a3-width", NULL },
-  { 23, &hf_p1_G3FacsimileNonBasicParameters_b4_width, -1, -1, "b4-width", NULL },
-  { 25, &hf_p1_G3FacsimileNonBasicParameters_t6_coding, -1, -1, "t6-coding", NULL },
-  { 30, &hf_p1_G3FacsimileNonBasicParameters_uncompressed, -1, -1, "uncompressed", NULL },
-  { 37, &hf_p1_G3FacsimileNonBasicParameters_width_middle_864_of_1728, -1, -1, "width-middle-864-of-1728", NULL },
-  { 38, &hf_p1_G3FacsimileNonBasicParameters_width_middle_1216_of_1728, -1, -1, "width-middle-1216-of-1728", NULL },
-  { 44, &hf_p1_G3FacsimileNonBasicParameters_resolution_type, -1, -1, "resolution-type", NULL },
-  { 45, &hf_p1_G3FacsimileNonBasicParameters_resolution_400x400, -1, -1, "resolution-400x400", NULL },
-  { 46, &hf_p1_G3FacsimileNonBasicParameters_resolution_300x300, -1, -1, "resolution-300x300", NULL },
-  { 47, &hf_p1_G3FacsimileNonBasicParameters_resolution_8x15, -1, -1, "resolution-8x15", NULL },
-  { 49, &hf_p1_G3FacsimileNonBasicParameters_edi, -1, -1, "edi", NULL },
-  { 50, &hf_p1_G3FacsimileNonBasicParameters_dtm, -1, -1, "dtm", NULL },
-  { 51, &hf_p1_G3FacsimileNonBasicParameters_bft, -1, -1, "bft", NULL },
-  { 58, &hf_p1_G3FacsimileNonBasicParameters_mixed_mode, -1, -1, "mixed-mode", NULL },
-  { 60, &hf_p1_G3FacsimileNonBasicParameters_character_mode, -1, -1, "character-mode", NULL },
-  { 65, &hf_p1_G3FacsimileNonBasicParameters_twelve_bits, -1, -1, "twelve-bits", NULL },
-  { 66, &hf_p1_G3FacsimileNonBasicParameters_preferred_huffmann, -1, -1, "preferred-huffmann", NULL },
-  { 67, &hf_p1_G3FacsimileNonBasicParameters_full_colour, -1, -1, "full-colour", NULL },
-  { 68, &hf_p1_G3FacsimileNonBasicParameters_jpeg, -1, -1, "jpeg", NULL },
-  { 71, &hf_p1_G3FacsimileNonBasicParameters_processable_mode_26, -1, -1, "processable-mode-26", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * G3FacsimileNonBasicParameters_bits[] = {
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit0,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit1,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit2,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit3,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit4,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit5,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit6,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit7,
+  &hf_p1_G3FacsimileNonBasicParameters_two_dimensional,
+  &hf_p1_G3FacsimileNonBasicParameters_fine_resolution,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit10,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit11,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit12,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit13,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit14,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit15,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit16,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit17,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit18,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit19,
+  &hf_p1_G3FacsimileNonBasicParameters_unlimited_length,
+  &hf_p1_G3FacsimileNonBasicParameters_b4_length,
+  &hf_p1_G3FacsimileNonBasicParameters_a3_width,
+  &hf_p1_G3FacsimileNonBasicParameters_b4_width,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit24,
+  &hf_p1_G3FacsimileNonBasicParameters_t6_coding,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit26,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit27,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit28,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit29,
+  &hf_p1_G3FacsimileNonBasicParameters_uncompressed,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit31,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit32,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit33,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit34,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit35,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit36,
+  &hf_p1_G3FacsimileNonBasicParameters_width_middle_864_of_1728,
+  &hf_p1_G3FacsimileNonBasicParameters_width_middle_1216_of_1728,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit39,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit40,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit41,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit42,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit43,
+  &hf_p1_G3FacsimileNonBasicParameters_resolution_type,
+  &hf_p1_G3FacsimileNonBasicParameters_resolution_400x400,
+  &hf_p1_G3FacsimileNonBasicParameters_resolution_300x300,
+  &hf_p1_G3FacsimileNonBasicParameters_resolution_8x15,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit48,
+  &hf_p1_G3FacsimileNonBasicParameters_edi,
+  &hf_p1_G3FacsimileNonBasicParameters_dtm,
+  &hf_p1_G3FacsimileNonBasicParameters_bft,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit52,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit53,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit54,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit55,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit56,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit57,
+  &hf_p1_G3FacsimileNonBasicParameters_mixed_mode,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit59,
+  &hf_p1_G3FacsimileNonBasicParameters_character_mode,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit61,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit62,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit63,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit64,
+  &hf_p1_G3FacsimileNonBasicParameters_twelve_bits,
+  &hf_p1_G3FacsimileNonBasicParameters_preferred_huffmann,
+  &hf_p1_G3FacsimileNonBasicParameters_full_colour,
+  &hf_p1_G3FacsimileNonBasicParameters_jpeg,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit69,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit70,
+  &hf_p1_G3FacsimileNonBasicParameters_processable_mode_26,
+  NULL
 };
 
 int
 dissect_p1_G3FacsimileNonBasicParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    G3FacsimileNonBasicParameters_bits, hf_index, ett_p1_G3FacsimileNonBasicParameters,
+                                    G3FacsimileNonBasicParameters_bits, 72, hf_index, ett_p1_G3FacsimileNonBasicParameters,
                                     NULL);
 
   return offset;
@@ -2632,22 +2732,22 @@ dissect_p1_Priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 }
 
 
-static const asn_namedbit PerMessageIndicators_U_bits[] = {
-  {  0, &hf_p1_PerMessageIndicators_U_disclosure_of_other_recipients, -1, -1, "disclosure-of-other-recipients", NULL },
-  {  1, &hf_p1_PerMessageIndicators_U_implicit_conversion_prohibited, -1, -1, "implicit-conversion-prohibited", NULL },
-  {  2, &hf_p1_PerMessageIndicators_U_alternate_recipient_allowed, -1, -1, "alternate-recipient-allowed", NULL },
-  {  3, &hf_p1_PerMessageIndicators_U_content_return_request, -1, -1, "content-return-request", NULL },
-  {  4, &hf_p1_PerMessageIndicators_U_reserved, -1, -1, "reserved", NULL },
-  {  5, &hf_p1_PerMessageIndicators_U_bit_5, -1, -1, "bit-5", NULL },
-  {  6, &hf_p1_PerMessageIndicators_U_bit_6, -1, -1, "bit-6", NULL },
-  {  7, &hf_p1_PerMessageIndicators_U_service_message, -1, -1, "service-message", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * PerMessageIndicators_U_bits[] = {
+  &hf_p1_PerMessageIndicators_U_disclosure_of_other_recipients,
+  &hf_p1_PerMessageIndicators_U_implicit_conversion_prohibited,
+  &hf_p1_PerMessageIndicators_U_alternate_recipient_allowed,
+  &hf_p1_PerMessageIndicators_U_content_return_request,
+  &hf_p1_PerMessageIndicators_U_reserved,
+  &hf_p1_PerMessageIndicators_U_bit_5,
+  &hf_p1_PerMessageIndicators_U_bit_6,
+  &hf_p1_PerMessageIndicators_U_service_message,
+  NULL
 };
 
 static int
 dissect_p1_PerMessageIndicators_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, PerMessageIndicators_U_bits, hf_index, ett_p1_PerMessageIndicators_U,
+                                                0, ub_bit_options, PerMessageIndicators_U_bits, 8, hf_index, ett_p1_PerMessageIndicators_U,
                                                 NULL);
 
   return offset;
@@ -2833,16 +2933,16 @@ dissect_p1_ConvertedEncodedInformationTypes(gboolean implicit_tag _U_, tvbuff_t 
 }
 
 
-static const asn_namedbit OtherActions_bits[] = {
-  {  0, &hf_p1_OtherActions_redirected, -1, -1, "redirected", NULL },
-  {  1, &hf_p1_OtherActions_dl_operation, -1, -1, "dl-operation", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * OtherActions_bits[] = {
+  &hf_p1_OtherActions_redirected,
+  &hf_p1_OtherActions_dl_operation,
+  NULL
 };
 
 static int
 dissect_p1_OtherActions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, OtherActions_bits, hf_index, ett_p1_OtherActions,
+                                                0, ub_bit_options, OtherActions_bits, 2, hf_index, ett_p1_OtherActions,
                                                 NULL);
 
   return offset;
@@ -3028,17 +3128,17 @@ dissect_p1_ExtensionType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const asn_namedbit Criticality_bits[] = {
-  {  0, &hf_p1_Criticality_for_submission, -1, -1, "for-submission", NULL },
-  {  1, &hf_p1_Criticality_for_transfer, -1, -1, "for-transfer", NULL },
-  {  2, &hf_p1_Criticality_for_delivery, -1, -1, "for-delivery", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Criticality_bits[] = {
+  &hf_p1_Criticality_for_submission,
+  &hf_p1_Criticality_for_transfer,
+  &hf_p1_Criticality_for_delivery,
+  NULL
 };
 
 static int
 dissect_p1_Criticality(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, Criticality_bits, hf_index, ett_p1_Criticality,
+                                                0, ub_bit_options, Criticality_bits, 3, hf_index, ett_p1_Criticality,
                                                 NULL);
 
   return offset;
@@ -3125,22 +3225,22 @@ dissect_p1_OriginallySpecifiedRecipientNumber(gboolean implicit_tag _U_, tvbuff_
 }
 
 
-static const asn_namedbit PerRecipientIndicators_bits[] = {
-  {  0, &hf_p1_PerRecipientIndicators_responsibility, -1, -1, "responsibility", NULL },
-  {  1, &hf_p1_PerRecipientIndicators_originating_MTA_report, -1, -1, "originating-MTA-report", NULL },
-  {  2, &hf_p1_PerRecipientIndicators_originating_MTA_non_delivery_report, -1, -1, "originating-MTA-non-delivery-report", NULL },
-  {  3, &hf_p1_PerRecipientIndicators_originator_report, -1, -1, "originator-report", NULL },
-  {  4, &hf_p1_PerRecipientIndicators_originator_non_delivery_report, -1, -1, "originator-non-delivery-report", NULL },
-  {  5, &hf_p1_PerRecipientIndicators_reserved_5, -1, -1, "reserved-5", NULL },
-  {  6, &hf_p1_PerRecipientIndicators_reserved_6, -1, -1, "reserved-6", NULL },
-  {  7, &hf_p1_PerRecipientIndicators_reserved_7, -1, -1, "reserved-7", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * PerRecipientIndicators_bits[] = {
+  &hf_p1_PerRecipientIndicators_responsibility,
+  &hf_p1_PerRecipientIndicators_originating_MTA_report,
+  &hf_p1_PerRecipientIndicators_originating_MTA_non_delivery_report,
+  &hf_p1_PerRecipientIndicators_originator_report,
+  &hf_p1_PerRecipientIndicators_originator_non_delivery_report,
+  &hf_p1_PerRecipientIndicators_reserved_5,
+  &hf_p1_PerRecipientIndicators_reserved_6,
+  &hf_p1_PerRecipientIndicators_reserved_7,
+  NULL
 };
 
 static int
 dissect_p1_PerRecipientIndicators(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                8, ub_bit_options, PerRecipientIndicators_bits, hf_index, ett_p1_PerRecipientIndicators,
+                                                8, ub_bit_options, PerRecipientIndicators_bits, 8, hf_index, ett_p1_PerRecipientIndicators,
                                                 NULL);
 
   return offset;
@@ -4060,16 +4160,19 @@ dissect_p1_RecipientName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const asn_namedbit OriginatorReportRequest_bits[] = {
-  {  3, &hf_p1_OriginatorReportRequest_report, -1, -1, "report", NULL },
-  {  4, &hf_p1_OriginatorReportRequest_non_delivery_report, -1, -1, "non-delivery-report", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * OriginatorReportRequest_bits[] = {
+  &hf_p1_OriginatorReportRequest_spare_bit0,
+  &hf_p1_OriginatorReportRequest_spare_bit1,
+  &hf_p1_OriginatorReportRequest_spare_bit2,
+  &hf_p1_OriginatorReportRequest_report,
+  &hf_p1_OriginatorReportRequest_non_delivery_report,
+  NULL
 };
 
 static int
 dissect_p1_OriginatorReportRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, OriginatorReportRequest_bits, hf_index, ett_p1_OriginatorReportRequest,
+                                                0, ub_bit_options, OriginatorReportRequest_bits, 5, hf_index, ett_p1_OriginatorReportRequest,
                                                 NULL);
 
   return offset;
@@ -4306,16 +4409,16 @@ dissect_p1_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const asn_namedbit Operations_bits[] = {
-  {  0, &hf_p1_Operations_probe_submission_or_report_delivery, -1, -1, "probe-submission-or-report-delivery", NULL },
-  {  1, &hf_p1_Operations_message_submission_or_message_delivery, -1, -1, "message-submission-or-message-delivery", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Operations_bits[] = {
+  &hf_p1_Operations_probe_submission_or_report_delivery,
+  &hf_p1_Operations_message_submission_or_message_delivery,
+  NULL
 };
 
 static int
 dissect_p1_Operations(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, Operations_bits, hf_index, ett_p1_Operations,
+                                                0, ub_bit_options, Operations_bits, 2, hf_index, ett_p1_Operations,
                                                 NULL);
 
   return offset;
@@ -4398,17 +4501,17 @@ dissect_p1_SubmissionControlArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 }
 
 
-static const asn_namedbit WaitingMessages_bits[] = {
-  {  0, &hf_p1_WaitingMessages_long_content, -1, -1, "long-content", NULL },
-  {  1, &hf_p1_WaitingMessages_low_priority, -1, -1, "low-priority", NULL },
-  {  2, &hf_p1_WaitingMessages_other_security_labels, -1, -1, "other-security-labels", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * WaitingMessages_bits[] = {
+  &hf_p1_WaitingMessages_long_content,
+  &hf_p1_WaitingMessages_low_priority,
+  &hf_p1_WaitingMessages_other_security_labels,
+  NULL
 };
 
 static int
 dissect_p1_WaitingMessages(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, WaitingMessages_bits, hf_index, ett_p1_WaitingMessages,
+                                                0, ub_bit_options, WaitingMessages_bits, 3, hf_index, ett_p1_WaitingMessages,
                                                 NULL);
 
   return offset;
@@ -4629,15 +4732,16 @@ dissect_p1_DeliveredOriginatorName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const asn_namedbit DeliveryFlags_bits[] = {
-  {  1, &hf_p1_DeliveryFlags_implicit_conversion_prohibited, -1, -1, "implicit-conversion-prohibited", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * DeliveryFlags_bits[] = {
+  &hf_p1_DeliveryFlags_spare_bit0,
+  &hf_p1_DeliveryFlags_implicit_conversion_prohibited,
+  NULL
 };
 
 static int
 dissect_p1_DeliveryFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, DeliveryFlags_bits, hf_index, ett_p1_DeliveryFlags,
+                                                0, ub_bit_options, DeliveryFlags_bits, 2, hf_index, ett_p1_DeliveryFlags,
                                                 NULL);
 
   return offset;
@@ -5136,17 +5240,17 @@ dissect_p1_T_objects(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const asn_namedbit T_source_type_bits[] = {
-  {  0, &hf_p1_T_source_type_originated_by, -1, -1, "originated-by", NULL },
-  {  1, &hf_p1_T_source_type_redirected_by, -1, -1, "redirected-by", NULL },
-  {  2, &hf_p1_T_source_type_dl_expanded_by, -1, -1, "dl-expanded-by", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_source_type_bits[] = {
+  &hf_p1_T_source_type_originated_by,
+  &hf_p1_T_source_type_redirected_by,
+  &hf_p1_T_source_type_dl_expanded_by,
+  NULL
 };
 
 static int
 dissect_p1_T_source_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_source_type_bits, hf_index, ett_p1_T_source_type,
+                                    T_source_type_bits, 3, hf_index, ett_p1_T_source_type,
                                     NULL);
 
   return offset;
@@ -5328,20 +5432,20 @@ dissect_p1_RestrictedDelivery(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const asn_namedbit T_standard_parameters_bits[] = {
-  {  0, &hf_p1_T_standard_parameters_user_name, -1, -1, "user-name", NULL },
-  {  1, &hf_p1_T_standard_parameters_user_address, -1, -1, "user-address", NULL },
-  {  2, &hf_p1_T_standard_parameters_deliverable_class, -1, -1, "deliverable-class", NULL },
-  {  3, &hf_p1_T_standard_parameters_default_delivery_controls, -1, -1, "default-delivery-controls", NULL },
-  {  4, &hf_p1_T_standard_parameters_redirections, -1, -1, "redirections", NULL },
-  {  5, &hf_p1_T_standard_parameters_restricted_delivery, -1, -1, "restricted-delivery", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_standard_parameters_bits[] = {
+  &hf_p1_T_standard_parameters_user_name,
+  &hf_p1_T_standard_parameters_user_address,
+  &hf_p1_T_standard_parameters_deliverable_class,
+  &hf_p1_T_standard_parameters_default_delivery_controls,
+  &hf_p1_T_standard_parameters_redirections,
+  &hf_p1_T_standard_parameters_restricted_delivery,
+  NULL
 };
 
 static int
 dissect_p1_T_standard_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_standard_parameters_bits, hf_index, ett_p1_T_standard_parameters,
+                                    T_standard_parameters_bits, 6, hf_index, ett_p1_T_standard_parameters,
                                     NULL);
 
   return offset;
@@ -5670,22 +5774,22 @@ dissect_p1_PhysicalForwardingAddressRequest(gboolean implicit_tag _U_, tvbuff_t 
 }
 
 
-static const asn_namedbit PhysicalDeliveryModes_bits[] = {
-  {  0, &hf_p1_PhysicalDeliveryModes_ordinary_mail, -1, -1, "ordinary-mail", NULL },
-  {  1, &hf_p1_PhysicalDeliveryModes_special_delivery, -1, -1, "special-delivery", NULL },
-  {  2, &hf_p1_PhysicalDeliveryModes_express_mail, -1, -1, "express-mail", NULL },
-  {  3, &hf_p1_PhysicalDeliveryModes_counter_collection, -1, -1, "counter-collection", NULL },
-  {  4, &hf_p1_PhysicalDeliveryModes_counter_collection_with_telephone_advice, -1, -1, "counter-collection-with-telephone-advice", NULL },
-  {  5, &hf_p1_PhysicalDeliveryModes_counter_collection_with_telex_advice, -1, -1, "counter-collection-with-telex-advice", NULL },
-  {  6, &hf_p1_PhysicalDeliveryModes_counter_collection_with_teletex_advice, -1, -1, "counter-collection-with-teletex-advice", NULL },
-  {  7, &hf_p1_PhysicalDeliveryModes_bureau_fax_delivery, -1, -1, "bureau-fax-delivery", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * PhysicalDeliveryModes_bits[] = {
+  &hf_p1_PhysicalDeliveryModes_ordinary_mail,
+  &hf_p1_PhysicalDeliveryModes_special_delivery,
+  &hf_p1_PhysicalDeliveryModes_express_mail,
+  &hf_p1_PhysicalDeliveryModes_counter_collection,
+  &hf_p1_PhysicalDeliveryModes_counter_collection_with_telephone_advice,
+  &hf_p1_PhysicalDeliveryModes_counter_collection_with_telex_advice,
+  &hf_p1_PhysicalDeliveryModes_counter_collection_with_teletex_advice,
+  &hf_p1_PhysicalDeliveryModes_bureau_fax_delivery,
+  NULL
 };
 
 static int
 dissect_p1_PhysicalDeliveryModes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, PhysicalDeliveryModes_bits, hf_index, ett_p1_PhysicalDeliveryModes,
+                                                0, ub_bit_options, PhysicalDeliveryModes_bits, 8, hf_index, ett_p1_PhysicalDeliveryModes,
                                                 NULL);
 
   return offset;
@@ -7226,7 +7330,7 @@ dissect_p1_AsymmetricToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_p1_RandomNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -7274,7 +7378,7 @@ dissect_p1_MessageTokenSignedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_p1_EncryptionKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -10554,323 +10658,531 @@ void proto_register_p1(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ExtendedEncodedInformationTypes", HFILL }},
     { &hf_p1_PerRecipientIndicators_responsibility,
-      { "responsibility", "p1.responsibility",
+      { "responsibility", "p1.PerRecipientIndicators.responsibility",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p1_PerRecipientIndicators_originating_MTA_report,
-      { "originating-MTA-report", "p1.originating-MTA-report",
+      { "originating-MTA-report", "p1.PerRecipientIndicators.originating.MTA.report",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p1_PerRecipientIndicators_originating_MTA_non_delivery_report,
-      { "originating-MTA-non-delivery-report", "p1.originating-MTA-non-delivery-report",
+      { "originating-MTA-non-delivery-report", "p1.PerRecipientIndicators.originating.MTA.non.delivery.report",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_p1_PerRecipientIndicators_originator_report,
-      { "originator-report", "p1.originator-report",
+      { "originator-report", "p1.PerRecipientIndicators.originator.report",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_p1_PerRecipientIndicators_originator_non_delivery_report,
-      { "originator-non-delivery-report", "p1.originator-non-delivery-report",
+      { "originator-non-delivery-report", "p1.PerRecipientIndicators.originator.non.delivery.report",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_p1_PerRecipientIndicators_reserved_5,
-      { "reserved-5", "p1.reserved-5",
+      { "reserved-5", "p1.PerRecipientIndicators.reserved.5",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_p1_PerRecipientIndicators_reserved_6,
-      { "reserved-6", "p1.reserved-6",
+      { "reserved-6", "p1.PerRecipientIndicators.reserved.6",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_p1_PerRecipientIndicators_reserved_7,
-      { "reserved-7", "p1.reserved-7",
+      { "reserved-7", "p1.PerRecipientIndicators.reserved.7",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_p1_OtherActions_redirected,
-      { "redirected", "p1.redirected",
+      { "redirected", "p1.OtherActions.redirected",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p1_OtherActions_dl_operation,
-      { "dl-operation", "p1.dl-operation",
+      { "dl-operation", "p1.OtherActions.dl.operation",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p1_Operations_probe_submission_or_report_delivery,
-      { "probe-submission-or-report-delivery", "p1.probe-submission-or-report-delivery",
+      { "probe-submission-or-report-delivery", "p1.Operations.probe.submission.or.report.delivery",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p1_Operations_message_submission_or_message_delivery,
-      { "message-submission-or-message-delivery", "p1.message-submission-or-message-delivery",
+      { "message-submission-or-message-delivery", "p1.Operations.message.submission.or.message.delivery",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p1_WaitingMessages_long_content,
-      { "long-content", "p1.long-content",
+      { "long-content", "p1.WaitingMessages.long.content",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p1_WaitingMessages_low_priority,
-      { "low-priority", "p1.low-priority",
+      { "low-priority", "p1.WaitingMessages.low.priority",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p1_WaitingMessages_other_security_labels,
-      { "other-security-labels", "p1.other-security-labels",
+      { "other-security-labels", "p1.WaitingMessages.other.security.labels",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_p1_T_source_type_originated_by,
-      { "originated-by", "p1.originated-by",
+      { "originated-by", "p1.T.source.type.originated.by",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p1_T_source_type_redirected_by,
-      { "redirected-by", "p1.redirected-by",
+      { "redirected-by", "p1.T.source.type.redirected.by",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p1_T_source_type_dl_expanded_by,
-      { "dl-expanded-by", "p1.dl-expanded-by",
+      { "dl-expanded-by", "p1.T.source.type.dl.expanded.by",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_p1_T_standard_parameters_user_name,
-      { "user-name", "p1.user-name",
+      { "user-name", "p1.T.standard.parameters.user.name",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p1_T_standard_parameters_user_address,
-      { "user-address", "p1.user-address",
+      { "user-address", "p1.T.standard.parameters.user.address",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p1_T_standard_parameters_deliverable_class,
-      { "deliverable-class", "p1.deliverable-class",
+      { "deliverable-class", "p1.T.standard.parameters.deliverable.class",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_p1_T_standard_parameters_default_delivery_controls,
-      { "default-delivery-controls", "p1.default-delivery-controls",
+      { "default-delivery-controls", "p1.T.standard.parameters.default.delivery.controls",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_p1_T_standard_parameters_redirections,
-      { "redirections", "p1.redirections",
+      { "redirections", "p1.T.standard.parameters.redirections",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_p1_T_standard_parameters_restricted_delivery,
-      { "restricted-delivery", "p1.restricted-delivery",
+      { "restricted-delivery", "p1.T.standard.parameters.restricted.delivery",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_p1_PerMessageIndicators_U_disclosure_of_other_recipients,
-      { "disclosure-of-other-recipients", "p1.disclosure-of-other-recipients",
+      { "disclosure-of-other-recipients", "p1.PerMessageIndicators.U.disclosure.of.other.recipients",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p1_PerMessageIndicators_U_implicit_conversion_prohibited,
-      { "implicit-conversion-prohibited", "p1.implicit-conversion-prohibited",
+      { "implicit-conversion-prohibited", "p1.PerMessageIndicators.U.implicit.conversion.prohibited",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p1_PerMessageIndicators_U_alternate_recipient_allowed,
-      { "alternate-recipient-allowed", "p1.alternate-recipient-allowed",
+      { "alternate-recipient-allowed", "p1.PerMessageIndicators.U.alternate.recipient.allowed",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_p1_PerMessageIndicators_U_content_return_request,
-      { "content-return-request", "p1.content-return-request",
+      { "content-return-request", "p1.PerMessageIndicators.U.content.return.request",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_p1_PerMessageIndicators_U_reserved,
-      { "reserved", "p1.reserved",
+      { "reserved", "p1.PerMessageIndicators.U.reserved",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_p1_PerMessageIndicators_U_bit_5,
-      { "bit-5", "p1.bit-5",
+      { "bit-5", "p1.PerMessageIndicators.U.bit.5",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_p1_PerMessageIndicators_U_bit_6,
-      { "bit-6", "p1.bit-6",
+      { "bit-6", "p1.PerMessageIndicators.U.bit.6",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_p1_PerMessageIndicators_U_service_message,
-      { "service-message", "p1.service-message",
+      { "service-message", "p1.PerMessageIndicators.U.service.message",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
+    { &hf_p1_OriginatorReportRequest_spare_bit0,
+      { "spare_bit0", "p1.OriginatorReportRequest.spare.bit0",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_p1_OriginatorReportRequest_spare_bit1,
+      { "spare_bit1", "p1.OriginatorReportRequest.spare.bit1",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_p1_OriginatorReportRequest_spare_bit2,
+      { "spare_bit2", "p1.OriginatorReportRequest.spare.bit2",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
     { &hf_p1_OriginatorReportRequest_report,
-      { "report", "p1.report",
+      { "report", "p1.OriginatorReportRequest.report",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_p1_OriginatorReportRequest_non_delivery_report,
-      { "non-delivery-report", "p1.non-delivery-report",
+      { "non-delivery-report", "p1.OriginatorReportRequest.non.delivery.report",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
+    { &hf_p1_DeliveryFlags_spare_bit0,
+      { "spare_bit0", "p1.DeliveryFlags.spare.bit0",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
     { &hf_p1_DeliveryFlags_implicit_conversion_prohibited,
-      { "implicit-conversion-prohibited", "p1.implicit-conversion-prohibited",
+      { "implicit-conversion-prohibited", "p1.DeliveryFlags.implicit.conversion.prohibited",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p1_Criticality_for_submission,
-      { "for-submission", "p1.for-submission",
+      { "for-submission", "p1.Criticality.for.submission",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p1_Criticality_for_transfer,
-      { "for-transfer", "p1.for-transfer",
+      { "for-transfer", "p1.Criticality.for.transfer",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p1_Criticality_for_delivery,
-      { "for-delivery", "p1.for-delivery",
+      { "for-delivery", "p1.Criticality.for.delivery",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_p1_PhysicalDeliveryModes_ordinary_mail,
-      { "ordinary-mail", "p1.ordinary-mail",
+      { "ordinary-mail", "p1.PhysicalDeliveryModes.ordinary.mail",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p1_PhysicalDeliveryModes_special_delivery,
-      { "special-delivery", "p1.special-delivery",
+      { "special-delivery", "p1.PhysicalDeliveryModes.special.delivery",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p1_PhysicalDeliveryModes_express_mail,
-      { "express-mail", "p1.express-mail",
+      { "express-mail", "p1.PhysicalDeliveryModes.express.mail",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_p1_PhysicalDeliveryModes_counter_collection,
-      { "counter-collection", "p1.counter-collection",
+      { "counter-collection", "p1.PhysicalDeliveryModes.counter.collection",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_p1_PhysicalDeliveryModes_counter_collection_with_telephone_advice,
-      { "counter-collection-with-telephone-advice", "p1.counter-collection-with-telephone-advice",
+      { "counter-collection-with-telephone-advice", "p1.PhysicalDeliveryModes.counter.collection.with.telephone.advice",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_p1_PhysicalDeliveryModes_counter_collection_with_telex_advice,
-      { "counter-collection-with-telex-advice", "p1.counter-collection-with-telex-advice",
+      { "counter-collection-with-telex-advice", "p1.PhysicalDeliveryModes.counter.collection.with.telex.advice",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_p1_PhysicalDeliveryModes_counter_collection_with_teletex_advice,
-      { "counter-collection-with-teletex-advice", "p1.counter-collection-with-teletex-advice",
+      { "counter-collection-with-teletex-advice", "p1.PhysicalDeliveryModes.counter.collection.with.teletex.advice",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_p1_PhysicalDeliveryModes_bureau_fax_delivery,
-      { "bureau-fax-delivery", "p1.bureau-fax-delivery",
+      { "bureau-fax-delivery", "p1.PhysicalDeliveryModes.bureau.fax.delivery",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_p1_BuiltInEncodedInformationTypes_unknown,
-      { "unknown", "p1.unknown",
+      { "unknown", "p1.BuiltInEncodedInformationTypes.unknown",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p1_BuiltInEncodedInformationTypes_telex,
-      { "telex", "p1.telex",
+      { "telex", "p1.BuiltInEncodedInformationTypes.telex",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p1_BuiltInEncodedInformationTypes_ia5_text,
-      { "ia5-text", "p1.ia5-text",
+      { "ia5-text", "p1.BuiltInEncodedInformationTypes.ia5.text",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_p1_BuiltInEncodedInformationTypes_g3_facsimile,
-      { "g3-facsimile", "p1.g3-facsimile",
+      { "g3-facsimile", "p1.BuiltInEncodedInformationTypes.g3.facsimile",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_p1_BuiltInEncodedInformationTypes_g4_class_1,
-      { "g4-class-1", "p1.g4-class-1",
+      { "g4-class-1", "p1.BuiltInEncodedInformationTypes.g4.class.1",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_p1_BuiltInEncodedInformationTypes_teletex,
-      { "teletex", "p1.teletex",
+      { "teletex", "p1.BuiltInEncodedInformationTypes.teletex",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_p1_BuiltInEncodedInformationTypes_videotex,
-      { "videotex", "p1.videotex",
+      { "videotex", "p1.BuiltInEncodedInformationTypes.videotex",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_p1_BuiltInEncodedInformationTypes_voice,
-      { "voice", "p1.voice",
+      { "voice", "p1.BuiltInEncodedInformationTypes.voice",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_p1_BuiltInEncodedInformationTypes_sfd,
-      { "sfd", "p1.sfd",
+      { "sfd", "p1.BuiltInEncodedInformationTypes.sfd",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p1_BuiltInEncodedInformationTypes_mixed_mode,
-      { "mixed-mode", "p1.mixed-mode",
+      { "mixed-mode", "p1.BuiltInEncodedInformationTypes.mixed.mode",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit0,
+      { "spare_bit0", "p1.G3FacsimileNonBasicParameters.spare.bit0",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit1,
+      { "spare_bit1", "p1.G3FacsimileNonBasicParameters.spare.bit1",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit2,
+      { "spare_bit2", "p1.G3FacsimileNonBasicParameters.spare.bit2",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit3,
+      { "spare_bit3", "p1.G3FacsimileNonBasicParameters.spare.bit3",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit4,
+      { "spare_bit4", "p1.G3FacsimileNonBasicParameters.spare.bit4",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit5,
+      { "spare_bit5", "p1.G3FacsimileNonBasicParameters.spare.bit5",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit6,
+      { "spare_bit6", "p1.G3FacsimileNonBasicParameters.spare.bit6",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit7,
+      { "spare_bit7", "p1.G3FacsimileNonBasicParameters.spare.bit7",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_two_dimensional,
-      { "two-dimensional", "p1.two-dimensional",
+      { "two-dimensional", "p1.G3FacsimileNonBasicParameters.two.dimensional",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_fine_resolution,
-      { "fine-resolution", "p1.fine-resolution",
+      { "fine-resolution", "p1.G3FacsimileNonBasicParameters.fine.resolution",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit10,
+      { "spare_bit10", "p1.G3FacsimileNonBasicParameters.spare.bit10",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit11,
+      { "spare_bit11", "p1.G3FacsimileNonBasicParameters.spare.bit11",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit12,
+      { "spare_bit12", "p1.G3FacsimileNonBasicParameters.spare.bit12",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit13,
+      { "spare_bit13", "p1.G3FacsimileNonBasicParameters.spare.bit13",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit14,
+      { "spare_bit14", "p1.G3FacsimileNonBasicParameters.spare.bit14",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit15,
+      { "spare_bit15", "p1.G3FacsimileNonBasicParameters.spare.bit15",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit16,
+      { "spare_bit16", "p1.G3FacsimileNonBasicParameters.spare.bit16",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit17,
+      { "spare_bit17", "p1.G3FacsimileNonBasicParameters.spare.bit17",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit18,
+      { "spare_bit18", "p1.G3FacsimileNonBasicParameters.spare.bit18",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit19,
+      { "spare_bit19", "p1.G3FacsimileNonBasicParameters.spare.bit19",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_unlimited_length,
-      { "unlimited-length", "p1.unlimited-length",
+      { "unlimited-length", "p1.G3FacsimileNonBasicParameters.unlimited.length",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_b4_length,
-      { "b4-length", "p1.b4-length",
+      { "b4-length", "p1.G3FacsimileNonBasicParameters.b4.length",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_a3_width,
-      { "a3-width", "p1.a3-width",
+      { "a3-width", "p1.G3FacsimileNonBasicParameters.a3.width",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_b4_width,
-      { "b4-width", "p1.b4-width",
+      { "b4-width", "p1.G3FacsimileNonBasicParameters.b4.width",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit24,
+      { "spare_bit24", "p1.G3FacsimileNonBasicParameters.spare.bit24",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_t6_coding,
-      { "t6-coding", "p1.t6-coding",
+      { "t6-coding", "p1.G3FacsimileNonBasicParameters.t6.coding",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit26,
+      { "spare_bit26", "p1.G3FacsimileNonBasicParameters.spare.bit26",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit27,
+      { "spare_bit27", "p1.G3FacsimileNonBasicParameters.spare.bit27",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit28,
+      { "spare_bit28", "p1.G3FacsimileNonBasicParameters.spare.bit28",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit29,
+      { "spare_bit29", "p1.G3FacsimileNonBasicParameters.spare.bit29",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_uncompressed,
-      { "uncompressed", "p1.uncompressed",
+      { "uncompressed", "p1.G3FacsimileNonBasicParameters.uncompressed",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit31,
+      { "spare_bit31", "p1.G3FacsimileNonBasicParameters.spare.bit31",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit32,
+      { "spare_bit32", "p1.G3FacsimileNonBasicParameters.spare.bit32",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit33,
+      { "spare_bit33", "p1.G3FacsimileNonBasicParameters.spare.bit33",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit34,
+      { "spare_bit34", "p1.G3FacsimileNonBasicParameters.spare.bit34",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit35,
+      { "spare_bit35", "p1.G3FacsimileNonBasicParameters.spare.bit35",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit36,
+      { "spare_bit36", "p1.G3FacsimileNonBasicParameters.spare.bit36",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_width_middle_864_of_1728,
-      { "width-middle-864-of-1728", "p1.width-middle-864-of-1728",
+      { "width-middle-864-of-1728", "p1.G3FacsimileNonBasicParameters.width.middle.864.of.1728",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_width_middle_1216_of_1728,
-      { "width-middle-1216-of-1728", "p1.width-middle-1216-of-1728",
+      { "width-middle-1216-of-1728", "p1.G3FacsimileNonBasicParameters.width.middle.1216.of.1728",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit39,
+      { "spare_bit39", "p1.G3FacsimileNonBasicParameters.spare.bit39",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit40,
+      { "spare_bit40", "p1.G3FacsimileNonBasicParameters.spare.bit40",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit41,
+      { "spare_bit41", "p1.G3FacsimileNonBasicParameters.spare.bit41",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit42,
+      { "spare_bit42", "p1.G3FacsimileNonBasicParameters.spare.bit42",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit43,
+      { "spare_bit43", "p1.G3FacsimileNonBasicParameters.spare.bit43",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_resolution_type,
-      { "resolution-type", "p1.resolution-type",
+      { "resolution-type", "p1.G3FacsimileNonBasicParameters.resolution.type",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_resolution_400x400,
-      { "resolution-400x400", "p1.resolution-400x400",
+      { "resolution-400x400", "p1.G3FacsimileNonBasicParameters.resolution.400x400",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_resolution_300x300,
-      { "resolution-300x300", "p1.resolution-300x300",
+      { "resolution-300x300", "p1.G3FacsimileNonBasicParameters.resolution.300x300",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_resolution_8x15,
-      { "resolution-8x15", "p1.resolution-8x15",
+      { "resolution-8x15", "p1.G3FacsimileNonBasicParameters.resolution.8x15",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit48,
+      { "spare_bit48", "p1.G3FacsimileNonBasicParameters.spare.bit48",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_edi,
-      { "edi", "p1.edi",
+      { "edi", "p1.G3FacsimileNonBasicParameters.edi",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_dtm,
-      { "dtm", "p1.dtm",
+      { "dtm", "p1.G3FacsimileNonBasicParameters.dtm",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_bft,
-      { "bft", "p1.bft",
+      { "bft", "p1.G3FacsimileNonBasicParameters.bft",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-    { &hf_p1_G3FacsimileNonBasicParameters_mixed_mode,
-      { "mixed-mode", "p1.mixed-mode",
-        FT_BOOLEAN, 8, NULL, 0x20,
-        NULL, HFILL }},
-    { &hf_p1_G3FacsimileNonBasicParameters_character_mode,
-      { "character-mode", "p1.character-mode",
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit52,
+      { "spare_bit52", "p1.G3FacsimileNonBasicParameters.spare.bit52",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit53,
+      { "spare_bit53", "p1.G3FacsimileNonBasicParameters.spare.bit53",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit54,
+      { "spare_bit54", "p1.G3FacsimileNonBasicParameters.spare.bit54",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit55,
+      { "spare_bit55", "p1.G3FacsimileNonBasicParameters.spare.bit55",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit56,
+      { "spare_bit56", "p1.G3FacsimileNonBasicParameters.spare.bit56",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit57,
+      { "spare_bit57", "p1.G3FacsimileNonBasicParameters.spare.bit57",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_mixed_mode,
+      { "mixed-mode", "p1.G3FacsimileNonBasicParameters.mixed.mode",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit59,
+      { "spare_bit59", "p1.G3FacsimileNonBasicParameters.spare.bit59",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_character_mode,
+      { "character-mode", "p1.G3FacsimileNonBasicParameters.character.mode",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit61,
+      { "spare_bit61", "p1.G3FacsimileNonBasicParameters.spare.bit61",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit62,
+      { "spare_bit62", "p1.G3FacsimileNonBasicParameters.spare.bit62",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit63,
+      { "spare_bit63", "p1.G3FacsimileNonBasicParameters.spare.bit63",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit64,
+      { "spare_bit64", "p1.G3FacsimileNonBasicParameters.spare.bit64",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_twelve_bits,
-      { "twelve-bits", "p1.twelve-bits",
+      { "twelve-bits", "p1.G3FacsimileNonBasicParameters.twelve.bits",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_preferred_huffmann,
-      { "preferred-huffmann", "p1.preferred-huffmann",
+      { "preferred-huffmann", "p1.G3FacsimileNonBasicParameters.preferred.huffmann",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_full_colour,
-      { "full-colour", "p1.full-colour",
+      { "full-colour", "p1.G3FacsimileNonBasicParameters.full.colour",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_jpeg,
-      { "jpeg", "p1.jpeg",
+      { "jpeg", "p1.G3FacsimileNonBasicParameters.jpeg",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit69,
+      { "spare_bit69", "p1.G3FacsimileNonBasicParameters.spare.bit69",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit70,
+      { "spare_bit70", "p1.G3FacsimileNonBasicParameters.spare.bit70",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_processable_mode_26,
-      { "processable-mode-26", "p1.processable-mode-26",
+      { "processable-mode-26", "p1.G3FacsimileNonBasicParameters.processable.mode.26",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
 
@@ -11106,6 +11418,8 @@ void proto_register_p1(void) {
   /* Register our configuration options for P1, particularly our port */
 
   p1_module = prefs_register_protocol_subtree("OSI/X.400", proto_p1, NULL);
+  /* For reading older preference files with "x411." preferences */
+  prefs_register_module_alias("x411", p1_module);
 
   prefs_register_obsolete_preference(p1_module, "tcp.port");
 
@@ -11122,7 +11436,7 @@ void proto_register_p1(void) {
   register_ber_syntax_dissector("ORName", proto_p1, dissect_ORName_PDU);
 
 /*--- End of included file: packet-p1-syn-reg.c ---*/
-#line 378 "./asn1/p1/packet-p1-template.c"
+#line 380 "./asn1/p1/packet-p1-template.c"
 }
 
 
@@ -11286,7 +11600,7 @@ void proto_reg_handoff_p1(void) {
 
 
 /*--- End of included file: packet-p1-dis-tab.c ---*/
-#line 384 "./asn1/p1/packet-p1-template.c"
+#line 386 "./asn1/p1/packet-p1-template.c"
 
   /* APPLICATION CONTEXT */
 
@@ -11328,7 +11642,7 @@ void proto_reg_handoff_p1(void) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -2015,14 +2015,14 @@ static void lbmr_tag_free_cb(void * record)
     }
 }
 
-static gboolean lbmr_match_packet(packet_info * pinfo, const lbmr_tag_entry_t * entry)
+static tap_packet_status lbmr_match_packet(packet_info * pinfo, const lbmr_tag_entry_t * entry)
 {
     guint32 dest_addr_h;
     guint32 src_addr_h;
 
     if ((pinfo->dst.type != AT_IPv4) || (pinfo->dst.len != 4) ||
         (pinfo->src.type != AT_IPv4) || (pinfo->src.len != 4))
-        return (FALSE);
+        return (TAP_PACKET_DONT_REDRAW);
     dest_addr_h = pntoh32(pinfo->dst.data);
     src_addr_h = pntoh32(pinfo->src.data);
 
@@ -2032,21 +2032,21 @@ static gboolean lbmr_match_packet(packet_info * pinfo, const lbmr_tag_entry_t * 
         if ((dest_addr_h != entry->mc_incoming_address_val_h) && (dest_addr_h != entry->mc_outgoing_address_val_h))
         {
             /* No match. */
-            return (FALSE);
+            return (TAP_PACKET_DONT_REDRAW);
         }
         /* Check for the correct port. */
         if ((dest_addr_h == entry->mc_incoming_address_val_h) && (pinfo->destport != entry->mc_incoming_udp_port))
         {
             /* Wrong incoming port. */
-            return (FALSE);
+            return (TAP_PACKET_DONT_REDRAW);
         }
         if ((dest_addr_h == entry->mc_outgoing_address_val_h) && (pinfo->destport != entry->mc_outgoing_udp_port))
         {
             /* Wrong outgoing port. */
-            return (FALSE);
+            return (TAP_PACKET_DONT_REDRAW);
         }
         /* Must be one of ours. */
-        return (TRUE);
+        return (TAP_PACKET_REDRAW);
     }
     else
     {
@@ -2059,11 +2059,11 @@ static gboolean lbmr_match_packet(packet_info * pinfo, const lbmr_tag_entry_t * 
                     || ((pinfo->srcport <= entry->uc_port_high) && (pinfo->srcport >= entry->uc_port_low))))
             {
                 /* One of ours, so handle it. */
-                return (TRUE);
+                return (TAP_PACKET_REDRAW);
             }
         }
     }
-    return (FALSE);
+    return (TAP_PACKET_DONT_REDRAW);
 }
 
 static char * lbmr_tag_find(packet_info * pinfo)
@@ -2840,10 +2840,10 @@ static void add_contents_qir(lbmr_contents_t * contents, const char * queue, con
 
 static void lbmr_topic_ads_topic_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_ads_topic = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_topic, 0, TRUE);
+    lbmr_stats_tree_handle_topic_ads_topic = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_topic, 0, STAT_DT_INT, TRUE);
 }
 
-static int lbmr_topic_ads_topic_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
+static tap_packet_status lbmr_topic_ads_topic_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
 {
     const lbm_lbmr_topic_advertisement_tap_info_t * info = (const lbm_lbmr_topic_advertisement_tap_info_t *) data;
     int topic_node;
@@ -2855,7 +2855,7 @@ static int lbmr_topic_ads_topic_stats_tree_packet(stats_tree * tree, packet_info
     source_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), topic_node, TRUE);
     full_source_string = wmem_strdup_printf(wmem_packet_scope(), "%s[%" G_GUINT32_FORMAT "]", info->source, info->topic_index);
     tick_stat_node(tree, full_source_string, source_node, TRUE);
-    return (1);
+    return (TAP_PACKET_REDRAW);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -2867,10 +2867,10 @@ static int lbmr_topic_ads_topic_stats_tree_packet(stats_tree * tree, packet_info
 
 static void lbmr_topic_ads_source_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_ads_source = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_source, 0, TRUE);
+    lbmr_stats_tree_handle_topic_ads_source = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_source, 0, STAT_DT_INT, TRUE);
 }
 
-static int lbmr_topic_ads_source_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
+static tap_packet_status lbmr_topic_ads_source_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
 {
     const lbm_lbmr_topic_advertisement_tap_info_t * info = (const lbm_lbmr_topic_advertisement_tap_info_t *) data;
     int source_node;
@@ -2882,7 +2882,7 @@ static int lbmr_topic_ads_source_stats_tree_packet(stats_tree * tree, packet_inf
     topic_node = tick_stat_node(tree, info->topic, source_node, TRUE);
     full_source_string = wmem_strdup_printf(wmem_packet_scope(), "%s[%" G_GUINT32_FORMAT "]", info->source, info->topic_index);
     tick_stat_node(tree, full_source_string, topic_node, TRUE);
-    return (1);
+    return (TAP_PACKET_REDRAW);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -2893,10 +2893,10 @@ static int lbmr_topic_ads_source_stats_tree_packet(stats_tree * tree, packet_inf
 
 static void lbmr_topic_ads_transport_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_ads_transport = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_transport, 0, TRUE);
+    lbmr_stats_tree_handle_topic_ads_transport = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_transport, 0, STAT_DT_INT, TRUE);
 }
 
-static int lbmr_topic_ads_transport_stats_tree_packet(stats_tree * tree, packet_info * pinfo _U_, epan_dissect_t * edt _U_, const void * data)
+static tap_packet_status lbmr_topic_ads_transport_stats_tree_packet(stats_tree * tree, packet_info * pinfo _U_, epan_dissect_t * edt _U_, const void * data)
 {
     const lbm_lbmr_topic_advertisement_tap_info_t * info = (const lbm_lbmr_topic_advertisement_tap_info_t *) data;
     int transport_node;
@@ -2906,7 +2906,7 @@ static int lbmr_topic_ads_transport_stats_tree_packet(stats_tree * tree, packet_
     transport_node = tick_stat_node(tree, info->source, lbmr_stats_tree_handle_topic_ads_transport, TRUE);
     full_source_string = wmem_strdup_printf(wmem_packet_scope(), "%s [%" G_GUINT32_FORMAT "]", info->topic, info->topic_index);
     tick_stat_node(tree, full_source_string, transport_node, TRUE);
-    return (1);
+    return (TAP_PACKET_REDRAW);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -2917,10 +2917,10 @@ static int lbmr_topic_ads_transport_stats_tree_packet(stats_tree * tree, packet_
 
 static void lbmr_topic_queries_topic_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_queries_topic = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_topic, 0, TRUE);
+    lbmr_stats_tree_handle_topic_queries_topic = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_topic, 0, STAT_DT_INT, TRUE);
 }
 
-static int lbmr_topic_queries_topic_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
+static tap_packet_status lbmr_topic_queries_topic_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
 {
     const lbm_lbmr_topic_query_tap_info_t * info = (const lbm_lbmr_topic_query_tap_info_t *) data;
     int topic_node;
@@ -2928,7 +2928,7 @@ static int lbmr_topic_queries_topic_stats_tree_packet(stats_tree * tree, packet_
     tick_stat_node(tree, lbmr_stat_tree_name_topic_queries_topic, 0, FALSE);
     topic_node = tick_stat_node(tree, info->topic, lbmr_stats_tree_handle_topic_queries_topic, TRUE);
     tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), topic_node, TRUE);
-    return (1);
+    return (TAP_PACKET_REDRAW);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -2939,10 +2939,10 @@ static int lbmr_topic_queries_topic_stats_tree_packet(stats_tree * tree, packet_
 
 static void lbmr_topic_queries_receiver_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_queries_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_receiver, 0, TRUE);
+    lbmr_stats_tree_handle_topic_queries_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_receiver, 0, STAT_DT_INT, TRUE);
 }
 
-static int lbmr_topic_queries_receiver_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
+static tap_packet_status lbmr_topic_queries_receiver_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
 {
     const lbm_lbmr_topic_query_tap_info_t * info = (const lbm_lbmr_topic_query_tap_info_t *) data;
     int receiver_node;
@@ -2950,7 +2950,7 @@ static int lbmr_topic_queries_receiver_stats_tree_packet(stats_tree * tree, pack
     tick_stat_node(tree, lbmr_stat_tree_name_topic_queries_receiver, 0, FALSE);
     receiver_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), lbmr_stats_tree_handle_topic_queries_receiver, TRUE);
     tick_stat_node(tree, info->topic, receiver_node, TRUE);
-    return (1);
+    return (TAP_PACKET_REDRAW);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -2961,10 +2961,10 @@ static int lbmr_topic_queries_receiver_stats_tree_packet(stats_tree * tree, pack
 
 static void lbmr_topic_queries_pattern_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_queries_pattern = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_pattern, 0, TRUE);
+    lbmr_stats_tree_handle_topic_queries_pattern = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_pattern, 0, STAT_DT_INT, TRUE);
 }
 
-static int lbmr_topic_queries_pattern_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
+static tap_packet_status lbmr_topic_queries_pattern_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
 {
     const lbm_lbmr_pattern_query_tap_info_t * info = (const lbm_lbmr_pattern_query_tap_info_t *) data;
     int pattern_node;
@@ -2976,7 +2976,7 @@ static int lbmr_topic_queries_pattern_stats_tree_packet(stats_tree * tree, packe
         val_to_str(info->type, lbm_wildcard_pattern_type_short, "UNKN[0x%02x]"));
     pattern_node = tick_stat_node(tree, pattern_str, lbmr_stats_tree_handle_topic_queries_pattern, TRUE);
     tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), pattern_node, TRUE);
-    return (1);
+    return (TAP_PACKET_REDRAW);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -2987,10 +2987,10 @@ static int lbmr_topic_queries_pattern_stats_tree_packet(stats_tree * tree, packe
 
 static void lbmr_topic_queries_pattern_receiver_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_queries_pattern_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_pattern_receiver, 0, TRUE);
+    lbmr_stats_tree_handle_topic_queries_pattern_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_pattern_receiver, 0, STAT_DT_INT, TRUE);
 }
 
-static int lbmr_topic_queries_pattern_receiver_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
+static tap_packet_status lbmr_topic_queries_pattern_receiver_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
 {
     const lbm_lbmr_pattern_query_tap_info_t * info = (const lbm_lbmr_pattern_query_tap_info_t *) data;
     int receiver_node;
@@ -3002,7 +3002,7 @@ static int lbmr_topic_queries_pattern_receiver_stats_tree_packet(stats_tree * tr
         info->pattern,
         val_to_str(info->type, lbm_wildcard_pattern_type_short, "UNKN[0x%02x]"));
     tick_stat_node(tree, pattern_str, receiver_node, TRUE);
-    return (1);
+    return (TAP_PACKET_REDRAW);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -3013,10 +3013,10 @@ static int lbmr_topic_queries_pattern_receiver_stats_tree_packet(stats_tree * tr
 
 static void lbmr_queue_ads_queue_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_queue_ads_queue = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_ads_queue, 0, TRUE);
+    lbmr_stats_tree_handle_queue_ads_queue = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_ads_queue, 0, STAT_DT_INT, TRUE);
 }
 
-static int lbmr_queue_ads_queue_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
+static tap_packet_status lbmr_queue_ads_queue_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
 {
     const lbm_lbmr_queue_advertisement_tap_info_t * info = (const lbm_lbmr_queue_advertisement_tap_info_t *) data;
     int queue_node;
@@ -3026,7 +3026,7 @@ static int lbmr_queue_ads_queue_stats_tree_packet(stats_tree * tree, packet_info
     queue_node = tick_stat_node(tree, info->queue, lbmr_stats_tree_handle_queue_ads_queue, TRUE);
     str = wmem_strdup_printf(wmem_packet_scope(), "%s:%" G_GUINT16_FORMAT, address_to_str(wmem_packet_scope(), &pinfo->net_src), info->port);
     tick_stat_node(tree, str, queue_node, TRUE);
-    return (1);
+    return (TAP_PACKET_REDRAW);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -3037,10 +3037,10 @@ static int lbmr_queue_ads_queue_stats_tree_packet(stats_tree * tree, packet_info
 
 static void lbmr_queue_ads_source_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_queue_ads_source = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_ads_source, 0, TRUE);
+    lbmr_stats_tree_handle_queue_ads_source = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_ads_source, 0, STAT_DT_INT, TRUE);
 }
 
-static int lbmr_queue_ads_source_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
+static tap_packet_status lbmr_queue_ads_source_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
 {
     const lbm_lbmr_queue_advertisement_tap_info_t * info = (const lbm_lbmr_queue_advertisement_tap_info_t *) data;
     int source_node;
@@ -3050,7 +3050,7 @@ static int lbmr_queue_ads_source_stats_tree_packet(stats_tree * tree, packet_inf
     source_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), lbmr_stats_tree_handle_queue_ads_source, TRUE);
     str = wmem_strdup_printf(wmem_packet_scope(), "%s:%" G_GUINT16_FORMAT, info->queue, info->port);
     tick_stat_node(tree, str, source_node, TRUE);
-    return (1);
+    return (TAP_PACKET_REDRAW);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -3061,10 +3061,10 @@ static int lbmr_queue_ads_source_stats_tree_packet(stats_tree * tree, packet_inf
 
 static void lbmr_queue_queries_queue_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_queue_queries_queue = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_queries_queue, 0, TRUE);
+    lbmr_stats_tree_handle_queue_queries_queue = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_queries_queue, 0, STAT_DT_INT, TRUE);
 }
 
-static int lbmr_queue_queries_queue_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
+static tap_packet_status lbmr_queue_queries_queue_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
 {
     const lbm_lbmr_queue_query_tap_info_t * info = (const lbm_lbmr_queue_query_tap_info_t *) data;
     int queue_node = 0;
@@ -3072,7 +3072,7 @@ static int lbmr_queue_queries_queue_stats_tree_packet(stats_tree * tree, packet_
     tick_stat_node(tree, lbmr_stat_tree_name_queue_queries_queue, 0, FALSE);
     queue_node = tick_stat_node(tree, info->queue, lbmr_stats_tree_handle_queue_queries_queue, TRUE);
     tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), queue_node, TRUE);
-    return (1);
+    return (TAP_PACKET_REDRAW);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -3083,10 +3083,10 @@ static int lbmr_queue_queries_queue_stats_tree_packet(stats_tree * tree, packet_
 
 static void lbmr_queue_queries_receiver_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_queue_queries_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_queries_receiver, 0, TRUE);
+    lbmr_stats_tree_handle_queue_queries_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_queries_receiver, 0, STAT_DT_INT, TRUE);
 }
 
-static int lbmr_queue_queries_receiver_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
+static tap_packet_status lbmr_queue_queries_receiver_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
 {
     const lbm_lbmr_queue_query_tap_info_t * info = (const lbm_lbmr_queue_query_tap_info_t *) data;
     int receiver_node;
@@ -3094,7 +3094,7 @@ static int lbmr_queue_queries_receiver_stats_tree_packet(stats_tree * tree, pack
     tick_stat_node(tree, lbmr_stat_tree_name_queue_queries_receiver, 0, FALSE);
     receiver_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), lbmr_stats_tree_handle_queue_queries_receiver, TRUE);
     tick_stat_node(tree, info->queue, receiver_node, TRUE);
-    return (1);
+    return (TAP_PACKET_REDRAW);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -4089,7 +4089,7 @@ static int dissect_lbmr_tir_transport(tvbuff_t * tvb, int offset, lbm_uint8_t tr
     {
         lbm_topic_add(channel, topic_index, topic_name);
         channel_item = proto_tree_add_uint64(tree, hf_lbmr_tir_channel, tvb, 0, 0, channel);
-        PROTO_ITEM_SET_GENERATED(channel_item);
+        proto_item_set_generated(channel_item);
     }
     return (len);
 }
@@ -5202,7 +5202,7 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             proto_item * item = NULL;
 
             item = proto_tree_add_string(lbmr_tree, hf_lbmr_tag, tvb, 0, 0, tag_name);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
         lbmr_hdr_item = proto_tree_add_item(lbmr_tree, hf_lbmr_hdr, tvb, 0, -1, ENC_NA);
         lbmr_hdr_tree = proto_item_add_subtree(lbmr_hdr_item, ett_lbmr_hdr);
@@ -5361,7 +5361,7 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         {
             proto_item * item;
             item = proto_tree_add_string(lbmr_tree, hf_lbmr_tag, tvb, 0, 0, tag_name);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
         lbmr_hdr_item = proto_tree_add_item(lbmr_tree, hf_lbmr_hdr, tvb, 0, -1, ENC_NA);
         lbmr_hdr_tree = proto_item_add_subtree(lbmr_hdr_item, ett_lbmr_hdr);
@@ -6705,7 +6705,7 @@ void proto_reg_handoff_lbmr(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

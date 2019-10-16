@@ -4,7 +4,7 @@
 #	Attributes and values defined in RFC 5580.
 #	http://www.ietf.org/rfc/rfc5580.txt
 #
-#	$Id: d0d702b1cb6c4543749036bbef0229a3831a38dd $
+#	$Id: 964ba2bab9bed5d7070865f5335fa09967190f90 $
 #
 
 # One ASCII character of Namespace ID
@@ -22,7 +22,7 @@ ATTRIBUTE	Operator-Name				126	string
 ATTRIBUTE	Location-Information			127	octets
 ATTRIBUTE	Location-Data				128	octets
 ATTRIBUTE	Basic-Location-Policy-Rules		129	octets
-ATTRIBUTE	Extended-Location-Policy-Rules		130	octets
+ATTRIBUTE	Extended-Location-Policy-Rules		130	string
 
 #
 #  Really a bit-packed field

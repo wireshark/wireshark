@@ -1,0 +1,70 @@
+version: build{build}
+image: Visual Studio 2015
+
+environment:
+  WIRESHARK_BASE_DIR: C:\wireshark-libs
+  matrix:
+    # Note: if VS2017 win32 is added, just use Qt msvc2015 (binary compatible).
+    - PLATFORM: x64
+      CMAKE_GENERATOR: Visual Studio 15 2017 Win64
+      QT5_BASE_DIR: C:\Qt\5.11\msvc2017_64
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    # x86 does not work here, cmake expects win32/Win32 (case insensitive?)
+    - PLATFORM: win32
+      CMAKE_GENERATOR: Visual Studio 14 2015
+      QT5_BASE_DIR: C:\Qt\5.11\msvc2015
+    - PLATFORM: x64
+      CMAKE_GENERATOR: Visual Studio 14 2015 Win64
+      QT5_BASE_DIR: C:\Qt\5.11\msvc2015_64
+
+cache:
+  - '%WIRESHARK_BASE_DIR%'
+  - C:\ProgramData\chocolatey\bin
+  - C:\ProgramData\chocolatey\lib
+
+install:
+  - choco install winflexbison
+  # Java is already installed, prevent an expensive upgrade (102 seconds).
+  - choco install --ignore-dependencies asciidoctorj docbook-bundle xsltproc
+  # Py2 fails the test_tshark_unicode_display_filter test, so use Py3.
+  - set PATH=C:\Python37-x64;C:\Python37-x64\Scripts;%PATH%
+  - pip install pytest pytest-xdist
+  - ps: |   # For pkcs11 tests.
+      Invoke-WebRequest -Uri https://github.com/disig/SoftHSM2-for-Windows/releases/download/v2.5.0/SoftHSM2-2.5.0.msi -OutFile $Env:WIRESHARK_BASE_DIR\SoftHSM2-2.5.0.msi
+      & msiexec /qn /i $Env:WIRESHARK_BASE_DIR\SoftHSM2-2.5.0.msi
+
+# Note: the NSIS installer lacks debug dlls for Debug builds.
+configuration: RelWithDebInfo
+
+build:
+  parallel: true
+  project: build\Wireshark.sln
+
+before_build:
+  - perl tools/make-version.pl --set-release --untagged-version-extra=-{vcsinfo}-AppVeyor --tagged-version-extra=-AppVeyor
+  - mkdir build
+  - cd build
+  - cmake -E time cmake -G "%CMAKE_GENERATOR%" ..
+
+after_build:
+  - msbuild /m nsis_package_prep.vcxproj
+  - msbuild /m nsis_package.vcxproj
+  # Publish installers only for development branches to avoid exceeding the
+  # artifact storage limit of 50 GB.
+  - ps: |
+      if ($Env:APPVEYOR_REPO_BRANCH -notlike "master*") {
+        Get-Item packaging\nsis\Wireshark-*.exe | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+      }
+
+before_test:
+  - msbuild /m test-programs.vcxproj
+
+test_script:
+  - pytest
+
+on_finish:
+  - ps: |
+      $Tshark = "run\\$Env:CONFIGURATION\\tshark.exe"
+      if (Test-Path $Tshark) { & $Tshark --version }
+
+deploy: off

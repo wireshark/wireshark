@@ -57,7 +57,7 @@ int ws_base32_decode(guint8* output, const guint32 outputLength,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

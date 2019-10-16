@@ -7,6 +7,9 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+# Catch symbol additions.
+export DPKG_GENSYMBOLS_CHECK_LEVEL=4
+
 distrelease  := $(shell lsb_release -cs)
 ifeq ($(distrelease),n/a)
   distrelease     := sid
@@ -16,25 +19,25 @@ endif
 export DH_OPTIONS
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
-ifneq (,$(filter $(distrelease),wheezy))
-export DEB_LDFLAGS_MAINT_APPEND = -Wl,-Bsymbolic
-endif
 
-DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
-VERSION := $(shell dpkg-parsechangelog | sed -n 's/^Version: \(.*\)-.*/\1/p')
-export docdir = /usr/share/doc/wireshark-doc
 %:
-	dh $@ --with python2 --buildsystem cmake --with quilt --parallel
+	dh $@ --with python3 --buildsystem cmake --with quilt --parallel
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DBUILD_xxx2deb=ON -DCMAKE_INSTALL_LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
+	dh_auto_configure -- -DBUILD_xxx2deb=ON
 
 override_dh_auto_build:
+	# Ignore warnings from asn2wrs.py about duplicate field names.
+	PYTHONWARNINGS='ignore:The same:UserWarning::0' \
 	$(MAKE) -C $(CURDIR)/obj-* asn1
 	dh_auto_build
 	$(MAKE) -C $(CURDIR)/obj-* user_guide_html developer_guide_html
 	# fix links in documentation
 	sed -i "s|$(CURDIR)/docbook|..|" obj-*/docbook/ws*g_html_chunked/*.html
+ifneq ($(filter $(DEB_BUILD_OPTIONS),nocheck),)
+	# Required for the "unittests" suite.
+	$(MAKE) -C $(CURDIR)/obj-* test-programs
+endif
 
 override_dh_strip:
 	dh_strip --dbg-package=wireshark-dbg
@@ -53,7 +56,7 @@ override_dh_auto_install:
 override_dh_install:
 	dh_install
 	# check all necessary headers are included
-	$(CC) -c debian/headers-check.c `pkg-config --cflags glib-2.0` -Idebian/libwireshark-dev/usr/include -Idebian/libwireshark-dev/usr/include/wireshark -Idebian/libwiretap-dev/usr/include/wireshark -Idebian/libwsutil-dev/usr/include/wireshark -o /dev/null
+	$(CC) -c debian/headers-check.c $(shell pkg-config --cflags glib-2.0) $(shell dpkg-buildflags --get CPPFLAGS) $(shell dpkg-buildflags --get CFLAGS) -Idebian/libwireshark-dev/usr/include -Idebian/libwireshark-dev/usr/include/wireshark -Idebian/libwiretap-dev/usr/include/wireshark -Idebian/libwsutil-dev/usr/include/wireshark -o /dev/null
 
 override_dh_fixperms:
 	dh_fixperms
@@ -61,3 +64,11 @@ override_dh_fixperms:
 		debian/wireshark-dev/usr/share/pyshared/wireshark_be.py \
 		debian/wireshark-dev/usr/share/pyshared/wireshark_gen.py
 
+# Adapted from https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=861988
+override_dh_auto_test:
+ifneq ($(filter $(DEB_BUILD_OPTIONS),nocheck),)
+	# XXX Add -- --verbose?
+	dh_auto_test
+else
+	@echo '"DEB_BUILD_OPTIONS" has "nocheck". Skipping tests'
+endif

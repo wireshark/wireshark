@@ -1147,12 +1147,41 @@ dissect_remsysact_remotecreateinstance_resp(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+static int
+dissect_remsysact_remotegetclassobject_rqst(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+{
+    sysact_register_routines();
+
+    offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
+    offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, di, drep,
+                        hf_sysact_actproperties, NULL);
+
+    return offset;
+}
+
+static int
+dissect_remsysact_remotegetclassobject_resp(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+{
+    sysact_register_routines();
+
+    offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
+
+    offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, di, drep,
+                        hf_sysact_actproperties, NULL);
+
+    offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
+                     NULL /* pu32HResult */);
+
+    return offset;
+}
 
 static dcerpc_sub_dissector ISystemActivator_dissectors[] = {
     { 0, "QueryInterfaceIRemoteSCMActivator", NULL, NULL },
     { 1, "AddRefIRemoteISCMActivator", NULL, NULL },
     { 2, "ReleaseIRemoteISCMActivator", NULL, NULL },
-    { 3, "RemoteGetClassObject", NULL, NULL },
+    { 3, "RemoteGetClassObject", dissect_remsysact_remotegetclassobject_rqst, dissect_remsysact_remotegetclassobject_resp },
     { 4, "RemoteCreateInstance", dissect_remsysact_remotecreateinstance_rqst, dissect_remsysact_remotecreateinstance_resp },
     { 0, NULL, NULL, NULL },
 };
@@ -1380,7 +1409,7 @@ proto_reg_handoff_ISystemActivator (void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

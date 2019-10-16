@@ -28,8 +28,38 @@
    increase each time the file is reloaded).
 */
 
+/*
+ * On page 86 of
+ *
+ *   https://www.novell.com/documentation/developer/smscomp/pdfdoc/sms_docs/sms_docs.pdf
+ *
+ * it says:
+ *
+ * The following table lists the wild cards options that can be used in
+ * the terminal path node.
+ *
+ *    Value  Option     Description
+ *    0x2A   ASTERISK   Regular asterisk
+ *    0x3F   QUESTION   Regular question mark
+ *    0xAE   SPERIOD    Special Period-the most significant bit set
+ *    0xAA   SASTERISK. Special Asterisk-the most significant bit set.
+ *    0xBF   SQUESTION  Special Question-with the most significant bit set.
+ *
+ * ASTERISK is '*', and QUESTION is '?'; the "special" versions correspond
+ * to the corresponding ASCII character, but with the upper bit set.
+ *
+ * They do not indicate what "special" means here.  During the painful
+ * process at NetApp of reverse-engineering SMB server wildcard matching;
+ * it turned out that "traditional 8.3 name" matching and "long name"
+ * matching behave differently, and there were separate code points for
+ * "traditional 8.3 name" wildcards and period and "long name" wildcards
+ * and period, so that might be what's involved here.
+ *
+ * How should we display them?  Show the character in question plus a
+ * Unicode COMBINING OVERLINE (U+0305), so they show up as {period,
+ * asterisk, question mark} with an overline, for example?
+ */
 #include "config.h"
-
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -77,9 +107,10 @@ static int hf_ncp_oplock_handle = -1;
 static int hf_ncp_completion_code = -1;
 static int hf_ncp_connection_status = -1;
 static int hf_ncp_slot = -1;
-static int hf_ncp_control_code = -1;
+static int hf_ncp_signature_character = -1;
 /* static int hf_ncp_fragment_handle = -1; */
-static int hf_lip_echo = -1;
+static int hf_lip_echo_magic = -1;
+static int hf_lip_echo_payload = -1;
 static int hf_ncp_burst_command = -1;
 static int hf_ncp_burst_file_handle = -1;
 static int hf_ncp_burst_reserved = -1;
@@ -122,6 +153,13 @@ struct ncp_ip_header {
 struct ncp_ip_rqhdr {
     guint32 version;
     guint32 rplybufsize;
+};
+
+static const value_string ncp_sigchar_vals[] = {
+	{ '?', "Poll inactive station" },
+	{ 'Y', "Station is still using the connection" },
+	{ '!', "Broadcast message waiting" },
+	{ 0, NULL }
 };
 
 static const value_string ncp_ip_signature[] = {
@@ -398,48 +436,48 @@ WS_DLL_PUBLIC_DEF const value_string ncp_nds_verb_vals[] = {
 };
 
 static void
-ncpstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+ncpstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
     /* Initialize all of the SRT tables with 0 rows.  That way we can "filter" the drawing
        function to only output tables with rows > 0 */
 
-    init_srt_table("NCP", "Groups", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.group", gui_callback, gui_data, NULL);
+    init_srt_table("NCP", "Groups", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.group", NULL);
 
     /* NDS Verbs */
-    init_srt_table("NDS Verbs", "NDS", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.ndsverb", gui_callback, gui_data, NULL);
+    init_srt_table("NDS Verbs", "NDS", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.ndsverb", NULL);
 
     /* NCP Functions */
-    init_srt_table("NCP Functions without Subfunctions", "Functions", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func", gui_callback, gui_data, NULL);
+    init_srt_table("NCP Functions without Subfunctions", "Functions", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func", NULL);
 
     /* Secret Store Verbs */
-    init_srt_table("Secret Store Verbs", "SSS", srt_array, NCP_NUM_PROCEDURES, NULL, "sss.subverb", gui_callback, gui_data, NULL);
+    init_srt_table("Secret Store Verbs", "SSS", srt_array, NCP_NUM_PROCEDURES, NULL, "sss.subverb", NULL);
 
     /* NMAS Verbs */
-    init_srt_table("NMAS Verbs", "NMAS", srt_array, NCP_NUM_PROCEDURES, NULL, "nmas.subverb", gui_callback, gui_data, NULL);
+    init_srt_table("NMAS Verbs", "NMAS", srt_array, NCP_NUM_PROCEDURES, NULL, "nmas.subverb", NULL);
 
     /* NCP Subfunctions */
-    init_srt_table("Subfunctions for NCP 17", "17", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==17 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 21", "21", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==21 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 22", "22", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==22 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 23", "23", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==23 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 32", "32", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==32 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 34", "34", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==34 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 35", "35", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==35 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 36", "36", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==36 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 86", "86", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==86 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 87", "87", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==87 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 89 (Extended NCP's with UTF8 Support)", "89", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==89 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 90", "90", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==90 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 92 (Secret Store Services)", "92", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==92 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 94 (Novell Modular Authentication Services)", "94", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==94 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 104", "104", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==104 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 111", "111", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==111 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 114", "114", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==114 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 123", "123", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==123 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 131", "131", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==131 && ncp.subfunc", gui_callback, gui_data, NULL);
+    init_srt_table("Subfunctions for NCP 17", "17", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==17 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 21", "21", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==21 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 22", "22", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==22 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 23", "23", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==23 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 32", "32", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==32 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 34", "34", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==34 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 35", "35", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==35 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 36", "36", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==36 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 86", "86", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==86 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 87", "87", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==87 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 89 (Extended NCP's with UTF8 Support)", "89", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==89 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 90", "90", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==90 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 92 (Secret Store Services)", "92", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==92 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 94 (Novell Modular Authentication Services)", "94", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==94 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 104", "104", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==104 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 111", "111", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==111 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 114", "114", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==114 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 123", "123", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==123 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 131", "131", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==131 && ncp.subfunc", NULL);
 }
 
-static int
+static tap_packet_status
 ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
     guint i = 0;
@@ -450,7 +488,7 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
     /* if we haven't seen the request, just ignore it */
     if(!request_val || request_val->ncp_rec==0){
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     /* By Group */
@@ -609,7 +647,7 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
         add_srt_table_data(ncp_srt_table, (request_val->req_nds_flags), &request_val->req_frame_time, pinfo);
         wmem_free(NULL, tmp_str);
     }
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 
@@ -717,7 +755,7 @@ static const char* ncp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_t
 
 static ct_dissector_info_t ncp_ct_dissector_info = {&ncp_conv_get_filter_type};
 
-static int
+static tap_packet_status
 ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
@@ -729,7 +767,7 @@ ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
         add_conversation_table_data(hash, &pinfo->src, &pinfo->dst, connection, connection, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &ncp_ct_dissector_info, ENDPOINT_NCP);
     }
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static const char* ncp_host_get_filter_type(hostlist_talker_t* host _U_, conv_filter_type_e filter)
@@ -739,7 +777,7 @@ static const char* ncp_host_get_filter_type(hostlist_talker_t* host _U_, conv_fi
 
 static hostlist_dissector_info_t ncp_host_dissector_info = {&ncp_host_get_filter_type};
 
-static int
+static tap_packet_status
 ncp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
@@ -751,7 +789,7 @@ ncp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
     add_hostlist_table_data(hash, &pinfo->src, 0, TRUE, 1, pinfo->fd->pkt_len, &ncp_host_dissector_info, ENDPOINT_NCP);
     add_hostlist_table_data(hash, &pinfo->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ncp_host_dissector_info, ENDPOINT_NCP);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 /*
@@ -763,6 +801,11 @@ ncp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 #define LST 0x40        /* Include Fragment List */
 #define SYS 0x80        /* System packet */
 
+#define LIP_ECHO_MAGIC_LEN 16
+static char lip_echo_magic[LIP_ECHO_MAGIC_LEN] = {
+    'L', 'I', 'P', ' ', 'E', 'c', 'h', 'o', ' ', 'D', 'a', 't', 'a', ' ', ' ', ' '
+};
+
 static void
 dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean is_tcp)
@@ -771,6 +814,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item            *ti;
     struct ncp_ip_header  ncpiph;
     struct ncp_ip_rqhdr   ncpiphrq;
+    gboolean              is_lip_echo_allocate_slot = FALSE;
     guint16               ncp_burst_seqno, ncp_ack_seqno;
     guint16               flags = 0;
     proto_tree            *flags_tree = NULL;
@@ -779,7 +823,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int                   offset = 0;
     gint                  length_remaining;
     tvbuff_t              *next_tvb;
-    guint32               testvar = 0, ncp_burst_command, burst_len, burst_off, burst_file;
+    guint32               ncp_burst_command, burst_len, burst_off, burst_file;
     guint8                subfunction;
     guint32               nw_connection = 0, data_offset;
     guint16               data_len = 0;
@@ -843,7 +887,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* First time through we will record the initial connection and task
          * values
          */
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             if (conversation != NULL) {
                 /* find the record telling us the
                  * request made that caused this
@@ -885,7 +929,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
         }
     } else {
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             if (conversation != NULL) {
                 /* find the record telling us the
                  * request made that caused this
@@ -941,7 +985,11 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
 
     case NCP_LIP_ECHO:    /* Lip Echo Packet */
-        proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr, 13, ENC_ASCII|ENC_NA);
+        /* Unlike the ones with a packet type of 0x1111, in this one, the
+           packet type field is the first two bytes of "Lip Echo Data"
+           (with "Lip" not capitalized, and with "Echo Data" not followed
+           by blanks) */
+        proto_tree_add_item(ncp_tree, hf_lip_echo_magic, tvb, commhdr, 13, ENC_ASCII|ENC_NA);
         break;
 
     case NCP_BURST_MODE_XFER:    /* Packet Burst Packet */
@@ -1116,12 +1164,11 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     case NCP_ALLOCATE_SLOT:        /* Allocate Slot Request */
         length_remaining = tvb_reported_length_remaining(tvb, commhdr + 4);
-        if (length_remaining > 4) {
-            testvar = tvb_get_ntohl(tvb, commhdr+4);
-            if (testvar == 0x4c495020) {
-                proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr+4, 13, ENC_ASCII|ENC_NA);
-                break;
-            }
+        if (length_remaining >= LIP_ECHO_MAGIC_LEN &&
+            tvb_memeql(tvb, commhdr+4, lip_echo_magic, LIP_ECHO_MAGIC_LEN) == 0) {
+            /* This is a LIP Echo. */
+            is_lip_echo_allocate_slot = TRUE;
+            col_set_str(pinfo->cinfo, COL_INFO, "LIP Echo");
         }
         /* fall through */
 
@@ -1132,8 +1179,12 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case NCP_DEALLOCATE_SLOT:    /* Deallocate Slot Request */
     default:
         proto_tree_add_uint(ncp_tree, hf_ncp_seq, tvb, commhdr + 2, 1, header.sequence);
-        proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
-        proto_tree_add_item(ncp_tree, hf_ncp_task, tvb, commhdr + 4, 1, ENC_BIG_ENDIAN);
+        /* XXX - what's at commhdr + 3 in a LIP Echo packet?
+           commhdr + 4 on is the LIP echo magic number and data. */
+        if (!is_lip_echo_allocate_slot) {
+            proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
+            proto_tree_add_item(ncp_tree, hf_ncp_task, tvb, commhdr + 4, 1, ENC_BIG_ENDIAN);
+        }
         break;
     }
 
@@ -1143,23 +1194,21 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (header.type) {
 
     case NCP_ALLOCATE_SLOT:        /* Allocate Slot Request */
-        length_remaining = tvb_reported_length_remaining(tvb, commhdr + 4);
-        if (length_remaining > 4) {
-            testvar = tvb_get_ntohl(tvb, commhdr+4);
-            if (testvar == 0x4c495020) {
-                proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr, -1, ENC_ASCII|ENC_NA);
-                /*break;*/
-            }
+        if (is_lip_echo_allocate_slot) {
+            length_remaining = tvb_reported_length_remaining(tvb, commhdr + 4);
+            proto_tree_add_item(ncp_tree, hf_lip_echo_magic, tvb, commhdr + 4, LIP_ECHO_MAGIC_LEN, ENC_ASCII|ENC_NA);
+            if (length_remaining > LIP_ECHO_MAGIC_LEN)
+                proto_tree_add_item(ncp_tree, hf_lip_echo_payload, tvb, commhdr+4+LIP_ECHO_MAGIC_LEN, length_remaining - LIP_ECHO_MAGIC_LEN, ENC_NA);
         }
         next_tvb = tvb_new_subset_remaining(tvb, commhdr);
         dissect_ncp_request(next_tvb, pinfo, nw_connection,
-            header.sequence, header.type, ncp_tree);
+            header.sequence, header.type, is_lip_echo_allocate_slot, ncp_tree);
         break;
 
     case NCP_DEALLOCATE_SLOT:    /* Deallocate Slot Request */
         next_tvb = tvb_new_subset_remaining(tvb, commhdr);
         dissect_ncp_request(next_tvb, pinfo, nw_connection,
-            header.sequence, header.type, ncp_tree);
+            header.sequence, header.type, FALSE, ncp_tree);
         break;
 
     case NCP_SERVICE_REQUEST:    /* Server NCP Request */
@@ -1184,12 +1233,12 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             default:
                 dissect_ncp_request(next_tvb, pinfo,
                     nw_connection, header.sequence,
-                    header.type, ncp_tree);
+                    header.type, FALSE, ncp_tree);
                 break;
              }
         } else {
             dissect_ncp_request(next_tvb, pinfo, nw_connection,
-                header.sequence, header.type, ncp_tree);
+                header.sequence, header.type, FALSE, ncp_tree);
         }
         break;
 
@@ -1222,7 +1271,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             tvb, commhdr + 7, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_slot,
             tvb, commhdr + 8, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(ncp_tree, hf_ncp_control_code,
+        proto_tree_add_item(ncp_tree, hf_ncp_signature_character,
             tvb, commhdr + 9, 1, ENC_LITTLE_ENDIAN);
         /*
          * Display the rest of the packet as data.
@@ -1269,7 +1318,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
 
     case NCP_LIP_ECHO:        /* LIP Echo Packet */
-        proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(ncp_tree, hf_lip_echo_payload, tvb, commhdr + 13, -1, ENC_NA);
         break;
 
     default:
@@ -1466,9 +1515,9 @@ proto_register_ncp(void)
           { "Slot",                             "ncp.slot",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
-        { &hf_ncp_control_code,
-          { "Control Code",                     "ncp.control_code",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+        { &hf_ncp_signature_character,
+          { "Signature Character",              "ncp.signature_character",
+            FT_CHAR, BASE_HEX, VALS(ncp_sigchar_vals), 0x0,
             NULL, HFILL }},
 #if 0
         { &hf_ncp_fragment_handle,
@@ -1476,9 +1525,13 @@ proto_register_ncp(void)
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 #endif
-        { &hf_lip_echo,
-          { "Large Internet Packet Echo",       "ncp.lip_echo",
+        { &hf_lip_echo_magic,
+          { "Large Internet Packet Echo Magic String",  "ncp.lip_echo.magic_string",
             FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_lip_echo_payload,
+          { "Large Internet Packet Echo Payload",  "ncp.lip_echo.payload",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_ncp_burst_command,
           { "Burst Command",                    "ncp.burst_command",
@@ -1573,7 +1626,7 @@ proto_reg_handoff_ncp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

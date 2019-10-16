@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Wireshark
-Source: http://www.wireshark.org/
+Source: https://www.wireshark.org/
 Files-Excluded: debian
 
 Files: *
@@ -136,7 +136,7 @@ Copyright: 2003 Endace Technology Ltd, Hamilton, New Zealand.
 License: BSD-3-clause-Endance
  This software and documentation has been developed by Endace Technology Ltd.
  along with the DAG PCI network capture cards. For further information please
- visit http://www.endace.com/.
+ visit https://www.endace.com/.
  .
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -173,6 +173,10 @@ Copyright: 2008 Julien Kerihuel, OpenChange Project
 Comment: Note that those are interface definitions thus are not copyrightable
          in FSF's view
          http://lkml.iu.edu//hypermail/linux/kernel/0301.1/0362.html
+License: GPL-3+
+
+Files: tools/pidl/idl.yp
+Copyright: Andrew Tridgell <tridge@samba.org>
 License: GPL-3+
 
 License: BSD-2-clause
@@ -218,7 +222,7 @@ License: GPL-3+
  GNU General Public License for more details.
  .
  You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ along with this program.  If not, see <https://www.gnu.org/licenses/>.
  .
  On Debian systems, the full text of the
  GNU General Public License version 3 can be found in the file

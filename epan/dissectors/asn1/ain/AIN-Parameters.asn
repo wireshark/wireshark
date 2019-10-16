@@ -1,0 +1,1553 @@
+        AIN-Parameters{ ainParametersObjectIdentifier }
+        --This module contains the type definitions for the AIN parameters.
+
+        DEFINITIONS ::=
+
+        BEGIN
+
+        -- ainParametersObjectIdentifier OBJECT IDENTIFIER ::= ? - -not yet defined
+        -- TYPE DEFINITIONS FOR AIN PARAMETERS FOLLOWS
+
+        AccessCode ::= [1] IMPLICIT AINDigits
+        -- range - 1 - 5 digits
+        ACGEncountered ::= [2] IMPLICIT OCTET STRING(SIZE(1))
+        ACGGlobalOverride ::= [110] IMPLICIT ENUMERATED{
+        allItems(0),
+        scpOverloadItems(1),
+        smsInitCntrlExceptZeroGap(2),
+        smsInitCntrl(3),
+        ntmOSInitCntrlExceptZeroGap(4),
+        ntmOSInitCntrl(5),
+        craftInitCntrlExceptZeroGap(6),
+        craftInitCntrl(7)
+    }
+    AdministrableObject ::= CHOICE{
+        triggerItemAssignment TriggerItemAssignment,
+        sSPUserResource SSPUserResource,
+        srhrGroup SrhrGroup,
+        networkTestDesignator NetworkTestDesignator,
+        operationsMonitoringAssignment OperationsMonitoringAssignment
+    }
+    TriggerItemAssignment ::= [102] IMPLICIT SEQUENCE{
+        sSPUserResourceID       [1] SSPUserResourceID,
+        triggerItemID           [2] IMPLICIT TriggerItemID,
+        activationStateCode     [3] IMPLICIT ActivationStateCode OPTIONAL,
+        potentialUse            [4] IMPLICIT PotentialUse OPTIONAL,
+        sSPUserResourceSubID    [5] SSPUserResourceSubID OPTIONAL
+    }
+    SSPUserResourceID ::= CHOICE{
+        dn                              [1] IMPLICIT Dn, --see Section 6.151 of this GR for encoding
+        dnCtID                          [2] IMPLICIT DnCtID,
+        spid                            [3] IMPLICIT Spid, --see Section 6.129 of this GR for encoding
+        trunkGroupID                    [4] IMPLICIT TrunkGroupID, --see Section 6.151 of this GR for encoding
+        localSSPID                      [5] IMPLICIT LocalSSPID,
+        publicDialingPlanID             [6] IMPLICIT PublicDialingPlanID,
+        pRIOfficeEquipmentID            [7] IMPLICIT PRIOfficeEquipmentID,
+        basicBusinessGroupID            [8] IMPLICIT BasicBusinessGroupID,
+        basicBusinessGroupDialingPlanID [9] IMPLICIT BasicBusinessGroupDialingPlanID,
+        aFRPatternID                    [10] IMPLICIT AFRPatternID,
+        officeEquipmentID               [11] IMPLICIT OfficeEquipmentID
+    }
+
+   DnCtID ::= SEQUENCE{
+        dn [1] IMPLICIT Dn, --see Section 6.151 of this GR for encoding
+        ct [2] IMPLICIT Ct
+    }
+    Ct ::= ENUMERATED{
+        voicebandInformation(0),
+        circuitModeData(1)
+    }
+    LocalSSPID ::= IA5String(SIZE(1..8)) --References office - wide triggers
+
+    PublicDialingPlanID ::= IA5String(SIZE(1..8))
+
+    PRIOfficeEquipmentID ::= IA5String(SIZE(1..12))
+
+    BasicBusinessGroupID ::= IA5String(SIZE(1..10))
+
+    BasicBusinessGroupDialingPlanID ::= IA5String(SIZE(1..4))
+
+    AFRPatternID ::= IA5String(SIZE(1..4))
+
+    OfficeEquipmentID ::= IA5String(SIZE(1..12))
+
+    TriggerItemID ::= SEQUENCE{
+        dPNumber [1] IMPLICIT DPNumber,
+        triggerItemSubnumber [2] IMPLICIT TriggerItemSubnumber
+    }
+    DPNumber ::= INTEGER(1..33)
+    --Identifies a Detection Point within the AIN Call Model
+
+    TriggerItemSubnumber ::= IA5String(SIZE(1..8))
+    --Identifies triggers and events within DPs
+
+    ActivationStateCode ::= ENUMERATED{
+        off(0),
+        on(1)
+    }
+    PotentialUse ::= ENUMERATED{
+        notApplicable(0),
+        callForwarding(1)
+    }
+    SSPUserResourceSubID ::= CHOICE{
+        aFRPatternID [1] IMPLICIT AFRPatternID,
+        basicBusinessGroupDialingPlanID [2] IMPLICIT BasicBusinessGroupDialingPlanID,
+        iSDNBChannelID [3] IMPLICIT ISDNBChannelID
+    }
+
+    ISDNBChannelID ::= SEQUENCE{
+        pRIDS1ID [1] IMPLICIT PRIDS1ID OPTIONAL,
+        pRIDS0ID [2] IMPLICIT PRIDS0ID OPTIONAL
+    }
+
+
+    PRIDS1ID ::= INTEGER(1..28)
+
+    PRIDS0ID ::= INTEGER(1..24)
+
+    SSPUserResource ::= [103] IMPLICIT SEQUENCE{
+        sSPUserResourceID   [1] SSPUserResourceID, --see Section 6.4.1 for encoding
+        serviceProviderID       ServiceProviderID OPTIONAL,
+        updateGroups            UpdateGroups OPTIONAL,
+        oNoAnswerTimer          ONoAnswerTimer OPTIONAL,
+        tNoAnswerTimer          TNoAnswerTimer OPTIONAL,
+        displayText             DisplayText OPTIONAL,
+        dPConverter             DPConverter OPTIONAL,
+        cancelInterdigitTimer   CancelInterdigitTimer OPTIONAL
+    }
+    --For the encoding of the ServiceProviderID parameter, see Section 6.127 of this GR.
+    --For the encoding of the UpdateGroups parameter, see below.
+    --For the encoding of the ONoAnswerTimer parameter, see Section 6.102 of this GR.
+    --For the encoding of the TNoAnswerTimer, see Section 6.143 of this GR.
+    --For the encoding of the DisplayText parameter, see Section 6.62 of this GR.
+    --For the encoding of the DPConverter parameter, see Section 6.63 of this GR.
+    --For the encoding of the CancelInterdigitTimer parameter, see below.
+
+    UpdateGroups::= CHOICE{
+        updateGroup1 [2] IMPLICIT UpdateGroup1,
+        updateGroup2 [3] IMPLICIT UpdateGroup2,
+        updateGroup3 [4] IMPLICIT UpdateGroup3,
+        updateGroup4 [5] IMPLICIT UpdateGroup4,
+        updateGroup5 [6] IMPLICIT UpdateGroup5,
+        updateGroup6 [7] IMPLICIT UpdateGroup6,
+        updateGroup7 [8] IMPLICIT UpdateGroup7,
+        updateGroup8 [9] IMPLICIT UpdateGroup8,
+        updateGroup9 [10] IMPLICIT UpdateGroup9
+    }
+
+    UpdateGroup1::= SEQUENCE{
+        service1 [1] IMPLICIT Service1,
+        action1 Action1
+    }
+
+    Service1::= ENUMERATED{
+        messageWaitingIndicator(0),
+        visualMessageWaitingIndicator(1),
+        anonymousCallRejection(2),
+        automaticCallback(3),
+        automaticRecall(4),
+        callScreening(5),
+        outsideCallingAreaAlerting(6),
+        callingIdPresentAndSuppress(7),
+        callWaiting(8)
+    }
+
+    Action1::= CHOICE{
+        activationStateCode [2] IMPLICIT ActivationStateCode--see Section 6.4.1 for encoding
+    }
+
+    UpdateGroup2::= SEQUENCE{
+        service2 [1] IMPLICIT Service2,
+        action2 Action2
+    }
+
+    Service2::= ENUMERATED{
+        audioMessageWaitingIndicator(0)
+    }
+
+    Action2::= CHOICE{
+        activationStateCode [2] IMPLICIT ActivationStateCode,
+        delayInterval [3] IMPLICIT DelayInterval
+    }
+
+    DelayInterval::= INTEGER(1..60)
+    --used to convey to the switch
+    --a) the number of rings the switch should
+    -- generate prior to forwarding a call; or
+    --b) the number of minutes the switch should
+    -- wait to generate a “ping” ring for an MWI,
+    --i.e., number of minutes between “ping” rings.
+
+    UpdateGroup3::= SEQUENCE{
+        service3 [1] IMPLICIT Service3,
+        action3 Action3
+    }
+
+    Service3::= ENUMERATED{
+        distinctiveRingingCallWaiting(0),
+        selectiveCallRejection(1)
+    }
+
+    Action3::= CHOICE{
+        activationStateCode [2] IMPLICIT ActivationStateCode,
+        editSpecificEntry   [3] IMPLICIT EditSpecificEntry,
+        editAllEntries      [4] IMPLICIT EditAllEntries
+    }
+
+    EditSpecificEntry::= SEQUENCE{
+        entry           Entry,
+        editListType    [105] IMPLICIT EditListType--see Section 6.66 for encoding
+    }
+
+    Entry ::= CHOICE{
+        dn                  [1] IMPLICIT Dn,
+        speedCallingCode    [2] IMPLICIT SpeedCallingCode,
+        memorySlot          [3] IMPLICIT MemorySlot1
+    }
+
+    SpeedCallingCode ::= IA5String(SIZE(1..3))
+    --The contents of this field shall be numbers 2 through 9 or numbers 20 through 39.
+    --each number shall be allowed to be sent with or without a # sign.
+
+    MemorySlot1 ::= ENUMERATED{
+        incoming(0)
+    }
+
+    EditAllEntries ::= ENUMERATED{
+        deleteAllEntries(0),
+        deleteAllPrivateEntries(1)
+    }
+
+    UpdateGroup4::= SEQUENCE{
+        service4 [1] IMPLICIT Service4,
+        action4 Action4
+    }
+
+    Service4::= ENUMERATED{
+        callForwardingVariable(0),
+        callForwardingDontAnswer(1),
+        callForwardingBusyLine(2)
+    }
+
+    Action4::= CHOICE{
+        activationStateCode [2] IMPLICIT ActivationStateCode,--See Section 6.4.1 for encoding
+        forwardingDn ForwardingDn
+    }
+
+    ForwardingDn ::= CHOICE{
+        set Set,
+        clear [3] IMPLICIT Clear
+    }
+
+    Set ::= CHOICE{
+        dn [1] IMPLICIT Dn,
+        speedCallingCode [4] IMPLICIT SpeedCallingCode
+    }
+
+    Clear ::= ENUMERATED{
+        remove(0)
+    }
+
+    UpdateGroup5::= SEQUENCE{
+        service5 [1] IMPLICIT Service5,
+        action5 Action5
+    }
+
+    Service5::= ENUMERATED{
+        selectiveCallAcceptance(0),
+        selectiveCallForwarding(1)
+    }
+
+    Action5::= CHOICE{
+        activationStateCode [2] IMPLICIT ActivationStateCode,--see above for encoding
+        forwardingDn        [3] IMPLICIT ForwardingDn,--see above for the encoding
+        editSpecificEntry   [4] IMPLICIT EditSpecificEntry,--see above for the encoding
+        editAllEntries      [5] IMPLICIT EditAllEntries--see above for the encoding
+    }
+
+    UpdateGroup6::= SEQUENCE{
+        service6 [1] IMPLICIT Service6,
+        action6 Action6
+    }
+
+    Service6::= ENUMERATED{
+        ringControl(0)
+    }
+
+    Action6::= CHOICE{
+        delayInterval [2] IMPLICIT DelayInterval--See above for the encoding
+    }
+
+    UpdateGroup7::= SEQUENCE{
+        service7 [1] IMPLICIT Service7,
+        action7 Action7
+    }
+    Service7::= ENUMERATED{
+        callingNumberDeliveryBlocking(0),
+        callingNameDeliveryBlocking(1)
+    }
+
+    Action7::= CHOICE{
+        toggle [2] IMPLICIT Toggle
+    }
+
+    Toggle ::= ENUMERATED{
+        presentationStatusValue(0)
+    }
+
+    UpdateGroup8::= SEQUENCE{
+        service8 [1] IMPLICIT Service8,
+        action8 Action8
+    }
+
+    Service8::= ENUMERATED{
+        customerOriginatedTrace(0),
+        cancelCallWaiting(1)
+    }
+
+    Action8::= CHOICE{
+        invoke [2] IMPLICIT Invoke8
+    }
+
+    Invoke8 ::= ENUMERATED{
+        on(0)
+    }
+
+    UpdateGroup9 ::= SEQUENCE{
+        service9    [1] IMPLICIT Service9,
+        action9      Action9
+    }
+
+    Service9::= ENUMERATED{
+        speedCalling(0)
+    }
+
+    Action9::= CHOICE{
+        changeList [2] IMPLICIT ChangeList
+    }
+
+    ChangeList ::= SEQUENCE{
+        dn                  [1] IMPLICIT Dn,--see Section 6.151 for the encoding
+        speedCallingCode    [2] IMPLICIT SpeedCallingCode--see above for the encoding
+    }
+
+    CancelInterdigitTimer::= ActivationStateCode
+
+    SrhrGroup ::= [104] IMPLICIT SEQUENCE{
+        srhrGroupID SrhrGroupID, --see Section 6.130 for encoding
+        srhrID [1] IMPLICIT SrhrID OPTIONAL
+    }
+
+    SrhrID ::= AINDigits
+    -- range - 10 digits
+
+    NetworkTestDesignator ::= [97] IMPLICIT SEQUENCE{
+        ntdID NtdID,
+        amp1 Amp1 OPTIONAL,
+        amp2 Amp2 OPTIONAL
+    }
+
+    NtdID ::= CHOICE{
+        ntdIndirectID [1] NtdIndirectID
+    }
+
+    NtdIndirectID ::= SSPUserResourceID -- see above for encoding
+    -- For the encoding of the Amp1 parameter, see Section 6.23.
+    --For the encoding of the Amp2 parameter, see Section 6.24.
+
+    OperationsMonitoringAssignment ::= [118] IMPLICIT SEQUENCE{
+        operationsMonitoredItemID OperationsMonitoredItemID,
+        activationStateCode [3] IMPLICIT ActivationStateCode OPTIONAL
+    }
+
+    OperationsMonitoredItemID ::= CHOICE{
+        sSPUserResourceID [1] SSPUserResourceID -- see above for encoding
+    }
+ -- For the encoding of the ActivationStateCode, see above.
+
+    ActResult::= [164]IMPLICIT ENUMERATED {
+        transactionClosed(0),
+        transactionOpen(1),
+        deniedProcessOverload(2)
+    }
+
+    AINDigits ::= OCTET STRING
+
+    AlternateBillingIndicator ::= [3] IMPLICIT BillingIndicator
+
+    AlternateCarrier ::= [4] IMPLICIT CarrierFormat
+    -- range - 4 digits
+
+    AlternateTrunkGroup ::= [5] IMPLICIT OCTET STRING(SIZE(5))
+
+    AlternateDialingPlanInd ::= [115] IMPLICIT AINDigits
+    -- range - 10 digits
+
+    AMAAlternateBillingNumber ::= [6] IMPLICIT AINDigits
+    -- range 1 - 11 digits
+
+    AMABAFModules ::= [95] IMPLICIT OCTET STRING(SIZE(2..128))
+    --Contains one or more AMA modules in Bellcore AMA Format(BAF).
+
+    AMABillingFeature ::= [88] IMPLICIT AINDigits
+    -- range - 4 - 24 digits
+
+    AMABusinessCustomerID ::= [7] IMPLICIT AINDigits
+    -- range - 11 digits
+
+    AMADigitsDialedWC ::= [8] IMPLICIT AINDigits
+    -- range - 3 - 27 digits
+
+    AMALineNumber ::= [9] IMPLICIT AINDigits
+    -- range - 3 - 15 digits
+
+    AMAMeasure ::= [71] IMPLICIT ENUMERATED{
+        connectTimeRecordedDestinationSSP(0),
+        connectTimeRecordedDestinationSCP(1),
+        connectTimeNotRecorded(2)
+    }
+
+    AMAMeasurement ::= [73] IMPLICIT SEQUENCE{
+        aMATimeDuration     [0] IMPLICIT AMATimeDuration,
+        aMATimeGuard        [1] IMPLICIT AMATimeGuard
+    }
+
+    AMAServiceProviderID::= [101] IMPLICIT OCTET STRING(SIZE(7))
+
+    AMATimeDuration ::= OCTET STRING(SIZE(8))
+
+    AMATimeGuard ::= ENUMERATED{
+        noTimingGuard(0),
+        timingGuardExists(1)
+    }
+
+    AMASetHexABIndicator ::= [82] IMPLICIT BOOLEAN
+    -- TRUE = Set BCD character 2 of Hexadecimal Identifier in
+    -- the BAF structure to which the contents of the
+    -- AMABAFModules parameter are appended
+    -- FALSE = Default to switch - based control of Hexadecimal
+    -- Identifier table in structure code
+
+    AMASequenceNumber ::= [89] IMPLICIT OCTET STRING(SIZE(2))
+
+--    AMAslpID ::= [10] IMPLICIT OCTET STRING(SIZE(5))
+      AMAslpID ::=  OCTET STRING(SIZE(5))
+
+    Amp1 ::= [11] IMPLICIT OCTET STRING(SIZE(6))
+
+    Amp2 ::= [109] IMPLICIT SEQUENCE{
+        ampAINNodeID    AmpAINNodeID,
+        ampCLogSeqNo    [3] IMPLICIT AmpCLogSeqNo OPTIONAL,
+        ampCLogRepInd   [4] IMPLICIT AmpCLogRepInd OPTIONAL,
+        ampCallProgInd  [5] IMPLICIT AmpCallProgInd OPTIONAL,
+        ampTestReqInd   [6] IMPLICIT AmpTestReqInd OPTIONAL,
+        ampCLogName     [7] IMPLICIT AmpCLogName OPTIONAL,
+        ampSvcProvID    [8] IMPLICIT AmpSvcProvID OPTIONAL
+    }
+
+    AmpAINNodeID ::= CHOICE{
+        spcID           [1] IMPLICIT SpcID,
+        iSDNDeviceID    [2] IMPLICIT ISDNDeviceID
+    }
+
+    SpcID ::= OCTET STRING(SIZE(3))
+    --See Figure 1B of Chapter T1.111.4 of GR-246-CORE for the
+    -- definition of the contents of the SpcID OCTET STRING.
+
+    ISDNDeviceID ::= AINDigits
+    -- range - 10 digits
+
+    AmpCLogSeqNo ::= INTEGER(0..32767)
+        -- 0 = sequence number should not be generated; 0 is used to support
+        -- asynchronous messages
+
+    AmpCLogRepInd ::= ENUMERATED{
+        autoReportOS(0),
+        requestReport(1),
+        autoReportISDN(2)
+    }
+
+    AmpCallProgInd ::= ENUMERATED{
+        callProgressVoiceAnnouncements(0),
+        callProgressTextMessages(1)
+    }
+
+    AmpTestReqInd ::= INTEGER(0..127)
+
+    AmpCLogName ::= OCTET STRING(SIZE(1..10))
+
+    AmpSvcProvID ::= CHOICE{
+        ocn Ocn -- see Section 6.121 for encoding
+    }
+
+    AnswerIndicator ::= [12] IMPLICIT NULL
+    -- Presence = return answer supervision
+    -- Absence = do not return answer supervision
+
+    ApplicationErrorString ::= [55] IMPLICIT SEQUENCE{
+        errorCause ErrorCause,
+        failedMessage FailedMessage OPTIONAL,
+        userID UserID OPTIONAL
+    }
+
+    ApplicationIndicator ::= [90] IMPLICIT ENUMERATED{
+        routeToApplicationProcessOrSLP(0),
+        processEchoRequestMessage(1)
+    }
+
+    ApplyRestrictions ::= [152] IMPLICIT BIT STRING{
+        code(0),
+        toll(1)
+    }
+
+    BCMType ::= [134] IMPLICIT ENUMERATED{
+        oBcm(0),
+        tBcm(1)
+    }
+
+    BearerCapability ::= [13] IMPLICIT ENUMERATED{
+        speech(0),
+        f31kHzaudio(1),
+        f7kHzaudio(2),
+        b56kbps(3),
+        b64kbps(4),
+        packetModeData(5),
+        multiRate(6) -- (64 kbit / s base)
+    }
+    --packetModeData, 7KHz audio, and multiRate will NOT be used for AIN .
+
+    BillingIndicator ::= OCTET STRING(SIZE(4))
+
+    BusinessGroup ::= OCTET STRING(SIZE(7))
+
+    BusyCause ::= [14] IMPLICIT OCTET STRING(SIZE(2..3))
+
+    BusyType ::= [94] IMPLICIT ENUMERATED{
+        callCanBeOffered(0),
+        callCannotBeOffered(1)
+    }
+
+    CalledPartyID ::= [15] IMPLICIT AINDigits
+    -- range - 0 - 15 digits
+
+    CalledPartyStationType ::= [16] IMPLICIT INTEGER(0..99)
+
+    CallingGeodeticLocation ::= [162] IMPLICIT OCTET STRING(SIZE(8..13))
+
+    CallingPartyBGID ::= [17] IMPLICIT BusinessGroup
+
+    CallingPartyID ::= [18] IMPLICIT AINDigits
+    -- range - 3 - 15
+
+    CallType ::= [165] IMPLICIT ENUMERATED{
+        noIndication(0),
+        local(1),
+        intraLATAToll(2),
+        interLATAToll(3)
+    }
+
+    Carrier ::= [41] IMPLICIT CarrierFormat
+    -- range - 4 digits
+
+    CarrierFormat ::= OCTET STRING(SIZE(4))
+
+    CarrierUsage ::= [79] IMPLICIT ENUMERATED{
+        alwaysOverride(0),
+        onlyInterLATAOverride(1)
+    }
+
+    CcID ::= [133] IMPLICIT ENUMERATED{
+        null(0),
+        originatingSetup(1),
+        stable2Party(2),
+        terminatingSetup(3),
+        threePartySetup(4),
+        threePartySetupComplement(5),
+        partyOnHold(6),
+        partyOnHoldComplement(7),
+        callWaiting(8),
+        callWaitingComplement(9),
+        stableMParty(10),
+        transfer(11),
+        forward(12)
+    }
+
+    ChargeNumber ::= [19] IMPLICIT AINDigits
+    -- range - 0 - 10 digits
+
+    ChargePartyStationType ::= [20] IMPLICIT INTEGER(0..99)
+
+    ClearCause ::= [21] IMPLICIT INTEGER(0..255)
+
+    ClearCauseData ::= [74] IMPLICIT OCTET STRING(SIZE(1..20))
+
+    CloseCause ::= [72] IMPLICIT ENUMERATED{
+        callTerminated(0),
+        eDPsCompleted(1),
+        unexpectedCommunication(2),
+        calledPartyAnswered(3),
+        callForwardedEDPsCompleted(4),
+        newRequestedEvent(5)
+    }
+
+    CollectedAddressInfo ::= [22] IMPLICIT AINDigits
+    -- range 0 - 15 digits
+
+    CollectedDigits ::= [23] IMPLICIT AINDigits
+    -- range 0 - 32 digits
+
+    CongestionLevel ::= [117] IMPLICIT ENUMERATED{
+        noCongestion(0),
+        mc1(1),
+        mc2(2),
+        mc3(3)
+    }
+
+    ConnectTime ::= [58] IMPLICIT OCTET STRING(SIZE(5))
+
+    ControlCauseIndicator ::= [59] IMPLICIT OCTET STRING(SIZE(1))
+
+    ControlEncountered ::= [127] IMPLICIT OCTET STRING(SIZE(1))
+
+    ControllingLegTreatment ::= [24] IMPLICIT ENUMERATED{
+        dialToneOn(0),
+        ringBackAudibleRingingToneOn(1),
+        networkCongestionReorderToneOn(3),
+        busyToneOn(4),
+        confirmationTone(5),
+        callWaitingTone(7),
+        tonesOff(63),
+        alertingOnPattern0Normal(64),
+        alertingOnPattern1DistinctiveIntergroup(65),
+        alertingOnPattern2DistinctiveSpecial(66),
+        alertingOnPattern3EKTS(67),
+        alertingOnPattern4ReminderRing(68),
+        alertingOff(79),
+        recallDialToneOn(17),
+        bargeInToneOn(18),
+        incomingAdditionalCallTone(251),
+        priorityAdditionalCallTone(252),
+        expensiveRouteWarningTone(253),
+        campOnTone(19),
+        receiverOffHookTone(20),
+        callingCardServiceTone(21),
+        stutterDialTone(22),
+        silence(23),
+        onHookTR30WithIndication(24),
+        onHookTR30NoIndication(25)
+    }
+
+    CTRConnection ::= [141] IMPLICIT BOOLEAN
+    -- TRUE = reported event caused by Connect_To_Resource
+    -- FALSE = reported event not caused by Connect_To_Resource
+
+    CsID ::= [137] IMPLICIT INTEGER(1..2)
+    --The range is 1 - 2 for CsIDs.
+
+    DestinationAddress ::= [86] IMPLICIT AINDigits
+        -- range - 10 digits
+
+    DisconnectCause ::= [116] IMPLICIT ENUMERATED{
+        farEnd(0)
+    }
+
+    DisconnectFlag ::= [25] IMPLICIT NULL
+    -- Presence = disconnect leg
+    -- Absence = do not disconnect leg
+
+    DisplayText ::= [26] IMPLICIT SEQUENCE SIZE(1..15) OF DisplayInformation
+
+    DisplayInformation ::= CHOICE{
+        blank[0] IMPLICIT OCTET STRING(SIZE(1..20)),
+        skip[1] IMPLICIT OCTET STRING(SIZE(1..20)),
+        continuation[2] IMPLICIT OCTET STRING(SIZE(1..20)),
+        calledAddress[3] IMPLICIT OCTET STRING(SIZE(1..20)),
+        cause[4] IMPLICIT OCTET STRING(SIZE(1..20)),
+        progressIndicator[5] IMPLICIT OCTET STRING(SIZE(1..20)),
+        notificationIndicator[6] IMPLICIT OCTET STRING(SIZE(1..20)),
+        prompt[7] IMPLICIT OCTET STRING(SIZE(1..20)),
+        accumulatedDigits[8] IMPLICIT OCTET STRING(SIZE(1..20)),
+        status[9] IMPLICIT OCTET STRING(SIZE(1..20)),
+        inband[10] IMPLICIT OCTET STRING
+        (SIZE(1..20)),
+        callingAddress[11] IMPLICIT OCTET STRING(SIZE(1..20)),
+        reason[12] IMPLICIT OCTET STRING(SIZE(1..20)),
+        callingPartyName[13] IMPLICIT OCTET STRING(SIZE(1..20)),
+        calledPartyName[14] IMPLICIT OCTET STRING
+        (SIZE(1..20)),
+        originalCalledName[15] IMPLICIT OCTET STRING(SIZE(1..20)),
+        redirectingName[16] IMPLICIT OCTET STRING(SIZE(1..20)),
+        connectedName[17] IMPLICIT OCTET STRING
+        (SIZE(1..20)),
+        origRestrictions[18] IMPLICIT OCTET STRING
+        (SIZE(1..20)),
+        dateTimeOfDay[19] IMPLICIT OCTET STRING(SIZE(1..20)),
+        callAppearanceID[20] IMPLICIT OCTET STRING
+        (SIZE(1..20)),
+        featureAddress[21] IMPLICIT OCTET STRING(SIZE(1..20)),
+        redirectionName[22] IMPLICIT OCTET STRING
+        (SIZE(1..20)),
+        redirectionNumber[23] IMPLICIT OCTET STRING(SIZE(1..20)),
+        redirectingNumber[24] IMPLICIT OCTET STRING(SIZE(1..20)),
+        originalCalledNumber[25] IMPLICIT OCTET STRING(SIZE(1..20)),
+        connectedNumber[26] IMPLICIT OCTET STRING
+        (SIZE(1..20)),
+        text[30] IMPLICIT OCTET STRING(SIZE(1..20)),
+        redirectingReason[31] IMPLICIT OCTET STRING(SIZE(1..20))
+    }
+    --Each DisplayInformation field can be from 1 - 20 octets. The information shown in italics is not required for AIN and is reserved for future releases.
+
+    DPConverter ::= [76] IMPLICIT BOOLEAN
+    -- True = the switch should perform Dial Pulse to DTMF conversion
+    -- False = the switch should not perform Dial Pulse to DTMF conversion
+
+    DTMFDigitsDetected ::= [153] IMPLICIT AINDigits
+    --The range is 1 - 4
+
+    EchoData ::= [60] IMPLICIT OCTET STRING(SIZE(6))
+
+    EditListType ::= ENUMERATED{
+        addListElement(0),
+        deleteListElement(1)
+    }
+
+    EDPNotification ::= [93] IMPLICIT BIT STRING{
+        oCalledPartyBusy(0), --always "0"
+        oNoAnswer(1), --always "0"
+        oTermSeized(2),
+        oAnswer(3),
+        tBusy(4), --always "0"*
+        tNoAnswer(5), --always "0"*
+        termResourceAvailable(6), -- *
+        tAnswer(7), -- *
+        networkBusy(8), --always “0”*
+        oSuspended(9), --always “0”
+        oDisconnectCalled(10), --always “0”
+        oDisconnect(11), --always “0”
+        oAbandon(12), --always “0”
+        featureActivator(13), --always “0”
+        switchHookFlash(14), --always “0”
+        success(15), --always “0”
+        tDisconnect(16),
+        timeout(17),
+        originationAttempt(18),
+        oDTMFEntered(19),
+        tDTMFEntered(20)
+    }
+    --Bit = 1 - request is requested, Bit = 0 - request is not requested     
+    -- *These values are conditional requirements, based on the condition that the SSP supports
+    -- the corresponding EDP shown as an objective in GR - 1298 - CORE, Section 4, Table 4 - 1.
+
+    EDPRequest ::= [92] IMPLICIT BIT STRING{
+        oCalledPartyBusy(0),
+        oNoAnswer(1),
+        oTermSeized(2), --always "0"
+        oAnswer(3), --always "0"
+        tBusy(4), --*
+        tNoAnswer(5), --*
+        termResourceAvailable(6), --always "0"*
+        tAnswer(7), --always "0"*
+        networkBusy(8),
+        oSuspended(9),
+        oDisconnectCalled(10),
+        oDisconnect(11),
+        oAbandon(12),
+        featureActivator(13),
+        switchHookFlash(14),
+        success(15),
+        tDisconnect(16),
+        timeout(17),
+        originationAttempt(18),
+        oDTMFEntered(19),
+        tDTMFEntered(20)
+    }
+    --Bit = 1 - request is requested, Bit = 0 - request is not requested
+    -- *These values are conditional requirements, based on the condition that the SSP supports
+    -- the corresponding EDP shown as an objective in GR - 1298 - CORE, Section 4, Table 4 - 1.
+
+    EnvelopContent ::= [75] IMPLICIT OCTET STRING(SIZE(1..180))
+
+    EnvelopeEncodingAuthority ::= [98] IMPLICIT OBJECT IDENTIFIER
+    -- Maximum of 15 octets
+
+    ErrorCause ::= [56] IMPLICIT ENUMERATED{
+        erroneousDataValue(0),
+        missingConditionalParameter(1),
+        responseMessageTimerExpired(2),
+        unexpectedCommunication(3),
+        unexpectedMessage(4),
+        unexpectedMessageSequence(5),
+        unexpectedParameterSequence(6)
+    }
+
+    ExtendedRinging ::= [146] IMPLICIT NULL
+    -- Presence = apply extended ringing
+    -- Absence = do not apply extended ringing
+
+    ExtensionParameter ::= SEQUENCE{
+        assignmentAuthority OBJECT IDENTIFIER,
+        parameters ANY DEFINED BY assignmentAuthority
+    }
+    --The maximum length of the assignmentAuthority is 15 octets
+
+    FacilityGID ::= CHOICE{
+        mlhg Mlhg
+    }
+
+    Mlhg ::= [29] IMPLICIT INTEGER(1..2047)
+
+    FacilityMemberID ::= [31] IMPLICIT INTEGER(1..2047)
+    --The range is 1 - 2047 for MLHG member IDs.
+
+    FacilityStatus ::= [61] IMPLICIT ENUMERATED{
+        busy(0),
+        busyInService(1),
+        busyOutOfService(2),
+        idle(3),
+        idleInService(4),
+        idleOutOfService(5),
+        inService(6),
+        outOfService(7)
+    }
+
+    FailedMessage ::= [57] IMPLICIT SEQUENCE{
+        opCode      INTEGER,
+        parameter   OCTET STRING OPTIONAL,
+        invParms    [1] IMPLICIT InvParms OPTIONAL
+    }
+    --The opCode field is equivalent to the value of the Operation Code that
+    -- represents the failed message.
+    --The parameter field represents the parameter, including the identifier,
+    --length and contents, of the received message that contains the
+    -- erroneous data value.
+
+    InvParms ::= SEQUENCE SIZE(1) OF Parms
+
+    Parms ::= CHOICE{
+        accessCode                              AccessCode,
+        aCGEncountered                          ACGEncountered,
+        alternateBillingIndicator               AlternateBillingIndicator,
+        alternateCarrier                        AlternateCarrier,
+        alternateTrunkGroup                     AlternateTrunkGroup,
+        aMAAlternateBillingNumber               AMAAlternateBillingNumber,
+        aMABusinessCustomerID                   AMABusinessCustomerID,
+        aMAslpID                                [10] IMPLICIT AMAslpID,
+        amp1                                    Amp1,
+        amp2                                    Amp2,
+        answerIndicator                         AnswerIndicator,
+        bearerCapability                        BearerCapability,
+        busyCause                               BusyCause,
+        calledPartyID                           CalledPartyID,
+        calledPartyStationType                  CalledPartyStationType,
+        callingGeodeticLocation                 CallingGeodeticLocation,
+        callingPartyBGID                        CallingPartyBGID,
+        callingPartyID                          CallingPartyID,
+        callType                                CallType,
+        chargeNumber                            ChargeNumber,
+        chargePartyStationType                  ChargePartyStationType,
+        clearCause                              ClearCause,
+        collectedAddressInfo                    CollectedAddressInfo,
+        collectedDigits                         CollectedDigits,
+        controllingLegTreatment                 ControllingLegTreatment,
+        disconnectFlag                          DisconnectFlag,
+        displayText                             DisplayText,
+        dTMFDigitsDetected                      DTMFDigitsDetected,
+        facilityGID                             FacilityGID,
+        facilityMemberID                        FacilityMemberID,
+        failureCause                            FailureCause,
+        genericName                             GenericName,
+        lata                                    Lata,
+        oDTMFDigitsString                       ODTMFDigitsString,
+        oDTMFNumberofDigits                     ODTMFNumberOfDigits,
+        originalCalledPartyID                   OriginalCalledPartyID,
+        outpulseNumber                          OutpulseNumber,
+        overflowBillingIndicator                OverflowBillingIndicator,
+        passiveLegTreatment                     PassiveLegTreatment,
+        partyID                                 PartyID,
+        partyOnHold                             PartyOnHold,
+        primaryBillingIndicator                 PrimaryBillingIndicator,
+        carrier                                 Carrier,
+        primaryTrunkGroup                       PrimaryTrunkGroup,
+        redirectingPartyID                      RedirectingPartyID,
+        redirectionInformation                  RedirectionInformation,
+        resourceType                            ResourceType,
+        secondAlternateBillingIndicator         SecondAlternateBillingIndicator,
+        secondAlternateCarrier                  SecondAlternateCarrier,
+        secondAlternateTrunkGroup               SecondAlternateTrunkGroup,
+        spid                                    Spid,
+        sSPResponseMessageTimerT1               SSPResponseMessageTimerT1,
+        strParameterBlock                       StrParameterBlock,
+        tcm                                     Tcm,
+        tDTMFDigitString                        TDTMFDigitString,
+        tDTMFNumberOfDigits                     TDTMFNumberOfDigits,
+        timerUpdated                            TimerUpdated,
+        triggerCriteriaType                     TriggerCriteriaType,
+        triggerInformation                      TriggerInformation,
+        userID                                  UserID,
+        verticalServiceCode                     VerticalServiceCode,
+        connectTime                             ConnectTime,
+        controlCauseIndicator                   ControlCauseIndicator,
+        echoData                                EchoData,
+        facilityStatus                          FacilityStatus,
+        gapDuration                             GapDuration,
+        gapInterval                             GapInterval,
+        globalTitleAddress                      GlobalTitleAddress,
+        monitorTime                             MonitorTime,
+        statusCause                             StatusCause,
+        terminationIndicator                    TerminationIndicator,
+        translationType                         TranslationType,
+        triggerCriteriaFlag                     TriggerCriteriaFlag,
+        tSTRCTimer                              TSTRCTimer,
+        aMAMeasure                              AMAMeasure,
+        aMAMeasurement                          AMAMeasurement,
+        clearCauseData                          ClearCauseData,
+        envelopContent                          EnvelopContent,
+        iPReturnBlock                           IPReturnBlock,
+        sap                                     Sap,
+        aMASetHexABIndicator                    AMASetHexABIndicator,
+        serviceContext                          ServiceContext,
+        extensionParameter                      [84] IMPLICIT ExtensionParameter,
+        securityEnvelope                        SecurityEnvelope,
+        destinationAddress                      DestinationAddress,
+        derviceProviderID                       ServiceProviderID,
+        aMABillingFeature                       AMABillingFeature,
+        aMASequenceNumber                       AMASequenceNumber,
+        applicationIndicator                    ApplicationIndicator,
+        oNoAnswerTimer                          ONoAnswerTimer,
+        eDPRequest                              EDPRequest,
+        eDPNotification                         EDPNotification,
+        busyType BusyType,
+        aMABAFModules AMABAFModules,
+        sTRConnection STRConnection,
+        errorCause ErrorCause,
+        resultCause ResultCause,
+        cTRConnection CTRConnection,
+        rTPReroutingNumber RTPReroutingNumber,
+        rTPServiceIndicator RTPServiceIndicator,
+        administrableObject AdministrableObject,
+        envelopeEncodingAuthority EnvelopeEncodingAuthority,
+        tNoAnswerTimer TNoAnswerTimer,
+        editListType EditListType,
+        aCGGlobalOverride ACGGlobalOverride,
+        notificationIndicator NotificationIndicator,
+        aMALineNumber AMALineNumber,
+        aMADigitsDialedWC AMADigitsDialedWC,
+        carrierUsage                                CarrierUsage,
+        closeCause CloseCause,
+        dPConverter DPConverter,
+        failureCauseData FailureCauseData,
+        genericAddress GenericAddress,
+        srhrGroupID SrhrGroupID,
+        genericAddressList GenericAddressList,
+        networkSpecificFacilities NetworkSpecificFacilities,
+        forwardCallIndicator ForwardCallIndicator,
+        alternateDialingPlanInd AlternateDialingPlanInd,
+        disconnectCause DisconnectCause,
+        aMAServiceProviderID AMAServiceProviderID,
+        congestionLevel CongestionLevel,
+        controlEncountered ControlEncountered,
+        infoProvided InfoProvided,
+        provideInfo ProvideInfo,
+        signalingPointCode SignalingPointCode,
+        subsystemNumber SubsystemNumber,
+        notificationDuration NotificationDuration,
+        wakeUpDuration WakeUpDuration,
+        oSIIndicator OSIIndicator,
+        legID LegID,
+        ccID CcID,
+        bCMType BCMType,
+        pointInCall PointInCall,
+        featureActivatorID                          FeatureActivatorID,
+        csID                                        CsID,
+        lampTreatment                               LampTreatment,
+        timeoutTimer                                TimeoutTimer,
+        transID                                     TransID,
+        actResult                                   ActResult,
+        extendedRinging                             ExtendedRinging,
+        jurisdictionInformation                     JurisdictionInformation,
+        prefix                                      Prefix,
+        genericDigitsList                           GenericDigitsList,
+        applyRestrictions                           ApplyRestrictions
+    }
+
+    FailureCause ::= [32] IMPLICIT ENUMERATED{
+        rateTooHigh(1),
+        unavailableResources(2),
+        apTimeout(3),
+        apBusy(4),
+        channelsBusy(13),
+        abort(14),
+        resourceLimitation(15),
+        applicationError(16),
+        securityError(17),
+        protocolError(18),
+        timerExpired(19),
+        temporaryFailure(20),
+        msridDoesNotMatchUserProfile(21),
+        segmentationError(22),
+        ncasDisallowed(23),
+        controlEncountered(24),
+        improperCoding(25),
+        inappropriateCondition(26),
+        inappropriateUserInterface(27),
+        inappropriateLegManipulation(28),
+        callingInterfaceBusy(29)
+    }
+    FailureCauseData ::= [112] IMPLICIT OCTET STRING(SIZE(1..5))
+    FeatureActivatorID ::= [136] IMPLICIT OCTET STRING(SIZE(1..2))
+    ForwardCallIndicator ::= [113] IMPLICIT OCTET STRING(SIZE(2))
+    GapDuration ::= [62] IMPLICIT ENUMERATED{
+        no1Second(1),
+        no2Seconds(2),
+        no4Seconds(3),
+        no8Seconds(4),
+        no16Seconds(5),
+        no32Seconds(6),
+        no64Seconds(7),
+        no128Seconds(8),
+        no256Seconds(9),
+        no512Seconds(10),
+        no1024Seconds(11),
+        no2048Seconds(12),
+        infinity(13)
+    }
+
+    GapInterval ::= CHOICE{
+        nationalGapInterval NationalGapInterval,
+        privateGapInterval PrivateGapInterval
+    }
+
+    NationalGapInterval ::= [63] IMPLICIT ENUMERATED{
+        removeGapControl(0),
+        no0Seconds(1),
+        no010Seconds(2), -- 1 / 10 sec.
+        no025Seconds(3), -- 1 / 4 sec.
+        no050Seconds(4), -- 1 / 2 sec.
+        no1Second(5),
+        no2Seconds(6),
+        no5Seconds(7),
+        no10Seconds(8),
+        no15Seconds(9),
+        no30Seconds(10),
+        no60Seconds(11),
+        no120Seconds(12),
+        no300Seconds(13),
+        no600Seconds(14),
+        stopAllCalls(15)
+    }
+
+    PrivateGapInterval ::= [64] IMPLICIT ENUMERATED{
+        no0Seconds(0),
+        no3Seconds(1),
+        no4Seconds(2),
+        no6Seconds(3),
+        no8Seconds(4),
+        no11Seconds(5),
+        no16Seconds(6),
+        no22Seconds(7),
+        no30Seconds(8),
+        no42Seconds(9),
+        no58Seconds(10),
+        no81Seconds(11),
+        no112Seconds(12),
+        no156Seconds(13),
+        no217Seconds(14),
+        no300Seconds(15),
+        removeGapControl(16),
+        no010Seconds(17), -- 1 / 10 sec.
+        no025Seconds(18), -- 1 / 4 sec.
+        no050Seconds(19), -- 1 / 2 sec.
+        no1Second(20),
+        no2Seconds(21)
+    }
+
+    GenericAddress ::= [80] IMPLICIT OCTET STRING(SIZE(4..11))
+
+    GenericAddressList ::= [107] IMPLICIT SEQUENCE SIZE(1..5) OF GenericAddress
+
+    GenericName ::= [33] IMPLICIT OCTET STRING
+
+    GenericDigitsList ::= [150] IMPLICIT SEQUENCE SIZE (1..5) OF GenericDigits
+
+    GenericDigits ::= [149] IMPLICIT OCTET STRING (SIZE(2..11))
+
+    GlobalTitleAddress ::= [69] IMPLICIT OCTET STRING
+
+    InfoProvided ::= [100] IMPLICIT SEQUENCE{
+        activationStateCode [1] IMPLICIT ActivationStateCode OPTIONAL,
+        entireList          [2] IMPLICIT EntireList OPTIONAL,
+        memorySlot          [3] IMPLICIT MemorySlot OPTIONAL,
+        listSize            [4] IMPLICIT ListSize OPTIONAL,
+        forwardToDn         [5] IMPLICIT ForwardToDn OPTIONAL,
+        delayInterval       [6] IMPLICIT DelayInterval OPTIONAL,
+        empty               [7] IMPLICIT Empty OPTIONAL
+    }
+    --For the encoding of the ActivationStateCode parameter, see Section 6.4.1.
+
+    EntireList ::= SEQUENCE SIZE(1..32) OF Entry2
+
+    Entry2 ::= CHOICE{
+        dn [1] IMPLICIT Dn, --see Section 6.151 for the encoding
+        privateDn [2] IMPLICIT PrivateDn
+    }
+
+    PrivateDn ::= ENUMERATED{
+        private (0)
+    }
+
+    MemorySlot ::= SEQUENCE{
+        incoming [1] IMPLICIT Incoming OPTIONAL,
+        outgoing [2] IMPLICIT Outgoing OPTIONAL
+    }
+
+    Incoming ::= SEQUENCE{
+        aINDigits AINDigits,
+        timestamp Timestamp--See GR-246-CORE for values of this field.
+    }
+
+    Outgoing ::= SEQUENCE{
+        aINDigits AINDigits,
+        timestamp Timestamp--See GR-246-CORE for values of this field.
+    }
+
+    Timestamp ::= INTEGER
+    ListSize ::= INTEGER(1..32)
+    ForwardToDn ::= Dn--See Section 6.151 for the encoding
+
+    Empty ::= BIT STRING{
+        entireList(0),
+        outgoingmemorySlot(1),
+        incomingmemorySlot(2),
+        forwardToDn(3)
+    }
+
+    IPReturnBlock ::= [78] IMPLICIT OCTET STRING(SIZE(1..120))
+
+    JurisdictionInformation::= [147] IMPLICIT OCTET STRING(SIZE(3))
+
+    LampTreatment ::= [138] IMPLICIT OCTET STRING(SIZE(2..3))
+
+    Lata ::= [35] IMPLICIT AINDigits
+    -- range - 3 digits
+
+    LegID ::= [132] IMPLICIT INTEGER(0..2)
+    --The range is 0 - 2 for IDs.
+
+    MonitorTime ::= [65] IMPLICIT OCTET STRING(SIZE(3))
+
+    NetworkSpecificFacilities ::= [108] IMPLICIT OCTET STRING(SIZE(2..12))
+
+    NotificationDuration ::= [128] IMPLICIT INTEGER(1..99)
+
+    NotificationIndicator ::= [111] IMPLICIT BOOLEAN
+    -- TRUE = Switch Notification Message
+    -- FALSE = Switch Request Message
+
+    ODTMFDigitsString ::= [154] IMPLICIT AINDigits
+    --The range is 1 - 4
+
+    ODTMFNumberOfDigits ::= [155] IMPLICIT INTEGER(1..4)
+
+    ONoAnswerTimer ::= [91] IMPLICIT INTEGER(1..120)
+
+    OriginalCalledPartyID ::= [36] IMPLICIT AINDigits
+    -- range - 3 - 15 digits
+
+    OSIIndicator ::= [129] IMPLICIT BOOLEAN
+    --True = the switch should apply Open Switching Interval
+    --False = the switch should not apply Open Switching Interval
+
+    OutpulseNumber ::= [37] IMPLICIT AINDigits
+    -- 15 digits maximum
+
+    OverflowBillingIndicator ::= [38] IMPLICIT BillingIndicator
+
+    PartyID ::= [159] IMPLICIT ENUMERATED{
+        callingParty(0),
+        calledParty(1),
+        bothParties(2)
+    }
+
+    PartyOnHold ::= [146] IMPLICIT NULL
+    -- Presence = place party on hold
+    -- Absence = do not place party on hold
+
+    PassiveLegTreatment ::= [39] IMPLICIT ENUMERATED{
+        dialToneOn(0),
+        ringBackAudibleRingingToneOn(1),
+        networkCongestionReorderToneOn(3),
+        busyToneOn(4),
+        confirmationTone(5),
+        callWaitingTone(7),
+        tonesOff(63),
+        alertingOnPattern0Normal(64),
+        alertingOnPattern1DistinctiveIntergroup(65),
+        alertingOnPattern2DistinctiveSpecial(66),
+        alertingOnPattern3EKTS(67),
+        alertingOnPattern4ReminderRing(68),
+        alertingOff(79),
+        recallDialToneOn(17),
+        bargeInToneOn(18),
+        incomingAdditionalCallTone(251),
+        priorityAdditionalCallTone(252),
+        expensiveRouteWarningTone(253),
+        campOnTone(19),
+        receiverOffHookTone(20),
+        callingCardServiceTone(21),
+        stutterDialTone(22),
+        silence(23)
+    }
+    --The values shown in italics are not required for AIN and are reserved for future
+    -- AIN releases.
+
+    Prefix ::= [148] IMPLICIT ENUMERATED{
+        onePlus(0)
+    }
+
+    PointInCall ::= [135] IMPLICIT ENUMERATED{
+        oNull(1),
+        authorizeOrigAttempt(2),
+        collectInformation(3),
+        analyzeInformation(4),
+        selectRoute(5),
+        authorizeCallSetup(6),
+        sendCall(7),
+        oAlerting(8),
+        oActive(9),
+        oSuspended(10),
+        tNull(11),
+        authorizeTermination(12),
+        selectFacility(13),
+        presentCall(14),
+        tAlerting(15),
+        tActive(16),
+        tSuspended(17)
+    }
+
+    PrimaryBillingIndicator ::= [40] IMPLICIT BillingIndicator
+
+    PrimaryTrunkGroup ::= [42] IMPLICIT OCTET STRING(SIZE(5))
+
+    ProvideInfo ::= [114] IMPLICIT SEQUENCE{
+        requestGroups       RequestGroups OPTIONAL,
+        requestMemorySlot   [11] IMPLICIT RequestMemorySlot OPTIONAL
+    }
+
+    RequestGroups ::= CHOICE{
+        requestGroup1 [1] IMPLICIT RequestGroup1,
+        requestGroup2 [2] IMPLICIT RequestGroup2,
+        requestGroup3 [3] IMPLICIT RequestGroup3,
+        requestGroup4 [4] IMPLICIT RequestGroup4,
+        requestGroup5 [5] IMPLICIT RequestGroup5,
+        requestGroup6 [6] IMPLICIT RequestGroup6
+    }
+
+    RequestGroup1 ::= SEQUENCE{
+        service1    [1] IMPLICIT Service1,--See Section 6.4.2 for the encoding.
+        request1    [2] IMPLICIT Request1
+    }
+
+    Request1 ::= BIT STRING{
+        activationStatus(0)
+    }
+    RequestGroup2 ::= SEQUENCE{
+        service2 [1] IMPLICIT Service2,--See Section 6.4.2 for the encoding.
+        request2 [2] IMPLICIT Request2
+    }
+
+    Request2 ::= BIT STRING{
+        activationStatus(0),
+        delayInterval(1)
+    }
+
+    RequestGroup3 ::= SEQUENCE{
+        service3 [1] IMPLICIT Service3,--See Section 6.4.2 for the encoding
+        request3 [2] IMPLICIT Request3
+    }
+
+    Request3 ::= BIT STRING{
+        activationStatus(0),
+        entireList(1),
+        listSize(2)
+    }
+
+    RequestGroup4 ::= SEQUENCE{
+        service4 [1] IMPLICIT Service4,--See Section 6.4.2 for the encoding
+        request4 [2] IMPLICIT Request4
+    }
+
+    Request4 ::= BIT STRING{
+        activationStatus(0),
+        forwardingDn(1)
+    }
+
+    RequestGroup5 ::= SEQUENCE{
+        service5 [1] IMPLICIT Service5,--See Section 6.4.2 for the encoding
+        request5[2] IMPLICIT Request5
+    }
+
+    Request5 ::= BIT STRING{
+        activationStatus(0),
+        forwardingDn(1),
+        entireList(2),
+        listSize(3)
+    }
+    RequestGroup6 ::= SEQUENCE{
+        service6 [1] IMPLICIT Service6,--See Section 6.4.2 for encoding
+        request6 [2] IMPLICIT Request6
+    }
+
+    Request6 ::= BIT STRING{
+        delayInterval(0)
+    }
+    RequestMemorySlot ::= BIT STRING{
+        incoming(0),
+        outgoing(1)
+    }
+    RedirectingPartyID ::= [43] IMPLICIT AINDigits
+    -- range - 3 - 15 digits
+
+    RedirectionInformation ::= [44] IMPLICIT OCTET STRING(SIZE(2))
+
+    ResourceType ::= [45] IMPLICIT INTEGER(0..127)
+
+    ResultCause ::= [151] IMPLICIT ENUMERATED{
+        confServiceActivated(0),
+        confServiceDeactivatedorCancelled(1),
+        confAnonymousEntryAdded(2),
+        confPublicEntryAdded(3),
+        confAnonymousEntryRemoved(4),
+        confPublicEntryRemoved(5),
+        confAllAnonymousEntriesRemoved(6),
+        confAllEntriesRemoved(7),
+        confForwardingDnSet(8),
+        confForwardingDnCleared(9),
+        confDelayIntervalUpdated(10),
+        confInterdigitTimerOn(11),
+        confInterdigitTimerOff(12),
+        confDPConverterOn(13),
+        confDPConverterOff(14),
+        deniedServiceAlreadyActive(15),
+        deniedServiceNotActivated(16),
+        deniedInvalidForwardingDn(17),
+        deniedPermanentPresentationPrivate(18),
+        deniedPermanentPresentationPublic(19),
+        deniedListIsEmpty(20),
+        deniedListIsFull(21),
+        deniedAnonymousDnAlreadyOnList(22),
+        deniedPublicDnAlreadyOnList(23),
+        deniedNoMatch(24),
+        deniedDnNotOnList(25),
+        deniedIncomingMemorySlotEmpty(26),
+        deniedUnsuccessfulUpdate(27)
+    }
+
+    RTPReroutingNumber::= [143] IMPLICIT AINDigits
+    -- Range - 3 - 15 digits
+
+    RTPServiceIndicator ::= [144] IMPLICIT OCTET STRING(SIZE(1))
+
+    Sap ::= [81] IMPLICIT OCTET STRING(SIZE(1..10))
+
+    SecondAlternateBillingIndicator ::= [46] IMPLICIT BillingIndicator
+
+    SecondAlternateCarrier ::= [47] IMPLICIT CarrierFormat
+    -- range - 4 digits
+
+    SecondAlternateTrunkGroup ::= [48] IMPLICIT OCTET STRING(SIZE(5))
+
+    SecurityEnvelope ::= [85] IMPLICIT OCTET STRING(SIZE(3..75))
+
+    ServiceContext ::= [83] IMPLICIT INTEGER(0..32767)
+    ServiceProviderID ::= CHOICE{
+        ocn Ocn,
+        msrID MsrID
+    }
+
+    Ocn ::= [87] IMPLICIT IA5String(SIZE(4..8))
+
+    MsrID ::= [106] IMPLICIT AINDigits -- range - 10 digits
+    --identifies the Message Storage and Retrieval System
+
+    SignalingPointCode ::= [142] IMPLICIT OCTET STRING(SIZE(3))
+    --See Figure 1B of Chapter T1.111.4 of GR-246-CORE
+    -- for the definition of the contents of the SignalingPointCode OCTET STRING.
+
+    Spid ::= [49] IMPLICIT OCTET STRING(SIZE(3..20))
+    --This parameter includes a character string with 3 - 20 IA5 characters,
+    --the last 2 are required to be numeric in the range of 00 - 62.
+
+    SubsystemNumber ::= [130] IMPLICIT INTEGER(0..255)
+    --See Chapter T1.112.3 of GR-246-CORE for values of this parameter
+
+    SrhrGroupID ::= [77] IMPLICIT INTEGER(0..32767)
+
+    SSPResponseMessageTimerT1 ::= [166] IMPLICIT INTEGER(1..300)
+    --Units of tenths of seconds
+
+    StatusCause ::= [66] IMPLICIT ENUMERATED{
+        statusMatch(0),
+        timeOut(1),
+        error(2)
+    }
+
+    STRConnection ::= [96] IMPLICIT BOOLEAN
+    -- TRUE = reported event caused by Send_To_Resource
+    -- FALSE = reported event not caused by Send_To_Resource
+
+    StrParameterBlock ::= [50] CHOICE {
+            announcementBlock       [0] IMPLICIT AnnouncementBlock,
+            announcementDigitBlock  [1] IMPLICIT AnnouncementDigitBlock,
+            flexParameterBlock      [2] IMPLICIT FlexParameterBlock
+    }
+
+    AnnouncementBlock ::= SEQUENCE{
+        uninterAnnounceBlock        [1] IMPLICIT UninterAnnounceBlock OPTIONAL,
+        interAnnounceBlock          [2] IMPLICIT InterAnnounceBlock OPTIONAL
+    }
+
+    UninterAnnounceBlock ::= SEQUENCE SIZE(1..10) OF AnnounceElement
+
+    InterAnnounceBlock ::= SEQUENCE SIZE(1..10) OF AnnounceElement
+
+    AnnounceElement ::= OCTET STRING(SIZE(3..131))
+
+    AnnouncementDigitBlock ::= SEQUENCE{
+        maximumDigits           [0] IMPLICIT MaximumDigits,
+        uninterAnnounceBlock    [1] IMPLICIT UninterAnnounceBlock OPTIONAL,
+        interAnnounceBlock      [2] IMPLICIT InterAnnounceBlock OPTIONAL
+    }
+
+    MaximumDigits ::= INTEGER(0..255)
+    -- range: 0 - 32 is "fixed number of digits" (e.g., 5 means collect 5 digits)
+    -- 33 - 252 is spare
+    -- 253 is "normal number of digits"
+    -- 254 is "variable number of digits"
+    -- 255 is spare
+
+    FlexParameterBlock ::= OCTET STRING(SIZE(1..120))
+
+    Tcm ::= [51] IMPLICIT AINDigits
+    -- Range 1 - 4 digits
+
+    TDTMFDigitString ::= [157] IMPLICIT AINDigits
+    --The range is 1 - 4
+
+    TDTMFNumberOfDigits ::= [158] IMPLICIT INTEGER(1..4)
+
+    TerminationIndicator ::= [67] IMPLICIT OCTET STRING(SIZE(1))
+
+    TimeoutTimer ::= [139] IMPLICIT CHOICE{
+        intervalTime    [0] IMPLICIT IntervalTime,
+        localSSPTime    [1] IMPLICIT LocalSSPTime,
+        absoluteSCPTime [2] IMPLICIT AbsoluteSCPTime
+    }
+
+    IntervalTime ::=  INTEGER(1..86400)
+
+    --IntervalTime is in units of seconds
+
+    LocalSSPTime ::= OCTET STRING(SIZE(7))
+
+    AbsoluteSCPTime ::= OCTET STRING(SIZE(7))
+
+    TimerUpdated ::= [167] IMPLICIT ENUMERATED{
+        success(0),
+        failure(1),
+        transaction-already-closed(2)
+    }
+
+    TNoAnswerTimer ::= [99] IMPLICIT INTEGER(1..120)
+
+    TransID ::= [163] IMPLICIT OCTET STRING(SIZE(4))
+
+    TranslationType ::= [70] IMPLICIT INTEGER(0..255)
+    --See Chapter T1.112.3 of GR-246-CORE for values of this parameter
+
+    TriggerCriteriaFlag ::= [68] IMPLICIT OCTET STRING(SIZE(2))
+
+    TriggerCriteriaType ::= [52] IMPLICIT ENUMERATED{
+        featureActivator(0),
+        verticalServiceCode(1),
+        customizedAccess(2),
+        customizedIntercom(3),
+        npa(4),
+        npaNXX(5),
+        nxx(6),
+        nxxXXXX(7),
+        npaNXXXXXX(8),
+        countryCodeNPANXXXXXX(9),
+        carrierAccess(10),
+        prefixes(11),
+        n11(12),
+        aFR(13),
+        sharedIOTrunk(14),
+        terminationAttempt(15),
+        offHookImmediate(16),
+        offHookDelay(17),
+        channelSetupPRI(18),
+        npaN(19),
+        npaNX(20),
+        npaNXXX(21),
+        npaNXXXX(22),
+        npaNXXXXX(23),
+        networkBusy(24),
+        tNoAnswer(25),
+        tBusy(26),
+        oCalledPartyBusy(27),
+        specificFeatureCode(28),
+        oNoAnswer(29),
+        priNetworkServices(30),
+        oSwitchHookFlashImmediate(31),
+        oFeatureActivator(32),
+        oSwitchHookFlashSpecifiedCode(33),
+        tSwitchHookFlashImmediate(34),
+        tFeatureActivator(35),
+        tSwitchHookFlashSpecifiedCode(36),
+        numberPortability(37),
+        onePlus(38),
+        specifiedCarrier(39),
+        international(40),
+        zeroPlus(41),
+        zeroMinus(42),
+        localNumberPortabilityPORC(43),
+        localNumberPortabilityPORCdonor(44),
+        reserved(45),
+        termResourceAvailable(46),
+        officePublicFeatureCode(47),
+        trunkGroup(48),
+        dedicatedTrunkGroup(49),
+        reserved(50)
+    }
+
+    TSTRCTimer ::= [156] IMPLICIT INTEGER(0..300)
+    --Units of minutes
+
+    UserID ::= [53] CHOICE{
+        dn                  [1] IMPLICIT Dn,
+        bri                 [2] IMPLICIT SEQUENCE {
+                                spid    Spid,
+                                dn      Dn
+                                }, --BRI(ISDNI)
+        trunkGroupID        [5] IMPLICIT TrunkGroupID,
+        privateFacilityGID  [6] IMPLICIT PrivateFacilityGID,
+        aDSIcpeID               ADSIcpeID
+    }
+
+    Dn ::= OCTET STRING(SIZE(5))
+
+    TriggerInformation ::= OCTET STRING(SIZE(0..31))
+
+    TrunkGroupID ::= INTEGER(0..9999)
+
+    PrivateFacilityGID ::= INTEGER(0..9999)
+
+    ADSIcpeID ::= OCTET STRING(SIZE(4))
+
+    VerticalServiceCode ::= [54] IMPLICIT AINDigits
+    -- Maximum 10 characters; the 1st character may be a * or digit.
+    --The remaining characters are always digits.
+
+    WakeUpDuration ::= [131] IMPLICIT INTEGER(1..999)
+
+    END

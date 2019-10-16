@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <ui/qt/widgets/find_line_edit.h>
 #include <ui/qt/utils/color_utils.h>
@@ -29,12 +30,12 @@ void FindLineEdit::contextMenuEvent(QContextMenuEvent *event)
     action = menu->addAction(tr("Textual Find"));
     action->setCheckable(true);
     action->setChecked(!use_regex_);
-    connect(action, SIGNAL(triggered()), this, SLOT(setUseTextual()));
+    connect(action, &QAction::triggered, this, &FindLineEdit::setUseTextual);
 
     action = menu->addAction(tr("Regular Expression Find"));
     action->setCheckable(true);
     action->setChecked(use_regex_);
-    connect(action, SIGNAL(triggered()), this, SLOT(setUseRegex()));
+    connect(action, &QAction::triggered, this, &FindLineEdit::setUseRegex);
 #endif
 
     menu->exec(event->globalPos());

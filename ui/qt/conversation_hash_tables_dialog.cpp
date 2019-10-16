@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "conversation_hash_tables_dialog.h"
 #include <ui_conversation_hash_tables_dialog.h>
@@ -26,7 +27,7 @@ ConversationHashTablesDialog::ConversationHashTablesDialog(QWidget *parent) :
     ui->setupUi(this);
     if (parent) loadGeometry(parent->width() * 3 / 4, parent->height() * 3 / 4);
     setAttribute(Qt::WA_DeleteOnClose, true);
-    setWindowTitle(wsApp->windowTitleString(tr("Dissector Tables")));
+    setWindowTitle(wsApp->windowTitleString(tr("Conversation Hash Tables")));
 
     QString html;
 
@@ -48,7 +49,7 @@ ConversationHashTablesDialog::~ConversationHashTablesDialog()
 static void
 populate_html_table(gpointer data, gpointer user_data)
 {
-    const conversation_key_t conv_key = (const conversation_key_t)data;
+    const conversation_key_t conv_key = (conversation_key_t)data;
     QString* html_table = (QString*)user_data;
     gchar* tmp = conversation_get_html_hash(conv_key);
 

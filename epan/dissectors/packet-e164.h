@@ -16,6 +16,8 @@
 #include "ws_symbol_export.h"
 
 extern const value_string E164_country_code_value[];
+extern const value_string E164_ISO3166_country_code_short_value[];
+extern value_string_ext E164_ISO3166_country_code_short_value_ext;
 extern const value_string E164_International_Networks_vals[];
 
 #define E164_NA_INTERNATIONAL_NUMBER 4

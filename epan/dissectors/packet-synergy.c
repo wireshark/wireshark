@@ -11,8 +11,9 @@
 
 #include "config.h"
 
-
 #include <epan/packet.h>
+
+#include <epan/dissectors/packet-tcp.h>
 
 void proto_register_synergy(void);
 void proto_reg_handoff_synergy(void);
@@ -21,15 +22,14 @@ void proto_reg_handoff_synergy(void);
 
 static int proto_synergy = -1;
 
+static int hf_synergy_packet_len = -1;
+static int hf_synergy_packet_type = -1;
+
 static int hf_synergy_unknown = -1;
 static int hf_synergy_handshake = -1;
 static int hf_synergy_handshake_majorversion = -1;
 static int hf_synergy_handshake_minorversion = -1;
 static int hf_synergy_handshake_clientname = -1;
-
-static int hf_synergy_cnop = -1;
-
-static int hf_synergy_calv = -1;
 
 static int hf_synergy_cbye = -1;
 
@@ -126,77 +126,117 @@ static void dissect_synergy_dinf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static void dissect_synergy_eicv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,gint offset);
 
 
-/* Code to actually dissect the packets */
+/* Code to dissect a single Synergy packet */
 static int
-dissect_synergy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_synergy_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "synergy");
+    col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
         gint offset=0;
-        char buffer[20];
+        char buffer[4+1];
         proto_item *ti = NULL;
         proto_tree *synergy_tree = NULL;
         ti = proto_tree_add_protocol_format(tree, proto_synergy, tvb, 0, -1,"Synergy Protocol");
         synergy_tree = proto_item_add_subtree(ti, ett_synergy);
 
-        tvb_get_nstringz(tvb,offset+4,20,(guint8*)buffer);
+        proto_tree_add_item(synergy_tree,hf_synergy_packet_len,tvb,offset,4,ENC_BIG_ENDIAN);
 
-        if(strncmp(buffer,"Synergy",7)==0)
-            dissect_synergy_handshake(tvb,pinfo,synergy_tree,offset+4);
-        else if(strncmp(buffer,"CNOP",4)==0)
-            proto_tree_add_item(synergy_tree,hf_synergy_cnop,tvb,offset+4,-1,ENC_NA);
+        /* First 4 bytes of the payload - either "Syne" or a packet type. */
+        tvb_get_raw_bytes_as_string(tvb, offset+4, buffer, sizeof buffer);
+
+        if(strncmp(buffer,"Syne",4)==0) {
+            /* OK, is it 7 bytes of "Synergy"? */
+            if (tvb_strneql(tvb,offset+4,"rgy",3) == 0) {
+                /* Yes - dissect as a handshake. */
+                dissect_synergy_handshake(tvb,pinfo,synergy_tree,offset+11);
+            } else {
+                /* No - dissect as unknown. */
+                proto_tree_add_item(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,ENC_ASCII|ENC_NA);
+                proto_tree_add_item(synergy_tree,hf_synergy_unknown,tvb,offset+8,-1,ENC_NA);
+            }
+            return tvb_captured_length(tvb);
+        }
+
+        if(strncmp(buffer,"CNOP",4)==0)
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"No operation (%s)",buffer);
         else if(strncmp(buffer,"CALV",4)==0)
-            proto_tree_add_item(synergy_tree,hf_synergy_calv,tvb,offset+4,-1,ENC_NA);
-        else if(strncmp(buffer,"CBYE",4)==0)
-            proto_tree_add_item(synergy_tree,hf_synergy_cbye,tvb,offset+4,-1,ENC_NA);
-        else if(strncmp(buffer,"CINN",4)==0)
-            dissect_synergy_cinn(tvb,pinfo,synergy_tree,offset+4);
-        else if(strncmp(buffer,"COUT",4)==0)
-            proto_tree_add_item(synergy_tree,hf_synergy_cout,tvb,offset+4,-1,ENC_NA);
-        else if(strncmp(buffer,"CCLP",4)==0)
-            dissect_synergy_cclp(tvb,pinfo,synergy_tree,offset+4);
-        else if(strncmp(buffer,"CSEC",4)==0)
-            proto_tree_add_item(synergy_tree,hf_synergy_csec,tvb,offset+4,1,ENC_BIG_ENDIAN);
-        else if(strncmp(buffer,"CROP",4)==0)
-            proto_tree_add_item(synergy_tree,hf_synergy_crop,tvb,offset+4,-1,ENC_NA);
-        else if(strncmp(buffer,"CIAK",4)==0)
-            proto_tree_add_item(synergy_tree,hf_synergy_ciak,tvb,offset+4,-1,ENC_NA);
-        else if(strncmp(buffer,"DKDN",4)==0)
-            dissect_synergy_dkdn(tvb,pinfo,synergy_tree,offset+4);
-        else if(strncmp(buffer,"DKRP",4)==0)
-            dissect_synergy_dkrp(tvb,pinfo,synergy_tree,offset+4);
-        else if(strncmp(buffer,"DKUP",4)==0)
-            dissect_synergy_dkup(tvb,pinfo,synergy_tree,offset+4);
-        else if(strncmp(buffer,"DMDN",4)==0)
-            proto_tree_add_item(synergy_tree,hf_synergy_dmdn,tvb,offset+4,1,ENC_BIG_ENDIAN);
-        else if(strncmp(buffer,"DMUP",4)==0)
-            proto_tree_add_item(synergy_tree,hf_synergy_dmup,tvb,offset+4,1,ENC_BIG_ENDIAN);
-        else if(strncmp(buffer,"DMMV",4)==0)
-            dissect_synergy_dmmv(tvb,pinfo,synergy_tree,offset+4);
-        else if(strncmp(buffer,"DMRM",4)==0)
-            dissect_synergy_dmrm(tvb,pinfo,synergy_tree,offset+4);
-        else if(strncmp(buffer,"DMWM",4)==0)
-            proto_tree_add_item(synergy_tree,hf_synergy_dmwm,tvb,offset+4,2,ENC_BIG_ENDIAN);
-        else if(strncmp(buffer,"DCLP",4)==0)
-            dissect_synergy_dclp(tvb,pinfo,synergy_tree,offset+4);
-        else if(strncmp(buffer,"DINF",4)==0)
-            dissect_synergy_dinf(tvb,pinfo,synergy_tree,offset+4);
-        else if(strncmp(buffer,"DSOP",4)==0)
-            proto_tree_add_item(synergy_tree,hf_synergy_dsop,tvb,offset+4,4,ENC_BIG_ENDIAN);
-        else if(strncmp(buffer,"QINF",4)==0)
-            proto_tree_add_item(synergy_tree,hf_synergy_qinf,tvb,offset+4,-1,ENC_NA);
-        else if(strncmp(buffer,"EICV",4)==0)
-            dissect_synergy_eicv(tvb,pinfo,synergy_tree,offset+4);
-        else if(strncmp(buffer,"EBSY",4)==0)
-            proto_tree_add_item(synergy_tree,hf_synergy_ebsy,tvb,offset+4,-1,ENC_NA);
-        else if(strncmp(buffer,"EUNK",4)==0)
-            proto_tree_add_item(synergy_tree,hf_synergy_eunk,tvb,offset+4,-1,ENC_NA);
-        else if(strncmp(buffer,"EBAD",4)==0)
-            proto_tree_add_item(synergy_tree,hf_synergy_ebad,tvb,offset+4,-1,ENC_NA);
-        else
-            proto_tree_add_item(synergy_tree,hf_synergy_unknown,tvb,offset+4,-1,ENC_NA);
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Keep Alive (%s)",buffer);
+        else if(strncmp(buffer,"CBYE",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Close Connection (%s)",buffer);
+            proto_tree_add_item(synergy_tree,hf_synergy_cbye,tvb,offset+8,-1,ENC_NA);
+        } else if(strncmp(buffer,"CINN",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Enter Screen (%s)",buffer);
+            dissect_synergy_cinn(tvb,pinfo,synergy_tree,offset+8);
+        } else if(strncmp(buffer,"COUT",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Leave Screen (%s)",buffer);
+            proto_tree_add_item(synergy_tree,hf_synergy_cout,tvb,offset+8,-1,ENC_NA);
+        } else if(strncmp(buffer,"CCLP",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Grab Clipboard (%s)",buffer);
+            dissect_synergy_cclp(tvb,pinfo,synergy_tree,offset+8);
+        } else if(strncmp(buffer,"CSEC",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Screen Saver Change (%s)",buffer);
+            proto_tree_add_item(synergy_tree,hf_synergy_csec,tvb,offset+8,1,ENC_BIG_ENDIAN);
+        } else if(strncmp(buffer,"CROP",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Reset Options (%s)",buffer);
+            proto_tree_add_item(synergy_tree,hf_synergy_crop,tvb,offset+8,-1,ENC_NA);
+        } else if(strncmp(buffer,"CIAK",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Resolution Chagne Acknowledgment (%s)",buffer);
+            proto_tree_add_item(synergy_tree,hf_synergy_ciak,tvb,offset+8,-1,ENC_NA);
+        } else if(strncmp(buffer,"DKDN",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Key Pressed (%s)",buffer);
+            dissect_synergy_dkdn(tvb,pinfo,synergy_tree,offset+8);
+        } else if(strncmp(buffer,"DKRP",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Key Auto-Repeat (%s)",buffer);
+            dissect_synergy_dkrp(tvb,pinfo,synergy_tree,offset+8);
+        } else if(strncmp(buffer,"DKUP",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Key Released (%s)",buffer);
+            dissect_synergy_dkup(tvb,pinfo,synergy_tree,offset+8);
+        } else if(strncmp(buffer,"DMDN",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Mouse Button Pressed (%s)",buffer);
+            proto_tree_add_item(synergy_tree,hf_synergy_dmdn,tvb,offset+8,1,ENC_BIG_ENDIAN);
+        } else if(strncmp(buffer,"DMUP",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Mouse Button Released (%s)",buffer);
+            proto_tree_add_item(synergy_tree,hf_synergy_dmup,tvb,offset+8,1,ENC_BIG_ENDIAN);
+        } else if(strncmp(buffer,"DMMV",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Mouse Moved (%s)",buffer);
+            dissect_synergy_dmmv(tvb,pinfo,synergy_tree,offset+8);
+        } else if(strncmp(buffer,"DMRM",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Relative Mouse Move (%s)",buffer);
+            dissect_synergy_dmrm(tvb,pinfo,synergy_tree,offset+8);
+        } else if(strncmp(buffer,"DMWM",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Mouse Button Pressed (%s)",buffer);
+            proto_tree_add_item(synergy_tree,hf_synergy_dmwm,tvb,offset+8,2,ENC_BIG_ENDIAN);
+        } else if(strncmp(buffer,"DCLP",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Clipboard Data (%s)",buffer);
+            dissect_synergy_dclp(tvb,pinfo,synergy_tree,offset+8);
+        } else if(strncmp(buffer,"DINF",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Client Data (%s)",buffer);
+            dissect_synergy_dinf(tvb,pinfo,synergy_tree,offset+8);
+        } else if(strncmp(buffer,"DSOP",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Set Options (%s)",buffer);
+            proto_tree_add_item(synergy_tree,hf_synergy_dsop,tvb,offset+8,4,ENC_BIG_ENDIAN);
+        } else if(strncmp(buffer,"QINF",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Query Screen Info (%s)",buffer);
+            proto_tree_add_item(synergy_tree,hf_synergy_qinf,tvb,offset+8,-1,ENC_NA);
+        } else if(strncmp(buffer,"EICV",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Incompatible Veersions (%s)",buffer);
+            dissect_synergy_eicv(tvb,pinfo,synergy_tree,offset+8);
+        } else if(strncmp(buffer,"EBSY",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Connection Already in Use (%s)",buffer);
+            proto_tree_add_item(synergy_tree,hf_synergy_ebsy,tvb,offset+8,-1,ENC_NA);
+        } else if(strncmp(buffer,"EUNK",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Unknown Client (%s)",buffer);
+            proto_tree_add_item(synergy_tree,hf_synergy_eunk,tvb,offset+8,-1,ENC_NA);
+        } else if(strncmp(buffer,"EBAD",4)==0) {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Protocol Violation (%s)",buffer);
+            proto_tree_add_item(synergy_tree,hf_synergy_ebad,tvb,offset+8,-1,ENC_NA);
+        } else {
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Unknown (%s)",buffer);
+            proto_tree_add_item(synergy_tree,hf_synergy_unknown,tvb,offset+8,-1,ENC_NA);
+        }
     }
 
     return tvb_captured_length(tvb);
@@ -209,13 +249,13 @@ static void dissect_synergy_handshake( tvbuff_t *tvb, packet_info *pinfo _U_, pr
     ti = proto_tree_add_item(tree, hf_synergy_handshake, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
-    proto_tree_add_item(sub_tree, hf_synergy_handshake_majorversion, tvb, offset + 7, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_handshake_minorversion, tvb, offset + 9, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_handshake_majorversion, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_handshake_minorversion, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
-    if (tvb_reported_length_remaining(tvb, offset + 11) != 0)
+    if (tvb_reported_length_remaining(tvb, offset + 4) != 0)
     {
-        proto_tree_add_item(sub_tree, hf_synergy_unknown, tvb, offset + 11, 4, ENC_NA);
-        proto_tree_add_item(sub_tree, hf_synergy_handshake_clientname, tvb, offset + 15, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_tree, hf_synergy_unknown, tvb, offset + 4, 4, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_synergy_handshake_clientname, tvb, offset + 8, -1, ENC_ASCII|ENC_NA);
     }
 }
 
@@ -226,10 +266,10 @@ static void dissect_synergy_cinn( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     ti = proto_tree_add_item(tree, hf_synergy_cinn, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
-    proto_tree_add_item(sub_tree, hf_synergy_cinn_x, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_cinn_y, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_cinn_sequence, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_cinn_modifiermask, tvb, offset + 12, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_cinn_x, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_cinn_y, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_cinn_sequence, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_cinn_modifiermask, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
 }
 
 static void dissect_synergy_cclp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
@@ -239,8 +279,8 @@ static void dissect_synergy_cclp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     ti = proto_tree_add_item(tree, hf_synergy_cclp, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
-    proto_tree_add_item(sub_tree, hf_synergy_cclp_clipboardidentifier, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_cclp_sequencenumber, tvb, offset + 5, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_cclp_clipboardidentifier, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_cclp_sequencenumber, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
 }
 
 static void dissect_synergy_dkdn( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
@@ -250,11 +290,11 @@ static void dissect_synergy_dkdn( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     ti = proto_tree_add_item(tree, hf_synergy_dkdn, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
-    proto_tree_add_item(sub_tree, hf_synergy_dkdn_keyid, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_dkdn_keymodifiermask, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dkdn_keyid, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dkdn_keymodifiermask, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
-    if (tvb_reported_length_remaining(tvb, offset + 8) != 0)
-        proto_tree_add_item(sub_tree, hf_synergy_dkdn_keybutton, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
+    if (tvb_reported_length_remaining(tvb, offset + 4) != 0)
+        proto_tree_add_item(sub_tree, hf_synergy_dkdn_keybutton, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 }
 
 static void dissect_synergy_dkrp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
@@ -264,12 +304,12 @@ static void dissect_synergy_dkrp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     ti = proto_tree_add_item(tree, hf_synergy_dkrp, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
-    proto_tree_add_item(sub_tree, hf_synergy_dkrp_keyid, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_dkrp_keymodifiermask, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_dkrp_numberofrepeats, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dkrp_keyid, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dkrp_keymodifiermask, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dkrp_numberofrepeats, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 
-    if (tvb_reported_length_remaining(tvb, offset + 10) != 0)
-        proto_tree_add_item(sub_tree, hf_synergy_dkrp_keybutton, tvb, offset + 10, 2, ENC_BIG_ENDIAN);
+    if (tvb_reported_length_remaining(tvb, offset + 6) != 0)
+        proto_tree_add_item(sub_tree, hf_synergy_dkrp_keybutton, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
 }
 
 static void dissect_synergy_dkup( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
@@ -279,11 +319,11 @@ static void dissect_synergy_dkup( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     ti = proto_tree_add_item(tree, hf_synergy_dkup, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
-    proto_tree_add_item(sub_tree, hf_synergy_dkup_keyid, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_dkup_keymodifiermask, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dkup_keyid, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dkup_keymodifiermask, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
-    if (tvb_reported_length_remaining(tvb, offset + 8) != 0)
-        proto_tree_add_item(sub_tree, hf_synergy_dkup_keybutton, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
+    if (tvb_reported_length_remaining(tvb, offset + 4) != 0)
+        proto_tree_add_item(sub_tree, hf_synergy_dkup_keybutton, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 }
 
 static void dissect_synergy_dmmv( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
@@ -293,8 +333,8 @@ static void dissect_synergy_dmmv( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     ti = proto_tree_add_item(tree, hf_synergy_dmmv, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
-    proto_tree_add_item(sub_tree, hf_synergy_dmmv_x, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_dmmv_y, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dmmv_x, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dmmv_y, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 }
 
 static void dissect_synergy_dmrm( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
@@ -304,8 +344,8 @@ static void dissect_synergy_dmrm( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     ti = proto_tree_add_item(tree, hf_synergy_dmrm, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
-    proto_tree_add_item(sub_tree, hf_synergy_dmrm_x, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_dmrm_y, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dmrm_x, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dmrm_y, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 }
 
 static void dissect_synergy_dclp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
@@ -315,9 +355,9 @@ static void dissect_synergy_dclp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     ti = proto_tree_add_item(tree, hf_synergy_dclp, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
-    proto_tree_add_item(sub_tree, hf_synergy_dclp_clipboardidentifier, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_dclp_sequencenumber, tvb, offset + 5, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_dclp_clipboarddata, tvb, offset + 9, -1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(sub_tree, hf_synergy_dclp_clipboardidentifier, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dclp_sequencenumber, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dclp_clipboarddata, tvb, offset + 5, -1, ENC_ASCII|ENC_NA);
 }
 
 static void dissect_synergy_dinf( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
@@ -327,13 +367,13 @@ static void dissect_synergy_dinf( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     ti = proto_tree_add_item(tree, hf_synergy_dinf, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
-    proto_tree_add_item(sub_tree, hf_synergy_dinf_clp, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_dinf_ctp, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_dinf_wsp, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_dinf_hsp, tvb, offset + 10, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_dinf_swz, tvb, offset + 12, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_dinf_x, tvb, offset + 14, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_dinf_y, tvb, offset + 16, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dinf_clp, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dinf_ctp, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dinf_wsp, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dinf_hsp, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dinf_swz, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dinf_x, tvb, offset + 10, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_dinf_y, tvb, offset + 12, 2, ENC_BIG_ENDIAN);
 }
 
 static void dissect_synergy_eicv( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
@@ -343,16 +383,35 @@ static void dissect_synergy_eicv( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     ti = proto_tree_add_item(tree, hf_synergy_eicv, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
-    proto_tree_add_item(sub_tree, hf_synergy_eicv_majorversion, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_eicv_minorversion, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_eicv_majorversion, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_synergy_eicv_minorversion, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 }
 
+static guint
+synergy_get_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+	return tvb_get_ntohl(tvb, offset) + 4;
+}
+
+static int
+dissect_synergy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, synergy_get_pdu_len,
+                     dissect_synergy_pdu, NULL);
+    return tvb_captured_length(tvb);
+}
 
 void
 proto_register_synergy(void)
 {
     static hf_register_info hf[] = {
 
+        { &hf_synergy_packet_len,
+            { "Packet Length","synergy.packet_len",FT_UINT32, BASE_DEC, NULL, 0x0,NULL, HFILL }
+        },
+        { &hf_synergy_packet_type,
+            { "Packet Type","synergy.packet_type",FT_STRING, BASE_NONE, NULL, 0x0,NULL, HFILL }
+        },
         { &hf_synergy_unknown,
             { "unknown","synergy.unknown",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
         },
@@ -367,12 +426,6 @@ proto_register_synergy(void)
         },
         { &hf_synergy_handshake_clientname,
             { "Client Name","synergy.handshake.client",FT_STRING, BASE_NONE, NULL, 0x0,NULL, HFILL }
-        },
-        { &hf_synergy_calv,
-            { "Keep Alive","synergy.calv",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
-        },
-        { &hf_synergy_cnop,
-            { "No Operation","synergy.cnop",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
         },
         { &hf_synergy_cbye,
             { "Close Connection","synergy.cbye",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
@@ -411,7 +464,7 @@ proto_register_synergy(void)
             { "Reset Options","synergy.resetoptions",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
         },
         { &hf_synergy_ciak,
-            { "resolution change acknowledgment","synergy.ack",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
+            { "Resolution Change Acknowledgment","synergy.ack",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
         },
         { &hf_synergy_dkdn,
             { "Key Pressed","synergy.keypressed",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
@@ -426,7 +479,7 @@ proto_register_synergy(void)
             { "Key Button","synergy.keypressed.key",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
         },
         { &hf_synergy_dkrp,
-            { "key auto-repeat","synergy.keyautorepeat",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
+            { "Key Auto-Repeat","synergy.keyautorepeat",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
         },
         { &hf_synergy_dkrp_keyid,
             { "Key ID","synergy.keyautorepeat.keyid",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
@@ -441,7 +494,7 @@ proto_register_synergy(void)
             { "Key Button","synergy.keyautorepeat.key",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
         },
         { &hf_synergy_dkup,
-            { "key released","synergy.keyreleased",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
+            { "Key Released","synergy.keyreleased",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
         },
         { &hf_synergy_dkup_keyid,
             { "Key Id","synergy.keyreleased.keyid",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
@@ -522,7 +575,7 @@ proto_register_synergy(void)
             { "Query Screen Info","synergy.qinf",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
         },
         { &hf_synergy_eicv,
-            { "incompatible versions","synergy.eicv",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
+            { "Incompatible Versions","synergy.eicv",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
         },
         { &hf_synergy_eicv_majorversion,
             { "Major Version Number","synergy.eicv.major",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
@@ -537,7 +590,7 @@ proto_register_synergy(void)
             { "Unknown Client","synergy.unknown",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
         },
         { &hf_synergy_ebad,
-            { "protocol violation","synergy.violation",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
+            { "Protocol Violation","synergy.violation",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
         },
     };
 
@@ -563,7 +616,7 @@ proto_reg_handoff_synergy(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

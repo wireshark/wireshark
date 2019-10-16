@@ -91,7 +91,7 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_set_str(pinfo->cinfo, COL_INFO, "MBMS synchronisation protocol");
 
     /* Ugly, but necessary to get the correct length for type 3 */
-    packet_nr = tvb_get_ntohs(tvb, offset+3);
+    packet_nr = tvb_get_ntohs(tvb, offset+3) + 1;
 
         /* The length varies depending on PDU type */
         switch (type) {
@@ -128,7 +128,7 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         offset += 2;
 
         /* Octet 4 - Packet Number */
-        proto_tree_add_uint(sync_tree, hf_sync_packet_nr, tvb, offset, 2, packet_nr+1);
+        proto_tree_add_uint(sync_tree, hf_sync_packet_nr, tvb, offset, 2, packet_nr);
         offset += 2;
 
         /* Octet 6 - Elapsed Octet Counter */
@@ -182,19 +182,19 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                         for (i = 1; i < packet_nr; i+=2, offset+=3) {
                             packet_len1 = tvb_get_bits16(tvb, offset*8,    12, ENC_BIG_ENDIAN);
                             packet_len2 = tvb_get_bits16(tvb, offset*8+12, 12, ENC_BIG_ENDIAN);
-                            proto_tree_add_string_format(sync_tree, hf_sync_length_of_packet, tvb, offset,   2, "", "Length of Packet %u : %hu", i,   packet_len1);
-                            proto_tree_add_string_format(sync_tree, hf_sync_length_of_packet, tvb, offset+1, 2, "", "Length of Packet %u : %hu", i+1, packet_len2);
+                            proto_tree_add_uint_format(sync_tree, hf_sync_length_of_packet, tvb, offset,   2, packet_len1, "Length of Packet %u : %hu", i,   packet_len1);
+                            proto_tree_add_uint_format(sync_tree, hf_sync_length_of_packet, tvb, offset+1, 2, packet_len2, "Length of Packet %u : %hu", i+1, packet_len2);
                         }
                     } else {
                         /* Odd number of packets */
                         for (i = 1; i < packet_nr; i+=2, offset+=3) {
                             packet_len1 = tvb_get_bits16(tvb, offset*8,    12, ENC_BIG_ENDIAN);
                             packet_len2 = tvb_get_bits16(tvb, offset*8+12, 12, ENC_BIG_ENDIAN);
-                            proto_tree_add_string_format(sync_tree, hf_sync_length_of_packet, tvb, offset,   2, "", "Length of Packet %u : %hu", i,   packet_len1);
-                            proto_tree_add_string_format(sync_tree, hf_sync_length_of_packet, tvb, offset+1, 2, "", "Length of Packet %u : %hu", i+1, packet_len2);
+                            proto_tree_add_uint_format(sync_tree, hf_sync_length_of_packet, tvb, offset,   2, packet_len1, "Length of Packet %u : %hu", i,   packet_len1);
+                            proto_tree_add_uint_format(sync_tree, hf_sync_length_of_packet, tvb, offset+1, 2, packet_len2, "Length of Packet %u : %hu", i+1, packet_len2);
                         }
                         packet_len1 = tvb_get_bits16(tvb, offset*8, 12, ENC_BIG_ENDIAN);
-                        proto_tree_add_string_format(sync_tree, hf_sync_length_of_packet, tvb, offset, 2, "", "Length of Packet %u : %hu", packet_nr, packet_len1);
+                        proto_tree_add_uint_format(sync_tree, hf_sync_length_of_packet, tvb, offset, 2, packet_len1, "Length of Packet %u : %hu", packet_nr, packet_len1);
                         offset++;
                         proto_tree_add_item(sync_tree, hf_sync_spare4, tvb, offset, 1, ENC_BIG_ENDIAN);
                     }
@@ -261,7 +261,7 @@ proto_register_sync(void)
         },
         { &hf_sync_length_of_packet,
             { "Length of Packet", "sync.length_of_packet",
-            FT_STRING, BASE_NONE, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
     };
@@ -296,7 +296,7 @@ proto_reg_handoff_sync(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

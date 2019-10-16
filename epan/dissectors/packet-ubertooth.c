@@ -1689,7 +1689,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
 
         /* Save request info (command_data) */
-        if (!pinfo->fd->flags.visited && command != 21) {
+        if (!pinfo->fd->visited && command != 21) {
             key[2].length = 1;
             key[2].key = &k_frame_number;
             key[3].length = 0;
@@ -1739,7 +1739,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     command_item = proto_tree_add_uint(main_tree, hf_response, tvb, offset, 0, command_response);
     command_tree = proto_item_add_subtree(command_item, ett_command);
-    PROTO_ITEM_SET_GENERATED(command_item);
+    proto_item_set_generated(command_item);
     switch (command_response) {
 
     case 1: /* Rx Symbols */
@@ -1960,7 +1960,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         break;
     case 53: /* Read Register */
         sub_item = proto_tree_add_uint(main_tree, hf_register, tvb, offset, 0, register_id);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
         if (try_val_to_str_ext(register_id, &register_vals_ext))
             proto_item_append_text(sub_item, " [%s]", val_to_str_ext_const(register_id, &register_description_vals_ext, "Unknown"));
 
@@ -3485,7 +3485,7 @@ proto_reg_handoff_ubertooth(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

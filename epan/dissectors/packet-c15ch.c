@@ -4134,8 +4134,8 @@ static void add_string_field( proto_tree * p_tree, tvbuff_t * tvb,
                                 guint str_start, guint max_str_len,
                                 int hf_num )
 {
-    guchar *field_stringz;
-    guint len;
+    gchar *field_stringz;
+    gint len;
 
     if (max_str_len == 0)
     {
@@ -4143,7 +4143,7 @@ static void add_string_field( proto_tree * p_tree, tvbuff_t * tvb,
     }
 
 
-    field_stringz = tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_start, &len, ENC_ASCII);
+    field_stringz = (gchar * )tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_start, &len, ENC_ASCII);
     if ( len <= 1 )
     {
         proto_tree_add_string(p_tree, hf_num,
@@ -4151,7 +4151,7 @@ static void add_string_field( proto_tree * p_tree, tvbuff_t * tvb,
     }
     else
     {
-        if ( len > max_str_len )
+        if ( len > (gint)max_str_len )
         {
             field_stringz[ max_str_len - 1 ] = '\0';
         }
@@ -4730,7 +4730,7 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     char * concat_string = NULL;
     guchar * site_string;
     guchar * subsite_string;
-    guchar * equipname_string;
+    gchar * equipname_string;
     char * desc_string = NULL;
     gint str_start;
     gint max_str_len;
@@ -4761,7 +4761,7 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     /* equipname */
     str_start = 22;
     max_str_len = 5;
-    equipname_string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_start, &equipname_str_len, ENC_ASCII);
+    equipname_string = (gchar * )tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_start, &equipname_str_len, ENC_ASCII);
     if ( equipname_str_len > max_str_len )
     {
         equipname_string[ max_str_len - 1] = '\0';
@@ -12275,7 +12275,7 @@ void proto_reg_handoff_c15ch(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

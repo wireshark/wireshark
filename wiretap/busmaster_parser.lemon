@@ -1,0 +1,453 @@
+%include {
+
+/* busmaster_parser.lemon
+ *
+ * Wiretap Library
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
+ *
+ * Support for Busmaster log file format
+ * Copyright (c) 2019 by Maksim Salau <maksim.salau@gmail.com>
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+#include "config.h"
+#include <assert.h>
+#include <string.h>
+#include <wiretap/file_wrappers.h>
+#include "busmaster_priv.h"
+
+extern void *BusmasterParserAlloc(void *(*mallocProc)(size_t));
+extern void BusmasterParser(void *yyp, int yymajor, token_t yyminor, busmaster_state_t *state);
+extern void BusmasterParserFree(void *p, void (*freeProc)(void*));
+
+#if defined(BUSMASTER_DEBUG) || defined(BUSMASTER_PARSER_TRACE)
+extern void BusmasterParserTrace(FILE *TraceFILE, char *zTracePrompt);
+#undef NDEBUG
+#endif
+
+static void merge_msg_data(msg_data_t *dst, const msg_data_t *a, const msg_data_t *b)
+{
+    dst->length = a->length + b->length;
+    memcpy(&dst->data[0], &a->data[0], a->length);
+    memcpy(&dst->data[a->length], &b->data[0], b->length);
+}
+
+DIAG_OFF(unreachable-code)
+
+}
+
+%name BusmasterParser
+
+%token_prefix TOKEN_
+
+%token_type { token_t }
+
+%token_destructor
+{
+    (void)state;
+    (void)yypParser;
+    (void)yypminor;
+}
+
+%extra_argument { busmaster_state_t* state }
+
+%syntax_error
+{
+    (void)yypParser;
+    (void)yyminor;
+
+#ifdef BUSMASTER_DEBUG
+    const int n = sizeof(yyTokenName) / sizeof(yyTokenName[0]);
+    busmaster_debug_printf("%s: got token: %s\n", G_STRFUNC, yyTokenName[yymajor]);
+    for (int i = 0; i < n; ++i) {
+        int a = yy_find_shift_action((YYCODETYPE)i, yypParser->yytos->stateno);
+        if (a < YYNSTATE + YYNRULE) {
+            busmaster_debug_printf("%s: possible token: %s\n", G_STRFUNC, yyTokenName[i]);
+        }
+    }
+#endif
+
+    g_free(state->parse_error);
+    state->entry_type  = LOG_ENTRY_ERROR;
+    state->parse_error = g_strdup_printf("Syntax Error");
+    busmaster_debug_printf("%s: Syntax Error\n", G_STRFUNC);
+}
+
+%parse_failure
+{
+    g_free(state->parse_error);
+    state->entry_type  = LOG_ENTRY_ERROR;
+    state->parse_error = g_strdup("Parse Error");
+    busmaster_debug_printf("%s: Parse Error\n", G_STRFUNC);
+}
+
+%stack_overflow
+{
+    g_free(state->parse_error);
+    state->entry_type  = LOG_ENTRY_ERROR;
+    state->parse_error = g_strdup("Parser stack overflow");
+    busmaster_debug_printf("%s: Parser stack overflow\n", G_STRFUNC);
+}
+
+%type msg_time { msg_time_t }
+%type msg_type { msg_type_t }
+%type err_msg_type { msg_type_t }
+%type msg_length { guint }
+%type msg_id { guint32 }
+
+%type ref_date { msg_date_t }
+%type ref_time { msg_time_t }
+
+%type start_time { msg_date_time_t }
+
+%type byte { guint8 }
+%type data { msg_data_t }
+%type data0 { msg_data_t }
+%type data1 { msg_data_t }
+%type data2 { msg_data_t }
+%type data3 { msg_data_t }
+%type data4 { msg_data_t }
+%type data5 { msg_data_t }
+%type data6 { msg_data_t }
+%type data7 { msg_data_t }
+%type data8 { msg_data_t }
+%type data12 { msg_data_t }
+%type data16 { msg_data_t }
+%type data20 { msg_data_t }
+%type data24 { msg_data_t }
+%type data32 { msg_data_t }
+%type data48 { msg_data_t }
+%type data64 { msg_data_t }
+
+%nonassoc INVALID_CHAR .
+%nonassoc INVALID_NUMBER .
+
+%start_symbol entry
+
+entry ::= empty_line .
+entry ::= footer_and_header .
+entry ::= header .
+entry ::= footer .
+entry ::= msg .
+entry ::= err_msg .
+entry ::= j1939_msg .
+
+empty_line ::= .
+{
+    busmaster_debug_printf("%s: EMPTY\n", G_STRFUNC);
+    state->entry_type = LOG_ENTRY_EMPTY;
+}
+
+footer_and_header ::= footer ENDL header .
+{
+    busmaster_debug_printf("%s: FOOTER AND HEADER\n", G_STRFUNC);
+    state->entry_type = LOG_ENTRY_FOOTER_AND_HEADER;
+}
+
+header ::= version ENDL maybe_lines
+           PROTOCOL_TYPE(P) ENDL maybe_lines
+           START_SESSION ENDL maybe_lines
+           start_time(S) ENDL maybe_lines
+           DATA_MODE(D) ENDL maybe_lines
+           TIME_MODE(T) ENDL anything .
+{
+    busmaster_debug_printf("%s: HEADER\n", G_STRFUNC);
+
+    state->entry_type        = LOG_ENTRY_HEADER;
+    state->header.start_date = S.date;
+    state->header.start_time = S.time;
+    state->header.protocol   = (protocol_t)P.v0;
+    state->header.data_mode  = (data_mode_t)D.v0;
+    state->header.time_mode  = (time_mode_t)T.v0;
+}
+
+version ::= HEADER_VER maybe_chars .
+
+maybe_chars ::= .
+maybe_chars ::= maybe_chars HEADER_CHAR .
+
+maybe_lines ::= .
+maybe_lines ::= maybe_lines maybe_chars ENDL .
+
+anything ::= .
+anything ::= anything HEADER_CHAR .
+anything ::= anything ENDL .
+
+start_time(R) ::= START_TIME ref_date(D) ref_time(T) .
+{
+    R.date = D;
+    R.time = T;
+}
+
+footer ::= end_time ENDL STOP_SESSION .
+{
+    busmaster_debug_printf("%s: FOOTER\n", G_STRFUNC);
+    state->entry_type = LOG_ENTRY_FOOTER;
+}
+
+end_time ::= END_TIME ref_date ref_time .
+
+/* <Time><Tx/Rx><Channel><CAN ID><Type><DLC><DataBytes> */
+msg ::= msg_time(msg_time) MSG_DIR INT msg_id(msg_id) msg_type(msg_type) msg_length(msg_length) data(msg_data) .
+{
+    msg_t msg;
+
+    /* DLC is always in DEC mode, thus we need to fix the value
+     * if it was read initially as HEX. */
+    if (state->header.data_mode == DATA_MODE_HEX)
+    {
+        msg_length = (msg_length / 16) * 10 + (msg_length % 16);
+    }
+
+    /* Fix data in RTR frames. Data may not be present,
+     * but length field is set. */
+    if (msg_type == MSG_TYPE_STD_RTR ||
+        msg_type == MSG_TYPE_EXT_RTR)
+    {
+        memset(&msg_data, 0, sizeof(msg_data));
+        msg_data.length = msg_length;
+    }
+
+    msg.timestamp = msg_time;
+    msg.id        = msg_id;
+    msg.type      = msg_type;
+    msg.data      = msg_data;
+
+    busmaster_debug_printf("%s: MSG\n", G_STRFUNC);
+
+    state->msg = msg;
+    state->entry_type = LOG_ENTRY_MSG;
+}
+
+/* <Time><Tx/Rx><Channel><CAN ID><Type><Text> */
+err_msg ::= msg_time(msg_time) MSG_DIR INT INT err_msg_type(msg_type) .
+{
+    msg_t msg;
+
+    msg.timestamp   = msg_time;
+    msg.id          = 0;
+    msg.type        = msg_type;
+    msg.data.length = CAN_MAX_DLEN;
+
+    memset(msg.data.data, 0, sizeof(msg.data.data));
+
+    busmaster_debug_printf("%s: ERR MSG\n", G_STRFUNC);
+
+    state->msg = msg;
+    state->entry_type = LOG_ENTRY_MSG;
+}
+
+/* <Time><Channel><CAN ID><PGN><Type><Source Node><Destination Node><Priority><Tx/Rx><DLC><DataBytes> */
+j1939_msg ::= msg_time(msg_time) INT msg_id(msg_id) INT J1939_MSG_TYPE INT INT INT MSG_DIR msg_length data(msg_data) .
+{
+    msg_t msg;
+
+    msg.timestamp = msg_time;
+    msg.id        = msg_id;
+    msg.type      = MSG_TYPE_EXT;
+    msg.data      = msg_data;
+
+    busmaster_debug_printf("%s: J1939 MSG\n", G_STRFUNC);
+
+    state->msg = msg;
+    state->entry_type = LOG_ENTRY_MSG;
+}
+
+ref_date(R) ::= INT(D) COLON INT(M) COLON INT(Y) .
+{
+    R.year  = (guint)Y.v0;
+    R.month = (guint)M.v0;
+    R.day   = (guint)D.v0;
+}
+
+ref_time(R) ::= INT(H) COLON INT(M) COLON INT(S) COLON INT(U) .
+{
+    R.hours   = (guint)H.v0;
+    R.minutes = (guint)M.v0;
+    R.seconds = (guint)S.v0;
+    R.micros  = (guint)U.v0 * 1000;
+}
+
+msg_time(R) ::= MSG_TIME(M) .
+{
+    R.hours   = (guint)M.v0;
+    R.minutes = (guint)M.v1;
+    R.seconds = (guint)M.v2;
+    R.micros  = (guint)M.v3 * 100;
+}
+
+msg_id(R) ::= INT(V) .
+{
+    R = (guint)V.v0;
+}
+
+msg_length(R) ::= INT(V) .
+{
+    R = (guint)V.v0;
+}
+
+msg_type(R) ::= MSG_TYPE(V) .
+{
+    R = (msg_type_t)V.v0;
+}
+
+err_msg_type(R) ::= ERR_MSG_TYPE(V) .
+{
+    R = (msg_type_t)V.v0;
+}
+
+data(R) ::= data0(A) .  { R = A; }
+data(R) ::= data1(A) .  { R = A; }
+data(R) ::= data2(A) .  { R = A; }
+data(R) ::= data3(A) .  { R = A; }
+data(R) ::= data4(A) .  { R = A; }
+data(R) ::= data5(A) .  { R = A; }
+data(R) ::= data6(A) .  { R = A; }
+data(R) ::= data7(A) .  { R = A; }
+data(R) ::= data8(A) .  { R = A; }
+data(R) ::= data12(A) . { R = A; }
+data(R) ::= data16(A) . { R = A; }
+data(R) ::= data20(A) . { R = A; }
+data(R) ::= data24(A) . { R = A; }
+data(R) ::= data32(A) . { R = A; }
+data(R) ::= data48(A) . { R = A; }
+data(R) ::= data64(A) . { R = A; }
+
+byte(R) ::= INT(A) .
+{
+    R = (guint8)A.v0;
+}
+
+data0(R) ::= .
+{
+    R.length = 0;
+}
+
+data1(R) ::= byte(A) .
+{
+    R.length  = 1;
+    R.data[0] = A;
+}
+
+data2(R) ::= byte(A) byte(B) .
+{
+    R.length  = 2;
+    R.data[0] = A;
+    R.data[1] = B;
+}
+
+data3(R) ::= byte(A) byte(B) byte(C) .
+{
+    R.length  = 3;
+    R.data[0] = A;
+    R.data[1] = B;
+    R.data[2] = C;
+}
+
+data4(R) ::= byte(A) byte(B) byte(C) byte(D) .
+{
+    R.length  = 4;
+    R.data[0] = A;
+    R.data[1] = B;
+    R.data[2] = C;
+    R.data[3] = D;
+}
+
+data5(R)  ::= data4(A)  data1(B) .  { merge_msg_data(&R, &A, &B); }
+data6(R)  ::= data4(A)  data2(B) .  { merge_msg_data(&R, &A, &B); }
+data7(R)  ::= data4(A)  data3(B) .  { merge_msg_data(&R, &A, &B); }
+data8(R)  ::= data4(A)  data4(B) .  { merge_msg_data(&R, &A, &B); }
+data12(R) ::= data8(A)  data4(B) .  { merge_msg_data(&R, &A, &B); }
+data16(R) ::= data8(A)  data8(B) .  { merge_msg_data(&R, &A, &B); }
+data20(R) ::= data16(A) data4(B) .  { merge_msg_data(&R, &A, &B); }
+data24(R) ::= data16(A) data8(B) .  { merge_msg_data(&R, &A, &B); }
+data32(R) ::= data16(A) data16(B) . { merge_msg_data(&R, &A, &B); }
+data48(R) ::= data32(A) data16(B) . { merge_msg_data(&R, &A, &B); }
+data64(R) ::= data32(A) data32(B) . { merge_msg_data(&R, &A, &B); }
+
+%code {
+
+DIAG_ON(unreachable-code)
+
+#include "busmaster_scanner_lex.h"
+#include "busmaster_parser.h"
+
+gboolean
+run_busmaster_parser(busmaster_state_t *state,
+                     int               *err, gchar **err_info)
+{
+    int       lex_code;
+    yyscan_t  scanner;
+    void     *parser;
+
+    state->entry_type  = LOG_ENTRY_NONE;
+    state->parse_error = NULL;
+    state->err         = 0;
+    state->err_info    = NULL;
+
+    if (busmaster_lex_init_extra(state, &scanner) != 0)
+    {
+        *err      = errno;
+        *err_info = g_strdup(g_strerror(errno));
+        return FALSE;
+    }
+
+    parser = BusmasterParserAlloc(g_malloc);
+
+#ifdef BUSMASTER_PARSER_TRACE
+    BusmasterParserTrace(stdout, "BusmasterParser >> ");
+#endif
+
+    busmaster_debug_printf("%s: Starting parsing of the line\n", G_STRFUNC);
+
+    do
+    {
+        lex_code = busmaster_lex(scanner);
+
+#ifdef BUSMASTER_DEBUG
+        if (lex_code)
+            busmaster_debug_printf("%s: Feeding %s '%s'\n",
+                                   G_STRFUNC, yyTokenName[lex_code],
+                                   busmaster_get_text(scanner));
+        else
+            busmaster_debug_printf("%s: Feeding %s\n",
+                                   G_STRFUNC, yyTokenName[lex_code]);
+#endif
+
+        BusmasterParser(parser, lex_code, state->token, state);
+
+        if (state->err || state->err_info || state->parse_error)
+            break;
+    }
+    while (lex_code);
+
+    busmaster_debug_printf("%s: Done (%d)\n", G_STRFUNC, lex_code);
+
+    BusmasterParserFree(parser, g_free);
+    busmaster_lex_destroy(scanner);
+
+    if (state->err || state->err_info || state->parse_error)
+    {
+        if (state->err_info)
+        {
+            *err_info = state->err_info;
+            g_free(state->parse_error);
+        }
+        else
+        {
+            *err_info = state->parse_error;
+        }
+
+        if (state->err)
+            *err = state->err;
+        else
+            *err = WTAP_ERR_BAD_FILE;
+
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+}

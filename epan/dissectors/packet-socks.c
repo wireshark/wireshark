@@ -557,7 +557,7 @@ client_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
         gchar* str;
 
         ti = proto_tree_add_uint( tree, hf_socks_ver, tvb, offset, 0, 5);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         proto_tree_add_item( tree, hf_socks_subnegotiation_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -638,7 +638,7 @@ server_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         col_append_str(pinfo->cinfo, COL_INFO, " User authentication reply");
 
         ti = proto_tree_add_uint( tree, hf_socks_ver, tvb, offset, 0, 5);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         proto_tree_add_item( tree, hf_socks_subnegotiation_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -655,7 +655,7 @@ server_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         col_append_str(pinfo->cinfo, COL_INFO, " GSSAPI authentication reply");
 
         ti = proto_tree_add_uint( tree, hf_socks_ver, tvb, offset, 0, 5);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         proto_tree_add_item( tree, hf_socks_subnegotiation_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -897,7 +897,7 @@ server_state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
             /* save server udp port and create udp conversation */
             hash_info->udp_port =  tvb_get_ntohs(tvb, offset);
 
-            if (!pinfo->fd->flags.visited)
+            if (!pinfo->fd->visited)
                 new_udp_conversation( hash_info, pinfo);
 
             break;
@@ -1080,7 +1080,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
         col_append_str(pinfo->cinfo, COL_INFO, ", Traceroute Req");
 
     /* run state machine if needed */
-    if ((!pinfo->fd->flags.visited) &&
+    if ((!pinfo->fd->visited) &&
         (!((hash_info->clientState == clientDone) &&
            (hash_info->serverState == serverDone)))) {
 
@@ -1120,19 +1120,19 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
         if ( pinfo->num > hash_info->start_done_frame){
                         /*  add info to tree */
             ti = proto_tree_add_uint( socks_tree, hf_socks_ver, tvb, offset, 0, hash_info->version);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_uint( socks_tree, hf_socks_cmd, tvb, offset, 0, hash_info->command);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             if (hash_info->dst_addr.type == AT_IPv4) {
                 ti = proto_tree_add_ipv4( socks_tree, hf_socks_ip_dst, tvb,
                     offset, 0, *((const guint32*)hash_info->dst_addr.data));
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             } else if (hash_info->dst_addr.type == AT_IPv6) {
                 ti = proto_tree_add_ipv6( socks_tree, hf_socks_ip6_dst, tvb,
                     offset, 0, (const ws_in6_addr *)hash_info->dst_addr.data);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
 
                 /* no fake address for ping & traceroute */
@@ -1140,7 +1140,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
             if (( hash_info->command != PING_COMMAND) &&
                 ( hash_info->command != TRACERT_COMMAND)){
                 ti = proto_tree_add_uint( socks_tree, hf_socks_dstport, tvb, offset, 0, hash_info->port);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
         } else {
             if (hash_info->server_port == pinfo->destport) {
@@ -1349,7 +1349,7 @@ proto_reg_handoff_socks(void) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

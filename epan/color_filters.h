@@ -20,6 +20,8 @@ extern "C" {
 
 struct epan_dissect;
 
+#define COLORFILTERS_FILE_NAME          "colorfilters"
+
 #define CONVERSATION_COLOR_PREFIX       "___conversation_color_filter___"
 /** @file
  *  Color filters.
@@ -32,13 +34,11 @@ typedef struct _color_filter {
     color_t    bg_color;            /* background color for packets that match */
     color_t    fg_color;            /* foreground color for packets that match */
     gboolean   disabled;            /* set if the filter is disabled */
-    gboolean   selected;            /* set if the filter is selected in the color dialog box. GTK+ only. */
 
                                     /* only used inside of color_filters.c */
     struct epan_dfilter *c_colorfilter;  /* compiled filter expression */
 
                                     /* only used outside of color_filters.c (beside init) */
-    void      *color_edit_dlg_info; /* if filter is being edited, ptr to req'd info. GTK+ only. */
 } color_filter_t;
 
 /** A color filter was added (while importing).
@@ -194,7 +194,7 @@ WS_DLL_PUBLIC void color_filter_list_delete(GSList **cfl);
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

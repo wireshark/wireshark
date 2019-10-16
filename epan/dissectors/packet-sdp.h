@@ -12,8 +12,11 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#ifndef __PACKET_SDP_H__
+#define __PACKET_SDP_H__
+
 typedef struct _sdp_packet_info {
-		gchar summary_str[50];		/* SDP summary string for VoIP calls graph analysis */
+        gchar summary_str[50];      /* SDP summary string for VoIP calls graph analysis */
 } sdp_packet_info;
 
 enum sdp_exchange_type
@@ -23,8 +26,35 @@ enum sdp_exchange_type
 	SDP_EXCHANGE_ANSWER_REJECT
 };
 
-extern void setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type type, int request_frame, const gboolean delay);
+enum sdp_trace_id_hf_type
+{
+    SDP_TRACE_ID_HF_TYPE_STR = 0, /* */
+    SDP_TRACE_ID_HF_TYPE_GUINT32 /* */
+};
+
+/*
+ *  Information needed to set up a trace id in RTP(t ex SIP CallId )
+ */
+#define SDP_INFO_OFFSET 10 /* Max number of SDP data occurensies in a single frame */
+
+typedef struct _sdp_conv_info {
+    wmem_array_t *sdp_setup_info_list;
+} sdp_conv_info_t;
+
+typedef struct _sdp_setup_info {
+    int  hf_id;                         /* Header field to use */
+    enum sdp_trace_id_hf_type hf_type;  /* Indicates which of the following variables to use( add guint32 etc as needed)*/
+    gboolean add_hidden;
+    union {
+        gchar  *str;                    /* The trace id if the hf_type is str */
+        guint32 num;                    /* Numerical trace id */
+    } trace_id;
+} sdp_setup_info_t;
+
+extern void setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type type, int request_frame, const gboolean delay, sdp_setup_info_t *setup_info);
 /* Handles duplicate OFFER packets so they don't end up processed by dissect_sdp().  This can probably
  * be removed when all higher layer dissectors properly handle SDP themselves with setup_sdp_transport()
  */
 extern void setup_sdp_transport_resend(int current_frame, int request_frame);
+
+#endif /* __PACKET_SDP_H__ */

@@ -1,0 +1,62 @@
+// WSUG Chapter Wireless
+
+[[ChWireless]]
+
+== Wireless
+
+[[ChWirelessIntroduction]]
+
+=== Introduction
+
+The Wireless menu provides access to statistics related to wireless traffic.
+
+[[ChWirelessBluetoothATTServerAttributes]]
+
+=== Bluetooth ATT Server Attributes
+
+{missing}
+
+[[ChWirelessBluetoothDevices]]
+
+=== Bluetooth Devices
+
+{missing}
+
+[[ChWirelessBluetoothHCISummary]]
+
+=== Bluetooth HCI Summary
+
+{missing}
+
+[[ChWirelessWLANTraffic]]
+
+=== WLAN Traffic
+
+Statistics about captured WLAN traffic. This can be found under the
+menu:Wireless[] menu and summarizes the wireless network traffic found
+in the capture. Probe requests will be merged into an existing network
+if the SSID matches.
+
+.The “WLAN Traffic Statistics” window
+image::wsug_graphics/ws-stats-wlan-traffic.png[{screenshot-attrs}]
+
+Each row in the list shows the statistical values for exactly one wireless
+network.
+
+_Name resolution_ will be done if selected in the window and if it is active for
+the MAC layer.
+
+_Only show existing networks_ will exclude probe requests with a SSID not
+matching any network from the list.
+
+The btn:[Copy] button will copy the list values to the clipboard in CSV (Comma
+Separated Values) format.
+
+
+[TIP]
+====
+This window will be updated frequently, so it will be useful, even if you open
+it before (or while) you are doing a live capture.
+====
+
+// End of WSUG Chapter Wireless

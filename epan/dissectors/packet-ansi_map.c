@@ -1179,7 +1179,7 @@ update_saved_invokedata(packet_info *pinfo, struct ansi_tcap_private_t *p_privat
     dst_str = address_to_str(wmem_packet_scope(), dst);
 
     /* Data from the TCAP dissector */
-    if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
+    if ((!pinfo->fd->visited)&&(p_private_tcap->TransactionID_str)){
         /* Only do this once XXX I hope it's the right thing to do */
         /* The hash string needs to contain src and dest to distiguish differnt flows */
         switch(ansi_map_response_matching_type){
@@ -9851,7 +9851,7 @@ dissect_ansi_map_QualificationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 static const ber_sequence_t QualificationRequestRes_U_set[] = {
   { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
-  { &hf_ansi_map_analogRedirectRecord, BER_CLASS_CON, 225, BER_FLAGS_IMPLTAG, dissect_ansi_map_AnalogRedirectRecord },
+  { &hf_ansi_map_analogRedirectRecord, BER_CLASS_CON, 225, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnalogRedirectRecord },
   { &hf_ansi_map_authorizationDenied, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthorizationDenied },
   { &hf_ansi_map_authorizationPeriod, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthorizationPeriod },
   { &hf_ansi_map_cdmaRedirectRecord, BER_CLASS_CON, 229, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMARedirectRecord },
@@ -10267,7 +10267,7 @@ static const ber_sequence_t RegistrationNotification_U_set[] = {
   { &hf_ansi_map_qualificationInformationCode, BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_ansi_map_QualificationInformationCode },
   { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
   { &hf_ansi_map_availabilityType, BER_CLASS_CON, 90, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AvailabilityType },
-  { &hf_ansi_map_borderCellAccess, BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BorderCellAccess },
+  { &hf_ansi_map_borderCellAccess, BER_CLASS_CON, 58, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BorderCellAccess },
   { &hf_ansi_map_cdmaNetworkIdentification, BER_CLASS_CON, 232, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMANetworkIdentification },
   { &hf_ansi_map_controlChannelData, BER_CLASS_CON, 55, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelData },
   { &hf_ansi_map_controlChannelMode, BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelMode },
@@ -16094,10 +16094,10 @@ static stat_tap_table_item stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "
         {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "  %d  "}, {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Total Bytes", "  %d  "},
         {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg Bytes", "  %8.2f  "}};
 
-static void ansi_map_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void ansi_map_stat_init(stat_tap_table_ui* new_stat)
 {
     int num_fields = sizeof(stat_fields)/sizeof(stat_tap_table_item);
-    stat_tap_table* table = stat_tap_init_table("ANSI MAP Operation Statistics", num_fields, 0, "ansi_map.op_code", gui_callback, gui_data);
+    stat_tap_table* table = stat_tap_init_table("ANSI MAP Operation Statistics", num_fields, 0, "ansi_map.op_code");
     int i = 0;
     stat_tap_table_item_type items[sizeof(stat_fields)/sizeof(stat_tap_table_item)];
 
@@ -16123,7 +16123,7 @@ static void ansi_map_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb
 }
 
 
-static gboolean
+static tap_packet_status
 ansi_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
 {
     stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -16134,7 +16134,7 @@ ansi_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
 
     /* Only tracking field values we know */
     if (try_val_to_str(data_p->message_type, ansi_map_opr_code_strings) == NULL)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
 
@@ -16152,7 +16152,7 @@ ansi_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
     item_data->value.float_value = (float)total_bytes/(float)count;
     stat_tap_set_field_data(table, data_p->message_type, AVG_BYTES_COLUMN, item_data);
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 static void
@@ -19549,7 +19549,7 @@ void proto_register_ansi_map(void) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

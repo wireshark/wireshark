@@ -8,7 +8,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "gsm_map_summary_dialog.h"
 #include <ui_gsm_map_summary_dialog.h>
@@ -106,8 +107,9 @@ QString GsmMapSummaryDialog::summaryToHtml()
         << table_row_end;
 
     QString format_str = wtap_file_type_subtype_string(summary.file_type);
-    if (summary.iscompressed) {
-        format_str.append(tr(" (gzip compressed)"));
+    const char *compression_type_description = wtap_compression_type_description(summary.compression_type);
+    if (compression_type_description != NULL) {
+        format_str += QString(" (%1)").arg(compression_type_description);
     }
     out << table_row_begin
         << table_vheader_tmpl.arg(tr("Format"))
@@ -335,7 +337,7 @@ gsm_map_summary_reset(void *tapdata)
 }
 
 
-static gboolean
+static tap_packet_status
 gsm_map_summary_packet(void *tapdata, packet_info *, epan_dissect_t *, const void *gmtr_ptr)
 {
     gsm_map_stat_t *gm_stat = (gsm_map_stat_t *)tapdata;
@@ -352,7 +354,7 @@ gsm_map_summary_packet(void *tapdata, packet_info *, epan_dissect_t *, const voi
         gm_stat->size_rr[gm_tap_rec->opcode] += gm_tap_rec->size;
     }
 
-    return(FALSE); /* We have no draw callback */
+    return(TAP_PACKET_DONT_REDRAW); /* We have no draw callback */
 }
 
 void
@@ -366,6 +368,7 @@ register_tap_listener_qt_gsm_map_summary(void)
     register_tap_listener("gsm_map", &gsm_map_stat, NULL, 0,
         gsm_map_summary_reset,
         gsm_map_summary_packet,
+        NULL,
         NULL);
 
     if (err_p != NULL)

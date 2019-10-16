@@ -13,6 +13,8 @@
 #include <QPainter>
 #include <QRegExp>
 
+#include <ui/qt/utils/color_utils.h>
+
 UrlLinkDelegate::UrlLinkDelegate(QObject *parent)
  : QStyledItemDelegate(parent),
    re_col_(-1),
@@ -44,7 +46,7 @@ void UrlLinkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     initStyleOption(&opt, index);
 
     opt.font.setUnderline(true);
-    opt.palette.setColor(QPalette::Text, opt.palette.link().color());
+    opt.palette.setColor(QPalette::Text, ColorUtils::themeLinkBrush().color());
 
     QStyledItemDelegate::paint(painter, opt, index);
 }

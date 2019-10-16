@@ -14,7 +14,7 @@
 
 /*
  * The LINUX_SLL_ values for "sll_protocol".
- * https://github.com/torvalds/linux/blob/master/include/uapi/linux/if_ether.h ?
+ * https://github.com/torvalds/linux/blob/master/include/uapi/linux/if_ether.h
  */
 #define LINUX_SLL_P_802_3	0x0001	/* Novell 802.3 frames without 802.2 LLC header */
 #define LINUX_SLL_P_ETHERNET	0x0003	/* Ethernet */
@@ -25,6 +25,5 @@
 #define LINUX_SLL_P_IRDA_LAP	0x0017	/* IrDA Link Access Protocol */
 #define LINUX_SLL_P_ISI		0x00F5  /* Intelligent Service Interface */
 #define LINUX_SLL_P_IEEE802154	0x00f6	/* 802.15.4 on monitor inteface */
-#define LINUX_SLL_P_NETLINK	0x0338	/* Netlink */
 
 #endif

@@ -32,7 +32,6 @@
 #include "packet-dvbci.h"
 #include "packet-mpeg-descriptor.h"
 #include "packet-mpeg-sect.h"
-#include "packet-mpeg-pmt.h"
 #include "packet-x509af.h"
 #include "packet-x509ce.h"
 #include "packet-ber.h"
@@ -1215,7 +1214,7 @@ static const value_string dvbci_cis_tpl_code[] = {
     { CISTPL_CFTABLE_ENTRY, "Configuration-table entry" },
     { CISTPL_DEVICE_OC, "Device information for Common Memory" },
     { CISTPL_DEVICE_OA, "Device information for Attribute Memory" },
-    { CISTPL_MANFID, "Manufacturer indentification string" },
+    { CISTPL_MANFID, "Manufacturer identification string" },
     { CISTPL_END, "End of chain" },
     { 0, NULL }
 };
@@ -1324,7 +1323,7 @@ static const value_string dvbci_res_class[] = {
 };
 static const value_string dvbci_app_type[] = {
     { APP_TYPE_CA,  "Conditional Access" },
-    { APP_TYPE_EPG, "Electronic Progam Guide" },
+    { APP_TYPE_EPG, "Electronic Program Guide" },
     { 0, NULL }
 };
 static const value_string dvbci_data_rate[] = {
@@ -1640,6 +1639,7 @@ static const value_string dvbci_sas_sess_state[] = {
     { 0, NULL }
 };
 
+extern value_string_ext mpeg_pmt_stream_type_vals_ext;
 
 static guint16 buf_size_cam;    /* buffer size proposal by the CAM */
 /* buffer size proposal by the host == negotiated buffer size */
@@ -4357,7 +4357,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* when a circuit is found, it always contains a valid resource id */
         res_id = GPOINTER_TO_UINT(conversation_get_proto_data(conv, proto_dvbci));
         res_id_it = dissect_res_id(NULL, 0, pinfo, sess_tree, res_id, TRUE);
-        PROTO_ITEM_SET_GENERATED(res_id_it);
+        proto_item_set_generated(res_id_it);
     }
 
     if (payload_tvb) {
@@ -6342,7 +6342,7 @@ proto_reg_handoff_dvbci(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -416,7 +416,7 @@ void lbm_topic_add(guint64 channel, guint32 topic_index, const char * name);
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

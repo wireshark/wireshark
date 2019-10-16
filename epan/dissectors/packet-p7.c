@@ -1605,17 +1605,17 @@ dissect_p7_INTEGER_1_ub_messages(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const asn_namedbit OverrideRestrictions_bits[] = {
-  {  0, &hf_p7_OverrideRestrictions_override_content_types_restriction, -1, -1, "override-content-types-restriction", NULL },
-  {  1, &hf_p7_OverrideRestrictions_override_EITs_restriction, -1, -1, "override-EITs-restriction", NULL },
-  {  2, &hf_p7_OverrideRestrictions_override_attribute_length_restriction, -1, -1, "override-attribute-length-restriction", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * OverrideRestrictions_bits[] = {
+  &hf_p7_OverrideRestrictions_override_content_types_restriction,
+  &hf_p7_OverrideRestrictions_override_EITs_restriction,
+  &hf_p7_OverrideRestrictions_override_attribute_length_restriction,
+  NULL
 };
 
 static int
 dissect_p7_OverrideRestrictions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                1, ub_ua_restrictions, OverrideRestrictions_bits, hf_index, ett_p7_OverrideRestrictions,
+                                                1, ub_ua_restrictions, OverrideRestrictions_bits, 3, hf_index, ett_p7_OverrideRestrictions,
                                                 NULL);
 
   return offset;
@@ -2331,20 +2331,20 @@ dissect_p7_MessageGroupRegistrations(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 }
 
 
-static const asn_namedbit T_registrations_bits[] = {
-  {  0, &hf_p7_T_registrations_auto_action_registrations, -1, -1, "auto-action-registrations", NULL },
-  {  1, &hf_p7_T_registrations_list_attribute_defaults, -1, -1, "list-attribute-defaults", NULL },
-  {  2, &hf_p7_T_registrations_fetch_attribute_defaults, -1, -1, "fetch-attribute-defaults", NULL },
-  {  3, &hf_p7_T_registrations_ua_registrations, -1, -1, "ua-registrations", NULL },
-  {  4, &hf_p7_T_registrations_submission_defaults, -1, -1, "submission-defaults", NULL },
-  {  5, &hf_p7_T_registrations_message_group_registrations, -1, -1, "message-group-registrations", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_registrations_bits[] = {
+  &hf_p7_T_registrations_auto_action_registrations,
+  &hf_p7_T_registrations_list_attribute_defaults,
+  &hf_p7_T_registrations_fetch_attribute_defaults,
+  &hf_p7_T_registrations_ua_registrations,
+  &hf_p7_T_registrations_submission_defaults,
+  &hf_p7_T_registrations_message_group_registrations,
+  NULL
 };
 
 static int
 dissect_p7_T_registrations(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_registrations_bits, hf_index, ett_p7_T_registrations,
+                                    T_registrations_bits, 6, hf_index, ett_p7_T_registrations,
                                     NULL);
 
   return offset;
@@ -2435,7 +2435,7 @@ dissect_p7_Register_MSArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_p7_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3384,17 +3384,17 @@ dissect_p7_ModifyErrorParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const asn_namedbit T_entry_class_problem_bits[] = {
-  {  0, &hf_p7_T_entry_class_problem_unsupported_entry_class, -1, -1, "unsupported-entry-class", NULL },
-  {  1, &hf_p7_T_entry_class_problem_entry_class_not_subscribed, -1, -1, "entry-class-not-subscribed", NULL },
-  {  2, &hf_p7_T_entry_class_problem_inappropriate_entry_class, -1, -1, "inappropriate-entry-class", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_entry_class_problem_bits[] = {
+  &hf_p7_T_entry_class_problem_unsupported_entry_class,
+  &hf_p7_T_entry_class_problem_entry_class_not_subscribed,
+  &hf_p7_T_entry_class_problem_inappropriate_entry_class,
+  NULL
 };
 
 static int
 dissect_p7_T_entry_class_problem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_entry_class_problem_bits, hf_index, ett_p7_T_entry_class_problem,
+                                    T_entry_class_problem_bits, 3, hf_index, ett_p7_T_entry_class_problem,
                                     NULL);
 
   return offset;
@@ -5608,51 +5608,51 @@ void proto_register_p7(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_p7_OverrideRestrictions_override_content_types_restriction,
-      { "override-content-types-restriction", "p7.override-content-types-restriction",
+      { "override-content-types-restriction", "p7.OverrideRestrictions.override.content.types.restriction",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p7_OverrideRestrictions_override_EITs_restriction,
-      { "override-EITs-restriction", "p7.override-EITs-restriction",
+      { "override-EITs-restriction", "p7.OverrideRestrictions.override.EITs.restriction",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p7_OverrideRestrictions_override_attribute_length_restriction,
-      { "override-attribute-length-restriction", "p7.override-attribute-length-restriction",
+      { "override-attribute-length-restriction", "p7.OverrideRestrictions.override.attribute.length.restriction",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_p7_T_registrations_auto_action_registrations,
-      { "auto-action-registrations", "p7.auto-action-registrations",
+      { "auto-action-registrations", "p7.T.registrations.auto.action.registrations",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p7_T_registrations_list_attribute_defaults,
-      { "list-attribute-defaults", "p7.list-attribute-defaults",
+      { "list-attribute-defaults", "p7.T.registrations.list.attribute.defaults",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p7_T_registrations_fetch_attribute_defaults,
-      { "fetch-attribute-defaults", "p7.fetch-attribute-defaults",
+      { "fetch-attribute-defaults", "p7.T.registrations.fetch.attribute.defaults",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_p7_T_registrations_ua_registrations,
-      { "ua-registrations", "p7.ua-registrations",
+      { "ua-registrations", "p7.T.registrations.ua.registrations",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_p7_T_registrations_submission_defaults,
-      { "submission-defaults", "p7.submission-defaults",
+      { "submission-defaults", "p7.T.registrations.submission.defaults",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_p7_T_registrations_message_group_registrations,
-      { "message-group-registrations", "p7.message-group-registrations",
+      { "message-group-registrations", "p7.T.registrations.message.group.registrations",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_p7_T_entry_class_problem_unsupported_entry_class,
-      { "unsupported-entry-class", "p7.unsupported-entry-class",
+      { "unsupported-entry-class", "p7.T.entry.class.problem.unsupported.entry.class",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p7_T_entry_class_problem_entry_class_not_subscribed,
-      { "entry-class-not-subscribed", "p7.entry-class-not-subscribed",
+      { "entry-class-not-subscribed", "p7.T.entry.class.problem.entry.class.not.subscribed",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_p7_T_entry_class_problem_inappropriate_entry_class,
-      { "inappropriate-entry-class", "p7.inappropriate-entry-class",
+      { "inappropriate-entry-class", "p7.T.entry.class.problem.inappropriate.entry.class",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
 

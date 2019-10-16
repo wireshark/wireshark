@@ -399,14 +399,14 @@ gboolean AirpcapGetMonitorMode(PAirpcapHandle AdapterHandle, gboolean * PMonitor
 
   the "link type" determines how the driver will encode the packets captured from the network.
   Aircap supports two link types:
-  - \ref AIRPCAP_LT_802_11, to capture 802.11 frames (including control frames) without any
+  - AIRPCAP_LT_802_11, to capture 802.11 frames (including control frames) without any
    power information. Look at the Capture_no_radio example application in the developer's pack
    for a reference on how to decode 802.11 frames with this link type.
-  - \ref AIRPCAP_LT_802_11_PLUS_RADIO, to capture 802.11 frames (including control frames) with a radiotap header
+  - AIRPCAP_LT_802_11_PLUS_RADIO, to capture 802.11 frames (including control frames) with a radiotap header
   that contains power and channel information. More information about the radiotap header can be found in the
   radiotap section. Moreover, the "Capture_radio" example application in
   the developer's pack can be used as a reference on how to decode 802.11 frames with radiotap headers.
-  - \ref AIRPCAP_LT_802_11_PLUS_PPI, to capture 802.11 frames (including control frames) with a Per Packet Information (PPI)
+  - AIRPCAP_LT_802_11_PLUS_PPI, to capture 802.11 frames (including control frames) with a Per Packet Information (PPI)
     header that contains per-packet meta information like channel and power information. More details on the PPI header can
     be found in the PPI online documentation (TODO).
 */
@@ -466,7 +466,7 @@ gboolean AirpcapGetFcsPresence(PAirpcapHandle AdapterHandle, gboolean * PIsFcsPr
   \param ValidationType The type of validation the driver will perform. See the documentation of \ref AirpcapValidationType for details.
   \return TRUE on success.
 
-  \note By default, the driver is configured in \ref AIRPCAP_VT_ACCEPT_EVERYTHING mode.
+  \note By default, the driver is configured in AIRPCAP_VT_ACCEPT_EVERYTHING mode.
 */
 gboolean AirpcapSetFcsValidation(PAirpcapHandle AdapterHandle, AirpcapValidationType ValidationType);
 
@@ -476,14 +476,14 @@ gboolean AirpcapSetFcsValidation(PAirpcapHandle AdapterHandle, AirpcapValidation
   \param ValidationType Pointer to a user supplied variable that will contain the type of validation the driver will perform. See the documentation of \ref AirpcapValidationType for details.
   \return TRUE if the operation is successful. FALSE otherwise.
 
-  \note By default, the driver is configured in \ref AIRPCAP_VT_ACCEPT_EVERYTHING mode.
+  \note By default, the driver is configured in AIRPCAP_VT_ACCEPT_EVERYTHING mode.
 */
 gboolean AirpcapGetFcsValidation(PAirpcapHandle AdapterHandle, PAirpcapValidationType ValidationType);
 
 /*!
   \brief Set the list of decryption keys that the driver is going to use with the specified device.
   \param AdapterHandle Handle an open adapter instance.
-  \param KeysCollection Pointer to a \ref PAirpcapKeysCollection structure that contains the keys to be set in the driver.
+  \param KeysCollection Pointer to a PAirpcapKeysCollection structure that contains the keys to be set in the driver.
   \return TRUE if the operation is successful. FALSE otherwise.
 
   The AirPcap driver is able to use a set of decryption keys to decrypt the traffic transmitted on a specific SSID. If one of the
@@ -532,7 +532,7 @@ gboolean AirpcapGetDeviceKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollecti
 /*!
   \brief Set the global list of decryption keys that the driver is going to use with all the devices.
   \param AdapterHandle Handle an open adapter instance.
-  \param KeysCollection Pointer to a \ref PAirpcapKeysCollection structure that contains the keys to be set in the driver.
+  \param KeysCollection Pointer to a PAirpcapKeysCollection structure that contains the keys to be set in the driver.
   \return TRUE if the operation is successful. FALSE otherwise.
 
   The AirPcap driver is able to use a set of decryption keys to decrypt the traffic transmitted on a specific SSID. If one of the
@@ -577,44 +577,44 @@ gboolean AirpcapGetDriverKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollecti
 /*!
   \brief Turns on or off the decryption of the incoming frames with the <b>adapter-specific</b> keys.
   \param AdapterHandle Handle to the adapter.
-  \param Enable Either \ref AIRPCAP_DECRYPTION_ON or \ref AIRPCAP_DECRYPTION_OFF
+  \param Enable Either AIRPCAP_DECRYPTION_ON or AIRPCAP_DECRYPTION_OFF
   \return TRUE on success.
 
   The adapter-specific decryption keys can be configured with the \ref AirpcapSetDeviceKeys() function.
-  \note By default, the driver is configured with \ref AIRPCAP_DECRYPTION_ON.
+  \note By default, the driver is configured with AIRPCAP_DECRYPTION_ON.
 */
 gboolean AirpcapSetDecryptionState(PAirpcapHandle AdapterHandle, AirpcapDecryptionState Enable);
 
 /*!
   \brief Tells if this open instance is configured to perform the decryption of the incoming frames with the <b>adapter-specific</b> keys.
   \param AdapterHandle Handle to the adapter.
-  \param PEnable Pointer to a user supplied variable that will contain the decryption configuration. See \ref PAirpcapDecryptionState for details.
+  \param PEnable Pointer to a user supplied variable that will contain the decryption configuration. See \ref _AirpcapDecryptionState for details.
   \return TRUE if the operation is successful. FALSE otherwise.
 
   The adapter-specific decryption keys can be configured with the \ref AirpcapSetDeviceKeys() function.
-  \note By default, the driver is configured with \ref AIRPCAP_DECRYPTION_ON.
+  \note By default, the driver is configured with AIRPCAP_DECRYPTION_ON.
 */
 gboolean AirpcapGetDecryptionState(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable);
 
 /*!
   \brief Turns on or off the decryption of the incoming frames with the <b>global driver</b> set of keys.
   \param AdapterHandle Handle to the adapter.
-  \param Enable Either \ref AIRPCAP_DECRYPTION_ON or \ref AIRPCAP_DECRYPTION_OFF
+  \param Enable Either AIRPCAP_DECRYPTION_ON or AIRPCAP_DECRYPTION_OFF
   \return TRUE on success.
 
   The global decryption keys can be configured with the \ref AirpcapSetDriverKeys() function.
-  \note By default, the driver is configured with \ref AIRPCAP_DECRYPTION_ON.
+  \note By default, the driver is configured with AIRPCAP_DECRYPTION_ON.
 */
 gboolean AirpcapSetDriverDecryptionState(PAirpcapHandle AdapterHandle, AirpcapDecryptionState Enable);
 
 /*!
   \brief Tells if this open instance is configured to perform the decryption of the incoming frames with the <b>global driver</b> set of keys.
   \param AdapterHandle Handle to the adapter.
-  \param PEnable Pointer to a user supplied variable that will contain the decryption configuration. See \ref PAirpcapDecryptionState for details.
+  \param PEnable Pointer to a user supplied variable that will contain the decryption configuration. See \ref _AirpcapDecryptionState for details.
   \return TRUE if the operation is successful. FALSE otherwise.
 
   The global decryption keys can be configured with the \ref AirpcapSetDriverKeys() function.
-  \note By default, the driver is configured with \ref AIRPCAP_DECRYPTION_ON.
+  \note By default, the driver is configured with AIRPCAP_DECRYPTION_ON.
 */
 gboolean AirpcapGetDriverDecryptionState(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable);
 

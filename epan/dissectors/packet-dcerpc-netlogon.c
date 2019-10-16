@@ -1329,8 +1329,6 @@ netlogon_dissect_AUTHENTICATOR(tvbuff_t *tvb, int offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, guint8 *drep)
 {
-    nstime_t ts;
-
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -1347,9 +1345,7 @@ netlogon_dissect_AUTHENTICATOR(tvbuff_t *tvb, int offset,
      * AUTHENTICATORs.
      */
     ALIGN_TO_4_BYTES;
-    ts.secs = tvb_get_letohl(tvb, offset);
-    ts.nsecs = 0;
-    proto_tree_add_time(tree, hf_netlogon_timestamp, tvb, offset, 4, &ts);
+    proto_tree_add_item(tree, hf_netlogon_timestamp, tvb, offset, 4, ENC_TIME_SECS|ENC_LITTLE_ENDIAN);
     offset+= 4;
 
     return offset;
@@ -8624,7 +8620,7 @@ proto_register_dcerpc_netlogon(void)
           { "Avoid replication account database", "ntlmssp.neg_flags.na1000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1000, NULL, HFILL }},
 
         { &hf_netlogon_neg_flags_800,
-          { "Concurent RPC", "ntlmssp.neg_flags.na800", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_800, NULL, HFILL }},
+          { "Concurrent RPC", "ntlmssp.neg_flags.na800", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_800, NULL, HFILL }},
 
         { &hf_netlogon_neg_flags_400,
           { "Generic pass-through", "ntlmssp.neg_flags.na400", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_400, NULL, HFILL }},
@@ -9305,7 +9301,7 @@ proto_reg_handoff_dcerpc_netlogon(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

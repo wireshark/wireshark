@@ -87,7 +87,7 @@ struct pcaprec_hdr {
  * PCAPNG_SWAPPED_MAGIC is a byte-swapped version of that.
  */
 #define PCAPNG_MAGIC         0x1A2B3C4D
-#define PCAPNG_SWAPPED_MAGIC 0xD4C3B2A1
+#define PCAPNG_SWAPPED_MAGIC 0x4D3C2B1A
 
 /* Currently we are only supporting the initial version of
    the file format. */
@@ -280,7 +280,7 @@ pcapng_write_block(FILE* pfile,
                    guint64 *bytes_written,
                    int *err)
 {
-    guint32 block_length, end_lenth;
+    guint32 block_length, end_length;
     /* Check
      * - length and data are aligned to 4 bytes
      * - block_total_length field is the same at the start and end of the block
@@ -290,18 +290,20 @@ pcapng_write_block(FILE* pfile,
      * us an implicit check of correctness without needing to do an endian swap
      */
     if (((length & 3) != 0) || (((gintptr)data & 3) != 0)) {
+        *err = EINVAL;
         return FALSE;
     }
-    memcpy(&block_length, data+sizeof(guint32), sizeof(guint32));
-    memcpy(&end_lenth, data+length-sizeof(guint32), sizeof(guint32));
-    if (block_length != end_lenth) {
+    block_length = *(const guint32 *) (data+sizeof(guint32));
+    end_length = *(const guint32 *) (data+length-sizeof(guint32));
+    if (block_length != end_length) {
+        *err = EBADMSG;
         return FALSE;
     }
     return write_to_file(pfile, data, length, bytes_written, err);
 }
 
 gboolean
-pcapng_write_session_header_block(FILE* pfile,
+pcapng_write_section_header_block(FILE* pfile,
                                   const char *comment,
                                   const char *hw,
                                   const char *os,
@@ -768,7 +770,7 @@ pcapng_write_interface_statistics_block(FILE* pfile,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

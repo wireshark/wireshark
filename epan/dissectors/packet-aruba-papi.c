@@ -399,6 +399,9 @@ static const value_string licmgr_type_vals[] = {
     { 14, "License AP Used" },
     { 15, "License xSec Used" },
     { 16, "License ACR Used" },
+    { 17, "License WebCC Key ?" },
+    { 18, "License WebCC Remaining ?" },
+    { 19, "License WebCC Used ?" },
     { 0,     NULL     }
 };
 static int
@@ -921,7 +924,7 @@ proto_reg_handoff_papi(void)
     dissector_add_uint_with_preference("udp.port", UDP_PORT_PAPI, papi_handle);
 }
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

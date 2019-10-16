@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __WS80211_UTILS_H__
 #define __WS80211_UTILS_H__
@@ -95,8 +96,8 @@ void ws80211_free_interfaces(GArray *interfaces);
  */
 int ws80211_set_freq(const char *name, guint32 freq, int chan_type, guint32 _U_ center_freq, guint32 _U_ center_freq2);
 
-int ws80211_str_to_chan_type(const gchar *s); /* GTK+ only? */
-const gchar *ws80211_chan_type_to_str(int type); /* GTK+ only? */
+int ws80211_str_to_chan_type(const gchar *s);
+const gchar *ws80211_chan_type_to_str(int type);
 
 /** Check to see if we have FCS filtering.
  *

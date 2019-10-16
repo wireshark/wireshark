@@ -251,7 +251,8 @@ dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree,
 			*(keypos + keylength) != '\\' &&
 			*(keypos + keylength) != '\0'
 			;
-			keylength++) ;
+			keylength++)
+		;
 		keyvaluesep = keypos + keylength;
 		if (*keyvaluesep == '\0') break;
 		valuepos = keyvaluesep+1;
@@ -260,7 +261,8 @@ dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree,
 			*(valuepos + valuelength) != '\\' &&
 			*(valuepos + valuelength) != '\0'
 			;
-			valuelength++) ;
+			valuelength++)
+		;
 		valueend = valuepos + valuelength;
 		if (*valueend == '\0') {
 			end_of_info = TRUE;
@@ -826,11 +828,12 @@ proto_reg_handoff_quakeworld(void)
 	dissector_handle_t quakeworld_handle;
 
 	quakeworld_handle = create_dissector_handle(dissect_quakeworld, proto_quakeworld);
-	dissector_add_uint("udp.port", PORT_MASTER, quakeworld_handle);
+	dissector_add_uint_with_preference("udp.port", PORT_MASTER, quakeworld_handle);
+        apply_quakeworld_prefs();
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

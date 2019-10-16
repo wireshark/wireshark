@@ -448,7 +448,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 /* TODO: This is command, but in respose (event Command Complete) there is a status for that,
          so write bdaddr can fail, but we store bdaddr as valid for now... */
-            if (!pinfo->fd->flags.visited && bluetooth_data) {
+            if (!pinfo->fd->visited && bluetooth_data) {
                 wmem_tree_key_t            key[4];
                 guint32                    frame_number;
                 localhost_bdaddr_entry_t   *localhost_bdaddr_entry;
@@ -1255,7 +1255,7 @@ proto_register_bthci_vendor_broadcom(void)
             NULL, HFILL }
         },
         { &hf_broadcom_sco_pcm_interface_clock_mode,
-            { "SCO PCM Interface Clock Mode",              "bthci_vendor.broadcom.sco.interface.",
+            { "SCO PCM Interface Clock Mode",              "bthci_vendor.broadcom.sco.interface.clock_mode",
             FT_UINT8, BASE_HEX, VALS(broadcom_mode_slave_master_vals), 0x0,
             NULL, HFILL }
         },
@@ -2902,7 +2902,7 @@ proto_reg_handoff_bthci_vendor_intel(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

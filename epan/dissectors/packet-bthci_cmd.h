@@ -33,6 +33,8 @@ extern value_string_ext bthci_cmd_eir_data_type_vals_ext;
 extern value_string_ext bthci_cmd_auth_req_vals_ext;
 extern value_string_ext bthci_cmd_appearance_vals_ext;
 extern value_string_ext bthci_cmd_le_phy_vals_ext;
+extern value_string_ext bthci_cmd_cte_type_vals_ext;
+extern value_string_ext bthci_cmd_slot_durations_vals_ext;
 
 extern const value_string bthci_cmd_io_capability_vals[];
 extern const value_string bthci_cmd_oob_data_present_vals[];
@@ -86,7 +88,7 @@ extern wmem_tree_t *bthci_cmds;
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

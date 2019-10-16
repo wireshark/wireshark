@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "wireless_frame.h"
 #include <ui_wireless_frame.h>
@@ -21,8 +22,10 @@
 #include "ui/ws_ui_util.h"
 #include <wsutil/utf8_entities.h>
 #include <wsutil/frequency-utils.h>
+#include "wireshark_application.h"
 
 #include <QProcess>
+#include <QAbstractItemView>
 
 // To do:
 // - Disable or hide invalid channel types.
@@ -40,7 +43,8 @@ WirelessFrame::WirelessFrame(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::WirelessFrame),
     interfaces_(NULL),
-    capture_in_progress_(false)
+    capture_in_progress_(false),
+    iface_timer_id_(-1)
 {
     ui->setupUi(this);
 
@@ -66,8 +70,9 @@ WirelessFrame::WirelessFrame(QWidget *parent) :
 
     ui->fcsFilterFrame->setVisible(ws80211_has_fcs_filter());
 
-    getInterfaceInfo();
-    iface_timer_id_ = startTimer(update_interval_);
+    updateInterfaceList();
+    connect(wsApp, &WiresharkApplication::localInterfaceEvent,
+            this, &WirelessFrame::handleInterfaceEvent);
 }
 
 WirelessFrame::~WirelessFrame()
@@ -82,27 +87,59 @@ void WirelessFrame::setCaptureInProgress(bool capture_in_progress)
     updateWidgets();
 }
 
-// Check to see if the ws80211 interface list matches the one in our
-// combobox. Rebuild ours if necessary and select the first interface if
-// the current selection goes away.
+
+int WirelessFrame::startTimer(int interval)
+{
+    if (iface_timer_id_ != -1) {
+        killTimer(iface_timer_id_);
+        iface_timer_id_ = -1;
+    }
+    iface_timer_id_ = QFrame::startTimer(interval);
+    return iface_timer_id_;
+}
+
+void WirelessFrame::handleInterfaceEvent(const char *ifname _U_, int added, int up _U_)
+{
+    if (!added) {
+        // Unfortunately when an interface removed event is received the network
+        // interface is still present for a while in the system.
+        // To overcome this update the interface list after a while.
+        startTimer(update_interval_);
+    } else {
+        updateInterfaceList();
+    }
+}
+
 void WirelessFrame::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() != iface_timer_id_) {
         QFrame::timerEvent(event);
         return;
     }
+    killTimer(iface_timer_id_);
+    iface_timer_id_ = -1;
+    updateInterfaceList();
+}
 
-    // Don't interfere with user activity.
-    if (ui->interfaceComboBox->view()->isVisible()
-        || ui->channelComboBox->view()->isVisible()
-        || ui->channelTypeComboBox->view()->isVisible()
-        || ui->fcsComboBox->view()->isVisible()) return;
-
+// Check to see if the ws80211 interface list matches the one in our
+// combobox. Rebuild ours if necessary and select the first interface if
+// the current selection goes away.
+void WirelessFrame::updateInterfaceList()
+{
     ws80211_free_interfaces(interfaces_);
     interfaces_ = ws80211_find_interfaces();
     const QString old_iface = ui->interfaceComboBox->currentText();
     guint iface_count = 0;
     bool list_changed = false;
+
+    // Don't interfere with user activity.
+    if (ui->interfaceComboBox->view()->isVisible()
+        || ui->channelComboBox->view()->isVisible()
+        || ui->channelTypeComboBox->view()->isVisible()
+        || ui->fcsComboBox->view()->isVisible()) {
+        startTimer(update_interval_);
+        return;
+    }
 
     if (interfaces_ && interfaces_->len > 0) {
         iface_count = interfaces_->len;

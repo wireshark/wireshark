@@ -1,0 +1,807 @@
+ANSI-Z39-50-ObjectIdentifier DEFINITIONS ::=
+BEGIN
+z39-50 OBJECT IDENTIFIER ::=
+{ iso (1) member-body (2) us (840) ansi-standard-Z39-50 (10003)}
+-- thus {Z39-50} is shorthand for {1 2 840 10003}
+Z39-50-APDU OBJECT IDENTIFIER ::= {Z39-50 2} -- See OID.3
+-- and {Z39-50 2} is shorthand for {1 2 840 10003 2} and so on.
+Z39-50-attributeSet OBJECT IDENTIFIER ::= {Z39-50 3} -- See Appendix ATR
+z39-50-diagnostic OBJECT IDENTIFIER ::= {z39-50 4} -- See Appendix DIAG
+z39-50-recordSyntax OBJECT IDENTIFIER ::= {z39-50 5} --See Appendix REC
+Z39-50-resourceReport OBJECT IDENTIFIER ::= {Z39-50 7} --See Appendix RSC
+Z39-50-accessControl OBJECT IDENTIFIER ::= {Z39-50 8} --See Appendix ACC
+Z39-50-extendedService OBJECT IDENTIFIER ::= {Z39-50 9} --See Appendix EXT
+Z39-50-userInfoFormat OBJECT IDENTIFIER ::= {Z39-50 10} --See Appendix USR
+Z39-50-elementSpec OBJECT IDENTIFIER ::= {Z39-50 11} --See Appendix ESP
+Z39-50-variantSet OBJECT IDENTIFIER ::= {Z39-50 12} --See Appendix VAR
+Z39-50-schema OBJECT IDENTIFIER ::= {Z39-50 13} --See Appendix TAG
+Z39-50-tagSet OBJECT IDENTIFIER ::= {Z39-50 14} --See Appendix TAG
+Z39-50-negotiation OBJECT IDENTIFIER ::= {Z39-50 15}
+Z39-50-query OBJECT IDENTIFIER ::= {Z39-50 16}
+END
+
+Z39-50-APDU-1995 
+   -- OID for this definition, assigned in OID.3.1, is {Z39-50 2 1} 
+
+DEFINITIONS ::=  
+BEGIN   -- Z39.50-1995 Maintenance Agency Official Text for ANSI/NISO Z39.50-1995 - July 1995
+--
+EXPORTS OtherInformation, Term,
+AttributeSetId, AttributeList,
+AttributeElement, ElementSetName, SortElement, DatabaseName, CompSpec,
+Specification, Permissions, InternationalString, IntUnit, Unit,
+StringOrNumeric, Query, Records, ResultSetId, DefaultDiagFormat, DiagRec;
+--
+PDU ::= CHOICE{
+ initRequest                       [20] IMPLICIT InitializeRequest,
+ initResponse                      [21] IMPLICIT InitializeResponse,
+ searchRequest                     [22] IMPLICIT SearchRequest,
+ searchResponse                    [23] IMPLICIT SearchResponse,
+ presentRequest                    [24] IMPLICIT PresentRequest,
+ presentResponse                   [25] IMPLICIT PresentResponse,
+ deleteResultSetRequest            [26] IMPLICIT DeleteResultSetRequest,
+ deleteResultSetResponse           [27] IMPLICIT DeleteResultSetResponse,
+ accessControlRequest              [28] IMPLICIT AccessControlRequest,
+ accessControlResponse             [29] IMPLICIT AccessControlResponse,
+ resourceControlRequest            [30] IMPLICIT ResourceControlRequest,
+ resourceControlResponse           [31] IMPLICIT ResourceControlResponse,
+ triggerResourceControlRequest     [32] IMPLICIT TriggerResourceControlRequest,
+ resourceReportRequest             [33] IMPLICIT ResourceReportRequest,
+ resourceReportResponse            [34] IMPLICIT ResourceReportResponse,
+ scanRequest                       [35] IMPLICIT ScanRequest,
+ scanResponse                      [36] IMPLICIT ScanResponse,
+                                       -- [37] through [42] reserved
+ sortRequest                       [43] IMPLICIT SortRequest,
+ sortResponse                      [44] IMPLICIT SortResponse,
+ segmentRequest                    [45] IMPLICIT Segment,
+ extendedServicesRequest           [46] IMPLICIT ExtendedServicesRequest,
+ extendedServicesResponse          [47] IMPLICIT ExtendedServicesResponse,
+ close                             [48] IMPLICIT Close}
+
+-- Initialize APDUs
+--
+
+  InitializeRequest ::= SEQUENCE{
+   referenceId                     ReferenceId OPTIONAL,
+   protocolVersion                 ProtocolVersion,
+   options                         Options,
+   preferredMessageSize      [5]   IMPLICIT INTEGER,
+   exceptionalRecordSize     [6]   IMPLICIT INTEGER,
+-- idAuthentication          [7]   ANY OPTIONAL, see note below
+   idAuthentication [7] CHOICE{
+      open    VisibleString,
+      idPass  SEQUENCE {
+                 groupId   [0]   IMPLICIT InternationalString OPTIONAL,
+                 userId    [1]   IMPLICIT InternationalString OPTIONAL,
+                 password  [2]   IMPLICIT InternationalString OPTIONAL },
+      anonymous                  NULL,
+      other                      EXTERNAL} OPTIONAL,
+   implementationId          [110] IMPLICIT InternationalString OPTIONAL,
+   implementationName        [111] IMPLICIT InternationalString OPTIONAL,
+   implementationVersion     [112] IMPLICIT InternationalString OPTIONAL,        
+   userInformationField      [11]  EXTERNAL OPTIONAL,
+   otherInfo                       OtherInformation OPTIONAL}
+--Note:
+-- For idAuthentication, the type ANY is retained 
+-- for compatibility with earlier versions. 
+-- For interoperability, the following is recommended:
+--   IdAuthentication [7] CHOICE{
+--      open    VisibleString,
+--      idPass  SEQUENCE {
+--                 groupId   [0]   IMPLICIT InternationalString OPTIONAL,
+--                 userId    [1]   IMPLICIT InternationalString OPTIONAL,
+--                 password  [2]   IMPLICIT InternationalString OPTIONAL },
+--      anonymous                  NULL,
+--      other                      EXTERNAL    
+-- May use access control formats for 'other'.  See Appendix 7 ACC.
+--
+  InitializeResponse ::= SEQUENCE{
+   referenceId                     ReferenceId OPTIONAL,
+   protocolVersion                 ProtocolVersion,
+   options                         Options,
+   preferredMessageSize      [5]   IMPLICIT INTEGER,
+   exceptionalRecordSize     [6]   IMPLICIT INTEGER,
+   result                    [12]  IMPLICIT BOOLEAN, 
+                                    -- relect = FALSE; Accept = TRUE 
+   implementationId          [110] IMPLICIT InternationalString OPTIONAL,
+   implementationName        [111] IMPLICIT InternationalString OPTIONAL,
+   implementationVersion     [112] IMPLICIT InternationalString OPTIONAL,        
+   userInformationField      [11]  EXTERNAL OPTIONAL,
+   otherInfo                       OtherInformation OPTIONAL}
+-- Begin auxiliary definitions for Init PDUs
+  ProtocolVersion  ::=       [3]   IMPLICIT BIT STRING{
+                                   version-1           (0),   
+                                -- This bit should always be set, but does not
+                                -- correspond to any Z39.50 version.
+      version-2              (1),  
+                                -- "Version 2 supported."
+                                -- This bit should always be set.
+      version-3              (2)   
+                                -- "Version 3 supported."
+-- Values higher than 'version-3' should be ignored. Both the Initialize
+-- request and Initialize Response APDUs include a value string corresponding
+-- to the supported versions. The highest common version is selected
+-- for use. If there are no versions in common, "Result" in the Init Response
+-- should indicate "reject."
+-- Note: Versions 1 and 2 are identical. Systems supporting version 2 should
+-- indicate support for version 1 as well, for interoperability with systems
+-- that indicate support for version 1 only (e.g. ISO 10163-1991
+-- implementations).  
+   }
+  Options  ::= [4] IMPLICIT BIT STRING{ 
+         search                 (0), 
+         present                (1), 
+         delSet                 (2),
+         resourceReport         (3),
+         triggerResourceCtrl    (4),
+         resourceCtrl           (5), 
+         accessCtrl             (6),
+         scan                   (7),
+         sort                   (8), 
+         --                     (9) (reserved)
+         extendedServices       (10),
+         level-1Segmentation    (11),
+         level-2Segmentation    (12),
+         concurrentOperations   (13),
+         namedResultSets        (14)}
+-- end auxiliary definitions for Init PDUs
+
+
+--Search APDUs
+  SearchRequest ::= SEQUENCE{
+   referenceId               ReferenceId OPTIONAL,
+   smallSetUpperBound           [13]   IMPLICIT INTEGER,
+   largeSetLowerBound           [14]   IMPLICIT INTEGER,
+   mediumSetPresentNumber       [15]   IMPLICIT INTEGER,
+   replaceIndicator             [16]   IMPLICIT BOOLEAN,
+   resultSetName                [17]   IMPLICIT InternationalString,
+   databaseNames                [18]   IMPLICIT SEQUENCE OF DatabaseName,
+   smallSetElementSetNames      [100]  ElementSetNames OPTIONAL,
+   mediumSetElementSetNames     [101]  ElementSetNames OPTIONAL,
+   preferredRecordSyntax        [104]  IMPLICIT OBJECT IDENTIFIER OPTIONAL,
+   query                        [21]   Query,
+      -- Following two parameters may be used only if version 3 is in force.
+   additionalSearchInfo         [203]  IMPLICIT OtherInformation OPTIONAL,
+   otherInfo                           OtherInformation OPTIONAL}
+
+
+-- Query Definitions
+   Query  ::=   CHOICE{
+         type-0    [0]    ANY,  
+         type-1    [1]    IMPLICIT RPNQuery,
+         type-2    [2]    OCTET STRING,
+         type-100  [100]  OCTET STRING,
+         type-101  [101]  IMPLICIT RPNQuery,
+         type-102  [102]  OCTET STRING}
+--
+-- Definitions for RPN query
+      RPNQuery ::= SEQUENCE{
+         attributeSet        AttributeSetId,
+         rpn                 RPNStructure}
+--
+  RPNStructure ::= CHOICE{
+      op        [0] Operand, 
+      rpnRpnOp  [1] IMPLICIT SEQUENCE{
+                      rpn1      RPNStructure,
+                      rpn2      RPNStructure,
+                      op        Operator }} 
+   Operand ::= CHOICE{
+      attrTerm  AttributesPlusTerm, 
+      resultSet    ResultSetId, 
+             -- If version 2 is in force: 
+             --   - If query type is 1, one of the above two must be chosen; 
+             --   - resultAttr (below) may be used only if query type is 101. 
+      resultAttr   ResultSetPlusAttributes}
+
+   AttributesPlusTerm ::= [102] IMPLICIT SEQUENCE{
+             attributes   AttributeList, 
+             term         Term}
+
+   ResultSetPlusAttributes ::= [214] IMPLICIT
+SEQUENCE{
+             resultSet    ResultSetId,
+             attributes   AttributeList}
+
+   AttributeList ::=      [44]  IMPLICIT SEQUENCE OF AttributeElement
+--
+   Term ::= CHOICE{
+      general      [45]   IMPLICIT OCTET STRING,
+                   -- values below may be used only if version 3 is in force
+      numeric             [215] IMPLICIT INTEGER,
+      characterString     [216] IMPLICIT InternationalString,
+      oid                 [217] IMPLICIT OBJECT IDENTIFIER,
+      dateTime            [218] IMPLICIT GeneralizedTime,
+      external            [219] IMPLICIT EXTERNAL,
+      integerAndUnit      [220] IMPLICIT IntUnit,
+      null                [221] IMPLICIT NULL}   
+
+   Operator ::= [46] CHOICE{
+              and     [0] IMPLICIT NULL,
+              or      [1] IMPLICIT NULL,
+              and-not [2] IMPLICIT NULL,
+                          -- If version 2 is in force: 
+                          --    -  For query type 1, one of the above three
+                          --       must be chosen;
+                          --  -    prox (below) may be used only if query type
+                          --       is 101. 
+             prox     [3] IMPLICIT ProximityOperator}
+
+   AttributeElement  ::=  SEQUENCE{
+      attributeSet    [1]       IMPLICIT AttributeSetId OPTIONAL,
+                          -- Must be omitted if version 2 is in force.
+                          -- If included, overrides value of attributeSet
+                          -- in RPNQuery above, but only for this attribute.
+      attributeType   [120]  IMPLICIT INTEGER,
+      attributeValue      CHOICE{
+                     numeric    [121]   IMPLICIT INTEGER,
+                             -- If version 2 is in force, 
+                             -- Must select 'numeric' for attributeValue.
+
+        complex    [224] IMPLICIT SEQUENCE{ 
+                          list     [1] IMPLICIT SEQUENCE OF StringOrNumeric,
+                   semanticAction  [2] IMPLICIT SEQUENCE OF INTEGER OPTIONAL}}}
+                                    
+
+   ProximityOperator ::= SEQUENCE{
+      exclusion           [1] IMPLICIT BOOLEAN OPTIONAL,
+      distance            [2] IMPLICIT INTEGER,
+      ordered             [3] IMPLICIT BOOLEAN,
+      relationType        [4] IMPLICIT INTEGER{
+                             lessThan               (1),
+                             lessThanOrEqual        (2),
+                             equal                  (3),
+                             greaterThanOrEqual     (4),
+                             greaterThan            (5),
+                             notEqual               (6)},
+      proximityUnitCode   [5] CHOICE{
+                                known     [1] IMPLICIT KnownProximityUnit,
+                                private   [2] IMPLICIT INTEGER}}
+--
+    KnownProximityUnit ::= INTEGER{
+                character    (1),
+                word         (2),
+                sentence     (3),
+                paragraph    (4),
+                section      (5),
+                chapter      (6),
+                document     (7),
+                element      (8),
+                subelement   (9),
+                elementType  (10),
+                byte         (11) -- Version 3 only
+                }
+-- End definitions for RPN Query
+
+
+SearchResponse ::= SEQUENCE{
+   referenceId                     ReferenceId OPTIONAL,
+   resultCount               [23]  IMPLICIT INTEGER,
+   numberOfRecordsReturned   [24]  IMPLICIT INTEGER,
+   nextResultSetPosition     [25]  IMPLICIT INTEGER,
+   searchStatus              [22]  IMPLICIT BOOLEAN,
+   resultSetStatus           [26]  IMPLICIT INTEGER{
+                                       subset   (1),
+                                       interim  (2), 
+                                       none     (3)} OPTIONAL,
+   presentStatus                   PresentStatus  OPTIONAL,
+   records                         Records OPTIONAL,
+      -- Following two parameters may be used only if version 3 is in force.
+   additionalSearchInfo      [203] IMPLICIT OtherInformation OPTIONAL,
+   otherInfo                       OtherInformation OPTIONAL}
+
+
+
+--Retrieval APDUs 
+  PresentRequest ::= SEQUENCE{
+   referenceId                         ReferenceId OPTIONAL,
+      resultSetId                      ResultSetId,
+   resultSetStartPoint          [30]   IMPLICIT INTEGER,
+   numberOfRecordsRequested     [29]   IMPLICIT INTEGER,
+   additionalRanges             [212]  IMPLICIT SEQUENCE OF Range OPTIONAL,
+         -- additionalRanges may be included only if version 3 is in force.
+   recordComposition            CHOICE{
+                                   simple    [19]   ElementSetNames,
+                                          -- must choose 'simple' if version 2
+                                          -- is in force
+                                   complex   [209]  IMPLICIT CompSpec}
+OPTIONAL,
+   preferredRecordSyntax     [104] IMPLICIT OBJECT IDENTIFIER OPTIONAL,
+   maxSegmentCount           [204] IMPLICIT INTEGER OPTIONAL, -- level 1 or 2
+   maxRecordSize             [206] IMPLICIT INTEGER OPTIONAL, -- level 2 only
+   maxSegmentSize            [207] IMPLICIT INTEGER OPTIONAL, -- level 2 only
+   otherInfo                       OtherInformation OPTIONAL}
+--
+
+  Segment ::= SEQUENCE{
+         -- Segment PDU may only be used when version 3 is in force, 
+         -- and only when segmentation is in effect.
+   referenceId                         ReferenceId OPTIONAL,
+   numberOfRecordsReturned      [24]   IMPLICIT INTEGER,
+   segmentRecords               [0]    IMPLICIT SEQUENCE OF NamePlusRecord,
+   otherInfo                           OtherInformation OPTIONAL}
+--
+  PresentResponse ::= SEQUENCE{
+   referenceId                     ReferenceId OPTIONAL,
+   numberOfRecordsReturned   [24]  IMPLICIT INTEGER,
+   nextResultSetPosition     [25]  IMPLICIT INTEGER,
+   presentStatus                   PresentStatus,
+   records                         Records OPTIONAL,
+   otherInfo                       OtherInformation OPTIONAL} 
+-- begin auxiliary definitions for Search and Present APDUs
+
+-- begin definition of records
+  Records ::= CHOICE{
+   responseRecords              [28]   IMPLICIT SEQUENCE OF NamePlusRecord,
+   nonSurrogateDiagnostic       [130]  IMPLICIT DefaultDiagFormat,
+   multipleNonSurDiagnostics    [205]  IMPLICIT SEQUENCE OF DiagRec} 
+--
+  NamePlusRecord  ::=  SEQUENCE{
+   name      [0] IMPLICIT DatabaseName OPTIONAL,
+   record    [1] CHOICE{
+             retrievalRecord           [1] EXTERNAL,
+             surrogateDiagnostic       [2] DiagRec, 
+                -- Must select one of the above two, retrievalRecord or
+                -- surrogateDiagnostic, unless 'level 2 segmentation' 
+                -- is in effect.
+             startingFragment      [3] FragmentSyntax,
+             intermediateFragment  [4] FragmentSyntax,
+             finalFragment         [5] FragmentSyntax}}
+
+   FragmentSyntax ::= CHOICE{
+      externallyTagged       EXTERNAL,
+      notExternallyTagged    OCTET STRING}
+
+  DiagRec ::= CHOICE{
+         defaultFormat       DefaultDiagFormat,
+                      -- Must choose defaultFormat if version 2 is in effect.
+         externallyDefined      EXTERNAL}
+
+   DefaultDiagFormat::= SEQUENCE{ 
+      diagnosticSetId        OBJECT IDENTIFIER,
+      condition              INTEGER,
+      addinfo                CHOICE{
+                                v2Addinfo    VisibleString,         -- version 2
+                                v3Addinfo    InternationalString    -- version 3
+                     }}
+  -- end definition of records
+
+   Range  ::= SEQUENCE{
+      startingPosition       [1] IMPLICIT INTEGER,
+      numberOfRecords        [2] IMPLICIT INTEGER} 
+--
+   ElementSetNames ::= CHOICE {
+      genericElementSetName     [0] IMPLICIT InternationalString,
+      databaseSpecific          [1] IMPLICIT SEQUENCE OF SEQUENCE{
+                                       dbName   DatabaseName,
+                                       esn      ElementSetName}}
+
+
+   PresentStatus   ::=    [27]  IMPLICIT INTEGER{
+                                   success      (0),
+                                   partial-1    (1),
+                                   partial-2    (2),
+                                   partial-3    (3),
+                                   partial-4    (4),
+                                   failure      (5)}
+
+-- begin definition of composition specification
+  CompSpec ::= SEQUENCE{
+   selectAlternativeSyntax   [1] IMPLICIT BOOLEAN,
+                                   -- See comment for recordSyntax, below.
+   generic                   [2] IMPLICIT Specification OPTIONAL,
+   dbSpecific                [3] IMPLICIT SEQUENCE OF SEQUENCE{
+                                   db  [1] DatabaseName,
+                                   spec   [2] IMPLICIT Specification} OPTIONAL,
+                                -- At least one of generic and dbSpecific must
+                                -- occur, and both may occur. If both, then for
+                                -- any record not in the list of databases
+                                -- within dbSpecific, generic applies.
+   recordSyntax              [4] IMPLICIT SEQUENCE OF OBJECT IDENTIFIER OPTIONAL
+                                -- For each record, the target selects the
+                                -- first record syntax in this list that it can
+                                -- support.  If the list is exhausted, the
+                                -- target may select an alternative syntax if
+                                -- selectAlternativeSyntax is 'true'.
+             }
+
+  Specification ::= SEQUENCE{
+   schema          [1] IMPLICIT OBJECT IDENTIFIER OPTIONAL,
+   elementSpec     [2] CHOICE{
+                      elementSetName   [1] IMPLICIT InternationalString,
+                      externalEspec    [2] IMPLICIT EXTERNAL} OPTIONAL}
+-- end definition of composition specification
+-- end auxiliary definitions for search and response APDUs
+
+-- Delete APDUs
+  DeleteResultSetRequest ::= SEQUENCE{
+   referenceId               ReferenceId OPTIONAL,
+   deleteFunction     [32]   IMPLICIT INTEGER{
+                                   list   (0),
+                                   all    (1)},
+   resultSetList             SEQUENCE OF ResultSetId OPTIONAL,
+   otherInfo                 OtherInformation OPTIONAL} 
+--
+  DeleteResultSetResponse ::= SEQUENCE{
+   referenceId                     ReferenceId OPTIONAL,
+   deleteOperationStatus     [0]   IMPLICIT DeleteSetStatus,
+   deleteListStatuses        [1]   IMPLICIT ListStatuses OPTIONAL,
+   numberNotDeleted          [34]  IMPLICIT INTEGER OPTIONAL,
+      bulkStatuses           [35]  IMPLICIT ListStatuses OPTIONAL,
+   deleteMessage             [36]  IMPLICIT InternationalString OPTIONAL,
+   otherInfo                       OtherInformation OPTIONAL}
+
+   ListStatuses ::= SEQUENCE OF SEQUENCE{ 
+             id       ResultSetId, 
+             status   DeleteSetStatus}
+
+   DeleteSetStatus ::= [33] IMPLICIT INTEGER{
+                          success                             (0),
+                          resultSetDidNotExist                (1),
+                          previouslyDeletedByTarget           (2),
+                          systemProblemAtTarget               (3),
+                          accessNotAllowed                    (4),
+                          resourceControlAtOrigin             (5),
+                          resourceControlAtTarget             (6),
+                          bulkDeleteNotSupported              (7),
+                          notAllRsltSetsDeletedOnBulkDlte     (8),
+                          notAllRequestedResultSetsDeleted    (9),
+                          resultSetInUse                      (10)}
+--
+
+--Access- and Resource-control APDUs
+--
+  AccessControlRequest ::= SEQUENCE{
+   referenceId            ReferenceId OPTIONAL,
+   securityChallenge      CHOICE{
+                             simpleForm         [37] IMPLICIT OCTET STRING,
+                             externallyDefined  [0]  EXTERNAL},
+   otherInfo              OtherInformation OPTIONAL}
+
+  AccessControlResponse ::= SEQUENCE{
+   referenceId                     ReferenceId OPTIONAL,
+   securityChallengeResponse           CHOICE{
+                                          simpleForm          [38]  IMPLICIT 
+                                                                    OCTET STRING,
+                                          externallyDefined   [0]   EXTERNAL}
+                                                                    OPTIONAL,
+                                   -- Optional only in version 3; mandatory in
+                                   -- version 2. If omitted (in version 3) then
+                                   -- diagnostic must occur.
+   diagnostic                [223] DiagRec OPTIONAL, -- Version 3 only.
+   otherInfo                       OtherInformation OPTIONAL}
+
+
+
+  ResourceControlRequest ::= SEQUENCE{
+   referenceId                     ReferenceId OPTIONAL,
+   suspendedFlag             [39]  IMPLICIT BOOLEAN OPTIONAL,
+   resourceReport            [40]  ResourceReport OPTIONAL,
+   partialResultsAvailable   [41]  IMPLICIT INTEGER{
+                                       subset   (1),
+                                       interim  (2),
+                                       none     (3)} OPTIONAL,
+   responseRequired          [42]  IMPLICIT BOOLEAN, 
+   triggeredRequestFlag      [43]  IMPLICIT BOOLEAN OPTIONAL,
+   otherInfo                       OtherInformation OPTIONAL}
+
+
+  ResourceControlResponse ::= SEQUENCE{
+   referenceId                     ReferenceId OPTIONAL,
+   continueFlag              [44]  IMPLICIT BOOLEAN, 
+   resultSetWanted           [45]  IMPLICIT BOOLEAN OPTIONAL,
+   otherInfo                       OtherInformation OPTIONAL}
+
+
+
+  TriggerResourceControlRequest ::=
+SEQUENCE{
+   referenceId                         ReferenceId OPTIONAL,
+   requestedAction              [46]   IMPLICIT INTEGER{
+                                          resourceReport      (1),
+                                          resourceControl     (2),
+                                          cancel              (3)}, 
+   prefResourceReportFormat     [47]   IMPLICIT ResourceReportId OPTIONAL,
+   resultSetWanted              [48]   IMPLICIT BOOLEAN OPTIONAL,
+   otherInfo                           OtherInformation OPTIONAL}
+
+
+
+  ResourceReportRequest ::= SEQUENCE{
+   referenceId                         ReferenceId OPTIONAL,
+   opId                         [210]  IMPLICIT ReferenceId OPTIONAL,
+   prefResourceReportFormat     [49]   IMPLICIT ResourceReportId OPTIONAL,
+   otherInfo                           OtherInformation OPTIONAL}
+--
+  ResourceReportResponse ::= SEQUENCE{
+   referenceId                  ReferenceId OPTIONAL,
+   resourceReportStatus   [50]  IMPLICIT INTEGER{
+                                   success          (0),
+                                   partial          (1),
+                                   failure-1        (2),
+                                   failure-2        (3),
+                                   failure-3        (4),
+                                   failure-4        (5),
+                                   failure-5        (6),
+                                   failure-6        (7)},
+   resourceReport         [51]  ResourceReport OPTIONAL,
+   otherInfo                    OtherInformation OPTIONAL}
+--
+   ResourceReport         ::=   EXTERNAL
+   ResourceReportId       ::=   OBJECT IDENTIFIER
+
+--Scan APDUs
+  ScanRequest ::= SEQUENCE{
+   referenceId                            ReferenceId OPTIONAL,
+   databaseNames                   [3]    IMPLICIT SEQUENCE OF DatabaseName,
+   attributeSet                           AttributeSetId OPTIONAL,
+   termListAndStartPoint                  AttributesPlusTerm,
+   stepSize                        [5]    IMPLICIT INTEGER OPTIONAL,
+   numberOfTermsRequested          [6]    IMPLICIT INTEGER,
+   preferredPositionInResponse     [7]    IMPLICIT INTEGER OPTIONAL,
+   otherInfo                              OtherInformation OPTIONAL}
+
+  ScanResponse ::= SEQUENCE{
+   referenceId                         ReferenceId OPTIONAL,
+   stepSize                     [3]    IMPLICIT INTEGER OPTIONAL,
+   scanStatus                   [4]    IMPLICIT INTEGER {
+                                       success  (0),
+                                       partial-1    (1),
+                                       partial-2    (2),
+                                       partial-3    (3),
+                                       partial-4    (4),
+                                       partial-5    (5),
+                                       failure  (6) },
+   numberOfEntriesReturned      [5]    IMPLICIT INTEGER,
+   positionOfTerm               [6]    IMPLICIT INTEGER OPTIONAL,
+   entries                      [7]    IMPLICIT ListEntries OPTIONAL,  
+   attributeSet                 [8]    IMPLICIT AttributeSetId OPTIONAL,
+   otherInfo                           OtherInformation OPTIONAL}
+
+
+-- begin auxiliary definitions for Scan
+  ListEntries ::= SEQUENCE{
+   entries                   [1]   IMPLICIT SEQUENCE OF Entry OPTIONAL,
+   nonsurrogateDiagnostics   [2]   IMPLICIT SEQUENCE OF DiagRec OPTIONAL
+      -- At least one of entries and nonsurrogateDiagnostic must occur
+                }
+
+  Entry  ::= CHOICE {
+   termInfo                  [1]   IMPLICIT TermInfo,
+   surrogateDiagnostic       [2]   DiagRec}
+--
+  TermInfo ::= SEQUENCE {
+   term                            Term,
+   displayTerm        [0]    IMPLICIT InternationalString OPTIONAL,
+                                -- Presence of displayTerm means that term is
+                                -- not considered by the target to be suitable
+                                -- for display, and displayTerm should instead
+                                -- be displayed. 'term' is the actual term in
+                                -- the term list; 'displayTerm' is for display
+                                -- purposes only, and is not an actual term in
+                                -- the term list.
+   suggestedAttributes          AttributeList OPTIONAL,
+   alternativeTerm        [4]   IMPLICIT SEQUENCE OF AttributesPlusTerm OPTIONAL,
+   globalOccurrences      [2]   IMPLICIT INTEGER OPTIONAL,
+   byAttributes           [3]   IMPLICIT OccurrenceByAttributes OPTIONAL,
+   otherTermInfo                OtherInformation OPTIONAL} 
+
+  OccurrenceByAttributes ::= SEQUENCE OF
+SEQUENCE{
+      attributes      [1]    AttributeList, 
+      occurrences            CHOICE{
+                                global       [2]    INTEGER,
+                                byDatabase   [3]    IMPLICIT SEQUENCE OF
+                                                     SEQUENCE{ 
+                                                       db           DatabaseName,
+                                                       num    [1]   IMPLICIT INTEGER OPTIONAL,
+                                otherDbInfo         OtherInformation OPTIONAL}}
+                                                                     OPTIONAL,
+                                otherOccurInfo      OtherInformation OPTIONAL} 
+-- end auxiliary definitions for Scan
+
+-- Sort APDUs
+SortRequest  ::= SEQUENCE{
+   referenceId                  ReferenceId OPTIONAL,
+   inputResultSetNames    [3]   IMPLICIT SEQUENCE OF InternationalString,
+   sortedResultSetName    [4]   IMPLICIT InternationalString,
+   sortSequence           [5]   IMPLICIT SEQUENCE OF SortKeySpec,
+                                   -- order of occurrence is 
+                                   -- from major to minor
+   otherInfo                    OtherInformation OPTIONAL}
+
+SortResponse  ::= SEQUENCE{
+   referenceId                  ReferenceId OPTIONAL,
+   sortStatus             [3]   IMPLICIT INTEGER{
+                                   success   (0), 
+                                   partial-1    (1),
+                                   failure   (2)},
+   resultSetStatus        [4]   IMPLICIT INTEGER{
+                                   empty        (1), 
+                                   interim      (2), 
+                                   unchanged    (3),
+                                   none         (4)} OPTIONAL,
+   diagnostics            [5]   IMPLICIT SEQUENCE OF DiagRec OPTIONAL,
+   otherInfo                    OtherInformation OPTIONAL}
+
+-- begin auxiliary definitions for Sort
+   SortKeySpec ::= SEQUENCE{
+     sortElement                   SortElement, 
+        sortRelation         [1]   IMPLICIT INTEGER{
+                                       ascending                 (0),
+                                       descending                (1),
+                                       ascendingByFrequency      (3),
+                                       descendingByfrequency     (4)},
+     caseSensitivity         [2]   IMPLICIT INTEGER{
+                                       caseSensitive          (0), 
+                                       caseInsensitive        (1)},
+      missingValueAction     [3]   CHOICE{
+                                       abort              [1] IMPLICIT NULL,
+                                       null               [2] IMPLICIT NULL,
+                                                          -- supply a null  value
+                                                          -- for missing value
+                                       missingValueData   [3] IMPLICIT OCTET
+                                                               STRING} OPTIONAL}
+
+   SortElement ::=    CHOICE{
+     generic                 [1] SortKey,
+        datbaseSpecific      [2] IMPLICIT SEQUENCE OF SEQUENCE{
+                                   databaseName     DatabaseName,
+                                   dbSort           SortKey}} 
+
+   SortKey ::= CHOICE{
+     sortfield        [0]    IMPLICIT InternationalString,
+                                -- An element, element-group-tag, or alias
+                                -- supported by the target and denoting a set
+                                -- of elements associated with each record.
+     elementSpec      [1]    IMPLICIT Specification,
+     sortAttributes   [2]    IMPLICIT SEQUENCE{
+                                id     AttributeSetId,
+                                list   AttributeList}}
+-- end auxiliary definitions for sort
+
+
+
+-- Extended Service APDUs
+  ExtendedServicesRequest  ::= SEQUENCE{
+   referenceId                     ReferenceId OPTIONAL,
+   function                  [3]   IMPLICIT INTEGER {
+                                       create       (1),
+                                       delete       (2),
+                                       modify   (3)},
+   packageType               [4]   IMPLICIT OBJECT IDENTIFIER,
+   packageName               [5]   IMPLICIT InternationalString OPTIONAL,
+                                       -- PackageName mandatory for 'modify' or
+                                       -- 'delete'; optional for 'create'.
+                                       -- Following four parameters mandatory
+                                       -- for 'create'; should be included on
+                                       -- 'modify' if being modified; not needed
+                                       -- on 'delete'.
+   userId                    [6]   IMPLICIT InternationalString OPTIONAL,
+   retentionTime             [7]   IMPLICIT IntUnit OPTIONAL,
+   permissions               [8]   IMPLICIT Permissions OPTIONAL,
+   description               [9]   IMPLICIT InternationalString OPTIONAL,
+   taskSpecificParameters    [10]  IMPLICIT EXTERNAL OPTIONAL, 
+                                       -- Mandatory for 'create'; included on
+                                       -- 'modify' if specific parameters being
+                                       -- modified; not necessary on 'delete'.
+                                       -- For the 'EXTERNAL,' use OID of
+                                       -- specific ES definition and select
+                                       -- CHOICE [1]: 'esRequest'.
+   waitAction                [11]  IMPLICIT INTEGER{
+                                       wait               (1),
+                                       waitIfPossible     (2),
+                                       dontWait           (3),
+                                       dontReturnPackage  (4)},
+   elements                        ElementSetName OPTIONAL,
+   otherInfo                       OtherInformation OPTIONAL}
+--
+
+ExtendedServicesResponse ::= SEQUENCE{
+   referenceId                     ReferenceId OPTIONAL,
+   operationStatus           [3]   IMPLICIT INTEGER{
+                                       done         (1),
+                                       accepted     (2),  
+                                       failure      (3)},
+   diagnostics               [4]   IMPLICIT SEQUENCE OF DiagRec OPTIONAL,
+   taskPackage               [5]   IMPLICIT EXTERNAL OPTIONAL,
+                                       -- Use OID: {Z39-50-recordSyntax (106)}
+                                       -- and corresponding syntax. For the
+                                       -- EXTERNAL, 'taskSpecific,' within that
+                                       -- definition, use OID of the specific
+                                       -- es, and choose [2], 'taskPackage'.
+   otherInfo                       OtherInformation OPTIONAL}
+
+ Permissions ::= SEQUENCE OF SEQUENCE{
+   userId                 [1] IMPLICIT InternationalString,
+   allowableFunctions     [2] IMPLICIT SEQUENCE OF INTEGER{
+                                delete              (1),
+                                modifyContents      (2),
+                                modifyPermissions   (3),
+                                present             (4),
+                                   invoke           (5)}} 
+
+Close ::= SEQUENCE{
+   referenceId                     ReferenceId OPTIONAL,  -- See 3.2.11.1.5.
+   closeReason                     CloseReason,
+   diagnosticInformation     [3]   IMPLICIT InternationalString OPTIONAL,
+   resourceReportFormat      [4]   IMPLICIT ResourceReportId OPTIONAL, 
+                                       -- For use by origin only, and only on
+                                       -- Close request; origin requests target
+                                       -- to include report in response.
+   resourceReport            [5]   ResourceReport OPTIONAL,
+                                       -- For use by target only, unilaterally
+                                       -- on Close request; on Close response
+                                       -- may be unilateral or in response to
+                                       -- origin request.
+   otherInfo                       OtherInformation OPTIONAL}
+
+   CloseReason ::=    [211]  IMPLICIT INTEGER{
+                                finished            (0),
+                                shutdown            (1),
+                                systemProblem       (2),
+                                costLimit           (3),
+                                resources           (4),
+                                securityViolation   (5),
+                                protocolError       (6),
+                                lackOfActivity      (7),
+                                peerAbort           (8),
+                                unspecified         (9)}
+
+
+-- Global auxiliary definitions
+   ReferenceId            ::=      [2]       IMPLICIT OCTET STRING
+   ResultSetId            ::=      [31]      IMPLICIT InternationalString
+   ElementSetName         ::=      [103]     IMPLICIT InternationalString
+   DatabaseName           ::=      [105]     IMPLICIT InternationalString
+   AttributeSetId         ::=                OBJECT IDENTIFIER
+
+
+-- OtherInformation
+   OtherInformation    ::= [201] IMPLICIT SEQUENCE OF
+SEQUENCE{
+      category               [1]   IMPLICIT InfoCategory OPTIONAL, 
+      information     CHOICE{
+             characterInfo                [2]   IMPLICIT InternationalString,
+             binaryInfo                   [3]   IMPLICIT OCTET STRING,
+             externallyDefinedInfo        [4]   IMPLICIT EXTERNAL,
+             oid                          [5]   IMPLICIT OBJECT IDENTIFIER}}
+--
+   InfoCategory ::= SEQUENCE{
+         categoryTypeId   [1]   IMPLICIT OBJECT IDENTIFIER OPTIONAL,
+         categoryValue    [2]   IMPLICIT INTEGER}
+
+
+-- Units
+   -- IntUnit is used when value and unit are supplied together. Unit, alone,
+   -- is used when just  specifying a unit (without a value).  For example,
+   -- IntUnit is used in Term, in an RPNQuery, or it can be the datatype of
+   -- an element within a retrieval record. Unit (alone) would be used in an
+   -- element request, when requesting data be returned according to a
+   -- particular unit.
+
+   IntUnit ::= SEQUENCE{
+      value     [1] IMPLICIT INTEGER,
+      unitUsed  [2] IMPLICIT Unit}
+--
+   Unit ::= SEQUENCE{
+      unitSystem   [1] InternationalString OPTIONAL,      -- e.g. 'SI'
+      unitType     [2] StringOrNumeric OPTIONAL,          -- e.g. 'mass'
+      unit         [3] StringOrNumeric OPTIONAL,          -- e.g.  'kilograms'
+      scaleFactor  [4] IMPLICIT INTEGER OPTIONAL          -- e.g. 9 means 10**9
+             }
+
+--CharacterString
+   InternationalString ::= GeneralString
+      -- When version 2 is in force, this collapses to VisibleString. That
+      -- is, only characters in the visibleString repertoire may be used.
+      -- (Datatype compatibility with version 2 is not affected, because
+      -- references are IMPLICIT.)  When version 3 is in force, the semantics
+      -- of the GeneralString content may be altered by negotiation during
+      -- initialization. If no such  negotiation is in effect, then
+      -- GeneralString semantics are in force.
+
+StringOrNumeric ::= CHOICE{
+   string       [1] IMPLICIT InternationalString,
+   numeric      [2] IMPLICIT INTEGER}
+
+END --IR DEFINITIONS

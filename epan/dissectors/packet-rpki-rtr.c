@@ -17,7 +17,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "packet-tcp.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 #include <epan/expert.h>
 #include <epan/asn1.h>
 #include "packet-x509af.h"
@@ -495,7 +495,7 @@ proto_reg_handoff_rpkirtr(void)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

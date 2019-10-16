@@ -181,7 +181,7 @@ guint16 crc16_8005_noreflect_noxor(const guint8 *data, guint64 data_len)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

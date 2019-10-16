@@ -12,8 +12,8 @@ all_guides` or `msbuild all_guides.vcxproj`. Requirements are listed
 below.
 
 The guides and release notes are written in
-http://asciidoctor.org/docs/asciidoc-syntax-quick-reference/[Asciidoctor syntax].
-For more information see http://asciidoctor.org.
+https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/[Asciidoctor syntax].
+For more information see https://asciidoctor.org.
 
 Conversions from Asciidoctor markup to each of our supported output
 formats is done via the following steps:
@@ -34,7 +34,7 @@ on installing required packages for your platform.
 == AsciidoctorJ (recommended) or Asciidoctor
 
 Text markup format and publishing toolchain:
-http://asciidoctor.org/
+https://asciidoctor.org/
 
 AsciidoctorJ is a self-contained bundle which includes Asciidoctor and
 JRuby. It can be installed via Chocolatey on Windows, Homebrew on macOS,
@@ -60,16 +60,16 @@ most Linux distributions.
 == HTML Help Workshop (Windows only)
 
 The HTML Help compiler is part of the
-http://www.microsoft.com/en-us/download/details.aspx?id=21138[HTML Help Workshop]
+https://www.microsoft.com/en-us/download/details.aspx?id=21138[HTML Help Workshop]
 from Microsoft. It is used to generate the documentation shipped with
 the Windows installers.
 
 = Asciidoctor Markup
 
 The User’s and Developer’s Guides were originally written in DocBook and
-were later converted to http://asciidoc.org/[AsciiDoc]. We subsequently
+were later converted to https://asciidoc.org/[AsciiDoc]. We subsequently
 switched from AsciiDoc to Asciidoctor. As a result we currently use
-http://asciidoctor.org/docs/migration/[compat mode], but may switch
+https://asciidoctor.org/docs/migration/[compat mode], but may switch
 to Asciidoctor’s modern markup at a later date.
 
 Please use the following conventions when writing documentation:
@@ -79,28 +79,42 @@ Please use the following conventions when writing documentation:
 - Use Asciidoctor macros for buttons, keys, and menus. Note that these
   are currently experimental:
 
--- The button:[Start] button
--- Press kbd:[Shift+Ctrl+P] to open the preferences dialog.
--- Select menu:File[Open] from the main menu.
+** The button:[Start] button
+** Press kbd:[Shift+Ctrl+P] to open the preferences dialog.
+** Select menu:File[Open] from the main menu.
 
 This ensures that UI elements are shown consistently and lets us apply styles
 to each type of element.
 
 - Command line examples should reflect the OS:
 +
-+++
 ----
 $ echo Linux and UNIX
 ----
-
++
 ----
 C:\> echo Windows
 ----
-+++
 
 Admonitions ([NOTE], [TIP], and [WARNING]) can be used to highlight important
 information. Keep in mind that they interrupt the flow of text by design. Too
 many (especially in a row) are distracting and annoying.
+
+== Asciidoctor Live Preview
+
+The Asciidoctor project provides a JavaScript version of Asciidoctor
+(asciidoctor.js), which enables live previews in many web browsers and
+text editors. See the
+https://asciidoctor.org/docs/editing-asciidoc-with-live-preview/[Live
+Preview] documentation for more information.
+
+Note that our documentation depends on attributes defined in
+_attributes.adoc_. The User’s Guide and Developer’s Guide are split
+across several files, and only the top-level _user-guide.adoc_ and
+_developer-guide.adoc_ include _attributes.adoc_. As a result,
+some markup will be incomplete. You can work around this somewhat by
+adding some attributes such as `compat-mode experimental` to your Live
+Preview settings.
 
 = HTML Help Alternatives
 
@@ -135,7 +149,7 @@ works in Firefox & Chrome, but not in Safari, Preview, or Internet Explorer.
 
 == Qt Help
 
-Qt provides an extensive http://doc.qt.io/qt-5/qthelp-framework.html[help system].
+Qt provides an extensive https://doc.qt.io/qt-5/qthelp-framework.html[help system].
 However, to use it we need to generate a Qt Help Project (.qhp) file,
 which isn't currently supported by Asciidoctor or via DocBook XSL.
 

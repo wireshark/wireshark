@@ -165,7 +165,7 @@ static port_type exp_pdu_old_to_new_port_type(guint type)
 static int
 dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_item *ti, *item;
+    proto_item *exported_pdu_ti, *ti, *item;
     proto_tree *exported_pdu_tree, *tag_tree;
     tvbuff_t * payload_tvb = NULL;
     int offset = 0;
@@ -185,8 +185,8 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Exported PDU");
 
     /* create display subtree for the protocol */
-    ti = proto_tree_add_item(tree, proto_exported_pdu, tvb, offset, -1, ENC_NA);
-    exported_pdu_tree = proto_item_add_subtree(ti, ett_exported_pdu);
+    exported_pdu_ti = proto_tree_add_item(tree, proto_exported_pdu, tvb, offset, -1, ENC_NA);
+    exported_pdu_tree = proto_item_add_subtree(exported_pdu_ti, ett_exported_pdu);
 
     do {
         tag = tvb_get_ntohs(tvb, offset);
@@ -195,6 +195,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         tag_tree = proto_item_add_subtree(ti, ett_exported_pdu_tag);
         proto_tree_add_item(tag_tree, hf_exported_pdu_tag_len, tvb, offset, 2, ENC_BIG_ENDIAN);
         tag_len = tvb_get_ntohs(tvb, offset);
+        proto_item_set_len(ti, 4 + tag_len);
         offset+=2;
 
         switch(tag) {
@@ -214,9 +215,9 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv4_src, tvb, offset, 4, ENC_BIG_ENDIAN);
                 /* You can filter on IP by right clicking the Source/Destination columns make that work by filling the IP hf:s*/
                 item = proto_tree_add_item(tag_tree, hf_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(item);
+                proto_item_set_hidden(item);
                 item = proto_tree_add_item(tag_tree, hf_ip_src, tvb, offset, 4, ENC_BIG_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(item);
+                proto_item_set_hidden(item);
 
                 set_address_tvb(&pinfo->net_src, AT_IPv4, 4, tvb, offset);
                 copy_address_shallow(&pinfo->src, &pinfo->net_src);
@@ -225,9 +226,9 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv4_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
                 /* You can filter on IP by right clicking the Source/Destination columns make that work by filling the IP hf:s*/
                 item = proto_tree_add_item(tag_tree, hf_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(item);
+                proto_item_set_hidden(item);
                 item = proto_tree_add_item(tag_tree, hf_ip_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(item);
+                proto_item_set_hidden(item);
                 set_address_tvb(&pinfo->net_dst, AT_IPv4, 4, tvb, offset);
                 copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
                 break;
@@ -235,9 +236,9 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv6_src, tvb, offset, 16, ENC_NA);
                 /* You can filter on IP by right clicking the Source/Destination columns make that work by filling the IP hf:s*/
                 item = proto_tree_add_item(tag_tree, hf_ipv6_addr, tvb, offset, 16, ENC_BIG_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(item);
+                proto_item_set_hidden(item);
                 item = proto_tree_add_item(tag_tree, hf_ipv6_src, tvb, offset, 16, ENC_BIG_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(item);
+                proto_item_set_hidden(item);
                 set_address_tvb(&pinfo->net_src, AT_IPv6, 16, tvb, offset);
                 copy_address_shallow(&pinfo->src, &pinfo->net_src);
                 break;
@@ -245,9 +246,9 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv6_dst, tvb, offset, 16, ENC_NA);
                 /* You can filter on IP by right clicking the Source/Destination columns make that work by filling the IP hf:s*/
                 item = proto_tree_add_item(tag_tree, hf_ipv6_addr, tvb, offset, 16, ENC_BIG_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(item);
+                proto_item_set_hidden(item);
                 item = proto_tree_add_item(tag_tree, hf_ipv6_dst, tvb, offset, 16, ENC_BIG_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(item);
+                proto_item_set_hidden(item);
                 set_address_tvb(&pinfo->net_dst, AT_IPv6, 16, tvb, offset);
                 copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
                 break;
@@ -325,6 +326,9 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         offset = offset + tag_len;
 
     } while(tag != 0);
+
+    /* Limit the Exported PDU tree to the tags without payload. */
+    proto_item_set_len(exported_pdu_ti, offset);
 
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
     proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_exported_pdu, payload_tvb, 0, -1, ENC_NA);
@@ -537,7 +541,7 @@ proto_reg_handoff_exported_pdu(void)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

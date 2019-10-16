@@ -389,8 +389,8 @@ typedef struct {
 	guint		isdn_type;	/* 1 = E1 PRI, 2 = T1 PRI, 3 = BRI */
 } netxray_t;
 
-static gboolean netxray_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean netxray_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean netxray_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static int netxray_process_rec_header(wtap *wth, FILE_T fh,
@@ -967,8 +967,8 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 
 /* Read the next packet */
 static gboolean
-netxray_read(wtap *wth, int *err, gchar **err_info,
-	     gint64 *data_offset)
+netxray_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+             gchar **err_info, gint64 *data_offset)
 {
 	netxray_t *netxray = (netxray_t *)wth->priv;
 	int	padding;
@@ -988,8 +988,7 @@ reread:
 	}
 
 	/* Read and process record header. */
-	padding = netxray_process_rec_header(wth, wth->fh, &wth->rec, err,
-	    err_info);
+	padding = netxray_process_rec_header(wth, wth->fh, rec, err, err_info);
 	if (padding < 0) {
 		/*
 		 * Error or EOF.
@@ -1042,8 +1041,8 @@ reread:
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(wth->fh, wth->rec_data,
-	    wth->rec.rec_header.packet_header.caplen, err, err_info))
+	if (!wtap_read_packet_bytes(wth->fh, buf,
+	    rec->rec_header.packet_header.caplen, err, err_info))
 		return FALSE;
 
 	/*
@@ -1057,7 +1056,7 @@ reread:
 	 * from the packet header to determine its type or subtype,
 	 * attempt to guess them from the packet data.
 	 */
-	netxray_guess_atm_type(wth, &wth->rec, wth->rec_data);
+	netxray_guess_atm_type(wth, rec, buf);
 	return TRUE;
 }
 
@@ -1350,7 +1349,7 @@ netxray_process_rec_header(wtap *wth, FILE_T fh, wtap_rec *rec,
 			 * is the direction flag.  (Probably true for other
 			 * HDLC encapsulations as well.)
 			 */
-			rec->rec_header.packet_header.pseudo_header.x25.flags =
+			rec->rec_header.packet_header.pseudo_header.dte_dce.flags =
 			    (hdr.hdr_2_x.xxx[12] & 0x01) ? 0x00 : FROM_DCE;
 
 			/*
@@ -1733,6 +1732,15 @@ netxray_dump_1_1(wtap_dumper *wdh,
 		return FALSE;
 	}
 
+	/*
+	 * Make sure this packet doesn't have a link-layer type that
+	 * differs from the one for the file.
+	 */
+	if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+		return FALSE;
+	}
+
 	/* The captured length field is 16 bits, so there's a hard
 	   limit of 65535. */
 	if (rec->rec_header.packet_header.caplen > 65535) {
@@ -1912,6 +1920,15 @@ netxray_dump_2_0(wtap_dumper *wdh,
 		return FALSE;
 	}
 
+	/*
+	 * Make sure this packet doesn't have a link-layer type that
+	 * differs from the one for the file.
+	 */
+	if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+		return FALSE;
+	}
+
 	/* Don't write anything we're not willing to read. */
 	if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		*err = WTAP_ERR_PACKET_TOO_LARGE;
@@ -1971,7 +1988,7 @@ netxray_dump_2_0(wtap_dumper *wdh,
 		break;
 
 	case WTAP_ENCAP_FRELAY_WITH_PHDR:
-		rec_hdr.xxx[12] |= (pseudo_header->x25.flags & FROM_DCE) ? 0x00 : 0x01;
+		rec_hdr.xxx[12] |= (pseudo_header->dte_dce.flags & FROM_DCE) ? 0x00 : 0x01;
 		break;
 	}
 
@@ -2054,7 +2071,7 @@ netxray_dump_finish_2_0(wtap_dumper *wdh, int *err)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

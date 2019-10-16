@@ -27,7 +27,7 @@
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include "packet-tcp.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 #include "packet-http.h"
 
 #ifdef HAVE_ZLIB
@@ -747,7 +747,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
       next_tvb = tvb_new_subset_length(tvb, offset, frame->length);
       is_single_chunk = num_data_frames == 0 &&
           (frame->flags & SPDY_FLAG_FIN) != 0;
-      if (!pinfo->fd->flags.visited) {
+      if (!pinfo->fd->visited) {
         if (!is_single_chunk) {
           if (spdy_assemble_entity_bodies) {
             copied_data = (guint8 *)tvb_memdup(wmem_file_scope(),next_tvb, 0, frame->length);
@@ -906,6 +906,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
     }
     message_info.type = si->message_type;
     message_info.media_str = media_str;
+    message_info.data = NULL;
     if (handle != NULL) {
       /*
        * We have a subdissector - call it.
@@ -1321,7 +1322,7 @@ static int dissect_spdy_header_payload(
    * If we expect data on this stream, we need to remember the content
    * type and content encoding.
    */
-  if (content_type != NULL && !pinfo->fd->flags.visited) {
+  if (content_type != NULL && !pinfo->fd->visited) {
     gchar *content_type_params = spdy_parse_content_type(content_type);
     spdy_save_stream_info(conv_data, stream_id,
                           (hdr_status == NULL) ? HTTP_REQUEST : HTTP_RESPONSE,
@@ -1938,8 +1939,9 @@ void proto_register_spdy(void)
 void proto_reg_handoff_spdy(void) {
 
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_SPDY, spdy_handle);
-  /* Use "0" to avoid overwriting HTTPS port and still offer support over SSL */
+  /* Use "0" to avoid overwriting HTTPS port and still offer support over TLS */
   ssl_dissector_add(0, spdy_handle);
+  dissector_add_string("http.upgrade", "spdy", spdy_handle);
 
   media_handle = find_dissector_add_dependency("media", proto_spdy);
   port_subdissector_table = find_dissector_table("http.port");

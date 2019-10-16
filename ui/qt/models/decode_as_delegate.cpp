@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "decode_as_delegate.h"
 
@@ -159,7 +160,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
 
         //put the rest of the protocols in the combo box
         QList<QString> da_list = da_set.toList();
-        qSort(da_list.begin(), da_list.end());
+        std::sort(da_list.begin(), da_list.end());
 
         foreach (table_ui_name, da_list) {
             editor->addItem(table_ui_name, table_ui_name);
@@ -266,7 +267,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
 
         //QMap already sorts the keys (protocols) alphabetically
         QMap<QString, dissector_info_t*>::iterator protocol;
-        for(protocol = protocols.begin(); protocol != protocols.end(); protocol++)
+        for(protocol = protocols.begin(); protocol != protocols.end(); ++protocol)
         {
             editor->addItem(protocol.key(), VariantPointer<dissector_info_t>::asQVariant(protocol.value()));
         }

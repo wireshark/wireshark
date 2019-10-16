@@ -95,4 +95,6 @@ ReleaseIfDurationExceeded			::= SEQUENCE {
 																ExtensionField			OPTIONAL
 		}
 
+SpecializedResourceReportArgV23 ::=  NULL
+
 END

@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "endpoint_dialog.h"
 
@@ -15,10 +16,15 @@
 #include "ui/recent.h"
 #include "ui/traffic_table_ui.h"
 
+#include "wsutil/file_util.h"
 #include "wsutil/pint.h"
 #include "wsutil/str_util.h"
+#include "wsutil/tempfile.h"
+#include <wsutil/utf8_entities.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/variant_pointer.h>
+#include <ui/qt/widgets/wireshark_file_dialog.h>
 #include "wireshark_application.h"
 
 #include <QCheckBox>
@@ -32,6 +38,19 @@ static const QString table_name_ = QObject::tr("Endpoint");
 EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
     TrafficTableDialog(parent, cf, filter, table_name_)
 {
+#ifdef HAVE_MAXMINDDB
+    map_bt_ = buttonBox()->addButton(tr("Map"), QDialogButtonBox::ActionRole);
+    map_bt_->setToolTip(tr("Draw IPv4 or IPv6 endpoints on a map."));
+    connect(trafficTableTabWidget(), &QTabWidget::currentChanged, this, &EndpointDialog::tabChanged);
+
+    QMenu *map_menu_ = new QMenu(map_bt_);
+    QAction *action;
+    action = map_menu_->addAction(tr("Open in browser"));
+    connect(action, &QAction::triggered, this, &EndpointDialog::openMap);
+    action = map_menu_->addAction(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
+    connect(action, &QAction::triggered, this, &EndpointDialog::saveMap);
+    map_bt_->setMenu(map_menu_);
+#endif
     addProgressFrame(&parent);
 
     QList<int> endp_protos;
@@ -124,6 +143,10 @@ bool EndpointDialog::addTrafficTable(register_ct_t *table)
             this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     connect(nameResolutionCheckBox(), SIGNAL(toggled(bool)),
             endp_tree, SLOT(setNameResolutionEnabled(bool)));
+#ifdef HAVE_MAXMINDDB
+    connect(endp_tree, &EndpointTreeWidget::geoIPStatusChanged,
+            this, &EndpointDialog::tabChanged);
+#endif
 
     // XXX Move to ConversationTreeWidget ctor?
     QByteArray filter_utf8;
@@ -143,6 +166,105 @@ bool EndpointDialog::addTrafficTable(register_ct_t *table)
                         EndpointTreeWidget::tapDraw);
     return true;
 }
+
+#ifdef HAVE_MAXMINDDB
+void EndpointDialog::tabChanged()
+{
+    EndpointTreeWidget *cur_tree = qobject_cast<EndpointTreeWidget *>(trafficTableTabWidget()->currentWidget());
+    map_bt_->setEnabled(cur_tree && cur_tree->hasGeoIPData());
+}
+
+QUrl EndpointDialog::createMap(bool json_only)
+{
+    EndpointTreeWidget *cur_tree = qobject_cast<EndpointTreeWidget *>(trafficTableTabWidget()->currentWidget());
+    if (!cur_tree) {
+        return QUrl();
+    }
+
+    // Construct list of hosts with a valid MMDB entry.
+    QTreeWidgetItemIterator it(cur_tree);
+    GPtrArray *hosts_arr = g_ptr_array_new();
+    while (*it) {
+        const mmdb_lookup_t *geo = VariantPointer<const mmdb_lookup_t>::asPtr((*it)->data(0, Qt::UserRole + 1));
+        if (maxmind_db_has_coords(geo)) {
+            hostlist_talker_t *host = VariantPointer<hostlist_talker_t>::asPtr((*it)->data(0, Qt::UserRole));
+            g_ptr_array_add(hosts_arr, (gpointer)host);
+        }
+        ++it;
+    }
+    if (hosts_arr->len == 0) {
+        QMessageBox::warning(this, tr("Map file error"), tr("No endpoints available to map"));
+        g_ptr_array_free(hosts_arr, TRUE);
+        return QUrl();
+    }
+    g_ptr_array_add(hosts_arr, NULL);
+    hostlist_talker_t **hosts = (hostlist_talker_t **)g_ptr_array_free(hosts_arr, FALSE);
+
+    char *map_path = NULL;
+    int fd = create_tempfile(&map_path, "ipmap", ".html");
+    FILE *fp = NULL;
+    if (fd != -1) {
+        fp = ws_fdopen(fd, "wb");
+        if (!fp) {
+            ws_close(fd);
+            fd = -1;
+        }
+    }
+    if (fd == -1) {
+        QMessageBox::warning(this, tr("Map file error"), tr("Unable to create temporary file"));
+        g_free(hosts);
+        return QUrl();
+    }
+    QString map_path_str(map_path);
+
+    gchar *err_str;
+    if (!write_endpoint_geoip_map(fp, json_only, hosts, &err_str)) {
+        QMessageBox::warning(this, tr("Map file error"), err_str);
+        g_free(err_str);
+        g_free(hosts);
+        fclose(fp);
+        ws_unlink(qPrintable(map_path_str));
+        return QUrl();
+    }
+    g_free(hosts);
+    if (fclose(fp) == EOF) {
+        QMessageBox::warning(this, tr("Map file error"), g_strerror(errno));
+        ws_unlink(qPrintable(map_path_str));
+        return QUrl();
+    }
+
+    return QUrl::fromLocalFile(map_path_str);
+}
+
+void EndpointDialog::openMap()
+{
+    QUrl map_file = createMap(false);
+    if (!map_file.isEmpty()) {
+        QDesktopServices::openUrl(map_file);
+    }
+}
+
+void EndpointDialog::saveMap()
+{
+    QString destination_file =
+        WiresharkFileDialog::getSaveFileName(this, tr("Save Endpoints Map"),
+                "ipmap.html",
+                "HTML files (*.html);;GeoJSON files (*.json)");
+    if (destination_file.isEmpty()) {
+        return;
+    }
+    QUrl map_file = createMap(destination_file.endsWith(".json"));
+    if (!map_file.isEmpty()) {
+        QString source_file = map_file.toLocalFile();
+        QFile::remove(destination_file);
+        if (!QFile::rename(source_file, destination_file)) {
+            QMessageBox::warning(this, tr("Map file error"),
+                    tr("Failed to save map file %1.").arg(destination_file));
+            QFile::remove(source_file);
+        }
+    }
+}
+#endif
 
 void EndpointDialog::on_buttonBox_helpRequested()
 {
@@ -199,20 +321,32 @@ public:
                 return QVariant(data_none_);
             }
         }
+        if (role == Qt::UserRole) {
+            hostlist_talker_t *endp_item = &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
+            return VariantPointer<hostlist_talker_t>::asQVariant(endp_item);
+        }
+        if (role == Qt::UserRole + 1) {
+            return VariantPointer<const mmdb_lookup_t>::asQVariant(mmdbLookup());
+        }
         return QTreeWidgetItem::data(column, role);
+    }
+
+    const mmdb_lookup_t *mmdbLookup() const {
+        hostlist_talker_t *endp_item = &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
+        const mmdb_lookup_t *mmdb_lookup = NULL;
+        if (endp_item->myaddress.type == AT_IPv4) {
+            mmdb_lookup = maxmind_db_lookup_ipv4((const ws_in4_addr *) endp_item->myaddress.data);
+        } else if (endp_item->myaddress.type == AT_IPv6) {
+            mmdb_lookup = maxmind_db_lookup_ipv6((const ws_in6_addr *) endp_item->myaddress.data);
+        }
+        return mmdb_lookup && mmdb_lookup->found ? mmdb_lookup : NULL;
     }
 
     // Column text raw representation.
     // Return a string, qulonglong, double, or invalid QVariant representing the raw column data.
     QVariant colData(int col, bool resolve_names) const {
         hostlist_talker_t *endp_item = &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
-
-        const mmdb_lookup_t *mmdb_lookup = NULL;
-        if (endp_item->myaddress.type == AT_IPv4) {
-            mmdb_lookup = maxmind_db_lookup_ipv4(pntoh32(endp_item->myaddress.data));
-        } else if (endp_item->myaddress.type == AT_IPv6) {
-            mmdb_lookup = maxmind_db_lookup_ipv6((ws_in6_addr *) endp_item->myaddress.data);
-        }
+        const mmdb_lookup_t *mmdb_lookup = mmdbLookup();
 
         switch (col) {
         case ENDP_COLUMN_ADDR:
@@ -244,22 +378,22 @@ public:
         case ENDP_COLUMN_BYTES_BA:
             return quint64(endp_item->rx_bytes);
         case ENDP_COLUMN_GEO_COUNTRY:
-            if (mmdb_lookup && mmdb_lookup->found && mmdb_lookup->country) {
+            if (mmdb_lookup && mmdb_lookup->country) {
                 return QVariant(mmdb_lookup->country);
             }
             return QVariant();
         case ENDP_COLUMN_GEO_CITY:
-            if (mmdb_lookup && mmdb_lookup->found && mmdb_lookup->city) {
+            if (mmdb_lookup && mmdb_lookup->city) {
                 return QVariant(mmdb_lookup->city);
             }
             return QVariant();
         case ENDP_COLUMN_GEO_AS_NUM:
-            if (mmdb_lookup && mmdb_lookup->found && mmdb_lookup->as_number) {
+            if (mmdb_lookup && mmdb_lookup->as_number) {
                 return QVariant(mmdb_lookup->as_number);
             }
             return QVariant();
         case ENDP_COLUMN_GEO_AS_ORG:
-            if (mmdb_lookup && mmdb_lookup->found && mmdb_lookup->as_org) {
+            if (mmdb_lookup && mmdb_lookup->as_org) {
                 return QVariant(mmdb_lookup->as_org);
             }
             return QVariant();
@@ -329,6 +463,9 @@ private:
 
 EndpointTreeWidget::EndpointTreeWidget(QWidget *parent, register_ct_t *table) :
     TrafficTableTreeWidget(parent, table),
+#ifdef HAVE_MAXMINDDB
+    has_geoip_data_(false),
+#endif
     table_address_type_(AT_NONE)
 {
     setColumnCount(ENDP_NUM_COLUMNS);
@@ -467,6 +604,16 @@ void EndpointTreeWidget::updateItems()
                 etwi->setTextAlignment(col, Qt::AlignRight);
             }
         }
+
+#ifdef HAVE_MAXMINDDB
+        // Assume that an asynchronous MMDB lookup has completed before (for
+        // example, in the dissection tree). If so, then we do not have to check
+        // all previous items for availability of any MMDB result.
+        if (!has_geoip_data_ && maxmind_db_has_coords(etwi->mmdbLookup())) {
+            has_geoip_data_ = true;
+            emit geoIPStatusChanged();
+        }
+#endif
     }
     addTopLevelItems(new_items);
     setSortingEnabled(true);

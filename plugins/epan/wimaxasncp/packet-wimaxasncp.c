@@ -2,7 +2,7 @@
  *
  * Routines for WiMAX ASN Control Plane packet dissection dissection
  *
- * Copyright 2007, Mobile Metrics - http://mobilemetrics.net/
+ * Copyright 2007, Mobile Metrics - http://www.mobilemetrics.net
  *
  * Author: Stephen Croll <croll@mobilemetrics.net>
  *
@@ -1311,7 +1311,7 @@ static void wimaxasncp_dissect_tlv_value(
                 protocol_list_tree, tlv_info->hf_value,
                 tvb, offset, length, ENC_NA);
 
-            PROTO_ITEM_SET_HIDDEN(item);
+            proto_item_set_hidden(item);
 
             while (offset < tvb_reported_length(tvb))
             {
@@ -1368,7 +1368,7 @@ static void wimaxasncp_dissect_tlv_value(
                 port_range_list_tree, tlv_info->hf_value,
                 tvb, offset, length, ENC_NA);
 
-            PROTO_ITEM_SET_HIDDEN(item);
+            proto_item_set_hidden(item);
 
             while (offset < tvb_reported_length(tvb))
             {
@@ -1389,13 +1389,13 @@ static void wimaxasncp_dissect_tlv_value(
                     range_tree, tlv_info->hf_port_low,
                     tvb, offset, 2, ENC_BIG_ENDIAN);
 
-                PROTO_ITEM_SET_HIDDEN(item);
+                proto_item_set_hidden(item);
 
                 item = proto_tree_add_item(
                     range_tree, tlv_info->hf_port_high,
                     tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
-                PROTO_ITEM_SET_HIDDEN(item);
+                proto_item_set_hidden(item);
 
                 if (offset == 0)
                 {
@@ -1451,7 +1451,7 @@ static void wimaxasncp_dissect_tlv_value(
                 ip_address_mask_list_tree, tlv_info->hf_value,
                 tvb, offset, length, ENC_NA);
 
-            PROTO_ITEM_SET_HIDDEN(item);
+            proto_item_set_hidden(item);
 
             if (length % 32 == 0)
             {
@@ -1670,7 +1670,7 @@ static void wimaxasncp_dissect_tlv_value(
                 vsif_tree, tlv_info->hf_value,
                 tvb, offset, length, ENC_NA);
 
-            PROTO_ITEM_SET_HIDDEN(item);
+            proto_item_set_hidden(item);
 
             /* ----------------------------------------------------------------
              * vendor ID (24-bit)
@@ -3439,7 +3439,7 @@ proto_reg_handoff_wimaxasncp(void)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -749,7 +749,7 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
                 hidden_item = proto_tree_add_item(tree, hf_hl7_message_type,
                                                   tvb, offset, 3,
                                                   ENC_ASCII|ENC_NA);
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
+                proto_item_set_hidden(hidden_item);
             }
             if (tvb_get_guint8(tvb, offset + 3) == msh->component_separator) {
                 msh->trigger_event[0] = tvb_get_guint8(tvb, offset + 4);
@@ -761,7 +761,7 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
                     hidden_item = proto_tree_add_item(tree, hf_hl7_event_type,
                                                       tvb, offset + 4, 3,
                                                       ENC_ASCII|ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(hidden_item);
+                    proto_item_set_hidden(hidden_item);
                 }
             }
         }
@@ -1103,7 +1103,7 @@ proto_register_hl7(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_hl7 = expert_register_protocol(proto_hl7);
     expert_register_field_array(expert_hl7, ei, array_length(ei));
-    hl7_module = prefs_register_protocol(proto_hl7, proto_reg_handoff_hl7);
+    hl7_module = prefs_register_protocol(proto_hl7, NULL);
     prefs_register_bool_preference(hl7_module, "display_raw",
                                    "Display raw text for HL7 message",
                                    "Specifies that the raw text of the "
@@ -1119,7 +1119,7 @@ proto_register_hl7(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -286,7 +286,7 @@ class LRParser:
     # certain kinds of advanced parsing situations where the lexer and parser interact with
     # each other or change states (i.e., manipulation of scope, lexer states, etc.).
     #
-    # See:  http://www.gnu.org/software/bison/manual/html_node/Default-Reductions.html#Default-Reductions
+    # See:  https://www.gnu.org/software/bison/manual/html_node/Default-Reductions.html#Default-Reductions
     def set_defaulted_states(self):
         self.defaulted_states = {}
         for state, actions in self.action.items():
@@ -3262,7 +3262,7 @@ def yacc(method='LALR', debug=yaccdebug, module=None, tabmodule=tab_module, star
         else:
             debuglog = NullLogger()
 
-    debuglog.info('Created by PLY version %s (http://www.dabeaz.com/ply)', __version__)
+    debuglog.info('Created by PLY version %s (https://www.dabeaz.com/ply/)', __version__)
 
     errors = False
 

@@ -69,7 +69,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 15.2.0 Release 15)
+ *   (3GPP TS 24.008 version 15.6.0 Release 15)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -483,7 +483,9 @@ static int hf_gsm_a_gm_rac_ext_tsc_set_cap_support = -1;
 static int hf_gsm_a_gm_rac_ext_earfcn_value_range = -1;
 static int hf_gsm_a_gm_rac_ec_pch_mon_support = -1;
 static int hf_gsm_a_gm_rac_ms_sync_accuracy = -1;
-static int hf_gsm_a_gm_rac_ext_ec_ul_cov_enh_support = -1;
+static int hf_gsm_a_gm_rac_ec_ul_cov_enh_support = -1;
+static int hf_gsm_a_gm_rac_mta_access_sec_support = -1;
+static int hf_gsm_a_gm_rac_ec_paging_ind_chan_mon_support = -1;
 static int hf_gsm_a_sm_ti_flag = -1;
 static int hf_gsm_a_sm_ext = -1;
 
@@ -536,6 +538,7 @@ static int hf_gsm_a_gm_radio_priority_pdp = -1;
 static int hf_gsm_a_gm_radio_priority_tom8 = -1;
 static int hf_gsm_a_gm_configuration_protocol = -1;
 static int hf_gsm_a_gm_sm_pco_length = -1;
+static int hf_gsm_a_gm_sm_pco_length2 = -1;
 static int hf_gsm_a_gm_sm_pco_pcscf_ipv6 = -1;
 static int hf_gsm_a_gm_sm_pco_dns_ipv6 = -1;
 static int hf_gsm_a_gm_sm_pco_dsmipv6_home_agent_ipv6 = -1;
@@ -557,6 +560,9 @@ static int hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_ul_time_unit = -1;
 static int hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_max_ul_rate = -1;
 static int hf_gsm_a_gm_sm_pco_pdu_session_id = -1;
 static int hf_gsm_a_gm_sm_pco_pdu_session_address_lifetime = -1;
+static int hf_gsm_a_gm_sm_pco_eth_frame_payload_mtu = -1;
+static int hf_gsm_a_gm_sm_pco_unstruct_link_mtu = -1;
+static int hf_gsm_a_gm_sm_pco_5gsm_cause = -1;
 static int hf_gsm_a_sm_pdp_type_number = -1;
 static int hf_gsm_a_sm_pdp_address = -1;
 static int hf_gsm_a_gm_ti_value = -1;
@@ -3306,7 +3312,33 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		 */
 		bits_needed = 1;
 		GET_DATA;
-		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ext_ec_ul_cov_enh_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ec_ul_cov_enh_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset += bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		/*
+		 * Release 15
+		 */
+
+		/*
+		 * MTA Access Security support
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_mta_access_sec_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset += bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		/*
+		 * EC paging indication channel monitoring support
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ec_paging_ind_chan_mon_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset += bits_needed;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -4195,10 +4227,10 @@ de_gc_timer3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 		case 3:  str = "sec"; val*=2; break;
 		case 4:  str = "sec"; val*=30; break;
 		case 5:  str = "min"; break;
+		case 6:  str = "hours"; val *= 320; break;
 		case 7:
 			item = proto_tree_add_uint_format_value(tree, hf_gsm_a_gm_gprs_timer3, tvb, curr_offset, 1, val, "timer is deactivated");
 			break;
-		default:  str = "hr";
 	}
 
 	if (item == NULL) {
@@ -4353,9 +4385,11 @@ de_sm_apn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	}
 
 	/* Highlight bytes including the first length byte */
-	pi = proto_tree_add_string(tree, hf_gsm_a_gm_apn, tvb, curr_offset, len, str+1);
-	if (len > 100) {
-		expert_add_info(pinfo, pi, &ei_gsm_a_gm_apn_too_long);
+	if (str[0]) {
+		pi = proto_tree_add_string(tree, hf_gsm_a_gm_apn, tvb, curr_offset, len, str+1);
+		if (len > 100) {
+			expert_add_info(pinfo, pi, &ei_gsm_a_gm_apn_too_long);
+		}
 	}
 	curr_offset += len;
 
@@ -4414,6 +4448,12 @@ static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x0018, 0x0018, "Reliable Data Service request indicator" },
 	{ 0x0019, 0x0019, "Additional APN rate control for exception data support indicator" },
 	{ 0x001a, 0x001a, "PDU session ID" },
+	{ 0x001b, 0x001f, "Reserved" },
+	{ 0x0020, 0x0020, "Ethernet Frame Payload MTU Request" },
+	{ 0x0021, 0x0021, "Unstructured Link MTU Request" },
+	{ 0x0022, 0x0022, "5GSM cause value" },
+	{ 0x0023, 0x0023, "QoS rules with the length of two octets support indicator" },
+	{ 0x0024, 0x0024, "QoS flow descriptions with the length of two octets support indicator" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4448,6 +4488,12 @@ static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x001c, 0x001c, "QoS rules" },
 	{ 0x001d, 0x001d, "Session-AMBR" },
 	{ 0x001e, 0x001e, "PDU session address lifetime" },
+	{ 0x001f, 0x001f, "QoS flow descriptions" },
+	{ 0x0020, 0x0020, "Ethernet Frame Payload MTU" },
+	{ 0x0021, 0x0021, "Unstructured Link MTU" },
+	{ 0x0022, 0x0022, "Reserved" },
+	{ 0x0023, 0x0023, "QoS rules with the length of two octets" },
+	{ 0x0024, 0x0024, "QoS flow descriptions with the length of two octets" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4509,7 +4555,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 
 	link_dir = pinfo->link_dir;
 	generated_item = proto_tree_add_int(tree, hf_gsm_a_gm_link_dir, tvb, curr_offset, 0, link_dir);
-	PROTO_ITEM_SET_GENERATED(generated_item);
+	proto_item_set_generated(generated_item);
 
 
 	/* 1 ext 0 0 0 0 Spare  Configuration protocol */
@@ -4528,7 +4574,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 
 	while (curr_len >= 3) /* 2 bytes protocol/container ID + 1 byte length */
 	{
-		guchar e_len;
+		guint32 e_len;
 		guint16 prot;
 		tvbuff_t *l3_tvb;
 
@@ -4549,8 +4595,10 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 
 		curr_len    -= 2;
 		curr_offset += 2;
-		e_len = tvb_get_guint8(tvb, curr_offset);
-		proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_length, tvb, curr_offset, 1, ENC_NA);
+		if (link_dir == P2P_DIR_DL && (prot == 0x0023 || prot == 0x0024))
+			proto_tree_add_item_ret_uint(pco_tree, hf_gsm_a_gm_sm_pco_length2, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &e_len);
+		else
+			proto_tree_add_item_ret_uint(pco_tree, hf_gsm_a_gm_sm_pco_length, tvb, curr_offset, 1, ENC_NA, &e_len);
 		curr_len    -= 1;
 		curr_offset += 1;
 
@@ -4663,28 +4711,53 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				break;
 			case 0x001b:
 				if (link_dir == P2P_DIR_DL && e_len >= 4) {
-					de_nas_5gs_mm_s_nssai(tvb, pco_tree, pinfo, curr_offset, e_len - 3, NULL, 0);
+					de_nas_5gs_cmn_s_nssai(tvb, pco_tree, pinfo, curr_offset, e_len - 3, NULL, 0);
 					dissect_e212_mcc_mnc(tvb, pinfo, pco_tree, curr_offset + e_len - 3, E212_NONE, TRUE);
 				}
 				break;
 			case 0x001c:
+			case 0x0023:
 				if (link_dir == P2P_DIR_DL) {
 					de_nas_5gs_sm_qos_rules(tvb, pco_tree, pinfo, curr_offset, e_len, NULL, 0);
 				}
 				break;
 			case 0x001d:
 				if (link_dir == P2P_DIR_DL) {
-					de_nas_5gs_sm_qos_rules(tvb, pco_tree, pinfo, curr_offset, e_len, NULL, 0);
-				}
-				break;
-			case 0x001e:
-				if (link_dir == P2P_DIR_DL) {
+					/* Network to MS direction */
 					de_nas_5gs_sm_session_ambr(tvb, pco_tree, pinfo, curr_offset, e_len, NULL, 0);
 				}
 				break;
-			case 0x001f:
+			case 0x001e:
 				if (link_dir == P2P_DIR_DL && e_len == 2) {
+					/* When the container identifier indicates PDU session address lifetime,
+					 * the length of container identifier contents indicates a length equal to two.
+					 * The container identifier contents field contains the binary coded representation
+					 * of how long the network is willing to maintain the PDU session in units of seconds.
+					 * ...If the length of container identifier contents is different from two octets,
+					 * then it shall be ignored by the receiver
+					 */
 					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_pdu_session_address_lifetime, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+				}
+				break;
+			case 0x001f:
+			case 0x0024:
+				if (link_dir == P2P_DIR_DL && e_len > 0) {
+					de_nas_5gs_sm_qos_flow_des(tvb, pco_tree, pinfo, curr_offset, e_len, NULL, 0);
+				}
+				break;
+			case 0x0020:
+				if (link_dir == P2P_DIR_DL && e_len == 2) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_eth_frame_payload_mtu, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+				}
+				break;
+			case 0x0021:
+				if (link_dir == P2P_DIR_DL && e_len == 2) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_unstruct_link_mtu, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+				}
+				break;
+			case 0x0022:
+				if (link_dir == P2P_DIR_UL && e_len == 1) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_5gsm_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 				}
 				break;
 			default:
@@ -5431,7 +5504,7 @@ static const value_string gsm_a_sm_cause_vals[] = {
 };
 static value_string_ext gsm_a_sm_cause_vals_ext = VALUE_STRING_EXT_INIT(gsm_a_sm_cause_vals);
 
-static guint16
+guint16
 de_sm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8       oct;
@@ -5507,7 +5580,7 @@ de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 
 		proto_tree_add_uint(tree, hf_gsm_a_gm_ti_value, tvb, curr_offset, 1, oct&0x7f);
 
-		proto_tree_add_item(tree, hf_gsm_a_sm_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_a_sm_ext, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 		curr_offset++;
 	}
@@ -9198,8 +9271,18 @@ proto_register_gsm_a_gm(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_gm_rac_ext_ec_ul_cov_enh_support,
+		{ &hf_gsm_a_gm_rac_ec_ul_cov_enh_support,
 		  { "EC uplink coverage enhancement support", "gsm_a.gm.gmm.rac.ec_ul_cov_enh_support",
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_mta_access_sec_support,
+		  { "MTA Access Security support", "gsm_a.gm.gmm.rac.mta_access_sec_support",
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_ec_paging_ind_chan_mon_support,
+		  { "EC paging indication channel monitoring support", "gsm_a.gm.gmm.rac.ec_paging_ind_chan_mon_support",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
@@ -9250,7 +9333,22 @@ proto_register_gsm_a_gm(void)
 		},
 		{ &hf_gsm_a_gm_sm_pco_pdu_session_address_lifetime,
 		  { "PDU session address lifetime", "gsm_a.gm.sm.pco.pdu_session_address_lifetime",
-		    FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0,
+		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_eth_frame_payload_mtu,
+		  { "Ethernet Frame Payload MTU", "gsm_a.gm.sm.pco.eth_frame_payload_mtu",
+		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_unstruct_link_mtu,
+		  { "Unstructured Link MTU", "gsm_a.gm.sm.pco.unstruct_link_mtu",
+		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_5gsm_cause,
+		  { "5GSM cause", "gsm_a.gm.sm.pco.5gsm_cause",
+		    FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_cause_vals), 0x0,
 		    NULL, HFILL }
 		},
 		/* Generated from convert_proto_tree_add_text.pl */
@@ -9269,6 +9367,7 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_radio_priority_tom8, { "Radio Priority (TOM8)", "gsm_a.gm.radio_priority_tom8", FT_UINT8, BASE_DEC, VALS(gsm_a_gm_radio_prio_vals), 0x70, NULL, HFILL }},
 		{ &hf_gsm_a_gm_configuration_protocol, { "Configuration Protocol", "gsm_a.gm.configuration_protocol", FT_UINT8, BASE_DEC, NULL, 0x7, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_length, { "Length", "gsm_a.gm.sm.pco.length", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_gsm_a_gm_sm_pco_length2, { "Length", "gsm_a.gm.sm.pco.length", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_pcscf_ipv6, { "IPv6", "gsm_a.gm.sm.pco.pcscf.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_dns_ipv6, { "IPv6", "gsm_a.gm.sm.pco.dns.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_dsmipv6_home_agent_ipv6, { "IPv6", "gsm_a.gm.sm.pco.dsmipv6_home_agent.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -9364,7 +9463,7 @@ proto_reg_handoff_gsm_a_gm(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

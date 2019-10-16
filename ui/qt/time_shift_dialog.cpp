@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "time_shift_dialog.h"
 #include <ui_time_shift_dialog.h>
@@ -14,6 +15,7 @@
 #include <ui/time_shift.h>
 #include <ui/qt/utils/tango_colors.h>
 
+#include <QStyleOption>
 
 TimeShiftDialog::TimeShiftDialog(QWidget *parent, capture_file *cf) :
     QDialog(parent),

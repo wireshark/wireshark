@@ -370,13 +370,10 @@ static int
 dissect_authblk_v2(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     guint16 length;
-    nstime_t ts;
 
     proto_tree_add_item(tree, hf_srvloc_authblkv2_bsd, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_srvloc_authblkv2_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-    ts.nsecs = 0;
-    ts.secs = tvb_get_ntohl(tvb, offset + 4);
-    proto_tree_add_time(tree, hf_srvloc_authblkv2_timestamp, tvb, offset+4, 4, &ts);
+    proto_tree_add_item(tree, hf_srvloc_authblkv2_timestamp, tvb, offset+4, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
     length = tvb_get_ntohs(tvb, offset + 8);
     proto_tree_add_uint(tree, hf_srvloc_authblkv2_slpspilen, tvb, offset + 8, 2, length);
     offset += 10;
@@ -444,9 +441,13 @@ unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
         for (i = length; i > 0; i--) {
             c_char = ascii_text[i];
             if (c_char != 0) {
+                if (i == 0)
+                    break;
                 i--;
                 c_char1 = ascii_text[i];
                 if (c_char1 == 0) {
+                    if (i == 0)
+                        break;
                     i--;
                     c_char1 = ascii_text[i];
                 }
@@ -793,7 +794,6 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     guint32     count;
     guint32     next_ext_off; /* three bytes, v2 only */
     guint16     lang_tag_len;
-    nstime_t    ts;
     proto_item  *expert_item;
     guint16     expert_status;
 
@@ -1229,10 +1229,8 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 expert_add_info_format(pinfo, expert_item, &ei_srvloc_error_v2, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
             }
             offset += 2;
-            ts.nsecs = 0;
-            ts.secs = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_time(srvloc_tree, hf_srvloc_daadvert_timestamp, tvb, offset, 4,
-                                &ts);
+            proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_timestamp, tvb, offset, 4,
+                                ENC_TIME_SECS|ENC_BIG_ENDIAN);
             offset += 4;
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_urllen, tvb, offset, 2, length);
@@ -1473,7 +1471,7 @@ proto_register_srvloc(void)
         },
 
         { &hf_srvloc_flags_v1_overflow,
-          { "Overflow", "srvloc.flags_v1.overflow.", FT_BOOLEAN, 8,
+          { "Overflow", "srvloc.flags_v1.overflow", FT_BOOLEAN, 8,
             TFS(&tfs_srvloc_flags_overflow), FLAG_O, "Can whole packet fit into a datagram?", HFILL }},
 
         { &hf_srvloc_flags_v1_monolingual,
@@ -1882,7 +1880,7 @@ proto_reg_handoff_srvloc(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

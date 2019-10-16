@@ -1,0 +1,64 @@
+//v1.0, February 2014: Finished conversion from DocBook to AsciiDoc
+:doctype: book
+include::attributes.adoc[]
+= Wireshark Developer’s Guide: Version {wireshark-version}
+
+// Attributes
+// XXX This should be surrounded by single quotes in the text. It’s
+// currently surrounded by plus signs for AsciiDoc compatibility.
+:dlt-glob: DLT_*
+:qt-lts-version: 5.12
+
+[[Preface]]
+["preface",id="Preface"]
+== Preface
+
+include::wsdg_src/WSDG_preface.adoc[]
+
+include::common_src/typographic_conventions.adoc[]
+
+[[PartEnvironment]]
+= Wireshark Build Environment
+
+[partintro]
+.Wireshark Build Environment
+--
+The first part describes how to set up the tools, libraries and source needed to
+generate Wireshark and how to do some typical development tasks.
+--
+
+include::wsdg_src/WSDG_chapter_env_intro.adoc[]
+
+include::wsdg_src/WSDG_chapter_quick_setup.adoc[]
+
+include::wsdg_src/WSDG_chapter_sources.adoc[]
+
+include::wsdg_src/WSDG_chapter_tools.adoc[]
+
+include::wsdg_src/WSDG_chapter_libraries.adoc[]
+
+[[PartDevelopment]]
+= Wireshark Development
+
+[partintro]
+.Wireshark Development
+--
+The second part describes how the Wireshark sources are structured and how to
+change the sources such as adding a new dissector.
+--
+
+include::wsdg_src/WSDG_chapter_works.adoc[]
+
+include::wsdg_src/WSDG_chapter_build_intro.adoc[]
+
+include::wsdg_src/WSDG_chapter_capture.adoc[]
+
+include::wsdg_src/WSDG_chapter_dissection.adoc[]
+
+include::wsluarm.adoc[]
+
+include::wsdg_src/WSDG_chapter_userinterface.adoc[]
+
+include::wsdg_src/WSDG_chapter_tests.adoc[]
+
+include::common_src/GPL_appendix.adoc[]

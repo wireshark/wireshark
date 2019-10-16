@@ -15,6 +15,7 @@
 #include <string.h>
 
 #include <config.h>
+#include "ui/iface_toolbar.h"
 
 typedef enum {
     EXTCAP_SENTENCE_UNKNOWN,
@@ -62,6 +63,7 @@ typedef enum {
     EXTCAP_PARAM_ENABLED,
     EXTCAP_PARAM_FILE_MUSTEXIST,
     EXTCAP_PARAM_FILE_EXTENSION,
+    EXTCAP_PARAM_GROUP,
     EXTCAP_PARAM_PARENT,
     EXTCAP_PARAM_REQUIRED,
     EXTCAP_PARAM_RELOAD,
@@ -112,6 +114,8 @@ typedef struct _extcap_arg {
     gboolean reload;
 
     gchar * regexp;
+
+    gchar * group;
 
     extcap_arg_type arg_type;
 
@@ -181,6 +185,9 @@ gboolean extcap_compare_is_default(extcap_arg *element, extcap_complex *test);
 /* Free a single argument */
 void extcap_free_arg(extcap_arg *a);
 
+/* Free entire toolbar control structure */
+void extcap_free_toolbar_control(iface_toolbar_control *control);
+
 /* Free an entire arg list */
 void extcap_free_arg_list(GList *a);
 
@@ -206,7 +213,7 @@ GList * extcap_parse_dlts(gchar *output);
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

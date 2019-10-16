@@ -451,7 +451,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             ipp_trans=wmem_new(wmem_file_scope(), ipp_transaction_t);
             ipp_trans->req_frame = pinfo->num;
             ipp_trans->rep_frame = 0;
-            ipp_trans->req_time = pinfo->fd->abs_ts;
+            ipp_trans->req_time = pinfo->abs_ts;
             wmem_map_insert(ipp_info->pdus, GUINT_TO_POINTER(request_id), (void *)ipp_trans);
         } else {
             ipp_trans=(ipp_transaction_t *)wmem_map_lookup(ipp_info->pdus, GUINT_TO_POINTER(request_id));
@@ -467,7 +467,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         ipp_trans=wmem_new(wmem_packet_scope(), ipp_transaction_t);
         ipp_trans->req_frame = 0;
         ipp_trans->rep_frame = 0;
-        ipp_trans->req_time = pinfo->fd->abs_ts;
+        ipp_trans->req_time = pinfo->abs_ts;
     }
 
     /* print state tracking in the tree */
@@ -478,7 +478,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             it = proto_tree_add_uint(ipp_tree, hf_ipp_response_in,
                             tvb, 0, 0, ipp_trans->rep_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
     } else {
         /* This is a response */
@@ -488,11 +488,11 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             it = proto_tree_add_uint(ipp_tree, hf_ipp_response_to,
                             tvb, 0, 0, ipp_trans->req_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
 
-            nstime_delta(&ns, &pinfo->fd->abs_ts, &ipp_trans->req_time);
+            nstime_delta(&ns, &pinfo->abs_ts, &ipp_trans->req_time);
             it = proto_tree_add_time(ipp_tree, hf_ipp_response_time, tvb, 0, 0, &ns);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
     }
 
@@ -774,12 +774,6 @@ parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree)
     return offset;
 }
 
-static const value_string boolean_vals[] = {
-    { 0x00, "false" },
-    { 0x01, "true" },
-    { 0,    NULL }
-};
-
 static proto_tree *
 add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
                  int name_length, const gchar *name, int value_length, guint8 tag)
@@ -996,7 +990,7 @@ add_integer_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
             break;
 
         default :
-            proto_tree_add_string_format(tree, hf_ipp_integer_value, tvb, valoffset, value_length, 0, "%s value: ??? %d bytes ???", tag_desc, value_length);
+            proto_tree_add_int_format(tree, hf_ipp_integer_value, tvb, valoffset, value_length, 0, "%s value: ??? %d bytes ???", tag_desc, value_length);
             break;
     }
 }
@@ -1513,7 +1507,7 @@ proto_register_ipp(void)
       { &hf_ipp_request_id, { "request-id", "ipp.request_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ipp_name, { "name", "ipp.name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ipp_memberattrname, { "memberAttrName", "ipp.memberattrname", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ipp_boolean_value, { "boolean value", "ipp.boolean_value", FT_UINT8, BASE_HEX, VALS(boolean_vals), 0x0, NULL, HFILL }},
+      { &hf_ipp_boolean_value, { "boolean value", "ipp.boolean_value", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ipp_integer_value, { "integer value", "ipp.integer_value", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ipp_enum_value, { "enum value", "ipp.enum_value", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ipp_enum_value_printer_state, { "printer-state", "ipp.enum_value", FT_INT32, BASE_DEC, VALS(printer_state_vals), 0x0, NULL, HFILL }},
@@ -1564,7 +1558,7 @@ proto_reg_handoff_ipp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

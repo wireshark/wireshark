@@ -1,0 +1,174 @@
+include::attributes.adoc[]
+:stylesheet: ws.css
+:linkcss:
+
+= Wireshark {wireshark-version} Release Notes
+// AsciiDoc quick reference: https://powerman.name/doc/asciidoc
+// Asciidoctor Syntax Quick Reference:
+// https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
+
+This is an experimental release intended to test new features for
+Wireshark 3.2.
+
+== What is Wireshark?
+
+Wireshark is the world’s most popular network protocol analyzer. It is
+used for troubleshooting, analysis, development and education.
+
+== What’s New
+
+Many improvements have been made. See the “New and Updated Features”
+section below for more details.
+
+// === Bug Fixes
+
+// The following bugs have been fixed:
+
+//* wsbuglink:5000[]
+//* wsbuglink:6000[Wireshark bug]
+//* cveidlink:2014-2486[]
+//* Wireshark is solely responsible for the decline of shopping malls in your area.
+
+=== New and Updated Features
+
+The following features are new (or have been significantly updated)
+since version 3.1.0:
+
+* You can once again mark and unmark packets using the middle mouse button. This feature
+  went missing around 2009 or so.
+
+The following features are new (or have been significantly updated)
+since version 3.0.0:
+
+* Drag&Drop a field to a column header to create a column for that field, or to the
+  display filter input to create a display filter. If a display filter is applied,
+  the new filter can be added using the same rules as "Apply Filter"
+* Drag&Drop a column entry to the display filter to create a filter for it
+* Import profiles from a .zip archive or an existing directory
+* Dark mode support on macOS and dark theme support on other platforms
+  has been improved.
+* Brotli decompression support in HTTP/HTTP2 (requires the brotli library).
+* The build system now checks for a SpeexDSP system library installation. The
+  bundled Speex resampler code is still provided as a fallback.
+* WireGuard decryption can now be enabled through keys embedded in a pcapng in
+  addition to the existing key log preference (wsbuglink:15571[]).
+* A new tap for extracting credentials from the capture file has been added.
+  It can be accessed through the `-z credentials` option in tshark or from the
+  “Tools” menu in Wireshark.
+* Editcap can now split files on floating point intervals.
+* Windows .msi packages are now https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-signing-support-requirement-for-windows-and-wsus[signed using SHA-2].
+  .exe installers are still dual-signed using SHA-1 and SHA-2.
+* The “Enabled Protocols” Dialog now only enables, disables and inverts protocols based on the set filter selection. The protocol type (standard or heuristic) may also be choosen as a filter value.
+* The “Analyze -> Apply as Filter” and “Analyze -> Prepare a Filter” packet list and detail popup menus now show a preview of their respective filters.
+* Protobuf files (*.proto) can now be configured to enable more precise parsing of serialized Protobuf data (such as gRPC).
+
+// === Removed Features and Support
+
+//=== Removed Dissectors
+
+// === New File Format Decoding Support
+
+// [commaize]
+// --
+// --
+
+=== New Protocol Support
+
+// Add one protocol per line between the -- delimiters.
+[commaize]
+--
+3GPP BICC MST (BICC-MST)
+3GPP/GSM Cell Broadcast Service Protocol (cbsp)
+3GPP log packet (LOG3GPP)
+Bluetooth Mesh Beacon
+Bluetooth Mesh PB-ADV
+Bluetooth Mesh Provisioning PDU
+Bluetooth Mesh Proxy
+CableLabs Layer-3 Protocol IEEE EtherType 0xb4e3 (CL3)
+DCOM IProvideClassInfo
+DCOM ITypeInfo
+Diagnostic Log and Trace (DLT)
+Distributed Replicated Block Device (DRBD)
+Dual Channel Wi-Fi (CL3DCW)
+EBHSCR Protocol (EBHSCR)
+EERO Protocol (EERO)
+evolved Common Public Radio Interface (eCPRI)
+File Server Remote VSS Protocol (FSRVP)
+FTDI FT USB Bridging Devices (FTDI FT)
+Graylog Extended Log Format over UDP (GELF)
+GSM/3GPP CBSP (Cell Broadcast Service Protocol)
+MIDI System Exclusive DigiTech (SYSEX DigiTech)
+Network Controller Sideband Interface (NCSI)
+NR Positioning Protocol A (NRPPa) TS 38.455
+NVM Express over Fabrics for TCP (nvme-tcp)
+OsmoTRX Protocol (GSM Transceiver control and data)
+Scalable service-Oriented MiddlewarE over IP (SOME/IP)
+Linux net_dm (network drop monitor) protocol
+--
+
+=== Updated Protocol Support
+
+Too many protocols have been updated to list here.
+
+=== New and Updated Capture File Support
+
+// There is no new or updated capture file support in this release.
+// Add one file type per line between the -- delimiters.
+[commaize]
+--
+3gpp phone
+Android Logcat Text
+Ascend
+Candump
+Endace ERF
+NetScaler
+pcapng
+Savvius {asterisk}Peek
+--
+
+// === New and Updated Capture Interfaces support
+
+//_Non-empty section placeholder._
+
+// === Major API Changes
+
+== Getting Wireshark
+
+Wireshark source code and installation packages are available from
+https://www.wireshark.org/download.html.
+
+=== Vendor-supplied Packages
+
+Most Linux and Unix vendors supply their own Wireshark packages. You can
+usually install or upgrade Wireshark using the package management system
+specific to that platform. A list of third-party packages can be found
+on the https://www.wireshark.org/download.html#thirdparty[download page]
+on the Wireshark web site.
+
+== File Locations
+
+Wireshark and TShark look in several different locations for preference
+files, plugins, SNMP MIBS, and RADIUS dictionaries. These locations vary
+from platform to platform. You can use About→Folders to find the default
+locations on your system.
+
+== Getting Help
+
+The User’s Guide, manual pages and various other documentation can be
+found at https://www.wireshark.org/docs/
+
+Community support is available on https://ask.wireshark.org/[Wireshark’s
+Q&A site] and on the wireshark-users mailing list. Subscription
+information and archives for all of Wireshark’s mailing lists can be
+found on https://www.wireshark.org/lists/[the web site].
+
+Bugs and feature requests can be reported on
+https://bugs.wireshark.org/[the bug tracker].
+
+Official Wireshark training and certification are available from
+https://www.wiresharktraining.com/[Wireshark University].
+
+== Frequently Asked Questions
+
+A complete FAQ is available on the
+https://www.wireshark.org/faq.html[Wireshark web site].

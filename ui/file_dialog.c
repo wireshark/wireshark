@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2006 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -26,7 +27,8 @@ get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
                       int *err, gchar **err_info)
 {
     gint64       data_offset;
-    const wtap_rec *rec;
+    wtap_rec     rec;
+    Buffer       buf;
     guint32      records;
     guint32      data_records;
     double       start_time;
@@ -43,10 +45,11 @@ get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
     data_records = 0;
     timed_out = FALSE;
     time(&time_preview);
-    while ((wtap_read(wth, err, err_info, &data_offset))) {
-        rec = wtap_get_rec(wth);
-        if (rec->presence_flags & WTAP_HAS_TS) {
-            cur_time = nstime_to_sec(&rec->ts);
+    wtap_rec_init(&rec);
+    ws_buffer_init(&buf, 1514);
+    while ((wtap_read(wth, &rec, &buf, err, err_info, &data_offset))) {
+        if (rec.presence_flags & WTAP_HAS_TS) {
+            cur_time = nstime_to_sec(&rec.ts);
             if (!have_times) {
                 start_time = cur_time;
                 stop_time = cur_time;
@@ -60,7 +63,7 @@ get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
             }
         }
 
-        switch (rec->rec_type) {
+        switch (rec.rec_type) {
 
         case REC_TYPE_PACKET:
         case REC_TYPE_FT_SPECIFIC_EVENT:
@@ -86,6 +89,9 @@ get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
     stats->stop_time = stop_time;
     stats->records = records;
     stats->data_records = data_records;
+
+    wtap_rec_cleanup(&rec);
+    ws_buffer_free(&buf);
 
     if (*err != 0) {
         /* Read error. */

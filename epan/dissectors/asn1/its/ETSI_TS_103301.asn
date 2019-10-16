@@ -1,0 +1,179 @@
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- ETSI TS 103 301
+--
+-- This ASN.1 was generated: 30.08.2016
+--
+-- This document contains the data element needed for the encoding the SPATEM, MAPEM, IVIM, SSEM and SREM message
+-- as defined in ETSI TS 103 301
+--
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+--
+-- module: SPAT-MESSAGE-PDU-Descriptions
+--
+-- This ASN.1 was created: 30.08.2016
+--
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+SPATEM-PDU-Descriptions {
+    itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en (103301) spatem (0) version2 (2)
+}
+    DEFINITIONS AUTOMATIC TAGS ::=
+
+    BEGIN
+
+    IMPORTS
+    SPAT FROM DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc (2) version2
+    (2) }
+
+    ItsPduHeader FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1
+    (1) ts (102894) cdd (2) version (2) };
+
+    SPATEM ::= SEQUENCE {
+     header ItsPduHeader,
+     spat SPAT
+    }
+END
+
+
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+--
+-- module: MAP-MESSAGE-PDU-Descriptions
+--
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+MAPEM-PDU-Descriptions {
+    itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en (103301) mapem (1) version2 (2)
+}
+    DEFINITIONS AUTOMATIC TAGS ::=
+
+    BEGIN
+
+    IMPORTS
+
+    MapData
+    FROM DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc (2) version2 (2) }
+
+    ItsPduHeader
+    FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (2)};
+
+    MAPEM ::= SEQUENCE {
+     header ItsPduHeader,
+     map MapData
+    }
+
+END 
+
+
+
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+--
+-- module: IVI-MESSAGE-PDU-Descriptions
+--
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+IVIM-PDU-Descriptions {
+ itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en (103301) ivim (2)
+version2 (2)
+}
+    DEFINITIONS AUTOMATIC TAGS ::=
+
+    BEGIN
+
+    IMPORTS
+
+    IviStructure FROM IVI {iso (1) standard (0) ivi (19321) version1 (1)}
+
+    ItsPduHeader FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1
+    (1) ts (102894) cdd (2) version (2)};
+
+    IVIM ::= SEQUENCE {
+     header ItsPduHeader,
+     ivi IviStructure
+    }
+
+END 
+
+
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+--
+-- module: SRM-MESSAGE-PDU-Descriptions
+--
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+SREM-PDU-Descriptions {
+ itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en (103301) srem (3)
+version2 (2)
+}
+    DEFINITIONS AUTOMATIC TAGS ::=
+
+    BEGIN
+
+    IMPORTS
+
+    SignalRequestMessage FROM DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2)
+    dsrc (2) version2 (2) }
+
+    ItsPduHeader FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1
+    (1) ts (102894) cdd (2) version (2)};
+
+    SREM ::= SEQUENCE {
+     header ItsPduHeader,
+     srm SignalRequestMessage
+    }
+END 
+
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+--
+-- module: SSM-MESSAGE-PDU-Descriptions
+--
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+SSEM-PDU-Descriptions {
+ itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en (103301) ssem (4)
+version2 (2)
+}
+    DEFINITIONS AUTOMATIC TAGS ::=
+
+    BEGIN
+
+    IMPORTS
+
+    SignalStatusMessage FROM DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc
+    (2) version2 (2) }
+
+    ItsPduHeader FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1
+    (1) ts (102894) cdd (2) version (2)};
+
+    SSEM ::= SEQUENCE {
+     header ItsPduHeader,
+     ssm SignalStatusMessage
+    }
+
+END
+
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+--
+-- module: RTCM corrections extended message
+--
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+RTCMEM-PDU-Descriptions {
+ itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en (103301) rtcmem (5)
+version1 (1)
+}
+    DEFINITIONS AUTOMATIC TAGS ::=
+
+    BEGIN
+
+    IMPORTS
+
+    RTCMcorrections FROM DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc (2)
+    version2 (2) }
+
+    ItsPduHeader FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1
+    (1) ts (102894) cdd (2) version (2)};
+
+    RTCMEM ::= SEQUENCE {
+     header ItsPduHeader,
+     rtcmc RTCMcorrections
+    }
+
+END

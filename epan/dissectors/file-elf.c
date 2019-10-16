@@ -1,14 +1,14 @@
 /* file-elf.c
  * Routines for Executable and Linkable Format
  * Based on: SYSTEM V APPLICATION BINARY INTERFACE Edition 4.1
- * http://www.sco.com/developers/devspecs/
- * http://www.sco.com/developers/gabi/latest/contents.html
- * http://refspecs.linuxfoundation.org/
- * http://refspecs.linuxfoundation.org/LSB_4.1.0/LSB-Core-generic/LSB-Core-generic/ehframechpt.html
+ * https://www.sco.com/developers/devspecs/
+ * https://www.sco.com/developers/gabi/latest/contents.html
+ * https://refspecs.linuxfoundation.org/
+ * https://refspecs.linuxfoundation.org/LSB_4.1.0/LSB-Core-generic/LSB-Core-generic/ehframechpt.html
  * http://dwarfstd.org/doc/DWARF4.pdf
- * http://www.sco.com/developers/devspecs/
  *
  * Copyright 2013, Michal Labedzki for Tieto Corporation
+ * Copyright (C) 2019 Peter Wu <peter@lekensteyn.nl>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -232,6 +232,7 @@ static const value_string type_vals[] = {
     { 0, NULL }
 };
 
+/* From https://www.sco.com/developers/gabi/latest/ch4.eheader.html */
 static const value_string machine_vals[] = {
     {   0,  "No machine" },
     {   1,  "AT&T WE 32100" },
@@ -239,8 +240,8 @@ static const value_string machine_vals[] = {
     {   3,  "Intel 80386" },
     {   4,  "Motorola 68000" },
     {   5,  "Motorola 88000" },
+    {   6,  "Intel MCU" },
     {   7,  "Intel 80860" },
-    /* From Draft */
     {   8,  "MIPS I Architecture" },
     {   9,  "IBM System/370 Processor" },
     {  10,  "MIPS RS3000 Little-endian" },
@@ -349,6 +350,8 @@ static const value_string machine_vals[] = {
     { 140,  "The Texas Instruments TMS320C6000 DSP family" },
     { 141,  "The Texas Instruments TMS320C2000 DSP family" },
     { 142,  "The Texas Instruments TMS320C55x DSP family" },
+    { 143,  "Texas Instruments Application Specific RISC Processor, 32bit fetch" },
+    { 144,  "Texas Instruments Programmable Realtime Unit" },
     { 160,  "STMicroelectronics 64bit VLIW Data Signal Processor" },
     { 161,  "Cypress M8C microprocessor" },
     { 162,  "Renesas R32C series microprocessors" },
@@ -395,6 +398,29 @@ static const value_string machine_vals[] = {
     { 202,  "Beyond BA2 CPU architecture" },
     { 203,  "XMOS xCORE processor family" },
     { 204,  "Microchip 8-bit PIC(r) family" },
+    { 205,  "Reserved by Intel" },
+    { 206,  "Reserved by Intel" },
+    { 207,  "Reserved by Intel" },
+    { 208,  "Reserved by Intel" },
+    { 209,  "Reserved by Intel" },
+    { 210,  "KM211 KM32 32-bit processor" },
+    { 211,  "KM211 KMX32 32-bit processor" },
+    { 212,  "KM211 KMX16 16-bit processor" },
+    { 213,  "KM211 KMX8 8-bit processor" },
+    { 214,  "KM211 KVARC processor" },
+    { 215,  "Paneve CDP architecture family" },
+    { 216,  "Cognitive Smart Memory Processor" },
+    { 217,  "Bluechip Systems CoolEngine" },
+    { 218,  "Nanoradio Optimized RISC" },
+    { 219,  "CSR Kalimba architecture family" },
+    { 220,  "Zilog Z80" },
+    { 221,  "Controls and Data Services VISIUMcore processor" },
+    { 222,  "FTDI Chip FT32 high performance 32-bit RISC architecture" },
+    { 223,  "Moxie processor family" },
+    { 224,  "AMD GPU architecture" },
+    { 243,  "RISC-V" },
+    { 247,  "Linux kernel bpf virtual machine" }, /* From LLVM / glibc 2.24 */
+    { 252,  "C-SKY" },  /* from glibc 2.30 elf/elf.h commit 5fbcd76351ee */
     { 0, NULL }
 };
 static value_string_ext machine_vals_ext = VALUE_STRING_EXT_INIT(machine_vals);
@@ -450,7 +476,7 @@ static const value_string sh_type_vals[] = {
     { 16,  "SHT_PREINIT_ARRAY" },
     { 17,  "SHT_GROUP" },
     { 18,  "SHT_SYMTAB_SHNDX" },
-    /* TODO: http://www.sco.com/developers/gabi/latest/ch4.sheader.html range_string? */
+    /* TODO: https://www.sco.com/developers/gabi/latest/ch4.sheader.html range_string? */
     { 0, NULL }
 };
 static value_string_ext sh_type_vals_ext = VALUE_STRING_EXT_INIT(sh_type_vals);
@@ -674,7 +700,7 @@ get_section_name_offset(tvbuff_t *tvb, guint64 shoff, guint16 shnum, guint16 she
     if (shndx > shnum)
         return NULL;
 
-    offset = value_guard(shoff + shndx * shentsize);
+    offset = value_guard(shoff + (guint32)shndx * (guint32)shentsize);
     sh_name = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
     return tvb_get_const_stringz(tvb, value_guard(shstrtab_offset + sh_name), NULL);
 }
@@ -1293,7 +1319,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     section_header_tree = proto_tree_add_subtree_format(main_tree, tvb, value_guard(shoff),
             shnum * shentsize, ett_elf_section_header, NULL, "Section Header Table [%d entries]", shnum);
 
-    file_size = ehsize + phnum * phentsize + shnum * shentsize;
+    file_size = ehsize + (guint32)phnum * (guint32)phentsize + (guint32)shnum * (guint32)shentsize;
 
     /* Collect infos for blackholes */
     segment_info = (segment_info_t *) wmem_alloc(wmem_packet_scope(), sizeof(segment_info_t) * (shnum + phnum + 3));
@@ -1305,14 +1331,14 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     if (phoff) {
         segment_info[area_counter].offset = phoff;
-        segment_info[area_counter].size = phnum * phentsize;
+        segment_info[area_counter].size = (guint32)phnum * (guint32)phentsize;
         segment_info[area_counter].name = "ProgramHeader";
         area_counter += 1;
     }
 
     if (shoff) {
         segment_info[area_counter].offset = shoff;
-        segment_info[area_counter].size = shnum * shentsize;
+        segment_info[area_counter].size = (guint32)shnum * (guint32)shentsize;
         segment_info[area_counter].name = "SectionHeader";
         area_counter += 1;
     }
@@ -1436,7 +1462,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         offset += 4;
 
-        length = shoff + shstrndx * shentsize + 2 * 4 + 2 * register_size;
+        length = shoff + (guint32)shstrndx * (guint32)shentsize + 2 * 4 + 2 * register_size;
         if (register_size == REGISTER_32_SIZE) {
             shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
                     tvb_get_ntohl(tvb, value_guard(length)) : tvb_get_letohl(tvb, value_guard(length));
@@ -1511,7 +1537,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         }
         offset += 4;
 
-        length = shoff + shstrndx * shentsize + 2 * 4 + 2 * register_size;
+        length = shoff + (guint32)shstrndx * (guint32)shentsize + 2 * 4 + 2 * register_size;
         if (register_size == REGISTER_32_SIZE) {
             shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
                     tvb_get_ntohl(tvb, value_guard(length)) : tvb_get_letohl(tvb, value_guard(length));
@@ -1600,7 +1626,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         }
         offset += register_size;
 
-        if (segment_size > 0 && sh_type != 8) {
+        if (segment_size > 0 && sh_type != 8) { /* ! SHT_NOBITS */
             file_size += segment_size;
 
             segment_info[area_counter].offset = segment_offset;
@@ -1661,7 +1687,9 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                         i += 1;
                     }
             } else {
-                if (sh_entsize > 0) {
+                /* .debug_str sections have sh_entsize 1, displaying every byte
+                 * individually can explode the tree size, so require > 1. */
+                if (sh_entsize > 1) {
                     next_offset = value_guard(segment_offset);
                     for  (i = 1; i < (segment_size / sh_entsize) + 1; i += 1) {
                         proto_tree_add_bytes_format(segment_tree, hf_elf_entry_bytes, tvb, next_offset,
@@ -1675,7 +1703,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     /* Try to detect blackholes and overlapping segments */
     generated_tree = proto_tree_add_subtree(main_tree, tvb, 0, 0, ett_elf_info, &generated_item, "Infos");
-    PROTO_ITEM_SET_GENERATED(generated_item);
+    proto_item_set_generated(generated_item);
 
     blackhole_tree = proto_tree_add_subtree(generated_tree, tvb, 0, 0, ett_elf_black_holes, NULL, "Backholes");
     overlapping_tree = proto_tree_add_subtree(generated_tree, tvb, 0, 0, ett_elf_overlapping, NULL, "Overlapping");
@@ -2336,7 +2364,7 @@ proto_register_elf(void)
             NULL, HFILL }
         },
         { &hf_elf_symbol_table_shndx,
-            { "Releated Section Header Index",             "elf.symbol_table.shndx",
+            { "Related Section Header Index",             "elf.symbol_table.shndx",
             FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(symbol_table_shndx_rvals), 0x00,
             NULL, HFILL }
         },
@@ -2495,7 +2523,7 @@ proto_reg_handoff_elf(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

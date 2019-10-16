@@ -6,41 +6,16 @@ PKIX1Explicit88	pkix1explicit
 PKIX1Implicit88	pkix1implicit
 CryptographicMessageSyntax2004 cms
 
-#.IMPORT ../cms/cms-exp.cnf
 #.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
 #.INCLUDE ../pkix1implicit/pkix1implicit_exp.cnf
 
 #.EXPORTS
-Authenticator
-Attributes
 AttributeTypeAndValue
 CertId
-CertReq
 CertReqMessages
-CertReqMsg
-CertRequest
 CertTemplate
-Controls
-EncKeyWithID
-EncryptedKey
 EncryptedValue
-KeyGenParameters
-OldCertId
-OptionalValidity
-PBMParameter
-PKIArchiveOptions
 PKIPublicationInfo
-PKMACValue
-POPOPrivKey
-POPOSigningKey
-POPOSigningKeyInput
-PrivateKeyInfo
-ProofOfPossession
-ProtocolEncrKey
-RegToken
-SinglePubInfo
-SubsequentMessage
-UTF8Pairs
 
 #.REGISTER
 EncKeyWithID         B "1.2.840.113549.1.9.16.1.21" "id-ct-encKeyWithID"
@@ -52,7 +27,7 @@ PKIArchiveOptions    B "1.3.6.1.5.5.7.5.1.4"        "id-regCtrl-pkiArchiveOption
 OldCertId            B "1.3.6.1.5.5.7.5.1.5"        "id-regCtrl-oldCertID"
 ProtocolEncrKey      B "1.3.6.1.5.5.7.5.1.6"        "id-regCtrl-protocolEncrKey"
 UTF8Pairs            B "1.3.6.1.5.5.7.5.2.1"        "id-regInfo-utf8Pairs"
-CertRequest          B "1.3.6.1.5.5.7.5.2.2"        "id-regInfo-certReq"
+CertReq              B "1.3.6.1.5.5.7.5.2.2"        "id-regInfo-certReq"
 
 #.NO_EMIT
 
@@ -72,5 +47,3 @@ EncKeyWithID/privateKey         enckeywid_privkey
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.END
-
-

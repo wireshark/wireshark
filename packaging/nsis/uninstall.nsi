@@ -3,7 +3,7 @@
 ;
 
 ; Create an installer that only writes an uninstaller.
-; http://nsis.sourceforge.net/Signing_an_Uninstaller
+; https://nsis.sourceforge.io/Signing_an_Uninstaller
 
 !include "common.nsh"
 !include 'LogicLib.nsh'
@@ -15,7 +15,7 @@ SetCompress off
 OutFile "${STAGING_DIR}\uninstall_installer.exe"
 RequestExecutionLevel user
 
-InstType "un.Default (keep Personal Settings and WinPcap)"
+InstType "un.Default (keep Personal Settings and Npcap)"
 InstType "un.All (remove all)"
 
 ; Uninstaller icon
@@ -133,6 +133,7 @@ Push "dftest"
 Push "dumpcap"
 Push "editcap"
 Push "mergecap"
+Push "randpkt"
 Push "randpktdump"
 Push "rawshark"
 Push "reordercap"
@@ -213,6 +214,7 @@ Delete "$INSTDIR\share\glib-2.0\schemas\*.*"
 Delete "$INSTDIR\share\themes\Default\gtk-2.0\*.*"
 Delete "$INSTDIR\snmp\*.*"
 Delete "$INSTDIR\snmp\mibs\*.*"
+Delete "$INSTDIR\styles\*.*"
 Delete "$INSTDIR\tpncp\*.*"
 Delete "$INSTDIR\translations\*.*"
 Delete "$INSTDIR\ui\*.*"
@@ -231,19 +233,19 @@ Delete "$INSTDIR\pdml2html.xsl"
 Delete "$INSTDIR\pcrepattern.3.txt"
 Delete "$INSTDIR\user-guide.chm"
 Delete "$INSTDIR\example_snmp_users_file"
+Delete "$INSTDIR\ipmap.html"
 Delete "$INSTDIR\radius\*.*"
 Delete "$INSTDIR\dtds\*.*"
+
+!define PROGRAM_NAME_GTK "${PROGRAM_NAME} Legacy"
 Delete "$SMPROGRAMS\${PROGRAM_NAME}\*.*"
 Delete "$SMPROGRAMS\${PROGRAM_NAME}.lnk"
 Delete "$SMPROGRAMS\${PROGRAM_NAME_GTK}.lnk"
-Delete "$SMPROGRAMS\${PROGRAM_NAME_QT}.lnk"
 Delete "$SMPROGRAMS\Qtshark.lnk"
 Delete "$DESKTOP\${PROGRAM_NAME}.lnk"
 Delete "$DESKTOP\${PROGRAM_NAME_GTK}.lnk"
-Delete "$DESKTOP\${PROGRAM_NAME_QT}.lnk"
 Delete "$QUICKLAUNCH\${PROGRAM_NAME}.lnk"
 Delete "$QUICKLAUNCH\${PROGRAM_NAME_GTK}.lnk"
-Delete "$QUICKLAUNCH\${PROGRAM_NAME_QT}.lnk"
 
 RMDir "$INSTDIR\accessible"
 RMDir "$INSTDIR\audio"
@@ -284,6 +286,7 @@ RMDir "$INSTDIR\share\themes\Default\gtk-2.0"
 RMDir "$INSTDIR\share\themes\Default"
 RMDir "$INSTDIR\share\themes"
 RMDir "$INSTDIR\share"
+RMDir "$INSTDIR\styles"
 RMDir "$SMPROGRAMS\${PROGRAM_NAME}"
 RMDir "$INSTDIR\help"
 RMDir "$INSTDIR\diameter"
@@ -338,20 +341,20 @@ RMDir "$APPDATA\${PROGRAM_NAME}"
 DeleteRegKey HKCU "Software\${PROGRAM_NAME}"
 SectionEnd
 
-;VAR un.WINPCAP_UNINSTALL
+;VAR un.NPCAP_UNINSTALL
 
-Section /o "Un.WinPcap" un.SecWinPcap
+Section /o "Un.Npcap" un.SecNpcap
 ;-------------------------------------------
 SectionIn 2
-ReadRegStr $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString"
-;IfErrors un.lbl_winpcap_notinstalled ;if RegKey is unavailable, WinPcap is not installed
+ReadRegStr $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NpcapInst" "UninstallString"
+;IfErrors un.lbl_npcap_notinstalled ;if RegKey is unavailable, Npcap is not installed
 ${If} $1 != ""
-    ;MessageBox MB_OK "WinPcap $1" /SD IDOK
+    ;MessageBox MB_OK "Npcap $1" /SD IDOK
     ExecWait '$1' $0
-    DetailPrint "WinPcap uninstaller returned $0"
+    DetailPrint "Npcap uninstaller returned $0"
     ;SetRebootFlag true
 ${EndIf}
-;un.lbl_winpcap_notinstalled:
+;un.lbl_npcap_notinstalled:
 SectionEnd
 
 Section "-Un.Finally"
@@ -372,12 +375,12 @@ SectionEnd
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecProfiles} "Uninstall all global configuration profiles."
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\cfilters"
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
-    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecWinPcap} "Call WinPcap's uninstall program."
+    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecNpcap} "Call Npcap's uninstall program."
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUSBPcap} "Call USBPcap's uninstall program."
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_END
 
 ;
-; Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+; Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 ;
 ; Local variables:
 ; c-basic-offset: 4

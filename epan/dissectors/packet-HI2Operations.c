@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-HI2Operations.c                                                     */
-/* asn2wrs.py -b -p HI2Operations -c ./HI2Operations.cnf -s ./packet-HI2Operations-template -D . -O ../.. HI2Operations_ver11.asn UmtsHI2Operations.asn TS101909201.asn PCESP.asn EN301040.asn */
+/* asn2wrs.py -b -p HI2Operations -c ./HI2Operations.cnf -s ./packet-HI2Operations-template -D . -O ../.. HI2Operations_ver11.asn HI3CCLinkData.asn UmtsHI2Operations.asn TS101909201.asn PCESP.asn EN301040.asn */
 
 /* Input file: packet-HI2Operations-template.c */
 
@@ -25,6 +25,8 @@
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
+#include "packet-isup.h"
+#include "packet-q931.h"
 
 #define PNAME  "HI2Operations"
 #define PSNAME "HI2OPERATIONS"
@@ -39,6 +41,7 @@ int proto_HI2Operations = -1;
 /*--- Included file: packet-HI2Operations-hf.c ---*/
 #line 1 "./asn1/HI2Operations/packet-HI2Operations-hf.c"
 static int hf_HI2Operations_IRIsContent_PDU = -1;  /* IRIsContent */
+static int hf_HI2Operations_UUS1_Content_PDU = -1;  /* UUS1_Content */
 static int hf_HI2Operations_iRIContent = -1;      /* IRIContent */
 static int hf_HI2Operations_iRISequence = -1;     /* IRISequence */
 static int hf_HI2Operations_IRISequence_item = -1;  /* IRIContent */
@@ -92,7 +95,7 @@ static int hf_HI2Operations_communication_Identity_Number = -1;  /* OCTET_STRING
 static int hf_HI2Operations_network_Identifier = -1;  /* Network_Identifier */
 static int hf_HI2Operations_operator_Identifier = -1;  /* OCTET_STRING_SIZE_1_5 */
 static int hf_HI2Operations_network_Element_Identifier = -1;  /* Network_Element_Identifier */
-static int hf_HI2Operations_e164_Format = -1;     /* OCTET_STRING_SIZE_1_25 */
+static int hf_HI2Operations_e164_Format = -1;     /* T_e164_Format */
 static int hf_HI2Operations_x25_Format = -1;      /* OCTET_STRING_SIZE_1_25 */
 static int hf_HI2Operations_iP_Format = -1;       /* OCTET_STRING_SIZE_1_25 */
 static int hf_HI2Operations_dNS_Format = -1;      /* OCTET_STRING_SIZE_1_25 */
@@ -109,6 +112,7 @@ static int hf_HI2Operations_imsi = -1;            /* OCTET_STRING_SIZE_3_8 */
 static int hf_HI2Operations_callingPartyNumber = -1;  /* CallingPartyNumber */
 static int hf_HI2Operations_calledPartyNumber = -1;  /* CalledPartyNumber */
 static int hf_HI2Operations_msISDN = -1;          /* OCTET_STRING_SIZE_1_9 */
+static int hf_HI2Operations_e164_Format_01 = -1;  /* OCTET_STRING_SIZE_1_25 */
 static int hf_HI2Operations_sip_uri = -1;         /* OCTET_STRING */
 static int hf_HI2Operations_tel_url = -1;         /* OCTET_STRING */
 static int hf_HI2Operations_services_Information = -1;  /* Services_Information */
@@ -204,6 +208,14 @@ static int hf_HI2Operations_iP_assignment = -1;   /* T_iP_assignment */
 static int hf_HI2Operations_iPBinaryAddress = -1;  /* OCTET_STRING_SIZE_4_16 */
 static int hf_HI2Operations_iPTextAddress = -1;   /* IA5String_SIZE_7_45 */
 static int hf_HI2Operations_countryCode = -1;     /* PrintableString_SIZE_2 */
+static int hf_HI2Operations_lawfullInterceptionIdentifier = -1;  /* LawfulInterceptionIdentifier */
+static int hf_HI2Operations_direction_Indication = -1;  /* Direction_Indication */
+static int hf_HI2Operations_bearer_capability = -1;  /* T_bearer_capability */
+static int hf_HI2Operations_service_Information = -1;  /* Service_Information */
+static int hf_HI2Operations_high_layer_capability = -1;  /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_tMR = -1;             /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_bearerServiceCode = -1;  /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_teleServiceCode = -1;  /* OCTET_STRING_SIZE_1 */
 static int hf_HI2Operations_qosMobileRadio = -1;  /* OCTET_STRING */
 static int hf_HI2Operations_qosGn = -1;           /* OCTET_STRING */
 static int hf_HI2Operations_iri_to_CC = -1;       /* IRI_to_CC_Correlation */
@@ -354,7 +366,7 @@ static int hf_HI2Operations_cI = -1;              /* CellIdType */
 static int hf_HI2Operations_ssi = -1;             /* SSIType */
 
 /*--- End of included file: packet-HI2Operations-hf.c ---*/
-#line 31 "./asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 33 "./asn1/HI2Operations/packet-HI2Operations-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -416,6 +428,8 @@ static gint ett_HI2Operations_DataNodeAddress = -1;
 static gint ett_HI2Operations_IPAddress = -1;
 static gint ett_HI2Operations_IP_value = -1;
 static gint ett_HI2Operations_National_HI2_ASN1parameters = -1;
+static gint ett_HI2Operations_UUS1_Content = -1;
+static gint ett_HI2Operations_Service_Information = -1;
 static gint ett_HI2Operations_UmtsQos = -1;
 static gint ett_HI2Operations_CorrelationValues = -1;
 static gint ett_HI2Operations_T_both_IRI_CC = -1;
@@ -464,7 +478,7 @@ static gint ett_HI2Operations_TETRACGIType = -1;
 static gint ett_HI2Operations_TSIType = -1;
 
 /*--- End of included file: packet-HI2Operations-ett.c ---*/
-#line 34 "./asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 36 "./asn1/HI2Operations/packet-HI2Operations-template.c"
 
 
 /*--- Included file: packet-HI2Operations-fn.c ---*/
@@ -525,6 +539,26 @@ static int
 dissect_HI2Operations_OCTET_STRING_SIZE_1_5(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_HI2Operations_T_e164_Format(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 78 "./asn1/HI2Operations/HI2Operations.cnf"
+  tvbuff_t *parameter_tvb=NULL;
+
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+  if (!parameter_tvb)
+    return offset;
+
+  dissect_isup_calling_party_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
+
+
 
   return offset;
 }
@@ -642,7 +676,7 @@ static const value_string HI2Operations_Network_Element_Identifier_vals[] = {
 };
 
 static const ber_choice_t Network_Element_Identifier_choice[] = {
-  {   1, &hf_HI2Operations_e164_Format, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
+  {   1, &hf_HI2Operations_e164_Format, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_e164_Format },
   {   2, &hf_HI2Operations_x25_Format, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
   {   3, &hf_HI2Operations_iP_Format, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
   {   4, &hf_HI2Operations_dNS_Format, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
@@ -1358,7 +1392,7 @@ static const ber_sequence_t T_partyIdentity_sequence[] = {
   { &hf_HI2Operations_callingPartyNumber, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_CallingPartyNumber },
   { &hf_HI2Operations_calledPartyNumber, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_CalledPartyNumber },
   { &hf_HI2Operations_msISDN, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_9 },
-  { &hf_HI2Operations_e164_Format, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
+  { &hf_HI2Operations_e164_Format_01, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
   { &hf_HI2Operations_sip_uri, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
   { &hf_HI2Operations_tel_url, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
@@ -2087,7 +2121,7 @@ dissect_HI2Operations_LIIDType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_HI2Operations_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3089,7 +3123,7 @@ dissect_HI2Operations_CorrelationValues(gboolean implicit_tag _U_, tvbuff_t *tvb
 static int
 dissect_HI2Operations_TLIIdType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3100,7 +3134,7 @@ dissect_HI2Operations_TLIIdType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_HI2Operations_MCCType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3111,7 +3145,7 @@ dissect_HI2Operations_MCCType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 static int
 dissect_HI2Operations_MNCType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3122,7 +3156,7 @@ dissect_HI2Operations_MNCType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 static int
 dissect_HI2Operations_LocationAreaType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3133,7 +3167,7 @@ dissect_HI2Operations_LocationAreaType(gboolean implicit_tag _U_, tvbuff_t *tvb 
 static int
 dissect_HI2Operations_CellIdType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3161,7 +3195,7 @@ dissect_HI2Operations_TETRACGIType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 static int
 dissect_HI2Operations_SSIType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3199,7 +3233,7 @@ dissect_HI2Operations_NumericString_SIZE_20(gboolean implicit_tag _U_, tvbuff_t 
 static int
 dissect_HI2Operations_BIT_STRING_SIZE_32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3210,7 +3244,7 @@ dissect_HI2Operations_BIT_STRING_SIZE_32(gboolean implicit_tag _U_, tvbuff_t *tv
 static int
 dissect_HI2Operations_BIT_STRING_SIZE_128(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3221,7 +3255,7 @@ dissect_HI2Operations_BIT_STRING_SIZE_128(gboolean implicit_tag _U_, tvbuff_t *t
 static int
 dissect_HI2Operations_TEIType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3743,6 +3777,137 @@ dissect_HI2Operations_IRIsContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
   return offset;
 }
 
+
+static const value_string HI2Operations_Direction_Indication_vals[] = {
+  {   0, "mono-mode" },
+  {   1, "cc-from-target" },
+  {   2, "cc-from-other-party" },
+  {   3, "direction-unknown" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_HI2Operations_Direction_Indication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_HI2Operations_T_bearer_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 87 "./asn1/HI2Operations/HI2Operations.cnf"
+  tvbuff_t *parameter_tvb;
+
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+
+  if (!parameter_tvb)
+    return offset;
+
+  dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), tree);
+
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_HI2Operations_OCTET_STRING_SIZE_1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t Service_Information_set[] = {
+  { &hf_HI2Operations_high_layer_capability, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
+  { &hf_HI2Operations_tMR   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
+  { &hf_HI2Operations_bearerServiceCode, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
+  { &hf_HI2Operations_teleServiceCode, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_HI2Operations_Service_Information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              Service_Information_set, hf_index, ett_HI2Operations_Service_Information);
+
+  return offset;
+}
+
+
+static const ber_sequence_t UUS1_Content_sequence[] = {
+  { &hf_HI2Operations_domainID, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OBJECT_IDENTIFIER },
+  { &hf_HI2Operations_lawfullInterceptionIdentifier, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_LawfulInterceptionIdentifier },
+  { &hf_HI2Operations_communicationIdentifier, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CommunicationIdentifier },
+  { &hf_HI2Operations_cC_Link_Identifier, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_CC_Link_Identifier },
+  { &hf_HI2Operations_direction_Indication, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_HI2Operations_Direction_Indication },
+  { &hf_HI2Operations_bearer_capability, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_bearer_capability },
+  { &hf_HI2Operations_service_Information, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_Service_Information },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_HI2Operations_UUS1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 34 "./asn1/HI2Operations/HI2Operations.cnf"
+
+/* Heuristic test to see if it's our content */
+    gint8    tmp_class;
+    gboolean tmp_pc;
+    gint32   tmp_tag;
+    int      tmp_offset;
+    guint    length = tvb_captured_length(tvb);
+    guint32  tmp_length;
+    gboolean tmp_ind;
+
+    /* Check for min length */
+    if (length < 6){
+      return 0;
+    }
+    /* We start with UUS1-Content ::= SEQUENCE */
+    tmp_offset = get_ber_identifier(tvb, offset, &tmp_class, &tmp_pc, &tmp_tag);
+    if(tmp_class != BER_CLASS_UNI){
+      return 0;
+    }
+    if(tmp_pc != 1){
+      return 0;
+    }
+    if(tmp_tag != BER_UNI_TAG_SEQUENCE){
+      return 0;
+    }
+    /* Get length just to move offset forward */
+    tmp_offset = get_ber_length(tvb, tmp_offset, &tmp_length, &tmp_ind);
+
+    /* Next 2 mandatorry elements
+     *  lawfullInterceptionIdentifier [1] LawfulInterceptionIdentifier,
+     *  communicationIdentifier       [2] CommunicationIdentifier,
+     */
+    get_ber_identifier(tvb, tmp_offset, &tmp_class, &tmp_pc, &tmp_tag);
+    if(tmp_class != BER_CLASS_CON){
+      return 0;
+    }
+    if(tmp_pc != 0){
+      return 0;
+    }
+    if(tmp_tag != 1){
+      return 0;
+    }
+
+
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   UUS1_Content_sequence, hf_index, ett_HI2Operations_UUS1_Content);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static int dissect_IRIsContent_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -3752,10 +3917,17 @@ static int dissect_IRIsContent_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
   offset = dissect_HI2Operations_IRIsContent(FALSE, tvb, offset, &asn1_ctx, tree, hf_HI2Operations_IRIsContent_PDU);
   return offset;
 }
+static int dissect_UUS1_Content_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_HI2Operations_UUS1_Content(FALSE, tvb, offset, &asn1_ctx, tree, hf_HI2Operations_UUS1_Content_PDU);
+  return offset;
+}
 
 
 /*--- End of included file: packet-HI2Operations-fn.c ---*/
-#line 36 "./asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 38 "./asn1/HI2Operations/packet-HI2Operations-template.c"
 
 
 /*--- proto_register_HI2Operations ----------------------------------------------*/
@@ -3769,6 +3941,10 @@ void proto_register_HI2Operations(void) {
     { &hf_HI2Operations_IRIsContent_PDU,
       { "IRIsContent", "HI2Operations.IRIsContent",
         FT_UINT32, BASE_DEC, VALS(HI2Operations_IRIsContent_vals), 0,
+        NULL, HFILL }},
+    { &hf_HI2Operations_UUS1_Content_PDU,
+      { "UUS1-Content", "HI2Operations.UUS1_Content_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_HI2Operations_iRIContent,
       { "iRIContent", "HI2Operations.iRIContent",
@@ -3985,7 +4161,7 @@ void proto_register_HI2Operations(void) {
     { &hf_HI2Operations_e164_Format,
       { "e164-Format", "HI2Operations.e164_Format",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_1_25", HFILL }},
+        NULL, HFILL }},
     { &hf_HI2Operations_x25_Format,
       { "x25-Format", "HI2Operations.x25_Format",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -4050,6 +4226,10 @@ void proto_register_HI2Operations(void) {
       { "msISDN", "HI2Operations.msISDN",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_1_9", HFILL }},
+    { &hf_HI2Operations_e164_Format_01,
+      { "e164-Format", "HI2Operations.e164_Format",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_1_25", HFILL }},
     { &hf_HI2Operations_sip_uri,
       { "sip-uri", "HI2Operations.sip_uri",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -4430,6 +4610,38 @@ void proto_register_HI2Operations(void) {
       { "countryCode", "HI2Operations.countryCode",
         FT_STRING, BASE_NONE, NULL, 0,
         "PrintableString_SIZE_2", HFILL }},
+    { &hf_HI2Operations_lawfullInterceptionIdentifier,
+      { "lawfullInterceptionIdentifier", "HI2Operations.lawfullInterceptionIdentifier",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "LawfulInterceptionIdentifier", HFILL }},
+    { &hf_HI2Operations_direction_Indication,
+      { "direction-Indication", "HI2Operations.direction_Indication",
+        FT_UINT32, BASE_DEC, VALS(HI2Operations_Direction_Indication_vals), 0,
+        NULL, HFILL }},
+    { &hf_HI2Operations_bearer_capability,
+      { "bearer-capability", "HI2Operations.bearer_capability",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_HI2Operations_service_Information,
+      { "service-Information", "HI2Operations.service_Information_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_HI2Operations_high_layer_capability,
+      { "high-layer-capability", "HI2Operations.high_layer_capability",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_1", HFILL }},
+    { &hf_HI2Operations_tMR,
+      { "tMR", "HI2Operations.tMR",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_1", HFILL }},
+    { &hf_HI2Operations_bearerServiceCode,
+      { "bearerServiceCode", "HI2Operations.bearerServiceCode",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_1", HFILL }},
+    { &hf_HI2Operations_teleServiceCode,
+      { "teleServiceCode", "HI2Operations.teleServiceCode",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_1", HFILL }},
     { &hf_HI2Operations_qosMobileRadio,
       { "qosMobileRadio", "HI2Operations.qosMobileRadio",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -5024,7 +5236,7 @@ void proto_register_HI2Operations(void) {
         "SSIType", HFILL }},
 
 /*--- End of included file: packet-HI2Operations-hfarr.c ---*/
-#line 44 "./asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 46 "./asn1/HI2Operations/packet-HI2Operations-template.c"
   };
 
   /* List of subtrees */
@@ -5088,6 +5300,8 @@ void proto_register_HI2Operations(void) {
     &ett_HI2Operations_IPAddress,
     &ett_HI2Operations_IP_value,
     &ett_HI2Operations_National_HI2_ASN1parameters,
+    &ett_HI2Operations_UUS1_Content,
+    &ett_HI2Operations_Service_Information,
     &ett_HI2Operations_UmtsQos,
     &ett_HI2Operations_CorrelationValues,
     &ett_HI2Operations_T_both_IRI_CC,
@@ -5136,7 +5350,7 @@ void proto_register_HI2Operations(void) {
     &ett_HI2Operations_TSIType,
 
 /*--- End of included file: packet-HI2Operations-ettarr.c ---*/
-#line 49 "./asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 51 "./asn1/HI2Operations/packet-HI2Operations-template.c"
   };
 
   /* Register protocol */
@@ -5147,10 +5361,16 @@ void proto_register_HI2Operations(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   register_dissector("HI2Operations", dissect_IRIsContent_PDU, proto_HI2Operations);
+
+
 }
 
 
 /*--- proto_reg_handoff_HI2Operations -------------------------------------------*/
 void proto_reg_handoff_HI2Operations(void) {
+
+    heur_dissector_add("q931_user", dissect_UUS1_Content_PDU, "HI3CCLinkData", "hi3cclinkdata",
+        proto_HI2Operations, HEURISTIC_ENABLE);
+
 }
 

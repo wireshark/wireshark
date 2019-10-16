@@ -36,14 +36,17 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 
 	add_custom_target(portableapps_app_dir
 		# We "Deploy using XCopy," which is described at
-		# https://msdn.microsoft.com/en-us/library/ms235291.aspx
+		# https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2008/ms235291(v=vs.90)
 		# We also assume that the project has been built at this point.
 		COMMAND ${CMAKE_COMMAND} -E remove_directory ${_portableapps_app_dir}
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${_portableapps_app_dir}
 		COMMAND xcopy ${_datafile_dir_native} ${_portableapps_app_dir_native} /D /I /E /Y /exclude:${_xcopy_deploy_exclude}
 	)
 
-	set_target_properties(portableapps_app_dir PROPERTIES FOLDER "Packaging")
+	set_target_properties(portableapps_app_dir PROPERTIES
+		FOLDER "Packaging"
+		EXCLUDE_FROM_DEFAULT_BUILD True
+	)
 
 	if(MSVCR_DLL)
 		add_custom_target(portableapps_runtime
@@ -55,7 +58,10 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 		)
 	endif(MSVCR_DLL)
 
-	set_target_properties(portableapps_runtime PROPERTIES FOLDER "Packaging")
+	set_target_properties(portableapps_runtime PROPERTIES
+		FOLDER "Packaging"
+		EXCLUDE_FROM_DEFAULT_BUILD True
+	)
 	add_dependencies(portableapps_runtime portableapps_app_dir)
 
 	# Build the PortableApps package.
@@ -66,7 +72,10 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 			portableapps_runtime
 			${_portableapps_package}
 	)
-	set_target_properties(portableapps_package PROPERTIES FOLDER "Packaging")
+	set_target_properties(portableapps_package PROPERTIES
+		FOLDER "Packaging"
+		EXCLUDE_FROM_DEFAULT_BUILD True
+	)
 
 	set(PORTABLEAPPS_PACKAGE_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}.0")
 	configure_file(

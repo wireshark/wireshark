@@ -14,7 +14,6 @@
  */
 
 #include "wslua_file_common.h"
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 
 /* WSLUA_CONTINUE_MODULE File */
@@ -145,12 +144,12 @@ static int FrameInfo_set_data (lua_State* L) {
     FrameInfo fi = checkFrameInfo(L,1);
 
     if (!fi->rec) {
-        ws_g_warning("Error in FrameInfo set data: NULL pointer");
+        g_warning("Error in FrameInfo set data: NULL pointer");
         return 0;
     }
 
     if (!fi->buf) {
-        ws_g_warning("Error in FrameInfo set data: NULL frame_buffer pointer");
+        g_warning("Error in FrameInfo set data: NULL frame_buffer pointer");
         return 0;
     }
 
@@ -208,6 +207,7 @@ WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,original_length,rec->rec_header.pa
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,encap,rec->rec_header.packet_header.pkt_encap);
 WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,encap,rec->rec_header.packet_header.pkt_encap,int);
 
+// rec->opt_comment will be freed by wtap_sequential_close -> wtap_rec_cleanup.
 /* WSLUA_ATTRIBUTE FrameInfo_comment RW A string comment for the packet, if the
     `wtap_presence_flags.COMMENTS` was set in the presence flags; nil if there is no comment. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(FrameInfo,comment,rec->opt_comment);
@@ -240,8 +240,7 @@ WSLUA_META FrameInfo_meta[] = {
 };
 
 int FrameInfo_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS(FrameInfo);
-    WSLUA_REGISTER_ATTRIBUTES(FrameInfo);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS(FrameInfo);
     return 0;
 }
 
@@ -385,14 +384,13 @@ WSLUA_META FrameInfoConst_meta[] = {
 };
 
 int FrameInfoConst_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS(FrameInfoConst);
-    WSLUA_REGISTER_ATTRIBUTES(FrameInfoConst);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS(FrameInfoConst);
     return 0;
 }
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

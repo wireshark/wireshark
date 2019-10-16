@@ -10573,10 +10573,10 @@ typedef enum
 static stat_tap_table_item dtap_stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "IEI", "0x%02x  "}, {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Message Name", "%-50s"},
     {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"}};
 
-static void ansi_a_dtap_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void ansi_a_dtap_stat_init(stat_tap_table_ui* new_stat)
 {
     int num_fields = sizeof(dtap_stat_fields)/sizeof(stat_tap_table_item);
-    stat_tap_table* table = stat_tap_init_table("ANSI A-I/F DTAP Statistics", num_fields, 0, NULL, gui_callback, gui_data);
+    stat_tap_table* table = stat_tap_init_table("ANSI A-I/F DTAP Statistics", num_fields, 0, NULL);
     int i = 0;
     stat_tap_table_item_type items[sizeof(dtap_stat_fields)/sizeof(stat_tap_table_item)];
 
@@ -10597,7 +10597,7 @@ static void ansi_a_dtap_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init
     }
 }
 
-static gboolean
+static tap_packet_status
 ansi_a_dtap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
 {
     stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -10609,7 +10609,7 @@ ansi_a_dtap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *e
     if (data_p->pdu_type == BSSAP_PDU_TYPE_DTAP)
     {
         if (my_try_val_to_str_idx(data_p->message_type, ansi_a_dtap_strings, &idx) == NULL)
-            return FALSE;
+            return TAP_PACKET_DONT_REDRAW;
 
         table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
 
@@ -10617,10 +10617,10 @@ ansi_a_dtap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *e
         dtap_data->value.uint_value++;
         stat_tap_set_field_data(table, data_p->message_type, COUNT_COLUMN, dtap_data);
 
-        return TRUE;
+        return TAP_PACKET_REDRAW;
     }
 
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 static void
@@ -10641,10 +10641,10 @@ ansi_a_stat_reset(stat_tap_table* table)
 static stat_tap_table_item bsmap_stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "IEI", "0x%02x  "}, {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Message Name", "%-50s"},
     {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"}};
 
-static void ansi_a_bsmap_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void ansi_a_bsmap_stat_init(stat_tap_table_ui* new_stat)
 {
     int num_fields = sizeof(bsmap_stat_fields)/sizeof(stat_tap_table_item);
-    stat_tap_table* table = stat_tap_init_table("ANSI A-I/F BSMAP Statistics", num_fields, 0, NULL, gui_callback, gui_data);
+    stat_tap_table* table = stat_tap_init_table("ANSI A-I/F BSMAP Statistics", num_fields, 0, NULL);
     int i = 0;
     stat_tap_table_item_type items[sizeof(bsmap_stat_fields)/sizeof(stat_tap_table_item)];
 
@@ -10665,7 +10665,7 @@ static void ansi_a_bsmap_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_ini
     }
 }
 
-static gboolean
+static tap_packet_status
 ansi_a_bsmap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
 {
     stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -10677,7 +10677,7 @@ ansi_a_bsmap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *
     if (data_p->pdu_type == BSSAP_PDU_TYPE_BSMAP)
     {
         if (my_try_val_to_str_idx(data_p->message_type, ansi_a_bsmap_strings, &idx) == NULL)
-            return FALSE;
+            return TAP_PACKET_DONT_REDRAW;
 
         table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
 
@@ -10685,10 +10685,10 @@ ansi_a_bsmap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *
         dtap_data->value.uint_value++;
         stat_tap_set_field_data(table, data_p->message_type, COUNT_COLUMN, dtap_data);
 
-        return TRUE;
+        return TAP_PACKET_REDRAW;
     }
 
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 /* Register the protocol with Wireshark */
@@ -12921,7 +12921,7 @@ proto_reg_handoff_ansi_a(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

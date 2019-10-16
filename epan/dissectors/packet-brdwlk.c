@@ -224,7 +224,7 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 2, pkt_cnt);
         }
         dropped_packets = FALSE;
-        if (pinfo->fd->flags.visited) {
+        if (pinfo->fd->visited) {
             /*
              * This isn't the first pass, so we can't use the global
              * "packet_count" variable to determine whether there were
@@ -260,7 +260,7 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
         hidden_item = proto_tree_add_boolean(brdwlk_tree, hf_brdwlk_drop,
                 tvb, offset, 0, dropped_packets);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
 
         packet_count = pkt_cnt;
 
@@ -401,7 +401,7 @@ proto_reg_handoff_brdwlk(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

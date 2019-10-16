@@ -44,7 +44,7 @@ static int proto_nsh = -1;
 static int hf_nsh_version = -1;
 static int hf_nsh_oam = -1;
 static int hf_nsh_critical_metadata = -1;
-static int hf_nsh_reservedbits = -1;
+static int hf_nsh_ttl = -1;
 static int hf_nsh_length = -1;
 static int hf_nsh_md_type = -1;
 static int hf_nsh_next_proto = -1;
@@ -145,8 +145,8 @@ dissect_nsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	proto_tree_add_item(nsh_tree, hf_nsh_critical_metadata, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 
-	/* Bits 4 - 9 are reserved */
-	proto_tree_add_item(nsh_tree, hf_nsh_reservedbits, tvb, offset, 2, ENC_BIG_ENDIAN);
+	/*NSH Time to live Bits 4 - 9*/
+	proto_tree_add_item(nsh_tree, hf_nsh_ttl, tvb, offset, 2, ENC_BIG_ENDIAN);
 	length_pi = proto_tree_add_item_ret_uint(nsh_tree, hf_nsh_length, tvb, offset, 2, ENC_BIG_ENDIAN, &nsh_bytes_len);
 	nsh_bytes_len *= 4;
 	proto_item_set_len(ti, nsh_bytes_len);
@@ -245,10 +245,10 @@ proto_register_nsh(void)
 		},
 
 
-		{ &hf_nsh_reservedbits,
-		{ "Reserved Bits", "nsh.reservedbits",
+		{ &hf_nsh_ttl,
+		{ "Time to live", "nsh.ttl",
 		FT_UINT16, BASE_HEX, NULL, 0x0FC0,
-		"Reserved bits within NSH Base Header", HFILL }
+		"Maximum SFF hops for an SFP, this field is used for service-plane loop detection", HFILL }
 		},
 
 

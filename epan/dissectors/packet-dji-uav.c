@@ -110,7 +110,7 @@ request_response_handling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *djiuav_
 
 		conversation_add_proto_data(conversation, proto_djiuav, djiuav_info);
 	}
-	if (!pinfo->fd->flags.visited) {
+	if (!pinfo->fd->visited) {
 		if (is_cmd) {
 			djiuav_trans=wmem_new(wmem_file_scope(), djiuav_transaction_t);
 			djiuav_trans->request_frame=pinfo->num;
@@ -140,7 +140,7 @@ request_response_handling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *djiuav_
 
 				it = proto_tree_add_uint(djiuav_tree, hf_djiuav_response_in,
 						tvb, 0, 0, djiuav_trans->reply_frame);
-				PROTO_ITEM_SET_GENERATED(it);
+				proto_item_set_generated(it);
 			}
 		} else {
 			if (djiuav_trans->request_frame) {
@@ -149,11 +149,11 @@ request_response_handling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *djiuav_
 
 				it = proto_tree_add_uint(djiuav_tree, hf_djiuav_response_to,
 						tvb, 0, 0, djiuav_trans->request_frame);
-				PROTO_ITEM_SET_GENERATED(it);
+				proto_item_set_generated(it);
 
 				nstime_delta(&ns, &pinfo->abs_ts, &djiuav_trans->request_time);
 				it = proto_tree_add_time(djiuav_tree, hf_djiuav_response_time, tvb, 0, 0, &ns);
-				PROTO_ITEM_SET_GENERATED(it);
+				proto_item_set_generated(it);
 			}
 		}
 	}
@@ -379,7 +379,7 @@ proto_reg_handoff_djiuav(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

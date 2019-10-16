@@ -4,12 +4,19 @@ libwsutil.so.0 libwsutil0 #MINVER#
  adler32_bytes@Base 1.12.0~rc1
  adler32_str@Base 1.12.0~rc1
  alaw2linear@Base 1.12.0~rc1
+ allowed_profile_filenames@Base 3.1.1
  ascii_strdown_inplace@Base 1.10.0
  ascii_strup_inplace@Base 1.10.0
  bitswap_buf_inplace@Base 1.12.0~rc1
- cmdarg_err@Base 1.99.0
- cmdarg_err_cont@Base 1.99.0
- cmdarg_err_init@Base 1.99.0
+ codec_decode@Base 3.1.0
+ codec_get_channels@Base 3.1.0
+ codec_get_frequency@Base 3.1.0
+ codec_init@Base 3.1.0
+ codec_release@Base 3.1.0
+ codecs_cleanup@Base 3.1.0
+ codecs_init@Base 3.1.0
+ codecs_register_plugin@Base 3.1.0
+ config_file_exists_with_entries@Base 2.9.0
  copy_file_binary_mode@Base 1.12.0~rc1
  copy_persconffile_profile@Base 1.12.0~rc1
  crc11_307_noreflect_noxor@Base 1.10.0
@@ -23,6 +30,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  crc16_ccitt_seed@Base 1.10.0
  crc16_iso14443a@Base 2.1.0
  crc16_plain_update@Base 1.10.0
+ crc16_usb@Base 3.1.0
  crc16_x25_ccitt_seed@Base 1.99.3
  crc32_0x5D6DCB_seed@Base 2.3.0
  crc32_0x0AA725CF_seed@Base 1.12.0~rc1
@@ -33,7 +41,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  crc32c_calculate@Base 1.10.0
  crc32c_calculate_no_swap@Base 1.10.0
  crc32c_table_lookup@Base 1.10.0
- crc6_compute@Base 1.12.0~rc1
+ crc5_usb_11bit_input@Base 3.1.1
+ crc5_usb_19bit_input@Base 3.1.1
+ crc6_0X6F@Base 1.12.0~rc1
  crc7update@Base 1.10.0
  crc8_0x2F@Base 1.10.0
  crc8_0x37@Base 2.3.0
@@ -44,15 +54,20 @@ libwsutil.so.0 libwsutil0 #MINVER#
  create_tempfile@Base 1.12.0~rc1
  create_timestamp@Base 2.5.0
  crypt_des_ecb@Base 2.3.0
+ crypto_scalarmult_curve25519@Base 2.9.0
+ crypto_scalarmult_curve25519_base@Base 2.9.0
  data_file_url@Base 2.3.0
  decrypt_xtea_ecb@Base 2.5.0
  decrypt_xtea_le_ecb@Base 2.5.0
  delete_persconffile_profile@Base 1.12.0~rc1
+ deregister_codec@Base 3.1.0
  file_exists@Base 1.12.0~rc1
+ file_needs_reopen@Base 3.0.6
  file_open_error_message@Base 1.12.0~rc1
  file_write_error_message@Base 1.12.0~rc1
  files_identical@Base 1.12.0~rc1
  filetime_to_nstime@Base 2.0.0
+ find_codec@Base 3.1.0
  find_last_pathname_separator@Base 1.12.0~rc1
  format_size@Base 1.10.0
  free_progdirs@Base 2.3.0
@@ -66,9 +81,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_dirname@Base 1.12.0~rc1
  get_extcap_dir@Base 1.99.0
  get_global_profiles_dir@Base 1.12.0~rc1
- get_guint32@Base 2.3.0
- get_natural_int@Base 1.99.0
- get_nonzero_guint32@Base 2.3.0
  get_os_version_info@Base 1.99.0
  get_persconffile_path@Base 1.12.0~rc1
  get_persdatafile_dir@Base 1.12.0~rc1
@@ -76,7 +88,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_plugins_dir_with_version@Base 2.5.0
  get_plugins_pers_dir@Base 1.12.0~rc1
  get_plugins_pers_dir_with_version@Base 2.5.0
- get_positive_int@Base 1.99.0
+ get_profile_dir@Base 2.9.0
  get_profile_name@Base 1.12.0~rc1
  get_profiles_dir@Base 1.12.0~rc1
  get_progfile_dir@Base 1.12.0~rc1
@@ -94,7 +106,26 @@ libwsutil.so.0 libwsutil0 #MINVER#
  is_default_profile@Base 1.12.0~rc1
  isdigit_string@Base 1.10.0
  isprint_string@Base 1.10.0
- jsmn_is_json@Base 1.99.4
+ isprint_utf8_string@Base 2.6.1
+ json_decode_string_inplace@Base 2.9.0
+ json_dumper_begin_array@Base 2.9.0
+ json_dumper_begin_base64@Base 2.9.1
+ json_dumper_begin_object@Base 2.9.0
+ json_dumper_end_array@Base 2.9.0
+ json_dumper_end_base64@Base 2.9.1
+ json_dumper_end_object@Base 2.9.0
+ json_dumper_finish@Base 2.9.0
+ json_dumper_set_member_name@Base 2.9.0
+ json_dumper_value_anyf@Base 2.9.0
+ json_dumper_value_double@Base 3.0.0
+ json_dumper_value_string@Base 2.9.0
+ json_dumper_value_va_list@Base 2.9.1
+ json_dumper_write_base64@Base 2.9.1
+ json_get_double@Base 3.1.0
+ json_get_object@Base 3.1.0
+ json_get_string@Base 3.1.0
+ json_parse@Base 2.9.0
+ json_validate@Base 2.9.0
  linear2alaw@Base 1.12.0~rc1
  linear2ulaw@Base 1.12.0~rc1
  local_interfaces_to_list@Base 2.1.2
@@ -117,6 +148,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  nstime_sum@Base 1.12.0~rc1
  nstime_to_msec@Base 1.12.0~rc1
  nstime_to_sec@Base 1.12.0~rc1
+ please_report_bug@Base 3.1.0
+ please_report_bug_short@Base 3.1.0
  plugins_cleanup@Base 2.3.0
  plugins_dump_all@Base 1.12.0~rc1
  plugins_get_count@Base 2.5.0
@@ -124,6 +157,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  printable_char_or_period@Base 1.99.0
  profile_exists@Base 1.12.0~rc1
  profile_store_persconffiles@Base 1.12.0~rc1
+ register_codec@Base 3.1.0
  relinquish_special_privs_perm@Base 1.10.0
  rename_persconffile_profile@Base 1.12.0~rc1
  report_failure@Base 1.12.0~rc1
@@ -153,17 +187,21 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ulaw2linear@Base 1.12.0~rc1
  update_adler32@Base 1.12.0~rc1
  update_crc10_by_bytes@Base 1.10.0
- update_crc6_by_bytes@Base 1.10.0
  ws_add_crash_info@Base 1.10.0
  ws_ascii_strnatcasecmp@Base 1.99.1
  ws_ascii_strnatcmp@Base 1.99.1
  ws_base32_decode@Base 2.3.0
- ws_base64_decode_inplace@Base 1.12.0~rc1
+ ws_basestrtou16@Base 2.9.0
+ ws_basestrtou32@Base 2.9.0
+ ws_basestrtou64@Base 2.9.0
+ ws_basestrtou8@Base 2.9.0
  ws_buffer_append@Base 1.99.0
  ws_buffer_assure_space@Base 1.99.0
  ws_buffer_free@Base 1.99.0
  ws_buffer_init@Base 1.99.0
  ws_buffer_remove_start@Base 1.99.0
+ ws_cleanup_sockets@Base 3.1.0
+ ws_cmac_buffer@Base 3.1.0
  ws_buffer_cleanup@Base 2.3.0
  ws_hexstrtou16@Base 2.3.0
  ws_hexstrtou32@Base 2.3.0
@@ -174,8 +212,10 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_inet_ntop6@Base 2.1.2
  ws_inet_pton4@Base 2.1.2
  ws_inet_pton6@Base 2.1.2
+ ws_init_sockets@Base 3.1.0
  ws_mempbrk_compile@Base 1.99.4
  ws_mempbrk_exec@Base 1.99.4
+ ws_pipe_close@Base 2.6.5
  ws_pipe_data_available@Base 2.5.0
  ws_pipe_init@Base 2.5.1
  ws_pipe_spawn_async@Base 2.5.1
@@ -192,5 +232,3 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_utf8_char_len@Base 1.12.0~rc1
  ws_vadd_crash_info@Base 2.5.2
  ws_xton@Base 1.12.0~rc1
- wsjsmn_parse@Base 2.3.0
- wsjsmn_unescape_json_string@Base 2.5.0

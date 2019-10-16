@@ -8,7 +8,6 @@
 #
 
 # To do:
-# - Rename *.asciidoc to *.adoc
 # - Make the build targets top-level on Windows, similar to the NSIS,
 #   WiX, and PortableApps targets?
 
@@ -52,7 +51,7 @@ else()
 endif()
 
 set(COMMON_FILES
-	common_src/GPL_appendix.asciidoc
+	common_src/GPL_appendix.adoc
 )
 
 set(COMMON_GRAPHICS
@@ -61,83 +60,47 @@ set(COMMON_GRAPHICS
 	common_graphics/warning.svg
 )
 
-set(WSUG_TOOLS_HELP_COMMANDS
-	capinfos
-	dumpcap
-	editcap
-	mergecap
-	rawshark
-	reordercap
-	text2pcap
-	tshark
-)
-
-# We want the wsug_* targets to depend on the tools help files.
-# We want update_tools_help to be an independent target.
-# We don't necessarily want to depend on building our executables before
-# being able to build our documentation.
-set(WSUG_TOOLS_HELP_FILES)
-set(WSUG_TOOLS_PHONY_DEPS)
 set(GUIDE_INSTALL_DIRS)
 
-# General help output
-foreach(th_command ${WSUG_TOOLS_HELP_COMMANDS})
-	set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/${th_command}-h.txt)
-	set(th_phony ${th_command}_h_tools_help)
-	list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
-	list(APPEND WSUG_TOOLS_PHONY_DEPS ${th_phony})
-	add_custom_command(
-		OUTPUT ${th_phony}
-		COMMAND ${th_command} -h > ${th_file}
-		DEPENDS ${th_command}
-	)
-endforeach()
-
-# Extra command output
-# Note that these won't work on Windows unless we make -F and -T write
-# to stdout and return 0 or wrap the commands similar to hhc.exe.
-set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-F.txt)
-set(th_phony editcap_F_tools_help)
-list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
-list(APPEND WSUG_TOOLS_PHONY_DEPS ${th_phony})
-add_custom_command(
-	OUTPUT ${th_phony}
-	COMMAND editcap -F > ${th_file}
-	DEPENDS editcap
-)
-set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-T.txt)
-set(th_phony editcap_T_tools_help)
-list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
-list(APPEND WSUG_TOOLS_PHONY_DEPS ${th_phony})
-add_custom_command(
-	OUTPUT ${th_phony}
-	COMMAND editcap -T > ${th_file}
-	DEPENDS editcap
-)
-
+# This is automatically updated each week. You probably don't need to run it
+# or depend on it.
 add_custom_target(update_tools_help
-	DEPENDS ${WSUG_TOOLS_PHONY_DEPS}
+	COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
+		${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/update-tools-help.py
+		--program-path ${WS_PROGRAM_PATH}
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 set_docbook_target_properties(update_tools_help)
 
 set(WSUG_FILES
-	wsug_src/WSUG_app_files.asciidoc
-	wsug_src/WSUG_app_howitworks.asciidoc
-	wsug_src/WSUG_app_protocols.asciidoc
-	wsug_src/WSUG_app_messages.asciidoc
-	wsug_src/WSUG_app_tools.asciidoc
-	wsug_src/WSUG_chapter_advanced.asciidoc
-	wsug_src/WSUG_chapter_build_install.asciidoc
-	wsug_src/WSUG_chapter_capture.asciidoc
-	wsug_src/WSUG_chapter_customize.asciidoc
-	wsug_src/WSUG_chapter_introduction.asciidoc
-	wsug_src/WSUG_chapter_io.asciidoc
-	wsug_src/WSUG_chapter_statistics.asciidoc
-	wsug_src/WSUG_chapter_telephony.asciidoc
-	wsug_src/WSUG_chapter_troubleshoot.asciidoc
-	wsug_src/WSUG_chapter_use.asciidoc
-	wsug_src/WSUG_chapter_work.asciidoc
-	wsug_src/WSUG_preface.asciidoc
+	wsug_src/WSUG_app_files.adoc
+	wsug_src/WSUG_app_howitworks.adoc
+	wsug_src/WSUG_app_protocols.adoc
+	wsug_src/WSUG_app_messages.adoc
+	wsug_src/WSUG_app_tools.adoc
+	wsug_src/WSUG_chapter_advanced.adoc
+	wsug_src/WSUG_chapter_build_install.adoc
+	wsug_src/WSUG_chapter_capture.adoc
+	wsug_src/WSUG_chapter_customize.adoc
+	wsug_src/WSUG_chapter_introduction.adoc
+	wsug_src/WSUG_chapter_io.adoc
+	wsug_src/WSUG_chapter_mate.adoc
+	wsug_src/WSUG_chapter_statistics.adoc
+	wsug_src/WSUG_chapter_telephony.adoc
+	wsug_src/WSUG_chapter_troubleshoot.adoc
+	wsug_src/WSUG_chapter_use.adoc
+	wsug_src/WSUG_chapter_work.adoc
+	wsug_src/WSUG_preface.adoc
+	wsug_src/capinfos-h.txt
+	wsug_src/dumpcap-h.txt
+	wsug_src/editcap-F.txt
+	wsug_src/editcap-T.txt
+	wsug_src/editcap-h.txt
+	wsug_src/mergecap-h.txt
+	wsug_src/rawshark-h.txt
+	wsug_src/reordercap-h.txt
+	wsug_src/text2pcap-h.txt
+	wsug_src/tshark-h.txt
 	${COMMON_FILES}
 )
 
@@ -152,24 +115,32 @@ set(WSUG_GRAPHICS
 	wsug_graphics/related-response.png
 	wsug_graphics/related-segment.png
 	wsug_graphics/ws-analyze-menu.png
+	wsug_graphics/ws-bytes-pane-popup-menu.png
 	wsug_graphics/ws-bytes-pane-tabs.png
 	wsug_graphics/ws-bytes-pane.png
 	wsug_graphics/ws-capture-info.png
+	wsug_graphics/ws-capture-interface-details.png
 	wsug_graphics/ws-capture-interfaces.png
 	wsug_graphics/ws-capture-interfaces-win32.png
 	wsug_graphics/ws-capture-menu.png
 	wsug_graphics/ws-capture-options.png
+	wsug_graphics/ws-capture-options-compile-selected-bpfs.png
+	wsug_graphics/ws-capture-options-manage-interfaces-local.png
+	wsug_graphics/ws-capture-options-manage-interfaces-pipes.png
+	wsug_graphics/ws-capture-options-manage-interfaces-remote-plus.png
+	wsug_graphics/ws-capture-options-manage-interfaces-remote.png
+	wsug_graphics/ws-capture-options-manage-interfaces.png
+	wsug_graphics/ws-capture-options-output.png
 	wsug_graphics/ws-capture-options-remote-capture.png
 	wsug_graphics/ws-capture-options-remote-interface.png
 	wsug_graphics/ws-capture-options-remote-settings.png
+	wsug_graphics/ws-capture-options-settings.png
 	wsug_graphics/ws-capture-preferences.png
 	wsug_graphics/ws-choose-color-rule.png
 	wsug_graphics/ws-coloring-fields.png
 	wsug_graphics/ws-coloring-rules-dialog.png
 	wsug_graphics/ws-column-header-popup-menu.png
-	wsug_graphics/ws-decode-as-show.png
 	wsug_graphics/ws-decode-as.png
-	wsug_graphics/ws-column-header-popup-menu.png
 	wsug_graphics/ws-details-pane-popup-menu.png
 	wsug_graphics/ws-details-pane.png
 	wsug_graphics/ws-display-filter-tcp.png
@@ -192,20 +163,31 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-filters.png
 	wsug_graphics/ws-find-packet.png
 	wsug_graphics/ws-follow-stream.png
+	wsug_graphics/ws-follow-http2-stream.png
 	wsug_graphics/ws-go-menu.png
 	wsug_graphics/ws-goto-packet.png
 	wsug_graphics/ws-gui-colors-preferences.png
 	wsug_graphics/ws-gui-columns-preferences.png
 	wsug_graphics/ws-gui-config-profiles.png
 	wsug_graphics/ws-gui-font-preferences.png
+	wsug_graphics/ws-gui-interface-options.png
 	wsug_graphics/ws-gui-layout-preferences.png
 	wsug_graphics/ws-gui-preferences.png
 	wsug_graphics/ws-help-menu.png
-	wsug_graphics/ws-internals-menu.png
 	wsug_graphics/ws-list-pane.png
 	wsug_graphics/ws-logo.png
 	wsug_graphics/ws-main-toolbar.png
 	wsug_graphics/ws-main.png
+	wsug_graphics/ws-mate-analysis.png
+	wsug_graphics/ws-mate-dns_pane.png
+	wsug_graphics/ws-mate-dns_pdu.png
+	wsug_graphics/ws-mate-ftp_over_gre.png
+	wsug_graphics/ws-mate-gop_analysis.png
+	wsug_graphics/ws-mate-isup_over_mtp3_over_ip.png
+	wsug_graphics/ws-mate-mmse_over_http.png
+	wsug_graphics/ws-mate-pdu_analysis.png
+	wsug_graphics/ws-mate-tcp-output.png
+	wsug_graphics/ws-mate-transform.png
 	wsug_graphics/ws-menu.png
 	wsug_graphics/ws-merge-gtk24.png
 	wsug_graphics/ws-merge-win32.png
@@ -222,6 +204,7 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-save-as-gtk24.png
 	wsug_graphics/ws-save-as-win32.png
 	wsug_graphics/ws-statistics-menu.png
+	wsug_graphics/ws-stats-compare.png
 	wsug_graphics/ws-stats-conversations.png
 	wsug_graphics/ws-stats-endpoints.png
 	wsug_graphics/ws-stats-hierarchy.png
@@ -233,61 +216,60 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-stats-lte-rlc-traffic.png
 	wsug_graphics/ws-stats-wlan-traffic.png
 	wsug_graphics/ws-statusbar-empty.png
+	wsug_graphics/ws-statusbar-filter.png
 	wsug_graphics/ws-statusbar-loaded.png
+	wsug_graphics/ws-statusbar-profile.png
 	wsug_graphics/ws-statusbar-selected.png
+	wsug_graphics/ws-tcp-analysis.png
+	wsug_graphics/ws-tel-rtpstream-analysis.png
 	wsug_graphics/ws-telephony-menu.png
 	wsug_graphics/ws-time-reference.png
 	wsug_graphics/ws-tools-menu.png
 	wsug_graphics/ws-view-menu.png
-	wsug_graphics/toolbar/autoscroll_24.png
-	wsug_graphics/toolbar/capture_filter_24.png
-	wsug_graphics/toolbar/capture_interfaces_24.png
-	wsug_graphics/toolbar/capture_options_24.png
-	wsug_graphics/toolbar/capture_restart_24.png
-	wsug_graphics/toolbar/capture_start_24.png
-	wsug_graphics/toolbar/capture_stop_24.png
-	wsug_graphics/toolbar/colorize_24.png
-	wsug_graphics/toolbar/display_filter_24.png
-	wsug_graphics/toolbar/resize_columns_24.png
-	wsug_graphics/toolbar/stock_add_24.png
+	wsug_graphics/toolbar/document-open.png
+	wsug_graphics/toolbar/edit-find.png
+	wsug_graphics/toolbar/filter-toolbar-add.png
+	wsug_graphics/toolbar/filter-toolbar-apply.png
+	wsug_graphics/toolbar/filter-toolbar-bookmark.png
+	wsug_graphics/toolbar/filter-toolbar-clear.png
+	wsug_graphics/toolbar/filter-toolbar-input.png
+	wsug_graphics/toolbar/filter-toolbar-recent.png
+	wsug_graphics/toolbar/go-first.png
+	wsug_graphics/toolbar/go-jump.png
+	wsug_graphics/toolbar/go-last.png
+	wsug_graphics/toolbar/go-next.png
+	wsug_graphics/toolbar/go-previous.png
 	wsug_graphics/toolbar/stock_apply_20.png
-	wsug_graphics/toolbar/stock_bottom_24.png
-	wsug_graphics/toolbar/stock_clear_24.png
-	wsug_graphics/toolbar/stock_close_24.png
-	wsug_graphics/toolbar/stock_colorselector_24.png
-	wsug_graphics/toolbar/stock_help_24.png
-	wsug_graphics/toolbar/stock_jump_to_24.png
-	wsug_graphics/toolbar/stock_left_arrow_24.png
-	wsug_graphics/toolbar/stock_open_24.png
-	wsug_graphics/toolbar/stock_preferences_24.png
-	wsug_graphics/toolbar/stock_print_24.png
-	wsug_graphics/toolbar/stock_properties_24.png
-	wsug_graphics/toolbar/stock_refresh_24.png
-	wsug_graphics/toolbar/stock_right_arrow_24.png
-	wsug_graphics/toolbar/stock_save_24.png
-	wsug_graphics/toolbar/stock_save_as_24.png
-	wsug_graphics/toolbar/stock_search_24.png
-	wsug_graphics/toolbar/stock_stop_24.png
-	wsug_graphics/toolbar/stock_top_24.png
-	wsug_graphics/toolbar/stock_zoom_1_24.png
-	wsug_graphics/toolbar/stock_zoom_in_24.png
-	wsug_graphics/toolbar/stock_zoom_out_24.png
+	wsug_graphics/toolbar/x-capture-file-close.png
+	wsug_graphics/toolbar/x-capture-file-reload.png
+	wsug_graphics/toolbar/x-capture-file-save.png
+	wsug_graphics/toolbar/x-capture-options.png
+	wsug_graphics/toolbar/x-capture-restart.png
+	wsug_graphics/toolbar/x-capture-start.png
+	wsug_graphics/toolbar/x-capture-stop.png
+	wsug_graphics/toolbar/x-colorize-packets.png
+	wsug_graphics/toolbar/x-resize-columns.png
+	wsug_graphics/toolbar/x-stay-last.png
+	wsug_graphics/toolbar/zoom-in.png
+	wsug_graphics/toolbar/zoom-original.png
+	wsug_graphics/toolbar/zoom-out.png
 	${COMMON_GRAPHICS}
 )
 
 set(WSDG_FILES
-	wsdg_src/WSDG_chapter_build_intro.asciidoc
-	wsdg_src/WSDG_chapter_capture.asciidoc
-	wsdg_src/WSDG_chapter_dissection.asciidoc
-	wsdg_src/WSDG_chapter_env_intro.asciidoc
-	wsdg_src/WSDG_chapter_libraries.asciidoc
-	wsdg_src/WSDG_chapter_quick_setup.asciidoc
-	wsdg_src/WSDG_chapter_sources.asciidoc
-	wsdg_src/WSDG_chapter_tools.asciidoc
-	wsdg_src/WSDG_chapter_userinterface.asciidoc
-	wsdg_src/WSDG_chapter_works.asciidoc
-	wsdg_src/WSDG_preface.asciidoc
-	wsluarm.asciidoc
+	wsdg_src/WSDG_chapter_build_intro.adoc
+	wsdg_src/WSDG_chapter_capture.adoc
+	wsdg_src/WSDG_chapter_dissection.adoc
+	wsdg_src/WSDG_chapter_env_intro.adoc
+	wsdg_src/WSDG_chapter_libraries.adoc
+	wsdg_src/WSDG_chapter_quick_setup.adoc
+	wsdg_src/WSDG_chapter_sources.adoc
+	wsdg_src/WSDG_chapter_tests.adoc
+	wsdg_src/WSDG_chapter_tools.adoc
+	wsdg_src/WSDG_chapter_userinterface.adoc
+	wsdg_src/WSDG_chapter_works.adoc
+	wsdg_src/WSDG_preface.adoc
+	wsluarm.adoc
 	${COMMON_FILES}
 )
 
@@ -307,6 +289,7 @@ set(WSUG_SOURCE
 	${WSUG_GRAPHICS}
 )
 
+# Ensure ws.css is available when the user tries to open generated .html files.
 if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 	add_custom_command(
 		OUTPUT ws.css
@@ -316,9 +299,12 @@ if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 		DEPENDS
 			${CMAKE_CURRENT_SOURCE_DIR}/ws.css
 	)
+	add_custom_target(copy_ws.css DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ws.css)
+else()
+	add_custom_target(copy_ws.css)
 endif()
 
-set( WSUG_BUILT_DEPS ws.css ${WSUG_TOOLS_HELP_FILES})
+set( WSUG_BUILT_DEPS copy_ws.css)
 
 set(WSDG_SOURCE
 	${WSDG_FILES}
@@ -370,21 +356,21 @@ ADD_CUSTOM_COMMAND(
 		${WSLUA_MODULES}
 )
 
-set( WSDG_BUILT_DEPS ws.css wsluarm )
+set( WSDG_BUILT_DEPS copy_ws.css wsluarm )
 
 set( ASCIIDOC_CONF_FILES
-	attributes.asciidoc
+	attributes.adoc
 	# XXX Add macros
 )
 
-if(ASCIIDOCTOR_EXECUTABLE)
+if(ASCIIDOCTOR_FOUND)
 	# Generate the DocBook sources of user and developer guides
 
-	ASCIIDOCTOR2DOCBOOK(user-guide.asciidoc ${ASCIIDOC_CONF_FILES} ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
+	ASCIIDOCTOR2DOCBOOK(user-guide.adoc ${ASCIIDOC_CONF_FILES} ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
 	add_custom_target(user_guide_docbook DEPENDS generate_user-guide.xml)
 	set_docbook_target_properties(user_guide_docbook)
 
-	ASCIIDOCTOR2DOCBOOK(developer-guide.asciidoc ${ASCIIDOC_CONF_FILES} ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
+	ASCIIDOCTOR2DOCBOOK(developer-guide.adoc ${ASCIIDOC_CONF_FILES} ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
 	add_custom_target(developer_guide_docbook DEPENDS generate_developer-guide.xml)
 	set_docbook_target_properties(developer_guide_docbook)
 
@@ -401,7 +387,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
 endif()
 
 # User's Guide chain.
-if(ASCIIDOCTOR_EXECUTABLE AND XSLTPROC_EXECUTABLE)
+if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 	XML2HTML(
 		user_guide
 		wsug
@@ -428,8 +414,8 @@ if(ASCIIDOCTOR_EXECUTABLE AND XSLTPROC_EXECUTABLE)
 	list(APPEND GUIDE_INSTALL_DIRS ${CMAKE_CURRENT_BINARY_DIR}/wsug_html_chunked)
 endif()
 
-if(ASCIIDOCTOR_EXECUTABLE)
-	ASCIIDOCTOR2PDF(user-guide.asciidoc ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
+if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
+	ASCIIDOCTOR2PDF(user-guide.adoc ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
 
 	add_custom_target(
 		user_guide_pdf
@@ -440,7 +426,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
 	add_dependencies(user_guides user_guide_pdf)
 endif()
 
-if(WIN32 AND ASCIIDOCTOR_EXECUTABLE)
+if(WIN32 AND ASCIIDOCTOR_FOUND)
 	XML2HHP(user_guide wsug user-guide.xml)
 	HHP2CHM(user-guide.hhp)
 	add_custom_target(
@@ -453,7 +439,7 @@ if(WIN32 AND ASCIIDOCTOR_EXECUTABLE)
 endif()
 
 # Developer's Guide chain.
-if(ASCIIDOCTOR_EXECUTABLE AND XSLTPROC_EXECUTABLE)
+if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 	XML2HTML(
 		developer_guide
 		wsdg
@@ -480,8 +466,8 @@ if(ASCIIDOCTOR_EXECUTABLE AND XSLTPROC_EXECUTABLE)
 	list(APPEND GUIDE_INSTALL_DIRS ${CMAKE_CURRENT_BINARY_DIR}/wsdg_html_chunked)
 endif()
 
-if(ASCIIDOCTOR_EXECUTABLE)
-	ASCIIDOCTOR2PDF(developer-guide.asciidoc ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
+if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
+	ASCIIDOCTOR2PDF(developer-guide.adoc ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
 
 	add_custom_target(
 		developer_guide_pdf
@@ -492,7 +478,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
 	add_dependencies(developer_guides developer_guide_pdf)
 endif()
 
-if(WIN32 AND ASCIIDOCTOR_EXECUTABLE)
+if(WIN32 AND ASCIIDOCTOR_FOUND)
 	XML2HHP(developer_guide	wsdg developer-guide.xml)
 	HHP2CHM(developer-guide.hhp)
 	add_custom_target(
@@ -544,12 +530,25 @@ add_custom_target(
 set_docbook_target_properties(news)
 
 if( ASCIIDOCTOR_FOUND )
-	ASCIIDOCTOR2HTML( release-notes.asciidoc ws.css )
-	ASCIIDOCTOR2TXT( release-notes.asciidoc )
+	ASCIIDOCTOR2HTML( release-notes.adoc copy_ws.css )
+	ASCIIDOCTOR2TXT( release-notes.adoc )
+endif()
+
+# FAQ
+
+add_custom_target( faq_html DEPENDS faq.html )
+set_docbook_target_properties(faq_html)
+
+add_custom_target( faq )
+set_docbook_target_properties(faq)
+add_dependencies ( faq faq_html )
+
+if( ASCIIDOCTOR_FOUND )
+	ASCIIDOCTOR2HTML( faq.adoc copy_ws.css )
 endif()
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

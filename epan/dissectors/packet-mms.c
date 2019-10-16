@@ -19,10 +19,14 @@
 
 #include "config.h"
 
+#include <glib.h>
+#include <stdio.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -280,6 +284,23 @@ static int hf_mms_deleteNamedVariableList_02 = -1;  /* DeleteNamedVariableList_E
 static int hf_mms_deleteNamedType_02 = -1;        /* DeleteNamedType_Error */
 static int hf_mms_defineEventEnrollment_Error = -1;  /* DefineEventEnrollment_Error */
 static int hf_mms_fileRename_02 = -1;             /* FileRename_Error */
+static int hf_mms_additionalService = -1;         /* AdditionalService_Error */
+static int hf_mms_changeAccessControl = -1;       /* ChangeAccessControl_Error */
+static int hf_mms_defineEcl = -1;                 /* DefineEventConditionList_Error */
+static int hf_mms_addECLReference = -1;           /* AddEventConditionListReference_Error */
+static int hf_mms_removeECLReference = -1;        /* RemoveEventConditionListReference_Error */
+static int hf_mms_initiateUC = -1;                /* InitiateUnitControl_Error */
+static int hf_mms_startUC = -1;                   /* StartUnitControl_Error */
+static int hf_mms_stopUC = -1;                    /* StopUnitControl_Error */
+static int hf_mms_deleteUC = -1;                  /* DeleteUnitControl_Error */
+static int hf_mms_loadUCFromFile = -1;            /* LoadUnitControlFromFile_Error */
+static int hf_mms_eventCondition = -1;            /* ObjectName */
+static int hf_mms_eventConditionList = -1;        /* ObjectName */
+static int hf_mms_domain = -1;                    /* Identifier */
+static int hf_mms_programInvocation = -1;         /* Identifier */
+static int hf_mms_programInvocationName = -1;     /* Identifier */
+static int hf_mms_programInvocationState = -1;    /* ProgramInvocationState */
+static int hf_mms_none = -1;                      /* NULL */
 static int hf_mms_rejectReason = -1;              /* T_rejectReason */
 static int hf_mms_confirmed_requestPDU = -1;      /* T_confirmed_requestPDU */
 static int hf_mms_confirmed_responsePDU = -1;     /* T_confirmed_responsePDU */
@@ -338,7 +359,6 @@ static int hf_mms_mmsDeletable = -1;              /* BOOLEAN */
 static int hf_mms_listOfProgramInvocations = -1;  /* SEQUENCE_OF_Identifier */
 static int hf_mms_listOfProgramInvocations_item = -1;  /* Identifier */
 static int hf_mms_uploadInProgress = -1;          /* Integer8 */
-static int hf_mms_programInvocationName = -1;     /* Identifier */
 static int hf_mms_listOfDomainName = -1;          /* SEQUENCE_OF_Identifier */
 static int hf_mms_listOfDomainName_item = -1;     /* Identifier */
 static int hf_mms_reusable = -1;                  /* BOOLEAN */
@@ -492,7 +512,6 @@ static int hf_mms_evaluationInterval = -1;        /* Unsigned32 */
 static int hf_mms_specific = -1;                  /* SEQUENCE_OF_ObjectName */
 static int hf_mms_specific_item = -1;             /* ObjectName */
 static int hf_mms_aa_specific_01 = -1;            /* NULL */
-static int hf_mms_domain = -1;                    /* Identifier */
 static int hf_mms_vmd = -1;                       /* NULL */
 static int hf_mms_monitoredVariable_01 = -1;      /* T_monitoredVariable */
 static int hf_mms_variableReference = -1;         /* VariableSpecification */
@@ -514,7 +533,6 @@ static int hf_mms_eventEnrollmentNames = -1;      /* SEQUENCE_OF_ObjectName */
 static int hf_mms_eventEnrollmentNames_item = -1;  /* ObjectName */
 static int hf_mms_continueAfter_02 = -1;          /* ObjectName */
 static int hf_mms_eventConditionName_01 = -1;     /* T_eventConditionName */
-static int hf_mms_eventCondition = -1;            /* ObjectName */
 static int hf_mms_eventActionName_01 = -1;        /* T_eventActionName */
 static int hf_mms_eventAction = -1;               /* ObjectName */
 static int hf_mms_enrollmentClass = -1;           /* EE_Class */
@@ -615,6 +633,7 @@ static int hf_mms_ParameterSupportOptions_vsca = -1;
 static int hf_mms_ParameterSupportOptions_tpy = -1;
 static int hf_mms_ParameterSupportOptions_vlis = -1;
 static int hf_mms_ParameterSupportOptions_real = -1;
+static int hf_mms_ParameterSupportOptions_spare_bit9 = -1;
 static int hf_mms_ParameterSupportOptions_cei = -1;
 static int hf_mms_ServiceSupportOptions_status = -1;
 static int hf_mms_ServiceSupportOptions_getNameList = -1;
@@ -710,7 +729,7 @@ static int hf_mms_Transitions_idle_to_active = -1;
 static int hf_mms_Transitions_any_to_deleted = -1;
 
 /*--- End of included file: packet-mms-hf.c ---*/
-#line 34 "./asn1/mms/packet-mms-template.c"
+#line 38 "./asn1/mms/packet-mms-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_mms = -1;
@@ -742,6 +761,13 @@ static gint ett_mms_Cancel_ErrorPDU = -1;
 static gint ett_mms_ServiceError = -1;
 static gint ett_mms_T_errorClass = -1;
 static gint ett_mms_T_serviceSpecificInformation = -1;
+static gint ett_mms_AdditionalService_Error = -1;
+static gint ett_mms_RemoveEventConditionListReference_Error = -1;
+static gint ett_mms_InitiateUnitControl_Error = -1;
+static gint ett_mms_StartUnitControl_Error = -1;
+static gint ett_mms_StopUnitControl_Error = -1;
+static gint ett_mms_DeleteUnitControl_Error = -1;
+static gint ett_mms_LoadUnitControlFromFile_Error = -1;
 static gint ett_mms_RejectPDU = -1;
 static gint ett_mms_T_rejectReason = -1;
 static gint ett_mms_Status_Response = -1;
@@ -927,11 +953,91 @@ static gint ett_mms_DirectoryEntry = -1;
 static gint ett_mms_FileAttributes = -1;
 
 /*--- End of included file: packet-mms-ett.c ---*/
-#line 38 "./asn1/mms/packet-mms-template.c"
+#line 42 "./asn1/mms/packet-mms-template.c"
 
 static expert_field ei_mms_mal_timeofday_encoding = EI_INIT;
 static expert_field ei_mms_mal_utctime_encoding = EI_INIT;
 static expert_field ei_mms_zero_pdu = EI_INIT;
+
+/*****************************************************************************/
+/* Packet private data                                                       */
+/* For this dissector, all access to actx->private_data should be made       */
+/* through this API, which ensures that they will not overwrite each other!! */
+/*****************************************************************************/
+
+#define BUFFER_SIZE_PRE 10
+#define BUFFER_SIZE_MORE 1024
+
+typedef struct mms_private_data_t
+{
+	char preCinfo[BUFFER_SIZE_PRE];
+	char moreCinfo[BUFFER_SIZE_MORE];
+} mms_private_data_t;
+
+
+/* Helper function to get or create the private data struct */
+static
+mms_private_data_t* mms_get_private_data(asn1_ctx_t *actx)
+{
+	packet_info *pinfo = actx->pinfo;
+	mms_private_data_t *private_data = (mms_private_data_t *)p_get_proto_data(pinfo->pool, pinfo, proto_mms, pinfo->curr_layer_num);
+	if(private_data != NULL )
+		return private_data;
+	else {
+		private_data = wmem_new0(pinfo->pool, mms_private_data_t);
+		p_add_proto_data(pinfo->pool, pinfo, proto_mms, pinfo->curr_layer_num, private_data);
+		return private_data;
+	}
+}
+
+/* Helper function to test presence of private data struct */
+static gboolean
+mms_has_private_data(asn1_ctx_t *actx)
+{
+	packet_info *pinfo = actx->pinfo;
+	return (p_get_proto_data(pinfo->pool, pinfo, proto_mms, pinfo->curr_layer_num) != NULL);
+}
+
+static void
+private_data_add_preCinfo(asn1_ctx_t *actx, guint32 val)
+{
+	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
+	g_snprintf(private_data->preCinfo, BUFFER_SIZE_PRE, "%02d ", val);
+}
+
+static char*
+private_data_get_preCinfo(asn1_ctx_t *actx)
+{
+	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
+	return private_data->preCinfo;
+}
+
+static void
+private_data_add_moreCinfo_id(asn1_ctx_t *actx, tvbuff_t *tvb)
+{
+	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
+	g_strlcat(private_data->moreCinfo, " ", BUFFER_SIZE_MORE);
+	g_strlcat(private_data->moreCinfo, tvb_get_string_enc(wmem_packet_scope(),
+				tvb, 2, tvb_get_guint8(tvb, 1), ENC_STRING), BUFFER_SIZE_MORE);
+}
+
+static void
+private_data_add_moreCinfo_float(asn1_ctx_t *actx, tvbuff_t *tvb)
+{
+	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
+	g_snprintf(private_data->moreCinfo, BUFFER_SIZE_MORE,
+				" %f", tvb_get_ieee_float(tvb, 1, ENC_BIG_ENDIAN));
+}
+
+static char*
+private_data_get_moreCinfo(asn1_ctx_t *actx)
+{
+	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
+	return private_data->moreCinfo;
+}
+
+/*****************************************************************************/
+
 
 
 /*--- Included file: packet-mms-fn.c ---*/
@@ -956,8 +1062,15 @@ static int dissect_mms_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_mms_Unsigned32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 140 "./asn1/mms/mms.cnf"
+	guint32 val;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+                                                &val);
+
+	if (hf_index == hf_mms_invokeID)
+		private_data_add_preCinfo(actx, val);
+
+
 
   return offset;
 }
@@ -966,9 +1079,16 @@ dissect_mms_Unsigned32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_mms_Identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 150 "./asn1/mms/mms.cnf"
+	int offset_id = offset;
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_VisibleString,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
+
+	if ((hf_index == hf_mms_domainId) || (hf_index == hf_mms_itemId)) {
+		if (tvb_get_guint8(tvb, offset_id) == 0x1a)
+			private_data_add_moreCinfo_id(actx,tvb);
+	}
 
   return offset;
 }
@@ -1013,21 +1133,21 @@ dissect_mms_ObjectName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const asn_namedbit Transitions_bits[] = {
-  {  0, &hf_mms_Transitions_idle_to_disabled, -1, -1, "idle-to-disabled", NULL },
-  {  1, &hf_mms_Transitions_active_to_disabled, -1, -1, "active-to-disabled", NULL },
-  {  2, &hf_mms_Transitions_disabled_to_idle, -1, -1, "disabled-to-idle", NULL },
-  {  3, &hf_mms_Transitions_active_to_idle, -1, -1, "active-to-idle", NULL },
-  {  4, &hf_mms_Transitions_disabled_to_active, -1, -1, "disabled-to-active", NULL },
-  {  5, &hf_mms_Transitions_idle_to_active, -1, -1, "idle-to-active", NULL },
-  {  6, &hf_mms_Transitions_any_to_deleted, -1, -1, "any-to-deleted", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Transitions_bits[] = {
+  &hf_mms_Transitions_idle_to_disabled,
+  &hf_mms_Transitions_active_to_disabled,
+  &hf_mms_Transitions_disabled_to_idle,
+  &hf_mms_Transitions_active_to_idle,
+  &hf_mms_Transitions_disabled_to_active,
+  &hf_mms_Transitions_idle_to_active,
+  &hf_mms_Transitions_any_to_deleted,
+  NULL
 };
 
 static int
 dissect_mms_Transitions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Transitions_bits, hf_index, ett_mms_Transitions,
+                                    Transitions_bits, 7, hf_index, ett_mms_Transitions,
                                     NULL);
 
   return offset;
@@ -1790,7 +1910,7 @@ dissect_mms_SEQUENCE_OF_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_mms_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -1810,8 +1930,13 @@ dissect_mms_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_mms_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 146 "./asn1/mms/mms.cnf"
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
+
+	private_data_add_moreCinfo_float(actx, tvb);
+
+
 
   return offset;
 }
@@ -1820,7 +1945,7 @@ dissect_mms_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 48 "./asn1/mms/mms.cnf"
+#line 51 "./asn1/mms/mms.cnf"
 
 	guint32 len;
 	guint32 milliseconds;
@@ -1900,7 +2025,7 @@ dissect_mms_MMSString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "./asn1/mms/mms.cnf"
+#line 102 "./asn1/mms/mms.cnf"
 
 	guint32 len;
 	guint32 seconds;
@@ -1937,6 +2062,7 @@ dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 	}
 
 	return offset;
+
 
 
   return offset;
@@ -2321,7 +2447,7 @@ dissect_mms_Output_Request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_mms_T_ap_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 25 "./asn1/mms/mms.cnf"
-  offset=dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_mms_ap_title);
+	offset=dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_mms_ap_title);
 
 
 
@@ -2333,7 +2459,7 @@ dissect_mms_T_ap_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_mms_T_ap_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 28 "./asn1/mms/mms.cnf"
-  offset=dissect_acse_AP_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ap_invocation_id);
+	offset=dissect_acse_AP_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ap_invocation_id);
 
 
 
@@ -2345,7 +2471,7 @@ dissect_mms_T_ap_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_mms_T_ae_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 31 "./asn1/mms/mms.cnf"
-  offset=dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_qualifier);
+	offset=dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_qualifier);
 
 
 
@@ -2357,7 +2483,7 @@ dissect_mms_T_ae_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_mms_T_ae_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 34 "./asn1/mms/mms.cnf"
-  offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_invocation_id);
+	offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_invocation_id);
 
 
 
@@ -2949,6 +3075,187 @@ dissect_mms_FileRename_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
+
+static int
+dissect_mms_DefineEventConditionList_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_mms_ObjectName(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_mms_AddEventConditionListReference_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_mms_ObjectName(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const value_string mms_RemoveEventConditionListReference_Error_vals[] = {
+  {   0, "eventCondition" },
+  {   1, "eventConditionList" },
+  { 0, NULL }
+};
+
+static const ber_choice_t RemoveEventConditionListReference_Error_choice[] = {
+  {   0, &hf_mms_eventCondition  , BER_CLASS_CON, 0, 0, dissect_mms_ObjectName },
+  {   1, &hf_mms_eventConditionList, BER_CLASS_CON, 1, 0, dissect_mms_ObjectName },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_mms_RemoveEventConditionListReference_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 RemoveEventConditionListReference_Error_choice, hf_index, ett_mms_RemoveEventConditionListReference_Error,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string mms_InitiateUnitControl_Error_vals[] = {
+  {   0, "domain" },
+  {   1, "programInvocation" },
+  { 0, NULL }
+};
+
+static const ber_choice_t InitiateUnitControl_Error_choice[] = {
+  {   0, &hf_mms_domain          , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
+  {   1, &hf_mms_programInvocation, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_mms_InitiateUnitControl_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 InitiateUnitControl_Error_choice, hf_index, ett_mms_InitiateUnitControl_Error,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t StartUnitControl_Error_sequence[] = {
+  { &hf_mms_programInvocationName, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
+  { &hf_mms_programInvocationState, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_ProgramInvocationState },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_mms_StartUnitControl_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   StartUnitControl_Error_sequence, hf_index, ett_mms_StartUnitControl_Error);
+
+  return offset;
+}
+
+
+static const ber_sequence_t StopUnitControl_Error_sequence[] = {
+  { &hf_mms_programInvocationName, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
+  { &hf_mms_programInvocationState, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_ProgramInvocationState },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_mms_StopUnitControl_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   StopUnitControl_Error_sequence, hf_index, ett_mms_StopUnitControl_Error);
+
+  return offset;
+}
+
+
+static const value_string mms_DeleteUnitControl_Error_vals[] = {
+  {   0, "domain" },
+  {   1, "programInvocation" },
+  { 0, NULL }
+};
+
+static const ber_choice_t DeleteUnitControl_Error_choice[] = {
+  {   0, &hf_mms_domain          , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
+  {   1, &hf_mms_programInvocation, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_mms_DeleteUnitControl_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 DeleteUnitControl_Error_choice, hf_index, ett_mms_DeleteUnitControl_Error,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string mms_LoadUnitControlFromFile_Error_vals[] = {
+  {   0, "none" },
+  {   1, "domain" },
+  {   2, "programInvocation" },
+  { 0, NULL }
+};
+
+static const ber_choice_t LoadUnitControlFromFile_Error_choice[] = {
+  {   0, &hf_mms_none            , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_NULL },
+  {   1, &hf_mms_domain          , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
+  {   2, &hf_mms_programInvocation, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_mms_LoadUnitControlFromFile_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 LoadUnitControlFromFile_Error_choice, hf_index, ett_mms_LoadUnitControlFromFile_Error,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string mms_AdditionalService_Error_vals[] = {
+  {   0, "defineEcl" },
+  {   1, "addECLReference" },
+  {   2, "removeECLReference" },
+  {   3, "initiateUC" },
+  {   4, "startUC" },
+  {   5, "stopUC" },
+  {   6, "deleteUC" },
+  {   7, "loadUCFromFile" },
+  { 0, NULL }
+};
+
+static const ber_choice_t AdditionalService_Error_choice[] = {
+  {   0, &hf_mms_defineEcl       , BER_CLASS_CON, 0, 0, dissect_mms_DefineEventConditionList_Error },
+  {   1, &hf_mms_addECLReference , BER_CLASS_CON, 1, 0, dissect_mms_AddEventConditionListReference_Error },
+  {   2, &hf_mms_removeECLReference, BER_CLASS_CON, 2, 0, dissect_mms_RemoveEventConditionListReference_Error },
+  {   3, &hf_mms_initiateUC      , BER_CLASS_CON, 3, 0, dissect_mms_InitiateUnitControl_Error },
+  {   4, &hf_mms_startUC         , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_mms_StartUnitControl_Error },
+  {   5, &hf_mms_stopUC          , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_mms_StopUnitControl_Error },
+  {   6, &hf_mms_deleteUC        , BER_CLASS_CON, 6, 0, dissect_mms_DeleteUnitControl_Error },
+  {   7, &hf_mms_loadUCFromFile  , BER_CLASS_CON, 7, 0, dissect_mms_LoadUnitControlFromFile_Error },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_mms_AdditionalService_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 AdditionalService_Error_choice, hf_index, ett_mms_AdditionalService_Error,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_mms_ChangeAccessControl_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_mms_Unsigned32(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
 static const value_string mms_T_serviceSpecificInformation_vals[] = {
   {   0, "obtainFile" },
   {   1, "start" },
@@ -2960,6 +3267,8 @@ static const value_string mms_T_serviceSpecificInformation_vals[] = {
   {   7, "deleteNamedType" },
   {   8, "defineEventEnrollment-Error" },
   {   9, "fileRename" },
+  {  10, "additionalService" },
+  {  11, "changeAccessControl" },
   { 0, NULL }
 };
 
@@ -2974,6 +3283,8 @@ static const ber_choice_t T_serviceSpecificInformation_choice[] = {
   {   7, &hf_mms_deleteNamedType_02, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_mms_DeleteNamedType_Error },
   {   8, &hf_mms_defineEventEnrollment_Error, BER_CLASS_CON, 8, 0, dissect_mms_DefineEventEnrollment_Error },
   {   9, &hf_mms_fileRename_02   , BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_mms_FileRename_Error },
+  {  10, &hf_mms_additionalService, BER_CLASS_CON, 10, 0, dissect_mms_AdditionalService_Error },
+  {  11, &hf_mms_changeAccessControl, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_mms_ChangeAccessControl_Error },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -3227,7 +3538,7 @@ static const value_string mms_T_executionArgument_vals[] = {
 
 static const ber_choice_t T_executionArgument_choice[] = {
   {   0, &hf_mms_simpleString    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_VisibleString },
-  {   1, &hf_mms_encodedString   , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  {   1, &hf_mms_encodedString   , -1/*imported*/, -1/*imported*/, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -3278,7 +3589,7 @@ static const value_string mms_T_executionArgument_01_vals[] = {
 
 static const ber_choice_t T_executionArgument_01_choice[] = {
   {   0, &hf_mms_simpleString    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_VisibleString },
-  {   1, &hf_mms_encodedString   , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  {   1, &hf_mms_encodedString   , -1/*imported*/, -1/*imported*/, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -4437,7 +4748,7 @@ dissect_mms_T_vmdPhysicalStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_mms_BIT_STRING_SIZE_0_128(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -4526,6 +4837,7 @@ static const value_string mms_DataAccessError_vals[] = {
   {   8, "object-attribute-inconsistent" },
   {   9, "object-access-unsupported" },
   {  10, "object-non-existent" },
+  {  11, "object-value-invalid" },
   { 0, NULL }
 };
 
@@ -5031,7 +5343,7 @@ static const value_string mms_T_loadData_vals[] = {
 
 static const ber_choice_t T_loadData_choice[] = {
   {   0, &hf_mms_non_coded       , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_OCTET_STRING },
-  {   1, &hf_mms_coded           , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  {   1, &hf_mms_coded           , -1/*imported*/, -1/*imported*/, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -5105,7 +5417,7 @@ static const value_string mms_T_loadData_01_vals[] = {
 
 static const ber_choice_t T_loadData_01_choice[] = {
   {   0, &hf_mms_non_coded       , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_OCTET_STRING },
-  {   1, &hf_mms_coded           , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  {   1, &hf_mms_coded           , -1/*imported*/, -1/*imported*/, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -5330,7 +5642,7 @@ static const value_string mms_T_executionArgument_02_vals[] = {
 
 static const ber_choice_t T_executionArgument_02_choice[] = {
   {   0, &hf_mms_simpleString    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_VisibleString },
-  {   1, &hf_mms_encodedString   , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  {   1, &hf_mms_encodedString   , -1/*imported*/, -1/*imported*/, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -6749,123 +7061,124 @@ dissect_mms_Integer16(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const asn_namedbit ParameterSupportOptions_bits[] = {
-  {  0, &hf_mms_ParameterSupportOptions_str1, -1, -1, "str1", NULL },
-  {  1, &hf_mms_ParameterSupportOptions_str2, -1, -1, "str2", NULL },
-  {  2, &hf_mms_ParameterSupportOptions_vnam, -1, -1, "vnam", NULL },
-  {  3, &hf_mms_ParameterSupportOptions_valt, -1, -1, "valt", NULL },
-  {  4, &hf_mms_ParameterSupportOptions_vadr, -1, -1, "vadr", NULL },
-  {  5, &hf_mms_ParameterSupportOptions_vsca, -1, -1, "vsca", NULL },
-  {  6, &hf_mms_ParameterSupportOptions_tpy, -1, -1, "tpy", NULL },
-  {  7, &hf_mms_ParameterSupportOptions_vlis, -1, -1, "vlis", NULL },
-  {  8, &hf_mms_ParameterSupportOptions_real, -1, -1, "real", NULL },
-  { 10, &hf_mms_ParameterSupportOptions_cei, -1, -1, "cei", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ParameterSupportOptions_bits[] = {
+  &hf_mms_ParameterSupportOptions_str1,
+  &hf_mms_ParameterSupportOptions_str2,
+  &hf_mms_ParameterSupportOptions_vnam,
+  &hf_mms_ParameterSupportOptions_valt,
+  &hf_mms_ParameterSupportOptions_vadr,
+  &hf_mms_ParameterSupportOptions_vsca,
+  &hf_mms_ParameterSupportOptions_tpy,
+  &hf_mms_ParameterSupportOptions_vlis,
+  &hf_mms_ParameterSupportOptions_real,
+  &hf_mms_ParameterSupportOptions_spare_bit9,
+  &hf_mms_ParameterSupportOptions_cei,
+  NULL
 };
 
 static int
 dissect_mms_ParameterSupportOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ParameterSupportOptions_bits, hf_index, ett_mms_ParameterSupportOptions,
+                                    ParameterSupportOptions_bits, 11, hf_index, ett_mms_ParameterSupportOptions,
                                     NULL);
 
   return offset;
 }
 
 
-static const asn_namedbit ServiceSupportOptions_bits[] = {
-  {  0, &hf_mms_ServiceSupportOptions_status, -1, -1, "status", NULL },
-  {  1, &hf_mms_ServiceSupportOptions_getNameList, -1, -1, "getNameList", NULL },
-  {  2, &hf_mms_ServiceSupportOptions_identify, -1, -1, "identify", NULL },
-  {  3, &hf_mms_ServiceSupportOptions_rename, -1, -1, "rename", NULL },
-  {  4, &hf_mms_ServiceSupportOptions_read, -1, -1, "read", NULL },
-  {  5, &hf_mms_ServiceSupportOptions_write, -1, -1, "write", NULL },
-  {  6, &hf_mms_ServiceSupportOptions_getVariableAccessAttributes, -1, -1, "getVariableAccessAttributes", NULL },
-  {  7, &hf_mms_ServiceSupportOptions_defineNamedVariable, -1, -1, "defineNamedVariable", NULL },
-  {  8, &hf_mms_ServiceSupportOptions_defineScatteredAccess, -1, -1, "defineScatteredAccess", NULL },
-  {  9, &hf_mms_ServiceSupportOptions_getScatteredAccessAttributes, -1, -1, "getScatteredAccessAttributes", NULL },
-  { 10, &hf_mms_ServiceSupportOptions_deleteVariableAccess, -1, -1, "deleteVariableAccess", NULL },
-  { 11, &hf_mms_ServiceSupportOptions_defineNamedVariableList, -1, -1, "defineNamedVariableList", NULL },
-  { 12, &hf_mms_ServiceSupportOptions_getNamedVariableListAttributes, -1, -1, "getNamedVariableListAttributes", NULL },
-  { 13, &hf_mms_ServiceSupportOptions_deleteNamedVariableList, -1, -1, "deleteNamedVariableList", NULL },
-  { 14, &hf_mms_ServiceSupportOptions_defineNamedType, -1, -1, "defineNamedType", NULL },
-  { 15, &hf_mms_ServiceSupportOptions_getNamedTypeAttributes, -1, -1, "getNamedTypeAttributes", NULL },
-  { 16, &hf_mms_ServiceSupportOptions_deleteNamedType, -1, -1, "deleteNamedType", NULL },
-  { 17, &hf_mms_ServiceSupportOptions_input, -1, -1, "input", NULL },
-  { 18, &hf_mms_ServiceSupportOptions_output, -1, -1, "output", NULL },
-  { 19, &hf_mms_ServiceSupportOptions_takeControl, -1, -1, "takeControl", NULL },
-  { 20, &hf_mms_ServiceSupportOptions_relinquishControl, -1, -1, "relinquishControl", NULL },
-  { 21, &hf_mms_ServiceSupportOptions_defineSemaphore, -1, -1, "defineSemaphore", NULL },
-  { 22, &hf_mms_ServiceSupportOptions_deleteSemaphore, -1, -1, "deleteSemaphore", NULL },
-  { 23, &hf_mms_ServiceSupportOptions_reportSemaphoreStatus, -1, -1, "reportSemaphoreStatus", NULL },
-  { 24, &hf_mms_ServiceSupportOptions_reportPoolSemaphoreStatus, -1, -1, "reportPoolSemaphoreStatus", NULL },
-  { 25, &hf_mms_ServiceSupportOptions_reportSemaphoreEntryStatus, -1, -1, "reportSemaphoreEntryStatus", NULL },
-  { 26, &hf_mms_ServiceSupportOptions_initiateDownloadSequence, -1, -1, "initiateDownloadSequence", NULL },
-  { 27, &hf_mms_ServiceSupportOptions_downloadSegment, -1, -1, "downloadSegment", NULL },
-  { 28, &hf_mms_ServiceSupportOptions_terminateDownloadSequence, -1, -1, "terminateDownloadSequence", NULL },
-  { 29, &hf_mms_ServiceSupportOptions_initiateUploadSequence, -1, -1, "initiateUploadSequence", NULL },
-  { 30, &hf_mms_ServiceSupportOptions_uploadSegment, -1, -1, "uploadSegment", NULL },
-  { 31, &hf_mms_ServiceSupportOptions_terminateUploadSequence, -1, -1, "terminateUploadSequence", NULL },
-  { 32, &hf_mms_ServiceSupportOptions_requestDomainDownload, -1, -1, "requestDomainDownload", NULL },
-  { 33, &hf_mms_ServiceSupportOptions_requestDomainUpload, -1, -1, "requestDomainUpload", NULL },
-  { 34, &hf_mms_ServiceSupportOptions_loadDomainContent, -1, -1, "loadDomainContent", NULL },
-  { 35, &hf_mms_ServiceSupportOptions_storeDomainContent, -1, -1, "storeDomainContent", NULL },
-  { 36, &hf_mms_ServiceSupportOptions_deleteDomain, -1, -1, "deleteDomain", NULL },
-  { 37, &hf_mms_ServiceSupportOptions_getDomainAttributes, -1, -1, "getDomainAttributes", NULL },
-  { 38, &hf_mms_ServiceSupportOptions_createProgramInvocation, -1, -1, "createProgramInvocation", NULL },
-  { 39, &hf_mms_ServiceSupportOptions_deleteProgramInvocation, -1, -1, "deleteProgramInvocation", NULL },
-  { 40, &hf_mms_ServiceSupportOptions_start, -1, -1, "start", NULL },
-  { 41, &hf_mms_ServiceSupportOptions_stop, -1, -1, "stop", NULL },
-  { 42, &hf_mms_ServiceSupportOptions_resume, -1, -1, "resume", NULL },
-  { 43, &hf_mms_ServiceSupportOptions_reset, -1, -1, "reset", NULL },
-  { 44, &hf_mms_ServiceSupportOptions_kill, -1, -1, "kill", NULL },
-  { 45, &hf_mms_ServiceSupportOptions_getProgramInvocationAttributes, -1, -1, "getProgramInvocationAttributes", NULL },
-  { 46, &hf_mms_ServiceSupportOptions_obtainFile, -1, -1, "obtainFile", NULL },
-  { 47, &hf_mms_ServiceSupportOptions_defineEventCondition, -1, -1, "defineEventCondition", NULL },
-  { 48, &hf_mms_ServiceSupportOptions_deleteEventCondition, -1, -1, "deleteEventCondition", NULL },
-  { 49, &hf_mms_ServiceSupportOptions_getEventConditionAttributes, -1, -1, "getEventConditionAttributes", NULL },
-  { 50, &hf_mms_ServiceSupportOptions_reportEventConditionStatus, -1, -1, "reportEventConditionStatus", NULL },
-  { 51, &hf_mms_ServiceSupportOptions_alterEventConditionMonitoring, -1, -1, "alterEventConditionMonitoring", NULL },
-  { 52, &hf_mms_ServiceSupportOptions_triggerEvent, -1, -1, "triggerEvent", NULL },
-  { 53, &hf_mms_ServiceSupportOptions_defineEventAction, -1, -1, "defineEventAction", NULL },
-  { 54, &hf_mms_ServiceSupportOptions_deleteEventAction, -1, -1, "deleteEventAction", NULL },
-  { 55, &hf_mms_ServiceSupportOptions_getEventActionAttributes, -1, -1, "getEventActionAttributes", NULL },
-  { 56, &hf_mms_ServiceSupportOptions_reportActionStatus, -1, -1, "reportActionStatus", NULL },
-  { 57, &hf_mms_ServiceSupportOptions_defineEventEnrollment, -1, -1, "defineEventEnrollment", NULL },
-  { 58, &hf_mms_ServiceSupportOptions_deleteEventEnrollment, -1, -1, "deleteEventEnrollment", NULL },
-  { 59, &hf_mms_ServiceSupportOptions_alterEventEnrollment, -1, -1, "alterEventEnrollment", NULL },
-  { 60, &hf_mms_ServiceSupportOptions_reportEventEnrollmentStatus, -1, -1, "reportEventEnrollmentStatus", NULL },
-  { 61, &hf_mms_ServiceSupportOptions_getEventEnrollmentAttributes, -1, -1, "getEventEnrollmentAttributes", NULL },
-  { 62, &hf_mms_ServiceSupportOptions_acknowledgeEventNotification, -1, -1, "acknowledgeEventNotification", NULL },
-  { 63, &hf_mms_ServiceSupportOptions_getAlarmSummary, -1, -1, "getAlarmSummary", NULL },
-  { 64, &hf_mms_ServiceSupportOptions_getAlarmEnrollmentSummary, -1, -1, "getAlarmEnrollmentSummary", NULL },
-  { 65, &hf_mms_ServiceSupportOptions_readJournal, -1, -1, "readJournal", NULL },
-  { 66, &hf_mms_ServiceSupportOptions_writeJournal, -1, -1, "writeJournal", NULL },
-  { 67, &hf_mms_ServiceSupportOptions_initializeJournal, -1, -1, "initializeJournal", NULL },
-  { 68, &hf_mms_ServiceSupportOptions_reportJournalStatus, -1, -1, "reportJournalStatus", NULL },
-  { 69, &hf_mms_ServiceSupportOptions_createJournal, -1, -1, "createJournal", NULL },
-  { 70, &hf_mms_ServiceSupportOptions_deleteJournal, -1, -1, "deleteJournal", NULL },
-  { 71, &hf_mms_ServiceSupportOptions_getCapabilityList, -1, -1, "getCapabilityList", NULL },
-  { 72, &hf_mms_ServiceSupportOptions_fileOpen, -1, -1, "fileOpen", NULL },
-  { 73, &hf_mms_ServiceSupportOptions_fileRead, -1, -1, "fileRead", NULL },
-  { 74, &hf_mms_ServiceSupportOptions_fileClose, -1, -1, "fileClose", NULL },
-  { 75, &hf_mms_ServiceSupportOptions_fileRename, -1, -1, "fileRename", NULL },
-  { 76, &hf_mms_ServiceSupportOptions_fileDelete, -1, -1, "fileDelete", NULL },
-  { 77, &hf_mms_ServiceSupportOptions_fileDirectory, -1, -1, "fileDirectory", NULL },
-  { 78, &hf_mms_ServiceSupportOptions_unsolicitedStatus, -1, -1, "unsolicitedStatus", NULL },
-  { 79, &hf_mms_ServiceSupportOptions_informationReport, -1, -1, "informationReport", NULL },
-  { 80, &hf_mms_ServiceSupportOptions_eventNotification, -1, -1, "eventNotification", NULL },
-  { 81, &hf_mms_ServiceSupportOptions_attachToEventCondition, -1, -1, "attachToEventCondition", NULL },
-  { 82, &hf_mms_ServiceSupportOptions_attachToSemaphore, -1, -1, "attachToSemaphore", NULL },
-  { 83, &hf_mms_ServiceSupportOptions_conclude, -1, -1, "conclude", NULL },
-  { 84, &hf_mms_ServiceSupportOptions_cancel, -1, -1, "cancel", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ServiceSupportOptions_bits[] = {
+  &hf_mms_ServiceSupportOptions_status,
+  &hf_mms_ServiceSupportOptions_getNameList,
+  &hf_mms_ServiceSupportOptions_identify,
+  &hf_mms_ServiceSupportOptions_rename,
+  &hf_mms_ServiceSupportOptions_read,
+  &hf_mms_ServiceSupportOptions_write,
+  &hf_mms_ServiceSupportOptions_getVariableAccessAttributes,
+  &hf_mms_ServiceSupportOptions_defineNamedVariable,
+  &hf_mms_ServiceSupportOptions_defineScatteredAccess,
+  &hf_mms_ServiceSupportOptions_getScatteredAccessAttributes,
+  &hf_mms_ServiceSupportOptions_deleteVariableAccess,
+  &hf_mms_ServiceSupportOptions_defineNamedVariableList,
+  &hf_mms_ServiceSupportOptions_getNamedVariableListAttributes,
+  &hf_mms_ServiceSupportOptions_deleteNamedVariableList,
+  &hf_mms_ServiceSupportOptions_defineNamedType,
+  &hf_mms_ServiceSupportOptions_getNamedTypeAttributes,
+  &hf_mms_ServiceSupportOptions_deleteNamedType,
+  &hf_mms_ServiceSupportOptions_input,
+  &hf_mms_ServiceSupportOptions_output,
+  &hf_mms_ServiceSupportOptions_takeControl,
+  &hf_mms_ServiceSupportOptions_relinquishControl,
+  &hf_mms_ServiceSupportOptions_defineSemaphore,
+  &hf_mms_ServiceSupportOptions_deleteSemaphore,
+  &hf_mms_ServiceSupportOptions_reportSemaphoreStatus,
+  &hf_mms_ServiceSupportOptions_reportPoolSemaphoreStatus,
+  &hf_mms_ServiceSupportOptions_reportSemaphoreEntryStatus,
+  &hf_mms_ServiceSupportOptions_initiateDownloadSequence,
+  &hf_mms_ServiceSupportOptions_downloadSegment,
+  &hf_mms_ServiceSupportOptions_terminateDownloadSequence,
+  &hf_mms_ServiceSupportOptions_initiateUploadSequence,
+  &hf_mms_ServiceSupportOptions_uploadSegment,
+  &hf_mms_ServiceSupportOptions_terminateUploadSequence,
+  &hf_mms_ServiceSupportOptions_requestDomainDownload,
+  &hf_mms_ServiceSupportOptions_requestDomainUpload,
+  &hf_mms_ServiceSupportOptions_loadDomainContent,
+  &hf_mms_ServiceSupportOptions_storeDomainContent,
+  &hf_mms_ServiceSupportOptions_deleteDomain,
+  &hf_mms_ServiceSupportOptions_getDomainAttributes,
+  &hf_mms_ServiceSupportOptions_createProgramInvocation,
+  &hf_mms_ServiceSupportOptions_deleteProgramInvocation,
+  &hf_mms_ServiceSupportOptions_start,
+  &hf_mms_ServiceSupportOptions_stop,
+  &hf_mms_ServiceSupportOptions_resume,
+  &hf_mms_ServiceSupportOptions_reset,
+  &hf_mms_ServiceSupportOptions_kill,
+  &hf_mms_ServiceSupportOptions_getProgramInvocationAttributes,
+  &hf_mms_ServiceSupportOptions_obtainFile,
+  &hf_mms_ServiceSupportOptions_defineEventCondition,
+  &hf_mms_ServiceSupportOptions_deleteEventCondition,
+  &hf_mms_ServiceSupportOptions_getEventConditionAttributes,
+  &hf_mms_ServiceSupportOptions_reportEventConditionStatus,
+  &hf_mms_ServiceSupportOptions_alterEventConditionMonitoring,
+  &hf_mms_ServiceSupportOptions_triggerEvent,
+  &hf_mms_ServiceSupportOptions_defineEventAction,
+  &hf_mms_ServiceSupportOptions_deleteEventAction,
+  &hf_mms_ServiceSupportOptions_getEventActionAttributes,
+  &hf_mms_ServiceSupportOptions_reportActionStatus,
+  &hf_mms_ServiceSupportOptions_defineEventEnrollment,
+  &hf_mms_ServiceSupportOptions_deleteEventEnrollment,
+  &hf_mms_ServiceSupportOptions_alterEventEnrollment,
+  &hf_mms_ServiceSupportOptions_reportEventEnrollmentStatus,
+  &hf_mms_ServiceSupportOptions_getEventEnrollmentAttributes,
+  &hf_mms_ServiceSupportOptions_acknowledgeEventNotification,
+  &hf_mms_ServiceSupportOptions_getAlarmSummary,
+  &hf_mms_ServiceSupportOptions_getAlarmEnrollmentSummary,
+  &hf_mms_ServiceSupportOptions_readJournal,
+  &hf_mms_ServiceSupportOptions_writeJournal,
+  &hf_mms_ServiceSupportOptions_initializeJournal,
+  &hf_mms_ServiceSupportOptions_reportJournalStatus,
+  &hf_mms_ServiceSupportOptions_createJournal,
+  &hf_mms_ServiceSupportOptions_deleteJournal,
+  &hf_mms_ServiceSupportOptions_getCapabilityList,
+  &hf_mms_ServiceSupportOptions_fileOpen,
+  &hf_mms_ServiceSupportOptions_fileRead,
+  &hf_mms_ServiceSupportOptions_fileClose,
+  &hf_mms_ServiceSupportOptions_fileRename,
+  &hf_mms_ServiceSupportOptions_fileDelete,
+  &hf_mms_ServiceSupportOptions_fileDirectory,
+  &hf_mms_ServiceSupportOptions_unsolicitedStatus,
+  &hf_mms_ServiceSupportOptions_informationReport,
+  &hf_mms_ServiceSupportOptions_eventNotification,
+  &hf_mms_ServiceSupportOptions_attachToEventCondition,
+  &hf_mms_ServiceSupportOptions_attachToSemaphore,
+  &hf_mms_ServiceSupportOptions_conclude,
+  &hf_mms_ServiceSupportOptions_cancel,
+  NULL
 };
 
 static int
 dissect_mms_ServiceSupportOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ServiceSupportOptions_bits, hf_index, ett_mms_ServiceSupportOptions,
+                                    ServiceSupportOptions_bits, 85, hf_index, ett_mms_ServiceSupportOptions,
                                     NULL);
 
   return offset;
@@ -7015,18 +7328,21 @@ static const ber_choice_t MMSpdu_choice[] = {
 int
 dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 37 "./asn1/mms/mms.cnf"
-  gint branch_taken;
+	gint branch_taken;
 
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  MMSpdu_choice, hf_index, ett_mms_MMSpdu,
                                  &branch_taken);
 
 
-  if( (branch_taken!=-1) && mms_MMSpdu_vals[branch_taken].strptr ){
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", mms_MMSpdu_vals[branch_taken].strptr);
-  }
-
-
+	if( (branch_taken!=-1) && mms_MMSpdu_vals[branch_taken].strptr ){
+		if (mms_has_private_data(actx))
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s%s%s",
+				private_data_get_preCinfo(actx), mms_MMSpdu_vals[branch_taken].strptr, private_data_get_moreCinfo(actx));
+		else
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s",
+				mms_MMSpdu_vals[branch_taken].strptr);
+	}
 
 
 
@@ -7035,7 +7351,7 @@ dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 /*--- End of included file: packet-mms-fn.c ---*/
-#line 44 "./asn1/mms/packet-mms-template.c"
+#line 128 "./asn1/mms/packet-mms-template.c"
 
 /*
 * Dissect MMS PDUs inside a PPDU.
@@ -7073,8 +7389,8 @@ dissect_mms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 void proto_register_mms(void) {
 
 	/* List of fields */
-  static hf_register_info hf[] =
-  {
+	static hf_register_info hf[] =
+	{
 
 /*--- Included file: packet-mms-hfarr.c ---*/
 #line 1 "./asn1/mms/packet-mms-hfarr.c"
@@ -7843,20 +8159,20 @@ void proto_register_mms(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "Identifier", HFILL }},
     { &hf_mms_ap_title,
-      { "ap-title", "mms.ap_title",
-        FT_UINT32, BASE_DEC, VALS(acse_AP_title_vals), 0,
+      { "ap-title", "mms.ap_title_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_mms_ap_invocation_id,
-      { "ap-invocation-id", "mms.ap_invocation_id",
-        FT_INT32, BASE_DEC, NULL, 0,
+      { "ap-invocation-id", "mms.ap_invocation_id_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_mms_ae_qualifier,
-      { "ae-qualifier", "mms.ae_qualifier",
-        FT_UINT32, BASE_DEC, VALS(acse_ASO_qualifier_vals), 0,
+      { "ae-qualifier", "mms.ae_qualifier_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_mms_ae_invocation_id,
-      { "ae-invocation-id", "mms.ae_invocation_id",
-        FT_INT32, BASE_DEC, NULL, 0,
+      { "ae-invocation-id", "mms.ae_invocation_id_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_mms_localDetailCalling,
       { "localDetailCalling", "mms.localDetailCalling",
@@ -8034,6 +8350,74 @@ void proto_register_mms(void) {
       { "fileRename", "mms.fileRename",
         FT_INT32, BASE_DEC, VALS(mms_FileRename_Error_vals), 0,
         "FileRename_Error", HFILL }},
+    { &hf_mms_additionalService,
+      { "additionalService", "mms.additionalService",
+        FT_UINT32, BASE_DEC, VALS(mms_AdditionalService_Error_vals), 0,
+        "AdditionalService_Error", HFILL }},
+    { &hf_mms_changeAccessControl,
+      { "changeAccessControl", "mms.changeAccessControl",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "ChangeAccessControl_Error", HFILL }},
+    { &hf_mms_defineEcl,
+      { "defineEcl", "mms.defineEcl",
+        FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
+        "DefineEventConditionList_Error", HFILL }},
+    { &hf_mms_addECLReference,
+      { "addECLReference", "mms.addECLReference",
+        FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
+        "AddEventConditionListReference_Error", HFILL }},
+    { &hf_mms_removeECLReference,
+      { "removeECLReference", "mms.removeECLReference",
+        FT_UINT32, BASE_DEC, VALS(mms_RemoveEventConditionListReference_Error_vals), 0,
+        "RemoveEventConditionListReference_Error", HFILL }},
+    { &hf_mms_initiateUC,
+      { "initiateUC", "mms.initiateUC",
+        FT_UINT32, BASE_DEC, VALS(mms_InitiateUnitControl_Error_vals), 0,
+        "InitiateUnitControl_Error", HFILL }},
+    { &hf_mms_startUC,
+      { "startUC", "mms.startUC_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "StartUnitControl_Error", HFILL }},
+    { &hf_mms_stopUC,
+      { "stopUC", "mms.stopUC_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "StopUnitControl_Error", HFILL }},
+    { &hf_mms_deleteUC,
+      { "deleteUC", "mms.deleteUC",
+        FT_UINT32, BASE_DEC, VALS(mms_DeleteUnitControl_Error_vals), 0,
+        "DeleteUnitControl_Error", HFILL }},
+    { &hf_mms_loadUCFromFile,
+      { "loadUCFromFile", "mms.loadUCFromFile",
+        FT_UINT32, BASE_DEC, VALS(mms_LoadUnitControlFromFile_Error_vals), 0,
+        "LoadUnitControlFromFile_Error", HFILL }},
+    { &hf_mms_eventCondition,
+      { "eventCondition", "mms.eventCondition",
+        FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
+        "ObjectName", HFILL }},
+    { &hf_mms_eventConditionList,
+      { "eventConditionList", "mms.eventConditionList",
+        FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
+        "ObjectName", HFILL }},
+    { &hf_mms_domain,
+      { "domain", "mms.domain",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Identifier", HFILL }},
+    { &hf_mms_programInvocation,
+      { "programInvocation", "mms.programInvocation",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Identifier", HFILL }},
+    { &hf_mms_programInvocationName,
+      { "programInvocationName", "mms.programInvocationName",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Identifier", HFILL }},
+    { &hf_mms_programInvocationState,
+      { "programInvocationState", "mms.programInvocationState",
+        FT_INT32, BASE_DEC, VALS(mms_ProgramInvocationState_vals), 0,
+        NULL, HFILL }},
+    { &hf_mms_none,
+      { "none", "mms.none_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_mms_rejectReason,
       { "rejectReason", "mms.rejectReason",
         FT_UINT32, BASE_DEC, VALS(mms_T_rejectReason_vals), 0,
@@ -8266,10 +8650,6 @@ void proto_register_mms(void) {
       { "uploadInProgress", "mms.uploadInProgress",
         FT_INT32, BASE_DEC, NULL, 0,
         "Integer8", HFILL }},
-    { &hf_mms_programInvocationName,
-      { "programInvocationName", "mms.programInvocationName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "Identifier", HFILL }},
     { &hf_mms_listOfDomainName,
       { "listOfDomainName", "mms.listOfDomainName",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -8882,10 +9262,6 @@ void proto_register_mms(void) {
       { "aa-specific", "mms.aa_specific_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_mms_domain,
-      { "domain", "mms.domain",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "Identifier", HFILL }},
     { &hf_mms_vmd,
       { "vmd", "mms.vmd_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -8970,10 +9346,6 @@ void proto_register_mms(void) {
       { "eventConditionName", "mms.eventConditionName",
         FT_UINT32, BASE_DEC, VALS(mms_T_eventConditionName_vals), 0,
         NULL, HFILL }},
-    { &hf_mms_eventCondition,
-      { "eventCondition", "mms.eventCondition",
-        FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
-        "ObjectName", HFILL }},
     { &hf_mms_eventActionName_01,
       { "eventActionName", "mms.eventActionName",
         FT_UINT32, BASE_DEC, VALS(mms_T_eventActionName_vals), 0,
@@ -9335,421 +9707,425 @@ void proto_register_mms(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_mms_ParameterSupportOptions_str1,
-      { "str1", "mms.str1",
+      { "str1", "mms.ParameterSupportOptions.str1",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_mms_ParameterSupportOptions_str2,
-      { "str2", "mms.str2",
+      { "str2", "mms.ParameterSupportOptions.str2",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_mms_ParameterSupportOptions_vnam,
-      { "vnam", "mms.vnam",
+      { "vnam", "mms.ParameterSupportOptions.vnam",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_mms_ParameterSupportOptions_valt,
-      { "valt", "mms.valt",
+      { "valt", "mms.ParameterSupportOptions.valt",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_mms_ParameterSupportOptions_vadr,
-      { "vadr", "mms.vadr",
+      { "vadr", "mms.ParameterSupportOptions.vadr",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_mms_ParameterSupportOptions_vsca,
-      { "vsca", "mms.vsca",
+      { "vsca", "mms.ParameterSupportOptions.vsca",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_mms_ParameterSupportOptions_tpy,
-      { "tpy", "mms.tpy",
+      { "tpy", "mms.ParameterSupportOptions.tpy",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_mms_ParameterSupportOptions_vlis,
-      { "vlis", "mms.vlis",
+      { "vlis", "mms.ParameterSupportOptions.vlis",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_mms_ParameterSupportOptions_real,
-      { "real", "mms.real",
+      { "real", "mms.ParameterSupportOptions.real",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
+    { &hf_mms_ParameterSupportOptions_spare_bit9,
+      { "spare_bit9", "mms.ParameterSupportOptions.spare.bit9",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
     { &hf_mms_ParameterSupportOptions_cei,
-      { "cei", "mms.cei",
+      { "cei", "mms.ParameterSupportOptions.cei",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_status,
-      { "status", "mms.status",
+      { "status", "mms.ServiceSupportOptions.status",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_getNameList,
-      { "getNameList", "mms.getNameList",
+      { "getNameList", "mms.ServiceSupportOptions.getNameList",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_identify,
-      { "identify", "mms.identify",
+      { "identify", "mms.ServiceSupportOptions.identify",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_rename,
-      { "rename", "mms.rename",
+      { "rename", "mms.ServiceSupportOptions.rename",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_read,
-      { "read", "mms.read",
+      { "read", "mms.ServiceSupportOptions.read",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_write,
-      { "write", "mms.write",
+      { "write", "mms.ServiceSupportOptions.write",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_getVariableAccessAttributes,
-      { "getVariableAccessAttributes", "mms.getVariableAccessAttributes",
+      { "getVariableAccessAttributes", "mms.ServiceSupportOptions.getVariableAccessAttributes",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_defineNamedVariable,
-      { "defineNamedVariable", "mms.defineNamedVariable",
+      { "defineNamedVariable", "mms.ServiceSupportOptions.defineNamedVariable",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_defineScatteredAccess,
-      { "defineScatteredAccess", "mms.defineScatteredAccess",
+      { "defineScatteredAccess", "mms.ServiceSupportOptions.defineScatteredAccess",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_getScatteredAccessAttributes,
-      { "getScatteredAccessAttributes", "mms.getScatteredAccessAttributes",
+      { "getScatteredAccessAttributes", "mms.ServiceSupportOptions.getScatteredAccessAttributes",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_deleteVariableAccess,
-      { "deleteVariableAccess", "mms.deleteVariableAccess",
+      { "deleteVariableAccess", "mms.ServiceSupportOptions.deleteVariableAccess",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_defineNamedVariableList,
-      { "defineNamedVariableList", "mms.defineNamedVariableList",
+      { "defineNamedVariableList", "mms.ServiceSupportOptions.defineNamedVariableList",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_getNamedVariableListAttributes,
-      { "getNamedVariableListAttributes", "mms.getNamedVariableListAttributes",
+      { "getNamedVariableListAttributes", "mms.ServiceSupportOptions.getNamedVariableListAttributes",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_deleteNamedVariableList,
-      { "deleteNamedVariableList", "mms.deleteNamedVariableList",
+      { "deleteNamedVariableList", "mms.ServiceSupportOptions.deleteNamedVariableList",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_defineNamedType,
-      { "defineNamedType", "mms.defineNamedType",
+      { "defineNamedType", "mms.ServiceSupportOptions.defineNamedType",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_getNamedTypeAttributes,
-      { "getNamedTypeAttributes", "mms.getNamedTypeAttributes",
+      { "getNamedTypeAttributes", "mms.ServiceSupportOptions.getNamedTypeAttributes",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_deleteNamedType,
-      { "deleteNamedType", "mms.deleteNamedType",
+      { "deleteNamedType", "mms.ServiceSupportOptions.deleteNamedType",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_input,
-      { "input", "mms.input",
+      { "input", "mms.ServiceSupportOptions.input",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_output,
-      { "output", "mms.output",
+      { "output", "mms.ServiceSupportOptions.output",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_takeControl,
-      { "takeControl", "mms.takeControl",
+      { "takeControl", "mms.ServiceSupportOptions.takeControl",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_relinquishControl,
-      { "relinquishControl", "mms.relinquishControl",
+      { "relinquishControl", "mms.ServiceSupportOptions.relinquishControl",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_defineSemaphore,
-      { "defineSemaphore", "mms.defineSemaphore",
+      { "defineSemaphore", "mms.ServiceSupportOptions.defineSemaphore",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_deleteSemaphore,
-      { "deleteSemaphore", "mms.deleteSemaphore",
+      { "deleteSemaphore", "mms.ServiceSupportOptions.deleteSemaphore",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_reportSemaphoreStatus,
-      { "reportSemaphoreStatus", "mms.reportSemaphoreStatus",
+      { "reportSemaphoreStatus", "mms.ServiceSupportOptions.reportSemaphoreStatus",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_reportPoolSemaphoreStatus,
-      { "reportPoolSemaphoreStatus", "mms.reportPoolSemaphoreStatus",
+      { "reportPoolSemaphoreStatus", "mms.ServiceSupportOptions.reportPoolSemaphoreStatus",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_reportSemaphoreEntryStatus,
-      { "reportSemaphoreEntryStatus", "mms.reportSemaphoreEntryStatus",
+      { "reportSemaphoreEntryStatus", "mms.ServiceSupportOptions.reportSemaphoreEntryStatus",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_initiateDownloadSequence,
-      { "initiateDownloadSequence", "mms.initiateDownloadSequence",
+      { "initiateDownloadSequence", "mms.ServiceSupportOptions.initiateDownloadSequence",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_downloadSegment,
-      { "downloadSegment", "mms.downloadSegment",
+      { "downloadSegment", "mms.ServiceSupportOptions.downloadSegment",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_terminateDownloadSequence,
-      { "terminateDownloadSequence", "mms.terminateDownloadSequence",
+      { "terminateDownloadSequence", "mms.ServiceSupportOptions.terminateDownloadSequence",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_initiateUploadSequence,
-      { "initiateUploadSequence", "mms.initiateUploadSequence",
+      { "initiateUploadSequence", "mms.ServiceSupportOptions.initiateUploadSequence",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_uploadSegment,
-      { "uploadSegment", "mms.uploadSegment",
+      { "uploadSegment", "mms.ServiceSupportOptions.uploadSegment",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_terminateUploadSequence,
-      { "terminateUploadSequence", "mms.terminateUploadSequence",
+      { "terminateUploadSequence", "mms.ServiceSupportOptions.terminateUploadSequence",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_requestDomainDownload,
-      { "requestDomainDownload", "mms.requestDomainDownload",
+      { "requestDomainDownload", "mms.ServiceSupportOptions.requestDomainDownload",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_requestDomainUpload,
-      { "requestDomainUpload", "mms.requestDomainUpload",
+      { "requestDomainUpload", "mms.ServiceSupportOptions.requestDomainUpload",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_loadDomainContent,
-      { "loadDomainContent", "mms.loadDomainContent",
+      { "loadDomainContent", "mms.ServiceSupportOptions.loadDomainContent",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_storeDomainContent,
-      { "storeDomainContent", "mms.storeDomainContent",
+      { "storeDomainContent", "mms.ServiceSupportOptions.storeDomainContent",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_deleteDomain,
-      { "deleteDomain", "mms.deleteDomain",
+      { "deleteDomain", "mms.ServiceSupportOptions.deleteDomain",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_getDomainAttributes,
-      { "getDomainAttributes", "mms.getDomainAttributes",
+      { "getDomainAttributes", "mms.ServiceSupportOptions.getDomainAttributes",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_createProgramInvocation,
-      { "createProgramInvocation", "mms.createProgramInvocation",
+      { "createProgramInvocation", "mms.ServiceSupportOptions.createProgramInvocation",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_deleteProgramInvocation,
-      { "deleteProgramInvocation", "mms.deleteProgramInvocation",
+      { "deleteProgramInvocation", "mms.ServiceSupportOptions.deleteProgramInvocation",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_start,
-      { "start", "mms.start",
+      { "start", "mms.ServiceSupportOptions.start",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_stop,
-      { "stop", "mms.stop",
+      { "stop", "mms.ServiceSupportOptions.stop",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_resume,
-      { "resume", "mms.resume",
+      { "resume", "mms.ServiceSupportOptions.resume",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_reset,
-      { "reset", "mms.reset",
+      { "reset", "mms.ServiceSupportOptions.reset",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_kill,
-      { "kill", "mms.kill",
+      { "kill", "mms.ServiceSupportOptions.kill",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_getProgramInvocationAttributes,
-      { "getProgramInvocationAttributes", "mms.getProgramInvocationAttributes",
+      { "getProgramInvocationAttributes", "mms.ServiceSupportOptions.getProgramInvocationAttributes",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_obtainFile,
-      { "obtainFile", "mms.obtainFile",
+      { "obtainFile", "mms.ServiceSupportOptions.obtainFile",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_defineEventCondition,
-      { "defineEventCondition", "mms.defineEventCondition",
+      { "defineEventCondition", "mms.ServiceSupportOptions.defineEventCondition",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_deleteEventCondition,
-      { "deleteEventCondition", "mms.deleteEventCondition",
+      { "deleteEventCondition", "mms.ServiceSupportOptions.deleteEventCondition",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_getEventConditionAttributes,
-      { "getEventConditionAttributes", "mms.getEventConditionAttributes",
+      { "getEventConditionAttributes", "mms.ServiceSupportOptions.getEventConditionAttributes",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_reportEventConditionStatus,
-      { "reportEventConditionStatus", "mms.reportEventConditionStatus",
+      { "reportEventConditionStatus", "mms.ServiceSupportOptions.reportEventConditionStatus",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_alterEventConditionMonitoring,
-      { "alterEventConditionMonitoring", "mms.alterEventConditionMonitoring",
+      { "alterEventConditionMonitoring", "mms.ServiceSupportOptions.alterEventConditionMonitoring",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_triggerEvent,
-      { "triggerEvent", "mms.triggerEvent",
+      { "triggerEvent", "mms.ServiceSupportOptions.triggerEvent",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_defineEventAction,
-      { "defineEventAction", "mms.defineEventAction",
+      { "defineEventAction", "mms.ServiceSupportOptions.defineEventAction",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_deleteEventAction,
-      { "deleteEventAction", "mms.deleteEventAction",
+      { "deleteEventAction", "mms.ServiceSupportOptions.deleteEventAction",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_getEventActionAttributes,
-      { "getEventActionAttributes", "mms.getEventActionAttributes",
+      { "getEventActionAttributes", "mms.ServiceSupportOptions.getEventActionAttributes",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_reportActionStatus,
-      { "reportActionStatus", "mms.reportActionStatus",
+      { "reportActionStatus", "mms.ServiceSupportOptions.reportActionStatus",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_defineEventEnrollment,
-      { "defineEventEnrollment", "mms.defineEventEnrollment",
+      { "defineEventEnrollment", "mms.ServiceSupportOptions.defineEventEnrollment",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_deleteEventEnrollment,
-      { "deleteEventEnrollment", "mms.deleteEventEnrollment",
+      { "deleteEventEnrollment", "mms.ServiceSupportOptions.deleteEventEnrollment",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_alterEventEnrollment,
-      { "alterEventEnrollment", "mms.alterEventEnrollment",
+      { "alterEventEnrollment", "mms.ServiceSupportOptions.alterEventEnrollment",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_reportEventEnrollmentStatus,
-      { "reportEventEnrollmentStatus", "mms.reportEventEnrollmentStatus",
+      { "reportEventEnrollmentStatus", "mms.ServiceSupportOptions.reportEventEnrollmentStatus",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_getEventEnrollmentAttributes,
-      { "getEventEnrollmentAttributes", "mms.getEventEnrollmentAttributes",
+      { "getEventEnrollmentAttributes", "mms.ServiceSupportOptions.getEventEnrollmentAttributes",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_acknowledgeEventNotification,
-      { "acknowledgeEventNotification", "mms.acknowledgeEventNotification",
+      { "acknowledgeEventNotification", "mms.ServiceSupportOptions.acknowledgeEventNotification",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_getAlarmSummary,
-      { "getAlarmSummary", "mms.getAlarmSummary",
+      { "getAlarmSummary", "mms.ServiceSupportOptions.getAlarmSummary",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_getAlarmEnrollmentSummary,
-      { "getAlarmEnrollmentSummary", "mms.getAlarmEnrollmentSummary",
+      { "getAlarmEnrollmentSummary", "mms.ServiceSupportOptions.getAlarmEnrollmentSummary",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_readJournal,
-      { "readJournal", "mms.readJournal",
+      { "readJournal", "mms.ServiceSupportOptions.readJournal",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_writeJournal,
-      { "writeJournal", "mms.writeJournal",
+      { "writeJournal", "mms.ServiceSupportOptions.writeJournal",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_initializeJournal,
-      { "initializeJournal", "mms.initializeJournal",
+      { "initializeJournal", "mms.ServiceSupportOptions.initializeJournal",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_reportJournalStatus,
-      { "reportJournalStatus", "mms.reportJournalStatus",
+      { "reportJournalStatus", "mms.ServiceSupportOptions.reportJournalStatus",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_createJournal,
-      { "createJournal", "mms.createJournal",
+      { "createJournal", "mms.ServiceSupportOptions.createJournal",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_deleteJournal,
-      { "deleteJournal", "mms.deleteJournal",
+      { "deleteJournal", "mms.ServiceSupportOptions.deleteJournal",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_getCapabilityList,
-      { "getCapabilityList", "mms.getCapabilityList",
+      { "getCapabilityList", "mms.ServiceSupportOptions.getCapabilityList",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_fileOpen,
-      { "fileOpen", "mms.fileOpen",
+      { "fileOpen", "mms.ServiceSupportOptions.fileOpen",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_fileRead,
-      { "fileRead", "mms.fileRead",
+      { "fileRead", "mms.ServiceSupportOptions.fileRead",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_fileClose,
-      { "fileClose", "mms.fileClose",
+      { "fileClose", "mms.ServiceSupportOptions.fileClose",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_fileRename,
-      { "fileRename", "mms.fileRename",
+      { "fileRename", "mms.ServiceSupportOptions.fileRename",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_fileDelete,
-      { "fileDelete", "mms.fileDelete",
+      { "fileDelete", "mms.ServiceSupportOptions.fileDelete",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_fileDirectory,
-      { "fileDirectory", "mms.fileDirectory",
+      { "fileDirectory", "mms.ServiceSupportOptions.fileDirectory",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_unsolicitedStatus,
-      { "unsolicitedStatus", "mms.unsolicitedStatus",
+      { "unsolicitedStatus", "mms.ServiceSupportOptions.unsolicitedStatus",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_informationReport,
-      { "informationReport", "mms.informationReport",
+      { "informationReport", "mms.ServiceSupportOptions.informationReport",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_eventNotification,
-      { "eventNotification", "mms.eventNotification",
+      { "eventNotification", "mms.ServiceSupportOptions.eventNotification",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_attachToEventCondition,
-      { "attachToEventCondition", "mms.attachToEventCondition",
+      { "attachToEventCondition", "mms.ServiceSupportOptions.attachToEventCondition",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_attachToSemaphore,
-      { "attachToSemaphore", "mms.attachToSemaphore",
+      { "attachToSemaphore", "mms.ServiceSupportOptions.attachToSemaphore",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_conclude,
-      { "conclude", "mms.conclude",
+      { "conclude", "mms.ServiceSupportOptions.conclude",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_mms_ServiceSupportOptions_cancel,
-      { "cancel", "mms.cancel",
+      { "cancel", "mms.ServiceSupportOptions.cancel",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_mms_Transitions_idle_to_disabled,
-      { "idle-to-disabled", "mms.idle-to-disabled",
+      { "idle-to-disabled", "mms.Transitions.idle.to.disabled",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_mms_Transitions_active_to_disabled,
-      { "active-to-disabled", "mms.active-to-disabled",
+      { "active-to-disabled", "mms.Transitions.active.to.disabled",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_mms_Transitions_disabled_to_idle,
-      { "disabled-to-idle", "mms.disabled-to-idle",
+      { "disabled-to-idle", "mms.Transitions.disabled.to.idle",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_mms_Transitions_active_to_idle,
-      { "active-to-idle", "mms.active-to-idle",
+      { "active-to-idle", "mms.Transitions.active.to.idle",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_mms_Transitions_disabled_to_active,
-      { "disabled-to-active", "mms.disabled-to-active",
+      { "disabled-to-active", "mms.Transitions.disabled.to.active",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_mms_Transitions_idle_to_active,
-      { "idle-to-active", "mms.idle-to-active",
+      { "idle-to-active", "mms.Transitions.idle.to.active",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_mms_Transitions_any_to_deleted,
-      { "any-to-deleted", "mms.any-to-deleted",
+      { "any-to-deleted", "mms.Transitions.any.to.deleted",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
 
 /*--- End of included file: packet-mms-hfarr.c ---*/
-#line 84 "./asn1/mms/packet-mms-template.c"
-  };
+#line 168 "./asn1/mms/packet-mms-template.c"
+	};
 
-  /* List of subtrees */
-  static gint *ett[] = {
-    &ett_mms,
+	/* List of subtrees */
+	static gint *ett[] = {
+		&ett_mms,
 
 /*--- Included file: packet-mms-ettarr.c ---*/
 #line 1 "./asn1/mms/packet-mms-ettarr.c"
@@ -9778,6 +10154,13 @@ void proto_register_mms(void) {
     &ett_mms_ServiceError,
     &ett_mms_T_errorClass,
     &ett_mms_T_serviceSpecificInformation,
+    &ett_mms_AdditionalService_Error,
+    &ett_mms_RemoveEventConditionListReference_Error,
+    &ett_mms_InitiateUnitControl_Error,
+    &ett_mms_StartUnitControl_Error,
+    &ett_mms_StopUnitControl_Error,
+    &ett_mms_DeleteUnitControl_Error,
+    &ett_mms_LoadUnitControlFromFile_Error,
     &ett_mms_RejectPDU,
     &ett_mms_T_rejectReason,
     &ett_mms_Status_Response,
@@ -9963,25 +10346,25 @@ void proto_register_mms(void) {
     &ett_mms_FileAttributes,
 
 /*--- End of included file: packet-mms-ettarr.c ---*/
-#line 90 "./asn1/mms/packet-mms-template.c"
-  };
+#line 174 "./asn1/mms/packet-mms-template.c"
+	};
 
-  static ei_register_info ei[] = {
-     { &ei_mms_mal_timeofday_encoding, { "mms.malformed.timeofday_encoding", PI_MALFORMED, PI_WARN, "BER Error: malformed TimeOfDay encoding", EXPFILL }},
-     { &ei_mms_mal_utctime_encoding, { "mms.malformed.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed IEC61850 UTCTime encoding", EXPFILL }},
-     { &ei_mms_zero_pdu, { "mms.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte MMS PDU", EXPFILL }},
-  };
+	static ei_register_info ei[] = {
+		{ &ei_mms_mal_timeofday_encoding, { "mms.malformed.timeofday_encoding", PI_MALFORMED, PI_WARN, "BER Error: malformed TimeOfDay encoding", EXPFILL }},
+		{ &ei_mms_mal_utctime_encoding, { "mms.malformed.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed IEC61850 UTCTime encoding", EXPFILL }},
+		{ &ei_mms_zero_pdu, { "mms.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte MMS PDU", EXPFILL }},
+	};
 
-  expert_module_t* expert_mms;
+	expert_module_t* expert_mms;
 
-  /* Register protocol */
-  proto_mms = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("mms", dissect_mms, proto_mms);
-  /* Register fields and subtrees */
-  proto_register_field_array(proto_mms, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
-  expert_mms = expert_register_protocol(proto_mms);
-  expert_register_field_array(expert_mms, ei, array_length(ei));
+	/* Register protocol */
+	proto_mms = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	register_dissector("mms", dissect_mms, proto_mms);
+	/* Register fields and subtrees */
+	proto_register_field_array(proto_mms, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+	expert_mms = expert_register_protocol(proto_mms);
+	expert_register_field_array(expert_mms, ei, array_length(ei));
 
 }
 

@@ -11,9 +11,7 @@
 #include <string.h>
 #include <errno.h>
 
-#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
-#endif
 
 #include "wtap-int.h"
 #include "wtap_opttypes.h"
@@ -77,12 +75,6 @@ int
 wtap_file_type_subtype(wtap *wth)
 {
 	return wth->file_type_subtype;
-}
-
-gboolean
-wtap_iscompressed(wtap *wth)
-{
-	return file_iscompressed((wth->fh == NULL) ? wth->random_fh : wth->fh);
 }
 
 guint
@@ -200,10 +192,17 @@ wtap_get_debug_if_descr(const wtap_block_t if_descr,
 
 	g_string_append_printf(info,
 			"%*cEncapsulation = %s (%d - %s)%s", indent, ' ',
-			wtap_encap_string(if_descr_mand->wtap_encap),
+			wtap_encap_description(if_descr_mand->wtap_encap),
 			if_descr_mand->wtap_encap,
-			wtap_encap_short_string(if_descr_mand->wtap_encap),
+			wtap_encap_name(if_descr_mand->wtap_encap),
 			line_end);
+
+	if (wtap_block_get_string_option_value(if_descr, OPT_IDB_HARDWARE, &tmp_content) == WTAP_OPTTYPE_SUCCESS) {
+		g_string_append_printf(info,
+				"%*cHardware = %s%s", indent, ' ',
+				tmp_content ? tmp_content : "NONE",
+				line_end);
+	}
 
 	if (wtap_block_get_uint64_option_value(if_descr, OPT_IDB_SPEED, &tmp64) == WTAP_OPTTYPE_SUCCESS) {
 		g_string_append_printf(info,
@@ -310,607 +309,674 @@ wtap_file_get_nrb_for_new_file(wtap *wth)
 	return nrb_hdrs;
 }
 
+void
+wtap_dump_params_init(wtap_dump_params *params, wtap *wth)
+{
+	memset(params, 0, sizeof(*params));
+	if (wth == NULL)
+		return;
+
+	params->encap = wtap_file_encap(wth);
+	params->snaplen = wtap_snapshot_length(wth);
+	params->shb_hdrs = wtap_file_get_shb_for_new_file(wth);
+	params->idb_inf = wtap_file_get_idb_info(wth);
+	params->nrb_hdrs = wtap_file_get_nrb_for_new_file(wth);
+	/* Assume that the input handle remains open until the dumper is closed.
+	 * Refer to the DSBs from the input file, wtap_dump will then copy DSBs
+	 * as they become available. */
+	params->dsbs_growing = wth->dsbs;
+}
+
+void
+wtap_dump_params_discard_decryption_secrets(wtap_dump_params *params)
+{
+	params->dsbs_initial = NULL;
+	params->dsbs_growing = NULL;
+}
+
+void
+wtap_dump_params_cleanup(wtap_dump_params *params)
+{
+	wtap_block_array_free(params->shb_hdrs);
+	/* params->idb_inf is currently expected to be freed by the caller. */
+	wtap_block_array_free(params->nrb_hdrs);
+
+	memset(params, 0, sizeof(*params));
+}
+
 /* Table of the encapsulation types we know about. */
 struct encap_type_info {
 	const char *name;
-	const char *short_name;
+	const char *description;
 };
 
 static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_UNKNOWN */
-	{ "Unknown", "unknown" },
+	{ "unknown", "Unknown" },
 
 	/* WTAP_ENCAP_ETHERNET */
-	{ "Ethernet", "ether" },
+	{ "ether", "Ethernet" },
 
 	/* WTAP_ENCAP_TOKEN_RING */
-	{ "Token Ring", "tr" },
+	{ "tr", "Token Ring" },
 
 	/* WTAP_ENCAP_SLIP */
-	{ "SLIP", "slip" },
+	{ "slip", "SLIP" },
 
 	/* WTAP_ENCAP_PPP */
-	{ "PPP", "ppp" },
+	{ "ppp", "PPP" },
 
 	/* WTAP_ENCAP_FDDI */
-	{ "FDDI", "fddi" },
+	{ "fddi", "FDDI" },
 
 	/* WTAP_ENCAP_FDDI_BITSWAPPED */
-	{ "FDDI with bit-swapped MAC addresses", "fddi-swapped" },
+	{ "fddi-swapped", "FDDI with bit-swapped MAC addresses" },
 
 	/* WTAP_ENCAP_RAW_IP */
-	{ "Raw IP", "rawip" },
+	{ "rawip", "Raw IP" },
 
 	/* WTAP_ENCAP_ARCNET */
-	{ "ARCNET", "arcnet" },
+	{ "arcnet", "ARCNET" },
 
 	/* WTAP_ENCAP_ARCNET_LINUX */
-	{ "Linux ARCNET", "arcnet_linux" },
+	{ "arcnet_linux", "Linux ARCNET" },
 
 	/* WTAP_ENCAP_ATM_RFC1483 */
-	{ "RFC 1483 ATM", "atm-rfc1483" },
+	{ "atm-rfc1483", "RFC 1483 ATM" },
 
 	/* WTAP_ENCAP_LINUX_ATM_CLIP */
-	{ "Linux ATM CLIP", "linux-atm-clip" },
+	{ "linux-atm-clip", "Linux ATM CLIP" },
 
 	/* WTAP_ENCAP_LAPB */
-	{ "LAPB", "lapb" },
+	{ "lapb", "LAPB" },
 
 	/* WTAP_ENCAP_ATM_PDUS */
-	{ "ATM PDUs", "atm-pdus" },
+	{ "atm-pdus", "ATM PDUs" },
 
 	/* WTAP_ENCAP_ATM_PDUS_UNTRUNCATED */
-	{ "ATM PDUs - untruncated", "atm-pdus-untruncated" },
+	{ "atm-pdus-untruncated", "ATM PDUs - untruncated" },
 
 	/* WTAP_ENCAP_NULL */
-	{ "NULL/Loopback", "null" },
+	{ "null", "NULL/Loopback" },
 
 	/* WTAP_ENCAP_ASCEND */
-	{ "Lucent/Ascend access equipment", "ascend" },
+	{ "ascend", "Lucent/Ascend access equipment" },
 
 	/* WTAP_ENCAP_ISDN */
-	{ "ISDN", "isdn" },
+	{ "isdn", "ISDN" },
 
 	/* WTAP_ENCAP_IP_OVER_FC */
-	{ "RFC 2625 IP-over-Fibre Channel", "ip-over-fc" },
+	{ "ip-over-fc", "RFC 2625 IP-over-Fibre Channel" },
 
 	/* WTAP_ENCAP_PPP_WITH_PHDR */
-	{ "PPP with Directional Info", "ppp-with-direction" },
+	{ "ppp-with-direction", "PPP with Directional Info" },
 
 	/* WTAP_ENCAP_IEEE_802_11 */
-	{ "IEEE 802.11 Wireless LAN", "ieee-802-11" },
+	{ "ieee-802-11", "IEEE 802.11 Wireless LAN" },
 
 	/* WTAP_ENCAP_IEEE_802_11_PRISM */
-	{ "IEEE 802.11 plus Prism II monitor mode radio header", "ieee-802-11-prism" },
+	{ "ieee-802-11-prism", "IEEE 802.11 plus Prism II monitor mode radio header" },
 
 	/* WTAP_ENCAP_IEEE_802_11_WITH_RADIO */
-	{ "IEEE 802.11 Wireless LAN with radio information", "ieee-802-11-radio" },
+	{ "ieee-802-11-radio", "IEEE 802.11 Wireless LAN with radio information" },
 
 	/* WTAP_ENCAP_IEEE_802_11_RADIOTAP */
-	{ "IEEE 802.11 plus radiotap radio header", "ieee-802-11-radiotap" },
+	{ "ieee-802-11-radiotap", "IEEE 802.11 plus radiotap radio header" },
 
 	/* WTAP_ENCAP_IEEE_802_11_AVS */
-	{ "IEEE 802.11 plus AVS radio header", "ieee-802-11-avs" },
+	{ "ieee-802-11-avs", "IEEE 802.11 plus AVS radio header" },
 
 	/* WTAP_ENCAP_SLL */
-	{ "Linux cooked-mode capture", "linux-sll" },
+	{ "linux-sll", "Linux cooked-mode capture" },
 
 	/* WTAP_ENCAP_FRELAY */
-	{ "Frame Relay", "frelay" },
+	{ "frelay", "Frame Relay" },
 
 	/* WTAP_ENCAP_FRELAY_WITH_PHDR */
-	{ "Frame Relay with Directional Info", "frelay-with-direction" },
+	{ "frelay-with-direction", "Frame Relay with Directional Info" },
 
 	/* WTAP_ENCAP_CHDLC */
-	{ "Cisco HDLC", "chdlc" },
+	{ "chdlc", "Cisco HDLC" },
 
 	/* WTAP_ENCAP_CISCO_IOS */
-	{ "Cisco IOS internal", "ios" },
+	{ "ios", "Cisco IOS internal" },
 
 	/* WTAP_ENCAP_LOCALTALK */
-	{ "Localtalk", "ltalk" },
+	{ "ltalk", "Localtalk" },
 
 	/* WTAP_ENCAP_OLD_PFLOG  */
-	{ "OpenBSD PF Firewall logs, pre-3.4", "pflog-old" },
+	{ "pflog-old", "OpenBSD PF Firewall logs, pre-3.4" },
 
 	/* WTAP_ENCAP_HHDLC */
-	{ "HiPath HDLC", "hhdlc" },
+	{ "hhdlc", "HiPath HDLC" },
 
 	/* WTAP_ENCAP_DOCSIS */
-	{ "Data Over Cable Service Interface Specification", "docsis" },
+	{ "docsis", "Data Over Cable Service Interface Specification" },
 
 	/* WTAP_ENCAP_COSINE */
-	{ "CoSine L2 debug log", "cosine" },
+	{ "cosine", "CoSine L2 debug log" },
 
 	/* WTAP_ENCAP_WFLEET_HDLC */
-	{ "Wellfleet HDLC", "whdlc" },
+	{ "whdlc", "Wellfleet HDLC" },
 
 	/* WTAP_ENCAP_SDLC */
-	{ "SDLC", "sdlc" },
+	{ "sdlc", "SDLC" },
 
 	/* WTAP_ENCAP_TZSP */
-	{ "Tazmen sniffer protocol", "tzsp" },
+	{ "tzsp", "Tazmen sniffer protocol" },
 
 	/* WTAP_ENCAP_ENC */
-	{ "OpenBSD enc(4) encapsulating interface", "enc" },
+	{ "enc", "OpenBSD enc(4) encapsulating interface" },
 
 	/* WTAP_ENCAP_PFLOG  */
-	{ "OpenBSD PF Firewall logs", "pflog" },
+	{ "pflog", "OpenBSD PF Firewall logs" },
 
 	/* WTAP_ENCAP_CHDLC_WITH_PHDR */
-	{ "Cisco HDLC with Directional Info", "chdlc-with-direction" },
+	{ "chdlc-with-direction", "Cisco HDLC with Directional Info" },
 
 	/* WTAP_ENCAP_BLUETOOTH_H4 */
-	{ "Bluetooth H4", "bluetooth-h4" },
+	{ "bluetooth-h4", "Bluetooth H4" },
 
 	/* WTAP_ENCAP_MTP2 */
-	{ "SS7 MTP2", "mtp2" },
+	{ "mtp2", "SS7 MTP2" },
 
 	/* WTAP_ENCAP_MTP3 */
-	{ "SS7 MTP3", "mtp3" },
+	{ "mtp3", "SS7 MTP3" },
 
 	/* WTAP_ENCAP_IRDA */
-	{ "IrDA", "irda" },
+	{ "irda", "IrDA" },
 
 	/* WTAP_ENCAP_USER0 */
-	{ "USER 0", "user0" },
+	{ "user0", "USER 0" },
 
 	/* WTAP_ENCAP_USER1 */
-	{ "USER 1", "user1" },
+	{ "user1", "USER 1" },
 
 	/* WTAP_ENCAP_USER2 */
-	{ "USER 2", "user2" },
+	{ "user2", "USER 2" },
 
 	/* WTAP_ENCAP_USER3 */
-	{ "USER 3", "user3" },
+	{ "user3", "USER 3" },
 
 	/* WTAP_ENCAP_USER4 */
-	{ "USER 4", "user4" },
+	{ "user4", "USER 4" },
 
 	/* WTAP_ENCAP_USER5 */
-	{ "USER 5", "user5" },
+	{ "user5", "USER 5" },
 
 	/* WTAP_ENCAP_USER6 */
-	{ "USER 6", "user6" },
+	{ "user6", "USER 6" },
 
 	/* WTAP_ENCAP_USER7 */
-	{ "USER 7", "user7" },
+	{ "user7", "USER 7" },
 
 	/* WTAP_ENCAP_USER8 */
-	{ "USER 8", "user8" },
+	{ "user8", "USER 8" },
 
 	/* WTAP_ENCAP_USER9 */
-	{ "USER 9", "user9" },
+	{ "user9", "USER 9" },
 
 	/* WTAP_ENCAP_USER10 */
-	{ "USER 10", "user10" },
+	{ "user10", "USER 10" },
 
 	/* WTAP_ENCAP_USER11 */
-	{ "USER 11", "user11" },
+	{ "user11", "USER 11" },
 
 	/* WTAP_ENCAP_USER12 */
-	{ "USER 12", "user12" },
+	{ "user12", "USER 12" },
 
 	/* WTAP_ENCAP_USER13 */
-	{ "USER 13", "user13" },
+	{ "user13", "USER 13" },
 
 	/* WTAP_ENCAP_USER14 */
-	{ "USER 14", "user14" },
+	{ "user14", "USER 14" },
 
 	/* WTAP_ENCAP_USER15 */
-	{ "USER 15", "user15" },
+	{ "user15", "USER 15" },
 
 	/* WTAP_ENCAP_SYMANTEC */
-	{ "Symantec Enterprise Firewall", "symantec" },
+	{ "symantec", "Symantec Enterprise Firewall" },
 
 	/* WTAP_ENCAP_APPLE_IP_OVER_IEEE1394 */
-	{ "Apple IP-over-IEEE 1394", "ap1394" },
+	{ "ap1394", "Apple IP-over-IEEE 1394" },
 
 	/* WTAP_ENCAP_BACNET_MS_TP */
-	{ "BACnet MS/TP", "bacnet-ms-tp" },
+	{ "bacnet-ms-tp", "BACnet MS/TP" },
 
 	/* WTAP_ENCAP_NETTL_RAW_ICMP */
-	{ "Raw ICMP with nettl headers", "raw-icmp-nettl" },
+	{ "raw-icmp-nettl", "Raw ICMP with nettl headers" },
 
 	/* WTAP_ENCAP_NETTL_RAW_ICMPV6 */
-	{ "Raw ICMPv6 with nettl headers", "raw-icmpv6-nettl" },
+	{ "raw-icmpv6-nettl", "Raw ICMPv6 with nettl headers" },
 
 	/* WTAP_ENCAP_GPRS_LLC */
-	{ "GPRS LLC", "gprs-llc" },
+	{ "gprs-llc", "GPRS LLC" },
 
 	/* WTAP_ENCAP_JUNIPER_ATM1 */
-	{ "Juniper ATM1", "juniper-atm1" },
+	{ "juniper-atm1", "Juniper ATM1" },
 
 	/* WTAP_ENCAP_JUNIPER_ATM2 */
-	{ "Juniper ATM2", "juniper-atm2" },
+	{ "juniper-atm2", "Juniper ATM2" },
 
 	/* WTAP_ENCAP_REDBACK */
-	{ "Redback SmartEdge", "redback" },
+	{ "redback", "Redback SmartEdge" },
 
 	/* WTAP_ENCAP_NETTL_RAW_IP */
-	{ "Raw IP with nettl headers", "rawip-nettl" },
+	{ "rawip-nettl", "Raw IP with nettl headers" },
 
 	/* WTAP_ENCAP_NETTL_ETHERNET */
-	{ "Ethernet with nettl headers", "ether-nettl" },
+	{ "ether-nettl", "Ethernet with nettl headers" },
 
 	/* WTAP_ENCAP_NETTL_TOKEN_RING */
-	{ "Token Ring with nettl headers", "tr-nettl" },
+	{ "tr-nettl", "Token Ring with nettl headers" },
 
 	/* WTAP_ENCAP_NETTL_FDDI */
-	{ "FDDI with nettl headers", "fddi-nettl" },
+	{ "fddi-nettl", "FDDI with nettl headers" },
 
 	/* WTAP_ENCAP_NETTL_UNKNOWN */
-	{ "Unknown link-layer type with nettl headers", "unknown-nettl" },
+	{ "unknown-nettl", "Unknown link-layer type with nettl headers" },
 
 	/* WTAP_ENCAP_MTP2_WITH_PHDR */
-	{ "MTP2 with pseudoheader", "mtp2-with-phdr" },
+	{ "mtp2-with-phdr", "MTP2 with pseudoheader" },
 
 	/* WTAP_ENCAP_JUNIPER_PPPOE */
-	{ "Juniper PPPoE", "juniper-pppoe" },
+	{ "juniper-pppoe", "Juniper PPPoE" },
 
 	/* WTAP_ENCAP_GCOM_TIE1 */
-	{ "GCOM TIE1", "gcom-tie1" },
+	{ "gcom-tie1", "GCOM TIE1" },
 
 	/* WTAP_ENCAP_GCOM_SERIAL */
-	{ "GCOM Serial", "gcom-serial" },
+	{ "gcom-serial", "GCOM Serial" },
 
 	/* WTAP_ENCAP_NETTL_X25 */
-	{ "X.25 with nettl headers", "x25-nettl" },
+	{ "x25-nettl", "X.25 with nettl headers" },
 
 	/* WTAP_ENCAP_K12 */
-	{ "K12 protocol analyzer", "k12" },
+	{ "k12", "K12 protocol analyzer" },
 
 	/* WTAP_ENCAP_JUNIPER_MLPPP */
-	{ "Juniper MLPPP", "juniper-mlppp" },
+	{ "juniper-mlppp", "Juniper MLPPP" },
 
 	/* WTAP_ENCAP_JUNIPER_MLFR */
-	{ "Juniper MLFR", "juniper-mlfr" },
+	{ "juniper-mlfr", "Juniper MLFR" },
 
 	/* WTAP_ENCAP_JUNIPER_ETHER */
-	{ "Juniper Ethernet", "juniper-ether" },
+	{ "juniper-ether", "Juniper Ethernet" },
 
 	/* WTAP_ENCAP_JUNIPER_PPP */
-	{ "Juniper PPP", "juniper-ppp" },
+	{ "juniper-ppp", "Juniper PPP" },
 
 	/* WTAP_ENCAP_JUNIPER_FRELAY */
-	{ "Juniper Frame-Relay", "juniper-frelay" },
+	{ "juniper-frelay", "Juniper Frame-Relay" },
 
 	/* WTAP_ENCAP_JUNIPER_CHDLC */
-	{ "Juniper C-HDLC", "juniper-chdlc" },
+	{ "juniper-chdlc", "Juniper C-HDLC" },
 
 	/* WTAP_ENCAP_JUNIPER_GGSN */
-	{ "Juniper GGSN", "juniper-ggsn" },
+	{ "juniper-ggsn", "Juniper GGSN" },
 
 	/* WTAP_ENCAP_LINUX_LAPD */
-	{ "LAPD with Linux pseudo-header", "linux-lapd" },
+	{ "linux-lapd", "LAPD with Linux pseudo-header" },
 
 	/* WTAP_ENCAP_CATAPULT_DCT2000 */
-	{ "Catapult DCT2000", "dct2000" },
+	{ "dct2000", "Catapult DCT2000" },
 
 	/* WTAP_ENCAP_BER */
-	{ "ASN.1 Basic Encoding Rules", "ber" },
+	{ "ber", "ASN.1 Basic Encoding Rules" },
 
 	/* WTAP_ENCAP_JUNIPER_VP */
-	{ "Juniper Voice PIC", "juniper-vp" },
+	{ "juniper-vp", "Juniper Voice PIC" },
 
 	/* WTAP_ENCAP_USB_FREEBSD */
-	{ "USB packets with FreeBSD header", "usb-freebsd" },
+	{ "usb-freebsd", "USB packets with FreeBSD header" },
 
 	/* WTAP_ENCAP_IEEE802_16_MAC_CPS */
-	{ "IEEE 802.16 MAC Common Part Sublayer", "ieee-802-16-mac-cps" },
+	{ "ieee-802-16-mac-cps", "IEEE 802.16 MAC Common Part Sublayer" },
 
 	/* WTAP_ENCAP_NETTL_RAW_TELNET */
-	{ "Raw telnet with nettl headers", "raw-telnet-nettl" },
+	{ "raw-telnet-nettl", "Raw telnet with nettl headers" },
 
 	/* WTAP_ENCAP_USB_LINUX */
-	{ "USB packets with Linux header", "usb-linux" },
+	{ "usb-linux", "USB packets with Linux header" },
 
 	/* WTAP_ENCAP_MPEG */
-	{ "MPEG", "mpeg" },
+	{ "mpeg", "MPEG" },
 
 	/* WTAP_ENCAP_PPI */
-	{ "Per-Packet Information header", "ppi" },
+	{ "ppi", "Per-Packet Information header" },
 
 	/* WTAP_ENCAP_ERF */
-	{ "Extensible Record Format", "erf" },
+	{ "erf", "Extensible Record Format" },
 
 	/* WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR */
-	{ "Bluetooth H4 with linux header", "bluetooth-h4-linux" },
+	{ "bluetooth-h4-linux", "Bluetooth H4 with linux header" },
 
 	/* WTAP_ENCAP_SITA */
-	{ "SITA WAN packets", "sita-wan" },
+	{ "sita-wan", "SITA WAN packets" },
 
 	/* WTAP_ENCAP_SCCP */
-	{ "SS7 SCCP", "sccp" },
+	{ "sccp", "SS7 SCCP" },
 
 	/* WTAP_ENCAP_BLUETOOTH_HCI */
-	{ "Bluetooth without transport layer", "bluetooth-hci" },
+	{ "bluetooth-hci", "Bluetooth without transport layer" },
 
-	/* WTAP_ENCAP_IPMB */
-	{ "Intelligent Platform Management Bus", "ipmb" },
+	/* WTAP_ENCAP_IPMB_KONTRON */
+	{ "ipmb-kontron", "Intelligent Platform Management Bus with Kontron pseudo-header" },
 
 	/* WTAP_ENCAP_IEEE802_15_4 */
-	{ "IEEE 802.15.4 Wireless PAN", "wpan" },
+	{ "wpan", "IEEE 802.15.4 Wireless PAN" },
 
 	/* WTAP_ENCAP_X2E_XORAYA */
-	{ "X2E Xoraya", "x2e-xoraya" },
+	{ "x2e-xoraya", "X2E Xoraya" },
 
 	/* WTAP_ENCAP_FLEXRAY */
-	{ "FlexRay", "flexray" },
+	{ "flexray", "FlexRay" },
 
 	/* WTAP_ENCAP_LIN */
-	{ "Local Interconnect Network", "lin" },
+	{ "lin", "Local Interconnect Network" },
 
 	/* WTAP_ENCAP_MOST */
-	{ "Media Oriented Systems Transport", "most" },
+	{ "most", "Media Oriented Systems Transport" },
 
 	/* WTAP_ENCAP_CAN20B */
-	{ "Controller Area Network 2.0B", "can20b" },
+	{ "can20b", "Controller Area Network 2.0B" },
 
 	/* WTAP_ENCAP_LAYER1_EVENT */
-	{ "EyeSDN Layer 1 event", "layer1-event" },
+	{ "layer1-event", "EyeSDN Layer 1 event" },
 
 	/* WTAP_ENCAP_X2E_SERIAL */
-	{ "X2E serial line capture", "x2e-serial" },
+	{ "x2e-serial", "X2E serial line capture" },
 
-	/* WTAP_ENCAP_I2C */
-	{ "I2C", "i2c" },
+	/* WTAP_ENCAP_I2C_LINUX */
+	{ "i2c-linux", "I2C with Linux-specific pseudo-header" },
 
 	/* WTAP_ENCAP_IEEE802_15_4_NONASK_PHY */
-	{ "IEEE 802.15.4 Wireless PAN non-ASK PHY", "wpan-nonask-phy" },
+	{ "wpan-nonask-phy", "IEEE 802.15.4 Wireless PAN non-ASK PHY" },
 
 	/* WTAP_ENCAP_TNEF */
-	{ "Transport-Neutral Encapsulation Format", "tnef" },
+	{ "tnef", "Transport-Neutral Encapsulation Format" },
 
 	/* WTAP_ENCAP_USB_LINUX_MMAPPED */
-	{ "USB packets with Linux header and padding", "usb-linux-mmap" },
+	{ "usb-linux-mmap", "USB packets with Linux header and padding" },
 
 	/* WTAP_ENCAP_GSM_UM */
-	{ "GSM Um Interface", "gsm_um" },
+	{ "gsm_um", "GSM Um Interface" },
 
 	/* WTAP_ENCAP_DPNSS */
-	{ "Digital Private Signalling System No 1 Link Layer", "dpnss_link" },
+	{ "dpnss_link", "Digital Private Signalling System No 1 Link Layer" },
 
 	/* WTAP_ENCAP_PACKETLOGGER */
-	{ "PacketLogger", "packetlogger" },
+	{ "packetlogger", "Apple Bluetooth PacketLogger" },
 
 	/* WTAP_ENCAP_NSTRACE_1_0 */
-	{ "NetScaler Encapsulation 1.0 of Ethernet", "nstrace10" },
+	{ "nstrace10", "NetScaler Encapsulation 1.0 of Ethernet" },
 
 	/* WTAP_ENCAP_NSTRACE_2_0 */
-	{ "NetScaler Encapsulation 2.0 of Ethernet", "nstrace20" },
+	{ "nstrace20", "NetScaler Encapsulation 2.0 of Ethernet" },
 
 	/* WTAP_ENCAP_FIBRE_CHANNEL_FC2 */
-	{ "Fibre Channel FC-2", "fc2" },
+	{ "fc2", "Fibre Channel FC-2" },
 
 	/* WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS */
-	{ "Fibre Channel FC-2 With Frame Delimiter", "fc2sof"},
+	{ "fc2sof", "Fibre Channel FC-2 With Frame Delimiter" },
 
 	/* WTAP_ENCAP_JPEG_JFIF */
-	{ "JPEG/JFIF", "jfif" },
+	{ "jfif", "JPEG/JFIF" },
 
 	/* WTAP_ENCAP_IPNET */
-	{ "Solaris IPNET", "ipnet" },
+	{ "ipnet", "Solaris IPNET" },
 
 	/* WTAP_ENCAP_SOCKETCAN */
-	{ "SocketCAN", "socketcan" },
+	{ "socketcan", "SocketCAN" },
 
 	/* WTAP_ENCAP_IEEE_802_11_NETMON */
-	{ "IEEE 802.11 plus Network Monitor radio header", "ieee-802-11-netmon" },
+	{ "ieee-802-11-netmon", "IEEE 802.11 plus Network Monitor radio header" },
 
 	/* WTAP_ENCAP_IEEE802_15_4_NOFCS */
-	{ "IEEE 802.15.4 Wireless PAN with FCS not present", "wpan-nofcs" },
+	{ "wpan-nofcs", "IEEE 802.15.4 Wireless PAN with FCS not present" },
 
 	/* WTAP_ENCAP_RAW_IPFIX */
-	{ "IPFIX", "ipfix" },
+	{ "ipfix", "RFC 5655/RFC 5101 IPFIX" },
 
 	/* WTAP_ENCAP_RAW_IP4 */
-	{ "Raw IPv4", "rawip4" },
+	{ "rawip4", "Raw IPv4" },
 
 	/* WTAP_ENCAP_RAW_IP6 */
-	{ "Raw IPv6", "rawip6" },
+	{ "rawip6", "Raw IPv6" },
 
 	/* WTAP_ENCAP_LAPD */
-	{ "LAPD", "lapd" },
+	{ "lapd", "LAPD" },
 
 	/* WTAP_ENCAP_DVBCI */
-	{ "DVB-CI (Common Interface)", "dvbci"},
+	{ "dvbci", "DVB-CI (Common Interface)" },
 
 	/* WTAP_ENCAP_MUX27010 */
-	{ "MUX27010", "mux27010"},
+	{ "mux27010", "MUX27010" },
 
 	/* WTAP_ENCAP_MIME */
-	{ "MIME", "mime" },
+	{ "mime", "MIME" },
 
 	/* WTAP_ENCAP_NETANALYZER */
-	{ "netANALYZER", "netanalyzer" },
+	{ "netanalyzer", "Hilscher netANALYZER" },
 
 	/* WTAP_ENCAP_NETANALYZER_TRANSPARENT */
-	{ "netANALYZER-Transparent", "netanalyzer-transparent" },
+	{ "netanalyzer-transparent", "Hilscher netANALYZER-Transparent" },
 
 	/* WTAP_ENCAP_IP_OVER_IB */
-	{ "IP over Infiniband", "ip-over-ib" },
+	{ "ip-over-ib", "IP over InfiniBand" },
 
 	/* WTAP_ENCAP_MPEG_2_TS */
-	{ "ISO/IEC 13818-1 MPEG2-TS", "mp2ts" },
+	{ "mp2ts", "ISO/IEC 13818-1 MPEG2-TS" },
 
 	/* WTAP_ENCAP_PPP_ETHER */
-	{ "PPP-over-Ethernet session", "pppoes" },
+	{ "pppoes", "PPP-over-Ethernet session" },
 
 	/* WTAP_ENCAP_NFC_LLCP */
-	{ "NFC LLCP", "nfc-llcp" },
+	{ "nfc-llcp", "NFC LLCP" },
 
 	/* WTAP_ENCAP_NFLOG */
-	{ "NFLOG", "nflog" },
+	{ "nflog", "NFLOG" },
 
 	/* WTAP_ENCAP_V5_EF */
-	{ "V5 Envelope Function", "v5-ef" },
+	{ "v5-ef", "V5 Envelope Function" },
 
 	/* WTAP_ENCAP_BACNET_MS_TP_WITH_PHDR */
-	{ "BACnet MS/TP with Directional Info", "bacnet-ms-tp-with-direction" },
+	{ "bacnet-ms-tp-with-direction", "BACnet MS/TP with Directional Info" },
 
 	/* WTAP_ENCAP_IXVERIWAVE */
-	{ "IxVeriWave header and stats block", "ixveriwave" },
+	{ "ixveriwave", "IxVeriWave header and stats block" },
 
 	/* WTAP_ENCAP_SDH */
-	{ "SDH", "sdh" },
+	{ "sdh", "SDH" },
 
 	/* WTAP_ENCAP_DBUS */
-	{ "D-Bus", "dbus" },
+	{ "dbus", "D-Bus" },
 
 	/* WTAP_ENCAP_AX25_KISS */
-	{ "AX.25 with KISS header", "ax25-kiss" },
+	{ "ax25-kiss", "AX.25 with KISS header" },
 
 	/* WTAP_ENCAP_AX25 */
-	{ "Amateur Radio AX.25", "ax25" },
+	{ "ax25", "Amateur Radio AX.25" },
 
 	/* WTAP_ENCAP_SCTP */
-	{ "SCTP", "sctp" },
+	{ "sctp", "SCTP" },
 
 	/* WTAP_ENCAP_INFINIBAND */
-	{ "InfiniBand", "infiniband" },
+	{ "infiniband", "InfiniBand" },
 
 	/* WTAP_ENCAP_JUNIPER_SVCS */
-	{ "Juniper Services", "juniper-svcs" },
+	{ "juniper-svcs", "Juniper Services" },
 
 	/* WTAP_ENCAP_USBPCAP */
-	{ "USB packets with USBPcap header", "usb-usbpcap" },
+	{ "usb-usbpcap", "USB packets with USBPcap header" },
 
 	/* WTAP_ENCAP_RTAC_SERIAL */
-	{ "RTAC serial-line", "rtac-serial" },
+	{ "rtac-serial", "RTAC serial-line" },
 
 	/* WTAP_ENCAP_BLUETOOTH_LE_LL */
-	{ "Bluetooth Low Energy Link Layer", "bluetooth-le-ll" },
+	{ "bluetooth-le-ll", "Bluetooth Low Energy Link Layer" },
 
 	/* WTAP_ENCAP_WIRESHARK_UPPER_PDU */
-	{ "Wireshark Upper PDU export", "wireshark-upper-pdu" },
+	{ "wireshark-upper-pdu", "Wireshark Upper PDU export" },
 
 	/* WTAP_ENCAP_STANAG_4607 */
-	{ "STANAG 4607", "s4607" },
+	{ "s4607", "STANAG 4607" },
 
 	/* WTAP_ENCAP_STANAG_5066_D_PDU */
-	{ "STANAG 5066 Data Transfer Sublayer PDUs(D_PDU)", "s5066-dpdu"},
+	{ "s5066-dpdu", "STANAG 5066 Data Transfer Sublayer PDUs(D_PDU)" },
 
 	/* WTAP_ENCAP_NETLINK */
-	{ "Linux Netlink", "netlink" },
+	{ "netlink", "Linux Netlink" },
 
 	/* WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR */
-	{ "Bluetooth Linux Monitor", "bluetooth-linux-monitor" },
+	{ "bluetooth-linux-monitor", "Bluetooth Linux Monitor" },
 
 	/* WTAP_ENCAP_BLUETOOTH_BREDR_BB */
-	{ "Bluetooth BR/EDR Baseband RF", "bluetooth-bredr-bb-rf" },
+	{ "bluetooth-bredr-bb-rf", "Bluetooth BR/EDR Baseband RF" },
 
 	/* WTAP_ENCAP_BLUETOOTH_LE_LL_WITH_PHDR */
-	{ "Bluetooth Low Energy Link Layer RF", "bluetooth-le-ll-rf" },
+	{ "bluetooth-le-ll-rf", "Bluetooth Low Energy Link Layer RF" },
 
 	/* WTAP_ENCAP_NSTRACE_3_0 */
-	{ "NetScaler Encapsulation 3.0 of Ethernet", "nstrace30" },
+	{ "nstrace30", "NetScaler Encapsulation 3.0 of Ethernet" },
 
 	/* WTAP_ENCAP_LOGCAT */
-	{ "Android Logcat Binary format", "logcat" },
+	{ "logcat", "Android Logcat Binary format" },
 
 	/* WTAP_ENCAP_LOGCAT_BRIEF */
-	{ "Android Logcat Brief text format", "logcat_brief" },
+	{ "logcat_brief", "Android Logcat Brief text format" },
 
 	/* WTAP_ENCAP_LOGCAT_PROCESS */
-	{ "Android Logcat Process text format", "logcat_process" },
+	{ "logcat_process", "Android Logcat Process text format" },
 
 	/* WTAP_ENCAP_LOGCAT_TAG */
-	{ "Android Logcat Tag text format", "logcat_tag" },
+	{ "logcat_tag", "Android Logcat Tag text format" },
 
 	/* WTAP_ENCAP_LOGCAT_THREAD */
-	{ "Android Logcat Thread text format", "logcat_thread" },
+	{ "logcat_thread", "Android Logcat Thread text format" },
 
 	/* WTAP_ENCAP_LOGCAT_TIME */
-	{ "Android Logcat Time text format", "logcat_time" },
+	{ "logcat_time", "Android Logcat Time text format" },
 
 	/* WTAP_ENCAP_LOGCAT_THREADTIME */
-	{ "Android Logcat Threadtime text format", "logcat_threadtime" },
+	{ "logcat_threadtime", "Android Logcat Threadtime text format" },
 
 	/* WTAP_ENCAP_LOGCAT_LONG */
-	{ "Android Logcat Long text format", "logcat_long" },
+	{ "logcat_long", "Android Logcat Long text format" },
 
 	/* WTAP_ENCAP_PKTAP */
-	{ "Apple PKTAP", "pktap" },
+	{ "pktap", "Apple PKTAP" },
 
 	/* WTAP_ENCAP_EPON */
-	{ "Ethernet Passive Optical Network", "epon" },
+	{ "epon", "Ethernet Passive Optical Network" },
 
 	/* WTAP_ENCAP_IPMI_TRACE */
-	{ "IPMI Trace Data Collection", "ipmi-trace" },
+	{ "ipmi-trace", "IPMI Trace Data Collection" },
 
 	/* WTAP_ENCAP_LOOP */
-	{ "OpenBSD loopback", "loop" },
+	{ "loop", "OpenBSD loopback" },
 
 	/* WTAP_ENCAP_JSON */
-	{ "JavaScript Object Notation", "json" },
+	{ "json", "JavaScript Object Notation" },
 
 	/* WTAP_ENCAP_NSTRACE_3_5 */
-	{ "NetScaler Encapsulation 3.5 of Ethernet", "nstrace35" },
+	{ "nstrace35", "NetScaler Encapsulation 3.5 of Ethernet" },
 
 	/* WTAP_ENCAP_ISO14443 */
-	{ "ISO 14443 contactless smartcard standards", "iso14443" },
+	{ "iso14443", "ISO 14443 contactless smartcard standards" },
 
 	/* WTAP_ENCAP_GFP_T */
-	{ "ITU-T G.7041/Y.1303 Generic Framing Procedure Transparent mode", "gfp-t" },
+	{ "gfp-t", "ITU-T G.7041/Y.1303 Generic Framing Procedure Transparent mode" },
 
 	/* WTAP_ENCAP_GFP_F */
-	{ "ITU-T G.7041/Y.1303 Generic Framing Procedure Frame-mapped mode", "gfp-f" },
+	{ "gfp-f", "ITU-T G.7041/Y.1303 Generic Framing Procedure Frame-mapped mode" },
 
 	/* WTAP_ENCAP_IP_OVER_IB_PCAP */
-	{ "IP over IB", "ip-ib" },
+	{ "ip-ib", "IP over IB" },
 
 	/* WTAP_ENCAP_JUNIPER_VN */
-	{ "Juniper VN", "juniper-vn" },
+	{ "juniper-vn", "Juniper VN" },
 
 	/* WTAP_ENCAP_USB_DARWIN */
-	{ "USB packets with Darwin (macOS, etc.) headers", "usb-darwin" },
+	{ "usb-darwin", "USB packets with Darwin (macOS, etc.) headers" },
 
 	/* WTAP_ENCAP_LORATAP */
-	{ "LoRaTap", "loratap"},
+	{ "loratap", "LoRaTap" },
 
 	/* WTAP_ENCAP_3MB_ETHERNET */
-	{ "Xerox 3MB Ethernet", "xeth"},
+	{ "xeth", "Xerox 3MB Ethernet" },
 
 	/* WTAP_ENCAP_VSOCK */
-	{ "Linux vsock", "vsock" },
+	{ "vsock", "Linux vsock" },
 
 	/* WTAP_ENCAP_NORDIC_BLE */
-	{ "Nordic BLE Sniffer", "nordic_ble" },
+	{ "nordic_ble", "Nordic BLE Sniffer" },
 
 	/* WTAP_ENCAP_NETMON_NET_NETEVENT */
-	{ "Network Monitor Network Event", "netmon_event" },
+	{ "netmon_event", "Network Monitor Network Event" },
 
 	/* WTAP_ENCAP_NETMON_HEADER */
-	{ "Network Monitor Header", "netmon_header" },
+	{ "netmon_header", "Network Monitor Header" },
 
 	/* WTAP_ENCAP_NETMON_NET_FILTER */
-	{ "Network Monitor Filter", "netmon_filter" },
+	{ "netmon_filter", "Network Monitor Filter" },
 
 	/* WTAP_ENCAP_NETMON_NETWORK_INFO_EX */
-	{ "Network Monitor Network Info", "netmon_network_info" },
+	{ "netmon_network_info", "Network Monitor Network Info" },
 
 	/* WTAP_ENCAP_MA_WFP_CAPTURE_V4 */
-	{ "Message Analyzer WFP Capture v4", "message_analyzer_wfp_capture_v4" },
+	{ "message_analyzer_wfp_capture_v4", "Message Analyzer WFP Capture v4" },
 
 	/* WTAP_ENCAP_MA_WFP_CAPTURE_V6 */
-	{ "Message Analyzer WFP Capture v6", "message_analyzer_wfp_capture_v6" },
+	{ "message_analyzer_wfp_capture_v6", "Message Analyzer WFP Capture v6" },
 
 	/* WTAP_ENCAP_MA_WFP_CAPTURE_2V4 */
-	{ "Message Analyzer WFP Capture2 v4", "message_analyzer_wfp_capture2_v4" },
+	{ "message_analyzer_wfp_capture2_v4", "Message Analyzer WFP Capture2 v4" },
 
 	/* WTAP_ENCAP_MA_WFP_CAPTURE_2V6 */
-	{ "Message Analyzer WFP Capture2 v6", "message_analyzer_wfp_capture2_v6" },
+	{ "message_analyzer_wfp_capture2_v6", "Message Analyzer WFP Capture2 v6" },
 
 	/* WTAP_ENCAP_MA_WFP_CAPTURE_AUTH_V4 */
-	{ "Message Analyzer WFP Capture Auth v4", "message_analyzer_wfp_capture_auth_v4" },
+	{ "message_analyzer_wfp_capture_auth_v4", "Message Analyzer WFP Capture Auth v4" },
 
 	/* WTAP_ENCAP_MA_WFP_CAPTURE_AUTH_V6 */
-	{ "Message Analyzer WFP Capture Auth v6", "message_analyzer_wfp_capture_auth_v6" },
+	{ "message_analyzer_wfp_capture_auth_v6", "Message Analyzer WFP Capture Auth v6" },
+
+	/* WTAP_ENCAP_JUNIPER_ST */
+	{ "juniper-st", "Juniper Secure Tunnel Information" },
+
+	/* WTAP_ENCAP_ETHERNET_MPACKET */
+	{ "ether-mpacket", "IEEE 802.3br mPackets" },
 
 	/* WTAP_ENCAP_DOCSIS31_XRA31 */
-	{ "DOCSIS31 XRA31", "docsis31_xra31" },
+	{ "docsis31_xra31", "DOCSIS with Excentis XRA pseudo-header" },
 
+	/* WTAP_ENCAP_DPAUXMON */
+	{ "dpauxmon", "DisplayPort AUX channel with Unigraf pseudo-header" },
+
+	/* WTAP_ENCAP_RUBY_MARSHAL */
+	{ "ruby_marshal", "Ruby marshal object" },
+
+	/* WTAP_ENCAP_RFC7468 */
+	{ "rfc7468", "RFC 7468 file" },
+
+	/* WTAP_ENCAP_SYSTEMD_JOURNAL */
+	{ "sdjournal", "systemd journal" },
+
+	/* WTAP_ENCAP_EBHSCR */
+	{ "ebhscr", "Elektrobit High Speed Capture and Replay" },
+
+	/* WTAP_ENCAP_VPP */
+	{ "vpp", "Vector Packet Processing graph dispatch trace" },
+
+	/* WTAP_ENCAP_IEEE802_15_4_TAP */
+	{ "wpan-tap", "IEEE 802.15.4 Wireless with TAP pseudo-header" },
+
+	/* WTAP_ENCAP_LOG_3GPP */
+	{ "log_3GPP", "3GPP Phone Log" },
+
+	/* WTAP_ENCAP_USB_2_0 */
+	{ "usb-20", "USB 2.0/1.1/1.0 packets" },
 };
 
 WS_DLL_LOCAL
@@ -941,51 +1007,52 @@ int wtap_get_num_encap_types(void) {
 }
 
 
-int wtap_register_encap_type(const char* name, const char* short_name) {
+int
+wtap_register_encap_type(const char *description, const char *name)
+{
 	struct encap_type_info e;
 
 	e.name = g_strdup(name);
-	e.short_name = g_strdup(short_name);
+	e.description = g_strdup(description);
 
 	g_array_append_val(encap_table_arr,e);
 
 	return wtap_num_encap_types++;
 }
 
-
-/* Name that should be somewhat descriptive. */
-const char *
-wtap_encap_string(int encap)
-{
-	if (encap < WTAP_ENCAP_PER_PACKET || encap >= WTAP_NUM_ENCAP_TYPES)
-		return "Illegal";
-	else if (encap == WTAP_ENCAP_PER_PACKET)
-		return "Per packet";
-	else
-		return encap_table_entry(encap).name;
-}
-
 /* Name to use in, say, a command-line flag specifying the type. */
 const char *
-wtap_encap_short_string(int encap)
+wtap_encap_name(int encap)
 {
 	if (encap < WTAP_ENCAP_PER_PACKET || encap >= WTAP_NUM_ENCAP_TYPES)
 		return "illegal";
 	else if (encap == WTAP_ENCAP_PER_PACKET)
 		return "per-packet";
 	else
-		return encap_table_entry(encap).short_name;
+		return encap_table_entry(encap).name;
 }
 
-/* Translate a short name to a capture file type. */
+/* Description to show to users. */
+const char *
+wtap_encap_description(int encap)
+{
+	if (encap < WTAP_ENCAP_PER_PACKET || encap >= WTAP_NUM_ENCAP_TYPES)
+		return "Illegal";
+	else if (encap == WTAP_ENCAP_PER_PACKET)
+		return "Per packet";
+	else
+		return encap_table_entry(encap).description;
+}
+
+/* Translate a name to a capture file type. */
 int
-wtap_short_string_to_encap(const char *short_name)
+wtap_name_to_encap(const char *name)
 {
 	int encap;
 
 	for (encap = 0; encap < WTAP_NUM_ENCAP_TYPES; encap++) {
-		if (encap_table_entry(encap).short_name != NULL &&
-		    strcmp(short_name, encap_table_entry(encap).short_name) == 0)
+		if (encap_table_entry(encap).name != NULL &&
+		    strcmp(name, encap_table_entry(encap).name) == 0)
 			return encap;
 	}
 	return -1;	/* no such encapsulation type */
@@ -1143,12 +1210,6 @@ wtap_sequential_close(wtap *wth)
 		file_close(wth->fh);
 		wth->fh = NULL;
 	}
-
-	if (wth->rec_data) {
-		ws_buffer_free(wth->rec_data);
-		g_free(wth->rec_data);
-		wth->rec_data = NULL;
-	}
 }
 
 static void
@@ -1193,6 +1254,7 @@ wtap_close(wtap *wth)
 	wtap_block_array_free(wth->shb_hdrs);
 	wtap_block_array_free(wth->nrb_hdrs);
 	wtap_block_array_free(wth->interface_data);
+	wtap_block_array_free(wth->dsbs);
 
 	g_free(wth);
 }
@@ -1213,8 +1275,35 @@ void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6) {
 		wth->add_new_ipv6 = add_new_ipv6;
 }
 
+void wtap_set_cb_new_secrets(wtap *wth, wtap_new_secrets_callback_t add_new_secrets) {
+	/* Is a valid wth given that supports DSBs? */
+	if (!wth || !wth->dsbs)
+		return;
+
+	wth->add_new_secrets = add_new_secrets;
+	/*
+	 * Send all DSBs that were read so far to the new callback. file.c
+	 * relies on this to support redissection (during redissection, the
+	 * previous secrets are lost and has to be resupplied).
+	 */
+	for (guint i = 0; i < wth->dsbs->len; i++) {
+		wtap_block_t dsb = g_array_index(wth->dsbs, wtap_block_t, i);
+		wtapng_process_dsb(wth, dsb);
+	}
+}
+
+void
+wtapng_process_dsb(wtap *wth, wtap_block_t dsb)
+{
+	const wtapng_dsb_mandatory_t *dsb_mand = (wtapng_dsb_mandatory_t*)wtap_block_get_mandatory_data(dsb);
+
+	if (wth->add_new_secrets)
+		wth->add_new_secrets(dsb_mand->secrets_type, dsb_mand->secrets_data, dsb_mand->secrets_len);
+}
+
 gboolean
-wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+	gchar **err_info, gint64 *offset)
 {
 	/*
 	 * Set the packet encapsulation to the file's encapsulation
@@ -1226,12 +1315,12 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	 *
 	 * Do the same for the packet time stamp resolution.
 	 */
-	wth->rec.rec_header.packet_header.pkt_encap = wth->file_encap;
-	wth->rec.tsprec = wth->file_tsprec;
+	rec->rec_header.packet_header.pkt_encap = wth->file_encap;
+	rec->tsprec = wth->file_tsprec;
 
 	*err = 0;
 	*err_info = NULL;
-	if (!wth->subtype_read(wth, err, err_info, data_offset)) {
+	if (!wth->subtype_read(wth, rec, buf, err, err_info, offset)) {
 		/*
 		 * If we didn't get an error indication, we read
 		 * the last packet.  See if there's any deferred
@@ -1249,13 +1338,13 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	/*
 	 * Is this a packet record?
 	 */
-	if (wth->rec.rec_type == REC_TYPE_PACKET) {
+	if (rec->rec_type == REC_TYPE_PACKET) {
 		/*
 		 * It makes no sense for the captured data length
 		 * to be bigger than the actual data length.
 		 */
-		if (wth->rec.rec_header.packet_header.caplen > wth->rec.rec_header.packet_header.len)
-			wth->rec.rec_header.packet_header.caplen = wth->rec.rec_header.packet_header.len;
+		if (rec->rec_header.packet_header.caplen > rec->rec_header.packet_header.len)
+			rec->rec_header.packet_header.caplen = rec->rec_header.packet_header.len;
 
 		/*
 		 * Make sure that it's not WTAP_ENCAP_PER_PACKET, as that
@@ -1263,7 +1352,7 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		 * but the read routine didn't set this packet's
 		 * encapsulation type.
 		 */
-		g_assert(wth->rec.rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
+		g_assert(rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
 	}
 
 	return TRUE;	/* success */
@@ -1358,18 +1447,6 @@ wtap_read_so_far(wtap *wth)
 	return file_tell_raw(wth->fh);
 }
 
-wtap_rec *
-wtap_get_rec(wtap *wth)
-{
-	return &wth->rec;
-}
-
-guint8 *
-wtap_get_buf_ptr(wtap *wth)
-{
-	return ws_buffer_start_ptr(wth->rec_data);
-}
-
 void
 wtap_rec_init(wtap_rec *rec)
 {
@@ -1380,6 +1457,8 @@ wtap_rec_init(wtap_rec *rec)
 void
 wtap_rec_cleanup(wtap_rec *rec)
 {
+	g_free(rec->opt_comment);
+	rec->opt_comment = NULL;
 	ws_buffer_free(&rec->options_buf);
 }
 
@@ -1428,6 +1507,96 @@ wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
 	return TRUE;
 }
 
+static gboolean
+wtap_full_file_read_file(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+{
+	gint64 file_size;
+	int packet_size = 0;
+	const int block_size = 1024 * 1024;
+
+	if ((file_size = wtap_file_size(wth, err)) == -1)
+		return FALSE;
+
+	if (file_size > G_MAXINT) {
+		/*
+		 * Avoid allocating space for an immensely-large file.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("%s: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
+				wtap_encap_name(wth->file_encap), file_size, G_MAXINT);
+		return FALSE;
+	}
+
+	/*
+	 * Compressed files might expand to a larger size than the actual file
+	 * size. Try to read the full size and then read in smaller increments
+	 * to avoid frequent memory reallocations.
+	 */
+	int buffer_size = block_size * (1 + (int)file_size / block_size);
+	for (;;) {
+		if (buffer_size <= 0) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("%s: Uncompressed file is bigger than maximum of %u",
+					wtap_encap_name(wth->file_encap), G_MAXINT);
+			return FALSE;
+		}
+		ws_buffer_assure_space(buf, buffer_size);
+		int nread = file_read(ws_buffer_start_ptr(buf) + packet_size, buffer_size - packet_size, fh);
+		if (nread < 0) {
+			*err = file_error(fh, err_info);
+			if (*err == 0)
+				*err = WTAP_ERR_BAD_FILE;
+			return FALSE;
+		}
+		packet_size += nread;
+		if (packet_size != buffer_size) {
+			/* EOF */
+			break;
+		}
+		buffer_size += block_size;
+	}
+
+	rec->rec_type = REC_TYPE_PACKET;
+	rec->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+	rec->ts.secs = 0;
+	rec->ts.nsecs = 0;
+	rec->rec_header.packet_header.caplen = packet_size;
+	rec->rec_header.packet_header.len = packet_size;
+
+	return TRUE;
+}
+
+gboolean
+wtap_full_file_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                    int *err, gchar **err_info, gint64 *data_offset)
+{
+	gint64 offset = file_tell(wth->fh);
+
+	/* There is only one packet with the full file contents. */
+	if (offset != 0) {
+		*err = 0;
+		return FALSE;
+	}
+
+	*data_offset = offset;
+	return wtap_full_file_read_file(wth, wth->fh, rec, buf, err, err_info);
+}
+
+gboolean
+wtap_full_file_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+{
+	/* There is only one packet with the full file contents. */
+	if (seek_off > 0) {
+		*err = 0;
+		return FALSE;
+	}
+
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+		return FALSE;
+
+	return wtap_full_file_read_file(wth, wth->random_fh, rec, buf, err, err_info);
+}
+
 /*
  * Initialize the library.
  */
@@ -1464,7 +1633,7 @@ wtap_cleanup(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

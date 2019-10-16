@@ -49,6 +49,7 @@ extern "C" {
  * See also: http://review.gluster.com/3230
  */
 #define AUTH_GLUSTERFS 390039
+#define AUTH_GLUSTERFS_V3 390040
 
 #define MSG_ACCEPTED 0
 #define MSG_DENIED 1

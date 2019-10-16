@@ -179,8 +179,8 @@ typedef struct {
   int      format;              /* Trace format type        */
 } iseries_t;
 
-static gboolean iseries_read (wtap * wth, int *err, gchar ** err_info,
-                              gint64 *data_offset);
+static gboolean iseries_read (wtap * wth, wtap_rec *rec, Buffer *buf,
+                              int *err, gchar ** err_info, gint64 *data_offset);
 static gboolean iseries_seek_read (wtap * wth, gint64 seek_off,
                                    wtap_rec *rec,
                                    Buffer * buf, int *err, gchar ** err_info);
@@ -376,7 +376,8 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
  * Find the next packet and parse it; called from wtap_read().
  */
 static gboolean
-iseries_read (wtap * wth, int *err, gchar ** err_info, gint64 *data_offset)
+iseries_read (wtap * wth, wtap_rec *rec, Buffer *buf, int *err,
+    gchar ** err_info, gint64 *data_offset)
 {
   gint64 offset;
 
@@ -391,8 +392,7 @@ iseries_read (wtap * wth, int *err, gchar ** err_info, gint64 *data_offset)
   /*
    * Parse the packet and extract the various fields
    */
-  return iseries_parse_packet (wth, wth->fh, &wth->rec, wth->rec_data,
-                               err, err_info);
+  return iseries_parse_packet (wth, wth->fh, rec, buf, err, err_info);
 }
 
 /*
@@ -418,38 +418,43 @@ iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
           *err = file_error (wth->fh, err_info);
           return -1;
         }
-        /* Convert UNICODE to ASCII if required and determine    */
-        /* the number of bytes to rewind to beginning of record. */
-        if (iseries->format == ISERIES_FORMAT_UNICODE)
-          {
-            /* buflen is #bytes to 1st 0x0A */
-            buflen = iseries_UNICODE_to_ASCII ((guint8 *) buf, ISERIES_LINE_LENGTH);
-          }
-        else
-          {
-            /* Else buflen is just length of the ASCII string */
-            buflen = (long) strlen (buf);
-          }
-        ascii_strup_inplace (buf);
-        /* If packet header found return the offset */
-        num_items_scanned =
-          sscanf (buf+78,
-                  "%*[ \n\t]ETHV2%*[ .:\n\t]TYPE%*[ .:\n\t]%4s",type);
-        if (num_items_scanned == 1)
-          {
-            /* Rewind to beginning of line */
-            cur_off = file_tell (wth->fh);
-            if (cur_off == -1)
-              {
-                *err = file_error (wth->fh, err_info);
-                return -1;
-              }
-            if (file_seek (wth->fh, cur_off - buflen, SEEK_SET, err) == -1)
-              {
-                return -1;
-              }
-            return cur_off - buflen;
-          }
+      /* Convert UNICODE to ASCII if required and determine    */
+      /* the number of bytes to rewind to beginning of record. */
+      if (iseries->format == ISERIES_FORMAT_UNICODE)
+        {
+          /* buflen is #bytes to 1st 0x0A */
+          buflen = iseries_UNICODE_to_ASCII ((guint8 *) buf, ISERIES_LINE_LENGTH);
+        }
+      else
+        {
+          /* Else buflen is just length of the ASCII string */
+          buflen = (long) strlen (buf);
+        }
+      ascii_strup_inplace (buf);
+      /* Check we have enough data in the line */
+      if (buflen < 78)
+        {
+          continue;
+        }
+      /* If packet header found return the offset */
+      num_items_scanned =
+        sscanf (buf+78,
+                "%*[ \n\t]ETHV2%*[ .:\n\t]TYPE%*[ .:\n\t]%4s",type);
+      if (num_items_scanned == 1)
+        {
+          /* Rewind to beginning of line */
+          cur_off = file_tell (wth->fh);
+          if (cur_off == -1)
+            {
+              *err = file_error (wth->fh, err_info);
+              return -1;
+            }
+          if (file_seek (wth->fh, cur_off - buflen, SEEK_SET, err) == -1)
+            {
+              return -1;
+            }
+          return cur_off - buflen;
+        }
     }
 
   *err = WTAP_ERR_BAD_FILE;
@@ -985,8 +990,10 @@ iseries_UNICODE_to_ASCII (guint8 * buf, guint bytes)
             bufptr++;
         }
       if (buf[i] == 0x0A)
-        return i;
+        break;
     }
+  g_assert(bufptr < buf + bytes);
+  *bufptr = '\0';
   return i;
 }
 
@@ -1023,7 +1030,7 @@ iseries_parse_hex_string (const char * ascii, guint8 * buf, size_t len)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

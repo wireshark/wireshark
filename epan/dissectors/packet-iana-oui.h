@@ -22,7 +22,7 @@
 #define IANA_PID_MSDP_GRE_PROTO_TYPE    0x0009
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <config.h>
 
@@ -29,8 +30,8 @@
 #include <epan/dissectors/read_keytab_file.h>
 #endif
 
-#include <wsutil/clopts_common.h>
-#include <wsutil/cmdarg_err.h>
+#include <ui/clopts_common.h>
+#include <ui/cmdarg_err.h>
 #include <wsutil/file_util.h>
 
 #include "ui/dissect_opts.h"
@@ -78,7 +79,8 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
                             "\t'n' to enable network address resolution\n"
                             "\t'N' to enable using external resolvers (e.g., DNS)\n"
                             "\t    for network address resolution\n"
-                            "\t't' to enable transport-layer port number resolution");
+                            "\t't' to enable transport-layer port number resolution\n"
+                            "\t'v' to enable VLAN IDs to names resolution");
             return FALSE;
         }
         break;
@@ -193,7 +195,7 @@ setup_enabled_and_disabled_protocols(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -1,3 +1,8 @@
+=begin man
+
+=encoding utf8
+
+=end man
 
 =head1 NAME
 
@@ -15,6 +20,8 @@ S<[ B<--extcap-config> ]>
 S<[ B<--capture> ]>
 S<[ B<--fifo>=E<lt>path to file or pipeE<gt> ]>
 S<[ B<--maxbytes>=E<lt>bytesE<gt> ]>
+S<[ B<--count>=E<lt>numE<gt> ]>
+S<[ B<--delay>=E<lt>msE<gt> ]>
 S<[ B<--random-type>=E<lt>true|falseE<gt> ]>
 S<[ B<--all-random>=E<lt>true|falseE<gt> ]>
 S<[ B<--type>=E<lt>packet typeE<gt> ]>
@@ -65,6 +72,14 @@ Save captured packet to file or send it through pipe.
 
 Set the max number of bytes per packet.
 
+=item --count=E<lt>numE<gt>
+
+Number of packets to generate (-1 for infinite).
+
+=item --delay=E<lt>msE<gt>
+
+Wait a number of milliseconds after writing each packet.
+
 =item --random-type
 
 Choose a random packet type for all packets if set to true.
@@ -110,12 +125,13 @@ To see interface configuration options:
   Example output:
     arg {number=0}{call=--maxbytes}{display=Max bytes in a packet}{type=unsigned}{range=1,5000}{default=5000}{tooltip=The max number of bytes in a packet}
     arg {number=1}{call=--count}{display=Number of packets}{type=long}{default=1000}{tooltip=Number of packets to generate (-1 for infinite)}
-    arg {number=2}{call=--random-type}{display=Random type}{type=boolean}{default=false}{tooltip=The packets type is randomly choosen}
-    arg {number=3}{call=--all-random}{display=All random packets}{type=boolean}{default=false}{tooltip=Packet type for each packet is randomly choosen}
-    arg {number=4}{call=--type}{display=Type of packet}{type=selector}{tooltip=Type of packet to generate}
-    value {arg=4}{value=arp}{display=Address Resolution Protocol}
+    arg {number=2}{call=--delay}{display=Packet delay (ms)}{type=long}{default=0}{tooltip=Milliseconds to wait after writing each packet}
+    arg {number=3}{call=--random-type}{display=Random type}{type=boolflag}{default=false}{tooltip=The packets type is randomly chosen}
+    arg {number=4}{call=--all-random}{display=All random packets}{type=boolflag}{default=false}{tooltip=Packet type for each packet is randomly chosen}
+    arg {number=5}{call=--type}{display=Type of packet}{type=selector}{tooltip=Type of packet to generate}
+    value {arg=5}{value=arp}{display=Address Resolution Protocol}
     [...]
-    value {arg=4}{value=usb-linux}{display=Universal Serial Bus with Linux specific header}
+    value {arg=5}{value=usb-linux}{display=Universal Serial Bus with Linux specific header}
 
 To capture:
 

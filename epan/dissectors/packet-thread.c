@@ -1,5 +1,5 @@
 /* packet-thread.c
- * Routines for Thread CoAP and beacon packet dissection
+ * Routines for Thread over CoAP and beacon packet dissection
  *
  * Robert Cragie <robert.cragie@arm.com>
  *
@@ -401,6 +401,8 @@ static dissector_handle_t thread_address_handle;
 
 #define THREAD_TLV_LENGTH_ESC  0xFF
 
+#define THREAD_URI_NAMESPACE_IDX 1
+
 #define THREAD_MC_32768_TO_NSEC_FACTOR ((double)30517.578125)
 #define THREAD_MC_TSTAMP_MASK_U_MASK 0x80
 #define THREAD_MC_SEC_POLICY_MASK_O_MASK 0x80
@@ -681,7 +683,6 @@ static const value_string thread_bcn_tlv_vals[] = {
 };
 
 /* Preferences */
-static gboolean thread_coap_decode = FALSE;
 static gboolean thread_use_pan_id_in_key = FALSE;
 static const gchar *thread_seq_ctr_str = NULL;
 static gboolean thread_auto_acq_seq_ctr = TRUE;
@@ -1650,7 +1651,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                         build_u8 = tvb_get_guint8(tvb, offset);
                         build |= (guint16)build_u8 >> 4;
                         pi = proto_tree_add_uint(tlv_tree, hf_thread_mc_tlv_vendor_stack_ver_build, tvb, 0, 0, build);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                         proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_vendor_stack_ver_rev, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_vendor_stack_ver_min, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2108,9 +2109,9 @@ dissect_thread_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     uri = wmem_strbuf_get_str(coinfo->uri_str_strbuf);
 
     tokens = wmem_strsplit(wmem_packet_scope(), uri, "/", 3);
-    if ((tokens[0] != NULL) && (tokens[1] != NULL)) {
-        /* No need to create a subset as we are dissecting the tvb as it is */
-        dissector_try_string(thread_coap_namespace, tokens[1], tvb, pinfo, tree, NULL);
+    if (g_strv_length(tokens) == 3) {
+        /* No need to create a subset as we are dissecting the tvb as it is. */
+        dissector_try_string(thread_coap_namespace, tokens[THREAD_URI_NAMESPACE_IDX], tvb, pinfo, tree, NULL);
     }
 
     return tvb_captured_length(tvb);
@@ -3362,11 +3363,7 @@ proto_register_thread(void)
     proto_thread = proto_register_protocol("Thread", "Thread", "thread");
 
     thread_module = prefs_register_protocol(proto_thread, proto_reg_handoff_thread);
-    prefs_register_bool_preference(thread_module, "thr_coap_decode",
-                                   "Decode CoAP for Thread",
-                                   "Try to decode CoAP for Thread",
-                                   &thread_coap_decode);
-
+    prefs_register_obsolete_preference(thread_module, "thr_coap_decode");
     prefs_register_string_preference(thread_module, "thr_seq_ctr",
                                      "Thread sequence counter",
                                      "32-bit sequence counter for hash",
@@ -3429,11 +3426,8 @@ void
 proto_reg_handoff_thread(void)
 {
     /* Thread Content-Format is opaque byte string, i.e. application/octet-stream */
-    if (thread_coap_decode) {
-        dissector_add_string("media_type", "application/octet-stream", thread_coap_handle);
-    } else {
-        dissector_delete_string("media_type", "application/octet-stream", thread_coap_handle);
-    }
+    /* Enable decoding "Internet media type" as Thread over CoAP */
+    dissector_add_for_decode_as("media_type", thread_coap_handle);
 
     proto_coap = proto_get_id_by_filter_name("coap");
 }

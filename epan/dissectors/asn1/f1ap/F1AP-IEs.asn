@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.1.0 (2018-03)
+-- 3GPP TS 38.473 V15.7.0 (2019-09)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -15,11 +15,67 @@ DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
+	id-gNB-CUSystemInformation,
+	id-HandoverPreparationInformation,
+	id-TAISliceSupportList,
+	id-RANAC,
+	id-BearerTypeChange,
+	id-Cell-Direction,
+	id-Cell-Type,
+	id-CellGroupConfig,
+	id-AvailablePLMNList,
+	id-PDUSessionID,
+	id-ULPDUSessionAggregateMaximumBitRate, 
+	id-DC-Based-Duplication-Configured,
+	id-DC-Based-Duplication-Activation,
+	id-Duplication-Activation,
+	id-DLPDCPSNLength,
+	id-ULPDCPSNLength,
+	id-RLC-Status,
+	id-MeasurementTimingConfiguration,
+	id-DRB-Information,
+	id-QoSFlowMappingIndication,
+	id-ServingCellMO,
+	id-RLCMode,
+	id-ExtendedServedPLMNs-List,
+	id-ExtendedAvailablePLMN-List,
+	id-DRX-LongCycleStartOffset,
+	id-SelectedBandCombinationIndex,
+	id-SelectedFeatureSetEntryIndex,
+	id-Ph-InfoSCG,
+	id-latest-RRC-Version-Enhanced,
+	id-RequestedBandCombinationIndex,
+	id-RequestedFeatureSetEntryIndex,
+	id-RequestedP-MaxFR2,
+	id-DRX-Config,
+	id-UEAssistanceInformation,
+	id-PDCCH-BlindDetectionSCG,
+	id-Requested-PDCCH-BlindDetectionSCG,
+	id-BPLMN-ID-Info-List,
+	id-NotificationInformation,
+	id-TNLAssociationTransportLayerAddressgNBDU,
+	id-portNumber,
+	id-AdditionalSIBMessageList,
+	id-IgnorePRACHConfiguration,
+	id-CG-Config,
+	id-Ph-InfoMCG,
 	maxNRARFCN,
 	maxnoofErrors,
 	maxnoofBPLMNs,
-	maxnoofDLTunnels,
-	maxnoofULTunnels
+	maxnoofBPLMNsNRminus1,
+	maxnoofDLUPTNLInformation,
+	maxnoofNrCellBands,
+	maxnoofULUPTNLInformation,
+	maxnoofQoSFlows,
+	maxnoofSliceItems,
+	maxnoofSIBTypes,
+	maxnoofSITypes,
+	maxCellineNB,
+	maxnoofExtendedBPLMNs,
+	maxnoofAdditionalSIBs,
+	maxnoofUACPLMNs,
+	maxnoofUACperPLMN
+
 
 FROM F1AP-Constants
 
@@ -39,16 +95,16 @@ FROM F1AP-Containers;
 
 -- A
 
-Active-Cells-Item ::= SEQUENCE {
-	nRCGI		NRCGI	,
-	iE-Extensions				ProtocolExtensionContainer { { Active-Cells-ItemExtIEs } }	OPTIONAL,
-	...
+AdditionalSIBMessageList ::= SEQUENCE (SIZE(1..maxnoofAdditionalSIBs)) OF AdditionalSIBMessageList-Item
+
+AdditionalSIBMessageList-Item ::= SEQUENCE {
+	additionalSIB			OCTET STRING,
+	iE-Extensions		ProtocolExtensionContainer { { AdditionalSIBMessageList-Item-ExtIEs} } OPTIONAL
 }
 
-Active-Cells-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+AdditionalSIBMessageList-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
-
 
 AllocationAndRetentionPriority ::= SEQUENCE {
 	priorityLevel				PriorityLevel,
@@ -61,13 +117,68 @@ AllocationAndRetentionPriority ::= SEQUENCE {
 AllocationAndRetentionPriority-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+Associated-SCell-Item ::= SEQUENCE {
+	sCell-ID		NRCGI,
+	iE-Extensions	ProtocolExtensionContainer { { Associated-SCell-ItemExtIEs } }	OPTIONAL
+}
+
+Associated-SCell-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AvailablePLMNList ::= SEQUENCE (SIZE(1..maxnoofBPLMNs)) OF AvailablePLMNList-Item
+
+AvailablePLMNList-Item ::= SEQUENCE {
+	pLMNIdentity			PLMN-Identity,
+	iE-Extensions		ProtocolExtensionContainer { { AvailablePLMNList-Item-ExtIEs} } OPTIONAL
+}
+
+AvailablePLMNList-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AveragingWindow  ::= INTEGER (0..4095, ...) 
+
 -- B
 
 BitRate ::= INTEGER (0..4000000000000,...)
 
-BroadcastPLMNs-Item ::= SEQUENCE (SIZE(1..maxnoofBPLMNs)) OF PLMN-Identity
+BearerTypeChange ::= ENUMERATED {true, ...}
+
+BPLMN-ID-Info-List ::= SEQUENCE (SIZE(1..maxnoofBPLMNsNRminus1)) OF BPLMN-ID-Info-Item
+
+BPLMN-ID-Info-Item ::= SEQUENCE {
+	pLMN-Identity-List			AvailablePLMNList,
+	extended-PLMN-Identity-List	ExtendedAvailablePLMN-List	OPTIONAL,
+	fiveGS-TAC					FiveGS-TAC					OPTIONAL,
+	nr-cell-ID					NRCellIdentity,
+	ranac						RANAC						OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { { BPLMN-ID-Info-ItemExtIEs} } OPTIONAL,
+	...
+}
+
+BPLMN-ID-Info-ItemExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ServedPLMNs-List ::= SEQUENCE (SIZE(1..maxnoofBPLMNs)) OF ServedPLMNs-Item
+
+ServedPLMNs-Item ::= SEQUENCE {
+	pLMN-Identity				PLMN-Identity,
+	iE-Extensions				ProtocolExtensionContainer { { ServedPLMNs-ItemExtIEs} } OPTIONAL,
+	...
+}
+
+ServedPLMNs-ItemExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+{ ID id-TAISliceSupportList	CRITICALITY ignore	EXTENSION SliceSupportList		PRESENCE optional	},
+	...
+}
+
 
 -- C
+
+Cancel-all-Warning-Messages-Indicator ::= ENUMERATED {true, ...}
 
 Candidate-SpCell-Item ::= SEQUENCE {
 	candidate-SpCell-ID			NRCGI	,
@@ -84,6 +195,10 @@ Cause ::= CHOICE {
 	transport			CauseTransport,
 	protocol			CauseProtocol,
 	misc				CauseMisc,
+	choice-extension	ProtocolIE-SingleContainer { { Cause-ExtIEs} }
+}
+
+Cause-ExtIEs F1AP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -93,7 +208,7 @@ CauseMisc ::= ENUMERATED {
 	hardware-failure,
 	om-intervention,
 	unspecified,
-...
+	...
 }
 
 CauseProtocol ::= ENUMERATED {
@@ -109,9 +224,9 @@ CauseProtocol ::= ENUMERATED {
 
 CauseRadioNetwork ::= ENUMERATED {
 	unspecified,
-	rlc-failure,
+	rl-failure-rlc,
 	unknown-or-already-allocated-gnb-cu-ue-f1ap-id,
-	unknown-or-already-allocated-gnd-du-ue-f1ap-id,
+	unknown-or-already-allocated-gnb-du-ue-f1ap-id,
 	unknown-or-inconsistent-pair-of-ue-f1ap-id,
 	interaction-with-other-procedure,
 	not-supported-qci-Value,
@@ -119,7 +234,14 @@ CauseRadioNetwork ::= ENUMERATED {
 	no-radio-resources-available,
 	procedure-cancelled,
 	normal-release,
-	...
+	...,
+	cell-not-available,
+	rl-failure-others,
+	ue-rejection,
+	resources-not-available-for-the-slice,
+	amf-initiated-abnormal-release,
+	release-due-to-pre-emption,
+	plmn-not-served-by-the-gNB-CU
 }
 
 CauseTransport ::= ENUMERATED {
@@ -128,9 +250,9 @@ CauseTransport ::= ENUMERATED {
 	...
 }
 
-
-
 CellGroupConfig ::= OCTET STRING
+
+Cell-Direction ::= ENUMERATED {dl-only, ul-only}
 
 Cells-Failed-to-be-Activated-List-Item ::= SEQUENCE {
 	nRCGI				NRCGI,
@@ -143,6 +265,59 @@ Cells-Failed-to-be-Activated-List-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+Cells-Status-Item ::= SEQUENCE {
+	nRCGI			NRCGI,
+	service-status		Service-Status,
+	iE-Extensions				ProtocolExtensionContainer { { Cells-Status-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+Cells-Status-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Cells-To-Be-Broadcast-Item ::= SEQUENCE {
+	nRCGI				NRCGI,
+	iE-Extensions		ProtocolExtensionContainer { { Cells-To-Be-Broadcast-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+Cells-To-Be-Broadcast-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Cells-Broadcast-Completed-Item ::= SEQUENCE {
+	nRCGI				NRCGI,
+	iE-Extensions		ProtocolExtensionContainer { { Cells-Broadcast-Completed-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+Cells-Broadcast-Completed-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Broadcast-To-Be-Cancelled-Item ::= SEQUENCE {
+	nRCGI				NRCGI,
+	iE-Extensions		ProtocolExtensionContainer { { Broadcast-To-Be-Cancelled-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+Broadcast-To-Be-Cancelled-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+Cells-Broadcast-Cancelled-Item ::= SEQUENCE {
+	nRCGI				NRCGI,
+	numberOfBroadcasts	NumberOfBroadcasts,
+	iE-Extensions		ProtocolExtensionContainer { { Cells-Broadcast-Cancelled-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+Cells-Broadcast-Cancelled-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 Cells-to-be-Activated-List-Item ::= SEQUENCE {
 	nRCGI		NRCGI,
 	nRPCI		NRPCI		OPTIONAL,
@@ -151,6 +326,9 @@ Cells-to-be-Activated-List-Item ::= SEQUENCE {
 }
 
 Cells-to-be-Activated-List-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-gNB-CUSystemInformation			CRITICALITY reject	EXTENSION GNB-CUSystemInformation			PRESENCE optional }|
+	{ ID id-AvailablePLMNList				CRITICALITY ignore	EXTENSION AvailablePLMNList					PRESENCE optional }|
+	{ ID id-ExtendedAvailablePLMN-List		CRITICALITY ignore	EXTENSION ExtendedAvailablePLMN-List		PRESENCE optional },
 	...
 }
 
@@ -161,6 +339,52 @@ Cells-to-be-Deactivated-List-Item ::= SEQUENCE {
 }
 
 Cells-to-be-Deactivated-List-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Cells-to-be-Barred-Item::= SEQUENCE {
+	nRCGI			NRCGI	,
+	cellBarred		CellBarred,
+	iE-Extensions				ProtocolExtensionContainer { { Cells-to-be-Barred-Item-ExtIEs } }	OPTIONAL
+}
+
+Cells-to-be-Barred-Item-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CellBarred	::=	ENUMERATED {barred, not-barred, ...}
+
+CellSize ::= ENUMERATED {verysmall, small, medium, large, ...}
+
+CellType ::= SEQUENCE {
+	cellSize		CellSize,
+	iE-Extensions		ProtocolExtensionContainer { {CellType-ExtIEs} }	OPTIONAL,
+	...
+}
+
+CellType-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CellULConfigured ::=  ENUMERATED {none, ul, sul, ul-and-sul, ...}
+
+CNUEPagingIdentity ::= CHOICE {
+	fiveG-S-TMSI			BIT STRING (SIZE(48)),
+	choice-extension			ProtocolIE-SingleContainer { { CNUEPagingIdentity-ExtIEs } }
+}
+
+CNUEPagingIdentity-ExtIEs F1AP-PROTOCOL-IES ::= {
+	...
+}
+
+
+CP-TransportLayerAddress ::= CHOICE {
+	endpoint-IP-address				TransportLayerAddress,
+	endpoint-IP-address-and-port	Endpoint-IP-address-and-port, 
+	choice-extension			ProtocolIE-SingleContainer { { CP-TransportLayerAddress-ExtIEs } }
+}
+
+CP-TransportLayerAddress-ExtIEs F1AP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -192,30 +416,64 @@ CriticalityDiagnostics-IE-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+C-RNTI ::= INTEGER (0..65535, ...)
+
 CUtoDURRCInformation ::= SEQUENCE {
 	cG-ConfigInfo						CG-ConfigInfo						OPTIONAL,
 	uE-CapabilityRAT-ContainerList		UE-CapabilityRAT-ContainerList		OPTIONAL,
+	measConfig							MeasConfig							OPTIONAL,
 	iE-Extensions				ProtocolExtensionContainer { { CUtoDURRCInformation-ExtIEs} } OPTIONAL,
 	...
 }
 
 CUtoDURRCInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-HandoverPreparationInformation	CRITICALITY ignore	EXTENSION HandoverPreparationInformation		PRESENCE optional }|
+	{ ID id-CellGroupConfig					CRITICALITY ignore	EXTENSION CellGroupConfig							PRESENCE optional }|
+	{ ID id-MeasurementTimingConfiguration	CRITICALITY ignore	EXTENSION MeasurementTimingConfiguration		PRESENCE optional }|
+	{ ID id-UEAssistanceInformation			CRITICALITY ignore	EXTENSION UEAssistanceInformation					PRESENCE optional }|
+	{ ID id-CG-Config						CRITICALITY ignore	EXTENSION CG-Config									PRESENCE optional },
 	...
 }
 
 -- D
 
-DLTunnels-ToBeSetup-List ::= SEQUENCE (SIZE(1..maxnoofDLTunnels)) OF DLTunnels-ToBeSetup-Item
+DCBasedDuplicationConfigured::= ENUMERATED{true,..., false}
 
-DLTunnels-ToBeSetup-Item ::= SEQUENCE {
-	dL-GTP-Tunnel-EndPoint	GTPTunnelEndpoint	,
-	iE-Extensions	ProtocolExtensionContainer { { DLTunnels-ToBeSetup-ItemExtIEs } }	OPTIONAL,
+Dedicated-SIDelivery-NeededUE-Item ::= SEQUENCE {
+	gNB-CU-UE-F1AP-ID						GNB-CU-UE-F1AP-ID,
+	nRCGI									NRCGI,
+	iE-Extensions							ProtocolExtensionContainer { { DedicatedSIDeliveryNeededUE-Item-ExtIEs} } OPTIONAL,
 	...
 }
 
-DLTunnels-ToBeSetup-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+DedicatedSIDeliveryNeededUE-Item-ExtIEs F1AP-PROTOCOL-EXTENSION::={
 	...
 }
+
+DLUPTNLInformation-ToBeSetup-List ::= SEQUENCE (SIZE(1..maxnoofDLUPTNLInformation)) OF DLUPTNLInformation-ToBeSetup-Item
+
+DLUPTNLInformation-ToBeSetup-Item ::= SEQUENCE {
+	dLUPTNLInformation	UPTransportLayerInformation	,
+	iE-Extensions	ProtocolExtensionContainer { { DLUPTNLInformation-ToBeSetup-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+DLUPTNLInformation-ToBeSetup-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+DRB-Activity-Item ::= SEQUENCE {
+	dRBID			DRBID,
+	dRB-Activity	DRB-Activity		OPTIONAL,
+	iE-Extensions	ProtocolExtensionContainer { { DRB-Activity-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+DRB-Activity-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+DRB-Activity ::= ENUMERATED {active, not-active}
 
 DRBID ::= INTEGER (1..32, ...)
 
@@ -227,17 +485,6 @@ DRBs-FailedToBeModified-Item	::= SEQUENCE {
 }
 
 DRBs-FailedToBeModified-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-DRBs-FailedToBeModifiedConf-Item	 	::= SEQUENCE {
-	dRBID		DRBID		,
-	cause		Cause		OPTIONAL,
-	iE-Extensions	ProtocolExtensionContainer { { DRBs-FailedToBeModifiedConf-ItemExtIEs } }	OPTIONAL,
-	...
-}
-
-DRBs-FailedToBeModifiedConf-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -264,20 +511,34 @@ DRBs-FailedToBeSetupMod-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+DRB-Information	::=	SEQUENCE {
+	dRB-QoS		QoSFlowLevelQoSParameters, 
+	sNSSAI		SNSSAI, 
+	notificationControl		NotificationControl		OPTIONAL,
+	flows-Mapped-To-DRB-List	Flows-Mapped-To-DRB-List,
+	iE-Extensions	ProtocolExtensionContainer { { DRB-Information-ItemExtIEs } }	OPTIONAL
+}
+
+DRB-Information-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 DRBs-Modified-Item	::= SEQUENCE {
 	dRBID							DRBID,
-	dLTunnels-ToBeSetup-List		DLTunnels-ToBeSetup-List,
+	lCID								LCID		OPTIONAL,
+	dLUPTNLInformation-ToBeSetup-List		DLUPTNLInformation-ToBeSetup-List,
 	iE-Extensions	ProtocolExtensionContainer { { DRBs-Modified-ItemExtIEs } }	OPTIONAL,
 	...
 }
 
 DRBs-Modified-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-RLC-Status			CRITICALITY ignore			EXTENSION RLC-Status				PRESENCE optional },
 	...
 }
 
 DRBs-ModifiedConf-Item	::= SEQUENCE {
 	dRBID							DRBID,
-	uLTunnels-ToBeSetup-List		ULTunnels-ToBeSetup-List	,
+	uLUPTNLInformation-ToBeSetup-List		ULUPTNLInformation-ToBeSetup-List	,
 	iE-Extensions	ProtocolExtensionContainer { { DRBs-ModifiedConf-ItemExtIEs } }	OPTIONAL,
 	...
 }
@@ -286,14 +547,26 @@ DRBs-ModifiedConf-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+DRB-Notify-Item ::= SEQUENCE {
+	dRBID			DRBID,
+	notification-Cause	Notification-Cause,
+	iE-Extensions	ProtocolExtensionContainer { { DRB-Notify-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+DRB-Notify-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 DRBs-Required-ToBeModified-Item	::= SEQUENCE {
 	dRBID							DRBID,
-	dLTunnels-ToBeSetup-List		DLTunnels-ToBeSetup-List	,
+	dLUPTNLInformation-ToBeSetup-List		DLUPTNLInformation-ToBeSetup-List	,
 	iE-Extensions	ProtocolExtensionContainer { { DRBs-Required-ToBeModified-ItemExtIEs } }	OPTIONAL,
 	...
 }
 
 DRBs-Required-ToBeModified-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-RLC-Status			CRITICALITY ignore			EXTENSION RLC-Status				PRESENCE optional },
 	...
 }
 
@@ -309,7 +582,8 @@ DRBs-Required-ToBeReleased-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 
 DRBs-Setup-Item ::= SEQUENCE {
 	dRBID							DRBID,
-	dLTunnels-ToBeSetup-List		DLTunnels-ToBeSetup-List	, 
+	lCID								LCID		OPTIONAL,
+	dLUPTNLInformation-ToBeSetup-List		DLUPTNLInformation-ToBeSetup-List	, 
 	iE-Extensions	ProtocolExtensionContainer { { DRBs-Setup-ItemExtIEs } }	OPTIONAL,
 	...
 }
@@ -320,7 +594,8 @@ DRBs-Setup-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 
 DRBs-SetupMod-Item	::= SEQUENCE {
 	dRBID							DRBID,
-	dLTunnels-ToBeSetup-List		DLTunnels-ToBeSetup-List	,
+	lCID								LCID		OPTIONAL,
+	dLUPTNLInformation-ToBeSetup-List		DLUPTNLInformation-ToBeSetup-List	,
 	iE-Extensions	ProtocolExtensionContainer { { DRBs-SetupMod-ItemExtIEs } }	OPTIONAL,
 	...
 }
@@ -332,14 +607,21 @@ DRBs-SetupMod-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 
 DRBs-ToBeModified-Item	::= SEQUENCE {
 	dRBID						DRBID,
-	eUTRANQoS					EUTRANQoS		OPTIONAL,
-	uLTunnels-ToBeSetup-List	ULTunnels-ToBeSetup-List	, 
+	qoSInformation				QoSInformation	OPTIONAL,
+	uLUPTNLInformation-ToBeSetup-List	ULUPTNLInformation-ToBeSetup-List	, 
 	uLConfiguration				ULConfiguration	OPTIONAL,
 	iE-Extensions	ProtocolExtensionContainer { { DRBs-ToBeModified-ItemExtIEs } }	OPTIONAL,
 	...
 }
 
 DRBs-ToBeModified-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-DLPDCPSNLength						CRITICALITY ignore	EXTENSION PDCPSNLength							PRESENCE optional }|
+	{ ID id-ULPDCPSNLength						CRITICALITY ignore	EXTENSION PDCPSNLength							PRESENCE optional }|
+	{ID id-BearerTypeChange						CRITICALITY ignore	EXTENSION BearerTypeChange						PRESENCE optional}|
+	{ ID id-RLCMode								CRITICALITY ignore	EXTENSION RLCMode								PRESENCE optional }|
+	{ ID id-Duplication-Activation				CRITICALITY reject	EXTENSION DuplicationActivation				PRESENCE optional }|
+	{ ID id-DC-Based-Duplication-Configured		CRITICALITY reject	EXTENSION DCBasedDuplicationConfigured		PRESENCE optional }|
+	{ ID id-DC-Based-Duplication-Activation		CRITICALITY reject	EXTENSION DuplicationActivation				PRESENCE optional },
 	...
 }
 
@@ -355,30 +637,40 @@ DRBs-ToBeReleased-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 
 DRBs-ToBeSetup-Item ::= SEQUENCE	{
 	dRBID						DRBID,
-	eUTRANQoS					EUTRANQoS			OPTIONAL,
-	uLTunnels-ToBeSetup-List	ULTunnels-ToBeSetup-List	, 
+	qoSInformation				QoSInformation,
+	uLUPTNLInformation-ToBeSetup-List	ULUPTNLInformation-ToBeSetup-List	, 
 	rLCMode						RLCMode, 
 	uLConfiguration				ULConfiguration	OPTIONAL,
+	duplicationActivation		DuplicationActivation	OPTIONAL,
 	iE-Extensions	ProtocolExtensionContainer { { DRBs-ToBeSetup-ItemExtIEs } }	OPTIONAL,
 	...
 }
 
 DRBs-ToBeSetup-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-DC-Based-Duplication-Configured		CRITICALITY reject	EXTENSION DCBasedDuplicationConfigured			PRESENCE optional }|
+	{ ID id-DC-Based-Duplication-Activation		CRITICALITY reject	EXTENSION DuplicationActivation					PRESENCE optional }|
+	{ ID id-DLPDCPSNLength						CRITICALITY ignore	EXTENSION PDCPSNLength								PRESENCE mandatory }|
+	{ ID id-ULPDCPSNLength						CRITICALITY ignore	EXTENSION PDCPSNLength								PRESENCE optional },
 	...
 }
 
 
 DRBs-ToBeSetupMod-Item	::= SEQUENCE {
 	dRBID						DRBID,
-	eUTRANQoS					EUTRANQoS		OPTIONAL,
+	qoSInformation				QoSInformation,
+	uLUPTNLInformation-ToBeSetup-List		ULUPTNLInformation-ToBeSetup-List,
 	rLCMode						RLCMode, 
 	uLConfiguration				ULConfiguration	OPTIONAL,
-	uLTunnels-ToBeSetup-List		ULTunnels-ToBeSetup-List,
+	duplicationActivation		DuplicationActivation	OPTIONAL,
 	iE-Extensions	ProtocolExtensionContainer { { DRBs-ToBeSetupMod-ItemExtIEs } }	OPTIONAL,
 	...
 }
 
 DRBs-ToBeSetupMod-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-DC-Based-Duplication-Configured		CRITICALITY reject	EXTENSION DCBasedDuplicationConfigured			PRESENCE optional }|
+	{ ID id-DC-Based-Duplication-Activation		CRITICALITY reject	EXTENSION DuplicationActivation					PRESENCE optional }|
+	{ ID id-DLPDCPSNLength						CRITICALITY ignore	EXTENSION PDCPSNLength								PRESENCE optional }|
+	{ ID id-ULPDCPSNLength						CRITICALITY ignore	EXTENSION PDCPSNLength								PRESENCE optional },
 	...
 }
 
@@ -393,17 +685,215 @@ DRXCycle	::= SEQUENCE {
 DRXCycle-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+DRX-Config ::= OCTET STRING
+
+DRXConfigurationIndicator	::=	ENUMERATED{	release, ...}
+
+DRX-LongCycleStartOffset ::= INTEGER (0..10239)
+
+DUtoCURRCContainer ::= OCTET STRING
+
 DUtoCURRCInformation ::= SEQUENCE {
 	cellGroupConfig		CellGroupConfig,
-	gapOffset			GapOffset	OPTIONAL,
+	measGapConfig			MeasGapConfig	OPTIONAL,
+	requestedP-MaxFR1				OCTET STRING				OPTIONAL,
 	iE-Extensions				ProtocolExtensionContainer { { DUtoCURRCInformation-ExtIEs} } OPTIONAL,
 	...
 }
 
 DUtoCURRCInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-DRX-LongCycleStartOffset			CRITICALITY ignore	EXTENSION DRX-LongCycleStartOffset				PRESENCE optional }|
+	{ ID id-SelectedBandCombinationIndex		CRITICALITY ignore	EXTENSION SelectedBandCombinationIndex			PRESENCE optional }|
+	{ ID id-SelectedFeatureSetEntryIndex		CRITICALITY ignore	EXTENSION SelectedFeatureSetEntryIndex			PRESENCE optional }|
+	{ ID id-Ph-InfoSCG							CRITICALITY ignore	EXTENSION Ph-InfoSCG								PRESENCE optional }|
+	{ ID id-RequestedBandCombinationIndex		CRITICALITY ignore	EXTENSION RequestedBandCombinationIndex		PRESENCE optional }|
+	{ ID id-RequestedFeatureSetEntryIndex		CRITICALITY ignore	EXTENSION RequestedFeatureSetEntryIndex		PRESENCE optional }|
+	{ ID id-RequestedP-MaxFR2					CRITICALITY ignore	EXTENSION RequestedP-MaxFR2							PRESENCE optional }|
+	{ ID id-DRX-Config							CRITICALITY ignore	EXTENSION DRX-Config								PRESENCE optional }|
+	{ ID id-PDCCH-BlindDetectionSCG				CRITICALITY ignore	EXTENSION PDCCH-BlindDetectionSCG				PRESENCE optional }|
+	{ ID id-Requested-PDCCH-BlindDetectionSCG	CRITICALITY ignore	EXTENSION Requested-PDCCH-BlindDetectionSCG	PRESENCE optional }|
+	{ ID id-Ph-InfoMCG							CRITICALITY ignore	EXTENSION Ph-InfoMCG								PRESENCE optional },
 	...
 }
+
+DuplicationActivation ::= ENUMERATED{active,inactive,... }
+
+DuplicationIndication ::= ENUMERATED {true, ... , false }
+
+Dynamic5QIDescriptor	::= SEQUENCE {
+	qoSPriorityLevel					INTEGER (1..127),
+	packetDelayBudget					PacketDelayBudget,
+	packetErrorRate						PacketErrorRate,
+	fiveQI								INTEGER (0..255, ...)								OPTIONAL,
+	delayCritical						ENUMERATED {delay-critical, non-delay-critical}		OPTIONAL,
+	-- C-ifGBRflow: This IE shall be present if the GBR QoS Flow Information IE is present in the QoS Flow Level QoS Parameters IE.
+	averagingWindow 					AveragingWindow										OPTIONAL,
+	-- C-ifGBRflow: This IE shall be present if the GBR QoS Flow Information IE is present in the QoS Flow Level QoS Parameters IE.
+	maxDataBurstVolume					MaxDataBurstVolume									OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { Dynamic5QIDescriptor-ExtIEs } } OPTIONAL
+}
+
+Dynamic5QIDescriptor-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 -- E
+
+Endpoint-IP-address-and-port ::=SEQUENCE {
+	endpointIPAddress TransportLayerAddress,
+	iE-Extensions					ProtocolExtensionContainer { { Endpoint-IP-address-and-port-ExtIEs} } OPTIONAL
+}
+
+Endpoint-IP-address-and-port-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-portNumber	CRITICALITY reject	EXTENSION PortNumber		PRESENCE optional},
+	...
+}
+
+ExtendedAvailablePLMN-List ::= SEQUENCE (SIZE(1..maxnoofExtendedBPLMNs)) OF ExtendedAvailablePLMN-Item
+
+ExtendedAvailablePLMN-Item ::= SEQUENCE {
+	pLMNIdentity			PLMN-Identity,
+	iE-Extensions		ProtocolExtensionContainer { { ExtendedAvailablePLMN-Item-ExtIEs} } OPTIONAL
+}
+
+ExtendedAvailablePLMN-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ExtendedServedPLMNs-List ::= SEQUENCE (SIZE(1.. maxnoofExtendedBPLMNs)) OF ExtendedServedPLMNs-Item
+
+ExtendedServedPLMNs-Item ::= SEQUENCE {
+	pLMN-Identity				PLMN-Identity,
+	tAISliceSupportList 		SliceSupportList	OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { { ExtendedServedPLMNs-ItemExtIEs} } OPTIONAL,
+	...
+}
+
+ExtendedServedPLMNs-ItemExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EUTRACells-List  ::= SEQUENCE (SIZE (1.. maxCellineNB)) OF EUTRACells-List-item
+
+EUTRACells-List-item ::= SEQUENCE {
+	eUTRA-Cell-ID					EUTRA-Cell-ID,
+	served-EUTRA-Cells-Information	Served-EUTRA-Cells-Information,
+	iE-Extensions ProtocolExtensionContainer { { EUTRACells-List-itemExtIEs } }    OPTIONAL
+}
+
+EUTRACells-List-itemExtIEs    F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+EUTRA-Cell-ID ::= BIT STRING (SIZE(28))
+
+EUTRA-Coex-FDD-Info ::= SEQUENCE {
+	uL-EARFCN						ExtendedEARFCN					OPTIONAL,
+	dL-EARFCN						ExtendedEARFCN,
+	uL-Transmission-Bandwidth		EUTRA-Transmission-Bandwidth	OPTIONAL,
+	dL-Transmission-Bandwidth		EUTRA-Transmission-Bandwidth,
+	iE-Extensions					ProtocolExtensionContainer { {EUTRA-Coex-FDD-Info-ExtIEs} } OPTIONAL,
+	...
+}
+
+EUTRA-Coex-FDD-Info-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EUTRA-Coex-Mode-Info ::= CHOICE {
+	fDD		EUTRA-Coex-FDD-Info,
+	tDD		EUTRA-Coex-TDD-Info,
+	...
+}
+
+EUTRA-Coex-TDD-Info ::= SEQUENCE {
+	eARFCN							ExtendedEARFCN,
+	transmission-Bandwidth			EUTRA-Transmission-Bandwidth,
+	subframeAssignment				EUTRA-SubframeAssignment,
+	specialSubframe-Info			EUTRA-SpecialSubframe-Info,
+	iE-Extensions					ProtocolExtensionContainer { {EUTRA-Coex-TDD-Info-ExtIEs} } OPTIONAL,
+	...
+}
+EUTRA-Coex-TDD-Info-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+EUTRA-CyclicPrefixDL ::= ENUMERATED { 
+	normal,
+	extended,
+	...
+}
+
+EUTRA-CyclicPrefixUL ::= ENUMERATED { 
+	normal,
+	extended,
+	...
+}
+
+EUTRA-PRACH-Configuration ::= SEQUENCE {
+	rootSequenceIndex						INTEGER (0..837),
+	zeroCorrelationIndex					INTEGER (0..15),
+	highSpeedFlag							BOOLEAN,
+	prach-FreqOffset						INTEGER (0..94),
+	prach-ConfigIndex						INTEGER (0..63)		OPTIONAL,
+	-- C-ifTDD: This IE shall be present if the EUTRA-Mode-Info IE in the Resource Coordination E-UTRA Cell Information IE is set to the value "TDD"
+	iE-Extensions							ProtocolExtensionContainer { {EUTRA-PRACH-Configuration-ExtIEs} }	OPTIONAL,
+	...
+}
+
+EUTRA-PRACH-Configuration-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+EUTRA-SpecialSubframe-Info ::= SEQUENCE {
+	specialSubframePatterns		EUTRA-SpecialSubframePatterns,
+	cyclicPrefixDL				EUTRA-CyclicPrefixDL,
+	cyclicPrefixUL				EUTRA-CyclicPrefixUL,
+	iE-Extensions				ProtocolExtensionContainer { { EUTRA-SpecialSubframe-Info-ExtIEs} } OPTIONAL,
+	...
+}
+
+EUTRA-SpecialSubframe-Info-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EUTRA-SpecialSubframePatterns ::= ENUMERATED { 
+	ssp0,
+	ssp1, 
+	ssp2,
+	ssp3,
+	ssp4,
+	ssp5,
+	ssp6,
+	ssp7,
+	ssp8,
+	ssp9,
+	ssp10,
+	...
+}
+
+EUTRA-SubframeAssignment ::= ENUMERATED { 
+	sa0,
+	sa1, 
+	sa2,
+	sa3,
+	sa4,
+	sa5,
+	sa6,
+	...
+}
+
+EUTRA-Transmission-Bandwidth ::= ENUMERATED {
+	bw6,
+	bw15,
+	bw25,
+	bw50,
+	bw75,
+	bw100,
+	...
+}
 
 EUTRANQoS	::= SEQUENCE {
 	qCI								QCI,
@@ -417,13 +907,50 @@ EUTRANQoS-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-Extended-TAC ::= OCTET STRING (SIZE(3))
+ExecuteDuplication ::= ENUMERATED{true,...}
+
+ExtendedEARFCN ::= INTEGER (0..262143)
+
+EUTRA-Mode-Info ::= CHOICE {
+	eUTRAFDD		EUTRA-FDD-Info,
+	eUTRATDD		EUTRA-TDD-Info,
+	choice-extension	ProtocolIE-SingleContainer { { EUTRA-Mode-Info-ExtIEs} }
+}
+
+EUTRA-Mode-Info-ExtIEs F1AP-PROTOCOL-IES ::= {
+	...
+}
+
+EUTRA-NR-CellResourceCoordinationReq-Container	::= OCTET STRING
+
+EUTRA-NR-CellResourceCoordinationReqAck-Container	::= OCTET STRING
+
+EUTRA-FDD-Info ::= SEQUENCE {
+	uL-offsetToPointA				OffsetToPointA,
+	dL-offsetToPointA				OffsetToPointA,
+	iE-Extensions					ProtocolExtensionContainer { {EUTRA-FDD-Info-ExtIEs} } OPTIONAL,
+	...
+}
+
+EUTRA-FDD-Info-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EUTRA-TDD-Info ::= SEQUENCE {
+	offsetToPointA					OffsetToPointA,
+	iE-Extensions					ProtocolExtensionContainer { {EUTRA-TDD-Info-ExtIEs} } OPTIONAL,
+	...
+}
+
+EUTRA-TDD-Info-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 -- F
 
 FDD-Info ::= SEQUENCE {
-	uL-NRARFCN						NRARFCN,
-	dL-NRARFCN						NRARFCN,
+	uL-NRFreqInfo						NRFreqInfo,
+	dL-NRFreqInfo						NRFreqInfo,
 	uL-Transmission-Bandwidth		Transmission-Bandwidth,
 	dL-Transmission-Bandwidth		Transmission-Bandwidth,
 	iE-Extensions					ProtocolExtensionContainer { {FDD-Info-ExtIEs} } OPTIONAL,
@@ -434,9 +961,35 @@ FDD-Info-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+
+Flows-Mapped-To-DRB-List	::=	SEQUENCE (SIZE(1.. maxnoofQoSFlows)) OF Flows-Mapped-To-DRB-Item
+
+Flows-Mapped-To-DRB-Item 	::= SEQUENCE {
+	qoSFlowIdentifier							QoSFlowIdentifier,
+	qoSFlowLevelQoSParameters				QoSFlowLevelQoSParameters,
+	iE-Extensions							ProtocolExtensionContainer { { Flows-Mapped-To-DRB-ItemExtIEs} } OPTIONAL
+}
+
+Flows-Mapped-To-DRB-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-QoSFlowMappingIndication		CRITICALITY ignore EXTENSION QoSFlowMappingIndication    PRESENCE optional},
+	...
+}
+
+FreqBandNrItem ::= SEQUENCE {
+	freqBandIndicatorNr 			INTEGER (1..1024,...), 
+	supportedSULBandList		SEQUENCE (SIZE(0..maxnoofNrCellBands)) OF SupportedSULFreqBandItem,
+	iE-Extensions				ProtocolExtensionContainer { {FreqBandNrItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+FreqBandNrItem-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+FullConfiguration ::= ENUMERATED {full, ...}
+
 -- G
 
-GapOffset ::= OCTET STRING
 
 GBR-QosInformation ::= SEQUENCE {
 	e-RAB-MaximumBitrateDL			BitRate,
@@ -451,8 +1004,83 @@ GBR-QosInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+GBR-QoSFlowInformation::= SEQUENCE {
+	maxFlowBitRateDownlink			BitRate,
+	maxFlowBitRateUplink			BitRate, 
+	guaranteedFlowBitRateDownlink	BitRate,
+	guaranteedFlowBitRateUplink		BitRate, 
+	maxPacketLossRateDownlink		MaxPacketLossRate		OPTIONAL,
+	maxPacketLossRateUplink			MaxPacketLossRate		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { GBR-QosFlowInformation-ExtIEs} } OPTIONAL,
+	...
+}
+
+GBR-QosFlowInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CG-Config ::= OCTET STRING
+
+GNB-CUSystemInformation::= SEQUENCE {
+	sibtypetobeupdatedlist	SEQUENCE (SIZE(1.. maxnoofSIBTypes)) OF SibtypetobeupdatedListItem,
+	iE-Extensions					ProtocolExtensionContainer { { GNB-CUSystemInformation-ExtIEs} } OPTIONAL,
+	...
+}
+
+GNB-CUSystemInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GNB-CU-TNL-Association-Setup-Item::= SEQUENCE {
+	tNLAssociationTransportLayerAddress		CP-TransportLayerAddress	,
+	iE-Extensions					ProtocolExtensionContainer { { GNB-CU-TNL-Association-Setup-Item-ExtIEs} } OPTIONAL
+}
+
+GNB-CU-TNL-Association-Setup-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GNB-CU-TNL-Association-Failed-To-Setup-Item ::= SEQUENCE {
+	tNLAssociationTransportLayerAddress		CP-TransportLayerAddress	,
+	cause									Cause,
+	iE-Extensions					ProtocolExtensionContainer { { GNB-CU-TNL-Association-Failed-To-Setup-Item-ExtIEs} } OPTIONAL
+}
+
+GNB-CU-TNL-Association-Failed-To-Setup-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 
+GNB-CU-TNL-Association-To-Add-Item ::= SEQUENCE {
+	tNLAssociationTransportLayerAddress		CP-TransportLayerAddress	,
+	tNLAssociationUsage							TNLAssociationUsage,
+	iE-Extensions					ProtocolExtensionContainer { { GNB-CU-TNL-Association-To-Add-Item-ExtIEs} } OPTIONAL
+}
+
+GNB-CU-TNL-Association-To-Add-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GNB-CU-TNL-Association-To-Remove-Item::= SEQUENCE {
+	tNLAssociationTransportLayerAddress		CP-TransportLayerAddress	,
+	iE-Extensions					ProtocolExtensionContainer { { GNB-CU-TNL-Association-To-Remove-Item-ExtIEs} } OPTIONAL
+}
+
+GNB-CU-TNL-Association-To-Remove-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-TNLAssociationTransportLayerAddressgNBDU	CRITICALITY reject	EXTENSION CP-TransportLayerAddress	PRESENCE optional},
+	...
+}
+
+
+GNB-CU-TNL-Association-To-Update-Item::= SEQUENCE {
+	tNLAssociationTransportLayerAddress		CP-TransportLayerAddress	,
+	tNLAssociationUsage							TNLAssociationUsage OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { GNB-CU-TNL-Association-To-Update-Item-ExtIEs} } OPTIONAL
+}
+
+GNB-CU-TNL-Association-To-Update-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 GNB-CU-UE-F1AP-ID		::= INTEGER (0..4294967295)
 
@@ -486,23 +1114,44 @@ GNB-DU-System-Information-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-GTP-TEID				::= OCTET STRING (SIZE (4))
+GNB-DUConfigurationQuery ::= ENUMERATED {true, ...}
 
-GTPTunnelEndpoint ::= SEQUENCE {
-	transportLayerAddress				TransportLayerAddress,
-	gTP-TEID							GTP-TEID,
-	iE-Extensions						ProtocolExtensionContainer { { GTPTunnelEndpoint-ExtIEs} }	OPTIONAL,
+GNBDUOverloadInformation ::= ENUMERATED {overloaded, not-overloaded}
+
+GNB-DU-TNL-Association-To-Remove-Item::= SEQUENCE {
+	tNLAssociationTransportLayerAddress		CP-TransportLayerAddress	,
+	tNLAssociationTransportLayerAddressgNBCU		CP-TransportLayerAddress		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { GNB-DU-TNL-Association-To-Remove-Item-ExtIEs} } OPTIONAL
+}
+
+GNB-DU-TNL-Association-To-Remove-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+GTP-TEID				::= OCTET STRING (SIZE (4))
 
-GTPTunnelEndpoint-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+GTPTunnel				::= SEQUENCE {
+	transportLayerAddress		TransportLayerAddress,
+	gTP-TEID		GTP-TEID,
+	iE-Extensions					ProtocolExtensionContainer { { GTPTunnel-ExtIEs } } OPTIONAL,
+	...
+}
+
+GTPTunnel-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
 -- H
 
+HandoverPreparationInformation ::= OCTET STRING
+
 -- I
+
+IgnorePRACHConfiguration::= ENUMERATED { true,...}
+
+IgnoreResourceCoordinationContainer ::= ENUMERATED { yes,...}
+InactivityMonitoringRequest ::= ENUMERATED { true,...}
+InactivityMonitoringResponse ::= ENUMERATED { not-supported,...}
 
 -- J
 
@@ -510,16 +1159,92 @@ GTPTunnelEndpoint-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 
 -- L
 
+LCID ::= INTEGER (1..32, ...)
+
+
 LongDRXCycleLength ::= 	ENUMERATED
 {ms10, ms20, ms32, ms40, ms60, ms64, ms70, ms80, ms128, ms160, ms256, ms320, ms512, ms640, ms1024, ms1280, ms2048, ms2560, ms5120, ms10240, ...}
 
 -- M
 
+MaskedIMEISV ::= 	BIT STRING (SIZE (64))
+
+MaxDataBurstVolume  ::= INTEGER (0..4095, ...) 
+MaxPacketLossRate ::= INTEGER (0..1000)
+
 MIB-message ::= OCTET STRING
+
+MeasConfig ::= OCTET STRING
+
+MeasGapConfig ::= OCTET STRING
+
+MeasurementTimingConfiguration ::= OCTET STRING
+
+MessageIdentifier ::= BIT STRING (SIZE (16))
 
 -- N
 
-NRARFCN ::= INTEGER (0..maxNRARFCN)
+NeedforGap::= ENUMERATED {true, ...}
+
+NGRANAllocationAndRetentionPriority ::= SEQUENCE {
+	priorityLevel				PriorityLevel,
+	pre-emptionCapability		Pre-emptionCapability,
+	pre-emptionVulnerability	Pre-emptionVulnerability,
+	iE-Extensions				ProtocolExtensionContainer { {NGRANAllocationAndRetentionPriority-ExtIEs} } OPTIONAL
+}
+
+NGRANAllocationAndRetentionPriority-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+NR-CGI-List-For-Restart-Item ::= SEQUENCE {
+	nRCGI				NRCGI,
+	iE-Extensions		ProtocolExtensionContainer { { NR-CGI-List-For-Restart-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+NR-CGI-List-For-Restart-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+NonDynamic5QIDescriptor	::= SEQUENCE {
+	fiveQI						INTEGER (0..255, ...),
+	qoSPriorityLevel			INTEGER (1..127)				OPTIONAL,
+	averagingWindow 			AveragingWindow					OPTIONAL,
+	maxDataBurstVolume			MaxDataBurstVolume				OPTIONAL,
+	iE-Extensions	ProtocolExtensionContainer { { NonDynamic5QIDescriptor-ExtIEs } } OPTIONAL
+}
+
+NonDynamic5QIDescriptor-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Notification-Cause ::= ENUMERATED {fulfilled, not-fulfilled, ...}
+
+NotificationControl ::= ENUMERATED {active, not-active, ...}
+
+NotificationInformation ::= SEQUENCE {
+	message-Identifier	MessageIdentifier,
+	serialNumber		SerialNumber,
+	iE-Extensions	ProtocolExtensionContainer { { NotificationInformationExtIEs} } OPTIONAL,
+	...
+}
+
+NotificationInformationExtIEs		F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+NRFreqInfo ::=  SEQUENCE {
+	nRARFCN			INTEGER (0..maxNRARFCN),
+	sul-Information	SUL-Information		OPTIONAL,
+	freqBandListNr	SEQUENCE (SIZE(1..maxnoofNrCellBands)) OF FreqBandNrItem,
+	iE-Extensions	ProtocolExtensionContainer { { NRFreqInfoExtIEs} } OPTIONAL,
+	...
+}
+
+NRFreqInfoExtIEs		F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 NRCGI ::= SEQUENCE {
 	pLMN-Identity			PLMN-Identity,
@@ -535,8 +1260,13 @@ NRCGI-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 NR-Mode-Info ::= CHOICE {
 	fDD		FDD-Info,
 	tDD		TDD-Info,
+	choice-extension			ProtocolIE-SingleContainer { { NR-Mode-Info-ExtIEs} }
+}
+
+NR-Mode-Info-ExtIEs F1AP-PROTOCOL-IES ::= {
 	...
 }
+
 
 NRCellIdentity ::= BIT STRING (SIZE(36))
 
@@ -546,11 +1276,79 @@ NRPCI ::= INTEGER(0..1007)
 
 NRSCS ::= ENUMERATED { scs15, scs30, scs60, scs120, ...}
 
+NumberOfBroadcasts ::= INTEGER (0..65535)
+
+NumberofBroadcastRequest ::= INTEGER (0..65535)
+
 -- O
+
+OffsetToPointA	::= INTEGER (0..2199,...)
+
 
 -- P
 
+PacketDelayBudget ::= INTEGER (0..1023, ...) 
+
+PacketErrorRate ::= SEQUENCE {
+	pER-Scalar			PER-Scalar,
+	pER-Exponent		PER-Exponent,
+	iE-Extensions		ProtocolExtensionContainer { {PacketErrorRate-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PacketErrorRate-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PER-Scalar ::= INTEGER (0..9, ...)
+PER-Exponent ::= INTEGER (0..9, ...)
+
+PagingCell-Item ::= SEQUENCE {
+	nRCGI		NRCGI	,
+	iE-Extensions	ProtocolExtensionContainer { { PagingCell-ItemExtIEs } }	OPTIONAL
+}
+
+PagingCell-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PagingDRX ::= ENUMERATED {
+	v32,
+	v64,
+	v128,
+	v256,
+	...
+}
+
+PagingIdentity ::=	CHOICE {
+	rANUEPagingIdentity	RANUEPagingIdentity,
+	cNUEPagingIdentity	CNUEPagingIdentity, 
+	choice-extension			ProtocolIE-SingleContainer { { PagingIdentity-ExtIEs } }
+}
+
+PagingIdentity-ExtIEs F1AP-PROTOCOL-IES::= {
+	...
+}
+
+PagingOrigin ::= ENUMERATED { non-3gpp,	...}
+
+PagingPriority ::= ENUMERATED { priolevel1, priolevel2, priolevel3, priolevel4, priolevel5, priolevel6, priolevel7, priolevel8,...} 
+
+PDCCH-BlindDetectionSCG ::= OCTET STRING
+
+PDCP-SN ::= INTEGER (0..4095)
+
+PDCPSNLength	::= ENUMERATED { twelve-bits,eighteen-bits,...}
+
+PDUSessionID ::= INTEGER (0..255)
+
+Ph-InfoMCG  ::= OCTET STRING
+
+Ph-InfoSCG  ::= OCTET STRING
+
 PLMN-Identity ::= OCTET STRING (SIZE(3))
+
+PortNumber ::= BIT STRING (SIZE (16))
 
 Pre-emptionCapability ::= ENUMERATED {
 	shall-not-trigger-pre-emption,
@@ -564,6 +1362,18 @@ Pre-emptionVulnerability ::= ENUMERATED {
 
 PriorityLevel	::= INTEGER { spare (0), highest (1), lowest (14), no-priority (15) } (0..15)
 
+ProtectedEUTRAResourceIndication		::= OCTET STRING
+
+Protected-EUTRA-Resources-Item ::= SEQUENCE {
+	spectrumSharingGroupID					SpectrumSharingGroupID, 
+	eUTRACells-List		EUTRACells-List,
+	iE-Extensions	ProtocolExtensionContainer { { Protected-EUTRA-Resources-ItemExtIEs } }	OPTIONAL
+}
+
+Protected-EUTRA-Resources-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 Potential-SpCell-Item ::= SEQUENCE {
 	potential-SpCell-ID			NRCGI	,
 	iE-Extensions	ProtocolExtensionContainer { { Potential-SpCell-ItemExtIEs } }	OPTIONAL,
@@ -574,28 +1384,207 @@ Potential-SpCell-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+PWS-Failed-NR-CGI-Item ::= SEQUENCE {
+	nRCGI				NRCGI,
+	numberOfBroadcasts	NumberOfBroadcasts,
+	iE-Extensions		ProtocolExtensionContainer { { PWS-Failed-NR-CGI-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+PWS-Failed-NR-CGI-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PWSSystemInformation ::= SEQUENCE {
+	sIBtype 				SIBType-PWS,
+	sIBmessage			OCTET STRING, 
+	iE-Extensions		ProtocolExtensionContainer { { PWSSystemInformationExtIEs } }	OPTIONAL,
+	...
+}
+
+PWSSystemInformationExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-NotificationInformation		CRITICALITY ignore	EXTENSION NotificationInformation		PRESENCE optional}|
+	{ ID id-AdditionalSIBMessageList	CRITICALITY reject	EXTENSION AdditionalSIBMessageList		PRESENCE optional},
+	...
+}
+
+
 -- Q
 
 QCI ::= INTEGER (0..255)
 
+QoS-Characteristics ::= CHOICE {
+	non-Dynamic-5QI				NonDynamic5QIDescriptor,
+	dynamic-5QI					Dynamic5QIDescriptor, 
+	choice-extension			ProtocolIE-SingleContainer { { QoS-Characteristics-ExtIEs } }
+}
+
+QoS-Characteristics-ExtIEs F1AP-PROTOCOL-IES ::= {
+	...
+}
+
+QoSFlowIdentifier ::= INTEGER (0..63) 
+
+QoSFlowLevelQoSParameters	::= SEQUENCE {
+	qoS-Characteristics					QoS-Characteristics,
+	nGRANallocationRetentionPriority		NGRANAllocationAndRetentionPriority,
+	gBR-QoS-Flow-Information				GBR-QoSFlowInformation				OPTIONAL,
+	reflective-QoS-Attribute				ENUMERATED {subject-to, ...}				OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { { QoSFlowLevelQoSParameters-ExtIEs } }	OPTIONAL
+}
+
+QoSFlowLevelQoSParameters-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-PDUSessionID								CRITICALITY ignore	EXTENSION PDUSessionID		PRESENCE optional}|
+	{ ID id-ULPDUSessionAggregateMaximumBitRate			CRITICALITY ignore	EXTENSION BitRate				PRESENCE optional},
+	...
+}
+
+QoSFlowMappingIndication ::= ENUMERATED {ul,dl,...}
+
+QoSInformation	::=	CHOICE {
+	eUTRANQoS					EUTRANQoS,
+	choice-extension			ProtocolIE-SingleContainer { { QoSInformation-ExtIEs} }
+}
+
+QoSInformation-ExtIEs F1AP-PROTOCOL-IES ::= {
+	{	ID id-DRB-Information		CRITICALITY ignore TYPE DRB-Information		PRESENCE mandatory},
+	...
+}
+
 -- R
+
+RANAC ::= INTEGER (0..255)
+
+RANUEID ::= OCTET STRING (SIZE (8))
+
+RANUEPagingIdentity ::= SEQUENCE	{
+	iRNTI						BIT STRING (SIZE(40)),
+	iE-Extensions				ProtocolExtensionContainer { { RANUEPagingIdentity-ExtIEs } }	OPTIONAL}
+
+RANUEPagingIdentity-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+RAT-FrequencyPriorityInformation::= CHOICE {
+	eNDC		SubscriberProfileIDforRFP,
+	nGRAN		RAT-FrequencySelectionPriority,
+	choice-extension			ProtocolIE-SingleContainer { { RAT-FrequencyPriorityInformation-ExtIEs} }
+}
+
+RAT-FrequencyPriorityInformation-ExtIEs F1AP-PROTOCOL-IES ::= {
+	...
+}
+
+RAT-FrequencySelectionPriority::= INTEGER (1.. 256, ...)
+
+Reestablishment-Indication	::=	ENUMERATED  {
+	reestablished,
+	...
+}
+
+RequestedBandCombinationIndex ::= OCTET STRING
+
+RequestedFeatureSetEntryIndex ::= OCTET STRING
+
+Requested-PDCCH-BlindDetectionSCG ::= OCTET STRING
+
+RequestedP-MaxFR2 ::= OCTET STRING
+
+RequestType	::= ENUMERATED {offer, execution, ...}
+
+ResourceCoordinationEUTRACellInfo ::= SEQUENCE {
+	eUTRA-Mode-Info 						EUTRA-Coex-Mode-Info,
+	eUTRA-PRACH-Configuration 				EUTRA-PRACH-Configuration,
+	iE-Extensions	ProtocolExtensionContainer { { ResourceCoordinationEUTRACellInfo-ExtIEs } }	OPTIONAL,
+	...
+}
+
+ResourceCoordinationEUTRACellInfo-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-IgnorePRACHConfiguration		CRITICALITY reject EXTENSION IgnorePRACHConfiguration		PRESENCE optional },
+	...
+}
+
+ResourceCoordinationTransferInformation ::= SEQUENCE {
+	meNB-Cell-ID								EUTRA-Cell-ID,
+	resourceCoordinationEUTRACellInfo		ResourceCoordinationEUTRACellInfo	OPTIONAL,
+	iE-Extensions	ProtocolExtensionContainer { { ResourceCoordinationTransferInformation-ExtIEs } }	OPTIONAL,
+	...
+}
+
+ResourceCoordinationTransferInformation-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 ResourceCoordinationTransferContainer ::= OCTET STRING
 
+RepetitionPeriod ::= INTEGER (0..131071, ...)
+
+RLCFailureIndication ::= SEQUENCE {
+	assocatedLCID				LCID,
+	iE-Extensions				ProtocolExtensionContainer { {RLCFailureIndication-ExtIEs} } OPTIONAL
+}
+
+RLCFailureIndication-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 RLCMode ::= ENUMERATED {
 	rlc-am,
-	rlc-um
+	rlc-um-bidirectional,
+	rlc-um-unidirectional-ul,
+	rlc-um-unidirectional-dl,
+	...
+}
+
+RLC-Status ::= SEQUENCE {
+	reestablishment-Indication 	Reestablishment-Indication,
+	iE-Extensions				ProtocolExtensionContainer { { RLC-Status-ExtIEs } } OPTIONAL,
+	...
+}
+
+RLC-Status-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
 }
 
 RRCContainer ::= OCTET STRING
 
-RRCRconfigurationCompleteIndicator	::= ENUMERATED {true, ...}
+RRCDeliveryStatus ::= SEQUENCE	{
+	delivery-status 			PDCP-SN,
+	triggering-message			PDCP-SN,
+	iE-Extensions				ProtocolExtensionContainer { { RRCDeliveryStatus-ExtIEs } }	OPTIONAL}
+
+RRCDeliveryStatus-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+RRCDeliveryStatusRequest ::= ENUMERATED {true, ...}
+
+RRCReconfigurationCompleteIndicator	::= ENUMERATED {
+	true,
+	 ...,
+	failure
+}
+
+RRC-Version ::= SEQUENCE	{
+	latest-RRC-Version			BIT STRING (SIZE(3)),
+	iE-Extensions				ProtocolExtensionContainer { { RRC-Version-ExtIEs } }	OPTIONAL}
+
+-- WS modification: define a dedicated type
+Latest-RRC-Version-Enhanced ::= OCTET STRING (SIZE(3))
+
+RRC-Version-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+-- WS modification: define a dedicated type
+--	{ID id-latest-RRC-Version-Enhanced		CRITICALITY ignore EXTENSION OCTET STRING (SIZE(3))		PRESENCE optional },
+	{ID id-latest-RRC-Version-Enhanced		CRITICALITY ignore EXTENSION Latest-RRC-Version-Enhanced		PRESENCE optional },
+	...
+}
 
 -- S
 
 SCell-FailedtoSetup-Item	::= SEQUENCE {
 	sCell-ID			NRCGI	, 
-    cause		Cause			OPTIONAL ,
+	cause		Cause			OPTIONAL ,
 	iE-Extensions	ProtocolExtensionContainer { { SCell-FailedtoSetup-ItemExtIEs } }	OPTIONAL,
 	...
 }
@@ -606,7 +1595,7 @@ SCell-FailedtoSetup-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 
 SCell-FailedtoSetupMod-Item	::= SEQUENCE {
 	sCell-ID			NRCGI	, 
-    cause		Cause			OPTIONAL ,
+	cause		Cause			OPTIONAL ,
 	iE-Extensions	ProtocolExtensionContainer { { SCell-FailedtoSetupMod-ItemExtIEs } }	OPTIONAL,
 	...
 }
@@ -627,43 +1616,64 @@ SCell-ToBeRemoved-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 
 SCell-ToBeSetup-Item ::= SEQUENCE {
 	sCell-ID			NRCGI	,
-	sCellIndex			SCellIndex,
+	sCellIndex			SCellIndex, 
+	sCellULConfigured		CellULConfigured 	OPTIONAL,
 	iE-Extensions	ProtocolExtensionContainer { { SCell-ToBeSetup-ItemExtIEs } }	OPTIONAL,
 	...
 }
 
 SCell-ToBeSetup-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-ServingCellMO		CRITICALITY ignore	EXTENSION ServingCellMO		PRESENCE optional	},
 	...
 }
 
 SCell-ToBeSetupMod-Item	::= SEQUENCE {
 	sCell-ID			NRCGI	, 
 	sCellIndex			SCellIndex,
+	sCellULConfigured		CellULConfigured 	OPTIONAL,
 	iE-Extensions	ProtocolExtensionContainer { { SCell-ToBeSetupMod-ItemExtIEs } }	OPTIONAL,
 	...
 }
 
 SCell-ToBeSetupMod-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-ServingCellMO		CRITICALITY ignore	EXTENSION ServingCellMO		PRESENCE optional	},
 	...
 }
 
-SCellIndex ::=INTEGER (0..31, ...)
+SCellIndex ::=INTEGER (1..31, ...)
+
+SerialNumber ::= BIT STRING (SIZE (16))
+
+SIBType-PWS ::=INTEGER (6..8, ...)
+
+SelectedBandCombinationIndex ::= OCTET STRING
+
+SelectedFeatureSetEntryIndex ::= OCTET STRING
 
 CG-ConfigInfo ::= OCTET STRING
+
+ServCellIndex ::= INTEGER (0..31, ...)
+
+ServingCellMO ::= INTEGER (1..64, ...)
 
 Served-Cell-Information ::= SEQUENCE {
 	nRCGI							NRCGI,
 	nRPCI							NRPCI,
-	extended-TAC					Extended-TAC,
-	broadcastPLMNs					BroadcastPLMNs-Item,
+	fiveGS-TAC							FiveGS-TAC			OPTIONAL,
+	configured-EPS-TAC				Configured-EPS-TAC 		OPTIONAL,
+	servedPLMNs					ServedPLMNs-List,
 	nR-Mode-Info					NR-Mode-Info, 
-	sUL-Information					SUL-Information 	OPTIONAL, 
 	measurementTimingConfiguration	OCTET STRING,
 	iE-Extensions		ProtocolExtensionContainer { {Served-Cell-Information-ExtIEs} } OPTIONAL,
 	...
 }
 
 Served-Cell-Information-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	{	ID id-RANAC							CRITICALITY ignore EXTENSION RANAC							PRESENCE optional }|
+	{	ID id-ExtendedServedPLMNs-List		CRITICALITY ignore EXTENSION ExtendedServedPLMNs-List		PRESENCE optional }|
+	{	ID id-Cell-Direction				CRITICALITY ignore EXTENSION Cell-Direction					PRESENCE optional }|
+	{	ID id-BPLMN-ID-Info-List			CRITICALITY ignore EXTENSION BPLMN-ID-Info-List				PRESENCE optional }|
+	{	ID id-Cell-Type						CRITICALITY ignore EXTENSION CellType						PRESENCE optional},
 	...
 }
 
@@ -700,13 +1710,89 @@ Served-Cells-To-Modify-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+Served-EUTRA-Cells-Information::= SEQUENCE {
+	eUTRA-Mode-Info						EUTRA-Mode-Info,
+	protectedEUTRAResourceIndication	ProtectedEUTRAResourceIndication,
+	iE-Extensions						ProtocolExtensionContainer { {Served-EUTRA-Cell-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+Served-EUTRA-Cell-Information-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Service-State ::= ENUMERATED {
+	in-service,
+	out-of-service,
+	...
+}
+
+Service-Status ::= SEQUENCE {
+	service-state				Service-State,
+	switchingOffOngoing			ENUMERATED {true, ...}	OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { { Service-Status-ExtIEs } }	OPTIONAL,
+	...
+}
+
+Service-Status-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 ShortDRXCycleLength ::=  ENUMERATED {ms2, ms3, ms4, ms5, ms6, ms7, ms8, ms10, ms14, ms16, ms20, ms30, ms32, ms35, ms40, ms64, ms80, ms128, ms160, ms256, ms320, ms512, ms640, ...}
 
 ShortDRXCycleTimer ::= INTEGER (1..16)
 
 SIB1-message ::= OCTET STRING
 
-SRBID ::= INTEGER (1..3, ...)
+SItype ::= INTEGER (1..32, ...)
+
+SItype-List ::= SEQUENCE (SIZE(1.. maxnoofSITypes)) OF SItype-Item
+
+SItype-Item ::= SEQUENCE {
+	sItype		SItype	,
+	iE-Extensions	ProtocolExtensionContainer { { SItype-ItemExtIEs } }	OPTIONAL
+}
+
+SItype-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SibtypetobeupdatedListItem ::= SEQUENCE {
+	sIBtype 			INTEGER (2..32,...), 
+	sIBmessage			OCTET STRING, 
+	valueTag			INTEGER (0..31,...), 
+	iE-Extensions	ProtocolExtensionContainer { { SibtypetobeupdatedListItem-ExtIEs } }	OPTIONAL,
+	...
+}
+
+SibtypetobeupdatedListItem-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SliceSupportList ::= SEQUENCE (SIZE(1.. maxnoofSliceItems)) OF SliceSupportItem
+
+SliceSupportItem ::= SEQUENCE {
+	sNSSAI	SNSSAI,
+	iE-Extensions				ProtocolExtensionContainer { { SliceSupportItem-ExtIEs } }	OPTIONAL
+}
+
+SliceSupportItem-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SNSSAI ::= SEQUENCE {
+	sST			OCTET STRING (SIZE(1)),
+	sD			OCTET STRING (SIZE(3)) 	OPTIONAL	,
+	iE-Extensions				ProtocolExtensionContainer { { SNSSAI-ExtIEs } }	OPTIONAL
+}
+
+SNSSAI-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SpectrumSharingGroupID ::= INTEGER (1..maxCellineNB)
+
+SRBID ::= INTEGER (0..3, ...)
 
 SRBs-FailedToBeSetup-Item	::= SEQUENCE {
 	sRBID		SRBID	,
@@ -730,6 +1816,16 @@ SRBs-FailedToBeSetupMod-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+SRBs-Modified-Item ::= SEQUENCE {
+	sRBID							SRBID,
+	lCID							LCID,
+	iE-Extensions	ProtocolExtensionContainer { { SRBs-Modified-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+SRBs-Modified-ItemExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 SRBs-Required-ToBeReleased-Item	::= SEQUENCE {
 	sRBID	SRBID,
@@ -738,6 +1834,28 @@ SRBs-Required-ToBeReleased-Item	::= SEQUENCE {
 }
 
 SRBs-Required-ToBeReleased-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SRBs-Setup-Item ::= SEQUENCE {
+	sRBID							SRBID,
+	lCID								LCID,
+	iE-Extensions	ProtocolExtensionContainer { { SRBs-Setup-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+SRBs-Setup-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SRBs-SetupMod-Item ::= SEQUENCE {
+	sRBID						SRBID,
+	lCID							LCID,
+	iE-Extensions	ProtocolExtensionContainer { { SRBs-SetupMod-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+SRBs-SetupMod-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -752,7 +1870,8 @@ SRBs-ToBeReleased-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 }
 
 SRBs-ToBeSetup-Item ::= SEQUENCE {
-	sRBID	 SRBID	, 
+	sRBID	 SRBID	,
+	duplicationIndication	DuplicationIndication	OPTIONAL,
 	iE-Extensions	ProtocolExtensionContainer { { SRBs-ToBeSetup-ItemExtIEs } }	OPTIONAL,
 	...
 }
@@ -763,6 +1882,7 @@ SRBs-ToBeSetup-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 
 SRBs-ToBeSetupMod-Item	::= SEQUENCE {
 	sRBID	SRBID,
+	duplicationIndication	DuplicationIndication	OPTIONAL,
 	iE-Extensions	ProtocolExtensionContainer { { SRBs-ToBeSetupMod-ItemExtIEs } }	OPTIONAL,
 	...
 }
@@ -772,7 +1892,7 @@ SRBs-ToBeSetupMod-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 }
 
 SUL-Information ::= SEQUENCE {
-	sUL-NRARFCN							NRARFCN,
+	sUL-NRARFCN							INTEGER (0..maxNRARFCN),
 	sUL-transmission-Bandwidth			Transmission-Bandwidth,
 	iE-Extensions				ProtocolExtensionContainer { { SUL-InformationExtIEs} } OPTIONAL,
 	...
@@ -782,10 +1902,29 @@ SUL-InformationExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+SubscriberProfileIDforRFP ::= INTEGER (1..256, ...)
+
+SULAccessIndication ::= ENUMERATED {true,...}
+
+
+SupportedSULFreqBandItem ::= SEQUENCE {
+	freqBandIndicatorNr 			INTEGER (1..1024,...),
+	iE-Extensions				ProtocolExtensionContainer { { SupportedSULFreqBandItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+SupportedSULFreqBandItem-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 -- T
 
+FiveGS-TAC ::= OCTET STRING (SIZE(3))
+
+Configured-EPS-TAC ::= OCTET STRING (SIZE(2))
+
 TDD-Info ::= SEQUENCE {
-	nRARFCN							NRARFCN,
+	nRFreqInfo							NRFreqInfo,
 	transmission-Bandwidth			Transmission-Bandwidth,
 	iE-Extensions				ProtocolExtensionContainer { {TDD-Info-ExtIEs} } OPTIONAL,
 	...
@@ -796,6 +1935,13 @@ TDD-Info-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 }
 
 TimeToWait ::= ENUMERATED {v1s, v2s, v5s, v10s, v20s, v60s, ...}
+
+TNLAssociationUsage ::= ENUMERATED {
+	ue,
+	non-ue,
+	both, 
+	...
+}
 
 TransportLayerAddress		::= BIT STRING (SIZE(1..160, ...))
 
@@ -812,7 +1958,7 @@ Transmission-Bandwidth-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-TransmissionStopIndicator ::= ENUMERATED {true, ...}
+TransmissionActionIndicator ::= ENUMERATED {stop, ..., restart }
 
 TypeOfError ::= ENUMERATED {
 	not-understood,
@@ -821,6 +1967,69 @@ TypeOfError ::= ENUMERATED {
 }
 
 -- U
+UAC-Assistance-Info ::= SEQUENCE {
+	uACPLMN-List		UACPLMN-List,
+	iE-Extensions		ProtocolExtensionContainer { { UAC-Assistance-InfoExtIEs} } OPTIONAL
+}
+
+UAC-Assistance-InfoExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UACPLMN-List ::= SEQUENCE (SIZE(1..maxnoofUACPLMNs)) OF UACPLMN-Item
+
+UACPLMN-Item::= SEQUENCE {
+	pLMNIdentity				PLMN-Identity,
+	uACType-List				UACType-List,	iE-Extensions		ProtocolExtensionContainer { { UACPLMN-Item-ExtIEs} } OPTIONAL
+}
+
+UACPLMN-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UACType-List ::= SEQUENCE (SIZE(1..maxnoofUACperPLMN)) OF UACType-Item
+
+UACType-Item::= SEQUENCE {
+	uACReductionIndication 		UACReductionIndication,
+	uACCategoryType				UACCategoryType,
+	iE-Extensions		ProtocolExtensionContainer { { UACType-Item-ExtIEs } } OPTIONAL
+}
+
+UACType-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UACCategoryType ::= CHOICE {
+	uACstandardized				UACAction,
+	uACOperatorDefined			UACOperatorDefined, 
+	choice-extension			ProtocolIE-SingleContainer { { UACCategoryType-ExtIEs } }
+}
+
+UACCategoryType-ExtIEs F1AP-PROTOCOL-IES ::= {
+	...
+}
+
+UACOperatorDefined ::= SEQUENCE {
+	accessCategory					INTEGER (32..63,...),
+	accessIdentity					BIT STRING (SIZE(7)),
+	iE-Extensions		ProtocolExtensionContainer { { UACOperatorDefined-ExtIEs} } OPTIONAL
+}
+
+UACOperatorDefined-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+UACAction ::= ENUMERATED {
+	reject-non-emergency-mo-dt,
+	reject-rrc-cr-signalling,
+	permit-emergency-sessions-and-mobile-terminated-services-only,
+	permit-high-priority-sessions-and-mobile-terminated-services-only,
+	...
+}
+
+UACReductionIndication ::= INTEGER (0..100)
+
 
 UE-associatedLogicalF1-ConnectionItem ::= SEQUENCE {
 	gNB-CU-UE-F1AP-ID		GNB-CU-UE-F1AP-ID	 OPTIONAL,
@@ -829,11 +2038,24 @@ UE-associatedLogicalF1-ConnectionItem ::= SEQUENCE {
 	...
 }
 
+UEAssistanceInformation ::= OCTET STRING
+
 UE-associatedLogicalF1-ConnectionItemExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
 UE-CapabilityRAT-ContainerList::= OCTET STRING
+
+UEContextNotRetrievable ::= ENUMERATED {true, ...}
+
+UEIdentityIndexValue ::= CHOICE {
+	indexLength10			BIT STRING (SIZE (10)),
+	choice-extension		ProtocolIE-SingleContainer { {UEIdentityIndexValueChoice-ExtIEs} }	
+}
+
+UEIdentityIndexValueChoice-ExtIEs F1AP-PROTOCOL-IES ::= {
+	...
+}
 
 ULConfiguration ::= SEQUENCE	{
 	uLUEConfiguration		ULUEConfiguration,
@@ -847,18 +2069,28 @@ ULConfigurationExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 ULUEConfiguration ::= ENUMERATED {no-data, shared, only, ...}
 
 
-ULTunnels-ToBeSetup-List ::= SEQUENCE (SIZE(1..maxnoofULTunnels)) OF ULTunnels-ToBeSetup-Item
+ULUPTNLInformation-ToBeSetup-List ::= SEQUENCE (SIZE(1..maxnoofULUPTNLInformation)) OF ULUPTNLInformation-ToBeSetup-Item
 
-ULTunnels-ToBeSetup-Item ::=SEQUENCE {
-	uL-GTP-Tunnel-EndPoint	GTPTunnelEndpoint, 
-	iE-Extensions	ProtocolExtensionContainer { { ULTunnels-ToBeSetup-ItemExtIEs } }	OPTIONAL,
+ULUPTNLInformation-ToBeSetup-Item ::=SEQUENCE {
+	uLUPTNLInformation		UPTransportLayerInformation, 
+	iE-Extensions	ProtocolExtensionContainer { { ULUPTNLInformation-ToBeSetup-ItemExtIEs } }	OPTIONAL,
 	...
 }
 
-ULTunnels-ToBeSetup-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+ULUPTNLInformation-ToBeSetup-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+UplinkTxDirectCurrentListInformation ::= OCTET STRING
+
+UPTransportLayerInformation		::= CHOICE {
+	gTPTunnel		GTPTunnel,
+	choice-extension			ProtocolIE-SingleContainer { { UPTransportLayerInformation-ExtIEs} }
+}
+
+UPTransportLayerInformation-ExtIEs F1AP-PROTOCOL-IES ::= {
+	...
+}
 -- V
 
 -- W

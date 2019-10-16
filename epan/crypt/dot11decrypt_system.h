@@ -45,7 +45,7 @@
 #define	DOT11DECRYPT_MAC_LEN			   6
 #define	DOT11DECRYPT_RADIOTAP_HEADER_LEN	          24
 
-#define	DOT11DECRYPT_EAPOL_MAX_LEN			1024
+#define	DOT11DECRYPT_EAPOL_MAX_LEN			1024U
 
 #define DOT11DECRYPT_TK_LEN                           16
 
@@ -119,7 +119,8 @@ typedef struct _DOT11DECRYPT_SEC_ASSOCIATION {
 		UCHAR nonce[DOT11DECRYPT_WPA_NONCE_LEN];
 		/* used to derive PTK, ANonce stored, SNonce taken	*/
 		/* the 2nd packet of the 4W handshake			*/
-
+		INT akm;
+		INT cipher;
 		UCHAR ptk[DOT11DECRYPT_WPA_PTK_LEN];		/* session key used in decryption algorithm	*/
 	} wpa;
 
@@ -156,10 +157,8 @@ extern "C" {
  * @param data_off [IN] Payload offset (aka the MAC header length)
  * @param data_len [IN] Total length of the MAC header and the payload
  * @param decrypt_data [OUT] Pointer to a buffer that will contain
- *   decrypted data. If this parameter is set to NULL, decrypted data will
- *   be discarded. Must have room for at least DOT11DECRYPT_MAX_CAPLEN bytes.
- * @param decrypt_len [OUT] Length of decrypted data if decrypt_data
- *   is not NULL.
+ *   decrypted data. Must have room for at least DOT11DECRYPT_MAX_CAPLEN bytes.
+ * @param decrypt_len [OUT] Length of decrypted data.
  * @param key [OUT] Pointer to a preallocated key structure containing
  *   the key used during the decryption process (if done). If this parameter
  *   is set to NULL, the key will be not returned.
@@ -181,7 +180,9 @@ extern "C" {
  * - DOT11DECRYPT_RET_UNSUCCESS: Generic unspecified error (decrypt_data
  *   and decrypt_length will be not modified).
  * - DOT11DECRYPT_RET_SUCCESS_HANDSHAKE: An eapol handshake packet was successfuly parsed
- *   and key information extracted
+ *   and key information extracted. The decrypted eapol keydata is copied to
+ *   decrypt_data with keydata len in decrypt_len. key param will contain ptk
+ *   used to decrypt eapol keydata.
  * - DOT11DECRYPT_RET_NO_VALID_HANDSHAKE: The handshake is invalid or was not used
  *   for some reason. For encrypted packets decryption was still successful.
  * @note

@@ -19,6 +19,7 @@
 #include <epan/prefs.h>
 
 #include "packet-per.h"
+#include "packet-e212.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -42,7 +43,7 @@ static int proto_hnbap = -1;
 
 /* Initialize the subtree pointers */
 static int ett_hnbap = -1;
-
+static int ett_hnbap_imsi = -1;
 #include "packet-hnbap-ett.c"
 
 /* Global variables */
@@ -142,6 +143,7 @@ module_t *hnbap_module;
   /* List of subtrees */
   static gint *ett[] = {
           &ett_hnbap,
+          &ett_hnbap_imsi,
 #include "packet-hnbap-ettarr.c"
   };
 

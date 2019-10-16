@@ -28,7 +28,7 @@ set_source_files_properties(
 )
 
 include_directories(
-	${CMAKE_SOURCE_DIR}/codec
+	${CMAKE_SOURCE_DIR}/codecs
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -39,7 +39,7 @@ register_plugin_files(plugin.c
 
 add_plugin_library(l16mono codecs)
 
-target_link_libraries(l16mono wscodecs)
+target_link_libraries(l16mono wsutil)
 
 install_plugin(l16mono codecs)
 
@@ -55,7 +55,7 @@ CHECKAPI(
 )
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

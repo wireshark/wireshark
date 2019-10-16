@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "response_time_delay_dialog.h"
 
@@ -200,7 +201,7 @@ void ResponseTimeDelayDialog::tapReset(void *rtdd_ptr)
     ResponseTimeDelayDialog *rtd_dlg = static_cast<ResponseTimeDelayDialog *>(rtdd->user_data);
     if (!rtd_dlg) return;
 
-    reset_rtd_table(&rtdd->stat_table, NULL, NULL);
+    reset_rtd_table(&rtdd->stat_table);
     rtd_dlg->statsTreeWidget()->clear();
     rtd_dlg->addRtdTable(&rtdd->stat_table);
 }
@@ -240,7 +241,7 @@ void ResponseTimeDelayDialog::fillTree()
                           tapReset,
                           get_rtd_packet_func(rtd_),
                           tapDraw)) {
-        free_rtd_table(&rtd_data.stat_table, NULL, NULL);
+        free_rtd_table(&rtd_data.stat_table);
         reject(); // XXX Stay open instead?
         return;
     }
@@ -255,7 +256,7 @@ void ResponseTimeDelayDialog::fillTree()
     statsTreeWidget()->setSortingEnabled(true);
 
     removeTapListeners();
-    free_rtd_table(&rtd_data.stat_table, NULL, NULL);
+    free_rtd_table(&rtd_data.stat_table);
 }
 
 QList<QVariant> ResponseTimeDelayDialog::treeItemData(QTreeWidgetItem *ti) const

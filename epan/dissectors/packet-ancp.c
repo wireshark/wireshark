@@ -590,14 +590,14 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
 static void
 ancp_stats_tree_init(stats_tree *st)
 {
-    st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);
+    st_node_packets = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
     st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types,
             st_node_packets);
     st_node_adj_pack_types = stats_tree_create_node(st, st_str_adj_pack_types,
-            st_node_packets, TRUE);
+            st_node_packets, STAT_DT_INT, TRUE);
 }
 
-static int
+static tap_packet_status
 ancp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
                        epan_dissect_t* edt _U_ , const void* p)
 {
@@ -611,7 +611,7 @@ ancp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
         stats_tree_tick_pivot(st, st_node_adj_pack_types,
                 val_to_str(pi->ancp_adjcode, adj_code_names,
                     "Unknown Adjacency packet (%d)"));
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static int
@@ -1066,7 +1066,7 @@ proto_reg_handoff_ancp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

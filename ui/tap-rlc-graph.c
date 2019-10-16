@@ -7,7 +7,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -49,7 +50,7 @@ gboolean compare_rlc_headers(guint16 ueid1, guint16 channelType1, guint16 channe
 
 /* This is the tap function used to identify a list of channels found in the current frame.  It is only used for the single,
    currently selected frame. */
-static gboolean
+static tap_packet_status
 tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
     int       n;
@@ -84,7 +85,7 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
         th->num_hdrs++;
     }
 
-    return FALSE; /* i.e. no immediate redraw requested */
+    return TAP_PACKET_DONT_REDRAW; /* i.e. no immediate redraw requested */
 }
 
 /* Return an array of tap_info structs that were found while dissecting the current frame
@@ -107,20 +108,20 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
         return NULL;
     }
 
-    fdata = cf->current_frame;
-
     /* No real filter yet */
     if (!dfilter_compile("rlc-lte", &sfcode, err_msg)) {
         return NULL;
     }
 
     /* Dissect the data from the current frame. */
-    if (!cf_read_record(cf, fdata)) {
+    if (!cf_read_current_record(cf)) {
         return NULL;  /* error reading the record */
     }
 
+    fdata = cf->current_frame;
+
     /* Set tap listener that will populate th. */
-    error_string = register_tap_listener("rlc-lte", &th, NULL, 0, NULL, tap_lte_rlc_packet, NULL);
+    error_string = register_tap_listener("rlc-lte", &th, NULL, 0, NULL, tap_lte_rlc_packet, NULL, NULL);
     if (error_string){
         fprintf(stderr, "wireshark: Couldn't register rlc_lte_graph tap: %s\n",
                 error_string->str);
@@ -169,7 +170,7 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
 }
 
 /* This is the tapping function to update stats when dissecting the whole packet list */
-static gboolean rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+static tap_packet_status rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     struct rlc_graph *graph  = (struct rlc_graph *)pct;
     const rlc_lte_tap_info *rlchdr = (const rlc_lte_tap_info*)vip;
@@ -223,7 +224,7 @@ static gboolean rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo, epan_d
         graph->last_segment = segment;
     }
 
-    return FALSE; /* i.e. no immediate redraw requested */
+    return TAP_PACKET_DONT_REDRAW; /* i.e. no immediate redraw requested */
 }
 
 /* If don't have a channel, try to get one from current frame, then read all frames looking for data
@@ -260,7 +261,7 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
      */
 
     g->last_segment = NULL;
-    error_string = register_tap_listener("rlc-lte", g, "rlc-lte", 0, NULL, rlc_lte_tap_for_graph_data, NULL);
+    error_string = register_tap_listener("rlc-lte", g, "rlc-lte", 0, NULL, rlc_lte_tap_for_graph_data, NULL, NULL);
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register rlc_graph tap: %s\n",
                 error_string->str);

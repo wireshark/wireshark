@@ -15,6 +15,15 @@
  * - draft-ietf-behave-nat-behavior-discovery-03
  * - draft-ietf-behave-turn-07
  * - draft-ietf-behave-turn-ipv6-03
+ *
+ * XXX - these are now:
+ * - RFC 5389
+ * - RFC 5245
+ * - RFC 5780
+ * - RFC 5766
+ * - RFC 6156
+ *
+ * Update as necessary.
  */
 
 #include "config.h"
@@ -40,6 +49,7 @@ static int hf_turnchannel_len = -1;
 /* Initialize the subtree pointers */
 static gint ett_turnchannel = -1;
 
+static dissector_handle_t turnchannel_tcp_handle;
 static dissector_handle_t turnchannel_udp_handle;
 
 static int
@@ -172,6 +182,7 @@ proto_register_turnchannel(void)
 	proto_turnchannel = proto_register_protocol("TURN Channel",
 	    "TURNCHANNEL", "turnchannel");
 
+	turnchannel_tcp_handle = register_dissector("turnchannel-tcp", dissect_turnchannel_tcp, proto_turnchannel);
 	turnchannel_udp_handle = register_dissector("turnchannel", dissect_turnchannel_message, proto_turnchannel);
 
 /* subdissectors */
@@ -187,13 +198,16 @@ proto_register_turnchannel(void)
 void
 proto_reg_handoff_turnchannel(void)
 {
-	dissector_handle_t turnchannel_tcp_handle;
-
-	turnchannel_tcp_handle = create_dissector_handle(dissect_turnchannel_tcp, proto_turnchannel);
-
 	/* Register for "Decode As" in case STUN negotiation isn't captured */
 	dissector_add_for_decode_as_with_preference("tcp.port", turnchannel_tcp_handle);
 	dissector_add_for_decode_as_with_preference("udp.port", turnchannel_udp_handle);
+
+	/*
+	 * SSL/TLS and DTLS Application-Layer Protocol Negotiation (ALPN)
+	 * protocol ID.
+	 */
+	dissector_add_string("tls.alpn", "stun.turn", turnchannel_tcp_handle);
+	dissector_add_string("dtls.alpn", "stun.turn", turnchannel_udp_handle);
 
 	/* TURN negotiation is handled through STUN2 dissector (packet-stun.c),
 	   so only it should be able to determine if a packet is a TURN packet */
@@ -201,7 +215,7 @@ proto_reg_handoff_turnchannel(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

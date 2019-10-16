@@ -118,7 +118,7 @@ create_tempfile(char **namebuf, const char *pfx, const char *sfx)
   gchar sep[2] = {0, 0};
 
   /* The characters in "delimiters" come from:
-   * http://msdn.microsoft.com/en-us/library/aa365247%28VS.85%29.aspx.
+   * https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions.
    * Add to the list as necessary for other OS's.
    */
   const gchar *delimiters = "<>:\"/\\|?*"
@@ -177,7 +177,7 @@ create_tempfile(char **namebuf, const char *pfx, const char *sfx)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

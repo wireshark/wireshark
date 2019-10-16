@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 /*
  * This TAP enables extraction of most important diameter fields in text format.
@@ -30,6 +31,7 @@
 #include <glib.h>
 
 #include <wsutil/strtoi.h>
+#include <ui/cmdarg_err.h>
 
 #include <epan/packet_info.h>
 #include <epan/tap.h>
@@ -110,10 +112,10 @@ diam_tree_to_csv(proto_node *node, gpointer data)
 	return FALSE;
 }
 
-static int
+static tap_packet_status
 diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pdi)
 {
-	int ret = 0;
+	tap_packet_status ret = TAP_PACKET_DONT_REDRAW;
 	double resp_time = 0.;
 	gboolean is_request = TRUE;
 	guint32 cmd_code = 0;
@@ -138,7 +140,7 @@ diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const
 		ds->frame = pinfo->num;
 		ds->diammsg_toprocess = 0;
 	} else {
-			ds->diammsg_toprocess += 1;
+		ds->diammsg_toprocess += 1;
 	}
 
 	/* Extract data from request/answer pair provided by diameter dissector.*/
@@ -254,12 +256,12 @@ diameteravp_init(const char *opt_arg, void *userdata _U_)
 	g_strfreev(tokens);
 	ds->filter = g_string_free(filter, FALSE);
 
-	error_string = register_tap_listener("diameter", ds, ds->filter, 0, NULL, diameteravp_packet, diameteravp_draw);
+	error_string = register_tap_listener("diameter", ds, ds->filter, 0, NULL, diameteravp_packet, diameteravp_draw, NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(ds);
 
-		fprintf(stderr, "tshark: Couldn't register diam,csv tap: %s\n",
+		cmdarg_err("Couldn't register diam,csv tap: %s",
 				error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -283,7 +285,7 @@ register_tap_listener_diameteravp(void)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

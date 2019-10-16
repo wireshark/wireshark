@@ -2165,7 +2165,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swin_1_universe,tvb,
                            offset, 0, universe | uni_port);
-  PROTO_ITEM_SET_GENERATED(tf);
+  proto_item_set_generated(tf);
   offset += 1;
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_swin_2, tvb,
@@ -2173,7 +2173,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swin_2_universe,tvb,
                            offset, 0, universe | uni_port);
-  PROTO_ITEM_SET_GENERATED(tf);
+  proto_item_set_generated(tf);
   offset += 1;
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_swin_3, tvb,
@@ -2181,7 +2181,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swin_3_universe,tvb,
                            offset, 0, universe | uni_port);
-  PROTO_ITEM_SET_GENERATED(tf);
+  proto_item_set_generated(tf);
   offset += 1;
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_swin_4, tvb,
@@ -2189,7 +2189,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swin_4_universe,tvb,
                            offset, 0, universe | uni_port);
-  PROTO_ITEM_SET_GENERATED(tf);
+  proto_item_set_generated(tf);
   offset += 1;
 
   hi = proto_tree_add_item(si,
@@ -2206,7 +2206,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swout_1_universe,tvb,
                            offset, 0, universe | uni_port);
-  PROTO_ITEM_SET_GENERATED(tf);
+  proto_item_set_generated(tf);
   offset += 1;
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_swout_2, tvb,
@@ -2214,7 +2214,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swout_2_universe,tvb,
                            offset, 0, universe | uni_port);
-  PROTO_ITEM_SET_GENERATED(tf);
+  proto_item_set_generated(tf);
   offset += 1;
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_swout_3, tvb,
@@ -2222,7 +2222,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swout_3_universe,tvb,
                            offset, 0, universe | uni_port);
-  PROTO_ITEM_SET_GENERATED(tf);
+  proto_item_set_generated(tf);
   offset += 1;
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_swout_4, tvb,
@@ -2230,7 +2230,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swout_4_universe,tvb,
                            offset, 0, universe | uni_port);
-  PROTO_ITEM_SET_GENERATED(tf);
+  proto_item_set_generated(tf);
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_swvideo, tvb,
@@ -2679,7 +2679,7 @@ dissect_artnet_tod_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
   universe |= tvb_get_guint8(tvb, offset);
   tf = proto_tree_add_uint(tree,hf_artnet_tod_control_universe,tvb,
                            offset, 0, universe);
-  PROTO_ITEM_SET_GENERATED(tf);
+  proto_item_set_generated(tf);
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_tod_data_uid_total, tvb,
@@ -2733,7 +2733,7 @@ dissect_artnet_tod_control(tvbuff_t *tvb, guint offset, proto_tree *tree)
   universe |= tvb_get_guint8(tvb, offset);
   tf = proto_tree_add_uint(tree,hf_artnet_tod_control_universe,tvb,
                            offset, 0, universe);
-  PROTO_ITEM_SET_GENERATED(tf);
+  proto_item_set_generated(tf);
   offset += 1;
 
   return offset;
@@ -2788,7 +2788,7 @@ dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *
   universe |= tvb_get_guint8(tvb, offset);
   tf = proto_tree_add_uint(tree,hf_artnet_tod_control_universe,tvb,
                            offset, 0, universe);
-  PROTO_ITEM_SET_GENERATED(tf);
+  proto_item_set_generated(tf);
   offset += 1;
 
   /* check for old version that included the 0xCC startcode

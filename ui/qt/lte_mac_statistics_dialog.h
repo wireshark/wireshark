@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __LTE_MAC_STATISTICS_DIALOG_H__
 #define __LTE_MAC_STATISTICS_DIALOG_H__
@@ -51,7 +52,7 @@ private:
 
     // Callbacks for register_tap_listener
     static void tapReset(void *ws_dlg_ptr);
-    static gboolean tapPacket(void *ws_dlg_ptr, struct _packet_info *, struct epan_dissect *, const void *mac_lte_tap_info_ptr);
+    static tap_packet_status tapPacket(void *ws_dlg_ptr, struct _packet_info *, struct epan_dissect *, const void *mac_lte_tap_info_ptr);
     static void tapDraw(void *ws_dlg_ptr);
 
     virtual const QString filterExpression();

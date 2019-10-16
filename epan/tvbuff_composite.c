@@ -51,12 +51,9 @@ composite_free(tvbuff_t *tvb)
 }
 
 static guint
-composite_offset(const tvbuff_t *tvb, const guint counter)
+composite_offset(const tvbuff_t *tvb _U_, const guint counter)
 {
-	const struct tvb_composite *composite_tvb = (const struct tvb_composite *) tvb;
-	const tvbuff_t *member = (const tvbuff_t *)composite_tvb->composite.tvbs->data;
-
-	return tvb_offset_from_real_beginning_counter(member, counter);
+	return counter;
 }
 
 static const guint8*
@@ -259,6 +256,7 @@ tvb_composite_finalize(tvbuff_t *tvb)
 	DISSECTOR_ASSERT(tvb->ops == &tvb_composite_ops);
 	DISSECTOR_ASSERT(tvb->length == 0);
 	DISSECTOR_ASSERT(tvb->reported_length == 0);
+	DISSECTOR_ASSERT(tvb->contained_length == 0);
 
 	composite   = &composite_tvb->composite;
 	num_members = g_slist_length(composite->tvbs);
@@ -278,6 +276,7 @@ tvb_composite_finalize(tvbuff_t *tvb)
 		composite->start_offsets[i] = tvb->length;
 		tvb->length += member_tvb->length;
 		tvb->reported_length += member_tvb->reported_length;
+		tvb->contained_length += member_tvb->contained_length;
 		composite->end_offsets[i] = tvb->length - 1;
 		i++;
 	}
@@ -290,7 +289,7 @@ tvb_composite_finalize(tvbuff_t *tvb)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -57,7 +57,9 @@ static int hf_cms_IssuerAndSerialNumber_PDU = -1;  /* IssuerAndSerialNumber */
 static int hf_cms_MessageDigest_PDU = -1;         /* MessageDigest */
 static int hf_cms_SigningTime_PDU = -1;           /* SigningTime */
 static int hf_cms_Countersignature_PDU = -1;      /* Countersignature */
+static int hf_cms_KeyWrapAlgorithm_PDU = -1;      /* KeyWrapAlgorithm */
 static int hf_cms_RC2WrapParameter_PDU = -1;      /* RC2WrapParameter */
+static int hf_cms_IV_PDU = -1;                    /* IV */
 static int hf_cms_SMIMECapabilities_PDU = -1;     /* SMIMECapabilities */
 static int hf_cms_SMIMEEncryptionKeyPreference_PDU = -1;  /* SMIMEEncryptionKeyPreference */
 static int hf_cms_RC2CBCParameters_PDU = -1;      /* RC2CBCParameters */
@@ -371,7 +373,7 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
 int
 dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 106 "./asn1/cms/cms.cnf"
+#line 131 "./asn1/cms/cms.cnf"
   	const char *name = NULL;
 
 	  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
@@ -391,7 +393,7 @@ dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_cms_T_content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 116 "./asn1/cms/cms.cnf"
+#line 141 "./asn1/cms/cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -409,7 +411,7 @@ static const ber_sequence_t ContentInfo_sequence[] = {
 
 int
 dissect_cms_ContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 97 "./asn1/cms/cms.cnf"
+#line 122 "./asn1/cms/cms.cnf"
   top_tree = tree;
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ContentInfo_sequence, hf_index, ett_cms_ContentInfo);
@@ -468,7 +470,7 @@ dissect_cms_DigestAlgorithmIdentifiers(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 120 "./asn1/cms/cms.cnf"
+#line 145 "./asn1/cms/cms.cnf"
 
   offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &content_tvb);
 
@@ -502,7 +504,7 @@ dissect_cms_EncapsulatedContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 150 "./asn1/cms/cms.cnf"
+#line 175 "./asn1/cms/cms.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
@@ -522,7 +524,7 @@ dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_cms_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 160 "./asn1/cms/cms.cnf"
+#line 185 "./asn1/cms/cms.cnf"
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -602,7 +604,7 @@ dissect_cms_SignatureAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tv
 static int
 dissect_cms_Signature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -701,7 +703,7 @@ dissect_cms_AttributeCertificateInfoV1(gboolean implicit_tag _U_, tvbuff_t *tvb 
 static int
 dissect_cms_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -784,7 +786,7 @@ dissect_cms_T_otherRevInfoFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_cms_T_otherRevInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 144 "./asn1/cms/cms.cnf"
+#line 169 "./asn1/cms/cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -1121,7 +1123,7 @@ dissect_cms_T_keyAttrId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_cms_T_keyAttr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 139 "./asn1/cms/cms.cnf"
+#line 164 "./asn1/cms/cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -1309,7 +1311,7 @@ dissect_cms_T_oriType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_cms_T_oriValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 133 "./asn1/cms/cms.cnf"
+#line 158 "./asn1/cms/cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -1386,14 +1388,14 @@ dissect_cms_ContentEncryptionAlgorithmIdentifier(gboolean implicit_tag _U_, tvbu
 
 static int
 dissect_cms_EncryptedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 210 "./asn1/cms/cms.cnf"
+#line 235 "./asn1/cms/cms.cnf"
 	tvbuff_t *encrypted_tvb;
 	proto_item *item;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &encrypted_tvb);
 
-#line 215 "./asn1/cms/cms.cnf"
+#line 240 "./asn1/cms/cms.cnf"
 
 	item = actx->created_item;
 
@@ -1551,7 +1553,7 @@ dissect_cms_AuthenticatedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 164 "./asn1/cms/cms.cnf"
+#line 189 "./asn1/cms/cms.cnf"
   proto_item *pi;
   int old_offset = offset;
 
@@ -1625,8 +1627,17 @@ dissect_cms_Countersignature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 
 static int
+dissect_cms_KeyWrapAlgorithm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
 dissect_cms_RC2ParameterVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 200 "./asn1/cms/cms.cnf"
+#line 225 "./asn1/cms/cms.cnf"
   guint32 length = 0;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1646,6 +1657,16 @@ dissect_cms_RC2ParameterVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_cms_RC2WrapParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_cms_RC2ParameterVersion(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_cms_IV(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
 
   return offset;
 }
@@ -1694,7 +1715,7 @@ dissect_cms_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_cms_T_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 182 "./asn1/cms/cms.cnf"
+#line 207 "./asn1/cms/cms.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
@@ -1715,7 +1736,7 @@ dissect_cms_T_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_cms_T_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 193 "./asn1/cms/cms.cnf"
+#line 218 "./asn1/cms/cms.cnf"
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -2365,11 +2386,25 @@ static int dissect_Countersignature_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
   offset = dissect_cms_Countersignature(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_Countersignature_PDU);
   return offset;
 }
+static int dissect_KeyWrapAlgorithm_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_KeyWrapAlgorithm(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_KeyWrapAlgorithm_PDU);
+  return offset;
+}
 static int dissect_RC2WrapParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_cms_RC2WrapParameter(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_RC2WrapParameter_PDU);
+  return offset;
+}
+static int dissect_IV_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_IV(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_IV_PDU);
   return offset;
 }
 static int dissect_SMIMECapabilities_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -2545,9 +2580,17 @@ void proto_register_cms(void) {
       { "Countersignature", "cms.Countersignature_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_cms_KeyWrapAlgorithm_PDU,
+      { "KeyWrapAlgorithm", "cms.KeyWrapAlgorithm_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_cms_RC2WrapParameter_PDU,
       { "RC2WrapParameter", "cms.RC2WrapParameter",
         FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_IV_PDU,
+      { "IV", "cms.IV",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_cms_SMIMECapabilities_PDU,
       { "SMIMECapabilities", "cms.SMIMECapabilities",
@@ -3317,9 +3360,25 @@ void proto_reg_handoff_cms(void) {
   register_ber_oid_dissector("1.3.6.1.4.1.311.16.4", dissect_IssuerAndSerialNumber_PDU, proto_cms, "ms-oe-encryption-key-preference");
   register_ber_oid_dissector("1.2.840.113549.1.9.15", dissect_SMIMECapabilities_PDU, proto_cms, "id-smime-capabilities");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.11", dissect_SMIMEEncryptionKeyPreference_PDU, proto_cms, "id-encryption-key-preference");
-  register_ber_oid_dissector("1.2.840.113549.3.2", dissect_RC2CBCParameters_PDU, proto_cms, "id-alg-rc2-cbc");
   register_ber_oid_dissector("1.2.840.113549.3.4", dissect_RC2CBCParameters_PDU, proto_cms, "id-alg-rc4");
-  register_ber_oid_dissector("1.2.840.113549.1.9.16.3.7", dissect_RC2WrapParameter_PDU, proto_cms, "id-alg-cmsrc2-wrap");
+  register_ber_oid_dissector("1.3.133.16.840.63.0.2", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-stdDH-sha1kdf-scheme");
+  register_ber_oid_dissector("1.3.132.1.11.0", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-stdDH-sha224kdf-scheme");
+  register_ber_oid_dissector("1.3.132.1.11.1", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-stdDH-sha256kdf-scheme");
+  register_ber_oid_dissector("1.3.132.1.11.2", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-stdDH-sha384kdf-scheme");
+  register_ber_oid_dissector("1.3.132.1.11.3", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-stdDH-sha512kdf-scheme");
+  register_ber_oid_dissector("1.3.133.16.840.63.0.3", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-cofactorDH-sha1kdf-scheme");
+  register_ber_oid_dissector("1.3.132.1.14.0", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-cofactorDH-sha224kdf-scheme");
+  register_ber_oid_dissector("1.3.132.1.14.1", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-cofactorDH-sha256kdf-scheme");
+  register_ber_oid_dissector("1.3.132.1.14.2", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-cofactorDH-sha384kdf-scheme");
+  register_ber_oid_dissector("1.3.132.1.14.3", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-cofactorDH-sha512kdf-scheme");
+  register_ber_oid_dissector("1.3.133.16.840.63.0.16", dissect_KeyWrapAlgorithm_PDU, proto_cms, "mqvSinglePass-sha1kdf-scheme");
+  register_ber_oid_dissector("1.3.132.1.15.0", dissect_KeyWrapAlgorithm_PDU, proto_cms, "mqvSinglePass-sha224kdf-scheme");
+  register_ber_oid_dissector("1.3.132.1.15.1", dissect_KeyWrapAlgorithm_PDU, proto_cms, "mqvSinglePass-sha256kdf-scheme");
+  register_ber_oid_dissector("1.3.132.1.15.2", dissect_KeyWrapAlgorithm_PDU, proto_cms, "mqvSinglePass-sha384kdf-scheme");
+  register_ber_oid_dissector("1.3.132.1.15.3", dissect_KeyWrapAlgorithm_PDU, proto_cms, "mqvSinglePass-sha512kdf-scheme");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.3.7", dissect_RC2WrapParameter_PDU, proto_cms, "id-alg-CMSRC2-wrap");
+  register_ber_oid_dissector("1.2.840.113549.3.7", dissect_IV_PDU, proto_cms, "des-ede3-cbc");
+  register_ber_oid_dissector("1.2.840.113549.3.2", dissect_RC2CBCParameters_PDU, proto_cms, "rc2-cbc");
   register_ber_oid_dissector("2.16.840.1.113730.3.1.40", dissect_SignedData_PDU, proto_cms, "userSMIMECertificate");
   register_ber_oid_dissector("1.2.840.113549.1.9.9.16.1.16", dissect_FirmwarePkgData_PDU, proto_cms, "id-ct-firmwarePackage");
   register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.35", dissect_FirmwarePackageIdentifier_PDU, proto_cms, "id-aa-firmwarePackageID");
@@ -3339,12 +3398,14 @@ void proto_reg_handoff_cms(void) {
 /*--- End of included file: packet-cms-dis-tab.c ---*/
 #line 141 "./asn1/cms/packet-cms-template.c"
 
+  /* RFC 3370 [CMS-ASN} section 4.3.1 */
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.3.6", dissect_ber_oid_NULL_callback, proto_cms, "id-alg-CMS3DESwrap");
+
   oid_add_from_string("id-data","1.2.840.113549.1.7.1");
-  oid_add_from_string("id-alg-des-ede3-cbc","1.2.840.113549.3.7");
   oid_add_from_string("id-alg-des-cbc","1.3.14.3.2.7");
 
   content_info_handle = create_dissector_handle (dissect_ContentInfo_PDU, proto_cms);
   dissector_add_string("media_type", "application/pkcs7-mime", content_info_handle);
   dissector_add_string("media_type", "application/pkcs7-signature", content_info_handle);
+  dissector_add_string("rfc7468.preeb_label", "CMS", content_info_handle);
 }
-

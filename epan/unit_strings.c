@@ -83,6 +83,8 @@ const unit_name_string units_hz_s = { "Hz/s", NULL };
 const unit_name_string units_kbit = { "kbit", NULL };
 const unit_name_string units_kbps = { "Kbps", NULL };
 const unit_name_string units_kibps = { "KiB/s", NULL };
+const unit_name_string units_pkts = { " pkts", NULL };
+const unit_name_string units_pkts_per_sec = { " pkts/s", NULL };
 const unit_name_string units_km = { "km", NULL };
 const unit_name_string units_kmh = { "km/h", NULL };
 const unit_name_string units_bit_sec = { "bits/s", NULL };
@@ -101,6 +103,8 @@ const unit_name_string units_liter_per_hour = { "L/h", NULL };
 const unit_name_string units_amp = { "A", NULL };
 const unit_name_string units_watthour = { "Wh", NULL };
 const unit_name_string units_watt = { "W", NULL };
+const unit_name_string units_bpm = { " BPM", NULL };
+const unit_name_string units_calorie = { " cal", NULL };
 
 
 /*

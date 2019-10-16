@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <ui/qt/models/related_packet_delegate.h>
 #include "packet_list_record.h"
@@ -72,6 +73,11 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     QColor fg;
     if (cg == QPalette::Normal && !(option_vi.state & QStyle::State_Active))
         cg = QPalette::Inactive;
+#if !defined(Q_OS_WIN)
+    if (option_vi.state & QStyle::State_MouseOver) {
+        fg = QApplication::palette().text().color();
+    } else
+#endif
     if (option_vi.state & QStyle::State_Selected) {
         fg = option_vi.palette.color(cg, QPalette::HighlightedText);
     } else {
@@ -115,7 +121,7 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
             painter->drawPolyline(start_line, 3);
         } else if (fd->num > setup_frame && fd->num < last_frame) {
             painter->save();
-            if (conv_ != record->conversation()) {
+            if (conv_->conv_index != record->conversation()) {
                 QPen other_pen(line_pen);
                 other_pen.setStyle(Qt::DashLine);
                 painter->setPen(other_pen);

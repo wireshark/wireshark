@@ -1471,7 +1471,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 case PRT_ID_ISO_8073:
                     /* ISO 8073 COTP */
-                    if (!pinfo->fd->flags.visited)
+                    if (!pinfo->fd->visited)
                         x25_hash_add_proto_start(vc, pinfo->num, ositp_handle);
                     /* XXX - dissect the rest of the user data as COTP?
                        That needs support for NCM TPDUs, etc. */
@@ -1479,7 +1479,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 case PRT_ID_ISO_8602:
                     /* ISO 8602 CLTP */
-                    if (!pinfo->fd->flags.visited)
+                    if (!pinfo->fd->visited)
                         x25_hash_add_proto_start(vc, pinfo->num, ositp_handle);
                     break;
                 }
@@ -1492,7 +1492,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         proto_tree_add_item( userdata_tree, hf_x263_sec_protocol_id, tvb, localoffset, 1, ENC_BIG_ENDIAN);
                 }
 
-                if (!pinfo->fd->flags.visited) {
+                if (!pinfo->fd->visited) {
                     /*
                      * Is there a dissector handle for this SPI?
                      * If so, assign it to this virtual circuit.
@@ -1931,7 +1931,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Did the user suggest QLLC/SNA? */
     if (payload_is_qllc_sna) {
         /* Yes - dissect it as QLLC/SNA. */
-        if (!pinfo->fd->flags.visited)
+        if (!pinfo->fd->visited)
             x25_hash_add_proto_start(vc, pinfo->num, qllc_handle);
         call_dissector_with_data(qllc_handle, next_tvb, pinfo, tree, &q_bit_set);
         return;
@@ -1944,7 +1944,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       /* First byte contains the length of the remaining buffer */
       if ((tvb_get_guint8(tvb, localoffset+1) & 0x0F) == 0) {
         /* Second byte contains a valid COTP TPDU */
-        if (!pinfo->fd->flags.visited)
+        if (!pinfo->fd->visited)
             x25_hash_add_proto_start(vc, pinfo->num, ositp_handle);
         call_dissector(ositp_handle, next_tvb, pinfo, tree);
         return;
@@ -1957,13 +1957,13 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     case 0x45:
         /* Looks like an IP header */
-        if (!pinfo->fd->flags.visited)
+        if (!pinfo->fd->visited)
             x25_hash_add_proto_start(vc, pinfo->num, ip_handle);
         call_dissector(ip_handle, next_tvb, pinfo, tree);
         return;
 
     case NLPID_ISO8473_CLNP:
-        if (!pinfo->fd->flags.visited)
+        if (!pinfo->fd->visited)
             x25_hash_add_proto_start(vc, pinfo->num, clnp_handle);
         call_dissector(clnp_handle, next_tvb, pinfo, tree);
         return;
@@ -1988,9 +1988,9 @@ static int
 dissect_x25_dir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_x25_common(tvb, pinfo, tree,
-        (pinfo->pseudo_header->x25.flags & FROM_DCE) ? X25_FROM_DCE :
+        (pinfo->pseudo_header->dte_dce.flags & FROM_DCE) ? X25_FROM_DCE :
                                                        X25_FROM_DTE,
-        pinfo->pseudo_header->x25.flags & FROM_DCE);
+        pinfo->pseudo_header->dte_dce.flags & FROM_DCE);
     return tvb_captured_length(tvb);
 }
 
@@ -2351,6 +2351,8 @@ proto_register_x25(void)
 
     /* Preferences */
     x25_module = prefs_register_protocol(proto_x25, NULL);
+    /* For reading older preference files with "x.25." preferences */
+    prefs_register_module_alias("x.25", x25_module);
     prefs_register_obsolete_preference(x25_module, "non_q_bit_is_sna");
     prefs_register_bool_preference(x25_module, "payload_is_qllc_sna",
             "Default to QLLC/SNA",
@@ -2390,7 +2392,7 @@ proto_reg_handoff_x25(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

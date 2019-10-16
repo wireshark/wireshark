@@ -7,7 +7,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -35,7 +36,7 @@ typedef struct _tcp_scan_t {
 } tcp_scan_t;
 
 
-static gboolean
+static tap_packet_status
 tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     tcp_scan_t   *ts = (tcp_scan_t *)pct;
@@ -95,7 +96,7 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
         ts->last = segment;
     }
 
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 /* here we collect all the external data we will ever need */
@@ -138,7 +139,7 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg, gboolean stream_k
     ts.current = &current;
     ts.tg      = tg;
     ts.last    = NULL;
-    error_string = register_tap_listener("tcp", &ts, "tcp", 0, NULL, tapall_tcpip_packet, NULL);
+    error_string = register_tap_listener("tcp", &ts, "tcp", 0, NULL, tapall_tcpip_packet, NULL, NULL);
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
                 error_string->str);
@@ -226,7 +227,7 @@ typedef struct _th_t {
     struct tcpheader *tcphdrs[MAX_SUPPORTED_TCP_HEADERS];
 } th_t;
 
-static gboolean
+static tap_packet_status
 tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
     int       n;
@@ -260,7 +261,7 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
         th->num_hdrs++;
     }
 
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 /* XXX should be enhanced so that if we have multiple TCP layers in the trace
@@ -282,8 +283,6 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
         return NULL;
     }
 
-    fdata = cf->current_frame;
-
     /* no real filter yet */
     if (!dfilter_compile("tcp", &sfcode, &err_msg)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
@@ -292,12 +291,13 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     }
 
     /* dissect the current record */
-    if (!cf_read_record(cf, fdata)) {
+    if (!cf_read_current_record(cf)) {
         return NULL;    /* error reading the record */
     }
 
+    fdata = cf->current_frame;
 
-    error_string = register_tap_listener("tcp", &th, NULL, 0, NULL, tap_tcpip_packet, NULL);
+    error_string = register_tap_listener("tcp", &th, NULL, 0, NULL, tap_tcpip_packet, NULL, NULL);
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
                 error_string->str);

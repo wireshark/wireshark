@@ -1,0 +1,296 @@
+// WSDG Chapter User Interface
+
+[[ChapterUserInterface]]
+
+== User Interface
+
+[[ChUIIntro]]
+
+=== Introduction
+
+Wireshark can be logically separated into the backend (dissecting protocols,
+file loading and saving, capturing, etc.) and the frontend (the user interface).
+
+The following frontends are currently maintained by the Wireshark
+development team:
+
+* Wireshark, Qt based
+
+* TShark, console based
+
+This chapter is focused on the Wireshark frontend, and especially on
+the Qt interface.
+
+[[ChUIQt]]
+
+=== The Qt Application Framework
+
+Qt is a cross-platform application development framework. While we mainly use
+the core (QtCore) and user interface (QtWidgets) modules, it also supports a
+number of other modules for specialized application development, such as
+networking (QtNetwork) and web browsing (QtWebKit).
+
+At the time of this writing (September 2016) most of the main Wireshark
+application has been ported to Qt. The sections below provide an
+overview of the application and tips for Qt development in our
+environment.
+
+==== User Experience Considerations
+
+When creating or modifying Wireshark try to make sure that it will work
+well on Windows, macOS, and Linux. See <<ChUIGUIDocs>> for details.
+Additionally, try to keep the following in mind:
+
+*Workflow*. Excessive navigation and gratuitous dialogs should be
+avoided or reduced. For example, compared to the legacy UI many alert
+dialogs have been replaced with status bar messages. Statistics dialogs
+are displayed immediately instead of requiring that options be
+specified.
+
+*Discoverability and feedback*. Most users don't like to read
+documentation and instead prefer to learn an application as they use it.
+Providing feedback increases your sense of control and awareness, and
+makes the application more enjoyable to use. Most of the Qt dialogs
+provide a “hint” area near the bottom which shows useful information.
+For example, the “Follow Stream” dialog shows the packet corresponding
+to the text under the mouse. The profile management dialog shows a
+clickable path to the current profile. The main welcome screen shows
+live interface traffic. Most dialogs have a context menu that shows
+keyboard shortcuts.
+
+==== Qt Creator
+
+Qt Creator is a full-featured IDE and user interface editor. It makes
+adding new UI features much easier. It doesn't work well on Windows at
+the present time, so it’s recommended that you use it on macOS or Linux.
+
+To edit and build Wireshark using Qt Creator, open the top-level
+_CMakeLists.txt_ within Qt Creator. It should ask you to choose a build
+location. Do so. It should then ask you to run CMake. Fill in any
+desired build arguments (e.g. `-D CMAKE_BUILD_TYPE=Debug` or `-D
+ENABLE_CCACHE=ON`) and click the btn:[Run CMake] button. When that
+completes select menu:Build[Open Build and Run Kit Selector...] and make
+sure _wireshark_ is selected.
+
+Note that Qt Creator uses output created by CMake’s “CodeBlocks”
+generator. If you run CMake outside of Qt Creator you should use the
+“CodeBlocks - Unix Makefiles” generator, otherwise Qt Creator will
+prompt you to re-run CMake.
+
+==== Source Code Overview
+
+Wireshark’s `main` entry point is in _ui/qt/main.cpp_. Command-line arguments
+are processed there and the main application class (`WiresharkApplication`)
+instance is created there along with the main window.
+
+The main window along with the rest of the application resides in _ui/qt_. Due
+to its size the main window code is split into two modules, _main_window.cpp_
+and _main_window_slots.cpp_.
+
+Most of the modules in _ui/qt_ are dialogs. Although we follow Qt naming
+conventions for class names, we follow our own conventions by separating file
+name components with underscores. For example, ColoringRulesDialog is defined in
+_coloring_rules_dialog.cpp_, _coloring_rules_dialog.h_, and
+_coloring_rules_dialog.ui_.
+
+General-purpose dialogs are subclasses of `QDialog`. Dialogs that rely on the
+current capture file can subclass `WiresharkDialog`, which provides methods and
+members that make it easier to access the capture file and to keep the dialog
+open when the capture file closes.
+
+==== Coding Practices and Naming Conventions
+
+===== Names
+
+The code in _ui/qt_ directory uses three APIs: Qt (which uses
+InterCapConvention), GLib (which uses underscore_convention), and the Wireshark
+API (which also uses underscore_convention). As a general rule Wireshark’s Qt
+code uses InterCapConvention for class names, interCapConvention for methods,
+and underscore_convention for variables, with a trailing_underscore_ for member
+variables.
+
+===== Dialogs
+
+Dialogs that work with capture file information shouldn't close just because the
+capture file closes. Subclassing `WiresharkDialog` as described above can make
+it easier to persist across capture files.
+
+When you create a window with a row of standard “OK” and “Close” buttons at
+the bottom using Qt Creator you will end up with a subclass of QDialog. This is
+fine for traditional modal dialogs, but many times the “dialog” needs to behave
+like a QWindow instead.
+
+Modal dialogs should be constructed with `QDialog(parent)`. Modeless dialogs
+(windows) should be constructed with `QDialog(NULL, Qt::Window)`. Other
+combinations (particularly `QDialog(parent, Qt::Window)`) can lead to odd and
+inconsistent behavior. Again, subclassing `WiresharkDialog` will take care of
+this for you.
+
+Most of the dialogs in ui/qt share many similarities, including method names,
+widget names, and behavior. Most dialogs should have the following, although
+it’s not strictly required:
+
+- An `updateWidgets()` method, which enables and disables widgets depending on
+  the current state and constraints of the dialog. For example, the Coloring
+  Rules dialog disables the *Save* button if the user has entered an
+  invalid display filter.
+- A `hintLabel()` widget subclassed from `QLabel` or `ElidedLabel`, placed just
+  above the dialog button box. The hint label provides guidance and feedback to
+  the user.
+- A context menu (`ctx_menu_`) for additional actions not present in the
+  button box.
+- If the dialog box contains a `QTreeWidget` you might want to add your own
+  `QTreeWidgetItem` subclass with the following methods:
+  `drawData()`:: Draws column data with any needed formatting.
+  `colData()`:: Returns the data for each column as a `QVariant`. Used for
+    copying as CSV, YAML, etc.
+  `operator<()`:: Allows sorting columns based on their raw data.
+
+===== Strings
+
+Wireshark’s C code and GLib use UTF-8 encoded character arrays. Qt
+(specifically QString) uses UTF-16. You can convert a `char *` to a
+`QString` using simple assignment. You can convert a `QString` to a
+`const char *` using `qUtf8Printable`.
+
+If you're using GLib string functions or plain old C character array
+idioms in Qt-only code you're probably doing something wrong,
+particularly if you're manually allocating and releasing memory.
+QStrings are generally *much* safer and easier to use. They also make
+translations easier.
+
+If you need to pass strings between Qt and GLib you can use a number
+of convenience routines which are defined in _ui/qt/qt_ui_utils.h_.
+
+If you're calling a function that returns wmem-allocated memory it might make
+more sense to add a wrapper function to _qt_ui_utils_ than to call wmem_free in
+your code.
+
+===== Mixing C and {cpp}
+
+Sometimes we have to call {cpp} functions from one of
+Wireshark’s C callbacks and pass {cpp} objects to or from C. Tap
+listeners are a common example. The {cpp} FAQ
+https://www.parashift.com/c++-faq/mixing-c-and-cpp.html[describes how to do
+this safely].
+
+Tapping usually involves declaring static methods for callbacks, passing `this`
+as the tap data.
+
+===== Internationalization and Translation
+
+Qt provides a convenient method for translating text: `Qobject::tr()`,
+usually available as `tr()`.
+
+However, please avoid using `tr()` for static strings and define them in _*.ui_
+files instead. `tr()` on manually created objects like `QMenu` are not
+automatically retranslated and must instead be manually translated using
+`changeEvent()` and `retranslateUi()`. See _summary_dialog.[ch]_ for an example
+of this.
+
+NOTE: If your object life is short and your components are (re)created
+dynamically then it is ok to use `tr()`.
+
+In most cases you should handle the changeEvent in order to catch
+`QEvent::LanguageChange`.
+
+Qt makes translating the Wireshark UI into different languages easy. To add a new
+translation, do the following:
+
+- Add your translation (_ui/qt/wireshark_XX.ts_) to _ui/qt/CMakeLists.txt_
+- (Recommended) Add a flag image for your language in _images/languages/XX.svg_. Update _image/languages/languages.qrc_ accordingly.
+- Run `lupdate ui/qt -ts ui/qt/wireshark_XX.ts` to generate/update your translation file.
+- Translate with Qt Linguist: `linguist ui/qt/wireshark_XX.ts`.
+- Do a test build and make sure the generated _wireshark_XX.qm_ binary file is included.
+- Push your translation to Gerrit for review. See <<ChSrcContribute>> for details.
+
+Alternatively you can put your QM and flag files in the _languages_
+directory in the Wireshark user configuration directory
+(_$XDG_CONFIG_HOME/wireshark/languages/_ or _$HOME/.wireshark/languages/_ on
+UNIX).
+
+For more information about Qt Linguist see
+https://doc.qt.io/qt-5/qtlinguist-index.html[its manual].
+
+You can also manage translations online with
+https://www.transifex.com/projects/p/wireshark/[Transifex].
+
+Each week translations are automatically synchronized with the source
+code through the following steps:
+
+- pull ts from Transifex
+- lupdate ts file
+- push and commit on Gerrit
+- push ts on Transifex
+
+===== Colors And Themes
+
+Qt provides a number of colors via the https://doc.qt.io/qt-5/qpalette.html[QPalette]
+class. Use this class when you need a standard color provided by the
+underlying operating system.
+
+Wireshark uses an extended version of the
+http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines[Tango Color Palette]
+for many interface elements that require custom colors. This includes the
+I/O graphs, sequence diagrams, and RTP streams. Please use this palette
+(defined in `tango_colors.h` and the *ColorUtils* class) if *QPalette*
+doesn't meet your needs.
+
+Wireshark supports dark themes (aka “dark mode”) on some platforms. We
+leverage Qt's dark theme support when possible, but have implemented our
+own support and workarounds in some cases. You can ensure that your code
+includes proper dark theme support by doing the following:
+
+* You can use a macOS-style template icon by creating a monochrome SVG
+document with “.template” appended to the name, e.g.
+`image/stock_icons/24x24/edit-find.template.svg`.
+* Qt draws unvisited links *Qt::blue* no matter what. You can work
+around this by using `ColorUtils::themeLinkBrush()` and
+`ColorUtils::themeLinkStyle()`.
+* You can catch dark and light mode changes by handling
+`QEvent::ApplicationPaletteChange`.
+
+==== Other Issues and Information
+
+The main window has many QActions which are shared with child widgets. See
+_ui/qt/proto_tree.cpp_ for an example of this.
+
+https://www.kdab.com/development-resources/qt-tools/gammaray/[GammaRay] lets you inspect
+the internals of a running Qt application similar to $$Spy++$$ on Windows.
+
+[[ChUIGUIDocs]]
+
+=== Human Interface Reference Documents
+
+Wireshark runs on a number of platforms, primarily Windows, macOS, and
+Linux. It should conform to the Windows, macOS, GNOME, and KDE human
+interface guidelines as much as possible. Unfortunately, creating a
+feature that works well across these platforms can sometimes be a
+juggling act since the human interface guidelines for each platform
+often contradict one another. If you run into trouble you can ask the
+_wireshark-dev_ mailing list as well as the User Experience Stack
+Exchange listed below.
+
+For further reference, see the following:
+
+* Android Design:
+https://developer.android.com/design/[]. Wireshark doesn't have
+a mobile frontend (not yet, at least) but there is still useful
+information here.
+
+* GNOME Human Interface Guidelines:
+https://developer.gnome.org/hig/stable/[]
+
+* KDE Human Interface Guidelines:
+https://hig.kde.org[]
+
+* macOS Human Interface Guidelines:
+https://developer.apple.com/design/human-interface-guidelines/macos/overview/themes/[]
+
+* Design guidelines for the Windows desktop:
+https://docs.microsoft.com/en-us/windows/desktop/uxguide/guidelines[]
+
+* User Experience Stack Exchange:
+https://ux.stackexchange.com/[]
+
+// End of WSDG Chapter User Interface

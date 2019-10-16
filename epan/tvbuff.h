@@ -79,18 +79,18 @@ typedef struct tvbuff tvbuff_t;
  * @{
  */
 
-/** TVBUFF_REAL_DATA contains a guint8* that points to real data.
+/** A "real" tvbuff contains a guint8* that points to real data.
  * The data is allocated and contiguous.
  *
- * TVBUFF_SUBSET has a backing tvbuff. The TVBUFF_SUBSET is a "window"
- * through which the program sees only a portion of the backing tvbuff.
+ * A "subset" tvbuff has a backing tvbuff. It is a "window" through
+ * which the program sees only a portion of the backing tvbuff.
  *
- * TVBUFF_COMPOSITE combines multiple tvbuffs sequentially to produce
- * a larger byte array.
+ * A "composite" tvbuff combines multiple tvbuffs sequentially to
+ * produce a larger byte array.
  *
  * tvbuff's of any type can be used as the backing-tvbuff of a
- * TVBUFF_SUBSET or as the member of a TVBUFF_COMPOSITE.
- * TVBUFF_COMPOSITEs can have member-tvbuffs of different types.
+ * "subset" tvbuff or as a member of a "composite" tvbuff.
+ * "composite" tvbuffs can have member-tvbuffs of different types.
  *
  * Once a tvbuff is create/initialized/finalized, the tvbuff is read-only.
  * That is, it cannot point to any other data. A new tvbuff must be created if
@@ -133,18 +133,18 @@ WS_DLL_PUBLIC void tvb_free_chain(tvbuff_t *tvb);
 /** Set a callback function to call when a tvbuff is actually freed
  * One argument is passed to that callback --- a void* that points
  * to the real data. Obviously, this only applies to a
- * TVBUFF_REAL_DATA tvbuff. */
+ * "real" tvbuff. */
 WS_DLL_PUBLIC void tvb_set_free_cb(tvbuff_t *tvb, const tvbuff_free_cb_t func);
 
-/** Attach a TVBUFF_REAL_DATA tvbuff to a parent tvbuff. This connection
- * is used during a tvb_free_chain()... the "child" TVBUFF_REAL_DATA acts
- * as if it is part of the chain-of-creation of the parent tvbuff, although it
+/** Attach a "real" tvbuff to a parent tvbuff. This connection is used
+ * during a tvb_free_chain()... the "child" "real" tvbuff acts as if it
+ * is part of the chain-of-creation of the parent tvbuff, although it
  * isn't. This is useful if you need to take the data from some tvbuff,
- * run some operation on it, like decryption or decompression, and make a new
- * tvbuff from it, yet want the new tvbuff to be part of the chain. The reality
- * is that the new tvbuff *is* part of the "chain of creation", but in a way
- * that these tvbuff routines are ignorant of. Use this function to make
- * the tvbuff routines knowledgable of this fact. */
+ * run some operation on it, like decryption or decompression, and make
+ * a new tvbuff from it, yet want the new tvbuff to be part of the chain.
+ * The reality is that the new tvbuff *is* part of the "chain of creation",
+ * but in a way that these tvbuff routines are ignorant of. Use this
+ * function to make the tvbuff routines knowledgable of this fact. */
 WS_DLL_PUBLIC void tvb_set_child_real_data_tvbuff(tvbuff_t *parent,
     tvbuff_t *child);
 
@@ -436,8 +436,8 @@ WS_DLL_PUBLIC guint32 tvb_get_bits(tvbuff_t *tvb, const guint bit_offset,
 /** Returns target for convenience. Does not suffer from possible
  * expense of tvb_get_ptr(), since this routine is smart enough
  * to copy data in chunks if the request range actually exists in
- * different TVBUFF_REAL_DATA tvbuffs. This function assumes that the
- * target memory is already allocated; it does not allocate or free the
+ * different "real" tvbuffs. This function assumes that the target
+ * memory is already allocated; it does not allocate or free the
  * target memory. */
 WS_DLL_PUBLIC void *tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset,
     size_t length);
@@ -480,7 +480,7 @@ WS_DLL_PUBLIC void *tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb,
  * guint8* points to read-only data that the tvbuff manages.
  *
  * Return a pointer into our buffer if the data asked for via 'offset'/'length'
- * is contiguous (which might not be the case for TVBUFF_COMPOSITE). If the
+ * is contiguous (which might not be the case for a "composite" tvbuff). If the
  * data is not contiguous, a tvb_memdup() is called for the entire buffer
  * and the pointer to the newly-contiguous data is returned. This dynamically-
  * allocated memory will be freed when the tvbuff is freed, after the
@@ -732,6 +732,21 @@ WS_DLL_PUBLIC gint tvb_get_nstringz(tvbuff_t *tvb, const gint offset,
 WS_DLL_PUBLIC gint tvb_get_nstringz0(tvbuff_t *tvb, const gint offset,
     const guint bufsize, guint8 *buffer);
 
+/*
+ * Given a tvbuff, an offset into the tvbuff, a buffer, and a buffer size,
+ * extract as many raw bytes from the tvbuff, starting at the offset,
+ * as 1) are available in the tvbuff and 2) will fit in the buffer, leaving
+ * room for a terminating NUL.
+ */
+WS_DLL_PUBLIC gint tvb_get_raw_bytes_as_string(tvbuff_t *tvb, const gint offset, char *buffer, size_t bufsize);
+
+/** Iterates over the provided portion of the tvb checking that each byte
+* is an ascii printable character.
+* Returns TRUE if all bytes are printable, FALSE otherwise
+*/
+WS_DLL_PUBLIC gboolean tvb_ascii_isprint(tvbuff_t *tvb, const gint offset,
+	const gint length);
+
 /**
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset (which may be -1 for "all the way to the end of the
@@ -798,6 +813,26 @@ WS_DLL_PUBLIC gint tvb_skip_wsp(tvbuff_t *tvb, const gint offset,
 WS_DLL_PUBLIC gint tvb_skip_wsp_return(tvbuff_t *tvb, const gint offset);
 
 int tvb_skip_guint8(tvbuff_t *tvb, int offset, const int maxlength, const guint8 ch);
+
+/**
+* Given a tvbuff, an offset into the tvbuff, and a length that starts
+* at that offset (which may be -1 for "all the way to the end of the
+* tvbuff"), find the end of the token that starts at the
+* specified offset in the tvbuff, going no further than the specified
+* length.
+*
+* Return the length of the token, or, if we don't find a terminator:
+*
+*  if "deseg" is true, return -1;
+*
+*  if "deseg" is false, return the amount of data remaining in
+*  the buffer.
+*
+* Set "*next_offset" to the offset of the character past the
+* terminator, or past the end of the buffer if we don't find a line
+* terminator.  (It's not set if we return -1.)
+*/
+WS_DLL_PUBLIC int tvb_get_token_len(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, const gboolean desegment);
 
 /**
  * Call strncmp after checking if enough chars left, returning 0 if
@@ -880,10 +915,94 @@ WS_DLL_PUBLIC tvbuff_t *tvb_uncompress(tvbuff_t *tvb, const int offset,
 WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb,
     const int offset, int comprlen);
 
+/* From tvbuff_brotli.c */
+
+/**
+ * Uncompresses a brotli compressed packet inside a tvbuff at offset with
+ * length comprlen.  Returns an uncompressed tvbuffer if uncompression
+ * succeeded or NULL if uncompression failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_brotli(tvbuff_t *tvb, const int offset,
+    int comprlen);
+
+/**
+ * Uncompresses a brotli compressed packet inside a tvbuff at offset with
+ * length comprlen.  Returns an uncompressed tvbuffer attached to tvb if
+ * uncompression succeeded or NULL if uncompression failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_brotli(tvbuff_t *parent, tvbuff_t *tvb,
+    const int offset, int comprlen);
+
+/* From tvbuff_lz77.c */
+
+/**
+ * Uncompresses a Microsoft Plain LZ77 compressed payload inside a
+ * tvbuff at offset with length comprlen.  Returns an uncompressed
+ * tvbuffer if uncompression succeeded or NULL if uncompression
+ * failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_lz77(tvbuff_t *tvb,
+    const int offset, int comprlen);
+
+/**
+ * Uncompresses a Microsoft Plain LZ77 compressed payload inside a
+ * tvbuff at offset with length comprlen.  Returns an uncompressed
+ * tvbuffer attached to tvb if uncompression succeeded or NULL if
+ * uncompression failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_lz77(tvbuff_t *parent,
+     tvbuff_t *tvb, const int offset, int comprlen);
+
+/* From tvbuff_lz77huff.c */
+
+/**
+ * Uncompresses a Microsoft LZ77+Huffman compressed payload inside a
+ * tvbuff at offset with length comprlen.  Returns an uncompressed
+ * tvbuffer if uncompression succeeded or NULL if uncompression
+ * failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_lz77huff(tvbuff_t *tvb,
+    const int offset, int comprlen);
+
+/**
+ * Uncompresses a Microsoft LZ77+Huffman compressed payload inside a
+ * tvbuff at offset with length comprlen.  Returns an uncompressed
+ * tvbuffer attached to tvb if uncompression succeeded or NULL if
+ * uncompression failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_lz77huff(tvbuff_t *parent,
+    tvbuff_t *tvb, const int offset, int comprlen);
+
+/* From tvbuff_lznt1.c */
+
+/**
+ * Uncompresses a Microsoft LZNT1 compressed payload inside
+ * a tvbuff at offset with length comprlen.  Returns an uncompressed
+ * tvbuffer if uncompression succeeded or NULL if uncompression
+ * failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_lznt1(tvbuff_t *tvb,
+    const int offset, int comprlen);
+
+/**
+ * Uncompresses a Microsoft LZNT1 compressed payload inside
+ * a tvbuff at offset with length comprlen.  Returns an uncompressed
+ * tvbuffer if uncompression succeeded or NULL if uncompression
+ * failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_lznt1(tvbuff_t *parent,
+    tvbuff_t *tvb, const int offset, int comprlen);
+
 /* From tvbuff_base64.c */
 
 /** Return a tvb that contains the binary representation of a base64
- *  string
+ *  string as a child of the indicated tvb.
+ *
+ * @param parent The parent tvbuff.
+ * @param base64 The base64 encoded string which binary representation will be
+ *               returned in the child tvb.
+ *
+ * @return   A tvb with the binary representation of the base64 decoded string.
  */
 extern tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);
 
@@ -897,7 +1016,7 @@ extern tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);
  * @param offset The offset in tvb from which we begin trying to extract integer.
  * @param maxlen The maximum distance from offset that we may try to extract integer
  * @param value  if parsing succeeds, parsed varint will store here.
- * @param encoding The ENC_* that defines the format (e.g., ENC_VARINT_PROTOBUF, ENC_VARINT_QUIC)
+ * @param encoding The ENC_* that defines the format (e.g., ENC_VARINT_PROTOBUF, ENC_VARINT_QUIC, ENC_VARINT_ZIGZAG)
  * @return   the length of this varint in tvb. 0 means parsing failed.
  */
 WS_DLL_PUBLIC guint tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value, const guint encoding);
@@ -913,7 +1032,7 @@ WS_DLL_PUBLIC guint tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, gu
 #endif /* __TVBUFF_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

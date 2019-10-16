@@ -1219,9 +1219,9 @@ static const value_string mcc_mnc_2digits_codes[] = {
     { 25501, "Ukrainian Mobile Communication, UMC / PRIVATE JOINT STOCK COMPANY \"VF UKRAINE\" (PRJSC \"VF UKRAINE\")" },
     { 25502, "Ukranian Radio Systems, URS / PRIVATE JOINT STOCK COMPANY KYIVSTAR (JSC KYIVSTAR)" },
     { 25503, "PRIVATE JOINT STOCK COMPANY KYIVSTAR (JSC KYIVSTAR)" },
-    { 25504, "International Telecommunications Ltd." },
+    { 25504, "LIMITED LIABILITY COMPANY \"INTERNATIONAL TELECOMMUNICATIONS\" (LLC INTERTELECOM)" },
     { 25505, "Golden Telecom" },
-    { 25506, "LIMITED LIABILITY COMPANY \"INTERNATIONAL TELECOMMUNICATIONS\" (LLC INTERTELECOM)" },
+    { 25506, "LIMITED LIABILITY COMPANY \"LIFECELL\" (LLC \"LIFECELL\")" },
     { 25507, "Ukrtelecom / LIMITED LIABILITY COMPANY \"TRYMOB\" (LLC \"TRYMOB\")" },
     { 25521, "PRIVATE JOINT STOCK COMPANY \"TELESYSTEMS OF UKRAINE\" (PJSC \"TELESYSTEMS OF UKRAINE\")" },
     { 25701, "MDC Velcom" },
@@ -2873,6 +2873,7 @@ value_string_ext mcc_mnc_3digits_codes_ext = VALUE_STRING_EXT_INIT(mcc_mnc_3digi
 
 static int proto_e212   = -1;
 static int hf_E212_imsi = -1;
+static int hf_e212_assoc_imsi = -1;
 static int hf_E212_mcc  = -1;
 static int hf_E212_mcc_lai = -1;
 static int hf_E212_mcc_sai = -1;
@@ -2880,6 +2881,7 @@ static int hf_E212_mcc_rai = -1;
 static int hf_E212_mcc_cgi = -1;
 static int hf_E212_mcc_ecgi = -1;
 static int hf_E212_mcc_tai = -1;
+static int hf_E212_mcc_nrcgi = -1;
 static int hf_E212_mnc  = -1;
 static int hf_E212_mnc_lai = -1;
 static int hf_E212_mnc_sai = -1;
@@ -2887,6 +2889,7 @@ static int hf_E212_mnc_rai = -1;
 static int hf_E212_mnc_cgi = -1;
 static int hf_E212_mnc_ecgi = -1;
 static int hf_E212_mnc_tai = -1;
+static int hf_E212_mnc_nrcgi = -1;
 
 static int ett_e212_imsi = -1;
 
@@ -2987,6 +2990,10 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     case E212_TAI:
         hf_E212_mcc_id = hf_E212_mcc_tai;
         hf_E212_mnc_id = hf_E212_mnc_tai;
+        break;
+    case E212_NRCGI:
+        hf_E212_mcc_id = hf_E212_mcc_nrcgi;
+        hf_E212_mnc_id = hf_E212_mnc_nrcgi;
         break;
     default:
         hf_E212_mcc_id = hf_E212_mcc;
@@ -3325,7 +3332,8 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     if (!is_imsi_string_valid(imsi_str)) {
         expert_add_info(pinfo, item, &ei_E212_imsi_malformed);
     }
-
+    item = proto_tree_add_string(tree, hf_e212_assoc_imsi, tvb, offset, length, imsi_str);
+    proto_item_set_generated(item);
     subtree = proto_item_add_subtree(item, ett_e212_imsi);
 
     if(skip_first) {
@@ -3350,6 +3358,8 @@ dissect_e212_utf8_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     if (!is_imsi_string_valid(imsi_str)) {
         expert_add_info(pinfo, item, &ei_E212_imsi_malformed);
     }
+    item = proto_tree_add_string(tree, hf_e212_assoc_imsi, tvb, offset, length, imsi_str);
+    proto_item_set_generated(item);
 
     subtree = proto_item_add_subtree(item, ett_e212_imsi);
 
@@ -3377,6 +3387,12 @@ proto_register_e212(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         "International mobile subscriber identity(IMSI)", HFILL }
     },
+    { &hf_e212_assoc_imsi,
+      { "Association IMSI", "e212.assoc.imsi",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Used to tie MSGs related to the same IMSI", HFILL}
+    },
+
     { &hf_E212_mcc,
         { "Mobile Country Code (MCC)","e212.mcc",
         FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
@@ -3412,6 +3428,11 @@ proto_register_e212(void)
         FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
         "Mobile Country Code MCC", HFILL }
     },
+    { &hf_E212_mcc_nrcgi,
+        { "Mobile Country Code (MCC)","e212.nrcgi.mcc",
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        "Mobile Country Code MCC", HFILL }
+    },
     { &hf_E212_mnc,
         { "Mobile Network Code (MNC)","e212.mnc",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -3444,6 +3465,11 @@ proto_register_e212(void)
     },
     { &hf_E212_mnc_tai,
         { "Mobile Network Code (MNC)","e212.tai.mnc",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Mobile network code", HFILL }
+    },
+    { &hf_E212_mnc_nrcgi,
+        { "Mobile Network Code (MNC)","e212.nrcgi.mnc",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Mobile network code", HFILL }
     },
@@ -3488,7 +3514,7 @@ proto_register_e212(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

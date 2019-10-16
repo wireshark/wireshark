@@ -451,7 +451,7 @@ proto_register_flip(void)
     prefs_register_obsolete_preference(flip_module, "forced_protocol");
     prefs_register_obsolete_preference(flip_module, "forced_decode");
 
-    subdissector_table = register_decode_as_next_proto(proto_flip, "FLIP Payload", "flip.payload", "FLIP payload", flip_prompt);
+    subdissector_table = register_decode_as_next_proto(proto_flip, "flip.payload", "FLIP payload", flip_prompt);
 
 } /* proto_register_flip() */
 
@@ -466,7 +466,7 @@ proto_reg_handoff_flip(void)
 } /* proto_reg_handoff_flip() */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

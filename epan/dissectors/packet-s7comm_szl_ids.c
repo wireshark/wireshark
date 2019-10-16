@@ -241,8 +241,6 @@ static value_string_ext szl_partial_list_names_ext = VALUE_STRING_EXT_INIT(szl_p
 
 static gint hf_s7comm_userdata_szl_index = -1;                  /* SZL index */
 static gint hf_s7comm_userdata_szl_tree = -1;                   /* SZL item tree */
-static gint hf_s7comm_userdata_szl_data = -1;                   /* SZL raw data */
-
 
 /* Index description for SZL Requests */
 static const value_string szl_0111_index_names[] = {
@@ -1745,8 +1743,8 @@ s7comm_szl_0131_0002_register(int proto)
           "Bit 2: Breakpoint", HFILL }},
 
         { &hf_s7comm_szl_0131_0002_funkt_1_3,
-        { "Exit HOLD", "s7comm.szl.0131.0002.funkt_1.oexit_hold", FT_BOOLEAN, 8, NULL, 0x08,
-          "Bit 3: OExit HOLD", HFILL }},
+        { "Exit HOLD", "s7comm.szl.0131.0002.funkt_1.exit_hold", FT_BOOLEAN, 8, NULL, 0x08,
+          "Bit 3: Exit HOLD", HFILL }},
 
         { &hf_s7comm_szl_0131_0002_funkt_1_4,
         { "Memory reset", "s7comm.szl.0131.0002.funkt_1.mem_res", FT_BOOLEAN, 8, NULL, 0x10,
@@ -1782,8 +1780,8 @@ s7comm_szl_0131_0002_register(int proto)
           "Bit 2: Replace job", HFILL }},
 
         { &hf_s7comm_szl_0131_0002_funkt_2_3,
-        { "Reserved", "s7comm.szl.0131.0002.funkt_2.bit3_res", FT_BOOLEAN, 8, NULL, 0x08,
-          "Bit 3: Reserved", HFILL }},
+        { "Block status v2", "s7comm.szl.0131.0002.funkt_2.block_stat_v2", FT_BOOLEAN, 8, NULL, 0x08,
+          "Bit 3: Block status v2", HFILL }},
 
         { &hf_s7comm_szl_0131_0002_funkt_2_4,
         { "Reserved", "s7comm.szl.0131.0002.funkt_2.bit4_res", FT_BOOLEAN, 8, NULL, 0x10,
@@ -1794,8 +1792,8 @@ s7comm_szl_0131_0002_register(int proto)
           "Bit 5: Reserved", HFILL }},
 
         { &hf_s7comm_szl_0131_0002_funkt_2_6,
-        { "Reserved", "s7comm.szl.0131.0002.funkt_2.bit6_res", FT_BOOLEAN, 8, NULL, 0x40,
-          "Bit 6: Reserved", HFILL }},
+        { "Flash LED", "s7comm.szl.0131.0002.funkt_2.flash_led", FT_BOOLEAN, 8, NULL, 0x40,
+          "Bit 6: Flash LED", HFILL }},
 
         { &hf_s7comm_szl_0131_0002_funkt_2_7,
         { "Reserved", "s7comm.szl.0131.0002.funkt_2.bit7_res", FT_BOOLEAN, 8, NULL, 0x80,
@@ -3830,10 +3828,6 @@ s7comm_register_szl_types(int proto)
         { &hf_s7comm_userdata_szl_id_partlist_cnt,
         { "SZL partial list count", "s7comm.data.userdata.szl_id.partlist_cnt", FT_UINT16, BASE_DEC, NULL, 0x0,
           "SZL partial list count: the number of datasets in the results", HFILL }},
-        /* Raw and unknown data */
-        { &hf_s7comm_userdata_szl_data,
-        { "SZL data", "s7comm.param.userdata.szl_data", FT_BYTES, BASE_NONE, NULL, 0x0,
-          NULL, HFILL }},
     };
 
     /* Register Subtrees */
@@ -3915,31 +3909,27 @@ s7comm_register_szl_types(int proto)
  *******************************************************************************************************/
 guint32
 s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
-                                    packet_info *pinfo,
-                                    proto_tree *data_tree,
-                                    guint8 type,                /* Type of data (request/response) */
-                                    guint8 ret_val,             /* Return value in data part */
-                                    guint16 len,                /* length given in data part */
-                                    guint16 dlength,            /* length of data part given in header */
-                                    guint8 data_unit_ref,       /* Data-unit-reference ID from parameter part, used for response fragment detection */
-                                    guint8 last_data_unit,      /* 0 is last, 1 is not last data unit, used for response fragment detection */
-                                    guint32 offset)             /* Offset on data part +4 */
+                                 packet_info *pinfo,
+                                 proto_tree *data_tree,
+                                 guint8 type,                /* Type of data (request/response) */
+                                 guint8 ret_val,             /* Return value in data part */
+                                 guint32 dlength,
+                                 guint32 offset)
 {
     guint16 id;
     guint16 idx;
     guint16 list_len;
     guint16 list_count;
     guint16 i;
-    guint16 tbytes = 0;
+    guint32 start_offset;
     proto_item *szl_item = NULL;
     proto_tree *szl_item_tree = NULL;
     proto_item *szl_item_entry = NULL;
     const gchar* szl_index_description;
-
-    gboolean know_data = FALSE;
     gboolean szl_decoded = FALSE;
 
-    if (type == S7COMM_UD_TYPE_REQ) {                   /*** Request ***/
+    start_offset = offset;
+    if (type == S7COMM_UD_TYPE_REQ) {
         id = tvb_get_ntohs(tvb, offset);
         proto_tree_add_bitmask(data_tree, tvb, offset, hf_s7comm_userdata_szl_id,
             ett_s7comm_userdata_szl_id, s7comm_userdata_szl_id_fields, ENC_BIG_ENDIAN);
@@ -3953,193 +3943,150 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
         }
         proto_item_append_text(data_tree, " (SZL-ID: 0x%04x, Index: 0x%04x)", id, idx);
         col_append_fstr(pinfo->cinfo, COL_INFO, " ID=0x%04x Index=0x%04x" , id, idx);
-        know_data = TRUE;
-    } else if (type == S7COMM_UD_TYPE_RES) {            /*** Response ***/
-        /* When response OK, data follows */
+    } else if (type == S7COMM_UD_TYPE_RES) {
         if (ret_val == S7COMM_ITEM_RETVAL_DATA_OK) {
-            /* A fragmented response has a data-unit-ref <> 0 with Last-data-unit == 1
-             * It's only possible to decode the first response of a fragment, because
-             * only the first PDU contains the ID/Index header. Will result in an display-error when a PDU goes over more than 2 PDUs, but ... eeeek ... no better way to realize this.
-             * last_data_unit == 0 when it's the last unit
-             * last_data_unit == 1 when it's not the last unit
-             */
-            if (data_unit_ref != 0 && last_data_unit == 0) {
-                szl_item = proto_tree_add_item(data_tree, hf_s7comm_userdata_szl_tree, tvb, offset, len, ENC_NA);
-                szl_item_tree = proto_item_add_subtree(szl_item, ett_s7comm_szl);
-                proto_item_append_text(szl_item, " [Fragment, continuation of previous data]");
+            id = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_bitmask(data_tree, tvb, offset, hf_s7comm_userdata_szl_id,
+                ett_s7comm_userdata_szl_id, s7comm_userdata_szl_id_fields, ENC_BIG_ENDIAN);
+            offset += 2;
+            idx = tvb_get_ntohs(tvb, offset);
+            szl_item_entry = proto_tree_add_item(data_tree, hf_s7comm_userdata_szl_index, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            szl_index_description = s7comm_get_szl_id_index_description_text(id, idx);
+            if (szl_index_description != NULL) {
+                proto_item_append_text(szl_item_entry, " [%s]", szl_index_description);
+            }
+            proto_item_append_text(data_tree, " (SZL-ID: 0x%04x, Index: 0x%04x)", id, idx);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " ID=0x%04x Index=0x%04x" , id, idx);
 
-                proto_tree_add_item(szl_item_tree, hf_s7comm_userdata_szl_data, tvb, offset, len, ENC_NA);
-                offset += len;
-                col_append_fstr(pinfo->cinfo, COL_INFO, " SZL data fragment");
-            } else {
-                id = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_bitmask(data_tree, tvb, offset, hf_s7comm_userdata_szl_id,
-                    ett_s7comm_userdata_szl_id, s7comm_userdata_szl_id_fields, ENC_BIG_ENDIAN);
-                offset += 2;
-                idx = tvb_get_ntohs(tvb, offset);
-                szl_item_entry = proto_tree_add_item(data_tree, hf_s7comm_userdata_szl_index, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-                szl_index_description = s7comm_get_szl_id_index_description_text(id, idx);
-                if (szl_index_description != NULL) {
-                    proto_item_append_text(szl_item_entry, " [%s]", szl_index_description);
-                }
-                proto_item_append_text(data_tree, " (SZL-ID: 0x%04x, Index: 0x%04x)", id, idx);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " ID=0x%04x Index=0x%04x" , id, idx);
-
-                /* SZL-Data, 4 Bytes header, 4 bytes id/index = 8 bytes */
-                list_len = tvb_get_ntohs(tvb, offset); /* Length of an list set in bytes */
-                proto_tree_add_uint(data_tree, hf_s7comm_userdata_szl_id_partlist_len, tvb, offset, 2, list_len);
-                offset += 2;
-                list_count = tvb_get_ntohs(tvb, offset); /* count of partlists */
-                proto_tree_add_uint(data_tree, hf_s7comm_userdata_szl_id_partlist_cnt, tvb, offset, 2, list_count);
-                /* Some SZL responses got more lists than fit one PDU (e.g. Diagnosepuffer) and must be read
-                 * out in several telegrams, so we have to check here if the list_count is above limits
-                 * of the length of data part. The remainding bytes will be print as raw bytes, because
-                 * it's not possible to decode this and following telegrams without knowing the previous requests.
-                 */
-                tbytes = 0;
-                if (list_len > 0) {
-                    if ((list_count * list_len) > (len - 8)) {
-                        list_count = (len - 8) / list_len;
-                        /* remind the number of trailing bytes */
-                        if (list_count > 0) {
-                            tbytes = (len - 8) % list_count;
-                        }
+            /* SZL-Data, 4 Bytes header, 4 bytes id/index = 8 bytes */
+            list_len = tvb_get_ntohs(tvb, offset); /* Length of an list set in bytes */
+            proto_tree_add_uint(data_tree, hf_s7comm_userdata_szl_id_partlist_len, tvb, offset, 2, list_len);
+            offset += 2;
+            list_count = tvb_get_ntohs(tvb, offset); /* count of partlists */
+            proto_tree_add_uint(data_tree, hf_s7comm_userdata_szl_id_partlist_cnt, tvb, offset, 2, list_count);
+            offset += 2;
+            /* Check the listcount, as in fragmented packets some CPUs (firmware bug?) send 0xffff as list count */
+            if (((guint32)list_count * (guint32)list_len) > (dlength - (offset - start_offset))) {
+                /* TODO: Make entry in expert field */
+                list_count = (dlength - (offset - start_offset)) / list_len;
+            }
+            /* Add a Data element for each partlist */
+            if (dlength > 8) {      /* minimum length of a correct szl data part is 8 bytes */
+                for (i = 1; i <= list_count && (list_count * list_len != 0); i++) {
+                    /* Add a separate tree for the SZL data */
+                    szl_item = proto_tree_add_item(data_tree, hf_s7comm_userdata_szl_tree, tvb, offset, list_len, ENC_NA);
+                    szl_item_tree = proto_item_add_subtree(szl_item, ett_s7comm_szl);
+                    proto_item_append_text(szl_item, " (list count no. %d)", i);
+                    szl_decoded = FALSE;
+                    /* lets try to decode some known szl-id and indexes */
+                    switch (id) {
+                        case 0x0000:
+                            offset = s7comm_decode_szl_id_xy00(tvb, szl_item_tree, id, idx, offset);
+                            szl_decoded = TRUE;
+                            break;
+                        case 0x0013:
+                            if (idx == 0x0000) {
+                                offset = s7comm_decode_szl_id_0013_idx_0000(tvb, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                            }
+                            break;
+                        case 0x0011:
+                        case 0x0111:
+                            if ((idx == 0x0001) || (idx == 0x0000)) {
+                                offset = s7comm_decode_szl_id_0111_idx_0001(tvb, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                            }
+                            break;
+                        case 0x00a0:
+                        case 0x01a0:
+                        case 0x04a0:
+                        case 0x05a0:
+                        case 0x06a0:
+                        case 0x07a0:
+                        case 0x08a0:
+                        case 0x09a0:
+                        case 0x0aa0:
+                        case 0x0ba0:
+                        case 0x0ca0:
+                        case 0x0da0:
+                        case 0x0ea0:
+                            /* the data structure is the same as used when CPU is sending online such messages */
+                            offset = s7comm_decode_ud_cpu_diagnostic_message(tvb, pinfo, FALSE, szl_item_tree, offset);
+                            szl_decoded = TRUE;
+                            break;
+                        case 0x0131:
+                            if (idx == 0x0001) {
+                                offset = s7comm_decode_szl_id_0131_idx_0001(tvb, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                            } else if (idx == 0x0002) {
+                                offset = s7comm_decode_szl_id_0131_idx_0002(tvb, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                            } else if (idx == 0x0003) {
+                                offset = s7comm_decode_szl_id_0131_idx_0003(tvb, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                            } else if (idx == 0x0004) {
+                                offset = s7comm_decode_szl_id_0131_idx_0004(tvb, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                            } else if (idx == 0x0006) {
+                                offset = s7comm_decode_szl_id_0131_idx_0006(tvb, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                            } else if (idx == 0x0010) {
+                                offset = s7comm_decode_szl_id_0131_idx_0010(tvb, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                            }
+                            break;
+                        case 0x0132:
+                            if (idx == 0x0001) {
+                                offset = s7comm_decode_szl_id_0132_idx_0001(tvb, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                            } else if (idx == 0x0002) {
+                                offset = s7comm_decode_szl_id_0132_idx_0002(tvb, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                            } else if (idx == 0x0004) {
+                                offset = s7comm_decode_szl_id_0132_idx_0004(tvb, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                            } else if (idx == 0x0005) {
+                                offset = s7comm_decode_szl_id_0132_idx_0005(tvb, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                            } else if (idx == 0x0006) {
+                                offset = s7comm_decode_szl_id_0132_idx_0006(tvb, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                            }
+                            break;
+                        case 0x0019:
+                        case 0x0119:
+                        case 0x0074:
+                        case 0x0174:
+                                offset = s7comm_decode_szl_id_xy74_idx_0000(tvb, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                            break;
+                        case 0x0124:
+                        case 0x0424:
+                            if (idx == 0x0000) {
+                                offset = s7comm_decode_szl_id_0424_idx_0000(tvb, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                            }
+                            break;
+                        default:
+                            szl_decoded = FALSE;
+                            break;
                     }
-                }
-                offset += 2;
-                /* Add a Data element for each partlist */
-                if (len > 8) {      /* minimum length of a correct szl data part is 8 bytes */
-                    for (i = 1; i <= list_count; i++) {
-                        /* Add a separate tree for the SZL data */
-                        szl_item = proto_tree_add_item(data_tree, hf_s7comm_userdata_szl_tree, tvb, offset, list_len, ENC_NA);
-                        szl_item_tree = proto_item_add_subtree(szl_item, ett_s7comm_szl);
-                        proto_item_append_text(szl_item, " (list count no. %d)", i);
-
-                        szl_decoded = FALSE;
-                        /* lets try to decode some known szl-id and indexes */
-                        switch (id) {
-                            case 0x0000:
-                                offset = s7comm_decode_szl_id_xy00(tvb, szl_item_tree, id, idx, offset);
-                                szl_decoded = TRUE;
-                                break;
-                            case 0x0013:
-                                if (idx == 0x0000) {
-                                    offset = s7comm_decode_szl_id_0013_idx_0000(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
-                                }
-                                break;
-                            case 0x0011:
-                            case 0x0111:
-                                if ((idx == 0x0001) || (idx == 0x0000)) {
-                                    offset = s7comm_decode_szl_id_0111_idx_0001(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
-                                }
-                                break;
-                            case 0x00a0:
-                            case 0x01a0:
-                            case 0x04a0:
-                            case 0x05a0:
-                            case 0x06a0:
-                            case 0x07a0:
-                            case 0x08a0:
-                            case 0x09a0:
-                            case 0x0aa0:
-                            case 0x0ba0:
-                            case 0x0ca0:
-                            case 0x0da0:
-                            case 0x0ea0:
-                                /* the data structure is the same as used when CPU is sending online such messages */
-                                offset = s7comm_decode_ud_cpu_diagnostic_message(tvb, pinfo, FALSE, szl_item_tree, offset);
-                                szl_decoded = TRUE;
-                                break;
-                            case 0x0131:
-                                if (idx == 0x0001) {
-                                    offset = s7comm_decode_szl_id_0131_idx_0001(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
-                                } else if (idx == 0x0002) {
-                                    offset = s7comm_decode_szl_id_0131_idx_0002(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
-                                } else if (idx == 0x0003) {
-                                    offset = s7comm_decode_szl_id_0131_idx_0003(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
-                                } else if (idx == 0x0004) {
-                                    offset = s7comm_decode_szl_id_0131_idx_0004(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
-                                } else if (idx == 0x0006) {
-                                    offset = s7comm_decode_szl_id_0131_idx_0006(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
-                                } else if (idx == 0x0010) {
-                                    offset = s7comm_decode_szl_id_0131_idx_0010(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
-                                }
-                                break;
-                            case 0x0132:
-                                if (idx == 0x0001) {
-                                    offset = s7comm_decode_szl_id_0132_idx_0001(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
-                                } else if (idx == 0x0002) {
-                                    offset = s7comm_decode_szl_id_0132_idx_0002(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
-                                } else if (idx == 0x0004) {
-                                    offset = s7comm_decode_szl_id_0132_idx_0004(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
-                                } else if (idx == 0x0005) {
-                                    offset = s7comm_decode_szl_id_0132_idx_0005(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
-                                } else if (idx == 0x0006) {
-                                    offset = s7comm_decode_szl_id_0132_idx_0006(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
-                                }
-                                break;
-                            case 0x0019:
-                            case 0x0119:
-                            case 0x0074:
-                            case 0x0174:
-                                    offset = s7comm_decode_szl_id_xy74_idx_0000(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
-                                break;
-                            case 0x0124:
-                            case 0x0424:
-                                if (idx == 0x0000) {
-                                    offset = s7comm_decode_szl_id_0424_idx_0000(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
-                                }
-                                break;
-                            default:
-                                szl_decoded = FALSE;
-                                break;
-                        }
-                        if (szl_decoded == FALSE) {
-                            proto_tree_add_item(szl_item_tree, hf_s7comm_userdata_szl_partial_list, tvb, offset, list_len, ENC_NA);
-                            offset += list_len;
-                        }
-                    } /* ...for */
-                }
+                    if (szl_decoded == FALSE) {
+                        proto_tree_add_item(szl_item_tree, hf_s7comm_userdata_szl_partial_list, tvb, offset, list_len, ENC_NA);
+                        offset += list_len;
+                    }
+                } /* ...for */
             }
         } else {
             col_append_fstr(pinfo->cinfo, COL_INFO, " Return value:[%s]", val_to_str(ret_val, s7comm_item_return_valuenames, "Unknown return value:0x%02x"));
         }
-        know_data = TRUE;
-    }
-    /* add raw bytes of data part when SZL response doesn't fit one PDU */
-    if (know_data == TRUE && tbytes > 0) {
-        /* Add a separate tree for the SZL data fragment */
-        szl_item = proto_tree_add_item(data_tree, hf_s7comm_userdata_szl_tree, tvb, offset, tbytes, ENC_NA);
-        szl_item_tree = proto_item_add_subtree(szl_item, ett_s7comm_szl);
-        proto_item_append_text(szl_item, " [Fragment, complete response doesn't fit one PDU]");
-        proto_tree_add_item(szl_item_tree, hf_s7comm_userdata_szl_data, tvb, offset, tbytes, ENC_NA);
-        offset += tbytes;
-    }
-    if (know_data == FALSE && dlength > 4) {
-        proto_tree_add_item(data_tree, hf_s7comm_userdata_szl_data, tvb, offset, dlength - 4, ENC_NA);
-        offset += dlength;
     }
     return offset;
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

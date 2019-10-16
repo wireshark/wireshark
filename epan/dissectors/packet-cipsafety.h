@@ -33,6 +33,8 @@
 #define SC_SSUPER_RESET_PASSWORD          0x55
 #define SC_SSUPER_PROPOSE_TUNID           0x56
 #define SC_SSUPER_APPLY_TUNID             0x57
+#define SC_SSUPER_PROPOSE_TUNID_LIST      0x58
+#define SC_SSUPER_APPLY_TUNID_LIST        0x59
 
 typedef struct cip_safety_info {
    enum enip_connid_type conn_type;
@@ -44,14 +46,14 @@ typedef struct cip_safety_info {
 /*
 ** Exported functions
 */
-extern void dissect_unid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *pi, const char* ssn_name, int hf_ssn_timestamp,
-             int hf_ssn_date, int hf_ssn_time, int hf_macid, gint ett, gint ett_ssn);
-extern void dissect_cipsafety_ssn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int hf_real_datetime, int hf_date, int hf_time);
+extern void dissect_unid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *pi, const char* snn_name, int hf_snn_timestamp,
+             int hf_snn_date, int hf_snn_time, int hf_macid, gint ett, gint ett_snn);
+extern void dissect_cipsafety_snn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int hf_real_datetime, int hf_date, int hf_time);
 
 /*
 ** Exported variables
 */
-extern const value_string cipsafety_ssn_date_vals[8];
+extern const value_string cipsafety_snn_date_vals[8];
 extern attribute_info_t cip_safety_attribute_vals[51];
 
 #endif /* PACKET_CIPSAFETY_H */

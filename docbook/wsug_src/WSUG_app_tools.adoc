@@ -1,0 +1,300 @@
+// WSUG Appendix Tools
+
+[[AppTools]]
+
+[appendix]
+== Related command line tools
+
+[[AppToolsIntroduction]]
+
+=== Introduction
+
+Wireshark comes with an array of
+command line tools which can be helpful for packet analysis. Some of
+these tools are described in this chapter. You can find more
+information about all of Wireshark’s command line tools on
+link:{wireshark-man-page-url}[the web site].
+
+[[AppToolstshark]]
+
+=== __tshark__: Terminal-based Wireshark
+
+TShark is a terminal oriented version of Wireshark designed for capturing and
+displaying packets when an interactive user interface isn’t necessary or
+available. It supports the same options as `wireshark`. For more information on
+`tshark` consult your local manual page (`man tshark`) or
+link:{wireshark-man-page-url}tshark.html[the online version].
+
+[[AppToolstsharkEx]]
+.Help information available from `tshark`
+----
+include::tshark-h.txt[]
+----
+
+[[AppToolstcpdump]]
+
+=== __tcpdump__: Capturing with “tcpdump” for viewing with Wireshark
+
+It’s often more useful to capture packets using `tcpdump` rather than
+`wireshark`. For example, you might want to do a remote capture and either don’t
+have GUI access or don’t have Wireshark installed on the remote machine.
+
+Older versions of `tcpdump` truncate packets to 68 or 96 bytes. If this is the case,
+use `-s` to capture full-sized packets:
+
+----
+$ tcpdump -i <interface> -s 65535 -w <file>
+----
+
+You will have to specify the correct _interface_ and the name of a _file_ to
+save into. In addition, you will have to terminate the capture with ^C when you
+believe you have captured enough packets.
+
+`tcpdump` is not part of the Wireshark distribution. You can get it from
+{tcpdump-main-url} or as a standard package in most Linux distributions.
+For more information on `tcpdump` consult your local manual page (`man
+tcpdump`) or link:{tcpdump-man-page-url}[the online version].
+
+[[AppToolsdumpcap]]
+
+=== __dumpcap__: Capturing with “dumpcap” for viewing with Wireshark
+
+Dumpcap is a network traffic dump tool. It captures packet data from a live
+network and writes the packets to a file. Dumpcap’s native capture file format
+is pcapng, which is also the format used by Wireshark.
+
+By default, Dumpcap uses the pcap library to capture traffic
+from the first available network interface and writes the received raw
+packet data, along with the packets’ time stamps into a pcapng file. The
+capture filter syntax follows the rules of the pcap library. For more
+information on `dumpcap` consult your local manual page (`man dumpcap`)
+or link:{wireshark-man-page-url}dumpcap.html[the online version].
+
+[[AppToolsdumpcapEx]]
+.Help information available from `dumpcap`
+----
+include::dumpcap-h.txt[]
+----
+
+[[AppToolscapinfos]]
+
+=== __capinfos__: Print information about capture files
+
+`capinfos` can print information about capture files including the file
+type, number of packets, date and time information, and file hashes.
+Information can be printed in human and machine readable formats. For
+more information on `capinfos` consult your local manual page (`man
+capinfos`) or link:{wireshark-man-page-url}capinfos.html[the online
+version].
+
+[[AppToolscapinfosEx]]
+.Help information available from `capinfos`
+----
+include::capinfos-h.txt[]
+----
+
+[[AppToolsrawshark]]
+
+=== __rawshark__: Dump and analyze network traffic.
+
+Rawshark reads a stream of packets from a file or pipe, and prints a
+line describing its output, followed by a set of matching fields for
+each packet on stdout. For more information on `rawshark` consult your
+local manual page (`man rawshark`) or
+link:{wireshark-man-page-url}rawshark.html[the online version].
+
+[[AppToolsrawsharkEx]]
+.Help information available from `rawshark`
+----
+include::rawshark-h.txt[]
+----
+
+[[AppToolseditcap]]
+
+=== __editcap__: Edit capture files
+
+`editcap` is a general-purpose utility for modifying capture files. Its
+main function is to remove packets from capture files, but it can also
+be used to convert capture files from one format to another, as well as
+to print information about capture files. For more information on
+`editcap` consult your local manual page (`man editcap`) or
+link:{wireshark-man-page-url}editcap.html[the online version].
+
+[[AppToolseditcapEx]]
+.Help information available from editcap
+----
+include::editcap-h.txt[]
+----
+
+[[AppToolseditcapEx1]]
+.Capture file types available from `editcap -F`
+----
+include::editcap-F.txt[]
+----
+
+[[AppToolseditcapEx2]]
+.Encapsulation types available from `editcap -T`
+
+----
+include::editcap-T.txt[]
+----
+
+[[AppToolsmergecap]]
+
+=== __mergecap__: Merging multiple capture files into one
+
+Mergecap is a program that combines multiple saved capture files into a single
+output file specified by the `-w` argument. Mergecap can read libpcap
+capture files, including those of tcpdump. In addition, Mergecap can read
+capture files from snoop (including Shomiti) and atmsnoop, LanAlyzer, Sniffer
+(compressed or uncompressed), Microsoft Network Monitor, AIX’s iptrace, NetXray,
+Sniffer Pro, RADCOM’s WAN/LAN analyzer, Lucent/Ascend router debug output,
+HP-UX’s nettl, and the dump output from Toshiba’s ISDN routers. There is no need
+to tell Mergecap what type of file you are reading; it will determine the file
+type by itself. Mergecap is also capable of reading any of these file formats if
+they are compressed using `gzip`. Mergecap recognizes this directly from the
+file; the “.gz” extension is not required for this purpose.
+
+By default, Mergecap writes all of the packets in the input capture files to a
+pcapng file. The `-F` flag can be used
+to specify the capture file's output format ; it can write the file
+in libpcap format (standard libpcap format, a modified format used by some
+patched versions of libpcap, the format used by Red Hat Linux 6.1, or the format
+used by SuSE Linux 6.3), snoop format, uncompressed Sniffer format, Microsoft
+Network Monitor 1.x format, and the format used by Windows-based versions of the
+Sniffer software.
+
+Packets from the input files are merged in chronological order based on each
+frame’s timestamp, unless the `-a` flag is specified. Mergecap assumes that
+frames within a single capture file are already stored in chronological order.
+When the `-a` flag is specified, packets are copied directly from each input
+file to the output file, independent of each frame’s timestamp.
+
+If the `-s` flag is used to specify a snapshot length, frames in the input file
+with more captured data than the specified snapshot length will have only the
+amount of data specified by the snapshot length written to the output file. This
+may be useful if the program that is to read the output file cannot handle
+packets larger than a certain size (for example, the versions of snoop in
+Solaris 2.5.1 and Solaris 2.6 appear to reject Ethernet frames larger than the
+standard Ethernet MTU, making them incapable of handling gigabit Ethernet
+captures if jumbo frames were used).
+
+If the `-T` flag is used to specify an encapsulation type, the encapsulation
+type of the output capture file will be forced to the specified type, rather
+than being the type appropriate to the encapsulation type of the input capture
+file. Note that this merely forces the encapsulation type of the output file to
+be the specified type; the packet headers of the packets will not be translated
+from the encapsulation type of the input capture file to the specified
+encapsulation type (for example, it will not translate an Ethernet capture to an
+FDDI capture if an Ethernet capture is read and `-T fddi` is specified).
+
+For more information on `mergecap` consult your local manual page (`man
+mergecap`) or link:{wireshark-man-page-url}mergecap.html[the online
+version].
+
+[[AppToolsmergecapEx]]
+.Help information available from `mergecap`
+----
+include::mergecap-h.txt[]
+----
+
+A simple example merging `dhcp-capture.pcapng` and `imap-1.pcapng` into
+`outfile.pcapng` is shown below.
+
+[[AppToolsmergecapExSimple]]
+.Simple example of using mergecap
+----
+$ mergecap -w outfile.pcapng dhcp-capture.pcapng imap-1.pcapng
+----
+
+[[AppToolstext2pcap]]
+
+=== __text2pcap__: Converting ASCII hexdumps to network captures
+
+There may be some occasions when you wish to convert a hex dump of some network
+traffic into a libpcap file.
+
+`text2pcap` is a program that reads in an ASCII hex dump and writes the data
+described into a pcap or pcapng capture file. `text2pcap` can read hexdumps with
+multiple packets in them, and build a capture file of multiple packets.
+`text2pcap` is also capable of generating dummy Ethernet, IP, UDP, TCP or SCTP
+headers, in order to build fully processable packet dumps from hexdumps of
+application-level data only.
+
+`text2pcap` understands a hexdump of the form generated by `od -A x -t x1`. In
+other words, each byte is individually displayed and surrounded with a space.
+Each line begins with an offset describing the position in the packet, each new
+packet starts with an offset of 0 and there is a space separating the offset
+from the following bytes. The offset
+is a hex number (can also be octal - see `-o`), of more than two hex digits. Here
+is a sample dump that `text2pcap` can recognize:
+
+----
+000000 00 e0 1e a7 05 6f 00 10 ........
+000008 5a a0 b9 12 08 00 46 00 ........
+000010 03 68 00 00 00 00 0a 2e ........
+000018 ee 33 0f 19 08 7f 0f 19 ........
+000020 03 80 94 04 00 00 10 01 ........
+000028 16 a2 0a 00 03 50 00 0c ........
+000030 01 01 0f 19 03 80 11 01 ........
+----
+
+There is no limit on the width or number of bytes per line. Also the text dump
+at the end of the line is ignored. Bytes/hex numbers can be uppercase or
+lowercase. Any text before the offset is ignored, including email forwarding
+characters “>”. Any lines of text between the bytestring lines is ignored.
+The offsets are used to track the bytes, so offsets must be correct. Any line
+which has only bytes without a leading offset is ignored. An offset is
+recognized as being a hex number longer than two characters. Any text after the
+bytes is ignored (e.g. the character dump). Any hex numbers in this text are
+also ignored. An offset of zero is indicative of starting a new packet, so a
+single text file with a series of hexdumps can be converted into a packet
+capture with multiple packets. Packets may be preceded by a timestamp. These
+are interpreted according to the format given on the command line. If not, the
+first packet is timestamped with the current time the conversion takes place.
+Multiple packets are written with timestamps differing by one microsecond each.
+In general, short of these restrictions, `text2pcap`
+is pretty liberal about reading in hexdumps and has been tested with a variety
+of mangled outputs (including being forwarded through email multiple times, with
+limited line wrap etc.)
+
+There are a couple of other special features to note. Any line where the first
+non-whitespace character is “#” will be ignored as a comment. Any line beginning
+with #TEXT2PCAP is a directive and options can be inserted after this command to
+be processed by `text2pcap`. Currently there are no directives implemented; in the
+future, these may be used to give more fine grained control on the dump and the
+way it should be processed e.g. timestamps, encapsulation type etc.
+
+`text2pcap` also allows the user to read in dumps of application-level data, by
+inserting dummy L2, L3 and L4 headers before each packet. Possibilities include
+inserting headers such as Ethernet, Ethernet + IP, Ethernet + IP + UDP, or TCP,
+or SCTP before each packet. This allows Wireshark or any other full-packet
+decoder to handle these dumps.
+
+For more information on `text2pcap` consult your local manual page (`man
+text2pcap`) or link:{wireshark-man-page-url}text2pcap.html[the online
+version].
+
+[[AppToolstext2pcapEx]]
+.Help information available from text2pcap
+
+----
+include::text2pcap-h.txt[]
+----
+
+[[AppToolsreordercap]]
+
+=== __reordercap__: Reorder a capture file
+
+`reordercap` lets you reorder a capture file according to the packets
+timestamp. For more information on `reordercap` consult your local
+manual page (`man reordercap`) or
+link:{wireshark-man-page-url}reordercap.html[the online version].
+
+[[AppToolsreordercapEx]]
+.Help information available from reordercap
+----
+include::reordercap-h.txt[]
+----
+
+// End of WSUG Appendix Tools

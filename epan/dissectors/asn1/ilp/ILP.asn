@@ -1,11 +1,10 @@
 -- ILP.asn
 --
 -- Taken from OMA Internal Location Protocol
--- http://member.openmobilealliance.org/ftp/Public_documents/LOC/Permanent_documents/OMA-TS-ILP-V2_0_1-20121205-A.zip
+-- http://member.openmobilealliance.org/ftp/Public_documents/LOC/Permanent_documents/OMA-TS-ILP-V2_0_4-20181213-A.zip
 --
--- 13.1	Common Part
+-- 13.1 Common Part
 --
-
 ILP DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
@@ -69,13 +68,13 @@ IMPORTS LocationId, Position, QoP, SPCSETKey, SPCTID, SPCSETKeylifetime, Multipl
 
 PREQ ::= SEQUENCE {
   sLPMode       SLPMode,
-  approvedPosMethods     	PosTechnology OPTIONAL,  
+  approvedPosMethods     	PosTechnology OPTIONAL,
   locationId    	LocationId OPTIONAL,
   multipleLocationIds	MultipleLocationIds OPTIONAL,
   position      	Position OPTIONAL,
   triggerParams 	TriggerParams OPTIONAL,
   sPCSETKey     	SPCSETKey OPTIONAL,
-  sPCTID        	SPCTID OPTIONAL,
+  spctid        	SPCTID OPTIONAL,
   sPCSETKeylifetime 	SPCSETKeylifetime OPTIONAL,
   qoP           	QoP OPTIONAL,
   sETCapabilities      	SETCapabilities OPTIONAL,
@@ -99,16 +98,15 @@ PeriodicTriggerParams ::= SEQUENCE{
    startTime		INTEGER(0..2678400) OPTIONAL,
 ...}
 -- intervalBetweenFixes and startTime are in seconds.
--- numberOfFixes  * intervalBetweenFixes shall not exceed 8639999 
+-- numberOfFixes  * intervalBetweenFixes shall not exceed 8639999
 -- (100 days in seconds) for compatibility with OMA MLP and RLP
--- startTime is in relative time in units of seconds measured from ¡°now¡±
--- a value of 0 signifies ¡°now¡±, a value of ¡°startTime¡± signifies startTime
--- seconds from ¡°now¡±
+-- startTime is in relative time in units of seconds measured from "now"
+-- a value of 0 signifies "now", a value of "startTime" signifies startTime
+-- seconds from "now"
 
 NotificationMode ::= ENUMERATED {normal(0), basedOnLocation(1), ...}
 
 END
-
 
 --
 -- 13.2.2 PRES
@@ -131,7 +129,6 @@ PRES ::= SEQUENCE {
 
 END
 
-
 --
 -- 13.2.3 PRPT
 --
@@ -151,7 +148,6 @@ PRPT ::= SEQUENCE {
 
 END
 
-
 --
 -- 13.2.4 PLREQ
 --
@@ -169,7 +165,6 @@ PLREQ ::= SEQUENCE {
 ...}
 
 END
-
 
 --
 -- 13.2.5 PLRES
@@ -195,7 +190,6 @@ PositionResult ::= CHOICE {
 
 END
 
-
 --
 -- 13.2.6 PINIT
 --
@@ -210,9 +204,9 @@ IMPORTS
 
 PINIT ::= SEQUENCE {
   sETCapabilities      		SETCapabilities,
-  locationId           		LocationId,  
-  posMethod	       		PosMethod OPTIONAL,  
-  requestedAssistData  		RequestedAssistData OPTIONAL, 
+  locationId           		LocationId,
+  posMethod	       		PosMethod OPTIONAL,
+  requestedAssistData  		RequestedAssistData OPTIONAL,
   position             		Position OPTIONAL,
   posPayLoad           		PosPayLoad OPTIONAL,
   multipleLocationIds	 	MultipleLocationIds OPTIONAL,
@@ -231,11 +225,11 @@ RequestedAssistData ::= SEQUENCE {
   acquisitionAssistanceRequested  	BOOLEAN,
   realTimeIntegrityRequested      	BOOLEAN,
   navigationModelRequested        	BOOLEAN,
-  navigationModelData             	NavigationModel OPTIONAL, 
+  navigationModelData             	NavigationModel OPTIONAL,
   ganssRequestedCommonAssistanceDataList	GanssRequestedCommonAssistanceDataList OPTIONAL,
   ganssRequestedGenericAssistanceDataList	GanssRequestedGenericAssistanceDataList OPTIONAL,
   extendedEphemeris	 	ExtendedEphemeris OPTIONAL,
-  extendedEphemerisCheck		ExtendedEphCheck OPTIONAL, 
+  extendedEphemerisCheck		ExtendedEphCheck OPTIONAL,
 ...}
 
 ExtendedEphemeris ::= SEQUENCE {
@@ -254,11 +248,12 @@ GPSTime ::= SEQUENCE {
 
 GanssRequestedCommonAssistanceDataList ::= SEQUENCE {
   ganssReferenceTime	BOOLEAN,
-  ganssIonosphericModel	BOOLEAN, 
+  ganssIonosphericModel	BOOLEAN,
   ganssAdditionalIonosphericModelForDataID00	BOOLEAN,
   ganssAdditionalIonosphericModelForDataID11	BOOLEAN,
   ganssEarthOrientationParameters		BOOLEAN,
-...}
+...,
+  ganssAdditionalIonosphericModelForDataID01	BOOLEAN OPTIONAL}
 
 GanssRequestedGenericAssistanceDataList ::= SEQUENCE(SIZE(1..maxGANSS)) OF GanssReqGenericData
 
@@ -272,15 +267,18 @@ GanssReqGenericData ::= SEQUENCE {
   ganssTimeModels	BIT STRING(SIZE(16)) OPTIONAL,
   ganssReferenceMeasurementInfo	BOOLEAN,
   ganssDataBits		GanssDataBits	 OPTIONAL,
-  ganssUTCModel		BOOLEAN, 
+  ganssUTCModel		BOOLEAN,
   ganssAdditionalDataChoices 	GanssAdditionalDataChoices OPTIONAL,
   ganssAuxiliaryInformation	BOOLEAN,
   ganssExtendedEphemeris        	ExtendedEphemeris OPTIONAL,
-  ganssExtendedEphemerisCheck	GanssExtendedEphCheck OPTIONAL,	
-...}
+  ganssExtendedEphemerisCheck	GanssExtendedEphCheck OPTIONAL,
+...,
+  bds-DifferentialCorrection 	BDS-Sig-Id-Req 	OPTIONAL,
+  bds-GridModelReq		BOOLEAN 	OPTIONAL}
 
-DGANSS-Sig-Id-Req ::= BIT STRING (SIZE(8)) --- coding according to parameter definition in Section 12.15
+DGANSS-Sig-Id-Req ::= BIT STRING (SIZE(8)) -- coding according to parameter definition in Section 12.15
 
+BDS-Sig-Id-Req ::= BIT STRING (SIZE(8)) -- coding according to parameter definition in section 12.15
 
 GanssNavigationModelData ::= SEQUENCE {
   ganssWeek	INTEGER(0..4095),
@@ -330,7 +328,7 @@ GANSSextEphTime ::= SEQUENCE {
 NavigationModel ::= SEQUENCE {
   gpsWeek   INTEGER(0..1023),
   gpsToe    INTEGER(0..167),
-  nSAT      INTEGER(0..31),
+  nsat      INTEGER(0..31),
   toeLimit  INTEGER(0..10),
   satInfo   SatelliteInfo OPTIONAL,
 ...}
@@ -339,11 +337,10 @@ SatelliteInfo ::= SEQUENCE (SIZE (1..31)) OF SatelliteInfoElement
 
 SatelliteInfoElement ::= SEQUENCE {
   satId  INTEGER(0..63),
-  iODE   INTEGER(0..255),
+  iode   INTEGER(0..255),
 ...}
 
 END
-
 
 --
 -- 13.2.7 PAUTH
@@ -358,12 +355,11 @@ IMPORTS SPCSETKey, SPCTID, SPCSETKeylifetime
 
 PAUTH ::= SEQUENCE {
   sPCSETKey	 SPCSETKey,
-  sPCTID	 SPCTID,
+  spctid	 SPCTID,
   sPCSETKeylifetime SPCSETKeylifetime OPTIONAL,
 ...}
 
 END
-
 
 --
 -- 13.2.8 PALIVE
@@ -382,7 +378,6 @@ PALIVE ::= SEQUENCE {
 
 END
 
-
 --
 -- 13.2.9 PEND
 --
@@ -400,7 +395,6 @@ PEND ::= SEQUENCE {
 ...}
 
 END
-
 
 --
 -- 13.2.10 PMESS

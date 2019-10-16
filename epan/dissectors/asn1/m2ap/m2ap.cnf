@@ -219,6 +219,8 @@ id-SC-PTM-Information                                    ProtocolIE-ID
 id-Modification-PeriodExtended                           ProtocolIE-ID
 id-Repetition-PeriodExtended                             ProtocolIE-ID
 id-MCH-Scheduling-PeriodExtended2                        ProtocolIE-ID
+id-Subcarrier-SpacingMBMS                                ProtocolIE-ID
+id-SubframeAllocationExtended                            ProtocolIE-ID
 
 #.REGISTER
 
@@ -271,6 +273,8 @@ MCH-Scheduling-PeriodExtended                         N m2ap.extension id-MCH-Sc
 Repetition-PeriodExtended                             N m2ap.extension id-Repetition-PeriodExtended
 Modification-PeriodExtended                           N m2ap.extension id-Modification-PeriodExtended
 MCH-Scheduling-PeriodExtended2                        N m2ap.extension id-MCH-Scheduling-PeriodExtended2
+SubframeAllocationExtended                            N m2ap.extension id-SubframeAllocationExtended
+Subcarrier-SpacingMBMS                                N m2ap.extension id-Subcarrier-SpacingMBMS
 
 #M2AP-ELEMENTARY-PROCEDURE
 SessionStartRequest               N m2ap.proc.imsg id-sessionStart

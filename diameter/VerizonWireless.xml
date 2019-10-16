@@ -2,6 +2,13 @@
 
 <vendor vendor-id="VerizonWireless" code="12951" name="Verizon Wireless">
 
+  <avp name="Idle-To-Connected-Transition-Count" code="5001" vendor-id="VerizonWireless" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+    <type type-name="Integer32"/>
+  </avp>
+
+  <avp name="Connected-Duration" code="5002" vendor-id="VerizonWireless" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must" >
+    <type type-name="Unsigned32"/>
+  </avp>
 
   <avp name="Charging-Gateway-Function-Host" vendor-id="VerizonWireless" code="6068" >
     <type type-name="OctetString"/>

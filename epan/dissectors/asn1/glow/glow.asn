@@ -1,0 +1,621 @@
+--
+-- GlowDtd.asn1
+-- Lawo GmbH
+--
+-- This file defines the Glow DTD used with the Ember+ protocol.
+--
+-- Change Log:
+--
+-- 2.50:
+--   - Added nullable parameter values.
+-- 2.40:
+--   - NOTE: This version describes the data schema of Ember+ 1.4.
+--   - Added Template Extensions
+-- 2.30:
+--   - NOTE: This version describes the data schema of Ember+ 1.3.
+--   - Added Schema Extensions
+-- 2.20:
+--   - NOTE: This version describes the data schema of Ember+ 1.2.
+--   - Added Function Extensions (see type Function)
+-- 2.10:
+--   - NOTE: This version describes the data schema of Ember+ 1.1.
+--   - Added Matrix Extensions (see type Matrix)
+--   - Added "isOnline" field to NodeContents
+-- 2.5:
+--   - NOTE: This version describes the data schema of Ember+ 1.0.
+--   - NOTE: This version introduces breaking changes!
+--   - Changed Parameter.isCommand (BOOLEAN) to an enumeration named "type".
+--     To determine the effective type of a parameter, follow this rule:
+--     - If the parameter has the "type" field that equals "trigger", its 
+--       type is "trigger".
+--     - If the parameter has either the "enumeration" or the "enumMap" field,
+--       its type is "enum".
+--     - If the parameter has the "value" field, its type corresponds to the
+--       BER type of the value.
+--     - If the parameter has the "type" field, its type is the value of this
+--       field.
+--     This is useful for parameters that do not specify a current value -
+--     e.g. "trigger" parameters or parameters that have write-only access.
+--   - Changed Parameter.isWriteable (BOOLEAN) to an enumeration named
+--     "access".
+--   - More options for Value - now also supports OCTET STRING and BOOLEAN
+--   - Introduces QualifiedParameter and QualifiedNode types
+--   - Introduces RootElement and RootElementCollection types:
+--     At the root level, a different set of supported types is available.
+--   - StreamCollection can also be used as root container.
+--   - Introduces the StreamDescription type and the field "streamDescriptor"
+--     in type ParameterContents.
+-- 2.4:
+--   - NOTE: This version introduces breaking changes!
+--   - moved "children" in Parameter and Node out of
+--     "contents" SET.
+-- 2.3:
+--   - Added size constraints for INTEGER values.
+--   - Renamed EnumEntry to StringIntegerPair
+--   - Renamed EnumCollection to StringIntegerCollection
+-- 2.2:
+--   - Added new field "enumMap" to Parameter and types to describe
+--     enum entries: EnumEntry and EnumCollection
+-- 2.1:
+--   - NOTE: This version introduces breaking changes!
+--   - Replaced all APPLICATION tags for fields with CONTEXT-SPECIFIC tags
+--     APPLICATION tags are only used for custom types now.
+-- 2.0:
+--   Initial Release
+--
+
+
+EmberPlus-Glow DEFINITIONS EXPLICIT TAGS ::= BEGIN
+
+
+-- ======================================================
+--
+-- Primitive Types
+--
+-- ======================================================
+
+EmberString ::= UTF8String
+Integer32 ::= INTEGER (-2147483648 .. 2147483647)
+Integer64 ::= INTEGER (-9223372036854775808 .. 9223372036854775807)
+
+
+-- this is the base oid for all RELATIVE-OID values defined in this document.
+-- when using the RELATIVE-OID type, defining a base oid is required by ASN.1.
+-- does not have any impact upon the DTD.
+baseOid OBJECT IDENTIFIER ::= { iso(1) org(3) dod(6) internet(1) private(4) enterprises(1) lsb(37411) lsb-mgmt(2) emberPlus(1) glow(1) glowVolatile(100) }
+
+-- ======================================================
+--
+-- Template
+--
+-- ======================================================
+
+Template ::=
+	[APPLICATION 24] IMPLICIT SET {
+			number		[0]	Integer32,
+			element	 	[1]	TemplateElement     OPTIONAL,
+			description	[2]	EmberString         OPTIONAL
+	}
+
+QualifiedTemplate ::=
+	[APPLICATION 25] IMPLICIT SET {
+		path  		[0] RELATIVE-OID,
+		element 	[1] TemplateElement               OPTIONAL,
+		description	[2] EmberString                   OPTIONAL
+	}
+
+TemplateElement ::=
+	CHOICE {
+		parameter		Parameter,
+		node			Node,
+		matrix			Matrix,
+		function		Function
+	}
+
+-- ======================================================
+--
+-- Parameter
+--
+-- ======================================================
+
+Parameter ::=
+    [APPLICATION 1] IMPLICIT
+        SEQUENCE {
+            number   [0] Integer32,
+            contents [1] ParameterContents OPTIONAL,
+            children [2] ElementCollection OPTIONAL
+        }
+
+
+QualifiedParameter ::=
+    [APPLICATION 9] IMPLICIT
+        SEQUENCE {
+            path     [0] RELATIVE-OID,
+            contents [1] ParameterContents OPTIONAL,
+            children [2] ElementCollection OPTIONAL
+        }
+
+
+ParameterContents ::=
+    SET {
+        identifier       [ 0] EmberString             OPTIONAL,
+        description      [ 1] EmberString             OPTIONAL,
+        value            [ 2] Value                   OPTIONAL,
+        minimum          [ 3] MinMax                  OPTIONAL,
+        maximum          [ 4] MinMax                  OPTIONAL,
+        access           [ 5] ParameterAccess         OPTIONAL,
+        format           [ 6] EmberString             OPTIONAL,
+        enumeration      [ 7] EmberString             OPTIONAL,
+        factor           [ 8] Integer32               OPTIONAL,
+        isOnline         [ 9] BOOLEAN                 OPTIONAL,
+        formula          [10] EmberString             OPTIONAL,
+        step             [11] Integer32               OPTIONAL,
+        default          [12] Value                   OPTIONAL,
+        type             [13] ParameterType           OPTIONAL,
+        streamIdentifier [14] Integer32               OPTIONAL,
+        enumMap          [15] StringIntegerCollection OPTIONAL,
+        streamDescriptor [16] StreamDescription       OPTIONAL,
+        schemaIdentifiers[17] EmberString             OPTIONAL,
+        templateReference[18] RELATIVE-OID            OPTIONAL
+    }
+
+
+Value ::=
+    CHOICE {
+        integer Integer64,
+        real    REAL,
+        string  EmberString,
+        boolean BOOLEAN,
+        octets  OCTET STRING,
+        null    NULL
+    }
+
+
+MinMax ::=
+    CHOICE {
+        integer Integer64,
+        real    REAL,
+        null    NULL
+    }
+
+
+ParameterType ::=
+    INTEGER {
+        null    (0),
+        integer (1),
+        real    (2),
+        string  (3),
+        boolean (4),
+        trigger (5),
+        enum    (6),
+        octets  (7)
+    }
+
+
+ParameterAccess ::=
+    INTEGER {
+        none      (0),
+        read      (1), -- default
+        write     (2),
+        readWrite (3)
+    }
+
+
+StringIntegerPair ::=
+    [APPLICATION 7] IMPLICIT
+        SEQUENCE {
+            entryString  [0] EmberString,
+            entryInteger [1] Integer32
+        }
+
+
+StringIntegerCollection ::=
+    [APPLICATION 8] IMPLICIT
+        SEQUENCE OF [0] StringIntegerPair
+
+
+StreamDescription ::=
+    [APPLICATION 12] IMPLICIT
+        SEQUENCE {
+            streamFormat [0] StreamFormat,
+            offset [1] Integer32  -- byte offset of the value in the streamed blob.
+        }
+
+
+-- type:       0=uint,  1=int,   2=float
+-- size:       0=1byte, 1=2byte, 2=4byte, 3=8byte
+-- endianness: 0=big,   1=little
+StreamFormat ::=
+    INTEGER {
+        unsignedInt8                  ( 0), -- 00000 00 0
+        unsignedInt16BigEndian        ( 2), -- 00000 01 0
+        unsignedInt16LittleEndian     ( 3), -- 00000 01 1
+        unsignedInt32BigEndian        ( 4), -- 00000 10 0
+        unsignedInt32LittleEndian     ( 5), -- 00000 10 1
+        unsignedInt64BigEndian        ( 6), -- 00000 11 0
+        unsignedInt64LittleEndian     ( 7), -- 00000 11 1
+        signedInt8                    ( 8), -- 00001 00 0
+        signedInt16BigEndian          (10), -- 00001 01 0
+        signedInt16LittleEndian       (11), -- 00001 01 1
+        signedInt32BigEndian          (12), -- 00001 10 0
+        signedInt32LittleEndian       (13), -- 00001 10 1
+        signedInt64BigEndian          (14), -- 00001 11 0
+        signedInt64LittleEndian       (15), -- 00001 11 1
+        ieeeFloat32BigEndian          (20), -- 00010 10 0
+        ieeeFloat32LittleEndian       (21), -- 00010 10 1
+        ieeeFloat64BigEndian          (22), -- 00010 11 0
+        ieeeFloat64LittleEndian       (23)  -- 00010 11 1
+    }
+
+
+-- ======================================================
+--
+-- Command
+--
+-- ======================================================
+
+Command ::=
+    [APPLICATION 2] IMPLICIT
+        SEQUENCE {
+            number    [0] CommandType,
+            options       CHOICE {
+                dirFieldMask [1] FieldFlags, -- only valid if number is getDirectory(32)
+                invocation   [2] Invocation -- only valid if number is invoke(33)
+            } OPTIONAL
+        }
+
+
+CommandType ::=
+    INTEGER {
+        subscribe    (30),
+        unsubscribe  (31),
+        getDirectory (32),
+        invoke       (33)
+    }
+
+
+FieldFlags ::=
+    INTEGER {
+        sparse            (-2),
+        all               (-1),
+        default           ( 0), -- same as "all"
+        identifier        ( 1),
+        description       ( 2),
+        tree              ( 3),
+        value             ( 4),
+        connections       ( 5)
+    }
+
+
+-- ======================================================
+--
+-- Node
+--
+-- ======================================================
+
+Node ::=
+    [APPLICATION 3] IMPLICIT
+        SEQUENCE {
+            number   [0] Integer32,
+            contents [1] NodeContents      OPTIONAL,
+            children [2] ElementCollection OPTIONAL
+        }
+
+
+QualifiedNode ::=
+    [APPLICATION 10] IMPLICIT
+        SEQUENCE {
+            path     [0] RELATIVE-OID,
+            contents [1] NodeContents      OPTIONAL,
+            children [2] ElementCollection OPTIONAL
+        }
+
+
+NodeContents ::=
+    SET {
+        identifier       [0] EmberString  OPTIONAL,
+        description      [1] EmberString  OPTIONAL,
+        isRoot           [2] BOOLEAN      OPTIONAL,
+        isOnline         [3] BOOLEAN      OPTIONAL,   -- default is true
+        schemaIdentifiers[4] EmberString  OPTIONAL,
+        templateReference[5] RELATIVE-OID OPTIONAL
+    }
+
+
+-- ======================================================
+--
+-- Matrix
+--
+-- ======================================================
+
+Matrix ::=
+    [APPLICATION 13] IMPLICIT
+        SEQUENCE {
+            number         [0] Integer32,
+            contents       [1] MatrixContents       OPTIONAL,
+            children       [2] ElementCollection    OPTIONAL,
+            targetList     [3] TargetCollection     OPTIONAL,
+            sourceList     [4] SourceCollection     OPTIONAL,
+            connections    [5] ConnectionCollection OPTIONAL
+        }
+
+
+MatrixContents ::=
+    SET {
+        identifier               [ 0] EmberString,
+        description              [ 1] EmberString          OPTIONAL,
+        type                     [ 2] MatrixType           OPTIONAL,
+        addressingMode           [ 3] MatrixAddressingMode OPTIONAL,
+        targetCount              [ 4] Integer32,                     -- linear: matrix X size; nonLinear: number of targets
+        sourceCount              [ 5] Integer32,                     -- linear: matrix Y size; nonLinear: number of sources
+        maximumTotalConnects     [ 6] Integer32            OPTIONAL, -- nToN: max number of set connections
+        maximumConnectsPerTarget [ 7] Integer32            OPTIONAL, -- nToN: max number of sources connected to one target
+        parametersLocation       [ 8] ParametersLocation   OPTIONAL,
+        gainParameterNumber      [ 9] Integer32            OPTIONAL, -- nToN: number of connection gain parameter
+        labels                   [10] LabelCollection      OPTIONAL,
+        schemaIdentifiers        [11] EmberString          OPTIONAL,
+        templateReference        [12] RELATIVE-OID OPTIONAL
+    }
+
+-- Addressing scheme for node at MatrixContents.parametersLocation:
+-- N 0001 targets.<targetNumber>: subtree containing parameters attached to target with <targetNumber>
+-- N 0002 sources.<sourceNumber>: subtree containing parameters attached to source with <targetNumber>
+-- N 0003 connections.<targetNumber>.<sourceNumber>: : subtree containing parameters attached to connection <targetNumber>/<sourceNumber>
+
+
+MatrixType ::=
+    INTEGER {
+        oneToN   (0),  -- default
+        oneToOne (1),
+        nToN     (2)
+    }
+
+
+MatrixAddressingMode ::=
+    INTEGER {
+        linear    (0),  -- default
+        nonLinear (1)
+    }
+
+
+ParametersLocation ::=
+    CHOICE {
+        basePath RELATIVE-OID, -- absolute path to node containing parameters for targets, sources and connections
+        inline   Integer32     -- subidentifier to node containing parameters for targets, sources and connections
+    }
+
+
+LabelCollection ::=
+    SEQUENCE OF [0] Label
+
+
+Label ::=
+    [APPLICATION 18] IMPLICIT
+        SEQUENCE {
+            basePath    [0] RELATIVE-OID,
+            description [1] EmberString
+        }
+
+
+TargetCollection ::=
+    SEQUENCE OF [0] Target
+
+
+Target ::=
+    [APPLICATION 14] IMPLICIT
+        Signal
+
+
+Signal ::=
+    SEQUENCE {
+        number  [0] Integer32
+    }
+
+
+SourceCollection ::=
+    SEQUENCE OF [0] Source
+
+
+Source ::=
+    [APPLICATION 15] IMPLICIT
+        Signal
+
+
+ConnectionCollection ::=
+    SEQUENCE OF [0] Connection
+
+
+Connection ::=
+    [APPLICATION 16] IMPLICIT
+        SEQUENCE {
+            target         [0] Integer32,
+            sources        [1] PackedNumbers         OPTIONAL, -- not present or empty array means "none"
+            operation      [2] ConnectionOperation   OPTIONAL,
+            disposition    [3] ConnectionDisposition OPTIONAL
+        }
+
+-- Use case 1: Tally (Provider to consumer)
+-- Connection: { target:1, sources:[5,2], operation:absolute, disposition:tally }
+
+-- Use case 2: Take (Consumer to provider)
+-- Connection: { target:1, sources:[4], operation:absolute|connect|disconnect }
+
+-- Use case 3: TakeResponse (Provider to consumer)
+-- Connection: { target:1, sources:[4], operation:absolute, disposition:modified|pending|locked|... }
+
+
+PackedNumbers ::=
+    RELATIVE-OID
+
+
+ConnectionOperation ::=
+    INTEGER {
+        absolute   (0),  -- default. sources contains absolute information
+        connect    (1),  -- nToN only. sources contains sources to add to connection
+        disconnect (2)   -- nToN only. sources contains sources to remove from connection
+    }
+
+
+ConnectionDisposition ::=
+    INTEGER {
+        tally    (0),  -- default
+        modified (1),  -- sources contains new current state
+        pending  (2),  -- sources contains future state
+        locked   (3)   -- error: target locked. sources contains current state
+        -- more tbd.
+    }
+
+
+QualifiedMatrix ::=
+    [APPLICATION 17] IMPLICIT
+        SEQUENCE {
+            path           [0] RELATIVE-OID,
+            contents       [1] MatrixContents       OPTIONAL,
+            children       [2] ElementCollection    OPTIONAL,
+            targetList     [3] TargetCollection     OPTIONAL,
+            sourceList     [4] SourceCollection     OPTIONAL,
+            connections    [5] ConnectionCollection OPTIONAL
+        }
+
+
+-- ======================================================
+--
+-- Function
+--
+-- ======================================================
+
+Function ::=
+    [APPLICATION 19] IMPLICIT
+        SEQUENCE {
+            number      [0] Integer32,
+            contents    [1] FunctionContents    OPTIONAL,
+            children    [2] ElementCollection   OPTIONAL
+        }
+
+
+QualifiedFunction ::=
+    [APPLICATION 20] IMPLICIT
+        SEQUENCE {
+            path        [0] RELATIVE-OID,
+            contents    [1] FunctionContents    OPTIONAL,
+            children    [2] ElementCollection   OPTIONAL
+        }
+
+
+FunctionContents ::=
+    SET {
+        identifier       [0] EmberString         OPTIONAL,
+        description      [1] EmberString         OPTIONAL,
+        arguments        [2] TupleDescription    OPTIONAL,
+        result           [3] TupleDescription    OPTIONAL,
+        templateReference[4] RELATIVE-OID        OPTIONAL
+    }
+
+
+TupleDescription ::=
+    SEQUENCE OF [0] TupleItemDescription
+
+
+TupleItemDescription ::=
+    [APPLICATION 21] IMPLICIT
+        SEQUENCE {
+            type     [0] ParameterType,
+            name     [1] EmberString            OPTIONAL
+        }
+
+
+Invocation ::=
+    [APPLICATION 22] IMPLICIT
+        SEQUENCE {
+            invocationId    [0] Integer32       OPTIONAL,
+            arguments       [1] Tuple           OPTIONAL
+        }
+
+
+Tuple ::=
+    SEQUENCE OF [0] Value
+
+
+InvocationResult ::=
+    [APPLICATION 23] IMPLICIT
+        SEQUENCE {
+            invocationId    [0] Integer32,
+            success         [1] BOOLEAN         OPTIONAL,           
+            result          [2] Tuple           OPTIONAL
+        }
+
+
+-- ======================================================
+--
+-- ElementCollection
+--
+-- ======================================================
+
+ElementCollection ::=
+    [APPLICATION 4] IMPLICIT
+        SEQUENCE OF [0] Element
+
+
+Element ::=
+    CHOICE {
+        parameter          Parameter,
+        node               Node,
+        command            Command,
+        matrix             Matrix,
+        function           Function,
+        template           Template
+    }
+
+
+-- ======================================================
+--
+-- Streams
+--
+-- ======================================================
+
+StreamEntry ::=
+    [APPLICATION 5] IMPLICIT
+        SEQUENCE {
+            streamIdentifier [0] Integer32,
+            streamValue      [1] Value
+        }
+
+
+StreamCollection ::=
+    [APPLICATION 6] IMPLICIT
+        SEQUENCE OF [0] StreamEntry
+
+
+-- ======================================================
+--
+-- Root
+--
+-- ======================================================
+
+Root ::=
+   [APPLICATION 0]
+       CHOICE {
+           elements         RootElementCollection,
+           streams          StreamCollection,
+           invocationResult InvocationResult
+       }
+
+
+RootElementCollection ::=
+    [APPLICATION 11] IMPLICIT
+        SEQUENCE OF [0] RootElement
+
+
+RootElement ::=
+    CHOICE {
+        element            Element,
+        qualifiedParameter QualifiedParameter,
+        qualifiedNode      QualifiedNode,
+        qualifiedMatrix    QualifiedMatrix,
+        qualifiedFunction  QualifiedFunction,
+        qualifiedTemplate  QualifiedTemplate
+    }
+
+
+END
+

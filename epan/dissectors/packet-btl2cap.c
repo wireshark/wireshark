@@ -161,12 +161,15 @@ static expert_field ei_btl2cap_unknown_command_code = EI_INIT;
 static dissector_table_t l2cap_psm_dissector_table;
 static dissector_table_t l2cap_cid_dissector_table;
 
+/* This table maps command identity values to psm values. */
+static wmem_tree_t *cmd_ident_to_psm_table;
+
 /* This table maps cid values to psm values.
  * The same table is used both for SCID and DCID.
  * For Remote CIDs (Receive Request SCID or Sent Response DCID)
  * we 'or' the CID with 0x80000000 in this table
  */
-static wmem_tree_t *cid_to_psm_table  = NULL;
+static wmem_tree_t *cid_to_psm_table;
 
 /* 5.4 RETRANSMISSION AND FLOW CONTROL OPTION
  * Table 5.2
@@ -682,7 +685,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset += 1;
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         wmem_tree_key_t    key[6];
         guint32            k_interface_id;
         guint32            k_adapter_id;
@@ -795,12 +798,12 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         if (bt_uuid) {
             sub_item = proto_tree_add_uint(tree, hf_btl2cap_service, tvb, 0, 0, bt_uuid);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
 
         if (disconnect_in_frame < max_disconnect_in_frame) {
             sub_item = proto_tree_add_uint(tree, hf_btl2cap_disconnect_in_frame, tvb, 0, 0, disconnect_in_frame);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
     }
 
@@ -808,7 +811,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 static int
 dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, proto_tree *command_tree, gboolean is_ch_request _U_,
+    proto_tree *tree, proto_tree *command_tree, guint16 cid, guint8 cmd_ident,
     bthci_acl_data_t *acl_data, btl2cap_data_t *l2cap_data)
 {
 
@@ -820,7 +823,7 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
     proto_tree_add_item_ret_uint(command_tree, hf_btl2cap_le_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN, &psm);
     if (psm < 0x80) {
         psm_item = proto_tree_add_item(command_tree, hf_btl2cap_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_GENERATED(psm_item);
+        proto_item_set_generated(psm_item);
     }
     offset += 2;
 
@@ -836,12 +839,13 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
     proto_tree_add_item(command_tree, hf_btl2cap_initial_credits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    if (!pinfo->fd->flags.visited) {
-        wmem_tree_key_t    key[6];
+    if (!pinfo->fd->visited) {
+        wmem_tree_key_t    key[7];
         guint32            k_interface_id;
         guint32            k_adapter_id;
         guint32            k_chandle;
         guint32            k_cid;
+        guint32            k_cmd_ident;
         guint32            k_frame_number;
         guint32            interface_id;
         guint32            adapter_id;
@@ -858,7 +862,8 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
         k_interface_id = interface_id;
         k_adapter_id = adapter_id;
         k_chandle = chandle;
-        k_cid = scid;
+        k_cid = cid;
+        k_cmd_ident = cmd_ident;
         k_frame_number = pinfo->num;
 
         psm_data = wmem_new0(wmem_file_scope(), psm_data_t);
@@ -886,6 +891,17 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
         key[2].key = &k_chandle;
         key[3].length = 1;
         key[3].key = &k_cid;
+        key[4].length = 1;
+        key[4].key = &k_cmd_ident;
+        key[5].length = 1;
+        key[5].key = &k_frame_number;
+        key[6].length = 0;
+        key[6].key = NULL;
+
+        wmem_tree_insert32_array(cmd_ident_to_psm_table, key, psm_data);
+
+        k_cid = scid;
+
         key[4].length = 1;
         key[4].key = &k_frame_number;
         key[5].length = 0;
@@ -948,12 +964,12 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
 
         if (bt_uuid) {
             sub_item = proto_tree_add_uint(tree, hf_btl2cap_service, tvb, 0, 0, bt_uuid);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
 
         if (disconnect_in_frame < max_disconnect_in_frame) {
             sub_item = proto_tree_add_uint(tree, hf_btl2cap_disconnect_in_frame, tvb, 0, 0, disconnect_in_frame);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
     }
 
@@ -962,7 +978,7 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
 
 static int
 dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, bthci_acl_data_t *acl_data)
+    proto_tree *tree, guint16 cid, guint8 cmd_ident, bthci_acl_data_t *acl_data)
 {
     guint32            dcid;
 
@@ -982,18 +998,18 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
     offset += 2;
 
 
-    if (pinfo->fd->flags.visited == 0) {
+    if (pinfo->fd->visited == 0) {
         psm_data_t        *psm_data;
-        wmem_tree_key_t    key[6];
+        wmem_tree_key_t    key[7];
         guint32            k_interface_id;
         guint32            k_adapter_id;
         guint32            k_chandle;
         guint32            k_cid;
+        guint32            k_cmd_ident;
         guint32            k_frame_number;
         guint32            interface_id;
         guint32            adapter_id;
         guint32            chandle;
-        guint32            cid;
 
         if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
             interface_id = pinfo->rec->rec_header.packet_header.interface_id;
@@ -1001,12 +1017,12 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
             interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
         chandle = (acl_data) ? acl_data->chandle : 0;
-        cid = dcid;
 
         k_interface_id = interface_id;
         k_adapter_id = adapter_id;
         k_chandle = chandle;
         k_cid = cid;
+        k_cmd_ident = cmd_ident;
         k_frame_number = pinfo->num;
 
         key[0].length = 1;
@@ -1018,25 +1034,25 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
         key[3].length = 1;
         key[3].key = &k_cid;
         key[4].length = 1;
-        key[4].key = &k_frame_number;
-        key[5].length = 0;
-        key[5].key = NULL;
+        key[4].key = &k_cmd_ident;
+        key[5].length = 1;
+        key[5].key = &k_frame_number;
+        key[6].length = 0;
+        key[6].key = NULL;
 
-        psm_data = (psm_data_t *)wmem_tree_lookup32_array_le(cid_to_psm_table, key);
+        psm_data = (psm_data_t *)wmem_tree_lookup32_array_le(cmd_ident_to_psm_table, key);
         if (psm_data &&
             psm_data->interface_id == interface_id &&
             psm_data->adapter_id == adapter_id &&
             psm_data->chandle == chandle &&
-            ((pinfo->p2p_dir == P2P_DIR_SENT && psm_data->remote_cid == cid) ||
-             (pinfo->p2p_dir == P2P_DIR_RECV && psm_data->local_cid == cid)) &&
             psm_data->disconnect_in_frame > pinfo->num)
         {
-            cid = dcid | 0x80000000;
+            dcid |= 0x80000000;
 
             k_interface_id = interface_id;
             k_adapter_id = adapter_id;
             k_chandle = chandle;
-            k_cid = cid;
+            k_cid = dcid;
             k_frame_number = pinfo->num;
 
             key[0].length = 1;
@@ -1053,9 +1069,9 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
             key[5].key = NULL;
 
             if (pinfo->p2p_dir == P2P_DIR_RECV)
-                psm_data->remote_cid = cid;
+                psm_data->remote_cid = dcid;
             else
-                psm_data->local_cid = cid;
+                psm_data->local_cid = dcid;
 
             wmem_tree_insert32_array(cid_to_psm_table, key, psm_data);
         }
@@ -1243,7 +1259,7 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree_add_item(tree, hf_btl2cap_flags_continuation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    if (tvb_reported_length_remaining(tvb, offset) > 0) {
+    {
         psm_data_t        *psm_data;
         config_data_t     *config_data;
         wmem_tree_key_t    key[6];
@@ -1300,7 +1316,16 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         } else {
             config_data = NULL;
         }
-        offset = dissect_options(tvb, offset, pinfo, tree, length - 4, config_data);
+        if (config_data != NULL) {
+            /* Reset config_data that might have been set by an earlier
+             * Configure Request that failed.
+             */
+            config_data->mode     = L2CAP_BASIC_MODE;
+            config_data->txwindow = 0;
+        }
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            offset = dissect_options(tvb, offset, pinfo, tree, length - 4, config_data);
+        }
     }
 
     return offset;
@@ -1532,7 +1557,7 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
                         val_to_str_const(result, result_vals, "Unknown"), scid);
     }
 
-    if (pinfo->fd->flags.visited == 0) {
+    if (pinfo->fd->visited == 0) {
         psm_data_t        *psm_data;
         wmem_tree_key_t    key[6];
         guint32            k_interface_id;
@@ -1732,7 +1757,7 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree_add_item(command_tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         psm_data_t        *psm_data;
         wmem_tree_key_t    key[6];
         guint32            k_interface_id;
@@ -1899,17 +1924,17 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         if (psm > 0) {
             sub_item = proto_tree_add_uint(tree, hf_btl2cap_psm, tvb, offset, 0, psm);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
 
         if (bt_uuid) {
             sub_item = proto_tree_add_uint(tree, hf_btl2cap_service, tvb, 0, 0, bt_uuid);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
 
         if (connect_in_frame > 0) {
             sub_item = proto_tree_add_uint(tree, hf_btl2cap_connect_in_frame, tvb, 0, 0, connect_in_frame);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
     }
 
@@ -1971,7 +1996,7 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item_append_text(psm_item, ": %s",
                                        val_to_str_ext_const(uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown service"));
         }
-        PROTO_ITEM_SET_GENERATED(psm_item);
+        proto_item_set_generated(psm_item);
 
         /* call next dissector */
         if (!dissector_try_uint_new(l2cap_cid_dissector_table, (guint32) cid, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
@@ -2008,7 +2033,7 @@ dissect_le_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     btl2cap_frame_data_t *btl2cap_frame_data = NULL;
     fragment_head *frag_btl2cap_le_sdu = NULL;
 
-    if ((!pinfo->fd->flags.visited) && (config_data) && !is_retransmit) {
+    if ((!pinfo->fd->visited) && (config_data) && !is_retransmit) {
         btl2cap_frame_data = wmem_new0(wmem_file_scope(), btl2cap_frame_data_t);
         if (config_data->segmentation_started == 1) {
             config_data->segment_len_rem = config_data->segment_len_rem - length;
@@ -2087,7 +2112,7 @@ dissect_le_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item_append_text(psm_item, ": %s",
                     val_to_str_ext_const(uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown service"));
         }
-        PROTO_ITEM_SET_GENERATED(psm_item);
+        proto_item_set_generated(psm_item);
     }/*psm*/
 
     if (btl2cap_frame_data->first_fragment) {
@@ -2205,7 +2230,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     "SDU length less than length of first packet (%u < %u)", sdulen, length);
         }
 
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             mfp              = wmem_new(wmem_file_scope(), sdu_reassembly_t);
             mfp->first_frame = pinfo->num;
             mfp->last_frame  = 0;
@@ -2220,7 +2245,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (mfp != NULL && mfp->last_frame) {
             proto_item *item;
             item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_reassembled_in, tvb, 0, 0, mfp->last_frame);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
             col_append_frame_number(pinfo, COL_INFO, "[Reassembled in #%u] ", mfp->last_frame);
         }
     } else {
@@ -2233,7 +2258,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     if (segment == 0x02 || segment == 0x03) {
         mfp = (sdu_reassembly_t *)wmem_tree_lookup32_le(config_data->start_fragments, pinfo->num);
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             if (mfp != NULL && !mfp->last_frame && (mfp->tot_len>=mfp->cur_off + length)) {
                 tvb_memcpy(tvb, mfp->reassembled + mfp->cur_off, offset, length);
                 mfp->cur_off += length;
@@ -2245,7 +2270,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (mfp) {
             proto_item *item;
             item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_continuation_to, tvb, 0, 0, mfp->first_frame);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
             col_append_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", mfp->first_frame);
         }
     }
@@ -2295,7 +2320,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_item_append_text(psm_item, " (%s)",
                                            val_to_str_ext_const(uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown service"));
             }
-            PROTO_ITEM_SET_GENERATED(psm_item);
+            proto_item_set_generated(psm_item);
 
             /* call next dissector */
             if (!dissector_try_uint_new(l2cap_psm_dissector_table, (guint32) psm, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
@@ -2459,6 +2484,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_item  *ti_command;
             proto_tree  *btl2cap_cmd_tree;
             guint8       cmd_code;
+            guint8       cmd_ident;
             guint16      cmd_length;
             const gchar *cmd_str;
 
@@ -2472,6 +2498,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_code,   tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
+            cmd_ident = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_ident,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
@@ -2564,14 +2591,14 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
 
             case 0x14: /* LE Credit Based Connection Request */
-                offset = dissect_le_credit_based_connrequest(tvb, offset, pinfo, btl2cap_tree, btl2cap_cmd_tree, TRUE, acl_data, l2cap_data);
+                offset = dissect_le_credit_based_connrequest(tvb, offset, pinfo, btl2cap_tree, btl2cap_cmd_tree, cid, cmd_ident, acl_data, l2cap_data);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (CID: %04x, Initial Credits: %u)",
                                 tvb_get_letohs(tvb, offset - 8), tvb_get_letohs(tvb, offset - 2));
                 break;
 
             case 0x15: /* LE Credit Based Connection Response */
-                offset = dissect_le_credit_based_connresponse(tvb, offset, pinfo, btl2cap_cmd_tree, acl_data);
+                offset = dissect_le_credit_based_connresponse(tvb, offset, pinfo, btl2cap_cmd_tree, cid, cmd_ident, acl_data);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (CID: %04x, Initial Credits: %u)",
                                 tvb_get_letohs(tvb, offset - 10), tvb_get_letohs(tvb, offset - 4));
@@ -2755,18 +2782,18 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             if (psm_data->connect_in_frame > 0 && psm_data->connect_in_frame < G_MAXUINT32) {
                 sub_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_connect_in_frame, tvb, 0, 0, psm_data->connect_in_frame);
-                PROTO_ITEM_SET_GENERATED(sub_item);
+                proto_item_set_generated(sub_item);
             }
 
             if (psm_data->disconnect_in_frame > 0 && psm_data->disconnect_in_frame < G_MAXUINT32) {
                 sub_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_disconnect_in_frame, tvb, 0, 0, psm_data->disconnect_in_frame);
-                PROTO_ITEM_SET_GENERATED(sub_item);
+                proto_item_set_generated(sub_item);
             }
 
             bt_uuid = get_service_uuid(pinfo, l2cap_data, psm_data->psm, psm_data->local_service);
             if (bt_uuid) {
                 sub_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_service, tvb, 0, 0, bt_uuid);
-                PROTO_ITEM_SET_GENERATED(sub_item);
+                proto_item_set_generated(sub_item);
             }
 
             if (config_data->mode == L2CAP_BASIC_MODE) {
@@ -3346,12 +3373,12 @@ proto_register_btl2cap(void)
     /* Decode As handling */
     static build_valid_func btl2cap_cid_da_build_value[1] = {btl2cap_cid_value};
     static decode_as_value_t btl2cap_cid_da_values = {btl2cap_cid_prompt, 1, btl2cap_cid_da_build_value};
-    static decode_as_t btl2cap_cid_da = {"btl2cap", "L2CAP CID", "btl2cap.cid", 1, 0, &btl2cap_cid_da_values, NULL, NULL,
+    static decode_as_t btl2cap_cid_da = {"btl2cap", "btl2cap.cid", 1, 0, &btl2cap_cid_da_values, NULL, NULL,
                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     static build_valid_func btl2cap_psm_da_build_value[1] = {btl2cap_psm_value};
     static decode_as_value_t btl2cap_psm_da_values = {btl2cap_psm_prompt, 1, btl2cap_psm_da_build_value};
-    static decode_as_t btl2cap_psm_da = {"btl2cap", "L2CAP PSM", "btl2cap.psm", 1, 0, &btl2cap_psm_da_values, NULL, NULL,
+    static decode_as_t btl2cap_psm_da = {"btl2cap", "btl2cap.psm", 1, 0, &btl2cap_psm_da_values, NULL, NULL,
                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     /* Register the protocol name and description */
@@ -3369,6 +3396,7 @@ proto_register_btl2cap(void)
     expert_btl2cap = expert_register_protocol(proto_btl2cap);
     expert_register_field_array(expert_btl2cap, ei, array_length(ei));
 
+    cmd_ident_to_psm_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     cid_to_psm_table     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     register_decode_as(&btl2cap_cid_da);
@@ -3385,7 +3413,7 @@ proto_reg_handoff_btl2cap(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -1,3 +1,8 @@
+=begin man
+
+=encoding utf8
+
+=end man
 
 =head1 NAME
 
@@ -49,7 +54,7 @@ S<B<--remote-interface>=E<lt>the router interfaceE<gt>>
 B<ciscodump> is an extcap tool that relys on Cisco EPC to allow a user to run a remote capture
 on a Cisco router in a SSH connection. The minimum IOS version supporting this feature is 12.4(20)T. More details can be
 found here:
-http://www.cisco.com/c/en/us/products/collateral/ios-nx-os-software/ios-embedded-packet-capture/datasheet_c78-502727.html
+https://www.cisco.com/c/en/us/products/collateral/ios-nx-os-software/ios-embedded-packet-capture/datasheet_c78-502727.html
 
 Supported interfaces:
 
@@ -115,7 +120,12 @@ recommended to use keyfiles with a SSH agent.
 
 =item --remote-filter=E<lt>filterE<gt>
 
-The remote filter on the router. This is a capture filter that follows the Cisco IOS standards (http://www.cisco.com/c/en/us/support/docs/ip/access-lists/26448-ACLsamples.html). Multiple filters can be specified using a comma between them. BEWARE: when using a filter, the default behavior is to drop all the packets except the ones that fall into the filter.
+The remote filter on the router. This is a capture filter that follows the Cisco
+IOS standards
+(https://www.cisco.com/c/en/us/support/docs/ip/access-lists/26448-ACLsamples.html).
+Multiple filters can be specified using a comma between them. BEWARE: when using
+a filter, the default behavior is to drop all the packets except the ones that
+fall into the filter.
 
 Examples:
 

@@ -25,12 +25,12 @@
 #include <QTimer>
 #include <QTranslator>
 
+#include "capture_event.h"
+
 struct _e_prefs;
 
 class QAction;
 class QSocketNotifier;
-
-class CaptureEvent;
 
 // Recent items:
 // - Read from prefs
@@ -78,9 +78,6 @@ public:
     // dialogs on macOS can be problematic. Dialogs should call queueAppSignal
     // instead.
     void queueAppSignal(AppSignal signal) { app_signals_ << signal; }
-    // Flush queued app signals. Should be called from the main window after
-    // each dialog that calls queueAppSignal closes.
-    void flushAppSignals();
     void emitStatCommandSignal(const QString &menu_path, const char *arg, void *userdata);
     void emitTapParameterSignal(const QString cfg_abbr, const QString arg, void *userdata);
     void addDynamicMenuGroupItem(int group, QAction *sg_action);
@@ -93,6 +90,7 @@ public:
     void clearRemovedMenuGroupItems();
 
     void allSystemsGo();
+    void emitLocalInterfaceEvent(const char *ifname, int added, int up);
     void refreshLocalInterfaces();
     struct _e_prefs * readConfigurationFiles(bool reset);
     QList<recent_item_status *> recentItems() const;
@@ -163,6 +161,7 @@ protected:
 
 signals:
     void appInitialized();
+    void localInterfaceEvent(const char *ifname, int added, int up);
     void localInterfaceListChanged();
     void openCaptureFile(QString cf_path, QString display_filter, unsigned int type);
     void openCaptureOptions();
@@ -202,7 +201,11 @@ public slots:
     void clearRecentCaptures();
     void refreshRecentCaptures();
 
-    void captureEventHandler(CaptureEvent *);
+    void captureEventHandler(CaptureEvent);
+
+    // Flush queued app signals. Should be called from the main window after
+    // each dialog that calls queueAppSignal closes.
+    void flushAppSignals();
 
 private slots:
     void updateTaps();

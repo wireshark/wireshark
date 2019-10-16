@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __UI_FILTERS_H__
 #define __UI_FILTERS_H__
@@ -13,6 +14,21 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+/*
+ * Old filter file name.
+ */
+#define FILTER_FILE_NAME      "filters"
+
+/*
+ * Capture filter file name.
+ */
+#define CFILTER_FILE_NAME     "cfilters"
+
+/*
+ * Display filter file name.
+ */
+#define DFILTER_FILE_NAME     "dfilters"
 
 /*
  * Filter lists.
@@ -80,7 +96,7 @@ void free_filter_lists(void);
 #endif /* __UI_FILTERS_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

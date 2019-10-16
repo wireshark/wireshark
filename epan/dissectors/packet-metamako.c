@@ -68,11 +68,11 @@ static int
 validate_metamako_timestamp(nstime_t *metamako_time, packet_info *pinfo)
 {
   if ( metamako_time->secs > 3600 && metamako_time->nsecs < 1000000000 ) {
-    if ( metamako_time->secs > pinfo->fd->abs_ts.secs ) {
-      if ( metamako_time->secs - pinfo->fd->abs_ts.secs > 2592000 ) /* 30 days */
+    if ( metamako_time->secs > pinfo->abs_ts.secs ) {
+      if ( metamako_time->secs - pinfo->abs_ts.secs > 2592000 ) /* 30 days */
         return 0;
     } else {
-      if ( pinfo->fd->abs_ts.secs - metamako_time->secs > 2592000 ) /* 30 days */
+      if ( pinfo->abs_ts.secs - metamako_time->secs > 2592000 ) /* 30 days */
         return 0;
     }
   }
@@ -323,9 +323,9 @@ dissect_metamako(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_item_append_text(ti, ", Timestamp: <Not representable>");
 
   /* [Timestamp difference from pcap time] */
-  nstime_delta(&timediff, &metamako_time, &pinfo->fd->abs_ts);
+  nstime_delta(&timediff, &metamako_time, &pinfo->abs_ts);
   item = proto_tree_add_time(timestamp_tree, hf_metamako_tdiff, tvb, offset, 8, &timediff);
-  PROTO_ITEM_SET_GENERATED(item);
+  proto_item_set_generated(item);
 
   offset += 8;
 
@@ -442,7 +442,7 @@ proto_reg_handoff_metamako(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

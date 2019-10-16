@@ -83,17 +83,15 @@ dissect_ipos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPOS");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_ipos, tvb, 0, -1, ENC_NA);
-        ipos_tree = proto_item_add_subtree(ti, ett_ipos);
-        proto_tree_add_item(ipos_tree, hf_ipos_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ipos_tree, hf_ipos_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        proto_tree_add_item(ipos_tree, hf_ipos_ppe, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        proto_tree_add_item(ipos_tree, hf_ipos_slot, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-    }
+    ti = proto_tree_add_item(tree, proto_ipos, tvb, 0, -1, ENC_NA);
+    ipos_tree = proto_item_add_subtree(ti, ett_ipos);
+    proto_tree_add_item(ipos_tree, hf_ipos_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ipos_tree, hf_ipos_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(ipos_tree, hf_ipos_ppe, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(ipos_tree, hf_ipos_slot, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
     if (redback_handle) {
         next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -160,6 +158,8 @@ proto_reg_handoff_ipos(void)
     dissector_add_uint("sll.ltype", LINUX_SLL_P_IPOS_XCRP, ipos_handle);
     dissector_add_uint("sll.ltype", LINUX_SLL_P_IPOS_ISIS, ipos_handle);
     dissector_add_uint("sll.ltype", LINUX_SLL_P_IPOS_PAKIO, ipos_handle);
+
+    dissector_add_for_decode_as("ethertype", ipos_handle);
 }
 
 /*

@@ -465,7 +465,6 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	proto_item	*ti;
 	struct nstr_phdr *pnstr = &(pinfo->pseudo_header->nstr);
 	tvbuff_t	*next_tvb_eth_client;
-	guint8		offset;
 	guint8		src_vmname_len = 0, dst_vmname_len = 0;
 	guint8		variable_ns_len = 0;
 	guint32		vlan;
@@ -552,11 +551,11 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	case NSPR_HEADER_VERSION201:
 		proto_tree_add_item(ns_tree, hf_ns_pcbdevno, tvb, pnstr->pcb_offset, 4, ENC_LITTLE_ENDIAN);
 		ti = proto_tree_add_item(ns_tree, hf_ns_devno, tvb, pnstr->pcb_offset, 4, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(ti);
+		proto_item_set_hidden(ti);
 
 		proto_tree_add_item(ns_tree, hf_ns_l_pcbdevno, tvb, pnstr->l_pcb_offset, 4, ENC_LITTLE_ENDIAN);
 		ti = proto_tree_add_item(ns_tree, hf_ns_devno, tvb, pnstr->l_pcb_offset, 4, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(ti);
+		proto_item_set_hidden(ti);
 
 		break;
 
@@ -583,11 +582,11 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			/* NSPR_HEADER_VERSION201 stuff */
 			proto_tree_add_item(ns_tree, hf_ns_pcbdevno, tvb, pnstr->pcb_offset, 4, ENC_LITTLE_ENDIAN);
 			ti = proto_tree_add_item(ns_tree, hf_ns_devno, tvb, pnstr->pcb_offset, 4, ENC_LITTLE_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(ti);
+			proto_item_set_hidden(ti);
 
 			proto_tree_add_item(ns_tree, hf_ns_l_pcbdevno, tvb, pnstr->l_pcb_offset, 4, ENC_LITTLE_ENDIAN);
 			ti = proto_tree_add_item(ns_tree, hf_ns_devno, tvb, pnstr->l_pcb_offset, 4, ENC_LITTLE_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(ti);
+			proto_item_set_hidden(ti);
 
 			add35records(tvb, pinfo, tree, ns_tree);
 			if (error_code)
@@ -603,8 +602,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 	if(pnstr->rec_type != NSPR_HEADER_VERSION350){
 		/* Dissect as Ethernet */
-		offset = pnstr->eth_offset;
-		next_tvb_eth_client = tvb_new_subset_remaining(tvb, offset);
+		next_tvb_eth_client = tvb_new_subset_remaining(tvb, pnstr->eth_offset);
 		call_dissector(eth_withoutfcs_handle, next_tvb_eth_client, pinfo, tree);
 	}
 
@@ -1879,7 +1877,7 @@ void proto_reg_handoff_ns(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

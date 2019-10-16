@@ -23,6 +23,15 @@
 #define MMDBR_STRINGIFY_S(s) #s
 #define OUT_BUF_SIZE 65536
 
+// Uncomment to enable slow lookups. Only useful on Windows for now.
+// #define MMDB_DEBUG_SLOW 1
+
+#ifdef MMDB_DEBUG_SLOW
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+#endif
+
 static const char *co_iso_key[]     = {"country", "iso_code", NULL};
 static const char *co_name_key[]    = {"country", "names", "en", NULL};
 static const char *ci_name_key[]    = {"city", "names", "en", NULL};
@@ -30,6 +39,7 @@ static const char *asn_o_key[]      = {"autonomous_system_organization", NULL};
 static const char *asn_key[]        = {"autonomous_system_number", NULL};
 static const char *l_lat_key[]      = {"location", "latitude", NULL};
 static const char *l_lon_key[]      = {"location", "longitude", NULL};
+static const char *l_accuracy_key[] = {"location", "accuracy_radius", NULL};
 static const char *empty_key[]      = {NULL};
 
 static const char **lookup_keys[] = {
@@ -40,6 +50,7 @@ static const char **lookup_keys[] = {
     asn_key,
     l_lat_key,
     l_lon_key,
+    l_accuracy_key,
     empty_key
 };
 
@@ -57,6 +68,10 @@ main(int argc, char *argv[])
     int mmdb_err;
 
     char *out_buf = (char *) malloc(OUT_BUF_SIZE);
+    if (out_buf == NULL) {
+        fprintf(stdout, "ERROR: malloc failed\n");
+        return 1;
+    }
     setvbuf(stdout, out_buf, _IOFBF, OUT_BUF_SIZE);
 
     fprintf(stdout, "[init]\n");
@@ -99,13 +114,23 @@ main(int argc, char *argv[])
         exit_err();
     }
 
-    while (!feof(stdin)) {
+    int in_items = 0;
+    while (in_items != EOF) {
         int gai_err;
 
-        if (fscanf(stdin, "%" MMDBR_STRINGIFY(MAX_ADDR_LEN) "s", addr_str) < 1) {
+        in_items = fscanf(stdin, "%" MMDBR_STRINGIFY(MAX_ADDR_LEN) "s", addr_str);
+
+        if (in_items < 1) {
             continue;
         }
+
         fprintf(stdout, "[%s]\n", addr_str);
+
+#ifdef MMDB_DEBUG_SLOW
+#ifdef _WIN32
+        Sleep(1000);
+#endif
+#endif
 
         for (size_t mmdb_idx = 0; mmdb_idx < mmdb_count; mmdb_idx++) {
             fprintf(stdout, "# %s\n", mmdbs[mmdb_idx].metadata.database_type);
@@ -166,7 +191,7 @@ main(int argc, char *argv[])
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

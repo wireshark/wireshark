@@ -127,7 +127,7 @@ dissect_tfp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 							hf_tfp_uid,
 							tvb, byte_offset, byte_count_tfp_uid,
 							&tfp_uid_string[0], "%s", &tfp_uid_string[0]);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 
 		proto_tree_add_item(tfp_tree,
 				    hf_tfp_uid_numeric,
@@ -406,7 +406,7 @@ proto_reg_handoff_tfp(void) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

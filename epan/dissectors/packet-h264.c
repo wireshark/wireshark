@@ -9,11 +9,11 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * References:
- * http://www.ietf.org/rfc/rfc3984.txt?number=3984      Obsolete
- * http://www.ietf.org/rfc/rfc6184.txt?number=6184
- * http://www.ietf.org/rfc/rfc6190.txt?number=6190
- * http://www.itu.int/rec/T-REC-H.264/en
- * MS-H264PF http://msdn.microsoft.com/en-us/library/hh659565.aspx
+ * https://tools.ietf.org/html/rfc3984      Obsolete
+ * https://tools.ietf.org/html/rfc6184
+ * https://tools.ietf.org/html/rfc6190
+ * https://www.itu.int/rec/T-REC-H.264/en
+ * MS-H264PF https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-h264pf
  */
 
 #include "config.h"
@@ -1939,7 +1939,7 @@ dissect_h264_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
         /* second_chroma_qp_index_offset 1 se(v)*/
         dissect_h264_exp_golomb_code(tree, hf_h264_second_chroma_qp_index_offset, tvb, &bit_offset, H264_SE_V);
     }
-    bit_offset = dissect_h264_rbsp_trailing_bits(tree, tvb, pinfo, bit_offset);
+    dissect_h264_rbsp_trailing_bits(tree, tvb, pinfo, bit_offset);
 }
 
 /*
@@ -3726,7 +3726,7 @@ proto_reg_handoff_h264(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

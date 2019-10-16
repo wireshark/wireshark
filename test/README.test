@@ -1,79 +1,19 @@
-What is it?
------------
-This is a collection of bash scripts which test the features of:
+Wireshark Tests
 
- - Wireshark
- - TShark
- - Dumpcap
+The recommended steps to prepare for and to run tests:
 
-Motivation
-----------
+* Install two Python packages, pytest: `pip install pytest pytest-xdist`
+* Build programs (“wireshark”, “tshark”, etc.): `ninja`
+* Build additional programs for the “unittests” suite: `ninja test-programs`
+* Run tests in the build directory: `pytest`
 
-The command line options of Wireshark and the companion command line tools are
-numerous. This makes it hard to find newly introduced bugs doing manual testing
-(try and error) with source code changes.
+Replace `ninja test-programs` by `make test-programs` as needed.
 
-The current way is to do some changes, testing some scenarios by hand and
-commit the code so other users will complain about new problems. This obviously
-is far from being optimal.
+See the “Wireshark Tests” chapter of the Developer's Guide for details:
+https://www.wireshark.org/docs/wsdg_html_chunked/ChapterTests.html
 
-Limitations
------------
-
-The test set currently provided will only do some basic tests, but even that
-is far better than nothing. This may involve in time as new tests can be added
-to fix problems reported by users. This will hopefully lead to a "complete"
-and reliable testset in the future.
-
-The tests are limited to command line tests, other things like unit tests or
-GUI test are not included.
-
-Prerequisites
--------------
-
-What you'll need (to do):
-
- - edit the file config.sh to suit your configuration
- - build the "all" target
- - build the "test-programs" target
- - have a bash (cygwin should do well)
- - have tput (e.g. in the cygwin ncurses package)
- - you'll need a network interface with some network traffic
-   (so you can run the capture tests)
- - (for non-Windows platforms) An X server for running the capture tests with
-   the graphical Wireshark program.
-
-A Test Ride
------------
-
-The default configuration might not be suitable for your set-up. Most settings
-can be adjusted by setting an environment variable matching or by editing the
-setting in config.sh.
-
-For instance, the first network interface might not be used for traffic (like an
-unconnected Ethernet port). In that case, you might want to set the environment
-variable TRAFFIC_CAPTURE_IFACE to pick another interface. Use `dumpcap -D` to
-get a list of devices.
-
-On Windows, it is assumed that the user is able to perform captures. On
-non-Windows platforms, the opposite is assumed. If your dumpcap executable
-allows you to perform captures (for example, when it has appropriate
-capabilities), then you can override the default with:
-
-    SKIP_CAPTURE=0
-
-If you do not want to test the binaries in the build directory, you can override
-it with:
-
-    WS_BIN_PATH=/usr/bin
-
-When your configuration is sane, you can start test.sh which should provide a
-basic menu. Just press Enter to start all tests.
-
-It should start all the available tests. Each test will throw out a line
-which should end with a green "Ok". If one of the tests fail, the script
-will report it and stop at this test step.
-
-Please remember to have some ICMP traffic on your network interface! The test
-suite will ping to www.wireshark.org while running capture tests, but this will
-slow down the tests.
+If you need to update the baseline files use the following commands (on a Linux system)
+mkdir ~/.config/wireshark/profiles/ctest
+TZ=UTC WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 build/run/tshark -C ctest -T ek -r test/captures/dhcp.pcap > test/baseline/dhcp.ek
+TZ=UTC WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 build/run/tshark -C ctest -T json -r test/captures/dhcp.pcap > test/baseline/dhcp.json
+TZ=UTC WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 build/run/tshark -C ctest -T jsonraw -r test/captures/dhcp.pcap > test/baseline/dhcp.jsonraw

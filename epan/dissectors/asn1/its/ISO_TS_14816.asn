@@ -1,0 +1,29 @@
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- ISO TS 14816
+--
+-- This ASN.1 was generateds: 30.08.2016
+--
+-- This document contains only the data element needed for the encoding of an IVI message
+-- as defined in ISO TS 19321(2015) 
+--
+-- Published version location:
+-- http://standards.iso.org/iso/14816/
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+AVIAEINumberingAndDataStructures {iso(1) standard(0) iso14816(14816) asnm1(1) version1(1)} 
+
+DEFINITIONS AUTOMATIC TAGS::= BEGIN
+IMPORTS;
+
+CS5::= SEQUENCE {
+	vin	VisibleString, -- 17 characters VIN
+	fill	BIT STRING (SIZE(9)) -- set to '000000000'
+}
+
+
+
+CountryCode::= BIT STRING(SIZE(10))
+ 
+AVIAEIIssuerIdentifier::= INTEGER(0 .. 16383)
+
+END

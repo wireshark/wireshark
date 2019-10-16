@@ -1255,7 +1255,7 @@ dissect_scsi_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			hf_ndmp_scsi_device, offset, NULL);
 
 
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		/* new scsi device addressed, create a new itl structure */
 		get_itl_nexus(pinfo, TRUE);
 	}
@@ -1560,7 +1560,7 @@ dissect_tape_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree_add_item(tree, hf_ndmp_tape_open_mode, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		/* new scsi device addressed, create a new itl structure */
 		get_itl_nexus(pinfo, TRUE);
 	}
@@ -2382,7 +2382,6 @@ dissect_file_stats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 	proto_item* item;
 	proto_tree* tree;
 	int old_offset=offset;
-	nstime_t ns;
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
 				ett_ndmp_file_stats, &item, "Stats:");
@@ -2399,21 +2398,15 @@ dissect_file_stats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 	offset += 4;
 
 	/* mtime */
-	ns.secs=tvb_get_ntohl(tvb, offset);
-	ns.nsecs=0;
-	proto_tree_add_time(tree, hf_ndmp_file_mtime, tvb, offset, 4, &ns);
+	proto_tree_add_item(tree, hf_ndmp_file_mtime, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* atime */
-	ns.secs=tvb_get_ntohl(tvb, offset);
-	ns.nsecs=0;
-	proto_tree_add_time(tree, hf_ndmp_file_atime, tvb, offset, 4, &ns);
+	proto_tree_add_item(tree, hf_ndmp_file_atime, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* ctime */
-	ns.secs=tvb_get_ntohl(tvb, offset);
-	ns.nsecs=0;
-	proto_tree_add_time(tree, hf_ndmp_file_ctime, tvb, offset, 4, &ns);
+	proto_tree_add_item(tree, hf_ndmp_file_ctime, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* owner */
@@ -2700,8 +2693,6 @@ static int
 dissect_data_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree, guint32 seq)
 {
-	nstime_t ns;
-
 	/* invalids */
 	offset = dissect_state_invalids(tvb, offset, pinfo, tree);
 
@@ -2729,9 +2720,7 @@ dissect_data_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset);
 
 	/* est time remain */
-	ns.secs=tvb_get_ntohl(tvb, offset);
-	ns.nsecs=0;
-	proto_tree_add_time(tree, hf_ndmp_data_est_time_remain, tvb, offset, 4, &ns);
+	proto_tree_add_item(tree, hf_ndmp_data_est_time_remain, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* ndmp addr */
@@ -3074,7 +3063,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 			 */
 			if ( !(ndmp_rm & RPC_RM_LASTFRAG))
 			{
-				if ( !(pinfo->fd->flags.visited))
+				if ( !(pinfo->fd->visited))
 				{
 					nfi=wmem_new(wmem_file_scope(), ndmp_frag_info);
 					nfi->first_seq = seq;
@@ -3107,7 +3096,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 			 */
 			if ( !(ndmp_rm & RPC_RM_LASTFRAG))
 			{
-				if ( !(pinfo->fd->flags.visited))
+				if ( !(pinfo->fd->visited))
 				{
 					nfi=wmem_new(wmem_file_scope(), ndmp_frag_info);
 					nfi->first_seq = seq;
@@ -3218,13 +3207,13 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	} else {
 		vers_item=proto_tree_add_uint_format(ndmp_tree, hf_ndmp_version, new_tvb, offset, 0, ndmp_default_protocol_version, "Unknown NDMP version, using default:%d", ndmp_default_protocol_version);
 	}
-	PROTO_ITEM_SET_GENERATED(vers_item);
+	proto_item_set_generated(vers_item);
 
 	/* request response matching */
 	ndmp_conv_data->task=NULL;
 	switch(nh.type){
 	case NDMP_MESSAGE_REQUEST:
-		if(!pinfo->fd->flags.visited){
+		if(!pinfo->fd->visited){
 			ndmp_conv_data->task=wmem_new(wmem_file_scope(), ndmp_task_data_t);
 			ndmp_conv_data->task->request_frame=pinfo->num;
 			ndmp_conv_data->task->response_frame=0;
@@ -3238,13 +3227,13 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 			proto_item *it;
 			it=proto_tree_add_uint(ndmp_tree, hf_ndmp_response_frame, new_tvb, 0, 0, ndmp_conv_data->task->response_frame);
 
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 		}
 		break;
 	case NDMP_MESSAGE_REPLY:
 		ndmp_conv_data->task=(ndmp_task_data_t *)wmem_map_lookup(ndmp_conv_data->tasks, GUINT_TO_POINTER(nh.rep_seq));
 
-		if(ndmp_conv_data->task && !pinfo->fd->flags.visited){
+		if(ndmp_conv_data->task && !pinfo->fd->visited){
 			ndmp_conv_data->task->response_frame=pinfo->num;
 			if(ndmp_conv_data->task->itlq){
 				ndmp_conv_data->task->itlq->last_exchange_frame=pinfo->num;
@@ -3256,11 +3245,11 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 			it=proto_tree_add_uint(ndmp_tree, hf_ndmp_request_frame, new_tvb, 0, 0, ndmp_conv_data->task->request_frame);
 
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 
 			nstime_delta(&delta_ts, &pinfo->abs_ts, &ndmp_conv_data->task->ndmp_time);
 			it=proto_tree_add_time(ndmp_tree, hf_ndmp_time, new_tvb, 0, 0, &delta_ts);
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 		}
 		break;
 	}
@@ -4247,7 +4236,7 @@ proto_reg_handoff_ndmp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

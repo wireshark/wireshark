@@ -18,6 +18,7 @@ set(PIDL_DISSECTOR_NAMES
 	eventlog
 	frsrpc
 	frstrans
+	fsrvp
 	initshutdown
 	lsa
 	mapi
@@ -49,6 +50,9 @@ set(PIDL_DISSECTOR_frsrpc_EXTRA_DEPS
 )
 set(PIDL_DISSECTOR_frstrans_EXTRA_DEPS
 	misc/misc.idl
+	idl_types.h
+)
+set(PIDL_DISSECTOR_fsrvp_EXTRA_DEPS
 	idl_types.h
 )
 set(PIDL_DISSECTOR_initshutdown_EXTRA_DEPS

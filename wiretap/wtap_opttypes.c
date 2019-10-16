@@ -972,6 +972,27 @@ static void idb_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
     }
 }
 
+static void dsb_create(wtap_block_t block)
+{
+    block->mandatory_data = g_new0(wtapng_dsb_mandatory_t, 1);
+}
+
+static void dsb_free_mand(wtap_block_t block)
+{
+    wtapng_dsb_mandatory_t *mand = (wtapng_dsb_mandatory_t *)block->mandatory_data;
+    g_free(mand->secrets_data);
+}
+
+static void dsb_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
+{
+    wtapng_dsb_mandatory_t *src = (wtapng_dsb_mandatory_t *)src_block->mandatory_data;
+    wtapng_dsb_mandatory_t *dst = (wtapng_dsb_mandatory_t *)dest_block->mandatory_data;
+    dst->secrets_type = src->secrets_type;
+    dst->secrets_len = src->secrets_len;
+    g_free(dst->secrets_data);
+    dst->secrets_data = (guint8 *)g_memdup(src->secrets_data, src->secrets_len);
+}
+
 void wtap_opttypes_initialize(void)
 {
     static wtap_blocktype_t shb_block = {
@@ -1071,6 +1092,24 @@ void wtap_opttypes_initialize(void)
         WTAP_OPTTYPE_UINT8,
         0,
         NULL,
+        NULL
+    };
+    static wtap_opttype_t if_hardware = {
+        "hardware",
+        "IDB Hardware",
+        WTAP_OPTTYPE_STRING,
+        0,
+        NULL,
+        NULL
+    };
+
+    static wtap_blocktype_t dsb_block = {
+        WTAP_BLOCK_DSB,
+        "DSB",
+        "Decryption Secrets Block",
+        dsb_create,
+        dsb_free_mand,
+        dsb_copy_mand,
         NULL
     };
 
@@ -1198,6 +1237,7 @@ void wtap_opttypes_initialize(void)
     wtap_opttype_option_register(&idb_block, OPT_IDB_FILTER, &if_filter);
     wtap_opttype_option_register(&idb_block, OPT_IDB_OS, &if_os);
     wtap_opttype_option_register(&idb_block, OPT_IDB_FCSLEN, &if_fcslen);
+    wtap_opttype_option_register(&idb_block, OPT_IDB_HARDWARE, &if_hardware);
 
     /*
      * Register the NRB and the options that can appear in it.
@@ -1218,6 +1258,11 @@ void wtap_opttypes_initialize(void)
     wtap_opttype_option_register(&isb_block, OPT_ISB_FILTERACCEPT, &isb_filteraccept);
     wtap_opttype_option_register(&isb_block, OPT_ISB_OSDROP, &isb_osdrop);
     wtap_opttype_option_register(&isb_block, OPT_ISB_USRDELIV, &isb_usrdeliv);
+
+    /*
+     * Register the DSB, currently no options are defined.
+     */
+    wtap_opttype_block_register(WTAP_BLOCK_DSB, &dsb_block);
 }
 
 void wtap_opttypes_cleanup(void)

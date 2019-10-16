@@ -1,9 +1,11 @@
 /* packet-sstp.c
  * routines for sstp packet dissasembly
- * - http://msdn.microsoft.com/en-us/library/cc247338(v=prot.20).aspx
+ * - MS-SSTP:
+ *
+ *    https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-sstp
  *
  * Created as part of a semester project at the University of Applied Sciences Hagenberg
- * (http://www.fh-ooe.at/en/hagenberg-campus/)
+ * (https://www.fh-ooe.at/en/hagenberg-campus/)
  *
  * Copyright (c) 2013:
  *   Hofer Manuel (manuel@mnlhfr.at)
@@ -420,7 +422,11 @@ proto_register_sstp(void)
       NULL, HFILL }
     },
     /* Undocumented Data in SSTP_MSG_CALL_CONNECT_REQUEST
-       see also: http://msdn.microsoft.com/en-us/library/cc247340.aspx */
+       see also MS-SSTP section 2.2.9 "Call Connect Request Message
+       (SSTP_MSG_CALL_CONNECT_REQUEST)":
+
+           https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-sstp/e73ced14-7bef-407b-a85b-a6f624324dd1
+     */
     { &hf_sstp_data_unknown,
       { "Unknown Data", "sstp.dataunknown",
       FT_BYTES, BASE_NONE,
@@ -506,7 +512,7 @@ proto_reg_handoff_sstp(void)
 }
 
 /*
-* Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+* Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 *
 * Local variables:
 * c-basic-offset: 2

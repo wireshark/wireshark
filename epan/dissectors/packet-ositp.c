@@ -373,22 +373,6 @@ static void cotp_frame_end(void)
   cotp_frame_reset = TRUE;
 }
 
-static gboolean is_all_printable(const guchar *stringtocheck, int length)
-{
-  gboolean allprintable;
-  int      i;
-
-  allprintable=TRUE;
-  for (i=0;i<length;i++) {
-    if (!g_ascii_isprint(stringtocheck[i])) {
-      allprintable=FALSE;
-      break;
-    }
-  }
-  return allprintable;
-} /* is_all_printable */
-
-
 static gchar *print_tsap(tvbuff_t *tvb, int offset, int length)
 {
   const guchar *tsap = tvb_get_ptr(tvb, offset, length);
@@ -401,7 +385,7 @@ static gchar *print_tsap(tvbuff_t *tvb, int offset, int length)
   if (length <= 0 || length > MAX_TSAP_LEN)
     g_snprintf(cur, MAX_TSAP_LEN * 2 + 3, "<unsupported TSAP length>");
   else {
-    allprintable = is_all_printable(tsap,length);
+    allprintable = tvb_ascii_isprint(tvb, offset, length);
     if (!allprintable) {
       returned_length = g_snprintf(cur, MAX_TSAP_LEN * 2 + 3, "0x");
       idx += MIN(returned_length, MAX_TSAP_LEN * 2 + 3 - 1);
@@ -642,17 +626,17 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
        * add as bytes and hidden as string; otherwise vice-versa */
       if (tsap_display==TSAP_DISPLAY_STRING ||
           (tsap_display==TSAP_DISPLAY_AUTO &&
-           is_all_printable(tvb_get_ptr(tvb, offset,length),length))) {
+            tvb_ascii_isprint(tvb, offset, length))) {
         proto_tree_add_string(tree, hf_cotp_vp_src_tsap, tvb, offset, length,
                               print_tsap(tvb, offset, length));
         hidden_item = proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb,
                                           offset, length, ENC_NA);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
       } else {
         hidden_item = proto_tree_add_string(tree, hf_cotp_vp_src_tsap, tvb,
                                             offset, length,
                                             print_tsap(tvb, offset, length));
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
         proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset,
                             length, ENC_NA);
       }
@@ -665,17 +649,17 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
        * add as bytes and hidden as string; otherwise vice-versa */
       if (tsap_display==TSAP_DISPLAY_STRING ||
           (tsap_display==TSAP_DISPLAY_AUTO &&
-           is_all_printable(tvb_get_ptr(tvb,offset,length),length))) {
+            tvb_ascii_isprint(tvb, offset, length))) {
         proto_tree_add_string(tree, hf_cotp_vp_dst_tsap, tvb, offset, length,
                               print_tsap(tvb, offset, length));
         hidden_item = proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb,
                                           offset, length, ENC_NA);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
       } else {
         hidden_item = proto_tree_add_string(tree, hf_cotp_vp_dst_tsap, tvb,
                                             offset, length,
                                             print_tsap(tvb, offset, length));
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
         proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset,
                             length, ENC_NA);
       }
@@ -1087,7 +1071,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   } else if (tree) {
     ti = proto_tree_add_uint (cotp_tree, hf_cotp_destref, tvb, offset, 0,
                               dst_ref);
-    PROTO_ITEM_SET_GENERATED (ti);
+    proto_item_set_generated (ti);
   }
 
   if (is_extended) {
@@ -1576,19 +1560,21 @@ static int ositp_decode_CR_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
    * XXX - tell the subdissector that this is user data in a CR or
    * CC packet rather than a DT packet?
    */
-  next_tvb = tvb_new_subset_remaining(tvb, offset);
-  if (!uses_inactive_subset){
-    if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb, pinfo,
-                                tree, &hdtbl_entry, NULL)) {
-      *subdissector_found = TRUE;
-    } else {
-      call_data_dissector(next_tvb, pinfo, tree);
+  if (tvb_captured_length_remaining(tvb, offset)) {
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
+    if (!uses_inactive_subset){
+      if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb, pinfo,
+                                  tree, &hdtbl_entry, NULL)) {
+        *subdissector_found = TRUE;
+      } else {
+        call_data_dissector(next_tvb, pinfo, tree);
+      }
     }
+    else
+      call_data_dissector( next_tvb, pinfo, tree);
+    offset += tvb_captured_length_remaining(tvb, offset);
+    /* we dissected all of the containing PDU */
   }
-  else
-    call_data_dissector( next_tvb, pinfo, tree);
-  offset += tvb_captured_length_remaining(tvb, offset);
-  /* we dissected all of the containing PDU */
 
   return offset;
 
@@ -2446,7 +2432,7 @@ proto_reg_handoff_cotp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

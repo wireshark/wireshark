@@ -31,7 +31,7 @@ wmem_strict_check_canaries(wmem_allocator_t *allocator);
 #endif /* __WMEM_ALLOCATOR_STRICT_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

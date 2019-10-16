@@ -1,0 +1,162 @@
+-- 3GPP TS 38.463 V15.4.0 (2019-07)
+-- **************************************************************
+--
+-- Constant definitions
+--
+-- **************************************************************
+
+E1AP-Constants {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+ngran-access (22) modules (3) e1ap (5) version1 (1) e1ap-Constants (4) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+IMPORTS
+
+	ProcedureCode,
+	ProtocolIE-ID
+
+FROM E1AP-CommonDataTypes;
+
+-- **************************************************************
+--
+-- Elementary Procedures
+--
+-- **************************************************************
+
+id-reset														ProcedureCode ::= 0
+id-errorIndication												ProcedureCode ::= 1
+id-privateMessage												ProcedureCode ::= 2
+id-gNB-CU-UP-E1Setup											ProcedureCode ::= 3
+id-gNB-CU-CP-E1Setup											ProcedureCode ::= 4
+id-gNB-CU-UP-ConfigurationUpdate								ProcedureCode ::= 5
+id-gNB-CU-CP-ConfigurationUpdate								ProcedureCode ::= 6
+id-e1Release													ProcedureCode ::= 7
+id-bearerContextSetup											ProcedureCode ::= 8
+id-bearerContextModification									ProcedureCode ::= 9
+id-bearerContextModificationRequired							ProcedureCode ::= 10
+id-bearerContextRelease											ProcedureCode ::= 11
+id-bearerContextReleaseRequest									ProcedureCode ::= 12
+id-bearerContextInactivityNotification							ProcedureCode ::= 13
+id-dLDataNotification											ProcedureCode ::= 14
+id-dataUsageReport												ProcedureCode ::= 15
+id-gNB-CU-UP-CounterCheck										ProcedureCode ::= 16
+id-gNB-CU-UP-StatusIndication									ProcedureCode ::= 17
+id-uLDataNotification											ProcedureCode ::= 18
+id-mRDC-DataUsageReport											ProcedureCode ::= 19
+
+
+-- **************************************************************
+--
+-- Lists
+--
+-- **************************************************************
+
+maxnoofErrors								INTEGER ::= 256
+maxnoofSPLMNs								INTEGER ::= 12
+maxnoofSliceItems							INTEGER ::= 1024
+maxnoofIndividualE1ConnectionsToReset		INTEGER ::= 65536
+maxnoofEUTRANQOSParameters					INTEGER ::= 256
+maxnoofNGRANQOSParameters					INTEGER ::= 256
+maxnoofDRBs									INTEGER	::= 32
+maxnoofNRCGI								INTEGER	::= 512
+maxnoofPDUSessionResource					INTEGER	::= 256
+maxnoofQoSFlows								INTEGER	::= 64
+maxnoofUPParameters							INTEGER	::= 8
+maxnoofCellGroups							INTEGER	::= 4
+maxnooftimeperiods							INTEGER	::= 2
+maxnoofTNLAssociations						INTEGER ::= 32
+
+
+-- **************************************************************
+--
+-- IEs
+--
+-- **************************************************************
+
+id-Cause														ProtocolIE-ID ::= 0
+id-CriticalityDiagnostics										ProtocolIE-ID ::= 1
+id-gNB-CU-CP-UE-E1AP-ID 										ProtocolIE-ID ::= 2
+id-gNB-CU-UP-UE-E1AP-ID											ProtocolIE-ID ::= 3
+id-ResetType													ProtocolIE-ID ::= 4
+id-UE-associatedLogicalE1-ConnectionItem						ProtocolIE-ID ::= 5
+id-UE-associatedLogicalE1-ConnectionListResAck					ProtocolIE-ID ::= 6
+id-gNB-CU-UP-ID													ProtocolIE-ID ::= 7
+id-gNB-CU-UP-Name												ProtocolIE-ID ::= 8
+id-gNB-CU-CP-Name												ProtocolIE-ID ::= 9
+id-CNSupport													ProtocolIE-ID ::= 10
+id-SupportedPLMNs												ProtocolIE-ID ::= 11
+id-TimeToWait													ProtocolIE-ID ::= 12
+id-SecurityInformation											ProtocolIE-ID ::= 13
+id-UEDLAggregateMaximumBitRate									ProtocolIE-ID ::= 14
+id-System-BearerContextSetupRequest								ProtocolIE-ID ::= 15
+id-System-BearerContextSetupResponse							ProtocolIE-ID ::= 16
+id-BearerContextStatusChange									ProtocolIE-ID ::= 17
+id-System-BearerContextModificationRequest						ProtocolIE-ID ::= 18
+id-System-BearerContextModificationResponse						ProtocolIE-ID ::= 19
+id-System-BearerContextModificationConfirm						ProtocolIE-ID ::= 20
+id-System-BearerContextModificationRequired						ProtocolIE-ID ::= 21
+id-DRB-Status-List												ProtocolIE-ID ::= 22
+id-ActivityNotificationLevel									ProtocolIE-ID ::= 23
+id-ActivityInformation											ProtocolIE-ID ::= 24
+id-Data-Usage-Report-List										ProtocolIE-ID ::= 25
+id-New-UL-TNL-Information-Required								ProtocolIE-ID ::= 26
+id-GNB-CU-CP-TNLA-To-Add-List									ProtocolIE-ID ::= 27
+id-GNB-CU-CP-TNLA-To-Remove-List								ProtocolIE-ID ::= 28
+id-GNB-CU-CP-TNLA-To-Update-List								ProtocolIE-ID ::= 29
+id-GNB-CU-CP-TNLA-Setup-List									ProtocolIE-ID ::= 30
+id-GNB-CU-CP-TNLA-Failed-To-Setup-List							ProtocolIE-ID ::= 31
+id-DRB-To-Setup-List-EUTRAN										ProtocolIE-ID ::= 32
+id-DRB-To-Modify-List-EUTRAN									ProtocolIE-ID ::= 33
+id-DRB-To-Remove-List-EUTRAN									ProtocolIE-ID ::= 34
+id-DRB-Required-To-Modify-List-EUTRAN							ProtocolIE-ID ::= 35
+id-DRB-Required-To-Remove-List-EUTRAN							ProtocolIE-ID ::= 36
+id-DRB-Setup-List-EUTRAN										ProtocolIE-ID ::= 37
+id-DRB-Failed-List-EUTRAN										ProtocolIE-ID ::= 38
+id-DRB-Modified-List-EUTRAN										ProtocolIE-ID ::= 39
+id-DRB-Failed-To-Modify-List-EUTRAN								ProtocolIE-ID ::= 40
+id-DRB-Confirm-Modified-List-EUTRAN								ProtocolIE-ID ::= 41
+id-PDU-Session-Resource-To-Setup-List							ProtocolIE-ID ::= 42
+id-PDU-Session-Resource-To-Modify-List							ProtocolIE-ID ::= 43
+id-PDU-Session-Resource-To-Remove-List							ProtocolIE-ID ::= 44
+id-PDU-Session-Resource-Required-To-Modify-List					ProtocolIE-ID ::= 45
+id-PDU-Session-Resource-Setup-List								ProtocolIE-ID ::= 46
+id-PDU-Session-Resource-Failed-List								ProtocolIE-ID ::= 47
+id-PDU-Session-Resource-Modified-List							ProtocolIE-ID ::= 48
+id-PDU-Session-Resource-Failed-To-Modify-List					ProtocolIE-ID ::= 49
+id-PDU-Session-Resource-Confirm-Modified-List					ProtocolIE-ID ::= 50
+id-DRB-To-Setup-Mod-List-EUTRAN									ProtocolIE-ID ::= 51
+id-DRB-Setup-Mod-List-EUTRAN									ProtocolIE-ID ::= 52
+id-DRB-Failed-Mod-List-EUTRAN									ProtocolIE-ID ::= 53
+id-PDU-Session-Resource-Setup-Mod-List							ProtocolIE-ID ::= 54
+id-PDU-Session-Resource-Failed-Mod-List							ProtocolIE-ID ::= 55
+id-PDU-Session-Resource-To-Setup-Mod-List						ProtocolIE-ID ::= 56
+id-TransactionID												ProtocolIE-ID ::= 57
+id-Serving-PLMN													ProtocolIE-ID ::= 58
+id-UE-Inactivity-Timer											ProtocolIE-ID ::= 59
+id-System-GNB-CU-UP-CounterCheckRequest							ProtocolIE-ID ::= 60
+id-DRBs-Subject-To-Counter-Check-List-EUTRAN					ProtocolIE-ID ::= 61
+id-DRBs-Subject-To-Counter-Check-List-NG-RAN					ProtocolIE-ID ::= 62
+id-PPI															ProtocolIE-ID ::= 63
+id-gNB-CU-UP-Capacity											ProtocolIE-ID ::= 64
+id-GNB-CU-UP-OverloadInformation								ProtocolIE-ID ::= 65
+id-UEDLMaximumIntegrityProtectedDataRate						ProtocolIE-ID ::= 66
+id-PDU-Session-To-Notify-List									ProtocolIE-ID ::= 67
+id-PDU-Session-Resource-Data-Usage-List							ProtocolIE-ID ::= 68
+id-SNSSAI														ProtocolIE-ID ::= 69
+id-DataDiscardRequired										ProtocolIE-ID ::= 70
+id-OldQoSFlowMap-ULendmarkerexpected							ProtocolIE-ID ::= 71
+id-DRB-QoS															ProtocolIE-ID ::= 72
+id-GNB-CU-UP-TNLA-To-Remove-List								ProtocolIE-ID ::= 73
+id-endpoint-IP-Address-and-Port									ProtocolIE-ID ::= 74
+id-TNLAssociationTransportLayerAddressgNBCUUP					ProtocolIE-ID ::= 75
+id-RANUEID													ProtocolIE-ID ::= 76
+id-GNB-DU-ID													ProtocolIE-ID ::= 77
+id-CommonNetworkInstance											ProtocolIE-ID ::= 78
+id-NetworkInstance												ProtocolIE-ID ::= 79
+id-QoSFlowMappingIndication									ProtocolIE-ID ::= 80
+
+
+END

@@ -186,7 +186,7 @@
     <string>Mark/Unmark Row</string>
    </property>
    <property name="shortcut">
-    <string>CtrlM</string>
+    <string>Ctrl-M</string>
    </property>
   </action>
   <action name="actionMark_Unmark_Cell">

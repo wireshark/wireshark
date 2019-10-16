@@ -73,7 +73,7 @@ typedef struct service_data_t {
     guint32  local_id;
     guint32  remote_id;
 
-    const guint8  *service;
+    const gchar  *service;
 } service_data_t;
 
 typedef struct command_data_t {
@@ -476,21 +476,21 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (service_data && !(command_data->command == A_OPEN && is_next_fragment)) {
         sub_item = proto_tree_add_string(main_tree, hf_service, tvb, offset, 0, service_data->service);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     if (service_data) {
         sub_item = proto_tree_add_uint(main_tree, hf_service_start_in_frame, tvb, offset, 0, service_data->start_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         if (service_data->close_local_in_frame < max_in_frame) {
             sub_item = proto_tree_add_uint(main_tree, hf_close_local_in_frame, tvb, offset, 0, service_data->close_local_in_frame);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
 
         if (service_data->close_remote_in_frame < max_in_frame) {
             sub_item = proto_tree_add_uint(main_tree, hf_close_remote_in_frame, tvb, offset, 0, service_data->close_remote_in_frame);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
     }
 
@@ -570,12 +570,12 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_expert(expert_tree, pinfo, &ei_invalid_magic, tvb, offset, 4);
         }
 
-        if (!pinfo->fd->flags.visited)
+        if (!pinfo->fd->visited)
             save_command(command, arg0, arg1, data_length, crc32, service_data, proto, data, pinfo, &service_data, &command_data);
         offset += 4;
     }
 
-    if (!pinfo->fd->flags.visited && command_data) {
+    if (!pinfo->fd->visited && command_data) {
             if (command_data->command_in_frame != frame_number) {
                 is_command = FALSE;
                 is_next_fragment = TRUE;
@@ -594,22 +594,22 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (is_next_fragment && command_data) {
         sub_item = proto_tree_add_uint(main_tree, hf_command_in_frame, tvb, offset, 0, command_data->command_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         sub_item = proto_tree_add_uint(main_tree, hf_command, tvb, offset, 0, command_data->command);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         sub_item = proto_tree_add_uint(main_tree, hf_data_length, tvb, offset, 0, command_data->data_length);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         crc_item = proto_tree_add_uint(main_tree, hf_data_crc32, tvb, offset, 0, command_data->crc32);
         crc_tree = proto_item_add_subtree(crc_item, ett_adb_crc);
-        PROTO_ITEM_SET_GENERATED(crc_item);
+        proto_item_set_generated(crc_item);
     }
 
     if (command_data && command_data->completed_in_frame != frame_number) {
         sub_item = proto_tree_add_uint(main_tree, hf_completed_in_frame, tvb, offset, 0, command_data->completed_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
 
@@ -619,7 +619,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         /* First pass: store message payload (usually a single packet, but
          * potentially multiple fragments). */
-        if (!pinfo->fd->flags.visited && command_data && command_data->reassemble_data_length < command_data->data_length) {
+        if (!pinfo->fd->visited && command_data && command_data->reassemble_data_length < command_data->data_length) {
             guint chunklen = tvb_captured_length_remaining(tvb, offset);
             if (chunklen > command_data->data_length - command_data->reassemble_data_length) {
                 chunklen = command_data->data_length - command_data->reassemble_data_length;
@@ -641,7 +641,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_expert(main_tree, pinfo, &ei_invalid_data, tvb, offset, -1);
         }
 
-        if ((!pinfo->fd->flags.visited && command_data && command_data->reassemble_data_length < command_data->data_length) || data_length > (guint32) tvb_captured_length_remaining(tvb, offset)) { /* need reassemble */
+        if ((!pinfo->fd->visited && command_data && command_data->reassemble_data_length < command_data->data_length) || data_length > (guint32) tvb_captured_length_remaining(tvb, offset)) { /* need reassemble */
             proto_tree_add_item(main_tree, hf_data_fragment, tvb, offset, -1, ENC_NA);
             col_append_str(pinfo->cinfo, COL_INFO, "Data Fragment");
             offset = tvb_captured_length(tvb);
@@ -684,8 +684,8 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             if (is_service) {
                 proto_tree_add_item(main_tree, hf_service, tvb, offset, -1, ENC_ASCII | ENC_NA);
-                if (!pinfo->fd->flags.visited && service_data) {
-                    service_data->service = tvb_get_stringz_enc(wmem_file_scope(), tvb, offset, NULL, ENC_ASCII);
+                if (!pinfo->fd->visited && service_data) {
+                    service_data->service = (gchar *) tvb_get_stringz_enc(wmem_file_scope(), tvb, offset, NULL, ENC_ASCII);
                 }
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Service: %s", tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, NULL, ENC_ASCII));
                 offset = tvb_captured_length(tvb);
@@ -921,7 +921,7 @@ proto_reg_handoff_adb(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

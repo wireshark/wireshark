@@ -478,7 +478,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	 * struct is saved in the conversation and is copied to the
 	 * per-packet information if a DATA frame is dissected.
 	 */
-	if (!pinfo->fd->flags.visited) {
+	if (!pinfo->fd->visited) {
 		if (CFG2 == frame_type &&
 		    check_crc(tvb, &crc)) {
 			conversation_t *conversation;
@@ -1359,7 +1359,7 @@ void proto_reg_handoff_synphasor(void)
 } /* proto_reg_handoff_synphasor() */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

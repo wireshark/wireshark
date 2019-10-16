@@ -19,7 +19,7 @@
 #include <epan/to_str.h>
 
 #include "packet-tcp.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
@@ -3557,10 +3557,7 @@ static int dissect_aim_snac_ssi_time_and_items_num(tvbuff_t *tvb, packet_info *p
 	int offset = 0;
 
 	/* get timestamp */
-	nstime_t tmptime;
-	tmptime.secs = tvb_get_ntohl(tvb, offset);
-	tmptime.nsecs = 0;
-	proto_tree_add_time(tree, hf_aim_fnac_subtype_ssi_last_change_time, tvb, offset, 4, &tmptime);
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_last_change_time, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* get number of SSI items */
@@ -3575,7 +3572,6 @@ static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	int offset = 0;
 	proto_tree *ssi_entry = NULL;
 	guint16 num_items, i;
-	nstime_t tmptime;
 	gint ssi_entry_size;
 
 	/* SSI Version */
@@ -3593,9 +3589,7 @@ static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 				ett_aim_ssi, NULL, "SSI Entry %u", i);
 		offset = dissect_ssi_item(tvb, pinfo, offset, ssi_entry);
 	}
-	tmptime.secs = tvb_get_ntohl(tvb, offset);
-	tmptime.nsecs = 0;
-	proto_tree_add_time(tree, hf_aim_fnac_subtype_ssi_last_change_time, tvb, offset, 4, &tmptime);
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_last_change_time, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 
 	return offset;
 }
@@ -4554,7 +4548,7 @@ proto_reg_handoff_aim(void)
 
 	ssl_dissector_add(0, aim_handle);
 	/* Heuristics disabled by default, it is really weak... */
-	heur_dissector_add("ssl", dissect_aim_ssl_heur, "AIM over SSL", "aim_ssl", proto_aim, HEURISTIC_DISABLE);
+	heur_dissector_add("tls", dissect_aim_ssl_heur, "AIM over TLS", "aim_tls", proto_aim, HEURISTIC_DISABLE);
 
 
 	aim_init_family(proto_aim_admin, ett_aim_admin, FAMILY_ADMIN, aim_fnac_family_admin);
@@ -4581,7 +4575,7 @@ proto_reg_handoff_aim(void)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

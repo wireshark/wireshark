@@ -2,7 +2,7 @@ Portable Wireshark
 ==================
 
 This directory contains experimental packaging for running Wireshark under the Portable Apps 
-(http://www.portableapps.com/). 
+(https://portableapps.com).
 
 Currently only an additional menu item for Wireshark is added - the other tools could be added to Portable Apps menu if required.
 

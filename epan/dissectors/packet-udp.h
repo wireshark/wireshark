@@ -57,7 +57,7 @@ struct udp_analysis {
 	udp_flow_t	flow1;
 	udp_flow_t	flow2;
 
-	/* These pointers are set by get_tcp_conversation_data()
+	/* These pointers are set by get_udp_conversation_data()
 	 * fwd point in the same direction as the current packet
 	 * and rev in the reverse direction
 	 */
@@ -69,6 +69,18 @@ struct udp_analysis {
 	 * stream index numbering
 	 */
 	guint32		stream;
+
+	/* Remember the timestamp of the first frame seen in this udp
+	 * conversation to be able to calculate a relative time compared
+	 * to the start of this conversation
+	 */
+	nstime_t	ts_first;
+
+	/* Remember the timestamp of the frame that was last seen in this
+	 * udp conversation to be able to calculate a delta time compared
+	 * to previous frame in this conversation
+	 */
+	nstime_t	ts_prev;
 };
 
 /** Associate process information with a given flow

@@ -42,6 +42,16 @@ void proto_reg_handoff_bittorrent(void);
 #define BITTORRENT_MESSAGE_PIECE            7
 #define BITTORRENT_MESSAGE_CANCEL           8
 #define BITTORRENT_MESSAGE_PORT             9
+/*
+ * BitTorrent BEP 06
+ * Fast Extension message type
+ *
+ */
+#define BITT_FAST_EX_SUGGEST_PIECE         13
+#define BITT_FAST_EX_HAVE_ALL              14
+#define BITT_FAST_EX_HAVE_NONE             15
+#define BITT_FAST_EX_REJECT_REQUEST        16
+#define BITT_FAST_EX_ALLOWED_FAST          17
 #define BITTORRENT_MESSAGE_EXTENDED        20
 
 #define BITTORRENT_HEADER_LENGTH            4
@@ -71,6 +81,11 @@ static const value_string bittorrent_messages[] = {
    { BITTORRENT_MESSAGE_PIECE,          "Piece" },
    { BITTORRENT_MESSAGE_CANCEL,         "Cancel" },
    { BITTORRENT_MESSAGE_PORT,           "Port" },
+   { BITT_FAST_EX_SUGGEST_PIECE,        "Suggest Piece" },
+   { BITT_FAST_EX_HAVE_ALL,             "Have All" },
+   { BITT_FAST_EX_HAVE_NONE,            "Have None" },
+   { BITT_FAST_EX_REJECT_REQUEST,       "Reject Request" },
+   { BITT_FAST_EX_ALLOWED_FAST,         "Allowed Fast" },
    { BITTORRENT_MESSAGE_EXTENDED,       "Extended" },
    { AZUREUS_MESSAGE_KEEP_ALIVE,        "Keepalive" },
    { AZUREUS_MESSAGE_HANDSHAKE,         "Azureus Handshake" },
@@ -106,6 +121,11 @@ static const struct amp_message amp_messages[] = {
    { "BT_PIECE",         BITTORRENT_MESSAGE_PIECE },
    { "BT_CANCEL",        BITTORRENT_MESSAGE_CANCEL },
    { "BT_PORT",          BITTORRENT_MESSAGE_PORT },
+   { "BT_SUGGEST",       BITT_FAST_EX_SUGGEST_PIECE },
+   { "BT_HAVE_ALL",      BITT_FAST_EX_HAVE_ALL },
+   { "BT_HAVE_NONE",     BITT_FAST_EX_HAVE_NONE },
+   { "BT_REJECT_REQUEST",BITT_FAST_EX_REJECT_REQUEST },
+   { "BT_ALLOWED_FAST",  BITT_FAST_EX_ALLOWED_FAST },
    { "BT_EXTENDED",      BITTORRENT_MESSAGE_EXTENDED },
    { "AZ_HANDSHAKE",     AZUREUS_MESSAGE_HANDSHAKE },
    { "BT_HANDSHAKE",     AZUREUS_MESSAGE_BT_HANDSHAKE },
@@ -271,7 +291,7 @@ get_bittorrent_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
       /* Do some sanity checking of the message, if we have the ID byte */
       if(tvb_offset_exists(tvb, offset + BITTORRENT_HEADER_LENGTH)) {
          type = tvb_get_guint8(tvb, offset + BITTORRENT_HEADER_LENGTH);
-         if((type <= BITTORRENT_MESSAGE_PORT || type == BITTORRENT_MESSAGE_EXTENDED) && length<0x1000000) {
+         if((type <= BITTORRENT_MESSAGE_PORT || (type >= BITT_FAST_EX_SUGGEST_PIECE && type <= BITT_FAST_EX_ALLOWED_FAST) || type == BITTORRENT_MESSAGE_EXTENDED) && length<0x1000000) {
             /* This seems to be a valid BitTorrent header with a known
                type identifier */
             return BITTORRENT_HEADER_LENGTH + length;
@@ -401,11 +421,14 @@ dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    case BITTORRENT_MESSAGE_UNCHOKE:
    case BITTORRENT_MESSAGE_INTERESTED:
    case BITTORRENT_MESSAGE_NOT_INTERESTED:
+   case BITT_FAST_EX_HAVE_ALL:
+   case BITT_FAST_EX_HAVE_NONE:
       /* No payload */
       break;
 
    case BITTORRENT_MESSAGE_REQUEST:
    case BITTORRENT_MESSAGE_CANCEL:
+   case BITT_FAST_EX_REJECT_REQUEST:
       piece_index = tvb_get_ntohl(tvb, offset);
       proto_tree_add_uint(mtree, hf_bittorrent_piece_index, tvb, offset, 4, piece_index); offset += 4;
       piece_begin = tvb_get_ntohl(tvb, offset);
@@ -429,6 +452,8 @@ dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
    case BITTORRENT_MESSAGE_HAVE:
+   case BITT_FAST_EX_SUGGEST_PIECE:
+   case BITT_FAST_EX_ALLOWED_FAST:
       piece_index = tvb_get_ntohl(tvb, offset);
       proto_tree_add_item(mtree, hf_bittorrent_piece_index, tvb, offset, 4, ENC_BIG_ENDIAN);
       proto_item_append_text(ti, ", Piece (Idx:0x%x)", piece_index);

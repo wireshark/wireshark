@@ -3122,7 +3122,7 @@ proto_register_llrp(void)
 
         /* TODO add translation */
         { &hf_llrp_country_code,
-        { "Contry code", "llrp.param.country_code", FT_UINT16, BASE_DEC, NULL, 0,
+        { "Country code", "llrp.param.country_code", FT_UINT16, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
         { &hf_llrp_comm_standard,
@@ -4013,7 +4013,7 @@ proto_reg_handoff_llrp(void)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

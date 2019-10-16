@@ -11,6 +11,8 @@ set(NONGENERATED_UI_SRC
 	alert_box.c
 	capture.c
 	capture_ui_utils.c
+	clopts_common.c
+	cmdarg_err.c
 	commandline.c
 	console.c
 	decode_as_utils.c
@@ -36,12 +38,14 @@ set(NONGENERATED_UI_SRC
 	recent.c
 	rtp_media.c
 	rtp_stream.c
+	rtp_stream_id.c
 	service_response_time.c
 	software_update.c
 	ssl_key_export.c
 	summary.c
 	tap_export_pdu.c
 	tap-iax2-analysis.c
+	tap-rtp-analysis.c
 	tap-rtp-common.c
 	tap-sctp-analysis.c
 	tap-rlc-graph.c
@@ -57,6 +61,7 @@ set(NONGENERATED_UI_SRC
 file(GLOB EXTRA_UI_HEADERS
 	rtp_media.h
 	rtp_stream.h
+	rtp_stream_id.h
 	tap-iax2-analysis.h
 	tap-rtp-analysis.h
 )
@@ -81,14 +86,17 @@ set_target_properties(ui PROPERTIES
 	FOLDER "UI"
 )
 
-add_executable(make-taps make-taps.c)
-# wsutil is only required for glib-compat.c
-target_link_libraries(make-taps ${GLIB2_LIBRARIES} wsutil)
+target_link_libraries(ui wsutil caputils)
 
 if (HTML_HELP_COMPILER)
 	add_definitions(-DHHC_DIR)
 	target_link_libraries(ui Htmlhelp.lib)
 endif()
+
+target_include_directories(ui SYSTEM
+	PRIVATE
+		${WINSPARKLE_INCLUDE_DIRS}
+)
 
 add_definitions(-DDOC_DIR="${CMAKE_INSTALL_FULL_DOCDIR}")
 
@@ -96,7 +104,6 @@ CHECKAPI(
 	NAME
 	  ui-base
 	SWITCHES
-	  -g deprecated-gtk
 	SOURCES
 	  ${NONGENERATED_UI_SRC}
 # Flex files not included due to use of malloc, free etc.
@@ -105,14 +112,14 @@ CHECKAPI(
 	NAME
 	  ui-todo
 	SWITCHES
-	  -M -g deprecated-gtk-todo
+	  -M
 	SOURCES
 	  ${NONGENERATED_UI_SRC}
 # Flex files not included due to use of malloc, free etc.
 )
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

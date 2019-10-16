@@ -25,10 +25,26 @@ typedef struct _bacapp_info_value_t {
     const gchar     *object_ident;
 } bacapp_info_value_t;
 
+/* Possible datatypes of the present_value property.
+   Follows the order of Application Tag Number. */
+typedef enum BacappPresentValueType {
+    BACAPP_PRESENT_VALUE_NULL,
+    BACAPP_PRESENT_VALUE_BOOL,
+    BACAPP_PRESENT_VALUE_UNSIGNED,
+    BACAPP_PRESENT_VALUE_SIGNED,
+    BACAPP_PRESENT_VALUE_REAL,
+    BACAPP_PRESENT_VALUE_DOUBLE,
+    BACAPP_PRESENT_VALUE_OCTET_STRING,
+    BACAPP_PRESENT_VALUE_CHARACTER_STRING,
+    BACAPP_PRESENT_VALUE_BIT_STRING,
+    BACAPP_PRESENT_VALUE_ENUM,
+    BACAPP_PRESENT_VALUE_OBJECT_IDENTIFIER
+} BacappPresentValueType;
+
 #endif /* __PACKET_BACNET_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

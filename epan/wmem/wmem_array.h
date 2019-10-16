@@ -65,6 +65,10 @@ void *
 wmem_array_index(wmem_array_t *array, guint array_index);
 
 WS_DLL_PUBLIC
+int
+wmem_array_try_index(wmem_array_t *array, guint array_index, void *val);
+
+WS_DLL_PUBLIC
 void
 wmem_array_sort(wmem_array_t *array, int (*compar)(const void*,const void*));
 
@@ -86,7 +90,7 @@ wmem_array_get_count(wmem_array_t *array);
 #endif /* __WMEM_ARRAY_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

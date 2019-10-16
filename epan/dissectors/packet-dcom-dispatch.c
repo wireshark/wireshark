@@ -75,10 +75,16 @@ static gint ett_dispatch = -1;
 static int proto_dispatch = -1;
 
 
-/* from MSDN "Locale Identifiers" */
-/* see: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/intl/nls_8sj7.asp */
-/* values from cygwin's winnls.h and: */
-/* http://msdn.microsoft.com/library/default.asp?url=/library/en-us/intl/nls_238z.asp */
+/*
+ * See:
+ *
+ *    https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-lcid/a9eac961-e77d-41a6-90a5-ce1a8b0cdb9c
+ *    https://docs.microsoft.com/en-us/windows/win32/intl/locale-user-default
+ *    https://docs.microsoft.com/en-us/windows/win32/intl/locale-system-default
+ *    https://docs.microsoft.com/en-us/previous-versions/commerce-server/ee796949(v%3Dcs.20)
+ *
+ * and values from cygwin's winnls.h
+ */
 static const value_string dcom_lcid_vals[] = {
     { 0x0000, "Language neutral" },
     { 0x0400, "LOCALE_USER_DEFAULT" },
@@ -598,7 +604,7 @@ proto_reg_handoff_dcom_dispatch(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

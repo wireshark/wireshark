@@ -79,9 +79,9 @@ extern int mtp3_addr_len(void);
  */
 extern void dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset,
 				  proto_tree *tree, gint ett_pc,
-				  int hf_pc, int hf_pc_network,
+				  int hf_pc_string, int hf_pc_network,
 				  int hf_pc_cluster, int hf_pc_member,
-				  int hf_dpc, int pc);
+				  int hf_dpc, int hf_pc);
 #endif
 
 /*

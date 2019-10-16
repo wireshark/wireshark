@@ -7,26 +7,23 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-include(UseABICheck)
-
-if(NOT WIN32)
-	add_definitions(-DPLUGIN_DIR=\"${CMAKE_INSTALL_FULL_LIBDIR}/wireshark/plugins\")
-endif()
+add_definitions(-DPLUGIN_DIR=\"${CMAKE_INSTALL_PREFIX}/${PLUGIN_INSTALL_LIBDIR}\")
+add_definitions(-DEXTCAP_DIR=\"${CMAKE_INSTALL_PREFIX}/${EXTCAP_INSTALL_LIBDIR}\")
+add_definitions(-DDATA_DIR=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}\")
 
 set(WSUTIL_PUBLIC_HEADERS
 	adler32.h
 	base32.h
-	base64.h
 	bits_count_ones.h
 	bits_ctz.h
 	bitswap.h
 	buffer.h
-	clopts_common.h
-	cmdarg_err.h
+	codecs.h
 	color.h
 	copyright_info.h
 	cpu_info.h
 	crash_info.h
+	crc5.h
 	crc6.h
 	crc7.h
 	crc8.h
@@ -35,19 +32,23 @@ set(WSUTIL_PUBLIC_HEADERS
 	crc16.h
 	crc16-plain.h
 	crc32.h
+	curve25519.h
 	eax.h
 	filesystem.h
 	frequency-utils.h
 	g711.h
-	glib-compat.h
 	inet_addr.h
+	inet_ipv4.h
 	inet_ipv6.h
 	interface.h
 	jsmn.h
+	json_dumper.h
 	mpeg-audio.h
+	netlink.h
 	nstime.h
 	os_version_info.h
 	pint.h
+	please_report_bug.h
 	plugins.h
 	pow2.h
 	privileges.h
@@ -69,44 +70,46 @@ set(WSUTIL_PUBLIC_HEADERS
 	ws_mempbrk_int.h
 	ws_pipe.h
 	ws_printf.h
-	wsjsmn.h
+	wsjson.h
 	xtea.h
 )
 
 set(WSUTIL_COMMON_FILES
 	adler32.c
 	base32.c
-	base64.c
 	bitswap.c
 	buffer.c
-	clopts_common.c
-	cmdarg_err.c
+	codecs.c
 	copyright_info.c
 	crash_info.c
 	crc10.c
 	crc16.c
 	crc16-plain.c
 	crc32.c
+	crc5.c
 	crc6.c
 	crc7.c
 	crc8.c
 	crc11.c
+	curve25519.c
 	dot11decrypt_wep.c
 	eax.c
 	filesystem.c
 	frequency-utils.c
 	g711.c
-	glib-compat.c
 	inet_addr.c
 	interface.c
 	jsmn.c
+	json_dumper.c
 	mpeg-audio.c
 	nstime.c
 	cpu_info.c
 	os_version_info.c
+	please_report_bug.c
 	privileges.c
 	rsa.c
 	sober128.c
+	socket.c
 	strnatcmp.c
 	str_util.c
 	strtoi.c
@@ -118,7 +121,7 @@ set(WSUTIL_COMMON_FILES
 	ws_mempbrk.c
 	ws_pipe.c
 	wsgcrypt.c
-	wsjsmn.c
+	wsjson.c
 	xtea.c
 )
 
@@ -219,20 +222,6 @@ if(APPLE)
 	FIND_LIBRARY (APPLE_CORE_FOUNDATION_LIBRARY CoreFoundation)
 endif()
 
-set(wsutil_LIBS
-	${CMAKE_DL_LIBS}
-	${APPLE_CORE_FOUNDATION_LIBRARY}
-	${GMODULE2_LIBRARIES}
-	${GLIB2_LIBRARIES}
-	${GCRYPT_LIBRARIES}
-	${ZLIB_LIBRARIES}
-	${WIN_WSOCK32_LIBRARY}
-	${GNUTLS_LIBRARIES}
-)
-IF(WIN32)
-	set(wsutil_LIBS ${wsutil_LIBS} "iphlpapi.lib" "ws2_32.lib")
-ENDIF(WIN32)
-
 set_source_files_properties(
 	${WSUTIL_FILES}
 	PROPERTIES
@@ -253,60 +242,53 @@ add_library(wsutil
 	${CMAKE_BINARY_DIR}/image/libwsutil.rc
 )
 
-set(FULL_SO_VERSION "0.0.0")
-
 set_target_properties(wsutil PROPERTIES
 	PREFIX "lib"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 	LINK_FLAGS "${WS_LINK_FLAGS}"
-	VERSION ${FULL_SO_VERSION} SOVERSION 0
+	VERSION "0.0.0" SOVERSION 0
 	FOLDER "DLLs"
+	INSTALL_RPATH "${LIBRARY_INSTALL_RPATH}"
 )
 
-if(ENABLE_APPLICATION_BUNDLE)
-	set_target_properties(wsutil PROPERTIES
-		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Frameworks
-	)
-endif()
+target_link_libraries(wsutil
+	PUBLIC
+	${CMAKE_DL_LIBS}
+	${APPLE_CORE_FOUNDATION_LIBRARY}
+	${GMODULE2_LIBRARIES}
+	${GLIB2_LIBRARIES}
+	${GCRYPT_LIBRARIES}
+	${WIN_WS2_32_LIBRARY}
+	${GNUTLS_LIBRARIES}
+	${M_LIBRARIES}
+)
 
-ABICHECK(libwsutil)
+if(WIN32)
+	target_link_libraries(wsutil PRIVATE "iphlpapi.lib" "ws2_32.lib")
+endif(WIN32)
 
-add_custom_command(OUTPUT libwsutil.abi.tar.gz
-	COMMAND ${CMAKE_COMMAND} -E remove_directory ${ABICHECK_TMPDIR}
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${ABICHECK_TMPDIR}
-	COMMAND ${ABI_COPY_COMMAND} ../config.h ${ABICHECK_TMPDIR}/ ${ABI_COPY_FLAGS}
-	COMMAND ${ABI_COPY_COMMAND} ${ABICHECK_HEADERS} ${ABICHECK_TMPDIR}/ ${ABI_COPY_FLAGS}
-	COMMAND ${ABICHECK_COMMAND}
-	COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps/libwsutil/libwsutil_* ${CMAKE_CURRENT_BINARY_DIR}/libwsutil.abi.tar.gz
-	COMMAND rm -rf ${ABICHECK_TMPDIR} ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps
-	DEPENDS ${HEADERS} wsutil)
-
-target_link_libraries(wsutil ${wsutil_LIBS})
+target_include_directories(wsutil SYSTEM
+	PUBLIC
+		${GCRYPT_INCLUDE_DIRS}
+		${GNUTLS_INCLUDE_DIRS}
+)
 
 install(TARGETS wsutil
+	EXPORT WiresharkTargets
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
-if(NOT WIN32)
-	install(FILES ${WSUTIL_PUBLIC_HEADERS}
-		DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${CPACK_PACKAGE_NAME}/wsutil"
-	)
-endif()
-
-# Export build-time datadir (note: the macro "DATAFILE_DIR" is defined in
-# config.h and points to the install-time data directory, hence the different
-# name).
-set_property(SOURCE filesystem.c APPEND PROPERTY
-	COMPILE_DEFINITIONS BUILD_TIME_DATAFILE_DIR="${DATAFILE_DIR}"
+install(FILES ${WSUTIL_PUBLIC_HEADERS}
+	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/wsutil"
 )
 
 CHECKAPI(
 	NAME
 	  wsutil
 	SWITCHES
-	  -g termoutput -build
+	  --group termoutput:2 --summary-group termoutput --build
 	SOURCES
 	  ${WSUTIL_COMMON_FILES}
 )
@@ -314,7 +296,7 @@ CHECKAPI(
 set_source_files_properties(jsmn.c PROPERTIES COMPILE_DEFINITIONS "JSMN_STRICT")
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

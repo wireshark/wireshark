@@ -252,7 +252,7 @@ static void finish_process_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     osmuxh->stream = get_stream(pinfo, osmuxh->circuit_id);
 
     ti = proto_tree_add_uint(tree, hf_osmux_stream_id, tvb, 0, 0, osmuxh->stream->id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     tap_queue_packet(osmux_tap, pinfo, osmuxh);
 }
 
@@ -379,12 +379,12 @@ static void stream_hash_clean_stats(gpointer key _U_, gpointer value, gpointer u
 static void osmux_stats_tree_init(stats_tree *st)
 {
     wmem_map_foreach(osmux_stream_hash, stream_hash_clean_stats, NULL);
-    st_osmux_stats = stats_tree_create_node(st, st_str_total_pkts, 0, TRUE);
-    st_osmux_stats_conn = stats_tree_create_node(st, st_str_conn, st_osmux_stats, TRUE);
+    st_osmux_stats = stats_tree_create_node(st, st_str_total_pkts, 0, STAT_DT_INT, TRUE);
+    st_osmux_stats_conn = stats_tree_create_node(st, st_str_conn, st_osmux_stats, STAT_DT_INT, TRUE);
 }
 
-static int osmux_stats_tree_packet(stats_tree *st, packet_info *pinfo,
-        epan_dissect_t *edt _U_, const void *p _U_)
+static tap_packet_status osmux_stats_tree_packet(stats_tree *st,
+        packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_)
 {
     gchar* stream_name;
     gchar* ft_name;
@@ -397,7 +397,7 @@ static int osmux_stats_tree_packet(stats_tree *st, packet_info *pinfo,
 
     if (!stream->stats.node_id) {
         tick_stat_node(st, st_str_conn, st_osmux_stats, TRUE);
-        stream->stats.node_id = stats_tree_create_node(st, stream_name, st_osmux_stats_conn, TRUE);
+        stream->stats.node_id = stats_tree_create_node(st, stream_name, st_osmux_stats_conn, STAT_DT_INT, TRUE);
     }
 
     tick_stat_node(st, stream_name, st_osmux_stats_conn, TRUE);
@@ -417,9 +417,9 @@ static int osmux_stats_tree_packet(stats_tree *st, packet_info *pinfo,
 
         /* Calculate relative transmit time */
         if ((stream->stats.prev_ts.secs == 0 && stream->stats.prev_ts.nsecs == 0) || osmuxh->rtp_m) {
-            avg_stat_node_add_value(st, st_str_jit_rtt, stream->stats.node_id, TRUE, 0);
-            avg_stat_node_add_value(st, st_str_jit_rtt_abs, stream->stats.node_id, TRUE, 0);
-            avg_stat_node_add_value(st, st_str_jit_jit, stream->stats.node_id, TRUE, 0);
+            avg_stat_node_add_value_int(st, st_str_jit_rtt, stream->stats.node_id, TRUE, 0);
+            avg_stat_node_add_value_int(st, st_str_jit_rtt_abs, stream->stats.node_id, TRUE, 0);
+            avg_stat_node_add_value_int(st, st_str_jit_jit, stream->stats.node_id, TRUE, 0);
             stream->stats.jitter = 0;
         } else {
             nstime_t diff_rx;
@@ -431,9 +431,9 @@ static int osmux_stats_tree_packet(stats_tree *st, packet_info *pinfo,
             Dij = diff_rx_ms - diff_tx_ms;
             abs_Dij = Dij * ( Dij >= 0 ? 1 : -1 );
             stream->stats.jitter = stream->stats.jitter + ((double) abs_Dij - stream->stats.jitter)/16.0;
-            avg_stat_node_add_value(st, st_str_jit_rtt, stream->stats.node_id, TRUE, Dij);
-            avg_stat_node_add_value(st, st_str_jit_rtt_abs, stream->stats.node_id, TRUE, abs_Dij);
-            avg_stat_node_add_value(st, st_str_jit_jit, stream->stats.node_id, TRUE, (gint) stream->stats.jitter);
+            avg_stat_node_add_value_int(st, st_str_jit_rtt, stream->stats.node_id, TRUE, Dij);
+            avg_stat_node_add_value_int(st, st_str_jit_rtt_abs, stream->stats.node_id, TRUE, abs_Dij);
+            avg_stat_node_add_value_int(st, st_str_jit_jit, stream->stats.node_id, TRUE, (gint) stream->stats.jitter);
         }
         stream->stats.prev_ts = pinfo->abs_ts;
         stream->stats.prev_seq = osmuxh->seq;
@@ -463,7 +463,7 @@ static int osmux_stats_tree_packet(stats_tree *st, packet_info *pinfo,
 
     }
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 void proto_register_osmux(void)
@@ -565,7 +565,7 @@ void proto_reg_handoff_osmux(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

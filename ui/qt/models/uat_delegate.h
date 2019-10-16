@@ -7,7 +7,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef UAT_DELEGATE_H
 #define UAT_DELEGATE_H
@@ -34,7 +35,6 @@ public:
 
 private slots:
     void applyFilename(const QModelIndex& index);
-    void applyColor(const QModelIndex& index);
 
 private:
     uat_field_t *indexToField(const QModelIndex &index) const;

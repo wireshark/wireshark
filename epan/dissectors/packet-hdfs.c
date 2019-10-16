@@ -1049,6 +1049,7 @@ void
 proto_reg_handoff_hdfs(void)
 {
     dissector_add_for_decode_as_with_preference("tcp.port", hdfs_handle);
+    apply_hdfs_prefs();
 }
 /*
  * Editor modelines

@@ -1,6 +1,6 @@
 /* packet-lpp.c
  * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
- * Copyright 2011-2018 Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2011-2019 Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 36.355 version 14.5.1 Release 14
+ * Ref 3GPP TS 36.355 version 15.5.0 Release 15
  * http://www.3gpp.org
  */
 
@@ -50,7 +50,6 @@ static guint32 lpp_epdu_id = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_lpp = -1;
-static gint ett_lpp_bitmap = -1;
 static gint ett_lpp_svHealthExt_v1240 = -1;
 static gint ett_kepSV_StatusINAV = -1;
 static gint ett_kepSV_StatusFNAV = -1;
@@ -110,6 +109,22 @@ lpp_confidence_fmt(gchar *s, guint32 v)
 }
 
 static void
+lpp_1_10_degrees_fmt(gchar *s, guint32 v)
+{
+  double val = (double)v/10;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%g degrees (%u)", val, v);
+}
+
+static void
+lpp_1_100_m_fmt(gchar *s, guint32 v)
+{
+  double val = (double)v/100;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gm (%u)", val, v);
+}
+
+static void
 lpp_measurementLimit_fmt(gchar *s, guint32 v)
 {
   g_snprintf(s, ITEM_LABEL_LENGTH, "%u octets (%u)", 100*v, v);
@@ -133,6 +148,12 @@ static void
 lpp_radius_fmt(gchar *s, guint32 v)
 {
   g_snprintf(s, ITEM_LABEL_LENGTH, "%um (%u)", 5*v, v);
+}
+
+static void
+lpp_nr_LTE_fineTiming_Offset_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
 }
 
 static void
@@ -380,6 +401,59 @@ lpp_deltaUT1dot_fmt(gchar *s, guint32 v)
   double deltaUT1dot = (double)((gint32)v)*pow(2, -25);
 
   g_snprintf(s, ITEM_LABEL_LENGTH, "%gs/day (%d)", deltaUT1dot, (gint32)v);
+}
+
+static void
+lpp_1_1000m_64_fmt(gchar *s, guint64 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gm (%" G_GINT64_MODIFIER "d)", (double)v/1000, (gint64)v);
+}
+
+static void
+lpp_1_1000m_32_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", (double)v/1000, (gint32)v);
+}
+
+static const value_string lpp_clockSteeringIndicator_vals[] = {
+  { 0, "Clock steering is not applied"},
+  { 1, "Clock steering has been applied"},
+  { 2, "Unknown clock steering status"},
+  { 3, "Reserved"},
+  { 0, NULL}
+};
+
+static const value_string lpp_externalClockIndicator_vals[] = {
+  { 0, "Internal clock is used"},
+  { 1, "External clock is used, clock status is \"locked\""},
+  { 2, "External clock is used, clock status is \"not locked\", which may indicate external clock failure and that the transmitted data may not be reliable"},
+  { 3, "Unknown clock is used"},
+  { 0, NULL}
+};
+
+static const value_string lpp_smoothingIndicator_r15_vals[] = {
+  { 0, "Other type of smoothing is used"},
+  { 1, "Divergence-free smoothing is used"},
+  { 0, NULL}
+};
+
+static const value_string lpp_smoothingInterval_r15_vals[] = {
+  { 0, "No smoothing"},
+  { 1, "< 30 s"},
+  { 2, "30-60 s"},
+  { 3, "1-2 min"},
+  { 4, "2-4 min"},
+  { 5, "4-8 min"},
+  { 6, "> 8 min"},
+  { 7, "Unlimited smoothing interval"},
+  { 0, NULL}
+};
+
+static void
+lpp_aux_master_delta_fmt(gchar *s, guint32 v)
+{
+  double delta = (double)((gint32)v)*25*pow(10, -6);
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gs (%u)", delta, (gint32)v);
 }
 
 static void
@@ -1496,6 +1570,146 @@ static const value_string lpp_bds_givei_vals[] = {
 static value_string_ext lpp_bds_givei_vals_ext = VALUE_STRING_EXT_INIT(lpp_bds_givei_vals);
 
 static void
+lpp_fine_PseudoRange_r15_fmt(gchar *s, guint32 v)
+{
+  double val = (double)((gint32)v)*pow(2, -29);
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gms (%d)", val, (gint32)v);
+}
+
+static void
+lpp_fine_PhaseRange_r15_fmt(gchar *s, guint32 v)
+{
+  double val = (double)((gint32)v)*pow(2, -31);
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gms (%d)", val, (gint32)v);
+}
+
+static void
+lpp_carrier_to_noise_ratio_r15_fmt(gchar *s, guint32 v)
+{
+  double val = (double)v*pow(2, -4);
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gdB-Hz (%d)", val, v);
+}
+
+static void
+lpp_fine_PhaseRangeRate_r15_fmt(gchar *s, guint32 v)
+{
+  double val = (double)((gint32)v)/1000;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gms (%d)", val, (gint32)v);
+}
+
+static void
+lpp_cpBias_r15_fmt(gchar *s, guint32 v)
+{
+  double val = (double)((gint32)v)/50;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", val, (gint32)v);
+}
+
+static const value_string lpp_ambiguityStatusFlag_r15_vals[] = {
+  { 0, "Reserved for future use (artificial observations)"},
+  { 1, "Correct Integer Ambiguity Level for L1 and L2"},
+  { 2, "Correct Integer Ambiguity Level for L1-L2 widelane"},
+  { 3, "Uncertain Integer Ambiguity Level. Only a likely guess is used"},
+  { 0, NULL}
+};
+
+static void
+lpp_1_2000m_fmt(gchar *s, guint32 v)
+{
+  double val = (double)((gint32)v)/2000;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", val, (gint32)v);
+}
+
+static void
+lpp_1_100ppm_fmt(gchar *s, guint32 v)
+{
+  double val = (double)((gint32)v)/100;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gppm (%d)", val, (gint32)v);
+}
+
+static void
+lpp_1_10ppm_fmt(gchar *s, guint32 v)
+{
+  double val = (double)((gint32)v)/10;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gppm (%d)", val, (gint32)v);
+}
+
+static const value_string lpp_ssrUpdateInterval_r15_vals[] = {
+  {  0, "1 second"},
+  {  1, "2 seconds"},
+  {  2, "5 seconds"},
+  {  3, "10 seconds"},
+  {  4, "15 seconds"},
+  {  5, "30 seconds"},
+  {  6, "60 seconds"},
+  {  7, "120 seconds"},
+  {  8, "240 seconds"},
+  {  9, "300 seconds"},
+  { 10, "600 seconds"},
+  { 11, "900 seconds"},
+  { 12, "1800 seconds"},
+  { 13, "3600 seconds"},
+  { 14, "7200 seconds"},
+  { 15, "10800 seconds"},
+  { 0, NULL}
+};
+
+static void
+lpp_1_10000m_fmt(gchar *s, guint32 v)
+{
+  double val = (double)((gint32)v)/10000;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", val, (gint32)v);
+}
+
+static void
+lpp_4_10000m_fmt(gchar *s, guint32 v)
+{
+  double val = (double)((gint32)v)/10000*4;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", val, (gint32)v);
+}
+
+static void
+lpp_1_1000000m_s_fmt(gchar *s, guint32 v)
+{
+  double val = (double)((gint32)v)/1000000;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gm/s (%d)", val, (gint32)v);
+}
+
+static void
+lpp_4_1000000m_s_fmt(gchar *s, guint32 v)
+{
+  double val = (double)((gint32)v)/1000000*4;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gm/s (%d)", val, (gint32)v);
+}
+
+static void
+lpp_2_100000000m_s2_fmt(gchar *s, guint32 v)
+{
+  double val = (double)((gint32)v)/100000000*2;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gm/s2 (%d)", val, (gint32)v);
+}
+
+static void
+lpp_1_100000m_fmt(gchar *s, guint32 v)
+{
+  double val = (double)((gint32)v)/100000;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gm (%d)", val, (gint32)v);
+}
+
+static void
 lpp_tauC_fmt(gchar *s, guint32 v)
 {
   double tauC = (double)((gint32)v)*pow(2, -31);
@@ -1623,6 +1837,20 @@ lpp_refTemperature_fmt(gchar *s, guint32 v)
 }
 
 static void
+lpp_referencePressureRate_v1520_fmt(gchar *s, guint32 v)
+{
+  gint32 rate = (gint32)v;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%dPa/hour (%d)", 10*rate, rate);
+}
+
+static void
+lpp_PressureValidityPeriod_v1520_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%umin (%u)", 15*v, v);
+}
+
+static void
 lpp_doppler_fmt(gchar *s, guint32 v)
 {
   g_snprintf(s, ITEM_LABEL_LENGTH, "%gm/s (%d)", (gint32)v*0.04, (gint32)v);
@@ -1634,6 +1862,26 @@ lpp_adr_fmt(gchar *s, guint32 v)
   double adr = (double)v*pow(2, -10);
 
   g_snprintf(s, ITEM_LABEL_LENGTH, "%gm (%u)", adr, v);
+}
+
+static void
+lpp_adrMSB_r15_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%um (%u)", v*32768, v);
+}
+
+static void
+lpp_GNSS_SatMeas_delta_codePhase_r15_fmt(gchar *s, guint32 v)
+{
+  double codePhase = (double)v*pow(2, -24);
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gms (%u)", codePhase, v);
+}
+
+static void
+lpp_deliveryAmount_r15_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%g (%u)", pow(2, v), v);
 }
 
 static void
@@ -1652,7 +1900,7 @@ static void
 lpp_rsrq_Result_fmt(gchar *s, guint32 v)
 {
   if (v == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -19.5 dB (0)");
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -19.5dB (0)");
   } else if (v < 34) {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= RSRQ < %.1fdB (%u)", ((float)v/2)-20, (((float)v+1)/2)-20, v);
   } else {
@@ -1681,6 +1929,32 @@ lpp_nrsrq_Result_fmt(gchar *s, guint32 v)
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= NRSRQ < %.1fdB (%u)", (((float)v-1)/2)-34, ((float)v/2)-34, v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "2.5dB <= NRSRQ (%u)", v);
+  }
+}
+
+static void
+lpp_rsrp_Result_v1470_fmt(gchar *s, guint32 v)
+{
+  gint32 d = (gint32)v;
+
+  if (d == -17) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRP < -157dBm (-17)");
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= RSRP < %ddBm (%d)", d-141, d-140, d);
+  }
+}
+
+static void
+lpp_rsrq_Result_v1470_fmt(gchar *s, guint32 v)
+{
+  gint32 d = (gint32)v;
+
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -34.5dB (-30)");
+  } else if (v < 46) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= RSRQ < %.1fdB (%d)", ((float)d/2)-20, (((float)d+1)/2)-20, d);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "3dB <= RSRQ (46)");
   }
 }
 
@@ -1770,7 +2044,6 @@ void proto_register_lpp(void) {
   /* List of subtrees */
   static gint *ett[] = {
     &ett_lpp,
-    &ett_lpp_bitmap,
     &ett_lpp_svHealthExt_v1240,
     &ett_kepSV_StatusINAV,
     &ett_kepSV_StatusFNAV,

@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -17,6 +18,7 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/conversation_table.h>
+#include <ui/cmdarg_err.h>
 #include <ui/cli/tshark-tap.h>
 
 typedef struct _endpoints_t {
@@ -107,10 +109,10 @@ void init_hostlists(struct register_ct *ct, const char *filter)
 	iu->filter = g_strdup(filter);
 	iu->hash.user_data = iu;
 
-	error_string = register_tap_listener(proto_get_protocol_filter_name(get_conversation_proto_id(ct)), &iu->hash, filter, 0, NULL, get_hostlist_packet_func(ct), endpoints_draw);
+	error_string = register_tap_listener(proto_get_protocol_filter_name(get_conversation_proto_id(ct)), &iu->hash, filter, 0, NULL, get_hostlist_packet_func(ct), endpoints_draw, NULL);
 	if (error_string) {
 		g_free(iu);
-		fprintf(stderr, "tshark: Couldn't register endpoint tap: %s\n",
+		cmdarg_err("Couldn't register endpoint tap: %s",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -119,7 +121,7 @@ void init_hostlists(struct register_ct *ct, const char *filter)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

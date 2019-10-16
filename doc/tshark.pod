@@ -1,3 +1,8 @@
+=begin man
+
+=encoding utf8
+
+=end man
 
 =head1 NAME
 
@@ -22,8 +27,9 @@ S<[ B<-g> ]>
 S<[ B<-h> ]>
 S<[ B<-H> E<lt>input hosts fileE<gt> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
-S<[ B<-j> E<lt>protocol match filterE<gt> ]>
 S<[ B<-I> ]>
+S<[ B<-j> E<lt>protocol match filterE<gt> ]>
+S<[ B<-J> E<lt>protocol match filterE<gt> ]>
 S<[ B<-K> E<lt>keytabE<gt> ]>
 S<[ B<-l> ]>
 S<[ B<-L> ]>
@@ -40,7 +46,7 @@ S<[ B<-R> E<lt>Read filterE<gt> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
 S<[ B<-S> E<lt>separatorE<gt> ]>
 S<[ B<-t> a|ad|adoy|d|dd|e|r|u|ud|udoy ]>
-S<[ B<-T> ek|fields|json|pdml|ps|psml|tabs|text ]>
+S<[ B<-T> ek|fields|json|jsonraw|pdml|ps|psml|tabs|text ]>
 S<[ B<-u> E<lt>seconds typeE<gt>]>
 S<[ B<-U> E<lt>tap_nameE<gt>]>
 S<[ B<-v> ]>
@@ -63,10 +69,10 @@ S<[ B<--enable-protocol> E<lt>proto_nameE<gt> ]>
 S<[ B<--disable-protocol> E<lt>proto_nameE<gt> ]>
 S<[ B<--enable-heuristic> E<lt>short_nameE<gt> ]>
 S<[ B<--disable-heuristic> E<lt>short_nameE<gt> ]>
-S<[ E<lt>capture filterE<gt> ]>
+S<[ E<lt>filterE<gt> ]>
 
 B<tshark>
-B<-G> [ E<lt>report typeE<gt> ]
+B<-G> [ E<lt>report typeE<gt> ] [ --elastic-mapping-filter E<lt>protocolsE<gt> ]
 
 =head1 DESCRIPTION
 
@@ -74,8 +80,8 @@ B<TShark> is a network protocol analyzer.  It lets you capture packet
 data from a live network, or read packets from a previously saved
 capture file, either printing a decoded form of those packets to the
 standard output or writing the packets to a file.  B<TShark>'s native
-capture file format is B<pcap> format, which is also the format used
-by B<tcpdump> and various other tools.
+capture file format is B<pcapng> format, which is also the format used
+by B<wireshark> and various other tools.
 
 Without any options set, B<TShark> will work much like B<tcpdump>.  It
 will use the pcap library to capture traffic from the first available
@@ -94,7 +100,7 @@ L<https://www.wireshark.org/docs/man-pages/wireshark.html> is a detailed
 description of the way B<Wireshark> handles this, which is the same way
 B<Tshark> handles this.
 
-Compressed file support uses (and therefore requires) the zlib library. 
+Compressed file support uses (and therefore requires) the zlib library.
 If the zlib library is not present when compiling B<TShark>, it will be
 possible to compile it, but the resulting program will be unable to read
 compressed files.
@@ -125,7 +131,7 @@ Read filters in B<TShark>, which allow you to select which packets are
 to be decoded or written to a file, are very powerful; more fields are
 filterable in B<TShark> than in other protocol analyzers, and the syntax
 you can use to create your filters is richer.  As B<TShark> progresses,
-expect more and more protocol fields to be allowed in read filters. 
+expect more and more protocol fields to be allowed in read filters.
 Read filters use the same syntax as display and color filters in
 B<Wireshark>; a read filter is specified with the B<-R> option.
 
@@ -211,7 +217,10 @@ to a capture file.  The criterion is of the form I<test>B<:>I<value>,
 where I<test> is one of:
 
 B<duration>:I<value> Stop writing to a capture file after I<value> seconds
-have elapsed.
+have elapsed. Floating point values (e.g. 0.5) are allowed.
+
+B<files>:I<value> Stop writing to capture files after I<value> number of files
+were written.
 
 B<filesize>:I<value> Stop writing to a capture file after it reaches a size of
 I<value> kB.  If this option is used together with the -b option, B<TShark>
@@ -221,8 +230,8 @@ the file after the number of bytes read exceeds this number (the complete
 packet  will be read, so more bytes than this number may be read).  Note that
 the filesize is limited to a maximum value of 2 GiB.
 
-B<files>:I<value> Stop writing to capture files after I<value> number of files
-were written.
+B<packets>:I<value> switch to the next file after it contains I<value>
+packets. Same as B<-c>E<lt>capture packet countE<gt>.
 
 =item -b  E<lt>capture ring buffer optionE<gt>
 
@@ -232,7 +241,7 @@ fills up, B<TShark> will switch writing to the next file and so on.
 
 The created filenames are based on the filename given with the B<-w> option,
 the number of the file and on the creation date and time,
-e.g. outfile_00001_20050604120117.pcap, outfile_00002_20050604120523.pcap, ...
+e.g. outfile_00001_20190714120117.pcap, outfile_00002_20190714120523.pcap, ...
 
 With the I<files> option it's also possible to form a "ring buffer".
 This will fill up new files until the number of files specified,
@@ -245,13 +254,8 @@ The criterion is of the form I<key>B<:>I<value>,
 where I<key> is one of:
 
 B<duration>:I<value> switch to the next file after I<value> seconds have
-elapsed, even if the current file is not completely filled up.
-
-B<interval>:I<value> switch to the next file when the time is an exact
-multiple of I<value> seconds
-
-B<filesize>:I<value> switch to the next file after it reaches a size of
-I<value> kB.  Note that the filesize is limited to a maximum value of 2 GiB.
+elapsed, even if the current file is not completely filled up. Floating
+point values (e.g. 0.5) are allowed.
 
 B<files>:I<value> begin again with the first file after I<value> number of
 files were written (form a ring buffer).  This value must be less than 100000.
@@ -262,7 +266,17 @@ control when to go to the next file.  It should be noted that each B<-b>
 parameter takes exactly one criterion; to specify two criterion, each must be
 preceded by the B<-b> option.
 
-Example: B<-b filesize:1000 -b files:5> results in a ring buffer of five files
+B<filesize>:I<value> switch to the next file after it reaches a size of
+I<value> kB.  Note that the filesize is limited to a maximum value of 2 GiB.
+
+B<interval>:I<value> switch to the next file when the time is an exact
+multiple of I<value> seconds.  For example, use 3600 to switch to a new file
+every hour on the hour.
+
+B<packets>:I<value> switch to the next file after it contains I<value>
+packets.
+
+Example: B<tshark -b filesize:1000 -b files:5> results in a ring buffer of five files
 of size one megabyte each.
 
 =item -B  E<lt>capture buffer sizeE<gt>
@@ -289,7 +303,8 @@ the default capture buffer size is used instead.
 =item -c  E<lt>capture packet countE<gt>
 
 Set the maximum number of packets to read when capturing live
-data.  If reading a capture file, set the maximum number of packets to read.
+data. Same as B<-a packets:>E<lt>capture packet countE<gt>.
+If reading a capture file, set the maximum number of packets to read.
 
 =item -C  E<lt>configuration profileE<gt>
 
@@ -302,21 +317,21 @@ layer type should be dissected.  If the layer type in question (for example,
 B<tcp.port> or B<udp.port> for a TCP or UDP port number) has the specified
 selector value, packets should be dissected as the specified protocol.
 
-Example: B<-d tcp.port==8888,http> will decode any traffic running over
+Example: B<tshark -d tcp.port==8888,http> will decode any traffic running over
 TCP port 8888 as HTTP.
 
-Example: B<-d tcp.port==8888:3,http> will decode any traffic running over
+Example: B<tshark -d tcp.port==8888:3,http> will decode any traffic running over
 TCP ports 8888, 8889 or 8890 as HTTP.
 
-Example: B<-d tcp.port==8888-8890,http> will decode any traffic running over
+Example: B<tshark -d tcp.port==8888-8890,http> will decode any traffic running over
 TCP ports 8888, 8889 or 8890 as HTTP.
 
 Using an invalid selector or protocol will print out a list of valid selectors
 and protocol names, respectively.
 
-Example: B<-d .> is a quick way to get a list of valid selectors.
+Example: B<tshark -d .> is a quick way to get a list of valid selectors.
 
-Example: B<-d ethertype==0x0800.> is a quick way to get a list of protocols that can be
+Example: B<tshark -d ethertype==0x0800.> is a quick way to get a list of protocols that can be
 selected with an ethertype.
 
 =item -D
@@ -335,7 +350,7 @@ the interface name might be a long name or a GUID.
 Note that "can capture" means that B<TShark> was able to open that
 device to do a live capture.  Depending on your system you may need to
 run tshark from an account with special privileges (for example, as
-root) to be able to capture network traffic.  If B<TShark -D> is not run
+root) to be able to capture network traffic.  If B<tshark -D> is not run
 from such an account, it will not list any interfaces.
 
 =item -e  E<lt>fieldE<gt>
@@ -345,7 +360,7 @@ is selected.  This option can be used multiple times on the command line.
 At least one field must be provided if the B<-T fields> option is
 selected. Column names may be used prefixed with "_ws.col."
 
-Example: B<-e frame.number -e ip.addr -e udp -e _ws.col.Info>
+Example: B<tshark -e frame.number -e ip.addr -e udp -e _ws.col.Info>
 
 Giving a protocol rather than a single field will print multiple items
 of data about the protocol as a single field.  Fields are separated by
@@ -398,7 +413,7 @@ the default capture filter expression is used if provided.
 
 Pre-defined capture filter names, as shown in the GUI menu item Capture->Capture Filters,
 can be used by prefixing the argument with "predef:".
-Example: B<-f "predef:MyPredefinedHostOnlyFilter">
+Example: B<tshark -f "predef:MyPredefinedHostOnlyFilter">
 
 =item -F  E<lt>file formatE<gt>
 
@@ -447,6 +462,8 @@ is one record per line.  The fields are tab-delimited.
  * Field 4 = base for display (for integer types)
  * Field 5 = protocol name
  * Field 6 = "decode as" support
+
+B<elastic-mapping>  Dumps the ElasticSearch mapping file to stdout.
 
 B<fieldcount>  Dumps the number of header fields to stdout.
 
@@ -498,9 +515,9 @@ B<help> Displays the available report types.
 B<plugins> Dumps the plugins currently installed.
 There is one record per line.  The fields are tab-delimited.
 
- * Field 1 = plugin library (e.g. "gryphon.so")
+ * Field 1 = plugin library/Lua script/extcap executable (e.g. "gryphon.so")
  * Field 2 = plugin version (e.g. 0.0.4)
- * Field 3 = plugin type (e.g. "dissector" or "tap")
+ * Field 3 = plugin type ("dissector", "tap", "file type", etc.)
  * Field 4 = full path to plugin file
 
 B<protocols> Dumps the protocols in the registration database to stdout.
@@ -551,7 +568,7 @@ Read a list of entries from a "hosts" file, which will then be written
 to a capture file.  Implies B<-W n>. Can be called multiple times.
 
 The "hosts" file format is documented at
-L<http://en.wikipedia.org/wiki/Hosts_(file)>.
+L<https://en.wikipedia.org/wiki/Hosts_(file)>.
 
 =item -i  E<lt>capture interfaceE<gt> | -
 
@@ -561,7 +578,7 @@ capture.
 Network interface names should match one of the names listed in
 "B<tshark -D>" (described above); a number, as reported by
 "B<tshark -D>", can also be used.  If you're using UNIX, "B<netstat
--i>" or "B<ifconfig -a>" might also work to list interface names,
+-i>", "B<ifconfig -a>" or "B<ip link>" might also work to list interface names,
 although not all versions of UNIX support the B<-a> option to B<ifconfig>.
 
 If no interface is specified, B<TShark> searches the list of
@@ -570,15 +587,14 @@ non-loopback interfaces, and choosing the first loopback interface if
 there are no non-loopback interfaces.  If there are no interfaces at all,
 B<TShark> reports an error and doesn't start the capture.
 
-Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
-read data from the standard input.  Data read from pipes must be in
-standard pcap format.
+Pipe names should be either the name of a FIFO (named pipe) or "-" to
+read data from the standard input.  On Windows systems, pipe names must be
+of the form "\\pipe\.\B<pipename>".  Data read from pipes must be in
+standard pcapng or pcap format. Pcapng data must have the same
+endianness as the capturing host.
 
-This option can occur multiple times.  When capturing from multiple
+This option can occur multiple times. When capturing from multiple
 interfaces, the capture file will be saved in pcapng format.
-
-Note: the Win32 version of B<TShark> doesn't support capturing from
-pipes!
 
 =item -I
 
@@ -601,24 +617,25 @@ this option.
 =item -j  E<lt>protocol match filterE<gt>
 
 Protocol match filter used for ek|json|jsonraw|pdml output file types.
-Parent node containing multiple child nodes is only included,
-if the name is found in the filter.
+Only the protocol's parent node is included. Child nodes are only
+included if explicitly specified in the filter.
 
-Example: B<-j "ip ip.flags text">
+Example: B<tshark -j "ip ip.flags http">
 
 =item -J  E<lt>protocol match filterE<gt>
 
 Protocol top level filter used for ek|json|jsonraw|pdml output file types.
-Parent node containing multiple child nodes is included with all children.
+The protocol's parent node and all child nodes are included.
+Lower-level protocols must be explicitly specified in the filter.
 
-Example: B<-J "http tcp">
+Example: B<tshark -J "tcp http">
 
 =item -K  E<lt>keytabE<gt>
 
 Load kerberos crypto keys from the specified keytab file.
 This option can be used multiple times to load keys from several files.
 
-Example: B<-K krb5.keytab>
+Example: B<tshark -K krb5.keytab>
 
 =item -l
 
@@ -668,6 +685,8 @@ B<N> to enable using external resolvers (e.g., DNS) for network address
 resolution
 
 B<t> to enable transport-layer port number resolution
+
+B<v> to enable VLAN IDs to names resolution
 
 =item -o  E<lt>preferenceE<gt>:E<lt>valueE<gt>
 
@@ -825,7 +844,8 @@ Set the format of the output when viewing decoded packet data.  The
 options are one of:
 
 B<ek> Newline delimited JSON format for bulk import into Elasticsearch.
-It can be used with B<-j> or B<-J> including the JSON filter or with
+It can be used with B<-j> or B<-J> to specify
+which protocols to include or with
 B<-x> to include raw hex-encoded packet data.
 If B<-P> is specified it will print the packet summary only, with both
 B<-P> and B<-V> it will print the packet summary and packet details.
@@ -835,23 +855,32 @@ Example of usage to import data into Elasticsearch:
   tshark -T ek -j "http tcp ip" -P -V -x -r file.pcap > file.json
   curl -H "Content-Type: application/x-ndjson" -XPOST http://elasticsearch:9200/_bulk --data-binary "@file.json"
 
+Elastic requires a mapping file to be loaded as template for packets-*
+index in order to convert wireshark types to elastic types. This file
+can be auto-generated with the command "tshark -G elastic-mapping". Since
+the mapping file can be huge, protocols can be selected by using the option
+--elastic-mapping-filter:
+
+  tshark -G elastic-mapping --elastic-mapping-filter ip,udp,dns
+
+
 B<fields> The values of fields specified with the B<-e> option, in a
 form specified by the B<-E> option.  For example,
 
-  -T fields -E separator=, -E quote=d
+  tshark -T fields -E separator=, -E quote=d
 
 would generate comma-separated values (CSV) output suitable for importing
 into your favorite spreadsheet program.
 
-B<json> JSON file format.  It can be used with B<-j> or B<-J> including
-the JSON filter or with B<-x> option to include raw hex-encoded packet
-data.  Example of usage:
+B<json> JSON file format.  It can be used with B<-j> or B<-J> to specify
+which protocols to include or with B<-x> option to include
+raw hex-encoded packet data.  Example of usage:
 
   tshark -T json -r file.pcap
   tshark -T json -j "http tcp ip" -x -r file.pcap
 
 B<jsonraw> JSON file format including only raw hex-encoded packet data.
-It can be used with B<-j> including or B<-J> the JSON filter option.
+It can be used with B<-j> or B<-J> to specify which protocols to include.
 Example of usage:
 
   tshark -T jsonraw -r file.pcap
@@ -919,12 +948,12 @@ option for this.
 Save extra information in the file if the format supports it.  For
 example,
 
-  -F pcapng -W n
+  tshark -F pcapng -W n
 
 will save host name resolution records along with captured packets.
 
-Future versions of Wireshark may automatically change the capture format to
-B<pcapng> as needed.
+Future versions of B<Tshark> may automatically change the capture format
+to B<pcapng> as needed.
 
 The argument is a string that may contain the following letter:
 
@@ -985,7 +1014,7 @@ is one) will be checked against this filter.
 Automatically reset internal session when reached to specified number of packets.
 for example,
 
-    -M 100000
+    tshark -M 100000
 
 will reset session every 100000 packets.
 
@@ -1020,11 +1049,6 @@ Display all possible values for B<-z>.
 Show Apple Filing Protocol service response time statistics.
 
 =item B<-z> camel,srt
-
-=item B<-z> compare,I<start>,I<stop>,I<ttl[0|1]>,I<order[0|1]>,I<variance>[,I<filter>]
-
-If the optional I<filter> is specified, only those packets that match the
-filter will be used in the calculations.
 
 =item B<-z> conv,I<type>[,I<filter>]
 
@@ -1157,7 +1181,7 @@ the number of packets/bytes in each direction as well as the total
 number of packets/bytes.  The table is sorted according to the total
 number of frames.
 
-=item B<-z> expert[I<,error|,warn|,note|,chat>][I<,filter>]
+=item B<-z> expert[I<,error|,warn|,note|,chat|,comment>][I<,filter>]
 
 Collects information about all expert info, and will display them in order,
 grouped by severity.
@@ -1195,7 +1219,7 @@ Example: B<-z flow,tcp,network> will show data flow for all TCP frames
 
 =item B<-z> follow,I<prot>,I<mode>,I<filter>[I<,range>]
 
-Displays the contents of a TCP or UDP stream between two nodes.  The data
+Displays the contents of a TCP or UDP stream between two nodes. The data
 sent by the second node is prefixed with a tab to differentiate it from the
 data sent by the first node.
 
@@ -1203,7 +1227,9 @@ I<prot> specifies the transport protocol.  It can be one of:
 
   tcp   TCP
   udp   UDP
-  ssl   SSL
+  tls   TLS or SSL
+  http2 HTTP/2 streams
+  quic  QUIC streams
 
 I<mode> specifies the output mode.  It can be one of:
 
@@ -1216,11 +1242,13 @@ Since the output in B<ascii> or B<ebcdic> mode may contain newlines, the length
 of each section of output plus a newline precedes each section of output.
 
 I<filter> specifies the stream to be displayed. UDP/TCP streams are selected
-with either the stream index or IP address plus port pairs. SSL streams are
-selected with the stream index. For example:
+with either the stream index or IP address plus port pairs. TLS streams are
+selected with the stream index. HTTP/2 streams are selected by combination of
+UDP/TCP and HTTP/2 streams indices. For example:
 
   ip-addr0:port0,ip-addr1:port1
   stream-index
+  stream-index,substream-index
 
 I<range> optionally specifies which "chunks" of the stream should be displayed.
 
@@ -1253,6 +1281,27 @@ display the contents of a TCP stream between 200.57.7.197 port 32891 and
   4
   ....
 
+Example: B<-z "follow,http2,hex,0,1"> will display the contents of a HTTP/2
+stream on the first TCP session (index 0) with HTTP/2 Stream ID 1.
+
+  ===================================================================
+  Follow: http2,hex
+  Filter: tcp.stream eq 0 and http2.streamid eq 1
+  Node 0: 172.16.5.1:49178
+  Node 1: 172.16.5.10:8443
+  00000000  00 00 2c 01 05 00 00 00  01 82 04 8b 63 c1 ac 2a  ..,..... ....c..*
+  00000010  27 1d 9d 57 ae a9 bf 87  41 8c 0b a2 5c 2e 2e da  '..W.... A...\...
+  00000020  e1 05 c7 9a 69 9f 7a 88  25 b6 50 c3 ab b6 25 c3  ....i.z. %.P...%.
+  00000030  53 03 2a 2f 2a                                    S.*/*
+      00000000  00 00 22 01 04 00 00 00  01 88 5f 87 35 23 98 ac  .."..... .._.5#..
+      00000010  57 54 df 61 96 c3 61 be  94 03 8a 61 2c 6a 08 2f  WT.a..a. ...a,j./
+      00000020  34 a0 5b b8 21 5c 0b ea  62 d1 bf                 4.[.!\.. b..
+      0000002B  00 40 00 00 00 00 00 00  01 89 50 4e 47 0d 0a 1a  .@...... ..PNG...
+
+QUIC streams can be selected through B<-z "follow,quic,hex,3,0">, the first
+number indicates the UDP stream index whereas the second number selects the QUIC
+Stream ID.
+
 =item B<-z> h225,counter[I<,filter>]
 
 Count ITU-T H.225 messages and their reasons.  In the first column you get a
@@ -1277,7 +1326,7 @@ Minimum SRT, Maximum SRT, Average SRT, Minimum in Packet, and Maximum in Packet.
 You will also get the number of Open Requests (Unresponded Requests),
 Discarded Responses (Responses without matching request) and Duplicate Messages.
 
-Example: B<-z h225,srt>
+Example: B<tshark -z h225,srt>
 
 This option can be used multiple times on the command line.
 
@@ -1287,10 +1336,11 @@ on those calls that match that filter.
 Example: B<-z "h225,srt,ip.addr==1.2.3.4"> will only collect stats for
 ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
 
-=item B<-z> hosts[,ipv4][,ipv6]
+=item B<-z> hosts[,ip][,ipv4][,ipv6]
 
 Dump any collected IPv4 and/or IPv6 addresses in "hosts" format.  Both IPv4
-and IPv6 addresses are dumped by default.
+and IPv6 addresses are dumped by default. "ip" argument will dump only ipv4
+addresses.
 
 Addresses are collected from a number of sources, including standard "hosts"
 files and captured traffic.
@@ -1410,7 +1460,7 @@ B<SUM(I<field>)I<filter>> - Unlike COUNT, the I<values> of the
 specified field are summed per time interval.
 ''I<field>'' can only be a named integer, float, double or relative time field.
 
-Example: B<-z io,stat,0.010,E<34>SUM(frame.len)frame.lenE<34>>
+Example: B<tshark -z io,stat,0.010,E<34>SUM(frame.len)frame.lenE<34>>
 
 Reports the total number of bytes that were transmitted bidirectionally in
 all the packets within a 10 millisecond interval.
@@ -1519,7 +1569,7 @@ This option will activate a counter for LTE MAC messages.  You will get
 information about the maximum number of UEs/TTI, common messages and
 various counters for each UE that appears in the log.
 
-Example: B<-z mac-lte,stat>.
+Example: B<tshark -z mac-lte,stat>.
 
 This option can be used multiple times on the command line.
 
@@ -1560,6 +1610,13 @@ on those calls that match that filter.
 Example: B<-z "mgcp,rtd,ip.addr==1.2.3.4"> will only collect stats for
 MGCP packets exchanged by the host at IP address 1.2.3.4 .
 
+=item B<-z> credentials
+
+Collect credentials (username/passwords) from packets. The report includes
+the packet number, the protocol that had that credential, the username and
+the password. For protocols just using one sigle field as authentication,
+this is provided as a password and a placeholder in place of the user.
+
 =item B<-z> proto,colinfo,I<filter>,I<field>
 
 Append all I<field> values for the packet to the Info column of the
@@ -1594,7 +1651,7 @@ This option will activate a counter for LTE RLC messages.  You will get
 information about common messages and various counters for each UE that appears
 in the log.
 
-Example: B<-z rlc-lte,stat>.
+Example: B<tshark -z rlc-lte,stat>.
 
 This option can be used multiple times on the command line.
 
@@ -1617,7 +1674,7 @@ Data collected is the number of calls for each procedure, MinSRT, MaxSRT,
 AvgSRT, and the total time taken for each procedure.
 
 
-Example: B<-z rpc,srt,100003,3> will collect data for NFS v3.
+Example: B<tshark -z rpc,srt,100003,3> will collect data for NFS v3.
 
 This option can be used multiple times on the command line.
 
@@ -1737,6 +1794,14 @@ If a key appears multiple times in an object, only write it a single time with
 as value a json array containing all the separate values. (Only works with
 -T json)
 
+=item --elastic-mapping-filter E<lt>protocolE<gt>,E<lt>protocolE<gt>,...
+
+When generating the ElasticSearch mapping file, only put the specified protocols
+in it, to avoid a huge mapping file that can choke some software (such as Kibana).
+The option takes a list of wanted protocol abbreviations, separated by comma.
+
+Example: ip,udp,dns puts only those three protocols in the mapping file.
+
 =item --export-objects E<lt>protocolE<gt>,E<lt>destdirE<gt>
 
 Export all objects within a protocol into directory B<destdir>. The available
@@ -1846,8 +1911,8 @@ whitespace.  The same directory as for the personal preferences file is
 used.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
-systems and WinPcap on Windows.  As such the Wireshark personal F<hosts> file
-will not be consulted for capture filter name resolution.
+systems and Npcap or WinPcap on Windows.  As such the Wireshark personal
+F<hosts> file will not be consulted for capture filter name resolution.
 
 =item Name Resolution (subnets)
 
@@ -1893,8 +1958,8 @@ The personal F<ethers> file is looked for in the same directory as the personal
 preferences file.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
-systems and WinPcap on Windows.  As such the Wireshark personal F<ethers> file
-will not be consulted for capture filter name resolution.
+systems and Npcap or WinPcap on Windows.  As such the Wireshark personal
+F<ethers> file will not be consulted for capture filter name resolution.
 
 =item Name Resolution (manuf)
 
@@ -1977,11 +2042,12 @@ encoded as UTF-16LE.
 
 =over 4
 
-=item WIRESHARK_APPDATA
+=item WIRESHARK_CONFIG_DIR
 
-On Windows, Wireshark normally stores all application data in %APPDATA% or
-%USERPROFILE%.  You can override the default location by exporting this
-environment variable to specify an alternate location.
+This environment variable overrides the location of personal configuration
+files. It defaults to F<$XDG_CONFIG_HOME/wireshark> (or F<$HOME/.wireshark> if
+the former is missing while the latter exists). On Windows,
+F<%APPDATA%\Wireshark> is used instead. Available since Wireshark 3.0.
 
 =item WIRESHARK_DEBUG_WMEM_OVERRIDE
 

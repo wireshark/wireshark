@@ -408,12 +408,12 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                             return 0;
                         }
 
-			/*
-			 * The address is not guaranteed to be aligned on a
-			 * 32-bit boundary, so we can't safely dereference
-			 * the pointer as if it were so aligned.
-			 */
-			memcpy(&addr_value, addr->data, sizeof addr_value);
+                        /*
+                         * The address is not guaranteed to be aligned on a
+                         * 32-bit boundary, so we can't safely dereference
+                         * the pointer as if it were so aligned.
+                         */
+                        memcpy(&addr_value, addr->data, sizeof addr_value);
                         item = proto_tree_add_ipv4(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,addr_value);
                     }
                     break;
@@ -767,7 +767,7 @@ static int TreeItem_get_visible(lua_State* L) {
 static int TreeItem_get_generated(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
 
-    lua_pushboolean(L, PROTO_ITEM_IS_GENERATED(ti->item));
+    lua_pushboolean(L, proto_item_is_generated(ti->item));
 
     return 1;
 }
@@ -785,7 +785,7 @@ WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
     gboolean set = wslua_optbool(L, WSLUA_OPTARG_TreeItem_set_generated_BOOL, TRUE);
 
     if (set) {
-        PROTO_ITEM_SET_GENERATED(ti->item);
+        proto_item_set_generated(ti->item);
     } else {
         if (ti->item)
             FI_RESET_FLAG(PITEM_FINFO(ti->item), FI_GENERATED);
@@ -804,7 +804,7 @@ WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
 static int TreeItem_get_hidden(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
 
-    lua_pushboolean(L, PROTO_ITEM_IS_HIDDEN(ti->item));
+    lua_pushboolean(L, proto_item_is_hidden(ti->item));
 
     return 1;
 }
@@ -822,9 +822,9 @@ WSLUA_METHOD TreeItem_set_hidden(lua_State *L) {
     gboolean set = wslua_optbool(L, WSLUA_OPTARG_TreeItem_set_hidden_BOOL, TRUE);
 
     if (set) {
-        PROTO_ITEM_SET_HIDDEN(ti->item);
+        proto_item_set_hidden(ti->item);
     } else {
-        PROTO_ITEM_SET_VISIBLE(ti->item);
+        proto_item_set_visible(ti->item);
     }
 
     /* copy the TreeItem userdata so we give it back */
@@ -964,15 +964,14 @@ WSLUA_META TreeItem_meta[] = {
 int TreeItem_register(lua_State *L) {
     gint* etts[] = { &wslua_ett };
     wslua_ett = -1; /* Reset to support reload Lua plugins */
-    WSLUA_REGISTER_CLASS(TreeItem);
-    WSLUA_REGISTER_ATTRIBUTES(TreeItem);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS(TreeItem);
     outstanding_TreeItem = g_ptr_array_new();
     proto_register_subtree_array(etts,1);
     return 0;
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

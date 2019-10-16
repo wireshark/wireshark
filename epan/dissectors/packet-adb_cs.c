@@ -43,7 +43,7 @@ static guint server_port = 5037;
 
 typedef struct _client_request_t {
     gint64    service_length;
-    guint8   *service;
+    gchar    *service;
     guint32   first_in;
     gint64    service_in;
     gint64    response_frame;
@@ -94,14 +94,14 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     if (pinfo->destport == server_port) { /* Client sent to Server */
         client_request_t  *client_request;
-        guint8            *service = SERVICE_NONE;
+        gchar             *service = SERVICE_NONE;
         wmem_tree_t       *subtree;
         wmem_tree_key_t    key[5];
 
         direction = P2P_DIR_SENT;
 
         p_item = proto_tree_add_uint(main_tree, hf_role, tvb, offset, 0, 0x02);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Client");
 
@@ -121,7 +121,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         client_request = (subtree) ? (client_request_t *) wmem_tree_lookup32_le(subtree, pinfo->num) : NULL;
         if (client_request && client_request->service_in > -1 && client_request->service_in < pinfo->num) {
             p_item = proto_tree_add_string(main_tree, hf_service, tvb, offset, 0, client_request->service);
-            PROTO_ITEM_SET_GENERATED(p_item);
+            proto_item_set_generated(p_item);
             service = client_request->service;
             client_request_service = TRUE;
         } else {
@@ -169,7 +169,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             return tvb_captured_length(tvb);
         }
 
-        if (!pinfo->fd->flags.visited && length > 0) { /* save Length to client_requests */
+        if (!pinfo->fd->visited && length > 0) { /* save Length to client_requests */
             if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
                 wireshark_interface_id = pinfo->rec->rec_header.packet_header.interface_id;
 
@@ -195,7 +195,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             wmem_tree_insert32_array(client_requests, key, client_request);
         }
 
-        if (!pinfo->fd->flags.visited && (length == -1 || (client_request && client_request->service_in == -1 && tvb_reported_length_remaining(tvb, offset) > 0))) { /* save Service to client_requests */
+        if (!pinfo->fd->visited && (length == -1 || (client_request && client_request->service_in == -1 && tvb_reported_length_remaining(tvb, offset) > 0))) { /* save Service to client_requests */
             if (!client_request) {
                 if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
                     wireshark_interface_id = pinfo->rec->rec_header.packet_header.interface_id;
@@ -214,9 +214,20 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             }
 
             if (client_request) {
-                client_request->service = (guint8 *) wmem_alloc(wmem_file_scope(), (const size_t)(client_request->service_length + 1));
-                tvb_memcpy(tvb, client_request->service, offset, (size_t) client_request->service_length);
-                client_request->service[client_request->service_length] = '\0';
+                /*
+                 * I've no idea why the length is 64 bits, but that's
+                 * too big to be a field length in Wireshark; if it's
+                 * greater than the biggest possible length, clamp it
+                 * at the biggest possible length - which is probably
+                 * going to be bigger than the available data so that
+                 * you'll throw an exception.
+                 */
+                gint service_length;
+                if (client_request->service_length <= G_MAXINT)
+                    service_length = (gint)client_request->service_length;
+                else
+                    service_length = G_MAXINT;
+                client_request->service = (gchar *) tvb_get_string_enc(wmem_file_scope(), tvb, offset, service_length, ENC_ASCII);
                 client_request->service_in = pinfo->num;
             }
         }
@@ -227,16 +238,14 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         } else if (tvb_reported_length_remaining(tvb, offset) > 0) {
             proto_tree_add_item(main_tree, hf_service, tvb, offset, -1, ENC_NA | ENC_ASCII);
 
-            service = (guint8 *) wmem_alloc(wmem_packet_scope(), tvb_reported_length_remaining(tvb, offset) + 1);
-            tvb_memcpy(tvb, service, offset, tvb_reported_length_remaining(tvb, offset));
-            service[tvb_reported_length_remaining(tvb, offset)] = '\0';
+            service = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
             col_append_fstr(pinfo->cinfo, COL_INFO, " Service=<%s>", service);
         }
 
         offset = tvb_captured_length(tvb);
 
     } else if (pinfo->srcport == server_port) { /* Server sent to Client */
-        guint8             *service = SERVICE_NONE;
+        gchar              *service = SERVICE_NONE;
         wmem_tree_t        *subtree;
         wmem_tree_key_t     key[5];
         client_request_t   *client_request;
@@ -264,10 +273,10 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         p_item = proto_tree_add_uint(main_tree, hf_role, tvb, offset, 0, 0x01);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
 
         p_item = proto_tree_add_string(main_tree, hf_service, tvb, offset, 0, service);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Server");
 
@@ -284,19 +293,19 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             tvb_get_guint8(tvb, offset + 1), tvb_get_guint8(tvb, offset + 2), tvb_get_guint8(tvb, offset + 3));
             offset += 4;
 
-            if (tvb_memeql(tvb, offset - 4, "FAIL", 4) == 0) {
+            if (tvb_memeql(tvb, offset - 4, (const guint8 *) "FAIL", 4) == 0) {
                 guint32 ulength;
 
                 offset = dissect_ascii_uint32(main_tree, hf_hex_ascii_length, ett_length, hf_length, tvb, offset, &ulength);
                 length = (gint64) ulength;
 
                 status = STATUS_FAIL;
-            } else if (tvb_memeql(tvb, offset - 4, "OKAY", 4) == 0) {
+            } else if (tvb_memeql(tvb, offset - 4, (const guint8 *) "OKAY", 4) == 0) {
                 status = STATUS_OKAY;
                 length = -1;
             }
 
-            if (!pinfo->fd->flags.visited && client_request) {
+            if (!pinfo->fd->visited && client_request) {
                 client_request->response_frame = pinfo->num;
                 client_request->status = status;
                 client_request->data_length = length;
@@ -336,7 +345,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown role");
 
         p_item = proto_tree_add_uint(main_tree, hf_role, tvb, offset, 0, 0x00);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
 
         next_tvb = tvb_new_subset_remaining(tvb, offset);
         call_data_dissector(next_tvb, pinfo, main_tree);
@@ -429,7 +438,7 @@ proto_reg_handoff_adb_cs(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

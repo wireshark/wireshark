@@ -55,13 +55,8 @@
 	{ "capture", no_argument, NULL, EXTCAP_OPT_CAPTURE}, \
 	{ "extcap-capture-filter", required_argument,	NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
 	{ "fifo", required_argument, NULL, EXTCAP_OPT_FIFO}, \
-	{ "debug", required_argument, NULL, EXTCAP_OPT_DEBUG}, \
+	{ "debug", no_argument, NULL, EXTCAP_OPT_DEBUG}, \
 	{ "debug-file", required_argument, NULL, EXTCAP_OPT_DEBUG_FILE}
-
-#if defined(_WIN32)
-	BOOLEAN IsHandleRedirected(DWORD handle);
-	void attach_parent_console();
-#endif
 
 typedef struct _extcap_parameters
 {
@@ -86,6 +81,7 @@ typedef struct _extcap_parameters
 	char * help_header;
 	GList * help_options;
 
+	gboolean debug;
 } extcap_parameters;
 
 void extcap_base_register_interface(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltdescription );

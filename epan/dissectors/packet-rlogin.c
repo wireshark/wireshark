@@ -88,7 +88,7 @@ rlogin_state_machine(rlogin_hash_entry_t *hash_info, tvbuff_t *tvb, packet_info 
 	gint stringlen;
 
 	/* Won't change state if already seen this packet */
-	if (pinfo->fd->flags.visited)
+	if (pinfo->fd->visited)
 	{
 		return;
 	}
@@ -595,7 +595,7 @@ void proto_reg_handoff_rlogin(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

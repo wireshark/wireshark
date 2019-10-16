@@ -1,0 +1,105 @@
+#include "idl_types.h"
+
+/*
+ * File Server Remote VSS Protocol Definitions
+ */
+
+[ uuid("a8e0653c-2744-4389-a61d-7373df8b2292"),
+  version(1.0),
+  endpoint("ncacn_np:[\\pipe\\FssagentRpc]"),
+  helpstring("File Server Remote VSS Protocol"),
+  pointer_default(unique)
+] interface fsrvp
+{
+	const uint32 FSRVP_E_BAD_STATE = 0x80042301;
+	const uint32 FSRVP_E_SHADOW_COPY_SET_IN_PROGRESS = 0x80042316;
+	const uint32 FSRVP_E_NOT_SUPPORTED = 0x8004230C;
+	const uint32 FSRVP_E_WAIT_TIMEOUT = 0x00000102;
+	const uint32 FSRVP_E_WAIT_FAILED = 0xFFFFFFFF;
+	const uint32 FSRVP_E_OBJECT_ALREADY_EXISTS = 0x8004230D;
+	const uint32 FSRVP_E_OBJECT_NOT_FOUND = 0x80042308;
+	const uint32 FSRVP_E_UNSUPPORTED_CONTEXT = 0x8004231B;
+	const uint32 FSRVP_E_BAD_ID = 0x80042302;	/* wire, not documented */
+	const uint32 FSRVP_E_SHADOWCOPYSET_ID_MISMATCH = 0x80042501;
+	typedef struct {
+		GUID ShadowCopySetId;
+		GUID ShadowCopyId;
+		[string,charset(UTF16)] uint16 *ShareNameUNC;
+		[string,charset(UTF16)] uint16 *ShadowCopyShareName;
+		NTTIME tstamp;
+	} fssagent_share_mapping_1;
+
+	typedef union {
+		[case(1)] fssagent_share_mapping_1 *ShareMapping1;
+		[default];
+	} fssagent_share_mapping;
+
+	const uint32 FSRVP_RPC_VERSION_1 = 0x000000001;
+	NTSTATUS fsrvp_GetSupportedVersion(
+		[out] uint32 *MinVersion,
+		[out] uint32 *MaxVersion);
+
+	const uint32 ATTR_PERSISTENT = 0x00000001;
+	const uint32 ATTR_NO_AUTO_RECOVERY = 0x00000002;
+	const uint32 ATTR_NO_AUTO_RELEASE = 0x00000008;
+	const uint32 ATTR_NO_WRITERS = 0x00000010;
+	const uint32 ATTR_FILE_SHARE = 0x04000000;
+	const uint32 ATTR_AUTO_RECOVERY = 0x00400000;
+
+	const uint32 FSRVP_CTX_BACKUP = 0x00000000;
+	const uint32 FSRVP_CTX_FILE_SHARE_BACKUP = 0x00000010;
+	const uint32 FSRVP_CTX_NAS_ROLLBACK = 0x00000019;
+	const uint32 FSRVP_CTX_APP_ROLLBACK = 0x00000009;
+	NTSTATUS fsrvp_SetContext(
+		[in] uint32 Context);
+
+	NTSTATUS fsrvp_StartShadowCopySet(
+		[in] GUID ClientShadowCopySetId,
+		[out] GUID *pShadowCopySetId);
+
+	NTSTATUS fsrvp_AddToShadowCopySet(
+		[in] GUID ClientShadowCopyId,
+		[in] GUID ShadowCopySetId,
+		[in] [string,charset(UTF16)] uint16 *ShareName,
+		[out] GUID *pShadowCopyId);
+
+	NTSTATUS fsrvp_CommitShadowCopySet(
+		[in] GUID ShadowCopySetId,
+		[in] uint32 TimeOutInMilliseconds);
+
+	NTSTATUS fsrvp_ExposeShadowCopySet(
+		[in] GUID ShadowCopySetId,
+		[in] uint32 TimeOutInMilliseconds);
+
+	NTSTATUS fsrvp_RecoveryCompleteShadowCopySet(
+		[in] GUID ShadowCopySetId);
+
+	NTSTATUS fsrvp_AbortShadowCopySet(
+		[in] GUID ShadowCopySetId);
+
+	NTSTATUS fsrvp_IsPathSupported(
+		[in] [string,charset(UTF16)] uint16 *ShareName,
+		[out] boolean32 *SupportedByThisProvider,
+		[out] [string,charset(UTF16)] uint16 **OwnerMachineName);
+
+	NTSTATUS fsrvp_IsPathShadowCopied(
+		[in] [string,charset(UTF16)] uint16 *ShareName,
+		[out] boolean32 *ShadowCopyPresent,
+		[out] int32 *ShadowCopyCompatibility);
+
+	NTSTATUS fsrvp_GetShareMapping(
+		[in] GUID ShadowCopyId,
+		[in] GUID ShadowCopySetId,
+		[in] [string,charset(UTF16)] uint16 *ShareName,
+		[in] uint32 Level,
+		[out,switch_is(Level)] fssagent_share_mapping *ShareMapping);
+
+	NTSTATUS fsrvp_DeleteShareMapping(
+		[in] GUID ShadowCopySetId,
+		[in] GUID ShadowCopyId,
+		[in] [string,charset(UTF16)] uint16 *ShareName);
+
+	NTSTATUS fsrvp_PrepareShadowCopySet(
+		[in] GUID ShadowCopySetId,
+		[in] uint32 TimeOutInMilliseconds);
+}

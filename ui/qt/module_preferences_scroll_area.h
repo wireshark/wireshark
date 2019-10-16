@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef MODULE_PREFERENCES_SCROLL_AREA_H
 #define MODULE_PREFERENCES_SCROLL_AREA_H
@@ -48,10 +49,10 @@ private slots:
     void enumComboBoxCurrentIndexChanged(int index);
     void stringLineEditTextEdited(const QString &new_str);
     void rangeSyntaxLineEditTextEdited(const QString &new_str);
-    void uatPushButtonPressed();
-    void saveFilenamePushButtonPressed();
-    void openFilenamePushButtonPressed();
-    void dirnamePushButtonPressed();
+    void uatPushButtonClicked();
+    void saveFilenamePushButtonClicked();
+    void openFilenamePushButtonClicked();
+    void dirnamePushButtonClicked();
 };
 
 #endif // MODULE_PREFERENCES_SCROLL_AREA_H

@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "rtp_audio_stream.h"
 
@@ -13,7 +14,7 @@
 #ifdef HAVE_SPEEXDSP
 #include <speex/speex_resampler.h>
 #else
-#include <codecs/speex/speex_resampler.h>
+#include "../../speexdsp/speex_resampler.h"
 #endif /* HAVE_SPEEXDSP */
 
 #include <epan/rtp_pt.h>
@@ -32,12 +33,12 @@
 #include <QVariant>
 
 // To do:
-// - Only allow one rtp_stream_info_t per RtpAudioStream?
+// - Only allow one rtpstream_info_t per RtpAudioStream?
 
 static spx_int16_t default_audio_sample_rate_ = 8000;
 static const spx_int16_t visual_sample_rate_ = 1000;
 
-RtpAudioStream::RtpAudioStream(QObject *parent, _rtp_stream_info *rtp_stream) :
+RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream) :
     QObject(parent),
     decoders_hash_(rtp_decoder_hash_table_new()),
     global_start_rel_time_(0.0),
@@ -52,11 +53,7 @@ RtpAudioStream::RtpAudioStream(QObject *parent, _rtp_stream_info *rtp_stream) :
     jitter_buffer_size_(50),
     timing_mode_(RtpAudioStream::JitterBuffer)
 {
-    copy_address(&src_addr_, &rtp_stream->src_addr);
-    src_port_ = rtp_stream->src_port;
-    copy_address(&dst_addr_, &rtp_stream->dest_addr);
-    dst_port_ = rtp_stream->dest_port;
-    ssrc_ = rtp_stream->ssrc;
+    rtpstream_id_copy(&rtpstream->id, &id_);
 
     // We keep visual samples in memory. Make fewer of them.
     visual_resampler_ = speex_resampler_init(1, default_audio_sample_rate_,
@@ -81,16 +78,13 @@ RtpAudioStream::~RtpAudioStream()
     g_hash_table_destroy(decoders_hash_);
     if (audio_resampler_) speex_resampler_destroy (audio_resampler_);
     speex_resampler_destroy (visual_resampler_);
+    rtpstream_id_free(&id_);
 }
 
-bool RtpAudioStream::isMatch(const _rtp_stream_info *rtp_stream) const
+bool RtpAudioStream::isMatch(const rtpstream_info_t *rtpstream) const
 {
-    if (rtp_stream
-            && addresses_equal(&rtp_stream->src_addr, &src_addr_)
-            && rtp_stream->src_port == src_port_
-            && addresses_equal(&rtp_stream->dest_addr, &dst_addr_)
-            && rtp_stream->dest_port == dst_port_
-            && rtp_stream->ssrc == ssrc_)
+    if (rtpstream
+        && rtpstream_id_equal(&id_, &(rtpstream->id), RTPSTREAM_ID_EQUAL_SSRC))
         return true;
     return false;
 }
@@ -98,11 +92,7 @@ bool RtpAudioStream::isMatch(const _rtp_stream_info *rtp_stream) const
 bool RtpAudioStream::isMatch(const _packet_info *pinfo, const _rtp_info *rtp_info) const
 {
     if (pinfo && rtp_info
-            && addresses_equal(&pinfo->src, &src_addr_)
-            && pinfo->srcport == src_port_
-            && addresses_equal(&pinfo->dst, &dst_addr_)
-            && pinfo->destport == dst_port_
-            && rtp_info->info_sync_src == ssrc_)
+        && rtpstream_id_equal_pinfo_rtp_info(&id_, pinfo, rtp_info))
         return true;
     return false;
 }
@@ -110,13 +100,17 @@ bool RtpAudioStream::isMatch(const _packet_info *pinfo, const _rtp_info *rtp_inf
 // XXX We add multiple RTP streams here because that's what the GTK+ UI does.
 // Should we make these distinct, with their own waveforms? It seems like
 // that would simplify a lot of things.
-void RtpAudioStream::addRtpStream(const _rtp_stream_info *rtp_stream)
+// TODO: It is not used
+/*
+void RtpAudioStream::addRtpStream(const rtpstream_info_t *rtpstream)
 {
-    if (!rtp_stream) return;
+    if (!rtpstream) return;
 
-    // RTP_STREAM_DEBUG("added %d:%u packets", g_list_length(rtp_stream->rtp_packet_list), rtp_stream->packet_count);
-    rtp_streams_ << rtp_stream;
+    // RTP_STREAM_DEBUG("added %d:%u packets", g_list_length(rtpstream->rtp_packet_list), rtpstream->packet_count);
+    // TODO: It is not used
+    //rtpstreams_ << rtpstream;
 }
+*/
 
 void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info)
 {
@@ -295,7 +289,7 @@ void RtpAudioStream::decode()
                 silence_timestamps_.append(stop_rel_time_);
 
                 decoded_bytes_prev = 0;
-/* defined start_timestmp to avoid overflow in timestamp. TODO: handle the timestamp correctly */
+/* defined start_timestamp to avoid overflow in timestamp. TODO: handle the timestamp correctly */
 /* XXX: if timestamps (RTP) are missing/ignored try use packet arrive time only (see also "rtp_time") */
                 start_timestamp = rtp_packet->info->info_timestamp;
                 start_rtp_time = 0;

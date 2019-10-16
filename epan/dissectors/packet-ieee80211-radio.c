@@ -72,9 +72,12 @@ static int hf_wlan_radio_channel = -1;
 static int hf_wlan_radio_frequency = -1;
 static int hf_wlan_radio_short_preamble = -1;
 static int hf_wlan_radio_signal_percent = -1;
+static int hf_wlan_radio_signal_db = -1;
 static int hf_wlan_radio_signal_dbm = -1;
 static int hf_wlan_radio_noise_percent = -1;
+static int hf_wlan_radio_noise_db = -1;
 static int hf_wlan_radio_noise_dbm = -1;
+static int hf_wlan_radio_snr = -1;
 static int hf_wlan_radio_timestamp = -1;
 static int hf_wlan_last_part_of_a_mpdu = -1;
 static int hf_wlan_a_mpdu_delim_crc_error = -1;
@@ -86,7 +89,7 @@ static int hf_wlan_radio_aggregate_duration = -1;
 static int hf_wlan_radio_ifs = -1;
 static int hf_wlan_radio_start_tsf = -1;
 static int hf_wlan_radio_end_tsf = -1;
-
+static int hf_wlan_zero_length_psdu_type = -1;
 
 static expert_field ei_wlan_radio_assumed_short_preamble = EI_INIT;
 static expert_field ei_wlan_radio_assumed_non_greenfield = EI_INIT;
@@ -94,6 +97,7 @@ static expert_field ei_wlan_radio_assumed_no_stbc = EI_INIT;
 static expert_field ei_wlan_radio_assumed_no_extension_streams = EI_INIT;
 static expert_field ei_wlan_radio_assumed_bcc_fec = EI_INIT;
 
+static int wlan_radio_tap = -1;
 static int wlan_radio_timeline_tap = -1;
 
 /* Settings */
@@ -170,6 +174,12 @@ static const value_string fec_vals[] = {
     { 0, NULL }
 };
 
+static const value_string zero_length_psdu_vals[] = {
+	{ 0, "sounding PPDU" },
+	{ 1, "data not captured" },
+	{ 255, "vendor-specific" },
+	{ 0, NULL }
+};
 /*
  * Lookup for the MCS index (0-76)
  * returning the number of data bits per symbol
@@ -439,9 +449,8 @@ static void adjust_agg_tsf(gpointer data, gpointer user_data)
  * Dissect 802.11 pseudo-header containing radio information.
  */
 static void
-dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
+dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, struct ieee_802_11_phdr *phdr)
 {
-  struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
   proto_item *ti;
   proto_tree *radio_tree;
   float data_rate = 0.0f;
@@ -473,16 +482,10 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     have_data_rate = TRUE;
   }
 
-  if (phdr->has_signal_dbm) {
-    col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", phdr->signal_dbm);
-  } else if (phdr->has_signal_percent) {
-    col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%", phdr->signal_percent);
-  }
-
   /* this is the first time we are looking at this frame during a
    * capture dissection, so we know the dissection is done in
    * frame order (subsequent dissections may be random access) */
-  if (!pinfo->fd->flags.visited) {
+  if (!pinfo->fd->visited) {
     wlan_radio_info = wmem_new0(wmem_file_scope(), struct wlan_radio);
     p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan_radio, 0, wlan_radio_info);
 
@@ -776,14 +779,6 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                 proto_item_append_text(it, " (%s %s)",
                   ieee80211_vhtinfo[info_ac->mcs[i]].modulation,
                   ieee80211_vhtinfo[info_ac->mcs[i]].coding_rate);
-
-                  /*
-                   * If we can calculate the data rate for this user, do so.
-                   */
-                  if (can_calculate_rate) {
-                    data_rate = ieee80211_vhtrate(info_ac->mcs[i], bandwidth, info_ac->short_gi) * info_ac->nss[i];
-                    have_data_rate = TRUE;
-                  }
               }
 
               proto_tree_add_uint(user_tree, hf_wlan_radio_11ac_nss, tvb, 0, 0, info_ac->nss[i]);
@@ -858,6 +853,11 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     proto_tree_add_uint(radio_tree, hf_wlan_radio_signal_percent, tvb, 0, 0, phdr->signal_percent);
   }
 
+  if (phdr->has_signal_db) {
+    col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dB", phdr->signal_db);
+    proto_tree_add_uint(radio_tree, hf_wlan_radio_signal_db, tvb, 0, 0, phdr->signal_db);
+  }
+
   if (phdr->has_signal_dbm) {
     col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", phdr->signal_dbm);
     proto_tree_add_int(radio_tree, hf_wlan_radio_signal_dbm, tvb, 0, 0, phdr->signal_dbm);
@@ -867,9 +867,22 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     proto_tree_add_uint(radio_tree, hf_wlan_radio_noise_percent, tvb, 0, 0, phdr->noise_percent);
   }
 
+  if (phdr->has_noise_db) {
+    proto_tree_add_uint(radio_tree, hf_wlan_radio_noise_db, tvb, 0, 0, phdr->noise_db);
+  }
+
   if (phdr->has_noise_dbm) {
     proto_tree_add_int(radio_tree, hf_wlan_radio_noise_dbm, tvb, 0, 0, phdr->noise_dbm);
   }
+
+  if (phdr->has_signal_dbm && phdr->has_noise_dbm) {
+    proto_tree_add_int(radio_tree, hf_wlan_radio_snr, tvb, 0, 0, phdr->signal_dbm - phdr->noise_dbm);
+  }
+  /*
+   * XXX - are the signal and noise in dB from a fixed reference point
+   * guaranteed to use the *same* fixed reference point?  If so, we could
+   * calculate the SNR if they're both present, too.
+   */
 
   if (phdr->has_tsf_timestamp) {
     proto_tree_add_uint64(radio_tree, hf_wlan_radio_timestamp, tvb, 0, 0, phdr->tsf_timestamp);
@@ -1093,7 +1106,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     }
     }
 
-    if (!pinfo->fd->flags.visited && have_duration && phdr->has_tsf_timestamp) {
+    if (!pinfo->fd->visited && have_duration && phdr->has_tsf_timestamp) {
       if (current_aggregate) {
         current_aggregate->duration = agg_preamble + prior_duration + duration;
         if (previous_frame.radio_info && previous_frame.radio_info->aggregate == current_aggregate)
@@ -1130,9 +1143,14 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         wlan_radio_info->ifs = wlan_radio_info->start_tsf - previous_frame.radio_info->end_tsf;
       }
       if (tvb_captured_length(tvb) >= 4) {
+        /*
+         * Duration/ID field.
+         */
         int nav = tvb_get_letohs(tvb, 2);
-        if ((nav & 0x8000) == 0)
+        if ((nav & 0x8000) == 0) {
+          /* Duration */
           wlan_radio_info->nav = nav;
+        }
       }
       if (phdr->has_signal_dbm) {
         wlan_radio_info->rssi = phdr->signal_dbm;
@@ -1144,7 +1162,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     if (have_duration) {
       proto_item *item = proto_tree_add_uint(radio_tree, hf_wlan_radio_duration, tvb, 0, 0, duration);
       proto_tree *d_tree = proto_item_add_subtree(item, ett_wlan_radio_duration);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
 
       if (assumed_short_preamble)
         expert_add_info(pinfo, item, &ei_wlan_radio_assumed_short_preamble);
@@ -1159,7 +1177,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
       if (preamble) {
         p_item = proto_tree_add_uint(d_tree, hf_wlan_radio_preamble, tvb, 0, 0, preamble);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
       }
       if (wlan_radio_info->aggregate) {
         proto_tree *agg_tree;
@@ -1167,34 +1185,37 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         p_item = proto_tree_add_none_format(d_tree, hf_wlan_radio_aggregate, tvb, 0, 0,
           "This MPDU is part of an A-MPDU");
         agg_tree = proto_item_add_subtree(item, ett_wlan_radio_aggregate);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
         if (wlan_radio_info->aggregate->duration) {
           proto_item *aitem = proto_tree_add_uint(agg_tree, hf_wlan_radio_aggregate_duration, tvb, 0, 0,
                   wlan_radio_info->aggregate->duration);
-          PROTO_ITEM_SET_GENERATED(aitem);
+          proto_item_set_generated(aitem);
         }
       }
       if (wlan_radio_info->ifs) {
         p_item = proto_tree_add_int64(d_tree, hf_wlan_radio_ifs, tvb, 0, 0, wlan_radio_info->ifs);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
         /* TODO: warnings on unusual IFS values (too small or negative) */
       }
       if (wlan_radio_info->start_tsf) {
         p_item = proto_tree_add_uint64(d_tree, hf_wlan_radio_start_tsf, tvb, 0, 0, wlan_radio_info->start_tsf);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
       }
       if (wlan_radio_info->end_tsf) {
         p_item = proto_tree_add_uint64(d_tree, hf_wlan_radio_end_tsf, tvb, 0, 0, wlan_radio_info->end_tsf);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
       }
     }
   } /* if (have_data_rate) */
+  if (phdr->has_zero_length_psdu_type)
+    proto_tree_add_uint(radio_tree, hf_wlan_zero_length_psdu_type, tvb, 0, 0, phdr->zero_length_psdu_type);
 
+  tap_queue_packet(wlan_radio_tap, pinfo, phdr);
   if (wlan_radio_timeline_enabled) {
     tap_queue_packet(wlan_radio_timeline_tap, pinfo, wlan_radio_info);
   }
 
-  if (!pinfo->fd->flags.visited) {
+  if (!pinfo->fd->visited) {
     previous_frame.radio_info = wlan_radio_info;
   }
 }
@@ -1206,7 +1227,13 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 static int
 dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
 {
-  dissect_wlan_radio_phdr (tvb, pinfo, tree, data);
+  struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
+
+  dissect_wlan_radio_phdr(tvb, pinfo, tree, phdr);
+
+  /* Is there anything there? A 0-length-psdu has no frame data. */
+  if (phdr->has_zero_length_psdu_type)
+    return tvb_captured_length(tvb);
 
   /* dissect the 802.11 packet next */
   return call_dissector_with_data(ieee80211_handle, tvb, pinfo, tree, data);
@@ -1219,7 +1246,13 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 static int
 dissect_wlan_noqos_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
 {
-  dissect_wlan_radio_phdr (tvb, pinfo, tree, data);
+  struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
+
+  dissect_wlan_radio_phdr(tvb, pinfo, tree, phdr);
+
+  /* Is there anything there? A 0-length-psdu has no frame data. */
+  if (phdr->has_zero_length_psdu_type)
+    return tvb_captured_length(tvb);
 
   /* dissect the 802.11 packet next */
   return call_dissector_with_data(ieee80211_noqos_handle, tvb, pinfo, tree, data);
@@ -1378,6 +1411,10 @@ void proto_register_ieee80211_radio(void)
      {"Signal strength (percentage)", "wlan_radio.signal_percentage", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0,
       "Signal strength, as percentage of maximum RSSI", HFILL }},
 
+    {&hf_wlan_radio_signal_db,
+     {"Signal strength (dB)", "wlan_radio.signal_db", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
+      NULL, HFILL }},
+
     {&hf_wlan_radio_signal_dbm,
      {"Signal strength (dBm)", "wlan_radio.signal_dbm", FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
       NULL, HFILL }},
@@ -1386,8 +1423,16 @@ void proto_register_ieee80211_radio(void)
      {"Noise level (percentage)", "wlan_radio.noise_percentage", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0,
       NULL, HFILL }},
 
+    {&hf_wlan_radio_noise_db,
+     {"Noise level (dB)", "wlan_radio.noise_db", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
+      NULL, HFILL }},
+
     {&hf_wlan_radio_noise_dbm,
      {"Noise level (dBm)", "wlan_radio.noise_dbm", FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
+      NULL, HFILL }},
+
+    {&hf_wlan_radio_snr,
+     {"Signal/noise ratio (dB)", "wlan_radio.snr", FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_timestamp,
@@ -1436,6 +1481,9 @@ void proto_register_ieee80211_radio(void)
       "Total duration of the aggregate in microseconds, including any preamble or plcp header. "
       "Calculated from the total subframe lengths, modulation and other phy data.", HFILL }},
 
+    {&hf_wlan_zero_length_psdu_type,
+     {"Zero-length PSDU Type", "wlan_radio.zero_len_psdu.type", FT_UINT8, BASE_HEX, VALS(zero_length_psdu_vals), 0x0,
+       "Type of zero-length PSDU", HFILL}},
   };
 
   static gint *ett[] = {
@@ -1507,6 +1555,7 @@ void proto_reg_handoff_ieee80211_radio(void)
   ieee80211_handle = find_dissector_add_dependency("wlan", proto_wlan_radio);
   ieee80211_noqos_handle = find_dissector_add_dependency("wlan_noqos", proto_wlan_radio);
 
+  wlan_radio_tap = register_tap("wlan_radio");
   wlan_radio_timeline_tap = register_tap("wlan_radio_timeline");
 }
 

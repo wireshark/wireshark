@@ -92,8 +92,8 @@ conversation_create_from_template(conversation_t *conversation, const address *a
 	 * Add a new conversation and keep the conversation template only if the
 	 * CONVERSATION_TEMPLATE bit is set for a connection oriented protocol.
 	 */
-	if(conversation->options & CONVERSATION_TEMPLATE &&
-		conversation->key_ptr->etype != ENDPOINT_UDP)
+	if (conversation->options & CONVERSATION_TEMPLATE &&
+	    conversation->key_ptr->etype != ENDPOINT_UDP)
 	{
 		/*
 		 * Set up a new options mask where the conversation template bit and the
@@ -105,8 +105,8 @@ conversation_create_from_template(conversation_t *conversation, const address *a
 		/*
 		 * Are both the NO_ADDR2 and NO_PORT2 wildcards set in the options mask?
 		 */
-		if(conversation->options & NO_ADDR2 &&
-			conversation->options & NO_PORT2)
+		if (conversation->options & NO_ADDR2 &&
+		    conversation->options & NO_PORT2)
 		{
 			/*
 			 * The conversation template was created without knowledge of both
@@ -119,7 +119,7 @@ conversation_create_from_template(conversation_t *conversation, const address *a
 						 conversation->key_ptr->etype, conversation->key_ptr->port1,
 						 port2, options);
 		}
-		else if(conversation->options & NO_PORT2)
+		else if (conversation->options & NO_PORT2)
 		{
 			/*
 			 * The conversation template was created without knowledge of port 2
@@ -131,7 +131,7 @@ conversation_create_from_template(conversation_t *conversation, const address *a
 						 conversation->key_ptr->etype, conversation->key_ptr->port1,
 						 port2, options);
 		}
-		else if(conversation->options & NO_ADDR2)
+		else if (conversation->options & NO_ADDR2)
 		{
 			/*
 			 * The conversation template was created without knowledge of address
@@ -508,7 +508,7 @@ conversation_insert_into_hashtable(wmem_map_t *hashtable, conversation_t *conv)
 
 		chain_tail = chain_head->last;
 
-		if(conv->setup_frame >= chain_tail->setup_frame) {
+		if (conv->setup_frame >= chain_tail->setup_frame) {
 			/* This convo belongs at the end of the chain */
 			conv->next = NULL;
 			conv->last = NULL;
@@ -620,9 +620,94 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	conversation_t *conversation=NULL;
 	conversation_key_t new_key;
 
-	DPRINT(("creating conversation for frame #%d: %s:%d -> %s:%d (etype=%d)",
-		    setup_frame, address_to_str(wmem_packet_scope(), addr1), port1,
-		    address_to_str(wmem_packet_scope(), addr2), port2, etype));
+#ifdef DEBUG_CONVERSATION
+	gchar *addr1_str, *addr2_str;
+	if (addr1 == NULL) {
+		/*
+		 * No address 1.
+		 */
+		if (options & NO_ADDR2) {
+			/*
+			 * Neither address 1 nor address 2.
+			 */
+			if (options & NO_PORT2) {
+				/*
+				 * Port 1 but not port 2.
+				 */
+				DPRINT(("creating conversation for frame #%u: ID %u (etype=%d)",
+					    setup_frame, port1, etype));
+			} else {
+				/*
+				 * Ports 1 and 2.
+				 */
+				DPRINT(("creating conversation for frame #%u: %u -> %u (etype=%d)",
+					    setup_frame, port1, port2, etype));
+			}
+		} else {
+			/*
+			 * Address 2 but not address 1.
+			 */
+			addr2_str = address_to_str(NULL, addr2);
+			if (options & NO_PORT2) {
+				/*
+				 * Port 1 but not port 2.
+				 */
+				DPRINT(("creating conversation for frame #%u: ID %u, address %s (etype=%d)",
+					    setup_frame, port1, addr2_str, etype));
+			} else {
+				/*
+				 * Ports 1 and 2.
+				 */
+				DPRINT(("creating conversation for frame #%u: %u -> %s:%u (etype=%d)",
+					    setup_frame, port1, addr2_str, port2, etype));
+			}
+			wmem_free(NULL, addr2_str);
+		}
+	} else {
+		/*
+		 * Address 1.
+		 */
+		addr1_str = address_to_str(NULL, addr1);
+		if (options & NO_ADDR2) {
+			/*
+			 * Address 1 but no address 2.
+			 */
+			if (options & NO_PORT2) {
+				/*
+				 * Port 1 but not port 2.
+				 */
+				DPRINT(("creating conversation for frame #%u: %s:%u (etype=%d)",
+					    setup_frame, addr1_str, port1, etype));
+			} else {
+				/*
+				 * Ports 1 and 2.
+				 */
+				DPRINT(("creating conversation for frame #%u: %s:%u -> %u (etype=%d)",
+					    setup_frame, addr1_str, port1, port2, etype));
+			}
+		} else {
+			/*
+			 * Addresses 1 and 2.
+			 */
+			addr2_str = address_to_str(NULL, addr2);
+			if (options & NO_PORT2) {
+				/*
+				 * Port 1 but not port 2.
+				 */
+				DPRINT(("creating conversation for frame #%u: %s:%u -> %s (etype=%d)",
+					    setup_frame, addr1_str, port1, addr2_str, etype));
+			} else {
+				/*
+				 * Ports 1 and 2.
+				 */
+				DPRINT(("creating conversation for frame #%u: %s:%u -> %s:%u (etype=%d)",
+					    setup_frame, addr1_str, port1, addr2_str, port2, etype));
+			}
+			wmem_free(NULL, addr2_str);
+		}
+		wmem_free(NULL, addr1_str);
+	}
+#endif
 
 	if (options & NO_ADDR2) {
 		if (options & (NO_PORT2|NO_PORT2_FORCE)) {
@@ -688,8 +773,8 @@ conversation_t *conversation_new_by_id(const guint32 setup_frame, const endpoint
 void
 conversation_set_port2(conversation_t *conv, const guint32 port)
 {
-   DISSECTOR_ASSERT_HINT(!(conv->options & CONVERSATION_TEMPLATE),
-            "Use the conversation_create_from_template function when the CONVERSATION_TEMPLATE bit is set in the options mask");
+	DISSECTOR_ASSERT_HINT(!(conv->options & CONVERSATION_TEMPLATE),
+	    "Use the conversation_create_from_template function when the CONVERSATION_TEMPLATE bit is set in the options mask");
 
 	DPRINT(("called for port=%d", port));
 
@@ -788,10 +873,10 @@ conversation_lookup_hashtable(wmem_map_t *hashtable, const guint32 frame_num, co
 	if (chain_head && (chain_head->setup_frame <= frame_num)) {
 		match = chain_head;
 
-		if((chain_head->last)&&(chain_head->last->setup_frame<=frame_num))
+		if ((chain_head->last)&&(chain_head->last->setup_frame<=frame_num))
 			return chain_head->last;
 
-		if((chain_head->latest_found)&&(chain_head->latest_found->setup_frame<=frame_num))
+		if ((chain_head->latest_found)&&(chain_head->latest_found->setup_frame<=frame_num))
 			match = chain_head->latest_found;
 
 		for (convo = match; convo && convo->setup_frame <= frame_num; convo = convo->next) {
@@ -850,6 +935,8 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 {
 	conversation_t *conversation;
 
+	DINSTR(gchar *addr_a_str = address_to_str(NULL, addr_a));
+	DINSTR(gchar *addr_b_str = address_to_str(NULL, addr_b));
 	/*
 	 * First try an exact match, if we have two addresses and ports.
 	 */
@@ -858,16 +945,18 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		 * Neither search address B nor search port B are wildcarded,
 		 * start out with an exact match.
 		 */
-		DPRINT(("trying exact match"));
+		DPRINT(("trying exact match: %s:%d -> %s:%d",
+		    addr_a_str, port_a, addr_b_str, port_b));
 		conversation =
-			conversation_lookup_hashtable(conversation_hashtable_exact,
+		    conversation_lookup_hashtable(conversation_hashtable_exact,
 			frame_num, addr_a, addr_b, etype,
 			port_a, port_b);
 		/* Didn't work, try the other direction */
 		if (conversation == NULL) {
-			DPRINT(("trying opposite direction"));
+			DPRINT(("trying exact match: %s:%d -> %s:%d",
+			    addr_b_str, port_b, addr_a_str, port_a));
 			conversation =
-				conversation_lookup_hashtable(conversation_hashtable_exact,
+			    conversation_lookup_hashtable(conversation_hashtable_exact,
 				frame_num, addr_b, addr_a, etype,
 				port_b, port_a);
 		}
@@ -875,14 +964,16 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			/* In Fibre channel, OXID & RXID are never swapped as
 			 * TCP/UDP ports are in TCP/IP.
 			 */
+			DPRINT(("trying exact match: %s:%d -> %s:%d",
+			    addr_b_str, port_a, addr_a_str, port_b));
 			conversation =
-				conversation_lookup_hashtable(conversation_hashtable_exact,
+			    conversation_lookup_hashtable(conversation_hashtable_exact,
 				frame_num, addr_b, addr_a, etype,
 				port_a, port_b);
 		}
 		DPRINT(("exact match %sfound",conversation?"":"not "));
 		if (conversation != NULL)
-			return conversation;
+			goto end;
 	}
 
 	/*
@@ -899,16 +990,19 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		 * address and port.
 		 * ("addr_b" doesn't take part in this lookup.)
 		 */
-		DPRINT(("trying wildcarded dest address"));
+		DPRINT(("trying wildcarded match: %s:%d -> *:%d",
+		    addr_a_str, port_a, port_b));
 		conversation =
-			conversation_lookup_hashtable(conversation_hashtable_no_addr2,
+		    conversation_lookup_hashtable(conversation_hashtable_no_addr2,
 			frame_num, addr_a, addr_b, etype, port_a, port_b);
 		if ((conversation == NULL) && (addr_a->type == AT_FC)) {
 			/* In Fibre channel, OXID & RXID are never swapped as
 			 * TCP/UDP ports are in TCP/IP.
 			 */
+			DPRINT(("trying wildcarded match: %s:%d -> *:%d",
+			    addr_b_str, port_a, port_b));
 			conversation =
-				conversation_lookup_hashtable(conversation_hashtable_no_addr2,
+			    conversation_lookup_hashtable(conversation_hashtable_no_addr2,
 				frame_num, addr_b, addr_a, etype,
 				port_a, port_b);
 		}
@@ -927,7 +1021,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			DPRINT(("wildcarded dest address match found"));
 			if (!(conversation->options & NO_ADDR_B) && etype != ENDPOINT_UDP)
 			{
-				if(!(conversation->options & CONVERSATION_TEMPLATE))
+				if (!(conversation->options & CONVERSATION_TEMPLATE))
 				{
 					conversation_set_addr2(conversation, addr_b);
 				}
@@ -937,7 +1031,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 						conversation_create_from_template(conversation, addr_b, 0);
 				}
 			}
-			return conversation;
+			goto end;
 		}
 
 		/*
@@ -951,9 +1045,10 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		 * ("addr_a" doesn't take part in this lookup.)
 		 */
 		if (!(options & NO_ADDR_B)) {
-			DPRINT(("trying dest addr:port as source addr:port with wildcarded dest addr"));
+			DPRINT(("trying wildcarded match: %s:%d -> *:%d",
+			    addr_b_str, port_b, port_a));
 			conversation =
-				conversation_lookup_hashtable(conversation_hashtable_no_addr2,
+			    conversation_lookup_hashtable(conversation_hashtable_no_addr2,
 				frame_num, addr_b, addr_a, etype, port_b, port_a);
 			if (conversation != NULL) {
 				/*
@@ -966,17 +1061,17 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 				 */
 				DPRINT(("match found"));
 				if (etype != ENDPOINT_UDP) {
-					if(!(conversation->options & CONVERSATION_TEMPLATE))
+					if (!(conversation->options & CONVERSATION_TEMPLATE))
 					{
 						conversation_set_addr2(conversation, addr_a);
 					}
 					else
 					{
 						conversation =
-							conversation_create_from_template(conversation, addr_a, 0);
+						    conversation_create_from_template(conversation, addr_a, 0);
 					}
 				}
-				return conversation;
+				goto end;
 			}
 		}
 	}
@@ -995,16 +1090,18 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		 * address and port.
 		 * ("port_b" doesn't take part in this lookup.)
 		 */
-		DPRINT(("trying wildcarded dest port"));
+		DPRINT(("trying wildcarded match: %s:%d -> %s:*",
+		    addr_a_str, port_a, addr_b_str));
 		conversation =
-			conversation_lookup_hashtable(conversation_hashtable_no_port2,
+		    conversation_lookup_hashtable(conversation_hashtable_no_port2,
 			frame_num, addr_a, addr_b, etype, port_a, port_b);
 		if ((conversation == NULL) && (addr_a->type == AT_FC)) {
 			/* In Fibre channel, OXID & RXID are never swapped as
 			 * TCP/UDP ports are in TCP/IP
 			 */
+			DPRINT(("trying wildcarded match: %s:%d -> %s:*", addr_b_str, port_a, addr_a_str));
 			conversation =
-				conversation_lookup_hashtable(conversation_hashtable_no_port2,
+			    conversation_lookup_hashtable(conversation_hashtable_no_port2,
 				frame_num, addr_b, addr_a, etype, port_a, port_b);
 		}
 		if (conversation != NULL) {
@@ -1022,17 +1119,17 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			DPRINT(("match found"));
 			if (!(conversation->options & NO_PORT_B) && etype != ENDPOINT_UDP)
 			{
-				if(!(conversation->options & CONVERSATION_TEMPLATE))
+				if (!(conversation->options & CONVERSATION_TEMPLATE))
 				{
 					conversation_set_port2(conversation, port_b);
 				}
 				else
 				{
 					conversation =
-						conversation_create_from_template(conversation, 0, port_b);
+					    conversation_create_from_template(conversation, 0, port_b);
 				}
 			}
-			return conversation;
+			goto end;
 		}
 
 		/*
@@ -1046,9 +1143,10 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		 * ("port_a" doesn't take part in this lookup.)
 		 */
 		if (!(options & NO_PORT_B)) {
-			DPRINT(("trying dest addr:port as source addr:port and wildcarded dest port"));
+			DPRINT(("trying wildcarded match: %s:%d -> %s:*",
+			    addr_b_str, port_b, addr_a_str));
 			conversation =
-				conversation_lookup_hashtable(conversation_hashtable_no_port2,
+			    conversation_lookup_hashtable(conversation_hashtable_no_port2,
 				frame_num, addr_b, addr_a, etype, port_b, port_a);
 			if (conversation != NULL) {
 				/*
@@ -1062,17 +1160,17 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 				DPRINT(("match found"));
 				if (etype != ENDPOINT_UDP)
 				{
-					if(!(conversation->options & CONVERSATION_TEMPLATE))
+					if (!(conversation->options & CONVERSATION_TEMPLATE))
 					{
 						conversation_set_port2(conversation, port_a);
 					}
 					else
 					{
 						conversation =
-							conversation_create_from_template(conversation, 0, port_a);
+						    conversation_create_from_template(conversation, 0, port_a);
 					}
 				}
-				return conversation;
+				goto end;
 			}
 		}
 	}
@@ -1085,9 +1183,9 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 	 * and port A as the first address and port.
 	 * (Neither "addr_b" nor "port_b" take part in this lookup.)
 	 */
-	DPRINT(("trying wildcarding dest addr:port"));
+	DPRINT(("trying wildcarded match: %s:%d -> *:*", addr_a_str, port_a));
 	conversation =
-		conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
+	    conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
 		frame_num, addr_a, addr_b, etype, port_a, port_b);
 	if (conversation != NULL) {
 		/*
@@ -1106,7 +1204,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		DPRINT(("match found"));
 		if (etype != ENDPOINT_UDP)
 		{
-			if(!(conversation->options & CONVERSATION_TEMPLATE))
+			if (!(conversation->options & CONVERSATION_TEMPLATE))
 			{
 				if (!(conversation->options & NO_ADDR_B))
 					conversation_set_addr2(conversation, addr_b);
@@ -1116,10 +1214,10 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			else
 			{
 				conversation =
-					conversation_create_from_template(conversation, addr_b, port_b);
+				    conversation_create_from_template(conversation, addr_b, port_b);
 			}
 		}
-		return conversation;
+		goto end;
 	}
 	/* for Infiniband, don't try to look in addresses of reverse
 	 * direction, because it could be another different
@@ -1138,15 +1236,19 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		 * first packet in the conversation).
 		 * (Neither "addr_a" nor "port_a" take part in this lookup.)
 		 */
-		DPRINT(("trying dest addr:port as source addr:port and wildcarding dest addr:port"));
-		if ((addr_a != NULL) && (addr_a->type == AT_FC))
+		if ((addr_a != NULL) && (addr_a->type == AT_FC)) {
+			DPRINT(("trying wildcarded match: %s:%d -> *:*",
+			    addr_b_str, port_a));
 			conversation =
-				conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
+			    conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
 				frame_num, addr_b, addr_a, etype, port_a, port_b);
-		else
+		} else {
+			DPRINT(("trying wildcarded match: %s:%d -> *:*",
+			    addr_b_str, port_b));
 			conversation =
-				conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
+			    conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
 				frame_num, addr_b, addr_a, etype, port_b, port_a);
+		}
 		if (conversation != NULL) {
 			/*
 			 * If this is for a connection-oriented protocol, set the
@@ -1160,7 +1262,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			DPRINT(("match found"));
 			if (etype != ENDPOINT_UDP)
 			{
-				if(!(conversation->options & CONVERSATION_TEMPLATE))
+				if (!(conversation->options & CONVERSATION_TEMPLATE))
 				{
 					conversation_set_addr2(conversation, addr_a);
 					conversation_set_port2(conversation, port_a);
@@ -1170,7 +1272,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 					conversation = conversation_create_from_template(conversation, addr_a, port_a);
 				}
 			}
-			return conversation;
+			goto end;
 		}
 	}
 	DPRINT(("no matches found"));
@@ -1178,7 +1280,12 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 	/*
 	 * We found no conversation.
 	 */
-	return NULL;
+	conversation = NULL;
+
+end:
+	DINSTR(wmem_free(NULL, addr_a_str));
+	DINSTR(wmem_free(NULL, addr_b_str));
+	return conversation;
 }
 
 conversation_t *find_conversation_by_id(const guint32 frame, const endpoint_type etype, const guint32 id, const guint options)
@@ -1313,11 +1420,12 @@ try_conversation_dissector_by_id(const endpoint_type etype, const guint32 id, tv
 
 	if (conversation != NULL) {
 		int ret;
+
 		dissector_handle_t handle = (dissector_handle_t)wmem_tree_lookup32_le(conversation->dissector_tree, pinfo->num);
 		if (handle == NULL)
 			return FALSE;
-		ret=call_dissector_only(handle, tvb, pinfo, tree, data);
-		if(!ret) {
+		ret = call_dissector_only(handle, tvb, pinfo, tree, data);
+		if (!ret) {
 			/* this packet was rejected by the dissector
 			 * so return FALSE in case our caller wants
 			 * to do some cleaning up.
@@ -1337,34 +1445,40 @@ find_conversation_pinfo(packet_info *pinfo, const guint options)
 {
 	conversation_t *conv=NULL;
 
-	DPRINT(("called for frame #%d: %s:%d -> %s:%d (ptype=%d)",
-		pinfo->num, address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
-		address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport, pinfo->ptype));
+	DINSTR(gchar *src_str = address_to_str(NULL, &pinfo->src));
+	DINSTR(gchar *dst_str = address_to_str(NULL, &pinfo->dst));
+	DPRINT(("called for frame #%u: %s:%d -> %s:%d (ptype=%d)",
+		pinfo->num, src_str, pinfo->srcport,
+		dst_str, pinfo->destport, pinfo->ptype));
 	DINDENT();
+	DINSTR(wmem_free(NULL, src_str));
+	DINSTR(wmem_free(NULL, dst_str));
 
 	/* Have we seen this conversation before? */
 	if (pinfo->use_endpoint) {
 		DISSECTOR_ASSERT(pinfo->conv_endpoint);
-		if((conv = find_conversation(pinfo->num, &pinfo->conv_endpoint->addr1, &pinfo->conv_endpoint->addr2,
-									pinfo->conv_endpoint->etype, pinfo->conv_endpoint->port1,
-									pinfo->conv_endpoint->port2, pinfo->conv_endpoint->options)) != NULL) {
-			DPRINT(("found previous conversation for frame #%d (last_frame=%d)",
+		if ((conv = find_conversation(pinfo->num, &pinfo->conv_endpoint->addr1, &pinfo->conv_endpoint->addr2,
+					      pinfo->conv_endpoint->etype, pinfo->conv_endpoint->port1,
+					      pinfo->conv_endpoint->port2, pinfo->conv_endpoint->options)) != NULL) {
+			DPRINT(("found previous conversation for frame #%u (last_frame=%d)",
 					pinfo->num, conv->last_frame));
 			if (pinfo->num > conv->last_frame) {
 				conv->last_frame = pinfo->num;
 			}
 		}
-		} else {
-		if((conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-									conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
-									pinfo->destport, options)) != NULL) {
-			DPRINT(("found previous conversation for frame #%d (last_frame=%d)",
+	} else {
+		if ((conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
+					      conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
+					      pinfo->destport, options)) != NULL) {
+			DPRINT(("found previous conversation for frame #%u (last_frame=%d)",
 					pinfo->num, conv->last_frame));
 			if (pinfo->num > conv->last_frame) {
 				conv->last_frame = pinfo->num;
 			}
 		}
 	}
+
+	DENDENT();
 
 	return conv;
 }
@@ -1381,9 +1495,9 @@ find_or_create_conversation(packet_info *pinfo)
 	conversation_t *conv=NULL;
 
 	/* Have we seen this conversation before? */
-	if((conv = find_conversation_pinfo(pinfo, 0)) == NULL) {
+	if ((conv = find_conversation_pinfo(pinfo, 0)) == NULL) {
 		/* No, this is a new conversation. */
-		DPRINT(("did not find previous conversation for frame #%d",
+		DPRINT(("did not find previous conversation for frame #%u",
 				pinfo->num));
 		DINDENT();
 		conv = conversation_new(pinfo->num, &pinfo->src,
@@ -1392,7 +1506,23 @@ find_or_create_conversation(packet_info *pinfo)
 		DENDENT();
 	}
 
-	DENDENT();
+	return conv;
+}
+
+conversation_t *
+find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype, const guint32 id)
+{
+	conversation_t *conv=NULL;
+
+	/* Have we seen this conversation before? */
+	if ((conv = find_conversation_by_id(pinfo->num, etype, id, 0)) == NULL) {
+		/* No, this is a new conversation. */
+		DPRINT(("did not find previous conversation for frame #%u",
+				pinfo->num));
+		DINDENT();
+		conv = conversation_new_by_id(pinfo->num, etype, id, 0);
+		DENDENT();
+	}
 
 	return conv;
 }
@@ -1428,7 +1558,7 @@ guint32 conversation_get_endpoint_by_id(struct _packet_info *pinfo, endpoint_typ
 		return 0;
 
 	if ((pinfo->conv_endpoint->etype != etype) &&
-		((options & USE_LAST_ENDPOINT) != USE_LAST_ENDPOINT))
+	    ((options & USE_LAST_ENDPOINT) != USE_LAST_ENDPOINT))
 		return 0;
 
 	return pinfo->conv_endpoint->port1;
@@ -1525,7 +1655,7 @@ conversation_get_html_hash(const conversation_key_t key)
 	addr1 = address_to_str(NULL, &key->addr1);
 	addr2 = address_to_str(NULL, &key->addr2);
 	hash = wmem_strdup_printf(NULL, "<tr><td>%s</td><td>%d</td><td>%s</td><td>%d</td></tr>\n",
-							addr1, key->port1, addr2, key->port2);
+				  addr1, key->port1, addr2, key->port2);
 	wmem_free(NULL, addr1);
 	wmem_free(NULL, addr2);
 
@@ -1533,7 +1663,7 @@ conversation_get_html_hash(const conversation_key_t key)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

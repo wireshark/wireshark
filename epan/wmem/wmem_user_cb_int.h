@@ -30,7 +30,7 @@ wmem_call_callbacks(wmem_allocator_t *allocator, wmem_cb_event_t event);
 #endif /* __WMEM_USER_CB_INT_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

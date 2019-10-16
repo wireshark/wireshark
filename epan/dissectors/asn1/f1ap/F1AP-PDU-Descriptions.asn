@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.1.0 (2018-03)
+-- 3GPP TS 38.473 V15.7.0 (2019-09)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -50,7 +50,28 @@ FROM F1AP-CommonDataTypes
 	UEContextReleaseRequest,
 	DLRRCMessageTransfer,
 	ULRRCMessageTransfer,
-	PrivateMessage
+	GNBDUResourceCoordinationRequest,
+	GNBDUResourceCoordinationResponse,
+	PrivateMessage,
+	UEInactivityNotification,
+	InitialULRRCMessageTransfer,
+	SystemInformationDeliveryCommand,
+	Paging,
+	Notify,
+	WriteReplaceWarningRequest,
+	WriteReplaceWarningResponse,
+	PWSCancelRequest,
+	PWSCancelResponse,
+	PWSRestartIndication,
+	PWSFailureIndication,
+	GNBDUStatusIndication,
+	RRCDeliveryReport,
+	UEContextModificationRefuse,
+	F1RemovalRequest,
+	F1RemovalResponse,
+	F1RemovalFailure,
+	NetworkAccessRateReduction
+
 
 FROM F1AP-PDU-Contents
 	id-Reset,
@@ -65,10 +86,30 @@ FROM F1AP-PDU-Contents
 	id-UEContextReleaseRequest,
 	id-DLRRCMessageTransfer,
 	id-ULRRCMessageTransfer,
-	id-privateMessage
+	id-GNBDUResourceCoordination,
+	id-privateMessage,
+	id-UEInactivityNotification,
+	id-InitialULRRCMessageTransfer,
+	id-SystemInformationDeliveryCommand,
+	id-Paging,
+	id-Notify,
+	id-WriteReplaceWarning,
+	id-PWSCancel,
+	id-PWSRestartIndication,
+	id-PWSFailureIndication,
+	id-GNBDUStatusIndication,
+	id-RRCDeliveryReport,
+	id-F1Removal,
+	id-NetworkAccessRateReduction
 
 
-FROM F1AP-Constants;
+
+FROM F1AP-Constants
+
+	ProtocolIE-SingleContainer{},
+	F1AP-PROTOCOL-IES
+
+FROM F1AP-Containers;
 
 
 -- **************************************************************
@@ -101,7 +142,11 @@ WITH SYNTAX {
 F1AP-PDU ::= CHOICE {
 	initiatingMessage	InitiatingMessage,
 	successfulOutcome	SuccessfulOutcome,
-	unsuccessfulOutcome	UnsuccessfulOutcome,
+	unsuccessfulOutcome	UnsuccessfulOutcome, 
+	choice-extension	ProtocolIE-SingleContainer { { F1AP-PDU-ExtIEs} }
+}
+
+F1AP-PDU-ExtIEs F1AP-PROTOCOL-IES ::= { -- this extension is not used
 	...
 }
 
@@ -144,15 +189,30 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-1 F1AP-ELEMENTARY-PROCEDURE ::= {
 	uEContextSetup					|
 	uEContextRelease				|
 	uEContextModification			|
-	uEContextModificationRequired	,
-	...}
+	uEContextModificationRequired	|
+	writeReplaceWarning				|
+	pWSCancel					|
+	gNBDUResourceCoordination		|
+	f1Removal					,
+	...
+}
 
- F1AP-ELEMENTARY-PROCEDURES-CLASS-2 F1AP-ELEMENTARY-PROCEDURE ::= {	
+F1AP-ELEMENTARY-PROCEDURES-CLASS-2 F1AP-ELEMENTARY-PROCEDURE ::= {	
 	errorIndication					|
 	uEContextReleaseRequest			|
 	dLRRCMessageTransfer			|
 	uLRRCMessageTransfer			|
-	privateMessage					,
+	uEInactivityNotification		|
+	privateMessage					|
+	initialULRRCMessageTransfer		|
+	systemInformationDelivery		|
+	paging							|
+	notify							|
+	pWSRestartIndication			|
+	pWSFailureIndication			|
+	gNBDUStatusIndication			|
+	rRCDeliveryReport				|
+	networkAccessRateReduction		,
 	...
 }
 -- **************************************************************
@@ -171,7 +231,7 @@ reset F1AP-ELEMENTARY-PROCEDURE ::= {
 f1Setup F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		F1SetupRequest
 	SUCCESSFUL OUTCOME		F1SetupResponse
-	UNSUCCESSFUL 			OUTCOME	F1SetupFailure
+	UNSUCCESSFUL OUTCOME	F1SetupFailure
 	PROCEDURE CODE			id-F1Setup
 	CRITICALITY				reject
 }
@@ -179,7 +239,7 @@ f1Setup F1AP-ELEMENTARY-PROCEDURE ::= {
 gNBDUConfigurationUpdate F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		GNBDUConfigurationUpdate
 	SUCCESSFUL OUTCOME		GNBDUConfigurationUpdateAcknowledge
-	UNSUCCESSFUL OUTCOME		GNBDUConfigurationUpdateFailure
+	UNSUCCESSFUL OUTCOME	GNBDUConfigurationUpdateFailure
 	PROCEDURE CODE			id-gNBDUConfigurationUpdate
 	CRITICALITY				reject
 }
@@ -187,7 +247,7 @@ gNBDUConfigurationUpdate F1AP-ELEMENTARY-PROCEDURE ::= {
 gNBCUConfigurationUpdate F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		GNBCUConfigurationUpdate
 	SUCCESSFUL OUTCOME		GNBCUConfigurationUpdateAcknowledge
-	UNSUCCESSFUL OUTCOME		GNBCUConfigurationUpdateFailure
+	UNSUCCESSFUL OUTCOME	GNBCUConfigurationUpdateFailure
 	PROCEDURE CODE			id-gNBCUConfigurationUpdate
 	CRITICALITY				reject
 }
@@ -195,7 +255,7 @@ gNBCUConfigurationUpdate F1AP-ELEMENTARY-PROCEDURE ::= {
 uEContextSetup F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		UEContextSetupRequest
 	SUCCESSFUL OUTCOME		UEContextSetupResponse
-	UNSUCCESSFUL OUTCOME		UEContextSetupFailure
+	UNSUCCESSFUL OUTCOME	UEContextSetupFailure
 	PROCEDURE CODE			id-UEContextSetup
 	CRITICALITY				reject
 }
@@ -210,7 +270,7 @@ uEContextRelease F1AP-ELEMENTARY-PROCEDURE ::= {
 uEContextModification F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		UEContextModificationRequest
 	SUCCESSFUL OUTCOME		UEContextModificationResponse
-	UNSUCCESSFUL OUTCOME		UEContextModificationFailure
+	UNSUCCESSFUL OUTCOME	UEContextModificationFailure
 	PROCEDURE CODE			id-UEContextModification
 	CRITICALITY				reject
 }
@@ -218,10 +278,24 @@ uEContextModification F1AP-ELEMENTARY-PROCEDURE ::= {
 uEContextModificationRequired F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		UEContextModificationRequired
 	SUCCESSFUL OUTCOME		UEContextModificationConfirm
+	UNSUCCESSFUL OUTCOME	UEContextModificationRefuse
 	PROCEDURE CODE			id-UEContextModificationRequired
 	CRITICALITY				reject
 }
 
+writeReplaceWarning F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		WriteReplaceWarningRequest
+	SUCCESSFUL OUTCOME		WriteReplaceWarningResponse
+	PROCEDURE CODE			id-WriteReplaceWarning
+	CRITICALITY				reject
+}
+
+pWSCancel F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PWSCancelRequest
+	SUCCESSFUL OUTCOME		PWSCancelResponse
+	PROCEDURE CODE			id-PWSCancel
+	CRITICALITY				reject
+}
 
 errorIndication F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		ErrorIndication
@@ -236,6 +310,12 @@ uEContextReleaseRequest F1AP-ELEMENTARY-PROCEDURE ::= {
 }
 
 
+initialULRRCMessageTransfer F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		InitialULRRCMessageTransfer
+	PROCEDURE CODE			id-InitialULRRCMessageTransfer
+	CRITICALITY				ignore
+}
+
 dLRRCMessageTransfer F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		DLRRCMessageTransfer
 	PROCEDURE CODE			id-DLRRCMessageTransfer
@@ -249,12 +329,83 @@ uLRRCMessageTransfer F1AP-ELEMENTARY-PROCEDURE ::= {
 }
 
 
+uEInactivityNotification  F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEInactivityNotification
+	PROCEDURE CODE			id-UEInactivityNotification
+	CRITICALITY				ignore
+}
+
+gNBDUResourceCoordination F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		GNBDUResourceCoordinationRequest
+	SUCCESSFUL OUTCOME		GNBDUResourceCoordinationResponse
+	PROCEDURE CODE			id-GNBDUResourceCoordination
+	CRITICALITY				reject
+}
+
 privateMessage F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		PrivateMessage
 	PROCEDURE CODE			id-privateMessage
 	CRITICALITY				ignore
 }
 
+systemInformationDelivery F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SystemInformationDeliveryCommand
+	PROCEDURE CODE			id-SystemInformationDeliveryCommand
+	CRITICALITY				ignore
+}
+
+
+paging F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		Paging
+	PROCEDURE CODE			id-Paging
+	CRITICALITY				ignore
+}
+
+notify F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		Notify
+	PROCEDURE CODE			id-Notify
+	CRITICALITY				ignore
+}
+
+networkAccessRateReduction F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		NetworkAccessRateReduction
+	PROCEDURE CODE			id-NetworkAccessRateReduction
+	CRITICALITY				ignore
+}
+
+
+pWSRestartIndication F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PWSRestartIndication
+	PROCEDURE CODE			id-PWSRestartIndication
+	CRITICALITY				ignore
+}
+
+pWSFailureIndication F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PWSFailureIndication
+	PROCEDURE CODE			id-PWSFailureIndication
+	CRITICALITY				ignore
+}
+
+gNBDUStatusIndication 	F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		GNBDUStatusIndication
+	PROCEDURE CODE			id-GNBDUStatusIndication
+	CRITICALITY				ignore
+}
+
+
+rRCDeliveryReport F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RRCDeliveryReport
+	PROCEDURE CODE			id-RRCDeliveryReport
+	CRITICALITY				ignore
+}
+
+f1Removal F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		F1RemovalRequest
+	SUCCESSFUL OUTCOME		F1RemovalResponse
+	UNSUCCESSFUL OUTCOME	F1RemovalFailure
+	PROCEDURE CODE			id-F1Removal
+	CRITICALITY				reject
+}
 
 
 END

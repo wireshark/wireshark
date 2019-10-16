@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "bluetooth_att_server_attributes_dialog.h"
 #include <ui_bluetooth_att_server_attributes_dialog.h>
@@ -20,17 +21,18 @@
 
 #include "ui/simple_dialog.h"
 
+#include "ui/qt/widgets/wireshark_file_dialog.h"
+
 #include <QClipboard>
 #include <QContextMenuEvent>
 #include <QPushButton>
 #include <QTreeWidget>
-#include <QFileDialog>
 
 static const int column_number_handle = 0;
 static const int column_number_uuid = 1;
 static const int column_number_uuid_name = 2;
 
-static gboolean
+static tap_packet_status
 btatt_handle_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *edt, const void* data)
 {
     tapinfo_t *tapinfo = (tapinfo_t *) tapinfo_ptr;
@@ -38,7 +40,7 @@ btatt_handle_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *e
     if (tapinfo->tap_packet)
         tapinfo->tap_packet(tapinfo, pinfo, edt, data);
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 static void
@@ -140,10 +142,14 @@ void BluetoothAttServerAttributesDialog::tableContextMenu(const QPoint &pos)
 
 void BluetoothAttServerAttributesDialog::on_actionMark_Unmark_Cell_triggered()
 {
+    QTreeWidgetItem *current_item = ui->tableTreeWidget->currentItem();
+    if (!current_item)
+        return;
+
     QBrush fg;
     QBrush bg;
 
-    if (ui->tableTreeWidget->currentItem()->background(ui->tableTreeWidget->currentColumn()) == QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg))) {
+    if (current_item->background(ui->tableTreeWidget->currentColumn()) == QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg))) {
         fg = QBrush();
         bg = QBrush();
     } else {
@@ -151,19 +157,23 @@ void BluetoothAttServerAttributesDialog::on_actionMark_Unmark_Cell_triggered()
         bg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg));
     }
 
-    ui->tableTreeWidget->currentItem()->setForeground(ui->tableTreeWidget->currentColumn(), fg);
-    ui->tableTreeWidget->currentItem()->setBackground(ui->tableTreeWidget->currentColumn(), bg);
+    current_item->setForeground(ui->tableTreeWidget->currentColumn(), fg);
+    current_item->setBackground(ui->tableTreeWidget->currentColumn(), bg);
 }
 
 
 void BluetoothAttServerAttributesDialog::on_actionMark_Unmark_Row_triggered()
 {
+    QTreeWidgetItem *current_item = ui->tableTreeWidget->currentItem();
+    if (!current_item)
+        return;
+
     QBrush fg;
     QBrush bg;
     bool   is_marked = TRUE;
 
     for (int i = 0; i < ui->tableTreeWidget->columnCount(); i += 1) {
-        if (ui->tableTreeWidget->currentItem()->background(i) != QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg)))
+        if (current_item->background(i) != QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg)))
             is_marked = FALSE;
     }
 
@@ -176,18 +186,22 @@ void BluetoothAttServerAttributesDialog::on_actionMark_Unmark_Row_triggered()
     }
 
     for (int i = 0; i < ui->tableTreeWidget->columnCount(); i += 1) {
-        ui->tableTreeWidget->currentItem()->setForeground(i, fg);
-        ui->tableTreeWidget->currentItem()->setBackground(i, bg);
+        current_item->setForeground(i, fg);
+        current_item->setBackground(i, bg);
     }
 }
 
 
 void BluetoothAttServerAttributesDialog::on_actionCopy_Cell_triggered()
 {
-    QClipboard             *clipboard = QApplication::clipboard();
-    QString                 copy;
+    QTreeWidgetItem *current_item = ui->tableTreeWidget->currentItem();
+    if (!current_item)
+        return;
 
-    copy = QString(ui->tableTreeWidget->currentItem()->text(ui->tableTreeWidget->currentColumn()));
+    QClipboard *clipboard = QApplication::clipboard();
+    QString     copy;
+
+    copy = QString(current_item->text(ui->tableTreeWidget->currentColumn()));
 
     clipboard->setText(copy);
 }
@@ -223,7 +237,7 @@ void BluetoothAttServerAttributesDialog::tapReset(void *tapinfo_ptr)
 }
 
 
-gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
+tap_packet_status BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
 {
     tapinfo_t                           *tapinfo     = static_cast<tapinfo_t *>(tapinfo_ptr);
     BluetoothAttServerAttributesDialog  *dialog      = static_cast<BluetoothAttServerAttributesDialog *>(tapinfo->ui);
@@ -234,10 +248,10 @@ gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet
     gchar                               *addr = NULL;
 
     if (dialog->file_closed_)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     if (pinfo->rec->rec_type != REC_TYPE_PACKET)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
         gchar       *interface;
@@ -251,7 +265,7 @@ gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet
 
         if (interface && dialog->ui->interfaceComboBox->currentIndex() > 0) {
             if (dialog->ui->interfaceComboBox->currentText() != interface)
-            return TRUE;
+            return TAP_PACKET_REDRAW;
         }
     }
 
@@ -264,7 +278,7 @@ gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet
 
     if (addr && dialog->ui->deviceComboBox->currentIndex() > 0) {
         if (dialog->ui->deviceComboBox->currentText() != addr)
-            return TRUE;
+            return TAP_PACKET_REDRAW;
     }
 
     handle.sprintf("0x%04x", tap_handles->handle);
@@ -280,7 +294,7 @@ gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet
             if (item->text(column_number_handle) == handle &&
                     item->text(column_number_uuid) == uuid &&
                     item->text(column_number_uuid_name) == uuid_name)
-                return TRUE;
+                return TAP_PACKET_REDRAW;
             ++i_item;
         }
     }
@@ -295,7 +309,7 @@ gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet
         dialog->ui->tableTreeWidget->resizeColumnToContents(i);
     }
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 void BluetoothAttServerAttributesDialog::interfaceCurrentIndexChanged(int)
@@ -355,13 +369,13 @@ void BluetoothAttServerAttributesDialog::on_actionSave_as_image_triggered()
 {
     QPixmap image;
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Table Image"),
+    QString fileName = WiresharkFileDialog::getSaveFileName(this, tr("Save Table Image"),
                            "att_server_attributes_table.png",
                            tr("PNG Image (*.png)"));
 
     if (fileName.isEmpty()) return;
 
-    image = QPixmap::grabWidget(ui->tableTreeWidget);
+    image = ui->tableTreeWidget->grab();
     image.save(fileName, "PNG");
 }
 

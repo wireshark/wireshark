@@ -9,7 +9,7 @@
  *
  * Network Event Tracing event taken from:
  *
- * http://msdn.microsoft.com/en-us/library/aa363759(VS.85).aspx
+ * https://docs.microsoft.com/en-us/windows/win32/api/evntcons/ns-evntcons-event_header
  */
 
 #include "config.h"
@@ -403,34 +403,25 @@ dissect_netmon_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 	proto_tree *header_tree;
 	union wtap_pseudo_header temp_header;
 	gchar *comment;
-	GIConv cd;
 
 	ti = proto_tree_add_item(tree, proto_netmon_header, tvb, 0, 0, ENC_NA);
 	header_tree = proto_item_add_subtree(ti, ett_netmon_header);
 
 	if (pinfo->pseudo_header->netmon.title != NULL) {
-		/* Title comment is UTF-16 */
-
-		if ((cd = g_iconv_open("UTF-8", "UTF-16")) != (GIConv) -1)
-		{
-			comment = g_convert_with_iconv(pinfo->pseudo_header->netmon.title, pinfo->pseudo_header->netmon.titleLength, cd, NULL, NULL, NULL);
-			g_iconv_close(cd);
-
-			ti = proto_tree_add_string(header_tree, hf_netmon_header_title_comment, tvb, 0, 0, comment);
-			PROTO_ITEM_SET_GENERATED(ti);
-			g_free(comment);
-		}
-
+		ti = proto_tree_add_string(header_tree, hf_netmon_header_title_comment, tvb, 0, 0, pinfo->pseudo_header->netmon.title);
+		proto_item_set_generated(ti);
 	}
 
 	if (pinfo->pseudo_header->netmon.description != NULL) {
-		/* Description comment is only ASCII */
+		/* Description comment is only ASCII.  However, it's
+		 * RTF, not raw text.
+		 */
 
 		/* Ensure string termination */
 		comment = wmem_strndup(wmem_packet_scope(), pinfo->pseudo_header->netmon.description, pinfo->pseudo_header->netmon.descLength);
 
 		ti = proto_tree_add_string(header_tree, hf_netmon_header_description_comment, tvb, 0, 0, comment);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 	}
 
 	/* Save the pseudo header data to a temp variable before it's copied to
@@ -600,7 +591,9 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	if (!dissector_try_guid_new(provider_id_table, &provider_guid, provider_id_tvb, pinfo, tree, TRUE, &provider_id_data))
 	{
 		proto_tree_add_item(event_tree, hf_netmon_event_user_data, tvb, offset, user_data_size, ENC_NA);
+		offset += user_data_size;
 	}
+	proto_item_set_len(ti, offset);
 	return tvb_captured_length(tvb);
 }
 
@@ -696,7 +689,7 @@ dissect_netmon_network_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			{
 			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "(Unknown)");
 			}
-			else if (link_speed >= 1000 * 1000 * 1024)
+			else if (link_speed >= 1000 * 1000 * 1000)
 			{
 			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "%" G_GINT64_MODIFIER "u Gbps", link_speed/(1000*1000*1000));
 			}
@@ -704,7 +697,7 @@ dissect_netmon_network_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			{
 			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "%" G_GINT64_MODIFIER "u Mbps", link_speed/(1000*1000));
 			}
-			else if (link_speed >= 1000 * 1000)
+			else if (link_speed >= 1000)
 			{
 			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "%" G_GINT64_MODIFIER "u Kbps", link_speed/1000);
 			}
@@ -2901,7 +2894,7 @@ void proto_reg_handoff_netmon(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

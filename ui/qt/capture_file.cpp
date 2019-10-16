@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "capture_file.h"
 
@@ -53,6 +54,14 @@ CaptureEvent::CaptureEvent(Context ctx, EventType evt, capture_session * session
     qDebug() << "CaptureEvent [" << ctx <<"]: " << evt << " with session";
 }
 
+CaptureEvent::CaptureEvent(const CaptureEvent &ce)
+{
+    _ctx = ce._ctx;
+    _evt = ce._evt;
+    _session = ce._session;
+    _filePath = ce._filePath;
+}
+
 CaptureEvent::Context CaptureEvent::captureContext() const
 { return _ctx; }
 
@@ -77,7 +86,6 @@ QString CaptureFile::no_capture_file_ = QObject::tr("[no capture file]");
 CaptureFile::CaptureFile(QObject *parent, capture_file *cap_file) :
     QObject(parent),
     cap_file_(cap_file),
-    file_name_(no_capture_file_),
     file_state_(QString())
 {
 #ifdef HAVE_LIBPCAP
@@ -106,14 +114,88 @@ int CaptureFile::currentRow()
     return -1;
 }
 
+const QString CaptureFile::filePath()
+{
+    QString path;
+
+    if (isValid()) {
+        //
+        // Sadly, some UN*Xes don't necessarily use UTF-8
+        // for their file names, so we have to map the
+        // file path to UTF-8.  If that fails, we're somewhat
+        // stuck.
+        //
+        char *utf8_filename = g_filename_to_utf8(cap_file_->filename,
+                                                 -1,
+                                                 NULL,
+                                                 NULL,
+                                                 NULL);
+        if (utf8_filename) {
+            path = QString::fromUtf8(utf8_filename);
+            g_free(utf8_filename);
+        } else {
+            // So what the heck else can we do here?
+            path = QString();
+        }
+    } else {
+        path = QString();
+    }
+    return path;
+}
+
 const QString CaptureFile::fileName()
 {
-    if (isValid()) {
-        QFileInfo cfi(QString::fromUtf8(cap_file_->filename));
-        file_name_ = cfi.fileName();
+    QString path, name;
+
+    path = filePath();
+    if (!path.isEmpty()) {
+        QFileInfo cfi(path);
+        name = cfi.fileName();
+    } else {
+        name = QString();
     }
 
-    return file_name_;
+    return name;
+}
+
+const QString CaptureFile::fileBaseName()
+{
+    QString baseName;
+
+    if (isValid()) {
+        char *basename = cf_get_basename(cap_file_);
+        baseName = basename;
+        g_free(basename);
+    } else {
+        baseName = QString();
+    }
+    return baseName;
+}
+
+const QString CaptureFile::fileDisplayName()
+{
+    QString displayName;
+
+    if (isValid()) {
+        char *display_name = cf_get_display_name(cap_file_);
+        displayName = display_name;
+        g_free(display_name);
+    } else {
+        displayName = QString();
+    }
+    return displayName;
+}
+
+const QString CaptureFile::fileTitle()
+{
+    QString title;
+
+    if (isValid()) {
+        title = fileDisplayName() + file_state_;
+    } else {
+        title = no_capture_file_;
+    }
+    return title;
 }
 
 struct _packet_info *CaptureFile::packetInfo()
@@ -195,50 +277,49 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
     switch(event) {
     case(cf_cb_file_opened):
         cap_file_ = (capture_file *) data;
-        emit captureEvent(new CaptureEvent(CaptureEvent::File, CaptureEvent::Opened));
+        emit captureEvent(CaptureEvent(CaptureEvent::File, CaptureEvent::Opened));
         break;
     case(cf_cb_file_closing):
         file_state_ = tr(" [closing]");
-        emit captureEvent(new CaptureEvent(CaptureEvent::File, CaptureEvent::Closing));
+        emit captureEvent(CaptureEvent(CaptureEvent::File, CaptureEvent::Closing));
         break;
     case(cf_cb_file_closed):
         file_state_ = tr(" [closed]");
-        emit captureEvent(new CaptureEvent(CaptureEvent::File, CaptureEvent::Closed));
+        emit captureEvent(CaptureEvent(CaptureEvent::File, CaptureEvent::Closed));
         cap_file_ = NULL;
-        file_name_ = no_capture_file_;
         file_state_ = QString();
         break;
     case(cf_cb_file_read_started):
-        emit captureEvent(new CaptureEvent(CaptureEvent::File, CaptureEvent::Started));
+        emit captureEvent(CaptureEvent(CaptureEvent::File, CaptureEvent::Started));
         break;
     case(cf_cb_file_read_finished):
-        emit captureEvent(new CaptureEvent(CaptureEvent::File, CaptureEvent::Finished));
+        emit captureEvent(CaptureEvent(CaptureEvent::File, CaptureEvent::Finished));
         break;
     case(cf_cb_file_reload_started):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Reload, CaptureEvent::Started));
+        emit captureEvent(CaptureEvent(CaptureEvent::Reload, CaptureEvent::Started));
         break;
     case(cf_cb_file_reload_finished):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Reload, CaptureEvent::Finished));
+        emit captureEvent(CaptureEvent(CaptureEvent::Reload, CaptureEvent::Finished));
         break;
     case(cf_cb_file_rescan_started):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Rescan, CaptureEvent::Started));
+        emit captureEvent(CaptureEvent(CaptureEvent::Rescan, CaptureEvent::Started));
         break;
     case(cf_cb_file_rescan_finished):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Rescan, CaptureEvent::Finished));
+        emit captureEvent(CaptureEvent(CaptureEvent::Rescan, CaptureEvent::Finished));
         break;
     case(cf_cb_file_retap_started):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Retap, CaptureEvent::Started));
+        emit captureEvent(CaptureEvent(CaptureEvent::Retap, CaptureEvent::Started));
         break;
     case(cf_cb_file_retap_finished):
         /* Flush any pending tapped packet before emitting captureFileRetapFinished() */
-        emit captureEvent(new CaptureEvent(CaptureEvent::Retap, CaptureEvent::Finished));
-        emit captureEvent(new CaptureEvent(CaptureEvent::Retap, CaptureEvent::Flushed));
+        emit captureEvent(CaptureEvent(CaptureEvent::Retap, CaptureEvent::Finished));
+        emit captureEvent(CaptureEvent(CaptureEvent::Retap, CaptureEvent::Flushed));
         break;
     case(cf_cb_file_merge_started):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Merge, CaptureEvent::Started));
+        emit captureEvent(CaptureEvent(CaptureEvent::Merge, CaptureEvent::Started));
         break;
     case(cf_cb_file_merge_finished):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Merge, CaptureEvent::Finished));
+        emit captureEvent(CaptureEvent(CaptureEvent::Merge, CaptureEvent::Finished));
         break;
 
     case(cf_cb_file_fast_save_finished):
@@ -246,32 +327,19 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
         // the equivalent?
         break;
 
-    case(cf_cb_packet_selected):
-    case(cf_cb_packet_unselected):
-    case(cf_cb_field_unselected):
-        // GTK+ only. Handled in Qt via signals and slots.
-        break;
-
     case(cf_cb_file_save_started):
     {
-        emit captureEvent(new CaptureEvent(CaptureEvent::Save, CaptureEvent::Started, QString((const char *)data)));
+        emit captureEvent(CaptureEvent(CaptureEvent::Save, CaptureEvent::Started, QString((const char *)data)));
         break;
     }
     case(cf_cb_file_save_finished):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Save, CaptureEvent::Finished));
+        emit captureEvent(CaptureEvent(CaptureEvent::Save, CaptureEvent::Finished));
         break;
     case(cf_cb_file_save_failed):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Save, CaptureEvent::Failed));
+        emit captureEvent(CaptureEvent(CaptureEvent::Save, CaptureEvent::Failed));
         break;
     case(cf_cb_file_save_stopped):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Save, CaptureEvent::Stopped));
-        break;
-
-    case cf_cb_file_export_specified_packets_started:
-    case cf_cb_file_export_specified_packets_finished:
-    case cf_cb_file_export_specified_packets_failed:
-    case cf_cb_file_export_specified_packets_stopped:
-        // GTK+ only.
+        emit captureEvent(CaptureEvent(CaptureEvent::Save, CaptureEvent::Stopped));
         break;
 
     default:
@@ -281,48 +349,45 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
     }
 }
 
+#ifdef HAVE_LIBPCAP
 void CaptureFile::captureSessionEvent(int event, capture_session *cap_session)
 {
-#ifndef HAVE_LIBPCAP
-    Q_UNUSED(event)
-    Q_UNUSED(cap_session)
-#else
     switch(event) {
     case(capture_cb_capture_prepared):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Capture, CaptureEvent::Prepared, cap_session));
+        emit captureEvent(CaptureEvent(CaptureEvent::Capture, CaptureEvent::Prepared, cap_session));
         cap_file_ = cap_session->cf;
         break;
     case(capture_cb_capture_update_started):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Update, CaptureEvent::Started, cap_session));
+        emit captureEvent(CaptureEvent(CaptureEvent::Update, CaptureEvent::Started, cap_session));
         break;
     case(capture_cb_capture_update_continue):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Update, CaptureEvent::Continued, cap_session));
+        emit captureEvent(CaptureEvent(CaptureEvent::Update, CaptureEvent::Continued, cap_session));
         break;
     case(capture_cb_capture_update_finished):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Update, CaptureEvent::Finished, cap_session));
+        emit captureEvent(CaptureEvent(CaptureEvent::Update, CaptureEvent::Finished, cap_session));
         break;
     case(capture_cb_capture_fixed_started):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Fixed, CaptureEvent::Started, cap_session));
+        emit captureEvent(CaptureEvent(CaptureEvent::Fixed, CaptureEvent::Started, cap_session));
         break;
     case(capture_cb_capture_fixed_continue):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Fixed, CaptureEvent::Continued, cap_session));
+        emit captureEvent(CaptureEvent(CaptureEvent::Fixed, CaptureEvent::Continued, cap_session));
         break;
     case(capture_cb_capture_fixed_finished):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Fixed, CaptureEvent::Finished, cap_session));
+        emit captureEvent(CaptureEvent(CaptureEvent::Fixed, CaptureEvent::Finished, cap_session));
         break;
     case(capture_cb_capture_stopping):
         /* Beware: this state won't be called, if the capture child
              * closes the capturing on it's own! */
-        emit captureEvent(new CaptureEvent(CaptureEvent::Capture, CaptureEvent::Stopping, cap_session));
+        emit captureEvent(CaptureEvent(CaptureEvent::Capture, CaptureEvent::Stopping, cap_session));
         break;
     case(capture_cb_capture_failed):
-        emit captureEvent(new CaptureEvent(CaptureEvent::Capture, CaptureEvent::Failed, cap_session));
+        emit captureEvent(CaptureEvent(CaptureEvent::Capture, CaptureEvent::Failed, cap_session));
         break;
     default:
         qWarning() << "main_capture_callback: event " << event << " unknown";
     }
-#endif // HAVE_LIBPCAP
 }
+#endif // HAVE_LIBPCAP
 
 /*
  * Editor modelines

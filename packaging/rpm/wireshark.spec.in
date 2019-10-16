@@ -1,27 +1,26 @@
 # Note that this is NOT a relocatable package
 # XXX is this still true? https://fedoraproject.org/wiki/Packaging:Cmake
 # says that recent CMake versions take care of rpathification.
-#
-# BUILD_wireshark: @BUILD_wireshark@
-# CMAKE_INSTALL_PREFIX: @CMAKE_INSTALL_PREFIX@
 
 # To do:
-# - Find a better way to sync with git-export-release.sh.
-# - We currently install into /usr/local.
+# - Set version in version.h
+# - Add bcond_with clang
 
+%bcond_with	ninja
+%bcond_with	ccache
 %bcond_without	qt5
 %bcond_with	lua
 %bcond_with	mmdbresolve
-%bcond_with	ninja
 %bcond_with	lz4_and_snappy
 %bcond_with	c_ares
-%bcond_without	spandsp
-%bcond_without	bcg729
+%bcond_with	spandsp
+%bcond_with	bcg729
 %bcond_with	libxml2
 %bcond_with	nghttp2
+%bcond_with	sdjournal
 %bcond_with	guides
-
-# To do: Add bcond_with clang
+%bcond_with	brotli
+%bcond_with	zstd
 
 # Set at most one of these two:
 # Note that setcap requires rpmbuild 4.7.0 or later.
@@ -33,7 +32,7 @@
 # are set.
 %global use_wireshark_group 1
 
-%global package_version @RPM_TARBALL_VERSION@
+%global package_version @VERSION@
 
 
 Summary:	Wireshark is the world's foremost protocol analyzer
@@ -47,14 +46,16 @@ Source:		https://www.wireshark.org/download/src/%{name}-%{package_version}.tar.x
 #Source:	https://www.wireshark.org/download/automated/src/%%{name}-%%{package_version}.tar.xz
 URL:		https://www.wireshark.org/
 Packager:	Gerald Combs <gerald[AT]wireshark.org>
-# Some distributions create a wireshark-devel package; get rid of it
-Obsoletes:	wireshark-devel
 
 BuildRoot:	/tmp/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:	cmake
+%if 0%{?rhel}
+BuildRequires:	cmake3 >= 3.5
+%else
+BuildRequires:	cmake >= 3.5
+%endif
+BuildRequires:  python3
 BuildRequires:	gcc
-BuildRequires:	python
 BuildRequires:	perl
 BuildRequires:	flex
 BuildRequires:	bison
@@ -63,32 +64,44 @@ BuildRequires:	bison
 BuildRequires:	asciidoctor
 %endif
 
-BuildRequires:	glib2-devel >= @GLIB2_MIN_VERSION@
-Requires:	glib2 >= @GLIB2_MIN_VERSION@
+BuildRequires:	glib2-devel >= 2.32.0
+Requires:	glib2
 BuildRequires:	libpcap-devel
+%if 0%{?suse_version}
+Requires:	libpcap1
+%else
 Requires:	libpcap
+%endif
 BuildRequires:	zlib-devel
 Requires:	zlib
 BuildRequires:	libgcrypt-devel
+%if 0%{?suse_version}
+Requires:	libgcrypt20
+%else
 Requires:	libgcrypt
+%endif
 
 %if %{with lz4_and_snappy}
 %if 0%{?suse_version}
 BuildRequires:	liblz4-devel
-BuildRequires:	snappy-devel
-Requires:	libsnappy1
+%if 0%{?sle_version} >= 150000
 Requires:	liblz4-1
 %else
+Requires:	liblz4-1_4
+%endif
+BuildRequires:	snappy-devel
+Requires:	libsnappy1
+%else
 BuildRequires:	lz4-devel
+Requires:	lz4
 BuildRequires:	snappy-devel
 Requires:	snappy
-Requires:	lz4
 %endif
 %endif
 
 %if %{with c_ares}
 %if 0%{?suse_version}
-# SuSE uses these package names (yes 2!):
+# SUSE uses these package names (yes 2!):
 BuildRequires:	libcares-devel
 Requires:	libcares2
 %else
@@ -100,13 +113,60 @@ Requires:	c-ares
 %endif
 
 %if %{with lua}
+%if 0%{?fedora}
+BuildRequires:	compat-lua-devel < 5.3
+Requires:	compat-lua < 5.3
+%else
+%if 0%{?suse_version}
+BuildRequires:	lua51-devel
+Requires:	lua51
+%else
 BuildRequires:	lua-devel < 5.3
 Requires:	lua < 5.3
+%endif
+%endif
 %endif
 
 %if %{with nghttp2}
 BuildRequires:	libnghttp2-devel
+%if 0%{?suse_version}
+Requires:	libnghttp2-14
+%else
 Requires:	libnghttp2
+%endif
+%endif
+
+%if %{with sdjournal}
+BuildRequires:	systemd-devel
+%if 0%{?suse_version}
+Requires:	libsystemd0
+%else
+Requires:	systemd-libs
+%endif
+%endif
+
+%if %{with brotli}
+%if 0%{?suse_version}
+BuildRequires:	libbrotli-devel
+# On SUSE libbrotli-devel installs the libbrotlidec.so, libbrotlienc.so
+# and libbrotlicommon.so symlinks, but only installs the libbrotlicommon1 and libbrotlienc1
+# packages, leaving the libbrotlidec.so symlink broken, so we have to include libbrotlidec1
+# as a build-time dependency...
+BuildRequires:	libbrotlidec1
+Requires:	libbrotlidec1
+%else
+BuildRequires:	brotli-devel
+Requires:	brotli
+%endif
+%endif
+
+%if %{with zstd}
+BuildRequires:	libzstd-devel
+%if 0%{?suse_version}
+Requires:	libzstd1
+%else
+Requires:	libzstd
+%endif
 %endif
 
 # Uncomment these if you want to be sure you get them...
@@ -117,9 +177,18 @@ Requires:	libnghttp2
 #BuildRequires:	gnutls-devel
 #BuildRequires:	libcap-devel
 
+%if %{with mmdbresolve}
+BuildRequires:	libmaxminddb-devel
+%if 0%{?suse_version}
+Requires:	libmaxminddb0
+%else
+Requires:	libmaxminddb
+%endif
+%endif
+
 %if %{use_wireshark_group}
 %if 0%{?suse_version}
-# SuSE's groupadd is in this package:
+# SUSE's groupadd is in this package:
 Requires(pre):	pwdutils
 %else
 # ... while Red Hat's is in this one:
@@ -158,63 +227,66 @@ Wireshark. A Qt graphical user interface is packaged separately.
 %package	qt
 Summary:	Wireshark's Qt-based GUI
 Group:		Applications/Internet
+Obsoletes:	wireshark-gnome wireshark-gtk
+%description qt
+This package contains the Qt Wireshark GUI and desktop integration files.
+
+Requires:	%{name} = %{version}-%{release}
+BuildRequires:	gcc-c++
 %if 0%{?suse_version}
-Requires: libQt5Core5
-Requires: libQt5Gui5
-Requires: libQt5Widgets5
-Requires: libQt5PrintSupport5
-Requires: libQt5Multimedia5
-BuildRequires: libQt5Core-devel
-BuildRequires: libQt5Gui-devel
-BuildRequires: libQt5Widgets-devel
-BuildRequires: libQt5PrintSupport-devel
-BuildRequires: libqt5-qtmultimedia-devel
+BuildRequires:	libQt5Core-devel
+Requires:	libQt5Core5
+BuildRequires:	libQt5Gui-devel
+Requires:	libQt5Gui5
+BuildRequires:	libQt5Widgets-devel
+Requires:	libQt5Widgets5
+BuildRequires:	libQt5PrintSupport-devel
+Requires:	libQt5PrintSupport5
+BuildRequires:	libqt5-qtmultimedia-devel
+Requires:	libQt5Multimedia5
+# Need this for SUSE's suse_update_desktop_file macro
+BuildRequires:	update-desktop-files
 %else
+BuildRequires:	qt5-qtbase-devel
 Requires:	qt5-qtbase
 Requires:	qt5-qtbase-gui
-Requires:	qt5-qtmultimedia
-BuildRequires:	qt5-qtbase-devel
 BuildRequires:	qt5-qtmultimedia-devel
+Requires:	qt5-qtmultimedia
 %endif
-Requires:	%{name} = %{version}-%{release}
 Requires:	xdg-utils
 Requires:	hicolor-icon-theme
 BuildRequires:	desktop-file-utils
 Requires(post):	desktop-file-utils
-BuildRequires:	gcc-c++
-%if 0%{?suse_version}
-# Need this for SuSE's suse_update_desktop_file macro
-BuildRequires:	update-desktop-files
-%endif
-
-%description qt
-This package contains the Qt Wireshark GUI and desktop integration files.
-%endif
-
-
-%if %{with mmdbresolve}
-BuildRequires:	libmaxminddb-devel
-Requires:	libmaxminddb
-%endif
-
-# Uncomment these if you want to be sure you get them...
 # Add this for more readable fonts on some distributions/versions
 #Requires:	dejavu-sans-mono-fonts
+%endif
+
+%package	devel
+Summary:	Development headers for Wireshark
+Group:		Applications/Internet
+Requires:	%{name} = %{version}-%{release}
+%description devel
+The wireshark-devel package contains the header and other files required for
+development of Wireshark scripts and plugins.
 
 
 %prep
 %setup -q -n %{name}-%{package_version}
 
-# Suse has a wrong bindir for cmake. Set it to the right one.
+# SUSE has a wrong bindir for cmake. Set it to the right one.
 %if 0%{?suse_version}
 %define _bindir /usr/bin
 %endif
 
-# Don't specify the prefix here: configure is a macro which expands to set
-# the prefix and everything else too.  If you need to change the prefix
-# set _prefix (note the underscore) either in this file or on rpmbuild's
-# command-line.
+%if 0%{?rhel}
+cmake3 \
+%else
 %cmake \
+%endif
+%if %{with ccache}
+  -DENABLE_CCACHE=ON \
+%endif
+  -DCMAKE_INSTALL_PREFIX=@CMAKE_INSTALL_PREFIX@ \
 %if %{with qt5}
   -DBUILD_wireshark=ON \
 %else
@@ -262,6 +334,16 @@ Requires:	libmaxminddb
 %else
   -DENABLE_NGHTTP2=OFF \
 %endif
+%if %{with sdjournal}
+  -DBUILD_sdjournal=ON \
+%else
+  -DBUILD_sdjournal=OFF \
+%endif
+%if %{with brotli}
+  -DENABLE_BROTLI=ON \
+%else
+  -DENABLE_BROTLI=OFF \
+%endif
   -DDISABLE_WERROR=ON \
 %if %{with ninja}
   -G Ninja \
@@ -270,10 +352,7 @@ Requires:	libmaxminddb
 %if %{with ninja}
 # Older RPM-based distributions used ninja-build in order to prevent a collision with
 # the Ninja IRC client: https://bugzilla.redhat.com/show_bug.cgi?id=1166135
-NINJA=$(which ninja || which ninja-build)
-%endif
-
-%if %{with ninja}
+NINJA=$(type ninja >/dev/null 2>&1 && echo ninja || echo ninja-build)
 $NINJA
 %else
 # Suggestion: put this in your ~/.rpmmacros (without the hash sign, of course):
@@ -283,8 +362,11 @@ make %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
+%if 0%{?suse_version}
+cd build
+%endif
 %if %{with ninja}
-NINJA=$(which ninja || which ninja-build)
+NINJA=$(type ninja >/dev/null 2>&1 && echo ninja || echo ninja-build)
 DESTDIR=$RPM_BUILD_ROOT $NINJA install
 %if %{with guides}
 DESTDIR=$RPM_BUILD_ROOT $NINJA install_guides
@@ -294,6 +376,9 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %if %{with guides}
 make DESTDIR=$RPM_BUILD_ROOT install_guides
 %endif
+%endif
+%if 0%{?suse_version}
+cd -
 %endif
 
 # If we're being installed in an unusual prefix tell the loader where
@@ -306,9 +391,10 @@ make DESTDIR=$RPM_BUILD_ROOT install_guides
 
 %if %{with qt5}
 %if 0%{?suse_version}
-# SuSE's packaging conventions
-# (http://en.opensuse.org/openSUSE:Packaging_Conventions_RPM_Macros#.25suse_update_desktop_file)
+# SUSE's packaging conventions
+# (https://en.opensuse.org/openSUSE:Packaging_Conventions_RPM_Macros#.25suse_update_desktop_file)
 # require this:
+install -Dm 0644 %{buildroot}/usr/local/share/applications/wireshark.desktop %{buildroot}/usr/share/applications/wireshark.desktop
 %suse_update_desktop_file %{name}
 %else
 # Fedora's packaging guidelines (https://fedoraproject.org/wiki/Packaging:Guidelines)
@@ -320,8 +406,8 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/wireshark.desktop
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%pre
 %if %{use_wireshark_group}
+%pre
 getent group wireshark >/dev/null || groupadd -r wireshark
 %endif
 
@@ -341,20 +427,18 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %endif
 
 %files
+
+%if 0%{?suse_version}
+# Before packing, we need to restore the bindir to the wireshark one
+%define _bindir /usr/local/bin
+%endif
+
 %defattr(-,root,root)
 %doc AUTHORS COPYING ChangeLog INSTALL NEWS README*
 
-%if %{with guides}
 # Include the User Guide:
-%if %{with ninja}
-%docdir %{_datadir}/doc/Wireshark/
-%{_datadir}/doc/Wireshark/
-%else
 %docdir %{_datadir}/doc/wireshark/
 %{_datadir}/doc/wireshark/
-%else
-%endif
-%endif
 
 # Don't pick up any of the wireshark (GUI) binaries here
 %exclude %{_bindir}/wireshark*
@@ -362,8 +446,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 
 # This generates a warning because dumpcap is listed twice. That's
 # probably preferable to listing each program (and keeping the list up to
-# date)...  Maybe if we can find a way to get the toplevel Makefile.am's
-# bin_PROGRAMS in here?
+# date)...
 %if %{use_wireshark_group} && %{setuid_dumpcap}
 # Setuid but only executable by members of the 'wireshark' group
 %attr(4750, root, wireshark) %{_bindir}/dumpcap
@@ -388,14 +471,15 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %endif
 
 %{_libdir}/lib*.so*
+# Don't pick up the cmake files here
+%exclude %{_libdir}/wireshark/cmake
 %{_libdir}/wireshark
-%{_libdir}/pkgconfig/wireshark.pc
-# Don't pick up the wireshark (GUI) man page
+# Don't pick up the wireshark (GUI) man page here
 %exclude %{_mandir}/man1/wireshark.*
 %{_mandir}/man1/*
 %{_mandir}/man4/*
 %{_datadir}/wireshark
-%{_includedir}/wireshark
+
 %if 0%{?install_ld_so_conf}
 /etc/ld.so.conf.d/wireshark.conf
 %endif
@@ -404,6 +488,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %files qt
 %defattr(-,root,root)
 %{_datadir}/applications/wireshark.desktop
+%if 0%{?suse_version}
+/usr/share/applications/wireshark.desktop
+%endif
 %{_datadir}/appdata/wireshark.appdata.xml
 %{_datadir}/icons/hicolor/*/apps/*
 %{_datadir}/icons/hicolor/*/mimetypes/*
@@ -412,7 +499,36 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_mandir}/man1/wireshark.*
 %endif
 
+%files devel
+%{_includedir}/wireshark
+%{_libdir}/wireshark/cmake
+%{_libdir}/pkgconfig/wireshark.pc
+
 %changelog
+* Thu Aug 15 2019 Gerald Combs
+- Add zstd
+
+* Mon Apr 22 2019 Daniel Bakai
+- Added brotli (as an option, defaulting to not required).
+
+* Fri Sep 28 2018 Gerald Combs
+- Add sdjournal
+
+* Thu Sep 27 2018 Jeff Morriss
+- Have the qt package obsolute the old gnome and gtk packages.  This allows
+  clean upgrades to the Qt version.
+- Set install prefix based on original cmake call's prefix.
+- Update capitalization of SUSE.
+
+* Wed Sep 26 2018 Jeff Morriss
+- Put development-related files in a new -devel RPM.
+
+* Mon Sep 24 2018 Jeff Morriss
+- Allow using ccache to (greatly) speed up rebuilds.
+
+* Mon Sep 24 2018 Jeff Morriss
+- Make the (optional) maxminddb dependencies actually work.
+
 * Wed Apr 11 2018 Gerald Combs
 - Make documentation installation conditional.
 

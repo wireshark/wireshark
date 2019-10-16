@@ -30,6 +30,8 @@
 void proto_register_bssap(void);
 void proto_reg_handoff_bssap(void);
 
+static dissector_handle_t bssap_handle;
+
 #define BSSAP 0
 #define BSAP  1
 
@@ -271,7 +273,7 @@ static int hf_bssap_call_priority = -1;
 static int hf_bssap_gprs_loc_upd_type_ie = -1;
 static int hf_bssap_Gs_cause_ie = -1;
 static int hf_bssap_imei_ie = -1;
-static int hf_bssap_imesiv_ie = -1;
+static int hf_bssap_imeisv_ie = -1;
 static int hf_bssap_cell_global_id_ie = -1;
 static int hf_bssap_channel_needed_ie = -1;
 static int hf_bssap_dlink_tnl_pld_cntrl_amd_inf_ie = -1;
@@ -319,7 +321,7 @@ static gint ett_bssap_global_cn = -1;
 static gint ett_bssap_gprs_loc_upd = -1;
 static gint ett_bassp_Gs_cause = -1;
 static gint ett_bassp_imei = -1;
-static gint ett_bassp_imesiv = -1;
+static gint ett_bassp_imeisv = -1;
 static gint ett_bssap_cell_global_id = -1;
 static gint ett_bssap_cgi = -1;
 static gint ett_bssap_channel_needed = -1;
@@ -913,9 +915,14 @@ dissect_bssap_imei(tvbuff_t *tvb, proto_tree *tree, int offset)
     return offset + ie_len;
 
 }
+static int
+dissect_bssap_imei_dissector(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_bssap_imei(tvb, tree, 0);
+}
 /* 18.4.9 IMEISV */
 static int
-dissect_bssap_imesiv(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_imeisv(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -924,8 +931,8 @@ dissect_bssap_imesiv(tvbuff_t *tvb, proto_tree *tree, int offset)
     const char *digit_str;
 
     ie_len  = tvb_get_guint8(tvb, offset+1);
-    item    = proto_tree_add_item(tree, hf_bssap_imesiv_ie, tvb, offset, ie_len+2, ENC_NA);
-    ie_tree = proto_item_add_subtree(item, ett_bassp_imesiv);
+    item    = proto_tree_add_item(tree, hf_bssap_imeisv_ie, tvb, offset, ie_len+2, ENC_NA);
+    ie_tree = proto_item_add_subtree(item, ett_bassp_imeisv);
 
     proto_tree_add_item(ie_tree, hf_bssap_plus_ie,     tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -1706,7 +1713,7 @@ static int dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         /* IMEISV IMEISV 18.4.9 O TLV 10 */
         if (check_optional_ie(tvb, offset, BSSAP_IMEISV))
-            offset = dissect_bssap_imesiv(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imeisv(tvb, bssap_tree, offset);
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return tvb_reported_length(tvb);
         proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
@@ -1979,7 +1986,7 @@ static int dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             return tvb_reported_length(tvb);
         /* IMEISV IMEISV 18.4.9 O TLV 10 BSSAP_IMEISV*/
         if (check_optional_ie(tvb, offset, BSSAP_IMEISV))
-            offset = dissect_bssap_imesiv(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imeisv(tvb, bssap_tree, offset);
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return tvb_reported_length(tvb);
 
@@ -2102,6 +2109,7 @@ void
 proto_register_bssap(void)
 {
     module_t    *bssap_module;
+    module_t    *bssap_plus_module;
     expert_module_t* expert_bssap;
 
     /* Setup list of header fields */
@@ -2239,8 +2247,8 @@ proto_register_bssap(void)
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }},
 
-        { &hf_bssap_imesiv_ie,
-          { "IMEISV IE", "bssap.imesiv",
+        { &hf_bssap_imeisv_ie,
+          { "IMEISV IE", "bssap.imeisv",
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }},
 
@@ -2465,7 +2473,7 @@ proto_register_bssap(void)
         &ett_bssap_gprs_loc_upd,
         &ett_bassp_Gs_cause,
         &ett_bassp_imei,
-        &ett_bassp_imesiv,
+        &ett_bassp_imeisv,
         &ett_bssap_cell_global_id,
         &ett_bssap_cgi,
         &ett_bssap_channel_needed,
@@ -2504,7 +2512,8 @@ proto_register_bssap(void)
     proto_bssap = proto_register_protocol("BSSAP/BSAP", "BSSAP", "bssap");
     proto_bssap_plus = proto_register_protocol("BSSAP2", "BSSAP2", "bssap_plus");
 
-    register_dissector("bssap", dissect_bssap, proto_bssap);
+    bssap_handle = register_dissector("bssap", dissect_bssap, proto_bssap);
+    register_dissector("bssap.imei", dissect_bssap_imei_dissector, proto_bssap);
     register_dissector("bssap_plus", dissect_bssap_plus, proto_bssap_plus);
 
     /* Required function calls to register the header fields and subtrees used */
@@ -2533,10 +2542,12 @@ proto_register_bssap(void)
                        gsm_or_lb_interface_options,
                        FALSE);
 
-    prefs_register_uint_preference(bssap_module, "ssn",
-                       "Subsystem number used for BSSAP",
-                       "Set Subsystem number used for BSSAP/BSSAP+",
+    bssap_plus_module = prefs_register_protocol(proto_bssap_plus, proto_reg_handoff_bssap);
+    prefs_register_uint_preference(bssap_plus_module, "ssn",
+                       "Subsystem number used for BSSAP+",
+                       "Set Subsystem number used for BSSAP+",
                        10, &global_bssap_ssn);
+
     bssap_dissector_table = register_dissector_table("bssap.pdu_type", "BSSAP Message Type", proto_bssap, FT_UINT8, BASE_DEC);
     bsap_dissector_table  = register_dissector_table("bsap.pdu_type", "BSAP Message Type", proto_bssap, FT_UINT8, BASE_DEC);
 }
@@ -2552,7 +2563,7 @@ proto_reg_handoff_bssap(void)
         heur_dissector_add("sccp", dissect_bssap_heur, "BSSAP over SCCP", "bssap_sccp", proto_bssap, HEURISTIC_ENABLE);
         heur_dissector_add("sua", dissect_bssap_heur, "BSSAP over SUA", "bssap_sua", proto_bssap, HEURISTIC_ENABLE);
         /* BSSAP+ */
-        bssap_plus_handle = create_dissector_handle(dissect_bssap_plus, proto_bssap);
+        bssap_plus_handle = create_dissector_handle(dissect_bssap_plus, proto_bssap_plus);
 
         rrlp_handle = find_dissector_add_dependency("rrlp", proto_bssap_plus);
         gsm_bssmap_le_dissector_handle = find_dissector_add_dependency("gsm_bssmap_le", proto_bssap);
@@ -2563,12 +2574,14 @@ proto_reg_handoff_bssap(void)
         dissector_delete_uint("sccp.ssn", old_bssap_ssn, bssap_plus_handle);
     }
 
+    dissector_add_for_decode_as("sccp.ssn", bssap_handle);
+
     dissector_add_uint("sccp.ssn", global_bssap_ssn, bssap_plus_handle);
     old_bssap_ssn = global_bssap_ssn;
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

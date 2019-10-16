@@ -51,7 +51,7 @@ protected slots:
     void copyIDataBytes(bool);
 
 private:
-    QString hexTextDump(const QByteArray printData, bool append_text);
+    QString hexTextDump(const QByteArray printData, bool showASCII);
     void binaryDump(const QByteArray printData);
 
     int byteLineLength_;

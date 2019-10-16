@@ -52,7 +52,7 @@ ProtectedAircraftPDUs/startdown protectedstartDownmessage
 #.FN_BODY CPDLCMessage
     tvbuff_t *tvb_usr = NULL;
 
-    offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, NO_BOUND, NO_BOUND, FALSE, &tvb_usr, NULL);
+    offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, NO_BOUND, NO_BOUND, FALSE, NULL, 0, &tvb_usr, NULL);
 
     if (tvb_usr) {
       switch(check_heur_msg_type(actx->pinfo)){
@@ -121,7 +121,7 @@ ProtectedAircraftPDUs/startdown protectedstartDownmessage
 #.END
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 4

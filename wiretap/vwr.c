@@ -770,13 +770,14 @@ static guint8       get_ofdm_rate(const guint8 *);
 static guint8       get_cck_rate(const guint8 *plcp);
 static void         setup_defaults(vwr_t *, guint16);
 
-static gboolean     vwr_read(wtap *, int *, gchar **, gint64 *);
-static gboolean     vwr_seek_read(wtap *, gint64, wtap_rec *rec,
+static gboolean     vwr_read(wtap *, wtap_rec *, Buffer *, int *,
+                             gchar **, gint64 *);
+static gboolean     vwr_seek_read(wtap *, gint64, wtap_rec *,
                                   Buffer *, int *, gchar **);
 
 static gboolean     vwr_read_rec_header(vwr_t *, FILE_T, int *, int *, int *, int *, gchar **);
 static gboolean     vwr_process_rec_data(FILE_T fh, int rec_size,
-                                         wtap_rec *rec, Buffer *buf,
+                                         wtap_rec *record, Buffer *buf,
                                          vwr_t *vwr, int IS_TX, int log_mode, int *err,
                                          gchar **err_info);
 
@@ -851,10 +852,11 @@ wtap_open_return_val vwr_open(wtap *wth, int *err, gchar **err_info)
 /*  frame, and a 64-byte statistics block trailer.                                         */
 /* The PLCP frame consists of a 4-byte or 6-byte PLCP header, followed by the MAC frame    */
 
-static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean vwr_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
     vwr_t *vwr      = (vwr_t *)wth->priv;
-    int    rec_size = 0, IS_TX, log_mode;
+    int    rec_size = 0, IS_TX = 0, log_mode = 0;
 
     /* read the next frame record header in the capture file; if no more frames, return */
     if (!vwr_read_rec_header(vwr, wth->fh, &rec_size, &IS_TX, &log_mode, err, err_info))
@@ -867,20 +869,9 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
     *data_offset = (file_tell(wth->fh) - VW_RECORD_HEADER_LENGTH);
 
     /* got a frame record; read and process it */
-    if (!vwr_process_rec_data(wth->fh, rec_size, &wth->rec,
-                              wth->rec_data, vwr, IS_TX, log_mode, err, err_info))
+    if (!vwr_process_rec_data(wth->fh, rec_size, rec, buf, vwr, IS_TX,
+                              log_mode, err, err_info))
        return FALSE;
-
-    /* If the per-file encapsulation isn't known, set it to this packet's encapsulation. */
-    /* If it *is* known, and it isn't this packet's encapsulation, set it to             */
-    /*  WTAP_ENCAP_PER_PACKET, as this file doesn't have a single encapsulation for all  */
-    /*  packets in the file.                                                             */
-    if (wth->file_encap == WTAP_ENCAP_UNKNOWN)
-        wth->file_encap = wth->rec.rec_header.packet_header.pkt_encap;
-    else {
-        if (wth->file_encap != wth->rec.rec_header.packet_header.pkt_encap)
-            wth->file_encap = WTAP_ENCAP_PER_PACKET;
-    }
 
     return TRUE;
 }
@@ -891,7 +882,7 @@ static gboolean vwr_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *record, Buffer *buf, int *err, gchar **err_info)
 {
     vwr_t *vwr = (vwr_t *)wth->priv;
-    int    rec_size, IS_TX, log_mode;
+    int    rec_size, IS_TX = 0, log_mode = 0;
 
     /* first seek to the indicated record header */
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
@@ -1693,7 +1684,6 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, wtap_rec *record,
 
     record->ts.secs   = (time_t)s_sec;
     record->ts.nsecs  = (int)(s_usec * 1000);
-    record->rec_header.packet_header.pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
     record->rec_type = REC_TYPE_PACKET;
     record->presence_flags = WTAP_HAS_TS;
@@ -1840,7 +1830,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
     int              sig_off, pay_off;                   /* MAC+SNAP header len, signature offset */
     guint64          sig_ts = 0, tsid;                   /* 32 LSBs of timestamp in signature */
     guint64          delta_b;                            /* Used for calculating latency */
-    guint8           L1InfoC,port_type,ver_fpga = 0;
+    guint8           L1InfoC = 0, port_type, ver_fpga = 0;
     guint8           flow_seq =0,plcp_hdr_flag = 0,rf_id = 0;    /* indicates plcp hdr info */
     const guint8    *rf_ptr = NULL;
     float            rate;
@@ -1874,7 +1864,6 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
 
         record->ts.secs   = (time_t)s_sec;
         record->ts.nsecs  = (int)(s_usec * 1000);
-        record->rec_header.packet_header.pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
         record->rec_type = REC_TYPE_PACKET;
         record->presence_flags = WTAP_HAS_TS;
@@ -2155,9 +2144,10 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
         end_time = e_time / NS_IN_US;                       /* convert to microseconds first */
 
         /* extract the 32 LSBs of the signature timestamp field */
-        m_ptr = &(rec[stats_offset+8+12]);
+        int m_ptr_offset = stats_offset + 8 + 12;
+        m_ptr = rec + m_ptr_offset;
         pay_off = 42;         /* 24 (MAC) + 8 (SNAP) + IP */
-        sig_off = find_signature(m_ptr, rec_size - 20, pay_off, flow_id, flow_seq);
+        sig_off = find_signature(m_ptr, rec_size - m_ptr_offset, pay_off, flow_id, flow_seq);
         if (m_ptr[sig_off] == 0xdd)
             sig_ts = get_signature_ts(m_ptr, sig_off, rec_size - vVW510021_W_STATS_TRAILER_LEN);
         else
@@ -2206,7 +2196,6 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
 
         record->ts.secs   = (time_t)s_sec;
         record->ts.nsecs  = (int)(s_usec * 1000);
-        record->rec_header.packet_header.pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
         record->rec_type = REC_TYPE_PACKET;
         record->presence_flags = WTAP_HAS_TS;
@@ -2716,7 +2705,6 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, wtap_rec *record,
 
     record->ts.secs   = (time_t)s_sec;
     record->ts.nsecs  = (int)(s_usec * 1000);
-    record->rec_header.packet_header.pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
     record->rec_type = REC_TYPE_PACKET;
     record->presence_flags = WTAP_HAS_TS;
@@ -3370,7 +3358,7 @@ vwr_process_rec_data(FILE_T fh, int rec_size,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

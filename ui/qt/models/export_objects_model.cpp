@@ -14,6 +14,8 @@
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/export_object_ui.h>
 
+#include <QDir>
+
 extern "C" {
 
 static void
@@ -146,18 +148,18 @@ bool ExportObjectModel::saveEntry(QModelIndex &index, QString filename)
         return false;
 
     if (filename.length() > 0) {
-        eo_save_entry(filename.toUtf8().constData(), entry, TRUE);
+        eo_save_entry(filename.toUtf8().constData(), entry);
     }
 
     return true;
 }
 
-bool ExportObjectModel::saveAllEntries(QString path)
+void ExportObjectModel::saveAllEntries(QString path)
 {
     if (path.isEmpty())
-        return false;
+        return;
 
-    bool all_saved = true;
+    QDir save_dir(path);
     export_object_entry_t *entry;
 
     for (QList<QVariant>::iterator it = objects_.begin(); it != objects_.end(); ++it)
@@ -167,36 +169,29 @@ bool ExportObjectModel::saveAllEntries(QString path)
             continue;
 
         int count = 0;
-        gchar *save_as_fullpath = NULL;
+        QString filename;
 
         do {
             GString *safe_filename;
 
-            g_free(save_as_fullpath);
             if (entry->filename)
                 safe_filename = eo_massage_str(entry->filename,
-                    EXPORT_OBJECT_MAXFILELEN - path.length(), count);
+                    EXPORT_OBJECT_MAXFILELEN, count);
             else {
-                char generic_name[256];
+                char generic_name[EXPORT_OBJECT_MAXFILELEN+1];
                 const char *ext;
                 ext = eo_ct2ext(entry->content_type);
                 g_snprintf(generic_name, sizeof(generic_name),
                     "object%u%s%s", entry->pkt_num, ext ? "." : "",
                     ext ? ext : "");
                 safe_filename = eo_massage_str(generic_name,
-                    EXPORT_OBJECT_MAXFILELEN - path.length(), count);
+                    EXPORT_OBJECT_MAXFILELEN, count);
             }
-            save_as_fullpath = g_build_filename(path.toUtf8().constData(),
-                                                safe_filename->str, NULL);
+            filename = QString::fromUtf8(safe_filename->str);
             g_string_free(safe_filename, TRUE);
-        } while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000);
-        if (!eo_save_entry(save_as_fullpath, entry, FALSE))
-            all_saved = false;
-        g_free(save_as_fullpath);
-        save_as_fullpath = NULL;
+        } while (save_dir.exists(filename) && ++count < 1000);
+        eo_save_entry(save_dir.filePath(filename).toUtf8().constData(), entry);
     }
-
-    return all_saved;
 }
 
 void ExportObjectModel::resetObjects()

@@ -7,7 +7,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2001 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -244,33 +245,74 @@ load_wpcap(void)
 	has_wpcap = TRUE;
 }
 
-/*
- * The official list of WinPcap mirrors is at
- * https://www.winpcap.org/misc/mirrors.htm
- */
-char *
+static char *
+local_code_page_str_to_utf8(char *str)
+{
+	ULONG utf16_len;
+	wchar_t *utf16_str;
+	char *utf8_str;
+
+	if (str == NULL) {
+		return NULL;
+	}
+
+	utf16_len = MultiByteToWideChar(CP_ACP, 0, str, -1, NULL, 0);
+	utf16_str = g_malloc_n(utf16_len, sizeof(wchar_t));
+	MultiByteToWideChar(CP_ACP, 0, str, -1, utf16_str, utf16_len);
+
+	utf8_str = g_utf16_to_utf8(utf16_str, -1, NULL, NULL, NULL);
+
+	g_free(utf16_str);
+	return utf8_str;
+}
+
+static void
+prepare_errbuf(char *errbuf)
+{
+	g_assert(errbuf);
+	errbuf[0] = '\0';
+}
+
+static void
+convert_errbuf_to_utf8(char *errbuf)
+{
+	gchar *utf8_err;
+	if (errbuf[0] == '\0') {
+		return;
+	}
+	errbuf[PCAP_ERRBUF_SIZE - 1] = '\0';
+	utf8_err = local_code_page_str_to_utf8(errbuf);
+	g_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s", utf8_err);
+	g_free(utf8_err);
+}
+
+static char *
 cant_load_winpcap_err(const char *app_name)
 {
 	return g_strdup_printf(
-"Unable to load WinPcap (wpcap.dll); %s will not be able to capture\n"
-"packets.\n"
+"Unable to load Npcap or WinPcap (wpcap.dll); %s will not be able to\n"
+"capture packets.\n"
 "\n"
-"In order to capture packets, WinPcap must be installed; see\n"
+"In order to capture packets Npcap or WinPcap must be installed. See\n"
 "\n"
-"        https://www.winpcap.org/\n"
+"        https://nmap.org/npcap/\n"
 "\n"
-"for a downloadable version of WinPcap and for instructions on how to install\n"
-"WinPcap.",
+"for a downloadable version of Npcap and for instructions on how to\n"
+"install it.",
 	    app_name);
 }
 
 char*
-pcap_lookupdev (char *a)
+pcap_lookupdev (char *errbuf)
 {
+	char *ret;
 	if (!has_wpcap) {
 		return NULL;
 	}
-	return p_pcap_lookupdev(a);
+	ret = p_pcap_lookupdev(errbuf);
+	if (ret == NULL)
+		convert_errbuf_to_utf8(errbuf);
+	return ret;
 }
 
 void
@@ -327,8 +369,11 @@ pcap_setfilter(pcap_t *a, struct bpf_program *b)
 char*
 pcap_geterr(pcap_t *a)
 {
+	char *errbuf;
 	g_assert(has_wpcap);
-	return p_pcap_geterr(a);
+	errbuf = p_pcap_geterr(a);
+	convert_errbuf_to_utf8(errbuf);
+	return errbuf;
 }
 
 int
@@ -348,22 +393,30 @@ pcap_compile_nopcap(int a, int b, struct bpf_program *c, const char *d, int e,
 }
 
 int
-pcap_lookupnet(const char *a, bpf_u_int32 *b, bpf_u_int32 *c, char *d)
+pcap_lookupnet(const char *a, bpf_u_int32 *b, bpf_u_int32 *c, char *errbuf)
 {
+	int ret;
 	g_assert(has_wpcap);
-	return p_pcap_lookupnet(a, b, c, d);
+	ret = p_pcap_lookupnet(a, b, c, errbuf);
+	if (ret == -1)
+		convert_errbuf_to_utf8(errbuf);
+	return ret;
 }
 
 pcap_t*
-pcap_open_live(const char *a, int b, int c, int d, char *e)
+pcap_open_live(const char *a, int b, int c, int d, char *errbuf)
 {
+	pcap_t *p;
 	if (!has_wpcap) {
-		g_snprintf(e, PCAP_ERRBUF_SIZE,
+		g_snprintf(errbuf, PCAP_ERRBUF_SIZE,
 			   "unable to load WinPcap (wpcap.dll); can't open %s to capture",
 			   a);
 		return NULL;
 	}
-	return p_pcap_open_live(a, b, c, d, e);
+	prepare_errbuf(errbuf);
+	p = p_pcap_open_live(a, b, c, d, errbuf);
+	convert_errbuf_to_utf8(errbuf);
+	return p;
 }
 
 #ifdef HAVE_PCAP_OPEN_DEAD
@@ -390,30 +443,42 @@ bpf_image(const struct bpf_insn *a, int b)
 
 #ifdef HAVE_PCAP_REMOTE
 pcap_t*
-pcap_open(const char *a, int b, int c, int d, struct pcap_rmtauth *e, char *f)
+pcap_open(const char *a, int b, int c, int d, struct pcap_rmtauth *e, char *errbuf)
 {
+	pcap_t *ret;
 	if (!has_wpcap) {
-		g_snprintf(f, PCAP_ERRBUF_SIZE,
+		g_snprintf(errbuf, PCAP_ERRBUF_SIZE,
 			   "unable to load WinPcap (wpcap.dll); can't open %s to capture",
 			   a);
 		return NULL;
 	}
-	return p_pcap_open(a, b, c, d, e, f);
+	prepare_errbuf(errbuf);
+	ret = p_pcap_open(a, b, c, d, e, errbuf);
+	convert_errbuf_to_utf8(errbuf);
+	return ret;
 }
 
 int
-pcap_findalldevs_ex(char *a, struct pcap_rmtauth *b, pcap_if_t **c, char *d)
+pcap_findalldevs_ex(char *a, struct pcap_rmtauth *b, pcap_if_t **c, char *errbuf)
 {
+	int ret;
 	g_assert(has_wpcap);
-	return p_pcap_findalldevs_ex(a, b, c, d);
+	ret = p_pcap_findalldevs_ex(a, b, c, errbuf);
+	if (ret == -1)
+		convert_errbuf_to_utf8(errbuf);
+	return ret;
 }
 
 int
 pcap_createsrcstr(char *a, int b, const char *c, const char *d, const char *e,
-		  char *f)
+		  char *errbuf)
 {
+	int ret;
 	g_assert(has_wpcap);
-	return p_pcap_createsrcstr(a, b, c, d, e, f);
+	ret = p_pcap_createsrcstr(a, b, c, d, e, errbuf);
+	if (ret == -1)
+		convert_errbuf_to_utf8(errbuf);
+	return ret;
 }
 #endif
 
@@ -447,10 +512,14 @@ pcap_freecode(struct bpf_program *a)
 
 #ifdef HAVE_PCAP_FINDALLDEVS
 int
-pcap_findalldevs(pcap_if_t **a, char *b)
+pcap_findalldevs(pcap_if_t **a, char *errbuf)
 {
+	int ret;
 	g_assert(has_wpcap && p_pcap_findalldevs != NULL);
-	return p_pcap_findalldevs(a, b);
+	ret = p_pcap_findalldevs(a, errbuf);
+	if (ret == -1)
+		convert_errbuf_to_utf8(errbuf);
+	return ret;
 }
 
 void
@@ -463,10 +532,14 @@ pcap_freealldevs(pcap_if_t *a)
 
 #ifdef HAVE_PCAP_CREATE
 pcap_t *
-pcap_create(const char *a, char *b)
+pcap_create(const char *a, char *errbuf)
 {
+	pcap_t *p;
 	g_assert(has_wpcap && p_pcap_create != NULL);
-	return p_pcap_create(a, b);
+	p = p_pcap_create(a, errbuf);
+	if (p == NULL)
+		convert_errbuf_to_utf8(errbuf);
+	return p;
 }
 
 int
@@ -503,20 +576,20 @@ pcap_set_rfmon(pcap_t *a, int b)
 int
 pcap_set_timeout(pcap_t *a, int b)
 {
-	g_assert(has_wpcap && pcap_set_timeout != NULL);
+	g_assert(has_wpcap && p_pcap_set_timeout != NULL);
 	return p_pcap_set_timeout(a, b);
 }
 int
 pcap_set_buffer_size(pcap_t *a, int b)
 {
-	g_assert(has_wpcap && pcap_set_timeout != NULL);
+	g_assert(has_wpcap && p_pcap_set_buffer_size != NULL);
 	return p_pcap_set_buffer_size(a, b);
 }
 
 int
 pcap_activate(pcap_t *a)
 {
-	g_assert(has_wpcap && pcap_activate != NULL);
+	g_assert(has_wpcap && p_pcap_activate != NULL);
 	return p_pcap_activate(a);
 
 }
@@ -527,8 +600,8 @@ pcap_statustostr(int a)
     static char ebuf[15 + 10 + 1];
 
     g_assert(has_wpcap);
-    if (pcap_statustostr != NULL) {
-        return pcap_statustostr(a);
+    if (p_pcap_statustostr != NULL) {
+        return p_pcap_statustostr(a);
     }
 
     /* XXX copy routine from pcap.c ??? */
@@ -967,15 +1040,16 @@ cant_get_if_list_error_message(const char *err_str)
 	if (strstr(err_str, "Not enough storage is available to process this command") != NULL ||
 	    strstr(err_str, "The operation completed successfully") != NULL) {
 		return g_strdup_printf("Can't get list of interfaces: %s\n"
-"This might be a problem with WinPcap 3.0; you should try updating to\n"
-"a later version of WinPcap - see the WinPcap site at www.winpcap.org",
+"This might be a problem with WinPcap 3.0. You should try updating to\n"
+"Npcap. See https://nmap.org/npcap/ for more information.",
 		    err_str);
 	}
 	return g_strdup_printf("Can't get list of interfaces: %s", err_str);
 }
 
 if_capabilities_t *
-get_if_capabilities_local(interface_options *interface_opts, char **err_str)
+get_if_capabilities_local(interface_options *interface_opts,
+    cap_device_open_err *err, char **err_str)
 {
 	/*
 	 * We're not getting capaibilities for a remote device; use
@@ -984,14 +1058,15 @@ get_if_capabilities_local(interface_options *interface_opts, char **err_str)
 	 */
 #ifdef HAVE_PCAP_CREATE
 	if (p_pcap_create != NULL)
-		return get_if_capabilities_pcap_create(interface_opts, err_str);
+		return get_if_capabilities_pcap_create(interface_opts, err, err_str);
 #endif
-	return get_if_capabilities_pcap_open_live(interface_opts, err_str);
+	return get_if_capabilities_pcap_open_live(interface_opts, err, err_str);
 }
 
 pcap_t *
 open_capture_device_local(capture_options *capture_opts,
     interface_options *interface_opts, int timeout,
+    cap_device_open_err *open_err,
     char (*open_err_str)[PCAP_ERRBUF_SIZE])
 {
 	/*
@@ -1002,23 +1077,29 @@ open_capture_device_local(capture_options *capture_opts,
 #ifdef HAVE_PCAP_CREATE
 	if (p_pcap_create != NULL)
 		return open_capture_device_pcap_create(capture_opts,
-		    interface_opts, timeout, open_err_str);
+		    interface_opts, timeout, open_err, open_err_str);
 #endif
 	return open_capture_device_pcap_open_live(interface_opts, timeout,
-	    open_err_str);
+	    open_err, open_err_str);
 }
 
 /*
- * Append the version of WinPcap with which we were compiled to a GString.
+ * Neither WpdPack nor the Npcap SDK as of version 1.01 defines a version
+ * string anywhere. Hard-code one for now.
+ */
+#define WINPCAP_SDK_VERSION "4.1.2"
+
+/*
+ * Append the WinPcap or Npcap SDK version with which we were compiled to a GString.
  */
 void
 get_compiled_caplibs_version(GString *str)
 {
-	g_string_append(str, "with WinPcap (" G_STRINGIFY(WINPCAP_VERSION) ")");
+	g_string_append(str, "with WinPcap SDK (WpdPack) " WINPCAP_SDK_VERSION);
 }
 
 /*
- * Append the version of WinPcap with which we we're running to a GString.
+ * Append the version of Npcap with which we we're running to a GString.
  */
 void
 get_runtime_caplibs_version(GString *str)
@@ -1071,7 +1152,7 @@ get_runtime_caplibs_version(GString *str)
 			g_string_append_printf(str, "WinPcap (%s)", packetVer);
 		}
 	} else
-		g_string_append(str, "without WinPcap");
+		g_string_append(str, "without Npcap or WinPcap");
 }
 
 /*
@@ -1087,9 +1168,9 @@ npf_sys_is_running(void)
 	if (!h_scm)
 		return FALSE;
 
-	h_serv = OpenService(h_scm, _T("npf"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
+	h_serv = OpenService(h_scm, _T("npcap"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
 	if (!h_serv) {
-		h_serv = OpenService(h_scm, _T("npcap"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
+		h_serv = OpenService(h_scm, _T("npf"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
 		if (!h_serv) {
 			CloseServiceHandle(h_scm);
 			return FALSE;

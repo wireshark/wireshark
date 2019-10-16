@@ -4,12 +4,15 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <extcap_argument.h>
 #include <extcap_argument_file.h>
 
 #include <wsutil/utf8_entities.h>
+
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QObject>
 #include <QWidget>
@@ -17,7 +20,6 @@
 #include <QLineEdit>
 #include <QBoxLayout>
 #include <QPushButton>
-#include <QFileDialog>
 #include <QDir>
 #include <QFileInfo>
 #include <QVariant>
@@ -105,7 +107,7 @@ void ExtcapArgumentFileSelection::openFileDialog()
             fileExt.prepend(";;").prepend(givenExt);
     }
 
-    filename = QFileDialog::getOpenFileName((QWidget *)(textBox->parent()),
+    filename = WiresharkFileDialog::getOpenFileName((QWidget *)(textBox->parent()),
         QString().fromUtf8(_argument->display) + " " + tr("Open File"),
         workingDir.absolutePath(), fileExt);
 

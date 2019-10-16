@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 /*
  * @file Tap parameter dialog class
@@ -26,6 +27,12 @@
 #include <errno.h>
 
 #include "epan/stat_tap_ui.h"
+
+#ifdef Q_OS_WIN
+#include <windows.h>
+#include "ui/packet_range.h"
+#include "ui/win32/file_dlg_win32.h"
+#endif // Q_OS_WIN
 
 #include "ui/last_open_dir.h"
 #include <wsutil/utf8_entities.h>
@@ -263,7 +270,7 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
         QByteArray top_separator;
         top_separator.fill('=', plain_header.length());
         top_separator.append('\n');
-        QString file_header = QString("%1 - %2:\n").arg(windowSubtitle(), cap_file_.fileName());
+        QString file_header = QString("%1 - %2:\n").arg(windowSubtitle(), cap_file_.fileDisplayName());
         footer.fill('-', plain_header.length());
         footer.append('\n');
         plain_header.append('\n');
@@ -308,7 +315,7 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
     {
         QString yaml_header;
         ba.append("---\n");
-        yaml_header = QString("Description: \"%1\"\nFile: \"%2\"\nItems:\n").arg(windowSubtitle()).arg(cap_file_.fileName());
+        yaml_header = QString("Description: \"%1\"\nFile: \"%2\"\nItems:\n").arg(windowSubtitle()).arg(cap_file_.fileDisplayName());
         ba.append(yaml_header.toUtf8());
         break;
     }
@@ -518,6 +525,9 @@ void TapParameterDialog::on_actionSaveAs_triggered()
     bool success = false;
     int last_errno;
 
+#ifdef Q_OS_WIN
+    HANDLE da_ctx = set_thread_per_monitor_v2_awareness();
+#endif
     QFileDialog SaveAsDialog(this, wsApp->windowTitleString(tr("Save Statistics As" UTF8_HORIZONTAL_ELLIPSIS)),
                                                             get_last_open_dir());
     SaveAsDialog.setNameFilter(tr("Plain text file (*.txt);;"
@@ -526,7 +536,11 @@ void TapParameterDialog::on_actionSaveAs_triggered()
                                     "YAML document (*.yaml)"));
     SaveAsDialog.selectNameFilter(tr("Plain text file (*.txt)"));
     SaveAsDialog.setAcceptMode(QFileDialog::AcceptSave);
-    if (!SaveAsDialog.exec()) {
+    int result = SaveAsDialog.exec();
+#ifdef Q_OS_WIN
+    revert_thread_per_monitor_v2_awareness(da_ctx);
+#endif
+    if (!result) {
         return;
     }
     selectedFilter= SaveAsDialog.selectedNameFilter();

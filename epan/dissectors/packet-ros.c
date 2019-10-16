@@ -399,14 +399,14 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
     if(rcrp->is_request){
       item=proto_tree_add_uint(tree, hf_ros_response_in, tvb, 0, 0, rcrp->rep_frame);
-      PROTO_ITEM_SET_GENERATED (item);
+      proto_item_set_generated (item);
     } else {
       nstime_t ns;
       item=proto_tree_add_uint(tree, hf_ros_response_to, tvb, 0, 0, rcrp->req_frame);
-      PROTO_ITEM_SET_GENERATED (item);
+      proto_item_set_generated (item);
       nstime_delta(&ns, &pinfo->abs_ts, &rcrp->req_time);
       item=proto_tree_add_time(tree, hf_ros_time, tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED (item);
+      proto_item_set_generated (item);
     }
   }
 

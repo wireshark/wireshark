@@ -106,6 +106,8 @@ typedef struct peektagged_section_header {
  *
  * We're assuming here that the "remote Peek" flags from bug 9586 are
  * the same as the "Peek tagged" flags.
+ *
+ * Are these the same as in "Peek classic"?  The first three are.
  */
 #define FLAGS_CONTROL_FRAME     0x01    /* Frame is a control frame */
 #define FLAGS_HAS_CRC_ERROR     0x02    /* Frame has a CRC error */
@@ -151,8 +153,8 @@ typedef struct {
         gboolean        has_fcs;
 } peektagged_t;
 
-static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean peektagged_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean peektagged_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
@@ -417,7 +419,9 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     guint32 sliceLength = 0;
     gboolean saw_timestamp_lower = FALSE;
     gboolean saw_timestamp_upper = FALSE;
+    gboolean saw_flags_and_status = FALSE;
     peektagged_utime timestamp;
+    guint32 flags_and_status = 0;
     guint32 ext_flags = 0;
     gboolean saw_data_rate_or_mcs_index = FALSE;
     guint32 data_rate_or_mcs_index = 0;
@@ -486,7 +490,8 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
             break;
 
         case TAG_PEEKTAGGED_FLAGS_AND_STATUS:
-            /* XXX - not used yet */
+            saw_flags_and_status = TRUE;
+            flags_and_status = pletoh32(&tag_value[2]);
             break;
 
         case TAG_PEEKTAGGED_CHANNEL:
@@ -718,6 +723,12 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     rec->rec_header.packet_header.len    = length;
     rec->rec_header.packet_header.caplen = sliceLength;
+    if (saw_flags_and_status) {
+        rec->presence_flags |= WTAP_HAS_PACK_FLAGS;
+        rec->rec_header.packet_header.pack_flags = 0;
+        if (flags_and_status & FLAGS_HAS_CRC_ERROR)
+            rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_CRC_ERROR;
+    }
 
     /* calculate and fill in packet time stamp */
     t = (((guint64) timestamp.upper) << 32) + timestamp.lower;
@@ -826,16 +837,15 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     return skip_len;
 }
 
-static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean peektagged_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
     int skip_len;
 
     *data_offset = file_tell(wth->fh);
 
     /* Read the packet. */
-    skip_len = peektagged_read_packet(wth, wth->fh, &wth->rec,
-                                      wth->rec_data, err, err_info);
+    skip_len = peektagged_read_packet(wth, wth->fh, rec, buf, err, err_info);
     if (skip_len == -1)
         return FALSE;
 
@@ -865,7 +875,7 @@ peektagged_seek_read(wtap *wth, gint64 seek_off,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

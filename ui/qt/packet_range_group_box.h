@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef PACKET_RANGE_GROUP_BOX_H
 #define PACKET_RANGE_GROUP_BOX_H
@@ -22,6 +23,10 @@ namespace Ui {
 class PacketRangeGroupBox;
 }
 
+/**
+ * UI element for controlling a range selection. The range provided in
+ * "initRange" is not owned by this class but will be modified.
+ */
 class PacketRangeGroupBox : public QGroupBox
 {
     Q_OBJECT

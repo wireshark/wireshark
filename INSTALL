@@ -1,11 +1,4 @@
-NOTE: this document applies to the Wireshark source releases and
-buildbot source tarballs.  It does not apply to source code checked out
-directly from Git, as files such as the configuration script are not
-checked into Git, but need to be generated from the autoconf and
-automake files.
-
-See https://wiki.wireshark.org/Development if you would like to build the
-source code checked out directly from Git.
+See also https://wiki.wireshark.org/Development.
 
 Installation
 ============
@@ -38,7 +31,6 @@ README.windows for those instructions.
    header files and the like.  For example, Red Hat users will need to
    install a "glib2-devel" .rpm.
 
-
 2. If you wish to build TShark, the line-mode version of Wireshark,
    make sure you have GLib installed.  See note #1 above for instructions
    on checking if you have GLib installed.
@@ -46,7 +38,7 @@ README.windows for those instructions.
 3. If you want to capture packets, make sure you have libpcap
    installed.  The latest "official" version can be found at
 
-        http://www.tcpdump.org .
+        https://www.tcpdump.org .
 
    If you installed libpcap from a binary package, you may have to
    install a "development" package; for example, there's
@@ -161,6 +153,13 @@ README.windows for those instructions.
         the capture-file utilities that come in this package, use
         this switch.
 
+    -DENABLE_BROTLI=OFF
+        By default, if 'configure' finds brotli, the wiretap library
+        will be built so that it can read brotli compressed capture
+        files. If you have brotli but do not wish to build it into
+        the wiretap library, used by Wireshark, TShark, and the
+        capture-file utilities that come in this package, use this switch.
+
     -DENABLE_PLUGINS=OFF
         By default, if your system can support run-time loadable modules,
         the packet analyzers are build with support for plugins.
@@ -173,7 +172,7 @@ README.windows for those instructions.
 9. Run 'make', or 'ninja' if you chose to create Ninja build files.
    Hopefully, you won't run into any problems.
 
-10. Run './wireshark' or './tshark' or ./dumpcap, and make sure things are
+10. Run './run/wireshark' or './run/tshark' or ./run/dumpcap, and make sure things are
    working. You must have root privileges in order to capture live data.
 
 11./a. Run 'make install'.  If you're running a system that supports
@@ -201,5 +200,5 @@ README.windows for those instructions.
 
 If you have trouble with the build or installation process, you can
 find assistance on the wireshark-users and wireshark-dev mailing lists (see
-http://www.wireshark.org/lists/ for details) or the Wireshark Q&A site:
+https://www.wireshark.org/lists/ for details) or the Wireshark Q&A site:
 https://ask.wireshark.org .

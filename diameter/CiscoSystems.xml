@@ -85,7 +85,8 @@ http://www.cisco.com/c/dam/en/us/td/docs/wireless/asr_5000/20/AAA/20-AAA-Referen
       <gavp name="Override-Charging-Action-Name" />
       <gavp name="Override-Charging-Action-Exclude-Rule" />
       <gavp name="Override-Charging-Parameters" />
-      <gavp name="Override-Policy-Parameters" />
+      <!-- Need definition of this before we can include it -->
+      <!--gavp name="Override-Policy-Parameters" /-->
     </grouped>
   </avp>
 

@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# Custom AppRun entry point that allows symlinking multiple
+# executables, e.g. wireshark, tshark, dumpcap, editcap, etc.
+
+# Adapted from
+# https://github.com/probonopd/ippsample/blob/feature/appimage/appimage/AppRun
+
+SELF=$(readlink -f "$0")
+HERE=${SELF%/*}
+
+# See if we were called by runtime.c, which sets APPIMAGE, ARGV0,
+# and APPDIR.
+if [ -n "$APPIMAGE" ] && [ -n "$ARGV0" ] ; then
+    BINARY_NAME=${ARGV0##*/}
+else
+    BINARY_NAME=${0##*/}
+fi
+
+if [ -e "$HERE/usr/bin/$BINARY_NAME" ] ; then
+    exec "$HERE/usr/bin/$BINARY_NAME" "$@"
+else
+    exec "$HERE/usr/bin/wireshark" "$@"
+fi

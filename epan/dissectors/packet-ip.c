@@ -261,6 +261,7 @@ static expert_field ei_ip_ttl_lncb = EI_INIT;
 static expert_field ei_ip_ttl_too_small = EI_INIT;
 static expert_field ei_ip_cipso_tag = EI_INIT;
 static expert_field ei_ip_bogus_ip_version = EI_INIT;
+static expert_field ei_ip_bogus_header_length = EI_INIT;
 
 static dissector_handle_t ip_handle;
 static dissector_table_t ip_option_table;
@@ -334,6 +335,7 @@ const value_string ip_version_vals[] = {
 
 /* Differentiated Services Field. See RFCs 2474, 2597, 2598 and 3168. */
 #define IPDSFIELD_DSCP_DEFAULT  0x00
+#define IPDSFIELD_DSCP_LE       0x01
 #define IPDSFIELD_DSCP_CS1      0x08
 #define IPDSFIELD_DSCP_AF11     0x0A
 #define IPDSFIELD_DSCP_AF12     0x0C
@@ -505,7 +507,7 @@ static const char* ip_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e
 
 static ct_dissector_info_t ip_ct_dissector_info = {&ip_conv_get_filter_type};
 
-static int
+static tap_packet_status
 ip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
@@ -513,7 +515,7 @@ ip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
     add_conversation_table_data(hash, &iph->ip_src, &iph->ip_dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &ip_ct_dissector_info, ENDPOINT_NONE);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static const char* ip_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
@@ -526,7 +528,7 @@ static const char* ip_host_get_filter_type(hostlist_talker_t* host, conv_filter_
 
 static hostlist_dissector_info_t ip_host_dissector_info = {&ip_host_get_filter_type};
 
-static int
+static tap_packet_status
 ip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
@@ -537,7 +539,7 @@ ip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
     XXX - this could probably be done more efficiently inside hostlist_table */
     add_hostlist_table_data(hash, &iph->ip_src, 0, TRUE, 1, pinfo->fd->pkt_len, &ip_host_dissector_info, ENDPOINT_NONE);
     add_hostlist_table_data(hash, &iph->ip_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ip_host_dissector_info, ENDPOINT_NONE);
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static gboolean
@@ -569,9 +571,9 @@ capture_ip(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo,
 }
 
 static void
-add_geoip_info_entry(proto_tree *tree, tvbuff_t *tvb, gint offset, guint32 ip, int isdst)
+add_geoip_info_entry(proto_tree *tree, tvbuff_t *tvb, gint offset, ws_in4_addr ip, int isdst)
 {
-  const mmdb_lookup_t *lookup = maxmind_db_lookup_ipv4(ip);
+  const mmdb_lookup_t *lookup = maxmind_db_lookup_ipv4(&ip);
   if (!lookup->found) return;
 
   wmem_strbuf_t *summary = wmem_strbuf_new(wmem_packet_scope(), "");
@@ -597,7 +599,7 @@ add_geoip_info_entry(proto_tree *tree, tvbuff_t *tvb, gint offset, guint32 ip, i
   int addr_offset = offset + isdst ? IPH_DST : IPH_SRC;
   int dir_hf = isdst ? hf_geoip_dst_summary : hf_geoip_src_summary;
   proto_item *geoip_info_item = proto_tree_add_string(tree, dir_hf, tvb, addr_offset, 4, wmem_strbuf_finalize(summary));
-  PROTO_ITEM_SET_GENERATED(geoip_info_item);
+  proto_item_set_generated(geoip_info_item);
   proto_tree *geoip_info_tree = proto_item_add_subtree(geoip_info_item, ett_geoip_info);
 
   proto_item *item;
@@ -605,57 +607,57 @@ add_geoip_info_entry(proto_tree *tree, tvbuff_t *tvb, gint offset, guint32 ip, i
   if (lookup->city) {
     dir_hf = isdst ? hf_geoip_dst_city : hf_geoip_src_city;
     item = proto_tree_add_string(geoip_info_tree, dir_hf, tvb, addr_offset, 4, lookup->city);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     item = proto_tree_add_string(geoip_info_tree, hf_geoip_city, tvb, addr_offset, 4, lookup->city);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
   }
 
   if (lookup->country) {
     dir_hf = isdst ? hf_geoip_dst_country : hf_geoip_src_country;
     item = proto_tree_add_string(geoip_info_tree, dir_hf, tvb, addr_offset, 4, lookup->country);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     item = proto_tree_add_string(geoip_info_tree, hf_geoip_country, tvb, addr_offset, 4, lookup->country);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
   }
 
   if (lookup->country_iso) {
     dir_hf = isdst ? hf_geoip_dst_country_iso : hf_geoip_src_country_iso;
     item = proto_tree_add_string(geoip_info_tree, dir_hf, tvb, addr_offset, 4, lookup->country_iso);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     item = proto_tree_add_string(geoip_info_tree, hf_geoip_country_iso, tvb, addr_offset, 4, lookup->country_iso);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
   }
 
   if (lookup->as_number > 0) {
     dir_hf = isdst ? hf_geoip_dst_as_number : hf_geoip_src_as_number;
     item = proto_tree_add_uint(geoip_info_tree, dir_hf, tvb, addr_offset, 4, lookup->as_number);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     item = proto_tree_add_uint(geoip_info_tree, hf_geoip_as_number, tvb, addr_offset, 4, lookup->as_number);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
   }
 
   if (lookup->as_org) {
     dir_hf = isdst ? hf_geoip_dst_as_org : hf_geoip_src_as_org;
     item = proto_tree_add_string(geoip_info_tree, dir_hf, tvb, addr_offset, 4, lookup->as_org);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     item = proto_tree_add_string(geoip_info_tree, hf_geoip_as_org, tvb, addr_offset, 4, lookup->as_org);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
   }
 
   if (lookup->latitude >= -90.0 && lookup->latitude <= 90.0) {
     dir_hf = isdst ? hf_geoip_dst_latitude : hf_geoip_src_latitude;
     item = proto_tree_add_double(geoip_info_tree, dir_hf, tvb, addr_offset, 4, lookup->latitude);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     item = proto_tree_add_double(geoip_info_tree, hf_geoip_latitude, tvb, addr_offset, 4, lookup->latitude);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
   }
 
   if (lookup->longitude >= -180.0 && lookup->longitude <= 180.0) {
     dir_hf = isdst ? hf_geoip_dst_longitude : hf_geoip_src_longitude;
     item = proto_tree_add_double(geoip_info_tree, dir_hf, tvb, addr_offset, 4, lookup->longitude);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     item = proto_tree_add_double(geoip_info_tree, hf_geoip_longitude, tvb, addr_offset, 4, lookup->longitude);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
   }
 }
 
@@ -737,7 +739,7 @@ ip_fixed_option_header(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, int 
     expert_add_info_format(pinfo, tf, &ei_ip_opt_len_invalid,
                             "%s (with option length = %u byte%s; should be %u)",
                             proto_get_protocol_short_name(find_protocol_by_id(proto)),
-                            len, plurality(len, "", "s"), optlen);
+                            optlen, plurality(optlen, "", "s"), len);
   }
 
   return field_tree;
@@ -931,7 +933,7 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
   guint      tagtype, taglen;
   gint       offset = 2,
              optlen = tvb_reported_length(tvb);
-  int        offset_max = offset + optlen;
+  int        offset_max = optlen;
 
   field_tree = ip_var_option_header(tree, pinfo, tvb, proto_ip_option_cipso, ett_ip_option_cipso, &tf, optlen);
 
@@ -1144,8 +1146,8 @@ dissect_option_route(proto_tree *tree, tvbuff_t *tvb, int offset, int hf,
   else
     proto_tree_add_ipv4(tree, hf, tvb, offset, 4, route);
   ti = proto_tree_add_string(tree, hf_host, tvb, offset, 4, get_hostname(route));
-  PROTO_ITEM_SET_GENERATED(ti);
-  PROTO_ITEM_SET_HIDDEN(ti);
+  proto_item_set_generated(ti);
+  proto_item_set_hidden(ti);
 }
 
 static int
@@ -1196,15 +1198,15 @@ dissect_ipopt_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int pro
                           offset + optoffset, 4, addr);
       item = proto_tree_add_ipv4(field_tree, hf_ip_addr, tvb,
                                  offset + optoffset, 4, addr);
-      PROTO_ITEM_SET_HIDDEN(item);
+      proto_item_set_hidden(item);
       item = proto_tree_add_string(field_tree, hf_ip_dst_host, tvb,
                                    offset + optoffset, 4, dst_host);
-      PROTO_ITEM_SET_GENERATED(item);
-      PROTO_ITEM_SET_HIDDEN(item);
+      proto_item_set_generated(item);
+      proto_item_set_hidden(item);
       item = proto_tree_add_string(field_tree, hf_ip_host, tvb,
                                    offset + optoffset, 4, dst_host);
-      PROTO_ITEM_SET_GENERATED(item);
-      PROTO_ITEM_SET_HIDDEN(item);
+      proto_item_set_generated(item);
+      proto_item_set_hidden(item);
     } else if ((optoffset + 1) < ptr) {
       /* This is also a recorded route */
       dissect_option_route(field_tree, tvb, offset + optoffset, hf_ip_rec_rt,
@@ -1512,7 +1514,7 @@ dissect_ipopt_qs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * dat
     ttl_diff = (iph->ip_ttl - tvb_get_guint8(tvb, offset + 1) % 256);
     ti = proto_tree_add_uint(field_tree, hf_ip_opt_qs_ttl_diff,
                                           tvb, offset + 1, 1, ttl_diff);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     proto_item_append_text(tf, ", %s, QS TTL %u, QS TTL diff %u",
                            val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"),
                            tvb_get_guint8(tvb, offset + 1), ttl_diff);
@@ -1716,6 +1718,7 @@ local_network_control_block_addr_valid_ttl(guint32 addr)
 
 static const value_string dscp_short_vals[] = {
   { IPDSFIELD_DSCP_DEFAULT, "CS0"    },
+  { IPDSFIELD_DSCP_LE,      "LE"     },
   { IPDSFIELD_DSCP_CS1,     "CS1"    },
   { IPDSFIELD_DSCP_AF11,    "AF11"   },
   { IPDSFIELD_DSCP_AF12,    "AF12"   },
@@ -1742,6 +1745,7 @@ value_string_ext dscp_short_vals_ext = VALUE_STRING_EXT_INIT(dscp_short_vals);
 
 static const value_string dscp_vals[] = {
   { IPDSFIELD_DSCP_DEFAULT, "Default"               },
+  { IPDSFIELD_DSCP_LE,      "Lower Effort"          },
   { IPDSFIELD_DSCP_CS1,     "Class Selector 1"      },
   { IPDSFIELD_DSCP_AF11,    "Assured Forwarding 11" },
   { IPDSFIELD_DSCP_AF12,    "Assured Forwarding 12" },
@@ -1865,7 +1869,6 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
       &hf_ip_flags_rf,
       &hf_ip_flags_df,
       &hf_ip_flags_mf,
-      &hf_ip_frag_offset,
       NULL
   };
   /* XXX do we realy want decoding of an april fools joke? */
@@ -1873,7 +1876,6 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
       &hf_ip_flags_sf,
       &hf_ip_flags_df,
       &hf_ip_flags_mf,
-      &hf_ip_frag_offset,
       NULL
   };
 
@@ -1918,9 +1920,10 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     col_add_fstr(pinfo->cinfo, COL_INFO,
                  "Bogus IP header length (%u, must be at least %u)",
                  hlen, IPH_MIN_LEN);
-
-    proto_tree_add_uint_bits_format_value(ip_tree, hf_ip_hdr_len, tvb, (offset<<3)+4, 4, hlen,
-                                 "%u bytes (bogus, must be at least %u)", hlen, IPH_MIN_LEN);
+    tf = proto_tree_add_uint_bits_format_value(ip_tree, hf_ip_hdr_len, tvb, (offset<<3)+4, 4, hlen,
+                                               "%u bytes (%u)", hlen, hlen>>2);
+    expert_add_info_format(pinfo, tf, &ei_ip_bogus_header_length,
+                           "Bogus IP header length (%u, must be at least %u)", hlen, IPH_MIN_LEN);
     return tvb_captured_length(tvb);
   }
 
@@ -1981,7 +1984,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
           iph->ip_len,
           "%u bytes (reported as 0, presumed to be because of \"TCP segmentation offload\" (TSO))",
           iph->ip_len);
-        PROTO_ITEM_SET_GENERATED(tf);
+        proto_item_set_generated(tf);
       }
     } else {
       /* TSO support not enabled, or non-zero length, so treat it as an error. */
@@ -2037,6 +2040,9 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
         ett_ip_off, ip_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
   }
 
+  proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2, (iph->ip_off & IP_OFFSET)*8);
+
+
   iph->ip_ttl = tvb_get_guint8(tvb, offset + 8);
   if (tree) {
     ttl_item = proto_tree_add_item(ip_tree, hf_ip_ttl, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
@@ -2065,13 +2071,13 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
         may have a legitimate reason for wanting it filtered */
       item = proto_tree_add_uint(ip_tree, hf_ip_checksum_calculated, tvb,
                                     offset + 10, 2, iph->ip_sum);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
     } else {
       proto_item_append_text(item, "(may be caused by \"IP checksum offload\"?)");
 
       item = proto_tree_add_uint(ip_tree, hf_ip_checksum_calculated, tvb,
                                       offset + 10, 2, in_cksum_shouldbe(iph->ip_sum, ipsum));
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
     }
   } else {
     ipsum = 0;
@@ -2084,7 +2090,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
                                             "validation disabled");
     item = proto_tree_add_uint(ip_tree, hf_ip_checksum_status, tvb,
                                     offset + 10, 0, PROTO_CHECKSUM_E_UNVERIFIED);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
   }
   src32 = tvb_get_ntohl(tvb, offset + IPH_SRC);
   set_address_tvb(&pinfo->net_src, AT_IPv4, 4, tvb, offset + IPH_SRC);
@@ -2100,15 +2106,15 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     }
     proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, addr);
     item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 12, 4, addr);
-    PROTO_ITEM_SET_HIDDEN(item);
+    proto_item_set_hidden(item);
     item = proto_tree_add_string(ip_tree, hf_ip_src_host, tvb, offset + 12, 4,
                                  src_host);
-    PROTO_ITEM_SET_GENERATED(item);
-    PROTO_ITEM_SET_HIDDEN(item);
+    proto_item_set_generated(item);
+    proto_item_set_hidden(item);
     item = proto_tree_add_string(ip_tree, hf_ip_host, tvb, offset + 12, 4,
                                  src_host);
-    PROTO_ITEM_SET_GENERATED(item);
-    PROTO_ITEM_SET_HIDDEN(item);
+    proto_item_set_generated(item);
+    proto_item_set_hidden(item);
   }
 
   /* If there's an IP strict or loose source routing option, then the final
@@ -2175,22 +2181,22 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
       proto_tree_add_ipv4(ip_tree, hf_ip_cur_rt, tvb, offset + 16, 4, cur_rt);
       item = proto_tree_add_string(ip_tree, hf_ip_cur_rt_host, tvb,
                                    offset + 16, 4, get_hostname(cur_rt));
-      PROTO_ITEM_SET_GENERATED(item);
-      PROTO_ITEM_SET_HIDDEN(item);
+      proto_item_set_generated(item);
+      proto_item_set_hidden(item);
     }
     else {
       proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16, 4, addr);
       item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 16, 4,
                                  addr);
-      PROTO_ITEM_SET_HIDDEN(item);
+      proto_item_set_hidden(item);
       item = proto_tree_add_string(ip_tree, hf_ip_dst_host, tvb, offset + 16,
                                    4, dst_host);
-      PROTO_ITEM_SET_GENERATED(item);
-      PROTO_ITEM_SET_HIDDEN(item);
+      proto_item_set_generated(item);
+      proto_item_set_hidden(item);
       item = proto_tree_add_string(ip_tree, hf_ip_host, tvb,
                                    offset + 16 + dst_off, 4, dst_host);
-      PROTO_ITEM_SET_GENERATED(item);
-      PROTO_ITEM_SET_HIDDEN(item);
+      proto_item_set_generated(item);
+      proto_item_set_hidden(item);
     }
 
     if (ip_use_geoip) {
@@ -2911,12 +2917,13 @@ proto_register_ip(void)
      { &ei_ip_ttl_too_small, { "ip.ttl.too_small", PI_SEQUENCE, PI_NOTE, "Time To Live", EXPFILL }},
      { &ei_ip_cipso_tag, { "ip.cipso.malformed", PI_SEQUENCE, PI_ERROR, "Malformed CIPSO tag", EXPFILL }},
      { &ei_ip_bogus_ip_version, { "ip.bogus_ip_version", PI_PROTOCOL, PI_ERROR, "Bogus IP version", EXPFILL }},
+     { &ei_ip_bogus_header_length, { "ip.bogus_header_length", PI_PROTOCOL, PI_ERROR, "Bogus IP header length", EXPFILL }},
   };
 
   /* Decode As handling */
   static build_valid_func ip_da_build_value[1] = {ip_value};
   static decode_as_value_t ip_da_values = {ip_prompt, 1, ip_da_build_value};
-  static decode_as_t ip_da = {"ip", "Network", "ip.proto", 1, 0, &ip_da_values, NULL, NULL,
+  static decode_as_t ip_da = {"ip", "ip.proto", 1, 0, &ip_da_values, NULL, NULL,
                               decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
   module_t *ip_module;
@@ -3028,6 +3035,7 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_IP, ip_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_MPLS_IP, ip_handle);
   dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_IPV4, ip_handle);
+  dissector_add_uint("mcc.proto", PW_ACH_TYPE_IPV4, ip_handle);
   dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_IPv4, ip_handle);
   dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_IP, ip_handle);
   dissector_add_for_decode_as_with_preference("udp.port", ip_handle);
@@ -3073,7 +3081,7 @@ proto_reg_handoff_ip(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

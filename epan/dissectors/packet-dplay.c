@@ -1115,7 +1115,7 @@ static gboolean heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         return FALSE;
 
     /* The string play = 0x706c6179 */
-    dplay_id = tvb_get_letohl(tvb, 20);
+    dplay_id = tvb_get_ntohl(tvb, 20);
     if( dplay_id == 0x706c6179) {
         dissect_dplay(tvb, pinfo, tree);
         return TRUE;
@@ -1202,7 +1202,7 @@ void proto_register_dplay(void)
         { "short player message", "dplay.flags.short_player_msg", FT_BOOLEAN, 32,
         TFS(&tfs_dplay_flag), DPLAY_FLAG_SHORT_PLAYER_MSG, "Short Player Msg", HFILL}},
     { &hf_dplay_flags_ignored,
-        { "ignored", "dplay.flags.ignored", FT_BOOLEAN, 32,
+        { "ignored", "dplay.ignored", FT_BOOLEAN, 32,
         TFS(&tfs_dplay_flag), DPLAY_FLAG_IGNORED, NULL, HFILL}},
     { &hf_dplay_flags_can_join,
         { "can join", "dplay.flags.can_join", FT_BOOLEAN, 32,
@@ -1704,7 +1704,7 @@ void proto_reg_handoff_dplay(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

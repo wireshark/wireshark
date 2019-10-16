@@ -88,7 +88,8 @@ struct _usb_conv_info_t {
     guint16  device_address;
     guint8   endpoint;
     gint     direction;
-    guint8   transfer_type;
+    guint8   transfer_type; /* transfer type from URB */
+    guint8   descriptor_transfer_type; /* transfer type lifted from the device descriptor */
     guint32  device_protocol;
     gboolean is_request;
     gboolean is_setup;
@@ -101,6 +102,8 @@ struct _usb_conv_info_t {
 
     guint16 deviceVendor;       /* Device    Descriptor - USB Vendor  ID */
     guint32 deviceProduct;      /* Device    Descriptor - USB Product ID - MSBs only for encoding unknown */
+    guint16 deviceVersion;      /* Device    Descriptor - USB device version number BCD */
+    guint8  iSerialNumber;      /* Device    Descriptor - iSerialNumber (0 if no serial number available) */
     wmem_tree_t *transactions;
     usb_trans_info_t *usb_trans_info; /* pointer to the current transaction */
 
@@ -175,6 +178,7 @@ typedef struct _usb_tap_data_t {
 #define IF_PROTOCOL_UNKNOWN           0xffff
 #define DEV_VENDOR_UNKNOWN            0x0000  /* this id is unassigned */
 #define DEV_PRODUCT_UNKNOWN           0xfffffff /* 0x0000 and 0xffff are used values by vendors, so MSBs encode unknown */
+#define DEV_VERSION_UNKNOWN           0xffff
 
 #define IF_SUBCLASS_MISC_U3V          0x05
 
@@ -201,6 +205,7 @@ typedef struct _usb_tap_data_t {
 #define ENDPOINT_TYPE_ISOCHRONOUS       1
 #define ENDPOINT_TYPE_BULK              2
 #define ENDPOINT_TYPE_INTERRUPT         3
+#define ENDPOINT_TYPE_NOT_SET         255
 
 
 #define USB_SETUP_GET_STATUS             0
@@ -216,6 +221,31 @@ typedef struct _usb_tap_data_t {
 #define USB_SETUP_SYNCH_FRAME           12
 #define USB_SETUP_SET_SEL               48
 #define USB_SETUP_SET_ISOCH_DELAY       49
+
+/* transfer_flags */
+#define URB_SHORT_NOT_OK	0x0001	/* report short reads as errors */
+#define URB_ISO_ASAP		0x0002	/* iso-only; use the first unexpired
+					 * slot in the schedule */
+#define URB_NO_TRANSFER_DMA_MAP	0x0004	/* urb->transfer_dma valid on submit */
+#define URB_NO_FSBR		0x0020	/* UHCI-specific */
+#define URB_ZERO_PACKET		0x0040	/* Finish bulk OUT with short packet */
+#define URB_NO_INTERRUPT	0x0080	/* HINT: no non-error interrupt
+					 * needed */
+#define URB_FREE_BUFFER		0x0100	/* Free transfer buffer with the URB */
+
+/* The following flags are used internally by usbcore and HCDs */
+#define URB_DIR_IN		0x0200	/* Transfer from device to host */
+#define URB_DIR_OUT		0
+#define URB_DIR_MASK		URB_DIR_IN
+
+#define URB_DMA_MAP_SINGLE	0x00010000	/* Non-scatter-gather mapping */
+#define URB_DMA_MAP_PAGE	0x00020000	/* HCD-unsupported S-G */
+#define URB_DMA_MAP_SG		0x00040000	/* HCD-supported S-G */
+#define URB_MAP_LOCAL		0x00080000	/* HCD-local-memory mapping */
+#define URB_SETUP_MAP_SINGLE	0x00100000	/* Setup packet DMA mapped */
+#define URB_SETUP_MAP_LOCAL	0x00200000	/* HCD-local setup packet */
+#define URB_DMA_SG_COMBINED	0x00400000	/* S-G entries were combined */
+#define URB_ALIGNED_TEMP_BUFFER	0x00800000	/* Temp buffer was alloc'd */
 
 
 /* 9.6.6 */
@@ -234,12 +264,20 @@ void dissect_usb_endpoint_address(proto_tree *tree, tvbuff_t *tvb, int offset);
 int
 dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
                                 tvbuff_t *tvb, int offset,
-                                usb_conv_info_t  *usb_conv_info);
+                                usb_conv_info_t  *usb_conv_info,
+                                guint8 *out_ep_type);
 
 int
 dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
                                tvbuff_t *tvb, int offset,
                                usb_conv_info_t  *usb_conv_info _U_);
+
+int
+dissect_urb_transfer_flags(tvbuff_t *tvb, int offset, proto_tree* tree, int hf, int endian);
+
+void
+usb_set_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint16 bus_id, guint16 device_address,
+             int endpoint, gboolean req);
 
 struct mausb_header;
 
@@ -250,7 +288,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

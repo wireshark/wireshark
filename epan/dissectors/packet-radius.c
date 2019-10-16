@@ -61,6 +61,7 @@
 
 
 #include "packet-radius.h"
+#include "packet-e212.h"
 
 void proto_register_radius(void);
 void proto_reg_handoff_radius(void);
@@ -305,7 +306,7 @@ static const value_string radius_message_code[] = {
 	{  0, NULL}
 };
 
-static int
+static tap_packet_status
 radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
 	rtd_data_t *rtd_data = (rtd_data_t *)prs;
@@ -313,7 +314,7 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	const radius_info_t *ri = (const radius_info_t *)pri;
 	nstime_t delta;
 	radius_category radius_cat = RADIUS_CAT_OTHERS;
-	int ret = 0;
+	tap_packet_status ret = TAP_PACKET_DONT_REDRAW;
 
 	switch (ri->code) {
 		case RADIUS_PKT_TYPE_ACCESS_REQUEST:
@@ -403,7 +404,7 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 			time_stat_update(&(rs->time_stats[RADIUS_CAT_OVERALL].rtd[0]),&delta, pinfo);
 			time_stat_update(&(rs->time_stats[radius_cat].rtd[0]),&delta, pinfo);
 
-			ret = 1;
+			ret = TAP_PACKET_REDRAW;
 		}
 		break;
 
@@ -828,6 +829,12 @@ static const value_string daylight_saving_time_vals[] = {
 	{3, "Reserved"},
 	{0, NULL}
 };
+
+static const gchar *
+dissect_radius_3gpp_imsi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
+{
+	return dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, tvb_reported_length(tvb));
+}
 
 static const gchar *
 dissect_radius_3gpp_ms_tmime_zone(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_)
@@ -1298,7 +1305,7 @@ radius_tlv(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvbu
 			tlv_len_item = proto_tree_add_uint(tlv_tree,
 							   dictionary_entry->hf_len,
 							   tvb, 0, 0, tlv_length);
-			PROTO_ITEM_SET_GENERATED(tlv_len_item);
+			proto_item_set_generated(tlv_len_item);
 		}
 
 		add_tlv_to_tree(tlv_tree, tlv_item, pinfo, tvb, dictionary_entry,
@@ -1369,11 +1376,19 @@ vsa_buffer_destroy(gpointer k _U_, gpointer v, gpointer p _U_)
 }
 
 static void
-vsa_buffer_table_destroy(void *table)
+eap_buffer_free_indirect(void *context)
 {
-	if (table) {
-		g_hash_table_foreach_remove((GHashTable *)table, vsa_buffer_destroy, NULL);
-		g_hash_table_destroy((GHashTable *)table);
+	guint8 *eap_buffer = *(guint8 **)context;
+	g_free(eap_buffer);
+}
+
+static void
+vsa_buffer_table_destroy_indirect(void *context)
+{
+	GHashTable *vsa_buffer_table = *(GHashTable **)context;
+	if (vsa_buffer_table) {
+		g_hash_table_foreach_remove(vsa_buffer_table, vsa_buffer_destroy, NULL);
+		g_hash_table_destroy(vsa_buffer_table);
 	}
 }
 
@@ -1397,8 +1412,8 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 	 * In case we throw an exception, clean up whatever stuff we've
 	 * allocated (if any).
 	 */
-	CLEANUP_PUSH_PFX(la, g_free, eap_buffer);
-	CLEANUP_PUSH_PFX(lb, vsa_buffer_table_destroy, (void *)vsa_buffer_table);
+	CLEANUP_PUSH_PFX(la, eap_buffer_free_indirect, &eap_buffer);
+	CLEANUP_PUSH_PFX(lb, vsa_buffer_table_destroy_indirect, &vsa_buffer_table);
 
 	while (length > 0) {
 		radius_attr_info_t *dictionary_entry = NULL;
@@ -1530,6 +1545,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 				guint32 avp_vsa_len;
 				guint8 avp_vsa_flags = 0;
 				guint32 avp_vsa_header_len;
+				guint32 vendor_attribute_len;
 
 				switch (vendor->type_octets) {
 					case 1:
@@ -1619,15 +1635,15 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 				proto_tree_add_item(avp_tree, hf_radius_avp_vendor_type, tvb, vendor_offset, vendor->type_octets, ENC_BIG_ENDIAN);
 				vendor_offset += vendor->type_octets;
 				if (!avp_is_extended && vendor->length_octets) {
-					proto_tree_add_item(avp_tree, hf_radius_avp_vendor_len, tvb, vendor_offset, vendor->length_octets, ENC_BIG_ENDIAN);
-					/* vendor_offset += vendor->length_octets; */
+					proto_tree_add_item_ret_uint(avp_tree, hf_radius_avp_vendor_len, tvb, vendor_offset, vendor->length_octets, ENC_BIG_ENDIAN, &vendor_attribute_len);
+					vendor_offset += (vendor_attribute_len - vendor->type_octets);
 				}
 
 				if (show_length) {
 					avp_len_item = proto_tree_add_uint(avp_tree,
 									   dictionary_entry->hf_len,
 									   tvb, 0, 0, avp_length);
-					PROTO_ITEM_SET_GENERATED(avp_len_item);
+					proto_item_set_generated(avp_len_item);
 				}
 
 				if (vendor->has_flags) {
@@ -1709,7 +1725,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 			avp_len_item = proto_tree_add_uint(avp_tree,
 							   dictionary_entry->hf_len,
 							   tvb, 0, 0, avp_length);
-			PROTO_ITEM_SET_GENERATED(avp_len_item);
+			proto_item_set_generated(avp_len_item);
 		}
 
 		if (avp_is_extended) {
@@ -1847,13 +1863,13 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
 	}  /* while (length > 0) */
 
-	CLEANUP_CALL_AND_POP_PFX(lb); /* vsa_buffer_table_destroy(vsa_buffer_table) */
+	CLEANUP_CALL_AND_POP_PFX(lb); /* vsa_buffer_table_destroy_indirect(&vsa_buffer_table) */
 
 	/*
 	 * Call the cleanup handler to free any reassembled data we haven't
 	 * attached to a tvbuff, and pop the handler.
 	 */
-	CLEANUP_CALL_AND_POP_PFX(la);
+	CLEANUP_CALL_AND_POP_PFX(la); /* eap_buffer_free_indirect(&eap_buffer); */
 }
 
 /* This function tries to determine whether a packet is radius or not */
@@ -1956,8 +1972,6 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 	/* Initialise stat info for passing to tap */
 	rad_info = wmem_new(wmem_packet_scope(), radius_info_t);
-	rad_info->code = 0;
-	rad_info->ident = 0;
 	rad_info->req_time.secs = 0;
 	rad_info->req_time.nsecs = 0;
 	rad_info->is_duplicate = FALSE;
@@ -2017,7 +2031,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				break;
 
 			hidden_item = proto_tree_add_boolean(radius_tree, hf_radius_req, tvb, 0, 0, TRUE);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			proto_item_set_hidden(hidden_item);
 
 			/* Keep track of the address and port whence the call came
 			 *  so that we can match up requests with replies.
@@ -2077,9 +2091,9 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					if (tree) {
 						proto_item *item;
 						hidden_item = proto_tree_add_uint(radius_tree, hf_radius_dup, tvb, 0, 0, rh.rh_ident);
-						PROTO_ITEM_SET_HIDDEN(hidden_item);
+						proto_item_set_hidden(hidden_item);
 						item = proto_tree_add_uint(radius_tree, hf_radius_req_dup, tvb, 0, 0, radius_call->req_num);
-						PROTO_ITEM_SET_GENERATED(item);
+						proto_item_set_generated(item);
 					}
 				}
 			}
@@ -2111,7 +2125,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					hf_radius_rsp_frame, tvb, 0, 0, radius_call->rsp_num,
 					"The response to this request is in frame %u",
 					radius_call->rsp_num);
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item_set_generated(item);
 			}
 			break;
 		case RADIUS_PKT_TYPE_ACCESS_ACCEPT:
@@ -2137,7 +2151,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				break;
 
 			hidden_item = proto_tree_add_boolean(radius_tree, hf_radius_rsp, tvb, 0, 0, TRUE);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			proto_item_set_hidden(hidden_item);
 
 			/* Check for RADIUS response.  A response must match a call that
 			 * we've seen, and the response must be sent to the same
@@ -2195,10 +2209,10 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					radius_call->req_num,
 					"This is a response to a request in frame %u",
 					radius_call->req_num);
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item_set_generated(item);
 				nstime_delta(&delta, &pinfo->abs_ts, &radius_call->req_time);
 				item = proto_tree_add_time(radius_tree, hf_radius_time, tvb, 0, 0, &delta);
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item_set_generated(item);
 				/* Response Authenticator Validation */
 				if (validate_authenticator && *shared_secret != '\0') {
 					proto_item *authenticator_tree;
@@ -2208,9 +2222,9 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					proto_item_append_text(authenticator_item, " [%s]", valid? "correct" : "incorrect");
 					authenticator_tree = proto_item_add_subtree(authenticator_item, ett_radius_authenticator);
 					item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_valid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? TRUE : FALSE);
-					PROTO_ITEM_SET_GENERATED(item);
+					proto_item_set_generated(item);
 					item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_invalid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? FALSE : TRUE);
-					PROTO_ITEM_SET_GENERATED(item);
+					proto_item_set_generated(item);
 
 					if (!valid) {
 						col_append_fstr(pinfo->cinfo, COL_INFO, " [incorrect authenticator]");
@@ -2235,10 +2249,10 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 						proto_item *item;
 						hidden_item = proto_tree_add_uint(radius_tree,
 							hf_radius_dup, tvb, 0, 0, rh.rh_ident);
-						PROTO_ITEM_SET_HIDDEN(hidden_item);
+						proto_item_set_hidden(hidden_item);
 						item = proto_tree_add_uint(radius_tree,
 							hf_radius_rsp_dup, tvb, 0, 0, radius_call->rsp_num);
-						PROTO_ITEM_SET_GENERATED(item);
+						proto_item_set_generated(item);
 					}
 				}
 			}
@@ -2802,6 +2816,7 @@ register_radius_fields(const char *unused _U_)
 	 * XXX - we should special-case Cisco attribute 252; see the comment in
 	 * dictionary.cisco.
 	 */
+	radius_register_avp_dissector(VENDOR_THE3GPP, 1, dissect_radius_3gpp_imsi);
 	radius_register_avp_dissector(VENDOR_THE3GPP, 23, dissect_radius_3gpp_ms_tmime_zone);
 }
 
@@ -2862,7 +2877,7 @@ proto_reg_handoff_radius(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

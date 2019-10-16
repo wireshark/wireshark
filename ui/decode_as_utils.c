@@ -5,7 +5,8 @@
  * By David Hampton <dhampton@mac.com>
  * Copyright 2001 David Hampton
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 #include "config.h"
 
 #include <stdlib.h>
@@ -22,7 +23,7 @@
 
 #include "wsutil/file_util.h"
 #include "wsutil/filesystem.h"
-#include "wsutil/cmdarg_err.h"
+#include "ui/cmdarg_err.h"
 #include "version_info.h"
 
 /* XXX - We might want to switch this to a UAT */
@@ -117,7 +118,7 @@ fprint_all_protocols_for_layer_types(FILE *output, gchar *table_name)
 * to pass parameters and store results
 */
 struct protocol_name_search{
-    gchar              *searched_name;  /* Protocol filter name we are looking for */
+    const char         *searched_name;  /* Protocol filter name we are looking for */
     dissector_handle_t  matched_handle; /* Handle for a dissector whose protocol has the specified filter name */
     guint               nb_match;       /* How many dissectors matched searched_name */
 };
@@ -386,8 +387,14 @@ gboolean decode_as_command_option(const gchar *cl_param)
         cmdarg_err("No protocol name specified"); /* Note, we don't exit here, but dissector_matching will remain NULL, so we exit below */
     }
     else {
+        header_field_info *hfi = proto_registrar_get_byalias(dissector_str);
+
         user_protocol_name.nb_match = 0;
-        user_protocol_name.searched_name = dissector_str;
+        if (hfi) {
+            user_protocol_name.searched_name = hfi->abbrev;
+        } else {
+            user_protocol_name.searched_name = dissector_str;
+        }
         user_protocol_name.matched_handle = NULL;
 
         dissector_table_foreach_handle(table_name, find_protocol_name_func, &user_protocol_name); /* Go and perform the search for this dissector in the this table's dissectors' names and shortnames */

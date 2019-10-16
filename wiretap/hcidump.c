@@ -54,13 +54,12 @@ static gboolean hcidump_read_packet(FILE_T fh, wtap_rec *rec,
 	return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
 }
 
-static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean hcidump_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return hcidump_read_packet(wth->fh, &wth->rec, wth->rec_data,
-	    err, err_info);
+	return hcidump_read_packet(wth->fh, rec, buf, err, err_info);
 }
 
 static gboolean hcidump_seek_read(wtap *wth, gint64 seek_off,
@@ -111,7 +110,7 @@ wtap_open_return_val hcidump_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -4,11 +4,13 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "module_preferences_scroll_area.h"
 #include <ui_module_preferences_scroll_area.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "uat_dialog.h"
 #include "wireshark_application.h"
@@ -23,7 +25,6 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
-#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -245,20 +246,20 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
 
         switch (prefs_get_type(pref)) {
         case PREF_DECODE_AS_UINT:
-            connect(le, SIGNAL(textEdited(QString)), this, SLOT(uintLineEditTextEdited(QString)));
+            connect(le, &QLineEdit::textEdited, this, &ModulePreferencesScrollArea::uintLineEditTextEdited);
             break;
         case PREF_UINT:
-            connect(le, SIGNAL(textEdited(QString)), this, SLOT(uintLineEditTextEdited(QString)));
+            connect(le, &QLineEdit::textEdited, this, &ModulePreferencesScrollArea::uintLineEditTextEdited);
             break;
         case PREF_STRING:
         case PREF_SAVE_FILENAME:
         case PREF_OPEN_FILENAME:
         case PREF_DIRNAME:
-            connect(le, SIGNAL(textEdited(QString)), this, SLOT(stringLineEditTextEdited(QString)));
+            connect(le, &QLineEdit::textEdited, this, &ModulePreferencesScrollArea::stringLineEditTextEdited);
             break;
         case PREF_RANGE:
         case PREF_DECODE_AS_RANGE:
-            connect(le, SIGNAL(textEdited(QString)), this, SLOT(rangeSyntaxLineEditTextEdited(QString)));
+            connect(le, &QLineEdit::textEdited, this, &ModulePreferencesScrollArea::rangeSyntaxLineEditTextEdited);
             break;
         default:
             break;
@@ -270,7 +271,7 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
         if (!pref) continue;
 
         if (prefs_get_type(pref) == PREF_BOOL) {
-            connect(cb, SIGNAL(toggled(bool)), this, SLOT(boolCheckBoxToggled(bool)));
+            connect(cb, &QCheckBox::toggled, this, &ModulePreferencesScrollArea::boolCheckBoxToggled);
         }
     }
 
@@ -279,7 +280,7 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
         if (!pref) continue;
 
         if (prefs_get_type(pref) == PREF_ENUM && prefs_get_enum_radiobuttons(pref)) {
-            connect(rb, SIGNAL(toggled(bool)), this, SLOT(enumRadioButtonToggled(bool)));
+            connect(rb, &QRadioButton::toggled, this, &ModulePreferencesScrollArea::enumRadioButtonToggled);
         }
     }
 
@@ -288,7 +289,8 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
         if (!pref) continue;
 
         if (prefs_get_type(pref) == PREF_ENUM && !prefs_get_enum_radiobuttons(pref)) {
-            connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(enumComboBoxCurrentIndexChanged(int)));
+            connect(combo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                    this, &ModulePreferencesScrollArea::enumComboBoxCurrentIndexChanged);
         }
     }
 
@@ -298,16 +300,16 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
 
         switch (prefs_get_type(pref)) {
         case PREF_UAT:
-            connect(pb, SIGNAL(pressed()), this, SLOT(uatPushButtonPressed()));
+            connect(pb, &QPushButton::clicked, this, &ModulePreferencesScrollArea::uatPushButtonClicked);
             break;
         case PREF_SAVE_FILENAME:
-            connect(pb, SIGNAL(pressed()), this, SLOT(saveFilenamePushButtonPressed()));
+            connect(pb, &QPushButton::clicked, this, &ModulePreferencesScrollArea::saveFilenamePushButtonClicked);
             break;
         case PREF_OPEN_FILENAME:
-            connect(pb, SIGNAL(pressed()), this, SLOT(openFilenamePushButtonPressed()));
+            connect(pb, &QPushButton::clicked, this, &ModulePreferencesScrollArea::openFilenamePushButtonClicked);
             break;
         case PREF_DIRNAME:
-            connect(pb, SIGNAL(pressed()), this, SLOT(dirnamePushButtonPressed()));
+            connect(pb, &QPushButton::clicked, this, &ModulePreferencesScrollArea::dirnamePushButtonClicked);
             break;
         }
     }
@@ -466,7 +468,7 @@ void ModulePreferencesScrollArea::rangeSyntaxLineEditTextEdited(const QString &n
     }
 }
 
-void ModulePreferencesScrollArea::uatPushButtonPressed()
+void ModulePreferencesScrollArea::uatPushButtonClicked()
 {
     QPushButton *uat_pb = qobject_cast<QPushButton*>(sender());
     if (!uat_pb) return;
@@ -474,11 +476,13 @@ void ModulePreferencesScrollArea::uatPushButtonPressed()
     pref_t *pref = VariantPointer<pref_t>::asPtr(uat_pb->property(pref_prop_));
     if (!pref) return;
 
-    UatDialog uat_dlg(this, prefs_get_uat_value(pref));
-    uat_dlg.exec();
+    UatDialog *uat_dlg = new UatDialog(this, prefs_get_uat_value(pref));
+    uat_dlg->setWindowModality(Qt::ApplicationModal);
+    uat_dlg->setAttribute(Qt::WA_DeleteOnClose);
+    uat_dlg->show();
 }
 
-void ModulePreferencesScrollArea::saveFilenamePushButtonPressed()
+void ModulePreferencesScrollArea::saveFilenamePushButtonClicked()
 {
     QPushButton *filename_pb = qobject_cast<QPushButton*>(sender());
     if (!filename_pb) return;
@@ -486,7 +490,7 @@ void ModulePreferencesScrollArea::saveFilenamePushButtonPressed()
     pref_t *pref = VariantPointer<pref_t>::asPtr(filename_pb->property(pref_prop_));
     if (!pref) return;
 
-    QString filename = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(prefs_get_title(pref)),
+    QString filename = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(prefs_get_title(pref)),
                                                     prefs_get_string_value(pref, pref_stashed));
 
     if (!filename.isEmpty()) {
@@ -495,7 +499,7 @@ void ModulePreferencesScrollArea::saveFilenamePushButtonPressed()
     }
 }
 
-void ModulePreferencesScrollArea::openFilenamePushButtonPressed()
+void ModulePreferencesScrollArea::openFilenamePushButtonClicked()
 {
     QPushButton *filename_pb = qobject_cast<QPushButton*>(sender());
     if (!filename_pb) return;
@@ -503,7 +507,7 @@ void ModulePreferencesScrollArea::openFilenamePushButtonPressed()
     pref_t *pref = VariantPointer<pref_t>::asPtr(filename_pb->property(pref_prop_));
     if (!pref) return;
 
-    QString filename = QFileDialog::getOpenFileName(this, wsApp->windowTitleString(prefs_get_title(pref)),
+    QString filename = WiresharkFileDialog::getOpenFileName(this, wsApp->windowTitleString(prefs_get_title(pref)),
                                                     prefs_get_string_value(pref, pref_stashed));
     if (!filename.isEmpty()) {
         prefs_set_string_value(pref, QDir::toNativeSeparators(filename).toStdString().c_str(), pref_stashed);
@@ -511,7 +515,7 @@ void ModulePreferencesScrollArea::openFilenamePushButtonPressed()
     }
 }
 
-void ModulePreferencesScrollArea::dirnamePushButtonPressed()
+void ModulePreferencesScrollArea::dirnamePushButtonClicked()
 {
     QPushButton *dirname_pb = qobject_cast<QPushButton*>(sender());
     if (!dirname_pb) return;
@@ -519,7 +523,7 @@ void ModulePreferencesScrollArea::dirnamePushButtonPressed()
     pref_t *pref = VariantPointer<pref_t>::asPtr(dirname_pb->property(pref_prop_));
     if (!pref) return;
 
-    QString dirname = QFileDialog::getExistingDirectory(this, wsApp->windowTitleString(prefs_get_title(pref)),
+    QString dirname = WiresharkFileDialog::getExistingDirectory(this, wsApp->windowTitleString(prefs_get_title(pref)),
                                                  prefs_get_string_value(pref, pref_stashed));
 
     if (!dirname.isEmpty()) {

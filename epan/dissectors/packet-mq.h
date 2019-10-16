@@ -1057,6 +1057,10 @@ typedef struct _mq_parm_t
 #define MQ_MQACTT_WINDOWS_DEFAULT         '\x09'
 #define MQ_MQACTT_NT_SECURITY_ID          '\x0B'
 #define MQ_MQACTT_USER                    '\x19'
+#define MQ_MQACTT_AZUREAD_SECURITY_ID     '\x0C'
+#define MQ_MQACTT_MS_ACC_AUTH_SECURITY_ID '\x0D'
+#define MQ_MQACTT_USER                    '\x19'
+
 
 /* Put Application Types */
 #define MQ_MQAT_UNKNOWN                   (-1)
@@ -1986,6 +1990,7 @@ typedef struct _mq_parm_t
 #define MQ_MQRC_WRONG_VERSION             6128
 #define MQ_MQRC_REFERENCE_ERROR           6129
 #define MQ_MQRC_XR_NOT_AVAILABLE          6130
+#define MQ_MQRC_SUB_JOIN_NOT_ALTERABLE    29440
 
 /****************************************************************/
 /* Values Related to Queue Attributes                           */
@@ -2201,7 +2206,11 @@ typedef struct _mq_parm_t
 #define MQ_MQCMDL_LEVEL_900               900
 #define MQ_MQCMDL_LEVEL_901               901
 #define MQ_MQCMDL_LEVEL_902               902
-#define MQ_MQCMDL_CURRENT_LEVEL           902
+#define MQ_MQCMDL_LEVEL_903               903
+#define MQ_MQCMDL_LEVEL_904               904
+#define MQ_MQCMDL_LEVEL_905               905
+#define MQ_MQCMDL_LEVEL_910               910
+#define MQ_MQCMDL_CURRENT_LEVEL           910
 
 /* Key reuse count */
 #define MQ_MQKEY_REUSE_DISABLED           0
@@ -2704,6 +2713,7 @@ typedef struct _mq_parm_t
 #define MQ_MQIA_ADOPTNEWMCA_INTERVAL      104
 #define MQ_MQIA_ADOPTNEWMCA_TYPE          103
 #define MQ_MQIA_ADOPT_CONTEXT             260
+#define MQ_MQIA_ADVANCED_CAPABILITY       273
 #define MQ_MQIA_AMQP_CAPABILITY           265
 #define MQ_MQIA_APPL_TYPE                 1
 #define MQ_MQIA_ARCHIVE                   60
@@ -3504,6 +3514,7 @@ typedef struct _mq_parm_t
 #define MQ_MQRCCF_LOG_EXTENT_NOT_FOUND    3379
 #define MQ_MQRCCF_LOG_NOT_REDUCED         3380
 #define MQ_MQRCCF_LOG_EXTENT_ERROR        3381
+#define MQ_MQRCCF_ACCESS_BLOCKED          3382
 #define MQ_MQRCCF_OBJECT_ALREADY_EXISTS   4001
 #define MQ_MQRCCF_OBJECT_WRONG_TYPE       4002
 #define MQ_MQRCCF_LIKE_OBJECT_WRONG_TYPE  4003
@@ -4354,6 +4365,7 @@ typedef struct _mq_parm_t
 #define MQ_MQIACH_MAX_INSTS_PER_CLIENT    1619
 #define MQ_MQIACH_CLIENT_CHANNEL_WEIGHT   1620
 #define MQ_MQIACH_CONNECTION_AFFINITY     1621
+#define MQ_MQIACH_AUTH_INFO_TYPES         1622
 #define MQ_MQIACH_RESET_REQUESTED         1623
 #define MQ_MQIACH_BATCH_DATA_LIMIT        1624
 #define MQ_MQIACH_MSG_HISTORY             1625
@@ -5157,6 +5169,7 @@ typedef struct _mq_parm_t
 #define MQ_MQLDAP_AUTHORMD_OS             0
 #define MQ_MQLDAP_AUTHORMD_SEARCHGRP      1
 #define MQ_MQLDAP_AUTHORMD_SEARCHUSR      2
+#define MQ_MQLDAP_AUTHORMD_SRCHGRPSN      3
 
 /* LDAP Nested Group Policy */
 #define MQ_MQLDAP_NESTGRP_NO              0
@@ -5512,7 +5525,7 @@ DEF_VALRX(WaitIntv);
 DEF_VALRX(OutDataLen);
 
 /*
- * Editor modelines - http://www.wireshark.org/tools/modelines.html
+ * Editor modelines - https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

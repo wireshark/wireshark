@@ -316,6 +316,13 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     DISSECTOR_ASSERT(data);
     can_id = *((struct can_identifier*)data);
 
+    if ((can_id.id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) ||
+        !(can_id.id & CAN_EFF_FLAG))
+    {
+        /* Error, RTR and frames with standard ids are not for us. */
+        return 0;
+    }
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISObus");
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -335,26 +342,26 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     /* add priority */
     ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_priority, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* add extended data page */
     ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_ext_data_page, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* add data page */
     ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_data_page, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* add pdu format */
     switch(data_page)
     {
     case 0:
         ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_pdu_format_dp0, tvb, 0, 0, can_id.id);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         break;
     case 1:
         ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_pdu_format_dp1, tvb, 0, 0, can_id.id);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         break;
     }
 
@@ -362,17 +369,17 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     if(pdu_format <= 239)
     {
         ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_dst_addr, tvb, 0, 0, can_id.id);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
     }
     else
     {
         ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_group_extension, tvb, 0, 0, can_id.id);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
     }
 
     /* add source address */
     ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_src_addr, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* put source address in source field */
     g_snprintf(str_src, 4, "%d", src_addr);
@@ -847,7 +854,7 @@ proto_reg_handoff_isobus(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:+
  * c-basic-offset: 4

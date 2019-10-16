@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 
 #ifndef PACKET_FORMAT_GROUP_BOX_H
@@ -28,6 +29,8 @@ public:
     bool detailsEnabled();
     bool bytesEnabled();
 
+    bool includeColumnHeadingsEnabled();
+
     bool allCollapsedEnabled();
     bool asDisplayedEnabled();
     bool allExpandedEnabled();
@@ -36,9 +39,12 @@ signals:
     void formatChanged();
 
 private slots:
-    void on_detailsCheckBox_toggled(bool checked);
     void on_summaryCheckBox_toggled(bool checked);
+    void on_detailsCheckBox_toggled(bool checked);
     void on_bytesCheckBox_toggled(bool checked);
+
+    void on_includeColumnHeadingsCheckBox_toggled(bool checked);
+
     void on_allCollapsedButton_toggled(bool checked);
     void on_asDisplayedButton_toggled(bool checked);
     void on_allExpandedButton_toggled(bool checked);

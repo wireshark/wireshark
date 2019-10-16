@@ -49,6 +49,7 @@
  * packet-dcom-remunk.c:   IRemUnknown, IRemUnknown2
  * packet-dcom-dispatch.c: IDispatch
  * packet-dcom-sysact.c:   ISystemActivator
+ * packet-dcom-typeinfo.c: ITypeInfo
  */
 
 #include "config.h"
@@ -207,6 +208,8 @@ static const e_guid_t ipid_rem_unknown =  { 0x00000131, 0x1234, 0x5678, { 0xCA, 
 static const e_guid_t iid_unknown =	  { 0x00000000, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 static const e_guid_t uuid_null =	  { 0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00} };
 static const e_guid_t iid_class_factory = { 0x00000001, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
+static const e_guid_t iid_type_info = { 0x00020401, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
+static const e_guid_t iid_provide_class_info = { 0xb196b283, 0xbab4, 0x101a, { 0xB6, 0x9C, 0x00, 0xAA, 0x00, 0x34, 0x1D, 0x07} };
 #if 0
 static const e_guid_t iid_act_prop_in =   { 0x000001A2, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 static const e_guid_t iid_act_prop_out =  { 0x000001A3, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
@@ -472,6 +475,7 @@ const value_string dcom_variant_type_vals[] = {
 	{ WIRESHARK_VT_ARRAY,		"VT_ARRAY"},
 	{ WIRESHARK_VT_UNKNOWN,		"VT_UNKNOWN"},
 	{ WIRESHARK_VT_USERDEFINED,	"VT_USERDEFINED"},
+	{ WIRESHARK_VT_PTR, 		"VT_PTR"},
 
 	/* XXX: this could be done better */
 	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_I2,	     "VT_ARRAY|VT_I2"},
@@ -807,7 +811,7 @@ dissect_dcom_this(tvbuff_t *tvb, int offset,
 		pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0,
 			(e_guid_t *) &di->call_data->object_uuid,
 			"Object UUID/IPID: %s", guids_resolve_guid_to_str(&di->call_data->object_uuid));
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_item_set_generated(pi);
 	}
 
 	return offset;
@@ -841,7 +845,7 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 		pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0,
 			(e_guid_t *) &di->call_data->object_uuid,
 			"Object UUID/IPID: %s", guids_resolve_guid_to_str(&di->call_data->object_uuid));
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_item_set_generated(pi);
 	}
 
 	return offset;
@@ -930,7 +934,7 @@ dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
 
 
 	item = proto_tree_add_item(tree, hf_dcom_tobedone, tvb, offset, length, ENC_NA);
-	PROTO_ITEM_SET_GENERATED(item);
+	proto_item_set_generated(item);
 	expert_add_info(pinfo, item, &ei_dcom_dissetion_incomplete);
 
 	offset += length;
@@ -949,7 +953,7 @@ dissect_dcom_nospec_data(tvbuff_t *tvb, int offset,
 
 
 	item = proto_tree_add_item(tree, hf_dcom_nospec, tvb, offset, length, ENC_NA);
-	PROTO_ITEM_SET_GENERATED(item);
+	proto_item_set_generated(item);
 	expert_add_info(pinfo, item, &ei_dcom_no_spec);
 
 	offset += length;
@@ -1725,8 +1729,10 @@ dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, sub_tree, di, drep,
 			&u32ArraySize);
 
-	if ((guint32)offset + u32ArraySize*2 > G_MAXINT)
+	if ((guint32)offset + u32ArraySize*2 > G_MAXINT) {
+		pszStr[0] = 0;
 		return offset;
+	}
 
 	realOffset = offset + u32ArraySize*2;
 
@@ -2497,12 +2503,14 @@ proto_reg_handoff_dcom (void)
 	guids_add_uuid(&iid_unknown, "IUnknown");
 	guids_add_uuid(&uuid_null, "NULL");
 	guids_add_uuid(&iid_class_factory, "IClassFactory");
+	guids_add_uuid(&iid_type_info, "ITypeInfo");
+	guids_add_uuid(&iid_provide_class_info, "IProvideClassInfo");
 
 	/* Currently, we have nothing to register for DCOM */
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

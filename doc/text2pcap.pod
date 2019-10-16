@@ -1,3 +1,8 @@
+=begin man
+
+=encoding utf8
+
+=end man
 
 =head1 NAME
 
@@ -14,6 +19,7 @@ S<[ B<-h> ]>
 S<[ B<-i> E<lt>protoE<gt> ]>
 S<[ B<-l> E<lt>typenumE<gt> ]>
 S<[ B<-n> ]>
+S<[ B<-N> E<lt>intf-nameE<gt> ]>
 S<[ B<-m> E<lt>max-packetE<gt> ]>
 S<[ B<-o> hex|oct|dec ]>
 S<[ B<-q> ]>
@@ -23,13 +29,15 @@ S<[ B<-t> E<lt>timefmtE<gt> ]>
 S<[ B<-T> E<lt>srcportE<gt>,E<lt>destportE<gt> ]>
 S<[ B<-u> E<lt>srcportE<gt>,E<lt>destportE<gt> ]>
 S<[ B<-v> ]>
+S<[ B<-4> E<lt>srcipE<gt>,E<lt>destipE<gt> ]>
+S<[ B<-6> E<lt>srcipE<gt>,E<lt>destipE<gt> ]>
 E<lt>I<infile>E<gt>|-
 E<lt>I<outfile>E<gt>|-
 
 =head1 DESCRIPTION
 
 B<Text2pcap> is a program that reads in an ASCII hex dump and writes the
-data described into a B<pcap> capture file.  B<text2pcap> can
+data described into a B<pcap> or B<pcapng> capture file.  B<text2pcap> can
 read hexdumps with multiple packets in them, and build a capture file of
 multiple packets.  B<text2pcap> is also capable of generating dummy
 Ethernet, IP and UDP, TCP, or SCTP headers, in order to build fully
@@ -110,8 +118,8 @@ multiple times to generate more debugging information.
 =item -D
 
 The text before the packet starts either with an I or O indicating that
-the packet is inbound or outbound.
-This is only stored if the output format is pcapng.
+the packet is inbound or outbound. This is used when generating dummy headers.
+The indication is only stored if the output format is pcapng.
 
 =item -e E<lt>l3pidE<gt>
 
@@ -138,13 +146,13 @@ of an IP packet (i.e. has complete L4 information) but does not have
 an IP header with each packet. Note that an appropriate Ethernet header
 is automatically included with each packet as well.
 Example: I<-i 46> to specify an RSVP packet (IP protocol 46).  See
-L<http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml> for
+L<https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml> for
 the complete list of assigned internet protocol numbers.
 
 =item -l
 
 Specify the link-layer header type of this packet.  Default is Ethernet
-(1).  See L<http://www.tcpdump.org/linktypes.html> for the complete list
+(1).  See L<https://www.tcpdump.org/linktypes.html> for the complete list
 of possible encapsulations.  Note that this option should be used if
 your dump is a complete hex dump of an encapsulated packet and you wish
 to specify the exact type of encapsulation.  Example: I<-l 7> for ARCNet
@@ -164,6 +172,11 @@ TCP packets.
 =item -n
 
 Write the file in pcapng format rather than pcap format.
+
+=item -N E<lt>intf-nameE<gt>
+
+Specify a name for the interface included when writing a pcapng format
+file. By default no name is defined.
 
 =item -o hex|oct|dec
 
@@ -241,8 +254,8 @@ Example: I<-4 10.0.0.1,10.0.0.2> to use 10.0.0.1 and 10.0.0.2 for all IP packets
 Prepend dummy IP header with specified IPv6 dest and source address.
 This option should be accompanied by one of the following options: -i, -s, -S, -T, -u
 Use this option to apply "custom" IP addresses.
-Example: I<-6 fe80:0:0:0:202:b3ff:fe1e:8329, 2001:0db8:85a3:0000:0000:8a2e:0370:7334> to
-use fe80:0:0:0:202:b3ff:fe1e:8329 and 2001:0db8:85a3:0000:0000:8a2e:0370:7334 for all IP packets.
+Example: I<-6 fe80::202:b3ff:fe1e:8329,2001:0db8:85a3::8a2e:0370:7334> to
+use fe80::202:b3ff:fe1e:8329 and 2001:0db8:85a3::8a2e:0370:7334 for all IP packets.
 
 =back
 

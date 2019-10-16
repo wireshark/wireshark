@@ -39,7 +39,7 @@ end
 
 -- expected number of runs per type
 -- note ip only runs 3 times because it gets removed
--- and bootp only runs twice because the filter makes it run
+-- and dhcp only runs twice because the filter makes it run
 -- once and then it gets replaced with a different one for the second time
 local taptests = { [FRAME]=4, [OTHER]=0 }
 local function getResults()
@@ -209,6 +209,8 @@ again, these *should* pass, but Pinfo silently allows it!
     end
     test("Pinfo.desegment_len-get-1",pinfo.desegment_len == 0)
     test("Pinfo.desegment_offset-get-1",pinfo.desegment_offset == 0)
+
+    test("pinfo.p2p_dir", pinfo.p2p_dir == P2P_DIR_UNKNOWN)
 
     if pinfo.number == 1 then
         test("Pinfo.rel_ts-get-1",pinfo.rel_ts == 0)

@@ -20,6 +20,7 @@
 #include <epan/packet.h>
 #include <epan/address_types.h>
 #include <epan/to_str.h>
+#include <epan/strutil.h>
 #include <epan/conversation.h>
 #include <epan/xdlc.h>
 #include <wiretap/wtap.h>
@@ -31,7 +32,11 @@
  * This plugin dissects infrared data transmissions as defined by the IrDA
  * specification (www.irda.org).  See
  *
- *      http://www.irda.org/standards/specifications.asp
+ *      http://www.irdajp.info/specifications.php
+ *
+ * or
+ *
+ *      https://web.archive.org/web/20040405053146/http://www.irda.org/standards/specifications.asp
  *
  * for various IrDA specifications.
  *
@@ -165,7 +170,7 @@ static int proto_irlmp = -1;
 static int hf_lmp_xid_hints = -1;
 static int hf_lmp_xid_charset = -1;
 static int hf_lmp_xid_name = -1;
-static int hf_lmp_xid_name_no_ascii = -1;
+static int hf_lmp_xid_name_no_encoding = -1;
 static int hf_lmp_dst = -1;
 static int hf_lmp_dst_control = -1;
 static int hf_lmp_dst_lsap = -1;
@@ -375,6 +380,34 @@ static const value_string lmp_status_vals[] = {
     { 0,    NULL }
 };
 
+#define LMP_CHARSET_ASCII      0
+#define LMP_CHARSET_ISO_8859_1 1
+#define LMP_CHARSET_ISO_8859_2 2
+#define LMP_CHARSET_ISO_8859_3 3
+#define LMP_CHARSET_ISO_8859_4 4
+#define LMP_CHARSET_ISO_8859_5 5
+#define LMP_CHARSET_ISO_8859_6 6
+#define LMP_CHARSET_ISO_8859_7 7
+#define LMP_CHARSET_ISO_8859_8 8
+#define LMP_CHARSET_ISO_8859_9 9
+#define LMP_CHARSET_UNICODE    0xFF /* UCS-2 (byte order?) */
+
+static const value_string lmp_charset_vals[] = {
+/* IrLMP character set */
+    { LMP_CHARSET_ASCII,      "ASCII" },
+    { LMP_CHARSET_ISO_8859_1, "ISO 8859-1" },
+    { LMP_CHARSET_ISO_8859_2, "ISO 8859-2" },
+    { LMP_CHARSET_ISO_8859_3, "ISO 8859-3" },
+    { LMP_CHARSET_ISO_8859_4, "ISO 8859-4" },
+    { LMP_CHARSET_ISO_8859_5, "ISO 8859-5" },
+    { LMP_CHARSET_ISO_8859_6, "ISO 8859-6" },
+    { LMP_CHARSET_ISO_8859_7, "ISO 8859-7" },
+    { LMP_CHARSET_ISO_8859_8, "ISO 8859-8" },
+    { LMP_CHARSET_ISO_8859_9, "ISO 8859-9" },
+    { LMP_CHARSET_UNICODE,    "Unicode" },
+    { 0,                      NULL }
+};
+
 static const value_string iap_opcode_vals[] = {
 /* IrIAP Op-codes */
     { GET_INFO_BASE,      "GetInfoBase" },
@@ -503,7 +536,6 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
     address             destaddr;
     conversation_t*     conv;
     iap_conversation_t* iap_conv;
-    char    buf[128];
 
     if (tvb_reported_length(tvb) == 0)
         return;
@@ -551,23 +583,24 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
                 iap_conv = wmem_new(wmem_file_scope(), iap_conversation_t);
                 conversation_add_proto_data(conv, proto_iap, (void*)iap_conv);
             }
+            if (iap_conv)
+            {
+                iap_conv->pnext           = NULL;
+                iap_conv->iap_query_frame = pinfo->num;
+                iap_conv->pattr_dissector = NULL;
+            }
+
+            char   *class_name = (char *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1 + 1, clen, ENC_ASCII|ENC_NA);
+            char   *attr_name = (char *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1 + 1 + clen + 1, alen, ENC_ASCII|ENC_NA);
+
+            col_add_fstr(pinfo->cinfo, COL_INFO, "GetValueByClass: \"%s\" \"%s\"",
+                format_text(wmem_packet_scope(), (guchar *) class_name, strlen(class_name)),
+                format_text(wmem_packet_scope(), (guchar *) attr_name, strlen(attr_name)));
 
             /* Dissect IAP query if it is new */
             if (iap_conv)
             {
                 int     i, j;
-                char    class_name[256];
-                char    attr_name[256];
-
-
-                iap_conv->pnext           = NULL;
-                iap_conv->iap_query_frame = pinfo->num;
-                iap_conv->pattr_dissector = NULL;
-
-                tvb_memcpy(tvb, class_name, offset + 1 + 1, clen);
-                class_name[clen] = 0;
-                tvb_memcpy(tvb, attr_name, offset + 1 + 1 + clen + 1, alen);
-                attr_name[alen] = 0;
 
                 /* Find the attribute dissector */
                 for (i = 0; class_dissector[i].class_name != NULL; i++)
@@ -582,15 +615,6 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
                         break;
                     }
             }
-
-            col_set_str(pinfo->cinfo, COL_INFO, "GetValueByClass: \"");
-
-            tvb_memcpy(tvb, buf, offset + 1 + 1, clen);
-            memcpy(&buf[clen], "\" \"", 3);
-            tvb_memcpy(tvb, buf + clen + 3, offset + 1 + 1 + clen + 1, alen);
-            buf[clen + 3 + alen] = '\"';
-            buf[clen + 3 + alen + 1] = 0;
-            col_append_str(pinfo->cinfo, COL_INFO, buf);
     }
 
     if (root)
@@ -1502,7 +1526,6 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
         guint    hints_len;
         guint8      hint1 = 0;
         guint8      hint2 = 0;
-        char buf[23];
 
         if (root)
         {
@@ -1568,6 +1591,9 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
         {
             guint8 cset;
             gint name_len;
+            gchar *name;
+            gboolean have_encoding;
+            guint  encoding;
 
             cset = tvb_get_guint8(tvb, offset);
             if (root)
@@ -1576,24 +1602,82 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
             name_len = tvb_reported_length_remaining(tvb, offset);
             if (name_len > 0)
             {
-                if (cset == 0x00)
-                {
+                switch (cset) {
 
-                    if (name_len > 22)
-                        name_len = 22;
-                    tvb_memcpy(tvb, buf, offset, name_len);
-                    buf[name_len] = 0;
-                    col_append_str(pinfo->cinfo, COL_INFO, ", \"");
-                    col_append_str(pinfo->cinfo, COL_INFO, buf);
-                    col_append_str(pinfo->cinfo, COL_INFO, "\"");
+                case LMP_CHARSET_ASCII:
+                    encoding = ENC_ASCII|ENC_NA;
+                    have_encoding = TRUE;
+                    break;
+
+                case LMP_CHARSET_ISO_8859_1:
+                    encoding = ENC_ISO_8859_1|ENC_NA;
+                    have_encoding = TRUE;
+                    break;
+
+                case LMP_CHARSET_ISO_8859_2:
+                    encoding = ENC_ISO_8859_2|ENC_NA;
+                    have_encoding = TRUE;
+                    break;
+
+                case LMP_CHARSET_ISO_8859_3:
+                    encoding = ENC_ISO_8859_3|ENC_NA;
+                    have_encoding = TRUE;
+                    break;
+
+                case LMP_CHARSET_ISO_8859_4:
+                    encoding = ENC_ISO_8859_4|ENC_NA;
+                    have_encoding = TRUE;
+                    break;
+
+                case LMP_CHARSET_ISO_8859_5:
+                    encoding = ENC_ISO_8859_5|ENC_NA;
+                    have_encoding = TRUE;
+                    break;
+
+                case LMP_CHARSET_ISO_8859_6:
+                    encoding = ENC_ISO_8859_6|ENC_NA;
+                    have_encoding = TRUE;
+                    break;
+
+                case LMP_CHARSET_ISO_8859_7:
+                    encoding = ENC_ISO_8859_7|ENC_NA;
+                    have_encoding = TRUE;
+                    break;
+
+                case LMP_CHARSET_ISO_8859_8:
+                    encoding = ENC_ISO_8859_8|ENC_NA;
+                    have_encoding = TRUE;
+                    break;
+
+                case LMP_CHARSET_ISO_8859_9:
+                    encoding = ENC_ISO_8859_9|ENC_NA;
+                    have_encoding = TRUE;
+                    break;
+
+                case LMP_CHARSET_UNICODE:
+                    /* Presumably big-endian; assume just UCS-2 for now */
+                    encoding = ENC_UCS_2|ENC_BIG_ENDIAN;
+                    have_encoding = TRUE;
+                    break;
+
+                default:
+                    encoding = 0;
+                    have_encoding = FALSE;
+                    break;
+                }
+
+                if (have_encoding)
+                {
+                    name = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, name_len, encoding);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", \"%s\"", format_text(wmem_packet_scope(), (guchar *) name, strlen(name)));
                     if (root)
                         proto_tree_add_item(lmp_tree, hf_lmp_xid_name, tvb, offset,
-                                            -1, ENC_ASCII|ENC_NA);
+                                            -1, encoding);
                 }
                 else
                 {
                     if (root)
-                        proto_tree_add_item(lmp_tree, hf_lmp_xid_name_no_ascii, tvb, offset,
+                        proto_tree_add_item(lmp_tree, hf_lmp_xid_name_no_encoding, tvb, offset,
                                             -1, ENC_NA);
                 }
             }
@@ -1618,20 +1702,16 @@ static void dissect_log(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     else
     {
         guint   length;
-        char    buf[256];
-
+        char   *buf;
 
         length = tvb_captured_length(tvb);
-        if (length > sizeof(buf)-1)
-            length = sizeof(buf)-1;
-        tvb_memcpy(tvb, buf, 0, length);
-        buf[length] = 0;
+        buf = (char *) tvb_get_string_enc(wmem_packet_scope(), tvb, 0, length, ENC_ASCII|ENC_NA);
         if (length > 0 && buf[length-1] == '\n')
             buf[length-1] = 0;
         else if (length > 1 && buf[length-2] == '\n')
             buf[length-2] = 0;
 
-        col_add_str(pinfo->cinfo, COL_INFO, buf);
+        col_add_str(pinfo->cinfo, COL_INFO, format_text(wmem_packet_scope(), (guchar *) buf, strlen(buf)));
     }
 
     if (root)
@@ -1729,7 +1809,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
         return;
     }
 
-    if ((c & 0x03) == XDLC_U) {
+    if ((c & XDLC_S_U_MASK) == XDLC_U) {
         /* U frame */
         switch (c & XDLC_U_MODIFIER_MASK)
         {
@@ -2016,14 +2096,14 @@ void proto_register_irda(void)
                 NULL, HFILL }},
         { &hf_lmp_xid_charset,
             { "Character Set", "irlmp.xid.charset",
-                FT_UINT8, BASE_HEX, NULL, 0,
+                FT_UINT8, BASE_HEX, VALS(lmp_charset_vals), 0,
                 NULL, HFILL }},
         { &hf_lmp_xid_name,
             { "Device Nickname", "irlmp.xid.name",
                 FT_STRING, BASE_NONE, NULL, 0,
                 NULL, HFILL }},
-        { &hf_lmp_xid_name_no_ascii,
-            { "Device Nickname (unsupported character set)", "irlmp.xid.name.no_ascii",
+        { &hf_lmp_xid_name_no_encoding,
+            { "Device Nickname (unsupported character set)", "irlmp.xid.name.no_encoding",
                 FT_BYTES, BASE_NONE, NULL, 0,
                 NULL, HFILL }},
         { &hf_lmp_dst,
@@ -2234,7 +2314,7 @@ void proto_reg_handoff_irda(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

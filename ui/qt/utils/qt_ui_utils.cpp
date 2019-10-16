@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,13 +27,13 @@
 #include <QApplication>
 #include <QDateTime>
 #include <QDesktopServices>
-#include <QDesktopWidget>
 #include <QDir>
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QProcess>
 #include <QUrl>
 #include <QUuid>
+#include <QScreen>
 
 /* Make the format_size_flags_e enum usable in C++ */
 format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs) {
@@ -115,7 +116,7 @@ const QString address_to_display_qstring(const _address *address)
 
 const QString val_to_qstring(const guint32 val, const value_string *vs, const char *fmt)
 {
-    QString val_qstr = QString();
+    QString val_qstr;
     gchar* gchar_p = val_to_str_wmem(NULL, val, vs, fmt);
     val_qstr = gchar_p;
     wmem_free(NULL, gchar_p);
@@ -125,7 +126,7 @@ const QString val_to_qstring(const guint32 val, const value_string *vs, const ch
 
 const QString val_ext_to_qstring(const guint32 val, value_string_ext *vse, const char *fmt)
 {
-    QString val_qstr = QString();
+    QString val_qstr;
     gchar* gchar_p = val_to_str_ext_wmem(NULL, val, vse, fmt);
     val_qstr = gchar_p;
     wmem_free(NULL, gchar_p);
@@ -193,7 +194,7 @@ bool qStringCaseLessThan(const QString &s1, const QString &s2)
     return s1.compare(s2, Qt::CaseInsensitive) < 0;
 }
 
-// http://stackoverflow.com/questions/3490336/how-to-reveal-in-finder-or-show-in-explorer-with-qt
+// https://stackoverflow.com/questions/3490336/how-to-reveal-in-finder-or-show-in-explorer-with-qt
 void desktop_show_in_folder(const QString file_path)
 {
     bool success = false;
@@ -228,10 +229,10 @@ void desktop_show_in_folder(const QString file_path)
 
 bool rect_on_screen(const QRect &rect)
 {
-    QDesktopWidget *desktop = qApp->desktop();
-    for (int i = 0; i < desktop->screenCount(); i++) {
-        if (desktop->availableGeometry(i).contains(rect))
+    foreach (QScreen *screen, qApp->screens()) {
+        if (screen->availableGeometry().contains(rect)) {
             return true;
+        }
     }
 
     return false;

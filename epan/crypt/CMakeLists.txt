@@ -14,6 +14,18 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+set(CRYPT_HEADER_FILES
+	dot11decrypt_debug.h
+	dot11decrypt_int.h
+	dot11decrypt_interop.h
+	dot11decrypt_rijndael.h
+	dot11decrypt_system.h
+	dot11decrypt_user.h
+	dot11decrypt_ws.h
+	kasumi.h
+	wep-wpadefs.h
+)
+
 set(CRYPT_FILES
 	dot11decrypt.c
 	dot11decrypt_ccmp.c
@@ -30,6 +42,9 @@ set_source_files_properties(
 )
 
 add_library(crypt OBJECT
+	#Included so that Visual Studio can properly put header files in solution
+	${CRYPT_HEADER_FILES}
+
 	${CRYPT_FILES}
 )
 
@@ -48,7 +63,7 @@ CHECKAPI(
 )
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

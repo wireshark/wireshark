@@ -19,6 +19,23 @@ set(DFILTER_PUBLIC_HEADERS
 	drange.h
 )
 
+set(DFILTER_HEADER_FILES
+	${DFILTER_PUBLIC_HEADERS}
+	dfilter-int.h
+	dfilter-macro.h
+	dfilter.h
+	dfunctions.h
+	dfvm.h
+	drange.h
+	gencode.h
+	semcheck.h
+	sttype-function.h
+	sttype-range.h
+	sttype-set.h
+	sttype-test.h
+	syntax-tree.h
+)
+
 set(DFILTER_NONGENERATED_FILES
 	dfilter.c
 	dfilter-macro.c
@@ -49,26 +66,31 @@ add_lemon_files(LEMON_FILES DFILTER_FILES
 )
 
 #
-# All files are warning-clean.  (Let's keep it that way.)
+# We don't enable -Werror on generated code to make the build a
+# little less fragile when configured warnings change.
 #
 set_source_files_properties(
-	${DFILTER_FILES}
+	${DFILTER_NONGENERATED_FILES}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
-add_library(dfilter OBJECT ${DFILTER_FILES})
+add_library(dfilter OBJECT
+
+	#Included so that Visual Studio can properly put header files in solution
+	${DFILTER_HEADER_FILES}
+
+	${DFILTER_FILES}
+)
 
 set_target_properties(dfilter PROPERTIES
 	FOLDER "Libs/epan/dfilter"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
-if(NOT WIN32)
-	install(FILES ${DFILTER_PUBLIC_HEADERS}
-		DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${CPACK_PACKAGE_NAME}/epan/dfilter"
-	)
-endif()
+install(FILES ${DFILTER_PUBLIC_HEADERS}
+	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/epan/dfilter"
+)
 
 CHECKAPI(
 	NAME
@@ -83,7 +105,7 @@ CHECKAPI(
 )
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

@@ -108,6 +108,10 @@ static int hf_auth_slen2 = -1;
 static int hf_auth_username = -1;
 static int hf_auth_password = -1;
 
+static int hf_auth_reply = -1;
+static int hf_auth_minvers = -1;
+static int hf_auth_maxvers = -1;
+
 static int hf_open_request = -1;
 
 static int hf_open_reply = -1;
@@ -184,6 +188,7 @@ static gint ett_rpcap = -1;
 static gint ett_error = -1;
 static gint ett_packet = -1;
 static gint ett_auth_request = -1;
+static gint ett_auth_reply = -1;
 static gint ett_open_reply = -1;
 static gint ett_startcap_request = -1;
 static gint ett_startcap_reply = -1;
@@ -204,6 +209,7 @@ static expert_field ei_no_more_data = EI_INIT;
 static expert_field ei_caplen_too_big = EI_INIT;
 
 static dissector_handle_t pcap_pktdata_handle;
+static dissector_handle_t rpcap_tcp_handle;
 
 /* User definable values */
 static gboolean rpcap_desegment = TRUE;
@@ -361,7 +367,7 @@ dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo,
   proto_item *ti;
   gint len;
 
-  len = tvb_captured_length_remaining (tvb, offset);
+  len = tvb_reported_length_remaining (tvb, offset);
   if (len <= 0)
     return;
 
@@ -654,12 +660,39 @@ dissect_rpcap_auth_request (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 
 static void
+dissect_rpcap_auth_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
+                          proto_tree *parent_tree, gint offset)
+{
+  proto_tree *tree;
+  proto_item *ti;
+  guint32 minvers, maxvers;
+
+  /*
+   * Authentication replies from older servers have no payload.
+   * Replies from newer servers have a payload.
+   * Dissect the payload if we have any.
+   */
+  if (tvb_reported_length_remaining(tvb, offset) != 0) {
+    ti = proto_tree_add_item (parent_tree, hf_auth_reply, tvb, offset, -1, ENC_NA);
+    tree = proto_item_add_subtree (ti, ett_auth_reply);
+
+    proto_tree_add_item_ret_uint (tree, hf_auth_minvers, tvb, offset, 1, ENC_BIG_ENDIAN, &minvers);
+    offset += 1;
+
+    proto_tree_add_item_ret_uint (tree, hf_auth_maxvers, tvb, offset, 1, ENC_BIG_ENDIAN, &maxvers);
+
+    proto_item_append_text (ti, ", minimum version %u, maximum version %u", minvers, maxvers);
+  }
+}
+
+
+static void
 dissect_rpcap_open_request (tvbuff_t *tvb, packet_info *pinfo _U_,
                             proto_tree *parent_tree, gint offset)
 {
   gint len;
 
-  len = tvb_captured_length_remaining (tvb, offset);
+  len = tvb_reported_length_remaining (tvb, offset);
   proto_tree_add_item (parent_tree, hf_open_request, tvb, offset, len, ENC_ASCII|ENC_NA);
 }
 
@@ -820,7 +853,6 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
 {
   proto_tree *tree;
   proto_item *ti;
-  nstime_t ts;
   tvbuff_t *new_tvb;
   guint caplen, len, frame_no;
   gint reported_length_remaining;
@@ -828,9 +860,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   ti = proto_tree_add_item (parent_tree, hf_packet, tvb, offset, 20, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_packet);
 
-  ts.secs = tvb_get_ntohl (tvb, offset);
-  ts.nsecs = tvb_get_ntohl (tvb, offset + 4) * 1000;
-  proto_tree_add_time(tree, hf_timestamp, tvb, offset, 8, &ts);
+  proto_tree_add_item(tree, hf_timestamp, tvb, offset, 8, ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
   offset += 8;
 
   caplen = tvb_get_ntohl (tvb, offset);
@@ -951,6 +981,9 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, void* da
   case RPCAP_MSG_SETSAMPLING_REQ:
     dissect_rpcap_sampling_request (tvb, pinfo, tree, offset);
     break;
+  case RPCAP_MSG_AUTH_REPLY:
+    dissect_rpcap_auth_reply (tvb, pinfo, tree, offset);
+    break;
   case RPCAP_MSG_FINDALLIF_REPLY:
     dissect_rpcap_findalldevs_reply (tvb, pinfo, tree, offset, msg_value);
     break;
@@ -1026,7 +1059,6 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
 
   case RPCAP_MSG_FINDALLIF_REQ:
   case RPCAP_MSG_UPDATEFILTER_REPLY:
-  case RPCAP_MSG_AUTH_REPLY:
   case RPCAP_MSG_STATS_REQ:
   case RPCAP_MSG_CLOSE:
   case RPCAP_MSG_SETSAMPLING_REPLY:
@@ -1069,6 +1101,7 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
   case RPCAP_MSG_STARTCAP_REQ:
   case RPCAP_MSG_UPDATEFILTER_REQ:
   case RPCAP_MSG_AUTH_REQ:
+  case RPCAP_MSG_AUTH_REPLY:
     /* Variable length */
     if (plen != len)
       return FALSE;
@@ -1089,11 +1122,29 @@ get_rpcap_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 }
 
 
+static int
+dissect_rpcap_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  tcp_dissect_pdus (tvb, pinfo, tree, rpcap_desegment, 8,
+                    get_rpcap_pdu_len, dissect_rpcap, data);
+  return tvb_captured_length (tvb);
+}
+
 static gboolean
 dissect_rpcap_heur_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   if (check_rpcap_heur (tvb, TRUE)) {
-    /* This is probably a rpcap tcp package */
+    /*
+     * This is probably a rpcap TCP packet.
+     * Make the dissector for this conversation the non-heuristic
+     * rpcap dissector, so that malformed rpcap packets are reported
+     * as such.
+     */
+    conversation_t *conversation = find_conversation_pinfo (pinfo, 0);
+    if (conversation)
+      conversation_set_dissector_from_frame_number (conversation,
+                                                  pinfo->num,
+                                                  rpcap_tcp_handle);
     tcp_dissect_pdus (tvb, pinfo, tree, rpcap_desegment, 8,
                       get_rpcap_pdu_len, dissect_rpcap, data);
 
@@ -1163,7 +1214,7 @@ proto_register_rpcap (void)
 
     /* Authentication request */
     { &hf_auth_request,
-      { "Authentication", "rpcap.auth", FT_NONE, BASE_NONE,
+      { "Authentication request", "rpcap.auth_request", FT_NONE, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
     { &hf_auth_type,
       { "Authentication type", "rpcap.auth_type", FT_UINT16, BASE_DEC,
@@ -1179,6 +1230,17 @@ proto_register_rpcap (void)
         NULL, 0x0, NULL, HFILL } },
     { &hf_auth_password,
       { "Password", "rpcap.password", FT_STRING, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
+
+    /* Authentication reply */
+    { &hf_auth_reply,
+      { "Authentication reply", "rpcap.auth_reply", FT_NONE, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_auth_minvers,
+      { "Minimum version number supported", "rpcap.auth_minvers", FT_UINT8, BASE_DEC,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_auth_maxvers,
+      { "Maximum version number supported", "rpcap.auth_maxvers", FT_UINT8, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
 
     /* Open request */
@@ -1404,6 +1466,7 @@ proto_register_rpcap (void)
     &ett_error,
     &ett_packet,
     &ett_auth_request,
+    &ett_auth_reply,
     &ett_open_reply,
     &ett_startcap_request,
     &ett_startcap_reply,
@@ -1470,6 +1533,8 @@ proto_reg_handoff_rpcap (void)
 
     heur_dissector_add ("tcp", dissect_rpcap_heur_tcp, "RPCAP over TCP", "rpcap_tcp", proto_rpcap, HEURISTIC_ENABLE);
     heur_dissector_add ("udp", dissect_rpcap_heur_udp, "RPCAP over UDP", "rpcap_udp", proto_rpcap, HEURISTIC_ENABLE);
+
+    rpcap_tcp_handle = create_dissector_handle(dissect_rpcap_tcp, proto_rpcap);
   }
 
   info_added = FALSE;
@@ -1477,7 +1542,7 @@ proto_reg_handoff_rpcap (void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

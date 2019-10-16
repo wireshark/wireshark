@@ -44,7 +44,7 @@
 
 #include "packet-rtp.h"
 #include "packet-tcp.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 #include "packet-skinny.h"
 
 /* un-comment the following as well as this line in conversation.c, to enable debug printing */
@@ -2333,7 +2333,7 @@ static void skinny_reqrep_add_request(ptvcursor_t *cursor, packet_info * pinfo, 
     req_resp = wmem_new0(wmem_file_scope(), skinny_req_resp_t);
     req_resp->request_frame = pinfo->num;
     req_resp->response_frame = 0;
-    req_resp->request_time = pinfo->fd->abs_ts;
+    req_resp->request_time = pinfo->abs_ts;
     wmem_map_insert(skinny_conv->pending_req_resp, GINT_TO_POINTER(request_key), (void *)req_resp);
     DPRINT(("SKINNY: setup_request: frame=%d add key=%d to map\n", pinfo->num, request_key));
   }
@@ -2343,7 +2343,7 @@ static void skinny_reqrep_add_request(ptvcursor_t *cursor, packet_info * pinfo, 
     DPRINT(("SKINNY: show request in tree: frame/key=%d\n", pinfo->num));
     proto_item *it;
     it = proto_tree_add_uint(tree, hf_skinny_response_in, tvb, 0, 0, req_resp->response_frame);
-    PROTO_ITEM_SET_GENERATED(it);
+    proto_item_set_generated(it);
   } else {
     DPRINT(("SKINNY: no request found for frame/key=%d\n", pinfo->num));
   }
@@ -2374,11 +2374,11 @@ static void skinny_reqrep_add_response(ptvcursor_t *cursor, packet_info * pinfo,
     proto_item *it;
     nstime_t ns;
     it = proto_tree_add_uint(tree, hf_skinny_response_to, tvb, 0, 0, req_resp->request_frame);
-    PROTO_ITEM_SET_GENERATED(it);
+    proto_item_set_generated(it);
 
-    nstime_delta(&ns, &pinfo->fd->abs_ts, &req_resp->request_time);
+    nstime_delta(&ns, &pinfo->abs_ts, &req_resp->request_time);
     it = proto_tree_add_time(tree, hf_skinny_response_time, tvb, 0, 0, &ns);
-    PROTO_ITEM_SET_GENERATED(it);
+    proto_item_set_generated(it);
   } else {
     DPRINT(("SKINNY: no response found for frame/key=%d\n", pinfo->num));
   }
@@ -9536,7 +9536,7 @@ proto_register_skinny(void)
     {&hf_skinny_callState,
       {
         "callState", "skinny.callState", FT_UINT32, BASE_HEX | BASE_EXT_STRING, &DCallState_ext, 0x0,
-        "CallState", HFILL }},
+        NULL, HFILL }},
     {&hf_skinny_callType,
       {
         "callType", "skinny.callType", FT_UINT32, BASE_HEX | BASE_EXT_STRING, &CallType_ext, 0x0,
@@ -10022,7 +10022,7 @@ proto_reg_handoff_skinny(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

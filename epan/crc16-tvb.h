@@ -72,6 +72,13 @@ WS_DLL_PUBLIC guint16 crc16_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset,
  @return The calculated CRC_A. */
 WS_DLL_PUBLIC guint16 crc16_iso14443a_tvb_offset(tvbuff_t *tvb, guint offset, guint len);
 
+/** Compute the 16bit CRC value of a tv buffer as defined in USB Standard.
+ @param tvb The tv buffer containing the data.
+ @param offset The offset into the tv buffer.
+ @param len The number of bytes to include in the computation.
+ @return The calculated CRC. */
+WS_DLL_PUBLIC guint16 crc16_usb_tvb_offset(tvbuff_t *tvb, guint offset, guint len);
+
 /** Compute the "plain" CRC16 checksum of a tv buffer using the following
  * parameters:
  *    Width        = 16

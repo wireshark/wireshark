@@ -265,6 +265,10 @@ static const value_string g_AttributeWriteMaskTable[] = {
   { 524288, "ValueRank" },
   { 1048576, "WriteMask" },
   { 2097152, "ValueForVariableType" },
+  { 4194304, "DataTypeDefinition" },
+  { 8388608, "RolePermissions" },
+  { 16777216, "AccessRestrictions" },
+  { 33554432, "AccessLevelEx" },
   { 0, NULL }
 };
 static int hf_opcua_AttributeWriteMask = -1;
@@ -335,6 +339,7 @@ static const value_string g_TimestampsToReturnTable[] = {
   { 1, "Server" },
   { 2, "Both" },
   { 3, "Neither" },
+  { 4, "Invalid" },
   { 0, NULL }
 };
 static int hf_opcua_TimestampsToReturn = -1;
@@ -524,6 +529,11 @@ static const value_string g_AttributeIdTable[] = {
     {20, "Historizing"},
     {21, "Executable"},
     {22, "UserExecutable"},
+    {23, "DataTypeDefinition"},
+    {24, "RolePermissions"},
+    {25, "UserRolePermissions"},
+    {26, "AccessRestrictions"},
+    {27, "AccessLevelEx"},
     {0, NULL}
 };
 static int hf_opcua_AttributeId = -1;

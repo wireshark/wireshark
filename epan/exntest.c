@@ -63,7 +63,7 @@ finally_called_exception_from_catch(volatile unsigned int* thrown, volatile unsi
     ENDTRY;
 }
 
-void
+static void
 run_tests(void)
 {
     volatile unsigned int ex_thrown, finally_called;
@@ -215,7 +215,7 @@ int main(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

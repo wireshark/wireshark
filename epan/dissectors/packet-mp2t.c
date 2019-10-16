@@ -277,7 +277,7 @@ typedef struct mp2t_analysis_data {
     /* When detecting a CC drop, store that information for the
      * given frame.  This info is needed, when clicking around in
      * wireshark, as the pid table data only makes sense during
-     * sequential processing. The flag pinfo->fd->flags.visited is
+     * sequential processing. The flag pinfo->fd->visited is
      * used to tell the difference.
      *
      */
@@ -647,7 +647,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
         }
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* Get values from our current PID analysis */
         frag_cur_pos = pid_analysis->frag_cur_pos;
         frag_tot_len = pid_analysis->frag_tot_len;
@@ -872,7 +872,7 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 skips = 0;
 
     /* The initial sequential processing stage */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* This is the sequential processing stage */
         pid_data = get_pid_analysis(mp2t_data, pid);
 
@@ -904,7 +904,7 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     }
 
     /* Save the info about the dropped packet */
-    if (detected_drop && !pinfo->fd->flags.visited) {
+    if (detected_drop && !pinfo->fd->visited) {
         /* Lookup frame data, contains TS pid data objects */
         frame_analysis_data_p = get_frame_analysis_data(mp2t_data, pinfo);
         if (!frame_analysis_data_p)
@@ -922,7 +922,7 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     }
 
     /* See if we stored info about drops */
-    if (pinfo->fd->flags.visited) {
+    if (pinfo->fd->visited) {
 
         /* Lookup frame data, contains TS pid data objects */
         frame_analysis_data_p = get_frame_analysis_data(mp2t_data, pinfo);
@@ -953,11 +953,11 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
         flags_item = proto_tree_add_uint(tree, hf_mp2t_analysis_skips,
                 tvb, 0, 0, skips);
-        PROTO_ITEM_SET_GENERATED(flags_item);
+        proto_item_set_generated(flags_item);
 
         flags_item = proto_tree_add_uint(tree, hf_mp2t_analysis_drops,
                 tvb, 0, 0, 1);
-        PROTO_ITEM_SET_GENERATED(flags_item);
+        proto_item_set_generated(flags_item);
     }
     return skips;
 }
@@ -1186,7 +1186,7 @@ dissect_tsp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     /* Create a subtree for analysis stuff */
     mp2t_analysis_tree = proto_tree_add_subtree_format(mp2t_tree, tvb, offset, 0, ett_mp2t_analysis, &item, "MPEG2 PCR Analysis");
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     skips = detect_cc_drops(tvb, mp2t_analysis_tree, pinfo, pid, cc, mp2t_data);
 
@@ -1599,7 +1599,7 @@ proto_reg_handoff_mp2t(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

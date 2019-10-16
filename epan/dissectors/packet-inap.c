@@ -1037,9 +1037,25 @@ static int hf_inap_cause_indicator = -1;
 /* Initialize the subtree pointers */
 static gint ett_inap = -1;
 static gint ett_inapisup_parameter = -1;
+static gint ett_inap_RedirectionInformation = -1;
 static gint ett_inap_HighLayerCompatibility = -1;
 static gint ett_inap_extension_data = -1;
 static gint ett_inap_cause = -1;
+static gint ett_inap_calledAddressValue = -1;
+static gint ett_inap_callingAddressValue = -1;
+static gint ett_inap_additionalCallingPartyNumber = -1;
+static gint ett_inap_assistingSSPIPRoutingAddress = -1;
+static gint ett_inap_correlationID = -1;
+static gint ett_inap_number = -1;
+static gint ett_inap_dialledNumber = -1;
+static gint ett_inap_callingLineID = -1;
+static gint ett_inap_iNServiceControlCode = -1;
+static gint ett_inap_iNServiceControlCodeLow = -1;
+static gint ett_inap_iNServiceControlCodeHigh = -1;
+static gint ett_inap_lineID = -1;
+static gint ett_inap_prefix = -1;
+static gint ett_inap_iPAddressValue = -1;
+static gint ett_inap_digitsResponse = -1;
 
 
 /*--- Included file: packet-inap-ett.c ---*/
@@ -1282,7 +1298,7 @@ static gint ett_inap_T_problem_01 = -1;
 static gint ett_inap_InvokeId = -1;
 
 /*--- End of included file: packet-inap-ett.c ---*/
-#line 74 "./asn1/inap/packet-inap-template.c"
+#line 90 "./asn1/inap/packet-inap-template.c"
 
 static expert_field ei_inap_unknown_invokeData = EI_INIT;
 static expert_field ei_inap_unknown_returnResultData = EI_INIT;
@@ -1412,7 +1428,7 @@ static const value_string inap_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-inap-table.c ---*/
-#line 80 "./asn1/inap/packet-inap-template.c"
+#line 96 "./asn1/inap/packet-inap-template.c"
 
 const value_string inap_general_problem_strings[] = {
 {0,"General Problem Unrecognized Component"},
@@ -1701,8 +1717,81 @@ dissect_inap_AdditionalATMCellRate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_inap_Digits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+#line 328 "./asn1/inap/inap.cnf"
+  /*
+   *-- Indicates the address signalling digits. Refer to the Q.763 Generic Number and Generic Digits parameter
+   *-- for encoding. The coding of the subfield's 'NumberQualifier' in Generic Number and 'TypeOfDigits' in
+   *-- Generic Digits are irrelevant to the INAP, the ASN.1 tags are sufficient to identify the parameter.
+   *-- The ISUP format does not allow to exclude these subfields, therefore the value is network operator specific.
+   *-- The following parameters should use Generic Number
+   *-- Additional Calling Number, CorrelationID for AssistRequestInstructions, AssistingSSPIPRoutingAddress
+   *--  for EstablishTemporaryConnection
+   *-- calledAddressValue for all occurrences,callingAddressValue for all occurrences
+   *-- The following parameters should use Generic Digits: prefix, all
+   *-- other CorrelationID occurrences, dialledNumber filtering criteria, callingLineID filtering criteria, lineID for
+   *-- ResourceID type, digitResponse for ReceivedInformationArg, iNServiceControlLow / iNServiceControlHigh for
+   *--MidCallInfoType,, iNServiceControlCode for MidCallInfo.
+   */
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
+  gint ett = -1;
+  gboolean digits = FALSE;
+
+    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+
+  if (!parameter_tvb)
+    return offset;
+
+  if (hf_index == hf_inap_additionalCallingPartyNumber) {
+    ett = ett_inap_additionalCallingPartyNumber;
+  } else if (hf_index == hf_inap_assistingSSPIPRoutingAddress) {
+    ett = ett_inap_assistingSSPIPRoutingAddress;
+  } else if (hf_index == hf_inap_correlationID) {
+    ett = ett_inap_correlationID;
+    digits = (opcode != opcode_assistRequestInstructions) ? TRUE : FALSE;
+  } else if (hf_index == hf_inap_calledAddressValue) {
+    ett = ett_inap_calledAddressValue;
+  } else if (hf_index == hf_inap_callingAddressValue) {
+    ett = ett_inap_callingAddressValue;
+  } else if (hf_index == hf_inap_number) {
+    ett = ett_inap_number;
+  } else if (hf_index == hf_inap_dialledNumber) {
+    ett = ett_inap_dialledNumber;
+    digits = TRUE;
+  } else if (hf_index == hf_inap_callingLineID) {
+    ett = ett_inap_callingLineID;
+    digits = TRUE;
+  } else if (hf_index == hf_inap_iNServiceControlCode) {
+    ett = ett_inap_iNServiceControlCode;
+    digits = TRUE;
+  } else if (hf_index == hf_inap_iNServiceControlCodeLow) {
+    ett = ett_inap_iNServiceControlCodeLow;
+    digits = TRUE;
+  } else if (hf_index == hf_inap_iNServiceControlCodeHigh) {
+    ett = ett_inap_iNServiceControlCodeHigh;
+    digits = TRUE;
+  } else if (hf_index == hf_inap_lineID) {
+    ett = ett_inap_lineID;
+    digits = TRUE;
+  } else if (hf_index == hf_inap_prefix) {
+    ett = ett_inap_prefix;
+    digits = TRUE;
+  } else if (hf_index == hf_inap_iPAddressValue) {
+    ett = ett_inap_iPAddressValue;
+  } else if (hf_index == hf_inap_digitsResponse) {
+    ett = ett_inap_digitsResponse;
+    digits = TRUE;
+  }
+
+  subtree = proto_item_add_subtree(actx->created_item, ett);
+  if (digits) {
+    dissect_isup_generic_digits_parameter(parameter_tvb, subtree, NULL);
+  } else {
+    dissect_isup_generic_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 
   return offset;
 }
@@ -2494,7 +2583,7 @@ dissect_inap_Carrier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_inap_Cause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 309 "./asn1/inap/inap.cnf"
+#line 311 "./asn1/inap/inap.cnf"
   /*
    * -- Indicates the cause for interface related information. Refer to the Q.763 Cause  parameter for encoding
    * -- For the use of cause and location values refer to Q.850.
@@ -4547,7 +4636,7 @@ dissect_inap_GlobalCallReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 int
 dissect_inap_HighLayerCompatibility(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 295 "./asn1/inap/inap.cnf"
+#line 297 "./asn1/inap/inap.cnf"
 /*
  * -- Indicates the teleservice. For encoding, DSS1 (Q.931) is used.
  */
@@ -4721,7 +4810,7 @@ dissect_inap_NumberingPlan(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_inap_OriginalCalledPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 273 "./asn1/inap/inap.cnf"
+#line 275 "./asn1/inap/inap.cnf"
 
   tvbuff_t *parameter_tvb;
 
@@ -4785,7 +4874,7 @@ dissect_inap_Reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_inap_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 284 "./asn1/inap/inap.cnf"
+#line 286 "./asn1/inap/inap.cnf"
 
   tvbuff_t *parameter_tvb;
 
@@ -4810,6 +4899,7 @@ dissect_inap_RedirectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 #line 262 "./asn1/inap/inap.cnf"
 
   tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4818,7 +4908,8 @@ dissect_inap_RedirectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
   if (!parameter_tvb)
     return offset;
 
- dissect_isup_redirection_information_parameter(parameter_tvb, tree, NULL);
+ subtree = proto_item_add_subtree(actx->created_item, ett_inap_RedirectionInformation);
+ dissect_isup_redirection_information_parameter(parameter_tvb, subtree, NULL);
 
 
 
@@ -8998,7 +9089,7 @@ static int dissect_PAR_taskRefused_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-inap-fn.c ---*/
-#line 94 "./asn1/inap/packet-inap-template.c"
+#line 110 "./asn1/inap/packet-inap-template.c"
 /*
 TC-Invokable OPERATION ::=
   {activateServiceFiltering | activityTest | analysedInformation |
@@ -9348,7 +9439,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-inap-table2.c ---*/
-#line 115 "./asn1/inap/packet-inap-template.c"
+#line 131 "./asn1/inap/packet-inap-template.c"
 
 
 static guint8 inap_pdu_type = 0;
@@ -11676,7 +11767,7 @@ void proto_register_inap(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-inap-hfarr.c ---*/
-#line 198 "./asn1/inap/packet-inap-template.c"
+#line 214 "./asn1/inap/packet-inap-template.c"
   };
 
 
@@ -11688,9 +11779,25 @@ void proto_register_inap(void) {
   static gint *ett[] = {
     &ett_inap,
     &ett_inapisup_parameter,
+    &ett_inap_RedirectionInformation,
     &ett_inap_HighLayerCompatibility,
     &ett_inap_extension_data,
     &ett_inap_cause,
+    &ett_inap_calledAddressValue,
+    &ett_inap_callingAddressValue,
+    &ett_inap_additionalCallingPartyNumber,
+    &ett_inap_assistingSSPIPRoutingAddress,
+    &ett_inap_correlationID,
+    &ett_inap_number,
+    &ett_inap_dialledNumber,
+    &ett_inap_callingLineID,
+    &ett_inap_iNServiceControlCode,
+    &ett_inap_iNServiceControlCodeLow,
+    &ett_inap_iNServiceControlCodeHigh,
+    &ett_inap_lineID,
+    &ett_inap_prefix,
+    &ett_inap_iPAddressValue,
+    &ett_inap_digitsResponse,
 
 /*--- Included file: packet-inap-ettarr.c ---*/
 #line 1 "./asn1/inap/packet-inap-ettarr.c"
@@ -11932,7 +12039,7 @@ void proto_register_inap(void) {
     &ett_inap_InvokeId,
 
 /*--- End of included file: packet-inap-ettarr.c ---*/
-#line 213 "./asn1/inap/packet-inap-template.c"
+#line 245 "./asn1/inap/packet-inap-template.c"
   };
 
   static ei_register_info ei[] = {

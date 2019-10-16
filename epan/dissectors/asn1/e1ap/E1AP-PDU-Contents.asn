@@ -1,0 +1,1198 @@
+-- 3GPP TS 38.463 V15.4.0 (2019-07)
+-- **************************************************************
+--
+-- PDU definitions for E1AP
+--
+-- **************************************************************
+
+E1AP-PDU-Contents {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+ngran-access (22) modules (3) e1ap (5) version1 (1) e1ap-PDU-Contents (1) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules
+--
+-- **************************************************************
+
+IMPORTS
+	
+	Cause,
+	CriticalityDiagnostics,
+	GNB-CU-CP-UE-E1AP-ID,
+	GNB-CU-UP-UE-E1AP-ID,
+	UE-associatedLogicalE1-ConnectionItem,
+	GNB-CU-UP-ID,
+	GNB-CU-UP-Name,
+	GNB-CU-CP-Name,
+	CNSupport,
+	PLMN-Identity,
+	Slice-Support-List,
+	NR-CGI-Support-List,
+	QoS-Parameters-Support-List,
+	SecurityInformation,
+	BitRate,
+	BearerContextStatusChange,
+	DRB-To-Setup-List-EUTRAN,
+	DRB-Setup-List-EUTRAN,
+	DRB-Failed-List-EUTRAN,
+	DRB-To-Modify-List-EUTRAN,
+	DRB-Modified-List-EUTRAN,
+	DRB-Failed-To-Modify-List-EUTRAN,
+	DRB-To-Remove-List-EUTRAN,
+	DRB-Required-To-Remove-List-EUTRAN,
+	DRB-Required-To-Modify-List-EUTRAN,
+	DRB-Confirm-Modified-List-EUTRAN,
+	DRB-To-Setup-Mod-List-EUTRAN,
+	DRB-Setup-Mod-List-EUTRAN,
+	DRB-Failed-Mod-List-EUTRAN,
+	PDU-Session-Resource-To-Setup-List,
+	PDU-Session-Resource-Setup-List,
+	PDU-Session-Resource-Failed-List,
+	PDU-Session-Resource-To-Modify-List,
+	PDU-Session-Resource-Modified-List,
+	PDU-Session-Resource-Failed-To-Modify-List,
+	PDU-Session-Resource-To-Remove-List,
+	PDU-Session-Resource-Required-To-Modify-List,
+	PDU-Session-Resource-Confirm-Modified-List,
+	PDU-Session-Resource-To-Setup-Mod-List,
+	PDU-Session-Resource-Setup-Mod-List,
+	PDU-Session-Resource-Failed-Mod-List,
+	PDU-Session-To-Notify-List,
+	DRB-Status-Item,
+	DRB-Activity-Item,
+	Data-Usage-Report-List,
+	TimeToWait,
+	ActivityNotificationLevel,
+	ActivityInformation,
+	New-UL-TNL-Information-Required,
+	GNB-CU-CP-TNLA-Setup-Item,
+	GNB-CU-CP-TNLA-Failed-To-Setup-Item,
+	GNB-CU-CP-TNLA-To-Add-Item,
+	GNB-CU-CP-TNLA-To-Remove-Item,
+	GNB-CU-CP-TNLA-To-Update-Item,
+	GNB-CU-UP-TNLA-To-Remove-Item,
+	TransactionID,
+	Inactivity-Timer,
+	DRBs-Subject-To-Counter-Check-List-EUTRAN,
+	DRBs-Subject-To-Counter-Check-List-NG-RAN,
+	PPI,
+	GNB-CU-UP-Capacity,
+	GNB-CU-UP-OverloadInformation,
+	DataDiscardRequired,
+	PDU-Session-Resource-Data-Usage-List,
+	RANUEID,
+	GNB-DU-ID
+
+
+FROM E1AP-IEs
+
+	PrivateIE-Container{},
+	ProtocolExtensionContainer{},
+	ProtocolIE-Container{},
+	ProtocolIE-ContainerList{},
+	ProtocolIE-SingleContainer{},
+	E1AP-PRIVATE-IES,
+	E1AP-PROTOCOL-EXTENSION,
+	E1AP-PROTOCOL-IES
+
+
+FROM E1AP-Containers
+	
+	id-Cause,
+	id-CriticalityDiagnostics,
+	id-gNB-CU-CP-UE-E1AP-ID, 
+	id-gNB-CU-UP-UE-E1AP-ID,
+	id-ResetType,
+	id-UE-associatedLogicalE1-ConnectionItem,
+	id-UE-associatedLogicalE1-ConnectionListResAck,
+	id-gNB-CU-UP-ID,
+	id-gNB-CU-UP-Name,
+	id-gNB-CU-CP-Name,
+	id-CNSupport,
+	id-SupportedPLMNs,
+	id-SecurityInformation,
+	id-UEDLAggregateMaximumBitRate,
+	id-BearerContextStatusChange,
+	id-System-BearerContextSetupRequest,
+	id-System-BearerContextSetupResponse,
+	id-System-BearerContextModificationRequest,
+	id-System-BearerContextModificationResponse,
+	id-System-BearerContextModificationConfirm,
+	id-System-BearerContextModificationRequired,
+	id-DRB-Status-List,
+	id-Data-Usage-Report-List,	
+	id-TimeToWait,
+	id-ActivityNotificationLevel,
+	id-ActivityInformation,
+	id-New-UL-TNL-Information-Required,
+	id-GNB-CU-CP-TNLA-Setup-List,
+	id-GNB-CU-CP-TNLA-Failed-To-Setup-List,
+	id-GNB-CU-CP-TNLA-To-Add-List,
+	id-GNB-CU-CP-TNLA-To-Remove-List,
+	id-GNB-CU-CP-TNLA-To-Update-List,
+	id-GNB-CU-UP-TNLA-To-Remove-List,
+	id-DRB-To-Setup-List-EUTRAN,
+	id-DRB-To-Modify-List-EUTRAN,
+	id-DRB-To-Remove-List-EUTRAN,
+	id-DRB-Required-To-Modify-List-EUTRAN,
+	id-DRB-Required-To-Remove-List-EUTRAN,
+	id-DRB-Setup-List-EUTRAN,
+	id-DRB-Failed-List-EUTRAN,
+	id-DRB-Modified-List-EUTRAN,
+	id-DRB-Failed-To-Modify-List-EUTRAN,
+	id-DRB-Confirm-Modified-List-EUTRAN,
+	id-DRB-To-Setup-Mod-List-EUTRAN,
+	id-DRB-Setup-Mod-List-EUTRAN,
+	id-DRB-Failed-Mod-List-EUTRAN,
+	id-PDU-Session-Resource-To-Setup-List,
+	id-PDU-Session-Resource-To-Modify-List,
+	id-PDU-Session-Resource-To-Remove-List,
+	id-PDU-Session-Resource-Required-To-Modify-List,
+	id-PDU-Session-Resource-Setup-List,
+	id-PDU-Session-Resource-Failed-List,
+	id-PDU-Session-Resource-Modified-List,
+	id-PDU-Session-Resource-Failed-To-Modify-List,
+	id-PDU-Session-Resource-Confirm-Modified-List,
+	id-PDU-Session-Resource-Setup-Mod-List,
+	id-PDU-Session-Resource-Failed-Mod-List,
+	id-PDU-Session-Resource-To-Setup-Mod-List,
+	id-PDU-Session-To-Notify-List,
+	id-TransactionID,
+	id-Serving-PLMN,
+	id-UE-Inactivity-Timer,
+	id-System-GNB-CU-UP-CounterCheckRequest,
+	id-DRBs-Subject-To-Counter-Check-List-EUTRAN,
+	id-DRBs-Subject-To-Counter-Check-List-NG-RAN,
+	id-PPI,
+	id-gNB-CU-UP-Capacity,
+	id-GNB-CU-UP-OverloadInformation,
+	id-UEDLMaximumIntegrityProtectedDataRate,
+	id-DataDiscardRequired,
+	id-PDU-Session-Resource-Data-Usage-List,
+	id-RANUEID,
+	id-GNB-DU-ID,
+
+	maxnoofErrors,
+	maxnoofSPLMNs,
+	maxnoofDRBs,
+	maxnoofTNLAssociations,
+	maxnoofIndividualE1ConnectionsToReset
+
+	
+FROM E1AP-Constants;
+
+-- **************************************************************
+--
+-- RESET 
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Reset
+--
+-- **************************************************************
+
+Reset ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {ResetIEs} },
+	...
+}
+
+ResetIEs E1AP-PROTOCOL-IES ::= { 
+	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
+	{ ID id-ResetType					CRITICALITY reject	TYPE ResetType					PRESENCE mandatory	},
+	...
+}
+
+ResetType ::= CHOICE {
+	e1-Interface					ResetAll,
+	partOfE1-Interface				UE-associatedLogicalE1-ConnectionListRes,
+	choice-extension				ProtocolIE-SingleContainer	{{ResetType-ExtIEs}}
+}
+
+ResetType-ExtIEs E1AP-PROTOCOL-IES ::= {
+	...
+}
+
+ResetAll ::= ENUMERATED {
+	reset-all,
+	...
+}
+
+UE-associatedLogicalE1-ConnectionListRes ::= SEQUENCE (SIZE(1.. maxnoofIndividualE1ConnectionsToReset)) OF ProtocolIE-SingleContainer { { UE-associatedLogicalE1-ConnectionItemRes } }
+
+UE-associatedLogicalE1-ConnectionItemRes E1AP-PROTOCOL-IES ::= {
+	
+	{ ID id-UE-associatedLogicalE1-ConnectionItem	CRITICALITY reject	TYPE UE-associatedLogicalE1-ConnectionItem	PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- Reset Acknowledge
+--
+-- **************************************************************
+
+ResetAcknowledge ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {ResetAcknowledgeIEs} },
+	...
+}
+
+ResetAcknowledgeIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID									CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+	{ ID id-UE-associatedLogicalE1-ConnectionListResAck		CRITICALITY ignore	TYPE UE-associatedLogicalE1-ConnectionListResAck			PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	...
+}
+
+UE-associatedLogicalE1-ConnectionListResAck ::= SEQUENCE (SIZE(1.. maxnoofIndividualE1ConnectionsToReset)) OF ProtocolIE-SingleContainer { { UE-associatedLogicalE1-ConnectionItemResAck } }
+
+UE-associatedLogicalE1-ConnectionItemResAck 	E1AP-PROTOCOL-IES ::= {
+	{ ID id-UE-associatedLogicalE1-ConnectionItem	 CRITICALITY ignore 	TYPE UE-associatedLogicalE1-ConnectionItem  	PRESENCE mandatory },
+	...
+}
+
+
+-- **************************************************************
+--
+-- ERROR INDICATION
+--
+-- **************************************************************
+
+ErrorIndication ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ErrorIndication-IEs}},
+	...
+}
+
+ErrorIndication-IEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+	{ ID id-gNB-CU-CP-UE-E1AP-ID			CRITICALITY ignore	TYPE GNB-CU-CP-UE-E1AP-ID		PRESENCE optional}|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID			CRITICALITY ignore	TYPE GNB-CU-UP-UE-E1AP-ID		PRESENCE optional}|	
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause						PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- GNB-CU-UP E1 SETUP
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- GNB-CU-UP E1 Setup Request
+--
+-- **************************************************************
+
+GNB-CU-UP-E1SetupRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {GNB-CU-UP-E1SetupRequestIEs} },
+	...
+}
+
+GNB-CU-UP-E1SetupRequestIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID						CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|
+	{ ID id-gNB-CU-UP-ID						CRITICALITY reject	TYPE GNB-CU-UP-ID					PRESENCE mandatory	}|
+	{ ID id-gNB-CU-UP-Name						CRITICALITY ignore	TYPE GNB-CU-UP-Name					PRESENCE optional	}|
+	{ ID id-CNSupport							CRITICALITY reject	TYPE CNSupport						PRESENCE mandatory	}|
+	{ ID id-SupportedPLMNs						CRITICALITY reject	TYPE SupportedPLMNs-List			PRESENCE mandatory	}|
+	{ ID id-gNB-CU-UP-Capacity					CRITICALITY ignore	TYPE GNB-CU-UP-Capacity			   PRESENCE optional	},
+	...
+} 
+
+SupportedPLMNs-List	::=	SEQUENCE (SIZE (1..maxnoofSPLMNs)) OF SupportedPLMNs-Item 
+
+SupportedPLMNs-Item ::= SEQUENCE {
+	pLMN-Identity					PLMN-Identity,
+	slice-Support-List				Slice-Support-List												OPTIONAL,
+	nR-CGI-Support-List				NR-CGI-Support-List												OPTIONAL,
+	qoS-Parameters-Support-List		QoS-Parameters-Support-List										OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { SupportedPLMNs-ExtIEs } }		OPTIONAL, 
+	...
+}
+
+SupportedPLMNs-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- GNB-CU-UP E1 Setup Response
+--
+-- **************************************************************
+
+GNB-CU-UP-E1SetupResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {GNB-CU-UP-E1SetupResponseIEs} },
+	...
+}
+
+GNB-CU-UP-E1SetupResponseIEs
+ E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID						CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|
+	{ ID id-gNB-CU-CP-Name						CRITICALITY ignore	TYPE GNB-CU-CP-Name					PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- GNB-CU-UP E1 Setup Failure
+--
+-- **************************************************************
+
+GNB-CU-UP-E1SetupFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {GNB-CU-UP-E1SetupFailureIEs} },
+	...
+}
+
+GNB-CU-UP-E1SetupFailureIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
+	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- GNB-CU-CP E1 SETUP
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- GNB-CU-CP E1 Setup Request
+--
+-- **************************************************************
+
+GNB-CU-CP-E1SetupRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {GNB-CU-CP-E1SetupRequestIEs} },
+	...
+}
+
+GNB-CU-CP-E1SetupRequestIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID						CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|
+	{ ID id-gNB-CU-CP-Name						CRITICALITY ignore	TYPE GNB-CU-CP-Name					PRESENCE optional	},
+	...
+} 
+
+-- **************************************************************
+--
+-- GNB-CU-CP E1 Setup Response
+--
+-- **************************************************************
+
+GNB-CU-CP-E1SetupResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {GNB-CU-CP-E1SetupResponseIEs} },
+	...
+}
+
+GNB-CU-CP-E1SetupResponseIEs
+ E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID						CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|
+	{ ID id-gNB-CU-UP-ID						CRITICALITY reject	TYPE GNB-CU-UP-ID					PRESENCE mandatory	}|
+	{ ID id-gNB-CU-UP-Name						CRITICALITY ignore	TYPE GNB-CU-UP-Name					PRESENCE optional	}|
+	{ ID id-CNSupport							CRITICALITY reject	TYPE CNSupport						PRESENCE mandatory	}|
+	{ ID id-SupportedPLMNs						CRITICALITY reject	TYPE SupportedPLMNs-List			PRESENCE mandatory	}|
+	{ ID id-gNB-CU-UP-Capacity					CRITICALITY ignore	TYPE GNB-CU-UP-Capacity			   PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- GNB-CU-CP E1 Setup Failure
+--
+-- **************************************************************
+
+GNB-CU-CP-E1SetupFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {GNB-CU-CP-E1SetupFailureIEs} },
+	...
+}
+
+GNB-CU-CP-E1SetupFailureIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
+	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- GNB-CU-UP CONFIGURATION UPDATE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- GNB-CU-UP Configuration Update
+--
+-- **************************************************************
+
+GNB-CU-UP-ConfigurationUpdate ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {GNB-CU-UP-ConfigurationUpdateIEs} },
+	...
+}
+
+GNB-CU-UP-ConfigurationUpdateIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID						CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|
+	{ ID id-gNB-CU-UP-ID						CRITICALITY reject	TYPE GNB-CU-UP-ID					PRESENCE mandatory }|
+	{ ID id-gNB-CU-UP-Name						CRITICALITY ignore	TYPE GNB-CU-UP-Name					PRESENCE optional	}|
+	{ ID id-SupportedPLMNs						CRITICALITY reject	TYPE SupportedPLMNs-List			PRESENCE optional	}|
+	{ ID id-gNB-CU-UP-Capacity					CRITICALITY ignore	TYPE GNB-CU-UP-Capacity			   PRESENCE optional	}|
+	{ ID id-GNB-CU-UP-TNLA-To-Remove-List		CRITICALITY reject	TYPE GNB-CU-UP-TNLA-To-Remove-List	PRESENCE optional	},
+	...
+} 
+
+GNB-CU-UP-TNLA-To-Remove-List 	::= SEQUENCE (SIZE(1.. maxnoofTNLAssociations))	OF GNB-CU-UP-TNLA-To-Remove-Item
+
+-- **************************************************************
+--
+-- GNB-CU-UP Configuration Update Acknowledge
+--
+-- **************************************************************
+
+GNB-CU-UP-ConfigurationUpdateAcknowledge ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {GNB-CU-UP-ConfigurationUpdateAcknowledgeIEs} },
+	...
+}
+
+GNB-CU-UP-ConfigurationUpdateAcknowledgeIEs
+ E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID						PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- GNB-CU-UP Configuration Update Failure
+--
+-- **************************************************************
+
+GNB-CU-UP-ConfigurationUpdateFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {GNB-CU-UP-ConfigurationUpdateFailureIEs} },
+	...
+}
+
+GNB-CU-UP-ConfigurationUpdateFailureIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
+	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- GNB-CU-CP CONFIGURATION UPDATE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- GNB-CU-CP Configuration Update
+--
+-- **************************************************************
+
+GNB-CU-CP-ConfigurationUpdate ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {GNB-CU-CP-ConfigurationUpdateIEs} },
+	...
+}
+
+GNB-CU-CP-ConfigurationUpdateIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+	{ ID id-gNB-CU-CP-Name						CRITICALITY ignore	TYPE GNB-CU-UP-Name						PRESENCE optional	}|
+	{ ID id-GNB-CU-CP-TNLA-To-Add-List			CRITICALITY ignore	TYPE GNB-CU-CP-TNLA-To-Add-List		PRESENCE optional	}|
+	{ ID id-GNB-CU-CP-TNLA-To-Remove-List		CRITICALITY ignore	TYPE GNB-CU-CP-TNLA-To-Remove-List	PRESENCE optional	}|
+	{ ID id-GNB-CU-CP-TNLA-To-Update-List		CRITICALITY ignore	TYPE GNB-CU-CP-TNLA-To-Update-List	PRESENCE optional	},
+	...
+} 
+
+GNB-CU-CP-TNLA-To-Add-List       ::= SEQUENCE (SIZE(1.. maxnoofTNLAssociations))	OF GNB-CU-CP-TNLA-To-Add-Item 
+GNB-CU-CP-TNLA-To-Remove-List 	::= SEQUENCE (SIZE(1.. maxnoofTNLAssociations))	OF GNB-CU-CP-TNLA-To-Remove-Item 
+GNB-CU-CP-TNLA-To-Update-List		::= SEQUENCE (SIZE(1.. maxnoofTNLAssociations))	OF GNB-CU-CP-TNLA-To-Update-Item
+
+-- **************************************************************
+--
+-- GNB-CU-CP Configuration Update Acknowledge
+--
+-- **************************************************************
+
+GNB-CU-CP-ConfigurationUpdateAcknowledge ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {GNB-CU-CP-ConfigurationUpdateAcknowledgeIEs} },
+	...
+}
+
+GNB-CU-CP-ConfigurationUpdateAcknowledgeIEs
+ E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID						CRITICALITY reject	TYPE TransactionID									PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics							PRESENCE optional	}|
+	{ ID id-GNB-CU-CP-TNLA-Setup-List			CRITICALITY ignore	TYPE GNB-CU-CP-TNLA-Setup-List					PRESENCE optional	}|
+	{ ID id-GNB-CU-CP-TNLA-Failed-To-Setup-List	CRITICALITY ignore	TYPE GNB-CU-CP-TNLA-Failed-To-Setup-List		PRESENCE optional	},
+	...
+}
+
+GNB-CU-CP-TNLA-Setup-List				::= SEQUENCE (SIZE(1.. maxnoofTNLAssociations))	OF GNB-CU-CP-TNLA-Setup-Item 
+GNB-CU-CP-TNLA-Failed-To-Setup-List	::= SEQUENCE (SIZE(1.. maxnoofTNLAssociations))	OF GNB-CU-CP-TNLA-Failed-To-Setup-Item 
+
+
+-- **************************************************************
+--
+-- GNB-CU-CP Configuration Update Failure
+--
+-- **************************************************************
+
+GNB-CU-CP-ConfigurationUpdateFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {GNB-CU-CP-ConfigurationUpdateFailureIEs} },
+	...
+}
+
+GNB-CU-CP-ConfigurationUpdateFailureIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
+	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- E1 RELEASE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- E1 Release Request
+--
+-- **************************************************************
+
+E1ReleaseRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {E1ReleaseRequestIEs} },
+	...
+}
+
+E1ReleaseRequestIEs E1AP-PROTOCOL-IES ::= { 
+	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- E1 Release Response
+--
+-- **************************************************************
+
+E1ReleaseResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {E1ReleaseResponseIEs} },
+	...
+}
+
+E1ReleaseResponseIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- BEARER CONTEXT SETUP
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Bearer Context Setup Request
+--
+-- **************************************************************
+
+BearerContextSetupRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BearerContextSetupRequestIEs} },
+	...
+}
+
+BearerContextSetupRequestIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID				CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID							PRESENCE mandatory }|
+	{ ID id-SecurityInformation					CRITICALITY reject	TYPE SecurityInformation							PRESENCE mandatory }|
+	{ ID id-UEDLAggregateMaximumBitRate			CRITICALITY reject	TYPE BitRate										PRESENCE mandatory }|
+	{ ID id-UEDLMaximumIntegrityProtectedDataRate	CRITICALITY reject		TYPE BitRate								PRESENCE optional	 }|
+	{ ID id-Serving-PLMN						CRITICALITY ignore	TYPE PLMN-Identity									PRESENCE mandatory }|
+	{ ID id-ActivityNotificationLevel			CRITICALITY reject	TYPE ActivityNotificationLevel					PRESENCE mandatory }|
+	{ ID id-UE-Inactivity-Timer					CRITICALITY reject	TYPE Inactivity-Timer								PRESENCE optional  }|
+	{ ID id-BearerContextStatusChange			CRITICALITY reject	TYPE BearerContextStatusChange					PRESENCE optional  }|
+	{ ID id-System-BearerContextSetupRequest	CRITICALITY reject	TYPE System-BearerContextSetupRequest				PRESENCE mandatory }|
+	{ ID id-RANUEID								CRITICALITY ignore	TYPE RANUEID										PRESENCE optional }|
+	{ ID id-GNB-DU-ID							CRITICALITY ignore	TYPE GNB-DU-ID										PRESENCE optional },
+	...
+} 
+
+System-BearerContextSetupRequest	::=	CHOICE {
+	e-UTRAN-BearerContextSetupRequest		ProtocolIE-Container		 	{{EUTRAN-BearerContextSetupRequest}},
+	nG-RAN-BearerContextSetupRequest		ProtocolIE-Container		 	{{NG-RAN-BearerContextSetupRequest}},
+	choice-extension						ProtocolIE-SingleContainer		{{System-BearerContextSetupRequest-ExtIEs}}
+}
+
+System-BearerContextSetupRequest-ExtIEs E1AP-PROTOCOL-IES::= {
+	...
+}
+
+
+EUTRAN-BearerContextSetupRequest E1AP-PROTOCOL-IES ::= {
+	{ ID id-DRB-To-Setup-List-EUTRAN		CRITICALITY reject	 TYPE DRB-To-Setup-List-EUTRAN		PRESENCE mandatory },
+	...
+}
+
+NG-RAN-BearerContextSetupRequest E1AP-PROTOCOL-IES ::= {
+	{ ID id-PDU-Session-Resource-To-Setup-List		CRITICALITY reject	 TYPE PDU-Session-Resource-To-Setup-List		PRESENCE mandatory },
+	...
+}
+
+
+-- **************************************************************
+--
+-- Bearer Context Setup Response
+--
+-- **************************************************************
+
+BearerContextSetupResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BearerContextSetupResponseIEs} },
+	...
+}
+
+
+BearerContextSetupResponseIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID				CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID							PRESENCE mandatory	}|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID				CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID							PRESENCE mandatory	}|
+	{ ID id-System-BearerContextSetupResponse	CRITICALITY ignore	TYPE System-BearerContextSetupResponse				PRESENCE mandatory  },
+	...
+}
+
+System-BearerContextSetupResponse::=	CHOICE {
+	e-UTRAN-BearerContextSetupResponse		ProtocolIE-Container 			{{EUTRAN-BearerContextSetupResponse}},
+	nG-RAN-BearerContextSetupResponse		ProtocolIE-Container 			{{NG-RAN-BearerContextSetupResponse}},
+	choice-extension						ProtocolIE-SingleContainer		{{System-BearerContextSetupResponse-ExtIEs}}
+}
+
+System-BearerContextSetupResponse-ExtIEs E1AP-PROTOCOL-IES ::= {
+	...
+}
+
+EUTRAN-BearerContextSetupResponse E1AP-PROTOCOL-IES ::= {
+	{ ID id-DRB-Setup-List-EUTRAN 		CRITICALITY ignore	 TYPE DRB-Setup-List-EUTRAN			PRESENCE mandatory }|
+	{ ID id-DRB-Failed-List-EUTRAN 		CRITICALITY ignore	 TYPE DRB-Failed-List-EUTRAN		PRESENCE optional  },
+	...
+}
+
+NG-RAN-BearerContextSetupResponse E1AP-PROTOCOL-IES ::= {
+	{ ID id-PDU-Session-Resource-Setup-List 	CRITICALITY ignore	 TYPE PDU-Session-Resource-Setup-List		PRESENCE mandatory }|
+	{ ID id-PDU-Session-Resource-Failed-List 	CRITICALITY ignore	 TYPE PDU-Session-Resource-Failed-List		PRESENCE optional  },
+	...
+}
+
+
+-- **************************************************************
+--
+-- Bearer Context Setup Failure
+--
+-- **************************************************************
+
+BearerContextSetupFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BearerContextSetupFailureIEs} },
+	...
+}
+
+BearerContextSetupFailureIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID		CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID			PRESENCE mandatory	}|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID		CRITICALITY ignore	TYPE GNB-CU-UP-UE-E1AP-ID			PRESENCE optional	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- BEARER CONTEXT MODIFICATION
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Bearer Context Modification Request
+--
+-- **************************************************************
+
+BearerContextModificationRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BearerContextModificationRequestIEs} },
+	...
+}
+
+BearerContextModificationRequestIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID					CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID									PRESENCE mandatory }|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID					CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID									PRESENCE mandatory }|
+	{ ID id-SecurityInformation						CRITICALITY reject	TYPE SecurityInformation									PRESENCE optional  }|
+	{ ID id-UEDLAggregateMaximumBitRate				CRITICALITY reject	TYPE BitRate												PRESENCE optional  }|
+	{ ID id-UEDLMaximumIntegrityProtectedDataRate		CRITICALITY reject	TYPE BitRate											PRESENCE optional	 }|
+	{ ID id-BearerContextStatusChange				CRITICALITY reject	TYPE BearerContextStatusChange							PRESENCE optional  }|
+	{ ID id-New-UL-TNL-Information-Required			CRITICALITY reject	TYPE New-UL-TNL-Information-Required					PRESENCE optional  }|
+	{ ID id-UE-Inactivity-Timer						CRITICALITY reject	TYPE Inactivity-Timer										PRESENCE optional  }|
+	{ ID id-DataDiscardRequired					CRITICALITY ignore	TYPE DataDiscardRequired											PRESENCE optional  }|
+	{ ID id-System-BearerContextModificationRequest	CRITICALITY reject	TYPE System-BearerContextModificationRequest		PRESENCE optional  }|
+	{ ID id-RANUEID										CRITICALITY ignore	TYPE RANUEID												PRESENCE optional }|
+	{ ID id-GNB-DU-ID									CRITICALITY ignore	TYPE GNB-DU-ID												PRESENCE optional }|
+	{ ID id-ActivityNotificationLevel					CRITICALITY ignore	TYPE ActivityNotificationLevel							PRESENCE optional },
+	...
+} 
+
+System-BearerContextModificationRequest	::=	CHOICE {
+	e-UTRAN-BearerContextModificationRequest		ProtocolIE-Container 			{{EUTRAN-BearerContextModificationRequest}},
+	nG-RAN-BearerContextModificationRequest			ProtocolIE-Container 			{{NG-RAN-BearerContextModificationRequest}},
+	choice-extension								ProtocolIE-SingleContainer		{{System-BearerContextModificationRequest-ExtIEs}}
+}
+
+System-BearerContextModificationRequest-ExtIEs E1AP-PROTOCOL-IES ::= {
+	...
+}
+
+EUTRAN-BearerContextModificationRequest E1AP-PROTOCOL-IES ::= {
+	{ ID id-DRB-To-Setup-Mod-List-EUTRAN		CRITICALITY reject	 TYPE DRB-To-Setup-Mod-List-EUTRAN		PRESENCE optional }|
+	{ ID id-DRB-To-Modify-List-EUTRAN			CRITICALITY reject	 TYPE DRB-To-Modify-List-EUTRAN			PRESENCE optional }|
+	{ ID id-DRB-To-Remove-List-EUTRAN			CRITICALITY reject	 TYPE DRB-To-Remove-List-EUTRAN			PRESENCE optional },
+	...
+}
+
+NG-RAN-BearerContextModificationRequest E1AP-PROTOCOL-IES ::= {
+	{ ID id-PDU-Session-Resource-To-Setup-Mod-List	CRITICALITY reject	 TYPE PDU-Session-Resource-To-Setup-Mod-List	PRESENCE optional }|
+	{ ID id-PDU-Session-Resource-To-Modify-List 	CRITICALITY reject	 TYPE PDU-Session-Resource-To-Modify-List		PRESENCE optional }|
+	{ ID id-PDU-Session-Resource-To-Remove-List		CRITICALITY reject	 TYPE PDU-Session-Resource-To-Remove-List		PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- Bearer Context Modification Response
+--
+-- **************************************************************
+
+BearerContextModificationResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BearerContextModificationResponseIEs} },
+	...
+}
+
+
+BearerContextModificationResponseIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID						CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID								PRESENCE mandatory }|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID						CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID								PRESENCE mandatory }|
+	{ ID id-System-BearerContextModificationResponse	CRITICALITY ignore	TYPE System-BearerContextModificationResponse		PRESENCE optional  },
+	...
+}
+
+System-BearerContextModificationResponse	::=	CHOICE {
+	e-UTRAN-BearerContextModificationResponse			ProtocolIE-Container {{EUTRAN-BearerContextModificationResponse}},
+	nG-RAN-BearerContextModificationResponse			ProtocolIE-Container {{NG-RAN-BearerContextModificationResponse}},
+	choice-extension									ProtocolIE-SingleContainer {{System-BearerContextModificationResponse-ExtIEs}}
+}
+
+System-BearerContextModificationResponse-ExtIEs E1AP-PROTOCOL-IES ::= {
+	...
+}
+
+EUTRAN-BearerContextModificationResponse E1AP-PROTOCOL-IES ::= {
+	{ ID id-DRB-Setup-Mod-List-EUTRAN				CRITICALITY ignore	TYPE DRB-Setup-Mod-List-EUTRAN					PRESENCE optional }|
+	{ ID id-DRB-Failed-Mod-List-EUTRAN				CRITICALITY ignore	TYPE DRB-Failed-Mod-List-EUTRAN				PRESENCE optional }|
+	{ ID id-DRB-Modified-List-EUTRAN				CRITICALITY ignore	TYPE DRB-Modified-List-EUTRAN					PRESENCE optional }|
+	{ ID id-DRB-Failed-To-Modify-List-EUTRAN		CRITICALITY ignore	TYPE DRB-Failed-To-Modify-List-EUTRAN		PRESENCE optional },
+	...
+}
+
+NG-RAN-BearerContextModificationResponse E1AP-PROTOCOL-IES ::= {
+	{ ID id-PDU-Session-Resource-Setup-Mod-List 		CRITICALITY reject	TYPE PDU-Session-Resource-Setup-Mod-List				PRESENCE optional }|
+	{ ID id-PDU-Session-Resource-Failed-Mod-List		CRITICALITY reject	TYPE PDU-Session-Resource-Failed-Mod-List				PRESENCE optional }|
+	{ ID id-PDU-Session-Resource-Modified-List			CRITICALITY reject	TYPE PDU-Session-Resource-Modified-List				PRESENCE optional }|
+	{ ID id-PDU-Session-Resource-Failed-To-Modify-List	CRITICALITY reject	TYPE PDU-Session-Resource-Failed-To-Modify-List		PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- Bearer Context Modification Failure
+--
+-- **************************************************************
+
+BearerContextModificationFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BearerContextModificationFailureIEs} },
+	...
+}
+
+BearerContextModificationFailureIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID		CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID			PRESENCE mandatory	}|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID		CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID			PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- BEARER CONTEXT MODIFICATION REQUIRED
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Bearer Context Modification Required
+--
+-- **************************************************************
+
+BearerContextModificationRequired ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BearerContextModificationRequiredIEs} },
+	...
+}
+
+BearerContextModificationRequiredIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID						CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID									PRESENCE mandatory }|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID						CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID									PRESENCE mandatory }|
+	{ ID id-System-BearerContextModificationRequired	CRITICALITY reject	TYPE System-BearerContextModificationRequired			PRESENCE mandatory },	
+	...
+} 
+
+System-BearerContextModificationRequired	::=	CHOICE {
+	e-UTRAN-BearerContextModificationRequired		ProtocolIE-Container {{EUTRAN-BearerContextModificationRequired}},
+	nG-RAN-BearerContextModificationRequired		ProtocolIE-Container {{NG-RAN-BearerContextModificationRequired}},
+	choice-extension								ProtocolIE-SingleContainer {{System-BearerContextModificationRequired-ExtIEs}}
+}
+
+System-BearerContextModificationRequired-ExtIEs E1AP-PROTOCOL-IES ::= {
+	...
+}
+
+EUTRAN-BearerContextModificationRequired E1AP-PROTOCOL-IES ::= {
+	{ ID id-DRB-Required-To-Modify-List-EUTRAN	CRITICALITY reject	TYPE DRB-Required-To-Modify-List-EUTRAN	PRESENCE optional }|
+	{ ID id-DRB-Required-To-Remove-List-EUTRAN	CRITICALITY reject	TYPE DRB-Required-To-Remove-List-EUTRAN	PRESENCE optional },
+	...
+}
+
+NG-RAN-BearerContextModificationRequired E1AP-PROTOCOL-IES ::= {
+	{ ID id-PDU-Session-Resource-Required-To-Modify-List	CRITICALITY reject	TYPE PDU-Session-Resource-Required-To-Modify-List	PRESENCE optional }|
+	{ ID id-PDU-Session-Resource-To-Remove-List	CRITICALITY reject	 TYPE PDU-Session-Resource-To-Remove-List	PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- Bearer Context Modification Confirm
+--
+-- **************************************************************
+
+BearerContextModificationConfirm ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BearerContextModificationConfirmIEs} },
+	...
+}
+
+
+BearerContextModificationConfirmIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID						CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID							PRESENCE mandatory }|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID						CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID							PRESENCE mandatory }|
+	{ ID id-System-BearerContextModificationConfirm		CRITICALITY ignore	TYPE System-BearerContextModificationConfirm		PRESENCE optional  },
+	...
+}
+
+System-BearerContextModificationConfirm	::=	CHOICE {
+	e-UTRAN-BearerContextModificationConfirm		ProtocolIE-Container {{EUTRAN-BearerContextModificationConfirm}},
+	nG-RAN-BearerContextModificationConfirm			ProtocolIE-Container {{NG-RAN-BearerContextModificationConfirm}},
+	choice-extension								ProtocolIE-SingleContainer {{System-BearerContextModificationConfirm-ExtIEs}}
+}
+
+System-BearerContextModificationConfirm-ExtIEs E1AP-PROTOCOL-IES ::= {
+	...
+}
+
+EUTRAN-BearerContextModificationConfirm E1AP-PROTOCOL-IES ::= {
+	{ ID id-DRB-Confirm-Modified-List-EUTRAN	CRITICALITY ignore	 TYPE DRB-Confirm-Modified-List-EUTRAN	PRESENCE optional },
+	...
+}
+
+NG-RAN-BearerContextModificationConfirm E1AP-PROTOCOL-IES ::= {
+	{ ID id-PDU-Session-Resource-Confirm-Modified-List	CRITICALITY ignore	 TYPE PDU-Session-Resource-Confirm-Modified-List	PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- BEARER CONTEXT RELEASE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Bearer Context Release Command
+--
+-- **************************************************************
+
+BearerContextReleaseCommand ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BearerContextReleaseCommandIEs} },
+	...
+}
+
+BearerContextReleaseCommandIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause							PRESENCE mandatory },	
+	...
+} 
+
+-- **************************************************************
+--
+-- Bearer Context Release Complete
+--
+-- **************************************************************
+
+BearerContextReleaseComplete ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BearerContextReleaseCompleteIEs} },
+	...
+}
+
+
+BearerContextReleaseCompleteIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID		CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID		CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- BEARER CONTEXT RELEASE REQUEST
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Bearer Context Release Request
+--
+-- **************************************************************
+
+BearerContextReleaseRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BearerContextReleaseRequestIEs} },
+	...
+}
+
+BearerContextReleaseRequestIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-DRB-Status-List					CRITICALITY ignore	TYPE DRB-Status-List				PRESENCE optional  }|
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause							PRESENCE mandatory },	
+	...
+} 
+
+DRB-Status-List ::= SEQUENCE (SIZE(1..maxnoofDRBs)) OF DRB-Status-Item
+
+
+-- **************************************************************
+--
+-- BEARER CONTEXT INACTIVITY NOTIFICATION
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Bearer Context Inactivity Notification
+--
+-- **************************************************************
+
+BearerContextInactivityNotification ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BearerContextInactivityNotificationIEs } },
+	...
+}
+
+BearerContextInactivityNotificationIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-ActivityInformation				CRITICALITY reject	TYPE ActivityInformation			PRESENCE mandatory },
+	...
+} 
+
+
+-- **************************************************************
+--
+-- DL DATA NOTIFICATION
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- DL Data Notification
+--
+-- **************************************************************
+
+DLDataNotification ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { DLDataNotificationIEs } },
+	...
+}
+
+DLDataNotificationIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-PPI							CRITICALITY ignore	TYPE PPI							PRESENCE optional },
+	...
+} 
+
+-- **************************************************************
+
+-- **************************************************************
+--
+-- UL Data Notification
+--
+-- **************************************************************
+
+ULDataNotification ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { ULDataNotificationIEs } },
+	...
+}
+
+ULDataNotificationIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-PDU-Session-To-Notify-List		CRITICALITY reject	 TYPE PDU-Session-To-Notify-List	PRESENCE mandatory },
+	...
+}
+
+-- **************************************************************
+--
+-- DATA USAGE REPORT
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Data Usage Report
+--
+-- **************************************************************
+
+DataUsageReport ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { DataUsageReportIEs } },
+	...
+}
+
+DataUsageReportIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-Data-Usage-Report-List			CRITICALITY ignore	TYPE Data-Usage-Report-List			PRESENCE mandatory },	
+	...
+}
+
+
+-- **************************************************************
+--
+-- GNB-CU-UP COUNTER CHECK
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- gNB-CU-UP Counter Check Request
+--
+-- **************************************************************
+
+GNB-CU-UP-CounterCheckRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { GNB-CU-UP-CounterCheckRequestIEs } },
+	...
+}
+
+GNB-CU-UP-CounterCheckRequestIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID					CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID							PRESENCE mandatory }|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID					CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID							PRESENCE mandatory }|
+	{ ID id-System-GNB-CU-UP-CounterCheckRequest	CRITICALITY reject	TYPE System-GNB-CU-UP-CounterCheckRequest	PRESENCE mandatory },
+	...
+} 
+
+System-GNB-CU-UP-CounterCheckRequest	::=	CHOICE {
+	e-UTRAN-GNB-CU-UP-CounterCheckRequest		ProtocolIE-Container		{{EUTRAN-GNB-CU-UP-CounterCheckRequest}},
+	nG-RAN-GNB-CU-UP-CounterCheckRequest		ProtocolIE-Container		{{NG-RAN-GNB-CU-UP-CounterCheckRequest}},
+	choice-extension							ProtocolIE-SingleContainer	{{System-GNB-CU-UP-CounterCheckRequest-ExtIEs}}
+}
+
+System-GNB-CU-UP-CounterCheckRequest-ExtIEs E1AP-PROTOCOL-IES::= {
+	...
+}
+
+EUTRAN-GNB-CU-UP-CounterCheckRequest E1AP-PROTOCOL-IES ::= {
+	{ ID id-DRBs-Subject-To-Counter-Check-List-EUTRAN	CRITICALITY ignore	 TYPE DRBs-Subject-To-Counter-Check-List-EUTRAN	PRESENCE mandatory },
+	...
+}
+
+NG-RAN-GNB-CU-UP-CounterCheckRequest E1AP-PROTOCOL-IES ::= {
+	{ ID id-DRBs-Subject-To-Counter-Check-List-NG-RAN	CRITICALITY ignore	 TYPE DRBs-Subject-To-Counter-Check-List-NG-RAN	PRESENCE mandatory },
+	...
+}
+
+
+-- **************************************************************
+--
+-- gNB-CU-UP STATUS INDICATION ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- gNB-CU-UP Status Indication
+--
+-- **************************************************************
+
+
+GNB-CU-UP-StatusIndication ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { GNB-CU-UP-StatusIndicationIEs} },
+	...
+}
+
+
+GNB-CU-UP-StatusIndicationIEs E1AP-PROTOCOL-IES ::= { 
+	{ ID id-TransactionID						CRITICALITY reject	TYPE TransactionID				 			PRESENCE mandatory	}|
+	{ ID id-GNB-CU-UP-OverloadInformation	CRITICALITY reject	TYPE GNB-CU-UP-OverloadInformation		PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- MR-DC DATA USAGE REPORT
+--
+-- **************************************************************
+
+MRDC-DataUsageReport ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ { MRDC-DataUsageReportIEs } },
+	...
+}
+
+MRDC-DataUsageReportIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID					CRITICALITY reject		TYPE GNB-CU-CP-UE-E1AP-ID							PRESENCE mandatory}|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID					CRITICALITY reject		TYPE GNB-CU-UP-UE-E1AP-ID							PRESENCE mandatory}|
+	{ ID id-PDU-Session-Resource-Data-Usage-List	CRITICALITY ignore		TYPE PDU-Session-Resource-Data-Usage-List	PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- PRIVATE MESSAGE
+--
+-- **************************************************************
+
+
+PrivateMessage ::= SEQUENCE {
+	privateIEs		PrivateIE-Container	{{PrivateMessage-IEs}},
+	...
+}
+
+PrivateMessage-IEs E1AP-PRIVATE-IES ::= {
+	...
+}
+
+END

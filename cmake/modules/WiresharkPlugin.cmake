@@ -42,24 +42,16 @@ macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
 
 	set_target_properties(${_plugin} PROPERTIES
 		LIBRARY_OUTPUT_DIRECTORY ${PLUGIN_DIR}/${_subfolder}
+		INSTALL_RPATH ""
 	)
-
-	# Try to force output to ${PLUGIN_DIR} without the configuration
-	# type appended. Needed on Windows.
-	foreach(_config_type ${CMAKE_CONFIGURATION_TYPES})
-		string(TOUPPER ${_config_type} _config_upper)
-		set_target_properties(${_plugin} PROPERTIES
-			LIBRARY_OUTPUT_DIRECTORY_${_config_upper} ${CMAKE_BINARY_DIR}/run/${_config_type}/${PLUGIN_VERSION_DIR}/${_subfolder}
-		)
-	endforeach()
 
 	add_dependencies(plugins ${_plugin})
 endmacro()
 
 macro(INSTALL_PLUGIN _plugin _subfolder)
 	install(TARGETS ${_plugin}
-		LIBRARY DESTINATION ${PLUGIN_INSTALL_LIBDIR}/${_subfolder} NAMELINK_SKIP
-		RUNTIME DESTINATION ${PLUGIN_INSTALL_LIBDIR}
-		ARCHIVE DESTINATION ${PLUGIN_INSTALL_LIBDIR}
+		LIBRARY DESTINATION ${PLUGIN_INSTALL_VERSION_LIBDIR}/${_subfolder} NAMELINK_SKIP
+		RUNTIME DESTINATION ${PLUGIN_INSTALL_VERSION_LIBDIR}
+		ARCHIVE DESTINATION ${PLUGIN_INSTALL_VERSION_LIBDIR}
 )
 endmacro()

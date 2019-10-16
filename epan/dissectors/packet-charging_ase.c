@@ -151,17 +151,17 @@ static dissector_handle_t charging_ase_handle;
 /*--- Included file: packet-charging_ase-fn.c ---*/
 #line 1 "./asn1/charging_ase/packet-charging_ase-fn.c"
 
-static const asn_namedbit ChargingControlIndicators_bits[] = {
-  {  0, &hf_charging_ase_ChargingControlIndicators_subscriberCharge, -1, -1, "subscriberCharge", NULL },
-  {  1, &hf_charging_ase_ChargingControlIndicators_immediateChangeOfActuallyAppliedTariff, -1, -1, "immediateChangeOfActuallyAppliedTariff", NULL },
-  {  2, &hf_charging_ase_ChargingControlIndicators_delayUntilStart, -1, -1, "delayUntilStart", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ChargingControlIndicators_bits[] = {
+  &hf_charging_ase_ChargingControlIndicators_subscriberCharge,
+  &hf_charging_ase_ChargingControlIndicators_immediateChangeOfActuallyAppliedTariff,
+  &hf_charging_ase_ChargingControlIndicators_delayUntilStart,
+  NULL
 };
 
 static int
 dissect_charging_ase_ChargingControlIndicators(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ChargingControlIndicators_bits, hf_index, ett_charging_ase_ChargingControlIndicators,
+                                    ChargingControlIndicators_bits, 3, hf_index, ett_charging_ase_ChargingControlIndicators,
                                     NULL);
 
   return offset;
@@ -213,15 +213,15 @@ dissect_charging_ase_TariffDuration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const asn_namedbit SubTariffControl_bits[] = {
-  {  0, &hf_charging_ase_SubTariffControl_oneTimeCharge, -1, -1, "oneTimeCharge", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * SubTariffControl_bits[] = {
+  &hf_charging_ase_SubTariffControl_oneTimeCharge,
+  NULL
 };
 
 static int
 dissect_charging_ase_SubTariffControl(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    SubTariffControl_bits, hf_index, ett_charging_ase_SubTariffControl,
+                                    SubTariffControl_bits, 1, hf_index, ett_charging_ase_SubTariffControl,
                                     NULL);
 
   return offset;
@@ -257,15 +257,15 @@ dissect_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTar
 }
 
 
-static const asn_namedbit T_tariffControlIndicators_bits[] = {
-  {  0, &hf_charging_ase_T_tariffControlIndicators_non_cyclicTariff, -1, -1, "non-cyclicTariff", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_tariffControlIndicators_bits[] = {
+  &hf_charging_ase_T_tariffControlIndicators_non_cyclicTariff,
+  NULL
 };
 
 static int
 dissect_charging_ase_T_tariffControlIndicators(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_tariffControlIndicators_bits, hf_index, ett_charging_ase_T_tariffControlIndicators,
+                                    T_tariffControlIndicators_bits, 1, hf_index, ett_charging_ase_T_tariffControlIndicators,
                                     NULL);
 
   return offset;
@@ -378,15 +378,15 @@ dissect_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTar
 }
 
 
-static const asn_namedbit T_tariffControlIndicators_01_bits[] = {
-  {  0, &hf_charging_ase_T_tariffControlIndicators_01_non_cyclicTariff, -1, -1, "non-cyclicTariff", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_tariffControlIndicators_01_bits[] = {
+  &hf_charging_ase_T_tariffControlIndicators_01_non_cyclicTariff,
+  NULL
 };
 
 static int
 dissect_charging_ase_T_tariffControlIndicators_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_tariffControlIndicators_01_bits, hf_index, ett_charging_ase_T_tariffControlIndicators_01,
+                                    T_tariffControlIndicators_01_bits, 1, hf_index, ett_charging_ase_T_tariffControlIndicators_01,
                                     NULL);
 
   return offset;
@@ -697,15 +697,15 @@ dissect_charging_ase_AddOnChargingInformation(gboolean implicit_tag _U_, tvbuff_
 }
 
 
-static const asn_namedbit T_acknowledgementIndicators_bits[] = {
-  {  0, &hf_charging_ase_T_acknowledgementIndicators_accepted, -1, -1, "accepted", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_acknowledgementIndicators_bits[] = {
+  &hf_charging_ase_T_acknowledgementIndicators_accepted,
+  NULL
 };
 
 static int
 dissect_charging_ase_T_acknowledgementIndicators(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_acknowledgementIndicators_bits, hf_index, ett_charging_ase_T_acknowledgementIndicators,
+                                    T_acknowledgementIndicators_bits, 1, hf_index, ett_charging_ase_T_acknowledgementIndicators,
                                     NULL);
 
   return offset;
@@ -758,15 +758,15 @@ dissect_charging_ase_StartCharging(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const asn_namedbit T_stopIndicators_bits[] = {
-  {  0, &hf_charging_ase_T_stopIndicators_callAttemptChargesApplicable, -1, -1, "callAttemptChargesApplicable", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_stopIndicators_bits[] = {
+  &hf_charging_ase_T_stopIndicators_callAttemptChargesApplicable,
+  NULL
 };
 
 static int
 dissect_charging_ase_T_stopIndicators(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_stopIndicators_bits, hf_index, ett_charging_ase_T_stopIndicators,
+                                    T_stopIndicators_bits, 1, hf_index, ett_charging_ase_T_stopIndicators,
                                     NULL);
 
   return offset;
@@ -1069,35 +1069,35 @@ proto_register_charging_ase(void)
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_charging_ase_T_acknowledgementIndicators_accepted,
-      { "accepted", "charging_ase.accepted",
+      { "accepted", "charging.ase.T.acknowledgementIndicators.accepted",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_charging_ase_ChargingControlIndicators_subscriberCharge,
-      { "subscriberCharge", "charging_ase.subscriberCharge",
+      { "subscriberCharge", "charging.ase.ChargingControlIndicators.subscriberCharge",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_charging_ase_ChargingControlIndicators_immediateChangeOfActuallyAppliedTariff,
-      { "immediateChangeOfActuallyAppliedTariff", "charging_ase.immediateChangeOfActuallyAppliedTariff",
+      { "immediateChangeOfActuallyAppliedTariff", "charging.ase.ChargingControlIndicators.immediateChangeOfActuallyAppliedTariff",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_charging_ase_ChargingControlIndicators_delayUntilStart,
-      { "delayUntilStart", "charging_ase.delayUntilStart",
+      { "delayUntilStart", "charging.ase.ChargingControlIndicators.delayUntilStart",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_charging_ase_T_stopIndicators_callAttemptChargesApplicable,
-      { "callAttemptChargesApplicable", "charging_ase.callAttemptChargesApplicable",
+      { "callAttemptChargesApplicable", "charging.ase.T.stopIndicators.callAttemptChargesApplicable",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_charging_ase_SubTariffControl_oneTimeCharge,
-      { "oneTimeCharge", "charging_ase.oneTimeCharge",
+      { "oneTimeCharge", "charging.ase.SubTariffControl.oneTimeCharge",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_charging_ase_T_tariffControlIndicators_non_cyclicTariff,
-      { "non-cyclicTariff", "charging_ase.non-cyclicTariff",
+      { "non-cyclicTariff", "charging.ase.T.tariffControlIndicators.non.cyclicTariff",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_charging_ase_T_tariffControlIndicators_01_non_cyclicTariff,
-      { "non-cyclicTariff", "charging_ase.non-cyclicTariff",
+      { "non-cyclicTariff", "charging.ase.T.tariffControlIndicators.01.non.cyclicTariff",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
 

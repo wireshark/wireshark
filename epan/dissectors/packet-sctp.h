@@ -117,7 +117,7 @@ WS_DLL_PUBLIC const value_string chunk_type_values[];
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

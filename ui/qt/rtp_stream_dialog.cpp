@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "rtp_stream_dialog.h"
 #include <ui_rtp_stream_dialog.h>
@@ -19,10 +20,10 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "rtp_analysis_dialog.h"
 #include "wireshark_application.h"
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QAction>
 #include <QClipboard>
-#include <QFileDialog>
 #include <QKeyEvent>
 #include <QPushButton>
 #include <QTextStream>
@@ -72,59 +73,56 @@ enum { rtp_stream_type_ = 1000 };
 class RtpStreamTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    RtpStreamTreeWidgetItem(QTreeWidget *tree, rtp_stream_info_t *stream_info) :
-        QTreeWidgetItem(tree, rtp_stream_type_),
-        stream_info_(stream_info)
+    RtpStreamTreeWidgetItem(QTreeWidget *tree, rtpstream_info_t *stream_info) :
+        QTreeWidgetItem(tree, rtp_stream_type_)
     {
+        stream_info_=rtpstream_info_malloc_and_copy_deep(stream_info);
         drawData();
     }
 
-    rtp_stream_info_t *streamInfo() const { return stream_info_; }
+    ~RtpStreamTreeWidgetItem()
+    {
+        rtpstream_info_free_all(stream_info_);
+    }
+
+    rtpstream_info_t *streamInfo() const { return stream_info_; }
 
     void drawData() {
+        rtpstream_info_calc_t calc;
+
         if (!stream_info_) {
             return;
         }
-        setText(src_addr_col_, address_to_display_qstring(&stream_info_->src_addr));
-        setText(src_port_col_, QString::number(stream_info_->src_port));
-        setText(dst_addr_col_, address_to_display_qstring(&stream_info_->dest_addr));
-        setText(dst_port_col_, QString::number(stream_info_->dest_port));
-        setText(ssrc_col_, QString("0x%1").arg(stream_info_->ssrc, 0, 16));
+        rtpstream_info_calculate(stream_info_, &calc);
 
-        if (stream_info_->payload_type_name != NULL) {
-            setText(payload_col_, stream_info_->payload_type_name);
-        } else {
-            setText(payload_col_, val_ext_to_qstring(stream_info_->payload_type,
-                                                 &rtp_payload_type_short_vals_ext,
-                                                 "Unknown (%u)"));
-        }
+        setText(src_addr_col_, calc.src_addr_str);
+        setText(src_port_col_, QString::number(calc.src_port));
+        setText(dst_addr_col_, calc.dst_addr_str);
+        setText(dst_port_col_, QString::number(calc.dst_port));
+        setText(ssrc_col_, QString("0x%1").arg(calc.ssrc, 0, 16));
+        setText(payload_col_, calc.all_payload_type_names);
+        setText(packets_col_, QString::number(calc.packet_count));
+        setText(lost_col_, QObject::tr("%1 (%L2%)").arg(calc.lost_num).arg(QString::number(calc.lost_perc, 'f', 1)));
+        setText(max_delta_col_, QString::number(calc.max_delta, 'f', 3)); // This is RTP. Do we need nanoseconds?
+        setText(max_jitter_col_, QString::number(calc.max_jitter, 'f', 3));
+        setText(mean_jitter_col_, QString::number(calc.mean_jitter, 'f', 3));
 
-        setText(packets_col_, QString::number(stream_info_->packet_count));
-
-        guint32 expected;
-        double pct_loss;
-        expected = (stream_info_->rtp_stats.stop_seq_nr + stream_info_->rtp_stats.cycles*65536)
-            - stream_info_->rtp_stats.start_seq_nr + 1;
-        lost_ = expected - stream_info_->rtp_stats.total_nr;
-        if (expected) {
-            pct_loss = (double)(lost_*100.0)/(double)expected;
-        } else {
-            pct_loss = 0;
-        }
-
-        setText(lost_col_, QObject::tr("%1 (%L2%)").arg(lost_).arg(QString::number(pct_loss, 'f', 1)));
-        setText(max_delta_col_, QString::number(stream_info_->rtp_stats.max_delta, 'f', 3)); // This is RTP. Do we need nanoseconds?
-        setText(max_jitter_col_, QString::number(stream_info_->rtp_stats.max_jitter, 'f', 3));
-        setText(mean_jitter_col_, QString::number(stream_info_->rtp_stats.mean_jitter, 'f', 3));
-
-        if (stream_info_->problem) {
+        if (calc.problem) {
             setText(status_col_, UTF8_BULLET);
             setTextAlignment(status_col_, Qt::AlignCenter);
+            QColor bgColor(ws_css_warn_background);
+            QColor textColor(ws_css_warn_text);
             for (int i = 0; i < columnCount(); i++) {
-                setBackgroundColor(i, ws_css_warn_background);
-                setTextColor(i, ws_css_warn_text);
+                QBrush bgBrush = background(i);
+                bgBrush.setColor(bgColor);
+                setBackground(i, bgBrush);
+                QBrush fgBrush = foreground(i);
+                fgBrush.setColor(textColor);
+                setForeground(i, fgBrush);
             }
         }
+
+        rtpstream_info_calc_free(&calc);
     }
     // Return a QString, int, double, or invalid QVariant representing the raw column data.
     QVariant colData(int col) const {
@@ -135,14 +133,14 @@ public:
         switch(col) {
         case src_addr_col_:
         case dst_addr_col_:
-        case payload_col_: // XXX Return numeric value?
+        case payload_col_:
             return text(col);
         case src_port_col_:
-            return stream_info_->src_port;
+            return stream_info_->id.src_port;
         case dst_port_col_:
-            return stream_info_->dest_port;
+            return stream_info_->id.dst_port;
         case ssrc_col_:
-            return stream_info_->ssrc;
+            return stream_info_->id.ssrc;
         case packets_col_:
             return stream_info_->packet_count;
         case lost_col_:
@@ -168,17 +166,17 @@ public:
 
         switch (treeWidget()->sortColumn()) {
         case src_addr_col_:
-            return cmp_address(&(stream_info_->src_addr), &(other_rstwi.stream_info_->src_addr)) < 0;
+            return cmp_address(&(stream_info_->id.src_addr), &(other_rstwi.stream_info_->id.src_addr)) < 0;
         case src_port_col_:
-            return stream_info_->src_port < other_rstwi.stream_info_->src_port;
+            return stream_info_->id.src_port < other_rstwi.stream_info_->id.src_port;
         case dst_addr_col_:
-            return cmp_address(&(stream_info_->dest_addr), &(other_rstwi.stream_info_->dest_addr)) < 0;
+            return cmp_address(&(stream_info_->id.dst_addr), &(other_rstwi.stream_info_->id.dst_addr)) < 0;
         case dst_port_col_:
-            return stream_info_->dest_port < other_rstwi.stream_info_->dest_port;
+            return stream_info_->id.dst_port < other_rstwi.stream_info_->id.dst_port;
         case ssrc_col_:
-            return stream_info_->ssrc < other_rstwi.stream_info_->ssrc;
+            return stream_info_->id.ssrc < other_rstwi.stream_info_->id.ssrc;
         case payload_col_:
-            return stream_info_->payload_type < other_rstwi.stream_info_->payload_type; // XXX Compare payload_type_name instead?
+            return g_strcmp0(stream_info_->all_payload_type_names, other_rstwi.stream_info_->all_payload_type_names);
         case packets_col_:
             return stream_info_->packet_count < other_rstwi.stream_info_->packet_count;
         case lost_col_:
@@ -198,7 +196,7 @@ public:
     }
 
 private:
-    rtp_stream_info_t *stream_info_;
+    rtpstream_info_t *stream_info_;
     guint32 lost_;
 };
 
@@ -257,7 +255,7 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     tapinfo_.tap_data = this;
     tapinfo_.mode = TAP_ANALYSE;
 
-    register_tap_listener_rtp_stream(&tapinfo_, NULL);
+    register_tap_listener_rtpstream(&tapinfo_, NULL, show_tap_registration_error);
     /* Scan for RTP streams (redissect all packets) */
     rtpstream_scan(&tapinfo_, cf.capFile(), NULL);
 
@@ -267,7 +265,7 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
 RtpStreamDialog::~RtpStreamDialog()
 {
     delete ui;
-    remove_tap_listener_rtp_stream(&tapinfo_);
+    remove_tap_listener_rtpstream(&tapinfo_);
 }
 
 bool RtpStreamDialog::eventFilter(QObject *, QEvent *event)
@@ -331,13 +329,13 @@ void RtpStreamDialog::tapMarkPacket(rtpstream_tapinfo_t *tapinfo, frame_data *fd
 
 void RtpStreamDialog::updateStreams()
 {
-    GList *cur_stream = g_list_nth(tapinfo_.strinfo_list, ui->streamTreeWidget->topLevelItemCount());
+    GList *cur_stream = g_list_nth(tapinfo_.strinfo_list, static_cast<guint>(ui->streamTreeWidget->topLevelItemCount()));
 
     // Add any missing items
     while (cur_stream && cur_stream->data) {
-        rtp_stream_info_t *stream_info = (rtp_stream_info_t*) cur_stream->data;
+        rtpstream_info_t *stream_info = gxx_list_data(rtpstream_info_t*, cur_stream);
         new RtpStreamTreeWidgetItem(ui->streamTreeWidget, stream_info);
-        cur_stream = g_list_next(cur_stream);
+        cur_stream = gxx_list_next(cur_stream);
     }
 
     // Recalculate values
@@ -431,7 +429,7 @@ QList<QVariant> RtpStreamDialog::streamRowData(int row) const
 
 void RtpStreamDialog::captureFileClosing()
 {
-    remove_tap_listener_rtp_stream(&tapinfo_);
+    remove_tap_listener_rtpstream(&tapinfo_);
     WiresharkDialog::captureFileClosing();
 }
 
@@ -442,7 +440,7 @@ void RtpStreamDialog::showStreamMenu(QPoint pos)
 
 void RtpStreamDialog::on_actionAnalyze_triggered()
 {
-    rtp_stream_info_t *stream_a, *stream_b = NULL;
+    rtpstream_info_t *stream_a, *stream_b = NULL;
 
     QTreeWidgetItem *ti = ui->streamTreeWidget->selectedItems()[0];
     RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
@@ -501,13 +499,13 @@ void RtpStreamDialog::on_actionExportAsRtpDump_triggered()
     // XXX If the user selected multiple frames is this the one we actually want?
     QTreeWidgetItem *ti = ui->streamTreeWidget->selectedItems()[0];
     RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
-    rtp_stream_info_t *stream_info = rsti->streamInfo();
+    rtpstream_info_t *stream_info = rsti->streamInfo();
     if (stream_info) {
         QString file_name;
         QDir path(wsApp->lastOpenDir());
-        QString save_file = path.canonicalPath() + "/" + cap_file_.fileTitle();
+        QString save_file = path.canonicalPath() + "/" + cap_file_.fileBaseName();
         QString extension;
-        file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save RTPDump As" UTF8_HORIZONTAL_ELLIPSIS)),
+        file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save RTPDump As" UTF8_HORIZONTAL_ELLIPSIS)),
                                                  save_file, "RTPDump Format (*.rtpdump)", &extension);
 
         if (file_name.length() > 0) {
@@ -529,10 +527,10 @@ void RtpStreamDialog::on_actionFindReverse_triggered()
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
     // Gather up our selected streams...
-    QList<rtp_stream_info_t *> selected_streams;
+    QList<rtpstream_info_t *> selected_streams;
     foreach(QTreeWidgetItem *ti, ui->streamTreeWidget->selectedItems()) {
         RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
-        rtp_stream_info_t *stream_info = rsti->streamInfo();
+        rtpstream_info_t *stream_info = rsti->streamInfo();
         if (stream_info) {
             selected_streams << stream_info;
         }
@@ -542,10 +540,10 @@ void RtpStreamDialog::on_actionFindReverse_triggered()
     QTreeWidgetItemIterator iter(ui->streamTreeWidget, QTreeWidgetItemIterator::Unselected);
     while (*iter) {
         RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(*iter);
-        rtp_stream_info_t *stream_info = rsti->streamInfo();
+        rtpstream_info_t *stream_info = rsti->streamInfo();
         if (stream_info) {
-            foreach (rtp_stream_info_t *fwd_stream, selected_streams) {
-                if (rtp_stream_info_is_reverse(fwd_stream, stream_info)) {
+            foreach (rtpstream_info_t *fwd_stream, selected_streams) {
+                if (rtpstream_info_is_reverse(fwd_stream, stream_info)) {
                     (*iter)->setSelected(true);
                 }
             }
@@ -560,7 +558,7 @@ void RtpStreamDialog::on_actionGoToSetup_triggered()
     // XXX If the user selected multiple frames is this the one we actually want?
     QTreeWidgetItem *ti = ui->streamTreeWidget->selectedItems()[0];
     RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
-    rtp_stream_info_t *stream_info = rsti->streamInfo();
+    rtpstream_info_t *stream_info = rsti->streamInfo();
     if (stream_info) {
         emit goToPacket(stream_info->setup_frame_number);
     }
@@ -569,7 +567,7 @@ void RtpStreamDialog::on_actionGoToSetup_triggered()
 void RtpStreamDialog::on_actionMarkPackets_triggered()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
-    rtp_stream_info_t *stream_a, *stream_b = NULL;
+    rtpstream_info_t *stream_a, *stream_b = NULL;
 
     QTreeWidgetItem *ti = ui->streamTreeWidget->selectedItems()[0];
     RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
@@ -596,21 +594,21 @@ void RtpStreamDialog::on_actionPrepareFilter_triggered()
     QStringList stream_filters;
     foreach(QTreeWidgetItem *ti, ui->streamTreeWidget->selectedItems()) {
         RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
-        rtp_stream_info_t *stream_info = rsti->streamInfo();
+        rtpstream_info_t *stream_info = rsti->streamInfo();
         if (stream_info) {
-            QString ip_proto = stream_info->src_addr.type == AT_IPv6 ? "ipv6" : "ip";
+            QString ip_proto = stream_info->id.src_addr.type == AT_IPv6 ? "ipv6" : "ip";
             stream_filters << QString("(%1.src==%2 && udp.srcport==%3 && %1.dst==%4 && udp.dstport==%5 && rtp.ssrc==0x%6)")
                              .arg(ip_proto) // %1
-                             .arg(address_to_qstring(&stream_info->src_addr)) // %2
-                             .arg(stream_info->src_port) // %3
-                             .arg(address_to_qstring(&stream_info->dest_addr)) // %4
-                             .arg(stream_info->dest_port) // %5
-                             .arg(stream_info->ssrc, 0, 16);
+                             .arg(address_to_qstring(&stream_info->id.src_addr)) // %2
+                             .arg(stream_info->id.src_port) // %3
+                             .arg(address_to_qstring(&stream_info->id.dst_addr)) // %4
+                             .arg(stream_info->id.dst_port) // %5
+                             .arg(stream_info->id.ssrc, 0, 16);
         }
     }
     if (stream_filters.length() > 0) {
         QString filter = stream_filters.join(" || ");
-        remove_tap_listener_rtp_stream(&tapinfo_);
+        remove_tap_listener_rtpstream(&tapinfo_);
         emit updateFilter(filter);
     }
 }

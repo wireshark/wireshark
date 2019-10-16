@@ -16,18 +16,11 @@
 #define VERSION_MINOR ${PROJECT_MINOR_VERSION}
 #define VERSION_MICRO ${PROJECT_PATCH_VERSION}
 
-#define VERSION_RELEASE "${PROJECT_RELEASE_VERSION}"
+#define PLUGIN_PATH_ID "${PLUGIN_PATH_ID}"
 #define VERSION_FLAVOR "${VERSION_FLAVOR}"
-
-/* FIXME: Move the path stuff to the CMakeInstallDirs.cmake file */
-/* Directory for data */
-#define DATAFILE_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}"
 
 /* Build wsutil with SIMD optimization */
 #cmakedefine HAVE_SSE4_2 1
-
-/* Directory where extcap hooks reside */
-#define EXTCAP_DIR "${EXTCAP_DIR}"
 
 /* Define to 1 if we want to enable plugins */
 #cmakedefine HAVE_PLUGINS 1
@@ -53,9 +46,6 @@
 /* Define to use c-ares library */
 #cmakedefine HAVE_C_ARES 1
 
-/* Define to 1 if you have the `dladdr' function. */
-#cmakedefine HAVE_DLADDR 1
-
 /* Define to 1 if you have the <fcntl.h> header file. */
 #cmakedefine HAVE_FCNTL_H 1
 
@@ -64,6 +54,12 @@
 
 /* Define to 1 if you have the <ifaddrs.h> header file. */
 #cmakedefine HAVE_IFADDRS_H 1
+
+/* Define to 1 if yu have the `fseeko` function. */
+#cmakedefine HAVE_FSEEKO 1
+
+/* Define to 1 if you have the `getexecname' function. */
+#cmakedefine HAVE_GETEXECNAME 1
 
 /* Define to 1 if you have the `getifaddrs' function. */
 #cmakedefine HAVE_GETIFADDRS 1
@@ -74,11 +70,14 @@
 /* Define if LIBSSH has ssh_userauth_agent() function */
 #cmakedefine HAVE_SSH_USERAUTH_AGENT 1
 
+/* Define if you have the 'dlget' function. */
+#cmakedefine HAVE_DLGET 1
+
+/* Define if you have the 'getexecname' function. */
+#cmakedefine HAVE_GETEXECNAME 1
+
 /* Define if you have the 'floorl' function. */
 #cmakedefine HAVE_FLOORL 1
-
-/* Define if you have the 'lrint' function. */
-#cmakedefine HAVE_LRINT 1
 
 /* Define to 1 if you have the getopt_long function. */
 #cmakedefine HAVE_GETOPT_LONG 1
@@ -110,6 +109,9 @@
 /* Define to use GnuTLS library */
 #cmakedefine HAVE_LIBGNUTLS 1
 
+/* Define to 1 if GnuTLS was built with pkcs11 support. */
+#cmakedefine HAVE_GNUTLS_PKCS11 1
+
 /* Enable libnl support */
 #cmakedefine HAVE_LIBNL 1
 
@@ -131,6 +133,12 @@
 /* Define to use zlib library */
 #cmakedefine HAVE_ZLIB 1
 
+/* Define to use the minizip library */
+#cmakedefine HAVE_MINIZIP 1
+
+/* Define to use brotli library */
+#cmakedefine HAVE_BROTLI 1
+
 /* Define to use lz4 library */
 #cmakedefine HAVE_LZ4 1
 
@@ -139,6 +147,9 @@
 
 /* Define to use snappy library */
 #cmakedefine HAVE_SNAPPY 1
+
+/* Define to use zstd library */
+#cmakedefine HAVE_ZSTD 1
 
 /* Define to 1 if you have the <linux/sockios.h> header file. */
 #cmakedefine HAVE_LINUX_SOCKIOS_H 1
@@ -267,6 +278,9 @@
 /* Define to 1 if you have the bcg729 library. */
 #cmakedefine HAVE_BCG729 1
 
+/* Define to 1 if you have the speexdsp library. */
+#cmakedefine HAVE_SPEEXDSP 1
+
 /* Define to 1 if you have the lixbml2 library. */
 #cmakedefine HAVE_LIBXML2 1
 
@@ -288,6 +302,9 @@
 /* Define if st_flags field exists in struct stat */
 #cmakedefine HAVE_STRUCT_STAT_ST_FLAGS 1
 
+/* Define if st_blksize field exists in struct stat */
+#cmakedefine HAVE_STRUCT_STAT_ST_BLKSIZE 1
+
 /* Define to 1 if `__st_birthtime' is a member of `struct stat'. */
 #cmakedefine HAVE_STRUCT_STAT___ST_BIRTHTIME 1
 
@@ -300,14 +317,8 @@
 /* Define to 1 if you have the <sys/sockio.h> header file. */
 #cmakedefine HAVE_SYS_SOCKIO_H 1
 
-/* Define to 1 if you have the <sys/stat.h> header file. */
-#cmakedefine HAVE_SYS_STAT_H 1
-
 /* Define to 1 if you have the <sys/time.h> header file. */
 #cmakedefine HAVE_SYS_TIME_H 1
-
-/* Define to 1 if you have the <sys/types.h> header file. */
-#cmakedefine HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the <sys/utsname.h> header file. */
 #cmakedefine HAVE_SYS_UTSNAME_H 1
@@ -346,13 +357,10 @@
 #cmakedefine PCAP_NG_DEFAULT 1
 
 /* Define if we have QtMultimedia */
-#cmakedefine QT_MULTIMEDIA_LIB 1
+#define QT_MULTIMEDIA_LIB 1
 
 /* Define if we have QtMacExtras */
 #cmakedefine QT_MACEXTRAS_LIB 1
-
-/* Define if we have QtWinExtras */
-/* #cmakedefine QT_WINEXTRAS_LIB 1 */
 
 /* Build androiddump with libpcap instead of wireshark stuff */
 #cmakedefine ANDROIDDUMP_USE_LIBPCAP 1

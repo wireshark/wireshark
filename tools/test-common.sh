@@ -19,9 +19,9 @@ fi
 DATE=/bin/date
 BASE_NAME=$TEST_TYPE-`$DATE +%Y-%m-%d`-$$
 
-# Directory containing binaries.  Default current directory.
+# Directory containing binaries.  Default: cmake run directory.
 if [ -z "$WIRESHARK_BIN_DIR" ]; then
-    WIRESHARK_BIN_DIR=.
+    WIRESHARK_BIN_DIR=run
 fi
 
 # Temporary file directory and names.
@@ -91,10 +91,10 @@ export G_SLICE=debug-blocks
 export MALLOC_CHECK_=3
 # Cause FreeBSD (and other BSDs) to abort() on allocator warnings and
 # initialize allocated memory (to 0xa5) and freed memory (to 0x5a).  see:
-# http://www.freebsd.org/cgi/man.cgi?query=malloc&apropos=0&sektion=0&manpath=FreeBSD+8.2-RELEASE&format=html
+# https://www.freebsd.org/cgi/man.cgi?query=malloc&apropos=0&sektion=0&manpath=FreeBSD+8.2-RELEASE&format=html
 export MALLOC_OPTIONS=AJ
 
-# MacOS options; see http://developer.apple.com/library/mac/releasenotes/DeveloperTools/RN-MallocOptions/_index.html
+# macOS options; see https://developer.apple.com/library/archive/documentation/Performance/Conceptual/ManagingMemory/Articles/MallocDebug.html
 # Initialize allocated memory to 0xAA and freed memory to 0x55
 export MallocPreScribble=1
 export MallocScribble=1

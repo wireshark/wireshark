@@ -14,12 +14,12 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * References for "media-type multipart/mixed :
- * http://www.iana.org/assignments/media-types/index.html
- * http://www.ietf.org/rfc/rfc2045.txt?number=2045
- * http://www.rfc-editor.org/rfc/rfc2046.txt
- * http://www.rfc-editor.org/rfc/rfc2047.txt
- * http://www.rfc-editor.org/rfc/rfc2048.txt
- * http://www.rfc-editor.org/rfc/rfc2049.txt
+ * https://www.iana.org/assignments/media-types/index.html
+ * https://tools.ietf.org/html/rfc2045
+ * https://tools.ietf.org/html/rfc2046
+ * https://tools.ietf.org/html/rfc2047
+ * https://tools.ietf.org/html/rfc2048
+ * https://tools.ietf.org/html/rfc2049
  *
  * Part of the code is modeled from the SIP and HTTP dissectors
  *
@@ -43,7 +43,6 @@
 */
 
 #include "config.h"
-
 
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -545,7 +544,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
     proto_tree *subtree;
     proto_item *ti;
     gint offset = start, next_offset = 0;
-    http_message_info_t message_info = { input_message_info->type, NULL };
+    http_message_info_t message_info = { input_message_info->type, NULL, NULL, NULL };
     gint body_start, boundary_start, boundary_line_len;
 
     gchar *content_type_str = NULL;
@@ -614,12 +613,10 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
         } else {
             gint hf_index;
 
-            /* Split header name from header value */
-            header_str[colon_offset] = '\0';
             hf_index = is_known_multipart_header(header_str, colon_offset);
 
             if (hf_index == -1) {
-                if(isprint_string(hdr_str)) {
+                if(isprint_string(header_str)) {
                     proto_tree_add_format_text(subtree, tvb, offset, next_offset - offset);
                 } else {
                     /* if the header name is unkown and not printable, break and add complete line to the body */
@@ -690,7 +687,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                             }
                         }
                         break;
-                        case POS_CONTENT_TRANSFER_ENCODING:
+                    case POS_CONTENT_TRANSFER_ENCODING:
                         {
                             /* The Content-Transferring starts at colon_offset + 1 */
                             char *crp = strchr(value_str, '\r');
@@ -702,11 +699,14 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                             content_encoding_str = wmem_ascii_strdown(wmem_packet_scope(), value_str, -1);
                         }
                         break;
-                        case POS_CONTENT_DISPOSITION:
+                    case POS_CONTENT_DISPOSITION:
                         {
                             /* find the "filename" parameter */
                             filename = ws_find_media_type_parameter(wmem_packet_scope(), value_str, "filename");
                         }
+                        break;
+                    case POS_CONTENT_ID:
+                        message_info.content_id = wmem_strdup(wmem_packet_scope(), value_str);
                         break;
                     default:
                         break;
@@ -725,9 +725,16 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
     {
         gint body_len = boundary_start - body_start;
         tvbuff_t *tmp_tvb = tvb_new_subset_length(tvb, body_start, body_len);
-        /* if multipart subtype is encrypted the protcol string was set */
-        /* see: https://msdn.microsoft.com/en-us/library/cc251581.aspx */
-        /* there are only 2 body parts possible and each part has specific content types */
+        /*
+         * If multipart subtype is encrypted the protcol string was set.
+         *
+         * See MS-WSMV section 2.2.9.1.2.1 "HTTP Headers":
+         *
+         *  https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-wsmv/b79927c2-96be-4801-aa68-180db95593f9
+         *
+         * There are only 2 body parts possible, and each part has specific
+         * content types.
+         */
         if(m_info->protocol && idx == 1 && is_raw_data)
         {
             gssapi_encrypt_info_t  encrypt;
@@ -836,7 +843,7 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* Show multi-part type as a generated field */
     type_ti = proto_tree_add_string(subtree, hf_multipart_type,
           tvb, 0, 0, pinfo->match_string);
-    PROTO_ITEM_SET_GENERATED(type_ti);
+    proto_item_set_generated(type_ti);
 
     /*
      * Make no entries in Protocol column and Info column on summary display,
@@ -1116,7 +1123,7 @@ proto_reg_handoff_multipart(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

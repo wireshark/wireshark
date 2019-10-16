@@ -4,10 +4,14 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/tango_colors.h>
+#include <ui/qt/wireshark_application.h>
+
+#include <QPalette>
 
 // Colors we use in various parts of the UI.
 //
@@ -135,6 +139,42 @@ QRgb ColorUtils::sequenceColor(int item)
                 << qRgb(211, 211, 211);
     }
     return sequence_colors_[item % sequence_colors_.size()];
+}
+
+bool ColorUtils::themeIsDark()
+{
+    return wsApp->palette().windowText().color().lightness() > wsApp->palette().window().color().lightness();
+}
+
+// As of 5.12.3, Qt always uses Qt::blue for the link color, which is
+// unreadable when using a dark theme. Changing the application palette
+// via ...Application::setPalette is problematic, since QGuiApplication
+// sets a flag (ApplicationPaletteExplicitlySet) which keeps us from
+// catching theme changes.
+//
+// themeLinkBrush and themeLinkStyle provide convenience routines for
+// fetching the link brush and style. We can remove them if Qt ever fixes
+// the link color.
+//
+// We could also override WiresharkApplication::palette, but keeping the
+// routines together here seemed to make more sense.
+QBrush ColorUtils::themeLinkBrush()
+{
+    if (themeIsDark()) {
+        return QBrush(tango_sky_blue_2);
+    }
+    return wsApp->palette().link();
+}
+
+QString ColorUtils::themeLinkStyle()
+{
+    QString link_style;
+
+    if (themeIsDark()) {
+        link_style = QString("<style>a:link { color: %1; }</style>")
+                .arg(themeLinkBrush().color().name());
+    }
+    return link_style;
 }
 
 /*

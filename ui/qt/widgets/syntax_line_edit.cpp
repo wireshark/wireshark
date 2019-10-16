@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -15,20 +16,21 @@
 #include <epan/dfilter/dfilter.h>
 #include <epan/column-info.h>
 
+#include <wsutil/utf8_entities.h>
+
 #include <ui/qt/widgets/syntax_line_edit.h>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/stock_icon.h>
 
 #include <QAbstractItemView>
 #include <QCompleter>
 #include <QKeyEvent>
+#include <QPainter>
 #include <QScrollBar>
 #include <QStringListModel>
+#include <QStyleOptionFrame>
 #include <limits>
-
-// To do:
-// - Add indicator icons for syntax states to make things more clear for
-//   color blind people?
 
 const int max_completion_items_ = 20;
 
@@ -65,8 +67,8 @@ void SyntaxLineEdit::setCompleter(QCompleter *c)
     // Completion items are not guaranteed to be sorted (recent filters +
     // fields), so no setModelSorting.
     completer_->setMaxVisibleItems(max_completion_items_);
-    QObject::connect(completer_, SIGNAL(activated(QString)),
-                     this, SLOT(insertFieldCompletion(QString)));
+    QObject::connect(completer_, static_cast<void (QCompleter::*)(const QString &)>(&QCompleter::activated),
+                     this, &SyntaxLineEdit::insertFieldCompletion);
 }
 
 void SyntaxLineEdit::setSyntaxState(SyntaxState state) {
@@ -164,7 +166,7 @@ void SyntaxLineEdit::checkDisplayFilter(QString filter)
              * We're being lazy and only printing the first "problem" token.
              * Would it be better to print all of them?
              */
-            syntax_error_message_ = tr("\"%1\" may have unexpected results (see the User's Guide)")
+            syntax_error_message_ = tr("\"%1\" is deprecated or may have unexpected results. See the User's Guide.")
                     .arg((const char *) g_ptr_array_index(depr, 0));
         } else {
             setSyntaxState(SyntaxLineEdit::Valid);
@@ -305,7 +307,7 @@ void SyntaxLineEdit::completionKeyPressEvent(QKeyEvent *event)
     // ...otherwise process the key ourselves.
     SyntaxLineEdit::keyPressEvent(event);
 
-    if (!completer_ || !completion_model_) return;
+    if (!completer_ || !completion_model_ || !prefs.gui_autocomplete_filter) return;
 
     // Do nothing on bare shift.
     if ((event->modifiers() & Qt::ShiftModifier) && event->text().isEmpty()) return;
@@ -347,6 +349,53 @@ void SyntaxLineEdit::focusOutEvent(QFocusEvent *event)
         return;
     }
     QLineEdit::focusOutEvent(event);
+}
+
+// Add indicator icons for syntax states in order to make things more clear for
+// color blind people.
+void SyntaxLineEdit::paintEvent(QPaintEvent *event)
+{
+    QLineEdit::paintEvent(event);
+
+    QString si_name;
+
+    switch (syntax_state_) {
+    case Invalid:
+        si_name = "x-filter-invalid";
+        break;
+    case Deprecated:
+        si_name = "x-filter-deprecated";
+        break;
+    default:
+        return;
+    }
+
+    QStyleOptionFrame opt;
+    initStyleOption(&opt);
+    QRect cr = style()->subElementRect(QStyle::SE_LineEditContents, &opt, this);
+    QRect sir = QRect(0, 0, 14, 14); // QIcon::paint scales, which is not what we want.
+    int textWidth = fontMetrics().boundingRect(text()).width();
+    // Qt always adds a margin of 6px between the border and text, see
+    // QLineEditPrivate::effectiveLeftTextMargin and
+    // QLineEditPrivate::sideWidgetParameters.
+    int margin = 2 * 6 + 1;
+
+    if (cr.width() - margin - textWidth < sir.width() || cr.height() < sir.height()) {
+        // No space to draw
+        return;
+    }
+
+    QIcon state_icon = StockIcon(si_name);
+    if (state_icon.isNull()) {
+        return;
+    }
+
+    int si_off = (cr.height() - sir.height()) / 2;
+    sir.moveTop(si_off);
+    sir.moveRight(cr.right() - si_off);
+    QPainter painter(this);
+    painter.setOpacity(0.25);
+    state_icon.paint(&painter, sir);
 }
 
 void SyntaxLineEdit::insertFieldCompletion(const QString &completion_text)

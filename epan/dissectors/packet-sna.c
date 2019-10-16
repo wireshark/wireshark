@@ -825,7 +825,7 @@ static void dissect_fid (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
 static void dissect_nlp (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
 static void dissect_gds (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
 static void dissect_rh (tvbuff_t*, int, proto_tree*);
-static void dissect_control(tvbuff_t*, int, int, proto_tree*, int, enum parse);
+static void dissect_sna_control(tvbuff_t* parent_tvb, int offset, int control_len, proto_tree* tree, int hpr, enum parse parse);
 
 static int sna_fid_to_str_buf(const address *addr, gchar *buf, int buf_len _U_)
 {
@@ -904,7 +904,7 @@ dissect_optional_0d(tvbuff_t *tvb, proto_tree *tree)
 	while (tvb_offset_exists(tvb, offset)) {
 		len = tvb_get_guint8(tvb, offset+0);
 		if (len) {
-			dissect_control(tvb, offset, len, tree, 1, LT);
+			dissect_sna_control(tvb, offset, len, tree, 1, LT);
 			pad = (len+3) & 0xfffc;
 			if (pad > len)
 				proto_tree_add_item(tree, hf_sna_padding, tvb, offset+len, pad-len, ENC_NA);
@@ -1026,7 +1026,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(sub_tree, hf_sna_nlp_opti_14_si_alive,
 	    tvb, offset+12, 4, ENC_BIG_ENDIAN);
 
-	dissect_control(tvb, offset+16, len-16, sub_tree, 1, LT);
+	dissect_sna_control(tvb, offset+16, len-16, sub_tree, 1, LT);
 
 	pad = (len+3) & 0xfffc;
 	if (pad > len)
@@ -1062,7 +1062,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	while (num) {
 		sublen = tvb_get_guint8(tvb, offset);
 		if (sublen) {
-			dissect_control(tvb, offset, sublen, sub_tree, 1, LT);
+			dissect_sna_control(tvb, offset, sublen, sub_tree, 1, LT);
 		} else {
 			/* Invalid */
 			call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
@@ -1332,7 +1332,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (((thdr_9 & 0x18) == 0x08) && ((thdr_len << 2) > subindx)) {
 		counter = tvb_get_guint8(tvb, indx + subindx);
 		if (tvb_get_guint8(tvb, indx+subindx+1) == 5)
-			dissect_control(tvb, indx + subindx, counter+2, nlp_tree, 1, LT);
+			dissect_sna_control(tvb, indx + subindx, counter+2, nlp_tree, 1, LT);
 		else
 			call_data_dissector(tvb_new_subset_length_caplen(tvb, indx + subindx, counter+2,
 			    -1), pinfo, nlp_tree);
@@ -1399,7 +1399,7 @@ dissect_xid2(tvbuff_t *tvb, proto_tree *tree)
 
 	while (tvb_offset_exists(tvb, offset)) {
 		dlen = tvb_get_guint8(tvb, offset+1);
-		dissect_control(tvb, offset, dlen+2, tree, 0, KL);
+		dissect_sna_control(tvb, offset, dlen+2, tree, 0, KL);
 		offset += (dlen + 2);
 	}
 }
@@ -1487,7 +1487,7 @@ dissect_xid3(tvbuff_t *tvb, proto_tree *tree)
 
 	while (tvb_offset_exists(tvb, offset)) {
 		dlen = tvb_get_guint8(tvb, offset+1);
-		dissect_control(tvb, offset, dlen+2, tree, 0, KL);
+		dissect_sna_control(tvb, offset, dlen+2, tree, 0, KL);
 		offset += (dlen+2);
 	}
 }
@@ -2258,7 +2258,7 @@ dissect_control_05hpr(tvbuff_t *tvb, proto_tree *tree, int hpr,
 			len = tvb_get_guint8(tvb, offset+1);
 		}
 		if (len) {
-			dissect_control(tvb, offset, len, tree, hpr, parse);
+			dissect_sna_control(tvb, offset, len, tree, hpr, parse);
 			pad = (len+3) & 0xfffc;
 			if (pad > len) {
 				proto_tree_add_item(tree, hf_sna_padding, tvb, offset+len, pad-len, ENC_NA);
@@ -2297,7 +2297,7 @@ dissect_control_0e(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-dissect_control(tvbuff_t *parent_tvb, int offset, int control_len,
+dissect_sna_control(tvbuff_t *parent_tvb, int offset, int control_len,
 		proto_tree *tree, int hpr, enum parse parse)
 {
 	tvbuff_t	*tvb;
@@ -2444,7 +2444,7 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* SNA data should be printed in EBCDIC, not ASCII */
-	pinfo->fd->flags.encoding = PACKET_CHAR_ENC_CHAR_EBCDIC;
+	pinfo->fd->encoding = PACKET_CHAR_ENC_CHAR_EBCDIC;
 
 	if (tree) {
 
@@ -2480,7 +2480,7 @@ dissect_sna_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* SNA data should be printed in EBCDIC, not ASCII */
-	pinfo->fd->flags.encoding = PACKET_CHAR_ENC_CHAR_EBCDIC;
+	pinfo->fd->encoding = PACKET_CHAR_ENC_CHAR_EBCDIC;
 
 	if (tree) {
 
@@ -3499,7 +3499,7 @@ proto_reg_handoff_sna(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef CONVERSATION_DIALOG_H
 #define CONVERSATION_DIALOG_H
@@ -56,7 +57,7 @@ public slots:
 
 signals:
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
-    void openFollowStreamDialog(follow_type_t type, int stream_num);
+    void openFollowStreamDialog(follow_type_t type, guint stream_num, guint sub_stream_num);
     void openTcpStreamGraph(int graph_type);
 
 private:

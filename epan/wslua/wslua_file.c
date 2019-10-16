@@ -17,7 +17,6 @@
 
 #include <errno.h>
 #include <wiretap/file_wrappers.h>
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 #define MAX_LINE_LENGTH            65536
 
@@ -278,12 +277,12 @@ WSLUA_METHOD File_read(lua_State* L) {
 
     /* shiftFile() doesn't verify things like expired */
     if (f->expired) {
-        ws_g_warning("Error in File read: Lua File has expired");
+        g_warning("Error in File read: Lua File has expired");
         return 0;
     }
 
     if (!file_is_reader(f)) {
-        ws_g_warning("Error in File read: this File object instance is for writing only");
+        g_warning("Error in File read: this File object instance is for writing only");
         return 0;
     }
 
@@ -400,7 +399,7 @@ WSLUA_METHOD File_lines(lua_State* L) {
         return luaL_error(L, "Error getting File handle for lines");
 
     if (!file_is_reader(f)) {
-        ws_g_warning("Error in File read: this File object instance is for writing only");
+        g_warning("Error in File read: this File object instance is for writing only");
         return 0;
     }
 
@@ -422,7 +421,7 @@ WSLUA_METHOD File_write(lua_State* L) {
     int err = 0;
 
     if (!f->wdh) {
-        ws_g_warning("Error in File read: this File object instance is for reading only");
+        g_warning("Error in File read: this File object instance is for reading only");
         return 0;
     }
 
@@ -478,7 +477,7 @@ static int File_get_compressed(lua_State* L) {
     if (file_is_reader(f)) {
         lua_pushboolean(L, file_iscompressed(f->file));
     } else {
-        lua_pushboolean(L, f->wdh->compressed);
+        lua_pushboolean(L, f->wdh->compression_type != WTAP_UNCOMPRESSED);
     }
     return 1;
 }
@@ -502,14 +501,13 @@ WSLUA_META File_meta[] = {
 };
 
 int File_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS(File);
-    WSLUA_REGISTER_ATTRIBUTES(File);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS(File);
     return 0;
 }
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

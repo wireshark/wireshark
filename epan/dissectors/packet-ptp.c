@@ -46,6 +46,7 @@
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/oui.h>
+#include <epan/addr_resolv.h>
 #include "packet-ptp.h"
 
 /**********************************************************/
@@ -687,12 +688,15 @@ static gint ett_ptp_time2 = -1;
 /* Common offsets for all Messages (Sync, Delay_Req, Follow_Up, Delay_Resp ....) */
 #define PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET                  0
 #define PTP_V2_VERSIONPTP_OFFSET                                     1
+#define PTP_V2_RESERVED1_OFFSET               PTP_V2_VERSIONPTP_OFFSET
 #define PTP_V2_MESSAGE_LENGTH_OFFSET                                 2
 #define PTP_V2_DOMAIN_NUMBER_OFFSET                                  4
+#define PTP_V2_RESERVED2_OFFSET                                      5
 #define PTP_V2_FLAGS_OFFSET                                          6
 #define PTP_V2_CORRECTION_OFFSET                                     8
 #define PTP_V2_CORRECTIONNS_OFFSET                                   8
 #define PTP_V2_CORRECTIONSUBNS_OFFSET                               14
+#define PTP_V2_RESERVED3_OFFSET                                     16
 #define PTP_V2_CLOCKIDENTITY_OFFSET                                 20
 #define PTP_V2_SOURCEPORTID_OFFSET                                  28
 #define PTP_V2_SEQUENCEID_OFFSET                                    30
@@ -1007,8 +1011,8 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_FLAGS_SPECIFIC2_BITMASK                              0x4000
 #define PTP_V2_FLAGS_SECURITY_BITMASK                               0x8000
 
-#define PTP_V2_FLAGS_OE_SMPTE_TIME_ADRESS_FIELD_DROP                0x01
-#define PTP_V2_FLAGS_OE_SMPTE_TIME_ADRESS_FIELD_COLOR               0x02
+#define PTP_V2_FLAGS_OE_SMPTE_TIME_ADDRESS_FIELD_DROP                0x01
+#define PTP_V2_FLAGS_OE_SMPTE_TIME_ADDRESS_FIELD_COLOR               0x02
 
 #define PTP_V2_FLAGS_OE_SMPTE_DAYLIGHT_SAVING_CURRENT               0x01
 #define PTP_V2_FLAGS_OE_SMPTE_DAYLIGHT_SAVING_NEXT                  0x02
@@ -1021,11 +1025,11 @@ static gint ett_ptp_time2 = -1;
 /**********************************************************/
 #define PTP_V2_SYNC_MESSAGE                     0x00
 #define PTP_V2_DELAY_REQ_MESSAGE                0x01
-#define PTP_V2_PATH_DELAY_REQ_MESSAGE           0x02
-#define PTP_V2_PATH_DELAY_RESP_MESSAGE          0x03
+#define PTP_V2_PEER_DELAY_REQ_MESSAGE           0x02
+#define PTP_V2_PEER_DELAY_RESP_MESSAGE          0x03
 #define PTP_V2_FOLLOWUP_MESSAGE                 0x08
 #define PTP_V2_DELAY_RESP_MESSAGE               0x09
-#define PTP_V2_PATH_DELAY_FOLLOWUP_MESSAGE      0x0A
+#define PTP_V2_PEER_DELAY_FOLLOWUP_MESSAGE      0x0A
 #define PTP_V2_ANNOUNCE_MESSAGE                 0x0B
 #define PTP_V2_SIGNALLING_MESSAGE               0x0C
 #define PTP_V2_MANAGEMENT_MESSAGE               0x0D
@@ -1185,11 +1189,11 @@ value_string_ext ptp_v2_networkProtocol_vals_ext =
 static const value_string ptp_v2_messageid_vals[] = {
     {PTP_V2_SYNC_MESSAGE,               "Sync Message"},
     {PTP_V2_DELAY_REQ_MESSAGE,          "Delay_Req Message"},
-    {PTP_V2_PATH_DELAY_REQ_MESSAGE,     "Path_Delay_Req Message"},
-    {PTP_V2_PATH_DELAY_RESP_MESSAGE,    "Path_Delay_Resp Message"},
+    {PTP_V2_PEER_DELAY_REQ_MESSAGE,     "Peer_Delay_Req Message"},
+    {PTP_V2_PEER_DELAY_RESP_MESSAGE,    "Peer_Delay_Resp Message"},
     {PTP_V2_FOLLOWUP_MESSAGE,           "Follow_Up Message"},
     {PTP_V2_DELAY_RESP_MESSAGE,         "Delay_Resp Message"},
-    {PTP_V2_PATH_DELAY_FOLLOWUP_MESSAGE,"Path_Delay_Resp_Follow_Up Message"},
+    {PTP_V2_PEER_DELAY_FOLLOWUP_MESSAGE,"Peer_Delay_Resp_Follow_Up Message"},
     {PTP_V2_ANNOUNCE_MESSAGE,           "Announce Message"},
     {PTP_V2_SIGNALLING_MESSAGE,         "Signalling Message"},
     {PTP_V2_MANAGEMENT_MESSAGE,         "Management Message"},
@@ -1360,8 +1364,10 @@ static int hf_ptp_v2_transportspecific = -1;
 static int hf_ptp_v2_transportspecific_v1_compatibility = -1; /* over UDP */
 static int hf_ptp_v2_transportspecific_802as_conform = -1; /* over Ethernet */
 static int hf_ptp_v2_messageid = -1;
+static int hf_ptp_v2_reserved1 = -1;
 static int hf_ptp_v2_versionptp = -1;
 static int hf_ptp_v2_messagelength = -1;
+static int hf_ptp_v2_reserved2 = -1;
 static int hf_ptp_v2_domainnumber = -1;
 static int hf_ptp_v2_flags = -1;
 static int hf_ptp_v2_flags_alternatemaster = -1;
@@ -1378,7 +1384,9 @@ static int hf_ptp_v2_flags_timetraceable = -1;
 static int hf_ptp_v2_flags_frequencytraceable = -1;
 static int hf_ptp_v2_correction = -1;
 static int hf_ptp_v2_correctionsubns = -1;
+static int hf_ptp_v2_reserved3 = -1;
 static int hf_ptp_v2_clockidentity = -1;
+static int hf_ptp_v2_clockidentity_manuf = -1;
 static int hf_ptp_v2_sourceportid = -1;
 static int hf_ptp_v2_sequenceid = -1;
 static int hf_ptp_v2_control = -1;
@@ -1666,6 +1674,7 @@ static int hf_ptp_v2_mm_transmitAlternateMulticastSync = -1;
 /* Initialize the subtree pointers */
 static gint ett_ptp_v2 = -1;
 static gint ett_ptp_v2_flags = -1;
+static gint ett_ptp_v2_clockidentity = -1;
 static gint ett_ptp_v2_correction = -1;
 static gint ett_ptp_v2_time = -1;
 static gint ett_ptp_v2_time2 = -1;
@@ -2489,17 +2498,22 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
     guint64 timeStamp;
     guint16 msg_len;
     guint16 temp;
+    const gchar *manuf_name;
 
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item  *ti = NULL, *msg_len_item = NULL, *transportspecific_ti, *flags_ti, *managementData_ti, *clockType_ti, *protocolAddress_ti;
-    proto_tree  *ptp_tree = NULL, *ptp_transportspecific_tree, *ptp_flags_tree, *ptp_managementData_tree,
-                *ptp_clockType_tree, *ptp_protocolAddress_tree;
+    proto_item  *ti = NULL, *msg_len_item = NULL, *transportspecific_ti, *flags_ti, *clockidentity_ti,
+		*managementData_ti, *clockType_ti, *protocolAddress_ti;
+    proto_tree  *ptp_tree = NULL, *ptp_transportspecific_tree, *ptp_flags_tree, *ptp_clockidentity_tree,
+		*ptp_managementData_tree, *ptp_clockType_tree, *ptp_protocolAddress_tree;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTPv2");
 
     /* Get transport specific bit to determine whether this is an AS packet or not */
     ptp_v2_transport_specific = 0xF0 & tvb_get_guint8 (tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET);
+
+    // 802.1as is indicated by Ethernet and a certain transport specific bit.
+    gboolean is_802_1as = (ptp_v2_transport_specific & PTP_V2_TRANSPORTSPECIFIC_ASPACKET_BITMASK) && (ptpv2_oE == TRUE);
 
     /* Get control field (what kind of message is this? (Sync, DelayReq, ...) */
     ptp_v2_messageid = 0x0F & tvb_get_guint8 (tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET);
@@ -2615,6 +2629,9 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
             hf_ptp_v2_messageid, tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ptp_tree,
+            hf_ptp_v2_reserved1, tvb, PTP_V2_RESERVED1_OFFSET, 1, ENC_BIG_ENDIAN);
+
+        proto_tree_add_item(ptp_tree,
             hf_ptp_v2_versionptp, tvb, PTP_V2_VERSIONPTP_OFFSET, 1, ENC_BIG_ENDIAN);
 
         msg_len_item = proto_tree_add_item(ptp_tree,
@@ -2646,6 +2663,8 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
         proto_tree_add_item(ptp_tree,
             hf_ptp_v2_domainnumber, tvb, PTP_V2_DOMAIN_NUMBER_OFFSET, 1, ENC_BIG_ENDIAN);
 
+        proto_tree_add_item(ptp_tree,
+            hf_ptp_v2_reserved2, tvb, PTP_V2_RESERVED2_OFFSET, 1, ENC_BIG_ENDIAN);
 
         flags_ti = proto_tree_add_item(ptp_tree,
             hf_ptp_v2_flags, tvb, PTP_V2_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -2693,7 +2712,19 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
         dissect_ptp_v2_timeInterval(tvb, &temp, ptp_tree, "correction", hf_ptp_v2_correction, hf_ptp_v2_correctionsubns);
 
         proto_tree_add_item(ptp_tree,
+            hf_ptp_v2_reserved3, tvb, PTP_V2_RESERVED3_OFFSET, 4, ENC_BIG_ENDIAN);
+
+        clockidentity_ti = proto_tree_add_item(ptp_tree,
             hf_ptp_v2_clockidentity, tvb, PTP_V2_CLOCKIDENTITY_OFFSET, 8, ENC_BIG_ENDIAN);
+
+	/* EUI-64: vendor ID | 0xFF - 0xFE | card ID */
+	if (tvb_get_ntohs(tvb, PTP_V2_CLOCKIDENTITY_OFFSET + 3) == 0xFFFE) {
+            ptp_clockidentity_tree = proto_item_add_subtree(clockidentity_ti, ett_ptp_v2_clockidentity);
+
+	    manuf_name = tvb_get_manuf_name(tvb, PTP_V2_CLOCKIDENTITY_OFFSET);
+	    proto_tree_add_bytes_format_value(ptp_clockidentity_tree, hf_ptp_v2_clockidentity_manuf,
+	        tvb, PTP_V2_CLOCKIDENTITY_OFFSET, 3, NULL, "%s", manuf_name);
+	}
 
         proto_tree_add_item(ptp_tree,
             hf_ptp_v2_sourceportid, tvb, PTP_V2_SOURCEPORTID_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -2717,7 +2748,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 proto_tree *ptp_tlv_wr_flags_tree;
 
                 /* In 802.1AS there is no origin timestamp in an Announce Message */
-                if(!(ptp_v2_transport_specific & PTP_V2_TRANSPORTSPECIFIC_ASPACKET_BITMASK)){
+                if(!is_802_1as){
 
                     proto_tree_add_item(ptp_tree, hf_ptp_v2_an_origintimestamp_seconds, tvb,
                         PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN);
@@ -3037,7 +3068,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                     PTP_V2_FU_PRECISEORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, ENC_BIG_ENDIAN);
 
                 /* In 802.1AS there is a Follow_UP information TLV in the Follow Up Message */
-                if(ptp_v2_transport_specific & PTP_V2_TRANSPORTSPECIFIC_ASPACKET_BITMASK){
+                if(is_802_1as){
 
                     /* There are TLV's to be processed */
                     tlv_length = tvb_get_ntohs (tvb, PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_LENGTHFIELD_OFFSET);
@@ -3127,9 +3158,9 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 break;
             }
 
-            case PTP_V2_PATH_DELAY_REQ_MESSAGE:{
+            case PTP_V2_PEER_DELAY_REQ_MESSAGE:{
                 /* In 802.1AS there is no origin timestamp in a Pdelay_Req Message */
-                if(!(ptp_v2_transport_specific & PTP_V2_TRANSPORTSPECIFIC_ASPACKET_BITMASK)){
+                if(!is_802_1as){
 
                     proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrq_origintimestamp_seconds, tvb,
                         PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN);
@@ -3141,7 +3172,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 break;
             }
 
-            case PTP_V2_PATH_DELAY_RESP_MESSAGE:{
+            case PTP_V2_PEER_DELAY_RESP_MESSAGE:{
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrs_requestreceipttimestamp_seconds, tvb,
                     PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN);
@@ -3158,7 +3189,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 break;
             }
 
-            case PTP_V2_PATH_DELAY_FOLLOWUP_MESSAGE:{
+            case PTP_V2_PEER_DELAY_FOLLOWUP_MESSAGE:{
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_pdfu_responseorigintimestamp_seconds, tvb,
                     PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN);
@@ -3188,7 +3219,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                     PTP_V2_SIG_TARGETPORTID_OFFSET, 2, ENC_BIG_ENDIAN);
 
                 /* In 802.1AS there is a Message Interval Request TLV in the Signalling Message */
-                if(ptp_v2_transport_specific & PTP_V2_TRANSPORTSPECIFIC_ASPACKET_BITMASK){
+                if(is_802_1as){
 
                     /* There are TLV's to be processed */
                     tlv_length = tvb_get_ntohs (tvb, PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_LENGTHFIELD_OFFSET);
@@ -5232,6 +5263,11 @@ proto_register_ptp(void)
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ptp_v2_messageid_vals_ext, 0x0F,
             NULL, HFILL }
         },
+        { &hf_ptp_v2_reserved1,
+          { "Reserved",             "ptp.v2.reserved1",
+            FT_UINT8, BASE_DEC, NULL, 0xF0,
+            NULL, HFILL }
+        },
         { &hf_ptp_v2_versionptp,
           { "versionPTP",           "ptp.v2.versionptp",
             FT_UINT8, BASE_DEC, NULL, 0x0F,
@@ -5240,6 +5276,11 @@ proto_register_ptp(void)
         { &hf_ptp_v2_messagelength,
           { "messageLength",           "ptp.v2.messagelength",
             FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_reserved2,
+          { "Reserved",                  "ptp.v2.reserved2",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_domainnumber,
@@ -5312,6 +5353,11 @@ proto_register_ptp(void)
             FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_FREQUENCY_TRACEABLE_BITMASK,
             NULL, HFILL }
         },
+        { &hf_ptp_v2_reserved3,
+          { "Reserved",           "ptp.v2.reserved3",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_ptp_v2_correction,
           { "correction",           "ptp.v2.correction.ns",
             FT_UINT64, BASE_DEC, NULL, 0x00,
@@ -5325,6 +5371,11 @@ proto_register_ptp(void)
         { &hf_ptp_v2_clockidentity,
           { "ClockIdentity",           "ptp.v2.clockidentity",
             FT_UINT64, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_clockidentity_manuf,
+          { "MAC Vendor",       "ptp.v2.clockidentity_manuf",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_sourceportid,
@@ -6475,18 +6526,18 @@ proto_register_ptp(void)
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags,
-          { "timeAdressFlags", "ptp.v2.oe.smpte.timeadressflags",
+          { "timeAddressFlags", "ptp.v2.oe.smpte.timeaddressflags",
             FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags_drop,
-          { "Drop frame", "ptp.v2.oe.smpte.timeadressflags.drop",
-            FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), PTP_V2_FLAGS_OE_SMPTE_TIME_ADRESS_FIELD_DROP,
+          { "Drop frame", "ptp.v2.oe.smpte.timeaddressflags.drop",
+            FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), PTP_V2_FLAGS_OE_SMPTE_TIME_ADDRESS_FIELD_DROP,
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags_color,
-          { "Color frame identification", "ptp.v2.oe.smpte.timeadressflags.color",
-            FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), PTP_V2_FLAGS_OE_SMPTE_TIME_ADRESS_FIELD_COLOR,
+          { "Color frame identification", "ptp.v2.oe.smpte.timeaddressflags.color",
+            FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), PTP_V2_FLAGS_OE_SMPTE_TIME_ADDRESS_FIELD_COLOR,
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_subtype_smpte_currentlocaloffset,
@@ -6561,6 +6612,7 @@ proto_register_ptp(void)
         &ett_ptp_v2,
         &ett_ptp_v2_transportspecific,
         &ett_ptp_v2_flags,
+        &ett_ptp_v2_clockidentity,
         &ett_ptp_v2_correction,
         &ett_ptp_v2_time,
         &ett_ptp_v2_time2,
@@ -6615,7 +6667,7 @@ proto_reg_handoff_ptp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

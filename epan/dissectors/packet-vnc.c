@@ -1257,61 +1257,57 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 
 	case VNC_SESSION_STATE_TIGHT_AUTH_CAPABILITIES:
+	{
+		const guint8 *vendor, *signature;
+
 		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC authentication capabilities supported");
 
 		proto_tree_add_item(tree, hf_vnc_tight_num_auth_types, tvb, offset, 4, ENC_BIG_ENDIAN);
 		num_auth_types = tvb_get_ntohl(tvb, offset);
 		offset += 4;
 
-		{
-			int i;
-			const guint8 *vendor, *signature;
-			for (i = 0; i < 1; i++) {
-				auth_code = tvb_get_ntohl(tvb, offset);
-				auth_item = proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				vendor = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
-				process_vendor(tree, hf_vnc_tight_server_vendor, tvb, offset);
-				offset += 4;
-				proto_tree_add_item_ret_string(tree, hf_vnc_tight_signature, tvb, offset, 8, ENC_ASCII|ENC_NA, wmem_packet_scope(), &signature);
-				offset += 8;
+		auth_code = tvb_get_ntohl(tvb, offset);
+		auth_item = proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		vendor = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
+		process_vendor(tree, hf_vnc_tight_server_vendor, tvb, offset);
+		offset += 4;
+		proto_tree_add_item_ret_string(tree, hf_vnc_tight_signature, tvb, offset, 8, ENC_ASCII|ENC_NA, wmem_packet_scope(), &signature);
 
-				switch(auth_code) {
-					case VNC_SECURITY_TYPE_NONE:
-						if ((g_ascii_strcasecmp(vendor, "STDV") != 0) || (g_ascii_strcasecmp(signature, "NOAUTH__") != 0)) {
-							expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
-						}
-						break;
-					case VNC_SECURITY_TYPE_VNC:
-						if ((g_ascii_strcasecmp(vendor, "STDV") != 0) || (g_ascii_strcasecmp(signature, "VNCAUTH_") != 0)) {
-							expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
-						}
-						break;
-					case VNC_SECURITY_TYPE_VENCRYPT:
-						if ((g_ascii_strcasecmp(vendor, "VENC") != 0) || (g_ascii_strcasecmp(signature, "VENCRYPT") != 0)) {
-							expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
-						}
-						break;
-					case VNC_SECURITY_TYPE_GTK_VNC_SASL:
-						if ((g_ascii_strcasecmp(vendor, "GTKV") != 0) || (g_ascii_strcasecmp(signature, "SASL____") != 0)) {
-							expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
-						}
-						break;
-					case VNC_TIGHT_AUTH_TGHT_ULGNAUTH:
-						if ((g_ascii_strcasecmp(vendor, "TGHT") != 0) || (g_ascii_strcasecmp(signature, "ULGNAUTH") != 0)) {
-							expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
-						}
-						break;
-					case VNC_TIGHT_AUTH_TGHT_XTRNAUTH:
-						if ((g_ascii_strcasecmp(vendor, "TGHT") != 0) || (g_ascii_strcasecmp(signature, "XTRNAUTH") != 0)) {
-							expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
-						}
-						break;
-					default:
-						expert_add_info(pinfo, auth_item, &ei_vnc_unknown_tight_vnc_auth);
-						break;
+		switch(auth_code) {
+			case VNC_SECURITY_TYPE_NONE:
+				if ((g_ascii_strcasecmp(vendor, "STDV") != 0) || (g_ascii_strcasecmp(signature, "NOAUTH__") != 0)) {
+					expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
 				}
-			}
+				break;
+			case VNC_SECURITY_TYPE_VNC:
+				if ((g_ascii_strcasecmp(vendor, "STDV") != 0) || (g_ascii_strcasecmp(signature, "VNCAUTH_") != 0)) {
+					expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
+				}
+				break;
+			case VNC_SECURITY_TYPE_VENCRYPT:
+				if ((g_ascii_strcasecmp(vendor, "VENC") != 0) || (g_ascii_strcasecmp(signature, "VENCRYPT") != 0)) {
+					expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
+				}
+				break;
+			case VNC_SECURITY_TYPE_GTK_VNC_SASL:
+				if ((g_ascii_strcasecmp(vendor, "GTKV") != 0) || (g_ascii_strcasecmp(signature, "SASL____") != 0)) {
+					expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
+				}
+				break;
+			case VNC_TIGHT_AUTH_TGHT_ULGNAUTH:
+				if ((g_ascii_strcasecmp(vendor, "TGHT") != 0) || (g_ascii_strcasecmp(signature, "ULGNAUTH") != 0)) {
+					expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
+				}
+				break;
+			case VNC_TIGHT_AUTH_TGHT_XTRNAUTH:
+				if ((g_ascii_strcasecmp(vendor, "TGHT") != 0) || (g_ascii_strcasecmp(signature, "XTRNAUTH") != 0)) {
+					expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
+				}
+				break;
+			default:
+				expert_add_info(pinfo, auth_item, &ei_vnc_unknown_tight_vnc_auth);
+				break;
 		}
 
 		if (num_auth_types == 0)
@@ -1319,7 +1315,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		else
 			per_conversation_info->vnc_next_state = VNC_SESSION_STATE_TIGHT_AUTH_TYPE_REPLY;
 		break;
-
+	}
 	case VNC_SESSION_STATE_TIGHT_AUTH_TYPE_REPLY:
 		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC authentication type selected by client");
 		auth_code = tvb_get_ntohl(tvb, offset);
@@ -4760,7 +4756,7 @@ proto_reg_handoff_vnc(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

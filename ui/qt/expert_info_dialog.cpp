@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "expert_info_dialog.h"
 #include <ui_expert_info_dialog.h>
@@ -102,8 +103,8 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file) :
     ctx_menu_.addAction(expand);
     connect(expand, SIGNAL(triggered()), this, SLOT(expandTree()));
 
-    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent *)),
-            this, SLOT(captureEvent(CaptureEvent *)));
+    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
+            this, SLOT(captureEvent(CaptureEvent)));
     setDisplayFilter();
     QTimer::singleShot(0, this, SLOT(retapPackets()));
 }
@@ -151,11 +152,11 @@ void ExpertInfoDialog::retapPackets()
     cap_file_.retapPackets();
 }
 
-void ExpertInfoDialog::captureEvent(CaptureEvent *e)
+void ExpertInfoDialog::captureEvent(CaptureEvent e)
 {
-    if (e->captureContext() == CaptureEvent::Retap)
+    if (e.captureContext() == CaptureEvent::Retap)
     {
-        switch (e->eventType())
+        switch (e.eventType())
         {
         case CaptureEvent::Started:
             ui->limitCheckBox->setEnabled(false);
@@ -237,9 +238,11 @@ void ExpertInfoDialog::showExpertInfoMenu(QPoint pos)
 {
     bool enable = true;
     QModelIndex expertIndex = ui->expertInfoTreeView->indexAt(pos);
+    if (!expertIndex.isValid()) {
+        return;
+    }
 
-    if (!expertIndex.isValid() ||
-        (expert_info_model_->data(expertIndex.sibling(expertIndex.row(), ExpertInfoModel::colHf), Qt::DisplayRole).toInt() < 0)) {
+    if (proxyModel_->data(expertIndex.sibling(expertIndex.row(), ExpertInfoModel::colHf), Qt::DisplayRole).toInt() < 0) {
         enable = false;
     }
 
@@ -260,27 +263,26 @@ void ExpertInfoDialog::showExpertInfoMenu(QPoint pos)
 
 void ExpertInfoDialog::filterActionTriggered()
 {
-    QModelIndex packetIndex = ui->expertInfoTreeView->currentIndex();
+    QModelIndex modelIndex = ui->expertInfoTreeView->currentIndex();
     FilterAction *fa = qobject_cast<FilterAction *>(QObject::sender());
 
-    if (!fa || !packetIndex.isValid()) {
+    if (!fa || !modelIndex.isValid()) {
         return;
     }
 
-    QModelIndex modelIndex = proxyModel_->mapToSource(packetIndex);
-    int hf_index = expert_info_model_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colHf), Qt::DisplayRole).toInt();
+    int hf_index = proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colHf), Qt::DisplayRole).toInt();
 
     if (hf_index > -1) {
         QString filter_string;
         if (fa->action() == FilterAction::ActionWebLookup) {
             filter_string = QString("%1 %2")
-                    .arg(expert_info_model_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colProtocol), Qt::DisplayRole).toString())
-                    .arg(expert_info_model_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colSummary), Qt::DisplayRole).toString());
+                    .arg(proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colProtocol), Qt::DisplayRole).toString())
+                    .arg(proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colSummary), Qt::DisplayRole).toString());
         } else if (fa->action() == FilterAction::ActionCopy) {
             filter_string = QString("%1 %2: %3")
-                    .arg(expert_info_model_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colPacket), Qt::DisplayRole).toUInt())
-                    .arg(expert_info_model_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colProtocol), Qt::DisplayRole).toString())
-                    .arg(expert_info_model_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colSummary), Qt::DisplayRole).toString());
+                    .arg(proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colPacket), Qt::DisplayRole).toUInt())
+                    .arg(proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colProtocol), Qt::DisplayRole).toString())
+                    .arg(proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colSummary), Qt::DisplayRole).toString());
         } else {
             filter_string = proto_registrar_get_abbrev(hf_index);
         }

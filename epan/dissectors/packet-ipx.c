@@ -148,7 +148,7 @@ static const char* ipx_conv_get_filter_type(conv_item_t* conv, conv_filter_type_
 
 static ct_dissector_info_t ipx_ct_dissector_info = {&ipx_conv_get_filter_type};
 
-static int
+static tap_packet_status
 ipx_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	conv_hash_t *hash = (conv_hash_t*) pct;
@@ -156,7 +156,7 @@ ipx_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
 
 	add_conversation_table_data(hash, &ipxh->ipx_src, &ipxh->ipx_dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &ipx_ct_dissector_info, ENDPOINT_NONE);
 
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 static const char* ipx_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
@@ -169,7 +169,7 @@ static const char* ipx_host_get_filter_type(hostlist_talker_t* host, conv_filter
 
 static hostlist_dissector_info_t ipx_host_dissector_info = {&ipx_host_get_filter_type};
 
-static int
+static tap_packet_status
 ipx_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	conv_hash_t *hash = (conv_hash_t*) pit;
@@ -181,7 +181,7 @@ ipx_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	add_hostlist_table_data(hash, &ipxh->ipx_src, 0, TRUE, 1, pinfo->fd->pkt_len, &ipx_host_dissector_info, ENDPOINT_NONE);
 	add_hostlist_table_data(hash, &ipxh->ipx_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ipx_host_dissector_info, ENDPOINT_NONE);
 
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 /* ================================================================= */
@@ -326,14 +326,14 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	str=address_to_str(wmem_packet_scope(), &pinfo->net_src);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_src, tvb, 0, 0, str);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	proto_item_set_hidden(hidden_item);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	proto_item_set_hidden(hidden_item);
 	str=address_to_str(wmem_packet_scope(), &pinfo->net_dst);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_dst, tvb, 0, 0, str);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	proto_item_set_hidden(hidden_item);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	proto_item_set_hidden(hidden_item);
 
 	proto_tree_add_checksum(ipx_tree, tvb, 0, hf_ipx_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 	proto_tree_add_uint(ipx_tree, hf_ipx_len, tvb, 2, 2, ipxh->ipx_length);
@@ -348,15 +348,15 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		ipx_dnet);
 	hidden_item = proto_tree_add_ipxnet(ipx_tree, hf_ipx_net, tvb, 6, 4,
 		ipx_dnet);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	proto_item_set_hidden(hidden_item);
 	proto_tree_add_item(ipx_tree, hf_ipx_dnode, tvb, 10, 6, ENC_NA);
 	hidden_item = proto_tree_add_item(ipx_tree, hf_ipx_node, tvb, 10, 6, ENC_NA);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	proto_item_set_hidden(hidden_item);
 	proto_tree_add_uint(ipx_tree, hf_ipx_dsocket, tvb, 16, 2,
 		ipxh->ipx_dsocket);
 	hidden_item = proto_tree_add_uint(ipx_tree, hf_ipx_socket, tvb, 16, 2,
 		ipxh->ipx_dsocket);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	proto_item_set_hidden(hidden_item);
 
 	/* Source */
 	ipx_snet = tvb_get_ntohl(tvb, 18);
@@ -364,15 +364,15 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		ipx_snet);
 	hidden_item = proto_tree_add_ipxnet(ipx_tree, hf_ipx_net, tvb, 18, 4,
 		ipx_snet);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	proto_item_set_hidden(hidden_item);
 	proto_tree_add_item(ipx_tree, hf_ipx_snode, tvb, 22, 6, ENC_NA);
 	hidden_item = proto_tree_add_item(ipx_tree, hf_ipx_node, tvb, 22, 6, ENC_NA);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	proto_item_set_hidden(hidden_item);
 	proto_tree_add_uint(ipx_tree, hf_ipx_ssocket, tvb, 28, 2,
 		ipxh->ipx_ssocket);
 	hidden_item = proto_tree_add_uint(ipx_tree, hf_ipx_socket, tvb, 28, 2,
 		ipxh->ipx_ssocket);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	proto_item_set_hidden(hidden_item);
 
 	/* Make the next tvbuff */
 	next_tvb = tvb_new_subset_remaining(tvb, IPX_HEADER_LEN);
@@ -692,7 +692,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		/*
 		 * Not a system packet - check for retransmissions.
 		 */
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			conversation = find_conversation(pinfo->num, &pinfo->src,
 			    &pinfo->dst, ENDPOINT_NCP, pinfo->srcport,
 			    pinfo->srcport, 0);
@@ -846,7 +846,7 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 			"%s, Connection %d",
-			val_to_str_const(sig_char, ipxmsg_sigchar_vals, "Unknown Signature Char"), conn_number);
+			val_to_str_const(sig_char, ipxmsg_sigchar_vals, "Unknown Signature Character"), conn_number);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ipxmsg, tvb, 0, -1, ENC_NA);
@@ -897,13 +897,13 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			hidden_item = proto_tree_add_boolean(rip_tree,
 						     hf_ipxrip_request,
 						     tvb, 0, 2, 1);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			proto_item_set_hidden(hidden_item);
 			break;
 		case IPX_RIP_RESPONSE:
 			hidden_item = proto_tree_add_boolean(rip_tree,
 						     hf_ipxrip_response,
 						     tvb, 0, 2, 1);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			proto_item_set_hidden(hidden_item);
 			break;
 		}
 
@@ -1225,14 +1225,14 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			hidden_item = proto_tree_add_boolean(sap_tree,
 						     hf_sap_response,
 						     tvb, 0, 2, 1);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			proto_item_set_hidden(hidden_item);
 			break;
 		case IPX_SAP_GENERAL_RESPONSE:
 		case IPX_SAP_NEAREST_RESPONSE:
 			hidden_item = proto_tree_add_boolean(sap_tree,
 						     hf_sap_request,
 						     tvb, 0, 2, 1);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			proto_item_set_hidden(hidden_item);
 			break;
 		}
 
@@ -1517,7 +1517,7 @@ proto_register_ipx(void)
 		  NULL, HFILL }},
 
 		{ &hf_msg_sigchar,
-		{ "Signature Char",			"ipxmsg.sigchar",
+		{ "Signature Character",		"ipxmsg.sigchar",
 		  FT_CHAR,	BASE_HEX,	VALS(ipxmsg_sigchar_vals),	0x0,
 		  NULL, HFILL }}
 	};
@@ -1631,7 +1631,7 @@ proto_reg_handoff_ipx(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

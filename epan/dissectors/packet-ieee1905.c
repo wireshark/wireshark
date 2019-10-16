@@ -4517,7 +4517,7 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     message_type = tvb_get_ntohs(tvb, 2);
 
-    col_set_str(pinfo->cinfo, COL_INFO,
+    col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str_ext(message_type, &ieee1905_message_type_vals_ext,
                         "Unknown: %u"));
 
@@ -4673,7 +4673,7 @@ proto_register_ieee1905(void)
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_mac_throughput_capacity,
-          { "MAC througput capacity", "ieee1905.macThroughputCapacity",
+          { "MAC throughput capacity", "ieee1905.macThroughputCapacity",
             FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_link_availability,

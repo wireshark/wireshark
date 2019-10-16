@@ -25,12 +25,12 @@ typedef enum {
     T_OFFSET,
     T_DIRECTIVE,
     T_TEXT,
-    T_EOL
+    T_EOL,
+    T_EOF
 } token_t;
 
 
 void parse_token(token_t token, char *str);
-void write_current_packet(void);
 
 extern FILE *text_importin;
 

@@ -24,7 +24,7 @@
  */
 #define XDLC_I_MASK		0x01	/**< Mask to test for I or not I */
 #define XDLC_I			0x00	/**< Information frames */
-#define XDLC_S_U_MASK	0x03	/**< Mask to test for S or U */
+#define XDLC_S_U_MASK		0x03	/**< Mask to test for S or U */
 #define XDLC_S			0x01	/**< Supervisory frames */
 #define XDLC_U			0x03	/**< Unnumbered frames */
 
@@ -120,7 +120,7 @@ extern const value_string stype_vals[];
 extern const value_string modifier_vals_cmd[];
 extern const value_string modifier_vals_resp[];
 
-extern int get_xdlc_control(const guchar *pd, int offset, gboolean is_extended);
+extern int get_xdlc_control(const guint8 *pd, int offset, gboolean is_extended);
 
 WS_DLL_PUBLIC int dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
   proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,

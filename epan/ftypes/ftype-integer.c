@@ -48,7 +48,6 @@ get_sinteger(fvalue_t *fv)
 	return fv->value.sinteger;
 }
 
-
 static gboolean
 parse_charconst(const char *s, unsigned long *valuep, gchar **err_msg)
 {
@@ -176,13 +175,19 @@ parse_charconst(const char *s, unsigned long *valuep, gchar **err_msg)
 		}
 	} else {
 		value = *cp;
-		cp++;
 		if (!g_ascii_isprint(value)) {
 			if (err_msg != NULL)
 				*err_msg = g_strdup_printf("Non-printable character '\\x%02lx' in character constant.", value);
 			return FALSE;
 		}
 	}
+	cp++;
+	if ((*cp != '\'') || (*(cp + 1) != '\0')){
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" is too long to be a valid character constant.", s);
+		return FALSE;
+	}
+
 	*valuep = value;
 	return TRUE;
 }
@@ -280,14 +285,22 @@ sint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 		   gint32 max, gint32 min)
 {
 	long value;
+	unsigned long charvalue;
 	char *endptr;
 
 	if (s[0] == '\'') {
 		/*
 		 * Represented as a C-style character constant.
 		 */
-		if (!parse_charconst(s, &value, err_msg))
+		if (!parse_charconst(s, &charvalue, err_msg))
 			return FALSE;
+
+		/*
+		 * The FT_CHAR type is defined to be signed, regardless
+		 * of whether char is signed or unsigned, so cast the value
+		 * to "signed char".
+		 */
+		value = (signed char)charvalue;
 	} else {
 		/*
 		 * Try to parse it as a number.
@@ -1611,7 +1624,7 @@ ftype_register_integers(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

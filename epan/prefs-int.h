@@ -201,12 +201,6 @@ unsigned int prefs_get_module_effect_flags(module_t * module);
 WS_DLL_PUBLIC
 void prefs_set_module_effect_flags(module_t * module, unsigned int flags);
 
-
-// GTK only
-WS_DLL_PUBLIC void* prefs_get_control(pref_t *pref);
-WS_DLL_PUBLIC void prefs_set_control(pref_t *pref, void* control);
-WS_DLL_PUBLIC int prefs_get_ordinal(pref_t *pref);
-
 WS_DLL_PUBLIC
 gboolean prefs_set_range_value_work(pref_t *pref, const gchar *value,
                            gboolean return_range_errors, unsigned int *changed_flags);
@@ -243,6 +237,8 @@ WS_DLL_PUBLIC gboolean prefs_get_enum_radiobuttons(pref_t *pref);
 WS_DLL_PUBLIC gboolean prefs_set_color_value(pref_t *pref, color_t value, pref_source_t source);
 WS_DLL_PUBLIC color_t* prefs_get_color_value(pref_t *pref, pref_source_t source);
 
+WS_DLL_PUBLIC unsigned int prefs_set_custom_value(pref_t *pref, const char *value, pref_source_t source);
+
 WS_DLL_PUBLIC unsigned int prefs_set_string_value(pref_t *pref, const char* value, pref_source_t source);
 WS_DLL_PUBLIC char* prefs_get_string_value(pref_t *pref, pref_source_t source);
 
@@ -274,7 +270,7 @@ prefs_pref_is_default(pref_t *pref);
  * @param unused unused
  */
 WS_DLL_PUBLIC
-guint pref_stash(pref_t *pref, gpointer unused _U_);
+guint pref_stash(pref_t *pref, gpointer unused);
 
 typedef struct pref_unstash_data
 {
@@ -307,7 +303,7 @@ guint pref_unstash(pref_t *pref, gpointer unstash_data_p);
  * @return Always returns 0.
  */
 WS_DLL_PUBLIC
-guint pref_clean_stash(pref_t *pref, gpointer unused _U_);
+guint pref_clean_stash(pref_t *pref, gpointer unused);
 
 /** Set a stashed preference to its default value.
  *

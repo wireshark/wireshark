@@ -18,7 +18,6 @@
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/show_exception.h>
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 static int proto_short = -1;
 static int proto_malformed = -1;
@@ -114,6 +113,14 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * (any case where it's caused by something else is a bug). */
 		break;
 
+	case ContainedBoundsError:
+		col_append_fstr(pinfo->cinfo, COL_INFO, "[Malformed Packet: length of contained item exceeds length of containing item]");
+		item = proto_tree_add_protocol_format(tree, proto_malformed,
+		    tvb, 0, 0, "[Malformed Packet: %s: length of contained item exceeds length of containing item]",
+		    pinfo->current_proto);
+		expert_add_info(pinfo, item, &ei_malformed);
+		break;
+
 	case ReportedBoundsError:
 		show_reported_bounds_error(tvb, pinfo, tree);
 		break;
@@ -129,7 +136,7 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    pinfo->current_proto,
 		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
-		ws_g_warning("Dissector bug, protocol %s, in packet %u: %s",
+		g_warning("Dissector bug, protocol %s, in packet %u: %s",
 		    pinfo->current_proto, pinfo->num,
 		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
@@ -173,7 +180,7 @@ show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -1,7 +1,12 @@
+=begin man
+
+=encoding utf8
+
+=end man
 
 =head1 NAME
 
-randpkt - Random Packet Generator
+randpkt - Random packet generator
 
 =head1 SYNOPSIS
 

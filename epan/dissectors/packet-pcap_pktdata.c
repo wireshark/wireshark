@@ -229,12 +229,23 @@ const value_string link_type_vals[] = {
     { 264,  "ISO_14443" },
     { 265,  "RDS" },
     { 266,  "USB_DARWIN" },
+    { 267,  "OPENFLOW" },
     { 268,  "SDLC" },
+    { 269,  "TI_LLN_SNIFFER" },
     { 270,  "LORATAP" },
     { 271,  "VSOCK" },
     { 272,  "NORDIC_BLE" },
     { 273,  "DOCSIS31_XRA31" },
     { 274,  "ETHERNET_MPACKET" },
+    { 275,  "DISPLAYPORT_AUX" },
+    { 276,  "LINUX_SLL2" },
+    { 277,  "SERCOS_MONITOR" },
+    { 278,  "OPENVIZSLA" },
+    { 279,  "EBHSCR" },
+    { 280,  "VPP_DISPATCH" },
+    { 281,  "DSA_TAG_BRCM" },
+    { 282,  "DSA_TAG_BRCM_PREPEND" },
+    { 283,  "IEEE802_15_4_TAP" },
     { 0, NULL }
 };
 
@@ -331,7 +342,7 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             /* TODO */
         case WTAP_ENCAP_ERF:
             /* TODO no description for pseudoheader at http://www.tcpdump.org/linktypes.html */
-        case WTAP_ENCAP_I2C:
+        case WTAP_ENCAP_I2C_LINUX:
             /* TODO */
         default:
             /*

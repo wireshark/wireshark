@@ -109,6 +109,7 @@ typedef struct _rtps_dissector_data {
 
 #define RTPS_MAGIC_NUMBER   0x52545053 /* RTPS */
 #define RTPX_MAGIC_NUMBER   0x52545058 /* RTPX */
+#define RTPS_SEQUENCENUMBER_UNKNOWN     0xffffffff00000000 /* {-1,0} as uint64 */
 
 /* Traffic type */
 #define PORT_BASE                       (7400)
@@ -240,11 +241,14 @@ typedef struct _rtps_dissector_data {
 #define PID_KEY_HASH                            (0x0070)
 #define PID_STATUS_INFO                         (0x0071)
 #define PID_TYPE_OBJECT                         (0x0072)
+#define PID_DATA_REPRESENTATION                 (0x0073)
 #define PID_TYPE_CONSISTENCY                    (0x0074)
 #define PID_EQUIVALENT_TYPE_NAME                (0x0075)
 #define PID_BASE_TYPE_NAME                      (0x0076)
 #define PID_ENABLE_ENCRYPTION                   (0x0077)
 #define PID_ENABLE_AUTHENTICATION               (0x0078)
+#define PID_DOMAIN_ID                           (0x000f)
+#define PID_DOMAIN_TAG                          (0x4014)
 
 /* Vendor-specific: RTI */
 #define PID_PRODUCT_VERSION                     (0x8000)
@@ -259,7 +263,7 @@ typedef struct _rtps_dissector_data {
 #define PID_ACK_KIND                            (0x800b)
 #define PID_PEER_HOST_EPOCH                     (0x800e)
 #define PID_RELATED_ORIGINAL_WRITER_INFO        (0x800f)/* inline QoS */
-#define PID_DOMAIN_ID                           (0x800f)
+#define PID_RTI_DOMAIN_ID                       (0x800f)
 #define PID_RELATED_READER_GUID                 (0x8010)/* inline QoS */
 #define PID_TRANSPORT_INFO_LIST                 (0x8010)
 #define PID_SOURCE_GUID                         (0x8011)/* inline QoS */
@@ -280,6 +284,7 @@ typedef struct _rtps_dissector_data {
 #define PID_DATA_TAGS                           (0x1003)
 #define PID_ENDPOINT_SECURITY_INFO              (0x1004)
 #define PID_PARTICIPANT_SECURITY_INFO           (0x1005)
+#define PID_TYPE_OBJECT_LB                      (0x8021)
 
 /* Vendor-specific: PT */
 #define PID_PRISMTECH_WRITER_INFO               (0x8001)
@@ -462,12 +467,21 @@ typedef struct _rtps_dissector_data {
 #define RTPS_VENDOR_PT_LITE_STRING       "PrismTech - OpenSplice Lite"
 #define RTPS_VENDOR_TECHNICOLOR          (0x010E)
 #define RTPS_VENDOR_TECHNICOLOR_STRING   "Technicolor Inc. - Qeo"
+#define RTPS_VENDOR_EPROSIMA             (0x010F)
+#define RTPS_VENDOR_EPROSIMA_STRING      "eProsima - Fast-RTPS"
 
 /* Data encapsulation */
 #define ENCAPSULATION_CDR_BE            (0x0000)
 #define ENCAPSULATION_CDR_LE            (0x0001)
 #define ENCAPSULATION_PL_CDR_BE         (0x0002)
 #define ENCAPSULATION_PL_CDR_LE         (0x0003)
+#define ENCAPSULATION_CDR2_BE           (0x0006)
+#define ENCAPSULATION_CDR2_LE           (0x0007)
+#define ENCAPSULATION_D_CDR2_BE         (0x0008)
+#define ENCAPSULATION_D_CDR2_LE         (0x0009)
+#define ENCAPSULATION_PL_CDR2_BE        (0x000a)
+#define ENCAPSULATION_PL_CDR2_LE        (0x000b)
+
 
 /* Parameter Liveliness */
 #define LIVELINESS_AUTOMATIC            (0)
@@ -553,10 +567,15 @@ typedef struct _rtps_dissector_data {
 #define TOPIC_INFO_ADD_GUID                      (0x01)
 #define TOPIC_INFO_ADD_TYPE_NAME                 (0x02)
 #define TOPIC_INFO_ADD_TOPIC_NAME                (0x04)
-#define TOPIC_INFO_ADD_RELIABILITY               (0x08)
-#define TOPIC_INFO_ADD_DURABILITY                (0x10)
-#define TOPIC_INFO_ADD_OWNERSHIP                 (0x20)
-#define TOPIC_INFO_ALL_SET                       (0x3f)
+#define TOPIC_INFO_ALL_SET                       (0x07)
+
+#define NOT_A_FRAGMENT                           (-1)
+
+/*  */
+#define RTI_OSAPI_COMPRESSION_CLASS_ID_NONE      (0)
+#define RTI_OSAPI_COMPRESSION_CLASS_ID_ZLIB      (1)
+#define RTI_OSAPI_COMPRESSION_CLASS_ID_BZIP2     (2)
+#define RTI_OSAPI_COMPRESSION_CLASS_ID_AUTO      (G_MAXUINT32)
 
 /* Utilities to add elements to the protocol tree for packet-rtps.h and packet-rtps2.h */
 extern guint16 rtps_util_add_protocol_version(proto_tree *tree, tvbuff_t* tvb, gint offset);
@@ -565,6 +584,8 @@ extern void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
                              const guint encoding, const guint8 * label);
 extern int rtps_util_add_locator_list(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb,
                                 gint offset, const guint8* label, const guint encoding);
+extern int rtps_util_add_multichannel_locator_list(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
+    gint offset, const guint8 *label, const guint encoding);
 extern void rtps_util_add_ipv4_address_t(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb, gint offset,
                                          const guint encoding, int hf_item);
 extern void rtps_util_add_locator_udp_v4(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb,

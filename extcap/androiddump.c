@@ -20,7 +20,9 @@
 #include <time.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/cmdarg_err.h>
+#include <wsutil/privileges.h>
+#include <wsutil/please_report_bug.h>
+#include <ui/cmdarg_err.h>
 #include <wsutil/inet_addr.h>
 
 #include "ui/failure_message.h"
@@ -52,7 +54,7 @@
 #define PCAP_RECORD_HEADER_LENGTH              16
 
 #ifdef ANDROIDDUMP_USE_LIBPCAP
-    #include <wsutil/wspcap.h>
+    #include "wspcap.h"
     #include <pcap-bpf.h>
     #include <pcap/bluetooth.h>
 
@@ -73,7 +75,10 @@
     #endif
 #else
     #include "wiretap/wtap.h"
+    #include "wiretap/pcap-encap.h"
 #endif
+
+#include <cli_main.h>
 
 #ifdef ANDROIDDUMP_USE_LIBPCAP
     #define EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR DLT_BLUETOOTH_H4_WITH_PHDR
@@ -442,11 +447,14 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
         g_warning("Write to %s failed: %s", g_strerror(errno));
     }
 #else
+    wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
     int err = 0;
 
     wtap_init(FALSE);
 
-    extcap_dumper.dumper.wtap = wtap_dump_open(fifo, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC, encap, PACKET_LENGTH, FALSE, &err);
+    params.encap = encap;
+    params.snaplen = PACKET_LENGTH;
+    extcap_dumper.dumper.wtap = wtap_dump_open(fifo, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC, WTAP_UNCOMPRESSED, &params, &err);
     if (!extcap_dumper.dumper.wtap) {
         cfile_dump_open_failure_message("androiddump", fifo, err, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC);
         exit(EXIT_CODE_CANNOT_SAVE_WIRETAP_DUMP);
@@ -504,14 +512,8 @@ static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper,
         rec.rec_header.packet_header.caplen -= (guint32)sizeof(own_pcap_bluetooth_h4_header);
 
         buffer += sizeof(own_pcap_bluetooth_h4_header);
-        rec.rec_header.packet_header.pkt_encap = WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
     }
-    else if (extcap_dumper.encap == EXTCAP_ENCAP_ETHERNET) {
-        rec.rec_header.packet_header.pkt_encap = WTAP_ENCAP_ETHERNET;
-    }
-    else {
-        rec.rec_header.packet_header.pkt_encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
-    }
+    rec.rec_header.packet_header.pkt_encap = extcap_dumper.encap;
 
     if (!wtap_dump(extcap_dumper.dumper.wtap, &rec, (const guint8 *) buffer, &err, &err_info)) {
         cfile_write_failure_message("androiddump", NULL, fifo, err, err_info,
@@ -942,7 +944,7 @@ static int add_tcpdump_interfaces(extcap_parameters * extcap_conf, const char *a
     }
     response[data_length] = '\0';
 
-    regex = g_regex_new(regex_ifaces, (GRegexCompileFlags)0, (GRegexMatchFlags)0, &err);
+    regex = g_regex_new(regex_ifaces, G_REGEX_RAW, (GRegexMatchFlags)0, &err);
     if (!regex) {
         g_warning("Failed to compile regex for tcpdump interface matching");
         return EXIT_CODE_GENERIC;
@@ -1274,14 +1276,12 @@ static int list_config(char *interface) {
         printf("arg {number=%u}{call=--bt-forward-socket}{display=Forward Bluetooth Socket}{type=boolean}{default=false}\n", inc++);
         printf("arg {number=%u}{call=--bt-local-ip}{display=Bluetooth Local IP Address}{type=string}{default=127.0.0.1}\n", inc++);
         printf("arg {number=%u}{call=--bt-local-tcp-port}{display=Bluetooth Local TCP Port}{type=integer}{range=0,65535}{default=4330}{tooltip=Used to do \"adb forward tcp:LOCAL_TCP_PORT tcp:SERVER_TCP_PORT\"}\n", inc++);
-        printf("arg {number=%u}{call=--verbose}{display=Verbose/Debug output on console}{type=boolean}{default=false}\n", inc++);
         ret = EXIT_CODE_SUCCESS;
     } else  if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) ||
             is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET) ||
             is_specified_interface(interface, INTERFACE_ANDROID_TCPDUMP)) {
         printf("arg {number=%u}{call=--adb-server-ip}{display=ADB Server IP Address}{type=string}{default=127.0.0.1}\n", inc++);
         printf("arg {number=%u}{call=--adb-server-tcp-port}{display=ADB Server TCP Port}{type=integer}{range=0,65535}{default=5037}\n", inc++);
-        printf("arg {number=%u}{call=--verbose}{display=Verbose/Debug output on console}{type=boolean}{default=false}\n", inc++);
         ret = EXIT_CODE_SUCCESS;
     } else if (is_logcat_interface(interface)) {
         printf("arg {number=%u}{call=--adb-server-ip}{display=ADB Server IP Address}{type=string}{default=127.0.0.1}\n", inc++);
@@ -1289,14 +1289,12 @@ static int list_config(char *interface) {
         printf("arg {number=%u}{call=--logcat-text}{display=Use text logcat}{type=boolean}{default=false}\n", inc++);
         printf("arg {number=%u}{call=--logcat-ignore-log-buffer}{display=Ignore log buffer}{type=boolean}{default=false}\n", inc++);
         printf("arg {number=%u}{call=--logcat-custom-options}{display=Custom logcat parameters}{type=string}\n", inc++);
-        printf("arg {number=%u}{call=--verbose}{display=Verbose/Debug output on console}{type=boolean}{default=false}\n", inc++);
         ret = EXIT_CODE_SUCCESS;
     } else if (is_logcat_text_interface(interface)) {
         printf("arg {number=%u}{call=--adb-server-ip}{display=ADB Server IP Address}{type=string}{default=127.0.0.1}\n", inc++);
         printf("arg {number=%u}{call=--adb-server-tcp-port}{display=ADB Server TCP Port}{type=integer}{range=0,65535}{default=5037}\n", inc++);
         printf("arg {number=%u}{call=--logcat-ignore-log-buffer}{display=Ignore log buffer}{type=boolean}{default=false}\n", inc++);
         printf("arg {number=%u}{call=--logcat-custom-options}{display=Custom logcat parameters}{type=string}\n", inc++);
-        printf("arg {number=%u}{call=--verbose}{display=Verbose/Debug output on console}{type=boolean}{default=false}\n", inc++);
         ret = EXIT_CODE_SUCCESS;
     }
 
@@ -1578,6 +1576,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                             date.tm_min, date.tm_sec, ms, direction_character);
                 date.tm_mon -= 1;
                 date.tm_year -= 1900;
+                date.tm_isdst = -1;
                 ts = mktime(&date);
 
                 new_hex_data = data + 29;
@@ -2128,6 +2127,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
             if (6 == sscanf(packet + exported_pdu_headers_size, "%d-%d %d:%d:%d.%d", &date->tm_mon, &date->tm_mday, &date->tm_hour,
                             &date->tm_min, &date->tm_sec, &ms)) {
                 date->tm_mon -= 1;
+                date->tm_isdst = -1;
                 seconds = mktime(date);
                 secs = (time_t) seconds;
                 nsecs = (int) (ms * 1e6);
@@ -2327,7 +2327,7 @@ static int capture_android_tcpdump(char *interface, char *fifo,
     GMatchInfo                              *match = NULL;
     char                                     tcpdump_cmd[80];
 
-    regex = g_regex_new(regex_interface, (GRegexCompileFlags)0, (GRegexMatchFlags)0, &err);
+    regex = g_regex_new(regex_interface, G_REGEX_RAW, (GRegexMatchFlags)0, &err);
     if (!regex) {
         g_warning("Failed to compile regex for tcpdump interface");
         return EXIT_CODE_GENERIC;
@@ -2410,8 +2410,11 @@ static int capture_android_tcpdump(char *interface, char *fifo,
         closesocket(sock);
         return EXIT_CODE_GENERIC;
     }
-
-    extcap_dumper = extcap_dumper_open(fifo, (int) data[20]);
+    int encap = (int)data[20];
+#ifndef ANDROIDDUMP_USE_LIBPCAP
+    encap = wtap_pcap_encap_to_wtap_encap(encap);
+#endif
+    extcap_dumper = extcap_dumper_open(fifo, encap);
 
     used_buffer_length = 0;
     while (endless_loop) {
@@ -2479,7 +2482,8 @@ static int capture_android_tcpdump(char *interface, char *fifo,
     return EXIT_CODE_SUCCESS;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char *argv[]) {
+    char            *err_msg;
     int              ret = EXIT_CODE_GENERIC;
     int              option_idx = 0;
     int              result;
@@ -2504,13 +2508,23 @@ int main(int argc, char **argv) {
     char            *help_url;
     char            *help_header = NULL;
 
-#ifdef _WIN32
-    WSADATA          wsaData;
-
-    attach_parent_console();
-#endif  /* _WIN32 */
-
     cmdarg_err_init(failure_warning_message, failure_warning_message);
+
+    /*
+     * Get credential information for later use.
+     */
+    init_process_policies();
+
+    /*
+     * Attempt to get the pathname of the directory containing the
+     * executable file.
+     */
+    err_msg = init_progfile_dir(argv[0]);
+    if (err_msg != NULL) {
+        g_warning("Can't get pathname of directory containing the captype program: %s.",
+                  err_msg);
+        g_free(err_msg);
+    }
 
     extcap_conf = g_new0(extcap_parameters, 1);
 
@@ -2612,7 +2626,7 @@ int main(int argc, char **argv) {
                 break;
             }
 
-            if (g_regex_match_simple("(^|\\s)-[bBcDfgLnpPrv]", optarg, (GRegexCompileFlags)0, (GRegexMatchFlags)0)) {
+            if (g_regex_match_simple("(^|\\s)-[bBcDfgLnpPrv]", optarg, G_REGEX_RAW, (GRegexMatchFlags)0)) {
                 g_error("Found prohibited option in logcat-custom-options");
                 return EXIT_CODE_GENERIC;
             }
@@ -2672,13 +2686,13 @@ int main(int argc, char **argv) {
     if (!bt_local_tcp_port)
         bt_local_tcp_port = &default_bt_local_tcp_port;
 
-#ifdef _WIN32
-    result = WSAStartup(MAKEWORD(1,1), &wsaData);
-    if (result != 0) {
-        g_warning("WSAStartup failed with %d", result);
+    err_msg = ws_init_sockets();
+    if (err_msg != NULL) {
+        g_warning("ERROR: %s", err_msg);
+        g_free(err_msg);
+        g_warning("%s", please_report_bug());
         goto end;
     }
-#endif  /* _WIN32 */
 
     extcap_cmdline_debug(argv, argc);
 
@@ -2746,19 +2760,8 @@ end:
     return ret;
 }
 
-#ifdef _WIN32
-int _stdcall
-WinMain (struct HINSTANCE__ *hInstance,
-         struct HINSTANCE__ *hPrevInstance,
-         char               *lpszCmdLine,
-         int                 nCmdShow)
-{
-    return main(__argc, __argv);
-}
-#endif
-
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

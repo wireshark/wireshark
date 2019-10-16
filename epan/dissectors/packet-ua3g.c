@@ -12,7 +12,12 @@
 
 #include "config.h"
 
-#include "epan/packet.h"
+#include <epan/packet.h>
+#include <epan/prefs.h>
+
+#include "packet-rtp.h"
+#include "packet-rtcp.h"
+
 #include "packet-uaudp.h"
 
 void proto_register_ua3g(void);
@@ -25,7 +30,6 @@ void proto_reg_handoff_ua3g(void);
 static dissector_table_t ua3g_opcode_dissector_table;
 #endif
 
-
 static int  proto_ua3g          = -1;
 static gint ett_ua3g            = -1;
 static gint ett_ua3g_body       = -1;
@@ -34,6 +38,8 @@ static gint ett_ua3g_param_sub  = -1;
 static gint ett_ua3g_option     = -1;
 static gint ett_ua3g_beep_beep_destination = -1;
 static gint ett_ua3g_note       = -1;
+
+static gboolean setup_conversations_enabled = TRUE;
 
 static int  hf_ua3g_length                  = -1;
 static int  hf_ua3g_opcode_sys              = -1;
@@ -267,8 +273,17 @@ static int hf_ua3g_ip_device_routing_freeseating_parameter = -1;
 static int hf_ua3g_ip_device_routing_freeseating_parameter_length = -1;
 static int hf_ua3g_ip_device_routing_freeseating_parameter_mac = -1;
 static int hf_ua3g_ip_device_routing_freeseating_parameter_ip = -1;
+static int hf_ua3g_ip_device_routing_freeseating_parameter_ipv6 = -1;
+static int hf_ua3g_ip_device_routing_freeseating_parameter_do_reset = -1;
 static int hf_ua3g_ip_device_routing_freeseating_parameter_uint = -1;
 static int hf_ua3g_ip_device_routing_freeseating_parameter_value = -1;
+static int hf_ua3g_ip_device_routing_appl_parameter = -1;
+static int hf_ua3g_ip_device_routing_appl_parameter_length = -1;
+static int hf_ua3g_ip_device_routing_appl_parameter_id = -1;
+static int hf_ua3g_ip_device_routing_appl_parameter_enable = -1;
+static int hf_ua3g_ip_device_routing_appl_parameter_url = -1;
+static int hf_ua3g_ip_device_routing_appl_parameter_uint = -1;
+static int hf_ua3g_ip_device_routing_appl_parameter_value = -1;
 static int hf_ua3g_main_voice_mode_handset_level = -1;
 static int hf_ua3g_main_voice_mode_headset_level = -1;
 static int hf_ua3g_main_voice_mode_handsfree_level = -1;
@@ -329,8 +344,13 @@ static int hf_ua3g_unsolicited_msg_hardware_config_8082_set = -1;
 static int hf_ua3g_unsolicited_msg_hardware_config_super_wideband = -1;
 static int hf_ua3g_unsolicited_msg_hook_status = -1;
 static int hf_ua3g_unsolicited_msg_additional_vta_type = -1;
-static int hf_ua3g_unsolicited_msg_capability_info = -1;
 static int hf_ua3g_unsolicited_msg_capability_info_bluetooth_supported = -1;
+static int hf_ua3g_unsolicited_msg_capability_info_vpn_encryption_status = -1;
+static int hf_ua3g_unsolicited_msg_capability_info_vpn = -1;
+static int hf_ua3g_unsolicited_msg_capability_info_ipsec = -1;
+static int hf_ua3g_unsolicited_msg_capability_info_dtls = -1;
+static int hf_ua3g_unsolicited_msg_capability_info_wlan_status = -1;
+static int hf_ua3g_unsolicited_msg_capability_info_reserved = -1;
 static int hf_ua3g_special_key_shift = -1;
 static int hf_ua3g_special_key_ctrl = -1;
 static int hf_ua3g_special_key_alt = -1;
@@ -650,6 +670,17 @@ static value_string_ext str_digit_ext = VALUE_STRING_EXT_INIT(str_digit);
 #define STR_ON_OFF(arg) ((arg) ? "On" : "Off")
 #define STR_YES_NO(arg) ((arg) ? "Yes" : "No")
 
+static const value_string str_yes_no[] = {
+    { 0x0, "No" },
+    { 0x1, "Yes"},
+    { 0  , NULL }
+};
+
+static const value_string str_on_off[] = {
+    { 0x0, "Off"},
+    { 0x1, "On" },
+    { 0  , NULL }
+};
 
 static const value_string str_device_type[] = {
     {0x00, "Voice Terminal Adaptor"},
@@ -851,6 +882,7 @@ static const value_string str_command_ip_device_routing[] = {
     {0x0F, "Stop Record RTP"},
     {0x10, "Set SIP Parameters"},
     {0x11, "Free Seating"},
+    {0x14, "Application Parameters"},
     {0, NULL}
 };
 
@@ -1002,10 +1034,11 @@ static const value_string set_param_req_stable_mode[] = {
 
 static const value_string set_param_req_skin_id[] = {
     {0x00   , "Managed By Terminal"},
-    {0x01   , "Classical"},
+    {0x01   , "Classical or Arcturus"},
     {0x02   , "Rainbow"},
-    {0x03   , "Crystal"},
+    {0x03   , "Crystal or Green"},
     {0x04   , "Luxury"},
+    {0x05   , "Arcturus or Classical or Century"},
     {0, NULL}
 };
 
@@ -1058,13 +1091,21 @@ static const value_string ip_device_routing_cmd_freeseating_vals[] = {
     {0x00   , "Pseudo MAC Address"},
     {0x01   , "Maincpu1"},
     {0x02   , "Maincpu2"},
+    {0x03   , "Restart application"},
+    {0, NULL}
+};
+
+static const value_string ip_device_routing_cmd_appl_vals[] = {
+    {0x00   , "Identifier"},
+    {0x01   , "Enable"},
+    {0x02   , "URL"},
     {0, NULL}
 };
 
 static const value_string ip_device_routing_tone_direction_vals[] = {
     {0x00, "On The Phone"},
-    {0x40, "To The Network"},
-    {0x80, "On The Phone and To The Network"},
+    {0x01, "To The Network"},
+    {0x02, "On The Phone and To The Network"},
     {0, NULL}
 };
 
@@ -1105,6 +1146,12 @@ static const value_string str_ethernet_speed_vals[] = {
     {10  , "10 Mbps"},
     {100 , "100 Mbps"},
     {0   , NULL}
+};
+
+static const value_string str_wlan_status[] = {
+    {0, "Not Connected"},
+    {1, "Connected"},
+    {0, NULL}
 };
 
 static void
@@ -1201,6 +1248,9 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         }
     case 0x01: /* START RTP */
         {
+            address remote_rtp_addr = ADDRESS_INIT_NONE;
+            guint32 remote_rtp_port = 0;
+
             proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_start_rtp_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
@@ -1227,8 +1277,10 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     case 0x01: /* Remote IP Address */
                     case 0x11: /* Destination For RTCP Sender Reports - IP Address */
                     case 0x13: /* Destination For RTCP Receiver Reports - IP Address */
-                            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_rtp_parameter_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
-                            break;
+                        if (parameter_id == 0x01)
+                           set_address_tvb(&remote_rtp_addr, AT_IPv4, 4, tvb, offset);
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_rtp_parameter_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+                        break;
                     case 0x04: /* Compressor */
                         if (parameter_length <= 8) {
                             proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_rtp_parameter_compressor, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
@@ -1299,6 +1351,8 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     case 0x39: /* Integrity method of Thales component */
                     case 0x50: /* MD5 Authentication */
                     default:
+                        if (parameter_id == 0x02)
+                            remote_rtp_port = tvb_get_ntohs(tvb, offset);
                         if (parameter_length <= 8) {
                             proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_rtp_parameter_uint, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
                         } else {
@@ -1309,6 +1363,15 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
                     offset += parameter_length;
                     length -= parameter_length;
+                }
+            }
+
+            if (setup_conversations_enabled)
+            {
+                if ((remote_rtp_addr.data != NULL) && (remote_rtp_port != 0))
+                {
+                    rtp_add_address(pinfo, PT_UDP, &remote_rtp_addr, remote_rtp_port, 0, "UA3G", pinfo->num, 0, NULL);
+                    rtcp_add_address(pinfo, &remote_rtp_addr, remote_rtp_port+1, 0, "UA3G", pinfo->num);
                 }
             }
             break;
@@ -1428,10 +1491,10 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     case 0x05: /* START TONE */
         {
             guint8 ii;
-            guint8 tone_nb_entries = tvb_get_guint8(tvb, offset);
+            guint32 tone_nb_entries;
 
             proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_start_tone_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_start_tone_num_entries, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(ua3g_body_tree, hf_ua3g_ip_device_routing_start_tone_num_entries, tvb, offset, 1, ENC_BIG_ENDIAN, &tone_nb_entries);
             offset++;
             length--;
 
@@ -1642,6 +1705,11 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         break;
     case 0x0E: /* START_RECORD_RTP */
     case 0x0F: /* STOP RECORD RTP */
+    {
+        address remote_rtp_addr = ADDRESS_INIT_NONE;
+        guint32 remote_rtp_port_in = 0;
+        guint32 remote_rtp_port_out = 0;
+
         while (length > 0) {
 
             parameter_id     = tvb_get_guint8(tvb, offset);
@@ -1664,6 +1732,8 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 switch (parameter_id) {
                 case 0x01: /* Remote IP Address */
                 case 0x04: /* Remote IP Address Out */
+                    if (parameter_id == 0x01)
+                        set_address_tvb(&remote_rtp_addr, AT_IPv4, 4, tvb, offset);
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_remote_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
                     break;
                 case 0x00: /* Recorder Index */
@@ -1679,6 +1749,10 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 case 0x30: /* MD5 Authentication */
                 default:
                     if (parameter_length <= 8) {
+                        if (parameter_id == 0x02)
+                            remote_rtp_port_in = tvb_get_ntohs(tvb, offset);
+                        if (parameter_id == 0x03)
+                            remote_rtp_port_out = tvb_get_ntohs(tvb, offset);
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_uint, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
                     } else {
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_value, tvb, offset, parameter_length, ENC_NA);
@@ -1690,7 +1764,26 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 length -= parameter_length;
             }
         }
+
+        if (setup_conversations_enabled)
+        {
+            if (remote_rtp_addr.data != NULL)
+            {
+                if (remote_rtp_port_in != 0)
+                {
+                    rtp_add_address(pinfo, PT_UDP, &remote_rtp_addr, remote_rtp_port_in, 0, "UA3G", pinfo->num, 0, NULL);
+                    rtcp_add_address(pinfo, &remote_rtp_addr, remote_rtp_port_in+1, 0, "UA3G", pinfo->num);
+                }
+                if (remote_rtp_port_out != 0)
+                {
+                    rtp_add_address(pinfo, PT_UDP, &remote_rtp_addr, remote_rtp_port_out, 0, "UA3G", pinfo->num, 0, NULL);
+                    rtcp_add_address(pinfo, &remote_rtp_addr, remote_rtp_port_out+1, 0, "UA3G", pinfo->num);
+                }
+            }
+        }
+
         break;
+    }
     case 0x10: /* Set SIP Parameters */
         break;
     case 0x11: /* Free Seating */
@@ -1718,13 +1811,74 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     break;
                 case 0x01: /* Maincpu1 */
                 case 0x02: /* Maincpu2 */
-                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_freeseating_parameter_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+                {
+                    int hf = -1;
+
+                    if (parameter_length == FT_IPv4_LEN)
+                        hf = hf_ua3g_ip_device_routing_freeseating_parameter_ip;
+                    else
+                    if (parameter_length == FT_IPv6_LEN)
+                        hf = hf_ua3g_ip_device_routing_freeseating_parameter_ipv6;
+
+                    if (hf != -1)
+                        proto_tree_add_item(ua3g_param_tree, hf, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                    else
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_freeseating_parameter_value, tvb, offset, parameter_length, ENC_NA);
                     break;
+                }
+                case 0x03: /* Restart application */
+                {
+                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_freeseating_parameter_do_reset, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                    break;
+                }
                 default:
                     if (parameter_length <= 8) {
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_freeseating_parameter_uint, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
                     } else {
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_freeseating_parameter_value, tvb, offset, parameter_length, ENC_NA);
+                    }
+                    break;
+                }
+                offset += parameter_length;
+                length -= parameter_length;
+            }
+        }
+        break;
+    case 0x14: /* Set Appl Param */
+        while (length > 0) {
+            parameter_id     = tvb_get_guint8(tvb, offset);
+            parameter_length = tvb_get_guint8(tvb, offset + 1);
+
+            ua3g_param_item = proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_ip_device_routing_appl_parameter, tvb, offset,
+                parameter_length + 2, parameter_id, "%s", val_to_str_const(parameter_id, ip_device_routing_cmd_appl_vals, "Unknown"));
+            ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
+
+            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_appl_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            length--;
+
+            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_appl_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            length--;
+
+            if (parameter_length > 0) {
+                switch (parameter_id) {
+                case 0x00: /* Identifier */
+                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_appl_parameter_id, tvb, offset, parameter_length, ENC_STRING);
+                    break;
+                case 0x01: /* Enable */
+                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_appl_parameter_enable, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                    break;
+                case 0x02: /* URL */
+                {
+                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_appl_parameter_url, tvb, offset, parameter_length, ENC_STRING);
+                    break;
+                }
+                default:
+                    if (parameter_length <= 8) {
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_appl_parameter_uint, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                    } else {
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_appl_parameter_value, tvb, offset, parameter_length, ENC_NA);
                     }
                     break;
                 }
@@ -3016,7 +3170,7 @@ static const value_string str_vta_type[] = {
     {0x04, "4020"},
     {0x05, "4010"},
     {0x20, "4018"},
-    {0x21, "4028/8028/8028S"},
+    {0x21, "4028/8008/8008G/8028/8028S/8058S"},
     {0x22, "4038/8038"},
     {0x23, "4068/8068/8082/8068S"},
     {0x24, "mipt"},
@@ -3035,7 +3189,7 @@ static const value_string str_additional_vta_type[] = {
     {0x33, "4068S"},
     {0x34, "8078S"},
     {0x35, "8088"},
-    {0x36, "8008"},
+    {0x36, "8008/8008G"},
     {0, NULL}
 };
 
@@ -3680,25 +3834,44 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                                 offset += 2;
                                 length -= 2;
 
-                                if (length >= 4) {
-                                    static const int *capability_info[] = {
-                                        &hf_ua3g_unsolicited_msg_capability_info_bluetooth_supported,
-                                        NULL
-                                    };
+                                proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_firmware_version_bootloader, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                offset += 2;
+                                length -= 2;
 
-
-                                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_firmware_version_bootloader,
-                                            tvb, offset, 2, ENC_BIG_ENDIAN);
-                                    offset += 2;
-                                    length -= 2;
-
-                                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_additional_vta_type,
-                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                                if (length >= 1) {
+                                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_additional_vta_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                                     offset++;
                                     length--;
+                                }
 
+                                if (length >= 1) {
+                                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_capability_info_bluetooth_supported, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                    offset++;
+                                    length--;
+                                }
 
-                                    proto_tree_add_bitmask(ua3g_body_tree, tvb, offset, hf_ua3g_unsolicited_msg_capability_info, ett_ua3g_param, capability_info, ENC_NA);
+                                if (length >= 1) {
+                                    const int *capability_info[] = {
+                                        &hf_ua3g_unsolicited_msg_capability_info_vpn,
+                                        &hf_ua3g_unsolicited_msg_capability_info_ipsec,
+                                        &hf_ua3g_unsolicited_msg_capability_info_dtls,
+                                        NULL
+                                    };
+                                    proto_tree_add_bitmask(ua3g_body_tree, tvb, offset, hf_ua3g_unsolicited_msg_capability_info_vpn_encryption_status, ett_ua3g_param, capability_info, ENC_NA);
+                                    offset++;
+                                    length--;
+                                }
+
+                                if (length >= 1) {
+                                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_capability_info_wlan_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                    offset++;
+                                    length--;
+                                }
+
+                                while(length > 0) {
+                                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_capability_info_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                    offset++;
+                                    length--;
                                 }
                             }
                         }
@@ -4423,7 +4596,7 @@ proto_register_ua3g(void)
         { &hf_ua3g_ip_device_routing_def_tones_frequency_2, { "Frequency 2 (Hz)", "ua3g.ip.def_tones.frequency_2", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_def_tones_level_2, { "Level 2 (dB)", "ua3g.ip.def_tones.level_2", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_tone_direction, { "Direction", "ua3g.ip.start_tone.direction", FT_UINT8, BASE_DEC, VALS(ip_device_routing_tone_direction_vals), 0xC0, NULL, HFILL }},
-        { &hf_ua3g_ip_device_routing_start_tone_num_entries, { "Number of entries", "ua3g.ip.start_tone.num_entries", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_start_tone_num_entries, { "Number of entries", "ua3g.ip.start_tone.num_entries", FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_tone_identification, { "Identification", "ua3g.ip.start_tone.identification", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_tone_duration, { "Duration (ms)", "ua3g.ip.start_tone.duration", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_listen_rtp_parameter, { "Parameter", "ua3g.ip.listen_rtp.parameter", FT_UINT8, BASE_HEX, VALS(ip_device_routing_cmd_listen_rtp_vals), 0x0, NULL, HFILL }},
@@ -4604,6 +4777,15 @@ proto_register_ua3g(void)
         { &hf_ua3g_ip_device_routing_freeseating_parameter_uint, { "Value", "ua3g.ip.freeseating.parameter.uint", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_freeseating_parameter_mac, { "Value", "ua3g.ip.freeseating.parameter.mac", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_freeseating_parameter_ip, { "Value", "ua3g.ip.freeseating.parameter.ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_freeseating_parameter_ipv6, { "Value", "ua3g.ip.freeseating.parameter.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_freeseating_parameter_do_reset, { "Value", "ua3g.ip.freeseating.parameter.do_reset", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_appl_parameter, { "Parameter", "ua3g.ip.appl.parameter", FT_UINT8, BASE_HEX, VALS(ip_device_routing_cmd_appl_vals), 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_appl_parameter_length, { "Length", "ua3g.ip.appl.parameter.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_appl_parameter_value, { "Value", "ua3g.ip.appl.parameter.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_appl_parameter_uint, { "Value", "ua3g.ip.appl.parameter.uint", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_appl_parameter_id, { "Value", "ua3g.ip.appl.parameter.id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_appl_parameter_enable, { "Value", "ua3g.ip.appl.parameter.enable", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_appl_parameter_url, { "Value", "ua3g.ip.appl.parameter.url", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_audio_config_dpi_chan_ua_tx1, { "UA Channel UA-TX1", "ua3g.command.audio_config.dpi_chan.ua_tx1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_audio_config_dpi_chan_ua_tx2, { "UA Channel UA-TX2", "ua3g.command.audio_config.dpi_chan.ua_tx2", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_audio_config_dpi_chan_gci_tx1, { "GCI Channel GCI-TX1", "ua3g.command.audio_config.dpi_chan.gci_tx1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -4659,10 +4841,15 @@ proto_register_ua3g(void)
         { &hf_ua3g_unsolicited_msg_hardware_config_3g_set, { "Hardware Generation", "ua3g.unsolicited_msg.hardware_config.3g_set", FT_BOOLEAN, 8, TFS(&tfs_2g_3g), 0x10, NULL, HFILL }},
         { &hf_ua3g_unsolicited_msg_hardware_config_8082_set, { "8082 Hardware", "ua3g.unsolicited_msg.hardware_config.8082_set", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20, NULL, HFILL }},
         { &hf_ua3g_unsolicited_msg_hardware_config_super_wideband, { "Super Wideband Support", "ua3g.unsolicited_msg.hardware_config.super_wideband", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40, NULL, HFILL }},
-        { &hf_ua3g_unsolicited_msg_hook_status, { "Hook Status", "ua3g.unsolicited_msg.hook_status", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x00, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_hook_status, { "Hook Status", "ua3g.unsolicited_msg.hook_status", FT_UINT8, BASE_DEC, VALS(str_on_off), 0x0, NULL, HFILL }},
         { &hf_ua3g_unsolicited_msg_additional_vta_type, { "Additional VTA Type", "ua3g.unsolicited_msg.additional_vta_type", FT_UINT8, BASE_HEX, VALS(str_additional_vta_type), 0x0, NULL, HFILL }},
-        { &hf_ua3g_unsolicited_msg_capability_info, { "Capability Info", "ua3g.unsolicited_msg.capability_info", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }},
-        { &hf_ua3g_unsolicited_msg_capability_info_bluetooth_supported, { "Bluetooth Supported", "ua3g.unsolicited_msg.capability_info.bluetooth_supported", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info_bluetooth_supported, { "Bluetooth Supported", "ua3g.unsolicited_msg.capability_info.bluetooth_supported", FT_UINT8, BASE_DEC, VALS(str_yes_no), 0x0, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info_vpn_encryption_status, { "VPN and Encryption Status", "ua3g.unsolicited_msg.capability_info.vpn_encryption_status", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info_vpn, { "VPN", "ua3g.unsolicited_msg.capability_info.vpn", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info_ipsec, { "IPSec", "ua3g.unsolicited_msg.capability_info.ipsec", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info_dtls, { "DTLS", "ua3g.unsolicited_msg.capability_info.dtls", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x4, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info_wlan_status, { "WLAN Status", "ua3g.unsolicited_msg.capability_info.wlan_status", FT_UINT8, BASE_DEC, VALS(str_wlan_status), 0x0, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info_reserved, { "Reserved", "ua3g.unsolicited_msg.capability_info.reserved", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_special_key_shift, { "Shift", "ua3g.special_key.shift", FT_BOOLEAN, 8, TFS(&tfs_released_pressed), 0x01, NULL, HFILL }},
         { &hf_ua3g_special_key_ctrl, { "Ctrl", "ua3g.special_key.ctrl", FT_BOOLEAN, 8, TFS(&tfs_released_pressed), 0x02, NULL, HFILL }},
         { &hf_ua3g_special_key_alt, { "Alt", "ua3g.special_key.alt", FT_BOOLEAN, 8, TFS(&tfs_released_pressed), 0x04, NULL, HFILL }},
@@ -4742,8 +4929,18 @@ proto_register_ua3g(void)
         &ett_ua3g_note,
     };
 
+    module_t *ua3g_module;
+
     /* UA3G dissector registration */
     proto_ua3g = proto_register_protocol("UA3G Message", "UA3G", "ua3g");
+
+    /* Register preferences */
+    ua3g_module = prefs_register_protocol(proto_ua3g, NULL);
+
+    prefs_register_bool_preference(ua3g_module, "setup_conversations",
+        "Setup RTP/RTCP conversations on Start/Record RTP",
+        "Setup RTP/RTCP conversations when parsing Start/Record RTP messages",
+        &setup_conversations_enabled);
 
     proto_register_field_array(proto_ua3g, hf, array_length(hf));
 
@@ -4765,7 +4962,7 @@ void proto_reg_handoff_ua3g(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

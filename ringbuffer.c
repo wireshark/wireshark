@@ -37,7 +37,7 @@
 #include <time.h>
 #include <errno.h>
 
-#include <wsutil/wspcap.h>
+#include "wspcap.h"
 
 #include <glib.h>
 
@@ -50,18 +50,19 @@ typedef struct _rb_file {
   gchar         *name;
 } rb_file;
 
-/* Ringbuffer data structure */
+/** Ringbuffer data structure */
 typedef struct _ringbuf_data {
   rb_file      *files;
-  guint         num_files;           /* Number of ringbuffer files (1 to ...) */
-  guint         curr_file_num;       /* Number of the current file (ever increasing) */
-  gchar        *fprefix;             /* Filename prefix */
-  gchar        *fsuffix;             /* Filename suffix */
-  gboolean      unlimited;           /* TRUE if unlimited number of files */
+  guint         num_files;           /**< Number of ringbuffer files (1 to ...) */
+  guint         curr_file_num;       /**< Number of the current file (ever increasing) */
+  gchar        *fprefix;             /**< Filename prefix */
+  gchar        *fsuffix;             /**< Filename suffix */
+  gboolean      unlimited;           /**< TRUE if unlimited number of files */
 
-  int           fd;                  /* Current ringbuffer file descriptor */
+  int           fd;                  /**< Current ringbuffer file descriptor */
   FILE         *pdh;
-  gboolean      group_read_access;   /* TRUE if files need to be opened with group read access */
+  char         *io_buffer;              /**< The IO buffer used to write to the file */
+  gboolean      group_read_access;   /**< TRUE if files need to be opened with group read access */
 } ringbuf_data;
 
 static ringbuf_data rb_data;
@@ -132,6 +133,7 @@ ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_acce
   rb_data.unlimited = FALSE;
   rb_data.fd = -1;
   rb_data.pdh = NULL;
+  rb_data.io_buffer = NULL;
   rb_data.group_read_access = group_read_access;
 
   /* just to be sure ... */
@@ -203,8 +205,18 @@ ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_acce
 }
 
 
+/*
+ * Whether the ringbuf filenames are ready.
+ * (Whether ringbuf_init is called and ringbuf_free is not called.)
+ */
+gboolean ringbuf_is_initialized(void)
+{
+  return rb_data.files != NULL;
+}
+
 const gchar *ringbuf_current_filename(void)
 {
+  /* g_assert(ringbuf_is_initialized()); */
   return rb_data.files[rb_data.curr_file_num % rb_data.num_files].name;
 }
 
@@ -219,7 +231,22 @@ ringbuf_init_libpcap_fdopen(int *err)
     if (err != NULL) {
       *err = errno;
     }
+  } else {
+    size_t buffsize = IO_BUF_SIZE;
+#ifdef HAVE_STRUCT_STAT_ST_BLKSIZE
+    ws_statb64 statb;
+
+    if (ws_fstat64(rb_data.fd, &statb) == 0) {
+      if (statb.st_blksize > IO_BUF_SIZE) {
+        buffsize = statb.st_blksize;
+      }
+    }
+#endif
+    /* Increase the size of the IO buffer */
+    rb_data.io_buffer = (char *)g_realloc(rb_data.io_buffer, buffsize);
+    setvbuf(rb_data.pdh, rb_data.io_buffer, _IOFBF, buffsize);
   }
+
   return rb_data.pdh;
 }
 
@@ -241,6 +268,8 @@ ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, int *err)
     ws_close(rb_data.fd);  /* XXX - the above should have closed this already */
     rb_data.pdh = NULL;    /* it's still closed, we just got an error while closing */
     rb_data.fd = -1;
+    g_free(rb_data.io_buffer);
+    rb_data.io_buffer = NULL;
     return FALSE;
   }
 
@@ -288,6 +317,9 @@ ringbuf_libpcap_dump_close(gchar **save_file, int *err)
     }
     rb_data.pdh = NULL;
     rb_data.fd  = -1;
+    g_free(rb_data.io_buffer);
+    rb_data.io_buffer = NULL;
+
   }
 
   /* set the save file name to the current file */
@@ -352,6 +384,9 @@ ringbuf_error_cleanup(void)
       }
     }
   }
+  g_free(rb_data.io_buffer);
+  rb_data.io_buffer = NULL;
+
   /* free the memory */
   ringbuf_free();
 }
@@ -359,7 +394,7 @@ ringbuf_error_cleanup(void)
 #endif /* HAVE_LIBPCAP */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

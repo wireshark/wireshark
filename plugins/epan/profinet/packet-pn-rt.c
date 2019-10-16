@@ -267,7 +267,7 @@ dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pin
 
 
 static gboolean
-IsDFP_Frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 u16FrameID)
+IsDFP_Frame(tvbuff_t *tvb, packet_info *pinfo, guint16 u16FrameID)
 {
     guint16       u16SFCRC16;
     guint8        u8SFPosition;
@@ -300,7 +300,6 @@ IsDFP_Frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 u16Fram
     {
         if (u16SFCRC16 != crc)
         {
-            proto_item_append_text(tree, ", no packed frame: SFCRC16 is 0x%x should be 0x%x", u16SFCRC16, crc);
             return(FALSE);
         }
     }
@@ -368,7 +367,7 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     /* possible FrameID ranges for DFP */
     if ((u16FrameID < 0x100) || (u16FrameID > 0x0FFF))
         return (FALSE);
-    if (IsDFP_Frame(tvb, pinfo, tree, u16FrameID)) {
+    if (IsDFP_Frame(tvb, pinfo, u16FrameID)) {
         /* can't check this CRC, as the checked data bytes are not available */
         u16SFCRC16 = tvb_get_letohs(tvb, offset);
         if (u16SFCRC16 != 0) {
@@ -435,6 +434,11 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         }
 
         return TRUE;
+    }
+
+    else {
+        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, tvb_captured_length_remaining(tvb, offset),
+                 "PROFINET IO Cyclic Service Data Unit");
     }
 
     return FALSE;
@@ -1146,7 +1150,7 @@ proto_reg_handoff_pn_rt(void)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

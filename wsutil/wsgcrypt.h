@@ -39,6 +39,8 @@ DIAG_ON(deprecated-declarations)
    algorithm. */
 WS_DLL_PUBLIC gcry_error_t ws_hmac_buffer(int algo, void *digest, const void *buffer, size_t length, const void *key, size_t keylen);
 
+WS_DLL_PUBLIC gcry_error_t ws_cmac_buffer(int algo, void *digest, const void *buffer, size_t length, const void *key, size_t keylen);
+
 /* Convenience function to encrypt 8 bytes in BUFFER with DES using the 56 bits KEY expanded to
    64 bits as key, encrypted data is returned in OUTPUT which must be at least 8 bytes large */
 WS_DLL_PUBLIC void crypt_des_ecb(guint8 *output, const guint8 *buffer, const guint8 *key56);

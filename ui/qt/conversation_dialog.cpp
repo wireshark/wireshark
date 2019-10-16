@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "conversation_dialog.h"
 
@@ -211,7 +212,8 @@ void ConversationDialog::followStream()
     }
 
     // Will set the display filter too.
-    emit openFollowStreamDialog(ftype, (int)conv_item->conv_id);
+    // TCP and UDP do not have a "sub-stream", so set a dummy value.
+    emit openFollowStreamDialog(ftype, conv_item->conv_id, 0);
 }
 
 void ConversationDialog::graphTcp()
@@ -226,7 +228,7 @@ void ConversationDialog::graphTcp()
     }
 
     // XXX The GTK+ code opens the TCP Stream dialog. We might want
-    // to open the IO Graph dialog instead.
+    // to open the I/O Graph dialog instead.
     QString filter;
     if (conv_item->etype == ENDPOINT_TCP) {
         filter = QString("tcp.stream eq %1").arg(conv_item->conv_id);

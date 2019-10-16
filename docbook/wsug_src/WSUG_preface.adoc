@@ -1,0 +1,89 @@
+// WSUG Preface
+
+[[PreForeword]]
+
+=== Foreword
+
+Wireshark is the world’s foremost network protocol analyzer,
+but the rich feature set can be daunting for the unfamiliar.
+This document is part of an effort by the Wireshark team to improve
+Wireshark's usability.
+We hope that you find it useful and look forward to your comments.
+
+[[PreAudience]]
+
+=== Who should read this document?
+
+The intended audience of this book is anyone using Wireshark.
+
+This book explains all of the basic and some advanced features
+of Wireshark. As Wireshark has become a very complex program,
+not every feature may be explained in this book.
+
+This book is not intended to explain network sniffing in general and it
+will not provide details about specific network protocols. A lot of
+useful information regarding these topics can be found at the Wireshark
+Wiki at link:{wireshark-wiki-url}[].
+
+By reading this book, you will learn how to install Wireshark, how to use the
+basic elements of the graphical user interface (such as the menu) and what’s
+behind some of the advanced features that are not always obvious at first sight.
+It will hopefully guide you around some common problems that frequently appear
+for new (and sometimes even advanced) Wireshark users.
+
+[[PreAck]]
+
+=== Acknowledgements
+
+The authors would like to thank the whole Wireshark team for their assistance.
+In particular, the authors would like to thank:
+
+* Gerald Combs, for initiating the Wireshark project and funding to do this
+  documentation.
+
+* Guy Harris, for many helpful hints and a great deal of patience in reviewing
+  this document.
+
+* Gilbert Ramirez, for general encouragement and helpful hints along the way.
+
+The authors would also like to thank the following people for their helpful
+feedback on this document:
+
+* Pat Eyler, for his suggestions on improving the example on generating a backtrace.
+
+* Martin Regner, for his various suggestions and corrections.
+
+* Graeme Hewson, for many grammatical corrections.
+
+The authors would like to acknowledge those man page and README authors for the
+Wireshark project from who sections of this document borrow heavily:
+
+* Scott Renfro from whose `mergecap` man page <<AppToolsmergecap>> is derived.
+
+* Ashok Narayanan from whose `text2pcap` man page <<AppToolstext2pcap>> is derived.
+
+[[PreAbout]]
+
+=== About this document
+
+This book was originally developed by mailto:{wsug-author-email2}[Richard
+Sharpe] with funds provided from the Wireshark Fund. It was updated by
+mailto:{wsug-author-email3}[Ed Warnicke] and more recently redesigned and
+updated by mailto:{wsug-author-email}[Ulf Lamping].
+
+It was originally written in DocBook/XML and converted to AsciiDoc by
+Gerald Combs.
+
+[[PreDownload]]
+
+=== Where to get the latest copy of this document?
+
+The latest copy of this documentation can always be found at
+{wireshark-users-guide-url}.
+
+[[PreFeedback]]
+
+=== Providing feedback about this document
+
+Should you have any feedback about this document, please send it to the
+authors through mailto:{wireshark-dev-list-email}[].

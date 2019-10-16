@@ -6,7 +6,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __SIMPLE_DIALOG_UI_H__
 #define __SIMPLE_DIALOG_UI_H__
@@ -80,9 +81,6 @@ typedef enum {
  * - simple_dialog_primary_end
  * - Optionally, the secondary message.
  *
- * In the GTK+ UI primary_start and primary_end make up a <span> that adds
- * text formatting. The whole string is then shoved into a GtkLabel.
- *
  * In the Qt UI we use primary_start and _end to split the primary and
  * secondary messages. They are then added to a QMessageBox via setText and
  * setInformativeText respectively. No formatting is applied.
@@ -98,14 +96,16 @@ extern gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
     const gchar *msg_format, ...)
     G_GNUC_PRINTF(3, 4);
 
+extern gpointer simple_dialog_async(ESD_TYPE_E type, gint btn_mask,
+    const gchar *msg_format, ...)
+    G_GNUC_PRINTF(3, 4);
+
 /** Surround the primary dialog message text by
  *  simple_dialog_primary_start() and simple_dialog_primary_end().
- *  To highlight the first sentence (will take effect on GTK2 only).
  */
 extern const char *simple_dialog_primary_start(void);
 /** Surround the primary dialog message text by
  *  simple_dialog_primary_start() and simple_dialog_primary_end().
- *  To highlight the first sentence (will take effect on GTK2 only).
  */
 extern const char *simple_dialog_primary_end(void);
 

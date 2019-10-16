@@ -1,0 +1,157 @@
+EV-RechargingSpotReservation-PDU-Descriptions {
+ itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (101556) ev-rsr (4) version (1) 
+}
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+IMPORTS 
+   ItsPduHeader FROM ITS-Container {
+ itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (2) 
+};
+
+EV-RSR ::= SEQUENCE {
+	header		ItsPduHeader,
+	messageBody	EV-RSR-MessageBody
+}
+
+EV-RSR-MessageBody ::= CHOICE {
+ preReservationRequestMessage		PreReservationRequestMessage,
+ preReservationResponseMessage		PreReservationResponseMessage,
+ reservationRequestMessage				ReservationRequestMessage,
+ reservationResponseMessage			ReservationResponseMessage,
+ cancellationRequestMessage			CancellationRequestMessage,
+ cancellationResponseMessage			CancellationResponseMessage,
+ updateRequestMessage						UpdateRequestMessage,
+ updateResponseMessage					UpdateResponseMessage,
+...
+}
+
+PreReservationRequestMessage ::= SEQUENCE {
+ evse-ID 			EVSE-ID,
+ arrivalTime		TimestampUTC,
+ departureTime	TimestampUTC OPTIONAL,
+ rechargingType	RechargingType,
+ batteryType		BatteryType OPTIONAL,
+ ...
+}
+
+PreReservationResponseMessage ::= SEQUENCE {
+ preReservation-ID						PreReservation-ID,
+ availabilityStatus					AvailabilityStatus,
+ preReservationExpirationTime	TimestampUTC,
+ supportedPaymentTypes 				SupportedPaymentTypes,
+ ...
+}
+ 
+ReservationRequestMessage ::= SEQUENCE {
+ currentTime			TimestampUTC,
+ preReservation-ID	PreReservation-ID,
+ arrivalTime			TimestampUTC,
+ departureTime		TimestampUTC OPTIONAL,
+ eAmount				EAmount,
+ eAmountMin			EAmount,
+ paymentType			PaymentType,
+ payment-ID 			Payment-ID,
+ secondPayment-ID	Payment-ID OPTIONAL,
+ pairing-ID			Pairing-ID OPTIONAL,
+ ...
+}
+
+ReservationResponseMessage ::= SEQUENCE {
+ reservationResponseCode			ReservationResponseCode,
+ reservation-ID							Reservation-ID OPTIONAL,
+ reservation-Password					Reservation-Password OPTIONAL,
+ stationDetails							StationDetails OPTIONAL,
+ chargingSpotLabel						ChargingSpotLabel OPTIONAL,
+ expirationTime							TimestampUTC,
+ freeCancelTimeLimit					TimestampUTC OPTIONAL,
+ ...
+}
+
+CancellationRequestMessage ::= SEQUENCE {
+ reservation-ID				Reservation-ID,
+ reservation-Password		Reservation-Password,
+ currentTime					TimestampUTC,
+ ...
+}
+
+CancellationResponseMessage ::= SEQUENCE {
+ reservation-ID					Reservation-ID,
+ cancellationResponseCode	CancellationResponseCode,
+ ...
+}
+
+UpdateRequestMessage ::= SEQUENCE {
+ reservation-ID				Reservation-ID,
+ reservation-Password		Reservation-Password,
+ updatedArrivalTime		TimestampUTC,
+ updatedDepartureTime		TimestampUTC,
+ ...
+}
+
+UpdateResponseMessage ::= SEQUENCE {
+ reservation-ID			Reservation-ID,
+ updateResponseCode	UpdateResponseCode,
+ chargingSpotLabel		ChargingSpotLabel OPTIONAL,
+ ...
+}
+
+
+
+AvailabilityStatus ::= ENUMERATED { available, no-free-capacity }
+
+BatteryType ::= UTF8String (SIZE(1..16))
+
+CancellationResponseCode ::= ENUMERATED { ok, unknown-Reservation-ID, mismatching-Reservation-Password }
+
+ChargingSpotLabel ::= UTF8String (SIZE(1..4))
+
+ContractID ::= UTF8String (SIZE(1..24))
+
+EAmount ::= INTEGER { oneWh(1) } (1..500000)
+
+ChargingPower ::= INTEGER { oneW(1) } (1..200000)
+
+EVSE-ID ::= OCTET STRING (SIZE(1..32))
+
+ExternalIdentificationMeans ::= UTF8String (SIZE(1..24))
+
+Pairing-ID ::= VisibleString (SIZE(1..64))
+
+PaymentType ::= ENUMERATED {contract, externalIdentification}
+
+Payment-ID ::= CHOICE {
+ contractID ContractID,
+ externalIdentificationMeans	ExternalIdentificationMeans
+}
+
+RechargingType ::= SEQUENCE {
+ rechargingMode RechargingMode,
+ powerSource PowerSource
+}
+
+RechargingMode ::=  INTEGER { mode1(0), mode2(1), mode3(2), mode4(3), quickDrop(8), inductiveChargingWhileStationary(12), inductiveChargingWhileDriving(14) } (0..15)
+
+PowerSource::=  INTEGER { notApplicable(0), ac1Phase(1), ac2Phase(2), ac3Phase(3), dcc(4), chaDeMo(5) } (0..7)
+ReservationResponseCode ::= ENUMERATED {ok, invalid-EVSE-ID, payment-type-not-supported, payment-error, authentication-error, insufficient-power-availability }
+
+Reservation-ID ::= VisibleString (SIZE(8))
+
+PreReservation-ID ::= Reservation-ID
+
+Reservation-Password ::= VisibleString (SIZE(8))
+
+
+StationDetails ::= UTF8String (SIZE(1..32))
+
+SupportedPaymentTypes ::= BIT STRING { contract(0), externalIdentification (1) } (SIZE(2))
+
+TimestampUTC ::= INTEGER { utcStartOf2013(0), oneSecondAfterUTCStartOf2013(1) }
+
+UpdateResponseCode ::= ENUMERATED { ok, unknown-Reservation-ID, mismatching-Reservation-Password, invalid-Arrival-Time, invalid-Departure-Time }
+
+StatusResponseCode ::= ENUMERATED { charging-Spot-Occupied, charging-Spot-Unoccupied, charging-Ongoing, reservation-Limit-Exceeded, reservation-Cancelled, unknown-Reservation-ID, expired-Reservation-ID }
+
+END

@@ -5243,7 +5243,7 @@ proto_register_wimaxmacphy(void)
                 &hf_wimaxmacphy_ul_sub_burst_sounding_power_boost,
                 {
                     "Power boost",
-                    "wimaxmacphy.",
+                    "wimaxmacphy.sub_burst_sounding_power_boost",
                     FT_UINT8,
                     BASE_DEC,
                     VALS(wimaxmacphy_ul_sub_burst_sounding_power_boost_vals),
@@ -5433,7 +5433,7 @@ proto_reg_handoff_wimaxmacphy(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

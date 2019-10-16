@@ -61,7 +61,7 @@ static const value_string linux_af_vals[] = {
 value_string_ext linux_af_vals_ext = VALUE_STRING_EXT_INIT(linux_af_vals);
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

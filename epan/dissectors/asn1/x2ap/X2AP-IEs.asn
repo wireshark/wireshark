@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.1.0 (2018-03)
+-- 3GPP TS 36.423 V15.7.0 (2019-09)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -36,7 +36,8 @@ IMPORTS
 	id-M4Configuration,
 	id-M5Configuration,
 	id-MDT-Location-Info,
-	id-NRrestriction,
+	id-NRrestrictioninEPSasSecondaryRAT,
+	id-NRrestrictionin5GS,
 	id-AdditionalSpecialSubframe-Info,
 	id-UEID,
 	id-enhancedRNTP,
@@ -58,6 +59,23 @@ IMPORTS
 	id-UEAppLayerMeasConfig,
 	id-DL-scheduling-PDCCH-CCE-usage,
 	id-UL-scheduling-PDCCH-CCE-usage,
+	id-DownlinkPacketLossRate,
+	id-UplinkPacketLossRate,
+	id-serviceType,
+	id-ProtectedEUTRAResourceIndication,
+	id-NRS-NSSS-PowerOffset,
+	id-NSSS-NumOccasionDifferentPrecoder,
+	id-CNTypeRestrictions,
+	id-BluetoothMeasurementConfiguration,
+	id-WLANMeasurementConfiguration,
+	id-ECGI,
+	id-NRCGI,
+	id-MeNBCoordinationAssistanceInformation,
+	id-SgNBCoordinationAssistanceInformation,
+	id-NRNeighbourInfoToAdd,
+	id-LastNG-RANPLMNIdentity,
+	id-BPLMN-ID-Info-EUTRA,
+	id-NBIoT-UL-DL-AlignmentOffset,
 
 	maxnoofBearers,
 	maxCellineNB,
@@ -68,6 +86,7 @@ IMPORTS
 
 	maxnoofBands,
 	maxnoofBPLMNs,
+	maxnoofAdditionalPLMNs,
 	maxnoofCells,
 	maxnoofEPLMNs,
 	maxnoofEPLMNsPlusOne,
@@ -93,7 +112,17 @@ IMPORTS
 	maxnooftimeperiods,
 	maxnoofCellIDforQMC,
 	maxnoofTAforQMC,
-	maxnoofPLMNforQMC
+	maxnoofPLMNforQMC,
+	maxUEsinengNBDU,
+	maxnoofProtectedResourcePatterns,
+	maxnoNRcellsSpectrumSharingWithE-UTRA,
+	maxnoofNrCellBands,
+	maxnoofBluetoothName,
+	maxnoofWLANName,
+	maxofNRNeighbours,
+	maxnoofextBPLMNs,
+	maxnoofextBPLMNsminus1,
+	maxnoofBPLMNsminus1
 
 FROM X2AP-Constants
 
@@ -123,7 +152,7 @@ ABSInformationFDD ::= SEQUENCE {
 	abs-pattern-info					BIT STRING (SIZE(40)),
 	numberOfCellSpecificAntennaPorts	ENUMERATED {one, two, four, ...},
 	measurement-subset					BIT STRING (SIZE(40)),
-	iE-Extensions						ProtocolExtensionContainer { { ABSInformationFDD-ExtIEs} } OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {ABSInformationFDD-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -135,7 +164,7 @@ ABSInformationTDD ::= SEQUENCE {
 	abs-pattern-info					BIT STRING (SIZE(1..70, ...)),
 	numberOfCellSpecificAntennaPorts	ENUMERATED {one, two, four, ...},
 	measurement-subset					BIT STRING (SIZE(1..70, ...)),
-	iE-Extensions						ProtocolExtensionContainer { { ABSInformationTDD-ExtIEs} } OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {ABSInformationTDD-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -160,7 +189,7 @@ AdditionalSpecialSubframe-Info ::=		SEQUENCE {
 	additionalspecialSubframePatterns		AdditionalSpecialSubframePatterns,
 	cyclicPrefixDL							CyclicPrefixDL,
 	cyclicPrefixUL							CyclicPrefixUL,
-	iE-Extensions							ProtocolExtensionContainer { { AdditionalSpecialSubframe-Info-ExtIEs} } OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { {AdditionalSpecialSubframe-Info-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -186,7 +215,7 @@ AdditionalSpecialSubframeExtension-Info ::=		SEQUENCE {
 	additionalspecialSubframePatternsExtension	AdditionalSpecialSubframePatternsExtension,
 	cyclicPrefixDL								CyclicPrefixDL,
 	cyclicPrefixUL								CyclicPrefixUL,
-	iE-Extensions								ProtocolExtensionContainer { { AdditionalSpecialSubframeExtension-Info-ExtIEs} } OPTIONAL,
+	iE-Extensions								ProtocolExtensionContainer { {AdditionalSpecialSubframeExtension-Info-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -196,6 +225,12 @@ AdditionalSpecialSubframeExtension-Info-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 AdditionalSpecialSubframePatternsExtension ::= ENUMERATED {
 	ssp10,
+	...
+}
+
+AerialUEsubscriptionInformation ::= ENUMERATED {
+	allowed,
+	not-allowed,
 	...
 }
 
@@ -230,13 +265,15 @@ AreaScopeOfQMC ::= CHOICE {
 AS-SecurityInformation ::= SEQUENCE {
 	key-eNodeB-star		Key-eNodeB-Star,
 	nextHopChainingCount			NextHopChainingCount,
-	iE-Extensions						ProtocolExtensionContainer { { AS-SecurityInformation-ExtIEs} } OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {AS-SecurityInformation-ExtIEs} } OPTIONAL,
 	...
 }
 
 AS-SecurityInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+AdditionalPLMNs-Item ::= SEQUENCE (SIZE(1..maxnoofAdditionalPLMNs)) OF PLMN-Identity
 
 
 -- B
@@ -256,6 +293,53 @@ BenefitMetric ::= INTEGER (-101..100, ...)
 BitRate ::= INTEGER (0..10000000000)
 BroadcastPLMNs-Item ::= SEQUENCE (SIZE(1..maxnoofBPLMNs)) OF PLMN-Identity
 
+BluetoothMeasurementConfiguration ::= SEQUENCE {
+	bluetoothMeasConfig				BluetoothMeasConfig,
+	bluetoothMeasConfigNameList		BluetoothMeasConfigNameList			OPTIONAL,
+	bt-rssi							ENUMERATED {true, ...}				OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {BluetoothMeasurementConfiguration-ExtIEs} } OPTIONAL,
+	...
+}
+
+BluetoothMeasurementConfiguration-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+BluetoothMeasConfigNameList ::= SEQUENCE (SIZE(1..maxnoofBluetoothName)) OF BluetoothName
+
+BluetoothMeasConfig::= ENUMERATED {setup,...}
+
+BluetoothName ::= OCTET STRING (SIZE (1..248))
+
+BPLMN-ID-Info-EUTRA ::= SEQUENCE (SIZE(1..maxnoofBPLMNsminus1)) OF BPLMN-ID-Info-EUTRA-Item
+
+BPLMN-ID-Info-EUTRA-Item ::= SEQUENCE {
+	broadcastPLMNs					BroadcastPLMNs-Item,
+	tac								TAC,
+	e-utraCI						EUTRANCellIdentifier,
+	iE-Extension					ProtocolExtensionContainer { {BPLMN-ID-Info-EUTRA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+BPLMN-ID-Info-EUTRA-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+BPLMN-ID-Info-NR ::= SEQUENCE (SIZE(1..maxnoofextBPLMNsminus1)) OF BPLMN-ID-Info-NR-Item
+
+BPLMN-ID-Info-NR-Item ::= SEQUENCE {
+	broadcastPLMNs					BroadcastextPLMNs,
+	fiveGStac						FiveGS-TAC		OPTIONAL,
+	nr-CI							NRCellIdentifier,
+	iE-Extension					ProtocolExtensionContainer { {BPLMN-ID-Info-NR-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+BPLMN-ID-Info-NR-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+BroadcastextPLMNs ::= SEQUENCE (SIZE(1..maxnoofextBPLMNs)) OF PLMN-Identity
 
 -- C
 
@@ -329,7 +413,7 @@ CauseRadioNetwork ::= ENUMERATED {
 	target-not-allowed,
 	no-radio-resources-available,
 	invalid-QoS-combination,
-	encryption-algorithms-not-aupported,
+	encryption-algorithms-not-supported,
 	procedure-cancelled,
 	rRM-purpose,
 	improve-user-bit-rate,
@@ -340,7 +424,8 @@ CauseRadioNetwork ::= ENUMERATED {
 	mCG-Mobility,
 	sCG-Mobility,
 	count-reaches-max-value,
-	unknown-old-en-gNB-UE-X2AP-ID
+	unknown-old-en-gNB-UE-X2AP-ID,
+	pDCP-Overload
 
 }
 
@@ -380,7 +465,7 @@ CellIdListforQMC ::= SEQUENCE (SIZE(1..maxnoofCellIDforQMC)) OF ECGI
 
 CellReplacingInfo ::= SEQUENCE {
 	replacingCellsList				ReplacingCellsList,
-	iE-Extensions					ProtocolExtensionContainer { { CellReplacingInfo-ExtIEs}}	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {CellReplacingInfo-ExtIEs}}	OPTIONAL,
 	...
 }
 
@@ -395,11 +480,24 @@ Cell-Size ::= ENUMERATED {verysmall, small, medium, large, ... }
 
 CellType ::= SEQUENCE {
 	cell-Size						Cell-Size,
-	iE-Extensions					ProtocolExtensionContainer { { CellType-ExtIEs}}	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {CellType-ExtIEs}}	OPTIONAL,
 	...
 }
 
 CellType-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CNTypeRestrictions ::= SEQUENCE (SIZE(1.. maxnoofEPLMNsPlusOne)) OF CNTypeRestrictionsItem
+
+CNTypeRestrictionsItem ::= SEQUENCE {
+	plmn-Id				PLMN-Identity,
+	cn-type				ENUMERATED {fiveGC-forbidden, ... , epc-forbidden},
+	iE-Extensions		ProtocolExtensionContainer { {CNTypeRestrictionsItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+CNTypeRestrictionsItem-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -408,7 +506,7 @@ CoMPHypothesisSet ::= SEQUENCE (SIZE(1..maxnoofCoMPCells)) OF CoMPHypothesisSetI
 CoMPHypothesisSetItem ::= SEQUENCE {
 	coMPCellID						ECGI,
 	coMPHypothesis					BIT STRING (SIZE(6..4400, ...)),
-	iE-Extensions					ProtocolExtensionContainer { { CoMPHypothesisSetItem-ExtIEs} } OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {CoMPHypothesisSetItem-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -419,7 +517,7 @@ CoMPHypothesisSetItem-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 CoMPInformation ::= SEQUENCE {
 	coMPInformationItem						CoMPInformationItem,
 	coMPInformationStartTime				CoMPInformationStartTime,
-	iE-Extensions							ProtocolExtensionContainer { { CoMPInformation-ExtIEs} } OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { {CoMPInformation-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -431,7 +529,7 @@ CoMPInformationItem ::= SEQUENCE (SIZE(1..maxnoofCoMPHypothesisSet)) OF
 	SEQUENCE {
 		coMPHypothesisSet					CoMPHypothesisSet,
 		benefitMetric						BenefitMetric,
-		iE-Extensions						ProtocolExtensionContainer { { CoMPInformationItem-ExtIEs} } OPTIONAL,
+		iE-Extensions						ProtocolExtensionContainer { {CoMPInformationItem-ExtIEs} } OPTIONAL,
 		...
 	}
 
@@ -443,7 +541,7 @@ CoMPInformationStartTime ::= SEQUENCE (SIZE(0..1)) OF
 	SEQUENCE {
 		startSFN							INTEGER (0..1023, ...),
 		startSubframeNumber					INTEGER (0..9, ...),
-		iE-Extensions						ProtocolExtensionContainer { { CoMPInformationStartTime-ExtIEs} } OPTIONAL,
+		iE-Extensions						ProtocolExtensionContainer { {CoMPInformationStartTime-ExtIEs} } OPTIONAL,
 		...
 	}
 
@@ -454,7 +552,7 @@ CoMPInformationStartTime-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 CompositeAvailableCapacity ::= SEQUENCE {
 	cellCapacityClassValue							CellCapacityClassValue				OPTIONAL,
 	capacityValue									CapacityValue,
-	iE-Extensions									ProtocolExtensionContainer { { CompositeAvailableCapacity-ExtIEs} } OPTIONAL,
+	iE-Extensions									ProtocolExtensionContainer { {CompositeAvailableCapacity-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -465,7 +563,7 @@ CompositeAvailableCapacity-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 CompositeAvailableCapacityGroup	::= SEQUENCE {
 	dL-CompositeAvailableCapacity					CompositeAvailableCapacity,
 	uL-CompositeAvailableCapacity					CompositeAvailableCapacity,
-	iE-Extensions									ProtocolExtensionContainer { { CompositeAvailableCapacityGroup-ExtIEs} } OPTIONAL,
+	iE-Extensions									ProtocolExtensionContainer { {CompositeAvailableCapacityGroup-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -478,7 +576,7 @@ Correlation-ID ::= OCTET STRING (SIZE (4))
 COUNTvalue ::= SEQUENCE {
 	pDCP-SN					PDCP-SN,
 	hFN						HFN,
-	iE-Extensions			ProtocolExtensionContainer { { COUNTvalue-ExtIEs} } OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {COUNTvalue-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -489,7 +587,7 @@ COUNTvalue-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 COUNTValueExtended ::= SEQUENCE {
 	pDCP-SNExtended			PDCP-SNExtended,
 	hFNModified				HFNModified,
-	iE-Extensions			ProtocolExtensionContainer { { COUNTValueExtended-ExtIEs} } OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {COUNTValueExtended-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -500,7 +598,7 @@ COUNTValueExtended-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 COUNTvaluePDCP-SNlength18 ::= SEQUENCE {
 	pDCP-SNlength18			PDCP-SNlength18,
 	hFNforPDCP-SNlength18	HFNforPDCP-SNlength18,
-	iE-Extensions			ProtocolExtensionContainer { { COUNTvaluePDCP-SNlength18-ExtIEs} } OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {COUNTvaluePDCP-SNlength18-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -559,7 +657,7 @@ CSIReportList ::= SEQUENCE (SIZE(1..maxUEReport)) OF
 	SEQUENCE {
 		uEID							UEID,
 		cSIReportPerCSIProcess			CSIReportPerCSIProcess,
-		iE-Extensions					ProtocolExtensionContainer { { CSIReportList-ExtIEs} } OPTIONAL,
+		iE-Extensions					ProtocolExtensionContainer { {CSIReportList-ExtIEs} } OPTIONAL,
 		...
 	}
 
@@ -571,7 +669,7 @@ CSIReportPerCSIProcess ::= SEQUENCE (SIZE(1.. maxCSIProcess)) OF
 	SEQUENCE {
 		cSIProcessConfigurationIndex	INTEGER (1..7, ...),
 		cSIReportPerCSIProcessItem		CSIReportPerCSIProcessItem,
-		iE-Extensions					ProtocolExtensionContainer { { CSIReportPerCSIProcess-ExtIEs} } OPTIONAL,
+		iE-Extensions					ProtocolExtensionContainer { {CSIReportPerCSIProcess-ExtIEs} } OPTIONAL,
 		...
 	}
 
@@ -585,7 +683,7 @@ CSIReportPerCSIProcessItem ::= SEQUENCE (SIZE(1.. maxCSIReport)) OF
 		widebandCQI						WidebandCQI,
 		subbandSize						SubbandSize,
 		subbandCQIList					SubbandCQIList	OPTIONAL,
-		iE-Extensions					ProtocolExtensionContainer { { CSIReportPerCSIProcessItem-ExtIEs} } OPTIONAL,
+		iE-Extensions					ProtocolExtensionContainer { {CSIReportPerCSIProcessItem-ExtIEs} } OPTIONAL,
 		...
 	}
 
@@ -608,6 +706,21 @@ CyclicPrefixUL ::= ENUMERATED {
 
 -- D
 
+
+DataTrafficResources ::= BIT STRING (SIZE(6..17600))
+
+DataTrafficResourceIndication ::= SEQUENCE {
+	activationSFN					INTEGER (0..1023),
+	sharedResourceType				SharedResourceType,
+	reservedSubframePattern 		ReservedSubframePattern OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {DataTrafficResourceIndication-ExtIEs} } OPTIONAL,
+...
+}
+
+DataTrafficResourceIndication-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 DeactivationIndication::= ENUMERATED {
 	deactivated,
 	...
@@ -623,6 +736,7 @@ DeliveryStatus-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+DesiredActNotificationLevel	::= ENUMERATED {none, e-rab, ue-level, ...}
 
 DL-ABS-status::= INTEGER (0..100)
 
@@ -635,11 +749,21 @@ DL-GBR-PRB-usage::= INTEGER (0..100)
 
 DL-non-GBR-PRB-usage::= INTEGER (0..100)
 
+DLResourceBitmapULandDLSharing ::= DataTrafficResources
+
+DLResourcesULandDLSharing ::= CHOICE {
+unchanged			NULL,
+	changed				DLResourceBitmapULandDLSharing,
+	...
+}
+
 DL-scheduling-PDCCH-CCE-usage::= INTEGER (0..100)
 
 DL-Total-PRB-usage::= INTEGER (0..100)
 
 DRB-ID ::= INTEGER (1..32)
+
+DuplicationActivation::= ENUMERATED {active, inactive, ...}
 
 DynamicDLTransmissionInformation ::= CHOICE {
 	naics-active			DynamicNAICSInformation,
@@ -676,11 +800,13 @@ ECGI-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+EndcSONConfigurationTransfer ::= OCTET STRING
+
 EnhancedRNTP ::= SEQUENCE {
 	enhancedRNTPBitmap			BIT STRING (SIZE(12..8800, ...)),
 	rNTP-High-Power-Threshold	RNTP-Threshold,
-	enhancedRNTPStartTime		EnhancedRNTPStartTime  OPTIONAL,
-	iE-Extensions				ProtocolExtensionContainer { { EnhancedRNTP-ExtIEs} } OPTIONAL,
+	enhancedRNTPStartTime		EnhancedRNTPStartTime OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {EnhancedRNTP-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -691,7 +817,7 @@ EnhancedRNTP-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 EnhancedRNTPStartTime ::= SEQUENCE {
 		startSFN				INTEGER (0..1023, ...),
 		startSubframeNumber		INTEGER (0..9, ...),
-		iE-Extensions			ProtocolExtensionContainer { { EnhancedRNTPStartTime-ExtIEs} } OPTIONAL,
+		iE-Extensions			ProtocolExtensionContainer { {EnhancedRNTPStartTime-ExtIEs} } OPTIONAL,
 		...
 	}
 
@@ -713,7 +839,7 @@ EN-DC-ResourceConfiguration ::= SEQUENCE {
 	pDCPatSgNB		ENUMERATED {present, not-present, ...},
 	mCGresources	ENUMERATED {present, not-present, ...},
 	sCGresources	ENUMERATED {present, not-present, ...},
-	iE-Extensions					ProtocolExtensionContainer { { EN-DC-ResourceConfigurationExtIEs} }	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {EN-DC-ResourceConfigurationExtIEs} }	OPTIONAL,
 	...
 }
 
@@ -724,17 +850,33 @@ EN-DC-ResourceConfigurationExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 EPLMNs ::= SEQUENCE (SIZE(1..maxnoofEPLMNs)) OF PLMN-Identity
 
+ERABActivityNotifyItemList ::= SEQUENCE (SIZE (0..maxnoofBearers)) OF ERABActivityNotifyItem
+
+ERABActivityNotifyItem ::= SEQUENCE {
+	e-RAB-ID						E-RAB-ID,
+	activityReport					UserPlaneTrafficActivityReport,
+	iE-Extensions					ProtocolExtensionContainer { {ERABActivityNotifyItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+ERABActivityNotifyItem-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 E-RAB-ID ::= INTEGER (0..15, ...)
 
 E-RAB-Level-QoS-Parameters ::= SEQUENCE {
 	qCI								QCI,
 	allocationAndRetentionPriority	AllocationAndRetentionPriority,
 	gbrQosInformation				GBR-QosInformation													OPTIONAL,
-	iE-Extensions					ProtocolExtensionContainer { { E-RAB-Level-QoS-Parameters-ExtIEs} }	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {E-RAB-Level-QoS-Parameters-ExtIEs} }	OPTIONAL,
 	...
 }
 
 E-RAB-Level-QoS-Parameters-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+-- Extended for introduction of downlink and uplink packet loss rate for enhanced Voice performance –
+	{ ID id-DownlinkPacketLossRate			CRITICALITY ignore	EXTENSION Packet-LossRate		PRESENCE optional}|
+	{ ID id-UplinkPacketLossRate			CRITICALITY ignore	EXTENSION Packet-LossRate		PRESENCE optional},
 	...
 }
 
@@ -768,7 +910,7 @@ E-RABUsageReport-Item ::= SEQUENCE {
 	endTimeStamp					OCTET STRING (SIZE(4)),
 	usageCountUL					INTEGER (0..18446744073709551615),
 	usageCountDL					INTEGER (0..18446744073709551615),
-	iE-Extensions				ProtocolExtensionContainer { { E-RABUsageReport-Item-ExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {E-RABUsageReport-Item-ExtIEs} } OPTIONAL,
 ...
 }
 
@@ -794,7 +936,7 @@ EventType ::= ENUMERATED{
 ExpectedUEBehaviour ::= SEQUENCE {
 	expectedActivity		ExpectedUEActivityBehaviour OPTIONAL,
 	expectedHOInterval		ExpectedHOInterval			OPTIONAL,
-	iE-Extensions			ProtocolExtensionContainer { { ExpectedUEBehaviour-ExtIEs} } OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {ExpectedUEBehaviour-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -806,7 +948,7 @@ ExpectedUEActivityBehaviour ::= SEQUENCE {
 	expectedActivityPeriod					ExpectedActivityPeriod					OPTIONAL,
 	expectedIdlePeriod						ExpectedIdlePeriod						OPTIONAL,
 	sourceofUEActivityBehaviourInformation	SourceOfUEActivityBehaviourInformation	OPTIONAL,
-	iE-Extensions		ProtocolExtensionContainer { { ExpectedUEActivityBehaviour-ExtIEs} } OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {ExpectedUEActivityBehaviour-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -826,7 +968,7 @@ ExpectedHOInterval ::= ENUMERATED {
 ExtendedULInterferenceOverloadInfo ::= SEQUENCE {
 	associatedSubframes							BIT STRING (SIZE (5)),
 	extended-ul-InterferenceOverloadIndication	UL-InterferenceOverloadIndication,
-	iE-Extensions								ProtocolExtensionContainer { { ExtendedULInterferenceOverloadInfo-ExtIEs} } OPTIONAL,
+	iE-Extensions								ProtocolExtensionContainer { {ExtendedULInterferenceOverloadInfo-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -848,10 +990,23 @@ FDD-Info ::= SEQUENCE {
 }
 
 FDD-Info-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-UL-EARFCNExtension		CRITICALITY reject	EXTENSION EARFCNExtension		PRESENCE optional}|
-	{ ID id-DL-EARFCNExtension		CRITICALITY reject	EXTENSION EARFCNExtension		PRESENCE optional}|
+	{ ID id-UL-EARFCNExtension						CRITICALITY reject	EXTENSION EARFCNExtension									PRESENCE optional}|
+	{ ID id-DL-EARFCNExtension						CRITICALITY reject	EXTENSION EARFCNExtension									PRESENCE optional}|
 	{ ID id-OffsetOfNbiotChannelNumberToDL-EARFCN	CRITICALITY reject	EXTENSION OffsetOfNbiotChannelNumberToEARFCN		PRESENCE optional}|
-	{ ID id-OffsetOfNbiotChannelNumberToUL-EARFCN	CRITICALITY reject	EXTENSION OffsetOfNbiotChannelNumberToEARFCN		PRESENCE optional},
+	{ ID id-OffsetOfNbiotChannelNumberToUL-EARFCN	CRITICALITY reject	EXTENSION OffsetOfNbiotChannelNumberToEARFCN		PRESENCE optional}|
+	{ ID id-NRS-NSSS-PowerOffset					CRITICALITY ignore	EXTENSION NRS-NSSS-PowerOffset							PRESENCE optional}|
+	{ ID id-NSSS-NumOccasionDifferentPrecoder		CRITICALITY ignore	EXTENSION NSSS-NumOccasionDifferentPrecoder			PRESENCE optional},
+	...
+}
+
+FDD-InfoNeighbourServedNRCell-Information ::= SEQUENCE {
+	ul-NRFreqInfo			NRFreqInfo,
+	dl-NRFreqInfo			NRFreqInfo,
+	iE-Extensions			ProtocolExtensionContainer { {FDD-InfoNeighbourServedNRCell-Information-ExtIEs} }		OPTIONAL,
+	...
+}
+
+FDD-InfoNeighbourServedNRCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -906,6 +1061,18 @@ FreqBandIndicatorPriority ::= ENUMERATED {
 	...
 }
 
+
+FreqBandNrItem ::= SEQUENCE {
+	freqBandIndicatorNr 			INTEGER (1..1024,...),
+	supportedSULBandList	SEQUENCE (SIZE(0..maxnoofNrCellBands)) OF SupportedSULFreqBandItem,
+	iE-Extensions				ProtocolExtensionContainer { {FreqBandNrItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+FreqBandNrItem-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 -- G
 
 GBR-QosInformation ::= SEQUENCE {
@@ -913,14 +1080,14 @@ GBR-QosInformation ::= SEQUENCE {
 	e-RAB-MaximumBitrateUL			BitRate,
 	e-RAB-GuaranteedBitrateDL		BitRate,
 	e-RAB-GuaranteedBitrateUL		BitRate,
-	iE-Extensions					ProtocolExtensionContainer { { GBR-QosInformation-ExtIEs} } OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {GBR-QosInformation-ExtIEs} } OPTIONAL,
 	...
 }
 
 GBR-QosInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 -- Extension for maximum bitrate > 10Gbps --
-	{ ID id-extended-e-RAB-MaximumBitrateDL	CRITICALITY ignore	EXTENSION ExtendedBitRate	PRESENCE optional}|
-	{ ID id-extended-e-RAB-MaximumBitrateUL	CRITICALITY ignore	EXTENSION ExtendedBitRate	PRESENCE optional}|
+	{ ID id-extended-e-RAB-MaximumBitrateDL		CRITICALITY ignore	EXTENSION ExtendedBitRate	PRESENCE optional}|
+	{ ID id-extended-e-RAB-MaximumBitrateUL		CRITICALITY ignore	EXTENSION ExtendedBitRate	PRESENCE optional}|
 	{ ID id-extended-e-RAB-GuaranteedBitrateDL	CRITICALITY ignore	EXTENSION ExtendedBitRate	PRESENCE optional}|
 	{ ID id-extended-e-RAB-GuaranteedBitrateUL	CRITICALITY ignore	EXTENSION ExtendedBitRate	PRESENCE optional},
 	...
@@ -947,6 +1114,8 @@ GlobalGNB-ID ::= SEQUENCE {
 GlobalGNB-ID-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+GNBOverloadInformation ::= ENUMERATED {overloaded, not-overloaded, ...}
 
 GTPtunnelEndpoint ::= SEQUENCE {
 	transportLayerAddress			TransportLayerAddress,
@@ -993,6 +1162,7 @@ GNB-ID ::= CHOICE {
 	...
 }
 
+
 -- H
 
 HandoverReportType ::= ENUMERATED {
@@ -1013,7 +1183,10 @@ HandoverRestrictionList ::= SEQUENCE {
 }
 
 HandoverRestrictionList-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-NRrestriction		CRITICALITY ignore	EXTENSION NRrestriction	PRESENCE optional},
+	{ ID id-NRrestrictioninEPSasSecondaryRAT			CRITICALITY ignore	EXTENSION NRrestrictioninEPSasSecondaryRAT			PRESENCE optional}|
+	{ ID id-CNTypeRestrictions						CRITICALITY ignore	EXTENSION CNTypeRestrictions								PRESENCE optional}|
+	{ ID id-NRrestrictionin5GS						CRITICALITY ignore	EXTENSION NRrestrictionin5GS								PRESENCE optional}|
+	{ ID id-LastNG-RANPLMNIdentity					CRITICALITY ignore	EXTENSION PLMN-Identity										PRESENCE optional},
 	...
 }
 
@@ -1026,7 +1199,7 @@ HFNforPDCP-SNlength18 ::= INTEGER (0..16383)
 HWLoadIndicator ::= SEQUENCE {
 	dLHWLoadIndicator			LoadIndicator,
 	uLHWLoadIndicator			LoadIndicator,
-	iE-Extensions				ProtocolExtensionContainer { { HWLoadIndicator-ExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {HWLoadIndicator-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1038,6 +1211,8 @@ HWLoadIndicator-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 -- I
 
 IntegrityProtectionAlgorithms ::= BIT STRING (SIZE (16, ...))
+
+InterfaceInstanceIndication ::= INTEGER (0..255, ...)
 
 InterfacesToTrace ::= BIT STRING (SIZE (8))
 
@@ -1061,21 +1236,22 @@ LastVisitedCell-Item ::= CHOICE {
 	e-UTRAN-Cell					LastVisitedEUTRANCellInformation,
 	uTRAN-Cell						LastVisitedUTRANCellInformation,
 	gERAN-Cell						LastVisitedGERANCellInformation,
-	...
+	...,
+	nG-RAN-Cell						LastVisitedNGRANCellInformation
 }
 
 LastVisitedEUTRANCellInformation ::= SEQUENCE {
 	global-Cell-ID					ECGI,
 	cellType						CellType,
 	time-UE-StayedInCell			Time-UE-StayedInCell,
-	iE-Extensions					ProtocolExtensionContainer { { LastVisitedEUTRANCellInformation-ExtIEs} } OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {LastVisitedEUTRANCellInformation-ExtIEs} } OPTIONAL,
 	...
 }
 
 LastVisitedEUTRANCellInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 -- Extension for Rel-11 to support enhanced granularity for time UE stayed in cell --
 	{ ID id-Time-UE-StayedInCell-EnhancedGranularity	CRITICALITY ignore	EXTENSION Time-UE-StayedInCell-EnhancedGranularity	PRESENCE optional}|
-	{ ID id-HO-cause									CRITICALITY ignore	EXTENSION Cause							PRESENCE optional},
+	{ ID id-HO-cause									CRITICALITY ignore	EXTENSION Cause													PRESENCE optional},
 	...
 }
 
@@ -1084,9 +1260,13 @@ LastVisitedGERANCellInformation ::= CHOICE {
 	...
 }
 
+LastVisitedNGRANCellInformation	::= OCTET STRING
+
 LastVisitedUTRANCellInformation	::= OCTET STRING
 
-LHN-ID ::=  OCTET STRING(SIZE (32..256))
+LCID ::= INTEGER(1..32, ...)
+
+LHN-ID ::= OCTET STRING(SIZE (32..256))
 
 Links-to-log ::= ENUMERATED {uplink, downlink, both-uplink-and-downlink, ...}
 
@@ -1095,6 +1275,21 @@ LoadIndicator ::= ENUMERATED {
 	mediumLoad,
 	highLoad,
 	overLoad,
+	...
+}
+
+LocationInformationSgNB ::= SEQUENCE {
+	pSCell-id			NRCGI,
+	iE-Extensions		ProtocolExtensionContainer { {LocationInformationSgNB-ExtIEs} } OPTIONAL,
+	...
+}
+
+LocationInformationSgNB-ExtIEs X2AP-PROTOCOL-EXTENSION ::={
+	...
+}
+
+LocationInformationSgNBReporting ::= ENUMERATED {
+	pSCell,
 	...
 }
 
@@ -1114,7 +1309,7 @@ LocationReportingInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::={
 M1PeriodicReporting ::= SEQUENCE {
 	reportInterval				ReportIntervalMDT,
 	reportAmount				ReportAmountMDT,
-	iE-Extensions				ProtocolExtensionContainer { { M1PeriodicReporting-ExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {M1PeriodicReporting-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1131,7 +1326,7 @@ M1ReportingTrigger::= ENUMERATED{
 
 M1ThresholdEventA2 ::= SEQUENCE {
 	measurementThreshold		MeasurementThresholdA2,
-	iE-Extensions				ProtocolExtensionContainer { { M1ThresholdEventA2-ExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {M1ThresholdEventA2-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1141,7 +1336,7 @@ M1ThresholdEventA2-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 M3Configuration ::= SEQUENCE {
 	m3period			M3period,
-	iE-Extensions		ProtocolExtensionContainer { { M3Configuration-ExtIEs} } OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {M3Configuration-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1154,7 +1349,7 @@ M3period ::= ENUMERATED {ms100, ms1000, ms10000, ... }
 M4Configuration ::= SEQUENCE {
 	m4period			M4period,
 	m4-links-to-log		Links-to-log,
-	iE-Extensions		ProtocolExtensionContainer { { M4Configuration-ExtIEs} } OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {M4Configuration-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1168,7 +1363,7 @@ M4period ::= ENUMERATED {ms1024, ms2048, ms5120, ms10240, min1, ... }
 M5Configuration ::= SEQUENCE {
 	m5period			M5period,
 	m5-links-to-log		Links-to-log,
-	iE-Extensions		ProtocolExtensionContainer { { M5Configuration-ExtIEs} } OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {M5Configuration-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1183,7 +1378,7 @@ M6Configuration ::= SEQUENCE {
 	m6delay-threshold	M6delay-threshold	OPTIONAL,
 -- This IE shall be present if the M6 Links to log IE is set to “uplink” or to “both-uplink-and-downlink” --
 	m6-links-to-log		Links-to-log,
-	iE-Extensions		ProtocolExtensionContainer { { M6Configuration-ExtIEs} } OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {M6Configuration-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1198,7 +1393,7 @@ M6delay-threshold ::= ENUMERATED { ms30, ms40, ms50, ms60, ms70, ms80, ms90, ms1
 M7Configuration ::= SEQUENCE {
 	m7period			M7period,
 	m7-links-to-log		Links-to-log,
-	iE-Extensions		ProtocolExtensionContainer { { M7Configuration-ExtIEs} } OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {M7Configuration-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1229,18 +1424,20 @@ MDT-Configuration ::= SEQUENCE {
 -- Included in case of event-triggered, or event-triggered periodic reporting for measurement M1
 	m1periodicReporting			M1PeriodicReporting			OPTIONAL,
 -- Included in case of periodic, or event-triggered periodic reporting for measurement M1
-	iE-Extensions				ProtocolExtensionContainer { { MDT-Configuration-ExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {MDT-Configuration-ExtIEs} } OPTIONAL,
 	...
 }
 
 MDT-Configuration-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ID id-M3Configuration				CRITICALITY ignore	EXTENSION M3Configuration		PRESENCE conditional}|
-	{ID id-M4Configuration				CRITICALITY ignore	EXTENSION M4Configuration		PRESENCE conditional}|
-	{ID id-M5Configuration				CRITICALITY ignore	EXTENSION M5Configuration		PRESENCE conditional}|
-	{ID id-MDT-Location-Info			CRITICALITY ignore	EXTENSION MDT-Location-Info		PRESENCE optional}|
-	{ID id-SignallingBasedMDTPLMNList	CRITICALITY ignore	EXTENSION MDTPLMNList			PRESENCE optional}|
-	{ID id-M6Configuration				CRITICALITY ignore	EXTENSION M6Configuration		PRESENCE conditional}|
-	{ID id-M7Configuration				CRITICALITY ignore	EXTENSION M7Configuration		PRESENCE conditional},
+	{ID id-M3Configuration							CRITICALITY ignore	EXTENSION M3Configuration								PRESENCE conditional}|
+	{ID id-M4Configuration							CRITICALITY ignore	EXTENSION M4Configuration								PRESENCE conditional}|
+	{ID id-M5Configuration							CRITICALITY ignore	EXTENSION M5Configuration								PRESENCE conditional}|
+	{ID id-MDT-Location-Info						CRITICALITY ignore	EXTENSION MDT-Location-Info							PRESENCE optional}|
+	{ID id-SignallingBasedMDTPLMNList				CRITICALITY ignore	EXTENSION MDTPLMNList									PRESENCE optional}|
+	{ID id-M6Configuration							CRITICALITY ignore	EXTENSION M6Configuration								PRESENCE conditional}|
+	{ID id-M7Configuration							CRITICALITY ignore	EXTENSION M7Configuration								PRESENCE conditional}|
+	{ ID id-BluetoothMeasurementConfiguration		CRITICALITY ignore	EXTENSION BluetoothMeasurementConfiguration		PRESENCE optional}|
+	{ ID id-WLANMeasurementConfiguration			CRITICALITY ignore	EXTENSION WLANMeasurementConfiguration			PRESENCE optional},
 	...
 }
 
@@ -1258,19 +1455,26 @@ MeasurementThresholdA2 ::= CHOICE {
 	...
 }
 
+MeNBCoordinationAssistanceInformation ::= ENUMERATED{
+	coordination-not-required,
+	...
+}
+
 MeNBResourceCoordinationInformation ::= SEQUENCE {
 	eUTRA-Cell-ID					ECGI,
 	uLCoordinationInformation		BIT STRING (SIZE(6..4400, ...)),
-	dLCoordinationInformation		BIT STRING (SIZE(6..4400, ...)),
-	iE-Extensions					ProtocolExtensionContainer { { MeNBResourceCoordinationInformationExtIEs} }		 OPTIONAL,
+	dLCoordinationInformation		BIT STRING (SIZE(6..4400, ...))		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {MeNBResourceCoordinationInformationExtIEs} }		 OPTIONAL,
 	...
 }
 
 MeNBResourceCoordinationInformationExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-NRCGI									CRITICALITY ignore	EXTENSION NRCGI												PRESENCE optional}|
+	{ ID id-MeNBCoordinationAssistanceInformation		CRITICALITY reject	EXTENSION MeNBCoordinationAssistanceInformation	PRESENCE optional},
 	...
 }
 
-MeNBtoSeNBContainer  ::= OCTET STRING
+MeNBtoSeNBContainer ::= OCTET STRING
 
 MME-Group-ID	::= OCTET STRING (SIZE (2))
 
@@ -1286,7 +1490,7 @@ MBSFN-Subframe-Info	::= SEQUENCE {
 	radioframeAllocationPeriod		RadioframeAllocationPeriod,
 	radioframeAllocationOffset		RadioframeAllocationOffset,
 	subframeAllocation				SubframeAllocation,
-	iE-Extensions					ProtocolExtensionContainer { { MBSFN-Subframe-Info-ExtIEs } } 	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {MBSFN-Subframe-Info-ExtIEs} } 	OPTIONAL,
 	...
 }
 
@@ -1310,7 +1514,7 @@ MultibandInfoList ::= SEQUENCE (SIZE(1..maxnoofBands)) OF BandInfo
 
 BandInfo	::= SEQUENCE {
 	freqBandIndicator		FreqBandIndicator,
-	iE-Extensions			ProtocolExtensionContainer { { BandInfo-ExtIEs } } 	OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {BandInfo-ExtIEs} } 	OPTIONAL,
 	...
 }
 
@@ -1320,31 +1524,28 @@ BandInfo-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 MeNBtoSgNBContainer ::= OCTET STRING
 
-MCGSplitSRBs ::= ENUMERATED {srb1, srb2, srb1and2, ...}
+SplitSRBs ::= ENUMERATED {srb1, srb2, srb1and2, ...}
 
-MCGSplitSRB ::= SEQUENCE {
+SplitSRB ::= SEQUENCE {
 	rrcContainer 				RRCContainer			OPTIONAL,
 	srbType						SRBType,
 	deliveryStatus				DeliveryStatus			OPTIONAL,
-	iE-Extensions				ProtocolExtensionContainer { {MCGSplitSRB-ExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {SplitSRB-ExtIEs} } OPTIONAL,
 	...
 }
 
-MCGSplitSRB-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-UENRMeasurement ::= SEQUENCE {
-	uENRMeasurements			RRCContainer,
-	iE-Extensions			ProtocolExtensionContainer { {UENRMeasurement-ExtIEs} } OPTIONAL,
-	...
-}
-
-UENRMeasurement-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+SplitSRB-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
 -- N
+
+NBIoT-UL-DL-AlignmentOffset ::= ENUMERATED {
+	khz-7dot5,
+	khz0,
+	khz7dot5,
+	...
+}
 
 Neighbour-Information ::= SEQUENCE (SIZE (0..maxnoofNeighbours)) OF SEQUENCE {
 	eCGI						ECGI,
@@ -1362,6 +1563,8 @@ Neighbour-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 NextHopChainingCount ::= INTEGER (0..7)
 
+NewDRBIDrequest::= ENUMERATED {true, ...}
+
 Number-of-Antennaports ::= ENUMERATED {
 		an1,
 	 	an2,
@@ -1369,7 +1572,18 @@ Number-of-Antennaports ::= ENUMERATED {
 		...
 }
 
-NRARFCN ::= INTEGER (0..3266667)  -- This IE may be refined.
+NRFreqInfo ::= SEQUENCE{
+	nRARFCN			INTEGER (0.. 3279165),
+	freqBandListNr	SEQUENCE (SIZE(1..maxnoofNrCellBands)) OF FreqBandNrItem,
+	sULInformation	SULInformation		OPTIONAL,
+	iE-Extensions	ProtocolExtensionContainer { {NRFreqInfo-ExtIEs} } OPTIONAL,
+
+	...
+}
+
+NRFreqInfo-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 NRCellIdentifier ::= BIT STRING (SIZE (36))
 
@@ -1384,10 +1598,34 @@ NRCGI-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+NRNeighbour-Information ::= SEQUENCE (SIZE (1.. maxofNRNeighbours))OF SEQUENCE {
+	nrpCI							NRPCI,
+	nrCellID						NRCGI,
+	fiveGS-TAC						FiveGS-TAC	OPTIONAL,
+	configured-TAC					TAC			OPTIONAL,
+	measurementTimingConfiguration	OCTET STRING,
+	nRNeighbourModeInfo				CHOICE {
+		fdd		FDD-InfoNeighbourServedNRCell-Information,
+		tdd		TDD-InfoNeighbourServedNRCell-Information,
+		...
+	},
+	iE-Extensions						ProtocolExtensionContainer { {NRNeighbour-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+NRNeighbour-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 NRPCI ::= INTEGER (0..1007)
 
-NRrestriction ::= ENUMERATED {
-	nRrestricted,
+NRrestrictioninEPSasSecondaryRAT ::= ENUMERATED {
+	nRrestrictedinEPSasSecondaryRAT,
+	...
+}
+
+NRrestrictionin5GS ::= ENUMERATED {
+	nRrestrictedin5GS,
 	...
 }
 
@@ -1397,7 +1635,7 @@ NRintegrityProtectionAlgorithms ::= BIT STRING (SIZE (16,...))
 NR-TxBW	::= SEQUENCE {
 	nRSCS	NRSCS,
 	nRNRB	NRNRB,
-	iE-Extensions				ProtocolExtensionContainer { { NR-TxBW-ExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {NR-TxBW-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1409,19 +1647,32 @@ NRNRB ::= ENUMERATED { nrb11, nrb18, nrb24, nrb25, nrb31, nrb32, nrb38, nrb51, n
 
 NRSCS ::= ENUMERATED { scs15, scs30, scs60, scs120, ...}
 
+NRS-NSSS-PowerOffset ::= ENUMERATED { minusThree, zero, three, ...}
 
-Extended-TAC ::= OCTET STRING (SIZE (3))
+FiveGS-TAC ::= OCTET STRING (SIZE (3))
+
+NRUeReport ::= SEQUENCE {
+	uENRMeasurements			RRCContainer,
+	iE-Extensions			ProtocolExtensionContainer { { NRUeReport-ExtIEs} } OPTIONAL,
+	...
+}
+
+NRUeReport-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 NRUESecurityCapabilities ::= SEQUENCE {
 	nRencryptionAlgorithms				NRencryptionAlgorithms,
 	nRintegrityProtectionAlgorithms		NRintegrityProtectionAlgorithms,
-	iE-Extensions						ProtocolExtensionContainer { { NRUESecurityCapabilities-ExtIEs} }	OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {NRUESecurityCapabilities-ExtIEs} }	OPTIONAL,
 ...
 }
 
 NRUESecurityCapabilities-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+NSSS-NumOccasionDifferentPrecoder ::= ENUMERATED { two, four, eight, ...}
 
 -- O
 
@@ -1447,12 +1698,18 @@ OffsetOfNbiotChannelNumberToEARFCN ::= ENUMERATED {
 		seven,
 		eight,
 		nine,
-		...
+		...,
+		minusEightDotFive,
+		minusFourDotFive,
+		threeDotFive,
+		sevenDotFive
 }
 
 Oneframe ::= BIT STRING (SIZE (6))
 
 -- P
+
+Packet-LossRate	::= INTEGER(0..1000)
 
 PA-Values ::= ENUMERATED {
 	dB-6,
@@ -1474,6 +1731,8 @@ PDCP-SNExtended ::= INTEGER (0..32767)
 
 PDCP-SNlength18 ::= INTEGER (0..262143)
 
+PDCPSnLength	::=	ENUMERATED {twelve-bits,eighteen-bits,...}
+
 PCI ::= INTEGER (0..503, ...)
 
 PLMN-Identity ::= OCTET STRING (SIZE(3))
@@ -1485,7 +1744,7 @@ PRACH-Configuration ::= SEQUENCE {
 	zeroCorrelationIndex					INTEGER (0..15),
 	highSpeedFlag							BOOLEAN,
 	prach-FreqOffset						INTEGER (0..94),
-	prach-ConfigIndex						INTEGER (0..63)		OPTIONAL,  -- present for TDD --
+	prach-ConfigIndex						INTEGER (0..63)		OPTIONAL, -- present for TDD --
 	iE-Extensions							ProtocolExtensionContainer { {PRACH-Configuration-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -1549,6 +1808,46 @@ ProSeUEtoNetworkRelaying ::= ENUMERATED {
 	...
 }
 
+ProtectedEUTRAResourceIndication::= SEQUENCE {
+	activationSFN							INTEGER (0..1023),
+	protectedResourceList					ProtectedResourceList,
+	mBSFNControlRegionLength				INTEGER (0..3) OPTIONAL,
+	pDCCHRegionLength						INTEGER (1..3) OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { {ProtectedEUTRAResourceIndication-ExtIEs} }	OPTIONAL,
+	...
+}
+
+ProtectedEUTRAResourceIndication-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+} -- Rapporteur: missing extension --
+
+
+ProtectedFootprintTimePattern ::= SEQUENCE {
+	protectedFootprintTimePeriodicity				INTEGER (1..320, ...),
+	protectedFootprintStartTime						INTEGER (1..20, ...),
+	iE-Extensions									ProtocolExtensionContainer { {ProtectedFootprintTimePattern-ExtIEs} }	OPTIONAL,
+	...
+}
+
+ProtectedFootprintTimePattern-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ProtectedResourceList ::= SEQUENCE (SIZE(1.. maxnoofProtectedResourcePatterns)) OF ProtectedResourceList-Item
+
+ProtectedResourceList-Item ::= SEQUENCE {
+	resourceType					ResourceType,
+	intraPRBProtectedResourceFootprint 		BIT STRING (SIZE(84, ...)),
+	protectedFootprintFrequencyPattern 		BIT STRING (SIZE(6..110, ...)),
+	protectedFootprintTimePattern			ProtectedFootprintTimePattern,
+	iE-Extensions							ProtocolExtensionContainer { {ProtectedResourceList-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+ProtectedResourceList-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 -- Q
 
 QCI ::= INTEGER (0..255)
@@ -1581,7 +1880,6 @@ RadioResourceStatus	::= SEQUENCE {
 
 RadioResourceStatus-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ID id-DL-scheduling-PDCCH-CCE-usage		CRITICALITY ignore	EXTENSION DL-scheduling-PDCCH-CCE-usage		PRESENCE optional}|
-
 	{ID id-UL-scheduling-PDCCH-CCE-usage		CRITICALITY ignore	EXTENSION UL-scheduling-PDCCH-CCE-usage		PRESENCE optional},
 	...
 }
@@ -1591,6 +1889,11 @@ ReceiveStatusofULPDCPSDUs ::= BIT STRING (SIZE(4096))
 ReceiveStatusOfULPDCPSDUsExtended ::= BIT STRING (SIZE(1..16384))
 
 ReceiveStatusOfULPDCPSDUsPDCP-SNlength18 ::= BIT STRING (SIZE(1..131072))
+
+Reestablishment-Indication ::= ENUMERATED {
+	reestablished,
+	...
+}
 
 Registration-Request	::= ENUMERATED {
 	start,
@@ -1607,7 +1910,7 @@ RelativeNarrowbandTxPower ::= SEQUENCE {
 	numberOfCellSpecificAntennaPorts	ENUMERATED {one, two, four, ...},
 	p-B									INTEGER (0..3,...),
 	pDCCH-InterferenceImpact			INTEGER (0..4,...),
-	iE-Extensions						ProtocolExtensionContainer { { RelativeNarrowbandTxPower-ExtIEs} } OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {RelativeNarrowbandTxPower-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1651,6 +1954,25 @@ ReportingPeriodicityRSRPMR ::= ENUMERATED {
 
 ReportIntervalMDT ::= ENUMERATED {ms120, ms240, ms480, ms640, ms1024, ms2048, ms5120, ms10240, min1, min6, min12, min30, min60}
 
+ReservedSubframePattern ::= SEQUENCE{
+	subframeType					SubframeType,
+	reservedSubframePattern			BIT STRING (SIZE(10..160)),
+	mBSFNControlRegionLength		INTEGER (0..3),
+	iE-Extensions					ProtocolExtensionContainer { {ReservedSubframePattern-ExtIEs} }	OPTIONAL,
+	...
+}
+
+ReservedSubframePattern-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ResourceType ::= ENUMERATED {
+	downlinknonCRS,
+	cRS,
+	uplink,
+	...
+}
+
 ResumeID	::= CHOICE {
 	non-truncated	BIT STRING(SIZE(40)),
 	truncated		BIT STRING(SIZE(24)),
@@ -1659,7 +1981,20 @@ ResumeID	::= CHOICE {
 
 RLCMode ::= ENUMERATED {
 	rlc-am,
-	rlc-um
+	rlc-um-bidirectional,
+	rlc-um-unidirectional-ul,
+	rlc-um-unidirectional-dl,
+	...
+}
+
+RLC-Status ::= SEQUENCE {
+	reestablishment-Indication 	Reestablishment-Indication,
+	iE-Extensions				ProtocolExtensionContainer { {RLC-Status-ExtIEs} } OPTIONAL,
+	...
+}
+
+RLC-Status-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
 }
 
 RNTP-Threshold ::= ENUMERATED {
@@ -1682,6 +2017,12 @@ RNTP-Threshold ::= ENUMERATED {
 	...
 }
 
+RRC-Config-Ind ::= ENUMERATED {
+	full-config,
+	delta-config,
+	...
+}
+
 RRC-Context ::= OCTET STRING
 
 RRCConnReestabIndicator ::= ENUMERATED {
@@ -1698,7 +2039,7 @@ RSRPMeasurementResult ::= SEQUENCE (SIZE(1..maxCellReport)) OF
 	SEQUENCE {
 		rSRPCellID						ECGI,
 		rSRPMeasured					INTEGER (0..97, ...),
-		iE-Extensions					ProtocolExtensionContainer { { RSRPMeasurementResult-ExtIEs} } OPTIONAL,
+		iE-Extensions					ProtocolExtensionContainer { {RSRPMeasurementResult-ExtIEs} } OPTIONAL,
 		...
 	}
 
@@ -1709,7 +2050,7 @@ RSRPMeasurementResult-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 RSRPMRList ::= SEQUENCE (SIZE(1..maxUEReport)) OF
 	SEQUENCE {
 		rSRPMeasurementResult			RSRPMeasurementResult,
-		iE-Extensions					ProtocolExtensionContainer { { RSRPMRList-ExtIEs} } OPTIONAL,
+		iE-Extensions					ProtocolExtensionContainer { {RSRPMRList-ExtIEs} } OPTIONAL,
 		...
 	}
 
@@ -1725,7 +2066,7 @@ RRCContainer ::= OCTET STRING
 S1TNLLoadIndicator ::= SEQUENCE {
 	dLS1TNLLoadIndicator			LoadIndicator,
 	uLS1TNLLoadIndicator			LoadIndicator,
-	iE-Extensions					ProtocolExtensionContainer { { S1TNLLoadIndicator-ExtIEs} } OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {S1TNLLoadIndicator-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1746,7 +2087,7 @@ SecondaryRATUsageReport-Item ::= SEQUENCE {
 	e-RAB-ID						E-RAB-ID,
 	secondaryRATType				ENUMERATED {nr, ...},
 	e-RABUsageReportList			E-RABUsageReportList,
-	iE-Extensions				ProtocolExtensionContainer { { SecondaryRATUsageReport-Item-ExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {SecondaryRATUsageReport-Item-ExtIEs} } OPTIONAL,
 ...
 }
 
@@ -1767,6 +2108,7 @@ ServedCells ::= SEQUENCE (SIZE (1.. maxCellineNB)) OF SEQUENCE {
 }
 
 ServedCell-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-NRNeighbourInfoToAdd			CRITICALITY ignore	EXTENSION NRNeighbour-Information				PRESENCE optional },
 	...
 }
 
@@ -1781,26 +2123,41 @@ ServedCell-Information ::= SEQUENCE {
 }
 
 ServedCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-Number-of-Antennaports		CRITICALITY ignore	EXTENSION Number-of-Antennaports				PRESENCE optional}|
-	{ ID id-PRACH-Configuration			CRITICALITY ignore	EXTENSION PRACH-Configuration					PRESENCE optional}|
-	{ ID id-MBSFN-Subframe-Info			CRITICALITY ignore	EXTENSION MBSFN-Subframe-Infolist				PRESENCE optional}|
-	{ ID id-CSG-Id						CRITICALITY ignore	EXTENSION CSG-Id								PRESENCE optional}|
-	{ ID id-MBMS-Service-Area-List		CRITICALITY ignore	EXTENSION MBMS-Service-Area-Identity-List	PRESENCE optional}|
-	{ ID id-MultibandInfoList			CRITICALITY ignore	EXTENSION MultibandInfoList						PRESENCE optional}|
-	{ ID id-FreqBandIndicatorPriority	CRITICALITY ignore	EXTENSION FreqBandIndicatorPriority				PRESENCE optional}|
-	{ ID id-BandwidthReducedSI			CRITICALITY ignore	EXTENSION BandwidthReducedSI					PRESENCE optional},
+	{ ID id-Number-of-Antennaports				CRITICALITY ignore	EXTENSION Number-of-Antennaports					PRESENCE optional}|
+	{ ID id-PRACH-Configuration					CRITICALITY ignore	EXTENSION PRACH-Configuration						PRESENCE optional}|
+	{ ID id-MBSFN-Subframe-Info					CRITICALITY ignore	EXTENSION MBSFN-Subframe-Infolist				PRESENCE optional}|
+	{ ID id-CSG-Id								CRITICALITY ignore	EXTENSION CSG-Id									PRESENCE optional}|
+	{ ID id-MBMS-Service-Area-List				CRITICALITY ignore	EXTENSION MBMS-Service-Area-Identity-List		PRESENCE optional}|
+	{ ID id-MultibandInfoList					CRITICALITY ignore	EXTENSION MultibandInfoList							PRESENCE optional}|
+	{ ID id-FreqBandIndicatorPriority			CRITICALITY ignore	EXTENSION FreqBandIndicatorPriority				PRESENCE optional}|
+	{ ID id-BandwidthReducedSI					CRITICALITY ignore	EXTENSION BandwidthReducedSI						PRESENCE optional}|
+	{ ID id-ProtectedEUTRAResourceIndication	CRITICALITY ignore	EXTENSION ProtectedEUTRAResourceIndication	PRESENCE optional}|
+	{ ID id-BPLMN-ID-Info-EUTRA					CRITICALITY ignore 	EXTENSION BPLMN-ID-Info-EUTRA						PRESENCE optional},
+	...
+}
+
+ServiceType ::= ENUMERATED{
+	qMC-for-streaming-service,
+	qMC-for-MTSI-service,
+	...
+}
+
+SgNBCoordinationAssistanceInformation ::= ENUMERATED{
+	coordination-not-required,
 	...
 }
 
 SgNBResourceCoordinationInformation ::= SEQUENCE {
 	nR-CGI							NRCGI,
 	uLCoordinationInformation		BIT STRING (SIZE(6..4400, ...)),
-	dLCoordinationInformation		BIT STRING (SIZE(6..4400, ...)),
-	iE-Extensions					ProtocolExtensionContainer { { SgNBResourceCoordinationInformationExtIEs} }		 OPTIONAL,
+	dLCoordinationInformation		BIT STRING (SIZE(6..4400, ...))	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {SgNBResourceCoordinationInformationExtIEs} }		 OPTIONAL,
 	...
 }
 
 SgNBResourceCoordinationInformationExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-ECGI										CRITICALITY ignore	EXTENSION ECGI												PRESENCE optional}|
+	{ ID id-SgNBCoordinationAssistanceInformation		CRITICALITY reject	EXTENSION SgNBCoordinationAssistanceInformation	PRESENCE optional},
 	...
 }
 
@@ -1811,7 +2168,21 @@ SIPTOBearerDeactivationIndication ::= ENUMERATED {
 	...
 }
 
+SharedResourceType ::= CHOICE{
+	uLOnlySharing		ULOnlySharing,
+	uLandDLSharing		ULandDLSharing,
+	...
+}
+
 ShortMAC-I ::= BIT STRING (SIZE(16))
+
+
+SGNB-Addition-Trigger-Ind	 ::= ENUMERATED {
+	sn-change,
+	inter-eNB-HO,
+	intra-eNB-HO,
+	...
+}
 
 SourceOfUEActivityBehaviourInformation ::= ENUMERATED {
 	subscription-information,
@@ -1823,7 +2194,7 @@ SpecialSubframe-Info ::= SEQUENCE {
 	specialSubframePatterns		SpecialSubframePatterns,
 	cyclicPrefixDL				CyclicPrefixDL,
 	cyclicPrefixUL				CyclicPrefixUL,
-	iE-Extensions				ProtocolExtensionContainer { { SpecialSubframe-Info-ExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {SpecialSubframe-Info-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1844,10 +2215,39 @@ SpecialSubframePatterns ::= ENUMERATED {
 	...
 }
 
+SpectrumSharingGroupID ::= INTEGER (1..maxCellineNB)
+
 SubbandCQI ::= SEQUENCE {
 	subbandCQICodeword0			SubbandCQICodeword0,
 	subbandCQICodeword1			SubbandCQICodeword1		OPTIONAL,
-	iE-Extensions				ProtocolExtensionContainer { { SubbandCQI-ExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {SubbandCQI-ExtIEs} } OPTIONAL,
+	...
+}
+
+Subscription-Based-UE-DifferentiationInfo ::= SEQUENCE {
+	periodicCommunicationIndicator	ENUMERATED {periodically, ondemand, ...}		OPTIONAL,
+	periodicTime					INTEGER (1..3600, ...) 							OPTIONAL,
+	scheduledCommunicationTime		ScheduledCommunicationTime 						OPTIONAL,
+	stationaryIndication			ENUMERATED {stationary, mobile, ...}			OPTIONAL,
+	trafficProfile 					ENUMERATED {single-packet, dual-packets, multiple-packets, ...} 			OPTIONAL,
+	batteryIndication				ENUMERATED {battery-powered, battery-powered-not-rechargeable-or-replaceable, not-battery-powered, ...}		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { Subscription-Based-UE-DifferentiationInfo-ExtIEs} } OPTIONAL,
+	...
+}
+
+Subscription-Based-UE-DifferentiationInfo-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ScheduledCommunicationTime ::= SEQUENCE {
+	dayofWeek				BIT STRING (SIZE(7))									OPTIONAL,
+	timeofDayStart			INTEGER (0..86399, ...) 								OPTIONAL,
+	timeofDayEnd			INTEGER (0..86399, ...) 								OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { { ScheduledCommunicationTime-ExtIEs}}	OPTIONAL,
+	...
+}
+
+ScheduledCommunicationTime-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -1879,7 +2279,7 @@ SubbandCQIList ::= SEQUENCE (SIZE(1.. maxSubband)) OF SubbandCQIItem
 SubbandCQIItem ::= SEQUENCE {
 	subbandCQI			SubbandCQI,
 	subbandIndex		INTEGER (0..27,...),
-	iE-Extensions		ProtocolExtensionContainer { { SubbandCQIItem-ExtIEs} } OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {SubbandCQIItem-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1915,6 +2315,8 @@ SubframeAssignment ::= ENUMERATED {
 	...
 }
 
+SubframeType ::= ENUMERATED{mbsfn,nonmbsfn,...}
+
 SgNBSecurityKey ::= BIT STRING (SIZE(256))
 
 SgNBtoMeNBContainer ::= OCTET STRING
@@ -1923,9 +2325,20 @@ SRBType ::= ENUMERATED {srb1, srb2, ...}
 SCGConfigurationQuery ::= ENUMERATED {true,...}
 
 SULInformation ::= SEQUENCE {
-	sUL-ARFCN				NRARFCN,
+	sUL-ARFCN				INTEGER (0.. 3279165),
 	sUL-TxBW				NR-TxBW,
-	iE-Extensions			ProtocolExtensionContainer { { SULInformation-ExtIEs } }		OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {SULInformation-ExtIEs} }		OPTIONAL,
+	...
+}
+
+
+SupportedSULFreqBandItem ::= SEQUENCE {
+	freqBandIndicatorNr 			INTEGER (1..1024,...),
+	iE-Extensions			ProtocolExtensionContainer { {SupportedSULFreqBandItem-ExtIEs} }		OPTIONAL,
+	...
+}
+
+SupportedSULFreqBandItem-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -1962,7 +2375,7 @@ TAIListforMDT ::= SEQUENCE (SIZE(1..maxnoofTAforMDT)) OF TAI-Item
 TAI-Item ::= SEQUENCE {
 	tAC					TAC,
 	pLMN-Identity		PLMN-Identity,
-	iE-Extensions		ProtocolExtensionContainer { { TAI-Item-ExtIEs} } OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {TAI-Item-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -2008,10 +2421,23 @@ TDD-Info ::= SEQUENCE {
 	iE-Extensions					ProtocolExtensionContainer { {TDD-Info-ExtIEs} } OPTIONAL,
 	...
 }
+
 TDD-Info-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-AdditionalSpecialSubframe-Info	CRITICALITY ignore	EXTENSION AdditionalSpecialSubframe-Info	PRESENCE optional}|
-	{ ID id-eARFCNExtension					CRITICALITY reject	EXTENSION EARFCNExtension						PRESENCE optional}|
-	{ ID id-AdditionalSpecialSubframeExtension-Info	CRITICALITY ignore	EXTENSION AdditionalSpecialSubframeExtension-Info	PRESENCE optional},
+	{ ID id-AdditionalSpecialSubframe-Info			CRITICALITY ignore	EXTENSION AdditionalSpecialSubframe-Info				PRESENCE optional}|
+	{ ID id-eARFCNExtension							CRITICALITY reject	EXTENSION EARFCNExtension									PRESENCE optional}|
+	{ ID id-AdditionalSpecialSubframeExtension-Info	CRITICALITY ignore	EXTENSION AdditionalSpecialSubframeExtension-Info	PRESENCE optional}|
+	{ ID id-OffsetOfNbiotChannelNumberToDL-EARFCN	CRITICALITY reject	EXTENSION OffsetOfNbiotChannelNumberToEARFCN		PRESENCE optional}|
+	{ ID id-NBIoT-UL-DL-AlignmentOffset				CRITICALITY reject	EXTENSION NBIoT-UL-DL-AlignmentOffset					PRESENCE optional},
+	...
+}
+
+TDD-InfoNeighbourServedNRCell-Information ::= SEQUENCE {
+	nRFreqInfo				NRFreqInfo,
+	iE-Extensions			ProtocolExtensionContainer { {TDD-InfoNeighbourServedNRCell-Information-ExtIEs} }		OPTIONAL,
+	...
+}
+
+TDD-InfoNeighbourServedNRCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -2043,7 +2469,7 @@ traceCollectionEntityIPAddress		TraceCollectionEntityIPAddress,
 }
 
 TraceActivation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-MDTConfiguration	CRITICALITY ignore	EXTENSION MDT-Configuration		PRESENCE optional}|
+	{ ID id-MDTConfiguration			CRITICALITY ignore	EXTENSION MDT-Configuration			PRESENCE optional}|
 	{ ID id-UEAppLayerMeasConfig		CRITICALITY ignore	EXTENSION UEAppLayerMeasConfig		PRESENCE optional},
 	...
 }
@@ -2114,6 +2540,7 @@ UEAppLayerMeasConfig ::= SEQUENCE {
 }
 
 UEAppLayerMeasConfig-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ID id-serviceType	CRITICALITY ignore	EXTENSION ServiceType	PRESENCE optional},
 	...
 }
 
@@ -2144,7 +2571,7 @@ UE-RLF-Report-Container-for-extended-bands ::= OCTET STRING
 UESecurityCapabilities ::= SEQUENCE {
 	encryptionAlgorithms				EncryptionAlgorithms,
 	integrityProtectionAlgorithms		IntegrityProtectionAlgorithms,
-	iE-Extensions						ProtocolExtensionContainer { { UESecurityCapabilities-ExtIEs} }		OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {UESecurityCapabilities-ExtIEs} }		OPTIONAL,
 ...
 }
 
@@ -2162,9 +2589,34 @@ UE-Sidelink-Aggregate-MaximumBitRate-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+UEsToBeResetList ::= SEQUENCE (SIZE (1.. maxUEsinengNBDU)) OF UEsToBeResetList-Item
+
+UEsToBeResetList-Item::= SEQUENCE {
+	meNB-ID					UE-X2AP-ID,
+	meNB-ID-ext				UE-X2AP-ID-Extension														OPTIONAL,
+	sgNB-ID					SgNB-UE-X2AP-ID																OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {UEsToBeResetList-Item-ExtIEs} }				OPTIONAL,
+	...
+}
+
+UEsToBeResetList-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ULandDLSharing ::= SEQUENCE{
+	uLResourcesULandDLSharing				ULResourcesULandDLSharing,
+	dLResourcesULandDLSharing				DLResourcesULandDLSharing,
+	iE-Extensions			ProtocolExtensionContainer { {ULandDLSharing-ExtIEs} }				OPTIONAL,
+	...
+}
+
+ULandDLSharing-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 ULConfiguration::= SEQUENCE {
 	uL-PDCP			UL-UE-Configuration,
-	iE-Extensions					ProtocolExtensionContainer { { ULConfiguration-ExtIEs} } OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {ULConfiguration-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -2181,7 +2633,7 @@ UL-HighInterferenceIndicationInfo ::= SEQUENCE (SIZE(1..maxCellineNB)) OF UL-Hig
 UL-HighInterferenceIndicationInfo-Item ::= SEQUENCE {
 	target-Cell-ID					ECGI,
 	ul-interferenceindication		UL-HighInterferenceIndication,
-	iE-Extensions					ProtocolExtensionContainer { { UL-HighInterferenceIndicationInfo-Item-ExtIEs} } OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {UL-HighInterferenceIndicationInfo-Item-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -2202,6 +2654,25 @@ UL-InterferenceOverloadIndication-Item ::= ENUMERATED {
 
 UL-non-GBR-PRB-usage::= INTEGER (0..100)
 
+ULOnlySharing ::= SEQUENCE{
+	uLResourceBitmapULOnlySharing	DataTrafficResources,
+	iE-Extensions					ProtocolExtensionContainer { {ULOnlySharing-ExtIEs} }				OPTIONAL,
+	...
+}
+
+ULOnlySharing-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ULResourceBitmapULandDLSharing ::= DataTrafficResources
+
+
+ULResourcesULandDLSharing ::= CHOICE {
+	unchanged			NULL,
+	changed				ULResourceBitmapULandDLSharing,
+	...
+}
+
 UL-scheduling-PDCCH-CCE-usage::= INTEGER (0..100)
 
 UL-Total-PRB-usage::= INTEGER (0..100)
@@ -2214,7 +2685,7 @@ UsableABSInformation ::= CHOICE {
 
 UsableABSInformationFDD ::= SEQUENCE {
 	usable-abs-pattern-info				BIT STRING (SIZE(40)),
-	iE-Extensions						ProtocolExtensionContainer { { UsableABSInformationFDD-ExtIEs} } OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {UsableABSInformationFDD-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -2224,7 +2695,7 @@ UsableABSInformationFDD-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 UsableABSInformationTDD ::= SEQUENCE {
 	usaable-abs-pattern-info			BIT STRING (SIZE(1..70, ...)),
-	iE-Extensions						ProtocolExtensionContainer { { UsableABSInformationTDD-ExtIEs} } OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {UsableABSInformationTDD-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -2233,11 +2704,13 @@ UsableABSInformationTDD-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 }
 
 
+UserPlaneTrafficActivityReport ::= ENUMERATED {inactive, re-activated, ...}
+
 -- V
 
 V2XServicesAuthorized ::= SEQUENCE {
-	vehicleUE			VehicleUE											OPTIONAL,
-pedestrianUE 		PedestrianUE										    OPTIONAL,
+	vehicleUE			VehicleUE														OPTIONAL,
+pedestrianUE 			PedestrianUE													OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {V2XServicesAuthorized-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -2263,7 +2736,7 @@ PedestrianUE ::= ENUMERATED {
 WidebandCQI ::= SEQUENCE {
 	widebandCQICodeword0		INTEGER (0..15, ...),
 	widebandCQICodeword1		WidebandCQICodeword1		OPTIONAL,
-	iE-Extensions				ProtocolExtensionContainer { { WidebandCQI-ExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {WidebandCQI-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -2276,6 +2749,25 @@ WidebandCQICodeword1::= CHOICE {
 	three-bitSpatialDifferentialCQI			INTEGER (0..7, ...),
 	...
 }
+
+WLANMeasurementConfiguration ::= SEQUENCE {
+	wlanMeasConfig				WLANMeasConfig,
+	wlanMeasConfigNameList		WLANMeasConfigNameList				OPTIONAL,
+	wlan-rssi					ENUMERATED {true, ...}				OPTIONAL,
+	wlan-rtt					ENUMERATED {true, ...}				OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {WLANMeasurementConfiguration-ExtIEs} } OPTIONAL,
+	...
+}
+
+WLANMeasurementConfiguration-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+WLANMeasConfigNameList ::= SEQUENCE (SIZE(1..maxnoofWLANName)) OF WLANName
+
+WLANMeasConfig::= ENUMERATED {setup,...}
+
+WLANName ::= OCTET STRING (SIZE (1..32))
 
 WTID ::= CHOICE {
 	wTID-Type1			WTID-Type1,

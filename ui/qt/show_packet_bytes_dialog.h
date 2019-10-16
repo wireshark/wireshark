@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef SHOW_PACKET_BYTES_DIALOG_H
 #define SHOW_PACKET_BYTES_DIALOG_H
@@ -80,6 +81,7 @@ private:
         ShowAsISO8859_1,
         ShowAsRAW,
         ShowAsUTF8,
+        ShowAsUTF16,
         ShowAsYAML
     };
 
@@ -138,7 +140,7 @@ private:
 #endif // SHOW_PACKET_BYTES_DIALOG_H
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

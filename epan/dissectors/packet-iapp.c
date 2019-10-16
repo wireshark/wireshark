@@ -470,7 +470,7 @@ proto_reg_handoff_iapp(void)
     dissector_add_uint_with_preference("udp.port", UDP_PORT_IAPP, iapp_handle);
 }
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

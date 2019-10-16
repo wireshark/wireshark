@@ -1,19 +1,19 @@
 /* packet-alcap.c
-* Routines for ALCAP (Q.2630.3) dissection
-* AAL type 2 signalling protocol - Capability set 3
-* 10/2003
-*
-* Copyright 2003, Michael Lum <mlum [AT] telostech.com>
-* In association with Telos Technology Inc.
-*
-* Copyright 2005, Luis E. Garcia Ontanon <luis.ontanon [AT] gmail.com>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ * Routines for ALCAP (Q.2630.3) dissection
+ * AAL type 2 signalling protocol - Capability set 3
+ * 10/2003
+ *
+ * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
+ * In association with Telos Technology Inc.
+ *
+ * Copyright 2005, Luis E. Garcia Ontanon <luis.ontanon [AT] gmail.com>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -1244,42 +1244,42 @@ static void alcap_leg_tree(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo, 
 
     if (leg->dsaid) {
         pi = proto_tree_add_uint(tree,hf_alcap_leg_dsaid,tvb,0,0,leg->dsaid);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
     }
 
     if (leg->osaid) {
         pi = proto_tree_add_uint(tree,hf_alcap_leg_osaid,tvb,0,0,leg->osaid);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
     }
 
     if (leg->pathid) {
         pi = proto_tree_add_uint(tree,hf_alcap_leg_pathid,tvb,0,0,leg->pathid);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
     }
 
     if (leg->cid) {
         pi = proto_tree_add_uint(tree,hf_alcap_leg_cid,tvb,0,0,leg->cid);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
     }
 
     if (leg->sugr) {
         pi = proto_tree_add_uint(tree,hf_alcap_leg_sugr,tvb,0,0,leg->sugr);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
     }
 
     if (leg->orig_nsap) {
         pi = proto_tree_add_string(tree,hf_alcap_leg_onsea,tvb,0,0,leg->orig_nsap);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
     }
 
     if (leg->dest_nsap) {
         pi = proto_tree_add_string(tree,hf_alcap_leg_dnsea,tvb,0,0,leg->dest_nsap);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
     }
 
     if(leg->release_cause) {
         pi = proto_tree_add_uint(tree,hf_alcap_leg_release_cause,tvb,0,0,leg->release_cause);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
         if (leg->release_cause && leg->release_cause != 31)
             expert_add_info(pinfo, pi, &ei_alcap_release_cause_not31);
     }
@@ -1294,7 +1294,7 @@ static void alcap_leg_tree(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo, 
             proto_item_set_text(pi_local,"%s in frame %u",
                                 val_to_str_ext_const(msg->msg_type,&msg_type_strings_ext,"Unknown message"),
                                 msg->framenum);
-            PROTO_ITEM_SET_GENERATED(pi_local);
+            proto_item_set_generated(pi_local);
         } while (( msg = msg->next));
 
     }
@@ -2412,7 +2412,7 @@ proto_reg_handoff_alcap(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

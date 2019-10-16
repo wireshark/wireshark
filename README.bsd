@@ -23,7 +23,7 @@ can be found at the following sites:
     pkgconfig:
          http://pkgconfig.freedesktop.org/releases/
 
-    python 2.7 or later, including Python 3:
+    python 3.4 or later:
          https://www.python.org/downloads/source/
 
 If you want to use the Wireshark GUI, install one or both of these toolkits:

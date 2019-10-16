@@ -1,24 +1,29 @@
 #
-# - Find unix commands from cygwin
+# - Find XSLTPROC
 # This module looks for some usual Unix commands.
 #
 
 include(FindChocolatey)
-include(FindCygwin)
 
 # Strawberry Perl ships with xsltproc but no DocBook XML files, which
-# is detrimental to our interests. Search for the Chocolatey and Cygwin
-# versions first.
+# is detrimental to our interests. Search for the Chocolatey
+# versions first, and un-find xsltproc if needed.
 find_program(XSLTPROC_EXECUTABLE
   NAMES
     xsltproc
   HINTS
     ${CHOCOLATEY_BIN_PATH}
-    ${CYGWIN_INSTALL_PATH}/bin
   PATHS
     /usr/local/bin
     /sbin
 )
+
+string(TOLOWER ${XSLTPROC_EXECUTABLE} _xe_lower)
+if(${_xe_lower} MATCHES "strawberry")
+	set(_ignore_reason "Strawberry xsltproc found at ${XSLTPROC_EXECUTABLE}. Ignoring.")
+	message(STATUS ${_ignore_reason})
+	set(XSLTPROC_EXECUTABLE XSLTPROC_EXECUTABLE-NOTFOUND CACHE FILEPATH ${_ignore_reason} FORCE)
+endif()
 
 # Handle the QUIETLY and REQUIRED arguments and set XSLTPROC_FOUND to TRUE if
 # all listed variables are TRUE
@@ -36,29 +41,7 @@ set (_common_xsltproc_args
     --stringparam html.stylesheet ws.css
     )
 
-if (WIN32 AND NOT "${CYGWIN_INSTALL_PATH}" STREQUAL "" AND ${XSLTPROC_EXECUTABLE} MATCHES "${CYGWIN_INSTALL_PATH}")
-    FIND_PROGRAM(CYGPATH_EXECUTABLE
-        NAMES cygpath
-        PATHS ${CYGWIN_INSTALL_PATH}/bin
-    )
-    MACRO( TO_XSLTPROC_COMPATIBLE_PATH _cmake_path _result )
-        execute_process(
-            COMMAND ${CYGPATH_EXECUTABLE} -u ${_cmake_path}
-            OUTPUT_VARIABLE _cygwin_path
-        )
-        # cygpath adds a linefeed.
-        string(STRIP "${_cygwin_path}" _cygwin_path)
-
-        set( ${_result} ${_cygwin_path} )
-    ENDMACRO()
-
-    TO_XSLTPROC_COMPATIBLE_PATH( ${CMAKE_CURRENT_SOURCE_DIR} _xsltproc_current_source_dir )
-    TO_XSLTPROC_COMPATIBLE_PATH( ${CMAKE_CURRENT_BINARY_DIR} _xsltproc_current_binary_dir )
-
-    set ( _xsltproc_path "${_xsltproc_current_source_dir}:${_xsltproc_current_binary_dir}:${_xsltproc_current_binary_dir}/wsluarm_src")
-else()
-    set ( _xsltproc_path "${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/wsluarm_src")
-endif()
+set(_xsltproc_path "${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/wsluarm_src")
 
 # Workaround for parallel build issue with msbuild.
 # https://gitlab.kitware.com/cmake/cmake/issues/16767
@@ -188,9 +171,14 @@ MACRO(XML2HHP _target_dep _guide _dbk_source)
         COMMAND ${CMAKE_COMMAND} -E make_directory ${_basedir}/${_gfxdir}
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfxdir} ${_basedir}/${_gfxdir}
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics ${_basedir}/${_gfxdir}
-        # HTML Help doesn't render decimal character entities in the title.
+        # Dumb down our title. HTML Help can render most of our content
+        # correctly because we tell it to use the IE9 rendering engine in
+        # custom_layer_chm.xsl. However, this doesn't apply to the window
+        # title. Neither "’", "'", nor "&#8217;" will render correctly, so
+        # just remove everything between "Developer", "User", and their
+        # respective trailing "s"es.
         COMMAND ${PERL_EXECUTABLE} -p
-            -e "s|er&#8217;s Guide</title>|er's Guide</title>|"
+            -e "s|er.*s Guide</title>|ers Guide</title>|"
             < ${_dbk_source}
             > ${_docbook_plain_title}
         COMMAND ${XSLTPROC_EXECUTABLE}

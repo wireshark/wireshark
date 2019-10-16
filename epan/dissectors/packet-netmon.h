@@ -39,7 +39,7 @@ void netmon_sid_field(proto_tree *tree, tvbuff_t *tvb, int* offset, packet_info 
 #endif /* PACKET_NETMON_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

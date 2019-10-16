@@ -3,18 +3,16 @@
         <file>wsicon16.png</file>
         <file>wsicon-ask.png</file>
     </qresource>
-    <qresource prefix="/stock">
-        <file>minus-8.png</file>
-        <file>plus-8.png</file>
-        <file>copy-8.png</file>
-        <file>delete_list.png</file>
-        <file>delete_list@2x.png</file>
-        <file>arrow_up.png</file>
-        <file>arrow_up@2x.png</file>
-        <file>arrow_down.png</file>
-        <file>arrow_down@2x.png</file>
-    </qresource>
     <qresource prefix="">
+        <file>stock_icons/8x8/list-add.template.png</file>
+        <file>stock_icons/8x8/list-remove.template.png</file>
+        <file>stock_icons/8x8/list-copy.template.png</file>
+        <file>stock_icons/8x8/list-clear.template.png</file>
+        <file>stock_icons/8x8/list-clear.template@2x.png</file>
+        <file>stock_icons/8x8/list-move-up.template.png</file>
+        <file>stock_icons/8x8/list-move-up.template@2x.png</file>
+        <file>stock_icons/8x8/list-move-down.template.png</file>
+        <file>stock_icons/8x8/list-move-down.template@2x.png</file>
         <file>stock_icons/14x14/x-capture-comment-update.png</file>
         <file>stock_icons/14x14/x-capture-comment-update@2x.png</file>
         <file>stock_icons/14x14/x-capture-filter-bookmark.png</file>
@@ -45,16 +43,22 @@
         <file>stock_icons/14x14/x-filter-clear.active@2x.png</file>
         <file>stock_icons/14x14/x-filter-clear.selected.png</file>
         <file>stock_icons/14x14/x-filter-clear.selected@2x.png</file>
-        <file>stock_icons/14x14/x-filter-dropdown.png</file>
-        <file>stock_icons/14x14/x-filter-dropdown@2x.png</file>
+        <file>stock_icons/14x14/x-filter-deprecated.png</file>
+        <file>stock_icons/14x14/x-filter-deprecated@2x.png</file>
+        <file>stock_icons/14x14/x-filter-dropdown.dark.png</file>
+        <file>stock_icons/14x14/x-filter-dropdown.dark@2x.png</file>
+        <file>stock_icons/14x14/x-filter-dropdown.light.png</file>
+        <file>stock_icons/14x14/x-filter-dropdown.light@2x.png</file>
+        <file>stock_icons/14x14/x-filter-invalid.png</file>
+        <file>stock_icons/14x14/x-filter-invalid@2x.png</file>
         <file>stock_icons/14x14/x-filter-matching-bookmark.png</file>
         <file>stock_icons/14x14/x-filter-matching-bookmark@2x.png</file>
         <file>stock_icons/14x14/x-filter-matching-bookmark.active.png</file>
         <file>stock_icons/14x14/x-filter-matching-bookmark.active@2x.png</file>
         <file>stock_icons/14x14/x-filter-matching-bookmark.selected.png</file>
         <file>stock_icons/14x14/x-filter-matching-bookmark.selected@2x.png</file>
-        <file>stock_icons/16x16/edit-find.png</file>
-        <file>stock_icons/16x16/edit-find@2x.png</file>
+        <file>stock_icons/16x16/edit-find.template.png</file>
+        <file>stock_icons/16x16/edit-find.template@2x.png</file>
         <file>stock_icons/16x16/go-first.png</file>
         <file>stock_icons/16x16/go-first@2x.png</file>
         <file>stock_icons/16x16/go-jump.png</file>
@@ -87,20 +91,20 @@
         <file>stock_icons/16x16/x-resize-columns@2x.png</file>
         <file>stock_icons/16x16/x-stay-last.png</file>
         <file>stock_icons/16x16/x-stay-last@2x.png</file>
-        <file>stock_icons/16x16/zoom-in.png</file>
-        <file>stock_icons/16x16/zoom-in@2x.png</file>
-        <file>stock_icons/16x16/zoom-original.png</file>
-        <file>stock_icons/16x16/zoom-original@2x.png</file>
-        <file>stock_icons/16x16/zoom-out.png</file>
-        <file>stock_icons/16x16/zoom-out@2x.png</file>
+        <file>stock_icons/16x16/zoom-in.template.png</file>
+        <file>stock_icons/16x16/zoom-in.template@2x.png</file>
+        <file>stock_icons/16x16/zoom-original.template.png</file>
+        <file>stock_icons/16x16/zoom-original.template@2x.png</file>
+        <file>stock_icons/16x16/zoom-out.template.png</file>
+        <file>stock_icons/16x16/zoom-out.template@2x.png</file>
         <file>stock_icons/24x14/x-filter-apply.png</file>
         <file>stock_icons/24x14/x-filter-apply@2x.png</file>
         <file>stock_icons/24x14/x-filter-apply.active.png</file>
         <file>stock_icons/24x14/x-filter-apply.active@2x.png</file>
         <file>stock_icons/24x14/x-filter-apply.selected.png</file>
         <file>stock_icons/24x14/x-filter-apply.selected@2x.png</file>
-        <file>stock_icons/24x24/edit-find.png</file>
-        <file>stock_icons/24x24/edit-find@2x.png</file>
+        <file>stock_icons/24x24/edit-find.template.png</file>
+        <file>stock_icons/24x24/edit-find.template@2x.png</file>
         <file>stock_icons/24x24/go-first.png</file>
         <file>stock_icons/24x24/go-first@2x.png</file>
         <file>stock_icons/24x24/go-jump.png</file>
@@ -129,12 +133,12 @@
         <file>stock_icons/24x24/x-resize-columns@2x.png</file>
         <file>stock_icons/24x24/x-stay-last.png</file>
         <file>stock_icons/24x24/x-stay-last@2x.png</file>
-        <file>stock_icons/24x24/zoom-in.png</file>
-        <file>stock_icons/24x24/zoom-in@2x.png</file>
-        <file>stock_icons/24x24/zoom-original.png</file>
-        <file>stock_icons/24x24/zoom-original@2x.png</file>
-        <file>stock_icons/24x24/zoom-out.png</file>
-        <file>stock_icons/24x24/zoom-out@2x.png</file>
+        <file>stock_icons/24x24/zoom-in.template.png</file>
+        <file>stock_icons/24x24/zoom-in.template@2x.png</file>
+        <file>stock_icons/24x24/zoom-original.template.png</file>
+        <file>stock_icons/24x24/zoom-original.template@2x.png</file>
+        <file>stock_icons/24x24/zoom-out.template.png</file>
+        <file>stock_icons/24x24/zoom-out.template@2x.png</file>
         <file>stock_icons/24x24/x-capture-file-close.png</file>
         <file>stock_icons/24x24/x-capture-file-close@2x.png</file>
         <file>stock_icons/24x24/x-capture-file-save.png</file>

@@ -1,14 +1,14 @@
 /*
-*
-* Copyright (c) 2003 Endace Technology Ltd, Hamilton, New Zealand.
-* All rights reserved.
-*
-* This software and documentation has been developed by Endace Technology Ltd.
-* along with the DAG PCI network capture cards. For further information please
-* visit http://www.endace.com/.
-*
-* SPDX-License-Identifier: BSD-3-Clause
-*/
+ *
+ * Copyright (c) 2003 Endace Technology Ltd, Hamilton, New Zealand.
+ * All rights reserved.
+ *
+ * This software and documentation has been developed by Endace Technology Ltd.
+ * along with the DAG PCI network capture cards. For further information please
+ * visit https://www.endace.com/.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 #ifndef __W_ERF_H__
 #define __W_ERF_H__
@@ -120,6 +120,7 @@
 #define ERF_META_TAG_reset             4
 #define ERF_META_TAG_event_time        5
 #define ERF_META_TAG_host_id           6
+#define ERF_META_TAG_attribute         7
 #define ERF_META_TAG_fcs_len           8
 #define ERF_META_TAG_mask_ipv4         9
 #define ERF_META_TAG_mask_cidr         10
@@ -173,6 +174,8 @@
 #define ERF_META_TAG_ext_hdrs_added    57
 #define ERF_META_TAG_ext_hdrs_removed  58
 #define ERF_META_TAG_relative_snaplen  59
+#define ERF_META_TAG_temperature       60
+#define ERF_META_TAG_power             61
 
 #define ERF_META_TAG_if_num            64
 #define ERF_META_TAG_if_vc             65
@@ -381,7 +384,7 @@ int erf_get_source_from_header(union wtap_pseudo_header *pseudo_header, guint64 
 #endif /* __W_ERF_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

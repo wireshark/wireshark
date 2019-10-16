@@ -71,8 +71,8 @@ struct radcomrec_hdr {
 	char	xxw[9];		/* unknown */
 };
 
-static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
-	gint64 *data_offset);
+static gboolean radcom_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+	int *err, gchar **err_info, gint64 *data_offset);
 static gboolean radcom_seek_read(wtap *wth, gint64 seek_off,
 	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean radcom_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec,
@@ -230,16 +230,15 @@ wtap_open_return_val radcom_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
-			    gint64 *data_offset)
+static gboolean radcom_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+			    int *err, gchar **err_info, gint64 *data_offset)
 {
 	char	fcs[2];
 
 	*data_offset = file_tell(wth->fh);
 
 	/* Read record. */
-	if (!radcom_read_rec(wth, wth->fh, &wth->rec, wth->rec_data,
-	    err, err_info)) {
+	if (!radcom_read_rec(wth, wth->fh, rec, buf, err, err_info)) {
 		/* Read error or EOF */
 		return FALSE;
 	}
@@ -330,7 +329,7 @@ radcom_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		break;
 
 	case WTAP_ENCAP_LAPB:
-		rec->rec_header.packet_header.pseudo_header.x25.flags = (hdr.dce & 0x1) ?
+		rec->rec_header.packet_header.pseudo_header.dte_dce.flags = (hdr.dce & 0x1) ?
 		    0x00 : FROM_DCE;
 		length -= 2; /* FCS */
 		real_length -= 2;
@@ -362,7 +361,7 @@ radcom_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

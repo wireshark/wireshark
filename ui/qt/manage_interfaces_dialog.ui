@@ -96,30 +96,22 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QToolButton" name="addPipe">
+          <widget class="StockIconToolButton" name="addPipe">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a new pipe using default settings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string/>
            </property>
-           <property name="icon">
-            <iconset resource="../../image/stock_icons.qrc">
-             <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
-           </property>
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="delPipe">
+          <widget class="StockIconToolButton" name="delPipe">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../image/stock_icons.qrc">
-             <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png</iconset>
            </property>
           </widget>
          </item>
@@ -165,30 +157,22 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QToolButton" name="addRemote">
+          <widget class="StockIconToolButton" name="addRemote">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a remote host and its interfaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string/>
            </property>
-           <property name="icon">
-            <iconset resource="../../image/stock_icons.qrc">
-             <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
-           </property>
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="delRemote">
+          <widget class="StockIconToolButton" name="delRemote">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected host from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../image/stock_icons.qrc">
-             <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png</iconset>
            </property>
           </widget>
          </item>
@@ -237,9 +221,14 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../image/stock_icons.qrc"/>
- </resources>
+ <customwidgets>
+  <customwidget>
+   <class>StockIconToolButton</class>
+   <extends>QToolButton</extends>
+   <header>widgets/stock_icon_tool_button.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

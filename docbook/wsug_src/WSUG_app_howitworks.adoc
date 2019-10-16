@@ -1,0 +1,75 @@
+// WSUG Appendix How it Works
+
+[[AppHowItWorks]]
+
+[appendix]
+== How Wireshark Works
+
+When using such a complex program like Wireshark, it’s sometimes useful to
+understand the mechanisms and concepts behind the surface. This is an approach
+to shed some light on the inner workings of Wireshark.
+
+=== Program start
+
+When Wireshark starts, a lot of things are done:
+
+* Initialize the dissectors (register the protocol tree), including plugins
+
+* Load and set values from the preferences file
+
+* Load the capture filters from the cfilters file
+
+* Load the display filters from the dfilters file
+
+* Load and set the disabled protocols from the disabled_protos file
+
+* Init libpcap/Npcap (the capturing engine)
+
+* Process command line parameters
+
+* Load and set the recently used GUI settings from the recent file
+
+* Init and show the main screen
+
+* If specified by command line, load a capture file or start capturing
+
+=== Protocol dissectors
+
+Each protocol has its own protocol dissector. When processing network data,
+Wireshark calls the dissector that seems relevant to the packet data. The
+dissector will then process the packet data and send any unprocessed data
+back to Wireshark for further dissection.
+
+So Wireshark will dissect a packet from the lowest to the highest protocol
+layers.
+
+But how does Wireshark know which dissector to use?
+
+When Wireshark starts each dissector registers itself in one of two ways:
+
+* _Static_. If the dissector knows a specific value of a lower layer, it can
+  directly register itself there (e.g. the HTTP dissector “knows”, that
+  typically the well known TCP port 80 is used to transport HTTP data).
+
+* _Heuristic_. If no such well known way exists, the dissector
+  can register itself for the heuristic mechanism. If a lower layer dissector
+  has to handle some packet data where no well known way exists, it can
+  handover the packet to Wireshark’s heuristic mechanism. This will ask all
+  registered upper layer dissectors, if they “like” that data. These
+  dissectors typically look at the first few bytes of the packet, to see if they
+  contain some characteristic data of that protocol and then
+  decide whether or not to dissect that packet.
+
+Let’s look at an example. We’ll assume, Wireshark loads a TCP/IP/Ethernet
+packet. Wireshark will call the Ethernet dissector, which will dissect the
+Ethernet related data (usually the first 6 + 6 + 2 bytes). The Ethernet
+dissector then passes the rest of the data back to Wireshark.
+Wireshark in turn will call the next related dissector, in our case the IP
+dissector (because of the value 0x800 in the Ethernet type field). This
+will continue until no more data has to be dissected, or the data is
+unknown to Wireshark.
+
+You can control the way Wireshark calls its dissectors, see
+<<ChAdvProtocolDissectionSection>> for details.
+
+// End of WSUG Appendix How it Works

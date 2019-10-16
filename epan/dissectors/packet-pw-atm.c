@@ -114,6 +114,74 @@ static dissector_handle_t dh_atm_untruncated;
 static dissector_handle_t dh_atm_oam_cell;
 static dissector_handle_t dh_padding;
 
+typedef enum {
+	PWATM_MODE_UNKNOWN = 0
+	,PWATM_MODE_N1_NOCW
+	,PWATM_MODE_N1_CW
+	,PWATM_MODE_11_VCC
+	,PWATM_MODE_11_VPC
+	,PWATM_MODE_AAL5_SDU
+	,PWATM_MODE_AAL5_PDU
+} pwatm_mode_t;
+
+typedef enum {
+	PWATM_SUBMODE_DEFAULT = 0
+	,PWATM_SUBMODE_ADMIN_CELL /*used in aal5_sdu dissector only*/
+} pwatm_submode_t;
+
+typedef struct {
+	int pw_cell_number;
+	int props;
+	gint packet_size;
+	pwatm_mode_t mode;
+	pwatm_submode_t submode;
+	struct {
+		/*
+		 * ATM-specific attributes which remain the same
+		 * across all the cells in the pw packet. Values are filled
+		 * by sub-dissectors and read by upper-level dissector.
+		 * Meanings of values:
+		 *   (-1) 	- value is unknown
+		 *   (-2) 	- value is different among cells
+		 *   positive	- value is the same in all cells
+		 * Machinery is implemented in the UPDATE_CUMULATIVE_VALUE macro.
+		 */
+		gint32 vpi;
+		gint32 vci;
+		gint32 clp;
+		gint32 pti;
+	} cumulative;
+	gint32 vpi; /*-1 if unknown*/
+	gint32 vci; /*-1 if unknown*/
+	gint32 pti; /*-1 if unknown*/
+	struct {
+		/*
+		 * Some fields from 3rd byte of CW. Filled by cell_header dissector.
+		 * In in AAL5 PDU mode, this allows control_word dissector to print
+		 * these values in the CW heading line in the tree.
+		 * Meanings of values:
+		 *   (-1) 	- value is unknown
+		 */
+		gint32 m;
+		gint32 v;
+		gint32 rsv;
+		gint32 u;
+		gint32 e;
+		gint32 clp;
+	} cwb3;
+	gboolean aal5_sdu_frame_relay_cr_bit; /*see rfc4717 10.1*/
+	gboolean cell_mode_oam; /*atm admin cell*/
+} pwatm_private_data_t;
+
+#define PWATM_PRIVATE_DATA_T_INITIALIZER {		\
+	0, PWC_PACKET_PROPERTIES_T_INITIALIZER, 0	\
+	,PWATM_MODE_UNKNOWN, PWATM_SUBMODE_DEFAULT	\
+	,{-1, -1, -1, -1 } 				\
+	,-1, -1, -1 					\
+	,{-1, -1, -1, -1, -1, -1 }			\
+	,FALSE, FALSE,					\
+	}
+
 #define PTI_IS_ADMIN(pti) ((pti) == 4 || (pti) == 5 || (pti) == 6)  /*see atm_pt_vals[]*/
 
 #define MODE_11(mode) 			(PWATM_MODE_11_VCC == (mode) || PWATM_MODE_11_VPC == (mode))
@@ -407,7 +475,7 @@ dissect_payload_and_padding(
 
 		if (pd->cell_mode_oam)
 		{
-			struct atm_phdr ph;
+			struct pw_atm_phdr ph;
 			tvbuff_t* tvb_3;
 			int bytes_to_dissect;
 			/* prepare buffer for old-style dissector */
@@ -419,13 +487,13 @@ dissect_payload_and_padding(
 			tvb_3 = tvb_new_subset_length_caplen(tvb_2, 0, bytes_to_dissect, -1);
 			/*aal5_sdu: disable filling columns after 1st (valid) oam cell*/
 			if (pd->mode == PWATM_MODE_AAL5_SDU && (pd->pw_cell_number > 0))
-			{
-				pd->enable_fill_columns_by_atm_dissector = FALSE;
-			}
+				ph.enable_fill_columns_by_atm_dissector = FALSE;
+			else
+				ph.enable_fill_columns_by_atm_dissector = TRUE;
 			/* prepare atm pseudo header for atm OAM cell decoding */
-			prepare_pseudo_header_atm(&ph, pd, AAL_OAMCELL);
+			prepare_pseudo_header_atm(&ph.info, pd, AAL_OAMCELL);
 
-			call_dissector_with_data(dh_atm_oam_cell, tvb_3, pinfo, tree, &pd);
+			call_dissector_with_data(dh_atm_oam_cell, tvb_3, pinfo, tree, &ph);
 			dissected += bytes_to_dissect;
 		}
 		else
@@ -611,11 +679,11 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 						,hf_pw_type_11_vcc
 						,hf_pw_type_aal5_pdu)
 					,tvb, 0, 0, TRUE);
-				PROTO_ITEM_SET_GENERATED(item2);
+				proto_item_set_generated(item2);
 				if (MODE_11(pd.mode))
 				{
 					item2 = proto_tree_add_int(tree2, hf_11_ncells, tvb, 0, 0, cells);
-					PROTO_ITEM_SET_GENERATED(item2);
+					proto_item_set_generated(item2);
 				}
 			}
 		}
@@ -822,7 +890,7 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
 			tree2 = proto_item_add_subtree(item, ett_encaps);
 			{
 				item = proto_tree_add_boolean(tree2, hf_pw_type_aal5_sdu, tvb, 0, 0, TRUE);
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item_set_generated(item);
 			}
 		}
 		if (pd.props & PWC_PAY_SIZE_BAD)
@@ -989,9 +1057,9 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 			{
 				proto_item* item2;
 				item2 = proto_tree_add_boolean(tree2, hf_pw_type_n1_cw, tvb, 0, 0, TRUE);
-				PROTO_ITEM_SET_GENERATED(item2);
+				proto_item_set_generated(item2);
 				item2 = proto_tree_add_int(tree2, hf_n1_cw_ncells, tvb, 0, 0, cells);
-				PROTO_ITEM_SET_GENERATED(item2);
+				proto_item_set_generated(item2);
 			}
 		}
 		if (pd.props & PWC_PAY_SIZE_BAD)
@@ -1066,9 +1134,9 @@ dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 			{
 				proto_item* item2;
 				item2 = proto_tree_add_boolean(tree2, hf_pw_type_n1_nocw, tvb, 0, 0, TRUE);
-				PROTO_ITEM_SET_GENERATED(item2);
+				proto_item_set_generated(item2);
 				item2 = proto_tree_add_int(tree2, hf_n1_nocw_ncells, tvb, 0, 0, cells);
-				PROTO_ITEM_SET_GENERATED(item2);
+				proto_item_set_generated(item2);
 			}
 		}
 		if (pd.props & PWC_PAY_SIZE_BAD)
@@ -1170,7 +1238,7 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 		}
 		else
 		{
-			PROTO_ITEM_SET_HIDDEN(item); /* show only in error cases */
+			proto_item_set_hidden(item); /* show only in error cases */
 		}
 
 		/* flags */
@@ -1227,7 +1295,7 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 			}
 			else
 			{
-				PROTO_ITEM_SET_HIDDEN(item); /*...and show only in error cases */
+				proto_item_set_hidden(item); /*...and show only in error cases */
 			}
 		}
 
@@ -1516,7 +1584,7 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 					}
 					else
 					{
-				                PROTO_ITEM_SET_HIDDEN(item2); /*...and show only in error cases */
+				                proto_item_set_hidden(item2); /*...and show only in error cases */
 			                }
 
 					if (MODE_11(pd->mode))
@@ -1605,7 +1673,7 @@ dissect_cell(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data
 		tvb_d = tvb_new_subset_length_caplen(tvb, 0, dissect_size, -1);
 		call_data_dissector(tvb_d, pinfo, tree2);
 		item = proto_tree_add_int(tree2, hf_cell_payload_len, tvb, 0, 0, dissect_size);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 	}
 
 	return dissect_size;
@@ -1964,7 +2032,7 @@ proto_reg_handoff_pw_atm_ata(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

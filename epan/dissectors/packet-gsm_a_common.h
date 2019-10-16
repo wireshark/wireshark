@@ -181,6 +181,11 @@ extern gint ett_nas_5gs_sm_elem[];
 extern elem_fcn nas_5gs_sm_elem_fcn[];
 extern int hf_nas_5gs_sm_elem_id;
 
+extern value_string_ext nas_5gs_updp_elem_strings_ext;
+extern gint ett_nas_5gs_updp_elem[];
+extern elem_fcn nas_5gs_updp_elem_fcn[];
+extern int hf_nas_5gs_updp_elem_id;
+
 extern sccp_assoc_info_t* sccp_assoc;
 
 extern int gsm_a_tap;
@@ -224,6 +229,7 @@ extern int hf_gsm_a_lac;
 #define NAS_5GS_PDU_TYPE_COMMON     16
 #define NAS_5GS_PDU_TYPE_MM         17
 #define NAS_5GS_PDU_TYPE_SM         18
+#define NAS_5GS_PDU_TYPE_UPDP       19
 
 extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 
@@ -346,6 +352,11 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
         SEV_elem_names_ext = nas_5gs_sm_elem_strings_ext; \
         SEV_elem_ett = ett_nas_5gs_sm_elem; \
         SEV_elem_funcs = nas_5gs_sm_elem_fcn; \
+        break; \
+    case NAS_5GS_PDU_TYPE_UPDP: \
+        SEV_elem_names_ext = nas_5gs_updp_elem_strings_ext; \
+        SEV_elem_ett = ett_nas_5gs_updp_elem; \
+        SEV_elem_funcs = nas_5gs_updp_elem_fcn; \
         break; \
     default: \
         proto_tree_add_expert_format(tree, pinfo, ei_unknown, \
@@ -725,6 +736,7 @@ guint16 de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 guint16 de_serv_cat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 WS_DLL_PUBLIC
 guint16 de_sm_apn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_sm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 WS_DLL_PUBLIC
@@ -779,12 +791,21 @@ guint16 de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
 guint16 de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_emm_sec_par_from_eutra(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
 guint16 de_emm_sec_par_to_eutra(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
+guint16 de_emm_ue_add_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 guint16 de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
+guint16 de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
+guint16 de_esm_ext_apn_agr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
+guint16 de_esm_ext_eps_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
+
 void nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 
-guint16 de_nas_5gs_mm_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
+guint16 de_nas_5gs_cmn_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 guint16 de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
+guint16 de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 guint16 de_nas_5gs_sm_session_ambr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
+void de_nas_5gs_intra_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_);
+void de_nas_5gs_n1_mode_to_s1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_);
+void de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_);
 
 void dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 void dtap_rr_cip_mode_cpte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
@@ -792,8 +813,12 @@ void dtap_rr_cip_mode_cpte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 void bssmap_perf_loc_abort(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 void bssmap_reset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 void bssmap_conn_oriented(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
+guint16 bssmap_dissect_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+
 
 void rp_data_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
+
+guint16 de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
 
 /*
  * the following allows TAP code access to the messages
@@ -831,6 +856,7 @@ extern const value_string nas_eps_emm_cause_values[];
 extern const value_string nas_eps_esm_cause_vals[];
 
 extern const value_string nas_5gs_pdu_session_id_vals[];
+extern const value_string nas_5gs_sm_cause_vals[];
 
 typedef enum
 {
@@ -1004,13 +1030,104 @@ typedef enum
     BE_LCLS_BSS_STATUS,                 /* LCLS-BSS-Status                     3.2.2.119    */
     BE_LCLS_BREAK_REQ,                  /* LCLS-Break-Request                  3.2.2.120    */
     BE_CSFB_IND,                        /* CSFB Indication                     3.2.2.121    */
-#if 0
     BE_CS_TO_PS_SRVCC,                  /* CS to PS SRVCC                      3.2.2.122    */
     BE_SRC_ENB_2_TGT_ENB_TRANSP_INF,    /* Source eNB to target eNB transparent information (E-UTRAN)" 3.2.2.123    */
     BE_CS_TO_PS_SRVCC_IND,              /* CS to PS SRVCC Indication           3.2.2.124    */
     BE_CN_TO_MS_TRANSP,                 /* CN to MS transparent information    3.2.2.125    */
-#endif
     BE_SELECTED_PLMN_ID,                /* Selected PLMN ID                    3.2.2.126    */
+    BE_LAST_USED_E_UTRAN_PLMN_ID,       /* Last used E-UTRAN PLMN ID           3.2.2.127    */
+    BE_UDEF_150,                         /* Undefined Old Location Area Identification    3.2.2.128 */
+    BE_UDEF_151,                         /* Undefined Attach Indicator    3.2.2.129 */
+    BE_UDEF_152,                         /* Undefined Selected Operator    3.2.2.130 */
+    BE_UDEF_153,                         /* Undefined PS Registered Operator    3.2.2.131 */
+    BE_UDEF_154,                         /* Undefined CS Registered Operator    3.2.2.132*/
+    BE_UDEF_155,                         /* Undefined */
+    BE_UDEF_156,                         /* Undefined */
+    BE_UDEF_157,                         /* Undefined */
+    BE_UDEF_158,                         /* Undefined */
+    BE_UDEF_159,                         /* Undefined */
+    BE_UDEF_160,                         /* Undefined */
+    BE_UDEF_161,                         /* Undefined */
+    BE_UDEF_162,                         /* Undefined */
+    BE_UDEF_163,                         /* Undefined */
+    BE_UDEF_164,                         /* Undefined */
+    BE_UDEF_165,                         /* Undefined */
+    BE_UDEF_166,                         /* Undefined */
+    BE_UDEF_167,                         /* Undefined */
+    BE_UDEF_168,                         /* Undefined */
+    BE_UDEF_169,                         /* Undefined */
+    BE_UDEF_170,                         /* Undefined */
+    BE_UDEF_171,                         /* Undefined */
+    BE_UDEF_172,                         /* Undefined */
+    BE_UDEF_173,                         /* Undefined */
+    BE_UDEF_174,                         /* Undefined */
+    BE_UDEF_175,                         /* Undefined */
+    BE_UDEF_176,                         /* Undefined */
+    BE_UDEF_177,                         /* Undefined */
+    BE_UDEF_178,                         /* Undefined */
+    BE_UDEF_179,                         /* Undefined */
+    BE_UDEF_180,                         /* Undefined */
+    BE_UDEF_181,                         /* Undefined */
+    BE_UDEF_182,                         /* Undefined */
+    BE_UDEF_183,                         /* Undefined */
+    BE_UDEF_184,                         /* Undefined */
+    BE_UDEF_185,                         /* Undefined */
+    BE_UDEF_186,                         /* Undefined */
+    BE_UDEF_187,                         /* Undefined */
+    BE_UDEF_188,                         /* Undefined */
+    BE_UDEF_189,                         /* Undefined */
+    BE_UDEF_190,                         /* Undefined */
+    BE_UDEF_191,                         /* Undefined */
+    BE_UDEF_192,                         /* Undefined */
+    BE_UDEF_193,                         /* Undefined */
+    BE_UDEF_194,                         /* Undefined */
+    BE_UDEF_195,                         /* Undefined */
+    BE_UDEF_196,                         /* Undefined */
+    BE_UDEF_197,                         /* Undefined */
+    BE_UDEF_198,                         /* Undefined */
+    BE_UDEF_199,                         /* Undefined */
+    BE_UDEF_200,                         /* Undefined */
+    BE_UDEF_201,                         /* Undefined */
+    BE_UDEF_202,                         /* Undefined */
+    BE_UDEF_203,                         /* Undefined */
+    BE_UDEF_204,                         /* Undefined */
+    BE_UDEF_205,                         /* Undefined */
+    BE_UDEF_206,                         /* Undefined */
+    BE_UDEF_207,                         /* Undefined */
+    BE_UDEF_208,                         /* Undefined */
+    BE_UDEF_209,                         /* Undefined */
+    BE_UDEF_210,                         /* Undefined */
+    BE_UDEF_211,                         /* Undefined */
+    BE_UDEF_212,                         /* Undefined */
+    BE_UDEF_213,                         /* Undefined */
+    BE_UDEF_214,                         /* Undefined */
+    BE_UDEF_215,                         /* Undefined */
+    BE_UDEF_216,                         /* Undefined */
+    BE_UDEF_217,                         /* Undefined */
+    BE_UDEF_218,                         /* Undefined */
+    BE_UDEF_219,                         /* Undefined */
+    BE_UDEF_220,                         /* Undefined */
+    BE_UDEF_221,                         /* Undefined */
+    BE_UDEF_222,                         /* Undefined */
+    BE_UDEF_223,                         /* Undefined */
+    BE_UDEF_224,                         /* Undefined */
+    BE_UDEF_225,                         /* Undefined */
+    BE_UDEF_226,                         /* Undefined */
+    BE_UDEF_227,                         /* Undefined */
+    BE_UDEF_228,                         /* Undefined */
+    BE_UDEF_229,                         /* Undefined */
+    BE_UDEF_230,                         /* Undefined */
+    BE_UDEF_231,                         /* Undefined */
+    BE_UDEF_232,                         /* Undefined */
+    BE_UDEF_233,                         /* Undefined */
+    BE_UDEF_234,                         /* Undefined */
+    BE_UDEF_235,                         /* Undefined */
+    BE_UDEF_236,                         /* Undefined */
+    BE_UDEF_237,                         /* Undefined */
+    BE_UDEF_238,                         /* Undefined */
+    BE_UDEF_239,                         /* Undefined */
+    BE_OSMOCOM_OSMUX_SUPPORT = 0xf0,    /* Osmocom extension: Osmux Support */
+    BE_OSMOCOM_OSMUX_CID = 0xf1,        /* Osmocom extension: Osmux CID */
     BE_NONE                             /* NONE */
 }
 bssmap_elem_idx_t;
@@ -1497,6 +1614,9 @@ typedef enum
     DE_EMM_NETWORK_POLICY,      /* 9.9.3.52 Network policy */
     DE_EMM_UE_ADD_SEC_CAP,      /* 9.9.3.53 UE additional security capability */
     DE_EMM_UE_STATUS,           /* 9.9.3.54 UE status */
+    DE_EMM_ADD_INFO_REQ,        /* 9.9.3.55 Additional information requested */
+    DE_EMM_CIPH_KEY_DATA,       /* 9.9.3.56 Ciphering key data */
+    DE_EMM_N1_UE_NETWORK_CAP,   /* 9.9.3.57 N1 UE network capability */
     DE_EMM_NONE                 /* NONE */
 }
 nas_emm_elem_idx_t;
@@ -1593,63 +1713,77 @@ sgsap_elem_idx_t;
 
 typedef enum
 {
-    DE_NAS_5GS_MM_5GMM_CAP,                  /* 9.8.3.1     5GMM capability*/
-    DE_NAS_5GS_MM_5GMM_CAUSE,                /* 9.8.3.2     5GMM cause*/
-    DE_NAS_5GS_MM_5GS_MOBILE_ID,             /* 9.8.3.3     5GS mobile identity*/
-    DE_NAS_5GS_MM_5GS_NW_FEAT_SUP,           /* 9.8.3.4     5GS network feature support*/
-    DE_NAS_5GS_MM_5GS_REG_RES,               /* 9.8.3.5     5GS registration result*/
-    DE_NAS_5GS_MM_5GS_REG_TYPE,              /* 9.8.3.6     5GS registration type*/
-    DE_NAS_5GS_MM_ALLOW_PDU_SES_STS,         /* 9.8.3.7     Allowed PDU session status*/
-    DE_NAS_5GS_MM_AUT_PAR_AUTN,              /* 9.8.3.8     Authentication parameter AUTN*/
-    DE_NAS_5GS_MM_AUT_PAR_RAND,              /* 9.8.3.9     Authentication parameter RAND*/
-    DE_NAS_5GS_MM_CONF_UPD_IND,              /* 9.8.3.10    Configuration update indication*/
-    DE_NAS_5GS_MM_DLGT_SAVING_TIME,          /* 9.8.3.11    Daylight saving time*/
-    DE_NAS_5GS_MM_DE_REG_TYPE,               /* 9.8.3.12    De-registration type*/
-    DE_NAS_5GS_MM_DNN,                       /* 9.8.3.13    DNN*/
-    DE_NAS_5GS_MM_EAP_MSG,                   /* 9.8.3.14    EAP message*/
-    DE_NAS_5GS_MM_EPS_NAS_MSG_CONT,          /* 9.8.3.15    EPS NAS message container*/
-    DE_NAS_5GS_MM_GPRS_TIMER_2,              /* 9.8.3.16    GPRS timer 2*/
-    DE_NAS_5GS_MM_HASHAMF,                   /* 9.8.3.17    HashAMF*/
-    DE_NAS_5GS_MM_IMEISV_REQ,                /* 9.8.3.18    IMEISV request*/
-    DE_NAS_5GS_MM_LADN_INF,                  /* 9.8.3.19    LADN information*/
-    DE_NAS_5GS_MM_MSG_AUTH_CODE,             /* 9.8.3.20    Message authentication code*/
-    DE_NAS_5GS_MM_MICO_IND,                  /* 9.8.3.21    MICO indication*/
-    DE_NAS_5GS_MM_NAS_KEY_SET_ID,            /* 9.8.3.22    NAS key set identifier*/
-    DE_NAS_5GS_MM_NAS_MSG_CONT,              /* 9.8.3.23    NAS message container*/
-    DE_NAS_5GS_MM_NAS_SEC_ALGO,              /* 9.8.3.24    NAS security algorithms*/
-    DE_NAS_5GS_MM_NAS_SEC_PAR_NG_RAN,        /* 9.8.3.25    NAS security parameters to NG-RAN*/
-    DE_NAS_5GS_MM_NW_NAME,                   /* 9.8.3.26    Network name*/
-    DE_NAS_5GS_MM_NONCE,                     /* 9.8.3.27    Nonce*/
-    DE_NAS_5GS_MM_NSSAI,                     /* 9.8.3.28    NSSAI*/
-    DE_NAS_5GS_MM_NSSAI_INF_FOR_PDU_SES,     /* 9.8.3.29    NSSAI info for PDU sessions*/
-    DE_NAS_5GS_MM_PLD_CONT,                  /* 9.8.3.30    Payload container*/
-    DE_NAS_5GS_MM_PLD_CONT_TYPE,             /* 9.8.3.31    Payload container type*/
-    DE_NAS_5GS_MM_PDU_SES_REACT_RES,         /* 9.8.3.32    PDU session reactivation result*/
-    DE_NAS_5GS_MM_PLMN_LIST,                 /* 9.8.3.33    PLMN list*/
-    DE_NAS_5GS_MM_OLD_PDU_SES_ID,            /* 9.8.3.34    Old PDU session identity*/
-    DE_NAS_5GS_MM_REJ_NSSAI,                 /* 9.8.3.35    Rejected NSSAI*/
-    DE_NAS_5GS_MM_S1_UE_NW_CAP,              /* 9.8.3.36    S1 UE network capability*/
-    DE_NAS_5GS_MM_S_NSSAI,                   /* 9.8.3.37    S-NSSAI*/
-    DE_NAS_5GS_MM_SEQ_NO,                    /* 9.8.3.38    Sequence number*/
-    DE_NAS_5GS_MM_SAL,                       /* 9.8.3.39    Service area list*/
-    DE_NAS_5GS_MM_SMS_ALL,                   /* 9.8.3.40    SMS allowed*/
-    DE_NAS_5GS_MM_SMS_REQ,                   /* 9.8.3.41    SMS requested*/
-    DE_NAS_5GS_MM_REQ_TYPE,                  /* 9.8.3.42    Request type*/
-    DE_NAS_5GS_MM_SERV_TYPE,                 /* 9.8.3.43    Service type*/
-    DE_NAS_5GS_MM_TAI_ID,                    /* 9.8.3.44    Tracking area identity*/
-    DE_NAS_5GS_MM_TAI_ID_LIST,               /* 9.8.3.45    Tracking area identity list*/
-    DE_NAS_5GS_MM_TZ,                        /* 9.8.3.46    Time zone*/
-    DE_NAS_5GS_MM_TZ_AND_T,                  /* 9.8.3.47    Time zone and time*/
-    DE_NAS_5GS_MM_UE_SEC_CAP,                /* 9.8.3.48    UE security capability*/
-    DE_NAS_5GS_MM_UE_STS,                    /* 9.8.3.49    UE status*/
-    DE_NAS_5GS_MM_NONE        /* NONE */
-}
+    DE_NAS_5GS_MM_5GMM_CAP,                  /* 9.11.3.1     5GMM capability*/
+    DE_NAS_5GS_MM_5GMM_CAUSE,                /* 9.11.3.2     5GMM cause*/
+    DE_NAS_5GS_MM_5GS_DRX_PARAM,             /* 9.11.3.2A    5GS DRX parameters*/
+    DE_NAS_5GS_MM_5GS_IDENTITY_TYPE,         /* 9.11.3.3     5GS identity type*/
+    DE_NAS_5GS_MM_5GS_MOBILE_ID,             /* 9.11.3.4     5GS mobile identity*/
+    DE_NAS_5GS_MM_5GS_NW_FEAT_SUP,           /* 9.11.3.5     5GS network feature support*/
+    DE_NAS_5GS_MM_5GS_REG_RES,               /* 9.11.3.6     5GS registration result*/
+    DE_NAS_5GS_MM_5GS_REG_TYPE,              /* 9.11.3.7     5GS registration type*/
+    DE_NAS_5GS_MM_5GS_TA_ID,                 /* 9.11.3.8     5GS tracking area identity */
+    DE_NAS_5GS_MM_5GS_TA_ID_LIST,            /* 9.11.3.9     5GS tracking area identity list */
+    DE_NAS_5GS_MM_UPDATE_TYPE,               /* 9.11.3.9A    5GS update type */
+    DE_NAS_5GS_MM_ABBA,                      /* 9.11.3.10    ABBA */
+    DE_NAS_5GS_MM_ACCESS_TYPE,               /* 9.11.3.11    Access type */
+    DE_NAS_5GS_MM_ADD_5G_SEC_INF,            /* 9.11.3.12    Additional 5G security information */
+    DE_NAS_5GS_MM_ALLOW_PDU_SES_STS,         /* 9.11.3.13    Allowed PDU session status*/
+    DE_NAS_5GS_MM_AUT_FAIL_PAR,              /* 9.11.3.14    Authentication failure parameter */
+    DE_NAS_5GS_MM_AUT_PAR_AUTN,              /* 9.11.3.15    Authentication parameter AUTN*/
+    DE_NAS_5GS_MM_AUT_PAR_RAND,              /* 9.11.3.16    Authentication parameter RAND*/
+    DE_NAS_5GS_MM_AUT_RESP_PAR,              /* 9.11.3.17    Authentication response parameter */
+    DE_NAS_5GS_MM_CONF_UPD_IND,              /* 9.11.3.18    Configuration update indication*/
+    DE_NAS_5GS_MM_DLGT_SAVING_TIME,          /* 9.11.3.19    Daylight saving time*/
+    DE_NAS_5GS_MM_DE_REG_TYPE,               /* 9.11.3.20    De-registration type*/
+                                             /* 9.11.3.21    Void */
+                                             /* 9.11.3.22    Void*/
+    DE_NAS_5GS_MM_EMRG_NR_LIST,              /* 9.11.3.23    Emergency number list */
+    DE_NAS_5GS_MM_EPS_NAS_MSG_CONT,          /* 9.11.3.24    EPS NAS message container */
+    DE_NAS_5GS_MM_EPS_NAS_SEC_ALGO,          /* 9.11.3.25    EPS NAS security algorithms */
+    DE_NAS_5GS_MM_EXT_EMERG_NUM_LIST,        /* 9.11.3.26    Extended emergency number list */
+                                             /* 9.11.3.27    Void*/
+    DE_NAS_5GS_MM_IMEISV_REQ,                /* 9.11.3.28    IMEISV request*/
+    DE_NAS_5GS_MM_LADN_INDIC,                /* 9.11.3.29    LADN indication*/
+    DE_NAS_5GS_MM_LADN_INF,                  /* 9.11.3.30    LADN information */
+    DE_NAS_5GS_MM_MICO_IND,                  /* 9.11.3.31    MICO indication*/
+    DE_NAS_5GS_MM_NAS_KEY_SET_ID,            /* 9.11.3.32    NAS key set identifier*/
+    DE_NAS_5GS_MM_NAS_MSG_CONT,              /* 9.11.3.33    NAS message container*/
+    DE_NAS_5GS_MM_NAS_SEC_ALGO,              /* 9.11.3.34    NAS security algorithms*/
+    DE_NAS_5GS_MM_NW_NAME,                   /* 9.11.3.35    Network name*/
+    DE_NAS_5GS_MM_NW_SLICING_IND,            /* 9.11.3.36    Network slicing indication */
+    DE_NAS_5GS_MM_NSSAI,                     /* 9.11.3.37    NSSAI*/
+    DE_NAS_5GS_MM_NSSAI_INC_MODE,            /* 9.11.3.37A   NSSAI inclusion mode */
+    DE_NAS_5GS_MM_OP_DEF_ACC_CAT_DEF,        /* 9.11.3.38    Operator-defined access category definitions */
+    DE_NAS_5GS_MM_PLD_CONT,                  /* 9.11.3.39    Payload container*/
+    DE_NAS_5GS_MM_PLD_CONT_TYPE,             /* 9.11.3.40    Payload container type*/
+    DE_NAS_5GS_MM_PDU_SES_ID_2,              /* 9.11.3.41    PDU session identity 2 */
+    DE_NAS_5GS_MM_PDU_SES_REACT_RES,         /* 9.11.3.42    PDU session reactivation result*/
+    DE_NAS_5GS_MM_PDU_SES_REACT_RES_ERR_C,   /* 9.11.3.43    PDU session reactivation result error cause */
+    DE_NAS_5GS_MM_PDU_SES_STATUS,            /* 9.11.3.44    PDU session status */
+    DE_NAS_5GS_MM_PLMN_LIST,                 /* 9.11.3.45    PLMN list*/
+    DE_NAS_5GS_MM_REJ_NSSAI,                 /* 9.11.3.46    Rejected NSSAI*/
+    DE_NAS_5GS_MM_REQ_TYPE,                  /* 9.11.3.47    Request type */
+    DE_NAS_5GS_MM_S1_UE_NW_CAP,              /* 9.11.3.48    S1 UE network capability*/
+    DE_NAS_5GS_MM_S1_UE_SEC_CAP,             /* 9.11.3.48A   S1 UE security capability*/
+    DE_NAS_5GS_MM_SAL,                       /* 9.11.3.49    Service area list*/
+    DE_NAS_5GS_MM_SERV_TYPE,                 /* 9.11.3.50    Service type,*/ /* Used inline Half octet IE*/
+    DE_NAS_5GS_MM_SMS_IND,                   /* 9.11.3.50A   SMS indication */
+    DE_NAS_5GS_MM_SOR_TRASP_CONT,            /* 9.11.3.51    SOR transparent container */
+    DE_NAS_5GS_MM_TZ,                        /* 9.11.3.52    Time zone*/
+    DE_NAS_5GS_MM_TZ_AND_T,                  /* 9.11.3.53    Time zone and time*/
+    DE_NAS_5GS_MM_UE_PAR_UPD_TRASNSP_CONT,   /* 9.11.3.53A   UE parameters update transparent container */
+    DE_NAS_5GS_MM_UE_SEC_CAP,                /* 9.11.3.54    UE security capability*/
+    DE_NAS_5GS_MM_UE_USAGE_SET,              /* 9.11.3.55    UE's usage setting */
+    DE_NAS_5GS_MM_UE_STATUS,                 /* 9.11.3.56    UE status */
+    DE_NAS_5GS_MM_UL_DATA_STATUS,            /* 9.11.3.57    Uplink data status */
+    DE_NAS_5GS_MM_NONE        /* NONE */}
 nas_5gs_mm_elem_idx_t;
+
 
 #endif /* __PACKET_GSM_A_COMMON_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

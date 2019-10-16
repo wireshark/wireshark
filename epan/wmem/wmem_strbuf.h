@@ -59,6 +59,10 @@ G_GNUC_PRINTF(2, 3);
 
 WS_DLL_PUBLIC
 void
+wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const gchar *fmt, va_list ap);
+
+WS_DLL_PUBLIC
+void
 wmem_strbuf_append_c(wmem_strbuf_t *strbuf, const gchar c);
 
 WS_DLL_PUBLIC
@@ -96,7 +100,7 @@ wmem_strbuf_finalize(wmem_strbuf_t *strbuf);
 #endif /* __WMEM_STRBUF_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

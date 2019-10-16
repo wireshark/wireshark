@@ -566,6 +566,8 @@ static const value_string sccp_isni_ti_values [] = {
   { ANSI_ISNI_TYPE_1,   "Type one ISNI parameter format" },
   { 0,                  NULL } };
 
+/* Laded from e212 hf*/
+static int hf_assoc_imsi = -1;
 
 /* Initialize the protocol and registered fields */
 static int proto_sccp = -1;
@@ -797,7 +799,7 @@ static heur_dissector_list_t heur_subdissector_list;
 static dissector_table_t sccp_ssn_dissector_table;
 
 static wmem_tree_t       *assocs        = NULL;
-static sccp_assoc_info_t  no_assoc      = {0,0,0,INVALID_SSN,INVALID_SSN,FALSE,FALSE,NULL,NULL,SCCP_PLOAD_NONE,NULL,NULL,NULL,0};
+static sccp_assoc_info_t  no_assoc = { 0,0,0,INVALID_SSN,INVALID_SSN,FALSE,FALSE,NULL,NULL,SCCP_PLOAD_NONE,NULL,NULL,NULL, NULL, 0 };
 static guint32            next_assoc_id = 0;
 
 static const value_string assoc_protos[] = {
@@ -805,6 +807,124 @@ static const value_string assoc_protos[] = {
   { SCCP_PLOAD_RANAP,   "RANAP" },
   { 0,                  NULL }
 };
+
+/*
+ * Fragment reassembly helpers.
+ *
+ * SCCP data can span multiple messages. As the same local reference number is
+ * used throughout a connection, this identifier is not sufficient for
+ * identifying reassembled PDUs with multiple fragments in the same frame. For
+ * that reason, create a new identifier for each group of fragments based on the
+ * more-data indicator (M-bit) and use that in place of the local reference
+ * number.
+ *
+ * As an optimization, if fragments do not need reassembly (a single message
+ * with the M-bit set), then no surrogate ID is needed nor stored since
+ * reassembly is skipped.
+ */
+static guint32 sccp_reassembly_id_next;
+
+/* Maps a key to the current identifier as used in the reassembly API (first pass only). */
+static wmem_tree_t *sccp_reassembly_ids;
+
+/* Maps (frame number, offset) to a reassembly API identifier. */
+static wmem_map_t *sccp_reassembly_id_map;
+
+static guint32
+sccp_reassembly_get_id_pass1(guint32 frame, guint32 offset, guint32 key, gboolean more_frags)
+{
+  guint32 id = GPOINTER_TO_UINT(wmem_tree_lookup32(sccp_reassembly_ids, key));
+  if (!id) {
+    if (!more_frags) {
+      /* This is the last and only fragment, no need to reassembly anything. */
+      return 0;
+    }
+
+    /* This is a new fragment and "local reference", so create a new one. */
+    id = sccp_reassembly_id_next++;
+    wmem_tree_insert32(sccp_reassembly_ids, key, GUINT_TO_POINTER(id));
+  }
+  /* Save ID for second pass. */
+  guint64 *frame_offset = wmem_new(wmem_file_scope(), guint64);
+  *frame_offset = ((guint64)offset << 32) | frame;
+  wmem_map_insert(sccp_reassembly_id_map, frame_offset, GUINT_TO_POINTER(id));
+  return id;
+}
+
+static guint32
+sccp_reassembly_get_id_pass2(guint32 frame, guint32 offset)
+{
+  guint64 frame_offset = ((guint64)offset << 32) | frame;
+  return GPOINTER_TO_UINT(wmem_map_lookup(sccp_reassembly_id_map, &frame_offset));
+}
+
+/**
+ * Returns the reassembly ID for the given frame at the given position or 0 if
+ * reassembly is not necessary.
+ */
+static guint32
+sccp_reassembly_get_id(packet_info *pinfo, guint32 offset, guint32 key, gboolean more_frags)
+{
+  if (!PINFO_FD_VISITED(pinfo)) {
+    return sccp_reassembly_get_id_pass1(pinfo->num, offset, key, more_frags);
+  } else {
+    return sccp_reassembly_get_id_pass2(pinfo->num, offset);
+  }
+}
+
+static tvbuff_t *
+sccp_reassemble_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                          guint16 length_offset, guint32 source_local_ref, gboolean more_frags)
+{
+  gboolean  save_fragmented;
+  tvbuff_t *new_tvb;
+  fragment_head *frag_msg = NULL;
+  guint     fragment_len;
+  guint32   abs_offset, frags_id;
+
+  fragment_len = tvb_get_guint8(tvb, length_offset);
+  /* Assume that the absolute offset within the tvb uniquely identifies the
+   * message in this frame. */
+  abs_offset = tvb_raw_offset(tvb) + length_offset;
+  frags_id = sccp_reassembly_get_id(pinfo, abs_offset, source_local_ref, more_frags);
+  if (frags_id) {
+    /*
+     * This fragment is part of multiple fragments, reassembly is required.
+     */
+    save_fragmented = pinfo->fragmented;
+    pinfo->fragmented = TRUE;
+    frag_msg = fragment_add_seq_next(&sccp_xudt_msg_reassembly_table,
+                                     tvb, length_offset + 1,
+                                     pinfo,
+                                     frags_id,        /* ID for fragments belonging together */
+                                     NULL,
+                                     fragment_len,    /* fragment length - to the end */
+                                     more_frags);     /* More fragments? */
+
+    if (!PINFO_FD_VISITED(pinfo) && frag_msg) {
+      /* Reassembly has finished, ensure that the next fragment gets a new ID. */
+      wmem_tree_remove32(sccp_reassembly_ids, source_local_ref);
+    }
+
+    new_tvb = process_reassembled_data(tvb, length_offset + 1, pinfo,
+                                       "Reassembled SCCP", frag_msg,
+                                       &sccp_xudt_msg_frag_items,
+                                       NULL, tree);
+    if (frag_msg) { /* Reassembled */
+      col_append_str(pinfo->cinfo, COL_INFO, "(Message reassembled) ");
+    } else { /* Not last packet of reassembled message */
+      col_append_str(pinfo->cinfo, COL_INFO, "(Message fragment) ");
+    }
+    pinfo->fragmented = save_fragmented;
+  } else {
+    /*
+     * There is only a single fragment, reassembly is not required.
+     */
+    new_tvb = tvb_new_subset_length(tvb, length_offset + 1, fragment_len);
+  }
+  return new_tvb;
+}
+
 
 #define is_connectionless(m) \
   ( m == SCCP_MSG_TYPE_UDT || m == SCCP_MSG_TYPE_UDTS      \
@@ -1325,6 +1445,7 @@ new_assoc(guint32 calling, guint32 called)
   a->calling_party = NULL;
   a->called_party  = NULL;
   a->extra_info    = NULL;
+  a->imsi = NULL;
 
   return a;
 }
@@ -1524,6 +1645,7 @@ get_sccp_assoc(packet_info *pinfo, guint offset, sccp_decode_context_t* value)
       msg->data.co.assoc = value->assoc;
       msg->data.co.label = NULL;
       msg->data.co.comment = NULL;
+      msg->data.co.imsi = NULL;
       msg->type = value->message_type;
 
       if (value->assoc->msgs) {
@@ -1541,6 +1663,9 @@ get_sccp_assoc(packet_info *pinfo, guint offset, sccp_decode_context_t* value)
       sccp_msg_info_t *m;
 
       for (m = value->assoc->msgs; m; m = m->data.co.next) {
+        if (m->data.co.imsi != NULL && value->assoc->imsi == NULL) {
+          value->assoc->imsi = wmem_strdup(wmem_epan_scope(), m->data.co.imsi);
+        }
         if ((m->framenum == framenum) && (m->offset == offset)) {
           value->assoc->curr_msg = m;
           break;
@@ -1586,7 +1711,7 @@ dissect_sccp_dlr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
   sccp_info->dlr = tvb_get_letoh24(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_dlr, tvb, 0, length, sccp_info->dlr);
   lr_item = proto_tree_add_uint(tree, hf_sccp_lr, tvb, 0, length, sccp_info->dlr);
-  PROTO_ITEM_SET_HIDDEN(lr_item);
+  proto_item_set_generated(lr_item);
 
   if (show_key_params)
     col_append_fstr(pinfo->cinfo, COL_INFO, "DLR=%d ", sccp_info->dlr);
@@ -1606,7 +1731,7 @@ dissect_sccp_slr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
   sccp_info->slr = tvb_get_letoh24(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_slr, tvb, 0, length, sccp_info->slr);
   lr_item = proto_tree_add_uint(tree, hf_sccp_lr, tvb, 0, length, sccp_info->slr);
-  PROTO_ITEM_SET_HIDDEN(lr_item);
+  proto_item_set_generated(lr_item);
 
   if (show_key_params)
     col_append_fstr(pinfo->cinfo, COL_INFO, "SLR=%d ", sccp_info->slr);
@@ -1690,7 +1815,7 @@ dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                                 "Global Title 0x%x (%u byte%s)",
                                 gti, length, plurality(length,"", "s"));
 
-  /* Decode Transation Type (if present) */
+  /* Decode Transaction Type (if present) */
   if ((gti == AI_GTI_TT) ||
       ((decode_mtp3_standard != ANSI_STANDARD) &&
        ((gti == ITU_AI_GTI_TT_NP_ES) || (gti == ITU_AI_GTI_TT_NP_ES_NAI))) ||
@@ -1956,7 +2081,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
                           tvb, offset, ADDRESS_SSN_LENGTH, ssn);
       hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
                                         ADDRESS_SSN_LENGTH, ssn);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
 
       offset += ADDRESS_SSN_LENGTH;
 
@@ -1971,7 +2096,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
         if (ssn_dissector_short_name) {
           item = proto_tree_add_string_format(call_tree, hf_sccp_linked_dissector, tvb, offset - 1, ADDRESS_SSN_LENGTH,
                                      ssn_dissector_short_name, "Linked to %s", ssn_dissector_short_name);
-          PROTO_ITEM_SET_GENERATED(item);
+          proto_item_set_generated(item);
 
           if (g_ascii_strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
             tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
@@ -2041,7 +2166,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
                           tvb, offset, ADDRESS_SSN_LENGTH, ssn);
       hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
                                         ADDRESS_SSN_LENGTH, ssn);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
 
       offset += ADDRESS_SSN_LENGTH;
     }
@@ -2646,7 +2771,7 @@ dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
                                   parameter_length);
   if (!sccp_show_length) {
     /* The user doesn't want to see it... */
-    PROTO_ITEM_SET_HIDDEN(pi);
+    proto_item_set_hidden(pi);
   }
 
   offset += length_length;
@@ -2698,8 +2823,12 @@ static void build_assoc_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp
 {
   if (trace_sccp && sccp_info->assoc && (sccp_info->assoc != &no_assoc)) {
     proto_item *pi = proto_tree_add_uint(sccp_tree, hf_sccp_assoc_id, tvb, 0, 0, sccp_info->assoc->id);
+    proto_item_set_generated(pi);
     proto_tree *pt = proto_item_add_subtree(pi, ett_sccp_assoc);
-    PROTO_ITEM_SET_GENERATED(pi);
+    if(sccp_info->assoc->imsi){
+      proto_item *pi2 = proto_tree_add_string(sccp_tree, hf_assoc_imsi, tvb, 0, 0, sccp_info->assoc->imsi);
+      proto_item_set_generated(pi2);
+    }
     if (sccp_info->assoc->msgs) {
       sccp_msg_info_t *m;
       for(m = sccp_info->assoc->msgs; m ; m = m->data.co.next) {
@@ -2710,31 +2839,29 @@ static void build_assoc_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp
 
         if (m->data.co.label)
           proto_item_append_text(pi," %s", m->data.co.label);
+        if (m->data.co.imsi)
+          proto_item_append_text(pi, " %s", m->data.co.imsi);
 
         if ((m->framenum == pinfo->num) && (m->offset == msg_offset) ) {
           tap_queue_packet(sccp_tap, pinfo, m);
           proto_item_append_text(pi," (current)");
         }
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
       }
     }
   }
 }
 
 static int
-dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
-                     proto_tree *tree)
+dissect_xudt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
+                    proto_tree *tree, int offset, sccp_decode_context_t *sccp_info,
+                    guint16 *optional_pointer_p, guint16 *orig_opt_ptr_p)
 {
   guint16   variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
   guint16   optional_pointer  = 0, orig_opt_ptr = 0;
-  int   offset = 0;
-  gboolean  save_fragmented;
   tvbuff_t *new_tvb = NULL;
-  fragment_head *frag_msg = NULL;
   guint32   source_local_ref = 0;
-  guint8    more;
   guint     msg_offset = tvb_offset_from_real_beginning(tvb);
-  sccp_decode_context_t sccp_info = {0, INVALID_LR, INVALID_LR, NULL, NULL};
 
 /* Macro for getting pointer to mandatory variable parameters */
 #define VARIABLE_POINTER(var, hf_var, ptr_size) \
@@ -2766,6 +2893,77 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += ptr_size;                                                 \
   } while (0)
 
+
+    /*  Optional parameters are Segmentation and Importance
+     *  NOTE 2 - Segmentation Should not be present in case of a single XUDT
+     *  message.
+     */
+
+  VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH);
+  VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH);
+  VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH);
+  OPTIONAL_POINTER(POINTER_LENGTH);
+
+  sccp_info->assoc = get_sccp_assoc(pinfo, msg_offset, sccp_info);
+  build_assoc_tree(tvb, pinfo, sccp_tree, sccp_info, msg_offset);
+
+  dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
+                                  PARAMETER_CALLED_PARTY_ADDRESS,
+                                  variable_pointer1, sccp_info);
+  dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
+                                  PARAMETER_CALLING_PARTY_ADDRESS,
+                                  variable_pointer2, sccp_info);
+
+  if (tvb_get_guint8(tvb, optional_pointer) == PARAMETER_SEGMENTATION) {
+    if (!sccp_reassemble) {
+      proto_tree_add_item(sccp_tree, hf_sccp_segmented_data, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, ENC_NA);
+    } else {
+      guint8 octet;
+      gboolean more_frag = TRUE;
+
+      /* Get the first octet of parameter Segmentation, Ch 3.17 in Q.713
+       * Bit 8 of octet 1 is used for First segment indication
+       * Bit 7 of octet 1 is used to keep in the message in sequence
+       *         delivery option required by the SCCP user
+       * Bits 6 and 5 in octet 1 are spare bits.
+       * Bits 4-1 of octet 1 are used to indicate the number of
+       *            remaining segments.
+       * The values 0000 to 1111 are possible; the value 0000 indicates
+       * the last segment.
+       */
+      octet = tvb_get_guint8(tvb, optional_pointer+2);
+      source_local_ref = tvb_get_letoh24(tvb, optional_pointer+3);
+
+      if ((octet & 0x0f) == 0)
+        more_frag = FALSE;
+
+      new_tvb = sccp_reassemble_fragments(tvb, pinfo, tree, variable_pointer3, source_local_ref, more_frag);
+
+      if (new_tvb)
+        dissect_sccp_data_param(new_tvb, pinfo, tree, sccp_info->assoc);
+    }
+  } else {
+    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
+                                    PARAMETER_DATA, variable_pointer3, sccp_info);
+  }
+
+  *optional_pointer_p = optional_pointer;
+  *orig_opt_ptr_p = orig_opt_ptr;
+  return offset;
+}
+
+static int
+dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
+                     proto_tree *tree)
+{
+  guint16   variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
+  guint16   optional_pointer  = 0, orig_opt_ptr = 0;
+  int   offset = 0;
+  tvbuff_t *new_tvb = NULL;
+  guint32   source_local_ref = 0;
+  guint8    more;
+  guint     msg_offset = tvb_offset_from_real_beginning(tvb);
+  sccp_decode_context_t sccp_info = {0, INVALID_LR, INVALID_LR, NULL, NULL};
 
   /* Extract the message type;  all other processing is based on this */
   sccp_info.message_type   = tvb_get_guint8(tvb, SCCP_MSG_TYPE_OFFSET);
@@ -2918,28 +3116,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                                       PARAMETER_DATA, variable_pointer1, &sccp_info);
 
     } else {
-      save_fragmented = pinfo->fragmented;
-      pinfo->fragmented = TRUE;
-      frag_msg = fragment_add_seq_next(&sccp_xudt_msg_reassembly_table,
-                                       tvb, variable_pointer1 + 1,
-                                       pinfo,
-                                       source_local_ref,                       /* ID for fragments belonging together */
-                                       NULL,
-                                       tvb_get_guint8(tvb, variable_pointer1), /* fragment length - to the end */
-                                       more);                                  /* More fragments? */
-
-      new_tvb = process_reassembled_data(tvb, variable_pointer1 + 1, pinfo,
-                                         "Reassembled SCCP", frag_msg,
-                                         &sccp_xudt_msg_frag_items, NULL,
-                                         tree);
-
-      if (frag_msg && frag_msg->next) { /* Reassembled */
-        col_append_str(pinfo->cinfo, COL_INFO, "(Message reassembled) ");
-      } else if (more) { /* Not last packet of reassembled message */
-        col_append_str(pinfo->cinfo, COL_INFO, "(Message fragment) ");
-      }
-
-      pinfo->fragmented = save_fragmented;
+      new_tvb = sccp_reassemble_fragments(tvb, pinfo, tree, variable_pointer1, source_local_ref, more);
 
       if (new_tvb)
         dissect_sccp_data_param(new_tvb, pinfo, tree, sccp_info.assoc);
@@ -3126,84 +3303,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                                      PARAMETER_HOP_COUNTER, offset,
                                      HOP_COUNTER_LENGTH, &sccp_info);
 
-    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH);
-    VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH);
-    VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH);
-    OPTIONAL_POINTER(POINTER_LENGTH);
-
-      /*  Optional parameters are Segmentation and Importance
-       *  NOTE 2 - Segmentation Should not be present in case of a single XUDT
-       *  message.
-       */
-
-    sccp_info.assoc = get_sccp_assoc(pinfo, msg_offset, &sccp_info);
-    build_assoc_tree(tvb, pinfo, sccp_tree, &sccp_info, msg_offset);
-
-    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-                                    PARAMETER_CALLED_PARTY_ADDRESS,
-                                    variable_pointer1, &sccp_info);
-    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-                                    PARAMETER_CALLING_PARTY_ADDRESS,
-                                    variable_pointer2, &sccp_info);
-
-    if (tvb_get_guint8(tvb, optional_pointer) == PARAMETER_SEGMENTATION) {
-      if (!sccp_reassemble) {
-        proto_tree_add_item(sccp_tree, hf_sccp_segmented_data, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, ENC_NA);
-      } else {
-        guint8 octet;
-        gboolean more_frag = TRUE;
-
-        /* Get the first octet of parameter Segmentation, Ch 3.17 in Q.713
-         * Bit 8 of octet 1 is used for First segment indication
-         * Bit 7 of octet 1 is used to keep in the message in sequence
-         *         delivery option required by the SCCP user
-         * Bits 6 and 5 in octet 1 are spare bits.
-         * Bits 4-1 of octet 1 are used to indicate the number of
-         *            remaining segments.
-         * The values 0000 to 1111 are possible; the value 0000 indicates
-         * the last segment.
-         */
-        octet = tvb_get_guint8(tvb, optional_pointer+2);
-        source_local_ref = tvb_get_letoh24(tvb, optional_pointer+3);
-
-        if ((octet & 0x0f) == 0)
-          more_frag = FALSE;
-
-        save_fragmented = pinfo->fragmented;
-        pinfo->fragmented = TRUE;
-        frag_msg = fragment_add_seq_next(&sccp_xudt_msg_reassembly_table,
-                                         tvb, variable_pointer3 + 1,
-                                         pinfo,
-                                         source_local_ref,                            /* ID for fragments belonging together */
-                                         NULL,
-                                         tvb_get_guint8(tvb, variable_pointer3),       /* fragment length - to the end */
-                                         more_frag);                          /* More fragments? */
-
-        if ((octet & 0x80) == 0x80) /*First segment, set number of segments*/
-          fragment_set_tot_len(&sccp_xudt_msg_reassembly_table,
-                               pinfo, source_local_ref, NULL, (octet & 0xf));
-
-        new_tvb = process_reassembled_data(tvb, variable_pointer3 + 1,
-                                           pinfo, "Reassembled SCCP",
-                                           frag_msg,
-                                           &sccp_xudt_msg_frag_items,
-                                           NULL, tree);
-
-        if (frag_msg) { /* Reassembled */
-          col_append_str(pinfo->cinfo, COL_INFO,"(Message reassembled) ");
-        } else { /* Not last packet of reassembled message */
-          col_append_str(pinfo->cinfo, COL_INFO,"(Message fragment) ");
-        }
-
-        pinfo->fragmented = save_fragmented;
-
-        if (new_tvb)
-          dissect_sccp_data_param(new_tvb, pinfo, tree, sccp_info.assoc);
-      }
-    } else {
-      dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-                                      PARAMETER_DATA, variable_pointer3, &sccp_info);
-    }
+    offset = dissect_xudt_common(tvb, pinfo, sccp_tree, tree, offset, &sccp_info,
+                                 &optional_pointer, &orig_opt_ptr);
     break;
 
   case SCCP_MSG_TYPE_XUDTS:
@@ -3219,81 +3320,9 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                                      PARAMETER_HOP_COUNTER, offset,
                                      HOP_COUNTER_LENGTH, &sccp_info);
 
-    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH);
-    VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH);
-    VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH);
-    OPTIONAL_POINTER(POINTER_LENGTH);
+    offset = dissect_xudt_common(tvb, pinfo, sccp_tree, tree, offset, &sccp_info,
+                                 &optional_pointer, &orig_opt_ptr);
 
-    sccp_info.assoc = get_sccp_assoc(pinfo, msg_offset, &sccp_info);
-    build_assoc_tree(tvb, pinfo, sccp_tree, &sccp_info, msg_offset);
-
-    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-                                    PARAMETER_CALLED_PARTY_ADDRESS,
-                                    variable_pointer1, &sccp_info);
-    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-                                    PARAMETER_CALLING_PARTY_ADDRESS,
-                                    variable_pointer2, &sccp_info);
-
-    if (tvb_get_guint8(tvb, optional_pointer) == PARAMETER_SEGMENTATION) {
-      if (!sccp_reassemble) {
-        proto_tree_add_item(sccp_tree, hf_sccp_segmented_data, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, ENC_NA);
-
-      } else {
-        guint8 octet;
-        gboolean more_frag = TRUE;
-
-
-        /* Get the first octet of parameter Segmentation, Ch 3.17 in Q.713
-         * Bit 8 of octet 1 is used for First segment indication
-         * Bit 7 of octet 1 is used to keep in the message in sequence
-         *         delivery option required by the SCCP user
-         * Bits 6 and 5 in octet 1 are spare bits.
-         * Bits 4-1 of octet 1 are used to indicate the number of
-         *            remaining segments.
-         * The values 0000 to 1111 are possible; the value 0000 indicates
-         * the last segment.
-         */
-        octet = tvb_get_guint8(tvb, optional_pointer+2);
-        source_local_ref = tvb_get_letoh24(tvb, optional_pointer+3);
-
-        if ((octet & 0x0f) == 0)
-          more_frag = FALSE;
-
-        save_fragmented = pinfo->fragmented;
-        pinfo->fragmented = TRUE;
-        frag_msg = fragment_add_seq_next(&sccp_xudt_msg_reassembly_table,
-                                         tvb, variable_pointer3 + 1,
-                                         pinfo,
-                                         source_local_ref,                            /* ID for fragments belonging together */
-                                         NULL,
-                                         tvb_get_guint8(tvb, variable_pointer3),      /* fragment length - to the end */
-                                         more_frag);                                  /* More fragments? */
-
-        if ((octet & 0x80) == 0x80) /*First segment, set number of segments*/
-          fragment_set_tot_len(&sccp_xudt_msg_reassembly_table,
-                               pinfo, source_local_ref, NULL, (octet & 0xf));
-
-        new_tvb = process_reassembled_data(tvb, variable_pointer3 + 1,
-                                           pinfo, "Reassembled SCCP",
-                                           frag_msg,
-                                           &sccp_xudt_msg_frag_items,
-                                           NULL, tree);
-
-        if (frag_msg) { /* Reassembled */
-          col_append_str(pinfo->cinfo, COL_INFO, "(Message reassembled) ");
-        } else { /* Not last packet of reassembled message */
-          col_append_str(pinfo->cinfo, COL_INFO, "(Message fragment) ");
-        }
-
-        pinfo->fragmented = save_fragmented;
-
-        if (new_tvb)
-          dissect_sccp_data_param(new_tvb, pinfo, tree, sccp_info.assoc);
-      }
-    } else {
-      dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-                                      PARAMETER_DATA, variable_pointer3, &sccp_info);
-    }
     pinfo->flags.in_error_pkt = save_in_error_pkt;
     break;
   }
@@ -3532,6 +3561,7 @@ static void
 init_sccp(void)
 {
   next_assoc_id = 1;
+  sccp_reassembly_id_next = 1;
 }
 
 /* Register the protocol with Wireshark */
@@ -4088,7 +4118,7 @@ proto_register_sccp(void)
   /* Decode As handling */
   static build_valid_func sccp_da_build_value[1] = {sccp_value};
   static decode_as_value_t sccp_da_values = {sccp_prompt, 1, sccp_da_build_value};
-  static decode_as_t sccp_da = {"sccp", "SCCP SSN", "sccp.ssn", 1, 0, &sccp_da_values, NULL, NULL,
+  static decode_as_t sccp_da = {"sccp", "sccp.ssn", 1, 0, &sccp_da_values, NULL, NULL,
                                     decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
   module_t *sccp_module;
@@ -4172,6 +4202,10 @@ proto_register_sccp(void)
 
   assocs = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
+  sccp_reassembly_ids = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+  sccp_reassembly_id_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
+      g_int64_hash, g_int64_equal);
+
   sccp_tap = register_tap("sccp");
 
   register_decode_as(&sccp_da);
@@ -4198,13 +4232,14 @@ proto_reg_handoff_sccp(void)
     ss7pc_address_type = address_type_get_by_name("AT_SS7PC");
 
     initialised = TRUE;
+    hf_assoc_imsi = proto_registrar_get_id_byname("e212.assoc.imsi");
   }
 
   default_handle = find_dissector(default_payload);
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

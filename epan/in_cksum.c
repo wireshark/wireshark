@@ -193,7 +193,7 @@ in_cksum_shouldbe(guint16 sum, guint16 computed_sum)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

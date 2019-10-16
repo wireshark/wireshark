@@ -115,20 +115,26 @@ ABRT-apdu/_untag/user-information abrt_user_information
 #.FN_BODY AUDT-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
   struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
 %(DEFAULT_BODY)s
-  p_tcap_private->oid= (const void*) cur_oid;
-  p_tcap_private->acv=TRUE;
+  if (p_tcap_private) {
+    p_tcap_private->oid= (const void*) cur_oid;
+    p_tcap_private->acv=TRUE;
+  }
 #----------------------------------------------------------------------------------------
 #.FN_BODY AARQ-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
   struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
 %(DEFAULT_BODY)s
-  p_tcap_private->oid= (const void*) cur_oid;
-  p_tcap_private->acv=TRUE;
+  if (p_tcap_private) {
+    p_tcap_private->oid= (const void*) cur_oid;
+    p_tcap_private->acv=TRUE;
+  }
 #----------------------------------------------------------------------------------------
 #.FN_BODY AARE-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
   struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
 %(DEFAULT_BODY)s
-  p_tcap_private->oid= (const void*) cur_oid;
-  p_tcap_private->acv=TRUE;
+  if (p_tcap_private) {
+    p_tcap_private->oid= (const void*) cur_oid;
+    p_tcap_private->acv=TRUE;
+  }
 #----------------------------------------------------------------------------------------
 #.FN_BODY OrigTransactionID
   tvbuff_t *parameter_tvb;
@@ -140,7 +146,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
   hf_index = hf_tcap_tid;
   saved_offset = offset;
 %(DEFAULT_BODY)s
-  PROTO_ITEM_SET_GENERATED(actx->created_item);
+  proto_item_set_generated(actx->created_item);
   offset = saved_offset;
 
   subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_otid, NULL, "Source Transaction ID");
@@ -166,7 +172,8 @@ ABRT-apdu/_untag/user-information abrt_user_information
       gp_tcapsrt_info->src_tid=0;
       break;
     }
-    p_tcap_private->src_tid = gp_tcapsrt_info->src_tid;
+    if (p_tcap_private)
+      p_tcap_private->src_tid = gp_tcapsrt_info->src_tid;
 
     if (len) {
       col_append_str(actx->pinfo->cinfo, COL_INFO, "otid(");
@@ -188,7 +195,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
   hf_index = hf_tcap_tid;
   saved_offset = offset;
 %(DEFAULT_BODY)s
-  PROTO_ITEM_SET_GENERATED(actx->created_item);
+  proto_item_set_generated(actx->created_item);
   offset = saved_offset;
 
   subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dtid, NULL, "Destination Transaction ID");
@@ -214,7 +221,8 @@ ABRT-apdu/_untag/user-information abrt_user_information
       gp_tcapsrt_info->dst_tid=0;
       break;
     }
-    p_tcap_private->dst_tid = gp_tcapsrt_info->dst_tid;
+    if (p_tcap_private)
+      p_tcap_private->dst_tid = gp_tcapsrt_info->dst_tid;
 
     if (len) {
       col_append_str(actx->pinfo->cinfo, COL_INFO, "dtid(");
@@ -259,7 +267,7 @@ gp_tcapsrt_info->ope=TC_ABORT;
 #.END
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 2

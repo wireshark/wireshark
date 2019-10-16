@@ -96,6 +96,33 @@ compare_plugins(gconstpointer a, gconstpointer b)
     return g_strcmp0((*(plugin *const *)a)->name, (*(plugin *const *)b)->name);
 }
 
+static gboolean
+pass_plugin_version_compatibility(GModule *handle, const char *name)
+{
+    gpointer symb;
+    int major, minor;
+
+    if(!g_module_symbol(handle, "plugin_want_major", &symb)) {
+        report_failure("The plugin '%s' has no \"plugin_want_major\" symbol", name);
+        return FALSE;
+    }
+    major = *(int *)symb;
+
+    if(!g_module_symbol(handle, "plugin_want_minor", &symb)) {
+        report_failure("The plugin '%s' has no \"plugin_want_minor\" symbol", name);
+        return FALSE;
+    }
+    minor = *(int *)symb;
+
+    if (major != VERSION_MAJOR || minor != VERSION_MINOR) {
+        report_failure("The plugin '%s' was compiled for Wireshark version %d.%d",
+                            name, major, minor);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 static void
 scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e type, gboolean append_type)
 {
@@ -105,7 +132,7 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
     gchar         *plugin_file;     /* current file full path */
     GModule       *handle;          /* handle returned by g_module_open */
     gpointer       symbol;
-    const char    *plug_version, *plug_release;
+    const char    *plug_version;
     plugin        *new_plug;
 
     if (append_type)
@@ -152,15 +179,7 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
         }
         plug_version = (const char *)symbol;
 
-        if (!g_module_symbol(handle, "plugin_release", &symbol))
-        {
-            report_failure("The plugin '%s' has no \"plugin_release\" symbol", name);
-            g_module_close(handle);
-            continue;
-        }
-        plug_release = (const char *)symbol;
-        if (strcmp(plug_release, VERSION_RELEASE) != 0) {
-            report_failure("The plugin '%s' was compiled for Wireshark version %s", name, plug_release);
+        if (!pass_plugin_version_compatibility(handle, name)) {
             g_module_close(handle);
             continue;
         }
@@ -172,10 +191,10 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
             continue;
         }
 
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
         /* Found it, call the plugin registration function. */
         ((plugin_register_func)symbol)();
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
         new_plug = (plugin *)g_malloc(sizeof(plugin));
         new_plug->handle = handle;
@@ -184,62 +203,10 @@ DIAG_ON(pedantic)
         new_plug->type_name = type_to_name(type);
 
         /* Add it to the list of plugins. */
-        g_hash_table_insert(plugins_module, new_plug->name, new_plug);
+        g_hash_table_replace(plugins_module, new_plug->name, new_plug);
     }
     ws_dir_close(dir);
     g_free(plugin_folder);
-}
-
-/*
- * Scan the buildir for plugins.
- */
-static void
-scan_plugins_build_dir(GHashTable *plugins_module, plugin_type_e type)
-{
-    const char *name;
-    char *dirpath;
-    char *plugin_folder;
-    WS_DIR *dir;                /* scanned directory */
-    WS_DIRENT *file;            /* current file */
-
-    /* Cmake */
-    scan_plugins_dir(plugins_module, get_plugins_dir_with_version(), type, TRUE);
-
-    /* Autotools */
-    dirpath = g_build_filename(get_plugins_dir(), type_to_dir(type), (char *)NULL);
-    dir = ws_dir_open(dirpath, 0, NULL);
-    if (dir == NULL) {
-        g_free(dirpath);
-        return;
-    }
-
-    while ((file = ws_dir_read_name(dir)) != NULL)
-    {
-        name = ws_dir_get_name(file);
-        if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
-            continue;        /* skip "." and ".." */
-        /*
-         * Get the full path of a ".libs" subdirectory of that
-         * directory.
-         */
-        plugin_folder = g_build_filename(dirpath, name, ".libs", (gchar *)NULL);
-        if (test_for_directory(plugin_folder) != EISDIR) {
-            /*
-             * Either it doesn't refer to a directory or it
-             * refers to something that doesn't exist.
-             *
-             * Assume that means that the plugins are in
-             * the subdirectory of the plugin directory, not
-             * a ".libs" subdirectory of that subdirectory.
-             */
-            g_free(plugin_folder);
-            plugin_folder = g_build_filename(get_plugins_dir(), name, (gchar *)NULL);
-        }
-        scan_plugins_dir(plugins_module, plugin_folder, type, FALSE);
-        g_free(plugin_folder);
-    }
-    ws_dir_close(dir);
-    g_free(dirpath);
 }
 
 /*
@@ -255,17 +222,8 @@ plugins_init(plugin_type_e type)
 
     /*
      * Scan the global plugin directory.
-     * If we're running from a build directory, scan the "plugins"
-     * subdirectory, as that's where plugins are located in an
-     * out-of-tree build. If we find subdirectories scan those since
-     * they will contain plugins in the case of an in-tree build.
      */
-    if (running_in_build_directory()) {
-        scan_plugins_build_dir(plugins_module, type);
-    }
-    else {
-        scan_plugins_dir(plugins_module, get_plugins_dir_with_version(), type, TRUE);
-    }
+    scan_plugins_dir(plugins_module, get_plugins_dir_with_version(), type, TRUE);
 
     /*
      * If the program wasn't started with special privileges,
@@ -305,7 +263,7 @@ plugins_get_descriptions(plugin_description_callback callback, void *callback_da
         callback(plug->name, plug->version, plug->type_name, g_module_name(plug->handle), callback_data);
     }
 
-    g_ptr_array_free(plugins_array, FALSE);
+    g_ptr_array_free(plugins_array, TRUE);
 }
 
 static void
@@ -313,7 +271,7 @@ print_plugin_description(const char *name, const char *version,
                          const char *description, const char *filename,
                          void *user_data _U_)
 {
-    ws_debug_printf("%s\t%s\t%s\t%s\n", name, version, description, filename);
+    ws_debug_printf("%-16s\t%s\t%s\t%s\n", name, version, description, filename);
 }
 
 void

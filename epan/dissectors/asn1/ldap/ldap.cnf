@@ -25,7 +25,7 @@ BindResponse/_untag/matchedDN bindResponse_matchedDN
 IntermediateResponse/_untag/responseValue intermediateResponse_responseValue
 
 #.TYPE_ATTR
-LDAPString TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
+LDAPString TYPE = FT_STRING  DISPLAY = STR_UNICODE  STRINGS = NULL
 LDAPURL TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 LDAPOID  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 Mechanism  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
@@ -51,7 +51,7 @@ SyncInfoValue                   B "1.3.6.1.4.1.4203.1.9.1.4" "syncInfoOID"
 PasswordPolicyResponseValue     B "1.3.6.1.4.1.42.2.27.8.5.1"  "passwordPolicy"
 
 #.FN_FTR LDAPURL
-  PROTO_ITEM_SET_URL(actx->created_item);
+  proto_item_set_url(actx->created_item);
 
 #.FN_HDR LDAPOID
 
@@ -121,7 +121,7 @@ PasswordPolicyResponseValue     B "1.3.6.1.4.1.42.2.27.8.5.1"  "passwordPolicy"
     switch(ProtocolOp) {
 
     case LDAP_RES_SEARCH_ENTRY:
-      if (!actx->pinfo->fd->flags.visited)
+      if (!actx->pinfo->fd->visited)
         ldap_info->num_results++;
 
       proto_item_append_text(tree, " [%d result%s]",
@@ -172,7 +172,7 @@ char *mechanism = NULL;
    * type and mechanism, if you can unbind and rebind with a
    * different type and/or mechanism.
    */
-  if(!actx->pinfo->fd->flags.visited) {
+  if(!actx->pinfo->fd->visited) {
     mechanism = tvb_get_string_enc(wmem_file_scope(), parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
     ldap_info->first_auth_frame = 0; /* not known until we see the bind reply */
     /*
@@ -302,7 +302,8 @@ ldap_conv_info_t *ldap_info;
   const char *ldapstring = NULL;
   gchar *sc = NULL; /* semi-colon pointer */
 
-%(DEFAULT_BODY)s
+  offset = dissect_ber_octet_string_with_encoding(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb, ENC_UTF_8|ENC_NA);
 
   if (parameter_tvb || (hf_index == hf_ldap_baseObject)) {
 
@@ -441,7 +442,7 @@ ldap_conv_info_t *ldap_info;
   if (ldap_info && ldap_info->start_tls_pending &&
       hf_index == hf_ldap_extendedResponse_resultCode && resultCode == 0) {
     /* The conversation will continue using SSL */
-    ssl_starttls_ack(find_dissector("ssl"), actx->pinfo, ldap_handle);
+    ssl_starttls_ack(find_dissector("tls"), actx->pinfo, ldap_handle);
     ldap_info->start_tls_pending = FALSE;
   }
 
@@ -450,7 +451,6 @@ ldap_conv_info_t *ldap_info;
 
   tvbuff_t  *next_tvb = NULL;
   gchar *string;
-  guint32 i, len;
   int old_offset = offset;
   gint *hf_id;
 
@@ -470,14 +470,8 @@ ldap_conv_info_t *ldap_info;
     /* do the default thing */
   %(DEFAULT_BODY)s
 
-    len = tvb_reported_length_remaining(next_tvb, 0);
-
-    for(i = 0; i < len; i++)
-      if(!g_ascii_isprint(tvb_get_guint8(next_tvb, i)))
-        break;
-
-    if(i == len) {
-      string = tvb_get_string_enc(wmem_packet_scope(), next_tvb, 0, tvb_reported_length_remaining(next_tvb, 0), ENC_ASCII|ENC_NA);
+    if(tvb_ascii_isprint(next_tvb, 0, tvb_reported_length(next_tvb))) {
+      string = tvb_get_string_enc(wmem_packet_scope(), next_tvb, 0, tvb_reported_length_remaining(next_tvb, 0), ENC_UTF_8|ENC_NA);
       proto_item_set_text(actx->created_item, "AttributeValue: %%s", string);
     }
   }
@@ -810,7 +804,7 @@ Attribute
 AssertionValue
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 2

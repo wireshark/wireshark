@@ -10,9 +10,6 @@ ALIGNED
 #.PDU
 HNBAP-PDU
 
-##.MAKE_DEFINES
-#ProcedureCode
-
 #.MAKE_ENUM
 ProtocolIE-ID
 ProcedureCode
@@ -153,6 +150,13 @@ AccessResult
 
 #.END
 
+#.FN_BODY IMSI VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_hnbap_imsi);
+    dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), FALSE);
+  }
 
 #.ASSIGN_VALUE_TO_TYPE  # HNBAP ASN.1 does not have constants assigned to types
 # ProcedureCode

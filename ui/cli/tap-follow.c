@@ -6,7 +6,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 /* This module provides udp and tcp follow stream capabilities to tshark.
  * It is only used by tshark and not wireshark.
@@ -36,6 +37,7 @@ typedef struct _cli_follow_info {
 
   /* filter */
   int           stream_index;
+  int           sub_stream_index;
   int           port[2];
   address       addr[2];
   union {
@@ -183,9 +185,9 @@ static void follow_draw(void *contextp)
   else
     printf("Node 1: %s:%u\n", buf, follow_info->server_port);
 
-  for (cur = follow_info->payload, chunk = 1;
+  for (cur = g_list_last(follow_info->payload), chunk = 1;
        cur != NULL;
-       cur = g_list_next(cur), chunk++)
+       cur = g_list_previous(cur), chunk++)
   {
     follow_record = (follow_record_t *)cur->data;
     if (!follow_record->is_server) {
@@ -337,6 +339,13 @@ follow_arg_filter(const char **opt_argp, follow_info_t *follow_info)
       ((*opt_argp)[len] == 0 || (*opt_argp)[len] == ','))
   {
     *opt_argp += len;
+
+    /* if it's HTTP2 or QUIC protocol we should read substream id otherwise it's a range parameter from follow_arg_range */
+    if (cli_follow_info->sub_stream_index == -1 && sscanf(*opt_argp, ",%d%n", &cli_follow_info->sub_stream_index, &len) == 1 &&
+        ((*opt_argp)[len] == 0 || (*opt_argp)[len] == ','))
+    {
+      *opt_argp += len;
+    }
   }
   else
   {
@@ -437,11 +446,21 @@ static void follow_stream(const char *opt_argp, void *userdata)
   register_follow_t* follower = (register_follow_t*)userdata;
   follow_index_filter_func index_filter;
   follow_address_filter_func address_filter;
+  int proto_id = get_follow_proto_id(follower);
+  const char* proto_filter_name = proto_get_protocol_filter_name(proto_id);
 
   opt_argp += strlen(STR_FOLLOW);
-  opt_argp += strlen(proto_get_protocol_filter_name(get_follow_proto_id(follower)));
+  opt_argp += strlen(proto_filter_name);
 
   cli_follow_info = g_new0(cli_follow_info_t, 1);
+  cli_follow_info->stream_index = -1;
+  /* use second parameter only for HTTP2 or QUIC substream */
+  if (g_str_equal(proto_filter_name, "http2") ||
+      g_str_equal(proto_filter_name, "quic")) {
+      cli_follow_info->sub_stream_index = -1;
+  } else {
+      cli_follow_info->sub_stream_index = 0;
+  }
   follow_info = g_new0(follow_info_t, 1);
   follow_info->gui_data = cli_follow_info;
   cli_follow_info->follower = follower;
@@ -454,8 +473,8 @@ static void follow_stream(const char *opt_argp, void *userdata)
   if (cli_follow_info->stream_index >= 0)
   {
     index_filter = get_follow_index_func(follower);
-    follow_info->filter_out_filter = index_filter(cli_follow_info->stream_index);
-    if (follow_info->filter_out_filter == NULL)
+    follow_info->filter_out_filter = index_filter(cli_follow_info->stream_index, cli_follow_info->sub_stream_index);
+    if (follow_info->filter_out_filter == NULL || cli_follow_info->sub_stream_index < 0)
     {
       follow_exit("Error creating filter for this stream.");
     }
@@ -471,7 +490,7 @@ static void follow_stream(const char *opt_argp, void *userdata)
   }
 
   errp = register_tap_listener(get_follow_tap_string(follower), follow_info, follow_info->filter_out_filter, 0,
-                               NULL, get_follow_tap_handler(follower), follow_draw);
+                               NULL, get_follow_tap_handler(follower), follow_draw, (tap_finish_cb)follow_free);
 
   if (errp != NULL)
   {
@@ -507,7 +526,7 @@ register_tap_listener_follow(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

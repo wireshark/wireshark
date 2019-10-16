@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef SCTP_ALL_ASSOCS_DIALOG_H
 #define SCTP_ALL_ASSOCS_DIALOG_H
@@ -35,8 +36,6 @@ public:
     ~SCTPAllAssocsDialog();
 
     void fillTable();
-    sctp_assoc_info_t* getSelectedAssoc() { return selected_assoc; }
-    sctp_assoc_info_t* findSelectedAssoc();
 
 public slots:
     void setCaptureFile(capture_file *cf) { cap_file_ = cf; }
@@ -49,8 +48,7 @@ private slots:
 private:
     Ui::SCTPAllAssocsDialog *ui;
     capture_file *cap_file_;
-    sctp_allassocs_info_t *sctp_assocs;
-    sctp_assoc_info_t     *selected_assoc;
+    guint16 selected_assoc_id;
 
 
 signals:

@@ -4,8 +4,8 @@ In order to use the tapping system, very little knowledge of Wireshark
 internals are required.
 
 As examples on how to use the tap system see the implementation of
-tap-rpcstat.c     	(tshark version)
-ui/qt/rpc_service_response_time_dialog.cpp	(wireshark version)
+tap-rpcprogs.c (tshark version)
+ui/qt/rpc_service_response_time_dialog.cpp (wireshark version)
 
 If all you need is to keep some counters, there's the stats_tree API,
 which offers a simple way to make a GUI and tshark tap-listener; see
@@ -18,10 +18,7 @@ protocol dissector, and
 2, event driven code in an extension such as tap-rpcstat.c that registers
 a tap listener and processes received data.
 
-
-
 So you want to hack together a tap application?
-
 
 TAP
 ===
@@ -55,27 +52,27 @@ need.
 
 TAP LISTENER
 ============
-(see tap-rpcstat.c as an example)
+(see tap-rpcprogs.c as an example)
 Interfacing your application is not that much harder either.
-Only 3 callbacks and two functions.
-
+Only 4 callbacks and two functions.
 
 The two functions to start or stop tapping are
 
 register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 	guint flags,
 	void (*reset)(void *tapdata),
-        gboolean (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data),
-	void (*draw)(void *tapdata));
+        tap_packet_status (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data),
+	void (*draw)(void *tapdata),
+	void (*finish)(void *tapdata));
+
+This function is used to register an instance of a tap application
+to the tap system.
 
 remove_tap_listener(void *tapdata);
 
-
-remove_tap_listener(void *tapdata)
 This function is used to deregister and stop a tap listener.
 
-register_tap_listener() is used to register an instance of a tap application
-to the tap system.
+The parameters have the following meanings:
 
 *tapname
 is the name of the tap we want to listen to. I.e. the name used in
@@ -134,14 +131,17 @@ listener that it is about to start [re]reading a capture file or a new capture
 from an interface and that your application should reset any state it has
 in the *tapdata instance.
 
-gboolean (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data)
+tap_packet_status (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data)
 This callback is used whenever a new packet has arrived at the tap and that
 it has passed the filter (if there were a filter).
 The *data structure type is specific to each tap.
-This function returns an gboolean and it should return
- TRUE, if the data in the packet caused state to be updated
+This function returns a tap_packet_status enum and it should return
+ TAP_PACKET_REDRAW, if the data in the packet caused state to be updated
        (and thus a redraw of the window would later be required)
- FALSE, if we don't need to redraw the window.
+ TAP_PACKET_DONT_REDRAW, if we don't need to redraw the window
+ TAP_PACKET_FAILED, if the tap failed and shouldn't be called again
+       in this pass (for example, if it's writing to a file and gets
+       an I/O error)
 NOTE: that (*packet) should be as fast and efficient as possible. Use this
 function ONLY to store data for later and do the CPU-intensive processing
 or GUI updates down in (*draw) instead.
@@ -156,12 +156,15 @@ from a separate thread up to once every 2-3 seconds.
 On other ports it might only be called once when the capture is finished
 or the file has been [re]read completely.
 
+void (*finish)(void *tapdata)
+This callback is called when your listener is removed.
 
 
-So, create three callbacks:
+So, create four callbacks:
 1, reset   to reset the state variables in the structure passed to it.
 2, packet  to update these state variables.
 3, draw    to take these state variables and draw them on the screen.
+4, finish  to free all state variables.
 
 then just make Wireshark call register_tap_listener() when you want to tap
 and call remove_tap_listener() when you are finished.
@@ -209,19 +212,19 @@ TIPS
 ====
 Of course, there is nothing that forces you to make (*draw) draw stuff
 on the screen.
-You can hand register_tap_listener() NULL for both (*draw) and (*reset)
+You can hand register_tap_listener() NULL for (*draw), (*reset) and (*finish)
 (well also for (*packet) but that would be a very boring extension).
 
 Perhaps you want an extension that will execute a certain command
 every time it sees a certain packet?
 Well, try this :
-	gboolean packet(void *tapdata,...) {
+	tap_packet_status packet(void *tapdata,...) {
 		...
 		system("mail ...");
-		return FALSE;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
-	register_tap_listener("tcp", struct, "tcp.port==57", NULL, packet, NULL);
+	register_tap_listener("tcp", struct, "tcp.port==57", NULL, packet, NULL, NULL);
 
 	Let struct contain an email address?
 	Then you have something simple that will make Wireshark send an email
@@ -232,8 +235,5 @@ Well, try this :
 	Let struct contain a command line and make (*packet) execute it?
 	The possibilities are rather large.
 
-
-
-See tap-rpcstat.c for an example
 See tap.c as well. It contains lots of comments and descriptions on the tap
 system.

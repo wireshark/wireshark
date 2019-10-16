@@ -146,22 +146,22 @@ dissect_ns_cert_exts_CertRenewalUrl(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const asn_namedbit CertType_bits[] = {
-  {  0, &hf_ns_cert_exts_CertType_ssl_client, -1, -1, "ssl-client", NULL },
-  {  1, &hf_ns_cert_exts_CertType_ssl_server, -1, -1, "ssl-server", NULL },
-  {  2, &hf_ns_cert_exts_CertType_smime, -1, -1, "smime", NULL },
-  {  3, &hf_ns_cert_exts_CertType_object_signing, -1, -1, "object-signing", NULL },
-  {  4, &hf_ns_cert_exts_CertType_reserved_for_future_use, -1, -1, "reserved-for-future-use", NULL },
-  {  5, &hf_ns_cert_exts_CertType_ssl_ca, -1, -1, "ssl-ca", NULL },
-  {  6, &hf_ns_cert_exts_CertType_smime_ca, -1, -1, "smime-ca", NULL },
-  {  7, &hf_ns_cert_exts_CertType_object_signing_ca, -1, -1, "object-signing-ca", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * CertType_bits[] = {
+  &hf_ns_cert_exts_CertType_ssl_client,
+  &hf_ns_cert_exts_CertType_ssl_server,
+  &hf_ns_cert_exts_CertType_smime,
+  &hf_ns_cert_exts_CertType_object_signing,
+  &hf_ns_cert_exts_CertType_reserved_for_future_use,
+  &hf_ns_cert_exts_CertType_ssl_ca,
+  &hf_ns_cert_exts_CertType_smime_ca,
+  &hf_ns_cert_exts_CertType_object_signing_ca,
+  NULL
 };
 
 static int
 dissect_ns_cert_exts_CertType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    CertType_bits, hf_index, ett_ns_cert_exts_CertType,
+                                    CertType_bits, 8, hf_index, ett_ns_cert_exts_CertType,
                                     NULL);
 
   return offset;
@@ -272,35 +272,35 @@ void proto_register_ns_cert_exts(void) {
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ns_cert_exts_CertType_ssl_client,
-      { "ssl-client", "ns_cert_exts.ssl-client",
+      { "ssl-client", "ns.cert.exts.CertType.ssl.client",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_ns_cert_exts_CertType_ssl_server,
-      { "ssl-server", "ns_cert_exts.ssl-server",
+      { "ssl-server", "ns.cert.exts.CertType.ssl.server",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_ns_cert_exts_CertType_smime,
-      { "smime", "ns_cert_exts.smime",
+      { "smime", "ns.cert.exts.CertType.smime",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_ns_cert_exts_CertType_object_signing,
-      { "object-signing", "ns_cert_exts.object-signing",
+      { "object-signing", "ns.cert.exts.CertType.object.signing",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_ns_cert_exts_CertType_reserved_for_future_use,
-      { "reserved-for-future-use", "ns_cert_exts.reserved-for-future-use",
+      { "reserved-for-future-use", "ns.cert.exts.CertType.reserved.for.future.use",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_ns_cert_exts_CertType_ssl_ca,
-      { "ssl-ca", "ns_cert_exts.ssl-ca",
+      { "ssl-ca", "ns.cert.exts.CertType.ssl.ca",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_ns_cert_exts_CertType_smime_ca,
-      { "smime-ca", "ns_cert_exts.smime-ca",
+      { "smime-ca", "ns.cert.exts.CertType.smime.ca",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_ns_cert_exts_CertType_object_signing_ca,
-      { "object-signing-ca", "ns_cert_exts.object-signing-ca",
+      { "object-signing-ca", "ns.cert.exts.CertType.object.signing.ca",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
 

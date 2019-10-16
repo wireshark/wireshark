@@ -17,7 +17,7 @@
 /* The LANalyzer format is documented (at least in part) in Novell document
    TID022037, which can be found at, among other places:
 
-     http://www.windowsecurity.com/whitepapers/Description_of_the_LANalysers_output_file.html
+     http://www.blacksheepnetworks.com/security/info/nw/lan/trace.txt
  */
 
 /*    Record header format */
@@ -258,8 +258,8 @@ typedef struct {
       time_t  start;
 } lanalyzer_t;
 
-static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean lanalyzer_read(wtap *wth, wtap_rec *rec,
+    Buffer *buf, int *err, gchar **err_info, gint64 *data_offset);
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean lanalyzer_dump_finish(wtap_dumper *wdh, int *err);
@@ -531,14 +531,14 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
 }
 
 /* Read the next packet */
-static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
-                               gint64 *data_offset)
+static gboolean lanalyzer_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                               int *err, gchar **err_info, gint64 *data_offset)
 {
       *data_offset = file_tell(wth->fh);
 
       /* Read the record  */
-      return lanalyzer_read_trace_record(wth, wth->fh, &wth->rec,
-                                         wth->rec_data, err, err_info);
+      return lanalyzer_read_trace_record(wth, wth->fh, rec, buf, err,
+                                         err_info);
 }
 
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
@@ -635,6 +635,15 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
       /* We can only write packet records. */
       if (rec->rec_type != REC_TYPE_PACKET) {
             *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
+            return FALSE;
+            }
+
+      /*
+       * Make sure this packet doesn't have a link-layer type that
+       * differs from the one for the file.
+       */
+      if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+            *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
             return FALSE;
             }
 
@@ -899,7 +908,7 @@ static gboolean lanalyzer_dump_finish(wtap_dumper *wdh, int *err)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 6

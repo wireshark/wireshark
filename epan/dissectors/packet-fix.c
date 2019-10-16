@@ -24,7 +24,7 @@
 #include <wsutil/strtoi.h>
 
 #include "packet-tcp.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 
 void proto_register_fix(void);
 void proto_reg_handoff_fix(void);
@@ -45,7 +45,7 @@ static gboolean fix_desegment = TRUE;
 
 /* Initialize the subtree pointers */
 static gint ett_fix = -1;
-static gint ett_unknow = -1;
+static gint ett_unknown = -1;
 static gint ett_badfield = -1;
 static gint ett_checksum = -1;
 
@@ -362,9 +362,9 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                     }
                     checksum_tree = proto_item_add_subtree(item, ett_checksum);
                     item = proto_tree_add_boolean(checksum_tree, hf_fix_checksum_good, tvb, field_offset, tag->field_len, sum_ok);
-                    PROTO_ITEM_SET_GENERATED(item);
+                    proto_item_set_generated(item);
                     item = proto_tree_add_boolean(checksum_tree, hf_fix_checksum_bad, tvb, field_offset, tag->field_len, !sum_ok);
-                    PROTO_ITEM_SET_GENERATED(item);
+                    proto_item_set_generated(item);
                     if (!sum_ok)
                         expert_add_info(pinfo, item, &ei_fix_checksum_bad);
                 }
@@ -379,7 +379,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
           proto_tree *field_tree;
 
           /* XXX - it could be -1 if the tag isn't a number */
-          field_tree = proto_tree_add_subtree_format(fix_tree, tvb, field_offset, tag->field_len, ett_unknow, NULL,
+          field_tree = proto_tree_add_subtree_format(fix_tree, tvb, field_offset, tag->field_len, ett_unknown, NULL,
               "%i: %s", tag_value, value);
           proto_tree_add_uint(field_tree, hf_fix_field_tag, tvb, field_offset, tag->tag_len, tag_value);
           proto_tree_add_item(field_tree, hf_fix_field_value, tvb, tag->value_offset, tag->value_len, ENC_ASCII|ENC_NA);
@@ -493,7 +493,7 @@ proto_register_fix(void)
 /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_fix,
-        &ett_unknow,
+        &ett_unknown,
         &ett_badfield,
         &ett_checksum,
     };
@@ -538,12 +538,12 @@ proto_reg_handoff_fix(void)
 {
     /* Let the tcp dissector know that we're interested in traffic      */
     heur_dissector_add("tcp", dissect_fix_heur, "FIX over TCP", "fix_tcp", proto_fix, HEURISTIC_ENABLE);
-    heur_dissector_add("ssl", dissect_fix_heur_ssl, "FIX over SSL", "fix_ssl", proto_fix, HEURISTIC_ENABLE);
+    heur_dissector_add("tls", dissect_fix_heur_ssl, "FIX over TLS", "fix_tls", proto_fix, HEURISTIC_ENABLE);
     dissector_add_uint_range_with_preference("tcp.port", "", fix_handle);
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

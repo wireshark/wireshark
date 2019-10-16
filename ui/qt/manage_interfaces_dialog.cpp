@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <glib.h>
 #include "manage_interfaces_dialog.h"
@@ -39,7 +40,6 @@
 #include <ui/qt/models/path_chooser_delegate.h>
 
 #include <QCheckBox>
-#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QStandardItemModel>
@@ -130,6 +130,11 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     loadGeometry();
     setAttribute(Qt::WA_DeleteOnClose, true);
 
+    ui->addPipe->setStockIcon("list-add");
+    ui->delPipe->setStockIcon("list-remove");
+    ui->addRemote->setStockIcon("list-add");
+    ui->delRemote->setStockIcon("list-remove");
+
 #ifdef Q_OS_MAC
     ui->addPipe->setAttribute(Qt::WA_MacSmallSize, true);
     ui->delPipe->setAttribute(Qt::WA_MacSmallSize, true);
@@ -142,11 +147,9 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     proxyModel = new InterfaceSortFilterModel(this);
     QList<InterfaceTreeColumns> columns;
     columns.append(IFTREE_COL_HIDDEN);
-    columns.append(IFTREE_COL_INTERFACE_NAME);
-#ifdef Q_OS_WIN
+    columns.append(IFTREE_COL_DESCRIPTION);
     columns.append(IFTREE_COL_NAME);
-#endif
-    columns.append(IFTREE_COL_INTERFACE_COMMENT);
+    columns.append(IFTREE_COL_COMMENT);
     proxyModel->setColumns(columns);
     proxyModel->setSourceModel(sourceModel);
     proxyModel->setFilterHidden(false);
@@ -154,7 +157,7 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
 
     ui->localView->setModel(proxyModel);
     ui->localView->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_HIDDEN));
-    ui->localView->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_INTERFACE_NAME));
+    ui->localView->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_NAME));
 
     pipeProxyModel = new InterfaceSortFilterModel(this);
     columns.clear();
@@ -333,9 +336,9 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
     guint num_interfaces;
 
     num_interfaces = global_capture_opts.all_ifaces->len;
-    for (if_entry = g_list_first(rlist); if_entry != NULL; if_entry = g_list_next(if_entry)) {
+    for (if_entry = g_list_first(rlist); if_entry != NULL; if_entry = gxx_list_next(if_entry)) {
         auth_str = NULL;
-        if_info = (if_info_t *)if_entry->data;
+        if_info = gxx_list_data(if_info_t *, if_entry);
 #if 0
         add_interface_to_remote_list(if_info);
 #endif
@@ -433,9 +436,9 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
             device.monitor_mode_enabled = monitor_mode;
             device.monitor_mode_supported = caps->can_set_rfmon;
 #endif
-            for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-                data_link_info = (data_link_info_t *)lt_entry->data;
-                linkr = (link_row *)g_malloc(sizeof(link_row));
+            for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = gxx_list_next(lt_entry)) {
+                data_link_info = gxx_list_data(data_link_info_t *, lt_entry);
+                linkr = new link_row;
                 /*
                  * For link-layer types libpcap/WinPcap doesn't know about, the
                  * name will be "DLT n", and the description will be null.

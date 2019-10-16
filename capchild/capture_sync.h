@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 
 /** @file
@@ -66,6 +67,10 @@ sync_pipe_kill(ws_process_id fork_child);
  *  @param type channel type string (or NULL if not used)
  *  @param center_freq1 VHT channel center frequency (or NULL if not used)
  *  @param center_freq2 VHT channel center frequency 2 (or NULL if not used)
+ *  @param data On success, *data points to a buffer containing the dumpcap output, On failure *data is NULL
+ *  @param primary_msg On success NULL, On failure points to an error message
+ *  @param secondary_msg On success NULL, On failure either points to an additional error message or is NULL
+ *  @param update_cb update callback
  *  @return 0 on success
  */
 extern int
@@ -120,13 +125,13 @@ capture_input_new_packets(capture_session *cap_session, int to_read);
  * Capture child told us how many dropped packets it counted.
  */
 extern void
-capture_input_drops(capture_session *cap_session, guint32 dropped);
+capture_input_drops(capture_session *cap_session, guint32 dropped, const char* interface_name);
 
 /**
  * Capture child told us that an error has occurred while starting the capture.
  */
 extern void
-capture_input_error_message(capture_session *cap_session, char *error_message,
+capture_input_error_message(capture_session *cap_session, char *error_msg,
                             char *secondary_error_msg);
 
 /**
@@ -135,7 +140,7 @@ capture_input_error_message(capture_session *cap_session, char *error_message,
  */
 extern void
 capture_input_cfilter_error_message(capture_session *cap_session, guint i,
-                                    char *error_message);
+                                    const char *error_message);
 
 /**
  * Capture child closed its side of the pipe, report any error and

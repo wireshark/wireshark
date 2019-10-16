@@ -571,7 +571,7 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							tvb, 0, 0, rs_data->matched_frame_num);
 
 					/* mark field as a generated one */
-					PROTO_ITEM_SET_GENERATED(ti);
+					proto_item_set_generated(ti);
 
 					/* calculate delta time */
 					nstime_delta(&ns, &pinfo->abs_ts,
@@ -583,7 +583,7 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							tvb, 0, 0, &ns);
 
 					/* mark field as a generated one */
-					PROTO_ITEM_SET_GENERATED(ti);
+					proto_item_set_generated(ti);
 					}
 			} else {
 				/* get current command data */
@@ -596,7 +596,7 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							tvb, 0, 0, rq_data->matched_frame_num);
 
 					/* mark field as a generated one */
-					PROTO_ITEM_SET_GENERATED(ti);
+					proto_item_set_generated(ti);
 				}
 			}
 		}
@@ -1620,6 +1620,8 @@ do_dissect_ipmb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint offset = 0;
 	guint8 tmp;
 
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPMB");
+
 	memset(&ctx, 0, sizeof(ctx));
 
 	/* copy message context and channel */
@@ -1838,7 +1840,7 @@ void proto_reg_handoff_ipmi(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

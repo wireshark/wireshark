@@ -82,5 +82,8 @@
 #define NGAP_PROTOCOL_ID                               60
 #define XNAP_PROTOCOL_ID                               61
 #define F1AP_PROTOCOL_ID                               62
+#define HTTP_SCTP_PROTOCOL_ID                          63
+#define E1AP_PROTOCOL_ID                               64
+#define ELE2_PROTOCOL_ID                               65
 
 #endif /* sctpppids.h */

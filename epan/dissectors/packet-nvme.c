@@ -244,7 +244,7 @@ nvme_publish_qid(proto_tree *tree, int field_index, guint16 qid)
                      qid ? "%d (IOQ)" : "%d (AQ)",
                                      qid);
 
-    PROTO_ITEM_SET_GENERATED(cmd_ref_item);
+    proto_item_set_generated(cmd_ref_item);
 }
 
 static void nvme_build_pending_cmd_key(wmem_tree_key_t *cmd_key, guint32 *key)
@@ -394,7 +394,7 @@ nvme_publish_cmd_latency(proto_tree *tree, struct nvme_cmd_ctx *cmd_ctx,
     cmd_ref_item = proto_tree_add_double_format_value(tree, field_index,
                             NULL, 0, 0, cmd_latency,
                             "%.3f ms", cmd_latency);
-    PROTO_ITEM_SET_GENERATED(cmd_ref_item);
+    proto_item_set_generated(cmd_ref_item);
 }
 
 void nvme_update_cmd_end_info(packet_info *pinfo, struct nvme_cmd_ctx *cmd_ctx)
@@ -410,7 +410,17 @@ nvme_publish_cqe_to_cmd_link(proto_tree *cqe_tree, tvbuff_t *nvme_tvb,
     proto_item *cqe_ref_item;
     cqe_ref_item = proto_tree_add_uint(cqe_tree, hf_index,
                              nvme_tvb, 0, 0, cmd_ctx->cmd_pkt_num);
-    PROTO_ITEM_SET_GENERATED(cqe_ref_item);
+    proto_item_set_generated(cqe_ref_item);
+}
+
+void
+nvme_publish_data_pdu_to_cmd_link(proto_tree *pdu_tree, tvbuff_t *nvme_tvb,
+                           int hf_index, struct nvme_cmd_ctx *cmd_ctx)
+{
+    proto_item *cmd_ref_item;
+    cmd_ref_item = proto_tree_add_uint(pdu_tree, hf_index,
+                             nvme_tvb, 0, 0, cmd_ctx->cmd_pkt_num);
+    proto_item_set_generated(cmd_ref_item);
 }
 
 void
@@ -422,7 +432,7 @@ nvme_publish_cmd_to_cqe_link(proto_tree *cmd_tree, tvbuff_t *cmd_tvb,
     if (cmd_ctx->cqe_pkt_num) {
         cmd_ref_item = proto_tree_add_uint(cmd_tree, hf_index,
                                  cmd_tvb, 0, 0, cmd_ctx->cqe_pkt_num);
-        PROTO_ITEM_SET_GENERATED(cmd_ref_item);
+        proto_item_set_generated(cmd_ref_item);
     }
 }
 
@@ -612,8 +622,7 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
             break;
         }
     }
-    col_add_lstr(pinfo->cinfo, COL_INFO, "NVMe ", str_opcode, ": Data",
-                 COL_ADD_LSTR_TERMINATOR);
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "NVMe %s: Data", str_opcode);
 }
 
 void
@@ -676,6 +685,30 @@ dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
             break;
         }
     }
+}
+
+const gchar *nvme_get_opcode_string(guint8  opcode, guint16 qid)
+{
+    if (qid)
+        return val_to_str_const(opcode, ioq_opc_tbl, "Reserved");
+    else
+        return val_to_str_const(opcode, aq_opc_tbl, "Reserved");
+}
+
+int
+nvme_is_io_queue_opcode(guint8  opcode)
+{
+    return ((opcode == NVME_IOQ_OPC_FLUSH) ||
+            (opcode == NVME_IOQ_OPC_WRITE) ||
+            (opcode == NVME_IOQ_OPC_READ) ||
+            (opcode == NVME_IOQ_OPC_WRITE_UNCORRECTABLE) ||
+            (opcode == NVME_IOQ_OPC_COMPARE) ||
+            (opcode == NVME_IOQ_OPC_WRITE_ZEROS) ||
+            (opcode == NVME_IOQ_OPC_DATASET_MGMT) ||
+            (opcode == NVME_IOQ_OPC_RESV_REG) ||
+            (opcode == NVME_IOQ_OPC_RESV_REPORT) ||
+            (opcode == NVME_IOQ_OPC_RESV_ACQUIRE) ||
+            (opcode == NVME_IOQ_OPC_RESV_RELEASE));
 }
 
 void
@@ -927,7 +960,7 @@ proto_register_nvme(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

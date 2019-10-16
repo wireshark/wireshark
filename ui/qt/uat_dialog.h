@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef UAT_DIALOG_H
 #define UAT_DIALOG_H
@@ -37,6 +38,7 @@ public:
     void setUat(struct epan_uat *uat = NULL);
 
 private slots:
+    void copyFromProfile(QString filename);
     void modelDataChanged(const QModelIndex &topLeft);
     void modelRowsRemoved();
     void modelRowsReset();

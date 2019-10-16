@@ -3317,7 +3317,7 @@ static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8
 {
     /* the following saves information about the conversation this packet defines,
        so there's no point in doing it more than once per packet */
-    if (!pinfo->fd->flags.visited)
+    if (!pinfo->fd->visited)
     {
         connection_context *connection;
         conversation_infiniband_data *proto_data;
@@ -3630,7 +3630,7 @@ static void update_conversation_info(packet_info *pinfo,
 {
     /* the following saves information about the conversation this packet defines,
        so there's no point in doing it more than once per packet */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* get the previously saved context for this connection */
         connection_context *connection;
 
@@ -8729,7 +8729,7 @@ void proto_register_infiniband(void)
     CM_context_table = g_hash_table_new_full(g_int64_hash, g_int64_equal,
                                              table_destroy_notify, table_destroy_notify);
 
-    subdissector_table = register_decode_as_next_proto(proto_infiniband, "Network", "infiniband", "Infiniband Payload",
+    subdissector_table = register_decode_as_next_proto(proto_infiniband, "infiniband", "Infiniband Payload",
                                                        infiniband_payload_prompt);
 
     register_shutdown_routine(infiniband_shutdown);
@@ -8805,7 +8805,7 @@ void proto_reg_handoff_infiniband(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

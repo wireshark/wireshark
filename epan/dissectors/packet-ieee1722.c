@@ -18,6 +18,11 @@
  *                 CVF Format subtype supported: H264 and MJPEG
  *                 The dissection meets the 1722-2016 specification.
  *
+ * Copyright 2019, Dmitry Linikov <linikov@arrival.com>
+ *                 Dissection for the 1722 Time-Sensitive and Non-Time-Sensitive
+ *                 Control formats added.
+ *                 ACF Message types supported: CAN, CAN_BRIEF, LIN
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -34,6 +39,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/etypes.h>
+#include <epan/decode_as.h>
+#include <epan/dissectors/packet-socketcan.h>
 
 void proto_register_1722(void);
 void proto_reg_handoff_1722(void);
@@ -45,6 +52,18 @@ void proto_register_1722_61883(void);
 void proto_reg_handoff_1722_61883(void);
 void proto_register_1722_cvf(void);
 void proto_reg_handoff_1722_cvf(void);
+void proto_register_1722_ntscf(void);
+void proto_reg_handoff_1722_ntscf(void);
+void proto_register_1722_tscf(void);
+void proto_reg_handoff_1722_tscf(void);
+void proto_register_1722_acf(void);
+void proto_reg_handoff_1722_acf(void);
+void proto_register_1722_acf_can(void);
+void proto_reg_handoff_1722_acf_can(void);
+void proto_register_1722_acf_lin(void);
+void proto_reg_handoff_1722_acf_lin(void);
+
+#define UDP_PORT_IEEE_1722                  17220
 
 /**************************************************************************************************/
 /* 1722                                                                                           */
@@ -54,6 +73,8 @@ void proto_reg_handoff_1722_cvf(void);
 #define IEEE_1722_SUBTYPE_AAF               0x02
 #define IEEE_1722_SUBTYPE_CVF               0x03
 #define IEEE_1722_SUBTYPE_CRF               0x04
+#define IEEE_1722_SUBTYPE_TSCF              0x05
+#define IEEE_1722_SUBTYPE_NTSCF             0x82
 
 /* Bit Field Masks */
 #define IEEE_1722_SV_MASK        0x80
@@ -165,6 +186,116 @@ void proto_reg_handoff_1722_cvf(void);
 #define IEEE_1722_TU_MASK                   0x01
 #define IEEE_1722_PULL_MASK                 0xe0000000
 #define IEEE_1722_BASE_FREQUENCY_MASK       0x1fffffff
+
+/**************************************************************************************************/
+/* subtype NTSCF                                                                                  */
+/*                                                                                                */
+/**************************************************************************************************/
+#define IEEE_1722_NTSCF_HEADER_SIZE                     12      /* including common header */
+
+/* Bit Field Masks */
+#define IEEE_1722_NTSCF_R_MASK                          0x800
+#define IEEE_1722_NTSCF_DATA_LENGTH_MASK                0x7ff
+#define IEEE_1722_NTSCF_SEQ_NUM_MASK                    0xff
+#define IEEE_1722_NTSCF_STREAM_ID_MASK                  0x00
+
+/**************************************************************************************************/
+/* subtype TSCF                                                                                   */
+/*                                                                                                */
+/**************************************************************************************************/
+#define IEEE_1722_TSCF_HEADER_SIZE                      24      /* including common header */
+
+/* Bit Field Masks */
+#define IEEE_1722_TSCF_MR_MASK                          0x08
+#define IEEE_1722_TSCF_RSV1_MASK                        0x06
+#define IEEE_1722_TSCF_TV_MASK                          0x01
+#define IEEE_1722_TSCF_SEQNUM_MASK                      0x00
+#define IEEE_1722_TSCF_RSV2_MASK                        0xFE
+#define IEEE_1722_TSCF_TU_MASK                          0x01
+#define IEEE_1722_TSCF_STREAM_ID_MASK                   0x00
+#define IEEE_1722_TSCF_AVTP_TIMESTAMP_MASK              0x00
+#define IEEE_1722_TSCF_RSV3_MASK                        0x00
+#define IEEE_1722_TSCF_DATA_LENGTH_MASK                 0x00
+#define IEEE_1722_TSCF_RSV4_MASK                        0x00
+
+/**************************************************************************************************/
+/* AVTP Control Format (ACF) Message Header                                                       */
+/*                                                                                                */
+/**************************************************************************************************/
+#define IEEE_1722_ACF_HEADER_SIZE                       2
+
+/* ACF message types */
+#define IEEE_1722_ACF_TYPE_FLEXRAY                      0x00
+#define IEEE_1722_ACF_TYPE_CAN                          0x01
+#define IEEE_1722_ACF_TYPE_CAN_BRIEF                    0x02
+#define IEEE_1722_ACF_TYPE_LIN                          0x03
+#define IEEE_1722_ACF_TYPE_MOST                         0x04
+#define IEEE_1722_ACF_TYPE_GPC                          0x05
+#define IEEE_1722_ACF_TYPE_SERIAL                       0x06
+#define IEEE_1722_ACF_TYPE_PARALLEL                     0x07
+#define IEEE_1722_ACF_TYPE_SENSOR                       0x08
+#define IEEE_1722_ACF_TYPE_SENSOR_BRIEF                 0x09
+#define IEEE_1722_ACF_TYPE_AECP                         0x0A
+#define IEEE_1722_ACF_TYPE_ANCILLARY                    0x0B
+#define IEEE_1722_ACF_TYPE_USER0                        0x78
+#define IEEE_1722_ACF_TYPE_USER1                        0x79
+#define IEEE_1722_ACF_TYPE_USER2                        0x7A
+#define IEEE_1722_ACF_TYPE_USER3                        0x7B
+#define IEEE_1722_ACF_TYPE_USER4                        0x7C
+#define IEEE_1722_ACF_TYPE_USER5                        0x7D
+#define IEEE_1722_ACF_TYPE_USER6                        0x7E
+#define IEEE_1722_ACF_TYPE_USER7                        0x7F
+
+/* Bit Field Masks */
+#define IEEE_1722_ACF_MSG_TYPE_MASK                     0xFE00
+#define IEEE_1722_ACF_MSG_LENGTH_MASK                   0x01FF
+
+/**************************************************************************************************/
+/* ACF CAN Message                                                                                */
+/*                                                                                                */
+/**************************************************************************************************/
+#define IEEE_1722_ACF_CAN_BRIEF_HEADER_SIZE             6
+#define IEEE_1722_ACF_CAN_HEADER_SIZE                   14
+
+/* Bit Field Masks */
+#define IEEE_1722_ACF_CAN_PAD_MASK                      0xC0u
+#define IEEE_1722_ACF_CAN_FLAGS_MASK                    0x3Fu
+#define IEEE_1722_ACF_CAN_MTV_MASK                      0x20u
+#define IEEE_1722_ACF_CAN_RTR_MASK                      0x10u
+#define IEEE_1722_ACF_CAN_EFF_MASK                      0x08u
+#define IEEE_1722_ACF_CAN_BRS_MASK                      0x04u
+#define IEEE_1722_ACF_CAN_FDF_MASK                      0x02u
+#define IEEE_1722_ACF_CAN_ESI_MASK                      0x01u
+#define IEEE_1722_ACF_CAN_RSV1_MASK                     0xE0u
+#define IEEE_1722_ACF_CAN_BUS_ID_MASK                   0x1Fu
+#define IEEE_1722_ACF_CAN_MSG_TIMESTAMP_MASK            0x00u
+#define IEEE_1722_ACF_CAN_RSV2_MASK                     0xE0000000u
+#define IEEE_1722_ACF_CAN_IDENTIFIER_MASK               0x1FFFFFFFu
+#define IEEE_1722_ACF_CAN_11BIT_ID_MASK                 0x7FFu
+
+/* Definitions to forge socketcan frame from acf-can message */
+#define SOCKETCAN_HEADER_SIZE       8
+#define SOCKETCAN_PAYLOAD_SIZE      8
+#define SOCKETCANFD_PAYLOAD_SIZE    64
+#define SOCKETCAN_FRAME_SIZE        (SOCKETCAN_HEADER_SIZE + SOCKETCAN_PAYLOAD_SIZE)
+#define SOCKETCANFD_FRAME_SIZE      (SOCKETCAN_HEADER_SIZE + SOCKETCANFD_PAYLOAD_SIZE)
+#define SOCKETCAN_MAX_FRAME_SIZE    SOCKETCANFD_FRAME_SIZE
+#define SOCKETCAN_BRS_FLAG          0x01
+#define SOCKETCAN_ESI_FLAG          0x02
+
+
+/**************************************************************************************************/
+/* ACF LIN Message                                                                                */
+/*                                                                                                */
+/**************************************************************************************************/
+#define IEEE_1722_ACF_LIN_HEADER_SIZE                   10
+
+/* Bit Field Masks */
+#define IEEE_1722_ACF_LIN_PAD_MASK                      0xC0
+#define IEEE_1722_ACF_LIN_MTV_MASK                      0x20
+#define IEEE_1722_ACF_LIN_BUS_ID_MASK                   0x1F
+#define IEEE_1722_ACF_LIN_IDENTIFIER_MASK               0x00
+#define IEEE_1722_ACF_LIN_MSG_TIMESTAMP_MASK            0x00
 
 /**************************************************************************************************/
 /* 1722                                                                                           */
@@ -543,6 +674,180 @@ static expert_field ei_cvf_jpeg2000_format = EI_INIT;
 static expert_field ei_cvf_reserved_format = EI_INIT;
 
 /**************************************************************************************************/
+/* subtype NTSCF                                                                                  */
+/*                                                                                                */
+/**************************************************************************************************/
+
+/* Initialize the protocol and registered fields          */
+static int proto_1722_ntscf = -1;
+static int hf_1722_ntscf_rfield = -1;
+static int hf_1722_ntscf_data_length = -1;
+static int hf_1722_ntscf_seqnum = -1;
+static int hf_1722_ntscf_stream_id = -1;
+
+/* Initialize the subtree pointers */
+static int ett_1722_ntscf = -1;
+
+/* Initialize expert fields */
+static expert_field ei_1722_ntscf_no_space_for_header = EI_INIT;
+static expert_field ei_1722_ntscf_invalid_data_length = EI_INIT;
+
+/**************************************************************************************************/
+/* subtype TSCF                                                                                   */
+/*                                                                                                */
+/**************************************************************************************************/
+
+/* Initialize the protocol and registered fields          */
+static int proto_1722_tscf = -1;
+static int hf_1722_tscf_mr = -1;
+static int hf_1722_tscf_rsv1 = -1;
+static int hf_1722_tscf_tv = -1;
+static int hf_1722_tscf_seqnum = -1;
+static int hf_1722_tscf_rsv2 = -1;
+static int hf_1722_tscf_tu = -1;
+static int hf_1722_tscf_stream_id = -1;
+static int hf_1722_tscf_avtp_timestamp = -1;
+static int hf_1722_tscf_rsv3 = -1;
+static int hf_1722_tscf_data_length = -1;
+static int hf_1722_tscf_rsv4 = -1;
+
+/* Initialize the subtree pointers */
+static int ett_1722_tscf = -1;
+static int ett_1722_tscf_flags = -1;
+static int ett_1722_tscf_tu = -1;
+
+/* Initialize expert fields */
+static expert_field ei_1722_tscf_no_space_for_header = EI_INIT;
+static expert_field ei_1722_tscf_invalid_data_length = EI_INIT;
+
+
+/**************************************************************************************************/
+/* AVTP Control Format (ACF) Message Header                                                       */
+/*                                                                                                */
+/**************************************************************************************************/
+
+static const range_string acf_msg_type_range_rvals [] = {
+    {0x00, 0x00,    "FlexRay"},
+    {0x01, 0x01,    "CAN"},
+    {0x02, 0x02,    "CAN Brief"},
+    {0x03, 0x03,    "LIN"},
+    {0x04, 0x04,    "MOST"},
+    {0x05, 0x05,    "General purpose control"},
+    {0x06, 0x06,    "Serial port"},
+    {0x07, 0x07,    "Parallel port"},
+    {0x08, 0x08,    "Analog sensor"},
+    {0x09, 0x09,    "Abbreviated sensor"},
+    {0x0A, 0x0A,    "IEEE Std 1722.1 AECP"},
+    {0x0B, 0x0B,    "Video ancillary data"},
+    {0x0C, 0x77,    "Reserved"},
+    {0x78, 0x7F,    "User-defined"},
+    {0, 0,      NULL}
+};
+
+/* Initialize the protocol and registered fields          */
+static int proto_1722_acf = -1;
+static int hf_1722_acf_msg_type = -1;
+static int hf_1722_acf_msg_length = -1;
+
+/* Initialize the subtree pointers */
+static int ett_1722_acf = -1;
+static int ett_1722_acf_header = -1;
+
+/* Initialize expert fields */
+static expert_field ei_1722_acf_invalid_msg_length = EI_INIT;
+static expert_field ei_1722_acf_message_is_cropped = EI_INIT;
+
+/* Dissector handles */
+static dissector_handle_t  avb1722_acf_handle;
+static dissector_table_t   avb1722_acf_dissector_table;
+
+/**************************************************************************************************/
+/* ACF CAN Message                                                                                */
+/*                                                                                                */
+/**************************************************************************************************/
+
+typedef struct {
+    guint32     id;
+    guint32     bus_id;
+    guint       datalen;
+    gboolean    is_fd;
+    gboolean    is_xtd;
+    gboolean    is_rtr;
+    gboolean    is_brs;
+    gboolean    is_esi;
+} acf_can_t;
+
+/* Initialize the protocol and registered fields          */
+static int proto_1722_acf_can = -1;
+static int hf_1722_can_flags = -1;
+static int hf_1722_can_pad = -1;
+static int hf_1722_can_len = -1;
+static int hf_1722_can_mtvfield = -1;
+static int hf_1722_can_rtrfield = -1;
+static int hf_1722_can_efffield = -1;
+static int hf_1722_can_brsfield = -1;
+static int hf_1722_can_fdffield = -1;
+static int hf_1722_can_esifield = -1;
+static int hf_1722_can_rsv1 = -1;
+static int hf_1722_can_bus_id = -1;
+static int hf_1722_can_message_timestamp = -1;
+static int hf_1722_can_rsv2 = -1;
+static int hf_1722_can_identifier = -1;
+static int hf_1722_can_padding = -1;
+
+/* Initialize the subtree pointers */
+static int ett_can = -1;
+static int ett_1722_can = -1;
+static int ett_1722_can_flags = -1;
+static int ett_1722_can_bus_id = -1;
+static int ett_1722_can_msg_id = -1;
+
+/* Initialize expert fields */
+static expert_field ei_1722_can_header_cropped = EI_INIT;
+static expert_field ei_1722_can_invalid_message_id = EI_INIT;
+static expert_field ei_1722_can_invalid_payload_length = EI_INIT;
+static expert_field ei_1722_canfd_invalid_payload_length = EI_INIT;
+
+/* Dissector handles */
+static dissector_handle_t avb1722_can_brief_handle;
+static dissector_handle_t avb1722_can_handle;
+
+/* Link to `CAN` protocol for consistent filtering */
+static dissector_handle_t dissector_can;
+static dissector_handle_t dissector_canfd;
+
+static int                      proto_can = -1;
+static int                      proto_canfd = -1;
+static gboolean                 can_heuristic_first = FALSE;
+static dissector_table_t        can_subdissector_table;
+static heur_dissector_list_t    can_heur_subdissector_table;
+static heur_dtbl_entry_t       *can_heur_dtbl_entry;
+
+/**************************************************************************************************/
+/* ACF LIN Message                                                                                */
+/*                                                                                                */
+/**************************************************************************************************/
+
+/* Initialize the protocol and registered fields          */
+static int proto_1722_acf_lin = -1;
+static int hf_1722_lin_pad = -1;
+static int hf_1722_lin_mtv = -1;
+static int hf_1722_lin_bus_id = -1;
+static int hf_1722_lin_identifier = -1;
+static int hf_1722_lin_message_timestamp = -1;
+static int hf_1722_lin_padding = -1;
+
+/* Initialize the subtree pointers */
+static int ett_1722_lin = -1;
+static int ett_1722_lin_flags = -1;
+
+/* Initialize expert fields */
+static expert_field ei_1722_lin_header_cropped = EI_INIT;
+static expert_field ei_1722_lin_invalid_payload_length = EI_INIT;
+
+static dissector_table_t avb1722_acf_lin_dissector_table;
+
+/**************************************************************************************************/
 /* 1722 dissector implementation                                                                  */
 /*                                                                                                */
 /**************************************************************************************************/
@@ -552,6 +857,7 @@ static int dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_tree *ieee1722_tree;
     guint       subtype = 0;
     gint        offset = 0;
+    int         dissected_size;
     const gint *fields[] = {
         &hf_1722_svfield,
         &hf_1722_verfield,
@@ -569,9 +875,12 @@ static int dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_tree_add_bitmask_list(ieee1722_tree, tvb, offset, 1, fields, ENC_NA);
 
     /* call any registered subtype dissectors which use only the common AVTPDU (e.g. 1722.1, MAAP, 61883, AAF, CRF or CVF) */
-    if (dissector_try_uint(avb_dissector_table, subtype, tvb, pinfo, tree))
-        return tvb_captured_length(tvb);
+    dissected_size = dissector_try_uint(avb_dissector_table, subtype, tvb, pinfo, tree);
+    if (dissected_size > 0) {
+        return dissected_size;
+    }
 
+    call_data_dissector(tvb, pinfo, ieee1722_tree);
     return tvb_captured_length(tvb);
 }
 
@@ -615,6 +924,7 @@ void proto_reg_handoff_1722(void)
 
     avbtp_handle = create_dissector_handle(dissect_1722, proto_1722);
     dissector_add_uint("ethertype", ETHERTYPE_AVBTP, avbtp_handle);
+    dissector_add_uint("udp.port", UDP_PORT_IEEE_1722, avbtp_handle);
 }
 
 /**************************************************************************************************/
@@ -904,127 +1214,127 @@ void proto_register_1722_61883(void)
 {
     static hf_register_info hf[] = {
         { &hf_1722_61883_mrfield,
-            { "Media Clock Restart", "61883.mrfield",
+            { "Media Clock Restart", "iec61883.mrfield",
               FT_BOOLEAN, 8, NULL, IEEE_1722_MR_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_gvfield,
-            { "Gateway Info Valid", "61883.gvfield",
+            { "Gateway Info Valid", "iec61883.gvfield",
               FT_BOOLEAN, 8, NULL, IEEE_1722_GV_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_tvfield,
-            { "Timestamp Valid", "61883.tvfield",
+            { "Timestamp Valid", "iec61883.tvfield",
               FT_BOOLEAN, 8, NULL, IEEE_1722_TV_MASK, NULL, HFILL }
             },
         { &hf_1722_61883_seqnum,
-            { "Sequence Number", "61883.seqnum",
+            { "Sequence Number", "iec61883.seqnum",
               FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_tufield,
-            { "Timestamp Uncertain", "61883.tufield",
+            { "Timestamp Uncertain", "iec61883.tufield",
               FT_BOOLEAN, 8, NULL, IEEE_1722_TU_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_stream_id,
-            { "Stream ID", "61883.stream_id",
+            { "Stream ID", "iec61883.stream_id",
               FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_avtp_timestamp,
-            { "AVTP Timestamp", "61883.avtp_timestamp",
+            { "AVTP Timestamp", "iec61883.avtp_timestamp",
               FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_gateway_info,
-            { "Gateway Info", "61883.gateway_info",
+            { "Gateway Info", "iec61883.gateway_info",
               FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_stream_data_length,
-            { "1394 Stream Data Length", "61883.stream_data_len",
+            { "1394 Stream Data Length", "iec61883.stream_data_len",
               FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_tag,
-            { "1394 Packet Format Tag", "61883.tag",
+            { "1394 Packet Format Tag", "iec61883.tag",
               FT_UINT8, BASE_HEX, VALS(tag_vals), IEEE_1722_TAG_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_channel,
-            { "1394 Packet Channel", "61883.channel",
+            { "1394 Packet Channel", "iec61883.channel",
                 FT_UINT8, BASE_DEC, NULL, IEEE_1722_CHANNEL_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_tcode,
-            { "1394 Packet Tcode", "61883.tcode",
+            { "1394 Packet Tcode", "iec61883.tcode",
               FT_UINT8, BASE_HEX, NULL, IEEE_1722_TCODE_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_sy,
-            { "1394 App-specific Control", "61883.sy",
+            { "1394 App-specific Control", "iec61883.sy",
               FT_UINT8, BASE_HEX, NULL, IEEE_1722_SY_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_qi1,
-            { "CIP Quadlet Indicator 1", "61883.qi1",
+            { "CIP Quadlet Indicator 1", "iec61883.qi1",
               FT_UINT8, BASE_HEX, NULL, IEEE_1722_QI1_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_sid,
-            { "CIP Source ID", "61883.sid",
+            { "CIP Source ID", "iec61883.sid",
               FT_UINT8, BASE_DEC, NULL, IEEE_1722_SID_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_dbs,
-            { "CIP Data Block Size", "61883.dbs",
+            { "CIP Data Block Size", "iec61883.dbs",
               FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_cip_fn,
-            { "CIP Fraction Number", "61883.fn",
+            { "CIP Fraction Number", "iec61883.fn",
               FT_UINT8, BASE_HEX, VALS(fraction_number_vals), IEEE_1722_FN_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_qpc,
-            { "CIP Quadlet Padding Count", "61883.qpc",
+            { "CIP Quadlet Padding Count", "iec61883.qpc",
               FT_UINT8, BASE_HEX, NULL, IEEE_1722_QPC_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_sph,
-            { "CIP Source Packet Header", "61883.sph",
+            { "CIP Source Packet Header", "iec61883.sph",
               FT_BOOLEAN, 8, NULL, IEEE_1722_SPH_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_dbc,
-            { "CIP Data Block Continuity", "61883.dbc",
+            { "CIP Data Block Continuity", "iec61883.dbc",
               FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_cip_qi2,
-            { "CIP Quadlet Indicator 2", "61883.qi2",
+            { "CIP Quadlet Indicator 2", "iec61883.qi2",
               FT_UINT8, BASE_HEX, NULL, IEEE_1722_QI2_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_fmt,
-            { "CIP Format ID", "61883.fmt",
+            { "CIP Format ID", "iec61883.fmt",
               FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(format_rvals), IEEE_1722_FMT_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_fdf_no_syt,
-            { "CIP Format Dependent Field", "61883.fdf_no_syt",
+            { "CIP Format Dependent Field", "iec61883.fdf_no_syt",
               FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_cip_fdf_tsf,
-            { "Time shift flag", "61883.fdf_tsf",
+            { "Time shift flag", "iec61883.fdf_tsf",
               FT_BOOLEAN, 8, NULL, IEEE_1722_FDF_TSF_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_fdf,
-            { "CIP Format Dependent Field", "61883.fdf",
+            { "CIP Format Dependent Field", "iec61883.fdf",
               FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(fdf_rvals), IEEE_1722_FDF_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_syt,
-            { "CIP SYT", "61883.syt",
+            { "CIP SYT", "iec61883.syt",
               FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(syt_rvals), 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_audio_data,
-            { "Audio Data", "61883.audiodata",
+            { "Audio Data", "iec61883.audiodata",
               FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_label,
-            { "Label", "61883.audiodata.sample.label",
+            { "Label", "iec61883.audiodata.sample.label",
               FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_sample,
-            { "Sample", "61883.audiodata.sample.sampledata",
+            { "Sample", "iec61883.audiodata.sample.sampledata",
               FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_video_data,
-            { "Video Data", "61883.videodata",
+            { "Video Data", "iec61883.videodata",
               FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_source_packet_header_timestamp,
-            { "Source Packet Header Timestamp", "61883.spht",
+            { "Source Packet Header Timestamp", "iec61883.spht",
               FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
         }
     };
@@ -1037,33 +1347,33 @@ void proto_register_1722_61883(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_1722_61883_incorrect_tag,         { "61883.incorrect_tag", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_tag,         { "iec61883.incorrect_tag", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect tag field, only 0x00 and 0x01 supported for AVTP", EXPFILL }},
-        { &ei_1722_61883_incorrect_tcode,       { "61883.incorrect_tcode", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_tcode,       { "iec61883.incorrect_tcode", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect tcode, talker shall set this field to 0x0A", EXPFILL }},
-        { &ei_1722_61883_incorrect_qi1,         { "61883.incorrect_qi1", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_qi1,         { "iec61883.incorrect_qi1", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect quadlet indicator 1 field, talker shall set this field to 0x00", EXPFILL }},
-        { &ei_1722_61883_incorrect_qpc,         { "61883.incorrect_qpc", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_qpc,         { "iec61883.incorrect_qpc", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect quadlet padding count field, shall be set to 0", EXPFILL }},
-        { &ei_1722_61883_incorrect_qi2,         { "61883.incorrect_qi2", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_qi2,         { "iec61883.incorrect_qi2", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect quadlet indicator 2 field, talker shall set this field to 0x02", EXPFILL }},
-        { &ei_1722_61883_unknown_format,        { "61883.unknown_format", PI_PROTOCOL, PI_NOTE,
+        { &ei_1722_61883_unknown_format,        { "iec61883.unknown_format", PI_PROTOCOL, PI_NOTE,
                                                   "IEC 61883 format not dissected yet", EXPFILL }},
-        { &ei_1722_61883_incorrect_channel_sid, { "61883.incorrect_channel_sid", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_channel_sid, { "iec61883.incorrect_channel_sid", PI_PROTOCOL, PI_WARN,
                                                   "1394 Packet Channel and Source ID don`t match", EXPFILL }},
-        { &ei_1722_61883_incorrect_datalen,     { "61883.incorrect_datalen", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_datalen,     { "iec61883.incorrect_datalen", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect stream data length field, must be multiple of 192 plus 8 bytes CIP header", EXPFILL }},
-        { &ei_1722_61883_4_incorrect_cip_fn,    { "61883.4_incorrect_cip_fn", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_4_incorrect_cip_fn,    { "iec61883.4_incorrect_cip_fn", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect fraction number, shall be 8 for IEC 61883-4", EXPFILL }},
-        { &ei_1722_61883_4_incorrect_cip_dbs,   { "61883.4_incorrect_cip_dbs", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_4_incorrect_cip_dbs,   { "iec61883.4_incorrect_cip_dbs", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect data block size, shall be 6 for IEC 61883-4", EXPFILL }},
-        { &ei_1722_61883_4_incorrect_cip_sph,   { "61883.4_incorrect_cip_sph", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_4_incorrect_cip_sph,   { "iec61883.4_incorrect_cip_sph", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect source packet header value, shall be 1 for IEC 61883-4", EXPFILL }},
-        { &ei_1722_61883_6_incorrect_cip_fn,    { "61883.6_incorrect_cip_fn", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_6_incorrect_cip_fn,    { "iec61883.6_incorrect_cip_fn", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect fraction number, shall be 0 for IEC 61883-6", EXPFILL }},
-        { &ei_1722_61883_6_incorrect_cip_sph,   { "61883.6_incorrect_cip_sph", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_6_incorrect_cip_sph,   { "iec61883.6_incorrect_cip_sph", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect source packet header value, shall be 0 for IEC 61883-6", EXPFILL }},
-        { &ei_1722_61883_incorrect_cip_fdf,     { "61883.6_incorrect_cip_fdf", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_cip_fdf,     { "iec61883.6_incorrect_cip_fdf", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect frame dependent field value, shall be 0", EXPFILL }}
     };
 
@@ -1073,7 +1383,7 @@ void proto_register_1722_61883(void)
     proto_1722_61883 = proto_register_protocol(
                 "IEC 61883 Protocol",   /* name */
                 "IEC 61883",            /* short name */
-                "61883");               /* abbrev */
+                "iec61883");            /* abbrev */
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_1722_61883, hf, array_length(hf));
@@ -1676,8 +1986,946 @@ void proto_reg_handoff_1722_crf(void)
     dissector_add_uint("ieee1722.subtype", IEEE_1722_SUBTYPE_CRF, avb1722_crf_handle);
 }
 
+/**************************************************************************************************/
+/* 1722 NTSCF dissector implementation                                                            */
+/*                                                                                                */
+/**************************************************************************************************/
+static int dissect_1722_ntscf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_item *ti_ntscf;
+    proto_item *ti_data_length;
+    proto_tree *tree_ntscf;
+    gint        offset = 1;
+    guint32     datalen = 0;
+    guint       captured_length = tvb_captured_length(tvb);
+    gint        captured_payload_length;
+
+    const gint *fields[] = {
+        &hf_1722_ntscf_rfield,
+        NULL,
+    };
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NTSCF");
+    col_set_str(pinfo->cinfo, COL_INFO, "AVTP Non-Time-Syncronous Control Format");
+
+    ti_ntscf = proto_tree_add_item(tree, proto_1722_ntscf, tvb, 0, -1, ENC_NA);
+    tree_ntscf = proto_item_add_subtree(ti_ntscf, ett_1722_ntscf);
+
+    if (captured_length < IEEE_1722_NTSCF_HEADER_SIZE) {
+        expert_add_info(pinfo, ti_ntscf, &ei_1722_ntscf_no_space_for_header);
+        return captured_length;
+    }
+
+    proto_tree_add_bitmask_list(tree_ntscf, tvb, offset, 2, fields, ENC_BIG_ENDIAN);
+    ti_data_length = proto_tree_add_item_ret_uint(tree_ntscf, hf_1722_ntscf_data_length, tvb, offset, 2, ENC_BIG_ENDIAN, &datalen);
+    offset += 2;
+    proto_tree_add_item(tree_ntscf, hf_1722_ntscf_seqnum, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree_ntscf, hf_1722_ntscf_stream_id, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    captured_payload_length = tvb_captured_length_remaining(tvb, offset);
+    if (captured_payload_length < 0 || (gint)datalen > captured_payload_length) {
+        expert_add_info(pinfo, ti_data_length, &ei_1722_ntscf_invalid_data_length);
+    }
+
+    if ((gint)datalen > captured_payload_length) {
+        datalen = captured_payload_length > 0
+                ? captured_payload_length
+                : 0;
+    }
+
+    while(datalen > 0) {
+        guint       processed_bytes;
+        tvbuff_t*   next_tvb;
+
+        next_tvb = tvb_new_subset_length(tvb, offset, datalen);
+        if (call_dissector(avb1722_acf_handle, next_tvb, pinfo, tree) <= 0) {
+            break;
+        }
+
+        processed_bytes = tvb_reported_length(next_tvb);
+
+        offset += processed_bytes;
+        if (processed_bytes < datalen) {
+            datalen -= processed_bytes;
+        } else {
+            datalen = 0;
+        }
+    }
+
+    set_actual_length(tvb, offset);
+    proto_item_set_len(ti_ntscf, offset);
+
+    return tvb_captured_length(tvb);
+}
+
+void proto_register_1722_ntscf(void)
+{
+    static hf_register_info hf[] =
+    {
+        { &hf_1722_ntscf_rfield,
+            { "Reserved bits", "ntscf.rfield",
+              FT_UINT16, BASE_HEX, NULL, IEEE_1722_NTSCF_R_MASK, NULL, HFILL }
+        },
+        { &hf_1722_ntscf_data_length,
+            { "Data Length", "ntscf.data_len",
+              FT_UINT16, BASE_DEC, NULL, IEEE_1722_NTSCF_DATA_LENGTH_MASK, NULL, HFILL }
+        },
+        { &hf_1722_ntscf_seqnum,
+            { "Sequence Number", "ntscf.seqnum",
+              FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_1722_ntscf_stream_id,
+            { "Stream ID", "ntscf.stream_id",
+              FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        }
+    };
+
+    static gint *ett[] =
+    {
+        &ett_1722_ntscf
+    };
+
+    static ei_register_info ei[] = {
+        { &ei_1722_ntscf_no_space_for_header, { "ntscf.expert.no_space_for_header", PI_PROTOCOL, PI_WARN, "Frame is cropped: NTSCF header won't fit into captured data.", EXPFILL}},
+        { &ei_1722_ntscf_invalid_data_length, { "ntscf.expert.data_len", PI_PROTOCOL, PI_WARN, "data_length is too large or frame is incomplete", EXPFILL }}
+    };
+
+    expert_module_t *expert_1722_ntscf;
+
+    /* Register the protocol name and description */
+    proto_1722_ntscf = proto_register_protocol("Non-Time-Synchronous Control Format", "NTSCF", "ntscf");
+
+    /* Required function calls to register the header fields and subtrees used */
+    proto_register_field_array(proto_1722_ntscf, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    expert_1722_ntscf = expert_register_protocol(proto_1722_ntscf);
+    expert_register_field_array(expert_1722_ntscf, ei, array_length(ei));
+}
+
+void proto_reg_handoff_1722_ntscf(void)
+{
+    dissector_handle_t avb1722_ntscf_handle;
+
+    avb1722_ntscf_handle = create_dissector_handle(dissect_1722_ntscf, proto_1722_ntscf);
+    dissector_add_uint("ieee1722.subtype", IEEE_1722_SUBTYPE_NTSCF, avb1722_ntscf_handle);
+}
+
+
+/**************************************************************************************************/
+/* 1722 TSCF dissector implementation                                                            */
+/*                                                                                                */
+/**************************************************************************************************/
+static int dissect_1722_tscf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_item *ti;
+    proto_item *ti_tscf;
+    proto_tree *tree_tscf;
+    proto_tree *tree_flags;
+    proto_tree *tree_tu;
+    gint        offset = 1;
+    guint32     mr;
+    guint32     tv;
+    guint32     tu;
+    guint32     datalen = 0;
+    guint       captured_length = tvb_captured_length(tvb);
+    gint        captured_payload_length;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "TSCF");
+    col_set_str(pinfo->cinfo, COL_INFO, "AVTP Time-Syncronous Control Format");
+
+    ti_tscf = proto_tree_add_item(tree, proto_1722_tscf, tvb, 0, -1, ENC_NA);
+    tree_tscf = proto_item_add_subtree(ti_tscf, ett_1722_tscf);
+
+    if (captured_length < IEEE_1722_TSCF_HEADER_SIZE) {
+        expert_add_info(pinfo, ti_tscf, &ei_1722_tscf_no_space_for_header);
+        return captured_length;
+    }
+
+    tree_flags = proto_tree_add_subtree(tree_tscf, tvb, offset, 1, ett_1722_tscf_flags, &ti, "Flags");
+    proto_tree_add_item_ret_uint(tree_flags, hf_1722_tscf_mr, tvb, offset, 1, ENC_BIG_ENDIAN, &mr);
+    proto_tree_add_item(tree_flags, hf_1722_tscf_rsv1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree_flags, hf_1722_tscf_tv, tvb, offset, 1, ENC_BIG_ENDIAN, &tv);
+    proto_item_append_text(ti, ": mr=%d, tv=%d", mr, tv);
+    offset += 1;
+
+    proto_tree_add_item(tree_tscf, hf_1722_tscf_seqnum, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    tree_tu = proto_tree_add_subtree(tree_tscf, tvb, offset, 1, ett_1722_tscf_tu, &ti, "Timestamp Uncertain");
+    proto_tree_add_item(tree_tu, hf_1722_tscf_rsv2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree_tu, hf_1722_tscf_tu, tvb, offset, 1, ENC_BIG_ENDIAN, &tu);
+    proto_item_append_text(ti, ": %d", tu);
+    offset += 1;
+
+    proto_tree_add_item(tree_tscf, hf_1722_tscf_stream_id, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    proto_tree_add_item(tree_tscf, hf_1722_tscf_avtp_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree_tscf, hf_1722_tscf_rsv3, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    ti = proto_tree_add_item_ret_uint(tree_tscf, hf_1722_tscf_data_length, tvb, offset, 2, ENC_BIG_ENDIAN, &datalen);
+    captured_payload_length = tvb_captured_length_remaining(tvb, offset);
+    if (captured_payload_length < 0 || (gint)datalen > captured_payload_length) {
+        expert_add_info(pinfo, ti, &ei_1722_tscf_invalid_data_length);
+    }
+    offset += 2;
+
+    proto_tree_add_item(tree_tscf, hf_1722_tscf_rsv4, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    if ((gint)datalen > captured_payload_length) {
+        datalen = captured_payload_length > 0
+                ? captured_payload_length
+                : 0;
+    }
+
+    while(datalen > 0) {
+        guint       processed_bytes;
+        tvbuff_t*   next_tvb = tvb_new_subset_length(tvb, offset, datalen);
+        if (call_dissector(avb1722_acf_handle, next_tvb, pinfo, tree) <= 0) {
+            break;
+        }
+        processed_bytes = tvb_reported_length(next_tvb);
+
+        offset += processed_bytes;
+        if (processed_bytes < datalen) {
+            datalen -= processed_bytes;
+        } else {
+            datalen = 0;
+        }
+    }
+
+    set_actual_length(tvb, offset);
+    proto_item_set_len(ti_tscf, offset);
+
+    return captured_length;
+}
+
+void proto_register_1722_tscf(void)
+{
+    static hf_register_info hf[] =
+    {
+        { &hf_1722_tscf_mr,
+            { "Media Clock Restart", "tscf.flags.mr",
+              FT_UINT8, BASE_HEX, NULL, IEEE_1722_TSCF_MR_MASK, NULL, HFILL }
+        },
+
+        { &hf_1722_tscf_rsv1,
+            { "Reserved bits", "tscf.flags.rsv1",
+              FT_UINT8, BASE_HEX, NULL, IEEE_1722_TSCF_RSV1_MASK, NULL, HFILL }
+        },
+
+        { &hf_1722_tscf_tv,
+            { "Avtp Timestamp Valid", "tscf.flags.tv",
+              FT_UINT8, BASE_HEX, NULL, IEEE_1722_TSCF_TV_MASK, NULL, HFILL }
+        },
+
+        { &hf_1722_tscf_seqnum,
+            { "Sequence Number", "tscf.seqnum",
+              FT_UINT8, BASE_DEC, NULL, IEEE_1722_TSCF_SEQNUM_MASK, NULL, HFILL }
+        },
+
+        { &hf_1722_tscf_rsv2,
+            { "Reserved Bits", "tscf.rsv2",
+              FT_UINT8, BASE_DEC, NULL, IEEE_1722_TSCF_RSV2_MASK, NULL, HFILL }
+        },
+
+        { &hf_1722_tscf_tu,
+            { "Timestamp Uncertain", "tscf.flags.tu",
+              FT_UINT8, BASE_DEC, NULL, IEEE_1722_TSCF_TU_MASK, NULL, HFILL }
+        },
+
+        { &hf_1722_tscf_stream_id,
+            { "Stream ID", "tscf.stream_id",
+              FT_UINT64, BASE_HEX, NULL, IEEE_1722_TSCF_STREAM_ID_MASK, NULL, HFILL }
+        },
+
+        { &hf_1722_tscf_avtp_timestamp,
+            { "AVTP Timestamp", "tscf.avtp_timestamp",
+              FT_UINT32, BASE_HEX, NULL, IEEE_1722_TSCF_AVTP_TIMESTAMP_MASK, NULL, HFILL }
+        },
+
+        { &hf_1722_tscf_rsv3,
+            { "Reserved Bits", "tscf.rsv3",
+              FT_UINT32, BASE_HEX, NULL, IEEE_1722_TSCF_RSV3_MASK, NULL, HFILL }
+        },
+
+        { &hf_1722_tscf_data_length,
+            { "Data Length", "tscf.data_len",
+              FT_UINT16, BASE_DEC, NULL, IEEE_1722_TSCF_DATA_LENGTH_MASK, NULL, HFILL }
+        },
+
+        { &hf_1722_tscf_rsv4,
+            { "Reserved Bits", "tscf.rsv4",
+              FT_UINT16, BASE_HEX, NULL, IEEE_1722_TSCF_RSV4_MASK, NULL, HFILL }
+        },
+    };
+
+    static gint *ett[] =
+    {
+        &ett_1722_tscf,
+        &ett_1722_tscf_flags,
+        &ett_1722_tscf_tu,
+    };
+
+    static ei_register_info ei[] = {
+        { &ei_1722_tscf_no_space_for_header, { "tscf.expert.no_space_for_header", PI_PROTOCOL, PI_WARN, "Frame is cropped: TSCF header won't fit into captured data.", EXPFILL}},
+        { &ei_1722_tscf_invalid_data_length, { "tscf.expert.data_len", PI_PROTOCOL, PI_WARN, "data_length is too large or frame is incomplete", EXPFILL }}
+    };
+
+    expert_module_t *expert_1722_tscf;
+
+    /* Register the protocol name and description */
+    proto_1722_tscf = proto_register_protocol("Time-Synchronous Control Format", "TSCF", "tscf");
+
+    /* Required function calls to register the header fields and subtrees used */
+    proto_register_field_array(proto_1722_tscf, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    expert_1722_tscf = expert_register_protocol(proto_1722_tscf);
+    expert_register_field_array(expert_1722_tscf, ei, array_length(ei));
+}
+
+void proto_reg_handoff_1722_tscf(void)
+{
+    dissector_handle_t avb1722_tscf_handle;
+
+    avb1722_tscf_handle = create_dissector_handle(dissect_1722_tscf, proto_1722_tscf);
+    dissector_add_uint("ieee1722.subtype", IEEE_1722_SUBTYPE_TSCF, avb1722_tscf_handle);
+}
+
+/**************************************************************************************************/
+/* AVTP Control Format (ACF) Message dissector implementation                                     */
+/*                                                                                                */
+/**************************************************************************************************/
+static int dissect_1722_acf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_item     *ti;
+    proto_item     *ti_acf;
+    proto_item     *ti_header;
+    proto_tree     *tree_acf;
+    proto_tree     *tree_header;
+    guint32         msg_type;
+    guint32         msg_length;
+    guint32         payload_length;
+    guint           captured_length = tvb_captured_length(tvb);
+    const gchar    *msg_type_str;
+    tvbuff_t       *next_tvb;
+
+    if (captured_length < IEEE_1722_ACF_HEADER_SIZE) {
+        return captured_length;
+    }
+
+    ti_acf = proto_tree_add_item(tree, proto_1722_acf, tvb, 0, -1, ENC_NA);
+    tree_acf = proto_item_add_subtree(ti_acf, ett_1722_acf);
+
+    tree_header = proto_tree_add_subtree(tree_acf, tvb, 0, 2, ett_1722_acf_header, &ti_header, "ACF Header");
+    proto_tree_add_item_ret_uint(tree_header, hf_1722_acf_msg_type, tvb, 0, 2, ENC_BIG_ENDIAN, &msg_type);
+    ti = proto_tree_add_item_ret_uint(tree_header, hf_1722_acf_msg_length, tvb, 0, 2, ENC_BIG_ENDIAN, &msg_length);
+    msg_length = msg_length * 4; /* msg_length is stored as number of quadlets */
+
+    if (msg_length < IEEE_1722_ACF_HEADER_SIZE) {
+        expert_add_info(pinfo, ti, &ei_1722_acf_invalid_msg_length);
+        return captured_length;
+    }
+
+    if (captured_length < msg_length) {
+        expert_add_info_format(pinfo, ti, &ei_1722_acf_message_is_cropped,
+                               "expected: %u bytes, available: %u bytes",
+                               msg_length, tvb_captured_length(tvb));
+        return captured_length;
+    }
+
+    set_actual_length(tvb, msg_length);
+    proto_item_set_len(ti_acf, msg_length);
+    msg_type_str = rval_to_str(msg_type, acf_msg_type_range_rvals, "%s");
+    proto_item_append_text(ti_header, ": %s (0x%02X), %d bytes with header",
+                           msg_type_str, msg_type, msg_length);
+    proto_item_append_text(ti_acf, ": %s (0x%02X)", msg_type_str, msg_type);
+    payload_length = msg_length - IEEE_1722_ACF_HEADER_SIZE;
+
+    /* call any registered message dissectors */
+    next_tvb = tvb_new_subset_length(tvb, IEEE_1722_ACF_HEADER_SIZE, payload_length);
+
+    if (!dissector_try_uint(avb1722_acf_dissector_table, msg_type, next_tvb, pinfo, tree_acf)) {
+        call_data_dissector(next_tvb, pinfo, tree_acf);
+    }
+
+    return captured_length;
+}
+
+void proto_register_1722_acf(void)
+{
+    static hf_register_info hf[] = {
+        { &hf_1722_acf_msg_type,
+            { "Message Type", "acf.msg_type",
+              FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(acf_msg_type_range_rvals), IEEE_1722_ACF_MSG_TYPE_MASK, NULL, HFILL }
+        },
+        { &hf_1722_acf_msg_length,
+            { "Message Length (Quadlets)", "acf.msg_length",
+              FT_UINT16, BASE_DEC, NULL, IEEE_1722_ACF_MSG_LENGTH_MASK, NULL, HFILL }
+        },
+    };
+
+    static gint *ett[] =
+    {
+        &ett_1722_acf,
+        &ett_1722_acf_header,
+    };
+
+
+    static ei_register_info ei[] = {
+        { &ei_1722_acf_invalid_msg_length, { "acf.expert.msg_length", PI_PROTOCOL, PI_WARN, "msg_length shall be at least 1 quadlet", EXPFILL }},
+        { &ei_1722_acf_message_is_cropped, { "acf.expert.msg_cropped", PI_PROTOCOL, PI_WARN, "Message is cropped or msg_length is invalid", EXPFILL }},
+    };
+
+    expert_module_t *expert_1722_acf;
+
+    /* Register the protocol name and description */
+    proto_1722_acf = proto_register_protocol("ACF Message", "ACF", "acf");
+    avb1722_acf_handle = register_dissector("acf", dissect_1722_acf, proto_1722_acf);
+
+    /* Required function calls to register the header fields and subtrees used */
+    proto_register_field_array(proto_1722_acf, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Sub-dissector for ACF messages */
+    avb1722_acf_dissector_table = register_dissector_table("acf.msg_type",
+                          "IEEE1722 AVTP Control Message Type", proto_1722_acf,
+                          FT_UINT8, BASE_HEX);
+
+    expert_1722_acf = expert_register_protocol(proto_1722_acf);
+    expert_register_field_array(expert_1722_acf, ei, array_length(ei));
+}
+
+void proto_reg_handoff_1722_acf(void)
+{
+    register_depend_dissector("ntscf", "acf");
+    register_depend_dissector("tscf", "acf");
+}
+
+/**************************************************************************************************/
+/* ACF CAN Message dissector implementation                                                       */
+/*                                                                                                */
+/**************************************************************************************************/
+static void describe_can_message(proto_item* dst, guint bus_id, guint32 can_id, guint8 flags)
+{
+    /* Add text describing the CAN message to the parent item.
+     * Example: ": bus_id=2, id=0x100, rtr=1, brs=1, esi=1" */
+    const char* format_str = (flags & IEEE_1722_ACF_CAN_EFF_MASK) != 0
+                           ? ": bus_id=%u, id=0x%08X"
+                           : ": bus_id=%u, id=0x%03X";
+
+    proto_item_append_text (dst, format_str, bus_id, can_id);
+}
+
+static void describe_can_flags(proto_item* dst, guint8 pad, guint8 flags)
+{
+    proto_item_append_text(dst, ": pad=%u, mtv=%d, rtr=%d, eff=%d, brs=%d, fdf=%d, esi=%d",
+                           pad,
+                           (flags & IEEE_1722_ACF_CAN_MTV_MASK) != 0,
+                           (flags & IEEE_1722_ACF_CAN_RTR_MASK) != 0,
+                           (flags & IEEE_1722_ACF_CAN_EFF_MASK) != 0,
+                           (flags & IEEE_1722_ACF_CAN_BRS_MASK) != 0,
+                           (flags & IEEE_1722_ACF_CAN_FDF_MASK) != 0,
+                           (flags & IEEE_1722_ACF_CAN_ESI_MASK) != 0
+    );
+}
+
+static int is_valid_can_payload_length(int len)
+{
+    return len >= 0 && len <= 8;
+}
+
+static int is_valid_canfd_payload_length(int len)
+{
+    return is_valid_can_payload_length(len) ||
+           len == 12 ||
+           len == 16 ||
+           len == 20 ||
+           len == 24 ||
+           len == 32 ||
+           len == 48 ||
+           len == 64;
+}
+
+static int dissect_1722_acf_can_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_, const gboolean is_brief)
+{
+    acf_can_t           parsed;
+    guint32             pad_length;
+    gint                payload_length;
+    guint8              flags;
+    proto_item         *ti;
+
+    proto_item         *ti_acf_can;
+    proto_tree         *tree_acf_can;
+    proto_tree         *tree_acf_can_flags;
+    proto_tree         *tree_acf_can_bus_id;
+
+    proto_item         *ti_can;
+    proto_tree         *tree_can;
+    proto_tree         *tree_can_id;
+    gint                can_protocol;
+    const int         **can_flags;
+    can_identifier_t    can_id;
+
+    tvbuff_t*           next_tvb;
+    gint                offset = 0;
+    guint               captured_length = tvb_captured_length(tvb);
+    guint               header_size = is_brief
+                                    ? IEEE_1722_ACF_CAN_BRIEF_HEADER_SIZE
+                                    : IEEE_1722_ACF_CAN_HEADER_SIZE;
+
+
+    const gint *fields[] = {
+        &hf_1722_can_mtvfield,
+        &hf_1722_can_fdffield,
+        NULL,
+    };
+
+    const gint *can_std_flags[] = {
+        &hf_1722_can_rtrfield,
+        &hf_1722_can_efffield,
+        NULL
+    };
+
+    const gint *can_fd_flags[] = {
+        &hf_1722_can_efffield,
+        &hf_1722_can_brsfield,
+        &hf_1722_can_esifield,
+        NULL
+    };
+
+    memset(&parsed, 0, sizeof(parsed));
+
+    /* create tree for ACF-CAN-specific fields */
+    ti_acf_can = proto_tree_add_item(tree, proto_1722_acf_can, tvb, offset, -1, ENC_NA);
+    tree_acf_can = proto_item_add_subtree(ti_acf_can, ett_1722_can);
+    if (is_brief) {
+        proto_item_append_text(ti_acf_can, " Brief");
+    }
+
+    /* parse flags */
+    flags = tvb_get_guint8(tvb, offset);
+    parsed.is_fd   = (flags & IEEE_1722_ACF_CAN_FDF_MASK) != 0;
+    parsed.is_xtd  = (flags & IEEE_1722_ACF_CAN_EFF_MASK) != 0;
+    parsed.is_rtr  = (flags & IEEE_1722_ACF_CAN_RTR_MASK) != 0;
+    parsed.is_brs  = (flags & IEEE_1722_ACF_CAN_BRS_MASK) != 0;
+    parsed.is_esi  = (flags & IEEE_1722_ACF_CAN_ESI_MASK) != 0;
+
+    /* create the tree for CAN-specific fields */
+    can_protocol = parsed.is_fd ? proto_canfd : proto_can;
+    can_flags    = parsed.is_fd ? can_fd_flags : can_std_flags;
+    ti_can = proto_tree_add_item(tree, can_protocol, tvb, offset, -1, ENC_NA);
+    tree_can = proto_item_add_subtree(ti_can, ett_can);
+
+    if (captured_length < header_size) {
+        expert_add_info(pinfo, ti_acf_can, &ei_1722_can_header_cropped);
+        return captured_length;
+    }
+
+    /* Add flags subtree to ACF_CAN message */
+    ti = proto_tree_add_item(tree_acf_can, hf_1722_can_flags, tvb, offset, 1, ENC_NA);
+    tree_acf_can_flags = proto_item_add_subtree(ti, ett_1722_can_flags);
+
+    proto_tree_add_item_ret_uint(tree_acf_can_flags, hf_1722_can_pad, tvb, offset, 1, ENC_BIG_ENDIAN, &pad_length);
+    proto_tree_add_bitmask_list(tree_acf_can_flags, tvb, offset, 1, fields, ENC_BIG_ENDIAN);
+    describe_can_flags(ti, pad_length, flags);
+
+    /* Add flags to CAN message */
+    proto_tree_add_bitmask_list(tree_can, tvb, offset, 1, can_flags, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    /* Add bus id subtree to ACF_CAN message */
+    tree_acf_can_bus_id = proto_tree_add_subtree(tree_acf_can, tvb, offset, 1, ett_1722_can_bus_id, &ti, "Bus Identifier");
+    proto_tree_add_item(tree_acf_can_bus_id, hf_1722_can_rsv1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree_acf_can_bus_id, hf_1722_can_bus_id, tvb, offset, 1, ENC_BIG_ENDIAN, &parsed.bus_id);
+    proto_item_append_text(ti, ": %u", parsed.bus_id);
+    offset += 1;
+
+    /* Add message_timestamp to ACF_CAN if present */
+    if (!is_brief) {
+        proto_tree_add_item(tree_acf_can, hf_1722_can_message_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+
+    /* Add message id subtree to CAN message */
+    tree_can_id = proto_tree_add_subtree(tree_can, tvb, offset, 4, ett_1722_can_msg_id, &ti, "Message Identifier");
+    proto_tree_add_item(tree_can_id, hf_1722_can_rsv2, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_item *ti_id = proto_tree_add_item_ret_uint(tree_can_id, hf_1722_can_identifier, tvb, offset, 4, ENC_BIG_ENDIAN, &parsed.id);
+    proto_item_append_text(ti, parsed.is_xtd ? ": 0x%08X" : ": 0x%03X", parsed.id);
+    if (!parsed.is_xtd && (parsed.id & ~IEEE_1722_ACF_CAN_11BIT_ID_MASK) != 0) {
+        expert_add_info(pinfo, ti_id, &ei_1722_can_invalid_message_id);
+    }
+    offset += 4;
+
+    /* Add text description to tree items and info column*/
+    describe_can_message(ti_acf_can, parsed.bus_id, parsed.id, flags);
+    describe_can_message(proto_tree_get_parent(tree), parsed.bus_id, parsed.id, flags);
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACF-CAN");
+    col_clear(pinfo->cinfo, COL_INFO);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "ACF-CAN(%u): 0x%08x   ", parsed.bus_id, parsed.id);
+
+    payload_length = tvb_reported_length_remaining(tvb, offset) - pad_length;
+    if (payload_length < 0) {
+        payload_length = 0;
+    }
+    parsed.datalen = (guint)payload_length;
+    proto_tree_add_uint(tree_acf_can, hf_1722_can_len, tvb, offset, 1, parsed.datalen);
+
+    col_append_str(pinfo->cinfo, COL_INFO, tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, payload_length, ' '));
+
+    if (parsed.is_fd && !is_valid_canfd_payload_length(payload_length))
+    {
+        expert_add_info(pinfo, ti_acf_can, &ei_1722_canfd_invalid_payload_length);
+    }
+    else if (!parsed.is_fd && !is_valid_can_payload_length(payload_length))
+    {
+        expert_add_info(pinfo, ti_acf_can, &ei_1722_can_invalid_payload_length);
+    }
+
+    /* Add payload to parent tree */
+
+    /*
+    * CAN sub-dissectors expect several flags to be merged into ID that is passed
+    * to dissector_try_payload_new. Add them
+    */
+    can_id.id = parsed.id;
+    if (parsed.is_xtd)
+    {
+        can_id.id |= CAN_EFF_FLAG;
+    }
+
+    if (parsed.is_rtr)
+    {
+        can_id.id |= CAN_RTR_FLAG;
+    }
+
+    next_tvb = tvb_new_subset_length(tvb, offset, parsed.datalen);
+
+    if(!can_heuristic_first)
+    {
+        if (!dissector_try_payload_new(can_subdissector_table, next_tvb, pinfo, tree, TRUE, &can_id))
+        {
+            if(!dissector_try_heuristic(can_heur_subdissector_table, next_tvb, pinfo, tree, &can_heur_dtbl_entry, &can_id))
+            {
+                call_data_dissector(next_tvb, pinfo, tree);
+            }
+        }
+    }
+    else
+    {
+        if (!dissector_try_heuristic(can_heur_subdissector_table, next_tvb, pinfo, tree, &can_heur_dtbl_entry, &can_id))
+        {
+            if(!dissector_try_payload_new(can_subdissector_table, next_tvb, pinfo, tree, FALSE, &can_id))
+            {
+                call_data_dissector(next_tvb, pinfo, tree);
+            }
+        }
+    }
+
+    /* Add padding bytes to ACF-CAN tree if any */
+    if (pad_length > 0 && tvb_reported_length_remaining(tvb, offset) >= (gint)pad_length)
+    {
+        proto_tree_add_item(tree_acf_can, hf_1722_can_padding, tvb, offset, pad_length, ENC_NA);
+    }
+
+    return captured_length;
+}
+
+static int dissect_1722_acf_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    return dissect_1722_acf_can_common(tvb, pinfo, tree, data, FALSE);
+}
+
+static int dissect_1722_acf_can_brief(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    return dissect_1722_acf_can_common(tvb, pinfo, tree, data, TRUE);
+}
+
+void proto_register_1722_acf_can(void)
+{
+    static hf_register_info hf[] = {
+        /* ACF-CAN, ACF-CAN-BRIEF and CAN fields */
+        { &hf_1722_can_flags,
+            { "Flags", "acf-can.flags",
+              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL },
+        },
+        { &hf_1722_can_pad,
+            { "Padding Length", "acf-can.flags.pad",
+              FT_UINT8, BASE_DEC, NULL, IEEE_1722_ACF_CAN_PAD_MASK, NULL, HFILL }
+        },
+        { &hf_1722_can_len,
+            { "Frame-Length", "can.len",
+              FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_1722_can_mtvfield,
+            { "Message Timestamp Valid", "acf-can.flags.mtv",
+              FT_BOOLEAN, 8, NULL, IEEE_1722_ACF_CAN_MTV_MASK, NULL, HFILL }
+        },
+        { &hf_1722_can_fdffield,
+            { "CAN Flexible Data-rate Format", "acf-can.flags.fdf",
+              FT_BOOLEAN, 8, NULL, IEEE_1722_ACF_CAN_FDF_MASK, NULL, HFILL }
+        },
+        { &hf_1722_can_rtrfield,
+            { "Remote Transmission Request Flag", "can.flags.rtr",
+              FT_BOOLEAN, 8, NULL, IEEE_1722_ACF_CAN_RTR_MASK, NULL, HFILL }
+        },
+        { &hf_1722_can_efffield,
+            { "Extended Flag", "can.flags.xtd",
+              FT_BOOLEAN, 8, NULL, IEEE_1722_ACF_CAN_EFF_MASK, NULL, HFILL }
+        },
+        { &hf_1722_can_brsfield,
+            { "Bit Rate Setting", "canfd.flags.brs",
+              FT_BOOLEAN, 8, NULL, IEEE_1722_ACF_CAN_BRS_MASK, NULL, HFILL }
+        },
+        { &hf_1722_can_esifield,
+            { "Error Message Flag", "canfd.flags.esi",
+              FT_BOOLEAN, 8, NULL, IEEE_1722_ACF_CAN_ESI_MASK, NULL, HFILL }
+        },
+        { &hf_1722_can_rsv1,
+            { "Reserved Bits", "acf-can.rsv1",
+              FT_UINT8, BASE_HEX, NULL, IEEE_1722_ACF_CAN_RSV1_MASK, NULL, HFILL }
+        },
+        { &hf_1722_can_bus_id,
+            { "CAN Bus Identifier", "acf-can.bus_id",
+              FT_UINT8, BASE_DEC, NULL, IEEE_1722_ACF_CAN_BUS_ID_MASK, NULL, HFILL }
+        },
+        { &hf_1722_can_message_timestamp,
+            { "Message Timestamp", "acf-can.message_timestamp",
+              FT_UINT64, BASE_HEX, NULL, IEEE_1722_ACF_CAN_MSG_TIMESTAMP_MASK, NULL, HFILL }
+        },
+        { &hf_1722_can_rsv2,
+            { "Reserved", "can.reserved",
+              FT_UINT32, BASE_HEX, NULL, IEEE_1722_ACF_CAN_RSV2_MASK, NULL, HFILL }
+        },
+        { &hf_1722_can_identifier,
+            { "CAN Message Identifier", "can.id",
+              FT_UINT32, BASE_HEX, NULL, IEEE_1722_ACF_CAN_IDENTIFIER_MASK, NULL, HFILL }
+        },
+        { &hf_1722_can_padding,
+            { "Padding", "can.padding",
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
+    };
+
+    static gint *ett[] =
+    {
+        &ett_1722_can,
+        &ett_1722_can_flags,
+        &ett_1722_can_bus_id,
+        &ett_1722_can_msg_id,
+        &ett_can
+    };
+
+    static ei_register_info ei[] = {
+        { &ei_1722_can_header_cropped,          { "acf-can.expert.header_cropped",  PI_PROTOCOL, PI_WARN,
+                                                  "Message is cropped, no space for header", EXPFILL }},
+        { &ei_1722_can_invalid_message_id,      { "acf-can.expert.incorrect_can_id", PI_PROTOCOL, PI_WARN,
+                                                  "Incorrect msg id, shall be 0..1FF when EFF flag is not set", EXPFILL }},
+        { &ei_1722_can_invalid_payload_length,  { "acf-can.expert.incorrect_datalen", PI_PROTOCOL, PI_WARN,
+                                                  "Incorrect payload length, shall be [0..8] when FDF flag is not set", EXPFILL }},
+        { &ei_1722_canfd_invalid_payload_length,{ "acf-can.expert.incorrect_fd_datalen", PI_PROTOCOL, PI_WARN,
+                                                  "Incorrect FD payload length, shall be [0..8, 12, 16, 20, 32, 48, 64] when FDF flag is set", EXPFILL }},
+    };
+
+    module_t*        module_acf_can;
+    expert_module_t* expert_1722_acf_can;
+
+    /* Register the protocol name and description */
+    proto_1722_acf_can = proto_register_protocol("ACF CAN", "CAN over AVTP", "acf-can");
+    avb1722_can_handle = register_dissector("acf-can", dissect_1722_acf_can, proto_1722_acf_can);
+    avb1722_can_brief_handle = register_dissector("acf-can-brief", dissect_1722_acf_can_brief, proto_1722_acf_can);
+
+    /* Required function calls to register the header fields and subtrees used */
+    proto_register_field_array(proto_1722_acf_can, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    expert_1722_acf_can = expert_register_protocol(proto_1722_acf_can);
+    expert_register_field_array(expert_1722_acf_can, ei, array_length(ei));
+
+    /* register preferences */
+    module_acf_can = prefs_register_protocol(proto_1722_acf_can, NULL);
+
+    prefs_register_obsolete_preference(module_acf_can, "protocol");
+    prefs_register_bool_preference(
+        module_acf_can, "try_heuristic_first",
+        "Try heuristic sub-dissectors first",
+        "Try to decode a packet using an heuristic sub-dissector"
+        " before using a sub-dissector registered to \"decode as\"",
+        &can_heuristic_first
+    );
+
+}
+
+void proto_reg_handoff_1722_acf_can(void)
+{
+    dissector_add_uint("acf.msg_type", IEEE_1722_ACF_TYPE_CAN, avb1722_can_handle);
+    dissector_add_uint("acf.msg_type", IEEE_1722_ACF_TYPE_CAN_BRIEF, avb1722_can_brief_handle);
+
+    register_depend_dissector("acf-can", "can");
+    register_depend_dissector("acf-can", "canfd");
+    dissector_can = find_dissector("can-bigendian");
+    dissector_canfd = find_dissector("canfd");
+
+    can_subdissector_table = find_dissector_table("can.subdissector");
+    can_heur_subdissector_table = find_heur_dissector_list("can");
+    proto_can = proto_get_id_by_filter_name("can");
+    proto_canfd = proto_get_id_by_filter_name("canfd");
+}
+
+/**************************************************************************************************/
+/* ACF LIN Message dissector implementation                                                       */
+/*                                                                                                */
+/**************************************************************************************************/
+static void describe_lin_message(proto_item *dst, guint32 bus_id, guint32 lin_id)
+{
+    proto_item_append_text(dst, ": bus_id=%u, id=0x%02X", bus_id, lin_id);
+}
+
+static int dissect_1722_acf_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_item *ti;
+    proto_item *ti_lin;
+    proto_tree *tree_lin;
+    proto_tree *tree_flags;
+    guint       offset = 0;
+    guint       captured_length = tvb_captured_length(tvb);
+    guint32     pad_length;
+    gboolean    mtv;
+    guint32     bus_id;
+    guint32     lin_id;
+    gint        payload_length;
+
+    ti_lin = proto_tree_add_item(tree, proto_1722_acf_lin, tvb, offset, -1, ENC_NA);
+    tree_lin = proto_item_add_subtree(ti_lin, ett_1722_lin);
+
+    if (captured_length < IEEE_1722_ACF_LIN_HEADER_SIZE) {
+        expert_add_info(pinfo, ti_lin, &ei_1722_lin_header_cropped);
+        return captured_length;
+    }
+
+    tree_flags = proto_tree_add_subtree(tree_lin, tvb, offset, 1, ett_1722_lin_flags, &ti, "Flags and BusID");
+    proto_tree_add_item_ret_uint(tree_flags, hf_1722_lin_pad, tvb, offset, 1, ENC_BIG_ENDIAN, &pad_length);
+    proto_tree_add_item_ret_boolean(tree_flags, hf_1722_lin_mtv, tvb, offset, 1, ENC_BIG_ENDIAN, &mtv);
+    proto_tree_add_item_ret_uint(tree_flags, hf_1722_lin_bus_id, tvb, offset, 1, ENC_BIG_ENDIAN, &bus_id);
+    proto_item_append_text(ti, ": pad=%u, mtv=%u, bus_id=%u", pad_length, (unsigned)mtv, bus_id);
+    offset += 1;
+
+    proto_tree_add_item_ret_uint(tree_lin, hf_1722_lin_identifier, tvb, offset, 1, ENC_BIG_ENDIAN, &lin_id);
+    offset += 1;
+
+    proto_tree_add_item(tree_lin, hf_1722_lin_message_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    describe_lin_message(ti_lin, bus_id, lin_id);
+    describe_lin_message(proto_tree_get_parent(tree), bus_id, lin_id);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACF-LIN");
+    col_clear(pinfo->cinfo, COL_INFO);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "ACF-LIN(%u): 0x%02x   ", bus_id, lin_id);
+
+    payload_length = tvb_reported_length_remaining(tvb, offset) - pad_length;
+    col_append_str(pinfo->cinfo, COL_INFO, tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, payload_length, ' '));
+
+    if (payload_length < 0 || payload_length > 8)
+    {
+        expert_add_info(pinfo, ti_lin, &ei_1722_lin_invalid_payload_length);
+
+    }
+    else if (payload_length > 0)
+    {
+        tvbuff_t*   next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
+        /* at the moment, there's no global LIN sub-protocols support. Use our own. */
+        if (dissector_try_payload_new(avb1722_acf_lin_dissector_table, next_tvb, pinfo, tree, TRUE, &lin_id) <= 0)
+        {
+            call_data_dissector(next_tvb, pinfo, tree);
+        }
+
+        offset += payload_length;
+    }
+
+    if (pad_length > 0 && tvb_reported_length_remaining(tvb, offset) >= (gint)pad_length)
+    {
+        proto_tree_add_item(tree_lin, hf_1722_lin_padding, tvb, offset, pad_length, ENC_NA);
+    }
+
+    return captured_length;
+}
+
+void proto_register_1722_acf_lin(void)
+{
+    static hf_register_info hf[] = {
+        { &hf_1722_lin_pad,
+            { "Padding Length", "acf-lin.flags.pad",
+              FT_UINT8, BASE_DEC, NULL, IEEE_1722_ACF_LIN_PAD_MASK, NULL, HFILL }
+        },
+        { &hf_1722_lin_mtv,
+            { "Message Timestamp Valid", "acf-lin.flags.mtv",
+              FT_BOOLEAN, 8, NULL, IEEE_1722_ACF_LIN_MTV_MASK, NULL, HFILL }
+        },
+        { &hf_1722_lin_bus_id,
+            { "LIN Bus Identifier", "acf-lin.bus_id",
+              FT_UINT8, BASE_DEC, NULL, IEEE_1722_ACF_LIN_BUS_ID_MASK, NULL, HFILL }
+        },
+        { &hf_1722_lin_identifier,
+            { "LIN Message Identifier", "acf-lin.id",
+              FT_UINT8, BASE_HEX, NULL, IEEE_1722_ACF_LIN_IDENTIFIER_MASK, NULL, HFILL }
+        },
+        { &hf_1722_lin_message_timestamp,
+            { "Message Timestamp", "acf-lin.message_timestamp",
+              FT_UINT64, BASE_HEX, NULL, IEEE_1722_ACF_LIN_MSG_TIMESTAMP_MASK, NULL, HFILL }
+        },
+        { &hf_1722_lin_padding,
+            { "Padding", "acf-lin.padding",
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
+    };
+
+    static gint *ett[] =
+    {
+        &ett_1722_lin,
+        &ett_1722_lin_flags,
+    };
+
+    static ei_register_info ei[] = {
+        { &ei_1722_lin_header_cropped,          { "acf-lin.expert.header_cropped",  PI_PROTOCOL, PI_WARN,
+                                                  "Message is cropped, no space for header", EXPFILL }},
+        { &ei_1722_lin_invalid_payload_length,  { "acf-lin.expert.incorrect_datalen", PI_PROTOCOL, PI_WARN,
+                                                  "Incorrect payload length, shall be [0..8]", EXPFILL }},
+    };
+
+    expert_module_t* expert_1722_acf_lin;
+
+    /* Register the protocol name and description */
+    proto_1722_acf_lin = proto_register_protocol("ACF LIN", "LIN over AVTP", "acf-lin");
+
+    /* Required function calls to register the header fields and subtrees used */
+    proto_register_field_array(proto_1722_acf_lin, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    expert_1722_acf_lin = expert_register_protocol(proto_1722_acf_lin);
+    expert_register_field_array(expert_1722_acf_lin, ei, array_length(ei));
+
+    avb1722_acf_lin_dissector_table = register_decode_as_next_proto(proto_1722_acf_lin, "acf-lin.subdissector", "ACF-LIN next level dissector", NULL);
+}
+
+void proto_reg_handoff_1722_acf_lin(void)
+{
+    dissector_handle_t avb1722_acf_lin_handle;
+
+    avb1722_acf_lin_handle = create_dissector_handle(dissect_1722_acf_lin, proto_1722_acf_lin);
+    dissector_add_uint("acf.msg_type", IEEE_1722_ACF_TYPE_LIN, avb1722_acf_lin_handle);
+}
+
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

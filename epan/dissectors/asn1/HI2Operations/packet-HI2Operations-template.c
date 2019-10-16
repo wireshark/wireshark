@@ -17,6 +17,8 @@
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
+#include "packet-isup.h"
+#include "packet-q931.h"
 
 #define PNAME  "HI2Operations"
 #define PSNAME "HI2OPERATIONS"
@@ -56,10 +58,16 @@ void proto_register_HI2Operations(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   register_dissector("HI2Operations", dissect_IRIsContent_PDU, proto_HI2Operations);
+
+
 }
 
 
 /*--- proto_reg_handoff_HI2Operations -------------------------------------------*/
 void proto_reg_handoff_HI2Operations(void) {
+
+    heur_dissector_add("q931_user", dissect_UUS1_Content_PDU, "HI3CCLinkData", "hi3cclinkdata",
+        proto_HI2Operations, HEURISTIC_ENABLE);
+
 }
 

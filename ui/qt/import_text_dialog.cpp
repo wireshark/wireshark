@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -29,8 +30,8 @@
 #include <ui_import_text_dialog.h>
 #include "wireshark_application.h"
 #include <ui/qt/utils/qt_ui_utils.h>
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
-#include <QFileDialog>
 #include <QDebug>
 #include <QFile>
 
@@ -46,6 +47,7 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
     dest_port_ok_(true),
     tag_ok_(true),
     ppi_ok_(true),
+    payload_ok_(true),
     max_len_ok_(true)
 {
     int encap;
@@ -68,6 +70,7 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
     ti_ui_->destinationPortLineEdit->setMinimumHeight(le_height);
     ti_ui_->tagLineEdit->setMinimumHeight(le_height);
     ti_ui_->ppiLineEdit->setMinimumHeight(le_height);
+    ti_ui_->payloadLineEdit->setMinimumHeight(le_height);
 #endif
 
     on_dateTimeLineEdit_textChanged(ti_ui_->dateTimeLineEdit->text());
@@ -91,7 +94,7 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
         if ((wtap_wtap_encap_to_pcap_encap(encap) > 0) && !wtap_encap_requires_phdr(encap)) {
             const char *name;
             /* If it has got a name */
-            if ((name = wtap_encap_string(encap)))
+            if ((name = wtap_encap_description(encap)))
             {
                 ti_ui_->encapComboBox->addItem(name, QVariant(encap));
             }
@@ -104,6 +107,7 @@ ImportTextDialog::~ImportTextDialog()
 {
     g_free (import_info_.import_text_filename);
     g_free (import_info_.date_timestamp_format);
+    g_free (import_info_.payload);
     delete ti_ui_;
 }
 
@@ -114,11 +118,16 @@ QString &ImportTextDialog::capfileName() {
 void ImportTextDialog::convertTextFile() {
     char *tmpname;
     int err;
+    wtap_dump_params params;
 
     capfile_name_.clear();
+    wtap_dump_params_init(&params, NULL);
+    params.encap = import_info_.encapsulation;
+    params.snaplen = import_info_.max_frame_length;
     /* Use a random name for the temporary import buffer */
-    import_info_.wdh = wtap_dump_open_tempfile(&tmpname, "import", WTAP_FILE_TYPE_SUBTYPE_PCAP, import_info_.encapsulation, import_info_.max_frame_length, FALSE, &err);
+    import_info_.wdh = wtap_dump_open_tempfile(&tmpname, "import", WTAP_FILE_TYPE_SUBTYPE_PCAPNG, WTAP_UNCOMPRESSED, &params, &err);
     capfile_name_.append(tmpname ? tmpname : "temporary file");
+    g_free(tmpname);
     qDebug() << capfile_name_ << ":" << import_info_.wdh << import_info_.encapsulation << import_info_.max_frame_length;
     if (import_info_.wdh == NULL) {
         cfile_dump_open_failure_alert_box(capfile_name_.toUtf8().constData(), err, WTAP_FILE_TYPE_SUBTYPE_PCAP);
@@ -147,18 +156,19 @@ void ImportTextDialog::convertTextFile() {
 }
 
 
-void ImportTextDialog::enableHeaderWidgets(bool enable_buttons) {
+void ImportTextDialog::enableHeaderWidgets(bool enable_ethernet_buttons, bool enable_export_pdu_buttons) {
     bool ethertype = false;
     bool ipv4_proto = false;
     bool port = false;
     bool sctp_tag = false;
     bool sctp_ppi = false;
+    bool export_pdu = false;
 
-    if (enable_buttons) {
+    if (enable_ethernet_buttons) {
         if (ti_ui_->ethernetButton->isChecked()) {
             ethertype = true;
             on_ethertypeLineEdit_textChanged(ti_ui_->ethertypeLineEdit->text());
-        } else  if (ti_ui_->ipv4Button->isChecked()) {
+        } else if (ti_ui_->ipv4Button->isChecked()) {
             ipv4_proto = true;
             on_protocolLineEdit_textChanged(ti_ui_->protocolLineEdit->text());
         } else if (ti_ui_->udpButton->isChecked() || ti_ui_->tcpButton->isChecked()) {
@@ -181,9 +191,19 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_buttons) {
         }
     }
 
-    foreach (QRadioButton *rb, encap_buttons_) {
-        rb->setEnabled(enable_buttons);
+    if (enable_export_pdu_buttons) {
+        if (ti_ui_->exportPduButton->isChecked()) {
+            export_pdu = true;
+            on_payloadLineEdit_textChanged(ti_ui_->payloadLineEdit->text());
+        }
     }
+
+    foreach (QRadioButton *rb, encap_buttons_) {
+        rb->setEnabled(enable_ethernet_buttons);
+    }
+
+    ti_ui_->exportPduButton->setEnabled(enable_export_pdu_buttons);
+    ti_ui_->noDummyButton->setEnabled(enable_export_pdu_buttons || enable_ethernet_buttons);
 
     ti_ui_->ethertypeLabel->setEnabled(ethertype);
     ti_ui_->ethertypeLineEdit->setEnabled(ethertype);
@@ -197,6 +217,8 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_buttons) {
     ti_ui_->tagLineEdit->setEnabled(sctp_tag);
     ti_ui_->ppiLabel->setEnabled(sctp_ppi);
     ti_ui_->ppiLineEdit->setEnabled(sctp_ppi);
+    ti_ui_->payloadLabel->setEnabled(export_pdu);
+    ti_ui_->payloadLineEdit->setEnabled(export_pdu);
 }
 
 int ImportTextDialog::exec() {
@@ -226,7 +248,8 @@ int ImportTextDialog::exec() {
 
     encap_val = ti_ui_->encapComboBox->itemData(ti_ui_->encapComboBox->currentIndex());
     import_info_.dummy_header_type = HEADER_NONE;
-    if (encap_val.isValid() && encap_val.toUInt() == WTAP_ENCAP_ETHERNET && !ti_ui_->noDummyButton->isChecked()) {
+    if (encap_val.isValid() && (encap_val.toUInt() == WTAP_ENCAP_ETHERNET || encap_val.toUInt() == WTAP_ENCAP_WIRESHARK_UPPER_PDU)
+            && !ti_ui_->noDummyButton->isChecked()) {
         // Inputs were validated in the on_xxx_textChanged slots.
         if (ti_ui_->ethernetButton->isChecked()) {
             import_info_.dummy_header_type = HEADER_ETH;
@@ -240,10 +263,12 @@ int ImportTextDialog::exec() {
             import_info_.dummy_header_type = HEADER_SCTP;
         } else if(ti_ui_->sctpDataButton->isChecked()) {
             import_info_.dummy_header_type = HEADER_SCTP_DATA;
+        } else if (ti_ui_->exportPduButton->isChecked()) {
+            import_info_.dummy_header_type = HEADER_EXPORT_PDU;
         }
     }
     if (import_info_.max_frame_length == 0) {
-        import_info_.max_frame_length = IMPORT_MAX_PACKET;
+        import_info_.max_frame_length = WTAP_MAX_PACKET_SIZE_STANDARD;
     }
 
     convertTextFile();
@@ -275,7 +300,7 @@ void ImportTextDialog::on_textFileBrowseButton_clicked()
         break;
     }
 
-    QString file_name = QFileDialog::getOpenFileName(this, wsApp->windowTitleString(tr("Import Text File")), open_dir);
+    QString file_name = WiresharkFileDialog::getOpenFileName(this, wsApp->windowTitleString(tr("Import Text File")), open_dir);
     ti_ui_->textFileLineEdit->setText(file_name);
 }
 
@@ -283,7 +308,7 @@ void ImportTextDialog::updateImportButtonState()
 {
     if (file_ok_ && time_format_ok_ && ether_type_ok_ &&
         proto_ok_ && source_port_ok_ && dest_port_ok_ &&
-        tag_ok_ && ppi_ok_ && max_len_ok_) {
+        tag_ok_ && ppi_ok_ && payload_ok_ && max_len_ok_) {
         import_button_->setEnabled(true);
     } else {
         import_button_->setEnabled(false);
@@ -316,20 +341,22 @@ void ImportTextDialog::on_noOffsetButton_toggled(bool checked)
 void ImportTextDialog::on_encapComboBox_currentIndexChanged(int index)
 {
     QVariant val = ti_ui_->encapComboBox->itemData(index);
-    bool enabled = false;
+    bool enabled_ethernet = false;
+    bool enabled_export_pdu = false;
 
     if (val != QVariant::Invalid) {
         import_info_.encapsulation = val.toUInt();
 
-        if (import_info_.encapsulation == WTAP_ENCAP_ETHERNET) enabled = true;
+        if (import_info_.encapsulation == WTAP_ENCAP_ETHERNET) enabled_ethernet = true;
+        if (import_info_.encapsulation == WTAP_ENCAP_WIRESHARK_UPPER_PDU) enabled_export_pdu = true;
     }
 
-    enableHeaderWidgets(enabled);
+    enableHeaderWidgets(enabled_ethernet, enabled_export_pdu);
 }
 
 bool ImportTextDialog::checkDateTimeFormat(const QString &time_format)
 {
-    const QString valid_code = "aAbBcdHIjmMpSUwWxXyYzZ%";
+    const QString valid_code = "aAbBcdDHIjmMpSTUwWxXyYzZ%";
     int idx = 0;
 
     while ((idx = time_format.indexOf("%", idx)) != -1) {
@@ -377,7 +404,13 @@ void ImportTextDialog::on_directionIndicationCheckBox_toggled(bool checked)
 
 void ImportTextDialog::on_noDummyButton_toggled(bool checked)
 {
-    if (checked) enableHeaderWidgets();
+    bool enabled_ethernet = false;
+    bool enabled_export_pdu = false;
+
+    if (import_info_.encapsulation == WTAP_ENCAP_ETHERNET) enabled_ethernet = true;
+    if (import_info_.encapsulation == WTAP_ENCAP_WIRESHARK_UPPER_PDU) enabled_export_pdu = true;
+
+    if (checked) enableHeaderWidgets(enabled_ethernet, enabled_export_pdu);
 }
 
 void ImportTextDialog::on_ethernetButton_toggled(bool checked)
@@ -406,6 +439,11 @@ void ImportTextDialog::on_sctpButton_toggled(bool checked)
 }
 
 void ImportTextDialog::on_sctpDataButton_toggled(bool checked)
+{
+    on_noDummyButton_toggled(checked);
+}
+
+void ImportTextDialog::on_exportPduButton_toggled(bool checked)
 {
     on_noDummyButton_toggled(checked);
 }
@@ -467,9 +505,16 @@ void ImportTextDialog::on_ppiLineEdit_textChanged(const QString &ppi_str)
     check_line_edit(ti_ui_->ppiLineEdit, ppi_ok_, ppi_str, 10, 0xffffffff, false, &import_info_.ppi);
 }
 
+void ImportTextDialog::on_payloadLineEdit_textChanged(const QString &payload)
+{
+    payload_ok_ = true;
+    import_info_.payload = g_strdup(payload.toStdString().c_str());
+    updateImportButtonState();
+}
+
 void ImportTextDialog::on_maxLengthLineEdit_textChanged(const QString &max_frame_len_str)
 {
-    check_line_edit(ti_ui_->maxLengthLineEdit, max_len_ok_, max_frame_len_str, 10, IMPORT_MAX_PACKET, true, &import_info_.max_frame_length);
+    check_line_edit(ti_ui_->maxLengthLineEdit, max_len_ok_, max_frame_len_str, 10, WTAP_MAX_PACKET_SIZE_STANDARD, true, &import_info_.max_frame_length);
 }
 
 void ImportTextDialog::on_buttonBox_helpRequested()

@@ -171,7 +171,7 @@ dissect_ipv4_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		bvlc_length = packet_length;
 	}
 
-	if (bvlc_length < 4) {
+	if (bvlc_length < 4 || bvlc_length > packet_length) {
 		return 0;	/* reject */
 	}
 
@@ -196,10 +196,10 @@ dissect_ipv4_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	switch (bvlc_function) {
 	case 0x00: /* BVLC-Result */
 		/* I don't know why the result code is encoded in 4 nibbles,
-			* but only using one: 0x00r0. Shifting left 4 bits.
-			*/
+		 * but only using one: 0x00r0. Shifting left 4 bits.
+		 */
 		/* We should bitmask the result correctly when we have a
-			* packet to dissect, see README.developer, 1.6.2, FID */
+		 * packet to dissect, see README.developer, 1.6.2, FID */
 		proto_tree_add_item(bvlc_tree, hf_bvlc_result_ip4, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
 		/*offset += 2;*/
@@ -240,13 +240,13 @@ dissect_ipv4_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	case 0x07: /* Read-Foreign-Device-Table-Ack */
 		/* List of FDT Entries:	N*10-octet */
 		/* N indicates the number of entries in the FDT whose
-			* contents are being returned. Each returned entry
-			* consists of the 6-octet B/IP address of the registrant;
-			* the 2-octet Time-to-Live value supplied at the time of
-			* registration; and a 2-octet value representing the
-			* number of seconds remaining before the BBMD will purge
-			* the registrant's FDT entry if no re-registration occurs.
-			*/
+		 * contents are being returned. Each returned entry
+		 * consists of the 6-octet B/IP address of the registrant;
+		 * the 2-octet Time-to-Live value supplied at the time of
+		 * registration; and a 2-octet value representing the
+		 * number of seconds remaining before the BBMD will purge
+		 * the registrant's FDT entry if no re-registration occurs.
+		 */
 		ti_fdt = proto_tree_add_item(bvlc_tree, proto_bvlc, tvb,
 			offset, bvlc_length -4, ENC_NA);
 		fdt_tree = proto_item_add_subtree(ti_fdt, ett_fdt);
@@ -288,10 +288,10 @@ dissect_ipv4_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		break;
 		/* We check this if we get a FDT-packet somewhere */
 	case 0x04:	/* Forwarded-NPDU
-				* Why is this 0x04? It would have been a better
-				* idea to append all forewarded NPDUs at the
-				* end of the function table in the B/IP-standard!
-				*/
+			 * Why is this 0x04? It would have been a better
+			 * idea to append all forewarded NPDUs at the
+			 * end of the function table in the B/IP-standard!
+			 */
 		/* proto_tree_add_bytes_format(); */
 		proto_tree_add_item(bvlc_tree, hf_bvlc_fwd_ip,
 			tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -302,10 +302,10 @@ dissect_ipv4_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		break;
 	default:
 		/* Distribute-Broadcast-To-Network
-			* Original-Unicast-NPDU
-			* Original-Broadcast-NPDU
-			* Going to the next dissector...
-			*/
+		 * Original-Unicast-NPDU
+		 * Original-Broadcast-NPDU
+		 * Going to the next dissector...
+		 */
 		break;
 	}
 
@@ -375,6 +375,10 @@ dissect_ipv6_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		break;
 	default:
 		break;
+	}
+
+	if (bvlc_length > packet_length) {
+		return 0;	/* reject */
 	}
 
 	ti = proto_tree_add_item(tree, proto_bvlc, tvb, 0,
@@ -462,8 +466,8 @@ dissect_ipv6_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	case 0x0c: /* Distribute-Broadcast-To-Network */
 	default:
 		/*
-			* Going to the next dissector...
-			*/
+		 * Going to the next dissector...
+		 */
 		break;
 	}
 
@@ -648,7 +652,7 @@ proto_reg_handoff_bvlc(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

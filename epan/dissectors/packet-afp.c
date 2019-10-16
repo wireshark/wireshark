@@ -1085,12 +1085,12 @@ value_string_ext afp_server_addr_type_vals_ext = VALUE_STRING_EXT_INIT(afp_serve
 #define AFP_NUM_PROCEDURES     256
 
 static void
-afpstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+afpstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
 	srt_stat_table *afp_srt_table;
 	guint32 i;
 
-	afp_srt_table = init_srt_table("AFP Commands", NULL, srt_array, AFP_NUM_PROCEDURES, NULL, "afp.command", gui_callback, gui_data, NULL);
+	afp_srt_table = init_srt_table("AFP Commands", NULL, srt_array, AFP_NUM_PROCEDURES, NULL, "afp.command", NULL);
 	for (i = 0; i < AFP_NUM_PROCEDURES; i++)
 	{
 		gchar* tmp_str = val_to_str_ext_wmem(NULL, i, &CommandCode_vals_ext, "Unknown(%u)");
@@ -1099,7 +1099,7 @@ afpstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gu
 	}
 }
 
-static int
+static tap_packet_status
 afpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
 	guint i = 0;
@@ -1109,14 +1109,14 @@ afpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
 	/* if we haven't seen the request, just ignore it */
 	if (!request_val) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	afp_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
 
 	add_srt_table_data(afp_srt_table, request_val->command, &request_val->req_time, pinfo);
 
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 
@@ -5180,7 +5180,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		if (request_val->frame_res != 0) {
 			ti = proto_tree_add_uint(afp_tree, hf_afp_response_in,
 			    tvb, 0, 0, request_val->frame_res);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 		}
 
 		offset++;
@@ -5388,11 +5388,11 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		if (request_val->frame_req != 0) {
 			ti = proto_tree_add_uint(afp_tree, hf_afp_response_to,
 			    tvb, 0, 0, request_val->frame_req);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 			nstime_delta(&delta_ts, &pinfo->abs_ts, &request_val->req_time);
 			ti = proto_tree_add_time(afp_tree, hf_afp_time, tvb,
 			    0, 0, &delta_ts);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 		}
 
 		/*
@@ -7264,7 +7264,7 @@ proto_reg_handoff_afp(void)
 */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

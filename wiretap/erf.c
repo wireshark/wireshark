@@ -14,8 +14,10 @@
  *
  * See
  *
- *      http://www.endace.com/support/EndaceRecordFormat.pdf
- *      (mirror: https://bugs.wireshark.org/bugzilla/attachment.cgi?id=4333) (bug #4484)
+ *      https://www.endace.com/erf-extensible-record-format-types.pdf
+ *
+ *  Version 8:
+ *      https://bugs.wireshark.org/bugzilla/attachment.cgi?id=4333 (bug #4484)
  */
 
 #include "config.h"
@@ -54,14 +56,14 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
                                 guint32 *bytes_read,
                                 guint32 *packet_size,
                                 GPtrArray *anchor_mappings_to_update);
-static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
-                         gint64 *data_offset);
+static gboolean erf_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                         int *err, gchar **err_info, gint64 *data_offset);
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
                               wtap_rec *rec, Buffer *buf,
                               int *err, gchar **err_info);
 static void erf_close(wtap *wth);
 
-static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint32 packet_size, GPtrArray *anchor_mappings_to_update);
+static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, Buffer *buf, guint32 packet_size, GPtrArray *anchor_mappings_to_update);
 static int erf_update_anchors_from_header(erf_t *erf_priv, wtap_rec *rec, union wtap_pseudo_header *pseudo_header, guint64 host_id, GPtrArray *anchor_mappings_to_update);
 
 typedef struct {
@@ -367,7 +369,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
   guint            erf_ext_header_size = (guint)sizeof(erf_ext_header);
   guint8           type;
 
-  memset(&prevts, 0, sizeof(prevts));
+  prevts = 0;
 
   /* number of records to scan before deciding if this really is ERF */
   if ((s = getenv("ERF_RECORDS_TO_CHECK")) != NULL) {
@@ -450,12 +452,12 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
       }
     }
 
-    /* Check to see if timestamp increment is > 1 week */
-    if ( (valid_prev) && (ts > prevts) && (((ts-prevts)>>32) > 3600*24*7) ) {
+    /* Check to see if timestamp increment is > 1 year */
+    if ( (valid_prev) && (ts > prevts) && (((ts-prevts)>>32) > 3600*24*365) ) {
       return WTAP_OPEN_NOT_MINE;
     }
 
-    memcpy(&prevts, &ts, sizeof(prevts));
+    prevts = ts;
 
     /* Read over the extension headers */
     type = header.type;
@@ -554,8 +556,8 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
-                         gint64 *data_offset)
+static gboolean erf_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                         int *err, gchar **err_info, gint64 *data_offset)
 {
   erf_header_t erf_header;
   guint32      packet_size, bytes_read;
@@ -566,16 +568,14 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
   anchor_mappings_to_update = g_ptr_array_new_with_free_func(erf_anchor_mapping_destroy);
 
   do {
-    if (!erf_read_header(wth, wth->fh,
-                         &wth->rec, &erf_header,
+    if (!erf_read_header(wth, wth->fh, rec, &erf_header,
                          err, err_info, &bytes_read, &packet_size,
                          anchor_mappings_to_update)) {
       g_ptr_array_free(anchor_mappings_to_update, TRUE);
       return FALSE;
     }
 
-    if (!wtap_read_packet_bytes(wth->fh, wth->rec_data, packet_size,
-                                err, err_info)) {
+    if (!wtap_read_packet_bytes(wth->fh, buf, packet_size, err, err_info)) {
       g_ptr_array_free(anchor_mappings_to_update, TRUE);
       return FALSE;
     }
@@ -587,7 +587,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
      */
     if ((erf_header.type & 0x7F) == ERF_TYPE_META && packet_size > 0)
     {
-      populate_summary_info((erf_t*) wth->priv, wth, &wth->rec.rec_header.packet_header.pseudo_header, packet_size, anchor_mappings_to_update);
+      populate_summary_info((erf_t*) wth->priv, wth, &rec->rec_header.packet_header.pseudo_header, buf, packet_size, anchor_mappings_to_update);
     }
 
   } while ( erf_header.type == ERF_TYPE_PAD );
@@ -971,11 +971,11 @@ static gboolean erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pse
 
 
 static void erf_dump_priv_init_gen_time(erf_dump_t *dump_priv) {
-  GTimeVal real_time;
+  gint64 real_time;
 
-  g_get_current_time(&real_time);
+  real_time = g_get_real_time();
   /* Convert TimeVal to ERF timestamp */
-  dump_priv->gen_time = ((guint64) real_time.tv_sec << 32) + ((guint64) real_time.tv_usec << 32) / 1000 / 1000;
+  dump_priv->gen_time = ((real_time / G_USEC_PER_SEC) << 32) + ((real_time % G_USEC_PER_SEC) << 32) / 1000 / 1000;
 }
 
 
@@ -2257,6 +2257,9 @@ static int erf_update_anchors_from_header(erf_t *erf_priv, wtap_rec *rec, union 
   }
 
   if (comment) {
+    /* Will be freed by either wtap_sequential_close (for rec = &wth->rec) or by
+     * the caller of wtap_seek_read. See wtap_rec_cleanup. */
+    g_free(rec->opt_comment);
     rec->opt_comment = g_strdup(comment);
     rec->presence_flags |= WTAP_HAS_COMMENTS;
   } else {
@@ -2264,8 +2267,7 @@ static int erf_update_anchors_from_header(erf_t *erf_priv, wtap_rec *rec, union 
      * Need to set opt_comment to NULL to prevent other packets
      * from displaying the same comment
      */
-    /* XXX: We cannot free the old comment because it can be for a different
-     * frame and still in use, wiretap should be handling this better! */
+    g_free(rec->opt_comment);
     rec->opt_comment = NULL;
   }
 
@@ -2574,8 +2576,8 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
             break;
           }
         }
-        /* Fall through */
       }
+      /* Fall through */
       case ERF_META_SECTION_HOST:
       {
         if (erf_priv->host_gentime > state->gen_time) {
@@ -3120,7 +3122,7 @@ static int populate_anchor_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_he
 }
 
 /* Populates the capture and interface information for display on the Capture File Properties */
-static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint32 packet_size, GPtrArray *anchor_mappings_to_update)
+static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, Buffer *buf, guint32 packet_size, GPtrArray *anchor_mappings_to_update)
 {
   struct erf_meta_read_state state;
   struct erf_meta_read_state *state_post = NULL;
@@ -3153,7 +3155,7 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
   }
 
 
-  state.tag_ptr = wth->rec_data->data;
+  state.tag_ptr = buf->data;
   state.remaining_len = packet_size;
 
   /* Read until see next section tag */
@@ -3416,7 +3418,7 @@ static void erf_close(wtap *wth)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

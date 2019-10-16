@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef INTERFACE_TOOLBAR_H
 #define INTERFACE_TOOLBAR_H
@@ -60,10 +61,10 @@ private slots:
     void startReaderThread(QString ifname, void *control_in);
     void updateWidgets();
 
-    void onControlButtonPressed();
-    void onLogButtonPressed();
-    void onHelpButtonPressed();
-    void onRestoreButtonPressed();
+    void onControlButtonClicked();
+    void onLogButtonClicked();
+    void onHelpButtonClicked();
+    void onRestoreButtonClicked();
     void onCheckBoxChanged(int state);
     void onComboBoxChanged(int idx);
     void onLineEditChanged();

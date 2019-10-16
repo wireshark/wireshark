@@ -29,12 +29,10 @@
 #endif
 
 #include "log.h"
-#include "epan/register.h"
 
 #include "ui/alert_box.h"
 #include "ui/last_open_dir.h"
 #include "ui/help_url.h"
-#include "ui/text_import_scanner.h"
 #include <wsutil/utf8_entities.h>
 
 #include "file.h"
@@ -46,8 +44,10 @@
 
 #include "extcap.h"
 
+#include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
+
 #include <ui/qt/models/astringlist_list_model.h>
 #include <ui/qt/models/url_link_delegate.h>
 
@@ -62,6 +62,7 @@
 #include <QClipboard>
 #include <QMenu>
 #include <QFileInfo>
+#include <QMessageBox>
 
 AuthorListModel::AuthorListModel(QObject * parent) :
 AStringListListModel(parent)
@@ -84,7 +85,7 @@ AStringListListModel(parent)
         if ( line.startsWith("------") )
             continue;
 
-        if ( line == "Acknowledgements" )
+        if ( line.contains("Acknowledgements") )
         {
             readAck = true;
             continue;
@@ -92,7 +93,7 @@ AStringListListModel(parent)
         else if ( rx.indexIn(line) != -1 )
             appendRow( QStringList() << rx.cap(1).trimmed() << rx.cap(2).trimmed());
 
-        if ( readAck )
+        if ( readAck && (!line.isEmpty() || !acknowledgement_.isEmpty()) )
             acknowledgement_.append(QString("%1\n").arg(line));
     }
     f_authors.close();
@@ -133,18 +134,7 @@ PluginListModel::PluginListModel(QObject * parent) : AStringListListModel(parent
     wslua_plugins_get_descriptions(plugins_add_description, &plugin_data);
 #endif
 
-    GHashTable * tools = extcap_loaded_interfaces();
-    if (tools && g_hash_table_size(tools) > 0) {
-        GList * walker = g_list_first(g_hash_table_get_keys(tools));
-        while (walker && walker->data) {
-            extcap_info * tool = (extcap_info *)g_hash_table_lookup(tools, walker->data);
-            if (tool) {
-                QStringList plugin_row = QStringList() << tool->basename << tool->version << tr("extcap") << tool->full_path;
-                plugin_data << plugin_row;
-            }
-            walker = g_list_next(walker);
-        }
-    }
+    extcap_get_descriptions(plugins_add_description, &plugin_data);
 
     typeNames_ << QString("");
     foreach(QStringList row, plugin_data)
@@ -263,6 +253,13 @@ FolderListModel::FolderListModel(QObject * parent):
     foreach(QString path, smiPaths)
         appendRow( QStringList() << tr("MIB/PIB path") << path.trimmed() << tr("SMI MIB/PIB search path"));
 #endif
+
+#ifdef Q_OS_MAC
+    /* Mac Extras */
+    QString extras_path = wsApp->applicationDirPath() + "/../Resources/Extras";
+    appendRow( QStringList() << tr("macOS Extras") << QDir::cleanPath(extras_path) << tr("Extra macOS packages"));
+
+#endif
 }
 
 QStringList FolderListModel::headerColumns() const
@@ -280,14 +277,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose, true);
     QFile f_license;
-    QString message;
-
-    QString vcs_version_info_str = get_ws_vcs_version_info();
-    QString copyright_info_str = get_copyright_info();
-    QString comp_info_str = gstring_free_to_qbytearray(get_compiled_version_info(get_wireshark_qt_compiled_info,
-                                              get_gui_compiled_info));
-    QString runtime_info_str = gstring_free_to_qbytearray(get_runtime_version_info(get_wireshark_runtime_info));
-
 
     AuthorListModel * authorModel = new AuthorListModel(this);
     AStringListListSortFilterProxyModel * proxyAuthorModel = new AStringListListSortFilterProxyModel(this);
@@ -306,20 +295,10 @@ AboutDialog::AboutDialog(QWidget *parent) :
     connect(ui->searchAuthors, SIGNAL(textChanged(QString)), proxyAuthorModel, SLOT(setFilter(QString)));
 
     /* Wireshark tab */
+    updateWiresharkText();
 
-    /* Construct the message string */
-    message = "<p>Version " + html_escape(vcs_version_info_str) + "</p>\n\n";
-    message += "<p>" + html_escape(copyright_info_str) + "</p>\n\n";
-    message += "<p>" + html_escape(comp_info_str) + "</p>\n\n";
-    message += "<p>" + html_escape(runtime_info_str) + "</p>\n\n";
-    message += "<p>Wireshark is Open Source Software released under the GNU General Public License.</p>\n\n";
-    message += "<p>Check the man page and http://www.wireshark.org for more information.</p>\n\n";
-
-    ui->label_wireshark->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    ui->label_wireshark->setTextFormat(Qt::RichText);
-    ui->label_wireshark->setWordWrap(true);
-    ui->label_wireshark->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    ui->label_wireshark->setText(message);
+    ui->pte_wireshark->setFrameStyle(QFrame::NoFrame);
+    ui->pte_wireshark->viewport()->setAutoFillBackground(false);
 
 /* Check if it is a dev release... (VERSION_MINOR is odd in dev release) */
 #if VERSION_MINOR & 1
@@ -356,12 +335,10 @@ AboutDialog::AboutDialog(QWidget *parent) :
     pluginTypeModel->setColumnToFilter(2);
     ui->tblPlugins->setModel(pluginTypeModel);
     ui->tblPlugins->setRootIsDecorated(false);
-#ifdef HAVE_LUA
     UrlLinkDelegate *plugin_delegate = new UrlLinkDelegate(this);
-    QString pattern = QString("^%1$").arg(wslua_plugin_type_name());
-    plugin_delegate->setColCheck(2, pattern);
+    script_pattern = QString("\\.(lua|py)$");
+    plugin_delegate->setColCheck(3, script_pattern);
     ui->tblPlugins->setItemDelegateForColumn(3, plugin_delegate);
-#endif
     ui->cmbType->addItems(pluginModel->typeNames());
     ui->tblPlugins->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->tblPlugins->setTextElideMode(Qt::ElideMiddle);
@@ -411,6 +388,19 @@ AboutDialog::~AboutDialog()
     delete ui;
 }
 
+bool AboutDialog::event(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::ApplicationPaletteChange:
+        updateWiresharkText();
+        break;
+    default:
+        break;
+
+    }
+    return QDialog::event(event);
+}
+
 void AboutDialog::showEvent(QShowEvent * event)
 {
     int one_em = fontMetrics().height();
@@ -443,6 +433,28 @@ void AboutDialog::showEvent(QShowEvent * event)
     QDialog::showEvent(event);
 }
 
+void AboutDialog::updateWiresharkText()
+{
+    QString vcs_version_info_str = get_ws_vcs_version_info();
+    QString copyright_info_str = get_copyright_info();
+    QString comp_info_str = gstring_free_to_qbytearray(get_compiled_version_info(get_wireshark_qt_compiled_info,
+                                              get_gui_compiled_info));
+    QString runtime_info_str = gstring_free_to_qbytearray(get_runtime_version_info(get_wireshark_runtime_info));
+
+    QString message = ColorUtils::themeLinkStyle();
+
+    /* Construct the message string */
+    message += "<p>Version " + html_escape(vcs_version_info_str) + "</p>\n\n";
+    message += "<p>" + html_escape(copyright_info_str) + "</p>\n\n";
+    message += "<p>" + html_escape(comp_info_str) + "</p>\n\n";
+    message += "<p>" + html_escape(runtime_info_str) + "</p>\n\n";
+    message += "<p>Wireshark is Open Source Software released under the GNU General Public License.</p>\n\n";
+    message += "<p>Check the man page and ";
+    message += "<a href=https://www.wireshark.org>https://www.wireshark.org</a> ";
+    message += "for more information.</p>\n\n";
+    ui->pte_wireshark->setHtml(message);
+}
+
 void AboutDialog::urlDoubleClicked(const QModelIndex &idx)
 {
     if (idx.column() != 1) {
@@ -456,8 +468,20 @@ void AboutDialog::urlDoubleClicked(const QModelIndex &idx)
     if ( urlText.isEmpty() )
         return;
 
-    QFileInfo fi (urlText);
-    if ( fi.isDir() && fi.exists() )
+    if ( ! QDir(urlText).exists() )
+    {
+        if ( QMessageBox::question(this, tr("The directory does not exist"),
+                          QString(tr("Should the directory %1 be created?").arg(urlText)) ) == QMessageBox::Yes )
+        {
+            if ( ! QDir().mkdir(urlText) )
+            {
+                QMessageBox::warning(this, tr("The directory could not be created"),
+                                     QString(tr("The directory %1 could not be created!").arg(urlText)));
+            }
+        }
+    }
+
+    if ( QDir(urlText).exists() )
     {
         QUrl url = QUrl::fromLocalFile(urlText);
         if ( url.isValid() )
@@ -477,15 +501,44 @@ void AboutDialog::handleCopyMenu(QPoint pos)
 
     QMenu * menu = new QMenu(this);
 
+    if (ui->tabWidget->currentWidget() == ui->tab_plugins)
+    {
+#ifdef Q_OS_MAC
+        QString show_in_str = tr("Show in Finder");
+#else
+        QString show_in_str = tr("Show in Folder");
+#endif
+        QAction * showInFolderAction = menu->addAction(show_in_str);
+        showInFolderAction->setData(VariantPointer<QTreeView>::asQVariant(tree));
+        connect(showInFolderAction, SIGNAL(triggered()), this, SLOT(showInFolderActionTriggered()));
+    }
+
     QAction * copyColumnAction = menu->addAction(tr("Copy"));
     copyColumnAction->setData(VariantPointer<QTreeView>::asQVariant(tree));
     connect(copyColumnAction, SIGNAL(triggered()), this, SLOT(copyActionTriggered()));
 
-    QAction * copyRowAction = menu->addAction(tr("Copy Row(s)"));
+    QModelIndexList selectedRows = tree->selectionModel()->selectedRows();
+    QAction * copyRowAction = menu->addAction(tr("Copy Row(s)", "", selectedRows.count()));
     copyRowAction->setData(VariantPointer<QTreeView>::asQVariant(tree));
     connect(copyRowAction, SIGNAL(triggered()), this, SLOT(copyRowActionTriggered()));
 
     menu->popup(tree->viewport()->mapToGlobal(pos));
+}
+
+void AboutDialog::showInFolderActionTriggered()
+{
+    QAction * sendingAction = qobject_cast<QAction *>(sender());
+    if (!sendingAction)
+        return;
+
+    QTreeView * tree = VariantPointer<QTreeView>::asPtr(sendingAction->data());
+    QModelIndexList selectedRows = tree->selectionModel()->selectedRows();
+
+    foreach (QModelIndex index, selectedRows)
+    {
+        QString cf_path = tree->model()->index(index.row(), 3).data().toString();
+        desktop_show_in_folder(cf_path);
+    }
 }
 
 void AboutDialog::copyRowActionTriggered()
@@ -554,21 +607,18 @@ void AboutDialog::copyActionTriggered(bool copyRow)
     clipBoard->setText(clipdata);
 }
 
-#ifdef HAVE_LUA
 void AboutDialog::on_tblPlugins_doubleClicked(const QModelIndex &index)
 {
-    const int type_col = 2;
     const int path_col = 3;
     if (index.column() != path_col) {
         return;
     }
     const int row = index.row();
     const QAbstractItemModel *model = index.model();
-    if (model->index(row, type_col).data().toString() == wslua_plugin_type_name()) {
+    if (model->index(row, path_col).data().toString().contains(QRegExp(script_pattern))) {
         QDesktopServices::openUrl(QUrl::fromLocalFile(model->index(row, path_col).data().toString()));
     }
 }
-#endif
 
 /*
  * Editor modelines

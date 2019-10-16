@@ -48,7 +48,7 @@ void ws_buffer_cleanup(void);
 #else
  void ws_buffer_clean(Buffer* buffer);
  void ws_buffer_increase_length(Buffer* buffer, unsigned int bytes);
- unsigned int ws_buffer_length(Buffer* buffer);
+ unsigned gsize ws_buffer_length(Buffer* buffer);
  guint8* ws_buffer_start_ptr(Buffer* buffer);
  guint8* ws_buffer_end_ptr(Buffer* buffer);
  void ws_buffer_append_buffer(Buffer* buffer, Buffer* src_buffer);

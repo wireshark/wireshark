@@ -1,0 +1,101 @@
+--
+-- https://www.etsi.org/deliver/etsi_en/302600_302699/30263703/01.03.00_20/en_30263703v010300a.pdf
+DENM-PDU-Descriptions {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en
+(302637) denm (1) version (2)
+}
+    DEFINITIONS AUTOMATIC TAGS ::=
+    BEGIN
+    IMPORTS
+    ItsPduHeader, CauseCode, Speed, InformationQuality, ReferencePosition, ClosedLanes,
+    DangerousGoodsExtended, Heading, LanePosition, LightBarSirenInUse, RoadType, HeightLonCarr,
+    PosLonCarr, PosCentMass, PositioningSolutionType, RequestResponseIndication, StationType,
+    SpeedLimit, StationarySince, TimestampIts, WheelBaseVehicle, TurningRadius, PosFrontAx,
+    PositionOfOccupants, Temperature, VehicleMass, VehicleIdentification, EnergyStorageType, ActionID,
+    ItineraryPath, NumberOfOccupants, PositionOfPillars, RelevanceTrafficDirection, RestrictedTypes,
+    Traces, TransmissionInterval, ValidityDuration, RelevanceDistance, EventHistory, TrafficRule,
+    DeltaReferencePosition FROM ITS-Container {
+    itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (2)
+    };
+    DENM ::= SEQUENCE {
+     header ItsPduHeader,
+     denm DecentralizedEnvironmentalNotificationMessage
+    }
+    DecentralizedEnvironmentalNotificationMessage ::= SEQUENCE {
+     management ManagementContainer,
+     situation SituationContainer OPTIONAL,
+     location LocationContainer OPTIONAL,
+     alacarte AlacarteContainer OPTIONAL
+    }
+    ManagementContainer ::= SEQUENCE {
+     actionID ActionID,
+     detectionTime TimestampIts,
+     referenceTime TimestampIts,
+     termination Termination OPTIONAL,
+     eventPosition ReferencePosition,
+     relevanceDistance RelevanceDistance OPTIONAL,
+     relevanceTrafficDirection RelevanceTrafficDirection OPTIONAL,
+     validityDuration ValidityDuration DEFAULT defaultValidity,
+     transmissionInterval TransmissionInterval OPTIONAL,
+     stationType StationType,
+     ...
+    }
+    SituationContainer ::= SEQUENCE {
+     informationQuality InformationQuality,
+     eventType CauseCode,
+     linkedCause CauseCode OPTIONAL,
+     eventHistory EventHistory OPTIONAL,
+     ...
+    }
+    LocationContainer ::= SEQUENCE {
+     eventSpeed Speed OPTIONAL,
+     eventPositionHeading Heading OPTIONAL,
+     traces Traces,
+     roadType RoadType OPTIONAL,
+     ...
+    }
+    ImpactReductionContainer ::= SEQUENCE {
+     heightLonCarrLeft HeightLonCarr,
+     heightLonCarrRight HeightLonCarr,
+     posLonCarrLeft PosLonCarr,
+     posLonCarrRight PosLonCarr,
+     positionOfPillars PositionOfPillars,
+     posCentMass PosCentMass,
+     wheelBaseVehicle WheelBaseVehicle,
+     turningRadius TurningRadius,
+     posFrontAx PosFrontAx,
+     positionOfOccupants PositionOfOccupants,
+     vehicleMass VehicleMass,
+     requestResponseIndication RequestResponseIndication
+    }
+    RoadWorksContainerExtended ::= SEQUENCE {
+     lightBarSirenInUse LightBarSirenInUse OPTIONAL,
+     closedLanes ClosedLanes OPTIONAL,
+     restriction RestrictedTypes OPTIONAL,
+     speedLimit SpeedLimit OPTIONAL,
+     incidentIndication CauseCode OPTIONAL,
+     recommendedPath ItineraryPath OPTIONAL,
+     startingPointSpeedLimit DeltaReferencePosition OPTIONAL,
+     trafficFlowRule TrafficRule OPTIONAL,
+     referenceDenms ReferenceDenms OPTIONAL
+     }
+    StationaryVehicleContainer ::= SEQUENCE {
+     stationarySince StationarySince OPTIONAL,
+     stationaryCause CauseCode OPTIONAL,
+     carryingDangerousGoods DangerousGoodsExtended OPTIONAL,
+     numberOfOccupants NumberOfOccupants OPTIONAL,
+     vehicleIdentification VehicleIdentification OPTIONAL,
+     energyStorageType EnergyStorageType OPTIONAL
+    }
+    AlacarteContainer ::= SEQUENCE {
+     lanePosition LanePosition OPTIONAL,
+     impactReduction ImpactReductionContainer OPTIONAL,
+     externalTemperature Temperature OPTIONAL,
+     roadWorks RoadWorksContainerExtended OPTIONAL,
+     positioningSolution PositioningSolutionType OPTIONAL,
+     stationaryVehicle StationaryVehicleContainer OPTIONAL,
+     ...
+    }
+    defaultValidity INTEGER ::= 600
+    Termination ::= ENUMERATED {isCancellation(0), isNegation (1)}
+    ReferenceDenms ::= SEQUENCE (SIZE(1..8, ...)) OF ActionID
+END

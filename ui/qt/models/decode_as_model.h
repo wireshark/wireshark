@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef DECODE_AS_MODEL_H
 #define DECODE_AS_MODEL_H
@@ -71,9 +72,10 @@ public:
 
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    void clearAll();
     bool copyRow(int dst_row, int src_row);
 
-    static QString entryString(const gchar *table_name, gpointer value);
+    static QString entryString(const gchar *table_name, gconstpointer value);
 
     void applyChanges();
 

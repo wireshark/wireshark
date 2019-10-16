@@ -30,7 +30,7 @@ gchar *p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pi
 #endif  /* __PROTO_DATA__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

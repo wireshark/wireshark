@@ -11,20 +11,23 @@
 #include "config.h"
 #endif
 
+#define WS_BUILD_DLL
+
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <ws_attributes.h>
+#include <ws_symbol_export.h>
+#include <ws_version.h>
 
 #ifndef VERSION
 #define VERSION "0.0.0"
 #endif
 
-#define DLL_PUBLIC __attribute__((__visibility__("default")))
+WS_DLL_PUBLIC_DEF const gchar plugin_version[] = VERSION;
+WS_DLL_PUBLIC_DEF const int plugin_want_major = WIRESHARK_VERSION_MAJOR;
+WS_DLL_PUBLIC_DEF const int plugin_want_minor = WIRESHARK_VERSION_MINOR;
 
-DLL_PUBLIC const gchar plugin_version[] = VERSION;
-DLL_PUBLIC const gchar plugin_release[] = VERSION_RELEASE;
-
-DLL_PUBLIC void plugin_register(void);
+WS_DLL_PUBLIC void plugin_register(void);
 
 
 static int proto_hello = -1;

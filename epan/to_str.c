@@ -21,6 +21,7 @@
 #include "to_str-int.h"
 #include "strutil.h"
 #include <wsutil/pint.h>
+#include <wsutil/utf8_entities.h>
 
 /*
  * If a user _does_ pass in a too-small buffer, this is probably
@@ -187,14 +188,14 @@ bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, 
 	gchar *buf_ptr;
 	int truncated = 0;
 
-	if (!punct)
-		return bytes_to_str(scope, ad, len);
+	if (len == 0)
+		return wmem_strdup(scope, "");
 
 	if (!ad)
 		REPORT_DISSECTOR_BUG("Null pointer passed to bytestring_to_str()");
 
-	if (len == 0)
-		return wmem_strdup(scope, "");
+	if (!punct)
+		return bytes_to_str(scope, ad, len);
 
 	buf=(gchar *)wmem_alloc(scope, MAX_BYTE_STR_LEN+3+1);
 	if (buflen > MAX_BYTE_STR_LEN/3) {	/* bd_len > 16 */
@@ -206,7 +207,7 @@ bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, 
 
 	if (truncated) {
 		*buf_ptr++ = punct;			/* 1 byte */
-		buf_ptr    = g_stpcpy(buf_ptr, "...");	/* 3 bytes */
+		buf_ptr    = g_stpcpy(buf_ptr, UTF8_HORIZONTAL_ELLIPSIS);	/* 3 bytes */
 	}
 
 	*buf_ptr = '\0';
@@ -234,7 +235,7 @@ bytes_to_str(wmem_allocator_t *scope, const guint8 *bd, int bd_len)
 	cur_ptr = bytes_to_hexstr(cur, bd, bd_len);	/* max MAX_BYTE_STR_LEN bytes */
 
 	if (truncated)
-		cur_ptr = g_stpcpy(cur_ptr, "...");	/* 3 bytes */
+		cur_ptr = g_stpcpy(cur_ptr, UTF8_HORIZONTAL_ELLIPSIS);	/* 3 bytes */
 
 	*cur_ptr = '\0';				/* 1 byte */
 	return cur;
@@ -438,6 +439,7 @@ abs_time_to_str(wmem_allocator_t *scope, const nstime_t *abs_time, const absolut
 
 		case ABSOLUTE_TIME_UTC:
 		case ABSOLUTE_TIME_DOY_UTC:
+		case ABSOLUTE_TIME_NTP_UTC:
 			tmp = gmtime(&abs_time->secs);
 			zonename = "UTC";
 			break;
@@ -474,6 +476,12 @@ abs_time_to_str(wmem_allocator_t *scope, const nstime_t *abs_time, const absolut
 							(long)abs_time->nsecs);
 				}
 				break;
+			case ABSOLUTE_TIME_NTP_UTC:
+				if ((abs_time->secs == 0) && (abs_time->nsecs == 0)) {
+					buf = wmem_strdup(scope, "NULL");
+					break;
+				}
+				/* FALLTHROUGH */
 
 			case ABSOLUTE_TIME_UTC:
 			case ABSOLUTE_TIME_LOCAL:
@@ -518,6 +526,7 @@ abs_time_secs_to_str(wmem_allocator_t *scope, const time_t abs_time, const absol
 
 		case ABSOLUTE_TIME_UTC:
 		case ABSOLUTE_TIME_DOY_UTC:
+		case ABSOLUTE_TIME_NTP_UTC:
 			tmp = gmtime(&abs_time);
 			zonename = "UTC";
 			break;
@@ -553,6 +562,12 @@ abs_time_secs_to_str(wmem_allocator_t *scope, const time_t abs_time, const absol
 				}
 				break;
 
+			case ABSOLUTE_TIME_NTP_UTC:
+				if (abs_time == 0) {
+					buf = wmem_strdup(scope, "NULL");
+					break;
+				}
+				/* FALLTHROUGH */
 			case ABSOLUTE_TIME_UTC:
 			case ABSOLUTE_TIME_LOCAL:
 				if (show_zone) {
@@ -1315,7 +1330,7 @@ int64_to_str_back(char *ptr, gint64 value)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

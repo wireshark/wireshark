@@ -8,6 +8,6 @@ wireshark (0.99.2-1) unstable; urgency=low
    - tethereal -> tshark
    - idl2eth   -> idl2wrs
 
-  See http://www.wireshark.org/news/20060607.html for more information.
+  See https://www.wireshark.org/news/20060607.html for more information.
 
  -- Frederic Peters <fpeters@debian.org>  Thu, 12 Oct 2006 15:35:25 +0200

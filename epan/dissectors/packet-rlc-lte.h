@@ -161,7 +161,7 @@ void set_rlc_lte_drb_li_field(packet_info *pinfo, guint16 ueid, guint8 drbid, gb
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

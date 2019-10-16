@@ -641,7 +641,7 @@ oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
         /* Display the tag. */
         if (tag_len) {
             item = proto_tree_add_bytes(tree, hf_oscore_tag, tvb_ciphertext, ciphertext_captured_len, tag_len, rx_tag);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
 
         return STATUS_SUCCESS_DECRYPTED_TAG_CHECKED;
@@ -733,7 +733,7 @@ oscore_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (coinfo) {
         dissect_coap_code(tvb_decrypted, oscore_tree, &offset, &dissect_oscore_hf, &code_class);
-        offset = dissect_coap_options(tvb_decrypted, pinfo, oscore_tree, offset, oscore_length, coinfo, &dissect_oscore_hf);
+        offset = dissect_coap_options(tvb_decrypted, pinfo, oscore_tree, offset, oscore_length, code_class, coinfo, &dissect_oscore_hf);
         if (oscore_length > offset) {
             dissect_coap_payload(tvb_decrypted, pinfo, oscore_tree, tree, offset, oscore_length, code_class, coinfo, &dissect_oscore_hf, TRUE);
         }

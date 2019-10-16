@@ -2,6 +2,11 @@
  * Routines for EtherNet/IP (Industrial Protocol) dissection
  * EtherNet/IP Home: www.odva.org
  *
+ * This dissector includes items from:
+ *    CIP Volume 1: Common Industrial Protocol, Edition 3.24
+ *    CIP Volume 2: EtherNet/IP Adaptation of CIP, Edition 1.23
+ *    CIP Volume 8: CIP Security, Edition 1.6
+ *
  * Copyright 2003-2004
  * Magnus Hansson <mah@hms.se>
  * Joakim Wiberg <jow@hms.se>
@@ -35,8 +40,8 @@
 #include "packet-enip.h"
 #include "packet-cipsafety.h"
 #include "packet-dtls.h"
-#include "packet-ssl.h"
-#include "packet-ssl-utils.h"
+#include "packet-tls.h"
+#include "packet-tls-utils.h"
 
 void proto_register_enip(void);
 void proto_reg_handoff_enip(void);
@@ -83,7 +88,8 @@ void proto_reg_handoff_enip(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_enip = -1;
-static int proto_enipio = -1;
+static int proto_cipio = -1;
+static int proto_cip_class1 = -1;
 
 static int hf_enip_command = -1;
 static int hf_enip_length = -1;
@@ -141,7 +147,9 @@ static int hf_enip_sud_ifacehnd = -1;
 static int hf_enip_cpf_itemcount = -1;
 static int hf_enip_cpf_typeid = -1;
 static int hf_enip_cpf_length = -1;
-static int hf_enip_cpf_cdi_seqcnt = -1;
+static int hf_cip_sequence_count = -1;
+static int hf_cip_cm_ot_api = -1;
+static int hf_cip_cm_to_api = -1;
 static int hf_enip_cpf_cai_connid = -1;
 static int hf_enip_cpf_sai_connid = -1;
 static int hf_enip_cpf_sai_seqnum = -1;
@@ -156,7 +164,8 @@ static int hf_enip_response_in = -1;
 static int hf_enip_response_to = -1;
 static int hf_enip_time = -1;
 static int hf_enip_fwd_open_in = -1;
-static int hf_enip_connection_transport_data = -1;
+static int hf_cip_connection = -1;
+static int hf_cip_io_data = -1;
 
 /* Parsed Attributes */
 static int hf_tcpip_status = -1;
@@ -238,10 +247,33 @@ static int hf_elink_icontrol_control_bits_auto_neg = -1;
 static int hf_elink_icontrol_control_bits_forced_duplex = -1;
 static int hf_elink_icontrol_control_bits_reserved = -1;
 static int hf_elink_icontrol_forced_speed = -1;
+static int hf_elink_icapability_capability_bits = -1;
+static int hf_elink_icapability_capability_bits_manual = -1;
+static int hf_elink_icapability_capability_bits_auto_neg = -1;
+static int hf_elink_icapability_capability_bits_auto_mdix = -1;
+static int hf_elink_icapability_capability_bits_manual_speed = -1;
+static int hf_elink_icapability_capability_speed_duplex_array_count = -1;
+static int hf_elink_icapability_capability_speed = -1;
+static int hf_elink_icapability_capability_duplex = -1;
 static int hf_elink_interface_type = -1;
 static int hf_elink_interface_state = -1;
 static int hf_elink_admin_state = -1;
 static int hf_elink_interface_label = -1;
+static int hf_elink_hc_icount_in_octets = -1;
+static int hf_elink_hc_icount_in_ucast = -1;
+static int hf_elink_hc_icount_in_mcast = -1;
+static int hf_elink_hc_icount_in_broadcast = -1;
+static int hf_elink_hc_icount_out_octets = -1;
+static int hf_elink_hc_icount_out_ucast = -1;
+static int hf_elink_hc_icount_out_mcast = -1;
+static int hf_elink_hc_icount_out_broadcast = -1;
+
+static int hf_elink_hc_mcount_stats_align_errors = -1;
+static int hf_elink_hc_mcount_stats_fcs_errors = -1;
+static int hf_elink_hc_mcount_stats_internal_mac_transmit_errors = -1;
+static int hf_elink_hc_mcount_stats_frame_too_long = -1;
+static int hf_elink_hc_mcount_stats_internal_mac_receive_errors = -1;
+static int hf_elink_hc_mcount_stats_symbol_errors = -1;
 
 static int hf_qos_8021q_enable = -1;
 static int hf_qos_dscp_ptp_event = -1;
@@ -319,6 +351,7 @@ static int hf_eip_cert_cert_name = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_enip = -1;
+static gint ett_cip_io_generic = -1;
 static gint ett_path = -1;
 static gint ett_count_tree = -1;
 static gint ett_type_tree = -1;
@@ -330,6 +363,7 @@ static gint ett_tcpip_config_cap = -1;
 static gint ett_tcpip_config_control = -1;
 static gint ett_elink_interface_flags = -1;
 static gint ett_elink_icontrol_bits = -1;
+static gint ett_elink_icapability_bits = -1;
 static gint ett_dlr_capability_flags = -1;
 static gint ett_dlr_lnknbrstatus_flags = -1;
 static gint ett_eip_security_capability_flags = -1;
@@ -340,6 +374,8 @@ static gint ett_eip_cert_capability_flags = -1;
 static gint ett_eip_cert_num_certs = -1;
 static gint ett_security_profiles = -1;
 static gint ett_iana_port_state_flags = -1;
+static gint ett_connection_info = -1;
+static gint ett_connection_path_info = -1;
 
 static expert_field ei_mal_tcpip_status = EI_INIT;
 static expert_field ei_mal_tcpip_config_cap = EI_INIT;
@@ -347,7 +383,7 @@ static expert_field ei_mal_tcpip_config_control = EI_INIT;
 static expert_field ei_mal_tcpip_interface_config = EI_INIT;
 static expert_field ei_mal_tcpip_mcast_config = EI_INIT;
 static expert_field ei_mal_tcpip_last_conflict = EI_INIT;
-static expert_field ei_mal_tcpip_ssn = EI_INIT;
+static expert_field ei_mal_tcpip_snn = EI_INIT;
 static expert_field ei_mal_elink_interface_flags = EI_INIT;
 static expert_field ei_mal_elink_physical_address = EI_INIT;
 static expert_field ei_mal_elink_interface_counters = EI_INIT;
@@ -368,18 +404,23 @@ static expert_field ei_mal_eip_security_preshared_keys = EI_INIT;
 static expert_field ei_mal_eip_security_active_certs = EI_INIT;
 static expert_field ei_mal_eip_security_trusted_auths = EI_INIT;
 static expert_field ei_mal_eip_cert_capability_flags = EI_INIT;
+static expert_field ei_mal_cpf_item_length_mismatch = EI_INIT;
+static expert_field ei_mal_cpf_item_minimum_size = EI_INIT;
 
 static dissector_table_t   subdissector_srrd_table;
-static dissector_table_t   subdissector_sud_table;
 static dissector_table_t   subdissector_io_table;
+static dissector_table_t   subdissector_decode_as_io_table;
 static dissector_table_t   subdissector_class_table;
+static dissector_table_t   subdissector_cip_connection_table;
 
 static dissector_handle_t  arp_handle;
 static dissector_handle_t  cipsafety_handle;
-static dissector_handle_t  cipmotion_handle;
+static dissector_handle_t  cip_io_generic_handle;
 static dissector_handle_t  cip_implicit_handle;
+static dissector_handle_t  cip_handle;
 static dissector_handle_t  enip_tcp_handle;
-static dissector_handle_t  enipio_handle;
+static dissector_handle_t  cipio_handle;
+static dissector_handle_t  cip_class1_handle;
 
 static gboolean enip_desegment  = TRUE;
 static gboolean enip_OTrun_idle = TRUE;
@@ -735,9 +776,9 @@ enum enip_packet_type {ENIP_REQUEST_PACKET, ENIP_RESPONSE_PACKET, ENIP_CANNOT_CL
 enum enip_packet_data_type { EPDT_UNKNOWN, EPDT_CONNECTED_TRANSPORT, EPDT_UNCONNECTED };
 
 typedef struct enip_request_key {
+   guint32 session_handle;
    enum enip_packet_type      requesttype;
    enum enip_packet_data_type type;
-   guint32 session_handle;
    guint64 sender_context;
    guint32 conversation;
    union {
@@ -814,7 +855,7 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
 
    request_info = NULL;
    request_val = (enip_request_val_t *)wmem_map_lookup( enip_request_hashtable, prequest_key );
-   if (!pinfo->fd->flags.visited)
+   if (!pinfo->fd->visited)
    {
       if ( prequest_key && prequest_key->requesttype == ENIP_REQUEST_PACKET )
       {
@@ -862,7 +903,7 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
 
             it = proto_tree_add_uint(tree, hf_enip_response_in,
                   NULL, 0, 0, request_info->rep_num);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
          }
       }
       else
@@ -877,11 +918,11 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
 
                it = proto_tree_add_uint(tree, hf_enip_response_to,
                      NULL, 0, 0, request_info->req_num);
-               PROTO_ITEM_SET_GENERATED(it);
+               proto_item_set_generated(it);
 
                nstime_delta(&ns, &pinfo->abs_ts, &request_info->req_time);
                it = proto_tree_add_time(tree, hf_enip_time, NULL, 0, 0, &ns);
-               PROTO_ITEM_SET_GENERATED(it);
+               proto_item_set_generated(it);
             }
          }
       }
@@ -890,9 +931,7 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
 }
 
 typedef struct enip_conn_key {
-   guint16 ConnSerialNumber;
-   guint16 VendorID;
-   guint32 DeviceSerialNumber;
+   cip_connection_triad_t triad;
    guint32 O2TConnID;
    guint32 T2OConnID;
 } enip_conn_key_t;
@@ -934,7 +973,7 @@ enip_io_conv_filter(packet_info *pinfo)
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",     /* Connection Triad */
            conn->open_frame, conn->open_reply_frame, conn->close_frame,
            conn->O2TConnID, conn->T2OConnID,
-           conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+           conn->triad.ConnSerialNumber, conn->triad.VendorID, conn->triad.DeviceSerialNumber);
    }
    else
    {
@@ -945,7 +984,7 @@ enip_io_conv_filter(packet_info *pinfo)
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",    /* Connection Triad */
            conn->open_frame, conn->open_reply_frame,
            conn->O2TConnID, conn->T2OConnID,
-           conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+           conn->triad.ConnSerialNumber, conn->triad.VendorID, conn->triad.DeviceSerialNumber);
    }
 
    return buf;
@@ -980,7 +1019,7 @@ enip_exp_conv_filter(packet_info *pinfo)
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",     /* Connection Triad */
            conn->open_frame, conn->open_reply_frame, conn->close_frame,
            conn->O2TConnID, conn->T2OConnID,
-           conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+           conn->triad.ConnSerialNumber, conn->triad.VendorID, conn->triad.DeviceSerialNumber);
    }
    else
    {
@@ -991,8 +1030,29 @@ enip_exp_conv_filter(packet_info *pinfo)
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",  /* Connection Triad */
            conn->open_frame, conn->open_reply_frame,
            conn->O2TConnID, conn->T2OConnID,
-           conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+           conn->triad.ConnSerialNumber, conn->triad.VendorID, conn->triad.DeviceSerialNumber);
    }
+   return buf;
+}
+
+static gboolean cip_connection_conv_valid(packet_info *pinfo)
+{
+   return enip_io_conv_valid(pinfo) || enip_exp_conv_valid(pinfo);
+}
+
+static gchar* cip_connection_conv_filter(packet_info *pinfo)
+{
+   char* buf = NULL;
+
+   if (enip_io_conv_valid(pinfo))
+   {
+      buf = enip_io_conv_filter(pinfo);
+   }
+   else if (enip_exp_conv_valid(pinfo))
+   {
+      buf = enip_exp_conv_filter(pinfo);
+   }
+
    return buf;
 }
 
@@ -1000,7 +1060,7 @@ enip_exp_conv_filter(packet_info *pinfo)
  * Connection management
  */
 static wmem_map_t *enip_conn_hashtable = NULL;
-static guint32 enip_unique_connid = 1;
+static guint32 enip_unique_connid;
 
 static gint
 enip_conn_equal(gconstpointer v, gconstpointer w)
@@ -1008,9 +1068,9 @@ enip_conn_equal(gconstpointer v, gconstpointer w)
   const enip_conn_key_t *v1 = (const enip_conn_key_t *)v;
   const enip_conn_key_t *v2 = (const enip_conn_key_t *)w;
 
-  if ((v1->ConnSerialNumber == v2->ConnSerialNumber) &&
-      (v1->VendorID == v2->VendorID) &&
-      (v1->DeviceSerialNumber == v2->DeviceSerialNumber) &&
+  if ((v1->triad.ConnSerialNumber == v2->triad.ConnSerialNumber) &&
+      (v1->triad.VendorID == v2->triad.VendorID) &&
+      (v1->triad.DeviceSerialNumber == v2->triad.DeviceSerialNumber) &&
       ((v1->O2TConnID == 0) || (v2->O2TConnID == 0) || (v1->O2TConnID == v2->O2TConnID)) &&
       ((v1->T2OConnID == 0) || (v2->T2OConnID == 0) || (v1->T2OConnID == v2->T2OConnID)))
     return 1;
@@ -1024,7 +1084,7 @@ enip_conn_hash (gconstpointer v)
    const enip_conn_key_t *key = (const enip_conn_key_t *)v;
    guint val;
 
-   val = (guint)( key->ConnSerialNumber + key->VendorID + key->DeviceSerialNumber );
+   val = (guint)( key->triad.ConnSerialNumber + key->triad.VendorID + key->triad.DeviceSerialNumber );
 
    return val;
 }
@@ -1037,9 +1097,8 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
    conversation_t   *conversation, *conversationTO;
    enip_conv_info_t *enip_info;
    address           dest_address;
-   ws_in6_addr ipv6_zero;
 
-   if (pinfo->fd->flags.visited)
+   if (pinfo->fd->visited)
       return;
 
    // Don't create connections for Null Forward Opens.
@@ -1049,9 +1108,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
    }
 
    conn_key = wmem_new(wmem_file_scope(), enip_conn_key_t);
-   conn_key->ConnSerialNumber = connInfo->ConnSerialNumber;
-   conn_key->VendorID = connInfo->VendorID;
-   conn_key->DeviceSerialNumber = connInfo->DeviceSerialNumber;
+   conn_key->triad = connInfo->triad;
    conn_key->O2TConnID = connInfo->O2T.connID;
    conn_key->T2OConnID = connInfo->T2O.connID;
 
@@ -1060,14 +1117,11 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
    {
       conn_val = wmem_new(wmem_file_scope(), enip_conn_val_t);
 
-      conn_val->ConnSerialNumber       = connInfo->ConnSerialNumber;
-      conn_val->VendorID               = connInfo->VendorID;
-      conn_val->DeviceSerialNumber     = connInfo->DeviceSerialNumber;
+      conn_val->triad                  = connInfo->triad;
       conn_val->O2TConnID              = connInfo->O2T.connID;
       conn_val->T2OConnID              = connInfo->T2O.connID;
       conn_val->TransportClass_trigger = connInfo->TransportClass_trigger;
       conn_val->safety                 = connInfo->safety;
-      conn_val->motion                 = connInfo->motion;
       conn_val->ClassID                = connInfo->ClassID;
       conn_val->ConnPoint              = connInfo->ConnPoint;
       conn_val->open_frame             = connInfo->forward_open_frame;
@@ -1075,14 +1129,18 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
       conn_val->close_frame            = 0;
       conn_val->connid                 = enip_unique_connid++;
 
+      conn_val->FwdOpenPathLenBytes = connInfo->FwdOpenPathLenBytes;
+      conn_val->pFwdOpenPathData = connInfo->pFwdOpenPathData;
+      conn_val->O2Tapi = connInfo->O2T.api;
+      conn_val->T2Oapi = connInfo->T2O.api;
+
       wmem_map_insert(enip_conn_hashtable, conn_key, conn_val );
 
       /* I/O connection */
       if (((connInfo->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK) == 0) ||
           ((connInfo->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK) == 1))
       {
-          /* zero out the ipv6 structure for comparison */
-          memset(&ipv6_zero, 0, sizeof(ipv6_zero));
+         ws_in6_addr ipv6_zero = {0};
 
          /* default some information if not included */
          if ((connInfo->O2T.port == 0) || (connInfo->O2T.type == CONN_TYPE_MULTICAST))
@@ -1179,23 +1237,19 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
    }
 
    /* Save the connection info for the conversation filter */
-   if (!pinfo->fd->flags.visited)
-      p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_val);
+   p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_val);
 }
 
 void
-enip_close_cip_connection(packet_info *pinfo, guint16 ConnSerialNumber,
-                          guint16 VendorID, guint32 DeviceSerialNumber )
+enip_close_cip_connection(packet_info *pinfo, const cip_connection_triad_t* triad)
 {
    enip_conn_key_t  conn_key;
    enip_conn_val_t *conn_val;
 
-   if (pinfo->fd->flags.visited)
+   if (pinfo->fd->visited)
       return;
 
-   conn_key.ConnSerialNumber   = ConnSerialNumber;
-   conn_key.VendorID           = VendorID;
-   conn_key.DeviceSerialNumber = DeviceSerialNumber;
+   conn_key.triad              = *triad;
    conn_key.O2TConnID          = 0;
    conn_key.T2OConnID          = 0;
 
@@ -1205,20 +1259,17 @@ enip_close_cip_connection(packet_info *pinfo, guint16 ConnSerialNumber,
       conn_val->close_frame = pinfo->num;
 
       /* Save the connection info for the conversation filter */
-      if (!pinfo->fd->flags.visited)
-         p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_val);
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_val);
    }
 }
 
 /* Save the connection info for the conversation filter */
-void enip_mark_connection_triad( packet_info *pinfo, guint16 ConnSerialNumber, guint16 VendorID, guint32 DeviceSerialNumber )
+void enip_mark_connection_triad(packet_info *pinfo, const cip_connection_triad_t* triad)
 {
    enip_conn_key_t  conn_key;
    enip_conn_val_t *conn_val;
 
-   conn_key.ConnSerialNumber   = ConnSerialNumber;
-   conn_key.VendorID           = VendorID;
-   conn_key.DeviceSerialNumber = DeviceSerialNumber;
+   conn_key.triad              = *triad;
    conn_key.O2TConnID          = 0;
    conn_key.T2OConnID          = 0;
 
@@ -1456,16 +1507,16 @@ static int dissect_tcpip_hostname(packet_info *pinfo, proto_tree *tree, proto_it
     return parsed_len;
 }
 
-static int dissect_tcpip_ssn(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+static int dissect_tcpip_snn(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    if (total_len < 6)
    {
-      expert_add_info(pinfo, item, &ei_mal_tcpip_ssn);
+      expert_add_info(pinfo, item, &ei_mal_tcpip_snn);
       return total_len;
    }
 
-   dissect_cipsafety_ssn(tree, tvb, pinfo, offset, hf_tcpip_snn_timestamp, hf_tcpip_snn_date, hf_tcpip_snn_time);
+   dissect_cipsafety_snn(tree, tvb, pinfo, offset, hf_tcpip_snn_timestamp, hf_tcpip_snn_date, hf_tcpip_snn_time);
    return 6;
 }
 
@@ -1611,6 +1662,67 @@ dissect_elink_media_counters(packet_info *pinfo, proto_tree *tree, proto_item *i
    proto_tree_add_item(tree, hf_elink_mcount_frame_too_long,        tvb, offset+40, 4, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(tree, hf_elink_mcount_mac_receive_errors,    tvb, offset+44, 4, ENC_LITTLE_ENDIAN);
    return 48;
+}
+
+static int
+dissect_elink_interface_capability(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   static const int * bits[] = {
+      &hf_elink_icapability_capability_bits_manual,
+      &hf_elink_icapability_capability_bits_auto_neg,
+      &hf_elink_icapability_capability_bits_auto_mdix,
+      &hf_elink_icapability_capability_bits_manual_speed,
+      NULL
+   };
+
+   proto_tree_add_bitmask(tree, tvb, offset, hf_elink_icapability_capability_bits, ett_elink_icapability_bits, bits, ENC_LITTLE_ENDIAN);
+   offset += 4;
+
+   guint32 array_count;
+   proto_tree_add_item_ret_uint(tree, hf_elink_icapability_capability_speed_duplex_array_count, tvb, offset, 1, ENC_NA, &array_count);
+   offset++;
+
+   for (guint32 i = 0; i < array_count; i++)
+   {
+      proto_tree_add_item(tree, hf_elink_icapability_capability_speed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_elink_icapability_capability_duplex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset++;
+   }
+
+   return 4 + 1 + array_count * 3;
+}
+
+static int
+dissect_elink_hc_interface_counters(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   proto_tree_add_item(tree, hf_elink_hc_icount_in_octets, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_icount_in_ucast, tvb, offset + 8, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_icount_in_mcast, tvb, offset + 16, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_icount_in_broadcast, tvb, offset + 24, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_icount_out_octets, tvb, offset + 32, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_icount_out_ucast, tvb, offset + 40, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_icount_out_mcast, tvb, offset + 48, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_icount_out_broadcast, tvb, offset + 56, 8, ENC_LITTLE_ENDIAN);
+
+   return 8 * 8;
+}
+
+static int
+dissect_elink_hc_media_counters(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   proto_tree_add_item(tree, hf_elink_hc_mcount_stats_align_errors, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_mcount_stats_fcs_errors, tvb, offset + 8, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_mcount_stats_internal_mac_transmit_errors, tvb, offset + 16, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_mcount_stats_frame_too_long, tvb, offset + 24, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_mcount_stats_internal_mac_receive_errors, tvb, offset + 32, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_mcount_stats_symbol_errors, tvb, offset + 40, 8, ENC_LITTLE_ENDIAN);
+
+   return 8 * 6;
 }
 
 static int
@@ -1822,6 +1934,8 @@ dissect_eip_security_avail_cipher_suites(packet_info *pinfo, proto_tree *tree, p
    }
 
    proto_tree_add_item_ret_uint(tree, hf_eip_security_num_avail_cipher_suites, tvb, offset, 1, ENC_NA, &num_suites);
+   offset++;
+
    for (i = 0; i < num_suites; i++)
    {
       proto_tree_add_item(tree, hf_eip_security_avail_cipher_suite, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1845,6 +1959,8 @@ dissect_eip_security_allow_cipher_suites(packet_info *pinfo, proto_tree *tree, p
    }
 
    proto_tree_add_item_ret_uint(tree, hf_eip_security_num_allow_cipher_suites, tvb, offset, 1, ENC_NA, &num_suites);
+   offset++;
+
    for (i = 0; i < num_suites; i++)
    {
       proto_tree_add_item(tree, hf_eip_security_allow_cipher_suite, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1864,7 +1980,7 @@ dissect_eip_security_preshared_keys(packet_info *pinfo, proto_tree *tree, proto_
    proto_tree* psk_tree;
    int start_offset = offset;
 
-   if (total_len < 3)
+   if (total_len < 1)
    {
       expert_add_info(pinfo, item, &ei_mal_eip_security_preshared_keys);
       return total_len;
@@ -1893,7 +2009,7 @@ dissect_eip_security_preshared_keys(packet_info *pinfo, proto_tree *tree, proto_
          expert_add_info(pinfo, item, &ei_mal_eip_security_preshared_keys);
          return total_len;
       }
-      proto_tree_add_item(psk_tree, hf_eip_security_psk, tvb, offset, id_size, ENC_NA);
+      proto_tree_add_item(psk_tree, hf_eip_security_psk, tvb, offset, psk_size, ENC_NA);
       offset += psk_size;
    }
    proto_item_set_len(ti, offset-start_offset);
@@ -1910,7 +2026,7 @@ dissect_eip_security_active_certs(packet_info *pinfo, proto_tree *tree, proto_it
    proto_tree* cert_tree;
    int start_offset = offset;
 
-   if (total_len < 2)
+   if (total_len < 1)
    {
       expert_add_info(pinfo, item, &ei_mal_eip_security_active_certs);
       return total_len;
@@ -1939,7 +2055,7 @@ dissect_eip_security_trusted_auths(packet_info *pinfo, proto_tree *tree, proto_i
    proto_tree* cert_tree;
    int start_offset = offset;
 
-   if (total_len < 2)
+   if (total_len < 1)
    {
       expert_add_info(pinfo, item, &ei_mal_eip_security_trusted_auths);
       return total_len;
@@ -2041,7 +2157,7 @@ dissect_eip_cert_ca_cert(packet_info *pinfo, proto_tree *tree, proto_item *item,
 }
 
 
-attribute_info_t enip_attribute_vals[99] = {
+attribute_info_t enip_attribute_vals[] = {
 
     /* TCP/IP Object (class attributes) */
    {0xF5, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
@@ -2059,7 +2175,7 @@ attribute_info_t enip_attribute_vals[99] = {
    {0xF5, FALSE,  4, 3, "Physical Link Object",      cip_dissector_func,   NULL, dissect_tcpip_physical_link},
    {0xF5, FALSE,  5, 4, "Interface Configuration",   cip_dissector_func,   NULL, dissect_tcpip_interface_config},
    {0xF5, FALSE,  6, 5, "Host Name",                 cip_dissector_func,   NULL, dissect_tcpip_hostname},
-   {0xF5, FALSE,  7, 6, "Safety Network Number", cip_dissector_func,   NULL, dissect_tcpip_ssn},
+   {0xF5, FALSE,  7, 6, "Safety Network Number", cip_dissector_func,   NULL, dissect_tcpip_snn},
    {0xF5, FALSE,  8, 7, "TTL Value", cip_usint,      &hf_tcpip_ttl_value,  NULL},
    {0xF5, FALSE,  9, 8, "Multicast Configuration",   cip_dissector_func,   NULL, dissect_tcpip_mcast_config},
    {0xF5, FALSE, 10, 9, "Select ACD", cip_bool,      &hf_tcpip_select_acd, NULL},
@@ -2087,6 +2203,9 @@ attribute_info_t enip_attribute_vals[99] = {
    {0xF6, FALSE,  8, 7, "Interface State",           cip_usint,            &hf_elink_interface_state, NULL},
    {0xF6, FALSE,  9, 8, "Admin State",               cip_usint,            &hf_elink_admin_state,     NULL},
    {0xF6, FALSE, 10, 9, "Interface Label",           cip_short_string,     &hf_elink_interface_label, NULL},
+   {0xF6, FALSE, 11, 10, "Interface Capability",     cip_dissector_func,   NULL, dissect_elink_interface_capability},
+   {0xF6, FALSE, 12, 11, "HC Interface Counters",    cip_dissector_func,   NULL, dissect_elink_hc_interface_counters},
+   {0xF6, FALSE, 13, 12, "HC Media Counters",        cip_dissector_func,   NULL, dissect_elink_hc_media_counters},
 
     /* QoS Object (class attributes) */
    {0x48, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
@@ -2166,117 +2285,528 @@ attribute_info_t enip_attribute_vals[99] = {
    {0x5F, FALSE, 4, 3, "CA Certificate",  cip_dissector_func,   NULL, dissect_eip_cert_ca_cert},
 };
 
+static void enip_init_protocol(void)
+{
+   enip_unique_connid = 0;
+}
+
+// offset - Starts at the "Encapsulation Protocol Version" field.
+static void dissect_item_list_identity(packet_info* pinfo, tvbuff_t* tvb, int offset, proto_tree* item_tree)
+{
+   /* Encapsulation version */
+   proto_tree_add_item(item_tree, hf_enip_encapver, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+   /* Socket Address */
+   proto_tree* sockaddr_tree = proto_tree_add_subtree(item_tree, tvb, offset + 2, 16, ett_sockadd, NULL, "Socket Address");
+
+   /* Socket address struct - sin_family */
+   proto_tree_add_item(sockaddr_tree, hf_enip_sinfamily, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+
+   /* Socket address struct - sin_port */
+   proto_tree_add_item(sockaddr_tree, hf_enip_sinport, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+
+   /* Socket address struct - sin_address */
+   proto_tree_add_item(sockaddr_tree, hf_enip_sinaddr, tvb, offset + 6, 4, ENC_BIG_ENDIAN);
+
+   /* Socket address struct - sin_zero */
+   proto_tree_add_item(sockaddr_tree, hf_enip_sinzero, tvb, offset + 10, 8, ENC_NA);
+
+   /* Vendor ID */
+   proto_tree_add_item(item_tree, hf_enip_lir_vendor, tvb, offset + 18, 2, ENC_LITTLE_ENDIAN);
+
+   /* Device Type */
+   proto_tree_add_item(item_tree, hf_enip_lir_devtype, tvb, offset + 20, 2, ENC_LITTLE_ENDIAN);
+
+   /* Product Code */
+   proto_tree_add_item(item_tree, hf_enip_lir_prodcode, tvb, offset + 22, 2, ENC_LITTLE_ENDIAN);
+
+   /* Revision */
+   proto_tree_add_item(item_tree, hf_enip_lir_revision, tvb, offset + 24, 2, ENC_BIG_ENDIAN);
+
+   /* Status */
+   proto_tree_add_item(item_tree, hf_enip_lir_status, tvb, offset + 26, 2, ENC_LITTLE_ENDIAN);
+
+   /* Serial Number */
+   proto_tree_add_item(item_tree, hf_enip_lir_serial, tvb, offset + 28, 4, ENC_LITTLE_ENDIAN);
+
+   /* Product Name Length */
+   guint32 name_length;
+   proto_tree_add_item_ret_uint(item_tree, hf_enip_lir_namelen, tvb, offset + 32, 1, ENC_LITTLE_ENDIAN, &name_length);
+
+   /* Product Name */
+   proto_tree_add_item(item_tree, hf_enip_lir_name, tvb, offset + 33, name_length, ENC_ASCII | ENC_NA);
+
+   /* Append product name to info column */
+   col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", tvb_format_text(tvb, offset + 33, name_length));
+
+   /* State */
+   proto_tree_add_item(item_tree, hf_enip_lir_state, tvb, offset + name_length + 33, 1, ENC_LITTLE_ENDIAN);
+}
+
+// offset - Starts at the "Security Profiles" field.
+static void dissect_item_cip_security_information(tvbuff_t* tvb, int offset, proto_tree* item_tree)
+{
+   static const int * security_profiles[] = {
+      &hf_enip_security_profiles_eip_integrity,
+      &hf_enip_security_profiles_eip_confidentiality,
+      &hf_enip_security_profiles_cip_authorization,
+      &hf_enip_security_profiles_cip_integrity,
+      &hf_enip_security_profiles_reserved,
+      NULL
+   };
+   static const int * iana_flags[] = {
+      &hf_enip_iana_port_state_flags_tcp_44818,
+      &hf_enip_iana_port_state_flags_udp_44818,
+      &hf_enip_iana_port_state_flags_udp_2222,
+      &hf_enip_iana_port_state_flags_tcp_2221,
+      &hf_enip_iana_port_state_flags_udp_2221,
+      &hf_enip_iana_port_state_flags_reserved,
+      NULL
+   };
+
+   /* Security profiles */
+   proto_tree_add_bitmask(item_tree, tvb, offset, hf_enip_security_profiles, ett_security_profiles, security_profiles, ENC_LITTLE_ENDIAN);
+
+   /* CIP Security object state */
+   proto_tree_add_item(item_tree, hf_enip_cip_security_state, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
+
+   /* ENIP Security object state  */
+   proto_tree_add_item(item_tree, hf_enip_eip_security_state, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
+
+   /* IANA Port State flags */
+   proto_tree_add_bitmask(item_tree, tvb, offset + 4, hf_enip_iana_port_state_flags, ett_iana_port_state_flags, iana_flags, ENC_LITTLE_ENDIAN);
+}
+
+// offset - Starts at the "Encapsulation Protocol Version" field.
+static void dissect_item_list_services_response(packet_info* pinfo, tvbuff_t* tvb, int offset, proto_tree* item_tree)
+{
+   /* Encapsulation version */
+   proto_tree_add_item(item_tree, hf_enip_encapver, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+   /* Capability flags */
+   static const int* capability_bits[] = {
+      &hf_enip_lsr_tcp,
+      &hf_enip_lsr_udp,
+      NULL
+   };
+   proto_tree_add_bitmask(item_tree, tvb, offset + 2, hf_enip_lsr_capaflags, ett_lsrcf, capability_bits, ENC_LITTLE_ENDIAN);
+
+   /* Name of service */
+   proto_tree_add_item(item_tree, hf_enip_lsr_servicename, tvb, offset + 4, 16, ENC_ASCII | ENC_NA);
+
+   /* Append service name to info column */
+   col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+      tvb_format_stringzpad(tvb, offset + 4, 16));
+}
+
+static void display_fwd_open_connection_path(enip_conn_val_t* conn_info, proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo)
+{
+   if (!conn_info->pFwdOpenPathData)
+   {
+      return;
+   }
+
+   tvbuff_t* tvbIOI = tvb_new_real_data((const guint8*)conn_info->pFwdOpenPathData, conn_info->FwdOpenPathLenBytes, conn_info->FwdOpenPathLenBytes);
+   if (tvbIOI)
+   {
+      proto_item* pi = NULL;
+      proto_tree* epath_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_connection_path_info, &pi, "Connection Path: ");
+      proto_item_set_generated(pi);
+
+      dissect_epath(tvbIOI, pinfo, epath_tree, pi, 0, conn_info->FwdOpenPathLenBytes, TRUE, FALSE, NULL, NULL, NO_DISPLAY, NULL, FALSE);
+      tvb_free(tvbIOI);
+   }
+}
+
+static void display_connection_information(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree, enip_conn_val_t* conn_info, enum enip_connid_type connid_type)
+{
+   proto_item* pi = NULL;
+   proto_tree* conn_info_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_connection_info, &pi, "Connection Information");
+   proto_item_set_generated(pi);
+
+   if (connid_type == ECIDT_O2T)
+   {
+       proto_item_append_text(pi, ": O->T");
+   }
+   else if (connid_type == ECIDT_T2O)
+   {
+       proto_item_append_text(pi, ": T->O");
+   }
+
+   display_fwd_open_connection_path(conn_info, conn_info_tree, tvb, pinfo);
+
+   pi = proto_tree_add_uint(conn_info_tree, hf_cip_cm_ot_api, tvb, 0, 0, conn_info->O2Tapi);
+   proto_item_set_generated(pi);
+
+   pi = proto_tree_add_uint(conn_info_tree, hf_cip_cm_to_api, tvb, 0, 0, conn_info->T2Oapi);
+   proto_item_set_generated(pi);
+
+   pi = proto_tree_add_uint(conn_info_tree, hf_cip_connection, tvb, 0, 0, conn_info->connid);
+   proto_item_set_generated(pi);
+
+   pi = proto_tree_add_uint(conn_info_tree, hf_enip_fwd_open_in, tvb, 0, 0, conn_info->open_frame);
+   proto_item_set_generated(pi);
+}
+
+// This dissects Class 0 or Class 1 I/O.
+// offset - Starts at the field after the Item Length field.
+static int dissect_cip_io_generic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data)
+{
+   cip_io_data_input* io_data_input = (cip_io_data_input*)data;
+
+   int offset = 0;
+
+   proto_item* ti = proto_tree_add_item(tree, proto_cipio, tvb, 0, -1, ENC_NA);
+   proto_tree* io_tree = proto_item_add_subtree(ti, ett_cip_io_generic);
+
+   if (io_data_input != NULL)
+   {
+      if ((io_data_input->conn_info->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK) == 1)
+      {
+         proto_tree_add_item(io_tree, hf_cip_sequence_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+         offset += 2;
+      }
+
+      if ((tvb_reported_length_remaining(tvb, offset) >= 4) &&
+         (((io_data_input->connid_type == ECIDT_O2T) && enip_OTrun_idle) ||
+         ((io_data_input->connid_type == ECIDT_T2O) && enip_TOrun_idle)))
+      {
+         dissect_cip_run_idle(tvb, offset, io_tree);
+         offset += 4;
+      }
+   }
+
+   proto_tree_add_item(io_tree, hf_cip_io_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+
+   return tvb_captured_length(tvb);
+}
+
+// Dissect the various kinds of CIP Class 0/1 I/O formats. This will determine the appropriate format and
+// call the appropriate related dissector.
+// offset - Starts at the field after the Item Length field.
+static void dissect_cip_class01_io(packet_info* pinfo, tvbuff_t* tvb, int offset,
+   int item_length, enip_conn_val_t* conn_info, enum enip_connid_type connid_type,
+   proto_tree* dissector_tree)
+{
+   if (tvb_reported_length_remaining(tvb, offset) <= 0)
+   {
+      return;
+   }
+
+   /* Display data */
+   tvbuff_t* next_tvb = tvb_new_subset_length(tvb, offset, item_length);
+   if (conn_info != NULL)
+   {
+      cip_io_data_input io_data_input;
+      io_data_input.conn_info = conn_info;
+      io_data_input.connid_type = connid_type;
+
+      if (conn_info->safety.safety_seg == TRUE)
+      {
+         /* Add any possible safety related data */
+         cip_safety_info_t      cip_safety;
+         cip_safety.conn_type = connid_type;
+         cip_safety.eip_conn_info = conn_info;
+         cip_safety.compute_crc = TRUE;
+
+         call_dissector_with_data(cipsafety_handle, next_tvb, pinfo, dissector_tree, &cip_safety);
+      }
+      else
+      {
+         dissector_handle_t dissector = dissector_get_uint_handle(subdissector_io_table, conn_info->ClassID);
+         if (dissector)
+         {
+            call_dissector_with_data(dissector, next_tvb, pinfo, dissector_tree, &io_data_input);
+         }
+         else
+         {
+            call_dissector_with_data(cip_io_generic_handle, next_tvb, pinfo, dissector_tree, &io_data_input);
+         }
+      }
+   }
+   else
+   {
+      // This handles the Decode As options
+      if (!dissector_try_payload(subdissector_decode_as_io_table, next_tvb, pinfo, dissector_tree))
+      {
+         call_dissector_with_data(cip_io_generic_handle, next_tvb, pinfo, dissector_tree, NULL);
+      }
+   }
+}
+
+// Dissect CIP Class 2/3 data. This will determine the appropriate format and call the appropriate related dissector.
+// offset - Starts at the field after the Item Length field.
+static void dissect_cip_class23_data(packet_info* pinfo, tvbuff_t* tvb, int offset,
+   proto_tree* tree, proto_tree* item_tree, guint32 item_length,
+   enip_request_key_t* request_key, enip_conn_val_t* conn_info, proto_tree* dissector_tree)
+{
+   enip_request_info_t* request_info = NULL;
+
+   if (request_key)
+   {
+      request_key->type = EPDT_CONNECTED_TRANSPORT;
+      request_key->data.connected_transport.sequence = tvb_get_letohs(tvb, offset);
+      request_info = enip_match_request(pinfo, tree, request_key);
+   }
+
+   /* Add sequence count ( Transport Class 2,3 ) */
+   proto_tree_add_item(item_tree, hf_cip_sequence_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+   /* Call dissector for interface */
+   tvbuff_t* next_tvb = tvb_new_subset_length(tvb, offset + 2, item_length - 2);
+
+   p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO, request_info);
+
+   if (conn_info != NULL)
+   {
+      dissector_handle_t dissector = dissector_get_uint_handle(subdissector_cip_connection_table, conn_info->ClassID);
+      if (dissector)
+      {
+         call_dissector_with_data(dissector, next_tvb, pinfo, dissector_tree, GUINT_TO_POINTER(conn_info->ClassID));
+      }
+      else
+      {
+         call_dissector_with_data(cip_implicit_handle, next_tvb, pinfo, dissector_tree, GUINT_TO_POINTER(conn_info->ClassID));
+      }
+   }
+   else
+   {
+      // Default to Message Router format, since this is the most common. Since we don't have the connection
+      // info, at least ensure that the data can at least meet the minimum explicit message size.
+      if (tvb_reported_length(next_tvb) >= 2)
+      {
+         call_dissector(cip_handle, next_tvb, pinfo, dissector_tree);
+      }
+   }
+
+   p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
+}
+
+// offset - Starts at the sin_family field.
+static void dissect_item_sockaddr_info(packet_info *pinfo, tvbuff_t* tvb, int offset, proto_tree* item_tree,
+   guint32 item_type_id, gboolean is_fwd_open)
+{
+   /* Socket address struct - sin_family */
+   proto_tree_add_item(item_tree, hf_enip_sinfamily, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+   /* Socket address struct - sin_port */
+   proto_tree_add_item(item_tree, hf_enip_sinport, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+
+   /* Socket address struct - sin_address */
+   proto_tree_add_item(item_tree, hf_enip_sinaddr, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+
+   /* Socket address struct - sin_zero */
+   proto_tree_add_item(item_tree, hf_enip_sinzero, tvb, offset + 8, 8, ENC_NA);
+
+   if (is_fwd_open)
+   {
+      enip_request_info_t* request_info = (enip_request_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
+      if (request_info != NULL)
+      {
+         if (item_type_id == SOCK_ADR_INFO_OT)
+         {
+            request_info->cip_info->connInfo->O2T.port = tvb_get_ntohs(tvb, offset + 2);
+            alloc_address_tvb(wmem_file_scope(), &request_info->cip_info->connInfo->O2T.ipaddress,
+               AT_IPv4, sizeof(guint32), tvb, offset + 4);
+         }
+         else
+         {
+            request_info->cip_info->connInfo->T2O.port = tvb_get_ntohs(tvb, offset + 2);
+            alloc_address_tvb(wmem_file_scope(), &request_info->cip_info->connInfo->T2O.ipaddress,
+               AT_IPv4, sizeof(guint32), tvb, offset + 4);
+         }
+      }
+   }
+}
+
+// offset - Starts at the Connection ID
+// Returns: connid_type, conn_info
+static void dissect_item_sequenced_address(packet_info* pinfo, tvbuff_t* tvb, int offset,
+   proto_tree* item_tree, enum enip_connid_type* connid_type, enip_conn_val_t** conn_info)
+{
+   guint32 connection_id;
+   proto_tree_add_item_ret_uint(item_tree, hf_enip_cpf_sai_connid, tvb, offset, 4, ENC_LITTLE_ENDIAN, &connection_id);
+
+   guint32 sequence_num;
+   proto_tree_add_item_ret_uint(item_tree, hf_enip_cpf_sai_seqnum, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN, &sequence_num);
+
+   *conn_info = enip_get_io_connid(pinfo, connection_id, connid_type);
+
+   col_add_fstr(pinfo->cinfo, COL_INFO, "Connection: ID=0x%08X, SEQ=%010d", connection_id, sequence_num);
+   if (*connid_type == ECIDT_O2T)
+   {
+       col_append_str(pinfo->cinfo, COL_INFO, ", O->T");
+   }
+   else if (*connid_type == ECIDT_T2O)
+   {
+       col_append_str(pinfo->cinfo, COL_INFO, ", T->O");
+   }
+}
+
+// offset - Starts at the Connection ID
+// Returns: conn_info
+static void dissect_item_connected_address(packet_info* pinfo, tvbuff_t* tvb, int offset,
+   proto_tree* item_tree, proto_item* enip_item,
+   enip_request_key_t* request_key, enip_conn_val_t** conn_info)
+{
+   guint32 connection_id;
+   proto_tree_add_item_ret_uint(item_tree, hf_enip_cpf_cai_connid, tvb, offset, 4, ENC_LITTLE_ENDIAN, &connection_id);
+
+   *conn_info = enip_get_explicit_connid(pinfo, request_key, connection_id);
+   if (request_key)
+   {
+      request_key->type = EPDT_CONNECTED_TRANSPORT;
+      request_key->data.connected_transport.connid = (*conn_info != NULL) ? (*conn_info)->connid : 0;
+   }
+
+   /* Add Connection ID to Info col and tree */
+   col_append_fstr(pinfo->cinfo, COL_INFO, ", Connection: ID=0x%08X", connection_id);
+
+   if (enip_item)
+   {
+      proto_item_append_text(enip_item, ", Connection ID: 0x%08X", connection_id);
+   }
+}
+
+// offset - Starts at Unconn Msg Type
+// returns - input_request_key
+// Dissects the following parts of the Unconnected Message over UDP item: Unconn Msg Type, Transaction Number, Status.
+// The Unconnected Messge field is handled outside of this function.
+static void dissect_item_unconnected_message_over_udp(packet_info* pinfo, tvbuff_t* tvb, int offset, proto_tree* item_tree, enip_request_key_t** input_request_key)
+{
+   guint32 ucmm_request;
+   proto_tree_add_item_ret_uint(item_tree, hf_enip_cpf_ucmm_request, tvb, offset, 2, ENC_LITTLE_ENDIAN, &ucmm_request);
+   proto_tree_add_item(item_tree, hf_enip_cpf_ucmm_msg_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+   guint32 trans_id;
+   proto_tree_add_item_ret_uint(item_tree, hf_enip_cpf_ucmm_trans_id, tvb, offset + 2, 4, ENC_LITTLE_ENDIAN, &trans_id);
+   proto_tree_add_item(item_tree, hf_enip_cpf_ucmm_status, tvb, offset + 6, 4, ENC_LITTLE_ENDIAN);
+
+   if (*input_request_key == NULL)
+   {
+      /*
+       * Under normal circumstances request_key should always be NULL here
+       * Duplicating setting up a request (like is done with explicit messaging)
+       */
+      conversation_t* conversation = find_or_create_conversation(pinfo);
+
+      /*
+       * Attach that information to the conversation, and add
+       * it to the list of information structures later before dissection.
+       */
+      enip_request_key_t* request_key = wmem_new0(wmem_packet_scope(), enip_request_key_t);
+      request_key->requesttype = ucmm_request ? ENIP_RESPONSE_PACKET : ENIP_REQUEST_PACKET;
+      request_key->type = EPDT_UNKNOWN;
+
+      /* UCMM over UDP doesn't have a session handle, so use conversation
+       * pointer as "unique-ish ID"
+       */
+      request_key->session_handle = GPOINTER_TO_UINT(conversation);
+      request_key->sender_context = trans_id;
+      request_key->conversation = conversation->conv_index;
+
+      // Return the new request key.
+      *input_request_key = request_key;
+   }
+}
+
 /* Dissect Common Packet Format */
 static void
 dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
-            packet_info *pinfo, proto_tree *tree, proto_tree *dissector_tree,
+            packet_info *pinfo, proto_tree *tree, proto_tree *dissector_tree, proto_tree *enip_layer_tree,
             proto_item *enip_item, int offset, guint32 ifacehndl)
 {
-   proto_item            *temp_item, *count_item, *type_item;
-   proto_tree            *temp_tree, *count_tree, *item_tree, *sockaddr_tree;
-   int                    item_count, item_length, item, io_length;
-   unsigned char          name_length;
-   tvbuff_t              *next_tvb;
-   enip_request_info_t   *request_info;
+   proto_item            *count_item;
+   proto_tree            *count_tree;
+   int                    item_count;
+
+   // The following variables are set in one pass of the loop, and read in a second pass.
    enip_conn_val_t*       conn_info    = NULL;
-   gboolean               FwdOpen      = FALSE;
+   gboolean               FwdOpenRequest = FALSE;
    gboolean               FwdOpenReply = FALSE;
    enum enip_connid_type  connid_type  = ECIDT_UNKNOWN;
-   cip_safety_info_t      cip_safety;
-   guint32                trans_id, ucmm_request;
-   conversation_t        *conversation;
 
+   // Normal "Common Packet Format" configurations. See CIP Volume 2, Section 2-6.4.
+   //    SendRRData (Unconnected):
+   //       Item 1: CDF_NULL
+   //       Item 2: UNCONNECTED_MSG
+   //    SendUnitData (Connected, Class 3):
+   //       Item 1: CONNECTION_BASED
+   //       Item 2: CONNECTION_TRANSPORT
+   //       Item 3 (Optional): SOCK_ADR_INFO_OT/SOCK_ADR_INFO_TO
+   //    Class 0/1 packet:
+   //       Item 1: SEQ_ADDRESS
+   //       Item 2: CONNECTION_TRANSPORT
+   //    Unconnected Message over UDP:
+   //       Item 1: UNCONNECTED_MSG_DTLS
 
    /* Create item count tree */
    item_count = tvb_get_letohs( tvb, offset );
    count_item = proto_tree_add_item( tree, hf_enip_cpf_itemcount, tvb, offset, 2, ENC_LITTLE_ENDIAN );
    count_tree = proto_item_add_subtree( count_item, ett_count_tree );
+   offset += 2;
 
    while ( item_count-- )
    {
+       // Verify that we have the minimum CPF Item size.
+       if (tvb_reported_length_remaining(tvb, offset) < 4)
+       {
+           expert_add_info_format(pinfo, count_item, &ei_mal_cpf_item_minimum_size,
+               "%s, but Remaining Data Length is %d",
+               expert_get_summary(&ei_mal_cpf_item_minimum_size), tvb_reported_length_remaining(tvb, offset));
+
+           break;
+       }
+
       /* Add item type tree to item count tree*/
-      type_item = proto_tree_add_item( count_tree, hf_enip_cpf_typeid, tvb, offset+2, 2, ENC_LITTLE_ENDIAN );
-      item_tree = proto_item_add_subtree( type_item, ett_type_tree );
+      guint32 item_type_id;
+      proto_item* type_item = proto_tree_add_item_ret_uint( count_tree, hf_enip_cpf_typeid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_type_id );
+      proto_tree* item_tree = proto_item_add_subtree( type_item, ett_type_tree );
+      offset += 2;
 
       /* Add length field to item type tree */
-      proto_tree_add_item( item_tree, hf_enip_cpf_length, tvb, offset+4, 2, ENC_LITTLE_ENDIAN );
+      guint32 item_length;
+      proto_tree_add_item_ret_uint( item_tree, hf_enip_cpf_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_length);
+      offset += 2;
 
-      item        = tvb_get_letohs( tvb, offset+2 );
-      item_length = tvb_get_letohs( tvb, offset+4 );
+      // Check if the declared item length is more bytes than we have available. But, don't exit early
+      //    so maybe it will be more obvious where the problem is.
+      if ((int)item_length > tvb_reported_length_remaining(tvb, offset))
+      {
+          expert_add_info_format(pinfo, type_item, &ei_mal_cpf_item_length_mismatch,
+              "%s: Item Length %d, Remaining Data Length: %d",
+              expert_get_summary(&ei_mal_cpf_item_length_mismatch), item_length, tvb_reported_length_remaining(tvb, offset));
+      }
 
+      // offset now starts at the data field after the Item Length field. The name of this
+      //    field varies depending on the item type.
       if ( item_length )
       {
           /* Add item data field */
 
-          switch ( item )
+          switch ( item_type_id )
           {
-              case CONNECTION_BASED:
-
-               /* Add Connection identifier */
-               proto_tree_add_item(item_tree, hf_enip_cpf_cai_connid, tvb, offset+6, 4, ENC_LITTLE_ENDIAN );
-
-               conn_info = enip_get_explicit_connid( pinfo, request_key, tvb_get_letohl( tvb, offset+6 ) );
-               if ( request_key )
-               {
-                  request_key->type = EPDT_CONNECTED_TRANSPORT;
-                  request_key->data.connected_transport.connid = (conn_info != NULL) ? conn_info->connid : 0;
-               }
-
-               /* Add Connection ID to Info col and tree */
-               col_append_fstr(pinfo->cinfo, COL_INFO, ", CONID: 0x%08X", tvb_get_letohl( tvb, offset+6 ) );
-
-               if (enip_item)
-               {
-                   proto_item_append_text(enip_item, ", Connection ID: 0x%08X", tvb_get_letohl(tvb, offset + 6));
-               }
-
-               if (conn_info)
-               {
-                   proto_item *it;
-                   it = proto_tree_add_uint(tree, hf_enip_fwd_open_in, tvb, 0, 0, conn_info->open_frame);
-                   PROTO_ITEM_SET_GENERATED(it);
-               }
-
+            case CONNECTION_BASED:  // 1st Item for: Class 3 Connected Messages
+               conn_info = NULL;
+               dissect_item_connected_address(pinfo, tvb, offset, item_tree, enip_item, request_key, &conn_info);
                break;
 
-            case UNCONNECTED_MSG_DTLS:
+            case UNCONNECTED_MSG_DTLS:  // Only item for: Unconnected messages over DTLS
+            {
                ifacehndl = ENIP_CIP_INTERFACE;
 
-               proto_tree_add_item_ret_uint(item_tree, hf_enip_cpf_ucmm_request, tvb, offset+6, 2, ENC_LITTLE_ENDIAN, &ucmm_request );
-               proto_tree_add_item(item_tree, hf_enip_cpf_ucmm_msg_type, tvb, offset+6, 2, ENC_LITTLE_ENDIAN );
-               proto_tree_add_item_ret_uint(item_tree, hf_enip_cpf_ucmm_trans_id, tvb, offset+8, 4, ENC_LITTLE_ENDIAN, &trans_id );
-               proto_tree_add_item(item_tree, hf_enip_cpf_ucmm_status, tvb, offset+12, 4, ENC_LITTLE_ENDIAN );
+               dissect_item_unconnected_message_over_udp(pinfo, tvb, offset, item_tree, &request_key);
+
+               // Skip over the fields already parsed before falling through.
                offset += 10;
                item_length -= 10;
+            }
 
-               if ( request_key == NULL)
-               {
-                   /*
-                    * Under normal circumstances request_key should always be NULL here
-                    * Duplicating setting up a request (like is done with explicit messaging)
-                    */
-                   conversation = find_or_create_conversation(pinfo);
+            /* Intentionally fall through */
 
-                   /*
-                    * Attach that information to the conversation, and add
-                    * it to the list of information structures later before dissection.
-                    */
-                   request_key = wmem_new0(wmem_packet_scope(), enip_request_key_t);
-                   request_key->requesttype    = ucmm_request ? ENIP_RESPONSE_PACKET : ENIP_REQUEST_PACKET;
-                   request_key->type           = EPDT_UNKNOWN;
-
-                   /* UCMM over UDP doesn't have a session handle, so use conversation
-                    * pointer as "unique-ish ID"
-                    */
-                   request_key->session_handle = GPOINTER_TO_UINT(conversation);
-                   request_key->sender_context = trans_id;
-                   request_key->conversation   = conversation->conv_index;
-               }
-
-
-                /* Intentionally fall through */
-            case UNCONNECTED_MSG:
-               request_info = NULL;
+            case UNCONNECTED_MSG:  // 2nd Item for: Unconnected Messages
+            {
+               enip_request_info_t* request_info = NULL;
                if ( request_key )
                {
                   request_key->type = EPDT_UNCONNECTED;
@@ -2284,7 +2814,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                }
 
                /* Call dissector for interface */
-               next_tvb = tvb_new_subset_length( tvb, offset+6, item_length);
+               tvbuff_t* next_tvb = tvb_new_subset_length( tvb, offset, item_length);
                p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO, request_info);
                if ( tvb_reported_length_remaining(next_tvb, 0) <= 0 || !dissector_try_uint(subdissector_srrd_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
                {
@@ -2304,7 +2834,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                {
                   if (request_key->requesttype == ENIP_REQUEST_PACKET)
                   {
-                     FwdOpen = TRUE;
+                     FwdOpenRequest = TRUE;
                   }
                   else
                   {
@@ -2316,320 +2846,78 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                   p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
                }
                break;
+            }
 
-            case CONNECTION_TRANSPORT:
-
-               if ( command == SEND_UNIT_DATA )
+            case CONNECTION_TRANSPORT:  // 2nd item for: Connected messages (both Class 0/1 and Class 3)
+               // Save the connection info for the conversation filter
+               if (!pinfo->fd->visited && conn_info)
                {
-                  request_info = NULL;
-
-                  if ( request_key )
-                  {
-                     request_key->type = EPDT_CONNECTED_TRANSPORT;
-                     request_key->data.connected_transport.sequence = tvb_get_letohs( tvb, offset+6 );
-                     request_info = enip_match_request( pinfo, tree, request_key );
-                  }
-
-                  /* Save the connection info for the conversation filter */
-                  if ((!pinfo->fd->flags.visited) && (conn_info != NULL))
-                     p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_info);
-
-                  /*
-                  ** If the encapsulation service is SendUnit Data, this is a
-                  ** encapsulated connected message
-                  */
-
-                  /* Add sequence count ( Transport Class 1,2,3 ) */
-                  proto_tree_add_item( item_tree, hf_enip_cpf_cdi_seqcnt, tvb, offset+6, 2, ENC_LITTLE_ENDIAN );
-
-                  /* Call dissector for interface */
-                  next_tvb = tvb_new_subset_length (tvb, offset+8, item_length-2);
-
-                  /* If we don't have the connection info, we can't be sure of the data format, so
-                  ensure that the data can at least meet the minimum explicit message size. */
-                  if ((conn_info == NULL) && tvb_reported_length(next_tvb) < 2)
-                  {
-                     break;
-                  }
-
-                  if ((conn_info == NULL) || (conn_info->ClassID == CI_CLS_MR))
-                  {
-                      p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO, request_info);
-                      if (!dissector_try_uint(subdissector_sud_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
-                      {
-                         /* Show the undissected payload */
-                         call_data_dissector(next_tvb, pinfo, dissector_tree );
-                      }
-                      p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
-                  }
-                  else
-                  {
-                      call_dissector_with_data( cip_implicit_handle, next_tvb, pinfo, dissector_tree, GUINT_TO_POINTER(conn_info->ClassID) );
-                  }
+                  p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_info);
                }
-               else
+
+               if (command == SEND_UNIT_DATA)  // Class 2/3 over TCP.
                {
-                  /* Display data */
-                  if (tvb_reported_length_remaining(tvb, offset+6) > 0)
-                  {
-                      next_tvb = tvb_new_subset_length(tvb, offset+6, item_length);
-                      if (conn_info != NULL)
-                      {
-                         if (conn_info->safety.safety_seg == TRUE)
-                         {
-                            /* Add any possible safety related data */
-                            cip_safety.conn_type = connid_type;
-                            cip_safety.eip_conn_info = conn_info;
-                            cip_safety.compute_crc = TRUE;
-
-                            call_dissector_with_data(cipsafety_handle, next_tvb, pinfo, dissector_tree, &cip_safety);
-                         }
-                         else if (conn_info->motion == TRUE)
-                         {
-                            call_dissector_with_data(cipmotion_handle, next_tvb, pinfo, dissector_tree, GUINT_TO_POINTER(conn_info->ConnPoint));
-                         }
-                         else
-                         {
-                            io_length = item_length;
-
-                            if ((conn_info->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK) == 1)
-                            {
-                               proto_tree_add_item( item_tree, hf_enip_cpf_cdi_seqcnt,
-                                                    tvb, offset+6+(item_length-io_length), 2, ENC_LITTLE_ENDIAN );
-                               io_length -= 2;
-                            }
-
-                            if ((io_length >= 4) &&
-                                (((connid_type == ECIDT_O2T) && enip_OTrun_idle) ||
-                                ((connid_type == ECIDT_T2O) && enip_TOrun_idle)))
-                            {
-                               dissect_cip_run_idle(tvb, offset + 6 + (item_length - io_length), item_tree);
-                               io_length -= 4;
-                            }
-
-                            proto_tree_add_item(item_tree, hf_enip_connection_transport_data, tvb, offset+6+(item_length-io_length), io_length, ENC_NA);
-                         }
-
-                         /* Save the connection info for the conversation filter */
-                         if (!pinfo->fd->flags.visited)
-                            p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_info);
-                      }
-                      else
-                      {
-                         if (!dissector_try_payload(subdissector_io_table, next_tvb, pinfo, dissector_tree))
-                         {
-                            proto_tree_add_item(item_tree, hf_enip_connection_transport_data, tvb, offset+6, item_length, ENC_NA);
-                         }
-                      }
-                  }
-               } /* End of if send unit data */
-
-               break;
-
-
-            case LIST_IDENTITY_RESP:
-
-               /* Encapsulation version */
-               proto_tree_add_item( item_tree, hf_enip_encapver, tvb, offset+6, 2, ENC_LITTLE_ENDIAN );
-
-               /* Socket Address */
-               sockaddr_tree = proto_tree_add_subtree( item_tree, tvb, offset+8, 16, ett_sockadd, NULL, "Socket Address");
-
-               /* Socket address struct - sin_family */
-               proto_tree_add_item(sockaddr_tree, hf_enip_sinfamily,
-                     tvb, offset+8, 2, ENC_BIG_ENDIAN );
-
-               /* Socket address struct - sin_port */
-               proto_tree_add_item(sockaddr_tree, hf_enip_sinport,
-                     tvb, offset+10, 2, ENC_BIG_ENDIAN );
-
-               /* Socket address struct - sin_address */
-               proto_tree_add_item(sockaddr_tree, hf_enip_sinaddr,
-                     tvb, offset+12, 4, ENC_BIG_ENDIAN );
-
-               /* Socket address struct - sin_zero */
-               proto_tree_add_item(sockaddr_tree, hf_enip_sinzero,
-                     tvb, offset+16, 8, ENC_NA );
-
-               /* Vendor ID */
-               proto_tree_add_item(item_tree, hf_enip_lir_vendor,
-                     tvb, offset+24, 2, ENC_LITTLE_ENDIAN );
-
-               /* Device Type */
-               proto_tree_add_item(item_tree, hf_enip_lir_devtype,
-                     tvb, offset+26, 2, ENC_LITTLE_ENDIAN );
-
-               /* Product Code */
-               proto_tree_add_item(item_tree, hf_enip_lir_prodcode,
-                     tvb, offset+28, 2, ENC_LITTLE_ENDIAN );
-
-               /* Revision */
-               proto_tree_add_item(item_tree, hf_enip_lir_revision,
-                     tvb, offset+30, 2, ENC_BIG_ENDIAN );
-
-               /* Status */
-               proto_tree_add_item(item_tree, hf_enip_lir_status,
-                     tvb, offset+32, 2, ENC_LITTLE_ENDIAN );
-
-               /* Serial Number */
-               proto_tree_add_item(item_tree, hf_enip_lir_serial,
-                     tvb, offset+34, 4, ENC_LITTLE_ENDIAN );
-
-               /* Product Name Length */
-               name_length = tvb_get_guint8( tvb, offset+38 );
-               proto_tree_add_item( item_tree, hf_enip_lir_namelen,
-                     tvb, offset+38, 1, ENC_LITTLE_ENDIAN );
-
-               /* Product Name */
-               proto_tree_add_item(item_tree, hf_enip_lir_name,
-                     tvb, offset+39, name_length, ENC_ASCII|ENC_NA );
-
-               /* Append product name to info column */
-               col_append_fstr( pinfo->cinfo, COL_INFO, ", %s", tvb_format_text(tvb, offset+39, name_length));
-
-               /* State */
-               proto_tree_add_item(item_tree, hf_enip_lir_state,
-                     tvb, offset+name_length+39, 1, ENC_LITTLE_ENDIAN );
-               break;
-
-            case LIST_ID_SECURITY:
-               {
-               static const int * security_profiles[] = {
-                  &hf_enip_security_profiles_eip_integrity,
-                  &hf_enip_security_profiles_eip_confidentiality,
-                  &hf_enip_security_profiles_cip_authorization,
-                  &hf_enip_security_profiles_cip_integrity,
-                  &hf_enip_security_profiles_reserved,
-                  NULL
-               };
-               static const int * iana_flags[] = {
-                  &hf_enip_iana_port_state_flags_tcp_44818,
-                  &hf_enip_iana_port_state_flags_udp_44818,
-                  &hf_enip_iana_port_state_flags_udp_2222,
-                  &hf_enip_iana_port_state_flags_tcp_2221,
-                  &hf_enip_iana_port_state_flags_udp_2221,
-                  &hf_enip_iana_port_state_flags_reserved,
-                  NULL
-               };
-
-               /* Security profiles */
-               proto_tree_add_bitmask( item_tree, tvb, offset+6, hf_enip_security_profiles, ett_security_profiles, security_profiles, ENC_LITTLE_ENDIAN );
-
-               /* CIP Security object state */
-               proto_tree_add_item( item_tree, hf_enip_cip_security_state, tvb, offset+8, 1, ENC_LITTLE_ENDIAN );
-
-               /* ENIP Security object state  */
-               proto_tree_add_item( item_tree, hf_enip_eip_security_state, tvb, offset+9, 1, ENC_LITTLE_ENDIAN );
-
-               /* IANA Port State flags */
-               proto_tree_add_bitmask( item_tree, tvb, offset+10, hf_enip_iana_port_state_flags, ett_iana_port_state_flags, iana_flags, ENC_LITTLE_ENDIAN );
+                  dissect_cip_class23_data(pinfo, tvb, offset, tree, item_tree, item_length, request_key, conn_info, dissector_tree);
                }
-               break;
-
-            case SOCK_ADR_INFO_OT:
-            case SOCK_ADR_INFO_TO:
-
-               /* Socket address struct - sin_family */
-               proto_tree_add_item(item_tree, hf_enip_sinfamily,
-                     tvb, offset+6, 2, ENC_BIG_ENDIAN );
-
-               /* Socket address struct - sin_port */
-               proto_tree_add_item(item_tree, hf_enip_sinport,
-                     tvb, offset+8, 2, ENC_BIG_ENDIAN );
-
-               /* Socket address struct - sin_address */
-               proto_tree_add_item(item_tree, hf_enip_sinaddr,
-                     tvb, offset+10, 4, ENC_BIG_ENDIAN );
-
-               /* Socket address struct - sin_zero */
-               proto_tree_add_item( item_tree, hf_enip_sinzero,
-                     tvb, offset+14, 8, ENC_NA );
-
-               if ((FwdOpen == TRUE) || (FwdOpenReply == TRUE))
+               else  // No command. Send as CPF items only over UDP.
                {
-                  request_info = (enip_request_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
-                  if (request_info != NULL)
-                  {
-                     if (item == SOCK_ADR_INFO_OT)
-                     {
-                        request_info->cip_info->connInfo->O2T.port = tvb_get_ntohs(tvb, offset+8);
-                        alloc_address_tvb(wmem_file_scope(), &request_info->cip_info->connInfo->O2T.ipaddress,
-                                             AT_IPv4, sizeof(guint32), tvb, offset+10);
-                     }
-                     else
-                     {
-                        request_info->cip_info->connInfo->T2O.port = tvb_get_ntohs(tvb, offset+8);
-                        alloc_address_tvb(wmem_file_scope(), &request_info->cip_info->connInfo->T2O.ipaddress,
-                                             AT_IPv4, sizeof(guint32), tvb, offset+10);
-                     }
-                  }
+                  dissect_cip_class01_io(pinfo, tvb, offset, item_length, conn_info, connid_type, dissector_tree);
                }
-               break;
-
-
-            case SEQ_ADDRESS:
-               conn_info = enip_get_io_connid( pinfo, tvb_get_letohl( tvb, offset+6 ), &connid_type);
-               proto_tree_add_item(item_tree, hf_enip_cpf_sai_connid, tvb, offset+6,  4, ENC_LITTLE_ENDIAN );
-               proto_tree_add_item(item_tree, hf_enip_cpf_sai_seqnum, tvb, offset+10, 4, ENC_LITTLE_ENDIAN );
 
                if (conn_info)
                {
-                   proto_item *it;
-                   it = proto_tree_add_uint(tree, hf_enip_fwd_open_in, tvb, 0, 0, conn_info->open_frame);
-                   PROTO_ITEM_SET_GENERATED(it);
+                  display_connection_information(pinfo, tvb, enip_layer_tree, conn_info, connid_type);
                }
 
-               /* Add info to column */
-               col_add_fstr(pinfo->cinfo, COL_INFO, "Connection:  ID=0x%08X, SEQ=%010d",
-                     tvb_get_letohl( tvb, offset+6 ),
-                     tvb_get_letohl( tvb, offset+10 ) );
+               break;
+
+            case LIST_IDENTITY_RESP:
+               dissect_item_list_identity(pinfo, tvb, offset, item_tree);
+               break;
+
+            case LIST_ID_SECURITY:
+               dissect_item_cip_security_information(tvb, offset, item_tree);
+               break;
+
+            case SOCK_ADR_INFO_OT:  // Optional 3rd item for: Unconnected Messages
+            case SOCK_ADR_INFO_TO:
+            {
+               gboolean is_fwd_open = (FwdOpenRequest == TRUE) || (FwdOpenReply == TRUE);
+               dissect_item_sockaddr_info(pinfo, tvb, offset, item_tree, item_type_id, is_fwd_open);
+               break;
+            }
+
+            case SEQ_ADDRESS:  // 1st item for: Class 0/1 connected data
+               conn_info = NULL;
+               dissect_item_sequenced_address(pinfo, tvb, offset, item_tree, &connid_type, &conn_info);
                break;
 
             case LIST_SERVICES_RESP:
-
-               /* Encapsulation version */
-               proto_tree_add_item( item_tree, hf_enip_encapver, tvb, offset+6, 2, ENC_LITTLE_ENDIAN );
-
-               /* Capability flags */
-               temp_item = proto_tree_add_item( item_tree, hf_enip_lsr_capaflags, tvb, offset+8, 2, ENC_LITTLE_ENDIAN );
-               temp_tree = proto_item_add_subtree( temp_item, ett_lsrcf );
-
-               proto_tree_add_item( temp_tree, hf_enip_lsr_tcp, tvb, offset+8, 2, ENC_LITTLE_ENDIAN );
-               proto_tree_add_item( temp_tree, hf_enip_lsr_udp, tvb, offset+8, 2, ENC_LITTLE_ENDIAN );
-
-               /* Name of service */
-               proto_tree_add_item( item_tree, hf_enip_lsr_servicename, tvb, offset+10, 16, ENC_ASCII|ENC_NA );
-
-               /* Append service name to info column */
-               col_append_fstr( pinfo->cinfo, COL_INFO, ", %s",
-                    tvb_format_stringzpad(tvb, offset+10, 16) );
+               dissect_item_list_services_response(pinfo, tvb, offset, item_tree);
                break;
 
-
             default:
-
-               proto_tree_add_item(item_tree, hf_enip_cpf_data, tvb, offset+6, item_length, ENC_NA);
+               proto_tree_add_item(item_tree, hf_enip_cpf_data, tvb, offset, item_length, ENC_NA);
                break;
 
          } /* end of switch ( item type ) */
 
       } /* end of if ( item length ) */
 
-      offset = offset + item_length + 4;
-
+      offset += item_length;
    } /* end of while ( item count ) */
 
    /* See if there is a CIP connection to establish */
    if (FwdOpenReply == TRUE)
    {
-      request_info = (enip_request_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
+      enip_request_info_t* request_info = (enip_request_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
       if (request_info != NULL)
       {
          enip_open_cip_connection(pinfo, request_info->cip_info->connInfo);
       }
       p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
    }
-   else if (FwdOpen == TRUE)
+   else if (FwdOpenRequest == TRUE)
    {
       p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
    }
@@ -2684,7 +2972,6 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
    guint16             encap_cmd, encap_data_length;
    const char         *pkt_type_str = "";
    guint32             ifacehndl;
-   enip_request_key_t  request_key;
    conversation_t     *conversation;
 
    /* Set up structures needed to add the protocol subtree and manage it */
@@ -2729,50 +3016,44 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     * Attach that information to the conversation, and add
     * it to the list of information structures later before dissection.
     */
-   memset( &request_key, 0, sizeof(enip_request_key_t) );
+   enip_request_key_t  request_key = {0};
    request_key.requesttype    = packet_type;
    request_key.type           = EPDT_UNKNOWN;
    request_key.session_handle = tvb_get_letohl( tvb, 4 );
    request_key.sender_context = tvb_get_letoh64( tvb, 12 );
    request_key.conversation   = conversation->conv_index;
 
+   /* create display subtree for the protocol */
+   ti = proto_tree_add_item(tree, proto_enip, tvb, 0, -1, ENC_NA );
+
+   enip_tree = proto_item_add_subtree(ti, ett_enip);
+
+   /* Add encapsulation header tree */
+   header_tree = proto_tree_add_subtree( enip_tree, tvb, 0, 24, ett_enip, NULL, "Encapsulation Header");
+
+   /* Add EtherNet/IP encapsulation header */
+   proto_tree_add_item( header_tree, hf_enip_command, tvb, 0, 2, ENC_LITTLE_ENDIAN );
+
    encap_data_length = tvb_get_letohs( tvb, 2 );
-   enip_tree = NULL;
+   proto_tree_add_item( header_tree, hf_enip_length, tvb, 2, 2, ENC_LITTLE_ENDIAN );
+   proto_tree_add_item( header_tree, hf_enip_session, tvb, 4, 4, ENC_LITTLE_ENDIAN );
+   proto_tree_add_item( header_tree, hf_enip_status, tvb, 8, 4, ENC_LITTLE_ENDIAN );
+   if ((encap_cmd == LIST_IDENTITY) &&
+      /* Length of 0 probably indicates a request */
+      ((encap_data_length == 0) || (packet_type == ENIP_REQUEST_PACKET)))
+   {
+      proto_tree_add_item( header_tree, hf_enip_listid_delay, tvb, 12, 2, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item( header_tree, hf_enip_sendercontex, tvb, 14, 6, ENC_NA );
+   }
+   else
+   {
+      proto_tree_add_item( header_tree, hf_enip_sendercontex, tvb, 12, 8, ENC_NA );
+   }
+   proto_tree_add_item( header_tree, hf_enip_options, tvb, 20, 4, ENC_LITTLE_ENDIAN );
 
-   if (tree) {
-      /* create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_enip, tvb, 0, -1, ENC_NA );
-
-      enip_tree = proto_item_add_subtree(ti, ett_enip);
-
-      /* Add encapsulation header tree */
-      header_tree = proto_tree_add_subtree( enip_tree, tvb, 0, 24, ett_enip, NULL, "Encapsulation Header");
-
-      /* Add EtherNet/IP encapsulation header */
-      proto_tree_add_item( header_tree, hf_enip_command, tvb, 0, 2, ENC_LITTLE_ENDIAN );
-
-      encap_data_length = tvb_get_letohs( tvb, 2 );
-      proto_tree_add_item( header_tree, hf_enip_length,       tvb,  2, 2, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( header_tree, hf_enip_session,      tvb,  4, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( header_tree, hf_enip_status,       tvb,  8, 4, ENC_LITTLE_ENDIAN );
-      if ((encap_cmd == LIST_IDENTITY) &&
-          /* Length of 0 probably indicates a request */
-          ((encap_data_length == 0) || (packet_type == ENIP_REQUEST_PACKET)))
-      {
-          proto_tree_add_item( header_tree, hf_enip_listid_delay, tvb, 12, 2, ENC_LITTLE_ENDIAN );
-          proto_tree_add_item( header_tree, hf_enip_sendercontex, tvb, 14, 6, ENC_NA );
-      }
-      else
-      {
-          proto_tree_add_item( header_tree, hf_enip_sendercontex, tvb, 12, 8, ENC_NA );
-      }
-      proto_tree_add_item( header_tree, hf_enip_options,      tvb, 20, 4, ENC_LITTLE_ENDIAN );
-
-      /* Append session and command to the protocol tree */
-      proto_item_append_text( ti, ", Session: 0x%08X, %s", tvb_get_letohl( tvb, 4 ),
-         val_to_str( encap_cmd, encap_cmd_vals, "Unknown Command (0x%04x)" ) );
-
-   } /* end of tree */
+   /* Append session and command to the protocol tree */
+   proto_item_append_text( ti, ", Session: 0x%08X, %s", tvb_get_letohl( tvb, 4 ),
+      val_to_str( encap_cmd, encap_cmd_vals, "Unknown Command (0x%04x)" ) );
 
    /*
    ** For some commands we want to add some info to the info column
@@ -2800,15 +3081,15 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             break;
 
          case LIST_SERVICES:
-            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, NULL, 24, 0 );
+            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 24, 0 );
             break;
 
          case LIST_IDENTITY:
-            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, NULL, 24, 0 );
+            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 24, 0 );
             break;
 
          case LIST_INTERFACES:
-            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, NULL, 24, 0 );
+            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 24, 0 );
             break;
 
          case REGISTER_SESSION:
@@ -2824,7 +3105,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             proto_tree_add_item( csftree, hf_enip_timeout,        tvb, 28, 2, ENC_LITTLE_ENDIAN );
 
             ifacehndl = tvb_get_letohl( tvb, 24 );
-            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, NULL, 30, ifacehndl );
+            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 30, ifacehndl );
             break;
 
          case SEND_UNIT_DATA:
@@ -2832,7 +3113,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             proto_tree_add_item( csftree, hf_enip_timeout,        tvb, 28, 2, ENC_LITTLE_ENDIAN );
 
             ifacehndl = tvb_get_letohl( tvb, 24 );
-            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, ti, 30, ifacehndl );
+            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, ti, 30, ifacehndl );
 
             break;
 
@@ -2881,24 +3162,24 @@ dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 /* Code to actually dissect the io packets*/
 static int
-dissect_enipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_cipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    /* Set up structures needed to add the protocol subtree and manage it */
    proto_item *ti;
    proto_tree *enip_tree;
 
    /* Make entries in Protocol column and Info column on summary display */
-   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENIP");
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP I/O");
 
    /* create display subtree for the protocol */
    ti = proto_tree_add_item(tree, proto_enip, tvb, 0, -1, ENC_NA );
 
    enip_tree = proto_item_add_subtree(ti, ett_enip);
 
-   dissect_cpf( NULL, 0xFFFF, tvb, pinfo, enip_tree, tree, NULL, 0, 0 );
+   dissect_cpf( NULL, 0xFFFF, tvb, pinfo, enip_tree, tree, enip_tree, NULL, 0, 0 );
 
    return tvb_captured_length(tvb);
-} /* end of dissect_enipio() */
+}
 
 
 static gboolean
@@ -2963,16 +3244,15 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    else if ( dlr_frametype == DLR_FT_LINK_STAT )
    {
       /* Link_Status/Neighbor_Status */
-      proto_item* flag_item;
-      proto_tree* flag_tree;
+      static const int* bits[] = {
+         &hf_dlr_lnknbrstatus_port1,
+         &hf_dlr_lnknbrstatus_port2,
+         &hf_dlr_lnknbrstatus_reserved,
+         &hf_dlr_lnknbrstatus_frame_type,
+         NULL
+      };
 
-      flag_item = proto_tree_add_item( dlr_tree, hf_dlr_lnknbrstatus,   tvb, DLR_LNS_SOURCE_PORT,  1, ENC_BIG_ENDIAN );
-      flag_tree = proto_item_add_subtree(flag_item, ett_dlr_lnknbrstatus_flags);
-
-      proto_tree_add_item(flag_tree, hf_dlr_lnknbrstatus_port1,      tvb, DLR_LNS_SOURCE_PORT, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(flag_tree, hf_dlr_lnknbrstatus_port2,      tvb, DLR_LNS_SOURCE_PORT, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(flag_tree, hf_dlr_lnknbrstatus_reserved,   tvb, DLR_LNS_SOURCE_PORT, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(flag_tree, hf_dlr_lnknbrstatus_frame_type, tvb, DLR_LNS_SOURCE_PORT, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_bitmask(dlr_tree, tvb, DLR_LNS_SOURCE_PORT, hf_dlr_lnknbrstatus, ett_dlr_lnknbrstatus_flags, bits, ENC_LITTLE_ENDIAN);
 
       proto_tree_add_item( dlr_tree, hf_dlr_lnknbrreserved, tvb, DLR_LNS_RESERVED,    29, ENC_NA );
    }
@@ -3042,6 +3322,17 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 } /* end of dissect_dlr() */
 
+static int dissect_cip_class1(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+{
+   enip_conn_val_t conn_info = {0};
+   conn_info.TransportClass_trigger = 1;
+
+   cip_io_data_input io_data_input;
+   io_data_input.conn_info = &conn_info;
+   io_data_input.connid_type = ECIDT_UNKNOWN;
+
+   return dissect_cip_io_generic(tvb, pinfo, tree, &io_data_input);
+}
 
 /* Register the protocol with Wireshark */
 
@@ -3306,10 +3597,10 @@ proto_register_enip(void)
           "Common Packet Format: Length", HFILL }},
 
       /* Connected Data Item */
-      { &hf_enip_cpf_cdi_seqcnt,
-        { "CIP Sequence Count", "enip.cpf.cdi.seqcnt",
+      { &hf_cip_sequence_count,
+        { "CIP Sequence Count", "cip.seq",
           FT_UINT16, BASE_DEC, NULL, 0,
-          "Common Packet Format: Connected Data Item, Sequence Count", HFILL }},
+          NULL, HFILL }},
 
       /* Connection Address Item */
       { &hf_enip_cpf_cai_connid,
@@ -3373,10 +3664,19 @@ proto_register_enip(void)
         { "Forward Open Request In", "enip.fwd_open_in",
         FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
 
-      { &hf_enip_connection_transport_data,
-        { "Data", "enip.connection_transport_data",
+      // Generated API data.
+      { &hf_cip_cm_ot_api, { "O->T API", "cip.cm.otapi", FT_UINT32, BASE_CUSTOM, CF_FUNC(cip_rpi_api_fmt), 0, NULL, HFILL } },
+      { &hf_cip_cm_to_api, { "T->O API", "cip.cm.toapi", FT_UINT32, BASE_CUSTOM, CF_FUNC(cip_rpi_api_fmt), 0, NULL, HFILL } },
+
+      { &hf_cip_connection,
+        { "CIP Connection Index", "cip.connection",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL } },
+
+      { &hf_cip_io_data,
+        { "Data", "cipio.data",
           FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x0,
-          "Connection Transport Data", HFILL }},
+          NULL, HFILL }},
 
       { &hf_tcpip_status,
         { "Status", "cip.tcpip.status",
@@ -3521,7 +3821,7 @@ proto_register_enip(void)
 
       { &hf_tcpip_snn_date,
         { "Safety Network Number (Manual) Date", "cip.tcpip.snn.date",
-          FT_UINT16, BASE_HEX, VALS(cipsafety_ssn_date_vals), 0,
+          FT_UINT16, BASE_HEX, VALS(cipsafety_snn_date_vals), 0,
           NULL, HFILL }
       },
 
@@ -3771,6 +4071,46 @@ proto_register_enip(void)
           FT_UINT16, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
+      { &hf_elink_icapability_capability_bits,
+        { "Capability Bits", "cip.elink.icapability.capability_bits",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_icapability_capability_bits_manual,
+        { "Manual Setting Requires Reset", "cip.elink.icapability.capability_bits.manual",
+          FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x0001,
+          NULL, HFILL }},
+
+      { &hf_elink_icapability_capability_bits_auto_neg,
+        { "Auto-negotiate", "cip.elink.icapability.capability_bits.auto_neg",
+          FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x0002,
+          NULL, HFILL }},
+
+      { &hf_elink_icapability_capability_bits_auto_mdix,
+        { "Auto-MDIX", "cip.elink.icapability.capability_bits.auto_mdix",
+          FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x0004,
+          NULL, HFILL } },
+
+      { &hf_elink_icapability_capability_bits_manual_speed,
+        { "Manual Speed/Duplex", "cip.elink.icapability.capability_bits.manual_speed",
+          FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x0008,
+          NULL, HFILL } },
+
+      { &hf_elink_icapability_capability_speed_duplex_array_count,
+        { "Speed/Duplex Array Count", "cip.elink.icapability.array_count",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_icapability_capability_speed,
+        { "Interface Speed", "cip.elink.icapability.speed",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_icapability_capability_duplex,
+        { "Interface Duplex Mode", "cip.elink.icapability.duplex",
+          FT_UINT8, BASE_DEC, VALS(enip_elink_duplex_vals), 0,
+          NULL, HFILL } },
+
       { &hf_elink_interface_type,
         { "Interface Type", "cip.elink.interface_type",
           FT_UINT8, BASE_DEC, VALS(enip_elink_interface_type_vals), 0,
@@ -3791,6 +4131,75 @@ proto_register_enip(void)
           FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 
+      { &hf_elink_hc_icount_in_octets,
+        { "In Octets", "cip.elink.hc_icount.in_octets",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_icount_in_ucast,
+        { "In Ucast Packets", "cip.elink.hc_icount.in_ucast",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_icount_in_mcast,
+        { "In Multicast Packets", "cip.elink.hc_icount.in_mcast",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_icount_in_broadcast,
+        { "In Broadcast", "cip.elink.hc_icount.in_broadcast",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_icount_out_octets,
+        { "Out Octets", "cip.elink.hc_icount.out_octets",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_icount_out_ucast,
+        { "Out Ucast Packets", "cip.elink.hc_icount.out_ucast",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_icount_out_mcast,
+        { "Out Multicast Packets", "cip.elink.hc_icount.out_mcast",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_icount_out_broadcast,
+        { "Out Broadcast Packets", "cip.elink.hc_icount.out_broadcast",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_mcount_stats_align_errors,
+        { "Stats Alignment Errors", "cip.elink.hc_mcount.stats_align_errors",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_mcount_stats_fcs_errors,
+        { "Stats FCS Errors", "cip.elink.hc_mcount.stats_fcs_errors",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_mcount_stats_internal_mac_transmit_errors,
+        { "Stats Internal MAC Transmit Errors", "cip.elink.hc_mcount.internal_mac_transmit_errors",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_mcount_stats_frame_too_long,
+        { "Stats Frame Too Long", "cip.elink.hc_mcount.stats_frame_too_long",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_mcount_stats_internal_mac_receive_errors,
+        { "Stats Internal MAC Receive Errors", "cip.elink.hc_mcount.internal_mac_receive_errors",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_mcount_stats_symbol_errors,
+        { "Stats Symbol Errors", "cip.elink.hc_mcount.stats_symbol_errors",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
 
       { &hf_qos_8021q_enable,
         { "802.1Q Tag Enable", "cip.qos.8021q_enable",
@@ -4123,12 +4532,12 @@ proto_register_enip(void)
           NULL, HFILL }},
 
       { &hf_eip_cert_capflags_push,
-        { "Path size", "cip.eip_cert.capflags.push",
+        { "Push", "cip.eip_cert.capflags.push",
           FT_BOOLEAN, 32, NULL, 0x00000001,
           NULL, HFILL }},
 
       { &hf_eip_cert_capflags_reserved,
-        { "Path size", "cip.eip_cert.capflags.reserved",
+        { "Reserved", "cip.eip_cert.capflags.reserved",
           FT_BOOLEAN, 32, NULL, 0xFFFFFFFE,
           NULL, HFILL }},
 
@@ -4151,6 +4560,7 @@ proto_register_enip(void)
    /* Setup protocol subtree array */
    static gint *ett[] = {
       &ett_enip,
+      &ett_cip_io_generic,
       &ett_path,
       &ett_count_tree,
       &ett_type_tree,
@@ -4162,6 +4572,7 @@ proto_register_enip(void)
       &ett_tcpip_config_control,
       &ett_elink_interface_flags,
       &ett_elink_icontrol_bits,
+      &ett_elink_icapability_bits,
       &ett_dlr_capability_flags,
       &ett_dlr_lnknbrstatus_flags,
       &ett_eip_security_capability_flags,
@@ -4171,7 +4582,9 @@ proto_register_enip(void)
       &ett_eip_cert_capability_flags,
       &ett_eip_cert_num_certs,
       &ett_security_profiles,
-      &ett_iana_port_state_flags
+      &ett_iana_port_state_flags,
+      &ett_connection_info,
+      &ett_connection_path_info
    };
 
    static ei_register_info ei[] = {
@@ -4179,7 +4592,7 @@ proto_register_enip(void)
       { &ei_mal_tcpip_config_cap, { "cip.malformed.tcpip.config_cap", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Configuration Capability", EXPFILL }},
       { &ei_mal_tcpip_config_control, { "cip.malformed.tcpip.config_control", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Configuration Control", EXPFILL }},
       { &ei_mal_tcpip_interface_config, { "cip.malformed.tcpip.interface_config", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Interface Configuration", EXPFILL }},
-      { &ei_mal_tcpip_ssn, { "cip.malformed.tcpip.ssn", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Object Safety Network Number", EXPFILL }},
+      { &ei_mal_tcpip_snn, { "cip.malformed.tcpip.snn", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Object Safety Network Number", EXPFILL }},
       { &ei_mal_tcpip_mcast_config, { "cip.malformed.tcpip.mcast_config", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Multicast Config", EXPFILL }},
       { &ei_mal_tcpip_last_conflict, { "cip.malformed.tcpip.last_conflict", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Last Conflict Detected", EXPFILL }},
       { &ei_mal_elink_interface_flags, { "cip.malformed.elink.interface_flags", PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Interface Flags", EXPFILL }},
@@ -4202,6 +4615,8 @@ proto_register_enip(void)
       { &ei_mal_eip_security_active_certs, { "cip.malformed.eip_security.active_certs", PI_MALFORMED, PI_ERROR, "Malformed EIP Security Active Device Certificates", EXPFILL }},
       { &ei_mal_eip_security_trusted_auths, { "cip.malformed.eip_security.trusted_auths", PI_MALFORMED, PI_ERROR, "Malformed EIP Security Trusted Authorities", EXPFILL }},
       { &ei_mal_eip_cert_capability_flags, { "cip.malformed.eip_cert.capability_flags", PI_MALFORMED, PI_ERROR, "Malformed EIP Certificate Management Capability Flags", EXPFILL }},
+      { &ei_mal_cpf_item_length_mismatch, { "enip.malformed.cpf_item_length_mismatch", PI_MALFORMED, PI_ERROR, "CPF Item Length Mismatch", EXPFILL } },
+      { &ei_mal_cpf_item_minimum_size, { "enip.malformed.cpf_item_minimum_size", PI_MALFORMED, PI_ERROR, "CPF Item Minimum Size is 4", EXPFILL } },
    };
 
    /* Setup list of header fields for DLR  See Section 1.6.1 for details*/
@@ -4424,10 +4839,18 @@ proto_register_enip(void)
 
    /* Register the protocol name and description */
    proto_enip = proto_register_protocol("EtherNet/IP (Industrial Protocol)", "ENIP", "enip");
-   proto_enipio = proto_register_protocol("EtherNet/IP I/O", "ENIP I/O", "enip_io");
+   proto_cipio = proto_register_protocol("Common Industrial Protocol, I/O", "CIP I/O", "cipio");
+   proto_cip_class1 = proto_register_protocol_in_name_only(
+      "Common Industrial Protocol, I/O Class 1",
+      "CIP Class 1",
+      "cipio1",
+      proto_cipio,
+      FT_PROTOCOL);
 
    enip_tcp_handle = register_dissector("enip", dissect_enip_tcp, proto_enip);
-   enipio_handle = register_dissector("enip_io", dissect_enipio, proto_enipio);
+   cipio_handle = register_dissector("cipio", dissect_cipio, proto_cipio);
+   cip_class1_handle = register_dissector("cipio_class1", dissect_cip_class1, proto_cip_class1);
+   cip_io_generic_handle = register_dissector("cipgenericio", dissect_cip_io_generic, proto_cipio);
 
    /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array(proto_enip, hf, array_length(hf));
@@ -4454,14 +4877,19 @@ proto_register_enip(void)
 
    prefs_register_obsolete_preference(enip_module, "default_io_dissector");
 
-   subdissector_sud_table = register_dissector_table("enip.sud.iface",
-                                                     "ENIP SendUnitData.Interface Handle", proto_enip, FT_UINT32, BASE_HEX);
-
    subdissector_srrd_table = register_dissector_table("enip.srrd.iface",
                                                       "ENIP SendRequestReplyData.Interface Handle", proto_enip, FT_UINT32, BASE_HEX);
 
+   subdissector_io_table = register_dissector_table("cip.io.iface",
+      "CIP Class 0/1 Interface Handle", proto_cipio, FT_UINT32, BASE_HEX);
+
+   subdissector_cip_connection_table = register_dissector_table("cip.connection.class",
+      "CIP Class 2/3 Interface Handle", proto_enip, FT_UINT32, BASE_HEX);
+
    enip_request_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), enip_request_hash, enip_request_equal);
    enip_conn_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), enip_conn_hash, enip_conn_equal);
+
+   register_init_routine(&enip_init_protocol);
 
    /* Register the protocol name and description */
    proto_dlr = proto_register_protocol("Device Level Ring", "DLR", "dlr");
@@ -4470,10 +4898,9 @@ proto_register_enip(void)
    proto_register_field_array(proto_dlr, hfdlr, array_length(hfdlr));
    proto_register_subtree_array(ettdlr, array_length(ettdlr));
 
-   register_conversation_filter("enip", "ENIP IO", enip_io_conv_valid, enip_io_conv_filter);
-   register_conversation_filter("enip", "ENIP Explicit", enip_exp_conv_valid, enip_exp_conv_filter);
+   register_conversation_filter("enip", "CIP Connection", cip_connection_conv_valid, cip_connection_conv_filter);
 
-   subdissector_io_table = register_decode_as_next_proto(proto_enip, "ENIP I/O", "enip.io", "ENIP IO Payload", enip_prompt);
+   subdissector_decode_as_io_table = register_decode_as_next_proto(proto_enip, "cip.io", "CIP I/O Payload", enip_prompt);
 } /* end of proto_register_enip() */
 
 
@@ -4491,21 +4918,22 @@ proto_reg_handoff_enip(void)
    dissector_add_uint_with_preference("udp.port", ENIP_ENCAP_PORT, enip_udp_handle);
 
    /* Register for EtherNet/IP IO data (UDP) */
-   dissector_add_uint_with_preference("udp.port", ENIP_IO_PORT, enipio_handle);
+   dissector_add_uint_with_preference("udp.port", ENIP_IO_PORT, cipio_handle);
 
    /* Register for EtherNet/IP TLS */
    ssl_dissector_add(ENIP_SECURE_PORT, enip_tcp_handle);
-   dtls_dissector_add(ENIP_SECURE_PORT, enipio_handle);
+   dtls_dissector_add(ENIP_SECURE_PORT, cipio_handle);
 
    /* Find ARP dissector for TCP/IP object */
    arp_handle = find_dissector_add_dependency("arp", proto_enip);
 
    /* I/O data dissectors */
    cipsafety_handle = find_dissector("cipsafety");
-   cipmotion_handle = find_dissector("cipmotion");
 
    /* Implicit data dissector */
-   cip_implicit_handle = find_dissector_add_dependency("cip_implicit", proto_enipio);
+   cip_implicit_handle = find_dissector_add_dependency("cip_implicit", proto_enip);
+
+   cip_handle = find_dissector_add_dependency("cip", proto_enip);
 
    /* Register for EtherNet/IP Device Level Ring protocol */
    dlr_handle = create_dissector_handle(dissect_dlr, proto_dlr);
@@ -4513,10 +4941,11 @@ proto_reg_handoff_enip(void)
 
    subdissector_class_table = find_dissector_table("cip.class.iface");
 
+   dissector_add_for_decode_as("cip.io", cip_class1_handle);
 } /* end of proto_reg_handoff_enip() */
 
 /*
-* Editor modelines - http://www.wireshark.org/tools/modelines.html
+* Editor modelines - https://www.wireshark.org/tools/modelines.html
 *
 * Local variables:
 * c-basic-offset: 3

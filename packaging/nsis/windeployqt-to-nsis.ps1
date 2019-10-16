@@ -38,6 +38,9 @@ The path to a Qt application. It will be examined for dependent DLLs.
 .PARAMETER FilePath
 Output filename.
 
+.PARAMETER DebugConfig
+Assume debug binaries.
+
 .INPUTS
 -Executable Path to the Qt application.
 -FilePath Output NSIS file.
@@ -46,7 +49,7 @@ Output filename.
 List of NSIS commands required to package supporting DLLs.
 
 .EXAMPLE
-C:\PS> .\windeployqt-to-nsis.ps1 windeployqt.exe ..\..\staging\wireshark.exe qt-dll-manifest.nsh
+C:\PS> .\windeployqt-to-nsis.ps1 windeployqt.exe ..\..\staging\wireshark.exe qt-dll-manifest.nsh [-DebugConfig]
 #>
 
 Param(
@@ -54,7 +57,10 @@ Param(
     [String] $Executable,
 
     [Parameter(Position=1)]
-    [String] $FilePath = "qt-dll-manifest.nsh"
+    [String] $FilePath = "qt-dll-manifest.nsh",
+
+    [Parameter(Mandatory=$false)]
+    [Switch] $DebugConfig
 )
 
 
@@ -65,8 +71,10 @@ try {
     if ($qtVersion -ge "5.3") {
         # Qt 5.3 or later. Windeployqt is present and works
 
+        $DebugOrRelease = If ($DebugConfig) {"--debug"} Else {"--release"}
+
         $wdqtList = windeployqt `
-            --release `
+            $DebugOrRelease `
             --no-compiler-runtime `
             --list relative `
             $Executable

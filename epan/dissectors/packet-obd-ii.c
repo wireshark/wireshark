@@ -97,9 +97,29 @@ static int hf_obdii_mode01_torque_driver_demand_engine = -1;
 static int hf_obdii_mode01_torque_actual_engine = -1;
 static int hf_obdii_mode01_torque_reference_engine = -1;
 
-#define ODBII_CAN_QUERY_ID        0x7DF
-#define ODBII_CAN_RESPONSE_ID_MIN 0x7E8
-#define ODBII_CAN_RESPONSE_ID_MAX 0x7EF
+/* OBD-II CAN IDs have three aspects.
+   - IDs are either standard 11bit format (SFF) or extended 29bit format (EFF)
+   - An ID can be a query ID or a response ID.
+   - Response IDs fall into two ranges for both SFF and EFF formats
+
+   SFF response IDs can vary in the lowest nibble as follows:
+     two ranges: 0x7e0-0x7e7 and 0x7e8 - 0x7ef
+   EFF response IDs can vary in the lowest byte or the second lowest byte as follows:
+     0x18daXXf1 or 0x18daf1XX, where XX is in the range 0x00 - 0xff
+
+   The following defines set up bit patterns and masks to determine both query and responses.
+*/
+#define ODBII_CAN_QUERY_ID_SFF               0x7DF
+#define ODBII_CAN_RESPONSE_ID_LOWER_MIN_SFF  0x7E0
+#define ODBII_CAN_RESPONSE_ID_UPPER_MIN_SFF  0x7E8
+#define ODBII_CAN_RESPONSE_ID_LOWER_MASK_SFF 0x7
+#define ODBII_CAN_RESPONSE_ID_UPPER_MASK_SFF 0x7
+
+#define ODBII_CAN_QUERY_ID_EFF               0x18DB33F1
+#define ODBII_CAN_RESPONSE_ID_LOWER_MIN_EFF  0x18DA00F1
+#define ODBII_CAN_RESPONSE_ID_UPPER_MIN_EFF  0x18DAF100
+#define ODBII_CAN_RESPONSE_ID_LOWER_MASK_EFF 0xFF00
+#define ODBII_CAN_RESPONSE_ID_UPPER_MASK_EFF 0x00FF
 
 #define OBDII_MODE01_PIDS_SUPPORT00         0x00
 #define OBDII_MODE01_MONITOR_STATUS         0x01
@@ -476,7 +496,7 @@ struct obdii_packet_info
 
 	guint8 value_bytes;
 	int value_offset;
-	guint8 valueA, valueB, valueC, valueD;
+	guint8 valueA, valueB, valueC, valueD, valueE;
 };
 
 static gboolean
@@ -640,7 +660,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 				memset(bits_str, '.', 32);
 				bits_str[32] = '\0';
 
-				if ((val & (1 << i)))
+				if ((val & (1U << i)))
 				{
 					col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, "%s%.2X", sepa, this_pid);
 					ti = proto_tree_add_uint(tree, hf_obdii_mode01_supported_pid, tvb, value_offset, oinfo->value_bytes, this_pid);
@@ -1169,6 +1189,22 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	}
 }
 
+static void
+dissect_obdii_mode_07(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_obdii_raw_value, tvb, 3, MIN(oinfo->value_bytes, 5), ENC_NA);
+
+	/* display raw */
+	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": <");
+	if (oinfo->value_bytes >= 1) col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " %.2X", oinfo->valueA);
+	if (oinfo->value_bytes >= 2) col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " %.2X", oinfo->valueB);
+	if (oinfo->value_bytes >= 3) col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " %.2X", oinfo->valueC);
+	if (oinfo->value_bytes >= 4) col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " %.2X", oinfo->valueD);
+	if (oinfo->value_bytes >= 5) col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " %.2X", oinfo->valueE);
+	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " >");
+}
+
+
 static int
 dissect_obdii_query(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree)
 {
@@ -1178,7 +1214,13 @@ dissect_obdii_query(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *
 	const char *pid_str;
 
 	pid_len = oinfo->data_bytes - 1;
-	if (pid_len == 1)
+	if (pid_len == 0)
+	{
+		if (oinfo->mode != 0x07)
+			return 0;
+		pid = 0; /* Should never be required but set to satisfy petri-dish */
+	}
+	else if (pid_len == 1)
 		pid  = tvb_get_guint8(tvb, 2);
 	else if (pid_len == 2)
 		pid = tvb_get_ntohs(tvb, 2);
@@ -1192,14 +1234,18 @@ dissect_obdii_query(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *
 	case 0x01:
 		pid_str = val_to_str_ext(pid, &obdii_mode01_pid_vals_ext, "Unknown (%.2x)");
 		proto_tree_add_uint(tree, hf_obdii_mode01_pid, tvb, 2, pid_len, pid);
+		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " Request[%.3x] %s - %s", oinfo->can_id, mode_str, pid_str);
 		break;
 
+	case 0x07:
+		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " Request[%.3x] %s", oinfo->can_id, mode_str);
+		break;
 	default:
 		pid_str = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%.2x)", pid);
+		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " Request[%.3x] %s - %s", oinfo->can_id, mode_str, pid_str);
 		break;
 	}
 
-	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " Request[%.3x] %s - %s", oinfo->can_id, mode_str, pid_str);
 	return tvb_captured_length(tvb);
 }
 
@@ -1214,11 +1260,15 @@ dissect_obdii_response(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tre
 	if (oinfo->value_bytes >= 2) oinfo->valueB = tvb_get_guint8(tvb, 4);
 	if (oinfo->value_bytes >= 3) oinfo->valueC = tvb_get_guint8(tvb, 5);
 	if (oinfo->value_bytes >= 4) oinfo->valueD = tvb_get_guint8(tvb, 6);
+	if (oinfo->value_bytes >= 5) oinfo->valueE = tvb_get_guint8(tvb, 7);
 
 	switch (oinfo->mode)
 	{
 	case 0x01:
 		dissect_obdii_mode_01(tvb, oinfo, tree);
+		break;
+	case 0x07:
+		dissect_obdii_mode_07(tvb, oinfo, tree);
 		break;
 	}
 
@@ -1228,7 +1278,8 @@ dissect_obdii_response(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tre
 static int
 dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	struct can_identifier *can_id = (struct can_identifier *) data;
+	struct can_identifier can_id;
+	guint32               can_id_only;
 	struct obdii_packet_info oinfo;
 
 	proto_tree *obdii_tree;
@@ -1236,9 +1287,32 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 	guint8 data_bytes;
 	guint8 mode;
+	gboolean id_is_query;
+	gboolean id_is_response;
+
+	DISSECTOR_ASSERT(data);
+	can_id      = *((struct can_identifier *) data);
+	can_id_only = can_id.id & CAN_EFF_MASK;
+
+	/* If we're using 29bit extended ID's then use extended ID parameters */
+	if (can_id.id & CAN_EFF_FLAG)
+	{
+		id_is_query = (can_id_only == ODBII_CAN_QUERY_ID_EFF);
+		id_is_response = ((((can_id_only & ~ODBII_CAN_RESPONSE_ID_LOWER_MASK_EFF) ^ ODBII_CAN_RESPONSE_ID_LOWER_MIN_EFF) == 0) ||
+			(((can_id_only & ~ODBII_CAN_RESPONSE_ID_UPPER_MASK_EFF) ^ ODBII_CAN_RESPONSE_ID_UPPER_MIN_EFF) == 0)) ? 1 : 0;
+	}
+	else
+	{
+		id_is_query = (can_id_only == ODBII_CAN_QUERY_ID_SFF);
+		id_is_response = ((((can_id_only & ~ODBII_CAN_RESPONSE_ID_LOWER_MASK_SFF) ^ ODBII_CAN_RESPONSE_ID_LOWER_MIN_SFF) == 0) ||
+			(((can_id_only & ~ODBII_CAN_RESPONSE_ID_UPPER_MASK_SFF) ^ ODBII_CAN_RESPONSE_ID_UPPER_MIN_SFF) == 0));
+	}
 
 	/* validate */
-	if (!can_id || !(can_id->id == ODBII_CAN_QUERY_ID || (can_id->id >= ODBII_CAN_RESPONSE_ID_MIN && can_id->id <= ODBII_CAN_RESPONSE_ID_MAX)))
+	if (can_id.id & (CAN_ERR_FLAG | CAN_RTR_FLAG))
+		return 0;
+
+	if (!(id_is_query || id_is_response))
 		return 0;
 
 	if (tvb_reported_length(tvb) != 8)
@@ -1247,13 +1321,16 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	data_bytes = tvb_get_guint8(tvb, 0);
 	mode = tvb_get_guint8(tvb, 1);
 
-	if (can_id->id == ODBII_CAN_QUERY_ID)
+	/* Mode 7 is a datalength of 1, all other queries either 2 or 3 bytes */
+	if (id_is_query)
 	{
-		if (!(data_bytes == 2 || data_bytes == 3))
+		if (data_bytes == 0 || data_bytes > 3)
+			return 0;
+		if (mode > 0x0a)
 			return 0;
 	}
 
-	if ((can_id->id >= ODBII_CAN_RESPONSE_ID_MIN && can_id->id <= ODBII_CAN_RESPONSE_ID_MAX))
+	if (id_is_response)
 	{
 		if (!(data_bytes >= 3 && data_bytes <= 7))
 			return 0;
@@ -1274,14 +1351,14 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 	memset(&oinfo, 0, sizeof(oinfo));
 	oinfo.pinfo = pinfo;
-	oinfo.can_id = can_id->id;
+	oinfo.can_id = can_id_only;
 	oinfo.data_bytes = data_bytes;
 	oinfo.mode = mode;
 
-	if (can_id->id == ODBII_CAN_QUERY_ID)
+	if (id_is_query)
 		return dissect_obdii_query(tvb, &oinfo, obdii_tree);
 
-	if (can_id->id >= ODBII_CAN_RESPONSE_ID_MIN && can_id->id <= ODBII_CAN_RESPONSE_ID_MAX)
+	if (id_is_response)
 		return dissect_obdii_response(tvb, &oinfo, obdii_tree);
 
 	/* never here */
@@ -1524,7 +1601,7 @@ proto_reg_handoff_obdii(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

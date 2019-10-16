@@ -5,9 +5,9 @@ MACRO(REGISTER_TAP_FILES _outputfile)
         OUTPUT
           ${_outputfile}
         COMMAND
-          make-taps ${_outputfile} ${_sources}
+          ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/make-regs.py taps ${_outputfile} ${_sources}
         DEPENDS
-          make-taps
+          ${CMAKE_SOURCE_DIR}/tools/make-regs.py
           ${_sources}
         COMMENT
           "Making ${_outputfile}"

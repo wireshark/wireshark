@@ -29,6 +29,7 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
+#include "packet-mpls.h"
 
 /** Value declarations for CFM EOAM (IEEE 802.1ag) dissection */
 #define IEEE8021 0x00
@@ -2254,11 +2255,11 @@ void proto_register_cfm(void)
 void proto_reg_handoff_cfm(void)
 {
 	dissector_add_uint("ethertype", ETHERTYPE_CFM, cfm_handle);
-	dissector_add_for_decode_as("pwach.channel_type", cfm_handle);
+	dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_MPLSTP_OAM, cfm_handle);
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

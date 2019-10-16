@@ -16,7 +16,10 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
+#include <epan/reassemble.h>
+
 #include "packet-rlc-nr.h"
+#include "packet-pdcp-nr.h"
 
 
 /* Described in:
@@ -25,7 +28,8 @@
 
 /* TODO:
 - add sequence analysis
-- add reassembly
+- add AM reassembly
+- take configuration of reordering timer, and stop reassembly if timeout exceeded?
 - add tap info
 - call more upper layer dissectors once they appear
 */
@@ -36,15 +40,46 @@ void proto_reg_handoff_rlc_nr(void);
 /********************************/
 /* Preference settings          */
 
+/* By default do call PDCP/RRC dissectors for SDU data */
+static gboolean global_rlc_nr_call_pdcp_for_srb = TRUE;
+
+enum pdcp_for_drb { PDCP_drb_off, PDCP_drb_SN_12, PDCP_drb_SN_18, PDCP_drb_SN_signalled};
+static const enum_val_t pdcp_drb_col_vals[] = {
+    {"pdcp-drb-off",           "Off",                 PDCP_drb_off},
+    {"pdcp-drb-sn-12",         "12-bit SN",           PDCP_drb_SN_12},
+    {"pdcp-drb-sn-18",         "18-bit SN",           PDCP_drb_SN_18},
+    {"pdcp-drb-sn-signalling", "Use signalled value", PDCP_drb_SN_signalled},
+    {NULL, NULL, -1}
+};
+/* Separate config for UL/DL */
+static gint global_rlc_nr_call_pdcp_for_ul_drb = (gint)PDCP_drb_off;
+static gint global_rlc_nr_call_pdcp_for_dl_drb = (gint)PDCP_drb_off;
+
+
 static gboolean global_rlc_nr_call_rrc_for_ccch = TRUE;
 
 /* Preference to expect RLC headers without payloads */
 static gboolean global_rlc_nr_headers_expected = FALSE;
 
+/* Attempt reassembly of UM frames.  TODO: if add AM reassembly, might prefer just one preference? */
+static gboolean global_rlc_nr_reassemble_um_pdus = FALSE;
+
+/* Tree storing UE related parameters */
+typedef struct rlc_ue_parameters {
+    guint32 id;
+    guint8 pdcp_sn_bits_ul;
+    guint8 pdcp_sn_bits_dl;
+} rlc_ue_parameters;
+static wmem_tree_t *ue_parameters_tree;
+
+
 /**************************************************/
 /* Initialize the protocol and registered fields. */
 int proto_rlc_nr = -1;
 
+extern int proto_pdcp_nr;
+
+static dissector_handle_t pdcp_nr_handle;
 static dissector_handle_t nr_rrc_bcch_bch;
 
 
@@ -98,11 +133,46 @@ static int hf_rlc_nr_am_nacks = -1;
 
 static int hf_rlc_nr_header_only = -1;
 
+static int hf_rlc_nr_fragments = -1;
+static int hf_rlc_nr_fragment = -1;
+static int hf_rlc_nr_fragment_overlap = -1;
+static int hf_rlc_nr_fragment_overlap_conflict = -1;
+static int hf_rlc_nr_fragment_multiple_tails = -1;
+static int hf_rlc_nr_fragment_too_long_fragment = -1;
+static int hf_rlc_nr_fragment_error = -1;
+static int hf_rlc_nr_fragment_count = -1;
+static int hf_rlc_nr_reassembled_in = -1;
+static int hf_rlc_nr_reassembled_length = -1;
+static int hf_rlc_nr_reassembled_data = -1;
+
+
+
 /* Subtrees. */
 static int ett_rlc_nr = -1;
 static int ett_rlc_nr_context = -1;
 static int ett_rlc_nr_um_header = -1;
 static int ett_rlc_nr_am_header = -1;
+static int ett_rlc_nr_fragments = -1;
+static int ett_rlc_nr_fragment = -1;
+
+
+static const fragment_items rlc_nr_frag_items = {
+  &ett_rlc_nr_fragment,
+  &ett_rlc_nr_fragments,
+  &hf_rlc_nr_fragments,
+  &hf_rlc_nr_fragment,
+  &hf_rlc_nr_fragment_overlap,
+  &hf_rlc_nr_fragment_overlap_conflict,
+  &hf_rlc_nr_fragment_multiple_tails,
+  &hf_rlc_nr_fragment_too_long_fragment,
+  &hf_rlc_nr_fragment_error,
+  &hf_rlc_nr_fragment_count,
+  &hf_rlc_nr_reassembled_in,
+  &hf_rlc_nr_reassembled_length,
+  &hf_rlc_nr_reassembled_data,
+  "RLC PDU fragments"
+};
+
 
 static expert_field ei_rlc_nr_context_mode = EI_INIT;
 static expert_field ei_rlc_nr_am_nack_sn = EI_INIT;
@@ -207,6 +277,49 @@ static const true_false_string header_only_vals =
     "RLC PDU Headers and body present"
 };
 
+/* Reassembly state */
+static reassembly_table pdu_reassembly_table;
+
+static guint pdu_hash(gconstpointer k _U_)
+{
+    return GPOINTER_TO_UINT(k);
+}
+
+static gint pdu_equal(gconstpointer k1, gconstpointer k2)
+{
+    return k1 == k2;
+}
+
+static gpointer pdu_temporary_key(const packet_info *pinfo _U_, const guint32 id _U_, const void *data _U_)
+{
+    return (gpointer)data;
+}
+
+static gpointer pdu_persistent_key(const packet_info *pinfo _U_, const guint32 id _U_,
+                                         const void *data)
+{
+    return (gpointer)data;
+}
+
+static void pdu_free_temporary_key(gpointer ptr _U_)
+{
+}
+
+static void pdu_free_persistent_key(gpointer ptr _U_)
+{
+}
+
+reassembly_table_functions pdu_reassembly_table_functions =
+{
+    pdu_hash,
+    pdu_equal,
+    pdu_temporary_key,
+    pdu_persistent_key,
+    pdu_free_temporary_key,
+    pdu_free_persistent_key
+};
+
+
 /********************************************************/
 /* Forward declarations & functions                     */
 static void dissect_rlc_nr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_udp_framing);
@@ -276,15 +389,113 @@ static void show_PDU_in_info(packet_info *pinfo,
 
 
 /* Show an SDU. If configured, pass to PDCP/RRC dissector */
-static void show_PDU_in_tree(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, gint offset, gint length,
-                             rlc_nr_info *rlc_info, guint32 seg_info _U_)
+static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, gint offset, gint length,
+                             rlc_nr_info *rlc_info, guint32 seg_info, gboolean is_reassembled)
 {
-    /* Add raw data (according to mode) */
-    proto_tree_add_item(tree, (rlc_info->rlcMode == RLC_AM_MODE) ?
-                        hf_rlc_nr_am_data : hf_rlc_nr_um_data,
-                        tvb, offset, length, ENC_NA);
+    wmem_tree_key_t key[3];
+    guint32 id;
+    rlc_ue_parameters *params;
 
-    /* TODO: add reassembly and call upper layer dissector */
+    /* Add raw data (according to mode) */
+    if (!is_reassembled) {
+        proto_tree_add_item(tree, (rlc_info->rlcMode == RLC_AM_MODE) ?
+                            hf_rlc_nr_am_data : hf_rlc_nr_um_data,
+                            tvb, offset, length, ENC_NA);
+    }
+
+    if ((seg_info == 0) || is_reassembled) {  /* i.e. contains whole SDU */
+        if ((global_rlc_nr_call_pdcp_for_srb && (rlc_info->bearerType == BEARER_TYPE_SRB)) ||
+            ((rlc_info->bearerType == BEARER_TYPE_DRB) &&
+                 (((rlc_info->direction == PDCP_NR_DIRECTION_UPLINK) &&   (global_rlc_nr_call_pdcp_for_ul_drb != PDCP_drb_off)) ||
+                  ((rlc_info->direction == PDCP_NR_DIRECTION_DOWNLINK) && (global_rlc_nr_call_pdcp_for_dl_drb != PDCP_drb_off)))))
+        {
+
+            /* Get whole PDU into tvb */
+            tvbuff_t *pdcp_tvb = tvb_new_subset_length(tvb, offset, length);
+
+            /* Reuse or allocate struct */
+            struct pdcp_nr_info *p_pdcp_nr_info;
+            p_pdcp_nr_info = (pdcp_nr_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_nr, 0);
+            if (p_pdcp_nr_info == NULL) {
+                p_pdcp_nr_info = wmem_new0(wmem_file_scope(), pdcp_nr_info);
+                /* Store info in packet */
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_pdcp_nr, 0, p_pdcp_nr_info);
+            }
+
+            /* Fill in struct params. */
+            p_pdcp_nr_info->direction = rlc_info->direction;
+            p_pdcp_nr_info->ueid = rlc_info->ueid;
+
+            gint seqnum_len;
+
+            switch (rlc_info->bearerType) {
+                case BEARER_TYPE_SRB:
+                    p_pdcp_nr_info->plane = NR_SIGNALING_PLANE;
+                    p_pdcp_nr_info->bearerType = Bearer_DCCH;
+                    p_pdcp_nr_info->seqnum_length = 12;
+                    break;
+
+                case BEARER_TYPE_DRB:
+                    p_pdcp_nr_info->plane = NR_USER_PLANE;
+                    p_pdcp_nr_info->bearerType = Bearer_DCCH;
+
+                    seqnum_len = (rlc_info->direction == PDCP_NR_DIRECTION_UPLINK) ?
+                                       global_rlc_nr_call_pdcp_for_ul_drb :
+                                       global_rlc_nr_call_pdcp_for_dl_drb;
+                    switch (seqnum_len) {
+                        case PDCP_drb_SN_12:
+                            p_pdcp_nr_info->seqnum_length = 12;
+                            break;
+                        case PDCP_drb_SN_18:
+                            p_pdcp_nr_info->seqnum_length = 18;
+                            break;
+                        case PDCP_drb_SN_signalled:
+                            /* Use whatever was signalled (i.e. in RRC) */
+                            id = (rlc_info->bearerId << 16) | rlc_info->ueid;
+                            key[0].length = 1;
+                            key[0].key = &id;
+                            key[1].length = 1;
+                            key[1].key = &pinfo->num;
+                            key[2].length = 0;
+                            key[2].key = NULL;
+
+                            params = (rlc_ue_parameters *)wmem_tree_lookup32_array_le(ue_parameters_tree, key);
+                            if (params && (params->id != id)) {
+                                params = NULL;
+                            }
+                            if (params) {
+                                if (p_pdcp_nr_info->direction == DIRECTION_UPLINK) {
+                                    p_pdcp_nr_info->seqnum_length = params->pdcp_sn_bits_ul;
+                                }
+                                else {
+                                    p_pdcp_nr_info->seqnum_length = params->pdcp_sn_bits_dl;
+                                }
+                            }
+                            break;
+
+                    }
+                    break;
+
+                default:
+                    /* Shouldn't get here */
+                    return;
+            }
+            p_pdcp_nr_info->bearerId = rlc_info->bearerId;
+
+            /* Assume no SDAP present */
+            p_pdcp_nr_info->sdap_header = 0;
+            p_pdcp_nr_info->rohc.rohc_compression = FALSE;
+            p_pdcp_nr_info->is_retx = FALSE;
+            p_pdcp_nr_info->pdu_length = length;
+
+            TRY {
+                call_dissector_only(pdcp_nr_handle, pdcp_tvb, pinfo, tree, NULL);
+            }
+            CATCH_ALL {
+            }
+            ENDTRY
+        }
+    }
 }
 
 /***************************************************/
@@ -301,7 +512,7 @@ static void dissect_rlc_nr_tm(tvbuff_t *tvb, packet_info *pinfo,
     /* Create hidden TM root */
     tm_ti = proto_tree_add_string_format(tree, hf_rlc_nr_tm,
                                          tvb, offset, 0, "", "TM");
-    PROTO_ITEM_SET_HIDDEN(tm_ti);
+    proto_item_set_hidden(tm_ti);
 
     /* Remaining bytes are all data */
     raw_tm_ti = proto_tree_add_item(tree, hf_rlc_nr_tm_data, tvb, offset, -1, ENC_NA);
@@ -329,7 +540,7 @@ static void dissect_rlc_nr_tm(tvbuff_t *tvb, packet_info *pinfo,
         }
 
         /* Hide raw view of bytes */
-        PROTO_ITEM_SET_HIDDEN(raw_tm_ti);
+        proto_item_set_hidden(raw_tm_ti);
 
         /* Call it (catch exceptions) */
         TRY {
@@ -360,11 +571,12 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
     proto_item *truncated_ti;
     proto_item *reserved_ti;
     int start_offset = offset;
+    guint32 so = 0;
 
     /* Hidden UM root */
     um_ti = proto_tree_add_string_format(tree, hf_rlc_nr_um,
                                          tvb, offset, 0, "", "UM");
-    PROTO_ITEM_SET_HIDDEN(um_ti);
+    proto_item_set_hidden(um_ti);
 
     /* Add UM header subtree */
     um_header_ti = proto_tree_add_string_format(tree, hf_rlc_nr_um_header,
@@ -373,7 +585,7 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
     um_header_tree = proto_item_add_subtree(um_header_ti,
                                             ett_rlc_nr_um_header);
 
-
+    /* Segmentation Info */
     proto_tree_add_item_ret_uint(um_header_tree, hf_rlc_nr_um_si, tvb, offset, 1, ENC_BIG_ENDIAN, &seg_info);
     if (seg_info == 0) {
         reserved_ti = proto_tree_add_bits_ret_val(um_header_tree, hf_rlc_nr_um_reserved,
@@ -403,8 +615,6 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
             return;
         }
         if (seg_info >= 2) {
-            guint32 so;
-
             proto_tree_add_item_ret_uint(um_header_tree, hf_rlc_nr_um_so, tvb, offset, 2, ENC_BIG_ENDIAN, &so);
             offset += 2;
             write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "            SN=%-6u SO=%-4u", sn, so);
@@ -421,19 +631,54 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
         truncated_ti = proto_tree_add_boolean(tree, hf_rlc_nr_header_only, tvb, 0, 0,
                                               is_truncated);
         if (is_truncated) {
-            PROTO_ITEM_SET_GENERATED(truncated_ti);
+            proto_item_set_generated(truncated_ti);
             expert_add_info(pinfo, truncated_ti, &ei_rlc_nr_header_only);
             show_PDU_in_info(pinfo, top_ti, p_rlc_nr_info->pduLength - offset, seg_info);
             return;
         } else {
-            PROTO_ITEM_SET_HIDDEN(truncated_ti);
+            proto_item_set_hidden(truncated_ti);
         }
+    }
+
+    tvbuff_t *next_tvb = NULL;
+    /* Handle reassembly. */
+    if (global_rlc_nr_reassemble_um_pdus && seg_info && tvb_reported_length_remaining(tvb, offset) > 0) {
+        // Set fragmented flag.
+        gboolean save_fragmented = pinfo->fragmented;
+        pinfo->fragmented = TRUE;
+        fragment_head *fh;
+        gboolean more_frags = seg_info & 0x01;
+        /* TODO: This should be unique enough, but is there a way to get frame number of first frame in reassembly table? */
+        guint32 id = p_rlc_nr_info->direction +       /* 1 bit */
+                    (p_rlc_nr_info->ueid<<1) +        /* 7 bits */
+                    (p_rlc_nr_info->bearerId<<8) +    /* 5 bits */
+                    (sn<<13);                         /* Leave 19 bits for SN - overlaps with other fields but room to overflow into msb */
+
+        fh = fragment_add(&pdu_reassembly_table, tvb, offset, pinfo,
+                          id,                                         /* id */
+                          GUINT_TO_POINTER(id),                       /* data */
+                          so,                                         /* frag_offset */
+                          tvb_reported_length_remaining(tvb, offset), /* frag_data_len */
+                          more_frags                                  /* more_frags */
+                          );
+
+        gboolean update_col_info = TRUE;
+        next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled RLC SDU",
+                                            fh, &rlc_nr_frag_items,
+                                            &update_col_info, tree);
+        pinfo->fragmented = save_fragmented;
     }
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         show_PDU_in_tree(pinfo, tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
-                         p_rlc_nr_info, seg_info);
+                         p_rlc_nr_info, seg_info, FALSE);
         show_PDU_in_info(pinfo, top_ti, tvb_reported_length_remaining(tvb, offset), seg_info);
+        /* Also add reassembled PDU */
+        if (next_tvb) {
+            add_new_data_source(pinfo, next_tvb, "Reassembled RLC-NR PDU");
+            show_PDU_in_tree(pinfo, tree, next_tvb, 0, tvb_captured_length(next_tvb),
+                             p_rlc_nr_info, seg_info, TRUE);
+        }
     } else if (!global_rlc_nr_headers_expected) {
         /* Report that expected data was missing (unless we know it might happen) */
         expert_add_info(pinfo, um_header_ti, &ei_rlc_nr_um_data_no_data);
@@ -614,7 +859,7 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
 
     if (nack_count > 0) {
         proto_item *count_ti = proto_tree_add_uint(tree, hf_rlc_nr_am_nacks, tvb, 0, 1, nack_count);
-        PROTO_ITEM_SET_GENERATED(count_ti);
+        proto_item_set_generated(count_ti);
         proto_item_append_text(status_ti, "  (%u NACKs)", nack_count);
     }
 
@@ -654,7 +899,7 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Hidden AM root */
     am_ti = proto_tree_add_string_format(tree, hf_rlc_nr_am,
                                          tvb, offset, 0, "", "AM");
-    PROTO_ITEM_SET_HIDDEN(am_ti);
+    proto_item_set_hidden(am_ti);
 
     /* Add AM header subtree */
     am_header_ti = proto_tree_add_string_format(tree, hf_rlc_nr_am_header,
@@ -738,19 +983,19 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
         truncated_ti = proto_tree_add_boolean(tree, hf_rlc_nr_header_only, tvb, 0, 0,
                                               is_truncated);
         if (is_truncated) {
-            PROTO_ITEM_SET_GENERATED(truncated_ti);
+            proto_item_set_generated(truncated_ti);
             expert_add_info(pinfo, truncated_ti, &ei_rlc_nr_header_only);
             show_PDU_in_info(pinfo, top_ti, p_rlc_nr_info->pduLength - offset, seg_info);
             return;
         } else {
-            PROTO_ITEM_SET_HIDDEN(truncated_ti);
+            proto_item_set_hidden(truncated_ti);
         }
     }
 
     /* Data */
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         show_PDU_in_tree(pinfo, tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
-                         p_rlc_nr_info, seg_info);
+                         p_rlc_nr_info, seg_info, FALSE);
         show_PDU_in_info(pinfo, top_ti, tvb_reported_length_remaining(tvb, offset), seg_info);
     } else if (!global_rlc_nr_headers_expected) {
         /* Report that expected data was missing (unless we know it might happen) */
@@ -904,41 +1149,41 @@ static void dissect_rlc_nr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     context_ti = proto_tree_add_string_format(rlc_nr_tree, hf_rlc_nr_context,
                                               tvb, offset, 0, "", "Context");
     context_tree = proto_item_add_subtree(context_ti, ett_rlc_nr_context);
-    PROTO_ITEM_SET_GENERATED(context_ti);
+    proto_item_set_generated(context_ti);
 
     ti = proto_tree_add_uint(context_tree, hf_rlc_nr_context_direction,
                              tvb, 0, 0, p_rlc_nr_info->direction);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     mode_ti = proto_tree_add_uint(context_tree, hf_rlc_nr_context_mode,
                                   tvb, 0, 0, p_rlc_nr_info->rlcMode);
-    PROTO_ITEM_SET_GENERATED(mode_ti);
+    proto_item_set_generated(mode_ti);
 
     if (p_rlc_nr_info->ueid != 0) {
         ti = proto_tree_add_uint(context_tree, hf_rlc_nr_context_ueid,
                                  tvb, 0, 0, p_rlc_nr_info->ueid);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     ti = proto_tree_add_uint(context_tree, hf_rlc_nr_context_bearer_type,
                              tvb, 0, 0, p_rlc_nr_info->bearerType);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     if ((p_rlc_nr_info->bearerType == BEARER_TYPE_SRB) ||
         (p_rlc_nr_info->bearerType == BEARER_TYPE_DRB)) {
         ti = proto_tree_add_uint(context_tree, hf_rlc_nr_context_bearer_id,
                                  tvb, 0, 0, p_rlc_nr_info->bearerId);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     ti = proto_tree_add_uint(context_tree, hf_rlc_nr_context_pdu_length,
                              tvb, 0, 0, p_rlc_nr_info->pduLength);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     if (p_rlc_nr_info->rlcMode != RLC_TM_MODE) {
         ti = proto_tree_add_uint(context_tree, hf_rlc_nr_context_sn_length,
                                  tvb, 0, 0, p_rlc_nr_info->sequenceNumberLength);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     /* Append highlights to top-level item */
@@ -984,6 +1229,42 @@ static void dissect_rlc_nr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             break;
     }
 }
+
+
+/* Configure number of PDCP SN bits to use for DRB channels */
+void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8 drbid,
+                                       guint8 userplane_seqnum_length_ul,
+                                       guint8 userplane_seqnum_length_dl)
+{
+    wmem_tree_key_t key[3];
+    guint32 id;
+    rlc_ue_parameters *params;
+
+    if (PINFO_FD_VISITED(pinfo)) {
+        return;
+    }
+
+    id = (drbid << 16) | ueid;
+    key[0].length = 1;
+    key[0].key = &id;
+    key[1].length = 1;
+    key[1].key = &pinfo->num;
+    key[2].length = 0;
+    key[2].key = NULL;
+
+    params = (rlc_ue_parameters *)wmem_tree_lookup32_array_le(ue_parameters_tree, key);
+    if (params && (params->id != id)) {
+        params = NULL;
+    }
+    if (params == NULL) {
+        params = (rlc_ue_parameters *)wmem_new(wmem_file_scope(), rlc_ue_parameters);
+        params->id = id;
+        wmem_tree_insert32_array(ue_parameters_tree, key, (void *)params);
+    }
+    params->pdcp_sn_bits_ul = userplane_seqnum_length_ul;
+    params->pdcp_sn_bits_dl = userplane_seqnum_length_dl;
+}
+
 
 void proto_register_rlc_nr(void)
 {
@@ -1233,6 +1514,71 @@ void proto_register_rlc_nr(void)
               NULL, HFILL
             }
         },
+
+        { &hf_rlc_nr_fragment,
+          { "RLC-NR fragment",
+            "rlc-nr.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rlc_nr_fragments,
+          { "RLC-NR fragments",
+            "rlc-nr.fragments", FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rlc_nr_fragment_overlap,
+          { "Fragment overlap",
+            "rlc-nr.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Fragment overlaps with other fragments", HFILL }
+        },
+        { &hf_rlc_nr_fragment_overlap_conflict,
+          { "Conflicting data in fragment overlap",
+            "rlc-nr.fragment.overlap.conflict",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Overlapping fragments contained conflicting data", HFILL }
+        },
+        { &hf_rlc_nr_fragment_multiple_tails,
+          { "Multiple tail fragments found",
+            "rlc-nr.fragment.multipletails",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Several tails were found when defragmenting the packet", HFILL }
+        },
+        { &hf_rlc_nr_fragment_too_long_fragment,
+          { "Fragment too long",
+            "rlc-nr.fragment.toolongfragment",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Fragment contained data past end of packet", HFILL }
+        },
+        { &hf_rlc_nr_fragment_error,
+          { "Defragmentation error",
+            "rlc-nr.fragment.error",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "Defragmentation error due to illegal fragments", HFILL }
+        },
+        { &hf_rlc_nr_fragment_count,
+          { "Fragment count",
+            "rlc-nr.fragment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rlc_nr_reassembled_in,
+          { "Reassembled RLC-NR in frame",
+            "rlc-nr.reassembled_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "This RLC-NR packet is reassembled in this frame", HFILL }
+        },
+        { &hf_rlc_nr_reassembled_length,
+          { "Reassembled RLC-NR length",
+            "rlc-nr.reassembled.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "The total length of the reassembled payload", HFILL }
+        },
+        { &hf_rlc_nr_reassembled_data,
+          { "Reassembled payload",
+            "rlc-nr.reassembled.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "The reassembled payload", HFILL }
+        },
+
     };
 
     static gint *ett[] =
@@ -1240,7 +1586,9 @@ void proto_register_rlc_nr(void)
         &ett_rlc_nr,
         &ett_rlc_nr_context,
         &ett_rlc_nr_um_header,
-        &ett_rlc_nr_am_header
+        &ett_rlc_nr_am_header,
+        &ett_rlc_nr_fragment,
+        &ett_rlc_nr_fragments
     };
 
     static ei_register_info ei[] = {
@@ -1278,6 +1626,24 @@ void proto_register_rlc_nr(void)
     /* Preferences */
     rlc_nr_module = prefs_register_protocol(proto_rlc_nr, NULL);
 
+    prefs_register_bool_preference(rlc_nr_module, "call_pdcp_for_srb",
+        "Call PDCP dissector for SRB PDUs",
+        "Call PDCP dissector for signalling PDUs.  Note that without reassembly, it can"
+        "only be called for complete PDUs (i.e. not segmented over RLC)",
+        &global_rlc_nr_call_pdcp_for_srb);
+
+    prefs_register_enum_preference(rlc_nr_module, "call_pdcp_for_ul_drb",
+        "Call PDCP dissector for UL DRB PDUs",
+        "Call PDCP dissector for UL user-plane PDUs.  Note that without reassembly, it can"
+        "only be called for complete PDUs (i.e. not segmented over RLC)",
+        &global_rlc_nr_call_pdcp_for_ul_drb, pdcp_drb_col_vals, FALSE);
+
+    prefs_register_enum_preference(rlc_nr_module, "call_pdcp_for_dl_drb",
+        "Call PDCP dissector for DL DRB PDUs",
+        "Call PDCP dissector for DL user-plane PDUs.  Note that without reassembly, it can"
+        "only be called for complete PDUs (i.e. not segmented over RLC)",
+        &global_rlc_nr_call_pdcp_for_dl_drb, pdcp_drb_col_vals, FALSE);
+
     prefs_register_bool_preference(rlc_nr_module, "call_rrc_for_ccch",
         "Call RRC dissector for CCCH PDUs",
         "Call RRC dissector for CCCH PDUs",
@@ -1288,6 +1654,17 @@ void proto_register_rlc_nr(void)
         "When enabled, if data is not present, don't report as an error, but instead "
         "add expert info to indicate that headers were omitted",
         &global_rlc_nr_headers_expected);
+
+    prefs_register_bool_preference(rlc_nr_module, "reassemble_um_frames",
+        "Try to reassemble UM frames",
+        "N.B. This should be considered experimental/incomplete, in that it doesn't try to discard reassembled state "
+        "when reestablishmenment happens, or in certain packet-loss cases",
+        &global_rlc_nr_reassemble_um_pdus);
+
+    ue_parameters_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
+    /* Register reassembly table. */
+    reassembly_table_register(&pdu_reassembly_table, &pdu_reassembly_table_functions);
 }
 
 void proto_reg_handoff_rlc_nr(void)
@@ -1295,11 +1672,12 @@ void proto_reg_handoff_rlc_nr(void)
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_rlc_nr_heur, "RLC-NR over UDP", "rlc_nr_udp", proto_rlc_nr, HEURISTIC_DISABLE);
 
+    pdcp_nr_handle = find_dissector("pdcp-nr");
     nr_rrc_bcch_bch = find_dissector_add_dependency("nr-rrc.bcch.bch", proto_rlc_nr);
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

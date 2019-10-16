@@ -1,0 +1,114 @@
+-- Extracted from RFC2986
+-- by Martin Peylo <wireshark@izac.de> 2018
+--
+-- Changes to the original ASN.1 source:
+--   - commented out import from InformationFramework
+--   - commented out AlgorithmIdentifier
+--   - commented out SubjectPublicKeyInfo
+--   - simplified Attribute
+--   - added out import the above from PKIX1Explicit88
+--
+-- The copyright statement from the original description in RFC2986
+-- follows below:
+--
+-- Full Copyright Statement
+--
+-- Copyright (C) The Internet Society 2000. All Rights Reserved.
+--
+-- This document and translations of it may be copied and furnished to
+-- others provided that the above copyright notice and this paragraph
+-- are included on all such copies.  However, this document itself may
+-- not be modified in any way, such as by removing the copyright notice
+-- or references to the Internet Society or other Internet
+-- organizations, except as required to translate it into languages
+-- other than English.
+--
+-- The limited permissions granted above are perpetual and will not be
+-- revoked by the Internet Society or its successors or assigns.
+--
+-- This document and the information contained herein is provided on an
+-- "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+-- TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR  IMPLIED, INCLUDING
+-- BUT NOT  LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+-- HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY  IMPLIED WARRANTIES OF
+-- MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+   PKCS-10 {iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1)
+   pkcs-10(10) modules(1) pkcs-10(1)}
+
+   DEFINITIONS IMPLICIT TAGS ::=
+
+   BEGIN
+
+   -- EXPORTS All --
+
+   -- All types and values defined in this module are exported for use
+   -- in other ASN.1 modules.
+
+   IMPORTS
+
+   informationFramework, authenticationFramework
+        FROM UsefulDefinitions {joint-iso-itu-t(2) ds(5) module(1)
+        usefulDefinitions(0) 3}
+
+-- COMMENTED OUT as PKIX1Explicit88 provides this
+--   ATTRIBUTE, Name
+--        FROM InformationFramework informationFramework
+
+-- ADDED to avoid that it needs to be implemented here, and to have Name
+-- Directory Authentication Framework (X.509)
+    AlgorithmIdentifier, Name, SubjectPublicKeyInfo
+        FROM PKIX1Explicit88 {iso(1) identified-organization(3) dod(6)
+        internet(1) security(5) mechanisms(5) pkix(7) id-mod(0) id-pkix1-explicit(18)}
+
+   ALGORITHM
+        FROM AuthenticationFramework authenticationFramework;
+
+   -- Certificate requests
+   CertificationRequestInfo ::= SEQUENCE {
+        version       INTEGER { v1(0) } (v1,...),
+        subject       Name,
+        subjectPKInfo SubjectPublicKeyInfo{{ PKInfoAlgorithms }},
+        attributes    [0] Attributes{{ CRIAttributes }}
+   }
+
+-- COMMENTED OUT as not needed as imported from PKIX1Explicit88
+--    SubjectPublicKeyInfo {ALGORITHM: IOSet} ::= SEQUENCE {
+--         algorithm        AlgorithmIdentifier {{IOSet}},
+--         subjectPublicKey BIT STRING
+--    }
+
+   PKInfoAlgorithms ALGORITHM ::= {
+        ...  -- add any locally defined algorithms here -- }
+
+   Attributes { ATTRIBUTE:IOSet } ::= SET OF Attribute{{ IOSet }}
+
+   CRIAttributes  ATTRIBUTE  ::= {
+        ... -- add any locally defined attributes here -- }
+
+-- Simplified to make it easier to digest
+--    Attribute { ATTRIBUTE:IOSet } ::= SEQUENCE {
+--       type   ATTRIBUTE.&id({IOSet}),
+--       values SET SIZE(1..MAX) OF ATTRIBUTE.&Type({IOSet}{@type})
+--    }
+    Attribute       ::=     SEQUENCE {
+      type            OBJECT IDENTIFIER,
+      values  SET SIZE (1 .. MAX) OF ANY
+    }
+
+   CertificationRequest ::= SEQUENCE {
+        certificationRequestInfo CertificationRequestInfo,
+        signatureAlgorithm AlgorithmIdentifier{{ SignatureAlgorithms }},
+        signature          BIT STRING
+   }
+
+-- COMMENTED OUT as not needed as imported from PKIX1Explicit88
+--    AlgorithmIdentifier {ALGORITHM:IOSet } ::= SEQUENCE {
+--         algorithm  ALGORITHM.&id({IOSet}),
+--         parameters ALGORITHM.&Type({IOSet}{@algorithm}) OPTIONAL
+--    }
+
+   SignatureAlgorithms ALGORITHM ::= {
+        ... -- add any locally defined algorithms here -- }
+
+   END

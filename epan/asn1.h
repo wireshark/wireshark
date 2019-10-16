@@ -18,7 +18,8 @@ typedef enum {
   ASN1_ENC_BER,  /* X.690 - BER, CER, DER */
   ASN1_ENC_PER,  /* X.691 - PER */
   ASN1_ENC_ECN,  /* X.692 - ECN */
-  ASN1_ENC_XER   /* X.693 - XER */
+  ASN1_ENC_XER,  /* X.693 - XER */
+  ASN1_ENC_OER   /* X.696 - OER */
 } asn1_enc_e;
 
 typedef enum {

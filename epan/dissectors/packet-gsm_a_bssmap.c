@@ -41,6 +41,8 @@
 #include "packet-rtcp.h"
 #include "packet-rtp.h"
 #include "packet-gsm_map.h"
+#include "packet-bicc_mst.h"
+#include "packet-s1ap.h"
 
 void proto_register_gsm_a_bssmap(void);
 void proto_reg_handoff_gsm_a_bssmap(void);
@@ -331,13 +333,104 @@ static const value_string gsm_bssmap_elem_strings[] = {
     { BE_LCLS_BSS_STATUS,                "LCLS-BSS-Status" },                                            /* 3.2.2.119    */
     { BE_LCLS_BREAK_REQ,                 "LCLS-Break-Request" },                                         /* 3.2.2.120    */
     { BE_CSFB_IND,                       "CSFB Indication" },                                            /* 3.2.2.121    */
-#if 0
     { BE_CS_TO_PS_SRVCC,                 "CS to PS SRVCC" },                                             /* 3.2.2.122    */
-    { BE_SRC_ENB_2_TGT_ENB_TRANSP_INF,   "Source eNB to target eNB transparent information (E-UTRAN)" }, /*3.2.2.123     */
+    { BE_SRC_ENB_2_TGT_ENB_TRANSP_INF,   "Source eNB to target eNB transparent information (E-UTRAN)" }, /* 3.2.2.123    */
     { BE_CS_TO_PS_SRVCC_IND,             "CS to PS SRVCC Indication" },                                  /* 3.2.2.124    */
     { BE_CN_TO_MS_TRANSP,                "CN to MS transparent information" },                           /* 3.2.2.125    */
-#endif
     { BE_SELECTED_PLMN_ID,               "Selected PLMN ID" },                                           /* 3.2.2.126    */
+    { BE_LAST_USED_E_UTRAN_PLMN_ID,      "Last used E-UTRAN PLMN ID" },                                  /* 3.2.2.127    */
+    { BE_UDEF_150,                       "Undefined" },
+    { BE_UDEF_151,                       "Undefined" },
+    { BE_UDEF_152,                       "Undefined" },
+    { BE_UDEF_153,                       "Undefined" },
+    { BE_UDEF_154,                       "Undefined" },
+    { BE_UDEF_155,                       "Undefined" },
+    { BE_UDEF_156,                       "Undefined" },
+    { BE_UDEF_157,                       "Undefined" },
+    { BE_UDEF_158,                       "Undefined" },
+    { BE_UDEF_159,                       "Undefined" },
+    { BE_UDEF_160,                       "Undefined" },
+    { BE_UDEF_161,                       "Undefined" },
+    { BE_UDEF_162,                       "Undefined" },
+    { BE_UDEF_163,                       "Undefined" },
+    { BE_UDEF_164,                       "Undefined" },
+    { BE_UDEF_165,                       "Undefined" },
+    { BE_UDEF_166,                       "Undefined" },
+    { BE_UDEF_167,                       "Undefined" },
+    { BE_UDEF_168,                       "Undefined" },
+    { BE_UDEF_169,                       "Undefined" },
+    { BE_UDEF_170,                       "Undefined" },
+    { BE_UDEF_171,                       "Undefined" },
+    { BE_UDEF_172,                       "Undefined" },
+    { BE_UDEF_173,                       "Undefined" },
+    { BE_UDEF_174,                       "Undefined" },
+    { BE_UDEF_175,                       "Undefined" },
+    { BE_UDEF_176,                       "Undefined" },
+    { BE_UDEF_177,                       "Undefined" },
+    { BE_UDEF_178,                       "Undefined" },
+    { BE_UDEF_179,                       "Undefined" },
+    { BE_UDEF_180,                       "Undefined" },
+    { BE_UDEF_181,                       "Undefined" },
+    { BE_UDEF_182,                       "Undefined" },
+    { BE_UDEF_183,                       "Undefined" },
+    { BE_UDEF_184,                       "Undefined" },
+    { BE_UDEF_185,                       "Undefined" },
+    { BE_UDEF_186,                       "Undefined" },
+    { BE_UDEF_187,                       "Undefined" },
+    { BE_UDEF_188,                       "Undefined" },
+    { BE_UDEF_189,                       "Undefined" },
+    { BE_UDEF_190,                       "Undefined" },
+    { BE_UDEF_191,                       "Undefined" },
+    { BE_UDEF_192,                       "Undefined" },
+    { BE_UDEF_193,                       "Undefined" },
+    { BE_UDEF_194,                       "Undefined" },
+    { BE_UDEF_195,                       "Undefined" },
+    { BE_UDEF_196,                       "Undefined" },
+    { BE_UDEF_197,                       "Undefined" },
+    { BE_UDEF_198,                       "Undefined" },
+    { BE_UDEF_199,                       "Undefined" },
+    { BE_UDEF_200,                       "Undefined" },
+    { BE_UDEF_201,                       "Undefined" },
+    { BE_UDEF_202,                       "Undefined" },
+    { BE_UDEF_203,                       "Undefined" },
+    { BE_UDEF_204,                       "Undefined" },
+    { BE_UDEF_205,                       "Undefined" },
+    { BE_UDEF_206,                       "Undefined" },
+    { BE_UDEF_207,                       "Undefined" },
+    { BE_UDEF_208,                       "Undefined" },
+    { BE_UDEF_209,                       "Undefined" },
+    { BE_UDEF_210,                       "Undefined" },
+    { BE_UDEF_211,                       "Undefined" },
+    { BE_UDEF_212,                       "Undefined" },
+    { BE_UDEF_213,                       "Undefined" },
+    { BE_UDEF_214,                       "Undefined" },
+    { BE_UDEF_215,                       "Undefined" },
+    { BE_UDEF_216,                       "Undefined" },
+    { BE_UDEF_217,                       "Undefined" },
+    { BE_UDEF_218,                       "Undefined" },
+    { BE_UDEF_219,                       "Undefined" },
+    { BE_UDEF_220,                       "Undefined" },
+    { BE_UDEF_221,                       "Undefined" },
+    { BE_UDEF_222,                       "Undefined" },
+    { BE_UDEF_223,                       "Undefined" },
+    { BE_UDEF_224,                       "Undefined" },
+    { BE_UDEF_225,                       "Undefined" },
+    { BE_UDEF_226,                       "Undefined" },
+    { BE_UDEF_227,                       "Undefined" },
+    { BE_UDEF_228,                       "Undefined" },
+    { BE_UDEF_229,                       "Undefined" },
+    { BE_UDEF_230,                       "Undefined" },
+    { BE_UDEF_231,                       "Undefined" },
+    { BE_UDEF_232,                       "Undefined" },
+    { BE_UDEF_233,                       "Undefined" },
+    { BE_UDEF_234,                       "Undefined" },
+    { BE_UDEF_235,                       "Undefined" },
+    { BE_UDEF_236,                       "Undefined" },
+    { BE_UDEF_237,                       "Undefined" },
+    { BE_UDEF_238,                       "Undefined" },
+    { BE_UDEF_239,                       "Undefined" },
+    { BE_OSMOCOM_OSMUX_SUPPORT,          "Osmocom extension: Osmux Support" },
+    { BE_OSMOCOM_OSMUX_CID,              "Osmocom extension: Osmux CID" },
     { 0, NULL }
 };
 value_string_ext gsm_bssmap_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_bssmap_elem_strings);
@@ -363,8 +456,9 @@ static const value_string bssmap_field_element_ids[] = {
     { 0x0f, "BSSMAP Field Element: IRAT Measurement Configuration" },                       /* 3.2.3.16 */
     { 0x10, "BSSMAP Field Element: Source Cell ID" },                                       /* 3.2.3.17 */
     { 0x11, "BSSMAP Field Element: IRAT Measurement Configuration (extended E-ARFCNs)" },   /* 3.2.3.18 */
-    { 0x6f, "VGCS talker mode" }, /* although technically not a Field Element,
+    { 0x6f, "BSSMAP Field Element: VGCS talker mode" }, /* although technically not a Field Element,
                                      this IE can appear in Old BSS to New BSS information */
+    { 0x95, "BSSMAP Field Element: Last used E-UTRAN PLMN ID" },                            /* 3.2.2.127 */
     { 0xfe, "BSSMAP Field Element: D-RNTI" },                                               /* 3.2.3.15 */
     { 0, NULL }
 };
@@ -638,7 +732,7 @@ static int hf_gsm_a_bssmap_reroute_outcome = -1;
 static int hf_gsm_a_bssmap_lcls_conf = -1;
 static int hf_gsm_a_bssmap_lcls_con_status_control = -1;
 static int hf_gsm_a_bssmap_lcls_bss_status = -1;
-static int hf_gsm_a_bssmap_selected_plmn_id = -1;
+static int hf_gsm_a_bssmap_osmocom_osmux_cid = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_gsm_a_bssmap_message_elements = -1;
@@ -706,6 +800,7 @@ static dissector_handle_t gsm_bsslap_handle = NULL;
 static dissector_handle_t dtap_handle;
 static dissector_handle_t bssgp_handle;
 static dissector_handle_t rrc_handle;
+static dissector_handle_t bicc_mst_handle;
 static dissector_handle_t bssmap_handle;
 
 static proto_tree *g_tree;
@@ -874,12 +969,98 @@ typedef enum
     BE_CN_TO_MS_TRANSP,                 /* CN to MS transparent information    3.2.2.125    */
     BE_SELECTED_PLMN_ID,                /* Selected PLMN ID                    3.2.2.126    */
     BE_LAST_USED_EUTRAN_PLMN_ID,        /* Last used E - UTRAN PLMN ID         3.2.2.127    */
-        /*Old Location Area Identification    3.2.2.128*/
-        /*Attach Indicator    3.2.2.129*/
-        /*Selected Operator    3.2.2.130*/
-        /*PS Registered Operator    3.2.2.131*/
-        /*CS Registered Operator    3.2.2.132*/
-
+    BE_UDEF_150,                         /* Undefined Old Location Area Identification    3.2.2.128 */
+    BE_UDEF_151,                         /* Undefined Attach Indicator    3.2.2.129 */
+    BE_UDEF_152,                         /* Undefined Selected Operator    3.2.2.130 */
+    BE_UDEF_153,                         /* Undefined PS Registered Operator    3.2.2.131 */
+    BE_UDEF_154,                         /* Undefined CS Registered Operator    3.2.2.132*/
+    BE_UDEF_155,                         /* Undefined */
+    BE_UDEF_156,                         /* Undefined */
+    BE_UDEF_157,                         /* Undefined */
+    BE_UDEF_158,                         /* Undefined */
+    BE_UDEF_159,                         /* Undefined */
+    BE_UDEF_160,                         /* Undefined */
+    BE_UDEF_161,                         /* Undefined */
+    BE_UDEF_162,                         /* Undefined */
+    BE_UDEF_163,                         /* Undefined */
+    BE_UDEF_164,                         /* Undefined */
+    BE_UDEF_165,                         /* Undefined */
+    BE_UDEF_166,                         /* Undefined */
+    BE_UDEF_167,                         /* Undefined */
+    BE_UDEF_168,                         /* Undefined */
+    BE_UDEF_169,                         /* Undefined */
+    BE_UDEF_170,                         /* Undefined */
+    BE_UDEF_171,                         /* Undefined */
+    BE_UDEF_172,                         /* Undefined */
+    BE_UDEF_173,                         /* Undefined */
+    BE_UDEF_174,                         /* Undefined */
+    BE_UDEF_175,                         /* Undefined */
+    BE_UDEF_176,                         /* Undefined */
+    BE_UDEF_177,                         /* Undefined */
+    BE_UDEF_178,                         /* Undefined */
+    BE_UDEF_179,                         /* Undefined */
+    BE_UDEF_180,                         /* Undefined */
+    BE_UDEF_181,                         /* Undefined */
+    BE_UDEF_182,                         /* Undefined */
+    BE_UDEF_183,                         /* Undefined */
+    BE_UDEF_184,                         /* Undefined */
+    BE_UDEF_185,                         /* Undefined */
+    BE_UDEF_186,                         /* Undefined */
+    BE_UDEF_187,                         /* Undefined */
+    BE_UDEF_188,                         /* Undefined */
+    BE_UDEF_189,                         /* Undefined */
+    BE_UDEF_190,                         /* Undefined */
+    BE_UDEF_191,                         /* Undefined */
+    BE_UDEF_192,                         /* Undefined */
+    BE_UDEF_193,                         /* Undefined */
+    BE_UDEF_194,                         /* Undefined */
+    BE_UDEF_195,                         /* Undefined */
+    BE_UDEF_196,                         /* Undefined */
+    BE_UDEF_197,                         /* Undefined */
+    BE_UDEF_198,                         /* Undefined */
+    BE_UDEF_199,                         /* Undefined */
+    BE_UDEF_200,                         /* Undefined */
+    BE_UDEF_201,                         /* Undefined */
+    BE_UDEF_202,                         /* Undefined */
+    BE_UDEF_203,                         /* Undefined */
+    BE_UDEF_204,                         /* Undefined */
+    BE_UDEF_205,                         /* Undefined */
+    BE_UDEF_206,                         /* Undefined */
+    BE_UDEF_207,                         /* Undefined */
+    BE_UDEF_208,                         /* Undefined */
+    BE_UDEF_209,                         /* Undefined */
+    BE_UDEF_210,                         /* Undefined */
+    BE_UDEF_211,                         /* Undefined */
+    BE_UDEF_212,                         /* Undefined */
+    BE_UDEF_213,                         /* Undefined */
+    BE_UDEF_214,                         /* Undefined */
+    BE_UDEF_215,                         /* Undefined */
+    BE_UDEF_216,                         /* Undefined */
+    BE_UDEF_217,                         /* Undefined */
+    BE_UDEF_218,                         /* Undefined */
+    BE_UDEF_219,                         /* Undefined */
+    BE_UDEF_220,                         /* Undefined */
+    BE_UDEF_221,                         /* Undefined */
+    BE_UDEF_222,                         /* Undefined */
+    BE_UDEF_223,                         /* Undefined */
+    BE_UDEF_224,                         /* Undefined */
+    BE_UDEF_225,                         /* Undefined */
+    BE_UDEF_226,                         /* Undefined */
+    BE_UDEF_227,                         /* Undefined */
+    BE_UDEF_228,                         /* Undefined */
+    BE_UDEF_229,                         /* Undefined */
+    BE_UDEF_230,                         /* Undefined */
+    BE_UDEF_231,                         /* Undefined */
+    BE_UDEF_232,                         /* Undefined */
+    BE_UDEF_233,                         /* Undefined */
+    BE_UDEF_234,                         /* Undefined */
+    BE_UDEF_235,                         /* Undefined */
+    BE_UDEF_236,                         /* Undefined */
+    BE_UDEF_237,                         /* Undefined */
+    BE_UDEF_238,                         /* Undefined */
+    BE_UDEF_239,                         /* Undefined */
+    BE_OSMOCOM_OSMUX_SUPPORT = 0xf0,    /* Osmocom extension: Osmux Support */
+    BE_OSMOCOM_OSMUX_CID = 0xf1,        /* Osmocom extension: Osmux CID */
     BE_NONE                             /* NONE */
 }
 bssmap_elem_idx_t;
@@ -1036,8 +1217,9 @@ static const range_string gsm_a_bssap_cause_rvals[] = {
     { 0, 0, NULL },
 };
 
-static guint16
-be_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
+/* non-static for packet-gsm_gsup.c */
+guint16
+bssmap_dissect_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8       oct;
     guint32      curr_offset;
@@ -1126,7 +1308,7 @@ be_tmsi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, gui
  * [2] 3.2.2.8 Number Of MSs
  */
 static guint16
-be_num_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_num_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1135,7 +1317,7 @@ be_num_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
     proto_tree_add_item(tree, hf_gsm_a_bssmap_num_ms, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_bssmap_extraneous_data);
+   /* no length check possible */
 
     return(curr_offset - offset);
 }
@@ -1892,7 +2074,7 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     else if ((cell_discriminator & 0x0f) < 8) {
         ti = proto_tree_add_uint(tree, hf_gsm_a_bssmap_cell_discriminator, l3_tvb, curr_offset, 1, cell_discriminator);
         /* cell_discriminator is a preference, so value should be known, but keeping presence of field consistent for filtering */
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
 
         /* GSM */
         call_dissector(dtap_handle, l3_tvb, pinfo, g_tree);
@@ -1900,7 +2082,7 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     else if ((cell_discriminator & 0x0f) < 13) {
         ti = proto_tree_add_uint(tree, hf_gsm_a_bssmap_cell_discriminator, l3_tvb, curr_offset, 1, cell_discriminator);
         /* cell_discriminator is a preference, so value should be known, but keeping presence of field consistent for filtering */
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
 
         /* UMTS or CDMA 2000 */
         dissect_rrc_HandoverToUTRANCommand_PDU(l3_tvb, pinfo, g_tree, NULL);
@@ -3693,7 +3875,7 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
         break;
     }
 
-    if ((!pinfo->fd->flags.visited) && rtp_port != 0) {
+    if ((!pinfo->fd->visited) && rtp_port != 0) {
         rtp_add_address(pinfo, PT_UDP, &rtp_dst_addr, rtp_port, 0, "BSS MAP", pinfo->num, FALSE, 0);
         rtcp_add_address(pinfo, &rtp_dst_addr, rtp_port+1, 0, "BSS MAP", pinfo->num);
     }
@@ -4247,20 +4429,16 @@ be_reroute_outcome(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 }
 
 /*
- * 3.2.2.115 Global Call Reference
+ * 3.2.2.115 Global Call Reference as per 3GPP TS 29.205 Section B.2.1.9
  */
 static guint16
-be_global_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_global_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
-    curr_offset = offset;
-
-    /* Global Call Reference Identifier */
-    proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len, "Field Element not decoded yet");
+    dissect_bicc_mst_lcls_gcr(tvb, tree, offset, len);
 
     return len;
-
 }
+
 /*
  * 3.2.2.116 LCLS-Configuration
  */
@@ -4371,9 +4549,30 @@ static guint16
 be_selected_plmn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 
-    proto_tree_add_string(tree, hf_gsm_a_bssmap_selected_plmn_id, tvb, offset, 3, dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_NONE, TRUE));
+    dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_NONE, TRUE);
     return 3;
 
+}
+
+/*
+ * 3.2.2.127 Last used E-UTRAN PLMN ID
+ */
+static guint16
+be_last_used_eutran_plmn_id(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, guint32 offset, guint len _U_, gchar* add_string _U_, int string_len _U_)
+{
+
+    dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
+
+    return 3;
+
+}
+
+/* Osmocom extension: Osmux CID */
+static guint16
+be_osmocom_osmux_cid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_osmocom_osmux_cid, tvb, offset, 1, ENC_NA);
+    return 1;
 }
 
 
@@ -4382,7 +4581,7 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     be_cic,             /* Circuit Identity Code */
     NULL,               /* Reserved */
     be_res_avail,       /* Resource Available */
-    be_cause,           /* Cause */
+    bssmap_dissect_cause,/* Cause */
     be_cell_id,         /* Cell Identifier */
     be_prio,            /* Priority */
     be_l3_header_info,  /* Layer 3 Header Information */
@@ -4522,13 +4721,104 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     be_lcls_bss_status,                 /* LCLS-BSS-Status                      3.2.2.119    */
     NULL,                               /* LCLS-Break-Request                   3.2.2.120    No data */
     NULL,                               /* CSFB Indication                      3.2.2.121    No data */
-#if 0
-    BE_CS_TO_PS_SRVCC,                  /* CS to PS SRVCC                       3.2.2.122    */
-    BE_SRC_ENB_2_TGT_ENB_TRANSP_INF,    /* Source eNB to target eNB transparent information (E-UTRAN)" 3.2.2.123    */
-    BE_CS_TO_PS_SRVCC_IND,              /* CS to PS SRVCC Indication            3.2.2.124    */
-    BE_CN_TO_MS_TRANSP,                 /* CN to MS transparent information     3.2.2.125    */
-#endif
+    NULL,                               /* CS to PS SRVCC                       3.2.2.122    */
+    NULL,                               /* Source eNB to target eNB transparent information (E-UTRAN)" 3.2.2.123    */
+    NULL,                               /* CS to PS SRVCC Indication            3.2.2.124    */
+    NULL,                               /* CN to MS transparent information     3.2.2.125    */
     be_selected_plmn_id,                /* Selected PLMN ID                     3.2.2.126    */
+    be_last_used_eutran_plmn_id,        /* Last used E-UTRAN PLMN ID            3.2.2.127    */
+    NULL,                               /* 0x96 */
+    NULL,                               /* 0x97 */
+    NULL,                               /* 0x98 */
+    NULL,                               /* 0x99 */
+    NULL,                               /* 0x9a */
+    NULL,                               /* 0x9b */
+    NULL,                               /* 0x9c */
+    NULL,                               /* 0x9d */
+    NULL,                               /* 0x9e */
+    NULL,                               /* 0x9f */
+    NULL,                               /* 0xa0 */
+    NULL,                               /* 0xa1 */
+    NULL,                               /* 0xa2 */
+    NULL,                               /* 0xa3 */
+    NULL,                               /* 0xa4 */
+    NULL,                               /* 0xa5 */
+    NULL,                               /* 0xa6 */
+    NULL,                               /* 0xa7 */
+    NULL,                               /* 0xa8 */
+    NULL,                               /* 0xa9 */
+    NULL,                               /* 0xaa */
+    NULL,                               /* 0xab */
+    NULL,                               /* 0xac */
+    NULL,                               /* 0xad */
+    NULL,                               /* 0xae */
+    NULL,                               /* 0xaf */
+    NULL,                               /* 0xb0 */
+    NULL,                               /* 0xb1 */
+    NULL,                               /* 0xb2 */
+    NULL,                               /* 0xb3 */
+    NULL,                               /* 0xb4 */
+    NULL,                               /* 0xb5 */
+    NULL,                               /* 0xb6 */
+    NULL,                               /* 0xb7 */
+    NULL,                               /* 0xb8 */
+    NULL,                               /* 0xb9 */
+    NULL,                               /* 0xba */
+    NULL,                               /* 0xbb */
+    NULL,                               /* 0xbc */
+    NULL,                               /* 0xbd */
+    NULL,                               /* 0xbe */
+    NULL,                               /* 0xbf */
+    NULL,                               /* 0xc0 */
+    NULL,                               /* 0xc1 */
+    NULL,                               /* 0xc2 */
+    NULL,                               /* 0xc3 */
+    NULL,                               /* 0xc4 */
+    NULL,                               /* 0xc5 */
+    NULL,                               /* 0xc6 */
+    NULL,                               /* 0xc7 */
+    NULL,                               /* 0xc8 */
+    NULL,                               /* 0xc9 */
+    NULL,                               /* 0xca */
+    NULL,                               /* 0xcb */
+    NULL,                               /* 0xcc */
+    NULL,                               /* 0xcd */
+    NULL,                               /* 0xce */
+    NULL,                               /* 0xcf */
+    NULL,                               /* 0xd0 */
+    NULL,                               /* 0xd1 */
+    NULL,                               /* 0xd2 */
+    NULL,                               /* 0xd3 */
+    NULL,                               /* 0xd4 */
+    NULL,                               /* 0xd5 */
+    NULL,                               /* 0xd6 */
+    NULL,                               /* 0xd7 */
+    NULL,                               /* 0xd8 */
+    NULL,                               /* 0xd9 */
+    NULL,                               /* 0xda */
+    NULL,                               /* 0xdb */
+    NULL,                               /* 0xdc */
+    NULL,                               /* 0xdd */
+    NULL,                               /* 0xde */
+    NULL,                               /* 0xdf */
+    NULL,                               /* 0xe0 */
+    NULL,                               /* 0xe1 */
+    NULL,                               /* 0xe2 */
+    NULL,                               /* 0xe3 */
+    NULL,                               /* 0xe4 */
+    NULL,                               /* 0xe5 */
+    NULL,                               /* 0xe6 */
+    NULL,                               /* 0xe7 */
+    NULL,                               /* 0xe8 */
+    NULL,                               /* 0xe9 */
+    NULL,                               /* 0xea */
+    NULL,                               /* 0xeb */
+    NULL,                               /* 0xec */
+    NULL,                               /* 0xed */
+    NULL,                               /* 0xee */
+    NULL,                               /* 0xef */
+    NULL,                               /* Osmocom extension: Osmux Support */
+    be_osmocom_osmux_cid,               /* Osmocom extension: Osmux CID */
     NULL                                /* NONE */
 
 };
@@ -4736,6 +5026,28 @@ be_fe_dtm_ho_command_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     return(curr_offset - offset);
 }
 
+/* 3.2.3.17 Source Cell ID */
+static guint16
+be_fe_source_cell_id(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_, guint32 offset, guint len, gchar* add_string _U_, int string_len _U_)
+{
+    tvbuff_t* new_tvb;
+    guint32 curr_offset;
+
+    curr_offset = offset;
+
+    /* Tracking Area Identity: Octets 3 to 7 contain the value part of the Tracking Area Identity IE defined in 3GPP TS 24.301, not including 3GPP TS 24.301 IEI. */
+    curr_offset += de_emm_trac_area_id(tvb, tree, pinfo, curr_offset, 5, NULL, 0);
+    /* E-UTRAN CGI: Octets 8 - m contain the value part of the E-UTRAN CGI IE defined 3GPP TS 36.413 for the source cell. */
+    new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
+    curr_offset += dissect_s1ap_EUTRAN_CGI_PDU(new_tvb , pinfo, tree, NULL);
+    /* Global eNB ID: Octets (m+1) - n contain the value part of the Global eNB ID IE defined 3GPP TS 36.413 for the source eNB. */
+    new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
+    curr_offset += dissect_s1ap_Global_ENB_ID_PDU(new_tvb, pinfo, tree, NULL);
+
+    return(len);
+}
+
+
 static guint16 (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_) = {
     be_fe_extra_info,              /* { 0x01,       "Extra information" }, */
     be_fe_cur_chan_type2,          /* { 0x02,       "Current Channel Type 2" }, */
@@ -4747,12 +5059,17 @@ static guint16 (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tre
     NULL,                          /* { 0x08,       "cdma2000 Capability Information" }, */
     be_fe_cell_load_info,          /* { 0x09,       "Downlink Cell Load Information" }, */
     be_fe_cell_load_info,          /* { 0x0a,       "Uplink Cell Load Information" }, */
-    be_fe_cell_load_info_group,    /* { 0x0b,       "Cell Load Information Group" }, */
+    be_fe_cell_load_info_group,    /* { 0x0b,       "Cell Load Information Group" },                           3.2.3.11  */
     be_fe_cell_load_info,          /* { 0x0c,       "Cell Load Information" }, */
-    be_fe_ps_indication,           /* { 0x0d,       "PS Indication" }, */
-    be_fe_dtm_ho_command_ind,      /* { 0x0e,       "DTM Handover Command Indication" }, */
+    be_fe_ps_indication,           /* { 0x0d,       "PS Indication" },                                         3.2.3.13  */
+    be_fe_dtm_ho_command_ind,      /* { 0x0e,       "DTM Handover Command Indication" },                       3.2.3.14  */
+    NULL,                          /* { 0x0f,       "IRAT Measurement Configuration" },                        3.2.3.16  */
+    be_fe_source_cell_id,          /* { 0x10,       "Source Cell ID" },                                        3.2.3.17  */
+    NULL,                          /* { 0x11,       "IRAT Measurement Configuration (extended E-ARFCNs)" },    3.2.3.18  */
     be_vgcs_talker_mode,           /* { 0x6f,       "VGCS talker mode" }, */ /* not really a field element
-                                                     but does appear in old bss to new bss info */
+                                                     but does appear in old bss to new bss info                3.2.2.93  */
+    be_last_used_eutran_plmn_id,   /* { 0x95,       "Last used E-UTRAN PLMN ID" },                             3.2.2.127 */
+    NULL,                          /* { 0xfe,       "D-RNTI" },                                                3.2.3.15  */
     NULL,   /* NONE */
 };
 
@@ -4761,10 +5078,11 @@ static guint16 (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tre
 static guint16
 be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset, ie_len, fe_start_offset;
+    guint32 curr_offset, ie_len, fe_start_offset, ie_id_off, len_len;
     gint idx;
     const gchar *str;
     proto_tree *  bss_to_bss_tree = NULL;
+    gboolean has_len = TRUE;
 
     curr_offset = offset;
 
@@ -4774,21 +5092,36 @@ be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
         /*
          * add name
          */
+        ie_id_off = curr_offset;
         oct = tvb_get_guint8(tvb, curr_offset++);
 
         str = try_val_to_str_idx((guint32) oct, bssmap_field_element_ids, &idx);
-        ie_len = tvb_get_guint8(tvb, curr_offset++);
+        /* It looks like a few IEs come without length Check for those here */
+        switch (oct) {
+        case 0x95:
+            /* 3.2.2.127 Last used E-UTRAN PLMN ID */
+            len_len = 0;
+            ie_len = 3;   /* Data part */
+            has_len = FALSE;
+            break;
+        default:
+            len_len = 1;
+            ie_len = tvb_get_guint8(tvb, curr_offset++);
+            break;
+        }
 
         if (!str)
             str = "Unknown";
 
         /* Add subtree */
-        bss_to_bss_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset - 2, ie_len + 2, ett_bss_to_bss_info, NULL, "%s", str);
+        bss_to_bss_tree = proto_tree_add_subtree_format(tree, tvb, ie_id_off, ie_len + 1 + len_len, ett_bss_to_bss_info, NULL, "%s", str);
         /*
          * add Field Element name and length
          */
-        proto_tree_add_item(bss_to_bss_tree, hf_gsm_a_bssmap_field_elem_id, tvb, curr_offset -2 , 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(bss_to_bss_tree, hf_gsm_a_bssmap_field_elem_id_len, tvb, curr_offset - 1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(bss_to_bss_tree, hf_gsm_a_bssmap_field_elem_id, tvb, ie_id_off, 1, ENC_BIG_ENDIAN);
+        if (has_len) {
+            proto_tree_add_item(bss_to_bss_tree, hf_gsm_a_bssmap_field_elem_id_len, tvb, curr_offset - 1, 1, ENC_BIG_ENDIAN);
+        }
 
         fe_start_offset = curr_offset;
 
@@ -4874,7 +5207,8 @@ bssmap_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
     /* LCLS-Correlation-Not-Needed    3.2.2.118    MSC-BSS    O (note 18)    1*/
     ELEM_OPT_T(BE_LCLS_CORR_NOT_NEEDED, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_CORR_NOT_NEEDED, NULL);
     /* CS to PS SRVCC    3.2.2.122    MSC-BSS    O (note 19)    1*/
-
+    /* Osmocom extension: Osmux CID */
+    ELEM_OPT_TV(BE_OSMOCOM_OSMUX_CID, GSM_A_PDU_TYPE_BSSMAP, BE_OSMOCOM_OSMUX_CID, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -4918,6 +5252,8 @@ bssmap_ass_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     ELEM_OPT_TLV(BE_SPEECH_CODEC_LST, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC_LST, "(BSS Supported)");
     /* LCLS-BSS-Status    3.2.2.119    BSS-MSC    O (note 12)    2 */
     ELEM_OPT_TV(BE_LCLS_BSS_STATUS, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_BSS_STATUS, NULL);
+    /* Osmocom extension: Osmux CID */
+    ELEM_OPT_TV(BE_OSMOCOM_OSMUX_CID, GSM_A_PDU_TYPE_BSSMAP, BE_OSMOCOM_OSMUX_CID, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -5514,6 +5850,8 @@ bssmap_reset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
     ELEM_MAND_TLV(BE_CAUSE, GSM_A_PDU_TYPE_BSSMAP, BE_CAUSE, NULL, ei_gsm_a_bssmap_missing_mandatory_element);
     /* A-Interface Selector for RESET  3.2.2.107   Both O 2 */
     ELEM_OPT_TV(BE_A_ITF_SEL_FOR_RESET, GSM_A_PDU_TYPE_BSSMAP, BE_A_ITF_SEL_FOR_RESET, NULL);
+    /*Osmocom extension: Osmux Support */
+    ELEM_OPT_T(BE_OSMOCOM_OSMUX_SUPPORT, GSM_A_PDU_TYPE_BSSMAP, BE_OSMOCOM_OSMUX_SUPPORT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -5533,6 +5871,8 @@ bssmap_reset_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
     /* A-Interface Selector for RESET  3.2.2.107   Both O 2 */
     ELEM_OPT_TV(BE_A_ITF_SEL_FOR_RESET, GSM_A_PDU_TYPE_BSSMAP, BE_A_ITF_SEL_FOR_RESET, NULL);
+    /*Osmocom extension: Osmux Support */
+    ELEM_OPT_T(BE_OSMOCOM_OSMUX_SUPPORT, GSM_A_PDU_TYPE_BSSMAP, BE_OSMOCOM_OSMUX_SUPPORT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -6956,31 +7296,69 @@ bssmap_reroute_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
 
-#if 0
 /*
  * 3.2.1.91 LCLS-CONNECT-CONTROL
  */
+static void
+bssmap_lcls_conn_ctrl(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
 
     /* LCLS-Configuration 3.2.2.116 MSC-BSS O (note1) 2 */
-    /* ELEM_OPT_TV(BE_LCLS_CONF, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_CONF, NULL); */
+    ELEM_OPT_TV(BE_LCLS_CONF, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_CONF, NULL);
     /* LCLS-Connection-Status-Control 3.2.2.117 MSC-BSS O (note1) 2 */
-    /* ELEM_OPT_TV(BE_LCLS_CON_STATUS_CONTROL, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_CON_STATUS_CONTROL, NULL); */
+    ELEM_OPT_TV(BE_LCLS_CON_STATUS_CONTROL, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_CON_STATUS_CONTROL, NULL);
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
+}
 
 /*
  * 3.2.1.92 LCLS-CONNECT-CONTROL-ACK
  */
+static void
+bssmap_lcls_conn_ctrl_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
 
     /* LCLS-BSS-Status 3.2.2.119 BSS-MSC M 2 */
+    ELEM_OPT_TV(BE_LCLS_BSS_STATUS, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_BSS_STATUS, NULL);
 
-
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
+}
 /*
+ *
  * 3.2.1.93 LCLS-NOTIFICATION
  */
+static void
+bssmap_lcls_notif(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
 
     /* LCLS-BSS-Status 3.2.2.119 BSS-MSC O (note 1) 2 */
-    /* ELEM_OPT_TV(BE_LCLS_BSS_STATUS, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_BSS_STATUS, NULL);*/
+    ELEM_OPT_TV(BE_LCLS_BSS_STATUS, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_BSS_STATUS, NULL);
     /* LCLS-Break-Request 3.2.2.120 BSS-MSC O (note 1) 1 */
+    ELEM_OPT_T(BE_LCLS_BREAK_REQ, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_BREAK_REQ, NULL);
 
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
+}
+
+#if 0
 /*
  * 3.2.1.94     MS REGISTRATION ENQUIRY
  */
@@ -7120,9 +7498,9 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     bssmap_int_ho_cmd,                  /* 0x72 Internal Handover Command */
     bssmap_int_ho_enq,                  /* 0x73 Internal Handover Enquiry */
 
-    NULL,                               /* 0x74 LCLS-Connect-Control */
-    NULL,                               /* 0x75 LCLS-Connect-Control-Ack */
-    NULL,                               /* 0x76 LCLS-Notification */
+    bssmap_lcls_conn_ctrl,              /* 0x74 LCLS-Connect-Control */
+    bssmap_lcls_conn_ctrl_ack,          /* 0x75 LCLS-Connect-Control-Ack */
+    bssmap_lcls_notif,                  /* 0x76 LCLS-Notification */
     NULL,                               /* 0x77 Unallocated */
     bssmap_reroute_cmd,                 /* 0x78 Reroute Command */
     bssmap_reroute_complete,            /* 0x79 Reroute Complete */
@@ -7971,9 +8349,9 @@ proto_register_gsm_a_bssmap(void)
             FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_lcls_bss_status_vals), 0x0f,
             NULL, HFILL }
     },
-    { &hf_gsm_a_bssmap_selected_plmn_id,
-        { "Selected PLMN ID", "gsm_a.bssmap.selected_plmn_id",
-            FT_STRING, BASE_NONE, NULL, 0,
+    { &hf_gsm_a_bssmap_osmocom_osmux_cid,
+        { "Osmux CID", "gsm_a.bssmap.osmocom_osmux_cid",
+            FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL }
     },
 
@@ -8087,11 +8465,11 @@ proto_reg_handoff_gsm_a_bssmap(void)
     gsm_bsslap_handle = find_dissector_add_dependency("gsm_bsslap", proto_a_bssmap);
     bssgp_handle      = find_dissector_add_dependency("bssgp", proto_a_bssmap);
     rrc_handle        = find_dissector_add_dependency("rrc", proto_a_bssmap);
-
+    bicc_mst_handle   = find_dissector_add_dependency("bicc_mst", proto_a_bssmap);
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

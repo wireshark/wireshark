@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __OVERLAY_SCROLL_BAR_H__
 #define __OVERLAY_SCROLL_BAR_H__
@@ -26,6 +27,7 @@ public:
      * @param overlay_image An image containing a 1:1 mapping of nearby
      *        packet colors to raster lines. It should be sized in device
      *        pixels.
+     * @param packet_count Number of packets.
      * @param start_pos The first packet number represented by the image.
      *        -1 means no packet is selected.
      * @param end_pos The last packet number represented by the image. -1

@@ -86,12 +86,12 @@ static gint ett_nt_ace_object = -1;
 static gint ett_nt_ace_object_flags = -1;
 static gint ett_nt_security_information = -1;
 
+static expert_field ei_nt_owner_sid_beyond_data = EI_INIT;
 static expert_field ei_nt_owner_sid_beyond_reassembled_data = EI_INIT;
+static expert_field ei_nt_ace_extends_beyond_data = EI_INIT;
 static expert_field ei_nt_ace_extends_beyond_reassembled_data = EI_INIT;
-static expert_field ei_nt_ace_extends_beyond_capture = EI_INIT;
+static expert_field ei_nt_group_sid_beyond_data = EI_INIT;
 static expert_field ei_nt_group_sid_beyond_reassembled_data = EI_INIT;
-static expert_field ei_nt_group_sid_beyond_captured_data = EI_INIT;
-static expert_field ei_nt_owner_sid_beyond_captured_data = EI_INIT;
 static expert_field ei_nt_item_offs_out_of_range = EI_INIT;
 
 
@@ -122,7 +122,11 @@ value_string_ext DOS_errors_ext = VALUE_STRING_EXT_INIT(DOS_errors);
  *
  * From
  *
- *	http://www.wildpackets.com/elements/misc/SMB_NT_Status_Codes.txt
+ *	https://web.archive.org/web/20100503121824/http://www.wildpackets.com/elements/misc/SMB_NT_Status_Codes.txt
+ *
+ * See also MS-ERREF section 2.3.1 "NTSTATUS Values":
+ *
+ *	https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55
  */
 const value_string NT_errors[] = {
 	{ 0x00000000, "STATUS_SUCCESS" },
@@ -865,6 +869,9 @@ const value_string NT_errors[] = {
 	{ 0xC00002E8, "STATUS_MULTIPLE_FAULT_VIOLATION" },
 	{ 0xC0000300, "STATUS_NOT_SUPPORTED_ON_SBS" },
 	{ 0xC000035C, "STATUS_NETWORK_SESSION_EXPIRED" },
+	{ 0xC0000463, "STATUS_DEVICE_FEATURE_NOT_SUPPORTED" },
+	{ 0xC0000464, "STATUS_DEVICE_UNREACHABLE" },
+	{ 0xC0000465, "STATUS_INVALID_TOKEN" },
 	{ 0xC0009898, "STATUS_WOW_ASSERTION" },
 	{ 0xC0020001, "RPC_NT_INVALID_STRING_BINDING" },
 	{ 0xC0020002, "RPC_NT_WRONG_KIND_OF_BINDING" },
@@ -994,7 +1001,7 @@ value_string_ext NT_errors_ext = VALUE_STRING_EXT_INIT(NT_errors);
 
 /* These are the MS country codes from
 
-	http://www.unicode.org/unicode/onlinedat/countries.html
+	https://web.archive.org/web/20081224015707/http://www.unicode.org/unicode/onlinedat/countries.html
 
    For countries that share the same number, I choose to use only the
    name of the largest country. Apologies for this. If this offends you,
@@ -1217,8 +1224,10 @@ dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date)
 	return dissect_nt_64bit_time_opt(tvb, tree, offset, hf_date, FALSE);
 }
 
-/* Well-known SIDs defined in http://support.microsoft.com/kb/243330 */
+/* Well-known SIDs defined in
 
+     https://support.microsoft.com/en-us/help/243330/well-known-security-identifiers-in-windows-operating-systems
+*/
 static const sid_strings well_known_sids[] = {
 	{"S-1-0",          "Null Authority"},
 	{"S-1-0-0",        "Nobody"},
@@ -1317,8 +1326,10 @@ match_wkwn_sids(const char* sid) {
 /* For SIDs in the form 'S-1-5-21-X-Y-Z-<RID>', '21-X-Y-Z' is referred to
    as the "domain SID" (NT domain) or "machine SID" (local machine).
    The following are well-known RIDs which are appended to domain/machine SIDs
-   as defined in http://support.microsoft.com/kb/243330. */
+   as defined in
 
+     https://support.microsoft.com/en-us/help/243330/well-known-security-identifiers-in-windows-operating-systems
+*/
 static const value_string wkwn_S_1_5_21_rids[] = {
 	{498,   "Enterprise Read-only Domain Controllers"},
 	{500,	"Administrator"},
@@ -1578,20 +1589,20 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 			subtree, hf_nt_sid_wkwn, tvb, offset_sid_start, wkwn_sid1_len,
 			wmem_strbuf_get_str(wkwn_sid1_str), "%s", wmem_strbuf_get_str(wkwn_sid1_str));
 		proto_item_append_text(hidden_item, "  (%s)", mapped_name);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		proto_item_set_hidden(hidden_item);
 	}
 	if (wmem_strbuf_get_len(wkwn_sid2_str) > 0) {
 		hidden_item = proto_tree_add_string_format_value(
 			subtree, hf_nt_sid_wkwn, tvb, offset_sid_start, wkwn_sid2_len,
 			wmem_strbuf_get_str(wkwn_sid2_str), "%s", wmem_strbuf_get_str(wkwn_sid2_str));
 		proto_item_append_text(hidden_item, "  (%s)", wmem_strbuf_get_str(label_str));
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		proto_item_set_hidden(hidden_item);
 	}
 	if (domain_sid && wmem_strbuf_get_len(domain_str) > 0) {
 		hidden_item = proto_tree_add_string_format_value(
 			subtree, hf_nt_sid_domain, tvb, offset_sid_start + 12, 12,
 			wmem_strbuf_get_str(domain_str), "%s", wmem_strbuf_get_str(domain_str));
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		proto_item_set_hidden(hidden_item);
 	}
 
 	/* If requested, return SID string with mapped name */
@@ -1609,12 +1620,11 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	return offset;
 }
 
-/* Dissect an access mask.  All this stuff is kind of explained at MSDN:
+/* Dissect an access mask.  All this stuff is kind of explained at
 
-http://msdn.microsoft.com/library/default.asp?url=/library/en-us/security/security/windows_2000_windows_nt_access_mask_format.asp
+     https://docs.microsoft.com/en-us/windows/win32/secauthz/access-mask-format
 
 */
-
 static gint ett_nt_access_mask = -1;
 static gint ett_nt_access_mask_generic = -1;
 static gint ett_nt_access_mask_standard = -1;
@@ -2137,7 +2147,7 @@ dissect_nt_acl(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	/*
 	 * XXX - is this *really* 2 bytes?  The page at
 	 *
-	 *	http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthz/security/acl.asp
+	 *	https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-_acl
 	 *
 	 * indicates that it's one byte of revision and one byte of
 	 * zero padding, which means the code that used to be here
@@ -2189,8 +2199,8 @@ dissect_nt_acl(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 		  }
 		}
 
-		CATCH(BoundsError) {
-			proto_tree_add_expert(tree, pinfo, &ei_nt_ace_extends_beyond_capture, tvb, offset_v, 0);
+		CATCH(ContainedBoundsError) {
+			proto_tree_add_expert(tree, pinfo, &ei_nt_ace_extends_beyond_data, tvb, offset_v, 0);
 			missing_data = TRUE;
 		}
 
@@ -2430,8 +2440,8 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	        end_offset = offset_v;
 	    }
 
-	    CATCH(BoundsError) {
-	      proto_tree_add_expert(tree, pinfo, &ei_nt_owner_sid_beyond_captured_data, tvb, item_offset, 0);
+	    CATCH(ContainedBoundsError) {
+	      proto_tree_add_expert(tree, pinfo, &ei_nt_owner_sid_beyond_data, tvb, item_offset, 0);
 	    }
 
 	    CATCH(ReportedBoundsError) {
@@ -2455,8 +2465,8 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	        end_offset = offset_v;
 	    }
 
-	    CATCH(BoundsError) {
-	      proto_tree_add_expert(tree, pinfo, &ei_nt_group_sid_beyond_captured_data, tvb, item_offset, 0);
+	    CATCH(ContainedBoundsError) {
+	      proto_tree_add_expert(tree, pinfo, &ei_nt_group_sid_beyond_data, tvb, item_offset, 0);
 	    }
 
 	    CATCH(ReportedBoundsError) {
@@ -2888,11 +2898,11 @@ proto_do_register_windows_common(int proto_smb)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_nt_ace_extends_beyond_capture, { "nt.ace_extends_beyond_capture", PI_MALFORMED, PI_ERROR, "ACE Extends beyond end of captured data", EXPFILL }},
+		{ &ei_nt_ace_extends_beyond_data, { "nt.ace_extends_beyond_data", PI_MALFORMED, PI_ERROR, "ACE Extends beyond end of data", EXPFILL }},
 		{ &ei_nt_ace_extends_beyond_reassembled_data, { "nt.ace_extends_beyond_reassembled_data", PI_MALFORMED, PI_ERROR, "ACE Extends beyond end of reassembled data", EXPFILL }},
-		{ &ei_nt_owner_sid_beyond_captured_data, { "nt.owner_sid.beyond_captured_data", PI_MALFORMED, PI_ERROR, "Owner SID beyond end of captured data", EXPFILL }},
+		{ &ei_nt_owner_sid_beyond_data, { "nt.owner_sid.beyond_data", PI_MALFORMED, PI_ERROR, "Owner SID beyond end of data", EXPFILL }},
 		{ &ei_nt_owner_sid_beyond_reassembled_data, { "nt.owner_sid.beyond_reassembled_data", PI_MALFORMED, PI_ERROR, "Owner SID beyond end of reassembled data", EXPFILL }},
-		{ &ei_nt_group_sid_beyond_captured_data, { "nt.group_sid.beyond_captured_data", PI_MALFORMED, PI_ERROR, "Group SID beyond end of captured data", EXPFILL }},
+		{ &ei_nt_group_sid_beyond_data, { "nt.group_sid.beyond_data", PI_MALFORMED, PI_ERROR, "Group SID beyond end of data", EXPFILL }},
 		{ &ei_nt_group_sid_beyond_reassembled_data, { "nt.group_sid.beyond_reassembled_data", PI_MALFORMED, PI_ERROR, "Group SID beyond end of reassembled data", EXPFILL }},
 		{ &ei_nt_item_offs_out_of_range, { "nt.item_offset.out_of_range", PI_MALFORMED, PI_ERROR, "Item offset is out of range", EXPFILL }},
 	};
@@ -2906,7 +2916,7 @@ proto_do_register_windows_common(int proto_smb)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

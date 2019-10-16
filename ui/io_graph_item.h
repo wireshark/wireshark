@@ -1,5 +1,5 @@
 /* io_graph_item.h
- * Definitions and functions for IO graph items
+ * Definitions and functions for I/O graph items
  *
  * Copied from gtk/io_stat.c, (c) 2002 Ronnie Sahlberg
  *
@@ -7,7 +7,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __IO_GRAPH_ITEM_H__
 #define __IO_GRAPH_ITEM_H__
@@ -15,6 +16,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+#include "cfile.h"
 
 typedef enum {
     IOG_ITEM_UNIT_FIRST,
@@ -110,6 +113,18 @@ int get_io_graph_index(packet_info *pinfo, int interval);
  *         be freed by the caller.
  */
 GString *check_field_unit(const char *field_name, int *hf_index, io_graph_item_unit_t item_unit);
+
+/** Get the value at the given interval (idx) for the current value unit.
+ *
+ * @param items [in] Array containing the item to get.
+ * @param val_units [in] The type of unit to calculate. From IOG_ITEM_UNITS.
+ * @param idx [in] Index of the item to get.
+ * @param hf_index [in] Header field index for advanced statistics.
+ * @param cap_file [in] Capture file.
+ * @param interval [in] Timing interval in ms.
+ * @param cur_idx [in] Current index.
+ */
+double get_io_graph_item(const io_graph_item_t *items, io_graph_item_unit_t val_units, int idx, int hf_index, const capture_file *cap_file, int interval, int cur_idx);
 
 /** Update the values of an io_graph_item_t.
  *

@@ -30,7 +30,7 @@
    <item>
     <widget class="QCheckBox" name="checkSaveOnStart">
      <property name="text">
-      <string>Save parameter on capture start</string>
+      <string>Save parameter(s) on capture start</string>
      </property>
      <property name="checked">
       <bool>true</bool>

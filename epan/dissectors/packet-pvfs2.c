@@ -2314,6 +2314,12 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 	/* Get pointer to server config data */
 	ptr = tvb_get_ptr(tvb, offset, total_config_bytes);
 
+	if (!ptr)
+	{
+		/* Not enough data. Bail out. */
+		return offset;
+	}
+
 	/* Check if all data is available */
 	length_remaining = tvb_captured_length_remaining(tvb, offset);
 
@@ -2958,7 +2964,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	if (mode == TCP_MODE_UNEXP)
 	{
 		/* Add entry to tracking table for PVFS_SERV_IO request */
-		if ((server_op == PVFS_SERV_IO) && !pinfo->fd->flags.visited)
+		if ((server_op == PVFS_SERV_IO) && !pinfo->fd->visited)
 			val = pvfs2_io_tracking_new_with_tag(tag, pinfo->num);
 	}
 	else
@@ -2971,7 +2977,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		val = (pvfs2_io_tracking_value_t *)wmem_map_lookup(pvfs2_io_tracking_value_table, &key);
 
 		/* If this frame contains a known PVFS_SERV_IO tag, track it */
-		if (val && !pinfo->fd->flags.visited)
+		if (val && !pinfo->fd->visited)
 		{
 			/* If response HAS NOT been seen, mark this frame as response */
 			if (val->response_frame_num == 0)
@@ -3603,7 +3609,7 @@ proto_reg_handoff_pvfs(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

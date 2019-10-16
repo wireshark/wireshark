@@ -29,8 +29,7 @@ static gboolean pref_reassemble = TRUE;
 static gboolean pref_check_checksum = FALSE;
 
 /* IANA  ref:
- * http://www.iana.org/assignments/service-names-port-numbers/service-
- * names-port-numbers.xml
+ * https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml
  */
 #define TCP_PORT_STT  7471
 
@@ -417,7 +416,7 @@ dissect_stt_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *stt_tree,
     }
     /* Show if any part of this is set to aid debugging bad implementations. */
     if (attributes == 0) {
-        PROTO_ITEM_SET_HIDDEN(vlan_item);
+        proto_item_set_hidden(vlan_item);
     }
     offset += 2;
 
@@ -761,7 +760,7 @@ proto_register_stt(void)
         { &hf_stt_checksum,
           { "Checksum", "stt.checksum",
             FT_UINT16, BASE_HEX, NULL, 0x0,
-            "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL
+            "Details at: https://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL
           },
         },
         { &hf_stt_checksum_status,
@@ -913,7 +912,7 @@ proto_reg_handoff_stt(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

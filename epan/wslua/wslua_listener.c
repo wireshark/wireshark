@@ -19,7 +19,6 @@
 /* WSLUA_MODULE Listener Post-dissection packet analysis */
 
 #include "wslua.h"
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 WSLUA_CLASS_DEFINE(Listener,FAIL_ON_NULL("Listener"));
 /*
@@ -69,11 +68,12 @@ static int tap_packet_cb_error_handler(lua_State* L) {
 }
 
 
-static gboolean lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data) {
+static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data) {
     Listener tap = (Listener)tapdata;
-    gboolean retval = FALSE;
+    tap_packet_status retval = TAP_PACKET_DONT_REDRAW;
+    TreeItem lua_tree_tap;
 
-    if (tap->packet_ref == LUA_NOREF) return FALSE;
+    if (tap->packet_ref == LUA_NOREF) return TAP_PACKET_DONT_REDRAW; /* XXX - report error and return TAP_PACKET_FAILED? */
 
     lua_settop(tap->L,0);
 
@@ -91,16 +91,20 @@ static gboolean lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t
 
     lua_pinfo = pinfo;
     lua_tvb = edt->tvb;
-    lua_tree = create_TreeItem(edt->tree, NULL);
+    lua_tree_tap = create_TreeItem(edt->tree, NULL);
+    lua_tree = lua_tree_tap;
 
     switch ( lua_pcall(tap->L,3,1,1) ) {
         case 0:
-            retval = luaL_optinteger(tap->L,-1,1) == 0 ? FALSE : TRUE;
+            /* XXX - treat 2 as TAP_PACKET_FAILED? */
+            retval = luaL_optinteger(tap->L,-1,1) == 0 ? TAP_PACKET_DONT_REDRAW : TAP_PACKET_REDRAW;
             break;
         case LUA_ERRRUN:
+            /* XXX - TAP_PACKET_FAILED? */
             break;
         case LUA_ERRMEM:
-            ws_g_warning("Memory alloc error while calling listener tap callback packet");
+            g_warning("Memory alloc error while calling listener tap callback packet");
+            /* XXX - TAP_PACKET_FAILED? */
             break;
         default:
             g_assert_not_reached();
@@ -113,6 +117,7 @@ static gboolean lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t
     lua_pinfo = NULL;
     lua_tvb = NULL;
     lua_tree = NULL;
+    g_free(lua_tree_tap);
 
     return retval;
 }
@@ -135,10 +140,10 @@ static void lua_tap_reset(void *tapdata) {
         case 0:
             break;
         case LUA_ERRRUN:
-            ws_g_warning("Runtime error while calling a listener's init()");
+            g_warning("Runtime error while calling a listener's init()");
             break;
         case LUA_ERRMEM:
-            ws_g_warning("Memory alloc error while calling a listener's init()");
+            g_warning("Memory alloc error while calling a listener's init()");
             break;
         default:
             g_assert_not_reached();
@@ -160,10 +165,10 @@ static void lua_tap_draw(void *tapdata) {
             break;
         case LUA_ERRRUN:
             error = lua_tostring(tap->L,-1);
-            ws_g_warning("Runtime error while calling a listener's draw(): %s",error);
+            g_warning("Runtime error while calling a listener's draw(): %s",error);
             break;
         case LUA_ERRMEM:
-            ws_g_warning("Memory alloc error while calling a listener's draw()");
+            g_warning("Memory alloc error while calling a listener's draw()");
             break;
         default:
             g_assert_not_reached();
@@ -219,7 +224,7 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
      * XXX - do any Lua taps require the columns?  If so, we either need
      * to request them for this tap, or do so if any Lua taps require them.
      */
-    error = register_tap_listener(tap_type, tap, tap->filter, TL_REQUIRES_PROTO_TREE, lua_tap_reset, lua_tap_packet, lua_tap_draw);
+    error = register_tap_listener(tap_type, tap, tap->filter, TL_REQUIRES_PROTO_TREE, lua_tap_reset, lua_tap_packet, lua_tap_draw, NULL);
 
     if (error) {
         g_free(tap->filter);
@@ -373,8 +378,7 @@ int Listener_register(lua_State* L) {
 
     listeners = g_ptr_array_new();
 
-    WSLUA_REGISTER_CLASS(Listener);
-    WSLUA_REGISTER_ATTRIBUTES(Listener);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS(Listener);
     return 0;
 }
 
@@ -386,14 +390,14 @@ static void deregister_tap_listener (gpointer data, gpointer userdata) {
 
 int wslua_deregister_listeners(lua_State* L) {
     g_ptr_array_foreach(listeners, deregister_tap_listener, L);
-    g_ptr_array_free(listeners, FALSE);
+    g_ptr_array_free(listeners, TRUE);
     listeners = NULL;
 
     return 0;
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

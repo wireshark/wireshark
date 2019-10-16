@@ -604,6 +604,7 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
     proto_item* ack_item = NULL;
     guint8 first_octet;
     guint8 second_octet;
+    guint8 octet_array[2];
     guint8 pdutype;
     guint phdr = 0;
     guint16  hdrcrc6;
@@ -627,10 +628,10 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
         tvb = tvb_new_subset_length(tvb_in,2,len);
     }
 
-    first_octet =  tvb_get_guint8(tvb,0);
-    second_octet =  tvb_get_guint8(tvb,1);
+    octet_array[0] = first_octet =  tvb_get_guint8(tvb,0);
+    octet_array[1] = second_octet =  tvb_get_guint8(tvb,1);
     hdrcrc6 = tvb_get_guint8(tvb, 2) >> 2;
-    crccheck = update_crc6_by_bytes(hdrcrc6, first_octet, second_octet);
+    crccheck = crc6_0X6F(hdrcrc6, octet_array, 2);
 
     pdutype = ( first_octet & PDUTYPE_MASK ) >> 4;
 
@@ -740,14 +741,14 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
 
                     if (ta >= 1 && ta <= 80) {
                         pi = proto_tree_add_uint(time_tree,hf_iuup_delay,tvb,4,1,ta * 500);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                         pi = proto_tree_add_float(time_tree,hf_iuup_delta,tvb,4,1,((gfloat)((gint)(ta) * 500))/(gfloat)1000000.0);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                     } else if (ta >= 129 && ta <= 208) {
                         pi = proto_tree_add_uint(time_tree,hf_iuup_advance,tvb,4,1,(ta-128) * 500);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                         pi = proto_tree_add_float(time_tree,hf_iuup_delta,tvb,4,1,((gfloat)((gint)(-(((gint)ta)-128))) * 500)/(gfloat)1000000.0);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                     } else {
                         expert_add_info(pinfo, pi, &ei_iuup_time_align);
                     }
@@ -780,9 +781,10 @@ static gboolean dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     guint8 first_octet =  tvb_get_guint8(tvb,0);
     guint8 second_octet =  tvb_get_guint8(tvb,1);
+    guint8 octet_array[] = {first_octet, second_octet};
     guint16 hdrcrc6 = tvb_get_guint8(tvb, 2) >> 2;
 
-    if (update_crc6_by_bytes(hdrcrc6, first_octet, second_octet)) return FALSE;
+    if (crc6_0X6F(hdrcrc6, octet_array, second_octet)) return FALSE;
 
     switch ( first_octet & 0xf0 ) {
         case 0x00: {

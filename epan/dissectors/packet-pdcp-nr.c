@@ -105,8 +105,8 @@ static expert_field ei_pdcp_nr_missing_udp_framing_tag = EI_INIT;
 
 static const value_string direction_vals[] =
 {
-    { DIRECTION_UPLINK,      "Uplink"},
-    { DIRECTION_DOWNLINK,    "Downlink"},
+    { PDCP_NR_DIRECTION_UPLINK,      "Uplink"},
+    { PDCP_NR_DIRECTION_DOWNLINK,    "Downlink"},
     { 0, NULL }
 };
 
@@ -182,6 +182,26 @@ static const value_string ciphering_algorithm_vals[] = {
 #endif
 
 
+/* SDAP header fields and tree */
+static int proto_sdap = -1;
+static int hf_sdap_rdi = -1;
+static int hf_sdap_rqi = -1;
+static int hf_sdap_qfi = -1;
+static int hf_sdap_data_control = -1;
+static int hf_sdap_reserved = -1;
+static gint ett_sdap = -1;
+
+static const true_false_string sdap_rdi = {
+    "To store QoS flow to DRB mapping rule",
+    "No action"
+};
+
+static const true_false_string sdap_rqi = {
+    "To inform NAS that RQI bit is set to 1",
+    "No action"
+};
+
+
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t rohc_handle;
@@ -201,6 +221,19 @@ enum layer_to_show {
     ShowRLCLayer, ShowPDCPLayer, ShowTrafficLayer
 };
 static gint     global_pdcp_nr_layer_to_show = (gint)ShowRLCLayer;
+
+
+/* Function to be called from outside this module (e.g. in a plugin) to get per-packet data */
+pdcp_nr_info *get_pdcp_nr_proto_data(packet_info *pinfo)
+{
+    return (pdcp_nr_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_nr, 0);
+}
+
+/* Function to be called from outside this module (e.g. in a plugin) to set per-packet data */
+void set_pdcp_nr_proto_data(packet_info *pinfo, pdcp_nr_info *p_pdcp_nr_info)
+{
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_pdcp_nr, 0, p_pdcp_nr_info);
+}
 
 
 
@@ -345,7 +378,7 @@ static void addBearerSequenceInfo(pdcp_sequence_report_in_frame *p,
                                              "", "Sequence Analysis");
     seqnum_tree = proto_item_add_subtree(seqnum_ti,
                                          ett_pdcp_nr_sequence_analysis);
-    PROTO_ITEM_SET_GENERATED(seqnum_ti);
+    proto_item_set_generated(seqnum_ti);
 
 
     /* Previous bearer frame */
@@ -357,7 +390,7 @@ static void addBearerSequenceInfo(pdcp_sequence_report_in_frame *p,
     /* Expected sequence number */
     ti_expected_sn = proto_tree_add_uint(seqnum_tree, hf_pdcp_nr_sequence_analysis_expected_sn,
                                          tvb, 0, 0, p->sequenceExpected);
-    PROTO_ITEM_SET_GENERATED(ti_expected_sn);
+    proto_item_set_generated(ti_expected_sn);
 
     /* Make sure we have recognised SN length */
     switch (p_pdcp_nr_info->seqnum_length) {
@@ -371,10 +404,10 @@ static void addBearerSequenceInfo(pdcp_sequence_report_in_frame *p,
 
     switch (p->state) {
         case SN_OK:
-            PROTO_ITEM_SET_HIDDEN(ti_expected_sn);
+            proto_item_set_hidden(ti_expected_sn);
             ti = proto_tree_add_boolean(seqnum_tree, hf_pdcp_nr_sequence_analysis_ok,
                                         tvb, 0, 0, TRUE);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             proto_item_append_text(seqnum_ti, " - OK");
 
             /* Link to next SN in bearer (if known) */
@@ -388,10 +421,10 @@ static void addBearerSequenceInfo(pdcp_sequence_report_in_frame *p,
         case SN_Missing:
             ti = proto_tree_add_boolean(seqnum_tree, hf_pdcp_nr_sequence_analysis_ok,
                                         tvb, 0, 0, FALSE);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_boolean(seqnum_tree, hf_pdcp_nr_sequence_analysis_skipped,
                                         tvb, 0, 0, TRUE);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             if (p->lastSN != p->firstSN) {
                 expert_add_info_format(pinfo, ti, &ei_pdcp_nr_sequence_analysis_sn_missing,
                                        "PDCP SNs (%u to %u) missing for %s on UE %u (%s-%u)",
@@ -419,10 +452,10 @@ static void addBearerSequenceInfo(pdcp_sequence_report_in_frame *p,
         case SN_Repeated:
             ti = proto_tree_add_boolean(seqnum_tree, hf_pdcp_nr_sequence_analysis_ok,
                                         tvb, 0, 0, FALSE);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_boolean(seqnum_tree, hf_pdcp_nr_sequence_analysis_repeated,
                                         tvb, 0, 0, TRUE);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             expert_add_info_format(pinfo, ti, &ei_pdcp_nr_sequence_analysis_sn_repeated,
                                    "PDCP SN (%u) repeated for %s for UE %u (%s-%u)",
                                    p->firstSN,
@@ -462,7 +495,7 @@ static void checkBearerSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     guint32                        snLimit                = 0;
 
     /* If find stat_report_in_frame already, use that and get out */
-    if (pinfo->fd->flags.visited) {
+    if (pinfo->fd->visited) {
         p_report_in_frame =
             (pdcp_sequence_report_in_frame*)wmem_map_lookup(pdcp_nr_sequence_analysis_report_hash,
                                                             get_report_hash_key(sequenceNumber,
@@ -654,41 +687,53 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
     /* Direction */
     ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_direction, tvb, 0, 0,
                              p_pdcp_info->direction);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Plane */
     ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_plane, tvb, 0, 0,
                              p_pdcp_info->plane);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* UEId */
     if (p_pdcp_info->ueid != 0) {
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_ueid, tvb, 0, 0,
                                  p_pdcp_info->ueid);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
+        write_pdu_label_and_info(configuration_ti, pinfo, "UEId=%3u", p_pdcp_info->ueid);
     }
 
     /* Bearer type */
     ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_bearer_type, tvb, 0, 0,
                              p_pdcp_info->bearerType);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     if (p_pdcp_info->bearerId != 0) {
         /* Bearer type */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_bearer_id, tvb, 0, 0,
                                  p_pdcp_info->bearerId);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
+    }
+
+    /* Show channel type in root/Info */
+    if (p_pdcp_info->bearerType == Bearer_DCCH) {
+        write_pdu_label_and_info(configuration_ti, pinfo, "   %s-%u  ",
+                                 (p_pdcp_info->plane == NR_SIGNALING_PLANE) ? "SRB" : "DRB",
+                                 p_pdcp_info->bearerId);
+    }
+    else {
+        write_pdu_label_and_info(configuration_ti, pinfo, "   %s",
+                                 val_to_str_const(p_pdcp_info->bearerType, bearer_type_vals, "Unknown"));
     }
 
     if (p_pdcp_info->plane == NR_USER_PLANE) {
         /* Seqnum length */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_seqnum_length, tvb, 0, 0,
                                  p_pdcp_info->seqnum_length);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* ROHC compression */
         ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_nr_rohc_compression, tvb, 0, 0,
                                     p_pdcp_info->rohc.rohc_compression);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* ROHC-specific settings */
         if (p_pdcp_info->rohc.rohc_compression) {
@@ -696,32 +741,32 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
             /* Show ROHC mode */
             ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_rohc_mode, tvb, 0, 0,
                                      p_pdcp_info->rohc.mode);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             /* Show RND */
-            ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_rohc_rnd, tvb, 0, 0,
-                                     p_pdcp_info->rohc.rnd);
-            PROTO_ITEM_SET_GENERATED(ti);
+            ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_nr_rohc_rnd, tvb, 0, 0,
+                                        p_pdcp_info->rohc.rnd);
+            proto_item_set_generated(ti);
 
             /* UDP Checksum */
-            ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_rohc_udp_checksum_present, tvb, 0, 0,
-                                     p_pdcp_info->rohc.udp_checksum_present);
-            PROTO_ITEM_SET_GENERATED(ti);
+            ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_nr_rohc_udp_checksum_present, tvb, 0, 0,
+                                        p_pdcp_info->rohc.udp_checksum_present);
+            proto_item_set_generated(ti);
 
             /* ROHC profile */
             ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_rohc_profile, tvb, 0, 0,
                                      p_pdcp_info->rohc.profile);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             /* CID Inclusion Info */
-            ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_cid_inclusion_info, tvb, 0, 0,
-                                     p_pdcp_info->rohc.cid_inclusion_info);
-            PROTO_ITEM_SET_GENERATED(ti);
+            ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_nr_cid_inclusion_info, tvb, 0, 0,
+                                        p_pdcp_info->rohc.cid_inclusion_info);
+            proto_item_set_generated(ti);
 
             /* Large CID */
-            ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_large_cid_present, tvb, 0, 0,
-                                     p_pdcp_info->rohc.large_cid_present);
-            PROTO_ITEM_SET_GENERATED(ti);
+            ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_nr_large_cid_present, tvb, 0, 0,
+                                        p_pdcp_info->rohc.large_cid_present);
+            proto_item_set_generated(ti);
         }
     }
 
@@ -737,7 +782,7 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
                                val_to_str_const(p_pdcp_info->rohc.profile, rohc_profile_vals, "Unknown"));
     }
     proto_item_append_text(configuration_ti, ")");
-    PROTO_ITEM_SET_GENERATED(configuration_ti);
+    proto_item_set_generated(configuration_ti);
 
     /* Show plane in info column */
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s: ",
@@ -865,28 +910,31 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                     offset++;
                     break;
                 case PDCP_NR_ROHC_CID_INC_INFO_TAG:
-                    p_pdcp_nr_info->rohc.cid_inclusion_info = tvb_get_guint8(tvb, offset);
-                    offset++;
+                    p_pdcp_nr_info->rohc.cid_inclusion_info = TRUE;
                     break;
                 case PDCP_NR_ROHC_LARGE_CID_PRES_TAG:
-                    p_pdcp_nr_info->rohc.large_cid_present = tvb_get_guint8(tvb, offset);
-                    offset++;
+                    p_pdcp_nr_info->rohc.large_cid_present = TRUE;
                     break;
                 case PDCP_NR_ROHC_MODE_TAG:
                     p_pdcp_nr_info->rohc.mode = (enum rohc_mode)tvb_get_guint8(tvb, offset);
                     offset++;
                     break;
                 case PDCP_NR_ROHC_RND_TAG:
-                    p_pdcp_nr_info->rohc.rnd = tvb_get_guint8(tvb, offset);
-                    offset++;
+                    p_pdcp_nr_info->rohc.rnd = TRUE;
                     break;
                 case PDCP_NR_ROHC_UDP_CHECKSUM_PRES_TAG:
-                    p_pdcp_nr_info->rohc.udp_checksum_present = tvb_get_guint8(tvb, offset);
-                    offset++;
+                    p_pdcp_nr_info->rohc.udp_checksum_present = TRUE;
                     break;
                 case PDCP_NR_ROHC_PROFILE_TAG:
                     p_pdcp_nr_info->rohc.profile = tvb_get_ntohs(tvb, offset);
                     offset += 2;
+                    break;
+                case PDCP_NR_MACI_PRES_TAG:
+                    p_pdcp_nr_info->maci_present = TRUE;
+                    break;
+                case PDCP_NR_SDAP_HEADER_TAG:
+                    p_pdcp_nr_info->sdap_header = tvb_get_guint8(tvb, offset) & 0x03;
+                    offset++;
                     break;
 
                 case PDCP_NR_PAYLOAD_TAG:
@@ -928,17 +976,15 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
 
 /******************************/
 /* Main dissection function.  */
-static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     const char           *mode;
-    proto_tree           *pdcp_tree           = NULL;
-    proto_item           *root_ti             = NULL;
+    proto_tree           *pdcp_tree          = NULL;
+    proto_item           *root_ti            = NULL;
     proto_item           *ti;
     gint                 offset              = 0;
     struct pdcp_nr_info  *p_pdcp_info;
-    tvbuff_t             *rohc_tvb            = NULL;
-    gboolean             mac_included = FALSE;
-    guint32              mac_offset = 0;
+    tvbuff_t             *rohc_tvb           = NULL;
 
     tvbuff_t *payload_tvb;
 
@@ -949,7 +995,10 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     p_pdcp_info = (struct pdcp_nr_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_nr, 0);
     /* Can't dissect anything without it... */
     if (p_pdcp_info == NULL) {
-        return 0;
+        if (!data) {
+            return 0;
+        }
+        p_pdcp_info = (struct pdcp_nr_info *)data;
     }
 
     /* Don't want to overwrite the RLC Info column if configured not to */
@@ -1088,7 +1137,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 proto_tree *bitmap_tree;
                 proto_item *bitmap_ti = NULL;
                 gchar  *buff = NULL;
-#define BUFF_SIZE 81
+#define BUFF_SIZE 89
                 guint32 reserved_value;
 
                 /* 4 bits reserved */
@@ -1124,11 +1173,11 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                             if ((bits << l) & 0x80) {
                                 if (bitmap_tree) {
                                     // TODO: better to do mod and show as SN instead?
-                                    j += g_snprintf(&buff[j], BUFF_SIZE-j, "%9u,", (unsigned)(fmc+(8*i)+l));
+                                    j += g_snprintf(&buff[j], BUFF_SIZE-j, "%10u,", (unsigned)(fmc+(8*i)+l+1));
                                 }
                             } else {
                                 if (bitmap_tree) {
-                                    j += (guint)g_strlcpy(&buff[j], "         ,", BUFF_SIZE-j);
+                                    j += (guint)g_strlcpy(&buff[j], "          ,", BUFF_SIZE-j);
                                 }
                                 not_received++;
                             }
@@ -1232,27 +1281,44 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                                 data_length, ENC_NA);
         }
 
-        offset += data_length;
-
         if (p_pdcp_info->bearerType == Bearer_DCCH) {
-            mac_included = TRUE;
-            mac_offset = tvb_reported_length(tvb)-4;
+            p_pdcp_info->maci_present = TRUE;
         } else {
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%u bytes data)", data_length);
         }
     }
     else if (tvb_captured_length_remaining(payload_tvb, offset)) {
-        /* User-plane payload here.  Optional, not clear how it will be signalled yet. For now assume not. */
-        mac_included = FALSE;
-        gint payload_length = tvb_reported_length_remaining(payload_tvb, offset) - ((mac_included) ? 4 : 0);
+        /* User-plane payload here. */
+        gint payload_length = tvb_reported_length_remaining(payload_tvb, offset) - ((p_pdcp_info->maci_present) ? 4 : 0);
 
-        /* If not compressed with ROHC, show as user-plane data */
-        if (!p_pdcp_info->rohc.rohc_compression) {
-            if (payload_length > 0) {
+        if ((p_pdcp_info->direction == PDCP_NR_DIRECTION_UPLINK &&
+             p_pdcp_info->sdap_header & PDCP_NR_UL_SDAP_HEADER_PRESENT) ||
+            (p_pdcp_info->direction == PDCP_NR_DIRECTION_DOWNLINK &&
+             p_pdcp_info->sdap_header & PDCP_NR_DL_SDAP_HEADER_PRESENT)) {
+            proto_item *sdap_ti;
+            proto_tree *sdap_tree;
+
+            sdap_ti = proto_tree_add_item(pdcp_tree, proto_sdap, payload_tvb, offset, 1, ENC_NA);
+            sdap_tree = proto_item_add_subtree(sdap_ti, ett_sdap);
+            if (p_pdcp_info->direction == PDCP_NR_DIRECTION_UPLINK) {
+                proto_tree_add_item(sdap_tree, hf_sdap_data_control, payload_tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sdap_tree, hf_sdap_reserved, payload_tvb, offset, 1, ENC_NA);
+            } else {
+                proto_tree_add_item(sdap_tree, hf_sdap_rdi, payload_tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sdap_tree, hf_sdap_rqi, payload_tvb, offset, 1, ENC_NA);
+            }
+            proto_tree_add_item(sdap_tree, hf_sdap_qfi, payload_tvb, offset, 1, ENC_NA);
+            offset++;
+            payload_length--;
+        }
+
+        if (payload_length > 0) {
+            /* If not compressed with ROHC, show as user-plane data */
+            if (!p_pdcp_info->rohc.rohc_compression) {
                 /* Not attempting to decode payload if ciphering is enabled
                   (and NULL ciphering is not being used) */
                 if (global_pdcp_dissect_user_plane_as_ip) {
-                    tvbuff_t *ip_payload_tvb = tvb_new_subset_remaining(payload_tvb, offset);
+                    tvbuff_t *ip_payload_tvb = tvb_new_subset_length(payload_tvb, offset, payload_length);
 
                     /* Don't update info column for ROHC unless configured to */
                     if (global_pdcp_nr_layer_to_show != ShowTrafficLayer) {
@@ -1278,46 +1344,44 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
                 }
                 else {
-                    proto_tree_add_item(pdcp_tree, hf_pdcp_nr_user_plane_data, payload_tvb, offset, -1, ENC_NA);
+                    proto_tree_add_item(pdcp_tree, hf_pdcp_nr_user_plane_data, payload_tvb, offset, payload_length, ENC_NA);
                 }
             }
-
-            /* Let RLC write to columns again */
-            col_set_writable(pinfo->cinfo, COL_INFO, global_pdcp_nr_layer_to_show == ShowRLCLayer);
-        }
-        else {
-            /***************************/
-            /* ROHC packets            */
-            /***************************/
-
-            /* Only attempt ROHC if configured to */
-            if (!global_pdcp_dissect_rohc) {
-                col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "|ROHC(%s)",
-                                val_to_str_const(p_pdcp_info->rohc.profile, rohc_profile_vals, "Unknown"));
-                return 1;
-            }
-
-            rohc_tvb = tvb_new_subset_length(payload_tvb, offset, payload_length);
-
-            /* Only enable writing to column if configured to show ROHC */
-            if (global_pdcp_nr_layer_to_show != ShowTrafficLayer) {
-                col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
-            }
             else {
-                col_clear(pinfo->cinfo, COL_INFO);
-            }
+                /***************************/
+                /* ROHC packets            */
+                /***************************/
 
-            /* Call the ROHC dissector */
-            call_dissector_with_data(rohc_handle, rohc_tvb, pinfo, tree, &p_pdcp_info->rohc);
+                /* Only attempt ROHC if configured to */
+                if (!global_pdcp_dissect_rohc) {
+                    col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "|ROHC(%s)",
+                                    val_to_str_const(p_pdcp_info->rohc.profile, rohc_profile_vals, "Unknown"));
+                    proto_tree_add_item(pdcp_tree, hf_pdcp_nr_user_plane_data, payload_tvb, offset, payload_length, ENC_NA);
+                }
+                else {
+                    rohc_tvb = tvb_new_subset_length(payload_tvb, offset, payload_length);
+
+                    /* Only enable writing to column if configured to show ROHC */
+                    if (global_pdcp_nr_layer_to_show != ShowTrafficLayer) {
+                        col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+                    }
+                    else {
+                        col_clear(pinfo->cinfo, COL_INFO);
+                    }
+
+                    /* Call the ROHC dissector */
+                    call_dissector_with_data(rohc_handle, rohc_tvb, pinfo, tree, &p_pdcp_info->rohc);
+                }
+            }
         }
     }
 
     /* MAC */
-    if (mac_included) {
+    if (p_pdcp_info->maci_present) {
         /* Last 4 bytes are MAC */
+        gint mac_offset = tvb_reported_length(tvb)-4;
         guint32 mac = tvb_get_ntohl(payload_tvb, mac_offset);
         proto_tree_add_item(pdcp_tree, hf_pdcp_nr_mac, payload_tvb, mac_offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " MAC=0x%08x", mac);
     }
@@ -1331,7 +1395,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 void proto_register_pdcp_nr(void)
 {
-    static hf_register_info hf[] =
+    static hf_register_info hf_pdcp[] =
     {
         { &hf_pdcp_nr_configuration,
             { "Configuration",
@@ -1390,13 +1454,13 @@ void proto_register_pdcp_nr(void)
         },
         { &hf_pdcp_nr_rohc_rnd,
             { "RND",
-              "pdcp-nr.rohc.rnd", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-nr.rohc.rnd", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               "RND of outer ip header", HFILL
             }
         },
         { &hf_pdcp_nr_rohc_udp_checksum_present,
             { "UDP Checksum",
-              "pdcp-nr.rohc.checksum-present", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-nr.rohc.checksum-present", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               "UDP Checksum present", HFILL
             }
         },
@@ -1408,13 +1472,13 @@ void proto_register_pdcp_nr(void)
         },
         { &hf_pdcp_nr_cid_inclusion_info,
             { "CID Inclusion Info",
-              "pdcp-nr.cid-inclusion-info", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-nr.cid-inclusion-info", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },
         { &hf_pdcp_nr_large_cid_present,
             { "Large CID Present",
-              "pdcp-nr.large-cid-present", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-nr.large-cid-present", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },
@@ -1548,13 +1612,48 @@ void proto_register_pdcp_nr(void)
         },
     };
 
+    static hf_register_info hf_sdap[] =
+    {
+        { &hf_sdap_rdi,
+            { "RDI",
+              "sdap.rdi", FT_BOOLEAN, 8, TFS(&sdap_rdi), 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_sdap_rqi,
+            { "RQI",
+              "sdap.rqi", FT_BOOLEAN, 8, TFS(&sdap_rqi), 0x40,
+              NULL, HFILL
+            }
+        },
+        { &hf_sdap_qfi,
+            { "QFI",
+              "sdap.qfi", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_sdap_data_control,
+            { "PDU Type",
+              "sdap.reserved", FT_BOOLEAN, 8, TFS(&pdu_type_bit), 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_sdap_reserved,
+            { "Reserved",
+              "sdap.reserved", FT_UINT8, BASE_HEX, NULL, 0x40,
+              NULL, HFILL
+            }
+        }
+    };
+
     static gint *ett[] =
     {
         &ett_pdcp,
         &ett_pdcp_configuration,
         &ett_pdcp_packet,
         &ett_pdcp_nr_sequence_analysis,
-        &ett_pdcp_report_bitmap
+        &ett_pdcp_report_bitmap,
+        &ett_sdap
     };
 
     static ei_register_info ei[] = {
@@ -1585,10 +1684,12 @@ void proto_register_pdcp_nr(void)
 
     /* Register protocol. */
     proto_pdcp_nr = proto_register_protocol("PDCP-NR", "PDCP-NR", "pdcp-nr");
-    proto_register_field_array(proto_pdcp_nr, hf, array_length(hf));
+    proto_register_field_array(proto_pdcp_nr, hf_pdcp, array_length(hf_pdcp));
     proto_register_subtree_array(ett, array_length(ett));
     expert_pdcp_nr = expert_register_protocol(proto_pdcp_nr);
     expert_register_field_array(expert_pdcp_nr, ei, array_length(ei));
+    proto_sdap = proto_register_protocol("SDAP", "SDAP", "sdap");
+    proto_register_field_array(proto_sdap, hf_sdap, array_length(hf_sdap));
 
     /* Allow other dissectors to find this one by name. */
     register_dissector("pdcp-nr", dissect_pdcp_nr, proto_pdcp_nr);

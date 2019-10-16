@@ -1,0 +1,303 @@
+// WSDG Chapter Tests
+
+[[ChapterTests]]
+== Wireshark Tests
+
+The Wireshark sources include a collection of Python scripts that test
+the features of Wireshark, TShark, Dumpcap, and other programs that
+accompany Wireshark. These are located in the `test` directory of the
+Wireshark source tree.
+
+The command line options of Wireshark and its companion command line
+tools are numerous. These tests help to ensure that we don't introduce
+bugs as Wireshark grows and evolves.
+
+[[TestsQuickStart]]
+=== Quick Start
+
+The recommended steps to prepare for and to run tests:
+
+* Install two Python packages, pytest: `pip install pytest pytest-xdist`
+* Build programs (“wireshark”, “tshark”, etc.): `ninja`
+* Build additional programs for the “unittests” suite: `ninja test-programs`
+* Run tests in the build directory: `pytest`
+
+Replace `ninja test-programs` by `make test-programs` as needed.
+
+The test suite will attempt to test as much as possible and skip tests
+when its dependencies are not satisfied. For example, packet capture
+tests require a Loopback interface and capture privileges. To avoid
+capture tests, pass the `--disable-capture` option.
+
+List available tests with `pytest --collectonly`. Enable verbose output
+with `pytest --verbose`. For more details, see <<ChTestsRunPytest>>.
+
+If for whatever reason `pytest` is too old or unavailable, you could use
+a more limited test runner, `test/test.py`. Use `test/test.py --help` to
+see all options. For more details, see <<ChTestsRun>>.
+
+CMake currently runs `test/test.py` when the “test” target is built.
+
+[[ChTestsStructure]]
+=== Test suite structure
+
+The following sections describes how the test suite is organized.
+
+[[TestCoverage]]
+==== Test Coverage And Availability
+
+The testing framework can run programs and check their stdout, stderr,
+and exit codes. It cannot interact with the Wireshark UI. Tests cover
+capture, command line options, decryption, file format support and
+conversion, Lua scripting, and other functionality.
+
+Available tests depend on the libraries with which Wireshark was built.
+For example, some decryption tests depend on a minimum version of
+Libgcrypt and Lua tests depend on Lua.
+
+Capture tests depend on the permissions of the user running the test
+script. We assume that the test user has capture permissions on Windows
+and macOS and capture tests are enabled by default on those platforms.
+
+If a feature is unavailable, the test will be skipped. For example, if
+an old version of Libgcrypt is in use, then some decryption tests will
+be skipped while other tests can still run to completion.
+
+[[TestsLayout]]
+==== Suites, Cases, and Tests
+
+The `test/test.py` script uses Python's “unittest” module. Our tests are
+patterned after it, and individual tests are organized according to
+suites, cases, and individual tests. Suites correspond to python modules
+that match the pattern “suite_*.py”. Cases correspond to one or more
+classes in each module, and case class methods matching the pattern
+”test_*” correspond to individual tests. For example, the invalid
+capture filter test in the TShark capture command line options test case
+in the command line options suite has the ID
+“suite_clopts.case_tshark_capture_clopts.test_tshark_invalid_capfilter”.
+
+[[TestsPytest]]
+==== pytest fixtures
+
+A test has typically additional dependencies, like the path to an
+executable, the path to a capture file, a configuration directory, the
+availability of an optional library, and so on. The Python unittest
+library is quite limited in expressing test dependencies, these are
+typically specified on the class instance itself (`self`) or via globals.
+
+https://pytest.org/[pytest] is a better test framework which has full
+parallelization support (test-level instead of just suite-level),
+provides nicer test reports, and allows
+https://docs.pytest.org/en/latest/fixture.html[modular fixtures].
+Ideally the test suite should fully switch to pytest, but in meantime a
+compatibility layer is provided via the “fixtures” module.
+
+A fixture is a function decorated with `@fixtures.fixture` and can
+either call `fixtures.skip("reason")` to skip tests that depend on the
+fixture, or return/yield a value.
+Test functions (and other fixture functions) can receive the fixture
+value by using the name of the fixture function as function parameters.
+Common fixtures are available in `fixtures_ws.py` and includes
+`cmd_tshark` for the path to the `tshark` executable and `capture_file`
+for a factory function that produces the path to a capture file.
+
+Each unittest test case must be decorated with
+`@fixtures.uses_fixtures` to ensure that unittest test classes can
+actually request fixture dependencies.
+
+[[ChTestsRun]]
+=== Listing And Running Tests
+
+Tests can be run via the `test/test.py` Python script. To run all tests,
+either run `test/test.py` in the directory that contains the Wireshark
+executables (`wireshark`, `tshark`, etc.), or pass the executable
+path via the `-p` flag:
+
+[source,sh]
+----
+$ python3 test/test.py -p /path/to/wireshark-build/run
+----
+
+You can list tests by passing one or more complete or partial names to
+`tshark.py`. The `-l` flag lists tests. By default all tests are shown.
+
+[source,sh]
+----
+# List all tests
+$ python3 test/test.py -l
+$ python3 test/test.py -l all
+$ python3 test/test.py --list
+$ python3 test/test.py --list all
+
+# List only tests containing "dumpcap"
+$ python3 test/test.py -l dumpcap
+
+# List all suites
+$ python3 test/test.py --list-suites
+
+# List all suites and cases
+$ python3 test/test.py --list-cases
+----
+
+If one of the listing flags is not present, tests are run. If no names or `all` is supplied,
+all tests are run. Otherwise tests that match are run.
+
+[source,sh]
+----
+# Run all tests
+$ python3 test/test.py
+$ python3 test/test.py all
+
+# Only run tests containing "dumpcap"
+$ python3 test/test.py -l dumpcap
+
+# Run the "clopts" suite
+$ python3 test/test.py suite_clopts
+----
+
+Run `python3 test/test.py --help` for all available options.
+
+[[ChTestsRunPytest]]
+=== Listing And Running Tests (pytest)
+
+Tests can also be run with https://pytest.org/[pytest]. Advantages include finer
+test selection, full parallelism, nicer test execution summaries, better output
+in case of failures (containing the contents of variables) and the ability to
+open the PDB debugger on failing tests.
+
+To get started, install pytest 3.0 or newer and
+https://pypi.org/project/pytest-xdist/[pytest-xdist]:
+
+[source,sh]
+----
+# Install required packages on Ubuntu 18.04 or Debian jessie-backports
+$ sudo apt install python3-pytest python3-pytest-xdist
+
+# Install required packages on other systems
+$ pip install pytest pytest-xdist
+----
+
+Run `pytest` in the Wireshark build directory, Wireshark binaries are assumed to
+be present in the `run` subdirectory (or `run\RelWithDebInfo` on Windows).
+
+[source,sh]
+----
+# Run all tests
+$ cd /path/to/wireshark/build
+$ pytest
+
+# Run all except capture tests
+$ pytest --disable-capture
+
+# Run all tests with "decryption" in its name
+$ pytest -k decryption
+
+# Run all tests with an explicit path to the Wireshark executables
+$ pytest --program-path /path/to/wireshark/build/run
+----
+
+To list tests without actually executing them, use the `--collect-only` option:
+
+[source,sh]
+----
+# List all tests
+$ pytest --collect-only
+
+# List only tests containing both "dfilter" and "tvb"
+$ pytest --collect-only -k "dfilter and tvb"
+----
+
+The test suite will fail tests when programs are missing. When only a
+subset of programs are built or when some programs are disabled, then
+the test suite can be instructed to skip instead of fail tests:
+
+[source,sh]
+----
+# Run tests when libpcap support is disabled (-DENABLE_PCAP=OFF)
+$ pytest --skip-missing-programs dumpcap,rawshark
+
+# Run tests and ignore all tests with missing program dependencies
+$ pytest --skip-missing-programs all
+----
+
+To open a Python debugger (PDB) on failing tests, use the `--pdb` option and
+disable parallelism with the `-n0` option:
+
+[source,sh]
+----
+# Run decryption tests sequentially and open a debugger on failing tests
+$ pytest -n0 --pdb -k decryption
+----
+
+Note that with the option `--pdb`, stray processes are not killed on
+test failures since the `SubprocessTestCase.tearDown` method is not
+executed. This limitation might be addressed in the future.
+
+[[ChTestsDevelop]]
+=== Adding Or Modifying Tests
+
+Tests must be in a Python module whose name matches “suite_*.py”. The
+module must contain one or more subclasses of “SubprocessTestCase” or
+“unittest.TestCase”. “SubprocessTestCase” is recommended since it
+contains several convenience methods for running processes, checking
+output, and displaying error information. Each test case method
+whose name starts with “test_” constitutes an individual test.
+
+Success or failure conditions can be signalled using the
+“unittest.assertXXX()” or “subprocesstest.assertXXX()” methods.
+
+Test dependencies (such as programs, directories, or the environment
+variables) are injected through method parameters. Commonly used
+fixtures include `cmd_tshark` and `capture_file`. See also
+<<TestsPytest>>.
+
+The “subprocesstest” class contains the following methods for running
+processes. Stdout and stderr is written to “<test id>.log”:
+
+startProcess:: Start a process without waiting for it to finish.
+runProcess:: Start a process and wait for it to finish.
+assertRun:: Start a process, wait for it to finish, and check its exit code.
+
+All of the current tests run one or more of Wireshark's suite of
+executables and either check their return code or their output. A
+simple example is “suite_clopts.case_basic_clopts.test_existing_file”,
+which reads a capture file using TShark and checks its exit code.
+
+[source,python]
+----
+import subprocesstest
+import fixtures
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_basic_clopts(subprocesstest.SubprocessTestCase):
+    def test_existing_file(self, cmd_tshark, capture_file):
+        self.assertRun((cmd_tshark, '-r', capture_file('dhcp.pcap')))
+----
+
+Program output can be checked using `SubprocessTestCase.grepOutput`,
+`SubprocessTestCase.countOutput` or other `unittest.assert*` methods:
+
+[source,python]
+----
+import subprocesstest
+import fixtures
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_decrypt_80211(subprocesstest.SubprocessTestCase):
+    def test_80211_wpa_psk(self, cmd_tshark, capture_file):
+        tshark_proc = self.assertRun((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-Tfields',
+                '-e', 'http.request.uri',
+                '-r', capture_file('wpa-Induction.pcap.gz'),
+                '-Y', 'http',
+            ))
+        self.assertIn('favicon.ico', tshark_proc.stdout_str)
+----
+
+Tests can be run in parallel. This means that any files you create must
+be unique for each test. “subprocesstest.filename_from_id” can be used
+to generate a filename based on the current test name. It also ensures
+that the file will be automatically removed after the test has run.

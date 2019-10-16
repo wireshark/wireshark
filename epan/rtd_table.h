@@ -41,7 +41,7 @@ typedef struct _rtd_stat_table {
  */
 typedef struct _rtd_data_t {
 	rtd_stat_table  stat_table;  /**< RTD table data */
-	void        *user_data;       /**< "GUI" specifics (GTK+ only) */
+	void        *user_data;       /**< "GUI" specifics (sharkd only?) */
 } rtd_data_t;
 
 /** Structure for information about a registered service response table */
@@ -49,9 +49,6 @@ struct register_rtd;
 typedef struct register_rtd register_rtd_t;
 
 typedef void (*rtd_gui_init_cb)(rtd_stat_table* rtd, void* gui_data);
-typedef void (*rtd_gui_reset_cb)(rtd_stat_table* rtd, void* gui_data); /* GTK+ only. */
-typedef void (*rtd_gui_free_cb)(rtd_stat_table* rtd, void* gui_data); /* GTK+ only. */
-typedef void (*rtd_init_cb)(struct register_rtd* rtd, rtd_gui_init_cb gui_callback, void* gui_data); /* GTK+ only. */
 typedef void (*rtd_filter_check_cb)(const char *opt_arg, const char **filter, char** err);
 
 /** Register the response time delay table.
@@ -112,18 +109,14 @@ WS_DLL_PUBLIC register_rtd_t* get_rtd_table_by_name(const char* name);
 /** Free the RTD table data.
  *
  * @param table RTD stat table array
- * @param gui_callback optional callback from GUI
- * @param callback_data callback data needed for GUI
  */
-WS_DLL_PUBLIC void free_rtd_table(rtd_stat_table* table, rtd_gui_free_cb gui_callback, void *callback_data);
+WS_DLL_PUBLIC void free_rtd_table(rtd_stat_table* table);
 
 /** Reset table data in the RTD.
  *
  * @param table RTD table
- * @param gui_callback optional callback from GUI
- * @param callback_data callback data needed for GUI
  */
-WS_DLL_PUBLIC void reset_rtd_table(rtd_stat_table* table, rtd_gui_reset_cb gui_callback, void *callback_data);
+WS_DLL_PUBLIC void reset_rtd_table(rtd_stat_table* table);
 
 /** Interator to walk RTD tables and execute func
  * Used for initialization

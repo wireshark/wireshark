@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef TRAFFIC_TABLE_DIALOG_H
 #define TRAFFIC_TABLE_DIALOG_H
@@ -48,7 +49,6 @@ class TrafficTableTreeWidget : public QTreeWidget
     Q_OBJECT
 public:
     explicit TrafficTableTreeWidget(QWidget *parent, register_ct_t* table);
-    ~TrafficTableTreeWidget();
 
     // String, int, or double data for each column in a row.
     // Passing -1 returns titles.
@@ -124,7 +124,6 @@ protected:
     Ui::TrafficTableDialog *ui;
 
     CaptureFile &cap_file_;
-    bool file_closed_;
     QString filter_;
     QMenu traffic_type_menu_;
     QPushButton *copy_bt_;
@@ -161,7 +160,7 @@ private slots:
     void on_displayFilterCheckBox_toggled(bool checked);
     void setTabText(QWidget *tree, const QString &text);
     void toggleTable();
-    void captureEvent(CaptureEvent *e);
+    void captureEvent(CaptureEvent e);
 
     void copyAsCsv();
     void copyAsYaml();

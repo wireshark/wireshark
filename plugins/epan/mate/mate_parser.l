@@ -339,6 +339,11 @@ blk_cmnt_stop  "*/"
  */
 DIAG_ON_FLEX
 
+static void ptr_array_free(gpointer data, gpointer user_data _U_)
+{
+	free_config_frame((mate_config_frame *)data);
+}
+
 extern gboolean mate_load_config(const gchar* filename, mate_config* mc) {
 	FILE *in;
 	yyscan_t scanner;
@@ -397,8 +402,8 @@ extern gboolean mate_load_config(const gchar* filename, mate_config* mc) {
 	Mate_lex_destroy(scanner);
 	fclose(in);
 
-	g_ptr_array_foreach(mc->config_stack, (GFunc)free_config_frame, NULL);
-	g_ptr_array_free(mc->config_stack, FALSE);
+	g_ptr_array_foreach(mc->config_stack, ptr_array_free, NULL);
+	g_ptr_array_free(mc->config_stack, TRUE);
 
 	return status;
 }

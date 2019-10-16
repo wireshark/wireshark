@@ -1,10 +1,11 @@
-/* address_editor_frame.h
+/* address_editor_frame.cpp
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -56,7 +57,7 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
         return;
     }
 
-    if (!cf_read_record(cap_file_, cap_file_->current_frame)) {
+    if (!cf_read_current_record(cap_file_)) {
         on_buttonBox_rejected();
         return; // error reading the frame
     }

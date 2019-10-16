@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <config.h>
 
@@ -16,12 +17,13 @@
 #include <wireshark_application.h>
 
 #include <QMessageBox>
-#include <QMap>
+#include <QHash>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QUrl>
 #include <QDesktopServices>
+#include <QTabWidget>
 
 #include "ringbuffer.h"
 #include "ui/capture_ui_utils.h"
@@ -186,27 +188,27 @@ void ExtcapOptionsDialog::anyValueChanged()
 
 void ExtcapOptionsDialog::loadArguments()
 {
-    GList * arguments = NULL, * walker = NULL, * item = NULL;
-    ExtcapArgument * argument = NULL;
+    GList * arguments = Q_NULLPTR, * walker = Q_NULLPTR, * item = Q_NULLPTR;
+    ExtcapArgument * argument = Q_NULLPTR;
 
     if ( device_name.length() == 0  )
         return;
 
     extcapArguments.clear();
 
-    arguments = g_list_first(extcap_get_if_configuration((const char *)( device_name.toStdString().c_str() ) ));
+    arguments = g_list_first(extcap_get_if_configuration(device_name.toUtf8().constData()));
 
     ExtcapArgumentList required;
     ExtcapArgumentList optional;
 
     walker = arguments;
-    while ( walker != NULL )
+    while ( walker != Q_NULLPTR )
     {
-        item = g_list_first((GList *)(walker->data));
-        while ( item != NULL )
+        item = g_list_first(gxx_list_data(GList *, walker));
+        while ( item != Q_NULLPTR )
         {
-            argument = ExtcapArgument::create((extcap_arg *)(item->data), this);
-            if ( argument != NULL )
+            argument = ExtcapArgument::create(gxx_list_data(extcap_arg *, item), this);
+            if ( argument != Q_NULLPTR )
             {
                 if ( argument->isRequired() )
                     required << argument;
@@ -216,7 +218,7 @@ void ExtcapOptionsDialog::loadArguments()
             }
             item = item->next;
         }
-        walker = g_list_next(walker);
+        walker = gxx_list_next(walker);
     }
 
     if ( required.length() > 0 )
@@ -243,20 +245,85 @@ void ExtcapOptionsDialog::updateWidgets()
     /* find existing layout */
     if (ui->verticalLayout->children().count() > 0)
     {
-        QGridLayout * layout = (QGridLayout *)ui->verticalLayout->itemAt(0);
-        ui->verticalLayout->removeItem(layout);
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+        QWidget * item = ui->verticalLayout->itemAt(0)->widget();
+        if ( item )
+        {
+            ui->verticalLayout->removeItem(ui->verticalLayout->itemAt(0));
+            delete item;
+        }
     }
 
-    QGridLayout * layout = new QGridLayout();
+    QHash<QString, QWidget *> layouts;
 
     /* Load all extcap arguments */
     loadArguments();
 
+    /* exit if no arguments have been found. This is a precaution, it should
+     * never happen, that this dialog get's called without any arguments */
+    if ( extcapArguments.count() == 0 )
+    {
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+        return;
+    }
+    ui->checkSaveOnStart->setText(tr("Save parameter(s) on capture start", "", extcapArguments.count()));
+
+    QStringList groupKeys;
+    QString defaultKeyName(tr("Default"));
+    /* QMap sorts keys, therefore the groups are sorted by appearance */
+    QMap<int, QString> groups;
+
+    /* Look for all necessary tabs */
     ExtcapArgumentList::iterator iter = extcapArguments.begin();
     while ( iter != extcapArguments.end() )
     {
         argument = (ExtcapArgument *)(*iter);
+        QString groupKey = argument->group();
+        if ( groupKey.length() > 0 )
+        {
+            if ( ! groups.values().contains(groupKey) )
+                groups.insert(argument->argNr(), groupKey);
+        }
+        else if ( ! groups.keys().contains(0) )
+        {
+            groups.insert(0, defaultKeyName);
+            groupKey = defaultKeyName;
+        }
+
+        if ( ! layouts.keys().contains(groupKey) )
+        {
+            QWidget * tabWidget = new QWidget(this);
+            QGridLayout * tabLayout = new QGridLayout(tabWidget);
+            tabWidget->setLayout(tabLayout);
+
+            layouts.insert(groupKey, tabWidget);
+        }
+
+        ++iter;
+    }
+    groupKeys << groups.values();
+
+    /* Iterate over all arguments and do the following:
+     *  1. create the label for each element
+     *  2. create an editor for each element
+     *  3. add both to the layout for the tab widget
+     */
+    iter = extcapArguments.begin();
+    while ( iter != extcapArguments.end() )
+    {
+        argument = (ExtcapArgument *)(*iter);
+        QString groupKey = defaultKeyName;
+        if ( argument->group().length() > 0 )
+            groupKey = argument->group();
+
+        /* Skip non-assigned group keys, this happens if the configuration of the extcap is faulty */
+        if ( ! layouts.keys().contains(groupKey) )
+        {
+            ++iter;
+            continue;
+        }
+
+        QGridLayout * layout = ((QGridLayout *)layouts[groupKey]->layout());
         lblWidget = argument->createLabel((QWidget *)this);
         if ( lblWidget != NULL )
         {
@@ -284,12 +351,34 @@ void ExtcapOptionsDialog::updateWidgets()
 
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(allowStart);
 
-        ui->verticalLayout->addLayout(layout);
+        QWidget * mainWidget = Q_NULLPTR;
+
+        /* We should never display the dialog, if no settings are present */
+        Q_ASSERT(layouts.count() > 0);
+
+        if ( layouts.count() > 1 )
+        {
+            QTabWidget * tabs = new QTabWidget(this);
+            foreach ( QString key, groupKeys )
+            {
+                layouts[key]->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding));
+                tabs->addTab(layouts[key], key);
+            }
+
+            tabs->setCurrentIndex(0);
+            mainWidget = tabs;
+        }
+        else if ( layouts.count() == 1 )
+            mainWidget = layouts[layouts.keys().at(0)];
+
+        ui->verticalLayout->addWidget(mainWidget);
         ui->verticalLayout->addSpacerItem(new QSpacerItem(20, 100, QSizePolicy::Minimum, QSizePolicy::Expanding));
     }
     else
     {
-        delete layout;
+        QList<QString> keys = layouts.keys();
+        foreach ( QString key, keys )
+            delete(layouts[key]);
     }
 }
 
@@ -314,24 +403,20 @@ void ExtcapOptionsDialog::on_buttonBox_helpRequested()
 
     QUrl help_url(interface_help);
 
-    /* The help is not a local file, open it and exit */
-    if (help_url.scheme().compare("file") != 0) {
-        QDesktopServices::openUrl(help_url);
-        return;
-    }
-
-    /* The help information is a file url and has been provided as-is by the extcap.
-       Before attempting to open the it, check if it actually exists.
-    */
-    QFileInfo help_file(help_url.path());
-    if ( !help_file.exists() )
-    {
-        QMessageBox::warning(this, tr("Extcap Help cannot be found"),
+    /* Check the existence for a local file */
+    if (help_url.isLocalFile()) {
+        QFileInfo help_file(help_url.toLocalFile());
+        if (!help_file.exists()) {
+            QMessageBox::warning(this, tr("Extcap Help cannot be found"),
                 QString(tr("The help for the extcap interface %1 cannot be found. Given file: %2"))
                     .arg(device->name).arg(help_url.path()),
                 QMessageBox::Ok);
+            return;
+        }
     }
 
+    /* We have an actual url or an existing local file. Let's open it. */
+    QDesktopServices::openUrl(help_url);
 }
 
 bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
@@ -359,7 +444,9 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
             continue;
 
         gchar * call_string = g_strdup(call.toStdString().c_str());
-        gchar * value_string = g_strdup(value.toStdString().c_str());
+        gchar * value_string = NULL;
+        if (value.length() > 0)
+            value_string = g_strdup(value.toStdString().c_str());
 
         g_hash_table_insert(ret_args, call_string, value_string );
     }
@@ -381,49 +468,81 @@ void ExtcapOptionsDialog::resetValues()
 {
     ExtcapArgumentList::const_iterator iter;
     QString value;
+    bool doStore = false;
 
-    if (ui->verticalLayout->children().count() > 0)
+    int count = ui->verticalLayout->count();
+    if (count > 0)
     {
-        QGridLayout * layout = (QGridLayout *)ui->verticalLayout->findChild<QGridLayout *>();
-
-        for ( int row = 0; row < layout->rowCount(); row++ )
+        QList<QLayout *> layouts;
+        if ( qobject_cast<QTabWidget *>(ui->verticalLayout->itemAt(0)->widget()) )
         {
-            QWidget * child = layout->itemAtPosition(row, 1)->widget();
-
-            if ( child )
+            QTabWidget * tabs = qobject_cast<QTabWidget *>(ui->verticalLayout->itemAt(0)->widget());
+            for ( int cnt = 0; cnt < tabs->count(); cnt++ )
             {
-                /* Don't need labels, the edit widget contains the extcapargument property value */
-                ExtcapArgument * arg = 0;
-                QVariant prop = child->property(QString("extcap").toLocal8Bit());
+                layouts.append(tabs->widget(cnt)->layout());
+            }
+        }
+        else
+            layouts.append(ui->verticalLayout->itemAt(0)->layout());
 
-                if ( prop.isValid() )
+        for ( int cnt = 0; cnt < layouts.count(); cnt++ )
+        {
+            QGridLayout * layout = qobject_cast<QGridLayout *>(layouts.at(cnt));
+            if ( ! layout )
+                continue;
+
+            for ( int row = 0; row < layout->rowCount(); row++ )
+            {
+                QWidget * child = Q_NULLPTR;
+                if ( layout->itemAtPosition(row, 1) )
+                    child = qobject_cast<QWidget *>(layout->itemAtPosition(row, 1)->widget());
+
+                if ( child )
                 {
-                    arg = VariantPointer<ExtcapArgument>::asPtr(prop);
+                    /* Don't need labels, the edit widget contains the extcapargument property value */
+                    ExtcapArgument * arg = 0;
+                    QVariant prop = child->property(QString("extcap").toLocal8Bit());
 
-                    /* value<> can fail */
-                    if (arg)
+                    if ( prop.isValid() )
                     {
-                        arg->resetValue();
+                        arg = VariantPointer<ExtcapArgument>::asPtr(prop);
 
-                        /* replacing the edit widget after resetting will lead to default value */
-                        layout->removeItem(layout->itemAtPosition(row, 1));
-                        QWidget * editWidget = arg->createEditor((QWidget *) this);
-                        if ( editWidget != NULL )
+                        /* value<> can fail */
+                        if (arg)
                         {
-                            editWidget->setProperty(QString("extcap").toLocal8Bit(), VariantPointer<ExtcapArgument>::asQVariant(arg));
-                            layout->addWidget(editWidget, row, 1, Qt::AlignVCenter);
+                            arg->resetValue();
+
+                            /* replacing the edit widget after resetting will lead to default value */
+                            QWidget * newWidget = arg->createEditor((QWidget *) this);
+                            if ( newWidget != NULL )
+                            {
+                                newWidget->setProperty(QString("extcap").toLocal8Bit(), VariantPointer<ExtcapArgument>::asQVariant(arg));
+                                QLayoutItem * oldItem = layout->replaceWidget(child, newWidget);
+                                if ( oldItem )
+                                {
+                                    delete child;
+                                    delete oldItem;
+                                }
+                            }
+
+                            doStore = true;
                         }
                     }
                 }
             }
+
         }
 
         /* this stores all values to the preferences */
-        storeValues();
+        if ( doStore )
+        {
+            storeValues();
+            anyValueChanged();
+        }
     }
 }
 
-GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey)
+GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey, bool includeEmptyValues)
 {
     GHashTable * entries = g_hash_table_new(g_str_hash, g_str_equal);
     ExtcapArgumentList::const_iterator iter;
@@ -434,6 +553,7 @@ GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey)
     for(iter = extcapArguments.constBegin(); iter != extcapArguments.constEnd(); ++iter)
     {
         ExtcapArgument * argument = (ExtcapArgument *)(*iter);
+        bool isBoolflag = false;
 
         /* The dynamic casts are necessary, because we come here using the Signal/Slot system
          * of Qt, and -in short- Q_OBJECT classes cannot be multiple inherited. Another possibility
@@ -442,6 +562,7 @@ GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey)
         if ( dynamic_cast<ExtArgBool *>((*iter)) != NULL)
         {
             value = ((ExtArgBool *)*iter)->prefValue();
+            isBoolflag = true;
         }
         else if ( dynamic_cast<ExtArgRadio *>((*iter)) != NULL)
         {
@@ -478,9 +599,9 @@ GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey)
         if ( useCallsAsKey )
             key = argument->call();
 
-        if (key.length() > 0)
+        if ( ( key.length() > 0 ) && ( includeEmptyValues || isBoolflag || value.length() > 0 ) )
         {
-            gchar * val = g_strdup(value.length() == 0 ? " " : value.toStdString().c_str());
+            gchar * val = g_strdup(value.toStdString().c_str());
 
             g_hash_table_insert(entries, g_strdup(key.toStdString().c_str()), val);
         }
@@ -515,7 +636,7 @@ ExtcapValueList ExtcapOptionsDialog::loadValuesFor(int argNum, QString argumentN
     if ( argcall.startsWith("--") )
         argcall = argcall.right(argcall.size()-2);
 
-    GHashTable * entries = getArgumentSettings(true);
+    GHashTable * entries = getArgumentSettings(true, false);
 
     values = extcap_get_if_configuration_values(this->device_name.toStdString().c_str(), argcall.toStdString().c_str(), entries);
 

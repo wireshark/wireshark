@@ -327,10 +327,10 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
               char *name_ret, int name_ret_len, int *name_type_ret)
 {
     int           name_len;
-    const guchar *name;
-    const guchar *nbname;
+    const gchar  *name;
+    const gchar  *nbname;
     char         *nbname_buf;
-    const guchar *pname;
+    const gchar  *pname;
     char          cname, cnbname;
     int           name_type;
     char         *pname_ret;
@@ -454,7 +454,7 @@ add_name_and_type(proto_tree *tree, tvbuff_t *tvb, int offset, int len,
     }
 }
 
-#define MAX_NAME_LEN (NETBIOS_NAME_LEN - 1)*4 + MAXDNAME + 64
+#define MAX_NAME_LEN (NETBIOS_NAME_LEN - 1)*4 + MAX_DNAME_LEN + 64
 
 static int
 dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
@@ -1632,7 +1632,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
          * so that it can attempt to find it in case it starts
          * somewhere in the middle of a segment.
          */
-        if(!pinfo->fd->flags.visited){
+        if(!pinfo->fd->visited){
             /* 'Only' SMB is transported ontop of this  so make sure
              * there is an SMB header there ...
              */
@@ -1985,7 +1985,7 @@ proto_reg_handoff_nbt(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

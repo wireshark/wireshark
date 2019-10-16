@@ -1,0 +1,278 @@
+# z3950.cnf
+# Conformation file for the NISO Z39.50 Information Retrieval protocol
+# Copyright 2018 Craig Jackson <cejackson51@gmail.com>
+
+# $Id$
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+#.PDU
+#Z39-50-APDU-1995
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+AttributeList/_untag/_item attributeList_item
+OtherInformation/_untag/_item otherInformation_item
+RPNStructure/rpnRpnOp/op operatorRpnOp
+RPNStructure/op operandRpnOp
+SearchResponse/resultSetStatus search_resultSetStatus
+SortResponse/resultSetStatus sort_resultSetStatus
+AttributeElement/attributeValue/numeric attributeValue_numeric
+AttributeElement/attributeValue/complex attributeValue_complex
+AttributeElement/attributeValue/complex/list attributeValue_complex_list
+AttributeElement/attributeType attributeElement_attributeType
+ListStatuses/_item/id listStatuses_id
+CompSpec/generic compSpec_generic
+SortElement/generic sortElement_generic
+ScanResponse/entries scanResponse_entries
+ListEntries/entries listEntries_entries
+Specification/elementSpec specification_elementSpec
+SortKey/elementSpec sortKey_elementSpec
+SortKey/sortAttributes/list sortAttributes_list
+SortKey/sortAttributes/id sortAttributes_id
+PresentRequest/recordComposition/complex recordComposition_complex
+DiagFormat/recordSyntax diagFormat_recordSyntax
+DiagFormat/sort/dbSpecific diagFormat_sort_dbSpecific
+DiagFormat/sort/tooMany diagFormat_sort_tooMany
+DiagnosticFormat/_item/diagnostic diagnosticFormat_item_diagnostic
+DiagFormat/proximity diagFormat_proximity
+DiagFormat/proximity/exclusion diagFormat_proximity_exclusion
+DiagFormat/proximity/ordered diagFormat_proximity_ordered
+DiagFormat/proximity/unit diagFormat_proximity_unit
+DiagFormat/accessCtrl/oid diagFormat_accessCtrl_oid
+DiagFormat/accessCtrl/simple diagFormat_accessCtrl_simple
+DiagFormat/term diagFormat_term
+SortKeyDetails/caseSensitivity sortKeyDetails_caseSensitivity
+SortKeyDetails/sortType/structured sortKeyDetails_sortType_structured
+SortKeyDetails/sortType/numeric sortKeyDetails_sortType_numeric
+PrivateCapabilities/operators privateCapabilities_operators
+PromptId/enummeratedPrompt/type promptId_enummeratedPrompt_type
+ExtendedServicesInfo/waitAction extendedServicesInfo_waitAction
+NetworkAddress/other networkAddress_other
+NetworkAddress/other/address networkAddress_other_address
+NetworkAddress/other/type networkAddress_other_type
+AttributeDescription/attributeValue attributeDescription_attributeValue
+AttributeTypeDetails/attributeValues attributeTypeDetails_attributeValues
+AttributeTypeDetails/attributeValues/_item attributeTypeDetails_attributeValues_item
+AttributeOccurrence/attributeValues attributeOccurrence_attributeValues
+AttributeValue/value attributeValue_value
+DRNType/userId dRNType_userId
+DES-RN-Object/challenge dES_RN_Object_challenge
+DES-RN-Object/response rES_RN_Object_response
+VariantSetInfo/variants variantSetInfo_variants
+Variant/triples/_item/value variant_triples_item_value
+Variant/triples/_item/value/unit variant_triples_item_value_unit
+UnitType/units unitType_units
+UnitInfo/units unitInfo_units
+ValueDescription/unit valueDescription_unit
+ProximitySupport/unitsSupported/_item/private/unit proximitySupport_unitsSupported_item_private_unit
+ProximitySupport/unitsSupported/_item/private proximitySupport_unitsSupported_item_private
+ProximitySupport/unitsSupported/_item/known proximitySupport_unitsSupported_item_known
+Usage/type usage_type
+FormatSpec/type formatSpec_type
+ExtendedServicesInfo/type extendedServicesInfo_type
+QueryExpression/term queryExpression_term
+QueryTypeDetails/rpn queryTypeDetails_rpn
+QueryTypeDetails/private queryTypeDetails_private
+BriefBib/title briefBib_title
+Charge/text charge_text
+OCLC-UserInformation/text oCLC-UserInformation_text
+CircRecord/restrictions circRecord_restrictions
+ResourceControlRequest/responseRequired resourceControlRequest_responseRequired
+KRBObject/challenge kRBObject_challenge
+KRBObject/response kRBObject_response
+CompSpec/recordSyntax compSpec_recordSyntax
+DatabaseInfo/name databaseInfo_name
+DatabaseInfo/nicknames databaseInfo_nicknames
+DatabaseInfo/nicknames/_item databaseInfo_nicknames_item
+NamePlusRecord/name namePlusRecord_name
+BriefBib/format briefBib_format
+TagSetInfo/elements tagSetInfo_elements
+ElementSetDetails/elementSetName elementSetDetails_elementSetName
+PrivateCapabilities/description privateCapabilities_description
+TaskPackage/description taskPackage_description
+ElementData/diagnostic elementData_diagnostic
+Challenge/_item/diagnostic challenge_item_diagnostic
+Challenge/_item/dataType challenge_item_dataType
+Challenge/_item/promptInfo/character challenge_item_promptInfo_character
+ElementInfo/dataType elementInfo_dataType
+TaggedElement/content taggedElement_content
+CategoryInfo/category categoryInfo_category
+TermListDetails/attributes termListDetails_attributes
+AttributeSetInfo/attributes attributeSetInfo_attributes
+ExtendedServicesRequest/description extendedServicesRequest_description 
+
+#.END
+
+#.REGISTER
+Explain-Record  B "1.2.840.10003.5.100" "Explain-record"
+SutrsRecord     B "1.2.840.10003.5.101" "Sutrs-record"
+OPACRecord      B "1.2.840.10003.5.102" "OPAC-record"
+BriefBib        B "1.2.840.10003.5.103" "Summary-record"
+GenericRecord   B "1.2.840.10003.5.105" "GRS-1-record"
+TaskPackage     B "1.2.840.10003.5.106" "ESTaskPackage"
+DiagnosticFormat  B "1.2.840.10003.4.2" "diag-1"
+PromptObject    B "1.2.840.10003.8.1" "Prompt-1"
+DES-RN-Object   B "1.2.840.10003.8.2" "DES-1"
+KRBObject       B "1.2.840.10003.8.3" "KRB-1"
+SearchInfoReport B "1.2.840.10003.10.1" "SearchResult-1"
+OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
+
+#.FN_HDR PDU
+  gint choice;
+#.FN_PARS PDU VAL_PTR=&choice
+#.FN_FTR PDU
+  if (choice >= 0) {
+    packet_info *pinfo = actx->pinfo;
+    gint32 tag = PDU_choice[choice].tag;
+
+    col_set_str(pinfo->cinfo, COL_INFO,
+      val_to_str_const(tag, z3950_PDU_vals, "Unknown Z39.50 PDU"));
+  }
+
+#.FN_BODY Query/type-0
+/*XXX Not implemented yet */
+
+#.FN_BODY ReferenceId
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+              hf_index, BER_CLASS_CON, 2, TRUE,
+              dissect_z3950_printable_OCTET_STRING);
+
+#.FN_BODY Term/general
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+              hf_index, BER_CLASS_CON, 2, TRUE,
+              dissect_z3950_printable_OCTET_STRING);
+
+#.FN_HDR AttributeSetId
+  tvbuff_t *oid_tvb=NULL;
+
+#.FN_PARS AttributeSetId VAL_PTR=&oid_tvb
+#.FN_FTR AttributeSetId
+  if (oid_tvb) {
+    guint len = tvb_reported_length_remaining(oid_tvb, 0);
+    gchar *oid_str = oid_encoded2string(wmem_packet_scope(),
+                                        tvb_get_ptr(oid_tvb, 0, len), len);
+    gint attribute_set_idx = Z3950_ATSET_UNKNOWN;
+    z3950_atinfo_t *atinfo_data;
+    packet_info *pinfo = actx->pinfo;
+
+    if (g_strcmp0(oid_str, Z3950_ATSET_BIB1_OID) == 0) {
+      attribute_set_idx = Z3950_ATSET_BIB1;
+    }
+    if ((atinfo_data = (z3950_atinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_ATINFO_KEY)) == NULL) {
+
+      atinfo_data = wmem_new0(pinfo->pool, z3950_atinfo_t);
+      atinfo_data->atsetidx = attribute_set_idx;
+      p_add_proto_data(pinfo->pool, pinfo,
+                       proto_z3950, Z3950_ATINFO_KEY, atinfo_data);
+    }
+    else {
+      atinfo_data->atsetidx = attribute_set_idx;
+    }
+  }
+
+#.FN_HDR AttributeElement/attributeType
+  gint att_type=0;
+  packet_info *pinfo = actx->pinfo;
+  z3950_atinfo_t *atinfo_data;
+#.FN_PARS AttributeElement/attributeType VAL_PTR=&att_type
+#.FN_FTR AttributeElement/attributeType
+  atinfo_data = (z3950_atinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_ATINFO_KEY);
+  if (atinfo_data && atinfo_data->atsetidx == Z3950_ATSET_BIB1) {
+    proto_item_append_text(actx->created_item, " (%s)",
+      val_to_str(att_type, z3950_bib1_att_types, "Unknown bib-1 attributeType %d"));
+    atinfo_data->attype = att_type;
+  }
+#.FN_HDR AttributeElement/attributeValue/numeric
+  gint att_value=0;
+  packet_info *pinfo = actx->pinfo;
+  z3950_atinfo_t *atinfo_data;
+  const value_string *att_value_string = NULL;
+#.FN_PARS AttributeElement/attributeValue/numeric VAL_PTR=&att_value
+#.FN_FTR AttributeElement/attributeValue/numeric
+  atinfo_data = (z3950_atinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_ATINFO_KEY);
+  if (atinfo_data && atinfo_data->atsetidx == Z3950_ATSET_BIB1) {
+    switch (atinfo_data->attype) {
+    case Z3950_BIB1_AT_USE:
+      att_value_string = z3950_bib1_at_use;
+      break;
+    case Z3950_BIB1_AT_RELATION:
+      att_value_string = z3950_bib1_at_relation;
+      break;
+    case Z3950_BIB1_AT_POSITION:
+      att_value_string = z3950_bib1_at_position;
+      break;
+    case Z3950_BIB1_AT_STRUCTURE:
+      att_value_string = z3950_bib1_at_structure;
+      break;
+    case Z3950_BIB1_AT_TRUNCATION:
+      att_value_string = z3950_bib1_at_truncation;
+      break;
+    case Z3950_BIB1_AT_COMPLETENESS:
+      att_value_string = z3950_bib1_at_completeness;
+      break;
+    default:
+      att_value_string = NULL;
+    }
+    if (att_value_string) {
+      proto_item_append_text(actx->created_item, " (%s)",
+        val_to_str(att_value, att_value_string, "Unknown bib-1 attributeValue %d"));
+    }
+  }
+#.FN_HDR DefaultDiagFormat/diagnosticSetId
+  tvbuff_t *oid_tvb=NULL;
+
+#.FN_PARS DefaultDiagFormat/diagnosticSetId VAL_PTR=&oid_tvb
+#.FN_FTR DefaultDiagFormat/diagnosticSetId
+  if (oid_tvb) {
+    guint len = tvb_reported_length_remaining(oid_tvb, 0);
+    gchar *oid_str = oid_encoded2string(wmem_packet_scope(),
+                                        tvb_get_ptr(oid_tvb, 0, len), len);
+    gint diagset_idx = Z3950_DIAGSET_UNKNOWN;
+    z3950_diaginfo_t *diaginfo_data;
+    packet_info *pinfo = actx->pinfo;
+
+    if (g_strcmp0(oid_str, Z3950_DIAGSET_BIB1_OID) == 0) {
+      diagset_idx = Z3950_DIAGSET_BIB1;
+    }
+    if ((diaginfo_data = (z3950_diaginfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_DIAGSET_KEY)) == NULL) {
+
+      diaginfo_data = wmem_new0(pinfo->pool, z3950_diaginfo_t);
+      diaginfo_data->diagsetidx = diagset_idx;
+      p_add_proto_data(pinfo->pool, pinfo,
+                       proto_z3950, Z3950_DIAGSET_KEY, diaginfo_data);
+    }
+    else {
+      diaginfo_data->diagsetidx = diagset_idx;
+    }
+  }
+
+#.FN_HDR DefaultDiagFormat/condition
+  gint diag_condition=0;
+  packet_info *pinfo = actx->pinfo;
+  z3950_diaginfo_t *diaginfo_data;
+#.FN_PARS DefaultDiagFormat/condition VAL_PTR=&diag_condition
+#.FN_FTR DefaultDiagFormat/condition
+  diaginfo_data = (z3950_diaginfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_DIAGSET_KEY);
+  if (diaginfo_data && diaginfo_data->diagsetidx == Z3950_DIAGSET_BIB1) {
+    proto_item_append_text(actx->created_item, " (%s)",
+      val_to_str(diag_condition, z3950_bib1_diagconditions, "Unknown bib-1 diagnostic %d"));
+    diaginfo_data->diagcondition = diag_condition;
+  }
+#
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 2
+# tab-width: 8
+# indent-tabs-mode: nil
+# End:
+#
+# vi: set shiftwidth=2 tabstop=8 expandtab autoindent:
+# :indentSize=2:tabSize=8:noTabs=true:
+#

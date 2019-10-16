@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 /* This module provides udp and tcp follow stream capabilities to tshark.
  * It is only used by tshark and not wireshark.
@@ -93,7 +94,7 @@ flow_init(const char *opt_argp, void *userdata)
     sequence_analysis_list_free(flow_info);
 
     errp = register_tap_listener(sequence_analysis_get_tap_listener_name(analysis), flow_info, filter, sequence_analysis_get_tap_flags(analysis),
-                                NULL, sequence_analysis_get_packet_func(analysis), flow_draw);
+                                NULL, sequence_analysis_get_packet_func(analysis), flow_draw, NULL);
 
     if (errp != NULL)
     {
@@ -133,7 +134,7 @@ register_tap_listener_flow(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 4

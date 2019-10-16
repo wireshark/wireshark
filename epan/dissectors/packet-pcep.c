@@ -97,7 +97,7 @@ void proto_reg_handoff_pcep(void);
 #define PCEP_OBJ_SRP                    33
 #define PCEP_OBJ_VENDOR_INFORMATION     34 /* RFC 7470 */
 #define PCEP_OBJ_BU                     35 /* draft-ietf-pce-pcep-service-aware */
-#define PCEP_ASSOCIATION_OBJ           255 /* TODO temp to be adjusted */
+#define PCEP_ASSOCIATION_OBJ            40 /* draft-ietf-pce-association-group */
 
 /*Subobjects of EXPLICIT ROUTE Object*/
 #define PCEP_SUB_IPv4                    1
@@ -159,6 +159,7 @@ void proto_reg_handoff_pcep(void);
 #define INVALID_PATH_SETUP_TYPE         21
 #define BAD_PARAMETER_VALUE             23
 #define LSP_INSTANTIATION_ERROR         24
+#define ASSOCIATION_ERROR               26
 
 /*Different values of Reason in the CLOSE object */
 #define NO_EXP_PROV                      1
@@ -637,6 +638,9 @@ static int hf_pcep_lsp_state_db_version_number = -1;
 static int hf_pcep_speaker_entity_id = -1;
 static int hf_pcep_path_setup_type_reserved24 = -1;
 static int hf_pcep_path_setup_type = -1;
+static int hf_pcep_path_setup_type_capability_reserved24 = -1;
+static int hf_pcep_path_setup_type_capability_psts = -1;
+static int hf_pcep_path_setup_type_capability_pst = -1;
 static int hf_pcep_sr_pce_capability_reserved = -1;
 static int hf_pcep_sr_pce_capability_flags = -1;
 static int hf_pcep_sr_pce_capability_flags_l = -1;
@@ -652,6 +656,15 @@ static int hf_pcep_association_source_global = -1;
 static int hf_pcep_association_id_extended = -1;
 static int hf_pcep_unreach_destination_obj_ipv4_address = -1;
 static int hf_pcep_unreach_destination_obj_ipv6_address = -1;
+
+static int hf_pcep_op_conf_assoc_range_reserved = -1;
+static int hf_pcep_op_conf_assoc_range_assoc_type = -1;
+static int hf_pcep_op_conf_assoc_range_start_assoc = -1;
+static int hf_pcep_op_conf_assoc_range_range = -1;
+
+static int hf_pcep_srcpag_info_color = -1;
+static int hf_pcep_srcpag_info_destination_endpoint = -1;
+static int hf_pcep_srcpag_info_preference = -1;
 
 static int hf_pcep_enterprise_number = -1;
 static int hf_pcep_enterprise_specific_info = -1;
@@ -1035,27 +1048,30 @@ static const value_string pcep_notification_values2_vals[] = {
 
 /* PCEP TLVs */
 static const value_string pcep_tlvs_vals[] = {
-    {1,  "NO-PATH-VECTOR TLV"       },
-    {2,  "OVERLOAD-DURATION TLV"    },
-    {3,  "REQ-MISSING TLV"          },
-    {4,  "OF-list TLV"              },
-    {5,  "Order TLV"                },
-    {6,  "P2MP Capable"             },
-    {7,  "VENDOR-INFORMATION-TLV"   },
-    {16, "STATEFUL-PCE-CAPABILITY"  },
-    {17, "SYMBOLIC-PATH-NAME"       },
-    {18, "IPV4-LSP-IDENTIFIERS"     },
-    {19, "IPV6-LSP-IDENTIFIERS"     },
-    {20, "LSP-ERROR-CODE"           },
-    {21, "RSVP-ERROR-SPEC"          },
-    {23, "LSP-DB-VERSION"           },
-    {24, "SPEAKER-ENTITY-ID"        },
-    {26, "SR-PCE-CAPABILITY"        },
-    {27, "PATH-SETUP-TYPE"          },
-    {28, "PATH-SETUP-TYPE"          },
-    {98, "GLOBAL-ASSOCIATION-SOURCE"},
-    {99, "EXTENDED-ASSOCIATION-ID"  },
-    {0, NULL                        }
+    {1,  "NO-PATH-VECTOR TLV"         },
+    {2,  "OVERLOAD-DURATION TLV"      },
+    {3,  "REQ-MISSING TLV"            },
+    {4,  "OF-list TLV"                },
+    {5,  "Order TLV"                  },
+    {6,  "P2MP Capable"               },
+    {7,  "VENDOR-INFORMATION-TLV"     },
+    {16, "STATEFUL-PCE-CAPABILITY"    },
+    {17, "SYMBOLIC-PATH-NAME"         },
+    {18, "IPV4-LSP-IDENTIFIERS"       },
+    {19, "IPV6-LSP-IDENTIFIERS"       },
+    {20, "LSP-ERROR-CODE"             },
+    {21, "RSVP-ERROR-SPEC"            },
+    {23, "LSP-DB-VERSION"             },
+    {24, "SPEAKER-ENTITY-ID"          },
+    {26, "SR-PCE-CAPABILITY"          },
+    {27, "PATH-SETUP-TYPE"            },
+    {28, "PATH-SETUP-TYPE"            },
+    {29, "OP-CONF-ASSOC-RANGE"        },
+    {30, "GLOBAL-ASSOCIATION-SOURCE"  },
+    {31, "EXTENDED-ASSOCIATION-ID"    },
+    {34, "PATH-SETUP-TYPE-CAPABILITY" },
+    {40, "SRCPAG-INFO"                }, /* Not yet register */
+    {0, NULL                          }
 };
 
 
@@ -1108,6 +1124,7 @@ static const value_string pcep_error_types_obj_vals[] = {
     {LSP_STATE_SYNCHRONIZATION_ERROR,   "LSP State synchronization error"               },
     {BAD_PARAMETER_VALUE,               "Bad parameter value"                           },
     {LSP_INSTANTIATION_ERROR,           "LSP instantiation error"                       },
+    {ASSOCIATION_ERROR,                 "Association instantiation error"               },
     {0, NULL }
 };
 static value_string_ext pcep_error_types_obj_vals_ext = VALUE_STRING_EXT_INIT(pcep_error_types_obj_vals);
@@ -1276,6 +1293,18 @@ static const value_string pcep_error_value_24_vals[] = {
     {1, "Unacceptable instantiation parameters"},   /* draft-ietf-pce-pce-initiated-lsp */
     {2, "Internal error"},                          /* draft-ietf-pce-pce-initiated-lsp */
     {3, "Signaling error"},                         /* draft-ietf-pce-pce-initiated-lsp */
+    {0, NULL}
+};
+
+/*Error values for error type 26*/
+static const value_string pcep_error_value_26_vals[] = {
+    {1, "Association-type is not supported"},                       /* draft-ietf-pce-association-group */
+    {2, "Too many LSPs in the association group"},                  /* draft-ietf-pce-association-group */
+    {3, "Too many association groups"},                             /* draft-ietf-pce-association-group */
+    {4, "Association unknown"},                                     /* draft-ietf-pce-association-group */
+    {5, "Operator-configured association information mismatch "},   /* draft-ietf-pce-association-group */
+    {6, "Association information mismatch"},                        /* draft-ietf-pce-association-group */
+    {7, "Cannot join the association group"},                       /* draft-ietf-pce-association-group */
     {0, NULL}
 };
 
@@ -1456,12 +1485,55 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                 proto_tree_add_item(tlv, hf_pcep_path_setup_type, tvb, offset + 4 + j + 3, 1, ENC_NA);
                 break;
 
-            case 98:    /* GLOBAL-ASSOCIATION-SOURCE TLV (TODO temp to be adjusted) */
+            case 29:    /* OP-CONF-ASSOC-RANGE */
+                offset += 4 + j;
+                while(tlv_length > 0) {
+                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_reserved, tvb, offset, 2, ENC_NA);
+                    offset += 2;
+                    tlv_length -= 2;
+                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_assoc_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    tlv_length -= 2;
+                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_start_assoc, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    tlv_length -= 2;
+                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_range, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    tlv_length -= 2;
+                }
+                break;
+
+            case 30:    /* GLOBAL-ASSOCIATION-SOURCE */
                 proto_tree_add_item(tlv, hf_pcep_association_source_global, tvb, offset + 4 + j, 4, ENC_BIG_ENDIAN);
                 break;
 
-            case 99:    /* EXTENDED-ASSOCIATION-ID TLV (TODO temp to be adjusted) */
+            case 31:    /* EXTENDED-ASSOCIATION-ID TLV */
                 proto_tree_add_item(tlv, hf_pcep_association_id_extended, tvb, offset + 4 + j, tlv_length, ENC_NA);
+                break;
+
+            case 34:    /* PATH-SETUP-TYPE-CAPABILITY TLV */
+                {
+                    guint32 psts;
+
+                    proto_tree_add_item(tlv, hf_pcep_path_setup_type_capability_reserved24, tvb, offset + 4 + j, 3, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_uint(tlv, hf_pcep_path_setup_type_capability_psts, tvb, offset + 4 + j + 3, 1, ENC_NA, &psts);
+                    for (i = 0; i < (int)psts; i++) {
+                        proto_tree_add_item(tlv, hf_pcep_path_setup_type_capability_pst, tvb, offset + 4 + j + 4 + i, 1, ENC_NA);
+                    }
+
+                    padding = (4 - (psts % 4)) % 4;
+                    if (padding != 0) {
+                        proto_tree_add_item(tlv, hf_pcep_tlv_padding, tvb, offset+4+j+psts, padding, ENC_NA);
+                    }
+
+                    /* TODO: implement subTLV dissection */
+                }
+                break;
+
+            case 40:    /* SRCPAG-INFO TLV */
+                proto_tree_add_item(tlv, hf_pcep_srcpag_info_color, tvb, offset + 4 + j, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_srcpag_info_destination_endpoint, tvb, offset + 4 + j + 4, 4, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_srcpag_info_preference, tvb, offset + 4 + j + 8, 4, ENC_NA);
                 break;
 
             default:
@@ -2688,6 +2760,9 @@ dissect_pcep_error_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
             break;
         case LSP_INSTANTIATION_ERROR:
             err_str = val_to_str_const(error_value, pcep_error_value_24_vals, "Unknown");
+            break;
+        case ASSOCIATION_ERROR:
+            err_str = val_to_str_const(error_value, pcep_error_value_26_vals, "Unknown");
             break;
         default:
             proto_item_append_text(type_item, " (%u Non defined Error-Value)", error_type);
@@ -4640,6 +4715,22 @@ proto_register_pcep(void)
             FT_UINT8, BASE_DEC, VALS(pcep_pst_vals), 0x0,
             NULL, HFILL }
         },
+        { &hf_pcep_path_setup_type_capability_reserved24,
+          { "Reserved", "pcep.pst_capability.reserved",
+            FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_path_setup_type_capability_psts,
+          { "Path Setup Types", "pcep.pst_capability.psts",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_path_setup_type_capability_pst,
+          { "Path Setup Type", "pcep.pst_capability.pst",
+            FT_UINT8, BASE_DEC, VALS(pcep_pst_vals), 0x0,
+            NULL, HFILL }
+        },
+
         { &hf_PCEPF_SUBOBJ_SR,
           { "SR", "pcep.subobj.sr",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -5144,7 +5235,7 @@ proto_register_pcep(void)
         },
         { &hf_pcep_svec_obj_request_id_number,
           { "Request-ID-Number", "pcep.obj.svec.request_id_number",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pcep_notification_obj_reserved,
@@ -5560,6 +5651,41 @@ proto_register_pcep(void)
         { &hf_pcep_association_id_extended,
           { "Extended Association ID", "pcep.association.id.extended",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_op_conf_assoc_range_reserved,
+          { "Reserved", "pcep.op_conf_assoc_range.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_op_conf_assoc_range_assoc_type,
+          { "Assoc-Type", "pcep.op_conf_assoc_range.assoc_type",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_op_conf_assoc_range_start_assoc,
+          { "Start-Assoc", "pcep.op_conf_assoc_range.start_assoc",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_op_conf_assoc_range_range,
+          { "Range", "pcep.op_conf_assoc_range.range",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_srcpag_info_color,
+          { "Color", "pcep.srcpag_info.color",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_srcpag_info_destination_endpoint,
+          { "Destination End-point", "pcep.srcpag_info.destination_endpoint",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_srcpag_info_preference,
+          { "Preference", "pcep.srcpag_info.preference",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pcep_enterprise_number,

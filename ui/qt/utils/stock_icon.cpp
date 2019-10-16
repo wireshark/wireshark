@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <ui/qt/utils/stock_icon.h>
 
@@ -17,18 +18,20 @@
 
 // References:
 //
-// http://standards.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html
-// http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
+// https://specifications.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html
+// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
 //
-// http://mithatkonar.com/wiki/doku.php/qt/icons
+// https://mithatkonar.com/wiki/doku.php/qt/icons
 //
-// https://developer.apple.com/library/mac/documentation/userexperience/conceptual/applehiguidelines/IconsImages/IconsImages.html#//apple_ref/doc/uid/20000967-TPXREF102
-// http://msdn.microsoft.com/en-us/library/windows/desktop/dn742485.aspx
-// https://developer.gnome.org/hig-book/stable/icons-types.html.en
-// http://msdn.microsoft.com/en-us/library/ms246582.aspx
+// https://web.archive.org/web/20140829010224/https://developer.apple.com/library/mac/documentation/userexperience/conceptual/applehiguidelines/IconsImages/IconsImages.html
+// https://developer.apple.com/design/human-interface-guidelines/macos/icons-and-images/image-size-and-resolution/
+// https://developer.apple.com/design/human-interface-guidelines/macos/icons-and-images/app-icon/
+// https://docs.microsoft.com/en-us/windows/win32/uxguide/vis-icons
+// https://developer.gnome.org/hig/stable/icons-and-artwork.html.en
+// https://docs.microsoft.com/en-us/visualstudio/designers/the-visual-studio-image-library
 
 // To do:
-// - 32x32, 48x48, 64x64, and unscaled (.svg) icons
+// - 32x32, 48x48, 64x64, and unscaled (.svg) icons.
 // - Indent find & go actions when those panes are open.
 // - Replace or remove:
 //   WIRESHARK_STOCK_CAPTURE_FILTER x-capture-filter
@@ -44,6 +47,7 @@
 #include <QMap>
 #include <QPainter>
 #include <QStyle>
+#include <QStyleOption>
 
 static const QString path_pfx_ = ":/stock_icons/";
 
@@ -73,8 +77,46 @@ StockIcon::StockIcon(const QString icon_name) :
     }
 
     // Is this one of our locally sourced, cage-free, organic icons?
-    QStringList types = QStringList() << "14x14" << "16x16" << "24x14" << "24x24";
+    QStringList types = QStringList() << "8x8" << "14x14" << "16x16" << "24x14" << "24x24";
+    QList<QIcon::Mode> icon_modes = QList<QIcon::Mode>()
+            << QIcon::Disabled
+            << QIcon::Active
+            << QIcon::Selected;
     foreach (QString type, types) {
+        // First, check for a template (mask) icon
+        // Templates should be monochrome as described at
+        // https://developer.apple.com/design/human-interface-guidelines/macos/icons-and-images/custom-icons/
+        // Transparency is supported.
+        QString icon_path_template = path_pfx_ + QString("%1/%2.template.png").arg(type).arg(icon_name);
+        if (QFile::exists(icon_path_template)) {
+            QIcon mask_icon = QIcon();
+            mask_icon.addFile(icon_path_template);
+
+            foreach(QSize sz, mask_icon.availableSizes()) {
+                QPixmap mask_pm = mask_icon.pixmap(sz);
+                QImage normal_img(sz, QImage::Format_ARGB32);
+                QPainter painter(&normal_img);
+                QBrush br(wsApp->palette().color(QPalette::Active, QPalette::WindowText));
+                painter.fillRect(0, 0, sz.width(), sz.height(), br);
+                painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+                painter.drawPixmap(0, 0, mask_pm);
+
+                QPixmap normal_pm = QPixmap::fromImage(normal_img);
+                addPixmap(normal_pm, QIcon::Normal, QIcon::On);
+                addPixmap(normal_pm, QIcon::Normal, QIcon::Off);
+
+                QStyleOption opt = {};
+                opt.palette = wsApp->palette();
+                foreach (QIcon::Mode icon_mode, icon_modes) {
+                    QPixmap mode_pm = wsApp->style()->generatedIconPixmap(icon_mode, normal_pm, &opt);
+                    addPixmap(mode_pm, icon_mode, QIcon::On);
+                    addPixmap(mode_pm, icon_mode, QIcon::Off);
+                }
+            }
+            continue;
+        }
+
+        // Regular full-color icons
         QString icon_path = path_pfx_ + QString("%1/%2.png").arg(type).arg(icon_name);
         if (QFile::exists(icon_path)) {
             addFile(icon_path);

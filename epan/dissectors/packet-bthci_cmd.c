@@ -285,6 +285,18 @@ static int hf_bthci_cmd_amp_remaining_assoc_length = -1;
 static int hf_bthci_cmd_amp_assoc_fragment = -1;
 static int hf_bthci_cmd_le_event_mask = -1;
 static int hf_bthci_cmd_le_event_mask_le_reserved = -1;
+static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_transfer_received = -1;
+static int hf_bthci_cmd_le_event_mask_le_cte_request_failed = -1;
+static int hf_bthci_cmd_le_event_mask_le_connection_iq_report = -1;
+static int hf_bthci_cmd_le_event_mask_le_connectionless_iq_report = -1;
+static int hf_bthci_cmd_le_event_mask_le_channel_selection_algorithm = -1;
+static int hf_bthci_cmd_le_event_mask_le_scan_request_received = -1;
+static int hf_bthci_cmd_le_event_mask_le_extended_advertising_set_terminated = -1;
+static int hf_bthci_cmd_le_event_mask_le_extended_scan_timeout = -1;
+static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_lost = -1;
+static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_report = -1;
+static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_established = -1;
+static int hf_bthci_cmd_le_event_mask_le_extended_advertising_report = -1;
 static int hf_bthci_cmd_le_event_mask_le_phy_update_complete = -1;
 static int hf_bthci_cmd_le_event_mask_le_direct_advertising_report  = -1;
 static int hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete = -1;
@@ -293,7 +305,7 @@ static int hf_bthci_cmd_le_event_mask_le_read_local_p256_public_key_complete = -
 static int hf_bthci_cmd_le_event_mask_le_data_length_change = -1;
 static int hf_bthci_cmd_le_event_mask_le_remote_connection_parameter_request = -1;
 static int hf_bthci_cmd_le_event_mask_le_long_term_key_request = -1;
-static int hf_bthci_cmd_le_event_mask_le_read_remote_used_features_complete = -1;
+static int hf_bthci_cmd_le_event_mask_le_read_remote_features_complete = -1;
 static int hf_bthci_cmd_le_event_mask_le_connection_update_complete = -1;
 static int hf_bthci_cmd_le_event_mask_le_advertising_report = -1;
 static int hf_bthci_cmd_le_event_mask_le_connection_complete = -1;
@@ -316,6 +328,7 @@ static int hf_bthci_cmd_le_scan_window = -1;
 static int hf_bthci_cmd_le_scan_filter_policy = -1;
 static int hf_bthci_cmd_le_initiator_filter_policy = -1;
 static int hf_bthci_cmd_le_peer_address_type = -1;
+static int hf_bthci_cmd_le_peer_identity_address_type = -1;
 static int hf_bthci_cmd_le_con_interval_min = -1;
 static int hf_bthci_cmd_le_con_interval_max = -1;
 static int hf_bthci_cmd_le_con_latency = -1;
@@ -400,6 +413,39 @@ static int hf_bthci_cmd_le_phys_le_coded = -1;
 static int hf_bthci_cmd_le_phys_le_2m = -1;
 static int hf_bthci_cmd_le_phys_le_1m = -1;
 static int hf_bthci_cmd_le_init_phy_param = -1;
+static int hf_bthci_cmd_le_privacy_mode = -1;
+static int hf_bthci_cmd_sync_filter_policy = -1;
+static int hf_bthci_cmd_skip = -1;
+static int hf_bthci_cmd_rf_tx_path_compensation_value = -1;
+static int hf_bthci_cmd_rf_rx_path_compensation_value = -1;
+static int hf_bthci_cmd_sync_handle = -1;
+static int hf_bthci_cmd_cte_length = -1;
+static int hf_bthci_cmd_cte_type = -1;
+static int hf_bthci_cmd_slot_durations = -1;
+static int hf_bthci_cmd_antenna_switching_pattern_length = -1;
+static int hf_bthci_cmd_antenna_switching_pattern = -1;
+static int hf_bthci_cmd_antenna_id = -1;
+static int hf_bthci_cmd_cte_count = -1;
+static int hf_bthci_cmd_cte_enable = -1;
+static int hf_bthci_cmd_iq_sampling_enable = -1;
+static int hf_bthci_cmd_max_sampled_ctes = -1;
+static int hf_bthci_cmd_cte_request_interval = -1;
+static int hf_bthci_cmd_reporting_enable = -1;
+static int hf_bthci_cmd_service_data_past = -1;
+static int hf_bthci_cmd_sync_mode = -1;
+static int hf_bthci_cmd_key_type = -1;
+static int hf_bthci_cmd_sca_action = -1;
+static int hf_bthci_cmd_sync_cte_type = -1;
+static int hf_bthci_cmd_sync_cte_type_no_sync_aoa = -1;
+static int hf_bthci_cmd_sync_cte_type_no_sync_aod_1us = -1;
+static int hf_bthci_cmd_sync_cte_type_no_sync_aod_2us = -1;
+static int hf_bthci_cmd_sync_cte_type_sync_only_with_cte = -1;
+static int hf_bthci_cmd_sync_cte_type_reserved = -1;
+static int hf_bthci_cmd_cte_types = -1;
+static int hf_bthci_cmd_cte_types_reserved = -1;
+static int hf_bthci_cmd_cte_types_aod_2us = -1;
+static int hf_bthci_cmd_cte_types_aod_1us = -1;
+static int hf_bthci_cmd_cte_types_aoa = -1;
 static int hf_bthci_cmd_triggered_clock_capture = -1;
 static int hf_bthci_cmd_lpo_allowed = -1;
 static int hf_bthci_cmd_number_of_clock_captures_to_filter = -1;
@@ -498,6 +544,18 @@ static int hf_bthci_cmd_extended_inquiry_length = -1;
 
 static const int *hfx_bthci_cmd_le_event_mask[] = {
     &hf_bthci_cmd_le_event_mask_le_reserved,
+    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_transfer_received,
+    &hf_bthci_cmd_le_event_mask_le_cte_request_failed,
+    &hf_bthci_cmd_le_event_mask_le_connection_iq_report,
+    &hf_bthci_cmd_le_event_mask_le_connectionless_iq_report,
+    &hf_bthci_cmd_le_event_mask_le_channel_selection_algorithm,
+    &hf_bthci_cmd_le_event_mask_le_scan_request_received,
+    &hf_bthci_cmd_le_event_mask_le_extended_advertising_set_terminated,
+    &hf_bthci_cmd_le_event_mask_le_extended_scan_timeout,
+    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_lost,
+    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_report,
+    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_established,
+    &hf_bthci_cmd_le_event_mask_le_extended_advertising_report,
     &hf_bthci_cmd_le_event_mask_le_phy_update_complete,
     &hf_bthci_cmd_le_event_mask_le_direct_advertising_report ,
     &hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete,
@@ -506,7 +564,7 @@ static const int *hfx_bthci_cmd_le_event_mask[] = {
     &hf_bthci_cmd_le_event_mask_le_data_length_change,
     &hf_bthci_cmd_le_event_mask_le_remote_connection_parameter_request,
     &hf_bthci_cmd_le_event_mask_le_long_term_key_request,
-    &hf_bthci_cmd_le_event_mask_le_read_remote_used_features_complete,
+    &hf_bthci_cmd_le_event_mask_le_read_remote_features_complete,
     &hf_bthci_cmd_le_event_mask_le_connection_update_complete,
     &hf_bthci_cmd_le_event_mask_le_advertising_report,
     &hf_bthci_cmd_le_event_mask_le_connection_complete,
@@ -567,6 +625,23 @@ static const int *hfx_btcmd_le_phys[] = {
     NULL
 };
 
+static const int *hfx_btcmd_sync_cte_type[] = {
+    &hf_bthci_cmd_sync_cte_type_reserved,
+    &hf_bthci_cmd_sync_cte_type_sync_only_with_cte,
+    &hf_bthci_cmd_sync_cte_type_no_sync_aod_2us,
+    &hf_bthci_cmd_sync_cte_type_no_sync_aod_1us,
+    &hf_bthci_cmd_sync_cte_type_no_sync_aoa,
+    NULL
+};
+
+static const int *hfx_btcmd_cte_types[] = {
+    &hf_bthci_cmd_cte_types_reserved,
+    &hf_bthci_cmd_cte_types_aod_2us,
+    &hf_bthci_cmd_cte_types_aod_1us,
+    &hf_bthci_cmd_cte_types_aoa,
+    NULL
+};
+
 static const int *hfx_bthci_cmd_sco_packet_type[] = {
     &hf_bthci_cmd_sco_packet_type_reserved,
     &hf_bthci_cmd_sco_packet_type_3ev5,
@@ -618,6 +693,7 @@ static gint ett_adv_properties = -1;
 static gint ett_adv_sets = -1;
 static gint ett_phys_flags = -1;
 static gint ett_scan_init_phy_param = -1;
+static gint ett_sync_cte_type = -1;
 static gint ett_coding_format = -1;
 static gint ett_packet_type = -1;
 static gint ett_sco_packet_type = -1;
@@ -646,7 +722,8 @@ static gint hf_btcommon_eir_ad_flags_le_limited_discoverable_mode = -1;
 static gint hf_btcommon_eir_ad_uuid_16 = -1;
 static gint hf_btcommon_eir_ad_uuid_32 = -1;
 static gint hf_btcommon_eir_ad_uuid_128 = -1;
-static gint hf_btcommon_eir_ad_custom_uuid = -1;
+static gint hf_btcommon_eir_ad_custom_uuid_32 = -1;
+static gint hf_btcommon_eir_ad_custom_uuid_128 = -1;
 static gint hf_btcommon_eir_ad_name = -1;
 static gint hf_btcommon_eir_ad_tx_power = -1;
 static gint hf_btcommon_eir_ad_ssp_oob_length = -1;
@@ -810,7 +887,8 @@ static gint hf_btcommon_le_channel_map_37 = -1;
 static gint hf_btcommon_le_channel_map_38 = -1;
 static gint hf_btcommon_le_channel_map_39 = -1;
 static gint hf_btcommon_eir_ad_mesh_msg = -1;
-
+static gint hf_btcommon_eir_ad_mesh_pbadv = -1;
+static gint hf_btcommon_eir_ad_mesh_beacon = -1;
 
 static const int *hfx_btcommon_eir_ad_ips_flags[] = {
     &hf_btcommon_eir_ad_ips_flags_reserved,
@@ -902,6 +980,8 @@ static dissector_handle_t btcommon_ad_handle;
 static dissector_handle_t btcommon_le_channel_map_handle;
 static dissector_handle_t bthci_cmd_handle;
 static dissector_handle_t btmesh_handle;
+static dissector_handle_t btmesh_pbadv_handle;
+static dissector_handle_t btmesh_beacon_handle;
 
 static dissector_table_t  bluetooth_eir_ad_manufacturer_company_id;
 static dissector_table_t  bluetooth_eir_ad_tds_organization_id;
@@ -1144,7 +1224,9 @@ value_string_ext bthci_cmd_ocf_host_controller_and_baseband_vals_ext = VALUE_STR
     { (base) | 0x009,  "Read BD ADDR" }, \
     { (base) | 0x00A,  "Read Data Block Size" }, \
 /* Bluetooth Core Specification Addendum 2 */ \
-    { (base) | 0x00B,  "Read Local Supported Codecs" }
+    { (base) | 0x00B,  "Read Local Supported Codecs" }, \
+/* Bluetooth Core 5.1 */ \
+    { (base) | 0x00C,  "Read Local Simple Pairing Options" }
 
 static const value_string bthci_cmd_ocf_informational_vals[] = {
     INFORMATIONAL_VALS(0x0),
@@ -1218,23 +1300,25 @@ value_string_ext bthci_cmd_ocf_testing_vals_ext = VALUE_STRING_EXT_INIT(bthci_cm
     { (base) | 0x013,  "LE Connection Update" }, \
     { (base) | 0x014,  "LE Set Host Channel Classification" }, \
     { (base) | 0x015,  "LE Read Channel Map" }, \
-    { (base) | 0x016,  "LE Read Remote Used Features" }, \
+    { (base) | 0x016,  "LE Read Remote Features" }, \
     { (base) | 0x017,  "LE Encrypt" }, \
     { (base) | 0x018,  "LE Rand" }, \
     { (base) | 0x019,  "LE Start Encryption" }, \
     { (base) | 0x01A,  "LE Long Term Key Request Reply" }, \
     { (base) | 0x01B,  "LE Long Term Key Request Negative Reply" }, \
     { (base) | 0x01C,  "LE Read Supported States" }, \
-    { (base) | 0x01D,  "LE Receiver Test" }, \
-    { (base) | 0x01E,  "LE Transmitter Test" }, \
+    { (base) | 0x01D,  "LE Receiver Test [v1]" }, \
+    { (base) | 0x01E,  "LE Transmitter Test [v1]" }, \
     { (base) | 0x01F,  "LE Test End" }, \
+/* Bluetooth Core 4.1 */ \
     { (base) | 0x020,  "LE Remote Connection Parameter Request Reply" }, \
     { (base) | 0x021,  "LE Remote Connection Parameter Request Negative Reply" }, \
+/* Bluetooth Core 4.2 */ \
     { (base) | 0x022,  "LE Set Data Length" }, \
     { (base) | 0x023,  "LE Read Suggested Default Data Length" }, \
     { (base) | 0x024,  "LE Write Suggested Default Data Length" }, \
     { (base) | 0x025,  "LE Read Local P-256 Public Key" }, \
-    { (base) | 0x026,  "LE Generate DHKey" }, \
+    { (base) | 0x026,  "LE Generate DHKey [v1]" }, \
     { (base) | 0x027,  "LE Add Device to Resolving List" }, \
     { (base) | 0x028,  "LE Remove Device From Resolving List" }, \
     { (base) | 0x029,  "LE Clear Resolving List" }, \
@@ -1244,11 +1328,12 @@ value_string_ext bthci_cmd_ocf_testing_vals_ext = VALUE_STRING_EXT_INIT(bthci_cm
     { (base) | 0x02D,  "LE Set Address Resolution Enable" }, \
     { (base) | 0x02E,  "LE Set Resolvable Private Address Timeout" }, \
     { (base) | 0x02F,  "LE Read Maximum Data Length" }, \
+/* Bluetooth Core 5.0 */ \
     { (base) | 0x030,  "LE Read PHY" }, \
     { (base) | 0x031,  "LE Set Default PHY" }, \
     { (base) | 0x032,  "LE Set PHY" }, \
-    { (base) | 0x033,  "LE Enhanced Receiver Test" }, \
-    { (base) | 0x034,  "LE Enhanced Transmitter Test" }, \
+    { (base) | 0x033,  "LE Receiver Test [v2]" }, \
+    { (base) | 0x034,  "LE Transmitter Test [v2]" }, \
     { (base) | 0x035,  "LE Set Advertising Set Random Address" }, \
     { (base) | 0x036,  "LE Set Extended Advertising Parameters" }, \
     { (base) | 0x037,  "LE Set Extended Advertising Data" }, \
@@ -1274,8 +1359,25 @@ value_string_ext bthci_cmd_ocf_testing_vals_ext = VALUE_STRING_EXT_INIT(bthci_cm
     { (base) | 0x04B,  "LE Read Transmit Power" }, \
     { (base) | 0x04C,  "LE Read RF Path Compensation" }, \
     { (base) | 0x04D,  "LE Write RF Path Compensation" }, \
-    { (base) | 0x04E,  "LE Set Privacy Mode" }
-
+    { (base) | 0x04E,  "LE Set Privacy Mode" }, \
+/* Bluetooth Core 5.1 */ \
+    { (base) | 0x04F,  "LE Receiver Test [v3]" }, \
+    { (base) | 0x050,  "LE Transmitter Test [v3]" }, \
+    { (base) | 0x051,  "LE Set Connectionless CTE Transmit Parameters" }, \
+    { (base) | 0x052,  "LE Set Connectionless CTE Transmit Enable" }, \
+    { (base) | 0x053,  "LE Set Connectionless IQ Sampling Enable" }, \
+    { (base) | 0x054,  "LE Set Connection CTE Receive Parameters" }, \
+    { (base) | 0x055,  "LE Set Connection CTE Transmit Parameters" }, \
+    { (base) | 0x056,  "LE Connection CTE Request Enable" }, \
+    { (base) | 0x057,  "LE Connection CTE Response Enable" }, \
+    { (base) | 0x058,  "LE Read Antenna Information" }, \
+    { (base) | 0x059,  "LE Set Periodic Advertising Receive Enable" }, \
+    { (base) | 0x05A,  "LE Periodic Advertising Sync Transfer" }, \
+    { (base) | 0x05B,  "LE Periodic Advertising Set Info Transfer" }, \
+    { (base) | 0x05C,  "LE Set Periodic Advertising Sync Transfer Parameters" }, \
+    { (base) | 0x05D,  "LE Set Default Periodic Advertising Sync Transfer Parameters" }, \
+    { (base) | 0x05E,  "LE Generate DHKey [v2]" }, \
+    { (base) | 0x05F,  "LE Modify Sleep Clock Accuracy" }
 static const value_string bthci_cmd_ocf_low_energy_vals[] = {
     LOW_ENERGY_VALS(0x0),
     { 0, NULL }
@@ -1767,6 +1869,12 @@ const value_string bthci_cmd_address_types_vals[] = {
     { 0, NULL }
 };
 
+const value_string bthci_cmd_identity_address_types_vals[] = {
+    { 0x00, "Public Identity Address" },
+    { 0x01, "Random (Static) Identity Address" },
+    { 0, NULL }
+};
+
 static const value_string cmd_role_vals[] = {
     {0x00, "Change own Role to Master for this BD_ADDR"},
     {0x01, "Change own Role to Slave for this BD_ADDR"},
@@ -2043,14 +2151,28 @@ static const value_string cmd_le_scan_types[] = {
 };
 
 static const value_string cmd_le_scan_filter_policy[] = {
-    { 0x00, "Accept all advertisements. Ignore directed advertisements not addressed to this device" },
-    { 0x01, "Ignore advertisements from devices not in the white list only. Ignore directed advertisements not addressed to this device" },
+    { 0x00, "Accept all advertisements, except directed advertisements not addressed to this device" },
+    { 0x01, "Accept only advertisements from devices in the White List. Ignore directed advertisements not addressed to this device" },
+    { 0x02, "Accept all advertisements, except directed advertisements not addressed to this device (but accept those with resolvable addresses that can not be resolved)" },
+    { 0x03, "Accept only advertisements from devices in the White List. Ignore directed advertisements not addressed to this device (but accept those with resolvable addresses that can not be resolved)" },
     { 0, NULL }
 };
 
 static const value_string cmd_init_filter_policy[] = {
     { 0x00, "Use Peer Address" },
     { 0x01, "Use White List. Ignore Peer Address" },
+    { 0, NULL }
+};
+
+static const value_string cmd_sync_filter_policy[] = {
+    { 0x00, "Use Peer Address" },
+    { 0x01, "Use Periodic Advertiser List. Ignore Peer Address" },
+    { 0, NULL }
+};
+
+static const value_string cmd_privacy_mode[] = {
+    { 0x00, "Use Network Privacy Mode" },
+    { 0x01, "Use Device Privacy Mode" },
     { 0, NULL }
 };
 
@@ -2079,7 +2201,6 @@ static const value_string le_role_vals[] = {
     { 0x03, "Peripheral and Central Role supported, Central Role preferred for connection establishment" },
     { 0, NULL }
 };
-value_string_ext le_role_vals_ext = VALUE_STRING_EXT_INIT(le_role_vals);
 
 static const value_string tds_role_vals[] = {
     { 0x00, "Not Specified" },
@@ -2129,6 +2250,40 @@ value_string_ext bthci_cmd_le_phy_vals_ext = VALUE_STRING_EXT_INIT(cmd_le_phy_va
 static const value_string cmd_le_modulation_index_vals[] = {
     { 0x00, "Assume transmitter will have a standard modulation index" },
     { 0x01, "Assume transmitter will have a stable modulation index" },
+    { 0, NULL }
+};
+
+static const value_string cmd_cte_type_vals[] = {
+    { 0x00,  "AoA Constant Tone Extension" },
+    { 0x01,  "AoD Constant Tone Extension with 1 usec slots" },
+    { 0x02,  "AoD Constant Tone Extension with 2 usec slots" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_cte_type_vals_ext = VALUE_STRING_EXT_INIT(cmd_cte_type_vals);
+
+static const value_string cmd_slot_durations_vals[] = {
+    { 0x01, "Switching and sampling slots are 1 usec each" },
+    { 0x02, "Switching and sampling slots are 2 usec each" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_slot_durations_vals_ext = VALUE_STRING_EXT_INIT(cmd_slot_durations_vals);
+
+static const value_string cmd_sync_mode_vals[] = {
+    { 0x00, "No synchronize attempt, no LE Periodic Advertising Sync Transfer Received event sent to Host" },
+    { 0x01, "LE Periodic Advertising Sync Transfer Received event sent to Host. LE Periodic Advertising Report events disabled" },
+    { 0x02, "LE Periodic Advertising Sync Transfer Received event sent to Host. LE Periodic Advertising Report events enabled" },
+    { 0, NULL }
+};
+
+static const value_string cmd_key_type_vals[] = {
+    { 0x00, "Use the generated private key" },
+    { 0x01, "Use the debug private key" },
+    { 0, NULL }
+};
+
+static const value_string cmd_sca_action_vals[] = {
+    { 0x00, "Switch to a more accurate clock" },
+    { 0x01, "Switch to a less accurate clock" },
     { 0, NULL }
 };
 
@@ -2278,6 +2433,33 @@ dissect_bthci_cmd_flow_spec(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 }
 
 static int
+dissect_antenna_switching_pattern(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+    guint8 length_antenna_pattern;
+
+    proto_tree_add_item(tree, hf_bthci_cmd_antenna_switching_pattern_length, tvb, offset, 1, ENC_NA);
+    length_antenna_pattern = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    if (length_antenna_pattern > 0) {
+        proto_item *sub_item;
+        proto_tree *sub_tree;
+
+        sub_item = proto_tree_add_item(tree, hf_bthci_cmd_antenna_switching_pattern, tvb, offset, length_antenna_pattern, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pattern);
+        proto_item_append_text(sub_item, ": ");
+
+        while (length_antenna_pattern > 0) {
+            proto_tree_add_item(sub_tree, hf_bthci_cmd_antenna_id, tvb, offset, 1, ENC_NA);
+            proto_item_append_text(sub_item, "%d ", tvb_get_guint8(tvb, offset));
+            offset++;
+            length_antenna_pattern--;
+        }
+    }
+    return offset;
+}
+
+static int
 dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree *tree, guint16 cmd_ocf, bluetooth_data_t *bluetooth_data)
 {
@@ -2335,7 +2517,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bthci_cmd_allow_role_switch, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 guint32           interface_id;
                 guint32           adapter_id;
                 guint32           bd_addr_oui;
@@ -2400,7 +2582,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bthci_cmd_acr_role, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 guint32           interface_id;
                 guint32           adapter_id;
                 guint32           bd_addr_oui;
@@ -3174,7 +3356,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
         case 0x0013: /* Change Local Name */
             proto_tree_add_item(tree, hf_bthci_cmd_device_name, tvb, offset, 248, ENC_UTF_8 | ENC_NA);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, 248, ENC_UTF_8);
             }
             offset += 248;
@@ -3195,7 +3377,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             } else {
                 proto_item_append_text(item, " Illegal Page Timeout");
             }
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.page_timeout = timeout;
             }
             offset+=2;
@@ -3204,7 +3386,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
         case 0x001a: /* Write Scan Enable */
             proto_tree_add_item(tree, hf_bthci_cmd_scan_enable,
                     tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.scan = tvb_get_guint8(tvb, offset);
             }
             offset++;
@@ -3213,7 +3395,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
         case 0x0020: /* Write Authentication Enable */
             proto_tree_add_item(tree, hf_bthci_cmd_authentication_enable,
                     tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.authentication = tvb_get_guint8(tvb, offset);
             }
             offset++;
@@ -3221,7 +3403,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
         case 0x0022: /* Write Encryption Mode */
             proto_tree_add_item(tree, hf_bthci_cmd_encrypt_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.encryption = tvb_get_guint8(tvb, offset);
             }
             offset++;
@@ -3229,7 +3411,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
         case 0x0024: /* Write Class of Device */
             call_dissector(btcommon_cod_handle, tvb_new_subset_length(tvb, offset, 3), pinfo, tree);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.class_of_device = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
             }
             offset += 3;
@@ -3248,7 +3430,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
                     tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_cmd_air_coding_format,
                     tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.voice_setting = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
             }
             offset+=2;
@@ -3318,7 +3500,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
                     tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
 
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.mtus.acl_mtu     = tvb_get_guint16(tvb, offset - 7, ENC_LITTLE_ENDIAN);
                 bthci_cmd_data->data.mtus.sco_mtu     = tvb_get_guint8(tvb,  offset - 5);
                 bthci_cmd_data->data.mtus.acl_packets = tvb_get_guint16(tvb, offset - 4, ENC_LITTLE_ENDIAN);
@@ -3410,7 +3592,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
         case 0x0045: /* Write Inquiry Mode */
             proto_tree_add_item(tree, hf_bthci_cmd_inq_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.inquiry_mode = tvb_get_guint8(tvb, offset);
             }
             offset++;
@@ -3452,7 +3634,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
         case 0x0056: /* Write Simple Pairing Mode */
             proto_tree_add_item(tree, hf_bthci_cmd_simple_pairing_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.simple_pairing_mode = tvb_get_guint8(tvb, offset);
             }
             offset++;
@@ -3837,7 +4019,8 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(tree, hf_bthci_cmd_authenticated_payload_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            item = proto_tree_add_item(tree, hf_bthci_cmd_authenticated_payload_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g sec)", tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) * 0.01);
             offset += 2;
 
             break;
@@ -3878,6 +4061,7 @@ dissect_informational_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pin
         case 0x009: /* Read BD ADDR */
         case 0x00A: /* Read Data Block Size */
         case 0x00B: /* Read Local Supported Codecs */
+        case 0x00C: /* Read Local Simple Pairing Options */
             /* NOTE: No parameters */
             break;
 
@@ -4178,7 +4362,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         case 0x0015: /* LE Read Channel Map */
-        case 0x0016: /* LE Read Remote Used Features */
+        case 0x0016: /* LE Read Remote Features */
         case 0x001b: /* LE Long Term Key Request Negative Reply */
         case 0x0030: /* LE Read PHY */
             proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -4210,13 +4394,13 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset+=16;
             break;
 
-        case 0x001d: /* LE Receiver Test */
+        case 0x001d: /* LE Receiver Test [v1] */
             item = proto_tree_add_item(tree, hf_bthci_cmd_rx_frequency, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%d MHz)",  2402 + 2*tvb_get_guint8(tvb, offset));
             offset++;
             break;
 
-        case 0x001e: /* LE Transmitter Test */
+        case 0x001e: /* LE Transmitter Test [v1] */
             item = proto_tree_add_item(tree, hf_bthci_cmd_tx_frequency, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%d MHz)",  2402 + 2*tvb_get_guint8(tvb, offset));
             offset++;
@@ -4261,8 +4445,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset+=2;
             proto_tree_add_item(tree, hf_bthci_cmd_le_tx_octets, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
-            sub_item = proto_tree_add_item(tree, hf_bthci_cmd_le_tx_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(sub_item, " (%d usec)",  tvb_get_letohs(tvb, offset));
+            proto_tree_add_item(tree, hf_bthci_cmd_le_tx_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
             break;
 
@@ -4273,13 +4456,13 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset+=2;
             break;
 
-        case 0x0026: /* LE Generate DHKey */
+        case 0x0026: /* LE Generate DHKey [v1] */
             proto_tree_add_item(tree, hf_bthci_cmd_le_remote_p_256_public_key, tvb, offset, 64, ENC_NA);
             offset+=64;
             break;
 
         case 0x0027:  /* LE Add Device to Resolving List */
-            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_identity_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
             proto_tree_add_item(tree, hf_bthci_cmd_le_peer_irk, tvb, offset, 16, ENC_NA);
@@ -4289,19 +4472,19 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         case 0x0028: /*  LE Remove Device From Resolving List */
-            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_identity_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
             break;
 
         case 0x002B: /*   LE Read Peer Resolvable Address */
-            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_identity_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
             break;
 
         case 0x002C: /*      LE Read Local Resolvable Address" */
-            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_identity_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
             break;
@@ -4312,8 +4495,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         case 0x002E: /* LE Set Resolvable Private Address Timeout */
-            item = proto_tree_add_item(tree, hf_bthci_cmd_le_rpa_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(item, " (%d sec)",  tvb_get_letohs(tvb, offset));
+            proto_tree_add_item(tree, hf_bthci_cmd_le_rpa_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
             break;
 
@@ -4339,7 +4521,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset+=2;
             break;
 
-        case 0x0033: /* LE Enhanced Receiver Test */
+        case 0x0033: /* LE Receiver Test [v2] */
             item = proto_tree_add_item(tree, hf_bthci_cmd_rx_frequency, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%d MHz)",  2402 + 2*tvb_get_guint8(tvb, offset));
             offset++;
@@ -4349,7 +4531,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset++;
             break;
 
-        case 0x0034: /* LE Enhanced Transmitter Test */
+        case 0x0034: /* LE Transmitter Test [v2] */
             item = proto_tree_add_item(tree, hf_bthci_cmd_tx_frequency, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%d MHz)",  2402 + 2*tvb_get_guint8(tvb, offset));
             offset++;
@@ -4496,22 +4678,24 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             proto_tree_add_item(tree, hf_bthci_cmd_le_advts_enable, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_advertising_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                offset+=1;
+            offset+=1;
             break;
 
         case 0x0041: /* LE Set Extended Scan Parameters */
             {
+            guint8 scanning_phys, phy = 0;
             proto_tree_add_item(tree, hf_bthci_cmd_le_own_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_le_scan_filter_policy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
-            guint8 scanning_phys = tvb_get_guint8(tvb, offset);
+            scanning_phys = tvb_get_guint8(tvb, offset);
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_le_scan_phys, ett_scan_init_phy_param, hfx_btcmd_le_scan_phys, ENC_NA);
             offset += 1;
             for (int i = 1; i < 0x08; i <<=1) {
+                phy++;
                 if (scanning_phys & i) {
                     sub_item = proto_tree_add_none_format(tree, hf_bthci_cmd_le_scan_phy_param, tvb, offset, 5, "Scanning PHY: %s",
-                                                                                        val_to_str_const(i, cmd_le_phy_vals, "Unknown"));
+                                                                                        val_to_str_const(phy, cmd_le_phy_vals, "Unknown"));
                     sub_tree = proto_item_add_subtree(sub_item, ett_scan_init_phy_param);
                     proto_tree_add_item(sub_tree, hf_bthci_cmd_le_scan_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset++;
@@ -4541,6 +4725,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
 
         case 0x0043: /* LE Extended Create Connection */
             {
+            guint8 initiating_phys, phy = 0;
             proto_tree_add_item(tree, hf_bthci_cmd_le_initiator_filter_policy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_le_own_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -4548,13 +4733,14 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
-            guint8 initiating_phys = tvb_get_guint8(tvb, offset);
+            initiating_phys = tvb_get_guint8(tvb, offset);
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_le_init_phys, ett_scan_init_phy_param, hfx_btcmd_le_phys, ENC_NA);
             offset += 1;
             for (int i = 1; i < 0x08; i <<=1) {
+                phy++;
                 if (initiating_phys & i) {
                     sub_item = proto_tree_add_none_format(tree, hf_bthci_cmd_le_init_phy_param, tvb, offset, 16, "Initiating PHY: %s",
-                                                                                        val_to_str_const(i, cmd_le_phy_vals, "Unknown"));
+                                                                                        val_to_str_const(phy, cmd_le_phy_vals, "Unknown"));
                     sub_tree = proto_item_add_subtree(sub_item, ett_scan_init_phy_param);
                     item = proto_tree_add_item(sub_tree, hf_bthci_cmd_le_scan_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
@@ -4585,28 +4771,244 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             }
             break;
 
-        case 0x002: /* LE Read Buffer Size */
-        case 0x003: /* LE Read Local Supported Features */
-        case 0x007: /* LE Read Advertising Channel Tx Power */
-        case 0x00E: /* LE Create Connection Cancel */
-        case 0x00F: /* LE Read White List Size */
-        case 0x010: /* LE Clear White List */
-        case 0x018: /* LE Rand */
-        case 0x01C: /* LE Read Supported States */
-        case 0x01F: /* LE Test End */
-        case 0x023: /* LE Read Suggested Default Data Length */
-        case 0x025: /* LE Read Local P-256 Public Key */
-        case 0x029: /* LE Clear Resolving List */
-        case 0x02A: /* LE Read Resolving List Size */
-        case 0x02F: /* LE Read Maximum Data Length */
-        case 0x03A: /* LE Read Maximum Advertising Data Length */
-        case 0x03B: /* LE Read Number of Supported Advertising Sets */
-        case 0x03D: /* LE Clear Advertising Sets */
-        case 0x045: /* LE Periodic Advertising Create Sync Cancel */
-        case 0x049: /* LE Clear Periodic Advertiser List */
-        case 0x04A: /* LE Read Periodic Advertiser List Size */
-        case 0x04B: /* LE Read Transmit Power */
-        case 0x04C: /* LE Read RF Path Compensation */
+        case 0x0044: /* LE Periodic Advertising Create Sync */
+            proto_tree_add_item(tree, hf_bthci_cmd_sync_filter_policy, tvb, offset, 1, ENC_NA);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_advertising_sid, tvb, offset, 1, ENC_NA);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_NA);
+            offset++;
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+            proto_tree_add_item(tree, hf_bthci_cmd_skip, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g sec)",  tvb_get_letohs(tvb, offset)*0.01);
+            offset+=2;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_sync_cte_type, ett_sync_cte_type, hfx_btcmd_sync_cte_type, ENC_NA);
+            offset++;
+            break;
+
+        case 0x0046: /* LE Periodic Advertising Terminate Sync */
+            proto_tree_add_item(tree, hf_bthci_cmd_sync_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            break;
+
+        case 0x0047: /* LE Add Device To Periodic Advertiser List */
+        case 0x0048: /* LE Remove Device From Periodic Advertiser List */
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_NA);
+            offset++;
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+            proto_tree_add_item(tree, hf_bthci_cmd_advertising_sid, tvb, offset, 1, ENC_NA);
+            offset++;
+            break;
+
+        case 0x004D: /* LE Write RF Path Compensation */
+            item = proto_tree_add_item(tree, hf_bthci_cmd_rf_tx_path_compensation_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g dB)", tvb_get_letohis(tvb, offset)*0.1);
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_rf_rx_path_compensation_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g dB)", tvb_get_letohis(tvb, offset)*0.1);
+            offset+=2;
+            break;
+
+        case 0x004E: /* LE Set Privacy Mode */
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_identity_address_type, tvb, offset, 1, ENC_NA);
+            offset++;
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_privacy_mode, tvb, offset, 1, ENC_NA);
+            offset++;
+            break;
+
+        case 0x004F: /* LE Receiver Test [v3] */
+            item = proto_tree_add_item(tree, hf_bthci_cmd_rx_frequency, tvb, offset, 1, ENC_NA);
+            proto_item_append_text(item, " (%d MHz)",  2402 + 2*tvb_get_guint8(tvb, offset));
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_phy, tvb, offset, 1, ENC_NA);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_modulation_index, tvb, offset, 1, ENC_NA);
+            offset++;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_cte_length, tvb, offset, 1, ENC_NA);
+            proto_item_append_text(item, " (%d usec)", tvb_get_guint8(tvb, offset)*8);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_cte_type, tvb, offset, 1, ENC_NA);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_slot_durations, tvb, offset, 1, ENC_NA);
+            offset++;
+            offset = dissect_antenna_switching_pattern(tvb, offset, tree);
+            break;
+
+       case 0x0050: /* LE Transmitter Test [v3] */
+            item = proto_tree_add_item(tree, hf_bthci_cmd_tx_frequency, tvb, offset, 1, ENC_NA);
+            proto_item_append_text(item, " (%d MHz)",  2402 + 2*tvb_get_guint8(tvb, offset));
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_test_data_length, tvb, offset, 1, ENC_NA);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_test_packet_payload, tvb, offset, 1, ENC_NA);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_phy, tvb, offset, 1, ENC_NA);
+            offset++;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_cte_length, tvb, offset, 1, ENC_NA);
+            proto_item_append_text(item, " (%d usec)", tvb_get_guint8(tvb, offset)*8);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_cte_type, tvb, offset, 1, ENC_NA);
+            offset++;
+            offset = dissect_antenna_switching_pattern(tvb, offset, tree);
+            break;
+
+        case 0x0051: /* LE Set Connectionless CTE Transmit Parameters */
+            proto_tree_add_item(tree, hf_bthci_cmd_advertising_handle, tvb, offset, 1, ENC_NA);
+            offset++;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_cte_length, tvb, offset, 1, ENC_NA);
+            proto_item_append_text(item, " (%d usec)", tvb_get_guint8(tvb, offset)*8);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_cte_type, tvb, offset, 1, ENC_NA);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_cte_count, tvb, offset, 1, ENC_NA);
+            offset++;
+            offset = dissect_antenna_switching_pattern(tvb, offset, tree);
+            break;
+
+        case 0x0052: /* LE Set Connectionless CTE Transmit Enable */
+            proto_tree_add_item(tree, hf_bthci_cmd_advertising_handle, tvb, offset, 1, ENC_NA);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_cte_enable, tvb, offset, 1, ENC_NA);
+            offset++;
+            break;
+
+        case 0x0053: /* LE Set Connectionless IQ Sampling Enable */
+            proto_tree_add_item(tree, hf_bthci_cmd_sync_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_cmd_iq_sampling_enable, tvb, offset, 1, ENC_NA);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_slot_durations, tvb, offset, 1, ENC_NA);
+            offset++;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_max_sampled_ctes, tvb, offset, 1, ENC_NA);
+            if (tvb_get_guint8(tvb, offset) == 0)
+                proto_item_append_text(item, " (Sample and report all available CTEs)");
+            offset++;
+            offset = dissect_antenna_switching_pattern(tvb, offset, tree);
+            break;
+
+        case 0x0054: /* LE Set Connection CTE Receive Parameters */
+            proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_cmd_iq_sampling_enable, tvb, offset, 1, ENC_NA);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_slot_durations, tvb, offset, 1, ENC_NA);
+            offset++;
+            offset = dissect_antenna_switching_pattern(tvb, offset, tree);
+            break;
+
+        case 0x0055: /* LE Set Connection CTE Transmit Parameters */
+            proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_cte_types, ett_sync_cte_type, hfx_btcmd_cte_types, ENC_NA);
+            offset++;
+            offset = dissect_antenna_switching_pattern(tvb, offset, tree);
+            break;
+
+        case 0x0056: /* LE Connection CTE Request Enable */
+            proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_cmd_cte_enable, tvb, offset, 1, ENC_NA);
+            offset++;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_cte_request_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            if (tvb_get_letohs(tvb, offset) == 0)
+                proto_item_append_text(item, " (Initiate once, at earliest opportunity)");
+            else
+                proto_item_append_text(item, " (Connection Events)");
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_cte_length, tvb, offset, 1, ENC_NA);
+            proto_item_append_text(item, " (%d usec)", tvb_get_guint8(tvb, offset)*8);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_cte_type, tvb, offset, 1, ENC_NA);
+            offset++;
+            break;
+
+        case 0x0057: /* LE Connection CTE Response Enable */
+            proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_cmd_cte_enable, tvb, offset, 1, ENC_NA);
+            offset++;
+            break;
+
+        case 0x0059: /* LE Set Periodic Advertising Receive Enable */
+            proto_tree_add_item(tree, hf_bthci_cmd_sync_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_cmd_reporting_enable, tvb, offset, 1, ENC_NA);
+            offset++;
+            break;
+
+        case 0x005A: /* LE Periodic Advertising Sync Transfer */
+            proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_cmd_service_data_past, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_cmd_sync_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            break;
+
+        case 0x005B: /* LE Periodic Advertising Set Info Transfer */
+            proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_cmd_service_data_past, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_cmd_advertising_handle, tvb, offset, 1, ENC_NA);
+            offset++;
+            break;
+
+        case 0x005C: /* LE Set Periodic Advertising Sync Transfer Parameters */
+            proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            /* FALL THROUGH */
+
+        case 0x005D: /* LE Set Default Periodic Advertising Sync Transfer Parameters */
+            proto_tree_add_item(tree, hf_bthci_cmd_sync_mode, tvb, offset, 1, ENC_NA);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_skip, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g sec)",  tvb_get_letohs(tvb, offset)*0.01);
+            offset+=2;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_sync_cte_type, ett_sync_cte_type, hfx_btcmd_sync_cte_type, ENC_NA);
+            offset++;
+            break;
+
+        case 0x005E: /* LE Generate DHKey [v2] */
+            proto_tree_add_item(tree, hf_bthci_cmd_le_remote_p_256_public_key, tvb, offset, 64, ENC_NA);
+            offset+=64;
+            proto_tree_add_item(tree, hf_bthci_cmd_key_type, tvb, offset, 1, ENC_NA);
+            offset++;
+            break;
+
+        case 0x005F: /* LE Modify Sleep Clock Accuracy */
+            proto_tree_add_item(tree, hf_bthci_cmd_sca_action, tvb, offset, 1, ENC_NA);
+            offset++;
+            break;
+
+        case 0x0002: /* LE Read Buffer Size */
+        case 0x0003: /* LE Read Local Supported Features */
+        case 0x0007: /* LE Read Advertising Channel Tx Power */
+        case 0x000E: /* LE Create Connection Cancel */
+        case 0x000F: /* LE Read White List Size */
+        case 0x0010: /* LE Clear White List */
+        case 0x0018: /* LE Rand */
+        case 0x001C: /* LE Read Supported States */
+        case 0x001F: /* LE Test End */
+        case 0x0023: /* LE Read Suggested Default Data Length */
+        case 0x0025: /* LE Read Local P-256 Public Key */
+        case 0x0029: /* LE Clear Resolving List */
+        case 0x002A: /* LE Read Resolving List Size */
+        case 0x002F: /* LE Read Maximum Data Length */
+        case 0x003A: /* LE Read Maximum Advertising Data Length */
+        case 0x003B: /* LE Read Number of Supported Advertising Sets */
+        case 0x003D: /* LE Clear Advertising Sets */
+        case 0x0045: /* LE Periodic Advertising Create Sync Cancel */
+        case 0x0049: /* LE Clear Periodic Advertiser List */
+        case 0x004A: /* LE Read Periodic Advertiser List Size */
+        case 0x004B: /* LE Read Transmit Power */
+        case 0x004C: /* LE Read RF Path Compensation */
+        case 0x0058: /* LE Read Antenna Information */
 
             /* NOTE: No parameters */
             break;
@@ -4673,7 +5075,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     set_address(&pinfo->net_dst, AT_STRINGZ, 11, "controller");
     set_address(&pinfo->dl_src,  AT_STRINGZ,  5, "host");
     set_address(&pinfo->dl_dst,  AT_STRINGZ, 11, "controller");
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         address *addr;
 
         addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
@@ -4712,7 +5114,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         tap_queue_packet(bluetooth_hci_summary_tap, pinfo, tap_hci_summary);
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         bthci_cmd_data = (bthci_cmd_data_t *) wmem_new(wmem_file_scope(), bthci_cmd_data_t);
         bthci_cmd_data->opcode = opcode;
         bthci_cmd_data->command_in_frame = frame_number;
@@ -4821,7 +5223,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
     }
 
-    if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+    if (!pinfo->fd->visited && bthci_cmd_data) {
         key[0].length = 1;
         key[0].key    = &interface_id;
         key[1].length = 1;
@@ -4856,21 +5258,21 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         nstime_t  delta;
 
         sub_item = proto_tree_add_uint(bthci_cmd_tree, hf_pending_in_frame, tvb, 0, 0, bthci_cmd_data->pending_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         nstime_delta(&delta, &bthci_cmd_data->pending_abs_ts, &bthci_cmd_data->command_abs_ts);
         sub_item = proto_tree_add_double(bthci_cmd_tree, hf_command_pending_time_delta, tvb, 0, 0, nstime_to_msec(&delta));
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
     if (bthci_cmd_data && bthci_cmd_data->response_in_frame < max_disconnect_in_frame) {
         nstime_t  delta;
 
         sub_item = proto_tree_add_uint(bthci_cmd_tree, hf_response_in_frame, tvb, 0, 0, bthci_cmd_data->response_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         nstime_delta(&delta, &bthci_cmd_data->response_abs_ts, &bthci_cmd_data->command_abs_ts);
         sub_item = proto_tree_add_double(bthci_cmd_tree, hf_command_response_time_delta, tvb, 0, 0, nstime_to_msec(&delta));
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     return offset;
@@ -5782,52 +6184,52 @@ proto_register_bthci_cmd(void)
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_hv1,
-          { "HV1",        "bthci_cmd.sco_packet_type.hv1",
+          { "HV1 may be used",        "bthci_cmd.sco_packet_type.hv1",
             FT_BOOLEAN, 16, NULL, 0x0001,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_hv2,
-          { "HV2",        "bthci_cmd.sco_packet_type.hv2",
+          { "HV2 may be used",        "bthci_cmd.sco_packet_type.hv2",
             FT_BOOLEAN, 16, NULL, 0x0002,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_hv3,
-          { "HV3",        "bthci_cmd.sco_packet_type.hv3",
+          { "HV3 may be used",        "bthci_cmd.sco_packet_type.hv3",
             FT_BOOLEAN, 16, NULL, 0x0004,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_ev3,
-          { "EV3",        "bthci_cmd.sco_packet_type.ev3",
+          { "EV3 may be used",        "bthci_cmd.sco_packet_type.ev3",
             FT_BOOLEAN, 16, NULL, 0x0008,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_ev4,
-          { "EV4",        "bthci_cmd.sco_packet_type.ev4",
+          { "EV4 may be used",        "bthci_cmd.sco_packet_type.ev4",
             FT_BOOLEAN, 16, NULL, 0x0010,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_ev5,
-          { "EV5",        "bthci_cmd.sco_packet_type.ev5",
+          { "EV5 may be used",        "bthci_cmd.sco_packet_type.ev5",
             FT_BOOLEAN, 16, NULL, 0x0020,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_2ev3,
-          { "2-EV3",        "bthci_cmd.sco_packet_type.2ev3",
+          { "2-EV3 may NOT be used",        "bthci_cmd.sco_packet_type.2ev3",
             FT_BOOLEAN, 16, NULL, 0x0040,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_3ev3,
-          { "3-EV3",        "bthci_cmd.sco_packet_type.3ev3",
+          { "3-EV3 may NOT be used",        "bthci_cmd.sco_packet_type.3ev3",
             FT_BOOLEAN, 16, NULL, 0x0080,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_2ev5,
-          { "2-EV5",        "bthci_cmd.sco_packet_type.2ev5",
+          { "2-EV5 may NOT be used",        "bthci_cmd.sco_packet_type.2ev5",
             FT_BOOLEAN, 16, NULL, 0x0100,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_3ev5,
-          { "3-EV5",        "bthci_cmd.sco_packet_type.3ev5",
+          { "3-EV5 may NOT be used",        "bthci_cmd.sco_packet_type.3ev5",
             FT_BOOLEAN, 16, NULL, 0x0200,
             NULL, HFILL }
         },
@@ -6118,7 +6520,7 @@ proto_register_bthci_cmd(void)
             "Support for both LE and BR/EDR to same device", HFILL }
         },
         { &hf_bthci_cmd_le_event_mask,
-          { "LE Connection Complete",                      "bthci_cmd.le_event_mask",
+          { "LE Event Mask",                               "bthci_cmd.le_event_mask",
             FT_UINT64, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
@@ -6137,8 +6539,8 @@ proto_register_bthci_cmd(void)
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x04),
             NULL, HFILL }
         },
-        { &hf_bthci_cmd_le_event_mask_le_read_remote_used_features_complete,
-          { "LE Read Remote Used Features Complete",       "bthci_cmd.le_event_mask.le_read_remote_used_features_complete",
+        { &hf_bthci_cmd_le_event_mask_le_read_remote_features_complete,
+          { "LE Read Remote Features Complete",       "bthci_cmd.le_event_mask.le_read_remote_features_complete",
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x08),
             NULL, HFILL }
         },
@@ -6182,9 +6584,69 @@ proto_register_bthci_cmd(void)
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x800),
             NULL, HFILL }
         },
+        { &hf_bthci_cmd_le_event_mask_le_extended_advertising_report,
+          { "LE Extended Advertising Report",              "bthci_cmd.le_event_mask.le_extended_advertising_report",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x1000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_established,
+          { "LE Periodic Advertising Sync Established",    "bthci_cmd.le_event_mask.le_periodic_advertising_sync_established",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x2000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_report,
+          { "LE Periodic Advertising Report",              "bthci_cmd.le_event_mask.le_periodic_advertising_report",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x4000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_lost,
+          { "LE Periodic Advertising Sync Lost",           "bthci_cmd.le_event_mask.le_periodic_advertising_sync_lost",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x8000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_extended_scan_timeout,
+          { "LE Extended Scan Timeout",                    "bthci_cmd.le_event_mask.le_extended_scan_timeout",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x10000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_extended_advertising_set_terminated,
+          { "LE Extended Advertising Set Terminated",      "bthci_cmd.le_event_mask.le_extended_advertising_set_terminated",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x20000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_scan_request_received,
+          { "LE Scan Request Received",                    "bthci_cmd.le_event_mask.le_scan_request_received",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x40000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_channel_selection_algorithm,
+          { "LE Channel Selection Algorithm",              "bthci_cmd.le_event_mask.le_channel_selection_algorithm",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x80000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_connectionless_iq_report,
+          { "LE Connectionless IQ Report", "bthci_cmd.le_event_mask.le_connectionless_iq_report",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x100000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_connection_iq_report,
+          { "LE Connection IQ Report", "bthci_cmd.le_event_mask.le_connection_iq_report",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x200000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_cte_request_failed,
+          { "LE CTE Request Failed", "bthci_cmd.le_event_mask.le_cte_request_failed",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x400000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_transfer_received,
+          { "LE Periodic Advertising Sync Transfer Received", "bthci_cmd.le_event_mask.le_periodic_advertising_sync_transfer_received",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x800000),
+            NULL, HFILL }
+        },
         { &hf_bthci_cmd_le_event_mask_le_reserved,
           { "Reserved",                                    "bthci_cmd.le_event_mask.reserved",
-            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFFFFFFFFF000),
+            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFFFFFF000000),
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_advts_interval_min,
@@ -6215,6 +6677,11 @@ proto_register_bthci_cmd(void)
         { &hf_bthci_cmd_le_peer_address_type,
           { "Peer Address Type", "bthci_cmd.le_peer_address_type",
             FT_UINT8, BASE_HEX, VALS(bthci_cmd_address_types_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_peer_identity_address_type,
+          { "Peer Identity Address Type", "bthci_cmd.le_peer_identity_address_type",
+            FT_UINT8, BASE_HEX, VALS(bthci_cmd_identity_address_types_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_direct_address_type,
@@ -6349,12 +6816,12 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_rx_frequency,
           { "Rx Frequency", "bthci_cmd.rx_frequency",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_tx_frequency,
           { "Tx Frequency", "bthci_cmd.tx_frequency",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_test_data_length,
@@ -6394,22 +6861,22 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_le_tx_octets,
           { "TxOctets", "bthci_cmd.le_tx_octets",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_tx_time,
           { "TxTime", "bthci_cmd.le_tx_time",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_suggested_max_tx_octets,
           { "SuggestedMaxTxOctets", "bthci_cmd.le_suggested_max_tx_octets",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_suggested_max_tx_time,
           { "SuggestedMaxTxTime", "bthci_cmd.le_suggested_max_tx_time",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_remote_p_256_public_key,
@@ -6434,7 +6901,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_le_rpa_timeout,
           { "RPA Timeout", "bthci_cmd.le_rpa_timeout",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_advertising_handle,
@@ -6514,7 +6981,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_sec_adv_max_skip,
           { "Secondary Advertising Max Skip", "bthci_cmd.secondary_advertising_max_skip",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_secondary_advertising_phy,
@@ -6700,6 +7167,171 @@ proto_register_bthci_cmd(void)
         { &hf_bthci_cmd_le_init_phy_param,
           { "Initiating PHY", "bthci_cmd.le_init_phy_param",
             FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_privacy_mode,
+          { "Privacy Mode", "bthci_cmd.le_privacy_mode",
+            FT_UINT8, BASE_HEX, VALS(cmd_privacy_mode), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_sync_filter_policy,
+          { "Filter Policy", "bthci_cmd.le_sync_filter_policy",
+            FT_UINT8, BASE_HEX, VALS(cmd_sync_filter_policy), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_skip,
+          { "Skip", "bthci_cmd.skip",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_sync_handle,
+          { "Sync Handle",             "bthci_cmd.sync_handle",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_rf_tx_path_compensation_value,
+          { "RF Tx Path Compensation Value",   "bthci_cmd.rf_tx_path_compensation_value",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_rf_rx_path_compensation_value,
+          { "RF Rx Path Compensation Value",   "bthci_cmd.rf_rx_path_compensation_value",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cte_length,
+          { "CTE Length",   "bthci_cmd.cte_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cte_type,
+          { "CTE Type",   "bthci_cmd.cte_type",
+            FT_UINT8, BASE_HEX, VALS(cmd_cte_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_slot_durations,
+          { "Slot Durations",   "bthci_cmd.slot_durations",
+            FT_UINT8, BASE_HEX, VALS(cmd_slot_durations_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_antenna_switching_pattern_length,
+          { "Antenna Switching Pattern Length",   "bthci_cmd.antenna_switching_pattern_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_antenna_switching_pattern,
+          { "Antenna Switching Pattern",   "bthci_cmd.antenna_switching_pattern",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_antenna_id,
+          { "Antenna Id",   "bthci_cmd.antenna_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cte_count,
+          { "CTE Count",   "bthci_cmd.cte_count",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cte_enable,
+          { "CTE Enable",   "bthci_cmd.cte_enable",
+            FT_UINT8, BASE_HEX, VALS(disable_enable_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_iq_sampling_enable,
+          { "IQ Sampling Enable",   "bthci_cmd.iq_sampling_enable",
+            FT_UINT8, BASE_HEX, VALS(disable_enable_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_max_sampled_ctes,
+          { "Max Sampled CTEs",   "bthci_cmd.max_sampled_ctes",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cte_request_interval,
+          { "CTE Request Interval",   "bthci_cmd.cte_request_interval",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_reporting_enable,
+          { "Reporting Enable", "bthci_cmd.reporting_enable",
+            FT_UINT8, BASE_HEX, VALS(disable_enable_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_sync_cte_type,
+          { "Sync CTE Type", "bthci_cmd.sync_cte_type",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_sync_cte_type_no_sync_aoa,
+          { "No sync to packets with AoA CTE", "bthci_cmd.sync_cte_type.no_sync_aoa",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_sync_cte_type_no_sync_aod_1us,
+          { "No sync to packets with AoD 1 usec CTE", "bthci_cmd.sync_cte_type.no_sync_aod_1us",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_sync_cte_type_no_sync_aod_2us,
+          { "No sync to packets with AoD 2 usec CTE", "bthci_cmd.sync_cte_type.no_sync_aod_2us",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_sync_cte_type_sync_only_with_cte,
+          { "Sync only to packets with CTE", "bthci_cmd.sync_cte_type.sync_only_with_cte",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_sync_cte_type_reserved,
+          { "Reserved", "bthci_cmd.sync_cte_type.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xE8,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cte_types,
+          { "Allowed CTE Types", "bthci_cmd.cte_types",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cte_types_aoa,
+          { "AoA", "bthci_cmd.cte_types.aoa",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cte_types_aod_1us,
+          { "AoD 1 usec slots", "bthci_cmd.cte_types.aod_1us",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cte_types_aod_2us,
+          { "AoD 2 usec slots", "bthci_cmd.cte_types.aod_2us",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cte_types_reserved,
+          { "Reserved", "bthci_cmd.cte_types.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xF8,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_service_data_past,
+          { "Service Data", "bthci_cmd.service_data_past",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_sync_mode,
+          { "Mode",   "bthci_cmd.sync_mode",
+            FT_UINT8, BASE_HEX, VALS(cmd_sync_mode_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_key_type,
+          { "Key Type",   "bthci_cmd.key_type",
+            FT_UINT8, BASE_HEX, VALS(cmd_key_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_sca_action,
+          { "Action",   "bthci_cmd.sca_action",
+            FT_UINT8, BASE_HEX, VALS(cmd_sca_action_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_triggered_clock_capture,
@@ -7195,6 +7827,7 @@ proto_register_bthci_cmd(void)
         &ett_adv_sets,
         &ett_phys_flags,
         &ett_scan_init_phy_param,
+        &ett_sync_cte_type,
         &ett_coding_format,
         &ett_packet_type,
         &ett_sco_packet_type,
@@ -7223,7 +7856,7 @@ proto_register_bthci_cmd(void)
             "Bluetooth HCI version: 4.0 (Core)",
             "Version of protocol supported by this dissector.");
 
-    vendor_dissector_table = register_decode_as_next_proto(proto_bthci_cmd, "Vendor", "bthci_cmd.vendor",
+    vendor_dissector_table = register_decode_as_next_proto(proto_bthci_cmd, "bthci_cmd.vendor",
                                                            "BT HCI Vendor", bthci_cmd_vendor_prompt);
 }
 
@@ -7308,6 +7941,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
     gboolean     has_bd_addr = FALSE;
     guint8       bd_addr[6];
     guint8      *name = NULL;
+    bluetooth_uuid_t uuid;
 
     DISSECTOR_ASSERT(bluetooth_eir_ad_data);
 
@@ -7358,15 +7992,12 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
         case 0x1F: /* List of 32-bit Service Solicitation UUIDs */
             end_offset = offset + length;
             while (offset < end_offset) {
-                if (tvb_get_ntohs(tvb, offset) == 0x0000) {
-                    sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uuid_32, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(tvb_get_ntohs(tvb, offset + 2), &bluetooth_uuid_vals_ext, "Unknown"));
+                uuid = get_uuid(tvb, offset, 4);
+                if (uuid.bt_uuid) {
+                    sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uuid_32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                    proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
                 } else {
-                    bluetooth_uuid_t  uuid;
-
-                    sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid, tvb, offset, 4, ENC_NA);
-                    uuid = get_uuid(tvb, offset, 4);
-
+                    sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid_32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                     proto_item_append_text(sub_item, " (%s)", print_uuid(&uuid));
                 }
 
@@ -7379,18 +8010,13 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
         case 0x15: /* List of 128-bit Service Solicitation UUIDs */
             end_offset = offset + length;
             while (offset < end_offset) {
-                if (tvb_get_ntohs(tvb, offset) == 0x0000 &&
-                    tvb_get_ntohl(tvb, offset + 4) == 0x1000 &&
-                    tvb_get_ntoh64(tvb, offset + 8) == G_GUINT64_CONSTANT(0x800000805F9B34FB)) {
-                    sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uuid_128, tvb, offset, 16, ENC_NA);
-                    proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(tvb_get_ntohs(tvb, offset + 2), &bluetooth_uuid_vals_ext, "Unknown"));
+                uuid = get_uuid(tvb, offset, 16);
+                if (uuid.bt_uuid) {
+                    sub_item = proto_tree_add_bytes_format_value(entry_tree, hf_btcommon_eir_ad_uuid_128, tvb, offset, 16, uuid.data, "%s", print_numeric_uuid(&uuid));
+                    proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
                 }
                 else {
-                    bluetooth_uuid_t  uuid;
-
-                    sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid, tvb, offset, 16, ENC_NA);
-                    uuid = get_uuid(tvb, offset, 16);
-
+                    sub_item = proto_tree_add_bytes_format_value(entry_tree, hf_btcommon_eir_ad_custom_uuid_128, tvb, offset, 16, uuid.data, "%s", print_numeric_uuid(&uuid));
                     proto_item_append_text(sub_item, " (%s)", print_uuid(&uuid));
                 }
 
@@ -7518,16 +8144,13 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             }
             break;
         case 0x20: /* Service Data - 32 bit UUID */
-            if (tvb_get_ntohs(tvb, offset) == 0x0000) {
-                sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uuid_32, tvb, offset, 4, ENC_BIG_ENDIAN);
-                proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(tvb_get_ntohs(tvb, offset + 2), &bluetooth_uuid_vals_ext, "Unknown"));
+            uuid = get_uuid(tvb, offset, 4);
+            if (uuid.bt_uuid) {
+                sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uuid_32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
             }
             else {
-                bluetooth_uuid_t  uuid;
-
-                sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid, tvb, offset, 4, ENC_NA);
-                uuid = get_uuid(tvb, offset, 4);
-
+                sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid_32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 proto_item_append_text(sub_item, " (%s)", print_uuid(&uuid));
             }
             offset += 4;
@@ -7538,18 +8161,13 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             }
             break;
         case 0x21: /* Service Data - 128 bit UUID */
-            if (tvb_get_ntohs(tvb, offset) == 0x0000 &&
-                tvb_get_ntohl(tvb, offset + 4) == 0x1000 &&
-                tvb_get_ntoh64(tvb, offset + 8) == G_GUINT64_CONSTANT(0x800000805F9B34FB)) {
-                sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uuid_128, tvb, offset, 16, ENC_NA);
-                proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(tvb_get_ntohs(tvb, offset + 2), &bluetooth_uuid_vals_ext, "Unknown"));
+            uuid = get_uuid(tvb, offset, 16);
+            if (uuid.bt_uuid) {
+                sub_item = proto_tree_add_bytes_format_value(entry_tree, hf_btcommon_eir_ad_uuid_128, tvb, offset, 16, uuid.data, "%s", print_numeric_uuid(&uuid));
+                proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
             }
             else {
-                bluetooth_uuid_t  uuid;
-
-                sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid, tvb, offset, 16, ENC_NA);
-                uuid = get_uuid(tvb, offset, 16);
-
+                sub_item = proto_tree_add_bytes_format_value(entry_tree, hf_btcommon_eir_ad_custom_uuid_128, tvb, offset, 16, uuid.data, "%s", print_numeric_uuid(&uuid));
                 proto_item_append_text(sub_item, " (%s)", print_uuid(&uuid));
             }
             offset += 16;
@@ -7740,13 +8358,32 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             offset += 1;
 
             break;
-        case 0x2a:
+        case 0x29: /* PB-ADV */
+            if (btmesh_pbadv_handle) {
+                call_dissector(btmesh_pbadv_handle, tvb_new_subset_length(tvb, offset, length), pinfo, proto_tree_get_root(tree));
+            } else {
+                proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_mesh_pbadv, tvb, offset, length, ENC_NA);
+            }
+            offset += length;
+
+            break;
+        case 0x2a: /* Mesh Message */
             if (btmesh_handle) {
                 call_dissector(btmesh_handle, tvb_new_subset_length(tvb, offset, length), pinfo, proto_tree_get_root(tree));
             } else {
                 proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_mesh_msg, tvb, offset, length, ENC_NA);
             }
             offset += length;
+
+            break;
+        case 0x2b: /* Mesh Beacon */
+            if (btmesh_beacon_handle) {
+                call_dissector(btmesh_beacon_handle, tvb_new_subset_length(tvb, offset, length), pinfo, proto_tree_get_root(tree));
+            } else {
+                proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_mesh_beacon, tvb, offset, length, ENC_NA);
+            }
+            offset += length;
+
             break;
         case 0xFF: /* Manufacturer Specific */ {
             guint16  company_id;
@@ -8129,8 +8766,13 @@ proto_register_btcommon(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_btcommon_eir_ad_custom_uuid,
-            { "Custom UUID",                     "btcommon.eir_ad.entry.custom_uuid",
+        { &hf_btcommon_eir_ad_custom_uuid_32,
+            { "Custom UUID",                     "btcommon.eir_ad.entry.custom_uuid_32",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_custom_uuid_128,
+            { "Custom UUID",                     "btcommon.eir_ad.entry.custom_uuid_128",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -8156,17 +8798,17 @@ proto_register_btcommon(void)
         },
         { &hf_btcommon_eir_ad_le_bd_addr_reserved,
             { "Reserved",                        "btcommon.eir_ad.entry.le_bd_addr.reserved",
-            FT_BOOLEAN, 8, NULL, 0xFE,
+            FT_UINT8, BASE_HEX, NULL, 0xFE,
             NULL, HFILL }
         },
         { &hf_btcommon_eir_ad_le_bd_addr_type,
             { "Type",                            "btcommon.eir_ad.entry.le_bd_addr.type",
-            FT_BOOLEAN, 8, NULL, 0x01,
+            FT_UINT8, BASE_HEX, VALS(bluetooth_address_type_vals), 0x01,
             NULL, HFILL }
         },
         { &hf_btcommon_eir_ad_le_role,
             { "Type",                            "btcommon.eir_ad.entry.le_role",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &le_role_vals_ext, 0x01,
+            FT_UINT8, BASE_HEX, VALS(le_role_vals), 0,
             NULL, HFILL }
         },
         { &hf_btcommon_eir_ad_did_vendor_id_source,
@@ -8945,7 +9587,16 @@ proto_register_btcommon(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-
+	{ &hf_btcommon_eir_ad_mesh_pbadv,
+        { "Mesh PB-ADV message content",        "btcommon.eir_ad.entry.mesh_pbadv",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_mesh_beacon,
+        { "Mesh Beacon message content",        "btcommon.eir_ad.entry.mesh_beacon",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {
@@ -8963,12 +9614,12 @@ proto_register_btcommon(void)
 
     static build_valid_func bluetooth_eir_ad_manufacturer_company_id_da_build_value[1] = {bluetooth_eir_ad_manufacturer_company_id_value};
     static decode_as_value_t bluetooth_eir_ad_manufacturer_company_id_da_values = {bluetooth_eir_ad_manufacturer_company_id_prompt, 1, bluetooth_eir_ad_manufacturer_company_id_da_build_value};
-    static decode_as_t bluetooth_eir_ad_manufacturer_company_id_da = {"btcommon.eir_ad", "EIR/AD Manufacturer Company ID", "btcommon.eir_ad.manufacturer_company_id", 1, 0, &bluetooth_eir_ad_manufacturer_company_id_da_values, NULL, NULL,
+    static decode_as_t bluetooth_eir_ad_manufacturer_company_id_da = {"btcommon.eir_ad", "btcommon.eir_ad.manufacturer_company_id", 1, 0, &bluetooth_eir_ad_manufacturer_company_id_da_values, NULL, NULL,
                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     static build_valid_func bluetooth_eir_ad_tds_organization_id_da_build_value[1] = {bluetooth_eir_ad_tds_organization_id_value};
     static decode_as_value_t bluetooth_eir_ad_tds_organization_id_da_values = {bluetooth_eir_ad_tds_organization_id_prompt, 1, bluetooth_eir_ad_tds_organization_id_da_build_value};
-    static decode_as_t bluetooth_eir_ad_tds_organization_id_da = {"btcommon.eir_ad", "EIR/AD TDS Organization ID", "btcommon.eir_ad.tds_organization_id", 1, 0, &bluetooth_eir_ad_tds_organization_id_da_values, NULL, NULL,
+    static decode_as_t bluetooth_eir_ad_tds_organization_id_da = {"btcommon.eir_ad", "btcommon.eir_ad.tds_organization_id", 1, 0, &bluetooth_eir_ad_tds_organization_id_da_values, NULL, NULL,
                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     proto_btcommon = proto_register_protocol("Bluetooth Common", "BT Common", "btcommon");
@@ -8996,9 +9647,11 @@ void
 proto_reg_handoff_btcommon(void)
 {
     btmesh_handle = find_dissector("btmesh.msg");
+    btmesh_pbadv_handle = find_dissector("btmesh.pbadv");
+    btmesh_beacon_handle = find_dissector("btmesh.beacon");
 }
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

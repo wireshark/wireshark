@@ -34,9 +34,10 @@
 #define OUI_CATENA          0x00025A    /* Catena Networks */
 #define OUI_ATHEROS         0x00037F    /* Atheros Communications */
 #define OUI_ORACLE          0x0003BA    /* Oracle */
+#define OUI_AVAYA_EXTREME   0x00040D    /* avaya extreme access point */
 #define OUI_SONY_ERICSSON   0x000AD9    /* Sony Ericsson Mobile Communications AB */
 #define OUI_ARUBA           0x000B86    /* Aruba Networks */
-#define OUI_MIKROTIK        0x000C42
+#define OUI_ROUTERBOARD     0x000C42    /* Formerly listed as Mikrotik, however this OUI is owned by Routerboard*/
 #define OUI_MERU            0x000CE6    /* Meru Network (Fortinet) */
 #define OUI_SONY_ERICSSON_2 0x000E07    /* Sony Ericsson Mobile Communications AB */
 #define OUI_PROFINET        0x000ECF    /* PROFIBUS Nutzerorganisation e.V. */
@@ -49,10 +50,11 @@
 #define OUI_ERICSSON_MOBILE 0x0015E0    /* Ericsson Mobile Platforms */
 #define OUI_SONY_ERICSSON_5 0x001620    /* Sony Ericsson Mobile Communications AB */
 #define OUI_SONY_ERICSSON_6 0x0016B8    /* Sony Ericsson Mobile Communications AB */
+#define OUI_APPLE_AWDL      0x0017F2    /* Apple AWDL */
 #define OUI_SONY_ERICSSON_7 0x001813    /* Sony Ericsson Mobile Communications AB */
 #define OUI_BLUETOOTH       0x001958    /* Bluetooth SIG */
 #define OUI_SONY_ERICSSON_8 0x001963    /* Sony Ericsson Mobile Communications AB */
-#define OUI_AIROHIVE        0x001977    /* Airohive AP to AP communication */
+#define OUI_AEROHIVE        0x001977    /* Aerohive AP to AP communication */
 #define OUI_DCBX            0x001B21    /* Data Center Bridging Capabilities Exchange Protocol */
 #define OUI_CISCO_UBI       0x001B67    /* Cisco/Ubiquisys */
 #define OUI_IEEE_802_1QBG   0x001B3F    /* IEEE 802.1 Qbg */
@@ -79,6 +81,7 @@
 #define OUI_HYTEC_GER       0x30B216    /* Hytec Geraetebau GmbH */
 #define OUI_ZIGBEE          0x4A191B    /* ZigBee Alliance */
 #define OUI_WFA             0x506F9A    /* Wi-Fi Alliance */
+#define OUI_MIST            0x5C5B35    /* Mist Systems */
 #define OUI_SMPTE           0x6897E8    /* Society of Motion Picture and Television Engineers */
 #define OUI_3GPP2           0xCF0002    /* 3GPP2 */
 

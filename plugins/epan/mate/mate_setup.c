@@ -1,14 +1,14 @@
 /* mate_setup.c
-* MATE -- Meta Analysis Tracing Engine
-*
-* Copyright 2004, Luis E. Garcia Ontanon <luis@ontanon.org>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ * MATE -- Meta Analysis Tracing Engine
+ *
+ * Copyright 2004, Luis E. Garcia Ontanon <luis@ontanon.org>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "mate.h"
 
@@ -297,6 +297,13 @@ static void analyze_pdu_config(mate_config* mc, mate_cfg_pdu* cfg) {
 	arg.mc = mc;
 	arg.cfg = cfg;
 	g_hash_table_foreach(cfg->hfids_attr,analyze_pdu_hfids,&arg);
+
+	/* Add the hfids of transport protocols as wanted hfids */
+	for (guint i = 0; i < cfg->transport_ranges->len; i++) {
+		int hfid = *((int*)g_ptr_array_index(cfg->transport_ranges,i));
+		mc->wanted_hfids = g_array_append_val(mc->wanted_hfids, hfid);
+		mc->num_fields_wanted++;
+	}
 
 	ett = &cfg->ett;
 	g_array_append_val(mc->ett,ett);
@@ -645,7 +652,7 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

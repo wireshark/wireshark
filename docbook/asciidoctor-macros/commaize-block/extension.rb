@@ -15,6 +15,7 @@ include Asciidoctor
 #   --
 #
 class CommaizeBlock < Extensions::BlockProcessor
+  include WsUtils
   use_dsl
 
   named :commaize
@@ -22,21 +23,18 @@ class CommaizeBlock < Extensions::BlockProcessor
   # XXX What's the difference between text, raw, simple, verbatim, etc?
   parse_content_as :simple
 
-  def process parent, reader, attrs
+  def process(parent, reader, attrs)
     lines = reader.lines
     sort = attrs.fetch('sort', 'true') == 'true'
 
-    lines.reject { |line| line.empty? }
-    lines = lines.collect(&:strip)
-
-    if sort
-      lines = lines.sort_by { |line| line.downcase }
-    end
+    lines = lines.reject(&:empty?)
+    lines = lines.map(&:strip)
+    lines = lines.sort_by(&:downcase) if sort
 
     if lines.length < 2
       create_paragraph parent, lines, attrs
     elsif lines.length == 2
-      create_paragraph parent, (lines.join(" and ")), attrs
+      create_paragraph parent, lines.join(" and "), attrs
     else
       commaized = lines[0..-2].join(", ")
       commaized << ", and " + lines[-1]

@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <stdio.h>
 
@@ -15,6 +16,7 @@
 #include <epan/prefs.h>
 
 #include <ui/qt/widgets/capture_filter_combo.h>
+#include <ui/qt/utils/color_utils.h>
 #include "wireshark_application.h"
 
 CaptureFilterCombo::CaptureFilterCombo(QWidget *parent, bool plain) :
@@ -27,52 +29,26 @@ CaptureFilterCombo::CaptureFilterCombo(QWidget *parent, bool plain) :
     // Enabling autocompletion here gives us two simultaneous completions:
     // Inline (highlighted text) for entire filters, handled here and popup
     // completion for fields handled by CaptureFilterEdit.
-    setAutoCompletion(false);
+    setCompleter(0);
     setLineEdit(cf_edit_);
-    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+    // Default is Preferred.
+    setSizePolicy(QSizePolicy::MinimumExpanding, sizePolicy().verticalPolicy());
     setInsertPolicy(QComboBox::NoInsert);
     setAccessibleName(tr("Capture filter selector"));
-    setStyleSheet(
-            "QComboBox {"
-#ifdef Q_OS_MAC
-            "  border: 1px solid gray;"
-#else
-            "  border: 1px solid palette(shadow);"
-#endif
-            "  border-radius: 3px;"
-            "  padding: 0px 0px 0px 0px;"
-            "  margin-left: 0px;"
-            "  min-width: 20em;"
-            " }"
+    updateStyleSheet();
 
-            "QComboBox::drop-down {"
-            "  subcontrol-origin: padding;"
-            "  subcontrol-position: top right;"
-            "  width: 16px;"
-            "  border-left-width: 0px;"
-            " }"
-
-            "QComboBox::down-arrow {"
-            "  image: url(:/stock_icons/14x14/x-filter-dropdown.png);"
-            " }"
-
-            "QComboBox::down-arrow:on { /* shift the arrow when popup is open */"
-            "  top: 1px;"
-            "  left: 1px;"
-            "}"
-            );
-
-    connect(this, SIGNAL(interfacesChanged()), cf_edit_, SLOT(checkFilter()));
-    connect(cf_edit_, SIGNAL(pushFilterSyntaxStatus(const QString&)),
-            this, SIGNAL(pushFilterSyntaxStatus(const QString&)));
-    connect(cf_edit_, SIGNAL(popFilterSyntaxStatus()),
-            this, SIGNAL(popFilterSyntaxStatus()));
-    connect(cf_edit_, SIGNAL(captureFilterSyntaxChanged(bool)),
-            this, SIGNAL(captureFilterSyntaxChanged(bool)));
-    connect(cf_edit_, SIGNAL(startCapture()), this, SIGNAL(startCapture()));
-    connect(cf_edit_, SIGNAL(startCapture()), this, SLOT(saveAndRebuildFilterList()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(rebuildFilterList()));
-    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(rebuildFilterList()));
+    connect(this, &CaptureFilterCombo::interfacesChanged, cf_edit_,
+            static_cast<void (CaptureFilterEdit::*)()>(&CaptureFilterEdit::checkFilter));
+    connect(cf_edit_, &CaptureFilterEdit::pushFilterSyntaxStatus,
+            this, &CaptureFilterCombo::pushFilterSyntaxStatus);
+    connect(cf_edit_, &CaptureFilterEdit::popFilterSyntaxStatus,
+            this, &CaptureFilterCombo::popFilterSyntaxStatus);
+    connect(cf_edit_, &CaptureFilterEdit::captureFilterSyntaxChanged,
+            this, &CaptureFilterCombo::captureFilterSyntaxChanged);
+    connect(cf_edit_, &CaptureFilterEdit::startCapture, this, &CaptureFilterCombo::startCapture);
+    connect(cf_edit_, &CaptureFilterEdit::startCapture, this, &CaptureFilterCombo::saveAndRebuildFilterList);
+    connect(wsApp, &WiresharkApplication::appInitialized, this, &CaptureFilterCombo::rebuildFilterList);
+    connect(wsApp, &WiresharkApplication::preferencesChanged, this, &CaptureFilterCombo::rebuildFilterList);
 
     rebuildFilterList();
     clearEditText();
@@ -90,6 +66,54 @@ void CaptureFilterCombo::writeRecent(FILE *rf)
     }
 }
 
+bool CaptureFilterCombo::event(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::ApplicationPaletteChange:
+        updateStyleSheet();
+        break;
+    default:
+        break;
+    }
+    return QComboBox::event(event);
+}
+
+void CaptureFilterCombo::updateStyleSheet()
+{
+    const char *display_mode = ColorUtils::themeIsDark() ? "dark" : "light";
+
+    QString ss = QString(
+                "QComboBox {"
+#ifdef Q_OS_MAC
+                "  border: 1px solid gray;"
+#else
+                "  border: 1px solid palette(shadow);"
+#endif
+                "  border-radius: 3px;"
+                "  padding: 0px 0px 0px 0px;"
+                "  margin-left: 0px;"
+                "  min-width: 20em;"
+                " }"
+
+                "QComboBox::drop-down {"
+                "  subcontrol-origin: padding;"
+                "  subcontrol-position: top right;"
+                "  width: 16px;"
+                "  border-left-width: 0px;"
+                " }"
+
+                "QComboBox::down-arrow {"
+                "  image: url(:/stock_icons/14x14/x-filter-dropdown.%1.png);"
+                " }"
+
+                "QComboBox::down-arrow:on { /* shift the arrow when popup is open */"
+                "  top: 1px;"
+                "  left: 1px;"
+                "}"
+                ).arg(display_mode);
+    setStyleSheet(ss);
+}
+
 void CaptureFilterCombo::saveAndRebuildFilterList()
 {
     if (!currentText().isEmpty()) {
@@ -104,8 +128,8 @@ void CaptureFilterCombo::rebuildFilterList()
     GList *cfilter_list = recent_get_cfilter_list(NULL);
     QString cur_filter = currentText();
     clear();
-    for (GList *li = g_list_first(cfilter_list); li != NULL; li = g_list_next(li)) {
-        insertItem(0, (const gchar *) li->data);
+    for (GList *li = g_list_first(cfilter_list); li != NULL; li = gxx_list_next(li)) {
+        insertItem(0, gxx_list_data(const gchar *, li));
     }
     lineEdit()->setText(cur_filter);
     lineEdit()->blockSignals(false);

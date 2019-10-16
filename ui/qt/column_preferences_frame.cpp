@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -58,6 +59,9 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     ui->columnTreeWidget->viewport()->setAcceptDrops(true);
     ui->columnTreeWidget->setDropIndicatorShown(true);
     ui->columnTreeWidget->setDragDropMode(QAbstractItemView::InternalMove);
+
+    ui->newToolButton->setStockIcon("list-add");
+    ui->deleteToolButton->setStockIcon("list-remove");
 
     for (GList *cur = g_list_first(prefs.col_list); cur != NULL && cur->data != NULL; cur = cur->next) {
         fmt_data *cfmt = (fmt_data *) cur->data;

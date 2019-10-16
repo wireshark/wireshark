@@ -11,15 +11,15 @@
  * See RFC 1510, and various I-Ds and other documents showing additions,
  * e.g. ones listed under
  *
- *	http://www.isi.edu/people/bcn/krb-revisions/
+ *	http://clifford.neuman.name/krb-revisions/
  *
  * and
  *
- *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-07.txt
+ *	https://tools.ietf.org/html/draft-ietf-krb-wg-kerberos-clarifications-07
  *
  * and
  *
- *      http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-referrals-05.txt
+ *      https://tools.ietf.org/html/draft-ietf-krb-wg-kerberos-referrals-05
  *
  * Some structures from RFC2630
  *
@@ -68,8 +68,7 @@
 #include "packet-dcerpc.h"
 
 #include "packet-gssapi.h"
-#include "packet-smb-common.h"
-
+#include "packet-x509af.h"
 
 void proto_register_kerberos(void);
 void proto_reg_handoff_kerberos(void);
@@ -86,9 +85,10 @@ typedef struct kerberos_key {
 } kerberos_key_t;
 
 typedef struct {
-	gboolean is_request;
+	guint32 msg_type;
 	guint32 etype;
 	guint32 padata_type;
+	guint32 is_enc_padata;
 	guint32 enctype;
 	kerberos_key_t key;
 	guint32 ad_type;
@@ -103,6 +103,7 @@ static int dissect_kerberos_Applications(gboolean implicit_tag _U_, tvbuff_t *tv
 static int dissect_kerberos_PA_ENC_TIMESTAMP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_KERB_PA_PAC_REQUEST(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_PA_S4U2Self(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_PA_S4U_X509_USER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_ETYPE_INFO(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_ETYPE_INFO2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_AD_IF_RELEVANT(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -110,6 +111,7 @@ static int dissect_kerberos_PA_AUTHENTICATION_SET(gboolean implicit_tag _U_, tvb
 static int dissect_kerberos_PA_FX_FAST_REQUEST(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_PA_FX_FAST_REPLY(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_PA_PAC_OPTIONS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /* Desegment Kerberos over TCP messages */
 static gboolean krb_desegment = TRUE;
@@ -252,9 +254,8 @@ read_keytab_file_from_preferences(void)
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 #ifdef _WIN32
-/* prevent redefinition warnings in kfw-2.5\inc\win_mac.h */
-#undef HAVE_GETADDRINFO
-#undef HAVE_SYS_TYPES_H
+/* prevent redefinition warnings in krb5's win-mac.h */
+#define SSIZE_T_DEFINED
 #endif /* _WIN32 */
 #include <krb5.h>
 enc_key_t *enc_key_list=NULL;
@@ -264,7 +265,7 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 {
 	enc_key_t *new_key;
 
-	if(pinfo->fd->flags.visited){
+	if(pinfo->fd->visited){
 		return;
 	}
 
@@ -346,12 +347,21 @@ read_keytab_file(const char *filename)
 			new_key->keylength=key.key.length;
 			new_key->keyvalue=(char *)g_memdup(key.key.contents, key.key.length);
 			enc_key_list=new_key;
+			ret = krb5_free_keytab_entry_contents(krb5_ctx, &key);
+			if (ret) {
+				fprintf(stderr, "KERBEROS ERROR: Could not release the entry: %d", ret);
+				ret = 0; /* try to continue with the next entry */
+			}
 		}
 	}while(ret==0);
 
 	ret = krb5_kt_end_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
-		krb5_kt_close(krb5_ctx, keytab);
+		fprintf(stderr, "KERBEROS ERROR: Could not release the keytab cursor: %d", ret);
+	}
+	ret = krb5_kt_close(krb5_ctx, keytab);
+	if(ret){
+		fprintf(stderr, "KERBEROS ERROR: Could not close the key table handle: %d", ret);
 	}
 }
 
@@ -484,12 +494,21 @@ read_keytab_file(const char *filename)
 			new_key->keylength=(int)key.keyblock.keyvalue.length;
 			new_key->keyvalue = (guint8 *)g_memdup(key.keyblock.keyvalue.data, (guint)key.keyblock.keyvalue.length);
 			enc_key_list=new_key;
+			ret = krb5_kt_free_entry(krb5_ctx, &key);
+			if (ret) {
+				fprintf(stderr, "KERBEROS ERROR: Could not release the entry: %d", ret);
+				ret = 0; /* try to continue with the next entry */
+			}
 		}
 	}while(ret==0);
 
 	ret = krb5_kt_end_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
-		krb5_kt_close(krb5_ctx, keytab);
+		fprintf(stderr, "KERBEROS ERROR: Could not release the keytab cursor: %d", ret);
+	}
+	ret = krb5_kt_close(krb5_ctx, keytab);
+	if(ret){
+		fprintf(stderr, "KERBEROS ERROR: Could not close the key table handle: %d", ret);
 	}
 
 }
@@ -590,7 +609,7 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 {
 	service_key_t *new_key;
 
-	if(pinfo->fd->flags.visited){
+	if(pinfo->fd->visited){
 		return;
 	}
 
@@ -806,7 +825,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 /*
  * For KERB_ENCTYPE_RC4_HMAC and KERB_ENCTYPE_RC4_HMAC_EXP, see
  *
- *	http://www.ietf.org/internet-drafts/draft-brezak-win2k-krb-rc4-hmac-04.txt
+ *	https://tools.ietf.org/html/draft-brezak-win2k-krb-rc4-hmac-04
  *
  * unless it's expired.
  */
@@ -860,6 +879,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 #define KRB5_PADATA_ENCRYPTED_CHALLENGE	138
 #define KRB5_PADATA_PKINIT_KX	147
 #define KRB5_ENCPADATA_REQ_ENC_PA_REP	149
+#define KRB5_PA_PAC_OPTIONS		167
 
 
 #define KRB5_PA_PROV_SRV_LOCATION 0xffffffff    /* (gint32)0xFF) packetcable stuff */
@@ -1108,7 +1128,7 @@ static const value_string krb5_preauthentication_types[] = {
 	{ KRB5_PADATA_S4U_X509_USER    , "PA-S4U-X509-USER" },
 	{ KRB5_PADATA_FX_COOKIE        , "PA-FX-COOKIE" },
 	{ KRB5_PA_AUTHENTICATION_SET   , "KRB5-PA-AUTHENTICATION-SET" },
-
+	{ KRB5_PA_PAC_OPTIONS          , "PA-PAC-OPTIONS" },
 	{ KRB5_PADATA_FX_FAST          , "PA-FX-FAST" },
 	{ KRB5_PADATA_FX_ERROR         , "PA-FX-ERROR" },
 	{ KRB5_PADATA_ENCRYPTED_CHALLENGE , "PA-ENCRYPTED-CHALLENGE" },
@@ -1668,9 +1688,6 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 	proto_tree *tree;
 	guint16 dns_offset, dns_len;
 	guint16 upn_offset, upn_len;
-	const char *dn;
-	int dn_len;
-	guint16 bc;
 
 	item = proto_tree_add_item(parent_tree, hf_krb_pac_upn_dns_info, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_krb_pac_upn_dns_info);
@@ -1695,20 +1712,12 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 	proto_tree_add_item(tree, hf_krb_pac_upn_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
 	/* upn */
-	offset = upn_offset;
-	dn_len = upn_len;
-	bc = tvb_reported_length_remaining(tvb, offset);
-	dn = get_unicode_or_ascii_string(tvb, &offset, TRUE, &dn_len, TRUE, TRUE, &bc);
-	proto_tree_add_string(tree, hf_krb_pac_upn_upn_name, tvb, upn_offset, upn_len, dn);
+	proto_tree_add_item(tree, hf_krb_pac_upn_upn_name, tvb, upn_offset, upn_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
 	/* dns */
-	offset = dns_offset;
-	dn_len = dns_len;
-	bc = tvb_reported_length_remaining(tvb, offset);
-	dn = get_unicode_or_ascii_string(tvb, &offset, TRUE, &dn_len, TRUE, TRUE, &bc);
-	proto_tree_add_string(tree, hf_krb_pac_upn_dns_name, tvb, dns_offset, dns_len, dn);
+	proto_tree_add_item(tree, hf_krb_pac_upn_dns_name, tvb, dns_offset, dns_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
-	return offset;
+	return dns_offset;
 }
 
 static int
@@ -1966,10 +1975,10 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			default:
 				return 0;
 		}
-	if (do_col_protocol) {
+		if (do_col_protocol) {
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
-	}
-	if (gbl_do_col_info) {
+		}
+		if (gbl_do_col_info) {
 			col_clear(pinfo->cinfo, COL_INFO);
 		}
 		if (tree) {
@@ -2374,7 +2383,7 @@ proto_reg_handoff_kerberos(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

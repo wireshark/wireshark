@@ -17,14 +17,14 @@ typedef struct {
     guint32        session_key_length;
     guint32       *session_key;
 
-    const guint8  *service;
+    const gchar   *service;
     gint           direction;
 } adb_service_data_t;
 
 #endif /* __PACKET_ADB_SERVICE_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

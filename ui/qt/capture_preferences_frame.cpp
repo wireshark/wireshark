@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -37,6 +38,7 @@ CapturePreferencesFrame::CapturePreferencesFrame(QWidget *parent) :
     pref_pcap_ng_ = prefFromPrefPtr(&prefs.capture_pcap_ng);
     pref_real_time_ = prefFromPrefPtr(&prefs.capture_real_time);
     pref_auto_scroll_ = prefFromPrefPtr(&prefs.capture_auto_scroll);
+    pref_no_interface_load_ = prefFromPrefPtr(&prefs.capture_no_interface_load);
     pref_no_extcap_ = prefFromPrefPtr(&prefs.capture_no_extcap);
 
     // Setting the left margin via a style sheet clobbers its
@@ -67,7 +69,8 @@ void CapturePreferencesFrame::updateWidgets()
         default_device_string = prefs_get_string_value(pref_device_, pref_stashed);
     }
     ui->defaultInterfaceComboBox->clear();
-    if (global_capture_opts.all_ifaces->len == 0) {
+    if ((global_capture_opts.all_ifaces->len == 0) &&
+        (prefs_get_bool_value(pref_no_interface_load_, pref_stashed) == FALSE)) {
         /*
          * No interfaces - try refreshing the local interfaces, to
          * see whether any have showed up (or privileges have changed
@@ -105,6 +108,7 @@ void CapturePreferencesFrame::updateWidgets()
     ui->captureRealTimeCheckBox->setChecked(prefs_get_bool_value(pref_real_time_, pref_stashed));
     ui->captureAutoScrollCheckBox->setChecked(prefs_get_bool_value(pref_auto_scroll_, pref_stashed));
 #endif // HAVE_LIBPCAP
+    ui->captureNoInterfaceLoad->setChecked(prefs_get_bool_value(pref_no_interface_load_, pref_stashed));
     ui->captureNoExtcapCheckBox->setChecked(prefs_get_bool_value(pref_no_extcap_, pref_stashed));
 }
 
@@ -131,6 +135,11 @@ void CapturePreferencesFrame::on_captureRealTimeCheckBox_toggled(bool checked)
 void CapturePreferencesFrame::on_captureAutoScrollCheckBox_toggled(bool checked)
 {
     prefs_set_bool_value(pref_auto_scroll_, checked, pref_stashed);
+}
+
+void CapturePreferencesFrame::on_captureNoInterfaceLoad_toggled(bool checked)
+{
+    prefs_set_bool_value(pref_no_interface_load_, checked, pref_stashed);
 }
 
 void CapturePreferencesFrame::on_captureNoExtcapCheckBox_toggled(bool checked)

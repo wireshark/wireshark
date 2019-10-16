@@ -1,0 +1,40 @@
+    AIN-Errors{ ainErrorsObjectIdentifier }
+    --This module contains the type definitions for the AIN errors.
+    DEFINITIONS ::=
+
+    BEGIN
+
+    IMPORTS
+     ERROR
+    FROM Remote-Operations-Information-Objects {
+    joint-iso-itu-t remote-operations(4)
+      informationObjects(5) version1(0)}
+
+    ApplicationErrorString,
+    ExtensionParameter,
+    FailureCause,
+    FailureCauseData
+    FROM AIN-Parameters{ ainParametersObjectIdentifier };
+
+    --ainErrorsObjectIdentifier OBJECT IDENTIFIER:: = ? - -not yet defined
+    -- TYPE DEFINITION FOR AIN ERRORS FOLLOWS
+
+    applicationError ERROR ::= {
+     PARAMETER
+      SEQUENCE{
+        applicationErrorString ApplicationErrorString,
+        extensionParameter ExtensionParameter OPTIONAL
+    }
+    CODE private: 1
+}
+
+    failureReport ERROR ::= {
+    PARAMETER SEQUENCE{
+        failureCause FailureCause,
+        failureCauseData FailureCauseData OPTIONAL,
+        extensionParameter ExtensionParameter OPTIONAL
+    }
+    CODE private: 2
+}
+
+END

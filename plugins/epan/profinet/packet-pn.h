@@ -134,6 +134,9 @@ extern int dissect_pn_undecoded(tvbuff_t *tvb, int offset, packet_info *pinfo,
 extern int dissect_pn_user_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, guint32 length, const char *text);
 
+extern int dissect_blocks(tvbuff_t *tvb, int offset,
+                    packet_info *pinfo, proto_tree *tree, guint8 *drep);
+
 #define SUBST_DATA  1
 #define FRAG_DATA   2
 
@@ -147,6 +150,9 @@ extern int dissect_pn_padding(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree *tree, int length);
 
 extern int dissect_pn_align4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+
+extern int dissect_PNIO_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                    proto_tree *tree, guint8 *drep);
 
 extern int dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree *tree, guint8 *drep _U_);

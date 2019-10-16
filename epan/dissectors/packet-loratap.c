@@ -225,7 +225,7 @@ proto_register_loratap(void)
 	/* Register for decode as */
 	static build_valid_func loratap_da_build_value[1] = {loratap_value};
 	static decode_as_value_t loratap_da_values = {loratap_prompt, 1, loratap_da_build_value};
-	static decode_as_t loratap_da = {"loratap", "LoRa Syncword", "loratap.syncword", 1, 0, &loratap_da_values, NULL, NULL, decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+	static decode_as_t loratap_da = {"loratap", "loratap.syncword", 1, 0, &loratap_da_values, NULL, NULL, decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
@@ -246,7 +246,7 @@ proto_register_loratap(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -85,8 +85,8 @@ static const unsigned char eyesdn_hdr_magic[]  =
 /* Size of a record header */
 #define EYESDN_HDR_LENGTH		12
 
-static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
-	gint64 *data_offset);
+static gboolean eyesdn_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+	int *err, gchar **err_info, gint64 *data_offset);
 static gboolean eyesdn_seek_read(wtap *wth, gint64 seek_off,
 	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static int read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer* buf,
@@ -139,9 +139,9 @@ wtap_open_return_val eyesdn_open(wtap *wth, int *err, gchar **err_info)
 	return WTAP_OPEN_MINE;
 }
 
-/* Find the next packet and parse it; called from wtap_read(). */
-static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+/* Find the next record and parse it; called from wtap_read(). */
+static gboolean eyesdn_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	gint64	offset;
 
@@ -152,8 +152,7 @@ static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
 	*data_offset = offset;
 
 	/* Parse the record */
-	return read_eyesdn_rec(wth->fh, &wth->rec, wth->rec_data,
-	    err, err_info);
+	return read_eyesdn_rec(wth->fh, rec, buf, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
@@ -224,7 +223,7 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err,
 
 	case EYESDN_ENCAP_LAPB: /* X.25 via LAPB */
 		rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_LAPB;
-		pseudo_header->x25.flags = (direction & 1) ? 0 : 0x80;
+		pseudo_header->dte_dce.flags = (direction & 1) ? 0 : 0x80;
 		break;
 
 	case EYESDN_ENCAP_ATM: { /* ATM cells */
@@ -474,7 +473,7 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

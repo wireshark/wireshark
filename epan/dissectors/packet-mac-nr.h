@@ -36,14 +36,15 @@ typedef struct mac_nr_info
     /* Extra info to display */
     guint16         rnti;
     guint16         ueid;
+    guint8          harqid;
 
-    /* Will these be include in the ME PHR report? */
-    guint8          phr_type2_pcell;
+    /* Will these be included in the ME PHR report? */
     guint8          phr_type2_othercell;
 
     /* Timing info */
+    gboolean        sfnSlotInfoPresent;
     guint16         sysframeNumber;
-    guint8          subframeNumber;
+    guint16         slotNumber;
 
     /* Length of DL PDU or UL grant size in bytes */
     guint16         length;
@@ -51,7 +52,7 @@ typedef struct mac_nr_info
 } mac_nr_info;
 
 
-/* Functions to be called from outside this module (e.g. in a plugin, where mac_lte_info
+/* Functions to be called from outside this module (e.g. in a plugin, where mac_nr_info
    isn't available) to get/set per-packet data */
 WS_DLL_PUBLIC
 mac_nr_info *get_mac_nr_proto_data(packet_info *pinfo);
@@ -95,21 +96,55 @@ void set_mac_nr_proto_data(packet_info *pinfo, mac_nr_info *p_mac_nr_info);
 /* 2 bytes, network order */
 
 #define MAC_NR_FRAME_SUBFRAME_TAG      0x04
-/* 2 bytes, network order, SFN is stored in 12 MSB and SF in 4 LSB */
+/* 2 bytes, deprecated, do not use it */
 
-#define MAC_NR_PHR_TYPE2_PCELL_TAG     0x05
+#define MAC_NR_PHR_TYPE2_OTHERCELL_TAG 0x05
 /* 1 byte, TRUE/FALSE */
 
-#define MAC_NR_PHR_TYPE2_OTHERCELL_TAG 0x06
-/* 1 byte, TRUE/FALSE */
+#define MAC_NR_HARQID                  0x06
+/* 1 byte */
 
+#define MAC_NR_FRAME_SLOT_TAG          0x07
+/* 4 bytes, network order, SFN is stored in the 2 first bytes and slot number in the 2 last bytes */
 
 /* MAC PDU. Following this tag comes the actual MAC PDU (there is no length, the PDU
    continues until the end of the frame) */
-#define MAC_NR_PAYLOAD_TAG         0x01
+#define MAC_NR_PAYLOAD_TAG             0x01
+
+
+/* Type to store parameters for configuring LCID->RLC channel settings for DRB */
+/* Some are optional, and may not be seen (e.g. on reestablishment) */
+typedef struct nr_drb_mapping_t
+{
+    guint16    ueid;                /* Mandatory */
+    guint8     drbid;               /* Mandatory */
+    gboolean   lcid_present;
+    guint8     lcid;                /* Part of LogicalChannelConfig - optional */
+    gboolean   rlcMode_present;
+    guint8     rlcMode;             /* Part of RLC config - optional */
+
+    guint8     tempDirection;       /* So know direction of next SN length... */
+
+    gboolean   rlcUlSnLength_present;
+    guint8     rlcUlSnLength;        /* Part of RLC config - optional */
+    gboolean   rlcDlSnLength_present;
+    guint8     rlcDlSnLength;        /* Part of RLC config - optional */
+
+    gboolean   pdcpUlSnLength_present;
+    guint8     pdcpUlSnLength;        /* Part of PDCP config - optional */
+    gboolean   pdcpDlSnLength_present;
+    guint8     pdcpDlSnLength;        /* Part of PDCP config - optional */
+
+} nr_drb_mapping_t;
+
+
+/* Set details of an LCID -> drb channel mapping.  To be called from
+   configuration protocol (i.e. RRC) */
+void set_mac_nr_bearer_mapping(nr_drb_mapping_t *drb_mapping);
+
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

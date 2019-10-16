@@ -60,7 +60,7 @@
  * that support it.
  */
 
-/* Originally copied from GCC Wiki at http://gcc.gnu.org/wiki/Visibility */
+/* Originally copied from GCC Wiki at https://gcc.gnu.org/wiki/Visibility */
 #if defined _WIN32 || defined __CYGWIN__
   /* Compiling for Windows, so we use the Windows DLL declarations. */
   #ifdef WS_BUILD_DLL
@@ -189,7 +189,7 @@
 #endif /* SYMBOL_EXPORT_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

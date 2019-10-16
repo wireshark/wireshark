@@ -65,7 +65,7 @@ static int jxta_tap = -1;
 static dissector_table_t media_type_dissector_table = NULL;
 static dissector_handle_t media_handle = NULL;
 static dissector_handle_t stream_jxta_handle = NULL;
-static dissector_handle_t ssl_handle = NULL;
+static dissector_handle_t tls_handle = NULL;
 
 static int hf_uri_addr = -1;
 static int hf_uri_src = -1;
@@ -183,7 +183,7 @@ static const char* jxta_conv_get_filter_type(conv_item_t* conv, conv_filter_type
 
 static ct_dissector_info_t jxta_ct_dissector_info = {&jxta_conv_get_filter_type};
 
-static int
+static tap_packet_status
 jxta_conversation_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
@@ -192,7 +192,7 @@ jxta_conversation_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt 
     add_conversation_table_data(hash, &jxtahdr->src_address, &jxtahdr->dest_address,
         0, 0, 1, jxtahdr->size, NULL, NULL, &jxta_ct_dissector_info, ENDPOINT_NONE);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static const char* jxta_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
@@ -205,7 +205,7 @@ static const char* jxta_host_get_filter_type(hostlist_talker_t* host, conv_filte
 
 static hostlist_dissector_info_t jxta_host_dissector_info = {&jxta_host_get_filter_type};
 
-static int
+static tap_packet_status
 jxta_hostlist_packet(void *pit, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
@@ -216,7 +216,7 @@ jxta_hostlist_packet(void *pit, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
     XXX - this could probably be done more efficiently inside hostlist_table */
     add_hostlist_table_data(hash, &jxtahdr->src_address, 0, TRUE, 1, jxtahdr->size, &jxta_host_dissector_info, ENDPOINT_NONE);
     add_hostlist_table_data(hash, &jxtahdr->dest_address, 0, FALSE, 1, jxtahdr->size, &jxta_host_dissector_info, ENDPOINT_NONE);
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static int uri_to_str(const address* addr, gchar *buf, int buf_len)
@@ -841,7 +841,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         if (jxta_welcome_tree) {
             proto_item *jxta_welcome_initiator_item =
                 proto_tree_add_boolean(jxta_welcome_tree, hf_jxta_welcome_initiator, tvb, 0, 0, initiator);
-            PROTO_ITEM_SET_GENERATED(jxta_welcome_initiator_item);
+            proto_item_set_generated(jxta_welcome_initiator_item);
         }
 
         if (NULL != *current_token) {
@@ -1348,35 +1348,35 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         tree_offset += (int)sizeof(JXTA_MSG_SIG);
 
         tree_item = proto_tree_add_string(jxta_msg_tree, hf_jxta_message_src, tvb, 0, 0, wmem_strbuf_get_str(src_addr));
-        PROTO_ITEM_SET_GENERATED(tree_item);
+        proto_item_set_generated(tree_item);
 
         tree_item = proto_tree_add_string(jxta_msg_tree, hf_jxta_message_address, tvb, 0, 0, wmem_strbuf_get_str(src_addr));
-        PROTO_ITEM_SET_HIDDEN(tree_item);
-        PROTO_ITEM_SET_GENERATED(tree_item);
+        proto_item_set_hidden(tree_item);
+        proto_item_set_generated(tree_item);
 
         if(uri_address_type == pinfo->src.type) {
             tree_item = proto_tree_add_string(jxta_msg_tree, hf_uri_src, tvb, 0, 0, wmem_strbuf_get_str(src_addr));
-            PROTO_ITEM_SET_HIDDEN(tree_item);
-            PROTO_ITEM_SET_GENERATED(tree_item);
+            proto_item_set_hidden(tree_item);
+            proto_item_set_generated(tree_item);
             tree_item = proto_tree_add_string(jxta_msg_tree, hf_uri_addr, tvb, 0, 0, wmem_strbuf_get_str(src_addr));
-            PROTO_ITEM_SET_HIDDEN(tree_item);
-            PROTO_ITEM_SET_GENERATED(tree_item);
+            proto_item_set_hidden(tree_item);
+            proto_item_set_generated(tree_item);
         }
 
         tree_item = proto_tree_add_string(jxta_msg_tree, hf_jxta_message_dst, tvb, 0, 0, wmem_strbuf_get_str(dst_addr));
-        PROTO_ITEM_SET_GENERATED(tree_item);
+        proto_item_set_generated(tree_item);
 
         tree_item = proto_tree_add_string(jxta_msg_tree, hf_jxta_message_address, tvb, 0, 0, wmem_strbuf_get_str(dst_addr));
-        PROTO_ITEM_SET_HIDDEN(tree_item);
-        PROTO_ITEM_SET_GENERATED(tree_item);
+        proto_item_set_hidden(tree_item);
+        proto_item_set_generated(tree_item);
 
         if(uri_address_type == pinfo->dst.type) {
             tree_item = proto_tree_add_string(jxta_msg_tree, hf_uri_dst, tvb, 0, 0, wmem_strbuf_get_str(dst_addr));
-            PROTO_ITEM_SET_HIDDEN(tree_item);
-            PROTO_ITEM_SET_GENERATED(tree_item);
+            proto_item_set_hidden(tree_item);
+            proto_item_set_generated(tree_item);
             tree_item = proto_tree_add_string(jxta_msg_tree, hf_uri_addr, tvb, 0, 0, wmem_strbuf_get_str(dst_addr));
-            PROTO_ITEM_SET_HIDDEN(tree_item);
-            PROTO_ITEM_SET_GENERATED(tree_item);
+            proto_item_set_hidden(tree_item);
+            proto_item_set_generated(tree_item);
         }
 
         message_version = tvb_get_guint8(tvb, tree_offset);
@@ -2017,7 +2017,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
         gchar *mediatype = wmem_strdup(wmem_packet_scope(), fullmediatype);
         gchar *parms_at = strchr(mediatype, ';');
         const char *save_match_string = pinfo->match_string;
-        http_message_info_t message_info = { HTTP_OTHERS, NULL };
+        http_message_info_t message_info = { HTTP_OTHERS, NULL, NULL, NULL };
 
         /* Based upon what is done in packet-media.c we set up type and params */
         if (NULL != parms_at) {
@@ -2032,9 +2032,9 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
         ascii_strdown_inplace(mediatype);
 
         if (0 == strcmp("application/x-jxta-tls-block", mediatype)) {
-            /* If we recognize it as a TLS packet then we shuffle it off to ssl dissector. */
-            if (NULL != ssl_handle) {
-                dissected = call_dissector(ssl_handle, tvb, pinfo, tree);
+            /* If we recognize it as a TLS packet then we shuffle it off to tls dissector. */
+            if (NULL != tls_handle) {
+                dissected = call_dissector(tls_handle, tvb, pinfo, tree);
             }
         } else if (0 == strcmp("application/gzip", mediatype)) {
             tvbuff_t *uncomp_tvb = tvb_child_uncompress(tvb, tvb, 0, tvb_captured_length(tvb));
@@ -2072,7 +2072,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
 
     if (dissected < (int) tvb_reported_length(tvb)) {
         proto_item *item = proto_tree_add_expert(tree, pinfo, &ei_media_too_short, tvb, 0, dissected);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
     return dissected;
 }
@@ -2383,7 +2383,7 @@ void proto_reg_handoff_jxta(void)
         message_jxta_handle = create_dissector_handle(dissect_jxta_message, proto_message_jxta);
 
         media_type_dissector_table = find_dissector_table("media_type");
-        ssl_handle = find_dissector_add_dependency("ssl", proto_jxta);
+        tls_handle = find_dissector_add_dependency("tls", proto_jxta);
 
         media_handle = find_dissector_add_dependency("media", proto_jxta);
 
@@ -2415,7 +2415,7 @@ void proto_reg_handoff_jxta(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

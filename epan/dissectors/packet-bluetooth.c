@@ -212,6 +212,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x1827,   "Mesh Provisioning Service" },
     { 0x1828,   "Mesh Proxy Service" },
     { 0x1829,   "Reconnection Configuration" },
+    { 0x183A,   "Insulin Delivery" },
     /* Units - https://www.bluetooth.com/specifications/assigned-numbers/units */
     { 0x2700,   "unitless" },
     { 0x2701,   "length (metre)" },
@@ -568,10 +569,142 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2AD8,   "Supported Power Range" },
     { 0x2AD9,   "Fitness Machine Control Point" },
     { 0x2ADA,   "Fitness Machine Status" },
+    /* (break) Characteristics, will be continuated below Mesh */
+    /* Mesh Characteristics - https://www.bluetooth.com/specifications/mesh-specifications/mesh-characteristics */
+    { 0x2ADB,   "Mesh Provisioning Data In" },
+    { 0x2ADC,   "Mesh Provisioning Data Out" },
+    { 0x2ADD,   "Mesh Proxy Data In" },
+    { 0x2ADE,   "Mesh Proxy Data Out" },
+    { 0x2AE0,   "Average Current" },
+    { 0x2AE1,   "Average Voltage" },
+    { 0x2AE2,   "Boolean" },
+    { 0x2AE3,   "Chromatic Distance From Planckian" },
+    { 0x2AE4,   "Chromaticity Coordinates" },
+    { 0x2AE5,   "Chromaticity In CCT And Duv Values" },
+    { 0x2AE6,   "Chromaticity Tolerance" },
+    { 0x2AE7,   "CIE 13.3-1995 Color Rendering Index" },
+    { 0x2AE8,   "Coefficient" },
+    { 0x2AE9,   "Correlated Color Temperature" },
+    { 0x2AEA,   "Count 16" },
+    { 0x2AEB,   "Count 24" },
+    { 0x2AEC,   "Country Code" },
+    { 0x2AED,   "Date UTC" },
+    { 0x2AEE,   "Electric Current" },
+    { 0x2AEF,   "Electric Current Range" },
+    { 0x2AF0,   "Electric Current Specification" },
+    { 0x2AF1,   "Electric Current Statistics" },
+    { 0x2AF2,   "Energy" },
+    { 0x2AF3,   "Energy In A Period Of Day" },
+    { 0x2AF4,   "Event Statistics" },
+    { 0x2AF5,   "Fixed String 16" },
+    { 0x2AF6,   "Fixed String 24" },
+    { 0x2AF7,   "Fixed String 36" },
+    { 0x2AF8,   "Fixed String 8" },
+    { 0x2AF9,   "Generic Level" },
+    { 0x2AFA,   "Global Trade Item Number" },
+    { 0x2AFB,   "Illuminance" },
+    { 0x2AFC,   "Luminous Efficacy" },
+    { 0x2AFD,   "Luminous Energy" },
+    { 0x2AFE,   "Luminous Exposure" },
+    { 0x2AFF,   "Luminous Flux" },
+    { 0x2B00,   "Luminous Flux Range" },
+    { 0x2B01,   "Luminous Intensity" },
+    { 0x2B02,   "Mass Flow" },
+    { 0x2B03,   "Perceived Lightness" },
+    { 0x2B04,   "Percentage 8" },
+    { 0x2B05,   "Power" },
+    { 0x2B06,   "Power Specification" },
+    { 0x2B07,   "Relative Runtime In A Current Range" },
+    { 0x2B08,   "Relative Runtime In A Generic Level Range" },
+    { 0x2B09,   "Relative Value In A Voltage Range" },
+    { 0x2B0A,   "Relative Value In An Illuminance Range" },
+    { 0x2B0B,   "Relative Value In A Period of Day" },
+    { 0x2B0C,   "Relative Value In A Temperature Range" },
+    { 0x2B0D,   "Temperature 8" },
+    { 0x2B0E,   "Temperature 8 In A Period Of Day" },
+    { 0x2B0F,   "Temperature 8 Statistics" },
+    { 0x2B10,   "Temperature Range" },
+    { 0x2B11,   "Temperature Statistics" },
+    { 0x2B12,   "Time Decihour 8" },
+    { 0x2B13,   "Time Exponential 8" },
+    { 0x2B14,   "Time Hour 24" },
+    { 0x2B15,   "Time Millisecond 24" },
+    { 0x2B16,   "Time Second 16" },
+    { 0x2B17,   "Time Second 8" },
+    { 0x2B18,   "Voltage" },
+    { 0x2B19,   "Voltage Specification" },
+    { 0x2B1A,   "Voltage Statistics" },
+    { 0x2B1B,   "Volume Flow" },
+    { 0x2B1C,   "Chromaticity Coordinate" },
+    /* (continuation) Characteristics - https://www.bluetooth.com/specifications/gatt/characteristics */
     { 0x2B1D,   "Reconnection Configuration Feature" },
     { 0x2B1E,   "Reconnection Configuration Settings" },
     { 0x2B1F,   "Reconnection Configuration Control Point" },
+    { 0x2B20,   "IDD Status Changed" },
+    { 0x2B21,   "IDD Status" },
+    { 0x2B22,   "IDD Annunciation Status" },
+    { 0x2B23,   "IDD Features" },
+    { 0x2B24,   "IDD Status Reader Control Point" },
+    { 0x2B25,   "IDD Command Control Point" },
+    { 0x2B26,   "IDD Command Data" },
+    { 0x2B27,   "IDD Record Access Control Point" },
+    { 0x2B28,   "IDD History Data" },
+    { 0x2B29,   "Client Supported Features" },
+    { 0x2B2A,   "Database Hash" },
     /*  16-bit UUID for Members - https://www.bluetooth.com/specifications/assigned-numbers/16-bit-uuids-for-members */
+    { 0xFDB4,   "HP Inc" },
+    { 0xFDB5,   "ECSG" },
+    { 0xFDB6,   "GWA Hygiene GmbH" },
+    { 0xFDB7,   "LivaNova USA Inc." },
+    { 0xFDB8,   "LivaNova USA Inc." },
+    { 0xFDB9,   "Comcast Cable Corporation" },
+    { 0xFDBA,   "Comcast Cable Corporation" },
+    { 0xFDBB,   "Profoto" },
+    { 0xFDBC,   "Emerson" },
+    { 0xFDBD,   "Clover Network, Inc." },
+    { 0xFDBE,   "California Things Inc." },
+    { 0xFDBF,   "California Things Inc." },
+    { 0xFDC0,   "Hunter Douglas" },
+    { 0xFDC1,   "Hunter Douglas" },
+    { 0xFDC2,   "Baidu Online Network Technology (Beijing) Co., Ltd" },
+    { 0xFDC3,   "Baidu Online Network Technology (Beijing) Co., Ltd" },
+    { 0xFDC4,   "Simavita (Aust) Pty Ltd" },
+    { 0xFDC5,   "Automatic Labs" },
+    { 0xFDC6,   "Eli Lilly and Company" },
+    { 0xFDC7,   "Eli Lilly and Company" },
+    { 0xFDC8,   "Hach Danaher" },
+    { 0xFDC9,   "Busch-Jaeger Elektro GmbH" },
+    { 0xFDCA,   "Fortin Electronic Systems" },
+    { 0xFDCB,   "Meggitt SA" },
+    { 0xFDCC,   "Shoof Technologies" },
+    { 0xFDCD,   "Qingping Technology (Beijing) Co., Ltd." },
+    { 0xFDCE,   "SENNHEISER electronic GmbH & Co. KG" },
+    { 0xFDCF,   "Nalu Medical, Inc" },
+    { 0xFDD0,   "Huawei Technologies Co., Ltd" },
+    { 0xFDD1,   "Huawei Technologies Co., Ltd" },
+    { 0xFDD2,   "Bose Corporation" },
+    { 0xFDD3,   "FUBA Automotive Electronics GmbH" },
+    { 0xFDD4,   "LX Solutions Pty Limited" },
+    { 0xFDD5,   "Brompton Bicycle Ltd" },
+    { 0xFDD6,   "Ministry of Supply" },
+    { 0xFDD7,   "Emerson" },
+    { 0xFDD8,   "Jiangsu Teranovo Tech Co., Ltd." },
+    { 0xFDD9,   "Jiangsu Teranovo Tech Co., Ltd." },
+    { 0xFDDA,   "MHCS" },
+    { 0xFDDB,   "Samsung Electronics Co., Ltd." },
+    { 0xFDDC,   "4iiii Innovations Inc." },
+    { 0xFDDD,   "Arch Systems Inc" },
+    { 0xFDDE,   "Noodle Technology Inc." },
+    { 0xFDDF,   "Harman International" },
+    { 0xFDE0,   "John Deere" },
+    { 0xFDE1,   "Fortin Electronic Systems" },
+    { 0xFDE2,   "Google Inc." },
+    { 0xFDE3,   "Abbott Diabetes Care" },
+    { 0xFDE4,   "JUUL Labs, Inc." },
+    { 0xFDE5,   "SMK Corporation" },
+    { 0xFDE6,   "Intelletto Technologies Inc" },
+    { 0xFDE7,   "SECOM Co., LTD" },
+    { 0xFDE8,   "Robert Bosch GmbH" },
     { 0xFDE9,   "Spacesaver Corporation" },
     { 0xFDEA,   "SeeScan, Inc" },
     { 0xFDEB,   "Syntronix Corporation" },
@@ -602,7 +735,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0xFE04,   "OpenPath Security Inc" },
     { 0xFE05,   "CORE Transport Technologies NZ Limited" },
     { 0xFE06,   "Qualcomm Technologies, Inc." },
-    { 0xFE07,   "[REMOVED] Sonos Inc." }, /* Bluetooth removes this UUID */
+    { 0xFE07,   "Sonos, Inc." },
     { 0xFE08,   "Microsoft" },
     { 0xFE09,   "Pillsy, Inc." },
     { 0xFE0A,   "ruwido austria gmbh" },
@@ -616,11 +749,11 @@ const value_string bluetooth_uuid_vals[] = {
     { 0xFE12,   "M-Way Solutions GmbH" },
     { 0xFE13,   "Apple Inc." },
     { 0xFE14,   "Flextronics International USA Inc." },
-    { 0xFE15,   "Amazon.com Services, Inc." },
+    { 0xFE15,   "Amazon.com Services, Inc.." },
     { 0xFE16,   "Footmarks, Inc." },
     { 0xFE17,   "Telit Wireless Solutions GmbH" },
     { 0xFE18,   "Runtime, Inc." },
-    { 0xFE19,   "Google Inc." },
+    { 0xFE19,   "Google, Inc" },
     { 0xFE1A,   "Tyto Life LLC" },
     { 0xFE1B,   "Tyto Life LLC" },
     { 0xFE1C,   "NetMedia, Inc." },
@@ -633,13 +766,13 @@ const value_string bluetooth_uuid_vals[] = {
     { 0xFE23,   "Zoll Medical Corporation" },
     { 0xFE24,   "August Home Inc" },
     { 0xFE25,   "Apple, Inc." },
-    { 0xFE26,   "Google Inc." },
-    { 0xFE27,   "Google Inc." },
+    { 0xFE26,   "Google" },
+    { 0xFE27,   "Google" },
     { 0xFE28,   "Ayla Networks" },
     { 0xFE29,   "Gibson Innovations" },
     { 0xFE2A,   "DaisyWorks, Inc." },
     { 0xFE2B,   "ITT Industries" },
-    { 0xFE2C,   "Google Inc." },
+    { 0xFE2C,   "Google" },
     { 0xFE2D,   "SMART INNOVATION Co.,Ltd" },
     { 0xFE2E,   "ERi,Inc." },
     { 0xFE2F,   "CRESCO Wireless, Inc" },
@@ -654,8 +787,8 @@ const value_string bluetooth_uuid_vals[] = {
     { 0xFE38,   "Spaceek LTD" },
     { 0xFE39,   "TTS Tooltechnic Systems AG & Co. KG" },
     { 0xFE3A,   "TTS Tooltechnic Systems AG & Co. KG" },
-    { 0xFE3B,   "Dolby Laboratories" },
-    { 0xFE3C,   "Alibaba" },
+    { 0xFE3B,   "Dobly Laboratories" },
+    { 0xFE3C,   "alibaba" },
     { 0xFE3D,   "BD Medical" },
     { 0xFE3E,   "BD Medical" },
     { 0xFE3F,   "Friday Labs Limited" },
@@ -685,7 +818,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0xFE57,   "Dotted Labs" },
     { 0xFE58,   "Nordic Semiconductor ASA" },
     { 0xFE59,   "Nordic Semiconductor ASA" },
-    { 0xFE5A,   "Chronologics Corporation" },
+    { 0xFE5A,   "Cronologics Corporation" },
     { 0xFE5B,   "GT-tronics HK Ltd" },
     { 0xFE5C,   "million hunters GmbH" },
     { 0xFE5D,   "Grundfos A/S" },
@@ -729,8 +862,8 @@ const value_string bluetooth_uuid_vals[] = {
     { 0xFE83,   "Blue Bite" },
     { 0xFE84,   "RF Digital Corp" },
     { 0xFE85,   "RF Digital Corp" },
-    { 0xFE86,   "HUAWEI Technologies Co., Ltd." },
-    { 0xFE87,   "Qingdao Yeelink Information Technology Co., Ltd." },
+    { 0xFE86,   "HUAWEI Technologies Co., Ltd. ( )" },
+    { 0xFE87,   "Qingdao Yeelink Information Technology Co., Ltd. ( )" },
     { 0xFE88,   "SALTO SYSTEMS S.L." },
     { 0xFE89,   "B&O Play A/S" },
     { 0xFE8A,   "Apple, Inc." },
@@ -742,20 +875,20 @@ const value_string bluetooth_uuid_vals[] = {
     { 0xFE90,   "JUMA" },
     { 0xFE91,   "Shanghai Imilab Technology Co.,Ltd" },
     { 0xFE92,   "Jarden Safety & Security" },
-    { 0xFE93,   "OttoQ Inc." },
-    { 0xFE94,   "OttoQ Inc." },
+    { 0xFE93,   "OttoQ In" },
+    { 0xFE94,   "OttoQ In" },
     { 0xFE95,   "Xiaomi Inc." },
-    { 0xFE96,   "Tesla Motor Inc." },
-    { 0xFE97,   "Tesla Motor Inc." },
-    { 0xFE98,   "Currant, Inc." },
-    { 0xFE99,   "Currant, Inc." },
+    { 0xFE96,   "Tesla Motors Inc." },
+    { 0xFE97,   "Tesla Motors Inc." },
+    { 0xFE98,   "Currant Inc" },
+    { 0xFE99,   "Currant Inc" },
     { 0xFE9A,   "Estimote" },
     { 0xFE9B,   "Samsara Networks, Inc" },
     { 0xFE9C,   "GSI Laboratories, Inc." },
     { 0xFE9D,   "Mobiquity Networks Inc" },
     { 0xFE9E,   "Dialog Semiconductor B.V." },
-    { 0xFE9F,   "Google Inc." },
-    { 0xFEA0,   "Google Inc." },
+    { 0xFE9F,   "Google" },
+    { 0xFEA0,   "Google" },
     { 0xFEA1,   "Intrepid Control Systems, Inc." },
     { 0xFEA2,   "Intrepid Control Systems, Inc." },
     { 0xFEA3,   "ITT Industries" },
@@ -765,26 +898,26 @@ const value_string bluetooth_uuid_vals[] = {
     { 0xFEA7,   "UTC Fire and Security" },
     { 0xFEA8,   "Savant Systems LLC" },
     { 0xFEA9,   "Savant Systems LLC" },
-    { 0xFEAA,   "Google Inc." },
-    { 0xFEAB,   "Nokia Corporation" },
-    { 0xFEAC,   "Nokia Corporation" },
-    { 0xFEAD,   "Nokia Corporation" },
-    { 0xFEAE,   "Nokia Corporation" },
-    { 0xFEAF,   "Nest Labs Inc." },
-    { 0xFEB0,   "Nest Labs Inc." },
+    { 0xFEAA,   "Google" },
+    { 0xFEAB,   "Nokia" },
+    { 0xFEAC,   "Nokia" },
+    { 0xFEAD,   "Nokia" },
+    { 0xFEAE,   "Nokia" },
+    { 0xFEAF,   "Nest Labs Inc" },
+    { 0xFEB0,   "Nest Labs Inc" },
     { 0xFEB1,   "Electronics Tomorrow Limited" },
     { 0xFEB2,   "Microsoft Corporation" },
     { 0xFEB3,   "Taobao" },
     { 0xFEB4,   "WiSilica Inc." },
     { 0xFEB5,   "WiSilica Inc." },
-    { 0xFEB6,   "Vencer Co, Ltd" },
+    { 0xFEB6,   "Vencer Co., Ltd" },
     { 0xFEB7,   "Facebook, Inc." },
     { 0xFEB8,   "Facebook, Inc." },
     { 0xFEB9,   "LG Electronics" },
     { 0xFEBA,   "Tencent Holdings Limited" },
     { 0xFEBB,   "adafruit industries" },
-    { 0xFEBC,   "Dexcom, Inc." },
-    { 0xFEBD,   "Clover Network, Inc." },
+    { 0xFEBC,   "Dexcom Inc" },
+    { 0xFEBD,   "Clover Network, Inc" },
     { 0xFEBE,   "Bose Corporation" },
     { 0xFEBF,   "Nod, Inc." },
     { 0xFEC0,   "KDDI Corporation" },
@@ -809,24 +942,24 @@ const value_string bluetooth_uuid_vals[] = {
     { 0xFED3,   "Apple, Inc." },
     { 0xFED4,   "Apple, Inc." },
     { 0xFED5,   "Plantronics Inc." },
-    { 0xFED6,   "Broadcom Corporation" },
-    { 0xFED7,   "Broadcom Corporation" },
-    { 0xFED8,   "Google Inc." },
+    { 0xFED6,   "Broadcom" },
+    { 0xFED7,   "Broadcom" },
+    { 0xFED8,   "Google" },
     { 0xFED9,   "Pebble Technology Corporation" },
-    { 0xFEDA,   "ISSC Technologies Corporation" },
+    { 0xFEDA,   "ISSC Technologies Corp." },
     { 0xFEDB,   "Perka, Inc." },
     { 0xFEDC,   "Jawbone" },
     { 0xFEDD,   "Jawbone" },
     { 0xFEDE,   "Coin, Inc." },
     { 0xFEDF,   "Design SHIFT" },
-    { 0xFEE0,   "Anhui Huami Information Technology Co." },
-    { 0xFEE1,   "Anhui Huami Information Technology Co." },
+    { 0xFEE0,   "Anhui Huami Information Technology Co., Ltd." },
+    { 0xFEE1,   "Anhui Huami Information Technology Co., Ltd." },
     { 0xFEE2,   "Anki, Inc." },
     { 0xFEE3,   "Anki, Inc." },
     { 0xFEE4,   "Nordic Semiconductor ASA" },
     { 0xFEE5,   "Nordic Semiconductor ASA" },
     { 0xFEE6,   "Silvair, Inc." },
-    { 0xFEE7,   "Tencent Holdings Limited" },
+    { 0xFEE7,   "Tencent Holdings Limited." },
     { 0xFEE8,   "Quintic Corp." },
     { 0xFEE9,   "Quintic Corp." },
     { 0xFEEA,   "Swirl Networks, Inc." },
@@ -838,8 +971,8 @@ const value_string bluetooth_uuid_vals[] = {
     { 0xFEF0,   "Intel" },
     { 0xFEF1,   "CSR" },
     { 0xFEF2,   "CSR" },
-    { 0xFEF3,   "Google Inc." },
-    { 0xFEF4,   "Google Inc." },
+    { 0xFEF3,   "Google" },
+    { 0xFEF4,   "Google" },
     { 0xFEF5,   "Dialog Semiconductor GmbH" },
     { 0xFEF6,   "Wicentric, Inc." },
     { 0xFEF7,   "Aplix Corporation" },
@@ -871,7 +1004,7 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0007,   "Lucent" },
     { 0x0008,   "Motorola" },
     { 0x0009,   "Infineon Technologies AG" },
-    { 0x000A,   "Cambridge Silicon Radio" },
+    { 0x000A,   "Qualcomm Technologies International, Ltd. (QTIL)" },
     { 0x000B,   "Silicon Wave" },
     { 0x000C,   "Digianswer A/S" },
     { 0x000D,   "Texas Instruments Inc." },
@@ -1283,7 +1416,7 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x01A3,   "EROAD" },
     { 0x01A4,   "Mine Safety Appliances" },
     { 0x01A5,   "Icon Health and Fitness" },
-    { 0x01A6,   "Asandoo GmbH" },
+    { 0x01A6,   "Wille Engineering (formely as Asandoo GmbH)" },
     { 0x01A7,   "ENERGOUS CORPORATION" },
     { 0x01A8,   "Taobao" },
     { 0x01A9,   "Canon Inc." },
@@ -1757,7 +1890,7 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x037D,   "MICRODIA Ltd." },
     { 0x037E,   "lulabytes S.L." },
     { 0x037F,   "Nestec S.A." },
-    { 0x0380,   "LLC MEGA-F service" },
+    { 0x0380,   "LLC \"MEGA-F service\"" },
     { 0x0381,   "Sharp Corporation" },
     { 0x0382,   "Precision Outcomes Ltd" },
     { 0x0383,   "Kronos Incorporated" },
@@ -2164,7 +2297,7 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0514,   "FIBRO GmbH" },
     { 0x0515,   "RB Controls Co., Ltd." },
     { 0x0516,   "Footmarks" },
-    { 0x0517,   "Amcore AB" },
+    { 0x0517,   "Amtronic Sverige AB (formerly Amcore AB)" },
     { 0x0518,   "MAMORIO.inc" },
     { 0x0519,   "Tyto Life LLC" },
     { 0x051A,   "Leica Camera AG" },
@@ -2237,7 +2370,7 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x055D,   "Valve Corporation" },
     { 0x055E,   "Hekatron Vertriebs GmbH" },
     { 0x055F,   "PROTECH S.A.S. DI GIRARDI ANDREA & C." },
-    { 0x0560,   "Sarita CareTech IVS" },
+    { 0x0560,   "Sarita CareTech APS (formerly Sarita CareTech IVS)" },
     { 0x0561,   "Finder S.p.A." },
     { 0x0562,   "Thalmic Labs Inc." },
     { 0x0563,   "Steinel Vertrieb GmbH" },
@@ -2406,9 +2539,301 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0606,   "John Deere" },
     { 0x0607,   "Rookery Technology Ltd" },
     { 0x0608,   "KeySafe-Cloud" },
-    { 0x0609,   "Bchi Labortechnik AG" },
+    { 0x0609,   "BUCHI Labortechnik AG" },
     { 0x060A,   "IQAir AG" },
     { 0x060B,   "Triax Technologies Inc" },
+    { 0x060C,   "Vuzix Corporation" },
+    { 0x060D,   "TDK Corporation" },
+    { 0x060E,   "Blueair AB" },
+    { 0x060F,   "Signify Netherlands" },
+    { 0x0610,   "ADH GUARDIAN USA LLC" },
+    { 0x0611,   "Beurer GmbH" },
+    { 0x0612,   "Playfinity AS" },
+    { 0x0613,   "Hans Dinslage GmbH" },
+    { 0x0614,   "OnAsset Intelligence, Inc." },
+    { 0x0615,   "INTER ACTION Corporation" },
+    { 0x0616,   "OS42 UG (haftungsbeschraenkt)" },
+    { 0x0617,   "WIZCONNECTED COMPANY LIMITED" },
+    { 0x0618,   "Audio-Technica Corporation" },
+    { 0x0619,   "Six Guys Labs, s.r.o." },
+    { 0x061A,   "R.W. Beckett Corporation" },
+    { 0x061B,   "silex technology, inc." },
+    { 0x061C,   "Univations Limited" },
+    { 0x061D,   "SENS Innovation ApS" },
+    { 0x061E,   "Diamond Kinetics, Inc." },
+    { 0x061F,   "Phrame Inc." },
+    { 0x0620,   "Forciot Oy" },
+    { 0x0621,   "Noordung d.o.o." },
+    { 0x0622,   "Beam Labs, LLC" },
+    { 0x0623,   "Philadelphia Scientific (U.K.) Limited" },
+    { 0x0624,   "Biovotion AG" },
+    { 0x0625,   "Square Panda, Inc." },
+    { 0x0626,   "Amplifico" },
+    { 0x0627,   "WEG S.A." },
+    { 0x0628,   "Ensto Oy" },
+    { 0x0629,   "PHONEPE PVT LTD" },
+    { 0x062A,   "Lunatico Astronomia SL" },
+    { 0x062B,   "MinebeaMitsumi Inc." },
+    { 0x062C,   "ASPion GmbH" },
+    { 0x062D,   "Vossloh-Schwabe Deutschland GmbH" },
+    { 0x062E,   "Procept" },
+    { 0x062F,   "ONKYO Corporation" },
+    { 0x0630,   "Asthrea D.O.O." },
+    { 0x0631,   "Fortiori Design LLC" },
+    { 0x0632,   "Hugo Muller GmbH & Co KG" },
+    { 0x0633,   "Wangi Lai PLT" },
+    { 0x0634,   "Fanstel Corp" },
+    { 0x0635,   "Crookwood" },
+    { 0x0636,   "ELECTRONICA INTEGRAL DE SONIDO S.A." },
+    { 0x0637,   "GiP Innovation Tools GmbH" },
+    { 0x0638,   "LX SOLUTIONS PTY LIMITED" },
+    { 0x0639,   "Shenzhen Minew Technologies Co., Ltd." },
+    { 0x063A,   "Prolojik Limited" },
+    { 0x063B,   "Kromek Group Plc" },
+    { 0x063C,   "Contec Medical Systems Co., Ltd." },
+    { 0x063D,   "Xradio Technology Co.,Ltd." },
+    { 0x063E,   "The Indoor Lab, LLC" },
+    { 0x063F,   "LDL TECHNOLOGY" },
+    { 0x0640,   "Parkifi" },
+    { 0x0641,   "Revenue Collection Systems FRANCE SAS" },
+    { 0x0642,   "Bluetrum Technology Co.,Ltd" },
+    { 0x0643,   "makita corporation" },
+    { 0x0644,   "Apogee Instruments" },
+    { 0x0645,   "BM3" },
+    { 0x0646,   "SGV Group Holding GmbH & Co. KG" },
+    { 0x0647,   "MED-EL" },
+    { 0x0648,   "Ultune Technologies" },
+    { 0x0649,   "Ryeex Technology Co.,Ltd." },
+    { 0x064A,   "Open Research Institute, Inc." },
+    { 0x064B,   "Scale-Tec, Ltd" },
+    { 0x064C,   "Zumtobel Group AG" },
+    { 0x064D,   "iLOQ Oy" },
+    { 0x064E,   "KRUXWorks Technologies Private Limited" },
+    { 0x064F,   "Digital Matter Pty Ltd" },
+    { 0x0650,   "Coravin, Inc." },
+    { 0x0651,   "Stasis Labs, Inc." },
+    { 0x0652,   "ITZ Innovations- und Technologiezentrum GmbH" },
+    { 0x0653,   "Meggitt SA" },
+    { 0x0654,   "Ledlenser GmbH & Co. KG" },
+    { 0x0655,   "Renishaw PLC" },
+    { 0x0656,   "ZhuHai AdvanPro Technology Company Limited" },
+    { 0x0657,   "Meshtronix Limited" },
+    { 0x0658,   "Payex Norge AS" },
+    { 0x0659,   "UnSeen Technologies Oy" },
+    { 0x065A,   "Zound Industries International AB" },
+    { 0x065B,   "Sesam Solutions BV" },
+    { 0x065C,   "PixArt Imaging Inc." },
+    { 0x065D,   "Panduit Corp." },
+    { 0x065E,   "Alo AB" },
+    { 0x065F,   "Ricoh Company Ltd" },
+    { 0x0660,   "RTC Industries, Inc." },
+    { 0x0661,   "Mode Lighting Limited" },
+    { 0x0662,   "Particle Industries, Inc." },
+    { 0x0663,   "Advanced Telemetry Systems, Inc." },
+    { 0x0664,   "RHA TECHNOLOGIES LTD" },
+    { 0x0665,   "Pure International Limited" },
+    { 0x0666,   "WTO Werkzeug-Einrichtungen GmbH" },
+    { 0x0667,   "Spark Technology Labs Inc." },
+    { 0x0668,   "Bleb Technology srl" },
+    { 0x0669,   "Livanova USA, Inc." },
+    { 0x066A,   "Brady Worldwide Inc." },
+    { 0x066B,   "DewertOkin GmbH" },
+    { 0x066C,   "Ztove ApS" },
+    { 0x066D,   "Venso EcoSolutions AB" },
+    { 0x066E,   "Eurotronik Kranj d.o.o." },
+    { 0x066F,   "Hug Technology Ltd" },
+    { 0x0670,   "Gema Switzerland GmbH" },
+    { 0x0671,   "Buzz Products Ltd." },
+    { 0x0672,   "Kopi" },
+    { 0x0673,   "Innova Ideas Limited" },
+    { 0x0674,   "BeSpoon" },
+    { 0x0675,   "Deco Enterprises, Inc." },
+    { 0x0676,   "Expai Solutions Private Limited" },
+    { 0x0677,   "Innovation First, Inc." },
+    { 0x0678,   "SABIK Offshore GmbH" },
+    { 0x0679,   "4iiii Innovations Inc." },
+    { 0x067A,   "The Energy Conservatory, Inc." },
+    { 0x067B,   "I.FARM, INC." },
+    { 0x067C,   "Tile, Inc." },
+    { 0x067D,   "Form Athletica Inc." },
+    { 0x067E,   "MbientLab Inc" },
+    { 0x067F,   "NETGRID S.N.C. DI BISSOLI MATTEO, CAMPOREALE SIMONE, TOGNETTI FEDERICO" },
+    { 0x0680,   "Mannkind Corporation" },
+    { 0x0681,   "Trade FIDES a.s." },
+    { 0x0682,   "Photron Limited" },
+    { 0x0683,   "Eltako GmbH" },
+    { 0x0684,   "Dermalapps, LLC" },
+    { 0x0685,   "Greenwald Industries" },
+    { 0x0686,   "inQs Co., Ltd." },
+    { 0x0687,   "Cherry GmbH" },
+    { 0x0688,   "Amsted Digital Solutions Inc." },
+    { 0x0689,   "Tacx b.v." },
+    { 0x068A,   "Raytac Corporation" },
+    { 0x068B,   "Jiangsu Teranovo Tech Co., Ltd." },
+    { 0x068C,   "Changzhou Sound Dragon Electronics and Acoustics Co., Ltd" },
+    { 0x068D,   "JetBeep Inc." },
+    { 0x068E,   "Razer Inc." },
+    { 0x068F,   "JRM Group Limited" },
+    { 0x0690,   "Eccrine Systems, Inc." },
+    { 0x0691,   "Curie Point AB" },
+    { 0x0692,   "Georg Fischer AG" },
+    { 0x0693,   "Hach - Danaher" },
+    { 0x0694,   "T&A Laboratories LLC" },
+    { 0x0695,   "Koki Holdings Co., Ltd." },
+    { 0x0696,   "Gunakar Private Limited" },
+    { 0x0697,   "Stemco Products Inc" },
+    { 0x0698,   "Wood IT Security, LLC" },
+    { 0x0699,   "RandomLab SAS" },
+    { 0x069A,   "Adero, Inc. (formerly as TrackR, Inc.)" },
+    { 0x069B,   "Dragonchip Limited" },
+    { 0x069C,   "Noomi AB" },
+    { 0x069D,   "Vakaros LLC" },
+    { 0x069E,   "Delta Electronics, Inc." },
+    { 0x069F,   "FlowMotion Technologies AS" },
+    { 0x06A0,   "OBIQ Location Technology Inc." },
+    { 0x06A1,   "Cardo Systems, Ltd" },
+    { 0x06A2,   "Globalworx GmbH" },
+    { 0x06A3,   "Nymbus, LLC" },
+    { 0x06A4,   "Sanyo Techno Solutions Tottori Co., Ltd." },
+    { 0x06A5,   "TEKZITEL PTY LTD" },
+    { 0x06A6,   "Roambee Corporation" },
+    { 0x06A7,   "Chipsea Technologies (ShenZhen) Corp." },
+    { 0x06A8,   "GD Midea Air-Conditioning Equipment Co., Ltd." },
+    { 0x06A9,   "Soundmax Electronics Limited" },
+    { 0x06AA,   "Produal Oy" },
+    { 0x06AB,   "HMS Industrial Networks AB" },
+    { 0x06AC,   "Ingchips Technology Co., Ltd." },
+    { 0x06AD,   "InnovaSea Systems Inc." },
+    { 0x06AE,   "SenseQ Inc." },
+    { 0x06AF,   "Shoof Technologies" },
+    { 0x06B0,   "BRK Brands, Inc." },
+    { 0x06B1,   "SimpliSafe, Inc." },
+    { 0x06B2,   "Tussock Innovation 2013 Limited" },
+    { 0x06B3,   "The Hablab ApS" },
+    { 0x06B4,   "Sencilion Oy" },
+    { 0x06B5,   "Wabilogic Ltd." },
+    { 0x06B6,   "Sociometric Solutions, Inc." },
+    { 0x06B7,   "iCOGNIZE GmbH" },
+    { 0x06B8,   "ShadeCraft, Inc" },
+    { 0x06B9,   "Beflex Inc." },
+    { 0x06BA,   "Beaconzone Ltd" },
+    { 0x06BB,   "Leaftronix Analogic Solutions Private Limited" },
+    { 0x06BC,   "TWS Srl" },
+    { 0x06BD,   "ABB Oy" },
+    { 0x06BE,   "HitSeed Oy" },
+    { 0x06BF,   "Delcom Products Inc." },
+    { 0x06C0,   "CAME S.p.A." },
+    { 0x06C1,   "Alarm.com Holdings, Inc" },
+    { 0x06C2,   "Measurlogic Inc." },
+    { 0x06C3,   "King I Electronics.Co.,Ltd" },
+    { 0x06C4,   "Dream Labs GmbH" },
+    { 0x06C5,   "Urban Compass, Inc" },
+    { 0x06C6,   "Simm Tronic Limited" },
+    { 0x06C7,   "Somatix Inc" },
+    { 0x06C8,   "Storz & Bickel GmbH & Co. KG" },
+    { 0x06C9,   "MYLAPS B.V." },
+    { 0x06CA,   "Shenzhen Zhongguang Infotech Technology Development Co., Ltd" },
+    { 0x06CB,   "Dyeware, LLC" },
+    { 0x06CC,   "Dongguan SmartAction Technology Co.,Ltd." },
+    { 0x06CD,   "DIG Corporation" },
+    { 0x06CE,   "FIOR & GENTZ" },
+    { 0x06CF,   "Belparts N.V." },
+    { 0x06D0,   "Etekcity Corporation" },
+    { 0x06D1,   "Meyer Sound Laboratories, Incorporated" },
+    { 0x06D2,   "CeoTronics AG" },
+    { 0x06D3,   "TriTeq Lock and Security, LLC" },
+    { 0x06D4,   "DYNAKODE TECHNOLOGY PRIVATE LIMITED" },
+    { 0x06D5,   "Sensirion AG" },
+    { 0x06D6,   "JCT Healthcare Pty Ltd" },
+    { 0x06D7,   "FUBA Automotive Electronics GmbH" },
+    { 0x06D8,   "AW Company" },
+    { 0x06D9,   "Shanghai Mountain View Silicon Co.,Ltd." },
+    { 0x06DA,   "Zliide Technologies ApS" },
+    { 0x06DB,   "Automatic Labs, Inc." },
+    { 0x06DC,   "Industrial Network Controls, LLC" },
+    { 0x06DD,   "Intellithings Ltd." },
+    { 0x06DE,   "Navcast, Inc." },
+    { 0x06DF,   "Hubbell Lighting, Inc." },
+    { 0x06E0,   "Avaya" },
+    { 0x06E1,   "Milestone AV Technologies LLC" },
+    { 0x06E2,   "Alango Technologies Ltd" },
+    { 0x06E3,   "Spinlock Ltd" },
+    { 0x06E4,   "Aluna" },
+    { 0x06E5,   "OPTEX CO.,LTD." },
+    { 0x06E6,   "NIHON DENGYO KOUSAKU" },
+    { 0x06E7,   "VELUX A/S" },
+    { 0x06E8,   "Almendo Technologies GmbH" },
+    { 0x06E9,   "Zmartfun Electronics, Inc." },
+    { 0x06EA,   "SafeLine Sweden AB" },
+    { 0x06EB,   "Houston Radar LLC" },
+    { 0x06EC,   "Sigur" },
+    { 0x06ED,   "J Neades Ltd" },
+    { 0x06EE,   "Avantis Systems Limited" },
+    { 0x06EF,   "ALCARE Co., Ltd." },
+    { 0x06F0,   "Chargy Technologies, SL" },
+    { 0x06F1,   "Shibutani Co., Ltd." },
+    { 0x06F2,   "Trapper Data AB" },
+    { 0x06F3,   "Alfred International Inc." },
+    { 0x06F4,   "Near Field Solutions Ltd" },
+    { 0x06F5,   "Vigil Technologies Inc." },
+    { 0x06F6,   "Vitulo Plus BV" },
+    { 0x06F7,   "WILKA Schliesstechnik GmbH" },
+    { 0x06F8,   "BodyPlus Technology Co.,Ltd" },
+    { 0x06F9,   "happybrush GmbH" },
+    { 0x06FA,   "Enequi AB" },
+    { 0x06FB,   "Sartorius AG" },
+    { 0x06FC,   "Tom Communication Industrial Co.,Ltd." },
+    { 0x06FD,   "ESS Embedded System Solutions Inc." },
+    { 0x06FE,   "Mahr GmbH" },
+    { 0x06FF,   "Redpine Signals Inc" },
+    { 0x0700,   "TraqFreq LLC" },
+    { 0x0701,   "PAFERS TECH" },
+    { 0x0702,   "Akciju sabiedriba \"SAF TEHNIKA\"" },
+    { 0x0703,   "Beijing Jingdong Century Trading Co., Ltd." },
+    { 0x0704,   "JBX Designs Inc." },
+    { 0x0705,   "AB Electrolux" },
+    { 0x0706,   "Wernher von Braun Center for ASdvanced Research" },
+    { 0x0707,   "Essity Hygiene and Health Aktiebolag" },
+    { 0x0708,   "Be Interactive Co., Ltd" },
+    { 0x0709,   "Carewear Corp." },
+    { 0x070A,   "Huf Hlsbeck & Frst GmbH & Co. KG" },
+    { 0x070B,   "Element Products, Inc." },
+    { 0x070C,   "Beijing Winner Microelectronics Co.,Ltd" },
+    { 0x070D,   "SmartSnugg Pty Ltd" },
+    { 0x070E,   "FiveCo Sarl" },
+    { 0x070F,   "California Things Inc." },
+    { 0x0710,   "Audiodo AB" },
+    { 0x0711,   "ABAX AS" },
+    { 0x0712,   "Bull Group Company Limited" },
+    { 0x0713,   "Respiri Limited" },
+    { 0x0714,   "MindPeace Safety LLC" },
+    { 0x0715,   "Vgyan Solutions" },
+    { 0x0716,   "Altonics" },
+    { 0x0717,   "iQsquare BV" },
+    { 0x0718,   "IDIBAIX enginneering" },
+    { 0x0719,   "ECSG" },
+    { 0x071A,   "REVSMART WEARABLE HK CO LTD" },
+    { 0x071B,   "Precor" },
+    { 0x071C,   "F5 Sports, Inc" },
+    { 0x071D,   "exoTIC Systems" },
+    { 0x071E,   "DONGGUAN HELE ELECTRONICS CO., LTD" },
+    { 0x071F,   "Dongguan Liesheng Electronic Co.Ltd" },
+    { 0x0720,   "Oculeve, Inc." },
+    { 0x0721,   "Clover Network, Inc." },
+    { 0x0722,   "Xiamen Eholder Electronics Co.Ltd" },
+    { 0x0723,   "Ford Motor Company" },
+    { 0x0724,   "Guangzhou SuperSound Information Technology Co.,Ltd" },
+    { 0x0725,   "Tedee Sp. z o.o." },
+    { 0x0726,   "PHC Corporation" },
+    { 0x0727,   "STALKIT AS" },
+    { 0x0728,   "Eli Lilly and Company" },
+    { 0x0729,   "SwaraLink Technologies" },
+    { 0x072A,   "JMR embedded systems GmbH" },
+    { 0x072B,   "Bitkey Inc." },
+    { 0x072C,   "GWA Hygiene GmbH" },
+    { 0x072D,   "Safera Oy" },
+    { 0x072E,   "Open Platform Systems LLC" },
+    { 0x072F,   "OnePlus Electronics (Shenzhen) Co., Ltd." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {0, NULL }
 };
@@ -2427,19 +2852,19 @@ const value_string bluetooth_address_type_vals[] = {
  * Protocol identifier are described in Table 5.2.
  */
 
-#define AMP_U_L2CAP		0x0001
-#define AMP_C_ACTIVITY_REPORT	0x0002
-#define AMP_C_SECURITY_FRAME	0x0003
-#define AMP_C_LINK_SUP_REQUEST	0x0004
-#define AMP_C_LINK_SUP_REPLY	0x0005
+#define AMP_U_L2CAP             0x0001
+#define AMP_C_ACTIVITY_REPORT   0x0002
+#define AMP_C_SECURITY_FRAME    0x0003
+#define AMP_C_LINK_SUP_REQUEST  0x0004
+#define AMP_C_LINK_SUP_REPLY    0x0005
 
 static const value_string bluetooth_pid_vals[] = {
-	{ AMP_U_L2CAP,			"AMP_U L2CAP ACL data" },
-	{ AMP_C_ACTIVITY_REPORT,	"AMP-C Activity Report" },
-	{ AMP_C_SECURITY_FRAME,		"AMP-C Security frames" },
-	{ AMP_C_LINK_SUP_REQUEST,	"AMP-C Link supervision request" },
-	{ AMP_C_LINK_SUP_REPLY,		"AMP-C Link supervision reply" },
-	{ 0,	NULL }
+    { AMP_U_L2CAP,            "AMP_U L2CAP ACL data" },
+    { AMP_C_ACTIVITY_REPORT,  "AMP-C Activity Report" },
+    { AMP_C_SECURITY_FRAME,   "AMP-C Security frames" },
+    { AMP_C_LINK_SUP_REQUEST, "AMP-C Link supervision request" },
+    { AMP_C_LINK_SUP_REPLY,   "AMP-C Link supervision reply" },
+    { 0,    NULL }
 };
 
 guint32 max_disconnect_in_frame = G_MAXUINT32;
@@ -2521,7 +2946,7 @@ save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset, packet_info *pinf
     gchar                   *name;
     localhost_name_entry_t  *localhost_name_entry;
 
-    if (!(!pinfo->fd->flags.visited && bluetooth_data)) return;
+    if (!(!pinfo->fd->visited && bluetooth_data)) return;
 
     while (i < size) {
         length = tvb_get_guint8(tvb, offset + i);
@@ -2604,7 +3029,7 @@ static const char* bluetooth_get_filter_type(hostlist_talker_t* host, conv_filte
 static hostlist_dissector_info_t  bluetooth_dissector_info = {&bluetooth_get_filter_type};
 
 
-static int
+static tap_packet_status
 bluetooth_conversation_packet(void *pct, packet_info *pinfo,
         epan_dissect_t *edt _U_, const void *vip _U_)
 {
@@ -2613,11 +3038,11 @@ bluetooth_conversation_packet(void *pct, packet_info *pinfo,
             pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
             &bluetooth_ct_dissector_info, ENDPOINT_NONE);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 
-static int
+static tap_packet_status
 bluetooth_hostlist_packet(void *pit, packet_info *pinfo,
         epan_dissect_t *edt _U_, const void *vip _U_)
 {
@@ -2626,7 +3051,7 @@ bluetooth_hostlist_packet(void *pit, packet_info *pinfo,
     add_hostlist_table_data(hash, &pinfo->dl_src, 0, TRUE,  1, pinfo->fd->pkt_len, &bluetooth_dissector_info, ENDPOINT_NONE);
     add_hostlist_table_data(hash, &pinfo->dl_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &bluetooth_dissector_info, ENDPOINT_NONE);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static conversation_t *
@@ -2658,7 +3083,7 @@ get_uuid(tvbuff_t *tvb, gint offset, gint size)
 
     memset(&uuid, 0, sizeof(uuid));
 
-    if (size != 2 && size != 16) {
+    if (size != 2 && size != 4 && size != 16) {
         return uuid;
     }
 
@@ -2666,7 +3091,17 @@ get_uuid(tvbuff_t *tvb, gint offset, gint size)
     if (size == 2) {
         uuid.data[0] = tvb_get_guint8(tvb, offset + 1);
         uuid.data[1] = tvb_get_guint8(tvb, offset);
-    } else if (size == 16) {
+
+        uuid.bt_uuid = uuid.data[1] | uuid.data[0] << 8;
+    } else if (size == 4) {
+        uuid.data[0] = tvb_get_guint8(tvb, offset + 3);
+        uuid.data[1] = tvb_get_guint8(tvb, offset + 2);
+        uuid.data[2] = tvb_get_guint8(tvb, offset + 1);
+        uuid.data[3] = tvb_get_guint8(tvb, offset);
+
+        if (uuid.data[0] == 0x00 && uuid.data[1] == 0x00)
+            uuid.bt_uuid = uuid.data[2] | uuid.data[3] << 8;
+    } else {
         uuid.data[0] = tvb_get_guint8(tvb, offset + 15);
         uuid.data[1] = tvb_get_guint8(tvb, offset + 14);
         uuid.data[2] = tvb_get_guint8(tvb, offset + 13);
@@ -2683,17 +3118,13 @@ get_uuid(tvbuff_t *tvb, gint offset, gint size)
         uuid.data[13] = tvb_get_guint8(tvb, offset + 2);
         uuid.data[14] = tvb_get_guint8(tvb, offset + 1);
         uuid.data[15] = tvb_get_guint8(tvb, offset);
-    }
 
-    if (size == 2) {
-        uuid.bt_uuid = uuid.data[1] | uuid.data[0] << 8;
-    } else {
         if (uuid.data[0] == 0x00 && uuid.data[1] == 0x00 &&
-                uuid.data[4]  == 0x00 && uuid.data[5]  == 0x00 && uuid.data[6]  == 0x10 &&
-                uuid.data[7]  == 0x00 && uuid.data[8]  == 0x80 && uuid.data[9]  == 0x00 &&
-                uuid.data[10] == 0x00 && uuid.data[11] == 0x80 && uuid.data[12] == 0x5F &&
-                uuid.data[13] == 0x9B && uuid.data[14] == 0x34 && uuid.data[15] == 0xFB)
-        uuid.bt_uuid = uuid.data[2] | uuid.data[3] << 8;
+            uuid.data[4]  == 0x00 && uuid.data[5]  == 0x00 && uuid.data[6]  == 0x10 &&
+            uuid.data[7]  == 0x00 && uuid.data[8]  == 0x80 && uuid.data[9]  == 0x00 &&
+            uuid.data[10] == 0x00 && uuid.data[11] == 0x80 && uuid.data[12] == 0x5F &&
+            uuid.data[13] == 0x9B && uuid.data[14] == 0x34 && uuid.data[15] == 0xFB)
+            uuid.bt_uuid = uuid.data[2] | uuid.data[3] << 8;
     }
 
     return uuid;
@@ -2827,30 +3258,30 @@ dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (src && src->type == AT_STRINGZ) {
         sub_item = proto_tree_add_string(main_tree, hf_bluetooth_addr_str, tvb, 0, 0, (const char *) src->data);
-        PROTO_ITEM_SET_HIDDEN(sub_item);
+        proto_item_set_hidden(sub_item);
 
         sub_item = proto_tree_add_string(main_tree, hf_bluetooth_src_str, tvb, 0, 0, (const char *) src->data);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     } else if (src && src->type == AT_ETHER) {
         sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_addr, tvb, 0, 0, (const guint8 *) src->data);
-        PROTO_ITEM_SET_HIDDEN(sub_item);
+        proto_item_set_hidden(sub_item);
 
         sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_src, tvb, 0, 0, (const guint8 *) src->data);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     if (dst && dst->type == AT_STRINGZ) {
         sub_item = proto_tree_add_string(main_tree, hf_bluetooth_addr_str, tvb, 0, 0, (const char *) dst->data);
-        PROTO_ITEM_SET_HIDDEN(sub_item);
+        proto_item_set_hidden(sub_item);
 
         sub_item = proto_tree_add_string(main_tree, hf_bluetooth_dst_str, tvb, 0, 0, (const char *) dst->data);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     } else if (dst && dst->type == AT_ETHER) {
         sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_addr, tvb, 0, 0, (const guint8 *) dst->data);
-        PROTO_ITEM_SET_HIDDEN(sub_item);
+        proto_item_set_hidden(sub_item);
 
         sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_dst, tvb, 0, 0, (const guint8 *) dst->data);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     return bluetooth_data;
@@ -3021,7 +3452,7 @@ proto_register_bluetooth(void)
 
     static hf_register_info oui_hf[] = {
         { &hf_llc_bluetooth_pid,
-            { "PID",	"llc.bluetooth_pid",
+            { "PID",    "llc.bluetooth_pid",
             FT_UINT16, BASE_HEX, VALS(bluetooth_pid_vals), 0x0,
             "Protocol ID", HFILL }
         }
@@ -3034,7 +3465,7 @@ proto_register_bluetooth(void)
     /* Decode As handling */
     static build_valid_func bluetooth_uuid_da_build_value[1] = {bluetooth_uuid_value};
     static decode_as_value_t bluetooth_uuid_da_values = {bluetooth_uuid_prompt, 1, bluetooth_uuid_da_build_value};
-    static decode_as_t bluetooth_uuid_da = {"bluetooth", "BT Service UUID", "bluetooth.uuid", 1, 0, &bluetooth_uuid_da_values, NULL, NULL,
+    static decode_as_t bluetooth_uuid_da = {"bluetooth", "bluetooth.uuid", 1, 0, &bluetooth_uuid_da_values, NULL, NULL,
             decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
 
@@ -3066,7 +3497,7 @@ proto_register_bluetooth(void)
     bluetooth_hci_summary_tap = register_tap("bluetooth.hci_summary");
 
     bluetooth_uuid_table = register_dissector_table("bluetooth.uuid", "BT Service UUID", proto_bluetooth, FT_STRING, BASE_NONE);
-	llc_add_oui(OUI_BLUETOOTH, "llc.bluetooth_pid", "LLC Bluetooth OUI PID", oui_hf, proto_bluetooth);
+    llc_add_oui(OUI_BLUETOOTH, "llc.bluetooth_pid", "LLC Bluetooth OUI PID", oui_hf, proto_bluetooth);
 
     register_conversation_table(proto_bluetooth, TRUE, bluetooth_conversation_packet, bluetooth_hostlist_packet);
 
@@ -3080,8 +3511,8 @@ proto_reg_handoff_bluetooth(void)
     dissector_handle_t bluetooth_bthci_handle = create_dissector_handle(dissect_bluetooth_bthci, proto_bluetooth);
     dissector_handle_t bluetooth_btmon_handle = create_dissector_handle(dissect_bluetooth_btmon, proto_bluetooth);
     dissector_handle_t bluetooth_usb_handle = create_dissector_handle(dissect_bluetooth_usb, proto_bluetooth);
-	dissector_handle_t eapol_handle;
-	dissector_handle_t btl2cap_handle;
+    dissector_handle_t eapol_handle;
+    dissector_handle_t btl2cap_handle;
 
     btle_handle = find_dissector_add_dependency("btle", proto_bluetooth);
     hci_usb_handle = find_dissector_add_dependency("hci_usb", proto_bluetooth);
@@ -3111,12 +3542,13 @@ proto_reg_handoff_bluetooth(void)
 
     wmem_tree_insert_string(bluetooth_uuids, "00000001-0000-1000-8000-0002EE000002", "SyncML Server", 0);
     wmem_tree_insert_string(bluetooth_uuids, "00000002-0000-1000-8000-0002EE000002", "SyncML Client", 0);
+    wmem_tree_insert_string(bluetooth_uuids, "7905F431-B5CE-4E99-A40F-4B1E122D00D0", "Apple Notification Center Service", 0);
 
-	eapol_handle = find_dissector("eapol");
-	btl2cap_handle = find_dissector("btl2cap");
+    eapol_handle = find_dissector("eapol");
+    btl2cap_handle = find_dissector("btl2cap");
 
-	dissector_add_uint("llc.bluetooth_pid", AMP_C_SECURITY_FRAME, eapol_handle);
-	dissector_add_uint("llc.bluetooth_pid", AMP_U_L2CAP, btl2cap_handle);
+    dissector_add_uint("llc.bluetooth_pid", AMP_C_SECURITY_FRAME, eapol_handle);
+    dissector_add_uint("llc.bluetooth_pid", AMP_U_L2CAP, btl2cap_handle);
 
 /* TODO: Add UUID128 verion of UUID16; UUID32? UUID16? */
 }
@@ -3279,7 +3711,7 @@ proto_reg_handoff_btad_alt_beacon(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

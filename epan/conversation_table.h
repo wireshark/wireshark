@@ -113,8 +113,6 @@ typedef struct _conversation_item_t {
     nstime_t            start_time;     /**< relative start time for the conversation */
     nstime_t            stop_time;      /**< relative stop time for the conversation */
     nstime_t            start_abs_time; /**< absolute start time for the conversation */
-
-    gboolean            modified;       /**< new to redraw the row (only used in GTK+) */
 } conv_item_t;
 
 /** Hostlist information */

@@ -1,7 +1,7 @@
 --
--- 3GPP TS 32.298 v15.1.0 (2018-01-04)
+-- 3GPP TS 32.298 v15.7.0 (2019-06-12)
 --
-GPRSChargingDataTypes {itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) charging (5) gprsChargingDataTypes (2) asn1Module (0) version1 (0)}
+GPRSChargingDataTypes {itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) charging (5) gprsChargingDataTypes (2) asn1Module (0) version2 (1)}
 DEFINITIONS IMPLICIT TAGS	::=
 
 BEGIN
@@ -14,9 +14,12 @@ IMPORTS
 CallDuration,
 CallingNumber,
 CauseForRecClosing,
-CellId,
+CellId, 
+ChargingID,
+CivicAddressInformation,
 Diagnostics, 
-DiameterIdentity, 
+DiameterIdentity,
+DynamicAddressFlag, 
 EnhancedDiagnostics,
 -- GSNAddress,
 IPAddress,
@@ -32,7 +35,11 @@ MBMSInformation,
 MessageReference, 
 MSISDN,
 MSTimeZone,
+NodeID,
+PDPAddress,
+PLMN-Id,
 PositioningData,
+RATType,
 RecordingEntity,
 RecordType,
 RoutingAreaCode,
@@ -43,36 +50,36 @@ SmsTpDestinationNumber,
 SubscriptionID, 
 ThreeGPPPSDataOffStatus,
 TimeStamp
-FROM GenericChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) genericChargingDataTypes (0) asn1Module (0) version1 (0)}
+FROM GenericChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) genericChargingDataTypes (0) asn1Module (0) version2 (1)}
 
 DefaultGPRS-Handling,
 DefaultSMS-Handling,
 NotificationToMSUser,
 ServiceKey
 FROM MAP-MS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0)
-gsm-Network (1) modules (3) map-MS-DataTypes (11) version15 (15)}
+gsm-Network (1) modules (3) map-MS-DataTypes (11) version18 (18)}
 -- from TS 29.002 [214]
 
 IMEI,
 IMSI,
 ISDN-AddressString,
 RAIdentity
-FROM MAP-CommonDataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0)gsm-Network (1) modules (3) map-CommonDataTypes (18) version15 (15)}
+FROM MAP-CommonDataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0)gsm-Network (1) modules (3) map-CommonDataTypes (18) version18 (18)}
 -- from TS 29.002 [214]
 
 CallReferenceNumber
-FROM MAP-CH-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0)gsm-Network (1) modules (3) map-CH-DataTypes (13) version15 (15)}
+FROM MAP-CH-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0)gsm-Network (1) modules (3) map-CH-DataTypes (13) version18 (18)}
 -- from TS 29.002 [214]
 
 Ext-GeographicalInformation,
 LCSClientType,
 LCS-Priority,
 LocationType
-FROM MAP-LCS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-LCS-DataTypes (25) version15 (15) }
+FROM MAP-LCS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-LCS-DataTypes (25) version18 (18) }
 -- from TS 29.002 [214]
 
 LocationMethod
-FROM SS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3) ss-DataTypes (2) version15 (15)}
+FROM SS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3) ss-DataTypes (2) version12 (12)}
 -- from TS 24.080 [209] 
 
 ;
@@ -172,7 +179,8 @@ SGWRecord 	::= SET
 	uNIPDUCPOnlyFlag			[60] UNIPDUCPOnlyFlag OPTIONAL, 
 	servingPLMNRateControl		[61] ServingPLMNRateControl OPTIONAL,
 	pDPPDNTypeExtension			[62] PDPPDNTypeExtension OPTIONAL,
-	mOExceptionDataCounter		[63] MOExceptionDataCounter OPTIONAL
+	mOExceptionDataCounter		[63] MOExceptionDataCounter OPTIONAL,
+	listOfRANSecondaryRATUsageReports [64] SEQUENCE OF RANSecondaryRATUsageReport OPTIONAL
 }
 
 PGWRecord 	::= SET
@@ -249,7 +257,8 @@ PGWRecord 	::= SET
 	mOExceptionDataCounter				[69] MOExceptionDataCounter OPTIONAL,
 	chargingPerIPCANSessionIndicator    [70] ChargingPerIPCANSessionIndicator OPTIONAL,
 	threeGPPPSDataOffStatus				[71] ThreeGPPPSDataOffStatus OPTIONAL,
-	sCSASAddress						[72] SCSASAddress OPTIONAL
+	sCSASAddress						[72] SCSASAddress OPTIONAL,
+	listOfRANSecondaryRATUsageReports	[73] SEQUENCE OF RANSecondaryRATUsageReport OPTIONAL
 }
 
 TDFRecord 	::= SET
@@ -381,7 +390,8 @@ EPDGRecord 	::= SET
 	retransmission				[51] NULL OPTIONAL,
 	enhancedDiagnostics			[52] EnhancedDiagnostics OPTIONAL,
 	uWANUserLocationInformation	[53] UWANUserLocationInfo OPTIONAL,
-	userLocationInfoTime		[54] TimeStamp OPTIONAL
+	userLocationInfoTime		[54] TimeStamp OPTIONAL,
+	iMSIunauthenticatedFlag 	[55] NULL OPTIONAL
 }
 
 TWAGRecord 	::= SET
@@ -421,7 +431,8 @@ TWAGRecord 	::= SET
 	p-GWiPv6AddressUsed			[50] GSNAddress OPTIONAL,
 	retransmission				[51] NULL OPTIONAL,
 	enhancedDiagnostics			[52] EnhancedDiagnostics OPTIONAL,
-	tWANUserLocationInformation	[53] TWANUserLocationInfo OPTIONAL
+	tWANUserLocationInformation	[53] TWANUserLocationInfo OPTIONAL,
+	iMSIunauthenticatedFlag 	[54] NULL OPTIONAL
 }
 
 SGSNMMRecord	::= SET
@@ -869,6 +880,11 @@ ChangeCondition	::= ENUMERATED
 	qoSChange						(0),
 	tariffTime						(1),
 	recordClosure					(2),
+-- WS backward compabillity addition
+	failureHandlingContinueOngoing	(3),
+	failureHandlingRetryandTerminateOngoing	(4),
+	failureHandlingTerminateOngoing	(5),
+-- WS mod END
 	cGI-SAICHange					(6),	-- bearer modification. "CGI-SAI Change"
 	rAIChange						(7),	-- bearer modification. "RAI Change"
 	dT-Establishment				(8),
@@ -883,9 +899,10 @@ ChangeCondition	::= ENUMERATED
 	unusabilityOfAccess				(16),	-- NBIFOM "Unusability of Access"
 	indirectChangeCondition			(17),	-- NBIFOM "Indirect Change Condition"
 	userPlaneToUEChange				(18),	-- bearer modification. "Change of user plane to UE"	
-	servingPLMNRateControlChange	(19) , 	
--- bearer modification “Serving PLMN Rate Control Change"
-	threeGPPPSDataOffStatusChange	(20)   -- "Change of 3GPP PS DataO ff Status"
+	servingPLMNRateControlChange	(19), 	
+-- bearer modification "Serving PLMN Rate Control Change"
+	threeGPPPSDataOffStatusChange	(20),   -- "Change of 3GPP PS DataO ff Status"
+	aPNRateControlChange			(21)	-- bearer modification. "APN Rate ControlChange
 
 }
 
@@ -897,28 +914,32 @@ ChangeOfCharCondition	::= SEQUENCE
 -- chargingID used in PGW-CDR only when Charging per IP-CAN session is active
 -- accessAvailabilityChangeReason and relatedChangeOfCharCondition applicable only in PGW-CDR
 -- cPCIoTOptimisationIndicator is used in SGW-CDR only
+-- aPNRateControl is valid for PGW-CDR only
 --
 {
-	qosRequested					[1] QoSInformation OPTIONAL,
-	qosNegotiated					[2] QoSInformation OPTIONAL,
-	dataVolumeGPRSUplink			[3] DataVolumeGPRS OPTIONAL,
-	dataVolumeGPRSDownlink			[4] DataVolumeGPRS OPTIONAL,
-	changeCondition					[5] ChangeCondition,
-	changeTime						[6] TimeStamp,
-	userLocationInformation			[8] OCTET STRING OPTIONAL,
-	ePCQoSInformation				[9] EPCQoSInformation OPTIONAL,
-	chargingID						[10] ChargingID OPTIONAL,
-	presenceReportingAreaStatus 	[11] PresenceReportingAreaStatus OPTIONAL,
-	userCSGInformation				[12] UserCSGInformation OPTIONAL,
-	diagnostics						[13] Diagnostics OPTIONAL,
-	enhancedDiagnostics				[14] EnhancedDiagnostics OPTIONAL,
-	rATType							[15] RATType OPTIONAL,
-	accessAvailabilityChangeReason	[16] AccessAvailabilityChangeReason OPTIONAL,
-	uWANUserLocationInformation		[17] UWANUserLocationInfo OPTIONAL,
-	relatedChangeOfCharCondition	[18] RelatedChangeOfCharCondition OPTIONAL,
-	cPCIoTEPSOptimisationIndicator	[19] CPCIoTEPSOptimisationIndicator OPTIONAL,
-	servingPLMNRateControl			[20] ServingPLMNRateControl OPTIONAL,
-	threeGPPPSDataOffStatus			[21] ThreeGPPPSDataOffStatus OPTIONAL
+	qosRequested							[1] QoSInformation OPTIONAL,
+	qosNegotiated							[2] QoSInformation OPTIONAL,
+	dataVolumeGPRSUplink					[3] DataVolumeGPRS OPTIONAL,
+	dataVolumeGPRSDownlink					[4] DataVolumeGPRS OPTIONAL,
+	changeCondition							[5] ChangeCondition,
+	changeTime								[6] TimeStamp,
+	userLocationInformation					[8] OCTET STRING OPTIONAL,
+	ePCQoSInformation						[9] EPCQoSInformation OPTIONAL,
+	chargingID								[10] ChargingID OPTIONAL,
+	presenceReportingAreaStatus 			[11] PresenceReportingAreaStatus OPTIONAL,
+	userCSGInformation						[12] UserCSGInformation OPTIONAL,
+	diagnostics								[13] Diagnostics OPTIONAL,
+	enhancedDiagnostics						[14] EnhancedDiagnostics OPTIONAL,
+	rATType									[15] RATType OPTIONAL,
+	accessAvailabilityChangeReason			[16] AccessAvailabilityChangeReason OPTIONAL,
+	uWANUserLocationInformation				[17] UWANUserLocationInfo OPTIONAL,
+	relatedChangeOfCharCondition			[18] RelatedChangeOfCharCondition OPTIONAL,
+	cPCIoTEPSOptimisationIndicator			[19] CPCIoTEPSOptimisationIndicator OPTIONAL,
+	servingPLMNRateControl					[20] ServingPLMNRateControl OPTIONAL,
+	threeGPPPSDataOffStatus					[21] ThreeGPPPSDataOffStatus OPTIONAL,
+	listOfPresenceReportingAreaInformation	[22] SEQUENCE OF PresenceReportingAreaInfo OPTIONAL,
+	aPNRateControl							[23] APNRateControl OPTIONAL
+
 }
 
 ChangeOfMBMSCondition	::= SEQUENCE
@@ -975,7 +996,9 @@ ChangeOfServiceCondition	::= SEQUENCE
 	aPNRateControl						[36] APNRateControl OPTIONAL, 
 	threeGPPPSDataOffStatus             [37] ThreeGPPPSDataOffStatus OPTIONAL,
 	trafficSteeringPolicyIDDownlink     [38] TrafficSteeringPolicyIDDownlink OPTIONAL,
-trafficSteeringPolicyIDUplink       [39] TrafficSteeringPolicyIDUplink OPTIONAL
+trafficSteeringPolicyIDUplink       [39] TrafficSteeringPolicyIDUplink OPTIONAL,
+	tWANUserLocationInformation			[40] TWANUserLocationInfo OPTIONAL,
+	listOfPresenceReportingAreaInformation	[41] SEQUENCE OF PresenceReportingAreaInfo OPTIONAL
 
 }
 
@@ -993,11 +1016,6 @@ ChangeLocation	::= SEQUENCE
 
 ChargingCharacteristics	::= OCTET STRING (SIZE(2))
 
-ChargingID	::= INTEGER (0..4294967295)
---
--- Generated in P-GW, part of IP-CAN bearer
--- 0..4294967295 is equivalent to 0..2**32-1
---
 
 ChargingPerIPCANSessionIndicator	::= ENUMERATED
 {
@@ -1058,7 +1076,6 @@ DataVolumeMBMS ::= INTEGER
 -- The volume of data transferred in octets.
 --
 
-DynamicAddressFlag	::= BOOLEAN
 
 EPCQoSInformation	::= SEQUENCE
 --
@@ -1163,17 +1180,7 @@ NetworkInitiatedPDPContext		::= BOOLEAN
 -- Set to true if PDP context was initiated from network side
 --
 
-NodeID		::= IA5String (SIZE(1..20))
-
 NumberOfDPEncountered  ::= INTEGER
-
-PDPAddress		::= CHOICE
-{
-	iPAddress				[0] IPAddress
---	eTSIAddress				[1] ETSIAddress
---								has only been used in earlier releases for X.121 format
-}
-
 PDPType		::= OCTET STRING (SIZE(2))
 --
 -- OCTET 1: PDP Type Organization
@@ -1187,15 +1194,11 @@ PDPPDNTypeExtension	::= INTEGER
 -- This integer is 1:1 copy of the PDP type value as defined in TS 29.061 [215].
 --
 
-PLMN-Id		::= OCTET STRING (SIZE (3))
---
---	This is in the same format as octets 2,3,and 4 of the Routing Area Identity (RAI) IE specified
---	in TS 29.060 [215]
---
 
 PresenceReportingAreaElementsList ::= OCTET STRING
 --
--- See Presence-Reporting-Area-Elements-List AVP defined in TS 29.212 [220]
+-- For EPC see Presence-Reporting-Area-Elements-List AVP defined in TS 29.212 [220] 
+-- For 5GC see PresenceInfo defined in TS 29.571 [249] excluding praId and presenceState
 -- 
 
 
@@ -1203,14 +1206,26 @@ PresenceReportingAreaInfo	::= SEQUENCE
 {
 	presenceReportingAreaIdentifier	 [0] OCTET STRING,
 	presenceReportingAreaStatus		 [1] PresenceReportingAreaStatus OPTIONAL,
-	presenceReportingAreaElementsList[2] PresenceReportingAreaElementsList OPTIONAL
+	presenceReportingAreaElementsList[2] PresenceReportingAreaElementsList OPTIONAL,
+	presenceReportingAreaNode		 [3] PresenceReportingAreaNode OPTIONAL
 }
+
+PresenceReportingAreaNode ::= BIT STRING 
+{
+	oCS   		 (0),
+	pCRF  		 (1)
+}
+--
+--	This bit mask has the same format as Presence-Reporting-Area-Node AVP in TS 29.212 [220]
+--
+
 
 PresenceReportingAreaStatus ::= ENUMERATED 
 {
 	insideArea   (0),
-	outsideArea  (1) ,
-	inactive 	 (2)
+	outsideArea  (1),
+	inactive     (2),
+	unknown      (3)
 
 }
 
@@ -1227,6 +1242,18 @@ QoSInformation	::= OCTET STRING (SIZE (4..255))
 -- Service" information element specified in TS 29.274 [223].
 --
 
+RANSecondaryRATUsageReport	::= SEQUENCE
+--
+{
+	dataVolumeUplink				[1] DataVolumeGPRS,
+	dataVolumeDownlink				[2] DataVolumeGPRS,
+	rANStartTime					[3] TimeStamp,
+	rANEndTime						[4] TimeStamp,
+	secondaryRATType				[5] SecondaryRATType OPTIONAL,
+	chargingID						[6] ChargingID OPTIONAL
+}
+
+
 RateControlTimeUnit ::= INTEGER
 {	unrestricted	(0),
 	minute			(1),
@@ -1239,11 +1266,6 @@ RatingGroupId		::= INTEGER
 -- 
 -- IP service flow identity (DCCA), range of 4 byte (0... 4294967295)
 -- see Rating-Group AVP as used in TS 32.299 [50]
---
-
-RATType		::= INTEGER (0..255)
---
--- Ihis integer is 1:1 copy of the RAT type value as defined in TS 29.061 [215].
 --
 
 RelatedChangeOfCharCondition	::= SEQUENCE
@@ -1273,6 +1295,11 @@ ResultCode		::= INTEGER
 -- charging protocol return value, range of 4 byte (0... 4294967295)
 -- see Result-Code AVP as used in 32.299 [40]
 --
+
+SecondaryRATType	::= INTEGER
+{
+	nR				(0)		-- New Radio 5G
+}
 
 ServiceConditionChange	::= BIT STRING
 {
@@ -1404,8 +1431,11 @@ TrafficSteeringPolicyIDUplink	::= OCTET STRING
 
 TWANUserLocationInfo		::= SEQUENCE
 {
-	sSID		[0] OCTET STRING,					-- see format in IEEE Std 802.11-2012 [408]
-	bSSID		[1] OCTET STRING OPTIONAL			-- see format in IEEE Std 802.11-2012 [408]
+	sSID					[0] OCTET STRING,			-- see format in IEEE Std 802.11-2012 [408]
+	bSSID					[1] OCTET STRING OPTIONAL, 	-- see format in IEEE Std 802.11-2012 [408]
+	civicAddressInformation	[2] CivicAddressInformation OPTIONAL,
+	wLANOperatorId			[3] WLANOperatorId OPTIONAL,
+	logicalAccessID			[4] OCTET STRING OPTIONAL
 }
 
 UNIPDUCPOnlyFlag	::= BOOLEAN
@@ -1420,10 +1450,21 @@ UserCSGInformation		::= SEQUENCE
 
 UWANUserLocationInfo		::= SEQUENCE
 {
-	uELocalIPAddress	[0] IPAddress,
-	uDPSourcePort		[1] OCTET STRING (SIZE(2)) OPTIONAL,
-	sSID				[2] OCTET STRING OPTIONAL,	-- see format in IEEE Std 802.11-2012 [408]
-	bSSID				[3] OCTET STRING OPTIONAL	-- see format in IEEE Std 802.11-2012 [408]
+	uELocalIPAddress		[0] IPAddress,
+	uDPSourcePort			[1] OCTET STRING (SIZE(2)) OPTIONAL,
+	sSID					[2] OCTET STRING OPTIONAL,	-- see format in IEEE Std 802.11-2012 [408]
+	bSSID					[3] OCTET STRING OPTIONAL,	-- see format in IEEE Std 802.11-2012 [408]
+	tCPSourcePort			[4] OCTET STRING (SIZE(2)) OPTIONAL,
+	civicAddressInformation	[5] CivicAddressInformation OPTIONAL,
+	wLANOperatorId			[6] WLANOperatorId OPTIONAL,
+	logicalAccessID			[7] OCTET STRING OPTIONAL
 }
+
+WLANOperatorId ::= SEQUENCE 
+{
+	wLANOperatorName	[0] OCTET STRING,
+	wLANPLMNId			[1] PLMN-Id
+}
+
 
 END

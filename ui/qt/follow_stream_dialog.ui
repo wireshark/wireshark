@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>594</width>
-    <height>620</height>
+    <width>609</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -41,7 +41,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,1,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,1,0,0,0,0">
      <item>
       <widget class="QComboBox" name="cbDirections">
        <property name="sizeAdjustPolicy">
@@ -98,6 +98,16 @@
      </item>
      <item>
       <widget class="QSpinBox" name="streamNumberSpinBox"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="subStreamNumberLabel">
+       <property name="text">
+        <string>Substream</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="subStreamNumberSpinBox"/>
      </item>
     </layout>
    </item>

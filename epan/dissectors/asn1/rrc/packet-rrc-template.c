@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref: 3GPP TS 25.331 V15.2.0 (2018-03)
+ * Ref: 3GPP TS 25.331 V15.4.0 (2018-09)
  */
 
 /**
@@ -56,6 +56,19 @@ GTree * rrc_ciph_info_tree = NULL;
 wmem_tree_t* rrc_global_urnti_crnti_map = NULL;
 static int msg_type _U_;
 
+enum rrc_sib_segment_type {
+  RRC_SIB_SEG_NO_SEGMENT = 0,
+  RRC_SIB_SEG_FIRST = 1,
+  RRC_SIB_SEG_SUBSEQUENT = 2,
+  RRC_SIB_SEG_LAST_SHORT = 3,
+  RRC_SIB_SEG_LAST_AND_FIRST = 4,
+  RRC_SIB_SEG_LAST_AND_COMP = 5,
+  RRC_SIB_SEG_LAST_AND_COMP_AND_FIRST = 6,
+  RRC_SIB_SEG_COMP_LIST = 7,
+  RRC_SIB_SEG_COMP_AND_FIRST = 8,
+  RRC_SIB_SEG_COMP = 10,
+};
+
 /*****************************************************************************/
 /* Packet private data                                                       */
 /* For this dissector, all access to actx->private_data should be made       */
@@ -71,25 +84,24 @@ typedef struct umts_rrc_private_data_t
   guint32 scrambling_code;
   enum nas_sys_info_gsm_map cn_domain;
   wmem_strbuf_t* digits_strbuf; /* A collection of digits in a string. Used for reconstructing IMSIs or MCC-MNC pairs */
+  wmem_strbuf_t* last_mcc_strbuf; /* Last seen MCC digits string */
   gboolean digits_strbuf_parsing_failed_flag; /* Whether an error occured when creating the IMSI/MCC-MNC pair string */
   guint32 rbid;
   guint32 rlc_ciphering_sqn; /* Sequence number where ciphering starts in a given bearer */
   rrc_ciphering_info* ciphering_info;
   enum rrc_ue_state rrc_state_indicator;
+  enum rrc_sib_segment_type curr_sib_segment_type;
+  guint32 curr_sib_type;
 } umts_rrc_private_data_t;
 
 
 /* Helper function to get or create a struct that will be actx->private_data */
 static umts_rrc_private_data_t* umts_rrc_get_private_data(asn1_ctx_t *actx)
 {
-  if (actx->private_data != NULL) {
-    return (umts_rrc_private_data_t*)actx->private_data;
+  if (actx->private_data == NULL) {
+    actx->private_data = wmem_new0(wmem_packet_scope(), umts_rrc_private_data_t);
   }
-  else {
-    umts_rrc_private_data_t* new_struct = wmem_new0(wmem_packet_scope(), umts_rrc_private_data_t);
-    actx->private_data = new_struct;
-    return new_struct;
-  }
+  return (umts_rrc_private_data_t*)actx->private_data;
 }
 
 static guint32 private_data_get_s_rnc_id(asn1_ctx_t *actx)
@@ -188,6 +200,18 @@ static void private_data_set_digits_strbuf_parsing_failed_flag(asn1_ctx_t *actx,
   private_data->digits_strbuf_parsing_failed_flag = digits_strbuf_parsing_failed_flag;
 }
 
+static wmem_strbuf_t* private_data_get_last_mcc_strbuf(asn1_ctx_t *actx)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  return private_data->last_mcc_strbuf;
+}
+
+static void private_data_set_last_mcc_strbuf(asn1_ctx_t *actx, wmem_strbuf_t* last_mcc_strbuf)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  private_data->last_mcc_strbuf = last_mcc_strbuf;
+}
+
 static guint32 private_data_get_rbid(asn1_ctx_t *actx)
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
@@ -236,6 +260,30 @@ static void private_data_set_rrc_state_indicator(asn1_ctx_t *actx, enum rrc_ue_s
   private_data->rrc_state_indicator = rrc_state_indicator;
 }
 
+static enum rrc_sib_segment_type private_data_get_curr_sib_segment_type(asn1_ctx_t *actx)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  return private_data->curr_sib_segment_type;
+}
+
+static void private_data_set_curr_sib_segment_type(asn1_ctx_t *actx, enum rrc_sib_segment_type curr_sib_segment_type)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  private_data->curr_sib_segment_type = curr_sib_segment_type;
+}
+
+static guint32 private_data_get_curr_sib_type(asn1_ctx_t *actx)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  return private_data->curr_sib_type;
+}
+
+static void private_data_set_curr_sib_type(asn1_ctx_t *actx, guint32 curr_sib_type)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  private_data->curr_sib_type = curr_sib_type;
+}
+
 /*****************************************************************************/
 
 static dissector_handle_t gsm_a_dtap_handle;
@@ -266,6 +314,9 @@ static int dissect_SysInfoType22_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 /* Initialize the protocol and registered fields */
 int proto_rrc = -1;
 static int hf_test;
+static int hf_urnti;
+static int hf_urnti_new;
+static int hf_urnti_current;
 #include "packet-rrc-hf.c"
 
 /* Initialize the subtree pointers */
@@ -277,8 +328,7 @@ static gint ett_rrc_eutraFeatureGroupIndicators = -1;
 static gint ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo = -1;
 static gint ett_rrc_ims_info = -1;
 static gint ett_rrc_cellIdentity = -1;
-static gint ett_rrc_cipheringAlgorithmCap = -1;
-static gint ett_rrc_integrityProtectionAlgorithmCap = -1;
+static gint ett_rrc_sib_data_var = -1;
 
 static expert_field ei_rrc_no_hrnti = EI_INIT;
 
@@ -490,6 +540,18 @@ void proto_register_rrc(void) {
       { "RAB Test", "rrc.RAB.test",
         FT_UINT8, BASE_DEC, NULL, 0,
         "rrc.RAB_Info_r6", HFILL }},
+    { &hf_urnti,
+      { "U-RNTI", "rrc.urnti",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_urnti_new,
+      { "New U-RNTI", "rrc.urnti_new",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_urnti_current,
+      { "Current U-RNTI", "rrc.urnti_current",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
     { &hf_rrc_eutra_feat_group_ind_1,
       { "Indicator 1", "rrc.eutra_feat_group_ind_1",
         FT_BOOLEAN, BASE_NONE, TFS(&rrc_eutra_feat_group_ind_1_val), 0,
@@ -540,8 +602,7 @@ void proto_register_rrc(void) {
     &ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo,
     &ett_rrc_ims_info,
     &ett_rrc_cellIdentity,
-    &ett_rrc_cipheringAlgorithmCap,
-    &ett_rrc_integrityProtectionAlgorithmCap,
+    &ett_rrc_sib_data_var,
   };
 
   static ei_register_info ei[] = {

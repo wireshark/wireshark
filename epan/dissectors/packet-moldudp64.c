@@ -90,7 +90,7 @@ dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_uint64(blk_tree, hf_moldudp64_msgseq,
             tvb, offset, 0, sequence);
 
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     ti = proto_tree_add_item(blk_tree, hf_moldudp64_msglen,
             tvb, offset, MOLDUDP64_MSGLEN_LEN, ENC_BIG_ENDIAN);
@@ -254,7 +254,7 @@ proto_register_moldudp64(void)
     expert_moldudp64 = expert_register_protocol(proto_moldudp64);
     expert_register_field_array(expert_moldudp64, ei, array_length(ei));
 
-    moldudp64_payload_table = register_decode_as_next_proto(proto_moldudp64, "MoldUDP64 Payload", "moldudp64.payload",
+    moldudp64_payload_table = register_decode_as_next_proto(proto_moldudp64, "moldudp64.payload",
                                                             "MoldUDP64 Payload", moldudp64_prompt);
 }
 
@@ -269,7 +269,7 @@ proto_reg_handoff_moldudp64(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

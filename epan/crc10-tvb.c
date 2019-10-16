@@ -28,7 +28,7 @@ update_crc10_by_bytes_tvb(guint16 crc10, tvbuff_t *tvb, int offset, int len)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

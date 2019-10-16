@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef FRAME_INFORMATION_H_
 #define FRAME_INFORMATION_H_
@@ -44,8 +45,9 @@ private:
 
     frame_data * fi_;
     CaptureFile * cap_file_;
-    guint8 *packet_data_;
     epan_dissect_t edt_;
+    wtap_rec rec_; /* Record metadata */
+    Buffer buf_;   /* Record data */
 
     void loadFrameTree();
 

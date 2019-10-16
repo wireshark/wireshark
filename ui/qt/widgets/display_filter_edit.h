@@ -69,12 +69,14 @@ private:
     void setDefaultPlaceholderText();
     void buildCompletionList(const QString& field_word);
 
+    void createFilterTextDropMenu(QDropEvent *event, bool prepare, QString filterText = QString());
+
 signals:
     void pushFilterSyntaxStatus(const QString&);
     void popFilterSyntaxStatus();
-    void pushFilterSyntaxWarning(const QString&);
     void filterPackets(QString new_filter, bool force);
     void showPreferencesDialog(QString pane_name);
+
 };
 
 #endif // DISPLAYFILTEREDIT_H

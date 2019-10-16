@@ -1001,7 +1001,7 @@ save_path(packet_info *pinfo, const gchar *current_path, const gchar *name,
 /* On Connect response sets "/"
    On SetPath sets what is needed
  */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         obex_path_data_t     *obex_path_data;
         wmem_tree_key_t       key[6];
         guint32               frame_number;
@@ -1795,7 +1795,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 switch (hdr_id) {
                 case 0x01: /* Name */
                     proto_tree_add_item(hdr_tree, hf_name, tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
-                    if (!pinfo->fd->flags.visited && obex_last_opcode_data) {
+                    if (!pinfo->fd->visited && obex_last_opcode_data) {
                         if (obex_last_opcode_data->code == OBEX_CODE_VALS_SET_PATH)
                             obex_last_opcode_data->data.set_data.name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
                         else if (obex_last_opcode_data->code == OBEX_CODE_VALS_GET || obex_last_opcode_data->code == OBEX_CODE_VALS_PUT)
@@ -1921,7 +1921,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 case 0x42: /* Type */
                     proto_tree_add_item(hdr_tree, hf_type, tvb, offset, value_length, ENC_ASCII | ENC_NA);
                     proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
-                    if (!pinfo->fd->flags.visited && obex_last_opcode_data && (obex_last_opcode_data->code == OBEX_CODE_VALS_GET || obex_last_opcode_data->code == OBEX_CODE_VALS_PUT)) {
+                    if (!pinfo->fd->visited && obex_last_opcode_data && (obex_last_opcode_data->code == OBEX_CODE_VALS_GET || obex_last_opcode_data->code == OBEX_CODE_VALS_PUT)) {
                         obex_last_opcode_data->data.get_put.type = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_ASCII | ENC_NA);
                     }
                     if (p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_MEDIA_TYPE) == NULL) {
@@ -1984,7 +1984,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                             proto_item_append_text(hdr_tree, ": %s", target_vals[i].strptr);
 
                             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", target_vals[i].strptr);
-                            if (!pinfo->fd->flags.visited) {
+                            if (!pinfo->fd->visited) {
                                 obex_profile_data_t  *obex_profile_data;
 
                                 wmem_tree_key_t       key[6];
@@ -2316,11 +2316,11 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
       }
 
     sub_item = proto_tree_add_uint(main_tree, hf_profile, tvb, 0, 0, profile);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     if (path) {
         sub_item = proto_tree_add_string(main_tree, hf_current_path, tvb, 0, 0, path);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     current_handle = dissector_get_uint_handle(obex_profile_table, profile);
@@ -2428,7 +2428,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (code < OBEX_CODE_VALS_CONTINUE || code == OBEX_CODE_VALS_ABORT) {
             proto_tree_add_item(main_tree, hf_opcode, next_tvb, offset, 1, ENC_BIG_ENDIAN);
-            if (!pinfo->fd->flags.visited &&
+            if (!pinfo->fd->visited &&
                     (pinfo->p2p_dir == P2P_DIR_SENT ||
                     pinfo->p2p_dir == P2P_DIR_RECV)) {
                 frame_number = pinfo->num;
@@ -2492,16 +2492,16 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 obex_last_opcode_data->channel == obex_proto_data.channel) {
             if (obex_last_opcode_data->request_in_frame > 0 && obex_last_opcode_data->request_in_frame != pinfo->num) {
                 sub_item = proto_tree_add_uint(main_tree, hf_request_in_frame, next_tvb, 0, 0, obex_last_opcode_data->request_in_frame);
-                PROTO_ITEM_SET_GENERATED(sub_item);
+                proto_item_set_generated(sub_item);
             }
 
-            if (!pinfo->fd->flags.visited && obex_last_opcode_data->response_in_frame == 0 && obex_last_opcode_data->request_in_frame < pinfo->num) {
+            if (!pinfo->fd->visited && obex_last_opcode_data->response_in_frame == 0 && obex_last_opcode_data->request_in_frame < pinfo->num) {
                 obex_last_opcode_data->response_in_frame = pinfo->num;
             }
 
             if (obex_last_opcode_data->response_in_frame > 0 && obex_last_opcode_data->response_in_frame != pinfo->num) {
                 sub_item = proto_tree_add_uint(main_tree, hf_response_in_frame, next_tvb, 0, 0, obex_last_opcode_data->response_in_frame);
-                PROTO_ITEM_SET_GENERATED(sub_item);
+                proto_item_set_generated(sub_item);
             }
         }
 
@@ -2528,7 +2528,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(main_tree, hf_set_path_flags_0, next_tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(main_tree, hf_set_path_flags_1, next_tvb, offset, 1, ENC_BIG_ENDIAN);
 
-            if (!pinfo->fd->flags.visited && obex_last_opcode_data) {
+            if (!pinfo->fd->visited && obex_last_opcode_data) {
                 obex_last_opcode_data->data.set_data.go_up = tvb_get_guint8(tvb, offset) & 0x01;
                 obex_last_opcode_data->data.set_data.name = NULL;
             }
@@ -2560,14 +2560,14 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(main_tree, hf_max_pkt_len, next_tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
-                if (!pinfo->fd->flags.visited)
+                if (!pinfo->fd->visited)
                     save_path(pinfo, path, "", FALSE, &obex_proto_data);
             }
             break;
         }
 
         dissect_headers(main_tree, next_tvb, offset, pinfo, profile, obex_last_opcode_data, &obex_proto_data);
-        if (!pinfo->fd->flags.visited &&
+        if (!pinfo->fd->visited &&
                     obex_last_opcode_data &&
                     obex_last_opcode_data->data.set_data.name &&
                     obex_last_opcode_data->code == OBEX_CODE_VALS_SET_PATH &&
@@ -3580,7 +3580,7 @@ proto_register_obex(void)
             NULL, HFILL}
         },
         { &hf_ctn_application_parameter_data_parameter_mask_alarm_status,
-          { "Alarm Status", "obex.parameter.ctn.parameter_mask.",
+          { "Alarm Status", "obex.parameter.ctn.parameter_mask.alarm_status",
             FT_UINT32, BASE_HEX, NULL, 0x00000080,
             NULL, HFILL}
         },
@@ -3749,11 +3749,11 @@ proto_register_obex(void)
             NULL, HFILL }
         },
         { &hf_request_in_frame,
-          { "Request in Frame", "obex.request_in_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+          { "Request in Frame", "obex.request_in_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
             NULL, HFILL}
         },
         { &hf_response_in_frame,
-          { "Response in Frame", "obex.response_in_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+          { "Response in Frame", "obex.response_in_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
             NULL, HFILL}
         }
     };
@@ -3782,12 +3782,12 @@ proto_register_obex(void)
     /* Decode As handling */
     static build_valid_func obex_profile_da_build_value[1] = {obex_profile_value};
     static decode_as_value_t obex_profile_da_values = {obex_profile_prompt, 1, obex_profile_da_build_value};
-    static decode_as_t obex_profile_da = {"obex", "OBEX Profile", "obex.profile", 1, 0, &obex_profile_da_values, NULL, NULL,
+    static decode_as_t obex_profile_da = {"obex", "obex.profile", 1, 0, &obex_profile_da_values, NULL, NULL,
             decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     static build_valid_func media_type_da_build_value[1] = {media_type_value};
     static decode_as_value_t media_type_da_values = {media_type_prompt, 1, media_type_da_build_value};
-    static decode_as_t media_type_da = {"obex", "Media Type", "media_type",
+    static decode_as_t media_type_da = {"obex", "media_type",
             1, 0, &media_type_da_values, NULL, NULL,
             decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
@@ -3939,7 +3939,7 @@ proto_reg_handoff_obex(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

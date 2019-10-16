@@ -109,30 +109,41 @@ typedef struct peekclassic_utime {
 #define PEEKCLASSIC_V7_TIMESTAMP_OFFSET		8
 #define PEEKCLASSIC_V7_PKT_SIZE			16
 
-typedef struct peekclassic_encap_lookup {
-	guint16 protoNum;
-	int     encap;
-} peekclassic_encap_lookup_t;
+/*
+ * Flag bits.
+ */
+#define FLAGS_CONTROL_FRAME	0x01	/* Frame is a control frame */
+#define FLAGS_HAS_CRC_ERROR	0x02	/* Frame has a CRC error */
+#define FLAGS_HAS_FRAME_ERROR	0x04	/* Frame has a frame error */
+#define FLAGS_ROUTE_INFO	0x08	/* Frame has token ring routing information */
+#define FLAGS_FRAME_TOO_LONG	0x10	/* Frame too long */
+#define FLAGS_FRAME_TOO_SHORT	0x20	/* Frame too short (runt) */
+#define FLAGS_TRIGGER		0x40	/* Trigger packet (?) */
+#define FLAGS_SNAP		0x80	/* SNAP packet (SNAP header?) */
+
+/*
+ * Status bits.
+ */
+#define STATUS_SELECTED		0x01	/* Selected (in the *Peek GUI?) */
+#define STATUS_TRUNCATED	0x02	/* Truncated (?) */
+#define STATUS_APPLEPEEK	0x10	/* ApplePeek packet (?) */
+#define STATUS_SLICED		0x20	/* Sliced (cut short by snaplen?) */
+#define STATUS_HIDDEN		0x80	/* Hidden (in the *Peek GUI?) */
 
 static const unsigned int mac2unix = 2082844800u;
-static const peekclassic_encap_lookup_t peekclassic_encap[] = {
-	{ 1400, WTAP_ENCAP_ETHERNET }
-};
-#define NUM_PEEKCLASSIC_ENCAPS \
-	(sizeof (peekclassic_encap) / sizeof (peekclassic_encap[0]))
 
 typedef struct {
 	time_t reference_time;
 } peekclassic_t;
 
-static gboolean peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean peekclassic_read_v7(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static gboolean peekclassic_read_v56(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean peekclassic_read_v56(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean peekclassic_seek_read_v56(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
@@ -306,23 +317,18 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	peekclassic = (peekclassic_t *)g_malloc(sizeof(peekclassic_t));
 	wth->priv = (void *)peekclassic;
 	peekclassic->reference_time = reference_time;
+	wth->file_encap = file_encap;
 	switch (ep_hdr.master.version) {
 
 	case 5:
 	case 6:
 		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PEEKCLASSIC_V56;
-		/*
-		 * XXX - can we get the file encapsulation from the
-		 * header in the same way we do for V7 files?
-		 */
-		wth->file_encap = WTAP_ENCAP_PER_PACKET;
 		wth->subtype_read = peekclassic_read_v56;
 		wth->subtype_seek_read = peekclassic_seek_read_v56;
 		break;
 
 	case 7:
 		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PEEKCLASSIC_V7;
-		wth->file_encap = file_encap;
 		wth->subtype_read = peekclassic_read_v7;
 		wth->subtype_seek_read = peekclassic_seek_read_v7;
 		break;
@@ -338,22 +344,22 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	return WTAP_OPEN_MINE;
 }
 
-static gboolean peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean peekclassic_read_v7(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	int sliceLength;
 
 	*data_offset = file_tell(wth->fh);
 
 	/* Read the packet. */
-	sliceLength = peekclassic_read_packet_v7(wth, wth->fh, &wth->rec,
-	    wth->rec_data, err, err_info);
+	sliceLength = peekclassic_read_packet_v7(wth, wth->fh, rec, buf,
+	    err, err_info);
 	if (sliceLength < 0)
 		return FALSE;
 
 	/* Skip extra ignored data at the end of the packet. */
-	if ((guint32)sliceLength > wth->rec.rec_header.packet_header.caplen) {
-		if (!wtap_read_bytes(wth->fh, NULL, sliceLength - wth->rec.rec_header.packet_header.caplen,
+	if ((guint32)sliceLength > rec->rec_header.packet_header.caplen) {
+		if (!wtap_read_bytes(wth->fh, NULL, sliceLength - rec->rec_header.packet_header.caplen,
 		    err, err_info))
 			return FALSE;
 	}
@@ -395,9 +401,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 #endif
 	guint16 length;
 	guint16 sliceLength;
-#if 0
 	guint8  flags;
-#endif
 	guint8  status;
 	guint64 timestamp;
 	time_t tsecs;
@@ -413,9 +417,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 #endif
 	length = pntoh16(&ep_pkt[PEEKCLASSIC_V7_LENGTH_OFFSET]);
 	sliceLength = pntoh16(&ep_pkt[PEEKCLASSIC_V7_SLICE_LENGTH_OFFSET]);
-#if 0
 	flags = ep_pkt[PEEKCLASSIC_V7_FLAGS_OFFSET];
-#endif
 	status = ep_pkt[PEEKCLASSIC_V7_STATUS_OFFSET];
 	timestamp = pntoh64(&ep_pkt[PEEKCLASSIC_V7_TIMESTAMP_OFFSET]);
 
@@ -431,13 +433,20 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 
 	/* fill in packet header values */
 	rec->rec_type = REC_TYPE_PACKET;
-	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_PACK_FLAGS;
 	tsecs = (time_t) (timestamp/1000000);
 	tusecs = (guint32) (timestamp - tsecs*1000000);
 	rec->ts.secs  = tsecs - mac2unix;
 	rec->ts.nsecs = tusecs * 1000;
 	rec->rec_header.packet_header.len    = length;
 	rec->rec_header.packet_header.caplen = sliceLength;
+	rec->rec_header.packet_header.pack_flags = 0;
+	if (flags & FLAGS_HAS_CRC_ERROR)
+		rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_CRC_ERROR;
+	if (flags & FLAGS_FRAME_TOO_LONG)
+		rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_PACKET_TOO_LONG;
+	if (flags & FLAGS_FRAME_TOO_SHORT)
+		rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_PACKET_TOO_SHORT;
 
 	switch (wth->file_encap) {
 
@@ -522,14 +531,14 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 	return sliceLength;
 }
 
-static gboolean peekclassic_read_v56(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean peekclassic_read_v56(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	/* read the packet */
-	if (!peekclassic_read_packet_v56(wth, wth->fh, &wth->rec,
-	    wth->rec_data, err, err_info))
+	if (!peekclassic_read_packet_v56(wth, wth->fh, rec, buf,
+	    err, err_info))
 		return FALSE;
 
 	/*
@@ -562,8 +571,8 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 	guint8 ep_pkt[PEEKCLASSIC_V56_PKT_SIZE];
 	guint16 length;
 	guint16 sliceLength;
-#if 0
 	guint8  flags;
+#if 0
 	guint8  status;
 #endif
 	guint32 timestamp;
@@ -571,11 +580,10 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 	guint16 destNum;
 	guint16 srcNum;
 #endif
-	guint16 protoNum;
 #if 0
+	guint16 protoNum;
 	char    protoStr[8];
 #endif
-	unsigned int i;
 
 	if (!wtap_read_bytes_or_eof(fh, ep_pkt, sizeof(ep_pkt), err, err_info))
 		return FALSE;
@@ -583,17 +591,15 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 	/* Extract the fields from the packet */
 	length = pntoh16(&ep_pkt[PEEKCLASSIC_V56_LENGTH_OFFSET]);
 	sliceLength = pntoh16(&ep_pkt[PEEKCLASSIC_V56_SLICE_LENGTH_OFFSET]);
-#if 0
 	flags = ep_pkt[PEEKCLASSIC_V56_FLAGS_OFFSET];
+#if 0
 	status = ep_pkt[PEEKCLASSIC_V56_STATUS_OFFSET];
 #endif
 	timestamp = pntoh32(&ep_pkt[PEEKCLASSIC_V56_TIMESTAMP_OFFSET]);
 #if 0
 	destNum = pntoh16(&ep_pkt[PEEKCLASSIC_V56_DESTNUM_OFFSET]);
 	srcNum = pntoh16(&ep_pkt[PEEKCLASSIC_V56_SRCNUM_OFFSET]);
-#endif
 	protoNum = pntoh16(&ep_pkt[PEEKCLASSIC_V56_PROTONUM_OFFSET]);
-#if 0
 	memcpy(protoStr, &ep_pkt[PEEKCLASSIC_V56_PROTOSTR_OFFSET],
 	    sizeof protoStr);
 #endif
@@ -615,21 +621,21 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 
 	/* fill in packet header values */
 	rec->rec_type = REC_TYPE_PACKET;
-	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_PACK_FLAGS;
 	/* timestamp is in milliseconds since reference_time */
 	rec->ts.secs  = peekclassic->reference_time + (timestamp / 1000);
 	rec->ts.nsecs = 1000 * (timestamp % 1000) * 1000;
 	rec->rec_header.packet_header.len      = length;
 	rec->rec_header.packet_header.caplen   = sliceLength;
+	rec->rec_header.packet_header.pack_flags = 0;
+	if (flags & FLAGS_HAS_CRC_ERROR)
+		rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_CRC_ERROR;
+	if (flags & FLAGS_FRAME_TOO_LONG)
+		rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_PACKET_TOO_LONG;
+	if (flags & FLAGS_FRAME_TOO_SHORT)
+		rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_PACKET_TOO_SHORT;
 
-	rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_UNKNOWN;
-	for (i=0; i<NUM_PEEKCLASSIC_ENCAPS; i++) {
-		if (peekclassic_encap[i].protoNum == protoNum) {
-			rec->rec_header.packet_header.pkt_encap = peekclassic_encap[i].encap;
-		}
-	}
-
-	switch (rec->rec_header.packet_header.pkt_encap) {
+	switch (wth->file_encap) {
 
 	case WTAP_ENCAP_ETHERNET:
 		/* We assume there's no FCS in this frame. */
@@ -642,7 +648,7 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

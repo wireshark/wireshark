@@ -597,12 +597,66 @@ ServiceError ::= SEQUENCE
 			deleteNamedVariableList		[6] IMPLICIT DeleteNamedVariableList-Error,
 			deleteNamedType			[7] IMPLICIT DeleteNamedType-Error,
 			defineEventEnrollment-Error	[8] DefineEventEnrollment-Error,
-			fileRename			[9] IMPLICIT FileRename-Error
--- XXX this one is neither in this ASN nor in the IMPORTS
---			additionalService		[10] AdditionalServiceError
+			fileRename			[9] IMPLICIT FileRename-Error,
+			additionalService		[10] AdditionalService-Error,
+			changeAccessControl		[11] IMPLICIT ChangeAccessControl-Error
 			} OPTIONAL
 	}
 
+	AdditionalService-Error ::= CHOICE
+	{
+		defineEcl		[0] DefineEventConditionList-Error,
+		addECLReference		[1] AddEventConditionListReference-Error,
+		removeECLReference	[2] RemoveEventConditionListReference-Error,
+		initiateUC		[3] InitiateUnitControl-Error,
+		startUC			[4] IMPLICIT StartUnitControl-Error,
+		stopUC			[5] IMPLICIT StopUnitControl-Error,
+		deleteUC		[6] DeleteUnitControl-Error,
+		loadUCFromFile		[7] LoadUnitControlFromFile-Error
+	}
+
+	DefineEventConditionList-Error ::= ObjectName
+
+	AddEventConditionListReference-Error ::= ObjectName
+
+	RemoveEventConditionListReference-Error ::= CHOICE
+	{
+		eventCondition		[0] ObjectName,
+		eventConditionList	[1] ObjectName
+	}
+
+	InitiateUnitControl-Error ::= CHOICE
+	{
+		domain			[0] IMPLICIT Identifier,
+		programInvocation	[1] IMPLICIT Identifier
+	}
+
+	StartUnitControl-Error ::= SEQUENCE
+	{
+		programInvocationName	[0] IMPLICIT Identifier,
+		programInvocationState	[1] IMPLICIT ProgramInvocationState
+	}
+
+	StopUnitControl-Error ::= SEQUENCE
+	{
+		programInvocationName	[0] IMPLICIT Identifier,
+		programInvocationState	[1] IMPLICIT ProgramInvocationState
+	}
+
+	DeleteUnitControl-Error ::= CHOICE
+	{
+		domain			[0] IMPLICIT Identifier,
+		programInvocation	[1] IMPLICIT Identifier
+	}
+
+	LoadUnitControlFromFile-Error ::= CHOICE
+	{
+		none			[0] IMPLICIT NULL,
+		domain			[1] IMPLICIT Identifier,
+		programInvocation	[2] IMPLICIT Identifier
+	}
+
+	ChangeAccessControl-Error ::= Unsigned32
 
 ---------------------------------- REJECT --------------------------------
 
@@ -1400,7 +1454,8 @@ DataAccessError ::= INTEGER
 	type-inconsistent		(7),
 	object-attribute-inconsistent	(8),
 	object-access-unsupported	(9),
-	object-non-existent		(10)
+	object-non-existent		(10),
+	object-value-invalid		(11)
 	}
 
 

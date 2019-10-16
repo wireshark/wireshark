@@ -365,7 +365,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 proto_tree *hsrp_tree;
                 gint offset;
                 guint8 hellotime, holdtime;
-                gchar auth_buf[8 + 1];
+                gchar *auth;
 
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSRP");
 
@@ -412,12 +412,11 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                         offset++;
                         proto_tree_add_item(hsrp_tree, hf_hsrp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
-                        tvb_memcpy(tvb, auth_buf, offset, 8);
-                        auth_buf[sizeof auth_buf - 1] = '\0';
-                        proto_tree_add_string_format_value(hsrp_tree, hf_hsrp_auth_data, tvb, offset, 8, auth_buf,
+                        auth = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 8, ENC_ASCII|ENC_NA);
+                        proto_tree_add_string_format_value(hsrp_tree, hf_hsrp_auth_data, tvb, offset, 8, auth,
                                              "%sDefault (%s)",
-                                             (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
-                                             auth_buf);
+                                             (strcmp(auth, "cisco") == 0) ? "" : "Non-",
+                                             auth);
                         offset += 8;
                         proto_tree_add_item(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
                         /* offset += 4; */
@@ -482,7 +481,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 proto_tree *group_state_tlv;
 
                                 if (tree) {
-                                        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_group_state_tlv, tvb, offset, 2, type,
+                                        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_group_state_tlv, tvb, offset, 2+len, type,
                                         "Type=%d Len=%d", type, len);
                                 }
                                 offset+=2;
@@ -551,7 +550,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 if (tree) {
                                         proto_tree *interface_state_tlv;
                                         ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_interface_state_tlv, tvb, offset, 1, type,
-                                        "Type=%d Len=%d", type, len);
+                                        "Type=%d Len=%d", type, 2+len);
                                         offset+=2;
 
                                         /* Making Interface State TLV subtree */
@@ -563,23 +562,25 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 }
                         } else if (type == 3 && len == 8) {
                                 /* Text Authentication TLV */
+                                /* FIXME: Is the length of the authentication string really restricted to 8 bytes
+                                 *        or is it maybe padded to multiples of 4 or 8 bytes?
+                                 */
                                 if (tree) {
                                         proto_tree *text_auth_tlv;
-                                        gchar auth_buf[8 + 1];
+                                        gchar *auth;
 
-                                        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_text_auth_tlv, tvb, offset, 1, type,
+                                        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_text_auth_tlv, tvb, offset, 2+len, type,
                                         "Type=%d Len=%d", type, len);
                                         offset+=2;
 
                                         /* Making Text Authentication TLV subtree */
                                         text_auth_tlv = proto_item_add_subtree(ti, ett_hsrp2_text_auth_tlv);
 
-                                        tvb_memcpy(tvb, auth_buf, offset, 8);
-                                        auth_buf[sizeof auth_buf - 1] = '\0';
-                                        proto_tree_add_string_format_value(text_auth_tlv, hf_hsrp2_auth_data, tvb, offset, 8, auth_buf,
+                                        auth = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 8, ENC_ASCII|ENC_NA);
+                                        proto_tree_add_string_format_value(text_auth_tlv, hf_hsrp2_auth_data, tvb, offset, 8, auth,
                                                              "%sDefault (%s)",
-                                                             (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
-                                                             auth_buf);
+                                                             (strcmp(auth, "cisco") == 0) ? "" : "Non-",
+                                                             auth);
                                         /* offset += 8; */
                                 }
                         } else if (type == 4 && len == 28) {

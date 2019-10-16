@@ -193,6 +193,8 @@ static int hf_rpc_auth_lk_owner = -1;
 static int hf_rpc_auth_pid = -1;
 static int hf_rpc_auth_uid = -1;
 static int hf_rpc_auth_gid = -1;
+static int hf_rpc_auth_flags = -1;
+static int hf_rpc_auth_ctime = -1;
 static int hf_rpc_authgss_v = -1;
 static int hf_rpc_authgss_proc = -1;
 static int hf_rpc_authgss_seq = -1;
@@ -340,7 +342,7 @@ rpcstat_find_procs(const gchar *table_name _U_, ftenum_t selector_type _U_, gpoi
 }
 
 static void
-rpcstat_init(struct register_srt* srt, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+rpcstat_init(struct register_srt* srt, GArray* srt_array)
 {
 	rpcstat_tap_data_t* tap_data = (rpcstat_tap_data_t*)get_srt_table_param_data(srt);
 	srt_stat_table *rpc_srt_table;
@@ -354,7 +356,7 @@ rpcstat_init(struct register_srt* srt, GArray* srt_array, srt_gui_init_cb gui_ca
 	hfi=proto_registrar_get_nth(hf_index);
 
 	g_snprintf(table_name, sizeof(table_name), "%s Version %u", tap_data->prog, tap_data->version);
-	rpc_srt_table = init_srt_table(table_name, NULL, srt_array, tap_data->num_procedures, NULL, hfi->abbrev, gui_callback, gui_data, tap_data);
+	rpc_srt_table = init_srt_table(table_name, NULL, srt_array, tap_data->num_procedures, NULL, hfi->abbrev, tap_data);
 	for (i = 0; i < rpc_srt_table->num_procs; i++)
 	{
 		char *proc_name = rpc_proc_name_internal(NULL, tap_data->program, tap_data->version, i);
@@ -363,7 +365,7 @@ rpcstat_init(struct register_srt* srt, GArray* srt_array, srt_gui_init_cb gui_ca
 	}
 }
 
-static int
+static tap_packet_status
 rpcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
 	guint i = 0;
@@ -377,19 +379,19 @@ rpcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
 	if ((int)ri->proc >= rpc_srt_table->num_procs) {
 		/* don't handle this since its outside of known table */
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 	/* we are only interested in reply packets */
 	if (ri->request) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 	/* we are only interested in certain program/versions */
 	if ( (ri->prog != tap_data->program) || (ri->vers != tap_data->version) ) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	add_srt_table_data(rpc_srt_table, ri->proc, &ri->req_time, pinfo);
-	return 1;
+	return TAP_PACKET_REDRAW;
 
 }
 
@@ -555,7 +557,7 @@ rpc_init_prog(int proto, guint32 prog, int ett, size_t nvers,
 				    proc->strptr);
 
 				/* Abort out if desired - but don't throw an exception here! */
-				if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+				if (wireshark_abort_on_dissector_bug)
 					REPORT_DISSECTOR_BUG("RPC: No call handler!");
 
 				continue;
@@ -570,7 +572,7 @@ rpc_init_prog(int proto, guint32 prog, int ett, size_t nvers,
 				    proc->strptr);
 
 				/* Abort out if desired - but don't throw an exception here! */
-				if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+				if (wireshark_abort_on_dissector_bug)
 					REPORT_DISSECTOR_BUG("RPC: No reply handler!");
 
 				continue;
@@ -1086,13 +1088,13 @@ dissect_rpc_authgss_context(proto_tree *tree, tvbuff_t *tvb, int offset,
 	if (context_info->create_frame) {
 		proto_item *it;
 		it = proto_tree_add_uint(context_tree, hf_rpc_authgss_ctx_create_frame, tvb, 0, 0, context_info->create_frame);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 	}
 
 	if (context_info->destroy_frame) {
 		proto_item *it;
 		it = proto_tree_add_uint(context_tree, hf_rpc_authgss_ctx_destroy_frame, tvb, 0, 0, context_info->destroy_frame);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 	}
 
 	proto_item_set_len(context_item, offset - old_offset);
@@ -1215,6 +1217,35 @@ dissect_rpc_authglusterfs_v2_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 }
 
 static int
+dissect_rpc_authglusterfs_v3_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
+{
+	int len;
+	nstime_t timestamp;
+
+	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_pid, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_uid, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_gid, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_flags, offset);
+	timestamp.secs = tvb_get_ntohl(tvb, offset);
+	timestamp.nsecs = tvb_get_ntohl(tvb, offset + 4);
+	if (tree)
+		proto_tree_add_time(tree, hf_rpc_auth_ctime, tvb,
+					offset, 8, &timestamp);
+	offset += 8;
+
+	offset = dissect_rpc_authunix_groups(tvb, tree, offset);
+
+	len = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_rpc_auth_lk_owner, tvb, offset,
+			    len, ENC_NA);
+	offset += len;
+
+	return offset;
+}
+
+static int
 dissect_rpc_authgssapi_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 {
 	proto_tree_add_item(tree, hf_rpc_authgssapi_v, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1274,6 +1305,10 @@ dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset,
 
 		case AUTH_GLUSTERFS:
 			dissect_rpc_authglusterfs_v2_cred(tvb, ctree, offset+8);
+			break;
+
+		case AUTH_GLUSTERFS_V3:
+			dissect_rpc_authglusterfs_v3_cred(tvb, ctree, offset+8);
 			break;
 
 		case AUTH_GSSAPI:
@@ -1601,12 +1636,6 @@ dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset,
 		             tvb_new_subset_remaining(tvb, offset),
 			     pinfo, tree, gssapi_encrypt);
 
-	if (!gssapi_encrypt->gssapi_decrypted_tvb) {
-		/* failed to decrypt the data */
-		offset += length;
-		return offset;
-	}
-
 	offset += length;
 	return offset;
 }
@@ -1908,15 +1937,15 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		tmp_item=proto_tree_add_uint_format(tree, prog_id, tvb,
 			0, 0, rpc_call->prog, "Program: %s (%u)",
 			rpc_prog_name(rpc_call->prog), rpc_call->prog);
-		PROTO_ITEM_SET_GENERATED(tmp_item);
+		proto_item_set_generated(tmp_item);
 
 		tmp_item=proto_tree_add_uint(tree, vers_id, tvb, 0, 0, rpc_call->vers);
-		PROTO_ITEM_SET_GENERATED(tmp_item);
+		proto_item_set_generated(tmp_item);
 
 		tmp_item=proto_tree_add_uint_format(tree, proc_id, tvb,
 			0, 0, rpc_call->proc, "Procedure: %s (%u)",
 			procname, rpc_call->proc);
-		PROTO_ITEM_SET_GENERATED(tmp_item);
+		proto_item_set_generated(tmp_item);
 	}
 
 	if (dissect_function == NULL) {
@@ -2482,7 +2511,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    tvb, 0, 0, rpc_call->rep_num,
 			    "The reply to this request is in frame %u",
 			    rpc_call->rep_num);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 		}
 
 		offset += 16;
@@ -2571,14 +2600,14 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			tmp_item=proto_tree_add_uint_format_value(rpc_tree,
 				hf_rpc_program, tvb, 0, 0, prog,
 				"%s (%u)", progname, prog);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 			tmp_item=proto_tree_add_uint(rpc_tree,
 				hf_rpc_programversion, tvb, 0, 0, vers);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 			tmp_item=proto_tree_add_uint_format_value(rpc_tree,
 				hf_rpc_procedure, tvb, 0, 0, proc,
 				"%s (%u)", procname, proc);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 		}
 
 		reply_state = tvb_get_ntohl(tvb,offset);
@@ -2594,12 +2623,12 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    tvb, 0, 0, rpc_call->req_num,
 			    "This is a reply to a request in frame %u",
 			    rpc_call->req_num);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 
 			nstime_delta(&ns, &pinfo->abs_ts, &rpc_call->req_time);
 			tmp_item=proto_tree_add_time(rpc_tree, hf_rpc_time, tvb, offset, 0,
 				&ns);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 
 			col_append_fstr(pinfo->cinfo, COL_INFO," (Call In %d)", rpc_call->req_num);
 		}
@@ -2622,11 +2651,11 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						"[RPC duplicate of #%d]", rpc_call->rep_num);
 				tmp_item=proto_tree_add_item(rpc_tree,
 					hf_rpc_dup, tvb, 0,0, ENC_NA);
-				PROTO_ITEM_SET_GENERATED(tmp_item);
+				proto_item_set_generated(tmp_item);
 
 				tmp_item=proto_tree_add_uint(rpc_tree,
 					hf_rpc_reply_dup, tvb, 0,0, rpc_call->rep_num);
-				PROTO_ITEM_SET_GENERATED(tmp_item);
+				proto_item_set_generated(tmp_item);
 			}
 		}
 
@@ -2793,7 +2822,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		tmp_item=proto_tree_add_uint(ptree,
 				hf_rpc_programversion, tvb, 0, 0, vers);
-		PROTO_ITEM_SET_GENERATED(tmp_item);
+		proto_item_set_generated(tmp_item);
 		if (rpc_prog && rpc_prog->procedure_hfs && (rpc_prog->procedure_hfs->len > vers) )
 			procedure_hf = g_array_index(rpc_prog->procedure_hfs, int, vers);
 		else {
@@ -2805,12 +2834,12 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (procedure_hf != 0 && procedure_hf != -1) {
 			tmp_item=proto_tree_add_uint(ptree,
 				procedure_hf, tvb, 0, 0, proc);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 		} else {
 			tmp_item=proto_tree_add_uint_format_value(ptree,
 				hf_rpc_procedure, tvb, 0, 0, proc,
 				"%s (%u)", procname, proc);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 		}
 	}
 
@@ -3813,13 +3842,18 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 		}
 
-		/*  Set fences so whatever the subdissector put in the
-		 *  Protocol and Info columns stay there.  This is useful
-		 *  when the subdissector clears the column (which it
-		 *  might have to do if it runs over some other protocol
-		 *  too) and there are multiple PDUs in one frame.
+		/*  Set fence so whatever the subdissector put in the
+		 *  Info column stays there.
+		 *
+		 *  This is useful when some ONC RPC protocol is
+		 *  carrying another protocol that can also run atop
+		 *  other protocols, so that the other protocol's
+		 *  dissector has to clear the Info column to add
+		 *  its own material, and there are multiple PDUs
+		 *  in one frame.  If the fence isn't set, the Info
+		 *  column will only reflect the information from
+		 *  the first PDU in the frame.
 		 */
-		col_set_fence(pinfo->cinfo, COL_PROTOCOL);
 		col_set_fence(pinfo->cinfo, COL_INFO);
 
 		/* PDU tracking
@@ -3830,7 +3864,7 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  segment boundaries and allow it to find RPC headers
 		  that starts in the middle of a TCP segment.
 		*/
-		if(!pinfo->fd->flags.visited){
+		if(!pinfo->fd->visited){
 			if(len>tvb_reported_length_remaining(tvb, offset)){
 				pinfo->want_pdu_tracking=2;
 				pinfo->bytes_until_next_pdu=len-tvb_reported_length_remaining(tvb, offset);
@@ -3883,17 +3917,17 @@ static stat_tap_table_item rpc_prog_stat_fields[] = {
 	{TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg SRT (s)", "%.2f"}
 };
 
-static void rpc_prog_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void rpc_prog_stat_init(stat_tap_table_ui* new_stat)
 {
 	int num_fields = sizeof(rpc_prog_stat_fields)/sizeof(stat_tap_table_item);
 	stat_tap_table* table;
 
-	table = stat_tap_init_table("ONC-RPC Program Statistics", num_fields, 0, NULL, gui_callback, gui_data);
+	table = stat_tap_init_table("ONC-RPC Program Statistics", num_fields, 0, NULL);
 	stat_tap_add_table(new_stat, table);
 
 }
 
-static gboolean
+static tap_packet_status
 rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *rciv_ptr)
 {
 	stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -3942,7 +3976,7 @@ rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
 
 	/* we are only interested in reply packets */
 	if (ri->request) {
-		return FALSE;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	item_data = stat_tap_get_field_data(table, element, CALLS_COLUMN);
@@ -3971,7 +4005,7 @@ rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
 	item_data->value.float_value = item_data->user_data.float_value / call_count;
 	stat_tap_set_field_data(table, element, AVG_SRT_COLUMN, item_data);
 
-	return TRUE;
+	return TAP_PACKET_REDRAW;
 }
 
 static void
@@ -4090,6 +4124,12 @@ proto_register_rpc(void)
 		{ &hf_rpc_auth_gid, {
 			"GID", "rpc.auth.gid", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
+		{ &hf_rpc_auth_flags, {
+			"FLAGS", "rpc.auth.flags", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_rpc_auth_ctime, {
+			"CTIME", "rpc.auth.ctime", FT_ABSOLUTE_TIME,
+			ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_v, {
 			"GSS Version", "rpc.authgss.version", FT_UINT32,
 			BASE_DEC, NULL, 0, NULL, HFILL }},

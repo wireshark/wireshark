@@ -60,7 +60,7 @@ wmem_stack_pop(wmem_stack_t *stack);
 #endif /* __WMEM_STACK_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

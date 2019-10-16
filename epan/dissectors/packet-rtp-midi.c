@@ -9343,7 +9343,7 @@ proto_register_rtp_midi( void )
 		{
 			&hf_rtp_midi_sysex_common_nrt_sd_packet_check,
 			{
-				"Sysex Common Non-Realtime Sample Dump Checkum",
+				"Sysex Common Non-Realtime Sample Dump Checksum",
 				"rtpmidi.sysex_common_non_realtime_sample_dump_checksum",
 				FT_UINT8,
 				BASE_HEX,
@@ -10049,7 +10049,7 @@ proto_reg_handoff_rtp_midi( void )
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

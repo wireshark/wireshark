@@ -47,6 +47,15 @@
 static int dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo,
                                 int offset, int payload_length, gboolean* success);
 
+extern void
+dissect_cfdp_as_subtree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+
+extern void
+dissect_amp_as_subtree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+
+int add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_sdnv_time);
+
+
 /* For Reassembling TCP Convergence Layer segments */
 static reassembly_table msg_reassembly_table;
 
@@ -58,6 +67,9 @@ static int hf_bundle_pdu_version = -1;
 
 /* TCP Convergence Header Variables */
 static int hf_tcp_convergence_pkt_type = -1;
+
+/* Refuse-Bundle reason code */
+static int hf_dtn_refuse_bundle_reason_code = -1;
 
 static int hf_contact_hdr_version = -1;
 static int hf_contact_hdr_flags = -1;
@@ -192,7 +204,6 @@ static int hf_block_control_block_cteb_creator_custodian_eid = -1;
 
 /* Non-Primary Block Type Code Variable */
 static int hf_bundle_block_type_code = -1;
-static int hf_bundle_age_extension_block_code = -1;
 static int hf_bundle_unprocessed_block_data = -1;
 
 /* ECOS Flag Variables */
@@ -236,6 +247,27 @@ static int hf_bundle_custody_signal_reason = -1;
 static int hf_bundle_custody_id_range_start = -1;
 static int hf_bundle_custody_id_range_end = -1;
 
+static int hf_bundle_age_extension_block_code = -1;
+static int hf_bundle_block_previous_hop_scheme = -1;
+static int hf_bundle_block_previous_hop_eid = -1;
+
+/* Security Block Variables */
+static int hf_bundle_target_block_type = -1;
+static int hf_bundle_target_block_occurrence = -1;
+static int hf_bundle_ciphersuite_type = -1;
+static int hf_bundle_ciphersuite_flags = -1;
+static int hf_block_ciphersuite_params = -1;
+static int hf_block_ciphersuite_params_length = -1;
+static int hf_block_ciphersuite_params_item_length = -1;
+static int hf_block_ciphersuite_param_type = -1;
+static int hf_block_ciphersuite_param_data = -1;
+static int hf_block_ciphersuite_result_length = -1;
+static int hf_block_ciphersuite_result_item_length = -1;
+static int hf_block_ciphersuite_result_type = -1;
+static int hf_block_ciphersuite_result_data = -1;
+static int hf_block_ciphersuite_range_offset = -1;
+static int hf_block_ciphersuite_range_length = -1;
+
 /* Tree Node Variables */
 static gint ett_bundle = -1;
 static gint ett_conv_flags = -1;
@@ -254,12 +286,12 @@ static gint ett_contact_hdr_flags = -1;
 static gint ett_admin_record = -1;
 static gint ett_admin_rec_status = -1;
 static gint ett_metadata_hdr = -1;
+static gint ett_sec_block_param_data = -1;
 
 static gint ett_tcp_conv = -1;
 static gint ett_tcp_conv_hdr = -1;
 static gint ett_msg_fragment = -1;
 static gint ett_msg_fragments = -1;
-
 
 static expert_field ei_bundle_payload_length = EI_INIT;
 static expert_field ei_bundle_control_flags_length = EI_INIT;
@@ -312,6 +344,16 @@ static const value_string packet_type_vals[] = {
     {((TCP_CONVERGENCE_REFUSE_BUNDLE>>4) & 0x0F), "Refuse Bundle"},
     {((TCP_CONVERGENCE_KEEP_ALIVE>>4)    & 0x0F), "Keep Alive"},
     {((TCP_CONVERGENCE_SHUTDOWN>>4)      & 0x0F), "Shutdown"},
+    {((TCP_CONVERGENCE_LENGTH>>4)      & 0x0F), "Length"},
+    {0, NULL}
+};
+
+/* Refuse-Bundle Reason-Code Flags as per RFC-7242: Section-5.4 */
+static const value_string refuse_bundle_reason_code[] = {
+    {((TCP_REFUSE_BUNDLE_REASON_UNKNOWN>>4)         & 0x0F), "Reason for refusal is unknown"},
+    {((TCP_REFUSE_BUNDLE_REASON_RX_COMPLETE>>4)     & 0x0F), "Complete Bundle Received"},
+    {((TCP_REFUSE_BUNDLE_REASON_RX_EXHAUSTED>>4)    & 0x0F), "Receiver's resources exhausted"},
+    {((TCP_REFUSE_BUNDLE_REASON_RX_RETRANSMIT>>4)   & 0x0F), "Receiver expects re-transmission of bundle"},
     {0, NULL}
 };
 
@@ -350,8 +392,8 @@ static const value_string status_report_reason_codes[] = {
 static const value_string bundle_block_type_codes[] = {
     {0x01, "Bundle Payload Block"},
     {0x02, "Bundle Authentication Block"},
-    {0x03, "Bundle Integrity Block"},
-    {0x04, "Bundle Confidentiality Block"},
+    {0x03, "Block Integrity Block"},
+    {0x04, "Block Confidentiality Block"},
     {0x05, "Previous-Hop Insertion Block"},
     {0x08, "Metadata Extension Block"},
     {0x09, "Extension Security Block"},
@@ -366,6 +408,28 @@ static const value_string cosflags_priority_vals[] = {
     {0x01, "Normal"},
     {0x02, "Expedited"},
     {0x03, "Invalid (Reserved)"},
+    {0, NULL}
+};
+
+static const value_string ciphersuite_types[] = {
+    {0x01, "HMAC_SHA1"},
+    {0x05, "HMAC_SHA256"},
+    {0x06, "ARC4_AES128"},
+    {0xD1, "HMAC_SHA384"},
+    {0xD2, "ECDSA_SHA256"},
+    {0xD3, "ECDSA_SHA384"},
+    {0xD4, "SHA256_AES128"},
+    {0xD5, "SHA384_AES256"},
+    {0, NULL}
+};
+
+static const value_string res_params_types[] = {
+    {0x01, "Initialization Vector"},
+    {0x03, "Key Information"},
+    {0x04, "Content Range"},
+    {0x05, "Integrity Signature"},
+    {0x07, "Salt"},
+    {0x08, "BCB Integrity Check Value"},
     {0, NULL}
 };
 
@@ -438,7 +502,7 @@ add_dtn_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_dtn_tim
  * Adds the result of SDNV which is a time since 2000 to tree.
  * Returns bytes in SDNV or 0 if something goes wrong.
  */
-static int
+int
 add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_sdnv_time)
 {
     nstime_t dtn_time;
@@ -841,6 +905,9 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
  * header, starting right after version number.
  */
 
+static int src_ssp;
+static int dst_ssp;
+
 static int
 dissect_version_5_and_6_primary_header(packet_info *pinfo,
                                        proto_tree *primary_tree, tvbuff_t *tvb,
@@ -951,6 +1018,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     /* -- dest_ssp -- */
     dict_data.dest_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
     dict_data.dst_ssp_len = sdnv_length;
+    dst_ssp = dict_data.dest_ssp_offset;
 
     ti_dst_ssp_offset = proto_tree_add_int(primary_tree, hf_bundle_dest_ssp_offset_i32, tvb, offset, sdnv_length,
                             dict_data.dest_ssp_offset);
@@ -968,6 +1036,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     /* -- source_ssp -- */
     dict_data.source_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
     dict_data.src_ssp_len = sdnv_length;
+    src_ssp = dict_data.source_ssp_offset;
 
     ti_src_ssp_offset = proto_tree_add_int(primary_tree, hf_bundle_source_ssp_offset_i32, tvb, offset, sdnv_length,
                             dict_data.source_ssp_offset);
@@ -1188,8 +1257,26 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
             return offset;
         }
     } else {
-        proto_tree_add_string(payload_block_tree, hf_bundle_payload_data, tvb, offset, payload_length,
-                              wmem_strdup_printf(wmem_packet_scope(), "<%d bytes>",payload_length));
+        /* If Source SSP Offset is 64 and Destination SSP offset is 65, then
+           interpret the payload-data part as CFDP. */
+        if (src_ssp == 0x40 &&
+            dst_ssp == 0x41)
+          {
+            dissect_cfdp_as_subtree (tvb, pinfo, payload_block_tree, offset);
+          }
+        /* If Source SSP Offset is 5 and Destination SSP offset is 6, then
+           interpret the payload-data part as AMP. */
+        else if ((src_ssp == 0x5 && dst_ssp == 0x6) ||
+                 (dst_ssp == 0x5 && src_ssp == 0x6))
+          {
+            dissect_amp_as_subtree (tvb, pinfo, payload_block_tree, offset);
+          }
+        else
+          {
+            proto_tree_add_string(payload_block_tree, hf_bundle_payload_data, tvb, offset, payload_length,
+                                  wmem_strdup_printf(wmem_packet_scope(), "<%d bytes>",payload_length));
+          }
+
         offset += payload_length;
     }
 
@@ -1578,9 +1665,6 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
     switch (type)
     {
     case BUNDLE_BLOCK_TYPE_AUTHENTICATION:
-    case BUNDLE_BLOCK_TYPE_INTEGRITY:
-    case BUNDLE_BLOCK_TYPE_CONFIDENTIALITY:
-    case BUNDLE_BLOCK_TYPE_PREVIOUS_HOP_INSERT:
     case BUNDLE_BLOCK_TYPE_METADATA_EXTENSION:
     case BUNDLE_BLOCK_TYPE_EXTENSION_SECURITY:
     {
@@ -1589,12 +1673,149 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
         offset += block_length;
         break;
     }
-    case BUNDLE_BLOCK_TYPE_BUNDLE_AGE_EXTENSION:
+    case BUNDLE_BLOCK_TYPE_BUNDLE_AGE:
     {
         bundle_age = evaluate_sdnv(tvb, offset, &sdnv_length);
         proto_tree_add_int(block_tree, hf_bundle_age_extension_block_code, tvb, offset, sdnv_length, bundle_age/1000000);
         offset += block_length;
         break;
+    }
+    case BUNDLE_BLOCK_TYPE_PREVIOUS_HOP_INSERT:
+    {
+        int scheme_length;
+
+        proto_tree_add_item_ret_length(block_tree, hf_bundle_block_previous_hop_scheme, tvb, offset, 4, ENC_ASCII, &scheme_length);
+        offset += scheme_length;
+        proto_tree_add_item(block_tree, hf_bundle_block_previous_hop_eid, tvb, offset, block_length-scheme_length, ENC_ASCII|ENC_NA);
+        offset += block_length - scheme_length;
+
+        break;
+    }
+    case BUNDLE_BLOCK_TYPE_INTEGRITY:
+    case BUNDLE_BLOCK_TYPE_CONFIDENTIALITY:
+    {
+        int target_block_type;
+        int target_block_occurrence;
+        int ciphersuite_type;
+        unsigned int ciphersuite_flags;
+
+        target_block_type = evaluate_sdnv(tvb, offset, &sdnv_length);
+        proto_tree_add_int(block_tree, hf_bundle_target_block_type, tvb, offset, sdnv_length, target_block_type);
+        offset += sdnv_length;
+
+        target_block_occurrence = evaluate_sdnv(tvb, offset, &sdnv_length);
+        proto_tree_add_int(block_tree, hf_bundle_target_block_occurrence, tvb, offset, sdnv_length, target_block_occurrence);
+        offset += sdnv_length;
+
+        ciphersuite_type = evaluate_sdnv(tvb, offset, &sdnv_length);
+        proto_tree_add_int(block_tree, hf_bundle_ciphersuite_type, tvb, offset, sdnv_length, ciphersuite_type);
+        offset += sdnv_length;
+
+        ciphersuite_flags = (unsigned int)evaluate_sdnv(tvb, offset, &sdnv_length);
+        block_flag_item = proto_tree_add_uint(block_tree, hf_bundle_ciphersuite_flags, tvb, offset, sdnv_length, ciphersuite_flags);
+        block_flag_tree = proto_item_add_subtree(block_flag_item, ett_block_flags);
+        proto_tree_add_boolean(block_flag_tree, hf_block_ciphersuite_params, tvb, offset, sdnv_length, ciphersuite_flags);
+        offset += sdnv_length;
+
+        int range_offset;
+        int range_length;
+        if (ciphersuite_flags & BLOCK_CIPHERSUITE_PARAMS) {
+            /* Decode cipher suite parameters */
+            int params_length;
+            int param_type;
+            int item_length;
+            proto_tree   *param_tree;
+
+            params_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+            param_tree = proto_tree_add_subtree(block_tree, tvb, offset, params_length+1, ett_sec_block_param_data, NULL, "Ciphersuite Parameters Data");
+            proto_tree_add_int(param_tree, hf_block_ciphersuite_params_length, tvb, offset, sdnv_length, params_length);
+            offset += sdnv_length;
+
+            for(int i = 0; i < params_length; i+=item_length+2)
+            {
+                param_type = evaluate_sdnv(tvb, offset, &sdnv_length);
+                proto_tree_add_int(param_tree, hf_block_ciphersuite_param_type, tvb, offset, sdnv_length, param_type);
+                offset += sdnv_length;
+
+                item_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+                proto_tree_add_int(param_tree, hf_block_ciphersuite_params_item_length, tvb, offset, sdnv_length, item_length);
+                offset += sdnv_length;
+
+                //display item data
+                switch (param_type)
+                {
+                case 1:
+                case 3:
+                case 5:
+                case 7:
+                case 8:
+                    proto_tree_add_item(param_tree, hf_block_ciphersuite_param_data, tvb, offset, item_length, ENC_NA);
+                    offset += item_length;
+                    break;
+                case 4:
+                    //pair of sdnvs offset and length
+                    range_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+                    proto_tree_add_int(param_tree, hf_block_ciphersuite_range_offset, tvb, offset, sdnv_length, range_offset);
+                    offset += sdnv_length;
+
+                    range_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+                    proto_tree_add_int(param_tree, hf_block_ciphersuite_range_length, tvb, offset, sdnv_length, range_length);
+                    offset += sdnv_length;
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+        /* Decode cipher suite results */
+        int result_length;
+        int result_type;
+        int result_item_length;
+        proto_tree   *result_tree;
+
+        result_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+        result_tree = proto_tree_add_subtree(block_tree, tvb, offset, result_length+1, ett_sec_block_param_data, NULL, "Security Results Data");
+        proto_tree_add_int(result_tree, hf_block_ciphersuite_result_length, tvb, offset, sdnv_length, result_length);
+        offset += sdnv_length;
+
+        for(int i = 0; i < result_length; i+=result_item_length+2)
+        {
+            result_type = evaluate_sdnv(tvb, offset, &sdnv_length);
+            proto_tree_add_int(result_tree, hf_block_ciphersuite_result_type, tvb, offset, sdnv_length, result_type);
+            offset += sdnv_length;
+
+            result_item_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+            proto_tree_add_int(result_tree, hf_block_ciphersuite_result_item_length, tvb, offset, sdnv_length, result_item_length);
+            offset += sdnv_length;
+
+            //display item data
+            switch (result_type)
+            {
+            case 1:
+            case 3:
+            case 5:
+            case 7:
+            case 8:
+                proto_tree_add_item(result_tree, hf_block_ciphersuite_result_data, tvb, offset, result_item_length, ENC_NA);
+                offset += result_item_length;
+                break;
+            case 4:
+                //pair of sdnvs offset and length
+                range_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+                proto_tree_add_int(result_tree, hf_block_ciphersuite_range_offset, tvb, offset, sdnv_length, range_offset);
+                offset += sdnv_length;
+
+                range_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+                proto_tree_add_int(result_tree, hf_block_ciphersuite_range_length, tvb, offset, sdnv_length, range_length);
+                offset += sdnv_length;
+                break;
+            default:
+                break;
+            }
+
+        }
+        break;
+
     }
     case BUNDLE_BLOCK_TYPE_CUSTODY_TRANSFER:
     {
@@ -2035,6 +2256,14 @@ get_tcpcl_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data 
         }
 
         return len;
+
+    case TCP_CONVERGENCE_LENGTH:
+        /* get length from sdnv */
+        len = evaluate_sdnv(tvb, offset+1, &bytecount);
+        if (len < 0)
+            return 0;
+        return bytecount+1;
+
     }
 
     /* This probably isn't a TCPCL/Bundle packet, so just stop dissection */
@@ -2045,6 +2274,7 @@ static int
 dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     guint8         conv_hdr;
+    guint8         refuse_bundle_hdr;
     int            offset = 0;
     int            sdnv_length, segment_length, convergence_hdr_size;
     proto_item    *ci, *sub_item;
@@ -2234,6 +2464,11 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         } else {
             col_set_str(pinfo->cinfo, COL_INFO, "TCPL REFUSE_BUNDLE Segment");
         }
+
+        refuse_bundle_hdr = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(conv_tree, hf_dtn_refuse_bundle_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+        col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const((refuse_bundle_hdr>>4)&0xF, refuse_bundle_reason_code, "Unknown"));
+
         /*No valid flags*/
         processed_length = tvb_captured_length(tvb);
         break;
@@ -2340,6 +2575,7 @@ dissect_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     col_clear(pinfo->cinfo,COL_INFO);
 
     ti_bundle_protocol = proto_tree_add_item(tree, proto_bundle, tvb, offset, -1, ENC_NA);
+
     bundle_tree = proto_item_add_subtree(ti_bundle_protocol, ett_bundle);
 
     primary_tree = proto_tree_add_subtree(bundle_tree, tvb, offset, -1, ett_primary_hdr, &ti, "Primary Bundle Header");
@@ -2853,10 +3089,6 @@ proto_register_bundle(void)
          {"Block Type Code", "bundle.block_type_code",
           FT_UINT8, BASE_DEC, VALS(bundle_block_type_codes), 0x0, NULL, HFILL}
         },
-        {&hf_bundle_age_extension_block_code,
-         {"Bundle Age in seconds", "bundle.age_extension_block_code",
-          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
-        },
         {&hf_bundle_unprocessed_block_data,
          {"Block Data", "bundle.block_data",
           FT_STRINGZPAD, BASE_NONE, NULL, 0x0, NULL, HFILL}
@@ -2889,12 +3121,88 @@ proto_register_bundle(void)
          {"ECOS Ordinal", "bundle.block.ecos.ordinal",
           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
+        {&hf_bundle_age_extension_block_code,
+         {"Bundle Age in seconds", "bundle.age_extension_block_code",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_block_previous_hop_scheme,
+         {"Previous Hop Secheme", "bundle.block.previous_hop_scheme",
+          FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_block_previous_hop_eid,
+         {"Previous Hop EID", "bundle.block.previous_hop_eid",
+          FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_target_block_type,
+         {"Target Block Type", "bundle.target_block_type",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_target_block_occurrence,
+         {"Target Block Occurrence", "bundle.target_block_occurrence",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_ciphersuite_type,
+         {"Ciphersuite Type", "bundle.ciphersuite_type",
+          FT_INT32, BASE_DEC, VALS(ciphersuite_types), 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_ciphersuite_flags,
+         {"Ciphersuite Flags", "bundle.ciphersuite_flags",
+          FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_block_ciphersuite_params,
+         {"Block Contains Ciphersuite Parameters", "bundle.block.ciphersuite_params",
+          FT_BOOLEAN, 8, NULL, BLOCK_CIPHERSUITE_PARAMS, NULL, HFILL}
+        },
+        {&hf_block_ciphersuite_params_length,
+         {"Ciphersuite Parameters Length", "bundle.block.ciphersuite_params_length",
+          FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_block_ciphersuite_params_item_length,
+         {"Parameter Length", "bundle.block.ciphersuite_params_item_length",
+          FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_block_ciphersuite_param_type,
+         {"Ciphersuite Parameter Type", "bundle.block.ciphersuite_param_type",
+          FT_INT8, BASE_DEC, VALS(res_params_types), 0x0, NULL, HFILL}
+        },
+        {&hf_block_ciphersuite_param_data,
+         {"Ciphersuite Parameter Data", "bundle.block.ciphersuite_param_data",
+          FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_block_ciphersuite_result_length,
+         {"Security Results Length", "bundle.block.ciphersuite_result_length",
+          FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_block_ciphersuite_result_item_length,
+         {"Security Result Item Length", "bundle.block.ciphersuite_result_item_length",
+          FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_block_ciphersuite_result_type,
+         {"Security Result Item Type", "bundle.block.ciphersuite_result_type",
+          FT_INT8, BASE_DEC, VALS(res_params_types), 0x0, NULL, HFILL}
+        },
+        {&hf_block_ciphersuite_result_data,
+         {"Security Result Item Data", "bundle.block.ciphersuite_result_data",
+          FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_block_ciphersuite_range_offset,
+         {"Content Range Offset", "bundle.block.ciphersuite_range_offset",
+          FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_block_ciphersuite_range_length,
+         {"Content Range Length", "bundle.block.ciphersuite_range_length",
+          FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
     };
 
     static hf_register_info hf_tcpcl[] = {
         {&hf_tcp_convergence_pkt_type,
          {"Pkt Type", "tcpcl.pkt_type",
           FT_UINT8, BASE_DEC, VALS(packet_type_vals), 0xF0, NULL, HFILL}
+        },
+        {&hf_dtn_refuse_bundle_reason_code,
+         {"Reason-Code", "tcpcl.refuse.reason_code",
+          FT_UINT8, BASE_DEC, VALS(refuse_bundle_reason_code), 0xF0, NULL, HFILL}
         },
         {&hf_tcp_convergence_data_procflags,
          {"TCP Convergence Data Flags", "tcpcl.data.proc.flag",
@@ -2991,7 +3299,8 @@ proto_register_bundle(void)
         &ett_shutdown_flags,
         &ett_admin_record,
         &ett_admin_rec_status,
-        &ett_metadata_hdr
+        &ett_metadata_hdr,
+        &ett_sec_block_param_data
     };
 
     static gint *ett_tcpcl[] = {
@@ -3059,6 +3368,7 @@ proto_register_bundle(void)
 
     reassembly_table_register(&msg_reassembly_table,
                           &addresses_reassembly_table_functions);
+
 }
 
 void
@@ -3072,7 +3382,7 @@ proto_reg_handoff_bundle(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

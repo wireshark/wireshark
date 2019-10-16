@@ -224,17 +224,17 @@ dissect_acp133_Community(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const asn_namedbit OnSupported_bits[] = {
-  {  0, &hf_acp133_OnSupported_acp127_nn, -1, -1, "acp127-nn", NULL },
-  {  1, &hf_acp133_OnSupported_acp127_pn, -1, -1, "acp127-pn", NULL },
-  {  2, &hf_acp133_OnSupported_acp127_tn, -1, -1, "acp127-tn", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * OnSupported_bits[] = {
+  &hf_acp133_OnSupported_acp127_nn,
+  &hf_acp133_OnSupported_acp127_pn,
+  &hf_acp133_OnSupported_acp127_tn,
+  NULL
 };
 
 static int
 dissect_acp133_OnSupported(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    OnSupported_bits, hf_index, ett_acp133_OnSupported,
+                                    OnSupported_bits, 3, hf_index, ett_acp133_OnSupported,
                                     NULL);
 
   return offset;
@@ -486,7 +486,7 @@ dissect_acp133_SEQUENCE_OF_UKMEntry(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_acp133_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -1553,15 +1553,15 @@ void proto_register_acp133(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "SecurityContext", HFILL }},
     { &hf_acp133_OnSupported_acp127_nn,
-      { "acp127-nn", "acp133.acp127-nn",
+      { "acp127-nn", "acp133.OnSupported.acp127.nn",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_acp133_OnSupported_acp127_pn,
-      { "acp127-pn", "acp133.acp127-pn",
+      { "acp127-pn", "acp133.OnSupported.acp127.pn",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_acp133_OnSupported_acp127_tn,
-      { "acp127-tn", "acp133.acp127-tn",
+      { "acp127-tn", "acp133.OnSupported.acp127.tn",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
 

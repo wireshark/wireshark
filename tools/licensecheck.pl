@@ -159,7 +159,7 @@ Adam D. Barratt <adam@adam-barratt.org.uk>
 
 =cut
 
-# see http://stackoverflow.com/questions/6162484/why-does-modern-perl-avoid-utf-8-by-default/6163129#6163129
+# see https://stackoverflow.com/questions/6162484/why-does-modern-perl-avoid-utf-8-by-default/6163129#6163129
 use v5.14;
 use utf8;
 
@@ -781,7 +781,7 @@ sub parselicense {
 		}
 
 		if ($licensetext =~ /distributed under the terms of the FreeType project/i) {
-			$license = "FreeType $license"; # aka FTL see http://www.freetype.org/license.html
+			$license = "FreeType $license"; # aka FTL see https://www.freetype.org/license.html
 		}
 
 		if ($licensetext =~ /This source file is subject to version ([^ ]+) of the PHP license/) {
@@ -850,11 +850,9 @@ sub parselicense {
 		}
 
 		if ($licensetext =~ /SPDX-License-Identifier:\s+\(([a-zA-Z0-9-\.]+)\s+OR\s+([a-zA-Z0-9-\.]+)\)/i) {
-		  # print STDERR "OK ---$1---$2---";
-			# print "PIPPO " . parselicense("SPDX-License-Identifier: $1") . " E " . parselicense("SPDX-License-Identifier: $2");
-			if ($1 and $2) {
-				$license = parselicense("SPDX-License-Identifier: $1") . " " . parselicense("SPDX-License-Identifier: $2");
-			}
+			my $license1 = $1;
+			my $license2 = $2;
+			$license = parselicense("SPDX-License-Identifier: $license1") . ";" . parselicense("SPDX-License-Identifier: $license2");
 		}
 
 		$license = "UNKNOWN" if (!length($license));

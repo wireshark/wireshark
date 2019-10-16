@@ -1,12 +1,12 @@
 
 
-Original Author
--------- ------
+= Original Author =
+
 Gerald Combs            <gerald[AT]wireshark.org>
 
 
-Contributors
-------------
+= Contributors =
+
 Gilbert Ramirez         <gram[AT]alumni.rice.edu> {
 	Wiretap
 	Printing
@@ -216,7 +216,7 @@ Peter Torvals           <petertv[AT]xoommail.com> {
 }
 
 Christophe Tronche      <ch.tronche[AT]computer.org> {
-	http://tronche.com/
+	https://tronche.com
 	BPDU (spanning tree protocol) support
 	X11 requests support
 }
@@ -2001,7 +2001,7 @@ Brian K. Teravskis      <Brian_Teravskis[AT]Cargill.com> {
 	Support for saving RTP analysis data in CSV form
 }
 
-Nathan Jennings         <njgm890[AT]gmail.com> {
+Nathan Jennings         <natej.git[AT]gmail.com> {
 	Support for user-supplied interface descriptions
 	Support for hiding interfaces in drop-down list in capture
 	    dialog
@@ -2571,7 +2571,7 @@ Stig Bjørlykke		<stig[AT]bjorlykke.org> {
 	BJNP, DropBox, Memcache, nat-pmp, PacketLogger, rpcap
 	Improved dissectors using ASN.1 (BER).
 	Lua functions and improvements.
-	Statistics improvements (Protocol Hierarchy, Conversations, IO Graph)
+	Statistics improvements (Protocol Hierarchy, Conversations, I/O Graph)
 	Column handling functions (right-click column headers)
 	Enhancements and fixes in the new packet list
 	Various User Guide updates
@@ -3471,7 +3471,7 @@ Guy Martin		<gmsoft[AT]tuxicoman.be> {
 
 Deepti Ragha		<dlragha[AT]ncsu.edu> {
 	Additions to ARP dissector to support opcodes as specified by IANA in
-http://www.iana.org/assignments/arp-parameters/arp-parameters.xml
+https://www.iana.org/assignments/arp-parameters/arp-parameters.xml
 }
 
 Niels de Vos		<ndevos[AT]redhat.com> {
@@ -3533,7 +3533,7 @@ Subramanian Ramachandran <sramach6[AT]ncsu.edu> {
 	Support for BFD for MPLS LSP's as per RFC 5884
 }
 
-Manuel Hofer		<manuel[At]mnlhfr.at> {
+Manuel Hofer		<manuel[AT]mnlhfr.at> {
 	OpenVPN dissector
 	SSTP Dissection
 }
@@ -3706,6 +3706,18 @@ S. Shapira		<sswsdev[AT]gmail.com> {
 
 Lazar Sumar		<bugzilla[AT]lazar.co.nz> {
 	CAN-ETH dissectors
+}
+
+Kingson Chan	<k.chan[AT]samsung.com> {
+	Wi-Fi Alliance Neighbor Awareness Networking (NAN) dissector
+}
+
+Ege Elgun		<e.elgun[AT]samsung.com> {
+	Wi-Fi Alliance Neighbor Awareness Networking (NAN) dissector
+}
+
+Connor Newton   <c.newton[AT]samsung.com> {
+	Wi-Fi Alliance Neighbor Awareness Networking (NAN) dissector
 }
 
 and by:
@@ -3961,8 +3973,8 @@ João Valverde		<joao.valverde[AT]tecnico.ulisboa.pt>
 Benoît Canet		<benoit[AT]scylladb.com>
 Håkon Øye Amundsen      <haakon.amundsen[AT]nordicsemi.no>
 
-Acknowledgements
-------------
+= Acknowledgements =
+
 Dan Lasley <dlasley[AT]promus.com> gave permission for his
 dumpit() hex-dump routine to be used.
 
@@ -3970,9 +3982,9 @@ Mattia Cazzola <mattiac[AT]alinet.it> provided a patch to the
 hex dump display routine.
 
 We use the exception module from Kazlib, a C library written by
-Kaz Kylheku <kaz[AT]ashi.footprints.net>. Thanks go to him for
+Kaz Kylheku <kaz[AT]kylheku.com>. Thanks go to him for
 his well-written library. The Kazlib home page can be found at
-http://users.footprints.net/~kaz/kazlib.html
+http://www.kylheku.com/~kaz/kazlib.html
 
 We use Lua BitOp, written by Mike Pall, for bitwise operations
 on numbers in Lua. The Lua BitOp home page can be found at

@@ -76,41 +76,39 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QToolButton" name="newToolButton">
+      <widget class="StockIconToolButton" name="newToolButton">
        <property name="toolTip">
         <string>Add a new graph.</string>
        </property>
        <property name="text">
         <string/>
        </property>
-       <property name="icon">
-        <iconset resource="../../image/stock_icons.qrc">
-         <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
-       </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="deleteToolButton">
+      <widget class="StockIconToolButton" name="deleteToolButton">
        <property name="toolTip">
         <string>Remove this graph.</string>
        </property>
-       <property name="icon">
-        <iconset resource="../../image/stock_icons.qrc">
-         <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png</iconset>
-       </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="copyToolButton">
+      <widget class="StockIconToolButton" name="copyToolButton">
        <property name="toolTip">
         <string>Duplicate this graph.</string>
        </property>
        <property name="text">
         <string/>
        </property>
-       <property name="icon">
-        <iconset resource="../../image/stock_icons.qrc">
-         <normaloff>:/stock/copy-8.png</normaloff>:/stock/copy-8.png</iconset>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="clearToolButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Clear all graphs.</string>
        </property>
       </widget>
      </item>
@@ -468,12 +466,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QCustomPlot</class>
-   <extends>QWidget</extends>
-   <header>widgets/qcustomplot.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>ElidedLabel</class>
    <extends>QLabel</extends>
    <header>widgets/elided_label.h</header>
@@ -483,10 +475,19 @@
    <extends>QTreeView</extends>
    <header>widgets/tabnav_tree_view.h</header>
   </customwidget>
+  <customwidget>
+   <class>StockIconToolButton</class>
+   <extends>QToolButton</extends>
+   <header>widgets/stock_icon_tool_button.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>widgets/qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
- <resources>
-  <include location="../../image/stock_icons.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

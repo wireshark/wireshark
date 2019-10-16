@@ -8,7 +8,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "mtp3_summary_dialog.h"
 #include <ui_mtp3_summary_dialog.h>
@@ -110,8 +111,9 @@ QString Mtp3SummaryDialog::summaryToHtml()
         << table_row_end;
 
     QString format_str = wtap_file_type_subtype_string(summary.file_type);
-    if (summary.iscompressed) {
-        format_str.append(tr(" (gzip compressed)"));
+    const char *compression_type_description = wtap_compression_type_description(summary.compression_type);
+    if (compression_type_description != NULL) {
+        format_str += QString(" (%1)").arg(compression_type_description);
     }
     out << table_row_begin
         << table_vheader_tmpl.arg(tr("Format"))
@@ -296,7 +298,7 @@ mtp3_summary_reset(
 }
 
 
-static gboolean
+static tap_packet_status
 mtp3_summary_packet(
     void            *tapdata,
     packet_info     *,
@@ -312,8 +314,9 @@ mtp3_summary_packet(
         /*
          * we thought this si_code was not used ?
          * is MTP3_NUM_SI_CODE out of date ?
+         * XXX - if this is an error, report it and return TAP_PACKET_FAILED.
          */
-        return(FALSE);
+        return(TAP_PACKET_DONT_REDRAW);
     }
 
     /*
@@ -339,8 +342,9 @@ mtp3_summary_packet(
         {
             /*
              * too many
+             * XXX - report an error and return TAP_PACKET_FAILED?
              */
-            return(FALSE);
+            return(TAP_PACKET_DONT_REDRAW);
         }
 
         mtp3_num_used++;
@@ -351,7 +355,7 @@ mtp3_summary_packet(
     (*stat_p)[i].mtp3_si_code[data_p->mtp3_si_code].num_msus++;
     (*stat_p)[i].mtp3_si_code[data_p->mtp3_si_code].size += data_p->size;
 
-    return(TRUE);
+    return(TAP_PACKET_REDRAW);
 }
 
 void
@@ -365,6 +369,7 @@ register_tap_listener_qt_mtp3_summary(void)
     register_tap_listener("mtp3", &mtp3_stat, NULL, 0,
         mtp3_summary_reset,
         mtp3_summary_packet,
+        NULL,
         NULL);
 
     if (err_p != NULL)

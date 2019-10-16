@@ -9,6 +9,7 @@
 #include "config.h"
 #include <errno.h>
 #include <string.h>
+#include <wsutil/unicode-utils.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "atm.h"
@@ -109,12 +110,11 @@ struct netmonrec_2_3_trlr {
 };
 
 struct netmonrec_comment {
-	guint32 numFramePerComment;		/* Currently, this is always set to 1. Each comment is attached to only one frame. */
-	guint32 frameOffset;	/* Offset in the capture file table that indicates the beginning of the frame.  Key used to match comment with frame */
-	guint32 titleLength;	/* Number of bytes in the comment title. Must be greater than zero. */
+	guint32 numFramePerComment;	/* Currently, this is always set to 1. Each comment is attached to only one frame. */
+	guint32 frameOffset;		/* Offset in the capture file table that indicates the beginning of the frame.  Key used to match comment with frame */
 	guint8* title;			/* Comment title */
 	guint32 descLength;		/* Number of bytes in the comment description. Must be at least zero. */
-	guint8* description;	/* Comment description */
+	guint8* description;		/* Comment description */
 };
 
 /* Just the first few fields of netmonrec_comment so it can be read sequentially from file */
@@ -130,7 +130,6 @@ union ip_address {
 };
 
 struct netmonrec_process_info {
-	guint32 pathSize;
 	guint8* path;				/* A Unicode string of length PathSize */
 	guint32 iconSize;
 	guint8* iconData;
@@ -163,6 +162,24 @@ typedef struct {
 	GHashTable* process_info_table;
 	guint current_frame;
 } netmon_t;
+
+/*
+ * Maximum pathname length supported in the process table; the length
+ * is in a 32-bit field, so we impose a limit to prevent attempts to
+ * allocate too much memory.
+ *
+ * See
+ *
+ *    https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#maximum-path-length-limitation
+ *
+ * The NetMon 3.4 "Capture File Format" documentation says "PathSize must be
+ * greater than 0, and less than MAX_PATH (260 characters)", but, as per that
+ * link above, that limit has been raised in more recent systems.
+ *
+ * We pick a limit of 65536, as that should handle a path length of 32767
+ * UTF-16 octet pairs plus a trailing NUL octet pair.
+ */
+#define MATH_PROCINFO_PATH_SIZE		65536
 
 /*
  * XXX - at least in some NetMon 3.4 VPN captures, the per-packet
@@ -198,8 +215,8 @@ static const int netmon_encap[] = {
 #define NETMON_NET_DNS_CACHE		0xFFFE
 #define NETMON_NET_NETMON_FILTER	0xFFFF
 
-static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean netmon_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean netmon_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
@@ -208,6 +225,163 @@ static void netmon_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info);
 static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err);
+
+/*
+ * Convert a counted UTF-16 string, which is probably also null-terminated
+ * but is not guaranteed to be null-terminated (as it came from a file),
+ * to a null-terminated UTF-8 string.
+ */
+static guint8 *
+utf_16_to_utf_8(const guint8 *in, guint32 length)
+{
+	guint8 *result, *out;
+	gunichar2 uchar2;
+	gunichar uchar;
+	size_t n_bytes;
+	guint32 i;
+
+	/*
+	 * Get the length of the resulting UTF-8 string, and validate
+	 * the input string in the process.
+	 */
+	n_bytes = 0;
+	for (i = 0; i + 1 < length && (uchar2 = pletoh16(in + i)) != '\0';
+	    i += 2) {
+		if (IS_LEAD_SURROGATE(uchar2)) {
+			/*
+			 * Lead surrogate.  Must be followed by a trail
+			 * surrogate.
+			 */
+			gunichar2 lead_surrogate;
+
+			i += 2;
+			if (i + 1 >= length) {
+				/*
+				 * Oops, string ends with a lead surrogate.
+				 * Ignore this for now.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				break;
+			}
+			lead_surrogate = uchar2;
+			uchar2 = pletoh16(in + i);
+			if (uchar2 == '\0') {
+				/*
+				 * Oops, string ends with a lead surrogate.
+				 * Ignore this for now.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				break;
+			}
+			if (IS_TRAIL_SURROGATE(uchar2)) {
+				/* Trail surrogate. */
+				uchar = SURROGATE_VALUE(lead_surrogate, uchar2);
+				n_bytes += g_unichar_to_utf8(uchar, NULL);
+			} else {
+				/*
+				 * Not a trail surrogate.
+				 * Ignore the entire pair.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				;
+			}
+		} else {
+			if (IS_TRAIL_SURROGATE(uchar2)) {
+				/*
+				 * Trail surrogate without a preceding
+				 * lead surrogate.  Ignore it.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				;
+			} else {
+				/*
+				 * Non-surrogate; just count it.
+				 */
+				n_bytes += g_unichar_to_utf8(uchar2, NULL);
+			}
+		}
+	}
+
+	/*
+	 * Now allocate a buffer big enough for the UTF-8 string plus a
+	 * trailing NUL, and generate the string.
+	 */
+	result = (guint8 *)g_malloc(n_bytes + 1);
+
+	out = result;
+	for (i = 0; i + 1 < length && (uchar2 = pletoh16(in + i)) != '\0';
+	    i += 2) {
+		if (IS_LEAD_SURROGATE(uchar2)) {
+			/*
+			 * Lead surrogate.  Must be followed by a trail
+			 * surrogate.
+			 */
+			gunichar2 lead_surrogate;
+
+			i += 2;
+			if (i + 1 >= length) {
+				/*
+				 * Oops, string ends with a lead surrogate.
+				 * Ignore this for now.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				break;
+			}
+			lead_surrogate = uchar2;
+			uchar2 = pletoh16(in + i);
+			if (uchar2 == '\0') {
+				/*
+				 * Oops, string ends with a lead surrogate.
+				 * Ignore this for now.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				break;
+			}
+			if (IS_TRAIL_SURROGATE(uchar2)) {
+				/* Trail surrogate. */
+				uchar = SURROGATE_VALUE(lead_surrogate, uchar2);
+				out += g_unichar_to_utf8(uchar, out);
+			} else {
+				/*
+				 * Not a trail surrogate.
+				 * Ignore the entire pair.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				;
+			}
+		} else {
+			if (IS_TRAIL_SURROGATE(uchar2)) {
+				/*
+				 * Trail surrogate without a preceding
+				 * lead surrogate.  Ignore it.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				;
+			} else {
+				/*
+				 * Non-surrogate; just count it.
+				 */
+				out += g_unichar_to_utf8(uchar2, out);
+			}
+		}
+	}
+	*out = '\0';
+
+	/*
+	 * XXX - if i < length, this means we were handed an odd
+	 * number of bytes, so it was not a valid UTF-16 string.
+	 */
+	return result;
+}
+
 
 static void netmonrec_comment_destroy(gpointer key) {
 	struct netmonrec_comment *comment = (struct netmonrec_comment*) key;
@@ -492,8 +666,8 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	if (comment_table_size > 0) {
 		comment_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, netmonrec_comment_destroy);
 		if (comment_table == NULL) {
-				*err = ENOMEM;	/* we assume we're out of memory */
-				return WTAP_OPEN_ERROR;
+			*err = ENOMEM;	/* we assume we're out of memory */
+			return WTAP_OPEN_ERROR;
 		}
 
 		/* Make sure the file contains the full comment section */
@@ -510,7 +684,9 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 
 		while (comment_table_size > 16) {
 			struct netmonrec_comment_header comment_header;
+			guint32 title_length;
 			guint32 desc_length;
+			guint8 *utf16_str;
 
 			/* Read the first 12 bytes of the structure */
 			if (!wtap_read_bytes(wth->fh, &comment_header, 12, err, err_info)) {
@@ -520,16 +696,17 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			comment_table_size -= 12;
 
 			/* Make sure comment size is sane */
-			if (pletoh32(&comment_header.titleLength) == 0) {
+			title_length = pletoh32(&comment_header.titleLength);
+			if (title_length == 0) {
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup("netmon: comment title size can't be 0");
 				g_hash_table_destroy(comment_table);
 				return WTAP_OPEN_ERROR;
 			}
-			if (pletoh32(&comment_header.titleLength) > comment_table_size) {
+			if (title_length > comment_table_size) {
 				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("netmon: comment title size is %u, which is larger than the entire comment section (%d)",
-						pletoh32(&comment_header.titleLength), comment_table_size);
+				*err_info = g_strdup_printf("netmon: comment title size is %u, which is larger than the amount remaining in the comment section (%u)",
+						title_length, comment_table_size);
 				g_hash_table_destroy(comment_table);
 				return WTAP_OPEN_ERROR;
 			}
@@ -537,17 +714,30 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			comment_rec = g_new0(struct netmonrec_comment, 1);
 			comment_rec->numFramePerComment = pletoh32(&comment_header.numFramePerComment);
 			comment_rec->frameOffset = pletoh32(&comment_header.frameOffset);
-			comment_rec->titleLength = pletoh32(&comment_header.titleLength);
-			comment_rec->title = (guint8*)g_malloc(comment_rec->titleLength);
 
 			g_hash_table_insert(comment_table, GUINT_TO_POINTER(comment_rec->frameOffset), comment_rec);
 
-			/* Read the comment title */
-			if (!wtap_read_bytes(wth->fh, comment_rec->title, comment_rec->titleLength, err, err_info)) {
+			/*
+			 * Read in the comment title.
+			 *
+			 * It is in UTF-16-encoded Unicode, and the title
+			 * size is a count of octets, not octet pairs or
+			 * Unicode characters.
+			 */
+			utf16_str = (guint8*)g_malloc(title_length);
+			if (!wtap_read_bytes(wth->fh, utf16_str, title_length,
+			    err, err_info)) {
 				g_hash_table_destroy(comment_table);
 				return WTAP_OPEN_ERROR;
 			}
-			comment_table_size -= comment_rec->titleLength;
+			comment_table_size -= title_length;
+
+			/*
+			 * Now convert it to UTF-8 for internal use.
+			 */
+			comment_rec->title = utf_16_to_utf_8(utf16_str,
+			    title_length);
+			g_free(utf16_str);
 
 			if (comment_table_size < 4) {
 				*err = WTAP_ERR_BAD_FILE;
@@ -567,7 +757,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 				/* Make sure comment size is sane */
 				if (comment_rec->descLength > comment_table_size) {
 					*err = WTAP_ERR_BAD_FILE;
-					*err_info = g_strdup_printf("netmon: comment description size is %u, which is larger than the entire comment section (%d)",
+					*err_info = g_strdup_printf("netmon: comment description size is %u, which is larger than the amount remaining in the comment section (%u)",
 								comment_rec->descLength, comment_table_size);
 					g_hash_table_destroy(comment_table);
 					return WTAP_OPEN_ERROR;
@@ -612,6 +802,8 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			struct netmonrec_process_info* process_info;
 			guint32 tmp32;
 			guint16 tmp16;
+			guint32 path_size;
+			guint8 *utf16_str;
 
 			process_info = g_new0(struct netmonrec_process_info, 1);
 
@@ -622,22 +814,37 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 				return WTAP_OPEN_ERROR;
 			}
 
-			process_info->pathSize = pletoh32(&tmp32);
-			if (process_info->pathSize > 260) {
+			path_size = pletoh32(&tmp32);
+			if (path_size > MATH_PROCINFO_PATH_SIZE) {
 				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("netmon: Path size for process info record is %u, which is larger than allowed max value (260)",
-							process_info->pathSize);
+				*err_info = g_strdup_printf("netmon: Path size for process info record is %u, which is larger than allowed max value (%u)",
+				    path_size, MATH_PROCINFO_PATH_SIZE);
 				g_free(process_info);
 				g_hash_table_destroy(process_info_table);
 				return WTAP_OPEN_ERROR;
 			}
 
-			process_info->path = (guint8*)g_malloc(process_info->pathSize);
-			if (!wtap_read_bytes(wth->fh, process_info->path, process_info->pathSize, err, err_info)) {
+			/*
+			 * Read in the path string.
+			 *
+			 * It is in UTF-16-encoded Unicode, and the path
+			 * size is a count of octets, not octet pairs or
+			 * Unicode characters.
+			 */
+			utf16_str = (guint8*)g_malloc(path_size);
+			if (!wtap_read_bytes(wth->fh, utf16_str, path_size,
+			    err, err_info)) {
 				g_free(process_info);
 				g_hash_table_destroy(process_info_table);
 				return WTAP_OPEN_ERROR;
 			}
+
+			/*
+			 * Now convert it to UTF-8 for internal use.
+			 */
+			process_info->path = utf_16_to_utf_8(utf16_str,
+			    path_size);
+			g_free(utf16_str);
 
 			/* Read icon (currently not saved) */
 			if (!wtap_read_bytes(wth->fh, &tmp32, 4, err, err_info)) {
@@ -1093,7 +1300,7 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 				/*
 				 * Event Tracing event.
 				 *
-				 * http://msdn.microsoft.com/en-us/library/aa363759(VS.85).aspx
+				 * https://docs.microsoft.com/en-us/windows/win32/api/evntcons/ns-evntcons-event_header
 				 */
 				pkt_encap = WTAP_ENCAP_NETMON_NET_NETEVENT;
 				break;
@@ -1197,7 +1404,6 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 		rec->rec_header.packet_header.pseudo_header.netmon.sub_encap = rec->rec_header.packet_header.pkt_encap;
 
 		/* Copy the comment data */
-		rec->rec_header.packet_header.pseudo_header.netmon.titleLength = comment_rec->titleLength;
 		rec->rec_header.packet_header.pseudo_header.netmon.title = comment_rec->title;
 		rec->rec_header.packet_header.pseudo_header.netmon.descLength = comment_rec->descLength;
 		rec->rec_header.packet_header.pseudo_header.netmon.description = comment_rec->description;
@@ -1224,8 +1430,8 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 }
 
 /* Read the next packet */
-static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean netmon_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	netmon_t *netmon = (netmon_t *)wth->priv;
 	gint64	rec_offset;
@@ -1256,8 +1462,8 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 
 		*data_offset = file_tell(wth->fh);
 
-		switch (netmon_process_record(wth, wth->fh, &wth->rec,
-		    wth->rec_data, err, err_info)) {
+		switch (netmon_process_record(wth, wth->fh, rec, buf, err,
+		    err_info)) {
 
 		case RETRY:
 			continue;
@@ -1782,7 +1988,7 @@ static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

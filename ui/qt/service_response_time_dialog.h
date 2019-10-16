@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __SERVICE_RESPONSE_TIME_DIALOG_H__
 #define __SERVICE_RESPONSE_TIME_DIALOG_H__

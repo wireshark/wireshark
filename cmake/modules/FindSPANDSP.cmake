@@ -31,7 +31,7 @@ find_library( SPANDSP_LIBRARY
 )
 
 include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( SpanDSP DEFAULT_MSG SPANDSP_INCLUDE_DIR SPANDSP_LIBRARY )
+find_package_handle_standard_args( SpanDSP DEFAULT_MSG SPANDSP_LIBRARY SPANDSP_INCLUDE_DIR )
 
 if( SPANDSP_FOUND )
   set( SPANDSP_INCLUDE_DIRS ${SPANDSP_INCLUDE_DIR} )

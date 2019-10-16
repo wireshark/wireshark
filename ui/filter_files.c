@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <config.h>
 
@@ -17,25 +18,9 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/glib-compat.h>
 #include <wsutil/report_message.h>
 
 #include "ui/filter_files.h"
-
-/*
- * Old filter file name.
- */
-#define FILTER_FILE_NAME      "filters"
-
-/*
- * Capture filter file name.
- */
-#define CFILTER_FILE_NAME     "cfilters"
-
-/*
- * Display filter file name.
- */
-#define DFILTER_FILE_NAME     "dfilters"
 
 /*
  * List of capture filters - saved.
@@ -646,7 +631,7 @@ void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #
 # asn2wrs.py
@@ -14,11 +14,11 @@
 # Compiler from ASN.1 specification to the Wireshark dissector
 #
 # Based on ASN.1 to Python compiler from Aaron S. Lav's PyZ3950 package licensed under the X Consortium license
-# http://www.pobox.com/~asl2/software/PyZ3950/
+# https://www.pobox.com/~asl2/software/PyZ3950/
 # (ASN.1 to Python compiler functionality is broken but not removed, it could be revived if necessary)
 #
 # It requires Dave Beazley's PLY parsing package licensed under the LGPL (tested with version 2.3)
-# http://www.dabeaz.com/ply/
+# https://www.dabeaz.com/ply/
 #
 #
 # ITU-T Recommendation X.680 (07/2002),
@@ -47,8 +47,14 @@ import time
 import getopt
 import traceback
 
-import lex
-import yacc
+try:
+    from ply import lex
+    from ply import yacc
+except ImportError:
+    # Fallback: use lex.py and yacc from the tools directory within the
+    # Wireshark source tree if python-ply is not installed.
+    import lex
+    import yacc
 
 if sys.version_info[0] < 3:
     from string import maketrans
@@ -605,6 +611,7 @@ class EthCtx:
     # Encoding
     def Per(self): return self.encoding == 'per'
     def Ber(self): return self.encoding == 'ber'
+    def Oer(self): return self.encoding == 'oer'
     def Aligned(self): return self.aligned
     def Unaligned(self): return not self.aligned
     def NeedTags(self): return self.tag_opt or self.Ber()
@@ -706,6 +713,8 @@ class EthCtx:
             else:
                 attr.update(self.type[t]['attr'])
                 attr.update(self.eth_type[self.type[t]['ethname']]['attr'])
+        if attr['STRINGS'].startswith('VALS64('):
+            attr['DISPLAY'] += '|BASE_VAL64_STRING'
         #print " ", attr
         return attr
 
@@ -1201,17 +1210,24 @@ class EthCtx:
                 if (use_ext):
                     self.eth_type[nm]['attr']['STRINGS'] = '&%s_ext' % (self.eth_vals_nm(nm))
                 else:
-                    self.eth_type[nm]['attr']['STRINGS'] = 'VALS(%s)' % (self.eth_vals_nm(nm))
+                    if self.eth_type[nm]['val'].type == 'IntegerType' \
+                       and self.eth_type[nm]['val'].HasConstraint() \
+                       and self.eth_type[nm]['val'].constr.Needs64b(self):
+                        self.eth_type[nm]['attr']['STRINGS'] = 'VALS64(%s)' % (self.eth_vals_nm(nm))
+                    else:
+                        self.eth_type[nm]['attr']['STRINGS'] = 'VALS(%s)' % (self.eth_vals_nm(nm))
             self.eth_type[nm]['attr'].update(self.conform.use_item('ETYPE_ATTR', nm))
         for t in self.eth_type_ord:
             bits = self.eth_type[t]['val'].eth_named_bits()
             if (bits):
+                old_val = 0
                 for (val, id) in bits:
                     self.named_bit.append({'name' : id, 'val' : val,
-                                           'ethname' : 'hf_%s_%s_%s' % (self.eproto, t, asn2c(id)),
-                                           'ftype'   : 'FT_BOOLEAN', 'display' : '8',
-                                           'strings' : 'NULL',
-                                           'bitmask' : '0x'+('80','40','20','10','08','04','02','01')[val%8]})
+                                            'ethname' : 'hf_%s_%s_%s' % (self.eproto, t, asn2c(id)),
+                                            'ftype'   : 'FT_BOOLEAN', 'display' : '8',
+                                            'strings' : 'NULL',
+                                            'bitmask' : '0x'+('80','40','20','10','08','04','02','01')[val%8]})
+                    old_val = val + 1
             if self.eth_type[t]['val'].eth_need_tree():
                 self.eth_type[t]['tree'] = "ett_%s_%s" % (self.eth_type[t]['proto'], t)
             else:
@@ -1344,7 +1360,7 @@ class EthCtx:
             if self.type[t]['import']:
                 continue
             m = self.type[t]['module']
-            if not self.Per():
+            if not self.Per() and not self.Oer():
                 if m not in self.all_tags:
                     self.all_tags[m] = {}
                 self.all_tags[m][t] = self.type[t]['val'].GetTTag(self)
@@ -1383,7 +1399,11 @@ class EthCtx:
             out += 'static '
         if (self.eth_type[tname]['export'] & EF_VALS) and (self.eth_type[tname]['export'] & EF_TABLE):
             out += 'static '
-        out += "const value_string %s[] = {\n" % (self.eth_vals_nm(tname))
+        if self.eth_type[tname]['val'].HasConstraint() and self.eth_type[tname]['val'].constr.Needs64b(self) \
+           and self.eth_type[tname]['val'].type == 'IntegerType':
+            out += "const val64_string %s[] = {\n" % (self.eth_vals_nm(tname))
+        else:
+            out += "const value_string %s[] = {\n" % (self.eth_vals_nm(tname))
         for (val, id) in vals:
             if (has_enum):
                 vval = self.eth_enum_item(tname, id)
@@ -1449,10 +1469,10 @@ class EthCtx:
     def eth_bits(self, tname, bits):
         out = ""
         out += "static const "
-        out += "asn_namedbit %(TABLE)s[] = {\n"
+        out += "int * %(TABLE)s[] = {\n"
         for (val, id) in bits:
-            out += '  { %2d, &hf_%s_%s_%s, -1, -1, "%s", NULL },\n' % (val, self.eproto, tname, asn2c(id), id)
-        out += "  { 0, NULL, 0, 0, NULL, NULL }\n};\n"
+            out += '  &hf_%s_%s_%s,\n' % (self.eproto, tname, asn2c(id))
+        out += "  NULL\n};\n"
         return out
 
     #--- eth_type_fn_h ----------------------------------------------------------
@@ -1463,7 +1483,7 @@ class EthCtx:
         out += "int "
         if (self.Ber()):
             out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)" % (self.eth_type[tname]['proto'], tname)
-        elif (self.Per()):
+        elif (self.Per() or self.Oer()):
             out += "dissect_%s_%s(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)" % (self.eth_type[tname]['proto'], tname)
         out += ";\n"
         return out
@@ -1485,6 +1505,13 @@ class EthCtx:
         out += ');\n'
         return out
 
+    def output_proto_root(self):
+        out = ''
+        if self.conform.proto_root_name:
+            out += '  proto_item *prot_ti = proto_tree_add_item(tree, ' + self.conform.proto_root_name + ', tvb, 0, -1, ENC_NA);\n'
+            out += '  proto_item_set_hidden(prot_ti);\n'
+        return out
+
     #--- eth_type_fn_hdr --------------------------------------------------------
     def eth_type_fn_hdr(self, tname):
         out = '\n'
@@ -1493,11 +1520,14 @@ class EthCtx:
         out += "int\n"
         if (self.Ber()):
             out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
-        elif (self.Per()):
+        elif (self.Per() or self.Oer()):
             out += "dissect_%s_%s(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
         #if self.conform.get_fn_presence(tname):
         #  out += self.conform.get_fn_text(tname, 'FN_HDR')
         #el
+        if self.conform.check_item('PDU', tname):
+            out += self.output_proto_root()
+
         if self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
             out += self.conform.get_fn_text(self.eth_type[tname]['ref'][0], 'FN_HDR')
         return out
@@ -1588,8 +1618,13 @@ class EthCtx:
             fx.write('        %(TYPE)s, %(DISPLAY)s, %(STRINGS)s, %(BITMASK)s,\n' % attr)
             fx.write('        %(BLURB)s, HFILL }},\n' % attr)
         for nb in self.named_bit:
+            flt_str = nb['ethname']
+            # cut out hf_
+            flt_str = flt_str[3:]
+            flt_str = flt_str.replace('_' , '.')
+            #print("filter string=%s" % (flt_str))
             fx.write('    { &%s,\n' % (nb['ethname']))
-            fx.write('      { "%s", "%s.%s",\n' % (nb['name'], self.proto, nb['name']))
+            fx.write('      { "%s", "%s",\n' % (nb['name'], flt_str))
             fx.write('        %s, %s, %s, %s,\n' % (nb['ftype'], nb['display'], nb['strings'], nb['bitmask']))
             fx.write('        NULL, HFILL }},\n')
         self.output.file_close(fx)
@@ -1628,7 +1663,11 @@ class EthCtx:
                         fx.write("WS_DLL_PUBLIC ")
                     else:
                         fx.write("extern ")
-                    fx.write("const value_string %s[];\n" % (self.eth_vals_nm(t)))
+                    if self.eth_type[t]['val'].HasConstraint() and self.eth_type[t]['val'].constr.Needs64b(self) \
+                       and self.eth_type[t]['val'].type == 'IntegerType':
+                        fx.write("const val64_string %s[];\n" % (self.eth_vals_nm(t)))
+                    else:
+                        fx.write("const value_string %s[];\n" % (self.eth_vals_nm(t)))
                 else:
                     fx.write(self.eth_type[t]['val'].eth_type_vals(t, self))
         for t in self.eth_export_ord:  # functions
@@ -1723,6 +1762,8 @@ class EthCtx:
                 out += 'static '
             out += 'int '
             out += 'dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {\n'
+            out += self.output_proto_root()
+
             out += '  int offset = 0;\n'
             off_par = 'offset'
             ret_par = 'offset'
@@ -1739,6 +1780,10 @@ class EthCtx:
                 par=((impl, 'tvb', off_par,'&asn1_ctx', 'tree', self.eth_hf[f]['fullname']),)
             elif (self.Per()):
                 par=(('tvb', off_par, '&asn1_ctx', 'tree', self.eth_hf[f]['fullname']),)
+            elif (self.Oer()):
+                out += "  asn1_ctx_t asn1_ctx;\n"
+                out += self.eth_fn_call('asn1_ctx_init', par=(('&asn1_ctx', 'ASN1_ENC_OER', 'TRUE', 'pinfo'),))
+                par=(('tvb', off_par,'&asn1_ctx', 'tree', self.eth_hf[f]['fullname']),)
             else:
                 par=((),)
             out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret=ret_par, par=par)
@@ -1781,7 +1826,11 @@ class EthCtx:
                 if self.eth_type[t]['no_emit'] & EF_VALS:
                     pass
                 elif self.eth_type[t]['user_def'] & EF_VALS:
-                    fx.write("extern const value_string %s[];\n" % (self.eth_vals_nm(t)))
+                    if self.eth_type[t]['val'].HasConstraint() and self.eth_type[t]['val'].constr.Needs64b(self) \
+                       and self.eth_type[t]['val'].type == 'IntegerType':
+                        fx.write("extern const val64_string %s[];\n" % (self.eth_vals_nm(t)))
+                    else:
+                        fx.write("extern const value_string %s[];\n" % (self.eth_vals_nm(t)))
                 elif (self.eth_type[t]['export'] & EF_VALS) and (self.eth_type[t]['export'] & EF_TABLE):
                     pass
                 else:
@@ -1867,7 +1916,7 @@ class EthCtx:
                     hnd = '%screate_dissector_handle(dissect_%s, proto_%s)' % (new_prefix, f, self.eproto)
                 rport = self.value_get_eth(reg['rport'])
                 fx.write('  dissector_add_%s("%s", %s, %s);\n' % (rstr, reg['rtable'], rport, hnd))
-            elif (reg['rtype'] in ('BER', 'PER')):
+            elif (reg['rtype'] in ('BER', 'PER', 'OER')):
                 roid = self.value_get_eth(reg['roid'])
                 fx.write('  %sregister_%s_oid_dissector(%s, dissect_%s, proto_%s, %s);\n' % (new_prefix, reg['rtype'].lower(), roid, f, self.eproto, reg['roidname']))
             fempty = False
@@ -1991,10 +2040,10 @@ class EthCtx:
             for a in self.assign_ord:
                 v = ' '
                 if (self.assign[a]['virt']): v = '*'
-                print(v, a)
+                print('{} {}'.format(v, a))
             print("\n# Value assignments")
             for a in self.vassign_ord:
-                print(' ', a)
+                print(' {}'.format(a))
             print("\n# Information object assignments")
             for a in self.oassign_ord:
                 print(" %-12s (%s)" % (a, self.oassign[a].cls))
@@ -2137,6 +2186,7 @@ class EthCnf:
         self.report = {}
         self.suppress_line = False
         self.include_path = []
+        self.proto_root_name = None
         #                                   Value name             Default value       Duplicity check   Usage check
         self.tblcfg['EXPORTS']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
         self.tblcfg['MAKE_ENUM']       = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
@@ -2264,6 +2314,7 @@ class EthCnf:
         elif (par[0] in ('S', 'STR')): rtype = 'STR'; (pmin, pmax) = (2, 2)
         elif (par[0] in ('B', 'BER')): rtype = 'BER'; (pmin, pmax) = (1, 2)
         elif (par[0] in ('P', 'PER')): rtype = 'PER'; (pmin, pmax) = (1, 2)
+        elif (par[0] in ('O', 'OER')): rtype = 'OER'; (pmin, pmax) = (1, 2)
         else: warnings.warn_explicit("Unknown registration type '%s'" % (par[2]), UserWarning, fn, lineno); return
         if ((len(par)-1) < pmin):
             warnings.warn_explicit("Too few parameters for %s registration type. At least %d parameters are required" % (rtype, pmin), UserWarning, fn, lineno)
@@ -2275,7 +2326,7 @@ class EthCnf:
             attr['rtable'] = par[1]
             attr['rport'] = par[2]
             rkey = '/'.join([rtype, attr['rtable'], attr['rport']])
-        elif (rtype in ('BER', 'PER')):
+        elif (rtype in ('BER', 'PER', 'OER')):
             attr['roid'] = par[1]
             attr['roidname'] = '""'
             if (len(par)>=3):
@@ -2421,7 +2472,7 @@ class EthCnf:
                     if not par: continue
                     p = 1
                     if (par[0] == 'WITH_VALS'):      default_flags |= EF_TYPE|EF_VALS
-                    elif (par[0] == 'WITHOUT_VALS'): default_flags |= EF_TYPE; default_flags &= ~EF_TYPE
+                    elif (par[0] == 'WITHOUT_VALS'): default_flags |= EF_TYPE; default_flags &= ~EF_VALS
                     elif (par[0] == 'ONLY_VALS'):    default_flags &= ~EF_TYPE; default_flags |= EF_VALS
                     elif (ctx == 'EXPORTS'): p = 0
                     else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[0]), UserWarning, fn, lineno)
@@ -2557,7 +2608,7 @@ class EthCnf:
                 p = 2
                 if (len(par)>=2):
                     if (par[1] == 'WITH_VALS'):      flags |= EF_TYPE|EF_VALS
-                    elif (par[1] == 'WITHOUT_VALS'): flags |= EF_TYPE; flags &= ~EF_TYPE
+                    elif (par[1] == 'WITHOUT_VALS'): flags |= EF_TYPE; flags &= ~EF_VALS
                     elif (par[1] == 'ONLY_VALS'):    flags &= ~EF_TYPE; flags |= EF_VALS
                     elif (ctx == 'EXPORTS'): p = 1
                     else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[1]), UserWarning, fn, lineno)
@@ -2719,7 +2770,7 @@ class EthCnf:
                 self.report[name][-1]['text'] += line
 
     def set_opt(self, opt, par, fn, lineno):
-        #print "set_opt: %s, %s" % (opt, par)
+        #print("set_opt: %s, %s" % (opt, par))
         if opt in ("-I",):
             par = self.check_par(par, 1, 1, fn, lineno)
             if not par: return
@@ -2730,6 +2781,9 @@ class EthCnf:
         elif opt in ("PER",):
             par = self.check_par(par, 0, 0, fn, lineno)
             self.ectx.encoding = 'per'
+        elif opt in ("OER",):
+            par = self.check_par(par, 0, 0, fn, lineno)
+            self.ectx.encoding = 'oer'
         elif opt in ("-p", "PROTO"):
             par = self.check_par(par, 1, 1, fn, lineno)
             if not par: return
@@ -2741,6 +2795,10 @@ class EthCnf:
         elif opt in ("-u", "UNALIGNED"):
             par = self.check_par(par, 0, 0, fn, lineno)
             self.ectx.aligned = False
+        elif opt in ("PROTO_ROOT_NAME"):
+            par = self.check_par(par, 1, 1, fn, lineno)
+            if not par: return
+            self.proto_root_name = par[0]
         elif opt in ("-d",):
             par = self.check_par(par, 1, 1, fn, lineno)
             if not par: return
@@ -3714,7 +3772,7 @@ class Type_Ref (Type):
             return asn2c(self.val)
 
     def tr_need_own_fn(self, ectx):
-        return ectx.Per() and self.HasSizeConstraint()
+        return (ectx.Per() or ectx.Oer()) and self.HasSizeConstraint()
 
     def fld_obj_repr(self, ectx):
         return self.val
@@ -3764,7 +3822,7 @@ class Type_Ref (Type):
         if (ectx.Ber()):
             body = ectx.eth_fn_call('%(TYPE_REF_FN)s', ret='offset',
                                     par=(('%(IMPLICIT_TAG)s', '%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),))
-        elif (ectx.Per()):
+        elif (ectx.Per() or ectx.Oer()):
             if self.HasSizeConstraint():
                 body = ectx.eth_fn_call('dissect_%(ER)s_size_constrained_type', ret='offset',
                                         par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),
@@ -3824,7 +3882,7 @@ class SelectionType (Type):
         elif (ectx.Ber()):
             body = ectx.eth_fn_call('%(TYPE_REF_FN)s', ret='offset',
                                     par=(('%(IMPLICIT_TAG)s', '%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),))
-        elif (ectx.Per()):
+        elif (ectx.Per() or ectx.Oer()):
             body = ectx.eth_fn_call('%(TYPE_REF_FN)s', ret='offset',
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),))
         else:
@@ -3914,7 +3972,7 @@ class SqType (Type):
             (tc, tn) = val.GetTag(ectx)
             out = '  { %-24s, %-13s, %s, %s, dissect_%s_%s },\n' \
                   % ('&'+fullname, tc, tn, opt, ectx.eth_type[t]['proto'], t)
-        elif (ectx.Per()):
+        elif (ectx.Per() or ectx.Oer()):
             out = '  { %-24s, %-23s, %-17s, dissect_%s_%s },\n' \
                   % ('&'+fullname, ext, opt, ectx.eth_type[t]['proto'], t)
         else:
@@ -3982,7 +4040,7 @@ class SeqType (SqType):
                 return
         # extension addition groups
         if hasattr(self, 'ext_list'):
-            if (ectx.Per()):  # add names
+            if (ectx.Per() or ectx.Oer()):  # add names
                 eag_num = 1
                 for e in (self.ext_list):
                     if isinstance(e.val, ExtensionAdditionGroup):
@@ -4026,7 +4084,7 @@ class SeqType (SqType):
                 e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
 
     def eth_type_default_table(self, ectx, tname):
-        #print "eth_type_default_table(tname='%s')" % (tname)
+        #print ("eth_type_default_table(tname='%s')" % (tname))
         fname = ectx.eth_type[tname]['ref'][0]
         table = "static const %(ER)s_sequence_t %(TABLE)s[] = {\n"
         if hasattr(self, 'ext_list'):
@@ -4120,11 +4178,11 @@ class SequenceOfType (SeqOfType):
                 body = ectx.eth_fn_call('dissect_%(ER)s_sequence_of', ret='offset',
                                         par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                              ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
-        elif (ectx.Per() and not self.HasConstraint()):
+        elif ((ectx.Per() or ectx.Oer()) and not self.HasConstraint()):
             body = ectx.eth_fn_call('dissect_%(ER)s_sequence_of', ret='offset',
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                          ('%(ETT_INDEX)s', '%(TABLE)s',),))
-        elif (ectx.Per() and self.constr.type == 'Size'):
+        elif ((ectx.Per() or ectx.Oer()) and self.constr.type == 'Size'):
             body = ectx.eth_fn_call('dissect_%(ER)s_constrained_sequence_of', ret='offset',
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                          ('%(ETT_INDEX)s', '%(TABLE)s',),
@@ -4261,7 +4319,7 @@ class SequenceType (SeqType):
             body = ectx.eth_fn_call('dissect_%(ER)s_sequence', ret='offset',
                                   par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                        ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
-        elif (ectx.Per()):
+        elif (ectx.Per() or ectx.Oer()):
             body = ectx.eth_fn_call('dissect_%(ER)s_sequence', ret='offset',
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                          ('%(ETT_INDEX)s', '%(TABLE)s',),))
@@ -4467,7 +4525,7 @@ class ChoiceType (Type):
         lst = self.elt_list[:]
         if hasattr(self, 'ext_list'):
             lst.extend(self.ext_list)
-        if (len(lst) > 0) and (not ectx.Per() or lst[0].HasOwnTag()):
+        if (len(lst) > 0) and (not (ectx.Per() or ectx.Oer()) or lst[0].HasOwnTag()):
             t = lst[0].GetTag(ectx)[0]
             tagval = True
         else:
@@ -4476,7 +4534,7 @@ class ChoiceType (Type):
         if (t == 'BER_CLASS_UNI'):
             tagval = False
         for e in (lst):
-            if not ectx.Per() or e.HasOwnTag():
+            if not (ectx.Per() or ectx.Oer()) or e.HasOwnTag():
                 tt = e.GetTag(ectx)[0]
             else:
                 tt = ''
@@ -4546,7 +4604,7 @@ class ChoiceType (Type):
                 (tc, tn) = e.GetTag(ectx)
                 out = '  { %3s, %-24s, %-13s, %s, %s, dissect_%s_%s },\n' \
                       % (vval, '&'+ectx.eth_hf[ef]['fullname'], tc, tn, opt, ectx.eth_type[t]['proto'], t)
-            elif (ectx.Per()):
+            elif (ectx.Per() or ectx.Oer()):
                 out = '  { %3s, %-24s, %-23s, dissect_%s_%s },\n' \
                       % (vval, '&'+ectx.eth_hf[ef]['fullname'], ext, ectx.eth_type[t]['proto'], t)
             else:
@@ -4588,7 +4646,7 @@ class ChoiceType (Type):
                                     par=(('%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                          ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s'),
                                          ('%(VAL_PTR)s',),))
-        elif (ectx.Per()):
+        elif (ectx.Per() or ectx.Oer()):
             body = ectx.eth_fn_call('dissect_%(ER)s_choice', ret='offset',
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                          ('%(ETT_INDEX)s', '%(TABLE)s',),
@@ -4706,7 +4764,7 @@ class EnumeratedType (Type):
         return pars
 
     def eth_type_default_table(self, ectx, tname):
-        if (not ectx.Per()): return ''
+        if (not ectx.Per() and not ectx.Oer()): return ''
         map_table = self.get_vals_etc(ectx)[3]
         if (map_table == None): return ''
         table = "static guint32 %(TABLE)s[%(ROOT_NUM)s+%(EXT_NUM)s] = {"
@@ -4724,7 +4782,7 @@ class EnumeratedType (Type):
                 body = ectx.eth_fn_call('dissect_%(ER)s_integer', ret='offset',
                                         par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
                                              ('%(VAL_PTR)s',),))
-        elif (ectx.Per()):
+        elif (ectx.Per() or ectx.Oer()):
             body = ectx.eth_fn_call('dissect_%(ER)s_enumerated', ret='offset',
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                          ('%(ROOT_NUM)s', '%(VAL_PTR)s', '%(EXT)s', '%(EXT_NUM)s', '%(TABLE)s',),))
@@ -4866,8 +4924,6 @@ class InstanceOfType (Type):
         if (ectx.Ber()):
             body = ectx.eth_fn_call('dissect_%(ER)s_external_type', ret='offset',
                                     par=(('%(IMPLICIT_TAG)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
-        elif (ectx.Per()):
-            body = '#error Can not decode %s' % (tname)
         else:
             body = '#error Can not decode %s' % (tname)
         return body
@@ -4906,7 +4962,7 @@ class NullType (Type):
         if (ectx.Ber()):
             body = ectx.eth_fn_call('dissect_%(ER)s_null', ret='offset',
                                     par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),))
-        elif (ectx.Per()):
+        elif (ectx.Per() or ectx.Oer()):
             body = ectx.eth_fn_call('dissect_%(ER)s_null', ret='offset',
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),))
         else:
@@ -4963,6 +5019,9 @@ class BooleanType (Type):
             body = ectx.eth_fn_call('dissect_%(ER)s_boolean', ret='offset',
                                     par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s', '%(VAL_PTR)s'),))
         elif (ectx.Per()):
+            body = ectx.eth_fn_call('dissect_%(ER)s_boolean', ret='offset',
+                                    par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
+        elif (ectx.Oer()):
             body = ectx.eth_fn_call('dissect_%(ER)s_boolean', ret='offset',
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
         else:
@@ -5028,7 +5087,7 @@ class OctetStringType (Type):
                 body = ectx.eth_fn_call('dissect_%(ER)s_octet_string', ret='offset',
                                         par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
                                              ('%(VAL_PTR)s',),))
-        elif (ectx.Per()):
+        elif (ectx.Per() or ectx.Oer()):
             if self.HasContentsConstraint():
                 body = ectx.eth_fn_call('dissect_%(ER)s_octet_string_containing%(FN_VARIANT)s', ret='offset',
                                         par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
@@ -5089,11 +5148,7 @@ class RestrictedCharacterStringType (CharacterStringType):
             if (self.eth_tsname() == 'GeneralString'):
                 body = ectx.eth_fn_call('dissect_%(ER)s_%(STRING_TYPE)s', ret='offset',
                                         par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),))
-            elif (self.eth_tsname() == 'GeneralizedTime'):
-                body = ectx.eth_fn_call('dissect_%(ER)s_VisibleString', ret='offset',
-                                        par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
-                                             ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s',),))
-            elif (self.eth_tsname() == 'UTCTime'):
+            elif (self.eth_tsname() == 'GeneralizedTime' or self.eth_tsname() == 'UTCTime'):
                 body = ectx.eth_fn_call('dissect_%(ER)s_VisibleString', ret='offset',
                                         par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                              ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s',),))
@@ -5101,6 +5156,10 @@ class RestrictedCharacterStringType (CharacterStringType):
                 body = ectx.eth_fn_call('dissect_%(ER)s_%(STRING_TYPE)s', ret='offset',
                                         par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                              ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s',),))
+        elif (ectx.Oer()):
+            body = ectx.eth_fn_call('dissect_%(ER)s_%(STRING_TYPE)s', ret='offset',
+                                    par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                            ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s',),))
         else:
             body = '#error Can not decode %s' % (tname)
         return body
@@ -5284,6 +5343,8 @@ class ObjectIdentifierValue (Value):
 class NamedNumber(Node):
     def to_python (self, ctx):
         return "('%s',%s)" % (self.ident, self.val)
+    def __lt__(self, other):
+        return int(self.val) < int(other.val)
 
 class NamedNumListBase(Node):
     def to_python (self, ctx):
@@ -5399,7 +5460,11 @@ class IntegerType (Type):
             (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_value_constr(ectx)
             if (pars['FN_VARIANT'] == '') and self.constr.Needs64b(ectx):
                 if ectx.Ber(): pars['FN_VARIANT'] = '64'
-                else: pars['FN_VARIANT'] = '_64b'
+                else:
+                    if (ectx.Oer() and pars['MAX_VAL'] == 'NO_BOUND'):
+                        pars['FN_VARIANT'] = '_64b_no_ub'
+                    else:
+                        pars['FN_VARIANT'] = '_64b'
         return pars
 
     def eth_type_default_body(self, ectx, tname):
@@ -5412,13 +5477,14 @@ class IntegerType (Type):
                 body = ectx.eth_fn_call('dissect_%(ER)s_integer%(FN_VARIANT)s', ret='offset',
                                         par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
                                              ('%(VAL_PTR)s',),))
-        elif (ectx.Per() and not self.HasValueConstraint()):
-            body = ectx.eth_fn_call('dissect_%(ER)s_integer%(FN_VARIANT)s', ret='offset',
-                                    par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s'),))
-        elif (ectx.Per() and self.HasValueConstraint()):
-            body = ectx.eth_fn_call('dissect_%(ER)s_constrained_integer%(FN_VARIANT)s', ret='offset',
-                                    par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
-                                         ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(VAL_PTR)s', '%(EXT)s'),))
+        elif (ectx.Per() or ectx.Oer()):
+            if (self.HasValueConstraint()):
+                body = ectx.eth_fn_call('dissect_%(ER)s_constrained_integer%(FN_VARIANT)s', ret='offset',
+                                        par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                             ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(VAL_PTR)s', '%(EXT)s'),))
+            else:
+                body = ectx.eth_fn_call('dissect_%(ER)s_integer%(FN_VARIANT)s', ret='offset',
+                                        par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s'),))
         else:
             body = '#error Can not decode %s' % (tname)
         return body
@@ -5443,7 +5509,7 @@ class BitStringType (Type):
         return ('BER_CLASS_UNI', 'BER_UNI_TAG_BITSTRING')
 
     def eth_ftype(self, ectx):
-        return ('FT_BYTES', 'BASE_NONE')
+            return ('FT_BYTES', 'BASE_NONE')
 
     def eth_need_tree(self):
         return self.named_list
@@ -5457,11 +5523,24 @@ class BitStringType (Type):
                         'new' : ectx.default_containing_variant == '_pdu_new' }
         return pdu
 
+    def sortNamedBits(self):
+        return self.named_list.val
+
     def eth_named_bits(self):
         bits = []
         if (self.named_list):
-            for e in (self.named_list):
+            sorted_list = self.named_list
+            sorted_list.sort()
+            expected_bit_no = 0;
+            for e in (sorted_list):
+            # Fill the table with "spare_bit" for "un named bits"
+                if (int(e.val) != 0) and (expected_bit_no != int(e.val)):
+                        while ( expected_bit_no < int(e.val)):
+                            bits.append((expected_bit_no, ("spare_bit%u" % (expected_bit_no))))
+                            expected_bit_no = expected_bit_no + 1
+                            #print ("Adding named bits to list %s bit no %d" % (e.ident, int (e.val)))
                 bits.append((int(e.val), e.ident))
+                expected_bit_no = int(e.val) + 1
         return bits
 
     def eth_type_default_pars(self, ectx, tname):
@@ -5492,26 +5571,27 @@ class BitStringType (Type):
         return pars
 
     def eth_type_default_table(self, ectx, tname):
-        #print "eth_type_default_table(tname='%s')" % (tname)
+        #print ("eth_type_default_table(tname='%s')" % (tname))
         table = ''
         bits = self.eth_named_bits()
-        if (bits and ectx.Ber()):
+        if (bits):
             table = ectx.eth_bits(tname, bits)
         return table
 
     def eth_type_default_body(self, ectx, tname):
+        bits = self.eth_named_bits()
         if (ectx.Ber()):
             if (ectx.constraints_check and self.HasSizeConstraint()):
                 body = ectx.eth_fn_call('dissect_%(ER)s_constrained_bitstring', ret='offset',
                                         par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
-                                             ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),
+                                             ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(TABLE)s', '%s' %  len(bits),'%(HF_INDEX)s', '%(ETT_INDEX)s',),
                                              ('%(VAL_PTR)s',),))
             else:
                 body = ectx.eth_fn_call('dissect_%(ER)s_bitstring', ret='offset',
                                         par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
-                                             ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),
+                                             ('%(TABLE)s', '%s' % len(bits), '%(HF_INDEX)s', '%(ETT_INDEX)s',),
                                              ('%(VAL_PTR)s',),))
-        elif (ectx.Per()):
+        elif (ectx.Per() or ectx.Oer()):
             if self.HasContentsConstraint():
                 body = ectx.eth_fn_call('dissect_%(ER)s_bit_string_containing%(FN_VARIANT)s', ret='offset',
                                         par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
@@ -5519,7 +5599,7 @@ class BitStringType (Type):
             else:
                 body = ectx.eth_fn_call('dissect_%(ER)s_bit_string', ret='offset',
                                         par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
-                                             ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s', '%(VAL_PTR)s', '%(LEN_PTR)s'),))
+                                             ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s','%(TABLE)s', '%s' %  len(bits), '%(VAL_PTR)s', '%(LEN_PTR)s'),))
         else:
             body = '#error Can not decode %s' % (tname)
         return body
@@ -7994,10 +8074,14 @@ def eth_main():
 
 # Python compiler
 def main():
+    if sys.version_info[0] < 3:
+        print("This requires Python 3")
+        sys.exit(2)
+
     testfn = testyacc
     if len (sys.argv) == 1:
         while True:
-            s = input ('Query: ')
+            s = eval(input ('Query: '))
             if len (s) == 0:
                 break
             testfn (s, 'console', {})
@@ -8020,7 +8104,7 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------------------------
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # c-basic-offset: 4; tab-width: 8; indent-tabs-mode: nil
 # vi: set shiftwidth=4 tabstop=8 expandtab:

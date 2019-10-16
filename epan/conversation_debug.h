@@ -38,6 +38,8 @@ extern int _debug_conversation_indent; /* the instance is in conversation.c */
           g_printerr arg; \
           g_printerr("\n")
 
+#define DINSTR(arg) arg
+
 #else /* !DEBUG_CONVERSATION */
 
 /* a hack to let these defines be used with trailing semi-colon and not
@@ -47,6 +49,7 @@ extern int _debug_conversation_indent; /* the instance is in conversation.c */
 #define DENDENT() (void)0
 #define DPRINT(arg) (void)0
 #define DPRINT2(arg) (void)0
+#define DINSTR(arg) (void)0
 
 #endif /* DEBUG_CONVERSATION */
 

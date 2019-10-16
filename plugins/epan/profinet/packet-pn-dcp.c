@@ -2,6 +2,8 @@
  * Routines for PN-DCP (PROFINET Discovery and basic Configuration Protocol)
  * packet dissection.
  *
+ * IEC 61158-6-10 section 4.3
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
@@ -70,6 +72,7 @@ static int hf_pn_dcp_suboption_ip_block_info = -1;
 static int hf_pn_dcp_suboption_ip_ip = -1;
 static int hf_pn_dcp_suboption_ip_subnetmask = -1;
 static int hf_pn_dcp_suboption_ip_standard_gateway = -1;
+static int hf_pn_dcp_suboption_ip_mac_address = -1;
 
 static int hf_pn_dcp_suboption_device = -1;
 static int hf_pn_dcp_suboption_device_typeofstation = -1;
@@ -84,10 +87,14 @@ static int hf_pn_dcp_suboption_device_oem_ven_id = -1;
 static int hf_pn_dcp_suboption_device_oem_dev_id = -1;
 
 static int hf_pn_dcp_suboption_dhcp = -1;
-static int hf_pn_dcp_suboption_dhcp_device_id = -1;
+static int hf_pn_dcp_suboption_dhcp_option_code = -1;
+static int hf_pn_dcp_suboption_dhcp_parameter_length = -1;
+static int hf_pn_dcp_suboption_dhcp_parameter_data = -1;
+static int hf_pn_dcp_suboption_dhcp_arbitrary_client_id = -1;
+static int hf_pn_dcp_suboption_dhcp_control_parameter_data = -1;
 
 static int hf_pn_dcp_suboption_control = -1;
-static int hf_pn_dcp_suboption_control_response = -1;
+static int hf_pn_dcp_suboption_control_option = -1;
 static int hf_pn_dcp_suboption_control_signal_value = -1;
 
 static int hf_pn_dcp_suboption_deviceinitiative = -1;
@@ -221,11 +228,13 @@ static const value_string pn_dcp_option[] = {
 
 #define PNDCP_SUBOPTION_IP_MAC  0x01
 #define PNDCP_SUBOPTION_IP_IP   0x02
+#define PNDCP_SUBOPTION_IP_FULL_IP_SUITE   0x03
 
 static const value_string pn_dcp_suboption_ip[] = {
     { 0x00, "Reserved" },
     { PNDCP_SUBOPTION_IP_MAC,   "MAC address" },
     { PNDCP_SUBOPTION_IP_IP,    "IP parameter" },
+    { PNDCP_SUBOPTION_IP_FULL_IP_SUITE,    "Full IP suite" },
     /*0x03 - 0xff reserved */
     { 0, NULL }
 };
@@ -270,18 +279,26 @@ static const value_string pn_dcp_suboption_device[] = {
 };
 
 #define PNDCP_SUBOPTION_DHCP_CLIENT_ID  61
+#define PNDCP_SUBOPTION_DHCP_CONTROL_FOR_ADDRESS_RES  255
 
 static const value_string pn_dcp_suboption_dhcp[] = {
-    {  12, "Host name" },
-    {  43, "Vendor specific" },
-    {  54, "Server identifier" },
-    {  55, "Parameter request list" },
-    {  60, "Class identifier" },
-    {  PNDCP_SUBOPTION_DHCP_CLIENT_ID, "DHCP client identifier" },
-    {  81, "FQDN, Fully Qualified Domain Name" },
-    {  97, "UUID/GUID-based Client" },
-    { 255, "Control DHCP for address resolution" },
+    { 12, "Host name" },
+    { 43, "Vendor specific" },
+    { 54, "Server identifier" },
+    { 55, "Parameter request list" },
+    { 60, "Class identifier" },
+    { PNDCP_SUBOPTION_DHCP_CLIENT_ID, "DHCP client identifier" },
+    { 81, "FQDN, Fully Qualified Domain Name" },
+    { 97, "UUID/GUID-based Client" },
+    { PNDCP_SUBOPTION_DHCP_CONTROL_FOR_ADDRESS_RES, "Control DHCP for address resolution" },
     /*all others reserved */
+    { 0, NULL }
+};
+
+static const value_string pn_dcp_suboption_dhcp_control_parameter_data[] = {
+    { 0x00, "Don't use DHCP (Default)" },
+    { 0x01, "Don't use DHCP, all DHCPOptions set to Reset to Factory value" },
+    { 0x02, "Use DHCP with the given set of DHCPOptions" },
     { 0, NULL }
 };
 
@@ -402,6 +419,9 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint16     block_length;
     guint16     block_info;
     guint16     block_qualifier;
+    gboolean    have_block_info = FALSE;
+    gboolean    have_block_qualifier = FALSE;
+    guint8      mac[6];
     guint32     ip;
     proto_item *item = NULL;
     address     addr;
@@ -418,23 +438,50 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         pn_append_info(pinfo, dcp_item, ", MAC");
         proto_item_append_text(block_item, "IP/MAC");
 
-        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length);
+        /* BlockInfo? */
+        if (((service_id == PNDCP_SERVICE_ID_IDENTIFY) && is_response) ||
+            ((service_id == PNDCP_SERVICE_ID_HELLO) && !is_response) ||
+            ((service_id == PNDCP_SERVICE_ID_GET) && is_response)) {
+            offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_info, &block_info);
+            have_block_info = TRUE;
+            block_length -= 2;
+        }
+
+        /* BlockQualifier? */
+        if ((service_id == PNDCP_SERVICE_ID_SET) && !is_response) {
+            offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_qualifier, &block_qualifier);
+            have_block_qualifier = TRUE;
+            block_length -= 2;
+        }
+
+        if (have_block_qualifier) {
+            proto_item_append_text(block_item, ", BlockQualifier: %s",
+                val_to_str(block_qualifier, pn_dcp_block_qualifier, "Unknown"));
+        }
+        if (have_block_info) {
+            proto_item_append_text(block_item, ", BlockInfo: %s",
+                val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+        }
+
+        offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_mac_address, mac);
+        set_address(&addr, AT_ETHER, 6, mac);
+        proto_item_append_text(block_item, ", MACAddress: %s", address_to_str(wmem_packet_scope(), &addr));
         break;
     case PNDCP_SUBOPTION_IP_IP:
         pn_append_info(pinfo, dcp_item, ", IP");
         proto_item_append_text(block_item, "IP/IP");
 
         /* BlockInfo? */
-        if ( ((service_id == PNDCP_SERVICE_ID_IDENTIFY) &&  is_response) ||
-             ((service_id == PNDCP_SERVICE_ID_HELLO)    && !is_response) ||
-             ((service_id == PNDCP_SERVICE_ID_GET)      &&  is_response)) {
-            block_info = tvb_get_ntohs (tvb, offset);
+        if (((service_id == PNDCP_SERVICE_ID_IDENTIFY) && is_response) ||
+            ((service_id == PNDCP_SERVICE_ID_HELLO) && !is_response) ||
+            ((service_id == PNDCP_SERVICE_ID_GET) && is_response)) {
+            block_info = tvb_get_ntohs(tvb, offset);
             if (tree) {
                 item = proto_tree_add_uint(tree, hf_pn_dcp_suboption_ip_block_info, tvb, offset, 2, block_info);
             }
             offset += 2;
             proto_item_append_text(block_item, ", BlockInfo: %s",
-                                   val_to_str(block_info, pn_dcp_suboption_ip_block_info, "Undecoded"));
+                val_to_str(block_info, pn_dcp_suboption_ip_block_info, "Undecoded"));
             block_length -= 2;
             if (block_info & 0x80) {
                 expert_add_info(pinfo, item, &ei_pn_dcp_ip_conflict);
@@ -465,6 +512,71 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_standard_gateway, &ip);
         set_address(&addr, AT_IPv4, 4, &ip);
         proto_item_append_text(block_item, ", Gateway: %s", address_to_str(wmem_packet_scope(), &addr));
+        break;
+    case PNDCP_SUBOPTION_IP_FULL_IP_SUITE:
+        pn_append_info(pinfo, dcp_item, ", MAC");
+        proto_item_append_text(block_item, "IP/MAC");
+
+        /* BlockInfo? */
+        if (((service_id == PNDCP_SERVICE_ID_IDENTIFY) && is_response) ||
+            ((service_id == PNDCP_SERVICE_ID_HELLO) && !is_response) ||
+            ((service_id == PNDCP_SERVICE_ID_GET) && is_response)) {
+            offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_info, &block_info);
+            have_block_info = TRUE;
+            block_length -= 2;
+        }
+
+        /* BlockQualifier? */
+        if ((service_id == PNDCP_SERVICE_ID_SET) && !is_response) {
+            offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_qualifier, &block_qualifier);
+            have_block_qualifier = TRUE;
+            block_length -= 2;
+        }
+
+        if (have_block_qualifier) {
+            proto_item_append_text(block_item, ", BlockQualifier: %s",
+               val_to_str(block_qualifier, pn_dcp_block_qualifier, "Unknown"));
+        }
+        if (have_block_info) {
+            proto_item_append_text(block_item, ", BlockInfo: %s",
+                val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+        }
+
+        /* IPAddress */
+        offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_ip, &ip);
+        set_address(&addr, AT_IPv4, 4, &ip);
+        proto_item_append_text(block_item, ", IP: %s", address_to_str(wmem_packet_scope(), &addr));
+
+        /* Subnetmask */
+        offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_subnetmask, &ip);
+        set_address(&addr, AT_IPv4, 4, &ip);
+        proto_item_append_text(block_item, ", Subnet: %s", address_to_str(wmem_packet_scope(), &addr));
+
+        /* StandardGateway */
+        offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_standard_gateway, &ip);
+        set_address(&addr, AT_IPv4, 4, &ip);
+        proto_item_append_text(block_item, ", Gateway: %s", address_to_str(wmem_packet_scope(), &addr));
+
+        /* IPAddress_1 */
+        offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_ip, &ip);
+        set_address(&addr, AT_IPv4, 4, &ip);
+        proto_item_append_text(block_item, ", DNSServerIP1: %s", address_to_str(wmem_packet_scope(), &addr));
+
+        /* IPAddress_2 */
+        offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_subnetmask, &ip);
+        set_address(&addr, AT_IPv4, 4, &ip);
+        proto_item_append_text(block_item, ", DNSServerIP2: %s", address_to_str(wmem_packet_scope(), &addr));
+
+        /* IPAddress_3 */
+        offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_standard_gateway, &ip);
+        set_address(&addr, AT_IPv4, 4, &ip);
+        proto_item_append_text(block_item, ", DNSServerIP3: %s", address_to_str(wmem_packet_scope(), &addr));
+
+        /* IPAddress_4 */
+        offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_standard_gateway, &ip);
+        set_address(&addr, AT_IPv4, 4, &ip);
+        proto_item_append_text(block_item, ", DNSServerIP4: %s", address_to_str(wmem_packet_scope(), &addr));
+
         break;
     default:
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length);
@@ -523,10 +635,20 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     switch (suboption) {
     case PNDCP_SUBOPTION_DEVICE_MANUF:
-        typeofstation = (char *)wmem_alloc(wmem_packet_scope(), block_length+1);
-        tvb_memcpy(tvb, (guint8 *) typeofstation, offset, block_length);
-        typeofstation[block_length] = '\0';
-        proto_tree_add_string (tree, hf_pn_dcp_suboption_device_typeofstation, tvb, offset, block_length, typeofstation);
+        /*
+         * XXX - IEC 61158-6-10 Edition 4.0, section 4.3, says this field
+         * "shall be coded as data type VisibleString", and that VisibleString
+         * is "ISO/IEC 646 - International Reference Version without the "del"
+         * (coding 0x7F) character", i.e. ASCII.
+         *
+         * However, at least one capture has a packet where 0xAE is used in
+         * a place where a registered trademark symbol would be appropriate,
+         * so the host sending it apparently extended ASCII to ISO 8859-n
+         * for some value of n.  That may have just been an error on their
+         * part, not realizing that they should have done "(R)" or something
+         * such as that.
+         */
+        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_typeofstation, tvb, offset, block_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &typeofstation);
         pn_append_info(pinfo, dcp_item, ", DeviceVendorValue");
         proto_item_append_text(block_item, "Device/Manufacturer specific");
         if (have_block_qualifier) {
@@ -540,11 +662,18 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_item_append_text(block_item, ", DeviceVendorValue: \"%s\"", typeofstation);
 
 
-        if (pinfo->fd->flags.visited == FALSE) {
+        if (pinfo->fd->visited == FALSE) {
             /* Create a conversation between the MAC addresses */
             conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
             if (conversation == NULL) {
-                conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                /* Create new conversation, need to switch dl_src & dl_dst if not a response
+                 * All conversations are based on Device MAC as addr1 */
+                if (is_response) {
+                   conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                }
+                else {
+                   conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
+                }
             }
 
             station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
@@ -561,10 +690,22 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         break;
 
     case PNDCP_SUBOPTION_DEVICE_NAMEOFSTATION:
-        nameofstation = (char *)wmem_alloc(wmem_packet_scope(), block_length+1);
-        tvb_memcpy(tvb, (guint8 *) nameofstation, offset, block_length);
-        nameofstation[block_length] = '\0';
-        proto_tree_add_string (tree, hf_pn_dcp_suboption_device_nameofstation, tvb, offset, block_length, nameofstation);
+        /*
+         * XXX - IEC 61158-6-10 Edition 4.0 says, in section 4.3.1.4.15
+         * "Coding of the field NameOfStationValue", that "This field shall
+         * be coded as data type OctetString with 1 to 240 octets.  The
+         * definition of IETF RFC 5890 and the following syntax applies: ..."
+         *
+         * RFC 5890 means Punycode; should we translate the domain name to
+         * UTF-8 and show both the untranslated and translated domain name?
+         *
+         * They don't mention anything about the RFC 1035 encoding of
+         * domain names as mentioned in section 3.1 "Name space definitions",
+         * with the labels being counted strings; does that mean that this
+         * is just an ASCII string to be interpreted as a Punycode Unicode
+         * domain name?
+         */
+        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_nameofstation, tvb, offset, block_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &nameofstation);
         pn_append_info(pinfo, dcp_item, wmem_strdup_printf(wmem_packet_scope(), ", NameOfStation:\"%s\"", nameofstation));
         proto_item_append_text(block_item, "Device/NameOfStation");
         if (have_block_qualifier) {
@@ -578,11 +719,18 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_item_append_text(block_item, ", \"%s\"", nameofstation);
 
 
-        if (pinfo->fd->flags.visited == FALSE) {
+        if (pinfo->fd->visited == FALSE) {
             /* Create a conversation between the MAC addresses */
             conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
             if (conversation == NULL) {
-                conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                /* Create new conversation, need to switch dl_src & dl_dst if not a response
+                 * All conversations are based on Device MAC as addr1 */
+                if (is_response) {
+                   conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                }
+                else {
+                   conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
+                }
             }
 
             station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
@@ -602,11 +750,18 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_vendor_id, &vendor_id);
         offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_device_id, &device_id);
 
-        if (pinfo->fd->flags.visited == FALSE) {
+        if (pinfo->fd->visited == FALSE) {
             /* Create a conversation between the MAC addresses */
             conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
             if (conversation == NULL) {
-                conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                /* Create new conversation, need to switch dl_src & dl_dst if not a response
+                 * All conversations are based on Device MAC as addr1 */
+                if (is_response) {
+                   conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                }
+                else {
+                   conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
+                }
             }
 
             station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
@@ -672,10 +827,33 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         break;
     case PNDCP_SUBOPTION_DEVICE_ALIAS_NAME:
-        aliasname = (char *)wmem_alloc(wmem_packet_scope(), block_length+1);
-        tvb_memcpy(tvb, (guint8 *) aliasname, offset, block_length);
-        aliasname[block_length] = '\0';
-        proto_tree_add_string (tree, hf_pn_dcp_suboption_device_aliasname, tvb, offset, block_length, aliasname);
+        /*
+         * XXX - IEC 61158-6-10 Edition 4.0, section 4.3.1.4.17 "Coding of
+         * the field AliasNameValue", says this field "shall be coded as
+         * OctetString. The content shall be the concatenation of the content
+         * of the fields NameOfPort and NameOfStation.
+         *
+         *    AliasNameValue = NameOfPort + "." + NameOfStation
+         *
+         * " and:
+         *
+         *   It says in section 4.3.1.4.16 "Coding of the field NameOfPort"
+         *   that "This field shall be coded as OctetString[8] or
+         *   OctetString[14] as "port-xyz" or "port-xyz-rstuv" where x, y,
+         *   z is in the range "0"-"9" from 001 up to 255 and r, s, t, u, v
+         *   is in the range "0"-"9" from 00000 up to 65535. ...
+         *   Furthermore, the definition of IETF RFC 5890 shall be applied."
+         *
+         *   That suggests that the Octets are probably just ASCII characters;
+         *   IETF RFC 5890 means Punycode, but there isn't anything in those
+         *   string formats that requires non-ASCII characters - they're
+         *   just literally "port-" followed by numbers and hyphens.
+         *
+         *   It says in section 4.3.1.4.15 "Coding of the field
+         *   NameOfStationValue" that it's a domain name, complete with
+         *   RFC 5890 Punycode.
+         */
+        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_aliasname, tvb, offset, block_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &aliasname);
         pn_append_info(pinfo, dcp_item, wmem_strdup_printf(wmem_packet_scope(), ", AliasName:\"%s\"", aliasname));
         proto_item_append_text(block_item, "Device/AliasName");
         if (have_block_qualifier) {
@@ -735,9 +913,13 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 guint8 service_id _U_, gboolean is_response _U_)
 {
     guint8   suboption;
+    guint8   option_code = 0;
     guint16  block_length;
     guint16  block_info = 0;
     guint16  block_qualifier = 0;
+    guint8   dhcpparameterlength = 0;
+    guint8   dhcpparameterdata = 0;
+    guint8   dhcpcontrolparameterdata = 0;
     gboolean have_block_info      = FALSE;
     gboolean have_block_qualifier = FALSE;
 
@@ -753,7 +935,6 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         have_block_info=TRUE;
         block_length -= 2;
     }
-
     /* BlockQualifier? */
     if ( (service_id == PNDCP_SERVICE_ID_SET) && !is_response) {
         offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_qualifier, &block_qualifier);
@@ -773,8 +954,50 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_item_append_text(block_item, ", BlockInfo: %s",
                                    val_to_str(block_info, pn_dcp_block_info, "Unknown"));
         }
-        proto_tree_add_item(tree, hf_pn_dcp_suboption_dhcp_device_id, tvb, offset, block_length, ENC_NA);
-        offset += block_length;
+        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp_option_code, &option_code);
+        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp_parameter_length, &dhcpparameterlength);
+        if (dhcpparameterlength > 0) {
+            offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp_parameter_data, &dhcpparameterdata);
+            if (dhcpparameterlength == 1) {
+                if (dhcpparameterdata == 1) {
+                    proto_item_append_text(block_item, ", Client-ID: MAC Address");
+                }
+                else {
+                    proto_item_append_text(block_item, ", Client-ID: Name of Station");
+                }
+            }
+            else {
+                proto_item_append_text(block_item, ", Client-ID: Arbitrary");
+                /*
+                 * XXX - IEC 61158-6-10 Edition 4.0, section 4.3.1.4.21.5
+                 * "Use of arbitrary client identifier", that this is an
+                 * OctetString to be used as a client identifier with DHCP.
+                 *
+                 * Does that mean it should be FT_BYTES, possibly with
+                 * the BASE_SHOW_ASCII_PRINTABLE flag to show it as ASCII
+                 * iff it's printable?  Or should packet-dhcp.c export
+                 * dissect_dhcpopt_client_identifier(), so that we can
+                 * use its heuristics?
+                 */
+                proto_tree_add_item(tree, hf_pn_dcp_suboption_dhcp_arbitrary_client_id, tvb, offset, dhcpparameterlength - 1, ENC_ASCII|ENC_NA);
+                offset += dhcpparameterlength;
+            }
+        }
+        break;
+    case PNDCP_SUBOPTION_DHCP_CONTROL_FOR_ADDRESS_RES:
+        pn_append_info(pinfo, dcp_item, ", Control DHCP for address resolution");
+        proto_item_append_text(block_item, "DHCP/Control DHCP for address resolution");
+        if (have_block_qualifier) {
+            proto_item_append_text(block_item, ", BlockQualifier: %s",
+                val_to_str(block_qualifier, pn_dcp_block_qualifier, "Unknown"));
+        }
+        if (have_block_info) {
+            proto_item_append_text(block_item, ", BlockInfo: %s",
+                val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+        }
+        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp_option_code, &option_code);
+        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp_parameter_length, &dhcpparameterlength);
+        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp_control_parameter_data, &dhcpcontrolparameterdata);
         break;
     default:
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length);
@@ -824,7 +1047,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         break;
     case PNDCP_SUBOPTION_CONTROL_RESPONSE:
         proto_item_append_text(block_item, "Control/Response");
-        offset = dissect_PNDCP_Option(tvb, offset, pinfo, tree, block_item, hf_pn_dcp_suboption_control_response,
+        offset = dissect_PNDCP_Option(tvb, offset, pinfo, tree, block_item, hf_pn_dcp_suboption_control_option,
             FALSE /* append_col */);
         block_error = tvb_get_guint8 (tvb, offset);
         if (tree) {
@@ -846,7 +1069,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         pn_append_info(pinfo, dcp_item, ", Reset FactorySettings");
         proto_item_append_text(block_item, "Control/Reset FactorySettings");
         block_length -= 2;
-        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_blockqualifier_r2f, &BlockQualifier);
+        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_blockqualifier, &BlockQualifier);
         proto_item_append_text(block_item, ", BlockQualifier: %s",
             val_to_str(BlockQualifier, pn_dcp_suboption_other, "reserved"));
         block_length -= 2;
@@ -856,7 +1079,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         pn_append_info(pinfo, dcp_item, ", Reset to Factory");
         proto_item_append_text(block_item, "Reset to FactorySettings");
 
-        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_blockqualifier, &BlockQualifier);
+        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_blockqualifier_r2f, &BlockQualifier);
         proto_item_append_text(block_item, ", BlockQualifier: %s",
             val_to_str(BlockQualifier, pn_dcp_BlockQualifier, "reserved"));
         block_length -= 2;
@@ -1230,6 +1453,11 @@ proto_register_pn_dcp (void)
             FT_UINT16, BASE_DEC, VALS(pn_dcp_suboption_ip_block_info), 0x0,
             NULL, HFILL }},
 
+        { &hf_pn_dcp_suboption_ip_mac_address,
+          { "MAC Address", "pn_dcp.suboption_ip_mac_address",
+             FT_ETHER, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+
         { &hf_pn_dcp_suboption_ip_ip,
           { "IPaddress", "pn_dcp.subobtion_ip_ip",
             FT_IPv4, BASE_NONE, NULL, 0x0,
@@ -1305,18 +1533,38 @@ proto_register_pn_dcp (void)
             FT_UINT8, BASE_DEC, VALS(pn_dcp_suboption_dhcp), 0x0,
             NULL, HFILL }},
 
-        { &hf_pn_dcp_suboption_dhcp_device_id,
-          { "Device ID", "pn_dcp.suboption_dhcp_device_id",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+        { &hf_pn_dcp_suboption_dhcp_option_code,
+          { "Option-Code", "pn_dcp.suboption_dhcp_option_code",
+            FT_UINT8, BASE_DEC, VALS(pn_dcp_suboption_dhcp), 0x0,
             NULL, HFILL }},
+
+        { &hf_pn_dcp_suboption_dhcp_arbitrary_client_id,
+          { "Client ID", "pn_dcp.suboption_dhcp_client_id",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_pn_dcp_suboption_dhcp_parameter_length,
+          { "DHCP Parameter Length", "pn_dcp.suboption_dhcp_parameter_length",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_suboption_dhcp_parameter_data,
+          { "DHCP Parameter Data", "pn_dcp.suboption_dhcp_parameter_data",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_suboption_dhcp_control_parameter_data,
+          { "DHCP Parameter Data", "pn_dcp.suboption_dhcp_parameter_data",
+            FT_UINT8, BASE_HEX, VALS(pn_dcp_suboption_dhcp_control_parameter_data), 0x0,
+            NULL, HFILL } },
 
         { &hf_pn_dcp_suboption_control,
           { "Suboption", "pn_dcp.suboption_control",
             FT_UINT8, BASE_DEC, VALS(pn_dcp_suboption_control), 0x0,
             NULL, HFILL }},
 
-        { &hf_pn_dcp_suboption_control_response,
-          { "Response", "pn_dcp.suboption_control_response",
+        { &hf_pn_dcp_suboption_control_option,
+          { "Option", "pn_dcp.suboption_control_option",
             FT_UINT8, BASE_DEC, VALS(pn_dcp_option), 0x0,
             NULL, HFILL }},
 
@@ -1375,7 +1623,7 @@ proto_reg_handoff_pn_dcp (void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

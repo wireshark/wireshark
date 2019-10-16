@@ -40,6 +40,7 @@ typedef enum {
     AT_EUI64,              /* IEEE EUI-64 */
     AT_IB,                 /* Infiniband GID/LID */
     AT_AX25,               /* AX.25 */
+    AT_VINES,              /* Banyan Vines address */
 
     AT_END_OF_LIST         /* Must be last in list */
 } address_type;
@@ -365,7 +366,7 @@ typedef enum {
 #endif /* __ADDRESS_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

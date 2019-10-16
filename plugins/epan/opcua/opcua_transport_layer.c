@@ -33,6 +33,7 @@ static int hf_opcua_transport_sbs = -1;
 static int hf_opcua_transport_mms = -1;
 static int hf_opcua_transport_mcc = -1;
 static int hf_opcua_transport_endpoint = -1;
+static int hf_opcua_transport_suri = -1;
 static int hf_opcua_transport_error = -1;
 static int hf_opcua_transport_reason = -1;
 static int hf_opcua_transport_spu = -1;
@@ -60,7 +61,8 @@ void registerTransportLayerTypes(int proto)
         {&hf_opcua_transport_sbs,      {"SendBufferSize",                "opcua.transport.sbs",      FT_UINT32, BASE_DEC,  NULL,   0x0,    NULL, HFILL}},
         {&hf_opcua_transport_mms,      {"MaxMessageSize",                "opcua.transport.mms",      FT_UINT32, BASE_DEC,  NULL,   0x0,    NULL, HFILL}},
         {&hf_opcua_transport_mcc,      {"MaxChunkCount",                 "opcua.transport.mcc",      FT_UINT32, BASE_DEC,  NULL,   0x0,    NULL, HFILL}},
-        {&hf_opcua_transport_endpoint, {"EndPointUrl",                   "opcua.transport.endpoint", FT_STRING, BASE_NONE, NULL,   0x0,    NULL, HFILL}},
+        {&hf_opcua_transport_endpoint, {"EndpointUrl",                   "opcua.transport.endpoint", FT_STRING, BASE_NONE, NULL,   0x0,    NULL, HFILL}},
+        {&hf_opcua_transport_suri,     {"ServerUri",                     "opcua.transport.suri",     FT_STRING, BASE_NONE, NULL,   0x0,    NULL, HFILL}},
         {&hf_opcua_transport_error,    {"Error",                         "opcua.transport.error",    FT_UINT32, BASE_HEX,  NULL,   0x0,    NULL, HFILL}},
         {&hf_opcua_transport_reason,   {"Reason",                        "opcua.transport.reason",   FT_STRING, BASE_NONE, NULL,   0x0,    NULL, HFILL}},
         {&hf_opcua_transport_spu,      {"SecurityPolicyUri",             "opcua.security.spu",       FT_STRING, BASE_NONE, NULL,   0x0,    NULL, HFILL}},
@@ -108,6 +110,16 @@ int parseError(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffse
     proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     parseStatusCode(tree, tvb, pinfo, pOffset, hf_opcua_transport_error);
     parseString(tree, tvb, pinfo, pOffset, hf_opcua_transport_reason);
+    return -1;
+}
+
+int parseReverseHello(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+{
+    proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
+    proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
+    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    parseString(tree, tvb, pinfo, pOffset, hf_opcua_transport_suri);
+    parseString(tree, tvb, pinfo, pOffset, hf_opcua_transport_endpoint);
     return -1;
 }
 
@@ -220,7 +232,7 @@ int parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

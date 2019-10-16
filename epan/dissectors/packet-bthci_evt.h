@@ -29,7 +29,7 @@ WS_DLL_PUBLIC const value_string bthci_evt_hci_version[];
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

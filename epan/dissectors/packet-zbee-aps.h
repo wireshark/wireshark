@@ -168,6 +168,7 @@
 #define ZBEE_ZCL_CID_FLOW_MEASUREMENT               0x0404
 #define ZBEE_ZCL_CID_REL_HUMIDITY_MEASUREMENT       0x0405
 #define ZBEE_ZCL_CID_OCCUPANCY_SENSING              0x0406
+#define ZBEE_ZCL_CID_ELECTRICAL_MEASUREMENT         0x0b04
 
 /* ZCL Cluster IDs - Security and Safety */
 #define ZBEE_ZCL_CID_IAS_ZONE                       0x0500
@@ -210,6 +211,7 @@
 #define ZBEE_ZCL_CID_EVENTS                         0x0709
 #define ZBEE_ZCL_CID_MDU_PAIRING                    0x070A
 #define ZBEE_ZCL_CID_SUB_GHZ                        0x070B
+#define ZBEE_ZCL_CID_DAILY_SCHEDULE                 0x070D
 
 /* ZCL Cluster IDs - Key Establishment */
 #define ZBEE_ZCL_CID_KE                             0x0800
@@ -221,6 +223,9 @@
 #define ZBEE_ZCL_CID_APPLIANCE_STATISTICS           0x0b03
 
 #define ZBEE_ZCL_CID_ZLL                            0x1000
+
+#define ZBEE_ZCL_CID_MANUFACTURER_SPECIFIC_MIN      0xFC00
+#define ZBEE_ZCL_CID_MANUFACTURER_SPECIFIC_MAX      0xFFFF
 
 /* ZCL Test Profile #2 Clusters */
 #define ZBEE_APS_T2_CID_TCP                         0x0001
@@ -305,13 +310,13 @@ enum {
  **************************************
  */
 
-extern const value_string zbee_aps_cid_names[];
+extern const range_string zbee_aps_cid_names[];
 extern const range_string zbee_aps_apid_names[];
 
 #endif /* PACKET_ZBEE_APS_H*/
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

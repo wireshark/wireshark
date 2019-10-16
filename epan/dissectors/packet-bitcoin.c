@@ -830,7 +830,7 @@ dissect_bitcoin_msg_version(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   create_services_tree(tvb, ti, offset);
   offset += 8;
 
-  proto_tree_add_item(tree, &hfi_msg_version_timestamp, tvb, offset, 8, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, &hfi_msg_version_timestamp, tvb, offset, 8, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
   offset += 8;
 
   ti = proto_tree_add_item(tree, &hfi_msg_version_addr_you, tvb, offset, 26, ENC_NA);
@@ -1092,7 +1092,7 @@ dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo,
   if (msgnum == 0) {
     rti  = proto_tree_add_item(tree, &hfi_bitcoin_msg_tx, tvb, offset, -1, ENC_NA);
   } else {
-    rti  = proto_tree_add_none_format(tree, hfi_bitcoin_msg_tx.id, tvb, offset, -1, "Tx message [ %4d ]", msgnum);
+    rti  = proto_tree_add_none_format(tree, &hfi_bitcoin_msg_tx, tvb, offset, -1, "Tx message [ %4d ]", msgnum);
   }
   tree = proto_item_add_subtree(rti, ett_bitcoin_msg);
 
@@ -1540,9 +1540,9 @@ static int dissect_bitcoin_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
   /* add basic protocol data */
   proto_tree_add_item(tree, &hfi_bitcoin_magic,   tvb,  0,  4, ENC_BIG_ENDIAN);
-  proto_tree_add_item_ret_string(tree, hfi_bitcoin_command.id, tvb,  4, 12, ENC_ASCII|ENC_NA, wmem_packet_scope(), &command);
+  proto_tree_add_item_ret_string(tree, &hfi_bitcoin_command, tvb,  4, 12, ENC_ASCII|ENC_NA, wmem_packet_scope(), &command);
   proto_tree_add_item(tree, &hfi_bitcoin_length,  tvb, 16,  4, ENC_LITTLE_ENDIAN);
-  proto_tree_add_checksum(tree, tvb, 20, hfi_bitcoin_checksum.id, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+  proto_tree_add_checksum(tree, tvb, 20, &hfi_bitcoin_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
   offset = 24;
 
@@ -1822,6 +1822,7 @@ proto_register_bitcoin(void)
     &ett_addr_list,
     &ett_inv_list,
     &ett_getdata_list,
+    &ett_notfound_list,
     &ett_getblocks_list,
     &ett_getheaders_list,
     &ett_tx_in_list,
@@ -1920,7 +1921,7 @@ proto_reg_handoff_bitcoin(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

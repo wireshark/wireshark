@@ -57,6 +57,7 @@ set(PIDL_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-efs.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-eventlog.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-frstrans.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-fsrvp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-initshutdown.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-lsa.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-mapi.c
@@ -75,12 +76,14 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ansi_map.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-acp133.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-acse.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ain.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ansi_tcap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-atn-ulcs.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-atn-cm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-atn-cpdlc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-c1222.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-camel.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-cbrs-oids.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cdt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-charging_ase.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cmip.c
@@ -92,10 +95,11 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-disp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dop.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dsp.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-ecp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-e1ap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ess.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-f1ap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ftam.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-glow.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-goose.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_map.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-HI2Operations.c
@@ -115,9 +119,12 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ilp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-inap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-isdn-sup.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-its.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-kerberos.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lcsap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ldap.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-lnpdqp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-log3gpp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-logotypecertextn.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lpp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lppa.c
@@ -128,18 +135,24 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mms.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mpeg-audio.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mpeg-pes.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-msgpack.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mudurl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nbap.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ngap.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-nist-csor.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-novell_pkis.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-nrppa.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nr-rrc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ns_cert_exts.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ocsp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-oer.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-p1.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-p22.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-p7.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-p772.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pkcs1.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-pkcs10.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pkcs12.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pkinit.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pkix1explicit.c
@@ -166,18 +179,21 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-snmp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-spnego.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sv.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-systemd-journal.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-t124.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-t125.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-t38.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tcap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tetra.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ulp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-wireguard.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wlancertextn.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-x2ap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-x509af.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-x509ce.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-x509if.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-x509sat.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-xnap.c
 )
 
 set(DIRTY_ASN1_DISSECTOR_SRC
@@ -215,7 +231,7 @@ set_target_properties(dissectors-corba PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
-if(WIN32 AND "${CMAKE_GENERATOR}" STREQUAL "Visual Studio 12 2013 Win64")
+if(WIN32 AND CMAKE_GENERATOR STREQUAL "Visual Studio 12 2013 Win64")
 	# CORBA IDL dissectors are triggering a MSVC 2013 x64 /O2 bug leading to a NULL pointer dereference (see bug 12495)
 	target_compile_options(dissectors-corba PRIVATE $<$<CONFIG:Release>:/Ox> $<$<CONFIG:RelWithDebInfo>:/Ox>)
 endif()
@@ -227,7 +243,7 @@ set(NCP2222_DISSECTOR_SRC
 source_group(dissectors-ncp2222 FILES ${NCP2222_DISSECTOR_SRC})
 
 set(DISSECTOR_PUBLIC_HEADERS
-	dissectors.h
+	file-rbm.h
 	packet-6lowpan.h
 	packet-a21.h
 	packet-acp133.h
@@ -248,6 +264,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-ber.h
 	packet-bfd.h
 	packet-bgp.h
+	packet-bicc_mst.h
 	packet-bluetooth.h
 	packet-bssap.h
 	packet-bssgp.h
@@ -271,7 +288,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-chdlc.h
 	packet-cip.h
 	packet-cipsafety.h
-	packet-clearcase.h
 	packet-cmip.h
 	packet-cmp.h
 	packet-cms.h
@@ -287,7 +303,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-dcerpc-budb.h
 	packet-dcerpc-butc.h
 	packet-dcerpc-dce122.h
-	packet-dcerpc-dcom.h
 	packet-dcerpc-dnsserver.h
 	packet-dcerpc-frsapi.h
 	packet-dcerpc-frsrpc.h
@@ -312,6 +327,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-dtls.h
 	packet-dtn.h
 	packet-dvbci.h
+	packet-e1ap.h
 	packet-enip.h
 	packet-erf.h
 	packet-e164.h
@@ -331,7 +347,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-fcfcs.h
 	packet-fcfzs.h
 	packet-fclctl.h
-	packet-fcp.h
 	packet-fcsb3.h
 	packet-fcswils.h
 	packet-ff.h
@@ -339,11 +354,11 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-fmp.h
 	packet-frame.h
 	packet-ftam.h
+	packet-geonw.h
 	packet-giop.h
 	packet-gluster.h
 	packet-gmr1_common.h
 	packet-gmr1_rr.h
-	packet-gnutella.h
 	packet-gprscdr.h
 	packet-gre.h
 	packet-gsm_a_common.h
@@ -362,6 +377,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-h248.h
 	packet-h263.h
 	packet-h264.h
+	packet-h265.h
 	packet-h323.h
 	packet-h450-ros.h
 	packet-hpext.h
@@ -372,6 +388,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-icmp.h
 	packet-idmp.h
 	packet-idp.h
+	packet-ieee1609dot2.h
 	packet-ieee80211.h
 	packet-ieee80211-radio.h
 	packet-ieee80211-radiotap-iter.h
@@ -392,11 +409,13 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-isis-clv.h
 	packet-isl.h
 	packet-isup.h
+	packet-its.h
 	packet-iwarp-ddp-rdmap.h
 	packet-juniper.h
 	packet-jxta.h
 	packet-kerberos.h
-	packet-klm.h
+	packet-knxip.h
+	packet-knxip_decrypt.h
 	packet-l2tp.h
 	packet-lapdm.h
 	packet-lbm.h
@@ -407,6 +426,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-lcsap.h
 	packet-ldp.h
 	packet-link16.h
+	packet-lisp.h
 	packet-llc.h
 	packet-lnet.h
 	packet-logotypecertextn.h
@@ -422,7 +442,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-mount.h
 	packet-mp4ves.h
 	packet-mpeg-descriptor.h
-	packet-mpeg-pmt.h
 	packet-mpeg-sect.h
 	packet-mpls.h
 	packet-mq.h
@@ -438,6 +457,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-netbios.h
 	packet-netlink.h
 	packet-nfs.h
+	packet-ngap.h
 	packet-nisplus.h
 	packet-nlm.h
 	packet-nr-rrc.h
@@ -446,6 +466,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-ntp.h
 	packet-nvme.h
 	packet-ocsp.h
+	packet-oer.h
 	packet-opensafety.h
 	packet-oscore.h
 	packet-osi.h
@@ -468,7 +489,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-pkixqualified.h
 	packet-pkixtsp.h
 	packet-pkinit.h
-	packet-pktc.h
 	packet-portmap.h
 	packet-ppi-geolocation-common.h
 	packet-ppp.h
@@ -481,6 +501,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-q931.h
 	packet-q932.h
 	packet-qsig.h
+	packet-quic.h
 	packet-radius.h
 	packet-raknet.h
 	packet-ranap.h
@@ -495,7 +516,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-ros.h
 	packet-rpc.h
 	packet-rpcrdma.h
-	packet-rquota.h
 	packet-rrc.h
 	packet-rsvp.h
 	packet-rtcp.h
@@ -504,7 +524,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-rtp-events.h
 	packet-rtse.h
 	packet-rtsp.h
-	packet-rwall.h
 	packet-rx.h
 	packet-s1ap.h
 	packet-s5066sis.h
@@ -536,14 +555,12 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-snmp.h
 	packet-socketcan.h
 	packet-spice.h
-	packet-spray.h
 	packet-sprt.h
 	packet-sscop.h
-	packet-ssl.h
-	packet-ssl-utils.h
 	packet-stat.h
 	packet-stat-notify.h
 	packet-sv.h
+	packet-syslog.h
 	packet-t124.h
 	packet-t30.h
 	packet-t38.h
@@ -551,7 +568,9 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-tcap.h
 	packet-tcp.h
 	packet-tetra.h
-	packet-tftp.h
+	packet-thrift.h
+	packet-tls-utils.h
+	packet-tls.h
 	packet-tn3270.h
 	packet-tn5250.h
 	packet-tpkt.h
@@ -604,6 +623,10 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-ziop.h
 )
 
+set(DISSECTOR_HEADER_FILES
+	${DISSECTOR_PUBLIC_HEADERS}
+)
+
 set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/file-btsnoop.c
 	${CMAKE_CURRENT_SOURCE_DIR}/file-elf.c
@@ -614,6 +637,8 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/file-pcap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/file-pcapng.c
 	${CMAKE_CURRENT_SOURCE_DIR}/file-png.c
+	${CMAKE_CURRENT_SOURCE_DIR}/file-rbm.c
+	${CMAKE_CURRENT_SOURCE_DIR}/file-rfc7468.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-2dparityfec.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-3com-njack.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-3com-xns.c
@@ -640,6 +665,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ajp13.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-alcap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-alljoyn.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-amp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-amqp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-amr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-amt.c
@@ -677,7 +703,9 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-atm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-atmtcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-auto_rp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-autosar-nm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-avsp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-awdl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ax25.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ax25-kiss.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ax25-nol3.c
@@ -696,15 +724,16 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bfcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bfd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bgp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-bicc_mst.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bitcoin.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bittorrent.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bjnp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-blip.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bluecom.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bluetooth.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bmc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bmp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bofl.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-bootp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bootparams.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bpdu.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bpq.c
@@ -736,6 +765,10 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btle.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btle_rf.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btmesh.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-btmesh-pbadv.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-btmesh-provisioning.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-btmesh-beacon.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-btmesh-proxy.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btmcap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btrfcomm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btsap.c
@@ -755,8 +788,11 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cbor.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ccsds.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cdp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-cdma2k.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cell_broadcast.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-cemi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ceph.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-cesoeth.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cfdp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cfm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cgmp.c
@@ -776,6 +812,8 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-sm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-ttag.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-wids.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-cl3.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-cl3dcw.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-classicstun.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-clearcase.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-clip.c
@@ -867,9 +905,11 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-dispatch.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-oxid.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-provideclassinfo.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-remact.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-remunkn.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-sysact.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-typeinfo.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcp-etsi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ddtp.c
@@ -877,6 +917,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dec-dnart.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dect.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-devicenet.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dhcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dhcp-failover.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dhcpv6.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-diameter.c
@@ -896,11 +937,16 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-docsis-tlv.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-docsis-vendor.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dof.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-doip.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dpaux.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dpauxmon.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dplay.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dpnet.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dpnss-link.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dpnss.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-drbd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-drda.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-drb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dsi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dsr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dtcp-ip.c
@@ -908,6 +954,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dtn.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dtp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dtpt.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dlt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dua.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dvb-ait.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dvb-bat.c
@@ -921,16 +968,21 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dvb-tot.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dvbci.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dvmrp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dxl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-e100.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-e164.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-e212.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-eap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-eapol.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ebhscr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-echo.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ecmp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ecp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ecpri.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ecp-oui.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-edonkey.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-egd.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-eero.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ehdlc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ehs.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-eigrp.c
@@ -959,6 +1011,8 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-etsi_card_app_toolkit.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-etv.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-evrc.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-evs.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-exablaze.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-exec.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-exported_pdu.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-extreme.c
@@ -1001,15 +1055,20 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fractalgeneratorprotocol.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-frame.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ftdi-ft.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ftp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fw1.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-g723.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gadu-gadu.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-gbcs.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-gcsna.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gdb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gdsdb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gearman.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ged125.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-geneve.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-gelf.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-geonw.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gfp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gift.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-giop.c
@@ -1047,8 +1106,11 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_bsslap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_bssmap_le.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_cbch.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_cbsp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_gsup.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_ipa.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_osmux.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_r_uus1.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_rlcmac.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_sim.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_sms.c
@@ -1077,6 +1139,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-h263.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-h263p.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-h264.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-h265.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-hartip.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-hazelcast.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-hci_h1.c
@@ -1123,6 +1186,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-idp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-idrp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-iec104.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ieee1609dot2.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ieee1722.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ieee17221.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ieee1905.c
@@ -1225,7 +1289,8 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-kismet.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-klm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-knet.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-knxnetip.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-knxip.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-knxip_decrypt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-kpasswd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-kt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-l1-events.c
@@ -1296,6 +1361,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mbim.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mbtcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mcpe.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-mdp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mdshdr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-media.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-megaco.c
@@ -1377,6 +1443,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ncp-sss.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ncp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ncs.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ncsi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ndmp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ndp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ndps.c
@@ -1388,6 +1455,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netflow.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-generic.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-netfilter.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-net_dm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-nl80211.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-route.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-netlink-sock_diag.c
@@ -1423,6 +1491,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-null.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nvme.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nvme-rdma.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-nvme-tcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nwmtp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nwp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nxp_802154_sniffer.c
@@ -1456,6 +1525,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-osi-options.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-osi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ositp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-osmo_trx.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ospf.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ossp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ouch.c
@@ -1471,6 +1541,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcep.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcli.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcnfsd.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcomtcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pdc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pdcp-lte.c
@@ -1501,6 +1572,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pppoe.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pptp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-protobuf.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-proxy.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-prp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ptp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ptpip.c
@@ -1583,12 +1655,14 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtp-events.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtp-midi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtp-ed137.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtpproxy.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtps.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtsp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rudp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rwall.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rx.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-s101.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-s5066sis.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-s5066dts.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-s7comm.c
@@ -1655,6 +1729,8 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-socketcan.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-socks.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-solaredge.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-someip.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-someip-sd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-soupbintcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-spdy.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-spice.c
@@ -1662,17 +1738,17 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-spray.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sprt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-srp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-srt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-srvloc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sscf-nni.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sscop.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ssh.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-ssl-utils.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-ssl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sstp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-stanag4607.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-starteam.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-stat-notify.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-stat.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-stcsig.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-steam-ihs-discovery.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-stt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-stun.c
@@ -1684,11 +1760,13 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-synphasor.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sysdig-event.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sysex.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-sysex_digitech.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-syslog.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-t30.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tacacs.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tali.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tapa.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-tcg-cp-oids.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tcpros.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tdmoe.c
@@ -1709,11 +1787,14 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-time.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tipc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tivoconnect.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-tls-utils.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-tls.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tn3270.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tn5250.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tnef.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tns.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tpkt.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-tpm20.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tpncp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-trill.c
@@ -1721,6 +1802,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tsp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tte-pcf.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tte.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-tsdns.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-turbocell.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-turnchannel.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tuxedo.c
@@ -1731,11 +1813,11 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ua3g.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-uasip.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-uaudp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ubdp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ubertooth.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ucp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-udld.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-udp.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-udp-nm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-uds.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-udt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-uftp.c
@@ -1756,6 +1838,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-usb-video.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-usb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-usbip.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-usbll.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-user_encap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-userlog.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-uts.c
@@ -1773,6 +1856,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-vnc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-vntag.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-vp8.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-vpp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-vrrp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-vrt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-vsip.c
@@ -1795,6 +1879,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-whois.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wifi-dpp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wifi-display.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-wifi-nan.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wifi-p2p.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-windows-common.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-winsrepl.c
@@ -1835,6 +1920,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-yppasswd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ypserv.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ypxfr.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-z3950.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-aps.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-nwk.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-nwk-gp.c
@@ -1884,14 +1970,6 @@ set(ALL_DISSECTOR_SRC
 	${CORBA_IDL_DISSECTOR_SRC}
 )
 
-add_executable(make-dissectors make-dissectors.c)
-# wsutil is only required for glib-compat.c
-target_link_libraries(make-dissectors ${GLIB2_LIBRARIES} wsutil)
-
-if(WIN32)
-	add_dependencies(make-dissectors copy_cli_dlls)
-endif()
-
 #
 # We pass the arguments to make-dissectors in a file to avoid limitations
 # with the number of arguments handled by main().
@@ -1902,8 +1980,8 @@ file(GENERATE
 )
 add_custom_command(
 	OUTPUT dissectors.c
-	COMMAND make-dissectors dissectors.c @dissectors.in.txt
-	DEPENDS make-dissectors ${ALL_DISSECTOR_SRC}
+	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/make-regs.py dissectors dissectors.c @dissectors.in.txt
+	DEPENDS ${CMAKE_SOURCE_DIR}/tools/make-regs.py ${ALL_DISSECTOR_SRC}
 		"${CMAKE_CURRENT_BINARY_DIR}/dissectors.in.txt"
 	COMMENT "Making dissectors.c"
 )
@@ -1924,6 +2002,10 @@ set_source_files_properties(
 )
 
 add_library(dissectors OBJECT
+	#Included so that Visual Studio can properly put header files in solution
+	${DISSECTOR_HEADER_FILES}
+
+
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
 )
@@ -1933,11 +2015,9 @@ set_target_properties(dissectors PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
-if(NOT WIN32)
-	install(FILES ${DISSECTOR_PUBLIC_HEADERS}
-		DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${CPACK_PACKAGE_NAME}/epan/dissectors"
-	)
-endif()
+install(FILES ${DISSECTOR_PUBLIC_HEADERS}
+	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/epan/dissectors"
+)
 
 set(CHECKAPI_FILE_LIST "${CMAKE_CURRENT_BINARY_DIR}/files.txt")
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
@@ -1946,14 +2026,16 @@ CHECKAPI(
 	NAME
 	  dissectors
 	SWITCHES
-	  -g abort -g termoutput -build --file ${CHECKAPI_FILE_LIST}
+	  --group abort
+	  --group termoutput:5 --summary-group termoutput
+	  --build --file ${CHECKAPI_FILE_LIST}
 	SOURCES
 	  ${DISSECTOR_SUPPORT_SRC}
 	  ${DISSECTOR_HEADERS}
 )
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

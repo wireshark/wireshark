@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Created using `productbuild -\-synthesize -\-package install.ChmodBPF.pkg /tmp/distribution.xml`
+See also: https://github.com/open-eid/osx-installer/blob/master/distribution.xml
+https://developer.apple.com/library/mac/documentation/DeveloperTools/Reference/DistributionDefinitionRef/
+https://developer.apple.com/library/mac/documentation/DeveloperTools/Reference/InstallerJavaScriptRef/
+-->
+<installer-gui-script minSpecVersion="1">
+    <title>ChmodBPF</title>
+    <welcome language="en" mime-type="text/html"><![CDATA[<html><body><br />
+<p style="margin: 0px; font: 13px 'Lucida Grande'">This package will install the ChmodBPF launch daemon, create the access_bpf group, and add you to that group.</p></body></html>]]></welcome>
+    <pkg-ref id="org.wireshark.ChmodBPF.pkg"/>
+    <options customize="never" require-scripts="false"/>
+    <domains enable_anywhere="false" enable_currentUserHome="false" enable_localSystem="true"/>
+    <choices-outline>
+        <line choice="default">
+            <line choice="org.wireshark.ChmodBPF.pkg"/>
+        </line>
+    </choices-outline>
+    <choice id="default"/>
+    <choice id="org.wireshark.ChmodBPF.pkg" visible="false">
+        <pkg-ref id="org.wireshark.ChmodBPF.pkg"/>
+    </choice>
+    <pkg-ref id="org.wireshark.ChmodBPF.pkg" version="1.1" onConclusion="none">install.ChmodBPF.pkg</pkg-ref>
+</installer-gui-script>

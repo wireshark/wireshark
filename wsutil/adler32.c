@@ -47,7 +47,7 @@ guint32 adler32_str(const char *buf)
 /*---------------------------------------------------------------------------*/
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

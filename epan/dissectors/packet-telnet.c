@@ -19,7 +19,7 @@
 #include <epan/expert.h>
 #include <epan/asn1.h>
 #include "packet-kerberos.h"
-#include "packet-ssl-utils.h"
+#include "packet-tls-utils.h"
 #include "packet-tn3270.h"
 #include "packet-tn5250.h"
 
@@ -137,7 +137,7 @@ static dissector_handle_t telnet_handle;
 
 static dissector_handle_t tn3270_handle;
 static dissector_handle_t tn5250_handle;
-static dissector_handle_t ssl_handle;
+static dissector_handle_t tls_handle;
 
 /* Some defines for Telnet */
 
@@ -471,7 +471,7 @@ dissect_starttls_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_
   } else if (session->starttls_requested_in < pinfo->num &&
       session->starttls_port != pinfo->srcport) {
     /* Other side confirms that following data is TLS. */
-    ssl_starttls_ack(ssl_handle, pinfo, telnet_handle);
+    ssl_starttls_ack(tls_handle, pinfo, telnet_handle);
   }
 }
 
@@ -2181,11 +2181,11 @@ proto_reg_handoff_telnet(void)
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_TELNET, telnet_handle);
   tn3270_handle = find_dissector_add_dependency("tn3270", proto_telnet);
   tn5250_handle = find_dissector_add_dependency("tn5250", proto_telnet);
-  ssl_handle = find_dissector("ssl");
+  tls_handle = find_dissector("tls");
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

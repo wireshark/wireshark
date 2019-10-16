@@ -4,9 +4,15 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "filter_action.h"
+
+#include <ui/qt/wireshark_application.h>
+#include <ui/qt/main_window.h>
+
+#include <QMenu>
 
 FilterAction::FilterAction(QObject *parent, FilterAction::Action action, FilterAction::ActionType type, FilterAction::ActionDirection direction) :
     QAction(parent),
@@ -173,6 +179,110 @@ const QString FilterAction::actionDirectionName(ActionDirection direction) {
         return QObject::tr("UNKNOWN");
         break;
     }
+}
+
+QActionGroup * FilterAction::createFilterGroup(QString filter, bool prepare, bool enabled, QWidget * parent)
+{
+    if ( filter.isEmpty() )
+        enabled = false;
+
+    bool filterEmpty = false;
+    if ( wsApp )
+    {
+        QWidget * mainWin = wsApp->mainWindow();
+        if ( qobject_cast<MainWindow *>(mainWin) )
+            filterEmpty = qobject_cast<MainWindow *>(mainWin)->getFilter().isEmpty();
+    }
+
+    FilterAction * filterAction = new FilterAction(parent, prepare ? FilterAction::ActionPrepare : FilterAction::ActionApply);
+
+    QActionGroup * group = new QActionGroup(parent);
+    group->setProperty("filter", filter);
+    group->setProperty("filterAction", prepare ? FilterAction::ActionPrepare : FilterAction::ActionApply);
+    QAction * action = group->addAction(tr("Selected"));
+    action->setProperty("filterType", FilterAction::ActionTypePlain);
+    action = group->addAction(tr("Not Selected"));
+    action->setProperty("filterType", FilterAction::ActionTypeNot);
+    action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "and Selected"));
+    action->setProperty("filterType", FilterAction::ActionTypeAnd);
+    action->setEnabled(!filterEmpty);
+    action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "or Selected"));
+    action->setProperty("filterType", FilterAction::ActionTypeOr);
+    action->setEnabled(!filterEmpty);
+    action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "and not Selected"));
+    action->setProperty("filterType", FilterAction::ActionTypeAndNot);
+    action->setEnabled(!filterEmpty);
+    action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "or not Selected"));
+    action->setProperty("filterType", FilterAction::ActionTypeOrNot);
+    action->setEnabled(!filterEmpty);
+    group->setEnabled(enabled);
+    if ( ! filter.isEmpty() )
+        connect(group, &QActionGroup::triggered, filterAction, &FilterAction::groupTriggered);
+
+    return group;
+}
+
+QMenu * FilterAction::createFilterMenu(FilterAction::Action act, QString filter, bool enabled, QWidget * par)
+{
+    QString title = ( act == FilterAction::ActionApply) ? QObject::tr("Apply as Filter") : QObject::tr("Prepare as Filter");
+    bool prepare = ( act == FilterAction::ActionApply) ? false : true;
+
+    QMenu * submenu = new QMenu(title, par);
+    if ( filter.length() > 0 )
+    {
+        QAction * comment = submenu->addAction(QString("%1: %2").arg(title).arg(filter));
+        comment->setEnabled(false);
+        submenu->addSeparator();
+    }
+    QActionGroup * group = FilterAction::createFilterGroup(filter, prepare, enabled, par);
+    submenu->addActions(group->actions());
+
+    return submenu;
+}
+
+void FilterAction::groupTriggered(QAction * action)
+{
+    if ( action && wsApp )
+    {
+        if ( action->property("filterType").canConvert<FilterAction::ActionType>() &&
+            sender()->property("filterAction").canConvert<FilterAction::Action>() )
+        {
+            FilterAction::Action act = sender()->property("filterAction").value<FilterAction::Action>();
+            FilterAction::ActionType type = action->property("filterType").value<FilterAction::ActionType>();
+            QString filter = sender()->property("filter").toString();
+
+            QWidget * mainWin = wsApp->mainWindow();
+            if ( qobject_cast<MainWindow *>(mainWin) )
+            {
+                MainWindow * mw = qobject_cast<MainWindow *>(mainWin);
+                mw->setDisplayFilter(filter, act, type);
+            }
+        }
+    }
+}
+
+QAction * FilterAction::copyFilterAction(QString filter, QWidget *par)
+{
+    FilterAction * filterAction = new FilterAction(par, ActionCopy);
+    QAction * action = new QAction(QObject::tr("Copy"), par);
+    action->setProperty("filter", qVariantFromValue(filter));
+    connect(action, &QAction::triggered, filterAction, &FilterAction::copyActionTriggered);
+
+    if ( filter.isEmpty() )
+        action->setEnabled(false);
+
+    return action;
+}
+
+void FilterAction::copyActionTriggered()
+{
+    QAction * sendAction = qobject_cast<QAction *>(sender());
+    if ( ! sendAction )
+        return;
+
+    QString filter = sendAction->property("filter").toString();
+    if ( filter.length() > 0 )
+        wsApp->clipboard()->setText(filter);
 }
 
 /*

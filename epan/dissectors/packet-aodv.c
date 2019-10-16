@@ -52,16 +52,16 @@ void proto_reg_handoff_aodv(void);
 #define AODV_EXT_NTP    3
 
 /* Flag bits: */
-#define RREQ_UNKNSEQ    0x08
-#define RREQ_DESTONLY   0x10
-#define RREQ_GRATRREP   0x20
-#define RREQ_REP        0x40
-#define RREQ_JOIN       0x80
+#define RREQ_UNKNSEQ    0x0800
+#define RREQ_DESTONLY   0x1000
+#define RREQ_GRATRREP   0x2000
+#define RREQ_REP        0x4000
+#define RREQ_JOIN       0x8000
 
-#define RREP_ACK_REQ    0x40
-#define RREP_REP        0x80
+#define RREP_ACK_REQ    0x4000
+#define RREP_REP        0x8000
 
-#define RERR_NODEL      0x80
+#define RERR_NODEL      0x8000
 
 static const value_string type_vals[] = {
     { RREQ,                 "Route Request" },
@@ -179,8 +179,6 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
                   proto_item *ti, gboolean is_ipv6)
 {
     int                offset = 1;
-    proto_item        *tj;
-    guint8             flags;
     guint8             hop_count;
     guint32            rreq_id;
     const gchar       *dest_addr_v4;
@@ -199,19 +197,8 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
         NULL
     };
 
-    flags = tvb_get_guint8(tvb, offset);
-    tj = proto_tree_add_bitmask(aodv_tree, tvb, offset, hf_aodv_flags,
-                   ett_aodv_flags, aodv_flags, ENC_NA);
-    if (flags & RREQ_JOIN)
-        proto_item_append_text(tj, " J");
-    if (flags & RREQ_REP)
-        proto_item_append_text(tj, " R");
-    if (flags & RREQ_GRATRREP)
-        proto_item_append_text(tj, " G");
-    if (flags & RREQ_DESTONLY)
-        proto_item_append_text(tj, " D");
-    if (flags & RREQ_UNKNSEQ)
-        proto_item_append_text(tj, " U");
+    proto_tree_add_bitmask_with_flags(aodv_tree, tvb, offset, hf_aodv_flags,
+                   ett_aodv_flags, aodv_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     offset += 2;        /* skip reserved byte */
 
     hop_count = tvb_get_guint8(tvb, offset);
@@ -289,8 +276,7 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
                   proto_item *ti, gboolean is_ipv6)
 {
     int                offset = 1;
-    proto_item        *tj;
-    guint8             flags;
+    guint16            flags;
     guint8             prefix_sz;
     guint8             hop_count;
     const gchar       *dest_addr_v4;
@@ -306,16 +292,12 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
         NULL
     };
 
-    flags = tvb_get_guint8(tvb, offset);
-    tj = proto_tree_add_bitmask(aodv_tree, tvb, offset, hf_aodv_flags,
-                   ett_aodv_flags, aodv_flags, ENC_NA);
-     if (flags & RREP_REP)
-        proto_item_append_text(tj, " R");
-     if (flags & RREP_ACK_REQ)
-        proto_item_append_text(tj, " A");
+    flags = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_bitmask_with_flags(aodv_tree, tvb, offset, hf_aodv_flags,
+                   ett_aodv_flags, aodv_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     offset += 1;
 
-    prefix_sz = tvb_get_guint8(tvb, offset) & 0x1F;
+    prefix_sz = flags & 0x1F;
     if (aodv_tree)
         proto_tree_add_uint(aodv_tree, hf_aodv_prefix_sz, tvb, offset, 1,
                             prefix_sz);
@@ -397,9 +379,7 @@ dissect_aodv_rerr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
                   gboolean is_ipv6)
 {
     int         offset = 1;
-    proto_item *tj;
     proto_tree *aodv_unreach_dest_tree;
-    guint8      flags;
     guint8      dest_count;
     int         i;
     static const int * aodv_flags[] = {
@@ -407,11 +387,8 @@ dissect_aodv_rerr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
         NULL
     };
 
-    flags = tvb_get_guint8(tvb, offset);
-    tj = proto_tree_add_bitmask(aodv_tree, tvb, offset, hf_aodv_flags,
-               ett_aodv_flags, aodv_flags, ENC_NA);
-    if (flags & RERR_NODEL)
-        proto_item_append_text(tj, " N");
+    proto_tree_add_bitmask_with_flags(aodv_tree, tvb, offset, hf_aodv_flags,
+                   ett_aodv_flags, aodv_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     offset += 2;        /* skip reserved byte */
 
     dest_count = tvb_get_guint8(tvb, offset);
@@ -454,8 +431,6 @@ dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
                               proto_tree *aodv_tree, proto_item *ti)
 {
     int                offset = 1;
-    proto_item        *tj;
-    guint8             flags;
     guint8             hop_count;
     guint32            rreq_id;
     guint32            dest_seqno;
@@ -472,19 +447,8 @@ dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
         NULL
     };
 
-    flags = tvb_get_guint8(tvb, offset);
-    tj = proto_tree_add_bitmask(aodv_tree, tvb, offset, hf_aodv_flags,
-                   ett_aodv_flags, aodv_flags, ENC_NA);
-    if (flags & RREQ_JOIN)
-        proto_item_append_text(tj, " J");
-    if (flags & RREQ_REP)
-        proto_item_append_text(tj, " R");
-    if (flags & RREQ_GRATRREP)
-        proto_item_append_text(tj, " G");
-    if (flags & RREQ_DESTONLY)
-        proto_item_append_text(tj, " D");
-    if (flags & RREQ_UNKNSEQ)
-        proto_item_append_text(tj, " U");
+    proto_tree_add_bitmask_with_flags(aodv_tree, tvb, offset, hf_aodv_flags,
+                   ett_aodv_flags, aodv_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     offset += 2;        /* skip reserved byte */
 
     hop_count = tvb_get_guint8(tvb, offset);
@@ -543,8 +507,7 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
                               proto_tree *aodv_tree, proto_item *ti)
 {
     int                offset = 1;
-    proto_item        *tj;
-    guint8             flags;
+    guint16            flags;
     guint8             prefix_sz;
     guint8             hop_count;
     guint32            dest_seqno;
@@ -558,16 +521,12 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
         NULL
     };
 
-    flags = tvb_get_guint8(tvb, offset);
-    tj = proto_tree_add_bitmask(aodv_tree, tvb, offset, hf_aodv_flags,
-                   ett_aodv_flags, aodv_flags, ENC_NA);
-    if (flags & RREP_REP)
-        proto_item_append_text(tj, " R");
-    if (flags & RREP_ACK_REQ)
-        proto_item_append_text(tj, " A");
+    flags = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_bitmask_with_flags(aodv_tree, tvb, offset, hf_aodv_flags,
+                   ett_aodv_flags, aodv_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     offset += 1;
 
-    prefix_sz = tvb_get_guint8(tvb, offset) & 0x7F;
+    prefix_sz = flags & 0x7F;
     proto_tree_add_uint(aodv_tree, hf_aodv_prefix_sz, tvb, offset, 1,
                             prefix_sz);
     offset += 1;
@@ -625,9 +584,7 @@ dissect_aodv_draft_01_v6_rerr(tvbuff_t *tvb, packet_info *pinfo,
                               proto_tree *aodv_tree)
 {
     int         offset = 1;
-    proto_item *tj;
     proto_tree *aodv_unreach_dest_tree;
-    guint8      flags;
     guint8      dest_count;
     int         i;
     static const int * aodv_flags[] = {
@@ -635,11 +592,8 @@ dissect_aodv_draft_01_v6_rerr(tvbuff_t *tvb, packet_info *pinfo,
         NULL
     };
 
-    flags = tvb_get_guint8(tvb, offset);
-    tj = proto_tree_add_bitmask(aodv_tree, tvb, offset, hf_aodv_flags,
-                   ett_aodv_flags, aodv_flags, ENC_NA);
-    if (flags & RERR_NODEL)
-        proto_item_append_text(tj, " N");
+    proto_tree_add_bitmask_with_flags(aodv_tree, tvb, offset, hf_aodv_flags,
+                   ett_aodv_flags, aodv_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     offset += 2;        /* skip reserved byte */
 
     dest_count = tvb_get_guint8(tvb, offset);
@@ -749,42 +703,42 @@ proto_register_aodv(void)
         },
         { &hf_aodv_flags_rreq_join,
           { "RREQ Join", "aodv.flags.rreq_join",
-            FT_BOOLEAN, 8, TFS(&tfs_set_notset), RREQ_JOIN,
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), RREQ_JOIN,
             NULL, HFILL }
         },
         { &hf_aodv_flags_rreq_repair,
           { "RREQ Repair", "aodv.flags.rreq_repair",
-            FT_BOOLEAN, 8, TFS(&tfs_set_notset), RREQ_REP,
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), RREQ_REP,
             NULL, HFILL }
         },
         { &hf_aodv_flags_rreq_gratuitous,
           { "RREQ Gratuitous RREP", "aodv.flags.rreq_gratuitous",
-            FT_BOOLEAN, 8, TFS(&tfs_set_notset), RREQ_GRATRREP,
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), RREQ_GRATRREP,
             NULL, HFILL }
         },
         { &hf_aodv_flags_rreq_destinationonly,
           { "RREQ Destination only", "aodv.flags.rreq_destinationonly",
-            FT_BOOLEAN, 8, TFS(&tfs_set_notset), RREQ_DESTONLY,
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), RREQ_DESTONLY,
             NULL, HFILL }
         },
         { &hf_aodv_flags_rreq_unknown,
           { "RREQ Unknown Sequence Number", "aodv.flags.rreq_unknown",
-            FT_BOOLEAN, 8, TFS(&tfs_set_notset), RREQ_UNKNSEQ,
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), RREQ_UNKNSEQ,
             NULL, HFILL }
         },
         { &hf_aodv_flags_rrep_repair,
           { "RREP Repair", "aodv.flags.rrep_repair",
-            FT_BOOLEAN, 8, TFS(&tfs_set_notset), RREP_REP,
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), RREP_REP,
             NULL, HFILL }
         },
         { &hf_aodv_flags_rrep_ack,
           { "RREP Acknowledgement", "aodv.flags.rrep_ack",
-            FT_BOOLEAN, 8, TFS(&tfs_set_notset), RREP_ACK_REQ,
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), RREP_ACK_REQ,
             NULL, HFILL }
         },
         { &hf_aodv_flags_rerr_nodelete,
           { "RERR No Delete", "aodv.flags.rerr_nodelete",
-            FT_BOOLEAN, 8, TFS(&tfs_set_notset), RERR_NODEL,
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), RERR_NODEL,
             NULL, HFILL }
         },
         { &hf_aodv_prefix_sz,
@@ -918,7 +872,7 @@ proto_reg_handoff_aodv(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef RTPAUDIOSTREAM_H
 #define RTPAUDIOSTREAM_H
@@ -16,6 +17,7 @@
 #include <glib.h>
 
 #include <epan/address.h>
+#include <ui/rtp_stream.h>
 
 #include <QAudio>
 #include <QColor>
@@ -29,7 +31,6 @@ class QAudioOutput;
 class QTemporaryFile;
 
 struct _rtp_info;
-struct _rtp_stream_info;
 struct _rtp_sample;
 
 class RtpAudioStream : public QObject
@@ -38,11 +39,11 @@ class RtpAudioStream : public QObject
 public:
     enum TimingMode { JitterBuffer, RtpTimestamp, Uninterrupted };
 
-    explicit RtpAudioStream(QObject *parent, struct _rtp_stream_info *rtp_stream);
+    explicit RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream);
     ~RtpAudioStream();
-    bool isMatch(const struct _rtp_stream_info *rtp_stream) const;
+    bool isMatch(const rtpstream_info_t *rtpstream) const;
     bool isMatch(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info) const;
-    void addRtpStream(const struct _rtp_stream_info *rtp_stream);
+    //void addRtpStream(const rtpstream_info_t *rtpstream);
     void addRtpPacket(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info);
     void reset(double start_rel_time);
     void decode();
@@ -140,16 +141,13 @@ public slots:
 private:
     // Used to identify unique streams.
     // The GTK+ UI also uses the call number + current channel.
-    address src_addr_;
-    quint16 src_port_;
-    address dst_addr_;
-    quint16 dst_port_;
-    quint32 ssrc_;
+    rtpstream_id_t id_;
 
     QVector<struct _rtp_packet *>rtp_packets_;
     QTemporaryFile *tempfile_;
     struct _GHashTable *decoders_hash_;
-    QList<const struct _rtp_stream_info *>rtp_streams_;
+    // TODO: It is not used
+    //QList<const rtpstream_info_t *>rtpstreams_;
     double global_start_rel_time_;
     double start_abs_offset_;
     double start_rel_time_;

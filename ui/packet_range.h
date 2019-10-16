@@ -8,7 +8,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __PACKET_RANGE_H__
 #define __PACKET_RANGE_H__
@@ -82,6 +83,9 @@ typedef enum {
 
 /* init the range structure */
 extern void packet_range_init(packet_range_t *range, capture_file *cf);
+
+/* Cleanup the range structure before the caller frees "range". */
+extern void packet_range_cleanup(packet_range_t *range);
 
 /* check whether the packet range is OK */
 extern convert_ret_t packet_range_check(packet_range_t *range);

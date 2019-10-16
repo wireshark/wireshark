@@ -57,7 +57,7 @@ guint32 s7comm_decode_ud_cpu_diagnostic_message(tvbuff_t *tvb, packet_info *pinf
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

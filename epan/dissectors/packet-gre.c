@@ -89,19 +89,6 @@ static expert_field ei_gre_checksum_incorrect = EI_INIT;
 
 static dissector_table_t gre_dissector_table;
 
-/* bit positions for flags in header */
-#define GRE_CHECKSUM            0x8000
-#define GRE_ROUTING             0x4000
-#define GRE_KEY                 0x2000
-#define GRE_SEQUENCE            0x1000
-#define GRE_STRICTSOURCE        0x0800
-#define GRE_RECURSION           0x0700
-#define GRE_ACK                 0x0080  /* only in special PPTPized GRE header */
-#define GRE_RESERVED_PPP        0x0078  /* only in special PPTPized GRE header */
-#define GRE_RESERVED            0x00F8
-#define GRE_VERSION             0x0007
-
-
 const value_string gre_version[] = {
     { 0, "GRE" },                /* [RFC2784] */
     { 1, "Enhanced GRE" },       /* [RFC2637] */
@@ -770,7 +757,7 @@ proto_reg_handoff_gre(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

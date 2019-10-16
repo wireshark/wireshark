@@ -31,6 +31,7 @@
 #define	DOT11DECRYPT_KEY_TYPE_WPA_PMK	5
 #define	DOT11DECRYPT_KEY_TYPE_TKIP		6
 #define	DOT11DECRYPT_KEY_TYPE_CCMP		7
+#define	DOT11DECRYPT_KEY_TYPE_UNKNOWN   -1
 
 /*	Decryption algorithms fields size definition (bytes)								*/
 #define	DOT11DECRYPT_WEP_KEY_MINLEN		1

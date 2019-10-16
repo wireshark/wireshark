@@ -780,6 +780,7 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
   { ERF_META_TAG_reset,             { "Metadata Reset",                     "reset",             FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_event_time,        { "Event Time",                         "event_time",        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_host_id,           { "Host ID",                            "host_id",           FT_UINT64,        BASE_HEX,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_attribute,         { "Attribute",                          "attribute",         FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_fcs_len,           { "FCS Length (bits)",                  "fcs_len",           FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_mask_ipv4,         { "Subnet Mask (IPv4)",                 "mask_ipv4",         FT_IPv4,          BASE_NETMASK,      NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_mask_cidr,         { "Subnet Mask (CIDR)",                 "mask_cidr",         FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
@@ -833,6 +834,8 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
   { ERF_META_TAG_ext_hdrs_added,    { "Extension Headers Added",            "ext_hdrs_added",    FT_BYTES,         BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_ext_hdrs_removed,  { "Extension Headers Removed",          "ext_hdrs_removed",  FT_BYTES,         BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_relative_snaplen,  { "Relative Snap Length",               "relative_snaplen",  FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_temperature,       { "Temperature",                        "temperature",       FT_FLOAT,         BASE_NONE|BASE_UNIT_STRING, &units_degree_celsius, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_power,             { "Power Consumption",                  "power",             FT_FLOAT,         BASE_NONE|BASE_UNIT_STRING, &units_watt, 0x0, NULL, HFILL } },
 
   { ERF_META_TAG_if_num,            { "Interface Number",                   "if_num",            FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_if_vc,             { "Interface Virtual Circuit",          "if_vc",             FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
@@ -1299,6 +1302,10 @@ init_meta_tags(void)
   wmem_array_append_one(erf_meta_index.vs_list, vs_tmp);
   wmem_array_append_one(erf_meta_index.vs_abbrev_list, vs_tmp);
   /* TODO: try value_string_ext, requires sorting first */
+}
+
+static inline value_string *erf_to_value_string(wmem_array_t *array) {
+  return (value_string *)wmem_array_get_raw(array);
 }
 
 static guint erf_anchor_key_hash(gconstpointer key) {
@@ -1781,7 +1788,7 @@ entropy_from_entropy_header_value(guint8 entropy_hdr_value)
   /*  255 is 8.0 */
   /* 1 represent any value less than 2/32 */
   /* 0 represents not calculated */
-  return (float)((entropy_hdr_value == 0)?0.0: (((float)entropy_hdr_value+1) / 32.0));
+  return (float)((entropy_hdr_value == 0)?0.0f: (((float)entropy_hdr_value+1) / 32.0f));
 }
 
 static void
@@ -1797,7 +1804,7 @@ dissect_entropy_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     entropy = entropy_from_entropy_header_value(entropy_hdr_value);
 
     pi = proto_tree_add_float_format_value(tree, hf_erf_ehdr_entropy_entropy, tvb, 0, 0, entropy,
-      "%.2f %s", entropy, entropy == 0.0 ? "(not calculated)":"bits");
+      "%.2f %s", (double) entropy, entropy == 0.0f ? "(not calculated)":"bits");
     entropy_value_tree = proto_item_add_subtree(pi, ett_erf_entropy_value);
     proto_tree_add_uint(entropy_value_tree, hf_erf_ehdr_entropy_entropy_raw, tvb, 0, 0, entropy_hdr_value);
 
@@ -1851,12 +1858,12 @@ static void dissect_host_anchor_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     /* TODO: top level linking to most recent frame like we have for Host ID? */
     subtree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_erf_anchor, &pi, "Host ID: 0x%012" G_GINT64_MODIFIER "x, Anchor ID: 0x%012" G_GINT64_MODIFIER "x", host_id & ERF_EHDR_HOST_ID_MASK, anchor_id & ERF_EHDR_ANCHOR_ID_MASK);
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
 
     pi = proto_tree_add_uint64(subtree, hf_erf_anchor_hostid, tvb, 0, 0, host_id & ERF_EHDR_HOST_ID_MASK);
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
     pi = proto_tree_add_uint64(subtree, hf_erf_anchor_anchorid, tvb, 0, 0, anchor_id & ERF_EHDR_ANCHOR_ID_MASK);
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
 
     anchor_info = (erf_host_anchor_info_t*)wmem_map_lookup(erf_state.host_anchor_map, &key);
 
@@ -1873,7 +1880,7 @@ static void dissect_host_anchor_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       if(pinfo->num != anchored_info->frame_num) {
         /* Don't list the frame itself */
         pi = proto_tree_add_uint(subtree, hf_erf_anchor_linked, tvb, 0, 0, anchored_info->frame_num);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
         /* XXX: Need to do this each time because pinfo is discarded. Filtering does not reset visited as it does not do a full redissect.
         We also might not catch all frames in the first pass (e.g. comment after record). */
         mark_frame_as_depended_upon(pinfo, anchored_info->frame_num);
@@ -1911,22 +1918,22 @@ dissect_host_id_source_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
       hostid_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_erf_source, &pi,
           "Host ID: 0x%012" G_GINT64_MODIFIER "x, Source ID: %u", host_id, source_id&0xFF);
     }
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
 
     pi = proto_tree_add_uint64(hostid_tree, hf_erf_hostid, tvb, 0, 0, host_id);
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
     pi = proto_tree_add_uint(hostid_tree, hf_erf_sourceid, tvb, 0, 0, source_id);
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
 
     if (fnum_next != G_MAXUINT32) {
       pi = proto_tree_add_uint(hostid_tree, hf_erf_source_next, tvb, 0, 0, fnum_next);
-      PROTO_ITEM_SET_GENERATED(pi);
+      proto_item_set_generated(pi);
       /* XXX: Save the surrounding nearest periodic records when we do a filtered save so we keep native ERF metadata */
       mark_frame_as_depended_upon(pinfo, fnum_next);
     }
     if (fnum != G_MAXUINT32) {
       pi = proto_tree_add_uint(hostid_tree, hf_erf_source_prev, tvb, 0, 0, fnum);
-      PROTO_ITEM_SET_GENERATED(pi);
+      proto_item_set_generated(pi);
       mark_frame_as_depended_upon(pinfo, fnum);
     }
   }
@@ -2472,7 +2479,7 @@ dissect_meta_tag_ext_hdrs(proto_item *section_tree, tvbuff_t *tvb, int offset, g
 
     /* Add all set bits to the header, including the ones we don't understand */
     for (bit_offset = 0; bit_offset < 32; bit_offset++) {
-      if (ext_hdrs[int_offset] & (1 << bit_offset)) {
+      if (ext_hdrs[int_offset] & (1U << bit_offset)) {
         proto_item_append_text(subtree_pi, ", %s", val_to_str(ext_hdr_num, ehdr_type_vals, "%d"));
 
         /* Also add to the top level */
@@ -2717,7 +2724,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       }
       DISSECTOR_ASSERT(tag_info->extra);
 
-      tagvalstring = val_to_str(tagtype, VALS(wmem_array_get_raw(erf_meta_index.vs_list)), "Unknown Section (0x%x)");
+      tagvalstring = val_to_str(tagtype, erf_to_value_string(erf_meta_index.vs_list), "Unknown Section (0x%x)");
       section_tree = proto_tree_add_subtree(tree, tvb, offset, 0, tag_info->extra->ett_value, &section_pi, tagvalstring);
       tag_tree = proto_tree_add_subtree_format(section_tree, tvb, offset, MIN(taglength + 4, remaining_len), tag_info->ett, &tag_pi, "Provenance %s Header", tagvalstring);
 
@@ -2755,6 +2762,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       gboolean    dissected = TRUE;
       guint32     value32;
       guint64     value64;
+      float       float_value;
       gchar      *tmp = NULL;
 
       tag_ft = tag_info->tag_template->hfinfo.type;
@@ -2780,7 +2788,14 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       case ERF_META_TAG_if_rx_power:
       case ERF_META_TAG_if_tx_power:
         value32 = tvb_get_ntohl(tvb, offset + 4);
-        tag_pi = proto_tree_add_int_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, (gint32) value32, "%.2fdBm", (float)((gint32) value32)/100.0);
+        tag_pi = proto_tree_add_int_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, (gint32) value32, "%.2fdBm", (double)((gint32) value32)/100.0);
+        break;
+
+      case ERF_META_TAG_temperature:
+      case ERF_META_TAG_power:
+        value32 = tvb_get_ntohl(tvb, offset + 4);
+        float_value = (float)((gint32) value32)/1000.0f;
+        tag_pi = proto_tree_add_float(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, float_value);
         break;
 
       case ERF_META_TAG_loc_lat:
@@ -2809,10 +2824,10 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          * populated at registration time.
          */
         tag_tree = proto_tree_add_subtree_format(section_tree, tvb, offset + 4, taglength, tag_info->ett, &tag_pi, "%s: %s %u", tag_info->tag_template->hfinfo.name,
-            val_to_str(value32, VALS(wmem_array_get_raw(erf_meta_index.vs_list)), "Unknown Section (%u)"), tvb_get_ntohs(tvb, offset + 4 + 2));
+            val_to_str(value32, erf_to_value_string(erf_meta_index.vs_list), "Unknown Section (%u)"), tvb_get_ntohs(tvb, offset + 4 + 2));
 
         proto_tree_add_uint_format_value(tag_tree, tag_info->extra->hf_values[0], tvb, offset + 4, MIN(2, taglength), value32, "%s (%u)",
-            val_to_str(value32, VALS(wmem_array_get_raw(erf_meta_index.vs_abbrev_list)), "Unknown"), value32);
+            val_to_str(value32, erf_to_value_string(erf_meta_index.vs_abbrev_list), "Unknown"), value32);
         proto_tree_add_item(tag_tree, tag_info->extra->hf_values[1], tvb, offset + 6, MIN(2, taglength - 2), ENC_BIG_ENDIAN);
         break;
 
@@ -2891,10 +2906,10 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       {
         float entropy;
         value32 = tvb_get_ntohl(tvb, offset + 4);
-        entropy = entropy_from_entropy_header_value(value32);
+        entropy = entropy_from_entropy_header_value((guint8) value32);
 
         tag_pi = proto_tree_add_float_format_value(section_tree, tag_info->hf_value, tvb, 0, 0, entropy,
-          "%.2f %s", entropy, entropy == 0.0 ? "(not calculated)":"bits");
+          "%.2f %s", (double) entropy, entropy == 0.0f ? "(not calculated)":"bits");
         break;
       }
 
@@ -2954,7 +2969,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
      * XXX: Formatting value manually because don't have erf_meta_vs_list
      * populated at registration time.
      */
-    proto_tree_add_uint_format_value(tag_tree, hf_erf_meta_tag_type, tvb, offset, 2, tagtype, "%s (%u)", val_to_str(tagtype, VALS(wmem_array_get_raw(erf_meta_index.vs_abbrev_list)), "Unknown"), tagtype);
+    proto_tree_add_uint_format_value(tag_tree, hf_erf_meta_tag_type, tvb, offset, 2, tagtype, "%s (%u)", val_to_str(tagtype, erf_to_value_string(erf_meta_index.vs_abbrev_list), "Unknown"), tagtype);
     proto_tree_add_uint(tag_tree, hf_erf_meta_tag_len, tvb, offset + 2, 2, taglength);
 
     /* Add truncated expertinfo if needed */
@@ -3252,7 +3267,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       call_dissector(ppp_handle, tvb, pinfo, tree);
       break;
     case ERF_HDLC_FRELAY:
-      memset(&pinfo->pseudo_header->x25, 0, sizeof(pinfo->pseudo_header->x25));
+      memset(&pinfo->pseudo_header->dte_dce, 0, sizeof(pinfo->pseudo_header->dte_dce));
       call_dissector(frelay_handle, tvb, pinfo, tree);
       break;
     case ERF_HDLC_MTP2:
@@ -3870,7 +3885,7 @@ proto_reg_handoff_erf(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

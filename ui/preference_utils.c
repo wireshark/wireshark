@@ -18,6 +18,7 @@
 #include <epan/prefs-int.h>
 #include <epan/packet.h>
 #include <epan/decode_as.h>
+#include <epan/uat-int.h>
 
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"
@@ -27,6 +28,9 @@
 #include "ui/preference_utils.h"
 #include "ui/simple_dialog.h"
 
+#ifdef HAVE_LIBPCAP
+gboolean auto_scroll_live;
+#endif
 
 /* Fill in capture options with values from the preferences */
 void
@@ -37,7 +41,7 @@ prefs_to_capture_opts(void)
     /* the same applies to other preferences settings as well. */
     global_capture_opts.default_options.promisc_mode = prefs.capture_prom_mode;
     global_capture_opts.use_pcapng                   = prefs.capture_pcap_ng;
-    global_capture_opts.show_info                    = prefs.capture_show_info; /* GTK+ only */
+    global_capture_opts.show_info                    = prefs.capture_show_info;
     global_capture_opts.real_time_mode               = prefs.capture_real_time;
     auto_scroll_live                                 = prefs.capture_auto_scroll;
 #endif /* HAVE_LIBPCAP */
@@ -126,18 +130,18 @@ prefs_store_ext_multiple(const char * module, GHashTable * pref_values)
     if ( ! keys )
         return pref_changed;
 
-    while ( keys != NULL )
+    for ( GList * key = keys; key != NULL; key = g_list_next(key) )
     {
-        gchar * pref_name = (gchar *)keys->data;
-        gchar * pref_value = (gchar *) g_hash_table_lookup(pref_values, keys->data);
+        gchar * pref_name = (gchar *)key->data;
+        gchar * pref_value = (gchar *) g_hash_table_lookup(pref_values, key->data);
 
         if ( pref_name && pref_value )
         {
             if ( prefs_store_ext_helper(module, pref_name, pref_value) )
                 pref_changed = TRUE;
         }
-        keys = g_list_next(keys);
     }
+    g_list_free(keys);
 
     if ( pref_changed )
     {
@@ -150,7 +154,7 @@ prefs_store_ext_multiple(const char * module, GHashTable * pref_values)
 }
 
 gint
-column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_fields, gint custom_occurrence)
+column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_fields, gint position)
 {
     GList *clp;
     fmt_data *cfmt, *last_cfmt;
@@ -165,7 +169,7 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_fields
     cfmt->title = g_strdup(title);
     cfmt->fmt = fmt;
     cfmt->custom_fields = g_strdup(custom_fields);
-    cfmt->custom_occurrence = custom_occurrence;
+    cfmt->custom_occurrence = 0;
     cfmt->resolved = TRUE;
 
     colnr = g_list_length(prefs.col_list);
@@ -174,7 +178,10 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_fields
         cfmt->visible = TRUE;
         clp = g_list_last(prefs.col_list);
         last_cfmt = (fmt_data *) clp->data;
-        if (last_cfmt->fmt == COL_INFO) {
+        if (position > 0 && position <= colnr) {
+            /* Custom fields may be added at any position, depending on the given argument */
+            prefs.col_list = g_list_insert(prefs.col_list, cfmt, position);
+        } else if (last_cfmt->fmt == COL_INFO) {
             /* Last column is COL_INFO, add custom column before this */
             colnr -= 1;
             prefs.col_list = g_list_insert(prefs.col_list, cfmt, colnr);
@@ -208,6 +215,23 @@ void
 column_prefs_remove_nth(gint col)
 {
     column_prefs_remove_link(g_list_nth(prefs.col_list, col));
+}
+
+void save_migrated_uat(const char *uat_name, gboolean *old_pref)
+{
+    char *err = NULL;
+
+    if (!uat_save(uat_get_table_by_name(uat_name), &err)) {
+        g_warning("Unable to save %s: %s", uat_name, err);
+        g_free(err);
+        return;
+    }
+
+    // Ensure that any old preferences are removed after successful migration.
+    if (*old_pref) {
+        *old_pref = FALSE;
+        prefs_main_write();
+    }
 }
 
 /*

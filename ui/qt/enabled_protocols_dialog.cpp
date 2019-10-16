@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "enabled_protocols_dialog.h"
 #include <ui_enabled_protocols_dialog.h>
@@ -34,9 +35,13 @@ EnabledProtocolsDialog::EnabledProtocolsDialog(QWidget *parent) :
     int one_em = ui->protocol_tree_->fontMetrics().height();
     ui->protocol_tree_->setColumnWidth(EnabledProtocolsModel::colProtocol, one_em * 18);
 
-    //"Remove" Save button
-    if (!prefs.gui_use_pref_save)
-        ui->buttonBox->button(QDialogButtonBox::Save)->setHidden(true);
+    ui->cmbSearchType->addItem(tr("Everywhere"), qVariantFromValue(EnabledProtocolsProxyModel::EveryWhere));
+    ui->cmbSearchType->addItem(tr("Only Protocols"), qVariantFromValue(EnabledProtocolsProxyModel::OnlyProtocol));
+    ui->cmbSearchType->addItem(tr("Only Description"), qVariantFromValue(EnabledProtocolsProxyModel::OnlyDescription));
+
+    ui->cmbProtocolType->addItem(tr("any protocol"), qVariantFromValue(EnabledProtocolItem::Any));
+    ui->cmbProtocolType->addItem(tr("non-heuristic protocols"), qVariantFromValue(EnabledProtocolItem::Standard));
+    ui->cmbProtocolType->addItem(tr("heuristic protocols"), qVariantFromValue(EnabledProtocolItem::Heuristic));
 
     QTimer::singleShot(0, this, SLOT(fillTree()));
 }
@@ -58,25 +63,53 @@ void EnabledProtocolsDialog::fillTree()
 
 void EnabledProtocolsDialog::on_invert_button__clicked()
 {
-    enabled_protocols_model_->invertEnabled();
+    proxyModel_->setItemsEnable(EnabledProtocolsProxyModel::Invert);
+    ui->protocol_tree_->expandAll();
 }
 
 void EnabledProtocolsDialog::on_enable_all_button__clicked()
 {
-    enabled_protocols_model_->enableAll();
+    proxyModel_->setItemsEnable(EnabledProtocolsProxyModel::Enable);
+    ui->protocol_tree_->expandAll();
 }
 
 void EnabledProtocolsDialog::on_disable_all_button__clicked()
 {
-    enabled_protocols_model_->disableAll();
+    proxyModel_->setItemsEnable(EnabledProtocolsProxyModel::Disable);
+    ui->protocol_tree_->expandAll();
 }
 
-void EnabledProtocolsDialog::on_search_line_edit__textChanged(const QString &search_re)
+void EnabledProtocolsDialog::searchFilterChange()
 {
-    proxyModel_->setFilter(search_re);
+    EnabledProtocolsProxyModel::SearchType type = EnabledProtocolsProxyModel::EveryWhere;
+    EnabledProtocolItem::EnableProtocolType protocol = EnabledProtocolItem::Any;
+    QString search_re = ui->search_line_edit_->text();
+
+    if ( ui->cmbSearchType->currentData().canConvert<EnabledProtocolsProxyModel::SearchType>() )
+        type = ui->cmbSearchType->currentData().value<EnabledProtocolsProxyModel::SearchType>();
+
+    if ( ui->cmbProtocolType->currentData().canConvert<EnabledProtocolItem::EnableProtocolType>() )
+        protocol = ui->cmbProtocolType->currentData().value<EnabledProtocolItem::EnableProtocolType>();
+
+    proxyModel_->setFilter(search_re, type, protocol);
     /* If items are filtered out, then filtered back in, the tree remains collapsed
        Force an expansion */
     ui->protocol_tree_->expandAll();
+}
+
+void EnabledProtocolsDialog::on_search_line_edit__textChanged(const QString &)
+{
+    searchFilterChange();
+}
+
+void EnabledProtocolsDialog::on_cmbSearchType_currentIndexChanged(int)
+{
+    searchFilterChange();
+}
+
+void EnabledProtocolsDialog::on_cmbProtocolType_currentIndexChanged(int)
+{
+    searchFilterChange();
 }
 
 void EnabledProtocolsDialog::on_buttonBox_accepted()
@@ -91,8 +124,7 @@ void EnabledProtocolsDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
     if (button == ui->buttonBox->button(QDialogButtonBox::Apply))
     {
-        // if we don't have a Save button, just save the settings now
-        applyChanges(!prefs.gui_use_pref_save);
+        applyChanges(TRUE);
     }
 }
 #endif

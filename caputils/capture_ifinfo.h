@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __CAPTURE_IFINFO_H__
 #define __CAPTURE_IFINFO_H__
@@ -16,17 +17,21 @@ extern "C" {
 
 #include <glib.h>
 
+/*
+ * Explicitly set the interface_type enum values as these values are exposed
+ * in the preferences gui.interfaces_hidden_types string.
+ */
 typedef enum {
-	IF_WIRED,
-	IF_AIRPCAP,
-	IF_PIPE,
-	IF_STDIN,
-	IF_BLUETOOTH,
-	IF_WIRELESS,
-	IF_DIALUP,
-	IF_USB,
-	IF_EXTCAP,
-	IF_VIRTUAL
+	IF_WIRED	= 0,
+	IF_AIRPCAP	= 1,
+	IF_PIPE		= 2,
+	IF_STDIN	= 3,
+	IF_BLUETOOTH	= 4,
+	IF_WIRELESS	= 5,
+	IF_DIALUP	= 6,
+	IF_USB		= 7,
+	IF_EXTCAP	= 8,
+	IF_VIRTUAL	= 9
 } interface_type;
 
 /*
@@ -73,6 +78,17 @@ extern GList *capture_interface_list(int *err, char **err_str, void (*update_cb)
 #define	DONT_HAVE_PCAP		2	/* couldn't load WinPcap */
 
 void free_interface_list(GList *if_list);
+
+/**
+ * Get an if_info_t for a particular interface.
+ * (May require privilege, so should only be used by dumpcap.)
+ */
+extern if_info_t *if_info_get(const char *name);
+
+/**
+ * Free an if_info_t.
+ */
+void if_info_free(if_info_t *if_info);
 
 /*
  * "get_if_capabilities()" and "capture_if_capabilities()" return a pointer

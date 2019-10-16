@@ -1456,7 +1456,6 @@ static void listOfInt32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       }
 }
 
-#if 0 /* Not yet used by any extension */
 static void listOfCard64(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                          int hf_item, int length, guint byte_order)
 {
@@ -1468,6 +1467,7 @@ static void listOfCard64(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       }
 }
 
+#if 0 /* Not yet used by any extension */
 static void listOfInt64(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                          int hf_item, int length, guint byte_order)
 {
@@ -3506,7 +3506,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, ENC_NA);
       t = proto_item_add_subtree(ti, ett_x11);
 
-      if (!pinfo->fd->flags.visited)
+      if (!pinfo->fd->visited)
             ++state->sequencenumber;
 
       OPCODE();

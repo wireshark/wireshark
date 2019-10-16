@@ -47,6 +47,23 @@ add_library(caputils STATIC
 	${CAPUTILS_SRC}
 )
 
+target_link_libraries(caputils
+	PUBLIC
+		wsutil
+		$<$<BOOL:${PCAP_FOUND}>:pcap::pcap>
+	PRIVATE
+		${NL_LIBRARIES}
+)
+
+target_include_directories(caputils SYSTEM
+	PRIVATE
+		${NL_INCLUDE_DIRS}
+)
+
+if(WIN32)
+	target_link_libraries(caputils PRIVATE "iphlpapi.lib")
+endif(WIN32)
+
 set_target_properties(caputils PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "Libs")
@@ -55,7 +72,6 @@ CHECKAPI(
 	NAME
 	  caputils-base
 	SWITCHES
-	  -g deprecated-gtk
 	SOURCES
 	  ${CAPUTILS_SRC}
 )
@@ -63,13 +79,13 @@ CHECKAPI(
 	NAME
 	  caputils-todo
 	SWITCHES
-	  -M -g deprecated-gtk-todo
+	  -M
 	SOURCES
 	  ${CAPUTILS_SRC}
 )
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

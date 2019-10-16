@@ -6,7 +6,8 @@
  *
  * Copyright (C) 1999 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <config.h>
 
@@ -554,7 +555,7 @@ randpkt_example* randpkt_find_example(int type)
 	return NULL;
 }
 
-void randpkt_loop(randpkt_example* example, guint64 produce_count)
+void randpkt_loop(randpkt_example* example, guint64 produce_count, guint64 packet_delay_ms)
 {
 	guint i, j;
 	int err;
@@ -592,6 +593,13 @@ void randpkt_loop(randpkt_example* example, guint64 produce_count)
 		}
 
 		len_this_pkt = example->sample_length + len_random;
+		if (len_this_pkt > WTAP_MAX_PACKET_SIZE_STANDARD) {
+			/*
+			 * Wiretap will fail when trying to read packets
+			 * bigger than WTAP_MAX_PACKET_SIZE_STANDARD.
+			 */
+			len_this_pkt = WTAP_MAX_PACKET_SIZE_STANDARD;
+		}
 
 		rec->rec_header.packet_header.caplen = len_this_pkt;
 		rec->rec_header.packet_header.len = len_this_pkt;
@@ -615,6 +623,10 @@ void randpkt_loop(randpkt_example* example, guint64 produce_count)
 			cfile_write_failure_message("randpkt", NULL,
 			    example->filename, err, err_info, 0,
 			    WTAP_FILE_TYPE_SUBTYPE_PCAP);
+		}
+		if (packet_delay_ms) {
+			g_usleep(1000 * (gulong)packet_delay_ms);
+			wtap_dump_flush(example->dump);
 		}
 	}
 
@@ -648,14 +660,18 @@ int randpkt_example_init(randpkt_example* example, char* produce_filename, int p
 		pkt_rand = g_rand_new();
 	}
 
+	const wtap_dump_params params = {
+		.encap = example->sample_wtap_encap,
+		.snaplen = produce_max_bytes,
+	};
 	if (strcmp(produce_filename, "-") == 0) {
 		/* Write to the standard output. */
 		example->dump = wtap_dump_open_stdout(WTAP_FILE_TYPE_SUBTYPE_PCAP,
-			example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */, &err);
+			WTAP_UNCOMPRESSED, &params, &err);
 		example->filename = "the standard output";
 	} else {
 		example->dump = wtap_dump_open(produce_filename, WTAP_FILE_TYPE_SUBTYPE_PCAP,
-			example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */, &err);
+			WTAP_UNCOMPRESSED, &params, &err);
 		example->filename = produce_filename;
 	}
 	if (!example->dump) {
@@ -713,7 +729,7 @@ void randpkt_example_list(char*** abbrev_list, char*** longname_list)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

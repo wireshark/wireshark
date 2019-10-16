@@ -24,8 +24,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define IMPORT_MAX_PACKET WTAP_MAX_PACKET_SIZE_STANDARD
-
 /* The parameter interface */
 
 enum offset_type
@@ -44,7 +42,8 @@ enum dummy_header_type
     HEADER_UDP,
     HEADER_TCP,
     HEADER_SCTP,
-    HEADER_SCTP_DATA
+    HEADER_SCTP_DATA,
+    HEADER_EXPORT_PDU
 };
 
 typedef struct
@@ -69,6 +68,7 @@ typedef struct
     guint dst_port;
     guint tag;
     guint ppi;
+    gchar* payload;
 
     guint max_frame_length;
 } text_import_info_t;
@@ -82,14 +82,14 @@ int text_import(text_import_info_t *info);
 #endif /* __TEXT_IMPORT_H__ */
 
 /*
- * Editor modelines
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
- * Local Variables:
+ * Local variables:
  * c-basic-offset: 4
  * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */

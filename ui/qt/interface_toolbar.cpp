@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -20,6 +21,11 @@
 #include "ui/capture_globals.h"
 #include "sync_pipe.h"
 #include "wsutil/file_util.h"
+
+#include "log.h"
+#ifdef _WIN32
+#include <wsutil/win32-utils.h>
+#endif
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -182,11 +188,11 @@ QWidget *InterfaceToolbar::createButton(iface_toolbar_control *control)
     {
         case INTERFACE_ROLE_CONTROL:
             setDefaultValue(control->num, (gchar *)control->display);
-            connect(button, SIGNAL(pressed()), this, SLOT(onControlButtonPressed()));
+            connect(button, SIGNAL(clicked()), this, SLOT(onControlButtonClicked()));
             break;
 
         case INTERFACE_ROLE_HELP:
-            connect(button, SIGNAL(pressed()), this, SLOT(onHelpButtonPressed()));
+            connect(button, SIGNAL(clicked()), this, SLOT(onHelpButtonClicked()));
             if (help_link_.isEmpty())
             {
                 // No help URL provided
@@ -195,11 +201,11 @@ QWidget *InterfaceToolbar::createButton(iface_toolbar_control *control)
             break;
 
         case INTERFACE_ROLE_LOGGER:
-            connect(button, SIGNAL(pressed()), this, SLOT(onLogButtonPressed()));
+            connect(button, SIGNAL(clicked()), this, SLOT(onLogButtonClicked()));
             break;
 
         case INTERFACE_ROLE_RESTORE:
-            connect(button, SIGNAL(pressed()), this, SLOT(onRestoreButtonPressed()));
+            connect(button, SIGNAL(clicked()), this, SLOT(onRestoreButtonClicked()));
             break;
 
         default:
@@ -549,15 +555,15 @@ void InterfaceToolbar::controlReceived(QString ifname, int num, int command, QBy
             break;
 
         case commandInformationMessage:
-            simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "%s", payload.data());
+            simple_dialog_async(ESD_TYPE_INFO, ESD_BTN_OK, "%s", payload.data());
             break;
 
         case commandWarningMessage:
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "%s", payload.data());
+            simple_dialog_async(ESD_TYPE_WARN, ESD_BTN_OK, "%s", payload.data());
             break;
 
         case commandErrorMessage:
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", payload.data());
+            simple_dialog_async(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", payload.data());
             break;
 
         default:
@@ -597,13 +603,13 @@ void InterfaceToolbar::controlSend(QString ifname, int num, int command, const Q
 
     if (ws_write(interface_[ifname].out_fd, ba.data(), ba.length()) != ba.length())
     {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "Unable to send control message:\n%s.",
-                      g_strerror(errno));
+        simple_dialog_async(ESD_TYPE_ERROR, ESD_BTN_OK,
+                            "Unable to send control message:\n%s.",
+                            g_strerror(errno));
     }
 }
 
-void InterfaceToolbar::onControlButtonPressed()
+void InterfaceToolbar::onControlButtonClicked()
 {
     const QString &ifname = ui->interfacesComboBox->currentText();
     QPushButton *button = static_cast<QPushButton *>(sender());
@@ -649,7 +655,7 @@ void InterfaceToolbar::onLineEditChanged()
     interface_[ifname].value_changed[num] = true;
 }
 
-void InterfaceToolbar::onLogButtonPressed()
+void InterfaceToolbar::onLogButtonClicked()
 {
     const QString &ifname = ui->interfacesComboBox->currentText();
     QPushButton *button = static_cast<QPushButton *>(sender());
@@ -669,7 +675,7 @@ void InterfaceToolbar::onLogButtonPressed()
     interface_[ifname].log_dialog[num]->activateWindow();
 }
 
-void InterfaceToolbar::onHelpButtonPressed()
+void InterfaceToolbar::onHelpButtonClicked()
 {
     QUrl help_url(help_link_);
 
@@ -745,7 +751,22 @@ void InterfaceToolbar::startCapture(GArray *ifaces)
         // Open control out channel
 #ifdef _WIN32
         startReaderThread(ifname, interface_opts->extcap_control_in_h);
-        interface_[ifname].out_fd = _open_osfhandle((intptr_t)interface_opts->extcap_control_out_h, O_APPEND | O_BINARY);
+        // Duplicate control out handle and pass the duplicate handle to _open_osfhandle().
+        // This allows the C run-time file descriptor (out_fd) and the extcap_control_out_h to be closed independently.
+        // The duplicated handle will get closed at the same time the file descriptor is closed.
+        // The control out pipe will close when both out_fd and extcap_control_out_h are closed.
+        HANDLE duplicate_out_handle = INVALID_HANDLE_VALUE;
+        if (!DuplicateHandle(GetCurrentProcess(), interface_opts->extcap_control_out_h,
+                             GetCurrentProcess(), &duplicate_out_handle, 0, TRUE, DUPLICATE_SAME_ACCESS))
+        {
+            simple_dialog_async(ESD_TYPE_ERROR, ESD_BTN_OK,
+                                "Failed to duplicate extcap control out handle: %s\n.",
+                                win32strerror(GetLastError()));
+        }
+        else
+        {
+            interface_[ifname].out_fd = _open_osfhandle((intptr_t)duplicate_out_handle, O_APPEND | O_BINARY);
+        }
 #else
         startReaderThread(ifname, interface_opts->extcap_control_in);
         interface_[ifname].out_fd = ws_open(interface_opts->extcap_control_out, O_WRONLY | O_BINARY, 0);
@@ -770,15 +791,16 @@ void InterfaceToolbar::stopCapture()
     {
         if (interface_[ifname].reader_thread)
         {
-            interface_[ifname].reader_thread->requestInterruption();
+            if (!interface_[ifname].reader_thread->isFinished())
+            {
+                interface_[ifname].reader_thread->requestInterruption();
+            }
             interface_[ifname].reader_thread = NULL;
         }
 
         if (interface_[ifname].out_fd != -1)
         {
-#ifndef _WIN32
             ws_close (interface_[ifname].out_fd);
-#endif
             interface_[ifname].out_fd = -1;
         }
 
@@ -820,7 +842,7 @@ void InterfaceToolbar::sendChangedValues(QString ifname)
     }
 }
 
-void InterfaceToolbar::onRestoreButtonPressed()
+void InterfaceToolbar::onRestoreButtonClicked()
 {
     const QString &ifname = ui->interfacesComboBox->currentText();
 

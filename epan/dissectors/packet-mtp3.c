@@ -462,11 +462,11 @@ dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset, proto_tree *tree, gint ett_pc
   g_snprintf(pc_string, sizeof(pc_string), "%u", pc);
   proto_item_append_text(pc_item, " (%s)", pc_string);
   hidden_item = proto_tree_add_string(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
   g_snprintf(pc_string, sizeof(pc_string), "0x%x", pc);
   proto_item_append_text(pc_item, " (%s)", pc_string);
   hidden_item = proto_tree_add_string(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   pc_tree = proto_item_add_subtree(pc_item, ett_pc);
 
@@ -477,11 +477,11 @@ dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset, proto_tree *tree, gint ett_pc
   /* add full integer values of DPC as hidden for filtering purposes */
   if (hf_dpc) {
     hidden_item = proto_tree_add_uint(pc_tree, hf_dpc, tvb, offset, ANSI_PC_LENGTH, pc);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
   }
   if (hf_pc) {
     hidden_item = proto_tree_add_uint(pc_tree, hf_pc,  tvb, offset, ANSI_PC_LENGTH, pc);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
   }
 }
 
@@ -545,9 +545,9 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
       dpc =  label & ITU_DPC_MASK;
 
       hidden_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_pc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, opc);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
       hidden_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_pc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, dpc);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
 
       label_dpc_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_dpc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
       if (mtp3_pc_structured())
@@ -624,9 +624,9 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
       }
 
       hidden_item = proto_tree_add_item(label_tree, hf_mtp3_japan_pc, tvb, ROUTING_LABEL_OFFSET, JAPAN_PC_LENGTH, ENC_LITTLE_ENDIAN);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
       hidden_item = proto_tree_add_item(label_tree, hf_mtp3_japan_pc, tvb, JAPAN_OPC_OFFSET, JAPAN_PC_LENGTH, ENC_LITTLE_ENDIAN);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
 
       if (mtp3_use_japan_5_bit_sls) {
         proto_tree_add_item(label_tree, hf_mtp3_japan_5_bit_sls, tvb, JAPAN_SLS_OFFSET, JAPAN_SLS_SPARE_LENGTH, ENC_LITTLE_ENDIAN);
@@ -755,7 +755,7 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
        */
       register_frame_end_routine(pinfo, reset_mtp3_standard);
     }
-    PROTO_ITEM_SET_GENERATED(gen_item);
+    proto_item_set_generated(gen_item);
   }
 
   /* Make entries in Protocol column on summary display */
@@ -824,16 +824,16 @@ static stat_tap_table_item mtp3_stat_fields[] = {
   {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg Bytes", "%f"},
 };
 
-static void mtp3_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void mtp3_stat_init(stat_tap_table_ui* new_stat)
 {
   int num_fields = sizeof(mtp3_stat_fields)/sizeof(stat_tap_table_item);
   stat_tap_table* table;
 
-  table = stat_tap_init_table("MTP3 Statistics", num_fields, 0, NULL, gui_callback, gui_data);
+  table = stat_tap_init_table("MTP3 Statistics", num_fields, 0, NULL);
   stat_tap_add_table(new_stat, table);
 }
 
-static gboolean
+static tap_packet_status
 mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *m3tr_ptr)
 {
   stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -852,7 +852,7 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
      * we thought this si_code was not used ?
      * is MTP3_NUM_SI_CODE out of date ?
      */
-    return(FALSE);
+    return TAP_PACKET_DONT_REDRAW;
   }
 
   /*
@@ -941,7 +941,7 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
   item_data->value.float_value = avg_bytes;
   stat_tap_set_field_data(table, element, AVG_BYTES_COLUMN, item_data);
 
-  return TRUE;
+  return TAP_PACKET_REDRAW;
 }
 
 static void
@@ -1148,7 +1148,7 @@ proto_reg_handoff_mtp3(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

@@ -24,18 +24,18 @@ JOBS=8
 export FILE_LIST_CMD
 (
     echo -n "PNG_FILES ="
-    bash -c "$FILE_LIST_CMD" | while read PNG_FILE ; do
+    bash -c "$FILE_LIST_CMD" | while read -r PNG_FILE ; do
         echo -e " \\"
-        echo -e -n "\t${PNG_FILE}"
+        echo -e -n "\\t${PNG_FILE}"
 
     done
     cat <<"FIN"
-
 
 all: $(PNG_FILES)
 
 $(PNG_FILES): FORCE
 	@echo Compressing $@
+	@hash oxipng 2>/dev/null  && oxipng -o 4 --strip safe "$@"
 	@hash optipng 2>/dev/null  && optipng -o3 -quiet "$@"
 	@hash advpng 2>/dev/null   && advpng -z -4 "$@"
 	@hash advdef 2>/dev/null   && advdef -z -4 "$@"

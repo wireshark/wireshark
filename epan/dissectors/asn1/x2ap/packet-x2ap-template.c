@@ -3,7 +3,7 @@
  * X2 Application Protocol (X2AP);
  * 3GPP TS 36.423 packet dissection
  * Copyright 2007-2014, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2016-2018, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2016-2019, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V15.1.0 (2018-03)
+ * 3GPP TS 36.423 V15.7.0 (2019-09)
  */
 
 #include "config.h"
@@ -29,7 +29,10 @@
 #include "packet-e212.h"
 #include "packet-lte-rrc.h"
 #include "packet-nr-rrc.h"
+#include "packet-ngap.h"
+#include "packet-ranap.h"
 #include "packet-ntp.h"
+#include "packet-s1ap.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -72,6 +75,8 @@ static int hf_x2ap_eUTRANTraceID_TraceRecordingSessionReference = -1;
 static int hf_x2ap_interfacesToTrace_S1_MME = -1;
 static int hf_x2ap_interfacesToTrace_X2 = -1;
 static int hf_x2ap_interfacesToTrace_Uu = -1;
+static int hf_x2ap_interfacesToTrace_F1_C = -1;
+static int hf_x2ap_interfacesToTrace_E1 = -1;
 static int hf_x2ap_interfacesToTrace_Reserved = -1;
 static int hf_x2ap_traceCollectionEntityIPAddress_IPv4 = -1;
 static int hf_x2ap_traceCollectionEntityIPAddress_IPv6 = -1;
@@ -140,6 +145,9 @@ static int ett_x2ap_RRCContainer = -1;
 static int ett_x2ap_NRencryptionAlgorithms = -1;
 static int ett_x2ap_NRintegrityProtectionAlgorithms = -1;
 static int ett_x2ap_measurementTimingConfiguration = -1;
+static int ett_x2ap_LastVisitedNGRANCellInformation = -1;
+static int ett_x2ap_LastVisitedUTRANCellInformation = -1;
+static int ett_x2ap_EndcSONConfigurationTransfer = -1;
 #include "packet-x2ap-ett.c"
 
 typedef enum {
@@ -148,10 +156,16 @@ typedef enum {
   RRC_CONTAINER_TYPE_NR_UE_MEAS_REPORT
 } rrc_container_type_e;
 
+enum{
+  INITIATING_MESSAGE,
+  SUCCESSFUL_OUTCOME,
+  UNSUCCESSFUL_OUTCOME
+};
+
 struct x2ap_private_data {
   guint32 procedure_code;
   guint32 protocol_ie_id;
-  guint32 triggering_message;
+  guint32 message_type;
   rrc_container_type_e rrc_container_type;
 };
 
@@ -226,6 +240,12 @@ x2ap_Threshold_RSRQ_fmt(gchar *s, guint32 v)
   g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-20, v);
 }
 
+static void
+x2ap_Packet_LossRate_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f %% (%u)", (float)v/10, v);
+}
+
 static struct x2ap_private_data*
 x2ap_get_private_data(packet_info *pinfo)
 {
@@ -257,6 +277,7 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
 {
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
+  x2ap_data->message_type = INITIATING_MESSAGE;
   return (dissector_try_uint_new(x2ap_proc_imsg_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
@@ -264,6 +285,7 @@ static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, pro
 {
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
+  x2ap_data->message_type = SUCCESSFUL_OUTCOME;
   return (dissector_try_uint_new(x2ap_proc_sout_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
@@ -271,6 +293,7 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 {
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
+  x2ap_data->message_type = UNSUCCESSFUL_OUTCOME;
   return (dissector_try_uint_new(x2ap_proc_uout_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
@@ -389,6 +412,14 @@ void proto_register_x2ap(void) {
     { &hf_x2ap_interfacesToTrace_Uu,
       { "Uu", "x2ap.interfacesToTrace.Uu",
         FT_BOOLEAN, 8, TFS(&x2ap_tfs_interfacesToTrace), 0x20,
+        NULL, HFILL }},
+    { &hf_x2ap_interfacesToTrace_F1_C,
+      { "F1-C", "x2ap.interfacesToTrace.F1_C",
+        FT_BOOLEAN, 8, TFS(&x2ap_tfs_interfacesToTrace), 0x10,
+        NULL, HFILL }},
+    { &hf_x2ap_interfacesToTrace_E1,
+      { "E1", "x2ap.interfacesToTrace.E1",
+        FT_BOOLEAN, 8, TFS(&x2ap_tfs_interfacesToTrace), 0x08,
         NULL, HFILL }},
     { &hf_x2ap_interfacesToTrace_Reserved,
       { "Reserved", "x2ap.interfacesToTrace.Reserved",
@@ -574,6 +605,9 @@ void proto_register_x2ap(void) {
     &ett_x2ap_NRencryptionAlgorithms,
     &ett_x2ap_NRintegrityProtectionAlgorithms,
     &ett_x2ap_measurementTimingConfiguration,
+    &ett_x2ap_LastVisitedNGRANCellInformation,
+    &ett_x2ap_LastVisitedUTRANCellInformation,
+    &ett_x2ap_EndcSONConfigurationTransfer,
 #include "packet-x2ap-ettarr.c"
   };
 

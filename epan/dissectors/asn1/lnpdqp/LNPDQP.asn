@@ -1,0 +1,66 @@
+-- lnpdqp.asn
+-- GR-533 i2 2001
+--
+
+LNPDQP-Protocol {
+   itu-t identified-organization (4) etsi (0) mobileDomain (0)
+   gsm-Network (1) modules (3) map-OM-DataTypes (12) version13 (13)}
+
+DEFINITIONS
+
+IMPLICIT TAGS
+
+::=
+
+BEGIN
+
+--	ConnectionControl ::= OPERATION
+--		PARAMETER [PRIVATE 18] SET {
+		ConnectionControlArg ::= [PRIVATE 18] SET {
+--			carrierID				[4] Digits, - - Note 1
+--			networkRoutingNumber	[4] Digits,
+-- as2wrs does not like two equal tags
+			digits	[4] Digits,
+			billingIndicators		[PRIVATE 65] BillingIndicators -- Note 1
+		}
+--	Note 1 This parameter is not used.
+
+--	ProvideInstruction ::= OPERATION
+--		PARAMETER [PRIVATE 18] SET {
+		ProvideInstructionArg  ::= [PRIVATE 18] SET {
+			calledPartyNumber [10] ServiceKey,
+--			callingPartyANI [4] Digits OPTIONAL,
+--			originatingLATA [4] Digits OPTIONAL,
+-- as2wrs does not like two equal tags
+			digits	[4] Digits,
+			oli [PRIVATE 69] OriginatingStationType
+		}
+--		ERRORS {
+--			dataUnavailable,
+--			unavailableResource,
+--			unexpectedComponentSequence,
+--			unexpectedDataValue
+--		}
+--		LINKED {
+--			ConnectionControl
+--		}
+		
+BillingIndicators ::= OCTET STRING (SIZE(4))
+
+Digits ::= OCTET STRING (SIZE(4..9))
+
+OriginatingStationType ::= OCTET STRING (SIZE(1))
+
+ServiceKey ::= CHOICE { 
+	digits	[4] Digits 
+}
+
+--DataUnavailable ::= ERROR
+--PARAMETER [PRIVATE 18] SET { }
+-- Optional
+
+--UnavailableResource ::= ERROR
+--PARAMETER [PRIVATE 18] SET { }
+-- Optional
+
+END

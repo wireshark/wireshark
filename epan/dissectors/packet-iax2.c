@@ -27,6 +27,7 @@
 #include <epan/aftypes.h>
 #include <epan/tap.h>
 #include <epan/proto_data.h>
+#include <epan/to_str.h>
 
 #include <wsutil/str_util.h>
 
@@ -103,6 +104,7 @@ static int hf_iax2_trunk_call_data = -1;
 
 static int hf_iax2_ie_id = -1;
 static int hf_iax2_length = -1;
+static int hf_iax2_version = -1;
 static int hf_iax2_cap_g723_1 = -1;
 static int hf_iax2_cap_gsm = -1;
 static int hf_iax2_cap_ulaw = -1;
@@ -126,6 +128,47 @@ static int hf_iax2_cap_h263 = -1;
 static int hf_iax2_cap_h263_plus = -1;
 static int hf_iax2_cap_h264 = -1;
 static int hf_iax2_cap_mpeg4 = -1;
+static int hf_iax2_cap_vp8 = -1;
+static int hf_iax2_cap_t140_red = -1;
+static int hf_iax2_cap_t140 = -1;
+static int hf_iax2_cap_g719 = -1;
+static int hf_iax2_cap_speex16 = -1;
+static int hf_iax2_cap_opus = -1;
+static int hf_iax2_cap_testlaw = -1;
+
+static const int *hf_iax2_caps[] = {
+  &hf_iax2_cap_g723_1,
+  &hf_iax2_cap_gsm,
+  &hf_iax2_cap_ulaw,
+  &hf_iax2_cap_alaw,
+  &hf_iax2_cap_g726_aal2,
+  &hf_iax2_cap_adpcm,
+  &hf_iax2_cap_slinear,
+  &hf_iax2_cap_lpc10,
+  &hf_iax2_cap_g729a,
+  &hf_iax2_cap_speex,
+  &hf_iax2_cap_ilbc,
+  &hf_iax2_cap_g726,
+  &hf_iax2_cap_g722,
+  &hf_iax2_cap_siren7,
+  &hf_iax2_cap_siren14,
+  &hf_iax2_cap_slinear16,
+  &hf_iax2_cap_jpeg,
+  &hf_iax2_cap_png,
+  &hf_iax2_cap_h261,
+  &hf_iax2_cap_h263,
+  &hf_iax2_cap_h263_plus,
+  &hf_iax2_cap_h264,
+  &hf_iax2_cap_mpeg4,
+  &hf_iax2_cap_vp8,
+  &hf_iax2_cap_t140_red,
+  &hf_iax2_cap_t140,
+  &hf_iax2_cap_g719,
+  &hf_iax2_cap_speex16,
+  &hf_iax2_cap_opus,
+  &hf_iax2_cap_testlaw,
+  NULL
+};
 
 static int hf_iax2_fragment_unfinished = -1;
 static int hf_iax2_payload_data = -1;
@@ -177,7 +220,6 @@ static expert_field ei_iax_too_many_transfers = EI_INIT;
 static expert_field ei_iax_circuit_id_conflict = EI_INIT;
 static expert_field ei_iax_peer_address_unsupported = EI_INIT;
 static expert_field ei_iax_invalid_len = EI_INIT;
-static expert_field ei_iax_invalid_ts = EI_INIT;
 
 static dissector_handle_t iax2_handle;
 
@@ -438,33 +480,42 @@ static const value_string iax_ies_type[] = {
 };
 static value_string_ext iax_ies_type_ext = VALUE_STRING_EXT_INIT(iax_ies_type);
 
-static const value_string codec_types[] = {
-  {AST_FORMAT_G723_1,    "G.723.1 compression"},
-  {AST_FORMAT_GSM,       "GSM compression"},
-  {AST_FORMAT_ULAW,      "Raw mu-law data (G.711)"},
-  {AST_FORMAT_ALAW,      "Raw A-law data (G.711)"},
-  {AST_FORMAT_G726_AAL2, "ADPCM (G.726, 32kbps)"},
-  {AST_FORMAT_ADPCM,     "ADPCM (IMA)"},
-  {AST_FORMAT_SLINEAR,   "Raw 16-bit Signed Linear (8000 Hz) PCM"},
-  {AST_FORMAT_LPC10,     "LPC10, 180 samples/frame"},
-  {AST_FORMAT_G729A,     "G.729a Audio"},
-  {AST_FORMAT_SPEEX,     "SpeeX Free Compression"},
-  {AST_FORMAT_ILBC,      "iLBC Free Compression"},
-  {AST_FORMAT_G726,      "G.726 compression"},
-  {AST_FORMAT_G722,      "G.722 wideband"},
-  {AST_FORMAT_SIREN7,    "G.722.1 32k wideband (aka Siren7)"},
-  {AST_FORMAT_SIREN14,   "G.722.1 Annex C 48k wideband (aka Siren14)"},
-  {AST_FORMAT_SLINEAR16, "Raw 16kHz signed linear audio"},
-  {AST_FORMAT_JPEG,      "JPEG Images"},
-  {AST_FORMAT_PNG,       "PNG Images"},
-  {AST_FORMAT_H261,      "H.261 Video"},
-  {AST_FORMAT_H263,      "H.263 Video"},
-  {AST_FORMAT_H263_PLUS, "H.263+ Video"},
-  {AST_FORMAT_H264,      "H.264 Video"},
-  {AST_FORMAT_MP4_VIDEO, "MPEG4 Video"},
+#define CODEC_MASK(codec) ((codec) == (guint32)-1 ? 0 : (G_GUINT64_CONSTANT(1) << (codec)))
+
+static const val64_string codec_types[] = {
+  {CODEC_MASK(AST_FORMAT_G723_1),    "G.723.1 compression"},
+  {CODEC_MASK(AST_FORMAT_GSM),       "GSM compression"},
+  {CODEC_MASK(AST_FORMAT_ULAW),      "Raw mu-law data (G.711)"},
+  {CODEC_MASK(AST_FORMAT_ALAW),      "Raw A-law data (G.711)"},
+  {CODEC_MASK(AST_FORMAT_G726_AAL2), "ADPCM (G.726), 32kbps, AAL2 codeword packing)"},
+  {CODEC_MASK(AST_FORMAT_ADPCM),     "ADPCM (IMA)"},
+  {CODEC_MASK(AST_FORMAT_SLINEAR),   "Raw 16-bit Signed Linear (8000 Hz) PCM"},
+  {CODEC_MASK(AST_FORMAT_LPC10),     "LPC10, 180 samples/frame"},
+  {CODEC_MASK(AST_FORMAT_G729A),     "G.729a Audio"},
+  {CODEC_MASK(AST_FORMAT_SPEEX),     "SpeeX Free Compression"},
+  {CODEC_MASK(AST_FORMAT_ILBC),      "iLBC Free Compression"},
+  {CODEC_MASK(AST_FORMAT_G726),      "ADPCM (G.726, 32kbps, RFC3551 codeword packing)"},
+  {CODEC_MASK(AST_FORMAT_G722),      "G.722"},
+  {CODEC_MASK(AST_FORMAT_SIREN7),    "G.722.1 (also known as Siren7, 32kbps assumed)"},
+  {CODEC_MASK(AST_FORMAT_SIREN14),   "G.722.1 Annex C (also known as Siren14, 48kbps assumed)"},
+  {CODEC_MASK(AST_FORMAT_SLINEAR16), "Raw 16-bit Signed Linear (16000 Hz) PCM"},
+  {CODEC_MASK(AST_FORMAT_JPEG),      "JPEG Images"},
+  {CODEC_MASK(AST_FORMAT_PNG),       "PNG Images"},
+  {CODEC_MASK(AST_FORMAT_H261),      "H.261 Video"},
+  {CODEC_MASK(AST_FORMAT_H263),      "H.263 Video"},
+  {CODEC_MASK(AST_FORMAT_H263_PLUS), "H.263+ Video"},
+  {CODEC_MASK(AST_FORMAT_H264),      "H.264 Video"},
+  {CODEC_MASK(AST_FORMAT_MP4_VIDEO), "MPEG4 Video"},
+  {CODEC_MASK(AST_FORMAT_VP8),       "VP8 Video"},
+  {CODEC_MASK(AST_FORMAT_T140_RED),  "T.140 RED Text format RFC 4103"},
+  {CODEC_MASK(AST_FORMAT_T140),      "T.140 Text format - ITU T.140, RFC 4103"},
+  {CODEC_MASK(AST_FORMAT_G719),      "G.719 (64 kbps assumed)"},
+  {CODEC_MASK(AST_FORMAT_SPEEX16),   "SpeeX Wideband (16kHz) Free Compression"},
+  {CODEC_MASK(AST_FORMAT_OPUS),      "Opus audio (8kHz, 16kHz, 24kHz, 48Khz)"},
+  {CODEC_MASK(AST_FORMAT_TESTLAW),   "Raw testing-law data (G.711)"},
   {0, NULL}
 };
-static value_string_ext codec_types_ext = VALUE_STRING_EXT_INIT(codec_types);
+static val64_string_ext codec_types_ext = VAL64_STRING_EXT_INIT(codec_types);
 
 static const value_string iax_dataformats[] = {
   {AST_DATAFORMAT_NULL,      "N/A (analogue call?)"},
@@ -598,7 +649,7 @@ static gchar *key_to_str( const iax_circuit_key *key )
   }
   strp = str[i];
 
-  addrstr = address_to_str(NULL, &key->addr)
+  addrstr = address_to_str(NULL, &key->addr);
   g_snprintf(strp, 80, "{%s:%i,%i}",
              addrstr,
              key->port,
@@ -668,7 +719,8 @@ static guint iax_circuit_lookup(const address *address_p,
     new_key->addr.type = address_p->type;
     new_key->addr.len  = MIN(address_p->len, MAX_ADDRESS);
     new_key->addr.data = new_key->address_data;
-    memcpy(new_key->address_data, address_p->data, new_key->addr.len);
+    if (new_key->addr.len > 0)
+      memcpy(new_key->address_data, address_p->data, new_key->addr.len);
     new_key->ptype     = ptype;
     new_key->port      = port;
     new_key->callno    = callno;
@@ -726,6 +778,9 @@ typedef struct iax_call_data {
   /* the absolute start time of the call */
   nstime_t start_time;
 
+  /* time stamp from last full frame, in the first pass */
+  guint32 last_full_frame_ts;
+
   iax_call_dirdata dirdata[2];
 } iax_call_data;
 
@@ -760,8 +815,7 @@ static conversation_t *iax2_new_circuit_for_call(packet_info *pinfo, proto_item 
   }
 
   conv = conversation_new_by_id(framenum, ENDPOINT_IAX2,
-                    circuit_id,
-                    framenum);
+                    circuit_id, 0);
 
   conversation_add_proto_data(conv, proto_iax2, iax_call);
 
@@ -996,7 +1050,7 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
 {
   iax_call_data         *call;
   guint                  circuit_id;
-  static const nstime_t  millisecond = {0, 1000000};
+  static const nstime_t  millisecond = NSTIME_INIT_SECS_MSECS(0, 1);
 
 #ifdef DEBUG_HASHING
   g_debug("+ new_circuit: Handling NEW packet, frame %u", pinfo->num);
@@ -1015,6 +1069,7 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
   call -> n_reverse_circuit_ids = 0;
   call -> subdissector = NULL;
   call -> start_time = pinfo->abs_ts;
+  call -> last_full_frame_ts = 0;
   nstime_delta(&call -> start_time, &call -> start_time, &millisecond);
   init_dir_data(&call->dirdata[0]);
   init_dir_data(&call->dirdata[1]);
@@ -1314,8 +1369,40 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
         case IAX_IE_CAPABILITY:
         {
-          proto_tree *codec_tree;
+          if (ies_len != 4) {
+            proto_tree_add_expert(ies_tree, pinfo, &ei_iax_invalid_len, tvb, offset+1, 1);
+            break;
+          }
 
+          ie_item =
+            proto_tree_add_bitmask(ies_tree, tvb, offset + 2, ie_hf,
+              ett_iax2_codecs, hf_iax2_caps, ENC_BIG_ENDIAN);
+          break;
+        }
+
+
+        case IAX_IE_CAPABILITY2:
+        {
+          int version = tvb_get_guint8(tvb, offset + 2);
+
+          proto_tree_add_uint(ies_tree, hf_iax2_version, tvb, offset + 2, 1, version);
+
+          if (version == 0) {
+            if (ies_len != 9) {
+              proto_tree_add_expert(ies_tree, pinfo, &ei_iax_invalid_len, tvb, offset+1, 1);
+              break;
+            }
+
+            ie_item =
+              proto_tree_add_bitmask(ies_tree, tvb, offset + 3, ie_hf,
+                ett_iax2_codecs, hf_iax2_caps, ENC_BIG_ENDIAN);
+          }
+          break;
+        }
+
+
+        case IAX_IE_FORMAT:
+        {
           if (ies_len != 4) {
             proto_tree_add_expert(ies_tree, pinfo, &ei_iax_invalid_len, tvb, offset+1, 1);
             break;
@@ -1323,35 +1410,30 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
           ie_item =
             proto_tree_add_item(ies_tree, ie_hf,
-                                tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          codec_tree =
-            proto_item_add_subtree(ie_item, ett_iax2_codecs);
-
-          proto_tree_add_item(codec_tree, hf_iax2_cap_g723_1,    tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_gsm,       tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_ulaw,      tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_alaw,      tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_g726_aal2, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_adpcm,     tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_slinear,   tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_lpc10,     tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_g729a,     tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_speex,     tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_ilbc,      tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_g726,      tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_g722,      tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_siren7,    tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_siren14,   tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_slinear16, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_jpeg,      tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_png,       tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_h261,      tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_h263,      tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_h263_plus, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_h264,      tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
-          proto_tree_add_item(codec_tree, hf_iax2_cap_mpeg4,     tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
+                                tvb, offset + 2, 4, ENC_BIG_ENDIAN);
           break;
         }
+
+
+        case IAX_IE_FORMAT2:
+        {
+          int version = tvb_get_guint8(tvb, offset + 2);
+
+          proto_tree_add_uint(ies_tree, hf_iax2_version, tvb, offset + 2, 1, version);
+
+          if (version == 0) {
+            if (ies_len != 9) {
+              proto_tree_add_expert(ies_tree, pinfo, &ei_iax_invalid_len, tvb, offset+1, 1);
+              break;
+            }
+
+            ie_item =
+              proto_tree_add_item(ies_tree, ie_hf,
+                                  tvb, offset + 3, 8, ENC_BIG_ENDIAN);
+          }
+          break;
+        }
+
 
         case IAX_IE_APPARENT_ADDR:
         {
@@ -1464,7 +1546,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
       /* Retrieve the text from the item we added, and append it to the main IE
        * item */
-      if (ie_item && !PROTO_ITEM_IS_HIDDEN(ti)) {
+      if (ie_item && !proto_item_is_hidden(ti)) {
         field_info *ie_finfo = PITEM_FINFO(ie_item);
 
         /* if the representation of the item has already been set, use that;
@@ -1494,10 +1576,20 @@ static guint32 uncompress_subclass(guint8 csub)
     if (csub == 0xff)
       return (guint32)-1;
     else
-      return 1 << (csub & 0x1F);
+      return csub & 0x3F;
   }
-  else
-    return (guint32)csub;
+  else {
+    switch (csub) {
+      case 0x01: return 0;
+      case 0x02: return 1;
+      case 0x04: return 2;
+      case 0x08: return 3;
+      case 0x10: return 4;
+      case 0x20: return 5;
+      case 0x40: return 6;
+      default: return (guint32)-1;
+    }
+  }
 }
 
 /* returns the new offset */
@@ -1552,11 +1644,10 @@ static guint32 dissect_iax2_command(tvbuff_t *tvb, guint32 offset,
   return offset;
 }
 
-#define MAX_SECS_DIFF 60 /* Arbitrary. Needs to be within loop bounds below. */
-static void iax2_add_ts_fields(packet_info *pinfo, proto_tree *iax2_tree, tvbuff_t *tvb, iax_packet_data *iax_packet, guint16 shortts)
+static void iax2_add_ts_fields(packet_info *pinfo, proto_tree *iax2_tree, tvbuff_t *tvb, iax_packet_data *iax_packet, packet_type type, guint32 relts)
 {
-  guint       longts =shortts;
-  nstime_t    ts;
+  guint32     full_relts = relts;
+  nstime_t    lateness;
   proto_item *item;
 
   if (iax_packet->call_data == NULL) {
@@ -1565,39 +1656,95 @@ static void iax2_add_ts_fields(packet_info *pinfo, proto_tree *iax2_tree, tvbuff
   }
 
   if (iax_packet->abstime.secs == -1) {
-    time_t start_secs = iax_packet->call_data->start_time.secs;
-    time_t abs_secs = start_secs + longts/1000;
+    nstime_t rel;
 
-    if (pinfo->abs_ts.secs - abs_secs > MAX_SECS_DIFF) {
-      proto_tree_add_expert(iax2_tree, pinfo, &ei_iax_invalid_ts, tvb, 0, 0);
-    } else {
-      /* deal with short timestamps by assuming that packets are never more than
-      * 16 seconds late */
-      /* XXX Use arithmetic here instead of a loop? */
-      while(abs_secs < pinfo->abs_ts.secs - 16) {
-        longts += 32768;
-        abs_secs = start_secs + longts/1000;
-      }
+    switch (type) {
+    case IAX2_MINI_VOICE_PACKET:
+      /* RFC 5456 says
+       *
+       *   Abbreviated 'Mini Frames' are normally used for audio and
+       *   video; however, each time the time-stamp is a multiple of
+       *   32,768 (0x8000 hex), a standard or 'Full Frame' MUST be sent.
+       *
+       * and, for what it later calls "Mini Frames", by which it means
+       * what we're calling "mini voice packets", it says:
+       *
+       *   Mini frames carry a 16-bit time-stamp, which is the lower 16 bits
+       *   of the transmitting peer's full 32-bit time-stamp for the call.
+       *   The time-stamp allows synchronization of incoming frames so that
+       *   they MAY be processed in chronological order instead of the
+       *   (possibly different) order in which they are received.  The 16-bit
+       *   time-stamp wraps after 65.536 seconds, at which point a full frame
+       *   SHOULD be sent to notify the remote peer that its time-stamp has
+       *   been reset.  A call MUST continue to send mini frames starting
+       *   with time-stamp 0 even if acknowledgment of the resynchronization
+       *   is not received.
+       *
+       * *If* we see all the full frames, that means we *should* be able
+       * to convert the 16-bit time stamp to a full 32-bit time stamp by
+       * ORing the upper 16 bits of the last full frame time stamp we saw
+       * in above the 16-bit time stamp.
+       *
+       * XXX - what, if anything, should we do about full frames we've
+       * missed? */
+      full_relts = (iax_packet->call_data->last_full_frame_ts & 0xFFFF0000) | relts;
+      break;
+
+    case IAX2_FULL_PACKET:
+    case IAX2_TRUNK_PACKET:
+      /* Timestamps have the full 32 bits of the timestamp.
+       * Save it, to add to the mini-packet time stamps.
+       *
+       * XXX - that's a maximum of 4294967296 milliseconds
+       * or about 4294967 seconds or about 49 days.
+       * Do we need to worry about that overflowing? */
+      full_relts = relts;
+      iax_packet->call_data->last_full_frame_ts = full_relts;
+      break;
+
+    case IAX2_MINI_VIDEO_PACKET:
+      /* See the comment above in the IAX2_MINI_VOICE_PACKET case.
+       * Note also that RFC 5456 says, in section 8.1.3.1 "Meta Video
+       * Frames", which covers what we're calling "mini video packets":
+       *
+       *   Meta video frames carry a 16-bit time-stamp, which is the lower 16
+       *   bits of the transmitting peer's full 32-bit time-stamp for the
+       *   call.  When this time-stamp wraps, a Full Frame SHOULD be sent to
+       *   notify the remote peer that the time-stamp has been reset to 0.
+       *
+       * *but* it also shows the uppermost bit of that time stamp as "?",
+       * with a 15-bit time stamp, in the ASCII-art packet diagram after
+       * it.  dissect_minivideopacket() says "bit 15 of the ts is used to
+       * represent the rtp 'marker' bit"; presumably that's what's going
+       * on, but the RFC doesn't say that.
+       *
+       * So we assume that the time stamp is only 15 bits, and that the
+       * upper *17* bits of the last full frame's time stamp need to be
+       * ORed in above the 15 bits of time stamp.
+       *
+       * XXX - do we need to worry about overflows or missed packets
+       * with full timestamps? */
+      full_relts = (iax_packet->call_data->last_full_frame_ts & 0xFFFF8000) | relts;
+      break;
     }
 
-    iax_packet->abstime.secs=abs_secs;
-    iax_packet->abstime.nsecs=iax_packet->call_data->start_time.nsecs + (longts % 1000) * 1000000;
-    if (iax_packet->abstime.nsecs >= 1000000000) {
-      iax_packet->abstime.nsecs -= 1000000000;
-      iax_packet->abstime.secs ++;
-    }
+    /* Convert the full relative time stamp to an nstime_t */
+    rel.secs = full_relts / 1000;
+    rel.nsecs = (full_relts % 1000) * 1000000;
+
+    /* Add it to the start time to get the absolute time. */
+    nstime_sum(&iax_packet->abstime, &iax_packet->call_data->start_time, &rel);
   }
-  iax2_info->timestamp = longts;
+  iax2_info->timestamp = relts; /* raw time stamp; nobody uses it */
 
   if (iax2_tree) {
     item = proto_tree_add_time(iax2_tree, hf_iax2_absts, tvb, 0, 0, &iax_packet->abstime);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
-    ts  = pinfo->abs_ts;
-    nstime_delta(&ts, &ts, &iax_packet->abstime);
+    nstime_delta(&lateness, &pinfo->abs_ts, &iax_packet->abstime);
 
-    item = proto_tree_add_time(iax2_tree, hf_iax2_lateness, tvb, 0, 0, &ts);
-    PROTO_ITEM_SET_GENERATED(item);
+    item = proto_tree_add_time(iax2_tree, hf_iax2_lateness, tvb, 0, 0, &lateness);
+    proto_item_set_generated(item);
   }
 }
 
@@ -1656,34 +1803,34 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
   iax2_populate_pinfo_from_packet_data(pinfo, iax_packet);
 
   if (iax2_tree) {
-      proto_item *packet_type_base;
+    proto_item *packet_type_base;
 
-      proto_tree_add_item(iax2_tree, hf_iax2_dcallno, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(iax2_tree, hf_iax2_dcallno, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-      proto_tree_add_item(iax2_tree, hf_iax2_retransmission, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(iax2_tree, hf_iax2_retransmission, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-      if (iax_call) {
-        proto_item *item =
-          proto_tree_add_uint(iax2_tree, hf_iax2_callno, tvb, 0, 4,
-                              iax_call->forward_circuit_ids[0]);
-        PROTO_ITEM_SET_GENERATED(item);
-      }
+    if (iax_call) {
+      proto_item *item =
+        proto_tree_add_uint(iax2_tree, hf_iax2_callno, tvb, 0, 4,
+                            iax_call->forward_circuit_ids[0]);
+      proto_item_set_generated(item);
+    }
 
-      proto_tree_add_uint(iax2_tree, hf_iax2_ts, tvb, offset+2, 4, ts);
-      iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, (guint16)ts);
+    proto_tree_add_uint(iax2_tree, hf_iax2_ts, tvb, offset+2, 4, ts);
+    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, IAX2_FULL_PACKET, ts);
 
-      proto_tree_add_item(iax2_tree, hf_iax2_oseqno, tvb, offset+6, 1,
-                          ENC_BIG_ENDIAN);
+    proto_tree_add_item(iax2_tree, hf_iax2_oseqno, tvb, offset+6, 1,
+                        ENC_BIG_ENDIAN);
 
-      proto_tree_add_item(iax2_tree, hf_iax2_iseqno, tvb, offset+7, 1,
-                          ENC_BIG_ENDIAN);
-      packet_type_base = proto_tree_add_uint(iax2_tree, hf_iax2_type, tvb,
-                                             offset+8, 1, type);
+    proto_tree_add_item(iax2_tree, hf_iax2_iseqno, tvb, offset+7, 1,
+                        ENC_BIG_ENDIAN);
+    packet_type_base = proto_tree_add_uint(iax2_tree, hf_iax2_type, tvb,
+                                           offset+8, 1, type);
 
-      /* add the type-specific subtree */
-      packet_type_tree = proto_item_add_subtree(packet_type_base, ett_iax2_type);
+    /* add the type-specific subtree */
+    packet_type_tree = proto_item_add_subtree(packet_type_base, ett_iax2_type);
   } else {
-    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, (guint16)ts);
+    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, IAX2_FULL_PACKET, ts);
   }
 
 
@@ -1728,8 +1875,8 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
     if (packet_type_tree) {
       proto_item *item;
       proto_tree_add_item(packet_type_tree, hf_iax2_voice_csub, tvb, offset+9, 1, ENC_BIG_ENDIAN);
-      item = proto_tree_add_uint(packet_type_tree, hf_iax2_voice_codec, tvb, offset+9, 1, codec);
-      PROTO_ITEM_SET_GENERATED(item);
+      item = proto_tree_add_uint64(packet_type_tree, hf_iax2_voice_codec, tvb, offset+9, 1, CODEC_MASK(codec));
+      proto_item_set_generated(item);
     }
 
     offset += 10;
@@ -1748,14 +1895,14 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
   case AST_FRAME_VIDEO:
     /* bit 6 of the csub is used to represent the rtp 'marker' bit */
     rtp_marker = csub & 0x40 ? TRUE:FALSE;
-    iax_packet -> codec = codec = uncompress_subclass((guint8)(csub & ~40));
+    iax_packet -> codec = codec = uncompress_subclass((guint8)(csub & ~0x40));
 
     if (packet_type_tree) {
       proto_item *item;
       proto_tree_add_item(packet_type_tree, hf_iax2_video_csub, tvb, offset+9, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(packet_type_tree, hf_iax2_marker, tvb, offset+9, 1, ENC_BIG_ENDIAN);
-      item = proto_tree_add_uint(packet_type_tree, hf_iax2_video_codec, tvb, offset+9, 1, codec);
-      PROTO_ITEM_SET_GENERATED(item);
+      item = proto_tree_add_uint64(packet_type_tree, hf_iax2_video_codec, tvb, offset+9, 1, CODEC_MASK(codec));
+      proto_item_set_generated(item);
     }
 
     offset += 10;
@@ -1807,7 +1954,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
       if (urllen > 0)
       {
         proto_item *pi = proto_tree_add_item(packet_type_tree, hf_iax2_html_url, tvb, offset, urllen, ENC_UTF_8|ENC_NA);
-        PROTO_ITEM_SET_URL(pi);
+        proto_item_set_url(pi);
         offset += urllen;
       }
     }
@@ -1883,14 +2030,14 @@ static guint32 dissect_minivideopacket(tvbuff_t *tvb, guint32 offset,
       item =
         proto_tree_add_uint(iax2_tree, hf_iax2_callno, tvb, 0, 4,
                             iax_packet->call_data->forward_circuit_ids[0]);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
     }
 
     proto_tree_add_item(iax2_tree, hf_iax2_minividts, tvb, offset, 2, ENC_BIG_ENDIAN);
-    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, (guint16)ts);
+    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, IAX2_MINI_VIDEO_PACKET, ts);
     proto_tree_add_item(iax2_tree, hf_iax2_minividmarker, tvb, offset, 2, ENC_BIG_ENDIAN);
   } else {
-    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, (guint16)ts);
+    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, IAX2_MINI_VIDEO_PACKET, ts);
   }
 
   offset += 2;
@@ -1925,13 +2072,13 @@ static guint32 dissect_minipacket(tvbuff_t *tvb, guint32 offset, guint16 scallno
     if (iax_packet->call_data) {
       item = proto_tree_add_uint(iax2_tree, hf_iax2_callno, tvb, 0, 4,
                                  iax_packet->call_data->forward_circuit_ids[0]);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
     }
 
     proto_tree_add_uint(iax2_tree, hf_iax2_minits, tvb, offset, 2, ts);
-    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, (guint16)ts);
+    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, IAX2_MINI_VOICE_PACKET, ts);
   } else {
-    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, (guint16)ts);
+    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, IAX2_MINI_VOICE_PACKET, ts);
   }
 
 
@@ -2130,7 +2277,7 @@ static guint32 dissect_trunkpacket(tvbuff_t *tvb, guint32 offset,
   if (iax2_tree) {
     /* number of items */
     nc = proto_tree_add_uint(iax2_tree, hf_iax2_trunk_ncalls, NULL, 0, 0, ncalls);
-    PROTO_ITEM_SET_GENERATED(nc);
+    proto_item_set_generated(nc);
   }
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "Trunk packet with %d media frame%s for %d call%s",
@@ -2202,7 +2349,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 
   dirdata = &(iax_call->dirdata[!!(iax_packet->reversed)]);
 
-  if ((!pinfo->fd->flags.visited && (dirdata->current_frag_bytes > 0)) ||
+  if ((!pinfo->fd->visited && (dirdata->current_frag_bytes > 0)) ||
      ((value = g_hash_table_lookup(iax_fid_table, GUINT_TO_POINTER(pinfo->num))) != NULL)) {
 
     /* then we are continuing an already-started pdu */
@@ -2211,11 +2358,11 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
     gboolean complete;
 
 #ifdef DEBUG_DESEGMENT
-    g_debug("visited: %i; c_f_b: %u; hash: %u->%u", pinfo->fd->flags.visited?1:0,
+    g_debug("visited: %i; c_f_b: %u; hash: %u->%u", pinfo->fd->visited?1:0,
             dirdata->current_frag_bytes, pinfo->num, dirdata->current_frag_id);
 #endif
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
       guint32 tot_len;
       fid = dirdata->current_frag_id;
       tot_len                      = dirdata->current_frag_minlen;
@@ -2230,7 +2377,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 #endif
     } else {
       fid = GPOINTER_TO_UINT(value);
-      /* these values are unused by fragment_add if pinfo->fd->flags.visited */
+      /* these values are unused by fragment_add if pinfo->fd->visited */
       dirdata->current_frag_bytes = 0;
       complete = FALSE;
     }
@@ -2342,7 +2489,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
       iax_tree_item = proto_tree_add_uint(tree, hf_iax2_reassembled_in,
                                           tvb, deseg_offset, tvb_reported_length_remaining(tvb, deseg_offset),
                                           fd_head->reassembled_in);
-      PROTO_ITEM_SET_GENERATED(iax_tree_item);
+      proto_item_set_generated(iax_tree_item);
     } else {
       /* this fragment is never reassembled */
       proto_tree_add_item(tree, hf_iax2_fragment_unfinished, tvb, deseg_offset, -1, ENC_NA);
@@ -2391,7 +2538,7 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
 #endif
   } else {
       col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                      val_to_str_ext(codec, &codec_types_ext, "unknown (0x%02x)"));
+                      val64_to_str_ext(CODEC_MASK(codec), &codec_types_ext, "unknown (0x%04x)"));
   }
 
   nbytes = tvb_reported_length(sub_tvb);
@@ -2562,7 +2709,7 @@ proto_register_iax2(void)
 
     {&hf_iax2_voice_codec,
      {"CODEC", "iax2.voice.codec",
-      FT_UINT32, BASE_HEX | BASE_EXT_STRING, &codec_types_ext, 0x0,
+      FT_UINT64, BASE_HEX | BASE_EXT_STRING | BASE_VAL64_STRING, &codec_types_ext, 0x0,
       "CODEC gives the codec used to encode audio data",
       HFILL}},
 
@@ -2579,7 +2726,7 @@ proto_register_iax2(void)
 
     {&hf_iax2_video_codec,
      {"CODEC", "iax2.video.codec",
-      FT_UINT32, BASE_HEX | BASE_EXT_STRING, &codec_types_ext, 0,
+      FT_UINT64, BASE_HEX | BASE_EXT_STRING | BASE_VAL64_STRING, &codec_types_ext, 0,
       "The codec used to encode video data",
       HFILL}},
 
@@ -2730,7 +2877,7 @@ proto_register_iax2(void)
 
     {&hf_iax2_ies[IAX_IE_FORMAT],
      {"Desired codec format", "iax2.iax.format",
-      FT_UINT32, BASE_HEX | BASE_EXT_STRING, &codec_types_ext, 0x0,
+      FT_UINT64, BASE_HEX | BASE_EXT_STRING | BASE_VAL64_STRING, &codec_types_ext, 0x0,
       NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_LANGUAGE],
@@ -2943,6 +3090,16 @@ proto_register_iax2(void)
       FT_UINT32, BASE_HEX, NULL, 0x0,
       NULL, HFILL}},
 
+    {&hf_iax2_ies[IAX_IE_CAPABILITY2],
+     {"64-bit codec capability", "iax2.iax.capability2",
+      FT_UINT64, BASE_HEX, NULL, 0x0,
+      NULL, HFILL}},
+
+    {&hf_iax2_ies[IAX_IE_FORMAT2],
+     {"64-bit codec format", "iax2.iax.format2",
+      FT_UINT64, BASE_HEX | BASE_EXT_STRING | BASE_VAL64_STRING, &codec_types_ext, 0x0,
+      NULL, HFILL}},
+
     {&hf_iax2_ies[IAX_IE_DATAFORMAT],
      {"Data call format", "iax2.iax.dataformat",
       FT_UINT32, BASE_HEX, VALS(iax_dataformats), 0x0,
@@ -2978,120 +3135,160 @@ proto_register_iax2(void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL}},
 
+    {&hf_iax2_version,
+     {"Version", "iax2.version",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}},
+
     /* capabilities */
     {&hf_iax2_cap_g723_1,
      {"G.723.1 compression", "iax2.cap.g723_1",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_G723_1,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_G723_1),
       NULL, HFILL }},
 
     {&hf_iax2_cap_gsm,
      {"GSM compression", "iax2.cap.gsm",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_GSM,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_GSM),
       NULL, HFILL }},
 
     {&hf_iax2_cap_ulaw,
      {"Raw mu-law data (G.711)", "iax2.cap.ulaw",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_ULAW,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_ULAW),
       NULL, HFILL }},
 
      {&hf_iax2_cap_alaw,
       {"Raw A-law data (G.711)", "iax2.cap.alaw",
-       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_ALAW,
+       FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_ALAW),
        NULL, HFILL } },
 
     {&hf_iax2_cap_g726_aal2,
-     {"G.726 compression (AAL2 packing)", "iax2.cap.g726_aal2",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_G726_AAL2,
+     {"ADPCM (G.726, 32kbps, AAL2 codeword packing)", "iax2.cap.g726_aal2",
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_G726_AAL2),
       NULL, HFILL }},
 
     {&hf_iax2_cap_adpcm,
      {"ADPCM", "iax2.cap.adpcm",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_ADPCM,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_ADPCM),
       NULL, HFILL }},
 
     {&hf_iax2_cap_slinear,
      {"Raw 16-bit Signed Linear (8000 Hz) PCM", "iax2.cap.slinear",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_SLINEAR,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_SLINEAR),
       NULL, HFILL }},
 
     {&hf_iax2_cap_lpc10,
-     {"LPC10, 180 samples/frame",
-      "iax2.cap.lpc10", FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported),
-      AST_FORMAT_LPC10, NULL, HFILL }},
+     {"LPC10, 180 samples/frame", "iax2.cap.lpc10",
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_LPC10),
+      NULL, HFILL }},
 
     {&hf_iax2_cap_g729a,
      {"G.729a Audio", "iax2.cap.g729a",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_G729A,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_G729A),
       NULL, HFILL }},
 
     {&hf_iax2_cap_speex,
-     {"SPEEX Audio", "iax2.cap.speex",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_SPEEX,
+     {"SpeeX Free Compression", "iax2.cap.speex",
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_SPEEX),
       NULL, HFILL }},
 
     {&hf_iax2_cap_ilbc,
-     {"iLBC Free compressed Audio", "iax2.cap.ilbc",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_ILBC,
+     {"iLBC Free Compression", "iax2.cap.ilbc",
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_ILBC),
       NULL, HFILL }},
 
     {&hf_iax2_cap_g726,
      {"ADPCM (G.726, 32kbps, RFC3551 codeword packing)", "iax2.cap.g726",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_G726,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_G726),
       NULL, HFILL }},
 
     {&hf_iax2_cap_g722,
-     {"G.722 wideband audio", "iax2.cap.g722",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_G722,
+     {"G.722", "iax2.cap.g722",
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_G722),
       NULL, HFILL }},
 
     {&hf_iax2_cap_siren7,
      {"G.722.1 (also known as Siren7, 32kbps assumed)", "iax2.cap.siren7",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_SIREN7,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_SIREN7),
       NULL, HFILL }},
 
     {&hf_iax2_cap_siren14,
      {"G.722.1 Annex C (also known as Siren14, 48kbps assumed)", "iax2.cap.siren14",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_SIREN14,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_SIREN14),
       NULL, HFILL }},
 
     {&hf_iax2_cap_slinear16,
      {"Raw 16-bit Signed Linear (16000 Hz) PCM", "iax2.cap.slinear16",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_SLINEAR16,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_SLINEAR16),
       NULL, HFILL }},
 
     {&hf_iax2_cap_jpeg,
      {"JPEG images", "iax2.cap.jpeg",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_JPEG,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_JPEG),
       NULL, HFILL }},
 
     {&hf_iax2_cap_png,
      {"PNG images", "iax2.cap.png",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_PNG,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_PNG),
       NULL, HFILL }},
 
     {&hf_iax2_cap_h261,
      {"H.261 video", "iax2.cap.h261",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_H261,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_H261),
       NULL, HFILL }},
 
     {&hf_iax2_cap_h263,
      {"H.263 video", "iax2.cap.h263",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_H263,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_H263),
       NULL, HFILL }},
 
     {&hf_iax2_cap_h263_plus,
      {"H.263+ video", "iax2.cap.h263_plus",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_H263_PLUS,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_H263_PLUS),
       NULL, HFILL }},
 
     {&hf_iax2_cap_h264,
      {"H.264 video", "iax2.cap.h264",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_H264,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_H264),
       NULL, HFILL }},
 
     {&hf_iax2_cap_mpeg4,
      {"MPEG4 video", "iax2.cap.mpeg4",
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_MP4_VIDEO,
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_MP4_VIDEO),
+      NULL, HFILL }},
+
+    {&hf_iax2_cap_vp8,
+     {"VP8 video", "iax2.cap.vp8",
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_VP8),
+      NULL, HFILL }},
+
+    {&hf_iax2_cap_t140_red,
+     {"T.140 RED Text format RFC 4103", "iax2.cap.t140_red",
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_T140_RED),
+      NULL, HFILL }},
+
+    {&hf_iax2_cap_t140,
+     {"T.140 Text format - ITU T.140, RFC 4103", "iax2.cap.t140",
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_T140),
+      NULL, HFILL }},
+
+    {&hf_iax2_cap_g719,
+     {"G.719 (64 kbps assumed)", "iax2.cap.g719",
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_G719),
+      NULL, HFILL }},
+
+    {&hf_iax2_cap_speex16,
+     {"SpeeX Wideband (16kHz) Free Compression", "iax2.cap.speex16",
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_SPEEX16),
+      NULL, HFILL }},
+
+    {&hf_iax2_cap_opus,
+     {"Opus audio (8kHz, 16kHz, 24kHz, 48Khz)", "iax2.cap.opus",
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_OPUS),
+      NULL, HFILL }},
+
+    {&hf_iax2_cap_testlaw,
+     {"Raw testing-law data (G.711)", "iax2.cap.testlaw",
+      FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), CODEC_MASK(AST_FORMAT_TESTLAW),
       NULL, HFILL }},
 
     {&hf_iax2_fragment_unfinished,
@@ -3174,7 +3371,6 @@ proto_register_iax2(void)
     { &ei_iax_circuit_id_conflict, { "iax2.circuit_id_conflict", PI_PROTOCOL, PI_WARN, "Circuit ID conflict", EXPFILL }},
     { &ei_iax_peer_address_unsupported, { "iax2.peer_address_unsupported", PI_PROTOCOL, PI_WARN, "Peer address unsupported", EXPFILL }},
     { &ei_iax_invalid_len, { "iax2.invalid_len", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
-    { &ei_iax_invalid_ts, { "iax2.invalid_ts", PI_PROTOCOL, PI_WARN, "Invalid timestamp", EXPFILL }}
   };
 
   expert_module_t* expert_iax;

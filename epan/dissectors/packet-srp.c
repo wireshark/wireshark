@@ -44,10 +44,16 @@ static dissector_handle_t h245dg_handle;
 #define SRP_SRP_RESPONSE 251
 #define SRP_NSRP_RESPONSE 247
 
+/* WNSRP definitions */
+#define WNSRP_COMMAND_HEADER 241
+#define WNSRP_RESPONSE_HEADER 243
+
 static const value_string srp_frame_types[] = {
     {SRP_SRP_COMMAND, "SRP command"},
     {SRP_SRP_RESPONSE, "SRP response"},
     {SRP_NSRP_RESPONSE, "NSRP response"},
+    {WNSRP_COMMAND_HEADER, "WNSRP command"},
+    {WNSRP_RESPONSE_HEADER, "WNSRP response"},
     {0,NULL}
 };
 
@@ -117,6 +123,7 @@ static int dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 
     switch( header ) {
         case SRP_SRP_COMMAND:
+        case WNSRP_COMMAND_HEADER:
             dissect_srp_command(tvb,pinfo,srp_tree);
             break;
 
@@ -124,6 +131,7 @@ static int dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             break;
 
         case SRP_NSRP_RESPONSE:
+        case WNSRP_RESPONSE_HEADER:
             if( srp_tree )
                 proto_tree_add_item(srp_tree,hf_srp_seqno,tvb,1,1,ENC_BIG_ENDIAN);
             break;
@@ -147,7 +155,7 @@ static int dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         } else {
             hidden_item = proto_tree_add_boolean(srp_tree, hf_srp_crc_bad, tvb,
                                           crc_offset, 2, TRUE);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
             proto_tree_add_uint_format_value(srp_tree, hf_srp_crc, tvb,
                                        crc_offset, 2, crc,
                                        "0x%04x (incorrect, should be 0x%04x)",
@@ -216,7 +224,7 @@ void proto_reg_handoff_srp(void) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

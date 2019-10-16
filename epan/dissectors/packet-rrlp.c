@@ -847,6 +847,7 @@ static int hf_rrlp_GPSAssistance_ephemerisExtension = -1;
 static int hf_rrlp_GPSAssistance_ephemerisExtensionCheck = -1;
 static int hf_rrlp_CommonGANSSAssistance_referenceTime = -1;
 static int hf_rrlp_CommonGANSSAssistance_referenceLocation = -1;
+static int hf_rrlp_CommonGANSSAssistance_spare_bit2 = -1;
 static int hf_rrlp_CommonGANSSAssistance_ionosphericModel = -1;
 static int hf_rrlp_CommonGANSSAssistance_addIonosphericModel = -1;
 static int hf_rrlp_CommonGANSSAssistance_earthOrientationParam = -1;
@@ -2753,11 +2754,20 @@ dissect_rrlp_Rel5_MsrPosition_Req_Extension(tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
+static const int * GANSSPositioningMethod_bits[] = {
+  &hf_rrlp_GANSSPositioningMethod_gps,
+  &hf_rrlp_GANSSPositioningMethod_galileo,
+  &hf_rrlp_GANSSPositioningMethod_sbas,
+  &hf_rrlp_GANSSPositioningMethod_modernizedGPS,
+  &hf_rrlp_GANSSPositioningMethod_qzss,
+  &hf_rrlp_GANSSPositioningMethod_glonass,
+  NULL
+};
 
 static int
 dissect_rrlp_GANSSPositioningMethod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     2, 16, FALSE, NULL, NULL);
+                                     2, 16, FALSE, GANSSPositioningMethod_bits, 6, NULL, NULL);
 
   return offset;
 }
@@ -2931,7 +2941,7 @@ dissect_rrlp_GANSSIonosphericModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_rrlp_BIT_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     2, 2, FALSE, NULL, NULL);
+                                     2, 2, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -3219,7 +3229,7 @@ dissect_rrlp_GANSSDiffCorrections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_rrlp_BIT_STRING_SIZE_5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     5, 5, FALSE, NULL, NULL);
+                                     5, 5, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -3655,7 +3665,7 @@ dissect_rrlp_NavModel_GLONASSecef(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_rrlp_BIT_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     4, 4, FALSE, NULL, NULL);
+                                     4, 4, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -3727,7 +3737,7 @@ dissect_rrlp_GANSSOrbitModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_rrlp_BIT_STRING_SIZE_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 1, FALSE, NULL, NULL);
+                                     1, 1, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -3782,11 +3792,22 @@ dissect_rrlp_GANSSNavModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
+static const int * GANSSSignals_bits[] = {
+  &hf_rrlp_GANSSSignals_signal1,
+  &hf_rrlp_GANSSSignals_signal2,
+  &hf_rrlp_GANSSSignals_signal3,
+  &hf_rrlp_GANSSSignals_signal4,
+  &hf_rrlp_GANSSSignals_signal5,
+  &hf_rrlp_GANSSSignals_signal6,
+  &hf_rrlp_GANSSSignals_signal7,
+  &hf_rrlp_GANSSSignals_signal8,
+  NULL
+};
 
 static int
 dissect_rrlp_GANSSSignals(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, GANSSSignals_bits, 8, NULL, NULL);
 
   return offset;
 }
@@ -4220,7 +4241,7 @@ dissect_rrlp_Almanac_GlonassAlmanacSet(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_rrlp_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, NULL);
+                                     8, 8, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -4660,7 +4681,7 @@ dissect_rrlp_GANSSEphemerisExtension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int
 dissect_rrlp_BIT_STRING_SIZE_64(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     64, 64, FALSE, NULL, NULL);
+                                     64, 64, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -5315,7 +5336,7 @@ dissect_rrlp_GPSEphemerisExtension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_rrlp_BIT_STRING_SIZE_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE, NULL, NULL);
+                                     32, 32, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -6411,11 +6432,21 @@ dissect_rrlp_INTEGER_0_16384(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
+static const int * PositionData_bits[] = {
+  &hf_rrlp_PositionData_e_otd,
+  &hf_rrlp_PositionData_gps,
+  &hf_rrlp_PositionData_galileo,
+  &hf_rrlp_PositionData_sbas,
+  &hf_rrlp_PositionData_modernizedGPS,
+  &hf_rrlp_PositionData_qzss,
+  &hf_rrlp_PositionData_glonass,
+  NULL
+};
 
 static int
 dissect_rrlp_PositionData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     3, 16, FALSE, NULL, NULL);
+                                     3, 16, FALSE, PositionData_bits, 7, NULL, NULL);
 
   return offset;
 }
@@ -6768,21 +6799,34 @@ dissect_rrlp_ProtocolError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
+static const int * GANSSPositioningMethodTypes_bits[] = {
+  &hf_rrlp_GANSSPositioningMethodTypes_msAssisted,
+  &hf_rrlp_GANSSPositioningMethodTypes_msBased,
+  &hf_rrlp_GANSSPositioningMethodTypes_standalone,
+  NULL
+};
 
 static int
 dissect_rrlp_GANSSPositioningMethodTypes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, GANSSPositioningMethodTypes_bits, 3, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * SBASID_bits[] = {
+  &hf_rrlp_SBASID_waas,
+  &hf_rrlp_SBASID_egnos,
+  &hf_rrlp_SBASID_masas,
+  &hf_rrlp_SBASID_gagan,
+  NULL
+};
 
 static int
 dissect_rrlp_SBASID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, SBASID_bits, 4, NULL, NULL);
 
   return offset;
 }
@@ -6835,21 +6879,35 @@ dissect_rrlp_PosCapability_Req(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
+static const int * NonGANSSPositionMethods_bits[] = {
+  &hf_rrlp_NonGANSSPositionMethods_msAssistedEOTD,
+  &hf_rrlp_NonGANSSPositionMethods_msBasedEOTD,
+  &hf_rrlp_NonGANSSPositionMethods_msAssistedGPS,
+  &hf_rrlp_NonGANSSPositionMethods_msBasedGPS,
+  &hf_rrlp_NonGANSSPositionMethods_standaloneGPS,
+  NULL
+};
 
 static int
 dissect_rrlp_NonGANSSPositionMethods(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, NonGANSSPositionMethods_bits, 5, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * MultipleMeasurementSets_bits[] = {
+  &hf_rrlp_MultipleMeasurementSets_eotd,
+  &hf_rrlp_MultipleMeasurementSets_gps,
+  &hf_rrlp_MultipleMeasurementSets_ganss,
+  NULL
+};
 
 static int
 dissect_rrlp_MultipleMeasurementSets(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, MultipleMeasurementSets_bits, 3, NULL, NULL);
 
   return offset;
 }
@@ -6871,31 +6929,69 @@ dissect_rrlp_PosCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
+static const int * GPSAssistance_bits[] = {
+  &hf_rrlp_GPSAssistance_almanac,
+  &hf_rrlp_GPSAssistance_uTCmodel,
+  &hf_rrlp_GPSAssistance_ionosphericModel,
+  &hf_rrlp_GPSAssistance_navigationmodel,
+  &hf_rrlp_GPSAssistance_dGPScorrections,
+  &hf_rrlp_GPSAssistance_referenceLocation,
+  &hf_rrlp_GPSAssistance_referenceTime,
+  &hf_rrlp_GPSAssistance_acquisitionAssistance,
+  &hf_rrlp_GPSAssistance_realTimeIntegrity,
+  &hf_rrlp_GPSAssistance_ephemerisExtension,
+  &hf_rrlp_GPSAssistance_ephemerisExtensionCheck,
+  NULL
+};
 
 static int
 dissect_rrlp_GPSAssistance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, GPSAssistance_bits, 11, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * CommonGANSSAssistance_bits[] = {
+  &hf_rrlp_CommonGANSSAssistance_referenceTime,
+  &hf_rrlp_CommonGANSSAssistance_referenceLocation,
+  &hf_rrlp_CommonGANSSAssistance_spare_bit2,
+  &hf_rrlp_CommonGANSSAssistance_ionosphericModel,
+  &hf_rrlp_CommonGANSSAssistance_addIonosphericModel,
+  &hf_rrlp_CommonGANSSAssistance_earthOrientationParam,
+  NULL
+};
 
 static int
 dissect_rrlp_CommonGANSSAssistance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, CommonGANSSAssistance_bits, 6, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * GANSSAssistance_bits[] = {
+  &hf_rrlp_GANSSAssistance_realTimeIntegrity,
+  &hf_rrlp_GANSSAssistance_differentialCorrections,
+  &hf_rrlp_GANSSAssistance_almanac,
+  &hf_rrlp_GANSSAssistance_referenceMeasurementInformation,
+  &hf_rrlp_GANSSAssistance_navigationModel,
+  &hf_rrlp_GANSSAssistance_timeModelGNSS_UTC,
+  &hf_rrlp_GANSSAssistance_timeModelGNSS_GNSS,
+  &hf_rrlp_GANSSAssistance_databitassistance,
+  &hf_rrlp_GANSSAssistance_ephemerisExtension,
+  &hf_rrlp_GANSSAssistance_ephemerisExtensionCheck,
+  &hf_rrlp_GANSSAssistance_addUTCmodel,
+  &hf_rrlp_GANSSAssistance_auxiliaryInformation,
+  NULL
+};
 
 static int
 dissect_rrlp_GANSSAssistance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, GANSSAssistance_bits, 12, NULL, NULL);
 
   return offset;
 }
@@ -6945,11 +7041,22 @@ dissect_rrlp_GANSSAssistanceSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
+static const int * GANSSModelID_bits[] = {
+  &hf_rrlp_GANSSModelID_model1,
+  &hf_rrlp_GANSSModelID_model2,
+  &hf_rrlp_GANSSModelID_model3,
+  &hf_rrlp_GANSSModelID_model4,
+  &hf_rrlp_GANSSModelID_model5,
+  &hf_rrlp_GANSSModelID_model6,
+  &hf_rrlp_GANSSModelID_model7,
+  &hf_rrlp_GANSSModelID_model8,
+  NULL
+};
 
 static int
 dissect_rrlp_GANSSModelID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, GANSSModelID_bits, 8, NULL, NULL);
 
   return offset;
 }
@@ -10102,291 +10209,295 @@ void proto_register_rrlp(void) {
         FT_BYTES, BASE_NONE, NULL, 0,
         "GANSSModelID", HFILL }},
     { &hf_rrlp_GANSSPositioningMethod_gps,
-      { "gps", "rrlp.gps",
+      { "gps", "rrlp.GANSSPositioningMethod.gps",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_rrlp_GANSSPositioningMethod_galileo,
-      { "galileo", "rrlp.galileo",
+      { "galileo", "rrlp.GANSSPositioningMethod.galileo",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_rrlp_GANSSPositioningMethod_sbas,
-      { "sbas", "rrlp.sbas",
+      { "sbas", "rrlp.GANSSPositioningMethod.sbas",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_rrlp_GANSSPositioningMethod_modernizedGPS,
-      { "modernizedGPS", "rrlp.modernizedGPS",
+      { "modernizedGPS", "rrlp.GANSSPositioningMethod.modernizedGPS",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_rrlp_GANSSPositioningMethod_qzss,
-      { "qzss", "rrlp.qzss",
+      { "qzss", "rrlp.GANSSPositioningMethod.qzss",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_rrlp_GANSSPositioningMethod_glonass,
-      { "glonass", "rrlp.glonass",
+      { "glonass", "rrlp.GANSSPositioningMethod.glonass",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_rrlp_PositionData_e_otd,
-      { "e-otd", "rrlp.e-otd",
+      { "e-otd", "rrlp.PositionData.e.otd",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_rrlp_PositionData_gps,
-      { "gps", "rrlp.gps",
+      { "gps", "rrlp.PositionData.gps",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_rrlp_PositionData_galileo,
-      { "galileo", "rrlp.galileo",
+      { "galileo", "rrlp.PositionData.galileo",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_rrlp_PositionData_sbas,
-      { "sbas", "rrlp.sbas",
+      { "sbas", "rrlp.PositionData.sbas",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_rrlp_PositionData_modernizedGPS,
-      { "modernizedGPS", "rrlp.modernizedGPS",
+      { "modernizedGPS", "rrlp.PositionData.modernizedGPS",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_rrlp_PositionData_qzss,
-      { "qzss", "rrlp.qzss",
+      { "qzss", "rrlp.PositionData.qzss",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_rrlp_PositionData_glonass,
-      { "glonass", "rrlp.glonass",
+      { "glonass", "rrlp.PositionData.glonass",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_rrlp_NonGANSSPositionMethods_msAssistedEOTD,
-      { "msAssistedEOTD", "rrlp.msAssistedEOTD",
+      { "msAssistedEOTD", "rrlp.NonGANSSPositionMethods.msAssistedEOTD",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_rrlp_NonGANSSPositionMethods_msBasedEOTD,
-      { "msBasedEOTD", "rrlp.msBasedEOTD",
+      { "msBasedEOTD", "rrlp.NonGANSSPositionMethods.msBasedEOTD",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_rrlp_NonGANSSPositionMethods_msAssistedGPS,
-      { "msAssistedGPS", "rrlp.msAssistedGPS",
+      { "msAssistedGPS", "rrlp.NonGANSSPositionMethods.msAssistedGPS",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_rrlp_NonGANSSPositionMethods_msBasedGPS,
-      { "msBasedGPS", "rrlp.msBasedGPS",
+      { "msBasedGPS", "rrlp.NonGANSSPositionMethods.msBasedGPS",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_rrlp_NonGANSSPositionMethods_standaloneGPS,
-      { "standaloneGPS", "rrlp.standaloneGPS",
+      { "standaloneGPS", "rrlp.NonGANSSPositionMethods.standaloneGPS",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_rrlp_GANSSPositioningMethodTypes_msAssisted,
-      { "msAssisted", "rrlp.msAssisted",
+      { "msAssisted", "rrlp.GANSSPositioningMethodTypes.msAssisted",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_rrlp_GANSSPositioningMethodTypes_msBased,
-      { "msBased", "rrlp.msBased",
+      { "msBased", "rrlp.GANSSPositioningMethodTypes.msBased",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_rrlp_GANSSPositioningMethodTypes_standalone,
-      { "standalone", "rrlp.standalone",
+      { "standalone", "rrlp.GANSSPositioningMethodTypes.standalone",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_rrlp_GANSSSignals_signal1,
-      { "signal1", "rrlp.signal1",
+      { "signal1", "rrlp.GANSSSignals.signal1",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_rrlp_GANSSSignals_signal2,
-      { "signal2", "rrlp.signal2",
+      { "signal2", "rrlp.GANSSSignals.signal2",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_rrlp_GANSSSignals_signal3,
-      { "signal3", "rrlp.signal3",
+      { "signal3", "rrlp.GANSSSignals.signal3",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_rrlp_GANSSSignals_signal4,
-      { "signal4", "rrlp.signal4",
+      { "signal4", "rrlp.GANSSSignals.signal4",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_rrlp_GANSSSignals_signal5,
-      { "signal5", "rrlp.signal5",
+      { "signal5", "rrlp.GANSSSignals.signal5",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_rrlp_GANSSSignals_signal6,
-      { "signal6", "rrlp.signal6",
+      { "signal6", "rrlp.GANSSSignals.signal6",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_rrlp_GANSSSignals_signal7,
-      { "signal7", "rrlp.signal7",
+      { "signal7", "rrlp.GANSSSignals.signal7",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_rrlp_GANSSSignals_signal8,
-      { "signal8", "rrlp.signal8",
+      { "signal8", "rrlp.GANSSSignals.signal8",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_rrlp_SBASID_waas,
-      { "waas", "rrlp.waas",
+      { "waas", "rrlp.SBASID.waas",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_rrlp_SBASID_egnos,
-      { "egnos", "rrlp.egnos",
+      { "egnos", "rrlp.SBASID.egnos",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_rrlp_SBASID_masas,
-      { "masas", "rrlp.masas",
+      { "masas", "rrlp.SBASID.masas",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_rrlp_SBASID_gagan,
-      { "gagan", "rrlp.gagan",
+      { "gagan", "rrlp.SBASID.gagan",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_rrlp_MultipleMeasurementSets_eotd,
-      { "eotd", "rrlp.eotd",
+      { "eotd", "rrlp.MultipleMeasurementSets.eotd",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_rrlp_MultipleMeasurementSets_gps,
-      { "gps", "rrlp.gps",
+      { "gps", "rrlp.MultipleMeasurementSets.gps",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_rrlp_MultipleMeasurementSets_ganss,
-      { "ganss", "rrlp.ganss",
+      { "ganss", "rrlp.MultipleMeasurementSets.ganss",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_rrlp_GPSAssistance_almanac,
-      { "almanac", "rrlp.almanac",
+      { "almanac", "rrlp.GPSAssistance.almanac",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_rrlp_GPSAssistance_uTCmodel,
-      { "uTCmodel", "rrlp.uTCmodel",
+      { "uTCmodel", "rrlp.GPSAssistance.uTCmodel",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_rrlp_GPSAssistance_ionosphericModel,
-      { "ionosphericModel", "rrlp.ionosphericModel",
+      { "ionosphericModel", "rrlp.GPSAssistance.ionosphericModel",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_rrlp_GPSAssistance_navigationmodel,
-      { "navigationmodel", "rrlp.navigationmodel",
+      { "navigationmodel", "rrlp.GPSAssistance.navigationmodel",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_rrlp_GPSAssistance_dGPScorrections,
-      { "dGPScorrections", "rrlp.dGPScorrections",
+      { "dGPScorrections", "rrlp.GPSAssistance.dGPScorrections",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_rrlp_GPSAssistance_referenceLocation,
-      { "referenceLocation", "rrlp.referenceLocation",
+      { "referenceLocation", "rrlp.GPSAssistance.referenceLocation",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_rrlp_GPSAssistance_referenceTime,
-      { "referenceTime", "rrlp.referenceTime",
+      { "referenceTime", "rrlp.GPSAssistance.referenceTime",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_rrlp_GPSAssistance_acquisitionAssistance,
-      { "acquisitionAssistance", "rrlp.acquisitionAssistance",
+      { "acquisitionAssistance", "rrlp.GPSAssistance.acquisitionAssistance",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_rrlp_GPSAssistance_realTimeIntegrity,
-      { "realTimeIntegrity", "rrlp.realTimeIntegrity",
+      { "realTimeIntegrity", "rrlp.GPSAssistance.realTimeIntegrity",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_rrlp_GPSAssistance_ephemerisExtension,
-      { "ephemerisExtension", "rrlp.ephemerisExtension",
+      { "ephemerisExtension", "rrlp.GPSAssistance.ephemerisExtension",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_rrlp_GPSAssistance_ephemerisExtensionCheck,
-      { "ephemerisExtensionCheck", "rrlp.ephemerisExtensionCheck",
+      { "ephemerisExtensionCheck", "rrlp.GPSAssistance.ephemerisExtensionCheck",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_rrlp_CommonGANSSAssistance_referenceTime,
-      { "referenceTime", "rrlp.referenceTime",
+      { "referenceTime", "rrlp.CommonGANSSAssistance.referenceTime",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_rrlp_CommonGANSSAssistance_referenceLocation,
-      { "referenceLocation", "rrlp.referenceLocation",
+      { "referenceLocation", "rrlp.CommonGANSSAssistance.referenceLocation",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
+    { &hf_rrlp_CommonGANSSAssistance_spare_bit2,
+      { "spare_bit2", "rrlp.CommonGANSSAssistance.spare.bit2",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
     { &hf_rrlp_CommonGANSSAssistance_ionosphericModel,
-      { "ionosphericModel", "rrlp.ionosphericModel",
+      { "ionosphericModel", "rrlp.CommonGANSSAssistance.ionosphericModel",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_rrlp_CommonGANSSAssistance_addIonosphericModel,
-      { "addIonosphericModel", "rrlp.addIonosphericModel",
+      { "addIonosphericModel", "rrlp.CommonGANSSAssistance.addIonosphericModel",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_rrlp_CommonGANSSAssistance_earthOrientationParam,
-      { "earthOrientationParam", "rrlp.earthOrientationParam",
+      { "earthOrientationParam", "rrlp.CommonGANSSAssistance.earthOrientationParam",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_rrlp_GANSSAssistance_realTimeIntegrity,
-      { "realTimeIntegrity", "rrlp.realTimeIntegrity",
+      { "realTimeIntegrity", "rrlp.GANSSAssistance.realTimeIntegrity",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_rrlp_GANSSAssistance_differentialCorrections,
-      { "differentialCorrections", "rrlp.differentialCorrections",
+      { "differentialCorrections", "rrlp.GANSSAssistance.differentialCorrections",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_rrlp_GANSSAssistance_almanac,
-      { "almanac", "rrlp.almanac",
+      { "almanac", "rrlp.GANSSAssistance.almanac",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_rrlp_GANSSAssistance_referenceMeasurementInformation,
-      { "referenceMeasurementInformation", "rrlp.referenceMeasurementInformation",
+      { "referenceMeasurementInformation", "rrlp.GANSSAssistance.referenceMeasurementInformation",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_rrlp_GANSSAssistance_navigationModel,
-      { "navigationModel", "rrlp.navigationModel",
+      { "navigationModel", "rrlp.GANSSAssistance.navigationModel",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_rrlp_GANSSAssistance_timeModelGNSS_UTC,
-      { "timeModelGNSS-UTC", "rrlp.timeModelGNSS-UTC",
+      { "timeModelGNSS-UTC", "rrlp.GANSSAssistance.timeModelGNSS.UTC",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_rrlp_GANSSAssistance_timeModelGNSS_GNSS,
-      { "timeModelGNSS-GNSS", "rrlp.timeModelGNSS-GNSS",
+      { "timeModelGNSS-GNSS", "rrlp.GANSSAssistance.timeModelGNSS.GNSS",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_rrlp_GANSSAssistance_databitassistance,
-      { "databitassistance", "rrlp.databitassistance",
+      { "databitassistance", "rrlp.GANSSAssistance.databitassistance",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_rrlp_GANSSAssistance_ephemerisExtension,
-      { "ephemerisExtension", "rrlp.ephemerisExtension",
+      { "ephemerisExtension", "rrlp.GANSSAssistance.ephemerisExtension",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_rrlp_GANSSAssistance_ephemerisExtensionCheck,
-      { "ephemerisExtensionCheck", "rrlp.ephemerisExtensionCheck",
+      { "ephemerisExtensionCheck", "rrlp.GANSSAssistance.ephemerisExtensionCheck",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_rrlp_GANSSAssistance_addUTCmodel,
-      { "addUTCmodel", "rrlp.addUTCmodel",
+      { "addUTCmodel", "rrlp.GANSSAssistance.addUTCmodel",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_rrlp_GANSSAssistance_auxiliaryInformation,
-      { "auxiliaryInformation", "rrlp.auxiliaryInformation",
+      { "auxiliaryInformation", "rrlp.GANSSAssistance.auxiliaryInformation",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_rrlp_GANSSModelID_model1,
-      { "model1", "rrlp.model1",
+      { "model1", "rrlp.GANSSModelID.model1",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_rrlp_GANSSModelID_model2,
-      { "model2", "rrlp.model2",
+      { "model2", "rrlp.GANSSModelID.model2",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_rrlp_GANSSModelID_model3,
-      { "model3", "rrlp.model3",
+      { "model3", "rrlp.GANSSModelID.model3",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_rrlp_GANSSModelID_model4,
-      { "model4", "rrlp.model4",
+      { "model4", "rrlp.GANSSModelID.model4",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_rrlp_GANSSModelID_model5,
-      { "model5", "rrlp.model5",
+      { "model5", "rrlp.GANSSModelID.model5",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_rrlp_GANSSModelID_model6,
-      { "model6", "rrlp.model6",
+      { "model6", "rrlp.GANSSModelID.model6",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_rrlp_GANSSModelID_model7,
-      { "model7", "rrlp.model7",
+      { "model7", "rrlp.GANSSModelID.model7",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_rrlp_GANSSModelID_model8,
-      { "model8", "rrlp.model8",
+      { "model8", "rrlp.GANSSModelID.model8",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
 

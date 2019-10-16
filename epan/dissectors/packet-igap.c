@@ -127,8 +127,8 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     proto_tree *tree;
     proto_item *item;
     guint8 type, tsecs, subtype, asize, msize;
+    guint8 authentication_result, accounting_status;
     int offset = 0;
-    guchar account[ACCOUNT_SIZE+1], message[MESSAGE_SIZE+1];
 
     item = proto_tree_add_item(parent_tree, proto_igap, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_igap);
@@ -177,9 +177,8 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
                XXX - flag this? */
             asize = ACCOUNT_SIZE;
         }
-        tvb_memcpy(tvb, account, offset, asize);
-        account[asize] = '\0';
-        proto_tree_add_string(tree, hf_account, tvb, offset, asize, account);
+        /* XXX - encoding? */
+        proto_tree_add_item(tree, hf_account, tvb, offset, asize, ENC_ASCII|ENC_NA);
     }
     offset += ACCOUNT_SIZE;
 
@@ -189,13 +188,12 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
                XXX - flag this? */
             msize = MESSAGE_SIZE;
         }
-        tvb_memcpy(tvb, message, offset, msize);
         switch (subtype) {
         case IGAP_SUBTYPE_PASSWORD_JOIN:
         case IGAP_SUBTYPE_PASSWORD_LEAVE:
             /* Challenge field is user's password */
-            message[msize] = '\0';
-            proto_tree_add_string(tree, hf_igap_user_password, tvb, offset, msize, message);
+            /* XXX - encoding? */
+            proto_tree_add_item(tree, hf_igap_user_password, tvb, offset, msize, ENC_ASCII|ENC_NA);
             break;
         case IGAP_SUBTYPE_CHALLENGE_RESPONSE_JOIN:
         case IGAP_SUBTYPE_CHALLENGE_RESPONSE_LEAVE:
@@ -208,11 +206,15 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
             break;
         case IGAP_SUBTYPE_AUTH_MESSAGE:
             /* Challenge field indicates the result of the authentication */
-            proto_tree_add_uint(tree, hf_igap_authentication_result, tvb, offset, msize, message[0]);
+            /* XXX - what if the length isn't 1? */
+            authentication_result = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(tree, hf_igap_authentication_result, tvb, offset, msize, authentication_result);
             break;
         case IGAP_SUBTYPE_ACCOUNTING_MESSAGE:
             /* Challenge field indicates the accounting status */
-            proto_tree_add_uint(tree, hf_igap_accounting_status, tvb, offset, msize, message[0]);
+            /* XXX - what if the length isn't 1? */
+            accounting_status = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(tree, hf_igap_accounting_status, tvb, offset, msize, accounting_status);
             break;
         default:
             proto_tree_add_item(tree, hf_igap_unknown_message, tvb, offset, msize, ENC_NA);
@@ -347,7 +349,7 @@ proto_reg_handoff_igap(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

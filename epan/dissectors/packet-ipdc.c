@@ -713,7 +713,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
 	const char *des;
 	const char *enum_val = "";
-	char tmp_tag_text[IPDC_STR_LEN + 1];
+	char *tmp_tag_text;
 	const value_string *val_ptr;
 	gint hf_ptr;
 	guint32	type;
@@ -817,8 +817,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 			/* simple IPDC_ASCII strings */
 			case IPDC_ASCII:
 				DISSECTOR_ASSERT(len<=IPDC_STR_LEN);
-				tvb_memcpy(tvb, tmp_tag_text, offset+2, len);
-				tmp_tag_text[len] = 0;
+				tmp_tag_text = (char *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset+2, len, ENC_ASCII|ENC_NA);
 				proto_tree_add_string_format(tag_tree, hf_ipdc_ascii, tvb, offset,
 						    len + 2, tmp_tag_text, "%s (0x%2.2x): %s", des, tag,
 						    tmp_tag_text);
@@ -1075,7 +1074,7 @@ proto_reg_handoff_ipdc(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

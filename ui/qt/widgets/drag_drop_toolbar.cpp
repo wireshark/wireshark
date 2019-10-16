@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <wsutil/utf8_entities.h>
 
@@ -114,6 +115,9 @@ bool DragDropToolBar::eventFilter(QObject * obj, QEvent * event)
         if ( ( ev->buttons() & Qt::LeftButton ) && (ev->pos() - dragStartPosition).manhattanLength()
                  > QApplication::startDragDistance())
         {
+            if ( ! qobject_cast<QToolButton *>(elem) || ! elem->property(drag_drop_toolbar_action_).isValid() )
+                return QToolBar::eventFilter(obj, event);
+
             ToolbarEntryMimeData * temd =
                     new ToolbarEntryMimeData(((QToolButton *)elem)->text(), elem->property(drag_drop_toolbar_action_).toInt());
             DragLabel * lbl = new DragLabel(temd->labelText(), this);

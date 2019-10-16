@@ -1,25 +1,24 @@
 -- SUPL.asn
 -- Taken from OMA UserPlane Location Protocol
--- http://member.openmobilealliance.org/ftp/Public_documents/LOC/Permanent_documents/OMA-TS-ULP-V2_0_2-20140708-A.zip
+-- http://member.openmobilealliance.org/ftp/Public_documents/LOC/Permanent_documents/OMA-TS-ULP-V2_0_4-20181213-A.zip
+
 --
 -- 11.2 Message Specific Part
 --
-
 --
 -- 11.2.1 SUPL INIT
 --
-
 SUPL-INIT DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
 EXPORTS SUPLINIT, Notification;
 
 IMPORTS
-          SLPAddress, QoP, PosMethod
+	SLPAddress, QoP, PosMethod
 FROM ULP-Components
-          Ver2-SUPL-INIT-extension
+	Ver2-SUPL-INIT-extension
 FROM ULP-Version-2-message-extensions
-          Ver2-Notification-extension
+	Ver2-Notification-extension
 FROM ULP-Version-2-parameter-extensions;
 
 SUPLINIT ::= SEQUENCE {
@@ -42,7 +41,7 @@ Notification ::= SEQUENCE {
   clientName        OCTET STRING(SIZE (1..maxClientLength)) OPTIONAL,
   clientNameType    FormatIndicator OPTIONAL,
   ...,
-  ver2-Notification-extension              Ver2-Notification-extension OPTIONAL}
+  ver2-Notification-extension	Ver2-Notification-extension OPTIONAL}
 
 NotificationType ::= ENUMERATED {
   noNotificationNoVerification(0), notificationOnly(1),
@@ -119,7 +118,7 @@ PosProtocol ::= SEQUENCE {
   rrlp    BOOLEAN,
   rrc     BOOLEAN,
   ...,
-  ver2-PosProtocol-extension               Ver2-PosProtocol-extension OPTIONAL}
+  ver2-PosProtocol-extension	Ver2-PosProtocol-extension OPTIONAL}
 
 END
 
@@ -132,19 +131,19 @@ BEGIN
 EXPORTS SUPLRESPONSE;
 
 IMPORTS
-          PosMethod, SLPAddress
+	PosMethod, SLPAddress
 FROM ULP-Components
-          Ver2-SUPL-RESPONSE-extension
+	Ver2-SUPL-RESPONSE-extension
 FROM ULP-Version-2-message-extensions;
 
 SUPLRESPONSE ::= SEQUENCE {
   posMethod     PosMethod,
   sLPAddress    SLPAddress OPTIONAL,
-  sETAuthKey    SETAuthKey OPTIONAL, -- included for backwards compatibility
+sETAuthKey    SETAuthKey OPTIONAL, -- included for backwards compatibility
   keyIdentity4  KeyIdentity4 OPTIONAL, -- included for backwards compatibility
   ...,
 -- version 2 extension element
-  ver2-SUPL-RESPONSE-extension             Ver2-SUPL-RESPONSE-extension OPTIONAL}
+  ver2-SUPL-RESPONSE-extension	Ver2-SUPL-RESPONSE-extension OPTIONAL}
 
 SETAuthKey ::= CHOICE {
   shortKey  BIT STRING(SIZE (128)),
@@ -164,15 +163,15 @@ BEGIN
 EXPORTS SUPLPOSINIT;
 
 IMPORTS
-          SUPLPOS
+	SUPLPOS
 FROM SUPL-POS
-          SETCapabilities
+	SETCapabilities
 FROM SUPL-START
-          LocationId, Position, Ver
+	LocationId, Position, Ver
 FROM ULP-Components
-          Ver2-SUPL-POS-INIT-extension
+	Ver2-SUPL-POS-INIT-extension
 FROM ULP-Version-2-message-extensions
-          Ver2-RequestedAssistData-extension
+	Ver2-RequestedAssistData-extension
 FROM ULP-Version-2-parameter-extensions;
 
 SUPLPOSINIT ::= SEQUENCE {
@@ -229,11 +228,11 @@ BEGIN
 EXPORTS SUPLPOS;
 
 IMPORTS
-          Velocity
+	Velocity
 FROM ULP-Components
-          Ver2-SUPL-POS-extension
+	Ver2-SUPL-POS-extension
 FROM ULP-Version-2-message-extensions
-          Ver2-PosPayLoad-extension
+Ver2-PosPayLoad-extension
 FROM ULP-Version-2-parameter-extensions;
 
 SUPLPOS ::= SEQUENCE {
@@ -241,7 +240,7 @@ SUPLPOS ::= SEQUENCE {
   velocity    Velocity OPTIONAL,
   ...,
 -- version 2 extension element
-  ver2-SUPL-POS-extension                  Ver2-SUPL-POS-extension OPTIONAL}
+  ver2-SUPL-POS-extension	Ver2-SUPL-POS-extension OPTIONAL}
 
 PosPayLoad ::= CHOICE {
   tia801payload  OCTET STRING(SIZE (1..8192)),
@@ -261,18 +260,18 @@ BEGIN
 EXPORTS SUPLEND;
 
 IMPORTS
-          StatusCode, Position, Ver
+	StatusCode, Position, Ver
 FROM ULP-Components
-          Ver2-SUPL-END-extension
+	Ver2-SUPL-END-extension
 FROM ULP-Version-2-message-extensions;
 
 SUPLEND ::= SEQUENCE {
-  position                Position OPTIONAL,
-  statusCode              StatusCode OPTIONAL,
-  ver                     Ver OPTIONAL,
+  position	Position OPTIONAL,
+  statusCode	StatusCode OPTIONAL,
+  ver		Ver OPTIONAL,
   ...,
 -- version 2 extension element
-  ver2-SUPL-END-extension                  Ver2-SUPL-END-extension OPTIONAL}
+  ver2-SUPL-END-extension	Ver2-SUPL-END-extension OPTIONAL}
 
 END
 
@@ -285,15 +284,15 @@ BEGIN
 EXPORTS SUPLAUTHREQ;
 
 IMPORTS
-          Ver
+	Ver
 FROM ULP-Components
-          SETCapabilities
+	SETCapabilities
 FROM SUPL-START;
 
 SUPLAUTHREQ ::= SEQUENCE {
-  ver                     Ver OPTIONAL,
-  sETCapabilities         SETCapabilities OPTIONAL,
-   ...}
+  ver      	Ver OPTIONAL,
+  sETCapabilities	SETCapabilities OPTIONAL,
+  ...}
 
 END
 
@@ -306,13 +305,13 @@ BEGIN
 EXPORTS SUPLAUTHRESP;
 
 IMPORTS
-          SPCSETKey, SPCTID, SPCSETKeylifetime
+	SPCSETKey, SPCTID, SPCSETKeylifetime
 FROM Ver2-ULP-Components;
 
 SUPLAUTHRESP ::= SEQUENCE {
-  sPCSETKey               SPCSETKey,
-  spctid                  SPCTID,
-  sPCSETKeylifetime   SPCSETKeylifetime OPTIONAL,
+  sPCSETKey	SPCSETKey,
+  spctid  	SPCTID,
+  sPCSETKeylifetime	SPCSETKeylifetime OPTIONAL,
   ...}
 
 END
@@ -326,7 +325,7 @@ BEGIN
 EXPORTS Ver2-SUPLNOTIFY;
 
 IMPORTS
-          Notification
+	Notification
 FROM SUPL-INIT;
 
 Ver2-SUPLNOTIFY ::= SEQUENCE {
@@ -359,10 +358,11 @@ BEGIN
 EXPORTS Ver2-SUPLSETINIT;
 
 IMPORTS
-          SETId, QoP
+	SETId, QoP
 FROM ULP-Components
-          ApplicationID
+ApplicationID
 FROM Ver2-ULP-Components;
+
 
 Ver2-SUPLSETINIT ::= SEQUENCE {
   targetSETID    SETId, --Target SETid identifies the target SET to be located
@@ -381,41 +381,41 @@ BEGIN
 EXPORTS Ver2-SUPLTRIGGEREDSTART, TriggerType, TriggerParams, maxNumGeoArea, maxAreaId, maxAreaIdList;
 
 IMPORTS
-          LocationId, QoP, Ver, Position
+	LocationId, QoP, Ver, Position
 FROM ULP-Components
-          MultipleLocationIds, CauseCode, ThirdParty, ApplicationID, ReportingCap, Coordinate, CircularArea, EllipticalArea, PolygonArea
+	MultipleLocationIds, CauseCode, ThirdParty, ApplicationID, ReportingCap, Coordinate, CircularArea, EllipticalArea, PolygonArea
 FROM Ver2-ULP-Components
-          SETCapabilities
+	SETCapabilities
 FROM SUPL-START;
 
 Ver2-SUPLTRIGGEREDSTART ::= SEQUENCE {
-  sETCapabilities     SETCapabilities,
-  locationId          LocationId,
-  ver                 Ver OPTIONAL,
-  qoP                 QoP OPTIONAL,
-  multipleLocationIds MultipleLocationIds OPTIONAL,
-  thirdParty              ThirdParty OPTIONAL,
-  applicationID           ApplicationID OPTIONAL,
-  triggerType             TriggerType OPTIONAL,
-  triggerParams           TriggerParams OPTIONAL,
-  position            Position OPTIONAL,
-  reportingCap            ReportingCap OPTIONAL,
-  causeCode               CauseCode OPTIONAL,
-  ...}
+  sETCapabilities  	SETCapabilities,
+  locationId       	LocationId,
+  ver              	Ver OPTIONAL,
+  qoP              	QoP OPTIONAL,
+  multipleLocationIds	MultipleLocationIds OPTIONAL,
+thirdParty    	ThirdParty OPTIONAL,
+applicationID	ApplicationID OPTIONAL,
+  triggerType   	TriggerType OPTIONAL,
+  triggerParams 	TriggerParams OPTIONAL,
+  position         	Position OPTIONAL,
+  reportingCap	ReportingCap OPTIONAL,
+  causeCode	CauseCode OPTIONAL,
+...}
 
 TriggerType ::= ENUMERATED {
   periodic(0), areaEvent(1),
   ...}
 
 TriggerParams ::= CHOICE {
-   periodicParams         PeriodicParams,
-   areaEventParams        AreaEventParams,
+   periodicParams	PeriodicParams,
+   areaEventParams	AreaEventParams,
    ...}
 
 PeriodicParams ::= SEQUENCE{
-   numberOfFixes                           INTEGER(1.. 8639999),
-   intervalBetweenFixes                    INTEGER(1.. 8639999),
-   startTime                               INTEGER(0..2678400) OPTIONAL,
+   numberOfFixes   		INTEGER(1.. 8639999),
+   intervalBetweenFixes    	INTEGER(1.. 8639999),
+   startTime		INTEGER(0..2678400) OPTIONAL,
 ...}
 -- intervalBetweenFixes and startTime are in seconds.
 -- numberOfFixes  * intervalBetweenFixes shall not exceed 8639999
@@ -425,14 +425,14 @@ PeriodicParams ::= SEQUENCE{
 -- seconds from "now"
 
 AreaEventParams ::= SEQUENCE {
-  areaEventType                            AreaEventType,
-  locationEstimate                         BOOLEAN,
-  repeatedReportingParams                  RepeatedReportingParams OPTIONAL,
-  startTime                                INTEGER(0..2678400) OPTIONAL,
-  stopTime                                 INTEGER(0..11318399) OPTIONAL,
-  geographicTargetAreaList                 GeographicTargetAreaList  OPTIONAL,
-  areaIdLists                              SEQUENCE (SIZE (1..maxAreaIdList)) OF AreaIdList OPTIONAL,
-  ...}
+areaEventType		AreaEventType,
+locationEstimate		BOOLEAN,
+repeatedReportingParams	RepeatedReportingParams OPTIONAL,
+startTime		INTEGER(0..2678400) OPTIONAL,
+stopTime		INTEGER(0..11318399) OPTIONAL,
+geographicTargetAreaList	GeographicTargetAreaList	OPTIONAL,
+areaIdLists		SEQUENCE (SIZE (1..maxAreaIdList)) OF AreaIdList OPTIONAL,
+...}
 
 -- startTime and stopTime are in seconds.
 -- startTime and stop Time are in relative time in units of seconds measured
@@ -445,81 +445,75 @@ AreaEventParams ::= SEQUENCE {
 AreaEventType ::= ENUMERATED {enteringArea(0), insideArea(1), outsideArea(2), leavingArea(3), ...}
 
 RepeatedReportingParams ::= SEQUENCE {
-  minimumIntervalTime      INTEGER (1..604800), -- time in seconds
-  maximumNumberOfReports   INTEGER (1..1024),
-  ...}
+minimumIntervalTime	     INTEGER (1..604800), -- time in seconds
+maximumNumberOfReports   INTEGER (1..1024),
+...}
 
 GeographicTargetAreaList ::= SEQUENCE (SIZE (1..maxNumGeoArea)) OF GeographicTargetArea
 
 GeographicTargetArea ::= CHOICE {
- circularArea              CircularArea,
- ellipticalArea            EllipticalArea,
- polygonArea               PolygonArea,
+ circularArea	CircularArea,
+ ellipticalArea	EllipticalArea,
+ polygonArea	PolygonArea,
  ...}
 
 AreaIdList ::= SEQUENCE {
- areaIdSet                 AreaIdSet,
- areaIdSetType             AreaIdSetType OPTIONAL,
- geoAreaMappingList                        GeoAreaMappingList OPTIONAL}
+ areaIdSet	AreaIdSet,
+ areaIdSetType    	AreaIdSetType OPTIONAL,
+ geoAreaMappingList		GeoAreaMappingList OPTIONAL}
 
 AreaIdSet ::= SEQUENCE SIZE (1..maxAreaId) OF AreaId
 
 AreaId ::= CHOICE {
- gSMAreaId                 GSMAreaId,
- wCDMAAreaId               WCDMAAreaId, -- For TD-SCDMA networks, this parameter indicates a TD-SCDMA Area ID
- cDMAAreaId                CDMAAreaId,
- hRPDAreaId                HRPDAreaId,
- uMBAreaId                 UMBAreaId,
- lTEAreaId                 LTEAreaId,
- wLANAreaId                WLANAreaId,
- wiMAXAreaId               WimaxAreaId,
- ...}
+ gSMAreaId	GSMAreaId,
+ wCDMAAreaId  	WCDMAAreaId, -- For TD-SCDMA networks, this parameter indicates a TD-SCDMA Area ID
+ cDMAAreaId 	CDMAAreaId,
+ hRPDAreaId	HRPDAreaId,
+ uMBAreaId	UMBAreaId,
+ lTEAreaId	LTEAreaId,
+ wLANAreaId 	WLANAreaId,
+ wiMAXAreaId	WimaxAreaId,
+ ...,
+nRAreaId	NRAreaId }
 
 GSMAreaId ::= SEQUENCE {
- refMCC                    INTEGER(0..999) OPTIONAL, -- Mobile Country Code
- refMNC                    INTEGER(0..999) OPTIONAL, -- Mobile Network Code
- refLAC                    INTEGER(0..65535) OPTIONAL, -- Location Area Code
- refCI                     INTEGER(0..65535) OPTIONAL, -- Cell Id
+ refMCC		INTEGER(0..999) OPTIONAL, -- Mobile Country Code
+ refMNC		INTEGER(0..999) OPTIONAL, -- Mobile Network Code
+ refLAC		INTEGER(0..65535) OPTIONAL, -- Location Area Code
+ refCI		INTEGER(0..65535) OPTIONAL, -- Cell Id
  ...}
-
--- only one of the following four combinations are allowed: (1) refMCC, (2)
--- refMCC+refMNC, (3) refMCC+refMNC+refLAC or (4) refMCC+refMNC+refLAC+refCI
+-- only one of the following four combinations are allowed: (1) refMCC, (2) refMCC+refMNC, (3) refMCC+refMNC+refLAC or (4) refMCC+refMNC+refLAC+refCI
 
 WCDMAAreaId ::= SEQUENCE {
-  refMCC INTEGER(0..999) OPTIONAL, -- Mobile Country Code
-  refMNC INTEGER(0..999) OPTIONAL, -- Mobile Network Code
-  refLAC INTEGER(0..65535) OPTIONAL, -- Location Area Code
-  refUC  INTEGER(0..268435455) OPTIONAL, -- Cell identity
+  refMCC	INTEGER(0..999) OPTIONAL, -- Mobile Country Code
+refMNC	INTEGER(0..999) OPTIONAL, -- Mobile Network Code
+  refLAC	INTEGER(0..65535) OPTIONAL, -- Location Area Code
+refUC	INTEGER(0..268435455) OPTIONAL, -- Cell identity
 ...}
-
--- only one of the following four combinations are allowed: (1) refMCC, (2)
--- refMCC+refMNC, (3) refMCC+refMNC+refLAC, or (4) refMCC+refMNC+refLAC+refUC
+-- only one of the following four combinations are allowed: (1) refMCC, (2) refMCC+refMNC, (3) refMCC+refMNC+refLAC, or (4) refMCC+refMNC+refLAC+refUC
 
 CDMAAreaId::= SEQUENCE {
   refSID         INTEGER(0..65535) OPTIONAL, -- System Id
   refNID         INTEGER(0..32767) OPTIONAL, -- Network Id
   refBASEID      INTEGER(0..65535) OPTIONAL, -- Base Station Id
 ...}
-
--- only one of the following three combinations are allowed: (1) refSID, (2)
--- refSID+refNID, or (3) refSID+refNID+refBASEID
+-- only one of the following three combinations are allowed: (1) refSID, (2) refSID+refNID, or (3) refSID+refNID+refBASEID
 
 HRPDAreaId::= SEQUENCE {
-  refSECTORID    BIT STRING(SIZE (128)), -- HRPD Sector Id
+refSECTORID    BIT STRING(SIZE (128)), -- HRPD Sector Id
 ...}
 
 UMBAreaId::= SEQUENCE {
-  refMCC                   INTEGER(0..999) OPTIONAL, -- Mobile Country Code
-  refMNC                   INTEGER(0..999) OPTIONAL, -- Mobile Network Code
-  refSECTORID              BIT STRING(SIZE (128)) OPTIONAL, -- UMB Sector Id
+  refMCC		INTEGER(0..999) OPTIONAL, -- Mobile Country Code
+  refMNC		INTEGER(0..999) OPTIONAL, -- Mobile Network Code
+refSECTORID    	BIT STRING(SIZE (128)) OPTIONAL, -- UMB Sector Id
 ...}
 
 LTEAreaId::= SEQUENCE {
-  refMCC INTEGER(0..999) OPTIONAL, -- Mobile Country Code
-  refMNC INTEGER(0..999) OPTIONAL, -- Mobile Network Code
-  refCI  BIT STRING(SIZE (29)) OPTIONAL, -- LTE Cell-Id
+  refMCC	INTEGER(0..999) OPTIONAL, -- Mobile Country Code
+  refMNC	INTEGER(0..999) OPTIONAL, -- Mobile Network Code
+refCI	BIT STRING(SIZE (29)) OPTIONAL, -- LTE Cell-Id
 ...}
-
 -- only one of the following three combinations are allowed: (1) refMCC, (2) refMCC+refMNC, or (3) refMCC+refMNC+refCI
 -- The LTE Cell-Id is encoded in the 28 Least Significant Bits of refCI
 -- The Most Significant Bit of refCI shall be ignored
@@ -532,6 +526,15 @@ WimaxAreaId ::= SEQUENCE {
   bsID-MSB      BIT STRING (SIZE(24)) OPTIONAL,
   bsID-LSB      BIT STRING (SIZE(24)) }
 -- if only LSB is present, MSB is assumed to be identical to the current serving BS or clamped on network value
+
+NRAreaId ::= SEQUENCE {
+  refMCC	INTEGER(0..999) OPTIONAL, -- Mobile Country Code
+  refMNC	INTEGER(0..999) OPTIONAL, -- Mobile Network Code
+refCI	BIT STRING(SIZE (36)) OPTIONAL, -- NR Cell-Id
+...}
+-- only one of the following three combinations are allowed: (1) refMCC, (2)
+-- refMCC+refMNC, or (3) refMCC+refMNC+refCI
+
 
 AreaIdSetType ::=  ENUMERATED {border(0), within(1), ...}
 
@@ -556,32 +559,31 @@ BEGIN
 EXPORTS Ver2-SUPLTRIGGEREDRESPONSE;
 
 IMPORTS
-          PosMethod, SLPAddress
+	PosMethod, SLPAddress
 FROM ULP-Components
-          SupportedNetworkInformation, SPCSETKey, SPCTID, SPCSETKeylifetime, GNSSPosTechnology
+	SupportedNetworkInformation, SPCSETKey, SPCTID, SPCSETKeylifetime, GNSSPosTechnology
 FROM Ver2-ULP-Components
-          TriggerParams
+	TriggerParams
 FROM SUPL-TRIGGERED-START;
 
 Ver2-SUPLTRIGGEREDRESPONSE::= SEQUENCE{
-  posMethod                                PosMethod,
-  triggerParams                            TriggerParams  OPTIONAL,
-  sLPAddress                               SLPAddress OPTIONAL,
-  supportedNetworkInformation              SupportedNetworkInformation OPTIONAL,
-  reportingMode                            ReportingMode OPTIONAL,
-  sPCSETKey                                SPCSETKey       OPTIONAL,
-  spctid                                   SPCTID          OPTIONAL,
-  sPCSETKeylifetime                        SPCSETKeylifetime OPTIONAL,
-  gnssPosTechnology                        GNSSPosTechnology OPTIONAL,
+  posMethod     		PosMethod,
+  triggerParams 		TriggerParams  OPTIONAL,
+  sLPAddress    		SLPAddress OPTIONAL,
+  supportedNetworkInformation   	SupportedNetworkInformation OPTIONAL,
+  reportingMode		ReportingMode OPTIONAL,
+  sPCSETKey		SPCSETKey	OPTIONAL,
+  spctid			SPCTID	OPTIONAL,
+  sPCSETKeylifetime		SPCSETKeylifetime OPTIONAL,
+  gnssPosTechnology		GNSSPosTechnology OPTIONAL,
   ...}
-
 ReportingMode ::= SEQUENCE {
-  repMode                 RepModee,
-  batchRepConditions  BatchRepConditions OPTIONAL, -- only used for batch reporting
-  batchRepType            BatchRepType OPTIONAL, -- only used for batch reporting
-   ...}
+repMode	RepModee,
+batchRepConditions	BatchRepConditions OPTIONAL, -- only used for batch reporting
+batchRepType	BatchRepType OPTIONAL, -- only used for batch reporting
+...}
 
-RepModee  ::= ENUMERATED {realtime(1), quasirealtime(2), batch(3), ...}
+RepModee ::= ENUMERATED {realtime(1), quasirealtime(2), batch(3), ...}
 
 BatchRepConditions ::= CHOICE {
  num-interval INTEGER (1..1024), -- number of periodic fixes/measurements after which the batch report is sent to the SLP
@@ -590,11 +592,11 @@ BatchRepConditions ::= CHOICE {
  ...}
 
 BatchRepType ::= SEQUENCE {
-  reportPosition          BOOLEAN, -- set to "true" if reporting of position is allowed
-  reportMeasurements  BOOLEAN, -- set to "true" if reporting of measurements is allowed
-  intermediateReports   BOOLEAN, -- set to "true" if the SET is allowed to send intermediate reports if it runs out of memory
-  discardOldest           BOOLEAN OPTIONAL, -- set to "true" if the SET should discard the oldest positions or measurements of the batch report in order to save memory, set to "false" the SET should discard the latest positions or measurements
-  ...}
+reportPosition	BOOLEAN, -- set to "true" if reporting of position is allowed
+reportMeasurements	BOOLEAN, -- set to "true" if reporting of measurements is allowed
+intermediateReports   BOOLEAN, -- set to "true" if the SET is allowed to send intermediate reports if it runs out of memory
+discardOldest 	BOOLEAN OPTIONAL, -- set to "true" if the SET should discard the oldest positions or measurements of the batch report in order to save memory, set to "false" the SET should discard the latest positions or measurements
+...}
 
 END
 
@@ -607,27 +609,27 @@ BEGIN
 EXPORTS Ver2-SUPLREPORT;
 
 IMPORTS
-          SETCapabilities
+	SETCapabilities
 FROM SUPL-START
-          Position, PosMethod, SessionID, Ver
+	Position, PosMethod, SessionID, Ver
 FROM ULP-Components
-          MultipleLocationIds, GNSSPosTechnology, GANSSSignals
+	MultipleLocationIds, GNSSPosTechnology, GANSSSignals
 FROM Ver2-ULP-Components
-          maxGANSS
+	maxGANSS
 FROM ULP-Version-2-parameter-extensions;
 
 Ver2-SUPLREPORT ::= SEQUENCE {
- sessionList               SessionList OPTIONAL,
+ sessionList	SessionList OPTIONAL,
  sETCapabilities      SETCapabilities OPTIONAL,
- reportDataList           ReportDataList OPTIONAL,
- ver                      Ver OPTIONAL,
- moreComponents           NULL OPTIONAL,
+ reportDataList 	ReportDataList OPTIONAL,
+ ver  		Ver OPTIONAL,
+ moreComponents	NULL OPTIONAL,
 ...}
 
 SessionList ::= SEQUENCE SIZE (1..maxnumSessions) OF SessionInformation
 
 SessionInformation ::= SEQUENCE {
- sessionID                 SessionID,
+ sessionID	SessionID,
  ...}
 
 maxnumSessions    INTEGER ::= 64
@@ -635,24 +637,24 @@ maxnumSessions    INTEGER ::= 64
 ReportDataList ::= SEQUENCE SIZE (1.. 1024) OF ReportData
 
 ReportData ::= SEQUENCE {
-  positionData             PositionData OPTIONAL,
-  multipleLocationIds MultipleLocationIds OPTIONAL,
-  resultCode              ResultCode OPTIONAL,
-  timestamp               TimeStamp OPTIONAL,
+  positionData	PositionData OPTIONAL,
+  multipleLocationIds	MultipleLocationIds OPTIONAL,
+  resultCode	ResultCode OPTIONAL,
+  timestamp	TimeStamp OPTIONAL,
   ...}
 
 PositionData ::= SEQUENCE {
- position                                  Position,
- posMethod                                 PosMethod OPTIONAL,
- gnssPosTechnology                         GNSSPosTechnology OPTIONAL,
- ganssSignalsInfo                          GANSSsignalsInfo OPTIONAL,
+ position		Position,
+ posMethod		PosMethod OPTIONAL,
+ gnssPosTechnology		GNSSPosTechnology OPTIONAL,
+ ganssSignalsInfo		GANSSsignalsInfo OPTIONAL,
  ...}
 
 GANSSsignalsInfo ::= SEQUENCE SIZE (1..maxGANSS) OF GANSSSignalsDescription
 
 GANSSSignalsDescription ::= SEQUENCE {
- ganssId                   INTEGER(0..15), -- coding according to parameter definition in section 10.10
- gANSSSignals             GANSSSignals,
+ganssId		INTEGER(0..15), -- coding according to parameter definition in section 10.10
+gANSSSignals	GANSSSignals,
 ...}
 
 ResultCode ::= ENUMERATED {outofradiocoverage(1), noposition(2), nomeasurement(3), nopositionnomeasurement(4), outofmemory(5), outofmemoryintermediatereporting(6), other(7), ...}
@@ -664,7 +666,7 @@ TimeStamp ::= CHOICE {
 END
 
 --
---11.2.15 SUPL TRIGGERED STOP
+-- 11.2.15 SUPL TRIGGERED STOP
 --
 SUPL-TRIGGERED-STOP DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
@@ -672,7 +674,7 @@ BEGIN
 EXPORTS Ver2-SUPLTRIGGEREDSTOP;
 
 IMPORTS
-          StatusCode
+	StatusCode
 FROM ULP-Components;
 
 Ver2-SUPLTRIGGEREDSTOP::= SEQUENCE{
@@ -682,7 +684,7 @@ Ver2-SUPLTRIGGEREDSTOP::= SEQUENCE{
 END
 
 --
---11.3 Messsage Extensions (SUPL Version 2)
+-- 11.3 Messsage Extensions (SUPL Version 2)
 --
 ULP-Version-2-message-extensions DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
@@ -691,98 +693,97 @@ EXPORTS
 Ver2-SUPL-INIT-extension, Ver2-SUPL-START-extension, Ver2-SUPL-RESPONSE-extension, Ver2-SUPL-POS-INIT-extension, Ver2-SUPL-POS-extension, Ver2-SUPL-END-extension;
 
 IMPORTS
-          SLPAddress, Position, Ver
+	SLPAddress, Position, Ver
 FROM ULP-Components
-          SETCapabilities
+	SETCapabilities
 FROM SUPL-START
-          SupportedNetworkInformation, GNSSPosTechnology, MultipleLocationIds, UTRAN-GPSReferenceTimeResult, UTRAN-GANSSReferenceTimeResult, UTRAN-GPSReferenceTimeAssistance, UTRAN-GANSSReferenceTimeAssistance, SPCSETKey, SPCTID, SPCSETKeylifetime, ThirdParty, ApplicationID
+	SupportedNetworkInformation, GNSSPosTechnology, MultipleLocationIds, UTRAN-GPSReferenceTimeResult, UTRAN-GANSSReferenceTimeResult, UTRAN-GPSReferenceTimeAssistance, UTRAN-GANSSReferenceTimeAssistance, SPCSETKey, SPCTID, SPCSETKeylifetime, ThirdParty, ApplicationID
 FROM Ver2-ULP-Components
-          TriggerType
+	TriggerType
 FROM SUPL-TRIGGERED-START;
 
 Ver2-SUPL-INIT-extension ::= SEQUENCE {
-  notificationMode                         NotificationMode OPTIONAL,
-  supportedNetworkInformation              SupportedNetworkInformation OPTIONAL,
-  triggerType                              TriggerType OPTIONAL,
-  e-SLPAddress                             SLPAddress OPTIONAL,
-  historicReporting                        HistoricReporting OPTIONAL,
-  protectionLevel                          ProtectionLevel OPTIONAL,
-  gnssPosTechnology                        GNSSPosTechnology OPTIONAL,
-  minimumMajorVersion                      INTEGER (0..255) OPTIONAL,
+  notificationMode  		NotificationMode OPTIONAL,
+  supportedNetworkInformation   	SupportedNetworkInformation OPTIONAL,
+  triggerType   		TriggerType OPTIONAL,
+  e-SLPAddress  		SLPAddress OPTIONAL,
+  historicReporting		HistoricReporting OPTIONAL,
+  protectionLevel		ProtectionLevel OPTIONAL,
+  gnssPosTechnology		GNSSPosTechnology OPTIONAL,
+  minimumMajorVersion		INTEGER (0..255) OPTIONAL,
 ...}
 
 NotificationMode ::= ENUMERATED {normal(0), basedOnLocation(1), ...}
 
 HistoricReporting ::= SEQUENCE {
-  allowedReportingType                     AllowedReportingType,
-  reportingCriteria                        ReportingCriteria OPTIONAL,  ...}
+  allowedReportingType 	AllowedReportingType,
+  reportingCriteria	   	ReportingCriteria OPTIONAL, ...}
 
 AllowedReportingType ::= ENUMERATED {
-  positionsOnly(0), measurementsOnly(1), positionsAndMeasurements(2),...}
+  positionsOnly(0), measurementsOnly(1), positionsAndMeasurements(2), ...}
 
 ReportingCriteria ::= SEQUENCE {
-  timeWindow              TimeWindow       OPTIONAL,
-  maxNumberofReports  INTEGER(1..65536) OPTIONAL,
-  minTimeInterval          INTEGER(1..86400) OPTIONAL,
+  timeWindow	TimeWindow	OPTIONAL,
+  maxNumberofReports	INTEGER(1..65536) OPTIONAL,
+  minTimeInterval	INTEGER(1..86400) OPTIONAL,
 ...}
 
 TimeWindow ::= SEQUENCE {
-  startTime                INTEGER(-525600..-1), -- Time in minutes
-  stopTime                 INTEGER(-525599..0)} -- Time in minutes
+  startTime	INTEGER(-525600..-1), -- Time in minutes
+  stopTime	INTEGER(-525599..0)} -- Time in minutes
 
 ProtectionLevel ::= SEQUENCE {
- protlevel                                 ProtLevel,
- basicProtectionParams                     BasicProtectionParams           OPTIONAL,
+ protlevel		ProtLevel,
+ basicProtectionParams	BasicProtectionParams	OPTIONAL,
 ...}
 
 ProtLevel ::= ENUMERATED {
  nullProtection(0), basicProtection(1), ...}
 
 BasicProtectionParams ::= SEQUENCE {
- keyIdentifier                             OCTET STRING(SIZE (8)),
- basicReplayCounter                        INTEGER(0..65535),
- basicMAC                                  BIT STRING(SIZE (32)),
+ keyIdentifier 		OCTET STRING(SIZE (8)),
+ basicReplayCounter		INTEGER(0..65535),
+ basicMAC		BIT STRING(SIZE (32)),
 ...}
 
 Ver2-SUPL-START-extension ::= SEQUENCE {
-  multipleLocationIds MultipleLocationIds OPTIONAL,
-  thirdParty              ThirdParty OPTIONAL,
-  applicationID           ApplicationID OPTIONAL,
-  position            Position OPTIONAL,
+  multipleLocationIds	MultipleLocationIds OPTIONAL,
+  thirdParty     	ThirdParty OPTIONAL,
+  applicationID	ApplicationID OPTIONAL,
+  position         	Position OPTIONAL,
 ...}
 
 Ver2-SUPL-RESPONSE-extension ::= SEQUENCE {
-  supportedNetworkInformation              SupportedNetworkInformation OPTIONAL,
-  sPCSETKey                                SPCSETKey       OPTIONAL,
-  spctid                                   SPCTID          OPTIONAL,
-  sPCSETKeylifetime                        SPCSETKeylifetime OPTIONAL,
-  initialApproximateposition               Position        OPTIONAL,
-  gnssPosTechnology                        GNSSPosTechnology OPTIONAL,
+  supportedNetworkInformation   	SupportedNetworkInformation OPTIONAL,
+  sPCSETKey     		SPCSETKey	OPTIONAL,
+  spctid	       		SPCTID	OPTIONAL,
+  sPCSETKeylifetime		SPCSETKeylifetime OPTIONAL,
+  initialApproximateposition    	Position 	OPTIONAL,
+  gnssPosTechnology		GNSSPosTechnology OPTIONAL,
 ...}
 
 Ver2-SUPL-POS-INIT-extension ::= SEQUENCE {
-  multipleLocationIds                      MultipleLocationIds OPTIONAL,
-  utran-GPSReferenceTimeResult             UTRAN-GPSReferenceTimeResult OPTIONAL,
-  utran-GANSSReferenceTimeResult   UTRAN-GANSSReferenceTimeResult OPTIONAL,
+  multipleLocationIds	 	MultipleLocationIds OPTIONAL,
+  utran-GPSReferenceTimeResult	UTRAN-GPSReferenceTimeResult OPTIONAL,
+  utran-GANSSReferenceTimeResult	UTRAN-GANSSReferenceTimeResult OPTIONAL,
 ...}
 
 Ver2-SUPL-POS-extension ::= SEQUENCE {
-utran-GPSReferenceTimeAssistance   UTRAN-GPSReferenceTimeAssistance OPTIONAL,
-utran-GPSReferenceTimeResult               UTRAN-GPSReferenceTimeResult OPTIONAL,
-utran-GANSSReferenceTimeAssistance UTRAN-GANSSReferenceTimeAssistance OPTIONAL,
-utran-GANSSReferenceTimeResult             UTRAN-GANSSReferenceTimeResult OPTIONAL,
+utran-GPSReferenceTimeAssistance	UTRAN-GPSReferenceTimeAssistance OPTIONAL,
+utran-GPSReferenceTimeResult	UTRAN-GPSReferenceTimeResult OPTIONAL,
+utran-GANSSReferenceTimeAssistance	UTRAN-GANSSReferenceTimeAssistance OPTIONAL,
+utran-GANSSReferenceTimeResult	UTRAN-GANSSReferenceTimeResult OPTIONAL,
 ...}
 
 Ver2-SUPL-END-extension ::= SEQUENCE {
-  sETCapabilities         SETCapabilities OPTIONAL,
+  sETCapabilities	SETCapabilities OPTIONAL,
 ...}
 
 END
 
 --
---	11.4 Parameter Extensions (SUPL Version 2)
+-- 11.4 Parameter Extensions (SUPL Version 2)
 --
-
 ULP-Version-2-parameter-extensions DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
@@ -790,9 +791,9 @@ EXPORTS
 maxGANSS, Ver2-Notification-extension, Ver2-SETCapabilities-extension, Ver2-PosProtocol-extension, Ver2-PosTechnology-extension, Ver2-RequestedAssistData-extension, Ver2-PosPayLoad-extension;
 
 IMPORTS
-          GANSSSignals, ReportingCap
+	GANSSSignals, ReportingCap
 FROM Ver2-ULP-Components
-          maxNumGeoArea, maxAreaId, maxAreaIdList
+	maxNumGeoArea, maxAreaId, maxAreaIdList
 FROM SUPL-TRIGGERED-START;
 
 Ver2-Notification-extension ::= SEQUENCE {
@@ -800,27 +801,28 @@ Ver2-Notification-extension ::= SEQUENCE {
   ...}
 
 Ver2-SETCapabilities-extension ::= SEQUENCE {
-  serviceCapabilities                 ServiceCapabilities OPTIONAL,
+serviceCapabilities	ServiceCapabilities OPTIONAL,
 ...,
   supportedBearers SupportedBearers OPTIONAL}
 
+
 ServiceCapabilities ::= SEQUENCE {
-  servicesSupported                        ServicesSupported,
-  reportingCapabilities                    ReportingCap OPTIONAL,
-  eventTriggerCapabilities                 EventTriggerCapabilities OPTIONAL,
-  sessionCapabilities                      SessionCapabilities,
+  servicesSupported		ServicesSupported,
+  reportingCapabilities	ReportingCap OPTIONAL,
+  eventTriggerCapabilities	EventTriggerCapabilities OPTIONAL,
+  sessionCapabilities		SessionCapabilities,
 ...}
 
 ServicesSupported ::= SEQUENCE {
-  periodicTrigger          BOOLEAN,
-  areaEventTrigger         BOOLEAN,
+  periodicTrigger	BOOLEAN,
+  areaEventTrigger	BOOLEAN,
 ...}
 
 EventTriggerCapabilities ::= SEQUENCE {
-  geoAreaShapesSupported                   GeoAreaShapesSupported,
-  maxNumGeoAreaSupported                   INTEGER (0..maxNumGeoArea) OPTIONAL,
-  maxAreaIdListSupported                   INTEGER (0..maxAreaIdList) OPTIONAL,
-  maxAreaIdSupportedPerList                INTEGER (0..maxAreaId) OPTIONAL,
+  geoAreaShapesSupported        	GeoAreaShapesSupported,
+  maxNumGeoAreaSupported	INTEGER (0..maxNumGeoArea) OPTIONAL,
+  maxAreaIdListSupported	INTEGER (0..maxAreaIdList) OPTIONAL,
+  maxAreaIdSupportedPerList	INTEGER (0..maxAreaId) OPTIONAL,
 ...}
 
 GeoAreaShapesSupported ::= SEQUENCE {
@@ -829,31 +831,33 @@ GeoAreaShapesSupported ::= SEQUENCE {
 ...}
 
 SessionCapabilities ::= SEQUENCE {
-  maxNumberTotalSessions                   INTEGER (1..128),
-  maxNumberPeriodicSessions                INTEGER (1..32),
-  maxNumberTriggeredSessions               INTEGER (1..32),
+  maxNumberTotalSessions	INTEGER (1..128),
+  maxNumberPeriodicSessions	INTEGER (1..32),
+  maxNumberTriggeredSessions	INTEGER (1..32),
 ...}
 
 SupportedBearers ::= SEQUENCE {
-  gsm                      BOOLEAN,
-  wcdma                    BOOLEAN,
-  lte                      BOOLEAN,
-  cdma                     BOOLEAN,
-  hprd                     BOOLEAN,
-  umb                      BOOLEAN,
-  wlan                     BOOLEAN,
-  wiMAX                    BOOLEAN,
-...}
+  gsm		BOOLEAN,
+  wcdma		BOOLEAN,
+  lte		BOOLEAN,
+  cdma		BOOLEAN,
+  hprd		BOOLEAN,
+  umb		BOOLEAN,
+  wlan		BOOLEAN,
+  wiMAX		BOOLEAN,
+...,
+  nr		BOOLEAN OPTIONAL}
+
 
 Ver2-PosProtocol-extension ::= SEQUENCE {
   lpp     BOOLEAN,
-  posProtocolVersionRRLP                   PosProtocolVersion3GPP OPTIONAL,
-  posProtocolVersionRRC                    PosProtocolVersion3GPP OPTIONAL,
-  posProtocolVersionTIA801                 PosProtocolVersion3GPP2 OPTIONAL,
-  posProtocolVersionLPP  PosProtocolVersion3GPP OPTIONAL,
+posProtocolVersionRRLP	PosProtocolVersion3GPP OPTIONAL,
+posProtocolVersionRRC	PosProtocolVersion3GPP OPTIONAL,
+posProtocolVersionTIA801	PosProtocolVersion3GPP2 OPTIONAL,
+posProtocolVersionLPP  PosProtocolVersion3GPP OPTIONAL,
 ...,
-  lppe   BOOLEAN OPTIONAL,
-  posProtocolVersionLPPe                   PosProtocolVersionOMA OPTIONAL}
+  lppe	BOOLEAN OPTIONAL,
+  posProtocolVersionLPPe	PosProtocolVersionOMA OPTIONAL}
 
 PosProtocolVersion3GPP ::= SEQUENCE {
   majorVersionField      INTEGER(0..255),
@@ -864,27 +868,28 @@ PosProtocolVersion3GPP ::= SEQUENCE {
 PosProtocolVersion3GPP2 ::= SEQUENCE (SIZE(1..8)) OF Supported3GPP2PosProtocolVersion
 
 Supported3GPP2PosProtocolVersion ::= SEQUENCE {
-  revisionNumber                           BIT STRING(SIZE (6)), -- the location standard revision number the SET supports coded according to 3GPP2 C.S0022
-  pointReleaseNumber                       INTEGER(0..255),
-  internalEditLevel                        INTEGER(0..255),
+  revisionNumber   		BIT STRING(SIZE (6)), -- the location standard revision number the SET supports coded according to 3GPP2 C.S0022
+  pointReleaseNumber  	INTEGER(0..255),
+  internalEditLevel  		INTEGER(0..255),
 ...}
 
-PosProtocolVersionOMA  ::= SEQUENCE {
+PosProtocolVersionOMA ::= SEQUENCE {
   majorVersionField      INTEGER(0..255),
   minorVersionField      INTEGER(0..255),
 ...}
 
 Ver2-PosTechnology-extension ::= SEQUENCE {
   gANSSPositionMethods  GANSSPositionMethods OPTIONAL,
-...}
+...,
+  additionalPositioningMethods	AdditionalPositioningMethods OPTIONAL}
 
 GANSSPositionMethods ::= SEQUENCE (SIZE(1..16)) OF GANSSPositionMethod
 
 GANSSPositionMethod ::= SEQUENCE {
- ganssId                                   INTEGER(0..15), -- coding according to parameter definition in section 10.10
- ganssSBASid                               BIT STRING(SIZE(3)) OPTIONAL, --coding according to parameter definition in section 10.10
- gANSSPositioningMethodTypes               GANSSPositioningMethodTypes,
- gANSSSignals                              GANSSSignals,
+ganssId			INTEGER(0..15), -- coding according to parameter definition in section 10.10
+ganssSBASid 		BIT STRING(SIZE(3)) OPTIONAL, --coding according to parameter definition in section 10.10
+gANSSPositioningMethodTypes	GANSSPositioningMethodTypes,
+gANSSSignals		GANSSSignals,
 ...}
 
 GANSSPositioningMethodTypes ::= SEQUENCE {
@@ -893,11 +898,24 @@ GANSSPositioningMethodTypes ::= SEQUENCE {
   autonomous	BOOLEAN,
 ...}
 
+AdditionalPositioningMethods ::= SEQUENCE (SIZE(1..8)) OF AddPosSupport-Element
+
+AddPosSupport-Element ::= SEQUENCE {
+    addPosID	ENUMERATED {
+                          mBS,
+                          ...
+                      },
+    addPosMode	BIT STRING {
+			standalone 	(0),
+			setBased	(1),
+			setAssisted	(2)} (SIZE (1..8)) OPTIONAL,
+...}
+
 Ver2-RequestedAssistData-extension ::= SEQUENCE {
-  ganssRequestedCommonAssistanceDataList GanssRequestedCommonAssistanceDataList OPTIONAL,
+  ganssRequestedCommonAssistanceDataList          GanssRequestedCommonAssistanceDataList OPTIONAL,
   ganssRequestedGenericAssistanceDataList GanssRequestedGenericAssistanceDataList OPTIONAL,
-  extendedEphemeris                        ExtendedEphemeris OPTIONAL,
-  extendedEphemerisCheck                   ExtendedEphCheck OPTIONAL,
+  extendedEphemeris		ExtendedEphemeris OPTIONAL,
+  extendedEphemerisCheck	ExtendedEphCheck OPTIONAL,
 ...}
 
 GanssRequestedCommonAssistanceDataList ::= SEQUENCE {
@@ -907,66 +925,66 @@ GanssRequestedCommonAssistanceDataList ::= SEQUENCE {
   ganssAdditionalIonosphericModelForDataID11	BOOLEAN,
   ganssEarthOrientationParameters		BOOLEAN,
 ...,
-  ganssAdditionalIonosphericModelForDataID01               BOOLEAN OPTIONAL}
+  ganssAdditionalIonosphericModelForDataID01	BOOLEAN OPTIONAL}
 
 GanssRequestedGenericAssistanceDataList ::= SEQUENCE(SIZE(1..maxGANSS)) OF GanssReqGenericData
 
 GanssReqGenericData ::= SEQUENCE {
   ganssId   INTEGER(0..15), -- coding according to parameter definition in section 10.10
   ganssSBASid BIT STRING(SIZE(3)) OPTIONAL, --coding according to parameter definition in section 10.10
-  ganssRealTimeIntegrity                   BOOLEAN,
-  ganssDifferentialCorrection              DGANSS-Sig-Id-Req OPTIONAL,
-  ganssAlmanac                             BOOLEAN,
-  ganssNavigationModelData                 GanssNavigationModelData OPTIONAL,
-  ganssTimeModels                          BIT STRING(SIZE(16)) OPTIONAL,
-  ganssReferenceMeasurementInfo            BOOLEAN,
-  ganssDataBits                            GanssDataBits OPTIONAL,
-  ganssUTCModel                            BOOLEAN,
+  ganssRealTimeIntegrity	BOOLEAN,
+  ganssDifferentialCorrection	DGANSS-Sig-Id-Req OPTIONAL,
+  ganssAlmanac		BOOLEAN,
+  ganssNavigationModelData	GanssNavigationModelData OPTIONAL,
+  ganssTimeModels		BIT STRING(SIZE(16)) OPTIONAL,
+  ganssReferenceMeasurementInfo	BOOLEAN,
+  ganssDataBits		GanssDataBits OPTIONAL,
+  ganssUTCModel		BOOLEAN,
   ganssAdditionalDataChoices GanssAdditionalDataChoices OPTIONAL,
   ganssAuxiliaryInformation	BOOLEAN,
   ganssExtendedEphemeris         	ExtendedEphemeris OPTIONAL,
   ganssExtendedEphemerisCheck    	GanssExtendedEphCheck OPTIONAL,
 ...,
   bds-DifferentialCorrection BDS-Sig-Id-Req OPTIONAL,
-  bds-GridModelReq        BOOLEAN          OPTIONAL}
+  bds-GridModelReq	BOOLEAN 	OPTIONAL}
 
 DGANSS-Sig-Id-Req ::= BIT STRING (SIZE(8)) -- coding according to parameter definition in section 10.9
 
 BDS-Sig-Id-Req ::= BIT STRING (SIZE(8)) -- coding according to parameter definition in section 10.9
 
 GanssNavigationModelData ::= SEQUENCE {
-ganssWeek                                  INTEGER(0..4095),
-ganssToe                                   INTEGER(0..167),
-t-toeLimit                                 INTEGER(0..15),
-satellitesListRelatedDataList              SatellitesListRelatedDataList OPTIONAL,
+ganssWeek		INTEGER(0..4095),
+ganssToe			INTEGER(0..167),
+t-toeLimit		INTEGER(0..15),
+satellitesListRelatedDataList	SatellitesListRelatedDataList OPTIONAL,
 ...}
 
 SatellitesListRelatedDataList ::= SEQUENCE(SIZE(0..maxGANSSSat)) OF SatellitesListRelatedData
 
 SatellitesListRelatedData ::= SEQUENCE {
-  satId  INTEGER(0..63),
-  iod     INTEGER(0..1023),
+  satId	INTEGER(0..63),
+  iod	INTEGER(0..1023),
 ...}
 
 maxGANSS    INTEGER ::= 16
 maxGANSSSat INTEGER ::= 32
 
 GanssDataBits ::= SEQUENCE {
-  ganssTODmin                              INTEGER (0..59),
-  reqDataBitAssistanceList                 ReqDataBitAssistanceList,
+  ganssTODmin     		INTEGER (0..59),
+  reqDataBitAssistanceList 	ReqDataBitAssistanceList,
 ...}
 
 ReqDataBitAssistanceList ::= SEQUENCE {
-  gnssSignals                              GANSSSignals,
-  ganssDataBitInterval                     INTEGER (0..15),
-  ganssDataBitSatList                      SEQUENCE (SIZE(1..maxGANSSSat)) OF INTEGER (0..63) OPTIONAL,
+  gnssSignals  	     	GANSSSignals,
+  ganssDataBitInterval  	INTEGER (0..15),
+  ganssDataBitSatList		SEQUENCE (SIZE(1..maxGANSSSat)) OF INTEGER (0..63) OPTIONAL,
 ...}
 
 GanssAdditionalDataChoices ::= SEQUENCE {
-  orbitModelID             INTEGER(0..7) OPTIONAL,
-  clockModelID             INTEGER(0..7) OPTIONAL,
-  utcModelID               INTEGER(0..7) OPTIONAL,
-  almanacModelID           INTEGER(0..7) OPTIONAL,
+  orbitModelID	INTEGER(0..7) OPTIONAL,
+  clockModelID	INTEGER(0..7) OPTIONAL,
+  utcModelID	INTEGER(0..7) OPTIONAL,
+  almanacModelID	INTEGER(0..7) OPTIONAL,
 ...}
 
 ExtendedEphemeris ::= SEQUENCE {
@@ -1000,12 +1018,3 @@ Ver2-PosPayLoad-extension ::= SEQUENCE {
 
 
 END
-
---
---11.5 Common elements (SUPL Version 1)
---
-
-
---
--- 11.6 Common elements (SUPL Version 2)
---

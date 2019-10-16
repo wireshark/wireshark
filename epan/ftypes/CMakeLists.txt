@@ -17,6 +17,11 @@ set(FTYPE_PUBLIC_HEADERS
 	ftypes.h
 )
 
+set(FTYPE_HEADER_FILES
+	${FTYPE_PUBLIC_HEADERS}
+	ftypes-int.h
+)
+
 set(FTYPE_FILES
 	ftypes.c
 	ftype-bytes.c
@@ -41,6 +46,9 @@ set_source_files_properties(
 )
 
 add_library(ftypes OBJECT
+	#Included so that Visual Studio can properly put header files in solution
+	${FTYPE_HEADER_FILES}
+
 	${FTYPE_FILES}
 )
 
@@ -49,11 +57,9 @@ set_target_properties(ftypes PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
-if(NOT WIN32)
-	install(FILES ${FTYPE_PUBLIC_HEADERS}
-		DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${CPACK_PACKAGE_NAME}/epan/ftypes"
-	)
-endif()
+install(FILES ${FTYPE_PUBLIC_HEADERS}
+	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/epan/ftypes"
+)
 
 CHECKAPI(
 	NAME
@@ -65,7 +71,7 @@ CHECKAPI(
 )
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

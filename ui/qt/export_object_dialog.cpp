@@ -14,9 +14,9 @@
 #include <wsutil/utf8_entities.h>
 
 #include "wireshark_application.h"
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QDialogButtonBox>
-#include <QFileDialog>
 #include <QMessageBox>
 #include <QPushButton>
 
@@ -37,6 +37,10 @@ ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, registe
     proxyModel_.setSourceModel(&model_);
     eo_ui_->objectTree->setModel(&proxyModel_);
 
+    proxyModel_.setFilterFixedString("");
+    proxyModel_.setFilterCaseSensitivity(Qt::CaseInsensitive);
+    proxyModel_.setFilterKeyColumn(-1);
+
 #if defined(Q_OS_MAC)
     eo_ui_->progressLabel->setAttribute(Qt::WA_MacSmallSize, true);
     eo_ui_->progressBar->setAttribute(Qt::WA_MacSmallSize, true);
@@ -45,6 +49,9 @@ ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, registe
     connect(&model_, SIGNAL(rowsInserted(QModelIndex,int,int)),
             this, SLOT(modelDataChanged(QModelIndex)));
     connect(&model_, SIGNAL(modelReset()), this, SLOT(modelRowsReset()));
+    connect(eo_ui_->filterLine, &QLineEdit::textChanged,
+            &proxyModel_, &QSortFilterProxyModel::setFilterFixedString);
+
 
     save_bt_ = eo_ui_->buttonBox->button(QDialogButtonBox::Save);
     save_all_bt_ = eo_ui_->buttonBox->button(QDialogButtonBox::SaveAll);
@@ -56,8 +63,8 @@ ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, registe
     if (save_all_bt_) save_all_bt_->setEnabled(false);
     if (close_bt) close_bt->setDefault(true);
 
-    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent *)),
-            this, SLOT(captureEvent(CaptureEvent *)));
+    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
+            this, SLOT(captureEvent(CaptureEvent)));
 
     show();
     raise();
@@ -113,10 +120,10 @@ void ExportObjectDialog::accept()
     // Don't close the dialog.
 }
 
-void ExportObjectDialog::captureEvent(CaptureEvent *e)
+void ExportObjectDialog::captureEvent(CaptureEvent e)
 {
-    if ((e->captureContext() == CaptureEvent::File) &&
-            (e->eventType() == CaptureEvent::Closing))
+    if ((e.captureContext() == CaptureEvent::File) &&
+            (e.eventType() == CaptureEvent::Closing))
     {
         close();
     }
@@ -145,7 +152,11 @@ void ExportObjectDialog::saveCurrentEntry()
 {
     QDir path(wsApp->lastOpenDir());
 
-    QModelIndex current = eo_ui_->objectTree->currentIndex();
+    QModelIndex proxyIndex = eo_ui_->objectTree->currentIndex();
+    if (!proxyIndex.isValid())
+        return;
+
+    QModelIndex current = proxyModel_.mapToSource(proxyIndex);
     if (!current.isValid())
         return;
 
@@ -153,8 +164,8 @@ void ExportObjectDialog::saveCurrentEntry()
     if (entry_filename.isEmpty())
         return;
 
-    GString *safe_filename = eo_massage_str(entry_filename.toUtf8().constData(), EXPORT_OBJECT_MAXFILELEN-path.canonicalPath().length(), 0);
-    QString file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Object As" UTF8_HORIZONTAL_ELLIPSIS)),
+    GString *safe_filename = eo_massage_str(entry_filename.toUtf8().constData(), EXPORT_OBJECT_MAXFILELEN, 0);
+    QString file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Object As" UTF8_HORIZONTAL_ELLIPSIS)),
                                              safe_filename->str);
     g_string_free(safe_filename, TRUE);
 
@@ -176,22 +187,14 @@ void ExportObjectDialog::saveAllEntries()
     // as the native dialog is used, and it supports that; does
     // that also work on Windows and with Qt's own dialog?
     //
-    save_in_path = QFileDialog::getExistingDirectory(this, wsApp->windowTitleString(tr("Save All Objects In" UTF8_HORIZONTAL_ELLIPSIS)),
+    save_in_path = WiresharkFileDialog::getExistingDirectory(this, wsApp->windowTitleString(tr("Save All Objects In" UTF8_HORIZONTAL_ELLIPSIS)),
                                                      save_in_dir.canonicalPath(),
                                                      QFileDialog::ShowDirsOnly);
 
-    if (save_in_path.length() < 1 || save_in_path.length() > EXPORT_OBJECT_MAXFILELEN)
+    if (save_in_path.length() < 1)
         return;
 
-    if (!model_.saveAllEntries(save_in_path))
-    {
-        QMessageBox::warning(
-                    this,
-                    tr("Object Export"),
-                    tr("Some files could not be saved."),
-                    QMessageBox::Ok
-                    );
-    }
+    model_.saveAllEntries(save_in_path);
 }
 
 /*

@@ -102,7 +102,7 @@ DEFINE_WS_STRTOI_BITS(32)
 DEFINE_WS_STRTOI_BITS(16)
 DEFINE_WS_STRTOI_BITS(8)
 
-static gboolean ws_basestrtou64(const gchar* str, const gchar** endptr, guint64* cint, int base)
+gboolean ws_basestrtou64(const gchar* str, const gchar** endptr, guint64* cint, int base)
 {
 	gchar* end;
 	guint64 val;
@@ -160,7 +160,7 @@ gboolean ws_hexstrtou64(const gchar* str, const gchar** endptr, guint64* cint)
 }
 
 #define DEFINE_WS_STRTOU_BITS(bits) \
-static gboolean ws_basestrtou##bits(const gchar* str, const gchar** endptr, guint##bits* cint, int base) \
+gboolean ws_basestrtou##bits(const gchar* str, const gchar** endptr, guint##bits* cint, int base) \
 { \
 	guint64 val; \
 	if (!ws_basestrtou64(str, endptr, &val, base)) { \

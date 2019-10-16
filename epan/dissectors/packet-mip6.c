@@ -2747,12 +2747,11 @@ dissect_pmip6_opt_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_item* ti;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
-    const gchar *str;
+    char *str;
 
     opt_tree = mip6_fixed_option_header(tree, pinfo, tvb, proto_mip6_option_ts, ett_pmip6_opt_ts, &ti, option_len, PMIP6_TS_LEN);
 
-    str = tvb_mip6_fmt_ts(tvb,offset);
-    proto_tree_add_string(opt_tree, hf_pmip6_timestamp, tvb, offset, 8, str);
+    proto_tree_add_item_ret_time_string(opt_tree, hf_pmip6_timestamp, tvb, offset, 8, ENC_TIME_MIP6|ENC_BIG_ENDIAN, wmem_packet_scope(), &str);
     proto_item_append_text(ti, ": %s", str);
 
     return tvb_captured_length(tvb);
@@ -2960,7 +2959,7 @@ dissect_pmip6_opt_mhipv6ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     proto_tree_add_item(opt_tree, hf_mip6_opt_mhipv6ap_ipv6_address, tvb, offset, 16, ENC_NA);
     ti = proto_tree_add_string(opt_tree, hf_mip6_opt_mhipv6ap_ipv6_address_prefix, tvb, offset -1, 16+1, tvb_ip6_to_str(tvb, offset));
     proto_item_append_text(ti, "/%u", prefix_l);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     return tvb_captured_length(tvb);
 }
@@ -4519,7 +4518,7 @@ proto_register_mip6(void)
     },
     { &hf_pmip6_timestamp,
       { "Timestamp", "mip6.timestamp_tmp",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
         NULL, HFILL }
     },
     { &hf_pmip6_opt_lila_lla,
@@ -5256,7 +5255,7 @@ proto_reg_handoff_mip6(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

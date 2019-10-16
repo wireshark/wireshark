@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef WIRESHARK_DIALOG_H
 #define WIRESHARK_DIALOG_H
@@ -25,6 +26,8 @@
 // BaseCaptureDialog, CaptureHelperDialog (or rename CaptureFileDialog to something else - WiresharkFileDialog).
 // TapDialog might make sense as well.
 
+#include <epan/tap.h>
+
 #include "capture_file.h"
 #include "geometry_state_dialog.h"
 
@@ -35,6 +38,11 @@ class WiresharkDialog : public GeometryStateDialog
 public:
     // XXX Unlike the entire QWidget API, parent is mandatory here.
     explicit WiresharkDialog(QWidget &parent, CaptureFile &capture_file);
+
+protected:
+    virtual void keyPressEvent(QKeyEvent *event) { QDialog::keyPressEvent(event); }
+    virtual void accept();
+    virtual void reject();
 
     /**
      * @brief Mark the start of a code block that retaps packets. If the user
@@ -56,11 +64,6 @@ public:
      * accessed after tapping is finished.
      */
     virtual void endRetapPackets();
-
-protected:
-    virtual void keyPressEvent(QKeyEvent *event) { QDialog::keyPressEvent(event); }
-    virtual void accept();
-    virtual void reject();
 
     /**
      * @brief Set the window subtitle, e.g. "Foo Timeouts". The subtitle and
@@ -92,7 +95,7 @@ protected:
     bool registerTapListener(const char *tap_name, void *tap_data,
                         const char *filter, guint flags,
                         void (*tap_reset)(void *tapdata),
-                        gboolean (*tap_packet)(void *tapdata, struct _packet_info *pinfo, struct epan_dissect *edt, const void *data),
+                        tap_packet_status (*tap_packet)(void *tapdata, struct _packet_info *pinfo, struct epan_dissect *edt, const void *data),
                         void (*tap_draw)(void *tap_data));
 
     /**
@@ -118,15 +121,12 @@ protected:
      * file_closed_.
      */
     virtual void captureFileClosing();
-    virtual void captureFileClosed();
 
 protected slots:
-    void captureEvent(CaptureEvent *e);
+    void captureEvent(CaptureEvent);
 
 private:
-    void setWindowTitleFromSubtitle();
-
-    void tryDeleteLater();
+    void dialogCleanup(bool closeDialog = false);
 
     QString subtitle_;
     QList<void *> tap_listeners_;

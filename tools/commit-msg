@@ -10,7 +10,7 @@
 
 unset GREP_OPTIONS
 
-CHANGE_ID_AFTER="Bug|Issue|Test"
+CHANGE_ID_AFTER="Bug|Issue|Ping-Bug|Test"
 MSG="$1"
 
 # Check for, and add if missing, a unique Change-Id
@@ -36,6 +36,12 @@ add_ChangeId() {
 	fi
 
 	if test "false" = "`git config --bool --get gerrit.createChangeId`"
+	then
+		return
+	fi
+
+	# Do not add Change-Id on packaging branches
+	if git branch | grep -q '^\* \(debian\|ubuntu\)/'
 	then
 		return
 	fi
@@ -177,5 +183,100 @@ _gen_ChangeId() {
 	git hash-object -t commit --stdin
 }
 
+reject_long_message() {
+	read -r firstline < "$MSG"
+	if [ ${#firstline} -gt 80 ]; then
+		printf "\n\nERROR: First line in the commit message must not exceed 80 characters\n\n"
+		# Allow slightly longer lines in case commits are reverted.
+		if [ ${#firstline} -gt 100 ]; then
+			exit 1
+		fi
+	fi
+}
+
+# Remove trailing spaces, fix blank lines, fix capitalization of "Bug" tags.
+fixup_message() {
+	# Remove trailing tabs and spaces
+	tab=$(printf '\t')
+	msg="$(sed -e "s/[${tab} ]*$//" "$MSG")"
+
+	# Ensures proper positioning of "Ping-Bug" or "Bug" tags:
+	# - Must be preceded by one blank line.
+	# - Must not be succeeded by a blank line.
+	# - Must not mistake "bug:" in the description for tags in contexts such
+	#   as "to reproduce this\nbug: 1) step 2) another step 3) etc.".
+	# - If preceded by other tags (like Change-Id), do not add newline.
+	msg=$(printf "%s\n" "$msg" | awk '
+	# Eat the "--verbose" diff
+	/^#.*(8<|>8)/ {
+		while (getline) { }
+		next
+	}
+	# Ignore other comments
+	/^#/ {
+		next
+	}
+
+	# Find "Bug" lines that potentially need to be fixed up. Assume that
+	# relevant bug numbers are at least four digits.
+	{
+		if (match(tolower($0), /^(ping-)?bug: *[0-9][0-9][0-9][0-9]/)) {
+			if (buffer == "") {
+				needsnewline = !lastblank && !potentialTag;
+				buffer = $0
+			} else {
+				buffer = buffer "\n" $0
+			}
+			next
+		}
+	}
+
+	# Buffer tags and other blank lines when a fixup is potentially needed.
+	{ potentialTag = 0 }
+	/^[a-zA-Z0-9-]+:/ || /^$/ {
+		potentialTag = 1
+		if (buffer != "") {
+			buffer = buffer "\n" $0;
+			next
+		}
+	}
+
+	# If some other text was found, assume it was not part of the footer.
+	# Flush any buffer, unmodified.
+	{
+		if (buffer != "") {
+			print buffer;
+			buffer = ""
+		}
+		print;
+		# Remember whether the last line was blank.
+		lastblank = $0 == ""
+	}
+
+	END {
+		# If any tags block is still open, fix up and print it.
+		if (buffer != "") {
+			if (needsnewline) {
+				print ""
+			}
+			numlines = split(buffer, lines, "\n")
+			for (line = 1; line <= numlines; line++) {
+				s = lines[line];
+				if (s != "") {
+					# Fix capitalization
+					sub(/^[Bb][Uu][Gg]/, "Bug", s);
+					sub(/^[Pp][Ii][Nn][Gg]-[Bb][Uu][Gg]/, "Ping-Bug", s);
+					# ensure single space after colon
+					sub(/: */, ": ", s);
+					print s;
+				}
+			}
+		}
+	}
+	') && printf "%s\n" "$msg" > "$MSG"
+}
+
 
 add_ChangeId
+reject_long_message
+fixup_message

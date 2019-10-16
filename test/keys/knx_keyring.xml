@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- All attributes of the Keyring element are mandatory. For details on how to calculate/verify the Signature attribute, see below -->
+<!-- "oKGio6SlpqeoqaqrrK2urw==" = $ A0 A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AF -->
+<!-- "sLGys7S1tre4ubq7vL2+vw==" = $ B0 B1 B2 B3 B4 B5 B6 B7 B8 B9 BA BB BC BD BE BF -->
+<Keyring xmlns="http://knx.org/xml/keyring/1"  Project="Family Home" Created="2015-03-04T20:55:58.0160546Z" CreatedBy="ETS 5.5 Build 456" Signature="MTIzNDU2Nzg5MDEyMzQ1Ng==">
+    <!-- A backbone element is included if the project has a secure IP backbone or the keyring contains at least one IP Routing interface -->
+    <!-- The Latency and BackboneKey attributes are only included if the project has a secure IP backbone -->
+    <!-- BackboneKey := Base64( AES128-CBC( PBKDF2( HMAC-SHA256, KeyringPassword, "1.keyring.ets.knx.org", 65536, 128), MSB128(SHA256(this.Keyring.Created), Project.BackboneKey as byte[])) --> (1)
+    <Backbone MulticastAddress="224.0.23.12" Latency="1000" Key="oKGio6SlpqeoqaqrrK2urw=="/>
+    <!-- There might be 0..n interface elements. Possible types are "USB", "Tunneling" or "Routing". There is no support for "Eiblib/IP". -->
+    <!-- Depending on the type of interface different interface attributes are possible. -->
+    <!-- USB interfaces only appear in the keying if used for Data Security communication. They only have the mandatory attribute "IndividualAddress". -->
+    <Interface Type="USB" IndividualAddress="2.1.56">
+        <!-- Interfaces used for Data Security communication have a list of group addresses which will be communicated over this interface. -->
+        <!-- Each interface group has a mandatory list of trusted senders that are allowed to send telegrams to this group address. -->
+        <Group Address="3971" Senders="1.1.1 1.1.3 1.1.4"/>
+        <Group Address="3972" Senders="1.1.2 1.1.4"/>
+        <Group Address="14271" Senders="1.1.1"/>
+    </Interface>
+    <!-- Tunneling interfaces might appear in the keying because either they are used for Data Security communication or access to the interface itself is protected (or both). -->
+    <!-- KNXnet/IP Tunneling interfaces have as a mandatary attribute the KNX individual address of the host device. -->
+    <!-- If the Tunneling interface is used for Data Security communication, the attribute "IndividualAddress" is mandatory, otherwise it's optional. -->
+    <!-- Secured Tunneling interfaces need to have the "UserID" and "Password" attributes. An "Authentication" attribute containing the interface's device authenication code is optional. -->
+    <!-- Password := Base64( AES128-CBC( PBKDF2( HMAC-SHA256, KeyringPassword, "1.keyring.ets.knx.org", 65536, 128), MSB128(SHA256(this.Keyring.Created)), RandomBytes(8)+PKCS#7Padding( Device.BusAccess(IA).Password, 24) as byte[])) --> (1)
+    <!-- Authentication := Base64( AES128-CBC( PBKDF2( HMAC-SHA256, KeyringPassword, "1.keyring.ets.knx.org", 65536, 128), MSB128(SHA256(this.Keyring.Created)), RandomBytes(8)+PKCS#7Padding( Device.AthenticationCode, 24) as byte[])) --> (1)
+    <Interface Type="Tunneling" Host="2.1.0" IndividualAddress="2.1.56" UserID="3" Password="A3BzNDU2Nzg5MDEyMzQnUA3BzNDU2Nzg5MDEyMzQnUw=" Authentication="A3BzNDU2Nzg5MDEyMzQnUA3BzNDU2Nzg5MDEyMzQnUw="/>
+    <!-- If the Backbone (KNXnet/IP Routing) interface is used for Data Security communication, the attribute "IndividualAddress" is mandatory, otherwise it's optional. -->
+    <!-- If no "IndividualAddress" attribute is present, backbone interface elements shall be omitted altogether as all necessary information is part of the Backbone element already. -->
+    <Interface Type="Backbone" IndividualAddress="0.0.123">
+        <Group Address="256" Senders="1.1.1 1.1.3 1.1.4"/>
+        <Group Address="3972" Senders="1.1.2 1.1.4"/>
+    </Interface>
+    <!-- The "GroupAddresses" collection shall only be present if the keyring contains interface groups for Data Security communication. -->
+    <!-- The "Address" and "Key" attributes are mandatory for every "GroupAddresses/Group" element. -->
+    <!-- Key := Base64( AES128-CBC( PBKDF2( HMAC-SHA256, KeyringPassword, "1.keyring.ets.knx.org", 65536, 128), MSB128(SHA256(this.Keyring.Created)), GroupAddress.Key as byte[])) --> (1)
+    <GroupAddresses>
+        <Group Address="256" Key="oKGio6SlpqeoqaqrrK2urw=="/>
+        <Group Address="3971" Key="oKGio6SlpqeoqaqrrK2urw=="/>
+        <Group Address="3972" Key="oKGio6SlpqeoqaqrrK2urw=="/>
+        <Group Address="14271" Key="oKGio6SlpqeoqaqrrK2urw=="/>
+    </GroupAddresses>
+    <!-- Keyings exported for the whole project (for backup or diagnostic purposes) shall contain one "Device" entry for every secure device. -->
+    <!-- For interface keyings the "Devices" list is optional and shall only be present if sequence numbers are known for devices referenced as interface group senders. -->
+    <!-- The "ToolKey" attribute shall only be present if the keying was exported for the whole project. -->
+    <!-- The "SeqNr" attribute is optional and shall only be present if a received sequence number for a given device is known. -->
+    <!-- ToolKey := Base64( AES128-CBC( PBKDF2( HMAC-SHA256, KeyringPassword, "1.keyring.ets.knx.org", 65536, 128), MSB128(SHA256(this.Keyring.Created)), Device.ToolKey as byte[]))  --> (1)
+    <!-- Secured IP-enabled devices need to have the "ManagementPassword" attribute. An "Authentication" attribute containing the device's authenication code is optional. -->
+    <!-- ManagementPassword := Base64( AES128-CBC( PBKDF2( HMAC-SHA256, KeyringPassword, "1.keyring.ets.knx.org", 65536, 128), MSB128(SHA256(this.Keyring.Created)), RandomBytes(8)+PKCS#7Padding( Device.ManagementPassword, 24) as byte[])) --> (1)
+    <!-- Authentication := Base64( AES128-CBC( PBKDF2( HMAC-SHA256, KeyringPassword, "1.keyring.ets.knx.org", 65536, 128), MSB128(SHA256(this.Keyring.Created)), RandomBytes(8)+PKCS#7Padding( Device.AthenticationCode, 24) as byte[])) --> (1)
+    <!-- The "ManagementPassword" and "Authentication" attributes shall only be present if the keying was exported for the whole project. -->
+    <Devices>
+        <Device IndividualAddress="1.1.1" ToolKey="sLGys7S1tre4ubq7vL2+vw==" SequenceNumber="45678"/>
+        <Device IndividualAddress="1.1.2" ToolKey="sLGys7S1tre4ubq7vL2+vw==" SequenceNumber="34567"/>
+        <Device IndividualAddress="1.1.3" ToolKey="sLGys7S1tre4ubq7vL2+vw==" SequenceNumber="23456"/>
+        <Device IndividualAddress="1.1.4" ToolKey="sLGys7S1tre4ubq7vL2+vw==" SequenceNumber="12345"/>
+        <Device IndividualAddress="2.1.0" ToolKey="sLGys7S1tre4ubq7vL2+vw==" SequenceNumber="1234" ManagementPassword="A3BzNDU2Nzg5MDEyMzQnUA3BzNDU2Nzg5MDEyMzQnUw=" Authentication="A3BzNDU2Nzg5MDEyMzQnUA3BzNDU2Nzg5MDEyMzQnUw="/>
+    </Devices>
+</Keyring>

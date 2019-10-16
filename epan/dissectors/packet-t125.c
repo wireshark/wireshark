@@ -33,6 +33,16 @@
 #define PSNAME "T.125"
 #define PFNAME "t125"
 
+
+#define HF_T125_ERECT_DOMAIN_REQUEST 1
+#define HF_T125_DISCONNECT_PROVIDER_ULTIMATUM 8
+#define HF_T125_ATTACH_USER_REQUEST 10
+#define HF_T125_ATTACH_USER_CONFIRM 11
+#define HF_T125_CHANNEL_JOIN_REQUEST 14
+#define HF_T125_CHANNEL_JOIN_CONFIRM 15
+#define HF_T125_SEND_DATA_REQUEST 25
+#define HF_T125_SEND_DATA_INDICATION 26
+
 void proto_register_t125(void);
 void proto_reg_handoff_t125(void);
 
@@ -69,7 +79,7 @@ static int hf_t125_connect_additional = -1;       /* Connect_Additional */
 static int hf_t125_connect_result = -1;           /* Connect_Result */
 
 /*--- End of included file: packet-t125-hf.c ---*/
-#line 35 "./asn1/t125/packet-t125-template.c"
+#line 45 "./asn1/t125/packet-t125-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_t125 = -1;
@@ -85,7 +95,7 @@ static gint ett_t125_Connect_Result_U = -1;
 static gint ett_t125_ConnectMCSPDU = -1;
 
 /*--- End of included file: packet-t125-ett.c ---*/
-#line 40 "./asn1/t125/packet-t125-template.c"
+#line 50 "./asn1/t125/packet-t125-template.c"
 
 static heur_dissector_list_t t125_heur_subdissector_list;
 
@@ -371,7 +381,7 @@ static int dissect_ConnectMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-t125-fn.c ---*/
-#line 44 "./asn1/t125/packet-t125-template.c"
+#line 54 "./asn1/t125/packet-t125-template.c"
 
 static int
 dissect_t125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
@@ -425,11 +435,33 @@ dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
     failed = TRUE;
   } ENDTRY;
 
-  /* is this strong enough ? */
-  if (!failed && ((ber_class==BER_CLASS_APP) && ((tag>=101) && (tag<=104)))) {
+  if (failed) {
+      return FALSE;
+  }
+
+  if (((ber_class==BER_CLASS_APP) && ((tag>=101) && (tag<=104)))) {
     dissect_t125(tvb, pinfo, parent_tree, NULL);
 
     return TRUE;
+  }
+
+  /*
+   * Check that the first byte of the packet is a valid t125/MCS header.
+   * This might not be enough, but since t125 only catch COTP packets,
+   * it should not be a problem.
+   */
+  guint8 first_byte = tvb_get_guint8(tvb, 0) >> 2;
+  switch (first_byte) {
+    case HF_T125_ERECT_DOMAIN_REQUEST:
+    case HF_T125_ATTACH_USER_REQUEST:
+    case HF_T125_ATTACH_USER_CONFIRM:
+    case HF_T125_CHANNEL_JOIN_REQUEST:
+    case HF_T125_CHANNEL_JOIN_CONFIRM:
+    case HF_T125_DISCONNECT_PROVIDER_ULTIMATUM:
+    case HF_T125_SEND_DATA_REQUEST:
+    case HF_T125_SEND_DATA_INDICATION:
+      dissect_t125(tvb, pinfo, parent_tree, NULL);
+      return TRUE;
   }
 
   return FALSE;
@@ -546,7 +578,7 @@ void proto_register_t125(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-t125-hfarr.c ---*/
-#line 114 "./asn1/t125/packet-t125-template.c"
+#line 146 "./asn1/t125/packet-t125-template.c"
   };
 
   /* List of subtrees */
@@ -563,7 +595,7 @@ void proto_register_t125(void) {
     &ett_t125_ConnectMCSPDU,
 
 /*--- End of included file: packet-t125-ettarr.c ---*/
-#line 120 "./asn1/t125/packet-t125-template.c"
+#line 152 "./asn1/t125/packet-t125-template.c"
   };
 
   /* Register protocol */

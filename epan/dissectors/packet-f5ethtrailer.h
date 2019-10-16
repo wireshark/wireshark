@@ -1,6 +1,6 @@
 /* packet-f5ethtrailer.h
  *
- * F5 Ethernet Trailer Copyright 2008-2017 F5 Networks
+ * F5 Ethernet Trailer Copyright 2008-2018 F5 Networks
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -167,7 +167,7 @@ static void f5fileinfo_tap_reset(void *p)
 #   endif
 } /* f5fileinfo_tap_reset() */
 
-static gboolean f5fileinfo_tap_pkt(
+static tap_packet_status f5fileinfo_tap_pkt(
 	void *tapdata,
 	packet_info *pinfo _U_,
 	epan_dissect_t *edt _U_,
@@ -181,7 +181,7 @@ static gboolean f5fileinfo_tap_pkt(
 	if(fromtap->magic != F5FILEINFO_TAP_MAGIC) {
 		/* Magic numbers do not match.  f5ethtrailer plugin was compiled from
 		 * different source than this plugin. */
-		return(FALSE);
+		return(TAP_PACKET_DONT_REDRAW);
 	}
 	if (s->ver[0] == fromtap->ver[0] &&
 	    s->ver[1] == fromtap->ver[1] &&
@@ -190,7 +190,7 @@ static gboolean f5fileinfo_tap_pkt(
 	    s->ver[4] == fromtap->ver[4] &&
 	    s->ver[5] == fromtap->ver[5])
 	{
-		return(FALSE);
+		return(TAP_PACKET_DONT_REDRAW);
 	}
 	s->ver[0] = fromtap->ver[0];
 	s->ver[1] = fromtap->ver[1];
@@ -201,12 +201,12 @@ static gboolean f5fileinfo_tap_pkt(
 #   ifdef F5FILEINFO_TAP_POST_FUNC
 		F5FILEINFO_TAP_POST_FUNC(s);
 #   endif
-	return(TRUE);
+	return(TAP_PACKET_REDRAW);
 } /* f5fileinfo_tap_pkt() */
 
 
 #define F5FILEINFO_TAP_LISTEN(a) \
-	register_tap_listener("f5fileinfo", (a), NULL, TL_REQUIRES_NOTHING, f5fileinfo_tap_reset, f5fileinfo_tap_pkt, NULL)
+	register_tap_listener("f5fileinfo", (a), NULL, TL_REQUIRES_NOTHING, f5fileinfo_tap_reset, f5fileinfo_tap_pkt, NULL, NULL)
 
 
 #endif /* ifndef F5INFOTAP_SRC */

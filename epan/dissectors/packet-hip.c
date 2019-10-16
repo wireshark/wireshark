@@ -1600,7 +1600,7 @@ proto_reg_handoff_hip(void)
         dissector_add_uint_with_preference("udp.port", HIP_UDP_PORT, hip_handle2);
 }
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

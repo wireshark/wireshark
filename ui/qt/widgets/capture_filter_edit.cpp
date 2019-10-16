@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -145,7 +146,7 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
                     "}"
                     "QToolButton::menu-indicator { image: none; }"
             );
-        connect(bookmark_button_, SIGNAL(clicked()), this, SLOT(bookmarkClicked()));
+        connect(bookmark_button_, &StockIconToolButton::clicked, this, &CaptureFilterEdit::bookmarkClicked);
     }
 
     if (!plain_) {
@@ -161,10 +162,11 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
                 "  margin-left: 1px;"
                 "}"
                 );
-        connect(clear_button_, SIGNAL(clicked()), this, SLOT(clearFilter()));
+        connect(clear_button_, &StockIconToolButton::clicked, this, &CaptureFilterEdit::clearFilter);
     }
 
-    connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(checkFilter(const QString&)));
+    connect(this, &CaptureFilterEdit::textChanged, this,
+            static_cast<void (CaptureFilterEdit::*)(const QString &)>(&CaptureFilterEdit::checkFilter));
 
 #if 0
     // Disable the apply button for now
@@ -181,10 +183,10 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
                 "  padding: 0 0 0 0;"
                 "}"
                 );
-        connect(apply_button_, SIGNAL(clicked()), this, SLOT(applyCaptureFilter()));
+        connect(apply_button_, &StockIconToolButton::clicked, this, &CaptureFilterEdit::applyCaptureFilter);
     }
 #endif
-    connect(this, SIGNAL(returnPressed()), this, SLOT(applyCaptureFilter()));
+    connect(this, &CaptureFilterEdit::returnPressed, this, &CaptureFilterEdit::applyCaptureFilter);
 
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     QSize bksz;
@@ -208,19 +210,21 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
 
     QComboBox *cf_combo = qobject_cast<QComboBox *>(parent);
     if (cf_combo) {
-        connect(cf_combo, SIGNAL(activated(QString)), this, SIGNAL(textEdited(QString)));
+        connect(cf_combo, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::activated),
+                this, &CaptureFilterEdit::textEdited);
     }
 
     QThread *syntax_thread = new QThread;
     syntax_worker_ = new CaptureFilterSyntaxWorker;
     syntax_worker_->moveToThread(syntax_thread);
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(updateBookmarkMenu()));
-    connect(wsApp, SIGNAL(captureFilterListChanged()), this, SLOT(updateBookmarkMenu()));
-    connect(syntax_thread, SIGNAL(started()), syntax_worker_, SLOT(start()));
-    connect(syntax_thread, SIGNAL(started()), this, SLOT(checkFilter()));
-    connect(syntax_worker_, SIGNAL(syntaxResult(QString,int,QString)),
-            this, SLOT(setFilterSyntaxState(QString,int,QString)));
-    connect(syntax_thread, SIGNAL(finished()), syntax_worker_, SLOT(deleteLater()));
+    connect(wsApp, &WiresharkApplication::appInitialized, this, &CaptureFilterEdit::updateBookmarkMenu);
+    connect(wsApp, &WiresharkApplication::captureFilterListChanged, this, &CaptureFilterEdit::updateBookmarkMenu);
+    connect(syntax_thread, &QThread::started, syntax_worker_, &CaptureFilterSyntaxWorker::start);
+    connect(syntax_thread, &QThread::started, this,
+            static_cast<void (CaptureFilterEdit::*)()>(&CaptureFilterEdit::checkFilter));
+    connect(syntax_worker_, &CaptureFilterSyntaxWorker::syntaxResult,
+            this, &CaptureFilterEdit::setFilterSyntaxState);
+    connect(syntax_thread, &QThread::finished, syntax_worker_, &CaptureFilterSyntaxWorker::deleteLater);
     syntax_thread->start();
     updateBookmarkMenu();
 }
@@ -314,15 +318,16 @@ void CaptureFilterEdit::checkFilter(const QString& filter)
 {
     setSyntaxState(Busy);
     popFilterSyntaxStatus();
+    setToolTip(QString());
     bool empty = filter.isEmpty();
 
     setConflict(false);
     if (bookmark_button_) {
         bool match = false;
 
-        for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = g_list_next(cf_item)) {
+        for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = gxx_list_next(cf_item)) {
             if (!cf_item->data) continue;
-            filter_def *cf_def = (filter_def *) cf_item->data;
+            filter_def *cf_def = gxx_list_data(filter_def *, cf_item);
             if (!cf_def->name || !cf_def->strval) continue;
 
             if (filter.compare(cf_def->strval) == 0) {
@@ -378,16 +383,16 @@ void CaptureFilterEdit::updateBookmarkMenu()
     bb_menu->clear();
 
     save_action_ = bb_menu->addAction(tr("Save this filter"));
-    connect(save_action_, SIGNAL(triggered(bool)), this, SLOT(saveFilter()));
+    connect(save_action_, &QAction::triggered, this, &CaptureFilterEdit::saveFilter);
     remove_action_ = bb_menu->addAction(tr("Remove this filter"));
-    connect(remove_action_, SIGNAL(triggered(bool)), this, SLOT(removeFilter()));
+    connect(remove_action_, &QAction::triggered, this, &CaptureFilterEdit::removeFilter);
     QAction *manage_action = bb_menu->addAction(tr("Manage Capture Filters"));
-    connect(manage_action, SIGNAL(triggered(bool)), this, SLOT(showFilters()));
+    connect(manage_action, &QAction::triggered, this, &CaptureFilterEdit::showFilters);
     bb_menu->addSeparator();
 
-    for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = g_list_next(cf_item)) {
+    for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = gxx_list_next(cf_item)) {
         if (!cf_item->data) continue;
-        filter_def *cf_def = (filter_def *) cf_item->data;
+        filter_def *cf_def = gxx_list_data(filter_def *, cf_item);
         if (!cf_def->name || !cf_def->strval) continue;
 
         int one_em = bb_menu->fontMetrics().height();
@@ -396,7 +401,7 @@ void CaptureFilterEdit::updateBookmarkMenu()
 
         QAction *prep_action = bb_menu->addAction(prep_text);
         prep_action->setData(cf_def->strval);
-        connect(prep_action, SIGNAL(triggered(bool)), this, SLOT(prepareFilter()));
+        connect(prep_action, &QAction::triggered, this, &CaptureFilterEdit::prepareFilter);
     }
 
     checkFilter();
@@ -408,6 +413,7 @@ void CaptureFilterEdit::setFilterSyntaxState(QString filter, int state, QString 
         setSyntaxState((SyntaxState)state);
         if (!err_msg.isEmpty()) {
             emit pushFilterSyntaxStatus(err_msg);
+            setToolTip(err_msg);
         }
     }
 
@@ -457,8 +463,8 @@ void CaptureFilterEdit::buildCompletionList(const QString &primitive_word)
             }
         }
     }
-    for (const GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = g_list_next(cf_item)) {
-        const filter_def *cf_def = (filter_def *) cf_item->data;
+    for (const GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = gxx_constlist_next(cf_item)) {
+        const filter_def *cf_def = gxx_list_data(const filter_def *, cf_item);
         if (!cf_def || !cf_def->strval) continue;
         QString saved_filter = cf_def->strval;
 
@@ -487,8 +493,10 @@ void CaptureFilterEdit::applyCaptureFilter()
 
 void CaptureFilterEdit::saveFilter()
 {
-    FilterDialog capture_filter_dlg(window(), FilterDialog::CaptureFilter, text());
-    capture_filter_dlg.exec();
+    FilterDialog *capture_filter_dlg = new FilterDialog(window(), FilterDialog::CaptureFilter, text());
+    capture_filter_dlg->setWindowModality(Qt::ApplicationModal);
+    capture_filter_dlg->setAttribute(Qt::WA_DeleteOnClose);
+    capture_filter_dlg->show();
 }
 
 void CaptureFilterEdit::removeFilter()
@@ -498,9 +506,9 @@ void CaptureFilterEdit::removeFilter()
 
     QString remove_filter = ra->data().toString();
 
-    for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = g_list_next(cf_item)) {
+    for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = gxx_list_next(cf_item)) {
         if (!cf_item->data) continue;
-        filter_def *cf_def = (filter_def *) cf_item->data;
+        filter_def *cf_def = gxx_list_data(filter_def *, cf_item);
         if (!cf_def->name || !cf_def->strval) continue;
 
         if (remove_filter.compare(cf_def->strval) == 0) {
@@ -515,8 +523,10 @@ void CaptureFilterEdit::removeFilter()
 
 void CaptureFilterEdit::showFilters()
 {
-    FilterDialog capture_filter_dlg(window(), FilterDialog::CaptureFilter);
-    capture_filter_dlg.exec();
+    FilterDialog *capture_filter_dlg = new FilterDialog(window(), FilterDialog::CaptureFilter);
+    capture_filter_dlg->setWindowModality(Qt::ApplicationModal);
+    capture_filter_dlg->setAttribute(Qt::WA_DeleteOnClose);
+    capture_filter_dlg->show();
 }
 
 void CaptureFilterEdit::prepareFilter()

@@ -4,15 +4,21 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <utils/wireshark_mime_data.h>
 
+void WiresharkMimeData::allowPlainText()
+{
+    setText(labelText());
+}
+
 DisplayFilterMimeData::DisplayFilterMimeData(QString description, QString field, QString filter) :
-QMimeData(),
-description_(description),
-filter_(filter),
-field_(field)
+    WiresharkMimeData(),
+    description_(description),
+    filter_(filter),
+    field_(field)
 {}
 
 QString DisplayFilterMimeData::description() const
@@ -35,8 +41,13 @@ QString DisplayFilterMimeData::labelText() const
     return QString("%1\n%2").arg(description_, filter_);
 }
 
+void DisplayFilterMimeData::allowPlainText()
+{
+    setText(filter_);
+}
+
 ToolbarEntryMimeData::ToolbarEntryMimeData(QString element, int pos) :
-    QMimeData(),
+    WiresharkMimeData(),
     element_(element),
     pos_(pos)
 {}

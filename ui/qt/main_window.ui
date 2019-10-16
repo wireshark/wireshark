@@ -133,7 +133,7 @@
       <property name="enabled">
        <bool>true</bool>
       </property>
-      <widget class="MainWelcome" name="welcomePage"/>
+      <widget class="WelcomePage" name="welcomePage"/>
      </widget>
     </item>
    </layout>
@@ -153,7 +153,7 @@
     </property>
     <widget class="QMenu" name="menuOpenRecentCaptureFile">
      <property name="title">
-      <string>Open Recent</string>
+      <string>Open &amp;Recent</string>
      </property>
      <addaction name="actionDummyNoFilesFound"/>
     </widget>
@@ -197,7 +197,7 @@
     <addaction name="menuFileExportPacketDissections"/>
     <addaction name="actionFileExportPacketBytes"/>
     <addaction name="actionFileExportPDU"/>
-    <addaction name="actionFileExportSSLSessionKeys"/>
+    <addaction name="actionFileExportTLSSessionKeys"/>
     <addaction name="menuFileExportObjects"/>
     <addaction name="separator"/>
     <addaction name="actionFilePrint"/>
@@ -311,7 +311,7 @@
     </widget>
     <widget class="QMenu" name="menuName_Resolution">
      <property name="title">
-      <string>Name Resolution</string>
+      <string>Name Resol&amp;ution</string>
      </property>
      <addaction name="actionViewEditResolvedName"/>
      <addaction name="separator"/>
@@ -394,23 +394,11 @@
      <property name="title">
       <string>Apply as Filter</string>
      </property>
-     <addaction name="actionAnalyzeAAFSelected"/>
-     <addaction name="actionAnalyzeAAFNotSelected"/>
-     <addaction name="actionAnalyzeAAFAndSelected"/>
-     <addaction name="actionAnalyzeAAFOrSelected"/>
-     <addaction name="actionAnalyzeAAFAndNotSelected"/>
-     <addaction name="actionAnalyzeAAFOrNotSelected"/>
     </widget>
     <widget class="QMenu" name="menuPrepareAFilter">
      <property name="title">
       <string>Prepare a Filter</string>
      </property>
-     <addaction name="actionAnalyzePAFSelected"/>
-     <addaction name="actionAnalyzePAFNotSelected"/>
-     <addaction name="actionAnalyzePAFAndSelected"/>
-     <addaction name="actionAnalyzePAFOrSelected"/>
-     <addaction name="actionAnalyzePAFAndNotSelected"/>
-     <addaction name="actionAnalyzePAFOrNotSelected"/>
     </widget>
     <widget class="QMenu" name="menuSCTP">
      <property name="title">
@@ -425,8 +413,10 @@
      </property>
      <addaction name="actionAnalyzeFollowTCPStream"/>
      <addaction name="actionAnalyzeFollowUDPStream"/>
-     <addaction name="actionAnalyzeFollowSSLStream"/>
+     <addaction name="actionAnalyzeFollowTLSStream"/>
      <addaction name="actionAnalyzeFollowHTTPStream"/>
+     <addaction name="actionAnalyzeFollowHTTP2Stream"/>
+     <addaction name="actionAnalyzeFollowQUICStream"/>
     </widget>
     <widget class="QMenu" name="menuConversationFilter">
      <property name="title">
@@ -525,7 +515,7 @@
     </widget>
     <widget class="QMenu" name="menuServiceResponseTime">
      <property name="title">
-      <string>Service Response Time</string>
+      <string>Service &amp;Response Time</string>
      </property>
     </widget>
     <addaction name="actionStatisticsCaptureFileProperties"/>
@@ -564,39 +554,39 @@
     </widget>
     <widget class="QMenu" name="menuRTP">
      <property name="title">
-      <string>RTP</string>
+      <string>&amp;RTP</string>
      </property>
      <addaction name="actionTelephonyRTPStreams"/>
      <addaction name="actionTelephonyRTPStreamAnalysis"/>
     </widget>
     <widget class="QMenu" name="menuTelephonySCTP">
      <property name="title">
-      <string>SCTP</string>
+      <string>S&amp;CTP</string>
      </property>
      <addaction name="actionSCTPAnalyseThisAssociation"/>
      <addaction name="actionSCTPShowAllAssociations"/>
     </widget>
     <widget class="QMenu" name="menuANSI">
      <property name="title">
-      <string>ANSI</string>
+      <string>&amp;ANSI</string>
      </property>
      <addaction name="actionTelephonyANSIPlaceholder"/>
     </widget>
     <widget class="QMenu" name="menuGSM">
      <property name="title">
-      <string>GSM</string>
+      <string>&amp;GSM</string>
      </property>
      <addaction name="actionTelephonyGSMPlaceholder"/>
     </widget>
     <widget class="QMenu" name="menuLTE">
      <property name="title">
-      <string>LTE</string>
+      <string>&amp;LTE</string>
      </property>
      <addaction name="actionTelephonyLTEPlaceholder"/>
     </widget>
     <widget class="QMenu" name="menuMTP3">
      <property name="title">
-      <string>MTP3</string>
+      <string>&amp;MTP3</string>
      </property>
      <addaction name="actionTelephonyMTP3Placeholder"/>
     </widget>
@@ -679,6 +669,7 @@
      <string>&amp;Tools</string>
     </property>
     <addaction name="actionToolsFirewallAclRules"/>
+    <addaction name="actionToolsCredentials"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -785,7 +776,7 @@
   </widget>
   <action name="actionFileOpen">
    <property name="text">
-    <string>Open</string>
+    <string>&amp;Open</string>
    </property>
    <property name="toolTip">
     <string>Open a capture file</string>
@@ -799,7 +790,7 @@
   </action>
   <action name="actionFileQuit">
    <property name="text">
-    <string>Quit</string>
+    <string>&amp;Quit</string>
    </property>
    <property name="toolTip">
     <string>Quit Wireshark</string>
@@ -838,7 +829,7 @@
   </action>
   <action name="actionFileClose">
    <property name="text">
-    <string>Close</string>
+    <string>&amp;Close</string>
    </property>
    <property name="toolTip">
     <string>Close this capture file</string>
@@ -1177,9 +1168,9 @@
     <string notr="true">Ctrl+Shift+X</string>
    </property>
   </action>
-  <action name="actionFileExportSSLSessionKeys">
+  <action name="actionFileExportTLSSessionKeys">
    <property name="text">
-    <string>Export SSL Session Keys…</string>
+    <string>Export TLS Session Keys…</string>
    </property>
   </action>
   <action name="actionFilePrint">
@@ -1281,27 +1272,27 @@
   </action>
   <action name="actionFileExportAsCSV">
    <property name="text">
-    <string>As CSV…</string>
+    <string>As &amp;CSV…</string>
    </property>
   </action>
   <action name="actionFileExportAsCArrays">
    <property name="text">
-    <string>As &quot;C&quot; Arrays…</string>
+    <string>As &quot;C&quot; &amp;Arrays…</string>
    </property>
   </action>
   <action name="actionFileExportAsPSML">
    <property name="text">
-    <string>As PSML XML…</string>
+    <string>As P&amp;SML XML…</string>
    </property>
   </action>
   <action name="actionFileExportAsPDML">
    <property name="text">
-    <string>As PDML XML…</string>
+    <string>As P&amp;DML XML…</string>
    </property>
   </action>
   <action name="actionFileExportAsJSON">
    <property name="text">
-    <string>As JSON…</string>
+    <string>As &amp;JSON…</string>
    </property>
   </action>
   <action name="actionEditCopyDescription">
@@ -1361,99 +1352,9 @@
     <string notr="true">Ctrl+Shift+C</string>
    </property>
   </action>
-  <action name="actionAnalyzeAAFSelected">
-   <property name="text">
-    <string>&amp;Selected</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeAAFNotSelected">
-   <property name="text">
-    <string>&amp;Not Selected</string>
-   </property>
-   <property name="toolTip">
-    <string>Not Selected</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeAAFAndSelected">
-   <property name="text">
-    <string>…&amp;and Selected</string>
-   </property>
-   <property name="toolTip">
-    <string>…and Selected</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeAAFOrSelected">
-   <property name="text">
-    <string>…&amp;or Selected</string>
-   </property>
-   <property name="toolTip">
-    <string>…or Selected</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeAAFAndNotSelected">
-   <property name="text">
-    <string>…a&amp;nd not Selected</string>
-   </property>
-   <property name="toolTip">
-    <string>…and not Selected</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeAAFOrNotSelected">
-   <property name="text">
-    <string>…o&amp;r not Selected</string>
-   </property>
-   <property name="toolTip">
-    <string>…or not Selected</string>
-   </property>
-  </action>
-  <action name="actionAnalyzePAFSelected">
-   <property name="text">
-    <string>&amp;Selected</string>
-   </property>
-  </action>
-  <action name="actionAnalyzePAFNotSelected">
-   <property name="text">
-    <string>&amp;Not Selected</string>
-   </property>
-   <property name="toolTip">
-    <string>Not Selected</string>
-   </property>
-  </action>
-  <action name="actionAnalyzePAFAndSelected">
-   <property name="text">
-    <string>…&amp;and Selected</string>
-   </property>
-   <property name="toolTip">
-    <string>…and Selected</string>
-   </property>
-  </action>
-  <action name="actionAnalyzePAFOrSelected">
-   <property name="text">
-    <string>…&amp;or Selected</string>
-   </property>
-   <property name="toolTip">
-    <string>…or Selected</string>
-   </property>
-  </action>
-  <action name="actionAnalyzePAFAndNotSelected">
-   <property name="text">
-    <string>…a&amp;nd not Selected</string>
-   </property>
-   <property name="toolTip">
-    <string>…and not Selected</string>
-   </property>
-  </action>
-  <action name="actionAnalyzePAFOrNotSelected">
-   <property name="text">
-    <string>…o&amp;r not Selected</string>
-   </property>
-   <property name="toolTip">
-    <string>…or not Selected</string>
-   </property>
-  </action>
   <action name="actionAnalyzeDisplayFilters">
    <property name="text">
-    <string>Display Filters…</string>
+    <string>Display &amp;Filters…</string>
    </property>
   </action>
   <action name="actionAnalyzeDisplayFilterMacros">
@@ -1529,7 +1430,7 @@
   </action>
   <action name="actionEditUnmarkAllDisplayed">
    <property name="text">
-    <string>Unmark All Displayed</string>
+    <string>&amp;Unmark All Displayed</string>
    </property>
    <property name="toolTip">
     <string>Unmark all displayed packets</string>
@@ -1587,7 +1488,7 @@
     <string>Unignore All Displayed</string>
    </property>
    <property name="toolTip">
-    <string>Unignore all displayed packets</string>
+    <string>U&amp;nignore all displayed packets</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+D</string>
@@ -1672,7 +1573,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Configuration Profiles…</string>
+    <string>&amp;Configuration Profiles…</string>
    </property>
    <property name="iconText">
     <string>Configuration profiles</string>
@@ -1749,7 +1650,7 @@
     <string>Throughput</string>
    </property>
    <property name="toolTip">
-    <string>TCP througput</string>
+    <string>TCP throughput</string>
    </property>
   </action>
   <action name="actionStatisticsTcpStreamRoundTripTime">
@@ -1790,12 +1691,12 @@
     <string notr="true">Ctrl+Alt+Shift+U</string>
    </property>
   </action>
-  <action name="actionAnalyzeFollowSSLStream">
+  <action name="actionAnalyzeFollowTLSStream">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>SSL Stream</string>
+    <string>TLS Stream</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+Shift+S</string>
@@ -1810,6 +1711,22 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+Shift+H</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeFollowHTTP2Stream">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>HTTP/2 Stream</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeFollowQUICStream">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>QUIC Stream</string>
    </property>
   </action>
   <action name="actionStatisticsTcpStreamTcptrace">
@@ -2151,7 +2068,7 @@
   </action>
   <action name="actionStatisticsConversations">
    <property name="text">
-    <string>Conversations</string>
+    <string>&amp;Conversations</string>
    </property>
    <property name="toolTip">
     <string>Conversations at different protocol levels</string>
@@ -2159,7 +2076,7 @@
   </action>
   <action name="actionStatisticsEndpoints">
    <property name="text">
-    <string>Endpoints</string>
+    <string>&amp;Endpoints</string>
    </property>
    <property name="toolTip">
     <string>Endpoints at different protocol levels</string>
@@ -2537,7 +2454,7 @@
   </action>
   <action name="actionViewInternalsConversationHashTables">
    <property name="text">
-    <string>Conversation Hash Tables</string>
+    <string>&amp;Conversation Hash Tables</string>
    </property>
    <property name="toolTip">
     <string>Show each conversation hash table</string>
@@ -2545,7 +2462,7 @@
   </action>
   <action name="actionViewInternalsDissectorTables">
    <property name="text">
-    <string>Dissector Tables</string>
+    <string>&amp;Dissector Tables</string>
    </property>
    <property name="toolTip">
     <string>Show each dissector table and its entries</string>
@@ -2553,7 +2470,7 @@
   </action>
   <action name="actionViewInternalsSupportedProtocols">
    <property name="text">
-    <string>Supported Protocols</string>
+    <string>&amp;Supported Protocols</string>
    </property>
    <property name="toolTip">
     <string>Show the currently supported protocols and display filter fields</string>
@@ -2585,7 +2502,7 @@
   </action>
   <action name="actionTelephonyLteRlcGraph">
    <property name="text">
-    <string>RLC Graph</string>
+    <string>RLC &amp;Graph</string>
    </property>
    <property name="toolTip">
     <string>LTE RLC graph</string>
@@ -2879,7 +2796,7 @@
   </action>
   <action name="actionTelephonyIax2StreamAnalysis">
    <property name="text">
-    <string>IAX2 Stream Analysis</string>
+    <string>IA&amp;X2 Stream Analysis</string>
    </property>
    <property name="toolTip">
     <string>IAX2 Stream Analysis</string>
@@ -2930,7 +2847,7 @@
   </action>
   <action name="actionGoGoToLinkedPacket">
    <property name="text">
-    <string>Go to Linked Packet</string>
+    <string>Go to &amp;Linked Packet</string>
    </property>
    <property name="toolTip">
     <string>Go to the packet referenced by the selected field.</string>
@@ -2953,16 +2870,6 @@
    </property>
   </action>
   <action name="actionNewDisplayFilterExpression">
-   <property name="icon">
-    <iconset resource="../../image/stock_icons.qrc">
-     <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
-   </property>
-   <property name="text">
-    <string>Add a filter button</string>
-   </property>
-   <property name="iconText">
-    <string>Expression…</string>
-   </property>
    <property name="toolTip">
     <string>Add a display filter button.</string>
    </property>
@@ -2983,6 +2890,11 @@
     <string>&amp;Full Screen</string>
    </property>
   </action>
+  <action name="actionToolsCredentials">
+   <property name="text">
+    <string>Credentials</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -2998,9 +2910,9 @@
    <header>main_status_bar.h</header>
   </customwidget>
   <customwidget>
-   <class>MainWelcome</class>
+   <class>WelcomePage</class>
    <extends>QFrame</extends>
-   <header>main_welcome.h</header>
+   <header>welcome_page.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -3035,7 +2947,7 @@
   <customwidget>
    <class>WirelessTimeline</class>
    <extends>QWidget</extends>
-   <header>wireless_timeline.h</header>
+   <header>widgets/wireless_timeline.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

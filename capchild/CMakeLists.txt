@@ -26,30 +26,18 @@ add_library(capchild STATIC
 	${CAPCHILD_SRC}
 )
 
+target_link_libraries(capchild
+	PRIVATE
+		wsutil
+		$<$<BOOL:${PCAP_FOUND}>:pcap::pcap>
+)
+
 set_target_properties(capchild PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "Libs")
 
-include( UseCheckAPI )
-CHECKAPI(
-	NAME
-	  capchild-base
-	SWITCHES
-	  -g deprecated-gtk
-	SOURCES
-	  ${CAPCHILD_SRC}
-)
-CHECKAPI(
-	NAME
-	  capchild-todo
-	SWITCHES
-	  -M -g deprecated-gtk-todo
-	SOURCES
-	  ${CAPCHILD_SRC}
-)
-
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

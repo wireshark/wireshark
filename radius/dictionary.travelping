@@ -54,8 +54,8 @@ ATTRIBUTE	TP-CAPWAP-WWAN-Latency			42	integer
 ATTRIBUTE	TP-CAPWAP-WWAN-MCC			43	integer
 ATTRIBUTE	TP-CAPWAP-WWAN-MNC			44	integer
 ATTRIBUTE	TP-CAPWAP-WWAN-Cell-Id			45	integer
-ATTRIBUTE	TP-CAPWAP-POWER-SAVE-IDLE-TIMEOUT	46	integer
-ATTRIBUTE	TP-CAPWAP-POWER-SAVE-BUSY-TIMEOUT	47	integer
+ATTRIBUTE	TP-CAPWAP-Power-Save-Idle-Timeout	46	integer
+ATTRIBUTE	TP-CAPWAP-Power-Save-Busy-Timeout	47	integer
 ATTRIBUTE	TP-CAPWAP-SSID				48	string
 ATTRIBUTE	TP-CAPWAP-Max-WIFI-Clients		49	integer
 ATTRIBUTE	TP-CAPWAP-Walled-Garden			50	string
@@ -68,8 +68,21 @@ ATTRIBUTE	TP-CAPWAP-Hardware-Version		56	string
 ATTRIBUTE	TP-CAPWAP-Software-Version		57	string
 ATTRIBUTE	TP-CAPWAP-Boot-Version			58	string
 ATTRIBUTE	TP-CAPWAP-Other-Software-Version	59	string
+ATTRIBUTE	TP-Excess-Input-Octets			60	integer64
+ATTRIBUTE	TP-Excess-Output-Octets			61	integer64
+ATTRIBUTE	TP-Excess-Total-Octets			62	integer64
+ATTRIBUTE	TP-Trace-Id				63	string
 
 VALUE	TP-TLS-Auth-Type		Pre-Shared-Key		0
 VALUE	TP-TLS-Auth-Type		X509-Subject-CommonName	1
+
+#
+# Vendor specific values for standard RADIUS attributes
+# 0x48f9 == 18681 == Vendor Id
+#
+VALUE	Framed-Protocol			TP-CAPWAP		0x48f90001
+
+VALUE	Service-Type			TP-CAPWAP-WTP		0x48f90001
+VALUE	Service-Type			TP-CAPWAP-STA		0x48f90002
 
 END-VENDOR	Travelping

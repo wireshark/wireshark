@@ -4,9 +4,11 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <algorithm>
+#include <glib.h>
 
 #include "packet_list_model.h"
 
@@ -24,6 +26,9 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include "wireshark_application.h"
+#include <ui/qt/main_window.h>
+#include <ui/qt/main_status_bar.h>
+#include <ui/qt/widgets/wireless_timeline.h>
 
 #include <QColor>
 #include <QElapsedTimer>
@@ -38,7 +43,27 @@
 #include <wsutil/time_util.h>
 #endif
 
+static PacketListModel * glbl_plist_model = Q_NULLPTR;
 static const int reserved_packets_ = 100000;
+
+guint
+packet_list_append(column_info *, frame_data *fdata)
+{
+    if (!glbl_plist_model)
+        return 0;
+
+    /* fdata should be filled with the stuff we need
+     * strings are built at display time.
+     */
+    return glbl_plist_model->appendPacket(fdata);
+}
+
+void
+packet_list_recreate_visible_rows(void)
+{
+    if ( glbl_plist_model )
+        glbl_plist_model->recreateVisibleRows();
+}
 
 PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent),
@@ -47,16 +72,46 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     max_line_count_(1),
     idle_dissection_row_(0)
 {
+    Q_ASSERT(glbl_plist_model == Q_NULLPTR);
+    glbl_plist_model = this;
     setCaptureFile(cf);
-    PacketListRecord::clearStringPool();
 
     physical_rows_.reserve(reserved_packets_);
     visible_rows_.reserve(reserved_packets_);
     new_visible_rows_.reserve(1000);
     number_to_row_.reserve(reserved_packets_);
 
-    connect(this, SIGNAL(maxLineCountChanged(QModelIndex)),
-            this, SLOT(emitItemHeightChanged(QModelIndex)),
+    if (qobject_cast<MainWindow *>(wsApp->mainWindow()))
+    {
+            MainWindow *mw = qobject_cast<MainWindow *>(wsApp->mainWindow());
+            MainStatusBar *ms = qobject_cast<MainStatusBar *>(mw->statusBar());
+
+            if (ms)
+            {
+                connect(this, SIGNAL(pushBusyStatus(QString)),
+                        ms, SLOT(pushBusyStatus(QString)));
+                connect(this, SIGNAL(popBusyStatus()),
+                        ms, SLOT(popBusyStatus()));
+                connect(this, SIGNAL(pushProgressStatus(QString, bool, bool, gboolean*)),
+                        ms, SLOT(pushProgressStatus(QString, bool, bool, gboolean*)));
+                connect(this, SIGNAL(updateProgressStatus(int)),
+                        ms, SLOT(updateProgressStatus(int)));
+                connect(this, SIGNAL(popProgressStatus()),
+                        ms, SLOT(popProgressStatus()));
+            }
+
+            QWidget * wtWidget = mw->findChild<WirelessTimeline *>();
+            if ( wtWidget && qobject_cast<WirelessTimeline *>(wtWidget) )
+            {
+                WirelessTimeline * wt = qobject_cast<WirelessTimeline *>(wtWidget);
+                connect(this, SIGNAL(bgColorizationProgress(int, int)),
+                        wt, SLOT(bgColorizationProgress(int, int)));
+            }
+
+    }
+
+    connect(this, &PacketListModel::maxLineCountChanged,
+            this, &PacketListModel::emitItemHeightChanged,
             Qt::QueuedConnection);
     idle_dissection_timer_ = new QElapsedTimer();
 }
@@ -98,18 +153,15 @@ int PacketListModel::packetNumberToRow(int packet_num) const
 
 guint PacketListModel::recreateVisibleRows()
 {
-    int pos = visible_rows_.count();
-
     beginResetModel();
     visible_rows_.resize(0);
     number_to_row_.fill(0);
     endResetModel();
 
-    beginInsertRows(QModelIndex(), pos, pos);
     foreach (PacketListRecord *record, physical_rows_) {
         frame_data *fdata = record->frameData();
 
-        if (fdata->flags.passed_dfilter || fdata->flags.ref_time) {
+        if (fdata->passed_dfilter || fdata->ref_time) {
             visible_rows_ << record;
             if (number_to_row_.size() <= (int)fdata->num) {
                 number_to_row_.resize(fdata->num + 10000);
@@ -117,20 +169,22 @@ guint PacketListModel::recreateVisibleRows()
             number_to_row_[fdata->num] = visible_rows_.count();
         }
     }
-    endInsertRows();
+    if (!visible_rows_.isEmpty()) {
+        beginInsertRows(QModelIndex(), 0, visible_rows_.count() - 1);
+        endInsertRows();
+    }
     idle_dissection_row_ = 0;
     return visible_rows_.count();
 }
 
 void PacketListModel::clear() {
-    beginResetModel();
+    emit beginResetModel();
     qDeleteAll(physical_rows_);
     physical_rows_.resize(0);
     visible_rows_.resize(0);
     new_visible_rows_.resize(0);
     number_to_row_.resize(0);
-    PacketListRecord::clearStringPool();
-    endResetModel();
+    emit endResetModel();
     max_row_height_ = 0;
     max_line_count_ = 1;
     idle_dissection_row_ = 0;
@@ -139,8 +193,8 @@ void PacketListModel::clear() {
 void PacketListModel::invalidateAllColumnStrings()
 {
     PacketListRecord::invalidateAllRecords();
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
-    headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
 }
 
 void PacketListModel::resetColumns()
@@ -148,8 +202,8 @@ void PacketListModel::resetColumns()
     if (cap_file_) {
         PacketListRecord::resetColumns(&cap_file_->cinfo);
     }
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
-    headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
 }
 
 void PacketListModel::resetColorized()
@@ -157,7 +211,7 @@ void PacketListModel::resetColorized()
     foreach (PacketListRecord *record, physical_rows_) {
         record->resetColorized();
     }
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
 void PacketListModel::toggleFrameMark(const QModelIndex &fm_index)
@@ -170,12 +224,12 @@ void PacketListModel::toggleFrameMark(const QModelIndex &fm_index)
     frame_data *fdata = record->frameData();
     if (!fdata) return;
 
-    if (fdata->flags.marked)
+    if (fdata->marked)
         cf_unmark_frame(cap_file_, fdata);
     else
         cf_mark_frame(cap_file_, fdata);
 
-    dataChanged(fm_index, fm_index);
+    emit dataChanged(fm_index, fm_index);
 }
 
 void PacketListModel::setDisplayedFrameMark(gboolean set)
@@ -187,7 +241,7 @@ void PacketListModel::setDisplayedFrameMark(gboolean set)
             cf_unmark_frame(cap_file_, record->frameData());
         }
     }
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
 void PacketListModel::toggleFrameIgnore(const QModelIndex &i_index)
@@ -200,7 +254,7 @@ void PacketListModel::toggleFrameIgnore(const QModelIndex &i_index)
     frame_data *fdata = record->frameData();
     if (!fdata) return;
 
-    if (fdata->flags.ignored)
+    if (fdata->ignored)
         cf_unignore_frame(cap_file_, fdata);
     else
         cf_ignore_frame(cap_file_, fdata);
@@ -215,7 +269,7 @@ void PacketListModel::setDisplayedFrameIgnore(gboolean set)
             cf_unignore_frame(cap_file_, record->frameData());
         }
     }
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
 void PacketListModel::toggleFrameRefTime(const QModelIndex &rt_index)
@@ -228,19 +282,19 @@ void PacketListModel::toggleFrameRefTime(const QModelIndex &rt_index)
     frame_data *fdata = record->frameData();
     if (!fdata) return;
 
-    if (fdata->flags.ref_time) {
-        fdata->flags.ref_time=0;
+    if (fdata->ref_time) {
+        fdata->ref_time=0;
         cap_file_->ref_time_count--;
     } else {
-        fdata->flags.ref_time=1;
+        fdata->ref_time=1;
         cap_file_->ref_time_count++;
     }
     cf_reftime_packets(cap_file_);
-    if (!fdata->flags.ref_time && !fdata->flags.passed_dfilter) {
+    if (!fdata->ref_time && !fdata->passed_dfilter) {
         cap_file_->displayed_count--;
     }
     record->resetColumns(&cap_file_->cinfo);
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
 void PacketListModel::unsetAllFrameRefTime()
@@ -251,29 +305,29 @@ void PacketListModel::unsetAllFrameRefTime()
 
     foreach (PacketListRecord *record, physical_rows_) {
         frame_data *fdata = record->frameData();
-        if (fdata->flags.ref_time) {
-            fdata->flags.ref_time = 0;
+        if (fdata->ref_time) {
+            fdata->ref_time = 0;
         }
     }
     cap_file_->ref_time_count = 0;
     cf_reftime_packets(cap_file_);
     PacketListRecord::resetColumns(&cap_file_->cinfo);
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
 void PacketListModel::applyTimeShift()
 {
     resetColumns();
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
-void PacketListModel::setMaximiumRowHeight(int height)
+void PacketListModel::setMaximumRowHeight(int height)
 {
     max_row_height_ = height;
     // As the QTreeView uniformRowHeights documentation says,
     // "The height is obtained from the first item in the view. It is
     //  updated when the data changes on that item."
-    dataChanged(index(0, 0), index(0, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(0, columnCount() - 1));
 }
 
 //void PacketListModel::setMonospaceFont(const QFont &mono_font, int row_height)
@@ -298,7 +352,6 @@ QElapsedTimer busy_timer_;
 const int busy_timeout_ = 65; // ms, approximately 15 fps
 void PacketListModel::sort(int column, Qt::SortOrder order)
 {
-    // packet_list_store.c:packet_list_dissect_and_cache_all
     if (!cap_file_ || visible_rows_.count() < 1) return;
     if (column < 0) return;
 
@@ -307,28 +360,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     sort_order_ = order;
     sort_cap_file_ = cap_file_;
 
-    gboolean stop_flag = FALSE;
     QString col_title = get_column_title(column);
-
-    busy_timer_.start();
-    emit pushProgressStatus(tr("Dissecting"), true, true, &stop_flag);
-    int row_num = 0;
-    foreach (PacketListRecord *row, physical_rows_) {
-        row->columnString(sort_cap_file_, column);
-        row_num++;
-        if (busy_timer_.elapsed() > busy_timeout_) {
-            if (stop_flag) {
-                emit popProgressStatus();
-                return;
-            }
-            emit updateProgressStatus(row_num * 100 / physical_rows_.count());
-            // What's the least amount of processing that we can do which will draw
-            // the progress indicator?
-            wsApp->processEvents(QEventLoop::AllEvents, 1);
-            busy_timer_.restart();
-        }
-    }
-    emit popProgressStatus();
 
     // XXX Use updateProgress instead. We'd have to switch from std::sort to
     // something we can interrupt.
@@ -337,17 +369,17 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
         emit pushBusyStatus(busy_msg);
     }
 
-    busy_timer_.restart();
+    busy_timer_.start();
     sort_column_is_numeric_ = isNumericColumn(sort_column_);
     std::sort(physical_rows_.begin(), physical_rows_.end(), recordLessThan);
 
-    beginResetModel();
+    emit beginResetModel();
     visible_rows_.resize(0);
     number_to_row_.fill(0);
     foreach (PacketListRecord *record, physical_rows_) {
         frame_data *fdata = record->frameData();
 
-        if (fdata->flags.passed_dfilter || fdata->flags.ref_time) {
+        if (fdata->passed_dfilter || fdata->ref_time) {
             visible_rows_ << record;
             if (number_to_row_.size() <= (int)fdata->num) {
                 number_to_row_.resize(fdata->num + 10000);
@@ -355,7 +387,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
             number_to_row_[fdata->num] = visible_rows_.count();
         }
     }
-    endResetModel();
+    emit endResetModel();
 
     if (!col_title.isEmpty()) {
         emit popBusyStatus();
@@ -368,7 +400,39 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
 
 bool PacketListModel::isNumericColumn(int column)
 {
-    if (column < 0 || sort_cap_file_->cinfo.columns[column].col_fmt != COL_CUSTOM) {
+    if (column < 0) {
+        return false;
+    }
+    switch (sort_cap_file_->cinfo.columns[column].col_fmt) {
+    case COL_8021Q_VLAN_ID:  /**< 0) 802.1Q vlan ID */
+    case COL_CUMULATIVE_BYTES: /**< 5) Cumulative number of bytes */
+    case COL_DELTA_TIME:     /**< 8) Delta time */
+    case COL_DELTA_TIME_DIS: /**< 9) Delta time displayed*/
+    case COL_UNRES_DST_PORT: /**< 13) Unresolved dest port */
+    case COL_FREQ_CHAN:      /**< 18) IEEE 802.11 (and WiMax?) - Channel */
+    case COL_RSSI:           /**< 25) IEEE 802.11 - received signal strength */
+    case COL_TX_RATE:        /**< 26) IEEE 802.11 - TX rate in Mbps */
+    case COL_NUMBER:         /**< 35) Packet list item number */
+    case COL_PACKET_LENGTH:  /**< 36) Packet length in bytes */
+    case COL_UNRES_SRC_PORT: /**< 44) Unresolved source port */
+    case COL_TEI:            /**< 45) Q.921 TEI */
+        return true;
+
+    /*
+     * Try to sort port numbers as number, if the numeric comparison fails (due
+     * to name resolution), it will fallback to string comparison.
+     * */
+    case COL_RES_DST_PORT:   /**< 12) Resolved dest port */
+    case COL_DEF_DST_PORT:   /**< 15) Destination port */
+    case COL_DEF_SRC_PORT:   /**< 40) Source port */
+    case COL_RES_SRC_PORT:   /**< 43) Resolved source port */
+        return true;
+
+    case COL_CUSTOM:
+        /* handle custom columns below. */
+        break;
+
+    default:
         return false;
     }
 
@@ -424,29 +488,25 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
     } else  {
         if (r1->columnString(sort_cap_file_, sort_column_).constData() == r2->columnString(sort_cap_file_, sort_column_).constData()) {
             cmp_val = 0;
-        } else if (sort_cap_file_->cinfo.columns[sort_column_].col_fmt == COL_CUSTOM) {
-            // Column comes from custom data
-            if (sort_column_is_numeric_) {
-                // Attempt to convert to numbers.
-                // XXX This is slow. Can we avoid doing this?
-                bool ok_r1, ok_r2;
-                double num_r1 = parseNumericColumn(r1->columnString(sort_cap_file_, sort_column_), &ok_r1);
-                double num_r2 = parseNumericColumn(r2->columnString(sort_cap_file_, sort_column_), &ok_r2);
+        } else if (sort_column_is_numeric_) {
+            // Custom column with numeric data (or something like a port number).
+            // Attempt to convert to numbers.
+            // XXX This is slow. Can we avoid doing this?
+            bool ok_r1, ok_r2;
+            double num_r1 = parseNumericColumn(r1->columnString(sort_cap_file_, sort_column_), &ok_r1);
+            double num_r2 = parseNumericColumn(r2->columnString(sort_cap_file_, sort_column_), &ok_r2);
 
-                if (!ok_r1 && !ok_r2) {
-                    cmp_val = 0;
-                } else if (!ok_r1 || (ok_r2 && num_r1 < num_r2)) {
-                    // either r1 is invalid (and sort it before others) or both
-                    // r1 and r2 are valid (sort normally)
-                    cmp_val = -1;
-                } else if (!ok_r2 || (ok_r1 && num_r1 > num_r2)) {
-                    cmp_val = 1;
-                }
-            } else {
-                cmp_val = strcmp(r1->columnString(sort_cap_file_, sort_column_).constData(), r2->columnString(sort_cap_file_, sort_column_).constData());
+            if (!ok_r1 && !ok_r2) {
+                cmp_val = 0;
+            } else if (!ok_r1 || (ok_r2 && num_r1 < num_r2)) {
+                // either r1 is invalid (and sort it before others) or both
+                // r1 and r2 are valid (sort normally)
+                cmp_val = -1;
+            } else if (!ok_r2 || (ok_r1 && num_r1 > num_r2)) {
+                cmp_val = 1;
             }
         } else {
-            cmp_val = strcmp(r1->columnString(sort_cap_file_, sort_column_).constData(), r2->columnString(sort_cap_file_, sort_column_).constData());
+            cmp_val = r1->columnString(sort_cap_file_, sort_column_).compare(r2->columnString(sort_cap_file_, sort_column_));
         }
 
         if (cmp_val == 0) {
@@ -537,9 +597,9 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
 
     case Qt::BackgroundRole:
         const color_t *color;
-        if (fdata->flags.ignored) {
+        if (fdata->ignored) {
             color = &prefs.gui_ignored_bg;
-        } else if (fdata->flags.marked) {
+        } else if (fdata->marked) {
             color = &prefs.gui_marked_bg;
         } else if (fdata->color_filter && recent.packet_list_colorize) {
             const color_filter_t *color_filter = (const color_filter_t *) fdata->color_filter;
@@ -549,9 +609,9 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
         }
         return ColorUtils::fromColorT(color);
     case Qt::ForegroundRole:
-        if (fdata->flags.ignored) {
+        if (fdata->ignored) {
             color = &prefs.gui_ignored_fg;
-        } else if (fdata->flags.marked) {
+        } else if (fdata->marked) {
             color = &prefs.gui_marked_fg;
         } else if (fdata->color_filter && recent.packet_list_colorize) {
             const color_filter_t *color_filter = (const color_filter_t *) fdata->color_filter;
@@ -563,7 +623,7 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
     case Qt::DisplayRole:
     {
         int column = d_index.column();
-        QByteArray column_string = record->columnString(cap_file_, column, true);
+        QString column_string = record->columnString(cap_file_, column, true);
         // We don't know an item's sizeHint until we fetch its text here.
         // Assume each line count is 1. If the line count changes, emit
         // itemHeightChanged which triggers another redraw (including a
@@ -617,7 +677,7 @@ void PacketListModel::flushVisibleRows()
     gint pos = visible_rows_.count();
 
     if (new_visible_rows_.count() > 0) {
-        beginInsertRows(QModelIndex(), pos, pos + new_visible_rows_.count());
+        emit beginInsertRows(QModelIndex(), pos, pos + new_visible_rows_.count());
         foreach (PacketListRecord *record, new_visible_rows_) {
             frame_data *fdata = record->frameData();
 
@@ -627,7 +687,7 @@ void PacketListModel::flushVisibleRows()
             }
             number_to_row_[fdata->num] = visible_rows_.count();
         }
-        endInsertRows();
+        emit endInsertRows();
         new_visible_rows_.resize(0);
     }
 }
@@ -661,7 +721,7 @@ void PacketListModel::dissectIdle(bool reset)
     }
 
     // report colorization progress
-    bgColorizationProgress(first+1, idle_dissection_row_+1);
+    emit bgColorizationProgress(first+1, idle_dissection_row_+1);
 }
 
 // XXX Pass in cinfo from packet_list_append so that we can fill in
@@ -679,7 +739,7 @@ gint PacketListModel::appendPacket(frame_data *fdata)
 
     physical_rows_ << record;
 
-    if (fdata->flags.passed_dfilter || fdata->flags.ref_time) {
+    if (fdata->passed_dfilter || fdata->ref_time) {
         new_visible_rows_ << record;
         if (new_visible_rows_.count() < 2) {
             // This is the first queued packet. Schedule an insertion for

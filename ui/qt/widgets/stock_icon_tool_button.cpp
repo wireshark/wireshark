@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <ui/qt/widgets/stock_icon_tool_button.h>
 
@@ -27,9 +28,7 @@ StockIconToolButton::StockIconToolButton(QWidget * parent, QString stock_icon_na
     QToolButton(parent),
     leave_timer_(0)
 {
-    if (!stock_icon_name.isEmpty()) {
-        setStockIcon(stock_icon_name);
-    }
+    setStockIcon(stock_icon_name);
 }
 
 void StockIconToolButton::setIconMode(QIcon::Mode mode)
@@ -46,7 +45,13 @@ void StockIconToolButton::setIconMode(QIcon::Mode mode)
 
 void StockIconToolButton::setStockIcon(QString icon_name)
 {
-    base_icon_ = StockIcon(icon_name);
+    if (!icon_name.isEmpty()) {
+        icon_name_ = icon_name;
+    }
+    if (icon_name_.isEmpty()) {
+        return;
+    }
+    base_icon_ = StockIcon(icon_name_);
     setIconMode();
 }
 
@@ -90,6 +95,9 @@ bool StockIconToolButton::event(QEvent *event)
         }
         break;
     }
+    case QEvent::ApplicationPaletteChange:
+        setStockIcon();
+        break;
     default:
         break;
     }

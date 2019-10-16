@@ -248,7 +248,7 @@ export_pdu_create_tags(packet_info *pinfo, const char* proto_name, guint16 tag_t
 	DISSECTOR_ASSERT(proto_name != NULL);
 	DISSECTOR_ASSERT((tag_type == EXP_PDU_TAG_PROTO_NAME) || (tag_type == EXP_PDU_TAG_HEUR_PROTO_NAME) || (tag_type == EXP_PDU_TAG_DISSECTOR_TABLE_NAME));
 
-	exp_pdu_data = (exp_pdu_data_t *)g_malloc(sizeof(exp_pdu_data_t));
+	exp_pdu_data = (exp_pdu_data_t *)wmem_alloc(wmem_packet_scope(), sizeof(exp_pdu_data_t));
 
 	/* Start by computing size of protocol name as a tag */
 	proto_str_len = (int)strlen(proto_name);
@@ -268,7 +268,7 @@ export_pdu_create_tags(packet_info *pinfo, const char* proto_name, guint16 tag_t
 	/* Add end of options length */
 	tag_buf_size+=4;
 
-	exp_pdu_data->tlv_buffer = (guint8 *)g_malloc0(tag_buf_size);
+	exp_pdu_data->tlv_buffer = (guint8 *)wmem_alloc0(wmem_packet_scope(), tag_buf_size);
 	exp_pdu_data->tlv_buffer_len = tag_buf_size;
 
 	buffer_data = exp_pdu_data->tlv_buffer;
@@ -320,20 +320,13 @@ void export_pdu_init(void)
 {
 }
 
-static void
-free_list_element(gpointer elem, gpointer data _U_)
-{
-	g_free(elem);
-}
-
 void export_pdu_cleanup(void)
 {
-	g_slist_foreach(export_pdu_tap_name_list, free_list_element, NULL);
-	g_slist_free(export_pdu_tap_name_list);
+	g_slist_free_full(export_pdu_tap_name_list, g_free);
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

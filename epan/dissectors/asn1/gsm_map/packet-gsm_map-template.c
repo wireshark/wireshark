@@ -56,6 +56,7 @@
 #include "packet-smpp.h"
 #include "packet-gsm_sms.h"
 #include "packet-ranap.h"
+#include "packet-isup.h"
 
 #define PNAME  "GSM Mobile Application"
 #define PSNAME "GSM_MAP"
@@ -188,6 +189,9 @@ static gint ett_gsm_map_tbcd_digits = -1;
 static gint ett_gsm_map_ussd_string = -1;
 static gint ett_gsm_map_ext2_qos_subscribed = -1;
 static gint ett_gsm_map_ext3_qos_subscribed = -1;
+static gint ett_gsm_map_e_utranCellGlobalIdentity = -1;
+static gint ett_gsm_map_TA_id = -1;
+static gint ett_gsm_map_GeodeticInformation = -1;
 
 #include "packet-gsm_map-ett.c"
 
@@ -1566,6 +1570,9 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case 89: /*noteMM-Event*/
     offset=dissect_gsm_map_ms_NoteMM_EventArg(FALSE, tvb, offset, actx, tree, -1);
     break;
+  case 108: /*SS-protocol lcs-PeriodicTriggeredInvoke*/
+      offset = dissect_gsm_ss_LCS_PeriodicTriggeredInvokeArg(FALSE, tvb, offset, actx, tree, -1);
+      break;
   case 109: /*SS-protocol lcs-PeriodicLocationCancellation*/
     offset=dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(FALSE, tvb, offset, actx, tree, -1);
     break;
@@ -1884,6 +1891,9 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
   case 89: /*noteMM-Event*/
     offset=dissect_gsm_map_ms_NoteMM_EventRes(FALSE, tvb, offset, actx, tree, -1);
     break;
+  case 108: /*SS-protocol LCS-PeriodicTriggeredInvokeRes*/
+      offset = dissect_gsm_ss_LCS_PeriodicTriggeredInvokeRes(FALSE, tvb, offset, actx, tree, -1);
+      break;
   case 109: /*SS-protocol lcs-PeriodicLocationCancellation*/
     /* No parameter */
     break;
@@ -2113,6 +2123,14 @@ static int dissect_gsm_mapext_PlmnContainer(tvbuff_t *tvb, packet_info *pinfo, p
   return dissect_gsm_old_PlmnContainer(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
+static int dissect_gsm_map_ericsson_ext_ExtensionType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_) {
+    proto_tree    *tree;
+    asn1_ctx_t asn1_ctx;
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+    tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_gsm_map_ericsson_ExtensionType, NULL, "Ericsson Extension");
+    return dissect_gsm_map_ericsson_ExtensionType(FALSE, tvb, 0, &asn1_ctx, tree, -1);
+}
+
 static int dissect_NokiaMAP_ext_SriResExtension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_) {
   proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
@@ -2254,12 +2272,6 @@ static int dissect_NokiaMAP_ext_AnyTimeModArgExt(tvbuff_t *tvb, packet_info *pin
   tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_AnyTimeModArgExt_U, NULL, "Nokia Extension");
 
   return dissect_NokiaMAP_Extensions_AnyTimeModArgExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
-}
-
-static int dissect_NokiaMAP_ext_ExtensionType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  return dissect_NokiaMAP_Extensions_ExtensionType(FALSE, tvb, 0, &asn1_ctx, parent_tree, -1);
 }
 
 static int dissect_NokiaMAP_ext_AccessTypeExt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_) {
@@ -2763,7 +2775,7 @@ static stat_tap_table_item gsm_map_stat_fields[] = {
   {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg Bytes", "%d"},
 };
 
-static void gsm_map_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void gsm_map_stat_init(stat_tap_table_ui* new_stat)
 {
   int num_fields = sizeof(gsm_map_stat_fields)/sizeof(stat_tap_table_item);
   stat_tap_table* table;
@@ -2783,7 +2795,7 @@ static void gsm_map_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb 
   items[TOT_BYTES_COLUMN].type = TABLE_ITEM_UINT;
   items[AVG_BYTES_COLUMN].type = TABLE_ITEM_FLOAT;
 
-  table = stat_tap_init_table("GSM MAP Operation Statistics", num_fields, 0, NULL, gui_callback, gui_data);
+  table = stat_tap_init_table("GSM MAP Operation Statistics", num_fields, 0, NULL);
   stat_tap_add_table(new_stat, table);
 
   /* Add a row for each value type */
@@ -2803,7 +2815,7 @@ static void gsm_map_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb 
   }
 }
 
-static gboolean
+static tap_packet_status
 gsm_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *gmtr_ptr)
 {
   stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -2858,7 +2870,7 @@ gsm_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _
   avg_data = stat_tap_get_field_data(table, gmtr->opcode, AVG_BYTES_COLUMN);
   avg_data->value.float_value += (float) (fwd_bytes + rev_bytes) / (invokes + results);
   stat_tap_set_field_data(table, gmtr->opcode, AVG_BYTES_COLUMN, avg_data);
-  return TRUE;
+  return TAP_PACKET_REDRAW;
 }
 
 static void
@@ -3013,11 +3025,11 @@ void proto_reg_handoff_gsm_map(void) {
     register_ber_oid_dissector("0.34.25",dissect_NokiaMAP_ext_RoutingCategoryExt,proto_gsm_map,"Nokia Routing Category Extension");
     register_ber_oid_dissector("0.34.26",dissect_NokiaMAP_ext_AnyTimeModArgExt,proto_gsm_map,"Nokia AnyTimeMod Extension");
 
-    register_ber_oid_dissector("1.2.826.0.1249.58.1.0",dissect_NokiaMAP_ext_ExtensionType,proto_gsm_map,"Nokia ExtensionType Extension");
-
     register_ber_oid_dissector("1.3.12.2.1107.3.66.1.1",dissect_NokiaMAP_ext_AccessTypeExt,proto_gsm_map,"Nokia AccessTypeExt Extension");
     register_ber_oid_dissector("1.3.12.2.1107.3.66.1.3",dissect_NokiaMAP_ext_AccessSubscriptionListExt,proto_gsm_map,"Nokia AccessSubscriptionListExt Extension");
     register_ber_oid_dissector("1.3.12.2.1107.3.66.1.6",dissect_NokiaMAP_ext_AllowedServiceData,proto_gsm_map,"Nokia AllowedServiceData Extension");
+
+    register_ber_oid_dissector("1.2.826.0.1249.58.1.0",dissect_gsm_map_ericsson_ext_ExtensionType,proto_gsm_map,"Ericsson ExtensionType Extension");
   }
   else {
     range_foreach(ssn_range, range_delete_callback, NULL);
@@ -3429,6 +3441,9 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ussd_string,
     &ett_gsm_map_ext2_qos_subscribed,
     &ett_gsm_map_ext3_qos_subscribed,
+    &ett_gsm_map_e_utranCellGlobalIdentity,
+    &ett_gsm_map_TA_id,
+    &ett_gsm_map_GeodeticInformation,
 
 #include "packet-gsm_map-ettarr.c"
   };
@@ -3498,7 +3513,7 @@ void proto_register_gsm_map(void) {
    * Register our configuration options, particularly our ssn:s
    * Set default SSNs
    */
-  range_convert_str(wmem_epan_scope(), &global_ssn_range, "6-9", MAX_SSN);
+  range_convert_str(wmem_epan_scope(), &global_ssn_range, "6-9,145,148-150", MAX_SSN);
 
   gsm_map_module = prefs_register_protocol(proto_gsm_map, proto_reg_handoff_gsm_map);
 

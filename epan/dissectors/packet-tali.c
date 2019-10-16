@@ -84,7 +84,7 @@ get_tali_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
 static int
 dissect_tali_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  char opcode[TALI_OPCODE_LENGTH+1]; /* TALI opcode */
+  char *opcode; /* TALI opcode */
   guint16 length; /* TALI length */
   tvbuff_t *payload_tvb = NULL;
 
@@ -92,8 +92,7 @@ dissect_tali_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   proto_item *tali_item = NULL;
   proto_tree *tali_tree = NULL;
 
-  tvb_memcpy(tvb, (guint8*)opcode, TALI_SYNC_LENGTH, TALI_OPCODE_LENGTH);
-  opcode[TALI_OPCODE_LENGTH] = '\0';
+  opcode = (char *) tvb_get_string_enc(wmem_packet_scope(), tvb, TALI_SYNC_LENGTH, TALI_OPCODE_LENGTH, ENC_ASCII|ENC_NA);
   length = tvb_get_letohs(tvb, TALI_SYNC_LENGTH + TALI_OPCODE_LENGTH);
 
   /* Make entries in Protocol column on summary display */
@@ -141,7 +140,14 @@ dissect_tali_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 {
   char opcode[TALI_OPCODE_LENGTH]; /* TALI opcode */
 
-  if (tvb_reported_length(tvb) < TALI_HEADER_LENGTH)   /* Mandatory header */
+  /*
+   * If we don't have at least TALI_HEADER_LENGTH bytes worth of captured
+   * data (i.e., available to look at), we can't determine whether this
+   * looks like a TALI packet or not.  We must use tvb_captured_length()
+   * because the data must be present in the capture, not sliced off due
+   * to the snapshot length specified for the capture.
+   */
+  if (tvb_captured_length(tvb) < TALI_HEADER_LENGTH)   /* Mandatory header */
     return FALSE;
 
   if (tvb_strneql(tvb, 0, TALI_SYNC, TALI_SYNC_LENGTH) != 0)
@@ -213,7 +219,7 @@ proto_reg_handoff_tali(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

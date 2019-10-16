@@ -31,6 +31,7 @@ Patch dialog sequence:
     <Fragment>
         <UI Id="WiresharkWixUI">
             <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+            <TextStyle Id="WixUI_Font_Bold" FaceName="Tahoma" Size="8" Bold="yes"/>
             <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
             <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
 

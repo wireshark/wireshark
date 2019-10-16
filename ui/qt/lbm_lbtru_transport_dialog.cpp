@@ -6,7 +6,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "lbm_lbtru_transport_dialog.h"
 #include <ui_lbm_lbtru_transport_dialog.h>
@@ -1711,7 +1712,8 @@ void LBMLBTRUTransportDialog::fillTree(void)
         TL_REQUIRES_COLUMNS,
         resetTap,
         tapPacket,
-        drawTreeItems);
+        drawTreeItems,
+        NULL);
     if (error_string)
     {
         QMessageBox::critical(this, tr("LBT-RU Statistics failed to attach to tap"),
@@ -1740,16 +1742,16 @@ void LBMLBTRUTransportDialog::resetTap(void * tap_data)
     info->clearMaps();
 }
 
-gboolean LBMLBTRUTransportDialog::tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t *, const void * tap_info)
+tap_packet_status LBMLBTRUTransportDialog::tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t *, const void * tap_info)
 {
-    if (pinfo->fd->flags.passed_dfilter == 1)
+    if (pinfo->fd->passed_dfilter == 1)
     {
         const lbm_lbtru_tap_info_t * tapinfo = (const lbm_lbtru_tap_info_t *)tap_info;
         LBMLBTRUTransportDialogInfo * info = (LBMLBTRUTransportDialogInfo *)tap_data;
 
         info->processPacket(pinfo, tapinfo);
     }
-    return (TRUE);
+    return (TAP_PACKET_REDRAW);
 }
 
 void LBMLBTRUTransportDialog::drawTreeItems(void *)
@@ -2211,7 +2213,7 @@ void LBMLBTRUTransportDialog::actionReceiverAutoResizeColumns_triggered(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

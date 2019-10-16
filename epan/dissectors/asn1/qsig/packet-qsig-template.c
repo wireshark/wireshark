@@ -553,7 +553,7 @@ dissect_qsig_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int codeset
   offset = 0;
 
   ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, -1, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(ti);
+  proto_item_set_hidden(ti);
 
   ie_type = tvb_get_guint8(tvb, offset);
   ie_len = tvb_get_guint8(tvb, offset + 1);
@@ -563,7 +563,7 @@ dissect_qsig_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int codeset
 
   proto_tree_add_item(ie_tree, *hf_qsig_ie_type_arr[codeset], tvb, offset, 1, ENC_BIG_ENDIAN);
   hidden_item = proto_tree_add_item(ie_tree, hf_qsig_ie_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
   proto_tree_add_item(ie_tree, hf_qsig_ie_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
   offset += 2;
   if (tvb_reported_length_remaining(tvb, offset) <= 0)

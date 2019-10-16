@@ -168,7 +168,7 @@ dissect_pkcs1_DSA_Params(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_pkcs1_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -511,6 +511,9 @@ void proto_reg_handoff_pkcs1(void) {
 	register_ber_oid_dissector("1.2.840.113549.1.1.12", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha384WithRSAEncryption");
 	register_ber_oid_dissector("1.2.840.113549.1.1.13", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha512WithRSAEncryption");
 	register_ber_oid_dissector("1.2.840.113549.1.1.14", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha224WithRSAEncryption");
+
+	/* ECDSA SHA-1 algorithm from RFC 3279 */
+	register_ber_oid_dissector("1.2.840.10045.4.1", dissect_ber_oid_NULL_callback, proto_pkcs1, "ecdsa-with-SHA1");
 
 	/* ECDSA SHA2 algorithms from X9.62, RFC5480, RFC 5758, RFC 5912 */
 	register_ber_oid_dissector("1.2.840.10045.4.3.1", dissect_ber_oid_NULL_callback, proto_pkcs1, "ecdsa-with-SHA224");

@@ -161,7 +161,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     bluetooth_data->adapter_disconnect_in_frame = &max_disconnect_in_frame;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (!pinfo->fd->flags.visited && usb_conv_info->endpoint <= 0x02 &&
+    if (!pinfo->fd->visited && usb_conv_info->endpoint <= 0x02 &&
             tvb_captured_length(tvb) == tvb_reported_length(tvb)) {
         fragment_info_t  *fragment_info;
 
@@ -203,12 +203,12 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     reassembled = fragment_get_reassembled_id(&hci_usb_reassembly_table, pinfo, session_id);
     if (reassembled && pinfo->num < reassembled->reassembled_in) {
         pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_fragment, tvb, offset, -1, ENC_NA);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
 
         col_append_str(pinfo->cinfo, COL_INFO, " Fragment");
     } else if (reassembled && pinfo->num == reassembled->reassembled_in) {
         pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_complete, tvb, offset, -1, ENC_NA);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
 
         if (reassembled->len > (guint) tvb_reported_length_remaining(tvb, offset)) {
             next_tvb = process_reassembled_data(tvb, 0, pinfo,
@@ -231,7 +231,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
     } else {
         pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_unknown_fragment, tvb, offset, -1, ENC_NA);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
     }
 
     if (usb_conv_info->endpoint == 0x03) {
@@ -375,7 +375,7 @@ proto_reg_handoff_hci_usb(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

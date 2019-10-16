@@ -258,7 +258,7 @@ static void add_msproxy_conversation( packet_info *pinfo,
 	conversation_t *conversation;
 	redirect_entry_t *new_conv_info;
 
-	if (pinfo->fd->flags.visited) {
+	if (pinfo->fd->visited) {
 		/*
 		 * We've already processed this frame once, so we
 		 * should already have done this.
@@ -1051,7 +1051,7 @@ static int dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	hash_info = (hash_entry_t *)conversation_get_proto_data(conversation, proto_msproxy);
 	if ( !hash_info) {
-		hash_info = wmem_new(wmem_file_scope(), hash_entry_t);
+		hash_info = wmem_new0(wmem_file_scope(), hash_entry_t);
 		conversation_add_proto_data(conversation, proto_msproxy,
 			hash_info);
 	}
@@ -1260,7 +1260,7 @@ proto_reg_handoff_msproxy(void) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

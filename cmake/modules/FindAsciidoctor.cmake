@@ -36,20 +36,15 @@ if(ASCIIDOCTOR_EXECUTABLE)
 
     set (_asciidoctor_common_args
         --attribute build_dir=${CMAKE_CURRENT_BINARY_DIR}
+        --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/ws_utils.rb
         --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/commaize-block.rb
-        --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/cve_idlink-inline-macro.rb
-        --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/ws_buglink-inline-macro.rb
-        --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/ws_salink-inline-macro.rb
+        --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/cveidlink-inline-macro.rb
+        --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/wsbuglink-inline-macro.rb
+        --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/wssalink-inline-macro.rb
     )
 
-    if(CMAKE_VERSION VERSION_LESS 3.1)
-        set(_env_command ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake/env.cmake)
-    else()
-        set(_env_command ${CMAKE_COMMAND} -E env)
-    endif()
-
-    set(_asciidoctor_common_command ${_env_command}
-        TZ=UTC ASCIIDOCTORJ_OPTS="${_asciidoctorj_opts}"
+    set(_asciidoctor_common_command
+        ${CMAKE_COMMAND} -E env TZ=UTC ASCIIDOCTORJ_OPTS="${_asciidoctorj_opts}"
         ${ASCIIDOCTOR_EXECUTABLE}
         ${_asciidoctor_common_args}
     )
@@ -118,26 +113,53 @@ if(ASCIIDOCTOR_EXECUTABLE)
     # news: release-notes.txt
     #         ${CMAKE_COMMAND} -E copy_if_different release-notes.txt ../NEWS
 
-    MACRO( ASCIIDOCTOR2PDF _asciidocsource )
-        GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
-        set( _output_pdf ${_source_base_name}.pdf )
+    FIND_PROGRAM(ASCIIDOCTOR_PDF_EXECUTABLE
+        NAMES
+            asciidoctorj
+            asciidoctor-pdf
+        PATHS
+            /bin
+            /usr/bin
+            /usr/local/bin
+            ${CHOCOLATEY_BIN_PATH}
+        DOC "Path to Asciidoctor PDF or AsciidoctorJ"
+    )
 
-        ADD_CUSTOM_COMMAND(
-            OUTPUT
-                ${_output_pdf}
-            COMMAND ${_asciidoctor_common_command}
-                --backend pdf
-                ${_asciidoctor_common_args}
-                --out-file ${_output_pdf}
-                ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
-            DEPENDS
-                ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
-                ${ARGN}
+    if(ASCIIDOCTOR_PDF_EXECUTABLE)
+
+        set(_asciidoctor_pdf_common_command
+            ${CMAKE_COMMAND} -E env TZ=UTC ASCIIDOCTORJ_OPTS="${_asciidoctorj_opts}"
+            ${ASCIIDOCTOR_PDF_EXECUTABLE}
+            --require asciidoctor-pdf
+            --backend pdf
+            ${_asciidoctor_common_args}
         )
-        add_custom_target(generate_${_output_pdf} DEPENDS ${_output_pdf})
-        set_asciidoctor_target_properties(generate_${_output_pdf})
-        unset(_output_pdf)
-    ENDMACRO()
+
+        MACRO( ASCIIDOCTOR2PDF _asciidocsource )
+            GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
+            set( _output_pdf ${_source_base_name}.pdf )
+
+            ADD_CUSTOM_COMMAND(
+            OUTPUT
+                    ${_output_pdf}
+            COMMAND ${_asciidoctor_pdf_common_command}
+                    --out-file ${_output_pdf}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
+            DEPENDS
+                    ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
+                    ${ARGN}
+            )
+            add_custom_target(generate_${_output_pdf} DEPENDS ${_output_pdf})
+            set_asciidoctor_target_properties(generate_${_output_pdf})
+            unset(_output_pdf)
+        ENDMACRO()
+
+    else(ASCIIDOCTOR_PDF_EXECUTABLE)
+
+        MACRO( ASCIIDOCTOR2PDF _asciidocsource )
+        ENDMACRO()
+
+    endif(ASCIIDOCTOR_PDF_EXECUTABLE)
 
 endif(ASCIIDOCTOR_EXECUTABLE)
 

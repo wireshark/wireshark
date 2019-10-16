@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "byte_view_tab.h"
 
@@ -89,12 +90,16 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
 
     packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII;
     if ( cap_file_ && cap_file_->current_frame )
-        encoding = (packet_char_enc)cap_file_->current_frame->flags.encoding;
+        encoding = (packet_char_enc)cap_file_->current_frame->encoding;
 
     QByteArray data;
     if ( tvb ) {
         int data_len = (int) tvb_captured_length(tvb);
-        data = QByteArray::fromRawData((const char *) tvb_get_ptr(tvb, 0, data_len), data_len);
+        if (data_len > 0) {
+            // Note: this does not copy the data and will be invalidated when
+            // the tvb becomes invalid (e.g. when the current packet changes).
+            data = QByteArray::fromRawData((const char *) tvb_get_ptr(tvb, 0, data_len), data_len);
+        }
     }
 
     ByteViewText * byte_view_text = new ByteViewText(data, encoding, this);

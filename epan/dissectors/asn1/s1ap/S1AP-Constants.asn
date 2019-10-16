@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.1.0 (2018-03)
+-- 3GPP TS 36.413 V15.7.0 (2019-09)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -6,11 +6,11 @@
 --
 -- **************************************************************
 
-S1AP-Constants {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
-eps-Access (21) modules (3) s1ap (1) version1 (1) s1ap-Constants (4) }
+S1AP-Constants { 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) s1ap (1) version1 (1) s1ap-Constants (4) } 
 
-DEFINITIONS AUTOMATIC TAGS ::=
+DEFINITIONS AUTOMATIC TAGS ::= 
 
 BEGIN
 
@@ -124,14 +124,14 @@ maxnoofEPLMNsPlusOne					INTEGER ::= 16
 maxnoofForbLACs							INTEGER ::= 4096
 maxnoofForbTACs							INTEGER ::= 4096
 maxnoofIndividualS1ConnectionsToReset	INTEGER ::= 256
-maxnoofCells							INTEGER ::= 16
+maxnoofCellsinUEHistoryInfo				INTEGER ::= 16
 maxnoofCellsineNB						INTEGER ::= 256
-maxnoofTAIforWarning					INTEGER ::= 65535
-maxnoofCellID							INTEGER ::= 65535
-maxnoofDCNs								INTEGER ::= 32
-maxnoofEmergencyAreaID					INTEGER ::= 65535
-maxnoofCellinTAI						INTEGER ::= 65535
-maxnoofCellinEAI						INTEGER ::= 65535
+maxnoofTAIforWarning					INTEGER ::= 65535 
+maxnoofCellID							INTEGER ::= 65535 
+maxnoofDCNs								INTEGER ::= 32 
+maxnoofEmergencyAreaID					INTEGER ::= 65535 
+maxnoofCellinTAI						INTEGER ::= 65535 
+maxnoofCellinEAI						INTEGER ::= 65535 
 maxnoofeNBX2TLAs						INTEGER ::= 2
 maxnoofeNBX2ExtTLAs						INTEGER ::= 16
 maxnoofeNBX2GTPTLAs						INTEGER ::= 16
@@ -148,10 +148,13 @@ maxEARFCN								INTEGER ::= 262143
 maxnoofMBSFNAreaMDT						INTEGER ::= 8
 maxnoofRecommendedCells					INTEGER ::= 16
 maxnoofRecommendedENBs					INTEGER ::= 16
-maxnooftimeperiods						INTEGER ::= 2
+maxnooftimeperiods						INTEGER ::= 2 
 maxnoofCellIDforQMC						INTEGER ::= 32
 maxnoofTAforQMC							INTEGER ::= 8
 maxnoofPLMNforQMC						INTEGER ::= 16
+maxnoofBluetoothName					INTEGER ::= 4
+maxnoofWLANName							INTEGER ::= 4
+maxnoofConnectedengNBs					INTEGER ::= 256
 
 
 
@@ -434,7 +437,7 @@ id-extended-e-RAB-GuaranteedBitrateDL				ProtocolIE-ID ::= 257
 id-extended-e-RAB-GuaranteedBitrateUL				ProtocolIE-ID ::= 258
 id-extended-uEaggregateMaximumBitRateDL				ProtocolIE-ID ::= 259
 id-extended-uEaggregateMaximumBitRateUL				ProtocolIE-ID ::= 260
-id-NRrestriction									ProtocolIE-ID ::= 261
+id-NRrestrictioninEPSasSecondaryRAT					ProtocolIE-ID ::= 261
 id-UEAppLayerMeasConfig								ProtocolIE-ID ::= 262
 id-UE-Application-Layer-Measurement-Capability		ProtocolIE-ID ::= 263
 id-SecondaryRATDataUsageReportList					ProtocolIE-ID ::= 264
@@ -445,5 +448,34 @@ id-SecondaryRATDataUsageRequest						ProtocolIE-ID ::= 268
 id-NRUESecurityCapabilities							ProtocolIE-ID ::= 269
 id-UnlicensedSpectrumRestriction					ProtocolIE-ID ::= 270
 id-CE-ModeBRestricted								ProtocolIE-ID ::= 271
+id-LTE-M-Indication									ProtocolIE-ID ::= 272
+id-DownlinkPacketLossRate							ProtocolIE-ID ::= 273
+id-UplinkPacketLossRate								ProtocolIE-ID ::= 274
+id-UECapabilityInfoRequest							ProtocolIE-ID ::= 275
+id-serviceType										ProtocolIE-ID ::= 276
+id-AerialUEsubscriptionInformation					ProtocolIE-ID ::= 277
+id-Subscription-Based-UE-DifferentiationInfo		ProtocolIE-ID ::= 278
+--WS extension
+id-Unknown-279										ProtocolIE-ID ::= 279
+id-EndIndication									ProtocolIE-ID ::= 280
+id-EDT-Session										ProtocolIE-ID ::= 281
+id-CNTypeRestrictions								ProtocolIE-ID ::= 282
+id-PendingDataIndication							ProtocolIE-ID ::= 283
+id-BluetoothMeasurementConfiguration				ProtocolIE-ID ::= 284
+id-WLANMeasurementConfiguration						ProtocolIE-ID ::= 285
+id-WarningAreaCoordinates							ProtocolIE-ID ::= 286
+id-NRrestrictionin5GS								ProtocolIE-ID ::= 287
+id-PSCellInformation								ProtocolIE-ID ::= 288
+--WS extension
+id-Unknown-289										ProtocolIE-ID ::= 289
+id-LastNG-RANPLMNIdentity							ProtocolIE-ID ::= 290
+id-ConnectedengNBList								ProtocolIE-ID ::= 291
+id-ConnectedengNBToAddList							ProtocolIE-ID ::= 292
+id-ConnectedengNBToRemoveList						ProtocolIE-ID ::= 293
+id-EN-DCSONConfigurationTransfer-ECT				ProtocolIE-ID ::= 294
+id-EN-DCSONConfigurationTransfer-MCT				ProtocolIE-ID ::= 295
+id-IMSvoiceEPSfallbackfrom5G						ProtocolIE-ID ::= 296
+id-TimeSinceSecondaryNodeRelease					ProtocolIE-ID ::= 297
+id-RequestTypeAdditionalInfo						ProtocolIE-ID ::= 298
 
 END

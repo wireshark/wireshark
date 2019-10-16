@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __COMMANDLINE_H__
 #define __COMMANDLINE_H__
@@ -16,8 +17,7 @@ extern "C" {
 
 extern void commandline_print_usage(gboolean for_help_option);
 
-extern void commandline_early_options(int argc, char *argv[],
-    GString *comp_info_str, GString *runtime_info_str);
+extern void commandline_early_options(int argc, char *argv[]);
 
 /* Command-line options that don't have direct API calls to handle the data */
 typedef struct commandline_param_info

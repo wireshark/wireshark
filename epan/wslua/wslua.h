@@ -53,7 +53,6 @@
 
 #define WSLUA_INIT_ROUTINES "init_routines"
 #define WSLUA_PREFS_CHANGED "prefs_changed"
-#define LOG_DOMAIN_LUA "wslua"
 
 typedef void (*wslua_logger_t)(const gchar *, GLogLevelFlags, const gchar *, gpointer);
 extern wslua_logger_t wslua_logger;
@@ -166,6 +165,7 @@ typedef struct _wslua_pref_t {
 
     struct _wslua_pref_t* next;
     struct _wslua_proto_t* proto;
+    int ref;            /* Reference to enable Proto to deregister prefs. */
 } wslua_pref_t;
 
 typedef struct _wslua_proto_t {
@@ -216,6 +216,12 @@ struct _wslua_treeitem {
     proto_item* item;
     proto_tree* tree;
     gboolean expired;
+};
+
+// Internal structure for wslua_field.c to track info about registered fields.
+struct _wslua_header_field_info {
+    char *name;
+    header_field_info *hfi;
 };
 
 struct _wslua_field_info {
@@ -321,7 +327,7 @@ typedef address* Address;
 typedef nstime_t* NSTime;
 typedef gint64 Int64;
 typedef guint64 UInt64;
-typedef header_field_info** Field;
+typedef struct _wslua_header_field_info* Field;
 typedef struct _wslua_field_info* FieldInfo;
 typedef struct _wslua_tap* Listener;
 typedef struct _wslua_tw* TextWindow;
@@ -417,39 +423,36 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gb
     /* pop the metatable */ \
     lua_pop(L, 1)
 
-#define WSLUA_REGISTER_META(C) { \
+#define __WSLUA_REGISTER_META(C, ATTRS) { \
     const wslua_class C ## _class = { \
         .name               = #C, \
         .instance_meta      = C ## _meta, \
+        .attrs              = ATTRS \
     }; \
     wslua_register_classinstance_meta(L, &C ## _class); \
     WSLUA_REGISTER_GC(C); \
 }
 
-#define WSLUA_REGISTER_CLASS(C) { \
+#define WSLUA_REGISTER_META(C)  __WSLUA_REGISTER_META(C, NULL)
+#define WSLUA_REGISTER_META_WITH_ATTRS(C) \
+    __WSLUA_REGISTER_META(C, C ## _attributes)
+
+#define __WSLUA_REGISTER_CLASS(C, ATTRS) { \
     const wslua_class C ## _class = { \
         .name               = #C, \
         .class_methods      = C ## _methods, \
         .class_meta         = C ## _meta, \
         .instance_methods   = C ## _methods, \
         .instance_meta      = C ## _meta, \
+        .attrs              = ATTRS \
     }; \
     wslua_register_class(L, &C ## _class); \
     WSLUA_REGISTER_GC(C); \
 }
 
-/* see comments for wslua_reg_attributes and wslua_attribute_dispatcher to see how this attribute stuff works */
-#define WSLUA_REGISTER_ATTRIBUTES(C) { \
-    /* get metatable from Lua registry */ \
-    luaL_getmetatable(L, #C); \
-    if (lua_isnil(L, -1)) { \
-        g_error("Attempt to register attributes without a pre-existing metatable for '%s' in Lua registry\n", #C); \
-    } \
-    /* register the getters/setters in their tables */ \
-    wslua_reg_attributes(L, C##_attributes, TRUE); \
-    wslua_reg_attributes(L, C##_attributes, FALSE); \
-    lua_pop(L, 1); /* pop the metatable */ \
-}
+#define WSLUA_REGISTER_CLASS(C)  __WSLUA_REGISTER_CLASS(C, NULL)
+#define WSLUA_REGISTER_CLASS_WITH_ATTRS(C) \
+    __WSLUA_REGISTER_CLASS(C, C ## _attributes)
 
 #define WSLUA_INIT(L) \
     luaL_openlibs(L); \
@@ -700,7 +703,6 @@ extern C shift##C(lua_State* L,int i)
 extern packet_info* lua_pinfo;
 extern TreeItem lua_tree;
 extern tvbuff_t* lua_tvb;
-extern dissector_handle_t lua_data_handle;
 extern gboolean lua_initialized;
 extern int lua_dissectors_table_ref;
 extern int lua_heur_dissectors_table_ref;
@@ -785,6 +787,7 @@ extern void clear_outstanding_FieldInfo(void);
 extern void wslua_print_stack(char* s, lua_State* L);
 
 extern void wslua_init(register_cb cb, gpointer client_data);
+extern void wslua_early_cleanup(void);
 extern void wslua_cleanup(void);
 
 extern tap_extractor_t wslua_get_tap_extractor(const gchar* name);
@@ -812,7 +815,7 @@ extern void wslua_deregister_menus(void);
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

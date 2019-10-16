@@ -19,6 +19,7 @@
 
 #include "wslua.h"
 
+#include <epan/decode_as.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 
@@ -170,45 +171,60 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
 #define WSLUA_OPTARG_DissectorTable_new_BASE 4 /* Either `base.NONE`, `base.DEC`, `base.HEX`,
                                                   `base.OCT`, `base.DEC_HEX` or `base.HEX_DEC`
                                                   (defaults to `base.DEC`). */
+#define WSLUA_OPTARG_DissectorTable_new_PROTO 5 /* The protocol that uses this dissector table
+                                                   (a Proto object). */
     const gchar* name = (const gchar*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_new_TABLENAME);
     const gchar* ui_name = (const gchar*)luaL_optstring(L,WSLUA_OPTARG_DissectorTable_new_UINAME,name);
     enum ftenum type = (enum ftenum)luaL_optinteger(L,WSLUA_OPTARG_DissectorTable_new_TYPE,FT_UINT32);
     unsigned base = (unsigned)luaL_optinteger(L,WSLUA_OPTARG_DissectorTable_new_BASE,BASE_DEC);
+    DissectorTable dt;
+    int proto_id = -1;
 
     switch(type) {
         case FT_STRING:
             base = BASE_NONE;
-            /* fallthrough */
+            break;
+
+        case FT_NONE:
+            break;
+
         case FT_UINT8:
         case FT_UINT16:
         case FT_UINT24:
         case FT_UINT32:
-        {
-            DissectorTable dt = (DissectorTable)g_malloc(sizeof(struct _wslua_distbl_t));
+            break;
 
-            name = g_strdup(name);
-            ui_name = g_strdup(ui_name);
-
-            /* XXX - can't determine dependencies of Lua protocols if they don't provide protocol name */
-            dt->table = register_dissector_table(name, ui_name, -1, type, base);
-            dt->name = name;
-            dt->ui_name = ui_name;
-            dt->created = TRUE;
-            dt->expired = FALSE;
-
-            lua_rawgeti(L, LUA_REGISTRYINDEX, dissectortable_table_ref);
-            lua_pushstring(L, name);
-            pushDissectorTable(L, dt);
-            lua_settable(L, -3);
-
-            pushDissectorTable(L, dt);
-        }
-            WSLUA_RETURN(1); /* The newly created DissectorTable. */
         default:
-            WSLUA_OPTARG_ERROR(DissectorTable_new,TYPE,"must be ftypes.UINT{8,16,24,32} or ftypes.STRING");
+            /* Calling WSLUA_OPTARG_ERROR raises a Lua error and
+               returns from this function. */
+            WSLUA_OPTARG_ERROR(
+                    DissectorTable_new, TYPE,
+                    "must be ftypes.UINT{8,16,24,32}, ftypes.STRING or ftypes.NONE");
             break;
     }
-    return 0;
+
+    dt = (DissectorTable)g_malloc(sizeof(struct _wslua_distbl_t));
+
+    if (isProto(L, WSLUA_OPTARG_DissectorTable_new_PROTO)) {
+        Proto proto = checkProto(L, WSLUA_OPTARG_DissectorTable_new_PROTO);
+        proto_id = proto_get_id_by_short_name(proto->name);
+    }
+
+    dt->table = (type == FT_NONE) ?
+        register_decode_as_next_proto(proto_id, name, ui_name, NULL) :
+        register_dissector_table(name, ui_name, proto_id, type, base);
+    dt->name = g_strdup(name);
+    dt->ui_name = g_strdup(ui_name);
+    dt->created = TRUE;
+    dt->expired = FALSE;
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, dissectortable_table_ref);
+    lua_pushstring(L, name);
+    pushDissectorTable(L, dt);
+    lua_settable(L, -3);
+
+    pushDissectorTable(L, dt);
+    WSLUA_RETURN(1); /* The newly created DissectorTable. */
 }
 
 /* this struct is used for passing ourselves user_data through dissector_all_tables_foreach_table(). */
@@ -541,11 +557,11 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
                 handled = TRUE;
             }
         } else {
-            luaL_error(L,"No such type of dissector_table");
+            error = "No such type of dissector table";
         }
 
         if (!handled) {
-            len = call_dissector(lua_data_handle,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree);
+            len = call_data_dissector(tvb->ws_tvb, pinfo->ws_pinfo, ti->tree);
         }
         /* XXX Are we sure about this??? is this the right/only thing to catch */
     } CATCH_NONFATAL_ERRORS {
@@ -567,7 +583,7 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
 
     DissectorTable dt = checkDissectorTable(L,1);
     ftenum_t type;
-    dissector_handle_t handle = lua_data_handle;
+    dissector_handle_t handle = NULL;
 
     if (!dt) return 0;
 
@@ -640,6 +656,11 @@ WSLUA_METAMETHOD DissectorTable__tostring(lua_State* L) {
             g_string_append_printf(s,"%s Integer(%i):\n",dt->name,base);
             break;
         }
+        case FT_NONE:
+        {
+            g_string_append_printf(s,"%s only for Decode As:\n",dt->name);
+            break;
+        }
         default:
             luaL_error(L,"Strange table type");
     }
@@ -710,7 +731,7 @@ int wslua_deregister_dissector_tables(lua_State* L) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

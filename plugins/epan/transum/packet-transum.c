@@ -1,14 +1,14 @@
 /* packet-transum.c
-* Routines for the TRANSUM response time analyzer post-dissector
-* By Paul Offord <paul.offord@advance7.com>
-* Copyright 2016 Advance Seven Limited
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ * Routines for the TRANSUM response time analyzer post-dissector
+ * By Paul Offord <paul.offord@advance7.com>
+ * Copyright 2016 Advance Seven Limited
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 /* ToDo: Test handling of multiple SMB2 messages within a packet */
 /* ToDo: Rework the Summarizer code (future release) */
@@ -18,6 +18,7 @@
 #include <epan/proto.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <wsutil/ws_printf.h>
 #include "packet-transum.h"
 #include "preferences.h"
 #include "extractors.h"
@@ -59,7 +60,7 @@ HF_OF_INTEREST_INFO hf_of_interest[HF_INTEREST_END_OF_LIST] = {
     { -1, "udp.stream" },
     { -1, "udp.length" },
 
-    { -1, "ssl.record.content_type" },
+    { -1, "tls.record.content_type" },
 
     { -1, "tds.type" },
     { -1, "tds.length" },
@@ -768,7 +769,10 @@ static void init_globals(void)
     GArray *wanted_fields = g_array_sized_new(FALSE, FALSE, (guint)sizeof(int), HF_INTEREST_END_OF_LIST);
     for (int i = 0; i < HF_INTEREST_END_OF_LIST; i++)
     {
-        g_array_append_val(wanted_fields, hf_of_interest[i].hf);
+        if (hf_of_interest[i].hf != -1)
+            g_array_append_val(wanted_fields, hf_of_interest[i].hf);
+        else
+            g_warning("TRANSUM: unknown field %s", hf_of_interest[i].proto_name);
     }
     set_postdissector_wanted_hfids(transum_handle, wanted_fields);
 
@@ -801,8 +805,6 @@ static void init_globals(void)
 
     wmem_map_insert(preferences.tcp_svc_ports, GUINT_TO_POINTER(445), GUINT_TO_POINTER(RTE_CALC_SMB2));
     wmem_map_insert(preferences.udp_svc_ports, GUINT_TO_POINTER(53), GUINT_TO_POINTER(RTE_CALC_DNS));
-
-    output_rrpd = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
 /* Undo capture file-specific initializations. */
@@ -844,34 +846,34 @@ static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, proto_tree *tree, char *summ
         {
             pi = proto_tree_add_string(rte_tree, hf_tsum_status, tvb, 0, 0, "Response missing");
         }
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
 
 
         pi = proto_tree_add_uint(rte_tree, hf_tsum_req_first_seg, tvb, 0, 0, in_rrpd->req_first_frame);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
         pi = proto_tree_add_uint(rte_tree, hf_tsum_req_last_seg, tvb, 0, 0, in_rrpd->req_last_frame);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
 
         if (in_rrpd->rsp_first_frame)
         {
             pi = proto_tree_add_uint(rte_tree, hf_tsum_rsp_first_seg, tvb, 0, 0, in_rrpd->rsp_first_frame);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
             pi = proto_tree_add_uint(rte_tree, hf_tsum_rsp_last_seg, tvb, 0, 0, in_rrpd->rsp_last_frame);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
 
             pi = proto_tree_add_time(rte_tree, hf_tsum_apdu_rsp_time, tvb, 0, 0, &rte_art);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
             pi = proto_tree_add_time(rte_tree, hf_tsum_service_time, tvb, 0, 0, &rte_st);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
         }
 
         pi = proto_tree_add_time(rte_tree, hf_tsum_req_spread, tvb, 0, 0, &rte_reqspread);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
 
         if (in_rrpd->rsp_first_frame)
         {
             pi = proto_tree_add_time(rte_tree, hf_tsum_rsp_spread, tvb, 0, 0, &rte_rspspread);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
         }
 
         if (in_rrpd->ip_proto == IP_PROTO_TCP)
@@ -888,10 +890,10 @@ static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, proto_tree *tree, char *summ
             wmem_strbuf_append_printf(temp_string, " && tcp.len>0");
 
         pi = proto_tree_add_string(rte_tree, hf_tsum_clip_filter, tvb, 0, 0, wmem_strbuf_get_str(temp_string));
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
 
         pi = proto_tree_add_string(rte_tree, hf_tsum_calculation, tvb, 0, 0, val_to_str(in_rrpd->calculation, rrdp_calculation_vals, "Unknown calculation type: %d"));
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
 
         if (in_rrpd->rsp_first_frame)
         {
@@ -900,7 +902,7 @@ static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, proto_tree *tree, char *summ
                 if (summary)
                 {
                     pi = proto_tree_add_string(tree, hf_tsum_summary, tvb, 0, 0, summary);
-                    PROTO_ITEM_SET_GENERATED(pi);
+                    proto_item_set_generated(pi);
                 }
             }
         }
@@ -908,9 +910,9 @@ static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, proto_tree *tree, char *summ
         if (preferences.debug_enabled)
         {
             pi = proto_tree_add_uint(rte_tree, hf_tsum_req_search, tvb, 0, 0, in_rrpd->req_search_total);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
             pi = proto_tree_add_uint(rte_tree, hf_tsum_rsp_search, tvb, 0, 0, in_rrpd->rsp_search_total);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
         }
     }
 }
@@ -1335,6 +1337,8 @@ proto_register_transum(void)
     register_cleanup_routine(cleanup_globals);
 
     register_postdissector(transum_handle);
+
+    output_rrpd = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
 void proto_reg_handoff_transum(void)
@@ -1347,7 +1351,7 @@ void proto_reg_handoff_transum(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

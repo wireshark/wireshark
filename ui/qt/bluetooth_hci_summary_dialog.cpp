@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "bluetooth_hci_summary_dialog.h"
 #include <ui_bluetooth_hci_summary_dialog.h>
@@ -25,12 +26,12 @@
 #include <ui/qt/utils/variant_pointer.h>
 
 #include "ui/simple_dialog.h"
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QClipboard>
 #include <QContextMenuEvent>
 #include <QPushButton>
 #include <QTreeWidget>
-#include <QFileDialog>
 
 static const int column_number_name = 0;
 static const int column_number_ogf = 1;
@@ -43,7 +44,7 @@ static const int column_number_reason = 7;
 static const int column_number_hardware_error = 8;
 static const int column_number_occurrence = 9;
 
-static gboolean
+static tap_packet_status
 bluetooth_hci_summary_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *edt, const void* data)
 {
     bluetooth_hci_summary_tapinfo_t *tapinfo = (bluetooth_hci_summary_tapinfo_t *) tapinfo_ptr;
@@ -51,7 +52,7 @@ bluetooth_hci_summary_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dis
     if (tapinfo->tap_packet)
         tapinfo->tap_packet(tapinfo, pinfo, edt, data);
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 static void
@@ -72,6 +73,7 @@ bluetooth_hci_summary_tap_init(void *data)
             0,
             bluetooth_hci_summary_tap_reset,
             bluetooth_hci_summary_tap_packet,
+            NULL,
             NULL
             );
 
@@ -330,7 +332,7 @@ void BluetoothHciSummaryDialog::tapReset(void *tapinfo_ptr)
     dialog->item_hardware_errors_->setText(column_number_occurrence, "0");
 }
 
-gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
+tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
 {
     bluetooth_hci_summary_tapinfo_t  *tapinfo    = static_cast<bluetooth_hci_summary_tapinfo_t *>(tapinfo_ptr);
     BluetoothHciSummaryDialog        *dialog     = static_cast<BluetoothHciSummaryDialog *>(tapinfo->ui);
@@ -344,10 +346,10 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
     QString  name;
 
     if (dialog->file_closed_)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     if (pinfo->rec->rec_type != REC_TYPE_PACKET)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     name = tr("Unknown");
 
@@ -363,7 +365,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
 
         if (interface && dialog->ui->interfaceComboBox->currentIndex() > 0) {
             if (dialog->ui->interfaceComboBox->currentText() != interface)
-            return TRUE;
+                return TAP_PACKET_REDRAW;
         }
     }
 
@@ -375,7 +377,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
 
     if (dialog->ui->adapterComboBox->currentIndex() > 0) {
         if (dialog->ui->adapterComboBox->currentText() != adapter)
-        return TRUE;
+            return TAP_PACKET_REDRAW;
     }
 
     switch (tap_hci->type) {
@@ -766,7 +768,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
         dialog->ui->tableTreeWidget->resizeColumnToContents(i);
     }
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 void BluetoothHciSummaryDialog::interfaceCurrentIndexChanged(int)
@@ -825,7 +827,7 @@ void BluetoothHciSummaryDialog::on_actionCopy_All_triggered()
 
     item = ui->tableTreeWidget->headerItem();
 
-    copy += QString("%1  %2  %3  %4  %5  %6  %7  %8  %9\n")
+    copy += QString("%1  %2  %3  %4  %5  %6  %7  %8  %9  %10\n")
             .arg(item->text(column_number_name), -60)
             .arg(item->text(column_number_ogf), -10)
             .arg(item->text(column_number_ocf), -10)
@@ -840,7 +842,7 @@ void BluetoothHciSummaryDialog::on_actionCopy_All_triggered()
     for (int i_item = 0; i_item < ui->tableTreeWidget->topLevelItemCount(); ++i_item) {
         item = ui->tableTreeWidget->topLevelItem(i_item);
 
-        copy += QString("%1  %2  %3  %4  %5  %6  %7  %8  %9\n")
+        copy += QString("%1  %2  %3  %4  %5  %6  %7  %8  %9  %10\n")
                 .arg(item->text(column_number_name), -60)
                 .arg(item->text(column_number_ogf), -10)
                 .arg(item->text(column_number_ocf), -10)
@@ -862,14 +864,14 @@ void BluetoothHciSummaryDialog::on_actionSave_as_image_triggered()
 {
     QPixmap image;
 
-    QString fileName = QFileDialog::getSaveFileName(this,
+    QString fileName = WiresharkFileDialog::getSaveFileName(this,
             tr("Save Table Image"),
             "bluetooth_hci_summary.png",
             tr("PNG Image (*.png)"));
 
     if (fileName.isEmpty()) return;
 
-    image = QPixmap::grabWidget(ui->tableTreeWidget);
+    image = ui->tableTreeWidget->grab();
     image.save(fileName, "PNG");
 }
 
@@ -888,6 +890,7 @@ void BluetoothHciSummaryDialog::displayFilterLineEditAccepted()
             0,
             bluetooth_hci_summary_tap_reset,
             bluetooth_hci_summary_tap_packet,
+            NULL,
             NULL
             );
 

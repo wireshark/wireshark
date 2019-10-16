@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -21,7 +22,6 @@
 #ifdef HAVE_LIBPCAP
 
 #include <QAbstractItemModel>
-#include <QFileDialog>
 #include <QMessageBox>
 #include <QTimer>
 
@@ -46,6 +46,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/models/sparkline_delegate.h>
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 // To do:
 // - Set a size hint for item delegates.
@@ -108,13 +109,19 @@ public:
 
         QString default_str = QObject::tr("default");
 
-        QString linkname = QObject::tr("DLT %1").arg(device->active_dlt);
-        for (GList *list = device->links; list != NULL; list = g_list_next(list)) {
-            link_row *linkr = (link_row*)(list->data);
-            // XXX ...and if they're both -1?
-            if (linkr->dlt == device->active_dlt) {
-                linkname = linkr->name;
-                break;
+        // XXX - this is duplicated in InterfaceTreeModel::data;
+        // it should be done in common code somewhere.
+        QString linkname;
+        if (device->active_dlt == -1)
+            linkname = "Unknown";
+        else {
+            linkname = QObject::tr("DLT %1").arg(device->active_dlt);
+            for (GList *list = device->links; list != NULL; list = gxx_list_next(list)) {
+                link_row *linkr = gxx_list_data(link_row *, list);
+                if (linkr->dlt == device->active_dlt) {
+                    linkname = linkr->name;
+                    break;
+                }
             }
         }
         setText(col_link_, linkname);
@@ -159,7 +166,7 @@ public:
             palette.setCurrentColorGroup(QPalette::Disabled);
             setText(column, UTF8_EM_DASH);
         }
-        setTextColor(column, palette.text().color());
+        setForeground(column, palette.text().color());
     }
 
 };
@@ -361,7 +368,7 @@ void CaptureInterfacesDialog::browseButtonClicked()
             open_dir = prefs.gui_fileopen_dir;
         break;
     }
-    QString file_name = QFileDialog::getSaveFileName(this, tr("Specify a Capture File"), open_dir);
+    QString file_name = WiresharkFileDialog::getSaveFileName(this, tr("Specify a Capture File"), open_dir);
     ui->filenameLineEdit->setText(file_name);
 }
 
@@ -408,10 +415,10 @@ void CaptureInterfacesDialog::interfaceItemChanged(QTreeWidgetItem *item, int co
         caps = capture_get_if_capabilities(device->name, monitor_mode, auth_str, NULL, main_window_update);
         g_free(auth_str);
 
-        if (caps != NULL) {
+        if (caps != Q_NULLPTR) {
 
-            for (int i = (gint)g_list_length(device->links)-1; i >= 0; i--) {
-                GList* rem = g_list_nth(device->links, i);
+            for (int i = static_cast<int>(g_list_length(device->links)) - 1; i >= 0; i--) {
+                GList* rem = g_list_nth(device->links, static_cast<guint>(i));
                 device->links = g_list_remove_link(device->links, rem);
                 g_list_free_1(rem);
             }
@@ -419,16 +426,16 @@ void CaptureInterfacesDialog::interfaceItemChanged(QTreeWidgetItem *item, int co
             device->monitor_mode_supported = caps->can_set_rfmon;
             device->monitor_mode_enabled = monitor_mode;
 
-            for (GList *lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-                link_row *linkr = (link_row *)g_malloc(sizeof(link_row));
-                data_link_info_t *data_link_info = (data_link_info_t *)lt_entry->data;
+            for (GList *lt_entry = caps->data_link_types; lt_entry != Q_NULLPTR; lt_entry = gxx_list_next(lt_entry)) {
+                link_row *linkr = new link_row();
+                data_link_info_t *data_link_info = gxx_list_data(data_link_info_t *, lt_entry);
                 /*
                  * For link-layer types libpcap/WinPcap doesn't know about, the
                  * name will be "DLT n", and the description will be null.
                  * We mark those as unsupported, and don't allow them to be
                  * used - capture filters won't work on them, for example.
                  */
-                if (data_link_info->description != NULL) {
+                if (data_link_info->description != Q_NULLPTR) {
                     linkr->dlt = data_link_info->dlt;
                     if (active_dlt_name.isEmpty()) {
                         device->active_dlt = data_link_info->dlt;
@@ -542,8 +549,11 @@ void CaptureInterfacesDialog::updateInterfaces()
     }
 
     ui->gbNewFileAuto->setChecked(global_capture_opts.multi_files_on);
+    ui->PktCheckBox->setChecked(global_capture_opts.has_file_packets);
+    if (global_capture_opts.has_file_packets) {
+        ui->PktSpinBox->setValue(global_capture_opts.file_packets);
+    }
     ui->MBCheckBox->setChecked(global_capture_opts.has_autostop_filesize);
-    ui->SecsCheckBox->setChecked(global_capture_opts.has_file_interval);
     if (global_capture_opts.has_autostop_filesize) {
         int value = global_capture_opts.autostop_filesize;
         if (value > 1000000) {
@@ -575,8 +585,10 @@ void CaptureInterfacesDialog::updateInterfaces()
             }
         }
     }
-    if (global_capture_opts.has_file_interval) {
-        int value = global_capture_opts.file_interval;
+
+    ui->SecsCheckBox->setChecked(global_capture_opts.has_file_duration);
+    if (global_capture_opts.has_file_duration) {
+        int value = global_capture_opts.file_duration;
         if (value > 3600 && value % 3600 == 0) {
             ui->SecsSpinBox->setValue(value / 3600);
             ui->SecsComboBox->setCurrentIndex(2);
@@ -586,6 +598,21 @@ void CaptureInterfacesDialog::updateInterfaces()
         } else {
             ui->SecsSpinBox->setValue(value);
             ui->SecsComboBox->setCurrentIndex(0);
+        }
+    }
+
+    ui->IntervalSecsCheckBox->setChecked(global_capture_opts.has_file_interval);
+    if (global_capture_opts.has_file_interval) {
+        int value = global_capture_opts.file_interval;
+        if (value > 3600 && value % 3600 == 0) {
+            ui->IntervalSecsSpinBox->setValue(value / 3600);
+            ui->IntervalSecsComboBox->setCurrentIndex(2);
+        } else if (value > 60 && value % 60 == 0) {
+            ui->IntervalSecsSpinBox->setValue(value / 60);
+            ui->IntervalSecsComboBox->setCurrentIndex(1);
+        } else {
+            ui->IntervalSecsSpinBox->setValue(value);
+            ui->IntervalSecsComboBox->setCurrentIndex(0);
         }
     }
 
@@ -806,6 +833,9 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
         prefs.capture_pcap_ng = false;
     }
 
+    g_free(global_capture_opts.save_file);
+    g_free(global_capture_opts.orig_save_file);
+
     QString filename = ui->filenameLineEdit->text();
     if (filename.length() > 0) {
         /* User specified a file to which the capture should be written. */
@@ -816,7 +846,9 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
         set_last_open_dir(get_dirname(filename.toUtf8().data()));
     } else {
         /* User didn't specify a file; save to a temporary file. */
+        global_capture_opts.saving_to_file = false;
         global_capture_opts.save_file = NULL;
+        global_capture_opts.orig_save_file = NULL;
     }
 
     global_capture_opts.has_ring_num_files = ui->RbCheckBox->isChecked();
@@ -842,6 +874,10 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
             case 2: global_capture_opts.file_interval *= 3600;
                 break;
             }
+         }
+         global_capture_opts.has_file_packets = ui->PktCheckBox->isChecked();
+         if (global_capture_opts.has_file_packets) {
+             global_capture_opts.file_packets = ui->PktSpinBox->value();
          }
          global_capture_opts.has_autostop_filesize = ui->MBCheckBox->isChecked();
          if (global_capture_opts.has_autostop_filesize) {
@@ -871,9 +907,12 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
              QMessageBox::warning(this, tr("Error"),
                                       tr("Multiple files: No capture file name given. You must specify a filename if you want to use multiple files."));
              return false;
-         } else if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_interval) {
+         } else if (!global_capture_opts.has_autostop_filesize &&
+                    !global_capture_opts.has_file_interval &&
+                    !global_capture_opts.has_file_duration &&
+                    !global_capture_opts.has_file_packets) {
              QMessageBox::warning(this, tr("Error"),
-                                      tr("Multiple files: No file limit given. You must specify a file size or interval at which is switched to the next capture file\n if you want to use multiple files."));
+                                      tr("Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file."));
              g_free(global_capture_opts.save_file);
              global_capture_opts.save_file = NULL;
              return false;
@@ -1049,9 +1088,7 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
 #endif
         }
     }
-    if (!prefs.gui_use_pref_save) {
-        prefs_main_write();
-    }
+    prefs_main_write();
     return true;
 }
 
@@ -1201,8 +1238,8 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             // types we'll have to jump through the hoops necessary to disable
             // QComboBox items.
 
-            for (list = links; list != NULL; list = g_list_next(list)) {
-                linkr = (link_row*)(list->data);
+            for (list = links; list != Q_NULLPTR; list = gxx_list_next(list)) {
+                linkr = gxx_list_data(link_row*, list);
                 if (linkr->dlt >= 0) {
                     valid_link_types << linkr->name;
                 }
@@ -1285,8 +1322,8 @@ void InterfaceTreeDelegate::linkTypeChanged(QString selected_link_type)
     if (!device) {
         return;
     }
-    for (list = device->links; list != NULL; list = g_list_next(list)) {
-        temp = (link_row*) (list->data);
+    for (list = device->links; list != Q_NULLPTR; list = gxx_list_next(list)) {
+        temp = gxx_list_data(link_row*, list);
         if (!selected_link_type.compare(temp->name)) {
             device->active_dlt = temp->dlt;
         }
@@ -1315,9 +1352,9 @@ void InterfaceTreeDelegate::snapshotLengthChanged(int value)
     }
 }
 
+#ifdef SHOW_BUFFER_COLUMN
 void InterfaceTreeDelegate::bufferSizeChanged(int value)
 {
-#ifdef SHOW_BUFFER_COLUMN
     interface_t *device;
     QTreeWidgetItem *ti = tree_->currentItem();
     if (!ti) {
@@ -1329,10 +1366,8 @@ void InterfaceTreeDelegate::bufferSizeChanged(int value)
         return;
     }
     device->buffer = value;
-#else
-    Q_UNUSED(value)
-#endif
 }
+#endif
 
 #endif /* HAVE_LIBPCAP */
 

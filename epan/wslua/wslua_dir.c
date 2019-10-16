@@ -118,18 +118,17 @@ static int delete_directory(const char *directory) {
     /* delete all contents of directory */
     if ((dir = ws_dir_open(directory, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
-            filename = g_strdup_printf ("%s%s%s", directory, G_DIR_SEPARATOR_S,
-                            ws_dir_get_name(file));
+            filename = g_build_filename(directory, ws_dir_get_name(file), NULL);
             if (test_for_directory(filename) != EISDIR) {
                 ret = ws_remove(filename);
             } else {
                 /* recurse */
                 ret = delete_directory (filename);
             }
+            g_free(filename);
             if (ret != 0) {
                 break;
             }
-            g_free (filename);
         }
         ws_dir_close(dir);
     }
@@ -290,19 +289,7 @@ WSLUA_CONSTRUCTOR Dir_global_config_path(lua_State* L) {
     const char *fname = luaL_optstring(L, WSLUA_OPTARG_global_config_path_FILENAME,"");
     char* filename;
 
-    if (running_in_build_directory()) {
-        /* Running in build directory, try the source directory (Autotools) */
-        filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "epan" G_DIR_SEPARATOR_S "wslua"
-                                   G_DIR_SEPARATOR_S "%s", get_datafile_dir(), fname);
-        if (( ! file_exists(filename))) {
-            /* Try the CMake output directory */
-            g_free(filename);
-            filename = get_datafile_path(fname);
-        }
-    } else {
-        filename = get_datafile_path(fname);
-    }
-
+    filename = get_datafile_path(fname);
     lua_pushstring(L,filename);
     g_free(filename);
     WSLUA_RETURN(1); /* The full pathname for a file in wireshark's configuration directory. */
@@ -367,7 +354,7 @@ int Dir_register(lua_State* L) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

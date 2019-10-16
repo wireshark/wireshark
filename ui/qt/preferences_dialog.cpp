@@ -20,6 +20,8 @@
 #include <ui/recent.h>
 #include <main_window.h>
 
+#include <ui/qt/utils/qt_ui_utils.h>
+
 #include "wireshark_application.h"
 
 extern "C" {
@@ -28,14 +30,14 @@ extern "C" {
 static guint
 module_prefs_unstash(module_t *module, gpointer data)
 {
-    gboolean *must_redissect_p = (gboolean *)data;
+    gboolean *must_redissect_p = static_cast<gboolean *>(data);
     pref_unstash_data_t unstashed_data;
 
     unstashed_data.handle_decode_as = TRUE;
 
     module->prefs_changed_flags = 0;        /* assume none of them changed */
-    for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = g_list_next(pref_l)) {
-        pref_t *pref = (pref_t *) pref_l->data;
+    for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = gxx_list_next(pref_l)) {
+        pref_t *pref = gxx_list_data(pref_t *, pref_l);
 
         if (prefs_get_type(pref) == PREF_OBSOLETE || prefs_get_type(pref) == PREF_STATIC_TEXT) continue;
 
@@ -57,16 +59,16 @@ module_prefs_unstash(module_t *module, gpointer data)
 static guint
 module_prefs_clean_stash(module_t *module, gpointer)
 {
-    for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = g_list_next(pref_l)) {
-        pref_t *pref = (pref_t *) pref_l->data;
+    for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = gxx_list_next(pref_l)) {
+        pref_t *pref = gxx_list_data(pref_t *, pref_l);
 
         if (prefs_get_type(pref) == PREF_OBSOLETE || prefs_get_type(pref) == PREF_STATIC_TEXT) continue;
 
-        pref_clean_stash(pref, NULL);
+        pref_clean_stash(pref, Q_NULLPTR);
     }
 
     if(prefs_module_has_submodules(module))
-        return prefs_modules_foreach_submodules(module, module_prefs_clean_stash, NULL);
+        return prefs_modules_foreach_submodules(module, module_prefs_clean_stash, Q_NULLPTR);
 
     return 0;     /* Keep cleaning modules */
 }
@@ -113,14 +115,15 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 
 
     // PreferencesPane, prefsView, and stackedWidget must all correspond to each other.
-    prefs_pane_to_item_[PrefsModel::APPEARANCE_PREFERENCE_TREE_NAME] = pd_ui_->appearanceFrame;
-    prefs_pane_to_item_[PrefsModel::LAYOUT_PREFERENCE_TREE_NAME] = pd_ui_->layoutFrame;
-    prefs_pane_to_item_[PrefsModel::COLUMNS_PREFERENCE_TREE_NAME] = pd_ui_->columnFrame;
-    prefs_pane_to_item_[PrefsModel::FONT_AND_COLORS_PREFERENCE_TREE_NAME] = pd_ui_->fontandcolorFrame;
-    prefs_pane_to_item_[PrefsModel::CAPTURE_PREFERENCE_TREE_NAME] = pd_ui_->captureFrame;
-    prefs_pane_to_item_[PrefsModel::EXPERT_PREFERENCE_TREE_NAME] = pd_ui_->expertFrame;
-    prefs_pane_to_item_[PrefsModel::FILTER_BUTTONS_PREFERENCE_TREE_NAME] = pd_ui_->filterExpressonsFrame;
-    prefs_pane_to_item_[PrefsModel::ADVANCED_PREFERENCE_TREE_NAME] = pd_ui_->advancedFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Appearance)] = pd_ui_->appearanceFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Layout)] = pd_ui_->layoutFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Columns)] = pd_ui_->columnFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::FontAndColors)] = pd_ui_->fontandcolorFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Capture)] = pd_ui_->captureFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Expert)] = pd_ui_->expertFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::FilterButtons)] = pd_ui_->filterExpressonsFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::RSAKeys)] = pd_ui_->rsaKeysFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Advanced)] = pd_ui_->advancedFrame;
     prefs_pane_to_item_[MODULES_NAME] = NULL;
 
     pd_ui_->filterExpressonsFrame->setUat(uat_get_table_by_name("Display expressions"));
@@ -217,6 +220,9 @@ void PreferencesDialog::on_buttonBox_accepted()
     pd_ui_->columnFrame->unstash();
     pd_ui_->filterExpressonsFrame->acceptChanges();
     pd_ui_->expertFrame->acceptChanges();
+#ifdef HAVE_LIBGNUTLS
+    pd_ui_->rsaKeysFrame->acceptChanges();
+#endif
 
     //Filter expressions don't affect dissection, so there is no need to
     //send any events to that effect.  However, the app needs to know
@@ -277,6 +283,9 @@ void PreferencesDialog::on_buttonBox_rejected()
     //handle frames that don't have their own OK/Cancel "buttons"
     pd_ui_->filterExpressonsFrame->rejectChanges();
     pd_ui_->expertFrame->rejectChanges();
+#ifdef HAVE_LIBGNUTLS
+    pd_ui_->rsaKeysFrame->rejectChanges();
+#endif
 }
 
 void PreferencesDialog::on_buttonBox_helpRequested()

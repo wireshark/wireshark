@@ -24,7 +24,7 @@ QWidget* ColoringRulesDelegate::createEditor(QWidget *parent, const QStyleOption
     case ColoringRulesModel::colName:
     {
         SyntaxLineEdit *editor = new SyntaxLineEdit(parent);
-        connect(editor, SIGNAL(textChanged(QString)), this, SLOT(ruleNameChanged(QString)));
+        connect(editor, &SyntaxLineEdit::textChanged, this, &ColoringRulesDelegate::ruleNameChanged);
         return editor;
     }
 
@@ -87,6 +87,7 @@ void ColoringRulesDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
         if ((displayEdit->syntaxState() == SyntaxLineEdit::Invalid) &&
             (model->data(model->index(index.row(), ColoringRulesModel::colName), Qt::CheckStateRole) == Qt::Checked))
         {
+            model->setData(model->index(index.row(), ColoringRulesModel::colName), Qt::Unchecked, Qt::CheckStateRole);
             emit invalidField(index, displayEdit->syntaxErrorMessage());
         }
         else

@@ -449,7 +449,7 @@ crc32_0x5D6DCB_seed(const guint8 *buf, guint len, guint32 seed)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

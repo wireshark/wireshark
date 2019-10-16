@@ -16,6 +16,7 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include "packet-tls.h"
 
 void proto_register_icap(void);
 void proto_reg_handoff_icap(void);
@@ -198,25 +199,25 @@ is_icap_header:
         case ICAP_OPTIONS:
             hidden_item = proto_tree_add_boolean(icap_tree,
                         hf_icap_options, tvb, 0, 0, 1);
-                        PROTO_ITEM_SET_HIDDEN(hidden_item);
+                        proto_item_set_hidden(hidden_item);
             break;
 
         case ICAP_REQMOD:
             hidden_item = proto_tree_add_boolean(icap_tree,
                         hf_icap_reqmod, tvb, 0, 0, 1);
-                        PROTO_ITEM_SET_HIDDEN(hidden_item);
+                        proto_item_set_hidden(hidden_item);
             break;
 
         case ICAP_RESPMOD:
             hidden_item = proto_tree_add_boolean(icap_tree,
                         hf_icap_respmod, tvb, 0, 0, 1);
-                        PROTO_ITEM_SET_HIDDEN(hidden_item);
+                        proto_item_set_hidden(hidden_item);
             break;
 
         case ICAP_RESPONSE:
             hidden_item = proto_tree_add_boolean(icap_tree,
                         hf_icap_response, tvb, 0, 0, 1);
-                        PROTO_ITEM_SET_HIDDEN(hidden_item);
+                        proto_item_set_hidden(hidden_item);
             break;
 
         case ICAP_OTHER:
@@ -310,12 +311,17 @@ proto_reg_handoff_icap(void)
 
     http_handle = find_dissector_add_dependency("http", proto_icap);
 
-    icap_handle = create_dissector_handle(dissect_icap, proto_icap);
+    icap_handle = register_dissector("icap", dissect_icap, proto_icap);
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_ICAP, icap_handle);
+
+    /* As ICAPS port is not officially assigned by IANA
+     * (de facto standard is 11344), we default to 0
+     * to have "decode as" available */
+    ssl_dissector_add(0, icap_handle);
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

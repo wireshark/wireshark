@@ -1,0 +1,151 @@
+# -*- text -*-
+##############################################################################
+# Aptilo Access Controllers - https://www.aptilo.com/aptilo-access-controller
+#
+# Version:      2.0
+#
+##############################################################################
+
+VENDOR		Aptilo				13209
+
+BEGIN-VENDOR	Aptilo
+
+ATTRIBUTE	Aptilo-Subnet-Name			1	string
+ATTRIBUTE	Aptilo-Octets-Limit			2	integer
+ATTRIBUTE	Aptilo-Gigawords-Limit			3	integer
+ATTRIBUTE	Aptilo-Input-Octets-Limit		4	integer
+ATTRIBUTE	Aptilo-Input-Gigawords-Limit		5	integer
+ATTRIBUTE	Aptilo-Output-Octets-Limit		6	integer
+ATTRIBUTE	Aptilo-Output-Gigawords-Limit		7	integer
+ATTRIBUTE	Aptilo-Limit-Mode			8	integer
+ATTRIBUTE	Aptilo-Apc-ID				9	string
+ATTRIBUTE	Aptilo-Opaque-Key			10	string
+ATTRIBUTE	Aptilo-Denied-Cause			11	integer
+ATTRIBUTE	Aptilo-Realm-ID				12	integer
+ATTRIBUTE	Aptilo-Ap-ID				13	integer
+ATTRIBUTE	Aptilo-User-ID				14	integer
+ATTRIBUTE	Aptilo-Zone				15	string
+ATTRIBUTE	Aptilo-First-Name			16	string
+ATTRIBUTE	Aptilo-Last-Name			17	string
+ATTRIBUTE	Aptilo-Phone				18	string
+ATTRIBUTE	Aptilo-Email				19	string
+ATTRIBUTE	Aptilo-Organization			20	string
+ATTRIBUTE	Aptilo-Access-Profile			21	string
+ATTRIBUTE	Aptilo-Realm-Concurrent-Login		22	integer
+ATTRIBUTE	Aptilo-Auth-Result			23	integer
+ATTRIBUTE	Aptilo-Hotline-Indicator		24	string
+ATTRIBUTE	Aptilo-User-Type			25	integer
+ATTRIBUTE	Aptilo-Exclusive-Count			26	integer
+ATTRIBUTE	Aptilo-Duration-Quota			27	integer
+ATTRIBUTE	Aptilo-Volume-Quota			28	string
+ATTRIBUTE	Aptilo-RX-Volume-Quota			29	string
+ATTRIBUTE	Aptilo-TX-Volume-Quota			30	string
+ATTRIBUTE	Aptilo-Resource-Quota			31	integer
+ATTRIBUTE	Aptilo-Quota-ID				32	string
+ATTRIBUTE	Aptilo-RX-Limit				33	integer
+ATTRIBUTE	Aptilo-TX-Limit				34	integer
+ATTRIBUTE	Aptilo-TRX-Limit			35	integer
+ATTRIBUTE	Aptilo-Bw-Min-Up			36	integer
+ATTRIBUTE	Aptilo-Bw-Max-Up			37	integer
+ATTRIBUTE	Aptilo-Bw-Min-Down			38	integer
+ATTRIBUTE	Aptilo-Bw-Max-Down			39	integer
+ATTRIBUTE	Aptilo-Service-Profile			40	string
+ATTRIBUTE	Aptilo-Automatic-Service		41	string
+ATTRIBUTE	Aptilo-Auth-Type			42	integer
+ATTRIBUTE	Aptilo-NAS-Capabilities			43	integer
+ATTRIBUTE	Aptilo-Service				44	string
+ATTRIBUTE	Aptilo-Service-Profile-ID		45	integer
+ATTRIBUTE	Aptilo-Auth-Param			50	integer
+ATTRIBUTE	Aptilo-Access-Profile-ID		53	integer
+ATTRIBUTE	Aptilo-NAS-Model			56	string
+ATTRIBUTE	Aptilo-Debug-Option			57	integer
+ATTRIBUTE	Aptilo-Session-Id			58	string
+ATTRIBUTE	Aptilo-Prepaid-Capabilities		59	octets
+ATTRIBUTE	Aptilo-Octets-Quota			60	octets
+ATTRIBUTE	Aptilo-Octets-Threshold			61	octets
+ATTRIBUTE	Aptilo-Resource-Threshold		62	integer
+ATTRIBUTE	Aptilo-Duration-Threshold		63	integer
+ATTRIBUTE	Aptilo-Octets-Balance			64	octets
+ATTRIBUTE	Aptilo-Resource-Balance			65	integer
+ATTRIBUTE	Aptilo-Duration-Balance			66	integer
+ATTRIBUTE	Aptilo-Octets-Used			67	octets
+ATTRIBUTE	Aptilo-Resource-Used			68	integer
+ATTRIBUTE	Aptilo-Duration-Used			69	integer
+ATTRIBUTE	Aptilo-Octets-Request			70	octets
+ATTRIBUTE	Aptilo-Resource-Request			71	integer
+ATTRIBUTE	Aptilo-Duration-Request			72	integer
+ATTRIBUTE	Aptilo-QoS-Indicator			73	string
+ATTRIBUTE	Aptilo-Circuit-ID			74	octets
+ATTRIBUTE	Aptilo-Remote-ID			75	octets
+ATTRIBUTE	Aptilo-Location-Name			76	string
+
+ATTRIBUTE	Aptilo-Key-IPv6-1			231	ipv6addr
+ATTRIBUTE	Aptilo-Key-IPv6-2			232	ipv6addr
+ATTRIBUTE	Aptilo-Key-IPv6-3			233	ipv6addr
+ATTRIBUTE	Aptilo-Key-IPv6-4			234	ipv6addr
+ATTRIBUTE	Aptilo-Key-IPv6-5			235	ipv6addr
+ATTRIBUTE	Aptilo-Key-Octets-1			236	octets
+ATTRIBUTE	Aptilo-Key-Octets-2			237	octets
+ATTRIBUTE	Aptilo-Key-Octets-3			238	octets
+ATTRIBUTE	Aptilo-Key-Octets-4			239	octets
+ATTRIBUTE	Aptilo-Key-Octets-5			240	octets
+ATTRIBUTE	Aptilo-Key-String-1			241	string
+ATTRIBUTE	Aptilo-Key-String-2			242	string
+ATTRIBUTE	Aptilo-Key-String-3			243	string
+ATTRIBUTE	Aptilo-Key-String-4			244	string
+ATTRIBUTE	Aptilo-Key-String-5			245	string
+ATTRIBUTE	Aptilo-Key-IP-1				246	ipaddr
+ATTRIBUTE	Aptilo-Key-IP-2				247	ipaddr
+ATTRIBUTE	Aptilo-Key-IP-3				248	ipaddr
+ATTRIBUTE	Aptilo-Key-IP-4				249	ipaddr
+ATTRIBUTE	Aptilo-Key-IP-5				250	ipaddr
+ATTRIBUTE	Aptilo-Key-Integer-1			251	integer
+ATTRIBUTE	Aptilo-Key-Integer-2			252	integer
+ATTRIBUTE	Aptilo-Key-Integer-3			253	integer
+ATTRIBUTE	Aptilo-Key-Integer-4			254	integer
+ATTRIBUTE	Aptilo-Key-Integer-5			255	integer
+
+VALUE	Aptilo-Limit-Mode		Relative		0
+VALUE	Aptilo-Limit-Mode		Absolute		1
+
+VALUE	Aptilo-Denied-Cause		User-Not-Found		1
+VALUE	Aptilo-Denied-Cause		Wrong-Password		2
+VALUE	Aptilo-Denied-Cause		No-Zone-Access		3
+VALUE	Aptilo-Denied-Cause		Inactive-Access-Node	4
+VALUE	Aptilo-Denied-Cause		Inconsistent-Access-Node 5
+VALUE	Aptilo-Denied-Cause		Disabled-Account	6
+VALUE	Aptilo-Denied-Cause		No-Accessprofile	7
+VALUE	Aptilo-Denied-Cause		Internal-Error		8
+VALUE	Aptilo-Denied-Cause		Realm-Error		9
+VALUE	Aptilo-Denied-Cause		No-Credits		10
+VALUE	Aptilo-Denied-Cause		Max-Session		11
+VALUE	Aptilo-Denied-Cause		Remote-Server-Reject	12
+VALUE	Aptilo-Denied-Cause		Realm-Inactive		14
+VALUE	Aptilo-Denied-Cause		Opaque-Failed		15
+VALUE	Aptilo-Denied-Cause		Service-Closed		16
+VALUE	Aptilo-Denied-Cause		LDAP-Failed		17
+VALUE	Aptilo-Denied-Cause		Inactive-Account	18
+VALUE	Aptilo-Denied-Cause		Expired-Account		19
+VALUE	Aptilo-Denied-Cause		Incomplete-Account	20
+VALUE	Aptilo-Denied-Cause		License-Limit-Reached	21
+VALUE	Aptilo-Denied-Cause		Unsupported-Service	22
+VALUE	Aptilo-Denied-Cause		Ruleset-Reject		23
+VALUE	Aptilo-Denied-Cause		Ruleset-Failed		24
+
+#
+#   Is sent by the AC to indicate what type of authentication
+#   User - User initiated login, i.e. posting to /cgi-bin/login
+#   Auto - Automatic login, e.g. "new station" based login or logins made
+#          from /cgi-bin/auto
+#   IP-Request - Request for a fixed IP address if available, as a result
+#          of a client DHCP request.
+#
+VALUE	Aptilo-Auth-Type		User			0
+VALUE	Aptilo-Auth-Type		Auto			1
+VALUE	Aptilo-Auth-Type		IP-Request		2
+
+VALUE	Aptilo-NAS-Capabilities		CoA-Login		1
+
+VALUE	Aptilo-Debug-Option		Simulate-EAP-TLS	1
+
+END-VENDOR 	Aptilo

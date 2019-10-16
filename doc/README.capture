@@ -25,13 +25,9 @@ capture.h
 capture_loop.c
 capture_loop.h
 capture_opts.c
-capture-stop-conditions.c
-capture-stop-conditions.h
 capture_sync.c
 capture_ui_utils.c
 capture_ui_utils.h
-conditions.c (XXX: is conditions generic or capture specific?)
-conditions.h
 
 
 Capture driver

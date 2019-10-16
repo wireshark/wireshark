@@ -1,7 +1,7 @@
 /* packet-selfm.c
  * Routines for Schweitzer Engineering Laboratories (SEL) Protocols Dissection
  * By Chris Bontje (cbontje[AT]gmail.com
- * Copyright 2012-2016,
+ * Copyright 2012-2018,
  *
  ************************************************************************************************
  * Wireshark - Network traffic analyzer
@@ -35,7 +35,7 @@
  * to represent an actual payload byte of 0xFF.  A function from the packet-telnet.c dissector has
  * been borrowed to automatically pre-process any Ethernet-based packet and remove these 'extra'
  * 0xFF bytes.  Wireshark Notes on Telnet 0xFF doubling are discussed here:
- * http://www.wireshark.org/lists/wireshark-bugs/201204/msg00198.html
+ * https://www.wireshark.org/lists/wireshark-bugs/201204/msg00198.html
  *
  * 2) The auto-configuration process for Fast Meter will exchange several "configuration" messages
  * that describe various data regions (METER, DEMAND, PEAK, etc) that will later have corresponding
@@ -141,6 +141,7 @@ static int hf_selfm_fastmsg_len                    = -1;
 static int hf_selfm_fastmsg_routing_addr           = -1;
 static int hf_selfm_fastmsg_status                 = -1;
 static int hf_selfm_fastmsg_funccode               = -1;
+static int hf_selfm_fastmsg_response_code          = -1;
 static int hf_selfm_fastmsg_seq                    = -1;
 static int hf_selfm_fastmsg_seq_fir                = -1;
 static int hf_selfm_fastmsg_seq_fin                = -1;
@@ -748,6 +749,20 @@ static const value_string selfm_fastmsg_tagtype_vals[] = {
     { 0,  NULL }
 };
 
+/* Fast Message ACK Response Codes */
+static const value_string selfm_fastmsg_ack_responsecode_vals[] = {
+    { 0x0,  "Success" },
+    { 0x1,  "Function code not recognized" },
+    { 0x2,  "Function code supported but disabled" },
+    { 0x3,  "Invalid Data Address" },
+    { 0x4,  "Bad Data" },
+    { 0x5,  "Insufficient Memory" },
+    { 0x6,  "Busy" },
+    { 0,  NULL }
+};
+
+static value_string_ext selfm_fastmsg_ack_responsecode_vals_ext =
+    VALUE_STRING_EXT_INIT(selfm_fastmsg_ack_responsecode_vals);
 
 /* Fast Message Unsolicited Write COM Port Codes */
 static const value_string selfm_fastmsg_unswrite_com_vals[] = {
@@ -1330,7 +1345,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                                     else if (cfg_data->sf_loc == FM_CONFIG_SF_LOC_CFG) {
                                         ai_sf_fp = ai->sf_fp;
                                         fmdata_ai_sf_item = proto_tree_add_float(fmdata_ai_ch_tree, hf_selfm_fmdata_ai_sf_fp, tvb, offset, ch_size, ai_sf_fp);
-                                        PROTO_ITEM_SET_GENERATED(fmdata_ai_sf_item);
+                                        proto_item_set_generated(fmdata_ai_sf_item);
                                     }
                                     /* If there was no scale factor, default value to 1 */
                                     else {
@@ -1779,10 +1794,10 @@ dissect_fastmsg_readresp_frame(tvbuff_t *tvb, proto_tree *fastmsg_tree, packet_i
                     pi_type = proto_tree_add_uint(fastmsg_tag_tree, hf_selfm_fmdata_data_type, payload_tvb, payload_offset, 0, dataitem->data_type);
                     pi_qty = proto_tree_add_uint(fastmsg_tag_tree, hf_selfm_fmdata_quantity, payload_tvb, payload_offset, 0, dataitem->quantity );
 
-                    PROTO_ITEM_SET_GENERATED(pi_fnum);
-                    PROTO_ITEM_SET_GENERATED(pi_type);
+                    proto_item_set_generated(pi_fnum);
+                    proto_item_set_generated(pi_type);
                     proto_item_set_len(pi_type, data_size);
-                    PROTO_ITEM_SET_GENERATED(pi_qty);
+                    proto_item_set_generated(pi_qty);
                     proto_item_set_len(pi_qty, data_size);
 
                     /* Data Item Type determines how to decode */
@@ -1899,8 +1914,8 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     proto_tree    *fastmsg_tree, *fastmsg_def_fc_tree=NULL, *fastmsg_elementlist_tree=NULL;
     proto_tree    *fastmsg_element_tree=NULL, *fastmsg_datareg_tree=NULL, *fastmsg_tag_tree=NULL, *fastmsg_soeblk_tree=NULL;
     gint          cnt, cnt1, num_elements, elmt_status32_ofs=0, elmt_status, null_offset;
-    guint8        len, funccode, seq, rx_num_fc, tx_num_fc;
-    guint8        seq_cnt, elmt_idx, fc_enable, soe_num_reg;
+    guint8        len, funccode, seq=0, rx_num_fc, tx_num_fc;
+    guint8        seq_cnt=0, elmt_idx, fc_enable, soe_num_reg;
     guint8        *tag_name_ptr;
     guint16       base_addr, num_addr, num_reg, addr1, addr2, crc16, crc16_calc, soe_num_blks;
     guint32       tod_ms, elmt_status32, elmt_ts_offset;
@@ -1935,12 +1950,21 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
     offset += 1;
 
-    /* Get Sequence Byte, add to Tree */
-    seq = tvb_get_guint8(tvb, offset);
-    seq_cnt = seq & FAST_MSG_SEQ_CNT;
+    /* If this is an ACK message, process this byte as a Response Code. */
+    if ((funccode == FAST_MSG_EN_UNS_DATA_ACK) ||
+        (funccode == FAST_MSG_DIS_UNS_DATA_ACK) ||
+        (funccode == FAST_MSG_UNS_RESP_ACK)) {
+        proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_response_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
 
-    proto_tree_add_bitmask_with_flags(fastmsg_tree, tvb, offset, hf_selfm_fastmsg_seq, ett_selfm_fastmsg_seq,
-        seq_fields, ENC_NA, BMT_NO_APPEND);
+    else {
+        /* Otherwise, it is the sequence byte, add to Tree */
+        seq = tvb_get_guint8(tvb, offset);
+        seq_cnt = seq & FAST_MSG_SEQ_CNT;
+        proto_tree_add_bitmask_with_flags(fastmsg_tree, tvb, offset, hf_selfm_fastmsg_seq, ett_selfm_fastmsg_seq,
+            seq_fields, ENC_NA, BMT_NO_APPEND);
+    }
+
     offset += 1;
 
     /* Add Response Number to tree */
@@ -2390,7 +2414,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
     msg_type = tvb_get_ntohs(selfm_tvb, offset);
 
     /* On first pass through the packets we have 4 tasks to complete - they are each noted below */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         conversation_t       *conversation;
         fm_conversation      *fm_conv_data;
 
@@ -2853,6 +2877,8 @@ proto_register_selfm(void)
         { "Status Byte", "selfm.fastmsg.status", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastmsg_funccode,
         { "Function Code", "selfm.fastmsg.funccode", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastmsg_func_code_vals_ext, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_response_code,
+        { "Response Code", "selfm.fastmsg.responsecode", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastmsg_ack_responsecode_vals_ext, 0x0, NULL, HFILL }},
         { &hf_selfm_fastmsg_seq,
         { "Sequence Byte", "selfm.fastmsg.seq", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastmsg_seq_fir,
@@ -3099,7 +3125,7 @@ proto_reg_handoff_selfm(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

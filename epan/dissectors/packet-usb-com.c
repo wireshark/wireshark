@@ -1,6 +1,6 @@
 /* packet-usb-com.c
  * Routines for USB Communications and CDC Control dissection
- * Copyright 2013, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2013, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -565,7 +565,7 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
         ti = proto_tree_add_uint(subtree, hf_usb_com_control_subclass, tvb, 0, 0,
                                  usb_conv_info->interfaceSubclass);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         is_request = (pinfo->srcport==NO_ENDPOINT);
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
@@ -584,21 +584,20 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         } else {
             ti = proto_tree_add_uint(subtree, hf_usb_com_control_response_code, tvb, 0, 0,
                                      usb_trans_info->setup.request);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
 
         switch (usb_trans_info->setup.request)
         {
             case SEND_ENCAPSULATED_COMMAND:
-                if ((usb_conv_info->interfaceSubclass == COM_SUBCLASS_MBIM) &&
-                    (USB_HEADER_IS_LINUX(usb_trans_info->header_type))) {
-                    offset = call_dissector_only(mbim_control_handle, tvb, pinfo, tree, usb_conv_info);
-                    break;
+                if ((usb_conv_info->interfaceSubclass == COM_SUBCLASS_MBIM) && is_request) {
+                    tvbuff_t *mbim_tvb = tvb_new_subset_remaining(tvb, offset);
+                    offset += call_dissector_only(mbim_control_handle, mbim_tvb, pinfo, tree, usb_conv_info);
                 }
-                /* FALLTHROUGH */
+                break;
             case GET_ENCAPSULATED_RESPONSE:
                 if ((usb_conv_info->interfaceSubclass == COM_SUBCLASS_MBIM) && !is_request) {
-                    offset = call_dissector_only(mbim_control_handle, tvb, pinfo, tree, usb_conv_info);
+                    offset += call_dissector_only(mbim_control_handle, tvb, pinfo, tree, usb_conv_info);
                 }
                 break;
             case GET_NTB_PARAMETERS:
@@ -1078,7 +1077,7 @@ proto_reg_handoff_usb_com(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

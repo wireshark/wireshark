@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "rtp_player_dialog.h"
 #include <ui_rtp_player_dialog.h>
@@ -84,7 +85,6 @@ enum {
 
 #ifdef QT_MULTIMEDIA_LIB
 static const double wf_graph_normal_width_ = 0.5;
-static const double wf_graph_selected_width_ = 2.0;
 #endif
 
 RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
@@ -93,6 +93,8 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     , ui(new Ui::RtpPlayerDialog)
     , start_rel_time_(0.0)
 #endif // QT_MULTIMEDIA_LIB
+    , number_ticker_(new QCPAxisTicker)
+    , datetime_ticker_(new QCPAxisTickerDateTime)
 {
     ui->setupUi(this);
     setWindowTitle(wsApp->windowTitleString(tr("RTP Player")));
@@ -125,12 +127,13 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
             this, SLOT(graphClicked(QMouseEvent*)));
 
     cur_play_pos_ = new QCPItemStraightLine(ui->audioPlot);
-    ui->audioPlot->addItem(cur_play_pos_);
     cur_play_pos_->setVisible(false);
+
+    datetime_ticker_->setDateTimeFormat("yyyy-MM-dd\nhh:mm:ss.zzz");
 
     ui->audioPlot->xAxis->setNumberFormat("gb");
     ui->audioPlot->xAxis->setNumberPrecision(3);
-    ui->audioPlot->xAxis->setDateTimeFormat("yyyy-MM-dd\nhh:mm:ss.zzz");
+    ui->audioPlot->xAxis->setTicker(datetime_ticker_);
     ui->audioPlot->yAxis->setVisible(false);
 
     ui->playButton->setIcon(StockIcon("media-playback-start"));
@@ -207,7 +210,7 @@ void RtpPlayerDialog::retapPackets()
 {
     GString *error_string;
 
-    error_string = register_tap_listener("rtp", this, NULL, 0, NULL, tapPacket, NULL);
+    error_string = register_tap_listener("rtp", this, NULL, 0, NULL, tapPacket, NULL, NULL);
     if (error_string) {
         report_failure("RTP Player - tap registration failed: %s", error_string->str);
         g_string_free(error_string, TRUE);
@@ -235,7 +238,11 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
     bool show_legend = false;
     bool relative_timestamps = !ui->todCheckBox->isChecked();
 
-    ui->audioPlot->xAxis->setTickLabelType(relative_timestamps ? QCPAxis::ltNumber : QCPAxis::ltDateTime);
+    if (relative_timestamps) {
+        ui->audioPlot->xAxis->setTicker(number_ticker_);
+    } else {
+        ui->audioPlot->xAxis->setTicker(datetime_ticker_);
+    }
 
     for (int row = 0; row < row_count; row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
@@ -264,9 +271,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
         QPen wf_pen(audio_stream->color());
         wf_pen.setWidthF(wf_graph_normal_width_);
         audio_graph->setPen(wf_pen);
-        wf_pen.setWidthF(wf_graph_selected_width_);
-        audio_graph->setSelectedPen(wf_pen);
-        audio_graph->setSelectable(false);
+        audio_graph->setSelectable(QCP::stNone);
         audio_graph->setData(audio_stream->visualTimestamps(relative_timestamps), audio_stream->visualSamples(y_offset));
         audio_graph->removeFromLegend();
         ti->setData(graph_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(audio_graph));
@@ -285,7 +290,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
             seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssSquare, tango_aluminium_6, Qt::white, 4)); // Arbitrary
-            seq_graph->setSelectable(false);
+            seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->outOfSequenceTimestamps(relative_timestamps), audio_stream->outOfSequenceSamples(y_offset));
             if (row < 1) {
                 seq_graph->setName(tr("Out of Sequence"));
@@ -300,7 +305,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
             seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, tango_scarlet_red_5, Qt::white, 4)); // Arbitrary
-            seq_graph->setSelectable(false);
+            seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->jitterDroppedTimestamps(relative_timestamps), audio_stream->jitterDroppedSamples(y_offset));
             if (row < 1) {
                 seq_graph->setName(tr("Jitter Drops"));
@@ -315,7 +320,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
             seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDiamond, tango_sky_blue_5, Qt::white, 4)); // Arbitrary
-            seq_graph->setSelectable(false);
+            seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->wrongTimestampTimestamps(relative_timestamps), audio_stream->wrongTimestampSamples(y_offset));
             if (row < 1) {
                 seq_graph->setName(tr("Wrong Timestamps"));
@@ -330,7 +335,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
             seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssTriangle, tango_butter_5, Qt::white, 4)); // Arbitrary
-            seq_graph->setSelectable(false);
+            seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->insertedSilenceTimestamps(relative_timestamps), audio_stream->insertedSilenceSamples(y_offset));
             if (row < 1) {
                 seq_graph->setName(tr("Inserted Silence"));
@@ -352,9 +357,9 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
     updateWidgets();
 }
 
-void RtpPlayerDialog::addRtpStream(struct _rtp_stream_info *rtp_stream)
+void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtpstream)
 {
-    if (!rtp_stream) return;
+    if (!rtpstream) return;
 
     // Find the RTP streams associated with this conversation.
     // gtk/rtp_player.c:mark_rtp_stream_to_play does this differently.
@@ -364,29 +369,31 @@ void RtpPlayerDialog::addRtpStream(struct _rtp_stream_info *rtp_stream)
     for (int row = 0; row < tli_count; row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
         RtpAudioStream *row_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
-        if (row_stream->isMatch(rtp_stream)) {
+        if (row_stream->isMatch(rtpstream)) {
             audio_stream = row_stream;
             break;
         }
     }
 
     if (!audio_stream) {
-        audio_stream = new RtpAudioStream(this, rtp_stream);
+        audio_stream = new RtpAudioStream(this, rtpstream);
         audio_stream->setColor(ColorUtils::graphColor(tli_count));
 
         QTreeWidgetItem *ti = new QTreeWidgetItem(ui->streamTreeWidget);
-        ti->setText(src_addr_col_, address_to_qstring(&rtp_stream->src_addr));
-        ti->setText(src_port_col_, QString::number(rtp_stream->src_port));
-        ti->setText(dst_addr_col_, address_to_qstring(&rtp_stream->dest_addr));
-        ti->setText(dst_port_col_, QString::number(rtp_stream->dest_port));
-        ti->setText(ssrc_col_, int_to_qstring(rtp_stream->ssrc, 8, 16));
-        ti->setText(first_pkt_col_, QString::number(rtp_stream->setup_frame_number));
-        ti->setText(num_pkts_col_, QString::number(rtp_stream->packet_count));
+        ti->setText(src_addr_col_, address_to_qstring(&rtpstream->id.src_addr));
+        ti->setText(src_port_col_, QString::number(rtpstream->id.src_port));
+        ti->setText(dst_addr_col_, address_to_qstring(&rtpstream->id.dst_addr));
+        ti->setText(dst_port_col_, QString::number(rtpstream->id.dst_port));
+        ti->setText(ssrc_col_, int_to_qstring(rtpstream->id.ssrc, 8, 16));
+        ti->setText(first_pkt_col_, QString::number(rtpstream->setup_frame_number));
+        ti->setText(num_pkts_col_, QString::number(rtpstream->packet_count));
 
         ti->setData(stream_data_col_, Qt::UserRole, QVariant::fromValue(audio_stream));
 
         for (int col = 0; col < ui->streamTreeWidget->columnCount(); col++) {
-            ti->setTextColor(col, audio_stream->color());
+            QBrush fgBrush = ti->foreground(col);
+            fgBrush.setColor(audio_stream->color());
+            ti->setForeground(col, fgBrush);
         }
 
         connect(ui->playButton, SIGNAL(clicked(bool)), audio_stream, SLOT(startPlaying()));
@@ -397,18 +404,18 @@ void RtpPlayerDialog::addRtpStream(struct _rtp_stream_info *rtp_stream)
         connect(audio_stream, SIGNAL(playbackError(QString)), this, SLOT(setPlaybackError(QString)));
         connect(audio_stream, SIGNAL(processedSecs(double)), this, SLOT(setPlayPosition(double)));
     }
-    audio_stream->addRtpStream(rtp_stream);
-    double start_rel_time = nstime_to_sec(&rtp_stream->start_rel_time);
+    // TODO: does not do anything
+    // audio_stream->addRtpStream(rtpstream);
+    double start_rel_time = nstime_to_sec(&rtpstream->start_rel_time);
     if (tli_count < 2) {
         start_rel_time_ = start_rel_time;
     } else {
         start_rel_time_ = qMin(start_rel_time_, start_rel_time);
     }
-    RTP_STREAM_DEBUG("adding stream %d to layout, %u packets, %u in list, start %u",
+    RTP_STREAM_DEBUG("adding stream %d to layout, %u packets, start %u",
                      ui->streamTreeWidget->topLevelItemCount(),
-                     rtp_stream->packet_count,
-                     g_list_length(rtp_stream->rtp_packet_list),
-                     rtp_stream->start_fd ? rtp_stream->start_fd->num : 0);
+                     rtpstream->packet_count,
+                     rtpstream->start_fd ? rtpstream->start_fd->num : 0);
 }
 
 void RtpPlayerDialog::showEvent(QShowEvent *)
@@ -556,24 +563,24 @@ void RtpPlayerDialog::setPlayPosition(double secs)
     }
 }
 
-gboolean RtpPlayerDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *rtpinfo_ptr)
+tap_packet_status RtpPlayerDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *rtpinfo_ptr)
 {
     RtpPlayerDialog *rtp_player_dialog = dynamic_cast<RtpPlayerDialog *>((RtpPlayerDialog*)tapinfo_ptr);
-    if (!rtp_player_dialog) return FALSE;
+    if (!rtp_player_dialog) return TAP_PACKET_DONT_REDRAW;
 
     const struct _rtp_info *rtpinfo = (const struct _rtp_info *)rtpinfo_ptr;
-    if (!rtpinfo) return FALSE;
+    if (!rtpinfo) return TAP_PACKET_DONT_REDRAW;
 
     /* we ignore packets that are not displayed */
-    if (pinfo->fd->flags.passed_dfilter == 0)
-        return FALSE;
+    if (pinfo->fd->passed_dfilter == 0)
+        return TAP_PACKET_DONT_REDRAW;
     /* also ignore RTP Version != 2 */
     else if (rtpinfo->info_version != 2)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     rtp_player_dialog->addPacket(pinfo, rtpinfo);
 
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 void RtpPlayerDialog::addPacket(packet_info *pinfo, const _rtp_info *rtpinfo)
@@ -680,7 +687,7 @@ void RtpPlayerDialog::on_streamTreeWidget_itemSelectionChanged()
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
         QCPGraph *audio_graph = ti->data(graph_data_col_, Qt::UserRole).value<QCPGraph*>();
         if (audio_graph) {
-            audio_graph->setSelected(ti->isSelected());
+            audio_graph->setSelection(ti->isSelected() ? QCPDataSelection(QCPDataRange()) : QCPDataSelection());
         }
     }
     ui->audioPlot->replot();
@@ -693,9 +700,12 @@ double RtpPlayerDialog::getLowestTimestamp()
     for (int i = 0; i < ui->audioPlot->graphCount(); i++) {
         QCPGraph *graph = ui->audioPlot->graph(i);
         if (!graph->visible()) continue;
-        QCPDataMap *dm = graph->data();
-        if (dm->keys().length() < 1) continue;
-        lowest = qMin(lowest, dm->keys().first());
+        QSharedPointer<QCPGraphDataContainer> dm = graph->data();
+        bool foundRange = false;
+        QCPRange range = dm->keyRange(foundRange);
+        if (foundRange) {
+            lowest = qMin(lowest, range.lower);
+        }
     }
     return lowest;
 }
@@ -770,14 +780,14 @@ void RtpPlayerDialog::on_buttonBox_helpRequested()
 #if 0
 // This also serves as a title in RtpAudioFrame.
 static const QString stream_key_tmpl_ = "%1:%2 " UTF8_RIGHTWARDS_ARROW " %3:%4 0x%5";
-const QString RtpPlayerDialog::streamKey(const struct _rtp_stream_info *rtp_stream)
+const QString RtpPlayerDialog::streamKey(const rtpstream_info_t *rtpstream)
 {
     const QString stream_key = QString(stream_key_tmpl_)
-            .arg(address_to_display_qstring(&rtp_stream->src_addr))
-            .arg(rtp_stream->src_port)
-            .arg(address_to_display_qstring(&rtp_stream->dest_addr))
-            .arg(rtp_stream->dest_port)
-            .arg(rtp_stream->ssrc, 0, 16);
+            .arg(address_to_display_qstring(&rtpstream->src_addr))
+            .arg(rtpstream->src_port)
+            .arg(address_to_display_qstring(&rtpstream->dst_addr))
+            .arg(rtpstream->dst_port)
+            .arg(rtpstream->ssrc, 0, 16);
     return stream_key;
 }
 

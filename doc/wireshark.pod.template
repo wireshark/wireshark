@@ -71,7 +71,7 @@ B<Wireshark> can read / import the following file formats:
 
 =item *
 pcap - captures from B<Wireshark>/B<TShark>/B<dumpcap>, B<tcpdump>,
-and various other tools using libpcap's/WinPcap's/tcpdump's/WinDump's
+and various other tools using libpcap's/Npcap's/WinPcap's/tcpdump's/WinDump's
 capture format
 
 =item *
@@ -240,7 +240,10 @@ to a capture file.  The criterion is of the form I<test>B<:>I<value>,
 where I<test> is one of:
 
 B<duration>:I<value> Stop writing to a capture file after I<value> seconds have
-elapsed.
+elapsed. Floating point values (e.g. 0.5) are allowed.
+
+B<files>:I<value> Stop writing to capture files after I<value> number of files
+were written.
 
 B<filesize>:I<value> Stop writing to a capture file after it reaches a size of
 I<value> kB.  If this option is used together with the -b option, Wireshark
@@ -248,8 +251,8 @@ will stop writing to the current capture file and switch to the next one if
 filesize is reached.  Note that the filesize is limited to a maximum value of
 2 GiB.
 
-B<files>:I<value> Stop writing to capture files after I<value> number of files
-were written.
+B<packets>:I<value> switch to the next file after it contains I<value>
+packets. Same as B<-c>E<lt>capture packet countE<gt>.
 
 =item -b  E<lt>capture ring buffer optionE<gt>
 
@@ -259,7 +262,7 @@ fills up, B<Wireshark> will switch writing to the next file and so on.
 
 The created filenames are based on the filename given with the B<-w> flag,
 the number of the file and on the creation date and time,
-e.g. outfile_00001_20050604120117.pcap, outfile_00002_20050604120523.pcap, ...
+e.g. outfile_00001_20190714120117.pcap, outfile_00002_20190714120523.pcap, ...
 
 With the I<files> option it's also possible to form a "ring buffer".
 This will fill up new files until the number of files specified,
@@ -272,13 +275,8 @@ The criterion is of the form I<key>B<:>I<value>,
 where I<key> is one of:
 
 B<duration>:I<value> switch to the next file after I<value> seconds have
-elapsed, even if the current file is not completely filled up.
-
-B<interval>:I<value> switch to the next file when the time is an exact
-multiple of I<value> seconds
-
-B<filesize>:I<value> switch to the next file after it reaches a size of
-I<value> kB.  Note that the filesize is limited to a maximum value of 2 GiB.
+elapsed, even if the current file is not completely filled up. Floating
+point values (e.g. 0.5) are allowed.
 
 B<files>:I<value> begin again with the first file after I<value> number of
 files were written (form a ring buffer).  This value must be less than 100000.
@@ -288,6 +286,15 @@ requires either B<duration>, B<interval> or B<filesize> to be specified to
 control when to go to the next file.  It should be noted that each B<-b>
 parameter takes exactly one criterion; to specify two criterion, each must be
 preceded by the B<-b> option.
+
+B<filesize>:I<value> switch to the next file after it reaches a size of
+I<value> kB.  Note that the filesize is limited to a maximum value of 2 GiB.
+
+B<interval>:I<value> switch to the next file when the time is an exact
+multiple of I<value> seconds
+
+B<packets>:I<value> switch to the next file after it contains I<value>
+packets.
 
 Example: B<-b filesize:1000 -b files:5> results in a ring buffer of five files
 of size one megabyte each.
@@ -316,7 +323,7 @@ the default capture buffer size is used instead.
 =item -c  E<lt>capture packet countE<gt>
 
 Set the maximum number of packets to read when capturing live
-data.
+data. Same as B<-a packets:>E<lt>capture packet countE<gt>.
 
 =item -C  E<lt>configuration profileE<gt>
 
@@ -400,7 +407,7 @@ capture.
 Network interface names should match one of the names listed in
 "B<wireshark -D>" (described above); a number, as reported by
 "B<wireshark -D>", can also be used.  If you're using UNIX, "B<netstat
--i>" or "B<ifconfig -a>" might also work to list interface names,
+-i>", "B<ifconfig -a>" or "B<ip link>" might also work to list interface names,
 although not all versions of UNIX support the B<-a> flag to B<ifconfig>.
 
 If no interface is specified, B<Wireshark> searches the list of
@@ -409,12 +416,13 @@ non-loopback interfaces, and choosing the first loopback interface if
 there are no non-loopback interfaces.  If there are no interfaces at all,
 B<Wireshark> reports an error and doesn't start the capture.
 
-Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
+Pipe names should be either the name of a FIFO (named pipe) or "-" to
 read data from the standard input.  On Windows systems, pipe names must be
-of the form ``\\pipe\.\B<pipename>''.  Data read from pipes must be in
-standard pcap format.
+of the form "\\pipe\.\B<pipename>".  Data read from pipes must be in
+standard pcapng or pcap format. Pcapng data must have the same
+endianness as the capturing host.
 
-This option can occur multiple times.  When capturing from multiple
+This option can occur multiple times. When capturing from multiple
 interfaces, the capture file will be saved in pcapng format.
 
 =item -I
@@ -498,6 +506,8 @@ resolution
 B<t> to enable transport-layer port number resolution
 
 B<d> to enable resolution from captured DNS packets
+
+B<v> to enable VLAN IDs to names resolution
 
 =item -o  E<lt>preference/recent settingE<gt>
 
@@ -1041,7 +1051,7 @@ which to save it.
 Show a dialog box that lists all files of the file set matching the currently
 loaded file.  A file set is a compound of files resulting from a capture using
 the "multiple files" / "ringbuffer" mode, recognizable by the filename pattern,
-e.g.: Filename_00001_20050604101530.pcap.
+e.g.: Filename_00001_20190714101530.pcap.
 
 =item File:File Set:Next File
 
@@ -1462,7 +1472,7 @@ save it as text to a file.
 
 =item Analyze:Follow UDP Stream
 
-=item Analyze:Follow SSL Stream
+=item Analyze:Follow TLS Stream
 
 (Similar to Analyze:Follow TCP Stream)
 
@@ -1504,7 +1514,7 @@ List of End Point Addresses by protocol with packets/bytes/.... counts.
 
 Grouped counts of packet lengths (0-19 bytes, 20-39 bytes, ...)
 
-=item Statistics:IO Graphs
+=item Statistics:I/O Graphs
 
 Open a window where up to 5 graphs in different colors can be displayed
 to indicate number of packets or number of bytes per second for all packets
@@ -2857,11 +2867,12 @@ See above in the description of the About:Plugins page.
 
 =over 4
 
-=item WIRESHARK_APPDATA
+=item WIRESHARK_CONFIG_DIR
 
-On Windows, Wireshark normally stores all application data in %APPDATA% or
-%USERPROFILE%.  You can override the default location by exporting this
-environment variable to specify an alternate location.
+This environment variable overrides the location of personal configuration
+files. It defaults to F<$XDG_CONFIG_HOME/wireshark> (or F<$HOME/.wireshark> if
+the former is missing while the latter exists). On Windows,
+F<%APPDATA%\Wireshark> is used instead. Available since Wireshark 3.0.
 
 =item WIRESHARK_DEBUG_WMEM_OVERRIDE
 

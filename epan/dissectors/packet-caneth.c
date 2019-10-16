@@ -23,7 +23,12 @@
 #include <epan/dissectors/packet-socketcan.h>
 
 #define CAN_FRAME_LEN   15
-#define CAN_DATA_OFFSET  5
+
+#define CAN_ID_OFFSET       0
+#define CAN_DLC_OFFSET      4
+#define CAN_DATA_OFFSET     5
+#define CAN_EXT_FLAG_OFFSET 13
+#define CAN_RTR_FLAG_OFFSET 14
 
 static const gchar magic[] = "ISO11898";
 
@@ -88,15 +93,18 @@ dissect_caneth_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_item *ti;
     guint32     data_len;
     guint32     raw_can_id;
-    gint8       ext_flag = 1;
+    gint8       ext_flag;
+    gint8       rtr_flag;
     tvbuff_t*   next_tvb;
     struct can_identifier can_id;
 
     ti = proto_tree_add_item(tree, proto_can, tvb, 0, -1, ENC_NA);
     can_tree = proto_item_add_subtree(ti, ett_caneth_can);
 
-    ext_flag = tvb_get_guint8(tvb, 13);
-    proto_tree_add_item_ret_uint(can_tree, hf_caneth_can_ident_ext, tvb, 0, 4, ENC_LITTLE_ENDIAN, &raw_can_id);
+    ext_flag = tvb_get_guint8(tvb, CAN_EXT_FLAG_OFFSET);
+    rtr_flag = tvb_get_guint8(tvb, CAN_RTR_FLAG_OFFSET);
+    proto_tree_add_item_ret_uint(can_tree, hf_caneth_can_ident_ext, tvb, CAN_ID_OFFSET, 4, ENC_LITTLE_ENDIAN, &raw_can_id);
+
     if (ext_flag)
     {
         can_id.id = raw_can_id & CAN_EFF_MASK;
@@ -106,9 +114,11 @@ dissect_caneth_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         can_id.id = raw_can_id & CAN_SFF_MASK;
     }
 
-    proto_tree_add_item_ret_uint(can_tree, hf_caneth_can_len, tvb, 4, 1, ENC_NA, &data_len);
-    proto_tree_add_item(can_tree, hf_caneth_can_extflag, tvb, 13, 1, ENC_NA);
-    proto_tree_add_item(can_tree, hf_caneth_can_rtrflag, tvb, 14, 1, ENC_NA);
+    can_id.id |= (ext_flag ? CAN_EFF_FLAG : 0) | (rtr_flag ? CAN_RTR_FLAG : 0);
+
+    proto_tree_add_item_ret_uint(can_tree, hf_caneth_can_len, tvb, CAN_DLC_OFFSET, 1, ENC_NA, &data_len);
+    proto_tree_add_item(can_tree, hf_caneth_can_extflag, tvb, CAN_EXT_FLAG_OFFSET, 1, ENC_NA);
+    proto_tree_add_item(can_tree, hf_caneth_can_rtrflag, tvb, CAN_RTR_FLAG_OFFSET, 1, ENC_NA);
 
     next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, data_len);
 

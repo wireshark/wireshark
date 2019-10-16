@@ -37,23 +37,26 @@ then
 	exit 1
 fi
 
+if ! tmpdir=$(mktemp -d); then
+	echo "Could not create temporary directory" >&2
+	exit 1
+fi
+trap 'rm -rf "$tmpdir"' EXIT
+
 # First edit all the AVP names that start with "3GPP" to indicate "TGPP".
 # XML doesn't allow ID's to start with a digit but:
 #   1) We don't *really* care if it's valid XML
 #   2) (but) we do want to use xmllint to find problems
 #   3) (and) users see the AVP names.  Showing them "TGPP" instead of "3GPP"
 #      is annoying enough to warrant this extra work.
-mkdir /tmp/diameter || exit 1
-cp diameter/dictionary.dtd /tmp/diameter || exit 1
+cp diameter/dictionary.dtd "$tmpdir" || exit 1
 for f in diameter/*.xml
 do
-	sed 's/name="3GPP/name="TGPP/g' $f > /tmp/$f || exit 1
+	sed 's/name="3GPP/name="TGPP/g' "$f" > "$tmpdir/${f##*/}" || exit 1
 done
 
-xmllint --noout --noent --postvalid /tmp/diameter/dictionary.xml &&
+xmllint --noout --noent --postvalid "$tmpdir/dictionary.xml" &&
 	echo "Diameter dictionary is (mostly) valid XML."
-
-rm -rf /tmp/diameter
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

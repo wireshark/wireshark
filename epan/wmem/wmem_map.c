@@ -28,7 +28,7 @@ void
 wmem_init_hashing(void)
 {
     x = g_random_int();
-    if G_UNLIKELY(x == 0)
+    if (G_UNLIKELY(x == 0))
         x = 1;
 
     preseed  = g_random_int();
@@ -474,7 +474,7 @@ wmem_double_hash(gconstpointer key)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

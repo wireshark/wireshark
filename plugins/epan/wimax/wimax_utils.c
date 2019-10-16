@@ -3382,7 +3382,7 @@ guint wimax_common_tlv_encoding_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

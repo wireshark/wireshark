@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef SEARCH_FRAME_H
 #define SEARCH_FRAME_H
@@ -44,6 +45,7 @@ protected:
 
 private:
     bool regexCompile();
+    void applyRecentSearchSettings();
     void updateWidgets();
 
     Ui::SearchFrame *sf_ui_;
@@ -52,8 +54,10 @@ private:
     QString regex_error_;
 
 private slots:
-    void on_caseCheckBox_toggled(bool);
-    void on_searchTypeComboBox_currentIndexChanged(int);
+    void on_searchInComboBox_currentIndexChanged(int idx);
+    void on_charEncodingComboBox_currentIndexChanged(int idx);
+    void on_caseCheckBox_toggled(bool checked);
+    void on_searchTypeComboBox_currentIndexChanged(int idx);
     void on_searchLineEdit_textChanged(const QString &);
     void on_findButton_clicked();
     void on_cancelButton_clicked();

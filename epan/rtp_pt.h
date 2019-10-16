@@ -99,7 +99,7 @@ WS_DLL_PUBLIC value_string_ext rtp_payload_type_short_vals_ext;
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -441,15 +441,31 @@ wmem_test_strutls(void)
     split_str = wmem_strsplit(allocator, "A-C", "-", 2);
     g_assert_cmpstr(split_str[0], ==, "A");
     g_assert_cmpstr(split_str[1], ==, "C");
+    g_assert(split_str[2] == NULL);
+    split_str = wmem_strsplit(allocator, "A-C", "-", 0);
+    g_assert_cmpstr(split_str[0], ==, "A");
+    g_assert_cmpstr(split_str[1], ==, "C");
+    g_assert(split_str[2] == NULL);
     split_str = wmem_strsplit(allocator, "--aslkf-asio--asfj-as--", "-", 10);
-    g_assert_cmpstr(split_str[0], ==, "aslkf");
-    g_assert_cmpstr(split_str[1], ==, "asio");
-    g_assert_cmpstr(split_str[2], ==, "asfj");
-    g_assert_cmpstr(split_str[3], ==, "as");
-    split_str = wmem_strsplit(allocator, "--aslkf-asio--asfj-as--", "-", 4);
-    g_assert_cmpstr(split_str[0], ==, "aslkf");
-    g_assert_cmpstr(split_str[1], ==, "asio");
-    g_assert_cmpstr(split_str[2], ==, "-asfj-as--");
+    g_assert_cmpstr(split_str[0], ==, "");
+    g_assert_cmpstr(split_str[1], ==, "");
+    g_assert_cmpstr(split_str[2], ==, "aslkf");
+    g_assert_cmpstr(split_str[3], ==, "asio");
+    g_assert_cmpstr(split_str[4], ==, "");
+    g_assert_cmpstr(split_str[5], ==, "asfj");
+    g_assert_cmpstr(split_str[6], ==, "as");
+    g_assert_cmpstr(split_str[7], ==, "");
+    g_assert_cmpstr(split_str[8], ==, "");
+    g_assert(split_str[9] == NULL);
+    split_str = wmem_strsplit(allocator, "--aslkf-asio--asfj-as--", "-", 5);
+    g_assert_cmpstr(split_str[0], ==, "");
+    g_assert_cmpstr(split_str[1], ==, "");
+    g_assert_cmpstr(split_str[2], ==, "aslkf");
+    g_assert_cmpstr(split_str[3], ==, "asio");
+    g_assert_cmpstr(split_str[4], ==, "-asfj-as--");
+    g_assert(split_str[5] == NULL);
+    split_str = wmem_strsplit(allocator, "", "-", -1);
+    g_assert(split_str[0] == NULL);
     wmem_strict_check_canaries(allocator);
 
     orig_str = "TeStAsCiIsTrDoWn";
@@ -641,16 +657,24 @@ wmem_test_array(void)
 
         val = *(guint32*)wmem_array_index(array, i);
         g_assert(val == i);
+        g_assert(wmem_array_try_index(array, i, &val) == 0);
+        g_assert(val == i);
+        g_assert(wmem_array_try_index(array, i+1, &val) < 0);
+
     }
     wmem_strict_check_canaries(allocator);
 
     for (i=0; i<CONTAINER_ITERS; i++) {
         val = *(guint32*)wmem_array_index(array, i);
         g_assert(val == i);
+        g_assert(wmem_array_try_index(array, i, &val) == 0);
+        g_assert(val == i);
     }
 
     array = wmem_array_sized_new(allocator, sizeof(guint32), 73);
     wmem_array_set_null_terminator(array);
+    for (i=0; i<75; i++)
+        g_assert(wmem_array_try_index(array, i, &val) < 0);
 
     for (i=0; i<CONTAINER_ITERS; i++) {
         for (j=0; j<8; j++) {
@@ -674,15 +698,21 @@ wmem_test_array(void)
         for (j=0; j<=i; j++, k++) {
             val = *(guint32*)wmem_array_index(array, k);
             g_assert(val == i);
+            g_assert(wmem_array_try_index(array, k, &val) == 0);
+            g_assert(val == i);
         }
     }
     for (j=k; k<8*(CONTAINER_ITERS+1)-j; k++) {
             val = *(guint32*)wmem_array_index(array, k);
             g_assert(val == ((k-j)/8)+8);
+            g_assert(wmem_array_try_index(array, k, &val) == 0);
+            g_assert(val == ((k-j)/8)+8);
     }
     for (i=0; i<7; i++) {
         for (j=0; j<7-i; j++, k++) {
             val = *(guint32*)wmem_array_index(array, k);
+            g_assert(val == CONTAINER_ITERS+i);
+            g_assert(wmem_array_try_index(array, k, &val) == 0);
             g_assert(val == CONTAINER_ITERS+i);
         }
     }
@@ -863,7 +893,7 @@ wmem_test_list(void)
     wmem_destroy_list(list);
 }
 
-void
+static void
 check_val_map(gpointer key _U_, gpointer val, gpointer user_data)
 {
     g_assert(val == user_data);
@@ -1434,7 +1464,7 @@ main(int argc, char **argv)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

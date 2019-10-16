@@ -795,7 +795,7 @@ static const value_string select_input_opject_response[] = {
 
 static const value_string draw_text_background[] = {
     { 0, "Opaque" },
-    { 1, "Transparant" },
+    { 1, "Transparent" },
     { 0, NULL }
 };
 
@@ -845,7 +845,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
     ti = proto_tree_add_item(tree,
         hf_isobus_vt, tvb, 0, 0, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     proto_tree_add_item_ret_uint(tree,
         hf_isobus_vt_command, tvb, offset, 1, ENC_LITTLE_ENDIAN, &function_id);
@@ -865,14 +865,14 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_softkey_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_softkey_parentobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &parent_object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item(tree,
@@ -895,14 +895,14 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_button_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_button_parentobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &parent_object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item(tree,
@@ -948,7 +948,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_vtselectinputobject_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item(tree,
@@ -972,7 +972,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_vtescmessage_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == vt_to_ecu)
@@ -1004,7 +1004,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_vtchgnumval_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         offset += 1; /* byte 4 is reserved */
@@ -1032,7 +1032,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_vtchgactivemask_maskobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &mask_object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == vt_to_ecu)
@@ -1056,14 +1056,14 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_vtchgactivemask_errorobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &error_object_id);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
             offset += 2;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_vtchgactivemask_errorobjectidparent, tvb, offset, 2, ENC_LITTLE_ENDIAN, &error_object_id);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
 
             if(error_codes)
             {
@@ -1097,7 +1097,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_vtchgstrval_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
             offset += 2;
 
             proto_tree_add_item_ret_uint(tree,
@@ -1107,7 +1107,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             firstTwoBytesString = tvb_get_letohs(tvb,offset);
             if(firstTwoBytesString == 0xFEFF)
             {
-                encoding = ENC_UCS_2;
+                encoding = ENC_UCS_2|ENC_BIG_ENDIAN;
                 bomOffset = 2;
             }
 
@@ -1128,7 +1128,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_chgstrval_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "VT String value change of %s acknowledged",
                 get_object_id_string(object_id));
@@ -1143,7 +1143,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_vtonuserlayouthideshow_objectid_1, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id[0]);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
@@ -1154,7 +1154,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_vtonuserlayouthideshow_objectid_2, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id[1]);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
@@ -1207,14 +1207,14 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_endofobjectpool_faultyparentobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
             offset += 2;
 
             proto_tree_add_item(tree,
                 hf_isobus_vt_endofobjectpool_faultyobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
             offset += 2;
 
             ti = proto_tree_add_item_ret_uint(tree,
@@ -1260,7 +1260,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_auxiliaryassignmenttype1_objectidauxinputdevice, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
 
         if(direction == ecu_to_vt)
         {
@@ -1345,14 +1345,14 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                         hf_isobus_vt_preferredassignment_auxinputunit_preferredfunctions_auxfunctionobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &auxiliary_function_object_id);
                     ti = proto_tree_add_item(tree,
                         hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                    PROTO_ITEM_SET_HIDDEN(ti);
+                    proto_item_set_hidden(ti);
                     offset += 2;
 
                     proto_tree_add_item_ret_uint(preferred_function_subtree,
                         hf_isobus_vt_preferredassignment_auxinputunit_preferredfunctions_auxinputobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &auxiliary_input_object_id);
                     ti = proto_tree_add_item(tree,
                         hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                    PROTO_ITEM_SET_HIDDEN(ti);
+                    proto_item_set_hidden(ti);
                     offset += 2;
 
                     proto_item_set_text(preferred_function_item, "Auxiliary Function %s connects to Auxiliary Input %s",
@@ -1384,7 +1384,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_preferredassignment_faultyauxiliaryfunctionobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &faulty_auxiliary_function_object_id);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
 
             if(error_codes)
             {
@@ -1441,17 +1441,17 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             flags_subtree = proto_item_add_subtree(ti, ett_isobus_vt_auxiliaryassignmenttype2_flags);
             ti = proto_tree_add_item(flags_subtree,
                 hf_isobus_vt_auxiliaryassignmenttype2_flags_preferredassignment, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_item(flags_subtree,
                 hf_isobus_vt_auxiliaryassignmenttype2_flags_auxiliaryfunctiontype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             offset += 1;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_auxiliaryassignmenttype2_auxinputobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &auxiliary_input_object_id);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
             offset += 2;
         }
 
@@ -1459,7 +1459,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_auxiliaryassignmenttype2_auxfunctionobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &auxiliary_function_object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == vt_to_ecu)
@@ -1501,7 +1501,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_auxiliaryinputstatustype2enable_auxiliaryinputobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &auxiliary_input_object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == ecu_to_vt)
@@ -1546,16 +1546,8 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             }
             else
             {
-                if(status == 0)
-                {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Status of Auxiliary Input %s was successfully changed to enabled",
-                        get_object_id_string(auxiliary_input_object_id));
-                }
-                else
-                {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Status of Auxiliary Input %s was successfully changed to enabled",
-                        get_object_id_string(auxiliary_input_object_id));
-                }
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Status of Auxiliary Input %s was successfully changed to enabled",
+                    get_object_id_string(auxiliary_input_object_id));
             }
         }
     }
@@ -1569,7 +1561,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_auxiliaryinputtype2status_auxiliaryinputobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &auxiliary_input_object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
@@ -1585,10 +1577,10 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         operating_state_subtree = proto_item_add_subtree(ti, ett_isobus_vt_auxiliaryinputtype2status_operatingstate);
         ti = proto_tree_add_item(operating_state_subtree,
             hf_isobus_vt_auxiliaryinputtype2status_operatingstate_learnmodeactive, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         ti = proto_tree_add_item(operating_state_subtree,
             hf_isobus_vt_auxiliaryinputtype2status_operatingstate_inputactivatedinlearnmode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "State of input %s value 1 = 0x%X value 2 = 0x%X.",
             get_object_id_string(auxiliary_input_object_id), value_1, value_2);
@@ -1671,7 +1663,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_esc_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
             offset += 2;
 
             ti = proto_tree_add_item_ret_uint(tree,
@@ -1704,7 +1696,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_hideshowobj_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
@@ -1770,7 +1762,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_enabledisableobj_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
@@ -1838,7 +1830,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_selectinputobject_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == ecu_to_vt)
@@ -1988,14 +1980,14 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changechildlocation_parentobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &parent_object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_changechildlocation_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == ecu_to_vt)
@@ -2046,7 +2038,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changesize_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == ecu_to_vt)
@@ -2095,7 +2087,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changebackgroundcolour_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
@@ -2143,7 +2135,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_chgnumval_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == vt_to_ecu)
@@ -2192,7 +2184,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changeendpoint_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == ecu_to_vt)
@@ -2223,7 +2215,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changefontattributes_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == ecu_to_vt)
@@ -2284,7 +2276,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changelineattributes_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == ecu_to_vt)
@@ -2337,7 +2329,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changefillattributes_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == ecu_to_vt)
@@ -2354,7 +2346,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_changefillattributes_fillpatternobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Change fill attributes of %s", get_object_id_string(object_id));
         }
@@ -2397,7 +2389,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_changeactivemask_workingset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &working_set_object_id);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
             offset += 2;
         }
         else
@@ -2409,7 +2401,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changeactivemask_newactivemask, tvb, offset, 2, ENC_LITTLE_ENDIAN, &new_active_mask_object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == vt_to_ecu)
@@ -2457,14 +2449,14 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changesoftkeymask_datamaskobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &data_mask_object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_changesoftkeymask_newsoftkeymaskobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &new_soft_key_mask_object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == vt_to_ecu)
@@ -2509,7 +2501,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changeattributes_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
@@ -2563,7 +2555,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changepriority_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
@@ -2608,7 +2600,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changelistitem_listobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &list_object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
@@ -2619,7 +2611,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changelistitem_newobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &new_object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == vt_to_ecu)
@@ -2699,7 +2691,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_chgstrval_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
             offset += 2;
 
             proto_tree_add_item_ret_uint(tree,
@@ -2709,7 +2701,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             firstTwoBytesString = tvb_get_letohs(tvb,offset);
             if(firstTwoBytesString == 0xFEFF)
             {
-                encoding = ENC_UCS_2;
+                encoding = ENC_UCS_2|ENC_BIG_ENDIAN;
                 bomOffset = 2;
             }
 
@@ -2729,7 +2721,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_chgstrval_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
             offset += 2;
 
             ti = proto_tree_add_item_ret_uint(tree,
@@ -2765,7 +2757,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changechildposition_parentobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &parent_object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
 
@@ -2773,7 +2765,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changechildposition_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == ecu_to_vt)
@@ -2826,14 +2818,14 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_changeobjectlabel_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
             offset += 2;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changeobjectlabel_stringobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &string_object_id);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
             offset += 2;
 
             proto_tree_add_item(tree,
@@ -2844,7 +2836,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_changeobjectlabel_graphicobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Change object label of %s to string %s",
                             get_object_id_string(object_id), get_object_id_string(string_object_id));
@@ -2888,7 +2880,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changepolygonpoint_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == ecu_to_vt)
@@ -2941,7 +2933,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_changepolygonscale_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
@@ -2991,7 +2983,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_graphicscontext_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
@@ -3062,7 +3054,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     hf_isobus_vt_graphicscontext_setlineattributesobjectid_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &line_attr_object_id);
                 ti = proto_tree_add_item(tree,
                     hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(ti);
+                proto_item_set_hidden(ti);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Set Line Attributes to %s",
                     get_object_id_string(line_attr_object_id));
@@ -3076,7 +3068,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     hf_isobus_vt_graphicscontext_setfillattributesobjectid_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &fill_attr_object_id);
                 ti = proto_tree_add_item(tree,
                     hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(ti);
+                proto_item_set_hidden(ti);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Set Fill Attributes to %s",
                     get_object_id_string(fill_attr_object_id));
@@ -3090,7 +3082,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     hf_isobus_vt_graphicscontext_setfontattributesobjectid_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &font_attr_object_id);
                 ti = proto_tree_add_item(tree,
                     hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(ti);
+                proto_item_set_hidden(ti);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Set Font Attributes to %s",
                     get_object_id_string(font_attr_object_id));
@@ -3222,7 +3214,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 firstTwoBytesString = tvb_get_letohs(tvb,offset);
                 if(firstTwoBytesString == 0xFEFF)
                 {
-                    encoding = ENC_UCS_2;
+                    encoding = ENC_UCS_2|ENC_BIG_ENDIAN;
                     bomOffset = 2;
                 }
 
@@ -3304,7 +3296,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     hf_isobus_vt_graphicscontext_drawvtobject_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &draw_object_id);
                 ti = proto_tree_add_item(tree,
                     hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(ti);
+                proto_item_set_hidden(ti);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Draw VT %s at graphics cursor",
                     get_object_id_string(draw_object_id));
@@ -3318,7 +3310,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     hf_isobus_vt_graphicscontext_copycanvastopicturegraphic_objectidpicturegraphic, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id_picture_graphic);
                 ti = proto_tree_add_item(tree,
                     hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(ti);
+                proto_item_set_hidden(ti);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Copy canvas to picture graphics %s",
                     get_object_id_string(object_id_picture_graphic));
@@ -3332,7 +3324,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     hf_isobus_vt_graphicscontext_copyviewporttopicturegraphic_objectidpicturegraphic, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id_picture_graphic);
                 ti = proto_tree_add_item(tree,
                     hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(ti);
+                proto_item_set_hidden(ti);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Copy viewport to picture graphics %s",
                     get_object_id_string(object_id_picture_graphic));
@@ -3354,7 +3346,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_getattributevalue_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
         }
         else
         {
@@ -3385,7 +3377,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     hf_isobus_vt_getattributevalue_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
                 ti = proto_tree_add_item(tree,
                     hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(ti);
+                proto_item_set_hidden(ti);
                 offset += 2;
 
                 ti = proto_tree_add_item_ret_uint(tree,
@@ -3417,7 +3409,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_selectcolourmap_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == vt_to_ecu)
@@ -3473,7 +3465,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_executeextendedmacro_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         if(direction == vt_to_ecu)
@@ -3523,7 +3515,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_lockunlockmask_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
             ti = proto_tree_add_item(tree,
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
             offset += 2;
 
             if(command == MASK_LOCK)
@@ -3585,11 +3577,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             {
                 if(command == MASK_LOCK)
                 {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Locking successfull ");
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "Locking successful ");
                 }
                 else if(command == MASK_UNLOCK)
                 {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Unlocking successfull ");
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "Unlocking successful ");
                 }
             }
         }
@@ -3605,7 +3597,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_executemacro_objectid, tvb, offset, 1, ENC_LITTLE_ENDIAN, &object_id);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 1;
 
         if(direction == vt_to_ecu)
@@ -4258,14 +4250,14 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_vtstatus_objectiddatamask, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id_data_mask);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_vtstatus_objectidsoftkeymask, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id_soft_key_mask);
         ti = proto_tree_add_item(tree,
             hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         busycodes_item = proto_tree_add_item(tree,
@@ -6018,7 +6010,7 @@ proto_reg_handoff_isobus_vt(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

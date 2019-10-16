@@ -122,7 +122,7 @@ void capture_dissector_add_uint(const char *name, const guint32 pattern, capture
     sub_dissectors = (struct capture_dissector_table*)g_hash_table_lookup( capture_dissector_tables, name );
     if (sub_dissectors == NULL) {
             fprintf(stderr, "OOPS: Subdissector \"%s\" not found in capture_dissector_tables\n", name);
-            if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+            if (wireshark_abort_on_dissector_bug)
                     abort();
             return;
     }
@@ -134,7 +134,7 @@ void capture_dissector_add_uint(const char *name, const guint32 pattern, capture
     g_hash_table_insert(sub_dissectors->hash_table, GUINT_TO_POINTER(pattern), (gpointer) handle);
 }
 
-gboolean try_capture_dissector(const char* name, const guint32 pattern, const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+gboolean try_capture_dissector(const char* name, const guint32 pattern, const guint8 *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
     struct capture_dissector_table*	sub_dissectors;
     capture_dissector_handle_t handle;
@@ -153,7 +153,7 @@ gboolean try_capture_dissector(const char* name, const guint32 pattern, const gu
     return handle->dissector(pd, offset, len, cpinfo, pseudo_header);
 }
 
-gboolean call_capture_dissector(capture_dissector_handle_t handle, const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+gboolean call_capture_dissector(capture_dissector_handle_t handle, const guint8 *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
     if (handle == NULL)
         return FALSE;
@@ -162,7 +162,7 @@ gboolean call_capture_dissector(capture_dissector_handle_t handle, const guchar 
 
 guint32 capture_dissector_get_count(packet_counts* counts, const int proto)
 {
-    capture_dissector_count_t* hash_count = (capture_dissector_count_t*)g_hash_table_lookup(counts->counts_hash, GUINT_TO_POINTER(proto));
+    capture_dissector_count_t* hash_count = (capture_dissector_count_t*)g_hash_table_lookup(counts->counts_hash, GINT_TO_POINTER(proto));
     if (hash_count == NULL)
         return 0;
 
@@ -172,18 +172,18 @@ guint32 capture_dissector_get_count(packet_counts* counts, const int proto)
 void capture_dissector_increment_count(capture_packet_info_t *cpinfo, const int proto)
 {
     /* See if we already have a counter for the protocol */
-    capture_dissector_count_t* hash_count = (capture_dissector_count_t*)g_hash_table_lookup(cpinfo->counts, GUINT_TO_POINTER(proto));
+    capture_dissector_count_t* hash_count = (capture_dissector_count_t*)g_hash_table_lookup(cpinfo->counts, GINT_TO_POINTER(proto));
     if (hash_count == NULL)
     {
         hash_count = g_new0(capture_dissector_count_t, 1);
-        g_hash_table_insert(cpinfo->counts, GUINT_TO_POINTER(proto), (gpointer)hash_count);
+        g_hash_table_insert(cpinfo->counts, GINT_TO_POINTER(proto), (gpointer)hash_count);
     }
 
     hash_count->count++;
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

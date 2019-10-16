@@ -10,6 +10,32 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+/** @defgroup main_window_group Main window
+ * The main window has the following submodules:
+   @dot
+  digraph main_dependencies {
+      node [shape=record, fontname=Helvetica, fontsize=10];
+      main [ label="main window" URL="\ref main.h"];
+      menu [ label="menubar" URL="\ref menus.h"];
+      toolbar [ label="toolbar" URL="\ref main_toolbar.h"];
+      packet_list [ label="packet list pane" URL="\ref packet_list.h"];
+      proto_draw [ label="packet details & bytes panes" URL="\ref main_proto_draw.h"];
+      recent [ label="recent user settings" URL="\ref recent.h"];
+      main -> menu [ arrowhead="open", style="solid" ];
+      main -> toolbar [ arrowhead="open", style="solid" ];
+      main -> packet_list [ arrowhead="open", style="solid" ];
+      main -> proto_draw [ arrowhead="open", style="solid" ];
+      main -> recent [ arrowhead="open", style="solid" ];
+  }
+  @enddot
+ */
+
+/** @file
+ *  The main window
+ *  @ingroup main_window_group
+ *  @ingroup windows_group
+ */
+
 #include <stdio.h>
 
 #include <config.h>
@@ -42,6 +68,7 @@
 
 #include "capture_file.h"
 #include "capture_file_dialog.h"
+#include "print_dialog.h"
 #include "capture_file_properties_dialog.h"
 #include <ui/qt/utils/field_information.h>
 #include <ui/qt/widgets/display_filter_combo.h>
@@ -52,14 +79,18 @@
 class AccordionFrame;
 class ByteViewTab;
 class CaptureInterfacesDialog;
+class PrintDialog;
 class FileSetDialog;
 class FilterDialog;
 class FunnelStatistics;
-class MainWelcome;
+class WelcomePage;
+class PacketCommentDialog;
 class PacketList;
 class ProtoTree;
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
 class WirelessFrame;
-class DragDropToolBar;
+#endif
+class FilterExpressionToolBar;
 
 class QAction;
 class QActionGroup;
@@ -99,15 +130,16 @@ public:
     QString getMwFileName();
     void setMwFileName(QString fileName);
 
+    void insertColumn(QString name, QString abbrev, gint pos = -1);
+
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event);
+    virtual bool event(QEvent *event);
     virtual void keyPressEvent(QKeyEvent *event);
     virtual void closeEvent(QCloseEvent *event);
     virtual void dragEnterEvent(QDragEnterEvent *event);
     virtual void dropEvent(QDropEvent *event);
     virtual void changeEvent(QEvent* event);
-    virtual void resizeEvent(QResizeEvent *event);
-
 
 private:
     // XXX Move to FilterUtils
@@ -139,11 +171,13 @@ private:
     QSplitter master_split_;
     QSplitter extra_split_;
     QVector<unsigned> cur_layout_;
-    MainWelcome *main_welcome_;
+    WelcomePage *welcome_page_;
     DisplayFilterCombo *df_combo_box_;
     CaptureFile capture_file_;
     QFont mono_font_;
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
     WirelessFrame *wireless_frame_;
+#endif
     // XXX - packet_list_ and proto_tree_ should
     // probably be full-on values instead of pointers.
     PacketList *packet_list_;
@@ -160,7 +194,7 @@ private:
     QPointer<QWidget> freeze_focus_;
     QMap<QAction *, ts_type> td_actions;
     QMap<QAction *, ts_precision> tp_actions;
-    DragDropToolBar *filter_expression_toolbar_;
+    FilterExpressionToolBar *filter_expression_toolbar_;
     bool was_maximized_;
 
     /* the following values are maintained so that the capture file name and status
@@ -174,6 +208,7 @@ private:
     CaptureInterfacesDialog *capture_interfaces_dialog_;
     info_data_t info_data_;
 #endif
+    PrintDialog *pdlg_;
     FilterDialog *display_filter_dlg_;
     FilterDialog *capture_filter_dlg_;
 
@@ -210,7 +245,9 @@ private:
     void exportSelectedPackets();
     void exportDissections(export_type_e export_type);
 
-    void fileAddExtension(QString &file_name, int file_type, bool compressed);
+#ifdef Q_OS_WIN
+    void fileAddExtension(QString &file_name, int file_type, wtap_compression_type compression_type);
+#endif // Q_OS_WIN
     bool testCaptureFileClose(QString before_what, FileCloseContext context = Default);
     void captureStop();
 
@@ -241,8 +278,6 @@ private:
     void goToConversationFrame(bool go_next);
     void colorizeWithFilter(QByteArray filter, int color_number = -1);
 
-    void createByteViewDialog();
-
 signals:
     void setCaptureFile(capture_file *cf);
     void setDissectedCaptureFile(capture_file *cf);
@@ -266,12 +301,14 @@ public slots:
      * @param cf_path Path to the file.
      * @param display_filter Display filter to apply. May be empty.
      * @param type File type.
+     * @param is_tempfile TRUE/FALSE.
      * @return True on success, false on failure.
      */
     // XXX We might want to return a cf_read_status_t or a CaptureFile.
     bool openCaptureFile(QString cf_path, QString display_filter, unsigned int type, gboolean is_tempfile = FALSE);
     bool openCaptureFile(QString cf_path = QString(), QString display_filter = QString()) { return openCaptureFile(cf_path, display_filter, WTAP_TYPE_AUTO); }
     void filterPackets(QString new_filter = QString(), bool force = false);
+    void setDisplayFilter(QString filter, FilterAction::Action action, FilterAction::ActionType filterType);
     void updateForUnsavedChanges();
     void layoutPanes();
     void applyRecentPaneGeometry();
@@ -279,33 +316,33 @@ public slots:
     void updatePreferenceActions();
     void updateRecentActions();
 
+    void showWelcome();
+    void showCapture();
+
     void setTitlebarForCaptureFile();
     void setWSWindowTitle(QString title = QString());
 
+#ifdef HAVE_LIBPCAP
     void captureCapturePrepared(capture_session *);
     void captureCaptureUpdateStarted(capture_session *);
     void captureCaptureUpdateFinished(capture_session *);
     void captureCaptureFixedFinished(capture_session *cap_session);
     void captureCaptureFailed(capture_session *);
+#endif
 
     void captureFileOpened();
     void captureFileReadFinished();
     void captureFileClosing();
     void captureFileClosed();
 
-    void filterExpressionsChanged();
-    static gboolean filter_expression_add_action(const void *key, void *value, void *user_data);
-
     void launchRLCGraph(bool channelKnown, guint16 ueid, guint8 rlcMode,
                         guint16 channelType, guint16 channelId, guint8 direction);
 
     void on_actionViewFullScreen_triggered(bool checked);
 
-    int uatRowIndexForFilterExpression(QString label, QString expression);
-
 private slots:
 
-    void captureEventHandler(CaptureEvent * ev);
+    void captureEventHandler(CaptureEvent ev);
 
     // Manually connected slots (no "on_<object>_<signal>").
 
@@ -349,14 +386,6 @@ private slots:
     QMenu * searchSubMenu(QString objectName);
     void activatePluginIFToolbar(bool);
 
-    void filterToolbarCustomMenuHandler(const QPoint& globalPos);
-    void filterToolbarShowPreferences();
-    void filterToolbarEditFilter();
-    void filterToolbarDisableFilter();
-    void filterToolbarRemoveFilter();
-    void filterToolbarActionMoved(QAction * action, int oldPos, int newPos);
-    void filterDropped(QString description, QString filter);
-
     void startInterfaceCapture(bool valid, const QString capture_filter);
 
     void applyGlobalCommandLineOptions();
@@ -364,7 +393,9 @@ private slots:
 
     void on_actionDisplayFilterExpression_triggered();
     void on_actionNewDisplayFilterExpression_triggered();
-    void displayFilterButtonClicked();
+    void onFilterSelected(QString, bool);
+    void onFilterPreferences();
+    void onFilterEdit(int uatIndex);
 
     // Handle FilterAction signals
     void queuedFilterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
@@ -391,9 +422,9 @@ private slots:
     // Automatically connected slots ("on_<object>_<signal>").
     //
     // The slots below follow the naming conventaion described in
-    // http://doc.qt.io/qt-4.8/qmetaobject.html#connectSlotsByName and are
-    // automatically connected at initialization time via main_ui_->setupUi,
-    // which in turn calls connectSlotsByName.
+    // https://doc.qt.io/archives/qt-4.8/qmetaobject.html#connectSlotsByName
+    // and are automatically connected at initialization time via
+    // main_ui_->setupUi, which in turn calls connectSlotsByName.
     //
     // If you're manually connecting a signal to a slot, don't prefix its name
     // with "on_". Otherwise you'll get runtime warnings.
@@ -422,7 +453,7 @@ private slots:
     void on_actionFilePrint_triggered();
 
     void on_actionFileExportPDU_triggered();
-    void on_actionFileExportSSLSessionKeys_triggered();
+    void on_actionFileExportTLSSessionKeys_triggered();
 
     void actionEditCopyTriggered(MainWindow::CopySelected selection_type);
     void on_actionCopyAllVisibleItems_triggered();
@@ -447,8 +478,11 @@ private slots:
     void on_actionEditNextTimeReference_triggered();
     void on_actionEditPreviousTimeReference_triggered();
     void on_actionEditTimeShift_triggered();
+    void editTimeShiftFinished(int);
     void on_actionEditPacketComment_triggered();
+    void editPacketCommentFinished(PacketCommentDialog* pc_dialog, int result);
     void on_actionDeleteAllPacketComments_triggered();
+    void deleteAllPacketCommentsFinished(int result);
     void on_actionEditConfigurationProfiles_triggered();
     void showPreferencesDialog(QString pane_name);
     void on_actionEditPreferences_triggered();
@@ -503,18 +537,8 @@ private slots:
     void on_actionAnalyzeDisplayFilterMacros_triggered();
     void matchFieldFilter(FilterAction::Action action, FilterAction::ActionType filter_type);
     void on_actionAnalyzeCreateAColumn_triggered();
-    void on_actionAnalyzeAAFSelected_triggered();
-    void on_actionAnalyzeAAFNotSelected_triggered();
-    void on_actionAnalyzeAAFAndSelected_triggered();
-    void on_actionAnalyzeAAFOrSelected_triggered();
-    void on_actionAnalyzeAAFAndNotSelected_triggered();
-    void on_actionAnalyzeAAFOrNotSelected_triggered();
-    void on_actionAnalyzePAFSelected_triggered();
-    void on_actionAnalyzePAFNotSelected_triggered();
-    void on_actionAnalyzePAFAndSelected_triggered();
-    void on_actionAnalyzePAFOrSelected_triggered();
-    void on_actionAnalyzePAFAndNotSelected_triggered();
-    void on_actionAnalyzePAFOrNotSelected_triggered();
+
+    void filterMenuAboutToShow();
 
     void applyConversationFilter();
     void applyExportObject();
@@ -523,11 +547,15 @@ private slots:
     void on_actionAnalyzeDecodeAs_triggered();
     void on_actionAnalyzeReloadLuaPlugins_triggered();
 
-    void openFollowStreamDialog(follow_type_t type, int stream_num = -1);
+    void openFollowStreamDialog(follow_type_t type, guint stream_num, guint sub_stream_num, bool use_stream_index = true);
+    void openFollowStreamDialogForType(follow_type_t type);
     void on_actionAnalyzeFollowTCPStream_triggered();
     void on_actionAnalyzeFollowUDPStream_triggered();
-    void on_actionAnalyzeFollowSSLStream_triggered();
+    void on_actionAnalyzeFollowTLSStream_triggered();
     void on_actionAnalyzeFollowHTTPStream_triggered();
+    void on_actionAnalyzeFollowHTTP2Stream_triggered();
+    void on_actionAnalyzeFollowQUICStream_triggered();
+
     void statCommandExpertInfo(const char *, void *);
     void on_actionAnalyzeExpertInfo_triggered();
 
@@ -644,6 +672,7 @@ private slots:
     void on_actionBluetoothHCI_Summary_triggered();
 
     void on_actionToolsFirewallAclRules_triggered();
+    void on_actionToolsCredentials_triggered();
 
     void externalMenuItem_triggered();
 

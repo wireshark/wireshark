@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef BLUETOOTH_DEVICE_DIALOG_H
 #define BLUETOOTH_DEVICE_DIALOG_H
@@ -78,7 +79,7 @@ private:
     guint        changes_;
 
     static void     tapReset(void *tapinfo_ptr);
-    static gboolean tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data);
+    static tap_packet_status tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data);
     static void updateChanges(QTableWidget *tableWidget, QString value, const int row, guint *changes, packet_info *pinfo);
     static void saveItemData(QTableWidgetItem *item, bluetooth_device_tap_t *tap_device, packet_info *pinfo);
 

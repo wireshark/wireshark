@@ -1,3 +1,8 @@
+=begin man
+
+=encoding utf8
+
+=end man
 
 =head1 NAME
 
@@ -23,6 +28,8 @@ S<[ B<-S> E<lt>strict time adjustmentE<gt> ]>
 S<[ B<-t> E<lt>time adjustmentE<gt> ]>
 S<[ B<-T> E<lt>encapsulation typeE<gt> ]>
 S<[ B<-v> ]>
+S<[ B<--inject-secrets> E<lt>secrets typeE<gt>,E<lt>fileE<gt> ]>
+S<[ B<--discard-all-secrets> ]>
 I<infile>
 I<outfile>
 S<[ I<packet#>[-I<packet#>] ... ]>
@@ -33,6 +40,7 @@ S< B<-D> E<lt>dup windowE<gt> > |
 S< B<-w> E<lt>dup time windowE<gt> >
 S<[ B<-v> ]>
 S<[ B<-I> E<lt>bytes to ignoreE<gt> ]>
+S<[ B<--skip-radiotap-header> ]>
 I<infile>
 I<outfile>
 
@@ -46,7 +54,7 @@ I<infile>, optionally converts them in various ways and writes the
 resulting packets to the capture I<outfile> (or outfiles).
 
 By default, it reads all packets from the I<infile> and writes them to the
-I<outfile> in pcap file format.
+I<outfile> in pcapng file format.
 
 An optional list of packet numbers can be specified on the command tail;
 individual packet numbers separated by whitespace and/or ranges of packet
@@ -162,7 +170,7 @@ This option is meant to be used for fuzz-testing protocol dissectors.
 Sets the file format of the output capture file.
 B<Editcap> can write the file in several formats, B<editcap -F>
 provides a list of the available output formats. The default
-is the B<pcap> format.
+is the B<pcapng> format.
 
 =item -h
 
@@ -170,9 +178,10 @@ Prints the version and options and exits.
 
 =item -i  E<lt>seconds per fileE<gt>
 
-Splits the packet output to different files based on uniform time intervals
-using a maximum interval of <seconds per file> each. Each output file will
-be created with a suffix -nnnnn, starting with 00000. If packets for the specified
+Splits the packet output to different files based on uniform time
+intervals using a maximum interval of <seconds per file> each. Floating
+point values (e.g. 0.5) are allowed. Each output file will be created
+with a suffix -nnnnn, starting with 00000. If packets for the specified
 time interval are written to the output file, the next output file is
 opened. The default is to use a single output file.
 
@@ -217,6 +226,17 @@ to read the output file cannot handle packets larger than a certain size
 appear to reject Ethernet packets larger than the standard Ethernet MTU,
 making them incapable of handling gigabit Ethernet captures if jumbo
 packets were used).
+
+=item --seed  E<lt>seedE<gt>
+
+When used in conjunction with -E, set the seed for the pseudo-random number generator.
+This is useful for recreating a particular sequence of errors.
+
+=item --skip-radiotap-header
+
+Skip the readiotap header of each frame when checking for packet duplicates. This is useful
+when processing a caputure created by combining outputs of multiple capture devices on the same
+channel in the vicinity of each other.
 
 =item -S  E<lt>strict time adjustmentE<gt>
 
@@ -318,6 +338,26 @@ NOTE: The B<-w> option assumes that the packets are in chronological order.
 If the packets are NOT in chronological order then the B<-w> duplication
 removal option may not identify some duplicates.
 
+=item --inject-secrets E<lt>secrets typeE<gt>,E<lt>fileE<gt>
+
+Inserts the contents of E<lt>fileE<gt> into a Decryption Secrets Block (DSB)
+within the pcapng output file. This enables decryption without requiring
+additional configuration in protocol preferences.
+
+The file format is described by E<lt>secrets typeE<gt> which can be one of:
+
+I<tls>  TLS Key Log as described at L<https://developer.mozilla.org/NSS_Key_Log_Format>
+I<wg>   WireGuard Key Log, see L<https://wiki.wireshark.org/WireGuard#Key_Log_Format>
+
+This option may be specified multiple times. The available options for
+E<lt>secrets typeE<gt> can be listed with B<--inject-secrets help>.
+
+=item --discard-all-secrets
+
+Discard all decryption secrets from the input file when writing the
+output file.  Does not discard secrets added by B<--inject-secrets> in
+the same command line.
+
 =back
 
 =head1 EXAMPLES
@@ -328,69 +368,73 @@ To see more detailed description of the options use:
 
 To shrink the capture file by truncating the packets at 64 bytes and writing it as Sun snoop file use:
 
-    editcap -s 64 -F snoop capture.pcap shortcapture.snoop
+    editcap -s 64 -F snoop capture.pcapng shortcapture.snoop
 
 To delete packet 1000 from the capture file use:
 
-    editcap capture.pcap sans1000.pcap 1000
+    editcap capture.pcapng sans1000.pcapng 1000
 
 To limit a capture file to packets from number 200 to 750 (inclusive) use:
 
-    editcap -r capture.pcap small.pcap 200-750
+    editcap -r capture.pcapng small.pcapng 200-750
 
 To get all packets from number 1-500 (inclusive) use:
 
-    editcap -r capture.pcap first500.pcap 1-500
+    editcap -r capture.pcapng first500.pcapng 1-500
 
 or
 
-    editcap capture.pcap first500.pcap 501-9999999
+    editcap capture.pcapng first500.pcapng 501-9999999
 
 To exclude packets 1, 5, 10 to 20 and 30 to 40 from the new file use:
 
-    editcap capture.pcap exclude.pcap 1 5 10-20 30-40
+    editcap capture.pcapng exclude.pcapng 1 5 10-20 30-40
 
 To select just packets 1, 5, 10 to 20 and 30 to 40 for the new file use:
 
-    editcap -r capture.pcap select.pcap 1 5 10-20 30-40
+    editcap -r capture.pcapng select.pcapng 1 5 10-20 30-40
 
 To remove duplicate packets seen within the prior four frames use:
 
-    editcap -d capture.pcap dedup.pcap
+    editcap -d capture.pcapng dedup.pcapng
+
+To remove duplicate packets seen within the prior four frames while skipping radiotap headers use:
+
+    editcap -d --skip-radiotap-header capture.pcapng dedup.pcapng
 
 To remove duplicate packets seen within the prior 100 frames use:
 
-    editcap -D 101 capture.pcap dedup.pcap
+    editcap -D 101 capture.pcapng dedup.pcapng
 
 To remove duplicate packets seen I<equal to or less than> 1/10th of a second:
 
-    editcap -w 0.1 capture.pcap dedup.pcap
+    editcap -w 0.1 capture.pcapng dedup.pcapng
 
 To display the MD5 hash for all of the packets (and NOT generate any
 real output file):
 
-    editcap -v -D 0 capture.pcap /dev/null
+    editcap -v -D 0 capture.pcapng /dev/null
 
 or on Windows systems
 
-    editcap -v -D 0 capture.pcap NUL
+    editcap -v -D 0 capture.pcapng NUL
 
 To advance the timestamps of each packet forward by 3.0827 seconds:
 
-    editcap -t 3.0827 capture.pcap adjusted.pcap
+    editcap -t 3.0827 capture.pcapng adjusted.pcapng
 
 To ensure all timestamps are in strict chronological order:
 
-    editcap -S 0 capture.pcap adjusted.pcap
+    editcap -S 0 capture.pcapng adjusted.pcapng
 
 To introduce 5% random errors in a capture file use:
 
-    editcap -E 0.05 capture.pcap capture_error.pcap
+    editcap -E 0.05 capture.pcapng capture_error.pcapng
 
 To remove vlan tags from all packets within an Ethernet-encapsulated capture
 file, use:
 
-    editcap -L -C 12:4 capture_vlan.pcap capture_no_vlan.pcap
+    editcap -L -C 12:4 capture_vlan.pcapng capture_no_vlan.pcapng
 
 To chop both the 10 byte and 20 byte regions from the following 75 byte packet
 in a single pass, use any of the 8 possible methods provided below:
@@ -401,18 +445,18 @@ in a single pass, use any of the 8 possible methods provided below:
     | 5 |   10  |     15    |       20      |         25        |
     +---+-------+-----------+---------------+-------------------+
 
-    1) editcap -C 5:10 -C -25:-20 capture.pcap chopped.pcap
-    2) editcap -C 5:10 -C 50:-20 capture.pcap chopped.pcap
-    3) editcap -C -70:10 -C -25:-20 capture.pcap chopped.pcap
-    4) editcap -C -70:10 -C 50:-20 capture.pcap chopped.pcap
-    5) editcap -C 30:20 -C -60:-10 capture.pcap chopped.pcap
-    6) editcap -C 30:20 -C 15:-10 capture.pcap chopped.pcap
-    7) editcap -C -45:20 -C -60:-10 capture.pcap chopped.pcap
-    8) editcap -C -45:20 -C 15:-10 capture.pcap chopped.pcap
+    1) editcap -C 5:10 -C -25:-20 capture.pcapng chopped.pcapng
+    2) editcap -C 5:10 -C 50:-20 capture.pcapng chopped.pcapng
+    3) editcap -C -70:10 -C -25:-20 capture.pcapng chopped.pcapng
+    4) editcap -C -70:10 -C 50:-20 capture.pcapng chopped.pcapng
+    5) editcap -C 30:20 -C -60:-10 capture.pcapng chopped.pcapng
+    6) editcap -C 30:20 -C 15:-10 capture.pcapng chopped.pcapng
+    7) editcap -C -45:20 -C -60:-10 capture.pcapng chopped.pcapng
+    8) editcap -C -45:20 -C 15:-10 capture.pcapng chopped.pcapng
 
 To add comment strings to the first 2 input frames, use:
 
-    editcap -a "1:1st frame" -a 2:Second capture.pcap capture-comments.pcap
+    editcap -a "1:1st frame" -a 2:Second capture.pcapng capture-comments.pcapng
 
 =head1 SEE ALSO
 

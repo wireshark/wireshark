@@ -31,7 +31,7 @@ find_library( AIRPCAP_LIBRARY
 
 
 include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( AIRPCAP DEFAULT_MSG AIRPCAP_INCLUDE_DIR AIRPCAP_LIBRARY )
+find_package_handle_standard_args( AIRPCAP DEFAULT_MSG AIRPCAP_LIBRARY AIRPCAP_INCLUDE_DIR )
 
 if( AIRPCAP_FOUND )
   set( AIRPCAP_INCLUDE_DIRS ${AIRPCAP_INCLUDE_DIR} )

@@ -126,8 +126,8 @@ to handle them.
 #define VMS_HEADER_LINES_TO_CHECK    200
 #define VMS_LINE_LENGTH              240
 
-static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean vms_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean vms_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
@@ -242,8 +242,8 @@ wtap_open_return_val vms_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean vms_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
     gint64   offset = 0;
 
@@ -260,7 +260,7 @@ static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
     *data_offset = offset;
 
     /* Parse the packet */
-    return parse_vms_packet(wth->fh, &wth->rec, wth->rec_data, err, err_info);
+    return parse_vms_packet(wth->fh, rec, buf, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
@@ -482,7 +482,7 @@ parse_vms_packet(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_in
  */
 static gboolean
 parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset,
-               int in_off, int remaining) {
+               int in_off, int remaining_bytes) {
 
     int        i;
     char        *s;
@@ -499,14 +499,14 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset,
         return FALSE;
     }
 
-    if (remaining > 16)
-        remaining = 16;
+    if (remaining_bytes > 16)
+        remaining_bytes = 16;
 
     /* Read the octets right to left, as that is how they are displayed
      * in VMS.
      */
 
-    for (i = 0; i < remaining; i++) {
+    for (i = 0; i < remaining_bytes; i++) {
         lbuf[0] = rec[offsets[i] + in_off];
         lbuf[1] = rec[offsets[i] + 1 + in_off];
 
@@ -517,7 +517,7 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

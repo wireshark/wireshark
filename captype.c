@@ -28,11 +28,11 @@
 
 #include <wiretap/wtap.h>
 
-#include <wsutil/cmdarg_err.h>
-#include <wsutil/crash_info.h>
+#include <ui/cmdarg_err.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
+#include <cli_main.h>
 #include <version_info.h>
 
 #ifdef HAVE_PLUGINS
@@ -41,10 +41,6 @@
 
 #include <wsutil/report_message.h>
 #include <wsutil/str_util.h>
-
-#ifdef _WIN32
-#include <wsutil/unicode-utils.h>
-#endif /* _WIN32 */
 
 #ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
@@ -84,8 +80,6 @@ failure_message_cont(const char *msg_format, va_list ap)
 int
 main(int argc, char *argv[])
 {
-  GString *comp_info_str;
-  GString *runtime_info_str;
   char  *init_progfile_dir_error;
   wtap  *wth;
   int    err;
@@ -104,24 +98,10 @@ main(int argc, char *argv[])
 
   cmdarg_err_init(failure_warning_message, failure_message_cont);
 
-  /* Get the compile-time version information string */
-  comp_info_str = get_compiled_version_info(NULL, NULL);
-
-  /* Get the run-time version information string */
-  runtime_info_str = get_runtime_version_info(NULL);
-
-  /* Add it to the information to be reported on a crash. */
-  ws_add_crash_info("Captype (Wireshark) %s\n"
-         "\n"
-         "%s"
-         "\n"
-         "%s",
-      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
-  g_string_free(comp_info_str, TRUE);
-  g_string_free(runtime_info_str, TRUE);
+  /* Initialize the version information. */
+  ws_init_version_info("Captype (Wireshark)", NULL, NULL, NULL);
 
 #ifdef _WIN32
-  arg_list_utf_16to8(argc, argv);
   create_app_running_mutex();
 #endif /* _WIN32 */
 
@@ -134,7 +114,7 @@ main(int argc, char *argv[])
    * Attempt to get the pathname of the directory containing the
    * executable file.
    */
-  init_progfile_dir_error = init_progfile_dir(argv[0], main);
+  init_progfile_dir_error = init_progfile_dir(argv[0]);
   if (init_progfile_dir_error != NULL) {
     fprintf(stderr,
             "captype: Can't get pathname of directory containing the captype program: %s.\n",
@@ -153,20 +133,13 @@ main(int argc, char *argv[])
     switch (opt) {
 
       case 'h':
-        printf("Captype (Wireshark) %s\n"
-               "Print the file types of capture files.\n"
-               "See https://www.wireshark.org for more information.\n",
-               get_ws_vcs_version_info());
+        show_help_header("Print the file types of capture files.");
         print_usage(stdout);
         exit(0);
         break;
 
       case 'v':
-        comp_info_str = get_compiled_version_info(NULL, NULL);
-        runtime_info_str = get_runtime_version_info(NULL);
-        show_version("Captype (Wireshark)", comp_info_str, runtime_info_str);
-        g_string_free(comp_info_str, TRUE);
-        g_string_free(runtime_info_str, TRUE);
+        show_version();
         exit(0);
         break;
 
@@ -207,7 +180,7 @@ main(int argc, char *argv[])
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

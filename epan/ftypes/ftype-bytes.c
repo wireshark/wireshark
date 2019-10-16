@@ -665,30 +665,6 @@ cmp_matches(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	if (! regex) {
 		return FALSE;
 	}
-	/*
-	 * XXX - do we want G_REGEX_RAW or not?
-	 *
-	 * If we're matching against a string, we don't want it (and
-	 * we want the string value encoded in UTF-8 - and, if it can't
-	 * be converted to UTF-8, because it's in a character encoding
-	 * that doesn't map every possible byte sequence to Unicode (and
-	 * that includes strings that are supposed to be in UTF-8 but
-	 * that contain invalid UTF-8 sequences!), treat the match as
-	 * failing.
-	 *
-	 * If we're matching against binary data, and matching a binary
-	 * pattern (e.g. "0xfa, 3 or more 0xff, and 0x37, in order"),
-	 * we'd want G_REGEX_RAW. If we're matching a text pattern,
-	 * it's not clear *what* the right thing to do is - if they're
-	 * matching against a pattern containing non-ASCII characters,
-	 * they might want it to match in whatever encoding the binary
-	 * data is, but Wireshark might not have a clue what that
-	 * encoding is.  In addition, it's not clear how to tell
-	 * whether a pattern is "binary" or not, short of having
-	 * a different (non-PCRE) syntax for binary patterns.
-	 *
-	 * So we don't use G_REGEX_RAW for now.
-	 */
 	return g_regex_match_full(
 		regex,			/* Compiled PCRE */
 		(char *)a->data,	/* The data to check for the pattern... */
@@ -978,7 +954,7 @@ ftype_register_bytes(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

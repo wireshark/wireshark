@@ -20,7 +20,6 @@
 #include <wsutil/utf8_entities.h>
 
 #include "ui/main_statusbar.h"
-#include "ui/profile.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #include "capture_file.h"
@@ -32,6 +31,7 @@
 #include <ui/qt/widgets/clickable_label.h>
 
 #include <QAction>
+#include <QActionGroup>
 #include <QHBoxLayout>
 #include <QSplitter>
 #include <QToolButton>
@@ -195,6 +195,7 @@ void MainStatusBar::showExpert() {
 void MainStatusBar::captureFileClosing() {
     expert_button_->hide();
     progress_frame_.captureFileClosing();
+    popFieldStatus();
 }
 
 void MainStatusBar::expertUpdate() {
@@ -269,8 +270,10 @@ void MainStatusBar::selectedFieldChanged(FieldInformation * finfo)
 {
     QString item_info;
 
-    if ( ! finfo )
+    if ( ! finfo ) {
+        pushFieldStatus(item_info);
         return;
+    }
 
     FieldInformation::HeaderInfo hInfo = finfo->headerInfo();
 
@@ -289,10 +292,8 @@ void MainStatusBar::selectedFieldChanged(FieldInformation * finfo)
             item_info.append(" (" + hInfo.abbreviation + ")");
 
         finfo_length = finfo->position().length + finfo->appendix().length;
-        if (finfo_length == 1) {
-            item_info.append(tr(", 1 byte"));
-        } else if (finfo_length > 1) {
-            item_info.append(QString(tr(", %1 bytes")).arg(finfo_length));
+        if (finfo_length > 0) {
+            item_info.append(", " + tr("%Ln byte(s)", "", finfo_length));
         }
     }
 
@@ -427,9 +428,8 @@ void MainStatusBar::popProgressStatus()
     progress_frame_.hide();
 }
 
-void MainStatusBar::selectedFrameChanged(int frameNum)
+void MainStatusBar::selectedFrameChanged(int)
 {
-    Q_UNUSED(frameNum);
     showCaptureStatistics();
 }
 
@@ -476,6 +476,11 @@ void MainStatusBar::showCaptureStatistics()
                                    .arg(UTF8_MIDDLE_DOT)
                                    .arg(cap_file_->ignored_count)
                                    .arg((100.0*cap_file_->ignored_count)/cap_file_->count, 0, 'f', 1));
+            }
+            if (cap_file_->packet_comment_count > 0) {
+                packets_str.append(QString(tr(" %1 Comments: %2"))
+                    .arg(UTF8_MIDDLE_DOT)
+                    .arg(cap_file_->packet_comment_count));
             }
             if(prefs.gui_qt_show_file_load_time && !cap_file_->is_tempfile) {
                 /* Loading an existing file */
@@ -533,61 +538,104 @@ void MainStatusBar::updateCaptureFixedStatistics(capture_session *cap_session)
 
 void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton button)
 {
-    const gchar *profile_name = get_profile_name();
-    bool separator_added = false;
-    GList *fl_entry;
-    profile_def *profile;
-    QAction *pa;
-
-    init_profile_list();
-    fl_entry = current_profile_list();
+    ProfileModel model;
 
     QMenu profile_menu_;
+    QActionGroup global(this);
+    QActionGroup user(this);
 
-    while (fl_entry && fl_entry->data) {
-        profile = (profile_def *) fl_entry->data;
-        if (!profile->is_global || !profile_exists(profile->name, false)) {
-            if (profile->is_global && !separator_added) {
-                profile_menu_.addSeparator();
-                separator_added = true;
-            }
-            pa = profile_menu_.addAction(profile->name);
-            if (strcmp(profile->name, profile_name) == 0) {
-                /* Current profile */
-                pa->setCheckable(true);
-                pa->setChecked(true);
-            }
-            connect(pa, SIGNAL(triggered()), this, SLOT(switchToProfile()));
+    for(int cnt = 0; cnt < model.rowCount(); cnt++)
+    {
+        QModelIndex idx = model.index(cnt, ProfileModel::COL_NAME);
+        if ( ! idx.isValid() )
+            continue;
+
+
+        QAction * pa = Q_NULLPTR;
+        QString name = idx.data().toString();
+        if ( idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
+        {
+            pa = profile_menu_.addAction(name);
         }
-        fl_entry = g_list_next(fl_entry);
+        else if ( idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() )
+        {
+            /* Check if this profile does not exist as user */
+            if ( cnt == model.findByName(name) )
+                pa = global.addAction(name);
+        }
+        else
+            pa = user.addAction(name);
+
+        if ( ! pa )
+            continue;
+
+        pa->setCheckable(true);
+        if ( idx.data(ProfileModel::DATA_IS_SELECTED).toBool() )
+            pa->setChecked(true);
+
+        pa->setFont(idx.data(Qt::FontRole).value<QFont>());
+        pa->setProperty("profile_name", idx.data());
+        pa->setProperty("profile_is_global", idx.data(ProfileModel::DATA_IS_GLOBAL));
+
+        connect(pa, &QAction::triggered, this, &MainStatusBar::switchToProfile);
     }
+
+    profile_menu_.addActions(user.actions());
+    profile_menu_.addSeparator();
+    profile_menu_.addActions(global.actions());
 
     if (button == Qt::LeftButton) {
         profile_menu_.exec(global_pos);
     } else {
 
         bool enable_edit = false;
-        const char * cur_profile = get_profile_name();
-        if (profile_exists(cur_profile, FALSE) && strcmp (cur_profile, DEFAULT_PROFILE) != 0)
+
+        QModelIndex idx = model.activeProfile();
+        if ( ! idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() && ! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() )
             enable_edit = true;
 
         profile_menu_.setTitle(tr("Switch to"));
         QMenu ctx_menu_;
-        QAction * action = ctx_menu_.addAction(tr("Manage Profiles" UTF8_HORIZONTAL_ELLIPSIS));
+        QAction * action = ctx_menu_.addAction(tr("Manage Profiles" UTF8_HORIZONTAL_ELLIPSIS), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::ShowProfiles);
-        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
+
         ctx_menu_.addSeparator();
-        action = ctx_menu_.addAction(tr("New" UTF8_HORIZONTAL_ELLIPSIS));
+        action = ctx_menu_.addAction(tr("New" UTF8_HORIZONTAL_ELLIPSIS), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::NewProfile);
-        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
-        action = ctx_menu_.addAction(tr("Edit" UTF8_HORIZONTAL_ELLIPSIS));
+        action = ctx_menu_.addAction(tr("Edit" UTF8_HORIZONTAL_ELLIPSIS), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::EditCurrentProfile);
         action->setEnabled(enable_edit);
-        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
-        action = ctx_menu_.addAction(tr("Delete"));
+        action = ctx_menu_.addAction(tr("Delete"), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::DeleteCurrentProfile);
         action->setEnabled(enable_edit);
-        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
+        ctx_menu_.addSeparator();
+
+#ifdef HAVE_MINIZIP
+        QMenu * importMenu = new QMenu(tr("Import"));
+        action = importMenu->addAction(tr("from zip file"), this, SLOT(manageProfile()));
+        action->setProperty("dialog_action_", (int)ProfileDialog::ImportZipProfile);
+        action = importMenu->addAction(tr("from directory"), this, SLOT(manageProfile()));
+        action->setProperty("dialog_action_", (int)ProfileDialog::ImportDirProfile);
+        ctx_menu_.addMenu(importMenu);
+
+        if ( model.userProfilesExist() )
+        {
+            QMenu * exportMenu = new QMenu(tr("Export"));
+            if ( enable_edit )
+            {
+                action = exportMenu->addAction(tr("selected personal profile"), this, SLOT(manageProfile()));
+                action->setProperty("dialog_action_", (int)ProfileDialog::ExportSingleProfile);
+                action->setEnabled(enable_edit);
+            }
+            action = exportMenu->addAction(tr("all personal profiles"), this, SLOT(manageProfile()));
+            action->setProperty("dialog_action_", (int)ProfileDialog::ExportAllProfiles);
+            ctx_menu_.addMenu(exportMenu);
+        }
+
+#else
+        action = ctx_menu_.addAction(tr("Import"), this, SLOT(manageProfile()));
+        action->setProperty("dialog_action_", (int)ProfileDialog::ImportDirProfile);
+#endif
         ctx_menu_.addSeparator();
 
         ctx_menu_.addMenu(&profile_menu_);
@@ -615,8 +663,9 @@ void MainStatusBar::switchToProfile()
 {
     QAction *pa = qobject_cast<QAction*>(sender());
 
-    if (pa) {
-        wsApp->setConfigurationProfile(pa->text().toUtf8().constData());
+    if (pa && pa->property("profile_name").isValid()) {
+        QString profile = pa->property("profile_name").toString();
+        wsApp->setConfigurationProfile(profile.toUtf8().constData());
     }
 }
 
@@ -632,26 +681,26 @@ void MainStatusBar::manageProfile()
     }
 }
 
-void MainStatusBar::captureEventHandler(CaptureEvent * ev)
+void MainStatusBar::captureEventHandler(CaptureEvent ev)
 {
-    switch(ev->captureContext())
+    switch(ev.captureContext())
     {
 #ifdef HAVE_LIBPCAP
     case CaptureEvent::Update:
-        switch ( ev->eventType() )
+        switch ( ev.eventType() )
         {
         case CaptureEvent::Continued:
-            updateCaptureStatistics(ev->capSession());
+            updateCaptureStatistics(ev.capSession());
             break;
         default:
             break;
         }
         break;
     case CaptureEvent::Fixed:
-        switch ( ev->eventType() )
+        switch ( ev.eventType() )
         {
         case CaptureEvent::Continued:
-            updateCaptureFixedStatistics(ev->capSession());
+            updateCaptureFixedStatistics(ev.capSession());
             break;
         default:
             break;
@@ -659,7 +708,7 @@ void MainStatusBar::captureEventHandler(CaptureEvent * ev)
         break;
 #endif
     case CaptureEvent::Save:
-        switch ( ev->eventType() )
+        switch ( ev.eventType() )
         {
         case CaptureEvent::Finished:
         case CaptureEvent::Failed:

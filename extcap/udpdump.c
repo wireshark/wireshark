@@ -23,10 +23,6 @@
 	#include <sys/time.h>
 #endif
 
-#ifdef HAVE_SYS_SOCKET_H
-	#include <sys/socket.h>
-#endif
-
 #ifdef HAVE_NETINET_IN_H
 	#include <netinet/in.h>
 #endif
@@ -38,15 +34,16 @@
 	#include <unistd.h>
 #endif
 
-#ifdef HAVE_ARPA_INET_H
-	#include <arpa/inet.h>
-#endif
-
 #include <writecap/pcapio.h>
 #include <wiretap/wtap.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/privileges.h>
+#include <wsutil/socket.h>
+#include <wsutil/please_report_bug.h>
+
+#include <cli_main.h>
 
 #define PCAP_SNAPLEN 0xffff
 
@@ -172,21 +169,21 @@ static int setup_dumpfile(const char* fifo, FILE** fp)
 		return EXIT_SUCCESS;
 	}
 
-	*fp = fopen(fifo, "w");
+	*fp = fopen(fifo, "wb");
 	if (!(*fp)) {
 		g_warning("Error creating output file: %s", g_strerror(errno));
 		return EXIT_FAILURE;
 	}
 
 	if (!libpcap_write_file_header(*fp, 252, PCAP_SNAPLEN, FALSE, &bytes_written, &err)) {
-		g_warning("Can't write pcap file header");
+		g_warning("Can't write pcap file header: %s", g_strerror(err));
 		return EXIT_FAILURE;
 	}
 
 	return EXIT_SUCCESS;
 }
 
-static void add_proto_name(char* mbuf, guint* offset, const char* proto_name)
+static void add_proto_name(guint8* mbuf, guint* offset, const char* proto_name)
 {
 	size_t proto_str_len = strlen(proto_name);
 	guint16 proto_name_len = (guint16)((proto_str_len + 3) & 0xfffffffc);
@@ -202,7 +199,7 @@ static void add_proto_name(char* mbuf, guint* offset, const char* proto_name)
 	*offset += proto_name_len;
 }
 
-static void add_ip_source_address(char* mbuf, guint* offset, uint32_t source_address)
+static void add_ip_source_address(guint8* mbuf, guint* offset, uint32_t source_address)
 {
 	mbuf[*offset] = 0x00;
 	mbuf[*offset+1] = EXP_PDU_TAG_IPV4_SRC;
@@ -213,7 +210,7 @@ static void add_ip_source_address(char* mbuf, guint* offset, uint32_t source_add
 	*offset += 4;
 }
 
-static void add_ip_dest_address(char* mbuf, guint* offset, uint32_t dest_address)
+static void add_ip_dest_address(guint8* mbuf, guint* offset, uint32_t dest_address)
 {
 	mbuf[*offset] = 0;
 	mbuf[*offset+1] = EXP_PDU_TAG_IPV4_DST;
@@ -224,7 +221,7 @@ static void add_ip_dest_address(char* mbuf, guint* offset, uint32_t dest_address
 	*offset += 4;
 }
 
-static void add_udp_source_port(char* mbuf, guint* offset, uint16_t src_port)
+static void add_udp_source_port(guint8* mbuf, guint* offset, uint16_t src_port)
 {
 	uint32_t port = htonl(src_port);
 
@@ -237,7 +234,7 @@ static void add_udp_source_port(char* mbuf, guint* offset, uint16_t src_port)
 	*offset += 4;
 }
 
-static void add_udp_dst_port(char* mbuf, guint* offset, uint16_t dst_port)
+static void add_udp_dst_port(guint8* mbuf, guint* offset, uint16_t dst_port)
 {
 	uint32_t port = htonl(dst_port);
 
@@ -250,7 +247,7 @@ static void add_udp_dst_port(char* mbuf, guint* offset, uint16_t dst_port)
 	*offset += 4;
 }
 
-static void add_end_options(char* mbuf, guint* offset)
+static void add_end_options(guint8* mbuf, guint* offset)
 {
 	memset(mbuf + *offset, 0x0, 4);
 	*offset += 4;
@@ -259,7 +256,7 @@ static void add_end_options(char* mbuf, guint* offset)
 static int dump_packet(const char* proto_name, const guint16 listenport, const char* buf,
 		const ssize_t buflen, const struct sockaddr_in clientaddr, FILE* fp)
 {
-	char* mbuf;
+	guint8* mbuf;
 	guint offset = 0;
 	time_t curtime = time(NULL);
 	guint64 bytes_written = 0;
@@ -267,7 +264,7 @@ static int dump_packet(const char* proto_name, const guint16 listenport, const c
 	int ret = EXIT_SUCCESS;
 
 	/* The space we need is the standard header + variable lengths */
-	mbuf = (char*)g_malloc0(UDPDUMP_EXPORT_HEADER_LEN + ((strlen(proto_name) + 3) & 0xfffffffc) + buflen);
+	mbuf = (guint8*)g_malloc0(UDPDUMP_EXPORT_HEADER_LEN + ((strlen(proto_name) + 3) & 0xfffffffc) + buflen);
 
 	add_proto_name(mbuf, &offset, proto_name);
 	add_ip_source_address(mbuf, &offset, clientaddr.sin_addr.s_addr);
@@ -280,7 +277,7 @@ static int dump_packet(const char* proto_name, const guint16 listenport, const c
 	offset += (guint)buflen;
 
 	if (!libpcap_write_packet(fp, curtime, (guint32)(curtime / 1000), offset, offset, mbuf, &bytes_written, &err)) {
-		g_warning("Can't write packet");
+		g_warning("Can't write packet: %s", g_strerror(err));
 		ret = EXIT_FAILURE;
 	}
 
@@ -293,7 +290,7 @@ static int dump_packet(const char* proto_name, const guint16 listenport, const c
 static void run_listener(const char* fifo, const guint16 port, const char* proto_name)
 {
 	struct sockaddr_in clientaddr;
-	int clientlen = sizeof(clientaddr);
+	socklen_t clientlen = sizeof(clientaddr);
 	socket_handle_t sock;
 	char* buf;
 	ssize_t buflen;
@@ -356,6 +353,7 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 
 int main(int argc, char *argv[])
 {
+	char* err_msg;
 	int option_idx = 0;
 	int result;
 	guint16 port = 0;
@@ -365,10 +363,22 @@ int main(int argc, char *argv[])
 	char* help_header = NULL;
 	char* payload = NULL;
 	char* port_msg = NULL;
-#ifdef _WIN32
-	WSADATA wsaData;
-	attach_parent_console();
-#endif  /* _WIN32 */
+
+	/*
+	 * Get credential information for later use.
+	 */
+	init_process_policies();
+
+	/*
+	 * Attempt to get the pathname of the directory containing the
+	 * executable file.
+	 */
+	err_msg = init_progfile_dir(argv[0]);
+	if (err_msg != NULL) {
+		g_warning("Can't get pathname of directory containing the captype program: %s.",
+			err_msg);
+		g_free(err_msg);
+	}
 
 	help_url = data_file_url("udpdump.html");
 	extcap_base_set_util_info(extcap_conf, argv[0], UDPDUMP_VERSION_MAJOR, UDPDUMP_VERSION_MINOR, UDPDUMP_VERSION_RELEASE,
@@ -455,13 +465,13 @@ int main(int argc, char *argv[])
 	if (!payload)
 		payload = g_strdup("data");
 
-#ifdef _WIN32
-	result = WSAStartup(MAKEWORD(1,1), &wsaData);
-	if (result != 0) {
-		g_warning("Error: WSAStartup failed with error: %d", result);
+	err_msg = ws_init_sockets();
+	if (err_msg != NULL) {
+		g_warning("Error: %s", err_msg);
+		g_free(err_msg);
+		g_warning("%s", please_report_bug());
 		goto end;
 	}
-#endif  /* _WIN32 */
 
 	if (port == 0)
 		port = UDPDUMP_DEFAULT_PORT;
@@ -476,19 +486,8 @@ end:
 	return ret;
 }
 
-#ifdef _WIN32
-int _stdcall
-WinMain (struct HINSTANCE__ *hInstance,
-		struct HINSTANCE__ *hPrevInstance,
-		char *lpszCmdLine,
-		int nCmdShow)
-{
-	return main(__argc, __argv);
-}
-#endif
-
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

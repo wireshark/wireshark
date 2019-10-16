@@ -1,0 +1,143 @@
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- ISO TS 14906 Application
+--
+-- This ASN.1 was generateds: 30.08.2016
+--
+-- This document contains only the data element needed for the encoding of an IVI message
+-- as defined in ISO TS 19321(2015) 
+--
+-- Published version location:
+-- http://standards.iso.org/iso/14906
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+EfcDsrcApplication { iso(1) standard(0) 14906 application(0) version5(5) }
+
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+EXPORTS ALL;
+IMPORTS
+CountryCode, CS5, AVIAEIIssuerIdentifier
+FROM AVIAEINumberingAndDataStructures {iso(1) standard(0) iso14816(14816) asnm1(1) version1(1)} 
+-- defined in ISO 14816 --
+AttributeIdList
+FROM EfcDsrcGeneric {iso(1) standard(0) 14906 generic(1) version5(5)}
+-- NOTE: The following are the definitions of the action and response
+-- parameters
+
+;
+-- End of IMPORTS
+
+AxleWeightLimits ::= SEQUENCE {
+	maxLadenweightOnAxle1 Int2,
+	maxLadenweightOnAxle2 Int2,
+	maxLadenweightOnAxle3 Int2,
+	maxLadenweightOnAxle4 Int2,
+	maxLadenweightOnAxle5 Int2
+}
+
+DieselEmissionValues::= SEQUENCE {
+	particulate SEQUENCE {
+    unitType UnitType,
+    value INTEGER (0..32767)
+	},
+	absorptionCoeff Int2
+}
+
+EnvironmentalCharacteristics::= SEQUENCE {
+	euroValue EuroValue,
+	copValue CopValue
+}
+
+EuroValue::= ENUMERATED {
+	noEntry (0),
+	euro-1 (1),
+	euro-2 (2),
+	euro-3 (3),
+	euro-4 (4),
+	euro-5 (5),
+	euro-6 (6),
+	reservedForUse1 (7),
+	reservedForUse2 (8),
+	reservedForUse3 (9),
+	reservedForUse4 (10),
+	reservedForUse5 (11),
+	reservedForUse6 (12),
+	reservedForUse7 (13),
+	reservedForUse8 (14),
+	eev (15)
+} -- 4 bits, EURO-Clases as defined in EC directive 88/77/EEC, annex 1
+-- and in 91/542/EEC, 96/1/EC, 1999/96/EC, 2001/27/EC, regulation No 595/2009
+-- and for EEV in Section 6.2.1 of Annex I in EC directive 2005/55/EC
+
+CopValue::= ENUMERATED {
+	noEntry (0),
+	co2class1 (1), -- below 101 g/km
+	co2class2 (2), -- 101 to 120 g/km
+	co2class3 (3), -- 121 to 140 g/km
+	co2class4 (4), -- 141 to 160 g/km
+	co2class5 (5), -- 161 to 200 g/km
+	co2class6 (6), -- 201 to 250 g/km
+	co2class7 (7), -- above 250 g/km
+	reservedforUse (8) -- reserved for future CEN and ISO use
+} -- 4 bits, reserved for carbon dioxide pollution values as defined in
+-- EC directive 2003/127/EC'
+
+EngineCharacteristics::= INTEGER {
+	noEntry (0),
+	noEngine (1),
+	petrolUnleaded (2),
+	petrolLeaded (3),
+	diesel (4),
+	lPG (5),
+	battery (6),
+	solar (7),
+	hybrid (8),
+	hydrogen (9)
+	-- (10-255) are reserved for future CEN use
+} (0..255)
+
+ExhaustEmissionValues ::= SEQUENCE {
+	unitType UnitType,
+	emissionCO INTEGER (0..32767),
+	emissionHC Int2,
+	emissionNOX Int2,
+	emissionHCNOX Int2
+}
+
+
+Int1 ::= INTEGER(0..255)
+
+Int2 ::= INTEGER(0..65535)
+
+PassengerCapacity ::= SEQUENCE{
+	numberOfSeats Int1,
+	numberOfStandingPlaces Int1
+}
+
+Provider ::= SEQUENCE {
+    countryCode CountryCode,
+    providerIdentifier AVIAEIIssuerIdentifier
+}
+
+SoundLevel ::= SEQUENCE{
+    soundstationary Int1,
+    sounddriveby Int1
+}
+
+UnitType::= ENUMERATED {
+	mg-km (0),
+	mg-kWh (1)
+}
+
+VehicleDimensions ::= SEQUENCE {
+    vehicleLengthOverall Int1,
+    vehicleHeigthOverall Int1,
+    vehicleWidthOverall Int1
+}
+
+VehicleWeightLimits ::= SEQUENCE {
+    vehicleMaxLadenWeight Int2,
+    vehicleTrainMaximumWeight Int2,
+    vehicleWeightUnladen Int2
+}
+
+END

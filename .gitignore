@@ -33,11 +33,9 @@ epan/dissectors/xcbproto
 epan/dissectors/packet-ncp2222.c
 epan/dissectors/dissectors.c
 epan/dissectors/dissectors.in.txt
-epan/dissectors/make-dissectors
 epan/dtd_parse.c
 epan/dtd_preparse.c
 epan/uat_load.c
-epan/version_info.c
 epan/wslua/declare_wslua.h
 epan/wslua/register_wslua.c
 epan/wslua/taps.txt
@@ -47,73 +45,16 @@ plugins/epan/*/plugin.c
 plugins/wiretap/*/plugin.c
 plugins/codecs/*/plugin.c
 plugins/epan/mate/mate_parser.c
-version.h
 tools/lemon/lemon
 tshark-tap-register.c
 wiretap/ascend.c
 wiretap/ascend.h
 wiretap/k12text.c
-wiretap/version_info.c
 wireshark-tap-register.c
-ui/make-taps
-ui/gtk/wireshark-gresources.c
-ui/gtk/wireshark-gresources.h
-
-# Generated makefile system #
-#############################
-.dirstamp
-aclocal.m4
-androiddump
-autom4te.cache
-capinfos
-captype
-ciscodump
-compile
-config.h
-config.h.in
-config.cache
-config.log
-config.status
-configure
-depcomp
-dftest
-dumpcap
-editcap
-exntest
-fuzzshark
-install-sh
-libtool
-libtool.m4
-lt~obsolete.m4
-ltmain.sh
-ltoptions.m4
-ltsugar.m4
-ltversion.m4
-Makefile
-Makefile.in
-mergecap
-missing
-mmdbresolve
-oids_test
-randpkt
-randpktdump
-rawshark
-reordercap
-reassemble_test
-sharkd
-sshdump
-stamp-h1
-text2pcap
-tfshark
-tshark
-tvbtest
-udpdump
-wireshark
-wmem_test
-ylwrap
 
 # CMake #
 ##################
+cmake-build-*/
 CMakeCache.txt
 CMakeFiles
 CMakeLists.txt.user*
@@ -133,15 +74,6 @@ epan/dissectors/asn1/*/*-stamp
 epan/dissectors/pidl/*-stamp
 epan/dissectors/dcerpc/*-stamp
 
-
-# Generated dir #
-##################
-.deps
-.libs
-packaging/rpm/RPMS
-packaging/rpm/SRPMS
-
-
 # Doc #
 ########
 *.html
@@ -149,8 +81,6 @@ packaging/rpm/SRPMS
 AUTHORS.git
 AUTHORS-SHORT
 AUTHORS-SHORT-FORMAT
-doxygen.cfg
-doxygen-*.tag
 help/faq.txt
 pod2htm[di].tmp
 wireshark.pod
@@ -160,8 +90,6 @@ docbook/developer-guide*.xml
 docbook/user-guide-toc.hhc
 docbook/user-guide.hhp
 docbook/user-guide*.xml
-docbook/ws?g_src/WS?G_*.dbk
-docbook/*-guide-*.fo
 docbook/*-guide-*.pdf
 docbook/ws?g_html/
 docbook/ws?g_html_chunked/
@@ -175,31 +103,14 @@ wsar_html.zip
 
 # Qt #
 ######
-qtshark
 /ui/qt/__/
-/ui/qt/*.qrc.depends
-/ui/qt/*.pro.user
 /ui/qt/*.qm
 /ui/qt/**/moc_*.cpp
-/ui/qt/**/moc_*.cpp_parameters
-/ui/qt/**/*.moc.cpp
-/ui/qt/**/*.rcc.cpp
-/ui/qt/**/moc_*.cxx
 /ui/qt/i18n.qrc
 /ui/qt/qrc_*.cpp
-/ui/qt/qrc_*.cxx
 /ui/qt/ui_*.h
 /ui/qt/console.lua
 /wireshark-qt*
-
-# abi #
-#######
-epan/abi-check-headers/
-epan/abi-descriptor.xml
-wiretap/abi-check-headers/
-wiretap/abi-descriptor.xml
-wsutil/abi-check-headers/
-wsutil/abi-descriptor.xml
 
 # Windows Stuff #
 #################
@@ -229,18 +140,17 @@ Wireshark.sln
 Wireshark.*.suo
 x64/
 _libs_check_
-/wireshark-gtk*
 doc/ws.css
-ui/qt/config.pri
 packaging/nsis/all-manifest.nsh
-packaging/nsis/gtk-dll-manifest.nsh
 /packaging/portableapps/WiresharkPortable/
 /zlib/
+wireshark-win??-libs*/
 
 # Misc #
 ########
 .vagrant
 .vscode
+.idea
 *.swp
 *~
 .DS_Store
@@ -262,3 +172,4 @@ packaging/rpm/SPECS/wireshark.spec
 vgcore.*
 Wireshark.*
 .pytest_cache/
+test/*.log

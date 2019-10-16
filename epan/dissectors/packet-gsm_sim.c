@@ -805,6 +805,7 @@ static const value_string mf_dfs[] = {
 	{ 0x7f20, "DF.GSM" },
 	{ 0x7f22, "DF.IS-41" },
 	{ 0x7f23, "DF.FP-CTS" },
+	{ 0x7f25, "DF.CDMA" },
 	{ 0x7f31, "DF.iDEN" },
 	{ 0x7f80, "DF.PDC" },
 	{ 0x7f90, "DF.TETRA" },
@@ -1037,7 +1038,7 @@ static const value_string sw_vals[] = {
 	{ 0x9240, "Memory problem" },
 	{ 0x9400, "No EF selected" },
 	{ 0x9402, "Out of range (invalid address)" },
-	{ 0x0404, "File ID not found" },
+	{ 0x9404, "File ID not found" },
 	{ 0x9408, "File is inconsistent with the command" },
 	{ 0x9802, "No CHV initialized" },
 	{ 0x9804, "Access condition not fulfilled / authentication failed" },
@@ -1097,6 +1098,7 @@ static const value_string sw_vals[] = {
 static const gchar *get_sw_string(guint16 sw)
 {
 	guint8 sw1 = sw >> 8;
+	guint8 sw2 = sw & 0xFF;
 
 	switch (sw1) {
 	case 0x91:
@@ -1104,13 +1106,20 @@ static const gchar *get_sw_string(guint16 sw)
 	case 0x9e:
 		return "Length of the response data given / SIM data download error";
 	case 0x9f:
-		return "Length of the response data";
+		return wmem_strdup_printf(wmem_packet_scope(), "Length of the response data, Length is %u", sw2);
 	case 0x92:
 		if ((sw & 0xf0) == 0x00)
 			return "Command successful but after internal retry routine";
 		break;
+	case 0x61:
+		return wmem_strdup_printf(wmem_packet_scope(), "Response ready, Response length is %u", sw2);
 	case 0x67:
-		return "Incorrect parameter P3";
+		if (sw2 == 0x00)
+			return "Wrong length"; /* TS 102.221 / Section 10.2.1.5 */
+		else
+			return "Incorrect parameter P3"; /* TS 51.011 / Section 9.4.6 */
+	case 0x6c:
+		return wmem_strdup_printf(wmem_packet_scope(), "Terminal should repeat command, Length for repeated command is %u", sw2);
 	case 0x6d:
 		return "Unknown instruction code";
 	case 0x6e:
@@ -1402,7 +1411,6 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree 
 	offset += 2;
 
 	switch (sw >> 8) {
-	case 0x61:
 	case 0x90:
 	case 0x91:
 	case 0x92:
@@ -1532,7 +1540,7 @@ proto_register_gsm_sim(void)
 			  "ISO 7816-4 APDU CLA (Class) Byte", HFILL }
 		},
 		{ &hf_apdu_cla_secure_messaging_ind_ext,
-			{ "Secure Messaging Indication", "gsm_sim.apdu.cla.secure_messaging_ind",
+			{ "Secure Messaging Indication", "gsm_sim.apdu.cla.secure_messaging_ind.ext",
 			  FT_BOOLEAN, 8, TFS(&apdu_cla_secure_messaging_ind_ext_val), 0x20,
 			  "ISO 7816-4 APDU CLA (Class) Byte", HFILL }
 		},
@@ -2935,7 +2943,7 @@ proto_reg_handoff_gsm_sim(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

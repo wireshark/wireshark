@@ -110,7 +110,7 @@ void proto_reg_handoff_bthci_acl(void);
 static gint
 dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    proto_item               *bthci_acl_itam;
+    proto_item               *bthci_acl_item;
     proto_tree               *bthci_acl_tree;
     proto_item               *sub_item;
     proto_item               *length_item;
@@ -158,8 +158,8 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         return 0;
     bluetooth_data = (bluetooth_data_t *) data;
 
-    bthci_acl_itam = proto_tree_add_item(tree, proto_bthci_acl, tvb, offset, -1, ENC_NA);
-    bthci_acl_tree = proto_item_add_subtree(bthci_acl_itam, ett_bthci_acl);
+    bthci_acl_item = proto_tree_add_item(tree, proto_bthci_acl, tvb, offset, -1, ENC_NA);
+    bthci_acl_tree = proto_item_add_subtree(bthci_acl_item, ett_bthci_acl);
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
@@ -360,7 +360,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     subtree = (wmem_tree_t *) wmem_tree_lookup32_array(chandle_tree, key);
     chandle_data = (subtree) ? (chandle_data_t *) wmem_tree_lookup32_le(subtree, pinfo->num) : NULL;
-    if (!pinfo->fd->flags.visited && !chandle_data) {
+    if (!pinfo->fd->visited && !chandle_data) {
         key[0].length = 1;
         key[0].key = &interface_id;
         key[1].length = 1;
@@ -378,7 +378,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         chandle_data->start_fragments = wmem_tree_new(wmem_file_scope());
 
         wmem_tree_insert32_array(chandle_tree, key, chandle_data);
-    } else if (pinfo->fd->flags.visited && !chandle_data) {
+    } else if (pinfo->fd->visited && !chandle_data) {
         DISSECTOR_ASSERT_HINT(0, "Impossible: no previously session saved");
     }
 
@@ -426,7 +426,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         gint                  len;
 
         if (!(pb_flag & 0x01)) { /* first fragment */
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 mfp = (multi_fragment_pdu_t *) wmem_new(wmem_file_scope(), multi_fragment_pdu_t);
                 mfp->first_frame = pinfo->num;
                 mfp->last_frame  = 0;
@@ -445,13 +445,13 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 proto_item *item;
 
                 item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_reassembled_in, tvb, 0, 0, mfp->last_frame);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
                 col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]", mfp->last_frame);
             }
         }
         if (pb_flag == 0x01) { /* continuation fragment */
             mfp = (multi_fragment_pdu_t *)wmem_tree_lookup32_le(chandle_data->start_fragments, pinfo->num);
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 len = tvb_captured_length_remaining(tvb, offset);
                 if (mfp != NULL && !mfp->last_frame && (mfp->tot_len >= mfp->cur_off + len)) {
                     tvb_memcpy(tvb, (guint8 *) mfp->reassembled + mfp->cur_off, offset, len);
@@ -465,11 +465,11 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 proto_item *item;
 
                 item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_continuation_to, tvb, 0, 0, mfp->first_frame);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
                 col_append_frame_number(pinfo, COL_INFO, " [Continuation to #%u]", mfp->first_frame);
                 if (mfp->last_frame && mfp->last_frame != pinfo->num) {
                     item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_reassembled_in, tvb, 0, 0, mfp->last_frame);
-                    PROTO_ITEM_SET_GENERATED(item);
+                    proto_item_set_generated(item);
                     col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]", mfp->last_frame);
                 }
             }
@@ -491,19 +491,19 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     if (chandle_session) {
         sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_connect_in, tvb, 0, 0, chandle_session->connect_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         if (chandle_session->disconnect_in_frame < G_MAXUINT32) {
             sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_disconnect_in, tvb, 0, 0, chandle_session->disconnect_in_frame);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
     }
 
     if (acl_data->disconnect_in_frame == &invalid_session) {
-        expert_add_info(pinfo, bthci_acl_itam, &ei_invalid_session);
+        expert_add_info(pinfo, bthci_acl_item, &ei_invalid_session);
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         address *addr;
 
         addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
@@ -516,34 +516,34 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     sub_item = proto_tree_add_ether(bthci_acl_tree, hf_bthci_acl_src_bd_addr, tvb, 0, 0, src_bd_addr);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     sub_item = proto_tree_add_string(bthci_acl_tree, hf_bthci_acl_src_name, tvb, 0, 0, src_name);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_src_role, tvb, 0, 0, src_role);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     sub_item = proto_tree_add_ether(bthci_acl_tree, hf_bthci_acl_dst_bd_addr, tvb, 0, 0, dst_bd_addr);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     sub_item = proto_tree_add_string(bthci_acl_tree, hf_bthci_acl_dst_name, tvb, 0, 0, dst_name);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_dst_role, tvb, 0, 0, dst_role);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     if (role_last_change_in_frame > 0) {
         sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_role_last_change_in_frame, tvb, 0, 0, role_last_change_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     sub_item = proto_tree_add_int(bthci_acl_tree, hf_bthci_acl_mode, tvb, 0, 0, mode);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     if (mode_last_change_in_frame > 0) {
         sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_mode_last_change_in_frame, tvb, 0, 0, mode_last_change_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     return tvb_captured_length(tvb);
@@ -691,7 +691,7 @@ proto_reg_handoff_bthci_acl(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

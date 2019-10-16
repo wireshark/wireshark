@@ -14,7 +14,7 @@
  * applications with a powerful stream processing language.
  *
  * Protobuf structures layout:
- * https://github.com/aphyr/riemann-java-client/blob/master/src/main/proto/riemann/proto.proto
+ * https://github.com/riemann/riemann-java-client/blob/master/riemann-java-client/src/main/proto/riemann/proto.proto
  *
  *   message State {
  *     optional int64 time = 1;
@@ -37,6 +37,7 @@
  *     optional float ttl = 8;
  *     repeated Attribute attributes = 9;
  *
+ *     optional int64 time_micros = 10;
  *     optional sint64 metric_sint64 = 13;
  *     optional double metric_d = 14;
  *     optional float metric_f = 15;
@@ -87,6 +88,7 @@ static int hf_riemann_event_ttl = -1;
 static int hf_riemann_event_time = -1;
 static int hf_riemann_event_metric_d = -1;
 static int hf_riemann_event_metric_f = -1;
+static int hf_riemann_event_time_micros = -1;
 static int hf_riemann_event_metric_sint64 = -1;
 static int hf_riemann_state = -1;
 static int hf_riemann_state_service = -1;
@@ -122,6 +124,7 @@ static gint ett_state = -1;
 #define RIEMANN_FN_EVENT_TAGS 7
 #define RIEMANN_FN_EVENT_TTL 8
 #define RIEMANN_FN_EVENT_ATTRIBUTES 9
+#define RIEMANN_FN_EVENT_TIME_MICROS 10
 #define RIEMANN_FN_EVENT_METRIC_SINT64 13
 #define RIEMANN_FN_EVENT_METRIC_D 14
 #define RIEMANN_FN_EVENT_METRIC_F 15
@@ -417,6 +420,10 @@ riemann_dissect_event(packet_info *pinfo, proto_tree *riemann_tree,
         case RIEMANN_FN_EVENT_ATTRIBUTES:
             VERIFY_WIRE_FORMAT("Event.attributes", RIEMANN_WIRE_BYTES);
             len = riemann_dissect_attribute(pinfo, event_tree, tvb, offset);
+            break;
+        case RIEMANN_FN_EVENT_TIME_MICROS:
+            VERIFY_WIRE_FORMAT("Event.time_micros", RIEMANN_WIRE_INTEGER);
+            len = riemann_dissect_int64(event_tree, tvb, offset, hf_riemann_event_time_micros);
             break;
         case RIEMANN_FN_EVENT_METRIC_SINT64:
             VERIFY_WIRE_FORMAT("Event.metric_sint64", RIEMANN_WIRE_INTEGER);
@@ -727,6 +734,10 @@ proto_register_riemann(void)
         { &hf_riemann_event_metric_f,
           { "metric_f", "riemann.event.metric_f",
             FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_riemann_event_time_micros,
+          { "time_micros", "riemann.event.time_micros",
+            FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_riemann_event_metric_sint64,
           { "metric_sint64", "riemann.event.metric_sint64",

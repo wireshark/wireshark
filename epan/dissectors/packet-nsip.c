@@ -1138,6 +1138,8 @@ proto_register_nsip(void)
 
   /* Register configuration options */
   nsip_module = prefs_register_protocol(proto_nsip, NULL);
+  /* For reading older preference files with "nsip." preferences */
+  prefs_register_module_alias("nsip", nsip_module);
   prefs_register_obsolete_preference(nsip_module, "udp.port1");
   prefs_register_obsolete_preference(nsip_module, "udp.port2");
 }
@@ -1154,7 +1156,7 @@ proto_reg_handoff_nsip(void) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

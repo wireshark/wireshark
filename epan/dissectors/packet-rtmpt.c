@@ -1674,7 +1674,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
 
         RTMPT_DEBUG("Dissect: frame=%u visited=%d len=%d tree=%p\n",
-                    pinfo->num, pinfo->fd->flags.visited,
+                    pinfo->num, pinfo->fd->visited,
                     tvb_reported_length_remaining(tvb, offset), tree);
 
         /* Clear any previous data in Info column (RTMP packets are protected by a "fence") */
@@ -1865,7 +1865,6 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
         guint8  cmd;
         guint32 src;
         int     chunk_size;
-        guint32 save_seq = 0;
 
         rtmpt_frag_t   *tf;
         rtmpt_id_t     *ti;
@@ -1878,7 +1877,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
 
         RTMPT_DEBUG("Segment: cdir=%d seq=%d-%d\n", cdir, seq, seq+remain-1);
 
-        if (pinfo->fd->flags.visited) {
+        if (pinfo->fd->visited) {
                 /* Already done the work, so just dump the existing state */
                 wmem_stack_t *packets;
 
@@ -1888,10 +1887,13 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                 wmem_stack_push(packets, 0);
 
                 tp = (rtmpt_packet_t *)wmem_tree_lookup32_le(rconv->packets[cdir], seq+remain-1);
-                while (tp && tp->lastseq >= seq && tp->lastseq >= save_seq) {
+                while (tp && tp->lastseq >= seq) {
                         wmem_stack_push(packets, tp);
-                        save_seq = tp->lastseq+1; /* Ensure sequence is increasing */
-                        tp = (rtmpt_packet_t *)wmem_tree_lookup32_le(rconv->packets[cdir], tp->lastseq-1);
+                        if (tp->seq == 0) {
+                                // reached first segment.
+                                break;
+                        }
+                        tp = (rtmpt_packet_t *)wmem_tree_lookup32_le(rconv->packets[cdir], tp->seq-1);
                 }
 
                 /* Dissect the generated list in reverse order (beginning to end) */
@@ -2928,7 +2930,7 @@ proto_reg_handoff_rtmpt(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

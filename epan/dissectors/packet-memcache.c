@@ -560,7 +560,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   body_len = tvb_get_ntohl (tvb, offset);
   value_len = body_len - extras_len - key_len;
   ti = proto_tree_add_uint (memcache_tree, hf_value_length, tvb, offset, 0, value_len);
-  PROTO_ITEM_SET_GENERATED (ti);
+  proto_item_set_generated (ti);
 
   proto_tree_add_item (memcache_tree, hf_total_body_length, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;

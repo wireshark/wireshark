@@ -18,7 +18,9 @@
 
 #include <epan/conversation.h>
 #include <epan/packet.h>
+#if 0
 #include "packet-smb-common.h"
+#endif
 #include "packet-windows-common.h"
 #include "packet-scsi.h"
 
@@ -269,7 +271,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
     }
 
     rsvd_conv_data->task = NULL;
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         guint64 *key_copy = wmem_new(wmem_file_scope(), guint64);
 
         *key_copy = request_id;
@@ -332,7 +334,11 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         offset += cdb_length;
         if (cdb_length < 16) {
             /*
-             * CDBBuffer is always 16 bytes - see https://msdn.microsoft.com/en-us/library/dn393496.aspx
+             * CDBBuffer is always 16 bytes - see MS-RSVD section 2.2.4.7
+             * "SVHDX_TUNNEL_SCSI_REQUEST Structure":
+             *
+             *     https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rsvd/e8bcb003-97b3-41ef-9689-cd2d1668a9cc
+             *
              * If CDB is actually smaller, we need to define padding bytes
              */
             guint32 cdb_padding_length = 16 - cdb_length;
@@ -701,16 +707,7 @@ dissect_RSVD2_META_OPERATION_START(tvbuff_t *tvb, proto_tree *parent_tree, int o
             offset += 4;
 
             if (length) {
-                const char *name = "";
-                guint16 bc;
-
-                bc = tvb_captured_length_remaining(tvb, offset);
-                name = get_unicode_or_ascii_string(tvb, &offset,
-                    TRUE, &length, TRUE, TRUE, &bc);
-                if (name) {
-                    proto_tree_add_string(gfi_sub_tree, hf_svhdx_tunnel_convert_dst_vhdset_name, tvb,
-                        offset, length, name);
-                }
+                proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_convert_dst_vhdset_name, tvb, offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
             }
             break;
 

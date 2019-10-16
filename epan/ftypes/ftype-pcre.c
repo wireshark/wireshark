@@ -33,28 +33,6 @@ gregex_fvalue_free(fvalue_t *fv)
     }
 }
 
-/* Determines whether pattern needs to match raw byte sequences */
-static gboolean
-raw_flag_needed(const gchar *pattern)
-{
-    gboolean found = FALSE;
-    const gchar *s = pattern;
-    size_t i, len;
-
-    /* find any character whose hex value is two letters */
-    len = strlen(s);
-    for (i = 0; i < len; i++) {
-        /* Upper and lower-nibble must be >= 0xA */
-        if ((guchar)(s[i] & 0xF0) >= 0xA0 &&
-            (guchar)(s[i] & 0x0F) >= 0x0A)
-        {
-            found = TRUE;
-            break;
-        }
-    }
-    return found;
-}
-
 /* Generate a FT_PCRE from a parsed string pattern.
  * On failure, if err_msg is non-null, set *err_msg to point to a
  * g_malloc()ed error message. */
@@ -64,12 +42,16 @@ val_from_string(fvalue_t *fv, const char *pattern, gchar **err_msg)
     GError *regex_error = NULL;
     GRegexCompileFlags cflags = (GRegexCompileFlags)(G_REGEX_CASELESS | G_REGEX_OPTIMIZE);
 
-    /* Set RAW flag only if pattern requires matching raw byte
-       sequences. Otherwise, omit it so that GRegex treats its
-       input as UTF8-encoded string. */
-    if (raw_flag_needed(pattern)) {
-        cflags = (GRegexCompileFlags)(cflags | G_REGEX_RAW);
-    }
+    /*
+     * As FT_BYTES and FT_PROTOCOL contain arbitrary binary data and FT_STRING
+     * is not guaranteed to contain valid UTF-8, we have to disable support for
+     * UTF-8 patterns and treat every pattern and subject as raw bytes.
+     *
+     * Should support for UTF-8 patterns be necessary, then we should compile a
+     * pattern without G_REGEX_RAW. Additionally, we MUST use g_utf8_validate()
+     * before calling g_regex_match_full() or risk crashes.
+     */
+    cflags = (GRegexCompileFlags)(cflags | G_REGEX_RAW);
 
     /* Free up the old value, if we have one */
     gregex_fvalue_free(fv);
@@ -171,7 +153,7 @@ ftype_register_pcre(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

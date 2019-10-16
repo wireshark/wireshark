@@ -38,7 +38,7 @@ void proto_reg_handoff_opcua(void);
 /* declare parse function pointer */
 typedef int (*FctParse)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 
-static int proto_opcua = -1;
+int proto_opcua = -1;
 static dissector_handle_t opcua_handle;
 /** Official IANA registered port for OPC UA Binary Protocol. */
 #define OPCUA_PORT_RANGE "4840"
@@ -95,6 +95,7 @@ enum MessageType
     MSG_HELLO = 0,
     MSG_ACKNOWLEDGE,
     MSG_ERROR,
+    MSG_REVERSEHELLO,
     MSG_MESSAGE,
     MSG_OPENSECURECHANNEL,
     MSG_CLOSESECURECHANNEL,
@@ -107,6 +108,7 @@ static const char* g_szMessageTypes[] =
     "Hello message",
     "Acknowledge message",
     "Error message",
+    "Reverse Hello message",
     "UA Secure Conversation Message",
     "OpenSecureChannel message",
     "CloseSecureChannel message",
@@ -165,6 +167,11 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         msgtype = MSG_ERROR;
         pfctParse = parseError;
     }
+    else if (tvb_memeql(tvb, 0, "RHE", 3) == 0)
+    {
+        msgtype = MSG_REVERSEHELLO;
+        pfctParse = parseReverseHello;
+    }
     else if (tvb_memeql(tvb, 0, "MSG", 3) == 0)
     {
         msgtype = MSG_MESSAGE;
@@ -183,6 +190,14 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     else
     {
         msgtype = MSG_INVALID;
+
+        /* Clear out stuff in the info column */
+        col_set_str(pinfo->cinfo, COL_INFO, g_szMessageTypes[msgtype]);
+
+        /* add empty item to make filtering by 'opcua' work */
+        proto_tree_add_item(tree, proto_opcua, tvb, 0, -1, ENC_NA);
+
+        return tvb_reported_length(tvb);
     }
 
     /* Clear out stuff in the info column */
@@ -422,7 +437,7 @@ void proto_reg_handoff_opcua(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

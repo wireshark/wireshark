@@ -88,7 +88,7 @@ wmem_print_itree(wmem_itree_t *tree);
 #endif /* __WMEM_INTERVAL_TREE_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

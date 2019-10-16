@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <ui/qt/models/cache_proxy_model.h>
 
@@ -82,13 +83,13 @@ void CacheProxyModel::setSourceModel(QAbstractItemModel *newSourceModel)
     if (newSourceModel) {
         cache.clear();
         QIdentityProxyModel::setSourceModel(newSourceModel);
-        connect(newSourceModel, SIGNAL(modelReset()),
-                this, SLOT(resetCacheModel()));
+        connect(newSourceModel, &QAbstractItemModel::modelReset,
+                this, &CacheProxyModel::resetCacheModel);
     } else {
         if (sourceModel()) {
             // Prevent further updates to source model from invalidating cache.
-            disconnect(sourceModel(), SIGNAL(modelReset()),
-                    this, SLOT(resetCacheModel()));
+            disconnect(sourceModel(), &QAbstractItemModel::modelReset,
+                    this, &CacheProxyModel::resetCacheModel);
         }
         QIdentityProxyModel::setSourceModel(&cache);
     }

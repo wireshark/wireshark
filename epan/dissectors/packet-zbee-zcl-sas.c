@@ -158,7 +158,7 @@ dissect_zbee_zcl_ias_ace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_srv_rx_cmd_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         /* Check if this command has a payload, then add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
@@ -193,7 +193,7 @@ dissect_zbee_zcl_ias_ace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_srv_tx_cmd_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         /* Check if this command has a payload, then add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
@@ -579,7 +579,7 @@ dissect_zbee_zcl_ias_wd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_ias_wd_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_item(tree, hf_zbee_zcl_ias_wd_srv_rx_cmd_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         /* Check if this command has a payload, then add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
@@ -757,7 +757,7 @@ proto_reg_handoff_zbee_zcl_ias_wd(void)
 } /*proto_reg_handoff_zbee_zcl_ias_wd*/
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -68,7 +68,7 @@ static int hf_ppi_gps_lat = -1;
 static int hf_ppi_gps_alt = -1;
 static int hf_ppi_gps_alt_gnd = -1;
 static int hf_ppi_gps_gpstime = -1;
-/* static int hf_ppi_gps_fractime = -1; */
+static int hf_ppi_gps_fractime = -1;
 static int hf_ppi_gps_eph = -1;
 static int hf_ppi_gps_epv = -1;
 static int hf_ppi_gps_ept = -1;
@@ -295,7 +295,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             /* This is somewhat tricky, inside the GPSTIME case we test if the optional fractional time */
             /* is present. If so, we pull it out, and combine it with GPSTime. */
             /* If we do this, we set already_processed_fractime to avoid hitting it below */
-            if (length_remaining < 4 && (present & PPI_GPS_MASK_FRACTIME))
+            if (length_remaining < 8 && (present & PPI_GPS_MASK_FRACTIME))
                 break;
             else if (present & PPI_GPS_MASK_FRACTIME) {
                 gps_timestamp.nsecs =  tvb_get_letohl(tvb, offset + 4); /* manually offset seconds */
@@ -311,6 +311,9 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                 break;
             if (already_processed_fractime)
                 break;
+            proto_tree_add_item(ppi_gps_tree, hf_ppi_gps_fractime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            length_remaining -= 4;
             break;
         case  PPI_GEOTAG_EPH:
             if (length_remaining < 4)
@@ -504,12 +507,10 @@ proto_register_ppi_gps(void) {
           { "GPSTimestamp", "ppi_gps.gpstime",
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
             "GPSTimestamp packet was received at", HFILL } },
-#if 0
         { &hf_ppi_gps_fractime,
           { "fractional Timestamp", "ppi_gps.fractime",
-            FT_DOUBLE, BASE_NONE, NULL, 0x0,
-            "fractional GPSTimestamp packet was received at", HFILL } },
-#endif
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Fractional of GPSTimestamp packet was received at", HFILL } },
         { &hf_ppi_gps_eph,
           { "Horizontal Error (m)", "ppi_gps.eph",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,

@@ -165,10 +165,14 @@ static int Pinfo__tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1
       pushAddress(L,addr); \
     })
 
+/*
+ * Addresses within the Pinfo structure are only valid for a single packet, so
+ * allocate memory from the pinfo pool.
+ */
 #define PINFO_ADDRESS_SETTER(name) \
     WSLUA_ATTRIBUTE_SET(Pinfo,name, { \
       const address* from = checkAddress(L,-1); \
-      copy_address(&(obj->ws_pinfo->name),from); \
+      copy_address_wmem(obj->ws_pinfo->pool, &(obj->ws_pinfo->name), from); \
     })
 
 #define PINFO_NAMED_BOOLEAN_GETTER(name,member) \
@@ -203,7 +207,7 @@ lua_delta_nstime_to_sec(const Pinfo pinfo, const frame_data *fd, guint32 prev_nu
 
 
 /* WSLUA_ATTRIBUTE Pinfo_visited RO Whether this packet has been already visited. */
-PINFO_NAMED_BOOLEAN_GETTER(visited,fd->flags.visited);
+PINFO_NAMED_BOOLEAN_GETTER(visited,fd->visited);
 
 /* WSLUA_ATTRIBUTE Pinfo_number RO The number of this packet in the current file. */
 PINFO_NAMED_NUMBER_GETTER(number,num);
@@ -288,6 +292,8 @@ PINFO_ADDRESS_SETTER(src);
 PINFO_ADDRESS_GETTER(dst);
 PINFO_ADDRESS_SETTER(dst);
 
+/* WSLUA_ATTRIBUTE Pinfo_p2p_dir RO direction of this Packet. (incoming / outgoing) */
+PINFO_NUMBER_GETTER(p2p_dir);
 
 /* WSLUA_ATTRIBUTE Pinfo_match RO Port/Data we are matching. */
 static int Pinfo_get_match(lua_State *L) {
@@ -302,8 +308,8 @@ static int Pinfo_get_match(lua_State *L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE Pinfo_columns RO Accesss to the packet list columns. */
-/* WSLUA_ATTRIBUTE Pinfo_cols RO Accesss to the packet list columns (equivalent to pinfo.columns). */
+/* WSLUA_ATTRIBUTE Pinfo_columns RO Access to the packet list columns. */
+/* WSLUA_ATTRIBUTE Pinfo_cols RO Access to the packet list columns (equivalent to pinfo.columns). */
 static int Pinfo_get_columns(lua_State *L) {
     Columns cols = NULL;
     Pinfo pinfo = checkPinfo(L,1);
@@ -453,6 +459,7 @@ WSLUA_ATTRIBUTES Pinfo_attributes[] = {
     WSLUA_ATTRIBUTE_ROREG(Pinfo,match_uint),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,match_string),
     WSLUA_ATTRIBUTE_WOREG(Pinfo,conversation),
+    WSLUA_ATTRIBUTE_ROREG(Pinfo,p2p_dir),
     { NULL, NULL, NULL }
 };
 
@@ -462,15 +469,14 @@ WSLUA_META Pinfo_meta[] = {
 };
 
 int Pinfo_register(lua_State* L) {
-    WSLUA_REGISTER_META(Pinfo);
-    WSLUA_REGISTER_ATTRIBUTES(Pinfo);
+    WSLUA_REGISTER_META_WITH_ATTRS(Pinfo);
     outstanding_Pinfo = g_ptr_array_new();
     outstanding_PrivateTable = g_ptr_array_new();
     return 0;
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

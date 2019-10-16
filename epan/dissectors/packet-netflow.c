@@ -118,6 +118,10 @@
  * December 2017: uhei
  * Updated IEs from https://www.iana.org/assignments/ipfix/ipfix.xhtml
  * Includes updates for RFC8038, RFC8158
+ *
+ * April 2019: uhei
+ * Updated IEs from https://www.iana.org/assignments/ipfix/ipfix.xhtml
+ * Includes updates for RFC8549
  */
 
 #include "config.h"
@@ -296,6 +300,8 @@ typedef enum {
     TF_NETSCALER,
     TF_BARRACUDA,
     TF_GIGAMON,
+    TF_CISCO,
+    TF_NIAGARA_NETWORKS,
     TF_NO_VENDOR_INFO
 } v9_v10_tmplt_fields_type_t;
 #define TF_NUM 2
@@ -769,6 +775,16 @@ static const value_string v9_v10_template_types[] = {
     { 479, "addressPortMappingLowThreshold" },
     { 480, "addressPortMappingPerUserHighThreshold" },
     { 481, "globalAddressMappingHighThreshold" },
+    { 482, "vpnIdentifier" },
+    { 483, "bgpCommunity" },
+    { 484, "bgpSourceCommunityList" },
+    { 485, "bgpDestinationCommunityList" },
+    { 486, "bgpExtendedCommunity" },
+    { 487, "bgpSourceExtendedCommunityList" },
+    { 488, "bgpDestinationExtendedCommunityList" },
+    { 489, "bgpLargeCommunity" },
+    { 490, "bgpSourceLargeCommunityList" },
+    { 491, "bgpDestinationLargeCommunityList" },
 
     /* Ericsson NAT Logging */
     { 24628, "NAT_LOG_FIELD_IDX_CONTEXT_ID" },
@@ -1752,6 +1768,139 @@ static const value_string v10_template_types_barracuda[] = {
 };
 static value_string_ext v10_template_types_barracuda_ext = VALUE_STRING_EXT_INIT(v10_template_types_barracuda);
 
+/* Cisco IPFIX */
+static const value_string v10_template_types_cisco[] = {
+    {  4251, "Transport packets lost counter" },
+    {  4254, "Transport RTP SSRC" },
+    {  4257, "Transport RTP jitter maximum" },
+    {  4273, "Transport RTP payload type" },
+    {  4325, "Transport RTP jitter mean sum" },
+    {  8233, "C3PL class cce-id" },
+    {  8234, "C3PL class name" },
+    {  8235, "C3PL class type" },
+    {  8236, "C3PL policy cce-id" },
+    {  8237, "C3PL policy name" },
+    {  8238, "C3PL policy type" },
+    {  9252, "Services WAAS segment" },
+    {  9253, "Services WAAS passthrough reason" },
+    {  9268, "Connection client counter packets retransmitted" },
+    {  9272, "Connection transaction counter complete" },
+    {  9273, "Connection transaction duration sum" },
+    {  9292, "Connection server counter responses" },
+    {  9300, "Connection delay response to-server histogram late" },
+    {  9303, "Connection delay response to-server sum" },
+    {  9306, "Connection delay application sum" },
+    {  9307, "Connection delay application max" },
+    {  9309, "Connection delay response client-to-server sum" },
+    {  9313, "Connection delay network client-to-server sum" },
+    {  9316, "Connection delay network to-client sum" },
+    {  9319, "Connection delay network to-server sum" },
+    {  9357, "Application HTTP URI statistics" },
+    { 12232, "Application category name" },
+    { 12233, "Application sub category name" },
+    { 12234, "Application group name" },
+    { 12235, "Application HTTP host" },
+    { 12236, "Connection client IPv4 address" },
+    { 12237, "Connection server IPv4 address" },
+    { 12240, "Connection client transport port" },
+    { 12241, "Connection server transport port" },
+    { 12242, "Connection id" },
+    { 12243, "Application traffic class" },
+    { 12244, "Application business relevance" },
+    { 0, NULL }
+};
+static value_string_ext v10_template_types_cisco_ext = VALUE_STRING_EXT_INIT(v10_template_types_cisco);
+
+static const value_string v10_template_types_niagara_networks[] = {
+    { 100, "SslServerNameIndication" },
+    { 101, "SslServerVersion" },
+    { 102, "SslServerVersionText" },
+    { 103, "SslServerCipher" },
+    { 104, "SslServerCipherText" },
+    { 105, "SslConnectionEncriptionType" },
+    { 106, "SslServerCompressionMethod" },
+    { 107, "SslServerSessionId" },
+    { 108, "SslCertificateIssuer" },
+    { 109, "SslCertificateIssuerName" },
+    { 110, "SslCertificateSubject" },
+    { 111, "SslCertificateSubjectName" },
+    { 112, "SslCertificateValidNotBefore" },
+    { 113, "SslCertificateValidNotAfter" },
+    { 114, "SslCertificateSerialNumber" },
+    { 115, "SslCertificateSignatureAlgorithm" },
+    { 116, "SslCertificateSignatureAlgorithmText" },
+    { 117, "SslCertificateSubjectPublicKeySize" },
+    { 118, "SslCertificateSubjectPublicAlgorithm" },
+    { 119, "SslCertificateSubjectPublicAlgorithmText" },
+    { 120, "SslCertificateSubjectAlgorithmText" },
+    { 121, "SslCertificateSubjectAlternativeName" },
+    { 200, "DnsIdentifier" },
+    { 201, "DnsOpCode" },
+    { 202, "DnsResponseCode" },
+    { 203, "DnsQueryName" },
+    { 204, "DnsResponseName" },
+    { 205, "DnsResponseTTL" },
+    { 206, "DnsResponseIPv4Addr" },
+    { 207, "DnsResponseIPv4AddrText" },
+    { 208, "DnsResponseIPv6Addr" },
+    { 209, "DnsResponseIPv6AddrText" },
+    { 210, "DnsBits" },
+    { 211, "DnsQDCount" },
+    { 212, "DnsANCount" },
+    { 213, "DnsNSCount" },
+    { 214, "DnsARCount" },
+    { 215, "DnsQueryType" },
+    { 216, "DnsQueryTypeText" },
+    { 217, "DnsQueryClass" },
+    { 218, "DnsQueryClassText" },
+    { 219, "DnsResponseType" },
+    { 220, "DnsResponseTypeText" },
+    { 221, "DnsResponseClass" },
+    { 222, "DnsResponseClassText" },
+    { 223, "DnsResponseRDLength" },
+    { 224, "DnsResponseRData" },
+    { 225, "DnsAuthorityName" },
+    { 226, "DnsAuthorityType" },
+    { 227, "DnsAuthorityTypeText" },
+    { 228, "DnsAuthorityClass" },
+    { 229, "DnsAuthorityClassText" },
+    { 230, "DnsAuthorityTTL" },
+    { 231, "DnsAuthorityRDLength" },
+    { 232, "DnsAuthorityRData" },
+    { 233, "DnsAdditionalName" },
+    { 234, "DnsAdditionalType" },
+    { 235, "DnsAdditionalTypeText" },
+    { 236, "DnsAdditionalClass" },
+    { 237, "DnsAdditionalClassText" },
+    { 238, "DnsAdditionalTTL" },
+    { 239, "DnsAdditionalRDLength" },
+    { 240, "DnsAdditionalRData" },
+    { 300, "RadiusPacketTypeCode" },
+    { 301, "RadiusPacketTypeCodeText" },
+    { 302, "RadiusPacketIdentifier" },
+    { 303, "RadiusAuthenticator" },
+    { 304, "RadiusUserName" },
+    { 305, "RadiusCallingStationId" },
+    { 306, "RadiusCalledStationId" },
+    { 307, "RadiusNasIpAddress" },
+    { 308, "RadiusNasIpv6Address" },
+    { 309, "RadiusNasIdentifier" },
+    { 310, "RadiusFramedIpAddress" },
+    { 311, "RadiusFramedIpv6Address" },
+    { 312, "RadiusAgentCircuitId" },
+    { 313, "RadiusUserImei" },
+    { 314, "RadiusUserImsi" },
+    { 315, "RadiusUserMsisdn" },
+    { 316, "RadiusAcctSessionId" },
+    { 317, "RadiusAcctStatusType" },
+    { 318, "RadiusAcctInOctets" },
+    { 319, "RadiusAcctOutOctets" },
+    { 320, "RadiusAcctInPackets" },
+    { 321, "RadiusAcctOutPackets" },
+    { 0, NULL }
+};
+static value_string_ext v10_template_types_niagara_networks_ext = VALUE_STRING_EXT_INIT(v10_template_types_niagara_networks);
+
 static const value_string v10_barracuda_logop[] = {
     { 0, "Unknown" },
     { 1, "Allow" },
@@ -1791,6 +1940,54 @@ static const value_string v10_barracuda_traffictype[] = {
     { 2, "Local Out" },
     { 3, "Loopback" },
     { 0, NULL }
+};
+
+static const value_string v10_cisco_waas_segment[] = {
+    {  0, "Unknown" },
+    {  1, "Client Unoptimized" },
+    {  2, "Server Optimized" },
+    {  4, "Client Optimized" },
+    {  8, "Server Unoptimized" },
+    { 16, "Pass-Through" },
+    {  0, NULL }
+};
+
+static const value_string v10_cisco_waas_passthrough_reason[] = {
+    {  0, "Unknown" },
+    {  1, "PT_NO_PEER" },
+    {  2, "PT_RJCT_CAP" },
+    {  3, "PT_RJCT_RSRCS" },
+    {  4, "PT_RJCT_NO_LICENSE" },
+    {  5, "PT_APP_CONFIG" },
+    {  6, "PT_GLB_CONFIG" },
+    {  7, "PT_ASYMMETRIC" },
+    {  8, "PT_IN_PROGRESS" },
+    {  9, "PT_INTERMEDIATE" },
+    { 10, "PT_OVERLOAD" },
+    { 11, "PT_INT_ERROR" },
+    { 12, "PT_APP_OVERRIDE" },
+    { 13, "PT_SVR_BLACKLIST" },
+    { 14, "PT_AD_VER_MISMTCH" },
+    { 15, "PT_AD_AO_INCOMPAT" },
+    { 16, "PT_AD_AOIM_PROGRESS" },
+    { 17, "PT_DIRM_VER_MISMTCH" },
+    { 18, "PT_PEER_OVERRIDE" },
+    { 19, "PT_AD_OPT_PARSE_FAIL" },
+    { 20, "PT_AD_PT_SERIAL_MODE" },
+    { 21, "PT_SN_INTERCEPTION_ACL" },
+    { 22, "PT_IP_FRAG_UNSUPP_PEER" },
+    { 23, "PT_CLUSTER_MEMBER_INDX" },
+    { 24, "PT_FLOW_QUERY_FAIL_INDX" },
+    { 25, "PT_FLOWSW_INT_ACL_DENY_INX" },
+    { 26, "PT_UNKNOWN_INDX" },
+    { 27, "PT_FLOWSW_PLCY_INDX" },
+    { 28, "PT_SNG_OVERLOAD_INDX" },
+    { 29, "PT_CLUSTER_DEGRADE_INDX" },
+    { 30, "PT_FLOW_LEARN_FAIL_INDX" },
+    { 31, "PT_OVERALL_INDX" },
+    { 32, "PT_ZBFW" },
+    { 33, "PT_RTSP_ALG" },
+    {  0, NULL }
 };
 
 static const value_string v9_scope_field_types[] = {
@@ -2040,6 +2237,8 @@ static int      hf_cflow_template_ixia_field_type                   = -1;
 static int      hf_cflow_template_netscaler_field_type              = -1;
 static int      hf_cflow_template_barracuda_field_type              = -1;
 static int      hf_cflow_template_gigamon_field_type                = -1;
+static int      hf_cflow_template_cisco_field_type                  = -1;
+static int      hf_cflow_template_niagara_networks_field_type       = -1;
 
 
 /*
@@ -2494,6 +2693,16 @@ static int      hf_cflow_addressport_mapping_highthreshold          = -1;      /
 static int      hf_cflow_addressport_mapping_lowthreshold           = -1;      /* ID: 479 */
 static int      hf_cflow_addressport_mapping_per_user_highthreshold = -1;      /* ID: 480 */
 static int      hf_cflow_global_addressmapping_highthreshold        = -1;      /* ID: 481 */
+static int      hf_cflow_vpn_identifier                             = -1;      /* ID: 482 */
+static int      hf_cflow_bgp_community                              = -1;      /* ID: 483 */
+static int      hf_cflow_bgp_source_community_list                  = -1;      /* ID: 484 */
+static int      hf_cflow_bgp_destination_community_list             = -1;      /* ID: 485 */
+static int      hf_cflow_bgp_extended_community                     = -1;      /* ID: 486 */
+static int      hf_cflow_bgp_source_extended_community_list         = -1;      /* ID: 487 */
+static int      hf_cflow_bgp_destination_extended_community_list    = -1;      /* ID: 488 */
+static int      hf_cflow_bgp_large_community                        = -1;      /* ID: 489 */
+static int      hf_cflow_bgp_source_large_community_list            = -1;      /* ID: 490 */
+static int      hf_cflow_bgp_destination_large_community_list       = -1;      /* ID: 491 */
 
 static int      hf_cflow_mpls_label                                 = -1;
 static int      hf_cflow_mpls_exp                                   = -1;
@@ -3167,6 +3376,135 @@ static int      hf_pie_gigamon_dnsadditionalttl                  = -1;
 static int      hf_pie_gigamon_dnsadditionalrdlength             = -1;
 static int      hf_pie_gigamon_dnsadditionalrdata                = -1;
 
+static int      hf_pie_cisco                                                     = -1;
+static int      hf_pie_cisco_transport_packets_lost_counter                      = -1;
+static int      hf_pie_cisco_transport_rtp_ssrc                                  = -1;
+static int      hf_pie_cisco_transport_rtp_jitter_maximum                        = -1;
+static int      hf_pie_cisco_transport_rtp_payload_type                          = -1;
+static int      hf_pie_cisco_transport_rtp_jitter_mean_sum                       = -1;
+static int      hf_pie_cisco_c3pl_class_cce_id                                   = -1;
+static int      hf_pie_cisco_c3pl_class_name                                     = -1;
+static int      hf_pie_cisco_c3pl_class_type                                     = -1;
+static int      hf_pie_cisco_c3pl_policy_cce_id                                  = -1;
+static int      hf_pie_cisco_c3pl_policy_name                                    = -1;
+static int      hf_pie_cisco_c3pl_policy_type                                    = -1;
+static int      hf_pie_cisco_connection_server_counter_responses                 = -1;
+static int      hf_pie_cisco_connection_client_counter_packets_retransmitted     = -1;
+static int      hf_pie_cisco_connection_transaction_counter_complete             = -1;
+static int      hf_pie_cisco_connection_transaction_duration_sum                 = -1;
+static int      hf_pie_cisco_connection_delay_response_to_server_histogram_late  = -1;
+static int      hf_pie_cisco_connection_delay_response_to_server_sum             = -1;
+static int      hf_pie_cisco_connection_delay_application_sum                    = -1;
+static int      hf_pie_cisco_connection_delay_application_max                    = -1;
+static int      hf_pie_cisco_connection_delay_response_client_to_server_sum      = -1;
+static int      hf_pie_cisco_connection_delay_network_client_to_server_sum       = -1;
+static int      hf_pie_cisco_connection_delay_network_to_client_sum              = -1;
+static int      hf_pie_cisco_connection_delay_network_to_server_sum              = -1;
+static int      hf_pie_cisco_services_waas_segment                               = -1;
+static int      hf_pie_cisco_services_waas_passthrough_reason                    = -1;
+static int      hf_pie_cisco_application_http_uri_statistics                     = -1;
+static int      hf_pie_cisco_application_http_uri_statistics_count               = -1;
+static int      hf_pie_cisco_application_category_name                           = -1;
+static int      hf_pie_cisco_application_sub_category_name                       = -1;
+static int      hf_pie_cisco_application_group_name                              = -1;
+static int      hf_pie_cisco_application_http_host                               = -1;
+static int      hf_pie_cisco_application_http_host_app_id                        = -1;
+static int      hf_pie_cisco_application_http_host_sub_app_id                    = -1;
+static int      hf_pie_cisco_connection_client_ipv4_address                      = -1;
+static int      hf_pie_cisco_connection_server_ipv4_address                      = -1;
+static int      hf_pie_cisco_connection_client_transport_port                    = -1;
+static int      hf_pie_cisco_connection_server_transport_port                    = -1;
+static int      hf_pie_cisco_connection_id                                       = -1;
+static int      hf_pie_cisco_application_traffic_class                           = -1;
+static int      hf_pie_cisco_application_business_relevance                      = -1;
+
+static int      hf_pie_niagara_networks                                             = -1;
+static int      hf_pie_niagara_networks_sslservernameindication                     = -1;
+static int      hf_pie_niagara_networks_sslserverversion                            = -1;
+static int      hf_pie_niagara_networks_sslserverversiontext                        = -1;
+static int      hf_pie_niagara_networks_sslservercipher                             = -1;
+static int      hf_pie_niagara_networks_sslserverciphertext                         = -1;
+static int      hf_pie_niagara_networks_sslconnectionencriptiontype                 = -1;
+static int      hf_pie_niagara_networks_sslservercompressionmethod                  = -1;
+static int      hf_pie_niagara_networks_sslserversessionid                          = -1;
+static int      hf_pie_niagara_networks_sslcertificateissuer                        = -1;
+static int      hf_pie_niagara_networks_sslcertificateissuername                    = -1;
+static int      hf_pie_niagara_networks_sslcertificatesubject                       = -1;
+static int      hf_pie_niagara_networks_sslcertificatesubjectname                   = -1;
+static int      hf_pie_niagara_networks_sslcertificatevalidnotbefore                = -1;
+static int      hf_pie_niagara_networks_sslcertificatevalidnotafter                 = -1;
+static int      hf_pie_niagara_networks_sslcertificateserialnumber                  = -1;
+static int      hf_pie_niagara_networks_sslcertificatesignaturealgorithm            = -1;
+static int      hf_pie_niagara_networks_sslcertificatesignaturealgorithmtext        = -1;
+static int      hf_pie_niagara_networks_sslcertificatesubjectpublickeysize          = -1;
+static int      hf_pie_niagara_networks_sslcertificatesubjectpublicalgorithm        = -1;
+static int      hf_pie_niagara_networks_sslcertificatesubjectpublicalgorithmtext    = -1;
+static int      hf_pie_niagara_networks_sslcertificatesubjectalgorithmtext          = -1;
+static int      hf_pie_niagara_networks_sslcertificatesubjectalternativename        = -1;
+static int      hf_pie_niagara_networks_dnsidentifier                               = -1;
+static int      hf_pie_niagara_networks_dnsopcode                                   = -1;
+static int      hf_pie_niagara_networks_dnsresponsecode                             = -1;
+static int      hf_pie_niagara_networks_dnsqueryname                                = -1;
+static int      hf_pie_niagara_networks_dnsresponsename                             = -1;
+static int      hf_pie_niagara_networks_dnsresponsettl                              = -1;
+static int      hf_pie_niagara_networks_dnsresponseipv4addr                         = -1;
+static int      hf_pie_niagara_networks_dnsresponseipv4addrtext                     = -1;
+static int      hf_pie_niagara_networks_dnsresponseipv6addr                         = -1;
+static int      hf_pie_niagara_networks_dnsresponseipv6addrtext                     = -1;
+static int      hf_pie_niagara_networks_dnsbits                                     = -1;
+static int      hf_pie_niagara_networks_dnsqdcount                                  = -1;
+static int      hf_pie_niagara_networks_dnsancount                                  = -1;
+static int      hf_pie_niagara_networks_dnsnscount                                  = -1;
+static int      hf_pie_niagara_networks_dnsarcount                                  = -1;
+static int      hf_pie_niagara_networks_dnsquerytype                                = -1;
+static int      hf_pie_niagara_networks_dnsquerytypetext                            = -1;
+static int      hf_pie_niagara_networks_dnsqueryclass                               = -1;
+static int      hf_pie_niagara_networks_dnsqueryclasstext                           = -1;
+static int      hf_pie_niagara_networks_dnsresponsetype                             = -1;
+static int      hf_pie_niagara_networks_dnsresponsetypetext                         = -1;
+static int      hf_pie_niagara_networks_dnsresponseclass                            = -1;
+static int      hf_pie_niagara_networks_dnsresponseclasstext                        = -1;
+static int      hf_pie_niagara_networks_dnsresponserdlength                         = -1;
+static int      hf_pie_niagara_networks_dnsresponserdata                            = -1;
+static int      hf_pie_niagara_networks_dnsauthorityname                            = -1;
+static int      hf_pie_niagara_networks_dnsauthoritytype                            = -1;
+static int      hf_pie_niagara_networks_dnsauthoritytypetext                        = -1;
+static int      hf_pie_niagara_networks_dnsauthorityclass                           = -1;
+static int      hf_pie_niagara_networks_dnsauthorityclasstext                       = -1;
+static int      hf_pie_niagara_networks_dnsauthorityttl                             = -1;
+static int      hf_pie_niagara_networks_dnsauthorityrdlength                        = -1;
+static int      hf_pie_niagara_networks_dnsauthorityrdata                           = -1;
+static int      hf_pie_niagara_networks_dnsadditionalname                           = -1;
+static int      hf_pie_niagara_networks_dnsadditionaltype                           = -1;
+static int      hf_pie_niagara_networks_dnsadditionaltypetext                       = -1;
+static int      hf_pie_niagara_networks_dnsadditionalclass                          = -1;
+static int      hf_pie_niagara_networks_dnsadditionalclasstext                      = -1;
+static int      hf_pie_niagara_networks_dnsadditionalttl                            = -1;
+static int      hf_pie_niagara_networks_dnsadditionalrdlength                       = -1;
+static int      hf_pie_niagara_networks_dnsadditionalrdata                          = -1;
+static int      hf_pie_niagara_networks_radiuspackettypecode                        = -1;
+static int      hf_pie_niagara_networks_radiuspackettypecodetext                    = -1;
+static int      hf_pie_niagara_networks_radiuspacketidentifier                      = -1;
+static int      hf_pie_niagara_networks_radiusauthenticator                         = -1;
+static int      hf_pie_niagara_networks_radiususername                              = -1;
+static int      hf_pie_niagara_networks_radiuscallingstationid                      = -1;
+static int      hf_pie_niagara_networks_radiuscalledstationid                       = -1;
+static int      hf_pie_niagara_networks_radiusnasipaddress                          = -1;
+static int      hf_pie_niagara_networks_radiusnasipv6address                        = -1;
+static int      hf_pie_niagara_networks_radiusnasidentifier                         = -1;
+static int      hf_pie_niagara_networks_radiusframedipaddress                       = -1;
+static int      hf_pie_niagara_networks_radiusframedipv6address                     = -1;
+static int      hf_pie_niagara_networks_radiusagentcircuitid                        = -1;
+static int      hf_pie_niagara_networks_radiususerimei                              = -1;
+static int      hf_pie_niagara_networks_radiususerimsi                              = -1;
+static int      hf_pie_niagara_networks_radiususermsisdn                            = -1;
+static int      hf_pie_niagara_networks_radiusacctsessionid                         = -1;
+static int      hf_pie_niagara_networks_radiusacctstatustype                        = -1;
+static int      hf_pie_niagara_networks_radiusacctinoctets                          = -1;
+static int      hf_pie_niagara_networks_radiusacctoutoctets                         = -1;
+static int      hf_pie_niagara_networks_radiusacctinpackets                         = -1;
+static int      hf_pie_niagara_networks_radiusacctoutpackets                        = -1;
+
 static int      hf_string_len_short = -1;
 static int      hf_string_len_long  = -1;
 
@@ -3377,6 +3715,10 @@ pen_to_type_hf_list(guint32 pen) {
         return TF_BARRACUDA;
     case VENDOR_GIGAMON:
         return TF_GIGAMON;
+    case VENDOR_CISCO:
+        return TF_CISCO;
+    case VENDOR_NIAGARA_NETWORKS:
+        return TF_NIAGARA_NETWORKS;
     default:
         return TF_NO_VENDOR_INFO;
     }
@@ -3450,7 +3792,7 @@ static void show_sequence_analysis_info(guint32 domain_id, guint32 seqnum,
         /* Expected sequence number, i.e. what we stored in state when checking previous frame */
         ti = proto_tree_add_uint(tree, hf_cflow_sequence_analysis_expected_sn, tvb,
                                  0, 0, state->current_sequence_number);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         expert_add_info_format(pinfo, flow_sequence_ti, &ei_unexpected_sequence_number,
                                "Unexpected flow sequence for domain ID %u (expected %u, got %u)",
                                domain_id, state->current_sequence_number, seqnum);
@@ -3461,7 +3803,7 @@ static void show_sequence_analysis_info(guint32 domain_id, guint32 seqnum,
         /* Previous frame for this observation domain ID */
         ti = proto_tree_add_uint(tree, hf_cflow_sequence_analysis_previous_frame, tvb,
                                  0, 0, state->current_frame_number);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 }
 
@@ -3787,7 +4129,7 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
        observation domain id. */
     if ((ver == 5) || (ver == 7) || (ver == 8)  || (ver == 9) || (ver == 10)) {
         /* On first pass check sequence analysis */
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             if (ver != 10) {
                 flows_seen = pdus;  /* i.e. use value from header rather than counted value */
             }
@@ -3860,7 +4202,7 @@ flow_process_timeperiod(proto_tree *pdutree, tvbuff_t *tvb, int offset)
 
     timeitem = proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb,
                                    offset_s, 8, &ts_delta);
-    PROTO_ITEM_SET_GENERATED(timeitem);
+    proto_item_set_generated(timeitem);
     timetree = proto_item_add_subtree(timeitem, ett_flowtime);
 
     proto_tree_add_time(timetree, hf_cflow_timestart, tvb, offset_s, 4,
@@ -4170,7 +4512,7 @@ dissect_v9_v10_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int 
         if (tmplt_p->template_frame_number > pinfo->num) {
             proto_item_append_text(ti, " (received after this frame)");
         }
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Note: If the flow contains variable length fields then          */
         /*       tmplt_p->length will be less then actual length of the flow. */
@@ -4338,6 +4680,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
     int                   gen_str_offset = 0;
 
     proto_item           *ti;
+    proto_item           *cti;
     guint16               count;
     v9_v10_tmplt_entry_t *entries_p;
     proto_tree           *fwdstattree;
@@ -4348,7 +4691,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                          ixia_pie_seen = FALSE,
                          netscaler_pie_seen = FALSE,
                          barracuda_pie_seen = FALSE,
-                         gigamon_pie_seen = FALSE;
+                         gigamon_pie_seen = FALSE,
+                         cisco_pie_seen = FALSE,
+                         niagara_networks_pie_seen = FALSE;
 
 
     guint8       ip_protocol = 0;
@@ -4436,50 +4781,64 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             case VENDOR_CACE:
                 if (!cace_pie_seen) {
                     proto_item *pie_cace_ti = proto_tree_add_item(pdutree, hf_pie_cace, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(pie_cace_ti);
+                    proto_item_set_hidden(pie_cace_ti);
                     cace_pie_seen = TRUE;
                 }
                 break;
             case VENDOR_PLIXER:
                 if (!plixer_pie_seen) {
                     proto_item *pie_plixer_ti = proto_tree_add_item(pdutree, hf_pie_plixer, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(pie_plixer_ti);
+                    proto_item_set_hidden(pie_plixer_ti);
                     plixer_pie_seen = TRUE;
                 }
                 break;
             case VENDOR_NTOP:
                 if (!ntop_pie_seen) {
                     proto_item *pie_ntop_ti = proto_tree_add_item(pdutree, hf_pie_ntop, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(pie_ntop_ti);
+                    proto_item_set_hidden(pie_ntop_ti);
                     ntop_pie_seen = TRUE;
                 }
                 break;
             case VENDOR_IXIA:
                 if (!ixia_pie_seen) {
                     proto_item *pie_ixia_ti = proto_tree_add_item(pdutree, hf_pie_ixia, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(pie_ixia_ti);
+                    proto_item_set_hidden(pie_ixia_ti);
                     ixia_pie_seen = TRUE;
                 }
                 break;
             case VENDOR_NETSCALER:
                 if (!netscaler_pie_seen) {
                     proto_item *pie_netscaler_ti = proto_tree_add_item(pdutree, hf_pie_netscaler, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(pie_netscaler_ti);
+                    proto_item_set_hidden(pie_netscaler_ti);
                     netscaler_pie_seen = TRUE;
                 }
                 break;
             case VENDOR_BARRACUDA:
                 if (!barracuda_pie_seen) {
                     proto_item *pie_barracuda_ti = proto_tree_add_item(pdutree, hf_pie_barracuda, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(pie_barracuda_ti);
+                    proto_item_set_hidden(pie_barracuda_ti);
                     barracuda_pie_seen = TRUE;
                 }
                 break;
             case VENDOR_GIGAMON:
                 if (!gigamon_pie_seen) {
                     proto_item *pie_gigamon_ti = proto_tree_add_item(pdutree, hf_pie_gigamon, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(pie_gigamon_ti);
+                    proto_item_set_hidden(pie_gigamon_ti);
                     gigamon_pie_seen = TRUE;
+                }
+                break;
+            case VENDOR_CISCO:
+                if (!cisco_pie_seen) {
+                    proto_item *pie_cisco_ti = proto_tree_add_item(pdutree, hf_pie_cisco, tvb, 0, 0, ENC_NA);
+                    proto_item_set_hidden(pie_cisco_ti);
+                    cisco_pie_seen = TRUE;
+                }
+                break;
+            case VENDOR_NIAGARA_NETWORKS:
+                if (!niagara_networks_pie_seen) {
+                    proto_item *pie_niagara_networks_ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks, tvb, 0, 0, ENC_NA);
+                    proto_item_set_hidden(pie_niagara_networks_ti);
+                    niagara_networks_pie_seen = TRUE;
                 }
                 break;
 
@@ -4718,7 +5077,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                 timeitem =
                     proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb,
                                         offset_s[rev][duration_type], 0, &ts_delta);
-                PROTO_ITEM_SET_GENERATED(timeitem);
+                proto_item_set_generated(timeitem);
                 timetree = proto_item_add_subtree(timeitem, ett_flowtime);
 
                 /* Show the type/units used to calculate the duration */
@@ -6908,6 +7267,56 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
 
+        case 482: /* vpnIdentifier */
+            ti = proto_tree_add_item(pdutree, hf_cflow_vpn_identifier ,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 483: /* bgpCommunity */
+            ti = proto_tree_add_item(pdutree, hf_cflow_bgp_community ,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 484: /* bgpSourceCommunityList */
+            ti = proto_tree_add_item(pdutree, hf_cflow_bgp_source_community_list ,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 485: /* bgpDestinationCommunityList */
+            ti = proto_tree_add_item(pdutree, hf_cflow_bgp_destination_community_list ,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 486: /* bgpExtendedCommunity */
+            ti = proto_tree_add_item(pdutree, hf_cflow_bgp_extended_community ,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 487: /* bgpSourceExtendedCommunityList */
+            ti = proto_tree_add_item(pdutree, hf_cflow_bgp_source_extended_community_list ,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 488: /* bgpDestinationExtendedCommunityList */
+            ti = proto_tree_add_item(pdutree, hf_cflow_bgp_destination_extended_community_list ,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 489: /* bgpLargeCommunity */
+            ti = proto_tree_add_item(pdutree, hf_cflow_bgp_large_community ,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 490: /* bgpSourceLargeCommunityList */
+            ti = proto_tree_add_item(pdutree, hf_cflow_bgp_source_large_community_list ,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 491: /* bgpDestinationLargeCommunityList */
+            ti = proto_tree_add_item(pdutree, hf_cflow_bgp_destination_large_community_list ,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
 
         case 34000: /* cts_sgt_source_tag */
             ti = proto_tree_add_item(pdutree, hf_cflow_cts_sgt_source_tag,
@@ -6966,7 +7375,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case 37013: /* timestamp_interval */
             /* XXX - what format is this in? */
             ti = proto_tree_add_item(pdutree, hf_cflow_timestamp_interval,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case 37014: /* transport_packets_expected */
             ti = proto_tree_add_item(pdutree, hf_cflow_transport_packets_expected,
@@ -7553,49 +7962,49 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case (NTOP_BASE + 134):           /* SIP_INVITE_TIME */
         case ((VENDOR_NTOP << 16) | 134): /* SIP_INVITE_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_invite_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 135):           /* SIP_TRYING_TIME */
         case ((VENDOR_NTOP << 16) | 135): /* SIP_TRYING_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_trying_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 136):           /* SIP_RINGING_TIME */
         case ((VENDOR_NTOP << 16) | 136): /* SIP_RINGING_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_ringing_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 137):           /* SIP_INVITE_OK_TIME */
         case ((VENDOR_NTOP << 16) | 137): /* SIP_INVITE_OK_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_invite_ok_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 138):           /* SIP_INVITE_FAILURE_TIME */
         case ((VENDOR_NTOP << 16) | 138): /* SIP_INVITE_FAILURE_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_invite_failure_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 139):           /* SIP_BYE_TIME */
         case ((VENDOR_NTOP << 16) | 139): /* SIP_BYE_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_bye_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 140):           /* SIP_BYE_OK_TIME */
         case ((VENDOR_NTOP << 16) | 140): /* SIP_BYE_OK_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_bye_ok_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 141):           /* SIP_CANCEL_TIME */
         case ((VENDOR_NTOP << 16) | 141): /* SIP_CANCEL_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_cancel_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 142):           /* SIP_CANCEL_OK_TIME */
@@ -9233,7 +9642,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case ((VENDOR_PLIXER << 16) | 111):    /* origination_time */
             /* XXX - what format is this? */
             ti = proto_tree_add_item(pdutree, hf_pie_plixer_origination_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_PLIXER << 16) | 112):    /* encryption */
             ti = proto_tree_add_item(pdutree, hf_pie_plixer_encryption,
@@ -9262,7 +9671,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case ((VENDOR_PLIXER << 16) | 117):    /* date_time */
             /* XXX - what format is this? */
             ti = proto_tree_add_item(pdutree, hf_pie_plixer_date_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
             /* END Plixer International */
 
@@ -9723,7 +10132,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
              * i.e. should it be ENC_TIME_SECS?
              */
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionupdatebeginsec,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 224):
             /*
@@ -9731,7 +10140,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
              * i.e. should it be ENC_TIME_SECS?
              */
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionupdateendsec,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 225):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icachannelid1,
@@ -9792,7 +10201,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case ((VENDOR_NETSCALER << 16) | 239):
             /* XXX - what format is this? */
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_applicationstartuptime,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 240):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaapplicationterminationtype,
@@ -9853,12 +10262,12 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case ((VENDOR_NETSCALER << 16) | 254):
             /* XXX - what format is this? */
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icanetworkupdatestarttime,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 255):
             /* XXX - what format is this? */
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icanetworkupdateendtime,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 256):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientsidesrtt,
@@ -10217,6 +10626,597 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
             /* END Gigamon */
 
+            /* Start Cisco Communications */
+        case ((VENDOR_CISCO << 16) | 4251):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_transport_packets_lost_counter,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 4254):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_transport_rtp_ssrc,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 4257):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_transport_rtp_jitter_maximum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 4273):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_transport_rtp_payload_type,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 4325):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_transport_rtp_jitter_mean_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 8233):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_class_cce_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 8234):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_class_name,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 8235):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_class_type,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 8236):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_policy_cce_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 8237):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_policy_name,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 8238):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_policy_type,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 9292):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_server_counter_responses,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9268):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_client_counter_packets_retransmitted,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9272):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_transaction_counter_complete,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9273):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_transaction_duration_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9300):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_response_to_server_histogram_late,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9303):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_response_to_server_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9306):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_application_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9307):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_application_max,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9309):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_response_client_to_server_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9313):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_network_client_to_server_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9316):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_network_to_client_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9319):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_network_to_server_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9252):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_services_waas_segment,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9253):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_services_waas_passthrough_reason,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9357):
+            cti = proto_tree_add_item(pdutree, hf_pie_cisco_application_http_uri_statistics,
+                                     tvb, offset, length - 3, ENC_UTF_8|ENC_NA);
+            string_tree = proto_item_add_subtree(cti, ett_str_len);
+            proto_tree_add_item(string_tree, hf_pie_cisco_application_http_uri_statistics_count,
+                                     tvb, offset + (length - 2), 2, ENC_BIG_ENDIAN);
+            proto_tree_add_uint(string_tree, hf_string_len_short, tvb,
+                                gen_str_offset-vstr_len, 1, string_len_short);
+            break;
+        case ((VENDOR_CISCO << 16) | 12232):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_application_category_name,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 12233):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_application_sub_category_name,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 12234):
+             ti = proto_tree_add_item(pdutree, hf_pie_cisco_application_group_name,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 12235):
+            cti = proto_tree_add_item(pdutree, hf_pie_cisco_application_http_host,
+                                     tvb, offset + 6 , length - 6, ENC_ASCII|ENC_NA);
+            string_tree = proto_item_add_subtree(cti, ett_str_len);
+            proto_tree_add_item(string_tree, hf_pie_cisco_application_http_host_app_id,
+                                     tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(string_tree, hf_pie_cisco_application_http_host_sub_app_id,
+                                     tvb, offset + 4, 2, ENC_NA);
+            proto_tree_add_uint(string_tree, hf_string_len_short, tvb,
+                                gen_str_offset-vstr_len, 1, string_len_short);
+            break;
+        case ((VENDOR_CISCO << 16) | 12236):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_client_ipv4_address,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 12237):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_server_ipv4_address,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 12240):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_client_transport_port,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 12241):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_server_transport_port,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 12242):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 12243):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_application_traffic_class,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 12244):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_application_business_relevance,
+                                     tvb, offset, length, ENC_NA);
+            break;
+            /* End Cisco */
+
+            /* START Niagara Networks */
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 100):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslservernameindication,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 101):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslserverversion,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 102):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslserverversiontext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 103):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslservercipher,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 104):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslserverciphertext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 105):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslconnectionencriptiontype,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 106):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslservercompressionmethod,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 107):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslserversessionid,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 108):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificateissuer,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 109):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificateissuername,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 110):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesubject,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 111):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesubjectname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 112):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatevalidnotbefore,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 113):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatevalidnotafter,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 114):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificateserialnumber,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 115):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesignaturealgorithm,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 116):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesignaturealgorithmtext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 117):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesubjectpublickeysize,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 118):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesubjectpublicalgorithm,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 119):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesubjectpublicalgorithmtext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 120):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesubjectalgorithmtext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 121):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesubjectalternativename,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 200):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsidentifier,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 201):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsopcode,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 202):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponsecode,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 203):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsqueryname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 204):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponsename,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 205):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponsettl,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 206):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponseipv4addr,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 207):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponseipv4addrtext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 208):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponseipv6addr,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 209):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponseipv6addrtext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 210):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsbits,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 211):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsqdcount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 212):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsancount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 213):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsnscount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 214):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsarcount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 215):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsquerytype,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 216):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsquerytypetext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 217):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsqueryclass,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 218):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsqueryclasstext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 219):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponsetype,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 220):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponsetypetext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 221):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponseclass,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 222):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponseclasstext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 223):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponserdlength,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 224):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponserdata,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 225):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsauthorityname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 226):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsauthoritytype,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 227):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsauthoritytypetext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 228):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsauthorityclass,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 229):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsauthorityclasstext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 230):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsauthorityttl,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 231):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsauthorityrdlength,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 232):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsauthorityrdata,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 233):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsadditionalname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 234):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsadditionaltype,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 235):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsadditionaltypetext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 236):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsadditionalclass,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 237):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsadditionalclasstext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 238):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsadditionalttl,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 239):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsadditionalrdlength,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 240):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsadditionalrdata,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 300):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiuspackettypecode,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 301):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiuspackettypecodetext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 302):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiuspacketidentifier,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 303):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiusauthenticator,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 304):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiususername,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 305):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiuscallingstationid,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 306):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiuscalledstationid,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 307):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiusnasipaddress,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 308):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiusnasipv6address,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 309):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiusnasidentifier,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 310):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiusframedipaddress,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 311):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiusframedipv6address,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 312):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiusagentcircuitid,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 313):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiususerimei,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 314):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiususerimsi,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 315):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiususermsisdn,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 316):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiusacctsessionid,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 317):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiusacctstatustype,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 318):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiusacctinoctets,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 319):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiusacctoutoctets,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 320):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiusacctinpackets,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_NIAGARA_NETWORKS << 16) | 321):
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiusacctoutpackets,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+            /* END Niagara Networks */
+
         default:  /* Unknown Field ID */
             if ((hdrinfo_p->vspec == 9) || (pen == REVPEN)) {
                 ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_unknown_field_type,
@@ -10309,6 +11309,8 @@ static const int *v10_template_type_hf_list[TF_NUM_EXT] = {
     &hf_cflow_template_netscaler_field_type,
     &hf_cflow_template_barracuda_field_type,
     &hf_cflow_template_gigamon_field_type,
+    &hf_cflow_template_cisco_field_type,
+    &hf_cflow_template_niagara_networks_field_type,
     NULL};
 
 static value_string_ext *v9_template_type_vse_list[TF_NUM] = {
@@ -10323,6 +11325,8 @@ static value_string_ext *v10_template_type_vse_list[TF_NUM_EXT] = {
     &v10_template_types_netscaler_ext,
     &v10_template_types_barracuda_ext,
     &v10_template_types_gigamon_ext,
+    &v10_template_types_cisco_ext,
+    &v10_template_types_niagara_networks_ext,
     NULL};
 
 static int
@@ -10543,7 +11547,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
         /*  XXX: Is an Options template with only scope fields allowed for V9 ??                 */
 
         tmplt_p = (v9_v10_tmplt_t *)wmem_map_lookup(v9_v10_tmplt_table, &tmplt);
-        if (!pinfo->fd->flags.visited) { /* cache template info only during first pass */
+        if (!pinfo->fd->visited) { /* cache template info only during first pass */
             do {
                 if (v9_tmplt_max_fields &&
                      ((option_scope_field_count > v9_tmplt_max_fields)
@@ -10647,7 +11651,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
         /*  ToDo: expert warning if replacement (changed) and new template ignored.                */
 
         tmplt_p = (v9_v10_tmplt_t *)wmem_map_lookup(v9_v10_tmplt_table, &tmplt);
-        if (!pinfo->fd->flags.visited) { /* cache template info only during first pass */
+        if (!pinfo->fd->visited) { /* cache template info only during first pass */
             do {
                 if ((count == 0) ||
                     (v9_tmplt_max_fields && (count > v9_tmplt_max_fields))) {
@@ -13237,6 +14241,56 @@ proto_register_netflow(void)
            FT_UINT32, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },
+        {&hf_cflow_vpn_identifier,
+          {"VPN Identifier", "cflow.vpn_identifier",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_bgp_community,
+          {"BGP Community", "cflow.bgp_community",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_bgp_source_community_list,
+          {"BGP Source Community", "cflow.bgp_source_community",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_bgp_destination_community_list,
+          {"BGP Destination Community", "cflow.bgp_destination_community",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_bgp_extended_community,
+          {"BGP Extended Community", "cflow.bgp_extended_community",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_bgp_source_extended_community_list,
+          {"BGP Source Extended Community", "cflow.bgp_source_extended_community",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_bgp_destination_extended_community_list,
+          {"BGP Destination Extended Community", "cflow.bgp_destination_extended_community",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_bgp_large_community,
+          {"BGP Large Community", "cflow.bgp_large_community",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_bgp_source_large_community_list,
+          {"BGP Source Large Community", "cflow.bgp_source_large_community",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_bgp_destination_large_community_list,
+          {"BGP Source Destination Community", "cflow.bgp_source_destination_community",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
 
         /*
          * end pdu content storage
@@ -13339,6 +14393,16 @@ proto_register_netflow(void)
         {&hf_cflow_template_gigamon_field_type,
          {"Type", "cflow.template_gigamon_field_type",
           FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_gigamon_ext, 0x7FFF,
+          "Template field type", HFILL}
+        },
+        {&hf_cflow_template_cisco_field_type,
+         {"Type", "cflow.template_cisco_field_type",
+          FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_cisco_ext, 0x7FFF,
+          "Template field type", HFILL}
+        },
+        {&hf_cflow_template_niagara_networks_field_type,
+         {"Type", "cflow.template_niagara_networks_field_type",
+          FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_niagara_networks_ext, 0x7FFF,
           "Template field type", HFILL}
         },
         {&hf_cflow_template_ipfix_field_type_enterprise,
@@ -17161,6 +18225,770 @@ proto_register_netflow(void)
           FT_STRING, STR_UNICODE, NULL, 0x0,
           NULL, HFILL}
         },
+        /* Niagara Networks root (a hidden item to allow filtering) */
+        {&hf_pie_niagara_networks,
+         {"NiagaraNetworks", "cflow.pie.niagaranetworks",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 100 */
+        {&hf_pie_niagara_networks_sslservernameindication,
+         {"SslServerNameIndication", "cflow.pie.niagaranetworks.sslservernameindication",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 101 */
+        {&hf_pie_niagara_networks_sslserverversion,
+         {"SslServerVersion", "cflow.pie.niagaranetworks.sslserverversion",
+          FT_UINT16, BASE_HEX, NULL, 0X0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 102 */
+        {&hf_pie_niagara_networks_sslserverversiontext,
+         {"SslServerVersionText", "cflow.pie.niagaranetworks.sslserverversiontext",
+          FT_STRING, STR_UNICODE, NULL, 0X0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 103 */
+        {&hf_pie_niagara_networks_sslservercipher,
+         {"SslServerCipher", "cflow.pie.niagaranetworks.sslservercipher",
+          FT_UINT16, BASE_HEX, NULL, 0X0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 104 */
+        {&hf_pie_niagara_networks_sslserverciphertext,
+         {"SslServerCipherText", "cflow.pie.niagaranetworks.sslserverciphertext",
+          FT_STRING, STR_UNICODE, NULL, 0X0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 105 */
+        {&hf_pie_niagara_networks_sslconnectionencriptiontype,
+         {"SslConnectionEncriptionType", "cflow.pie.niagaranetworks.sslconnectionencriptiontype",
+          FT_STRING, STR_UNICODE, NULL, 0X0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 106 */
+        {&hf_pie_niagara_networks_sslservercompressionmethod,
+         {"SslServerCompressionMethod", "cflow.pie.niagaranetworks.sslservercompressionmethod",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 107 */
+        {&hf_pie_niagara_networks_sslserversessionid,
+         {"SslServerSessionId", "cflow.pie.niagaranetworks.sslserversessionid",
+          FT_BYTES, BASE_NONE, NULL, 0X0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 108 */
+        {&hf_pie_niagara_networks_sslcertificateissuer,
+         {"SslCertificateIssuer", "cflow.pie.niagaranetworks.sslcertificateissuer",
+          FT_STRING, STR_UNICODE, NULL, 0X0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 109 */
+        {&hf_pie_niagara_networks_sslcertificateissuername,
+         {"SslCertificateIssuerName", "cflow.pie.niagaranetworks.sslcertificateissuername",
+          FT_STRING, STR_UNICODE, NULL, 0X0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 110 */
+        {&hf_pie_niagara_networks_sslcertificatesubject,
+         {"SslCertificateSubject", "cflow.pie.niagaranetworks.sslcertificatesubject",
+          FT_STRING, STR_UNICODE, NULL, 0X0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 111 */
+        {&hf_pie_niagara_networks_sslcertificatesubjectname,
+         {"SslCertificateSubjectName", "cflow.pie.niagaranetworks.sslcertificatesubjectname",
+          FT_STRING, STR_UNICODE, NULL, 0X0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 112 */
+        {&hf_pie_niagara_networks_sslcertificatevalidnotbefore,
+         {"SslCertificateValidNotBefore", "cflow.pie.niagaranetworks.sslcertificatevalidnotbefore",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 113 */
+        {&hf_pie_niagara_networks_sslcertificatevalidnotafter,
+         {"SslCertificateValidNotAfter", "cflow.pie.niagaranetworks.sslcertificatevalidnotafter",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 114 */
+        {&hf_pie_niagara_networks_sslcertificateserialnumber,
+         {"SslCertificateSerialNumber", "cflow.pie.niagaranetworks.sslcertificateserialnumber",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 115 */
+        {&hf_pie_niagara_networks_sslcertificatesignaturealgorithm,
+         {"SslCertificateSignatureAlgorithm", "cflow.pie.niagaranetworks.sslcertificatesignaturealgorithm",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 116 */
+        {&hf_pie_niagara_networks_sslcertificatesignaturealgorithmtext,
+         {"SslCertificateSignatureAlgorithmText", "cflow.pie.niagaranetworks.sslcertificatesignaturealgorithmtext",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 117 */
+        {&hf_pie_niagara_networks_sslcertificatesubjectpublickeysize,
+         {"SslCertificateSubjectPublicKeySize", "cflow.pie.niagaranetworks.sslcertificatesubjectpublickeysize",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 118 */
+        {&hf_pie_niagara_networks_sslcertificatesubjectpublicalgorithm,
+         {"SslCertificateSubjectPublicAlgorithm", "cflow.pie.niagaranetworks.sslcertificatesubjectpublicalgorithm",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 119 */
+        {&hf_pie_niagara_networks_sslcertificatesubjectpublicalgorithmtext,
+         {"SslCertificateSubjectPublicAlgorithmText", "cflow.pie.niagaranetworks.sslcertificatesubjectpublicalgorithmtext",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 120 */
+        {&hf_pie_niagara_networks_sslcertificatesubjectalgorithmtext,
+         {"SslCertificateSubjectAlgorithmText", "cflow.pie.niagaranetworks.sslcertificatesubjectalgorithmtext",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 121 */
+        {&hf_pie_niagara_networks_sslcertificatesubjectalternativename,
+         {"SslCertificateSubjectAlternativeName", "cflow.pie.niagaranetworks.sslcertificatesubjectalternativename",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 200 */
+        {&hf_pie_niagara_networks_dnsidentifier,
+         {"DnsIdentifier", "cflow.pie.niagaranetworks.dnsidentifier",
+          FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 201 */
+        {&hf_pie_niagara_networks_dnsopcode,
+         {"DnsOpCode", "cflow.pie.niagaranetworks.dnsopcode",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 202 */
+        {&hf_pie_niagara_networks_dnsresponsecode,
+         {"DnsResponseCode", "cflow.pie.niagaranetworks.dnsresponsecode",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 203 */
+        {&hf_pie_niagara_networks_dnsqueryname,
+         {"DnsQueryName", "cflow.pie.niagaranetworks.dnsqueryname",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 204 */
+        {&hf_pie_niagara_networks_dnsresponsename,
+         {"DnsResponseName", "cflow.pie.niagaranetworks.dnsresponsename",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 205 */
+        {&hf_pie_niagara_networks_dnsresponsettl,
+         {"DnsResponseTTL", "cflow.pie.niagaranetworks.dnsresponsettl",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 206 */
+        {&hf_pie_niagara_networks_dnsresponseipv4addr,
+         {"DnsResponseIPv4Addr", "cflow.pie.niagaranetworks.dnsresponseipv4addr",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 207 */
+        {&hf_pie_niagara_networks_dnsresponseipv4addrtext,
+         {"DnsResponseIPv4AddrText", "cflow.pie.niagaranetworks.dnsresponseipv4addrtext",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 208 */
+        {&hf_pie_niagara_networks_dnsresponseipv6addr,
+         {"DnsResponseIPv6Addr", "cflow.pie.niagaranetworks.dnsresponseipv6addr",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 209 */
+        {&hf_pie_niagara_networks_dnsresponseipv6addrtext,
+         {"DnsResponseIPv6AddrText", "cflow.pie.niagaranetworks.dnsresponseipv6addrtext",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 210 */
+        {&hf_pie_niagara_networks_dnsbits,
+         {"DnsBits", "cflow.pie.niagaranetworks.dnsbits",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 211 */
+        {&hf_pie_niagara_networks_dnsqdcount,
+         {"DnsQDCount", "cflow.pie.niagaranetworks.dnsqdcount",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 212 */
+        {&hf_pie_niagara_networks_dnsancount,
+         {"DnsANCount", "cflow.pie.niagaranetworks.dnsancount",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 213 */
+        {&hf_pie_niagara_networks_dnsnscount,
+         {"DnsNSCount", "cflow.pie.niagaranetworks.dnsnscount",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 214 */
+        {&hf_pie_niagara_networks_dnsarcount,
+         {"DnsARCount", "cflow.pie.niagaranetworks.dnsarcount",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 215 */
+        {&hf_pie_niagara_networks_dnsquerytype,
+         {"DnsQueryType", "cflow.pie.niagaranetworks.dnsquerytype",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 216 */
+        {&hf_pie_niagara_networks_dnsquerytypetext,
+         {"DnsQueryTypeText", "cflow.pie.niagaranetworks.dnsquerytypetext",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 217 */
+        {&hf_pie_niagara_networks_dnsqueryclass,
+         {"DnsQueryClass", "cflow.pie.niagaranetworks.dnsqueryclass",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 218 */
+        {&hf_pie_niagara_networks_dnsqueryclasstext,
+         {"DnsQueryClassText", "cflow.pie.niagaranetworks.dnsqueryclasstext",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 219 */
+        {&hf_pie_niagara_networks_dnsresponsetype,
+         {"DnsResponseType", "cflow.pie.niagaranetworks.dnsresponsetype",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 220 */
+        {&hf_pie_niagara_networks_dnsresponsetypetext,
+         {"DnsResponseTypeText", "cflow.pie.niagaranetworks.dnsresponsetypetext",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 221 */
+        {&hf_pie_niagara_networks_dnsresponseclass,
+         {"DnsResponseClass", "cflow.pie.niagaranetworks.dnsresponseclass",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 222 */
+        {&hf_pie_niagara_networks_dnsresponseclasstext,
+         {"DnsResponseClassText", "cflow.pie.niagaranetworks.dnsresponseclasstext",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 223 */
+        {&hf_pie_niagara_networks_dnsresponserdlength,
+         {"DnsResponseRDLength", "cflow.pie.niagaranetworks.dnsresponserdlength",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 224 */
+        {&hf_pie_niagara_networks_dnsresponserdata,
+         {"DnsResponseRData", "cflow.pie.niagaranetworks.dnsresponserdata",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 225 */
+        {&hf_pie_niagara_networks_dnsauthorityname,
+         {"DnsAuthorityName", "cflow.pie.niagaranetworks.dnsauthorityname",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 226 */
+        {&hf_pie_niagara_networks_dnsauthoritytype,
+         {"DnsAuthorityType", "cflow.pie.niagaranetworks.dnsauthoritytype",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 227 */
+        {&hf_pie_niagara_networks_dnsauthoritytypetext,
+         {"DnsAuthorityTypeText", "cflow.pie.niagaranetworks.dnsauthoritytypetext",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 228 */
+        {&hf_pie_niagara_networks_dnsauthorityclass,
+         {"DnsAuthorityClass", "cflow.pie.niagaranetworks.dnsauthorityclass",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 229 */
+        {&hf_pie_niagara_networks_dnsauthorityclasstext,
+         {"DnsAuthorityClassText", "cflow.pie.niagaranetworks.dnsauthorityclasstext",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 230 */
+        {&hf_pie_niagara_networks_dnsauthorityttl,
+         {"DnsAuthorityTTL", "cflow.pie.niagaranetworks.dnsauthorityttl",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 231 */
+        {&hf_pie_niagara_networks_dnsauthorityrdlength,
+         {"DnsAuthorityRDLength", "cflow.pie.niagaranetworks.dnsauthorityrdlength",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 232 */
+        {&hf_pie_niagara_networks_dnsauthorityrdata,
+         {"DnsAuthorityRData", "cflow.pie.niagaranetworks.dnsauthorityrdata",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 233 */
+        {&hf_pie_niagara_networks_dnsadditionalname,
+         {"DnsAdditionalName", "cflow.pie.niagaranetworks.dnsadditionalname",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 234 */
+        {&hf_pie_niagara_networks_dnsadditionaltype,
+         {"DnsAdditionalType", "cflow.pie.niagaranetworks.dnsadditionaltype",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 235 */
+        {&hf_pie_niagara_networks_dnsadditionaltypetext,
+         {"DnsAdditionalTypeText", "cflow.pie.niagaranetworks.dnsadditionaltypetext",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 236 */
+        {&hf_pie_niagara_networks_dnsadditionalclass,
+         {"DnsAdditionalClass", "cflow.pie.niagaranetworks.dnsadditionalclass",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 237 */
+        {&hf_pie_niagara_networks_dnsadditionalclasstext,
+         {"DnsAdditionalClassText", "cflow.pie.niagaranetworks.dnsadditionalclasstext",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 238 */
+        {&hf_pie_niagara_networks_dnsadditionalttl,
+         {"DnsAdditionalTTL", "cflow.pie.niagaranetworks.dnsadditionalttl",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 239 */
+        {&hf_pie_niagara_networks_dnsadditionalrdlength,
+         {"DnsAdditionalRDLength", "cflow.pie.niagaranetworks.dnsadditionalrdlength",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 240 */
+        {&hf_pie_niagara_networks_dnsadditionalrdata,
+         {"DnsAdditionalRData", "cflow.pie.niagaranetworks.dnsadditionalrdata",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 300 */
+        {&hf_pie_niagara_networks_radiuspackettypecode,
+         {"RadiusPacketTypeCode", "cflow.pie.niagaranetworks.radiuspackettypecode",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 301 */
+        {&hf_pie_niagara_networks_radiuspackettypecodetext,
+         {"RadiusPacketTypeCodeText", "cflow.pie.niagaranetworks.radiuspackettypecodetext",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 302 */
+        {&hf_pie_niagara_networks_radiuspacketidentifier,
+         {"RadiusPacketIdentifier", "cflow.pie.niagaranetworks.radiuspacketidentifier",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 303 */
+        {&hf_pie_niagara_networks_radiusauthenticator,
+         {"RadiusAuthenticator", "cflow.pie.niagaranetworks.radiusauthenticator",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 304 */
+        {&hf_pie_niagara_networks_radiususername,
+         {"RadiusUserName", "cflow.pie.niagaranetworks.radiususername",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 305 */
+        {&hf_pie_niagara_networks_radiuscallingstationid,
+         {"RadiusCallingStationId", "cflow.pie.niagaranetworks.radiuscallingstationid",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 306 */
+        {&hf_pie_niagara_networks_radiuscalledstationid,
+         {"RadiusCalledStationId", "cflow.pie.niagaranetworks.radiuscalledstationid",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 307 */
+        {&hf_pie_niagara_networks_radiusnasipaddress,
+         {"RadiusNasIpAddress", "cflow.pie.niagaranetworks.radiusnasipaddress",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 308 */
+        {&hf_pie_niagara_networks_radiusnasipv6address,
+         {"RadiusNasIpv6Address", "cflow.pie.niagaranetworks.radiusnasipv6address",
+          FT_IPv6, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 309 */
+        {&hf_pie_niagara_networks_radiusnasidentifier,
+         {"RadiusNasIdentifier", "cflow.pie.niagaranetworks.radiusnasidentifier",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 310 */
+        {&hf_pie_niagara_networks_radiusframedipaddress,
+         {"RadiusFramedIpAddress", "cflow.pie.niagaranetworks.radiusframedipaddress",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 311 */
+        {&hf_pie_niagara_networks_radiusframedipv6address,
+         {"RadiusFramedIpv6Address", "cflow.pie.niagaranetworks.radiusframedipv6address",
+          FT_IPv6, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 312 */
+        {&hf_pie_niagara_networks_radiusagentcircuitid,
+         {"RadiusAgentCircuitId", "cflow.pie.niagaranetworks.radiusagentcircuitid",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 313 */
+        {&hf_pie_niagara_networks_radiususerimei,
+         {"RadiusUserImei", "cflow.pie.niagaranetworks.radiususerimei",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 314 */
+        {&hf_pie_niagara_networks_radiususerimsi,
+         {"RadiusUserImsi", "cflow.pie.niagaranetworks.radiususerimsi",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 315 */
+        {&hf_pie_niagara_networks_radiususermsisdn,
+         {"RadiusUserMsisdn", "cflow.pie.niagaranetworks.radiususermsisdn",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 316 */
+        {&hf_pie_niagara_networks_radiusacctsessionid,
+         {"RadiusAcctSessionId", "cflow.pie.niagaranetworks.radiusacctsessionid",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 317 */
+        {&hf_pie_niagara_networks_radiusacctstatustype,
+         {"RadiusAcctStatusType", "cflow.pie.niagaranetworks.radiusacctstatustype",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 318 */
+        {&hf_pie_niagara_networks_radiusacctinoctets,
+         {"RadiusAcctInOctets", "cflow.pie.niagaranetworks.radiusacctinoctets",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 319 */
+        {&hf_pie_niagara_networks_radiusacctoutoctets,
+         {"RadiusAcctOutOctets", "cflow.pie.niagaranetworks.radiusacctoutoctets",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 320 */
+        {&hf_pie_niagara_networks_radiusacctinpackets,
+         {"RadiusAcctInPackets", "cflow.pie.niagaranetworks.radiusacctinpackets",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Niagara Networks, 47729 / 321 */
+        {&hf_pie_niagara_networks_radiusacctoutpackets,
+         {"RadiusAcctOutPackets", "cflow.pie.niagaranetworks.radiusacctoutpackets",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+
+        /* Cisco root (a hidden item to allow filtering) */
+        {&hf_pie_cisco,
+         {"Cisco", "cflow.pie.cisco",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 4251 */
+        {&hf_pie_cisco_transport_packets_lost_counter,
+         {"Transport Packets Lost Counter", "cflow.pie.cisco.transport_packets_lost_counter",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 4254 */
+        {&hf_pie_cisco_transport_rtp_ssrc,
+         {"Transport RTP SSRC", "cflow.pie.cisco.transport_rtp_ssrc",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 4257 */
+        {&hf_pie_cisco_transport_rtp_jitter_maximum,
+         {"Transport RTP Jitter Maximum", "cflow.pie.cisco.transport_rtp_jitter_maximum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 4273 */
+        {&hf_pie_cisco_transport_rtp_payload_type,
+         {"Transport RTP Payload-type", "cflow.pie.cisco.transport_rtp_payload_type",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 4325 */
+        {&hf_pie_cisco_transport_rtp_jitter_mean_sum,
+         {"Transport RTP Jitter Mean Sum", "cflow.pie.cisco.transport_rtp_jitter_mean_sum",
+          FT_UINT64, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 8233 */
+        {&hf_pie_cisco_c3pl_class_cce_id,
+         {"C3PL Class Cce-id", "cflow.pie.cisco.c3pl_class_cce_id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 8234 */
+        {&hf_pie_cisco_c3pl_class_name,
+         {"C3PL Class Name", "cflow.pie.cisco.c3pl_class_name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 8235 */
+        {&hf_pie_cisco_c3pl_class_type,
+         {"C3PL Class Type", "cflow.pie.cisco.c3pl_class_type",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 8236 */
+        {&hf_pie_cisco_c3pl_policy_cce_id,
+         {"C3PL Policy Cce-id", "cflow.pie.cisco.c3pl_policy_cce_id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 8237 */
+        {&hf_pie_cisco_c3pl_policy_name,
+         {"C3PL Policy Name", "cflow.pie.cisco.c3pl_policy_name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 8238 */
+        {&hf_pie_cisco_c3pl_policy_type,
+         {"C3PL Policy Type", "cflow.pie.cisco.c3pl_policy_type",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9292 */
+        {&hf_pie_cisco_connection_server_counter_responses,
+         {"Connection Server Counter Responses", "cflow.pie.ciso.connection_server_counter_responses",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9268 */
+        {&hf_pie_cisco_connection_client_counter_packets_retransmitted,
+         {"Connection Client Counter Packets Retransmitted", "cflow.pie.ciso.connection_client_counter_packets_retransmitted",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9272 */
+        {&hf_pie_cisco_connection_transaction_counter_complete,
+         {"Connection Transaction Counter Complete", "cflow.pie.ciso.connection_transaction_counter_complete",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9273 */
+        {&hf_pie_cisco_connection_transaction_duration_sum,
+         {"Connection Transaction Duration Sum", "cflow.pie.cisco.connection_transaction_duration_sum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "connection transaction duration sum (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9300 */
+        {&hf_pie_cisco_connection_delay_response_to_server_histogram_late,
+         {"Connection Delay Response to-Server Histogram Late", "cflow.pie.ciso.connection_delay_response_to_server_histogram_late",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9303 */
+        {&hf_pie_cisco_connection_delay_response_to_server_sum,
+         {"Connection Delay Response to-Server Sum", "cflow.pie.cisco.connection_delay_response_to_server_sum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Connection delay response to-server time sum (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9306 */
+        {&hf_pie_cisco_connection_delay_application_sum,
+         {"Connection Delay Application Sum", "cflow.pie.cisco.connection_delay_application_sum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "connection delay application sum (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9307 */
+        {&hf_pie_cisco_connection_delay_application_max,
+         {"Connection Delay Application Max", "cflow.pie.cisco.connection_delay_application_max",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "connection delay application max (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9309 */
+        {&hf_pie_cisco_connection_delay_response_client_to_server_sum,
+         {"Connection Delay Response Client-to-Server Sum", "cflow.pie.cisco.connection_delay_response_client-to_server_sum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "connection delay response client-to-server sum (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9313 */
+        {&hf_pie_cisco_connection_delay_network_client_to_server_sum,
+         {"Connection Delay Network Client-to-Server Sum", "cflow.pie.cisco.connection_delay_network_client-to_server_sum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "connection delay network client-to-server sum (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9316 */
+        {&hf_pie_cisco_connection_delay_network_to_client_sum,
+         {"Connection Delay Network to-Client Sum", "cflow.pie.cisco.connection_delay_network_to-client_sum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "connection delay network to-client sum (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9319 */
+        {&hf_pie_cisco_connection_delay_network_to_server_sum,
+         {"Connection Delay Network to-Server Sum", "cflow.pie.cisco.connection_delay_network_to_server_sum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "connection delay network to-server sum (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9252 */
+        {&hf_pie_cisco_services_waas_segment,
+         {"Services WAAS Segment", "cflow.pie.cisco.services_waas_segment",
+          FT_UINT8, BASE_DEC, VALS(v10_cisco_waas_segment), 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9253 */
+        {&hf_pie_cisco_services_waas_passthrough_reason,
+         {"Services WAAS Passthrough-reason", "cflow.pie.cisco.services_waas_passthrough-reason",
+          FT_UINT8, BASE_DEC, VALS(v10_cisco_waas_passthrough_reason), 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9357 */
+        {&hf_pie_cisco_application_http_uri_statistics,
+         {"Application HTTP URI Statistics", "cflow.pie.cisco.application_http_uri_statistics",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9357 */
+        {&hf_pie_cisco_application_http_uri_statistics_count,
+         {"Count", "cflow.pie.cisco.application_http_uri_statistics_count",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12232 */
+        {&hf_pie_cisco_application_category_name,
+         {"Application Category Name", "cflow.pie.cisco.application_category_name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12233 */
+        {&hf_pie_cisco_application_sub_category_name,
+         {"Application Sub Category Name", "cflow.pie.cisco.application_sub_category_name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12234 */
+        {&hf_pie_cisco_application_group_name,
+         {"Application Group Name", "cflow.pie.cisco.application_group_name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12235 */
+        {&hf_pie_cisco_application_http_host,
+         {"Application HTTP Host", "cflow.pie.cisco.application_http_host",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12235 */
+        {&hf_pie_cisco_application_http_host_app_id,
+         {"NBAR App ID", "cflow.pie.cisco.application_http_host_app_id",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12235 */
+        {&hf_pie_cisco_application_http_host_sub_app_id,
+         {"Sub App ID", "cflow.pie.cisco.application_http_host_sub_app_id",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12236 */
+        {&hf_pie_cisco_connection_client_ipv4_address,
+         {"Connection Client IPv4 Address", "cflow.pie.cisco.connection_client_ipv4_address",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12237 */
+        {&hf_pie_cisco_connection_server_ipv4_address,
+         {"Connection Server IPv4 Address", "cflow.pie.cisco.connection_server_ipv4_address",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12240 */
+        {&hf_pie_cisco_connection_client_transport_port,
+         {"Connection Client Transport Port", "cflow.pie.cisco.connection_client_transport_port",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12241 */
+        {&hf_pie_cisco_connection_server_transport_port,
+         {"Connection Server Transport Port", "cflow.pie.cisco.connection_server_transport_port",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12242 */
+        {&hf_pie_cisco_connection_id,
+         {"Connection Id", "cflow.pie.cisco.connection_id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12243 */
+        {&hf_pie_cisco_application_traffic_class,
+         {"Application Traffic-class", "cflow.pie.cisco.application_traffic_class",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12244 */
+        {&hf_pie_cisco_application_business_relevance,
+         {"Application Business-relevance", "cflow.pie.cisco.application_business-relevance",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+
 
         {&hf_string_len_short,
          {"String_len_short", "cflow.string_len_short",
@@ -17252,6 +19080,8 @@ proto_register_netflow(void)
     expert_module_t* expert_netflow;
 
     proto_netflow = proto_register_protocol("Cisco NetFlow/IPFIX", "CFLOW", "cflow");
+
+    register_dissector("cflow", dissect_netflow, proto_netflow);
 
     proto_register_field_array(proto_netflow, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

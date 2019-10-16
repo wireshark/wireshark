@@ -12,8 +12,8 @@
 
 /* File format reference:
  *   RFC 5655 and 5101
- *   http://tools.ietf.org/rfc/rfc5655
- *   http://tools.ietf.org/rfc/rfc5101
+ *   https://tools.ietf.org/rfc/rfc5655
+ *   https://tools.ietf.org/rfc/rfc5101
  *
  * This wiretap is for an ipfix file format reader, per RFC 5655/5101.
  * All "records" in the file are IPFIX messages, beginning with an IPFIX
@@ -66,8 +66,8 @@
 #define RECORDS_FOR_IPFIX_CHECK 20
 
 static gboolean
-ipfix_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+ipfix_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+    gchar **err_info, gint64 *data_offset);
 static gboolean
 ipfix_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
@@ -277,13 +277,13 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
 
 /* classic wtap: read packet */
 static gboolean
-ipfix_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+ipfix_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+    gchar **err_info, gint64 *data_offset)
 {
     *data_offset = file_tell(wth->fh);
-    ipfix_debug("ipfix_read: data_offset is initially %" G_GINT64_MODIFIER "d",
-                wth->rec.rec_header.packet_header.file_offset);
+    ipfix_debug("ipfix_read: offset is initially %" G_GINT64_MODIFIER "d", *data_offset);
 
-    if (!ipfix_read_message(wth->fh, &wth->rec, wth->rec_data, err, err_info)) {
+    if (!ipfix_read_message(wth->fh, rec, buf, err, err_info)) {
         ipfix_debug("ipfix_read: couldn't read message header with code: %d\n, and error '%s'",
                      *err, *err_info);
         return FALSE;
@@ -317,7 +317,7 @@ ipfix_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

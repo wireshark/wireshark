@@ -1,19 +1,16 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 #
 # make-usb - Creates a file containing vendor and product ids.
-# It use the databases at
-# http://www.linux-usb.org/usb.ids
+# It use the databases from
+# https://usb-ids.gowdy.us/
 # to create our file epan/dissectors/usb.c
 #
 # It also uses the values culled out of libgphoto2 using usb-ptp-extract-models.pl
 
 import re
 import sys
-
-if sys.version_info[0] < 3:
-    import urllib
-else:
-    import urllib.request, urllib.error, urllib.parse
+import urllib.request, urllib.error, urllib.parse
 
 MODE_IDLE           = 0
 MODE_VENDOR_PRODUCT = 1
@@ -22,21 +19,36 @@ MIN_PRODUCTS = 15000 # 15415 as of 2015-06-28
 
 mode = MODE_IDLE
 
-# Grab from linux-usb.org
 if sys.version_info[0] < 3:
-    response = urllib.urlopen('http://www.linux-usb.org/usb.ids')
-else:
-    response = urllib.request.urlopen('http://www.linux-usb.org/usb.ids')
-lines = response.read().splitlines()
+    print("This requires Python 3")
+    sys.exit(2)
+
+# Grab from linux-usb.org
+req_headers = { 'User-Agent': 'Wireshark make-usb' }
+req = urllib.request.Request('https://usb-ids.gowdy.us/usb.ids', headers=req_headers)
+response = urllib.request.urlopen(req)
+lines = response.read().decode('UTF-8', 'replace').splitlines()
 
 vendors  = dict()
 products = dict()
 vendors_str="static const value_string usb_vendors_vals[] = {\n"
 products_str="static const value_string usb_products_vals[] = {\n"
 
+# Escape backslashes, quotes, control characters and non-ASCII characters.
+escapes = {}
+for i in range(256):
+    if i in b'\\"':
+        escapes[i] = '\\%c' % i
+    elif i in range(0x20, 0x80) or i in b'\t':
+        escapes[i] = chr(i)
+    else:
+        escapes[i] = '\\%03o' % i
 
-for line in lines:
-    line = line.rstrip()
+for utf8line in lines:
+    # Convert single backslashes to double (escaped) backslashes, escape quotes, etc.
+    utf8line = utf8line.rstrip()
+    utf8line = re.sub("\?+", "?", utf8line)
+    line = ''.join(escapes[byte] for byte in utf8line.encode('utf8'))
 
     if line == "# Vendors, devices and interfaces. Please keep sorted.":
         mode = MODE_VENDOR_PRODUCT
@@ -48,11 +60,11 @@ for line in lines:
     if mode == MODE_VENDOR_PRODUCT:
         if re.match("^[0-9a-f]{4}", line):
             last_vendor=line[:4]
-            vendors[last_vendor] = re.sub("\"", "\\\"", re.sub("\?+", "?", repr(line[4:].strip())[1:-1].replace("\\", "\\\\")))
+            vendors[last_vendor] = line[4:].strip()
         elif re.match("^\t[0-9a-f]{4}", line):
             line = line.strip()
             product = "%s%s"%(last_vendor, line[:4])
-            products[product] = re.sub("\"", "\\\"", re.sub("\?+", "?", repr(line[4:].strip())[1:-1].replace("\\", "\\\\")))
+            products[product] = line[4:].strip()
 
 
 # Grab from libgphoto (indirectly through tools/usb-ptp-extract-models.pl)

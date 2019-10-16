@@ -29,27 +29,34 @@ class ProtoTree : public QTreeView
 {
     Q_OBJECT
 public:
-    explicit ProtoTree(QWidget *parent = 0);
+    explicit ProtoTree(QWidget *parent = 0, epan_dissect_t *edt_fixed = 0);
     QMenu *colorizeMenu() { return &colorize_menu_; }
     void setRootNode(proto_node *root_node);
     void emitRelatedFrame(int related_frame, ft_framenum_type_t framenum_type = FT_FRAMENUM_NONE);
     void autoScrollTo(const QModelIndex &index);
     void goToHfid(int hfid);
     void clear();
-    void closeContextMenu();
     void restoreSelectedField();
-    const QString toString(const QModelIndex &start_idx = QModelIndex()) const;
+    QString toString(const QModelIndex &start_idx = QModelIndex()) const;
 
 protected:
+
+    enum {
+        Name = 0,
+        Description,
+        Value
+    } CopyInfos;
+
     virtual void contextMenuEvent(QContextMenuEvent *event);
     virtual void timerEvent(QTimerEvent *event);
     virtual void keyReleaseEvent(QKeyEvent *event);
     virtual bool eventFilter(QObject * obj, QEvent * ev);
     virtual QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
 
+    QString traverseTree(const QModelIndex & rootNode, int identLevel = 0) const;
+
 private:
     ProtoTreeModel *proto_tree_model_;
-    QMenu ctx_menu_;
     QMenu conv_menu_;
     QMenu colorize_menu_;
     ProtocolPreferencesMenu proto_prefs_menu_;
@@ -62,6 +69,7 @@ private:
     QPoint drag_start_position_;
 
     capture_file *cap_file_;
+    epan_dissect_t *edt_;
 
     void saveSelectedField(QModelIndex &index);
     static void foreachTreeNode(proto_node *node, gpointer proto_tree_ptr);
@@ -90,6 +98,14 @@ public slots:
 
 protected slots:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+#if 0
+    void ctxShowPacketBytes();
+    void ctxExportPacketBytes();
+#endif
+    void ctxCopyVisibleItems();
+    void ctxCopyAsFilter();
+    void ctxCopySelectedInfo();
+    void ctxOpenUrlWiki();
 
 private slots:
     void updateContentWidth();

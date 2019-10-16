@@ -31,6 +31,7 @@
 #include "packet-crmf.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
+#include "packet-pkcs10.h"
 #include "packet-tcp.h"
 #include "packet-http.h"
 #include <epan/prefs.h>
@@ -103,7 +104,7 @@ static int hf_cmp_ir = -1;                        /* CertReqMessages */
 static int hf_cmp_ip = -1;                        /* CertRepMessage */
 static int hf_cmp_cr = -1;                        /* CertReqMessages */
 static int hf_cmp_cp = -1;                        /* CertRepMessage */
-static int hf_cmp_p10cr = -1;                     /* NULL */
+static int hf_cmp_p10cr = -1;                     /* CertificationRequest */
 static int hf_cmp_popdecc = -1;                   /* POPODecKeyChallContent */
 static int hf_cmp_popdecr = -1;                   /* POPODecKeyRespContent */
 static int hf_cmp_kur = -1;                       /* CertReqMessages */
@@ -222,7 +223,7 @@ static int hf_cmp_PKIFailureInfo_systemFailure = -1;
 static int hf_cmp_PKIFailureInfo_duplicateCertReq = -1;
 
 /*--- End of included file: packet-cmp-hf.c ---*/
-#line 55 "./asn1/cmp/packet-cmp-template.c"
+#line 56 "./asn1/cmp/packet-cmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmp = -1;
@@ -278,7 +279,7 @@ static gint ett_cmp_PollRepContent = -1;
 static gint ett_cmp_PollRepContent_item = -1;
 
 /*--- End of included file: packet-cmp-ett.c ---*/
-#line 59 "./asn1/cmp/packet-cmp-template.c"
+#line 60 "./asn1/cmp/packet-cmp-template.c"
 
 /*--- Included file: packet-cmp-fn.c ---*/
 #line 1 "./asn1/cmp/packet-cmp-fn.c"
@@ -289,7 +290,7 @@ static gint ett_cmp_PollRepContent_item = -1;
 
 
 
-const value_string cmp_CMPCertificate_vals[] = {
+static const value_string cmp_CMPCertificate_vals[] = {
   {   0, "x509v3PKCert" },
   { 0, NULL }
 };
@@ -299,7 +300,7 @@ static const ber_choice_t CMPCertificate_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_CMPCertificate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  CMPCertificate_choice, hf_index, ett_cmp_CMPCertificate,
@@ -359,7 +360,7 @@ static const ber_sequence_t PKIFreeText_sequence_of[1] = {
   { &hf_cmp_PKIFreeText_item, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_cmp_UTF8String },
 };
 
-int
+static int
 dissect_cmp_PKIFreeText(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       PKIFreeText_sequence_of, hf_index, ett_cmp_PKIFreeText);
@@ -380,7 +381,7 @@ dissect_cmp_T_infoType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_cmp_T_infoValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 88 "./asn1/cmp/cmp.cnf"
+#line 52 "./asn1/cmp/cmp.cnf"
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -395,7 +396,7 @@ static const ber_sequence_t InfoTypeAndValue_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_InfoTypeAndValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    InfoTypeAndValue_sequence, hf_index, ett_cmp_InfoTypeAndValue);
@@ -433,7 +434,7 @@ static const ber_sequence_t PKIHeader_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_PKIHeader(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PKIHeader_sequence, hf_index, ett_cmp_PKIHeader);
@@ -465,7 +466,7 @@ dissect_cmp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 }
 
 
-const value_string cmp_PKIStatus_vals[] = {
+static const value_string cmp_PKIStatus_vals[] = {
   {   0, "accepted" },
   {   1, "grantedWithMods" },
   {   2, "rejection" },
@@ -477,9 +478,9 @@ const value_string cmp_PKIStatus_vals[] = {
 };
 
 
-int
+static int
 dissect_cmp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 104 "./asn1/cmp/cmp.cnf"
+#line 68 "./asn1/cmp/cmp.cnf"
   guint32 value;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -494,41 +495,41 @@ dissect_cmp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const asn_namedbit PKIFailureInfo_bits[] = {
-  {  0, &hf_cmp_PKIFailureInfo_badAlg, -1, -1, "badAlg", NULL },
-  {  1, &hf_cmp_PKIFailureInfo_badMessageCheck, -1, -1, "badMessageCheck", NULL },
-  {  2, &hf_cmp_PKIFailureInfo_badRequest, -1, -1, "badRequest", NULL },
-  {  3, &hf_cmp_PKIFailureInfo_badTime, -1, -1, "badTime", NULL },
-  {  4, &hf_cmp_PKIFailureInfo_badCertId, -1, -1, "badCertId", NULL },
-  {  5, &hf_cmp_PKIFailureInfo_badDataFormat, -1, -1, "badDataFormat", NULL },
-  {  6, &hf_cmp_PKIFailureInfo_wrongAuthority, -1, -1, "wrongAuthority", NULL },
-  {  7, &hf_cmp_PKIFailureInfo_incorrectData, -1, -1, "incorrectData", NULL },
-  {  8, &hf_cmp_PKIFailureInfo_missingTimeStamp, -1, -1, "missingTimeStamp", NULL },
-  {  9, &hf_cmp_PKIFailureInfo_badPOP, -1, -1, "badPOP", NULL },
-  { 10, &hf_cmp_PKIFailureInfo_certRevoked, -1, -1, "certRevoked", NULL },
-  { 11, &hf_cmp_PKIFailureInfo_certConfirmed, -1, -1, "certConfirmed", NULL },
-  { 12, &hf_cmp_PKIFailureInfo_wrongIntegrity, -1, -1, "wrongIntegrity", NULL },
-  { 13, &hf_cmp_PKIFailureInfo_badRecipientNonce, -1, -1, "badRecipientNonce", NULL },
-  { 14, &hf_cmp_PKIFailureInfo_timeNotAvailable, -1, -1, "timeNotAvailable", NULL },
-  { 15, &hf_cmp_PKIFailureInfo_unacceptedPolicy, -1, -1, "unacceptedPolicy", NULL },
-  { 16, &hf_cmp_PKIFailureInfo_unacceptedExtension, -1, -1, "unacceptedExtension", NULL },
-  { 17, &hf_cmp_PKIFailureInfo_addInfoNotAvailable, -1, -1, "addInfoNotAvailable", NULL },
-  { 18, &hf_cmp_PKIFailureInfo_badSenderNonce, -1, -1, "badSenderNonce", NULL },
-  { 19, &hf_cmp_PKIFailureInfo_badCertTemplate, -1, -1, "badCertTemplate", NULL },
-  { 20, &hf_cmp_PKIFailureInfo_signerNotTrusted, -1, -1, "signerNotTrusted", NULL },
-  { 21, &hf_cmp_PKIFailureInfo_transactionIdInUse, -1, -1, "transactionIdInUse", NULL },
-  { 22, &hf_cmp_PKIFailureInfo_unsupportedVersion, -1, -1, "unsupportedVersion", NULL },
-  { 23, &hf_cmp_PKIFailureInfo_notAuthorized, -1, -1, "notAuthorized", NULL },
-  { 24, &hf_cmp_PKIFailureInfo_systemUnavail, -1, -1, "systemUnavail", NULL },
-  { 25, &hf_cmp_PKIFailureInfo_systemFailure, -1, -1, "systemFailure", NULL },
-  { 26, &hf_cmp_PKIFailureInfo_duplicateCertReq, -1, -1, "duplicateCertReq", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * PKIFailureInfo_bits[] = {
+  &hf_cmp_PKIFailureInfo_badAlg,
+  &hf_cmp_PKIFailureInfo_badMessageCheck,
+  &hf_cmp_PKIFailureInfo_badRequest,
+  &hf_cmp_PKIFailureInfo_badTime,
+  &hf_cmp_PKIFailureInfo_badCertId,
+  &hf_cmp_PKIFailureInfo_badDataFormat,
+  &hf_cmp_PKIFailureInfo_wrongAuthority,
+  &hf_cmp_PKIFailureInfo_incorrectData,
+  &hf_cmp_PKIFailureInfo_missingTimeStamp,
+  &hf_cmp_PKIFailureInfo_badPOP,
+  &hf_cmp_PKIFailureInfo_certRevoked,
+  &hf_cmp_PKIFailureInfo_certConfirmed,
+  &hf_cmp_PKIFailureInfo_wrongIntegrity,
+  &hf_cmp_PKIFailureInfo_badRecipientNonce,
+  &hf_cmp_PKIFailureInfo_timeNotAvailable,
+  &hf_cmp_PKIFailureInfo_unacceptedPolicy,
+  &hf_cmp_PKIFailureInfo_unacceptedExtension,
+  &hf_cmp_PKIFailureInfo_addInfoNotAvailable,
+  &hf_cmp_PKIFailureInfo_badSenderNonce,
+  &hf_cmp_PKIFailureInfo_badCertTemplate,
+  &hf_cmp_PKIFailureInfo_signerNotTrusted,
+  &hf_cmp_PKIFailureInfo_transactionIdInUse,
+  &hf_cmp_PKIFailureInfo_unsupportedVersion,
+  &hf_cmp_PKIFailureInfo_notAuthorized,
+  &hf_cmp_PKIFailureInfo_systemUnavail,
+  &hf_cmp_PKIFailureInfo_systemFailure,
+  &hf_cmp_PKIFailureInfo_duplicateCertReq,
+  NULL
 };
 
-int
+static int
 dissect_cmp_PKIFailureInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    PKIFailureInfo_bits, hf_index, ett_cmp_PKIFailureInfo,
+                                    PKIFailureInfo_bits, 27, hf_index, ett_cmp_PKIFailureInfo,
                                     NULL);
 
   return offset;
@@ -542,7 +543,7 @@ static const ber_sequence_t PKIStatusInfo_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_PKIStatusInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PKIStatusInfo_sequence, hf_index, ett_cmp_PKIStatusInfo);
@@ -551,7 +552,7 @@ dissect_cmp_PKIStatusInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-const value_string cmp_CertOrEncCert_vals[] = {
+static const value_string cmp_CertOrEncCert_vals[] = {
   {   0, "certificate" },
   {   1, "encryptedCert" },
   { 0, NULL }
@@ -563,7 +564,7 @@ static const ber_choice_t CertOrEncCert_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_CertOrEncCert(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  CertOrEncCert_choice, hf_index, ett_cmp_CertOrEncCert,
@@ -580,7 +581,7 @@ static const ber_sequence_t CertifiedKeyPair_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_CertifiedKeyPair(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CertifiedKeyPair_sequence, hf_index, ett_cmp_CertifiedKeyPair);
@@ -597,7 +598,7 @@ static const ber_sequence_t CertResponse_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_CertResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CertResponse_sequence, hf_index, ett_cmp_CertResponse);
@@ -625,19 +626,10 @@ static const ber_sequence_t CertRepMessage_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_CertRepMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CertRepMessage_sequence, hf_index, ett_cmp_CertRepMessage);
-
-  return offset;
-}
-
-
-
-static int
-dissect_cmp_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -650,7 +642,7 @@ static const ber_sequence_t Challenge_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_Challenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Challenge_sequence, hf_index, ett_cmp_Challenge);
@@ -676,7 +668,7 @@ static const ber_sequence_t POPODecKeyRespContent_sequence_of[1] = {
   { &hf_cmp_POPODecKeyRespContent_item, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_cmp_INTEGER },
 };
 
-int
+static int
 dissect_cmp_POPODecKeyRespContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       POPODecKeyRespContent_sequence_of, hf_index, ett_cmp_POPODecKeyRespContent);
@@ -706,7 +698,7 @@ static const ber_sequence_t KeyRecRepContent_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_KeyRecRepContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    KeyRecRepContent_sequence, hf_index, ett_cmp_KeyRecRepContent);
@@ -721,7 +713,7 @@ static const ber_sequence_t RevDetails_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_RevDetails(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    RevDetails_sequence, hf_index, ett_cmp_RevDetails);
@@ -734,7 +726,7 @@ static const ber_sequence_t RevReqContent_sequence_of[1] = {
   { &hf_cmp_RevReqContent_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cmp_RevDetails },
 };
 
-int
+static int
 dissect_cmp_RevReqContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       RevReqContent_sequence_of, hf_index, ett_cmp_RevReqContent);
@@ -789,7 +781,7 @@ static const ber_sequence_t RevRepContent_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_RevRepContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    RevRepContent_sequence, hf_index, ett_cmp_RevRepContent);
@@ -805,7 +797,7 @@ static const ber_sequence_t CAKeyUpdAnnContent_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_CAKeyUpdAnnContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CAKeyUpdAnnContent_sequence, hf_index, ett_cmp_CAKeyUpdAnnContent);
@@ -815,7 +807,7 @@ dissect_cmp_CAKeyUpdAnnContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 
 
-int
+static int
 dissect_cmp_CertAnnContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_cmp_CMPCertificate(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -832,7 +824,7 @@ static const ber_sequence_t RevAnnContent_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_RevAnnContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    RevAnnContent_sequence, hf_index, ett_cmp_RevAnnContent);
@@ -845,7 +837,7 @@ static const ber_sequence_t CRLAnnContent_sequence_of[1] = {
   { &hf_cmp_CRLAnnContent_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_CertificateList },
 };
 
-int
+static int
 dissect_cmp_CRLAnnContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       CRLAnnContent_sequence_of, hf_index, ett_cmp_CRLAnnContent);
@@ -855,7 +847,7 @@ dissect_cmp_CRLAnnContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 
-int
+static int
 dissect_cmp_PKIConfirmContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
@@ -867,7 +859,7 @@ static const ber_sequence_t PKIMessages_sequence_of[1] = {
   { &hf_cmp_PKIMessages_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cmp_PKIMessage },
 };
 
-int
+static int
 dissect_cmp_PKIMessages(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       PKIMessages_sequence_of, hf_index, ett_cmp_PKIMessages);
@@ -877,7 +869,7 @@ dissect_cmp_PKIMessages(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 
-int
+static int
 dissect_cmp_NestedMessageContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_cmp_PKIMessages(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -889,7 +881,7 @@ static const ber_sequence_t GenMsgContent_sequence_of[1] = {
   { &hf_cmp_GenMsgContent_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cmp_InfoTypeAndValue },
 };
 
-int
+static int
 dissect_cmp_GenMsgContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       GenMsgContent_sequence_of, hf_index, ett_cmp_GenMsgContent);
@@ -918,7 +910,7 @@ static const ber_sequence_t ErrorMsgContent_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_ErrorMsgContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ErrorMsgContent_sequence, hf_index, ett_cmp_ErrorMsgContent);
@@ -934,7 +926,7 @@ static const ber_sequence_t CertStatus_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_CertStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CertStatus_sequence, hf_index, ett_cmp_CertStatus);
@@ -947,7 +939,7 @@ static const ber_sequence_t CertConfirmContent_sequence_of[1] = {
   { &hf_cmp_CertConfirmContent_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cmp_CertStatus },
 };
 
-int
+static int
 dissect_cmp_CertConfirmContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       CertConfirmContent_sequence_of, hf_index, ett_cmp_CertConfirmContent);
@@ -974,7 +966,7 @@ static const ber_sequence_t PollReqContent_sequence_of[1] = {
   { &hf_cmp_PollReqContent_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cmp_PollReqContent_item },
 };
 
-int
+static int
 dissect_cmp_PollReqContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       PollReqContent_sequence_of, hf_index, ett_cmp_PollReqContent);
@@ -1003,7 +995,7 @@ static const ber_sequence_t PollRepContent_sequence_of[1] = {
   { &hf_cmp_PollRepContent_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cmp_PollRepContent_item },
 };
 
-int
+static int
 dissect_cmp_PollRepContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       PollRepContent_sequence_of, hf_index, ett_cmp_PollRepContent);
@@ -1012,7 +1004,7 @@ dissect_cmp_PollRepContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-const value_string cmp_PKIBody_vals[] = {
+static const value_string cmp_PKIBody_vals[] = {
   {   0, "ir" },
   {   1, "ip" },
   {   2, "cr" },
@@ -1048,7 +1040,7 @@ static const ber_choice_t PKIBody_choice[] = {
   {   1, &hf_cmp_ip              , BER_CLASS_CON, 1, 0, dissect_cmp_CertRepMessage },
   {   2, &hf_cmp_cr              , BER_CLASS_CON, 2, 0, dissect_crmf_CertReqMessages },
   {   3, &hf_cmp_cp              , BER_CLASS_CON, 3, 0, dissect_cmp_CertRepMessage },
-  {   4, &hf_cmp_p10cr           , BER_CLASS_CON, 4, 0, dissect_cmp_NULL },
+  {   4, &hf_cmp_p10cr           , BER_CLASS_CON, 4, 0, dissect_pkcs10_CertificationRequest },
   {   5, &hf_cmp_popdecc         , BER_CLASS_CON, 5, 0, dissect_cmp_POPODecKeyChallContent },
   {   6, &hf_cmp_popdecr         , BER_CLASS_CON, 6, 0, dissect_cmp_POPODecKeyRespContent },
   {   7, &hf_cmp_kur             , BER_CLASS_CON, 7, 0, dissect_crmf_CertReqMessages },
@@ -1074,9 +1066,9 @@ static const ber_choice_t PKIBody_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_PKIBody(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 94 "./asn1/cmp/cmp.cnf"
+#line 58 "./asn1/cmp/cmp.cnf"
   gint branch_taken;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1093,10 +1085,10 @@ dissect_cmp_PKIBody(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 
 
-int
+static int
 dissect_cmp_PKIProtection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -1143,7 +1135,7 @@ static const ber_sequence_t PBMParameter_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_PBMParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PBMParameter_sequence, hf_index, ett_cmp_PBMParameter);
@@ -1158,7 +1150,7 @@ static const ber_sequence_t DHBMParameter_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cmp_DHBMParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    DHBMParameter_sequence, hf_index, ett_cmp_DHBMParameter);
@@ -1180,7 +1172,7 @@ dissect_cmp_OOBCert(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_cmp_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -1470,7 +1462,7 @@ static int dissect_SuppLangTagsValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-cmp-fn.c ---*/
-#line 60 "./asn1/cmp/packet-cmp-template.c"
+#line 61 "./asn1/cmp/packet-cmp-template.c"
 
 static int
 dissect_cmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -1505,7 +1497,6 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	tvbuff_t   *next_tvb;
 	guint32    pdu_len;
 	guint8     pdu_type;
-	nstime_t   ts;
 	proto_item *item=NULL;
 	proto_item *ti=NULL;
 	proto_tree *tree=NULL;
@@ -1553,9 +1544,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_poll_ref, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			ts.secs = tvb_get_ntohl(tvb, 4);
-			ts.nsecs = 0;
-			proto_tree_add_time(tcptrans_tree, hf_cmp_tcptrans_ttcb, tvb, offset, 4, &ts);
+			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_ttcb, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 			offset += 4;
 			break;
 		case CMP_TYPE_POLLREQ:
@@ -1568,9 +1557,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_next_poll_ref, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			ts.secs = tvb_get_ntohl(tvb, 4);
-			ts.nsecs = 0;
-			proto_tree_add_time(tcptrans_tree, hf_cmp_tcptrans_ttcb, tvb, offset, 4, &ts);
+			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_ttcb, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 			offset += 4;
 
 			next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_reported_length_remaining(tvb, offset), pdu_len);
@@ -1887,7 +1874,7 @@ void proto_register_cmp(void) {
     { &hf_cmp_p10cr,
       { "p10cr", "cmp.p10cr_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "CertificationRequest", HFILL }},
     { &hf_cmp_popdecc,
       { "popdecc", "cmp.popdecc",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2241,116 +2228,116 @@ void proto_register_cmp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "PKIFreeText", HFILL }},
     { &hf_cmp_PKIFailureInfo_badAlg,
-      { "badAlg", "cmp.badAlg",
+      { "badAlg", "cmp.PKIFailureInfo.badAlg",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_badMessageCheck,
-      { "badMessageCheck", "cmp.badMessageCheck",
+      { "badMessageCheck", "cmp.PKIFailureInfo.badMessageCheck",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_badRequest,
-      { "badRequest", "cmp.badRequest",
+      { "badRequest", "cmp.PKIFailureInfo.badRequest",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_badTime,
-      { "badTime", "cmp.badTime",
+      { "badTime", "cmp.PKIFailureInfo.badTime",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_badCertId,
-      { "badCertId", "cmp.badCertId",
+      { "badCertId", "cmp.PKIFailureInfo.badCertId",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_badDataFormat,
-      { "badDataFormat", "cmp.badDataFormat",
+      { "badDataFormat", "cmp.PKIFailureInfo.badDataFormat",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_wrongAuthority,
-      { "wrongAuthority", "cmp.wrongAuthority",
+      { "wrongAuthority", "cmp.PKIFailureInfo.wrongAuthority",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_incorrectData,
-      { "incorrectData", "cmp.incorrectData",
+      { "incorrectData", "cmp.PKIFailureInfo.incorrectData",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_missingTimeStamp,
-      { "missingTimeStamp", "cmp.missingTimeStamp",
+      { "missingTimeStamp", "cmp.PKIFailureInfo.missingTimeStamp",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_badPOP,
-      { "badPOP", "cmp.badPOP",
+      { "badPOP", "cmp.PKIFailureInfo.badPOP",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_certRevoked,
-      { "certRevoked", "cmp.certRevoked",
+      { "certRevoked", "cmp.PKIFailureInfo.certRevoked",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_certConfirmed,
-      { "certConfirmed", "cmp.certConfirmed",
+      { "certConfirmed", "cmp.PKIFailureInfo.certConfirmed",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_wrongIntegrity,
-      { "wrongIntegrity", "cmp.wrongIntegrity",
+      { "wrongIntegrity", "cmp.PKIFailureInfo.wrongIntegrity",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_badRecipientNonce,
-      { "badRecipientNonce", "cmp.badRecipientNonce",
+      { "badRecipientNonce", "cmp.PKIFailureInfo.badRecipientNonce",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_timeNotAvailable,
-      { "timeNotAvailable", "cmp.timeNotAvailable",
+      { "timeNotAvailable", "cmp.PKIFailureInfo.timeNotAvailable",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_unacceptedPolicy,
-      { "unacceptedPolicy", "cmp.unacceptedPolicy",
+      { "unacceptedPolicy", "cmp.PKIFailureInfo.unacceptedPolicy",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_unacceptedExtension,
-      { "unacceptedExtension", "cmp.unacceptedExtension",
+      { "unacceptedExtension", "cmp.PKIFailureInfo.unacceptedExtension",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_addInfoNotAvailable,
-      { "addInfoNotAvailable", "cmp.addInfoNotAvailable",
+      { "addInfoNotAvailable", "cmp.PKIFailureInfo.addInfoNotAvailable",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_badSenderNonce,
-      { "badSenderNonce", "cmp.badSenderNonce",
+      { "badSenderNonce", "cmp.PKIFailureInfo.badSenderNonce",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_badCertTemplate,
-      { "badCertTemplate", "cmp.badCertTemplate",
+      { "badCertTemplate", "cmp.PKIFailureInfo.badCertTemplate",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_signerNotTrusted,
-      { "signerNotTrusted", "cmp.signerNotTrusted",
+      { "signerNotTrusted", "cmp.PKIFailureInfo.signerNotTrusted",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_transactionIdInUse,
-      { "transactionIdInUse", "cmp.transactionIdInUse",
+      { "transactionIdInUse", "cmp.PKIFailureInfo.transactionIdInUse",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_unsupportedVersion,
-      { "unsupportedVersion", "cmp.unsupportedVersion",
+      { "unsupportedVersion", "cmp.PKIFailureInfo.unsupportedVersion",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_notAuthorized,
-      { "notAuthorized", "cmp.notAuthorized",
+      { "notAuthorized", "cmp.PKIFailureInfo.notAuthorized",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_systemUnavail,
-      { "systemUnavail", "cmp.systemUnavail",
+      { "systemUnavail", "cmp.PKIFailureInfo.systemUnavail",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_systemFailure,
-      { "systemFailure", "cmp.systemFailure",
+      { "systemFailure", "cmp.PKIFailureInfo.systemFailure",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_cmp_PKIFailureInfo_duplicateCertReq,
-      { "duplicateCertReq", "cmp.duplicateCertReq",
+      { "duplicateCertReq", "cmp.PKIFailureInfo.duplicateCertReq",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 307 "./asn1/cmp/packet-cmp-template.c"
+#line 303 "./asn1/cmp/packet-cmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -2408,7 +2395,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 313 "./asn1/cmp/packet-cmp-template.c"
+#line 309 "./asn1/cmp/packet-cmp-template.c"
 	};
 	module_t *cmp_module;
 
@@ -2495,7 +2482,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 378 "./asn1/cmp/packet-cmp-template.c"
+#line 374 "./asn1/cmp/packet-cmp-template.c"
 		inited = TRUE;
 	}
 

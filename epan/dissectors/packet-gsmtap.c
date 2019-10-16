@@ -18,7 +18,7 @@
  *
  * It is defined by the gsmtap.h libosmocore header, in
  *
- * http://cgit.osmocom.org/cgit/libosmocore/tree/include/osmocom/core/gsmtap.h
+ * http://cgit.osmocom.org/libosmocore/tree/include/osmocom/core/gsmtap.h
  *
  * Example programs generating GSMTAP data are airprobe
  * (http://airprobe.org/) or OsmocomBB (http://bb.osmocom.org/)
@@ -64,6 +64,11 @@ static int hf_gsmtap_antenna = -1;
 static int hf_sacch_l1h_power_lev = -1;
 static int hf_sacch_l1h_fpc = -1;
 static int hf_sacch_l1h_ta = -1;
+
+static int hf_ptcch_spare = -1;
+static int hf_ptcch_ta_idx = -1;
+static int hf_ptcch_ta_val = -1;
+static int hf_ptcch_padding = -1;
 
 static gint ett_gsmtap = -1;
 
@@ -243,6 +248,21 @@ enum {
 	GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message,
 	GSMTAP_LTE_RRC_SUB_PCCH_Message,
 	GSMTAP_LTE_RRC_SUB_MCCH_Message,
+	GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message_MBMS,
+	GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message_BR,
+	GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message_MBMS,
+	GSMTAP_LTE_RRC_SUB_SC_MCCH_Message,
+	GSMTAP_LTE_RRC_SUB_SBCCH_SL_BCH_Message,
+	GSMTAP_LTE_RRC_SUB_SBCCH_SL_BCH_Message_V2X,
+	GSMTAP_LTE_RRC_SUB_DL_CCCH_Message_NB,
+	GSMTAP_LTE_RRC_SUB_DL_DCCH_Message_NB,
+	GSMTAP_LTE_RRC_SUB_UL_CCCH_Message_NB,
+	GSMTAP_LTE_RRC_SUB_UL_DCCH_Message_NB,
+	GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message_NB,
+	GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message_TDD_NB,
+	GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message_NB,
+	GSMTAP_LTE_RRC_SUB_PCCH_Message_NB,
+	GSMTAP_LTE_RRC_SUB_SC_MCCH_Message_NB,
 
 	GSMTAP_LTE_RRC_SUB_MAX
 };
@@ -376,12 +396,15 @@ static const value_string gsmtap_types[] = {
 	{ GSMTAP_TYPE_TETRA_I1, "TETRA V+D"},
 	{ GSMTAP_TTPE_TETRA_I1_BURST, "TETRA V+D burst"},
 	{ GSMTAP_TYPE_WMX_BURST,"WiMAX burst" },
-	{ GSMTAP_TYPE_GMR1_UM, "GMR-1 air interfeace (MES-MS<->GTS)" },
+	{ GSMTAP_TYPE_GMR1_UM, "GMR-1 air interface (MES-MS<->GTS)" },
 	{ GSMTAP_TYPE_UMTS_RLC_MAC,	"UMTS RLC/MAC" },
 	{ GSMTAP_TYPE_UMTS_RRC,		"UMTS RRC" },
 	{ GSMTAP_TYPE_LTE_RRC,		"LTE RRC" },
-	{ GSMTAP_TYPE_LTE_NAS,		"LTE NAS" },
+	{ GSMTAP_TYPE_LTE_MAC,		"LTE MAC" },
+	{ GSMTAP_TYPE_LTE_MAC_FRAMED,	"LTE MAC framed" },
 	{ GSMTAP_TYPE_OSMOCORE_LOG,	"libosmocore logging" },
+	{ GSMTAP_TYPE_QC_DIAG,		"Qualcomm DIAG" },
+	{ GSMTAP_TYPE_LTE_NAS,		"LTE NAS" },
 	{ 0,			NULL },
 };
 
@@ -407,6 +430,42 @@ dissect_sacch_l1h(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_fpc, tvb, 0, 1, ENC_BIG_ENDIAN);
 	/* Acutal Timing Advance */
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_ta, tvb, 1, 1, ENC_BIG_ENDIAN);
+}
+
+/* Dissect a PTCCH/D (Packet Timing Advance Control Channel) message.
+ * See 3GPP TS 45.010, section 5.6.2 and 3GPP TS 45.002, section 3.3.4.2.
+ *
+ *   +--------------+--------------+-----+---------------+------------------+
+ *   |    Octet 1   |    Octet 2   |     |    Octet 16   |  Octet 17 .. 23  |
+ *   +---+----------+---+----------+-----+---+-----------+------------------+
+ *   | 0 | TA TAI=0 | 0 | TA TAI=1 | ... | 0 | TA TAI=15 | Padding 00101011 |
+ *   +---+----------+---+----------+-----+---+-----------+------------------+
+ */
+static void
+dissect_ptcch_dl(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree *sub_tree;
+	proto_item *ti, *gi;
+	int offset;
+
+	if (!tree)
+		return;
+
+	ti = proto_tree_add_protocol_format(tree, proto_gsmtap, tvb, 0, 23,
+		"PTCCH (Packet Timing Advance Control Channel) on Downlink");
+	sub_tree = proto_item_add_subtree(ti, ett_gsmtap);
+
+	for (offset = 0; offset < 16; offset++) {
+		/* Meta info: Timing Advance Index */
+		gi = proto_tree_add_uint(sub_tree, hf_ptcch_ta_idx, tvb, 0, 0, offset);
+		proto_item_set_generated(gi);
+
+		proto_tree_add_item(sub_tree, hf_ptcch_spare, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(sub_tree, hf_ptcch_ta_val, tvb, offset, 1, ENC_NA);
+	}
+
+	/* Spare padding */
+	proto_tree_add_item(sub_tree, hf_ptcch_padding, tvb, offset, -1, ENC_NA);
 }
 
 static void
@@ -622,6 +681,17 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 				sub_handle = GSMTAP_SUB_UM_RLC_MAC_DL;
 			}
 			break;
+		/* See 3GPP TS 45.003, section 5.2 "Packet control channels" */
+		case GSMTAP_CHANNEL_PTCCH:
+			/* PTCCH/D carries Timing Advance updates encoded with CS-1 */
+			if (pinfo->p2p_dir == P2P_DIR_RECV) {
+				dissect_ptcch_dl(payload_tvb, tree);
+				return tvb_captured_length(tvb);
+			}
+
+			/* PTCCH/U carries Access Bursts for Timing Advance estimation */
+			sub_handle = GSMTAP_SUB_DATA;
+			break;
 
 	        case GSMTAP_CHANNEL_CBCH51:
 		case GSMTAP_CHANNEL_CBCH52:
@@ -767,10 +837,20 @@ proto_register_gsmtap(void)
 		{ &hf_sacch_l1h_power_lev, { "MS power level", "gsmtap.sacch_l1.power_lev",
 		  FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL } },
 		{ &hf_sacch_l1h_fpc, { "FPC", "gsmtap.sacch_l1.fpc",
-		  FT_BOOLEAN, 8, TFS(&sacch_l1h_fpc_mode_vals), 0x04,
+		  FT_BOOLEAN, 8, TFS(&sacch_l1h_fpc_mode_vals), 0x20,
 		  NULL, HFILL } },
 		{ &hf_sacch_l1h_ta, { "Actual Timing Advance", "gsmtap.sacch_l1.ta",
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+
+		/* PTCCH (Packet Timing Advance Control Channel) on Downlink */
+		{ &hf_ptcch_spare, { "Spare Bit", "gsmtap.ptcch.spare",
+		  FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL } },
+		{ &hf_ptcch_ta_idx, { "Timing Advance Index", "gsmtap.ptcch.ta_idx",
+		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_ptcch_ta_val, { "Timing Advance Value", "gsmtap.ptcch.ta_val",
+		  FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL } },
+		{ &hf_ptcch_padding, { "Spare Padding", "gsmtap.ptcch.padding",
+		  FT_BYTES, SEP_SPACE, NULL, 0, NULL, HFILL } },
 	};
 	static gint *ett[] = {
 		&ett_gsmtap
@@ -882,6 +962,21 @@ proto_reg_handoff_gsmtap(void)
 	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message] = find_dissector_add_dependency("lte_rrc.bcch_dl_sch", proto_gsmtap);
 	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_PCCH_Message] = find_dissector_add_dependency("lte_rrc.pcch", proto_gsmtap);
 	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_MCCH_Message] = find_dissector_add_dependency("lte_rrc.mcch", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message_MBMS] = find_dissector_add_dependency("lte_rrc.bcch_bch.mbms", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message_BR] = find_dissector_add_dependency("lte_rrc.bcch_dl_sch_br", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message_MBMS] = find_dissector_add_dependency("lte_rrc.bcch_dl_sch.mbms", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_SC_MCCH_Message] = find_dissector_add_dependency("lte_rrc.sc_mcch", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_SBCCH_SL_BCH_Message] = find_dissector_add_dependency("lte_rrc.sbcch_sl_bch", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_SBCCH_SL_BCH_Message_V2X] = find_dissector_add_dependency("lte_rrc.sbcch_sl_bch.v2x", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_DL_CCCH_Message_NB] = find_dissector_add_dependency("lte_rrc.dl_ccch.nb", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_DL_DCCH_Message_NB] = find_dissector_add_dependency("lte_rrc.dl_dcch.nb", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_UL_CCCH_Message_NB] = find_dissector_add_dependency("lte_rrc.ul_ccch.nb", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_UL_DCCH_Message_NB] = find_dissector_add_dependency("lte_rrc.ul_dcch.nb", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message_NB] = find_dissector_add_dependency("lte_rrc.bcch_bch.nb", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message_TDD_NB] = find_dissector_add_dependency("lte_rrc.bcch_bch.nb.tdd", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message_NB] = find_dissector_add_dependency("lte_rrc.bcch_dl_sch.nb", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_PCCH_Message_NB] = find_dissector_add_dependency("lte_rrc.pcch.nb", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_SC_MCCH_Message_NB] = find_dissector_add_dependency("lte_rrc.sc_mcch.nb", proto_gsmtap);
 
 	lte_nas_sub_handles[GSMTAP_LTE_NAS_PLAIN] = find_dissector_add_dependency("nas-eps_plain", proto_gsmtap);
 	lte_nas_sub_handles[GSMTAP_LTE_NAS_SEC_HEADER] = find_dissector_add_dependency("nas-eps", proto_gsmtap);
@@ -891,7 +986,7 @@ proto_reg_handoff_gsmtap(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

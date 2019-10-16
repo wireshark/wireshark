@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -15,6 +16,7 @@
 #include <epan/packet.h>
 #include <epan/timestamp.h>
 #include <epan/stat_tap_ui.h>
+#include <ui/cmdarg_err.h>
 #include <ui/cli/tshark-tap.h>
 
 typedef struct _table_stat_t {
@@ -98,12 +100,12 @@ init_stat_table(stat_tap_table_ui *stat_tap, const char *filter)
 	ui->stats.stat_tap_data = stat_tap;
 	ui->stats.user_data = ui;
 
-	stat_tap->stat_tap_init_cb(stat_tap, NULL, NULL);
+	stat_tap->stat_tap_init_cb(stat_tap);
 
-	error_string = register_tap_listener(stat_tap->tap_name, &ui->stats, filter, 0, NULL, stat_tap->packet_func, simple_draw);
+	error_string = register_tap_listener(stat_tap->tap_name, &ui->stats, filter, 0, NULL, stat_tap->packet_func, simple_draw, NULL);
 	if (error_string) {
-/*		free_rtd_table(&ui->rtd.stat_table, NULL, NULL); */
-		fprintf(stderr, "tshark: Couldn't register tap: %s\n", error_string->str);
+/*		free_rtd_table(&ui->rtd.stat_table); */
+		cmdarg_err("Couldn't register tap: %s", error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
 	}
@@ -119,7 +121,7 @@ simple_stat_init(const char *opt_arg, void* userdata)
 	stat_tap_get_filter(stat_tap, opt_arg, &filter, &err);
 	if (err != NULL)
 	{
-		fprintf(stderr, "tshark: %s\n", err);
+		cmdarg_err("%s", err);
 		g_free(err);
 		exit(1);
 	}
@@ -145,7 +147,7 @@ register_simple_stat_tables(const void *key, void *value, void *userdata _U_)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -1,0 +1,152 @@
+-- 3GPP TS 38.463 V15.4.0 (2019-07)
+-- **************************************************************
+--
+-- Container definitions
+--
+-- **************************************************************
+
+E1AP-Containers {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+ngran-access (22) modules (3) e1ap (5) version1 (1) e1ap-Containers (5) }
+
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	maxPrivateIEs,
+	maxProtocolExtensions,
+	maxProtocolIEs,
+	Criticality,
+	Presence,
+	PrivateIE-ID,
+	ProtocolIE-ID
+	
+FROM E1AP-CommonDataTypes;
+
+-- **************************************************************
+--
+-- Class Definition for Protocol IEs
+--
+-- **************************************************************
+
+E1AP-PROTOCOL-IES ::= CLASS {
+	&id					ProtocolIE-ID			UNIQUE,
+	&criticality		Criticality,
+	&Value,
+	&presence			Presence
+}
+WITH SYNTAX {
+	ID					&id
+	CRITICALITY			&criticality
+	TYPE				&Value
+	PRESENCE			&presence
+}
+
+-- **************************************************************
+--
+-- Class Definition for Protocol Extensions
+--
+-- **************************************************************
+
+E1AP-PROTOCOL-EXTENSION ::= CLASS {
+	&id					ProtocolIE-ID		UNIQUE,
+	&criticality		Criticality,
+	&Extension,
+	&presence			Presence
+}
+WITH SYNTAX {
+	ID					&id
+	CRITICALITY			&criticality
+	EXTENSION			&Extension
+	PRESENCE			&presence
+}
+
+-- **************************************************************
+--
+-- Class Definition for Private IEs
+--
+-- **************************************************************
+
+E1AP-PRIVATE-IES ::= CLASS {
+	&id					PrivateIE-ID,
+	&criticality		Criticality,
+	&Value,
+	&presence			Presence
+}
+WITH SYNTAX {
+	ID					&id
+	CRITICALITY			&criticality
+	TYPE				&Value
+	PRESENCE			&presence
+}
+
+-- **************************************************************
+--
+-- Container for Protocol IEs
+--
+-- **************************************************************
+
+ProtocolIE-Container { E1AP-PROTOCOL-IES : IEsSetParam} ::= 
+	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
+	ProtocolIE-Field {{IEsSetParam}}
+
+ProtocolIE-SingleContainer { E1AP-PROTOCOL-IES : IEsSetParam} ::= 
+	ProtocolIE-Field {{IEsSetParam}}
+
+ProtocolIE-Field { E1AP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
+	id				E1AP-PROTOCOL-IES.&id				({IEsSetParam}),
+	criticality		E1AP-PROTOCOL-IES.&criticality		({IEsSetParam}{@id}),
+	value			E1AP-PROTOCOL-IES.&Value			({IEsSetParam}{@id})
+}
+
+-- **************************************************************
+--
+-- Container Lists for Protocol IE Containers
+--
+-- **************************************************************
+
+ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, E1AP-PROTOCOL-IES : IEsSetParam} ::=
+	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+	ProtocolIE-Container {{IEsSetParam}}
+
+-- **************************************************************
+--
+-- Container for Protocol Extensions
+--
+-- **************************************************************
+
+ProtocolExtensionContainer { E1AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= 
+	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
+	ProtocolExtensionField {{ExtensionSetParam}}
+
+ProtocolExtensionField { E1AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENCE {
+	id					E1AP-PROTOCOL-EXTENSION.&id				({ExtensionSetParam}),
+	criticality			E1AP-PROTOCOL-EXTENSION.&criticality	({ExtensionSetParam}{@id}),
+	extensionValue		E1AP-PROTOCOL-EXTENSION.&Extension		({ExtensionSetParam}{@id})
+}
+
+-- **************************************************************
+--
+-- Container for Private IEs
+--
+-- **************************************************************
+
+PrivateIE-Container { E1AP-PRIVATE-IES : IEsSetParam} ::= 
+	SEQUENCE (SIZE (1..maxPrivateIEs)) OF
+	PrivateIE-Field {{IEsSetParam}}
+
+PrivateIE-Field { E1AP-PRIVATE-IES : IEsSetParam} ::= SEQUENCE {
+	id				E1AP-PRIVATE-IES.&id				({IEsSetParam}),
+	criticality		E1AP-PRIVATE-IES.&criticality		({IEsSetParam}{@id}),
+	value			E1AP-PRIVATE-IES.&Value			({IEsSetParam}{@id})
+}
+
+END

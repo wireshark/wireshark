@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef VOIP_CALLS_INFO_MODEL_H
 #define VOIP_CALLS_INFO_MODEL_H
@@ -30,6 +31,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     void setTimeOfDay(bool timeOfDay);
+    bool timeOfDay() const;
     void updateCalls(GQueue *callsinfos);
 
     static voip_calls_info_t *indexToCallInfo(const QModelIndex &index);

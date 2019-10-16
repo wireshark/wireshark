@@ -1,0 +1,23 @@
+--
+-- Citizens Broadband Radio Service - Object Identifiers
+--
+-- ASN.1 interpolated from
+-- - WInnForum CBRS COMSEC TS WINNF-15-S-0065-V2.0.0
+--   https://www.wirelessinnovation.org/assets/work_products/Specifications/winnf-15-s-0065-v2.0.0%20cbrs%20communications%20security%20technical%20specification.pdf
+-- - WInnForum CBRS Certificate Policy Document WINNF-17-S-0022
+--   https://www.wirelessinnovation.org/assets/work_products/Specifications/winnf-17-s-0022%20v1.0.0%20cbrs%20pki%20certificate%20policy.pdf
+-- on 2018-11-14
+
+TCG DEFINITIONS::=
+
+BEGIN
+
+ZONE      ::= UTF8String
+FREQUENCY ::= UTF8String
+FCCID     ::= UTF8String
+SERIAL    ::= UTF8String
+FRN       ::= UTF8String
+CPIRID    ::= UTF8String
+TEST      ::= UTF8String
+
+END

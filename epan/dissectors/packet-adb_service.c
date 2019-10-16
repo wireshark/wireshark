@@ -54,13 +54,6 @@ static int hf_stdin                                                        = -1;
 static int hf_stdout                                                       = -1;
 static int hf_pids                                                         = -1;
 static int hf_result                                                       = -1;
-static int hf_sync_id                                                      = -1;
-static int hf_sync_length                                                  = -1;
-static int hf_sync_mode                                                    = -1;
-static int hf_sync_size                                                    = -1;
-static int hf_sync_time                                                    = -1;
-static int hf_sync_unused                                                  = -1;
-static int hf_sync_data                                                    = -1;
 
 static expert_field ei_incomplete_message                             = EI_INIT;
 
@@ -116,7 +109,7 @@ dissect_ascii_uint32(proto_tree *tree, gint hf_hex_ascii, gint ett_hex_ascii,
 {
     proto_item  *sub_item;
     proto_tree  *sub_tree;
-    guint8       hex_ascii[5];
+    gchar        hex_ascii[5];
 
     DISSECTOR_ASSERT(value);
 
@@ -143,7 +136,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     proto_tree          *sub_tree;
     gint                 offset = 0;
     adb_service_data_t  *adb_service_data = (adb_service_data_t *) data;
-    const guint8        *service;
+    const gchar         *service;
     wmem_tree_key_t      key[5];
     wmem_tree_t         *subtree;
     guint32              i_key;
@@ -156,7 +149,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     service = adb_service_data->service;
 
     sub_item = proto_tree_add_string(main_tree, hf_service, tvb, offset, 0, service);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
         if (g_strcmp0(service, "host:version") == 0) {
             guint32               version;
@@ -179,7 +172,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             if (!continuation_data || (continuation_data && continuation_data->length_in_frame == pinfo->num))
                 offset = dissect_ascii_uint32(main_tree, hf_hex_ascii_length, ett_length, hf_length, tvb, offset, &data_length);
 
-            if (!pinfo->fd->flags.visited && !continuation_data && tvb_reported_length_remaining(tvb, offset) < 4) {
+            if (!pinfo->fd->visited && !continuation_data && tvb_reported_length_remaining(tvb, offset) < 4) {
                 key[i_key].length = 1;
                 key[i_key++].key = &pinfo->num;
                 key[i_key].length = 0;
@@ -196,7 +189,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
             if (tvb_reported_length_remaining(tvb, offset) >= 4 ||
                         (continuation_data && continuation_data->completed_in_frame == pinfo->num)) {
-                if (!pinfo->fd->flags.visited && continuation_data) {
+                if (!pinfo->fd->visited && continuation_data) {
                     continuation_data->completed_in_frame = pinfo->num;
                 }
                 offset = dissect_ascii_uint32(main_tree, hf_hex_ascii_version, ett_version, hf_version, tvb, offset, &version);
@@ -244,7 +237,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             if (framebuffer_data && framebuffer_data->completed_in_frame < pinfo->num)
                 framebuffer_data = NULL;
 
-            if (!pinfo->fd->flags.visited && !framebuffer_data) {
+            if (!pinfo->fd->visited && !framebuffer_data) {
                 key[i_key].length = 1;
                 key[i_key++].key = &pinfo->num;
                 key[i_key].length = 0;
@@ -312,7 +305,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 sub_item = proto_tree_add_item(main_tree, hf_data, tvb, offset, -1, ENC_NA);
                 sub_tree = proto_item_add_subtree(sub_item, ett_data);
 
-                if (!pinfo->fd->flags.visited && framebuffer_data) {
+                if (!pinfo->fd->visited && framebuffer_data) {
                     framebuffer_data->current_size += tvb_captured_length_remaining(tvb, offset);
                     if (framebuffer_data->current_size >= framebuffer_data->size)
                         framebuffer_data->completed_in_frame = pinfo->num;
@@ -419,7 +412,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             subtree = (wmem_tree_t *) wmem_tree_lookup32_array(fragments, key);
             fragment = (subtree) ? (fragment_t *) wmem_tree_lookup32_le(subtree, pinfo->num - 1) : NULL;
             if (fragment) {
-                if (!pinfo->fd->flags.visited && fragment->reassembled_in_frame == -1)
+                if (!pinfo->fd->visited && fragment->reassembled_in_frame == -1)
                     fragment->reassembled_in_frame = pinfo->num;
 
                 if (fragment->reassembled_in_frame == pinfo->num) {
@@ -495,7 +488,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                         i_offset += logcat_length;
                     } else {
 
-                        if (!pinfo->fd->flags.visited) {
+                        if (!pinfo->fd->visited) {
                             DISSECTOR_ASSERT_HINT(adb_service_data->session_key_length + 2 <= sizeof(key) / sizeof(key[0]), "Tree session key is too small");
                             for (i_key = 0; i_key < adb_service_data->session_key_length; i_key += 1) {
                                 key[i_key].length = 1;
@@ -738,41 +731,6 @@ proto_register_adb_service(void)
             FT_STRING, STR_ASCII, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_sync_id,
-            { "Id",                              "adb_service.sync.id",
-            FT_STRING, STR_ASCII, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_sync_length,
-            { "Length",                          "adb_service.sync.length",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_sync_mode,
-            { "Mode",                            "adb_service.sync.mode",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_sync_size,
-            { "Size",                            "adb_service.sync.size",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_sync_time,
-            { "Last Modification Time",          "adb_service.sync.time",
-            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_sync_unused,
-            { "Unused",                          "adb_service.sync.unused",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_sync_data,
-            { "Sync Data",                       "adb_service.sync.data",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
-        },
     };
 
     static gint *ett[] = {
@@ -818,7 +776,7 @@ proto_reg_handoff_adb_service(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

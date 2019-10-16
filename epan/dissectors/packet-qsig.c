@@ -931,6 +931,7 @@ static int hf_qsig_dnd_serviceList = -1;          /* ServiceList */
 static int hf_qsig_dnd_extendedServiceList = -1;  /* T_extendedServiceList */
 static int hf_qsig_dnd_extendedServiceList_01 = -1;  /* T_extendedServiceList_01 */
 /* named bits */
+static int hf_qsig_dnd_ServiceList_spare_bit0 = -1;
 static int hf_qsig_dnd_ServiceList_dndo_low = -1;
 static int hf_qsig_dnd_ServiceList_dndo_medium = -1;
 static int hf_qsig_dnd_ServiceList_dndo_high = -1;
@@ -959,6 +960,10 @@ static int hf_qsig_ci_resultExtension = -1;       /* T_resultExtension */
 static int hf_qsig_ci_ciProtectionLevel = -1;     /* CIProtectionLevel */
 static int hf_qsig_ci_resultExtension_01 = -1;    /* T_resultExtension_01 */
 /* named bits */
+static int hf_qsig_ci_ServiceList_spare_bit0 = -1;
+static int hf_qsig_ci_ServiceList_spare_bit1 = -1;
+static int hf_qsig_ci_ServiceList_spare_bit2 = -1;
+static int hf_qsig_ci_ServiceList_spare_bit3 = -1;
 static int hf_qsig_ci_ServiceList_ci_low = -1;
 static int hf_qsig_ci_ServiceList_ci_medium = -1;
 static int hf_qsig_ci_ServiceList_ci_high = -1;
@@ -1449,6 +1454,8 @@ static int hf_qsig_sms_SmscControlParameterHeader_sRforTransactionCompleted = -1
 static int hf_qsig_sms_SmscControlParameterHeader_sRforPermanentError = -1;
 static int hf_qsig_sms_SmscControlParameterHeader_sRforTempErrorSCnotTrying = -1;
 static int hf_qsig_sms_SmscControlParameterHeader_sRforTempErrorSCstillTrying = -1;
+static int hf_qsig_sms_SmscControlParameterHeader_spare_bit4 = -1;
+static int hf_qsig_sms_SmscControlParameterHeader_spare_bit5 = -1;
 static int hf_qsig_sms_SmscControlParameterHeader_cancelSRRforConcatenatedSM = -1;
 static int hf_qsig_sms_SmscControlParameterHeader_includeOrigUDHintoSR = -1;
 
@@ -4314,15 +4321,15 @@ static int dissect_qsig_cc_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 /* --- Module Call-Offer-Operations-asn1-97 --- --- ---                       */
 
 
-static const asn_namedbit qsig_co_ServiceList_bits[] = {
-  {  0, &hf_qsig_co_ServiceList_callOffer, -1, -1, "callOffer", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * qsig_co_ServiceList_bits[] = {
+  &hf_qsig_co_ServiceList_callOffer,
+  NULL
 };
 
 static int
 dissect_qsig_co_ServiceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    qsig_co_ServiceList_bits, hf_index, ett_qsig_co_ServiceList,
+                                    qsig_co_ServiceList_bits, 1, hf_index, ett_qsig_co_ServiceList,
                                     NULL);
 
   return offset;
@@ -4899,17 +4906,18 @@ dissect_qsig_dnd_DNDOverrideArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const asn_namedbit qsig_dnd_ServiceList_bits[] = {
-  {  1, &hf_qsig_dnd_ServiceList_dndo_low, -1, -1, "dndo-low", NULL },
-  {  2, &hf_qsig_dnd_ServiceList_dndo_medium, -1, -1, "dndo-medium", NULL },
-  {  3, &hf_qsig_dnd_ServiceList_dndo_high, -1, -1, "dndo-high", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * qsig_dnd_ServiceList_bits[] = {
+  &hf_qsig_dnd_ServiceList_spare_bit0,
+  &hf_qsig_dnd_ServiceList_dndo_low,
+  &hf_qsig_dnd_ServiceList_dndo_medium,
+  &hf_qsig_dnd_ServiceList_dndo_high,
+  NULL
 };
 
 static int
 dissect_qsig_dnd_ServiceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    qsig_dnd_ServiceList_bits, hf_index, ett_qsig_dnd_ServiceList,
+                                    qsig_dnd_ServiceList_bits, 4, hf_index, ett_qsig_dnd_ServiceList,
                                     NULL);
 
   return offset;
@@ -5073,17 +5081,21 @@ static int dissect_qsig_dnd_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 /* --- Module Call-Intrusion-Operations-asn1-97 --- --- ---                   */
 
 
-static const asn_namedbit qsig_ci_ServiceList_bits[] = {
-  {  4, &hf_qsig_ci_ServiceList_ci_low, -1, -1, "ci-low", NULL },
-  {  5, &hf_qsig_ci_ServiceList_ci_medium, -1, -1, "ci-medium", NULL },
-  {  6, &hf_qsig_ci_ServiceList_ci_high, -1, -1, "ci-high", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * qsig_ci_ServiceList_bits[] = {
+  &hf_qsig_ci_ServiceList_spare_bit0,
+  &hf_qsig_ci_ServiceList_spare_bit1,
+  &hf_qsig_ci_ServiceList_spare_bit2,
+  &hf_qsig_ci_ServiceList_spare_bit3,
+  &hf_qsig_ci_ServiceList_ci_low,
+  &hf_qsig_ci_ServiceList_ci_medium,
+  &hf_qsig_ci_ServiceList_ci_high,
+  NULL
 };
 
 static int
 dissect_qsig_ci_ServiceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    qsig_ci_ServiceList_bits, hf_index, ett_qsig_ci_ServiceList,
+                                    qsig_ci_ServiceList_bits, 7, hf_index, ett_qsig_ci_ServiceList,
                                     NULL);
 
   return offset;
@@ -6871,32 +6883,32 @@ static int dissect_qsig_cint_CintExtension_PDU(tvbuff_t *tvb _U_, packet_info *p
 /* --- Module Common-Information-Operations-asn1-97 --- --- ---               */
 
 
-static const asn_namedbit qsig_cmn_FeatureIdList_bits[] = {
-  {  0, &hf_qsig_cmn_FeatureIdList_reserved, -1, -1, "reserved", NULL },
-  {  1, &hf_qsig_cmn_FeatureIdList_ssCFreRoutingSupported, -1, -1, "ssCFreRoutingSupported", NULL },
-  {  2, &hf_qsig_cmn_FeatureIdList_ssCTreRoutingSupported, -1, -1, "ssCTreRoutingSupported", NULL },
-  {  3, &hf_qsig_cmn_FeatureIdList_ssCCBSpossible, -1, -1, "ssCCBSpossible", NULL },
-  {  4, &hf_qsig_cmn_FeatureIdList_ssCCNRpossible, -1, -1, "ssCCNRpossible", NULL },
-  {  5, &hf_qsig_cmn_FeatureIdList_ssCOsupported, -1, -1, "ssCOsupported", NULL },
-  {  6, &hf_qsig_cmn_FeatureIdList_ssCIforcedRelease, -1, -1, "ssCIforcedRelease", NULL },
-  {  7, &hf_qsig_cmn_FeatureIdList_ssCIisolation, -1, -1, "ssCIisolation", NULL },
-  {  8, &hf_qsig_cmn_FeatureIdList_ssCIwaitOnBusy, -1, -1, "ssCIwaitOnBusy", NULL },
-  {  9, &hf_qsig_cmn_FeatureIdList_ssAOCsupportChargeRateProvAtGatewPinx, -1, -1, "ssAOCsupportChargeRateProvAtGatewPinx", NULL },
-  { 10, &hf_qsig_cmn_FeatureIdList_ssAOCsupportInterimChargeProvAtGatewPinx, -1, -1, "ssAOCsupportInterimChargeProvAtGatewPinx", NULL },
-  { 11, &hf_qsig_cmn_FeatureIdList_ssAOCsupportFinalChargeProvAtGatewPinx, -1, -1, "ssAOCsupportFinalChargeProvAtGatewPinx", NULL },
-  { 12, &hf_qsig_cmn_FeatureIdList_anfPRsupportedAtCooperatingPinx, -1, -1, "anfPRsupportedAtCooperatingPinx", NULL },
-  { 13, &hf_qsig_cmn_FeatureIdList_anfCINTcanInterceptImmediate, -1, -1, "anfCINTcanInterceptImmediate", NULL },
-  { 14, &hf_qsig_cmn_FeatureIdList_anfCINTcanInterceptDelayed, -1, -1, "anfCINTcanInterceptDelayed", NULL },
-  { 15, &hf_qsig_cmn_FeatureIdList_anfWTMIreRoutingSupported, -1, -1, "anfWTMIreRoutingSupported", NULL },
-  { 16, &hf_qsig_cmn_FeatureIdList_anfPUMIreRoutingSupported, -1, -1, "anfPUMIreRoutingSupported", NULL },
-  { 17, &hf_qsig_cmn_FeatureIdList_ssSSCTreRoutingSupported, -1, -1, "ssSSCTreRoutingSupported", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * qsig_cmn_FeatureIdList_bits[] = {
+  &hf_qsig_cmn_FeatureIdList_reserved,
+  &hf_qsig_cmn_FeatureIdList_ssCFreRoutingSupported,
+  &hf_qsig_cmn_FeatureIdList_ssCTreRoutingSupported,
+  &hf_qsig_cmn_FeatureIdList_ssCCBSpossible,
+  &hf_qsig_cmn_FeatureIdList_ssCCNRpossible,
+  &hf_qsig_cmn_FeatureIdList_ssCOsupported,
+  &hf_qsig_cmn_FeatureIdList_ssCIforcedRelease,
+  &hf_qsig_cmn_FeatureIdList_ssCIisolation,
+  &hf_qsig_cmn_FeatureIdList_ssCIwaitOnBusy,
+  &hf_qsig_cmn_FeatureIdList_ssAOCsupportChargeRateProvAtGatewPinx,
+  &hf_qsig_cmn_FeatureIdList_ssAOCsupportInterimChargeProvAtGatewPinx,
+  &hf_qsig_cmn_FeatureIdList_ssAOCsupportFinalChargeProvAtGatewPinx,
+  &hf_qsig_cmn_FeatureIdList_anfPRsupportedAtCooperatingPinx,
+  &hf_qsig_cmn_FeatureIdList_anfCINTcanInterceptImmediate,
+  &hf_qsig_cmn_FeatureIdList_anfCINTcanInterceptDelayed,
+  &hf_qsig_cmn_FeatureIdList_anfWTMIreRoutingSupported,
+  &hf_qsig_cmn_FeatureIdList_anfPUMIreRoutingSupported,
+  &hf_qsig_cmn_FeatureIdList_ssSSCTreRoutingSupported,
+  NULL
 };
 
 static int
 dissect_qsig_cmn_FeatureIdList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    qsig_cmn_FeatureIdList_bits, hf_index, ett_qsig_cmn_FeatureIdList,
+                                    qsig_cmn_FeatureIdList_bits, 18, hf_index, ett_qsig_cmn_FeatureIdList,
                                     NULL);
 
   return offset;
@@ -9912,20 +9924,22 @@ dissect_qsig_sms_SmSubmitParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const asn_namedbit qsig_sms_SmscControlParameterHeader_bits[] = {
-  {  0, &hf_qsig_sms_SmscControlParameterHeader_sRforTransactionCompleted, -1, -1, "sRforTransactionCompleted", NULL },
-  {  1, &hf_qsig_sms_SmscControlParameterHeader_sRforPermanentError, -1, -1, "sRforPermanentError", NULL },
-  {  2, &hf_qsig_sms_SmscControlParameterHeader_sRforTempErrorSCnotTrying, -1, -1, "sRforTempErrorSCnotTrying", NULL },
-  {  3, &hf_qsig_sms_SmscControlParameterHeader_sRforTempErrorSCstillTrying, -1, -1, "sRforTempErrorSCstillTrying", NULL },
-  {  6, &hf_qsig_sms_SmscControlParameterHeader_cancelSRRforConcatenatedSM, -1, -1, "cancelSRRforConcatenatedSM", NULL },
-  {  7, &hf_qsig_sms_SmscControlParameterHeader_includeOrigUDHintoSR, -1, -1, "includeOrigUDHintoSR", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * qsig_sms_SmscControlParameterHeader_bits[] = {
+  &hf_qsig_sms_SmscControlParameterHeader_sRforTransactionCompleted,
+  &hf_qsig_sms_SmscControlParameterHeader_sRforPermanentError,
+  &hf_qsig_sms_SmscControlParameterHeader_sRforTempErrorSCnotTrying,
+  &hf_qsig_sms_SmscControlParameterHeader_sRforTempErrorSCstillTrying,
+  &hf_qsig_sms_SmscControlParameterHeader_spare_bit4,
+  &hf_qsig_sms_SmscControlParameterHeader_spare_bit5,
+  &hf_qsig_sms_SmscControlParameterHeader_cancelSRRforConcatenatedSM,
+  &hf_qsig_sms_SmscControlParameterHeader_includeOrigUDHintoSR,
+  NULL
 };
 
 static int
 dissect_qsig_sms_SmscControlParameterHeader(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    qsig_sms_SmscControlParameterHeader_bits, hf_index, ett_qsig_sms_SmscControlParameterHeader,
+                                    qsig_sms_SmscControlParameterHeader_bits, 8, hf_index, ett_qsig_sms_SmscControlParameterHeader,
                                     NULL);
 
   return offset;
@@ -12557,7 +12571,7 @@ dissect_qsig_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int codeset
   offset = 0;
 
   ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, -1, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(ti);
+  proto_item_set_hidden(ti);
 
   ie_type = tvb_get_guint8(tvb, offset);
   ie_len = tvb_get_guint8(tvb, offset + 1);
@@ -12567,7 +12581,7 @@ dissect_qsig_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int codeset
 
   proto_tree_add_item(ie_tree, *hf_qsig_ie_type_arr[codeset], tvb, offset, 1, ENC_BIG_ENDIAN);
   hidden_item = proto_tree_add_item(ie_tree, hf_qsig_ie_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
   proto_tree_add_item(ie_tree, hf_qsig_ie_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
   offset += 2;
   if (tvb_reported_length_remaining(tvb, offset) <= 0)
@@ -13390,7 +13404,7 @@ void proto_register_qsig(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_qsig_co_ServiceList_callOffer,
-      { "callOffer", "qsig.co.callOffer",
+      { "callOffer", "qsig.co.ServiceList.callOffer",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
 
@@ -13524,16 +13538,20 @@ void proto_register_qsig(void) {
       { "extendedServiceList", "qsig.dnd.extendedServiceList_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_extendedServiceList_01", HFILL }},
+    { &hf_qsig_dnd_ServiceList_spare_bit0,
+      { "spare_bit0", "qsig.dnd.ServiceList.spare.bit0",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
     { &hf_qsig_dnd_ServiceList_dndo_low,
-      { "dndo-low", "qsig.dnd.dndo-low",
+      { "dndo-low", "qsig.dnd.ServiceList.dndo.low",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_qsig_dnd_ServiceList_dndo_medium,
-      { "dndo-medium", "qsig.dnd.dndo-medium",
+      { "dndo-medium", "qsig.dnd.ServiceList.dndo.medium",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_qsig_dnd_ServiceList_dndo_high,
-      { "dndo-high", "qsig.dnd.dndo-high",
+      { "dndo-high", "qsig.dnd.ServiceList.dndo.high",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
 
@@ -13623,16 +13641,32 @@ void proto_register_qsig(void) {
       { "resultExtension", "qsig.ci.resultExtension",
         FT_UINT32, BASE_DEC, VALS(qsig_ci_T_resultExtension_01_vals), 0,
         "T_resultExtension_01", HFILL }},
+    { &hf_qsig_ci_ServiceList_spare_bit0,
+      { "spare_bit0", "qsig.ci.ServiceList.spare.bit0",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_qsig_ci_ServiceList_spare_bit1,
+      { "spare_bit1", "qsig.ci.ServiceList.spare.bit1",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_qsig_ci_ServiceList_spare_bit2,
+      { "spare_bit2", "qsig.ci.ServiceList.spare.bit2",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_qsig_ci_ServiceList_spare_bit3,
+      { "spare_bit3", "qsig.ci.ServiceList.spare.bit3",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
     { &hf_qsig_ci_ServiceList_ci_low,
-      { "ci-low", "qsig.ci.ci-low",
+      { "ci-low", "qsig.ci.ServiceList.ci.low",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_qsig_ci_ServiceList_ci_medium,
-      { "ci-medium", "qsig.ci.ci-medium",
+      { "ci-medium", "qsig.ci.ServiceList.ci.medium",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_qsig_ci_ServiceList_ci_high,
-      { "ci-high", "qsig.ci.ci-high",
+      { "ci-high", "qsig.ci.ServiceList.ci.high",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
 
@@ -14139,75 +14173,75 @@ void proto_register_qsig(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "IA5String_SIZE_1_10", HFILL }},
     { &hf_qsig_cmn_FeatureIdList_reserved,
-      { "reserved", "qsig.cmn.reserved",
+      { "reserved", "qsig.cmn.FeatureIdList.reserved",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_ssCFreRoutingSupported,
-      { "ssCFreRoutingSupported", "qsig.cmn.ssCFreRoutingSupported",
+      { "ssCFreRoutingSupported", "qsig.cmn.FeatureIdList.ssCFreRoutingSupported",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_ssCTreRoutingSupported,
-      { "ssCTreRoutingSupported", "qsig.cmn.ssCTreRoutingSupported",
+      { "ssCTreRoutingSupported", "qsig.cmn.FeatureIdList.ssCTreRoutingSupported",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_ssCCBSpossible,
-      { "ssCCBSpossible", "qsig.cmn.ssCCBSpossible",
+      { "ssCCBSpossible", "qsig.cmn.FeatureIdList.ssCCBSpossible",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_ssCCNRpossible,
-      { "ssCCNRpossible", "qsig.cmn.ssCCNRpossible",
+      { "ssCCNRpossible", "qsig.cmn.FeatureIdList.ssCCNRpossible",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_ssCOsupported,
-      { "ssCOsupported", "qsig.cmn.ssCOsupported",
+      { "ssCOsupported", "qsig.cmn.FeatureIdList.ssCOsupported",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_ssCIforcedRelease,
-      { "ssCIforcedRelease", "qsig.cmn.ssCIforcedRelease",
+      { "ssCIforcedRelease", "qsig.cmn.FeatureIdList.ssCIforcedRelease",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_ssCIisolation,
-      { "ssCIisolation", "qsig.cmn.ssCIisolation",
+      { "ssCIisolation", "qsig.cmn.FeatureIdList.ssCIisolation",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_ssCIwaitOnBusy,
-      { "ssCIwaitOnBusy", "qsig.cmn.ssCIwaitOnBusy",
+      { "ssCIwaitOnBusy", "qsig.cmn.FeatureIdList.ssCIwaitOnBusy",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_ssAOCsupportChargeRateProvAtGatewPinx,
-      { "ssAOCsupportChargeRateProvAtGatewPinx", "qsig.cmn.ssAOCsupportChargeRateProvAtGatewPinx",
+      { "ssAOCsupportChargeRateProvAtGatewPinx", "qsig.cmn.FeatureIdList.ssAOCsupportChargeRateProvAtGatewPinx",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_ssAOCsupportInterimChargeProvAtGatewPinx,
-      { "ssAOCsupportInterimChargeProvAtGatewPinx", "qsig.cmn.ssAOCsupportInterimChargeProvAtGatewPinx",
+      { "ssAOCsupportInterimChargeProvAtGatewPinx", "qsig.cmn.FeatureIdList.ssAOCsupportInterimChargeProvAtGatewPinx",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_ssAOCsupportFinalChargeProvAtGatewPinx,
-      { "ssAOCsupportFinalChargeProvAtGatewPinx", "qsig.cmn.ssAOCsupportFinalChargeProvAtGatewPinx",
+      { "ssAOCsupportFinalChargeProvAtGatewPinx", "qsig.cmn.FeatureIdList.ssAOCsupportFinalChargeProvAtGatewPinx",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_anfPRsupportedAtCooperatingPinx,
-      { "anfPRsupportedAtCooperatingPinx", "qsig.cmn.anfPRsupportedAtCooperatingPinx",
+      { "anfPRsupportedAtCooperatingPinx", "qsig.cmn.FeatureIdList.anfPRsupportedAtCooperatingPinx",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_anfCINTcanInterceptImmediate,
-      { "anfCINTcanInterceptImmediate", "qsig.cmn.anfCINTcanInterceptImmediate",
+      { "anfCINTcanInterceptImmediate", "qsig.cmn.FeatureIdList.anfCINTcanInterceptImmediate",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_anfCINTcanInterceptDelayed,
-      { "anfCINTcanInterceptDelayed", "qsig.cmn.anfCINTcanInterceptDelayed",
+      { "anfCINTcanInterceptDelayed", "qsig.cmn.FeatureIdList.anfCINTcanInterceptDelayed",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_anfWTMIreRoutingSupported,
-      { "anfWTMIreRoutingSupported", "qsig.cmn.anfWTMIreRoutingSupported",
+      { "anfWTMIreRoutingSupported", "qsig.cmn.FeatureIdList.anfWTMIreRoutingSupported",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_anfPUMIreRoutingSupported,
-      { "anfPUMIreRoutingSupported", "qsig.cmn.anfPUMIreRoutingSupported",
+      { "anfPUMIreRoutingSupported", "qsig.cmn.FeatureIdList.anfPUMIreRoutingSupported",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_qsig_cmn_FeatureIdList_ssSSCTreRoutingSupported,
-      { "ssSSCTreRoutingSupported", "qsig.cmn.ssSSCTreRoutingSupported",
+      { "ssSSCTreRoutingSupported", "qsig.cmn.FeatureIdList.ssSSCTreRoutingSupported",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
 
@@ -15425,27 +15459,35 @@ void proto_register_qsig(void) {
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
     { &hf_qsig_sms_SmscControlParameterHeader_sRforTransactionCompleted,
-      { "sRforTransactionCompleted", "qsig.sms.sRforTransactionCompleted",
+      { "sRforTransactionCompleted", "qsig.sms.SmscControlParameterHeader.sRforTransactionCompleted",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_qsig_sms_SmscControlParameterHeader_sRforPermanentError,
-      { "sRforPermanentError", "qsig.sms.sRforPermanentError",
+      { "sRforPermanentError", "qsig.sms.SmscControlParameterHeader.sRforPermanentError",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_qsig_sms_SmscControlParameterHeader_sRforTempErrorSCnotTrying,
-      { "sRforTempErrorSCnotTrying", "qsig.sms.sRforTempErrorSCnotTrying",
+      { "sRforTempErrorSCnotTrying", "qsig.sms.SmscControlParameterHeader.sRforTempErrorSCnotTrying",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_qsig_sms_SmscControlParameterHeader_sRforTempErrorSCstillTrying,
-      { "sRforTempErrorSCstillTrying", "qsig.sms.sRforTempErrorSCstillTrying",
+      { "sRforTempErrorSCstillTrying", "qsig.sms.SmscControlParameterHeader.sRforTempErrorSCstillTrying",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
+    { &hf_qsig_sms_SmscControlParameterHeader_spare_bit4,
+      { "spare_bit4", "qsig.sms.SmscControlParameterHeader.spare.bit4",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_qsig_sms_SmscControlParameterHeader_spare_bit5,
+      { "spare_bit5", "qsig.sms.SmscControlParameterHeader.spare.bit5",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
     { &hf_qsig_sms_SmscControlParameterHeader_cancelSRRforConcatenatedSM,
-      { "cancelSRRforConcatenatedSM", "qsig.sms.cancelSRRforConcatenatedSM",
+      { "cancelSRRforConcatenatedSM", "qsig.sms.SmscControlParameterHeader.cancelSRRforConcatenatedSM",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_qsig_sms_SmscControlParameterHeader_includeOrigUDHintoSR,
-      { "includeOrigUDHintoSR", "qsig.sms.includeOrigUDHintoSR",
+      { "includeOrigUDHintoSR", "qsig.sms.SmscControlParameterHeader.includeOrigUDHintoSR",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
 

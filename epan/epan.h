@@ -19,15 +19,21 @@ extern "C" {
 #include <epan/prefs.h>
 #include <epan/frame_data.h>
 #include <wsutil/plugins.h>
-#include "register.h"
+#include <epan/register.h>
 #include "ws_symbol_export.h"
+
+
+/** Global variable holding the content of the corresponding environment variable
+ * to save fetching it repeatedly.
+ */
+extern gboolean wireshark_abort_on_dissector_bug;
 
 typedef struct epan_dissect epan_dissect_t;
 
 struct epan_dfilter;
 struct epan_column_info;
 
-/*
+/**
  * Opaque structure provided when an epan_t is created; it contains
  * information needed to allow the user of libwireshark to provide
  * time stamps, comments, and other information outside the packet
@@ -35,7 +41,7 @@ struct epan_column_info;
  */
 struct packet_provider_data;
 
-/*
+/**
  * Structure containing pointers to functions supplied by the user
  * of libwireshark.
  */
@@ -51,9 +57,7 @@ extern plugins_t *libwireshark_plugins;
 #endif
 
 /**
-	@mainpage Wireshark EPAN the packet analyzing engine. Source code can be found in the epan directory
-
-	@section Introduction
+	@section Epan The Enhanced Packet ANalyzer
 
 	XXX
 
@@ -62,7 +66,7 @@ extern plugins_t *libwireshark_plugins;
 /*
 Ref 1
 Epan
-Ethereal Packet ANalyzer (XXX - is this correct?) the packet analyzing engine. Source code can be found in the epan directory.
+Enhanced Packet ANalyzer, aka the packet analyzing engine. Source code can be found in the epan directory.
 
 Protocol-Tree - Keep data of the capture file protocol information.
 
@@ -102,9 +106,7 @@ Ref2 for further edits - delete when done
  * Returns TRUE on success, FALSE on failure.
  */
 WS_DLL_PUBLIC
-gboolean epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_data),
-	           void (*register_all_handoffs_func)(register_cb cb, gpointer client_data),
-	           register_cb cb, void *client_data);
+gboolean epan_init(register_cb cb, void *client_data, gboolean load_plugins);
 
 /**
  * Load all settings, from the current profile, that affect epan.
@@ -124,6 +126,7 @@ typedef struct {
 	void (*cleanup)(void);
 	void (*register_all_protocols)(register_cb, gpointer);
 	void (*register_all_handoffs)(register_cb, gpointer);
+	void (*register_all_tap_listeners)(void);
 } epan_plugin;
 
 WS_DLL_PUBLIC void epan_register_plugin(const epan_plugin *plugin);

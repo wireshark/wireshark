@@ -51,17 +51,20 @@
 #define CIP_SC_RESPONSE_MASK     0x80
 
 /* Classes that have class-specific dissectors */
-#define CI_CLS_MR   0x02    /* Message Router */
-#define CI_CLS_CM   0x06    /* Connection Manager */
-#define CI_CLS_PCCC 0x67    /* PCCC Class */
-#define CI_CLS_MB   0x44    /* Modbus Object */
-#define CI_CLS_CCO  0xF3    /* Connection Configuration Object */
+#define CI_CLS_MR     0x02  /* Message Router */
+#define CI_CLS_CM     0x06  /* Connection Manager */
+#define CI_CLS_PCCC   0x67  /* PCCC Class */
+#define CI_CLS_MOTION 0x42  /* Motion Device Axis Object */
+#define CI_CLS_MB     0x44  /* Modbus Object */
+#define CI_CLS_CCO    0xF3  /* Connection Configuration Object */
 
 /* Class specific services */
 /* Connection Manager */
 #define SC_CM_FWD_CLOSE             0x4E
 #define SC_CM_UNCON_SEND            0x52
 #define SC_CM_FWD_OPEN              0x54
+#define SC_CM_GET_CONN_DATA         0x56
+#define SC_CM_SEARCH_CONN_DATA      0x57
 #define SC_CM_LARGE_FWD_OPEN        0x5B
 #define SC_CM_GET_CONN_OWNER        0x5A
 
@@ -439,6 +442,8 @@ enum cip_datatype {
 typedef int attribute_dissector_func(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len);
 
+#define CIP_ATTR_CLASS (TRUE)
+#define CIP_ATTR_INSTANCE (FALSE)
 typedef struct attribute_info {
    guint                     class_id;
    gboolean                  class_instance;
@@ -455,32 +460,38 @@ typedef struct cip_connID_info {
    address ipaddress;
    guint16 port;
    guint8  type;
+
+   // Actual Packet Interval in microseconds.
+   guint32 api;
 } cip_connID_info_t;
 
 enum cip_safety_format_type {CIP_SAFETY_BASE_FORMAT, CIP_SAFETY_EXTENDED_FORMAT};
+
+typedef struct cip_connection_triad {
+   guint16 ConnSerialNumber;
+   guint16 VendorID;
+   guint32 DeviceSerialNumber;
+} cip_connection_triad_t;
 
 typedef struct cip_safety_epath_info {
    gboolean safety_seg;
    enum cip_safety_format_type format;
    guint16 running_rollover_value;  /* Keep track of the rollover value over the course of the connection */
    guint16 running_timestamp_value; /* Keep track of the timestamp value over the course of the connection */
-   guint16 target_conn_sn;
-   guint16 target_vendorID;
-   guint32 target_device_sn;
+   cip_connection_triad_t target_triad;
 } cip_safety_epath_info_t;
 
 typedef struct cip_conn_info {
-   guint16                 ConnSerialNumber;
-   guint16                 VendorID;
-   guint32                 DeviceSerialNumber;
+   cip_connection_triad_t  triad;
    guint32                 forward_open_frame;
    cip_connID_info_t       O2T;
    cip_connID_info_t       T2O;
    guint8                  TransportClass_trigger;
    cip_safety_epath_info_t safety;
-   gboolean                motion;
    guint32                 ClassID;
    guint32                 ConnPoint;
+   guint32                 FwdOpenPathLenBytes;
+   void                    *pFwdOpenPathData;
 } cip_conn_info_t;
 
 typedef struct cip_req_info {
@@ -498,7 +509,7 @@ typedef struct cip_req_info {
 */
 
 /* Depending on if a Class or Symbol segment appears in Connection Path or
-   a Request Path, display '->' before or after the actual name. */
+   a Request Path, display '-' before or after the actual name. */
 #define NO_DISPLAY 0
 #define DISPLAY_CONNECTION_PATH 1
 #define DISPLAY_REQUEST_PATH 2
@@ -513,20 +524,53 @@ enum cip_elem_data_types {
     CIP_SHORT_STRING_TYPE = 0xDA,
     CIP_STRING2_TYPE = 0xD5
 };
-extern int dissect_cip_string_type(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int hf_type, int string_type);
 
-extern void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_datetime);
+extern void add_cip_service_to_info_column(packet_info *pinfo, guint8 service, const value_string* service_vals);
 extern attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attribute);
-extern int dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+extern void cip_rpi_api_fmt(gchar *s, guint32 value);
+
+extern int  dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, attribute_info_t* attr, int offset, int total_len);
+extern void dissect_cip_data(proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info *pinfo, cip_req_info_t *preq_info, proto_item* msp_item, gboolean is_msp_item);
+extern void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_datetime);
+extern int  dissect_cip_get_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
+   int offset, cip_simple_request_info_t* req_data);
+extern int  dissect_cip_multiple_service_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item, int offset, gboolean request);
+extern int  dissect_cip_response_status(proto_tree* tree, tvbuff_t* tvb, int offset, int hf_general_status, gboolean have_additional_status);
+extern void dissect_cip_run_idle(tvbuff_t* tvb, int offset, proto_tree* item_tree);
+extern int  dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *path_tree, proto_item *epath_item,
+   gboolean generate, gboolean packed, cip_simple_request_info_t* req_data, cip_safety_epath_info_t* safety,
+   int display_type, proto_item *msp_item,
+   gboolean is_msp_item);
+extern int  dissect_cip_string_type(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int hf_type, int string_type);
+extern int  dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, cip_simple_request_info_t* req_data);
+extern int  dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
+   int offset, cip_simple_request_info_t* req_data);
+extern int  dissect_cip_set_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
+   int offset, cip_simple_request_info_t* req_data);
+extern void dissect_deviceid(tvbuff_t *tvb, int offset, proto_tree *tree,
+   int hf_vendor, int hf_devtype, int hf_prodcode,
+   int hf_compatibility, int hf_comp_bit, int hf_majrev, int hf_minrev);
+extern int  dissect_optional_attr_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len);
+extern int  dissect_optional_service_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len);
+extern int  dissect_padded_epath_len_usint(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len);
+extern int  dissect_padded_epath_len_uint(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len);
+
 extern void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t *req_data);
-void dissect_cip_run_idle(tvbuff_t* tvb, int offset, proto_tree* item_tree);
+extern gboolean should_dissect_cip_response(tvbuff_t *tvb, int offset, guint8 gen_status);
+
 
 /*
 ** Exported variables
 */
 extern const value_string cip_sc_rr[];
 extern const value_string cip_reset_type_vals[];
+extern const value_string cip_class_names_vals[];
+extern const value_string cip_port_number_vals[];
 extern value_string_ext cip_gs_vals_ext;
 extern value_string_ext cip_cm_ext_st_vals_ext;
 extern value_string_ext cip_vendor_vals_ext;
@@ -551,17 +595,6 @@ extern int hf_attr_class_num_inst_attr;
 #define CLASS_ATTRIBUTE_5_NAME  "Optional Service List"
 #define CLASS_ATTRIBUTE_6_NAME  "Maximum ID Number Class Attributes"
 #define CLASS_ATTRIBUTE_7_NAME  "Maximum ID Number Instance Attributes"
-
-extern void add_cip_service_to_info_column(packet_info *pinfo, guint8 service, const value_string* service_vals);
-
-extern int dissect_optional_attr_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-   int offset, int total_len);
-extern int dissect_optional_service_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-   int offset, int total_len);
-extern int dissect_padded_epath_len_usint(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-   int offset, int total_len);
-extern int dissect_padded_epath_len_uint(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-   int offset, int total_len);
 
 /*
  * Editor modelines

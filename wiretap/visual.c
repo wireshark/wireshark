@@ -145,8 +145,8 @@ struct visual_write_info
 
 
 /* Local functions to handle file reads and writes */
-static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean visual_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean visual_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean visual_read_packet(wtap *wth, FILE_T fh,
@@ -193,7 +193,7 @@ wtap_open_return_val visual_open(wtap *wth, int *err, gchar **err_info)
     }
 
     /* Translate the encapsulation type; these values are SNMP ifType
-       values, as found in http://www.iana.org/assignments/smi-numbers.
+       values, as found in https://www.iana.org/assignments/smi-numbers.
 
        Note that a file with media type 22 ("propPointToPointSerial") may
        contain Cisco HDLC or PPP over HDLC.  This will get sorted out after
@@ -259,8 +259,8 @@ wtap_open_return_val visual_open(wtap *wth, int *err, gchar **err_info)
    in a loop to sequentially read the entire file one time.  After
    the file has been read once, any Future access to the packets is
    done through seek_read. */
-static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean visual_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
     struct visual_read_info *visual = (struct visual_read_info *)wth->priv;
 
@@ -276,8 +276,7 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
 
     *data_offset = file_tell(wth->fh);
 
-    return visual_read_packet(wth, wth->fh, &wth->rec, wth->rec_data,
-            err, err_info);
+    return visual_read_packet(wth, wth->fh, rec, buf, err, err_info);
 }
 
 /* Read packet header and data for random access. */
@@ -399,7 +398,7 @@ visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         }
         rec->rec_header.packet_header.len -= 2;
 
-        rec->rec_header.packet_header.pseudo_header.x25.flags =
+        rec->rec_header.packet_header.pseudo_header.dte_dce.flags =
             (packet_status & PS_SENT) ? 0x00 : FROM_DCE;
         break;
 
@@ -414,7 +413,7 @@ visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         }
         rec->rec_header.packet_header.len -= 2;
 
-        rec->rec_header.packet_header.pseudo_header.x25.flags =
+        rec->rec_header.packet_header.pseudo_header.dte_dce.flags =
             (packet_status & PS_SENT) ? 0x00 : FROM_DCE;
         break;
 
@@ -639,6 +638,15 @@ static gboolean visual_dump(wtap_dumper *wdh, const wtap_rec *rec,
         return FALSE;
     }
 
+    /*
+     * Make sure this packet doesn't have a link-layer type that
+     * differs from the one for the file.
+     */
+    if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+        *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+        return FALSE;
+    }
+
     /* Don't write anything we're not willing to read. */
     if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
@@ -715,7 +723,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const wtap_rec *rec,
     case WTAP_ENCAP_FRELAY_WITH_PHDR:
     case WTAP_ENCAP_LAPB:
         packet_status |=
-            ((pseudo_header->x25.flags & FROM_DCE) ? 0x00 : PS_SENT);
+            ((pseudo_header->dte_dce.flags & FROM_DCE) ? 0x00 : PS_SENT);
         break;
     }
     vpkt_hdr.status = GUINT32_TO_LE(packet_status);
@@ -845,7 +853,7 @@ static void visual_dump_free(wtap_dumper *wdh)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

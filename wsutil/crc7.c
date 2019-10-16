@@ -72,7 +72,7 @@ guint8 crc7update(guint8 crc, const unsigned char *data, int data_len)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -40,6 +40,10 @@ static int hf_atmarp_ssl = -1;
 static int hf_arp_proto_size = -1;
 static int hf_arp_opcode = -1;
 static int hf_arp_isgratuitous = -1;
+static int hf_arp_isprobe = -1;
+static int hf_arp_isannouncement = -1;
+
+static int proto_atmarp = -1;
 static int hf_atmarp_spln = -1;
 static int hf_atmarp_tht = -1;
 static int hf_atmarp_thl = -1;
@@ -91,8 +95,7 @@ static expert_field ei_atmarp_src_atm_unknown_afi = EI_INIT;
 
 static dissector_handle_t arp_handle;
 
-static dissector_handle_t atmarp_handle;
-static dissector_handle_t ax25arp_handle;
+static dissector_table_t arp_hw_table;
 
 static capture_dissector_handle_t arp_cap_handle;
 
@@ -400,13 +403,10 @@ tvb_arpproaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
     return arpproaddr_to_str(tvb_get_ptr(tvb, offset, ad_len), ad_len, type);
 }
 
-#define MAX_E164_STR_LEN                20
-
 static const gchar *
 atmarpnum_to_str(tvbuff_t *tvb, int offset, int ad_tl)
 {
   int    ad_len = ad_tl & ATMARP_LEN_MASK;
-  gchar *cur;
 
   if (ad_len == 0)
     return "<No address>";
@@ -415,16 +415,7 @@ atmarpnum_to_str(tvbuff_t *tvb, int offset, int ad_tl)
     /*
      * I'm assuming this means it's an ASCII (IA5) string.
      */
-    cur = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_E164_STR_LEN+3+1);
-    if (ad_len > MAX_E164_STR_LEN) {
-      /* Can't show it all. */
-      tvb_memcpy(tvb, cur, offset, MAX_E164_STR_LEN);
-      g_snprintf(&cur[MAX_E164_STR_LEN], 3+1, "...");
-    } else {
-      tvb_memcpy(tvb, cur, offset, ad_len);
-      cur[ad_len + 1] = '\0';
-    }
-    return cur;
+    return (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, ad_len, ENC_ASCII|ENC_NA);
   } else {
     /*
      * NSAP.
@@ -645,7 +636,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
   duplicate_result_key  result_key = {pinfo->num, ip};
 
   /* Look up existing result */
-  if (pinfo->fd->flags.visited) {
+  if (pinfo->fd->visited) {
       result = (address_hash_value *)wmem_map_lookup(duplicate_result_hash_table,
                                    &result_key);
   }
@@ -709,12 +700,12 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
                                                 address_to_str(wmem_packet_scope(), &mac_addr),
                                                 address_to_str(wmem_packet_scope(), &result_mac_addr),
                                                 result->frame_num);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Add item for navigating to earlier frame */
     ti = proto_tree_add_uint(duplicate_tree, hf_arp_duplicate_ip_address_earlier_frame,
                              tvb, 0, 0, result->frame_num);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     expert_add_info_format(pinfo, ti,
                            &ei_seq_arp_dup_ip,
                            "Duplicate IP address configured (%s)",
@@ -725,7 +716,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
                              hf_arp_duplicate_ip_address_seconds_since_earlier_frame,
                              tvb, 0, 0,
                              (guint32)(pinfo->abs_ts.secs - result->time_of_entry));
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Set out parameter */
     *duplicate_ip = ip;
@@ -1349,18 +1340,16 @@ static int
 dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint16       ar_hrd;
-  guint16       ar_pro;
-  guint8        ar_hln;
-  guint8        ar_pln;
-  guint16       ar_op;
+  guint32       ar_pro, ar_hln, ar_pln, ar_op;
   int           tot_len;
-  proto_tree   *arp_tree           = NULL;
-  proto_item   *ti, *item;
+  proto_tree   *arp_tree;
+  proto_item   *arp_item, *item;
   const gchar  *op_str;
   int           sha_offset, spa_offset, tha_offset, tpa_offset;
-  gboolean      is_gratuitous;
+  gboolean      is_gratuitous, is_probe = FALSE, is_announcement = FALSE;
   gboolean      duplicate_detected = FALSE;
   guint32       duplicate_ip       = 0;
+  dissector_handle_t hw_handle;
 
   /* Call it ARP, for now, so that if we throw an exception before
      we decide whether it's ARP or RARP or IARP or ATMARP, it shows
@@ -1373,24 +1362,31 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   /* Hardware Address Type */
   ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
-  if (ar_hrd == ARPHRD_ATM2225) {
-    call_dissector(atmarp_handle, tvb, pinfo, tree);
+
+  /* See if there is a hardware type already registered */
+  hw_handle = dissector_get_uint_handle(arp_hw_table, ar_hrd);
+  if (hw_handle != NULL) {
+    call_dissector(hw_handle, tvb, pinfo, tree);
     return tvb_captured_length(tvb);
   }
-  if (ar_hrd == ARPHRD_AX25) {
-    call_dissector(ax25arp_handle, tvb, pinfo, tree);
-    return tvb_captured_length(tvb);
-  }
+
+  /* Otherwise dissect as Ethernet hardware */
+
+  arp_item = proto_tree_add_item(tree, proto_arp, tvb, 0, -1, ENC_NA);
+  arp_tree = proto_item_add_subtree(arp_item, ett_arp);
+
+  proto_tree_add_uint(arp_tree, hf_arp_hard_type, tvb, AR_HRD, 2, ar_hrd);
   /* Protocol Address Type */
-  ar_pro = tvb_get_ntohs(tvb, AR_PRO);
+  proto_tree_add_item_ret_uint(arp_tree, hf_arp_proto_type, tvb, AR_PRO, 2, ENC_BIG_ENDIAN, &ar_pro);
   /* Hardware Address Size */
-  ar_hln = tvb_get_guint8(tvb, AR_HLN);
+  proto_tree_add_item_ret_uint(arp_tree, hf_arp_hard_size, tvb, AR_HLN, 1, ENC_NA, &ar_hln);
   /* Protocol Address Size */
-  ar_pln = tvb_get_guint8(tvb, AR_PLN);
+  proto_tree_add_item_ret_uint(arp_tree, hf_arp_proto_size, tvb, AR_PLN, 1, ENC_NA, &ar_pln);
   /* Operation */
-  ar_op  = tvb_get_ntohs(tvb, AR_OP);
+  proto_tree_add_item_ret_uint(arp_tree, hf_arp_opcode, tvb, AR_OP, 2, ENC_BIG_ENDIAN, &ar_op);
 
   tot_len = MIN_ARP_HEADER_SIZE + ar_hln*2 + ar_pln*2;
+  proto_item_set_len(arp_item, tot_len);
 
   /* Adjust the length of this tvbuff to include only the ARP datagram.
      Our caller may use that to determine how much of its packet
@@ -1521,20 +1517,35 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      replies are used to announce relocation of network address, like
      in failover solutions. */
   if (((ar_op == ARPOP_REQUEST) || (ar_op == ARPOP_REPLY)) &&
-      (tvb_memeql(tvb, spa_offset, tvb_get_ptr(tvb, tpa_offset, ar_pln), ar_pln) == 0))
+      (tvb_memeql(tvb, spa_offset, tvb_get_ptr(tvb, tpa_offset, ar_pln), ar_pln) == 0)) {
     is_gratuitous = TRUE;
-  else
+    if ((ar_op == ARPOP_REQUEST) && (tvb_memeql(tvb, tha_offset, mac_allzero, 6) == 0))
+      is_announcement = TRUE;
+  }
+  else {
     is_gratuitous = FALSE;
-
+    if ((ar_op == ARPOP_REQUEST) && (tvb_memeql(tvb, tha_offset, mac_allzero, 6) == 0) && (tvb_get_ipv4(tvb, spa_offset) == 0))
+      is_probe = TRUE;
+  }
   switch (ar_op) {
     case ARPOP_REQUEST:
-      if (is_gratuitous)
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
+      if (is_gratuitous) {
+        if (is_announcement) {
+          col_add_fstr(pinfo->cinfo, COL_INFO, "ARP Announcement for %s",
                      tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro));
-      else
+        } else {
+          col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
+                     tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro));
+        }
+      }
+      else if (is_probe) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s? (ARP Probe)",
+                     tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro));
+      } else {
         col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s? Tell %s",
-                     tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro),
-                     tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+          tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro),
+          tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+      }
       break;
     case ARPOP_REPLY:
       if (is_gratuitous)
@@ -1675,22 +1686,28 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         op_str = "request/gratuitous ARP";
       if (is_gratuitous && (ar_op == ARPOP_REPLY))
         op_str = "reply/gratuitous ARP";
-      ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
-                                          "Address Resolution Protocol (%s)", op_str);
-    } else
-      ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
-                                          "Address Resolution Protocol (opcode 0x%04x)", ar_op);
-    arp_tree = proto_item_add_subtree(ti, ett_arp);
-    proto_tree_add_uint(arp_tree, hf_arp_hard_type, tvb, AR_HRD, 2, ar_hrd);
-    proto_tree_add_uint(arp_tree, hf_arp_proto_type, tvb, AR_PRO, 2, ar_pro);
-    proto_tree_add_uint(arp_tree, hf_arp_hard_size, tvb, AR_HLN, 1, ar_hln);
-    proto_tree_add_uint(arp_tree, hf_arp_proto_size, tvb, AR_PLN, 1, ar_pln);
-    proto_tree_add_uint(arp_tree, hf_arp_opcode, tvb, AR_OP,  2, ar_op);
-    if (is_gratuitous)
-   {
-    item = proto_tree_add_boolean(arp_tree, hf_arp_isgratuitous, tvb, 0, 0, is_gratuitous);
-    PROTO_ITEM_SET_GENERATED(item);
-   }
+      if (is_probe)
+        op_str = "ARP Probe";
+      if (is_announcement)
+        op_str = "ARP Announcement";
+
+      proto_item_append_text(arp_item, " (%s)", op_str);
+    } else {
+      proto_item_append_text(arp_item, " (opcode 0x%04x)", ar_op);
+    }
+
+    if (is_gratuitous) {
+      item = proto_tree_add_boolean(arp_tree, hf_arp_isgratuitous, tvb, 0, 0, is_gratuitous);
+      proto_item_set_generated(item);
+    }
+    if (is_probe) {
+      item = proto_tree_add_boolean(arp_tree, hf_arp_isprobe, tvb, 0, 0, is_probe);
+      proto_item_set_generated(item);
+    }
+    if (is_announcement) {
+      item = proto_tree_add_boolean(arp_tree, hf_arp_isannouncement, tvb, 0, 0, is_announcement);
+      proto_item_set_generated(item);
+    }
     if (ar_hln != 0) {
       proto_tree_add_item(arp_tree,
                           ARP_HW_IS_ETHER(ar_hrd, ar_hln) ?
@@ -1791,6 +1808,16 @@ proto_register_arp(void)
 
     { &hf_arp_isgratuitous,
       { "Is gratuitous",                "arp.isgratuitous",
+        FT_BOOLEAN,     BASE_NONE,      TFS(&tfs_true_false),   0x0,
+        NULL, HFILL }},
+
+    { &hf_arp_isprobe,
+      { "Is probe",                "arp.isprobe",
+        FT_BOOLEAN,     BASE_NONE,      TFS(&tfs_true_false),   0x0,
+        NULL, HFILL }},
+
+    { &hf_arp_isannouncement,
+      { "Is announcement",                "arp.isannouncement",
         FT_BOOLEAN,     BASE_NONE,      TFS(&tfs_true_false),   0x0,
         NULL, HFILL }},
 
@@ -1948,7 +1975,6 @@ proto_register_arp(void)
 
   module_t *arp_module;
   expert_module_t* expert_arp;
-  int proto_atmarp;
 
   proto_arp = proto_register_protocol("Address Resolution Protocol",
                                       "ARP/RARP", "arp");
@@ -1961,10 +1987,9 @@ proto_register_arp(void)
   expert_arp = expert_register_protocol(proto_arp);
   expert_register_field_array(expert_arp, ei, array_length(ei));
 
-  atmarp_handle = create_dissector_handle(dissect_atmarp, proto_atmarp);
-  ax25arp_handle = create_dissector_handle(dissect_ax25arp, proto_arp);
-
   arp_handle = register_dissector( "arp" , dissect_arp, proto_arp );
+
+  arp_hw_table = register_dissector_table("arp.hw.type", "ARP Hardware Type", proto_arp, FT_UINT16, BASE_DEC);
 
   /* Preferences */
   arp_module = prefs_register_protocol(proto_arp, NULL);
@@ -2006,6 +2031,10 @@ proto_register_arp(void)
 void
 proto_reg_handoff_arp(void)
 {
+  dissector_handle_t atmarp_handle, ax25arp_handle;
+  atmarp_handle = create_dissector_handle(dissect_atmarp, proto_atmarp);
+  ax25arp_handle = create_dissector_handle(dissect_ax25arp, proto_arp);
+
   dissector_add_uint("ethertype", ETHERTYPE_ARP, arp_handle);
   dissector_add_uint("ethertype", ETHERTYPE_REVARP, arp_handle);
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_ARP_1051, arp_handle);
@@ -2015,10 +2044,13 @@ proto_reg_handoff_arp(void)
   dissector_add_uint("gre.proto", ETHERTYPE_ARP, arp_handle);
   capture_dissector_add_uint("ethertype", ETHERTYPE_ARP, arp_cap_handle);
   capture_dissector_add_uint("ax25.pid", AX25_P_ARP, arp_cap_handle);
+
+  dissector_add_uint("arp.hw.type", ARPHRD_ATM2225, atmarp_handle);
+  dissector_add_uint("arp.hw.type", ARPHRD_AX25, ax25arp_handle);
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

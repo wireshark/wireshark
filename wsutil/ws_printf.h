@@ -25,22 +25,6 @@ extern "C" {
 #ifdef _WIN32
 #include <strsafe.h>
 
-#if _MSC_VER < 1900
-#include <stdarg.h>
-
-/*
- * vsnprintf_s's return value isn't compatible with C99 vsnprintf. We don't
- * return anything in order to avoid confusion.
- */
-
-static __inline void
-ws_vsnprintf(char *buffer, size_t size_of_buffer, const char *format, va_list argptr) {
-    /* We could alternatively use StringCchVPrintfA */
-    vsnprintf_s(buffer, size_of_buffer, _TRUNCATE, format, argptr);
-}
-
-#else /* _MSC_VER uses UCRT */
-
 /* The UCRT versions of snprintf and vsnprintf conform to C99 */
 
 static __inline void
@@ -48,8 +32,6 @@ ws_vsnprintf(char *buffer, size_t size_of_buffer, const char *format, va_list ar
 {
     vsnprintf(buffer, size_of_buffer, format, argptr);
 }
-
-#endif /* _MSC_VER */
 
 #else /* _WIN32 */
 
@@ -88,11 +70,6 @@ Dissectors should still try to use proto_tree_add_debug_text when the
 debugging context has a protocol tree.
 */
 #define ws_debug_printf     printf
-
-/* This is intended to fool checkAPIs.pl for few places that have legitimate
-use for g_warning. This should be used sparingly.
-*/
-#define ws_g_warning  g_warning
 
 #ifdef __cplusplus
 }

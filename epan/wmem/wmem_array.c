@@ -131,6 +131,15 @@ wmem_array_index(wmem_array_t *array, guint array_index)
     return &array->buf[array_index * array->elem_size];
 }
 
+int
+wmem_array_try_index(wmem_array_t *array, guint array_index, void *val)
+{
+    if (array_index >= array->elem_count)
+        return -1;
+    memcpy(val, &array->buf[array_index * array->elem_size], array->elem_size);
+    return 0;
+}
+
 void
 wmem_array_sort(wmem_array_t *array, int (*compar)(const void*,const void*))
 {
@@ -150,7 +159,7 @@ wmem_array_get_count(wmem_array_t *array)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

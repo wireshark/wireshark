@@ -453,7 +453,7 @@ struct check_drange_sanity_args {
  *    The macro which creates them, STTYPE_ACCESSOR, is defined in
  *    epan/dfilter/syntax-tree.h.
  *
- * From http://www.wireshark.org/lists/ethereal-dev/200308/msg00070.html
+ * From https://www.wireshark.org/lists/ethereal-dev/200308/msg00070.html
  */
 
 static void
@@ -603,7 +603,7 @@ check_function(dfwork_t *dfw, stnode_t *st_node)
 /* Convert a character constant to a 1-byte BYTE_STRING containing the
  * character. */
 static fvalue_t *
-charconst_to_bytes(dfwork_t *dfw, char *s, gboolean allow_partial_value)
+dfilter_fvalue_from_charconst_string(dfwork_t *dfw, ftenum_t ftype, char *s, gboolean allow_partial_value)
 {
 	fvalue_t *fvalue;
 
@@ -613,7 +613,7 @@ charconst_to_bytes(dfwork_t *dfw, char *s, gboolean allow_partial_value)
 		/* It's valid. Create a 1-byte BYTE_STRING from its value. */
 		temp_string = g_strdup_printf("%02x", fvalue->value.uinteger);
 		FVALUE_FREE(fvalue);
-		fvalue = dfilter_fvalue_from_unparsed(dfw, FT_BYTES, temp_string, allow_partial_value);
+		fvalue = dfilter_fvalue_from_unparsed(dfw, ftype, temp_string, allow_partial_value);
 		g_free(temp_string);
 	}
 	return (fvalue);
@@ -691,9 +691,10 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 				fvalue = dfilter_fvalue_from_string(dfw, ftype1, s);
 			else if (type2 == STTYPE_CHARCONST &&
 			    strcmp(relation_string, "contains") == 0) {
-				/* The RHS should be FT_BYTES, but a character
-				 * is just a one-byte byte string. */
-				fvalue = charconst_to_bytes(dfw, s, allow_partial_value);
+				/* The RHS should be the same type as the LHS,
+				 * but a character is just a one-byte byte
+				 * string. */
+				fvalue = dfilter_fvalue_from_charconst_string(dfw, ftype1, s, allow_partial_value);
 			} else
 				fvalue = dfilter_fvalue_from_unparsed(dfw, ftype1, s, allow_partial_value);
 
@@ -725,6 +726,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 		if (stnode_type_id(st_node) == STTYPE_TEST) {
 			sttype_test_set2_args(st_node, st_arg1, new_st);
 		} else {
+			/* Replace STTYPE_UNPARSED element by resolved value. */
 			sttype_set_replace_element(st_node, st_arg2, new_st);
 		}
 		stnode_free(st_arg2);
@@ -770,7 +772,10 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 		if (strcmp(relation_string, "in") != 0) {
 			g_assert_not_reached();
 		}
-		/* Attempt to interpret one element of the set at a time */
+		/* Attempt to interpret one element of the set at a time. Each
+		 * element is represented by two items in the list, the element
+		 * value and NULL. Both will be replaced by a lower and upper
+		 * value if the element is a range. */
 		nodelist = (GSList*)stnode_data(st_arg2);
 		while (nodelist) {
 			stnode_t *node = (stnode_t*)nodelist->data;
@@ -780,8 +785,26 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 				THROW(TypeError);
 				break;
 			}
-			check_relation_LHS_FIELD(dfw, "==", can_func,
-					allow_partial_value, st_arg2, st_arg1, node);
+
+			nodelist = g_slist_next(nodelist);
+			g_assert(nodelist);
+			stnode_t *node_right = (stnode_t *)nodelist->data;
+			if (node_right) {
+				/* range type, check if comparison is possible. */
+				if (!ftype_can_ge(ftype1)) {
+					dfilter_fail(dfw, "%s (type=%s) cannot participate in '%s' comparison.",
+							hfinfo1->abbrev, ftype_pretty_name(ftype1),
+							">=");
+					THROW(TypeError);
+				}
+				check_relation_LHS_FIELD(dfw, ">=", ftype_can_ge,
+						allow_partial_value, st_arg2, st_arg1, node);
+				check_relation_LHS_FIELD(dfw, "<=", ftype_can_le,
+						allow_partial_value, st_arg2, st_arg1, node_right);
+			} else {
+				check_relation_LHS_FIELD(dfw, "==", can_func,
+						allow_partial_value, st_arg2, st_arg1, node);
+			}
 			nodelist = g_slist_next(nodelist);
 		}
 	}
@@ -1114,7 +1137,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 		} else {
 			/* The RHS should be FT_BYTES, but a character is just a
 			 * one-byte byte string. */
-			fvalue = charconst_to_bytes(dfw, s, allow_partial_value);
+			fvalue = dfilter_fvalue_from_charconst_string(dfw, FT_BYTES, s, allow_partial_value);
 		}
 		if (!fvalue) {
 			DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED): Could not convert from string!\n"));
@@ -1511,7 +1534,7 @@ dfw_semcheck(dfwork_t *dfw, GPtrArray *deprecated)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef ELIDED_LABEL_H
 #define ELIDED_LABEL_H
@@ -20,7 +21,8 @@ public:
     void setSmallText(bool small_text = true) { small_text_ = small_text; }
 
 protected:
-    void resizeEvent(QResizeEvent *);
+    virtual bool event(QEvent *event);
+    virtual void resizeEvent(QResizeEvent *);
 
 private:
     bool small_text_;

@@ -27,7 +27,6 @@ ws_utf8_char_len(guint8 ch)
 
 #ifdef _WIN32
 
-#include <shellapi.h>
 #include <strsafe.h>
 
 /** @file
@@ -144,25 +143,22 @@ utf_16to8(const wchar_t *utf16str)
 }
 
 /* Convert our argument list from UTF-16 to UTF-8. */
-void
-arg_list_utf_16to8(int argc, char *argv[]) {
-  LPWSTR              *wc_argv;
-  int                  wc_argc, i;
+char **
+arg_list_utf_16to8(int argc, wchar_t *wc_argv[]) {
+  char               **argv;
+  int                  i;
 
-  /* Convert our arg list to UTF-8. */
-  wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
-  if (wc_argv && wc_argc == argc) {
-    for (i = 0; i < argc; i++) {
-      argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
-    }
-  } /* XXX else bail because something is horribly, horribly wrong? */
-  LocalFree(wc_argv);
+  argv = (char **) g_malloc(sizeof(char *) * argc);
+  for (i = 0; i < argc; i++) {
+    argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
+  }
+  return argv;
 }
 
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

@@ -424,7 +424,7 @@ proto_reg_handoff_mrp_mvrp(void)
     dissector_add_uint("ethertype", ETHERTYPE_MVRP, mvrp_handle);
 }
 /*
-* Editor modelines - http://www.wireshark.org/tools/modelines.html
+* Editor modelines - https://www.wireshark.org/tools/modelines.html
 *
 * Local variables:
 * c-basic-offset: 4

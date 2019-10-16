@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef UI_QT_EXTCAP_ARGUMENT_H_
 #define UI_QT_EXTCAP_ARGUMENT_H_
@@ -93,6 +94,9 @@ public:
 
     void resetValue();
 
+    virtual QString group() const;
+    virtual int argNr() const;
+
     static ExtcapArgument * create(extcap_arg * argument = Q_NULLPTR, QObject * parent = Q_NULLPTR);
 
 Q_SIGNALS:
@@ -109,6 +113,7 @@ protected:
 
     extcap_arg * _argument;
     QLabel * _label;
+    int _number;
 
     const QString label_style;
 

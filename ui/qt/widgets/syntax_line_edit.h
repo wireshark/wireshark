@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef SYNTAX_LINE_EDIT_H
 #define SYNTAX_LINE_EDIT_H
@@ -60,6 +61,7 @@ protected:
     void completionKeyPressEvent(QKeyEvent *event);
     void completionFocusInEvent(QFocusEvent *event);
     virtual void focusOutEvent(QFocusEvent *event);
+    virtual void paintEvent(QPaintEvent *event);
 
 private:
     SyntaxState syntax_state_;

@@ -26,8 +26,8 @@ my $is_contributing = 0;
 
 my $header = "
 
-Original Author
--------- ------
+= Original Author =
+
 Gerald Combs            <gerald[AT]wireshark.org>
 
 
@@ -35,8 +35,8 @@ Gerald Combs            <gerald[AT]wireshark.org>
 
 my $trailer = "
 
-Acknowledgements
-------------
+= Acknowledgements =
+
 Dan Lasley <dlasley[AT]promus.com> gave permission for his
 dumpit() hex-dump routine to be used.
 
@@ -44,19 +44,13 @@ Mattia Cazzola <mattiac[AT]alinet.it> provided a patch to the
 hex dump display routine.
 
 We use the exception module from Kazlib, a C library written by
-Kaz Kylheku <kaz[AT]ashi.footprints.net>. Thanks go to him for
+Kaz Kylheku <kaz[AT]kylheku.com>. Thanks go to him for
 his well-written library. The Kazlib home page can be found at
-http://users.footprints.net/~kaz/kazlib.html
+http://www.kylheku.com/~kaz/kazlib.html
 
 We use Lua BitOp, written by Mike Pall, for bitwise operations
 on numbers in Lua. The Lua BitOp home page can be found at
-http://bitop.luajit.org/
-
-Henrik Brix Andersen <brix[AT]gimp.org> gave permission for his
-webbrowser calling routine to be used.
-
-Christophe Devine <c.devine[AT]cr0.net> gave permission for his
-SHA1 routines to be used.
+https://bitop.luajit.org
 
 snax <snax[AT]shmoo.com> gave permission to use his(?) weak key
 detection code from Airsnort.
@@ -68,11 +62,15 @@ Martin Pool <mbp[AT]sourcefrog.net>.
 
 Emanuel Eichhammer <support[AT]qcustomplot.com> granted permission
 to use QCustomPlot.
+
+Insecure.Com LLC (\"The Nmap Project\") has granted the Wireshark
+Foundation permission to distribute Npcap with our Windows
+installers.
 ";
 
 my $git_log_text = "
-From git log
----------------
+= From git log =
+
 ";
 
 # Perl trim function to remove whitespace from the start and end of the string

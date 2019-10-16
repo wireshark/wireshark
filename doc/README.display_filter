@@ -553,23 +553,19 @@ you may want to move directly to the generation of Wireshark.
 Also look at ui/qt/display_filter_expression_dialog.cpp and the display
 filter expression generator.
 
-How to add a new test to dfilter-test.py
-========================================
-Note: dfilter-test.py requires Python 2.7 or newer (including Python 3)
+How to add a new test to the test suite
+=======================================
 
-"tools/dfilter-test.py" is the main test script. It includes
-the test from files in tools/dftestlib. You can add a test
-to a file in tools/dftestlib, or you can create a new file
-in tools/dftestlib. If you do add a new file, you must
-import it (and the class it defines) in "tools/dfilter-test.py"
+All display filter tests are located in test/suite_dfilter.
+You can add a test to an existing file or create a new file.
 
 Each new test class must define "trace_file", which names
-a capture file in "tools/dftestfiles". All the tests
+a capture file in "test/captures". All the tests
 run in that class will use that one capture file.
 
-There are 2 methods you can use for testing:
+There are 2 fixtures you can use for testing:
 
-assertDfilter(dfilter_text, expected_count)
+checkDFilterCount(dfilter, expected_count)
 
     This will run the display filter through tshark, on the
     file named by "trace_file", and assert that the
@@ -578,35 +574,28 @@ assertDfilter(dfilter_text, expected_count)
     matches is not the same as failure to compile the display
     filter string.
 
-assertDFilterFail(dfilter_text)
+checkDFilterFail(dfilter, error)
 
-    This will run tshark with the display filter, and
-    asser that tshark fails. This is useful when expecting
-    display filter syntax errors to be caught.
+    This will run dftest with the display filter, and check
+    that it fails with a given error message. This is useful
+    when expecting display filter syntax errors to be caught.
 
-Then, simply run "dfilter-test.py". You can run the tests
-in a single Test class by naming that -class on the
-dfilter-test.py command-line, or even run a single
-test by naming it. E.g., the following are all valid ways
-of running dfilter-test.py:
+To execute tests:
 
-# Run all tests
-$ ./tools/dfilter-test.py
+# Run all dfilter tests
+$ test/test.py suite_dfilter
 
-# Run all tests in "testTVB"
-$ ./tools/dfilter-test.py testTVB
-
-# Run the the "test_contains_1" test from testTVB
-$ ./tools/dfilter-test.py testTVB.test_contains_1
+# Run all tests from group_tvb.py:
+$ test/test.py suite_dfilter.group_tvb
 
 # For faster, parallel tests, install the "pytest-xdist" first
 # (for example, using "pip install pytest-xdist"), then:
-$ pytest -nauto tools/dfilter-test.py
+$ pytest -nauto test -k suite_dfilter
 
-# Run all tests in "testTVB", in parallel:
-$ pytest -nauto tools/dfilter-test.py -k testTVB
+# Run all tests from group_tvb.py, in parallel:
+$ pytest -nauto test -k case_tvb
 
-By default dfilter-test.py assumes that the "tshark" binary is located in the
-current working directory. If that is not the case, set the environment variable
-WS_BIN_PATH to correct directory.
+# Run a single test from group_tvb.py, case_tvb.test_slice_4:
+$ pytest test -k "case_tvb and test_slice_4"
 
+See also https://www.wireshark.org/docs/wsdg_html_chunked/ChapterTests.html

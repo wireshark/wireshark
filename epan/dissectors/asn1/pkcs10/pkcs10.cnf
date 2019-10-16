@@ -1,0 +1,31 @@
+# pkcs10.cnf
+# PKCS10 conformation file
+
+#.MODULE_IMPORT
+PKIX1Explicit88	pkix1explicit
+
+#.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
+
+#.EXPORTS
+CertificationRequest
+
+#.REGISTER
+# From PKCS 9 / RFC 2985
+Attributes B "1.2.840.113549.1.9.9"  "pkcs-9-at-extendedCertificateAttributes"
+
+#.PDU
+CertificationRequest
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.FN_PARS Attribute/type
+  FN_VARIANT = _str  HF_INDEX = hf_pkcs10_type  VAL_PTR = &actx->external.direct_reference
+
+#.FN_BODY Attribute/values/_item
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
+
+#.END_OF_CNF

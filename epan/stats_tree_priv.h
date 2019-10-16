@@ -53,16 +53,27 @@ struct _burst_bucket {
 };
 
 struct _stat_node {
-	gchar*			name;
-	int			id;
+	gchar*				name;
+	int					id;
+	stat_node_datatype	datatype;
 
 	/** the counter it keeps */
 	gint			counter;
 	/** total of all values submitted - for computing averages */
-	gint64			total;
-	gint			minvalue;
-	gint			maxvalue;
-	int				st_flags;
+	union {
+		gint64	int_total;
+		gdouble	float_total;
+	} total;
+	union {
+		gint	int_min;
+		gfloat	float_min;
+	} minvalue;
+	union {
+		gint	int_max;
+		gfloat	float_max;
+	} maxvalue;
+
+	gint			st_flags;
 
 	/** fields for burst rate calculation */
 	gint			bcount;
@@ -128,7 +139,6 @@ struct _stats_tree_cfg {
 	gchar*			tapname;
 	register_stat_group_t	stat_group;
 
-	gboolean in_use; /* GTK+ only */
 	gboolean plugin;
 
 	/** dissector defined callbacks */
@@ -168,7 +178,7 @@ WS_DLL_PUBLIC void stats_tree_presentation(void (*registry_iterator)(gpointer,gp
 WS_DLL_PUBLIC stats_tree *stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter);
 
 /** callback for taps */
-WS_DLL_PUBLIC int  stats_tree_packet(void*, packet_info*, epan_dissect_t*, const void *);
+WS_DLL_PUBLIC tap_packet_status stats_tree_packet(void*, packet_info*, epan_dissect_t*, const void *);
 
 /** callback for reset */
 WS_DLL_PUBLIC void stats_tree_reset(void *p_st);

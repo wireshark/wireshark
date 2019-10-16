@@ -24,8 +24,8 @@
 #include "capture_opts.h"
 #include "ringbuffer.h"
 
-#include <wsutil/clopts_common.h>
-#include <wsutil/cmdarg_err.h>
+#include <ui/clopts_common.h>
+#include <ui/cmdarg_err.h>
 #include <wsutil/file_util.h>
 #include <wsutil/ws_pipe.h>
 
@@ -98,9 +98,11 @@ capture_opts_init(capture_options *capture_opts)
 
     capture_opts->multi_files_on                  = FALSE;
     capture_opts->has_file_duration               = FALSE;
-    capture_opts->file_duration                   = 60;               /* 1 min */
+    capture_opts->file_duration                   = 60.0;             /* 1 min */
     capture_opts->has_file_interval               = FALSE;
     capture_opts->file_interval                   = 60;               /* 1 min */
+    capture_opts->has_file_packets                = FALSE;
+    capture_opts->file_packets                    = 0;
     capture_opts->has_ring_num_files              = FALSE;
     capture_opts->ring_num_files                  = RINGBUFFER_MIN_NUM_FILES;
 
@@ -111,7 +113,7 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->has_autostop_filesize           = FALSE;
     capture_opts->autostop_filesize               = 1000;             /* 1 MB */
     capture_opts->has_autostop_duration           = FALSE;
-    capture_opts->autostop_duration               = 60;               /* 1 min */
+    capture_opts->autostop_duration               = 60.0;             /* 1 min */
     capture_opts->capture_comment                 = NULL;
 
     capture_opts->output_to_pipe                  = FALSE;
@@ -140,6 +142,7 @@ capture_opts_cleanup(capture_options *capture_opts)
         g_array_free(capture_opts->all_ifaces, TRUE);
         capture_opts->all_ifaces = NULL;
     }
+    g_free(capture_opts->save_file);
 }
 
 /* log content of capture_opts */
@@ -155,7 +158,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
         g_log(log_domain, log_level, "Interface name[%02d]  : %s", i, interface_opts->name ? interface_opts->name : "(unspecified)");
         g_log(log_domain, log_level, "Interface description[%02d] : %s", i, interface_opts->descr ? interface_opts->descr : "(unspecified)");
-        g_log(log_domain, log_level, "Console display name[%02d]: %s", i, interface_opts->console_display_name ? interface_opts->console_display_name : "(unspecified)");
+        g_log(log_domain, log_level, "Display name[%02d]: %s", i, interface_opts->display_name ? interface_opts->display_name : "(unspecified)");
         g_log(log_domain, log_level, "Capture filter[%02d]  : %s", i, interface_opts->cfilter ? interface_opts->cfilter : "(unspecified)");
         g_log(log_domain, log_level, "Snap length[%02d] (%u) : %d", i, interface_opts->has_snaplen, interface_opts->snaplen);
         g_log(log_domain, log_level, "Link Type[%02d]       : %d", i, interface_opts->linktype);
@@ -240,14 +243,15 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "ShowInfo            : %u", capture_opts->show_info);
 
     g_log(log_domain, log_level, "MultiFilesOn        : %u", capture_opts->multi_files_on);
-    g_log(log_domain, log_level, "FileDuration    (%u) : %u", capture_opts->has_file_duration, capture_opts->file_duration);
+    g_log(log_domain, log_level, "FileDuration    (%u) : %.3f", capture_opts->has_file_duration, capture_opts->file_duration);
     g_log(log_domain, log_level, "FileInterval    (%u) : %u", capture_opts->has_file_interval, capture_opts->file_interval);
+    g_log(log_domain, log_level, "FilePackets     (%u) : %u", capture_opts->has_file_packets, capture_opts->file_packets);
     g_log(log_domain, log_level, "RingNumFiles    (%u) : %u", capture_opts->has_ring_num_files, capture_opts->ring_num_files);
 
     g_log(log_domain, log_level, "AutostopFiles   (%u) : %u", capture_opts->has_autostop_files, capture_opts->autostop_files);
     g_log(log_domain, log_level, "AutostopPackets (%u) : %u", capture_opts->has_autostop_packets, capture_opts->autostop_packets);
     g_log(log_domain, log_level, "AutostopFilesize(%u) : %u (KB)", capture_opts->has_autostop_filesize, capture_opts->autostop_filesize);
-    g_log(log_domain, log_level, "AutostopDuration(%u) : %u", capture_opts->has_autostop_duration, capture_opts->autostop_duration);
+    g_log(log_domain, log_level, "AutostopDuration(%u) : %.3f", capture_opts->has_autostop_duration, capture_opts->autostop_duration);
 }
 
 /*
@@ -286,7 +290,7 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
     }
     if (strcmp(autostoparg,"duration") == 0) {
         capture_opts->has_autostop_duration = TRUE;
-        capture_opts->autostop_duration = get_positive_int(p,"autostop duration");
+        capture_opts->autostop_duration = get_positive_double(p,"autostop duration");
     } else if (strcmp(autostoparg,"filesize") == 0) {
         capture_opts->has_autostop_filesize = TRUE;
         capture_opts->autostop_filesize = get_nonzero_guint32(p,"autostop filesize");
@@ -294,6 +298,9 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
         capture_opts->multi_files_on = TRUE;
         capture_opts->has_autostop_files = TRUE;
         capture_opts->autostop_files = get_positive_int(p,"autostop files");
+    } else if (strcmp(autostoparg,"packets") == 0) {
+        capture_opts->has_autostop_packets = TRUE;
+        capture_opts->autostop_packets = get_positive_int(p,"packet count");
     } else {
         return FALSE;
     }
@@ -396,10 +403,13 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
         capture_opts->autostop_filesize = get_nonzero_guint32(p, "ring buffer filesize");
     } else if (strcmp(arg,"duration") == 0) {
         capture_opts->has_file_duration = TRUE;
-        capture_opts->file_duration = get_positive_int(p, "ring buffer duration");
+        capture_opts->file_duration = get_positive_double(p, "ring buffer duration");
     } else if (strcmp(arg,"interval") == 0) {
         capture_opts->has_file_interval = TRUE;
         capture_opts->file_interval = get_positive_int(p, "ring buffer interval");
+    } else if (strcmp(arg,"packets") == 0) {
+        capture_opts->has_file_packets = TRUE;
+        capture_opts->file_packets = get_positive_int(p, "ring buffer packet count");
     }
 
     *colonp = ':';    /* put the colon back */
@@ -499,6 +509,140 @@ get_auth_arguments(capture_options *capture_opts, const char *arg)
 }
 #endif
 
+#ifdef _WIN32
+static char *
+capture_opts_generate_display_name(const char *friendly_name,
+                                   const char *name _U_)
+{
+    /*
+     * Display the friendly name rather than the not-so-friendly
+     * GUID-based interface name.
+     */
+    return g_strdup(friendly_name);
+}
+#else
+static char *
+capture_opts_generate_display_name(const char *friendly_name,
+                                   const char *name)
+{
+    /*
+     * On UN*X, however, users are more used to interface names,
+     * and may find it helpful to see them.
+     */
+    return g_strdup_printf("%s: %s", friendly_name, name);
+}
+#endif
+
+static void
+fill_in_interface_opts_from_ifinfo(interface_options *interface_opts,
+                                   const if_info_t *if_info)
+{
+    interface_opts->name = g_strdup(if_info->name);
+
+    if (if_info->friendly_name != NULL) {
+        /*
+         * We have a friendly name; remember it as the
+         * description...
+         */
+        interface_opts->descr = g_strdup(if_info->friendly_name);
+        /*
+         * ...and use it in the console display name.
+         */
+        interface_opts->display_name = capture_opts_generate_display_name(if_info->friendly_name, if_info->name);
+    } else {
+        /* fallback to the interface name */
+        interface_opts->descr = NULL;
+        interface_opts->display_name = g_strdup(if_info->name);
+    }
+    interface_opts->if_type = if_info->type;
+    interface_opts->extcap = g_strdup(if_info->extcap);
+}
+
+static gboolean
+fill_in_interface_opts_from_ifinfo_by_name(interface_options *interface_opts,
+                                           const char *name)
+{
+    gboolean    matched;
+    GList       *if_list;
+    int         err;
+    GList       *if_entry;
+    if_info_t   *if_info;
+    size_t      prefix_length;
+
+    matched = FALSE;
+    if_list = capture_interface_list(&err, NULL, NULL);
+    if (if_list != NULL) {
+        /*
+         * Try and do an exact match (case insensitive) on  the
+         * interface name, the interface description, and the
+         * hardware description.
+         */
+        for (if_entry = g_list_first(if_list); if_entry != NULL;
+             if_entry = g_list_next(if_entry))
+        {
+            if_info = (if_info_t *)if_entry->data;
+
+            /*
+             * Does the specified name match the interface name
+             * with a case-insensitive match?
+             */
+            if (g_ascii_strcasecmp(if_info->name, name) == 0) {
+                /*
+                 * Yes.
+                 */
+                matched = TRUE;
+                break;
+            }
+
+            /*
+             * Does this interface have a friendly name and, if so,
+             * does the specified name match the friendly name with
+             * a case-insensitive match?
+             */
+            if (if_info->friendly_name != NULL &&
+                g_ascii_strcasecmp(if_info->friendly_name, name) == 0) {
+                /*
+                 * Yes.
+                 */
+                matched = TRUE;
+                break;
+            }
+        }
+
+        if (!matched) {
+            /*
+             * We didn't find it; attempt a case-insensitive prefix match
+             * of the friendly name.
+             */
+            prefix_length = strlen(name);
+            for (if_entry = g_list_first(if_list); if_entry != NULL;
+                 if_entry = g_list_next(if_entry))
+            {
+                if_info = (if_info_t *)if_entry->data;
+
+                if (if_info->friendly_name != NULL &&
+                    g_ascii_strncasecmp(if_info->friendly_name, name, prefix_length) == 0) {
+                    /*
+                     * We found an interface whose friendly name matches
+                     * with a case-insensitive prefix match.
+                     */
+                    matched = TRUE;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (matched) {
+        /*
+         * We found an interface that matches.
+         */
+        fill_in_interface_opts_from_ifinfo(interface_opts, if_info);
+    }
+    free_interface_list(if_list);
+    return matched;
+}
+
 static int
 capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str_p)
 {
@@ -548,135 +692,38 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             cmdarg_err("There is no interface with that adapter index");
             return 1;
         }
-        interface_opts.name = g_strdup(if_info->name);
-        if (if_info->friendly_name != NULL) {
-            /*
-             * We have a friendly name for the interface, so display that
-             * instead of the interface name/guid.
-             *
-             * XXX - on UN*X, the interface name is not quite so ugly,
-             * and might be more familiar to users; display them both?
-             */
-            interface_opts.console_display_name = g_strdup(if_info->friendly_name);
-        } else {
-            /* fallback to the interface name */
-            interface_opts.console_display_name = g_strdup(if_info->name);
-        }
-        interface_opts.if_type = if_info->type;
-        interface_opts.extcap = g_strdup(if_info->extcap);
+        fill_in_interface_opts_from_ifinfo(&interface_opts, if_info);
         free_interface_list(if_list);
     } else if (capture_opts->capture_child) {
-        /* In Wireshark capture child mode, thus proper device name is supplied. */
-        /* No need for trying to match it for friendly names. */
-        interface_opts.name = g_strdup(optarg_str_p);
-        interface_opts.console_display_name = g_strdup(optarg_str_p);
-        interface_opts.if_type = capture_opts->default_options.if_type;
-        interface_opts.extcap = g_strdup(capture_opts->default_options.extcap);
+        /*
+         * In Wireshark capture child mode, so the exact interface name
+         * is supplied, and we don't need to look it up.
+         */
+	if_info = if_info_get(optarg_str_p);
+	fill_in_interface_opts_from_ifinfo(&interface_opts, if_info);
+        if_info_free(if_info);
     } else {
         /*
-         * Retrieve the interface list so that we can search for the
-         * specified option amongst both the interface names and the
-         * friendly names and so that we find the friendly name even
-         * if an interface name was specified.
-         *
-         * If we can't get the list, just use the specified option as
-         * the interface name, so that the user can try specifying an
-         * interface explicitly for testing purposes.
+         * Search for that name in the interface list and, if we found
+         * it, fill in fields in the interface_opts structure.
          */
-        if_list = capture_interface_list(&err, NULL, NULL);
-        if (if_list != NULL) {
-            /* try and do an exact match (case insensitive) */
-            GList   *if_entry;
-            gboolean matched;
-
-            matched = FALSE;
-            for (if_entry = g_list_first(if_list); if_entry != NULL;
-                 if_entry = g_list_next(if_entry))
-            {
-                if_info = (if_info_t *)if_entry->data;
-                /* exact name check */
-                if (g_ascii_strcasecmp(if_info->name, optarg_str_p) == 0) {
-                    /* exact match on the interface name, use that for displaying etc */
-                    interface_opts.name = g_strdup(if_info->name);
-
-                    if (if_info->friendly_name != NULL) {
-                        /*
-                         * If we have a friendly name, use that for the
-                         * console display name, as it is the basis for
-                         * the auto generated temp filename.
-                         */
-                        interface_opts.console_display_name = g_strdup(if_info->friendly_name);
-                    } else {
-                        interface_opts.console_display_name = g_strdup(if_info->name);
-                    }
-                    interface_opts.if_type = if_info->type;
-                    interface_opts.extcap = g_strdup(if_info->extcap);
-                    matched = TRUE;
-                    break;
-                }
-
-                /* exact friendly name check */
-                if (if_info->friendly_name != NULL &&
-                    g_ascii_strcasecmp(if_info->friendly_name, optarg_str_p) == 0) {
-                    /* exact match - use the friendly name for display */
-                    interface_opts.name = g_strdup(if_info->name);
-                    interface_opts.console_display_name = g_strdup(if_info->friendly_name);
-                    interface_opts.if_type = if_info->type;
-                    interface_opts.extcap = g_strdup(if_info->extcap);
-                    matched = TRUE;
-                    break;
-                }
-            }
-
-            /* didn't find, attempt a case insensitive prefix match of the friendly name*/
-            if (!matched) {
-                size_t prefix_length;
-
-                prefix_length = strlen(optarg_str_p);
-                for (if_entry = g_list_first(if_list); if_entry != NULL;
-                     if_entry = g_list_next(if_entry))
-                {
-                    if_info = (if_info_t *)if_entry->data;
-
-                    if (if_info->friendly_name != NULL &&
-                        g_ascii_strncasecmp(if_info->friendly_name, optarg_str_p, prefix_length) == 0) {
-                        /* prefix match - use the friendly name for display */
-                        interface_opts.name = g_strdup(if_info->name);
-                        interface_opts.console_display_name = g_strdup(if_info->friendly_name);
-                        interface_opts.if_type = if_info->type;
-                        interface_opts.extcap = g_strdup(if_info->extcap);
-                        matched = TRUE;
-                        break;
-                    }
-                }
-            }
-            if (!matched) {
-                /*
-                 * We didn't find the interface in the list; just use
-                 * the specified name, so that, for example, if an
-                 * interface doesn't show up in the list for some
-                 * reason, the user can try specifying it explicitly
-                 * for testing purposes.
-                 */
-                interface_opts.name = g_strdup(optarg_str_p);
-                interface_opts.console_display_name = g_strdup(optarg_str_p);
-                interface_opts.if_type = capture_opts->default_options.if_type;
-                interface_opts.extcap = g_strdup(capture_opts->default_options.extcap);
-            }
-            free_interface_list(if_list);
-        } else {
+        if (!fill_in_interface_opts_from_ifinfo_by_name(&interface_opts,
+                                                        optarg_str_p)) {
+            /*
+             * We didn't find the interface in the list; just use
+             * the specified name, so that, for example, if an
+             * interface doesn't show up in the list for some
+             * reason, the user can try specifying it explicitly
+             * for testing purposes.
+             */
             interface_opts.name = g_strdup(optarg_str_p);
-            interface_opts.console_display_name = g_strdup(optarg_str_p);
+            interface_opts.descr = NULL;
+            interface_opts.display_name = g_strdup(optarg_str_p);
             interface_opts.if_type = capture_opts->default_options.if_type;
             interface_opts.extcap = g_strdup(capture_opts->default_options.extcap);
         }
     }
 
-    /*  We don't set iface_descr here because doing so requires
-     *  capture_ui_utils.c which requires epan/prefs.c which is
-     *  probably a bit too much dependency for here...
-     */
-    interface_opts.descr = g_strdup(capture_opts->default_options.descr);
     interface_opts.cfilter = g_strdup(capture_opts->default_options.cfilter);
     interface_opts.snaplen = capture_opts->default_options.snaplen;
     interface_opts.has_snaplen = capture_opts->default_options.has_snaplen;
@@ -767,6 +814,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         break;
 #endif
     case 'c':        /* Capture n packets */
+        /* XXX Use set_autostop_criterion instead? */
         capture_opts->has_autostop_packets = TRUE;
         capture_opts->autostop_packets = get_positive_int(optarg_str_p, "packet count");
         break;
@@ -887,6 +935,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         capture_opts->saving_to_file = TRUE;
         g_free(capture_opts->save_file);
         capture_opts->save_file = g_strdup(optarg_str_p);
+        capture_opts->orig_save_file = g_strdup(optarg_str_p);
         status = capture_opts_output_to_pipe(capture_opts->save_file, &capture_opts->output_to_pipe);
         return status;
     case 'y':        /* Set the pcap data link type */
@@ -970,7 +1019,7 @@ capture_opts_print_interfaces(GList *if_list)
         printf("%d. %s", i++, if_info->name);
 
         /* Print the interface friendly name, if it exists;
-          if not fall back to vendor description, if it exists. */
+          if not, fall back to the vendor description, if it exists. */
         if (if_info->friendly_name != NULL){
             printf(" (%s)", if_info->friendly_name);
         } else {
@@ -1119,7 +1168,7 @@ capture_opts_del_iface(capture_options *capture_opts, guint if_index)
 
     g_free(interface_opts->name);
     g_free(interface_opts->descr);
-    g_free(interface_opts->console_display_name);
+    g_free(interface_opts->display_name);
     g_free(interface_opts->cfilter);
     g_free(interface_opts->timestamp_type);
     g_free(interface_opts->extcap);
@@ -1127,7 +1176,7 @@ capture_opts_del_iface(capture_options *capture_opts, guint if_index)
     if (interface_opts->extcap_args)
         g_hash_table_unref(interface_opts->extcap_args);
     if (interface_opts->extcap_pid != WS_INVALID_PID)
-        g_spawn_close_pid(interface_opts->extcap_pid);
+        ws_pipe_close((ws_pipe_t *) interface_opts->extcap_pipedata);
     g_free(interface_opts->extcap_pipedata);
     g_free(interface_opts->extcap_control_in);
     g_free(interface_opts->extcap_control_out);
@@ -1164,8 +1213,8 @@ collect_ifaces(capture_options *capture_opts)
         device = &g_array_index(capture_opts->all_ifaces, interface_t, i);
         if (!device->hidden && device->selected) {
             interface_opts.name = g_strdup(device->name);
-            interface_opts.descr = g_strdup(device->display_name);
-            interface_opts.console_display_name = g_strdup(device->name);
+            interface_opts.descr = g_strdup(device->friendly_name);
+            interface_opts.display_name = g_strdup(device->display_name);
             interface_opts.linktype = device->active_dlt;
             interface_opts.cfilter = g_strdup(device->cfilter);
             interface_opts.timestamp_type = g_strdup(device->timestamp_type);
@@ -1225,12 +1274,6 @@ capture_opts_free_interface_t_links(gpointer elem, gpointer unused _U_)
     g_free(elem);
 }
 
-static void
-capture_opts_free_interface_t_addrs(gpointer elem, gpointer unused _U_)
-{
-    g_free(elem);
-}
-
 void
 capture_opts_free_interface_t(interface_t *device)
 {
@@ -1253,9 +1296,7 @@ capture_opts_free_interface_t(interface_t *device)
         g_free(device->if_info.name);
         g_free(device->if_info.friendly_name);
         g_free(device->if_info.vendor_description);
-        g_slist_foreach(device->if_info.addrs,
-                        capture_opts_free_interface_t_addrs, NULL);
-        g_slist_free(device->if_info.addrs);
+        g_slist_free_full(device->if_info.addrs, g_free);
         g_free(device->if_info.extcap);
     }
 }
@@ -1263,7 +1304,7 @@ capture_opts_free_interface_t(interface_t *device)
 #endif /* HAVE_LIBPCAP */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

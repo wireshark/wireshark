@@ -24,7 +24,8 @@
 WS_DLL_PUBLIC
 int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);
 
-typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
+typedef gboolean (*subtype_read_func)(struct wtap*, wtap_rec *,
+                                      Buffer *, int *, char **, gint64 *);
 typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64, wtap_rec *,
                                            Buffer *, int *, char **);
 
@@ -37,11 +38,10 @@ struct wtap {
     gboolean                    ispipe;                 /**< TRUE if the file is a pipe */
     int                         file_type_subtype;
     guint                       snapshot_length;
-    wtap_rec                    rec;
-    Buffer                      *rec_data;
     GArray                      *shb_hdrs;
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
     GArray                      *nrb_hdrs;              /**< holds the Name Res Block's comment/custom_opts, or NULL */
+    GArray                      *dsbs;                  /**< An array of DSBs (of type wtap_block_t), or NULL if not supported. */
 
     void                        *priv;          /* this one holds per-file state and is free'd automatically by wtap_close() */
     void                        *wslua_data;    /* this one holds wslua state info and is not free'd */
@@ -68,6 +68,7 @@ struct wtap {
                                                 */
     wtap_new_ipv4_callback_t    add_new_ipv4;
     wtap_new_ipv6_callback_t    add_new_ipv6;
+    wtap_new_secrets_callback_t add_new_secrets;
     GPtrArray                   *fast_seek;
 };
 
@@ -88,7 +89,7 @@ struct wtap_dumper {
     int                     file_type_subtype;
     int                     snaplen;
     int                     encap;
-    gboolean                compressed;
+    wtap_compression_type   compression_type;
     gboolean                needs_reload;   /* TRUE if the file requires re-loading after saving with wtap */
     gint64                  bytes_dumped;
 
@@ -102,6 +103,14 @@ struct wtap_dumper {
     GArray                  *shb_hdrs;
     GArray                  *nrb_hdrs;        /**< name resolution comment/custom_opt, or NULL */
     GArray                  *interface_data; /**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
+    GArray                  *dsbs_initial;   /**< An array of initial DSBs (of type wtap_block_t) */
+
+    /*
+     * Additional blocks that might grow as data is being collected.
+     * Subtypes should write these blocks before writing new packet blocks.
+     */
+    const GArray            *dsbs_growing;          /**< A reference to an array of DSBs (of type wtap_block_t) */
+    guint                   dsbs_growing_written;   /**< Number of already processed DSBs in dsbs_growing. */
 };
 
 WS_DLL_PUBLIC gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf,
@@ -251,12 +260,6 @@ extern gint wtap_num_file_types;
 #endif
 
 /*
- * Table of extensions for compressed file types we support.
- * Last pointer in the list is null.
- */
-extern const char *compressed_file_extension_table[];
-
-/*
  * Read a given number of bytes from a file into a buffer or, if
  * buf is NULL, just discard them.
  *
@@ -309,17 +312,37 @@ gboolean
 wtap_read_packet_bytes(FILE_T fh, Buffer *buf, guint length, int *err,
     gchar **err_info);
 
+/*
+ * Implementation of wth->subtype_read that reads the full file contents
+ * as a single packet.
+ */
+gboolean
+wtap_full_file_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
+
+/*
+ * Implementation of wth->subtype_seek_read that reads the full file contents
+ * as a single packet.
+ */
+gboolean
+wtap_full_file_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+
+/**
+ * Invokes the callback with the given decryption secrets block.
+ */
+void
+wtapng_process_dsb(wtap *wth, wtap_block_t dsb);
 #endif /* __WTAP_INT_H__ */
 
 /*
- * Editor modelines
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
- * Local Variables:
- * c-basic-offset: 8
+ * Local variables:
+ * c-basic-offset: 4
  * tab-width: 8
- * indent-tabs-mode: t
+ * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=8 tabstop=8 noexpandtab:
- * :indentSize=8:tabSize=8:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 /* This module provides Protocol Column Info tap for tshark */
 
@@ -20,6 +21,8 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 
+#include <ui/cmdarg_err.h>
+
 void register_tap_listener_protocolinfo(void);
 
 typedef struct _pci_t {
@@ -28,7 +31,7 @@ typedef struct _pci_t {
 } pci_t;
 
 
-static int
+static tap_packet_status
 protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
 	pci_t *rs = (pci_t *)prs;
@@ -45,14 +48,16 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 	 *
 	 * To prevent a crash, we check whether INFO column is writable
 	 * and, if not, we report that error and exit.
+	 *
+	 * XXX - report the error and just return TAP_PACKET_FAILED?
 	 */
 	if (!col_get_writable(pinfo->cinfo, COL_INFO)) {
-		fprintf(stderr, "tshark: the proto,colinfo tap doesn't work if the INFO column isn't being printed.\n");
+		cmdarg_err("the proto,colinfo tap doesn't work if the INFO column isn't being printed.");
 		exit(1);
 	}
 	gp = proto_get_finfo_ptr_array(edt->tree, rs->hf_index);
 	if (!gp) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	for (i=0; i<gp->len; i++) {
@@ -62,7 +67,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 			wmem_free(NULL, str);
 		}
 	}
-	return 0;
+	return TAP_PACKET_DONT_REDRAW;
 }
 
 
@@ -84,13 +89,13 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 		}
 	}
 	if (!field) {
-		fprintf(stderr, "tshark: invalid \"-z proto,colinfo,<filter>,<field>\" argument\n");
+		cmdarg_err("invalid \"-z proto,colinfo,<filter>,<field>\" argument");
 		exit(1);
 	}
 
 	hfi = proto_registrar_get_byname(field);
 	if (!hfi) {
-		fprintf(stderr, "tshark: Field \"%s\" doesn't exist.\n", field);
+		cmdarg_err("Field \"%s\" doesn't exist.", field);
 		exit(1);
 	}
 
@@ -103,10 +108,10 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 		rs->filter = NULL;
 	}
 
-	error_string = register_tap_listener("frame", rs, rs->filter, TL_REQUIRES_PROTO_TREE, NULL, protocolinfo_packet, NULL);
+	error_string = register_tap_listener("frame", rs, rs->filter, TL_REQUIRES_PROTO_TREE, NULL, protocolinfo_packet, NULL, NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. complain and clean up */
-		fprintf(stderr, "tshark: Couldn't register proto,colinfo tap: %s\n",
+		cmdarg_err("Couldn't register proto,colinfo tap: %s",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		g_free(rs->filter);
@@ -132,7 +137,7 @@ register_tap_listener_protocolinfo(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

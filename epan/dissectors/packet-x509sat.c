@@ -362,7 +362,7 @@ dissect_x509sat_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 int
 dissect_x509sat_UniqueIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -961,21 +961,21 @@ dissect_x509sat_T_intDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const asn_namedbit T_bitDay_bits[] = {
-  {  0, &hf_x509sat_T_bitDay_sunday, -1, -1, "sunday", NULL },
-  {  1, &hf_x509sat_T_bitDay_monday, -1, -1, "monday", NULL },
-  {  2, &hf_x509sat_T_bitDay_tuesday, -1, -1, "tuesday", NULL },
-  {  3, &hf_x509sat_T_bitDay_wednesday, -1, -1, "wednesday", NULL },
-  {  4, &hf_x509sat_T_bitDay_thursday, -1, -1, "thursday", NULL },
-  {  5, &hf_x509sat_T_bitDay_friday, -1, -1, "friday", NULL },
-  {  6, &hf_x509sat_T_bitDay_saturday, -1, -1, "saturday", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_bitDay_bits[] = {
+  &hf_x509sat_T_bitDay_sunday,
+  &hf_x509sat_T_bitDay_monday,
+  &hf_x509sat_T_bitDay_tuesday,
+  &hf_x509sat_T_bitDay_wednesday,
+  &hf_x509sat_T_bitDay_thursday,
+  &hf_x509sat_T_bitDay_friday,
+  &hf_x509sat_T_bitDay_saturday,
+  NULL
 };
 
 static int
 dissect_x509sat_T_bitDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_bitDay_bits, hf_index, ett_x509sat_T_bitDay,
+                                    T_bitDay_bits, 7, hf_index, ett_x509sat_T_bitDay,
                                     NULL);
 
   return offset;
@@ -1003,21 +1003,21 @@ dissect_x509sat_T_intNamedDays(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const asn_namedbit T_bitNamedDays_bits[] = {
-  {  0, &hf_x509sat_T_bitNamedDays_sunday, -1, -1, "sunday", NULL },
-  {  1, &hf_x509sat_T_bitNamedDays_monday, -1, -1, "monday", NULL },
-  {  2, &hf_x509sat_T_bitNamedDays_tuesday, -1, -1, "tuesday", NULL },
-  {  3, &hf_x509sat_T_bitNamedDays_wednesday, -1, -1, "wednesday", NULL },
-  {  4, &hf_x509sat_T_bitNamedDays_thursday, -1, -1, "thursday", NULL },
-  {  5, &hf_x509sat_T_bitNamedDays_friday, -1, -1, "friday", NULL },
-  {  6, &hf_x509sat_T_bitNamedDays_saturday, -1, -1, "saturday", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_bitNamedDays_bits[] = {
+  &hf_x509sat_T_bitNamedDays_sunday,
+  &hf_x509sat_T_bitNamedDays_monday,
+  &hf_x509sat_T_bitNamedDays_tuesday,
+  &hf_x509sat_T_bitNamedDays_wednesday,
+  &hf_x509sat_T_bitNamedDays_thursday,
+  &hf_x509sat_T_bitNamedDays_friday,
+  &hf_x509sat_T_bitNamedDays_saturday,
+  NULL
 };
 
 static int
 dissect_x509sat_T_bitNamedDays(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_bitNamedDays_bits, hf_index, ett_x509sat_T_bitNamedDays,
+                                    T_bitNamedDays_bits, 7, hf_index, ett_x509sat_T_bitNamedDays,
                                     NULL);
 
   return offset;
@@ -1120,19 +1120,19 @@ dissect_x509sat_T_intWeek(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const asn_namedbit T_bitWeek_bits[] = {
-  {  0, &hf_x509sat_T_bitWeek_week1, -1, -1, "week1", NULL },
-  {  1, &hf_x509sat_T_bitWeek_week2, -1, -1, "week2", NULL },
-  {  2, &hf_x509sat_T_bitWeek_week3, -1, -1, "week3", NULL },
-  {  3, &hf_x509sat_T_bitWeek_week4, -1, -1, "week4", NULL },
-  {  4, &hf_x509sat_T_bitWeek_week5, -1, -1, "week5", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_bitWeek_bits[] = {
+  &hf_x509sat_T_bitWeek_week1,
+  &hf_x509sat_T_bitWeek_week2,
+  &hf_x509sat_T_bitWeek_week3,
+  &hf_x509sat_T_bitWeek_week4,
+  &hf_x509sat_T_bitWeek_week5,
+  NULL
 };
 
 static int
 dissect_x509sat_T_bitWeek(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_bitWeek_bits, hf_index, ett_x509sat_T_bitWeek,
+                                    T_bitWeek_bits, 5, hf_index, ett_x509sat_T_bitWeek,
                                     NULL);
 
   return offset;
@@ -1176,26 +1176,26 @@ dissect_x509sat_T_intMonth(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const asn_namedbit T_bitMonth_bits[] = {
-  {  0, &hf_x509sat_T_bitMonth_january, -1, -1, "january", NULL },
-  {  1, &hf_x509sat_T_bitMonth_february, -1, -1, "february", NULL },
-  {  2, &hf_x509sat_T_bitMonth_march, -1, -1, "march", NULL },
-  {  3, &hf_x509sat_T_bitMonth_april, -1, -1, "april", NULL },
-  {  4, &hf_x509sat_T_bitMonth_may, -1, -1, "may", NULL },
-  {  5, &hf_x509sat_T_bitMonth_june, -1, -1, "june", NULL },
-  {  6, &hf_x509sat_T_bitMonth_july, -1, -1, "july", NULL },
-  {  7, &hf_x509sat_T_bitMonth_august, -1, -1, "august", NULL },
-  {  8, &hf_x509sat_T_bitMonth_september, -1, -1, "september", NULL },
-  {  9, &hf_x509sat_T_bitMonth_october, -1, -1, "october", NULL },
-  { 10, &hf_x509sat_T_bitMonth_november, -1, -1, "november", NULL },
-  { 11, &hf_x509sat_T_bitMonth_december, -1, -1, "december", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_bitMonth_bits[] = {
+  &hf_x509sat_T_bitMonth_january,
+  &hf_x509sat_T_bitMonth_february,
+  &hf_x509sat_T_bitMonth_march,
+  &hf_x509sat_T_bitMonth_april,
+  &hf_x509sat_T_bitMonth_may,
+  &hf_x509sat_T_bitMonth_june,
+  &hf_x509sat_T_bitMonth_july,
+  &hf_x509sat_T_bitMonth_august,
+  &hf_x509sat_T_bitMonth_september,
+  &hf_x509sat_T_bitMonth_october,
+  &hf_x509sat_T_bitMonth_november,
+  &hf_x509sat_T_bitMonth_december,
+  NULL
 };
 
 static int
 dissect_x509sat_T_bitMonth(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_bitMonth_bits, hf_index, ett_x509sat_T_bitMonth,
+                                    T_bitMonth_bits, 12, hf_index, ett_x509sat_T_bitMonth,
                                     NULL);
 
   return offset;
@@ -1412,7 +1412,7 @@ dissect_x509sat_OctetString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_x509sat_BitString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -2439,127 +2439,127 @@ void proto_register_x509sat(void) {
         FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "DirectoryString", HFILL }},
     { &hf_x509sat_T_bitDay_sunday,
-      { "sunday", "x509sat.sunday",
+      { "sunday", "x509sat.T.bitDay.sunday",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_x509sat_T_bitDay_monday,
-      { "monday", "x509sat.monday",
+      { "monday", "x509sat.T.bitDay.monday",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_x509sat_T_bitDay_tuesday,
-      { "tuesday", "x509sat.tuesday",
+      { "tuesday", "x509sat.T.bitDay.tuesday",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_x509sat_T_bitDay_wednesday,
-      { "wednesday", "x509sat.wednesday",
+      { "wednesday", "x509sat.T.bitDay.wednesday",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_x509sat_T_bitDay_thursday,
-      { "thursday", "x509sat.thursday",
+      { "thursday", "x509sat.T.bitDay.thursday",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_x509sat_T_bitDay_friday,
-      { "friday", "x509sat.friday",
+      { "friday", "x509sat.T.bitDay.friday",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_x509sat_T_bitDay_saturday,
-      { "saturday", "x509sat.saturday",
+      { "saturday", "x509sat.T.bitDay.saturday",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_x509sat_T_bitWeek_week1,
-      { "week1", "x509sat.week1",
+      { "week1", "x509sat.T.bitWeek.week1",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_x509sat_T_bitWeek_week2,
-      { "week2", "x509sat.week2",
+      { "week2", "x509sat.T.bitWeek.week2",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_x509sat_T_bitWeek_week3,
-      { "week3", "x509sat.week3",
+      { "week3", "x509sat.T.bitWeek.week3",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_x509sat_T_bitWeek_week4,
-      { "week4", "x509sat.week4",
+      { "week4", "x509sat.T.bitWeek.week4",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_x509sat_T_bitWeek_week5,
-      { "week5", "x509sat.week5",
+      { "week5", "x509sat.T.bitWeek.week5",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_x509sat_T_bitMonth_january,
-      { "january", "x509sat.january",
+      { "january", "x509sat.T.bitMonth.january",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_x509sat_T_bitMonth_february,
-      { "february", "x509sat.february",
+      { "february", "x509sat.T.bitMonth.february",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_x509sat_T_bitMonth_march,
-      { "march", "x509sat.march",
+      { "march", "x509sat.T.bitMonth.march",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_x509sat_T_bitMonth_april,
-      { "april", "x509sat.april",
+      { "april", "x509sat.T.bitMonth.april",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_x509sat_T_bitMonth_may,
-      { "may", "x509sat.may",
+      { "may", "x509sat.T.bitMonth.may",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_x509sat_T_bitMonth_june,
-      { "june", "x509sat.june",
+      { "june", "x509sat.T.bitMonth.june",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_x509sat_T_bitMonth_july,
-      { "july", "x509sat.july",
+      { "july", "x509sat.T.bitMonth.july",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_x509sat_T_bitMonth_august,
-      { "august", "x509sat.august",
+      { "august", "x509sat.T.bitMonth.august",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_x509sat_T_bitMonth_september,
-      { "september", "x509sat.september",
+      { "september", "x509sat.T.bitMonth.september",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_x509sat_T_bitMonth_october,
-      { "october", "x509sat.october",
+      { "october", "x509sat.T.bitMonth.october",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_x509sat_T_bitMonth_november,
-      { "november", "x509sat.november",
+      { "november", "x509sat.T.bitMonth.november",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_x509sat_T_bitMonth_december,
-      { "december", "x509sat.december",
+      { "december", "x509sat.T.bitMonth.december",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_x509sat_T_bitNamedDays_sunday,
-      { "sunday", "x509sat.sunday",
+      { "sunday", "x509sat.T.bitNamedDays.sunday",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_x509sat_T_bitNamedDays_monday,
-      { "monday", "x509sat.monday",
+      { "monday", "x509sat.T.bitNamedDays.monday",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_x509sat_T_bitNamedDays_tuesday,
-      { "tuesday", "x509sat.tuesday",
+      { "tuesday", "x509sat.T.bitNamedDays.tuesday",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_x509sat_T_bitNamedDays_wednesday,
-      { "wednesday", "x509sat.wednesday",
+      { "wednesday", "x509sat.T.bitNamedDays.wednesday",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_x509sat_T_bitNamedDays_thursday,
-      { "thursday", "x509sat.thursday",
+      { "thursday", "x509sat.T.bitNamedDays.thursday",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_x509sat_T_bitNamedDays_friday,
-      { "friday", "x509sat.friday",
+      { "friday", "x509sat.T.bitNamedDays.friday",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_x509sat_T_bitNamedDays_saturday,
-      { "saturday", "x509sat.saturday",
+      { "saturday", "x509sat.T.bitNamedDays.saturday",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
 

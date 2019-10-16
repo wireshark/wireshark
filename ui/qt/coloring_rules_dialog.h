@@ -39,18 +39,23 @@ protected:
     void showEvent(QShowEvent *);
 
 private slots:
+    void copyFromProfile(QString fileName);
     void colorRuleSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void colorChanged(bool foreground, const QColor &cc);
     void on_fGPushButton_clicked();
     void on_bGPushButton_clicked();
     void on_displayFilterPushButton_clicked();
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
     void on_copyToolButton_clicked();
+    void on_clearToolButton_clicked();
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_buttonBox_accepted();
     void on_buttonBox_helpRequested();
+    void rowCountChanged();
     void invalidField(const QModelIndex &index, const QString& errMessage);
     void validField(const QModelIndex &index);
+    void treeItemClicked(const QModelIndex &index);
 
 private:
     Ui::ColoringRulesDialog *ui;
@@ -61,11 +66,14 @@ private:
 
     QMap<QModelIndex, QString> errors_;
 
+    void checkUnknownColorfilters();
     void setColorButtons(QModelIndex &index);
-    void updateHint();
+    void updateHint(QModelIndex idx = QModelIndex());
 
     void addRule(bool copy_from_current = false);
     void changeColor(bool foreground = true);
+
+    bool isValidFilter(QString filter, QString *error);
 };
 
 #endif // COLORING_RULES_DIALOG_H

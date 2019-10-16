@@ -26,6 +26,7 @@
  * we can do is parse the security header and give up.
  */
 #include <wsutil/wsgcrypt.h>
+#include <wsutil/pint.h>
 
 #include "packet-ieee802154.h"
 #include "packet-zbee.h"
@@ -166,6 +167,14 @@ static void uat_key_record_free_cb(void*r) {
     g_free(key->label);
 }
 
+static void zbee_free_key_record(gpointer ptr)
+{
+    key_record_t *k = (key_record_t *)ptr;
+
+    g_free(k->label);
+    g_free(k);
+}
+
 static void uat_key_record_post_update(void) {
     guint           i;
     key_record_t    key_record;
@@ -173,15 +182,15 @@ static void uat_key_record_post_update(void) {
 
     /* empty the key ring */
     if (zbee_pc_keyring) {
-       g_slist_free(zbee_pc_keyring);
+       g_slist_free_full(zbee_pc_keyring, zbee_free_key_record);
        zbee_pc_keyring = NULL;
     }
 
     /* Load the pre-configured slist from the UAT. */
     for (i=0; (uat_key_records) && (i<num_uat_key_records) ; i++) {
-        key_record.frame_num = ZBEE_SEC_PC_KEY; /* means it's a user PC key */
-        key_record.label = g_strdup(uat_key_records[i].label);
         if (zbee_security_parse_key(uat_key_records[i].string, key, uat_key_records[i].byte_order)) {
+            key_record.frame_num = ZBEE_SEC_PC_KEY; /* means it's a user PC key */
+            key_record.label = g_strdup(uat_key_records[i].label);
             memcpy(key_record.key, key, ZBEE_SEC_CONST_KEYSIZE);
             zbee_pc_keyring = g_slist_prepend(zbee_pc_keyring, g_memdup(&key_record, sizeof(key_record_t)));
         }
@@ -494,7 +503,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
         packet.src64 = tvb_get_letoh64(tvb, offset);
         proto_tree_add_item(sec_tree, hf_zbee_sec_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 #if 1
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             switch ( packet.key_id ) {
                 case ZBEE_SEC_KEY_LINK:
                 if (nwk_hints && ieee_hints) {
@@ -625,7 +634,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
 
     decrypted = FALSE;
     if ( packet.src64 ) {
-        if (pinfo->fd->flags.visited) {
+        if (pinfo->fd->visited) {
             if ( nwk_hints ) {
                 /* Use previously found key */
                 switch ( packet.key_id ) {
@@ -644,7 +653,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
                         break;
                 }
             }
-        } /* ( !pinfo->fd->flags.visited ) */
+        } /* ( !pinfo->fd->visited ) */
         else {
             /* We only search for sniffed keys in the first pass,
              * to save time, and because decrypting with keys
@@ -702,13 +711,13 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
                     }
                 }
             }
-        } /* ( ! pinfo->fd->flags.visited ) */
+        } /* ( ! pinfo->fd->visited ) */
     } /* ( packet.src64 ) */
 
     if ( decrypted ) {
         if ( tree && key_rec ) {
             key_item = proto_tree_add_bytes(sec_tree, hf_zbee_sec_key, tvb, 0, ZBEE_SEC_CONST_KEYSIZE, key_rec->key);
-            PROTO_ITEM_SET_GENERATED(key_item);
+            proto_item_set_generated(key_item);
 
             if ( key_rec->frame_num == ZBEE_SEC_PC_KEY ) {
                 ti = proto_tree_add_string(sec_tree, hf_zbee_sec_decryption_key, tvb, 0, 0, key_rec->label);
@@ -716,7 +725,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
                 ti = proto_tree_add_uint(sec_tree, hf_zbee_sec_key_origin, tvb, 0, 0,
                         key_rec->frame_num);
             }
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
 
         /* Found a key that worked, setup the new tvbuff_t and return */
@@ -817,19 +826,11 @@ static void
 zbee_sec_make_nonce(zbee_security_packet *packet, guint8 *nonce)
 {
     /* First 8 bytes are the extended source address (little endian). */
-    *(nonce++) = (guint8)((packet->src64)>>0 & 0xff);
-    *(nonce++) = (guint8)((packet->src64)>>8 & 0xff);
-    *(nonce++) = (guint8)((packet->src64)>>16 & 0xff);
-    *(nonce++) = (guint8)((packet->src64)>>24 & 0xff);
-    *(nonce++) = (guint8)((packet->src64)>>32 & 0xff);
-    *(nonce++) = (guint8)((packet->src64)>>40 & 0xff);
-    *(nonce++) = (guint8)((packet->src64)>>48 & 0xff);
-    *(nonce++) = (guint8)((packet->src64)>>56 & 0xff);
+    phtole64(nonce, packet->src64);
+    nonce += 8;
     /* Next 4 bytes are the frame counter (little endian). */
-    *(nonce++) = (guint8)((packet->counter)>>0 & 0xff);
-    *(nonce++) = (guint8)((packet->counter)>>8 & 0xff);
-    *(nonce++) = (guint8)((packet->counter)>>16 & 0xff);
-    *(nonce++) = (guint8)((packet->counter)>>24 & 0xff);
+    phtole32(nonce, packet->counter);
+    nonce += 4;
     /* Next byte is the security control field. */
     *(nonce) = packet->control;
 } /* zbee_sec_make_nonce */
@@ -1217,7 +1218,7 @@ void zbee_sec_add_key_to_keyring(packet_info *pinfo, const guint8 *key)
     zbee_nwk_hints_t   *nwk_hints;
 
     /* Update the key ring for this pan */
-    if ( !pinfo->fd->flags.visited && (nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+    if ( !pinfo->fd->visited && (nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
                     proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), 0))) {
         nwk_keyring = (GSList **)g_hash_table_lookup(zbee_table_nwk_keyring, &nwk_hints->src_pan);
         if ( !nwk_keyring ) {
@@ -1241,7 +1242,7 @@ void zbee_sec_add_key_to_keyring(packet_info *pinfo, const guint8 *key)
 } /* nwk_add_key_to_keyring */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

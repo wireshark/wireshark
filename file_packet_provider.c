@@ -42,6 +42,8 @@ cap_file_provider_get_interface_name(struct packet_provider_data *prov, guint32 
       return interface_name;
     if (wtap_block_get_string_option_value(wtapng_if_descr, OPT_IDB_DESCR, &interface_name) == WTAP_OPTTYPE_SUCCESS)
       return interface_name;
+    if (wtap_block_get_string_option_value(wtapng_if_descr, OPT_IDB_HARDWARE, &interface_name) == WTAP_OPTTYPE_SUCCESS)
+      return interface_name;
   }
   return "unknown";
 }
@@ -86,5 +88,5 @@ cap_file_provider_set_user_comment(struct packet_provider_data *prov, frame_data
   /* insert new packet comment */
   g_tree_replace(prov->frames_user_comments, fd, g_strdup(new_comment));
 
-  fd->flags.has_user_comment = TRUE;
+  fd->has_user_comment = TRUE;
 }

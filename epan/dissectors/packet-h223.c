@@ -645,7 +645,7 @@ dissect_mux_al_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *vc_tree,
             al_tree = proto_item_add_subtree (al_item, ett_h223_al1);
             if(lc_params->al_type == al1Framed) {
                 hidden_item = proto_tree_add_boolean(al_tree, hf_h223_al1_framed, tvb, 0, 1, TRUE );
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
+                proto_item_set_hidden(hidden_item);
             }
             next_tvb = tvb;
             al_subitem = proto_tree_add_item(al_tree, hf_h223_al_payload, next_tvb, 0, -1, ENC_NA);
@@ -662,7 +662,7 @@ dissect_mux_al_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *vc_tree,
                                           tvb, 0, -1, ENC_NA);
             al_tree = proto_item_add_subtree (al_item, ett_h223_al2);
 
-            PROTO_ITEM_SET_GENERATED(tmp_item);
+            proto_item_set_generated(tmp_item);
 
             /* check minimum payload length */
             if(len < (al2_sequenced?2U:1U))
@@ -1022,7 +1022,7 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
                     }
                     item = proto_tree_add_uint(hdr_tree,hf_h223_mux_correctedhdr,tvb,0,3,
                                                correct_hdr);
-                    PROTO_ITEM_SET_GENERATED(item);
+                    proto_item_set_generated(item);
                     proto_tree_add_uint(hdr_tree,hf_h223_mux_mc,tvb,0,1,mc);
                     proto_tree_add_uint(hdr_tree,hf_h223_mux_mpl,tvb,0,2,mpl);
                 }

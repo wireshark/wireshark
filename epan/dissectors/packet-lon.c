@@ -5,7 +5,7 @@
  *
  * Used some code by habibi_khalid <khalidhabibi@gmx.de> and
  * Honorine_KEMGNE_NGUIFFO <honorinekemgne@yahoo.fr> from
- * http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4704
+ * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4704
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -753,7 +753,7 @@ proto_reg_handoff_lon(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

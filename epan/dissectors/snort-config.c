@@ -751,6 +751,7 @@ static gboolean parse_rule(SnortConfig_t *snort_config, char *line, const char *
     options_start = strstr(line, "(");
     if (options_start == NULL) {
         snort_debug_printf("start of options not found\n");
+        g_free(rule);
         return FALSE;
     }
     options_index = (int)(options_start-line) + 1;
@@ -1195,7 +1196,7 @@ gboolean content_convert_pcre_for_regex(content_t *content)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -1091,7 +1091,7 @@ dissect_gameserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, in
                     break;
                 case S_PLAYER_CONDITION: /* 0xA2, */
                     proto_tree_add_bitmask(ptvcursor_tree(ptvc), ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), hf_tibia_char_cond, ett_char_cond, char_conds, ENC_LITTLE_ENDIAN);
-                    ptvcursor_advance(ptvc, sizeof(guint32));
+                    ptvcursor_advance(ptvc, 4);
                     break;
                 case S_CANCELATTACK: /* 0xA3, */
                     break;
@@ -1226,31 +1226,31 @@ dissect_game_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, packet
         if (convo->has.session_key) {
             if (convo->session_key) {
                 ti = proto_tree_add_string(tree, hf_tibia_session_key_convo, tvb, offset, 0, (const char*)convo->session_key);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
         } else {
             if (convo->acc) {
                 ti = proto_tree_add_string(tree, hf_tibia_acc_name_convo, tvb, offset, 0, (const char*)convo->acc);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
 
             if (convo->pass) {
                 ti = proto_tree_add_string(tree, hf_tibia_acc_pass_convo, tvb, offset, 0, (const char*)convo->pass);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
         }
     }
 
     if (show_char_name && convo->char_name) {
         ti = proto_tree_add_string(tree, hf_tibia_char_name_convo, tvb, offset, 0, (const char*)convo->char_name);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     if (is_xtea_encrypted) {
         if (pinfo->num > convo->xtea_framenum) {
             if (show_xtea_key && convo->has.xtea) {
                 ti = proto_tree_add_bytes_with_length(tree, hf_tibia_xtea_key, tvb, 0, 0, (guint8*)convo->xtea_key, XTEA_KEY_LEN);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
 
             int end = offset + len;
@@ -1258,7 +1258,7 @@ dissect_game_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, packet
             if (len % 8 != 0)
                 return -1;
 
-            guint8 *decrypted_buffer = (guint8*)g_malloc(len);
+            guint8 *decrypted_buffer = (guint8*)wmem_alloc(pinfo->pool, len);
 
             for (guint8 *dstblock = decrypted_buffer; offset < end; offset += 8) {
                 decrypt_xtea_le_ecb(dstblock, tvb_get_ptr(tvb, offset, 8), convo->xtea_key, 32);
@@ -1266,7 +1266,6 @@ dissect_game_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, packet
             }
 
             tvb = tvb_new_child_real_data(tvb, decrypted_buffer, len, len);
-            tvb_set_free_cb(tvb, g_free);
             add_new_data_source(pinfo, tvb, "Decrypted Game Data");
 
             offset = 0;
@@ -1306,7 +1305,7 @@ dissect_tibia(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *fragmen
     tvbuff_t *tvb_decrypted = tvb;
     gboolean is_xtea_encrypted = FALSE;
     enum { TIBIA_GAMESERV, TIBIA_LOGINSERV } serv = TIBIA_GAMESERV;
-    guint16 plen = tvb_get_letohs(tvb, 0) + sizeof(guint16);
+    guint16 plen = tvb_get_letohs(tvb, 0) + 2;
 
     /* if announced length != real length it's not a tibia packet */
     if (tvb_reported_length_remaining(tvb, 0) != plen)
@@ -1320,21 +1319,21 @@ dissect_tibia(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *fragmen
     guint32 computed_cksum = GUINT32_TO_LE(adler32_bytes(tvb_get_ptr(tvb, offset + 4, a32len), a32len));
     convo->has.adler32 = packet_cksum == computed_cksum;
     if (convo->has.adler32)
-        offset += sizeof(guint32);
+        offset += 4;
 
     /* FIXME Tibia >=11.11 has a sequence number instead, this is yet unhandled */
 
     /* Is it a nonce? */
-    if (tvb_get_letohs(tvb, offset) == plen - offset - sizeof(guint16)
-            && tvb_get_guint8(tvb, offset+sizeof(guint16)) == S_NONCE) {
+    if (tvb_get_letohs(tvb, offset) == plen - offset - 2
+            && tvb_get_guint8(tvb, offset+2) == S_NONCE) {
         /* Don't do anything. We'll handle it as unencrypted game command later */
     } else {
         guint8 cmd;
         guint16 version;
         struct proto_traits version_has;
         cmd = tvb_get_guint8(tvb, offset);
-        offset += sizeof(guint8);
-        offset += sizeof(guint16); /* OS */
+        offset += 1;
+        offset += 2; /* OS */
         version = tvb_get_letohs(tvb, offset);
         version_has = get_version_traits(version);
 
@@ -2707,7 +2706,7 @@ proto_register_tibia(void)
 static guint
 get_dissect_tibia_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    return tvb_get_letohs(tvb, offset) + sizeof(guint16);
+    return tvb_get_letohs(tvb, offset) + 2;
 }
 
 static int
@@ -2739,7 +2738,7 @@ proto_reg_handoff_tibia(void)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -40,6 +40,8 @@
 
 #include "config.h"
 
+#include <math.h>
+
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
@@ -50,6 +52,9 @@
 #include <epan/tap.h>
 #include <epan/srt_table.h>
 #include <epan/to_str.h>
+#include <epan/uat.h>
+#include <epan/proto_data.h>
+
 #include "packet-ppp.h"
 #include "packet-radius.h"
 #include "packet-gsm_a_common.h"
@@ -57,15 +62,19 @@
 #include "packet-gprscdr.h"
 #include "packet-bssgp.h"
 #include "packet-e212.h"
+#include "packet-e164.h"
 #include "packet-gtp.h"
 #include "packet-ranap.h"
+#include "packet-pdcp-nr.h"
+#include "packet-pdcp-lte.h"
+#include "packet-rohc.h"
 
 void proto_register_gtp(void);
 void proto_reg_handoff_gtp(void);
 
-static dissector_table_t ppp_subdissector_table;
 static dissector_table_t gtp_priv_ext_dissector_table;
 static dissector_table_t gtp_cdr_fmt_dissector_table;
+static dissector_table_t gtp_hdr_ext_dissector_table;
 static dissector_handle_t gtp_handle, gtp_prime_handle;
 
 #define GTPv0_PORT  3386
@@ -82,11 +91,15 @@ static dissector_handle_t gtp_handle, gtp_prime_handle;
 #define GTP_CONDITIONAL 4
 
 #define GTP_TPDU_AS_NONE -1
-#define GTP_TPDU_AS_TPDU 0
-#define GTP_TPDU_AS_SYNC 2
+#define GTP_TPDU_AS_TPDU_HEUR 0
+#define GTP_TPDU_AS_PDCP_LTE 1
+#define GTP_TPDU_AS_PDCP_NR 2
+#define GTP_TPDU_AS_SYNC 3
 
 static gboolean g_gtp_over_tcp = TRUE;
 gboolean g_gtp_session = FALSE;
+
+static guint pref_pair_matching_max_interval_ms = 0; /* Default: disable */
 
 static guint g_gtpv0_port  = GTPv0_PORT;
 static guint g_gtpv1c_port = GTPv1C_PORT;
@@ -118,6 +131,11 @@ static int hf_gtp_ext_val = -1;
 static int hf_gtp_ext_hdr = -1;
 static int hf_gtp_ext_hdr_next = -1;
 static int hf_gtp_ext_hdr_length = -1;
+static int hf_gtp_ext_hdr_ran_cont = -1;
+static int hf_gtp_ext_hdr_spare_bits = -1;
+static int hf_gtp_ext_hdr_spare_bytes = -1;
+static int hf_gtp_ext_hdr_long_pdcp_sn = -1;
+static int hf_gtp_ext_hdr_xw_ran_cont = -1;
 static int hf_gtp_ext_hdr_pdcpsn = -1;
 static int hf_gtp_ext_hdr_udp_port = -1;
 static int hf_gtp_flags = -1;
@@ -299,9 +317,58 @@ static int hf_gtp_ext_enb_type = -1;
 static int hf_gtp_macro_enodeb_id = -1;
 static int hf_gtp_home_enodeb_id = -1;
 static int hf_gtp_dummy_octets = -1;
+/*NR-U RAN Container */
+static int hf_gtp_ext_hdr_nr_ran_cont_pdu_type = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_spr_bit_extnd_flag = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_dl_discrd_blks = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_dl_flush = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_rpt_poll = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_retransmission_flag = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_ass_inf_rep_poll_flg = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_spare = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_nr_u_seq_num = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_dl_disc_num_blks = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn_start = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_dl_disc_blk_sz = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn_ind = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_delivered_nr_pdcp_sn_ind = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_final_frame_ind = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_lost_pkt_rpt = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn_ind = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_delivered_retx_nr_pdcp_sn_ind = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_cause_rpt = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_data_rate_ind = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_desrd_buff_sz_data_radio_bearer = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_desrd_data_rate = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_num_lost_nru_seq_num = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_start_lost_nru_seq_num = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_end_lost_nru_seq_num = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_nr_pdcp_sn = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_cause_val = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_retx_nr_pdcp_sn = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn = -1;
+static int hf_pdcp_cont = -1;
+
+static int hf_gtp_ext_hdr_pdu_ses_cont_pdu_type = -1;
+static int hf_gtp_ext_hdr_pdu_ses_cont_ppp = -1;
+static int hf_gtp_ext_hdr_pdu_ses_cont_rqi = -1;
+static int hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id = -1;
+static int hf_gtp_ext_hdr_pdu_ses_cont_ppi = -1;
+
+static int hf_gtp_spare_b4b0 = -1;
+static int hf_gtp_spare_b7b6 = -1;
+static int hf_gtp_spare_h1 = -1;
+static int hf_gtp_rnc_ip_addr_v4 = -1;
+static int hf_gtp_rnc_ip_addr_v6 = -1;
+static int hf_gtp_ms_cm_2_len = -1;
+static int hf_gtp_ms_cm_3_len = -1;
+static int hf_gtp_sup_codec_lst_len = -1;
+static int hf_gtp_add_flg_for_srvcc_ics = -1;
+static int hf_gtp_sel_mode_val = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_gtp_ggsn_2_address_ipv4 = -1;
 static int hf_gtp_rfsp_index = -1;
 static int hf_gtp_quintuplet_ciphering_key = -1;
 static int hf_gtp_kc = -1;
@@ -312,7 +379,10 @@ static int hf_gtp_container_length = -1;
 static int hf_gtp_quintuplets_length = -1;
 static int hf_gtp_auth = -1;
 static int hf_gtp_tft_length = -1;
-static int hf_gtp_ggsn_address_for_control_plane = -1;
+static int hf_gtp_ggsn_address_for_control_plane_ipv4 = -1;
+static int hf_gtp_ggsn_address_for_control_plane_ipv6 = -1;
+static int hf_gtp_ggsn_address_for_user_traffic_ipv4 = -1;
+static int hf_gtp_ggsn_address_for_user_traffic_ipv6 = -1;
 static int hf_gtp_integrity_key_ik = -1;
 static int hf_gtp_gsn_address_information_element_length = -1;
 static int hf_gtp_reordering_required = -1;
@@ -329,11 +399,9 @@ static int hf_gtp_xres_length = -1;
 static int hf_gtp_ggsn_address_length = -1;
 static int hf_gtp_apn_length = -1;
 static int hf_gtp_sequence_number_down = -1;
-static int hf_gtp_ggsn_2_address_ipv6 = -1;
 static int hf_gtp_pdp_address_ipv4 = -1;
 static int hf_gtp_activity_status_indicator = -1;
 static int hf_gtp_pdp_type = -1;
-static int hf_gtp_ggsn_address_for_user_traffic = -1;
 static int hf_gtp_quintuplet_integrity_key = -1;
 static int hf_gtp_pdp_address_ipv6 = -1;
 static int hf_gtp_rab_setup_length = -1;
@@ -343,7 +411,6 @@ static int hf_gtp_pdp_cntxt_sapi = -1;
 static int hf_gtp_xres = -1;
 static int hf_gtp_pdp_organization = -1;
 static int hf_gtp_node_address_length = -1;
-static int hf_gtp_ggsn_2_address_length = -1;
 static int hf_gtp_gsn_address_length = -1;
 static int hf_gtp_vplmn_address_allowed = -1;
 static int hf_gtp_uplink_flow_label_signalling = -1;
@@ -390,6 +457,9 @@ static gint ett_gtp_cdr_ver = -1;
 static gint ett_gtp_cdr_dr = -1;
 static gint ett_gtp_mm_cntxt = -1;
 static gint ett_gtp_utran_cont = -1;
+static gint ett_gtp_nr_ran_cont = -1;
+static gint ett_gtp_pdcp_no_conf = -1;
+static gint ett_pdu_session_cont = -1;
 
 static expert_field ei_gtp_ext_hdr_pdcpsn = EI_INIT;
 static expert_field ei_gtp_ext_length_mal = EI_INIT;
@@ -404,13 +474,224 @@ static expert_field ei_gtp_max_bit_rate_value = EI_INIT;
 static expert_field ei_gtp_ext_geo_loc_type = EI_INIT;
 static expert_field ei_gtp_iei = EI_INIT;
 static expert_field ei_gtp_unknown_extention_header = EI_INIT;
+static expert_field ei_gtp_unknown_pdu_type = EI_INIT;
+
+/* --- PDCP DECODE ADDITIONS --- */
+typedef struct {
+    guint teid;
+    guint header_present;
+    enum pdcp_plane plane;
+    guint lte_sn_length;
+    guint rohc_compression;
+    //guint rohc_mode;
+    guint rohc_profile;
+} uat_pdcp_lte_keys_record_t;
+
+/* N.B. this is an array/table of the struct above, where ueid is the key */
+static uat_pdcp_lte_keys_record_t *uat_pdcp_lte_keys_records = NULL;
+
+#define PDCP_SN_LENGTH_12_BITS_STR "12 BITS"
+static const value_string vs_pdcp_lte_sn_length[] = {
+    {PDCP_SN_LENGTH_5_BITS,  "5 BITS"},
+    {PDCP_SN_LENGTH_7_BITS,  "7 BITS"},
+    {PDCP_SN_LENGTH_12_BITS, PDCP_SN_LENGTH_12_BITS_STR},
+    {PDCP_SN_LENGTH_15_BITS, "15 BITS"},
+    {PDCP_SN_LENGTH_18_BITS, "18 BITS"},
+    {0, NULL}
+};
+
+/* Struct for saving PDCP-NR information about specific TEID */
+typedef struct {
+    guint teid;
+    guint direction;
+    /* PDCP_NR_(U|D)L_sdap_hdr_PRESENT bitmask */
+    guint sdap_header_present;
+    guint mac_i_presence;
+    enum pdcp_nr_plane plane;
+    guint pdcp_nr_sn_length;
+    guint rohc_compression;
+    //guint rohc_mode;
+    guint rohc_profile;
+} uat_pdcp_nr_keys_record_t;
+
+/* N.B. this is an array/table of the struct above, where ueid is the key */
+static uat_pdcp_nr_keys_record_t *uat_pdcp_nr_keys_records = NULL;
+
+#define PDCP_NR_DIRECTION_UPLINK_STR "UL"
+static const value_string vs_direction[] = {
+    { PDCP_NR_DIRECTION_UPLINK, PDCP_NR_DIRECTION_UPLINK_STR },
+    { PDCP_NR_DIRECTION_DOWNLINK, "DL" },
+    { 0, NULL }
+};
+
+/* Value sets for each drop-down list in the GUI */
+#define PDCP_NR_SDAP_HEADER_PRESENT_STR "SDAP header NOT present"
+#define PDCP_NR_SDAP_HEADER_NOT_PRESENT 0
+#define PDCP_NR_SDAP_HEADER_PRESENT 1
+static const value_string vs_sdap_header_present[] = {
+    { 0, PDCP_NR_SDAP_HEADER_PRESENT_STR },
+    { 1, "SDAP header present" },
+    { 0, NULL }
+};
+
+#define PDCP_LTE_HEADER_NOT_PRESENT_STR "Header NOT present"
+#define PDCP_LTE_HEADER_NOT_PRESENT 0
+#define PDCP_LTE_HEADER_PRESENT 1
+
+static const value_string vs_header_present[] = {
+    { 0, PDCP_LTE_HEADER_NOT_PRESENT_STR },
+    { 1, "Header present" },
+    { 0, NULL }
+};
+
+
+#define MAC_I_PRESENCE_FALSE_STR "FALSE"
+static const value_string vs_mac_i_presence[] = {
+    { FALSE, MAC_I_PRESENCE_FALSE_STR },
+    { TRUE, "TRUE" },
+    { 0, NULL }
+};
+
+#define USER_PLANE_STR "USER PLANE"
+static const value_string vs_pdcp_plane[] = {
+    { NR_SIGNALING_PLANE, "SIGNALING PLANE" },
+    { NR_USER_PLANE, USER_PLANE_STR },
+    { 0, NULL }
+};
+
+#define PDCP_SN_LENGTH_12_BITS_STR "12 BITS"
+static const value_string vs_pdcp_nr_sn_length[] = {
+    { PDCP_NR_SN_LENGTH_12_BITS, PDCP_SN_LENGTH_12_BITS_STR },
+    { PDCP_NR_SN_LENGTH_18_BITS, "18 BITS" },
+    { 0, NULL }
+};
+
+#define ROHC_COMPRESSION_TRUE_STR "TRUE"
+static const value_string vs_rohc_compression[] = {
+    { FALSE, "FALSE" },
+    { TRUE, ROHC_COMPRESSION_TRUE_STR },
+    { 0, NULL }
+};
+
+//#define ROHC_MODE_NOT_SET_STR "MODE NOT SET"
+//static const value_string vs_rohc_mode[] = {
+//    { MODE_NOT_SET, ROHC_MODE_NOT_SET_STR },
+//    { UNIDIRECTIONAL, "UNIDIRECTIONAL" },
+//    { OPTIMISTIC_BIDIRECTIONAL, "OPTIMISTIC BIDIRECTIONAL" },
+//    { RELIABLE_BIDIRECTIONAL, "RELIABLE BIDIRECTIONAL" },
+//    { 0, NULL }
+//};
+
+#define ROHC_PROFILE_RTP_STR "RTP(1)"
+#define ROHC_PROFILE_UNCOMPRESSED_STR "UNCOMPRESSED(0)"
+static const value_string vs_rohc_profile[] = {
+    { ROHC_PROFILE_UNCOMPRESSED, ROHC_PROFILE_UNCOMPRESSED_STR },
+    { ROHC_PROFILE_RTP, ROHC_PROFILE_RTP_STR },
+    { ROHC_PROFILE_UDP, "UDP(2)" },
+    { ROHC_PROFILE_IP, "IP(4)" },
+    { ROHC_PROFILE_UNKNOWN, "UNKNOWN" },
+    { 0, NULL }
+};
+
+/* Entries added by UAT */
+static uat_t * pdcp_nr_keys_uat = NULL;
+static guint num_pdcp_nr_keys_uat = 0;
+
+/* Default values for a TEID entry */
+UAT_HEX_CB_DEF(uat_pdcp_nr_keys_records, teid, uat_pdcp_nr_keys_record_t)
+UAT_VS_DEF(pdcp_nr_users, direction, uat_pdcp_nr_keys_record_t, guint, PDCP_NR_DIRECTION_UPLINK, PDCP_NR_DIRECTION_UPLINK_STR)
+UAT_VS_DEF(pdcp_nr_users, sdap_header_present, uat_pdcp_nr_keys_record_t, guint, PDCP_NR_SDAP_HEADER_PRESENT, PDCP_NR_SDAP_HEADER_PRESENT_STR)
+UAT_VS_DEF(pdcp_nr_users, mac_i_presence, uat_pdcp_nr_keys_record_t, guint, FALSE, MAC_I_PRESENCE_FALSE_STR)
+UAT_VS_DEF(pdcp_nr_users, plane, uat_pdcp_nr_keys_record_t, enum pdcp_nr_plane, NR_USER_PLANE, USER_PLANE_STR)
+UAT_VS_DEF(pdcp_nr_users, pdcp_nr_sn_length, uat_pdcp_nr_keys_record_t, guint, PDCP_NR_SN_LENGTH_12_BITS, PDCP_SN_LENGTH_12_BITS_STR)
+UAT_VS_DEF(pdcp_nr_users, rohc_compression, uat_pdcp_nr_keys_record_t, guint, TRUE, ROHC_COMPRESSION_TRUE_STR)
+//UAT_VS_DEF(pdcp_nr_users, rohc_mode, uat_pdcp_nr_keys_record_t, guint, MODE_NOT_SET, ROHC_MODE_NOT_SET_STR)
+UAT_VS_DEF(pdcp_nr_users, rohc_profile, uat_pdcp_nr_keys_record_t, guint, ROHC_PROFILE_UNCOMPRESSED, ROHC_PROFILE_UNCOMPRESSED_STR)
+
+/* Table from ueid -> uat_pdcp_nr_keys_record_t* */
+static wmem_map_t *pdcp_nr_security_key_hash = NULL;
+
+static uat_pdcp_nr_keys_record_t* look_up_pdcp_nr_keys_record(guint32 teidn)
+{
+    unsigned int record_id;
+
+    /* Try hash table first (among entries added by set_pdcp_lte_xxx_key() functions) */
+    uat_pdcp_nr_keys_record_t* key_record = (uat_pdcp_nr_keys_record_t*)wmem_map_lookup(pdcp_nr_security_key_hash, GUINT_TO_POINTER((guint)teidn));
+
+    if (key_record != NULL) {
+        return key_record;
+    }
+
+    /* Else look up UAT entries. N.B. linear search... */
+    for (record_id = 0; record_id < num_pdcp_nr_keys_uat; record_id++) {
+        if (uat_pdcp_nr_keys_records[record_id].teid == teidn) {
+            return &uat_pdcp_nr_keys_records[record_id];
+        }
+    }
+
+    /* No match at all - return NULL */
+    return NULL;
+}
+
+/* Entries added by UAT */
+static uat_t * pdcp_lte_keys_uat = NULL;
+static guint num_pdcp_lte_keys_uat = 0;
+
+/* Default values for a TEID entry */
+UAT_HEX_CB_DEF(uat_pdcp_lte_keys_records, teid, uat_pdcp_lte_keys_record_t)
+UAT_VS_DEF(pdcp_lte_users, header_present, uat_pdcp_lte_keys_record_t, guint, PDCP_LTE_HEADER_PRESENT, PDCP_LTE_HEADER_NOT_PRESENT_STR)
+UAT_VS_DEF(pdcp_lte_users, plane, uat_pdcp_lte_keys_record_t, enum pdcp_plane, USER_PLANE, USER_PLANE_STR)
+UAT_VS_DEF(pdcp_lte_users, lte_sn_length, uat_pdcp_lte_keys_record_t, guint, PDCP_NR_SN_LENGTH_12_BITS, PDCP_SN_LENGTH_12_BITS_STR)
+UAT_VS_DEF(pdcp_lte_users, rohc_compression, uat_pdcp_lte_keys_record_t, guint, TRUE, ROHC_COMPRESSION_TRUE_STR)
+//UAT_VS_DEF(pdcp_lte_users, rohc_mode, uat_pdcp_lte_keys_record_t, guint, MODE_NOT_SET, ROHC_MODE_NOT_SET_STR)
+UAT_VS_DEF(pdcp_lte_users, rohc_profile, uat_pdcp_lte_keys_record_t, guint, ROHC_PROFILE_UNCOMPRESSED, ROHC_PROFILE_UNCOMPRESSED_STR)
+
+/* Table from ueid -> uat_pdcp_lte_keys_record_t* */
+static wmem_map_t *pdcp_lte_security_key_hash = NULL;
+
+static uat_pdcp_lte_keys_record_t* look_up_pdcp_lte_keys_record(guint32 teidn)
+{
+    unsigned int record_id;
+
+    /* Try hash table first (among entries added by set_pdcp_lte_xxx_key() functions) */
+    uat_pdcp_lte_keys_record_t* key_record = (uat_pdcp_lte_keys_record_t*)wmem_map_lookup(pdcp_lte_security_key_hash, GUINT_TO_POINTER((guint)teidn));
+
+    if (key_record != NULL) {
+        return key_record;
+    }
+
+    /* Else look up UAT entries. N.B. linear search... */
+    for (record_id = 0; record_id < num_pdcp_lte_keys_uat; record_id++) {
+        if (uat_pdcp_lte_keys_records[record_id].teid == teidn) {
+            return &uat_pdcp_lte_keys_records[record_id];
+        }
+    }
+
+    /* No match at all - return NULL */
+    return NULL;
+}
+
+/* Hash table for security state for a UE
+Maps UEId -> pdcp_security_info_t*  */
+static gint pdcp_lte_ueid_hash_equal(gconstpointer v, gconstpointer v2)
+{
+    return (v == v2);
+}
+static guint pdcp_lte_ueid_hash_func(gconstpointer v)
+{
+    return GPOINTER_TO_UINT(v);
+}
+
+/* --- END PDCP NR DECODE ADDITIONS --- */
 
 static gboolean g_gtp_etsi_order = FALSE;
 
-static gint dissect_tpdu_as = GTP_TPDU_AS_TPDU;
+static gint dissect_tpdu_as = GTP_TPDU_AS_TPDU_HEUR;
 static const enum_val_t gtp_decode_tpdu_as[] = {
     {"none", "None",   GTP_TPDU_AS_NONE},
-    {"tpdu", "TPDU",   GTP_TPDU_AS_TPDU},
+    {"tpdu heuristic", "TPDU Heuristic",   GTP_TPDU_AS_TPDU_HEUR},
+    {"pdcp-lte", "PDCP-LTE",   GTP_TPDU_AS_PDCP_LTE },
+    {"pdcp-nr", "PDCP-NR",   GTP_TPDU_AS_PDCP_NR },
     {"sync", "SYNC",   GTP_TPDU_AS_SYNC},
     {NULL, NULL, 0}
 };
@@ -456,7 +737,14 @@ static const value_string pt_types[] = {
 #define GTP_EXT_HDR_NO_MORE_EXT_HDRS         0x00
 #define GTP_EXT_HDR_MBMS_SUPPORT_IND         0x01
 #define GTP_EXT_HDR_MS_INFO_CHG_REP_SUPP_IND 0x02
+#define GTP_EXT_HDR_LONG_PDCP_PDU_NUMBER     0x03 /* TS 29.281 (GTPv1-U)*/
+#define GTP_EXT_HDR_SERVICE_CLASS_INDICATOR  0x20 /* TS 29.281 (GTPv1-U)*/
 #define GTP_EXT_HDR_UDP_PORT                 0x40
+#define GTP_EXT_HDR_RAN_CONT                 0x81
+#define GTP_EXT_HDR_LONG_PDCP_PDU            0x82
+#define GTP_EXT_HDR_XW_RAN_CONT              0x83
+#define GTP_EXT_HDR_NR_RAN_CONT              0x84
+#define GTP_EXT_HDR_PDU_SESSION_CONT         0x85
 #define GTP_EXT_HDR_PDCP_SN                  0xC0
 #define GTP_EXT_HDR_SUSPEND_REQ              0xC1
 #define GTP_EXT_HDR_SUSPEND_RESP             0xC2
@@ -465,7 +753,14 @@ static const value_string next_extension_header_fieldvals[] = {
     {GTP_EXT_HDR_NO_MORE_EXT_HDRS, "No more extension headers"},
     {GTP_EXT_HDR_MBMS_SUPPORT_IND, "MBMS support indication"},
     {GTP_EXT_HDR_MS_INFO_CHG_REP_SUPP_IND, "MS Info Change Reporting support indication"},
+    {GTP_EXT_HDR_LONG_PDCP_PDU_NUMBER, "Long PDCP PDU Number"},
+    {GTP_EXT_HDR_SERVICE_CLASS_INDICATOR, "Service Class Indicator"},
     {GTP_EXT_HDR_UDP_PORT, "UDP Port number"},
+    {GTP_EXT_HDR_RAN_CONT,"RAN container"},
+    {GTP_EXT_HDR_LONG_PDCP_PDU,"Long PDCP PDU number"},
+    {GTP_EXT_HDR_XW_RAN_CONT,"Xw RAN container"},
+    {GTP_EXT_HDR_NR_RAN_CONT,"NR RAN container"},
+    {GTP_EXT_HDR_PDU_SESSION_CONT,"PDU Session container"},
     {GTP_EXT_HDR_PDCP_SN, "PDCP PDU number"},
     {GTP_EXT_HDR_SUSPEND_REQ, "Suspend Request"},
     {GTP_EXT_HDR_SUSPEND_RESP, "Suspend Response"},
@@ -508,6 +803,12 @@ static const value_string next_extension_header_fieldvals[] = {
 #define GTPv1_EXT_RP_NSAPI_MASK         0xF0
 #define GTPv1_EXT_RP_SPARE_MASK         0x08
 #define GTPv1_EXT_RP_MASK               0x07
+
+static const value_string nr_pdu_type_cnst[] = {
+    {0, "DUD"},
+    {1, "DDDS"},
+    {0, NULL}
+};
 
 static const value_string gtp_message_type[] = {
     {GTP_MSG_UNKNOWN,             "For future use"},
@@ -1783,6 +2084,13 @@ static const value_string geographic_location_type[] = {
     {0, NULL}
 };
 
+static const value_string gtp_ext_hdr_pdu_ses_cont_pdu_type_vals[] = {
+    {0,  "DL PDU SESSION INFORMATION"},
+    {1,  "UL PDU SESSION INFORMATION"},
+    {0, NULL}
+};
+
+
 #define MM_PROTO_GROUP_CALL_CONTROL     0x00
 #define MM_PROTO_BROADCAST_CALL_CONTROL 0x01
 #define MM_PROTO_PDSS1                  0x02
@@ -1796,18 +2104,18 @@ static const value_string geographic_location_type[] = {
 #define MM_PROTO_NON_CALL_RELATED       0x0B
 
 static void
-gtpstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+gtpstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
     srt_stat_table *gtp_srt_table;
 
-    gtp_srt_table = init_srt_table("GTP Requests", NULL, srt_array, 4, NULL, NULL, gui_callback, gui_data, NULL);
+    gtp_srt_table = init_srt_table("GTP Requests", NULL, srt_array, 4, NULL, NULL, NULL);
     init_srt_table_row(gtp_srt_table, 0, "Echo");
     init_srt_table_row(gtp_srt_table, 1, "Create PDP context");
     init_srt_table_row(gtp_srt_table, 2, "Update PDP context");
     init_srt_table_row(gtp_srt_table, 3, "Delete PDP context");
 }
 
-static int
+static tap_packet_status
 gtpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
     guint i = 0;
@@ -1818,11 +2126,11 @@ gtpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
     /* we are only interested in reply packets */
     if(gtp->is_request){
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
     /* if we have not seen the request, just ignore it */
     if(!gtp->req_frame){
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     /* Only use the commands we know how to handle, this is not a comprehensive list */
@@ -1841,13 +2149,13 @@ gtpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
     case GTP_MSG_DELETE_PDP_REQ: idx=3;
         break;
     default:
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     gtp_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
     add_srt_table_data(gtp_srt_table, idx, &gtp->req_time, pinfo);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 
@@ -1859,7 +2167,12 @@ static dissector_handle_t gtpcdr_handle;
 static dissector_handle_t sndcpxid_handle;
 static dissector_handle_t gtpv2_handle;
 static dissector_handle_t bssgp_handle;
+static dissector_handle_t pdcp_nr_handle;
+static dissector_handle_t pdcp_lte_handle;
 static dissector_table_t bssap_pdu_type_table;
+
+static int proto_pdcp_lte = -1;
+
 guint32 gtp_session_count;
 
 /* Relation between frame -> session */
@@ -1867,7 +2180,7 @@ GHashTable* session_table;
 /* Relation between <teid,ip> -> frame */
 wmem_tree_t* frame_tree;
 
-typedef struct gtp_info {
+typedef struct {
     guint32 teid;
     guint32 frame;
 } gtp_info_t;
@@ -1898,7 +2211,7 @@ get_frame(address ip, guint32 teid, guint32 *frame) {
     return 0;
 }
 
-static void
+static gboolean
 call_foreach_ip(const void *key _U_, void *value, void *data){
     wmem_list_frame_t * elem;
     wmem_list_t *info_list = (wmem_list_t *)value;
@@ -1921,12 +2234,14 @@ call_foreach_ip(const void *key _U_, void *value, void *data){
             elem = wmem_list_frame_next(elem);
         }
     }
+
+    return FALSE;
 }
 
 void
 remove_frame_info(guint32 *f) {
     /* For each ip node */
-    wmem_tree_foreach(frame_tree, (wmem_foreach_func)call_foreach_ip, (void *)f);
+    wmem_tree_foreach(frame_tree, call_foreach_ip, (void *)f);
 }
 
 void
@@ -2038,10 +2353,10 @@ fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, guint32 frame) {
 gboolean
 is_cause_accepted(guint8 cause, guint32 version) {
     if (version == 1) {
-        return cause == 128;
+        return cause == 128 || cause == 129 || cause == 130;
     }
     else if (version == 2) {
-        return cause == 16;
+        return cause == 16 || cause == 17 || cause == 18 || cause == 19;
     }
     return FALSE;
 }
@@ -2177,7 +2492,7 @@ static int decode_gtp_node_addr(tvbuff_t * tvb, int offset, packet_info * pinfo,
 static int decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 
-typedef struct _gtp_opt {
+typedef struct {
     int optcode;
     int (*decode) (tvbuff_t *, int, packet_info *, proto_tree *, session_args_t *);
 } gtp_opt_t;
@@ -2307,7 +2622,7 @@ static const gtp_opt_t gtpopt[] = {
 /* 0xD7 */  {GTP_EXT_LHN_ID_W_SAPI, decode_gtp_ext_lhn_id_w_sapi },             /* 7.7.115 */
 /* 0xD8 */  {GTP_EXT_CN_OP_SEL_ENTITY, decode_gtp_ext_cn_op_sel_entity },       /* 7.7.116 */
 
-/* 0xDA */	{GTP_EXT_EXT_COMMON_FLGS_II, decode_gtp_extended_common_flgs_II},	/* 7.7.118 */
+/* 0xDA */    {GTP_EXT_EXT_COMMON_FLGS_II, decode_gtp_extended_common_flgs_II},    /* 7.7.118 */
 
 /* 0xf9 */  {GTP_EXT_REL_PACK, decode_gtp_rel_pack },                           /* charging */
 /* 0xfa */  {GTP_EXT_CAN_PACK, decode_gtp_can_pack},                            /* charging */
@@ -2356,12 +2671,12 @@ id_to_str(tvbuff_t *tvb, gint offset)
 /* Next definitions and function check_field_presence checks if given field
  * in GTP packet is compliant with ETSI
  */
-typedef struct _header {
+typedef struct {
     guint8 code;
     guint8 presence;
 } ext_header;
 
-typedef struct _message {
+typedef struct {
     guint8 code;
     ext_header fields[32];
 } _gtp_mess_items;
@@ -2837,7 +3152,7 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_RAT_TYPE, GTP_OPTIONAL},           /* RAT Type Optional 7.7.50 */
             {GTP_EXT_USR_LOC_INF, GTP_OPTIONAL},        /* User Location Information Optional 7.7.51 */
             {GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL},       /* MS Time Zone Optional 7.7.52 */
-            {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL},        /* Additonal Trace Info Optional 7.7.62 */
+            {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL},        /* Additional Trace Info Optional 7.7.62 */
             {GTP_EXT_DIRECT_TUNNEL_FLGS, GTP_OPTIONAL}, /* Direct Tunnel Flags     7.7.81 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
             {0, 0}
@@ -3194,7 +3509,7 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL},       /* MS Time Zone Optional 7.7.52 */
             {GTP_EXT_IMEISV, GTP_OPTIONAL},             /* IMEI(SV) Optional 7.7.53 */
             {GTP_EXT_MBMS_PROT_CONF_OPT, GTP_OPTIONAL}, /* MBMS Protocol Configuration Options Optional 7.7.58 */
-            {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL},        /* Additonal Trace Info Optional 7.7.62 */
+            {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL},        /* Additional Trace Info Optional 7.7.62 */
             {GTP_EXT_ENH_NSAPI, GTP_MANDATORY},         /* Enhanced NSAPI Mandatory 7.7.67 */
             {GTP_EXT_ADD_MBMS_TRS_INF, GTP_OPTIONAL},   /* Additional MBMS Trace Info Optional 7.7.68 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
@@ -3381,6 +3696,8 @@ gtp_sn_equal_matched(gconstpointer k1, gconstpointer k2)
 {
     const gtp_msg_hash_t *key1 = (const gtp_msg_hash_t *)k1;
     const gtp_msg_hash_t *key2 = (const gtp_msg_hash_t *)k2;
+    double diff;
+    nstime_t delta;
 
     if ( key1->req_frame && key2->req_frame && (key1->req_frame != key2->req_frame) ) {
         return 0;
@@ -3388,6 +3705,13 @@ gtp_sn_equal_matched(gconstpointer k1, gconstpointer k2)
 
     if ( key1->rep_frame && key2->rep_frame && (key1->rep_frame != key2->rep_frame) ) {
         return 0;
+    }
+
+    if (pref_pair_matching_max_interval_ms) {
+        nstime_delta(&delta, &key1->req_time, &key2->req_time);
+        diff = fabs(nstime_to_msec(&delta));
+
+        return key1->seq_nr == key2->seq_nr && diff < pref_pair_matching_max_interval_ms;
     }
 
     return key1->seq_nr == key2->seq_nr;
@@ -3398,6 +3722,15 @@ gtp_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
 {
     const gtp_msg_hash_t *key1 = (const gtp_msg_hash_t *)k1;
     const gtp_msg_hash_t *key2 = (const gtp_msg_hash_t *)k2;
+    double diff;
+    nstime_t delta;
+
+    if (pref_pair_matching_max_interval_ms) {
+        nstime_delta(&delta, &key1->req_time, &key2->req_time);
+        diff = fabs(nstime_to_msec(&delta));
+
+        return key1->seq_nr == key2->seq_nr && diff < pref_pair_matching_max_interval_ms;
+    }
 
     return key1->seq_nr == key2->seq_nr;
 }
@@ -3407,7 +3740,9 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
 {
     gtp_msg_hash_t   gcr, *gcrp = NULL;
     guint32 *session;
+
     gcr.seq_nr=seq_nr;
+    gcr.req_time = pinfo->abs_ts;
 
     switch (msgtype) {
     case GTP_MSG_ECHO_REQ:
@@ -3415,6 +3750,10 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
     case GTP_MSG_UPDATE_PDP_REQ:
     case GTP_MSG_DELETE_PDP_REQ:
     case GTP_MSG_FORW_RELOC_REQ:
+    case GTP_MSG_DATA_TRANSF_REQ:
+    case GTP_MSG_SGSN_CNTXT_REQ:
+    case GTP_MS_INFO_CNG_NOT_REQ:
+    case GTP_MSG_IDENT_REQ:
         gcr.is_request=TRUE;
         gcr.req_frame=pinfo->num;
         gcr.rep_frame=0;
@@ -3424,6 +3763,10 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
     case GTP_MSG_UPDATE_PDP_RESP:
     case GTP_MSG_DELETE_PDP_RESP:
     case GTP_MSG_FORW_RELOC_RESP:
+    case GTP_MSG_DATA_TRANSF_RESP:
+    case GTP_MSG_SGSN_CNTXT_RESP:
+    case GTP_MS_INFO_CNG_NOT_RES:
+    case GTP_MSG_IDENT_RESP:
         gcr.is_request=FALSE;
         gcr.req_frame=0;
         gcr.rep_frame=pinfo->num;
@@ -3450,6 +3793,10 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
         case GTP_MSG_UPDATE_PDP_REQ:
         case GTP_MSG_DELETE_PDP_REQ:
         case GTP_MSG_FORW_RELOC_REQ:
+        case GTP_MSG_DATA_TRANSF_REQ:
+        case GTP_MSG_SGSN_CNTXT_REQ:
+        case GTP_MS_INFO_CNG_NOT_REQ:
+        case GTP_MSG_IDENT_REQ:
             gcr.seq_nr=seq_nr;
 
             gcrp=(gtp_msg_hash_t *)g_hash_table_lookup(gtp_info->unmatched, &gcr);
@@ -3474,6 +3821,10 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
         case GTP_MSG_UPDATE_PDP_RESP:
         case GTP_MSG_DELETE_PDP_RESP:
         case GTP_MSG_FORW_RELOC_RESP:
+        case GTP_MSG_DATA_TRANSF_RESP:
+        case GTP_MSG_SGSN_CNTXT_RESP:
+        case GTP_MS_INFO_CNG_NOT_RES:
+        case GTP_MSG_IDENT_RESP:
             gcr.seq_nr=seq_nr;
             gcrp=(gtp_msg_hash_t *)g_hash_table_lookup(gtp_info->unmatched, &gcr);
 
@@ -3498,15 +3849,15 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
 
         if (gcrp->is_request) {
             it = proto_tree_add_uint(tree, hf_gtp_response_in, tvb, 0, 0, gcrp->rep_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         } else {
             nstime_t ns;
 
             it = proto_tree_add_uint(tree, hf_gtp_response_to, tvb, 0, 0, gcrp->req_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
             nstime_delta(&ns, &pinfo->abs_ts, &gcrp->req_time);
             it = proto_tree_add_time(tree, hf_gtp_time, tvb, 0, 0, &ns);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
             if (g_gtp_session) {
                 if (!PINFO_FD_VISITED(pinfo) && gtp_version == 1) {
                     /* GTP session */
@@ -5139,6 +5490,14 @@ decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree, proto_
     guint8   str[MAX_APN_LENGTH+1];
     guint    curr_len;
 
+    /*
+     * This is "a domain name represented as a sequence of labels, where
+     * each label consists of a length octet followed by that number of
+     * octets.", DNS-style.
+     *
+     * XXX - does it involve compression?
+     */
+
     /* init buffer and copy it */
     memset(str, 0, MAX_APN_LENGTH+1);
     tvb_memcpy(tvb, str, offset, length<MAX_APN_LENGTH?length:MAX_APN_LENGTH);
@@ -5276,10 +5635,10 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
 
     switch (ggsn_addr_len) {
     case 4:
-        proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_for_control_plane, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_for_control_plane_ipv4, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
         break;
     case 16:
-        proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_for_user_traffic, tvb, offset + 1, 16, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_for_control_plane_ipv6, tvb, offset + 1, 16, ENC_NA);
         break;
     default:
         break;
@@ -5290,14 +5649,14 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     if (gtp_version == 1) {
 
         ggsn_addr_len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_2_address_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         switch (ggsn_addr_len) {
         case 4:
-            proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_2_address_ipv4, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_for_user_traffic_ipv4, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
             break;
         case 16:
-            proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_2_address_ipv6, tvb, offset + 1, 16, ENC_NA);
+            proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_for_user_traffic_ipv6, tvb, offset + 1, 16, ENC_NA);
             break;
         default:
             break;
@@ -5459,7 +5818,7 @@ decode_gtp_gsn_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
 
     if (g_gtp_session && gtp_version == 1 && !PINFO_FD_VISITED(pinfo)) {
         if (!ip_exists(*gsn_address, args->ip_list)) {
-            copy_address(&args->last_ip, gsn_address);
+            copy_address_wmem(wmem_packet_scope(), &args->last_ip, gsn_address);
             wmem_list_prepend(args->ip_list, gsn_address);
         }
     }
@@ -5898,8 +6257,23 @@ decode_gtp_add_rab_setup_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+
+    proto_tree_add_item(ext_tree, hf_gtp_nsapi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (length == 1)
+        return 3 + length;
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_teid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    if (length == 9) {
+        /* RNC IP address IPv4*/
+        proto_tree_add_item(ext_tree, hf_gtp_rnc_ip_addr_v4, tvb, offset, 4, ENC_BIG_ENDIAN);
+    } else {
+        /* RNC IP address IPv6*/
+        proto_tree_add_item(ext_tree, hf_gtp_rnc_ip_addr_v6, tvb, offset, 16, ENC_NA);
+    }
+
 
     return 3 + length;
 
@@ -6060,6 +6434,9 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
+            /* The CI is of fixed length with 2 octets and it can be coded using a full
+             * hexadecimal representation
+             */
             proto_tree_add_item(tree, hf_gtp_cgi_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case 1:
@@ -6067,10 +6444,15 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
              * Area Identity (SAI) of where the user currently is registered.
              * SAI is defined in sub-clause 9.2.3.9 of 3GPP TS 25.413 [7].
              */
+            /* PLMN identity    M   9.2.3.55
+             * 9.2.3.55 PLMN identity    M   OCTET STRING (SIZE (3))
+             */
             dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_SAI, TRUE);
             offset+=3;
+            /* LAC  M   OCTET STRING (SIZE(2))  0000 and FFFE not allowed.*/
             proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
+            /* SAC  M   OCTET STRING (SIZE(2)) */
             proto_tree_add_item(tree, hf_gtp_sai_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case 2:
@@ -6083,7 +6465,10 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
-            proto_tree_add_item(tree, hf_gtp_rai_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            /* Routing Area Code (RAC) which is a fixed length code (of 1 octet)
+             * identifying a routing area within a location area.
+             */
+            proto_tree_add_item(tree, hf_gtp_rai_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         case 128:
             /* Geographic Location field included and it holds the Tracking
@@ -6152,6 +6537,7 @@ dissect_gtp_uli(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
+            /* The CI is of fixed length with 2 octets and it can be coded using a full hexadecimal representation */
             proto_tree_add_item(tree, hf_gtp_cgi_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case 1:
@@ -7813,10 +8199,11 @@ decode_gtp_max_mbr_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
  */
 
 static int
-decode_gtp_add_mm_ctx_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+decode_gtp_add_mm_ctx_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
+    guint32 inf_len;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_ADD_MM_CTX_SRVCC], NULL,
@@ -7827,7 +8214,26 @@ decode_gtp_add_mm_ctx_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    /* Length of the Mobile Station Classmark 2 */
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_ms_cm_2_len, tvb, offset, 1, ENC_BIG_ENDIAN, &inf_len);
+    offset++;
+    if (inf_len > 0) {
+        offset += de_ms_cm_2(tvb, ext_tree, pinfo, offset, inf_len, NULL, 0);
+    }
+
+    /* Length of the Mobile Station Classmark 3 */
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_ms_cm_3_len, tvb, offset, 1, ENC_BIG_ENDIAN, &inf_len);
+    offset++;
+    if (inf_len > 0) {
+        offset += de_ms_cm_3(tvb, ext_tree, pinfo, offset, inf_len, NULL, 0);
+    }
+
+    /* Length of the Supported Codec List */
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_sup_codec_lst_len, tvb, offset, 1, ENC_BIG_ENDIAN, &inf_len);
+    offset++;
+    if (inf_len > 0) {
+        de_sup_codec_list(tvb, ext_tree, pinfo, offset, inf_len, NULL, 0);
+    }
 
     return 3 + length;
 }
@@ -7851,7 +8257,8 @@ decode_gtp_add_flgs_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    /* 4    Spare ICS */
+    proto_tree_add_item(ext_tree, hf_gtp_add_flg_for_srvcc_ics, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
 }
@@ -7897,7 +8304,7 @@ decode_gtp_c_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    dissect_e164_msisdn(tvb, ext_tree, offset, length, E164_ENC_BCD);
 
     return 3 + length;
 }
@@ -7905,10 +8312,11 @@ decode_gtp_c_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * 7.7.111 Extended RANAP Cause
  */
 static int
-decode_gtp_ext_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+decode_gtp_ext_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
+    tvbuff_t *new_tvb;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_EXT_RANAP_CAUSE], NULL,
@@ -7919,7 +8327,9 @@ decode_gtp_ext_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    new_tvb = tvb_new_subset_remaining(tvb, offset);
+
+    dissect_ranap_Cause_PDU(new_tvb, pinfo, ext_tree, NULL);
 
     return 3 + length;
 }
@@ -7981,6 +8391,15 @@ decode_gtp_ext_enodeb_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
 /*
  * 7.7.113 Selection Mode with NSAPI
  */
+
+static const value_string gtp_sel_mode_vals[] = {
+    { 0, "MS or network provided APN, subscription verified" },
+    { 1, "MS provided APN, subscription not verified" },
+    { 2, "Network provided APN, subscription not verified" },
+    { 3, "For future use. Shall not be sent. If received, shall be interpreted as the value 2" },
+    { 0, NULL }
+};
+
 static int
 decode_gtp_ext_sel_mode_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
@@ -7996,7 +8415,11 @@ decode_gtp_ext_sel_mode_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo 
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    proto_tree_add_item(ext_tree, hf_gtp_nsapi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(ext_tree, hf_gtp_sel_mode_val, tvb, offset, 1, ENC_BIG_ENDIAN);
+
 
     return 3 + length;
 }
@@ -8241,7 +8664,7 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
             if(format==1) {
                 if(rel_id <= 6){
                     dissect_gprscdr_GPRSCallEventRecord_PDU(next_tvb, pinfo, cdr_dr_tree, NULL);
-                }else if(rel_id >6){
+                }else{
                     dissect_gprscdr_GPRSRecord_PDU(next_tvb, pinfo, cdr_dr_tree, NULL);
                 }
             } else {
@@ -8388,7 +8811,7 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
         session = (guint32*)g_hash_table_lookup(session_table, &pinfo->num);
         if (session) {
             it = proto_tree_add_uint(tree, hf_gtp_session, tvb, 0, 0, *session);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
     }
 
@@ -8423,11 +8846,7 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
                 else {
                     /* We have to check if its teid == teid_cp and ip.dst == gsn_ipv4 from the lists, if that is the case then we have to assign
                     the corresponding session ID */
-                    const address * dst_address;
-                    address gsn_address;
-                    dst_address = &pinfo->dst;
-                    copy_address(&gsn_address, dst_address);
-                    if ((get_frame(gsn_address, (guint32)gtp_hdr->teid, &frame_teid_cp) == 1)) {
+                    if ((get_frame(pinfo->dst, (guint32)gtp_hdr->teid, &frame_teid_cp) == 1)) {
                         /* Then we have to set its session ID */
                         session = (guint32*)g_hash_table_lookup(session_table, &frame_teid_cp);
                         if (session != NULL) {
@@ -8441,12 +8860,143 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
     }
 }
 
+/* TS 38.425 5.5.2.1*/
+static void
+addRANContParameter(tvbuff_t *tvb, proto_tree *ran_cont_tree, gint offset)
+{
+    guint32 pdu_type;
+    gboolean dl_disc_blk;
+    gboolean dl_flush;
+    guint32 dl_disc_num_blks;
+
+    proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_pdu_type,tvb, offset,1,ENC_BIG_ENDIAN, &pdu_type);
+
+    if (pdu_type == 0) {
+        /* PDU Type (=0) Spare DL Discard Blocks DL Flush Report polling Octet 1*/
+        proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_spr_bit_extnd_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+        proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_discrd_blks, tvb, offset, 1, ENC_BIG_ENDIAN, &dl_disc_blk);
+
+        proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_flush, tvb, offset, 1, ENC_BIG_ENDIAN, &dl_flush);
+
+        proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_rpt_poll, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        /* Spare    Assistance Info. Report Polling Flag    Retransmission flag*/
+        proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_ass_inf_rep_poll_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_retransmission_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_nr_u_seq_num, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
+
+        if (dl_flush == TRUE) {
+            proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn, tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
+        }
+        if (dl_disc_blk == TRUE) {
+            proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_num_blks, tvb, offset, 1, ENC_BIG_ENDIAN, &dl_disc_num_blks);
+            offset++;
+            while (dl_disc_num_blks) {
+                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn_start, tvb, offset, 3, ENC_BIG_ENDIAN);
+                offset += 3;
+
+                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_blk_sz, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+                dl_disc_num_blks--;
+            }
+        }
+    }
+   else if(pdu_type==1){
+       gboolean high_tx_nr_pdcp_sn_ind;
+       gboolean high_del_nr_pdcp_sn_ind;
+       gboolean lost_packet_report;
+       gboolean high_retx_nr_pdcp_sn_ind;
+       gboolean high_del_retx_nr_pdcp_sn_ind;
+       gboolean cause_rpt;
+       gboolean data_rate_ind;
+       guint32 lost_NR_U_SN_range;
+
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn_ind ,tvb, offset,1,ENC_BIG_ENDIAN, &high_tx_nr_pdcp_sn_ind );
+
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_delivered_nr_pdcp_sn_ind ,tvb, offset,1,ENC_BIG_ENDIAN, &high_del_nr_pdcp_sn_ind );
+
+       proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_final_frame_ind,tvb, offset,3, ENC_BIG_ENDIAN);
+
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_lost_pkt_rpt,tvb, offset,1,ENC_BIG_ENDIAN, &lost_packet_report);
+       offset++;
+
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_data_rate_ind,tvb, offset,1, ENC_BIG_ENDIAN, &data_rate_ind);
+
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn_ind,tvb, offset,1, ENC_BIG_ENDIAN, &high_retx_nr_pdcp_sn_ind);
+
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_delivered_retx_nr_pdcp_sn_ind,tvb, offset,1,ENC_BIG_ENDIAN, &high_del_retx_nr_pdcp_sn_ind);
+
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_cause_rpt,tvb, offset,1,ENC_BIG_ENDIAN, &cause_rpt);
+       offset++;
+
+       proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_desrd_buff_sz_data_radio_bearer,tvb, offset,4, ENC_BIG_ENDIAN);
+       offset += 4;
+
+       if(data_rate_ind == TRUE){
+          proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_desrd_data_rate,tvb, offset,4, ENC_BIG_ENDIAN);
+          offset += 4;
+       }
+
+       if(lost_packet_report == TRUE){
+          proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_num_lost_nru_seq_num,tvb, offset,1,ENC_BIG_ENDIAN, &lost_NR_U_SN_range);
+          offset+=1;
+
+          while(lost_NR_U_SN_range)
+          {
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_start_lost_nru_seq_num,tvb, offset,3, ENC_BIG_ENDIAN);
+             offset += 3;
+
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_end_lost_nru_seq_num,tvb, offset,3, ENC_BIG_ENDIAN);
+             offset += 3;
+             lost_NR_U_SN_range--;
+          }
+       }
+
+       if(high_del_nr_pdcp_sn_ind == TRUE)
+       {
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_nr_pdcp_sn,tvb, offset,3, ENC_BIG_ENDIAN);
+             offset += 3;
+       }
+
+       if(high_tx_nr_pdcp_sn_ind == TRUE)
+       {
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn,tvb, offset,3, ENC_BIG_ENDIAN);
+             offset += 3;
+       }
+
+       if(cause_rpt == TRUE)
+       {
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_cause_val,tvb, offset,1, ENC_BIG_ENDIAN);
+             offset ++;
+       }
+
+       if(high_del_retx_nr_pdcp_sn_ind == TRUE)
+       {
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_retx_nr_pdcp_sn,tvb, offset,3, ENC_BIG_ENDIAN);
+             offset += 3;
+       }
+
+       if(high_retx_nr_pdcp_sn_ind == TRUE)
+       {
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn,tvb, offset,3, ENC_BIG_ENDIAN);
+       }
+   }
+}
+
+
 static int
 dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
     guint8           octet;
     gtp_hdr_t       *gtp_hdr = NULL;
     proto_tree      *gtp_tree = NULL, *ext_tree;
+    proto_tree      *ran_cont_tree = NULL;
     proto_item      *ti = NULL, *tf, *ext_hdr_len_item, *message_item;
     int              i, offset = 0, checked_field, mandatory;
     gboolean         gtp_prime, has_SN;
@@ -8460,7 +9010,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     tvbuff_t        *next_tvb;
     guint8           sub_proto;
     guint8           acfield_len      = 0;
-    guint8           control_field;
     gtp_msg_hash_t  *gcrp             = NULL;
     conversation_t  *conversation;
     gtp_conv_info_t *gtp_info;
@@ -8708,8 +9257,9 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 offset++;
 
                 if (gtp_hdr->flags & GTP_E_MASK) {
+                    proto_item* hdr_ext_item;
                     next_hdr = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
+                    hdr_ext_item = proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
                     offset++;
                     while (next_hdr != 0) {
                         ext_hdr_length = tvb_get_guint8(tvb, offset);
@@ -8724,39 +9274,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                         offset++;
 
                         switch (next_hdr) {
-
-                        case GTP_EXT_HDR_PDCP_SN:
-                            /* PDCP PDU
-                             * 3GPP 29.281 v9.0.0, 5.2.2.2 PDCP PDU Number
-                             *
-                             * "This extension header is transmitted, for
-                             * example in UTRAN, at SRNS relocation time,
-                             * to provide the PDCP sequence number of not
-                             * yet acknowledged N-PDUs. It is 4 octets long,
-                             * and therefore the Length field has value 1.
-                             *
-                             * When used between two eNBs at the X2 interface
-                             * in E-UTRAN, bits 5-8 of octet 2 are spare.
-                             * The meaning of the spare bits shall be set
-                             * to zero.
-                             *
-                             * Wireshark Note: TS 29.060 does not define bit
-                             * 5-6 as spare, so no check is possible unless
-                             * a preference is used.
-                             */
-                            /* First byte is length (should be 1) */
-                            if (ext_hdr_length == 1) {
-                                proto_item* ext_item;
-
-                                ext_hdr_pdcpsn = tvb_get_ntohs(tvb, offset);
-                                ext_item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
-                                if (ext_hdr_pdcpsn & 0x700) {
-                                    expert_add_info(pinfo, ext_item, &ei_gtp_ext_hdr_pdcpsn);
-                                }
-                            } else {
-                                expert_add_info_format(pinfo, ext_tree, &ei_gtp_ext_length_warn, "The length field for the PDCP SN Extension header should be 1.");
-                            }
-                            break;
 
                         case GTP_EXT_HDR_UDP_PORT:
                             /* UDP Port
@@ -8776,6 +9293,169 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                             }
                             break;
 
+                        case GTP_EXT_HDR_RAN_CONT:
+                            /* RAN Container
+                             * 3GPP 29.281 v15.2.0, 5.2.2.4 RAN Container
+                             * This extension header may be transmitted in
+                             * a G-PDU over the X2 user plane interface
+                             * between the eNBs. The RAN Container has a
+                             * variable length and its content is specified
+                             * in 3GPP TS 36.425 [25]. A G-PDU message with
+                             * this extension header may be sent without a T-PDU.
+                             */
+                            proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_ran_cont, tvb, offset, (4*ext_hdr_length)-1, ENC_NA);
+                            break;
+
+                        case GTP_EXT_HDR_LONG_PDCP_PDU:
+                            /* Long PDCP PDU Number
+                             * 3GPP 29.281 v15.2.0, 5.2.2.2A Long PDCP PDU Number
+                             * This extension header is used for direct X2 or
+                             * indirect S1 DL data forwarding during a Handover
+                             * procedure between two eNBs. The Long PDCP PDU number
+                             * extension header is 8 octets long, and therefore
+                             * the Length field has value 2.
+                             * The PDCP PDU number field of the Long PDCP PDU number
+                             * extension header has a maximum value which requires 18
+                             * bits (see 3GPP TS 36.323 [24]). Bit 2 of octet 2 is
+                             * the most significant bit and bit 1 of octet 4 is the
+                             * least significant bit, see Figure 5.2.2.2A-1. Bits 8 to
+                             * 3 of octet 2, and Bits 8 to 1 of octets 5 to 7 shall be
+                             * set to 0.
+                             * NOTE: A G-PDU which includes a PDCP PDU Number contains
+                             * either the extension header PDCP PDU Number or Long PDCP
+                             * PDU Number.
+                             */
+                            if (ext_hdr_length == 2) {
+                                proto_tree_add_bits_item(ext_tree, hf_gtp_ext_hdr_spare_bits, tvb, offset<<3, 6, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_long_pdcp_sn, tvb, offset, 3, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_spare_bytes, tvb, offset+3, 3, ENC_NA);
+                            } else {
+                                expert_add_info_format(pinfo, ext_tree, &ei_gtp_ext_length_warn, "The length field for the Long PDCP SN Extension header should be 2.");
+                            }
+                            break;
+
+                        case GTP_EXT_HDR_XW_RAN_CONT:
+                            /* Xw RAN Container
+                             * 3GPP 29.281 v15.2.0, 5.2.2.5 Xw RAN Container
+                             * This extension header may be transmitted in a
+                             * G-PDU over the Xw user plane interface between
+                             * the eNB and the WLAN Termination (WT). The Xw
+                             * RAN Container has a variable length and its
+                             * content is specified in 3GPP TS 36.464 [27].
+                             * A G-PDU message with this extension header may
+                             * be sent without a T-PDU.
+                             */
+                            proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_xw_ran_cont, tvb, offset, (4*ext_hdr_length)-1, ENC_NA);
+                            break;
+
+                        case GTP_EXT_HDR_NR_RAN_CONT:
+                            /* NR RAN Container
+                             * 3GPP 29.281 v15.2.0, 5.2.2.6 NR RAN Container
+                             * This extension header may be transmitted in a
+                             * G-PDU over the X2-U, Xn-U and F1-U user plane
+                             * interfaces, within NG-RAN and, for EN-DC, within
+                             * E-UTRAN. The NR RAN Container has a variable
+                             * length and its content is specified in 3GPP TS
+                             * 38.425 [30]. A G-PDU message with this extension
+                             * header may be sent without a T-PDU.
+                             */
+                            ran_cont_tree = proto_tree_add_subtree(ext_tree, tvb, offset, (ext_hdr_length * 4) - 1, ett_gtp_nr_ran_cont, NULL, "NR RAN Container");
+                            addRANContParameter(tvb, ran_cont_tree, offset);
+                            break;
+
+                        case GTP_EXT_HDR_PDU_SESSION_CONT:
+                        {
+                            /* PDU Session Container
+                             * 3GPP 29.281 v15.2.0, 5.2.2.7 PDU Session Container
+                             * This extension header may be transmitted in a G-PDU
+                             * over the N3 and N9 user plane interfaces, between
+                             * NG-RAN and UPF, or between two UPFs. The PDU Session
+                             * Container has a variable length and its content is
+                             * specified in 3GPP TS 38.415 [31].
+                             */
+                            static const int * flags1[] = {
+                                &hf_gtp_ext_hdr_pdu_ses_cont_ppp,
+                                &hf_gtp_ext_hdr_pdu_ses_cont_rqi,
+                                &hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id,
+                                NULL
+                            };
+                            static const int * flags2[] = {
+                                &hf_gtp_ext_hdr_pdu_ses_cont_ppi,
+                                &hf_gtp_spare_b4b0,
+                                NULL
+                            };
+                            static const int * flags3[] = {
+                                &hf_gtp_spare_b7b6,
+                                &hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id,
+                                NULL
+                            };
+
+                            proto_tree *pdu_ses_cont_tree;
+                            guint32 pdu_type;
+                            guint8 value;
+
+                            pdu_ses_cont_tree = proto_tree_add_subtree(ext_tree, tvb, offset, (ext_hdr_length * 4) - 1, ett_pdu_session_cont, NULL, "PDU Session Container");
+                            /* PDU Type    Spare */
+                            proto_tree_add_item_ret_uint(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN, &pdu_type);
+                            proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_spare_h1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            switch (pdu_type) {
+                            case 0:
+                                /* PDU Type: DL PDU SESSION INFORMATION (0) */
+                                /* Octet 1: PPP    RQI    QoS Flow Identifier  */
+                                value = tvb_get_guint8(tvb, offset + 1);
+                                proto_tree_add_bitmask_list_value(pdu_ses_cont_tree, tvb, offset + 1, 1, flags1, value);
+                                if (value & 0x80)
+                                {
+                                    /* Octet 2 PPI    Spare*/
+                                    proto_tree_add_bitmask_list(pdu_ses_cont_tree, tvb, offset + 2, 1, flags2, ENC_BIG_ENDIAN);
+                                }
+                                break;
+                            case 1:
+                                /* PDU Type: UL PDU SESSION INFORMATION (1)*/
+                                /* Spare    QoS Flow Identifier */
+                                proto_tree_add_bitmask_list(pdu_ses_cont_tree, tvb, offset + 1, 1, flags3, ENC_BIG_ENDIAN);
+                                break;
+                            default:
+                                proto_tree_add_expert(pdu_ses_cont_tree, pinfo, &ei_gtp_unknown_pdu_type, tvb, offset, 1);
+                                break;
+                            }
+                        }
+                            break;
+
+                        case GTP_EXT_HDR_PDCP_SN:
+                            /* PDCP PDU
+                             * 3GPP 29.281 v9.0.0, 5.2.2.2 PDCP PDU Number
+                             *
+                             * "This extension header is transmitted, for
+                             * example in UTRAN, at SRNS relocation time,
+                             * to provide the PDCP sequence number of not
+                             * yet acknowledged N-PDUs. It is 4 octets long,
+                             * and therefore the Length field has value 1.
+                             *
+                             * When used during a handover procedure between
+                             * two eNBs at the X2 interface (direct DL data
+                             * forwarding) or via the S1 interface (indirect
+                             * DL data forwarding) in E-UTRAN, bit 8 of octet
+                             * 2 is spare and shall be set to zero.
+                             *
+                             * Wireshark Note: TS 29.060 does not define bit
+                             * 5-6 as spare, so no check is possible unless
+                             * a preference is used.
+                             */
+                            /* First byte is length (should be 1) */
+                            if (ext_hdr_length == 1) {
+                                proto_item* ext_item;
+
+                                ext_hdr_pdcpsn = tvb_get_ntohs(tvb, offset);
+                                ext_item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                if (ext_hdr_pdcpsn & 0x8000) {
+                                    expert_add_info(pinfo, ext_item, &ei_gtp_ext_hdr_pdcpsn);
+                                }
+                            } else {
+                                expert_add_info_format(pinfo, ext_tree, &ei_gtp_ext_length_warn, "The length field for the PDCP SN Extension header should be 1.");
+                            }
+                            break;
+
                         case GTP_EXT_HDR_SUSPEND_REQ:
                             /* Suspend Request */
                             break;
@@ -8785,12 +9465,21 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                             break;
 
                         default:
-                            break;
+                            {
+                                tvbuff_t * ext_hdr_tvb;
+                                gtp_hdr_ext_info_t gtp_hdr_ext_info;
+
+                                gtp_hdr_ext_info.hdr_ext_item = hdr_ext_item;
+                                /* NOTE Type and lenght included in the call*/
+                                ext_hdr_tvb = tvb_new_subset_remaining(tvb, offset - 2);
+                                dissector_try_uint_new(gtp_hdr_ext_dissector_table, next_hdr, ext_hdr_tvb, pinfo, ext_tree, FALSE, &gtp_hdr_ext_info);
+                                break;
+                            }
                         }
                         offset += ext_hdr_length*4 - 2;
 
                         next_hdr = tvb_get_guint8(tvb, offset);
-                        proto_tree_add_uint(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
+                        hdr_ext_item = proto_tree_add_uint(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
                         offset++;
                     }
                 } else
@@ -8854,10 +9543,9 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
     proto_item_set_end(ti, tvb, offset);
 
-    if ((gtp_hdr->message == GTP_MSG_TPDU) && dissect_tpdu_as == GTP_TPDU_AS_TPDU) {
-        if(tvb_reported_length_remaining(tvb, offset) > 0){
-            proto_tree_add_item(gtp_tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
-
+    if ((gtp_hdr->message == GTP_MSG_TPDU) && (tvb_reported_length_remaining(tvb, offset) > 0)) {
+        switch (dissect_tpdu_as) {
+        case GTP_TPDU_AS_TPDU_HEUR:
             sub_proto = tvb_get_guint8(tvb, offset);
 
             if ((sub_proto >= 0x45) && (sub_proto <= 0x4e)) {
@@ -8874,9 +9562,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector(ipv6_handle, next_tvb, pinfo, tree);
             } else {
+#if 0
+                /* This turns out not to be true, remove the code and try to improve it if we get bug reports */
                 /* this seems to be a PPP packet */
 
                 if (sub_proto == 0xff) {
+                    guint8           control_field;
                     /* this might be an address field, even it shouldn't be here */
                     control_field = tvb_get_guint8(tvb, offset + 1);
                     if (control_field == 0x03)
@@ -8886,17 +9577,147 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
                 next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
                 call_dissector(ppp_handle, next_tvb, pinfo, tree);
+#endif
+                proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
             }
-        }
+            col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
+            col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+            break;
+        case GTP_TPDU_AS_PDCP_LTE:
+            if (tvb_reported_length_remaining(tvb, offset) > 0) {
+                /* Check if we have info to call the PDCP dissector */
+                struct pdcp_lte_info *p_pdcp_info;
+                uat_pdcp_lte_keys_record_t * found_record;
+                tvbuff_t *pdcp_lte_tvb;
 
-        col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
-        col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
-    }
-    else if ((gtp_hdr->message == GTP_MSG_TPDU) && dissect_tpdu_as == GTP_TPDU_AS_SYNC) {
-        next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
-        call_dissector(sync_handle, next_tvb, pinfo, tree);
-        col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
-        col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+                if ((found_record = look_up_pdcp_lte_keys_record((guint32)gtp_hdr->teid))) {
+                    /* Look for attached packet info! */
+                    p_pdcp_info = (struct pdcp_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0);
+                    /* If we don't have the data, add it */
+                    if (p_pdcp_info == NULL) {
+                        p_pdcp_info = wmem_new0(wmem_file_scope(), pdcp_lte_info);
+                        /* Channel info is needed for RRC parsing */
+                        /*p_pdcp_info->direction;*/
+                        /*p_pdcp_info->ueid;*/
+                        /*p_pdcp_info->channelType;*/
+                        /*p_pdcp_info->channelId;*/
+                        /*p_pdcp_info->BCCHTransport;*/
+
+                        /* Details of PDCP header */
+                        if (found_record->header_present == PDCP_LTE_HEADER_PRESENT) {
+                            p_pdcp_info->no_header_pdu = FALSE;
+                        } else {
+                            p_pdcp_info->no_header_pdu = TRUE;
+                        }
+                        p_pdcp_info->plane = found_record->plane;
+                        p_pdcp_info->seqnum_length = found_record->lte_sn_length;
+
+                        /* RoHC settings */
+                        p_pdcp_info->rohc.rohc_compression = found_record->rohc_compression;
+                        p_pdcp_info->rohc.rohc_ip_version = 4; /* For now set it explicitly */
+                        p_pdcp_info->rohc.cid_inclusion_info = FALSE;
+                        p_pdcp_info->rohc.large_cid_present = FALSE;
+                        p_pdcp_info->rohc.mode = MODE_NOT_SET;
+                        p_pdcp_info->rohc.rnd = FALSE;
+                        p_pdcp_info->rohc.udp_checksum_present = FALSE;
+                        p_pdcp_info->rohc.profile = found_record->rohc_profile;
+
+                       /* p_pdcp_info->is_retx;*/
+
+                        /* Used by heuristic dissector only */
+                        /*p_pdcp_info->pdu_length;*/
+                        p_add_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0, p_pdcp_info);
+                    }
+                    pdcp_lte_tvb = tvb_new_subset_remaining(tvb, offset);
+                    call_dissector(pdcp_lte_handle, pdcp_lte_tvb, pinfo, tree);
+
+                } else {
+                    proto_tree_add_subtree(tree, tvb, offset, -1, ett_gtp_pdcp_no_conf, NULL, "[No PDCP-LTE Configuration data found]");
+                    proto_tree_add_item(tree, hf_pdcp_cont, tvb, offset, -1, ENC_NA);
+                }
+            }
+
+            break;
+        case GTP_TPDU_AS_PDCP_NR:
+            if (tvb_reported_length_remaining(tvb, offset) > 0) {
+                /*NR-U DUD or DDDS PDU
+                * This is NR-U DUD/DDDS PDU. It contains PDCP
+                * payload as per 3GPP TS 38.323
+                */
+                /* Check if we have info to call the PDCP dissector */
+                uat_pdcp_nr_keys_record_t* found_record;
+
+                if ((found_record = look_up_pdcp_nr_keys_record((guint32)gtp_hdr->teid))) {
+                    tvbuff_t *pdcp_tvb;
+                    struct pdcp_nr_info temp_data;
+
+                    /* Set the ROHC data */
+                    temp_data.rohc.rohc_compression = found_record->rohc_compression;
+                    temp_data.rohc.rohc_ip_version = 4; /* For now set it explicitly */
+                    temp_data.rohc.cid_inclusion_info = FALSE;
+                    temp_data.rohc.large_cid_present = FALSE;
+                    temp_data.rohc.mode = MODE_NOT_SET;
+                    temp_data.rohc.rnd = FALSE;
+                    temp_data.rohc.udp_checksum_present = FALSE;
+                    temp_data.rohc.profile = found_record->rohc_profile;
+
+
+                    pdcp_tvb = tvb_new_subset_remaining(tvb, offset);
+                    /* Fill in pdcp_nr_info */
+
+                    temp_data.direction = found_record->direction;
+                    /*temp_data.ueid*/
+                    /*temp_data.bearerType;*/
+                    /*temp_data.bearerId;*/
+
+                    /* Details of PDCP header */
+                    temp_data.plane = found_record->plane;
+                    temp_data.seqnum_length = found_record->pdcp_nr_sn_length;
+                    /* PDCP_NR_(U|D)L_sdap_hdr_PRESENT bitmask */
+                    if (found_record->sdap_header_present == PDCP_NR_SDAP_HEADER_PRESENT) {
+                        if (temp_data.direction == PDCP_NR_DIRECTION_UPLINK) {
+                            temp_data.sdap_header = PDCP_NR_UL_SDAP_HEADER_PRESENT;
+                        } else {
+                            temp_data.sdap_header = PDCP_NR_DL_SDAP_HEADER_PRESENT;
+                        }
+                    } else {
+                        temp_data.sdap_header = 0;
+                    }
+                    temp_data.maci_present = found_record->mac_i_presence;
+
+                    /* RoHC settings */
+                    temp_data.rohc.rohc_compression = found_record->rohc_compression;
+                    temp_data.rohc.rohc_ip_version = 4; /* For now set it explicitly */
+                    temp_data.rohc.cid_inclusion_info = FALSE;
+                    temp_data.rohc.large_cid_present = FALSE;
+                    temp_data.rohc.mode = MODE_NOT_SET;
+                    temp_data.rohc.rnd = FALSE;
+                    temp_data.rohc.udp_checksum_present = FALSE;
+                    temp_data.rohc.profile = found_record->rohc_profile;
+
+                    temp_data.is_retx = 0;
+
+                    /* Used by heuristic dissector only */
+                    temp_data.pdu_length = 0;
+
+                    call_dissector_with_data(pdcp_nr_handle, pdcp_tvb, pinfo, tree, &temp_data);
+                } else {
+                    proto_tree_add_subtree(tree, tvb, offset, -1, ett_gtp_pdcp_no_conf, NULL, "[No PDCP-NR Configuration data found]");
+                    proto_tree_add_item(tree, hf_pdcp_cont, tvb, offset, -1, ENC_NA);
+                }
+            }
+
+            break;
+        case GTP_TPDU_AS_SYNC:
+            next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
+            call_dissector(sync_handle, next_tvb, pinfo, tree);
+            col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
+            col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+            break;
+        default:
+            proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
+            break;
+        }
     }
 
     tap_queue_packet(gtpv1_tap,pinfo, gtp_hdr);
@@ -9098,6 +9919,217 @@ proto_register_gtp(void)
         {&hf_gtp_ext_hdr_next,
          { "Next extension header type", "gtp.ext_hdr.next",
            FT_UINT8, BASE_HEX, VALS(next_extension_header_fieldvals), 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_ran_cont,
+         { "RAN Container", "gtp.ext_hdr.ran_cont",
+           FT_BYTES, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_spare_bits,
+         { "Spare", "gtp.ext_hdr.spare_bits",
+           FT_UINT8, BASE_HEX, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_spare_bytes,
+         { "Spare", "gtp.ext_hdr.spare_bytes",
+           FT_BYTES, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_long_pdcp_sn,
+         { "Long PDCP Sequence Number", "gtp.ext_hdr.long_pdcp_sn",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_xw_ran_cont,
+         { "Xw RAN Container", "gtp.ext_hdr.xw_ran_cont",
+           FT_BYTES, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_pdu_type,
+         { "PDU Type", "gtp.ext_hdr.nr_ran_cont.pdu_type",
+           FT_UINT8, BASE_DEC, VALS(nr_pdu_type_cnst), 0xf0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_spr_bit_extnd_flag,
+         { "Spare bit extended flag", "gtp.ext_hdr.nr_ran_cont.spr_bit",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_dl_discrd_blks,
+         { "DL Discard Blocks", "gtp.ext_hdr.nr_ran_cont.dl_disc_blks",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_dl_flush,
+         { "DL Flush", "gtp.ext_hdr.nr_ran_cont.dl_flush",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_rpt_poll,
+         { "Report Polling", "gtp.ext_hdr.nr_ran_cont.report_polling",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_retransmission_flag,
+         { "Retransmission Flag", "gtp.ext_hdr.nr_ran_cont.retransmission_flag",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_nr_ran_cont_ass_inf_rep_poll_flg,
+        { "Assistance Info. Report Polling Flag", "gtp.ext_hdr.nr_ran_cont.ass_inf_rep_poll_flg",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_gtp_ext_hdr_nr_ran_cont_spare,
+        { "Spare", "gtp.ext_hdr.nr_ran_cont.spare",
+            FT_UINT8, BASE_DEC, NULL, 0xfc,
+            NULL, HFILL }
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_nr_u_seq_num,
+         { "NR-U Sequence Number", "gtp.ext_hdr.nr_ran_cont.seq_num",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn,
+         { "DL discard NR PDCP PDU SN", "gtp.ext_hdr.nr_ran_cont.dl_disc_nr_pdcp_pdu_sn",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_dl_disc_num_blks,
+         { "DL discard Number of blocks", "gtp.ext_hdr.nr_ran_cont.dl_disc_num_blks",
+           FT_UINT8, BASE_DEC, NULL, 0xff,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn_start,
+         { "DL discard NR PDCP PDU SN Start", "gtp.ext_hdr.nr_ran_cont.dl_disc_nr_pdcp_pdu_sn_start",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_dl_disc_blk_sz,
+         { "Discarded block size", "gtp.ext_hdr.nr_ran_cont.disc_blk_sz",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn_ind,
+         { "Highest Transmitted NR PDCP SN Ind", "gtp.ext_hdr.nr_ran_cont.high_tx_nr_pdcp_sn_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_delivered_nr_pdcp_sn_ind,
+         { "Highest Delivered NR PDCP SN Ind", "gtp.ext_hdr.nr_ran_cont.high_delivered_nr_pdcp_sn_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_final_frame_ind,
+         { "Final Frame Ind", "gtp.ext_hdr.nr_ran_cont.final_frame_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_lost_pkt_rpt,
+         { "Lost Packet Report", "gtp.ext_hdr.nr_ran_cont.lost_pkt_rpt",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn_ind,
+         { "Highest Retransmitted NR PDCP SN Ind", "gtp.ext_hdr.nr_ran_cont.high_retx_nr_pdcp_sn_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_cause_rpt,
+         { "Cause Report", "gtp.ext_hdr.nr_ran_cont.cause_rpt",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_data_rate_ind,
+         { "Data Rate Ind", "gtp.ext_hdr.nr_ran_cont.data_rate_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_desrd_buff_sz_data_radio_bearer,
+         { "Desired buffer size for the data radio bearer", "gtp.ext_hdr.nr_ran_cont.desrd_buff_sz_data_radio_bearer",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_delivered_retx_nr_pdcp_sn_ind,
+         { "Highest Delivered Retransmitted NR PDCP SN Ind", "gtp.ext_hdr.nr_ran_cont.high_delivered_retx_nr_pdcp_sn_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_desrd_data_rate,
+         { "Desired data rate", "gtp.ext_hdr.nr_ran_cont.desrd_data_rate",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_num_lost_nru_seq_num,
+         { "Number of lost NR-U Sequence Number ranges reported", "gtp.ext_hdr.nr_ran_cont.num_lost_nru_seq_num",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_start_lost_nru_seq_num,
+         { "Start of lost NR-U Sequence Number range", "gtp.ext_hdr.nr_ran_cont.start_num_lost_nru_seq_num",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_end_lost_nru_seq_num,
+         { "End of lost NR-U Sequence Number range", "gtp.ext_hdr.nr_ran_cont.end_num_lost_nru_seq_num",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_nr_pdcp_sn,
+         { "Highest Successfully Delivered NR PDCP SN", "gtp.ext_hdr.nr_ran_cont.high_success_delivered_nr_pdcp_sn",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn,
+         { "Highest transmitted NR PDCP SN", "gtp.ext_hdr.nr_ran_cont.high_tx_nr_pdcp_sn",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_cause_val ,
+         { "Cause Value", "gtp.ext_hdr.nr_ran_cont.cause_val",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_retx_nr_pdcp_sn,
+         { "Highest Successfully Delivered Retransmitted NR PDCP SN", "gtp.ext_hdr.nr_ran_cont.high_success_delivered_retx_nr_pdcp_sn",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn,
+         { "Highest Retransmitted NR PDCP SN Ind", "gtp.ext_hdr.nr_ran_cont.high_retx_nr_pdcp_sn",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_pdu_type,
+         { "PDU Type", "gtp.ext_hdr.pdu_ses_con.pdu_type",
+           FT_UINT8, BASE_DEC, VALS(gtp_ext_hdr_pdu_ses_cont_pdu_type_vals), 0xf0,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_ppp,
+         { "Paging Policy Presence (PPP)", "gtp.ext_hdr.pdu_ses_cont.ppp",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_rqi,
+         { "Reflective QoS Indicator (RQI)", "gtp.ext_hdr.pdu_ses_cont.rqi",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id,
+         { "QoS Flow Identifier (QFI)", "gtp.ext_hdr.pdu_ses_con.qos_flow_id",
+           FT_UINT8, BASE_DEC, NULL, 0x3f,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_ppi,
+         { "Paging Policy Indicator (PPI)", "gtp.ext_hdr.pdu_ses_cont.ppi",
+           FT_UINT8, BASE_DEC, NULL, 0xe0,
+           NULL, HFILL}
+        },
+
+        {&hf_pdcp_cont,
+         { "PDCP Protocol", "gtp.pdcp",
+           FT_BYTES, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
         {&hf_gtp_ext_hdr_pdcpsn,
@@ -9468,12 +10500,12 @@ proto_register_gtp(void)
         },
         {&hf_gtp_cgi_ci,
          { "Cell ID (CI)", "gtp.cgi_ci",
-           FT_UINT8, BASE_DEC, NULL, 0,
+           FT_UINT16, BASE_DEC, NULL, 0,
            NULL, HFILL}
         },
         {&hf_gtp_sai_sac,
          { "Service Area Code (SAC)", "gtp.sai_sac",
-           FT_UINT8, BASE_DEC, NULL, 0,
+           FT_UINT16, BASE_DEC, NULL, 0,
            NULL, HFILL}
         },
         {&hf_gtp_rai_rac,
@@ -10019,11 +11051,10 @@ proto_register_gtp(void)
       { &hf_gtp_pdp_address_ipv4, { "PDP address", "gtp.pdp_address.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_pdp_address_ipv6, { "PDP address", "gtp.pdp_address.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_ggsn_address_length, { "GGSN address length", "gtp.ggsn_address_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_ggsn_address_for_control_plane, { "GGSN Address for control plane", "gtp.ggsn_address_for_control_plane", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_ggsn_address_for_user_traffic, { "GGSN Address for User Traffic", "gtp.ggsn_address_for_user_traffic", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_ggsn_2_address_length, { "GGSN 2 address length", "gtp.ggsn_2_address_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_ggsn_2_address_ipv4, { "GGSN 2 address", "gtp.ggsn_2_address.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_ggsn_2_address_ipv6, { "GGSN 2 address", "gtp.ggsn_2_address.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_ggsn_address_for_control_plane_ipv4, { "GGSN Address for control plane", "gtp.ggsn_address_for_control_plane.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_ggsn_address_for_control_plane_ipv6, { "GGSN Address for control plane", "gtp.ggsn_address_for_control_plane.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_ggsn_address_for_user_traffic_ipv4, { "GGSN Address for User Traffic", "gtp.ggsn_address_for_user_traffic.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_ggsn_address_for_user_traffic_ipv6, { "GGSN Address for User Traffic", "gtp.ggsn_address_for_user_traffic.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_apn_length, { "APN length", "gtp.apn_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_transaction_identifier, { "Transaction identifier", "gtp.transaction_identifier", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_gsn_address_length, { "GSN address length", "gtp.gsn_address_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -10064,12 +11095,61 @@ proto_register_gtp(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
       },
-
+      { &hf_gtp_spare_b4b0,
+      { "Spare", "gtp.spare.b4b0",
+      FT_UINT8, BASE_HEX, NULL, 0x1f,
+      NULL, HFILL }
+      },
+      { &hf_gtp_spare_b7b6,
+      { "Spare", "gtp.spare.b7b6",
+      FT_UINT8, BASE_HEX, NULL, 0xc0,
+      NULL, HFILL }
+      },
+      { &hf_gtp_spare_h1,
+      { "Spare", "gtp.spare.h1",
+      FT_UINT8, BASE_HEX, NULL, 0xf,
+      NULL, HFILL }
+      },
+      { &hf_gtp_rnc_ip_addr_v4,
+      { "RNC IP address", "gtp.rnc_ip_addr_v4",
+      FT_IPv4, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
+      },
+      { &hf_gtp_rnc_ip_addr_v6,
+      { "RNC IP address", "gtp.rnc_ip_addr_v6",
+      FT_IPv6, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
+      },
+      { &hf_gtp_ms_cm_2_len,
+      { "Length of the Mobile Station Classmark 2", "gtp.ms_cm_2_len",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }
+      },
+      { &hf_gtp_ms_cm_3_len,
+      { "Length of the Mobile Station Classmark 3", "gtp.ms_cm_3_len",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }
+      },
+      { &hf_gtp_sup_codec_lst_len,
+      { "Length of the Supported Codec List", "gtp.sup_codec_lst_len",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }
+      },
+      { &hf_gtp_add_flg_for_srvcc_ics,
+      { "ICS (IMS Centralized Service)", "gtp.add_flg_for_srvcc_ics",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+      NULL, HFILL }
+      },
+      { &hf_gtp_sel_mode_val,
+      { "Selection Mode Value", "gtp.sel_mode_val",
+      FT_UINT8, BASE_DEC, VALS(gtp_sel_mode_vals), 0x03,
+      NULL, HFILL }
+      },
 };
 
     static ei_register_info ei[] = {
         { &ei_gtp_ext_length_mal, { "gtp.ext_length.invalid", PI_MALFORMED, PI_ERROR, "Malformed length", EXPFILL }},
-        { &ei_gtp_ext_hdr_pdcpsn, { "gtp.ext_hdr.pdcp_sn.non_zero", PI_PROTOCOL, PI_NOTE, "3GPP TS 29.281 v9.0.0: When used between two eNBs at the X2 interface in E-UTRAN, bits 5-8 of octet 2 are spare. The meaning of the spare bits shall be set to zero.", EXPFILL }},
+        { &ei_gtp_ext_hdr_pdcpsn, { "gtp.ext_hdr.pdcp_sn.non_zero", PI_PROTOCOL, PI_NOTE, "3GPP TS 29.281 v9.0.0: When used between two eNBs at the X2 interface in E-UTRAN, bit 8 of octet 2 is spare. The meaning of the spare bits shall be set to zero.", EXPFILL }},
         { &ei_gtp_ext_length_warn, { "gtp.ext_length.invalid", PI_PROTOCOL, PI_WARN, "Length warning", EXPFILL }},
         { &ei_gtp_undecoded, { "gtp.undecoded", PI_UNDECODED, PI_WARN, "Data not decoded yet", EXPFILL }},
         { &ei_gtp_message_not_found, { "gtp.message_not_found", PI_PROTOCOL, PI_WARN, "Message not found", EXPFILL }},
@@ -10081,10 +11161,11 @@ proto_register_gtp(void)
         { &ei_gtp_ext_geo_loc_type, { "gtp.ext_geo_loc_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Location type data", EXPFILL }},
         { &ei_gtp_iei, { "gtp.iei.unknown", PI_PROTOCOL, PI_WARN, "Unknown IEI - Later spec than TS 29.060 9.4.0 used?", EXPFILL }},
         { &ei_gtp_unknown_extention_header, { "gtp.unknown_extention_header", PI_PROTOCOL, PI_WARN, "Unknown extension header", EXPFILL }},
+        { &ei_gtp_unknown_pdu_type, { "gtp.unknown_pdu_type", PI_PROTOCOL, PI_WARN, "Unknown PDU type", EXPFILL }},
     };
 
     /* Setup protocol subtree array */
-#define GTP_NUM_INDIVIDUAL_ELEMS    27
+#define GTP_NUM_INDIVIDUAL_ELEMS    30
     static gint *ett_gtp_array[GTP_NUM_INDIVIDUAL_ELEMS + NUM_GTP_IES];
 
     ett_gtp_array[0] = &ett_gtp;
@@ -10114,6 +11195,9 @@ proto_register_gtp(void)
     ett_gtp_array[24] = &ett_gtp_node_addr;
     ett_gtp_array[25] = &ett_gtp_mm_cntxt;
     ett_gtp_array[26] = &ett_gtp_utran_cont;
+    ett_gtp_array[27] = &ett_gtp_nr_ran_cont;
+    ett_gtp_array[28] = &ett_gtp_pdcp_no_conf;
+    ett_gtp_array[29] = &ett_pdu_session_cont;
 
     last_offset = GTP_NUM_INDIVIDUAL_ELEMS;
 
@@ -10134,6 +11218,9 @@ proto_register_gtp(void)
     expert_register_field_array(expert_gtp, ei, array_length(ei));
 
     gtp_module = prefs_register_protocol(proto_gtp, proto_reg_handoff_gtp);
+    /* For reading older preference files with "gtpv0." or "gtpv1." preferences */
+    prefs_register_module_alias("gtpv0", gtp_module);
+    prefs_register_module_alias("gtpv1", gtp_module);
 
     prefs_register_uint_preference(gtp_module, "v0_port", "GTPv0 and GTP' port", "GTPv0 and GTP' port (default 3386)", 10, &g_gtpv0_port);
     prefs_register_uint_preference(gtp_module, "v1c_port", "GTPv1 or GTPv2 control plane (GTP-C, GTPv2-C) port", "GTPv1 and GTPv2 control plane port (default 2123)", 10,
@@ -10146,6 +11233,7 @@ proto_register_gtp(void)
                                                &dissect_tpdu_as,
                                                gtp_decode_tpdu_as,
                                                FALSE);
+    prefs_register_uint_preference(gtp_module, "pair_max_interval", "Max interval allowed in pair matching", "Request/reply pair matches only if their timestamps are closer than that value, in ms (default 0, i.e. don't use timestamps)", 10, &pref_pair_matching_max_interval_ms);
 
     prefs_register_obsolete_preference(gtp_module, "v0_dissect_cdr_as");
     prefs_register_obsolete_preference(gtp_module, "v0_check_etsi");
@@ -10160,11 +11248,86 @@ proto_register_gtp(void)
     prefs_register_bool_preference(gtp_module, "dissect_gtp_over_tcp", "Dissect GTP over TCP", "Dissect GTP over TCP", &g_gtp_over_tcp);
     prefs_register_bool_preference(gtp_module, "track_gtp_session", "Track GTP session", "Track GTP session", &g_gtp_session);
 
+    /* --- PDCP DECODE ADDITIONS --- */
+
+    static uat_field_t pdcp_lte_keys_uat_flds[] = {
+        UAT_FLD_HEX(uat_pdcp_lte_keys_records, teid, "TEID", "Tunnel Endpoint Identifier"),
+        UAT_FLD_VS(pdcp_lte_users, header_present, "Header present", vs_header_present, "Header present flag"),
+        UAT_FLD_VS(pdcp_lte_users, plane, "PLANE", vs_pdcp_plane, "Signaling or user plane"),
+        UAT_FLD_VS(pdcp_lte_users, lte_sn_length, "PDCP SN LENGTH", vs_pdcp_lte_sn_length, "Length of PDCP sequence number"),
+        UAT_FLD_VS(pdcp_lte_users, rohc_compression, "ROHC compression", vs_rohc_compression, "Header compression"),
+        //UAT_FLD_VS(pdcp_lte_users, rohc_mode, "ROHC mode", vs_rohc_mode, "ROHC mode"),
+        UAT_FLD_VS(pdcp_lte_users, rohc_profile, "ROHC profile", vs_rohc_profile, "ROHC profile"),
+        UAT_END_FIELDS
+    };
+
+    pdcp_lte_keys_uat = uat_new("PDCP LTE Keys",
+        sizeof(uat_pdcp_lte_keys_record_t), /* record size */
+        "gtp_pdcp_lte_keys",                /* filename */
+        TRUE,                               /* from_profile */
+        &uat_pdcp_lte_keys_records,         /* data_ptr */
+        &num_pdcp_lte_keys_uat,             /* numitems_ptr */
+        UAT_AFFECTS_DISSECTION,             /* affects dissection of packets, but not set of named fields */
+        NULL,                               /* help */
+        NULL,                               /* copy callback */
+        NULL,                               /* update callback */
+        NULL,                               /* free callback */
+        NULL,                               /* post update callback */
+        NULL,                               /* reset callback */
+        pdcp_lte_keys_uat_flds);            /* UAT field definitions */
+
+    prefs_register_uat_preference(gtp_module,
+        "pdcp_lte_table",
+        "GTP PDCP LTE Keys",
+        "Preconfigured PDCP-LTE Keys",
+        pdcp_lte_keys_uat);
+
+    pdcp_lte_security_key_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), pdcp_lte_ueid_hash_func, pdcp_lte_ueid_hash_equal);
+
+    static uat_field_t pdcp_nr_keys_uat_flds[] = {
+        UAT_FLD_HEX(uat_pdcp_nr_keys_records, teid, "TEID", "Tunnel Endpoint Identifier"),
+        UAT_FLD_VS(pdcp_nr_users, direction, "Direction", vs_direction, "Direction"),
+        UAT_FLD_VS(pdcp_nr_users, sdap_header_present, "SDAP header present flag", vs_sdap_header_present, "SDAP header present flag"),
+        UAT_FLD_VS(pdcp_nr_users, mac_i_presence, "MAC-I presence flag", vs_mac_i_presence, "MAC-I presence flag"),
+        UAT_FLD_VS(pdcp_nr_users, plane, "PLANE", vs_pdcp_plane, "Signaling or user plane"),
+        UAT_FLD_VS(pdcp_nr_users, pdcp_nr_sn_length, "PDCP SN LENGTH", vs_pdcp_nr_sn_length, "Length of PDCP sequence number"),
+        UAT_FLD_VS(pdcp_nr_users, rohc_compression, "ROHC compression", vs_rohc_compression, "Header compression"),
+        //UAT_FLD_VS(pdcp_nr_users, rohc_mode, "ROHC mode", vs_rohc_mode, "ROHC mode"),
+        UAT_FLD_VS(pdcp_nr_users, rohc_profile, "ROHC profile", vs_rohc_profile, "ROHC profile"),
+        UAT_END_FIELDS
+    };
+
+    pdcp_nr_keys_uat = uat_new("PDCP NR Keys",
+        sizeof(uat_pdcp_nr_keys_record_t), /* record size */
+        "gtp_pdcp_nr_keys",                /* filename */
+        TRUE,                              /* from_profile */
+        &uat_pdcp_nr_keys_records,         /* data_ptr */
+        &num_pdcp_nr_keys_uat,             /* numitems_ptr */
+        UAT_AFFECTS_DISSECTION,            /* affects dissection of packets, but not set of named fields */
+        NULL,                              /* help */
+        NULL,                              /* copy callback */
+        NULL,                              /* update callback */
+        NULL,                              /* free callback */
+        NULL,                              /* post update callback */
+        NULL,                              /* reset callback */
+        pdcp_nr_keys_uat_flds);            /* UAT field definitions */
+
+    prefs_register_uat_preference(gtp_module,
+        "pdcp_nr_table",
+        "GTP PDCP-NR Keys",
+        "Preconfigured PDCP-NR Keys",
+        pdcp_nr_keys_uat);
+
+    pdcp_nr_security_key_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), pdcp_lte_ueid_hash_func, pdcp_lte_ueid_hash_equal);
+
+    /* --- END PDCP NR DECODE ADDITIONS ---*/
+
     gtp_handle = register_dissector("gtp", dissect_gtp, proto_gtp);
     gtp_prime_handle = register_dissector("gtpprime", dissect_gtpprime, proto_gtpprime);
 
     gtp_priv_ext_dissector_table = register_dissector_table("gtp.priv_ext", "GTP Private Extension", proto_gtp, FT_UINT16, BASE_DEC);
     gtp_cdr_fmt_dissector_table = register_dissector_table("gtp.cdr_fmt", "GTP Data Record Type", proto_gtp, FT_UINT16, BASE_DEC);
+    gtp_hdr_ext_dissector_table = register_dissector_table("gtp.hdr_ext", "GTP Header Extension", proto_gtp, FT_UINT16, BASE_DEC);
 
     register_init_routine(gtp_init);
     register_cleanup_routine(gtp_cleanup);
@@ -10194,7 +11357,6 @@ proto_reg_handoff_gtp(void)
     static guint              gtpv1u_port;
 
     if (!Initialized) {
-        ppp_subdissector_table = find_dissector_table("ppp.protocol");
 
         radius_register_avp_dissector(VENDOR_THE3GPP, 5, dissect_radius_qos_umts);
         radius_register_avp_dissector(VENDOR_THE3GPP, 12, dissect_radius_selection_mode);
@@ -10210,6 +11372,10 @@ proto_reg_handoff_gtp(void)
         sndcpxid_handle      = find_dissector_add_dependency("sndcpxid", proto_gtp);
         gtpv2_handle         = find_dissector_add_dependency("gtpv2", proto_gtp);
         bssgp_handle         = find_dissector_add_dependency("bssgp", proto_gtp);
+        pdcp_nr_handle       = find_dissector_add_dependency("pdcp-nr", proto_gtp);
+        pdcp_lte_handle      = find_dissector_add_dependency("pdcp-lte", proto_gtp);
+        proto_pdcp_lte       = dissector_handle_get_protocol_index(pdcp_lte_handle);
+
         bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
         /* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
         dissector_add_uint("diameter.3gpp", 5, create_dissector_handle(dissect_diameter_3gpp_qosprofile, proto_gtp));
@@ -10254,7 +11420,7 @@ proto_reg_handoff_gtp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

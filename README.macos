@@ -8,7 +8,7 @@ available on the install DVD; Xcode 4 is available for download from
 developer.apple.com and, for Lion and later releases, from the Mac App
 Store.  See
 
-	http://guide.macports.org/chunked/installing.xcode.html
+	https://guide.macports.org/#installing.xcode
 
 for details.  For Xcode 4, you will need to install the command-line
 tools; select Preferences from the Xcode menu, select Downloads in the
@@ -18,7 +18,7 @@ You must also have GLib and, if you want to build Wireshark as well as
 TShark, you must have also Qt installed.  You can download precompiled
 Qt packages and source code from
 
-	https://www.qt.io/download-open-source/
+	https://www.qt.io/download
 
 or use the tools/macos-setup.sh script described below.
 
@@ -26,11 +26,6 @@ You should have CMake installed; you can download binary distributions
 for macOS from
 
 	https://cmake.org/download/
-
-The Wireshark source includes an autoconf configure script; however,
-that script cannot find recent versions of Qt for macOS, and will not
-try to find macOS frameworks that Wireshark can use to improve the user
-experience, so we don't recomment using the configure script.
 
 The tools/macos-setup.sh script can be used to download, patch as
 necessary, build as necessary, and install those libraries and the
@@ -41,21 +36,10 @@ specified by variables set early in the script; you can comment out the
 settings of optional libraries if you don't want them downloaded and
 installed.  Before running the tools/macos-setup.sh script, and before
 attempting to build Wireshark, make sure your PKG_CONFIG_PATH
-environment variable's setting includes both /usr/X11/lib/pkgconfig and
-/usr/local/lib/pkgconfig.
+environment variable's setting includes /usr/local/lib/pkgconfig.
 
 The tools/macos-setup.sh script must be run from the top-level source
 directory.
-
-If you wish to build the legacy (GTK+) UI you must have X11 and the X11
-developer headers and libraries installed, as well as the Pango, ATK,
-and GTK+ libraries; otherwise, you will not be able to build or install
-GTK+.  The X11 and X11 SDK that come with macOS releases for releases
-from Panther to Lion can be used to build and run Wireshark.  Mountain
-Lion and later do not include X11; you should install X11 from
-elsewhere, such as
-
-	http://xquartz.macosforge.org/
 
 After you have installed those libraries:
 
@@ -90,6 +74,22 @@ directory;
 	cmake ..
 	make
 
+It is also possible to use the Xcode IDE to build and debug Wireshark
+using cmake's Xcode generator. Create a separate build directory, as 
+described above and run cmake with the "-G Xcode" argument to create 
+a Xcode project file in the current directory.
+
+	cmake -G Xcode ..
+
+ 1. Double click Wireshark.xcodeproj 
+
+ 2. Choose to create schemes manually
+
+ 3. Create a scheme for the ALL_BUILD target
+
+ 4. Edit the scheme, go to the run configuration and select Wireshark.app 
+  as executable
+
 If you upgrade the major release of macOS on which you are building
 Wireshark, we advise that, before you do any builds after the upgrade,
 you remove the build directory and all its subdiretories, and repeat the
@@ -122,12 +122,6 @@ replace all occurrences of "libiconv_open" with "iconv_open" in the
 configure script before running the script.  The tools/macos-setup.sh
 setup script will patch GLib to work around this.
 
-GTK+ - GTK+ 2.24.10, at least, doesn't build on Mountain Lion with the
-CUPS printing backend - either the CUPS API changed incompatibly or the
-backend was depending on non-API implementation details.  The
-tools/macos-setup.sh setup script will, on Mountain Lion and later,
-configure GTK+ with the CUPS printing backend disabled.
-
 libgcrypt - the libgcrypt configuration script attempts to determine
 which flavor of assembler-language routines to use based on the platform
 type determined by standard autoconf code.  That code uses uname to
@@ -138,17 +132,3 @@ assembler-language routines, which will fail.  The workaround for this
 is to run the configure script with the --disable-asm argument, so that
 the assembler-language routines are not used.  The tools/macos-setup.sh
 will configure libgcrypt with that option.
-
-If you want to build Wireshark installer packages on a system that
-doesn't include Xcode 3.x or earlier, you will need to install some
-additional tools.  From the Xcode menu, select the Open Developer Tool
-menu, and then select More Developer Tools... from that menu.  That will
-open up a page on the Apple Developer Connection Web site; you may need
-a developer account to download the additional tools.  Download the
-Auxiliary Tools for Xcode package; when the dmg opens, drag all its
-contents to the Contents/Applications subdirectory of the Xcode.app
-directory (normally /Applications/Xcode.app/Contents/Applications); then
-copy .../Contents/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
-to /usr/bin/packagemaker (the PackageMaker app, when run from the
-command line rather than as a double-clicked app, is the packagemaker
-command).

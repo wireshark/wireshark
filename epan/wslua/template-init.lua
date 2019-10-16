@@ -11,39 +11,19 @@
 --
 -- SPDX-License-Identifier: GPL-2.0-or-later
 
--- Set disable_lua to true to disable Lua support.
-disable_lua = false
+-- Set enable_lua to false to disable Lua support.
+enable_lua = true
 
-if disable_lua then
+if not enable_lua then
     return
 end
 
--- If set and we are running with special privileges this setting
--- tells whether scripts other than this one are to be run.
-run_user_scripts_when_superuser = false
+-- If set and Wireshark was started as (setuid) root, then the user
+-- will not be able to execute custom Lua scripts from the personal
+-- configuration directory, the -Xlua_script command line option or
+-- the Lua Evaluate menu option in the GUI.
+run_user_scripts_when_superuser = true
 
-
--- disable potentialy harmful lua functions when running superuser
-if running_superuser then
-    local hint = "has been disabled due to running Wireshark as superuser. See https://wiki.wireshark.org/CaptureSetup/CapturePrivileges for help in running Wireshark as an unprivileged user."
-    local disabled_lib = {}
-    setmetatable(disabled_lib,{ __index = function() error("this package ".. hint) end } );
-
-    dofile = function() error("dofile " .. hint) end
-    loadfile = function() error("loadfile " .. hint) end
-    loadlib = function() error("loadlib " .. hint) end
-    require = function() error("require " .. hint) end
-    os = disabled_lib
-    io = disabled_lib
-    file = disabled_lib
-end
-
--- to avoid output to stdout which can cause problems lua's print ()
--- has been suppresed so that it yields an error.
--- have print() call info() instead.
-if gui_enabled() then
-    print = info
-end
 
 function typeof(obj)
     local mt = getmetatable(obj)
@@ -74,7 +54,6 @@ end
 --
 -- since 1.11.3
 function package.prepend_path(name)
-    local debug = require "debug"
     -- get the function calling this package.prepend_path function
     local dt = debug.getinfo(2, "f")
     if not dt then
@@ -127,15 +106,24 @@ end
 
 %MENU_GROUPS%
 
+-- the possible values for Pinfo's p2p_dir attribute
+P2P_DIR_UNKNOWN = -1
+P2P_DIR_SENT    =  0
+P2P_DIR_RECV    =  1
+
+
 -- other useful constants
+-- DATA_DIR and USER_DIR have a trailing directory separator.
 GUI_ENABLED = gui_enabled()
-DATA_DIR = Dir.global_config_path()
-USER_DIR = Dir.personal_config_path()
+DATA_DIR = Dir.global_config_path()..package.config:sub(1,1)
+USER_DIR = Dir.personal_config_path()..package.config:sub(1,1)
 
 -- deprecated function names
 datafile_path = Dir.global_config_path
 persconffile_path = Dir.personal_config_path
 
 
-dofile(DATA_DIR.."console.lua")
+if not running_superuser or run_user_scripts_when_superuser then
+    dofile(DATA_DIR.."console.lua")
+end
 --dofile(DATA_DIR.."dtd_gen.lua")

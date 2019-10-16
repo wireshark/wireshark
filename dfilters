@@ -7,7 +7,6 @@
 "IPv4 address isn't 192.0.2.1 (don't use != for this!)" !(ip.addr == 192.0.2.1)
 "IPv6 only" ipv6
 "IPv6 address 2001:db8::1" ipv6.addr == 2001:db8::1
-"IPX only" ipx
 "TCP only" tcp
 "UDP only" udp
 "Non-DNS" !(udp.port == 53 || tcp.port == 53)

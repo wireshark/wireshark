@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <extcap_argument.h>
 
@@ -116,6 +117,8 @@ QWidget * ExtArgSelector::createEditor(QWidget * parent)
 
     QWidget * editor = new QWidget(parent);
     QHBoxLayout * layout = new QHBoxLayout();
+    QMargins margins = layout->contentsMargins();
+    layout->setContentsMargins(0, margins.top(), 0, margins.bottom());
 
     boxSelection = new QComboBox(parent);
     layout->addWidget(boxSelection);
@@ -591,7 +594,7 @@ void ExtcapValue::setChildren(ExtcapValueList children)
 }
 
 ExtcapArgument::ExtcapArgument(QObject *parent) :
-        QObject(parent), _argument(0), _label(0),
+        QObject(parent), _argument(0), _label(0), _number(0),
         label_style(QString("QLabel { color: %1; }"))
 {
 }
@@ -600,6 +603,8 @@ ExtcapArgument::ExtcapArgument(extcap_arg * argument, QObject *parent) :
         QObject(parent), _argument(argument), _label(0),
         label_style(QString("QLabel { color: %1; }"))
 {
+    _number = argument->arg_num;
+
     if ( _argument->values != 0 )
     {
         ExtcapValueList elements = loadValues(QString(""));
@@ -612,6 +617,8 @@ ExtcapArgument::ExtcapArgument(const ExtcapArgument &obj) :
         QObject(obj.parent()), _argument(obj._argument), _label(0),
         label_style(QString("QLabel { color: %1; }"))
 {
+    _number = obj._argument->arg_num;
+
     if ( _argument->values != 0 )
     {
         ExtcapValueList elements = loadValues(QString(""));
@@ -749,6 +756,19 @@ QString ExtcapArgument::defaultValue()
             return QString(str);
     }
     return QString();
+}
+
+QString ExtcapArgument::group() const
+{
+    if ( _argument != 0 && _argument->group != 0 )
+        return QString(_argument->group);
+
+    return QString();
+}
+
+int ExtcapArgument::argNr() const
+{
+    return _number;
 }
 
 QString ExtcapArgument::prefKey(const QString & device_name)

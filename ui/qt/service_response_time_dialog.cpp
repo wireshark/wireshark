@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "service_response_time_dialog.h"
 
@@ -203,7 +204,7 @@ ServiceResponseTimeDialog::ServiceResponseTimeDialog(QWidget &parent, CaptureFil
 ServiceResponseTimeDialog::~ServiceResponseTimeDialog()
 {
     if (srt_data_.srt_array) {
-        free_srt_table(srt_, srt_data_.srt_array, NULL, NULL);
+        free_srt_table(srt_, srt_data_.srt_array);
         g_array_free(srt_data_.srt_array, TRUE);
     }
 }
@@ -231,7 +232,7 @@ void ServiceResponseTimeDialog::tapReset(void *srtd_ptr)
     ServiceResponseTimeDialog *srt_dlg = static_cast<ServiceResponseTimeDialog *>(srtd->user_data);
     if (!srt_dlg) return;
 
-    reset_srt_table(srtd->srt_array, NULL, NULL);
+    reset_srt_table(srtd->srt_array);
 
     srt_dlg->statsTreeWidget()->clear();
 }
@@ -268,7 +269,7 @@ void ServiceResponseTimeDialog::endRetapPackets()
 void ServiceResponseTimeDialog::fillTree()
 {
     if (srt_data_.srt_array) {
-        free_srt_table(srt_, srt_data_.srt_array, NULL, NULL);
+        free_srt_table(srt_, srt_data_.srt_array);
         g_array_free(srt_data_.srt_array, TRUE);
     }
     srt_data_.srt_array = g_array_new(FALSE, TRUE, sizeof(srt_stat_table*));
@@ -276,7 +277,7 @@ void ServiceResponseTimeDialog::fillTree()
 
     provideParameterData();
 
-    srt_table_dissector_init(srt_, srt_data_.srt_array, NULL, NULL);
+    srt_table_dissector_init(srt_, srt_data_.srt_array);
 
     QString display_filter = displayFilter();
     if (!registerTapListener(get_srt_tap_listener_name(srt_),

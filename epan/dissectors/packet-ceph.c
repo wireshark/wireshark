@@ -1513,7 +1513,7 @@ c_pkt_data_init(c_pkt_data *d, packet_info *pinfo, guint off)
 	d->conv = find_or_create_conversation(pinfo);
 	DISSECTOR_ASSERT_HINT(d->conv, "find_or_create_conversation() returned NULL");
 
-	if (pinfo->fd->flags.visited)
+	if (pinfo->fd->visited)
 	{
 		/* Retrieve the saved state. */
 		d->convd = (c_conv_data*)p_get_proto_data(wmem_file_scope(), pinfo,
@@ -1573,7 +1573,7 @@ c_pkt_data_init(c_pkt_data *d, packet_info *pinfo, guint off)
 static
 void c_pkt_data_save(c_pkt_data *d, packet_info *pinfo, guint off)
 {
-	if (!pinfo->fd->flags.visited)
+	if (!pinfo->fd->visited)
 	{
 		/*
 			Save a copy of the state for next time we dissect this packet.
@@ -5105,7 +5105,7 @@ guint c_dissect_msg_osd_op(proto_tree *root,
 	off = c_dissect_osd_flags(tree, tvb, off, data);
 
 	proto_tree_add_item(tree, hf_msg_osd_op_mtime,
-			    tvb, off, 8, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
+			    tvb, off, 8, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
 	off += 8;
 
 	off = c_dissect_eversion(tree, hf_msg_osd_op_reassert_version,
@@ -6707,10 +6707,8 @@ guint c_dissect_new(proto_tree *tree,
 		Since the packet is larger than the max banner length we can read it
 		all in safely.
 	*/
-#ifdef G_STATIC_ASSERT
 	G_STATIC_ASSERT(C_BANNER_SIZE+1 <= C_BANNER_SIZE_MIN+C_SIZE_HELLO_C);
 	G_STATIC_ASSERT(C_BANNER_SIZE+1 <= C_BANNER_SIZE_MIN+C_SIZE_HELLO_S);
-#endif
 
 	if (tvb_memeql(tvb, off, C_BANNER, C_BANNER_SIZE_MIN) != 0)
 		return C_INVALID;
@@ -6888,16 +6886,16 @@ guint c_dissect_pdu(proto_tree *root,
 		/*** General Filter Data ***/
 		fi = proto_tree_add_string(tree_filter, hf_src_slug,
 					   NULL, 0, 0, srcn);
-		PROTO_ITEM_SET_GENERATED(fi);
+		proto_item_set_generated(fi);
 		fi = proto_tree_add_uint(tree_filter, hf_src_type,
 					 NULL, 0, 0, data->src->name.type);
-		PROTO_ITEM_SET_GENERATED(fi);
+		proto_item_set_generated(fi);
 		fi = proto_tree_add_string(tree_filter, hf_dst_slug,
 					   NULL, 0, 0, dstn);
-		PROTO_ITEM_SET_GENERATED(fi);
+		proto_item_set_generated(fi);
 		fi = proto_tree_add_uint(tree_filter, hf_dst_type,
 					 NULL, 0, 0, data->dst->name.type);
-		PROTO_ITEM_SET_GENERATED(fi);
+		proto_item_set_generated(fi);
 
 		proto_item_set_end(tif, tvb, off);
 	}
@@ -10519,7 +10517,7 @@ proto_reg_handoff_ceph(void)
 }
 
 /*
- * Editor modelines  -	http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -	https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

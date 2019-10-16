@@ -3,8 +3,10 @@
  * STANAG 4607 file reading
  *
  * http://www.nato.int/structur/AC/224/standard/4607/4607e_JAS_ED3.pdf
- * (that is now missing from that site, but is available on the Wayback
- * Machine)
+ * That is now missing from that site, but is available on the Wayback
+ * Machine:
+ *
+ * https://web.archive.org/web/20130223054955/http://www.nato.int/structur/AC/224/standard/4607/4607.htm
  *
  * https://nso.nato.int/nso/zPublic/ap/aedp-7(2).pdf
  *
@@ -145,17 +147,12 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
   return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
 }
 
-static gboolean stanag4607_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean stanag4607_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                                int *err, gchar **err_info, gint64 *data_offset)
 {
-  gint64 offset;
+  *data_offset = file_tell(wth->fh);
 
-  *err = 0;
-
-  offset = file_tell(wth->fh);
-
-  *data_offset = offset;
-
-  return stanag4607_read_file(wth, wth->fh, &wth->rec, wth->rec_data, err, err_info);
+  return stanag4607_read_file(wth, wth->fh, rec, buf, err, err_info);
 }
 
 static gboolean stanag4607_seek_read(wtap *wth, gint64 seek_off,
@@ -200,7 +197,7 @@ wtap_open_return_val stanag4607_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

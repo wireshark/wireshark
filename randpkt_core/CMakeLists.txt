@@ -28,11 +28,12 @@ set_target_properties(randpkt_core PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "Libs")
 
+target_link_libraries(randpkt_core PUBLIC ui)
+
 CHECKAPI(
 	NAME
 	  randpkt_core-base
 	SWITCHES
-	  -g deprecated-gtk
 	SOURCES
 	  ${RANDPKT_CORE_SRC}
 	  ${RANDPKT_CORE_HEADERS}
@@ -41,14 +42,14 @@ CHECKAPI(
 	NAME
 	  randpkt_core-todo
 	SWITCHES
-	  -M -g deprecated-gtk-todo
+	  -M
 	SOURCES
 	  ${RANDPKT_CORE_SRC}
 	  ${RANDPKT_CORE_HEADERS}
 )
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

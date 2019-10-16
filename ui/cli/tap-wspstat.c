@@ -1,11 +1,12 @@
-/* tap-rpcstat.c
+/* tap-wspstat.c
  * wspstat   2003 Jean-Michel FAYARD
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 /* This module provides WSP  statistics to tshark.
  * It is only used by tshark and not wireshark
@@ -25,6 +26,8 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/value_string.h>
 #include <epan/dissectors/packet-wsp.h>
+
+#include <ui/cmdarg_err.h>
 
 void register_tap_listener_wspstat(void);
 
@@ -113,13 +116,13 @@ index2pdut(gint pdut)
 		return pdut + 81;
 	return 0;
 }
-static int
+static tap_packet_status
 wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
 	wspstat_t *sp = (wspstat_t *)psp;
 	const wsp_info_value_t *value = (const wsp_info_value_t *)pri;
 	gint idx = pdut2index(value->pdut);
-	int retour = 0;
+	tap_packet_status retour = TAP_PACKET_DONT_REDRAW;
 
 	if (value->status_code != 0) {
 		wsp_status_code_t *sc;
@@ -137,14 +140,14 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 		} else {
 			sc->packets++;
 		}
-		retour = 1;
+		retour = TAP_PACKET_REDRAW;
 	}
 
 
 
 	if (idx != 0) {
 		sp->pdu_stats[idx].packets++;
-		retour = 1;
+		retour = TAP_PACKET_REDRAW;
 	}
 	return retour;
 }
@@ -245,15 +248,16 @@ wspstat_init(const char *opt_arg, void *userdata _U_)
 			0,
 			wspstat_reset,
 			wspstat_packet,
-			wspstat_draw);
+			wspstat_draw,
+			NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(sp->pdu_stats);
 		g_free(sp->filter);
-		g_free(sp);
 		g_hash_table_foreach( sp->hash, (GHFunc) wsp_free_hash_table, NULL ) ;
 		g_hash_table_destroy( sp->hash );
-		fprintf(stderr, "tshark: Couldn't register wsp,stat tap: %s\n",
+		g_free(sp);
+		cmdarg_err("Couldn't register wsp,stat tap: %s",
 				error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -276,7 +280,7 @@ register_tap_listener_wspstat(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

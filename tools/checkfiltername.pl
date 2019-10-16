@@ -380,6 +380,8 @@ sub is_from_other_protocol_whitelist {
 	}
 
 	# XXX - may be faster to hash this (note 1-many relationship)?
+	if (($proto_filename eq "packet-atalk.c") && (index($_[0], "llc") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-awdl.c") && (index($_[0], "llc") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-bpdu.c") && (index($_[0], "mstp") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-bssap.c") && (index($_[0], "bsap") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-caneth.c") && (index($_[0], "can") >= 0)) {return 1;}
@@ -397,6 +399,7 @@ sub is_from_other_protocol_whitelist {
 	if (($proto_filename eq "packet-glusterfs.c") && (index($_[0], "gluster") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-h248_annex_e.c") && (index($_[0], "h248") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-h248_q1950.c") && (index($_[0], "h248") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-ieee1722.c") && (index($_[0], "can") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-ieee80211.c") && (index($_[0], "eapol") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-ieee80211-radio.c") && (index($_[0], "wlan") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-ieee80211-wlancap.c") && (index($_[0], "wlan") >= 0)) {return 1;}

@@ -35,8 +35,41 @@
    fun:*alloc
    ...
    fun:g_get_charset
-   fun:print_stream_text_alloc
+}
+
+{
+   Glib Leak (g_get_filename_charsets)
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:*alloc
    ...
+   fun:g_get_filename_charsets
+}
+
+{
+   Glib Leak (g_strerror)
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:*alloc
+   ...
+   fun:g_strerror
+}
+
+{
+   Glib leak (g_get_home_dir)
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:g_get_home_dir
+}
+
+{
+   Glib leak (get_global_random) - requires glib debug symbols
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:get_global_random
+   fun:g_random_*
 }
 
 {
@@ -45,7 +78,6 @@
    match-leak-kinds: reachable
    ...
    fun:g_get_user_config_dir
-   ...
 }
 
 {
@@ -63,7 +95,7 @@
    match-leak-kinds: reachable
    fun:malloc
    ...
-   fun:g_private_get
+   fun:g_private_get*
 }
 
 {
@@ -77,12 +109,11 @@
 }
 
 {
-   Libc leak (dl_init)
+   Libc and GLib leak (dl_init)
    Memcheck:Leak
-   match-leak-kinds: reachable
    fun:*alloc
    ...
    fun:call_init.part.0
-   fun:call_init
+   ...
    fun:_dl_init
 }

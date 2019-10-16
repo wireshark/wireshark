@@ -1,0 +1,90 @@
+// Common attributes
+
+:wireshark-version: 3.1.1
+
+// Required for btn, kbd:, and menu: macros.
+:experimental:
+
+// Create PA4 (210 × 280mm) pages: https://en.wikipedia.org/wiki/Paper_size#PA4_or_L4
+// This is the approximate intersection of A4 (210 × 297mm) and U.S. Letter
+// (216 × 279mm).
+:pdf-page-size: 210mm x 280mm
+
+//
+// URLs
+//
+
+// Wireshark top level URLs (sites)
+:wireshark-main-url: https://www.wireshark.org/
+:wireshark-bugs-url: https://bugs.wireshark.org/
+:wireshark-code-review-url: https://code.wireshark.org/review
+:wireshark-qa-url: https://ask.wireshark.org/
+:wireshark-wiki-url: https://wiki.wireshark.org/
+
+// Wireshark secondary URLs (pages)
+:wireshark-authors-url: {wireshark-main-url}about.html#authors
+:wireshark-buildbot-url: https://buildbot.wireshark.org/wireshark-master/waterfall
+:wireshark-code-browse-url: {wireshark-code-review-url}/gitweb?p=wireshark.git
+:wireshark-developers-guide-url: {wireshark-docs-url}wsdg_html_chunked/
+:wireshark-display-filter-reference-url: {wireshark-main-url}docs/dfref/
+:wireshark-docs-url: {wireshark-main-url}docs/
+:wireshark-download-url: {wireshark-main-url}download.html
+:wireshark-faq-url: {wireshark-main-url}faq.html
+:wireshark-git-anonhttp-url: \https://code.wireshark.org/review/wireshark
+:wireshark-git-http-url: \https://your.username@code.wireshark.org/review/wireshark
+:wireshark-git-ssh-url: ssh://your.username@code.wireshark.org:29418/wireshark
+:wireshark-mailing-lists-url: {wireshark-main-url}lists/
+:wireshark-man-page-url: {wireshark-main-url}docs/man-pages/
+:wireshark-snapshots-url: {wireshark-main-url}download/automated/src/
+:wireshark-users-guide-url: {wireshark-docs-url}wsug_html_chunked/
+
+// External URLs
+:tcpdump-main-url: https://www.tcpdump.org/
+:pcap-filter-man-page-url: {tcpdump-main-url}manpages/pcap-filter.7.html
+:tcpdump-man-page-url: {tcpdump-main-url}manpages/tcpdump.1.html
+
+:npcap-main-url: https://nmap.org/npcap/
+:npcap-development-url: https://github.com/nmap/npcap
+:npcap-license-url: https://raw.githubusercontent.com/nmap/npcap/master/LICENSE
+:winpcap-main-url: https://www.winpcap.org/
+:winpcap-download-url: {winpcap-main-url}install/
+
+:sysfs-main-url: http://linux-diag.sourceforge.net/Sysfsutils.html
+:wikipedia-main-url: https://en.wikipedia.org/wiki/
+:pcre2pattern-url: https://www.pcre.org/current/doc/html/pcre2pattern.html
+
+:greenwichmeantime-main-url: https://wwp.greenwichmeantime.com/
+:timeanddate-main-url: https://www.timeanddate.com/worldclock/
+:ntp-main-url: http://www.ntp.org/
+
+:gplv2-url: https://www.gnu.org/licenses/gpl-2.0.html
+
+// Email addresses
+:at-separator: &#91;AT&#93;
+:wireshark-dev-list-email: wireshark-dev{at-separator}wireshark.org
+:wsdg-author-email: ulf.lamping{at-separator}web.de
+:wsdg-author-email2: graham.bloice{at-separator}trihedral.com
+
+:wsug-author-email: ulf.lamping{at-separator}web.de
+:wsug-author-email2: rsharpe{at-separator}ns.aus.com
+:wsug-author-email3: hagbard{at-separator}physics.rutgers.edu
+:wsug-author-email4: luis{at-separator}ontanon.org
+
+//
+// Image formatting
+//
+
+// "scaledwidth" only applies to PDF output
+:pdf-scaledwidth: scaledwidth="85%"
+:screenshot-attrs: scaledwidth="85%"
+:medium-screenshot-attrs: scaledwidth="60%"
+:small-screenshot-attrs: scaledwidth="35%"
+:related-attrs: height=18
+// XXX height=22 results in content-height="22px" in the .fo file. Not sure
+// how to make scaledwidth take precedence.
+:statusbar-attrs: scaledwidth="85%",height=22
+
+:multiplication: ×
+:cmd: ⌘
+
+:missing: Not yet written. See https://wiki.wireshark.org/Development/SubmittingPatches

@@ -298,11 +298,6 @@ cleanup:
 
 #ifdef PARSE_XDD
 
-void
-epl_xdd_init(void)
-{
-}
-
 struct profile *
 epl_xdd_load(struct profile *profile, const char *xml_file)
 {
@@ -570,7 +565,17 @@ populate_object_list(xmlNodeSetPtr nodes, void *_profile)
 }
 
 
-#endif /* PARSE_XDD */
+#else  /* ! PARSE_XDD */
+
+#ifdef HAVE_LIBXML2
+struct profile *
+epl_xdd_load(struct profile *profile _U_, const char *xml_file _U_)
+{
+	return NULL;
+}
+#endif  /* HAVE_LIBXML2 */
+
+#endif  /* ! PARSE_XDD */
 
 /**
  * A sorted array keyed by intervals
@@ -754,7 +759,7 @@ epl_wmem_print_iarr(epl_wmem_iarray_t *iarr)
 #endif
 
 /*
- * Editor modelines  -	http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -	https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

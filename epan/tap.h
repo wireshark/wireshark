@@ -22,9 +22,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * Status returned by the per-packet callback.
+ */
+typedef enum {
+	TAP_PACKET_DONT_REDRAW,	/**< Packet processing succeeded, no need to redraw */
+	TAP_PACKET_REDRAW,	/**< Packet processing succeeded, must redraw */
+	TAP_PACKET_FAILED	/**< Packet processing failed, stop calling this tap */
+} tap_packet_status;
+
 typedef void (*tap_reset_cb)(void *tapdata);
-typedef gboolean (*tap_packet_cb)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data);
+typedef tap_packet_status (*tap_packet_cb)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data);
 typedef void (*tap_draw_cb)(void *tapdata);
+typedef void (*tap_finish_cb)(void *tapdata);
 
 /**
  * Flags to indicate what a tap listener's packet routine requires.
@@ -127,7 +137,7 @@ WS_DLL_PUBLIC void reset_tap_listeners(void);
  * when we open/start a new capture or if we need to rescan the packet list.
  * It should be called from a low priority thread say once every 3 seconds
  *
- * If draw_all is true, redraw all aplications regardless if they have
+ * If draw_all is true, redraw all applications regardless if they have
  * changed or not.
  */
 WS_DLL_PUBLIC void draw_tap_listeners(gboolean draw_all);
@@ -204,11 +214,14 @@ WS_DLL_PUBLIC void draw_tap_listeners(gboolean draw_all);
  *                   from a separate thread up to once every 2-3 seconds.
  *                   On other ports it might only be called once when the capture is finished
  *                   or the file has been [re]read completely.
+ * @param tap_finish void (*finish)(void *tapdata)
+ *                   This callback is called when your listener is removed.
  */
 
 WS_DLL_PUBLIC GString *register_tap_listener(const char *tapname, void *tapdata,
     const char *fstring, guint flags, tap_reset_cb tap_reset,
-    tap_packet_cb tap_packet, tap_draw_cb tap_draw) G_GNUC_WARN_UNUSED_RESULT;
+    tap_packet_cb tap_packet, tap_draw_cb tap_draw,
+    tap_finish_cb tap_finish) G_GNUC_WARN_UNUSED_RESULT;
 
 /** This function sets a new dfilter to a tap listener */
 WS_DLL_PUBLIC GString *set_tap_dfilter(void *tapdata, const char *fstring);

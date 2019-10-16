@@ -15,7 +15,7 @@
  *
  * prior to getting them accepted/included into the official Osmocom
  * GSMTAP definition, available from
- * http://cgit.osmocom.org/cgit/libosmocore/tree/include/osmocom/core/gsmtap.h
+ * http://cgit.osmocom.org/libosmocore/tree/include/osmocom/core/gsmtap.h
  *
  * The GSMTAP maintainer can be contacted via the
  * openbsc@lists.osmocom.org mailing list, or by private e-mail
@@ -150,7 +150,7 @@ struct gsmtap_hdr {
 #endif /* _PACKET_GSMTAP_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

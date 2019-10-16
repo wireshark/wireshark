@@ -62,10 +62,6 @@ capture_start(capture_options *capture_opts, capture_session *cap_session, info_
 extern void
 capture_stop(capture_session *cap_session);
 
-/** Restart the current captured packets and start again. */
-extern void
-capture_restart(capture_session *cap_session);
-
 /** Terminate the capture child cleanly when exiting. */
 extern void
 capture_kill_child(capture_session *cap_session);
@@ -78,7 +74,7 @@ typedef struct if_stat_cache_s if_stat_cache_t;
  * @param capture_opts A structure containing options for the capture.
  * @return A pointer to the statistics state data.
  */
-extern if_stat_cache_t * capture_stat_start(capture_options *capture_opts);
+extern WS_RETNONNULL if_stat_cache_t * capture_stat_start(capture_options *capture_opts);
 
 /**
  * Fetch capture statistics, similar to pcap_stats().
@@ -98,7 +94,7 @@ void capture_stat_stop(if_stat_cache_t *sc);
 #endif /* capture.h */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 4

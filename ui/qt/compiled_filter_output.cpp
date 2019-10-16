@@ -4,14 +4,17 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
 #include <ui_compiled_filter_output.h>
 #include "compiled_filter_output.h"
 
-#include <wsutil/wspcap.h>
+#ifdef HAVE_LIBPCAP
+#include "wspcap.h"
+#endif
 
 #include "capture_opts.h"
 #include <wiretap/wtap.h>
@@ -41,12 +44,8 @@ CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QStringList &intList
     close_bt->setDefault(true);
 
     interface_list_ = ui->interfaceList;
-#if GLIB_CHECK_VERSION(2,31,0)
     pcap_compile_mtx = g_new(GMutex,1);
     g_mutex_init(pcap_compile_mtx);
-#else
-    pcap_compile_mtx = g_mutex_new();
-#endif
 #ifdef HAVE_LIBPCAP
     compileFilter();
 #endif
@@ -80,22 +79,21 @@ void CompiledFilterOutput::compileFilter()
                 if (pd == NULL)
                     break;
                 g_mutex_lock(pcap_compile_mtx);
-                if (pcap_compile(pd, &fcode, compile_filter_.toUtf8().constData(), 1, 0) < 0) {
-                    compile_results.insert(interfaces, QString("%1").arg(g_strdup(pcap_geterr(pd))));
+                if (pcap_compile(pd, &fcode, compile_filter_.toUtf8().data(), 1, 0) < 0) {
+                    compile_results.insert(interfaces, QString(pcap_geterr(pd)));
                     g_mutex_unlock(pcap_compile_mtx);
                     ui->interfaceList->addItem(new QListWidgetItem(QIcon(":expert/expert_error.png"),interfaces));
                 } else {
                     GString *bpf_code_dump = g_string_new("");
                     struct bpf_insn *insn = fcode.bf_insns;
                     int ii, n = fcode.bf_len;
-                    gchar *bpf_code_str;
                     for (ii = 0; ii < n; ++insn, ++ii) {
                         g_string_append(bpf_code_dump, bpf_image(insn, ii));
                         g_string_append(bpf_code_dump, "\n");
                     }
-                    bpf_code_str = g_string_free(bpf_code_dump, FALSE);
                     g_mutex_unlock(pcap_compile_mtx);
-                    compile_results.insert(interfaces, QString("%1").arg(g_strdup(bpf_code_str)));
+                    compile_results.insert(interfaces, QString(bpf_code_dump->str));
+                    g_string_free(bpf_code_dump, TRUE);
                     ui->interfaceList->addItem(new QListWidgetItem(interfaces));
                 }
                 break;
@@ -119,7 +117,7 @@ void CompiledFilterOutput::copyFilterText()
 }
 
 //
-// Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+// Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 //
 // Local variables:
 // c-basic-offset: 4

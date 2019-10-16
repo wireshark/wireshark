@@ -9,11 +9,12 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
-#include <codecs/codecs.h>
+#include <wsutil/codecs.h>
 
 #include <epan/rtp_pt.h>
 #include <epan/dissectors/packet-rtp.h>
@@ -71,6 +72,7 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
         g_hash_table_insert(decoders_hash, GUINT_TO_POINTER(payload_type), decoder);
     }
     if (decoder->handle) {  /* Decode with registered codec */
+        /* if output == NULL and outputSizeBytes == NULL => ask for expected size of the buffer */
         tmp_buff_len = codec_decode(decoder->handle, decoder->context, rp->payload_data, rp->info->info_payload_len, NULL, NULL);
         tmp_buff = (SAMPLE *)g_malloc(tmp_buff_len);
         decoded_bytes = codec_decode(decoder->handle, decoder->context, rp->payload_data, rp->info->info_payload_len, tmp_buff, &tmp_buff_len);
@@ -108,7 +110,7 @@ GHashTable *rtp_decoder_hash_table_new(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

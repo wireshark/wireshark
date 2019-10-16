@@ -4,12 +4,19 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "print_dialog.h"
 #include <ui_print_dialog.h>
 
 #include <wsutil/utf8_entities.h>
+
+#ifdef Q_OS_WIN
+#include <windows.h>
+#include "ui/packet_range.h"
+#include "ui/win32/file_dlg_win32.h"
+#endif
 
 #include <QPrintDialog>
 #include <QPageSetupDialog>
@@ -67,7 +74,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf) :
     page_pos_(0),
     in_preview_(FALSE)
 {
-    if (!cf) done(QDialog::Rejected); // ...or assert?
+    Q_ASSERT(cf);
 
     pd_ui_->setupUi(this);
     setWindowTitle(wsApp->windowTitleString(tr("Print")));
@@ -122,6 +129,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf) :
 
 PrintDialog::~PrintDialog()
 {
+    packet_range_cleanup(&print_args_.range);
     delete pd_ui_;
 }
 
@@ -168,12 +176,19 @@ gboolean PrintDialog::printLine(int indent, const char *line)
     out_rect = cur_painter_->boundingRect(cur_printer_->pageRect(), Qt::TextWordWrap, out_line);
 
     if (cur_printer_->pageRect().height() < page_pos_ + out_rect.height()) {
+        //
+        // We're past the end of the page, so this line will be on
+        // the next page.
+        //
         if (in_preview_) {
             // When generating a preview, only generate the first page;
             // if we're past the first page, stop the printing process.
             return FALSE;
         }
-        if (*line == '\0') { // Separator
+        if (*line == '\0') {
+            // This is an empty line, so it's a separator; no need to
+            // waste space printing it at the top of a page, as the
+            // page break suffices as a separator.
             return TRUE;
         }
         printHeader();
@@ -227,6 +242,7 @@ void PrintDialog::printPackets(QPrinter *printer, bool in_preview)
 
     print_args_.format              = PR_FMT_TEXT;
     print_args_.print_summary       = pd_ui_->formatGroupBox->summaryEnabled();
+    print_args_.print_col_headings  = pd_ui_->formatGroupBox->includeColumnHeadingsEnabled();
     print_args_.print_hex           = pd_ui_->formatGroupBox->bytesEnabled();
     print_args_.print_formfeed      = pd_ui_->formFeedCheckBox->isChecked();
 
@@ -290,20 +306,35 @@ void PrintDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
     QPrintDialog *print_dlg;
     QPageSetupDialog *ps_dlg;
+#ifdef Q_OS_WIN
+        HANDLE da_ctx;
+#endif
 
     switch (pd_ui_->buttonBox->buttonRole(button)) {
     case QDialogButtonBox::ActionRole:
         int result;
+#ifdef Q_OS_WIN
+        da_ctx = set_thread_per_monitor_v2_awareness();
+#endif
         print_dlg = new QPrintDialog(&printer_, this);
         result = print_dlg->exec();
+#ifdef Q_OS_WIN
+        revert_thread_per_monitor_v2_awareness(da_ctx);
+#endif
         if (result == QDialog::Accepted) {
             printPackets(&printer_, false);
             done(result);
         }
         break;
     case QDialogButtonBox::ResetRole:
+#ifdef Q_OS_WIN
+        da_ctx = set_thread_per_monitor_v2_awareness();
+#endif
         ps_dlg = new QPageSetupDialog(&printer_, this);
         ps_dlg->exec();
+#ifdef Q_OS_WIN
+        revert_thread_per_monitor_v2_awareness(da_ctx);
+#endif
         preview_->updatePreview();
         break;
     default: // Help, Cancel

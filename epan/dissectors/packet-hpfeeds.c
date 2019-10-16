@@ -206,13 +206,13 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void hpfeeds_stats_tree_init(stats_tree* st)
 {
-    st_node_channels_payload = stats_tree_create_node(st, st_str_channels_payload, 0, TRUE);
+    st_node_channels_payload = stats_tree_create_node(st, st_str_channels_payload, 0, STAT_DT_INT, TRUE);
     st_node_opcodes = stats_tree_create_pivot(st, st_str_opcodes, 0);
 
     channels_list = wmem_list_new(wmem_epan_scope());
 }
 
-static int hpfeeds_stats_tree_packet(stats_tree* st _U_, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
+static tap_packet_status hpfeeds_stats_tree_packet(stats_tree* st _U_, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
 {
     const struct HpfeedsTap *pi = (const struct HpfeedsTap *)p;
     wmem_list_frame_t* head = wmem_list_head(channels_list);
@@ -233,17 +233,17 @@ static int hpfeeds_stats_tree_packet(stats_tree* st _U_, packet_info* pinfo _U_,
             ch_node = (struct channel_node*)wmem_alloc0(wmem_file_scope(), sizeof(struct channel_node));
             ch_node->channel = wmem_strdup(wmem_file_scope(), pi->channel);
             ch_node->st_node_channel_payload = stats_tree_create_node(st, ch_node->channel,
-                st_node_channels_payload, FALSE);
+                st_node_channels_payload, STAT_DT_INT, FALSE);
             wmem_list_append(channels_list, ch_node);
         }
 
-        avg_stat_node_add_value(st, st_str_channels_payload, 0, FALSE, pi->payload_size);
-        avg_stat_node_add_value(st, ch_node->channel, 0, FALSE, pi->payload_size);
+        avg_stat_node_add_value_int(st, st_str_channels_payload, 0, FALSE, pi->payload_size);
+        avg_stat_node_add_value_int(st, ch_node->channel, 0, FALSE, pi->payload_size);
     }
 
     stats_tree_tick_pivot(st, st_node_opcodes,
             val_to_str(pi->opcode, opcode_vals, "Unknown opcode (%d)"));
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static void
@@ -488,7 +488,7 @@ proto_reg_handoff_hpfeeds(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

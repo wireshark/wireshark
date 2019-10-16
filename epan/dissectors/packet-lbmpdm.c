@@ -12,6 +12,7 @@
 
 #include "config.h"
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include "packet-lbm.h"
 
 /* Magic number for message header to check if data is big-endian or little-endian. */
@@ -672,7 +673,7 @@ static int dissect_field(tvbuff_t * tvb, int offset, proto_tree * tree, lbmpdm_d
     field_item = proto_tree_add_item(tree, hf_lbmpdm_field, tvb, offset, field->len, ENC_NA);
     field_tree = proto_item_add_subtree(field_item, ett_lbmpdm_field);
     ti = proto_tree_add_uint(field_tree, hf_lbmpdm_field_id, tvb, 0, 0, field->id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     if (string_field_names)
     {
         ti = proto_tree_add_string(field_tree, hf_lbmpdm_field_string_name, tvb, 0, 0, field->field_string_name);
@@ -681,9 +682,9 @@ static int dissect_field(tvbuff_t * tvb, int offset, proto_tree * tree, lbmpdm_d
     {
         ti = proto_tree_add_uint(field_tree, hf_lbmpdm_field_int_name, tvb, 0, 0, field->field_int_name);
     }
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     ti = proto_tree_add_uint(field_tree, hf_lbmpdm_field_type, tvb, 0, 0, field->field_type);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     if (field->num_array_elem == 0)
     {
         element_count = 1;
@@ -792,7 +793,6 @@ static int dissect_segment_ofstable(tvbuff_t * tvb, int offset, packet_info * pi
     proto_tree * subtree = NULL;
     int datalen = 0;
     int seglen = 0;
-    int datalen_remaining = 0;
     int ofs = 0;
     int field_count = 0;
     int idx;
@@ -817,9 +817,8 @@ static int dissect_segment_ofstable(tvbuff_t * tvb, int offset, packet_info * pi
         id_list[idx] = -1;
         ofs_list[idx] = -1;
     }
-    datalen_remaining = datalen;
     ofs = offset + L_LBMPDM_SEG_HDR_T;
-    for (idx = 0; (idx < field_count) && (datalen_remaining >= L_LBMPDM_OFFSET_ENTRY_T); idx++, ofs += L_LBMPDM_OFFSET_ENTRY_T)
+    for (idx = 0; idx < field_count; idx++, ofs += L_LBMPDM_OFFSET_ENTRY_T)
     {
         proto_item * offset_item = NULL;
         proto_tree * offset_tree = NULL;
@@ -830,6 +829,9 @@ static int dissect_segment_ofstable(tvbuff_t * tvb, int offset, packet_info * pi
         id_list[idx] = (gint32)tvb_get_guint32(tvb, ofs + O_LBMPDM_OFFSET_ENTRY_T_ID, encoding);
         proto_tree_add_item(offset_tree, hf_lbmpdm_offset_entry_offset, tvb, ofs + O_LBMPDM_OFFSET_ENTRY_T_OFFSET, L_LBMPDM_OFFSET_ENTRY_T_OFFSET, encoding);
         ofs_list[idx] = (gint32)tvb_get_guint32(tvb, ofs + O_LBMPDM_OFFSET_ENTRY_T_OFFSET, encoding);
+        if (id_list[idx] < 0 || ofs_list[idx] < 0) {
+            THROW(ReportedBoundsError);
+        }
         if (id_list[idx] > max_index)
         {
             max_index = id_list[idx];
@@ -879,7 +881,7 @@ static int dissect_segment_defn(tvbuff_t * tvb, int offset, packet_info * pinfo,
     lbmpdm_definition_field_t * last_fixed_required_field = NULL;
 
     seglen = lbmpdm_get_segment_length(tvb, offset, encoding, &remaining_datalen);
-    if (pinfo->fd->flags.visited == 0)
+    if (pinfo->fd->visited == 0)
     {
         add_definition = TRUE;
     }
@@ -1202,16 +1204,13 @@ int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinf
     msglen = (int)raw_msglen;
 
     msgid.channel = channel;
-    msgid.msg_def_id = 0;
-    msgid.ver_major = 0;
-    msgid.ver_minor = 0;
     msgid.offset_table = NULL;
     subtree_item = proto_tree_add_protocol_format(tree, proto_lbmpdm, tvb, offset, msglen, "LBMPDM Protocol");
     subtree = proto_item_add_subtree(subtree_item, ett_lbmpdm);
     proto_tree_add_item(subtree, hf_lbmpdm_magic, tvb, offset + O_LBMPDM_MSG_HDR_T_MAGIC, L_LBMPDM_MSG_HDR_T_MAGIC, encoding);
     pi = proto_tree_add_string(subtree, hf_lbmpdm_encoding, tvb, offset + O_LBMPDM_MSG_HDR_T_MAGIC, L_LBMPDM_MSG_HDR_T_MAGIC,
         ((encoding == ENC_BIG_ENDIAN) ? "Big-Endian" : "Little-Endian"));
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
     proto_tree_add_item(subtree, hf_lbmpdm_ver, tvb, offset + O_LBMPDM_MSG_HDR_T_VER_TYPE, L_LBMPDM_MSG_HDR_T_VER_TYPE, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_type, tvb, offset + O_LBMPDM_MSG_HDR_T_VER_TYPE, L_LBMPDM_MSG_HDR_T_VER_TYPE, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_next_hdr, tvb, offset + O_LBMPDM_MSG_HDR_T_NEXT_HDR, L_LBMPDM_MSG_HDR_T_NEXT_HDR, encoding);
@@ -1420,7 +1419,7 @@ void proto_register_lbmpdm(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

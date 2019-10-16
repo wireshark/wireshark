@@ -1,14 +1,14 @@
 /* packet-transum.h
-* Header file for the TRANSUM response time analyzer post-dissector
-* By Paul Offord <paul.offord@advance7.com>
-* Copyright 2016 Advance Seven Limited
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ * Header file for the TRANSUM response time analyzer post-dissector
+ * By Paul Offord <paul.offord@advance7.com>
+ * Copyright 2016 Advance Seven Limited
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #define ETH_TYPE_IPV4 0x0800
 #define ETH_TYPE_IPV6 0x86dd
@@ -92,7 +92,7 @@ typedef struct _PKT_INFO
     guint16 dstport;  /* tcp.dstport or udp.dstport*/
     guint16 len;  /* tcp.len or udp.len */
 
-    guint8  ssl_content_type;  /*ssl.record.content_type */
+    guint8  ssl_content_type;  /*tls.record.content_type */
 
     guint8  tds_type;  /*tds.type */
     guint16 tds_length;  /* tds.length */
@@ -176,7 +176,7 @@ extern gboolean is_dcerpc_req_pkt_type(guint32 pkt_type);
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

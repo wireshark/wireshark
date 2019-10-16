@@ -103,10 +103,7 @@ static expert_field ei_dcc_len = EI_INIT;
 	offset += (int)sizeof(DCC_TGTS);
 
 #define D_DATE() { \
-	nstime_t ts; \
-	ts.nsecs = 0; \
-	ts.secs = tvb_get_ntohl(tvb,offset); \
-	proto_tree_add_time(dcc_optree, hf_dcc_date, tvb, offset, 4, &ts); \
+	proto_tree_add_item(dcc_optree, hf_dcc_date, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN); \
 	offset += 4; \
 }
 
@@ -577,7 +574,7 @@ proto_reg_handoff_dcc(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

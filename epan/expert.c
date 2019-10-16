@@ -174,7 +174,7 @@ static void uat_expert_post_update_cb(void)
 }
 
 #define EXPERT_REGISTRAR_GET_NTH(eiindex, expinfo)                                               \
-	if((guint)eiindex >= gpa_expertinfo.len && getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG"))   \
+	if((guint)eiindex >= gpa_expertinfo.len && wireshark_abort_on_dissector_bug)   \
 		g_error("Unregistered expert info! index=%d", eiindex);                          \
 	DISSECTOR_ASSERT_HINT((guint)eiindex < gpa_expertinfo.len, "Unregistered expert info!"); \
 	DISSECTOR_ASSERT_HINT(gpa_expertinfo.ei[eiindex] != NULL, "Unregistered expert info!");	\
@@ -288,7 +288,7 @@ expert_cleanup(void)
 	}
 
 	if (deregistered_expertinfos) {
-		g_ptr_array_free(deregistered_expertinfos, FALSE);
+		g_ptr_array_free(deregistered_expertinfos, TRUE);
 		deregistered_expertinfos = NULL;
 	}
 }
@@ -446,7 +446,7 @@ const gchar* expert_get_summary(expert_field *eiindex)
 	/* Look up the item */
 	EXPERT_REGISTRAR_GET_NTH(eiindex->ei, eiinfo);
 
-    return eiinfo->summary;
+	return eiinfo->summary;
 }
 
 /** clear flags according to the mask and set new flag values */
@@ -481,12 +481,12 @@ expert_create_tree(proto_item *pi, int group, int severity, const char *msg)
 					    val_to_str(severity, expert_severity_vals, "Unknown (%u)"),
 					    val_to_str(group, expert_group_vals, "Unknown (%u)"),
 					    msg);
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 
 	if (group == PI_MALFORMED) {
 		/* Add hidden malformed protocol filter */
 		proto_item *malformed_ti = proto_tree_add_item(tree, proto_malformed, NULL, 0, 0, ENC_NA);
-		PROTO_ITEM_SET_HIDDEN(malformed_ti);
+		proto_item_set_hidden(malformed_ti);
 	}
 
 	return proto_item_add_subtree(ti, ett_subexpert);
@@ -536,22 +536,22 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	if (hf_index == -1) {
 		/* If no filterable expert info, just add the message */
 		ti = proto_tree_add_string(tree, hf_expert_msg, NULL, 0, 0, formatted);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 	} else {
 		/* If filterable expert info, hide the "generic" form of the message,
 		   and generate the formatted filterable expert info */
 		ti = proto_tree_add_none_format(tree, hf_index, NULL, 0, 0, "%s", formatted);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 		ti = proto_tree_add_string(tree, hf_expert_msg, NULL, 0, 0, formatted);
-		PROTO_ITEM_SET_HIDDEN(ti);
+		proto_item_set_hidden(ti);
 	}
 
 	ti = proto_tree_add_uint_format_value(tree, hf_expert_severity, NULL, 0, 0, severity,
 					      "%s", val_to_str_const(severity, expert_severity_vals, "Unknown"));
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 	ti = proto_tree_add_uint_format_value(tree, hf_expert_group, NULL, 0, 0, group,
 					      "%s", val_to_str_const(group, expert_group_vals, "Unknown"));
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 
 	tap = have_tap_listener(expert_tap);
 
@@ -622,15 +622,28 @@ proto_tree_add_expert_internal(proto_tree *tree, packet_info *pinfo, expert_fiel
 {
 	expert_field_info *eiinfo;
 	proto_item        *ti;
+	gint               item_length, captured_length;
 	va_list            unused;
 
 	/* Look up the item */
 	EXPERT_REGISTRAR_GET_NTH(expindex->ei, eiinfo);
 
-	ti = proto_tree_add_text_internal(tree, tvb, start, length, "%s", eiinfo->summary);
+	/* Make sure this doesn't throw an exception when adding the item */
+	item_length = length;
+	captured_length = tvb_captured_length_remaining(tvb, start);
+	if (captured_length < 0)
+		item_length = 0;
+	else if (captured_length < item_length)
+		item_length = captured_length;
+	ti = proto_tree_add_text_internal(tree, tvb, start, item_length, "%s", eiinfo->summary);
 	va_start(unused, length);
 	expert_set_info_vformat(pinfo, ti, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, FALSE, eiinfo->summary, unused);
 	va_end(unused);
+
+	/* But make sure it throws an exception *after* adding the item */
+	if (length != -1) {
+		tvb_ensure_bytes_exist(tvb, start, length);
+	}
 	return ti;
 }
 
@@ -647,24 +660,36 @@ proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field 
 {
 	va_list            ap;
 	expert_field_info *eiinfo;
+	gint               item_length, captured_length;
 	proto_item        *ti;
 
 	/* Look up the item */
 	EXPERT_REGISTRAR_GET_NTH(expindex->ei, eiinfo);
 
+	/* Make sure this doesn't throw an exception when adding the item */
+	item_length = length;
+	captured_length = tvb_captured_length_remaining(tvb, start);
+	if (captured_length < 0)
+		item_length = 0;
+	else if (captured_length < item_length)
+		item_length = captured_length;
 	va_start(ap, format);
-	ti = proto_tree_add_text_valist_internal(tree, tvb, start, length, format, ap);
+	ti = proto_tree_add_text_valist_internal(tree, tvb, start, item_length, format, ap);
 	va_end(ap);
 
 	va_start(ap, format);
 	expert_set_info_vformat(pinfo, ti, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, TRUE, format, ap);
 	va_end(ap);
 
+	/* But make sure it throws an exception *after* adding the item */
+	if (length != -1) {
+		tvb_ensure_bytes_exist(tvb, start, length);
+	}
 	return ti;
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -4,71 +4,20 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef CAPTURE_FILE_H
 #define CAPTURE_FILE_H
 
 #include <QObject>
-#include <QEvent>
 
 #include <config.h>
 
 #include <glib.h>
 
 #include "cfile.h"
-
-typedef struct _capture_session capture_session;
-
-struct _packet_info;
-
-class CaptureEvent : public QObject
-{
-    Q_OBJECT
-public:
-    enum Context {
-#ifdef HAVE_LIBPCAP
-        Capture =  0x0001,
-        Update =   0x0100 | Capture,
-        Fixed =    0x0200 | Capture,
-#endif
-        File =     0x0002,
-        Reload =   0x0100 | File,
-        Rescan =   0x0200 | File,
-        Save =     0x0400 | File,
-        Retap =    0x0800 | File,
-        Merge =    0x1000 | File
-    };
-
-    enum EventType {
-        Opened      = 0x0001,
-        Started     = 0x0002,
-        Finished    = 0x0004,
-        Closing     = 0x0008,
-        Closed      = 0x0010,
-        Failed      = 0x0020,
-        Stopped     = 0x0040,
-        Flushed     = 0x0080,
-        Prepared    = 0x0100,
-        Continued   = 0x0200,
-        Stopping    = 0x0400
-    };
-
-    CaptureEvent(Context ctx, EventType evt);
-    CaptureEvent(Context ctx, EventType evt, QString file);
-    CaptureEvent(Context ctx, EventType evt, capture_session * session);
-
-    Context captureContext() const;
-    EventType eventType() const;
-    QString filePath() const;
-    capture_session * capSession() const;
-
-private:
-    Context _ctx;
-    EventType _evt;
-    QString _filePath;
-    capture_session * _session;
-};
+#include "capture_event.h"
 
 class CaptureFile : public QObject
 {
@@ -94,18 +43,63 @@ public:
      */
     int currentRow();
 
-    /** Return a filename suitable for use in a window title.
+    /** Return the full pathname.
      *
-     * @return One of: the basename of the capture file without an extension,
-     *  the basename followed by "[closing]", "[closed]", or "[no capture file]".
+     * @return The entire pathname, converted from the native OS's encoding
+     * to Unicode if necessary, or a null string if the conversion can't
+     * be done.
      */
-    const QString fileTitle() { return fileName() + file_state_; }
+    const QString filePath();
 
     /** Return the plain filename.
      *
-     * @return The basename of the capture file without an extension.
+     * @return The last component of the pathname, including the extension,
+     * converted from the native OS's encoding to Unicode if necessary, or
+     * a null string if the conversion can't be done.
      */
     const QString fileName();
+
+    /** Return the plain filename without an extension.
+     *
+     * @return The last component of the pathname, without the extension,
+     * converted from the native OS's encoding to Unicode if necessary, or
+     * a null string if the conversion can't be done.
+     */
+    const QString fileBaseName();
+
+    /** Return a string representing the file suitable for use for
+     *  display in the UI in places such as a main window title.
+     *
+     * @return One of:
+     *
+     *    the devices on which the capture was done, if the file is a
+     *    temporary file for a capture;
+     *
+     *    the last component of the capture file's name, converted
+     *    from the native OS's encoding to Unicode if necessary (and
+     *    with REPLACEMENT CHARACTER inserted if the string can't
+     *    be converted).
+     *
+     *    a null string, if there is no capture file.
+     */
+    const QString fileDisplayName();
+
+    /** Return a string representing the file suitable for use in an
+     *  auxiliary window title.
+     *
+     * @return One of:
+     *
+     *    the result of fileDisplayName(), if the file is open;
+     *
+     *    the result of fileDisplayName() followed by [closing], if
+     *    the file is being closed;
+     *
+     *    the result of fileDisplayName() followed by [closed], if
+     *    the file has been closed;
+     *
+     *    [no capture file], if there is no capture file.
+     */
+    const QString fileTitle();
 
     /** Return the current packet information.
      *
@@ -129,7 +123,7 @@ public:
     gpointer window();
 
 signals:
-    void captureEvent(CaptureEvent *);
+    void captureEvent(CaptureEvent);
 
 public slots:
     /** Retap the capture file. Convenience wrapper for cf_retap_packets.
@@ -167,7 +161,6 @@ private:
     static QString no_capture_file_;
 
     capture_file *cap_file_;
-    QString file_name_;
     QString file_state_;
 };
 

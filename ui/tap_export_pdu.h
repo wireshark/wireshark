@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __TAP_EXPORT_PDU_H__
 #define __TAP_EXPORT_PDU_H__
@@ -17,6 +18,8 @@ extern "C" {
 typedef struct _exp_pdu_t {
     int          pkt_encap;
     wtap_dumper* wdh;
+    GArray* shb_hdrs;
+    wtapng_iface_descriptions_t* idb_inf;
 } exp_pdu_t;
 
 /**
@@ -38,7 +41,7 @@ char *exp_pdu_pre_open(const char *tap_name, const char *filter,
 *
 * @return 0 on success or a wtap error code.
 */
-int exp_pdu_open(exp_pdu_t *data, int fd, char *comment);
+int exp_pdu_open(exp_pdu_t *data, int fd, const char *comment);
 
 /* Stops the PDUs export. */
 int exp_pdu_close(exp_pdu_t *exp_pdu_tap_data);

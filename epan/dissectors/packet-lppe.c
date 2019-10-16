@@ -8,7 +8,7 @@
 #line 1 "./asn1/lppe/packet-lppe-template.c"
 /* packet-lppe.c
  * Routines for LPP Extensions (LLPe) packet dissection
- * Copyright 2012-2018, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2012-2018, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -2914,11 +2914,17 @@ dissect_lppe_OMA_LPPe_RequestCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const int * T_iP_Address_support_bits[] = {
+  &hf_lppe_T_iP_Address_support_iPv4,
+  &hf_lppe_T_iP_Address_support_iPv6,
+  &hf_lppe_T_iP_Address_support_nat,
+  NULL
+};
 
 static int
 dissect_lppe_T_iP_Address_support(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_iP_Address_support_bits, 3, NULL, NULL);
 
   return offset;
 }
@@ -3076,11 +3082,16 @@ dissect_lppe_OMA_LPPe_RelativeLocationChange_Capabilities(tvbuff_t *tvb _U_, int
 }
 
 
+static const int * OMA_LPPe_HighAccuracyFormatCapabilities_bits[] = {
+  &hf_lppe_OMA_LPPe_HighAccuracyFormatCapabilities_hAposition,
+  &hf_lppe_OMA_LPPe_HighAccuracyFormatCapabilities_hAvelocity,
+  NULL
+};
 
 static int
 dissect_lppe_OMA_LPPe_HighAccuracyFormatCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, OMA_LPPe_HighAccuracyFormatCapabilities_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -3123,11 +3134,17 @@ dissect_lppe_OMA_LPPe_SegmentedAssistanceData_ProvideCapabs(tvbuff_t *tvb _U_, i
 }
 
 
+static const int * T_relativeLocationReportingSupport_bits[] = {
+  &hf_lppe_T_relativeLocationReportingSupport_geo,
+  &hf_lppe_T_relativeLocationReportingSupport_civic,
+  &hf_lppe_T_relativeLocationReportingSupport_otherProviders,
+  NULL
+};
 
 static int
 dissect_lppe_T_relativeLocationReportingSupport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_relativeLocationReportingSupport_bits, 3, NULL, NULL);
 
   return offset;
 }
@@ -3223,21 +3240,38 @@ dissect_lppe_OMA_LPPe_ScheduledLocation_Capabilities(tvbuff_t *tvb _U_, int offs
 }
 
 
+static const int * OMA_LPPe_FixedAccessTypes_bits[] = {
+  &hf_lppe_OMA_LPPe_FixedAccessTypes_cable,
+  &hf_lppe_OMA_LPPe_FixedAccessTypes_dsl,
+  &hf_lppe_OMA_LPPe_FixedAccessTypes_lan,
+  &hf_lppe_OMA_LPPe_FixedAccessTypes_pstn,
+  &hf_lppe_OMA_LPPe_FixedAccessTypes_other,
+  NULL
+};
 
 static int
 dissect_lppe_OMA_LPPe_FixedAccessTypes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, OMA_LPPe_FixedAccessTypes_bits, 5, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * OMA_LPPe_WirelessAccessTypes_bits[] = {
+  &hf_lppe_OMA_LPPe_WirelessAccessTypes_gsm,
+  &hf_lppe_OMA_LPPe_WirelessAccessTypes_utra,
+  &hf_lppe_OMA_LPPe_WirelessAccessTypes_lte,
+  &hf_lppe_OMA_LPPe_WirelessAccessTypes_wimax,
+  &hf_lppe_OMA_LPPe_WirelessAccessTypes_wifi,
+  &hf_lppe_OMA_LPPe_WirelessAccessTypes_other,
+  NULL
+};
 
 static int
 dissect_lppe_OMA_LPPe_WirelessAccessTypes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, OMA_LPPe_WirelessAccessTypes_bits, 6, NULL, NULL);
 
   return offset;
 }
@@ -3299,11 +3333,17 @@ dissect_lppe_OMA_LPPe_CommonIEsProvideCapabilities(tvbuff_t *tvb _U_, int offset
 }
 
 
+static const int * T_ionoModel_bits[] = {
+  &hf_lppe_T_ionoModel_localKlobuchar,
+  &hf_lppe_T_ionoModel_ionoStormWarning,
+  &hf_lppe_T_ionoModel_wideAreaIonoSurface,
+  NULL
+};
 
 static int
 dissect_lppe_T_ionoModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_ionoModel_bits, 3, NULL, NULL);
 
   return offset;
 }
@@ -3323,11 +3363,16 @@ dissect_lppe_OMA_LPPe_AGNSS_IonosphericModelSupport(tvbuff_t *tvb _U_, int offse
 }
 
 
+static const int * T_tropoModel_bits[] = {
+  &hf_lppe_T_tropoModel_localTroposphereDelay,
+  &hf_lppe_T_tropoModel_surfaceParameters,
+  NULL
+};
 
 static int
 dissect_lppe_T_tropoModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_tropoModel_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -3541,11 +3586,16 @@ dissect_lppe_OMA_LPPe_AGNSS_AssistanceDataSupportList(tvbuff_t *tvb _U_, int off
 }
 
 
+static const int * T_ionosphereMeasurementSupport_bits[] = {
+  &hf_lppe_T_ionosphereMeasurementSupport_tecPerSVsupport,
+  &hf_lppe_T_ionosphereMeasurementSupport_zenithTecSupport,
+  NULL
+};
 
 static int
 dissect_lppe_T_ionosphereMeasurementSupport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_ionosphereMeasurementSupport_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -3567,21 +3617,31 @@ dissect_lppe_OMA_LPPe_AGNSS_EnvironmentObservationSupportList(tvbuff_t *tvb _U_,
 }
 
 
+static const int * T_modeSupport_bits[] = {
+  &hf_lppe_T_modeSupport_ueBased,
+  &hf_lppe_T_modeSupport_ueAssisted,
+  NULL
+};
 
 static int
 dissect_lppe_T_modeSupport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     2, 2, FALSE, NULL, NULL);
+                                     2, 2, FALSE, T_modeSupport_bits, 2, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_haGNSSantennaInformationSupport_bits[] = {
+  &hf_lppe_T_haGNSSantennaInformationSupport_antennaDescriptionSupported,
+  &hf_lppe_T_haGNSSantennaInformationSupport_antennaOrientationSupported,
+  NULL
+};
 
 static int
 dissect_lppe_T_haGNSSantennaInformationSupport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, NULL);
+                                     8, 8, FALSE, T_haGNSSantennaInformationSupport_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -3690,11 +3750,16 @@ dissect_lppe_OMA_LPPe_OTDOA_ProvideCapabilities(tvbuff_t *tvb _U_, int offset _U
 }
 
 
+static const int * T_eotdSupport_bits[] = {
+  &hf_lppe_T_eotdSupport_ueBased,
+  &hf_lppe_T_eotdSupport_ueAssisted,
+  NULL
+};
 
 static int
 dissect_lppe_T_eotdSupport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, NULL, NULL);
+                                     NO_BOUND, NO_BOUND, FALSE, T_eotdSupport_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -3730,31 +3795,62 @@ dissect_lppe_OMA_LPPe_OTDOA_UTRA_ProvideCapabilities(tvbuff_t *tvb _U_, int offs
 }
 
 
+static const int * T_ecid_lte_MeasSupported_bits[] = {
+  &hf_lppe_T_ecid_lte_MeasSupported_rsrp,
+  &hf_lppe_T_ecid_lte_MeasSupported_rsrq,
+  &hf_lppe_T_ecid_lte_MeasSupported_ueRxTx,
+  &hf_lppe_T_ecid_lte_MeasSupported_non_serving,
+  &hf_lppe_T_ecid_lte_MeasSupported_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_lte_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_ecid_lte_MeasSupported_bits, 5, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_ecid_lte_eNodeB_ADSupported_bits[] = {
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_bslist,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_bslocation,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_transmit_power,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_antennaPortConfig,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_antenna_gain,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_beam_width,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_transmit_direction,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_frequency_accuracy,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_lte_eNodeB_ADSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_ecid_lte_eNodeB_ADSupported_bits, 9, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_ecid_utra_HeNB_ADSupported_bits[] = {
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_bslist,
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_bslocation,
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_locationreliability,
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_transmit_power,
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_antennaPortConfig,
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_frequency_accuracy,
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_coveragearea,
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_utra_HeNB_ADSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_ecid_utra_HeNB_ADSupported_bits, 8, NULL, NULL);
 
   return offset;
 }
@@ -3776,21 +3872,40 @@ dissect_lppe_OMA_LPPe_ECID_LTE_ProvideCapabilities(tvbuff_t *tvb _U_, int offset
 }
 
 
+static const int * T_ecid_gsm_MeasSupported_bits[] = {
+  &hf_lppe_T_ecid_gsm_MeasSupported_rxLevel,
+  &hf_lppe_T_ecid_gsm_MeasSupported_tA,
+  &hf_lppe_T_ecid_gsm_MeasSupported_nMR_GERAN,
+  &hf_lppe_T_ecid_gsm_MeasSupported_non_serving,
+  &hf_lppe_T_ecid_gsm_MeasSupported_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_gsm_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_ecid_gsm_MeasSupported_bits, 5, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_ecid_gsm_ADSupported_bits[] = {
+  &hf_lppe_T_ecid_gsm_ADSupported_bslist,
+  &hf_lppe_T_ecid_gsm_ADSupported_bslocation,
+  &hf_lppe_T_ecid_gsm_ADSupported_transmit_power,
+  &hf_lppe_T_ecid_gsm_ADSupported_antenna_gain,
+  &hf_lppe_T_ecid_gsm_ADSupported_beam_width,
+  &hf_lppe_T_ecid_gsm_ADSupported_transmit_direction,
+  &hf_lppe_T_ecid_gsm_ADSupported_frequency_accuracy,
+  &hf_lppe_T_ecid_gsm_ADSupported_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_gsm_ADSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_ecid_gsm_ADSupported_bits, 8, NULL, NULL);
 
   return offset;
 }
@@ -3811,31 +3926,65 @@ dissect_lppe_OMA_LPPe_ECID_GSM_ProvideCapabilities(tvbuff_t *tvb _U_, int offset
 }
 
 
+static const int * T_ecid_utra_MeasSupported_bits[] = {
+  &hf_lppe_T_ecid_utra_MeasSupported_measuredResultsList,
+  &hf_lppe_T_ecid_utra_MeasSupported_tdd_timingAdvance,
+  &hf_lppe_T_ecid_utra_MeasSupported_mRL_utra_CarrierRSSI,
+  &hf_lppe_T_ecid_utra_MeasSupported_mRL_FDD_cpich_Ec_N0,
+  &hf_lppe_T_ecid_utra_MeasSupported_mRL_FDD_cpich_RSCP,
+  &hf_lppe_T_ecid_utra_MeasSupported_mRL_FDD_pathloss,
+  &hf_lppe_T_ecid_utra_MeasSupported_mRL_TDD_primaryCCPCH_RSCP,
+  &hf_lppe_T_ecid_utra_MeasSupported_mRL_TDD_pathloss,
+  &hf_lppe_T_ecid_utra_MeasSupported_non_serving,
+  &hf_lppe_T_ecid_utra_MeasSupported_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_utra_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_ecid_utra_MeasSupported_bits, 10, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_ecid_utra_nodeB_ADSupported_bits[] = {
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_bslist,
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_bslocation,
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_transmit_power,
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_antenna_gain,
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_beam_width,
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_transmit_direction,
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_frequency_accuracy,
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_utra_nodeB_ADSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_ecid_utra_nodeB_ADSupported_bits, 8, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_ecid_utra_HNB_ADSupported_bits[] = {
+  &hf_lppe_T_ecid_utra_HNB_ADSupported_bslist,
+  &hf_lppe_T_ecid_utra_HNB_ADSupported_bslocation,
+  &hf_lppe_T_ecid_utra_HNB_ADSupported_locationreliability,
+  &hf_lppe_T_ecid_utra_HNB_ADSupported_transmit_power,
+  &hf_lppe_T_ecid_utra_HNB_ADSupported_frequency_accuracy,
+  &hf_lppe_T_ecid_utra_HNB_ADSupported_coveragearea,
+  &hf_lppe_T_ecid_utra_HNB_ADSupported_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_utra_HNB_ADSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_ecid_utra_HNB_ADSupported_bits, 7, NULL, NULL);
 
   return offset;
 }
@@ -3857,21 +4006,49 @@ dissect_lppe_OMA_LPPe_ECID_UTRA_ProvideCapabilities(tvbuff_t *tvb _U_, int offse
 }
 
 
+static const int * T_wlan_ecid_MeasSupported_bits[] = {
+  &hf_lppe_T_wlan_ecid_MeasSupported_apSSID,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apSN,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apDevType,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apPhyType,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apRSSI,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apChanFreq,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apRTD,
+  &hf_lppe_T_wlan_ecid_MeasSupported_ueTP,
+  &hf_lppe_T_wlan_ecid_MeasSupported_ueAG,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apRepLoc,
+  &hf_lppe_T_wlan_ecid_MeasSupported_non_serving,
+  &hf_lppe_T_wlan_ecid_MeasSupported_historic,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apTP,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apAG,
+  &hf_lppe_T_wlan_ecid_MeasSupported_ueSN,
+  &hf_lppe_T_wlan_ecid_MeasSupported_ueRSSI,
+  NULL
+};
 
 static int
 dissect_lppe_T_wlan_ecid_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_wlan_ecid_MeasSupported_bits, 16, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * OMA_LPPe_WLAN_AP_Type_List_bits[] = {
+  &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11a,
+  &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11b,
+  &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11g,
+  &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11n,
+  &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11ac,
+  &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11ad,
+  NULL
+};
 
 static int
 dissect_lppe_OMA_LPPe_WLAN_AP_Type_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, OMA_LPPe_WLAN_AP_Type_List_bits, 6, NULL, NULL);
 
   return offset;
 }
@@ -3881,7 +4058,7 @@ dissect_lppe_OMA_LPPe_WLAN_AP_Type_List(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_lppe_BIT_STRING_SIZE_48(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     48, 48, FALSE, NULL, NULL);
+                                     48, 48, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -3916,21 +4093,36 @@ dissect_lppe_OMA_LPPe_WLAN_AP_Capability(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
+static const int * T_wlan_ap_ADSupported_bits[] = {
+  &hf_lppe_T_wlan_ap_ADSupported_aplist,
+  &hf_lppe_T_wlan_ap_ADSupported_aplocation,
+  &hf_lppe_T_wlan_ap_ADSupported_locationreliability,
+  &hf_lppe_T_wlan_ap_ADSupported_transmit_power,
+  &hf_lppe_T_wlan_ap_ADSupported_antenna_gain,
+  &hf_lppe_T_wlan_ap_ADSupported_coveragearea,
+  &hf_lppe_T_wlan_ap_ADSupported_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_wlan_ap_ADSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_wlan_ap_ADSupported_bits, 7, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_additional_wlan_ecid_MeasSupported_bits[] = {
+  &hf_lppe_T_additional_wlan_ecid_MeasSupported_oc,
+  &hf_lppe_T_additional_wlan_ecid_MeasSupported_ueMacAddr,
+  NULL
+};
 
 static int
 dissect_lppe_T_additional_wlan_ecid_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_additional_wlan_ecid_MeasSupported_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -3954,11 +4146,27 @@ dissect_lppe_OMA_LPPe_WLAN_AP_ProvideCapabilities(tvbuff_t *tvb _U_, int offset 
 }
 
 
+static const int * T_ecid_wimax_MeasSupported_bits[] = {
+  &hf_lppe_T_ecid_wimax_MeasSupported_rTD,
+  &hf_lppe_T_ecid_wimax_MeasSupported_rTDstd,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMR,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRrelDelay,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRrelDelaystd,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRrSSI,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRrSSIstd,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRbSTxPower,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRcINR,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRcINRstd,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRbSLocation,
+  &hf_lppe_T_ecid_wimax_MeasSupported_non_serving,
+  &hf_lppe_T_ecid_wimax_MeasSupported_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_wimax_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_ecid_wimax_MeasSupported_bits, 13, NULL, NULL);
 
   return offset;
 }
@@ -3995,11 +4203,16 @@ dissect_lppe_OMA_LPPe_Sensor_ProvideCapabilities(tvbuff_t *tvb _U_, int offset _
 }
 
 
+static const int * T_srnMeasurements_bits[] = {
+  &hf_lppe_T_srnMeasurements_rssi,
+  &hf_lppe_T_srnMeasurements_rtd,
+  NULL
+};
 
 static int
 dissect_lppe_T_srnMeasurements(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_srnMeasurements_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -4019,11 +4232,16 @@ dissect_lppe_OMA_LPPe_SRN_MeasurementMask(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const int * T_supportedAssistanceData_bits[] = {
+  &hf_lppe_T_supportedAssistanceData_srnGroup,
+  &hf_lppe_T_supportedAssistanceData_antennaPattern,
+  NULL
+};
 
 static int
 dissect_lppe_T_supportedAssistanceData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_supportedAssistanceData_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -4398,11 +4616,16 @@ dissect_lppe_OMA_LPPe_CommonIEsRequestAssistanceData(tvbuff_t *tvb _U_, int offs
 }
 
 
+static const int * T_ionoreq_bits[] = {
+  &hf_lppe_T_ionoreq_klobucharModel,
+  &hf_lppe_T_ionoreq_ionoStormWarning,
+  NULL
+};
 
 static int
 dissect_lppe_T_ionoreq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_ionoreq_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -4520,11 +4743,16 @@ dissect_lppe_OMA_LPPe_AGNSS_IonosphericModelReq(tvbuff_t *tvb _U_, int offset _U
 }
 
 
+static const int * T_troposphereModelReq_bits[] = {
+  &hf_lppe_T_troposphereModelReq_delay,
+  &hf_lppe_T_troposphereModelReq_surface,
+  NULL
+};
 
 static int
 dissect_lppe_T_troposphereModelReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_troposphereModelReq_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -4981,11 +5209,16 @@ dissect_lppe_T_lteCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 }
 
 
+static const int * T_requestedCells_bits[] = {
+  &hf_lppe_T_requestedCells_eNBs,
+  &hf_lppe_T_requestedCells_heNBs,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedCells(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_requestedCells_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -5006,11 +5239,16 @@ dissect_lppe_OMA_LPPe_OTDOA_RequestAssistanceData(tvbuff_t *tvb _U_, int offset 
 }
 
 
+static const int * T_eotdAssistanceReq_bits[] = {
+  &hf_lppe_T_eotdAssistanceReq_ueAssisted,
+  &hf_lppe_T_eotdAssistanceReq_ueBased,
+  NULL
+};
 
 static int
 dissect_lppe_T_eotdAssistanceReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, NULL, NULL);
+                                     NO_BOUND, NO_BOUND, FALSE, T_eotdAssistanceReq_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -5030,11 +5268,16 @@ dissect_lppe_OMA_LPPe_EOTD_RequestAssistanceData(tvbuff_t *tvb _U_, int offset _
 }
 
 
+static const int * T_otdoaUtraAssistanceReq_bits[] = {
+  &hf_lppe_T_otdoaUtraAssistanceReq_ueAssisted,
+  &hf_lppe_T_otdoaUtraAssistanceReq_ueBased,
+  NULL
+};
 
 static int
 dissect_lppe_T_otdoaUtraAssistanceReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_otdoaUtraAssistanceReq_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -5054,21 +5297,44 @@ dissect_lppe_OMA_LPPe_OTDOA_UTRA_RequestAssistanceData(tvbuff_t *tvb _U_, int of
 }
 
 
+static const int * T_eNBrequestedAD_bits[] = {
+  &hf_lppe_T_eNBrequestedAD_bslist,
+  &hf_lppe_T_eNBrequestedAD_bslocation,
+  &hf_lppe_T_eNBrequestedAD_transmit_power,
+  &hf_lppe_T_eNBrequestedAD_antennaPortConfig,
+  &hf_lppe_T_eNBrequestedAD_antenna_gain,
+  &hf_lppe_T_eNBrequestedAD_beam_width,
+  &hf_lppe_T_eNBrequestedAD_transmit_direction,
+  &hf_lppe_T_eNBrequestedAD_frequency_accuracy,
+  &hf_lppe_T_eNBrequestedAD_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_eNBrequestedAD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_eNBrequestedAD_bits, 9, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_heNBrequestedAD_bits[] = {
+  &hf_lppe_T_heNBrequestedAD_bslist,
+  &hf_lppe_T_heNBrequestedAD_bslocation,
+  &hf_lppe_T_heNBrequestedAD_locationreliability,
+  &hf_lppe_T_heNBrequestedAD_transmit_power,
+  &hf_lppe_T_heNBrequestedAD_antennaPortConfig,
+  &hf_lppe_T_heNBrequestedAD_frequency_accuracy,
+  &hf_lppe_T_heNBrequestedAD_coveragearea,
+  &hf_lppe_T_heNBrequestedAD_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_heNBrequestedAD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_heNBrequestedAD_bits, 8, NULL, NULL);
 
   return offset;
 }
@@ -5089,11 +5355,22 @@ dissect_lppe_OMA_LPPe_ECID_LTE_RequestAssistanceData(tvbuff_t *tvb _U_, int offs
 }
 
 
+static const int * T_requestedAD_bits[] = {
+  &hf_lppe_T_requestedAD_bslist,
+  &hf_lppe_T_requestedAD_bslocation,
+  &hf_lppe_T_requestedAD_transmit_power,
+  &hf_lppe_T_requestedAD_antenna_gain,
+  &hf_lppe_T_requestedAD_beam_width,
+  &hf_lppe_T_requestedAD_transmit_direction,
+  &hf_lppe_T_requestedAD_frequency_accuracy,
+  &hf_lppe_T_requestedAD_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedAD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_requestedAD_bits, 8, NULL, NULL);
 
   return offset;
 }
@@ -5113,21 +5390,42 @@ dissect_lppe_OMA_LPPe_ECID_GSM_RequestAssistanceData(tvbuff_t *tvb _U_, int offs
 }
 
 
+static const int * T_nBrequestedAD_bits[] = {
+  &hf_lppe_T_nBrequestedAD_bslist,
+  &hf_lppe_T_nBrequestedAD_bslocation,
+  &hf_lppe_T_nBrequestedAD_transmit_power,
+  &hf_lppe_T_nBrequestedAD_antenna_gain,
+  &hf_lppe_T_nBrequestedAD_beam_width,
+  &hf_lppe_T_nBrequestedAD_transmit_direction,
+  &hf_lppe_T_nBrequestedAD_frequency_accuracy,
+  &hf_lppe_T_nBrequestedAD_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_nBrequestedAD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_nBrequestedAD_bits, 8, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_hNBrequestedAD_bits[] = {
+  &hf_lppe_T_hNBrequestedAD_bslist,
+  &hf_lppe_T_hNBrequestedAD_bslocation,
+  &hf_lppe_T_hNBrequestedAD_locationreliability,
+  &hf_lppe_T_hNBrequestedAD_transmit_power,
+  &hf_lppe_T_hNBrequestedAD_frequency_accuracy,
+  &hf_lppe_T_hNBrequestedAD_coveragearea,
+  &hf_lppe_T_hNBrequestedAD_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_hNBrequestedAD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_hNBrequestedAD_bits, 7, NULL, NULL);
 
   return offset;
 }
@@ -5148,11 +5446,21 @@ dissect_lppe_OMA_LPPe_ECID_UTRA_RequestAssistanceData(tvbuff_t *tvb _U_, int off
 }
 
 
+static const int * T_requestedAD_01_bits[] = {
+  &hf_lppe_T_requestedAD_01_aplist,
+  &hf_lppe_T_requestedAD_01_aplocation,
+  &hf_lppe_T_requestedAD_01_locationreliability,
+  &hf_lppe_T_requestedAD_01_transmit_power,
+  &hf_lppe_T_requestedAD_01_antenna_gain,
+  &hf_lppe_T_requestedAD_01_coveragearea,
+  &hf_lppe_T_requestedAD_01_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedAD_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_requestedAD_01_bits, 7, NULL, NULL);
 
   return offset;
 }
@@ -5264,7 +5572,7 @@ dissect_lppe_OMA_LPPe_SRN_SRNgroupRequest(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_lppe_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, NULL);
+                                     8, 8, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -5289,7 +5597,7 @@ dissect_lppe_T_nfc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 static int
 dissect_lppe_BIT_STRING_SIZE_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     12, 12, FALSE, NULL, NULL);
+                                     12, 12, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -8125,7 +8433,7 @@ dissect_lppe_OMA_LPPe_AGNSS_ProvideAssistanceData(tvbuff_t *tvb _U_, int offset 
 static int
 dissect_lppe_BIT_STRING_SIZE_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     10, 10, FALSE, NULL, NULL);
+                                     10, 10, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -9739,7 +10047,7 @@ dissect_lppe_T_plmn_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_lppe_BIT_STRING_SIZE_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     28, 28, FALSE, NULL, NULL);
+                                     28, 28, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -10211,7 +10519,7 @@ dissect_lppe_T_plmn_Identity_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_lppe_BIT_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, NULL);
+                                     16, 16, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -10484,7 +10792,7 @@ dissect_lppe_T_plmn_Identity_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_lppe_BIT_STRING_SIZE_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE, NULL, NULL);
+                                     32, 32, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -12247,11 +12555,16 @@ dissect_lppe_OMA_LPPe_AGNSS_PositioningInstructions(tvbuff_t *tvb _U_, int offse
 }
 
 
+static const int * T_ionosphereMeasurementsReq_bits[] = {
+  &hf_lppe_T_ionosphereMeasurementsReq_tecPerSV,
+  &hf_lppe_T_ionosphereMeasurementsReq_zenithTEC,
+  NULL
+};
 
 static int
 dissect_lppe_T_ionosphereMeasurementsReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_ionosphereMeasurementsReq_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -12326,11 +12639,19 @@ dissect_lppe_OMA_LPPe_OTDOA_UTRA_RequestLocationInformation(tvbuff_t *tvb _U_, i
 }
 
 
+static const int * T_requestedMeasurements_bits[] = {
+  &hf_lppe_T_requestedMeasurements_rsrp,
+  &hf_lppe_T_requestedMeasurements_rsrq,
+  &hf_lppe_T_requestedMeasurements_ueRxTx,
+  &hf_lppe_T_requestedMeasurements_non_serving,
+  &hf_lppe_T_requestedMeasurements_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedMeasurements(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_requestedMeasurements_bits, 5, NULL, NULL);
 
   return offset;
 }
@@ -12350,11 +12671,19 @@ dissect_lppe_OMA_LPPe_ECID_LTE_RequestLocationInformation(tvbuff_t *tvb _U_, int
 }
 
 
+static const int * T_requestedMeasurements_01_bits[] = {
+  &hf_lppe_T_requestedMeasurements_01_rxLevel,
+  &hf_lppe_T_requestedMeasurements_01_tA,
+  &hf_lppe_T_requestedMeasurements_01_nMR_GERAN,
+  &hf_lppe_T_requestedMeasurements_01_non_serving,
+  &hf_lppe_T_requestedMeasurements_01_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedMeasurements_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_requestedMeasurements_01_bits, 5, NULL, NULL);
 
   return offset;
 }
@@ -12374,11 +12703,24 @@ dissect_lppe_OMA_LPPe_ECID_GSM_RequestLocationInformation(tvbuff_t *tvb _U_, int
 }
 
 
+static const int * T_requestedMeasurements_02_bits[] = {
+  &hf_lppe_T_requestedMeasurements_02_measuredResultsList,
+  &hf_lppe_T_requestedMeasurements_02_tdd_timingAdvance,
+  &hf_lppe_T_requestedMeasurements_02_mRL_utra_CarrierRSSI,
+  &hf_lppe_T_requestedMeasurements_02_mRL_FDD_cpich_Ec_N0,
+  &hf_lppe_T_requestedMeasurements_02_mRL_FDD_cpich_RSCP,
+  &hf_lppe_T_requestedMeasurements_02_mRL_FDD_pathloss,
+  &hf_lppe_T_requestedMeasurements_02_mRL_TDD_primaryCCPCH_RSCP,
+  &hf_lppe_T_requestedMeasurements_02_mRL_TDD_pathloss,
+  &hf_lppe_T_requestedMeasurements_02_non_serving,
+  &hf_lppe_T_requestedMeasurements_02_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedMeasurements_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_requestedMeasurements_02_bits, 10, NULL, NULL);
 
   return offset;
 }
@@ -12398,21 +12740,45 @@ dissect_lppe_OMA_LPPe_ECID_UTRA_RequestLocationInformation(tvbuff_t *tvb _U_, in
 }
 
 
+static const int * T_requestedMeasurements_03_bits[] = {
+  &hf_lppe_T_requestedMeasurements_03_apSSID,
+  &hf_lppe_T_requestedMeasurements_03_apSN,
+  &hf_lppe_T_requestedMeasurements_03_apDevType,
+  &hf_lppe_T_requestedMeasurements_03_apPhyType,
+  &hf_lppe_T_requestedMeasurements_03_apRSSI,
+  &hf_lppe_T_requestedMeasurements_03_apChanFreq,
+  &hf_lppe_T_requestedMeasurements_03_apRTD,
+  &hf_lppe_T_requestedMeasurements_03_ueTP,
+  &hf_lppe_T_requestedMeasurements_03_ueAG,
+  &hf_lppe_T_requestedMeasurements_03_apRepLoc,
+  &hf_lppe_T_requestedMeasurements_03_non_serving,
+  &hf_lppe_T_requestedMeasurements_03_historic,
+  &hf_lppe_T_requestedMeasurements_03_apTP,
+  &hf_lppe_T_requestedMeasurements_03_apAG,
+  &hf_lppe_T_requestedMeasurements_03_ueSN,
+  &hf_lppe_T_requestedMeasurements_03_ueRSSI,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedMeasurements_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_requestedMeasurements_03_bits, 16, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_additionalRequestedMeasurements_bits[] = {
+  &hf_lppe_T_additionalRequestedMeasurements_oc,
+  &hf_lppe_T_additionalRequestedMeasurements_ueMacAddr,
+  NULL
+};
 
 static int
 dissect_lppe_T_additionalRequestedMeasurements(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_additionalRequestedMeasurements_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -12433,11 +12799,27 @@ dissect_lppe_OMA_LPPe_WLAN_AP_RequestLocationInformation(tvbuff_t *tvb _U_, int 
 }
 
 
+static const int * T_requestedMeasurements_04_bits[] = {
+  &hf_lppe_T_requestedMeasurements_04_rTD,
+  &hf_lppe_T_requestedMeasurements_04_rTDstd,
+  &hf_lppe_T_requestedMeasurements_04_nMR,
+  &hf_lppe_T_requestedMeasurements_04_nMRrelDelay,
+  &hf_lppe_T_requestedMeasurements_04_nMRrelDelaystd,
+  &hf_lppe_T_requestedMeasurements_04_nMRrSSI,
+  &hf_lppe_T_requestedMeasurements_04_nMRrSSIstd,
+  &hf_lppe_T_requestedMeasurements_04_nMRbSTxPower,
+  &hf_lppe_T_requestedMeasurements_04_nMRcINR,
+  &hf_lppe_T_requestedMeasurements_04_nMRcINRstd,
+  &hf_lppe_T_requestedMeasurements_04_nMRbSLocation,
+  &hf_lppe_T_requestedMeasurements_04_non_serving,
+  &hf_lppe_T_requestedMeasurements_04_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedMeasurements_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_requestedMeasurements_04_bits, 13, NULL, NULL);
 
   return offset;
 }
@@ -12632,7 +13014,7 @@ dissect_lppe_OMA_LPPe_HighAccuracy3Dvelocity(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_lppe_BIT_STRING_SIZE_128(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     128, 128, FALSE, NULL, NULL);
+                                     128, 128, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -13375,7 +13757,7 @@ dissect_lppe_OMA_LPPe_EOTD_ModuloTimeSlot(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_lppe_BIT_STRING_SIZE_5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     5, 5, FALSE, NULL, NULL);
+                                     5, 5, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -13385,7 +13767,7 @@ dissect_lppe_BIT_STRING_SIZE_5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppe_BIT_STRING_SIZE_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     3, 3, FALSE, NULL, NULL);
+                                     3, 3, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -13410,7 +13792,7 @@ dissect_lppe_OMA_LPPe_EOTD_TOA_MeasurementsOfRef(tvbuff_t *tvb _U_, int offset _
 static int
 dissect_lppe_BIT_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     2, 2, FALSE, NULL, NULL);
+                                     2, 2, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -14392,7 +14774,7 @@ dissect_lppe_OMA_LPPe_WLAN_RTD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppe_BIT_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     6, 6, FALSE, NULL, NULL);
+                                     6, 6, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -14402,7 +14784,7 @@ dissect_lppe_BIT_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppe_BIT_STRING_SIZE_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     34, 34, FALSE, NULL, NULL);
+                                     34, 34, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -14412,7 +14794,7 @@ dissect_lppe_BIT_STRING_SIZE_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_lppe_BIT_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     4, 4, FALSE, NULL, NULL);
+                                     4, 4, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -14422,7 +14804,7 @@ dissect_lppe_BIT_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppe_BIT_STRING_SIZE_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     30, 30, FALSE, NULL, NULL);
+                                     30, 30, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -14556,7 +14938,7 @@ dissect_lppe_OMA_LPPe_WLAN_AP_ProvideLocationInformation(tvbuff_t *tvb _U_, int 
 static int
 dissect_lppe_BIT_STRING_SIZE_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     24, 24, FALSE, NULL, NULL);
+                                     24, 24, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -14808,11 +15190,23 @@ dissect_lppe_T_primaryMotionState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
+static const int * T_secondaryMotionState_bits[] = {
+  &hf_lppe_T_secondaryMotionState_stationary,
+  &hf_lppe_T_secondaryMotionState_pedestrian,
+  &hf_lppe_T_secondaryMotionState_running,
+  &hf_lppe_T_secondaryMotionState_cycling,
+  &hf_lppe_T_secondaryMotionState_car,
+  &hf_lppe_T_secondaryMotionState_train,
+  &hf_lppe_T_secondaryMotionState_aeroplane,
+  &hf_lppe_T_secondaryMotionState_boat,
+  &hf_lppe_T_secondaryMotionState_fidgeting,
+  NULL
+};
 
 static int
 dissect_lppe_T_secondaryMotionState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_secondaryMotionState_bits, 9, NULL, NULL);
 
   return offset;
 }
@@ -20813,1039 +21207,1039 @@ void proto_register_lppe(void) {
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_FixedAccessTypes_cable,
-      { "cable", "lppe.cable",
+      { "cable", "lppe.OMA.LPPe.FixedAccessTypes.cable",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_FixedAccessTypes_dsl,
-      { "dsl", "lppe.dsl",
+      { "dsl", "lppe.OMA.LPPe.FixedAccessTypes.dsl",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_FixedAccessTypes_lan,
-      { "lan", "lppe.lan",
+      { "lan", "lppe.OMA.LPPe.FixedAccessTypes.lan",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_FixedAccessTypes_pstn,
-      { "pstn", "lppe.pstn",
+      { "pstn", "lppe.OMA.LPPe.FixedAccessTypes.pstn",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_FixedAccessTypes_other,
-      { "other", "lppe.other",
+      { "other", "lppe.OMA.LPPe.FixedAccessTypes.other",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_WirelessAccessTypes_gsm,
-      { "gsm", "lppe.gsm",
+      { "gsm", "lppe.OMA.LPPe.WirelessAccessTypes.gsm",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_WirelessAccessTypes_utra,
-      { "utra", "lppe.utra",
+      { "utra", "lppe.OMA.LPPe.WirelessAccessTypes.utra",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_WirelessAccessTypes_lte,
-      { "lte", "lppe.lte",
+      { "lte", "lppe.OMA.LPPe.WirelessAccessTypes.lte",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_WirelessAccessTypes_wimax,
-      { "wimax", "lppe.wimax",
+      { "wimax", "lppe.OMA.LPPe.WirelessAccessTypes.wimax",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_WirelessAccessTypes_wifi,
-      { "wifi", "lppe.wifi",
+      { "wifi", "lppe.OMA.LPPe.WirelessAccessTypes.wifi",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_WirelessAccessTypes_other,
-      { "other", "lppe.other",
+      { "other", "lppe.OMA.LPPe.WirelessAccessTypes.other",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11a,
-      { "ieee802-11a", "lppe.ieee802-11a",
+      { "ieee802-11a", "lppe.OMA.LPPe.WLAN.AP.Type.List.ieee802.11a",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11b,
-      { "ieee802-11b", "lppe.ieee802-11b",
+      { "ieee802-11b", "lppe.OMA.LPPe.WLAN.AP.Type.List.ieee802.11b",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11g,
-      { "ieee802-11g", "lppe.ieee802-11g",
+      { "ieee802-11g", "lppe.OMA.LPPe.WLAN.AP.Type.List.ieee802.11g",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11n,
-      { "ieee802-11n", "lppe.ieee802-11n",
+      { "ieee802-11n", "lppe.OMA.LPPe.WLAN.AP.Type.List.ieee802.11n",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11ac,
-      { "ieee802-11ac", "lppe.ieee802-11ac",
+      { "ieee802-11ac", "lppe.OMA.LPPe.WLAN.AP.Type.List.ieee802.11ac",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11ad,
-      { "ieee802-11ad", "lppe.ieee802-11ad",
+      { "ieee802-11ad", "lppe.OMA.LPPe.WLAN.AP.Type.List.ieee802.11ad",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_iP_Address_support_iPv4,
-      { "iPv4", "lppe.iPv4",
+      { "iPv4", "lppe.T.iP.Address.support.iPv4",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_iP_Address_support_iPv6,
-      { "iPv6", "lppe.iPv6",
+      { "iPv6", "lppe.T.iP.Address.support.iPv6",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_iP_Address_support_nat,
-      { "nat", "lppe.nat",
+      { "nat", "lppe.T.iP.Address.support.nat",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_HighAccuracyFormatCapabilities_hAposition,
-      { "hAposition", "lppe.hAposition",
+      { "hAposition", "lppe.OMA.LPPe.HighAccuracyFormatCapabilities.hAposition",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_OMA_LPPe_HighAccuracyFormatCapabilities_hAvelocity,
-      { "hAvelocity", "lppe.hAvelocity",
+      { "hAvelocity", "lppe.OMA.LPPe.HighAccuracyFormatCapabilities.hAvelocity",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_relativeLocationReportingSupport_geo,
-      { "geo", "lppe.geo",
+      { "geo", "lppe.T.relativeLocationReportingSupport.geo",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_relativeLocationReportingSupport_civic,
-      { "civic", "lppe.civic",
+      { "civic", "lppe.T.relativeLocationReportingSupport.civic",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_relativeLocationReportingSupport_otherProviders,
-      { "otherProviders", "lppe.otherProviders",
+      { "otherProviders", "lppe.T.relativeLocationReportingSupport.otherProviders",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_ionoreq_klobucharModel,
-      { "klobucharModel", "lppe.klobucharModel",
+      { "klobucharModel", "lppe.T.ionoreq.klobucharModel",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ionoreq_ionoStormWarning,
-      { "ionoStormWarning", "lppe.ionoStormWarning",
+      { "ionoStormWarning", "lppe.T.ionoreq.ionoStormWarning",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_troposphereModelReq_delay,
-      { "delay", "lppe.delay",
+      { "delay", "lppe.T.troposphereModelReq.delay",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_troposphereModelReq_surface,
-      { "surface", "lppe.surface",
+      { "surface", "lppe.T.troposphereModelReq.surface",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ionosphereMeasurementsReq_tecPerSV,
-      { "tecPerSV", "lppe.tecPerSV",
+      { "tecPerSV", "lppe.T.ionosphereMeasurementsReq.tecPerSV",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ionosphereMeasurementsReq_zenithTEC,
-      { "zenithTEC", "lppe.zenithTEC",
+      { "zenithTEC", "lppe.T.ionosphereMeasurementsReq.zenithTEC",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ionosphereMeasurementSupport_tecPerSVsupport,
-      { "tecPerSVsupport", "lppe.tecPerSVsupport",
+      { "tecPerSVsupport", "lppe.T.ionosphereMeasurementSupport.tecPerSVsupport",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ionosphereMeasurementSupport_zenithTecSupport,
-      { "zenithTecSupport", "lppe.zenithTecSupport",
+      { "zenithTecSupport", "lppe.T.ionosphereMeasurementSupport.zenithTecSupport",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ionoModel_localKlobuchar,
-      { "localKlobuchar", "lppe.localKlobuchar",
+      { "localKlobuchar", "lppe.T.ionoModel.localKlobuchar",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ionoModel_ionoStormWarning,
-      { "ionoStormWarning", "lppe.ionoStormWarning",
+      { "ionoStormWarning", "lppe.T.ionoModel.ionoStormWarning",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ionoModel_wideAreaIonoSurface,
-      { "wideAreaIonoSurface", "lppe.wideAreaIonoSurface",
+      { "wideAreaIonoSurface", "lppe.T.ionoModel.wideAreaIonoSurface",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_tropoModel_localTroposphereDelay,
-      { "localTroposphereDelay", "lppe.localTroposphereDelay",
+      { "localTroposphereDelay", "lppe.T.tropoModel.localTroposphereDelay",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_tropoModel_surfaceParameters,
-      { "surfaceParameters", "lppe.surfaceParameters",
+      { "surfaceParameters", "lppe.T.tropoModel.surfaceParameters",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_modeSupport_ueBased,
-      { "ueBased", "lppe.ueBased",
+      { "ueBased", "lppe.T.modeSupport.ueBased",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_modeSupport_ueAssisted,
-      { "ueAssisted", "lppe.ueAssisted",
+      { "ueAssisted", "lppe.T.modeSupport.ueAssisted",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_haGNSSantennaInformationSupport_antennaDescriptionSupported,
-      { "antennaDescriptionSupported", "lppe.antennaDescriptionSupported",
+      { "antennaDescriptionSupported", "lppe.T.haGNSSantennaInformationSupport.antennaDescriptionSupported",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_haGNSSantennaInformationSupport_antennaOrientationSupported,
-      { "antennaOrientationSupported", "lppe.antennaOrientationSupported",
+      { "antennaOrientationSupported", "lppe.T.haGNSSantennaInformationSupport.antennaOrientationSupported",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_requestedCells_eNBs,
-      { "eNBs", "lppe.eNBs",
+      { "eNBs", "lppe.T.requestedCells.eNBs",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_requestedCells_heNBs,
-      { "heNBs", "lppe.heNBs",
+      { "heNBs", "lppe.T.requestedCells.heNBs",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_eotdAssistanceReq_ueAssisted,
-      { "ueAssisted", "lppe.ueAssisted",
+      { "ueAssisted", "lppe.T.eotdAssistanceReq.ueAssisted",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_eotdAssistanceReq_ueBased,
-      { "ueBased", "lppe.ueBased",
+      { "ueBased", "lppe.T.eotdAssistanceReq.ueBased",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_eotdSupport_ueBased,
-      { "ueBased", "lppe.ueBased",
+      { "ueBased", "lppe.T.eotdSupport.ueBased",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_eotdSupport_ueAssisted,
-      { "ueAssisted", "lppe.ueAssisted",
+      { "ueAssisted", "lppe.T.eotdSupport.ueAssisted",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_otdoaUtraAssistanceReq_ueAssisted,
-      { "ueAssisted", "lppe.ueAssisted",
+      { "ueAssisted", "lppe.T.otdoaUtraAssistanceReq.ueAssisted",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_otdoaUtraAssistanceReq_ueBased,
-      { "ueBased", "lppe.ueBased",
+      { "ueBased", "lppe.T.otdoaUtraAssistanceReq.ueBased",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_eNBrequestedAD_bslist,
-      { "bslist", "lppe.bslist",
+      { "bslist", "lppe.T.eNBrequestedAD.bslist",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_eNBrequestedAD_bslocation,
-      { "bslocation", "lppe.bslocation",
+      { "bslocation", "lppe.T.eNBrequestedAD.bslocation",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_eNBrequestedAD_transmit_power,
-      { "transmit-power", "lppe.transmit-power",
+      { "transmit-power", "lppe.T.eNBrequestedAD.transmit.power",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_eNBrequestedAD_antennaPortConfig,
-      { "antennaPortConfig", "lppe.antennaPortConfig",
+      { "antennaPortConfig", "lppe.T.eNBrequestedAD.antennaPortConfig",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_eNBrequestedAD_antenna_gain,
-      { "antenna-gain", "lppe.antenna-gain",
+      { "antenna-gain", "lppe.T.eNBrequestedAD.antenna.gain",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_eNBrequestedAD_beam_width,
-      { "beam-width", "lppe.beam-width",
+      { "beam-width", "lppe.T.eNBrequestedAD.beam.width",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_eNBrequestedAD_transmit_direction,
-      { "transmit-direction", "lppe.transmit-direction",
+      { "transmit-direction", "lppe.T.eNBrequestedAD.transmit.direction",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_eNBrequestedAD_frequency_accuracy,
-      { "frequency-accuracy", "lppe.frequency-accuracy",
+      { "frequency-accuracy", "lppe.T.eNBrequestedAD.frequency.accuracy",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_eNBrequestedAD_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.eNBrequestedAD.non.serving",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_heNBrequestedAD_bslist,
-      { "bslist", "lppe.bslist",
+      { "bslist", "lppe.T.heNBrequestedAD.bslist",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_heNBrequestedAD_bslocation,
-      { "bslocation", "lppe.bslocation",
+      { "bslocation", "lppe.T.heNBrequestedAD.bslocation",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_heNBrequestedAD_locationreliability,
-      { "locationreliability", "lppe.locationreliability",
+      { "locationreliability", "lppe.T.heNBrequestedAD.locationreliability",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_heNBrequestedAD_transmit_power,
-      { "transmit-power", "lppe.transmit-power",
+      { "transmit-power", "lppe.T.heNBrequestedAD.transmit.power",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_heNBrequestedAD_antennaPortConfig,
-      { "antennaPortConfig", "lppe.antennaPortConfig",
+      { "antennaPortConfig", "lppe.T.heNBrequestedAD.antennaPortConfig",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_heNBrequestedAD_frequency_accuracy,
-      { "frequency-accuracy", "lppe.frequency-accuracy",
+      { "frequency-accuracy", "lppe.T.heNBrequestedAD.frequency.accuracy",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_heNBrequestedAD_coveragearea,
-      { "coveragearea", "lppe.coveragearea",
+      { "coveragearea", "lppe.T.heNBrequestedAD.coveragearea",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_heNBrequestedAD_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.heNBrequestedAD.non.serving",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_rsrp,
-      { "rsrp", "lppe.rsrp",
+      { "rsrp", "lppe.T.requestedMeasurements.rsrp",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_rsrq,
-      { "rsrq", "lppe.rsrq",
+      { "rsrq", "lppe.T.requestedMeasurements.rsrq",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_ueRxTx,
-      { "ueRxTx", "lppe.ueRxTx",
+      { "ueRxTx", "lppe.T.requestedMeasurements.ueRxTx",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.requestedMeasurements.non.serving",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_historic,
-      { "historic", "lppe.historic",
+      { "historic", "lppe.T.requestedMeasurements.historic",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_lte_MeasSupported_rsrp,
-      { "rsrp", "lppe.rsrp",
+      { "rsrp", "lppe.T.ecid.lte.MeasSupported.rsrp",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_lte_MeasSupported_rsrq,
-      { "rsrq", "lppe.rsrq",
+      { "rsrq", "lppe.T.ecid.lte.MeasSupported.rsrq",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_lte_MeasSupported_ueRxTx,
-      { "ueRxTx", "lppe.ueRxTx",
+      { "ueRxTx", "lppe.T.ecid.lte.MeasSupported.ueRxTx",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_lte_MeasSupported_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.ecid.lte.MeasSupported.non.serving",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_lte_MeasSupported_historic,
-      { "historic", "lppe.historic",
+      { "historic", "lppe.T.ecid.lte.MeasSupported.historic",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_lte_eNodeB_ADSupported_bslist,
-      { "bslist", "lppe.bslist",
+      { "bslist", "lppe.T.ecid.lte.eNodeB.ADSupported.bslist",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_lte_eNodeB_ADSupported_bslocation,
-      { "bslocation", "lppe.bslocation",
+      { "bslocation", "lppe.T.ecid.lte.eNodeB.ADSupported.bslocation",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_lte_eNodeB_ADSupported_transmit_power,
-      { "transmit-power", "lppe.transmit-power",
+      { "transmit-power", "lppe.T.ecid.lte.eNodeB.ADSupported.transmit.power",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_lte_eNodeB_ADSupported_antennaPortConfig,
-      { "antennaPortConfig", "lppe.antennaPortConfig",
+      { "antennaPortConfig", "lppe.T.ecid.lte.eNodeB.ADSupported.antennaPortConfig",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_lte_eNodeB_ADSupported_antenna_gain,
-      { "antenna-gain", "lppe.antenna-gain",
+      { "antenna-gain", "lppe.T.ecid.lte.eNodeB.ADSupported.antenna.gain",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_lte_eNodeB_ADSupported_beam_width,
-      { "beam-width", "lppe.beam-width",
+      { "beam-width", "lppe.T.ecid.lte.eNodeB.ADSupported.beam.width",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_lte_eNodeB_ADSupported_transmit_direction,
-      { "transmit-direction", "lppe.transmit-direction",
+      { "transmit-direction", "lppe.T.ecid.lte.eNodeB.ADSupported.transmit.direction",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_lte_eNodeB_ADSupported_frequency_accuracy,
-      { "frequency-accuracy", "lppe.frequency-accuracy",
+      { "frequency-accuracy", "lppe.T.ecid.lte.eNodeB.ADSupported.frequency.accuracy",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_lte_eNodeB_ADSupported_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.ecid.lte.eNodeB.ADSupported.non.serving",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_HeNB_ADSupported_bslist,
-      { "bslist", "lppe.bslist",
+      { "bslist", "lppe.T.ecid.utra.HeNB.ADSupported.bslist",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_HeNB_ADSupported_bslocation,
-      { "bslocation", "lppe.bslocation",
+      { "bslocation", "lppe.T.ecid.utra.HeNB.ADSupported.bslocation",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_HeNB_ADSupported_locationreliability,
-      { "locationreliability", "lppe.locationreliability",
+      { "locationreliability", "lppe.T.ecid.utra.HeNB.ADSupported.locationreliability",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_HeNB_ADSupported_transmit_power,
-      { "transmit-power", "lppe.transmit-power",
+      { "transmit-power", "lppe.T.ecid.utra.HeNB.ADSupported.transmit.power",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_HeNB_ADSupported_antennaPortConfig,
-      { "antennaPortConfig", "lppe.antennaPortConfig",
+      { "antennaPortConfig", "lppe.T.ecid.utra.HeNB.ADSupported.antennaPortConfig",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_HeNB_ADSupported_frequency_accuracy,
-      { "frequency-accuracy", "lppe.frequency-accuracy",
+      { "frequency-accuracy", "lppe.T.ecid.utra.HeNB.ADSupported.frequency.accuracy",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_HeNB_ADSupported_coveragearea,
-      { "coveragearea", "lppe.coveragearea",
+      { "coveragearea", "lppe.T.ecid.utra.HeNB.ADSupported.coveragearea",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_HeNB_ADSupported_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.ecid.utra.HeNB.ADSupported.non.serving",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_requestedAD_bslist,
-      { "bslist", "lppe.bslist",
+      { "bslist", "lppe.T.requestedAD.bslist",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_requestedAD_bslocation,
-      { "bslocation", "lppe.bslocation",
+      { "bslocation", "lppe.T.requestedAD.bslocation",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_requestedAD_transmit_power,
-      { "transmit-power", "lppe.transmit-power",
+      { "transmit-power", "lppe.T.requestedAD.transmit.power",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_requestedAD_antenna_gain,
-      { "antenna-gain", "lppe.antenna-gain",
+      { "antenna-gain", "lppe.T.requestedAD.antenna.gain",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_requestedAD_beam_width,
-      { "beam-width", "lppe.beam-width",
+      { "beam-width", "lppe.T.requestedAD.beam.width",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_requestedAD_transmit_direction,
-      { "transmit-direction", "lppe.transmit-direction",
+      { "transmit-direction", "lppe.T.requestedAD.transmit.direction",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_requestedAD_frequency_accuracy,
-      { "frequency-accuracy", "lppe.frequency-accuracy",
+      { "frequency-accuracy", "lppe.T.requestedAD.frequency.accuracy",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_requestedAD_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.requestedAD.non.serving",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_01_rxLevel,
-      { "rxLevel", "lppe.rxLevel",
+      { "rxLevel", "lppe.T.requestedMeasurements.01.rxLevel",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_01_tA,
-      { "tA", "lppe.tA",
+      { "tA", "lppe.T.requestedMeasurements.01.tA",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_01_nMR_GERAN,
-      { "nMR-GERAN", "lppe.nMR-GERAN",
+      { "nMR-GERAN", "lppe.T.requestedMeasurements.01.nMR.GERAN",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_01_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.requestedMeasurements.01.non.serving",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_01_historic,
-      { "historic", "lppe.historic",
+      { "historic", "lppe.T.requestedMeasurements.01.historic",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_gsm_MeasSupported_rxLevel,
-      { "rxLevel", "lppe.rxLevel",
+      { "rxLevel", "lppe.T.ecid.gsm.MeasSupported.rxLevel",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_gsm_MeasSupported_tA,
-      { "tA", "lppe.tA",
+      { "tA", "lppe.T.ecid.gsm.MeasSupported.tA",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_gsm_MeasSupported_nMR_GERAN,
-      { "nMR-GERAN", "lppe.nMR-GERAN",
+      { "nMR-GERAN", "lppe.T.ecid.gsm.MeasSupported.nMR.GERAN",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_gsm_MeasSupported_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.ecid.gsm.MeasSupported.non.serving",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_gsm_MeasSupported_historic,
-      { "historic", "lppe.historic",
+      { "historic", "lppe.T.ecid.gsm.MeasSupported.historic",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_gsm_ADSupported_bslist,
-      { "bslist", "lppe.bslist",
+      { "bslist", "lppe.T.ecid.gsm.ADSupported.bslist",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_gsm_ADSupported_bslocation,
-      { "bslocation", "lppe.bslocation",
+      { "bslocation", "lppe.T.ecid.gsm.ADSupported.bslocation",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_gsm_ADSupported_transmit_power,
-      { "transmit-power", "lppe.transmit-power",
+      { "transmit-power", "lppe.T.ecid.gsm.ADSupported.transmit.power",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_gsm_ADSupported_antenna_gain,
-      { "antenna-gain", "lppe.antenna-gain",
+      { "antenna-gain", "lppe.T.ecid.gsm.ADSupported.antenna.gain",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_gsm_ADSupported_beam_width,
-      { "beam-width", "lppe.beam-width",
+      { "beam-width", "lppe.T.ecid.gsm.ADSupported.beam.width",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_gsm_ADSupported_transmit_direction,
-      { "transmit-direction", "lppe.transmit-direction",
+      { "transmit-direction", "lppe.T.ecid.gsm.ADSupported.transmit.direction",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_gsm_ADSupported_frequency_accuracy,
-      { "frequency-accuracy", "lppe.frequency-accuracy",
+      { "frequency-accuracy", "lppe.T.ecid.gsm.ADSupported.frequency.accuracy",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_gsm_ADSupported_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.ecid.gsm.ADSupported.non.serving",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_nBrequestedAD_bslist,
-      { "bslist", "lppe.bslist",
+      { "bslist", "lppe.T.nBrequestedAD.bslist",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_nBrequestedAD_bslocation,
-      { "bslocation", "lppe.bslocation",
+      { "bslocation", "lppe.T.nBrequestedAD.bslocation",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_nBrequestedAD_transmit_power,
-      { "transmit-power", "lppe.transmit-power",
+      { "transmit-power", "lppe.T.nBrequestedAD.transmit.power",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_nBrequestedAD_antenna_gain,
-      { "antenna-gain", "lppe.antenna-gain",
+      { "antenna-gain", "lppe.T.nBrequestedAD.antenna.gain",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_nBrequestedAD_beam_width,
-      { "beam-width", "lppe.beam-width",
+      { "beam-width", "lppe.T.nBrequestedAD.beam.width",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_nBrequestedAD_transmit_direction,
-      { "transmit-direction", "lppe.transmit-direction",
+      { "transmit-direction", "lppe.T.nBrequestedAD.transmit.direction",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_nBrequestedAD_frequency_accuracy,
-      { "frequency-accuracy", "lppe.frequency-accuracy",
+      { "frequency-accuracy", "lppe.T.nBrequestedAD.frequency.accuracy",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_nBrequestedAD_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.nBrequestedAD.non.serving",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_hNBrequestedAD_bslist,
-      { "bslist", "lppe.bslist",
+      { "bslist", "lppe.T.hNBrequestedAD.bslist",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_hNBrequestedAD_bslocation,
-      { "bslocation", "lppe.bslocation",
+      { "bslocation", "lppe.T.hNBrequestedAD.bslocation",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_hNBrequestedAD_locationreliability,
-      { "locationreliability", "lppe.locationreliability",
+      { "locationreliability", "lppe.T.hNBrequestedAD.locationreliability",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_hNBrequestedAD_transmit_power,
-      { "transmit-power", "lppe.transmit-power",
+      { "transmit-power", "lppe.T.hNBrequestedAD.transmit.power",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_hNBrequestedAD_frequency_accuracy,
-      { "frequency-accuracy", "lppe.frequency-accuracy",
+      { "frequency-accuracy", "lppe.T.hNBrequestedAD.frequency.accuracy",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_hNBrequestedAD_coveragearea,
-      { "coveragearea", "lppe.coveragearea",
+      { "coveragearea", "lppe.T.hNBrequestedAD.coveragearea",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_hNBrequestedAD_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.hNBrequestedAD.non.serving",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_02_measuredResultsList,
-      { "measuredResultsList", "lppe.measuredResultsList",
+      { "measuredResultsList", "lppe.T.requestedMeasurements.02.measuredResultsList",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_02_tdd_timingAdvance,
-      { "tdd-timingAdvance", "lppe.tdd-timingAdvance",
+      { "tdd-timingAdvance", "lppe.T.requestedMeasurements.02.tdd.timingAdvance",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_02_mRL_utra_CarrierRSSI,
-      { "mRL-utra-CarrierRSSI", "lppe.mRL-utra-CarrierRSSI",
+      { "mRL-utra-CarrierRSSI", "lppe.T.requestedMeasurements.02.mRL.utra.CarrierRSSI",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_02_mRL_FDD_cpich_Ec_N0,
-      { "mRL-FDD-cpich-Ec-N0", "lppe.mRL-FDD-cpich-Ec-N0",
+      { "mRL-FDD-cpich-Ec-N0", "lppe.T.requestedMeasurements.02.mRL.FDD.cpich.Ec.N0",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_02_mRL_FDD_cpich_RSCP,
-      { "mRL-FDD-cpich-RSCP", "lppe.mRL-FDD-cpich-RSCP",
+      { "mRL-FDD-cpich-RSCP", "lppe.T.requestedMeasurements.02.mRL.FDD.cpich.RSCP",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_02_mRL_FDD_pathloss,
-      { "mRL-FDD-pathloss", "lppe.mRL-FDD-pathloss",
+      { "mRL-FDD-pathloss", "lppe.T.requestedMeasurements.02.mRL.FDD.pathloss",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_02_mRL_TDD_primaryCCPCH_RSCP,
-      { "mRL-TDD-primaryCCPCH-RSCP", "lppe.mRL-TDD-primaryCCPCH-RSCP",
+      { "mRL-TDD-primaryCCPCH-RSCP", "lppe.T.requestedMeasurements.02.mRL.TDD.primaryCCPCH.RSCP",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_02_mRL_TDD_pathloss,
-      { "mRL-TDD-pathloss", "lppe.mRL-TDD-pathloss",
+      { "mRL-TDD-pathloss", "lppe.T.requestedMeasurements.02.mRL.TDD.pathloss",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_02_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.requestedMeasurements.02.non.serving",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_02_historic,
-      { "historic", "lppe.historic",
+      { "historic", "lppe.T.requestedMeasurements.02.historic",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_MeasSupported_measuredResultsList,
-      { "measuredResultsList", "lppe.measuredResultsList",
+      { "measuredResultsList", "lppe.T.ecid.utra.MeasSupported.measuredResultsList",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_MeasSupported_tdd_timingAdvance,
-      { "tdd-timingAdvance", "lppe.tdd-timingAdvance",
+      { "tdd-timingAdvance", "lppe.T.ecid.utra.MeasSupported.tdd.timingAdvance",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_MeasSupported_mRL_utra_CarrierRSSI,
-      { "mRL-utra-CarrierRSSI", "lppe.mRL-utra-CarrierRSSI",
+      { "mRL-utra-CarrierRSSI", "lppe.T.ecid.utra.MeasSupported.mRL.utra.CarrierRSSI",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_MeasSupported_mRL_FDD_cpich_Ec_N0,
-      { "mRL-FDD-cpich-Ec-N0", "lppe.mRL-FDD-cpich-Ec-N0",
+      { "mRL-FDD-cpich-Ec-N0", "lppe.T.ecid.utra.MeasSupported.mRL.FDD.cpich.Ec.N0",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_MeasSupported_mRL_FDD_cpich_RSCP,
-      { "mRL-FDD-cpich-RSCP", "lppe.mRL-FDD-cpich-RSCP",
+      { "mRL-FDD-cpich-RSCP", "lppe.T.ecid.utra.MeasSupported.mRL.FDD.cpich.RSCP",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_MeasSupported_mRL_FDD_pathloss,
-      { "mRL-FDD-pathloss", "lppe.mRL-FDD-pathloss",
+      { "mRL-FDD-pathloss", "lppe.T.ecid.utra.MeasSupported.mRL.FDD.pathloss",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_MeasSupported_mRL_TDD_primaryCCPCH_RSCP,
-      { "mRL-TDD-primaryCCPCH-RSCP", "lppe.mRL-TDD-primaryCCPCH-RSCP",
+      { "mRL-TDD-primaryCCPCH-RSCP", "lppe.T.ecid.utra.MeasSupported.mRL.TDD.primaryCCPCH.RSCP",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_MeasSupported_mRL_TDD_pathloss,
-      { "mRL-TDD-pathloss", "lppe.mRL-TDD-pathloss",
+      { "mRL-TDD-pathloss", "lppe.T.ecid.utra.MeasSupported.mRL.TDD.pathloss",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_MeasSupported_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.ecid.utra.MeasSupported.non.serving",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_MeasSupported_historic,
-      { "historic", "lppe.historic",
+      { "historic", "lppe.T.ecid.utra.MeasSupported.historic",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_nodeB_ADSupported_bslist,
-      { "bslist", "lppe.bslist",
+      { "bslist", "lppe.T.ecid.utra.nodeB.ADSupported.bslist",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_nodeB_ADSupported_bslocation,
-      { "bslocation", "lppe.bslocation",
+      { "bslocation", "lppe.T.ecid.utra.nodeB.ADSupported.bslocation",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_nodeB_ADSupported_transmit_power,
-      { "transmit-power", "lppe.transmit-power",
+      { "transmit-power", "lppe.T.ecid.utra.nodeB.ADSupported.transmit.power",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_nodeB_ADSupported_antenna_gain,
-      { "antenna-gain", "lppe.antenna-gain",
+      { "antenna-gain", "lppe.T.ecid.utra.nodeB.ADSupported.antenna.gain",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_nodeB_ADSupported_beam_width,
-      { "beam-width", "lppe.beam-width",
+      { "beam-width", "lppe.T.ecid.utra.nodeB.ADSupported.beam.width",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_nodeB_ADSupported_transmit_direction,
-      { "transmit-direction", "lppe.transmit-direction",
+      { "transmit-direction", "lppe.T.ecid.utra.nodeB.ADSupported.transmit.direction",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_nodeB_ADSupported_frequency_accuracy,
-      { "frequency-accuracy", "lppe.frequency-accuracy",
+      { "frequency-accuracy", "lppe.T.ecid.utra.nodeB.ADSupported.frequency.accuracy",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_nodeB_ADSupported_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.ecid.utra.nodeB.ADSupported.non.serving",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_HNB_ADSupported_bslist,
-      { "bslist", "lppe.bslist",
+      { "bslist", "lppe.T.ecid.utra.HNB.ADSupported.bslist",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_HNB_ADSupported_bslocation,
-      { "bslocation", "lppe.bslocation",
+      { "bslocation", "lppe.T.ecid.utra.HNB.ADSupported.bslocation",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_HNB_ADSupported_locationreliability,
-      { "locationreliability", "lppe.locationreliability",
+      { "locationreliability", "lppe.T.ecid.utra.HNB.ADSupported.locationreliability",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_HNB_ADSupported_transmit_power,
-      { "transmit-power", "lppe.transmit-power",
+      { "transmit-power", "lppe.T.ecid.utra.HNB.ADSupported.transmit.power",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_HNB_ADSupported_frequency_accuracy,
-      { "frequency-accuracy", "lppe.frequency-accuracy",
+      { "frequency-accuracy", "lppe.T.ecid.utra.HNB.ADSupported.frequency.accuracy",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_HNB_ADSupported_coveragearea,
-      { "coveragearea", "lppe.coveragearea",
+      { "coveragearea", "lppe.T.ecid.utra.HNB.ADSupported.coveragearea",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_utra_HNB_ADSupported_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.ecid.utra.HNB.ADSupported.non.serving",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_requestedAD_01_aplist,
-      { "aplist", "lppe.aplist",
+      { "aplist", "lppe.T.requestedAD.01.aplist",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_requestedAD_01_aplocation,
-      { "aplocation", "lppe.aplocation",
+      { "aplocation", "lppe.T.requestedAD.01.aplocation",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_requestedAD_01_locationreliability,
-      { "locationreliability", "lppe.locationreliability",
+      { "locationreliability", "lppe.T.requestedAD.01.locationreliability",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_requestedAD_01_transmit_power,
-      { "transmit-power", "lppe.transmit-power",
+      { "transmit-power", "lppe.T.requestedAD.01.transmit.power",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_requestedAD_01_antenna_gain,
-      { "antenna-gain", "lppe.antenna-gain",
+      { "antenna-gain", "lppe.T.requestedAD.01.antenna.gain",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_requestedAD_01_coveragearea,
-      { "coveragearea", "lppe.coveragearea",
+      { "coveragearea", "lppe.T.requestedAD.01.coveragearea",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_requestedAD_01_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.requestedAD.01.non.serving",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_apSSID,
-      { "apSSID", "lppe.apSSID",
+      { "apSSID", "lppe.T.requestedMeasurements.03.apSSID",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_apSN,
-      { "apSN", "lppe.apSN",
+      { "apSN", "lppe.T.requestedMeasurements.03.apSN",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_apDevType,
-      { "apDevType", "lppe.apDevType",
+      { "apDevType", "lppe.T.requestedMeasurements.03.apDevType",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_apPhyType,
-      { "apPhyType", "lppe.apPhyType",
+      { "apPhyType", "lppe.T.requestedMeasurements.03.apPhyType",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_apRSSI,
-      { "apRSSI", "lppe.apRSSI",
+      { "apRSSI", "lppe.T.requestedMeasurements.03.apRSSI",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_apChanFreq,
-      { "apChanFreq", "lppe.apChanFreq",
+      { "apChanFreq", "lppe.T.requestedMeasurements.03.apChanFreq",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_apRTD,
-      { "apRTD", "lppe.apRTD",
+      { "apRTD", "lppe.T.requestedMeasurements.03.apRTD",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_ueTP,
-      { "ueTP", "lppe.ueTP",
+      { "ueTP", "lppe.T.requestedMeasurements.03.ueTP",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_ueAG,
-      { "ueAG", "lppe.ueAG",
+      { "ueAG", "lppe.T.requestedMeasurements.03.ueAG",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_apRepLoc,
-      { "apRepLoc", "lppe.apRepLoc",
+      { "apRepLoc", "lppe.T.requestedMeasurements.03.apRepLoc",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.requestedMeasurements.03.non.serving",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_historic,
-      { "historic", "lppe.historic",
+      { "historic", "lppe.T.requestedMeasurements.03.historic",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_apTP,
-      { "apTP", "lppe.apTP",
+      { "apTP", "lppe.T.requestedMeasurements.03.apTP",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_apAG,
-      { "apAG", "lppe.apAG",
+      { "apAG", "lppe.T.requestedMeasurements.03.apAG",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_ueSN,
-      { "ueSN", "lppe.ueSN",
+      { "ueSN", "lppe.T.requestedMeasurements.03.ueSN",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_03_ueRSSI,
-      { "ueRSSI", "lppe.ueRSSI",
+      { "ueRSSI", "lppe.T.requestedMeasurements.03.ueRSSI",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_additionalRequestedMeasurements_oc,
-      { "oc", "lppe.oc",
+      { "oc", "lppe.T.additionalRequestedMeasurements.oc",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_additionalRequestedMeasurements_ueMacAddr,
-      { "ueMacAddr", "lppe.ueMacAddr",
+      { "ueMacAddr", "lppe.T.additionalRequestedMeasurements.ueMacAddr",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_apSSID,
-      { "apSSID", "lppe.apSSID",
+      { "apSSID", "lppe.T.wlan.ecid.MeasSupported.apSSID",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_apSN,
-      { "apSN", "lppe.apSN",
+      { "apSN", "lppe.T.wlan.ecid.MeasSupported.apSN",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_apDevType,
-      { "apDevType", "lppe.apDevType",
+      { "apDevType", "lppe.T.wlan.ecid.MeasSupported.apDevType",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_apPhyType,
-      { "apPhyType", "lppe.apPhyType",
+      { "apPhyType", "lppe.T.wlan.ecid.MeasSupported.apPhyType",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_apRSSI,
-      { "apRSSI", "lppe.apRSSI",
+      { "apRSSI", "lppe.T.wlan.ecid.MeasSupported.apRSSI",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_apChanFreq,
-      { "apChanFreq", "lppe.apChanFreq",
+      { "apChanFreq", "lppe.T.wlan.ecid.MeasSupported.apChanFreq",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_apRTD,
-      { "apRTD", "lppe.apRTD",
+      { "apRTD", "lppe.T.wlan.ecid.MeasSupported.apRTD",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_ueTP,
-      { "ueTP", "lppe.ueTP",
+      { "ueTP", "lppe.T.wlan.ecid.MeasSupported.ueTP",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_ueAG,
-      { "ueAG", "lppe.ueAG",
+      { "ueAG", "lppe.T.wlan.ecid.MeasSupported.ueAG",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_apRepLoc,
-      { "apRepLoc", "lppe.apRepLoc",
+      { "apRepLoc", "lppe.T.wlan.ecid.MeasSupported.apRepLoc",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.wlan.ecid.MeasSupported.non.serving",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_historic,
-      { "historic", "lppe.historic",
+      { "historic", "lppe.T.wlan.ecid.MeasSupported.historic",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_apTP,
-      { "apTP", "lppe.apTP",
+      { "apTP", "lppe.T.wlan.ecid.MeasSupported.apTP",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_apAG,
-      { "apAG", "lppe.apAG",
+      { "apAG", "lppe.T.wlan.ecid.MeasSupported.apAG",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_ueSN,
-      { "ueSN", "lppe.ueSN",
+      { "ueSN", "lppe.T.wlan.ecid.MeasSupported.ueSN",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ecid_MeasSupported_ueRSSI,
-      { "ueRSSI", "lppe.ueRSSI",
+      { "ueRSSI", "lppe.T.wlan.ecid.MeasSupported.ueRSSI",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ap_ADSupported_aplist,
-      { "aplist", "lppe.aplist",
+      { "aplist", "lppe.T.wlan.ap.ADSupported.aplist",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ap_ADSupported_aplocation,
-      { "aplocation", "lppe.aplocation",
+      { "aplocation", "lppe.T.wlan.ap.ADSupported.aplocation",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ap_ADSupported_locationreliability,
-      { "locationreliability", "lppe.locationreliability",
+      { "locationreliability", "lppe.T.wlan.ap.ADSupported.locationreliability",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ap_ADSupported_transmit_power,
-      { "transmit-power", "lppe.transmit-power",
+      { "transmit-power", "lppe.T.wlan.ap.ADSupported.transmit.power",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ap_ADSupported_antenna_gain,
-      { "antenna-gain", "lppe.antenna-gain",
+      { "antenna-gain", "lppe.T.wlan.ap.ADSupported.antenna.gain",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ap_ADSupported_coveragearea,
-      { "coveragearea", "lppe.coveragearea",
+      { "coveragearea", "lppe.T.wlan.ap.ADSupported.coveragearea",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_wlan_ap_ADSupported_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.wlan.ap.ADSupported.non.serving",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_additional_wlan_ecid_MeasSupported_oc,
-      { "oc", "lppe.oc",
+      { "oc", "lppe.T.additional.wlan.ecid.MeasSupported.oc",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_additional_wlan_ecid_MeasSupported_ueMacAddr,
-      { "ueMacAddr", "lppe.ueMacAddr",
+      { "ueMacAddr", "lppe.T.additional.wlan.ecid.MeasSupported.ueMacAddr",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_04_rTD,
-      { "rTD", "lppe.rTD",
+      { "rTD", "lppe.T.requestedMeasurements.04.rTD",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_04_rTDstd,
-      { "rTDstd", "lppe.rTDstd",
+      { "rTDstd", "lppe.T.requestedMeasurements.04.rTDstd",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_04_nMR,
-      { "nMR", "lppe.nMR",
+      { "nMR", "lppe.T.requestedMeasurements.04.nMR",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_04_nMRrelDelay,
-      { "nMRrelDelay", "lppe.nMRrelDelay",
+      { "nMRrelDelay", "lppe.T.requestedMeasurements.04.nMRrelDelay",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_04_nMRrelDelaystd,
-      { "nMRrelDelaystd", "lppe.nMRrelDelaystd",
+      { "nMRrelDelaystd", "lppe.T.requestedMeasurements.04.nMRrelDelaystd",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_04_nMRrSSI,
-      { "nMRrSSI", "lppe.nMRrSSI",
+      { "nMRrSSI", "lppe.T.requestedMeasurements.04.nMRrSSI",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_04_nMRrSSIstd,
-      { "nMRrSSIstd", "lppe.nMRrSSIstd",
+      { "nMRrSSIstd", "lppe.T.requestedMeasurements.04.nMRrSSIstd",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_04_nMRbSTxPower,
-      { "nMRbSTxPower", "lppe.nMRbSTxPower",
+      { "nMRbSTxPower", "lppe.T.requestedMeasurements.04.nMRbSTxPower",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_04_nMRcINR,
-      { "nMRcINR", "lppe.nMRcINR",
+      { "nMRcINR", "lppe.T.requestedMeasurements.04.nMRcINR",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_04_nMRcINRstd,
-      { "nMRcINRstd", "lppe.nMRcINRstd",
+      { "nMRcINRstd", "lppe.T.requestedMeasurements.04.nMRcINRstd",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_04_nMRbSLocation,
-      { "nMRbSLocation", "lppe.nMRbSLocation",
+      { "nMRbSLocation", "lppe.T.requestedMeasurements.04.nMRbSLocation",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_04_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.requestedMeasurements.04.non.serving",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_requestedMeasurements_04_historic,
-      { "historic", "lppe.historic",
+      { "historic", "lppe.T.requestedMeasurements.04.historic",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_wimax_MeasSupported_rTD,
-      { "rTD", "lppe.rTD",
+      { "rTD", "lppe.T.ecid.wimax.MeasSupported.rTD",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_wimax_MeasSupported_rTDstd,
-      { "rTDstd", "lppe.rTDstd",
+      { "rTDstd", "lppe.T.ecid.wimax.MeasSupported.rTDstd",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_wimax_MeasSupported_nMR,
-      { "nMR", "lppe.nMR",
+      { "nMR", "lppe.T.ecid.wimax.MeasSupported.nMR",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_wimax_MeasSupported_nMRrelDelay,
-      { "nMRrelDelay", "lppe.nMRrelDelay",
+      { "nMRrelDelay", "lppe.T.ecid.wimax.MeasSupported.nMRrelDelay",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_wimax_MeasSupported_nMRrelDelaystd,
-      { "nMRrelDelaystd", "lppe.nMRrelDelaystd",
+      { "nMRrelDelaystd", "lppe.T.ecid.wimax.MeasSupported.nMRrelDelaystd",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_wimax_MeasSupported_nMRrSSI,
-      { "nMRrSSI", "lppe.nMRrSSI",
+      { "nMRrSSI", "lppe.T.ecid.wimax.MeasSupported.nMRrSSI",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_wimax_MeasSupported_nMRrSSIstd,
-      { "nMRrSSIstd", "lppe.nMRrSSIstd",
+      { "nMRrSSIstd", "lppe.T.ecid.wimax.MeasSupported.nMRrSSIstd",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_wimax_MeasSupported_nMRbSTxPower,
-      { "nMRbSTxPower", "lppe.nMRbSTxPower",
+      { "nMRbSTxPower", "lppe.T.ecid.wimax.MeasSupported.nMRbSTxPower",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_wimax_MeasSupported_nMRcINR,
-      { "nMRcINR", "lppe.nMRcINR",
+      { "nMRcINR", "lppe.T.ecid.wimax.MeasSupported.nMRcINR",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_wimax_MeasSupported_nMRcINRstd,
-      { "nMRcINRstd", "lppe.nMRcINRstd",
+      { "nMRcINRstd", "lppe.T.ecid.wimax.MeasSupported.nMRcINRstd",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_wimax_MeasSupported_nMRbSLocation,
-      { "nMRbSLocation", "lppe.nMRbSLocation",
+      { "nMRbSLocation", "lppe.T.ecid.wimax.MeasSupported.nMRbSLocation",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_wimax_MeasSupported_non_serving,
-      { "non-serving", "lppe.non-serving",
+      { "non-serving", "lppe.T.ecid.wimax.MeasSupported.non.serving",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_ecid_wimax_MeasSupported_historic,
-      { "historic", "lppe.historic",
+      { "historic", "lppe.T.ecid.wimax.MeasSupported.historic",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_secondaryMotionState_stationary,
-      { "stationary", "lppe.stationary",
+      { "stationary", "lppe.T.secondaryMotionState.stationary",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_secondaryMotionState_pedestrian,
-      { "pedestrian", "lppe.pedestrian",
+      { "pedestrian", "lppe.T.secondaryMotionState.pedestrian",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_secondaryMotionState_running,
-      { "running", "lppe.running",
+      { "running", "lppe.T.secondaryMotionState.running",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_lppe_T_secondaryMotionState_cycling,
-      { "cycling", "lppe.cycling",
+      { "cycling", "lppe.T.secondaryMotionState.cycling",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_lppe_T_secondaryMotionState_car,
-      { "car", "lppe.car",
+      { "car", "lppe.T.secondaryMotionState.car",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_lppe_T_secondaryMotionState_train,
-      { "train", "lppe.train",
+      { "train", "lppe.T.secondaryMotionState.train",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_lppe_T_secondaryMotionState_aeroplane,
-      { "aeroplane", "lppe.aeroplane",
+      { "aeroplane", "lppe.T.secondaryMotionState.aeroplane",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_lppe_T_secondaryMotionState_boat,
-      { "boat", "lppe.boat",
+      { "boat", "lppe.T.secondaryMotionState.boat",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lppe_T_secondaryMotionState_fidgeting,
-      { "fidgeting", "lppe.fidgeting",
+      { "fidgeting", "lppe.T.secondaryMotionState.fidgeting",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_supportedAssistanceData_srnGroup,
-      { "srnGroup", "lppe.srnGroup",
+      { "srnGroup", "lppe.T.supportedAssistanceData.srnGroup",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_supportedAssistanceData_antennaPattern,
-      { "antennaPattern", "lppe.antennaPattern",
+      { "antennaPattern", "lppe.T.supportedAssistanceData.antennaPattern",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lppe_T_srnMeasurements_rssi,
-      { "rssi", "lppe.rssi",
+      { "rssi", "lppe.T.srnMeasurements.rssi",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_lppe_T_srnMeasurements_rtd,
-      { "rtd", "lppe.rtd",
+      { "rtd", "lppe.T.srnMeasurements.rtd",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
 

@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "lte_rlc_statistics_dialog.h"
 
@@ -673,11 +674,11 @@ LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf,
     launchULGraph_ = new QPushButton(QString("Launch UL Graph"));
     launchULGraph_->setEnabled(false);
     filter_controls_grid->addWidget(launchULGraph_);
-    connect(launchULGraph_, SIGNAL(pressed()), this, SLOT(launchULGraphButtonClicked()));
+    connect(launchULGraph_, SIGNAL(clicked()), this, SLOT(launchULGraphButtonClicked()));
     launchDLGraph_ = new QPushButton(QString("Launch DL Graph"));
     launchDLGraph_->setEnabled(false);
     filter_controls_grid->addWidget(launchDLGraph_);
-    connect(launchDLGraph_, SIGNAL(pressed()), this, SLOT(launchDLGraphButtonClicked()));
+    connect(launchDLGraph_, SIGNAL(clicked()), this, SLOT(launchDLGraphButtonClicked()));
 
     showSRFilterCheckBox_ = new QCheckBox(tr("Include SR frames in filter"));
     filter_controls_grid->addWidget(showSRFilterCheckBox_);
@@ -770,14 +771,14 @@ void LteRlcStatisticsDialog::tapReset(void *ws_dlg_ptr)
 }
 
 // Process the tap info from a dissected RLC PDU.
-// Returns TRUE if a redraw is needed.
-gboolean LteRlcStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info *, epan_dissect *, const void *rlc_lte_tap_info_ptr)
+// Returns TAP_PACKET_REDRAW if a redraw is needed, TAP_PACKET_DONT_REDRAW otherwise.
+tap_packet_status LteRlcStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info *, epan_dissect *, const void *rlc_lte_tap_info_ptr)
 {
     // Look up dialog.
     LteRlcStatisticsDialog *ws_dlg = static_cast<LteRlcStatisticsDialog *>(ws_dlg_ptr);
     const rlc_lte_tap_info *rlt_info  = (const rlc_lte_tap_info *) rlc_lte_tap_info_ptr;
     if (!ws_dlg || !rlt_info) {
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     ws_dlg->incFrameCount();
@@ -806,7 +807,7 @@ gboolean LteRlcStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info
     // Update the UE from the information in the tap structure.
     ue_ti->update(rlt_info);
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 void LteRlcStatisticsDialog::tapDraw(void *ws_dlg_ptr)

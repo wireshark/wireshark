@@ -7,7 +7,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __UI_UTIL_H__
 #define __UI_UTIL_H__
@@ -33,15 +34,12 @@ typedef struct window_geometry_s {
     gboolean    set_size;       /**< set the width and height values */
     gint        width;          /**< the windows width */
     gint        height;         /**< the windows height */
-
-    gboolean    set_maximized;  /**< set the maximized state (GTK2 only) */
-    gboolean    maximized;      /**< the windows maximized state (GTK2 only) */
+    gboolean    set_maximized;  /**< set the maximized state */
+    gboolean    maximized;      /**< the windows maximized state */
 } window_geometry_t;
 
 /* update the main window */
 extern void main_window_update(void);
-/* quit a nested main window. GTK+ only. */
-extern void main_window_nested_quit(void);
 /* quit the main window */
 extern void main_window_quit(void);
 
@@ -64,11 +62,10 @@ void packet_list_prev(void);
 guint packet_list_append(column_info *cinfo, frame_data *fdata);
 frame_data *packet_list_get_row_data(gint row);
 void packet_list_set_selected_row(gint row);
-void packet_list_enable_color(gboolean enable);
+void packet_list_recolor_packets(void);
 void packet_list_queue_draw(void);
 void packet_list_select_first_row(void);
 void packet_list_moveto_end(void);
-gboolean packet_list_check_end(void); /* GTK+ only */
 gboolean packet_list_select_row_from_data(frame_data *fdata_needle);
 void packet_list_resize_column(gint col);
 

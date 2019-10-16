@@ -18,7 +18,6 @@
 
 #include "mate.h"
 #include <epan/expert.h>
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 void proto_register_mate(void);
 void proto_reg_handoff_mate(void);
@@ -387,7 +386,7 @@ proto_register_mate(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

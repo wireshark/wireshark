@@ -370,7 +370,7 @@ dissect_acse_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_acse_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -428,15 +428,15 @@ dissect_acse_EXTERNALt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const asn_namedbit T_AARQ_protocol_version_bits[] = {
-  {  0, &hf_acse_T_AARQ_protocol_version_version1, -1, -1, "version1", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_AARQ_protocol_version_bits[] = {
+  &hf_acse_T_AARQ_protocol_version_version1,
+  NULL
 };
 
 static int
 dissect_acse_T_AARQ_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_AARQ_protocol_version_bits, hf_index, ett_acse_T_AARQ_protocol_version,
+                                    T_AARQ_protocol_version_bits, 1, hf_index, ett_acse_T_AARQ_protocol_version,
                                     NULL);
 
   return offset;
@@ -614,18 +614,18 @@ dissect_acse_AE_invocation_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _
 }
 
 
-static const asn_namedbit ACSE_requirements_bits[] = {
-  {  0, &hf_acse_ACSE_requirements_authentication, -1, -1, "authentication", NULL },
-  {  1, &hf_acse_ACSE_requirements_aSO_context_negotiation, -1, -1, "aSO-context-negotiation", NULL },
-  {  2, &hf_acse_ACSE_requirements_higher_level_association, -1, -1, "higher-level-association", NULL },
-  {  3, &hf_acse_ACSE_requirements_nested_association, -1, -1, "nested-association", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ACSE_requirements_bits[] = {
+  &hf_acse_ACSE_requirements_authentication,
+  &hf_acse_ACSE_requirements_aSO_context_negotiation,
+  &hf_acse_ACSE_requirements_higher_level_association,
+  &hf_acse_ACSE_requirements_nested_association,
+  NULL
 };
 
 static int
 dissect_acse_ACSE_requirements(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ACSE_requirements_bits, hf_index, ett_acse_ACSE_requirements,
+                                    ACSE_requirements_bits, 4, hf_index, ett_acse_ACSE_requirements,
                                     NULL);
 
   return offset;
@@ -964,15 +964,15 @@ dissect_acse_AARQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const asn_namedbit T_AARE_protocol_version_bits[] = {
-  {  0, &hf_acse_T_AARE_protocol_version_version1, -1, -1, "version1", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_AARE_protocol_version_bits[] = {
+  &hf_acse_T_AARE_protocol_version_version1,
+  NULL
 };
 
 static int
 dissect_acse_T_AARE_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_AARE_protocol_version_bits, hf_index, ett_acse_T_AARE_protocol_version,
+                                    T_AARE_protocol_version_bits, 1, hf_index, ett_acse_T_AARE_protocol_version,
                                     NULL);
 
   return offset;
@@ -2193,27 +2193,27 @@ void proto_register_acse(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "Authentication_value_other", HFILL }},
     { &hf_acse_T_AARQ_protocol_version_version1,
-      { "version1", "acse.version1",
+      { "version1", "acse.T.AARQ.protocol.version.version1",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_acse_T_AARE_protocol_version_version1,
-      { "version1", "acse.version1",
+      { "version1", "acse.T.AARE.protocol.version.version1",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_acse_ACSE_requirements_authentication,
-      { "authentication", "acse.authentication",
+      { "authentication", "acse.ACSE.requirements.authentication",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_acse_ACSE_requirements_aSO_context_negotiation,
-      { "aSO-context-negotiation", "acse.aSO-context-negotiation",
+      { "aSO-context-negotiation", "acse.ACSE.requirements.aSO.context.negotiation",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_acse_ACSE_requirements_higher_level_association,
-      { "higher-level-association", "acse.higher-level-association",
+      { "higher-level-association", "acse.ACSE.requirements.higher.level.association",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_acse_ACSE_requirements_nested_association,
-      { "nested-association", "acse.nested-association",
+      { "nested-association", "acse.ACSE.requirements.nested.association",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
 

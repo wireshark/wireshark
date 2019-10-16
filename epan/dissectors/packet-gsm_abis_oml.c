@@ -1701,7 +1701,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, packet_info *pinfo,
 			break;
 		case NM_ATT_IPACC_PRIM_OML_CFG_LIST:
 			proto_tree_add_item(att_tree, hf_attr_ipa_prim_oml_ip,
-					    tvb, offset+1, 4, ENC_LITTLE_ENDIAN);
+					    tvb, offset+1, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_item(att_tree, hf_attr_ipa_prim_oml_port,
 					    tvb, offset+1+4, 2, ENC_LITTLE_ENDIAN);
 			break;
@@ -2334,6 +2334,7 @@ proto_register_abis_oml(void)
 	NM_ATT_TLVDEF_IPA(NM_ATT_IPACC_UNIT_ID,		TLV_TYPE_TL16V,	0);
 	NM_ATT_TLVDEF_IPA(NM_ATT_IPACC_UNIT_NAME,	TLV_TYPE_TL16V,	0);
 	NM_ATT_TLVDEF_IPA(NM_ATT_IPACC_SNMP_CFG,	TLV_TYPE_TL16V,	0);
+	NM_ATT_TLVDEF_IPA(NM_ATT_IPACC_PRIM_OML_CFG_LIST, TLV_TYPE_TL16V, 0);
 	NM_ATT_TLVDEF_IPA(NM_ATT_IPACC_ALM_THRESH_LIST,	TLV_TYPE_TL16V,	0);
 	NM_ATT_TLVDEF_IPA(NM_ATT_IPACC_CUR_SW_CFG,	TLV_TYPE_TL16V, 0);
 	NM_ATT_TLVDEF_IPA(NM_ATT_IPACC_STREAM_ID,	TLV_TYPE_TV,	0);
@@ -2391,7 +2392,7 @@ proto_reg_handoff_abis_oml(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

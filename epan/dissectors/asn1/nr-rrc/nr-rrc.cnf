@@ -1,28 +1,35 @@
 # nr-rrc.cnf
 # nr-rrc conformation file
-# Copyright 2018 Pascal Quantin
+# Copyright 2018-2019 Pascal Quantin
 
 #.OPT
 PER
 UNALIGNED
+PROTO_ROOT_NAME    proto_nr_rrc
 #.END
 
 #.USE_VALS_EXT
 CA-BandwidthClassNR
-ConfiguredGrantConfig/configuredGrantTimer
 ConfiguredGrantConfig/periodicity
+CSI-ReportConfig/reportFreqConfiguration/csi-ReportingBand
+DummyA/maxNumberPortsAcrossNZP-CSI-RS-PerCC
+DummyA/maxNumberSimultaneousCSI-RS-ActBWP-AllCC
+DummyA/totalNumberPortsSimultaneousCSI-RS-ActBWP-AllCC
+DelayBudgetReport/type1
 DRX-Config/drx-onDurationTimer/milliSeconds
 DRX-Config/drx-InactivityTimer
 DRX-Config/drx-RetransmissionTimerDL
 DRX-Config/drx-RetransmissionTimerUL
 DRX-Config/drx-LongCycleStartOffset
 DRX-Config/shortDRX/drx-ShortCycle
-DRX-Config/drx-SlotOffset
 DRX-Info/drx-LongCycleStartOffset
 DRX-Info/shortDRX/drx-ShortCycle
+EUTRA-Q-OffsetRange
 PDCP-Config/t-Reordering
 PollByte
 PollPDU
+RangeToBestCell
+RRM-Config/ue-InactiveTime
 Q-OffsetRange
 ServingCellConfig/bwp-InactivityTimer
 SPS-Config/periodicity
@@ -33,66 +40,111 @@ T-StatusProhibit
 UL-DataSplitThreshold
 
 #.EXPORTS
+BandCombinationIndex_PDU
+BandCombinationInfoSN_PDU
 CellGroupConfig_PDU
+DRX-Config_PDU
+CG-Config_PDU
 CG-ConfigInfo_PDU
 ConfigRestrictInfoSCG_PDU
+FeatureSetEntryIndex_PDU
 FreqBandList_PDU
+HandoverCommand_PDU
+HandoverPreparationInformation_PDU
+MeasConfig_PDU
+MeasGapConfig_PDU
+MeasResultSCG-Failure_PDU
 MeasurementTimingConfiguration_PDU
-MeasResults_PDU
 MIB_PDU
+P-Max_PDU
+PH-TypeListMCG_PDU
+PH-TypeListSCG_PDU
 RadioBearerConfig_PDU
 RRCReconfiguration_PDU
 RRCReconfigurationComplete_PDU
 SIB1_PDU
+SIB2_PDU
+SIB3_PDU
+SIB4_PDU
+SIB5_PDU
+SIB6_PDU
+SIB7_PDU
+SIB8_PDU
+SIB9_PDU
 UE-CapabilityRAT-ContainerList_PDU
+UE-CapabilityRequestFilterCommon_PDU
+UE-CapabilityRequestFilterNR_PDU
 UE-MRDC-Capability_PDU
 UE-NR-Capability_PDU
+UEAssistanceInformation_PDU
+UERadioPagingInformation_PDU
 UL-DCCH-Message_PDU
+UplinkTxDirectCurrentList_PDU
 
 #.PDU
-BCCH-BCH-Message             @bcch.bch
+BandCombinationIndex
+BandCombinationInfoSN
+BCCH-BCH-Message                   @bcch.bch
+BCCH-DL-SCH-Message                @bcch.dl.sch
 CellGroupConfig
+CG-Config
 CG-ConfigInfo
 ConfigRestrictInfoSCG
-DL-DCCH-Message              @dl.dcch
+DL-CCCH-Message                    @dl.ccch
+DL-DCCH-Message                    @dl.dcch
+DRX-Config
+FeatureSetEntryIndex
 FreqBandList
-MIB
+HandoverCommand
+HandoverPreparationInformation
+MeasConfig
+MeasGapConfig
+MeasResultSCG-Failure
 MeasurementTimingConfiguration
-MeasResults
+MIB
+P-Max
+PCCH-Message                       @pcch
+PH-TypeListMCG
+PH-TypeListSCG
 RadioBearerConfig
-RRCReconfiguration
+RRCReconfiguration                 @rrc_reconf
 RRCReconfigurationComplete
 SIB1
+SIB2
+SIB3
+SIB4
+SIB5
+SIB6
+SIB7
+SIB8
+SIB9
 UE-CapabilityRAT-ContainerList
-UE-MRDC-Capability
-UE-NR-Capability
-UL-DCCH-Message              @ul.dcch
+UE-CapabilityRequestFilterCommon
+UE-CapabilityRequestFilterNR
+UE-MRDC-Capability                 @ue_mrdc_cap
+UE-NR-Capability                   @ue_nr_cap
+UEAssistanceInformation
+UERadioAccessCapabilityInformation @ue_radio_access_cap_info
+UERadioPagingInformation           @ue_radio_paging_info
+UL-CCCH-Message                    @ul.ccch
+UL-CCCH1-Message                   @ul.ccch1
+UL-DCCH-Message                    @ul.dcch
+UplinkTxDirectCurrentList
 #.END
 
 #.OMIT_ASSIGNMENT
-AS-Context
-CellIdentity
 CellsTriggeredList
-CG-Config
-CG-Config-IEs
-ConfigRestrictModReqSCG
-GSCN-ValueNR
-HandoverCommand
-HandoverCommand-IEs
-HandoverPreparationInformation
-HandoverPreparationInformation-IEs
-MeasConfigSN
-ReestabNCellInfo
-ReestabNCellInfoList
-RRM-Config
-ShortMAC-I
 VarMeasConfig
 VarMeasReportList
 VarMeasReport
+VarPendingRNA-Update
+VarResumeMAC-Input
+VarShortMAC-Input
 
 #.NO_EMIT ONLY_VALS
 
 #.MAKE_ENUM
+MobilityFromNRCommand-IEs/targetRAT-Type TYPE_PREFIX
 RAT-Type TYPE_PREFIX
 
 #.FN_HDR BCCH-BCH-Message
@@ -104,7 +156,7 @@ RAT-Type TYPE_PREFIX
   ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_nr_rrc);
 
-#.FN_HDR UL-DCCH-Message
+#.FN_HDR BCCH-DL-SCH-Message
   proto_item *ti;
 
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "NR RRC");
@@ -113,7 +165,16 @@ RAT-Type TYPE_PREFIX
   ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_nr_rrc);
 
-  actx->pinfo->link_dir = P2P_DIR_UL;
+#.FN_HDR DL-CCCH-Message
+  proto_item *ti;
+
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "NR RRC");
+  col_clear(actx->pinfo->cinfo, COL_INFO);
+
+  actx->pinfo->link_dir = P2P_DIR_DL;
+
+  ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  tree = proto_item_add_subtree(ti, ett_nr_rrc);
 
 #.FN_HDR DL-DCCH-Message
   proto_item *ti;
@@ -126,11 +187,134 @@ RAT-Type TYPE_PREFIX
 
   actx->pinfo->link_dir = P2P_DIR_DL;
 
+#.FN_HDR PCCH-Message
+  proto_item *ti;
+
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "NR RRC");
+  col_clear(actx->pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  tree = proto_item_add_subtree(ti, ett_nr_rrc);
+
+#.FN_HDR UL-CCCH-Message
+  proto_item *ti;
+
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "NR RRC");
+  col_clear(actx->pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  tree = proto_item_add_subtree(ti, ett_nr_rrc);
+
+  actx->pinfo->link_dir = P2P_DIR_UL;
+
+#.FN_HDR UL-CCCH1-Message
+  proto_item *ti;
+
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "NR RRC");
+  col_clear(actx->pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  tree = proto_item_add_subtree(ti, ett_nr_rrc);
+
+  actx->pinfo->link_dir = P2P_DIR_UL;
+
+#.FN_HDR UL-DCCH-Message
+  proto_item *ti;
+
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "NR RRC");
+  col_clear(actx->pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  tree = proto_item_add_subtree(ti, ett_nr_rrc);
+
+  actx->pinfo->link_dir = P2P_DIR_UL;
+
 #.FN_HDR MIB
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MIB");
 
+#.FN_HDR SystemInformation
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "System Information [");
+
+#.FN_FTR SystemInformation
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " ]");
+
+#.FN_HDR SIB2
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB2");
+
+#.FN_HDR SIB3
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB3");
+
+#.FN_HDR SIB4
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB4");
+
+#.FN_HDR SIB5
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB5");
+
+#.FN_HDR SIB6
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB6");
+
+#.FN_HDR SIB7
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB7");
+
+#.FN_HDR SIB8
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB8");
+
+#.FN_HDR SIB9
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB9");
+
+#.FN_HDR SIB1
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SIB1");
+
+#.FN_HDR RRCReject
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Reject");
+
+#.FN_HDR RRCSetup
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Setup");
+
 #.FN_HDR RRCReconfiguration
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Reconfiguration");
+
+#.FN_HDR RRCResume
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Resume");
+
+#.FN_HDR RRCRelease
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Release");
+
+#.FN_HDR RRCReestablishment
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Reestablishment");
+
+#.FN_HDR SecurityModeCommand
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Security Mode Command");
+
+#.FN_HDR DLInformationTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DL Information Transfer");
+
+#.FN_HDR UECapabilityEnquiry
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UE Capability Enquiry");
+
+#.FN_HDR CounterCheck
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Counter Check");
+
+#.FN_HDR MobilityFromNRCommand
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Mobility From NR Command");
+
+#.FN_HDR Paging
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Paging");
+
+#.FN_HDR RRCSetupRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Setup Request");
+
+#.FN_HDR RRCResumeRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Resume Request");
+
+#.FN_HDR RRCReestablishmentRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Reestablishment Request");
+
+#.FN_HDR RRCSystemInfoRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC System Info Request");
+
+#.FN_HDR RRCResumeRequest1
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Resume Request 1");
 
 #.FN_HDR MeasurementReport
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Measurement Report");
@@ -138,33 +322,749 @@ RAT-Type TYPE_PREFIX
 #.FN_HDR RRCReconfigurationComplete
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Reconfiguration Complete");
 
+#.FN_HDR RRCSetupComplete
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Setup Complete");
+
+#.FN_HDR RRCReestablishmentComplete
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Reestablishment Complete");
+
+#.FN_HDR RRCResumeComplete
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Resume Complete");
+
+#.FN_HDR SecurityModeComplete
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Security Mode Complete");
+
+#.FN_HDR SecurityModeFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Security Mode Failure");
+
+#.FN_HDR ULInformationTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UL Information Transfer");
+
+#.FN_HDR LocationMeasurementIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Location Measurement Indication");
+
+#.FN_HDR UECapabilityInformation
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UE Capability Information");
+
+#.FN_HDR CounterCheckResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Counter Check Response");
+
+#.FN_HDR UEAssistanceInformation
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UE Assistance Information");
+
+#.FN_HDR FailureInformation
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Failure Information");
+
+#.FN_HDR ULInformationTransferMRDC
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UL Information Transfer MRDC");
+
+#.FN_HDR SCGFailureInformation
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCG Failure Information");
+
+#.FN_HDR SCGFailureInformationEUTRA
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCG Failure Information EUTRA");
+
+#.FN_BODY MRDC-SecondaryCellGroupConfig/mrdc-SecondaryCellGroup/eutra-SCG VAL_PTR = &eutra_scg_tvb
+  tvbuff_t *eutra_scg_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (eutra_scg_tvb && lte_rrc_conn_reconf_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_eutra_SCG);
+    nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, eutra_scg_tvb, actx->pinfo, subtree);
+  }
+
+#.FN_BODY RRCReconfigurationComplete-v1560-IEs/scg-Response/eutra-SCG-Response VAL_PTR = &eutra_scg_response_tvb
+  tvbuff_t *eutra_scg_response_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (eutra_scg_response_tvb && lte_rrc_conn_reconf_compl_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_eutra_SCG_Response);
+    nr_rrc_call_dissector(lte_rrc_conn_reconf_compl_handle, eutra_scg_response_tvb, actx->pinfo, subtree);
+  }
+
+#.FN_BODY FailureReportSCG-EUTRA/measResultSCG-FailureMRDC VAL_PTR = &meas_result_scg_fail_mrdc_tvb
+  tvbuff_t *meas_result_scg_fail_mrdc_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (meas_result_scg_fail_mrdc_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_measResultSCG_FailureMRDC);
+    dissect_lte_rrc_MeasResultSCG_FailureMRDC_r15_PDU(meas_result_scg_fail_mrdc_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY ULInformationTransferMRDC-IEs/ul-DCCH-MessageNR VAL_PTR = &ul_dcch_msg_nr_tvb
+  tvbuff_t *ul_dcch_msg_nr_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ul_dcch_msg_nr_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_ul_DCCH_MessageNR);
+    dissect_nr_rrc_UL_DCCH_Message_PDU(ul_dcch_msg_nr_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY ULInformationTransferMRDC-IEs/ul-DCCH-MessageEUTRA VAL_PTR = &ul_dcch_msg_eutra_tvb
+  tvbuff_t *ul_dcch_msg_eutra_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ul_dcch_msg_eutra_tvb && lte_rrc_ul_dcch_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_ul_DCCH_MessageEUTRA);
+    nr_rrc_call_dissector(lte_rrc_ul_dcch_handle, ul_dcch_msg_eutra_tvb, actx->pinfo, subtree);
+  }
+
+#.FN_BODY DedicatedNAS-Message VAL_PTR = &nas_5gs_tvb
+  tvbuff_t *nas_5gs_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (nas_5gs_tvb && nas_5gs_handle) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_DedicatedNAS_Message);
+    nr_rrc_call_dissector(nas_5gs_handle, nas_5gs_tvb, actx->pinfo, subtree);
+  }
+
+#.FN_BODY MobilityFromNRCommand-IEs/targetRAT-Type VAL_PTR = &target_rat_type
+  guint32 target_rat_type;
+  nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+%(DEFAULT_BODY)s
+  nr_priv->target_rat_type = (guint8)target_rat_type;
+
+#.FN_BODY MobilityFromNRCommand-IEs/targetRAT-MessageContainer VAL_PTR = &target_rat_msg_cont_tvb
+  tvbuff_t *target_rat_msg_cont_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (target_rat_msg_cont_tvb) {
+    nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_rr_rrc_targetRAT_MessageContainer);
+    switch (nr_priv->target_rat_type) {
+    case T_targetRAT_Type_eutra:
+      /* eutra */
+      if (lte_rrc_conn_reconf_handle)
+        nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
+      break;
+    default:
+      break;
+    }
+  }
+
+#.FN_BODY MasterKeyUpdate/nas-Container VAL_PTR = &nas_5gs_tvb
+  tvbuff_t *nas_5gs_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (nas_5gs_tvb && nas_5gs_handle) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_nas_Container);
+    nr_rrc_call_dissector(nas_5gs_handle, nas_5gs_tvb, actx->pinfo, subtree);
+  }
+
+#.TYPE_ATTR
+RejectWaitTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+SIB1/cellSelectionInfo/q-RxLevMinOffset DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_q_RxLevMin_fmt)
+
+#.TYPE_ATTR
+SIB1/cellSelectionInfo/q-QualMinOffset DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+IntraFreqNeighCellInfo/q-RxLevMinOffsetCell DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_q_RxLevMin_fmt)
+
+#.TYPE_ATTR
+IntraFreqNeighCellInfo/q-RxLevMinOffsetCellSUL DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_q_RxLevMin_fmt)
+
+#.TYPE_ATTR
+IntraFreqNeighCellInfo/q-QualMinOffsetCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+InterFreqNeighCellInfo/q-RxLevMinOffsetCell DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_q_RxLevMin_fmt)
+
+#.TYPE_ATTR
+InterFreqNeighCellInfo/q-RxLevMinOffsetCellSUL DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_q_RxLevMin_fmt)
+
+#.TYPE_ATTR
+InterFreqNeighCellInfo/q-QualMinOffsetCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+CarrierFreqEUTRA/q-RxLevMin DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_q_RxLevMin_fmt)
+
+#.TYPE_ATTR
+CarrierFreqEUTRA/q-QualMin DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+CarrierFreqEUTRA/p-MaxEUTRA DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+
+#.TYPE_ATTR
+EUTRA-FreqNeighCellInfo/q-RxLevMinOffsetCell DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_q_RxLevMin_fmt)
+
+#.TYPE_ATTR
+EUTRA-FreqNeighCellInfo/q-QualMinOffsetCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+SIB6/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_messageIdentifier_vals_ext
+
+#.FN_BODY SIB6/messageIdentifier VAL_PTR=&msg_id_tvb HF_INDEX=-1
+  tvbuff_t *msg_id_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SIB6/messageIdentifier
+  if (msg_id_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, msg_id_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SIB6/serialNumber VAL_PTR=&serial_nb_tvb
+  tvbuff_t *serial_nb_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SIB6/serialNumber
+  if (serial_nb_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_serialNumber);
+    proto_tree_add_item(subtree, hf_nr_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_nr_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_nr_rrc_serialNumber_upd_nb, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SIB6/warningType VAL_PTR=&warning_type_tvb
+  tvbuff_t *warning_type_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SIB6/warningType
+  if (warning_type_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_warningType);
+    proto_tree_add_item(subtree, hf_nr_rrc_warningType_value, warning_type_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_nr_rrc_warningType_emergency_user_alert, warning_type_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_nr_rrc_warningType_popup, warning_type_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+SIB7/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_messageIdentifier_vals_ext
+
+#.FN_BODY SIB7/messageIdentifier VAL_PTR=&msg_id_tvb HF_INDEX=-1
+  tvbuff_t *msg_id_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SIB7/messageIdentifier
+  if (msg_id_tvb) {
+    nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+    nr_priv->message_identifier = tvb_get_ntohs(msg_id_tvb, 0) << 16;
+    actx->created_item = proto_tree_add_item(tree, hf_index, msg_id_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SIB7/serialNumber VAL_PTR=&serial_nb_tvb
+  tvbuff_t *serial_nb_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SIB7/serialNumber
+  if (serial_nb_tvb) {
+    nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+    proto_tree *subtree;
+    nr_priv->message_identifier |= tvb_get_ntohs(serial_nb_tvb, 0);
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_serialNumber);
+    proto_tree_add_item(subtree, hf_nr_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_nr_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_nr_rrc_serialNumber_upd_nb, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SIB7/warningMessageSegmentType VAL_PTR=&segment_type
+  nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+  guint32 segment_type;
+%(DEFAULT_BODY)s
+  nr_priv->warning_message_segment_type = (guint8)segment_type;
+
+#.FN_BODY SIB7/warningMessageSegmentNumber VAL_PTR=&segment_number
+  nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+  guint32 segment_number;
+%(DEFAULT_BODY)s
+  nr_priv->warning_message_segment_number = (guint8)segment_number;
+
+#.FN_BODY SIB7/dataCodingScheme VAL_PTR=&data_coding_scheme_tvb
+  tvbuff_t *data_coding_scheme_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SIB7/dataCodingScheme
+  if (data_coding_scheme_tvb) {
+    nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+    proto_tree *subtree;
+    guint32 dataCodingScheme;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_dataCodingScheme);
+    dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
+    wmem_map_insert(nr_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)nr_priv->message_identifier),
+                    GUINT_TO_POINTER(dataCodingScheme));
+  }
+
+#.FN_BODY SIB7/warningMessageSegment VAL_PTR=&warning_msg_seg_tvb
+  tvbuff_t *warning_msg_seg_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SIB7/warningMessageSegment
+  if (warning_msg_seg_tvb) {
+    nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+    proto_tree *subtree;
+    tvbuff_t *frag_tvb;
+    gpointer p_dcs;
+    fragment_head *frag_data = fragment_add_seq_check(&nr_rrc_sib7_reassembly_table, warning_msg_seg_tvb, 0, actx->pinfo,
+                                                      nr_priv->message_identifier, NULL,
+                                                      nr_priv->warning_message_segment_number,
+                                                      tvb_reported_length(warning_msg_seg_tvb),
+                                                      nr_priv->warning_message_segment_type ? FALSE : TRUE);
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_warningMessageSegment);
+    frag_tvb = process_reassembled_data(warning_msg_seg_tvb, 0, actx->pinfo, "Reassembled SIB7 warning message",
+                                        frag_data, &nr_rrc_sib7_frag_items, NULL, subtree);
+    p_dcs = wmem_map_lookup(nr_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)nr_priv->message_identifier));
+    if (frag_tvb && p_dcs) {
+      dissect_nr_rrc_warningMessageSegment(frag_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
+    }
+  }
+
+#.TYPE_ATTR
+SIB8/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_messageIdentifier_vals_ext
+
+#.FN_BODY SIB8/messageIdentifier VAL_PTR=&msg_id_tvb HF_INDEX=-1
+  tvbuff_t *msg_id_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SIB8/messageIdentifier
+  if (msg_id_tvb) {
+    nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+    nr_priv->message_identifier = tvb_get_ntohs(msg_id_tvb, 0) << 16;
+    actx->created_item = proto_tree_add_item(tree, hf_index, msg_id_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SIB8/serialNumber VAL_PTR=&serial_nb_tvb
+  tvbuff_t *serial_nb_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SIB8/serialNumber
+  if (serial_nb_tvb) {
+    nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+    proto_tree *subtree;
+    nr_priv->message_identifier |= tvb_get_ntohs(serial_nb_tvb, 0);
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_serialNumber);
+    proto_tree_add_item(subtree, hf_nr_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_nr_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_nr_rrc_serialNumber_upd_nb, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SIB8/warningMessageSegmentType VAL_PTR=&segment_type
+  nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+  guint32 segment_type;
+%(DEFAULT_BODY)s
+  nr_priv->warning_message_segment_type = (guint8)segment_type;
+
+#.FN_BODY SIB8/warningMessageSegmentNumber VAL_PTR=&segment_number
+  nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+  guint32 segment_number;
+%(DEFAULT_BODY)s
+  nr_priv->warning_message_segment_number = (guint8)segment_number;
+
+#.FN_BODY SIB8/dataCodingScheme VAL_PTR=&data_coding_scheme_tvb
+  tvbuff_t *data_coding_scheme_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SIB8/dataCodingScheme
+  if (data_coding_scheme_tvb) {
+    nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+    proto_tree *subtree;
+    guint32 dataCodingScheme;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_dataCodingScheme);
+    dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
+    wmem_map_insert(nr_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)nr_priv->message_identifier),
+                    GUINT_TO_POINTER(dataCodingScheme));
+  }
+
+#.FN_BODY SIB8/warningMessageSegment VAL_PTR=&warning_msg_seg_tvb
+  tvbuff_t *warning_msg_seg_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SIB8/warningMessageSegment
+  if (warning_msg_seg_tvb) {
+    nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+    proto_tree *subtree;
+    tvbuff_t *frag_tvb;
+    gpointer p_dcs;
+    fragment_head *frag_data = fragment_add_seq_check(&nr_rrc_sib8_reassembly_table, warning_msg_seg_tvb, 0, actx->pinfo,
+                                                      nr_priv->message_identifier, NULL,
+                                                      nr_priv->warning_message_segment_number,
+                                                      tvb_reported_length(warning_msg_seg_tvb),
+                                                      nr_priv->warning_message_segment_type ? FALSE : TRUE);
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_warningMessageSegment);
+    frag_tvb = process_reassembled_data(warning_msg_seg_tvb, 0, actx->pinfo, "Reassembled SIB8 warning message",
+                                        frag_data, &nr_rrc_sib8_frag_items, NULL, subtree);
+    p_dcs = wmem_map_lookup(nr_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)nr_priv->message_identifier));
+    if (frag_tvb && p_dcs) {
+      dissect_nr_rrc_warningMessageSegment(frag_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
+    }
+  }
+
+#.FN_BODY SIB9/timeInfo/timeInfoUTC VAL_PTR=&timeInfo
+  guint64 timeInfo;
+  proto_tree *subtree;
+  nstime_t ts;
+  guint32 old_offset = offset;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SIB9/timeInfo/timeInfoUTC
+  subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_timeInfo);
+  ts.secs = (time_t)(timeInfo/100)-2208988800U; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */
+  ts.nsecs = (int)(timeInfo%100)*10000000;
+  proto_tree_add_time(subtree, hf_nr_rrc_utc_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
+  proto_tree_add_time(subtree, hf_nr_rrc_local_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
+
+#.TYPE_ATTR
+SIB9/timeInfo/dayLightSavingTime TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(nr_rrc_daylightSavingTime_vals)
+
+#.FN_BODY SIB9/timeInfo/dayLightSavingTime VAL_PTR=&daylight_saving_time_tvb HF_INDEX=-1
+  tvbuff_t *daylight_saving_time_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SIB9/timeInfo/dayLightSavingTime
+  if (daylight_saving_time_tvb) {
+    guint bitvalue = tvb_get_bits8(daylight_saving_time_tvb, 0, 2);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, daylight_saving_time_tvb, 0, 1, bitvalue);
+  }
+
+#.TYPE_ATTR
+SIB9/timeInfo/leapSeconds DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+SIB9/timeInfo/localTimeOffset DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_localTimeOffset_fmt)
+
+#.TYPE_ATTR
+ConfiguredGrantConfig/configuredGrantTimer DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_periodicities
+
+#.TYPE_ATTR
+ConnEstFailureControl/connEstFailOffset DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+DRX-Config/drx-SlotOffset DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_drx_SlotOffset_fmt)
+
+#.TYPE_ATTR
+FrequencyInfoDL-SIB/offsetToPointA DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_prbs
+
+#.TYPE_ATTR
+Hysteresis DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_Hysteresis_fmt)
+
+#.TYPE_ATTR
+NZP-CSI-RS-Resource/powerControlOffset DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+P-Max DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+
+#.TYPE_ATTR
+PUCCH-ResourceSet/maxPayloadMinus1 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_bits
+
+#.TYPE_ATTR
+PUCCH-ConfigCommon/p0-nominal DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+
+#.TYPE_ATTR
+PUCCH-PowerControl/deltaF-PUCCH-f0 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+PUCCH-PowerControl/deltaF-PUCCH-f1 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+PUCCH-PowerControl/deltaF-PUCCH-f2 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+PUCCH-PowerControl/deltaF-PUCCH-f3 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+PUCCH-PowerControl/deltaF-PUCCH-f4 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+P0-PUCCH/p0-PUCCH-Value DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+PUSCH-ConfigCommon/msg3-DeltaPreamble DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_msg3_DeltaPreamble_fmt)
+
+#.TYPE_ATTR
+PUSCH-ConfigCommon/p0-NominalWithGrant DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+
+#.TYPE_ATTR
+PUSCH-PowerControl/p0-NominalWithoutGrant DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+
+#.TYPE_ATTR
+P0-PUSCH-AlphaSet/p0 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+Q-QualMin DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+Q-RxLevMin DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_Q_RxLevMin_fmt)
+
+#.TYPE_ATTR
+RACH-ConfigGeneric/preambleReceivedTargetPower DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+
+#.TYPE_ATTR
+RSRP-RangeEUTRA DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_RSRP_RangeEUTRA_fmt)
+
+#.TYPE_ATTR
+RSRQ-RangeEUTRA DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_RSRQ_RangeEUTRA_fmt)
+
+#.TYPE_ATTR
+SINR-RangeEUTRA DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_SINR_RangeEUTRA_fmt)
+
+#.TYPE_ATTR
+MeasTriggerQuantityOffset/rsrp DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+
+#.TYPE_ATTR
+MeasTriggerQuantityOffset/rsrq DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+MeasTriggerQuantityOffset/sinr DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+ReselectionThreshold DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_ReselectionThreshold_fmt)
+
+#.TYPE_ATTR
+ReselectionThresholdQ DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+RSRP-Range DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_RSRP_Range_fmt)
+
+#.TYPE_ATTR
+RSRQ-Range DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_RSRQ_Range_fmt)
+
+#.TYPE_ATTR
+SearchSpace/duration DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_slots
+
+#.TYPE_ATTR
+ServingCellConfigCommon/ss-PBCH-BlockPower DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+
+#.TYPE_ATTR
+ServingCellConfigCommonSIB/ss-PBCH-BlockPower DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+
+#.TYPE_ATTR
+SINR-Range DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_SINR_Range_fmt)
+
+#.TYPE_ATTR
+SRS-ResourceSet/p0 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+
+#.TYPE_ATTR
+T-Reselection DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
 #.FN_BODY UE-CapabilityRAT-Container
+  nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
   /* Initialise to invalid value */
-  private_data_set_rat_type(actx, 0xFF);
+  nr_priv->rat_type = 0xFF;
 %(DEFAULT_BODY)s
 
 #.FN_BODY RAT-Type VAL_PTR = &rat_type
   guint32 rat_type;
+  nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
 %(DEFAULT_BODY)s
-  private_data_set_rat_type(actx, (guint8)rat_type);
+  nr_priv->rat_type = (guint8)rat_type;
 
 #.FN_BODY UE-CapabilityRAT-Container/ue-CapabilityRAT-Container VAL_PTR = &ue_cap_tvb
-  tvbuff_t *ue_cap_tvb=NULL;
+  tvbuff_t *ue_cap_tvb = NULL;
 %(DEFAULT_BODY)s
 
 #.FN_FTR UE-CapabilityRAT-Container/ue-CapabilityRAT-Container
   if (ue_cap_tvb) {
+    nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
     proto_tree *subtree;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_UE_CapabilityRAT_Container);
-    switch(private_data_get_rat_type(actx)){
+    switch(nr_priv->rat_type){
     case RAT_Type_nr:
       dissect_nr_rrc_UE_NR_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
       break;
     case RAT_Type_eutra_nr:
       dissect_nr_rrc_UE_MRDC_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
       break;
+    case RAT_Type_eutra:
+      dissect_lte_rrc_UE_EUTRA_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
+      break;
     default:
       break;
     }
+  }
+
+#.FN_BODY UE-CapabilityRAT-Request
+  nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+  /* Initialise to invalid value */
+  nr_priv->rat_type = 0xFF;
+%(DEFAULT_BODY)s
+
+#.FN_BODY UE-CapabilityRAT-Request/capabilityRequestFilter VAL_PTR = &cap_req_filter_tvb
+  tvbuff_t *cap_req_filter_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR UE-CapabilityRAT-Request/capabilityRequestFilter
+  if (cap_req_filter_tvb) {
+    nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_capabilityRequestFilter);
+    switch(nr_priv->rat_type){
+    case RAT_Type_nr:
+      dissect_nr_rrc_UE_CapabilityRequestFilterNR_PDU(cap_req_filter_tvb, actx->pinfo, subtree, NULL);
+      break;
+    default:
+      break;
+    }
+  }
+
+#.TYPE_ATTR
+EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+
+#.FN_BODY RLC-BearerConfig
+  struct mac_nr_info *p_mac_nr_info;
+  /* Get the struct and clear it out */
+  nr_drb_mapping_t *drb_mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  memset(drb_mapping, 0, sizeof(nr_drb_mapping_t));
+%(DEFAULT_BODY)s
+  /* Need UE identifier */
+  p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
+  if (p_mac_nr_info) {
+    drb_mapping->ueid = p_mac_nr_info->ueid;
+    /* Tell MAC about this mapping */
+    set_mac_nr_bearer_mapping(drb_mapping);
+  }
+
+#.FN_BODY DRB-Identity VAL_PTR=&value
+  guint32 value;
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+%(DEFAULT_BODY)s
+  mapping->drbid = (guint8)value;
+
+#.FN_BODY RLC-Config VAL_PTR=&value
+  guint32 value;
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+%(DEFAULT_BODY)s
+  mapping->rlcMode = (value==0) ? RLC_AM_MODE : RLC_UM_MODE;
+  mapping->rlcMode_present = TRUE;
+
+#.FN_BODY LogicalChannelIdentity VAL_PTR=&value
+  guint32 value;
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+%(DEFAULT_BODY)s
+  mapping->lcid = (guint8)value;
+  mapping->lcid_present = TRUE;
+
+#.FN_BODY UL-UM-RLC
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->tempDirection = DIRECTION_UPLINK;
+%(DEFAULT_BODY)s
+
+#.FN_BODY DL-UM-RLC
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->tempDirection = DIRECTION_DOWNLINK;
+%(DEFAULT_BODY)s
+
+#.FN_BODY UL-AM-RLC
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->tempDirection = DIRECTION_UPLINK;
+%(DEFAULT_BODY)s
+
+#.FN_BODY DL-AM-RLC
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->tempDirection = DIRECTION_DOWNLINK;
+%(DEFAULT_BODY)s
+
+
+#.FN_BODY SN-FieldLengthUM  VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  if (mapping->tempDirection == DIRECTION_UPLINK) {
+    mapping->rlcUlSnLength_present = TRUE;
+    mapping->rlcUlSnLength = (value=0) ? 6 : 12;
+  }
+  else {
+    mapping->rlcDlSnLength_present = TRUE;
+    mapping->rlcDlSnLength = (value=0) ? 6 : 12;
+  }
+
+#.FN_BODY SN-FieldLengthAM  VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  if (mapping->tempDirection == DIRECTION_UPLINK) {
+    mapping->rlcUlSnLength_present = TRUE;
+    mapping->rlcUlSnLength = (value=0) ? 12 : 18;
+  }
+  else {
+    mapping->rlcDlSnLength_present = TRUE;
+    mapping->rlcDlSnLength = (value=0) ? 12 : 18;
+  }
+
+#.FN_BODY DRB-ToAddMod
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  memset(mapping, 0, sizeof(*mapping));
+%(DEFAULT_BODY)s
+  /* Need UE identifier */
+  mac_nr_info *p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
+  if (p_mac_nr_info) {
+    /* Configure PDCP SN length(s) for this DRB */
+    if (mapping->pdcpUlSnLength_present || mapping->pdcpDlSnLength_present) {
+      set_rlc_nr_drb_pdcp_seqnum_length(actx->pinfo, p_mac_nr_info->ueid, mapping->drbid,
+                                        mapping->pdcpUlSnLength, mapping->pdcpDlSnLength);
+    }
+  }
+
+#.FN_BODY PDCP-Config/drb/pdcp-SN-SizeUL VAL_PTR=&value
+  guint32 value;
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+%(DEFAULT_BODY)s
+  mapping->pdcpUlSnLength_present = TRUE;
+  mapping->pdcpUlSnLength = (value) ? 18 : 12;
+
+#.FN_BODY PDCP-Config/drb/pdcp-SN-SizeDL VAL_PTR=&value
+  guint32 value;
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+%(DEFAULT_BODY)s
+  mapping->pdcpDlSnLength_present = TRUE;
+  mapping->pdcpDlSnLength = (value) ? 18 : 12;
+
+#.TYPE_ATTR
+CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_dl_1024QAM_TotalWeightedLayers_fmt)
+
+#.FN_BODY AS-Config/eag_1/sourceSCG-EUTRA-Config VAL_PTR = &src_scg_eutra_config_tvb
+  tvbuff_t *src_scg_eutra_config_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (src_scg_eutra_config_tvb && lte_rrc_conn_reconf_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_rr_rrc_targetRAT_MessageContainer);
+    nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, src_scg_eutra_config_tvb, actx->pinfo, subtree);
+  }
+
+#.FN_BODY CG-Config-v1560-IEs/scg-CellGroupConfigEUTRA VAL_PTR = &scg_cell_group_config_eutra_tvb
+  tvbuff_t *scg_cell_group_config_eutra_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (scg_cell_group_config_eutra_tvb && lte_rrc_conn_reconf_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_scg_CellGroupConfigEUTRA);
+    nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, scg_cell_group_config_eutra_tvb, actx->pinfo, subtree);
+  }
+
+#.FN_BODY CG-Config-v1560-IEs/candidateCellInfoListSN-EUTRA VAL_PTR = &cand_cell_info_list_sn_eutra_tvb
+  tvbuff_t *cand_cell_info_list_sn_eutra_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (cand_cell_info_list_sn_eutra_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_candidateCellInfoListSN_EUTRA);
+    dissect_lte_rrc_MeasResultList3EUTRA_r15_PDU(cand_cell_info_list_sn_eutra_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CG-ConfigInfo-v1560-IEs/candidateCellInfoListMN-EUTRA VAL_PTR = &cand_cell_info_list_mn_eutra_tvb
+  tvbuff_t *cand_cell_info_list_mn_eutra_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (cand_cell_info_list_mn_eutra_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_candidateCellInfoListMN_EUTRA);
+    dissect_lte_rrc_MeasResultList3EUTRA_r15_PDU(cand_cell_info_list_mn_eutra_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CG-ConfigInfo-v1560-IEs/candidateCellInfoListSN-EUTRA VAL_PTR = &cand_cell_info_list_sn_eutra_tvb
+  tvbuff_t *cand_cell_info_list_sn_eutra_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (cand_cell_info_list_sn_eutra_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_candidateCellInfoListSN_EUTRA);
+    dissect_lte_rrc_MeasResultList3EUTRA_r15_PDU(cand_cell_info_list_sn_eutra_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CG-ConfigInfo-v1560-IEs/sourceConfigSCG-EUTRA VAL_PTR = &source_config_scg_eutra_tvb
+  tvbuff_t *source_config_scg_eutra_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (source_config_scg_eutra_tvb && lte_rrc_conn_reconf_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_sourceConfigSCG_EUTRA);
+    nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, source_config_scg_eutra_tvb, actx->pinfo, subtree);
   }

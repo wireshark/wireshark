@@ -24,9 +24,6 @@ extern "C" {
 
 #include "ws_symbol_export.h"
 
-#define PR_DEST_CMD  0
-#define PR_DEST_FILE 1
-
 #define DEF_WIDTH 750
 #define DEF_HEIGHT 550
 
@@ -63,6 +60,15 @@ char string_to_name_resolve(const char *string, struct _e_addr_resolve *name_res
 #define TB_STYLE_ICONS          0
 #define TB_STYLE_TEXT           1
 #define TB_STYLE_BOTH           2
+
+/*
+ * Color styles.
+ */
+#define COLOR_STYLE_DEFAULT     0
+#define COLOR_STYLE_FLAT        1
+#define COLOR_STYLE_GRADIENT    2
+
+#define COLOR_STYLE_ALPHA       0.25
 
 /*
  * Types of layout of summary/details/hex panes.
@@ -130,25 +136,19 @@ typedef enum {
 } software_update_channel_e;
 
 typedef struct _e_prefs {
-  gint         pr_format;
-  gint         pr_dest;
-  gchar       *pr_file;
-  gchar       *pr_cmd;
   GList       *col_list;
   gint         num_cols;
   color_t      st_client_fg, st_client_bg, st_server_fg, st_server_bg;
   color_t      gui_text_valid, gui_text_invalid, gui_text_deprecated;
-  gboolean     gui_altern_colors; /* GTK only */
-  gboolean     gui_expert_composite_eyecandy;
-  gboolean     filter_toolbar_show_in_statusbar;
   gboolean     restore_filter_after_following_stream;
-  gint         gui_ptree_line_style;
-  gint         gui_ptree_expander_style;
-  gboolean     gui_hex_dump_highlight_style;
   gint         gui_toolbar_main_style;
-  gint         gui_toolbar_filter_style; /* GTK only? */
-  gchar       *gui_gtk2_font_name;
   gchar       *gui_qt_font_name;
+  color_t      gui_active_fg;
+  color_t      gui_active_bg;
+  gint         gui_active_style;
+  color_t      gui_inactive_fg;
+  color_t      gui_inactive_bg;
+  gint         gui_inactive_style;
   color_t      gui_marked_fg;
   color_t      gui_marked_bg;
   color_t      gui_ignored_fg;
@@ -158,7 +158,6 @@ typedef struct _e_prefs {
   gboolean     gui_geometry_save_position;
   gboolean     gui_geometry_save_size;
   gboolean     gui_geometry_save_maximized;
-  gboolean     gui_macosx_style; /* GTK only */
   console_open_e gui_console_open;
   guint        gui_recent_df_entries_max;
   guint        gui_recent_files_count_max;
@@ -166,40 +165,34 @@ typedef struct _e_prefs {
   gchar       *gui_fileopen_dir;
   guint        gui_fileopen_preview;
   gboolean     gui_ask_unsaved;
+  gboolean     gui_autocomplete_filter;
   gboolean     gui_find_wrap;
-  gboolean     gui_use_pref_save;
-  gchar       *gui_webbrowser;
   gchar       *gui_window_title;
   gchar       *gui_prepend_window_title;
   gchar       *gui_start_title;
   version_info_e gui_version_placement;
-  gboolean     gui_auto_scroll_on_expand; /* GTK+ only */
-  guint        gui_auto_scroll_percentage; /* GTK+ only */
   layout_type_e gui_layout_type;
   layout_pane_content_e gui_layout_content_1;
   layout_pane_content_e gui_layout_content_2;
   layout_pane_content_e gui_layout_content_3;
   gchar       *gui_interfaces_hide_types;
   gboolean     gui_interfaces_show_hidden;
-#ifdef HAVE_PCAP_REMOTE
   gboolean     gui_interfaces_remote_display;
-#endif
   gint         console_log_level;
   gchar       *capture_device;
   gchar       *capture_devices_linktypes;
   gchar       *capture_devices_descr;
   gchar       *capture_devices_hide;
   gchar       *capture_devices_monitor_mode;
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
   gchar       *capture_devices_buffersize;
-#endif
   gchar       *capture_devices_snaplen;
   gchar       *capture_devices_pmode;
   gchar       *capture_devices_filter; /* XXX - Mostly unused. Deprecate? */
   gboolean     capture_prom_mode;
   gboolean     capture_pcap_ng;
   gboolean     capture_real_time;
-  gboolean     capture_auto_scroll;
+  gboolean     capture_auto_scroll; /* XXX - Move to recent */
+  gboolean     capture_no_interface_load;
   gboolean     capture_no_extcap;
   gboolean     capture_show_info;
   GList       *capture_columns;
@@ -209,6 +202,7 @@ typedef struct _e_prefs {
   gboolean     enable_incomplete_dissectors_check;
   gboolean     incomplete_dissectors_check_debug;
   gboolean     strict_conversation_tracking_heuristics;
+  gboolean     filter_expressions_old;  /* TRUE if old filter expressions preferences were loaded. */
   gboolean     gui_update_enabled;
   software_update_channel_e gui_update_channel;
   gint         gui_update_interval;
@@ -264,6 +258,11 @@ WS_DLL_PUBLIC void prefs_set_gui_theme_is_dark(gboolean is_dark);
  * Register that a protocol has preferences.
  */
 WS_DLL_PUBLIC module_t *prefs_register_protocol(int id, void (*apply_cb)(void));
+
+/*
+ * Register an alias for a preference module.
+ */
+WS_DLL_PUBLIC void prefs_register_module_alias(const char *name, module_t *module);
 
 /**
  * Deregister preferences from a protocol.
@@ -644,7 +643,7 @@ WS_DLL_PUBLIC gboolean prefs_has_layout_pane_content (layout_pane_content_e layo
 #endif /* prefs.h */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

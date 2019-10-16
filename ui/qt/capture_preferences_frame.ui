@@ -98,6 +98,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="captureNoInterfaceLoad">
+     <property name="text">
+      <string>Don't load interfaces on startup</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QCheckBox" name="captureNoExtcapCheckBox">
      <property name="text">
       <string>Disable external capture interfaces</string>

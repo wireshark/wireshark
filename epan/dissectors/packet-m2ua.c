@@ -887,7 +887,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   {
      proto_item *hidden_item;
      hidden_item = proto_tree_add_uint(parameter_tree, hf_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, tag);
-     PROTO_ITEM_SET_HIDDEN(hidden_item);
+     proto_item_set_hidden(hidden_item);
 
      /* add tag and length to the m2ua tree */
      proto_tree_add_uint_format_value(parameter_tree, hf_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH,
@@ -1136,7 +1136,7 @@ proto_reg_handoff_m2ua(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

@@ -157,7 +157,7 @@ static const value_string linux_negative_errno_vals[] = {
 value_string_ext linux_negative_errno_vals_ext = VALUE_STRING_EXT_INIT(linux_negative_errno_vals);
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

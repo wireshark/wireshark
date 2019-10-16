@@ -215,21 +215,21 @@ dissect_spnego_MechTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const asn_namedbit ContextFlags_bits[] = {
-  {  0, &hf_spnego_ContextFlags_delegFlag, -1, -1, "delegFlag", NULL },
-  {  1, &hf_spnego_ContextFlags_mutualFlag, -1, -1, "mutualFlag", NULL },
-  {  2, &hf_spnego_ContextFlags_replayFlag, -1, -1, "replayFlag", NULL },
-  {  3, &hf_spnego_ContextFlags_sequenceFlag, -1, -1, "sequenceFlag", NULL },
-  {  4, &hf_spnego_ContextFlags_anonFlag, -1, -1, "anonFlag", NULL },
-  {  5, &hf_spnego_ContextFlags_confFlag, -1, -1, "confFlag", NULL },
-  {  6, &hf_spnego_ContextFlags_integFlag, -1, -1, "integFlag", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ContextFlags_bits[] = {
+  &hf_spnego_ContextFlags_delegFlag,
+  &hf_spnego_ContextFlags_mutualFlag,
+  &hf_spnego_ContextFlags_replayFlag,
+  &hf_spnego_ContextFlags_sequenceFlag,
+  &hf_spnego_ContextFlags_anonFlag,
+  &hf_spnego_ContextFlags_confFlag,
+  &hf_spnego_ContextFlags_integFlag,
+  NULL
 };
 
 static int
 dissect_spnego_ContextFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ContextFlags_bits, hf_index, ett_spnego_ContextFlags,
+                                    ContextFlags_bits, 7, hf_index, ett_spnego_ContextFlags,
                                     NULL);
 
   return offset;
@@ -1716,7 +1716,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
    * negotiation in a conversation.
    */
   next_level_value = (gssapi_oid_value *)p_get_proto_data(wmem_file_scope(), pinfo, proto_spnego, 0);
-  if (!next_level_value && !pinfo->fd->flags.visited) {
+  if (!next_level_value && !pinfo->fd->visited) {
       /*
        * No handle attached to this frame, but it's the first
        * pass, so it'd be attached to the conversation.
@@ -1893,31 +1893,31 @@ void proto_register_spnego(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_spnego_ContextFlags_delegFlag,
-      { "delegFlag", "spnego.delegFlag",
+      { "delegFlag", "spnego.ContextFlags.delegFlag",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_spnego_ContextFlags_mutualFlag,
-      { "mutualFlag", "spnego.mutualFlag",
+      { "mutualFlag", "spnego.ContextFlags.mutualFlag",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_spnego_ContextFlags_replayFlag,
-      { "replayFlag", "spnego.replayFlag",
+      { "replayFlag", "spnego.ContextFlags.replayFlag",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_spnego_ContextFlags_sequenceFlag,
-      { "sequenceFlag", "spnego.sequenceFlag",
+      { "sequenceFlag", "spnego.ContextFlags.sequenceFlag",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_spnego_ContextFlags_anonFlag,
-      { "anonFlag", "spnego.anonFlag",
+      { "anonFlag", "spnego.ContextFlags.anonFlag",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_spnego_ContextFlags_confFlag,
-      { "confFlag", "spnego.confFlag",
+      { "confFlag", "spnego.ContextFlags.confFlag",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_spnego_ContextFlags_integFlag,
-      { "integFlag", "spnego.integFlag",
+      { "integFlag", "spnego.ContextFlags.integFlag",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
 

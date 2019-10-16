@@ -1,14 +1,14 @@
 /* mate_runtime.c
-* MATE -- Meta Analysis Tracing Engine
-*
-* Copyright 2004, Luis E. Garcia Ontanon <luis@ontanon.org>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ * MATE -- Meta Analysis Tracing Engine
+ *
+ * Copyright 2004, Luis E. Garcia Ontanon <luis@ontanon.org>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "mate.h"
 
@@ -78,7 +78,7 @@ static gboolean destroy_mate_gogs(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 	if (gog->gog_keys) {
 		gog_remove_keys(gog);
-		g_ptr_array_free(gog->gog_keys,FALSE);
+		g_ptr_array_free(gog->gog_keys, TRUE);
 	}
 
 	g_slice_free(mate_max_size,(mate_max_size*)gog);
@@ -666,7 +666,7 @@ static void get_pdu_fields(gpointer k, gpointer v, gpointer p) {
 			start = fi->start;
 			end = fi->start + fi->length;
 
-			dbg_print(dbg_pdu,5,dbg_facility,"get_pdu_fields: found field %i-%i",start,end);
+			dbg_print(dbg_pdu,5,dbg_facility,"get_pdu_fields: found field %s, %i-%i, length %i", fi->hfinfo->abbrev, start, end, fi->length);
 
 			for (j = 0; j < data->ranges->len; j++) {
 
@@ -689,6 +689,11 @@ static void get_pdu_fields(gpointer k, gpointer v, gpointer p) {
 			}
 		}
 	}
+}
+
+static void ptr_array_free(gpointer data, gpointer user_data _U_)
+{
+	g_free(data);
 }
 
 static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto, proto_tree* tree) {
@@ -813,7 +818,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 
 	apply_transforms(pdu->cfg->transforms,pdu->avpl);
 
-	g_ptr_array_foreach(data.ranges, (GFunc)g_free, NULL);
+	g_ptr_array_foreach(data.ranges, ptr_array_free, NULL);
 	g_ptr_array_free(data.ranges,TRUE);
 
 	return pdu;
@@ -911,7 +916,7 @@ extern mate_pdu* mate_get_pdus(guint32 framenum) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

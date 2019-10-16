@@ -123,6 +123,19 @@
 #define IEEE802154_FCF_VERSION              0x3000
 #define IEEE802154_FCF_SADDR_MASK           0xC000  /* source addressing mask */
 
+/* Bit-masks for the Multipurpose FCF */
+#define IEEE802154_MPF_FCF_TYPE_MASK           0x0007
+#define IEEE802154_MPF_FCF_LONG_FC             0x0008
+#define IEEE802154_MPF_FCF_DADDR_MASK          0x0030
+#define IEEE802154_MPF_FCF_SADDR_MASK          0x00C0
+#define IEEE802154_MPF_FCF_PAN_ID_PRESENT      0x0100
+#define IEEE802154_MPF_FCF_SEC_EN              0x0200
+#define IEEE802154_MPF_FCF_SEQNO_SUPPRESSION   0x0400
+#define IEEE802154_MPF_FCF_FRAME_PND           0x0800
+#define IEEE802154_MPF_FCF_VERSION             0x3000
+#define IEEE802154_MPF_FCF_ACK_REQ             0x4000
+#define IEEE802154_MPF_FCF_IE_PRESENT          0x8000
+
 /* Frame Type Definitions */
 #define IEEE802154_FCF_BEACON                  0x0  /* Beacon Frame */
 #define IEEE802154_FCF_DATA                    0x1  /* Data Frame */
@@ -170,10 +183,10 @@
 
 /* Vendor OUIs */
 
-/*  Bit-masks for CC24xx style FCS */
-#define IEEE802154_CC24xx_CORRELATION       0x7F00
-#define IEEE802154_CC24xx_CRC_OK            0x8000
-#define IEEE802154_CC24xx_RSSI              0x00FF
+/*  Bit-masks for TI CC24xx end-of-packet metadata */
+#define IEEE802154_CC24xx_CRC_OK            0x8000 /* 1 if CRC OK, 0 if not */
+#define IEEE802154_CC24xx_CORRELATION       0x7F00 /* Some LQI stuff */
+#define IEEE802154_CC24xx_RSSI              0x00FF /* Raw RSSI */
 
 /*  Special IEEE802.15.4 Addresses */
 #define IEEE802154_NO_ADDR16                0xFFFE
@@ -196,6 +209,9 @@
 #define IEEE802154_THR_WELL_KNOWN_KEY_INDEX 0xff
 #define IEEE802154_THR_WELL_KNOWN_KEY_SRC   0xffffffff
 #define IEEE802154_THR_WELL_KNOWN_EXT_ADDR  0x3506feb823d48712ULL
+
+/* 802.15.4e LE-multipurpose Wake-up frame length */
+#define IEEE802154E_LE_WUF_LEN              12
 
 typedef enum {
     SECURITY_LEVEL_NONE = 0x00,
@@ -299,6 +315,9 @@ typedef enum {
 /* IEEE 802.15.4 cipher block size. */
 #define IEEE802154_CIPHER_SIZE                16
 
+/* IEEE 802.15 CID */
+#define IEEE80215_CID       0xBA55ECULL
+
 /* Macro to compute the MIC length. */
 #define IEEE802154_MIC_LENGTH(_level_) ((0x2 << ((_level_) & 0x3)) & ~0x3)
 /* Macro to check for payload encryption. */
@@ -382,6 +401,11 @@ typedef struct {
     gboolean    pan_id_compression;
     gboolean    seqno_suppression;
     gboolean    ie_present;
+
+    /* Fields exclusive to the 802.15.4-2015 multipurpose frame control field */
+    gboolean    long_frame_control;
+    gboolean    pan_id_present;
+
     guint8      seqno;
     /* Determined during processing of Header IE*/
     gboolean    payload_ie_present;
@@ -399,6 +423,7 @@ typedef struct {
     gboolean    frame_counter_suppression; /* 802.15.4-2015 */
     guint32     frame_counter;
     guint8      key_sequence_counter;    /* Only for 802.15.4-2003 security suite with encryption */
+    guint64     asn;
 
     union {
         guint32 addr32;
@@ -570,5 +595,7 @@ extern gboolean ieee802154_long_addr_invalidate(guint64, guint);
 extern ieee802154_map_tab_t ieee802154_map;
 
 extern const value_string ieee802154_mpx_kmp_id_vals[];
+
+extern guint ieee802154_fcs_len;
 
 #endif /* PACKET_IEEE802154_H */

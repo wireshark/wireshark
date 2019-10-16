@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -77,7 +78,7 @@ typedef struct _io_stat_item_t {
 
 static guint64 last_relative_time;
 
-static int
+static tap_packet_status
 iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
     io_stat_t *parent;
@@ -505,7 +506,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                     break;
             }
     }
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 static int
@@ -1371,7 +1372,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
     g_free(field);
 
     error_string = register_tap_listener("frame", &io->items[i], flt, TL_REQUIRES_PROTO_TREE, NULL,
-                                       iostat_packet, i ? NULL : iostat_draw);
+                                       iostat_packet, i ? NULL : iostat_draw, NULL);
     if (error_string) {
         g_free(io->items);
         g_free(io);
@@ -1539,7 +1540,7 @@ register_tap_listener_iostat(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -450,7 +450,7 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
             bw_key[3].key = NULL;
 
 
-            if ( !(assoc = (sua_assoc_info_t *)wmem_tree_lookup32_array(assocs,bw_key)) && ! pinfo->fd->flags.visited) {
+            if ( !(assoc = (sua_assoc_info_t *)wmem_tree_lookup32_array(assocs,bw_key)) && ! pinfo->fd->visited) {
                 assoc = new_assoc(opck, dpck);
                 wmem_tree_insert32_array(assocs,bw_key,assoc);
                 assoc->has_bw_key = TRUE;
@@ -503,12 +503,12 @@ got_assoc:
 
             pinfo->p2p_dir = P2P_DIR_RECV;
 
-            if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
+            if ( ! pinfo->fd->visited && ! assoc->has_bw_key ) {
                 wmem_tree_insert32_array(assocs, bw_key, assoc);
                 assoc->has_bw_key = TRUE;
             }
 
-            if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
+            if ( ! pinfo->fd->visited && ! assoc->has_fw_key ) {
                 wmem_tree_insert32_array(assocs, fw_key, assoc);
                 assoc->has_fw_key = TRUE;
             }
@@ -2209,7 +2209,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
       }
       if (assoc && assoc->assoc_id !=0) {
           assoc_item = proto_tree_add_uint(tree, hf_sua_assoc_id, message_tvb, 0, 0, assoc->assoc_id);
-          PROTO_ITEM_SET_GENERATED(assoc_item);
+          proto_item_set_generated(assoc_item);
 #if 0
           assoc_tree = proto_item_add_subtree(assoc_item, ett_sua_assoc);
           proto_tree_add_debug_text(assoc_tree, message_tvb, 0, 0, "routing_ind %u", assoc->calling_routing_ind);
@@ -2479,7 +2479,7 @@ proto_reg_handoff_sua(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

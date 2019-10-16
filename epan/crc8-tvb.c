@@ -84,7 +84,7 @@ guint8 get_crc8_ieee8023_epon(tvbuff_t *p, guint8 len, guint8 offset) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -138,7 +138,7 @@ install(
 		dtd_gen.lua
 		${CMAKE_CURRENT_BINARY_DIR}/init.lua
 	DESTINATION
-		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
+		${CMAKE_INSTALL_DATADIR}
 )
 
 add_library(wslua OBJECT
@@ -154,13 +154,13 @@ CHECKAPI(
 	NAME
 	  wslua
 	SWITCHES
-	  -g termoutput -build
+	  --group termoutput:6 --summary-group termoutput --build
 	SOURCES
 	  ${WSLUA_FILES}
 )
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

@@ -179,6 +179,14 @@ WS_DLL_PUBLIC dissector_table_t register_dissector_table(const char *name,
 WS_DLL_PUBLIC dissector_table_t register_custom_dissector_table(const char *name,
     const char *ui_name, const int proto, GHashFunc hash_func, GEqualFunc key_equal_func);
 
+/** Register a dissector table alias.
+ * This is for dissectors whose original name has changed, e.g. SSL to TLS.
+ * @param dissector_table dissector table returned by register_dissector_table.
+ * @param alias_name alias for the dissector table name.
+ */
+WS_DLL_PUBLIC void register_dissector_table_alias(dissector_table_t dissector_table,
+    const char *alias_name);
+
 /** Deregister the dissector table by table name. */
 void deregister_dissector_table(const char *name);
 
@@ -383,6 +391,12 @@ WS_DLL_PUBLIC void dissector_change_payload(const char *abbrev, dissector_handle
 /* Reset payload (FT_NONE) dissector table to its initial value. */
 WS_DLL_PUBLIC void dissector_reset_payload(const char *name);
 
+/* Given a payload dissector table (type FT_NONE), return the handle of
+   the dissector that is currently active, i.e. that was selected via
+   Decode As. */
+WS_DLL_PUBLIC dissector_handle_t dissector_get_payload_handle(
+        dissector_table_t const dissector_table);
+
 /* Add a handle to the list of handles that *could* be used with this
    table.  That list is used by the "Decode As"/"-d" code in the UI. */
 WS_DLL_PUBLIC void dissector_add_for_decode_as(const char *name,
@@ -431,6 +445,7 @@ typedef struct heur_dtbl_entry {
  *  Call this in the parent dissectors proto_register function.
  *
  * @param name the name of this protocol
+ * @param proto the value obtained when regestering the protocol
  */
 WS_DLL_PUBLIC heur_dissector_list_t register_heur_dissector_list(const char *name, const int proto);
 

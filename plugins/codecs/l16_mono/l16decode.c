@@ -13,7 +13,7 @@
 #include <glib.h>
 #include <string.h>
 
-#include "codecs/codecs.h"
+#include "wsutil/codecs.h"
 #include "ws_attributes.h"
 
 void codec_register_l16(void);
@@ -72,7 +72,7 @@ codec_register_l16(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

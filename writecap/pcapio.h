@@ -43,7 +43,7 @@ pcapng_write_block(FILE* pfile,
  *
  */
 extern gboolean
-pcapng_write_session_header_block(FILE* pfile,  /**< Write information */
+pcapng_write_section_header_block(FILE* pfile,  /**< Write information */
                                   const char *comment,  /**< Comment on the section, Optinon 1 opt_comment
                                                          * A UTF-8 string containing a comment that is associated to the current block.
                                                          */
@@ -99,7 +99,7 @@ pcapng_write_enhanced_packet_block(FILE* pfile,
                                    int *err);
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

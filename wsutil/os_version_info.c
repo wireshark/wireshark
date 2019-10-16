@@ -179,6 +179,14 @@ get_macos_version_info(GString *str)
 }
 #endif
 
+#ifdef _WIN32
+typedef LONG (WINAPI * RtlGetVersionProc) (OSVERSIONINFOEX *);
+#ifndef STATUS_SUCCESS
+#define STATUS_SUCCESS 0
+#endif
+#include <stdlib.h>
+#endif // _WIN32
+
 /*
  * Get the OS version, and append it to the GString
  */
@@ -186,34 +194,33 @@ void
 get_os_version_info(GString *str)
 {
 #if defined(_WIN32)
-	OSVERSIONINFOEX info;
-	SYSTEM_INFO system_info;
-#elif defined(HAVE_SYS_UTSNAME_H)
-	struct utsname name;
-#endif
 
-#if defined(_WIN32)
+	OSVERSIONINFOEX win_version_info = {0};
+	RtlGetVersionProc RtlGetVersionP = 0;
+	LONG version_status = STATUS_ENTRYPOINT_NOT_FOUND; // Any nonzero value should work.
+
 	/*
-	 * See
-	 *
-	 *	http://msdn.microsoft.com/library/default.asp?url=/library/en-us/sysinfo/base/getting_the_system_version.asp
-	 *
-	 * for more than you ever wanted to know about determining the
-	 * flavor of Windows on which you're running.  Implementing more
-	 * of that is left as an exercise to the reader - who should
-	 * check any copyright information about code samples on MSDN
-	 * before cutting and pasting into Wireshark.
-	 *
-	 * They should also note that you need an OSVERSIONINFOEX structure
-	 * to get some of that information, and that not only is that
-	 * structure not supported on older versions of Windows, you might
-	 * not even be able to compile code that *uses* that structure with
-	 * older versions of the SDK.
+	 * We want the major and minor Windows version along with other
+	 * information. GetVersionEx provides this, but is deprecated.
+	 * We use RtlGetVersion instead, which requires a bit of extra
+	 * effort.
 	 */
 
-	memset(&info, '\0', sizeof info);
-	info.dwOSVersionInfoSize = sizeof info;
-	if (!GetVersionEx((OSVERSIONINFO *)&info)) {
+	HMODULE ntdll_module = LoadLibrary(_T("ntdll.dll"));
+	if (ntdll_module) {
+		RtlGetVersionP = (RtlGetVersionProc) GetProcAddress(ntdll_module, "RtlGetVersion");
+	}
+
+	if (RtlGetVersionP) {
+		win_version_info.dwOSVersionInfoSize = sizeof(win_version_info);
+		version_status = RtlGetVersionP(&win_version_info);
+	}
+
+	if (ntdll_module) {
+		FreeLibrary(ntdll_module);
+	}
+
+	if (version_status != STATUS_SUCCESS) {
 		/*
 		 * XXX - get the failure reason.
 		 */
@@ -221,12 +228,13 @@ get_os_version_info(GString *str)
 		return;
 	}
 
+	SYSTEM_INFO system_info;
 	memset(&system_info, '\0', sizeof system_info);
 	/* Look for and use the GetNativeSystemInfo() function to get the correct processor architecture
 	 * even when running 32-bit Wireshark in WOW64 (x86 emulation on 64-bit Windows) */
 	GetNativeSystemInfo(&system_info);
 
-	switch (info.dwPlatformId) {
+	switch (win_version_info.dwPlatformId) {
 
 	case VER_PLATFORM_WIN32s:
 		/* Shyeah, right. */
@@ -235,11 +243,11 @@ get_os_version_info(GString *str)
 
 	case VER_PLATFORM_WIN32_WINDOWS:
 		/* Windows OT */
-		switch (info.dwMajorVersion) {
+		switch (win_version_info.dwMajorVersion) {
 
 		case 4:
 			/* 3 cheers for Microsoft marketing! */
-			switch (info.dwMinorVersion) {
+			switch (win_version_info.dwMinorVersion) {
 
 			case 0:
 				g_string_append_printf(str, "Windows 95");
@@ -255,31 +263,31 @@ get_os_version_info(GString *str)
 
 			default:
 				g_string_append_printf(str, "Windows OT, unknown version %lu.%lu",
-				    info.dwMajorVersion, info.dwMinorVersion);
+				    win_version_info.dwMajorVersion, win_version_info.dwMinorVersion);
 				break;
 			}
 			break;
 
 		default:
 			g_string_append_printf(str, "Windows OT, unknown version %lu.%lu",
-			    info.dwMajorVersion, info.dwMinorVersion);
+			    win_version_info.dwMajorVersion, win_version_info.dwMinorVersion);
 			break;
 		}
 		break;
 
 	case VER_PLATFORM_WIN32_NT:
 		/* Windows NT */
-		switch (info.dwMajorVersion) {
+		switch (win_version_info.dwMajorVersion) {
 
 		case 3:
 		case 4:
 			g_string_append_printf(str, "Windows NT %lu.%lu",
-			    info.dwMajorVersion, info.dwMinorVersion);
+			    win_version_info.dwMajorVersion, win_version_info.dwMinorVersion);
 			break;
 
 		case 5:
 			/* 3 cheers for Microsoft marketing! */
-			switch (info.dwMinorVersion) {
+			switch (win_version_info.dwMinorVersion) {
 
 			case 0:
 				g_string_append_printf(str, "Windows 2000");
@@ -290,7 +298,7 @@ get_os_version_info(GString *str)
 				break;
 
 			case 2:
-				if ((info.wProductType == VER_NT_WORKSTATION) &&
+				if ((win_version_info.wProductType == VER_NT_WORKSTATION) &&
 				    (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)) {
 					g_string_append_printf(str, "Windows XP Professional x64 Edition");
 				} else {
@@ -302,7 +310,7 @@ get_os_version_info(GString *str)
 
 			default:
 				g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
-						       info.dwMajorVersion, info.dwMinorVersion);
+						       win_version_info.dwMajorVersion, win_version_info.dwMinorVersion);
 				break;
 			}
 			break;
@@ -316,11 +324,11 @@ get_os_version_info(GString *str)
 				g_string_append(str, "32-bit ");
 #ifndef VER_NT_WORKSTATION
 #define VER_NT_WORKSTATION 0x01
-			is_nt_workstation = ((info.wReserved[1] & 0xff) == VER_NT_WORKSTATION);
+			is_nt_workstation = ((win_version_info.wReserved[1] & 0xff) == VER_NT_WORKSTATION);
 #else
-			is_nt_workstation = (info.wProductType == VER_NT_WORKSTATION);
+			is_nt_workstation = (win_version_info.wProductType == VER_NT_WORKSTATION);
 #endif
-			switch (info.dwMinorVersion) {
+			switch (win_version_info.dwMinorVersion) {
 			case 0:
 				g_string_append_printf(str, is_nt_workstation ? "Windows Vista" : "Windows Server 2008");
 				break;
@@ -335,7 +343,7 @@ get_os_version_info(GString *str)
 				break;
 			default:
 				g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
-						       info.dwMajorVersion, info.dwMinorVersion);
+						       win_version_info.dwMajorVersion, win_version_info.dwMinorVersion);
 				break;
 			}
 			break;
@@ -343,19 +351,25 @@ get_os_version_info(GString *str)
 
 		case 10: {
 			gboolean is_nt_workstation;
+                        TCHAR ReleaseId[10];
+                        DWORD ridSize = _countof(ReleaseId);
 
 			if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
 				g_string_append(str, "64-bit ");
 			else if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
 				g_string_append(str, "32-bit ");
-			is_nt_workstation = (info.wProductType == VER_NT_WORKSTATION);
-			switch (info.dwMinorVersion) {
+			is_nt_workstation = (win_version_info.wProductType == VER_NT_WORKSTATION);
+			switch (win_version_info.dwMinorVersion) {
 			case 0:
 				g_string_append_printf(str, is_nt_workstation ? "Windows 10" : "Windows Server 2016");
+                                if (RegGetValue(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+                                                L"ReleaseId", RRF_RT_REG_SZ, NULL, &ReleaseId, &ridSize) == ERROR_SUCCESS) {
+                                        g_string_append_printf(str, " (%s)", utf_16to8(ReleaseId));
+                                }
 				break;
 			default:
 				g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
-						       info.dwMajorVersion, info.dwMinorVersion);
+						       win_version_info.dwMajorVersion, win_version_info.dwMinorVersion);
 				break;
 			}
 			break;
@@ -363,20 +377,21 @@ get_os_version_info(GString *str)
 
 		default:
 			g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
-			    info.dwMajorVersion, info.dwMinorVersion);
+			    win_version_info.dwMajorVersion, win_version_info.dwMinorVersion);
 			break;
 		} /* info.dwMajorVersion */
 		break;
 
 	default:
 		g_string_append_printf(str, "Unknown Windows platform %lu version %lu.%lu",
-		    info.dwPlatformId, info.dwMajorVersion, info.dwMinorVersion);
+		    win_version_info.dwPlatformId, win_version_info.dwMajorVersion, win_version_info.dwMinorVersion);
 		break;
 	}
-	if (info.szCSDVersion[0] != '\0')
-		g_string_append_printf(str, " %s", utf_16to8(info.szCSDVersion));
-	g_string_append_printf(str, ", build %lu", info.dwBuildNumber);
+	if (win_version_info.szCSDVersion[0] != '\0')
+		g_string_append_printf(str, " %s", utf_16to8(win_version_info.szCSDVersion));
+	g_string_append_printf(str, ", build %lu", win_version_info.dwBuildNumber);
 #elif defined(HAVE_SYS_UTSNAME_H)
+	struct utsname name;
 	/*
 	 * We have <sys/utsname.h>, so we assume we have "uname()".
 	 */
@@ -495,32 +510,8 @@ get_os_version_info(GString *str)
 #endif
 }
 
-#if defined(_WIN32)
 /*
- * Get the Windows major OS version.
- *
- * XXX - Should this return the minor version as well, e.g. 0x00050002?
- *
- * XXX - I think Microsoft have now stuck it at 6 forever, so it really
- * distinguishes, on the versions of Windows we currently support and
- * future Windows versions between Windows 2000/XP (major version 5) and
- * everything after it (major version 6).
- */
-guint32
-get_windows_major_version(void)
-{
-	OSVERSIONINFO info;
-
-	info.dwOSVersionInfoSize = sizeof info;
-	if (GetVersionEx(&info)) {
-		return info.dwMajorVersion;
-	}
-	return 0;
-}
-#endif
-
-/*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

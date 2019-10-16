@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "lte_rlc_graph_dialog.h"
 #include <ui_lte_rlc_graph_dialog.h>
@@ -20,7 +21,6 @@
 
 #include <ui/qt/utils/tango_colors.h>
 
-#include <QFileDialog>
 #include <QMenu>
 #include <QRubberBand>
 
@@ -28,6 +28,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 #include "simple_dialog.h"
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <epan/dissectors/packet-rlc-lte.h>
 
@@ -161,7 +162,6 @@ void LteRlcGraphDialog::completeGraph(bool may_be_empty)
 
     // Create tracer
     tracer_ = new QCPItemTracer(sp);
-    sp->addItem(tracer_);
     tracer_->setVisible(false);
     toggleTracerStyle(true);
 
@@ -237,7 +237,7 @@ void LteRlcGraphDialog::fillGraph()
 
     // Will show all graphs with data we find.
     for (int i = 0; i < sp->graphCount(); i++) {
-        sp->graph(i)->clearData();
+        sp->graph(i)->data()->clear();
         sp->graph(i)->setVisible(true);
     }
 
@@ -430,7 +430,7 @@ void LteRlcGraphDialog::zoomAxes(bool in)
 
     rp->xAxis->scaleRange(h_factor, rp->xAxis->range().center());
     rp->yAxis->scaleRange(v_factor, rp->yAxis->range().center());
-    rp->replot(QCustomPlot::rpQueued);
+    rp->replot(QCustomPlot::rpQueuedReplot);
 }
 
 void LteRlcGraphDialog::zoomXAxis(bool in)
@@ -443,7 +443,7 @@ void LteRlcGraphDialog::zoomXAxis(bool in)
     }
 
     rp->xAxis->scaleRange(h_factor, rp->xAxis->range().center());
-    rp->replot(QCustomPlot::rpQueued);
+    rp->replot(QCustomPlot::rpQueuedReplot);
 }
 
 void LteRlcGraphDialog::zoomYAxis(bool in)
@@ -469,7 +469,7 @@ void LteRlcGraphDialog::zoomYAxis(bool in)
     }
 
     rp->yAxis->scaleRange(v_factor, rp->yAxis->range().center());
-    rp->replot(QCustomPlot::rpQueued);
+    rp->replot(QCustomPlot::rpQueuedReplot);
 }
 
 void LteRlcGraphDialog::panAxes(int x_pixels, int y_pixels)
@@ -494,11 +494,11 @@ void LteRlcGraphDialog::panAxes(int x_pixels, int y_pixels)
     // The GTK+ version won't pan unless we're zoomed. Should we do the same here?
     if (h_pan) {
         rp->xAxis->moveRange(h_pan);
-        rp->replot(QCustomPlot::rpQueued);
+        rp->replot(QCustomPlot::rpQueuedReplot);
     }
     if (v_pan) {
         rp->yAxis->moveRange(v_pan);
-        rp->replot(QCustomPlot::rpQueued);
+        rp->replot(QCustomPlot::rpQueuedReplot);
     }
 }
 
@@ -599,7 +599,7 @@ void LteRlcGraphDialog::mouseMoved(QMouseEvent *event)
             tracer_->setVisible(false);
             hint += "Hover over the graph for details. </i></small>";
             ui->hintLabel->setText(hint);
-            ui->rlcPlot->replot(QCustomPlot::rpQueued);
+            ui->rlcPlot->replot(QCustomPlot::rpQueuedReplot);
             return;
         }
 
@@ -618,7 +618,7 @@ void LteRlcGraphDialog::mouseMoved(QMouseEvent *event)
         // Redrawing the whole graph is making the update *very* slow!
         // TODO: Is there a way just to draw the parts that may have changed?
         // In the GTK version, we displayed the stored pixbuf and draw temporary items on top...
-        rp->replot(QCustomPlot::rpQueued);
+        rp->replot(QCustomPlot::rpQueuedReplot);
 
     } else {
         if (event && rubber_band_ && rubber_band_->isVisible()) {
@@ -683,7 +683,7 @@ void LteRlcGraphDialog::resetAxes()
     axis_pixels = rp->yAxis->axisRect()->height();
     rp->yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, rp->yAxis->range().center());
 
-    rp->replot(QCustomPlot::rpQueued);
+    rp->replot(QCustomPlot::rpQueuedReplot);
 }
 
 void LteRlcGraphDialog::on_actionGoToPacket_triggered()
@@ -855,7 +855,7 @@ void LteRlcGraphDialog::on_buttonBox_accepted()
             .arg(bmp_filter)
             .arg(jpeg_filter);
 
-    file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As" UTF8_HORIZONTAL_ELLIPSIS)),
+    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As" UTF8_HORIZONTAL_ELLIPSIS)),
                                              path.canonicalPath(), filter, &extension);
 
     if (file_name.length() > 0) {

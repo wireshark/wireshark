@@ -1,6 +1,6 @@
 -- SBC-AP-PDU-Descriptions.asn
 --
--- Taken from 3GPP TS 29.168 V14.2.0 (2017-12)
+-- Taken from 3GPP TS 29.168 V15.1.0 (2018-09)
 -- http://www.3gpp.org/ftp/Specs/archive/29_series/29.168/29168-930.zip
 --
 -- 4.4.3	Elementary Procedure Definitions
@@ -58,18 +58,18 @@ FROM SBC-AP-Constants;
 -- **************************************************************
 
 SBC-AP-ELEMENTARY-PROCEDURE ::= CLASS {
-	&InitiatingMessage				,
-	&SuccessfulOutcome				OPTIONAL,
-	&UnsuccessfulOutcome				OPTIONAL,
-	&procedureCode			ProcedureCode 	UNIQUE,
-	&criticality			Criticality 	DEFAULT ignore
+	&InitiatingMessage	,
+	&SuccessfulOutcome	OPTIONAL,
+	&UnsuccessfulOutcome	OPTIONAL,
+	&procedureCode	ProcedureCode 	UNIQUE,
+	&criticality	Criticality 	DEFAULT ignore
 }
 WITH SYNTAX {
-	INITIATING MESSAGE		&InitiatingMessage
-	[SUCCESSFUL OUTCOME		&SuccessfulOutcome]
+	INITIATING MESSAGE	&InitiatingMessage
+	[SUCCESSFUL OUTCOME	&SuccessfulOutcome]
 	[UNSUCCESSFUL OUTCOME	&UnsuccessfulOutcome]
-	PROCEDURE CODE			&procedureCode
-	[CRITICALITY			&criticality]
+	PROCEDURE CODE	&procedureCode
+	[CRITICALITY	&criticality]
 }
 
 -- **************************************************************
@@ -87,20 +87,20 @@ SBC-AP-PDU ::= CHOICE {
 
 InitiatingMessage ::= SEQUENCE {
 	procedureCode	SBC-AP-ELEMENTARY-PROCEDURE.&procedureCode	({SBC-AP-ELEMENTARY-PROCEDURES}),
-	criticality	SBC-AP-ELEMENTARY-PROCEDURE.&criticality		({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
-	value		SBC-AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+	criticality	SBC-AP-ELEMENTARY-PROCEDURE.&criticality	({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value	SBC-AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
 SuccessfulOutcome ::= SEQUENCE {
 	procedureCode	SBC-AP-ELEMENTARY-PROCEDURE.&procedureCode	({SBC-AP-ELEMENTARY-PROCEDURES}),
-	criticality	SBC-AP-ELEMENTARY-PROCEDURE.&criticality		({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
-	value		SBC-AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+	criticality	SBC-AP-ELEMENTARY-PROCEDURE.&criticality	({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value	SBC-AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
 UnsuccessfulOutcome ::= SEQUENCE {
 	procedureCode	SBC-AP-ELEMENTARY-PROCEDURE.&procedureCode	({SBC-AP-ELEMENTARY-PROCEDURES}),
-	criticality	SBC-AP-ELEMENTARY-PROCEDURE.&criticality		({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
-	value		SBC-AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+	criticality	SBC-AP-ELEMENTARY-PROCEDURE.&criticality	({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value	SBC-AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
 -- **************************************************************
@@ -116,8 +116,8 @@ SBC-AP-ELEMENTARY-PROCEDURES SBC-AP-ELEMENTARY-PROCEDURE ::= {
 }
 
 SBC-AP-ELEMENTARY-PROCEDURES-CLASS-1 SBC-AP-ELEMENTARY-PROCEDURE ::= {
-	write-Replace-Warning 		|
-	stop-Warning			,
+	write-Replace-Warning 	|
+	stop-Warning	,
 	...
 }
 
@@ -134,47 +134,46 @@ write-Replace-Warning SBC-AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE	Write-Replace-Warning-Request
 	SUCCESSFUL OUTCOME	Write-Replace-Warning-Response
 	
-	PROCEDURE CODE		id-Write-Replace-Warning
-	CRITICALITY			reject
+	PROCEDURE CODE	id-Write-Replace-Warning
+	CRITICALITY	reject
 }
 
 stop-Warning SBC-AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE	Stop-Warning-Request
 	SUCCESSFUL OUTCOME	Stop-Warning-Response
 	
-	PROCEDURE CODE		id-Stop-Warning
-	CRITICALITY			reject
+	PROCEDURE CODE	id-Stop-Warning
+	CRITICALITY	reject
 }
 
 error-Indication SBC-AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE	Error-Indication
-	PROCEDURE CODE		id-Error-Indication
-	CRITICALITY			ignore
+	PROCEDURE CODE	id-Error-Indication
+	CRITICALITY	ignore
 }
 
 write-Replace-Warning-Indication SBC-AP-ELEMENTARY-PROCEDURE	::= {
 	INITIATING MESSAGE	Write-Replace-Warning-Indication
-	PROCEDURE CODE		id-Write-Replace-Warning-Indication
-	CRITICALITY			ignore
+	PROCEDURE CODE	id-Write-Replace-Warning-Indication
+	CRITICALITY	ignore
 }
 
 stop-Warning-Indication SBC-AP-ELEMENTARY-PROCEDURE	::= {
 	INITIATING MESSAGE	Stop-Warning-Indication
-	PROCEDURE CODE		id-Stop-Warning-Indication
-	CRITICALITY			ignore
+	PROCEDURE CODE	id-Stop-Warning-Indication
+	CRITICALITY	ignore
 }
 
 pws-Restart-Indication SBC-AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE	PWS-Restart-Indication
-	PROCEDURE CODE		id-PWS-Restart-Indication
-	CRITICALITY			ignore
+	PROCEDURE CODE	id-PWS-Restart-Indication
+	CRITICALITY	ignore
 }
 
 pws-Failure-Indication SBC-AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE	PWS-Failure-Indication
-	PROCEDURE CODE		id-PWS-Failure-Indication
-	CRITICALITY			ignore
+	PROCEDURE CODE	id-PWS-Failure-Indication
+	CRITICALITY	ignore
 }
 
 END
-

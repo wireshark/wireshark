@@ -1,5 +1,9 @@
 /* packet-devicenet.c
  * Routines for dissection of DeviceNet
+ * DeviceNet Home: www.odva.org
+ *
+ * This dissector includes items from:
+ *    CIP Volume 3: DeviceNet Adaptation of CIP, Edition 1.14
  *
  * Michael Mann
  * Erik Ivarsson <eriki@student.chalmers.se>
@@ -27,7 +31,7 @@
 void proto_register_devicenet(void);
 void proto_reg_handoff_devicenet(void);
 
-#define DEVICENET_CANID_MASK            0x7FF
+#define DEVICENET_CANID_MASK            CAN_SFF_MASK
 #define MESSAGE_GROUP_1_ID              0x3FF
 #define MESSAGE_GROUP_1_MSG_MASK        0x3C0
 #define MESSAGE_GROUP_1_MAC_ID_MASK     0x03F
@@ -414,13 +418,9 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     DISSECTOR_ASSERT(data);
     can_id = *((struct can_identifier*)data);
 
-    /* XXX - Not sure this is correct.  But the capture provided in
-    * bug 8564 provides CAN ID in little endian format, so this makes it work */
-    can_id.id = GUINT32_SWAP_LE_BE(can_id.id);
-
-    if (can_id.id & (~DEVICENET_CANID_MASK))
+    if (can_id.id & (CAN_ERR_FLAG | CAN_RTR_FLAG | CAN_EFF_FLAG))
     {
-        /* Not for us */
+        /* Error, RTR and frames with extended ids are not for us. */
         return 0;
     }
 
@@ -431,7 +431,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     can_tree = proto_tree_add_subtree_format(devicenet_tree, tvb, 0, 0, ett_devicenet_can, NULL, "CAN Identifier: 0x%04x", can_id.id);
     can_id_item = proto_tree_add_uint(can_tree, hf_devicenet_can_id, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(can_id_item);
+    proto_item_set_generated(can_id_item);
 
     /*
      * Message group 1
@@ -439,9 +439,9 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if ( can_id.id <= MESSAGE_GROUP_1_ID )
     {
         ti = proto_tree_add_uint(can_tree, hf_devicenet_grp_msg1_id, tvb, 0, 0, can_id.id);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         ti = proto_tree_add_uint(can_tree, hf_devicenet_src_mac_id, tvb, 0, 0, can_id.id & MESSAGE_GROUP_1_MAC_ID_MASK);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Set source address */
         src_address = (guint8*)wmem_alloc(pinfo->pool, 1);
@@ -459,14 +459,14 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     else if (can_id.id <= MESSAGE_GROUP_2_ID )
     {
         ti = proto_tree_add_uint(can_tree, hf_devicenet_grp_msg2_id, tvb, 0, 0, can_id.id);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* create display subtree for the protocol */
         message_id = can_id.id & MESSAGE_GROUP_2_MSG_MASK;
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_id, devicenet_grp_msg2_vals, "Unknown"));
 
         ti = proto_tree_add_uint(can_tree, hf_devicenet_src_mac_id, tvb, 0, 0, (can_id.id & MESSAGE_GROUP_2_MAC_ID_MASK) >> 3);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Set source address */
         src_address = (guint8*)wmem_alloc(pinfo->pool, 1);
@@ -510,9 +510,9 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         guint8 byte1;
 
         msg_id_item = proto_tree_add_uint(can_tree, hf_devicenet_grp_msg3_id, tvb, 0, 0, can_id.id);
-        PROTO_ITEM_SET_GENERATED(msg_id_item);
+        proto_item_set_generated(msg_id_item);
         ti = proto_tree_add_uint(can_tree, hf_devicenet_src_mac_id, tvb, 0, 0, can_id.id & MESSAGE_GROUP_3_MAC_ID_MASK);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Set source address */
         src_address = (guint8*)wmem_alloc(pinfo->pool, 1);
@@ -547,7 +547,10 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             /* TODO: Handle fragmentation */
             proto_tree_add_expert(content_tree, pinfo, &ei_devicenet_frag_not_supported, tvb, offset, -1);
 
-            col_set_str(pinfo->cinfo, COL_INFO, try_val_to_str((tvb_get_guint8(tvb, offset) & 0xC0) >> 6, devicenet_fragmented_message_type_vals));
+            col_set_str(pinfo->cinfo, COL_INFO,
+                        val_to_str_const((tvb_get_guint8(tvb, offset) & 0xC0) >> 6,
+                                         devicenet_fragmented_message_type_vals,
+                                         "Unknown fragmented message type"));
         }
         else
         {
@@ -684,7 +687,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     else if (can_id.id <= MESSAGE_GROUP_4_ID )
     {
         ti = proto_tree_add_uint(can_tree, hf_devicenet_grp_msg4_id, tvb, 0, 0, can_id.id);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         message_id = can_id.id & MESSAGE_GROUP_4_MSG_MASK;
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_id, devicenet_grp_msg4_vals, "Reserved Group 4 Message"));
@@ -1053,7 +1056,7 @@ proto_reg_handoff_devicenet(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

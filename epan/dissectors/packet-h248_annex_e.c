@@ -74,6 +74,7 @@ static h248_pkg_param_t h248_pkg_generic_cause_evt_params[] = {
 	{ 0, NULL, NULL, NULL}
 };
 
+#if 0
 static const value_string h248_pkg_generic_sc_meth_vals[] _U_ = {
 	{0x0001,"Signal Identity (SigID)"},
 	{0x0002,"Termination Method (Meth)"},
@@ -81,6 +82,7 @@ static const value_string h248_pkg_generic_sc_meth_vals[] _U_ = {
 	{0x0004,"Request ID (RID)"},
 	{0,NULL}
 };
+#endif
 
 static const value_string h248_pkg_generic_sc_vals[] = {
 	{0x0001,"TO - Signal timed out or otherwise completed on its own"},
@@ -727,7 +729,7 @@ static const value_string  h248_pkg_al_evt_flashhook_params_vals[] = {
 };
 
 /* Packet definitions */
-static const value_string h248_pkg_al_sig_evts_vals[] _U_ = {
+static const value_string h248_pkg_al_sig_evts_vals[] = {
 	/* Signals */
 	{   0x0002, "ri (Ring)" },
 	/* Events */
@@ -799,10 +801,10 @@ static h248_package_t h248_pkg_al = {
 	h248_pkg_al_sig_evts_vals,
 	h248_pkg_al_sig_evts_vals,
 	NULL,
-	NULL,						/* Properties */
+	NULL,					/* Properties */
 	h248_pkg_al_sig,			/* signals */
 	h248_pkg_al_evts,			/* events */
-	NULL						/* statistics */
+	NULL					/* statistics */
 };
 
 
@@ -865,10 +867,12 @@ static int hf_h248_pkg_rtp_stat_ps = -1;
 
 static gint ett_h248_pkg_rtp = -1;
 
+#if 0
 static const value_string h248_pkg_rtp_stat_vals[] _U_ = {
 	{ 0x0004, "ps"},
 	{ 0, NULL}
 };
+#endif
 
 static const value_string h248_pkg_rtp_props_vals[] = {
 	{   0x0000, "RTP Package - Annex E (rtp)" },
@@ -1162,7 +1166,7 @@ void proto_register_h248_annex_e(void) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

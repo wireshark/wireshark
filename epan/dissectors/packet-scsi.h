@@ -238,8 +238,8 @@ extern value_string_ext scsi_asc_val_ext;
  * This is semi-common in SCSI and it would be wrong to mark these packets
  * as [malformed packets].
  * These macros will reset the reported length to what the data pdu specified
- * and if a ReportedBoundsError is generated we will instead throw
- * ScsiBoundsError
+ * and if a ContainedBoundsError or ReportedBoundsError is generated we will
+ * instead throw ScsiBoundsError
  *
  * Please see dissect_spc_inquiry() for an example how to use these
  * macros.
@@ -250,49 +250,41 @@ extern value_string_ext scsi_asc_val_ext;
 
 #define TRY_SCSI_CDB_ALLOC_LEN(length_arg)				\
     {									\
-	volatile gboolean try_short_packet;				\
 	tvbuff_t *try_tvb;						\
 	volatile guint try_offset;                                      \
 	guint32   try_end_data_offset=0;				\
 									\
-	try_short_packet=pinfo->fd->cap_len<pinfo->fd->pkt_len;		\
-	try_tvb=tvb_new_subset_length_caplen(tvb_a, offset_a, tvb_captured_length_remaining(tvb_a, offset_a), length_arg); \
+	try_tvb=tvb_new_subset_length(tvb_a, offset_a, length_arg);	\
 	try_offset=0;							\
 	TRY {
 
 #define END_TRY_SCSI_CDB_ALLOC_LEN 					\
-		    if(try_end_data_offset){				\
+		if(try_end_data_offset){				\
 			/* just verify we can read all the bytes we were\
 			 * supposed to.					\
 			 */						\
 			tvb_get_guint8(try_tvb,try_end_data_offset);	\
-	    	}							\
-	    } /* TRY */							\
+		}							\
+	} /* TRY */							\
 	CATCH(BoundsError) {						\
-		if(try_short_packet){					\
-			/* this was a short packet */			\
-			RETHROW;					\
-		} else {						\
-			/* We probably tried to dissect beyond the end	\
-			 * of the alloc len reported in the data	\
-			 * pdu. This is not an error so don't flag it	\
-			 * as one					\
-			 * it is the alloc_len in the CDB that is the	\
-			 * important one				\
-			 */						\
-		}							\
-	    }								\
+		/* this was a short packet */				\
+		RETHROW;						\
+	}								\
+	CATCH(ContainedBoundsError) {					\
+		/* We probably tried to dissect beyond the end		\
+		 * of the alloc len reported in the data		\
+		 * pdu. This is not an error so don't flag it		\
+		 * as one						\
+		 * it is the alloc_len in the CDB that is the		\
+		 * important one					\
+		 */							\
+	}								\
 	CATCH(ReportedBoundsError) {					\
-		if(try_short_packet){					\
-			/* this was a short packet */			\
-			RETHROW;					\
-		} else {						\
-			/* this packet was not really short but limited	\
-			 * due to a short SCSI allocation length	\
-			 */						\
-			THROW(ScsiBoundsError);				\
-		}							\
-	    }								\
+		/* this packet was not really short but limited		\
+		 * due to a short SCSI allocation length		\
+		 */							\
+		THROW(ScsiBoundsError);					\
+	}								\
 	ENDTRY;								\
     }
 
@@ -318,7 +310,7 @@ WS_DLL_PUBLIC guint scsistat_param(register_srt_t* srt, const char* opt_arg, cha
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

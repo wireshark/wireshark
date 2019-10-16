@@ -1,0 +1,70 @@
+// Required attributes:
+// include-dir
+// min-macos-version
+
+include::{include-dir}/attributes.adoc[]
+:stylesheet: {include-dir}/ws.css
+
+= Before You Begin
+
+This release of Wireshark requires macOS {min-macos-version} or later.
+If you are running an earlier version of macOS you can install using another packaging system such as Homebrew or MacPorts.
+
+== Quick Setup
+
+To install Wireshark, drag the _Wireshark_ application bundle to the _Applications_ folder.
+
+In order to be able to capture packets, install the
+link:Wireshark.app/Contents/Resources/Extras/Install%20ChmodBPF.pkg[Install ChmodBPF]
+package.
+
+If you would like to add the path to
+https://www.wireshark.org/docs/man-pages/wireshark.html[Wireshark],
+https://www.wireshark.org/docs/man-pages/tshark.html[TShark],
+https://www.wireshark.org/docs/man-pages/capinfos.html[capinfos],
+https://www.wireshark.org/docs/man-pages/editcap.html[editcap],
+and
+https://www.wireshark.org/docs/man-pages/[other command line utilities]
+to the system PATH, install the
+link:Wireshark.app/Contents/Resources/Extras/Add%20Wireshark%20to%20the%20system%20path.pkg[Add Wireshark to the system path]
+package.
+
+== Package Installation Details
+
+The ChmodBPF installer writes to the following locations:
+
+* _/Library/LaunchDaemons/org.wireshark.ChmodBPF.plist_. A launch daemon that adjusts permissions on the system's packet capture devices (/dev/bpf*) when the system starts up.
+* _/Library/Application Support/Wireshark/ChmodBPF_. A copy of the launch daemon property list, and the script that the launch daemon runs.
+
+The installer group named “access_bpf” is created. The user who opened the package is added to the group.
+
+The system path installer writes to the following locations:
+
+* _/etc/paths.d/Wireshark_. The folder name in this file is automatically added to PATH
+* _/etc/manpaths.d/Wireshark_. The folder name in this file is used by the man command.
+
+It assumes that Wireshark is installed in _/Applications_.
+
+== Uninstalling
+
+To uninstall Wireshark, do the following:
+
+. Remove _/Applications/Wireshark.app_
+. Remove _/Library/Application Support/Wireshark_
+
+You can uninstall ChmodBPF via the
+link:Wireshark.app/Contents/Resources/Extras/Uninstall%20ChmodBPF.pkg[Uninstall ChmodBPF]
+package, which is available on this disk or via menu:Wireshark[About Wireshark,Folders,macOS Extras].
+You can also uninstall it manually by doing the following:
+
+. Unload the “org.wireshark.ChmodBPF.plist” launchd job
+. Remove _/Library/LaunchDaemons/org.wireshark.ChmodBPF.plist_
+. Remove the “access_bpf” group.
+
+You can uninstall the system path components via the
+link:Wireshark.app/Contents/Resources/Extras/Remove%20Wireshark%20from%20the%20system%20path.pkg[Remove Wireshark from the system path]
+package, which is available on this disk or via menu:Wireshark[About Wireshark,Folders,macOS Extras].
+You can also uninstall it manually by doing the following:
+
+. Remove _/etc/paths.d/Wireshark_
+. Remove _/etc/manpaths.d/Wireshark_

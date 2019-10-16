@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef DISPLAY_FILTER_COMBO_H
 #define DISPLAY_FILTER_COMBO_H
@@ -20,10 +21,11 @@ public:
     bool addRecentCapture(const char *filter);
     void writeRecent(FILE *rf);
 
-signals:
-
 protected:
     virtual bool event(QEvent *event);
+
+private:
+    void updateStyleSheet();
 
 public slots:
     bool checkDisplayFilter();

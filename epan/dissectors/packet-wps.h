@@ -23,9 +23,10 @@
 #ifndef _packet_wps_h_
 #define _packet_wps_h_
 
-void
-dissect_exteap_wps(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
-		   gint size, packet_info* pinfo);
+ /* Vendor-Type and Vendor-id */
+#define WFA_VENDOR_ID         0x00372A
+#define WFA_SIMPLECONFIG_TYPE 0x1
+
 void
 dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 		 gint size, packet_info* pinfo);

@@ -77,7 +77,8 @@ typedef struct tcpheader {
 	guint32 th_rawseq;  /* raw value */
 	guint32 th_seq;     /* raw or relative value depending on tcp_relative_seq */
 
-	guint32 th_ack;
+	guint32 th_rawack;  /* raw value */
+	guint32 th_ack;     /* raw or relative value depending on tcp_relative_seq */
 	gboolean th_have_seglen;	/* TRUE if th_seglen is valid */
 	guint32 th_seglen;  /* in bytes */
 	guint32 th_win;   /* make it 32 bits so we can handle some scaling */
@@ -170,11 +171,17 @@ struct tcp_acked {
 struct tcp_multisegment_pdu {
 	guint32 seq;
 	guint32 nxtpdu;
-	guint32 first_frame;
+	guint32 first_frame;            /* The frame where this MSP was created (used as key in reassembly tables). */
 	guint32 last_frame;
 	nstime_t last_frame_time;
+	guint32 first_frame_with_seq;   /* The frame that contains the first frame that matches 'seq'
+					   (same as 'first_frame', larger than 'first_frame' for OoO segments) */
 	guint32 flags;
 #define MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT	0x00000001
+/* Whether this MSP is finished and no more segments can be added. */
+#define MSP_FLAGS_GOT_ALL_SEGMENTS		0x00000002
+/* Whether the first segment of this MSP was not yet seen. */
+#define MSP_FLAGS_MISSING_FIRST_SEGMENT		0x00000004
 };
 
 
@@ -253,15 +260,16 @@ struct mptcp_subflow {
 	guint8 address_id;   /* sent during an MP_JOIN */
 
 
-	/* Attempt to map DSN to packets
-	 * Ideally this was to generate application latency
-	 * each node contains a GSList * ?
-	 * this should be done in tap or 3rd party tools
+	/* map DSN to packets
+	 * Used when looking for reinjections across subflows
 	 */
-	wmem_itree_t *dsn_map;
+	wmem_itree_t *dsn2packet_map;
 
-	/* Map SSN to a DSS mappings, each node registers a mptcp_dss_mapping_t */
-	wmem_itree_t *mappings;
+	/* Map SSN to a DSS mappings
+	 * a DSS can map DSN to SSNs possibily over several packets,
+	 * hence some packets may have been mapped by previous DSS,
+	 * whence the necessity to be able to look for SSN -> DSN */
+	wmem_itree_t *ssn2dsn_mappings;
 	/* meta flow to which it is attached. Helps setting forward and backward meta flow */
 	mptcp_meta_flow_t *meta;
 };
@@ -334,6 +342,11 @@ typedef struct _tcp_flow_t {
 
 	/* see TCP_A_* in packet-tcp.c */
 	guint32 lastsegmentflags;
+
+	/* The next (largest) sequence number after all segments seen so far.
+	 * Valid only on the first pass and used to handle out-of-order segments
+	 * during reassembly. */
+	guint32 maxnextseq;
 
 	/* This tree is indexed by sequence number and keeps track of all
 	 * all pdus spanning multiple segments for this flow.
@@ -496,9 +509,9 @@ WS_DLL_PUBLIC guint32 get_tcp_stream_count(void);
 WS_DLL_PUBLIC guint32 get_mptcp_stream_count(void);
 
 /* Follow Stream functionality shared with HTTP (and SSL?) */
-extern gchar* tcp_follow_conv_filter(packet_info* pinfo, int* stream);
-extern gchar* tcp_follow_index_filter(int stream);
-extern gchar* tcp_follow_address_filter(address* src_addr, address* dst_addr, int src_port, int dst_port);
+extern gchar *tcp_follow_conv_filter(packet_info *pinfo, guint *stream, guint *sub_stream);
+extern gchar *tcp_follow_index_filter(guint stream, guint sub_stream);
+extern gchar *tcp_follow_address_filter(address *src_addr, address *dst_addr, int src_port, int dst_port);
 
 #ifdef __cplusplus
 }

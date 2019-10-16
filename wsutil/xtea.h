@@ -26,7 +26,7 @@ WS_DLL_PUBLIC void decrypt_xtea_le_ecb(guint8 plaintext[8], const guint8 ciphert
 #endif /* __XTEA_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

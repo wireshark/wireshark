@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef EXPORT_DISSECTION_DIALOG_H
 #define EXPORT_DISSECTION_DIALOG_H
@@ -35,10 +36,11 @@ public:
     ~ExportDissectionDialog();
 
 public slots:
-    int exec();
+    void show();
 
 private slots:
 #ifndef Q_OS_WIN
+    void dialogAccepted();
     void exportTypeChanged(QString name_filter);
     void checkValidity();
     void on_buttonBox_helpRequested();

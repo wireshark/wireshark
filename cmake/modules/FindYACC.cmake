@@ -2,7 +2,6 @@
 # - Find bison/yacc executable
 #
 
-INCLUDE(FindCygwin)
 INCLUDE(FindChocolatey)
 
 FIND_PROGRAM(YACC_EXECUTABLE
@@ -12,7 +11,6 @@ FIND_PROGRAM(YACC_EXECUTABLE
     yacc
   PATHS
     ${CHOCOLATEY_BIN_PATH}
-    ${CYGWIN_INSTALL_PATH}/bin
     /bin
     /usr/bin
     /usr/local/bin

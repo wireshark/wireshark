@@ -31,9 +31,6 @@ void proto_register_tipc(void);
 
 static int proto_tipc = -1;
 
-/* dissector handles */
-static dissector_handle_t ip_handle;
-
 static int hf_tipc_msg_fragments = -1;
 static int hf_tipc_msg_fragment = -1;
 static int hf_tipc_msg_fragment_overlap = -1;
@@ -2056,7 +2053,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 						no_of_segments-1);
 					item = proto_tree_add_bytes_format(tipc_tree, hf_tipc_data_fragment, tvb, offset, -1, NULL, "Segmented message size %u bytes -> No segments = %i",
 							reassembled_msg_length, no_of_segments);
-					PROTO_ITEM_SET_GENERATED(item);
+					proto_item_set_generated(item);
 				}
 
 				new_tvb = process_reassembled_data(tvb, offset, pinfo,
@@ -3124,7 +3121,6 @@ proto_reg_handoff_tipc(void)
 	dissector_handle_t tipc_tcp_handle;
 
 	tipc_tcp_handle = create_dissector_handle(dissect_tipc_tcp, proto_tipc);
-	ip_handle = find_dissector("ip");
 
 	dissector_add_uint("ethertype", ETHERTYPE_TIPC, tipc_handle);
 	dissector_add_for_decode_as_with_preference("tcp.port", tipc_tcp_handle);
@@ -3132,7 +3128,7 @@ proto_reg_handoff_tipc(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

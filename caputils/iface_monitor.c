@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <config.h>
 
@@ -24,13 +25,13 @@
 #include <string.h>
 #include <errno.h>
 
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 #include <netlink/msg.h>
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 #include <netlink/attr.h>
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 #include <netlink/route/link.h>
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 #ifndef IFF_UP
 /*
@@ -98,7 +99,23 @@ iface_mon_handler2(struct nl_object *obj, void *arg)
      */
     up = (flags & IFF_UP) ? 1 : 0;
 
-    cb(ifname, up);
+#ifdef HAVE_LIBNL1
+    cb(ifname, 0, up);
+#else
+    int msg_type = nl_object_get_msgtype(obj);
+
+    switch (msg_type) {
+    case RTM_NEWLINK:
+        cb(ifname, 1, up);
+        break;
+    case RTM_DELLINK:
+        cb(ifname, 0, 0);
+        break;
+    default:
+        /* Ignore other events */
+        break;
+    }
+#endif
 
     rtnl_link_put(filter);
 
@@ -302,7 +319,7 @@ iface_mon_event(void)
          * to see whether we should show it as something on
          * which we can capture.
          */
-        callback(ifr_name, 1);
+        callback(ifr_name, 1, 1);
         break;
 
     case KEV_DL_IF_DETACHED:
@@ -314,7 +331,7 @@ iface_mon_event(void)
          * bpfdetach() makes an interface no longer BPFable,
          * and that's what we *really* care about.
          */
-        callback(ifr_name, 0);
+        callback(ifr_name, 0, 0);
         break;
 
     default:
@@ -368,7 +385,7 @@ iface_mon_event(void)
 #endif /* HAVE_LIBPCAP */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

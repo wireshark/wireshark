@@ -14,7 +14,7 @@
 #include <QHeaderView>
 
 PrefModuleTreeView::PrefModuleTreeView(QWidget *parent) : QTreeView(parent),
-    appearanceName_(PrefsModel::APPEARANCE_PREFERENCE_TREE_NAME)
+    appearanceName_(PrefsModel::typeToString(PrefsModel::Appearance))
 {
 }
 
@@ -74,6 +74,11 @@ QModelIndex PrefModuleTreeView::findModule(QModelIndex& parent, const QString& n
         if (name.compare(module_name) == 0) {
             findIndex = modelIndex;
             break;
+        }
+        if (model()->rowCount(modelIndex) > 0) {
+            findIndex = findModule(modelIndex, name);
+            if (findIndex.isValid())
+                break;
         }
     }
 

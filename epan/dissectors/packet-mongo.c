@@ -23,7 +23,7 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 #ifdef HAVE_SNAPPY
 #include <snappy-c.h>
 #endif
@@ -229,8 +229,9 @@ static int hf_mongo_element_value_regex_pattern = -1;
 static int hf_mongo_element_value_regex_options = -1;
 static int hf_mongo_element_value_objectid = -1;
 static int hf_mongo_element_value_objectid_time = -1;
-static int hf_mongo_element_value_objectid_machine = -1;
+static int hf_mongo_element_value_objectid_host = -1;
 static int hf_mongo_element_value_objectid_pid = -1;
+static int hf_mongo_element_value_objectid_machine_id = -1;
 static int hf_mongo_element_value_objectid_inc = -1;
 static int hf_mongo_element_value_db_ptr = -1;
 static int hf_mongo_element_value_js_code = -1;
@@ -264,6 +265,7 @@ static gint ett_mongo_doc = -1;
 static gint ett_mongo_elements = -1;
 static gint ett_mongo_element = -1;
 static gint ett_mongo_objectid = -1;
+static gint ett_mongo_machine_id = -1;
 static gint ett_mongo_code = -1;
 static gint ett_mongo_fcn = -1;
 static gint ett_mongo_flags = -1;
@@ -310,8 +312,8 @@ dissect_bson_document(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
 {
   gint32 document_length;
   guint final_offset;
-  proto_item *ti, *elements, *element, *objectid, *js_code, *js_scope;
-  proto_tree *doc_tree, *elements_tree, *element_sub_tree, *objectid_sub_tree, *js_code_sub_tree, *js_scope_sub_tree;
+  proto_item *ti, *elements, *element, *objectid, *js_code, *js_scope, *machine_id;
+  proto_tree *doc_tree, *elements_tree, *element_sub_tree, *objectid_sub_tree, *js_code_sub_tree, *js_scope_sub_tree, *machine_id_sub_tree;
 
   document_length = tvb_get_letohl(tvb, offset);
 
@@ -400,8 +402,12 @@ dissect_bson_document(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
         objectid_sub_tree = proto_item_add_subtree(objectid, ett_mongo_objectid);
         /* Unlike most BSON elements, parts of ObjectID are stored Big Endian, so they can be compared bit by bit */
         proto_tree_add_item(objectid_sub_tree, hf_mongo_element_value_objectid_time, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(objectid_sub_tree, hf_mongo_element_value_objectid_machine, tvb, offset+4, 3, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(objectid_sub_tree, hf_mongo_element_value_objectid_pid, tvb, offset+7, 2, ENC_LITTLE_ENDIAN);
+        /* The machine ID was traditionally split up in Host Hash/PID */
+        machine_id = proto_tree_add_item(objectid_sub_tree, hf_mongo_element_value_objectid_machine_id, tvb, offset+4, 5, ENC_NA);
+        machine_id_sub_tree = proto_item_add_subtree(machine_id, ett_mongo_machine_id);
+        proto_tree_add_item(machine_id_sub_tree, hf_mongo_element_value_objectid_host, tvb, offset+4, 3, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(machine_id_sub_tree, hf_mongo_element_value_objectid_pid, tvb, offset+7, 2, ENC_LITTLE_ENDIAN);
+
         proto_tree_add_item(objectid_sub_tree, hf_mongo_element_value_objectid_inc, tvb, offset+9, 3, ENC_BIG_ENDIAN);
         offset += 12;
         break;
@@ -1344,9 +1350,14 @@ proto_register_mongo(void)
       FT_INT32, BASE_DEC, NULL, 0x0,
       "ObjectID timestampt", HFILL }
     },
-    { &hf_mongo_element_value_objectid_machine,
-      { "ObjectID Machine", "mongo.element.value.objectid.machine",
+    { &hf_mongo_element_value_objectid_host,
+      { "ObjectID Host", "mongo.element.value.objectid.host",
       FT_UINT24, BASE_HEX, NULL, 0x0,
+      "ObjectID Host Hash", HFILL }
+    },
+    { &hf_mongo_element_value_objectid_machine_id,
+      { "ObjectID Machine", "mongo.element.value.objectid.machine_id",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "ObjectID machine ID", HFILL }
     },
     { &hf_mongo_element_value_objectid_pid,
@@ -1355,7 +1366,7 @@ proto_register_mongo(void)
       "ObjectID process ID", HFILL }
     },
     { &hf_mongo_element_value_objectid_inc,
-      { "ObjectID inc", "mongo.element.value.objectid.inc",
+      { "ObjectID Inc", "mongo.element.value.objectid.inc",
       FT_UINT24, BASE_DEC, NULL, 0x0,
       "ObjectID increment", HFILL }
     },
@@ -1417,6 +1428,7 @@ proto_register_mongo(void)
     &ett_mongo_elements,
     &ett_mongo_element,
     &ett_mongo_objectid,
+    &ett_mongo_machine_id,
     &ett_mongo_code,
     &ett_mongo_fcn,
     &ett_mongo_flags,

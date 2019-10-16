@@ -111,20 +111,21 @@ this extcap plugin
 def extcap_config(interface, option):
     args = []
     values = []
+    multi_values = []
 
     args.append ( (0, '--delay', 'Time delay', 'Time delay between packages', 'integer', '{range=1,15}{default=5}') )
     args.append ( (1, '--message', 'Message', 'Package message content', 'string', '{required=true}{placeholder=Please enter a message here ...}') )
     args.append ( (2, '--verify', 'Verify', 'Verify package content', 'boolflag', '{default=yes}') )
     args.append ( (3, '--remote', 'Remote Channel', 'Remote Channel Selector', 'selector', '{reload=true}{placeholder=Load interfaces ...}'))
     args.append ( (4, '--fake_ip', 'Fake IP Address', 'Use this ip address as sender', 'string', '{save=false}{validation=\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b}'))
-    args.append ( (5, '--ltest', 'Long Test', 'Long Test Value', 'long', '{default=123123123123123123}'))
-    args.append ( (6, '--d1test', 'Double 1 Test', 'Long Test Value', 'double', '{default=123.456}'))
-    args.append ( (7, '--d2test', 'Double 2 Test', 'Long Test Value', 'double', '{default= 123,456}'))
+    args.append ( (5, '--ltest', 'Long Test', 'Long Test Value', 'long', '{default=123123123123123123}{group=Numeric Values}'))
+    args.append ( (6, '--d1test', 'Double 1 Test', 'Long Test Value', 'double', '{default=123.456}{group=Numeric Values}'))
+    args.append ( (7, '--d2test', 'Double 2 Test', 'Long Test Value', 'double', '{default= 123,456}{group=Numeric Values}'))
     args.append ( (8, '--password', 'Password', 'Package message password', 'password', '') )
-    args.append ( (9, '--ts', 'Start Time', 'Capture start time', 'timestamp', '') )
-    args.append ( (10, '--logfile', 'Log File Test', 'The Log File Test', 'fileselect', '') )
-    args.append ( (11, '--radio', 'Radio Test', 'Radio Test Value', 'radio', '') )
-    args.append ( (12, '--multi', 'MultiCheck Test', 'MultiCheck Test Value', 'multicheck', '') )
+    args.append ( (9, '--ts', 'Start Time', 'Capture start time', 'timestamp', '{group=Time / Log}') )
+    args.append ( (10, '--logfile', 'Log File Test', 'The Log File Test', 'fileselect', '{group=Time / Log}') )
+    args.append ( (11, '--radio', 'Radio Test', 'Radio Test Value', 'radio', '{group=Selection}') )
+    args.append ( (12, '--multi', 'MultiCheck Test', 'MultiCheck Test Value', 'multicheck', '{group=Selection}') )
 
     if ( option == "remote" ):
         values.append ( (3, "if1", "Remote Interface 1", "false" ) )
@@ -148,18 +149,31 @@ def extcap_config(interface, option):
         values.append ( (11, "r1", "Radio1", "false" ) )
         values.append ( (11, "r2", "Radio2", "true" ) )
 
-        values.append ( (12, "m1", "MultiCheck1", "false" ) )
-        values.append ( (12, "m2", "MultiCheck2", "false" ) )
+    if ( len(option) <= 0 ):
+        multi_values.append ( ((12, "m1", "Checkable Parent 1", "false", "true" ), None) )
+        multi_values.append ( ((12, "m1c1", "Checkable Child 1", "false", "true" ), "m1") )
+        multi_values.append ( ((12, "m1c1g1", "Uncheckable Grandchild", "false", "false" ), "m1c1") )
+        multi_values.append ( ((12, "m1c2", "Checkable Child 2", "false", "true" ), "m1") )
+        multi_values.append ( ((12, "m2", "Checkable Parent 2", "false", "true" ), None) )
+        multi_values.append ( ((12, "m2c1", "Checkable Child 1", "false", "true" ), "m2") )
+        multi_values.append ( ((12, "m2c1g1", "Checkable Grandchild", "false", "true" ), "m2c1") )
+        multi_values.append ( ((12, "m2c2", "Uncheckable Child 2", "false", "false" ), "m2") )
+        multi_values.append ( ((12, "m2c2g1", "Uncheckable Grandchild", "false", "false" ), "m2c2") )
 
     for value in values:
         print ("value {arg=%d}{value=%s}{display=%s}{default=%s}" % value)
 
+    for (value, parent) in multi_values:
+        sentence = "value {arg=%d}{value=%s}{display=%s}{default=%s}{enabled=%s}" % value
+        extra = "{parent=%s}" % parent if parent else ""
+        print ("".join((sentence, extra)))
+
 
 def extcap_version():
-    print ("extcap {version=1.0}{help=http://www.wireshark.org}{display=Example extcap interface}")
+    print ("extcap {version=1.0}{help=https://www.wireshark.org}{display=Example extcap interface}")
 
 def extcap_interfaces():
-    print ("extcap {version=1.0}{help=http://www.wireshark.org}{display=Example extcap interface}")
+    print ("extcap {version=1.0}{help=https://www.wireshark.org}{display=Example extcap interface}")
     print ("interface {value=example1}{display=Example interface 1 for extcap}")
     print ("interface {value=example2}{display=Example interface 2 for extcap}")
     print ("control {number=%d}{type=string}{display=Message}{tooltip=Package message content. Must start with a capital letter.}{placeholder=Enter package message content here ...}{validation=^[A-Z]+}" % CTRL_ARG_MESSAGE)
@@ -273,7 +287,7 @@ def control_read(fn):
         header = fn.read(6)
         sp, _, length, arg, typ = struct.unpack('>sBHBB', header)
         if length > 2:
-            payload = fn.read(length - 2)
+            payload = fn.read(length - 2).decode('utf-8', 'replace')
         else:
             payload = ''
         return arg, typ, payload
@@ -337,8 +351,7 @@ def control_write_defaults(fn_out):
     control_write(fn_out, CTRL_ARG_VERIFY, CTRL_CMD_SET, struct.pack('B', verify))
 
     for i in range(1,16):
-        item = bytearray()
-        item += str(i) + struct.pack('B', 0) + str(i) + " sec"
+        item = '%d\x00%d sec' % (i, i)
         control_write(fn_out, CTRL_ARG_DELAY, CTRL_CMD_ADD, item)
 
     control_write(fn_out, CTRL_ARG_DELAY, CTRL_CMD_REMOVE, str(60))

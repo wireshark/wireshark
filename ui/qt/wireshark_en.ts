@@ -72,12 +72,39 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy</source>
+        <source>The directory does not exist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy Row(s)</source>
+        <source>Should the directory %1 be created?</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The directory could not be created</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The directory %1 could not be created!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Copy Row</numerusform>
+            <numerusform>Copy Rows</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -192,7 +219,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>CtrlM</source>
+        <source>Ctrl-M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -235,7 +262,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>LMP Subverion</source>
+        <source>LMP Subversion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -335,7 +362,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>CtrlM</source>
+        <source>Ctrl-M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -446,7 +473,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>CtrlM</source>
+        <source>Ctrl-M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -840,24 +867,25 @@
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <source>%1, error after %Ln record(s)</source>
+        <source>%1, error after %Ln data record(s)</source>
+        <oldsource>%1, error after %Ln record(s)</oldsource>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%1, error after %Ln data record</numerusform>
+            <numerusform>%1, error after %Ln data records</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%1, timed out at %Ln data record</numerusform>
+            <numerusform>%1, timed out at %Ln data records</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln data record(s)</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%1, %Ln data record</numerusform>
+            <numerusform>%1, %Ln data records</numerusform>
         </translation>
     </message>
     <message>
@@ -908,7 +936,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> (gzip compressed)</source>
+        <source>Hash (SHA256)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hash (RIPEMD160)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hash (SHA1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1102,6 +1138,28 @@
     </message>
 </context>
 <context>
+    <name>CaptureInfoDialog</name>
+    <message>
+        <source>Capture Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 packets, %2:%3:%4</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CaptureInfoModel</name>
+    <message>
+        <source>Other</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CaptureInterfacesDialog</name>
     <message>
         <source>Input</source>
@@ -1149,11 +1207,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Create a new file automatically after…</source>
-        <oldsource>Create a new file automatically after...</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
         <translation type="unfinished"></translation>
@@ -1173,6 +1226,10 @@
     </message>
     <message>
         <source>hours</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show capture information during live capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1243,21 +1300,41 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If the selected file size is exceeded, capturing switches to the next file.&lt;/p&gt;&lt;p&gt;PLEASE NOTE: One option MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>If the selected file size is exceeded, capturing switches to the next file.
-PLEASE NOTE: One option MUST be selected.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the next file after the specified number of packets have been captured.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create a new file automatically…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>after</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the next file after the file size exceeds the specified file size.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the next file when the time capturing to the current file exceeds the specified time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>when time is a multiple of</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
+For example, use 1 hour to have a new file created every hour on the hour.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1298,10 +1375,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show extra capture information dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1396,10 +1469,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Multiple files: No file limit given. You must specify a file size or interval at which is switched to the next capture file
- if you want to use multiple files.</source>
-        <oldsource>Multiple files: No file limit given. You must specify a file size or duration at which is switched to the next capture file
- if you want to use multiple files.</oldsource>
+        <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1446,6 +1516,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Don&apos;t load interfaces on startup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Disable external capture interfaces</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1477,6 +1551,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Duplicate this coloring rule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear all coloring rules.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1521,6 +1599,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Coloring Rules %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy coloring rules from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1670,7 +1756,64 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Dissector Tables</source>
+        <source>Conversation Hash Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CopyFromProfileButton</name>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>System default</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CredentialsDialog</name>
+    <message>
+        <source>Wireshark - Credentials</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Credentials</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CredentialsModel</name>
+    <message>
+        <source>Click to select the packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click to select the packet with username</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Username not available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet No.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Additional Info</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1720,7 +1863,15 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Clear all dissection behaviors.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1805,15 +1956,19 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Apply this filter string to the display.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter a display filter %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply display filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1983,6 +2138,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enable All</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1998,6 +2157,30 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Enabled Protocols</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Everywhere</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>any protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>non-heuristic protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>heuristic protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>EnabledProtocolsModel</name>
@@ -2007,6 +2190,92 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EndpointDialog</name>
+    <message>
+        <source>Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open in browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No endpoints available to map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to create temporary file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Endpoints Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to save map file %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EthernetAddressModel</name>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mac Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv4 Hash Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv6 Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPv6 Hash Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ethernet Addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ethernet Manufacturers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ethernet Well-Known Addresses</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2189,6 +2458,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Text Filter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only display entries containing this string</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2202,14 +2479,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Save All Objects In</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Object Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Some files could not be saved.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2277,6 +2546,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Extcap Help cannot be found</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2285,8 +2558,8 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save parameter on capture start</source>
-        <translation type="unfinished"></translation>
+        <source>Save parameter(s) on capture start</source>
+        <translation type="unfinished">Save parameter on capture start</translation>
     </message>
 </context>
 <context>
@@ -2355,6 +2628,17 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
 </context>
 <context>
+    <name>FilterAction</name>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FilterDialog</name>
     <message>
         <source>Dialog</source>
@@ -2388,6 +2672,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Display Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2449,6 +2737,25 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Invalid filter expression.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FilterExpressionToolBar</name>
+    <message>
+        <source>Filter Button Preferences...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2629,6 +2936,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>macOS Extras</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extra macOS packages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2764,6 +3079,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Please make sure you have a %1 packet selected.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln total sub stream(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Entire conversation (%1)</source>
         <translation type="unfinished"></translation>
@@ -2813,6 +3135,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Substream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Find:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2840,11 +3166,35 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>System Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Solid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Sample ignored packet text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sample marked packet text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample active selected item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gradient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample inactive selected item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2915,10 +3265,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Length</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3086,6 +3432,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Duplicate this graph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear all graphs.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3327,7 +3677,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>IO Graphs</source>
+        <source>I/O Graphs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3335,7 +3685,15 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Copy graphs from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>1 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>5 ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3347,7 +3705,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark IO Graphs: %1</source>
+        <source>Wireshark I/O Graphs: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3726,10 +4084,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Timestamp format:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3742,11 +4096,15 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Maximum frame length:</source>
+        <source>ExportPDU</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The maximum size of the frames to write to the import capture file (max 64000)</source>
+        <source>Payload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum frame length:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3759,6 +4117,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3874,6 +4236,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Import From Hex Dump</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3958,6 +4324,18 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>External capture interfaces disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interfaces not loaded (due to preference). Go to Capture </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start capture</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5357,18 +5735,19 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Manage Profiles</source>
-        <oldsource>Manage Profiles...</oldsource>
+        <source>Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>New</source>
-        <oldsource>New...</oldsource>
+        <source>from zip file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Edit</source>
-        <oldsource>Edit...</oldsource>
+        <source>from directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5405,13 +5784,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <oldsource>No expert info</oldsource>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>, 1 byte</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>, %1 bytes</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <source>%Ln byte(s)</source>
+        <oldsource>, %1 bytes</oldsource>
+        <translation>
+            <numerusform>%Ln byte</numerusform>
+            <numerusform>%Ln bytes</numerusform>
+        </translation>
     </message>
     <message>
         <source>Byte %1</source>
@@ -5444,11 +5823,35 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source> %1 Comments: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1  Load time: %2:%3.%4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage Profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>selected personal profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>all personal profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5458,170 +5861,13 @@ PLEASE NOTE: One option MUST be selected.</source>
 </context>
 <context>
     <name>MainWelcome</name>
-    <message>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Welcome to Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;h2&gt;Open&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Recent capture files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Capture files that have been opened previously</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;h2&gt;Capture&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…using this filter:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Interface list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>List of available capture interfaces</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head&gt;
-&lt;style&gt;
-a:link {
-  color: inherit;
-  text-decoration: none;
-}
-a:hover {
-  color: inherit;
-  text-decoration: underline;
-}
-&lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;table&gt;&lt;tr&gt;
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;User&apos;s Guide&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://wiki.wireshark.org/&quot;&gt;Wiki&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Questions and Answers&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Mailing Lists&lt;/a&gt;&lt;/th&gt;
-
-&lt;/tr&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</source>
-        <oldsource>&lt;html&gt;&lt;head&gt;
-&lt;style&gt;
-a:link {
-  color: inherit;
-  text-decoration: none;
-}
-a:hover {
-  color: inherit;
-  text-decoration: underline;
-}
-&lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;table&gt;&lt;tr&gt;
-&lt;th&gt;&lt;a href=&quot;http://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;User&apos;s Guide&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;http://wiki.wireshark.org/&quot;&gt;Wiki&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;http://ask.wireshark.org/&quot;&gt;Questions and Answers&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;http://www.wireshark.org/lists/&quot;&gt;Mailing Lists&lt;/a&gt;&lt;/th&gt;
-
-&lt;/tr&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All interfaces shown</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message numerus="yes">
         <source>%n interface(s) shown, %1 hidden</source>
         <oldsource>%Ln interface(s) shown</oldsource>
-        <translation type="unfinished">
+        <translation type="obsolete">
             <numerusform>%n interface shown, %1 hidden</numerusform>
             <numerusform>%n interfaces shown, %1 hidden</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>You are running Wireshark </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> You receive automatic updates.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> You have disabled automatic updates.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>not found</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy file path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5636,10 +5882,6 @@ a:hover {
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Recent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5660,10 +5902,6 @@ a:hover {
     </message>
     <message>
         <source>&amp;Time Display Format</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name Resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5759,10 +5997,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>RTP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Edit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5775,15 +6009,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Open a capture file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5804,10 +6030,6 @@ a:hover {
     </message>
     <message>
         <source>Stop capturing packets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5955,6 +6177,10 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Export TLS Session Keys…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>List Files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5999,6 +6225,26 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>As &amp;CSV…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &quot;C&quot; &amp;Arrays…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As P&amp;SML XML…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As P&amp;DML XML…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;JSON…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Description</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6012,18 +6258,6 @@ a:hover {
     </message>
     <message>
         <source>As Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Not Selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6052,26 +6286,6 @@ a:hover {
     </message>
     <message>
         <source>Conversation Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Service Response Time</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>ANSI</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>GSM</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>LTE</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>MTP3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6160,10 +6374,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Export SSL Session Keys…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Print…</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6173,10 +6383,6 @@ a:hover {
     </message>
     <message>
         <source>Reload as File Format/Capture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>As JSON…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6232,10 +6438,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Unmark All Displayed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Unmark all displayed packets</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6273,10 +6475,6 @@ a:hover {
     </message>
     <message>
         <source>Unignore All Displayed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6328,6 +6526,10 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&amp;Configuration Profiles…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Configuration profiles</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6376,10 +6578,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>TCP througput</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Round Trip Time</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6396,7 +6594,19 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>TLS Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HTTP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP/2 Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>QUIC Stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6640,6 +6850,14 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&amp;Conversations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Endpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Shrink the main window text</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6656,23 +6874,11 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Conversation Hash Tables</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show each conversation hash table</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Dissector Tables</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show each dissector table and its entries</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Supported Protocols</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6693,10 +6899,6 @@ a:hover {
     </message>
     <message>
         <source>LTE RLC statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>RLC Graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6744,6 +6946,10 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Go to &amp;Linked Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>UDP Multicast Streams</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6757,10 +6963,6 @@ a:hover {
     </message>
     <message>
         <source>Show IEEE 802.11 wireless LAN statistics.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add a filter button</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6780,6 +6982,10 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Credentials</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Options…</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6796,63 +7002,11 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>As CSV…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>As &quot;C&quot; Arrays…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>As PSML XML…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>As PDML XML…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>All Visible Items</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Visible Selected Tree Items</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…&amp;and Selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…and Selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…&amp;or Selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…or Selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…a&amp;nd not Selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…and not Selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…o&amp;r not Selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…or not Selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display Filters…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6880,11 +7034,11 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Configuration Profiles…</source>
+        <source>&amp;Preferences…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Preferences…</source>
+        <source>TCP throughput</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6893,10 +7047,6 @@ a:hover {
     </message>
     <message>
         <source>UDP Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SSL Stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6940,15 +7090,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Conversations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Conversations at different protocol levels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Endpoints</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7164,11 +7306,27 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&amp;Conversation Hash Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Dissector Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Supported Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MAP Summary</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>GSM MAP summary statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RLC &amp;Graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7193,6 +7351,10 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>IA&amp;X2 Stream Analysis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enabled Protocols…</source>
         <oldsource>Enable Protocols…</oldsource>
         <translation type="unfinished"></translation>
@@ -7214,15 +7376,71 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Go to Linked Packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Go to the packet referenced by the selected field.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open &amp;Recent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name Resol&amp;ution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Service &amp;Response Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;RTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S&amp;CTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;ANSI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;GSM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;LTE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;MTP3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display &amp;Filters…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Unmark All Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>U&amp;nignore all displayed packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7428,10 +7646,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation type="unfinished"></translation>
@@ -7493,10 +7707,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(File name can&apos;t be mapped to UTF-8)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The Wireshark Network Analyzer</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7544,14 +7754,10 @@ a:hover {
         <source>No Keys</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>There are no SSL Session Keys to save.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message numerus="yes">
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation>
+        <translation type="vanished">
             <numerusform>Export SSL Session Keys (%Ln key)</numerusform>
             <numerusform>Export SSL Session Keys (%Ln keys)</numerusform>
         </translation>
@@ -7562,10 +7768,6 @@ a:hover {
     </message>
     <message>
         <source>Merging files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7605,6 +7807,21 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>There are no TLS Session Keys to save.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Export TLS Session Keys (%Ln key(s))</source>
+        <translation type="unfinished">
+            <numerusform>Export TLS Session Keys (%Ln key)</numerusform>
+            <numerusform>Export TLS Session Keys (%Ln keys)</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> before restarting the capture</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7614,22 +7831,6 @@ a:hover {
     </message>
     <message>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filter Button Preferences...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Disable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7690,6 +7891,10 @@ a:hover {
     </message>
     <message>
         <source>Confirm unsaved capture files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display autocompletion for filter text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7823,10 +8028,6 @@ a:hover {
     </message>
     <message>
         <source>Length</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8060,6 +8261,10 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Include column headings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8107,6 +8312,23 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Decode As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame %1: %2
+
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>[ Comment text exceeds %1. Stopping. ]</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PacketListHeader</name>
+    <message>
         <source>Align Left</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8127,7 +8349,11 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Resize To Contents</source>
+        <source>Resize to Contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resize Column to Width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8135,26 +8361,20 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove This Column</source>
+        <source>Remove this Column</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Frame %1: %2
-
-</source>
+        <source>Column %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>[ Comment text exceeds %1. Stopping. ]</source>
+        <source>Width:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>PacketListModel</name>
-    <message>
-        <source>Dissecting</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Sorting &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
@@ -8221,10 +8441,6 @@ a:hover {
 <context>
     <name>PluginListModel</name>
     <message>
-        <source>extcap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8238,6 +8454,41 @@ a:hover {
     </message>
     <message>
         <source>Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PortsModel</name>
+    <message>
+        <source>All entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>tcp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>udp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sctp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>dccp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8279,7 +8530,6 @@ a:hover {
     <name>PrefsModel</name>
     <message>
         <source>Advanced</source>
-        <extracomment>Names of special preferences handled by the GUI</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8308,6 +8558,10 @@ a:hover {
     </message>
     <message>
         <source>Filter Buttons</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RSA Keys</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8361,7 +8615,7 @@ a:hover {
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Name</source>
+        <source>Search for profile …</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8369,8 +8623,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove this profile. System provided profiles cannot be removed.</source>
-        <oldsource>Remove this profile. The Default profile and system provided profiles cannot be removed.</oldsource>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8382,35 +8635,158 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Will be reset to default values</source>
+        <source>Import</source>
+        <comment>noun</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Created from %1</source>
+        <source>Export</source>
+        <comment>noun</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(system provided)</source>
+        <source>New profile</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Created from default settings</source>
+        <source>Profile Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Renamed from %1</source>
+        <source>Exporting profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Go to %1</source>
+        <source>No profiles found for export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>This is a system provided profile.</source>
+        <source>Select zip file for export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>… %Ln selected personal profile(s)</source>
+        <translation type="vanished">
+            <numerusform>… %Ln selected personal profile</numerusform>
+            <numerusform>… %Ln selected personal profiles</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln selected personal profile(s)</source>
+        <translation>
+            <numerusform>%Ln selected personal profile</numerusform>
+            <numerusform>%Ln selected personal profiles</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>An import of profiles is not allowed, while changes are pending</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A profile already exists with this name.</source>
+        <source>An import is pending to be saved. Additional imports are not allowed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An export of profiles is only allowed for personal profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An export of profiles is not allowed, while changes are pending</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) exported</source>
+        <translation>
+            <numerusform>%Ln profile exported</numerusform>
+            <numerusform>%Ln profiles exported</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Select zip file for import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select directory for import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zip File (*.zip)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>from zip file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>from directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>all personal profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error has occurred while exporting profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No profiles found for import in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) imported</source>
+        <translation>
+            <numerusform>%Ln profile imported</numerusform>
+            <numerusform>%Ln profiles imported</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>, %Ln profile(s) skipped</source>
+        <translation>
+            <numerusform>, %Ln profile skipped</numerusform>
+            <numerusform>, %Ln profiles skipped</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Importing profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) selected</source>
+        <translation type="obsolete">
+            <numerusform>%Ln profile selected</numerusform>
+            <numerusform>%Ln profiles selected</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>ProfileModel</name>
+    <message>
+        <source>Resetting to default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Imported profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This is a system provided profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile change for this name is pending</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> (See: %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This is an invalid profile definition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8418,11 +8794,95 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The profile will be reset to default values.</source>
+        <source>A profile with this name is being deleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Profile Error</source>
+        <source>Created from default settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>system provided</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>deleted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>copy</source>
+        <comment>noun</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exporting profiles while changes are pending is not allowed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No profiles found to export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Can&apos;t delete profile directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile name cannot contain the following characters: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile name cannot contain the &apos;/&apos; character</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile cannot start or end with a period (.)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Renamed from: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copied from: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>renamed to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProfileSortModel</name>
+    <message>
+        <source>All profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global profiles</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8437,6 +8897,66 @@ a:hover {
     <name>ProtoTree</name>
     <message>
         <source>Packet details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expand Subtrees</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse Subtrees</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Visible Items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Visible Selected Tree Items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wiki Protocol Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Field Reference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wiki Page for %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8646,6 +9166,10 @@ a:hover {
     </message>
     <message>
         <source>Any </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9049,6 +9573,26 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for entry (min 3 characters)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for port or name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture File Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Comment</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9138,63 +9682,11 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source># Resolved addresses found in %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source># Comments
-#
-# </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source># Hosts
-#
-# </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source># IPv4 Hash Table
-#
-# </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>
-
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source># IPv6 Hash Table
-#
-# </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source># Services
-#
-# </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source># Ethernet addresses
-#
-# </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source># Ethernet manufacturers
-#
-# </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source># Well known Ethernet addresses
 #
 # </source>
         <translation type="unfinished"></translation>
@@ -9271,6 +9763,97 @@ a:hover {
     </message>
     <message>
         <source>ONC-RPC Service Response Times</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>RsaKeysFrame</name>
+    <message>
+        <source>RSA Keys</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RSA private keys are loaded from a file or PKCS #11 token.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add new keyfile…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add new token…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PKCS #11 provider libraries.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add new provider…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove provider</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add PKCS #11 token or key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No new PKCS #11 tokens or keys found, consider adding a PKCS #11 provider.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select a new PKCS #11 token or key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PKCS #11 token or key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter PIN or password for %1 (it will be stored unencrypted)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter PIN or password for key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Key could not be added: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RSA private key (*.pem *.p12 *.pfx *.key);;All Files (</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select RSA private key file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Libraries (*.dll)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Libraries (*.so)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select PKCS #11 Provider Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changes will apply after a restart</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PKCS #11 provider %1 will be removed after the next restart.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -9623,6 +10206,10 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Can save audio with PCM u-law or A-law encoding only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9735,10 +10322,6 @@ a:hover {
     </message>
     <message>
         <source>Output Device:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10513,6 +11096,14 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not find SCTP Association with id: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10693,6 +11284,10 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Relative TSNs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Only SACKs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10706,10 +11301,6 @@ a:hover {
     </message>
     <message>
         <source>Reset to full size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11064,10 +11655,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Reset Diagram</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11333,6 +11920,10 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>UTF-16</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>YAML</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11487,7 +12078,7 @@ a:hover {
 <context>
     <name>SyntaxLineEdit</name>
     <message>
-        <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
+        <source>&quot;%1&quot; is deprecated or may have unexpected results. See the User&apos;s Guide.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -12282,6 +12873,14 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unknown User Accessible Table</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12306,6 +12905,10 @@ a:hover {
     </message>
     <message>
         <source>Select all calls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display time as time of day</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12409,6 +13012,138 @@ a:hover {
     </message>
     <message>
         <source>Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>WelcomePage</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Welcome to Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;h2&gt;Open&lt;/h2&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recent capture files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture files that have been opened previously</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;h2&gt;Capture&lt;/h2&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…using this filter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interface list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>List of available capture interfaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head&gt;
+&lt;style&gt;
+a:link {
+  color: palette(text);
+  text-decoration: none;
+}
+a:hover {
+  color: palette(text);
+  text-decoration: underline;
+}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;table&gt;&lt;tr&gt;
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;User&apos;s Guide&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://wiki.wireshark.org/&quot;&gt;Wiki&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Questions and Answers&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Mailing Lists&lt;/a&gt;&lt;/th&gt;
+
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All interfaces shown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n interface(s) shown, %1 hidden</source>
+        <translation type="unfinished">
+            <numerusform>%n interface shown, %1 hidden</numerusform>
+            <numerusform>%n interfaces shown, %1 hidden</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are running Wireshark </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> You receive automatic updates.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> You have disabled automatic updates.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy file path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove from list</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

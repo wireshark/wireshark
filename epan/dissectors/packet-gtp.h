@@ -134,6 +134,18 @@ typedef struct _gtp_hdr {
 
 extern value_string_ext cause_type_ext;
 
+/** GTP header extension info
+* This structure is used to transfer infotmation to users of the "gtp.hdr_ext" dissector table
+*/
+
+typedef struct gtp_hdr_ext_info {
+    proto_item* hdr_ext_item; /* The item created when adding the type of header to the tree,
+                               * used to put the name in the tree
+                               */
+} gtp_hdr_ext_info_t;
+
+
+
 /* Data structures to keep track of sessions */
 extern guint32 gtp_session_count;
 extern gboolean g_gtp_session;

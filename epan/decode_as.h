@@ -46,7 +46,7 @@ typedef void (*decode_as_free_func)(gpointer value);
 /** callback function definition: Clear value from dissector table */
 typedef gboolean (*decode_as_reset_func)(const gchar *name, gconstpointer pattern);
 /** callback function definition: Apply value to dissector table */
-typedef gboolean (*decode_as_change_func)(const gchar *name, gconstpointer pattern, gpointer handle, gchar *list_name);
+typedef gboolean (*decode_as_change_func)(const gchar *name, gconstpointer pattern, gconstpointer handle, const gchar *list_name);
 
 typedef struct decode_as_value_s {
     build_label_func label_func;
@@ -56,7 +56,6 @@ typedef struct decode_as_value_s {
 
 typedef struct decode_as_s {
     const char *name;
-    const gchar *title;
     const gchar *table_name;
     guint num_items;
     guint default_index_value;
@@ -83,7 +82,6 @@ struct dissector_table;
  *  be kept internal to epan.
  *
  * @param proto The protocol ID to create the dissector table.
- * @param title The table name in which this dissector is found.
  * @param table_name The table name in which this dissector is found.
  * @param ui_name UI name for created dissector table.
  * @param label_func Pointer to optional function to generate prompt text
@@ -91,14 +89,14 @@ struct dissector_table;
  *
  * @return Created dissector table with Decode As support
 */
-WS_DLL_PUBLIC struct dissector_table* register_decode_as_next_proto(int proto, const gchar *title, const gchar *table_name, const gchar *ui_name, build_label_func label_func);
+WS_DLL_PUBLIC struct dissector_table* register_decode_as_next_proto(int proto, const gchar *table_name, const gchar *ui_name, build_label_func label_func);
 
 /* Walk though the dissector table and provide dissector_handle_t for each item in the table */
 WS_DLL_PUBLIC void decode_as_default_populate_list(const gchar *table_name, decode_as_add_to_list_func add_to_list, gpointer ui_element);
 /* Clear a FT_UINT32 value from dissector table list */
 WS_DLL_PUBLIC gboolean decode_as_default_reset(const gchar *name, gconstpointer pattern);
 /* Add a FT_UINT32 value to dissector table list */
-WS_DLL_PUBLIC gboolean decode_as_default_change(const gchar *name, gconstpointer pattern, gpointer handle, gchar *list_name);
+WS_DLL_PUBLIC gboolean decode_as_default_change(const gchar *name, gconstpointer pattern, gconstpointer handle, const gchar *list_name);
 
 /** List of registered decode_as_t structs.
  * For UI code only. Should not be directly accessed by dissectors.
@@ -130,12 +128,12 @@ WS_DLL_PUBLIC void decode_clear_all(void);
  *
  * @param table_name The table name in which this dissector is found.
  *
+ * @param selector_type The type of the selector in that dissector table
+ *
  * @param key A pointer to the key for this entry in the dissector
  * hash table.  This is generally the numeric selector of the
  * protocol, i.e. the ethernet type code, IP port number, TCP port
  * number, etc.
- *
- * @param selector_type The type of the selector in that dissector table
  *
  * @param value A pointer to the value for this entry in the dissector
  * hash table.  This is an opaque pointer that can only be handed back
@@ -144,8 +142,8 @@ WS_DLL_PUBLIC void decode_clear_all(void);
  * @param user_data Unused.
  */
 WS_DLL_PUBLIC void decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
-                         gpointer key, gpointer value _U_,
-                         gpointer user_data _U_);
+                         gpointer key, gpointer value,
+                         gpointer user_data);
 
 
 #ifdef __cplusplus

@@ -253,14 +253,6 @@ capture_snap(const guchar *pd, int offset, int len, capture_packet_info_t *cpinf
 
 	case OUI_ENCAP_ETHER:
 	case OUI_CISCO_90:
-	case OUI_APPLE_ATALK:
-		/* No, I have no idea why Apple used
-		   one of their own OUIs, rather than
-		   OUI_ENCAP_ETHER, and an Ethernet
-		   packet type as protocol ID, for
-		   AppleTalk data packets - but used
-		   OUI_ENCAP_ETHER and an Ethernet
-		   packet type for AARP packets. */
 		return try_capture_dissector("ethertype", etype, pd, offset+5, len, cpinfo, pseudo_header);
 
 	case OUI_CISCO:
@@ -381,7 +373,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_tree	*field_tree;
 	proto_item	*ti, *sap_item;
 	int		is_snap;
-	guint16		control;
+	guint16		control, etype;
 	int		llc_header_len;
 	guint8		dsap, ssap, format;
 	tvbuff_t	*next_tvb;
@@ -389,10 +381,26 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLC");
 	col_clear(pinfo->cinfo, COL_INFO);
 
+	/* IEEE 1609.3 Ch 5.2.1
+	 * The LLC sublayer header consists solely of a 2-octet field
+	* that contains an EtherType that identifies the higher layer protocol...
+	* Check for 0x86DD too?
+	*/
+	etype = tvb_get_ntohs(tvb, 0);
+
 	dsap = tvb_get_guint8(tvb, 0);
 
 	ti = proto_tree_add_item(tree, proto_llc, tvb, 0, -1, ENC_NA);
 	llc_tree = proto_item_add_subtree(ti, ett_llc);
+	if (etype == 0x88DC) {
+		proto_tree_add_item(llc_tree, hf_llc_type, tvb, 0, 2, ENC_BIG_ENDIAN);
+		next_tvb = tvb_new_subset_remaining(tvb, 2);
+		if (!dissector_try_uint(ethertype_subdissector_table,
+			etype, next_tvb, pinfo, tree))
+			call_data_dissector(next_tvb, pinfo, tree);
+		return tvb_captured_length(tvb);
+	}
+
 	sap_item = proto_tree_add_item(llc_tree, hf_llc_dsap, tvb, 0, 1, ENC_BIG_ENDIAN);
 	field_tree = proto_item_add_subtree(sap_item, ett_llc_dsap);
 	proto_tree_add_item(field_tree, hf_llc_dsap_sap, tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -522,14 +530,6 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 	case OUI_ENCAP_ETHER:
 	case OUI_CISCO_90:
-	case OUI_APPLE_ATALK:
-		/* No, I have no idea why Apple used
-		   one of their own OUIs, rather than
-		   OUI_ENCAP_ETHER, and an Ethernet
-		   packet type as protocol ID, for
-		   AppleTalk data packets - but used
-		   OUI_ENCAP_ETHER and an Ethernet
-		   packet type for AARP packets. */
 		if (XDLC_IS_INFORMATION(control)) {
 			if (tree) {
 				proto_tree_add_uint(snap_tree, hf_type,
@@ -909,7 +909,7 @@ proto_reg_handoff_llc(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

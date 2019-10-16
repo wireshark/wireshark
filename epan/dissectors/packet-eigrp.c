@@ -675,7 +675,7 @@ static const value_string eigrp_metric_comm_type_vals[] = {
 
 
 /**
- *@fn void dissect_eigrp_parameter (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+ *@fn void dissect_eigrp_parameter (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,  proto_item *ti)
  *
  *
  * @param[in,out] tree  detail dissection result
@@ -2572,7 +2572,7 @@ eigrp_fmt_version(gchar *result, guint32 revision )
 }
 
 /**
- *@fn void proto _ register _ eigrp (void)
+ *@fn void proto_register_eigrp (void)
  *
  * @usage
  *      you can not have the function name inside a comment or else Wireshark
@@ -3397,7 +3397,7 @@ proto_reg_handoff_eigrp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

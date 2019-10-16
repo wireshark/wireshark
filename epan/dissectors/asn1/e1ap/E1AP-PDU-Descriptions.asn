@@ -1,0 +1,324 @@
+-- 3GPP TS 38.463 V15.4.0 (2019-07)
+-- **************************************************************
+--
+-- Elementary Procedure definitions
+--
+-- **************************************************************
+
+E1AP-PDU-Descriptions {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+ngran-access (22) modules (3) e1ap (5) version1 (1) e1ap-PDU-Descriptions (0) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules
+--
+-- **************************************************************
+
+IMPORTS
+	Criticality,
+	ProcedureCode
+
+FROM E1AP-CommonDataTypes
+	Reset,
+	ResetAcknowledge,
+	ErrorIndication,
+	GNB-CU-UP-E1SetupRequest,
+	GNB-CU-UP-E1SetupResponse,
+	GNB-CU-UP-E1SetupFailure, 
+	GNB-CU-CP-E1SetupRequest,
+	GNB-CU-CP-E1SetupResponse,
+	GNB-CU-CP-E1SetupFailure, 
+	GNB-CU-UP-ConfigurationUpdate,
+	GNB-CU-UP-ConfigurationUpdateAcknowledge,
+	GNB-CU-UP-ConfigurationUpdateFailure,
+	GNB-CU-CP-ConfigurationUpdate,
+	GNB-CU-CP-ConfigurationUpdateAcknowledge,
+	GNB-CU-CP-ConfigurationUpdateFailure,
+	BearerContextSetupRequest,
+	BearerContextSetupResponse,
+	BearerContextSetupFailure,
+	BearerContextModificationRequest,
+	BearerContextModificationResponse,
+	BearerContextModificationFailure,
+	BearerContextModificationRequired,
+	BearerContextModificationConfirm,
+	BearerContextReleaseCommand,
+	BearerContextReleaseComplete,
+	BearerContextReleaseRequest,
+	BearerContextInactivityNotification,
+	DLDataNotification,
+	ULDataNotification,
+	DataUsageReport,
+	E1ReleaseRequest,
+	E1ReleaseResponse,
+	GNB-CU-UP-CounterCheckRequest,
+	GNB-CU-UP-StatusIndication,
+	MRDC-DataUsageReport,
+	PrivateMessage
+
+FROM E1AP-PDU-Contents
+	id-reset,
+	id-errorIndication,
+	id-gNB-CU-UP-E1Setup,
+	id-gNB-CU-CP-E1Setup,
+	id-gNB-CU-UP-ConfigurationUpdate,
+	id-gNB-CU-CP-ConfigurationUpdate,
+	id-e1Release,
+	id-bearerContextSetup,
+	id-bearerContextModification,
+	id-bearerContextModificationRequired,
+	id-bearerContextRelease,
+	id-bearerContextReleaseRequest,
+	id-bearerContextInactivityNotification,
+	id-dLDataNotification,
+	id-uLDataNotification,
+	id-dataUsageReport,
+	id-gNB-CU-UP-CounterCheck,
+	id-gNB-CU-UP-StatusIndication,
+	id-mRDC-DataUsageReport,
+	id-privateMessage
+
+FROM E1AP-Constants;
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure Class
+--
+-- **************************************************************
+
+E1AP-ELEMENTARY-PROCEDURE ::= CLASS {
+	&InitiatingMessage				,
+	&SuccessfulOutcome							OPTIONAL,
+	
+&UnsuccessfulOutcome						OPTIONAL,
+	&procedureCode				ProcedureCode 	UNIQUE,
+	&criticality				Criticality 	DEFAULT ignore
+}
+WITH SYNTAX {
+	INITIATING MESSAGE			&InitiatingMessage
+	[SUCCESSFUL OUTCOME			&SuccessfulOutcome]
+	[UNSUCCESSFUL OUTCOME		&UnsuccessfulOutcome]
+	PROCEDURE CODE				&procedureCode
+	[CRITICALITY				&criticality]
+}
+
+-- **************************************************************
+--
+-- Interface PDU Definition
+--
+-- **************************************************************
+
+E1AP-PDU ::= CHOICE {
+	initiatingMessage		InitiatingMessage,
+	successfulOutcome		SuccessfulOutcome,
+	unsuccessfulOutcome		UnsuccessfulOutcome,
+	...
+}
+
+InitiatingMessage ::= SEQUENCE {
+	procedureCode			E1AP-ELEMENTARY-PROCEDURE.&procedureCode		({E1AP-ELEMENTARY-PROCEDURES}),
+	criticality				E1AP-ELEMENTARY-PROCEDURE.&criticality			({E1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value					E1AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({E1AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+SuccessfulOutcome ::= SEQUENCE {
+	procedureCode			E1AP-ELEMENTARY-PROCEDURE.&procedureCode		({E1AP-ELEMENTARY-PROCEDURES}),
+	criticality				E1AP-ELEMENTARY-PROCEDURE.&criticality			({E1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value					E1AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({E1AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+UnsuccessfulOutcome ::= SEQUENCE {
+	procedureCode			E1AP-ELEMENTARY-PROCEDURE.&procedureCode		({E1AP-ELEMENTARY-PROCEDURES}),
+	criticality				E1AP-ELEMENTARY-PROCEDURE.&criticality			({E1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value					E1AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({E1AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure List
+--
+-- **************************************************************
+
+E1AP-ELEMENTARY-PROCEDURES E1AP-ELEMENTARY-PROCEDURE ::= {
+	E1AP-ELEMENTARY-PROCEDURES-CLASS-1			|
+	E1AP-ELEMENTARY-PROCEDURES-CLASS-2			,
+
+	...
+}
+
+E1AP-ELEMENTARY-PROCEDURES-CLASS-1 E1AP-ELEMENTARY-PROCEDURE ::= {
+	reset										|
+	gNB-CU-UP-E1Setup							|
+	gNB-CU-CP-E1Setup							|
+	gNB-CU-UP-ConfigurationUpdate				|
+	gNB-CU-CP-ConfigurationUpdate				|
+	e1Release									|
+	bearerContextSetup							|
+	bearerContextModification					|
+	bearerContextModificationRequired			|
+	bearerContextRelease						,
+	...
+}
+
+E1AP-ELEMENTARY-PROCEDURES-CLASS-2 E1AP-ELEMENTARY-PROCEDURE ::= {
+	errorIndication							|
+	bearerContextReleaseRequest				|
+	bearerContextInactivityNotification		|
+	dLDataNotification						|
+	uLDataNotification						|
+	dataUsageReport							|
+	gNB-CU-UP-CounterCheck					|
+	gNB-CU-UP-StatusIndication			|
+	mRDC-DataUsageReport					|
+	privateMessage							,
+	...
+}
+
+-- **************************************************************
+--
+-- Interface Elementary Procedures
+--
+-- **************************************************************
+
+reset E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		Reset
+	SUCCESSFUL OUTCOME		ResetAcknowledge
+	PROCEDURE CODE			id-reset
+	CRITICALITY				reject
+}
+
+errorIndication E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ErrorIndication
+	PROCEDURE CODE			id-errorIndication
+	CRITICALITY				ignore
+}
+
+gNB-CU-UP-E1Setup E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		GNB-CU-UP-E1SetupRequest
+	SUCCESSFUL OUTCOME		GNB-CU-UP-E1SetupResponse
+	UNSUCCESSFUL OUTCOME	GNB-CU-UP-E1SetupFailure
+	PROCEDURE CODE			id-gNB-CU-UP-E1Setup
+	CRITICALITY				reject
+}
+
+gNB-CU-CP-E1Setup E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		GNB-CU-CP-E1SetupRequest
+	SUCCESSFUL OUTCOME		GNB-CU-CP-E1SetupResponse
+	UNSUCCESSFUL OUTCOME	GNB-CU-CP-E1SetupFailure
+	PROCEDURE CODE			id-gNB-CU-CP-E1Setup
+	CRITICALITY				reject
+}
+
+gNB-CU-UP-ConfigurationUpdate E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		GNB-CU-UP-ConfigurationUpdate
+	SUCCESSFUL OUTCOME		GNB-CU-UP-ConfigurationUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME	GNB-CU-UP-ConfigurationUpdateFailure
+	PROCEDURE CODE			id-gNB-CU-UP-ConfigurationUpdate
+	CRITICALITY				reject
+}
+
+gNB-CU-CP-ConfigurationUpdate E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		GNB-CU-CP-ConfigurationUpdate
+	SUCCESSFUL OUTCOME		GNB-CU-CP-ConfigurationUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME	GNB-CU-CP-ConfigurationUpdateFailure
+	PROCEDURE CODE			id-gNB-CU-CP-ConfigurationUpdate
+	CRITICALITY				reject
+}
+
+e1Release E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		E1ReleaseRequest
+	SUCCESSFUL OUTCOME		E1ReleaseResponse
+	PROCEDURE CODE			id-e1Release
+	CRITICALITY				reject
+}
+
+bearerContextSetup E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		BearerContextSetupRequest
+	SUCCESSFUL OUTCOME		BearerContextSetupResponse
+	UNSUCCESSFUL OUTCOME	BearerContextSetupFailure
+	PROCEDURE CODE			id-bearerContextSetup
+	CRITICALITY				reject
+}
+
+bearerContextModification E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		BearerContextModificationRequest
+	SUCCESSFUL OUTCOME		BearerContextModificationResponse
+	UNSUCCESSFUL OUTCOME	BearerContextModificationFailure
+	PROCEDURE CODE			id-bearerContextModification
+	CRITICALITY				reject
+}
+
+bearerContextModificationRequired E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		BearerContextModificationRequired
+	SUCCESSFUL OUTCOME		BearerContextModificationConfirm
+	PROCEDURE CODE			id-bearerContextModificationRequired
+	CRITICALITY				reject
+}
+
+bearerContextRelease E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		BearerContextReleaseCommand
+	SUCCESSFUL OUTCOME		BearerContextReleaseComplete
+	PROCEDURE CODE			id-bearerContextRelease
+	CRITICALITY				reject
+}
+
+bearerContextReleaseRequest E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		BearerContextReleaseRequest
+	PROCEDURE CODE			id-bearerContextReleaseRequest
+	CRITICALITY				ignore
+}
+
+bearerContextInactivityNotification E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		BearerContextInactivityNotification
+	PROCEDURE CODE			id-bearerContextInactivityNotification
+	CRITICALITY				ignore
+}
+
+dLDataNotification E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DLDataNotification
+	PROCEDURE CODE			id-dLDataNotification
+	CRITICALITY				ignore
+}
+
+uLDataNotification E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ULDataNotification
+	PROCEDURE CODE			id-uLDataNotification
+	CRITICALITY				ignore
+}
+
+dataUsageReport E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DataUsageReport
+	PROCEDURE CODE			id-dataUsageReport
+	CRITICALITY				ignore
+}
+
+gNB-CU-UP-CounterCheck E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		GNB-CU-UP-CounterCheckRequest
+	PROCEDURE CODE			id-gNB-CU-UP-CounterCheck
+	CRITICALITY				ignore
+}
+
+gNB-CU-UP-StatusIndication 	E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		GNB-CU-UP-StatusIndication
+	PROCEDURE CODE			id-gNB-CU-UP-StatusIndication
+	CRITICALITY			ignore
+}
+
+privateMessage E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PrivateMessage
+	PROCEDURE CODE			id-privateMessage
+	CRITICALITY				ignore
+}
+
+mRDC-DataUsageReport	E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MRDC-DataUsageReport
+	PROCEDURE CODE			id-mRDC-DataUsageReport
+	CRITICALITY				ignore
+}
+
+END

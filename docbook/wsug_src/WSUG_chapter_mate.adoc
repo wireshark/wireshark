@@ -1,0 +1,2319 @@
+[[ChMate]]
+
+== MATE
+
+[[ChMateIntroduction]]
+
+=== Introduction
+
+MATE: Meta Analysis and Tracing Engine
+
+What is MATE? Well, to keep it very short, with MATE you can create user
+configurable extension(s) of the display filter engine.
+
+MATE's goal is to enable users to filter frames based on information extracted
+from related frames or information on how frames relate to each other. MATE
+was written to help troubleshooting gateways and other systems where a "use"
+involves more protocols. However MATE can be used as well to analyze other
+issues regarding a interaction between packets like response times,
+incompleteness of transactions, presence/absence of certain attributes in a
+group of PDUs and more.
+
+MATE is a Wireshark plugin that allows the user to specify how different
+frames are related to each other. To do so, MATE extracts data from the frames'
+tree and then, using that information, tries to group the frames based on how
+MATE is configured. Once the PDUs are related MATE will create a "protocol"
+tree with fields the user can filter with. The fields will be almost the same
+for all the related frames, so one can filter a complete session spanning
+several frames containing more protocols based on an attribute appearing in
+some related frame. Other than that MATE allows to filter frames based on
+response times, number of PDUs in a group and a lot more.
+
+So far MATE has been used to:
+
+* Filter all packets of a call using various protocols knowing just the
+calling number. (MATE's original goal)
+* Filter all packets of all calls using various protocols based on the release
+cause of one of its "segments".
+* Extrapolate slow transactions from very "dense" captures. (finding requests
+that timeout)
+* Find incomplete transactions (no responses)
+* Follow requests through more gateways/proxies.
+* more...
+
+[[ChMateGettingStarted]]
+
+=== Getting Started
+
+These are the steps to try out MATE:
+
+* Run Wireshark and check if the plugin is installed correct (MATE should
+appear in Help->About->Plugins)
+* Get a configuration file e.g. tcp.mate (see
+https://wiki.wireshark.org/Mate/Examples[Mate/Examples] for more) and place it
+somewhere on your harddisk.
+* Go to Preferences->Protocols->MATE and set the config filename to the file
+you want to use (you don't have to restart Wireshark)
+* Load a corresponding capture file (e.g.
+https://wiki.wireshark.org/SampleCaptures/http.cap[http.cap]) and see if MATE
+has added some new display filter fields, something like: `mate tcp_pdu:1->tcp_ses:1`
+or, at prompt: `path_to/wireshark -o "mate.config: tcp.mate" -r http.cap`.
+
+If anything went well, your packet details might look something like this:
+
+image::wsug_graphics/ws-mate-tcp-output.png[]
+
+[[ChMateManual]]
+
+=== MATE Manual
+
+==== Introduction
+
+MATE creates a filterable tree based on information contained in frames that
+share some relationship with information obtained from other frames. The way
+this relationships are made is described in a configuration file. The
+configuration file tells MATE what makes a PDU and how to relate it to other
+PDUs.
+
+MATE analyzes each frame to extract relevant information from the "protocol"
+tree of that frame. The extracted information is contained in MATE PDUs;
+these contain a list of relevant attributes taken from the tree. From now on, I
+will use the term "PDU" to refer to the objects created by MATE containing the
+relevant information extracted from the frame; I'll use "frame" to refer to the
+"raw" information extracted by the various dissectors that pre-analyzed the frame.
+
+For every PDU, MATE checks if it belongs to an existing "Group of PDUs" (Gop).
+If it does, it assigns the PDU to that Gop and moves any new relevant attributes
+to the Gop's attribute list. How and when do PDUs belong to Gops is described
+in the configuration file as well.
+
+Every time a Gop is assigned a new PDU, MATE will check if it matches the
+conditions to make it belong to a "Group of Groups" (Gog). Naturally the
+conditions that make a Gop belong to a Gog are taken from the configuration
+file as well.
+
+Once MATE is done analyzing the frame it will be able to create a "protocol"
+tree for each frame based on the PDUs, the Gops they belong to and naturally any
+Gogs the former belongs to.
+
+How to tell MATE what to extract, how to group it and then how to relate those
+groups is made using AVPs and AVPLs.
+
+Information in MATE is contained in Attribute/Value Pairs (AVPs). AVPs are made
+of two strings: the name and the value. AVPs are used in the configuration and
+there they have an operator as well. There are various ways AVPs can be matched
+against each other using those operators.
+
+AVPs are grouped into AVP Lists (AVPLs). PDUs, Gops and Gogs have an AVPL each.
+Their AVPLs will be matched in various ways against others coming from the
+configuration file.
+
+MATE will be instructed how to extract AVPs from frames in order to create a PDU
+with an AVPL. It will be instructed as well, how to match that AVPL against the
+AVPLs of other similar PDUs in order to relate them. In MATE the relationship
+between PDUs is a Gop, it has an AVPL as well. MATE will be configured with other
+AVPLs to operate against the Gop's AVPL to relate Gops together into Gogs.
+
+A good understanding on how AVPs and AVPLs work is fundamental to understand how
+MATE works.
+
+[[AVP]]
+==== Attribute Value Pairs
+
+Information used by MATE to relate different frames is contained in Attribute/
+Value Pairs (AVPs). AVPs are made of two strings - the name and the value. When
+AVPs are used in the configuration, an operator is defined as well. There are
+various ways AVPs can be matched against each other using those operators.
+
+----
+  avp_name="avp's value"
+  another_name= "1234 is the value"
+----
+
+The name is a string used to refer to a "kind" of an AVP. Two AVPs won't match
+unless their names are identical.
+
+You should not use uppercase characters in names, or names that start with “.” or
+“_”. Capitalized names are reserved for configuration parameters (we'll call them
+keywords); nothing forbids you from using capitalized strings for other things as
+well but it probably would be confusing. I'll avoid using capitalized words for
+anything but the keywords in this document, the reference manual, the examples
+and the base library. Names that start with a “.” would be very confusing as well
+because in the old grammar, AVPL transformations use names starting with a “.” to
+indicate they belong to the replacement AVPL.
+
+The value is a string that is either set in the configuration (for configuration
+AVPs) or by wireshark while extracting interesting fields from a frame's tree.
+The values extracted from fields use the same representation as they do in filter
+strings except that no quotes are used.
+
+The name can contain only alphanumeric characters, "_", and ".". The name ends
+with an operator.
+
+The value will be dealt with as a string even if it is a number. If there are
+any spaces in the value, the value must be between quotes "".
+
+----
+   ip_addr=10.10.10.11,
+   tcp_port=1234,
+   binary_data=01:23:45:67:89:ab:cd:ef,
+   parameter12=0x23aa,
+   parameter_with_spaces="this value has spaces"
+----
+
+The way two AVPs with the same name might match is described by the operator.
+Remember two AVPs won't match unless their names are identical. In MATE, match
+operations are always made between the AVPs extracted from frames (called data
+AVPs) and the configuration's AVPs.
+
+Currently defined MATE's AVP match operators are:
+
+* <<Equal,Equal>> _=_ will match if the string given completely matches the data
+AVP's value string
+* <<NotEqual,Not Equal>> _!_ will match only if the given value string is not equal to
+the data AVP's value string
+* <<OneOf,One Of>> _{}_ will match if one of the possible strings listed is equal to
+the data AVP's value string
+* <<StartsWith,Starts With>> _^_ will match if the string given matches the first
+characters of the data AVP's value string
+* <<EndsWith,Ends With>> _$_ will match if the string given matches the last characters
+of the data AVP's value string
+* <<Contains,Contains>> _~_ will match if the string given matches any substring of the
+data AVP's value string
+* <<LowerThan,Lower Than>> _<_ will match if the data AVP's value string is semantically
+lower than the string given
+* <<HigherThan,Higher Than>> _>_ will match if the data AVP's value string is semantically
+higher than the string given
+* <<Exists,Exists>> _?_ (the ? can be ommited) will match as far as a data AVP of the
+given name exists
+
+==== AVP lists
+
+An AVPL is a set of diverse AVPs that can be matched against other AVPLs. Every
+PDU, Gop and Gog has an AVPL that contains the information regarding it. The
+rules that MATE uses to group Pdus and Gops are AVPL operations.
+
+There will never be two identical AVPs in a given AVPL. However, we can have
+more than one AVP with the same name in an AVPL as long as their values are
+different.
+
+Some AVPL examples:
+----
+  ( addr=10.20.30.40, addr=192.168.0.1, tcp_port=21, tcp_port=32534, user_cmd=PORT, data_port=12344, data_addr=192.168.0.1 )
+  ( addr=10.20.30.40, addr=192.168.0.1, channel_id=22:23, message_type=Setup, calling_number=1244556673 )
+  ( addr=10.20.30.40, addr=192.168.0.1, ses_id=01:23:45:67:89:ab:cd:ef )
+  ( user_id=pippo, calling_number=1244556673, assigned_ip=10.23.22.123 )
+----
+
+In MATE there are two types of AVPLs:
+
+* data AVPLs that contain information extracted from frames.
+* operation AVPLs that come from the configuration and are used to tell MATE how
+to relate items based on their data AVPLs.
+
+Data AVPLs can be operated against operation AVPLs in various ways:
+
+* <<Loose,Loose Match>>: Will match if at least one of the AVPs of each AVPL
+match. If it matches it will return an AVPL containing all AVPs from the operand
+AVPL that did match the operator's AVPs.
+* <<Every,"Every" Match>>: Will match if none of the AVPs of the operator AVPL
+fails to match a present AVP in the operand AVPL, even if not all of the
+operator's AVPs have a match. If it matches it will return an AVPL containing
+all AVPs from the operand AVPL that did match one AVP in the operator AVPL.
+* <<Strict,Strict Match>>: Will match if and only if every one of the operator's
+AVPs have at least one match in the operand AVPL. If it matches it will return
+an AVPL containing the AVPs from the operand that matched.
+* There's also a <<Merge,Merge>> operation that is to be performed between AVPLs
+where all the AVPs that don't exist in the operand AVPL but exist in the operand
+will be added to the operand AVPL.
+* Other than that there are <<Transform,Transformations>> - a combination
+of a match AVPL and an AVPL to merge.
+
+==== MATE Analysis
+
+MATE's analysis of a frame is performed in three phases:
+
+* In the first phase, MATE attempts to extract a MATE Pdu from the frame's
+protocol tree. MATE will create a Pdu if MATE's config has a _Pdu_ declaration
+whose _Proto_ is contained in the frame.
+
+* In the second phase, if a Pdu has been extracted from the frame, MATE will try
+to group it to other Pdus into a Gop (Group of Pdus) by matching the key
+criteria given by a _Gop_ declaration. If there is no Gop yet with the key
+criteria for the Pdu, MATE will try to create a new Gop for it if it matches the
+_Start_ criterium given in the Gop declaration.
+
+* In the third phase, if there's a Gop for the Pdu, MATE will try to group this
+Gop with other Gops into a Gog (Group of Groups) using the criteria given by the
+_Member_ criteria of a Gog declaration.
+
+image::wsug_graphics/ws-mate-analysis.png[]
+
+The extraction and matching logic comes from MATE's configuration; MATE's
+configuration file is declared by the _mate.config_ preference. By default it is
+an empty string which means: do not configure MATE.
+
+The config file tells MATE what to look for in frames; How to make PDUs out of
+it; How will PDUs be related to other similar PDUs into Gops; And how Gops
+relate into Gogs.
+
+The MATE configuration file is a list of declarations. There are 4 types of
+declarations: _Transform_, _Pdu_, _Gop_ and _Gog_.
+
+===== Mate's PDU's
+
+MATE will look in the tree of every frame to see if there is useful data to
+extract, and if there is, it will create one or more PDU objects containing the
+useful information.
+
+The first part of MATE's analysis is the "PDU extraction"; there are various
+"Actions" that are used to instruct MATE what has to be extracted from the
+current frame's tree into MATE's PDUs.
+
+====== PDU data extraction
+
+MATE will make a Pdu for each different proto field of Proto type present in the
+frame. MATE will fetch from the field's tree those fields that are defined in
+the <<Pdu>> declaration whose initial offset in the frame is within the
+boundaries of the current Proto and those of the given Transport and Payload
+statements.
+
+----
+Pdu dns_pdu Proto dns Transport ip {
+    Extract addr From ip.addr;
+    Extract dns_id From dns.id;
+    Extract dns_resp From dns.flags.response;
+};
+----
+MATE will make a Pdu for each different proto field of Proto type present in the
+frame. MATE will fetch from the field's tree those fields that are defined in
+the <<Pdu>> AVPL whose initial offset in the frame is within the boundaries of
+the current Proto and those of the various assigned Transports.
+
+image::wsug_graphics/ws-mate-dns_pane.png[]
+
+Once MATE has found a _Proto_ field for which to create a Pdu from the frame it
+will move backwards in the frame looking for the respective _Transport_ fields.
+After that it will create AVPs named as each of those given in the rest of the
+AVPL for every instance of the fields declared as its values.
+
+image::wsug_graphics/ws-mate-dns_pdu.png[]
+
+Sometimes we need information from more than one _Transport_ protocol. In that
+case MATE will check the frame looking backwards to look for the various
+_Transport_ protocols in the given stack. MATE will choose only the closest
+transport boundary per "protocol" in the frame.
+
+This way we'll have all Pdus for every _Proto_ that appears in a frame match its
+relative transports.
+
+----
+Pdu isup_pdu Proto isup Transport mtp3/ip {
+        Extract m3pc From mtp3.dpc;
+        Extract m3pc From mtp3.opc;
+        Extract cic From isup.cic;
+        Extract addr From ip.addr;
+        Extract isup_msg From isup.message_type;
+};
+----
+
+image::wsug_graphics/ws-mate-isup_over_mtp3_over_ip.png[]
+
+This allows to assign the right _Transport_ to the Pdu avoiding duplicate
+transport protocol entries (in case of tunneled ip over ip for example).
+
+----
+Pdu ftp_pdu Proto ftp Transport tcp/ip {
+        Extract addr From ip.addr;
+        Extract port From tcp.port;
+        Extract ftp_cmd From ftp.command;
+};
+----
+
+image::wsug_graphics/ws-mate-ftp_over_gre.png[]
+
+Other than the mandatory _Transport_ there is also an optional _Payload_
+statement, which works pretty much as _Transport_ but refers to elements after
+the _Proto_'s range. It is useful in those cases where the payload protocol
+might not appear in a Pdu but nevertheless the Pdu belongs to the same category.
+
+----
+Pdu mmse_over_http_pdu Proto http Transport tcp/ip {
+
+        Payload mmse;
+
+        Extract addr From ip.addr;
+        Extract port From tcp.port;
+        Extract method From http.request.method;
+        Extract content From http.content_type;
+        Extract http_rq From http.request;
+        Extract resp From http.response.code;
+        Extract host From http.host;
+        Extract trx From mmse.transaction_id;
+        Extract msg_type From mmse.message_type;
+        Extract notify_status From mmse.status;
+        Extract send_status From mmse.response_status;
+};
+----
+
+image::wsug_graphics/ws-mate-mmse_over_http.png[]
+
+====== Conditions on which to create PDUs
+
+There might be cases in which we won't want MATE to create a PDU unless some of
+its extracted attributes meet or do not meet some criteria. For that we use the
+_Criteria_ statements of the _Pdu_ declarations.
+
+----
+Pdu isup_pdu Proto isup Transport mtp3/ip {
+    ...
+
+   // MATE will create isup_pdu PDUs only when there is not a point code '1234'
+   Criteria Reject Strict (m3pc=1234);
+};
+
+Pdu ftp_pdu Proto ftp Transport tcp/ip {
+    ...
+
+    // MATE will create ftp_pdu PDUs only when they go to port 21 of our ftp_server
+    Criteria Accept Strict (addr=10.10.10.10, port=21);
+};
+----
+
+The _Criteria_ statement is given an action (_Accept_ or _Reject_), a match mode
+(_Strict_, _Loose_ or _Every_) and an AVPL against which to match the currently
+extracted one.
+
+====== Transforming the attributes of a PDU
+
+Once the fields have been extracted into the Pdu's AVPL, MATE will apply any
+declared transformation to it. The way transforms are applied and how they work
+is described later on. However it's useful to know that once the AVPL for the
+Pdu is created, it may be transformed before being analyzed. That way we can
+massage the data to simplify the analysis.
+
+====== MATE's PDU tree
+
+Every successfully created Pdu will add a MATE tree to the frame dissection. If
+the Pdu is not related to any Gop, the tree for the Pdu will contain just the
+Pdu's info, if it is assigned to a Gop, the tree will also contain the Gop items,
+and the same applies for the Gog level.
+
+----
+mate dns_pdu:1
+    dns_pdu: 1
+        dns_pdu time: 3.750000
+        dns_pdu Attributes
+            dns_resp: 0
+            dns_id: 36012
+            addr: 10.194.4.11
+            addr: 10.194.24.35
+----
+
+The Pdu's tree contains some filterable fields
+
+* _mate.dns_pdu_ will contain the number of the "dns_pdu" Pdu
+* _mate.dns_pdu.RelativeTime_ will contain the time passed since the beginning
+of the capture in seconds
+* the tree will contain the various attributes of the Pdu as well, these will
+all be strings (to be used in filters as "10.0.0.1", not as 10.0.0.1)
+** mate.dns_pdu.dns_resp
+** mate.dns_pdu.dns_id
+** mate.dns_pdu.addr
+
+===== Grouping Pdus together (Gop)
+
+Once MATE has created the Pdus it passes to the Pdu analysis phase. During the
+PDU analysis phase MATE will try to group Pdus of the same type into 'Groups of
+Pdus' (aka *Gop*s) and copy some AVPs from the Pdu's AVPL to the Gop's AVPL.
+
+image::wsug_graphics/ws-mate-pdu_analysis.png[]
+
+====== What can belong to a Gop
+
+Given a Pdu, the first thing MATE will do is to check if there is any Gop
+declaration in the configuration for the given Pdu type. If so, it will use its
+_Match_ AVPL to match it against the Pdu's AVPL; if they don't match, the
+analysis phase is done. If there is a match, the AVPL is the Gop's candidate key
+which will be used to search the Gop's index for the Gop to which to assign
+the current PDU. If there is no such Gop and this Pdu does not match the
+_Start_ criteria of a Gop declaration for the Pdu type, the Pdu will remain
+unassigned and only the analysis phase will be done.
+
+----
+Gop ftp_ses On ftp_pdu Match (addr, addr, port, port);
+Gop dns_req On dns_pdu Match (addr, addr, dns_id);
+Gop isup_leg On isup_pdu Match (m3pc, m3pc, cic);
+----
+
+====== Start of a Gop
+
+If there was a match, the candidate key will be used to search the Gop's index
+to see if there is already a Gop matching the Gop's key the same way. If there
+is such a match in the Gops collection, and the PDU doesn't match the _Start_
+AVPL for its kind, the PDU will be assigned to the matching Gop. If it is a
+_Start_ match, MATE will check whether or not that Gop has been already
+stopped. If the Gop has been stopped, a new Gop will be created and will replace
+the old one in the Gop's index.
+
+----
+Gop ftp_ses On ftp_pdu Match (addr, addr, port, port) {
+    Start (ftp_cmd=USER);
+};
+
+Gop dns_req On dns_pdu Match (addr, addr, dns_id) {
+    Start (dns_resp=0);
+};
+
+Gop isup_leg On isup_pdu Match (m3pc, m3pc, cic) {
+    Start (isup_msg=1);
+};
+----
+
+If no _Start_ is given for a Gop, a Pdu whose AVPL matches an existing Gog's
+key will act as the start of a Gop.
+
+====== What goes into the Gop's AVPL
+
+Once we know a Gop exists and the Pdu has been assigned to it, MATE will copy
+into the Gop's AVPL all the attributes matching the key plus any AVPs of the
+Pdu's AVPL matching the _Extra_ AVPL.
+
+----
+Gop ftp_ses On ftp_pdu Match (addr, addr, port, port) {
+    Start (ftp_cmd=USER);
+    Extra (pasv_prt, pasv_addr);
+};
+
+Gop isup_leg On isup_pdu Match (m3pc, m3pc, cic) {
+    Start (isup_msg=1);
+    Extra (calling, called);
+};
+----
+
+====== End of a Gop
+
+Once the Pdu has been assigned to the Gop, MATE will check whether or not the
+Pdu matches the _Stop_, if it happens, MATE will mark the Gop as stopped. Even
+after stopped, a Gop may get assigned new Pdus matching its key, unless such
+Pdu matches _Start_. If it does, MATE will instead create a new Gop starting
+with that Pdu.
+
+----
+Gop ftp_ses On ftp_pdu Match (addr, addr, port, port) {
+    Start (ftp_cmd=USER);
+    Stop (ftp_cmd=QUIT); // The response to the QUIT command will be assigned to the same Gop
+    Extra (pasv_prt, pasv_addr);
+};
+
+Gop dns_req On dns_pdu Match (addr, addr, dns_id) {
+    Start (dns_resp=0);
+    Stop (dns_resp=1);
+};
+
+Gop isup_leg On isup_pdu Match (m3pc, m3pc, cic) {
+    Start (isup_msg=1); // IAM
+    Stop (isup_msg=16); // RLC
+    Extra (calling, called);
+};
+----
+
+If no _Stop_ criterium is stated for a given Gop, the Gop will be stopped as
+soon as it is created. However, as with any other Gop, Pdus matching the Gop's
+key will still be assigned to the Gop unless they match a _Start_ condition,
+in which case a new Gop using the same key will be created.
+
+===== Gop's tree
+
+For every frame containing a Pdu that belongs to a Gop, MATE will create a tree
+for that Gop.
+
+The example below represents the tree created by the _dns_pdu_ and _dns_req_
+examples.
+
+----
+...
+mate dns_pdu:6->dns_req:1
+    dns_pdu: 6
+        dns_pdu time: 2.103063
+        dns_pdu time since begining of Gop: 2.103063
+        dns_req: 1
+            dns_req Attributes
+                dns_id: 36012
+                addr: 10.194.4.11
+                addr: 10.194.24.35
+            dns_req Times
+                dns_req start time: 0.000000
+                dns_req hold time: 2.103063
+                dns_req duration: 2.103063
+            dns_req number of PDUs: 2
+                Start PDU: in frame 1
+                Stop PDU: in frame 6 (2.103063 : 2.103063)
+        dns_pdu Attributes
+            dns_resp: 1
+            dns_id: 36012
+            addr: 10.194.4.11
+            addr: 10.194.24.35
+----
+
+Other than the pdu's tree, this one contains information regarding the
+relationship between the Pdus that belong to the Gop. That way we have:
+
+* mate.dns_req which contains the id of this dns_req Gop. This will be present
+in frames that belong to dns_req Gops.
+* mate.dns_req.dns_id and mate.dns_req.addr which represent the values of the
+attributes copied into the Gop.
+* the timers of the Gop
+** mate.dns_req.StartTime time (in seconds) passed since beginning of capture
+until Gop's start.
+** mate.dns_req.Time time passed between the start Pdu and the stop Pdu assigned
+to this Gop (only created if a Stop criterion has been declared for the Gop and
+a matching Pdu has arrived).
+** mate.dns_req.Duration time passed between the start Pdu and the last Pdu
+assigned to this Gop.
+* mate.dns_req.NumOfPdus the number of Pdus that belong to this Gop
+** a filterable list of frame numbers of the pdus of this Gop
+
+====== Gop's timers
+
+Note that there are two "timers" for a Gop:
+
+* *Time*, which is defined only for Gops that have been Stopped, and gives the
+time passed between the _Start_ and the _Stop_ Pdus.
+* *Duration*, which is defined for every Gop regardles of its state, and give
+the time passed between its _Start_ Pdu and the last Pdu that was assigned to
+that Gop.
+
+So:
+
+* we can filter for Pdus that belong to Gops that have been Stopped with
+*mate.xxx.Time*
+* we can filter for Pdus that belong to unstopped Gops with *mate.xxx &&
+mate.xxx.Time*
+* we can filter for Pdus that belong to stopped Gops using *mate.xxx.Duration*
+* we can filter for Pdus that belong to Gops that have taken more (or less) time
+that 0.5s to complete with *mate.xxx.Time > 0.5* (you can try these also as
+color filters to find out when response times start to grow)
+
+===== Grouping Gops together (Gog)
+
+When Gops are created, or whenever their AVPL changes, Gops are (re)analyzed to
+check if they match an existent group of groups (Gog) or can create a new one.
+The Gop analysis is divided into two phases. In the first phase, the still
+unassigned Gop is checked to verify whether it belongs to an already existing
+Gog or may create a new one. The second phase eventually checks the Gog and
+registers its keys in the Gogs index.
+
+image::wsug_graphics/ws-mate-gop_analysis.png[]
+
+There are several reasons for the author to believe that this feature needs to
+be reimplemented, so probably there will be deep changes in the way this is done
+in the near future. This section of the documentation reflects the version of
+MATE as of wireshark 0.10.9; in future releases this will change.
+
+====== Declaring a Group Of Groups
+
+The first thing we have to do configuring a Gog is to tell MATE that it exists.
+
+----
+Gog web_use {
+   ...
+};
+----
+
+====== Telling MATE what could be a Gog member
+
+Then we have to tell MATE what to look for a match in the candidate Gops.
+
+----
+Gog web_use {
+    Member http_ses (host);
+    Member dns_req (host);
+};
+----
+
+====== Getting interesting data into the Gop
+
+Most often, also other attributes than those used for matching would be
+interesting. In order to copy from Gop to Gog other interesting attributes, we
+might use _Extra_ like we do for Gops.
+
+----
+Gog web_use {
+    ...
+    Extra (cookie);
+};
+----
+
+====== Gog's tree
+
+----
+mate http_pdu:4->http_req:2->http_use:1
+    http_pdu: 4
+        http_pdu time: 1.309847
+        http_pdu time since begining of Gop: 0.218930
+        http_req: 2
+            ... (the gop's tree for http_req: 2) ..
+        http_use: 1
+            http_use Attributes
+                host: www.example.com
+            http_use Times
+                http_use start time: 0.000000
+                http_use duration: 1.309847
+            number of GOPs: 3
+                dns_req: 1
+                    ... (the gop's tree for dns_req: 1) ..
+                http_req: 1
+                    ... (the gop's tree for http_req: 1) ..
+                http_req of current frame: 2
+----
+
+We can filter on:
+
+* *mate.http_use.Duration* time elapsed between the first frame of a Gog and the last one assigned to it.
+* the attributess passed to the Gog
+** *mate.http_use.host*
+
+===== AVPL Transforms
+
+A Transform is a sequence of Match rules optionally completed with modification
+of the match result by an additional AVPL. Such modification may be an Insert
+(merge) or a Replace. Transforms can be used as helpers to manipulate an item's
+AVPL before it is processed further. They come to be very helpful in several
+cases.
+
+====== Syntax
+
+AVPL Transformations are declared in the following way:
+
+----
+ Transform name {
+   Match [Strict|Every|Loose] match_avpl [Insert|Replace] modify_avpl ;
+   ...
+ };
+----
+
+The *name* is the handle to the AVPL transformation. It is used to refer to the
+transform when invoking it later.
+
+The _Match_ declarations instruct MATE what and how to match against the data
+AVPL and how to modify the data AVPL if the match succeeds. They will be
+executed in the order they appear in the config file whenever they are invoked.
+
+The optional match mode qualifier (_Strict_, _Every_, or _Loose_) is used
+to choose the match mode as explained above; _Strict_ is a default value which
+may be omitted.
+
+The optional modification mode qualifier instructs MATE how the modify AVPL
+should be used:
+
+* the default value _Insert_ (which may be omitted) causes the _modify_avpl_
+to be *merged* to the existing data AVPL,
+* the _Replace_ causes all the matching AVPs from the data AVPL to be
+*replaced* by the _modify_avpl_.
+
+The _modify_avpl_ may be an empty one; this comes useful in some cases for
+both _Insert_ and _Replace_ modification modes.
+
+Examples:
+
+----
+ Transform insert_name_and {
+   Match Strict (host=10.10.10.10, port=2345) Insert (name=JohnDoe);
+};
+----
+
+adds name=JohnDoe to the data AVPL if it contains host=10.10.10.10 *and*
+port=2345
+
+----
+Transform insert_name_or {
+   Match Loose (host=10.10.10.10, port=2345) Insert (name=JohnDoe);
+};
+----
+
+adds name=JohnDoe to the data AVPL if it contains host=10.10.10.10 *or*
+port=2345
+
+----
+Transform replace_ip_address {
+   Match (host=10.10.10.10) Replace (host=192.168.10.10);
+};
+----
+
+replaces the original host=10.10.10.10 by host=192.168.10.10
+
+----
+Transform add_ip_address {
+   Match (host=10.10.10.10) (host=192.168.10.10);
+};
+----
+
+adds (inserts) host=192.168.10.10 to the AVPL, keeping the original
+host=10.10.10.10 in it too
+
+----
+ Transform replace_may_be_surprising {
+   Match Loose (a=aaaa, b=bbbb) Replace (c=cccc, d=dddd);
+ };
+----
+
+gives the following results:
+
+* (a=aaaa, b=eeee) gets transformed to (b=eeee, c=cccc, d=dddd) because a=aaaa
+did match so it got replaced while b=eeee did not match so it has been left
+intact,
+* (a=aaaa, b=bbbb) gets transformed to (c=cccc, d=dddd) because both a=aaaa and
+b=bbbb did match.
+
+====== Usage
+
+Once declared, Transforms can be added to the declarations of PDUs, Gops or
+Gogs. This is done by adding the _Transform name_list_ statement to the
+declaration:
+
+----
+Pdu my_proto_pdu Proto my_proto Transport ip {
+    Extract addr From ip.addr;
+    ...
+    Transform my_pdu_transform[, other_pdu_transform[, yet_another_pdu_transform]];
+};
+----
+
+* In case of PDU, the list of transforms is applied against the PDU's AVPL
+after its creation.
+* In case of Gop and Gog, the list of transforms is applied against their
+respective AVPLs when they are created and every time they change.
+
+===== Operation
+
+image::wsug_graphics/ws-mate-transform.png[]
+
+* A list of previously declared Transforms may be given to every Item (Pdu, Gop,
+or Gog), using the Transform statement.
+* Every time the AVPL of an item changes, it will be operated against *all* the
+Transforms on the list given to that item. The Transforms on the list are
+applied left to right.
+* Inside each of the Transforms, the item's AVPL will be operated against the
+Transform's Match clauses starting from the topmost one, until all have been
+tried or until one of them succeeds.
+
+MATE's Transforms can be used for many different things, like:
+
+====== Multiple Start/Stop conditions for a Gop
+
+Using _Transforms_ we can add more than one start or stop condition to a Gop.
+
+----
+Transform start_cond {
+  Match (attr1=aaa,attr2=bbb) (msg_type=start);
+  Match (attr3=www,attr2=bbb) (msg_type=start);
+  Match (attr5^a) (msg_type=stop);
+  Match (attr6$z) (msg_type=stop);
+};
+
+Pdu pdu ... {
+  ...
+  Transform start_cond;
+}
+
+Gop gop ... {
+  Start (msg_type=start);
+  Stop (msg_type=stop);
+  ...
+}
+----
+
+====== Marking Gops and Gogs to filter them easily
+
+----
+Transform marks {
+  Match (addr=10.10.10.10, user=john) (john_at_host);
+  Match (addr=10.10.10.10, user=tom) (tom_at_host);
+}
+
+...
+
+Gop my_gop ... {
+  ...
+  Transform marks;
+}
+----
+
+After that we can use a display filter *mate.gop.john_at_host* or
+*mate.gop.tom_at_host*
+
+====== Adding direction knowledge to MATE
+
+----
+Transform direction_as_text {
+  Match (src=192.168.0.2, dst=192.168.0.3) Replace (direction=from_2_to_3);
+  Match (src=192.168.0.3, dst=192.168.0.2) Replace (direction=from_3_to_2);
+};
+
+Pdu my_pdu Proto my_proto Transport tcp/ip {
+  Extract src From ip.src;
+  Extract dst From ip.dst;
+  Extract addr From ip.addr;
+  Extract port From tcp.port;
+  Extract start From tcp.flags.syn;
+  Extract stop From tcp.flags.fin;
+  Extract stop From tcp.flags.rst;
+  Transform direction_as_text;
+}
+
+Gop my_gop On my_pdu Match (addr,addr,port,port) {
+  ...
+  Extra (direction);
+}
+----
+
+====== NAT
+
+NAT can create problems when tracing, but we can easily worked around it by
+Transforming the NATed IP address and the Ethernet address of the router into
+the non-NAT address:
+
+----
+Transform denat {
+  Match (addr=192.168.0.5, ether=01:02:03:04:05:06) Replace (addr=123.45.67.89);
+  Match (addr=192.168.0.6, ether=01:02:03:04:05:06) Replace (addr=123.45.67.90);
+  Match (addr=192.168.0.7, ether=01:02:03:04:05:06) Replace (addr=123.45.67.91);
+}
+
+Pdu my_pdu Proto my_proto transport tcp/ip/eth {
+  Extract ether From eth.addr;
+  Extract addr From ip.addr;
+  Extract port From tcp.port;
+  Transform denat;
+}
+----
+
+==== About MATE
+
+MATE was originally written by Luis Ontanon, a Telecomunications systems
+troubleshooter, as a way to save time filtering out the packets of a single call
+from huge capture files using just the calling number. Later he used the time he
+had saved to make it flexible enough to work with protocols other than the ones
+he was directly involved with.
+
+[[ChMateConfigurationTutorial]]
+
+=== MATE's configuration tutorial
+
+We'll show a MATE configuration that first creates Gops for every DNS and HTTP
+request, then it ties the Gops together in a Gop based on the host. Finally
+we'll separate into different Gogs request coming from different users.
+
+With this MATE configuration loaded we can:
+
+* use *mate.http_use.Duration > 5.5* to filter frames based on the time it takes
+to load a complete page from the DNS request to resolve its name until the last
+image gets loaded.
+* use *mate.http_use.client == "10.10.10.20" && mate.http_use.host == "www.example.com"*
+to isolate DNS and HTTP packets related to a visit of a certain user.
+* use *mate.http_req.Duration > 1.5* to filter all the packets of HTTP requests
+that take more than 1.5 seconds to complete.
+
+The complete config file is here:
+https://wiki.wireshark.org/Mate/Examples?action=AttachFile&do=view&target=web.mate[web.mate]
+
+Note: for this example I used _dns.qry.name_ which is defined since Wireshark
+version 0.10.9. Supposing you have a mate plugin already installed you can test
+it with the current Wireshark version.
+
+==== A Gop for DNS requests
+
+First we'll tell MATE how to create a Gop for each DNS request/response.
+
+MATE needs to know what makes a DNS PDU. We describe it this using a Pdu
+declaration:
+
+----
+Pdu dns_pdu Proto dns Transport ip {
+  Extract addr From ip.addr;
+  Extract dns_id From dns.id;
+  Extract dns_resp From dns.flags.response;
+};
+----
+
+Using _Proto dns_ we tell MATE to create Pdus every time it finds _dns_. Using
+_Transport ip_ we inform MATE that some of the fields we are interested are
+in the _ip_ part of the frame. Finally, we tell MATE to import _ip.addr_ as
+_addr_, _dns.id_ as _dns_id_ and _dns.flags.response_ as _dns_resp_.
+
+Once we've told MATE how to extract _dns_pdus_ we'll tell it how to match
+requests and responses and group them into a Gop. For this we'll use a _Gop_
+declaration to define the Gop, and then, _Start_ and _Stop_ statements to
+tell it when the Gop starts and ends.
+
+----
+Gop dns_req On dns_pdu Match (addr,addr,dns_id) {
+  Start (dns_resp=0);
+  Stop (dns_resp=1);
+};
+----
+
+Using the *Gop* declaration we tell MATE that the *Name* of the Gop is _dns_req_,
+that _dns_pdus_ can become members of the Gop, and what is the key used to match
+the Pdus to the Gop.
+
+The key for this Gop is _"addr, addr, dns_id"_. That means that in order to
+belong to the same Gop, _dns_pdus_ have to have both addresses and the
+_request id_ identical. We then instruct MATE that a _dns_req_ starts whenever
+a _dns_pdu_ matches _"dns_resp=0"_ and that it stops when another _dns_pdu_
+matches _"dns_resp=1"_.
+
+At this point, if we open a capture file using this configuration, we are able
+to use a display filter *mate.dns_req.Time > 1* to see only the packets of
+DNS requests that take more than one second to complete.
+
+We can use a display filter *mate.dns_req && ! mate.dns_req.Time* to find
+requests for which no response was given. *mate.xxx.Time* is set only for Gops
+that have being stopped.
+
+==== A Gop for HTTP requests
+
+This other example creates a Gop for every HTTP request.
+
+----
+Pdu http_pdu Proto http Transport tcp/ip {
+  Extract addr From ip.addr;
+  Extract port From tcp.port;
+  Extract http_rq From http.request.method;
+  Extract http_rs From http.response;
+  DiscardPduData true;
+};
+
+Gop http_req On http_pdu Match (addr, addr, port, port) {
+  Start (http_rq);
+  Stop (http_rs);
+};
+----
+
+So, if we open a capture using this configuration
+
+* filtering with *mate.http_req.Time > 1* will give all the requests where the
+response header takes more than one second to come
+* filtering with *mate.http_req.Duration > 1.5* will show those request that
+take more than 1.5 seconds to complete.
+
+You have to know that *mate.xxx.Time* gives the time in seconds between the pdu
+matching the GopStart and the Pdu matching the GopStop (yes, you can create
+timers using this!). On the other hand, *mate.xxx.Duration* gives you the time
+passed between the GopStart and the last pdu assigned to that Gop regardless
+whether it is a stop or not. After the GopStop, Pdus matching the Gop's Key will
+still be assigned to the same Gop as far as they don't match the GopStart, in
+which case a new Gop with the same key will be created.
+
+==== Getting DNS and HTTP together into a Gog
+
+We'll tie together to a single Gog all the http packets belonging to requests
+and responses to a certain host and the dns request and response used to resolve
+its domain name using the Pdu and Gop definitions of the previous examples
+
+To be able to group DNS and HTTP requests together, we need to import into the
+Pdus and Gops some part of information that both those protocols share. Once the
+Pdus and Gops have been defined, we can use _Extract_ (for Pdus) and
+_Extract_ (for Gops) statements to tell MATE what other protocol fields are to
+be added to Pdus' and Gops' AVPLs. We add the following statements to the
+appropriate declarations:
+
+----
+Extract host From http.host; // to Pdu http_pdu as the last Extract in the list
+Extra (host); // to Gop http_req after the Stop
+
+Extract host From dns.qry.name; // to Pdu dns_pdu as the last Extract in the list
+Extra (host); // to Gop dns_req after the Stop
+----
+
+Here we've told MATE to import _http.host_ into _http_pdu_ and _dns.qry.name_
+into _dns_pdu_ as _host_. We also have to tell MATE to copy the _host_
+attribute from the Pdus to the Gops, we do this using _Extra_.
+
+Once we've got all the data we need in Pdus and Gops, we tell MATE what makes
+different Gops belong to a certain Gog.
+
+----
+Gog http_use {
+  Member http_req (host);
+  Member dns_req (host);
+  Expiration 0.75;
+};
+----
+
+Using the _Gog_ declaration we tell MATE to define a Gog type _Named_
+_http_use_ whose expiration is 0.75 seconds after all the Gops that belong to it
+had been stopped. After that time, an eventual new Gop with the same key match
+will create a new Gog instead of been added to the previous Gog.
+
+Using the _Member_ statements we tell MATE that *http_req*s with the same
+*host* belong to the same Gog, same thing for *dns_req*s.
+
+So far we have instructed mate to group every packet related to sessions towards
+a certain host. At this point if we open a capture file and:
+
+* a display filter *mate.http_use.Duration > 5* will show only those requests
+that have taken more than 5 seconds to complete starting from the DNS request
+and ending with the last packet of the http responses.
+
+* a display filter *mate.http_use.host == "www.w3c.org"* will show all the
+packets (both DNS and HTTP) related to the requests directed to www.w3c.org
+
+==== Separating requests from multiple users
+
+"Houston: we've had a problem here."
+
+This configuration works fine if used for captures taken at the client's side
+but deeper in the network we'd got a real mess. Requests from many users get
+mixed together into _http_uses_. Gogs are created and stopped almost randomly
+(depending on the timing in which Gops start and stop). How do we get requests
+from individual users separated from each other?
+
+MATE has a tool that can be used to resolve this kind of grouping issues. This
+tool are the _Transforms_. Once defined, they can be applied against Pdus,
+Gops and Gogs and they might replace or insert more attributes based on what's
+there. We'll use them to create an attribute named client, using which we'll
+separate different requests.
+
+For DNS we need the ip.src of the request moved into the Gop only from the DNS
+request.
+
+So we first tell MATE to import ip.src as client:
+
+----
+Extract client From ip.src;
+----
+
+Next, we tell MATE to replace ( *dns_resp=1, client* ) with just *dns_resp=1* in
+the Pdu. That way, we'll keep the attribute *client* only in the DNS request
+Pdus (i.e. packets coming from the client).To do so, we have to add a
+_Transform_ declaration (in this case, with just one clause) before the Pdu
+declaration which uses it:
+
+----
+Transform rm_client_from_dns_resp {
+  Match (dns_resp=1, client) Replace (dns_resp=1);
+};
+----
+
+Next, we invoke the transform by adding the following line after the _Extract_
+list of the dns_pdu Pdu:
+
+----
+  Transform rm_client_from_dns_resp;
+----
+
+HTTP is a little trickier. We have to remove the attribute carrying ip.src from
+both the response and the "continuations" of the response, but as there is
+nothing to filter on for the continuations, we have to add a fake attribute
+first. And then we have to remove client when the fake attribute appears.
+This is possible due to the fact that the _Match_ clauses in the _Transform_
+are executed one by one until one of them succeeds. First, we declare another
+two _Transforms_:
+
+----
+Transform rm_client_from_http_resp1 {
+  Match (http_rq); //first match wins so the request won't get the not_rq attribute inserted
+  Match Every (addr) Insert (not_rq); //this line won't be evaluated if the first one matched so not_rq won't be inserted to requests
+};
+
+Transform rm_client_from_http_resp2 {
+  Match (not_rq, client) Replace (); //replace "client and not_rq" with nothing (will happen only in the response and eventual parts of it)
+};
+----
+
+Next, we add another _Extract_ statement to the _http_pdu_ declaration, and
+apply both _Transforms_ declared above in a proper order:
+
+----
+  Extract client From ip.src;
+  Transform rm_client_from_http_resp1, rm_client_from_http_resp2;
+----
+
+In MATE, all the _Transform_s listed for an item will be evaluated, while
+inside a single _Transform_, the evaluation will stop at the first successful
+_Match_ clause. That's why we first just match _http_rq_ to get out of the
+first sequence before adding the _not_rq_ attribute. Then we apply the second
+_Transform_ which removes both _not_rq_ and _client_ if both are there. Yes,
+_Transform_s are cumbersome, but they are very useful.
+
+Once we got all what we need in the Pdus, we have to tell MATE to copy the
+attribute _client_ from the Pdus to the respective Gops, by adding client to
+_Extra_ lists of both Gop declarations:
+
+----
+Extra (host, client);
+----
+
+On top of that, we need to modify the old declarations of Gop key to new ones
+that include both _client_ and _host_. So we change the Gog *Member*
+declarations the following way:
+
+----
+  Member http_req (host, client);
+  Member dns_req (host, client);
+----
+
+Now we got it, every "usage" gets it's own Gog.
+
+[[ChMateConfigurationExamples]]
+
+=== MATE configuration examples
+
+The following is a collection of various configuration examples for MATE. Many
+of them are useless because the "conversations" facility does a better job.
+Anyway they are meant to help users understanding how to configure MATE.
+
+==== TCP session
+
+The following example creates a GoP out of every TCP session.
+
+----
+Pdu tcp_pdu Proto tcp Transport ip {
+    Extract addr From ip.addr;
+    Extract port From tcp.port;
+    Extract tcp_start From tcp.flags.syn;
+    Extract tcp_stop From tcp.flags.reset;
+    Extract tcp_stop From tcp.flags.fin;
+};
+
+Gop tcp_ses On tcp_pdu Match (addr, addr, port, port) {
+    Start (tcp_start=1);
+    Stop (tcp_stop=1);
+};
+
+Done;
+----
+
+This probably would do fine in 99.9% of the cases but 10.0.0.1:20->10.0.0.2:22 and 10.0.0.1:22->10.0.0.2:20 would both fall into the same gop if they happen to overlap in time.
+
+* filtering with *mate.tcp_ses.Time > 1* will give all the sessions that last less than one second
+* filtering with *mate.tcp_ses.NumOfPdus < 5* will show all tcp sessions that have less than 5 packets.
+* filtering with *mate.tcp_ses.Id == 3* will show all the packets for the third tcp session MATE has found
+
+==== a Gog for a complete FTP session
+
+This configuration allows to tie a complete passive ftp session (including the
+data transfer) in a single Gog.
+
+----
+Pdu ftp_pdu Proto ftp Transport tcp/ip {
+        Extract ftp_addr From ip.addr;
+        Extract ftp_port From tcp.port;
+        Extract ftp_resp From ftp.response.code;
+        Extract ftp_req From ftp.request.command;
+        Extract server_addr From ftp.passive.ip;
+        Extract server_port From ftp.passive.port;
+
+        LastPdu;
+};
+
+Pdu ftp_data_pdu Proto ftp-data Transport tcp/ip{
+        Extract server_addr From ip.src;
+        Extract server_port From tcp.srcport;
+
+};
+
+Gop ftp_data On ftp_data_pdu (server_addr, server_port) {
+        Start (server_addr);
+};
+
+Gop ftp_ctl On ftp_pdu (ftp_addr, ftp_addr, ftp_port, ftp_port) {
+        Start (ftp_resp=220);
+        Stop (ftp_resp=221);
+        Extra (server_addr, server_port);
+};
+
+Gog ftp_ses {
+        Member ftp_ctl (ftp_addr, ftp_addr, ftp_port, ftp_port);
+        Member ftp_data (server_addr, server_port);
+};
+
+Done;
+----
+
+Note: not having anything to distinguish between ftp-data packets makes this
+config to create one Gop for every ftp-data packet instead of each transfer.
+Pre-started Gops would avoid this.
+
+==== using RADIUS to filter SMTP traffic of a specific user
+
+Spying on people, in addition to being immoral, is illegal in many countries.
+This is an example meant to explain how to do it not an invitation to do so.
+It's up to the police to do this kind of job when there is a good reason to do
+so.
+
+----
+Pdu radius_pdu On radius Transport udp/ip {
+    Extract addr From ip.addr;
+    Extract port From udp.port;
+    Extract radius_id From radius.id;
+    Extract radius_code From radius.code;
+    Extract user_ip From radius.framed_addr;
+    Extract username From radius.username;
+}
+
+Gop radius_req On radius_pdu (radius_id, addr, addr, port, port) {
+    Start (radius_code {1|4|7} );
+    Stop (radius_code {2|3|5|8|9} );
+    Extra (user_ip, username);
+}
+
+// we define the smtp traffic we want to filter
+Pdu user_smtp Proto smtp Transport tcp/ip {
+    Extract user_ip From ip.addr;
+    Extract smtp_port From tcp.port;
+    Extract tcp_start From tcp.flags.syn;
+    Extract tcp_stop From tcp.flags.reset;
+}
+
+Gop user_smtp_ses On user_smtp (user_ip, user_ip, smtp_port!25) {
+    Start (tcp_start=1);
+    Stop (tcp_stop=1);
+}
+
+// with the following group of groups we'll group toghether the radius and the smtp
+// we set a long expiration to avoid the session expire on long pauses.
+Gog user_mail {
+    Expiration 1800;
+    Member radius_req (user_ip);
+    Member user_smtp_ses (user_ip);
+    Extra (username);
+}
+
+Done;
+----
+
+Filtering the capture file with *mate.user_mail.username == "theuser"* will
+filter the radius packets and smtp traffic for _"theuser"_.
+
+==== H323 Calls
+
+This configuration will create a Gog out of every call.
+
+----
+Pdu q931 Proto q931 Transport ip {
+        Extract addr From ip.addr;
+        Extract call_ref From q931.call_ref;
+        Extract q931_msg From q931.message_type;
+        Extract calling From q931.calling_party_number.digits;
+        Extract called From q931.called_party_number.digits;
+        Extract guid From h225.guid;
+        Extract q931_cause From q931.cause_value;
+};
+
+Gop q931_leg On q931 Match (addr, addr, call_ref) {
+        Start (q931_msg=5);
+        Stop (q931_msg=90);
+        Extra (calling, called, guid, q931_cuase);
+};
+
+Pdu ras Proto h225.RasMessage Transport ip {
+        Extract addr From ip.addr;
+        Extract ras_sn From h225.requestSeqNum;
+        Extract ras_msg From h225.RasMessage;
+        Extract guid From h225.guid;
+};
+
+Gop ras_req On ras Match (addr, addr, ras_sn) {
+        Start (ras_msg {0|3|6|9|12|15|18|21|26|30} );
+        Stop (ras_msg {1|2|4|5|7|8|10|11|13|14|16|17|19|20|22|24|27|28|29|31});
+        Extra (guid);
+};
+
+Gog call {
+        Member ras_req (guid);
+        Member q931_leg (guid);
+        Extra (called,calling,q931_cause);
+};
+
+Done;
+----
+
+with this we can:
+
+* filter all signalling for a specific caller: *mate.call.caller == "123456789"*
+* filter all signalling for calls with a specific release cause: *mate.call.q931_cause == 31*
+* filter all signalling for very short calls: *mate.q931_leg.Time < 5*
+
+==== MMS
+
+With this example, all the components of an MMS send or receive will be tied
+into a single Gog. Note that this example uses the _Payload_ clause because
+MMS delivery uses MMSE over either HTTP or WSP. As it is not possible to relate
+the retrieve request to a response by the means of MMSE only (the request is
+just an HTTP GET without any MMSE), a Gop is made of HTTP Pdus but MMSE data
+need to be extracted from the bodies.
+
+----
+## WARNING: this example has been blindly translated from the "old" MATE syntax
+## and it has been verified that Wireshark accepts it. However, it has not been
+## tested against any capture file due to lack of the latter.
+
+Transform rm_client_from_http_resp1 {
+        Match (http_rq);
+        Match Every (addr) Insert (not_rq);
+};
+
+Transform rm_client_from_http_resp2 {
+        Match (not_rq,ue) Replace ();
+};
+
+Pdu mmse_over_http_pdu Proto http Transport tcp/ip {
+        Payload mmse;
+        Extract addr From ip.addr;
+        Extract port From tcp.port;
+        Extract http_rq From http.request;
+        Extract content From http.content_type;
+        Extract resp From http.response.code;
+        Extract method From http.request.method;
+        Extract host From http.host;
+        Extract content From http.content_type;
+        Extract trx From mmse.transaction_id;
+        Extract msg_type From mmse.message_type;
+        Extract notify_status From mmse.status;
+        Extract send_status From mmse.response_status;
+        Transform rm_client_from_http_resp1, rm_client_from_http_resp2;
+};
+
+Gop mmse_over_http On mmse_over_http_pdu Match (addr, addr, port, port) {
+        Start (http_rq);
+        Stop (http_rs);
+        Extra (host, ue, resp, notify_status, send_status, trx);
+};
+
+Transform mms_start {
+        Match Loose() Insert (mms_start);
+};
+
+Pdu mmse_over_wsp_pdu Proto wsp Transport ip {
+        Payload mmse;
+        Extract trx From mmse.transaction_id;
+        Extract msg_type From mmse.message_type;
+        Extract notify_status From mmse.status;
+        Extract send_status From mmse.response_status;
+        Transform mms_start;
+};
+
+Gop mmse_over_wsp On mmse_over_wsp_pdu Match (trx) {
+        Start (mms_start);
+        Stop (never);
+        Extra (ue, notify_status, send_status);
+};
+
+Gog mms {
+        Member mmse_over_http (trx);
+        Member mmse_over_wsp (trx);
+        Extra (ue, notify_status, send_status, resp, host, trx);
+        Expiration 60.0;
+};
+----
+
+[[ChMateConfigurationLibrary]]
+
+=== MATE's configuration library
+
+The MATE library (will) contains GoP definitions for several protocols. Library
+protocols are included in your MATE config using: +_Action=Include;
+Lib=proto_name;_+.
+
+For Every protocol with a library entry, we'll find defined what from the PDU is
+needed to create a GoP for that protocol, eventually any criteria and the very
+essential GoP definition (i.e. __GopDef__, _GopStart_ and _GopStop_).
+
+[NOTE]
+====
+It seems that this code is written in the old syntax of MATE. So far it has not
+been transcribed into the new format. It may still form the basis to recreate
+these in the new format.
+====
+
+==== General use protocols
+
+===== TCP
+
+It will create a GoP for every TCP session, If it is used it should be the last
+one in the list. And every other proto on top of TCP should be declared with
+_Stop=TRUE;_ so the a TCP PDU is not created where we got already one going on.
+
+----
+   Action=PduDef; Name=tcp_pdu; Proto=tcp; Transport=ip; addr=ip.addr; port=tcp.port; tcp_start=tcp.flags.syn; tcp_stop=tcp.flags.fin; tcp_stop=tcp.flags.reset;
+   Action=GopDef; Name=tcp_session; On=tcp_pdu; addr; addr; port; port;
+   Action=GopStart; For=tcp_session; tcp_start=1;
+   Action=GopStop; For=tcp_session; tcp_stop=1;
+----
+
+===== DNS
+
+will create a GoP containing every request and it's response (eventually
+retransmissions too).
+
+----
+Action=PduDef; Name=dns_pdu; Proto=dns; Transport=udp/ip; addr=ip.addr; port=udp.port; dns_id=dns.id; dns_rsp=dns.flags.response;
+
+Action=GopDef; Name=dns_req; On=dns_pdu; addr; addr; port!53; dns_id;
+Action=GopStart; For=dns_req; dns_rsp=0;
+Action=GopStop; For=dns_req; dns_rsp=1;
+----
+
+===== RADIUS
+
+A Gop for every transaction.
+
+----
+Action=PduDef; Name=radius_pdu; Proto=radius; Transport=udp/ip; addr=ip.addr; port=udp.port; radius_id=radius.id; radius_code=radius.code;
+
+Action=GopDef; Name=radius_req; On=radius_pdu; radius_id; addr; addr; port; port;
+Action=GopStart; For=radius_req; radius_code|1|4|7;
+Action=GopStop; For=radius_req; radius_code|2|3|5|8|9;
+----
+
+===== RTSP
+
+----
+Action=PduDef; Name=rtsp_pdu; Proto=rtsp; Transport=tcp/ip; addr=ip.addr; port=tcp.port; rtsp_method=rtsp.method;
+Action=PduExtra; For=rtsp_pdu; rtsp_ses=rtsp.session; rtsp_url=rtsp.url;
+
+Action=GopDef; Name=rtsp_ses; On=rtsp_pdu; addr; addr; port; port;
+Action=GopStart; For=rtsp_ses; rtsp_method=DESCRIBE;
+Action=GopStop; For=rtsp_ses; rtsp_method=TEARDOWN;
+Action=GopExtra; For=rtsp_ses; rtsp_ses; rtsp_url;
+----
+
+==== VoIP/Telephony
+
+Most protocol definitions here will create one Gop for every Call Leg unless
+stated.
+
+===== ISUP
+
+----
+Action=PduDef; Name=isup_pdu; Proto=isup; Transport=mtp3; mtp3pc=mtp3.dpc; mtp3pc=mtp3.opc; cic=isup.cic; isup_msg=isup.message_type;
+
+Action=GopDef; Name=isup_leg; On=isup_pdu; ShowPduTree=TRUE; mtp3pc; mtp3pc; cic;
+Action=GopStart; For=isup_leg; isup_msg=1;
+Action=GopStop; For=isup_leg; isup_msg=16;
+----
+
+===== Q931
+
+----
+Action=PduDef; Name=q931_pdu; Proto=q931; Stop=TRUE; Transport=tcp/ip; addr=ip.addr; call_ref=q931.call_ref; q931_msg=q931.message_type;
+
+Action=GopDef; Name=q931_leg; On=q931_pdu; addr; addr; call_ref;
+Action=GopStart; For=q931_leg; q931_msg=5;
+Action=GopStop; For=q931_leg; q931_msg=90;
+----
+
+===== H225 RAS
+
+----
+Action=PduDef; Name=ras_pdu; Proto=h225.RasMessage; Transport=udp/ip; addr=ip.addr; ras_sn=h225.RequestSeqNum; ras_msg=h225.RasMessage;
+Action=PduExtra; For=ras_pdu; guid=h225.guid;
+
+Action=GopDef; Name=ras_leg; On=ras_pdu; addr; addr; ras_sn;
+Action=GopStart; For=ras_leg; ras_msg|0|3|6|9|12|15|18|21|26|30;
+Action=GopStop; For=ras_leg; ras_msg|1|2|4|5|7|8|10|11|13|14|16|17|19|20|22|24|27|28|29|31;
+Action=GopExtra; For=ras_leg; guid;
+----
+
+===== SIP
+
+----
+Action=PduDef; Proto=sip_pdu; Transport=tcp/ip; addr=ip.addr; port=tcp.port; sip_method=sip.Method; sip_callid=sip.Call-ID; calling=sdp.owner.username;
+
+Action=GopDef; Name=sip_leg; On=sip_pdu; addr; addr; port; port;
+Action=GopStart; For=sip; sip_method=INVITE;
+Action=GopStop; For=sip; sip_method=BYE;
+----
+
+===== MEGACO
+
+Will create a Gop out of every transaction.
+
+To "tie" them to your call's GoG use: _Action=GogKey; Name=your_call; On=mgc_tr;
+addr!mgc_addr; megaco_ctx;_
+
+----
+Action=PduDef; Name=mgc_pdu; Proto=megaco; Transport=ip; addr=ip.addr; megaco_ctx=megaco.context; megaco_trx=megaco.transid; megaco_msg=megaco.transaction; term=megaco.termid;
+
+Action=GopDef; Name=mgc_tr; On=mgc_pdu; addr; addr; megaco_trx;
+Action=GopStart; For=mgc_tr; megaco_msg|Request|Notify;
+Action=GopStop; For=mgc_tr; megaco_msg=Reply;
+Action=GopExtra; For=mgc_tr; term^DS1; megaco_ctx!Choose one;
+----
+
+[[ChMateReferenceManual]]
+
+=== MATE's reference manual
+
+==== Attribute Value Pairs
+
+MATE uses AVPs for almost everything: to keep the data it has extracted from the
+frames' trees as well as to keep the elements of the configuration.
+
+These "pairs" (actually tuples) are made of a name, a value and, in case of
+configuration AVPs, an operator. Names and values are strings. AVPs with
+operators other than '=' are used only in the configuration and are used for
+matching AVPs of Pdus, GoPs and GoGs in the analysis phase.
+
+===== Name
+
+The name is a string used to refer to a class of AVPs. Two attributes won't
+match unless their names are identical. Capitalized names are reserved for
+keywords (you can use them for your elements if you want but I think it's not
+the case). MATE attribute names can be used in Wireshark's display filters the
+same way like names of protocol fields provided by dissectors, but they are not
+just references to (or aliases of) protocol fields.
+
+===== Value
+
+The value is a string. It is either set in the configuration (for configuration
+AVPs) or by MATE while extracting interesting fields from a dissection tree
+and/or manipulating them later. The values extracted from fields use the same
+representation as they do in filter strings.
+
+===== Operators
+
+Currently only match operators are defined (there are plans to (re)add transform
+attributes but some internal issues have to be solved before that). The match
+operations are always performed between two operands: the value of an AVP stated
+in the configuration and the value of an AVP (or several AVPs with the same name)
+extracted from packet data (called "data AVPs"). It is not possible to match
+data AVPs to each other.
+
+The defined match operators are:
+
+* <<Equal,Equal>> _=_ test for equality, that is: either the value strings are identical
+or the match will fail.
+* <<NotEqual,Not Equal>> _!_ will match only if the value strings aren't equal.
+* <<OneOf,One Of>> _{}_ will match if one of the value strings listed is equal to the
+data AVP's string. Individual tems of the list inside the curly braces are
+separated using | character.
+* <<StartsWith,Starts With>> _^_ will match if the configuration value string matches the
+first characters of the data AVP's value string.
+* <<EndsWith,Ends With>> _$_ will match if the configuration value string matches the
+last characters of the data AVP's value string.
+* <<Contains,Contains>> _~_ will match if the configuration value string matches a
+substring of the characters of the data AVP's value string.
+* <<LowerThan,Lower Than>> _<_ will match if the data AVP's value string is semantically
+lower than the configuration value string.
+* <<HigherThan,Higher Than>> _>_ will match if the data AVP's value string is semantically
+higher than the configuration value string.
+* <<Exists,Exists>> _?_ (can be omitted) will match if the AVP name matches, regardless
+what the value string is.
+
+[[Equal]]
+====== Equal AVP Operator
+
+This operator tests whether the values of the operator and the operand AVP are
+equal.
+
+Example::
+attrib=aaa *matches* attrib=aaa +
+attrib=aaa *does not match* attrib=bbb
+
+[[NotEqual]]
+====== Not equal AVP operator
+
+This operator matches if the value strings of two AVPs are not equal.
+
+Example::
+attrib=aaa matches attrib!bbb +
+attrib=aaa does not match attrib!aaa
+
+[[OneOf]]
+====== "One of" AVP operator
+
+The "one of" operator matches if the data AVP value is equal to one of the
+values listed in the "one of" AVP.
+
+Example::
+attrib=1 matches attrib{1|2|3} +
+attrib=2 matches attrib{1|2|3} +
+attrib=4 does not match attrib{1|2|3}
+
+[[StartsWith]]
+====== "Starts with" AVP operator
+
+The "starts with" operator matches if the first characters of the data AVP
+value are identical to the configuration AVP value.
+
+Example::
+attrib=abcd matches attrib^abc +
+attrib=abc matches attrib^abc +
+attrib=ab does not match attrib^abc +
+attrib=abcd does not match attrib^bcd +
+attrib=abc does not match attrib^abcd +
+
+[[EndsWith]]
+====== "Ends with" operator
+
+The ends with operator will match if the last bytes of the data AVP value are
+equal to the configuration AVP value.
+
+Example::
+attrib=wxyz matches attrib$xyz +
+attrib=yz does not match attrib$xyz +
+attrib=abc...wxyz does not match attrib$abc
+
+[[Contains]]
+====== Contains operator
+
+The "contains" operator will match if the data AVP value contains a string
+identical to the configuration AVP value.
+
+Example::
+attrib=abcde matches attrib~bcd +
+attrib=abcde matches attrib~abc +
+attrib=abcde matches attrib~cde +
+attrib=abcde does not match attrib~xyz
+
+[[LowerThan]]
+====== "Lower than" operator
+
+The "lower than" operator will match if the data AVP value is semantically lower
+than the configuration AVP value.
+
+Example::
+attrib=abc matches attrib<bcd +
+attrib=1 matches attrib<2 +
+but beware: attrib=10 does not match attrib<9 +
+attrib=bcd does not match attrib<abc +
+attrib=bcd does not match attrib<bcd +
+
+BUGS
+
+It should check whether the values are numbers and compare them numerically
+
+[[HigherThan]]
+====== "Higher than" operator
+
+The "higher than" operator will match if the data AVP value is semantically
+higher than the configuration AVP value.
+
+Examples
+
+attrib=bcd matches attrib>abc +
+attrib=3 matches attrib>2 +
+but beware: attrib=9 does not match attrib>10 +
+attrib=abc does not match attrib>bcd +
+attrib=abc does not match attrib>abc +
+
+BUGS
+
+It should check whether the values are numbers and compare them numerically
+
+[[Exists]]
+====== Exists operator
+
+The exists operator will always match as far as the two operands have the same
+name.
+
+Examples
+
+attrib=abc matches attrib? +
+attrib=abc matches attrib (this is just an alternative notation of the previous example) +
+obviously attrib=abc does not match other_attrib? +
+
+==== Attribute/Value Pair List (AVPL)
+Pdus, GoPs and GoGs use an AVPL to contain the tracing information. An AVPL is
+an unsorted set of <<AVP,AVPs>> that can be matched against other AVPLs.
+
+===== Operations between AVPLs
+
+There are three types of match operations that can be performed between AVPLs.
+The Pdu's/GoP's/GoG's AVPL will be always one of the operands; the AVPL operator
+(match type) and the second operand AVPL will always come from the
+<<Config,configuration>>.
+Note that a diverse AVP match operator may be specified for each AVP in the
+configuration AVPL.
+
+An AVPL match operation returns a result AVPL. In <<Transform,Transform>>s, the
+result AVPL may be replaced by another AVPL. The replacement means that the
+existing data AVPs are dropped and the replacement AVPL from the
+<<Config,configuration>> is <<Merge,Merged>> to the data AVPL of the
+Pdu/GoP/GoG.
+
+* <<Loose,Loose Match>>: Will match if at least one of the AVPs of the two
+operand AVPLs match. If it matches, it returns a result AVPL containing all AVPs
+from the data AVPL that did match the configuration's AVPs.
+* <<Every,"Every" Match>>: Will match if none of the AVPs of the configuration
+AVPL fails to match an AVP in the data AVPL, even if not all of the
+configuration AVPs have a match. If it matches, it returns a result AVPL
+containing all AVPs from the data AVPL that did match an AVP in the
+configuration AVPL.
+* <<Strict,Strict Match>>: Will match if and only if each of the AVPs in the
+configuration AVPL has at least one match in the data AVPL. If it matches, it
+returns a result AVPL containing those AVPs from the data AVPL that matched.
+
+[[Loose]]
+====== Loose Match
+
+A loose match between AVPLs succeeds if at least one of the data AVPs matches at
+least one of the configuration AVPs. Its result AVPL contains all the data AVPs
+that matched.
+
+Loose matches are used in Extra operations against the <<Pdu,Pdu>>'s AVPL to
+merge the result into <<Gop,Gop>>'s AVPL, and against <<Gop,Gop>>'s AVPL to
+merge the result into <<Gog,Gog>>'s AVPL. They may also be used in
+<<Criteria,Criteria>> and <<Transform,Transform>>s.
+
+[NOTE]
+====
+As of current (2.0.1), Loose Match does not work as described here, see
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12184[Bug 12184]. Only use
+in Transforms and Criteria is effectively affected by the bug.
+====
+
+Loose Match Examples
+
+(attr_a=aaa, attr_b=bbb, attr_c=xxx) Match Loose (attr_a?, attr_c?) ==> (attr_a=aaa, attr_c=xxx)
+
+(attr_a=aaa, attr_b=bbb, attr_c=xxx) Match Loose (attr_a?, attr_c=ccc) ==> (attr_a=aaa)
+
+(attr_a=aaa, attr_b=bbb, attr_c=xxx) Match Loose (attr_a=xxx; attr_c=ccc) ==> No Match!
+
+[[Every]]
+====== Every Match
+
+An "every" match between AVPLs succeeds if none of the configuration's AVPs that
+have a counterpart in the data AVPL fails to match. Its result AVPL contains all
+the data AVPs that matched.
+
+These may only be used in <<Criteria,Criteria>> and <<Transform,Transform>>s.
+
+[NOTE]
+====
+As of current (2.0.1), Loose Match does not work as described here, see
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12184[Bug 12184].
+====
+
+"Every" Match Examples
+
+(attr_a=aaa, attr_b=bbb, attr_c=xxx) Match Every (attr_a?, attr_c?) ==> (attr_a=aaa, attr_c=xxx)
+
+(attr_a=aaa, attr_b=bbb, attr_c=xxx) Match Every (attr_a?, attr_c?, attr_d=ddd) ==> (attr_a=aaa, attr_c=xxx)
+
+(attr_a=aaa, attr_b=bbb, attr_c=xxx) Match Every (attr_a?, attr_c=ccc) ==> No Match!
+
+(attr_a=aaa; attr_b=bbb; attr_c=xxx) Match Every (attr_a=xxx, attr_c=ccc) ==> No Match!
+
+[[Strict]]
+====== Strict Match
+
+A Strict match between AVPLs succeeds if and only if every AVP in the
+configuration AVPL has at least one counterpart in the data AVPL and none of the
+AVP matches fails. The result AVPL contains all the data AVPs that matched.
+
+These are used between Gop keys (key AVPLs) and Pdu AVPLs. They may also be used
+in <<Criteria,Criteria>> and <<Transform,Transform>>s.
+
+Examples
+
+(attr_a=aaa, attr_b=bbb, attr_c=xxx) Match Strict (attr_a?, attr_c=xxx) ==> (attr_a=aaa, attr_c=xxx)
+
+(attr_a=aaa, attr_b=bbb, attr_c=xxx, attr_c=yyy) Match Strict (attr_a?, attr_c?) ==> (attr_a=aaa, attr_c=xxx, attr_c=yyy)
+
+(attr_a=aaa, attr_b=bbb, attr_c=xxx) Match Strict (attr_a?, attr_c=ccc) ==> No Match!
+
+(attr_a=aaa, attr_b=bbb, attr_c=xxx) Match Strict (attr_a?, attr_c?, attr_d?) ==> No Match!
+
+[[Merge]]
+====== AVPL Merge
+
+An AVPL may be merged into another one. That would add to the latter every AVP
+from the former that does not already exist there.
+
+This operation is done
+
+* between the result of a key match and the Gop's or Gog's AVPL,
+* between the result of an Extra match and the Gop's or Gog's AVPL,
+* between the result of a <<Transform,Transform>> match and Pdu's/Gop's AVPL. If
+the operation specified by the Match clause is Replace, the result AVPL of the
+match is removed from the item's AVPL before the modify_avpl is merged into it.
+
+Examples
+
+(attr_a=aaa, attr_b=bbb) Merge (attr_a=aaa, attr_c=xxx) former becomes (attr_a=aaa, attr_b=bbb, attr_c=xxx)
+
+(attr_a=aaa, attr_b=bbb) Merge (attr_a=aaa, attr_a=xxx) former becomes (attr_a=aaa, attr_a=xxx, attr_b=bbb)
+
+(attr_a=aaa, attr_b=bbb) Merge (attr_c=xxx, attr_d=ddd) former becomes (attr_a=aaa, attr_b=bbb, attr_c=xxx, attr_d=ddd)
+
+[[Transform]]
+====== Transforms
+
+A Transform is a sequence of Match rules optionally followed by an instruction
+how to modify the match result using an additional AVPL. Such modification may
+be an Insert (merge) or a Replace. The syntax is as follows:
+
+----
+Transform name {
+    Match [Strict|Every|Loose] match_avpl [[Insert|Replace] modify_avpl] ; // may occur multiple times, at least once
+};
+----
+
+For examples of Transforms, check the <<ChMateManual,Manual>> page.
+
+TODO: migrate the examples here?
+
+The list of Match rules inside a Transform is processed top to bottom;
+the processing ends as soon as either a Match rule succeeds or all have been
+tried in vain.
+
+Transforms can be used as helpers to manipulate an item's AVPL before the item
+is processed further. An item declaration may contain a Transform clause
+indicating a list of previously declared Transforms. Regardless whether the
+individual transforms succeed or fail, the list is always executed completely
+and in the order given, i.e. left to right.
+
+In MATE configuration file, a Transform must be declared before declaring any
+item which uses it.
+
+[[Config]]
+=== Configuration AVPLs
+[[Pdu]]
+==== Pdsu's configuration actions
+
+The following configuration AVPLs deal with PDU creation and data extraction.
+
+===== Pdu declaration block header
+
+In each frame of the capture, MATE will look for source _proto_name_'s PDUs in
+the order in which the declarations appear in its configuration and will create
+Pdus of every type it can from that frame, unless specifically instructed that
+some Pdu type is the last one to be looked for in the frame. If told so for a
+given type, MATE will extract all Pdus of that type and the previously declared
+types it finds in the frame but not those declared later.
+
+The complete declaration of a Pdu looks as below; the mandatory order of the
+diverse clauses is as shown.
+
+----
+    Pdu name Proto proto_name Transport proto1[/proto2/proto3[/...]]] {
+      Payload proto; //optional, no default value
+      Extract attribute From proto.field ; //may occur multiple times, at least once
+      Transform (transform1[, transform2[, ...]]); //optional
+      Criteria [{Accept|Reject}] [{Strict|Every|Loose} match_avpl];
+      DropUnassigned {true|false}; //optional, default=false
+      DiscardPduData {true|false}; //optional, default=false
+      LastExtracted {true|false}; //optional, default=false
+    };
+----
+
+===== Pdu name
+
+The _name_ is a mandatory attribute of a Pdu declaration. It is chosen
+arbitrarily, except that each _name_ may only be used once in MATE's
+configuration, regardless the class of an item it is used for. The _name_ is
+used to distinguish between different types of Pdus, Gops, and Gogs. The _name_
+is also used as part of the filterable fields' names related to this type of Pdu
+which MATE creates.
+
+However, several Pdu declarations may share the same _name_. In such case, all
+of them are created from each source PDU matching their _Proto_, _Transport_,
+and _Payload_ clauses, while the bodies of their declarations may be totally
+different from each other. Together with the _Accept_ (or _Reject_) clauses,
+this feature is useful when it is necessary to build the Pdu's AVPL from
+different sets of source fields depending on contents (or mere presence) of
+other source fields.
+
+====== Proto and Transport clauses
+
+Every instance of the protocol _proto_name_ PDU in a frame will generate one
+Pdu with the AVPs extracted from fields that are in the _proto_name_'s range
+and/or the ranges of underlying protocols specified by the _Transport_ list.
+It is a mandatory attribute of a Pdu declaration. The _proto_name_ is the name
+of the protocol as used in Wireshark display filter.
+
+The Pdu's _Proto_, and its _Transport_ list of protocols separated by / tell
+MATE which fields of a frame can get into the Pdu's AVPL. In order that MATE
+would extract an attribute from a frame's protocol tree, the area representing
+the field in the hex display of the frame must be within the area of either the
+_Proto_ or it's relative _Transport_ s. _Transport_ s are chosen moving backwards
+from the protocol area, in the order they are given.
+
+_Proto http Transport tcp/ip_ does what you'd expect it to - it selects the
+nearest tcp range that precedes the current http range, and the nearest ip range
+that precedes that tcp range. If there is another ip range before the nearest
+one (e.g. in case of IP tunneling), that one is not going to be selected.
+_Transport_ tcp/ip/ip that "logically" should select the encapsulating IP header
+too doesn't work so far.
+
+Once we've selected the _Proto_ and _Transport_ ranges, MATE will fetch those
+protocol fields belonging to them whose extraction is declared using the
+_Extract_ clauses for the Pdu type. The _Transport_ list is also mandatory,
+if you actually don't want to use any transport protocol, use _Transport mate_.
+(This didn't work until 0.10.9).
+
+====== Payload clause
+
+Other than the Pdu's _Proto_ and its _Transport_ protocols, there is also a
+_Payload_ attribute to tell MATE from which ranges of _Proto_'s payload to
+extract fields of a frame into the Pdu. In order to extract an attribute from a
+frame's tree the highlighted area of the field in the hex display must be within
+the area of the _Proto_'s relative payload(s). _Payload_ s are choosen moving
+forward from the protocol area, in the order they are given.
+_Proto http Transport tcp/ip Payload mmse_ will select the first mmse range
+after the current http range. Once we've selected the _Payload_ ranges, MATE
+will fetch those protocol fields belonging to them whose extraction is declared
+using the _Extract_ clauses for the Pdu type.
+
+====== Extract clause
+
+Each _Extract_ clause tells MATE which protocol field value to extract as an AVP
+value and what string to use as the AVP name. The protocol fields are referred
+to using the names used in Wireshark display filters. If there is more than one
+such protocol field in the frame, each instance that fulfills the criteria
+stated above is extracted into its own AVP. The AVP names may be chosen
+arbitrarily, but to be able to match values originally coming from different
+Pdus (e.g., hostname from DNS query and a hostname from HTTP GET request) later
+in the analysis, identical AVP names must be assigned to them and the dissectors
+must provide the field values in identical format (which is not always the case).
+
+====== Transform clause
+
+The _Transform_ clause specifies a list of previously declared _Transform_ s to
+be performed on the Pdu's AVPL after all protocol fields have been extracted to
+it. The list is always executed completely, left to right. On the contrary, the
+list of Match clauses inside each individual _Transform_ is executed only until
+the first match succeeds.
+
+[[Criteria]]
+====== Criteria clause
+
+This clause tells MATE whether to use the Pdu for analysis. It specifies a match
+AVPL, an AVPL match type (_Strict_, _Every_, or _Loose_) and the action to be
+performed (_Accept_ or _Reject_) if the match succeeds. Once every attribute has
+been extracted and eventual transform list has been executed, and if the
+_Criteria_ clause is present, the Pdu's AVPL is matched against the match AVPL;
+if the match succeeds, the action specified is executed, i.e. the Pdu is
+accepted or rejected. The default behaviours used if the respective keywords are
+omitted are _Strict_ and _Accept_. Accordingly, if the clause is omitted, all
+Pdus are accepted.
+
+====== DropUnassigned clause
+
+If set to _TRUE_, MATE will destroy the Pdu if it cannot assign it to a Gop.
+If set to _FALSE_ (the default if not given), MATE will keep them.
+
+====== DiscardPduData clause
+
+If set to _TRUE_, MATE will delete the Pdu's AVPL once it has analyzed it and
+eventually extracted some AVPs from it into the Gop's AVPL. This is useful to
+save memory (of which MATE uses a lot). If set to _FALSE_ (the default if not
+given), MATE will keep the Pdu attributes.
+
+====== LastExtracted clause
+
+If set to _FALSE_ (the default if not given), MATE will continue to look for
+Pdus of other types in the frame. If set to _TRUE_, it will not try to create
+Pdus of other types from the current frame, yet it will continue to try for the
+current type.
+
+[[Gop]]
+===== Gop's configuration actions
+
+====== Gop declaration block header
+
+Declares a Gop type and its prematch candidate key.
+
+----
+    Gop name On pduname Match key {
+      Start match_avpl; // optional
+      Stop match_avpl; // optional
+      Extra match_avpl; // optional
+      Transform transform_list; // optional
+      Expiration time; // optional
+      IdleTimeout time; // optional
+      Lifetime time; // optional
+      DropUnassigned [TRUE|FALSE]; //optional
+      ShowTree [NoTree|PduTree|FrameTree|BasicTree]; //optional
+      ShowTimes [TRUE|FALSE]; //optional, default TRUE
+    };
+----
+
+====== Gop name
+
+The _name_ is a mandatory attribute of a Gop declaration. It is chosen
+arbitrarily, except that each _name_ may only be used once in MATE's
+configuration, regardless the class of an item it is used for. The _name_ is
+used to distinguish between different types of Pdus, Gops, and Gogs. The _name_
+is also used as part of the filterable fields' names related to this type of
+Gop which MATE creates.
+
+====== On clause
+
+The _name_ of Pdus which this type of Gop is supposed to be groupping. It is
+mandatory.
+
+====== Match clause
+
+Defines what AVPs form up the _key_ part of the Gop's AVPL (the Gop's _key_ AVPL
+or simply the Gop's _key_). All Pdus matching the _key_ AVPL of an active Gop
+are assigned to that Gop; a Pdu which contains the AVPs whose attribute names
+are listed in the Gop's _key_ AVPL, but they do not strictly match any active
+Gop's _key_ AVPL, will create a new Gop (unless a _Start_ clause is given).
+When a Gop is created, the elements of its key AVPL are copied from the creating
+Pdu.
+
+====== Start clause
+
+If given, it tells MATE what match_avpl must a Pdu's AVPL match, in addition to
+matching the Gop's _key_, in order to start a Gop. If not given, any Pdu whose
+AVPL matches the Gop's _key_ AVPL will act as a start for a Gop. The Pdu's AVPs
+matching the match_avpl are not automatically copied into the Gop's AVPL.
+
+====== Stop clause
+
+If given, it tells MATE what match_avpl must a Pdu's AVPL match, in addition to
+matching the Gop's key, in order to stop a Gop. If omitted, the Gop is
+"auto-stopped" - that is, the Gop is marked as stopped as soon as it is created.
+The Pdu's AVPs matching the match_avpl are not automatically copied into the
+Gop's AVPL.
+
+====== Extra clause
+
+If given, tells MATE which AVPs from the Pdu's AVPL are to be copied into the
+Gop's AVPL in addition to the Gop's key.
+
+====== Transform clause
+
+The _Transform_ clause specifies a list of previously declared _Transform_ s to
+be performed on the Gop's AVPL after the AVPs from each new Pdu, specified by
+the key AVPL and the _Extra_ clause's match_avpl, have been merged into it.
+The list is always executed completely, left to right. On the contrary, the list
+of _Match_ clauses inside each individual _Transform_ is executed only until
+the first match succeeds.
+
+====== Expiration clause
+
+A (floating) number of seconds after a Gop is _Stop_ ped during which further
+Pdus matching the _Stop_ ped Gop's key but not the _Start_ condition will still
+be assigned to that Gop. The default value of zero has an actual meaning of
+infinity, as it disables this timer, so all Pdus matching the _Stop_ ped Gop's
+key will be assigned to that Gop unless they match the _Start_ condition.
+
+====== IdleTimeout clause
+
+A (floating) number of seconds elapsed from the last Pdu assigned to the Gop
+after which the Gop will be considered released. The default value of zero has
+an actual meaning of infinity, as it disables this timer, so the Gop won't be
+released even if no Pdus arrive - unless the _Lifetime_ timer expires.
+
+====== Lifetime clause
+
+A (floating) of seconds after the Gop _Start_ after which the Gop will be
+considered released regardless anything else. The default value of zero has an
+actual meaning of infinity.
+
+====== DropUnassigned clause
+
+Whether or not a Gop that has not being assigned to any Gog should be discarded.
+If _TRUE_, the Gop is discarded right after creation. If _FALSE_, the default,
+the unassigned Gop is kept. Setting it to _TRUE_ helps save memory and speed up
+filtering.
+
+====== TreeMode clause
+
+Controls the display of Pdus subtree of the Gop:
+
+* _NoTree_: completely suppresses showing the tree
+* _PduTree_: the tree is shown and shows the Pdus by Pdu Id
+* _FrameTree_: the tree is shown and shows the Pdus by the frame number in which
+they are
+* _BasicTree_: needs investigation
+
+====== ShowTimes clause
+
+Whether or not to show the times subtree of the Gop. If _TRUE_, the default,
+the subtree with the timers is added to the Gop's tree. If _FALSE_, the subtree
+is suppressed.
+
+[[Gog]]
+===== Gog's configuration actions
+
+====== Gop declaration block header
+
+Declares a Gog type and its prematch candidate key.
+
+----
+    Gog name {
+      Member gopname (key); // mandatory, at least one
+      Extra match_avpl; // optional
+      Transform transform_list; // optional
+      Expiration time; // optional, default 2.0
+      GopTree [NoTree|PduTree|FrameTree|BasicTree]; // optional
+      ShowTimes [TRUE|FALSE]; // optional, default TRUE
+    };
+----
+
+====== Gop name
+
+The _name_ is a mandatory attribute of a Gog declaration. It is chosen
+arbitrarily, except that each _name_ may only be used once in MATE's
+configuration, regardless the class of an item it is used for. The _name_ is
+used to distinguish between different types of Pdus, Gops, and Gogs. The _name_
+is also used as part of the filterable fields' names related to this type of
+Gop which MATE creates.
+
+====== Member clause
+
+Defines the _key_ AVPL for the Gog individually for each Gop type _gopname_.
+All _gopname_ type Gops whose _key_ AVPL matches the corresponding _key_ AVPL
+of an active Gog are assigned to that Gog; a Gop which contains the AVPs whose
+attribute names are listed in the Gog's corresponding _key_ AVPL, but they do
+not strictly match any active Gog's _key_ AVPL, will create a new Gog. When a
+Gog is created, the elements of its _key_ AVPL are copied from the creating Gop.
+
+Although the _key_ AVPLs are specified separately for each of the Member
+_gopname_ s, in most cases they are identical, as the very purpose of a Gog is
+to group together Gops made of Pdus of different types.
+
+====== Extra clause
+
+If given, tells MATE which AVPs from any of the Gop's AVPL are to be copied
+into the Gog's AVPL in addition to the Gog's key.
+
+====== Expiration clause
+
+A (floating) number of seconds after all the Gops assigned to a Gog have been
+released during which new Gops matching any of the session keys should still be
+assigned to the existing Gog instead of creating a new one. Its value can range
+from 0.0 to infinite. Defaults to 2.0 seconds.
+
+====== Transform clause
+
+The _Transform_ clause specifies a list of previously declared _Transform_ s to
+be performed on the Gog's AVPL after the AVPs from each new Gop, specified by
+the _key_ AVPL and the _Extra_ clause's match_avpl, have been merged into it.
+The list is always executed completely, left to right. On the contrary, the list
+of _Match_ clauses inside each individual _Transform_ is executed only until
+the first match succeeds.
+
+====== TreeMode clause
+
+Controls the display of Gops subtree of the Gog:
+
+* _NoTree_: completely suppresses showing the tree
+* _BasicTree_: needs investigation
+* _FullTree_: needs investigation
+
+====== ShowTimes clause
+
+Whether or not to show the times subtree of the Gog. If _TRUE_, the default,
+the subtree with the timers is added to the Gog's tree. If _FALSE_, the subtree
+is suppressed.
+
+===== Settings Config AVPL
+
+The *Settings* config element is used to pass to MATE various operational
+parameters. the possible parameters are
+
+====== GogExpiration
+
+How long in seconds after all the gops assigned to a gog have been released new
+gops matching any of the session keys should create a new gog instead of being
+assigned to the previous one. Its value can range from 0.0 to infinite.
+Defaults to 2.0 seconds.
+
+====== DiscardPduData
+
+Whether or not the AVPL of every Pdu should be deleted after it was being
+processed (saves memory). It can be either _TRUE_ or _FALSE_. Defaults to _TRUE_.
+Setting it to _FALSE_ can save you from a headache if your config does not work.
+
+====== DiscardUnassignedPdu
+
+Whether Pdus should be deleted if they are not assigned to any Gop. It can be
+either _TRUE_ or _FALSE_. Defaults to _FALSE_. Set it to _TRUE_ to save memory
+if unassigned Pdus are useless.
+
+====== DiscardUnassignedGop
+
+Whether GoPs should be deleted if they are not assigned to any session. It can
+be either _TRUE_ or _FALSE_. Defaults to _FALSE_. Setting it to _TRUE_ saves
+memory.
+
+====== ShowPduTree
+
+====== ShowGopTimes
+
+===== Debugging Stuff
+
+The following settings are used to debug MATE and its configuration. All levels
+are integers ranging from 0 (print only errors) to 9 (flood me with junk),
+defaulting to 0.
+
+====== Debug declaration block header
+
+----
+    Debug {
+      Filename "path/name"; //optional, no default value
+      Level [0-9]; //optional, generic debug level
+      Pdu Level [0-9]; //optional, specific debug level for Pdu handling
+      Gop Level [0-9]; //optional, specific debug level for Gop handling
+      Gog Level [0-9]; //optional, specific debug level for Gog handling
+    };
+----
+
+====== Filename clause
+
+The  {{{path/name}}} is a full path to the file to which debug output is to be
+written. Non-existent file will be created, existing file will be overwritten
+at each opening of a capture file. If the statement is missing, debug messages
+are written to console, which means they are invisible on Windows.
+
+====== Level clause
+
+Sets the level of debugging for generic debug messages. It is an integer
+ranging from 0 (print only errors) to 9 (flood me with junk).
+
+====== Pdu Level clause
+
+Sets the level of debugging for messages regarding Pdu creation. It is an
+integer ranging from 0 (print only errors) to 9 (flood me with junk).
+
+====== Gop Level clause
+
+Sets the level of debugging for messages regarding Pdu analysis (that is how do
+they fit into ?GoPs). It is an integer ranging from 0 (print only errors) to 9
+(flood me with junk).
+
+====== Gog Level clause
+
+Sets the level of debugging for messages regarding GoP analysis (that is how do
+they fit into ?GoGs). It is an integer ranging from 0 (print only errors) to 9
+(flood me with junk).
+
+====== Settings Example
+----
+Action=Settings; SessionExpiration=3.5; DiscardPduData=FALSE;
+----
+
+===== Action=Include
+
+Will include a file to the configuration.
+
+----
+Action=Include; {Filename=filename;|Lib=libname;}
+----
+
+====== Filename
+
+The filename of the file to include. If it does not beging with '/' it will look
+for the file in the current path.
+
+====== Lib
+
+The name of the lib config to include. will look for libname.mate in
+wiresharks_dir/matelib.
+
+====== Include Example
+----
+Action=Include; Filename=rtsp.mate;
+----
+
+This will include the file called "rtsp.mate" into the current config.

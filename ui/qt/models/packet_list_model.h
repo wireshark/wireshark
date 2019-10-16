@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef PACKET_LIST_MODEL_H
 #define PACKET_LIST_MODEL_H
@@ -68,7 +69,7 @@ public:
     void unsetAllFrameRefTime();
     void applyTimeShift();
 
-    void setMaximiumRowHeight(int height);
+    void setMaximumRowHeight(int height);
 
 signals:
     void goToPacket(int);
@@ -109,6 +110,8 @@ private:
 
     QElapsedTimer *idle_dissection_timer_;
     int idle_dissection_row_;
+
+    struct _GStringChunk *string_cache_pool_;
 
     bool isNumericColumn(int column);
 

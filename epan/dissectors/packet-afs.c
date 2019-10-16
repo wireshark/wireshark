@@ -2747,7 +2747,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 	/* only allocate a new hash element when it's a request */
 	opcode = 0;
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		if ( !request_val && !reply) {
 			new_request_key = wmem_new(wmem_file_scope(), struct afs_request_key);
 			*new_request_key = request_key;
@@ -2955,7 +2955,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			if ( typenode != 0 ) {
 				/* indicate the type of request */
 				hidden_item = proto_tree_add_boolean(afs_tree, typenode, tvb, offset, 0, 1);
-				PROTO_ITEM_SET_HIDDEN(hidden_item);
+				proto_item_set_hidden(hidden_item);
 			}
 
 			/* Process the packet according to what service it is */
@@ -3612,7 +3612,7 @@ proto_register_afs(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

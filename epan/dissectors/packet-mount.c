@@ -15,6 +15,7 @@
 
 #include <epan/exceptions.h>
 #include <epan/to_str.h>
+#include <epan/strutil.h>
 #include "packet-mount.h"
 #include "packet-nfs.h"
 
@@ -85,10 +86,6 @@ static gint ett_mount_exportlist = -1;
 static gint ett_mount_pathconf_mask = -1;
 static gint ett_mount_statvfs_flag = -1;
 
-#define MAX_GROUP_NAME_LIST 128
-static char group_name_list[MAX_GROUP_NAME_LIST];
-static int  group_names_len;
-
 /* RFC 1813, Page 107 */
 static const value_string mount3_mountstat3[] =
 {
@@ -146,7 +143,7 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, packet_info *pinfo,
 	const char *mountpoint=NULL;
 	int offset = 0;
 
-	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
+	if((!pinfo->fd->visited) && nfs_file_name_snooping){
 		rpc_call_info_value *civ=(rpc_call_info_value *)data;
 
 		if(civ->request && (civ->proc==1)){
@@ -237,26 +234,16 @@ dissect_mount_dump_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 /* RFC 1094, Page 26 */
 /* RFC 1813, Page 110 */
 static int
-dissect_group(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_group(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data)
 {
-	int str_len;
-
-	if (group_names_len < MAX_GROUP_NAME_LIST - 5) {
-		str_len=tvb_get_nstringz(tvb,offset+4,
-			MAX_GROUP_NAME_LIST-5-group_names_len,
-			group_name_list+group_names_len);
-		if((group_names_len>=(MAX_GROUP_NAME_LIST-5))||(str_len<0)){
-			g_snprintf(group_name_list+(MAX_GROUP_NAME_LIST-5), 5, "...");
-			group_names_len=MAX_GROUP_NAME_LIST - 1;
-		} else {
-			group_names_len+=str_len;
-			group_name_list[group_names_len++]=' ';
-		}
-		group_name_list[group_names_len]=0;
-	}
+	wmem_strbuf_t *group_name_list = (wmem_strbuf_t *)data;
+	const char *group_name;
 
 	offset = dissect_rpc_string(tvb, tree,
-			hf_mount_groups_group, offset, NULL);
+			hf_mount_groups_group, offset, &group_name);
+	if (wmem_strbuf_get_len(group_name_list) != 0)
+		wmem_strbuf_append_c(group_name_list, ' ');
+	wmem_strbuf_append(group_name_list, group_name);
 
 	return offset;
 }
@@ -274,9 +261,9 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	proto_item* groups_item = NULL;
 	proto_item* groups_tree = NULL;
 	const char* directory;
+	wmem_strbuf_t* group_name_list_strbuf;
+	const char* group_name_list;
 
-	group_name_list[0]=0;
-	group_names_len=0;
 	if (tree) {
 		exportlist_item = proto_tree_add_item(tree, hf_mount_exportlist, tvb, offset, -1, ENC_NA);
 		exportlist_tree = proto_item_add_subtree(exportlist_item, ett_mount_exportlist);
@@ -289,9 +276,9 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	groups_item = proto_tree_add_item(exportlist_tree, hf_mount_groups, tvb, offset, -1, ENC_NA);
 	groups_tree = proto_item_add_subtree(groups_item, ett_mount_groups);
 
-
+	group_name_list_strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
 	offset = dissect_rpc_list(tvb, pinfo, groups_tree, offset,
-		dissect_group, NULL);
+		dissect_group, (void *)group_name_list_strbuf);
 	if (groups_item) {
 		/* mark empty lists */
 		if (offset - groups_offset == 4) {
@@ -302,9 +289,14 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		proto_item_set_len(groups_item, offset - groups_offset);
 	}
 
+	group_name_list = wmem_strbuf_finalize(group_name_list_strbuf);
+
 	if (exportlist_item) {
 		/* now we have a nicer string */
-		proto_item_set_text(exportlist_item, "Export List Entry: %s -> %s", directory,group_name_list);
+		proto_item_set_text(exportlist_item,
+		    "Export List Entry: %s -> %s",
+		    format_text(wmem_packet_scope(), directory, strlen(directory)),
+		    format_text(wmem_packet_scope(), group_name_list, strlen(group_name_list)));
 		/* now we know, that exportlist is shorter */
 		proto_item_set_len(exportlist_item, offset - old_offset);
 	}
@@ -1035,7 +1027,7 @@ proto_reg_handoff_mount(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

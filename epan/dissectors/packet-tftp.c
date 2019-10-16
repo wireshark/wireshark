@@ -35,8 +35,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/export_object.h>
-
-#include "packet-tftp.h"
+#include <epan/proto_data.h>
 
 void proto_register_tftp(void);
 
@@ -44,13 +43,15 @@ void proto_register_tftp(void);
 typedef struct _tftp_conv_info_t {
   guint16      blocksize;
   const guint8 *source_file, *destination_file;
+  gboolean     tsize_requested;
+  guint16      prev_opcode;
 
   /* Sequence analysis */
-  guint        next_block_num;
+  guint32      next_block_num;
   gboolean     blocks_missing;
 
   /* When exporting file object, build up list of data blocks here */
-  guint        next_tap_block_num;
+  guint32      next_tap_block_num;
   GSList       *block_list;
   guint        file_length;
 } tftp_conv_info_t;
@@ -62,6 +63,7 @@ static int hf_tftp_source_file = -1;
 static int hf_tftp_destination_file = -1;
 static int hf_tftp_transfer_type = -1;
 static int hf_tftp_blocknum = -1;
+static int hf_tftp_full_blocknum = -1;
 static int hf_tftp_error_code = -1;
 static int hf_tftp_error_string = -1;
 static int hf_tftp_option_name = -1;
@@ -71,7 +73,13 @@ static int hf_tftp_data = -1;
 static gint ett_tftp = -1;
 static gint ett_tftp_option = -1;
 
+static expert_field ei_tftp_error = EI_INIT;
+static expert_field ei_tftp_likely_tsize_probe = EI_INIT;
 static expert_field ei_tftp_blocksize_range = EI_INIT;
+static expert_field ei_tftp_blocknum_will_wrap = EI_INIT;
+
+#define LIKELY_TSIZE_PROBE_KEY 0
+#define FULL_BLOCKNUM_KEY 1
 
 static dissector_handle_t tftp_handle;
 
@@ -85,13 +93,14 @@ static range_t *global_tftp_port_range = NULL;
 /* minimum length is an ACK message of 4 bytes */
 #define MIN_HDR_LEN  4
 
-#define TFTP_RRQ        1
-#define TFTP_WRQ        2
-#define TFTP_DATA       3
-#define TFTP_ACK        4
-#define TFTP_ERROR      5
-#define TFTP_OACK       6
-#define TFTP_INFO     255
+#define TFTP_RRQ            1
+#define TFTP_WRQ            2
+#define TFTP_DATA           3
+#define TFTP_ACK            4
+#define TFTP_ERROR          5
+#define TFTP_OACK           6
+#define TFTP_INFO         255
+#define TFTP_NO_OPCODE 0xFFFF
 
 static const value_string tftp_opcode_vals[] = {
   { TFTP_RRQ,   "Read Request" },
@@ -104,6 +113,7 @@ static const value_string tftp_opcode_vals[] = {
   { 0,          NULL }
 };
 
+/* Error codes 0 through 7 are defined in RFC 1350. */
 #define TFTP_ERR_NOT_DEF      0
 #define TFTP_ERR_NOT_FOUND    1
 #define TFTP_ERR_NOT_ALLOWED  2
@@ -112,6 +122,8 @@ static const value_string tftp_opcode_vals[] = {
 #define TFTP_ERR_BAD_ID       5
 #define TFTP_ERR_EXISTS       6
 #define TFTP_ERR_NO_USER      7
+
+/* Error code 8 is defined in RFC 1782. */
 #define TFTP_ERR_OPT_FAIL     8
 
 static const value_string tftp_error_code_vals[] = {
@@ -145,7 +157,7 @@ typedef struct _tftp_eo_t {
 } tftp_eo_t;
 
 /* Tap function */
-static gboolean
+static tap_packet_status
 tftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
 {
   export_object_list_t *object_list = (export_object_list_t *)tapdata;
@@ -169,11 +181,11 @@ tftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const
   entry->payload_len = eo_info->payload_len;
   entry->payload_data = (guint8 *)g_try_malloc((gsize)entry->payload_len);
   for (block_iterator = eo_info->block_list; block_iterator; block_iterator = block_iterator->next) {
-    file_block_t *block = (file_block_t*)block_iterator->data;
+    GByteArray *block = (GByteArray*)block_iterator->data;
     memcpy(entry->payload_data + payload_data_offset,
                block->data,
-               block->length);
-    payload_data_offset += block->length;
+               block->len);
+    payload_data_offset += block->len;
   }
 
   /* These 2 fields not used */
@@ -190,7 +202,7 @@ tftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const
   /* Pass out entry to the GUI */
   object_list->add_entry(object_list->gui_data, entry);
 
-  return TRUE; /* State changed - window should be redrawn */
+  return TAP_PACKET_REDRAW; /* State changed - window should be redrawn */
 }
 
 /* Clean up the stored parts of a single tapped entry */
@@ -202,12 +214,9 @@ static void cleanup_tftp_eo(eo_info_dynamic_t *dynamic_info)
 
   /* Walk list of block items */
   for (block_iterator = dynamic_info->block_list; block_iterator; block_iterator = block_iterator->next) {
-    file_block_t *block = (file_block_t*)(block_iterator->data);
-    /* Free block data */
-    wmem_free(NULL, block->data);
-
-    /* Free block itself */
-    g_free(block);
+    GByteArray *block = (GByteArray*)(block_iterator->data);
+    /* Free block data and the block itself */
+    g_byte_array_free(block, TRUE);
   }
 }
 
@@ -267,6 +276,9 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
       } else {
         tftp_info->blocksize = blocksize;
       }
+    } else if (!g_ascii_strcasecmp((const char *)optionname, "tsize") &&
+               opcode == TFTP_RRQ) {
+      tftp_info->tsize_requested = TRUE;
     }
   }
 }
@@ -277,17 +289,63 @@ static void cleanup_tftp_blocks(tftp_conv_info_t *conv)
 
     /* Walk list of block items */
     for (block_iterator = conv->block_list; block_iterator; block_iterator = block_iterator->next) {
-        file_block_t *block = (file_block_t*)block_iterator->data;
-        /* Free block data */
-        wmem_free(NULL, block->data);
-
-        /* Free block itself */
-        g_free(block);
+        GByteArray *block = (GByteArray*)block_iterator->data;
+        /* Free block data and the block itself */
+        g_byte_array_free(block, TRUE);
     }
     conv->block_list = NULL;
     conv->file_length = 0;
 }
 
+static gboolean
+error_is_likely_tsize_probe(guint16 error, const tftp_conv_info_t *tftp_info)
+{
+  /*
+   * The TFTP protocol does not define an explicit "close" for non-error
+   * conditions, but it is traditionally implemented as an ERROR packet with
+   * code zero (not defined) or 8 (option negotiation failed).  It is usually
+   * produced when a client did not intend to proceed with a transfer, but was
+   * just querying the transfer size ("tsize") through Option Negotiation.  The
+   * ERROR packet would be observed directly after an OACK (when the server
+   * supports Option Negotiation) or directly after DATA block #1 (when the
+   * server does not support Option Negotiation).
+   *
+   * Inspect the state of the connection to see whether the ERROR packet would
+   * most likely just be a request to close the connection after a transfer
+   * size query.
+   */
+  if (error != TFTP_ERR_OPT_FAIL && error != TFTP_ERR_NOT_DEF) {
+    return FALSE;
+  }
+
+  if (tftp_info->source_file != NULL && tftp_info->tsize_requested) {
+    /* There was an earlier RRQ requesting the transfer size. */
+    if (tftp_info->prev_opcode == TFTP_OACK) {
+      /* Response to RRQ when server supports Option Negotiation. */
+      return TRUE;
+    }
+    if (tftp_info->prev_opcode == TFTP_DATA && tftp_info->next_block_num == 2) {
+      /* Response to RRQ when server doesn't support Option Negotiation. */
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+static guint32
+determine_full_blocknum(guint16 blocknum, const tftp_conv_info_t *tftp_info)
+{
+  /*
+   * 'blocknum' might have wrapped around after extending beyond 16 bits.  Use
+   * the rest of the conversation state to recover any missing bits.
+   */
+  gint16 delta = (gint16)(tftp_info->next_block_num - blocknum);
+  if (delta > (gint32)tftp_info->next_block_num) {
+    /* Avoid wrapping back across 0. */
+    return blocknum;
+  }
+  return tftp_info->next_block_num - delta;
+}
 
 static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                                  tvbuff_t *tvb, packet_info *pinfo,
@@ -295,13 +353,15 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 {
   proto_tree *tftp_tree;
   proto_item *ti;
+  proto_item *blocknum_item;
   gint        offset    = 0;
   guint16     opcode;
   guint16     bytes;
-  guint16     blocknum;
+  guint32     blocknum;
   guint       i1;
   guint16     error;
   tvbuff_t    *data_tvb = NULL;
+  gboolean    likely_tsize_probe;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFTP");
 
@@ -322,13 +382,13 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     if (tftp_info->source_file) {
       ti = proto_tree_add_string(tftp_tree, hf_tftp_source_file, tvb,
           0, 0, tftp_info->source_file);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
     }
 
     if (tftp_info->destination_file) {
       ti = proto_tree_add_string(tftp_tree, hf_tftp_destination_file, tvb,
           0, 0, tftp_info->destination_file);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
     }
   }
 
@@ -340,7 +400,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                         tvb, offset, i1, ENC_ASCII|ENC_NA, wmem_file_scope(), &tftp_info->source_file);
 
     /* we either have a source file name (for read requests) or a
-       destination file name (for write requests) 
+       destination file name (for write requests)
        when we set one of the names, we clear the other */
     tftp_info->destination_file = NULL;
 
@@ -393,12 +453,23 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     break;
 
   case TFTP_DATA:
-    blocknum = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_uint(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
-                        blocknum);
+    blocknum_item = proto_tree_add_item_ret_uint(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
+                                                 ENC_BIG_ENDIAN, &blocknum);
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+      blocknum = determine_full_blocknum(blocknum, tftp_info);
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_tftp, FULL_BLOCKNUM_KEY,
+                       GUINT_TO_POINTER(blocknum));
+    } else {
+      blocknum = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo,
+                                                   proto_tftp, FULL_BLOCKNUM_KEY));
+    }
+    ti = proto_tree_add_uint(tftp_tree, hf_tftp_full_blocknum, tvb, 0, 0,
+                             blocknum);
+    proto_item_set_generated(ti);
 
     /* Sequence analysis on blocknums (first pass only) */
-    if (!pinfo->fd->flags.visited) {
+    if (!PINFO_FD_VISITED(pinfo)) {
       if (blocknum > tftp_info->next_block_num) {
         /* There is a gap.  Don't try to recover from this. */
         tftp_info->next_block_num = blocknum + 1;
@@ -414,7 +485,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
     /* Show number of bytes in this block, and whether it is the end of the file */
     bytes = tvb_reported_length_remaining(tvb, offset);
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %i%s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %u%s",
                     blocknum,
                     (bytes < tftp_info->blocksize)?" (last)":"" );
 
@@ -423,13 +494,15 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
       data_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, bytes);
       call_data_dissector(data_tvb, pinfo, tree);
     }
+    if (blocknum == 0xFFFF && bytes == tftp_info->blocksize) {
+       /* There will be a block 0x10000. */
+       expert_add_info(pinfo, blocknum_item, &ei_tftp_blocknum_will_wrap);
+    }
 
     /* If Export Object tap is listening, need to accumulate blocks info list
        to send to tap. But if already know there are blocks missing, there is no
        point in trying. */
     if (have_tap_listener(tftp_eo_tap) && !tftp_info->blocks_missing) {
-      file_block_t *block;
-
       if (blocknum == 1) {
         /* Reset data for this conversation, freeing any accumulated blocks! */
         cleanup_tftp_blocks(tftp_info);
@@ -438,14 +511,14 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
       if (blocknum != tftp_info->next_tap_block_num) {
         /* Ignore.  Could be missing frames, or just clicking previous frame */
-        return;
+        break;
       }
 
       if (bytes > 0) {
         /* Create a block for this block */
-        block = (file_block_t*)g_malloc(sizeof(file_block_t));
-        block->length = bytes;
-        block->data = tvb_memdup(NULL, data_tvb, 0, bytes);
+        GByteArray *block = g_byte_array_sized_new(bytes);
+        block->len = bytes;
+        tvb_memcpy(data_tvb, block->data, 0, bytes);
 
         /* Add to the end of the list (does involve traversing whole list..) */
         tftp_info->block_list = g_slist_append(tftp_info->block_list, block);
@@ -462,7 +535,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
         /* If don't have a filename, won't tap file info */
         if ((tftp_info->source_file == NULL) && (tftp_info->destination_file == NULL)) {
             cleanup_tftp_blocks(tftp_info);
-            return;
+            break;
         }
 
         /* Create the eo_info to pass to the listener */
@@ -493,11 +566,22 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     break;
 
   case TFTP_ACK:
-    blocknum = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_uint(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
-                        blocknum);
+    proto_tree_add_item_ret_uint(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
+                                 ENC_BIG_ENDIAN, &blocknum);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %i",
+    if (!PINFO_FD_VISITED(pinfo)) {
+      blocknum = determine_full_blocknum(blocknum, tftp_info);
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_tftp, FULL_BLOCKNUM_KEY,
+                       GUINT_TO_POINTER(blocknum));
+    } else {
+      blocknum = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo,
+                                                   proto_tftp, FULL_BLOCKNUM_KEY));
+    }
+    ti = proto_tree_add_uint(tftp_tree, hf_tftp_full_blocknum, tvb, 0, 0,
+                             blocknum);
+    proto_item_set_generated(ti);
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %u",
                     blocknum);
     break;
 
@@ -518,7 +602,22 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Message: %s",
                     tvb_format_stringzpad(tvb, offset, i1));
 
-    expert_add_info(pinfo, NULL, &ei_tftp_blocksize_range);
+    /*
+     * If the packet looks like an intentional "close" after a transfer-size
+     * probe, don't report it as an error.
+     */
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+      likely_tsize_probe = error_is_likely_tsize_probe(error, tftp_info);
+      if (likely_tsize_probe) {
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_tftp, LIKELY_TSIZE_PROBE_KEY, GUINT_TO_POINTER(1));
+      }
+    } else {
+      likely_tsize_probe = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_tftp,
+                                                             LIKELY_TSIZE_PROBE_KEY)) != 0;
+    }
+
+    expert_add_info(pinfo, tftp_tree, likely_tsize_probe ? &ei_tftp_likely_tsize_probe : &ei_tftp_error);
     break;
 
   case TFTP_OACK:
@@ -531,6 +630,31 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     break;
 
   }
+  tftp_info->prev_opcode = opcode;
+}
+
+static tftp_conv_info_t *
+tftp_info_for_conversation(conversation_t *conversation)
+{
+  tftp_conv_info_t *tftp_info;
+
+  tftp_info = (tftp_conv_info_t *)conversation_get_proto_data(conversation, proto_tftp);
+  if (!tftp_info) {
+    tftp_info = wmem_new(wmem_file_scope(), tftp_conv_info_t);
+    tftp_info->blocksize = 512; /* TFTP default block size */
+    tftp_info->source_file = NULL;
+    tftp_info->destination_file = NULL;
+    tftp_info->tsize_requested = FALSE;
+    tftp_info->prev_opcode = TFTP_NO_OPCODE;
+    tftp_info->next_block_num = 1;
+    tftp_info->blocks_missing = FALSE;
+    tftp_info->next_tap_block_num = 1;
+    tftp_info->block_list = NULL;
+    tftp_info->file_length = 0;
+
+    conversation_add_proto_data(conversation, proto_tftp, tftp_info);
+  }
+  return tftp_info;
 }
 
 static gboolean
@@ -539,9 +663,8 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   /* Used to dissect TFTP packets where one can not assume
      that the TFTP is the only protocol used by that port, and
      that TFTP may not be carried by UDP */
-  conversation_t   *conversation = NULL;
+  conversation_t   *conversation;
   guint16           opcode;
-  tftp_conv_info_t *tftp_info;
 
   /*
    * We need to verify it could be a TFTP message before creating a conversation
@@ -600,31 +723,14 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   }
 
   conversation = find_or_create_conversation(pinfo);
-
-  tftp_info = (tftp_conv_info_t *)conversation_get_proto_data(conversation, proto_tftp);
-  if (!tftp_info) {
-    tftp_info = wmem_new(wmem_file_scope(), tftp_conv_info_t);
-    tftp_info->blocksize = 512; /* TFTP default block size */
-    tftp_info->source_file = NULL;
-    tftp_info->destination_file = NULL;
-    tftp_info->next_block_num = 1;
-    tftp_info->blocks_missing = FALSE;
-    tftp_info->next_tap_block_num = 1;
-    tftp_info->block_list = NULL;
-    tftp_info->file_length = 0;
-
-    conversation_add_proto_data(conversation, proto_tftp, tftp_info);
-  }
-
-  dissect_tftp_message(tftp_info, tvb, pinfo, tree);
+  dissect_tftp_message(tftp_info_for_conversation(conversation), tvb, pinfo, tree);
   return TRUE;
 }
 
 static int
 dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  conversation_t   *conversation = NULL;
-  tftp_conv_info_t *tftp_info;
+  conversation_t   *conversation;
 
   /*
    * The first TFTP packet goes to the TFTP port; the second one
@@ -667,21 +773,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         return 0;
     }
   }
-  tftp_info = (tftp_conv_info_t *)conversation_get_proto_data(conversation, proto_tftp);
-  if (!tftp_info) {
-    tftp_info = wmem_new(wmem_file_scope(), tftp_conv_info_t);
-    tftp_info->blocksize = 512; /* TFTP default block size */
-    tftp_info->source_file = NULL;
-    tftp_info->destination_file = NULL;
-    tftp_info->next_block_num = 1;
-    tftp_info->blocks_missing = FALSE;
-    tftp_info->next_tap_block_num = 1;
-    tftp_info->block_list = NULL;
-    tftp_info->file_length = 0;
-    conversation_add_proto_data(conversation, proto_tftp, tftp_info);
-  }
-
-  dissect_tftp_message(tftp_info, tvb, pinfo, tree);
+  dissect_tftp_message(tftp_info_for_conversation(conversation), tvb, pinfo, tree);
   return tvb_captured_length(tvb);
 }
 
@@ -706,9 +798,9 @@ proto_register_tftp(void)
         "TFTP source file name", HFILL }},
 
     { &hf_tftp_destination_file,
-      { "DESTINATION File",   "tftp.destination_file",
+      { "Destination File",   "tftp.destination_file",
         FT_STRINGZ, BASE_NONE, NULL, 0x0,
-        "TFTP source file name", HFILL }},
+        "TFTP destination file name", HFILL }},
 
     { &hf_tftp_transfer_type,
       { "Type",               "tftp.type",
@@ -719,6 +811,11 @@ proto_register_tftp(void)
       { "Block",              "tftp.block",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Block number", HFILL }},
+
+    { &hf_tftp_full_blocknum,
+      { "Full Block Number",  "tftp.block.full",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Block number, adjusted for wrapping", HFILL }},
 
     { &hf_tftp_error_code,
       { "Error code",         "tftp.error.code",
@@ -751,7 +848,10 @@ proto_register_tftp(void)
   };
 
   static ei_register_info ei[] = {
+     { &ei_tftp_error, { "tftp.error", PI_RESPONSE_CODE, PI_WARN, "TFTP ERROR packet", EXPFILL }},
+     { &ei_tftp_likely_tsize_probe, { "tftp.likely_tsize_probe", PI_REQUEST_CODE, PI_CHAT, "Likely transfer size (tsize) probe", EXPFILL }},
      { &ei_tftp_blocksize_range, { "tftp.blocksize_range", PI_RESPONSE_CODE, PI_WARN, "TFTP blocksize out of range", EXPFILL }},
+     { &ei_tftp_blocknum_will_wrap, { "tftp.block.wrap", PI_SEQUENCE, PI_NOTE, "TFTP block number is about to wrap", EXPFILL }},
   };
 
   expert_module_t* expert_tftp;
@@ -776,10 +876,11 @@ proto_reg_handoff_tftp(void)
   heur_dissector_add("stun", dissect_embeddedtftp_heur, "TFTP over TURN", "tftp_stun", proto_tftp, HEURISTIC_ENABLE);
 
   dissector_add_uint_range_with_preference("udp.port", UDP_PORT_TFTP_RANGE, tftp_handle);
+  apply_tftp_prefs();
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

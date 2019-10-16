@@ -1,18 +1,18 @@
 /* packet-mplstp-oam.c
-*
-* Routines for MPLS-TP Lock Instruct Protocol    : RFC 6435
-*              MPLS-TP Fault-Management Protocol : RFC 6427
-*
-* Authors:
-* Krishnamurthy Mayya <krishnamurthymayya@gmail.com>
-* Nikitha Malgi <nikitha01@gmail.com>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ *
+ * Routines for MPLS-TP Lock Instruct Protocol    : RFC 6435
+ *              MPLS-TP Fault-Management Protocol : RFC 6427
+ *
+ * Authors:
+ * Krishnamurthy Mayya <krishnamurthymayya@gmail.com>
+ * Nikitha Malgi <nikitha01@gmail.com>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 #include <epan/packet.h>
@@ -337,7 +337,7 @@ proto_reg_handoff_mplstp_fm(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef PACKET_LIST_RECORD_H
 #define PACKET_LIST_RECORD_H
@@ -25,24 +26,19 @@
 struct conversation;
 struct _GStringChunk;
 
-class ColumnTextList;
-
 class PacketListRecord
 {
 public:
     PacketListRecord(frame_data *frameData);
-
-    // Allocate our records using wmem.
-    static void *operator new(size_t size);
-    static void operator delete(void *) {}
+    virtual ~PacketListRecord();
 
     // Return the string value for a column. Data is cached if possible.
-    const QByteArray columnString(capture_file *cap_file, int column, bool colorized = false);
+    const QString columnString(capture_file *cap_file, int column, bool colorized = false);
     frame_data *frameData() const { return fdata_; }
     // packet_list->col_to_text in gtk/packet_list_store.c
     static int textColumn(int column) { return cinfo_column_.value(column, -1); }
     bool colorized() { return colorized_; }
-    struct conversation *conversation() { return conv_; }
+    unsigned int conversation() { return conv_index_; }
 
     int columnTextSize(const char *str);
     static void invalidateAllRecords() { col_data_ver_++; }
@@ -51,11 +47,9 @@ public:
     inline int lineCount() { return lines_; }
     inline int lineCountChanged() { return line_count_changed_; }
 
-    static void clearStringPool();
-
 private:
     /** The column text for some columns */
-    ColumnTextList *col_text_;
+    QStringList col_text_;
 
     frame_data *fdata_;
     int lines_;
@@ -69,13 +63,10 @@ private:
     bool colorized_;
 
     /** Conversation. Used by RelatedPacketDelegate */
-    struct conversation *conv_;
+    unsigned int conv_index_;
 
     void dissect(capture_file *cap_file, bool dissect_color = false);
     void cacheColumnStrings(column_info *cinfo);
-
-    static struct _GStringChunk *string_pool_;
-
 };
 
 #endif // PACKET_LIST_RECORD_H

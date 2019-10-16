@@ -91,10 +91,9 @@ resolve_column (gint col, capture_file *cf)
                 hfi = proto_registrar_get_nth(*field_idx);
 
                 /* Check if we have an OID or a strings table with integer values */
-                if ((hfi->type == FT_OID) || (hfi->type == FT_REL_OID) ||
+                if ((hfi->type == FT_OID) || (hfi->type == FT_REL_OID) || (hfi->type == FT_BOOLEAN) ||
                     ((hfi->strings != NULL) &&
-                     ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
-                      IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type))))
+                     (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type))))
                 {
                     resolve = TRUE;
                     break;

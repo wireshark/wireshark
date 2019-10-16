@@ -4,12 +4,14 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "packet_format_group_box.h"
 #include <ui_packet_format_group_box.h>
 
 #include <QStyle>
+#include <QStyleOption>
 
 PacketFormatGroupBox::PacketFormatGroupBox(QWidget *parent) :
     QGroupBox(parent),
@@ -20,7 +22,26 @@ PacketFormatGroupBox::PacketFormatGroupBox(QWidget *parent) :
 
     QStyleOption style_opt;
     int cb_label_offset =  pf_ui_->detailsCheckBox->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left();
-    setStyleSheet(QString(
+
+    // Indent the checkbox under the "Packet summary" checkbox
+    pf_ui_->includeColumnHeadingsCheckBox->setStyleSheet(QString(
+                      "QCheckBox {"
+                      "  padding-left: %1px;"
+                      "}"
+                      ).arg(cb_label_offset));
+
+    // Indent the radio buttons under the "Packet details" checkbox
+    pf_ui_->allCollapsedButton->setStyleSheet(QString(
+                      "QRadioButton {"
+                      "  padding-left: %1px;"
+                      "}"
+                      ).arg(cb_label_offset));
+    pf_ui_->asDisplayedButton->setStyleSheet(QString(
+                      "QRadioButton {"
+                      "  padding-left: %1px;"
+                      "}"
+                      ).arg(cb_label_offset));
+    pf_ui_->allExpandedButton->setStyleSheet(QString(
                       "QRadioButton {"
                       "  padding-left: %1px;"
                       "}"
@@ -47,6 +68,11 @@ bool PacketFormatGroupBox::bytesEnabled()
     return pf_ui_->bytesCheckBox->isChecked();
 }
 
+bool PacketFormatGroupBox::includeColumnHeadingsEnabled()
+{
+    return pf_ui_->includeColumnHeadingsCheckBox->isChecked();
+}
+
 bool PacketFormatGroupBox::allCollapsedEnabled()
 {
     return pf_ui_->allCollapsedButton->isChecked();
@@ -62,8 +88,9 @@ bool PacketFormatGroupBox::allExpandedEnabled()
     return pf_ui_->allExpandedButton->isChecked();
 }
 
-void PacketFormatGroupBox::on_summaryCheckBox_toggled(bool)
+void PacketFormatGroupBox::on_summaryCheckBox_toggled(bool checked)
 {
+    pf_ui_->includeColumnHeadingsCheckBox->setEnabled(checked);
     emit formatChanged();
 }
 
@@ -76,6 +103,11 @@ void PacketFormatGroupBox::on_detailsCheckBox_toggled(bool checked)
 }
 
 void PacketFormatGroupBox::on_bytesCheckBox_toggled(bool)
+{
+    emit formatChanged();
+}
+
+void PacketFormatGroupBox::on_includeColumnHeadingsCheckBox_toggled(bool)
 {
     emit formatChanged();
 }

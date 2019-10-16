@@ -602,7 +602,7 @@ dissect_ess_T_restrictiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb
   tvbuff_t *attributes;
 
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     &attributes);
 
   ess_dissect_attribute_flags (attributes, actx);
@@ -698,7 +698,7 @@ dissect_ess_T_permissiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb 
   tvbuff_t *attributes;
 
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     &attributes);
 
   ess_dissect_attribute_flags (attributes, actx);
@@ -740,7 +740,7 @@ dissect_ess_T_informativeAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb
   tvbuff_t *attributes;
 
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     &attributes);
 
   ess_dissect_attribute_flags (attributes, actx);

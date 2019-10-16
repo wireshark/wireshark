@@ -9,14 +9,28 @@
 # Add a list of your custom plugins SRC dir here including the path
 #
 
+# Fail CMake stage if any of these plugins are missing from source tree
 set(CUSTOM_PLUGIN_SRC_DIR
 #	private_plugins/foo
 # or
-#	plugins/foo
+#	plugins/epan/foo
 )
 
+# Do not fail CMake stage if any of the optional plugins are missing from source tree
+set(_OPTIONAL_CUSTOM_PLUGIN_SRC_DIR
+	plugins/epan/bar
+)
+
+foreach(  _plugin_dir ${_OPTIONAL_CUSTOM_PLUGIN_SRC_DIR} )
+	if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_plugin_dir}/CMakeLists.txt )
+		list( APPEND CUSTOM_PLUGIN_SRC_DIR ${_plugin_dir} )
+	else()
+		message( WARNING "Custom plugins: No ${_plugin_dir}/CMakeLists.txt file found - ignoring" )
+	endif()
+endforeach()
+
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

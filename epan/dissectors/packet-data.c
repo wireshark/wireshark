@@ -19,11 +19,12 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/str_util.h>
 
+void proto_register_data(void);
+void proto_reg_handoff_data(void);
+
 /* proto_data cannot be static because it's referenced in the
  * print routines
  */
-void proto_register_data(void);
-
 int proto_data = -1;
 
 #define DATA_HFI_INIT HFI_INIT(proto_data)
@@ -53,6 +54,8 @@ static gboolean generate_md5_hash = FALSE;
 
 static gint ett_data = -1;
 
+static dissector_handle_t data_handle;
+
 static int
 dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -63,7 +66,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		if (bytes > 0) {
 			tvbuff_t   *data_tvb;
 			tvbuff_t   *uncompr_tvb = NULL;
-			gint        uncompr_len = 0;
+			gint	    uncompr_len = 0;
 			proto_item *ti;
 			proto_tree *data_tree;
 			if (new_pane) {
@@ -89,7 +92,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 					add_new_data_source(pinfo, uncompr_tvb, "Uncompressed Data");
 					proto_tree_add_item(data_tree, &hfi_data_uncompressed_data, uncompr_tvb, 0, uncompr_len, ENC_NA);
 					ti = proto_tree_add_int(data_tree, &hfi_data_uncompressed_len, uncompr_tvb, 0, 0, uncompr_len);
-					PROTO_ITEM_SET_GENERATED (ti);
+					proto_item_set_generated (ti);
 				}
 			}
 
@@ -103,7 +106,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 			if(generate_md5_hash) {
 				const guint8 *cp;
-				guint8        digest[HASH_MD5_LENGTH];
+				guint8	      digest[HASH_MD5_LENGTH];
 				const gchar  *digest_string;
 
 				cp = tvb_get_ptr(tvb, 0, bytes);
@@ -111,11 +114,11 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 				gcry_md_hash_buffer(GCRY_MD_MD5, digest, cp, bytes);
 				digest_string = bytestring_to_str(wmem_packet_scope(), digest, HASH_MD5_LENGTH, '\0');
 				ti = proto_tree_add_string(data_tree, &hfi_data_md5_hash, tvb, 0, 0, digest_string);
-				PROTO_ITEM_SET_GENERATED(ti);
+				proto_item_set_generated(ti);
 			}
 
 			ti = proto_tree_add_int(data_tree, &hfi_data_len, data_tvb, 0, 0, bytes);
-			PROTO_ITEM_SET_GENERATED (ti);
+			proto_item_set_generated (ti);
 		}
 	}
 	return tvb_captured_length(tvb);
@@ -147,7 +150,7 @@ proto_register_data(void)
 		"data"		/* abbrev */
 		);
 
-	register_dissector("data", dissect_data, proto_data);
+	data_handle = register_dissector("data", dissect_data, proto_data);
 
 	proto_register_fields(proto_data, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -183,8 +186,14 @@ proto_register_data(void)
 	proto_set_cant_toggle(proto_data);
 }
 
+void
+proto_reg_handoff_data(void)
+{
+	dissector_add_string("media_type", "application/octet-stream", data_handle);
+}
+
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

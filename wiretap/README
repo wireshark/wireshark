@@ -8,7 +8,7 @@ libpcap, the current standard Unix library for packet capturing. Libpcap
 is great in that it is very platform independent and has a wonderful
 BPF optimizing engine. But it has some shortcomings as well. These
 shortcomings came to a head during the development of Wireshark
-(http://www.wireshark.org/), a packet analyzer. As such, I began developing
+(https://www.wireshark.org/), a packet analyzer. As such, I began developing
 wiretap so that:
 
 1. The library can easily be amended with new packet filtering objects.
@@ -94,7 +94,7 @@ format; it's supported to the same extent.
 RADCOM WAN/LAN Analyzers
 ------------------------
 Olivier Abad has added code to read Ethernet and LAPB captures from
-RADCOM WAN/LAN Analyzers (see http://www.radcom-inc.com/).
+RADCOM WAN/LAN Analyzers (see https://web.archive.org/web/20031231213434/http://www.radcom-inc.com/).
 
 Lucent/Ascend access products
 -----------------------------
@@ -163,7 +163,7 @@ time.
 DBS Etherwatch (text format)
 ----------------------------
 Text output from DBS Etherwatch is supported.  DBS Etherwatch is available
-from: http://www.users.bigpond.com/dbsneddon/software.htm.
+from: https://web.archive.org/web/20070612033348/http://www.users.bigpond.com/dbsneddon/software.htm.
 
 Catapult DCT2000 (.out files)
 -----------------------------
@@ -183,5 +183,4 @@ Guy Harris <guy@alum.mit.edu>
 STANAG 4607
 -----------
 Initial support for the STANAG 4607 protocol.  Documentation at:
-http://www.nato.int/structur/AC/224/standard/4607/4607.htm
-
+https://web.archive.org/web/20130223054955/http://www.nato.int/structur/AC/224/standard/4607/4607.htm

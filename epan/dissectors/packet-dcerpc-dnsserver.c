@@ -573,7 +573,6 @@ static int dnsserver_dissect_element_DnssrvEnumRecords2_buffer_length_(tvbuff_t 
 static int dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-	#include "packet-smb-common.h"
 int
 dnsserver_dissect_struct_DNS_RPC_NAME(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
@@ -581,9 +580,6 @@ dnsserver_dissect_struct_DNS_RPC_NAME(tvbuff_t *tvb _U_, int offset _U_, packet_
 	proto_tree *tree = NULL;
 	int old_offset;
 	guint8 len;
-	const char *dn;
-	int dn_len = 0;
-	guint16 bc;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
@@ -594,14 +590,9 @@ dnsserver_dissect_struct_DNS_RPC_NAME(tvbuff_t *tvb _U_, int offset _U_, packet_
 		tree = proto_item_add_subtree(item, ett_dnsserver_DNS_RPC_NAME);
 	}
 	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_NAME_NameLength, &len);
-	bc = tvb_captured_length_remaining(tvb, offset);
-	dn = get_unicode_or_ascii_string(tvb, &offset,
-			TRUE, &dn_len, TRUE, TRUE, &bc);
-	if (dn) {
-		proto_tree_add_string(tree, hf_dnsserver_DNS_RPC_NAME_name, tvb,
-			offset, dn_len,dn);
-		offset += dn_len;
-	}
+	proto_tree_add_item(tree, hf_dnsserver_DNS_RPC_NAME_name, tvb,
+		offset, len, ENC_UTF_8|ENC_NA);
+	offset += len;
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }

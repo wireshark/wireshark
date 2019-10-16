@@ -1,4 +1,4 @@
-/* packet-tlv.h
+/* packet-docsis-tlv.h
  * Contains Definitions for Configuration types
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
@@ -57,7 +57,8 @@
 #define TLV_ENABLE_TEST_MODES 40
 #define TLV_DS_CH_LIST 41
 #define TLV_MC_MAC_ADDRESS 42
-#define TLV_VENDOR_SPEC 43 /* Vendor Specific is actually 44 ? */
+#define TLV_DOCSIS_EXTENSION_FIELD 43
+#define TLV_VENDOR_SPEC 44
 #define TLV_DUT_FILTER 45
 #define TLV_TCC 46
 #define TLV_SID_CL 47
@@ -80,6 +81,8 @@
 #define TLV_CMTS_MC_SESS_ENC 64
 #define TLV_L2VPN_MAC_AGING 65
 #define TLV_MGMT_EVENT_CTRL 66
+#define TLV_EM_MODE_INDICATOR 75
+#define TLV_EM_ID_LIST_FOR_CM 78
 #define TLV_END 255
 
 /* Define DOCSIS 1.0 Class Of Service Configuration Types
@@ -144,6 +147,22 @@
 #define CAP_EXT_US_TRNS_PWR 40
 #define CAP_EM 44
 #define CAP_CM_STATUS_ACK 46
+#define CAP_EM_PREF 47
+#define CAP_EXT_PKT_LEN_SUP_CAP 48
+#define CAP_OFDM_MULT_RECV_CHAN_SUP 49
+#define CAP_OFDMA_MULT_TRANS_CHAN_SUP 50
+#define CAP_DOWN_OFDM_PROF_SUP 51
+#define CAP_DOWN_OFDM_CHAN_SUBC_QAM_MOD_SUP 52
+#define CAP_UP_OFDMA_CHAN_SUBC_QAM_MOD_SUP 53
+#define CAP_DOWN_LOWER_BAND_EDGE_CONF 54
+#define CAP_DOWN_UPPER_BAND_EDGE_CONF 55
+#define CAP_DIPL_UP_UPPER_BAND_EDGE_CONF 56
+#define CAP_DOCSIS_TIME_PROT_MODE 57
+#define CAP_DOCSIS_TIME_PROT_PERF_SUP 58
+#define CAP_PMAX 59
+#define CAP_DIPL_DOWN_LOWER_BAND_EDGE 60
+#define CAP_DIPL_DOWN_UPPER_BAND_EDGE 61
+#define CAP_DIPL_UP_UPPER_BAND_EDGE 62
 
 /* Define Classifier subtypes
  * These are subtypes of either:
@@ -228,6 +247,8 @@
 #define SFW_MIN_RSVD_PACKETSIZE 11
 #define SFW_ACTIVE_QOS_TIMEOUT 12
 #define SFW_ADMITT_QOS_TIMEOUT 13
+#define SFW_IP_TOS_OVERWRITE 23
+#define SFW_PEAK_TRAFFIC_RATE 27
 #define SFW_REQUIRED_ATTRIBUTE_MASK 31
 #define SFW_FORBIDDEN_ATTRIBUTE_MASK 32
 #define SFW_ATTRIBUTE_AGGREGATION_RULE_MASK 33
@@ -244,13 +265,15 @@
 #define SFW_NOM_GRNT_INTV 20
 #define SFW_GRNT_JTTR_TOL 21
 #define SFW_GRNTS_PER_INTV 22
-#define SFW_IP_TOS_OVERWRITE 23
 #define SFW_UG_TIME_REF 24
+#define SFW_CONTENTION_REQ_BACKOFF_WINDOW_MULT 25
+#define SFW_NUM_OF_BYTES_REQUESTED_MULT 26
 
 /* The following types only apply to
  * TLV_DOWN_SERVICE_FLOW (25)
  */
 #define SFW_MAX_DOWN_LAT 14
+#define SFW_DOWN_RESEQ 17
 
 /* Define Service Flow Error sub-subtypes
  * These are subtypes of
@@ -261,7 +284,7 @@
 #define SFW_ERR_MSG 3
 
 
-/* Define Payload Header Supression subtypes
+/* Define Payload Header Suppression subtypes
  * These are subtypes of TLV_PHS (26)
  */
 #define PHS_CLSFR_REF 1
@@ -275,6 +298,7 @@
 #define PHS_MASK 9
 #define PHS_SUP_SIZE 10
 #define PHS_VERIFICATION 11
+#define PHS_DBC_ACTION 13
 #define PHS_VENDOR_SPEC 43
 
 /* Define PHS Error sub-subtypes
@@ -324,6 +348,8 @@
 #define TLV_TCC_INIT_TECH 7
 #define TLV_TCC_RNG_PARMS 8
 #define TLV_TCC_DYN_RNG_WIN 9
+#define TLV_TCC_P1_6HI 10
+#define TLV_TCC_ASSIGN_OFDMA_UP_DATA_PROF 11
 #define TLV_TCC_ERR 254
 
 /* Define TLV_TCC_RNG_PARMS sub-types
@@ -380,6 +406,24 @@
 #define TLV_RCP_RCV_CH 5
 #define TLV_RCP_VEN_SPEC 43
 #define TLV_RCC_ERR 254
+
+/* Define TLV_RCC sub-types
+ * These are subtypes of TLV_RCP (49), and not common with TLV_RCP (48)
+ */
+#define TLV_RCC_PARTIAL_SERV_DOWN_CHAN 6
+#define TLV_RCC_SRCC 7
+#define TLV_RCC_PRIM_DOWN_CHAN 8
+
+/* Define TLV_RCC_SRCC sub-types (49.7)
+ */
+#define RCC_SRCC_PRIM_DS_CHAN_ASSIGN 1
+#define RCC_SRCC_DS_CHAN_ASSIGN 2
+#define RCC_SRCC_DS_PROF_ASSIGN 3
+
+/* Define TLV_RCC_SRCC_DS_PROF_ASSIGN sub-types (49.7.3)
+ */
+#define RCC_SRCC_DS_PROF_ASSIGN_DCID 1
+#define RCC_SRCC_DS_PROF_ASSIGN_PROF_LIST 2
 
 /* Define TLV_RCP_RCV_MOD_ENC sub-types
  * These are subtypes of TLV_RCP_RCV_MOD_ENC (48.4)
@@ -466,6 +510,7 @@
  */
 #define CMTS_MC_SESS_ENC_GRP 1
 #define CMTS_MC_SESS_ENC_SRC 2
+#define CMTS_MC_SESS_ENC_CMIM 3
 
 extern value_string_ext docsis_conf_code_ext;
 

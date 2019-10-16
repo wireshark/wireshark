@@ -301,7 +301,7 @@ dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
         /* Content Length */
         proto_tree_add_item(opt_tree, hf_shim6_opt_len, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
         ti = proto_tree_add_uint(opt_tree, hf_shim6_opt_total_len, tvb, offset+2, 2, total_len);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Option Type Specific */
         switch (tvb_get_ntohs(tvb, offset) >> 1)
@@ -576,8 +576,8 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data)
     ti_len = proto_tree_add_item(shim_tree, hf_shim6_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     ti = proto_tree_add_uint(shim_tree, hf_shim6_len_oct, tvb, offset, 1, len);
     proto_item_append_text(ti, " bytes");
-    PROTO_ITEM_SET_GENERATED(ti);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_generated(ti);
+    proto_item_set_hidden(ti);
     proto_item_append_text(ti_len, " (%d bytes)", len);
     offset += 1;
 

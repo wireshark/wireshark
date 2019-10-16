@@ -1,0 +1,152 @@
+-- 3GPP TS 38.455 V15.2.1 (2019-01-14)
+-- 9.3.8	Container definitions
+--
+-- **************************************************************
+--
+-- Container definitions
+--
+-- **************************************************************
+
+NRPPA-Containers {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+ngran-access (22) modules (3) nrppa (4) version1 (1) nrppa-Containers (5)}
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	maxPrivateIEs,
+	maxProtocolExtensions,
+	maxProtocolIEs,
+	Criticality,
+	Presence,
+	PrivateIE-ID,
+	ProtocolIE-ID	
+FROM NRPPA-CommonDataTypes;
+
+-- **************************************************************
+--
+-- Class Definition for Protocol IEs
+--
+-- **************************************************************
+
+NRPPA-PROTOCOL-IES ::= CLASS {
+	&id					ProtocolIE-ID			UNIQUE,
+	&criticality		Criticality,
+	&Value,
+	&presence			Presence
+}
+WITH SYNTAX {
+	ID					&id
+	CRITICALITY			&criticality
+	TYPE				&Value
+	PRESENCE			&presence
+}
+
+-- **************************************************************
+--
+-- Class Definition for Protocol Extensions
+--
+-- **************************************************************
+
+NRPPA-PROTOCOL-EXTENSION ::= CLASS {
+	&id					ProtocolIE-ID		UNIQUE,
+	&criticality		Criticality,
+	&Extension,
+	&presence			Presence
+}
+WITH SYNTAX {
+	ID					&id
+	CRITICALITY			&criticality
+	EXTENSION			&Extension
+	PRESENCE			&presence
+}
+
+-- **************************************************************
+--
+-- Class Definition for Private IEs
+--
+-- **************************************************************
+
+NRPPA-PRIVATE-IES ::= CLASS {
+	&id					PrivateIE-ID,
+	&criticality		Criticality,
+	&Value,
+	&presence			Presence
+}
+WITH SYNTAX {
+	ID					&id
+	CRITICALITY			&criticality
+	TYPE				&Value
+	PRESENCE			&presence
+}
+
+-- **************************************************************
+--
+-- Container for Protocol IEs
+--
+-- **************************************************************
+
+ProtocolIE-Container { NRPPA-PROTOCOL-IES : IEsSetParam} ::= 
+	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
+	ProtocolIE-Field {{IEsSetParam}}
+
+ProtocolIE-Single-Container { NRPPA-PROTOCOL-IES : IEsSetParam} ::= 
+	ProtocolIE-Field {{IEsSetParam}}
+
+ProtocolIE-Field { NRPPA-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
+	id				NRPPA-PROTOCOL-IES.&id				({IEsSetParam}),
+	criticality		NRPPA-PROTOCOL-IES.&criticality		({IEsSetParam}{@id}),
+	value			NRPPA-PROTOCOL-IES.&Value			({IEsSetParam}{@id})
+}
+
+-- **************************************************************
+--
+-- Container Lists for Protocol IE Containers
+--
+-- **************************************************************
+
+ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, NRPPA-PROTOCOL-IES : IEsSetParam} ::=
+	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+	ProtocolIE-Container {{IEsSetParam}}
+
+-- **************************************************************
+--
+-- Container for Protocol Extensions
+--
+-- **************************************************************
+
+ProtocolExtensionContainer { NRPPA-PROTOCOL-EXTENSION : ExtensionSetParam} ::= 
+	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
+	ProtocolExtensionField {{ExtensionSetParam}}
+
+ProtocolExtensionField { NRPPA-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENCE {
+	id					NRPPA-PROTOCOL-EXTENSION.&id			({ExtensionSetParam}),
+	criticality			NRPPA-PROTOCOL-EXTENSION.&criticality	({ExtensionSetParam}{@id}),
+	extensionValue		NRPPA-PROTOCOL-EXTENSION.&Extension		({ExtensionSetParam}{@id})
+}
+
+-- **************************************************************
+--
+-- Container for Private IEs
+--
+-- **************************************************************
+
+PrivateIE-Container { NRPPA-PRIVATE-IES : IEsSetParam} ::= 
+	SEQUENCE (SIZE (1..maxPrivateIEs)) OF
+	PrivateIE-Field {{IEsSetParam}}
+
+PrivateIE-Field { NRPPA-PRIVATE-IES : IEsSetParam} ::= SEQUENCE {
+	id				NRPPA-PRIVATE-IES.&id				({IEsSetParam}),
+	criticality		NRPPA-PRIVATE-IES.&criticality		({IEsSetParam}{@id}),
+	value			NRPPA-PRIVATE-IES.&Value			({IEsSetParam}{@id})
+}
+
+END

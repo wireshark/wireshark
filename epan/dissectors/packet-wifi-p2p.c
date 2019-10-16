@@ -268,6 +268,7 @@ static int hf_p2p_attr_capab_group_intra_bss_distribution = -1;
 static int hf_p2p_attr_capab_group_cross_connection = -1;
 static int hf_p2p_attr_capab_group_persistent_reconnect = -1;
 static int hf_p2p_attr_capab_group_group_formation = -1;
+static int hf_p2p_attr_capab_group_ip_address_allocation = -1;
 
 static int hf_p2p_attr_device_id = -1;
 
@@ -460,6 +461,8 @@ static void dissect_wifi_p2p_capability(proto_item *tlv_root,
                       hf_p2p_attr_capab_group_persistent_reconnect,
                       tvb, offset + 4, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(tlv_root, hf_p2p_attr_capab_group_group_formation,
+                      tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tlv_root, hf_p2p_attr_capab_group_ip_address_allocation,
                       tvb, offset + 4, 1, ENC_BIG_ENDIAN);
 
   proto_item_append_text(tlv_item, ": Device 0x%x  Group 0x%x",
@@ -1355,6 +1358,11 @@ proto_register_p2p(void)
     { &hf_p2p_attr_capab_group_group_formation,
       { "Group Formation",
         "wifi_p2p.p2p_capability.group_capability.group_formation",
+        FT_UINT8, BASE_HEX, NULL, P2P_GROUP_CAPAB_GROUP_FORMATION, NULL, HFILL
+      }},
+    { &hf_p2p_attr_capab_group_ip_address_allocation,
+      { "IP Address Allocation",
+        "wifi_p2p.p2p_capability.group_capability.ip_address_allocation",
         FT_UINT8, BASE_HEX, NULL, P2P_GROUP_CAPAB_GROUP_FORMATION, NULL, HFILL
       }},
 

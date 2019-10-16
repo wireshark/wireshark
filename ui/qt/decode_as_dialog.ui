@@ -19,46 +19,44 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,1">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,1">
      <item>
-      <widget class="QToolButton" name="newToolButton">
+      <widget class="StockIconToolButton" name="newToolButton">
        <property name="toolTip">
         <string>Change the dissection behavior for a protocol.</string>
        </property>
        <property name="text">
         <string/>
        </property>
-       <property name="icon">
-        <iconset resource="../../image/stock_icons.qrc">
-         <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
-       </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="deleteToolButton">
-       <property name="toolTip">
-        <string>Remove this dissection behavior.</string>
-       </property>
+      <widget class="StockIconToolButton" name="deleteToolButton">
        <property name="enabled">
         <bool>false</bool>
        </property>
-       <property name="icon">
-        <iconset resource="../../image/stock_icons.qrc">
-         <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png</iconset>
+       <property name="toolTip">
+        <string>Remove this dissection behavior.</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="copyToolButton">
+      <widget class="StockIconToolButton" name="copyToolButton">
        <property name="toolTip">
         <string>Copy this dissection behavior.</string>
        </property>
        <property name="text">
         <string/>
        </property>
-       <property name="icon">
-        <iconset resource="../../image/stock_icons.qrc">
-         <normaloff>:/stock/copy-8.png</normaloff>:/stock/copy-8.png</iconset>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="clearToolButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Clear all dissection behaviors.</string>
        </property>
       </widget>
      </item>
@@ -115,14 +113,17 @@
    <header>widgets/elided_label.h</header>
   </customwidget>
   <customwidget>
-    <class>TabnavTreeView</class>
-    <extends>QTreeView</extends>
-    <header>widgets/tabnav_tree_view.h</header>
+   <class>TabnavTreeView</class>
+   <extends>QTreeView</extends>
+   <header>widgets/tabnav_tree_view.h</header>
+  </customwidget>
+  <customwidget>
+   <class>StockIconToolButton</class>
+   <extends>QToolButton</extends>
+   <header>widgets/stock_icon_tool_button.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../../image/stock_icons.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

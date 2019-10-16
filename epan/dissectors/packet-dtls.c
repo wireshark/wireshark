@@ -15,9 +15,9 @@
  * See RFC 4347 for details about DTLS specs.
  *
  * Notes :
- * This dissector is based on the TLS dissector (packet-ssl.c); Because of the similarity
+ * This dissector is based on the TLS dissector (packet-tls.c); Because of the similarity
  *   of DTLS and TLS, decryption works like TLS with RSA key exchange.
- * This dissector uses the sames things (file, libraries) as the SSL dissector (gnutls, packet-ssl-utils.h)
+ * This dissector uses the sames things (file, libraries) as the TLS dissector (gnutls, packet-tls-utils.h)
  *  to make it easily maintainable.
  *
  * It was developed to dissect and decrypt the OpenSSL v 0.9.8f DTLS implementation.
@@ -30,7 +30,7 @@
  * Todo :
  *  - activate correct Mac calculation when openssl will be corrected
  *    (or if an other implementation works),
- *    corrected code is ready and commented in packet-ssl-utils.h file.
+ *    corrected code is ready and commented in packet-tls-utils.h file.
  *  - add missing things (desegmentation, reordering... that aren't present in actual OpenSSL implementation)
  */
 
@@ -46,18 +46,21 @@
 #include <epan/exported_pdu.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
+#include <epan/secrets.h>   /* for privkey_hash_table_new */
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/rsa.h>
-#include "packet-ssl-utils.h"
+#include "packet-tls-utils.h"
 #include "packet-dtls.h"
 
 void proto_register_dtls(void);
 
+#ifdef HAVE_LIBGNUTLS
 /* DTLS User Access Table */
 static ssldecrypt_assoc_t *dtlskeylist_uats = NULL;
 static guint ndtlsdecrypt = 0;
+#endif
 
 /* we need to remember the top tree so that subdissectors we call are created
  * at the root and not deep down inside the DTLS decode
@@ -144,19 +147,19 @@ static expert_field ei_dtls_handshake_fragment_past_end_msg = EI_INIT;
 static expert_field ei_dtls_msg_len_diff_fragment = EI_INIT;
 static expert_field ei_dtls_heartbeat_payload_length = EI_INIT;
 
-static ssl_master_key_map_t dtls_master_key_map;
-static GHashTable         *dtls_key_hash             = NULL;
-static wmem_stack_t       *key_list_stack            = NULL;
+#ifdef HAVE_LIBGNUTLS
+static GHashTable      *dtls_key_hash   = NULL;
+static wmem_stack_t    *key_list_stack  = NULL;
+static uat_t           *dtlsdecrypt_uat = NULL;
+static const gchar     *dtls_keys_list  = NULL;
+#endif
 static reassembly_table    dtls_reassembly_table;
 static dissector_table_t   dtls_associations         = NULL;
 static dissector_handle_t  dtls_handle               = NULL;
 static StringInfo          dtls_compressed_data      = {NULL, 0};
 static StringInfo          dtls_decrypted_data       = {NULL, 0};
 static gint                dtls_decrypted_data_avail = 0;
-static FILE               *dtls_keylog_file          = NULL;
 
-static uat_t *dtlsdecrypt_uat      = NULL;
-static const gchar *dtls_keys_list = NULL;
 static ssl_common_options_t dtls_options = { NULL, NULL};
 static const gchar *dtls_debug_file_name = NULL;
 
@@ -194,8 +197,8 @@ dtls_init(void)
   module_t *dtls_module = prefs_find_module("dtls");
   pref_t   *keys_list_pref;
 
-  ssl_common_init(&dtls_master_key_map,
-                  &dtls_decrypted_data, &dtls_compressed_data);
+  ssl_data_alloc(&dtls_decrypted_data, 32);
+  ssl_data_alloc(&dtls_compressed_data, 32);
 
   /* We should have loaded "keys_list" by now. Mark it obsolete */
   if (dtls_module) {
@@ -209,14 +212,17 @@ dtls_init(void)
 static void
 dtls_cleanup(void)
 {
+#ifdef HAVE_LIBGNUTLS
   if (key_list_stack != NULL) {
     wmem_destroy_stack(key_list_stack);
     key_list_stack = NULL;
   }
-  ssl_common_cleanup(&dtls_master_key_map, &dtls_keylog_file,
-                     &dtls_decrypted_data, &dtls_compressed_data);
+#endif
+  g_free(dtls_decrypted_data.data);
+  g_free(dtls_compressed_data.data);
 }
 
+#ifdef HAVE_LIBGNUTLS
 /* parse dtls related preferences (private keys and ports association strings) */
 static void
 dtls_parse_uat(void)
@@ -240,8 +246,7 @@ dtls_parse_uat(void)
   }
 
   /* parse private keys string, load available keys and put them in key hash*/
-  dtls_key_hash = g_hash_table_new_full(ssl_private_key_hash,
-      ssl_private_key_equal, g_free, rsa_private_key_free);
+  dtls_key_hash = privkey_hash_table_new();
 
   ssl_set_debug(dtls_debug_file_name);
 
@@ -263,14 +268,12 @@ dtls_parse_uat(void)
   dissector_add_for_decode_as("udp.port", dtls_handle);
 }
 
-#if defined(HAVE_LIBGNUTLS)
 static void
 dtls_reset_uat(void)
 {
   g_hash_table_destroy(dtls_key_hash);
   dtls_key_hash = NULL;
 }
-#endif
 
 static void
 dtls_parse_old_keys(void)
@@ -281,9 +284,9 @@ dtls_parse_old_keys(void)
 
   /* Import old-style keys */
   if (dtlsdecrypt_uat && dtls_keys_list && dtls_keys_list[0]) {
-    old_keys = wmem_strsplit(NULL, dtls_keys_list, ";", 0);
+    old_keys = g_strsplit(dtls_keys_list, ";", 0);
     for (i = 0; old_keys[i] != NULL; i++) {
-      parts = wmem_strsplit(NULL, old_keys[i], ",", 4);
+      parts = g_strsplit(old_keys[i], ",", 4);
       if (parts[0] && parts[1] && parts[2] && parts[3]) {
         gchar *path = uat_esc(parts[3], (guint)strlen(parts[3]));
         uat_entry = wmem_strdup_printf(NULL, "\"%s\",\"%s\",\"%s\",\"%s\",\"\"",
@@ -296,11 +299,12 @@ dtls_parse_old_keys(void)
         }
         wmem_free(NULL, uat_entry);
       }
-      wmem_free(NULL, parts);
+      g_strfreev(parts);
     }
-    wmem_free(NULL, old_keys);
+    g_strfreev(old_keys);
   }
 }
+#endif  /* HAVE_LIBGNUTLS */
 
 /*
  * DTLS Dissection Routines
@@ -359,7 +363,6 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_item        *ti;
   proto_tree        *dtls_tree;
   guint32            offset;
-  gboolean           first_record_in_frame;
   SslDecryptSession *ssl_session;
   SslSession        *session;
   gint               is_from_server;
@@ -368,7 +371,6 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   ti                    = NULL;
   dtls_tree             = NULL;
   offset                = 0;
-  first_record_in_frame = TRUE;
   ssl_session           = NULL;
   top_tree              = tree;
 
@@ -396,7 +398,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   /* try decryption only the first time we see this packet
    * (to keep cipher synchronized) */
-  if (pinfo->fd->flags.visited)
+  if (pinfo->fd->visited)
     ssl_session = NULL;
 
   /* Initialize the protocol column; we'll set it later when we
@@ -413,14 +415,6 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   /* iterate through the records in this tvbuff */
   while (tvb_reported_length_remaining(tvb, offset) != 0)
     {
-      /* on second and subsequent records per frame
-       * add a delimiter on info column
-       */
-      if (!first_record_in_frame)
-        {
-          col_append_str(pinfo->cinfo, COL_INFO, ", ");
-        }
-
       /* first try to dispatch off the cached version
        * known to be associated with the conversation
        */
@@ -450,17 +444,14 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
              * continuation data
              */
             offset = tvb_reported_length(tvb);
-            col_append_str(pinfo->cinfo, COL_INFO,
-                             "Continuation Data");
+            col_append_sep_str(pinfo->cinfo, COL_INFO,
+                               NULL, "Continuation Data");
 
             /* Set the protocol column */
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
           }
         break;
       }
-
-      /* set up for next record in frame, if any */
-      first_record_in_frame = FALSE;
     }
 
   // XXX there is no Follow DTLS Stream, is this tap needed?
@@ -719,7 +710,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     /* if we don't have a valid content_type, there's no sense
      * continuing any further
      */
-    col_append_str(pinfo->cinfo, COL_INFO, "Continuation Data");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Continuation Data");
 
     /* Set the protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
@@ -784,19 +775,17 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   if (decrypted) {
     add_new_data_source(pinfo, decrypted, "Decrypted DTLS");
   }
-  ssl_check_record_length(&dissect_dtls_hf, pinfo, record_length, length_pi, session->version, decrypted);
+  ssl_check_record_length(&dissect_dtls_hf, pinfo, (ContentType)content_type, record_length, length_pi, session->version, decrypted);
 
 
   switch ((ContentType) content_type) {
   case SSL_ID_CHG_CIPHER_SPEC:
-    col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Change Cipher Spec");
     ssl_dissect_change_cipher_spec(&dissect_dtls_hf, tvb, pinfo,
                                    dtls_record_tree, offset, session,
                                    is_from_server, ssl);
     if (ssl) {
-        ssl_load_keyfile(dtls_options.keylog_filename, &dtls_keylog_file,
-                         &dtls_master_key_map);
-        ssl_finalize_decryption(ssl, &dtls_master_key_map);
+        ssl_finalize_decryption(ssl, tls_get_master_key_map(TRUE));
         ssl_change_cipher(ssl, ssl_packet_from_server(session, dtls_associations, pinfo));
     }
     /* Heuristic: any later ChangeCipherSpec is not a resumption of this
@@ -833,7 +822,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     }
   case SSL_ID_APP_DATA:
     /* show on info column what we are decoding */
-    col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Application Data");
 
     /* app_handle discovery is done here instead of dissect_dtls_payload()
      * because the protocol name needs to be displayed below. */
@@ -951,13 +940,13 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
   /* now set the text in the record layer line */
   if (level && desc)
     {
-       col_append_fstr(pinfo->cinfo, COL_INFO,
-             "Alert (Level: %s, Description: %s)",
+       col_append_sep_fstr(pinfo->cinfo, COL_INFO,
+             NULL, "Alert (Level: %s, Description: %s)",
              level, desc);
     }
   else
     {
-      col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Alert");
+      col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Encrypted Alert");
     }
 
   if (tree)
@@ -1074,23 +1063,17 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           return;
         }
 
-      /* on second and later iterations, add comma to info col */
-      if (!first_iteration)
-        {
-          col_append_str(pinfo->cinfo, COL_INFO, ", ");
-        }
-
       /*
        * Update our info string
        */
       if (msg_type_str)
         {
-          col_append_str(pinfo->cinfo, COL_INFO, msg_type_str);
+          col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, msg_type_str);
         }
       else
         {
           /* if we don't have a valid handshake type, just quit dissecting */
-          col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Handshake Message");
+          col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Encrypted Handshake Message");
           return;
         }
 
@@ -1314,7 +1297,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
              * master key with this Session Ticket */
             ssl_dissect_hnd_new_ses_ticket(&dissect_dtls_hf, sub_tvb, pinfo,
                                            ssl_hand_tree, 0, length, session, ssl, TRUE,
-                                           dtls_master_key_map.tickets);
+                                           tls_get_master_key_map(FALSE)->tickets);
             break;
 
           case SSL_HND_HELLO_RETRY_REQUEST:
@@ -1324,7 +1307,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
           case SSL_HND_CERTIFICATE:
             ssl_dissect_hnd_cert(&dissect_dtls_hf, sub_tvb, ssl_hand_tree, 0, length,
-                pinfo, session, ssl, dtls_key_hash, is_from_server, TRUE);
+                pinfo, session, ssl, is_from_server, TRUE);
             break;
 
           case SSL_HND_SERVER_KEY_EXCHG:
@@ -1349,12 +1332,13 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             if (!ssl)
                 break;
 
-            ssl_load_keyfile(dtls_options.keylog_filename, &dtls_keylog_file,
-                             &dtls_master_key_map);
             /* try to find master key from pre-master key */
             if (!ssl_generate_pre_master_secret(ssl, length, sub_tvb, 0,
                                                 dtls_options.psk,
-                                                &dtls_master_key_map)) {
+#ifdef HAVE_LIBGNUTLS
+                                                dtls_key_hash,
+#endif
+                                                tls_get_master_key_map(TRUE))) {
                 ssl_debug_printf("dissect_dtls_handshake can't generate pre master secret\n");
             }
             break;
@@ -1373,6 +1357,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           case SSL_HND_KEY_UPDATE:
           case SSL_HND_ENCRYPTED_EXTS:
           case SSL_HND_END_OF_EARLY_DATA: /* TLS 1.3 */
+          case SSL_HND_COMPRESSED_CERTIFICATE:
           case SSL_HND_ENCRYPTED_EXTENSIONS: /* TLS 1.3 */
             /* TODO: does this need further dissection? */
             break;
@@ -1419,9 +1404,9 @@ dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
 
   /* now set the text in the record layer line */
   if (type && (payload_length <= record_length - 16 - 3)) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Heartbeat %s", type);
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Heartbeat %s", type);
   } else {
-    col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Heartbeat");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Encrypted Heartbeat");
   }
 
   if (tree) {
@@ -1757,7 +1742,7 @@ proto_register_dtls(void)
     { &hf_dtls_record_version,
       { "Version", "dtls.record.version",
         FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
-        "Record layer version.", HFILL }
+        "Record layer version", HFILL }
     },
     { &hf_dtls_record_epoch,
       { "Epoch", "dtls.record.epoch",
@@ -1944,7 +1929,7 @@ proto_register_dtls(void)
   static build_valid_func dtls_da_dst_values[1] = {dtls_dst_value};
   static build_valid_func dtls_da_both_values[2] = {dtls_src_value, dtls_dst_value};
   static decode_as_value_t dtls_da_values[3] = {{dtls_src_prompt, 1, dtls_da_src_values}, {dtls_dst_prompt, 1, dtls_da_dst_values}, {dtls_both_prompt, 2, dtls_da_both_values}};
-  static decode_as_t dtls_da = {"dtls", "Transport", "dtls.port", 3, 2, dtls_da_values, "UDP", "port(s) as",
+  static decode_as_t dtls_da = {"dtls", "dtls.port", 3, 2, dtls_da_values, "UDP", "port(s) as",
                                decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
   expert_module_t* expert_dtls;
@@ -1954,6 +1939,10 @@ proto_register_dtls(void)
                                        "DTLS", "dtls");
 
   dtls_associations = register_dissector_table("dtls.port", "DTLS Port", proto_dtls, FT_UINT16, BASE_DEC);
+
+  ssl_common_register_dtls_alpn_dissector_table("dtls.alpn",
+        "DTLS Application-Layer Protocol Negotiation (ALPN) Protocol IDs",
+        proto_dtls);
 
   /* Required function calls to register the header fields and
    * subtrees used */
@@ -1994,18 +1983,18 @@ proto_register_dtls(void)
                                   "RSA keys list",
                                   "A table of RSA keys for DTLS decryption",
                                   dtlsdecrypt_uat);
-#endif /* HAVE_LIBGNUTLS */
-
-    prefs_register_filename_preference(dtls_module, "debug_file", "DTLS debug file",
-                                       "redirect dtls debug to file name; leave empty to disable debug, "
-                                       "use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
-                                       &dtls_debug_file_name, TRUE);
 
     prefs_register_string_preference(dtls_module, "keys_list", "RSA keys list (deprecated)",
                                      "Semicolon-separated list of private RSA keys used for DTLS decryption. "
                                      "Used by versions of Wireshark prior to 1.6",
                                      &dtls_keys_list);
-    ssl_common_register_options(dtls_module, &dtls_options);
+#endif  /* HAVE_LIBGNUTLS */
+
+    prefs_register_filename_preference(dtls_module, "debug_file", "DTLS debug file",
+                                       "redirect dtls debug to file name; leave empty to disable debug, "
+                                       "use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
+                                       &dtls_debug_file_name, TRUE);
+    ssl_common_register_options(dtls_module, &dtls_options, TRUE);
   }
 
   dtls_handle = register_dissector("dtls", dissect_dtls, proto_dtls);
@@ -2032,9 +2021,10 @@ proto_reg_handoff_dtls(void)
 {
   static gboolean initialized = FALSE;
 
-  /* add now dissector to default ports.*/
+#ifdef HAVE_LIBGNUTLS
   dtls_parse_uat();
   dtls_parse_old_keys();
+#endif
   exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 
   if (initialized == FALSE) {
@@ -2058,7 +2048,7 @@ dtls_dissector_delete(guint port, dissector_handle_t handle)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

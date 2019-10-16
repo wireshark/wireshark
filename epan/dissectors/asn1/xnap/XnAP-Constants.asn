@@ -1,0 +1,245 @@
+-- 3GPP TS 38.423 V15.5.0 (2019-09)
+-- 9.3.7	Constant definitions
+-- **************************************************************
+--
+-- Constant definitions
+--
+-- **************************************************************
+
+XnAP-Constants {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+ngran-Access (22) modules (3) xnap (2) version1 (1) xnap-Constants (4) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+	ProcedureCode,
+	ProtocolIE-ID
+FROM XnAP-CommonDataTypes;
+
+-- **************************************************************
+--
+-- Elementary Procedures
+--
+-- **************************************************************
+
+id-handoverPreparation											ProcedureCode ::= 0
+id-sNStatusTransfer												ProcedureCode ::= 1
+id-handoverCancel												ProcedureCode ::= 2
+id-retrieveUEContext											ProcedureCode ::= 3
+id-rANPaging													ProcedureCode ::= 4
+id-xnUAddressIndication											ProcedureCode ::= 5
+id-uEContextRelease												ProcedureCode ::= 6
+id-sNGRANnodeAdditionPreparation								ProcedureCode ::= 7
+id-sNGRANnodeReconfigurationCompletion							ProcedureCode ::= 8
+id-mNGRANnodeinitiatedSNGRANnodeModificationPreparation			ProcedureCode ::= 9
+id-sNGRANnodeinitiatedSNGRANnodeModificationPreparation			ProcedureCode ::= 10
+id-mNGRANnodeinitiatedSNGRANnodeRelease							ProcedureCode ::= 11
+id-sNGRANnodeinitiatedSNGRANnodeRelease							ProcedureCode ::= 12
+id-sNGRANnodeCounterCheck										ProcedureCode ::= 13
+id-sNGRANnodeChange												ProcedureCode ::= 14
+id-rRCTransfer													ProcedureCode ::= 15
+id-xnRemoval													ProcedureCode ::= 16
+id-xnSetup														ProcedureCode ::= 17
+id-nGRANnodeConfigurationUpdate									ProcedureCode ::= 18
+id-cellActivation												ProcedureCode ::= 19
+id-reset														ProcedureCode ::= 20
+id-errorIndication												ProcedureCode ::= 21
+id-privateMessage												ProcedureCode ::= 22
+id-notificationControl											ProcedureCode ::= 23
+id-activityNotification											ProcedureCode ::= 24
+id-e-UTRA-NR-CellResourceCoordination							ProcedureCode ::= 25
+id-secondaryRATDataUsageReport									ProcedureCode ::= 26
+
+
+
+
+-- **************************************************************
+--
+-- Lists
+--
+-- **************************************************************
+
+maxEARFCN									INTEGER ::= 262143
+maxnoofAllowedAreas							INTEGER ::= 16
+maxnoofAMFRegions							INTEGER ::= 16
+maxnoofAoIs									INTEGER ::= 64
+maxnoofBPLMNs								INTEGER ::= 12
+maxnoofCellsinAoI							INTEGER ::= 256
+maxnoofCellsinUEHistoryInfo					INTEGER ::= 16
+maxnoofCellsinNG-RANnode					INTEGER ::= 16384
+maxnoofCellsinRNA							INTEGER ::= 32
+maxnoofCellsUEMovingTrajectory				INTEGER ::= 16
+maxnoofDRBs									INTEGER ::= 32
+maxnoofEUTRABands							INTEGER ::= 16
+maxnoofEUTRABPLMNs							INTEGER ::= 6
+maxnoofEPLMNs								INTEGER ::= 15
+maxnoofForbiddenTACs							INTEGER ::= 4096
+maxnoofMBSFNEUTRA							INTEGER ::= 8
+maxnoofMultiConnectivityMinusOne            INTEGER ::= 3
+maxnoofNeighbours							INTEGER ::= 1024
+maxnoofNRCellBands							INTEGER ::= 32
+maxnoofPLMNs								INTEGER ::= 16
+maxnoofPDUSessions							INTEGER ::= 256
+maxnoofProtectedResourcePatterns			INTEGER ::= 16
+maxnoofQoSFlows								INTEGER ::= 64
+maxnoofRANAreaCodes							INTEGER ::= 32
+maxnoofRANAreasinRNA						INTEGER ::= 16
+maxnoofRANNodesinAoI						INTEGER ::= 64
+maxnoofSCellGroups							INTEGER ::= 3
+maxnoofSCellGroupsplus1						INTEGER ::= 4
+maxnoofSliceItems							INTEGER ::= 1024
+maxnoofsupportedPLMNs						INTEGER ::= 12
+maxnoofsupportedTACs						INTEGER ::= 256
+maxnoofTAI									INTEGER ::= 16
+maxnoofTAIsinAoI 							INTEGER ::= 16
+maxnooftimeperiods							INTEGER ::= 2
+maxnoofTNLAssociations						INTEGER ::= 32
+maxnoofUEContexts							INTEGER ::= 8192
+maxNRARFCN									INTEGER ::= 3279165
+maxNrOfErrors								INTEGER ::= 256
+
+-- **************************************************************
+--
+-- IEs
+--
+-- **************************************************************
+
+id-ActivatedServedCells																				ProtocolIE-ID ::= 0
+id-ActivationIDforCellActivation																	ProtocolIE-ID ::= 1
+id-admittedSplitSRB																					ProtocolIE-ID ::= 2
+id-admittedSplitSRBrelease																			ProtocolIE-ID ::= 3
+id-AMF-Region-Information																			ProtocolIE-ID ::= 4
+id-AssistanceDataForRANPaging																		ProtocolIE-ID ::= 5
+id-BearersSubjectToCounterCheck																		ProtocolIE-ID ::= 6
+id-Cause																							ProtocolIE-ID ::= 7
+id-cellAssistanceInfo-NR																			ProtocolIE-ID ::= 8
+id-ConfigurationUpdateInitiatingNodeChoice															ProtocolIE-ID ::= 9
+id-CriticalityDiagnostics																			ProtocolIE-ID ::= 10
+id-XnUAddressInfoperPDUSession-List																	ProtocolIE-ID ::= 11
+id-DRBsSubjectToStatusTransfer-List																	ProtocolIE-ID ::= 12
+id-ExpectedUEBehaviour																				ProtocolIE-ID ::= 13
+id-GlobalNG-RAN-node-ID																				ProtocolIE-ID ::= 14
+id-GUAMI																							ProtocolIE-ID ::= 15
+id-indexToRatFrequSelectionPriority																	ProtocolIE-ID ::= 16
+id-initiatingNodeType-ResourceCoordRequest															ProtocolIE-ID ::= 17
+id-List-of-served-cells-E-UTRA																		ProtocolIE-ID ::= 18
+id-List-of-served-cells-NR																			ProtocolIE-ID ::= 19
+id-LocationReportingInformation																		ProtocolIE-ID ::= 20
+id-MAC-I																							ProtocolIE-ID ::= 21
+id-MaskedIMEISV																						ProtocolIE-ID ::= 22
+id-M-NG-RANnodeUEXnAPID																				ProtocolIE-ID ::= 23
+id-MN-to-SN-Container																				ProtocolIE-ID ::= 24
+id-MobilityRestrictionList																			ProtocolIE-ID ::= 25
+id-new-NG-RAN-Cell-Identity																			ProtocolIE-ID ::= 26
+id-newNG-RANnodeUEXnAPID																			ProtocolIE-ID ::= 27
+id-UEReportRRCTransfer																				ProtocolIE-ID ::= 28
+id-oldNG-RANnodeUEXnAPID																			ProtocolIE-ID ::= 29
+id-OldtoNewNG-RANnodeResumeContainer																ProtocolIE-ID ::= 30
+id-PagingDRX																						ProtocolIE-ID ::= 31
+id-PCellID																							ProtocolIE-ID ::= 32
+id-PDCPChangeIndication																				ProtocolIE-ID ::= 33
+id-PDUSessionAdmittedAddedAddReqAck																	ProtocolIE-ID ::= 34
+id-PDUSessionAdmittedModSNModConfirm																ProtocolIE-ID ::= 35
+id-PDUSessionAdmitted-SNModResponse																	ProtocolIE-ID ::= 36
+id-PDUSessionNotAdmittedAddReqAck																	ProtocolIE-ID ::= 37
+id-PDUSessionNotAdmitted-SNModResponse																ProtocolIE-ID ::= 38
+id-PDUSessionReleasedList-RelConf																	ProtocolIE-ID ::= 39
+id-PDUSessionReleasedSNModConfirm																	ProtocolIE-ID ::= 40
+id-PDUSessionResourcesActivityNotifyList															ProtocolIE-ID ::= 41
+id-PDUSessionResourcesAdmitted-List																	ProtocolIE-ID ::= 42
+id-PDUSessionResourcesNotAdmitted-List																ProtocolIE-ID ::= 43
+id-PDUSessionResourcesNotifyList																	ProtocolIE-ID ::= 44
+id-PDUSession-SNChangeConfirm-List																	ProtocolIE-ID ::= 45
+id-PDUSession-SNChangeRequired-List																	ProtocolIE-ID ::= 46
+id-PDUSessionToBeAddedAddReq																		ProtocolIE-ID ::= 47
+id-PDUSessionToBeModifiedSNModRequired																ProtocolIE-ID ::= 48
+id-PDUSessionToBeReleasedList-RelRqd																ProtocolIE-ID ::= 49
+id-PDUSessionToBeReleased-RelReq																	ProtocolIE-ID ::= 50
+id-PDUSessionToBeReleasedSNModRequired																ProtocolIE-ID ::= 51
+id-RANPagingArea																					ProtocolIE-ID ::= 52
+id-PagingPriority																					ProtocolIE-ID ::= 53
+id-requestedSplitSRB																				ProtocolIE-ID ::= 54
+id-requestedSplitSRBrelease																			ProtocolIE-ID ::= 55
+id-ResetRequestTypeInfo																				ProtocolIE-ID ::= 56
+id-ResetResponseTypeInfo																			ProtocolIE-ID ::= 57
+id-RespondingNodeTypeConfigUpdateAck																ProtocolIE-ID ::= 58
+id-respondingNodeType-ResourceCoordResponse															ProtocolIE-ID ::= 59
+id-ResponseInfo-ReconfCompl																			ProtocolIE-ID ::= 60
+id-RRCConfigIndication																				ProtocolIE-ID ::= 61
+id-RRCResumeCause																					ProtocolIE-ID ::= 62
+id-SCGConfigurationQuery																			ProtocolIE-ID ::= 63
+id-selectedPLMN																						ProtocolIE-ID ::= 64
+id-ServedCellsToActivate																			ProtocolIE-ID ::= 65
+id-servedCellsToUpdate-E-UTRA																		ProtocolIE-ID ::= 66
+id-ServedCellsToUpdateInitiatingNodeChoice															ProtocolIE-ID ::= 67
+id-servedCellsToUpdate-NR																			ProtocolIE-ID ::= 68
+id-s-ng-RANnode-SecurityKey																			ProtocolIE-ID ::= 69
+id-S-NG-RANnodeUE-AMBR																				ProtocolIE-ID ::= 70
+id-S-NG-RANnodeUEXnAPID																				ProtocolIE-ID ::= 71
+id-SN-to-MN-Container																				ProtocolIE-ID ::= 72
+id-sourceNG-RANnodeUEXnAPID																			ProtocolIE-ID ::= 73
+id-SplitSRB-RRCTransfer																				ProtocolIE-ID ::= 74
+id-TAISupport-list																					ProtocolIE-ID ::= 75
+id-TimeToWait																						ProtocolIE-ID ::= 76
+id-Target2SourceNG-RANnodeTranspContainer															ProtocolIE-ID ::= 77
+id-targetCellGlobalID																				ProtocolIE-ID ::= 78
+id-targetNG-RANnodeUEXnAPID																			ProtocolIE-ID ::= 79
+id-target-S-NG-RANnodeID																			ProtocolIE-ID ::= 80
+id-TraceActivation																					ProtocolIE-ID ::= 81
+id-UEContextID																						ProtocolIE-ID ::= 82
+id-UEContextInfoHORequest																			ProtocolIE-ID ::= 83
+id-UEContextInfoRetrUECtxtResp																		ProtocolIE-ID ::= 84
+id-UEContextInfo-SNModRequest																		ProtocolIE-ID ::= 85
+id-UEContextKeptIndicator																			ProtocolIE-ID ::= 86
+id-UEContextRefAtSN-HORequest																		ProtocolIE-ID ::= 87
+id-UEHistoryInformation																				ProtocolIE-ID ::= 88
+id-UEIdentityIndexValue																				ProtocolIE-ID ::= 89
+id-UERANPagingIdentity																				ProtocolIE-ID ::= 90
+id-UESecurityCapabilities																			ProtocolIE-ID ::= 91
+id-UserPlaneTrafficActivityReport																	ProtocolIE-ID ::= 92
+id-XnRemovalThreshold 																				ProtocolIE-ID ::= 93
+id-DesiredActNotificationLevel																		ProtocolIE-ID ::= 94
+id-AvailableDRBIDs 																					ProtocolIE-ID ::= 95
+id-AdditionalDRBIDs 																				ProtocolIE-ID ::= 96
+id-SpareDRBIDs 																						ProtocolIE-ID ::= 97
+id-RequiredNumberOfDRBIDs 																			ProtocolIE-ID ::= 98
+id-TNLA-To-Add-List																					ProtocolIE-ID ::= 99
+id-TNLA-To-Update-List																				ProtocolIE-ID ::= 100
+id-TNLA-To-Remove-List																				ProtocolIE-ID ::= 101
+id-TNLA-Setup-List																					ProtocolIE-ID ::= 102
+id-TNLA-Failed-To-Setup-List																		ProtocolIE-ID ::= 103
+id-PDUSessionToBeReleased-RelReqAck																	ProtocolIE-ID ::= 104
+id-S-NG-RANnodeMaxIPDataRate-UL																		ProtocolIE-ID ::= 105
+-- WS extension
+id-Unknown-106																						ProtocolIE-ID ::= 106
+id-PDUSessionResourceSecondaryRATUsageList															ProtocolIE-ID ::= 107
+id-Additional-UL-NG-U-TNLatUPF-List																	ProtocolIE-ID ::= 108
+id-SecondarydataForwardingInfoFromTarget-List														ProtocolIE-ID ::= 109
+id-LocationInformationSNReporting																	ProtocolIE-ID ::= 110
+id-LocationInformationSN																			ProtocolIE-ID ::= 111
+id-LastE-UTRANPLMNIdentity																			ProtocolIE-ID ::= 112
+id-S-NG-RANnodeMaxIPDataRate-DL																		ProtocolIE-ID ::= 113
+id-MaxIPrate-DL																						ProtocolIE-ID ::= 114
+id-SecurityResult																					ProtocolIE-ID ::= 115
+id-S-NSSAI																							ProtocolIE-ID ::= 116
+id-MR-DC-ResourceCoordinationInfo																	ProtocolIE-ID ::= 117
+id-AMF-Region-Information-To-Add																	ProtocolIE-ID ::= 118
+id-AMF-Region-Information-To-Delete																	ProtocolIE-ID ::= 119
+id-OldQoSFlowMap-ULendmarkerexpected																ProtocolIE-ID ::= 120
+id-RANPagingFailure																					ProtocolIE-ID ::= 121
+id-UERadioCapabilityForPaging																		ProtocolIE-ID ::= 122
+id-PDUSessionDataForwarding-SNModResponse															ProtocolIE-ID ::= 123
+id-DRBsNotAdmittedSetupModifyList																	ProtocolIE-ID ::= 124
+id-Secondary-MN-Xn-U-TNLInfoatM																		ProtocolIE-ID ::= 125
+id-NE-DC-TDM-Pattern																				ProtocolIE-ID ::= 126
+id-PDUSessionCommonNetworkInstance																	ProtocolIE-ID ::= 127
+id-BPLMN-ID-Info-EUTRA																				ProtocolIE-ID ::= 128
+id-BPLMN-ID-Info-NR																					ProtocolIE-ID ::= 129
+id-InterfaceInstanceIndication																		ProtocolIE-ID ::= 130
+id-S-NG-RANnode-Addition-Trigger-Ind																	ProtocolIE-ID ::= 131
+id-DefaultDRB-Allowed																				ProtocolIE-ID ::= 132
+
+END

@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <config.h>
 
@@ -28,13 +29,13 @@ ExportObjectAction::ExportObjectAction(QObject *parent, register_eo_t *eo) :
     }
 }
 
-void ExportObjectAction::captureFileEvent(CaptureEvent *e)
+void ExportObjectAction::captureFileEvent(CaptureEvent e)
 {
-    if ( e->captureContext() == CaptureEvent::File )
+    if ( e.captureContext() == CaptureEvent::File )
     {
-        if ( e->eventType() == CaptureEvent::Opened )
+        if ( e.eventType() == CaptureEvent::Opened )
             setEnabled(true);
-        else if ( e->eventType() == CaptureEvent::Closed )
+        else if ( e.eventType() == CaptureEvent::Closed )
             setEnabled(false);
     }
 }

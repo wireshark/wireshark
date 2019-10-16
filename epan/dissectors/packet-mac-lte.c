@@ -1515,7 +1515,7 @@ static lcid_drb_mapping_t *lcid_drb_mappings = NULL;
 static guint num_lcid_drb_mappings = 0;
 
 UAT_VS_DEF(lcid_drb_mappings, lcid, lcid_drb_mapping_t, guint16, 3, "LCID 3")
-UAT_DEC_CB_DEF(lcid_drb_mappings, drbid, lcid_drb_mapping_t)
+UAT_SIGNED_DEC_CB_DEF(lcid_drb_mappings, drbid, lcid_drb_mapping_t)
 UAT_VS_DEF(lcid_drb_mappings, channel_type, lcid_drb_mapping_t, rlc_channel_type_t, rlcAM, "AM")
 
 /* UAT object */
@@ -2191,46 +2191,46 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
             drx_config_ti = proto_tree_add_string_format(tree, hf_mac_lte_drx_config,
                                                   tvb, 0, 0, "", "DRX Config");
             drx_config_tree = proto_item_add_subtree(drx_config_ti, ett_mac_lte_drx_config);
-            PROTO_ITEM_SET_GENERATED(drx_config_ti);
+            proto_item_set_generated(drx_config_ti);
 
             /* Link back to configuration (RRC) frame */
             ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_frame_num, tvb,
                                      0, 0, frame_state->config.frameNum);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             /* Link back to any previous config frame (only from current config frame) */
             if ((frame_state->config.frameNum == pinfo->num) &&
                 (frame_state->config.previousFrameNum != 0)) {
                     ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_previous_frame_num, tvb,
                                              0, 0, frame_state->config.previousFrameNum);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
             }
 
             /* Config fields */
             ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_long_cycle, tvb,
                                      0, 0, frame_state->config.longCycle);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_cycle_offset, tvb,
                                      0, 0, frame_state->config.cycleOffset);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_onduration_timer, tvb,
                                      0, 0, frame_state->config.onDurationTimer);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_inactivity_timer, tvb,
                                      0, 0, frame_state->config.inactivityTimer);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_retransmission_timer, tvb,
                                      0, 0, frame_state->config.retransmissionTimer);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             if (frame_state->config.shortCycleConfigured) {
                 ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_short_cycle, tvb,
                                          0, 0, frame_state->config.shortCycle);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
 
                 ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_short_cycle_timer, tvb,
                                          0, 0, frame_state->config.shortCycleTimer);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
 
             proto_item_append_text(drx_config_ti, " (Long-cycle=%u cycle-offset=%u onDuration=%u)",
@@ -2256,7 +2256,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
         }
 
         drx_state_tree = proto_item_add_subtree(drx_state_ti, ett_mac_lte_drx_state);
-        PROTO_ITEM_SET_GENERATED(drx_state_ti);
+        proto_item_set_generated(drx_state_ti);
 
         /* Show cycle information */
 
@@ -2266,7 +2266,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                                               frame_state->config.longCycle;
             ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_long_cycle_offset, tvb,
                                      0, 0, offset_into_long_cycle);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
         else {
             /* Show where we are inside short cycle */
@@ -2275,14 +2275,14 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
             ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_short_cycle_offset, tvb,
                                      0, 0, offset_into_short_cycle);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             /* Is short-cycle-timer running? */
             if (!mac_lte_drx_has_timer_expired(frame_state, drx_short_cycle_timer, 0, before_event, &time_until_expires)) {
                 if (time_until_expires) {
                     ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_short_cycle_remaining, tvb,
                                              0, 0, (guint16)time_until_expires);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                 }
             }
         }
@@ -2297,7 +2297,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
             if (time_until_expires) {
                 ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_onduration_remaining, tvb,
                                          0, 0, (guint16)time_until_expires);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
         }
 
@@ -2306,7 +2306,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
             if (time_until_expires) {
                 ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_inactivity_remaining, tvb,
                                          0, 0, (guint16)time_until_expires);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
         }
 
@@ -2316,7 +2316,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                 if (time_until_expires) {
                     ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_retransmission_remaining, tvb,
                                              0, 0, (guint16)time_until_expires);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     proto_item_append_text(ti, " (harqid=%u)", n);
                 }
             }
@@ -2328,7 +2328,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                 if (time_until_expires) {
                     ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_rtt_remaining, tvb,
                                              0, 0, (guint16)time_until_expires);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     proto_item_append_text(ti, " (harqid=%u)", n);
                 }
             }
@@ -2442,6 +2442,8 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
 
     p_mac_lte_info->rntiType = tvb_get_guint8(tvb, offset++);
 
+    p_mac_lte_info->sfnSfInfoPresent = FALSE; /* Set this to true later if the relative tag is read */
+
     /* Initialize RNTI with a default value in case optional field is not present */
     switch (p_mac_lte_info->rntiType) {
         case SC_RNTI:
@@ -2482,6 +2484,7 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                 break;
             case MAC_LTE_FRAME_SUBFRAME_TAG:
                 {
+                    p_mac_lte_info->sfnSfInfoPresent = TRUE;
                     guint16 sfn_sf = tvb_get_ntohs(tvb, offset);
                     p_mac_lte_info->sysframeNumber = (sfn_sf >> 4) & 0x03ff;
                     p_mac_lte_info->subframeNumber = sfn_sf & 0x000f;
@@ -2616,6 +2619,29 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                     }
                 }
                 break;
+                case MAC_LTE_SR_TAG:
+                    {
+                        int n;
+                        // Read number of entries.
+                        guint16 no_entries = tvb_get_ntohs(tvb, offset);
+                        offset += 2;
+                        if ((no_entries == 0) || (no_entries > MAX_SRs)) {
+                            return FALSE;
+                        }
+                        else {
+                            p_mac_lte_info->oob_event = ltemac_send_sr;
+                            p_mac_lte_info->number_of_srs = no_entries;
+                        }
+
+                        // Read each entry.
+                        for (n=0; n < no_entries; n++) {
+                            p_mac_lte_info->oob_ueid[n] = tvb_get_ntohs(tvb, offset);
+                            offset += 2;
+                            p_mac_lte_info->oob_rnti[n] = tvb_get_ntohs(tvb, offset);
+                            offset += 2;
+                        }
+                    }
+                    break;
 
             case MAC_LTE_PAYLOAD_TAG:
                 /* Have reached data, so set payload length and get out of loop */
@@ -2770,38 +2796,38 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
             phy_ti = proto_tree_add_string_format(tree, hf_mac_lte_context_phy_ul,
                                                   tvb, 0, 0, "", "UL PHY Context");
             phy_tree = proto_item_add_subtree(phy_ti, ett_mac_lte_phy_context);
-            PROTO_ITEM_SET_GENERATED(phy_ti);
+            proto_item_set_generated(phy_ti);
 
             /* Add items */
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_ul_modulation_type,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.ul_info.modulation_type);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_ul_tbs_index,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.ul_info.tbs_index);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_ul_resource_block_length,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.ul_info.resource_block_length);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_ul_resource_block_start,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.ul_info.resource_block_start);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_ul_harq_id,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.ul_info.harq_id);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_ul_ndi,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.ul_info.ndi);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
 
             proto_item_append_text(phy_ti, " (");
@@ -2832,58 +2858,58 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
             phy_ti = proto_tree_add_string_format(tree, hf_mac_lte_context_phy_dl,
                                                   tvb, 0, 0, "", "DL PHY Context");
             phy_tree = proto_item_add_subtree(phy_ti, ett_mac_lte_phy_context);
-            PROTO_ITEM_SET_GENERATED(phy_ti);
+            proto_item_set_generated(phy_ti);
 
             /* Add items */
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_dci_format,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.dl_info.dci_format);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_resource_allocation_type,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.dl_info.resource_allocation_type);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_aggregation_level,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.dl_info.aggregation_level);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_mcs_index,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.dl_info.mcs_index);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_redundancy_version_index,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.dl_info.redundancy_version_index);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_boolean(phy_tree, hf_mac_lte_context_phy_dl_retx,
                                         tvb, 0, 0,
                                         p_mac_lte_info->dl_retx);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_resource_block_length,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_harq_id,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.dl_info.harq_id);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_ndi,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.dl_info.ndi);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_tb,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.dl_info.transport_block);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
 
             proto_item_append_text(phy_ti, " (");
@@ -3174,7 +3200,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
     /* Create hidden 'virtual root' so can filter on mac-lte.rar */
     ti = proto_tree_add_item(tree, hf_mac_lte_rar, tvb, offset, -1, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     /* Create headers tree */
     rar_headers_ti = proto_tree_add_item(tree,
@@ -3270,7 +3296,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     /* Append summary to headers root */
     proto_item_append_text(rar_headers_ti, " (%u RARs", number_of_rars);
     ti = proto_tree_add_uint(rar_headers_tree, hf_mac_lte_rar_no_of_rapids, tvb, 0, 0, number_of_rars);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     if (backoff_indicator_seen) {
         proto_item_append_text(rar_headers_ti, ", BI=%sms)",
                                val_to_str_const(backoff_indicator, (p_mac_lte_info->nbMode == no_nb_mode) ?
@@ -3301,7 +3327,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
                                            tvb, offset, 0,
                                            p_mac_lte_info->length - offset);
-    PROTO_ITEM_SET_GENERATED(padding_length_ti);
+    proto_item_set_generated(padding_length_ti);
 
     /* Update padding bytes in stats */
     tap_info->padding_bytes += (p_mac_lte_info->length - offset);
@@ -3325,7 +3351,7 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Show which transport layer it came in on (inferred from RNTI type) */
     ti = proto_tree_add_uint(tree, hf_mac_lte_context_bch_transport_channel,
                              tvb, offset, 0, p_mac_lte_info->rntiType);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /****************************************/
     /* Whole frame is BCH data              */
@@ -3363,7 +3389,7 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         /* Hide raw view of bytes */
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
 
         call_with_catch_all(protocol_handle, rrc_tvb, pinfo, tree);
     }
@@ -3402,7 +3428,7 @@ static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
 
         /* Hide raw view of bytes */
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
 
         /* Call it (catch exceptions so that stats will be updated) */
         if (p_mac_lte_info->nbMode == no_nb_mode) {
@@ -3486,7 +3512,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         p_rlc_lte_info = wmem_new0(wmem_file_scope(), struct rlc_lte_info);
     }
 
-    /* Fill in struct details for srb channels */
+    /* Fill in struct details for channel */
     p_rlc_lte_info->rlcMode = mode;
     p_rlc_lte_info->direction = direction;
     p_rlc_lte_info->priority = priority;
@@ -3633,22 +3659,22 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, int len
             proto_item *gap_ti;
             proto_item *original_ti = proto_tree_add_uint(tree, hf_mac_lte_dl_harq_resend_original_frame,
                                                           tvb, 0, 0, result->previousFrameNum);
-            PROTO_ITEM_SET_GENERATED(original_ti);
+            proto_item_set_generated(original_ti);
 
             gap_ti = proto_tree_add_uint(tree, hf_mac_lte_dl_harq_resend_time_since_previous_frame,
                                          tvb, 0, 0, result->timeSincePreviousFrame);
-            PROTO_ITEM_SET_GENERATED(gap_ti);
+            proto_item_set_generated(gap_ti);
         }
 
         if (result->nextSet) {
             proto_item *gap_ti;
             proto_item *next_ti = proto_tree_add_uint(tree, hf_mac_lte_dl_harq_resend_next_frame,
                                                       tvb, 0, 0, result->nextFrameNum);
-            PROTO_ITEM_SET_GENERATED(next_ti);
+            proto_item_set_generated(next_ti);
 
             gap_ti = proto_tree_add_uint(tree, hf_mac_lte_dl_harq_resend_time_until_next_frame,
                                          tvb, 0, 0, result->timeToNextFrame);
-            PROTO_ITEM_SET_GENERATED(gap_ti);
+            proto_item_set_generated(gap_ti);
         }
 
     }
@@ -3784,11 +3810,11 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, int off
 
                 original_ti = proto_tree_add_uint(tree, hf_mac_lte_ul_harq_resend_original_frame,
                                                   tvb, 0, 0, result->previousFrameNum);
-                PROTO_ITEM_SET_GENERATED(original_ti);
+                proto_item_set_generated(original_ti);
 
                 gap_ti = proto_tree_add_uint(tree, hf_mac_lte_ul_harq_resend_time_since_previous_frame,
                                              tvb, 0, 0, result->timeSincePreviousFrame);
-                PROTO_ITEM_SET_GENERATED(gap_ti);
+                proto_item_set_generated(gap_ti);
             }
         }
         else {
@@ -3806,11 +3832,11 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, int off
         expert_add_info_format(pinfo, next_ti, &ei_mac_lte_ul_harq_resend_next_frame,
                                "UL MAC PDU (UE %u) needed to be retransmitted", p_mac_lte_info->ueid);
 
-        PROTO_ITEM_SET_GENERATED(next_ti);
+        proto_item_set_generated(next_ti);
 
         gap_ti = proto_tree_add_uint(tree, hf_mac_lte_ul_harq_resend_time_until_next_frame,
                                      tvb, 0, 0, result->timeToNextFrame);
-        PROTO_ITEM_SET_GENERATED(gap_ti);
+        proto_item_set_generated(gap_ti);
     }
 }
 
@@ -4003,38 +4029,38 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
         case GrantAnsweringSR:
             ti = proto_tree_add_uint(tree, hf_mac_lte_grant_answering_sr,
                                      tvb, 0, 0, result->frameNum);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_uint(tree, hf_mac_lte_sr_time_since_request,
                                      tvb, 0, 0, result->timeDifference);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             break;
 
         case FailureAnsweringSR:
             ti = proto_tree_add_uint(tree, hf_mac_lte_failure_answering_sr,
                                      tvb, 0, 0, result->frameNum);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_uint(tree, hf_mac_lte_sr_time_since_request,
                                      tvb, 0, 0, result->timeDifference);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             break;
 
         case SRLeadingToGrant:
             ti = proto_tree_add_uint(tree, hf_mac_lte_sr_leading_to_grant,
                                      tvb, 0, 0, result->frameNum);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_uint(tree, hf_mac_lte_sr_time_until_answer,
                                      tvb, 0, 0, result->timeDifference);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             break;
 
         case SRLeadingToFailure:
             ti = proto_tree_add_uint(tree, hf_mac_lte_sr_leading_to_failure,
                                      tvb, 0, 0, result->frameNum);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_uint(tree, hf_mac_lte_sr_time_until_answer,
                                      tvb, 0, 0, result->timeDifference);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             break;
 
         case InvalidSREvent:
@@ -4139,7 +4165,7 @@ static void show_ues_tti(packet_info *pinfo, mac_lte_info *p_mac_lte_info, tvbuf
                                                   hf_mac_lte_ues_ul_per_tti :
                                                   hf_mac_lte_ues_dl_per_tti,
                                               tvb, 0, 0, result->ues_in_tti);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 }
 
@@ -4292,7 +4318,7 @@ static void lookup_rlc_channel_from_lcid(guint16 ueid,
         }
     }
     else {
-        /* Look up the mappings for this UE */
+        /* Look up the dynamic mappings for this UE */
         ue_dynamic_drb_mappings_t *ue_mappings = (ue_dynamic_drb_mappings_t *)g_hash_table_lookup(mac_lte_ue_channels_hash, GUINT_TO_POINTER((guint)ueid));
         if (!ue_mappings) {
             return;
@@ -4965,14 +4991,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 /* Point back to msg3 frame */
                                 ti = proto_tree_add_uint(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3,
                                                          tvb, 0, 0, crResult->msg3FrameNum);
-                                PROTO_ITEM_SET_GENERATED(ti);
+                                proto_item_set_generated(ti);
                                 ti = proto_tree_add_uint(cr_tree, hf_mac_lte_control_ue_contention_resolution_time_since_msg3,
                                                          tvb, 0, 0, crResult->msSinceMsg3);
-                                PROTO_ITEM_SET_GENERATED(ti);
+                                proto_item_set_generated(ti);
 
                                 ti = proto_tree_add_boolean(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3_matched,
                                                             tvb, 0, 0, TRUE);
-                                PROTO_ITEM_SET_GENERATED(ti);
+                                proto_item_set_generated(ti);
                                 proto_item_append_text(cr_ti, " (matches Msg3 from frame %u, %ums ago)",
                                                        crResult->msg3FrameNum, crResult->msSinceMsg3);
 
@@ -4986,17 +5012,17 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             case Msg3NoMatch:
                                 ti = proto_tree_add_uint(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3,
                                                          tvb, 0, 0, crResult->msg3FrameNum);
-                                PROTO_ITEM_SET_GENERATED(ti);
+                                proto_item_set_generated(ti);
                                 ti = proto_tree_add_uint(cr_tree, hf_mac_lte_control_ue_contention_resolution_time_since_msg3,
                                                          tvb, 0, 0, crResult->msSinceMsg3);
-                                PROTO_ITEM_SET_GENERATED(ti);
+                                proto_item_set_generated(ti);
 
                                 ti = proto_tree_add_boolean(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3_matched,
                                                              tvb, 0, 0, FALSE);
                                 expert_add_info_format(pinfo, ti, &ei_mac_lte_control_ue_contention_resolution_msg3_matched,
                                                        "CR body in Msg4 doesn't match Msg3 CCCH in frame %u",
                                                        crResult->msg3FrameNum);
-                                PROTO_ITEM_SET_GENERATED(ti);
+                                proto_item_set_generated(ti);
                                 proto_item_append_text(cr_ti, " (doesn't match Msg3 from frame %u, %u ago)",
                                                        crResult->msg3FrameNum, crResult->msSinceMsg3);
                                 break;
@@ -5617,7 +5643,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
                             proto_item *bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, p_buffer_size_median[buffer_size]);
-                            PROTO_ITEM_SET_GENERATED(bsr_median_ti);
+                            proto_item_set_generated(bsr_median_ti);
                         }
                         offset++;
 
@@ -5680,7 +5706,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
                             bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, p_buffer_size_median[buffer_size[0]]);
-                            PROTO_ITEM_SET_GENERATED(bsr_median_ti);
+                            proto_item_set_generated(bsr_median_ti);
                         }
 
                         if (buffer_size[0] >= global_mac_lte_bsr_warn_threshold) {
@@ -5699,7 +5725,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
                             bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, p_buffer_size_median[buffer_size[1]]);
-                            PROTO_ITEM_SET_GENERATED(bsr_median_ti);
+                            proto_item_set_generated(bsr_median_ti);
                         }
 
                         offset++;
@@ -5720,7 +5746,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
                             bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, p_buffer_size_median[buffer_size[2]]);
-                            PROTO_ITEM_SET_GENERATED(bsr_median_ti);
+                            proto_item_set_generated(bsr_median_ti);
                         }
 
                         offset++;
@@ -5740,7 +5766,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
                             bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, p_buffer_size_median[buffer_size[3]]);
-                            PROTO_ITEM_SET_GENERATED(bsr_median_ti);
+                            proto_item_set_generated(bsr_median_ti);
                         }
 
                         offset++;
@@ -5776,7 +5802,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     truncated_ti = proto_tree_add_uint(tree, hf_mac_lte_sch_header_only, tvb, 0, 0,
                                        is_truncated);
     if (is_truncated) {
-        PROTO_ITEM_SET_GENERATED(truncated_ti);
+        proto_item_set_generated(truncated_ti);
         expert_add_info(pinfo, truncated_ti, &ei_mac_lte_sch_header_only_truncated);
         /* Update sdu and byte count in stats */
         for (; n < number_of_headers; n++) {
@@ -5799,7 +5825,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         return;
     }
     else {
-        PROTO_ITEM_SET_HIDDEN(truncated_ti);
+        proto_item_set_hidden(truncated_ti);
     }
 
 
@@ -5843,9 +5869,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             proto_tree_add_item(dpr_tree, hf_mac_lte_control_data_vol_power_headroom_level, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(dpr_tree, hf_mac_lte_control_data_vol_power_headroom_data_vol, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
-            data_length--;
-            if (pdu_lengths[n] != -1) {
-                pdu_lengths[n]--;
+            if (pdu_lengths[n] == -1) {
+                data_length--;
             }
         }
 
@@ -5905,7 +5930,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
 
             /* Hide raw view of bytes */
-            PROTO_ITEM_SET_HIDDEN(sdu_ti);
+            proto_item_set_hidden(sdu_ti);
             rlc_called_for_sdu = TRUE;
 
             call_with_catch_all(protocol_handle, rrc_tvb, pinfo, tree);
@@ -5925,14 +5950,15 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    FALSE, p_mac_lte_info->nbMode);
 
                 /* Hide raw view of bytes */
-                PROTO_ITEM_SET_HIDDEN(sdu_ti);
+                proto_item_set_hidden(sdu_ti);
                 rlc_called_for_sdu = TRUE;
             }
         }
 
-        else if ((lcids[n] >= 2) && (lcids[n] <= 10)) {
+        else if ((lcids[n] >= 3) && (lcids[n] <= 10)) {
 
-            /* Look for mapping for this LCID to drb channel set by UAT table */
+            /* Look for mapping for this LCID to drb channel set by UAT table or through
+               configuration protocol. */
             rlc_channel_type_t rlc_channel_type;
             guint8 seqnum_length;
             gint drb_id;
@@ -5991,7 +6017,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
             if (rlc_channel_type != rlcRaw) {
                 /* Hide raw view of bytes */
-                PROTO_ITEM_SET_HIDDEN(sdu_ti);
+                proto_item_set_hidden(sdu_ti);
                 rlc_called_for_sdu = TRUE;
             }
 
@@ -6002,7 +6028,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             tvbuff_t *rrc_tvb = tvb_new_subset_length(tvb, offset, data_length);
 
             /* Hide raw view of bytes */
-            PROTO_ITEM_SET_HIDDEN(sdu_ti);
+            proto_item_set_hidden(sdu_ti);
             rlc_called_for_sdu = TRUE;
 
             call_with_catch_all(lte_rrc_sc_mcch_handle, rrc_tvb, pinfo, tree);
@@ -6039,7 +6065,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             if (cr_frame != 0) {
                 proto_item *cr_ti = proto_tree_add_uint(tree, hf_mac_lte_control_msg3_to_cr,
                                                         tvb, 0, 0, cr_frame);
-                PROTO_ITEM_SET_GENERATED(cr_ti);
+                proto_item_set_generated(cr_ti);
             }
         }
     }
@@ -6053,7 +6079,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
                                                tvb, offset, 0,
                                                p_mac_lte_info->length - offset);
-        PROTO_ITEM_SET_GENERATED(padding_length_ti);
+        proto_item_set_generated(padding_length_ti);
 
         /* Update padding bytes in stats */
         tap_info->padding_bytes += (p_mac_lte_info->length - offset);
@@ -6125,7 +6151,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     /* Add hidden item to filter on */
     hidden_root_ti = proto_tree_add_string_format(tree, hf_mac_lte_mch, tvb,
                                                   offset, 0, "", "Hidden header");
-    PROTO_ITEM_SET_HIDDEN(hidden_root_ti);
+    proto_item_set_hidden(hidden_root_ti);
 
     /* Add PDU block header subtree */
     pdu_header_ti = proto_tree_add_string_format(tree, hf_mac_lte_mch_header,
@@ -6425,12 +6451,12 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     truncated_ti = proto_tree_add_uint(tree, hf_mac_lte_mch_header_only, tvb, 0, 0,
                                        is_truncated);
     if (is_truncated) {
-        PROTO_ITEM_SET_GENERATED(truncated_ti);
+        proto_item_set_generated(truncated_ti);
         expert_add_info(pinfo, truncated_ti, &ei_mac_lte_mch_header_only_truncated);
         return;
     }
     else {
-        PROTO_ITEM_SET_HIDDEN(truncated_ti);
+        proto_item_set_hidden(truncated_ti);
     }
 
 
@@ -6489,7 +6515,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
                                                tvb, offset, 0,
                                                p_mac_lte_info->length - offset);
-        PROTO_ITEM_SET_GENERATED(padding_length_ti);
+        proto_item_set_generated(padding_length_ti);
 
         /* Make sure the PDU isn't bigger than reported! */
         if (offset > p_mac_lte_info->length) {
@@ -6539,7 +6565,7 @@ static void dissect_sl_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
 
         /* Hide raw view of bytes */
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
 
         call_with_catch_all(lte_rrc_sbcch_sl_bch_handle, rrc_tvb, pinfo, tree);
     }
@@ -6682,8 +6708,8 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 guint32 format;
 
                 /* F(ormat) bit tells us how long the length field is */
-                proto_tree_add_item_ret_uint(pdu_subheader_tree, hf_mac_lte_slsch_format,
-                                             tvb, offset, 1, ENC_BIG_ENDIAN, &format);
+                proto_tree_add_item_ret_boolean(pdu_subheader_tree, hf_mac_lte_slsch_format,
+                                                tvb, offset, 1, ENC_BIG_ENDIAN, &format);
 
                 /* Now read length field itself */
                 if (format) {
@@ -6795,11 +6821,11 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     truncated_ti = proto_tree_add_uint(tree, hf_mac_lte_slsch_header_only, tvb, 0, 0,
                                        is_truncated);
     if (is_truncated) {
-        PROTO_ITEM_SET_GENERATED(truncated_ti);
+        proto_item_set_generated(truncated_ti);
         expert_add_info(pinfo, truncated_ti, &ei_mac_lte_slsch_header_only_truncated);
         return;
     } else {
-        PROTO_ITEM_SET_HIDDEN(truncated_ti);
+        proto_item_set_hidden(truncated_ti);
     }
 
 
@@ -6845,7 +6871,7 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
                                                tvb, offset, 0,
                                                p_mac_lte_info->length - offset);
-        PROTO_ITEM_SET_GENERATED(padding_length_ti);
+        proto_item_set_generated(padding_length_ti);
 
         /* Make sure the PDU isn't bigger than reported! */
         if (offset > p_mac_lte_info->length) {
@@ -6923,20 +6949,48 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     context_ti = proto_tree_add_string_format(mac_lte_tree, hf_mac_lte_context,
                                               tvb, offset, 0, "", "Context");
     context_tree = proto_item_add_subtree(context_ti, ett_mac_lte_context);
-    PROTO_ITEM_SET_GENERATED(context_ti);
+    proto_item_set_generated(context_ti);
 
     ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_radio_type,
                              tvb, 0, 0, p_mac_lte_info->radioType);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_direction,
                              tvb, 0, 0, p_mac_lte_info->direction);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     if (p_mac_lte_info->ueid != 0) {
         ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_ueid,
                                  tvb, 0, 0, p_mac_lte_info->ueid);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
+    }
+
+    if(p_mac_lte_info->sfnSfInfoPresent) {
+        ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_sysframe_number,
+                                 tvb, 0, 0, p_mac_lte_info->sysframeNumber);
+        proto_item_set_generated(ti);
+        if (p_mac_lte_info->sysframeNumber > 1023) {
+            expert_add_info_format(pinfo, ti, &ei_mac_lte_context_sysframe_number,
+                                   "Sysframe number (%u) out of range - valid range is 0-1023",
+                                   p_mac_lte_info->sysframeNumber);
+        }
+
+        ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_subframe_number,
+                                 tvb, 0, 0, p_mac_lte_info->subframeNumber);
+        proto_item_set_generated(ti);
+        if (p_mac_lte_info->subframeNumber > 9) {
+            /* N.B. if we set it to valid value, it won't trigger when we rescan
+               (at least with DCT2000 files where the context struct isn't re-read). */
+            expert_add_info_format(pinfo, ti, &ei_mac_lte_context_sysframe_number,
+                                   "Subframe number (%u) out of range - valid range is 0-9",
+                                   p_mac_lte_info->subframeNumber);
+        }
+
+        if (p_mac_lte_info->subframeNumberOfGrantPresent) {
+            ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_grant_subframe_number,
+                                     tvb, 0, 0, p_mac_lte_info->subframeNumberOfGrant);
+            proto_item_set_generated(ti);
+        }
     }
 
     /* There are several out-of-band MAC events that may be indicated in the context info. */
@@ -6951,15 +7005,15 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                 preamble_ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_send_preamble,
                                                   tvb, 0, 0, ENC_ASCII|ENC_NA);
                 preamble_tree = proto_item_add_subtree(preamble_ti, ett_mac_lte_oob);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
 
                 ti = proto_tree_add_uint(preamble_tree, hf_mac_lte_context_rapid,
                                          tvb, 0, 0, p_mac_lte_info->rapid);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
 
                 ti = proto_tree_add_uint(preamble_tree, hf_mac_lte_context_rach_attempt_number,
                                          tvb, 0, 0, p_mac_lte_info->rach_attempt_number);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
 
                 rapid_description = get_mac_lte_rapid_description(p_mac_lte_info->rapid);
 
@@ -6982,7 +7036,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                     /* Count of SRs */
                     ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_number_of_srs,
                                              tvb, 0, 0, p_mac_lte_info->number_of_srs);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
 
 
                 for (n=0; n < p_mac_lte_info->number_of_srs; n++) {
@@ -6994,17 +7048,17 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                                                 tvb, 0, 0,
                                                 "Scheduling Request sent for UE %u (RNTI %u)", p_mac_lte_info->oob_ueid[n], p_mac_lte_info->oob_rnti[n]);
                     sr_tree = proto_item_add_subtree(sr_ti, ett_mac_lte_oob);
-                    PROTO_ITEM_SET_GENERATED(sr_ti);
+                    proto_item_set_generated(sr_ti);
 
                     /* RNTI */
                     ti = proto_tree_add_uint(sr_tree, hf_mac_lte_context_rnti,
                                              tvb, 0, 0, p_mac_lte_info->oob_rnti[n]);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
 
                     /* UEID */
                     ti = proto_tree_add_uint(sr_tree, hf_mac_lte_context_ueid,
                                              tvb, 0, 0, p_mac_lte_info->oob_ueid[n]);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
 
                     /* Add summary to root. */
                     proto_item_append_text(sr_ti, " (UE=%u C-RNTI=%u)",
@@ -7012,12 +7066,25 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                                            p_mac_lte_info->oob_rnti[n]);
 
                     /* Info column */
-                    if (n == 0) {
-                        write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                                                "Scheduling Requests (%u) sent: (UE=%u C-RNTI=%u)",
-                                                p_mac_lte_info->number_of_srs,
-                                                p_mac_lte_info->oob_ueid[n],
-                                                p_mac_lte_info->oob_rnti[n]);
+
+                    if(n == 0) {
+                        if (p_mac_lte_info->sfnSfInfoPresent) {
+                            write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                                    "Scheduling Requests (%u) sent (SFN=%-4u, SF=%u): (UE=%u C-RNTI=%u)",
+                                                    p_mac_lte_info->number_of_srs,
+                                                    p_mac_lte_info->sysframeNumber,
+                                                    p_mac_lte_info->subframeNumber,
+                                                    p_mac_lte_info->oob_ueid[n],
+                                                    p_mac_lte_info->oob_rnti[n]
+                                                    );
+                        }
+                        else {
+                            write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                                    "Scheduling Requests (%u) sent: (UE=%u C-RNTI=%u)",
+                                                    p_mac_lte_info->number_of_srs,
+                                                    p_mac_lte_info->oob_ueid[n],
+                                                    p_mac_lte_info->oob_rnti[n]);
+                        }
                     }
                     else {
                         write_pdu_label_and_info(pdu_ti, NULL, pinfo,
@@ -7035,12 +7102,12 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             case ltemac_sr_failure:
                 ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti,
                                          tvb, 0, 0, p_mac_lte_info->rnti);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
 
                 proto_tree_add_expert_format(mac_lte_tree, pinfo, &ei_mac_lte_oob_sr_failure,
                                          tvb, 0, 0, "Scheduling Request failed for UE %u (RNTI %u)",
                                          p_mac_lte_info->ueid, p_mac_lte_info->rnti);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
 
                 /* Info column */
                 write_pdu_label_and_info(pdu_ti, NULL, pinfo,
@@ -7061,43 +7128,17 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     }
 
     /* Show remaining meta information */
-    ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_sysframe_number,
-                             tvb, 0, 0, p_mac_lte_info->sysframeNumber);
-    PROTO_ITEM_SET_GENERATED(ti);
-    if (p_mac_lte_info->sysframeNumber > 1023) {
-        expert_add_info_format(pinfo, ti, &ei_mac_lte_context_sysframe_number,
-                               "Sysframe number (%u) out of range - valid range is 0-1023",
-                               p_mac_lte_info->sysframeNumber);
-    }
-
-    ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_subframe_number,
-                             tvb, 0, 0, p_mac_lte_info->subframeNumber);
-    PROTO_ITEM_SET_GENERATED(ti);
-    if (p_mac_lte_info->subframeNumber > 9) {
-        /* N.B. if we set it to valid value, it won't trigger when we rescan
-           (at least with DCT2000 files where the context struct isn't re-read). */
-        expert_add_info_format(pinfo, ti, &ei_mac_lte_context_sysframe_number,
-                               "Subframe number (%u) out of range - valid range is 0-9",
-                               p_mac_lte_info->subframeNumber);
-    }
-
-    if (p_mac_lte_info->subframeNumberOfGrantPresent) {
-        ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_grant_subframe_number,
-                                 tvb, 0, 0, p_mac_lte_info->subframeNumberOfGrant);
-        PROTO_ITEM_SET_GENERATED(ti);
-    }
-
     if (p_mac_lte_info->rntiType != NO_RNTI) {
         ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti,
                                  tvb, 0, 0, p_mac_lte_info->rnti);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         proto_item_append_text(context_ti, " (RNTI=%u)", p_mac_lte_info->rnti);
     }
 
 
     ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti_type,
                              tvb, 0, 0, p_mac_lte_info->rntiType);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Check that RNTI value is consistent with given RNTI type */
     switch (p_mac_lte_info->rntiType) {
@@ -7153,20 +7194,20 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_predefined_frame,
                              tvb, 0, 0, p_mac_lte_info->isPredefinedData);
     if (p_mac_lte_info->isPredefinedData) {
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
     else {
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
     }
 
     ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_length,
                              tvb, 0, 0, p_mac_lte_info->length);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     /* Infer uplink grant size */
     if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
         ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_ul_grant_size,
                                  tvb, 0, 0, p_mac_lte_info->length);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     /* Retx count goes in top-level tree to make it more visible */
@@ -7174,7 +7215,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         proto_item *retx_reason_ti;
         retx_ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_retx_count,
                                  tvb, 0, 0, p_mac_lte_info->reTxCount);
-        PROTO_ITEM_SET_GENERATED(retx_ti);
+        proto_item_set_generated(retx_ti);
 
         if (p_mac_lte_info->reTxCount >= global_mac_lte_retx_counter_trigger) {
             if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
@@ -7191,14 +7232,14 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
         retx_reason_ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_retx_reason,
                                              tvb, 0, 0, p_mac_lte_info->isPHICHNACK);
-        PROTO_ITEM_SET_GENERATED(retx_reason_ti);
+        proto_item_set_generated(retx_reason_ti);
     }
 
     if (p_mac_lte_info->crcStatusValid) {
         /* Set status */
         ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_crc_status,
                                  tvb, 0, 0, p_mac_lte_info->crcStatus);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Report non-success */
         if (p_mac_lte_info->crcStatus != crc_success) {
@@ -7224,7 +7265,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     /* Carrier Id */
     ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_carrier_id,
                              tvb, 0, 0, p_mac_lte_info->carrierId);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* May also have extra Physical layer attributes set for this frame */
     show_extra_phy_parameters(pinfo, tvb, mac_lte_tree, p_mac_lte_info);
@@ -7253,14 +7294,14 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                                                       tvb, offset, 0,
                                                       "",
                                                       "Hidden header");
-        PROTO_ITEM_SET_HIDDEN(hidden_root_ti);
+        proto_item_set_hidden(hidden_root_ti);
     } else if (p_mac_lte_info->rntiType == SL_RNTI) {
         hidden_root_ti = proto_tree_add_string_format(tree,
                                                       hf_mac_lte_slsch,
                                                       tvb, offset, 0,
                                                       "",
                                                       "Hidden header");
-        PROTO_ITEM_SET_HIDDEN(hidden_root_ti);
+        proto_item_set_hidden(hidden_root_ti);
     }
 
     /* Also set total number of bytes (won't be used for UL/DL-SCH) */
@@ -9684,7 +9725,7 @@ void proto_reg_handoff_mac_lte(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

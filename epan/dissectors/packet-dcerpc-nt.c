@@ -21,7 +21,6 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 
 int hf_nt_cs_len = -1;
@@ -403,8 +402,8 @@ dissect_nt_GUID(tvbuff_t *tvb, int offset,
 int
 dissect_ndr_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, guint32 param, int hfindex)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 	int old_offset;
 	header_field_info *hf_info;
 
@@ -413,9 +412,7 @@ dissect_ndr_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	old_offset = offset;
 	hf_info=proto_registrar_get_nth(hfindex);
 
-	if (parent_tree) {
-		tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 0, ett_lsa_String, &item, "%s: ", hf_info->name);
-	}
+	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 0, ett_lsa_String, &item, "%s: ", hf_info->name);
 
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsa_String_name_len, 0);
 
@@ -661,7 +658,7 @@ void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 	 * has been completely constructed.  If we've already seen this
 	 * frame, there's nothing to do.
 	 */
-	if (pinfo->fd->flags.visited)
+	if (pinfo->fd->visited)
 		return;
 
 	if (is_null_pol(policy_hnd))
@@ -732,7 +729,7 @@ static void dcerpc_store_polhnd_type(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 	 * has been completely constructed.  If we've already seen this
 	 * frame, there's nothing to do.
 	 */
-	if (pinfo->fd->flags.visited)
+	if (pinfo->fd->visited)
 		return;
 
 	if (is_null_pol(policy_hnd))
@@ -761,7 +758,7 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 	 * has been completely constructed.  If we've already seen this
 	 * frame, there's nothing to do.
 	 */
-	if (pinfo->fd->flags.visited)
+	if (pinfo->fd->visited)
 		return;
 
 	if (is_null_pol(policy_hnd))
@@ -778,7 +775,7 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 		if (pol->name && name) {
 #ifdef DEBUG_HASH_COLL
 			if (strcmp(pol->name, name) != 0)
-				ws_g_warning("dcerpc_smb: pol_hash name collision %s/%s\n", value->name, name);
+				g_warning("dcerpc_smb: pol_hash name collision %s/%s\n", value->name, name);
 #endif
 			/* pol->name is wmem_file_scope() allocated, don't free it now */
 		}
@@ -981,14 +978,14 @@ dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			item_local=proto_tree_add_uint(
 				subtree, hf_nt_policy_open_frame, tvb,
 				old_offset, sizeof(e_ctx_hnd), open_frame);
-			PROTO_ITEM_SET_GENERATED(item_local);
+			proto_item_set_generated(item_local);
 		}
 		if (close_frame) {
 			proto_item *item_local;
 			item_local=proto_tree_add_uint(
 				subtree, hf_nt_policy_close_frame, tvb,
 				old_offset, sizeof(e_ctx_hnd), close_frame);
-			PROTO_ITEM_SET_GENERATED(item_local);
+			proto_item_set_generated(item_local);
 		}
 
 		/*
@@ -1058,7 +1055,7 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	 * actual object  so just show it as <...> for the time being.
 	 */
 	if((param&PIDL_POLHND_OPEN)
-	&& !pinfo->fd->flags.visited
+	&& !pinfo->fd->visited
 	&& !di->conformant_run){
 		char *pol_string=NULL;
 		const char *pol_name=NULL;
@@ -1075,7 +1072,7 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	}
 
 	/* Track this policy handle for the response */
-	if(!pinfo->fd->flags.visited
+	if(!pinfo->fd->visited
 	&& !di->conformant_run){
 		dcerpc_call_value *dcv;
 
@@ -1117,10 +1114,8 @@ dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
 	data = (const guint8 *)tvb_get_ptr(tvb, offset, length);
 
-	if (tree) {
-		/* This should be an FT_BYTES, so the byte order should not matter */
-		proto_tree_add_item (tree, hfindex, tvb, offset, length, ENC_NA);
-	}
+	/* This should be an FT_BYTES, so the byte order should not matter */
+	proto_tree_add_item (tree, hfindex, tvb, offset, length, ENC_NA);
 
 	if (pdata)
 		*pdata = data;
@@ -1148,14 +1143,12 @@ dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 		       proto_tree *tree, guint8 *drep, int hfindex,
 		       int length)
 {
-	if (tree) {
-		/* These are FT_BYTES fields, so the byte order should not matter;
-		   however, perhaps there should be an FT_HEXADECTETS type,
-		   or something such as that, with each pair of octets
-		   displayed as a single unit, in which case the byte order
-		   would matter, so we'll calculate the byte order here.  */
-		proto_tree_add_item (tree, hfindex, tvb, offset, length * 2, DREP_ENC_INTEGER(drep));
-	}
+	/* These are FT_BYTES fields, so the byte order should not matter;
+	   however, perhaps there should be an FT_HEXADECTETS type,
+	   or something such as that, with each pair of octets
+	   displayed as a single unit, in which case the byte order
+	   would matter, so we'll calculate the byte order here.  */
+	proto_tree_add_item (tree, hfindex, tvb, offset, length * 2, DREP_ENC_INTEGER(drep));
 
 	return offset + length * 2;
 }
@@ -1485,14 +1478,12 @@ dissect_ndr_nt_PSID(tvbuff_t *tvb, int offset,
 		    packet_info *pinfo, proto_tree *parent_tree,
 		    dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 	int old_offset=offset;
 
-	if(parent_tree){
-		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
 			ett_nt_sid_pointer, &item, "SID pointer:");
-	}
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			dissect_ndr_nt_SID_hf_through_ptr, NDR_POINTER_UNIQUE,
@@ -1609,14 +1600,12 @@ dissect_LOGON_HOURS_hours(tvbuff_t *tvb, int offset,
 			  packet_info *pinfo, proto_tree *parent_tree,
 			  dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 	int old_offset=offset;
 
-	if(parent_tree){
-		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
 			ett_nt_logon_hours_hours, &item, "LOGON_HOURS:");
-	}
 
 	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep,
 			dissect_LOGON_HOURS_entry);
@@ -1633,16 +1622,14 @@ dissect_ndr_nt_LOGON_HOURS(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 	int old_offset=offset;
 
 	ALIGN_TO_4_BYTES;  /* strcture starts with short, but is aligned for longs */
 
-	if(parent_tree){
-		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
 			ett_nt_logon_hours, &item, "LOGON_HOURS:");
-	}
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep,
 				hf_logonhours_divisions, NULL);
@@ -1685,14 +1672,12 @@ dissect_ndr_nt_PSID_ARRAY(tvbuff_t *tvb, int offset,
 			dcerpc_info *di, guint8 *drep)
 {
 	guint32 count;
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 	int old_offset=offset;
 
-	if(parent_tree){
-		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
 			ett_nt_sid_array, &item, "SID array:");
-	}
 
 	ALIGN_TO_5_BYTES;
 
@@ -1719,13 +1704,11 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 
-	if(parent_tree){
-		tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
 			ett_nt_sid_and_attributes, &item, "SID_AND_ATTRIBUTES:");
-	}
 
 	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, di, drep);
 
@@ -1742,14 +1725,12 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 	int old_offset=offset;
 
-	if(parent_tree){
-		tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
 			ett_nt_sid_and_attributes_array, &item, "SID_AND_ATTRIBUTES array:");
-	}
 
 	/*offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
 	  hf_samr_count, &count); */
@@ -2002,7 +1983,7 @@ void dcerpc_smb_init(int proto_dcerpc)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -154,7 +154,7 @@ msrp_add_address( packet_info *pinfo,
      * we've already done this work, so we don't need to do it
      * again.
      */
-    if (pinfo->fd->flags.visited)
+    if (pinfo->fd->visited)
     {
         return;
     }
@@ -248,17 +248,17 @@ show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                        "Stream setup by %s (frame %u)",
                                                        p_conv_data->setup_method,
                                                        p_conv_data->setup_frame_number);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         msrp_setup_tree = proto_item_add_subtree(ti, ett_msrp_setup);
         if (msrp_setup_tree)
         {
             /* Add details into subtree */
             proto_item* item = proto_tree_add_uint(msrp_setup_tree, hf_msrp_setup_frame,
                                                    tvb, 0, 0, p_conv_data->setup_frame_number);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
             item = proto_tree_add_string(msrp_setup_tree, hf_msrp_setup_method,
                                          tvb, 0, 0, p_conv_data->setup_method);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
     }
 }
@@ -412,7 +412,7 @@ dissect_msrp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         /*
          * TODO Set up conversation here
          */
-        if (pinfo->fd->flags.visited){
+        if (pinfo->fd->visited){
             /* Look for existing conversation */
             conversation = find_or_create_conversation(pinfo);
             /* Set dissector */
@@ -457,7 +457,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     int found_match = 0;
     gint content_type_len, content_type_parameter_str_len;
     gchar *media_type_str_lower_case = NULL;
-    http_message_info_t message_info = { HTTP_OTHERS, NULL };
+    http_message_info_t message_info = { HTTP_OTHERS, NULL, NULL, NULL };
     tvbuff_t *next_tvb;
     gint parameter_offset;
     gint semi_colon_offset;
@@ -930,7 +930,7 @@ proto_reg_handoff_msrp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -149,8 +149,8 @@ static gboolean empty_line(const gchar *line);
 static gint64 cosine_seek_next_packet(wtap *wth, int *err, gchar **err_info,
 	char *hdr);
 static gboolean cosine_check_file_type(wtap *wth, int *err, gchar **err_info);
-static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
-	gint64 *data_offset);
+static gboolean cosine_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+	int *err, gchar **err_info, gint64 *data_offset);
 static gboolean cosine_seek_read(wtap *wth, gint64 seek_off,
 	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static int parse_cosine_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
@@ -229,8 +229,7 @@ static gboolean cosine_check_file_type(wtap *wth, int *err, gchar **err_info)
 		}
 
 		reclen = strlen(buf);
-		if (reclen < strlen(COSINE_HDR_MAGIC_STR1) ||
-			reclen < strlen(COSINE_HDR_MAGIC_STR2)) {
+		if (reclen < MIN(strlen(COSINE_HDR_MAGIC_STR1), strlen(COSINE_HDR_MAGIC_STR2))) {
 			continue;
 		}
 
@@ -267,8 +266,8 @@ wtap_open_return_val cosine_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean cosine_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	gint64	offset;
 	char	line[COSINE_LINE_LENGTH];
@@ -280,8 +279,7 @@ static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
 	*data_offset = offset;
 
 	/* Parse the header and convert the ASCII hex dump to binary data */
-	return parse_cosine_packet(wth->fh, &wth->rec, wth->rec_data,
-	    line, err, err_info);
+	return parse_cosine_packet(wth->fh, rec, buf, line, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
@@ -479,7 +477,7 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -499,7 +499,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 conversation_add_proto_data(conversation, proto_pana, pana_info);
         }
 
-        if(!pinfo->fd->flags.visited){
+        if(!pinfo->fd->visited){
                 if(flags&PANA_FLAG_R){
                         /* This is a request */
                         pana_trans=wmem_new(wmem_file_scope(), pana_transaction_t);
@@ -532,7 +532,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         proto_item *it;
 
                         it=proto_tree_add_uint(pana_tree, hf_pana_response_in, tvb, 0, 0, pana_trans->rep_frame);
-                        PROTO_ITEM_SET_GENERATED(it);
+                        proto_item_set_generated(it);
                 }
         } else {
                 /* This is a reply */
@@ -541,11 +541,11 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         nstime_t ns;
 
                         it=proto_tree_add_uint(pana_tree, hf_pana_response_to, tvb, 0, 0, pana_trans->req_frame);
-                        PROTO_ITEM_SET_GENERATED(it);
+                        proto_item_set_generated(it);
 
                         nstime_delta(&ns, &pinfo->abs_ts, &pana_trans->req_time);
                         it=proto_tree_add_time(pana_tree, hf_pana_response_time, tvb, 0, 0, &ns);
-                        PROTO_ITEM_SET_GENERATED(it);
+                        proto_item_set_generated(it);
                 }
         }
 
@@ -883,7 +883,7 @@ proto_reg_handoff_pana(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

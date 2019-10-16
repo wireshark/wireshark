@@ -104,7 +104,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U
 			/* No, so just return the rest of the current packet */
 			return tvb_captured_length(tvb);
 		}
-		if(!pinfo->fd->flags.visited){
+		if(!pinfo->fd->visited){
 			/*
 			 * Do we have a state structure for this transaction
 			 */
@@ -206,7 +206,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 		conversation_add_proto_data(conversation, proto_nbd, nbd_info);
 	}
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		if(magic==NBD_REQUEST_MAGIC){
 			/* This is a request */
 			nbd_trans=wmem_new(wmem_file_scope(), nbd_transaction_t);
@@ -281,7 +281,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			proto_item *it;
 
 			it=proto_tree_add_uint(tree, hf_nbd_response_in, tvb, 0, 0, nbd_trans->rep_frame);
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 		}
 	} else if(magic==NBD_RESPONSE_MAGIC){
 		/* This is a reply */
@@ -290,11 +290,11 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			nstime_t ns;
 
 			it=proto_tree_add_uint(tree, hf_nbd_response_to, tvb, 0, 0, nbd_trans->req_frame);
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 
 			nstime_delta(&ns, &pinfo->abs_ts, &nbd_trans->req_time);
 			it=proto_tree_add_time(tree, hf_nbd_time, tvb, 0, 0, &ns);
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 		}
 	}
 
@@ -332,7 +332,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		break;
 	case NBD_RESPONSE_MAGIC:
 		item=proto_tree_add_uint(tree, hf_nbd_type, tvb, 0, 0, nbd_trans->type);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 
 		error=tvb_get_ntohl(tvb, offset);
 		proto_tree_add_item(tree, hf_nbd_error, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -462,7 +462,7 @@ proto_reg_handoff_nbd(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

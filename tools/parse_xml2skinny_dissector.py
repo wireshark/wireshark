@@ -6,14 +6,14 @@
 # Skinny Protocol Versions: 0 through 22
 #
 # Heritage:
-# xml2obj based on http://code.activestate.com/recipes/149368-xml2obj/
+# xml2obj based on https://code.activestate.com/recipes/149368-xml2obj/
 #
 # Dependencies:
 # python / xml / sax
 #
 # Called By:
 # cog.py + packet-skinny.c.in for inplace code generation
-# See: http://nedbatchelder.com/code/cog/
+# See: https://nedbatchelder.com/code/cog/
 #
 #
 # SPDX-License-Identifier: GPL-2.0-or-later

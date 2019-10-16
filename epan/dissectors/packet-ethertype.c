@@ -45,7 +45,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_EPL_V1,               "EPL_V1" },
 	{ ETHERTYPE_REVARP,               "RARP" },
 	{ ETHERTYPE_DEC_LB,               "DEC LanBridge" },
-	{ ETHERTYPE_ATALK,                "Appletalk" },
+	{ ETHERTYPE_ATALK,                "AppleTalk LLAP bridging" },
 	{ ETHERTYPE_SNA,                  "SNA-over-Ethernet" },
 	{ ETHERTYPE_DLR,                  "EtherNet/IP Device Level Ring" },
 	{ ETHERTYPE_AARP,                 "AARP" },
@@ -133,6 +133,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_VMLAB,                "VMware Lab Manager" },
 	{ ETHERTYPE_COBRANET,             "Cirrus Cobranet Packet" },
 	{ ETHERTYPE_NSRP,                 "Juniper Netscreen Redundant Protocol" },
+	{ ETHERTYPE_EERO,                 "EERO Broadcast Packet" },
 	/*
 	 * NDISWAN on Windows translates Ethernet frames from higher-level
 	 * protocols into PPP frames to hand to the PPP driver, and translates
@@ -173,12 +174,15 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_HSR,                  "High-availability Seamless Redundancy (IEC62439 Part 3)" },
 	{ ETHERTYPE_BPQ,                  "AX.25" },
 	{ ETHERTYPE_CMD,                  "CiscoMetaData" },
+	{ ETHERTYPE_GEONETWORKING,       "GeoNetworking" },
 	{ ETHERTYPE_XIP,                  "eXpressive Internet Protocol" },
 	{ ETHERTYPE_NWP,                  "Neighborhood Watch Protocol" },
 	{ ETHERTYPE_BLUECOM,              "bluecom Protocol" },
 	{ ETHERTYPE_QINQ_OLD,             "QinQ: old non-standard 802.1ad" },
 	{ ETHERTYPE_6LOWPAN,              "6LoWPAN" },
 	{ ETHERTYPE_AVSP,                 "Arista Timestamp" },
+	{ ETHERTYPE_ECPRI,                "eCPRI" },
+	{ ETHERTYPE_CABLELABS,            "CableLabs Layer-3 Protocol" },
 	{ 0, NULL }
 };
 
@@ -340,7 +344,7 @@ proto_register_ethertype(void)
 	/* Decode As handling */
 	static build_valid_func eth_da_build_value[1] = {eth_value};
 	static decode_as_value_t eth_da_values = {eth_prompt, 1, eth_da_build_value};
-	static decode_as_t ethertype_da = {"ethertype", "Link", "ethertype", 1, 0, &eth_da_values, NULL, NULL,
+	static decode_as_t ethertype_da = {"ethertype", "ethertype", 1, 0, &eth_da_values, NULL, NULL,
 										decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
 
@@ -359,7 +363,7 @@ proto_register_ethertype(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

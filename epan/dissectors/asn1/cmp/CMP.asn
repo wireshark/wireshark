@@ -10,13 +10,13 @@
 -- follows below:
 --
 -- Full Copyright Statement
--- 
+--
 --    Copyright (C) The Internet Society (2005).
--- 
+--
 --    This document is subject to the rights, licenses and restrictions
 --    contained in BCP 78, and except as set forth therein, the authors
 --    retain all their rights.
--- 
+--
 --    This document and the information contained herein are provided on an
 --    "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
 --    OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
@@ -38,7 +38,7 @@
      IMPORTS
 
          Certificate, CertificateList, Extensions, AlgorithmIdentifier --,
-         -- UTF8String 
+         -- UTF8String
 	 -- if required; otherwise, comment out
                 FROM PKIX1Explicit88 {iso(1) identified-organization(3)
                 dod(6) internet(1) security(5) mechanisms(5) pkix(7)
@@ -145,9 +145,7 @@
          ip       [1]  CertRepMessage,         --Initialization Response
          cr       [2]  CertReqMessages,        --Certification Request
          cp       [3]  CertRepMessage,         --Certification Response
-         -- p10cr    [4]  CertificationRequest,   
-	   --imported from [PKCS10]
-         p10cr    [4]  NULL, -- added for Wireshark to avoid miscounting of the branch_taken
+         p10cr    [4]  CertificationRequest,   --imported from [PKCS10]
          popdecc  [5]  POPODecKeyChallContent, --pop Challenge
          popdecr  [6]  POPODecKeyRespContent,  --pop Response
          kur      [7]  CertReqMessages,        --Key Update Request

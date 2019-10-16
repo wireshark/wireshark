@@ -24,7 +24,7 @@ set(NSIS_FILES
 	GetWindowsVersion.nsh
 	servicelib.nsh
 	AdditionalTasksPage.ini
-	WinPcapPage.ini
+	NpcapPage.ini
 	USBPcapPage.ini
 	${NSIS_GENERATED_FILES}
 	PARENT_SCOPE
@@ -35,32 +35,26 @@ set(PROGRAM_NAME ${CMAKE_PROJECT_NAME})
 file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}" TOP_SRC_DIR)
 # STAGING_DIR depends on the build configuration so we pass it
 # on the command line below.
-file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/docbook" USER_GUIDE_DIR)
-if ("${WIRESHARK_TARGET_PLATFORM}" STREQUAL "win32")
+file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/docbook" DOCBOOK_DIR)
+if(WIRESHARK_TARGET_PLATFORM STREQUAL "win32")
         set(TARGET_MACHINE x86)
-elseif ("${WIRESHARK_TARGET_PLATFORM}" STREQUAL "win64")
+elseif(WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
         set(TARGET_MACHINE x64)
 else()
         message(FATAL_ERROR "Your mysterious moon-man architecture \"${WIRESHARK_TARGET_PLATFORM}\" frightens and confuses us.")
 endif()
 set (MMDBRESOLVE_EXE ${MAXMINDDB_FOUND})
 
-# Path to the WinPcap installer.
-# XXX Come up with a better variable, e.g. cache WIRESHARK_LIB_DIR in FindWSWinLibs.
-file(TO_NATIVE_PATH "${GLIB2_DLL_DIR}/../.." _wireshark_lib_dir)
-set(WIRESHARK_LIB_DIR "${_wireshark_lib_dir}")
+# Must match ${EXTRA_INSTALLER_DIR}/Npcap-X.Y.Z.exe
+set(NPCAP_PACKAGE_VERSION "0.9983")
 
-# Must match ${WIRESHARK_LIB_DIR}/WinPcap_X_Y_Z.exe
-set(WINPCAP_PACKAGE_VERSION ${WINPCAP_VERSION})
-string(REPLACE "_" "." PCAP_DISPLAY_VERSION "${WINPCAP_PACKAGE_VERSION}")
-
-set(USBPCAP_DISPLAY_VERSION "1.2.0.3")
+set(USBPCAP_PACKAGE_VERSION "1.5.3.0")
 
 set(PRODUCT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.${PROJECT_BUILD_VERSION})
 
 # To do:
 # - Sync the various version names between CMake and NSIS.
-# - Set CMakeLists.txt version strings in make-version.pl
+# - Set CMakeLists.txt version strings in tools/make-version.pl
 # - Add a VERSION_EXTRA cmake option
 set (VERSION "${PROJECT_VERSION}")
 set (PRODUCT_VERSION=${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}.${VERSION_BUILD})
@@ -80,28 +74,49 @@ endif()
 # - %VCINSTALLDIR%
 # - %VCINSTALLDIR%/redist/1033 (<= Visual Studio 2015)
 # - %VCINSTALLDIR%/Redist/MSVC/* (>= Visual Studio 2017)
-# MSVC_VERSION
-# 1200 = VS  6.0
-# 1300 = VS  7.0
-# 1310 = VS  7.1
-# 1400 = VS  8.0
-# 1500 = VS  9.0
-# 1600 = VS 10.0
-# 1700 = VS 11.0
-# 1800 = VS 12.0
-# 1900 = VS 14.0
-# 1910 = VS 15.0
+# MSVC_VERSION (_MSC_VER) = Visual Studio Version / MSVC Toolset Version
+# 1900 = VS2015 14.0        / 14.00
+# 1910 = VS2017 15.1, 15.2  / 14.10
+# 1911 = VS2017 15.3, 15.4  / 14.11
+# 1912 = VS2017 15.5        / 14.12
+# 1913 = VS2017 15.6        / 14.13
+# 1914 = VS2017 15.7        / 14.14
 set(_vcredist_name "vcredist_${TARGET_MACHINE}.exe")
-if(MSVC_VERSION GREATER_EQUAL 1910)
+if(MSVC_VERSION GREATER_EQUAL 1920)
+	set(_ws_vcredist_subdir "vcredist_MSVC2019")
+	set(_msvs_version 15.0) # Doesn't appear to be set
+elseif(MSVC_VERSION GREATER_EQUAL 1910)
 	set(_ws_vcredist_subdir "vcredist_MSVC2017")
-	set(_ms_vcredist_subdir "Redist/MSVC/14.10.25008")
+	set(_msvs_version 15.0)
 elseif(MSVC_VERSION GREATER_EQUAL 1900)
 	set(_ws_vcredist_subdir "vcredist_MSVC2015")
 	set(_ms_vcredist_subdir "redist/1033")
+	set(_msvs_version 14.0)
+endif()
+
+# Try to find the Redist folder in VCINSTALLDIR which is set by vcvarsall.bat.
+# If it is not set, query it within the registry. VS2015 looks for the "VC7" key
+# in two locations (four if you count HKCU instead of HKLM). However, VS2017
+# does not use "VC7" (it sets a directory relative to vsdevcmd_start.bat). As
+# both versions do set "VS7", use that instead.
+find_path(VCINSTALLDIR Redist PATHS
+	"$ENV{VCINSTALLDIR}"
+	"[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7;${_msvs_version}]\\VC"
+	"[HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\SxS\\VS7;${_msvs_version}]\\VC"
+	NO_DEFAULT_PATH
+)
+file(TO_NATIVE_PATH "${VCINSTALLDIR}" VCINSTALLDIR_NATIVE)
+message(STATUS "Using VCINSTALLDIR: ${VCINSTALLDIR_NATIVE}")
+
+# Visual Studio Community 2017 version 15.7.5 uses VCRT 14.14.26405, but an
+# earlier version used 14.10.25008. Let's just glob for the right value.
+if(MSVC_VERSION GREATER_EQUAL 1910 AND VCINSTALLDIR)
+	file(GLOB _ms_vcredist_subdir RELATIVE "${VCINSTALLDIR}"
+		"${VCINSTALLDIR}/Redist/MSVC/14.*.*")
 endif()
 
 find_program(VCREDIST_EXE "${_vcredist_name}"
-	PATHS "${_PROJECT_LIB_DIR}" $ENV{VCToolsRedistDir} $ENV{VCINSTALLDIR}
+	PATHS "${_PROJECT_LIB_DIR}" $ENV{VCToolsRedistDir} "${VCINSTALLDIR}"
 	PATH_SUFFIXES ${_ws_vcredist_subdir} ${_ms_vcredist_subdir}
 	NO_DEFAULT_PATH
 )
@@ -114,7 +129,6 @@ endif()
 # module, e.g. cmake/modules/configure_nsis_file.cmake. However we would
 # have to figure out a clean way to pass in the variables above.
 file(READ "${CMAKE_CURRENT_SOURCE_DIR}/config.nsh.in" _config_nsh_contents)
-string(REPLACE "!define" "#cmakedefine" _config_nsh_contents "${_config_nsh_contents}")
 string(CONFIGURE "${_config_nsh_contents}" _config_nsh_contents)
 string(REPLACE "#define" "!define" _config_nsh_contents "${_config_nsh_contents}")
 string(REPLACE "#undef" "!undef" _config_nsh_contents "${_config_nsh_contents}")
@@ -123,11 +137,20 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/config.nsh" "${_config_nsh_contents}")
 # all-manifest.nsh. Can be created at configure time.
 set(_all_manifest "${CMAKE_CURRENT_BINARY_DIR}/all-manifest.nsh")
 set(_all_manifest_contents "# Files required for all sections. Generated by CMake.\n")
-foreach(_dll ${GLIB2_DLLS} ${CARES_DLL} ${GCRYPT_DLLS}
+set(_all_manifest_contents "${_all_manifest_contents}!ifdef BUNDLE_DEBUG_DLLS\n")
+foreach(_dll ${GLIB2_DLLS_DEBUG})
+	set(_all_manifest_contents "${_all_manifest_contents}File \"\${STAGING_DIR}\\${_dll}\"\n")
+endforeach()
+set(_all_manifest_contents "${_all_manifest_contents}!else\n")
+foreach(_dll ${GLIB2_DLLS_RELEASE})
+	set(_all_manifest_contents "${_all_manifest_contents}File \"\${STAGING_DIR}\\${_dll}\"\n")
+endforeach()
+set(_all_manifest_contents "${_all_manifest_contents}!endif\n")
+foreach(_dll ${CARES_DLL} ${GCRYPT_DLLS}
 		${GNUTLS_DLLS} ${KERBEROS_DLLS} ${LIBSSH_DLL} ${LUA_DLL}
 		${LZ4_DLL} ${NGHTTP2_DLL} ${SBC_DLL} ${SMI_DLL} ${SNAPPY_DLL}
-		${SPANDSP_DLL} ${BCG729_DLL} ${LIBXML2_DLL} ${WINSPARKLE_DLL}
-		${ZLIB_DLL}
+		${SPANDSP_DLL} ${BCG729_DLL} ${LIBXML2_DLLS} ${WINSPARKLE_DLL}
+		${ZLIB_DLL} ${BROTLI_DLLS} ${ZSTD_DLL}
 		# Needed for mmdbresolve
 		${MAXMINDDB_DLL}
 	)
@@ -143,10 +166,11 @@ file(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" _outfile_dir)
 file(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" _nsis_include_dir)
 
 # Variables we can't set via config.nsh.
-set(NSIS_DEFINES
-	-DSTAGING_DIR=${_staging_dir}
-	-DOUTFILE_DIR=${_outfile_dir}
-	-DNSIS_INCLUDE_DIR=${_nsis_include_dir}
+set(NSIS_OPTIONS
+	/DSTAGING_DIR=${_staging_dir}
+	/DOUTFILE_DIR=${_outfile_dir}
+	/DNSIS_INCLUDE_DIR=${_nsis_include_dir}
+	/V4
 	PARENT_SCOPE
 )
 
@@ -154,52 +178,79 @@ set(NSIS_DEFINES
 # installers. This means that uninstall.exe must be built separately AND
 # that building the installer itself won't overwrite uninstall.exe
 macro( ADD_NSIS_UNINSTALLER_TARGET )
-	set (_nsis_source_dir ${CMAKE_SOURCE_DIR}/packaging/nsis )
-	set (_nsis_binary_dir ${CMAKE_BINARY_DIR}/packaging/nsis )
+	#
+	# XXX - if we're not building Wireshark, we can't build
+	# anything, so there's nothing to uninstall.
+	#
+	if(BUILD_wireshark)
+		set (_nsis_source_dir ${CMAKE_SOURCE_DIR}/packaging/nsis )
+		set (_nsis_binary_dir ${CMAKE_BINARY_DIR}/packaging/nsis )
 
-	add_custom_command(OUTPUT ${DATAFILE_DIR}/uninstall.exe
-		DEPENDS ${_nsis_source_dir}/uninstall.nsi
-			${_nsis_source_dir}/common.nsh
-		COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_DEFINES}
-			uninstall.nsi
-		COMMAND ${DATAFILE_DIR}/uninstall_installer.exe
-		COMMAND ${CMAKE_COMMAND} -E remove ${DATAFILE_DIR}/uninstall_installer.exe
-		WORKING_DIRECTORY ${_nsis_source_dir}
-	)
+		add_custom_command(OUTPUT ${DATAFILE_DIR}/uninstall.exe
+			DEPENDS ${_nsis_source_dir}/uninstall.nsi
+				${_nsis_source_dir}/common.nsh
+			COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_OPTIONS}
+				uninstall.nsi
+			COMMAND ${DATAFILE_DIR}/uninstall_installer.exe
+			COMMAND ${CMAKE_COMMAND} -E remove ${DATAFILE_DIR}/uninstall_installer.exe
+			WORKING_DIRECTORY ${_nsis_source_dir}
+		)
+	else()
+		message(WARNING "The NSIS installer cannot be built if the Wireshark program isn't built.")
+	endif()
 endmacro( ADD_NSIS_UNINSTALLER_TARGET )
 
 macro( ADD_NSIS_PACKAGE_TARGET )
-	#set (_nsis_package ${CMAKE_BINARY_DIR}/packaging/nsis/Wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe)
+	#
+	# XXX - if we're not building Wireshark, we can't build the
+	# manifest below.  On the other hand, if we're not building
+	# Wireshark, we have no need to include Qt in the installer,
+	# so it's not clear we need this manifest.
+	#
+	# This should probably be fixed, so that people can produce
+	# command-line-only installer packages.
+	if(BUILD_wireshark)
+		#set (_nsis_package ${CMAKE_BINARY_DIR}/packaging/nsis/Wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe)
 
-	# qt-dll-manifest.nsh. Created using Wireshark.exe.
-	add_custom_command(OUTPUT ${_nsis_binary_dir}/qt-dll-manifest.nsh
-		COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
-		COMMAND ${POWERSHELL_COMMAND} "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
-			-Executable $<TARGET_FILE:wireshark>
-			-FilePath ${_nsis_binary_dir}/qt-dll-manifest.nsh
-	)
+		# qt-dll-manifest.nsh. Created using Wireshark.exe.
+		add_custom_command(OUTPUT ${_nsis_binary_dir}/qt-dll-manifest.nsh
+			COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
+			COMMAND ${POWERSHELL_COMMAND} "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
+				-Executable $<TARGET_FILE:wireshark>
+				-FilePath ${_nsis_binary_dir}/qt-dll-manifest.nsh
+				$<$<CONFIG:Debug>:-DebugConfig>
+		)
 
-	# Build NSIS package dependencies. We build the package in two stages
-	# so that nsis_package below doesn't trigger any dependencies that
-	# might clobber any signed executables.
-	add_custom_target(nsis_package_prep
-		DEPENDS
-			${NSIS_FILES}
-			copy_data_files
-			user_guide_chm
-			${CMAKE_BINARY_DIR}/docbook/user-guide.chm
-			${DATAFILE_DIR}/uninstall.exe
-	)
-	set_target_properties(nsis_package_prep PROPERTIES FOLDER "Packaging")
+		# Build NSIS package dependencies. We build the package in
+		# two stages so that nsis_package below doesn't trigger
+		# any dependencies that might clobber any signed executables.
+		add_custom_target(nsis_package_prep
+			DEPENDS
+				${NSIS_FILES}
+				copy_data_files
+				user_guide_chm
+				faq_html
+				${DATAFILE_DIR}/uninstall.exe
+		)
+		set_target_properties(nsis_package_prep PROPERTIES
+			FOLDER "Packaging"
+			EXCLUDE_FROM_DEFAULT_BUILD True
+		)
 
-	# Dump the installer into ${CMAKE_CURRENT_SOURCE_DIR}/packaging/nsis
-	# Note that executables and DLLs *must* be built separately
-	add_custom_target(nsis_package
-		COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_DEFINES}
-			wireshark.nsi
-		WORKING_DIRECTORY ${_nsis_source_dir}
-	)
-	set_target_properties(nsis_package PROPERTIES FOLDER "Packaging")
+		# Dump the installer into
+		# ${CMAKE_CURRENT_SOURCE_DIR}/packaging/nsis
+		# Note that executables and DLLs *must* be built separately
+		add_custom_target(nsis_package
+			COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_OPTIONS}
+				$<$<CONFIG:Debug>:/DBUNDLE_DEBUG_DLLS>
+				wireshark.nsi
+			WORKING_DIRECTORY ${_nsis_source_dir}
+		)
+		set_target_properties(nsis_package PROPERTIES
+			FOLDER "Packaging"
+			EXCLUDE_FROM_DEFAULT_BUILD True
+		)
+	endif()
 endmacro( ADD_NSIS_PACKAGE_TARGET )
 
 set(CLEAN_FILES

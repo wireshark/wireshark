@@ -1,136 +1,92 @@
-Wireshark 2.5.1 Release Notes
+Wireshark 3.1.1 Release Notes
 
- This is a semi-experimental release intended to test new features
- for Wireshark 2.6.
+ This is an experimental release intended to test new features for
+ Wireshark 3.2.
 
  What is Wireshark?
 
-  Wireshark is the world’s most popular network protocol analyzer.
-  It is used for troubleshooting, analysis, development and
-  education.
+  Wireshark is the world’s most popular network protocol analyzer. It is
+  used for troubleshooting, analysis, development and education.
 
  What’s New
 
-  Wireshark 2.6 is the last release that will support the legacy
-  (GTK+) user interface. It will not be supported or available in
-  Wireshark 3.0.
-
-  Many user interface improvements have been made. See the “New
-  and Updated Features” section below for more details.
-
-  Dumpcap might not quit if Wireshark or TShark crashes. (Bug
-  1419[1])
+  Many improvements have been made. See the “New and Updated Features”
+  section below for more details.
 
   New and Updated Features
 
-   The following features are new (or have been significantly
-   updated) since version 2.5.0:
+   The following features are new (or have been significantly updated)
+   since version 3.1.0:
 
-     • HTTP Referer statistics are now supported.
+     • You can once again mark and unmark packets using the middle mouse
+       button. This feature went missing around 2009 or so.
 
-     • Wireshark now supports MaxMind DB files. Support for GeoIP
-       and GeoLite Legacy databases has been removed.
+   The following features are new (or have been significantly updated)
+   since version 3.0.0:
 
-     • The Windows packages are now built using Microsoft Visual
-       Studio 2017.
+     • Drag&Drop a field to a column header to create a column for that
+       field, or to the display filter input to create a display filter.
+       If a display filter is applied, the new filter can be added using
+       the same rules as "Apply Filter"
 
-     • The IP map feature (the “Map” button in the “Endpoints”
-       dialog) has been removed.
+     • Drag&Drop a column entry to the display filter to create a filter
+       for it
 
-   The following features are new (or have been significantly
-   updated) since version 2.4.0:
+     • Import profiles from a .zip archive or an existing directory
 
-     • Display filter buttons can now be edited, disabled, and
-       removed via a context menu directly from the toolbar
+     • Dark mode support on macOS and dark theme support on other
+       platforms has been improved.
 
-     • Drag & Drop filter fields to the display filter toolbar or
-       edit to create a button on the fly or apply the filter as a
-       display filter.
+     • Brotli decompression support in HTTP/HTTP2 (requires the brotli
+       library).
 
-     • Application startup time has been reduced.
+     • The build system now checks for a SpeexDSP system library
+       installation. The bundled Speex resampler code is still provided
+       as a fallback.
 
-     • Some keyboard shortcut mix-ups have been resolved by
-       assigning new shortcuts to Edit → Copy methods.
+     • WireGuard decryption can now be enabled through keys embedded in
+       a pcapng in addition to the existing key log preference (Bug
+       15571[1]).
 
-     • TShark now supports color using the --color option.
+     • A new tap for extracting credentials from the capture file has
+       been added. It can be accessed through the -z credentials option
+       in tshark or from the “Tools” menu in Wireshark.
 
-     • The "matches" display filter operator is now
-       case-insensitive.
+     • Editcap can now split files on floating point intervals.
 
-     • Display expression (button) preferences have been converted
-       to a UAT. This puts the display expressions in their own
-       file. Wireshark still supports preference files that
-       contain the old preferences, but new preference files will
-       be written without the old fields.
+     • Windows .msi packages are now signed using SHA-2[2]. .exe
+       installers are still dual-signed using SHA-1 and SHA-2.
 
-     • SMI private enterprise numbers are now read from the
-       "enterprises.tsv" configuration file.
+     • The “Enabled Protocols” Dialog now only enables, disables and
+       inverts protocols based on the set filter selection. The protocol
+       type (standard or heuristic) may also be choosen as a filter
+       value.
 
-     • The QUIC dissector has been renamed to Google QUIC (quic →
-       gquic).
+     • The “Analyze → Apply as Filter” and “Analyze → Prepare a Filter”
+       packet list and detail popup menus now show a preview of their
+       respective filters.
 
-     • The selected packet number can now be shown in the Status
-       Bar by enabling Preferences → Appearance → Layout → Show
-       selected packet number.
-
-     • File load time in the Status Bar is now disabled by default
-       and can be enabled in Preferences → Appearance → Layout →
-       Show file load time.
-
-     • Support for the G.729A codec in the RTP Player is now added
-       via the bcg729 library.
-
-     • Support for hardware-timestamping of packets has been
-       added.
-
-     • Improved NetMon .cap support with comments, event tracing,
-       network filter, network info types and some Message
-       Analyzer exported types.
-
-     • The personal plugins folder on Linux/Unix is now
-       ~/.local/lib/wireshark/plugins.
-
-     • TShark can print flow graphs using -z flow…
-
-     • Capinfos now prints SHA256 hashes in addition to RIPEMD160
-       and SHA1. MD5 output has been removed.
-
-     • The packet editor has been removed. (This was a GTK+ only
-       experimental feature.)
-
-     • Support BBC micro:bit Bluetooth profile
-
-     • The Linux and UNIX installation step for Wireshark will now
-       install headers required to build plugins. A pkg-config
-       file is provided to help with this (see doc/plugins.example
-       for details). Note you must still rebuild all plugins
-       between minor releases (X.Y).
-
-     • The Windows installers and packages now ship with Qt 5.9.4.
-
-     • The generic data dissector can now uncompress zlib
-       compressed data.
+     • Protobuf files (*.proto) can now be configured to enable more
+       precise parsing of serialized Protobuf data (such as gRPC).
 
   New Protocol Support
 
-   ActiveMQ Artemis Core Protocol, AMT (Automatic Multicast
-   Tunneling), Bluetooth Mesh, Broadcom tags (Broadcom Ethernet
-   switch management frames), CAN-ETH, CVS password server,
-   Excentis DOCSIS31 XRA header, F5ethtrailer, FP Mux, GRPC
-   (gRPC), IEEE 1905.1a, IEEE 802.11ax (High Efficiency WLAN
-   (HEW)), IEEE 802.15.9 IEEE Recommended Practice for Transport
-   of Key Management Protocol (KMP) Datagrams, IEEE 802.3br Frame
-   Preemption Protocol, ISOBUS, LoRaTap, LoRaWAN, Lustre
-   Filesystem, Lustre Network, Nano / RaiBlocks Cryptocurrency
-   Protocol (UDP), Network Functional Application Platform
-   Interface (NFAPI) Protocol, New Radio Radio Resource Control
-   protocol, NXP 802.15.4 Sniffer Protocol, PFCP (Packet
-   Forwarding Control Protocol), Protobuf (Protocol Buffers), QUIC
-   (IETF), RFC 4108 Using CMS to Protect Firmware Packages,
-   Session Multiplex Protocol, SolarEdge monitoring protocol,
-   Steam In-Home Streaming Discovery Protocol, Tibia, TWAMP and
-   OWAMP, Wi-Fi Device Provisioning Protocol, and Wi-SUN FAN
-   Protocol
+   3GPP BICC MST (BICC-MST), 3GPP log packet (LOG3GPP), 3GPP/GSM Cell
+   Broadcast Service Protocol (cbsp), Bluetooth Mesh Beacon, Bluetooth
+   Mesh PB-ADV, Bluetooth Mesh Provisioning PDU, Bluetooth Mesh Proxy,
+   CableLabs Layer-3 Protocol IEEE EtherType 0xb4e3 (CL3), DCOM
+   IProvideClassInfo, DCOM ITypeInfo, Diagnostic Log and Trace (DLT),
+   Distributed Replicated Block Device (DRBD), Dual Channel Wi-Fi
+   (CL3DCW), EBHSCR Protocol (EBHSCR), EERO Protocol (EERO), evolved
+   Common Public Radio Interface (eCPRI), File Server Remote VSS
+   Protocol (FSRVP), FTDI FT USB Bridging Devices (FTDI FT), Graylog
+   Extended Log Format over UDP (GELF), GSM/3GPP CBSP (Cell Broadcast
+   Service Protocol), Linux net_dm (network drop monitor) protocol, MIDI
+   System Exclusive DigiTech (SYSEX DigiTech), Network Controller
+   Sideband Interface (NCSI), NR Positioning Protocol A (NRPPa) TS
+   38.455, NVM Express over Fabrics for TCP (nvme-tcp), OsmoTRX Protocol
+   (GSM Transceiver control and data), and Scalable service-Oriented
+   MiddlewarE over IP (SOME/IP)
 
   Updated Protocol Support
 
@@ -138,78 +94,58 @@ Wireshark 2.5.1 Release Notes
 
   New and Updated Capture File Support
 
-   Microsoft Network Monitor
-
-  New and Updated Capture Interfaces support
-
-   LoRaTap
+   3gpp phone, Android Logcat Text, Ascend, Candump, Endace ERF,
+   NetScaler, pcapng, and Savvius *Peek
 
  Getting Wireshark
 
-  Wireshark source code and installation packages are available
-  from https://www.wireshark.org/download.html[2].
+  Wireshark source code and installation packages are available from
+  https://www.wireshark.org/download.html[3].
 
   Vendor-supplied Packages
 
-   Most Linux and Unix vendors supply their own Wireshark
-   packages. You can usually install or upgrade Wireshark using
-   the package management system specific to that platform. A list
-   of third-party packages can be found on the download page[3] on
-   the Wireshark web site.
+   Most Linux and Unix vendors supply their own Wireshark packages. You
+   can usually install or upgrade Wireshark using the package management
+   system specific to that platform. A list of third-party packages can
+   be found on the download page[4] on the Wireshark web site.
 
  File Locations
 
   Wireshark and TShark look in several different locations for
-  preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
-  These locations vary from platform to platform. You can use
-  About→Folders to find the default locations on your system.
-
- Known Problems
-
-  The BER dissector might infinitely loop. (Bug 1516[4])
-
-  Capture filters aren’t applied when capturing from named pipes.
-  (Bug 1814[5])
-
-  Filtering tshark captures with read filters (-R) no longer
-  works. (Bug 2234[6])
-
-  Application crash when changing real-time option. (Bug 4035[7])
-
-  Wireshark and TShark will display incorrect delta times in some
-  cases. (Bug 4985[8])
-
-  Wireshark should let you work with multiple capture files. (Bug
-  10488[9])
+  preference files, plugins, SNMP MIBS, and RADIUS dictionaries. These
+  locations vary from platform to platform. You can use About→Folders to
+  find the default locations on your system.
 
  Getting Help
 
-  Community support is available on Wireshark’s Q&A site[10] and
-  on the wireshark-users mailing list. Subscription information
-  and archives for all of Wireshark’s mailing lists can be found
-  on the web site[11].
+  The User’s Guide, manual pages and various other documentation can be
+  found at https://www.wireshark.org/docs/[5]
+
+  Community support is available on Wireshark’s Q&A site[6] and on the
+  wireshark-users mailing list. Subscription information and archives
+  for all of Wireshark’s mailing lists can be found on the web site[7].
+
+  Bugs and feature requests can be reported on the bug tracker[8].
 
   Official Wireshark training and certification are available from
-  Wireshark University[12].
+  Wireshark University[9].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[13].
+  A complete FAQ is available on the Wireshark web site[10].
 
-  Last updated 2018-03-13 19:13:27 UTC
+  Last updated 2019-10-13 08:08:30 UTC
 
  References
 
-   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-   2. https://www.wireshark.org/download.html
-   3. https://www.wireshark.org/download.html#thirdparty
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
-  10. https://ask.wireshark.org/
-  11. https://www.wireshark.org/lists/
-  12. http://www.wiresharktraining.com/
-  13. https://www.wireshark.org/faq.html
+   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15571
+   2. https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-s
+  igning-support-requirement-for-windows-and-wsus
+   3. https://www.wireshark.org/download.html
+   4. https://www.wireshark.org/download.html#thirdparty
+   5. https://www.wireshark.org/docs/
+   6. https://ask.wireshark.org/
+   7. https://www.wireshark.org/lists/
+   8. https://bugs.wireshark.org/
+   9. https://www.wiresharktraining.com/
+  10. https://www.wireshark.org/faq.html

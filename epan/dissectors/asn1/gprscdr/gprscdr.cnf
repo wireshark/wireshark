@@ -9,6 +9,7 @@
 CalledNumber
 CauseForTerm
 ChargeIndicator
+DataVolumeOctets
 MscNo
 SystemType
 NodeAddress
@@ -16,6 +17,10 @@ ServiceContextID
 ChangeLocationV651
 SubscriberEquipmentNumber
 SubscriberEquipmentType
+Session-Id
+PriorityType
+MessageClass
+InvolvedParty
 # 6.4 If these are needed MBMS asn1 should be added.
 MSCAddress
 
@@ -271,10 +276,12 @@ EPCQoSInformation/extendedGBRUL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
 EPCQoSInformation/extendedGBRDL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
 EPCQoSInformation/extendedAPNAMBRUL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
 EPCQoSInformation/extendedAPNAMBRDL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+CSGId  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+RatingGroupId  TYPE = FT_UINT32  DISPLAY = BASE_DEC
 #.END
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 2

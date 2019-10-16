@@ -14,7 +14,7 @@
 #include "ws_symbol_export.h"
 
 #define PCAPNG_MAGIC         0x1A2B3C4D
-#define PCAPNG_SWAPPED_MAGIC 0xD4C3B2A1
+#define PCAPNG_SWAPPED_MAGIC 0x4D3C2B1A
 
 #define PCAPNG_MAJOR_VERSION 1
 #define PCAPNG_MINOR_VERSION 0
@@ -53,6 +53,14 @@ typedef struct pcapng_interface_statistics_block_s {
     /* ... Options ... */
 } pcapng_interface_statistics_block_t;
 
+/* pcapng: Decryption Secrets Block file encoding */
+typedef struct pcapng_decryption_secrets_block_s {
+    guint32 secrets_type;   /* Secrets Type, see secrets-types.h */
+    guint32 secrets_len;    /* Size of variable-length secrets data. */
+    /* x bytes Secrets Data. */
+    /* ... Options ... */
+} pcapng_decryption_secrets_block_t;
+
 struct pcapng_option_header {
     guint16 type;
     guint16 value_length;
@@ -62,6 +70,7 @@ struct pcapng_option_header {
  * Minimum IDB size = minimum block size + size of fixed length portion of IDB.
  */
 #define MIN_IDB_SIZE    ((guint32)(MIN_BLOCK_SIZE + sizeof(pcapng_interface_description_block_t)))
+#define MIN_DSB_SIZE    ((guint32)(MIN_BLOCK_SIZE + sizeof(pcapng_decryption_secrets_block_t)))
 
 wtap_open_return_val pcapng_open(wtap *wth, int *err, gchar **err_info);
 gboolean pcapng_dump_open(wtap_dumper *wdh, int *err);

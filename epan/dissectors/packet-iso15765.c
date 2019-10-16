@@ -161,7 +161,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_item *message_type_item;
     tvbuff_t*   next_tvb = NULL;
     guint8      pci, message_type;
-    can_identifier_t* can_info;
+    can_identifier_t can_id;
     iso15765_identifier_t* iso15765_info;
     guint8      ae = (addressing == NORMAL_ADDRESSING)?0:1;
     guint8      frag_id_low = 0;
@@ -170,17 +170,23 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     gboolean    fragmented = FALSE;
     gboolean    complete = FALSE;
 
+    DISSECTOR_ASSERT(data);
+    can_id = *((can_identifier_t*)data);
+
+    if (can_id.id & (CAN_ERR_FLAG | CAN_RTR_FLAG))
+    {
+        /* Error and RTR frames are not for us. */
+        return 0;
+    }
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISO15765");
     col_clear(pinfo->cinfo,COL_INFO);
-
-    DISSECTOR_ASSERT(data);
-    can_info = ((can_identifier_t*)data);
 
     iso15765_info = (iso15765_identifier_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_iso15765, 0);
 
     if (!iso15765_info) {
         iso15765_info = wmem_new0(wmem_file_scope(), iso15765_identifier_t);
-        iso15765_info->id = can_info->id;
+        iso15765_info->id = can_id.id;
         iso15765_info->last = FALSE;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_iso15765, 0, iso15765_info);
     }
@@ -215,7 +221,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             fragmented = TRUE;
 
             /* Save information */
-            if (!(pinfo->fd->flags.visited)) {
+            if (!(pinfo->fd->visited)) {
                 iso15765_frame_t *iso15765_frame = wmem_new0(wmem_file_scope(), iso15765_frame_t);
                 iso15765_frame->seq = iso15765_info->seq = ++msg_seqid;
                 iso15765_frame->len = full_len;
@@ -236,7 +242,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             fragmented = TRUE;
 
             /* Save information */
-            if (!(pinfo->fd->flags.visited)) {
+            if (!(pinfo->fd->visited)) {
                 iso15765_info->seq = msg_seqid;
             }
 
@@ -257,7 +263,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                                 ae + ISO15765_FC_BS_OFFSET, ISO15765_FC_BS_LEN, ENC_BIG_ENDIAN);
             proto_tree_add_item(iso15765_tree, hf_iso15765_fc_stmin, tvb,
                                 ae + ISO15765_FC_STMIN_OFFSET, ISO15765_FC_STMIN_LEN, ENC_BIG_ENDIAN);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(Status: %d, Block size:0x%x, Seperation time minimum: %d ms)",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(Status: %d, Block size:0x%x, Separation time minimum: %d ms)",
                             status, bs, stmin);
             break;
         }
@@ -284,7 +290,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
         if (iso15765_frame != NULL)
         {
-            if (!(pinfo->fd->flags.visited)) {
+            if (!(pinfo->fd->visited)) {
                 frag_id += ((iso15765_frame->frag_id_high[frag_id]++) * 16);
                 /* Save the frag_id for subsequent dissection */
                 iso15765_info->frag_id = frag_id;
@@ -302,7 +308,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 fragment_head *frag_msg;
 
                 /* Check if it's the last packet */
-                if (!(pinfo->fd->flags.visited)) {
+                if (!(pinfo->fd->visited)) {
                     /* Update the last_frag_id */
                     if (frag_id > iso15765_frame->last_frag_id) {
                         iso15765_frame->last_frag_id = frag_id;
@@ -564,7 +570,7 @@ proto_register_iso15765(void)
     reassembly_table_register(&iso15765_reassembly_table,
                           &addresses_reassembly_table_functions);
 
-    subdissector_table = register_decode_as_next_proto(proto_iso15765, "Transport", "iso15765.subdissector", "ISO15765 next level dissector", NULL);
+    subdissector_table = register_decode_as_next_proto(proto_iso15765, "iso15765.subdissector", "ISO15765 next level dissector", NULL);
 }
 
 void
@@ -577,7 +583,7 @@ proto_reg_handoff_iso15765(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -4,14 +4,15 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
 #ifdef HAVE_LIBPCAP
 #include <glib.h>
 
-#include <wsutil/wspcap.h>
+#include "wspcap.h"
 
 #include "capture_opts.h"
 #include "ui/capture_globals.h"
@@ -99,9 +100,9 @@ void CaptureFilterSyntaxWorker::start() {
                 break;
             }
 #ifdef PCAP_NETMASK_UNKNOWN
-            pc_err = pcap_compile(pd, &fcode, filter.toUtf8().constData(), 1 /* Do optimize */, PCAP_NETMASK_UNKNOWN);
+            pc_err = pcap_compile(pd, &fcode, filter.toUtf8().data(), 1 /* Do optimize */, PCAP_NETMASK_UNKNOWN);
 #else
-            pc_err = pcap_compile(pd, &fcode, filter.toUtf8().constData(), 1 /* Do optimize */, 0);
+            pc_err = pcap_compile(pd, &fcode, filter.toUtf8().data(), 1 /* Do optimize */, 0);
 #endif
 
 #if DEBUG_SLEEP_TIME > 0

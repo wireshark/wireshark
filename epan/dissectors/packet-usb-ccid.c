@@ -867,7 +867,7 @@ proto_register_ccid(void)
 
     usb_ccid_handle = register_dissector("usbccid", dissect_ccid, proto_ccid);
 
-    subdissector_table = register_decode_as_next_proto(proto_ccid, "Transport", "usbccid.subdissector", "USB CCID payload", NULL);
+    subdissector_table = register_decode_as_next_proto(proto_ccid, "usbccid.subdissector", "USB CCID payload", NULL);
 }
 
 /* Handler registration */
@@ -888,7 +888,7 @@ proto_reg_handoff_ccid(void)
 }
 
 /*
-* Editor modelines - http://www.wireshark.org/tools/modelines.html
+* Editor modelines - https://www.wireshark.org/tools/modelines.html
 *
 * Local variables:
 * c-basic-offset: 4

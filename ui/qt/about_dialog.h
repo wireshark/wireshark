@@ -87,19 +87,22 @@ public:
     ~AboutDialog();
 
 protected:
+    virtual bool event(QEvent *event);
     virtual void showEvent(QShowEvent *);
 
 private:
+    void updateWiresharkText();
+
     Ui::AboutDialog *ui;
+    QString script_pattern;
 
 private slots:
     void urlDoubleClicked(const QModelIndex &);
     void handleCopyMenu(QPoint);
+    void showInFolderActionTriggered();
     void copyActionTriggered(bool row = false);
     void copyRowActionTriggered();
-#ifdef HAVE_LUA
     void on_tblPlugins_doubleClicked(const QModelIndex &index);
-#endif
 };
 
 #endif // ABOUT_DIALOG_H

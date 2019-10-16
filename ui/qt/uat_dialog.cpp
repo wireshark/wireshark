@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "uat_dialog.h"
 #include <ui_uat_dialog.h>
@@ -15,6 +16,7 @@
 #include "ui/help_url.h"
 #include <wsutil/report_message.h>
 
+#include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QDesktopServices>
@@ -35,13 +37,15 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
     ui->setupUi(this);
     if (uat) loadGeometry(0, 0, uat->name);
 
-    ui->deleteToolButton->setEnabled(false);
-    ui->copyToolButton->setEnabled(false);
-    ui->moveUpToolButton->setEnabled(false);
-    ui->moveDownToolButton->setEnabled(false);
-    ui->clearToolButton->setEnabled(false);
     ok_button_ = ui->buttonBox->button(QDialogButtonBox::Ok);
     help_button_ = ui->buttonBox->button(QDialogButtonBox::Help);
+
+    ui->newToolButton->setStockIcon("list-add");
+    ui->deleteToolButton->setStockIcon("list-remove");
+    ui->copyToolButton->setStockIcon("list-copy");
+    ui->moveUpToolButton->setStockIcon("list-move-up");
+    ui->moveDownToolButton->setStockIcon("list-move-down");
+    ui->clearToolButton->setStockIcon("list-clear");
 
 #ifdef Q_OS_MAC
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
@@ -57,7 +61,7 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
 
     // FIXME: this prevents the columns from being resized, even if the text
     // within a combobox needs more space (e.g. in the USER DLT settings).  For
-    // very long filenames in the SSL RSA keys dialog, it also results in a
+    // very long filenames in the TLS RSA keys dialog, it also results in a
     // vertical scrollbar. Maybe remove this since the editor is not limited to
     // the column width (and overlays other fields if more width is needed)?
     ui->uatTreeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -69,6 +73,9 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
     // Need to add uat_move or uat_insert to the UAT API.
     ui->uatTreeView->setDragEnabled(false);
     qDebug() << "FIX Add drag reordering to UAT dialog";
+
+    // Do NOT start editing the first column for the first item
+    ui->uatTreeView->setCurrentIndex(QModelIndex());
 }
 
 UatDialog::~UatDialog()
@@ -93,6 +100,12 @@ void UatDialog::setUat(epan_uat *uat)
             title = uat_->name;
         }
 
+        if (uat->from_profile) {
+            CopyFromProfileButton * copy_button = new CopyFromProfileButton(this, uat->filename);
+            ui->buttonBox->addButton(copy_button, QDialogButtonBox::ActionRole);
+            connect(copy_button, &CopyFromProfileButton::copyProfile, this, &UatDialog::copyFromProfile);
+        }
+
         QString abs_path = gchar_free_to_qstring(uat_get_actual_filename(uat_, FALSE));
         ui->pathLabel->setText(abs_path);
         ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());
@@ -103,6 +116,7 @@ void UatDialog::setUat(epan_uat *uat)
         uat_delegate_ = new UatDelegate;
         ui->uatTreeView->setModel(uat_model_);
         ui->uatTreeView->setItemDelegate(uat_delegate_);
+        ui->clearToolButton->setEnabled(uat_model_->rowCount() != 0);
 
         connect(uat_model_, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                 this, SLOT(modelDataChanged(QModelIndex)));
@@ -121,6 +135,18 @@ void UatDialog::setUat(epan_uat *uat)
     }
 
     setWindowTitle(title);
+}
+
+void UatDialog::copyFromProfile(QString filename)
+{
+    gchar *err = NULL;
+    if (uat_load(uat_, filename.toUtf8().constData(), &err)) {
+        uat_->changed = TRUE;
+        uat_model_->reloadUat();
+    } else {
+        report_failure("Error while loading %s: %s", uat_->name, err);
+        g_free(err);
+    }
 }
 
 // Invoked when a field in the model changes (e.g. by closing the editor)
@@ -152,7 +178,7 @@ void UatDialog::modelRowsRemoved()
 void UatDialog::modelRowsReset()
 {
     ui->deleteToolButton->setEnabled(false);
-    ui->clearToolButton->setEnabled(false);
+    ui->clearToolButton->setEnabled(uat_model_->rowCount() != 0);
     ui->copyToolButton->setEnabled(false);
     ui->moveUpToolButton->setEnabled(false);
     ui->moveDownToolButton->setEnabled(false);
@@ -320,18 +346,12 @@ void UatDialog::applyChanges()
 
 void UatDialog::acceptChanges()
 {
-    if (!uat_) return;
+    if (!uat_model_) return;
 
-    if (uat_->changed) {
-        gchar *err = NULL;
-
-        if (!uat_save(uat_, &err)) {
-            report_failure("Error while saving %s: %s", uat_->name, err);
-            g_free(err);
-        }
-
-        if (uat_->post_update_cb) {
-            uat_->post_update_cb();
+    QString error;
+    if (uat_model_->applyChanges(error)) {
+        if (!error.isEmpty()) {
+            report_failure("%s", qPrintable(error));
         }
         applyChanges();
     }
@@ -339,15 +359,22 @@ void UatDialog::acceptChanges()
 
 void UatDialog::rejectChanges()
 {
-    if (!uat_) return;
+    if (!uat_model_) return;
 
-    if (uat_->changed) {
-        gchar *err = NULL;
-        uat_clear(uat_);
-        if (!uat_load(uat_, &err)) {
-            report_failure("Error while loading %s: %s", uat_->name, err);
-            g_free(err);
+    QString error;
+    if (uat_model_->revertChanges(error)) {
+        if (!error.isEmpty()) {
+            report_failure("%s", qPrintable(error));
         }
+        // Why do we have to trigger a redissection? If the original UAT is
+        // restored and dissectors only apply changes after the post_update_cb
+        // method is invoked, then it should not be necessary to trigger
+        // redissection. One potential exception is when something modifies the
+        // UAT file after Wireshark has started, but this behavior is not
+        // supported and causes potentially unnecessary redissection whenever
+        // the preferences dialog is closed.
+        // XXX audit all UAT providers and check whether it is safe to remove
+        // the next call (that is, when their update_cb has no side-effects).
         applyChanges();
     }
 }

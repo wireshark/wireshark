@@ -182,7 +182,7 @@ extern void ext_menubar_add_website(ext_menu_t * parent, const gchar *label,
 
 extern void ext_menubar_add_separator(ext_menu_t *parent)
 {
-    ext_menubar_add_generic_entry ( EXT_MENUBAR_SEPARATOR, parent, g_strdup("-"), NULL, NULL, NULL );
+    ext_menubar_add_generic_entry ( EXT_MENUBAR_SEPARATOR, parent, "-", NULL, NULL, NULL );
 }
 
 /* Implementation of external toolbar handlers */

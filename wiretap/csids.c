@@ -30,8 +30,8 @@ typedef struct {
   gboolean byteswapped;
 } csids_t;
 
-static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
-        gint64 *data_offset);
+static gboolean csids_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+        int *err, gchar **err_info, gint64 *data_offset);
 static gboolean csids_seek_read(wtap *wth, gint64 seek_off,
         wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean csids_read_packet(FILE_T fh, csids_t *csids,
@@ -123,15 +123,14 @@ wtap_open_return_val csids_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean csids_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
   csids_t *csids = (csids_t *)wth->priv;
 
   *data_offset = file_tell(wth->fh);
 
-  return csids_read_packet( wth->fh, csids, &wth->rec, wth->rec_data,
-                            err, err_info );
+  return csids_read_packet( wth->fh, csids, rec, buf, err, err_info );
 }
 
 /* Used to read packets in random-access fashion */
@@ -199,7 +198,7 @@ csids_read_packet(FILE_T fh, csids_t *csids, wtap_rec *rec,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

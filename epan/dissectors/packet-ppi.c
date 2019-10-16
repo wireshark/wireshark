@@ -1029,7 +1029,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             /* List our fragments */
             seg_tree = proto_tree_add_subtree_format(ppi_tree, tvb, offset, -1,
                     ett_ampdu_segments, &ti, "A-MPDU (%u bytes w/hdrs):", ampdu_len);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             while (ft_fdh) {
                 if (ft_fdh->tvb_data && ft_fdh->len) {

@@ -1,6 +1,6 @@
 ; GetWindowsVersion 4.1.1 (2015-06-22) - alternate script with server versions
 ;
-; http://nsis.sourceforge.net/Get_Windows_version
+; https://nsis.sourceforge.io/Get_Windows_version
 ;
 ; Based on Yazno's function, http://yazno.tripod.com/powerpimpit/
 ; Update by Joost Verburg

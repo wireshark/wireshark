@@ -1083,6 +1083,12 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     DISSECTOR_ASSERT(data);
     can_id = *((struct can_identifier*)data);
 
+    if (can_id.id & (CAN_ERR_FLAG | CAN_RTR_FLAG | CAN_EFF_FLAG))
+    {
+        /* Error, RTR and frames with extended ids are not for us. */
+        return 0;
+    }
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CANopen");
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1119,11 +1125,11 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     /* add function code */
     ti = proto_tree_add_uint(canopen_cob_tree, hf_canopen_function_code, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* add node id */
     ti = proto_tree_add_uint(canopen_cob_tree, hf_canopen_node_id, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* add CANopen frame type */
 
@@ -1561,7 +1567,7 @@ proto_reg_handoff_canopen(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

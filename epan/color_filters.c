@@ -21,7 +21,6 @@
 
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 #include <epan/packet.h>
 #include "color_filters.h"
@@ -109,8 +108,6 @@ color_filters_add_tmp(GSList **cfl)
 
     g_strfreev(fg_colors);
     g_strfreev(bg_colors);
-
-    return;
 }
 
 static gint
@@ -219,7 +216,7 @@ color_filter_delete(color_filter_t *colorf)
 
 /* delete the specified filter (called from g_slist_foreach) */
 static void
-color_filter_delete_cb(gpointer filter_arg, gpointer unused _U_)
+color_filter_delete_cb(gpointer filter_arg)
 {
     color_filter_t *colorf = (color_filter_t *)filter_arg;
 
@@ -230,8 +227,7 @@ color_filter_delete_cb(gpointer filter_arg, gpointer unused _U_)
 void
 color_filter_list_delete(GSList **cfl)
 {
-    g_slist_foreach(*cfl, color_filter_delete_cb, NULL);
-    g_slist_free(*cfl);
+    g_slist_free_full(*cfl, color_filter_delete_cb);
     *cfl = NULL;
 }
 
@@ -248,8 +244,6 @@ color_filter_clone(color_filter_t *colorf)
     new_colorf->fg_color            = colorf->fg_color;
     new_colorf->disabled            = colorf->disabled;
     new_colorf->c_colorfilter       = NULL;
-    new_colorf->color_edit_dlg_info = NULL;
-    new_colorf->selected            = FALSE;
 
     return new_colorf;
 }
@@ -291,7 +285,7 @@ color_filters_get(gchar** err_msg, color_filter_add_cb_func add_cb)
      * Get the path for the file that would have their filters, and
      * try to open it.
      */
-    path = get_persconffile_path("colorfilters", TRUE);
+    path = get_persconffile_path(COLORFILTERS_FILE_NAME, TRUE);
     if ((f = ws_fopen(path, "r")) == NULL) {
         if (errno != ENOENT) {
             /* Error trying to open the file; give up. */
@@ -414,12 +408,12 @@ color_filter_validate_cb(gpointer filter_arg, gpointer err)
     if (colorf->disabled) return;
 
     if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &local_err_msg)) {
-        *err_msg = g_strdup_printf("Removing color filter name: \"%s\" text: \"%s\".\n%s",
+        *err_msg = g_strdup_printf("Disabling color filter name: \"%s\" filter: \"%s\".\n%s",
                       colorf->filter_name, colorf->filter_text, local_err_msg);
         g_free(local_err_msg);
-        /* Delete the color filter from the list of color filters. */
-        color_filter_valid_list = g_slist_remove(color_filter_valid_list, colorf);
-        color_filter_delete(colorf);
+
+        /* Disable the color filter in the list of color filters. */
+        colorf->disabled = TRUE;
     }
 }
 
@@ -538,6 +532,8 @@ read_filters_file(const gchar *path, FILE *f, gpointer user_data, color_filter_a
     name = (gchar *)g_malloc(name_len + 1);
     filter_exp = (gchar *)g_malloc(filter_exp_len + 1);
 
+    prefs.unknown_colorfilters = FALSE;
+
     while (1) {
 
         if (skip_end_of_line) {
@@ -631,7 +627,7 @@ read_filters_file(const gchar *path, FILE *f, gpointer user_data, color_filter_a
             gchar *local_err_msg = NULL;
 
             if (!disabled && !dfilter_compile(filter_exp, &temp_dfilter, &local_err_msg)) {
-                ws_g_warning("Could not compile \"%s\" in colorfilters file \"%s\".\n%s",
+                g_warning("Could not compile \"%s\" in colorfilters file \"%s\".\n%s",
                           name, path, local_err_msg);
                 g_free(local_err_msg);
                 prefs.unknown_colorfilters = TRUE;
@@ -689,7 +685,7 @@ color_filters_read_globals(gpointer user_data, gchar** err_msg, color_filter_add
      * Get the path for the file that would have the global filters, and
      * try to open it.
      */
-    path = get_datafile_path("colorfilters");
+    path = get_datafile_path(COLORFILTERS_FILE_NAME);
     if ((f = ws_fopen(path, "r")) == NULL) {
         if (errno != ENOENT) {
             /* Error trying to open the file; give up. */
@@ -760,7 +756,7 @@ write_filter(gpointer filter_arg, gpointer data_arg)
     color_filter_t *colorf = (color_filter_t *)filter_arg;
     FILE *f = data->f;
 
-    if ( (colorf->selected || !data->only_selected) &&
+    if ( (!data->only_selected) &&
          (strstr(colorf->filter_name,CONVERSATION_COLOR_PREFIX)==NULL) ) {
         fprintf(f,"%s@%s@%s@[%u,%u,%u][%u,%u,%u]\n",
                 colorf->disabled ? "!" : "",
@@ -806,7 +802,7 @@ color_filters_write(GSList *cfl, gchar** err_msg)
         return FALSE;
     }
 
-    path = get_persconffile_path("colorfilters", TRUE);
+    path = get_persconffile_path(COLORFILTERS_FILE_NAME, TRUE);
     if ((f = ws_fopen(path, "w+")) == NULL) {
         *err_msg = g_strdup_printf("Could not open\n%s\nfor writing: %s.",
                       path, g_strerror(errno));
@@ -836,7 +832,7 @@ color_filters_export(const gchar *path, GSList *cfl, gboolean only_marked, gchar
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

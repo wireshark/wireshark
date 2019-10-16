@@ -13,6 +13,8 @@
 
 COMMON_ARGS="--export-area-page"
 
+#SVGCLEANER=$( type -p svgcleaner )
+
 set_source_svgs() {
     local out_icon=$1
     case $out_icon in
@@ -34,7 +36,7 @@ set_source_svgs() {
 }
 
 ICONS="
-    edit-find
+    edit-find.template
     go-first
     go-jump
     go-last
@@ -61,27 +63,34 @@ ICONS="
     x-filter-clear
     x-filter-clear.active
     x-filter-clear.selected
-    x-filter-dropdown
+    x-filter-deprecated
+    x-filter-dropdown.dark
+    x-filter-dropdown.light
+    x-filter-invalid
     x-filter-matching-bookmark
     x-filter-matching-bookmark.active
     x-filter-matching-bookmark.selected
     x-resize-columns
     x-stay-last
-    zoom-in
-    zoom-original
-    zoom-out
+    zoom-in.template
+    zoom-original.template
+    zoom-out.template
     "
+
+if [ -n "$*" ] ; then
+    ICONS="$*"
+fi
 
 QRC_FILES=""
 
 # 12x12
-for SIZE in 14x14 16x16 24x14 24x14 ; do
+for SIZE in 14x14 16x16 24x14 24x24 ; do
     WIDTH=${SIZE/x*/}
     HEIGHT=${SIZE/*x/}
     SIZE_DIR=${SIZE}
 
-    TWO_X_WIDTH=`expr $WIDTH \* 2`
-    TWO_X_HEIGHT=`expr $HEIGHT \* 2`
+    TWO_X_WIDTH=$(( WIDTH * 2 ))
+    TWO_X_HEIGHT=$(( HEIGHT * 2 ))
     ONE_X_ARGS="--export-width=${WIDTH} --export-height=${HEIGHT}"
     TWO_X_ARGS="--export-width=${TWO_X_WIDTH} --export-height=${TWO_X_HEIGHT}"
 
@@ -89,7 +98,17 @@ for SIZE in 14x14 16x16 24x14 24x14 ; do
     cd $SIZE_DIR || exit 1
 
     for ICON in $ICONS ; do
-        set_source_svgs $ICON
+        echo "Converting $ICON"
+
+        # XXX This seems to modify the SVG too much. Need to
+        # investigate.
+        #if [ -n "$SVGCLEANER" ] ; then
+        #    mv "$ICON.svg" "$ICON.dirty.svg"
+        #    $SVGCLEANER "$ICON.dirty.svg" "$ICON.svg"
+        #    rm "$ICON.dirty.svg"
+        #fi
+
+        set_source_svgs "$ICON"
 
         if [ ! -f ${ONE_X_SVG} ] ; then
             >&2 echo "Skipping ${ONE_X_SVG}"
@@ -99,17 +118,20 @@ for SIZE in 14x14 16x16 24x14 24x14 ; do
         ONE_X_PNG=${ICON}.png
         TWO_X_PNG=${ICON}@2x.png
 
-        if [ $ONE_X_SVG -nt $ONE_X_PNG ] ; then
+        if [ $ONE_X_SVG -nt "$ONE_X_PNG" ] ; then
+            # shellcheck disable=SC2086
             inkscape $COMMON_ARGS $ONE_X_ARGS \
                 --file="$PWD/$ONE_X_SVG" --export-png="$PWD/$ONE_X_PNG" || exit 1
+            QRC_FILES="${QRC_FILES} ${SIZE_DIR}/${ONE_X_PNG}"
         fi
 
-        if [ $TWO_X_SVG -nt $TWO_X_PNG ] ; then
+        if [ $TWO_X_SVG -nt "$TWO_X_PNG" ] ; then
+            # shellcheck disable=SC2086
             inkscape $COMMON_ARGS $TWO_X_ARGS \
                 --file="$PWD/$TWO_X_SVG" --export-png="$PWD/$TWO_X_PNG" || exit 1
+            QRC_FILES="${QRC_FILES} ${SIZE_DIR}/${TWO_X_PNG}"
         fi
 
-        QRC_FILES="${QRC_FILES} ${SIZE_DIR}/${ONE_X_PNG} ${SIZE_DIR}/${TWO_X_PNG}"
     done
 
     cd ..
@@ -117,7 +139,7 @@ for SIZE in 14x14 16x16 24x14 24x14 ; do
 done
 
 for QRC_FILE in $QRC_FILES ; do
-    echo "        <file>toolbar/${QRC_FILE}</file>"
+    echo "        <file>stock_icons/${QRC_FILE}</file>"
 done
 
 #

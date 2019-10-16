@@ -27,7 +27,7 @@
 
 static int pc_proto_id = -1;
 
-static GNode*
+    static GNode*
 find_stat_node(GNode *parent_stat_node, header_field_info *needle_hfinfo)
 {
     GNode		*needle_stat_node, *up_parent_stat_node;
@@ -147,32 +147,28 @@ process_tree(proto_tree *protocol_tree, ph_stats_t* ps)
 }
 
     static gboolean
-process_record(capture_file *cf, frame_data *frame, column_info *cinfo, ph_stats_t* ps)
+process_record(capture_file *cf, frame_data *frame, column_info *cinfo,
+               wtap_rec *rec, Buffer *buf, ph_stats_t* ps)
 {
     epan_dissect_t	edt;
-    wtap_rec            rec;
-    Buffer		buf;
     double		cur_time;
 
-    wtap_rec_init(&rec);
-
     /* Load the record from the capture file */
-    ws_buffer_init(&buf, 1500);
-    if (!cf_read_record_r(cf, frame, &rec, &buf))
+    if (!cf_read_record(cf, frame, rec, buf))
         return FALSE;	/* failure */
 
     /* Dissect the record   tree  not visible */
     epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
     /* Don't fake protocols. We need them for the protocol hierarchy */
     epan_dissect_fake_protocols(&edt, FALSE);
-    epan_dissect_run(&edt, cf->cd_t, &rec,
-                     frame_tvbuff_new_buffer(&cf->provider, frame, &buf),
+    epan_dissect_run(&edt, cf->cd_t, rec,
+                     frame_tvbuff_new_buffer(&cf->provider, frame, buf),
                      frame, cinfo);
 
     /* Get stats from this protocol tree */
     process_tree(edt.tree, ps);
 
-    if (frame->flags.has_ts) {
+    if (frame->has_ts) {
         /* Update times */
         cur_time = nstime_to_sec(&frame->abs_ts);
         if (cur_time < ps->first_time)
@@ -183,8 +179,6 @@ process_record(capture_file *cf, frame_data *frame, column_info *cinfo, ph_stats
 
     /* Free our memory. */
     epan_dissect_cleanup(&edt);
-    wtap_rec_cleanup(&rec);
-    ws_buffer_free(&buf);
 
     return TRUE;	/* success */
 }
@@ -199,8 +193,9 @@ ph_stats_new(capture_file *cf)
     progdlg_t	*progbar = NULL;
     gboolean	stop_flag;
     int		count;
+    wtap_rec	rec;
+    Buffer	buf;
     float	progbar_val;
-    GTimeVal	start_time;
     gchar	status_str[100];
     int		progbar_nextstep;
     int		progbar_quantum;
@@ -228,10 +223,12 @@ ph_stats_new(capture_file *cf)
     progbar_val = 0.0f;
 
     stop_flag = FALSE;
-    g_get_current_time(&start_time);
 
     tot_packets = 0;
     tot_bytes = 0;
+
+    wtap_rec_init(&rec);
+    ws_buffer_init(&buf, 1514);
 
     for (framenum = 1; framenum <= cf->count; framenum++) {
         frame = frame_data_sequence_find(cf->provider.frames, framenum);
@@ -246,7 +243,7 @@ ph_stats_new(capture_file *cf)
             progbar = delayed_create_progress_dlg(
                     cf->window, "Computing",
                     "protocol hierarchy statistics",
-                    TRUE, &stop_flag, &start_time, progbar_val);
+                    TRUE, &stop_flag, progbar_val);
 
         /* Update the progress bar, but do it only N_PROGBAR_UPDATES
            times; when we update it, we have to run the GTK+ main
@@ -282,9 +279,9 @@ ph_stats_new(capture_file *cf)
            passed the display filter?  If so, it should
            probably do so for other loops (see "file.c") that
            look only at those packets. */
-        if (frame->flags.passed_dfilter) {
+        if (frame->passed_dfilter) {
 
-            if (frame->flags.has_ts) {
+            if (frame->has_ts) {
                 if (tot_packets == 0) {
                     double cur_time = nstime_to_sec(&frame->abs_ts);
                     ps->first_time = cur_time;
@@ -293,7 +290,7 @@ ph_stats_new(capture_file *cf)
             }
 
             /* we don't care about colinfo */
-            if (!process_record(cf, frame, NULL, ps)) {
+            if (!process_record(cf, frame, NULL, &rec, &buf, ps)) {
                 /*
                  * Give up, and set "stop_flag" so we
                  * just abort rather than popping up
@@ -309,6 +306,9 @@ ph_stats_new(capture_file *cf)
 
         count++;
     }
+
+    wtap_rec_cleanup(&rec);
+    ws_buffer_free(&buf);
 
     /* We're done calculating the statistics; destroy the progress bar
        if it was created. */

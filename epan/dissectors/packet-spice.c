@@ -23,13 +23,19 @@
 /* NOTE:
  * packet-spice.h is auto-generated from a Spice protocol definition by a tool
  * included in the spice-common repository
- * (http://cgit.freedesktop.org/spice/spice-common/)
+ * (https://gitlab.freedesktop.org/spice/spice-common)
  * To re-generate this file, run the following command from the root of the
  * spice-common tree:
  *      python ./spice_codegen.py --generate-wireshark-dissector \
  *              spice.proto packet-spice.h
  */
+#if WS_IS_AT_LEAST_GNUC_VERSION(6,0)
+DIAG_OFF(unused-const-variable)
+#endif
 #include "packet-spice.h"
+#if WS_IS_AT_LEAST_GNUC_VERSION(6,0)
+DIAG_ON(unused-const-variable)
+#endif
 
 void proto_register_spice(void);
 void proto_reg_handoff_spice(void);
@@ -97,16 +103,6 @@ static const value_string playback_mode_vals[] = {
     { SPICE_AUDIO_DATA_MODE_RAW,        "RAW" },
     { SPICE_AUDIO_DATA_MODE_CELT_0_5_1, "CELT_0_5_1" },
     { 0, NULL }
-};
-
-enum {
-    SPICE_PLAYBACK_CAP_CELT_0_5_1,
-    SPICE_PLAYBACK_CAP_VOLUME
-};
-
-enum {
-    SPICE_PLAYBACK_CAP_CELT_0_5_1_MASK = (1 << SPICE_PLAYBACK_CAP_CELT_0_5_1),
-    SPICE_PLAYBACK_CAP_VOLUME_MASK = (1 << SPICE_PLAYBACK_CAP_VOLUME)
 };
 
 /* main channel */
@@ -231,15 +227,36 @@ static const value_string vd_agent_reply_error_vs[] = {
     { 0, NULL }
 };
 
-/* record channel capabilities - same as playback */
+/* playback channel capabilities */
+enum {
+    SPICE_PLAYBACK_CAP_CELT_0_5_1,
+    SPICE_PLAYBACK_CAP_VOLUME,
+    SPICE_PLAYBACK_CAP_LATENCY,
+    SPICE_PLAYBACK_CAP_OPUS,
+    /* Number of bits to display for capabilities of the playback channel. */
+    PLAYBACK_CAP_NBITS
+};
+
+enum {
+    SPICE_PLAYBACK_CAP_CELT_0_5_1_MASK = (1 << SPICE_PLAYBACK_CAP_CELT_0_5_1),
+    SPICE_PLAYBACK_CAP_VOLUME_MASK = (1 << SPICE_PLAYBACK_CAP_VOLUME),
+    SPICE_PLAYBACK_CAP_LATENCY_MASK = (1 << SPICE_PLAYBACK_CAP_LATENCY),
+    SPICE_PLAYBACK_CAP_OPUS_MASK = (1 << SPICE_PLAYBACK_CAP_OPUS),
+};
+
+/* record channel capabilities */
 enum {
     SPICE_RECORD_CAP_CELT_0_5_1,
-    SPICE_RECORD_CAP_VOLUME
+    SPICE_RECORD_CAP_VOLUME,
+    SPICE_RECORD_CAP_OPUS,
+    /* Number of bits to display for capabilities of the record channel. */
+    RECORD_CAP_NBITS
 };
 
 enum {
     SPICE_RECORD_CAP_CELT_0_5_1_MASK = (1 << SPICE_RECORD_CAP_CELT_0_5_1),
-    SPICE_RECORD_CAP_VOLUME_MASK = (1 << SPICE_RECORD_CAP_VOLUME)
+    SPICE_RECORD_CAP_VOLUME_MASK = (1 << SPICE_RECORD_CAP_VOLUME),
+    SPICE_RECORD_CAP_OPUS_MASK = (1 << SPICE_RECORD_CAP_OPUS),
 };
 
 /* display channel */
@@ -247,14 +264,36 @@ enum {
     SPICE_DISPLAY_CAP_SIZED_STREAM,
     SPICE_DISPLAY_CAP_MONITORS_CONFIG,
     SPICE_DISPLAY_CAP_COMPOSITE,
-    SPICE_DISPLAY_CAP_A8_SURFACE
+    SPICE_DISPLAY_CAP_A8_SURFACE,
+    SPICE_DISPLAY_CAP_STREAM_REPORT,
+    SPICE_DISPLAY_CAP_LZ4_COMPRESSION,
+    SPICE_DISPLAY_CAP_PREF_COMPRESSION,
+    SPICE_DISPLAY_CAP_GL_SCANOUT,
+    SPICE_DISPLAY_CAP_MULTI_CODEC,
+    SPICE_DISPLAY_CAP_CODEC_MJPEG,
+    SPICE_DISPLAY_CAP_CODEC_VP8,
+    SPICE_DISPLAY_CAP_CODEC_H264,
+    SPICE_DISPLAY_CAP_PREF_VIDEO_CODEC_TYPE,
+    SPICE_DISPLAY_CAP_CODEC_VP9,
+    /* Number of bits to display for capabilities of the display channel. */
+    DISPLAY_CAP_NBITS
 };
 
 enum {
     SPICE_DISPLAY_CAP_SIZED_STREAM_MASK = (1 << SPICE_DISPLAY_CAP_SIZED_STREAM),
     SPICE_DISPLAY_CAP_MONITORS_CONFIG_MASK = (1 << SPICE_DISPLAY_CAP_MONITORS_CONFIG),
     SPICE_DISPLAY_CAP_COMPOSITE_MASK = (1 << SPICE_DISPLAY_CAP_COMPOSITE),
-    SPICE_DISPLAY_CAP_A8_SURFACE_MASK = (1 << SPICE_DISPLAY_CAP_A8_SURFACE)
+    SPICE_DISPLAY_CAP_A8_SURFACE_MASK = (1 << SPICE_DISPLAY_CAP_A8_SURFACE),
+    SPICE_DISPLAY_CAP_STREAM_REPORT_MASK = (1 << SPICE_DISPLAY_CAP_STREAM_REPORT),
+    SPICE_DISPLAY_CAP_LZ4_COMPRESSION_MASK = (1 << SPICE_DISPLAY_CAP_LZ4_COMPRESSION),
+    SPICE_DISPLAY_CAP_PREF_COMPRESSION_MASK = (1 << SPICE_DISPLAY_CAP_PREF_COMPRESSION),
+    SPICE_DISPLAY_CAP_GL_SCANOUT_MASK = (1 << SPICE_DISPLAY_CAP_GL_SCANOUT),
+    SPICE_DISPLAY_CAP_MULTI_CODEC_MASK = (1 << SPICE_DISPLAY_CAP_MULTI_CODEC),
+    SPICE_DISPLAY_CAP_CODEC_MJPEG_MASK = (1 << SPICE_DISPLAY_CAP_CODEC_MJPEG),
+    SPICE_DISPLAY_CAP_CODEC_VP8_MASK = (1 << SPICE_DISPLAY_CAP_CODEC_VP8),
+    SPICE_DISPLAY_CAP_CODEC_H264_MASK = (1 << SPICE_DISPLAY_CAP_CODEC_H264),
+    SPICE_DISPLAY_CAP_PREF_VIDEO_CODEC_TYPE_MASK = (1 << SPICE_DISPLAY_CAP_PREF_VIDEO_CODEC_TYPE),
+    SPICE_DISPLAY_CAP_CODEC_VP9_MASK = (1 << SPICE_DISPLAY_CAP_CODEC_VP9)
 };
 
 /* display channel */
@@ -627,12 +666,27 @@ static int hf_main_client_agent_tokens = -1;
 static int hf_tranparent_src_color = -1;
 static int hf_tranparent_true_color = -1;
 static int hf_spice_sasl_auth_result = -1;
-static int hf_record_cap_volume = -1;
+static int hf_playback_cap_celt_0_5_1 = -1;
+static int hf_playback_cap_volume = -1;
+static int hf_playback_cap_latency = -1;
+static int hf_playback_cap_opus = -1;
 static int hf_record_cap_celt = -1;
+static int hf_record_cap_volume = -1;
+static int hf_record_cap_opus = -1;
 static int hf_display_cap_sized_stream = -1;
 static int hf_display_cap_monitors_config = -1;
 static int hf_display_cap_composite = -1;
 static int hf_display_cap_a8_surface = -1;
+static int hf_display_cap_stream_report = -1;
+static int hf_display_cap_lz4_compression = -1;
+static int hf_display_cap_pref_compression = -1;
+static int hf_display_cap_gl_scanout = -1;
+static int hf_display_cap_multi_codec = -1;
+static int hf_display_cap_codec_mjpeg = -1;
+static int hf_display_cap_codec_vp8 = -1;
+static int hf_display_cap_codec_h264 = -1;
+static int hf_display_cap_pref_video_codec_type = -1;
+static int hf_display_cap_codec_vp9 = -1;
 static int hf_main_uuid = -1;
 static int hf_main_name = -1;
 static int hf_main_name_len = -1;
@@ -993,6 +1047,7 @@ dissect_ImageLZ_common(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const gb
 {
 
     guint8 type;
+    guint32 end_offset = offset + size;
 
     offset += dissect_ImageLZ_common_header(tvb, tree, offset);
 
@@ -1014,7 +1069,7 @@ dissect_ImageLZ_common(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const gb
             offset += 4;
             proto_tree_add_item(tree, hf_LZ_RGB_dict_id, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
-            proto_tree_add_bytes_format(tree, hf_spice_lz_rgb_compressed_image_data, tvb, offset , size - 29, NULL, "LZ_RGB compressed image data (%u bytes)", size - 29);
+            proto_tree_add_bytes_format(tree, hf_spice_lz_rgb_compressed_image_data, tvb, offset, end_offset - offset, NULL, "LZ_RGB compressed image data (%u bytes)", end_offset - offset);
             break;
         case LZ_IMAGE_TYPE_RGBA:
             offset += 2;
@@ -1040,7 +1095,7 @@ dissect_ImageLZ_common(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const gb
             offset += 4;
             proto_tree_add_item(tree, hf_LZ_RGB_dict_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
-            proto_tree_add_bytes_format(tree, hf_spice_lz_rgb_compressed_image_data, tvb, offset , size - 30, NULL, "LZ_RGB compressed image data (%u bytes)", size - 30);
+            proto_tree_add_bytes_format(tree, hf_spice_lz_rgb_compressed_image_data, tvb, offset, end_offset - offset, NULL, "LZ_RGB compressed image data (%u bytes)", end_offset - offset);
             break;
     }
     return offset;
@@ -1362,10 +1417,10 @@ dissect_POINT32(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
     proto_item *ret_item;
     point32_t   point;
 
-    point.x = tvb_get_letohl(tvb, offset);
-    point.y = tvb_get_letohl(tvb, offset + 4);
+    point.x = tvb_get_letohil(tvb, offset);
+    point.y = tvb_get_letohil(tvb, offset + 4);
 
-    point_tree = proto_tree_add_subtree_format(tree, tvb, offset, sizeof(point32_t), ett_point, &ret_item, "POINT (%u, %u)", point.x, point.y);
+    point_tree = proto_tree_add_subtree_format(tree, tvb, offset, sizeof(point32_t), ett_point, &ret_item, "POINT (%d, %d)", point.x, point.y);
 
     proto_tree_add_item(point_tree, hf_point32_x, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(point_tree, hf_point32_y, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
@@ -1379,11 +1434,11 @@ dissect_POINT16(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
     proto_tree *point16_tree;
     point16_t   point16;
 
-    point16.x = tvb_get_letohs(tvb, offset);
-    point16.y = tvb_get_letohs(tvb, offset + 2);
+    point16.x = tvb_get_letohis(tvb, offset);
+    point16.y = tvb_get_letohis(tvb, offset + 2);
 
     if (tree) {
-        point16_tree = proto_tree_add_subtree_format(tree, tvb, offset, sizeof(point16_t), ett_point16, NULL, "POINT16 (%u, %u)", point16.x, point16.y);
+        point16_tree = proto_tree_add_subtree_format(tree, tvb, offset, sizeof(point16_t), ett_point16, NULL, "POINT16 (%d, %d)", point16.x, point16.y);
 
         proto_tree_add_item(point16_tree, hf_point16_x, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(point16_tree, hf_point16_y, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
@@ -2330,7 +2385,8 @@ dissect_spice_main_server(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, c
             for (i = 0; i < num_channels; i++ ) {
                 proto_tree *subsubtree;
 
-                subsubtree = proto_tree_add_subtree_format(subtree, tvb, offset, 2, ett_main_client, NULL, "channels[%u]", i);
+                subsubtree = proto_tree_add_subtree_format(subtree, tvb, offset, 2, ett_main_client, NULL, "channels[%u]: %s", i,
+                                                           val_to_str_const(tvb_get_guint8(tvb, offset), channel_types_vs, "Unknown"));
 
                 proto_tree_add_item(subsubtree, hf_channel_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
@@ -2477,7 +2533,7 @@ dissect_spice_inputs_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 1;
             break;
         case SPICE_MSGC_INPUTS_MOUSE_MOTION:
-            inputs_tree = proto_tree_add_subtree(tree, tvb, offset, sizeof(point32_t) + 4, ett_inputs_client, NULL, "Client MOUSE_MOTION message");
+            inputs_tree = proto_tree_add_subtree(tree, tvb, offset, sizeof(point32_t) + 2, ett_inputs_client, NULL, "Client MOUSE_MOTION message");
             dissect_POINT32(tvb, inputs_tree, offset);
             offset += (int)sizeof(point32_t);
             proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2871,16 +2927,18 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
         switch (spice_info->channel_type) {
             case SPICE_CHANNEL_PLAYBACK:
                 {
-                const int * playback[] = {
-                    &hf_common_cap_auth_select,
-                    &hf_common_cap_auth_spice,
+                const int * playback_cap[] = {
+                    &hf_playback_cap_celt_0_5_1,
+                    &hf_playback_cap_volume,
+                    &hf_playback_cap_latency,
+                    &hf_playback_cap_opus,
                     NULL
                 };
 
                 if (i != 0)
                     return;
 
-                proto_tree_add_bitmask_list(tree, tvb, offset, 4, playback, ENC_LITTLE_ENDIAN);
+                proto_tree_add_bitmask_list(tree, tvb, offset, 4, playback_cap, ENC_LITTLE_ENDIAN);
                 }
                 break;
             case SPICE_CHANNEL_MAIN:
@@ -2906,6 +2964,16 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
                     &hf_display_cap_monitors_config,
                     &hf_display_cap_composite,
                     &hf_display_cap_a8_surface,
+                    &hf_display_cap_stream_report,
+                    &hf_display_cap_lz4_compression,
+                    &hf_display_cap_pref_compression,
+                    &hf_display_cap_gl_scanout,
+                    &hf_display_cap_multi_codec,
+                    &hf_display_cap_codec_mjpeg,
+                    &hf_display_cap_codec_vp8,
+                    &hf_display_cap_codec_h264,
+                    &hf_display_cap_pref_video_codec_type,
+                    &hf_display_cap_codec_vp9,
                     NULL
                 };
 
@@ -2926,6 +2994,7 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
                 const int * record_cap[] = {
                     &hf_record_cap_celt,
                     &hf_record_cap_volume,
+                    &hf_record_cap_opus,
                     NULL
                 };
 
@@ -3504,34 +3573,109 @@ proto_register_spice(void)
             FT_BOOLEAN, 4, TFS(&tfs_set_notset), SPICE_COMMON_CAP_MINI_HEADER_MASK,
             NULL, HFILL }
         },
-        { &hf_record_cap_volume,
-          { "Volume record channel support", "spice.record_cap_volume",
-            FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_RECORD_CAP_VOLUME_MASK,
+        { &hf_playback_cap_celt_0_5_1,
+          { "CELT 0.5.1 playback channel support", "spice.playback_cap_celt_0_5_1",
+            FT_BOOLEAN, PLAYBACK_CAP_NBITS, TFS(&tfs_set_notset), SPICE_PLAYBACK_CAP_CELT_0_5_1_MASK,
+            NULL, HFILL }
+        },
+        { &hf_playback_cap_volume,
+          { "Volume playback channel support", "spice.playback_cap_volume",
+            FT_BOOLEAN, PLAYBACK_CAP_NBITS, TFS(&tfs_set_notset), SPICE_PLAYBACK_CAP_VOLUME_MASK,
+            NULL, HFILL }
+        },
+        { &hf_playback_cap_latency,
+          { "Latency playback channel support", "spice.playback_cap_latency",
+            FT_BOOLEAN, PLAYBACK_CAP_NBITS, TFS(&tfs_set_notset), SPICE_PLAYBACK_CAP_LATENCY_MASK,
+            NULL, HFILL }
+        },
+        { &hf_playback_cap_opus,
+          { "OPUS playback channel support", "spice.playback_cap_opus",
+            FT_BOOLEAN, PLAYBACK_CAP_NBITS, TFS(&tfs_set_notset), SPICE_PLAYBACK_CAP_OPUS_MASK,
             NULL, HFILL }
         },
         { &hf_record_cap_celt,
           { "CELT 0.5.1 record channel support", "spice.record_cap_celt",
-            FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_RECORD_CAP_CELT_0_5_1_MASK,
+            FT_BOOLEAN, RECORD_CAP_NBITS, TFS(&tfs_set_notset), SPICE_RECORD_CAP_CELT_0_5_1_MASK,
+            NULL, HFILL }
+        },
+        { &hf_record_cap_volume,
+          { "Volume record channel support", "spice.record_cap_volume",
+            FT_BOOLEAN, RECORD_CAP_NBITS, TFS(&tfs_set_notset), SPICE_RECORD_CAP_VOLUME_MASK,
+            NULL, HFILL }
+        },
+        { &hf_record_cap_opus,
+          { "Opus record channel support", "spice.record_cap_opus",
+            FT_BOOLEAN, RECORD_CAP_NBITS, TFS(&tfs_set_notset), SPICE_RECORD_CAP_OPUS_MASK,
             NULL, HFILL }
         },
         { &hf_display_cap_sized_stream,
           { "Sized stream display channel support", "spice.display_cap_sized_stream",
-            FT_BOOLEAN, 4, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_SIZED_STREAM_MASK,
+            FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_SIZED_STREAM_MASK,
             NULL, HFILL }
         },
         { &hf_display_cap_monitors_config,
           { "Monitors configuration display channel support", "spice.display_cap_monitors_config",
-            FT_BOOLEAN, 4, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_MONITORS_CONFIG_MASK,
+            FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_MONITORS_CONFIG_MASK,
             NULL, HFILL }
         },
         { &hf_display_cap_composite,
           { "Composite capability display channel support", "spice.display_cap_composite",
-            FT_BOOLEAN, 4, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_COMPOSITE_MASK,
+            FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_COMPOSITE_MASK,
             NULL, HFILL }
         },
         { &hf_display_cap_a8_surface,
           { "A8 bitmap display channel support", "spice.display_cap_a8_surface",
-            FT_BOOLEAN, 4, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_A8_SURFACE_MASK,
+            FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_A8_SURFACE_MASK,
+            NULL, HFILL }
+        },
+        { &hf_display_cap_stream_report,
+          { "Stream Report display channel support", "spice.display_cap_stream_report",
+            FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_STREAM_REPORT_MASK,
+            NULL, HFILL }
+        },
+        { &hf_display_cap_lz4_compression,
+          { "LZ4 Compression display channel support", "spice.display_cap_lz4_compression",
+            FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_LZ4_COMPRESSION_MASK,
+            NULL, HFILL }
+        },
+        { &hf_display_cap_pref_compression,
+          { "Pref Compression display channel support", "spice.display_cap_pref_compression",
+            FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_PREF_COMPRESSION_MASK,
+            NULL, HFILL }
+        },
+        { &hf_display_cap_gl_scanout,
+          { "GL Scanout display channel support", "spice.display_cap_gl_scanout",
+            FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_GL_SCANOUT_MASK,
+            NULL, HFILL }
+        },
+        { &hf_display_cap_multi_codec,
+          { "Multi-codec display channel support", "spice.display_cap_multi_codec",
+            FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_MULTI_CODEC_MASK,
+            NULL, HFILL }
+        },
+        { &hf_display_cap_codec_mjpeg,
+          { "MJPEG codec display channel support", "spice.display_cap_codec_mjpeg",
+            FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_CODEC_MJPEG_MASK,
+            NULL, HFILL }
+        },
+        { &hf_display_cap_codec_vp8,
+          { "VP8 codec display channel support", "spice.display_cap_codec_vp8",
+            FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_CODEC_VP8_MASK,
+            NULL, HFILL }
+        },
+        { &hf_display_cap_codec_h264,
+          { "H264 codec display channel support", "spice.display_cap_codec_h264",
+            FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_CODEC_H264_MASK,
+            NULL, HFILL }
+        },
+        { &hf_display_cap_pref_video_codec_type,
+          { "Preferred Video Codec Type display channel support", "spice.display_cap_pref_video_codec_type",
+            FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_PREF_VIDEO_CODEC_TYPE_MASK,
+            NULL, HFILL }
+        },
+        { &hf_display_cap_codec_vp9,
+          { "VP9 codec display channel support", "spice.display_cap_codec_vp9",
+            FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_CODEC_VP9_MASK,
             NULL, HFILL }
         },
         { &hf_cursor_cap,
@@ -4226,22 +4370,22 @@ proto_register_spice(void)
         },
         { &hf_point32_x,
           { "x", "spice.point32.x",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_INT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_point32_y,
           { "y", "spice.point32.y",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_INT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_point16_x,
           { "x", "spice.point16.x",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_INT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_point16_y,
           { "y", "spice.point16.y",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_INT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_severity,
@@ -4553,7 +4697,7 @@ proto_reg_handoff_spice(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -261,13 +261,15 @@ dissect_isup_called_party_number_parameter(parameter_tvb, actx->pinfo, tree, NUL
 #.FN_BODY RedirectionInformation VAL_PTR = &parameter_tvb
 
   tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
   if (!parameter_tvb)
     return offset;
 
- dissect_isup_redirection_information_parameter(parameter_tvb, tree, NULL);
+ subtree = proto_item_add_subtree(actx->created_item, ett_inap_RedirectionInformation);
+ dissect_isup_redirection_information_parameter(parameter_tvb, subtree, NULL);
 
 #.FN_BODY OriginalCalledPartyID VAL_PTR = &parameter_tvb
 
@@ -322,13 +324,87 @@ dissect_isup_called_party_number_parameter(parameter_tvb, actx->pinfo, tree, NUL
 
   dissect_q931_cause_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree, hf_inap_cause_indicator, &Cause_value, isup_parameter_type_value);
 
+#.FN_BODY Digits VAL_PTR = &parameter_tvb
+  /*
+   *-- Indicates the address signalling digits. Refer to the Q.763 Generic Number and Generic Digits parameter
+   *-- for encoding. The coding of the subfield's 'NumberQualifier' in Generic Number and 'TypeOfDigits' in
+   *-- Generic Digits are irrelevant to the INAP, the ASN.1 tags are sufficient to identify the parameter.
+   *-- The ISUP format does not allow to exclude these subfields, therefore the value is network operator specific.
+   *-- The following parameters should use Generic Number
+   *-- Additional Calling Number, CorrelationID for AssistRequestInstructions, AssistingSSPIPRoutingAddress
+   *--  for EstablishTemporaryConnection
+   *-- calledAddressValue for all occurrences,callingAddressValue for all occurrences
+   *-- The following parameters should use Generic Digits: prefix, all
+   *-- other CorrelationID occurrences, dialledNumber filtering criteria, callingLineID filtering criteria, lineID for
+   *-- ResourceID type, digitResponse for ReceivedInformationArg, iNServiceControlLow / iNServiceControlHigh for
+   *--MidCallInfoType,, iNServiceControlCode for MidCallInfo.
+   */
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
+  gint ett = -1;
+  gboolean digits = FALSE;
+
+  %(DEFAULT_BODY)s
+
+  if (!parameter_tvb)
+    return offset;
+
+  if (hf_index == hf_inap_additionalCallingPartyNumber) {
+    ett = ett_inap_additionalCallingPartyNumber;
+  } else if (hf_index == hf_inap_assistingSSPIPRoutingAddress) {
+    ett = ett_inap_assistingSSPIPRoutingAddress;
+  } else if (hf_index == hf_inap_correlationID) {
+    ett = ett_inap_correlationID;
+    digits = (opcode != opcode_assistRequestInstructions) ? TRUE : FALSE;
+  } else if (hf_index == hf_inap_calledAddressValue) {
+    ett = ett_inap_calledAddressValue;
+  } else if (hf_index == hf_inap_callingAddressValue) {
+    ett = ett_inap_callingAddressValue;
+  } else if (hf_index == hf_inap_number) {
+    ett = ett_inap_number;
+  } else if (hf_index == hf_inap_dialledNumber) {
+    ett = ett_inap_dialledNumber;
+    digits = TRUE;
+  } else if (hf_index == hf_inap_callingLineID) {
+    ett = ett_inap_callingLineID;
+    digits = TRUE;
+  } else if (hf_index == hf_inap_iNServiceControlCode) {
+    ett = ett_inap_iNServiceControlCode;
+    digits = TRUE;
+  } else if (hf_index == hf_inap_iNServiceControlCodeLow) {
+    ett = ett_inap_iNServiceControlCodeLow;
+    digits = TRUE;
+  } else if (hf_index == hf_inap_iNServiceControlCodeHigh) {
+    ett = ett_inap_iNServiceControlCodeHigh;
+    digits = TRUE;
+  } else if (hf_index == hf_inap_lineID) {
+    ett = ett_inap_lineID;
+    digits = TRUE;
+  } else if (hf_index == hf_inap_prefix) {
+    ett = ett_inap_prefix;
+    digits = TRUE;
+  } else if (hf_index == hf_inap_iPAddressValue) {
+    ett = ett_inap_iPAddressValue;
+  } else if (hf_index == hf_inap_digitsResponse) {
+    ett = ett_inap_digitsResponse;
+    digits = TRUE;
+  }
+
+  subtree = proto_item_add_subtree(actx->created_item, ett);
+  if (digits) {
+    dissect_isup_generic_digits_parameter(parameter_tvb, subtree, NULL);
+  } else {
+    dissect_isup_generic_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+#.END
+
 #.TYPE_ATTR
 CallingPartysCategory TYPE = FT_UINT16  DISPLAY = BASE_DEC|BASE_EXT_STRING  STRINGS = &isup_calling_partys_category_value_ext
 
 #.END
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 2

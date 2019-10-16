@@ -122,7 +122,7 @@ WS_DLL_PUBLIC const value_string nmas_subverb_enum[];
 WS_DLL_PUBLIC const value_string ncp_nds_verb_vals[];
 
 void dissect_ncp_request(tvbuff_t*, packet_info*, guint32,
-		guint8, guint16, proto_tree *volatile);
+		guint8, guint16, gboolean, proto_tree *volatile);
 
 void dissect_ncp_reply(tvbuff_t *, packet_info*, guint32, guint8,
 		guint16, proto_tree*, struct novell_tap*);

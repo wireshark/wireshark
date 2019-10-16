@@ -178,7 +178,7 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		if (direction != P2P_DIR_UNKNOWN) {
 			direction_ti = proto_tree_add_uint(v5dl_tree, hf_v5dl_direction,
 			                                   tvb, 0, 0, pinfo->p2p_dir);
-			PROTO_ITEM_SET_GENERATED(direction_ti);
+			proto_item_set_generated(direction_ti);
 		}
 
 		addr_ti = proto_tree_add_uint(v5dl_tree, hf_v5dl_ef, tvb,
@@ -377,7 +377,7 @@ proto_register_v5dl(void)
 #if 0
 	{ &hf_v5dl_checksum,
 	  { "Checksum", "v5dl.checksum", FT_UINT16, BASE_HEX,
-		NULL, 0x0, "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
+		NULL, 0x0, "Details at: https://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
 
 	{ &hf_v5dl_checksum_status,
 	  { "Checksum Status", "v5dl.checksum.status", FT_UINT8, BASE_NONE,
@@ -414,7 +414,7 @@ proto_reg_handoff_v5dl(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

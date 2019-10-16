@@ -1293,12 +1293,12 @@ dissect_osd_partition_id(packet_info *pinfo, tvbuff_t *tvb, int offset,
         if (part_info->created_in) {
             proto_item *tmp_item;
             tmp_item = proto_tree_add_uint(partition_tree, hf_scsi_osd_partition_created_in, tvb, 0, 0, part_info->created_in);
-            PROTO_ITEM_SET_GENERATED(tmp_item);
+            proto_item_set_generated(tmp_item);
         }
         if (part_info->removed_in) {
             proto_item *tmp_item;
             tmp_item = proto_tree_add_uint(partition_tree, hf_scsi_osd_partition_removed_in, tvb, 0, 0, part_info->removed_in);
-            PROTO_ITEM_SET_GENERATED(tmp_item);
+            proto_item_set_generated(tmp_item);
         }
     }
 
@@ -3353,7 +3353,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* We must store the service action for this itlq
              * so we can identify what the data contains
              */
-            if ((!pinfo->fd->flags.visited) || (!cdata->itlq->extra_data)) {
+            if ((!pinfo->fd->visited) || (!cdata->itlq->extra_data)) {
                 scsi_osd_extra_data_t *extra_data;
 
                 extra_data = wmem_new0(wmem_file_scope(), scsi_osd_extra_data_t);
@@ -3387,7 +3387,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (svcaction) {
         proto_item *it;
         it = proto_tree_add_uint_format_value(tree, hf_scsi_osd_svcaction, tvb, 0, 0, svcaction, "0x%04x", svcaction);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
     }
     dissector = find_svcaction_dissector(svcaction);
     if (dissector) {

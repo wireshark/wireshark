@@ -16,6 +16,12 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="TabnavTreeView" name="coloringRulesTreeView">
+     <property name="dragEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::InternalMove</enum>
+     </property>
      <property name="selectionMode">
       <enum>QAbstractItemView::ExtendedSelection</enum>
      </property>
@@ -34,14 +40,8 @@
      <property name="expandsOnDoubleClick">
       <bool>false</bool>
      </property>
-     <property name="dragEnabled">
+     <property name="DropIndicatorShown" stdset="0">
       <bool>true</bool>
-     </property>
-     <property name="DropIndicatorShown">
-      <bool>true</bool>
-     </property>
-     <property name="dragDropMode">
-      <enum>QAbstractItemView::InternalMove</enum>
      </property>
     </widget>
    </item>
@@ -56,48 +56,55 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,1">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,1">
      <item>
-      <widget class="QToolButton" name="newToolButton">
+      <widget class="StockIconToolButton" name="newToolButton">
        <property name="toolTip">
         <string>Add a new coloring rule.</string>
        </property>
        <property name="text">
         <string/>
        </property>
-       <property name="icon">
-        <iconset resource="../../image/stock_icons.qrc">
-         <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
-       </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="deleteToolButton">
+      <widget class="StockIconToolButton" name="deleteToolButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
         <string>Delete this coloring rule.</string>
        </property>
        <property name="text">
         <string/>
        </property>
-       <property name="icon">
-        <iconset resource="../../image/stock_icons.qrc">
-         <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png</iconset>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="copyToolButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Duplicate this coloring rule.</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="copyToolButton">
-       <property name="toolTip">
-        <string>Duplicate this coloring rule.</string>
+      <widget class="StockIconToolButton" name="clearToolButton">
+       <property name="enabled">
+        <bool>false</bool>
        </property>
-       <property name="icon">
-        <iconset resource="../../image/stock_icons.qrc">
-         <normaloff>:/stock/copy-8.png</normaloff>:/stock/copy-8.png</iconset>
+       <property name="toolTip">
+        <string>Clear all coloring rules.</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="fGPushButton">
+       <property name="visible">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
         <string>Set the foreground color for this rule.</string>
        </property>
@@ -113,13 +120,13 @@
        <property name="flat">
         <bool>true</bool>
        </property>
-       <property name="visible">
-        <bool>false</bool>
-       </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="bGPushButton">
+       <property name="visible">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
         <string>Set the background color for this rule.</string>
        </property>
@@ -135,13 +142,13 @@
        <property name="flat">
         <bool>true</bool>
        </property>
-       <property name="visible">
-        <bool>false</bool>
-       </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="displayFilterPushButton">
+       <property name="visible">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
         <string>Set the display filter using this rule.</string>
        </property>
@@ -149,9 +156,6 @@
         <string>Apply as filter</string>
        </property>
        <property name="autoDefault">
-        <bool>false</bool>
-       </property>
-       <property name="visible">
         <bool>false</bool>
        </property>
       </widget>
@@ -169,6 +173,25 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="ElidedLabel" name="pathLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -185,14 +208,22 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>ElidedLabel</class>
+   <extends>QLabel</extends>
+   <header>widgets/elided_label.h</header>
+  </customwidget>
+  <customwidget>
    <class>TabnavTreeView</class>
    <extends>QTreeView</extends>
    <header>widgets/tabnav_tree_view.h</header>
   </customwidget>
+  <customwidget>
+   <class>StockIconToolButton</class>
+   <extends>QToolButton</extends>
+   <header>widgets/stock_icon_tool_button.h</header>
+  </customwidget>
  </customwidgets>
- <resources>
-  <include location="../../image/stock_icons.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

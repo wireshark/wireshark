@@ -15,6 +15,7 @@
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <epan/reassemble.h>
 
 void proto_reg_handoff_opa_mad(void);
 void proto_register_opa_mad(void);
@@ -811,6 +812,9 @@ static gint ett_mad = -1;
 static gint ett_mad_status = -1;
 static gint ett_mad_attributemod = -1;
 static gint ett_rmpp = -1;
+static gint ett_rmpp_fragment = -1;
+static gint ett_rmpp_fragments = -1;
+static gint ett_rmpp_sa_record = -1;
 /* Common */
 static gint ett_noticestraps = -1;
 static gint ett_datadetails = -1;
@@ -860,7 +864,6 @@ static gint ett_ledinfo = -1;
 static gint ett_cableinfo = -1;
 static gint ett_aggregate = -1;
 static gint ett_buffercontroltable = -1;
-static gint ett_buffercontroltable_port = -1;
 static gint ett_congestioninfo = -1;
 static gint ett_switchcongestionlog = -1;
 static gint ett_switchcongestionlog_entry = -1;
@@ -2483,6 +2486,101 @@ static expert_field ei_opa_mad_attribute_modifier_error_nonzero = EI_INIT;
 static expert_field ei_opa_rmpp_undecoded = EI_INIT;
 static expert_field ei_opa_aggregate_error = EI_INIT;
 
+/* Fragments */
+static gint hf_opa_rmpp_fragments = -1;
+static gint hf_opa_rmpp_fragment = -1;
+static gint hf_opa_rmpp_fragment_overlap = -1;
+static gint hf_opa_rmpp_fragment_overlap_conflicts = -1;
+static gint hf_opa_rmpp_fragment_multiple_tails = -1;
+static gint hf_opa_rmpp_fragment_too_long_fragment = -1;
+static gint hf_opa_rmpp_fragment_error = -1;
+static gint hf_opa_rmpp_fragment_count = -1;
+static gint hf_opa_rmpp_reassembled_in = -1;
+static gint hf_opa_rmpp_reassembled_length = -1;
+
+static const fragment_items opa_rmpp_frag_items = {
+    &ett_rmpp_fragment,
+    &ett_rmpp_fragments,
+    &hf_opa_rmpp_fragments,
+    &hf_opa_rmpp_fragment,
+    &hf_opa_rmpp_fragment_overlap,
+    &hf_opa_rmpp_fragment_overlap_conflicts,
+    &hf_opa_rmpp_fragment_multiple_tails,
+    &hf_opa_rmpp_fragment_too_long_fragment,
+    &hf_opa_rmpp_fragment_error,
+    &hf_opa_rmpp_fragment_count,
+    &hf_opa_rmpp_reassembled_in,
+    &hf_opa_rmpp_reassembled_length,
+    NULL,
+    "RMPP Fragments"
+};
+
+/**
+ * Builds a range string from a PortSelectMask
+ *
+ * @param[in] tvb pointer to packet buffer
+ * @param[in] offset offset into packet buffer where port select mask begins
+ * @param[out] port_list optional: pointer to an arrray of ports, allocated by
+ *                                 wmem_alloc(wmem_packet_scope(), 256)
+ * @param[out] num_ports optional: pointer to a number of ports in set in port
+ *                                 select mask and portlist if provided.
+ * @return gchar* pointer to range string allocated using
+ *                wmem_strbuf_sized_new(wmem_packet_scope(),...)
+ */
+static gchar *opa_format_port_select_mask(tvbuff_t *tvb, gint offset, guint8 **port_list, guint8 *num_ports)
+{
+    gint i, j, port, last = -1, first = 0, ports = 0;
+    guint64 mask, psm[4];
+    wmem_strbuf_t *buf = NULL;
+    guint8 *portlist = NULL;
+
+    if (!tvb_bytes_exist(tvb, offset, 32)) {
+        return (gchar *)"Invalid Length: Requires 32 bytes";
+    }
+    psm[0] = tvb_get_ntoh64(tvb, offset);
+    psm[1] = tvb_get_ntoh64(tvb, offset + 8);
+    psm[2] = tvb_get_ntoh64(tvb, offset + 16);
+    psm[3] = tvb_get_ntoh64(tvb, offset + 24);
+
+    buf = wmem_strbuf_sized_new(wmem_packet_scope(), 0, ITEM_LABEL_LENGTH);
+
+    if (port_list) {
+        /* Allocate list of ports; max = 256 = 64 * 4 */
+        portlist = (guint8 *)wmem_alloc(wmem_packet_scope(), 256);
+        memset(portlist, 0xFF, 256);
+    }
+    for (i = 0; i < 4; i++) {
+        mask = psm[3 - i];
+        for (j = 0; mask && j < 64; j++, mask >>= 1) {
+            if ((mask & (guint64)0x1) == 0) continue;
+            port = (i * 64) + j;
+            if (portlist) portlist[ports] = port;
+
+            if (last == -1) {
+                wmem_strbuf_append_printf(buf, "%d", port);
+                last = first = port;
+            } else if ((port - last) > 1) {
+                if (first == last)
+                    wmem_strbuf_append_printf(buf, ",%d", port);
+                else
+                    wmem_strbuf_append_printf(buf, "-%d,%d", last, port);
+                last = first = port;
+            } else {
+                last = port;
+            }
+            ports++;
+        }
+    }
+    if (first != last && last != -1) {
+        wmem_strbuf_append_printf(buf, "-%d", last);
+    }
+    if (wmem_strbuf_get_len(buf) == 0) {
+        wmem_strbuf_append(buf, "<Empty>");
+    }
+    if (num_ports) *num_ports = ports;
+    if (port_list) *port_list = portlist;
+    return (gchar *)wmem_strbuf_finalize(buf);
+}
 /* Custom Functions */
 static void cf_opa_mad_swinfo_ar_frequency(gchar *buf, guint16 value)
 {
@@ -2597,7 +2695,10 @@ static dissector_handle_t opa_mad_handle;
 static dissector_handle_t eth_handle;
 static dissector_table_t ethertype_dissector_table;
 
+static reassembly_table opa_mad_rmpp_reassembly_table;
+
 gboolean pref_parse_on_mad_status_error = FALSE;
+gboolean pref_attempt_rmpp_defragment = TRUE;
 
 static range_t *global_mad_vendor_class = NULL;
 static range_t *global_mad_vendor_rmpp_class = NULL;
@@ -2838,7 +2939,7 @@ static gboolean parse_RMPP(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     case RMPP_DATA:
         RMPP_segment_number_item = proto_tree_add_item(RMPP_header_tree, hf_opa_rmpp_segment_number, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         RMPP->SegmentNumber = tvb_get_ntohl(tvb, local_offset);
-        if (RMPP->SegmentNumber > 1) {
+        if (!pref_attempt_rmpp_defragment && RMPP->SegmentNumber > 1) {
             expert_add_info_format(pinfo, RMPP_segment_number_item, &ei_opa_rmpp_undecoded,
                 "Parsing Disabled for RMPP Data Segments greater than 1 (%u)", RMPP->SegmentNumber);
         }
@@ -3018,7 +3119,7 @@ static gint parse_NoticesAndTraps(proto_tree *parentTree, tvbuff_t *tvb, gint *o
     if (!parentTree)
         return *offset;
 
-    NoticesAndTraps_header_item = proto_tree_add_item(parentTree, hf_opa_Notice, tvb, local_offset, 64, ENC_NA);
+    NoticesAndTraps_header_item = proto_tree_add_item(parentTree, hf_opa_Notice, tvb, local_offset, 96, ENC_NA);
     proto_item_set_text(NoticesAndTraps_header_item, "%s", val_to_str(trapNumber, Trap_Description, "Unknown or Vendor Specific Trap Number! (0x%02x)"));
     NoticesAndTraps_header_tree = proto_item_add_subtree(NoticesAndTraps_header_item, ett_noticestraps);
 
@@ -3046,9 +3147,15 @@ static gint parse_NoticesAndTraps(proto_tree *parentTree, tvbuff_t *tvb, gint *o
     proto_tree_add_item(NoticesAndTraps_header_tree, hf_opa_Notice_IssuerGID, tvb, local_offset, 16, ENC_NA);
     local_offset += 16;
 
-    parse_NoticeDataDetails(NoticesAndTraps_header_tree, tvb, &local_offset, trapNumber);
-    local_offset += 64;
-    proto_tree_add_item(NoticesAndTraps_header_tree, hf_opa_Notice_ClassDataDetails, tvb, local_offset, -1, ENC_NA);
+    if (isGeneric) {
+        parse_NoticeDataDetails(NoticesAndTraps_header_tree, tvb, &local_offset, trapNumber);
+        local_offset += 64;
+        if (tvb_bytes_exist(tvb, local_offset, 8)) {
+            proto_tree_add_item(NoticesAndTraps_header_tree, hf_opa_Notice_ClassDataDetails, tvb, local_offset, -1, ENC_NA);
+        }
+    } else {
+        local_offset += 64;
+    }
     return local_offset;
 }
 
@@ -3344,6 +3451,8 @@ static gint parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, 
     proto_item *temp_item;
     guint p, i, Num_ports, Port_num;
     guint16 active;
+    gint block_length = 242;
+    gint block_pad_len = 8 - (block_length & 7); /* Padding to add */
 
     if (MAD->MgmtClass == SUBNADMN) {
         Num_ports = 1;
@@ -3356,8 +3465,8 @@ static gint parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
 
-    for (p = Port_num; p < (Port_num + Num_ports); p++) {
-        PortInfo_header_item = proto_tree_add_item(parentTree, hf_opa_PortInfo, tvb, local_offset, 242, ENC_NA);
+    for (p = Port_num; p < (Port_num + Num_ports);) {
+        PortInfo_header_item = proto_tree_add_item(parentTree, hf_opa_PortInfo, tvb, local_offset, block_length, ENC_NA);
         proto_item_set_text(PortInfo_header_item, "PortInfo on Port %d", p);
         PortInfo_header_tree = proto_item_add_subtree(PortInfo_header_item, ett_portinfo);
 
@@ -3668,9 +3777,10 @@ static gint parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, 
 
         proto_tree_add_item(PortInfo_header_tree, hf_opa_reserved16, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
-        if (Num_ports > 1) {
-            /* 8 Byte Padding offset */
-            local_offset += 8 - (242 % 8);
+
+        /* If Not last block add byte padding */
+        if ((++p) < (Port_num + Num_ports)) {
+            local_offset += block_pad_len;
         }
     }
 
@@ -4201,12 +4311,13 @@ static gint parse_CableInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset,
 static gint parse_BufferControlTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
 {
     gint local_offset = *offset;
-    proto_item *BufferControlTable_header_item;
-    proto_tree *BufferControlTable_header_tree;
+    proto_item *BCT_header_item;
+    proto_tree *BCT_header_tree;
     proto_item *tempItemLow;
     proto_item *tempItemHigh;
-    proto_tree *tempBlock_tree;
     guint p, i, Port_num, Num_ports;
+    gint block_length = 4 + (32 * 4);
+    gint block_pad_len = 8 - (block_length & 7); /* Padding to add */
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -4219,24 +4330,27 @@ static gint parse_BufferControlTable(proto_tree *parentTree, tvbuff_t *tvb, gint
         Port_num = (MAD->AttributeModifier & 0x000000FF);
     }
 
-    BufferControlTable_header_item = proto_tree_add_item(parentTree, hf_opa_BufferControlTable, tvb, local_offset, (4 + 32 * 4) * Num_ports, ENC_NA);
-    BufferControlTable_header_tree = proto_item_add_subtree(BufferControlTable_header_item, ett_buffercontroltable);
+    for (p = Port_num; p < (Port_num + Num_ports);) {
+        BCT_header_item = proto_tree_add_item(parentTree, hf_opa_BufferControlTable, tvb, local_offset, block_length, ENC_NA);
+        proto_item_append_text(BCT_header_item, " Port %u", p);
+        BCT_header_tree = proto_item_add_subtree(BCT_header_item, ett_buffercontroltable);
 
-    for (p = Port_num; p < Port_num + Num_ports; p++) {
-        tempBlock_tree = proto_tree_add_subtree_format(BufferControlTable_header_tree, tvb, local_offset, (4 + 32 * 4),
-            ett_buffercontroltable_port, NULL, "Buffer Control Table Port %u", p);
-
-        proto_tree_add_item(tempBlock_tree, hf_opa_reserved16, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(BCT_header_tree, hf_opa_reserved16, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
-        proto_tree_add_item(tempBlock_tree, hf_opa_BufferControlTable_TxOverallSharedLimit, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(BCT_header_tree, hf_opa_BufferControlTable_TxOverallSharedLimit, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
         for (i = 0; i < 32; i++) {
-            tempItemHigh = proto_tree_add_item(tempBlock_tree, hf_opa_BufferControlTable_TxSharedLimit, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+            tempItemHigh = proto_tree_add_item(BCT_header_tree, hf_opa_BufferControlTable_TxSharedLimit, tvb, local_offset, 2, ENC_BIG_ENDIAN);
             local_offset += 2;
-            tempItemLow = proto_tree_add_item(tempBlock_tree, hf_opa_BufferControlTable_TxDedicatedLimit, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+            tempItemLow = proto_tree_add_item(BCT_header_tree, hf_opa_BufferControlTable_TxDedicatedLimit, tvb, local_offset, 2, ENC_BIG_ENDIAN);
             local_offset += 2;
             proto_item_prepend_text(tempItemHigh, "VL %2u: ", i);
             proto_item_prepend_text(tempItemLow, "       ");
+        }
+
+        /* If Not last block add byte padding */
+        if ((++p) < (Port_num + Num_ports)) {
+            local_offset += block_pad_len;
         }
     }
     return local_offset;
@@ -5680,8 +5794,8 @@ static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
     proto_tree *SUBA_Attribute_header_tree = parentTree;
     guint local_offset = *offset;
 
-    if (RMPP->Type == RMPP_ACK || SA_HEADER->AttributeOffset == 0 ||
-        (RMPP->PayloadLength <= 20 && RMPP->Type == RMPP_DATA))
+    if (RMPP->Type == RMPP_ACK || SA_HEADER->AttributeOffset == 0 || (RMPP->PayloadLength <= 20 && RMPP->Type == RMPP_DATA) ||
+        (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return TRUE;
 
     /* Skim off the RID fields should they be present */
@@ -5898,6 +6012,13 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     MAD_t       MAD;
     RMPP_t      RMPP;
     SA_HEADER_t SA_HEADER;
+    fragment_head *frag_head = NULL;
+    tvbuff_t *old_tvb = NULL;
+    gint old_offset;
+    guint r, records, length;
+    proto_tree *SA_record_tree;
+    const guchar *label;
+    gboolean parent_was_opa_fe = proto_is_frame_protocol(pinfo->layers, "opa.fe");
 
     if (!parse_MAD_Common(parentTree, pinfo, tvb, offset, &MAD)) {
         return;
@@ -5909,17 +6030,51 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
         return;
     }
     if ((!pref_parse_on_mad_status_error && MAD.Status) ||
-        RMPP.Type == RMPP_ACK || SA_HEADER.AttributeOffset == 0 ||
-        (RMPP.Type == RMPP_DATA && RMPP.SegmentNumber != 1)) {
+        RMPP.Type == RMPP_ACK) {
         *offset += tvb_captured_length_remaining(tvb, *offset);
         return;
     }
-    if (!parse_SUBA_Attribute(parentTree, tvb, offset, &MAD, &RMPP, &SA_HEADER)) {
-        expert_add_info_format(pinfo, NULL, &ei_opa_mad_no_attribute_dissector,
-            "Attribute Dissector Not Implemented (0x%x)", MAD.AttributeID);
-        *offset += tvb_captured_length_remaining(tvb, *offset);
-        return;
+
+    if (!parent_was_opa_fe && pref_attempt_rmpp_defragment
+        && (RMPP.resptime_flags & RMPP_FLAG_ACTIVE_MASK) && (RMPP.Type == RMPP_DATA)
+        && !((RMPP.resptime_flags & RMPP_FLAG_FIRST_MASK)
+            && (RMPP.resptime_flags & RMPP_FLAG_LAST_MASK))) {
+
+        frag_head = fragment_add_seq_check(&opa_mad_rmpp_reassembly_table,
+            tvb, *offset, pinfo, (guint32)MAD.TransactionID, NULL, RMPP.SegmentNumber - 1,
+            ((RMPP.resptime_flags & RMPP_FLAG_LAST_MASK) ?
+                RMPP.PayloadLength - 20 : (guint32)tvb_captured_length_remaining(tvb, *offset)),
+            (gboolean)!(RMPP.resptime_flags & RMPP_FLAG_LAST_MASK));
+        /* Back up tvb & offset */
+        old_tvb = tvb;
+        old_offset = *offset;
+        /* Create new tvb from reassembled data */
+        tvb = process_reassembled_data(old_tvb, old_offset, pinfo, "Reassembled RMPP Packet",
+            frag_head, &opa_rmpp_frag_items, NULL, parentTree);
+        if (tvb == NULL) {
+            return;
+        }
+        *offset = 0;
     }
+
+    length = tvb_captured_length_remaining(tvb, *offset);
+    records = (SA_HEADER.AttributeOffset ? length / (SA_HEADER.AttributeOffset * 8) : 0);
+    for (r = 0; r < records; r++) {
+        old_offset = *offset;
+        label = val_to_str_const(MAD.AttributeID, SUBA_Attributes, "Attribute (Unknown SA Attribute!)");
+        SA_record_tree = proto_tree_add_subtree_format(parentTree, tvb, old_offset,
+            (SA_HEADER.AttributeOffset * 8), ett_rmpp_sa_record, NULL, "%.*s Record %u: ",
+            (gint)strlen(&label[11]) - 1, &label[11], r);
+
+        if (!parse_SUBA_Attribute(SA_record_tree, tvb, offset, &MAD, &RMPP, &SA_HEADER)) {
+            expert_add_info_format(pinfo, NULL, &ei_opa_mad_no_attribute_dissector,
+                "Attribute Dissector Not Implemented (0x%x)", MAD.AttributeID);
+            *offset += tvb_captured_length_remaining(tvb, *offset);
+            return;
+        }
+        *offset = old_offset + (SA_HEADER.AttributeOffset * 8);
+    }
+    return;
 }
 
 /* Parse PortStatus MAD from the Performance management class. */
@@ -5937,7 +6092,7 @@ static gint parse_PortStatus(proto_tree *parentTree, tvbuff_t *tvb, gint *offset
         return *offset;
 
     VLSelectMask = tvb_get_ntohl(tvb, local_offset + 4);
-    for (i = 0, VLs = 0, vlSelMskTmp = VLSelectMask; vlSelMskTmp && i < 32 && vlSelMskTmp; i++, vlSelMskTmp >>= 1) {
+    for (i = 0, VLs = 0, vlSelMskTmp = VLSelectMask; vlSelMskTmp && i < 32; i++, vlSelMskTmp >>= 1) {
         VLs = VLs + (vlSelMskTmp & 0x1);
     }
 
@@ -6077,10 +6232,6 @@ static gint parse_ClearPortStatus(proto_tree *parentTree, tvbuff_t *tvb, gint *o
     proto_tree *ClearPortStatus_header_tree;
     proto_item *ClearPortStatus_PortSelectMask_item;
     gint local_offset = *offset;
-    guint64 PortSelectMask[4];
-    guint64 PortSelectMaskTemp;
-    guint i, j;
-    guint PortsOffset = 0;
 
     if (!parentTree)
         return *offset;
@@ -6091,20 +6242,10 @@ static gint parse_ClearPortStatus(proto_tree *parentTree, tvbuff_t *tvb, gint *o
         return *offset;
 
     ClearPortStatus_header_tree = proto_item_add_subtree(ClearPortStatus_header_item, ett_clearportstatus);
-    PortSelectMask[0] = tvb_get_ntoh64(tvb, local_offset);
-    PortSelectMask[1] = tvb_get_ntoh64(tvb, local_offset + 8);
-    PortSelectMask[2] = tvb_get_ntoh64(tvb, local_offset + 16);
-    PortSelectMask[3] = tvb_get_ntoh64(tvb, local_offset + 24);
 
     ClearPortStatus_PortSelectMask_item = proto_tree_add_item(ClearPortStatus_header_tree, hf_opa_ClearPortStatus_PortSelectMask, tvb, local_offset, 32, ENC_NA);
-    for (j = 0; j < 4; j++) {
-        for (i = 0, PortSelectMaskTemp = PortSelectMask[3 - j]; i < 64 && (PortSelectMaskTemp); i++, PortSelectMaskTemp >>= (guint64)1) {
-            if (PortSelectMaskTemp & (guint64)0x1) {
-                proto_item_append_text(ClearPortStatus_PortSelectMask_item, "%s%u", (PortsOffset ? ", " : " "), (i)+(j * 64));
-                PortsOffset++;
-            }
-        }
-    }
+    proto_item_append_text(ClearPortStatus_PortSelectMask_item, ": %s",
+        opa_format_port_select_mask(tvb, local_offset, NULL, NULL));
     local_offset += 32;
 
     proto_tree_add_bitmask(ClearPortStatus_header_tree, tvb, local_offset,
@@ -6126,17 +6267,14 @@ static gint parse_DataPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *
 
     gint local_offset = *offset;
     guint32 VLSelectMask, vlSelMskTmp;
-    guint64 PortSelectMask[4];
-    guint64 PortSelectMaskTemp;
-    guint VLs, i, j, p;
-    guint PortsOffset = 0;
+    guint VLs, i, p;
     guint Num_Ports = (MAD->AttributeModifier >> 24) & 0xFF;
 
     if (!parentTree)
         return *offset;
 
     VLSelectMask = tvb_get_ntohl(tvb, local_offset + 32);
-    for (i = 0, VLs = 0, vlSelMskTmp = VLSelectMask; vlSelMskTmp && i < 32 && vlSelMskTmp; i++, vlSelMskTmp >>= 1) {
+    for (i = 0, VLs = 0, vlSelMskTmp = VLSelectMask; vlSelMskTmp && i < 32; i++, vlSelMskTmp >>= 1) {
         VLs += (vlSelMskTmp & 0x1);
     }
 
@@ -6149,20 +6287,9 @@ static gint parse_DataPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *
     }
     DataPortCounters_header_tree = proto_item_add_subtree(DataPortCounters_header_item, ett_dataportcounters);
 
-    PortSelectMask[0] = tvb_get_ntoh64(tvb, local_offset);
-    PortSelectMask[1] = tvb_get_ntoh64(tvb, local_offset + 8);
-    PortSelectMask[2] = tvb_get_ntoh64(tvb, local_offset + 16);
-    PortSelectMask[3] = tvb_get_ntoh64(tvb, local_offset + 24);
-
     DataPortCounters_PortSelectMask_item = proto_tree_add_item(DataPortCounters_header_tree, hf_opa_DataPortCounters_PortSelectMask, tvb, local_offset, 32, ENC_NA);
-    for (j = 0; j < 4; j++) {
-        for (i = 0, PortSelectMaskTemp = PortSelectMask[3 - j]; i < 64 && (PortSelectMaskTemp); i++, PortSelectMaskTemp >>= (guint64)1) {
-            if (PortSelectMaskTemp & (guint64)0x1) {
-                proto_item_append_text(DataPortCounters_PortSelectMask_item, "%s%u", (PortsOffset ? ", " : " "), (i)+(j * 64));
-                PortsOffset++;
-            }
-        }
-    }
+    proto_item_append_text(DataPortCounters_PortSelectMask_item, ": %s",
+        opa_format_port_select_mask(tvb, local_offset, NULL, NULL));
     local_offset += 32;
 
     proto_tree_add_item(DataPortCounters_header_tree, hf_opa_DataPortCounters_VLSelectMask, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -6274,10 +6401,7 @@ static gint parse_ErrorPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint 
 
     gint local_offset = *offset;
     guint32 VLSelectMask, vlSelMskTmp;
-    guint64 PortSelectMask[4];
-    guint64 PortSelectMaskTemp;
-    guint VLs, i, j, p;
-    guint PortsOffset = 0;
+    guint VLs, i, p;
     guint Num_Ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
 
     if (!parentTree)
@@ -6297,19 +6421,9 @@ static gint parse_ErrorPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint 
     }
     ErrorPortCounters_header_tree = proto_item_add_subtree(ErrorPortCounters_header_item, ett_errorportcounters);
 
-    PortSelectMask[0] = tvb_get_ntoh64(tvb, local_offset);
-    PortSelectMask[1] = tvb_get_ntoh64(tvb, local_offset + 8);
-    PortSelectMask[2] = tvb_get_ntoh64(tvb, local_offset + 16);
-    PortSelectMask[3] = tvb_get_ntoh64(tvb, local_offset + 24);
     ErrorPortCounters_PortSelectMask_item = proto_tree_add_item(ErrorPortCounters_header_tree, hf_opa_ErrorPortCounters_PortSelectMask, tvb, local_offset, 32, ENC_NA);
-    for (j = 0; j < 4; j++) {
-        for (i = 0, PortSelectMaskTemp = PortSelectMask[3 - j]; i < 64 && (PortSelectMaskTemp); i++, PortSelectMaskTemp >>= (guint64)1) {
-            if (PortSelectMaskTemp & (guint64)0x1) {
-                proto_item_append_text(ErrorPortCounters_PortSelectMask_item, "%s%u", (PortsOffset ? ", " : " "), (i)+(j * 64));
-                PortsOffset++;
-            }
-        }
-    }
+    proto_item_append_text(ErrorPortCounters_PortSelectMask_item, ": %s",
+        opa_format_port_select_mask(tvb, local_offset, NULL, NULL));
     local_offset += 32;
 
     proto_tree_add_item(ErrorPortCounters_header_tree, hf_opa_ErrorPortCounters_VLSelectMask, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -6392,10 +6506,7 @@ static gint parse_ErrorPortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *off
         *FMConfigErrorInfo_tree;
 
     gint local_offset = *offset;
-    guint64 PortSelectMask[4];
-    guint64 PortSelectMaskTemp;
-    guint i, j, p, ErrorCode;
-    guint PortsOffset = 0;
+    guint p, ErrorCode;
     guint Num_Ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
 
     if (!parentTree)
@@ -6410,19 +6521,9 @@ static gint parse_ErrorPortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *off
     }
     ErrorPortInfo_header_tree = proto_item_add_subtree(ErrorPortInfo_header_item, ett_errorportinfo);
 
-    PortSelectMask[0] = tvb_get_ntoh64(tvb, local_offset);
-    PortSelectMask[1] = tvb_get_ntoh64(tvb, local_offset + 8);
-    PortSelectMask[2] = tvb_get_ntoh64(tvb, local_offset + 16);
-    PortSelectMask[3] = tvb_get_ntoh64(tvb, local_offset + 24);
     ErrorPortInfo_PortSelectMask_item = proto_tree_add_item(ErrorPortInfo_header_tree, hf_opa_ErrorPortInfo_PortSelectMask, tvb, local_offset, 32, ENC_NA);
-    for (j = 0; j < 4; j++) {
-        for (i = 0, PortSelectMaskTemp = PortSelectMask[3 - j]; i < 64 && (PortSelectMaskTemp); i++, PortSelectMaskTemp >>= (guint64)1) {
-            if (PortSelectMaskTemp & (guint64)0x1) {
-                proto_item_append_text(ErrorPortInfo_PortSelectMask_item, "%s%u", (PortsOffset ? ", " : " "), (i)+(j * 64));
-                PortsOffset++;
-            }
-        }
-    }
+    proto_item_append_text(ErrorPortInfo_PortSelectMask_item, ": %s",
+        opa_format_port_select_mask(tvb, local_offset, NULL, NULL));
     local_offset += 32;
 
     if (MAD->Method == METHOD_GET)
@@ -6720,13 +6821,14 @@ static gint parse_GetGroupList(proto_tree *parentTree, tvbuff_t *tvb, gint *offs
     gint local_offset = *offset;
     guint i;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
     if (!parentTree || RMPP->Type != RMPP_DATA ||
         (MAD->Method != METHOD_GET_RESP && MAD->Method != METHOD_GETTABLE_RESP)) {
         return *offset;
     }
+
     GetGroupList_header_item = proto_tree_add_item(parentTree, hf_opa_GetGroupList, tvb, local_offset, length, ENC_NA);
     GetGroupList_header_tree = proto_item_add_subtree(GetGroupList_header_item, ett_getgrouplist);
     proto_tree_add_none_format(GetGroupList_header_tree, hf_opa_GetGroupList, tvb, local_offset, length, "Number of Groups: %u", records);
@@ -6768,13 +6870,13 @@ static gint parse_GetGroupInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offs
     gint local_offset = *offset;
     guint i, r;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
     guint util = 100 / PM_UTIL_BUCKETS;     /* 0%+ 10%+ 20%+ ... 80%+ 90%+ */
     guint err = 100 / (PM_ERR_BUCKETS - 1); /* 0%+ 25%+ 50%+ 75%+ 100%+ */
 
-    if (!parentTree)
+    if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return *offset;
 
     if (MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE) {
@@ -7038,10 +7140,10 @@ static gint parse_GetGroupConfig(proto_tree *parentTree, tvbuff_t *tvb, gint *of
     gint local_offset = *offset;
     guint i;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
-    if (!parentTree)
+    if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return *offset;
 
     if (MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE) {
@@ -7370,10 +7472,10 @@ static gint parse_GetFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, gint *off
     gint local_offset = *offset;
     guint i = 0;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
-    if (!parentTree)
+    if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return *offset;
 
     if (MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE) {
@@ -7537,7 +7639,7 @@ static gint parse_GetVFList(proto_tree *parentTree, tvbuff_t *tvb, gint *offset,
     gint local_offset = *offset;
     guint i;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
     if (!parentTree || RMPP->Type != RMPP_DATA ||
@@ -7587,13 +7689,13 @@ static gint parse_GetVFInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset,
     gint local_offset = *offset;
     guint i;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
     guint util = 100 / PM_UTIL_BUCKETS;     /* 0%+ 10%+ 20%+ ... 80%+ 90%+ */
     guint err = 100 / (PM_ERR_BUCKETS - 1); /* 0%+ 25%+ 50%+ 75%+ 100%+ */
 
-    if (!parentTree) {
+    if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1)) {
         return *offset;
     }
 
@@ -7736,10 +7838,10 @@ static gint parse_GetVFConfig(proto_tree *parentTree, tvbuff_t *tvb, gint *offse
     gint local_offset = *offset;
     guint i;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
-    if (!parentTree)
+    if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return *offset;
 
     if (MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE) {
@@ -7894,10 +7996,10 @@ static gint parse_GetVFFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, gint *o
     gint local_offset = *offset;
     guint i;
 
-    guint length = ((RMPP->resptime_flags & RMPP_FLAG_LAST_MASK) ? (RMPP->PayloadLength - 20) % STL_MAX_SA_PA_PAYLOAD : STL_MAX_SA_PA_PAYLOAD);
+    guint length = tvb_captured_length_remaining(tvb, local_offset);
     guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
-    if (!parentTree)
+    if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return *offset;
 
     if (MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE) {
@@ -8083,6 +8185,10 @@ static void parse_PERFADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     MAD_t       MAD;
     RMPP_t      RMPP;
     PA_HEADER_t PA_HEADER;
+    fragment_head *frag_head = NULL;
+    tvbuff_t *old_tvb = NULL;
+    gint old_offset;
+    gboolean parent_was_opa_fe = proto_is_frame_protocol(pinfo->layers, "opa.fe");
 
     if (!parse_MAD_Common(parentTree, pinfo, tvb, offset, &MAD)) {
         return;
@@ -8094,12 +8200,32 @@ static void parse_PERFADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
         return;
     }
     if ((!pref_parse_on_mad_status_error && MAD.Status) ||
-        RMPP.Type == RMPP_ACK ||
-        (RMPP.Type == RMPP_DATA && RMPP.SegmentNumber != 1)) {
+        RMPP.Type == RMPP_ACK) {
         *offset += tvb_captured_length_remaining(tvb, *offset);
         return;
     }
 
+    if (!parent_was_opa_fe && pref_attempt_rmpp_defragment
+        && (RMPP.resptime_flags & RMPP_FLAG_ACTIVE_MASK) && (RMPP.Type == RMPP_DATA)
+        && !((RMPP.resptime_flags & RMPP_FLAG_FIRST_MASK)
+            && (RMPP.resptime_flags & RMPP_FLAG_LAST_MASK))) {
+
+        frag_head = fragment_add_seq_check(&opa_mad_rmpp_reassembly_table,
+            tvb, *offset, pinfo, (guint32)MAD.TransactionID, NULL, RMPP.SegmentNumber - 1,
+            ((RMPP.resptime_flags & RMPP_FLAG_LAST_MASK) ?
+                RMPP.PayloadLength - 20 : (guint32)tvb_captured_length_remaining(tvb, *offset)),
+            (gboolean)!(RMPP.resptime_flags & RMPP_FLAG_LAST_MASK));
+        /* Back up tvb & offset */
+        old_tvb = tvb;
+        old_offset = *offset;
+        /* Create new tvb from reassembled data */
+        tvb = process_reassembled_data(old_tvb, old_offset, pinfo, "Reassembled RMPP Packet",
+            frag_head, &opa_rmpp_frag_items, NULL, parentTree);
+        if (tvb == NULL) {
+            return;
+        }
+        *offset = 0;
+    }
     if (!parse_PA_Attribute(parentTree, tvb, offset, &MAD, &RMPP, &PA_HEADER)) {
         expert_add_info_format(pinfo, NULL, &ei_opa_mad_no_attribute_dissector,
             "Attribute Dissector Not Implemented (0x%x)", MAD.AttributeID);
@@ -8279,6 +8405,15 @@ static int dissect_opa_mad(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     return tvb_captured_length(tvb);
 }
 
+static void opa_mad_init(void)
+{
+    reassembly_table_init(&opa_mad_rmpp_reassembly_table,
+        &addresses_ports_reassembly_table_functions);
+}
+static void opa_mad_cleanup(void)
+{
+    reassembly_table_destroy(&opa_mad_rmpp_reassembly_table);
+}
 void proto_register_opa_mad(void)
 {
     module_t *opa_mad_module;
@@ -8632,6 +8767,47 @@ void proto_register_opa_mad(void)
         { &hf_opa_rmpp_new_window_last, {
                 "New Window Last", "opa.rmpp.newwindowlast",
                 FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+        },
+        /* Fragments */
+        { &hf_opa_rmpp_fragments, {
+                "Message fragments", "opa.fragments",
+                FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_fragment, {
+                "Message fragment", "opa.fragment",
+                FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_fragment_overlap, {
+                "Message fragment overlap", "opa.fragment.overlap",
+                FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_fragment_overlap_conflicts, {
+                "Message fragment overlapping with conflicting data", "opa.fragment.overlap.conflicts",
+                FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_fragment_multiple_tails, {
+                "Message has multiple tail fragments", "opa.fragment.multiple_tails",
+                FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_fragment_too_long_fragment, {
+                "Message fragment too long", "opa.fragment.too_long_fragment",
+                FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_fragment_error, {
+                "Message defragmentation error", "opa.fragment.error",
+                FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_fragment_count, {
+                "Message fragment count", "opa.fragment.count",
+                FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_reassembled_in, {
+                "Reassembled in", "opa.reassembled.in",
+                FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_opa_rmpp_reassembled_length, {
+                "Reassembled length", "opa.reassembled.length",
+                FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
         },
 
         /* SA Packet */
@@ -13301,6 +13477,9 @@ void proto_register_opa_mad(void)
         &ett_mad_status,
         &ett_mad_attributemod,
         &ett_rmpp,
+        &ett_rmpp_fragment,
+        &ett_rmpp_fragments,
+        &ett_rmpp_sa_record,
         /* Common */
         &ett_noticestraps,
         &ett_datadetails,
@@ -13350,8 +13529,6 @@ void proto_register_opa_mad(void)
         &ett_cableinfo,
         &ett_aggregate,
         &ett_buffercontroltable,
-        &ett_buffercontroltable_port,
-        &ett_fabricinforecord,
         &ett_congestioninfo,
         &ett_switchcongestionlog,
         &ett_switchcongestionlog_entry,
@@ -13384,6 +13561,7 @@ void proto_register_opa_mad(void)
         &ett_portgroupforwardingtablerecord,
         &ett_vfinforecord,
         &ett_quarantinednoderecord,
+        &ett_fabricinforecord,
         /* PM */
         &ett_portstatus,
         &ett_portstatus_vl,
@@ -13492,6 +13670,13 @@ void proto_register_opa_mad(void)
         "Enable Parsing of Mad Payload on Mad Status Error",
         "Attempt to parse mad payload even when MAD.Status is non-zero",
         &pref_parse_on_mad_status_error);
+    prefs_register_bool_preference(opa_mad_module, "reassemble_rmpp",
+        "Enable Reassembly of RMPP packets",
+        "Attempt to reassemble the mad payload of RMPP segments",
+        &pref_attempt_rmpp_defragment);
+
+    register_init_routine(opa_mad_init);
+    register_cleanup_routine(opa_mad_cleanup);
 }
 
 void proto_reg_handoff_opa_mad(void)

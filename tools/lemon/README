@@ -1,18 +1,43 @@
-The Lemon Parser Generator's home page is:
+The Lemon Parser Generator's home page is:  https://www.hwaci.com/sw/lemon/
+Lemon seems now to be maintained at:        https://sqlite.org/lemon.html
 
-http://www.hwaci.com/sw/lemon/index.html
-Lemon seems now to be maintaned at :
-http://www.sqlite.org/
+Documentation is available at:  https://sqlite.org/src/doc/trunk/doc/lemon.html
+Git mirror of the upstream Fossil repository: https://github.com/mackyle/sqlite
 
-The file in this directory, lemon.html, was obtained from:
+The lempar.c and lemon.c are taken from sqlite and are modified as little as
+possible to make it easier to synchronize changes. Last updated at:
 
-http://www.hwaci.com/sw/lemon/lemon.html
+    commit 1150d3841d9381555a4b427835fd617d3465040d
+    Date:   Sat Sep 8 16:55:18 2018 +0000
+    Add a missing call to free() in Lemon.
 
-lemon.c has been modified to include the t= and d= command-line
-arguments. The changes were submitted to the Lemon maintainer,
-but have not appeared in the official Lemon distribution.
+To check for changes (adjust "previous commit" accordingly):
 
+    git clone --depth=1000 https://github.com/mackyle/sqlite
+    cd sqlite/tools
+    git log -p 1150d3841d.. lemon.c lempar.c
 
-A copy of all Wireshark changes are available at
-  https://github.com/alagoutte/sqlite/tree/wireshark
+To create a Wireshark version (steps 1-3) and validate the result (steps 4-5):
+1. Copy the two files.
+2. Run ./apply-patches.sh to apply local patches.
+3. Update the commit in this README (to ensure the base is known).
+4. Check for CSA warnings:  clang-check -analyze lemon.c --
+5. Build and run lemon:     ninja epan/dfilter/grammar.c
 
+The patches to lemon to silence compiler warnings and static analysis reports
+(for edge cases that cannot occur) are not proposed upstream because that
+process is difficult. From <https://www.sqlite.org/copyright.html>:
+
+    SQLite is open-source, meaning that you can make as many copies of it as you
+    want and do whatever you want with those copies, without limitation. But
+    SQLite is not open-contribution. In order to keep SQLite in the public
+    domain and ensure that the code does not become contaminated with
+    proprietary or licensed content, the project does not accept patches from
+    unknown persons.
+
+A note about the Lemon patches, we have no intention to fork Lemon and maintain
+it. These patches are written to address static analyzer warnings without
+actually modifying the functionality. If upstream is willing to accept patches,
+then that would be great and the intention is to make it as easy as possible.
+The lemon and lempar patches are dedicated to the public domain. (IANAL, but I
+hope this is sufficient.)

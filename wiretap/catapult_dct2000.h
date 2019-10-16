@@ -1,9 +1,10 @@
 /* catapult_dct2000.h
-*
-* Wiretap Library
-* Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
-*
-* SPDX-License-Identifier: GPL-2.0-or-later*/
+ *
+ * Wiretap Library
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __W_CAT_DCT2K_H__
 #define __W_CAT_DCT2K_H__

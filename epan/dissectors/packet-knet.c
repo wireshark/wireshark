@@ -546,6 +546,14 @@ dissect_knet_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 static int
 dissect_knet_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+    //Sanity check the length field
+    if (tvb_reported_length(tvb) < 2)
+        return 0;
+
+    int offset = 0;
+    if (dissect_content_length_vle(tvb, &offset, NULL) == 0)
+        return 0;
+
     col_clear(pinfo->cinfo, COL_INFO);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "KNET");
 
@@ -771,7 +779,7 @@ proto_reg_handoff_knet(void)
     dissector_add_uint("sctp.port", current_sctp_port, knet_handle_sctp);
 }
 /*
-* Editor modelines - http://www.wireshark.org/tools/modelines.html
+* Editor modelines - https://www.wireshark.org/tools/modelines.html
 *
 * Local variables:
 * c-basic-offset: 4

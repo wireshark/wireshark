@@ -9,11 +9,10 @@
  */
 
 #include "expert_info_model.h"
-#include <ui/qt/utils/color_utils.h>
 
 #include "file.h"
 
-ExpertPacketItem::ExpertPacketItem(expert_info_t& expert_info, column_info *cinfo, ExpertPacketItem* parent) :
+ExpertPacketItem::ExpertPacketItem(const expert_info_t& expert_info, column_info *cinfo, ExpertPacketItem* parent) :
     packet_num_(expert_info.packet_num),
     group_(expert_info.group),
     severity_(expert_info.severity),
@@ -250,6 +249,8 @@ QVariant ExpertInfoModel::data(const QModelIndex &index, int role) const
     case colSummary:
         if (index.parent().isValid())
         {
+            if (item->severity() == PI_COMMENT)
+                return item->summary().simplified();
             if (group_by_summary_)
                 return item->colInfo().simplified();
 
@@ -258,7 +259,11 @@ QVariant ExpertInfoModel::data(const QModelIndex &index, int role) const
         else
         {
             if (group_by_summary_)
+            {
+                if (item->severity() == PI_COMMENT)
+                    return "Packet comments listed below.";
                 return item->summary().simplified();
+            }
         }
         return QVariant();
     case colGroup:
@@ -333,7 +338,7 @@ int ExpertInfoModel::columnCount(const QModelIndex& ) const
     return colLast;
 }
 
-void ExpertInfoModel::addExpertInfo(struct expert_info_s& expert_info)
+void ExpertInfoModel::addExpertInfo(const struct expert_info_s& expert_info)
 {
     QString groupKey = ExpertPacketItem::groupKey(FALSE, expert_info.severity, expert_info.group, QString(expert_info.protocol), expert_info.hf_index);
     QString summaryKey = ExpertPacketItem::groupKey(TRUE, expert_info.severity, expert_info.group, QString(expert_info.protocol), expert_info.hf_index);
@@ -375,23 +380,23 @@ void ExpertInfoModel::tapReset(void *eid_ptr)
     model->clear();
 }
 
-gboolean ExpertInfoModel::tapPacket(void *eid_ptr, struct _packet_info *pinfo, struct epan_dissect *, const void *data)
+tap_packet_status ExpertInfoModel::tapPacket(void *eid_ptr, struct _packet_info *pinfo, struct epan_dissect *, const void *data)
 {
     ExpertInfoModel *model = static_cast<ExpertInfoModel*>(eid_ptr);
-    expert_info_t   *expert_info = (expert_info_t *) data;
-    gboolean draw_required = FALSE;
+    const expert_info_t *expert_info = (const expert_info_t *) data;
+    tap_packet_status status = TAP_PACKET_DONT_REDRAW;
 
     if (!pinfo || !model || !expert_info)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     model->addExpertInfo(*expert_info);
 
     if (model->numEvents((enum ExpertSeverity)expert_info->severity) < 1)
-        draw_required = TRUE;
+        status = TAP_PACKET_REDRAW;
 
     model->eventCounts_[(enum ExpertSeverity)expert_info->severity]++;
 
-    return draw_required;
+    return status;
 }
 
 void ExpertInfoModel::tapDraw(void *eid_ptr)

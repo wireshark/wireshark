@@ -9,7 +9,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __RTP_MEDIA_H__
 #define __RTP_MEDIA_H__
@@ -65,7 +66,7 @@ size_t decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decode
 #endif /* __RTP_MEDIA_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

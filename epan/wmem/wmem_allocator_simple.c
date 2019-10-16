@@ -34,7 +34,7 @@ wmem_simple_alloc(void *private_data, const size_t size)
 
     allocator = (wmem_simple_allocator_t*) private_data;
 
-    if G_UNLIKELY(allocator->count == allocator->size) {
+    if (G_UNLIKELY(allocator->count == allocator->size)) {
         allocator->size *= 2;
         allocator->ptrs = (void**)wmem_realloc(NULL, allocator->ptrs,
                 sizeof(void*) * allocator->size);
@@ -137,7 +137,7 @@ wmem_simple_allocator_init(wmem_allocator_t *allocator)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

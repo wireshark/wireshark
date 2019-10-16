@@ -19,11 +19,14 @@
 #include <epan/ppptypes.h>
 #include <epan/aftypes.h>
 #include <epan/arcnet_pids.h>
+#include <epan/oui.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/address_types.h>
 #include <epan/to_str.h>
+#include <epan/expert.h>
+#include <epan/dissectors/packet-llc.h>
 #include <wiretap/wtap.h>
 #include <epan/capture_dissectors.h>
 #include "packet-atalk.h"
@@ -45,6 +48,18 @@ static int proto_llap = -1;
 static int hf_llap_dst = -1;
 static int hf_llap_src = -1;
 static int hf_llap_type = -1;
+
+static int hf_llc_apple_atalk_pid = -1;
+
+/*
+ * See Inside AppleTalk.
+ */
+#define APPLE_PID_ATALK 0x809B
+
+static const value_string apple_atalk_pid_vals[] = {
+  {APPLE_PID_ATALK, "AppleTalk"},
+  {0, NULL}
+};
 
 static int proto_ddp = -1;
 static int hf_ddp_hopcount = -1;
@@ -269,6 +284,7 @@ static int hf_rtmp_tuple_net = -1;
 static int hf_rtmp_tuple_range_start = -1;
 static int hf_rtmp_tuple_range_end = -1;
 static int hf_rtmp_tuple_dist = -1;
+static int hf_rtmp_version = -1;
 static int hf_rtmp_function = -1;
 
 static gint ett_atp = -1;
@@ -287,6 +303,8 @@ static gint ett_rtmp_tuple = -1;
 static gint ett_ddp = -1;
 static gint ett_llap = -1;
 static gint ett_pstring = -1;
+
+static expert_field ei_ddp_len_invalid = EI_INIT;
 
 static const fragment_items atp_frag_items = {
   &ett_atp_segment,
@@ -479,7 +497,8 @@ value_string_ext asp_error_vals_ext = VALUE_STRING_EXT_INIT(asp_error_vals);
 
 /*
  * hf_index must be a FT_UINT_STRING type
- * Are these always in the Mac extended character set?
+ * Are these always in a Mac extended character set?  Should we have a
+ * preference to allow different character sets to be selected?
  */
 static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
                                  int hf_index)
@@ -487,7 +506,7 @@ static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
   int   len;
 
   len = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(tree, hf_index, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_index, tvb, offset, 1, ENC_MAC_ROMAN|ENC_BIG_ENDIAN);
 
   offset += (len+1);
 
@@ -554,48 +573,74 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                         node);
     offset += 3 + nodelen;
 
+    /*
+     * Peek at what is purportedly the first tuple.  If the net is 0,
+     * this is a version-number indicator for a non-extended network,
+     * not a tuple; the version number field may have the 0x80 bit set,
+     * but it's not a 6-octet tuple.
+     */
+    if (tvb_get_ntohs(tvb, offset) == 0) {
+      proto_tree_add_item(rtmp_tree, hf_rtmp_version, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+      offset += 3;
+    }
+
     i = 1;
     while (tvb_offset_exists(tvb, offset)) {
       proto_tree *tuple_tree;
       guint16 tuple_net;
       guint8 tuple_dist;
       guint16 tuple_range_end;
+      guint8 version;
 
       tuple_net = tvb_get_ntohs(tvb, offset);
       tuple_dist = tvb_get_guint8(tvb, offset+2);
 
       if (tuple_dist & 0x80) {
+        /*
+         * Extended network tuple.
+         */
         tuple_range_end = tvb_get_ntohs(tvb, offset+3);
-        tuple_tree = proto_tree_add_subtree_format(rtmp_tree, tvb, offset, 6,
-                                         ett_rtmp_tuple, NULL,
-                                         "Tuple %d:  Range Start: %u  Dist: %u  Range End: %u",
-                                         i, tuple_net, tuple_dist&0x7F, tuple_range_end);
+        version = tvb_get_guint8(tvb, offset+5);
+        if (i == 1) {
+          /*
+           * For the first tuple, the last octet is a version number.
+           */
+          tuple_tree = proto_tree_add_subtree_format(rtmp_tree, tvb, offset, 6,
+                                           ett_rtmp_tuple, NULL,
+                                           "Tuple %d:  Range Start: %u  Dist: %u  Range End: %u  Version: 0x%02x",
+                                           i, tuple_net, tuple_dist&0x7F,
+                                           tuple_range_end, version);
+        } else {
+          tuple_tree = proto_tree_add_subtree_format(rtmp_tree, tvb, offset, 6,
+                                           ett_rtmp_tuple, NULL,
+                                           "Tuple %d:  Range Start: %u  Dist: %u  Range End: %u",
+                                           i, tuple_net, tuple_dist&0x7F,
+                                           tuple_range_end);
+        }
+        proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_range_start, tvb, offset, 2,
+                            tuple_net);
+        proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_dist, tvb, offset+2, 1,
+                            tuple_dist & 0x7F);
+        proto_tree_add_item(tuple_tree, hf_rtmp_tuple_range_end, tvb, offset+3, 2,
+                            ENC_BIG_ENDIAN);
+
+        if (i == 1)
+          proto_tree_add_uint(tuple_tree, hf_rtmp_version, tvb, offset+5, 1, version);
+        offset += 6;
       } else {
+        /*
+         * Non-extended network tuple.
+         */
         tuple_tree = proto_tree_add_subtree_format(rtmp_tree, tvb, offset, 3,
                                          ett_rtmp_tuple, NULL,
                                          "Tuple %d:  Net: %u  Dist: %u",
                                          i, tuple_net, tuple_dist);
-      }
-
-      if (tuple_dist & 0x80) {
-        proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_range_start, tvb, offset, 2,
-                            tuple_net);
-      } else {
         proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_net, tvb, offset, 2,
                             tuple_net);
-      }
-      proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_dist, tvb, offset+2, 1,
-                          tuple_dist & 0x7F);
-
-      if (tuple_dist & 0x80) {
-        /*
-         * Extended network tuple.
-         */
-        proto_tree_add_item(tuple_tree, hf_rtmp_tuple_range_end, tvb, offset+3, 2,
-                            ENC_BIG_ENDIAN);
-        offset += 6;
-      } else
+        proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_dist, tvb, offset+2, 1,
+                            tuple_dist);
         offset += 3;
+      }
 
       i++;
     }
@@ -1393,7 +1438,7 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   guint8                 sport;
   guint8                 type;
   proto_tree            *ddp_tree = NULL;
-  proto_item            *ti, *hidden_item;
+  proto_item            *ti, *hidden_item, *len_item;
   struct atalk_ddp_addr *src = wmem_new0(pinfo->pool, struct atalk_ddp_addr),
                         *dst = wmem_new0(pinfo->pool, struct atalk_ddp_addr);
   tvbuff_t              *new_tvb;
@@ -1408,8 +1453,21 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     ddp_tree = proto_item_add_subtree(ti, ett_ddp);
   }
   len = tvb_get_ntohs(tvb, 0);
-  if (tree)
-    proto_tree_add_uint(ddp_tree, hf_ddp_len, tvb, 0, 2, len);
+  len_item = proto_tree_add_uint(ddp_tree, hf_ddp_len, tvb, 0, 2, len);
+  if (len < DDP_SHORT_HEADER_SIZE) {
+    expert_add_info_format(pinfo, len_item, &ei_ddp_len_invalid,
+                           "Length field is shorter than the DDP header size");
+    len = DDP_SHORT_HEADER_SIZE;
+  } else {
+    /* Length of the payload following the DDP header */
+    guint reported_length = tvb_reported_length(tvb);
+    if (len > reported_length) {
+      expert_add_info_format(pinfo, len_item, &ei_ddp_len_invalid,
+                             "Length field is larger than the remaining packet payload");
+      len = reported_length;
+    }
+  }
+  set_actual_length(tvb, len);
   dport = tvb_get_guint8(tvb, 2);
   if (tree)
     proto_tree_add_uint(ddp_tree, hf_ddp_dst_socket, tvb, 2, 1, dport);
@@ -1437,10 +1495,10 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   if (tree) {
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
                                         4, 3, address_to_str(wmem_packet_scope(), &pinfo->src));
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_dst, tvb,
                                         6, 3, address_to_str(wmem_packet_scope(), &pinfo->dst));
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     proto_tree_add_uint(ddp_tree, hf_ddp_type, tvb, 4, 1, type);
   }
@@ -1456,11 +1514,12 @@ static int
 dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree            *ddp_tree;
-  proto_item            *ti, *hidden_item;
+  proto_item            *ti, *hidden_item, *len_item;
   struct atalk_ddp_addr *src = wmem_new0(pinfo->pool, struct atalk_ddp_addr),
                         *dst = wmem_new0(pinfo->pool, struct atalk_ddp_addr);
   tvbuff_t              *new_tvb;
   guint                 type;
+  guint32               len;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1472,15 +1531,29 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
                                         4, 3, address_to_str(wmem_packet_scope(), &pinfo->src));
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_dst, tvb,
                                         6, 3, address_to_str(wmem_packet_scope(), &pinfo->dst));
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   proto_tree_add_item(ddp_tree, hf_ddp_hopcount,   tvb, 0, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(ddp_tree, hf_ddp_len,        tvb, 0, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_checksum(ddp_tree, tvb, 0, hf_ddp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+  len_item = proto_tree_add_item_ret_uint(ddp_tree, hf_ddp_len, tvb, 0, 2, ENC_BIG_ENDIAN, &len);
+  if (len < DDP_HEADER_SIZE) {
+    expert_add_info_format(pinfo, len_item, &ei_ddp_len_invalid,
+                           "Length field is shorter than the DDP header size");
+    len = DDP_HEADER_SIZE;
+  } else {
+    /* Length of the payload following the DDP header */
+    guint reported_length = tvb_reported_length(tvb);
+    if (len > reported_length) {
+      expert_add_info_format(pinfo, len_item, &ei_ddp_len_invalid,
+                             "Length field is larger than the remaining packet payload");
+      len = reported_length;
+    }
+  }
+  set_actual_length(tvb, len);
+  proto_tree_add_checksum(ddp_tree, tvb, 2, hf_ddp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   dst->net = tvb_get_ntohs(tvb, 4);
   proto_tree_add_uint(ddp_tree, hf_ddp_dst_net,    tvb, 4, 2, dst->net);
   src->net = tvb_get_ntohs(tvb, 6);
@@ -1537,6 +1610,7 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree *llap_tree;
   proto_item *ti;
   tvbuff_t   *new_tvb;
+  guint       new_reported_length;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1559,12 +1633,28 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   switch (type) {
     case 0x01:
-      if (call_dissector_with_data(ddp_short_handle, new_tvb, pinfo, tree, &ddp_node))
+      if (call_dissector_with_data(ddp_short_handle, new_tvb, pinfo, tree, &ddp_node)) {
+        /*
+         * Set our tvbuff's length based on the new tvbuff's length, so
+         * that, if we're called from the Ethernet dissector, it can
+         * report any trailer.
+         *
+         * Add 3 to that length, for the LLAP header.
+         */
+        new_reported_length = tvb_reported_length(new_tvb) + 3;
+        set_actual_length(tvb, new_reported_length);
         return tvb_captured_length(tvb);
+      }
       break;
     case 0x02:
-      if (call_dissector(ddp_handle, new_tvb, pinfo, tree))
+      if (call_dissector(ddp_handle, new_tvb, pinfo, tree)) {
+        /*
+         * As above.
+         */
+        new_reported_length = tvb_reported_length(new_tvb) + 3;
+        set_actual_length(tvb, new_reported_length);
         return tvb_captured_length(tvb);
+      }
       break;
   }
   call_data_dissector(new_tvb, pinfo, tree);
@@ -1588,13 +1678,20 @@ proto_register_atalk(void)
         NULL, HFILL }},
   };
 
+  static hf_register_info hf_llc[] = {
+    { &hf_llc_apple_atalk_pid,
+      { "PID",                  "llc.apple_atalk_pid", FT_UINT16, BASE_HEX,
+        VALS(apple_atalk_pid_vals), 0x0, "Protocol ID", HFILL }
+    }
+  };
+
   static hf_register_info hf_ddp[] = {
     { &hf_ddp_hopcount,
       { "Hop count",            "ddp.hopcount", FT_UINT16,  BASE_DEC, NULL, 0x3C00,
         NULL, HFILL }},
 
     { &hf_ddp_len,
-      { "Datagram length",      "ddp.len",      FT_UINT16, BASE_DEC, NULL, 0x0300,
+      { "Datagram length",      "ddp.len",      FT_UINT16, BASE_DEC, NULL, 0x03FF,
         NULL, HFILL }},
 
     { &hf_ddp_checksum,
@@ -1661,13 +1758,13 @@ proto_register_atalk(void)
       { "Enumerator",           "nbp.enum",     FT_UINT8,  BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_node_object,
-      { "Object",               "nbp.object",   FT_UINT_STRING,  BASE_NONE,
+      { "Object",               "nbp.object",   FT_UINT_STRING,  STR_UNICODE,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_node_type,
-      { "Type",         "nbp.type",     FT_UINT_STRING,  BASE_NONE,
+      { "Type",         "nbp.type",     FT_UINT_STRING,  STR_UNICODE,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_node_zone,
-      { "Zone",         "nbp.zone",     FT_UINT_STRING,  BASE_NONE,
+      { "Zone",         "nbp.zone",     FT_UINT_STRING,  STR_UNICODE,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_tid,
       { "Transaction ID",               "nbp.tid",      FT_UINT8,  BASE_DEC,
@@ -1695,6 +1792,9 @@ proto_register_atalk(void)
                 NULL, 0x0, NULL, HFILL }},
     { &hf_rtmp_tuple_dist,
       { "Distance",             "rtmp.tuple.dist",      FT_UINT16,  BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+    { &hf_rtmp_version,
+      { "Version",              "rtmp.version",   FT_UINT8,   BASE_HEX,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_rtmp_function,
       { "Function",             "rtmp.function",        FT_UINT8,  BASE_DEC,
@@ -1878,11 +1978,11 @@ proto_register_atalk(void)
         NULL, HFILL }},
 
     { &hf_zip_zone_name,
-      { "Zone",         "zip.zone_name", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+      { "Zone",         "zip.zone_name", FT_UINT_STRING, STR_UNICODE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_zip_default_zone,
-      { "Default zone", "zip.default_zone",FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+      { "Default zone", "zip.default_zone",FT_UINT_STRING, STR_UNICODE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_zip_multicast_length,
@@ -1925,7 +2025,7 @@ proto_register_atalk(void)
         "Sequence number", HFILL }},
 
     { &hf_pap_status,
-      { "Status",       "prap.status",   FT_UINT_STRING,  BASE_NONE, NULL, 0x0,
+      { "Status",       "prap.status",   FT_UINT_STRING,  STR_UNICODE, NULL, 0x0,
                 "Printer status", HFILL }},
 
     { &hf_pap_eof,
@@ -1936,6 +2036,10 @@ proto_register_atalk(void)
       { "Pad",          "prap.pad",              FT_NONE,   BASE_NONE, NULL, 0,
                 "Pad Byte",     HFILL }},
 
+  };
+
+  static ei_register_info ei_ddp[] = {
+     { &ei_ddp_len_invalid, { "ddp.len_invalid", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
   };
 
   static gint *ett[] = {
@@ -1961,12 +2065,21 @@ proto_register_atalk(void)
     &ett_zip_network_list,
   };
   module_t *atp_module;
+  expert_module_t *expert_ddp;
+
+  /*
+   * AppleTalk over LAN (EtherTalk, TokenTalk) uses LLC/SNAP headers with
+   * an OUI of OUI_APPLE_ATALK and a PID of either ETHERTYPE_ATALK.
+   */
+  llc_add_oui(OUI_APPLE_ATALK, "llc.apple_atalk_pid", "LLC Apple AppleTalk OUI PID", hf_llc, -1);
 
   proto_llap = proto_register_protocol("LocalTalk Link Access Protocol", "LLAP", "llap");
   proto_register_field_array(proto_llap, hf_llap, array_length(hf_llap));
 
   proto_ddp = proto_register_protocol("Datagram Delivery Protocol", "DDP", "ddp");
   proto_register_field_array(proto_ddp, hf_ddp, array_length(hf_ddp));
+  expert_ddp = expert_register_protocol(proto_ddp);
+  expert_register_field_array(expert_ddp, ei_ddp, array_length(ei_ddp));
 
   proto_nbp = proto_register_protocol("Name Binding Protocol", "NBP", "nbp");
   proto_register_field_array(proto_nbp, hf_nbp, array_length(hf_nbp));
@@ -2013,7 +2126,7 @@ proto_reg_handoff_atalk(void)
 
   ddp_short_handle = create_dissector_handle(dissect_ddp_short, proto_ddp);
   ddp_handle = create_dissector_handle(dissect_ddp, proto_ddp);
-  dissector_add_uint("ethertype", ETHERTYPE_ATALK, ddp_handle);
+  dissector_add_uint("llc.apple_atalk_pid", APPLE_PID_ATALK, ddp_handle);
   dissector_add_uint("chdlc.protocol", ETHERTYPE_ATALK, ddp_handle);
   dissector_add_uint("ppp.protocol", PPP_AT, ddp_handle);
   dissector_add_uint("null.type", BSD_AF_APPLETALK, ddp_handle);
@@ -2041,6 +2154,13 @@ proto_reg_handoff_atalk(void)
 
   llap_handle = create_dissector_handle(dissect_llap, proto_llap);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LOCALTALK, llap_handle);
+  /*
+   * This is for Ethernet packets with an Ethertype of ETHERTYPE_ATALK
+   * and LLC/SNAP packets with an OUI of 00:00:00 and a PID of
+   * ETHERTYPE_ATALK; those appear to be gatewayed LLAP packets,
+   * complete with an LLAP header.
+   */
+  dissector_add_uint("ethertype", ETHERTYPE_ATALK, llap_handle);
   llap_cap_handle = create_capture_dissector_handle(capture_llap, proto_llap);
   capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_LOCALTALK, llap_cap_handle);
 
@@ -2055,7 +2175,7 @@ proto_reg_handoff_atalk(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

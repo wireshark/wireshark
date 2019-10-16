@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -17,64 +18,13 @@
 #include <string.h>
 
 #include <wsutil/file_util.h>
+#include <ui/cmdarg_err.h>
 
 #include <epan/packet_info.h>
 #include <epan/packet.h>
 #include <epan/export_object.h>
 #include <ui/export_object_ui.h>
 #include "tap-exportobject.h"
-
-/* XXX - This is effectively a copy of eo_save_entry with the "GUI alerts"
- * removed to accomodate tshark
- */
-static gboolean
-local_eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry)
-{
-    int to_fd;
-    gint64 bytes_left;
-    int bytes_to_write;
-    ssize_t bytes_written;
-    guint8 *ptr;
-
-    to_fd = ws_open(save_as_filename, O_WRONLY | O_CREAT | O_EXCL | O_BINARY, 0644);
-    if(to_fd == -1) { /* An error occurred */
-        return FALSE;
-    }
-
-    /*
-     * The third argument to _write() on Windows is an unsigned int,
-     * so, on Windows, that's the size of the third argument to
-     * ws_write().
-     *
-     * The third argument to write() on UN*X is a size_t, although
-     * the return value is an ssize_t, so one probably shouldn't
-     * write more than the max value of an ssize_t.
-     *
-     * In either case, there's no guarantee that a gint64 such as
-     * payload_len can be passed to ws_write(), so we write in
-     * chunks of, at most 2^31 bytes.
-     */
-    ptr = entry->payload_data;
-    bytes_left = entry->payload_len;
-    while (bytes_left != 0) {
-        if (bytes_left > 0x40000000)
-            bytes_to_write = 0x40000000;
-        else
-            bytes_to_write = (int)bytes_left;
-        bytes_written = ws_write(to_fd, ptr, bytes_to_write);
-        if(bytes_written <= 0) {
-            ws_close(to_fd);
-            return FALSE;
-        }
-        bytes_left -= bytes_written;
-        ptr += bytes_written;
-    }
-    if (ws_close(to_fd) < 0) {
-        return FALSE;
-    }
-
-    return TRUE;
-}
 
 typedef struct _export_object_list_gui_t {
     GSList *entries;
@@ -124,7 +74,7 @@ gboolean eo_tap_opt_add(const char *option_string)
         }
         else
         {
-            fprintf(stderr, "tshark: \"--export-objects\" already specified protocol '%s'\n", splitted[0]);
+            cmdarg_err("\"--export-objects\" already specified protocol '%s'", splitted[0]);
         }
     }
 
@@ -155,7 +105,6 @@ eo_draw(void *tapdata)
     export_object_list_gui_t *object_list = (export_object_list_gui_t*)tap_object->gui_data;
     GSList *slist = object_list->entries;
     export_object_entry_t *entry;
-    gboolean all_saved = TRUE;
     gchar* save_in_path = (gchar*)g_hash_table_lookup(eo_opts, proto_get_protocol_filter_name(get_eo_proto_id(object_list->eo)));
     GString *safe_filename = NULL;
     gchar *save_as_fullpath = NULL;
@@ -170,42 +119,31 @@ eo_draw(void *tapdata)
         }
     }
 
-    if ((strlen(save_in_path) < EXPORT_OBJECT_MAXFILELEN)) {
-        while (slist) {
-            entry = (export_object_entry_t *)slist->data;
-            do {
-                g_free(save_as_fullpath);
-                if (entry->filename) {
-                    safe_filename = eo_massage_str(entry->filename,
-                        EXPORT_OBJECT_MAXFILELEN - strlen(save_in_path), count);
-                } else {
-                    char generic_name[EXPORT_OBJECT_MAXFILELEN+1];
-                    const char *ext;
-                    ext = eo_ct2ext(entry->content_type);
-                    g_snprintf(generic_name, sizeof(generic_name),
-                        "object%u%s%s", entry->pkt_num, ext ? "." : "", ext ? ext : "");
-                    safe_filename = eo_massage_str(generic_name,
-                        EXPORT_OBJECT_MAXFILELEN - strlen(save_in_path), count);
-                }
-                save_as_fullpath = g_build_filename(save_in_path, safe_filename->str, NULL);
-                g_string_free(safe_filename, TRUE);
-            } while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000);
-            count = 0;
-            if (!local_eo_save_entry(save_as_fullpath, entry))
-                all_saved = FALSE;
+    while (slist) {
+        entry = (export_object_entry_t *)slist->data;
+        do {
             g_free(save_as_fullpath);
-            save_as_fullpath = NULL;
-            slist = slist->next;
-        }
+            if (entry->filename) {
+                safe_filename = eo_massage_str(entry->filename,
+                    EXPORT_OBJECT_MAXFILELEN, count);
+            } else {
+                char generic_name[EXPORT_OBJECT_MAXFILELEN+1];
+                const char *ext;
+                ext = eo_ct2ext(entry->content_type);
+                g_snprintf(generic_name, sizeof(generic_name),
+                    "object%u%s%s", entry->pkt_num, ext ? "." : "", ext ? ext : "");
+                safe_filename = eo_massage_str(generic_name,
+                    EXPORT_OBJECT_MAXFILELEN, count);
+            }
+            save_as_fullpath = g_build_filename(save_in_path, safe_filename->str, NULL);
+            g_string_free(safe_filename, TRUE);
+        } while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000);
+        count = 0;
+        eo_save_entry(save_as_fullpath, entry);
+        g_free(save_as_fullpath);
+        save_as_fullpath = NULL;
+        slist = slist->next;
     }
-    else
-    {
-        all_saved = FALSE;
-    }
-
-    if (!all_saved)
-        fprintf(stderr, "Export objects (%s): Some files could not be saved.\n",
-                    proto_get_protocol_filter_name(get_eo_proto_id(object_list->eo)));
 }
 
 static void
@@ -219,7 +157,7 @@ exportobject_handler(gpointer key, gpointer value _U_, gpointer user_data _U_)
     eo = get_eo_by_name((const char*)key);
     if (eo == NULL)
     {
-        fprintf(stderr, "tshark: \"--export-objects\" INTERNAL ERROR '%s' protocol not found\n", (const char*)key);
+        cmdarg_err("\"--export-objects\" INTERNAL ERROR '%s' protocol not found", (const char*)key);
         return;
     }
 
@@ -234,10 +172,10 @@ exportobject_handler(gpointer key, gpointer value _U_, gpointer user_data _U_)
 
     /* Data will be gathered via a tap callback */
     error_msg = register_tap_listener(get_eo_tap_listener_name(eo), tap_data, NULL, 0,
-                      NULL, get_eo_packet_func(eo), eo_draw);
+                      NULL, get_eo_packet_func(eo), eo_draw, NULL);
 
     if (error_msg) {
-        fprintf(stderr, "tshark: Can't register %s tap: %s\n", (const char*)key, error_msg->str);
+        cmdarg_err("Can't register %s tap: %s", (const char*)key, error_msg->str);
         g_string_free(error_msg, TRUE);
         g_free(tap_data);
         g_free(object_list);

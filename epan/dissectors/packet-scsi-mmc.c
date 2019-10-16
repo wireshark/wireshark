@@ -659,7 +659,7 @@ static const value_string scsi_disc_info_disc_type_val[] = {
 };
 
 static void
-dissect_mmc4_readdiscinformation (tvbuff_t *tvb_a, packet_info *pinfo, proto_tree *tree,
+dissect_mmc4_readdiscinformation (tvbuff_t *tvb_a, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset_a, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata)
 {
@@ -745,7 +745,7 @@ dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         proto_item *ti;
 
         ti = proto_tree_add_uint (tree, hf_scsi_mmc_read_dvd_format, tvb, 0, 0, cdata->itlq->flags);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         proto_tree_add_item (tree, hf_scsi_mmc_data_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 4;
@@ -946,7 +946,7 @@ static const value_string scsi_rti_address_type_val[] = {
 };
 
 static void
-dissect_mmc4_readtrackinformation (tvbuff_t *tvb_a, packet_info *pinfo, proto_tree *tree,
+dissect_mmc4_readtrackinformation (tvbuff_t *tvb_a, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset_a, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata)
 
@@ -2114,7 +2114,7 @@ proto_register_scsi_mmc(void)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

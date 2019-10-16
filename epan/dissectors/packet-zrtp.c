@@ -1,6 +1,7 @@
 /* packet-zrtp.c
  * Routines for zrtp packet dissection
  * IETF draft draft-zimmermann-avt-zrtp-22
+ * RFC 6189
  * Copyright 2007, Sagar Pai <sagar@gmail.com>
  *
  * Wireshark - Network traffic analyzer
@@ -443,10 +444,10 @@ dissect_Conf2ACK(packet_info *pinfo) {
   dummy_srtp_info->auth_tag_len = 4;
 
   srtp_add_address(pinfo, PT_UDP, &pinfo->net_src, pinfo->srcport, pinfo->destport,
-                   "ZRTP", pinfo->num, RTP_MEDIA_AUDIO, NULL, dummy_srtp_info);
+                   "ZRTP", pinfo->num, RTP_MEDIA_AUDIO, NULL, dummy_srtp_info, NULL);
 
   srtp_add_address(pinfo, PT_UDP, &pinfo->net_dst, pinfo->destport, pinfo->srcport,
-                   "ZRTP", pinfo->num, RTP_MEDIA_AUDIO, NULL, dummy_srtp_info);
+                   "ZRTP", pinfo->num, RTP_MEDIA_AUDIO, NULL, dummy_srtp_info, NULL);
 
   srtcp_add_address(pinfo, &pinfo->net_src, pinfo->srcport+1, pinfo->destport+1,
                     "ZRTP", pinfo->num, dummy_srtp_info);
@@ -553,7 +554,7 @@ static void
 dissect_Commit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   unsigned int  msg_offset  = 12;
   unsigned int  data_offset = 56;
-  unsigned char value[5];
+  gchar        *value;
   int           key_type    = 0;
   /*
     0 - other type
@@ -567,20 +568,16 @@ dissect_Commit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   proto_tree_add_item(zrtp_tree, hf_zrtp_msg_hash_image, tvb, msg_offset+12, 32, ENC_NA);
   /* ZID */
   proto_tree_add_item(zrtp_tree, hf_zrtp_msg_zid, tvb, data_offset+0, 12, ENC_NA);
-  tvb_memcpy(tvb, (void *)value, data_offset+12, 4);
-  value[4] = '\0';
+  value = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, data_offset+12, 4, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format_value(zrtp_tree, hf_zrtp_msg_hash, tvb, data_offset+12, 4, value,
                                   "%s", key_to_val(value, 4, zrtp_hash_type_vals, "Unknown hash type %s"));
-  tvb_memcpy(tvb, (void *)value, data_offset+16, 4);
-  value[4] = '\0';
+  value = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, data_offset+16, 4, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format_value(zrtp_tree, hf_zrtp_msg_cipher, tvb, data_offset+16, 4, value, "%s",
                                   key_to_val(value, 4, zrtp_cipher_type_vals, "Unknown cipher type %s"));
-  tvb_memcpy(tvb, (void *)value, data_offset+20, 4);
-  value[4] = '\0';
+  value = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, data_offset+20, 4, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format(zrtp_tree, hf_zrtp_msg_at, tvb, data_offset+20, 4, value,
                                   "Auth tag: %s", key_to_val(value, 4, zrtp_auth_tag_vals, "Unknown auth tag %s"));
-  tvb_memcpy(tvb, (void *)value, data_offset+24, 4);
-  value[4] = '\0';
+  value = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, data_offset+24, 4, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format_value(zrtp_tree, hf_zrtp_msg_keya, tvb, data_offset+24, 4, value,
                                   "%s", key_to_val(value, 4, zrtp_key_agreement_vals, "Unknown key agreement %s"));
 
@@ -589,8 +586,7 @@ dissect_Commit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   } else if (!strncmp(value, "Prsh", 4)) {
     key_type = 2;
   }
-  tvb_memcpy(tvb, (void *)value, data_offset+28, 4);
-  value[4] = '\0';
+  value = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, data_offset+28, 4, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format(zrtp_tree, hf_zrtp_msg_sas, tvb, data_offset+28, 4, value,
                                   "SAS type: %s", key_to_val(value, 4, zrtp_sas_type_vals, "Unknown SAS type %s"));
 
@@ -629,14 +625,13 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   unsigned int   run_offset;
   unsigned int   hc, cc, ac, kc, sc;
   unsigned int   vhc, vcc, vac, vkc, vsc;
-  unsigned char  value[5];
-  unsigned char  version_str[5];
+  gchar         *value;
+  gchar         *version_str;
   proto_tree    *tmp_tree;
 
   col_set_str(pinfo->cinfo, COL_INFO, "Hello Packet");
 
-  tvb_memcpy(tvb, version_str, msg_offset+12, 4);
-  version_str[4] = '\0';
+  version_str = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, msg_offset+12, 4, ENC_ASCII|ENC_NA);
   if (check_valid_version(version_str) == NULL) {
     col_set_str(pinfo->cinfo, COL_INFO, "Unsupported version of ZRTP protocol");
   }
@@ -668,8 +663,7 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   tmp_tree = proto_item_add_subtree(ti, ett_zrtp_msg_hc);
   run_offset = data_offset+4;
   for (i=0; i<vhc; i++) {
-    tvb_memcpy(tvb, (void *)value, run_offset, 4);
-    value[4] = '\0';
+    value = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, run_offset, 4, ENC_ASCII|ENC_NA);
     proto_tree_add_string_format(tmp_tree, hf_zrtp_msg_hash, tvb, run_offset, 4, value,
                                     "Hash[%d]: %s", i, key_to_val(value, 4, zrtp_hash_type_vals, "Unknown hash type %s"));
     run_offset += 4;
@@ -677,8 +671,7 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   ti = proto_tree_add_uint_format(zrtp_tree, hf_zrtp_msg_cipher_count, tvb, data_offset+2, 1, cc, "Cipher type count = %d", vcc);
   tmp_tree = proto_item_add_subtree(ti, ett_zrtp_msg_cc);
   for (i=0; i<vcc; i++) {
-    tvb_memcpy(tvb, (void *)value, run_offset, 4);
-    value[4] = '\0';
+    value = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, run_offset, 4, ENC_ASCII|ENC_NA);
     proto_tree_add_string_format(tmp_tree, hf_zrtp_msg_cipher, tvb, run_offset, 4, value, "Cipher[%d]: %s", i,
                                     key_to_val(value, 4, zrtp_cipher_type_vals, "Unknown cipher type %s"));
     run_offset += 4;
@@ -686,8 +679,7 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   ti = proto_tree_add_uint_format(zrtp_tree, hf_zrtp_msg_authtag_count, tvb, data_offset+2, 1, ac, "Auth tag count = %d", vac);
   tmp_tree = proto_item_add_subtree(ti, ett_zrtp_msg_ac);
   for (i=0; i<vac; i++) {
-    tvb_memcpy(tvb, (void *)value, run_offset, 4);
-    value[4] = '\0';
+    value = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, run_offset, 4, ENC_ASCII|ENC_NA);
     proto_tree_add_string_format(tmp_tree, hf_zrtp_msg_at, tvb, run_offset, 4, value,
                                     "Auth tag[%d]: %s", i, key_to_val(value, 4, zrtp_auth_tag_vals, "Unknown auth tag %s"));
     run_offset += 4;
@@ -695,8 +687,7 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   ti = proto_tree_add_uint_format(zrtp_tree, hf_zrtp_msg_key_count, tvb, data_offset+3, 1, kc, "Key agreement type count = %d", vkc);
   tmp_tree = proto_item_add_subtree(ti, ett_zrtp_msg_kc);
   for (i=0; i<vkc; i++) {
-    tvb_memcpy(tvb, (void *)value, run_offset, 4);
-    value[4] = '\0';
+    value = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, run_offset, 4, ENC_ASCII|ENC_NA);
     proto_tree_add_string_format(tmp_tree, hf_zrtp_msg_keya, tvb, run_offset, 4, value,
                                     "Key agreement[%d]: %s", i, key_to_val(value, 4, zrtp_key_agreement_vals, "Unknown key agreement %s"));
     run_offset += 4;
@@ -704,8 +695,7 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   ti = proto_tree_add_uint_format(zrtp_tree, hf_zrtp_msg_sas_count, tvb, data_offset+3, 1, sc, "SAS type count = %d", vsc);
   tmp_tree = proto_item_add_subtree(ti, ett_zrtp_msg_sc);
   for (i=0; i<vsc; i++) {
-    tvb_memcpy(tvb, (void *)value, run_offset, 4);
-    value[4] = '\0';
+    value = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, run_offset, 4, ENC_ASCII|ENC_NA);
     proto_tree_add_string_format(tmp_tree, hf_zrtp_msg_sas, tvb, run_offset, 4, value,
                                     "SAS type[%d]: %s", i, key_to_val(value, 4, zrtp_sas_type_vals, "Unknown SAS type %s"));
     run_offset += 4;
@@ -1144,7 +1134,7 @@ proto_reg_handoff_zrtp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

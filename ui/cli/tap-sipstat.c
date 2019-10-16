@@ -7,7 +7,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -22,6 +23,8 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/value_string.h>
 #include <epan/dissectors/packet-sip.h>
+
+#include <ui/cmdarg_err.h>
 
 void register_tap_listener_sipstat(void);
 
@@ -57,7 +60,7 @@ typedef struct _sip_request_method_t {
 } sip_request_method_t;
 
 /* TODO: extra codes to be added from SIP extensions?
-* http://www.iana.org/assignments/sip-parameters/sip-parameters.xhtml#sip-parameters-6
+* https://www.iana.org/assignments/sip-parameters/sip-parameters.xhtml#sip-parameters-6
 */
 static const value_string vals_status_code[] = {
 	{ 100, "Trying"},
@@ -245,7 +248,7 @@ sipstat_reset(void *psp  )
 
 
 /* Main entry point to SIP tap */
-static int
+static tap_packet_status
 sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
 	const sip_info_value_t *value = (const sip_info_value_t *)pri;
@@ -303,7 +306,7 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 			if ((i < 100) || (i >= 700))
 			{
 				/* Forget about crazy values */
-				return 0;
+				return TAP_PACKET_DONT_REDRAW;
 			}
 			else if (i < 200)
 			{
@@ -334,7 +337,7 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 			sc = (sip_response_code_t *)g_hash_table_lookup(sp->hash_responses, &key);
 			if (sc == NULL)
 			{
-				return 0;
+				return TAP_PACKET_DONT_REDRAW;
 			}
 		}
 		sc->packets++;
@@ -366,10 +369,10 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 	else
 	{
 		/* No request method set. Just ignore */
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 static void
@@ -420,12 +423,13 @@ sipstat_init(const char *opt_arg, void *userdata _U_)
 			0,
 			sipstat_reset,
 			sipstat_packet,
-			sipstat_draw);
+			sipstat_draw,
+			NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(sp->filter);
 		g_free(sp);
-		fprintf (stderr, "tshark: Couldn't register sip,stat tap: %s\n",
+		cmdarg_err("Couldn't register sip,stat tap: %s",
 			 error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -452,7 +456,7 @@ register_tap_listener_sipstat(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

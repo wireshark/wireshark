@@ -303,16 +303,16 @@ dissect_gfp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
             fcs_ti = proto_tree_add_uint_format_value(gfp_tree, hf_gfp_fcs, tvb, *offset+payload_len, 4, fcs, "0x%08x [correct]", fcs);
             fcs_tree = proto_item_add_subtree(fcs_ti, ett_gfp_fcs);
             fcs_ti = proto_tree_add_boolean(fcs_tree, hf_gfp_fcs_good, tvb, *offset+payload_len, 4, TRUE);
-            PROTO_ITEM_SET_GENERATED(fcs_ti);
+            proto_item_set_generated(fcs_ti);
             fcs_ti = proto_tree_add_boolean(fcs_tree, hf_gfp_fcs_bad, tvb, *offset+payload_len, 4, FALSE);
-            PROTO_ITEM_SET_GENERATED(fcs_ti);
+            proto_item_set_generated(fcs_ti);
         } else {
             fcs_ti = proto_tree_add_uint_format_value(gfp_tree, hf_gfp_fcs, tvb, *offset+payload_len, 4, fcs, "0x%08x [incorrect, should be 0x%08x]", fcs, fcs_calc);
             fcs_tree = proto_item_add_subtree(fcs_ti, ett_gfp_fcs);
             fcs_ti = proto_tree_add_boolean(fcs_tree, hf_gfp_fcs_good, tvb, *offset+payload_len, 4, FALSE);
-            PROTO_ITEM_SET_GENERATED(fcs_ti);
+            proto_item_set_generated(fcs_ti);
             fcs_ti = proto_tree_add_boolean(fcs_tree, hf_gfp_fcs_bad, tvb, *offset+payload_len, 4, TRUE);
-            PROTO_ITEM_SET_GENERATED(fcs_ti);
+            proto_item_set_generated(fcs_ti);
             expert_add_info(pinfo, fcs_ti, &ei_gfp_fcs_bad);
         }
         /* Method 2: */
@@ -546,7 +546,7 @@ proto_register_gfp(void)
     /* Decode As handling */
     static build_valid_func gfp_da_build_value[1] = {gfp_value};
     static decode_as_value_t gfp_da_values = {gfp_prompt, 1, gfp_da_build_value};
-    static decode_as_t gfp_da = {"gfp", "GFP", "gfp.upi", 1, 0, &gfp_da_values, NULL, NULL,
+    static decode_as_t gfp_da = {"gfp", "gfp.upi", 1, 0, &gfp_da_values, NULL, NULL,
                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     /* module_t        *gfp_module; */

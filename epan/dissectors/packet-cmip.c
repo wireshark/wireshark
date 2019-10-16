@@ -2171,35 +2171,35 @@ dissect_cmip_CMIPAbortInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const asn_namedbit FunctionalUnits_bits[] = {
-  {  0, &hf_cmip_FunctionalUnits_multipleObjectSelection, -1, -1, "multipleObjectSelection", NULL },
-  {  1, &hf_cmip_FunctionalUnits_filter, -1, -1, "filter", NULL },
-  {  2, &hf_cmip_FunctionalUnits_multipleReply, -1, -1, "multipleReply", NULL },
-  {  3, &hf_cmip_FunctionalUnits_extendedService, -1, -1, "extendedService", NULL },
-  {  4, &hf_cmip_FunctionalUnits_cancelGet, -1, -1, "cancelGet", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * FunctionalUnits_bits[] = {
+  &hf_cmip_FunctionalUnits_multipleObjectSelection,
+  &hf_cmip_FunctionalUnits_filter,
+  &hf_cmip_FunctionalUnits_multipleReply,
+  &hf_cmip_FunctionalUnits_extendedService,
+  &hf_cmip_FunctionalUnits_cancelGet,
+  NULL
 };
 
 static int
 dissect_cmip_FunctionalUnits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    FunctionalUnits_bits, hf_index, ett_cmip_FunctionalUnits,
+                                    FunctionalUnits_bits, 5, hf_index, ett_cmip_FunctionalUnits,
                                     NULL);
 
   return offset;
 }
 
 
-static const asn_namedbit ProtocolVersion_bits[] = {
-  {  0, &hf_cmip_ProtocolVersion_version1, -1, -1, "version1", NULL },
-  {  1, &hf_cmip_ProtocolVersion_version2, -1, -1, "version2", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ProtocolVersion_bits[] = {
+  &hf_cmip_ProtocolVersion_version1,
+  &hf_cmip_ProtocolVersion_version2,
+  NULL
 };
 
 static int
 dissect_cmip_ProtocolVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ProtocolVersion_bits, hf_index, ett_cmip_ProtocolVersion,
+                                    ProtocolVersion_bits, 2, hf_index, ett_cmip_ProtocolVersion,
                                     NULL);
 
   return offset;
@@ -3508,21 +3508,21 @@ dissect_cmip_UsageState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const asn_namedbit T_daysOfWeek_bits[] = {
-  {  0, &hf_cmip_T_daysOfWeek_sunday, -1, -1, "sunday", NULL },
-  {  1, &hf_cmip_T_daysOfWeek_monday, -1, -1, "monday", NULL },
-  {  2, &hf_cmip_T_daysOfWeek_tuesday, -1, -1, "tuesday", NULL },
-  {  3, &hf_cmip_T_daysOfWeek_wednesday, -1, -1, "wednesday", NULL },
-  {  4, &hf_cmip_T_daysOfWeek_thursday, -1, -1, "thursday", NULL },
-  {  5, &hf_cmip_T_daysOfWeek_friday, -1, -1, "friday", NULL },
-  {  6, &hf_cmip_T_daysOfWeek_saturday, -1, -1, "saturday", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_daysOfWeek_bits[] = {
+  &hf_cmip_T_daysOfWeek_sunday,
+  &hf_cmip_T_daysOfWeek_monday,
+  &hf_cmip_T_daysOfWeek_tuesday,
+  &hf_cmip_T_daysOfWeek_wednesday,
+  &hf_cmip_T_daysOfWeek_thursday,
+  &hf_cmip_T_daysOfWeek_friday,
+  &hf_cmip_T_daysOfWeek_saturday,
+  NULL
 };
 
 static int
 dissect_cmip_T_daysOfWeek(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_daysOfWeek_bits, hf_index, ett_cmip_T_daysOfWeek,
+                                    T_daysOfWeek_bits, 7, hf_index, ett_cmip_T_daysOfWeek,
                                     NULL);
 
   return offset;
@@ -5598,59 +5598,59 @@ void proto_register_cmip(void) {
         FT_INT32, BASE_DEC, NULL, 0,
         "InvokeId_present", HFILL }},
     { &hf_cmip_FunctionalUnits_multipleObjectSelection,
-      { "multipleObjectSelection", "cmip.multipleObjectSelection",
+      { "multipleObjectSelection", "cmip.FunctionalUnits.multipleObjectSelection",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_cmip_FunctionalUnits_filter,
-      { "filter", "cmip.filter",
+      { "filter", "cmip.FunctionalUnits.filter",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_cmip_FunctionalUnits_multipleReply,
-      { "multipleReply", "cmip.multipleReply",
+      { "multipleReply", "cmip.FunctionalUnits.multipleReply",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_cmip_FunctionalUnits_extendedService,
-      { "extendedService", "cmip.extendedService",
+      { "extendedService", "cmip.FunctionalUnits.extendedService",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_cmip_FunctionalUnits_cancelGet,
-      { "cancelGet", "cmip.cancelGet",
+      { "cancelGet", "cmip.FunctionalUnits.cancelGet",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_cmip_ProtocolVersion_version1,
-      { "version1", "cmip.version1",
+      { "version1", "cmip.ProtocolVersion.version1",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_cmip_ProtocolVersion_version2,
-      { "version2", "cmip.version2",
+      { "version2", "cmip.ProtocolVersion.version2",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_cmip_T_daysOfWeek_sunday,
-      { "sunday", "cmip.sunday",
+      { "sunday", "cmip.T.daysOfWeek.sunday",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_cmip_T_daysOfWeek_monday,
-      { "monday", "cmip.monday",
+      { "monday", "cmip.T.daysOfWeek.monday",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_cmip_T_daysOfWeek_tuesday,
-      { "tuesday", "cmip.tuesday",
+      { "tuesday", "cmip.T.daysOfWeek.tuesday",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_cmip_T_daysOfWeek_wednesday,
-      { "wednesday", "cmip.wednesday",
+      { "wednesday", "cmip.T.daysOfWeek.wednesday",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_cmip_T_daysOfWeek_thursday,
-      { "thursday", "cmip.thursday",
+      { "thursday", "cmip.T.daysOfWeek.thursday",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_cmip_T_daysOfWeek_friday,
-      { "friday", "cmip.friday",
+      { "friday", "cmip.T.daysOfWeek.friday",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_cmip_T_daysOfWeek_saturday,
-      { "saturday", "cmip.saturday",
+      { "saturday", "cmip.T.daysOfWeek.saturday",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
 

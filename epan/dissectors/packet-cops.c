@@ -370,7 +370,7 @@ static const value_string table_cops_reason_subcode_delete[] =
     { 0x3,  "Authorization revoked" },
     { 0x4,  "Unexpected Gate-Open" },
     { 0x5,  "Local Gate-Close failure" },
-    { 0x127,"Unspecified error" },
+    { 0x7f,"Unspecified error" },
     { 0, NULL },
 };
 
@@ -385,7 +385,7 @@ static const value_string table_cops_reason_subcode_close[] =
     { 0x5,  "Timer T1 expiration; no Commit received from MTA" },
     { 0x6,  "Timer T7 expiration; Service Flow reservation timeout" },
     { 0x7,  "Timer T8 expiration; Service Flow inactivity in the upstream direction" },
-    { 0x127,"Unspecified error" },
+    { 0x7f,"Unspecified error" },
     { 0, NULL },
 };
 
@@ -399,7 +399,7 @@ static const value_string table_cops_packetcable_error[] =
     { 0x5,  "Gate already set" },
     { 0x6,  "Missing Required Object" },
     { 0x7,  "Invalid Object" },
-    { 0x127,"Unspecified error" },
+    { 0x7f,"Unspecified error" },
     { 0, NULL },
 };
 
@@ -713,7 +713,7 @@ static gint hf_cops_pcmm_request_transmission_policy_sf_data_for_data = -1;
 static gint hf_cops_pcmm_request_transmission_policy_sf_piggyback = -1;
 static gint hf_cops_pcmm_request_transmission_policy_sf_concatenate = -1;
 static gint hf_cops_pcmm_request_transmission_policy_sf_fragment = -1;
-static gint hf_cops_pcmm_request_transmission_policy_sf_supress = -1;
+static gint hf_cops_pcmm_request_transmission_policy_sf_suppress = -1;
 static gint hf_cops_pcmm_request_transmission_policy_sf_drop_packets = -1;
 static gint hf_cops_pcmm_max_sustained_traffic_rate = -1;
 static gint hf_cops_pcmm_max_traffic_burst = -1;
@@ -1034,7 +1034,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             wmem_map_insert(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value), pdus_array);
         }
 
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             /*
              * XXX - yes, we're setting all the fields in this
              * structure, but there's padding between op_code
@@ -1072,7 +1072,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                   && cops_call->rsp_num != 0)  {
                     ti = proto_tree_add_uint_format(cops_tree, hf_cops_response_in, tvb, 0, 0, cops_call->rsp_num,
                                                       "Response to this request is in frame %u", cops_call->rsp_num);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                 }
             }
         }
@@ -1084,7 +1084,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         if (pdus_array == NULL) /* There's no request with this handle value */
             return offset;
 
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             for (i=0; i < pdus_array->len; i++) {
                 cops_call = (cops_call_t*)g_ptr_array_index(pdus_array, i);
 
@@ -1117,11 +1117,11 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 if ( cops_call->rsp_num == pinfo->num ) {
                     ti = proto_tree_add_uint_format(cops_tree, hf_cops_response_to, tvb, 0, 0, cops_call->req_num,
                                                       "Response to a request in frame %u", cops_call->req_num);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
 
                     nstime_delta(&delta, &pinfo->abs_ts, &cops_call->req_time);
                     ti = proto_tree_add_time(cops_tree, hf_cops_response_time, tvb, 0, 0, &delta);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
 
                     break;
                 }
@@ -2582,8 +2582,8 @@ void proto_register_cops(void)
             FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0040,
             NULL, HFILL }
         },
-        { &hf_cops_pcmm_request_transmission_policy_sf_supress,
-          { "The Service Flow MUST NOT suppress payload headers", "cops.pc_mm_rtp.sf.supress",
+        { &hf_cops_pcmm_request_transmission_policy_sf_suppress,
+          { "The Service Flow MUST NOT suppress payload headers", "cops.pc_mm_rtp.sf.suppress",
             FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0080,
             NULL, HFILL }
         },
@@ -6023,7 +6023,7 @@ decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_t
       &hf_cops_pcmm_request_transmission_policy_sf_piggyback,
       &hf_cops_pcmm_request_transmission_policy_sf_concatenate,
       &hf_cops_pcmm_request_transmission_policy_sf_fragment,
-      &hf_cops_pcmm_request_transmission_policy_sf_supress,
+      &hf_cops_pcmm_request_transmission_policy_sf_suppress,
       &hf_cops_pcmm_request_transmission_policy_sf_drop_packets,
       NULL
     };
@@ -6238,7 +6238,7 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 /* End of PacketCable Addition */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

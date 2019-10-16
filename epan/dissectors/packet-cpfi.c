@@ -226,32 +226,32 @@ dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ( src != 0 )
     {
       hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_instance, tvb, 0, 1, &src_instance);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
       hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_src_instance, tvb, 0, 1, &src_instance);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
       hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_board, tvb, 0, 1, &src_board);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
       hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_src_board, tvb, 0, 1, &src_board);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
       hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_port, tvb, 0, 1, &src_port);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
       hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_src_port, tvb, 0, 1, &src_port);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
     }
     if ( dst != 0 )
     {
       hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_instance, tvb, 0, 1, &dst_instance);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
       hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_dst_instance, tvb, 0, 1, &dst_instance);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
       hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_board, tvb, 0, 1, &dst_board);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
       hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_dst_board, tvb, 0, 1, &dst_board);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
       hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_port, tvb, 0, 1, &dst_port);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
       hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_dst_port, tvb, 0, 1, &dst_port);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
     }
 
     /* add word 1 components to the protocol tree */

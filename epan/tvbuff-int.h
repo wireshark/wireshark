@@ -42,21 +42,47 @@ struct tvbuff {
 	guint			flags;
 	struct tvbuff		*ds_tvb;  /**< data source top-level tvbuff */
 
-	/** We're either a TVBUFF_REAL_DATA or a
-	 * TVBUFF_SUBSET that has a backing buffer that
-	 * has real_data != NULL, or a TVBUFF_COMPOSITE
-	 * which has flattened its data due to a call
-	 * to tvb_get_ptr().
+	/** Pointer to the data for this tvbuff.
+	 * It might be null, which either means that 1) it's a
+	 * zero-length tvbuff or 2) the tvbuff was lazily
+	 * constructed, so that we don't allocate a buffer of
+	 * backing data and fill it in unless we need that
+	 * data, e.g. when tvb_get_ptr() is called.
 	 */
 	const guint8		*real_data;
 
-	/** Length of virtual buffer (and/or real_data). */
+	/** Amount of data that's available from the capture
+	 * file.  This is the length of virtual buffer (and/or
+	 * real_data).  It may be less than the reported
+	 * length if this is from a packet that was cut short
+	 * by the capture process.
+	 *
+	 * This must never be > reported_length or contained_length. */
 	guint			length;
 
-	/** Reported length. */
+	/** Amount of data that was reported as being in
+	 * the packet or other data that this represents.
+	 * As indicated above, it may be greater than the
+	 * amount of data that's available. */
 	guint			reported_length;
 
-	/* Offset from beginning of first TVBUFF_REAL. */
+	/** If this was extracted from a parent tvbuff,
+	 * this is the amount of extracted data that
+	 * was reported as being in the parent tvbuff;
+	 * if this represents a blob of data in that
+	 * tvbuff that has a length specified by data
+	 * in that tvbuff, it might be greater than
+	 * the amount of data that was actually there
+	 * to extract, so it could be greater than
+	 * reported_length.
+	 *
+	 * If this wasn't extracted from a parent tvbuff,
+	 * this is the same as reported_length.
+	 *
+	 * This must never be > reported_length. */
+	guint			contained_length;
+
+	/* Offset from beginning of first "real" tvbuff. */
 	gint			raw_offset;
 };
 

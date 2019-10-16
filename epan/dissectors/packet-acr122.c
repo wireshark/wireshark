@@ -305,7 +305,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         sub_item = proto_tree_add_uint(main_tree, hf_command, tvb, offset, 4 + length, command);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
         if (command == CMD_UNKNOWN)
             expert_add_info(pinfo, sub_item, &ei_unknown_command_or_invalid_parameters);
 
@@ -454,7 +454,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         }
 
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             command_data = wmem_new(wmem_file_scope(), command_data_t);
             command_data->bus_id = bus_id;
             command_data->device_address = device_address;
@@ -484,20 +484,20 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 command = command_data->command;
                 command_frame_number = command_data->command_frame_number;
-                if (!pinfo->fd->flags.visited && command_data->response_frame_number == 0) {
+                if (!pinfo->fd->visited && command_data->response_frame_number == 0) {
                     command_data->response_frame_number = pinfo->num;
                 }
             }
         }
 
         sub_item = proto_tree_add_uint(main_tree, hf_response, tvb, offset, tvb_captured_length_remaining(tvb, offset), command);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Response: %s", val_to_str_ext_const(command, &command_vals_ext, "Unknown"));
 
         if (command != CMD_UNKNOWN) {
             sub_item = proto_tree_add_uint(main_tree, hf_response_for, tvb, offset, tvb_captured_length_remaining(tvb, offset), command_frame_number);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
 
         switch (command) {
@@ -895,7 +895,7 @@ proto_reg_handoff_acr122(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -768,7 +768,7 @@ dissect_nfct_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, in
 
 	switch (type) {
 		case WS_CTA_STATUS:
-			proto_tree_add_bitmask(tree, tvb, offset, hfi_nfct_attr_status.id,
+			proto_tree_add_bitmask(tree, tvb, offset, &hfi_nfct_attr_status,
 					       ett_nfct_status_attr, hfi_nfct_attr_status_flags, ENC_BIG_ENDIAN);
 			return 1;
 
@@ -976,7 +976,7 @@ dissect_nfexp_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, i
 			return 1;
 
 		case WS_CTA_EXPECT_FLAGS:
-			proto_tree_add_bitmask(tree, tvb, offset, hfi_nfexp_attr_flags.id,
+			proto_tree_add_bitmask(tree, tvb, offset, &hfi_nfexp_attr_flags,
 					       ett_nfexp_flags_attr, hfi_nfexp_attr_flags_bitfield, ENC_BIG_ENDIAN);
 			return 1;
 
@@ -1307,11 +1307,7 @@ dissect_nfq_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int
 
 		case WS_NFQA_TIMESTAMP:
 			if (len == 16) {
-				nstime_t ts;
-
-				ts.secs = (time_t)tvb_get_ntoh64(tvb, offset);
-				ts.nsecs = (int)tvb_get_ntoh64(tvb, offset + 8) * 1000;
-				proto_tree_add_time(tree, &hfi_nfq_timestamp, tvb, offset, 16, &ts);
+				proto_tree_add_item(tree, &hfi_nfq_timestamp, tvb, offset, 16, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
 				offset += 16;
 			}
 			break;
@@ -2067,7 +2063,7 @@ proto_reg_handoff_netlink_netfilter(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

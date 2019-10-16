@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 
 #include <ui/qt/models/interface_tree_cache_model.h>
@@ -40,7 +41,7 @@ InterfaceTreeCacheModel::InterfaceTreeCacheModel(QObject *parent) :
     checkableColumns << IFTREE_COL_MONITOR_MODE;
 #endif
 
-    editableColumns << IFTREE_COL_INTERFACE_COMMENT << IFTREE_COL_SNAPLEN << IFTREE_COL_PIPE_PATH;
+    editableColumns << IFTREE_COL_COMMENT << IFTREE_COL_SNAPLEN << IFTREE_COL_PIPE_PATH;
 
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     editableColumns << IFTREE_COL_BUFFERLEN;
@@ -217,7 +218,7 @@ void InterfaceTreeCacheModel::save()
         if ( content.isValid() && static_cast<Qt::CheckState>(content.toInt()) == Qt::Unchecked )
             prefStorage[&prefs.capture_devices_hide] << QString(device->name);
 
-        content = getColumnContent(idx, IFTREE_COL_INTERFACE_COMMENT);
+        content = getColumnContent(idx, IFTREE_COL_COMMENT);
         if ( content.isValid() && content.toString().size() > 0 )
             prefStorage[&prefs.capture_devices_descr] << QString("%1(%2)").arg(device->name).arg(content.toString());
 
@@ -483,7 +484,7 @@ QVariant InterfaceTreeCacheModel::data(const QModelIndex &index, int role) const
             {
                 if ( col == IFTREE_COL_PIPE_PATH ||
                         col == IFTREE_COL_NAME ||
-                        col == IFTREE_COL_INTERFACE_NAME )
+                        col == IFTREE_COL_DESCRIPTION )
                 {
 
                     QMap<InterfaceTreeColumns, QVariant> * dataField = 0;
@@ -527,7 +528,7 @@ QModelIndex InterfaceTreeCacheModel::index(int row, int column, const QModelInde
         return createIndex(row, column, (void *)0);
     }
 
-    return sourceModel->index(row, column, parent);
+    return QIdentityProxyModel::index(row, column, parent);
 }
 
 void InterfaceTreeCacheModel::addDevice(const interface_t * newDevice)

@@ -4,7 +4,7 @@
 # service names, e.g. TCP port 80 -> http.
 #
 # It is subject to copyright and being used with IANA's permission:
-# http://www.wireshark.org/lists/wireshark-dev/200708/msg00160.html
+# https://www.wireshark.org/lists/wireshark-dev/200708/msg00160.html
 #
 # The original file can be found at:
 # http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv
@@ -690,8 +690,10 @@ gdoi		848/tcp/udp	# GDOI
 domain-s	853/tcp/udp	# DNS query-response protocol run over TLS/DTLS
 dlep		854/tcp/udp	# Dynamic Link Exchange Protocol (DLEP)
 iscsi		860/tcp/udp	# iSCSI
-owamp-control	861/tcp/udp	# OWAMP-Control
-twamp-control	862/tcp/udp	# Two-way Active Measurement Protocol (TWAMP) Control
+owamp-control	861/tcp		# OWAMP-Control
+owamp-test	861/udp		# OWAMP-Test
+twamp-control	862/tcp		# TWAMP-Control
+twamp-test	862/udp		# TWAMP-Test Receiver Port
 rsync		873/tcp/udp
 iclcnet-locate	886/tcp/udp	# ICL coNETion locate server
 iclcnet-svinfo	887/tcp/udp	# ICL coNETion server info
@@ -1911,7 +1913,6 @@ drwcs		2193/tcp/udp	# Dr.Web Enterprise Management Service
 mnp-exchange	2197/tcp/udp	# MNP data exchange
 onehome-remote	2198/tcp/udp	# OneHome Remote Access
 onehome-help	2199/tcp/udp	# OneHome Service Port
-ici		2200/tcp/udp	# ICI
 ats		2201/tcp/udp	# Advanced Training System Program
 imtc-map	2202/tcp/udp	# Int. Multimedia Teleconferencing Cosortium
 b2-runtime	2203/tcp/udp	# b2 Runtime Protocol
@@ -2080,7 +2081,7 @@ qip-login	2366/tcp/udp
 service-ctrl	2367/tcp/udp	# Service Control
 opentable	2368/tcp/udp	# OpenTable
 l3-hbmon	2370/tcp/udp	# L3-HBMon
-hp-rda		2371/tcp	# HP Remote Device Access
+rda		2371/tcp	# Remote Device Access
 lanmessenger	2372/tcp/udp	# LanMessenger
 remographlm	2373/tcp	# Remograph License Manager
 hydra		2374/tcp	# Hydra RPC
@@ -2168,7 +2169,7 @@ wago-io-system	2455/tcp/udp	# WAGO-IO-SYSTEM
 altav-remmgt	2456/tcp/udp
 rapido-ip	2457/tcp/udp	# Rapido_IP
 griffin		2458/tcp/udp
-community	2459/tcp/udp	# Community
+xrpl		2459/tcp/udp	# Community
 ms-theater	2460/tcp/udp
 qadmifoper	2461/tcp/udp
 qadmifevent	2462/tcp/udp
@@ -3307,7 +3308,7 @@ trendchip-dcp	3608/tcp/udp	# Trendchip control protocol
 cpdi-pidas-cm	3609/tcp/udp	# CPDI PIDAS Connection Mon
 echonet		3610/tcp/udp	# ECHONET
 six-degrees	3611/tcp/udp	# Six Degrees Port
-hp-dataprotect	3612/tcp/udp	# HP Data Protector
+dataprotector	3612/tcp/udp	# Micro Focus Data Protector
 alaris-disc	3613/tcp/udp	# Alaris Device Discovery
 sigma-port	3614/tcp/udp	# Satchwell Sigma
 start-network	3615/tcp/udp	# Start Messaging Network
@@ -3920,13 +3921,13 @@ jaxer-manager	4328/tcp/udp	# Jaxer Manager Command Protocol
 publiqare-sync	4329/tcp	# PubliQare Distributed Environment Synchronisation Engine
 dey-sapi	4330/tcp	# DEY Storage Administration REST API
 ktickets-rest	4331/tcp	# ktickets REST API for event management and ticketing systems (embedded POS devices)
+getty-focus	4332/tcp	# Getty Images FOCUS service
 ahsp		4333/tcp/udp/sctp	# ArrowHead Service Protocol (AHSP)
 netconf-ch-ssh	4334/tcp	# NETCONF Call Home (SSH)
 netconf-ch-tls	4335/tcp	# NETCONF Call Home (TLS)
 restconf-ch-tls	4336/tcp	# RESTCONF Call Home (TLS)
 gaia		4340/tcp/udp	# Gaia Connector Protocol
-lisp-data	4341/tcp/udp	# LISP Data Packets
-lisp-cons	4342/tcp	# LISP-CONS Control
+lisp-data	4341/udp	# LISP Data Packets
 lisp-control	4342/udp	# LISP Control Packets
 unicall		4343/tcp/udp	# UNICALL
 vinainstall	4344/tcp/udp	# VinaInstall
@@ -4193,6 +4194,8 @@ socp-c		4882/udp	# SOCP Control Protocol
 wmlserver	4883/tcp	# Meier-Phelps License Server
 hivestor	4884/tcp/udp	# HiveStor Distributed File System
 abbs		4885/tcp/udp	# ABBS
+xcap-portal	4888/tcp	# xcap code analysis portal public user access
+xcap-control	4889/tcp	# xcap code analysis portal cluster control and administration
 lyskom		4894/tcp/udp	# LysKOM Protocol A
 radmin-port	4899/tcp/udp	# RAdmin Port
 hfcs		4900/tcp/udp	# HFSQL Client/Server Database Engine
@@ -4333,7 +4336,6 @@ social-alarm	5146/tcp	# Social Alarm Service
 atmp		5150/tcp/udp	# Ascend Tunnel Management Protocol
 esri-sde	5151/tcp/udp	# ESRI SDE Instance
 sde-discovery	5152/tcp/udp	# ESRI SDE Instance Discovery
-toruxserver	5153/tcp	# ToruX Game Server
 bzflag		5154/tcp/udp	# BZFlag game server
 asctrl-agent	5155/tcp/udp	# Oracle asControl Agent
 rugameonline	5156/tcp	# Russian Online Game
@@ -4424,7 +4426,7 @@ bsfserver-zn	5320/tcp	# Webservices-based Zn interface of BSF
 bsfsvr-zn-ssl	5321/tcp	# Webservices-based Zn interface of BSF over SSL
 kfserver	5343/tcp/udp	# Sculptor Database Server
 xkotodrcp	5344/tcp/udp	# xkoto DRCP
-stuns		5349/tcp/udp	# STUN over TLS
+stuns		5349/tcp/udp	# Session Traversal Utilities for NAT (STUN) port
 pcp-multicast	5350/udp	# Port Control Protocol Multicast
 pcp		5351/udp	# Port Control Protocol
 dns-llq		5352/tcp/udp	# DNS Long-Lived Queries
@@ -4514,7 +4516,7 @@ sgi-esphttp	5554/tcp/udp	# SGI ESP HTTP
 personal-agent	5555/tcp/udp	# Personal Agent
 freeciv		5556/tcp/udp	# Freeciv gameplay
 farenet		5557/tcp	# Sandlab FARENET
-hpe-dp-bura	5565/tcp	# HPE Advanced BURA
+dp-bura		5565/tcp	# Data Protector BURA
 westec-connect	5566/tcp	# Westec Connect
 dof-dps-mc-sec	5567/tcp/udp	# DOF Protocol Stack Multicast/Secure Transport
 sdt		5568/tcp/udp	# Session Data Transport Multicast
@@ -5144,10 +5146,13 @@ wpl-disc	8006/udp	# World Programming analytics discovery
 warppipe	8007/tcp/udp	# I/O oriented cluster computing software
 http-alt	8008/tcp/udp	# HTTP Alternate
 nvme-disc	8009/tcp	# NVMe over Fabrics Discovery Service
+cfg-cloud	8015/tcp	# Configuration Cloud Service
+ads-s		8016/tcp	# Beckhoff Automation Device Specification
 qbdb		8019/tcp/udp	# QB DB Dynamic Port
 intu-ec-svcdisc	8020/tcp/udp	# Intuit Entitlement Service and Discovery
 intu-ec-client	8021/tcp/udp	# Intuit Entitlement Client
 oa-system	8022/tcp/udp
+arca-api	8023/tcp/udp	# ARCATrust vault API
 ca-audit-da	8025/tcp/udp	# CA Audit Distribution Agent
 ca-audit-ds	8026/tcp/udp	# CA Audit Distribution Server
 pro-ed		8032/tcp/udp	# ProEd
@@ -5177,6 +5182,7 @@ http-alt	8080/tcp/udp	# HTTP Alternate (see port 80)
 sunproxyadmin	8081/tcp/udp	# Sun Proxy Admin Service
 us-cli		8082/tcp/udp	# Utilistor (Client)
 us-srv		8083/tcp/udp	# Utilistor (Server)
+websnp		8084/tcp	# Snarl Network Protocol over HTTP
 d-s-n		8086/tcp/udp	# Distributed SCADA Networking Rendezvous Port
 simplifymedia	8087/tcp/udp	# Simplify Media SPP Protocol
 radan-http	8088/tcp/udp	# Radan HTTP
@@ -5186,6 +5192,7 @@ sac		8097/tcp/udp	# SAC Port Id
 xprint-server	8100/tcp/udp	# Xprint Server
 ldoms-migr	8101/tcp	# Logical Domains Migration
 kz-migr		8102/tcp	# Oracle Kernel zones migration server
+skynetflow	8111/udp	# Skynetflow network services
 mtl8000-matrix	8115/tcp/udp	# MTL8000 Matrix
 cp-cluster	8116/tcp/udp	# Check Point Clustering
 purityrpc	8117/tcp	# Purity replication clustering and remote management
@@ -5222,10 +5229,12 @@ lm-instmgr	8205/tcp/udp	# LM Instmgr
 lm-dta		8206/tcp/udp	# LM Dta
 lm-sserver	8207/tcp/udp	# LM SServer
 lm-webwatcher	8208/tcp/udp	# LM Webwatcher
+aruba-papi	8211/udp	# Aruba Networks AP management
 rexecj		8230/tcp/udp	# RexecJ Server
 hncp-udp-port	8231/udp	# HNCP
 hncp-dtls-port	8232/udp	# HNCP over DTLS
 synapse-nhttps	8243/tcp/udp	# Synapse Non Blocking HTTPS
+espeasy-p2p	8266/udp	# ESPeasy peer-2-peer communication
 robot-remote	8270/tcp	# Robot Framework Remote Library Interface
 pando-sec	8276/tcp/udp	# Pando Media Controlled Distribution
 synapse-nhttp	8280/tcp/udp	# Synapse Non Blocking HTTP
@@ -5301,6 +5310,7 @@ mc-appserver	8763/tcp/udp	# MC-APPSERVER
 openqueue	8764/tcp/udp	# OPENQUEUE
 ultraseek-http	8765/tcp/udp	# Ultraseek HTTP
 amcs		8766/tcp/udp	# Agilent Connectivity Service
+core-of-source	8767/tcp	# Online mobile multiplayer game
 dpap		8770/tcp/udp	# Digital Photo Access Protocol (iPhoto)
 uec		8778/tcp	# Stonebranch Universal Enterprise Controller
 msgclnt		8786/tcp/udp	# Message Client
@@ -5309,7 +5319,9 @@ acd-pm		8793/tcp/udp	# Accedian Performance Measurement
 sunwebadmin	8800/tcp/udp	# Sun Web Server Admin Service
 truecm		8804/tcp/udp
 pfcp		8805/udp	# Destination Port number for PFCP
+hes-clip	8807/udp	# HES-CLIP Interoperability protocol
 ssports-bcast	8808/udp	# STATSports Broadcast Service
+3gpp-monp	8809/udp	# MCPTT Off-Network Protocol (MONP)
 dxspider	8873/tcp/udp	# dxspider linking protocol
 cddbp-alt	8880/tcp/udp	# CDDBP
 galaxy4d	8881/tcp	# Galaxy4D Online Game Engine
@@ -5389,6 +5401,7 @@ xadmin		9105/tcp/udp	# Xadmin Control Service
 astergate	9106/tcp	# Astergate Control Service
 astergate-disc	9106/udp	# Astergate Discovery Service
 astergatefax	9107/tcp	# AstergateFax Control Service
+hexxorecore	9111/tcp/udp	# Multiple Purpose, Distributed Message Bus
 mxit		9119/tcp/udp	# MXit Instant Messaging
 grcmp		9122/tcp	# Global Relay compliant mobile instant messaging protocol
 grcp		9123/tcp	# Global Relay compliant instant messaging protocol
@@ -5439,6 +5452,7 @@ sphinxql	9306/tcp	# Sphinx search server (MySQL listener)
 sphinxapi	9312/tcp	# Sphinx search server
 secure-ts	9318/tcp/udp	# PKIX TimeStamp over TLS
 guibase		9321/tcp/udp
+gnmi-gnoi	9339/tcp	# gRPC Network Mgmt/Operations Interface
 mpidcmgr	9343/tcp/udp	# MpIdcMgr
 mphlpdmc	9344/tcp/udp	# Mphlpdmc
 rancher		9345/tcp	# Rancher Agent
@@ -5499,6 +5513,7 @@ sstp-2		9801/tcp/udp	# Sakura Script Transfer Protocol-2
 davsrcs		9802/tcp/udp	# WebDAV Source TLS/SSL
 sapv1		9875/tcp/udp	# Session Announcement v1
 sd		9876/tcp	# Session Director
+x510		9877/tcp	# The X.510 wrapper protocol
 kca-service	9878/udp	# The KX509 Kerberized Certificate Issuance Protocol in Use in 2012
 cyborg-systems	9888/tcp/udp	# CYBORG Systems
 gt-proxy	9889/tcp/udp	# Port for Cable network related data proxy or repeater
@@ -5644,6 +5659,7 @@ lanschool-mpt	11796/udp	# Lanschool Multipoint
 xoraya		11876/tcp/udp	# X2E Xoraya Multichannel protocol
 x2e-disc	11877/udp	# X2E service discovery protocol
 sysinfo-sp	11967/tcp/udp	# SysInfo Service Protocol
+tibsd		11971/tcp	# TiBS Service
 wmereceiving	11997/sctp	# WorldMailExpress
 wmedistribution	11998/sctp	# WorldMailExpress
 wmereporting	11999/sctp	# WorldMailExpress
@@ -5835,6 +5851,7 @@ athand-mmp	20999/tcp/udp	# At Hand MMP
 irtrans		21000/tcp/udp	# IRTrans Control
 notezilla-lan	21010/tcp	# Notezilla.Lan Server
 trinket-agent	21212/tcp	# Distributed artificial intelligence
+cohesity-agent	21213/tcp	# Cohesity backup agents
 aigairserver	21221/tcp	# Services for Air Server
 rdm-tfs		21553/tcp	# Raima RDM TFS
 dfserver	21554/tcp/udp	# MineScape Design File Server
@@ -5896,6 +5913,7 @@ filesphere	24242/tcp/udp	# fileSphere
 vista-4gl	24249/tcp/udp	# Vista 4GL
 ild		24321/tcp/udp	# Isolv Local Directory
 hid		24322/udp	# Transport of Human Interface Device data streams
+vrmg-ip		24323/tcp	# Verimag mobile class protocol over TCP
 intel-rci	24386/tcp/udp	# Intel RCI
 tonidods	24465/tcp/udp	# Tonido Domain Server
 binkp		24554/tcp/udp	# BINKP
@@ -5941,6 +5959,8 @@ exoline-tcp	26486/tcp	# EXOline-TCP
 exoline-udp	26486/udp	# EXOline-UDP
 exoconfig	26487/tcp/udp	# EXOconfig
 exonet		26489/tcp/udp	# EXOnet
+flex-lmadmin	27010/tcp	# A protocol for managing license services
+mongodb		27017/tcp	# Mongo database system
 imagepump	27345/tcp/udp	# ImagePump
 jesmsjc		27442/tcp/udp	# Job controller service
 kopek-httphead	27504/tcp/udp	# Kopek HTTP Head Port
@@ -6057,6 +6077,7 @@ fairview	38202/tcp/udp	# Fairview Message Service
 agpolicy	38203/tcp/udp	# AppGate Policy Server
 ng-control	38412/sctp	# NG Control Plane (3GPP)
 xn-control	38422/sctp	# Xn Control Plane (3GPP)
+e1-interface	38462/sctp	# E1 signalling transport (3GPP)
 f1-control	38472/sctp	# F1 Control Plane (3GPP)
 sruth		38800/tcp	# Sruth is a service for the distribution of routinely- generated but arbitrary files based on a publish/subscribe distribution model and implemented using a peer-to-peer transport mechanism
 secrmmsafecopya	38865/tcp	# Security approval process for use of the secRMM SafeCopy program
@@ -6132,7 +6153,7 @@ nimhub		48002/tcp/udp	# Nimbus Hub
 nimgtw		48003/tcp/udp	# Nimbus Gateway
 nimbusdb	48004/tcp	# NimbusDB Connector
 nimbusdbctrl	48005/tcp	# NimbusDB Control
-juliar		48048/tcp	# Juliar Programming Language Protocol
+juka		48048/tcp	# Juliar Programming Language Protocol
 3gpp-cbsp	48049/tcp	# 3GPP Cell Broadcast Service Protocol
 weandsf		48050/tcp	# WeFi Access Network Discovery and Selection Function
 isnetserv	48128/tcp/udp	# Image Systems Network Services

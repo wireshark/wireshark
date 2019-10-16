@@ -227,12 +227,13 @@ double asn1_get_real(const guint8 *real_ptr, gint len) {
 
     /* 8.5.6.4 Exponent length */
     lenE = (octet & 0x3) + 1;
-    if(lenE == 4)
-    {
-      /* we can't handle exponents > 24 bits */
-      /* TODO Next octet(s) define length of exponent */
-      DISSECTOR_ASSERT_NOT_REACHED();
-    }
+
+    /* we can't handle exponents > 24 bits */
+    /* TODO Next octet(s) define length of exponent */
+    DISSECTOR_ASSERT(lenE != 4);
+
+    /* Ensure the buffer len and its content are coherent */
+    DISSECTOR_ASSERT(lenE < len - 1);
 
     Eneg = (*p) & 0x80 ? TRUE : FALSE;
     for (i = 0; i < lenE; i++) {
@@ -250,11 +251,10 @@ double asn1_get_real(const guint8 *real_ptr, gint len) {
     }
 
     lenN = len - lenE;
-    if(lenN > 8)
-    {
-      /* we can't handle integers > 64 bits */
-      DISSECTOR_ASSERT_NOT_REACHED();
-    }
+
+    /* we can't handle integers > 64 bits */
+    DISSECTOR_ASSERT(lenN <= 8);
+
     for (i=0; i<lenN; i++) {
       N = (N<<8) | *p;
       p++;
@@ -278,7 +278,7 @@ double asn1_get_real(const guint8 *real_ptr, gint len) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

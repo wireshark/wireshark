@@ -1,0 +1,17 @@
+The memory of pathsearch is leaked by tplt_open. Instead of functionally modify
+the code to fix the leak, just assert that we will never reach that code path
+since Wireshark always sets the template option.
+
+Not suitable for proposing to upstream since the assumption might not hold!
+--- a/lemon.c
++++ b/lemon.c
+@@ -3505,6 +3505,9 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
+   char *tpltname;
+   char *cp;
+ 
++  /* We always require the -T option, avoid memleak in the other code path. */
++  assert(user_templatename);
++
+   /* first, see if user specified a template filename on the command line. */
+   if (user_templatename != 0) {
+     if( access(user_templatename,004)==-1 ){

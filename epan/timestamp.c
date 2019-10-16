@@ -53,7 +53,7 @@ void timestamp_set_seconds_type(ts_seconds_type ts_t)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

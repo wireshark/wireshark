@@ -136,7 +136,7 @@ static const char* tr_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e
 
 static ct_dissector_info_t tr_ct_dissector_info = {&tr_conv_get_filter_type};
 
-static int
+static tap_packet_status
 tr_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	conv_hash_t *hash = (conv_hash_t*) pct;
@@ -144,7 +144,7 @@ tr_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
 	add_conversation_table_data(hash, &trhdr->src, &trhdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &tr_ct_dissector_info, ENDPOINT_NONE);
 
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 static const char* tr_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
@@ -157,7 +157,7 @@ static const char* tr_host_get_filter_type(hostlist_talker_t* host, conv_filter_
 
 static hostlist_dissector_info_t tr_host_dissector_info = {&tr_host_get_filter_type};
 
-static int
+static tap_packet_status
 tr_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	conv_hash_t *hash = (conv_hash_t*) pit;
@@ -169,7 +169,7 @@ tr_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	add_hostlist_table_data(hash, &trhdr->src, 0, TRUE, 1, pinfo->fd->pkt_len, &tr_host_dissector_info, ENDPOINT_NONE);
 	add_hostlist_table_data(hash, &trhdr->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &tr_host_dissector_info, ENDPOINT_NONE);
 
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 /*
@@ -556,15 +556,15 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		proto_tree_add_ether(tr_tree, hf_tr_dst, tr_tvb, 2, 6, (const guint8 *)trh->dst.data);
 		proto_tree_add_ether(tr_tree, hf_tr_src, tr_tvb, 8, 6, (const guint8 *)trh->src.data);
 		hidden_item = proto_tree_add_ether(tr_tree, hf_tr_addr, tr_tvb, 2, 6, (const guint8 *)trh->dst.data);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		proto_item_set_hidden(hidden_item);
 		hidden_item = proto_tree_add_ether(tr_tree, hf_tr_addr, tr_tvb, 8, 6, (const guint8 *)trh->src.data);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		proto_item_set_hidden(hidden_item);
 
 		proto_tree_add_boolean(tr_tree, hf_tr_sr, tr_tvb, 8, 1, source_routed);
 
 		/* non-source-routed version of src addr */
 		hidden_item = proto_tree_add_ether(tr_tree, hf_tr_src, tr_tvb, 8, 6, trn_shost_nonsr);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		proto_item_set_hidden(hidden_item);
 
 		if (source_routed) {
 			/* RCF Byte 1 */
@@ -652,15 +652,15 @@ add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 			segment = tvb_get_ntohs(tvb, RIF_OFFSET) >> 4;
 			wmem_strbuf_append_printf(buf, "%03X", segment);
 			hidden_item = proto_tree_add_uint(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 2, 2, segment);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			proto_item_set_hidden(hidden_item);
 		}
 		segment = tvb_get_ntohs(tvb, RIF_OFFSET + 1 + j) >> 4;
 		brdgnmb = tvb_get_guint8(tvb, RIF_OFFSET + j) & 0x0f;
 		wmem_strbuf_append_printf(buf, "-%01X-%03X", brdgnmb, segment);
 		hidden_item = proto_tree_add_uint(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 3 + j, 2, segment);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		proto_item_set_hidden(hidden_item);
 		hidden_item = proto_tree_add_uint(tree, hf_tr_rif_bridge, tvb, TR_MIN_HEADER_LEN + 2 + j, 1, brdgnmb);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		proto_item_set_hidden(hidden_item);
 	}
 	proto_tree_add_string(tree, hf_tr_rif, tvb, TR_MIN_HEADER_LEN + 2, rcf_len, wmem_strbuf_get_str(buf));
 
@@ -812,7 +812,7 @@ proto_reg_handoff_tr(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

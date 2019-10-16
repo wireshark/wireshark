@@ -1,3 +1,8 @@
+=begin man
+
+=encoding utf8
+
+=end man
 
 =head1 NAME
 
@@ -50,7 +55,7 @@ file on disk.
 
 If B<-p> is supplied B<rawshark> expects the following format.  This
 matches the I<struct pcap_pkthdr> structure and packet data used in
-libpcap/WinPcap.  This structure's format is platform-dependent; the
+libpcap, Npcap, or WinPcap.  This structure's format is platform-dependent; the
 size of the I<tv_sec> field in the I<struct timeval> structure could be
 32 bits or 64 bits.  For B<rawshark> to work, the layout of the
 structure in the input must match the layout of the structure in
@@ -106,13 +111,13 @@ Specify how the packet data should be dissected. The encapsulation is of the
 form I<type>B<:>I<value>, where I<type> is one of:
 
 B<encap>:I<name> Packet data should be dissected using the
-libpcap/WinPcap data link type (DLT) I<name>, e.g. B<encap:EN10MB> for
+libpcap/Npcap/WinPcap data link type (DLT) I<name>, e.g. B<encap:EN10MB> for
 Ethernet.  Names are converted using pcap_datalink_name_to_val().
 A complete list of DLTs can be found at
-L<http://www.tcpdump.org/linktypes.html>.
+L<https://www.tcpdump.org/linktypes.html>.
 
 B<encap>:I<number> Packet data should be dissected using the
-libpcap/WinPcap LINKTYPE_ I<number>, e.g. B<encap:105> for raw IEEE
+libpcap/Npcap/WinPcap LINKTYPE_ I<number>, e.g. B<encap:105> for raw IEEE
 802.11 or B<encap:101> for raw IP.
 
 B<proto>:I<protocol> Packet data should be passed to the specified Wireshark
@@ -177,6 +182,8 @@ resolution
 B<t> to enable transport-layer port number resolution
 
 B<d> to enable resolution from captured DNS packets
+
+B<v> to enable VLAN IDs to names resolution
 
 =item -o  E<lt>preferenceE<gt>:E<lt>valueE<gt>
 
@@ -346,8 +353,8 @@ whitespace. The same directory as for the personal preferences file is
 used.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
-systems and WinPcap on Windows.  As such the Wireshark personal F<hosts> file
-will not be consulted for capture filter name resolution.
+systems and Npcap or WinPcap on Windows.  As such the Wireshark personal
+F<hosts> file will not be consulted for capture filter name resolution.
 
 =item Name Resolution (subnets)
 
@@ -393,8 +400,8 @@ The personal F<ethers> file is looked for in the same directory as the personal
 preferences file.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
-systems and WinPcap on Windows.  As such the Wireshark personal F<ethers> file
-will not be consulted for capture filter name resolution.
+systems and Npcap or WinPcap on Windows.  As such the Wireshark personal
+F<ethers> file will not be consulted for capture filter name resolution.
 
 =item Name Resolution (manuf)
 
@@ -463,11 +470,12 @@ personal preferences file.
 
 =over 4
 
-=item WIRESHARK_APPDATA
+=item WIRESHARK_CONFIG_DIR
 
-On Windows, Wireshark normally stores all application data in %APPDATA% or
-%USERPROFILE%.  You can override the default location by exporting this
-environment variable to specify an alternate location.
+This environment variable overrides the location of personal configuration
+files. It defaults to F<$XDG_CONFIG_HOME/wireshark> (or F<$HOME/.wireshark> if
+the former is missing while the latter exists). On Windows,
+F<%APPDATA%\Wireshark> is used instead. Available since Wireshark 3.0.
 
 =item WIRESHARK_DEBUG_WMEM_OVERRIDE
 

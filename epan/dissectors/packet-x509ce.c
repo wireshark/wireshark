@@ -21,6 +21,7 @@
 
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/oids.h>
 
 #include "packet-ber.h"
 #include "packet-x509ce.h"
@@ -245,7 +246,7 @@ static int hf_x509ce_EntrustInfoFlags_webCategory = -1;
 static int hf_x509ce_EntrustInfoFlags_sETCategory = -1;
 
 /*--- End of included file: packet-x509ce-hf.c ---*/
-#line 39 "./asn1/x509ce/packet-x509ce-template.c"
+#line 40 "./asn1/x509ce/packet-x509ce-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -313,7 +314,7 @@ static gint ett_x509ce_EntrustInfoFlags = -1;
 static gint ett_x509ce_ScramblerCapabilities = -1;
 
 /*--- End of included file: packet-x509ce-ett.c ---*/
-#line 42 "./asn1/x509ce/packet-x509ce-template.c"
+#line 43 "./asn1/x509ce/packet-x509ce-template.c"
 
 /*--- Included file: packet-x509ce-fn.c ---*/
 #line 1 "./asn1/x509ce/packet-x509ce-fn.c"
@@ -399,7 +400,7 @@ dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
 
 #line 190 "./asn1/x509ce/x509ce.cnf"
 
-	PROTO_ITEM_SET_URL(actx->created_item);
+  proto_item_set_url(actx->created_item);
 
 
   return offset;
@@ -411,11 +412,11 @@ static int
 dissect_x509ce_T_iPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 172 "./asn1/x509ce/x509ce.cnf"
   switch (tvb_reported_length(tvb)) {
-  case 4:   /* IPv4 */
+  case 4: /* IPv4 */
     proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     break;
-  case 16:  /* IPv6 */
+  case 16: /* IPv6 */
     proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv6, tvb, offset, 16, ENC_NA);
     offset += 16;
     break;
@@ -510,23 +511,23 @@ dissect_x509ce_SubjectKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const asn_namedbit KeyUsage_bits[] = {
-  {  0, &hf_x509ce_KeyUsage_digitalSignature, -1, -1, "digitalSignature", NULL },
-  {  1, &hf_x509ce_KeyUsage_contentCommitment, -1, -1, "contentCommitment", NULL },
-  {  2, &hf_x509ce_KeyUsage_keyEncipherment, -1, -1, "keyEncipherment", NULL },
-  {  3, &hf_x509ce_KeyUsage_dataEncipherment, -1, -1, "dataEncipherment", NULL },
-  {  4, &hf_x509ce_KeyUsage_keyAgreement, -1, -1, "keyAgreement", NULL },
-  {  5, &hf_x509ce_KeyUsage_keyCertSign, -1, -1, "keyCertSign", NULL },
-  {  6, &hf_x509ce_KeyUsage_cRLSign, -1, -1, "cRLSign", NULL },
-  {  7, &hf_x509ce_KeyUsage_encipherOnly, -1, -1, "encipherOnly", NULL },
-  {  8, &hf_x509ce_KeyUsage_decipherOnly, -1, -1, "decipherOnly", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * KeyUsage_bits[] = {
+  &hf_x509ce_KeyUsage_digitalSignature,
+  &hf_x509ce_KeyUsage_contentCommitment,
+  &hf_x509ce_KeyUsage_keyEncipherment,
+  &hf_x509ce_KeyUsage_dataEncipherment,
+  &hf_x509ce_KeyUsage_keyAgreement,
+  &hf_x509ce_KeyUsage_keyCertSign,
+  &hf_x509ce_KeyUsage_cRLSign,
+  &hf_x509ce_KeyUsage_encipherOnly,
+  &hf_x509ce_KeyUsage_decipherOnly,
+  NULL
 };
 
 int
 dissect_x509ce_KeyUsage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    KeyUsage_bits, hf_index, ett_x509ce_KeyUsage,
+                                    KeyUsage_bits, 9, hf_index, ett_x509ce_KeyUsage,
                                     NULL);
 
   return offset;
@@ -884,40 +885,40 @@ dissect_x509ce_DistributionPointName(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 }
 
 
-static const asn_namedbit OnlyCertificateTypes_bits[] = {
-  {  0, &hf_x509ce_OnlyCertificateTypes_user, -1, -1, "user", NULL },
-  {  1, &hf_x509ce_OnlyCertificateTypes_authority, -1, -1, "authority", NULL },
-  {  2, &hf_x509ce_OnlyCertificateTypes_attribute, -1, -1, "attribute", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * OnlyCertificateTypes_bits[] = {
+  &hf_x509ce_OnlyCertificateTypes_user,
+  &hf_x509ce_OnlyCertificateTypes_authority,
+  &hf_x509ce_OnlyCertificateTypes_attribute,
+  NULL
 };
 
 int
 dissect_x509ce_OnlyCertificateTypes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    OnlyCertificateTypes_bits, hf_index, ett_x509ce_OnlyCertificateTypes,
+                                    OnlyCertificateTypes_bits, 3, hf_index, ett_x509ce_OnlyCertificateTypes,
                                     NULL);
 
   return offset;
 }
 
 
-static const asn_namedbit ReasonFlags_bits[] = {
-  {  0, &hf_x509ce_ReasonFlags_unused, -1, -1, "unused", NULL },
-  {  1, &hf_x509ce_ReasonFlags_keyCompromise, -1, -1, "keyCompromise", NULL },
-  {  2, &hf_x509ce_ReasonFlags_cACompromise, -1, -1, "cACompromise", NULL },
-  {  3, &hf_x509ce_ReasonFlags_affiliationChanged, -1, -1, "affiliationChanged", NULL },
-  {  4, &hf_x509ce_ReasonFlags_superseded, -1, -1, "superseded", NULL },
-  {  5, &hf_x509ce_ReasonFlags_cessationOfOperation, -1, -1, "cessationOfOperation", NULL },
-  {  6, &hf_x509ce_ReasonFlags_certificateHold, -1, -1, "certificateHold", NULL },
-  {  7, &hf_x509ce_ReasonFlags_privilegeWithdrawn, -1, -1, "privilegeWithdrawn", NULL },
-  {  8, &hf_x509ce_ReasonFlags_aACompromise, -1, -1, "aACompromise", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ReasonFlags_bits[] = {
+  &hf_x509ce_ReasonFlags_unused,
+  &hf_x509ce_ReasonFlags_keyCompromise,
+  &hf_x509ce_ReasonFlags_cACompromise,
+  &hf_x509ce_ReasonFlags_affiliationChanged,
+  &hf_x509ce_ReasonFlags_superseded,
+  &hf_x509ce_ReasonFlags_cessationOfOperation,
+  &hf_x509ce_ReasonFlags_certificateHold,
+  &hf_x509ce_ReasonFlags_privilegeWithdrawn,
+  &hf_x509ce_ReasonFlags_aACompromise,
+  NULL
 };
 
 int
 dissect_x509ce_ReasonFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ReasonFlags_bits, hf_index, ett_x509ce_ReasonFlags,
+                                    ReasonFlags_bits, 9, hf_index, ett_x509ce_ReasonFlags,
                                     NULL);
 
   return offset;
@@ -1588,20 +1589,20 @@ dissect_x509ce_GeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const asn_namedbit EntrustInfoFlags_bits[] = {
-  {  0, &hf_x509ce_EntrustInfoFlags_keyUpdateAllowed, -1, -1, "keyUpdateAllowed", NULL },
-  {  1, &hf_x509ce_EntrustInfoFlags_newExtensions, -1, -1, "newExtensions", NULL },
-  {  2, &hf_x509ce_EntrustInfoFlags_pKIXCertificate, -1, -1, "pKIXCertificate", NULL },
-  {  3, &hf_x509ce_EntrustInfoFlags_enterpriseCategory, -1, -1, "enterpriseCategory", NULL },
-  {  4, &hf_x509ce_EntrustInfoFlags_webCategory, -1, -1, "webCategory", NULL },
-  {  5, &hf_x509ce_EntrustInfoFlags_sETCategory, -1, -1, "sETCategory", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * EntrustInfoFlags_bits[] = {
+  &hf_x509ce_EntrustInfoFlags_keyUpdateAllowed,
+  &hf_x509ce_EntrustInfoFlags_newExtensions,
+  &hf_x509ce_EntrustInfoFlags_pKIXCertificate,
+  &hf_x509ce_EntrustInfoFlags_enterpriseCategory,
+  &hf_x509ce_EntrustInfoFlags_webCategory,
+  &hf_x509ce_EntrustInfoFlags_sETCategory,
+  NULL
 };
 
 static int
 dissect_x509ce_EntrustInfoFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    EntrustInfoFlags_bits, hf_index, ett_x509ce_EntrustInfoFlags,
+                                    EntrustInfoFlags_bits, 6, hf_index, ett_x509ce_EntrustInfoFlags,
                                     NULL);
 
   return offset;
@@ -1642,7 +1643,7 @@ dissect_x509ce_ScramblerCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 int
 dissect_x509ce_CiplusInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -1943,49 +1944,49 @@ static int dissect_CicamBrandId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-x509ce-fn.c ---*/
-#line 43 "./asn1/x509ce/packet-x509ce-template.c"
+#line 44 "./asn1/x509ce/packet-x509ce-template.c"
 
 /* CI+ (www.ci-plus.com) defines some X.509 certificate extensions
-    that use OIDs which are not officially assigned
+   that use OIDs which are not officially assigned
    dissection of these extensions can be enabled temporarily using the
-    functions below */
+   functions below */
 void
 x509ce_enable_ciplus(void)
 {
-	dissector_handle_t dh25, dh26, dh27;
+  dissector_handle_t dh25, dh26, dh27;
 
-	dh25 = create_dissector_handle(dissect_ScramblerCapabilities_PDU, proto_x509ce);
-	dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.25", dh25);
-	dh26 = create_dissector_handle(dissect_CiplusInfo_PDU, proto_x509ce);
-	dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.26", dh26);
-	dh27 = create_dissector_handle(dissect_CicamBrandId_PDU, proto_x509ce);
-	dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.27", dh27);
+  dh25 = create_dissector_handle(dissect_ScramblerCapabilities_PDU, proto_x509ce);
+  dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.25", dh25);
+  dh26 = create_dissector_handle(dissect_CiplusInfo_PDU, proto_x509ce);
+  dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.26", dh26);
+  dh27 = create_dissector_handle(dissect_CicamBrandId_PDU, proto_x509ce);
+  dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.27", dh27);
 }
 
 void
 x509ce_disable_ciplus(void)
 {
-	dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.25");
-	dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.26");
-	dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.27");
+  dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.25");
+  dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.26");
+  dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.27");
 }
 
 
 static int
 dissect_x509ce_invalidityDate_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-	return dissect_x509ce_GeneralizedTime(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_id_ce_invalidityDate);
+  return dissect_x509ce_GeneralizedTime(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_id_ce_invalidityDate);
 }
 
 static int
 dissect_x509ce_baseUpdateTime_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-	return dissect_x509ce_GeneralizedTime(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_id_ce_baseUpdateTime);
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  return dissect_x509ce_GeneralizedTime(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_id_ce_baseUpdateTime);
 }
 
 /*--- proto_register_x509ce ----------------------------------------------*/
@@ -2003,7 +2004,7 @@ void proto_register_x509ce(void) {
         NULL, HFILL }},
     { &hf_x509ce_object_identifier_id,
       { "Id", "x509ce.id", FT_OID, BASE_NONE, NULL, 0,
-	"Object identifier Id", HFILL }},
+        "Object identifier Id", HFILL }},
     { &hf_x509ce_IPAddress_ipv4,
       { "iPAddress", "x509ce.IPAddress.ipv4", FT_IPv4, BASE_NONE, NULL, 0,
         "IPv4 address", HFILL }},
@@ -2691,116 +2692,116 @@ void proto_register_x509ce(void) {
         FT_UINT64, BASE_DEC, NULL, 0,
         "INTEGER_0_MAX", HFILL }},
     { &hf_x509ce_KeyUsage_digitalSignature,
-      { "digitalSignature", "x509ce.digitalSignature",
+      { "digitalSignature", "x509ce.KeyUsage.digitalSignature",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_x509ce_KeyUsage_contentCommitment,
-      { "contentCommitment", "x509ce.contentCommitment",
+      { "contentCommitment", "x509ce.KeyUsage.contentCommitment",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_x509ce_KeyUsage_keyEncipherment,
-      { "keyEncipherment", "x509ce.keyEncipherment",
+      { "keyEncipherment", "x509ce.KeyUsage.keyEncipherment",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_x509ce_KeyUsage_dataEncipherment,
-      { "dataEncipherment", "x509ce.dataEncipherment",
+      { "dataEncipherment", "x509ce.KeyUsage.dataEncipherment",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_x509ce_KeyUsage_keyAgreement,
-      { "keyAgreement", "x509ce.keyAgreement",
+      { "keyAgreement", "x509ce.KeyUsage.keyAgreement",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_x509ce_KeyUsage_keyCertSign,
-      { "keyCertSign", "x509ce.keyCertSign",
+      { "keyCertSign", "x509ce.KeyUsage.keyCertSign",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_x509ce_KeyUsage_cRLSign,
-      { "cRLSign", "x509ce.cRLSign",
+      { "cRLSign", "x509ce.KeyUsage.cRLSign",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_x509ce_KeyUsage_encipherOnly,
-      { "encipherOnly", "x509ce.encipherOnly",
+      { "encipherOnly", "x509ce.KeyUsage.encipherOnly",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_x509ce_KeyUsage_decipherOnly,
-      { "decipherOnly", "x509ce.decipherOnly",
+      { "decipherOnly", "x509ce.KeyUsage.decipherOnly",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_x509ce_OnlyCertificateTypes_user,
-      { "user", "x509ce.user",
+      { "user", "x509ce.OnlyCertificateTypes.user",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_x509ce_OnlyCertificateTypes_authority,
-      { "authority", "x509ce.authority",
+      { "authority", "x509ce.OnlyCertificateTypes.authority",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_x509ce_OnlyCertificateTypes_attribute,
-      { "attribute", "x509ce.attribute",
+      { "attribute", "x509ce.OnlyCertificateTypes.attribute",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_x509ce_ReasonFlags_unused,
-      { "unused", "x509ce.unused",
+      { "unused", "x509ce.ReasonFlags.unused",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_x509ce_ReasonFlags_keyCompromise,
-      { "keyCompromise", "x509ce.keyCompromise",
+      { "keyCompromise", "x509ce.ReasonFlags.keyCompromise",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_x509ce_ReasonFlags_cACompromise,
-      { "cACompromise", "x509ce.cACompromise",
+      { "cACompromise", "x509ce.ReasonFlags.cACompromise",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_x509ce_ReasonFlags_affiliationChanged,
-      { "affiliationChanged", "x509ce.affiliationChanged",
+      { "affiliationChanged", "x509ce.ReasonFlags.affiliationChanged",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_x509ce_ReasonFlags_superseded,
-      { "superseded", "x509ce.superseded",
+      { "superseded", "x509ce.ReasonFlags.superseded",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_x509ce_ReasonFlags_cessationOfOperation,
-      { "cessationOfOperation", "x509ce.cessationOfOperation",
+      { "cessationOfOperation", "x509ce.ReasonFlags.cessationOfOperation",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_x509ce_ReasonFlags_certificateHold,
-      { "certificateHold", "x509ce.certificateHold",
+      { "certificateHold", "x509ce.ReasonFlags.certificateHold",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_x509ce_ReasonFlags_privilegeWithdrawn,
-      { "privilegeWithdrawn", "x509ce.privilegeWithdrawn",
+      { "privilegeWithdrawn", "x509ce.ReasonFlags.privilegeWithdrawn",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_x509ce_ReasonFlags_aACompromise,
-      { "aACompromise", "x509ce.aACompromise",
+      { "aACompromise", "x509ce.ReasonFlags.aACompromise",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_x509ce_EntrustInfoFlags_keyUpdateAllowed,
-      { "keyUpdateAllowed", "x509ce.keyUpdateAllowed",
+      { "keyUpdateAllowed", "x509ce.EntrustInfoFlags.keyUpdateAllowed",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_x509ce_EntrustInfoFlags_newExtensions,
-      { "newExtensions", "x509ce.newExtensions",
+      { "newExtensions", "x509ce.EntrustInfoFlags.newExtensions",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_x509ce_EntrustInfoFlags_pKIXCertificate,
-      { "pKIXCertificate", "x509ce.pKIXCertificate",
+      { "pKIXCertificate", "x509ce.EntrustInfoFlags.pKIXCertificate",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_x509ce_EntrustInfoFlags_enterpriseCategory,
-      { "enterpriseCategory", "x509ce.enterpriseCategory",
+      { "enterpriseCategory", "x509ce.EntrustInfoFlags.enterpriseCategory",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_x509ce_EntrustInfoFlags_webCategory,
-      { "webCategory", "x509ce.webCategory",
+      { "webCategory", "x509ce.EntrustInfoFlags.webCategory",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_x509ce_EntrustInfoFlags_sETCategory,
-      { "sETCategory", "x509ce.sETCategory",
+      { "sETCategory", "x509ce.EntrustInfoFlags.sETCategory",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
 
 /*--- End of included file: packet-x509ce-hfarr.c ---*/
-#line 111 "./asn1/x509ce/packet-x509ce-template.c"
+#line 112 "./asn1/x509ce/packet-x509ce-template.c"
   };
 
   /* List of subtrees */
@@ -2870,7 +2871,7 @@ void proto_register_x509ce(void) {
     &ett_x509ce_ScramblerCapabilities,
 
 /*--- End of included file: packet-x509ce-ettarr.c ---*/
-#line 116 "./asn1/x509ce/packet-x509ce-template.c"
+#line 117 "./asn1/x509ce/packet-x509ce-template.c"
   };
 
   /* Register protocol */
@@ -2933,8 +2934,22 @@ void proto_reg_handoff_x509ce(void) {
 
 
 /*--- End of included file: packet-x509ce-dis-tab.c ---*/
-#line 131 "./asn1/x509ce/packet-x509ce-template.c"
-	register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
-	register_ber_oid_dissector("2.5.29.51", dissect_x509ce_baseUpdateTime_callback, proto_x509ce, "id-ce-baseUpdateTime");
+#line 132 "./asn1/x509ce/packet-x509ce-template.c"
+  register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
+  register_ber_oid_dissector("2.5.29.51", dissect_x509ce_baseUpdateTime_callback, proto_x509ce, "id-ce-baseUpdateTime");
+  oid_add_from_string("anyPolicy","2.5.29.32.0");
 }
 
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

@@ -14,7 +14,8 @@ MACRO(ADD_LEMON_FILES _source _generated)
           ${_out}.h
           ${_out}.out
          COMMAND lemon
-           T=${_lemonpardir}/lempar.c
+           -T${_lemonpardir}/lempar.c
+           -d.
            ${_in}
          DEPENDS
            ${_in}

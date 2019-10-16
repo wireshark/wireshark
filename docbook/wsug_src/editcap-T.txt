@@ -25,13 +25,16 @@ editcap: The available encapsulation types for the "-T" flag are:
     dbus - D-Bus
     dct2000 - Catapult DCT2000
     docsis - Data Over Cable Service Interface Specification
-    docsis31_xra31 - DOCSIS31 XRA31
+    docsis31_xra31 - DOCSIS with Excentis XRA pseudo-header
+    dpauxmon - DisplayPort AUX channel with Unigraf pseudo-header
     dpnss_link - Digital Private Signalling System No 1 Link Layer
     dvbci - DVB-CI (Common Interface)
+    ebhscr - Elektrobit High Speed Capture and Replay
     enc - OpenBSD enc(4) encapsulating interface
     epon - Ethernet Passive Optical Network
     erf - Extensible Record Format
     ether - Ethernet
+    ether-mpacket - IEEE 802.3br mPackets
     ether-nettl - Ethernet with nettl headers
     fc2 - Fibre Channel FC-2
     fc2sof - Fibre Channel FC-2 With Frame Delimiter
@@ -48,7 +51,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     gprs-llc - GPRS LLC
     gsm_um - GSM Um Interface
     hhdlc - HiPath HDLC
-    i2c - I2C
+    i2c-linux - I2C with Linux-specific pseudo-header
     ieee-802-11 - IEEE 802.11 Wireless LAN
     ieee-802-11-avs - IEEE 802.11 plus AVS radio header
     ieee-802-11-netmon - IEEE 802.11 plus Network Monitor radio header
@@ -60,9 +63,9 @@ editcap: The available encapsulation types for the "-T" flag are:
     ios - Cisco IOS internal
     ip-ib - IP over IB
     ip-over-fc - RFC 2625 IP-over-Fibre Channel
-    ip-over-ib - IP over Infiniband
-    ipfix - IPFIX
-    ipmb - Intelligent Platform Management Bus
+    ip-over-ib - IP over InfiniBand
+    ipfix - RFC 5655/RFC 5101 IPFIX
+    ipmb-kontron - Intelligent Platform Management Bus with Kontron pseudo-header
     ipmi-trace - IPMI Trace Data Collection
     ipnet - Solaris IPNET
     irda - IrDA
@@ -81,6 +84,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     juniper-mlppp - Juniper MLPPP
     juniper-ppp - Juniper PPP
     juniper-pppoe - Juniper PPPoE
+    juniper-st - Juniper Secure Tunnel Information
     juniper-svcs - Juniper Services
     juniper-vn - Juniper VN
     juniper-vp - Juniper Voice PIC
@@ -92,6 +96,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     linux-atm-clip - Linux ATM CLIP
     linux-lapd - LAPD with Linux pseudo-header
     linux-sll - Linux cooked-mode capture
+    log_3GPP - 3GPP Phone Log
     logcat - Android Logcat Binary format
     logcat_brief - Android Logcat Brief text format
     logcat_long - Android Logcat Long text format
@@ -117,8 +122,8 @@ editcap: The available encapsulation types for the "-T" flag are:
     mtp2-with-phdr - MTP2 with pseudoheader
     mtp3 - SS7 MTP3
     mux27010 - MUX27010
-    netanalyzer - netANALYZER
-    netanalyzer-transparent - netANALYZER-Transparent
+    netanalyzer - Hilscher netANALYZER
+    netanalyzer-transparent - Hilscher netANALYZER-Transparent
     netlink - Linux Netlink
     netmon_event - Network Monitor Network Event
     netmon_filter - Network Monitor Filter
@@ -132,7 +137,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     nstrace30 - NetScaler Encapsulation 3.0 of Ethernet
     nstrace35 - NetScaler Encapsulation 3.5 of Ethernet
     null - NULL/Loopback
-    packetlogger - PacketLogger
+    packetlogger - Apple Bluetooth PacketLogger
     pflog - OpenBSD PF Firewall logs
     pflog-old - OpenBSD PF Firewall logs, pre-3.4
     pktap - Apple PKTAP
@@ -148,12 +153,15 @@ editcap: The available encapsulation types for the "-T" flag are:
     rawip4 - Raw IPv4
     rawip6 - Raw IPv6
     redback - Redback SmartEdge
+    rfc7468 - RFC 7468 file
     rtac-serial - RTAC serial-line
+    ruby_marshal - Ruby marshal object
     s4607 - STANAG 4607
     s5066-dpdu - STANAG 5066 Data Transfer Sublayer PDUs(D_PDU)
     sccp - SS7 SCCP
     sctp - SCTP
     sdh - SDH
+    sdjournal - systemd journal
     sdlc - SDLC
     sita-wan - SITA WAN packets
     slip - SLIP
@@ -165,6 +173,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     tzsp - Tazmen sniffer protocol
     unknown - Unknown
     unknown-nettl - Unknown link-layer type with nettl headers
+    usb-20 - USB 2.0/1.1/1.0 packets
     usb-darwin - USB packets with Darwin (macOS, etc.) headers
     usb-freebsd - USB packets with FreeBSD header
     usb-linux - USB packets with Linux header
@@ -187,12 +196,14 @@ editcap: The available encapsulation types for the "-T" flag are:
     user14 - USER 14
     user15 - USER 15
     v5-ef - V5 Envelope Function
+    vpp - Vector Packet Processing graph dispatch trace
     vsock - Linux vsock
     whdlc - Wellfleet HDLC
     wireshark-upper-pdu - Wireshark Upper PDU export
     wpan - IEEE 802.15.4 Wireless PAN
     wpan-nofcs - IEEE 802.15.4 Wireless PAN with FCS not present
     wpan-nonask-phy - IEEE 802.15.4 Wireless PAN non-ASK PHY
+    wpan-tap - IEEE 802.15.4 Wireless with TAP pseudo-header
     x2e-serial - X2E serial line capture
     x2e-xoraya - X2E Xoraya
     x25-nettl - X.25 with nettl headers

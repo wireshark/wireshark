@@ -6062,7 +6062,7 @@ typedef struct
     const gchar * description;
 } lbm_uim_stream_info_t;
 
-static gboolean
+static tap_packet_status
 lbm_uim_seq_analysis_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *uim_info)
 {
     seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
@@ -6078,7 +6078,7 @@ lbm_uim_seq_analysis_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt _
 
     if (stream_info->endpoint_a.type != stream_info->endpoint_b.type)
     {
-        return TRUE;
+        return TAP_PACKET_DONT_REDRAW;
     }
     if (stream_info->endpoint_a.type == lbm_uim_instance_stream)
     {
@@ -6187,7 +6187,7 @@ lbm_uim_seq_analysis_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt _
 
     g_queue_push_tail(sainfo->items, sai);
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 
@@ -10112,9 +10112,9 @@ static int dissect_nhdr_extopt(tvbuff_t * tvb, int offset, packet_info * pinfo, 
             ritem = proto_tree_add_item(tree, hf_lbmc_extopt_reassembled_data, reassembly_tvb, 0, reassembly->len, ENC_NA);
             rtree = proto_item_add_subtree(ritem, ett_lbmc_extopt_reassembled_data);
             pi = proto_tree_add_uint(rtree, hf_lbmc_extopt_reassembled_data_subtype, reassembly_tvb, 0, 0, reassembly->subtype);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
             pi = proto_tree_add_uint(rtree, hf_lbmc_extopt_reassembled_data_len, reassembly_tvb, 0, 0, (guint32)reassembly->len);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
             switch (reassembly->subtype)
             {
                 case LBMC_EXT_NHDR_MSGSEL:
@@ -10848,14 +10848,14 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             proto_item * pi = NULL;
 
             pi = proto_tree_add_string(subtree, hf_lbmc_tag, tvb, 0, 0, tag_name);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
         }
         if (topic_name != NULL)
         {
             proto_item * pi = NULL;
 
             pi = proto_tree_add_string(subtree, hf_lbmc_topic, tvb, 0, 0, topic_name);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
         }
         proto_tree_add_item(subtree, hf_lbmc_version, lbmc_tvb, O_LBMC_HDR_T_VER_TYPE, L_LBMC_HDR_T_VER_TYPE, ENC_BIG_ENDIAN);
         type_item = proto_tree_add_item(subtree, hf_lbmc_type, lbmc_tvb, O_LBMC_HDR_T_VER_TYPE, L_LBMC_HDR_T_VER_TYPE, ENC_BIG_ENDIAN);
@@ -11222,7 +11222,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             tcp_address_valid = FALSE;
         }
         /* Note: it *is* possible for a TCP SID to appear in an LBTTCP non-transport (UIM) message. */
-        if ((pinfo->fd->flags.visited == 0) && (tcp_sid_info.set) && lbm_channel_is_unknown_transport_lbttcp(channel) && tcp_address_valid)
+        if ((pinfo->fd->visited == 0) && (tcp_sid_info.set) && lbm_channel_is_unknown_transport_lbttcp(channel) && tcp_address_valid)
         {
             lbttcp_transport_sid_add(&tcp_addr, tcp_port, pinfo->num, tcp_sid_info.session_id);
         }
@@ -11291,12 +11291,12 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
 
                         lbm_stream_istream_substream_update(inst_substream, msglen, pinfo->num);
                         stream_item = proto_tree_add_item(subtree, hf_lbm_stream, tvb, 0, 0, ENC_NA);
-                        PROTO_ITEM_SET_GENERATED(stream_item);
+                        proto_item_set_generated(stream_item);
                         stream_tree = proto_item_add_subtree(stream_item, ett_lbm_stream);
                         pi = proto_tree_add_uint64(stream_tree, hf_lbm_stream_stream_id, tvb, 0, 0, inst_stream->channel);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                         pi = proto_tree_add_uint(stream_tree, hf_lbm_stream_substream_id, tvb, 0, 0, inst_substream->substream_id);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                         proto_tree_move_item(subtree, last_initial_item, stream_item);
 
                         stream_tap_info = wmem_new0(wmem_packet_scope(), lbm_uim_stream_tap_info_t);
@@ -11341,12 +11341,12 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
 
                         lbm_stream_dstream_substream_update(dom_substream, msglen, pinfo->num);
                         stream_item = proto_tree_add_item(subtree, hf_lbm_stream, tvb, 0, 0, ENC_NA);
-                        PROTO_ITEM_SET_GENERATED(stream_item);
+                        proto_item_set_generated(stream_item);
                         stream_tree = proto_item_add_subtree(stream_item, ett_lbm_stream);
                         pi = proto_tree_add_uint64(stream_tree, hf_lbm_stream_stream_id, tvb, 0, 0, dom_stream->channel);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                         pi = proto_tree_add_uint(stream_tree, hf_lbm_stream_substream_id, tvb, 0, 0, dom_substream->substream_id);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                         proto_tree_move_item(subtree, last_initial_item, stream_item);
 
                         stream_tap_info = wmem_new0(wmem_packet_scope(), lbm_uim_stream_tap_info_t);
@@ -11555,7 +11555,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                             cur->fragment_start,
                             (cur->fragment_start + cur->fragment_len) - 1,
                             cur->fragment_len);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                         if (first_item)
                         {
                             proto_item_append_text(frag_item, " #%" G_GUINT32_FORMAT "(%" G_GUINT32_FORMAT ")", cur->frame, cur->fragment_len);
@@ -11567,7 +11567,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                         first_item = FALSE;
                         cur = cur->next;
                     }
-                    PROTO_ITEM_SET_GENERATED(frag_item);
+                    proto_item_set_generated(frag_item);
                 }
                 else
                 {
@@ -11580,7 +11580,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                     else
                     {
                         pi = proto_tree_add_uint(subtree, hf_reassembly_frame, data_tvb, 0, tvb_reported_length_remaining(data_tvb, 0), msg->reassembled_frame);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                     }
                 }
             }
@@ -14362,7 +14362,7 @@ void proto_reg_handoff_lbmc(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

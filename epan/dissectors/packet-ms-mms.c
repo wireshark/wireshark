@@ -4,7 +4,7 @@
  *
  * See
  *
- *    http://msdn.microsoft.com/en-us/library/cc234711.aspx
+ *    https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-mmsp
  *
  * for the [MS-MMSP] specification.
  *
@@ -379,7 +379,7 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     /* Add hidden filter for "msmms.command" */
     ti = proto_tree_add_item(tree, hf_msmms_command, tvb, 0, 0, ENC_ASCII|ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     /* Create MSMMS control protocol tree */
     ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, ENC_NA);
@@ -639,7 +639,7 @@ static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     /* Add hidden filter for "msmms.data" */
     ti = proto_tree_add_item(tree, hf_msmms_data, tvb, 0, 0, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     /* Create MSMMS data protocol tree */
     ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, ENC_NA);
@@ -1104,7 +1104,7 @@ static void msmms_data_add_address(packet_info *pinfo, address *addr, endpoint_t
     /* If this isn't the first time this packet has been processed,
      * we've already done this work, so we don't need to do it
      * again. */
-    if (pinfo->fd->flags.visited)
+    if (pinfo->fd->visited)
     {
         return;
     }
@@ -1873,7 +1873,7 @@ void proto_reg_handoff_msmms_command(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

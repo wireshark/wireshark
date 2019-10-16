@@ -3,7 +3,7 @@
 #include "../ui/win32/file_dlg_win32.h"
 
 // We should probably ensure that we're meeting the MS layout guidelines:
-// https://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx
+// https://docs.microsoft.com/en-us/windows/win32/uxguide/vis-layout
 // Outer margin: 11px
 
 WIRESHARK_OPENFILENAME_TEMPLATE DIALOGEX 0, 0, 425, 47
@@ -143,19 +143,4 @@ FONT 8, "MS Shell Dlg"
     CONTROL  "Packet Bytes", EWFD_PKT_BYTES_CB, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 350, 68, 80, 10
     CONTROL  "Each packet on a new page", EWFD_PKT_NEW_PAGE_CB, "Button",  BS_AUTOCHECKBOX | WS_TABSTOP, 350, 80, 106, 10
 
-}
-
-
-WIRESHARK_EXPORTRAWFILENAME_TEMPLATE DIALOGEX 0, 0, 200, 18
-STYLE WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | DS_3DLOOK | DS_CONTROL
-FONT 8, "MS Shell Dlg"
-{
-    LTEXT    "-", EWFD_EXPORTRAW_ST, 5, 5, 180, 8
-}
-
-WIRESHARK_EXPORTSSLKEYSFILENAME_TEMPLATE DIALOGEX 0, 0, 200, 18
-STYLE WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | DS_3DLOOK | DS_CONTROL
-FONT 8, "MS Shell Dlg"
-{
-    LTEXT    "-", EWFD_EXPORTSSLKEYS_ST, 5, 5, 180, 8
 }

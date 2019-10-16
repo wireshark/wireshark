@@ -11,11 +11,13 @@
 
 #include "config.h"
 
-#include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/exceptions.h>
 #include <epan/expert.h>
+#include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
+#include <epan/show_exception.h>
 
 #include <wiretap/wtap.h>
 
@@ -470,8 +472,7 @@ rlc_frag_assign_data(struct rlc_frag *frag, tvbuff_t *tvb,
              guint16 offset, guint16 length)
 {
     frag->len  = length;
-    frag->data = (guint8 *)g_malloc(length);
-    tvb_memcpy(tvb, frag->data, offset, length);
+    frag->data = (guint8 *)tvb_memdup(wmem_file_scope(), tvb, offset, length);
     return 0;
 }
 
@@ -761,7 +762,7 @@ tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_idx, guint32 hdr_of
         if (li->li > tvb_reported_length_remaining(tvb, hdr_offs)) return li_tree;
         if (li->len > li->li) return li_tree;
         ti = proto_tree_add_item(li_tree, hf_rlc_li_data, tvb, hdr_offs + li->li - li->len, li->len, ENC_NA);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
     }
 
     return li_tree;
@@ -848,7 +849,7 @@ reassemble_data(struct rlc_channel *ch, struct rlc_sdu *sdu, struct rlc_frag *fr
     temp = sdu->frags;
     while (temp && ((offs + temp->len) <= sdu->len)) {
         memcpy(sdu->data + offs, temp->data, temp->len);
-        g_free(temp->data);
+        wmem_free(wmem_file_scope(), temp->data);
         temp->data = NULL;
         /* mark this fragment in reassembled table */
         g_hash_table_insert(reassembled_table, temp, sdu);
@@ -1023,7 +1024,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
     endlist = get_endlist(pinfo, &ch_lookup, atm);
 
     /* If already done reassembly */
-    if (pinfo->fd->flags.visited) {
+    if (PINFO_FD_VISITED(pinfo)) {
         if (tree && len > 0) {
             if (endlist->list && endlist->list->next) {
                 gint16 start = (GPOINTER_TO_INT(endlist->list->data) + 1) % snmod;
@@ -1305,7 +1306,10 @@ static void
 rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
               packet_info *pinfo, proto_tree *tree)
 {
+    gboolean is_rrc_payload = TRUE;
+    volatile dissector_handle_t next_dissector = NULL;
     enum rrc_message_type msgtype;
+
     switch (channel) {
         case RLC_UL_CCCH:
             msgtype = RRC_MESSAGE_TYPE_UL_CCCH;
@@ -1314,11 +1318,10 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
             msgtype = RRC_MESSAGE_TYPE_DL_CCCH;
             break;
         case RLC_DL_CTCH:
+            /* Payload of DL CTCH is BMC*/
+            is_rrc_payload = FALSE;
             msgtype = RRC_MESSAGE_TYPE_INVALID;
-            call_dissector(bmc_handle, tvb, pinfo, tree);
-            /* once the packet has been dissected, protect it from further changes using a 'fence' in the INFO column */
-            col_append_str(pinfo->cinfo, COL_INFO," ");
-            col_set_fence(pinfo->cinfo, COL_INFO);
+            next_dissector = bmc_handle;
             break;
         case RLC_UL_DCCH:
             msgtype = RRC_MESSAGE_TYPE_UL_DCCH;
@@ -1333,17 +1336,18 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
             msgtype = RRC_MESSAGE_TYPE_BCCH_FACH;
             break;
         case RLC_PS_DTCH:
+            /* Payload of PS DTCH is PDCP or just IP*/
+            is_rrc_payload = FALSE;
             msgtype = RRC_MESSAGE_TYPE_INVALID;
             /* assume transparent PDCP for now */
-            call_dissector(ip_handle, tvb, pinfo, tree);
-            /* once the packet has been dissected, protect it from further changes using a 'fence' in the INFO column */
-            col_append_str(pinfo->cinfo, COL_INFO," ");
-            col_set_fence(pinfo->cinfo, COL_INFO);
+            next_dissector = ip_handle;
             break;
         default:
             return; /* stop dissecting */
     }
-    if (msgtype != RRC_MESSAGE_TYPE_INVALID) {
+
+    if (is_rrc_payload && msgtype != RRC_MESSAGE_TYPE_INVALID) {
+        /* Passing the RRC sub type in the 'rrc_info' struct */
         struct rrc_info *rrcinf;
         fp_info *fpinf;
         fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
@@ -1353,7 +1357,21 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
             p_add_proto_data(wmem_file_scope(), pinfo, proto_rrc, 0, rrcinf);
         }
         rrcinf->msgtype[fpinf->cur_tb] = msgtype;
-        call_dissector(rrc_handle, tvb, pinfo, tree);
+        next_dissector = rrc_handle;
+    }
+
+    if(next_dissector != NULL) {
+        TRY {
+            call_dissector(next_dissector, tvb, pinfo, tree);
+        }
+        CATCH_NONFATAL_ERRORS {
+            /*
+             * Sub dissector threw an exception
+             * Show the exception and continue dissecting other SDUs.
+             */
+            show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+        }
+        ENDTRY;
         /* once the packet has been dissected, protect it from further changes using a 'fence' in the INFO column */
         col_append_str(pinfo->cinfo, COL_INFO," ");
         col_set_fence(pinfo->cinfo, COL_INFO);
@@ -1370,13 +1388,13 @@ add_channel_info(packet_info * pinfo, proto_tree * tree, fp_info * fpinf, rlc_in
     channel_tree = proto_item_add_subtree(item, ett_rlc_channel);
     proto_item_append_text(item, " (rbid: %u, dir: %s, uid: 0x%08x)", rlcinf->rbid[fpinf->cur_tb],
                            val_to_str_const(pinfo->link_dir, rlc_dir_vals, "Unknown"), rlcinf->ueid[fpinf->cur_tb]);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     item = proto_tree_add_uint(channel_tree, hf_rlc_channel_rbid, NULL, 0, 0, rlcinf->rbid[fpinf->cur_tb]);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     item = proto_tree_add_uint(channel_tree, hf_rlc_channel_dir, NULL, 0, 0, pinfo->link_dir);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     item = proto_tree_add_uint(channel_tree, hf_rlc_channel_ueid, NULL, 0, 0, rlcinf->ueid[fpinf->cur_tb]);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
 }
 
@@ -1964,11 +1982,11 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
         truncated_ti = proto_tree_add_boolean(tree, hf_rlc_header_only, tvb, 0, 0,
                                               is_truncated);
         if (is_truncated) {
-            PROTO_ITEM_SET_GENERATED(truncated_ti);
+            proto_item_set_generated(truncated_ti);
             expert_add_info(pinfo, truncated_ti, &ei_rlc_header_only);
             return;
         } else {
-            PROTO_ITEM_SET_HIDDEN(truncated_ti);
+            proto_item_set_hidden(truncated_ti);
         }
     }
 
@@ -2396,21 +2414,21 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
         truncated_ti = proto_tree_add_boolean(tree, hf_rlc_header_only, tvb, 0, 0,
                                               is_truncated);
         if (is_truncated) {
-            PROTO_ITEM_SET_GENERATED(truncated_ti);
+            proto_item_set_generated(truncated_ti);
             expert_add_info(pinfo, truncated_ti, &ei_rlc_header_only);
             return;
         } else {
-            PROTO_ITEM_SET_HIDDEN(truncated_ti);
+            proto_item_set_hidden(truncated_ti);
         }
     }
 
     /* do not detect duplicates or reassemble, if prefiltering is done */
     if (pinfo->num == 0) return;
     /* check for duplicates, but not if already visited */
-    if (pinfo->fd->flags.visited == FALSE && rlc_is_duplicate(RLC_AM, pinfo, seq, &orig_num, atm) == TRUE) {
+    if (!PINFO_FD_VISITED(pinfo) && rlc_is_duplicate(RLC_AM, pinfo, seq, &orig_num, atm) == TRUE) {
         g_hash_table_insert(duplicate_table, GUINT_TO_POINTER(pinfo->num), GUINT_TO_POINTER(orig_num));
         return;
-    } else if (pinfo->fd->flags.visited == TRUE && tree) {
+    } else if (PINFO_FD_VISITED(pinfo) && tree) {
         gpointer value = g_hash_table_lookup(duplicate_table, GUINT_TO_POINTER(pinfo->num));
         if (value != NULL) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Fragment] [Duplicate]  SN=%u %s", seq, (polling != 0) ? "(P)" : "");

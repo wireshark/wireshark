@@ -6,7 +6,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 // Adapted from stats_tree_packet.cpp
 
@@ -371,7 +372,8 @@ void LBMStreamDialog::fillTree(void)
         TL_REQUIRES_COLUMNS,
         resetTap,
         tapPacket,
-        drawTreeItems);
+        drawTreeItems,
+        NULL);
     if (error_string)
     {
         QMessageBox::critical(this, tr("LBM Stream failed to attach to tap"),
@@ -397,16 +399,16 @@ void LBMStreamDialog::resetTap(void * tap_data)
     dialog->m_ui->lbm_stream_TreeWidget->clear();
 }
 
-gboolean LBMStreamDialog::tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t *, const void * stream_info)
+tap_packet_status LBMStreamDialog::tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t *, const void * stream_info)
 {
-    if (pinfo->fd->flags.passed_dfilter == 1)
+    if (pinfo->fd->passed_dfilter == 1)
     {
         const lbm_uim_stream_tap_info_t * tapinfo = (const lbm_uim_stream_tap_info_t *)stream_info;
         LBMStreamDialogInfo * info = (LBMStreamDialogInfo *)tap_data;
 
         info->processPacket(pinfo, tapinfo);
     }
-    return (TRUE);
+    return (TAP_PACKET_REDRAW);
 }
 
 void LBMStreamDialog::drawTreeItems(void *)
@@ -424,7 +426,7 @@ void LBMStreamDialog::closeDialog(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

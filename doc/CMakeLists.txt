@@ -79,6 +79,14 @@ pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/udpdump     1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/extcap           4)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/wireshark-filter 4)
 
+if(BUILD_dpauxmon AND HAVE_LIBNL3)
+	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/dpauxmon    1)
+endif()
+
+if(BUILD_sdjournal AND SYSTEMD_FOUND)
+	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/sdjournal   1)
+endif()
+
 if(MAXMINDDB_FOUND)
 	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/mmdbresolve 1)
 endif()
@@ -111,6 +119,14 @@ set(MAN1_INSTALL_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/udpdump.1
 	${CMAKE_CURRENT_BINARY_DIR}/wireshark.1
 )
+
+if(BUILD_dpauxmon AND HAVE_LIBNL3)
+	list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/dpauxmon.1)
+endif()
+
+if(BUILD_sdjournal AND SYSTEMD_FOUND)
+	list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/sdjournal.1)
+endif()
 
 if(MAXMINDDB_FOUND)
 	list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/mmdbresolve.1)
@@ -162,6 +178,14 @@ set(HTML_INSTALL_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/wireshark.html
 )
 
+if(BUILD_dpauxmon AND HAVE_LIBNL3)
+	list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/dpauxmon.html)
+endif()
+
+if(BUILD_sdjournal AND SYSTEMD_FOUND)
+	list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/sdjournal.html)
+endif()
+
 if(MAXMINDDB_FOUND)
 	list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/mmdbresolve.html)
 endif()
@@ -205,11 +229,11 @@ install(
 	FILES
 		${HTML_INSTALL_FILES}
 	DESTINATION
-		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
+		${CMAKE_INSTALL_DOCDIR}
 )
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

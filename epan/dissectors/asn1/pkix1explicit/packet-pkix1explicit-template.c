@@ -23,6 +23,9 @@
 #include "packet-x509if.h"
 #include "packet-x509ce.h"
 
+/* from packet-tls-utils.h */
+extern const value_string tls_hello_extension_types[];
+
 #define PNAME  "PKIX1Explicit"
 #define PSNAME "PKIX1EXPLICIT"
 #define PFNAME "pkix1explicit"
@@ -126,4 +129,3 @@ void proto_reg_handoff_pkix1explicit(void) {
 	oid_add_from_string("id-dsa-with-sha1","1.2.840.10040.4.3");
 #include "packet-pkix1explicit-dis-tab.c"
 }
-

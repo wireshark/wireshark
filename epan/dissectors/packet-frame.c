@@ -113,53 +113,51 @@ static const value_string p2p_dirs[] = {
 	{ 0, NULL }
 };
 
-#define PACKET_WORD_DIRECTION_MASK                        0x00000003
-#define PACKET_WORD_RECEPTION_TYPE_MASK                   0x0000001C
-#define PACKET_WORD_FCS_LENGTH_MASK                       0x000001E0
-#define PACKET_WORD_RESERVED_MASK                         0x0000FE00
-#define PACKET_WORD_CRC_ERR_MASK                          0x01000000
-#define PACKET_WORD_PACKET_TOO_LONG_ERR_MASK              0x02000000
-#define PACKET_WORD_PACKET_TOO_SHORT_ERR_MASK             0x04000000
-#define PACKET_WORD_WRONG_INTER_FRAME_GAP_ERR_MASK        0x08000000
-#define PACKET_WORD_UNALIGNED_FRAME_ERR_MASK              0x10000000
-#define PACKET_WORD_START_FRAME_DELIMITER_ERR_MASK        0x20000000
-#define PACKET_WORD_PREAMBLE_ERR_MASK                     0x40000000
-#define PACKET_WORD_SYMBOL_ERR_MASK                       0x80000000
-
 static const value_string packet_word_directions[] = {
-	{ 0x00, "Not available" },
-	{ 0x01, "Inbound" },
-	{ 0x02, "Outbound" },
-	{ 0x03, "Undefined" },
+	{ PACK_FLAGS_DIRECTION_UNKNOWN,  "Unknown" },
+	{ PACK_FLAGS_DIRECTION_INBOUND,  "Inbound" },
+	{ PACK_FLAGS_DIRECTION_OUTBOUND, "Outbound" },
 	{ 0, NULL }
 };
 
 static const value_string packet_word_reception_types[] = {
-	{ 0x00, "Not specified" },
-	{ 0x01, "Unicast" },
-	{ 0x02, "Multicast" },
-	{ 0x03, "Broadcast" },
-	{ 0x04, "Promiscuous" },
-	{ 0x05, "Undefined" },
-	{ 0x06, "Undefined" },
-	{ 0x07, "Undefined" },
+	{ PACK_FLAGS_RECEPTION_TYPE_UNSPECIFIED, "Not specified" },
+	{ PACK_FLAGS_RECEPTION_TYPE_UNICAST,     "Unicast" },
+	{ PACK_FLAGS_RECEPTION_TYPE_MULTICAST,   "Multicast" },
+	{ PACK_FLAGS_RECEPTION_TYPE_BROADCAST,   "Broadcast" },
+	{ PACK_FLAGS_RECEPTION_TYPE_PROMISCUOUS, "Promiscuous" },
 	{ 0, NULL }
 };
 
 static dissector_table_t wtap_encap_dissector_table;
 static dissector_table_t wtap_fts_rec_dissector_table;
 
+/* The number of tree items required to add an exception to the tree */
+#define EXCEPTION_TREE_ITEMS 10
+
+static void
+ensure_tree_item(proto_tree *tree, gint count)
+{
+	/*
+	 * Ensure that no exception is thrown in proto.c when adding the
+	 * next tree item. Even if the maximum number of items is
+	 * reached, we know for sure that no infinite loop will occur.
+	 */
+	if (tree && PTREE_DATA(tree)->count > count)
+		PTREE_DATA(tree)->count -= count;
+}
+
 /****************************************************************************/
 /* whenever a frame packet is seen by the tap listener */
 /* Add a new frame into the graph */
-static gboolean
+static tap_packet_status
 frame_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *dummy _U_)
 {
 	seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
 	seq_analysis_item_t *sai = sequence_analysis_create_sai_with_addresses(pinfo, sainfo);
 
 	if (!sai)
-		return FALSE;
+		return TAP_PACKET_DONT_REDRAW;
 
 	sai->frame_number = pinfo->num;
 
@@ -176,7 +174,7 @@ frame_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
 
 	g_queue_push_tail(sainfo->items, sai);
 
-	return TRUE;
+	return TAP_PACKET_REDRAW;
 }
 
 /*
@@ -193,7 +191,7 @@ register_frame_end_routine(packet_info *pinfo, void (*func)(void))
 typedef void (*void_func_t)(void);
 
 static void
-call_frame_end_routine(gpointer routine, gpointer dummy _U_)
+call_frame_end_routine(gpointer routine)
 {
 	void_func_t func = (void_func_t)routine;
 	(*func)();
@@ -211,6 +209,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	const gchar *cap_plurality, *frame_plurality;
 	frame_data_t *fr_data = (frame_data_t*)data;
 	const color_filter_t *color_filter;
+	dissector_handle_t dissector_handle;
 
 	tree=parent_tree;
 
@@ -221,10 +220,21 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	case REC_TYPE_PACKET:
 		pinfo->current_proto = "Frame";
 		if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
-			if (pinfo->rec->rec_header.packet_header.pack_flags & 0x00000001)
+			switch (PACK_FLAGS_DIRECTION(pinfo->rec->rec_header.packet_header.pack_flags)) {
+
+			case PACK_FLAGS_DIRECTION_UNKNOWN:
+			default:
+				pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+				break;
+
+			case PACK_FLAGS_DIRECTION_INBOUND:
 				pinfo->p2p_dir = P2P_DIR_RECV;
-			if (pinfo->rec->rec_header.packet_header.pack_flags & 0x00000002)
+				break;
+
+			case PACK_FLAGS_DIRECTION_OUTBOUND:
 				pinfo->p2p_dir = P2P_DIR_SENT;
+				break;
+			}
 		}
 
 		/*
@@ -245,13 +255,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				break;
 
 			case WTAP_ENCAP_BLUETOOTH_HCI:
-				pinfo->p2p_dir = pinfo->pseudo_header->bthci.sent;
+				pinfo->p2p_dir = pinfo->pseudo_header->bthci.sent ?
+					P2P_DIR_SENT : P2P_DIR_RECV;
 				break;
 
 			case WTAP_ENCAP_LAPB:
 			case WTAP_ENCAP_FRELAY_WITH_PHDR:
 				pinfo->p2p_dir =
-				    (pinfo->pseudo_header->x25.flags & FROM_DCE) ?
+				    (pinfo->pseudo_header->dte_dce.flags & FROM_DCE) ?
 				    P2P_DIR_RECV : P2P_DIR_SENT;
 				break;
 
@@ -304,10 +315,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		item = proto_tree_add_item(tree, proto_pkt_comment, tvb, 0, 0, ENC_NA);
 		comments_tree = proto_item_add_subtree(item, ett_comments);
 		comment_item = proto_tree_add_string_format(comments_tree, hf_comments_text, tvb, 0, 0,
-							                   fr_data->pkt_comment, "%s",
-							                   fr_data->pkt_comment);
+									   fr_data->pkt_comment, "%s",
+									   fr_data->pkt_comment);
 		expert_add_info_format(pinfo, comment_item, &ei_comments_text,
-					                       "%s",  fr_data->pkt_comment);
+							       "%s",  fr_data->pkt_comment);
 
 
 	}
@@ -342,14 +353,30 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				    cap_len * 8);
 			}
 			if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
-				proto_item_append_text(ti, " on interface %u",
+				const char *interface_name = epan_get_interface_name(pinfo->epan,
 				    pinfo->rec->rec_header.packet_header.interface_id);
+				if (interface_name != NULL) {
+					proto_item_append_text(ti, " on interface %s, id %u",
+					    interface_name, pinfo->rec->rec_header.packet_header.interface_id);
+				} else {
+					proto_item_append_text(ti, " on unnamed interface, id %u",
+					    pinfo->rec->rec_header.packet_header.interface_id);
+				}
 			}
 			if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
-				if (pinfo->rec->rec_header.packet_header.pack_flags & 0x00000001)
+				switch (PACK_FLAGS_DIRECTION(pinfo->rec->rec_header.packet_header.pack_flags)) {
+
+				case PACK_FLAGS_DIRECTION_INBOUND:
 					proto_item_append_text(ti, " (inbound)");
-				if (pinfo->rec->rec_header.packet_header.pack_flags & 0x00000002)
+					break;
+
+				case PACK_FLAGS_DIRECTION_OUTBOUND:
 					proto_item_append_text(ti, " (outbound)");
+					break;
+
+				default:
+					break;
+				}
 			}
 			break;
 
@@ -414,10 +441,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				if_item = proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->rec->rec_header.packet_header.interface_id);
 			}
 
-                        if (interface_description) {
+			if (interface_description) {
 				if_tree = proto_item_add_subtree(if_item, ett_ifname);
 				proto_tree_add_string(if_tree, hf_frame_interface_description, tvb, 0, 0, interface_description);
-                        }
+			}
 		}
 
 		if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
@@ -458,7 +485,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			}
 			item = proto_tree_add_time(fh_tree, hf_frame_shift_offset, tvb,
 					    0, 0, &(pinfo->fd->shift_offset));
-			PROTO_ITEM_SET_GENERATED(item);
+			proto_item_set_generated(item);
 
 			if (generate_epoch_time) {
 				proto_tree_add_time(fh_tree, hf_frame_arrival_time_epoch, tvb,
@@ -472,7 +499,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 				item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
 							   0, 0, &(del_cap_ts));
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item_set_generated(item);
 			}
 
 			if (proto_field_is_referenced(tree, hf_frame_time_delta_displayed)) {
@@ -482,16 +509,16 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 				item = proto_tree_add_time(fh_tree, hf_frame_time_delta_displayed, tvb,
 							   0, 0, &(del_dis_ts));
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item_set_generated(item);
 			}
 
 			item = proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
 						   0, 0, &(pinfo->rel_ts));
-			PROTO_ITEM_SET_GENERATED(item);
+			proto_item_set_generated(item);
 
-			if (pinfo->fd->flags.ref_time) {
+			if (pinfo->fd->ref_time) {
 				ti = proto_tree_add_item(fh_tree, hf_frame_time_reference, tvb, 0, 0, ENC_NA);
-				PROTO_ITEM_SET_GENERATED(ti);
+				proto_item_set_generated(ti);
 			}
 		}
 
@@ -516,14 +543,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			gcry_md_hash_buffer(GCRY_MD_MD5, digest, cp, cap_len);
 			digest_string = bytestring_to_str(wmem_packet_scope(), digest, HASH_MD5_LENGTH, '\0');
 			ti = proto_tree_add_string(fh_tree, hf_frame_md5_hash, tvb, 0, 0, digest_string);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 		}
 
-		ti = proto_tree_add_boolean(fh_tree, hf_frame_marked, tvb, 0, 0,pinfo->fd->flags.marked);
-		PROTO_ITEM_SET_GENERATED(ti);
+		ti = proto_tree_add_boolean(fh_tree, hf_frame_marked, tvb, 0, 0,pinfo->fd->marked);
+		proto_item_set_generated(ti);
 
-		ti = proto_tree_add_boolean(fh_tree, hf_frame_ignored, tvb, 0, 0,pinfo->fd->flags.ignored);
-		PROTO_ITEM_SET_GENERATED(ti);
+		ti = proto_tree_add_boolean(fh_tree, hf_frame_ignored, tvb, 0, 0,pinfo->fd->ignored);
+		proto_item_set_generated(ti);
 
 		if (pinfo->rec->rec_type == REC_TYPE_PACKET) {
 			/* Check for existences of P2P pseudo header */
@@ -548,7 +575,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		}
 	}
 
-	if (pinfo->fd->flags.ignored) {
+	if (pinfo->fd->ignored) {
 		/* Ignored package, stop handling here */
 		col_set_str(pinfo->cinfo, COL_INFO, "<Ignored>");
 		proto_tree_add_boolean_format(tree, hf_frame_ignored, tvb, 0, 0, TRUE, "This frame is marked as ignored");
@@ -572,19 +599,45 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 			case REC_TYPE_PACKET:
 				if ((force_docsis_encap) && (docsis_handle)) {
-					call_dissector_with_data(docsis_handle,
+					dissector_handle = docsis_handle;
+				} else {
+					/*
+					 * XXX - we don't use dissector_try_uint_new()
+					 * because we don't want to have to
+					 * treat a zero return from the dissector
+					 * as meaning "packet not accepted,
+					 * because that doesn't work for
+					 * packets where libwiretap strips
+					 * off the metadata header and puts
+					 * it into the pseudo-header, leaving
+					 * zero bytes worth of payload.  See
+					 * bug 15630.
+					 *
+					 * If the dissector for the packet's
+					 * purported link-layer header type
+					 * rejects the packet, that's a sign
+					 * of a bug somewhere, so making it
+					 * impossible for those dissectors
+					 * to reject packets isn't a problem.
+					 */
+					dissector_handle =
+					    dissector_get_uint_handle(wtap_encap_dissector_table,
+					        pinfo->rec->rec_header.packet_header.pkt_encap);
+				}
+				if (dissector_handle != NULL) {
+					guint32 save_match_uint = pinfo->match_uint;
+
+					pinfo->match_uint =
+					    pinfo->rec->rec_header.packet_header.pkt_encap;
+					call_dissector_only(dissector_handle,
 					    tvb, pinfo, parent_tree,
 					    (void *)pinfo->pseudo_header);
+					pinfo->match_uint = save_match_uint;
 				} else {
-					if (!dissector_try_uint_new(wtap_encap_dissector_table,
-					    pinfo->rec->rec_header.packet_header.pkt_encap, tvb, pinfo,
-					    parent_tree, TRUE,
-					    (void *)pinfo->pseudo_header)) {
-						col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
-						col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
-							     pinfo->rec->rec_header.packet_header.pkt_encap);
-						call_data_dissector(tvb, pinfo, parent_tree);
-					}
+					col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
+					col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
+						     pinfo->rec->rec_header.packet_header.pkt_encap);
+					call_data_dissector(tvb, pinfo, parent_tree);
 				}
 				break;
 
@@ -598,7 +651,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					if (!dissector_try_uint(wtap_fts_rec_dissector_table, file_type_subtype,
 					    tvb, pinfo, parent_tree)) {
 						col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
-						col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
+						col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP FT ST = %d",
 							     file_type_subtype);
 						call_data_dissector(tvb, pinfo, parent_tree);
 					}
@@ -616,6 +669,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			}
 #ifdef _MSC_VER
 		} __except(EXCEPTION_EXECUTE_HANDLER /* handle all exceptions */) {
+			ensure_tree_item(parent_tree, EXCEPTION_TREE_ITEMS);
 			switch (GetExceptionCode()) {
 			case(STATUS_ACCESS_VIOLATION):
 				show_exception(tvb, pinfo, parent_tree, DissectorError,
@@ -640,6 +694,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 #endif
 	}
 	CATCH_BOUNDS_AND_DISSECTOR_ERRORS {
+		ensure_tree_item(parent_tree, EXCEPTION_TREE_ITEMS);
 		show_exception(tvb, pinfo, parent_tree, EXCEPT_CODE, GET_MESSAGE);
 	}
 	ENDTRY;
@@ -658,8 +713,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			wmem_strbuf_append(val, proto_get_protocol_filter_name(GPOINTER_TO_UINT(wmem_list_frame_data(frame))));
 			frame = wmem_list_frame_next(frame);
 		}
+		ensure_tree_item(fh_tree, 1);
 		ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb, 0, 0, wmem_strbuf_get_str(val));
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 	}
 
 	/*  Call postdissectors if we have any (while trying to avoid another
@@ -681,6 +737,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				call_all_postdissectors(tvb, pinfo, parent_tree);
 #ifdef _MSC_VER
 			} __except(EXCEPTION_EXECUTE_HANDLER /* handle all exceptions */) {
+				ensure_tree_item(parent_tree, EXCEPTION_TREE_ITEMS);
 				switch (GetExceptionCode()) {
 				case(STATUS_ACCESS_VIOLATION):
 					show_exception(tvb, pinfo, parent_tree, DissectorError,
@@ -705,34 +762,36 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 #endif
 		}
 		CATCH_BOUNDS_AND_DISSECTOR_ERRORS {
+			ensure_tree_item(parent_tree, EXCEPTION_TREE_ITEMS);
 			show_exception(tvb, pinfo, parent_tree, EXCEPT_CODE, GET_MESSAGE);
 		}
 		ENDTRY;
 	}
 
 	/* Attempt to (re-)calculate color filters (if any). */
-	if (pinfo->fd->flags.need_colorize) {
+	if (pinfo->fd->need_colorize) {
 		color_filter = color_filters_colorize_packet(fr_data->color_edt);
 		pinfo->fd->color_filter = color_filter;
-		pinfo->fd->flags.need_colorize = 0;
+		pinfo->fd->need_colorize = 0;
 	} else {
 		color_filter = pinfo->fd->color_filter;
 	}
 	if (color_filter) {
+		ensure_tree_item(fh_tree, 1);
 		item = proto_tree_add_string(fh_tree, hf_frame_color_filter_name, tvb,
 					     0, 0, color_filter->filter_name);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
+		ensure_tree_item(fh_tree, 1);
 		item = proto_tree_add_string(fh_tree, hf_frame_color_filter_text, tvb,
 					     0, 0, color_filter->filter_text);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 
 	tap_queue_packet(frame_tap, pinfo, NULL);
 
 
 	if (pinfo->frame_end_routines) {
-		g_slist_foreach(pinfo->frame_end_routines, &call_frame_end_routine, NULL);
-		g_slist_free(pinfo->frame_end_routines);
+		g_slist_free_full(pinfo->frame_end_routines, &call_frame_end_routine);
 		pinfo->frame_end_routines = NULL;
 	}
 
@@ -758,11 +817,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 							"(0x%.4X+%u)",
 							(fi ? fi->hfinfo->abbrev : "[unknown]"),
 							pinfo->num, i, i - i % 16, i % 16);
+					ensure_tree_item(tree, 1);
 					proto_tree_add_expert_format(tree, pinfo, &ei_incomplete, tvb, i, 1, "Undecoded byte number: %u (0x%.4X+%u)", i, i - i % 16, i % 16);
 				}
 			}
 		}
-        }
+	}
 
 	return tvb_captured_length(tvb);
 }
@@ -888,62 +948,62 @@ proto_register_frame(void)
 
 		{ &hf_frame_pack_direction,
 		  { "Direction", "frame.packet_flags_direction",
-		    FT_UINT32, BASE_HEX, VALS(packet_word_directions), PACKET_WORD_DIRECTION_MASK,
+		    FT_UINT32, BASE_HEX, VALS(packet_word_directions), PACK_FLAGS_DIRECTION_MASK,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_reception_type,
 		  { "Reception type", "frame.packet_flags_reception_type",
-		    FT_UINT32, BASE_DEC, VALS(packet_word_reception_types), PACKET_WORD_RECEPTION_TYPE_MASK,
+		    FT_UINT32, BASE_DEC, VALS(packet_word_reception_types), PACK_FLAGS_RECEPTION_TYPE_MASK,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_fcs_length,
 		  { "FCS length", "frame.packet_flags_fcs_length",
-		    FT_UINT32, BASE_DEC, NULL, PACKET_WORD_FCS_LENGTH_MASK,
+		    FT_UINT32, BASE_DEC, NULL, PACK_FLAGS_FCS_LENGTH_MASK,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_reserved,
 		  { "Reserved", "frame.packet_flags_reserved",
-		    FT_UINT32, BASE_DEC, NULL, PACKET_WORD_RESERVED_MASK,
+		    FT_UINT32, BASE_DEC, NULL, PACK_FLAGS_RESERVED_MASK,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_crc_error,
 		  { "CRC error", "frame.packet_flags_crc_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_CRC_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_CRC_ERROR,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_wrong_packet_too_long_error,
 		  { "Packet too long error", "frame.packet_flags_packet_too_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_PACKET_TOO_LONG_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_PACKET_TOO_LONG,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_wrong_packet_too_short_error,
 		  { "Packet too short error", "frame.packet_flags_packet_too_short_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_PACKET_TOO_SHORT_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_PACKET_TOO_SHORT,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_wrong_inter_frame_gap_error,
 		  { "Wrong interframe gap error", "frame.packet_flags_wrong_inter_frame_gap_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_WRONG_INTER_FRAME_GAP_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_WRONG_INTER_FRAME_GAP,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_unaligned_frame_error,
 		  { "Unaligned frame error", "frame.packet_flags_unaligned_frame_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_UNALIGNED_FRAME_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_UNALIGNED_FRAME,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_start_frame_delimiter_error,
 		  { "Start frame delimiter error", "frame.packet_flags_start_frame_delimiter_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_START_FRAME_DELIMITER_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_START_FRAME_DELIMITER_ERROR,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_preamble_error,
 		  { "Preamble error", "frame.packet_flags_preamble_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_PREAMBLE_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_PREAMBLE_ERROR,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_symbol_error,
 		  { "Symbol error", "frame.packet_flags_symbol_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_SYMBOL_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_SYMBOL_ERROR,
 		    NULL, HFILL }},
 
 		{ &hf_comments_text,
@@ -983,7 +1043,7 @@ proto_register_frame(void)
 
 		for (i = 0; i < encap_count; i++) {
 			arr[i].value = i;
-			arr[i].strptr = wtap_encap_string(i);
+			arr[i].strptr = wtap_encap_description(i);
 		}
 		arr[encap_count].value = 0;
 		arr[encap_count].strptr = NULL;
@@ -1046,7 +1106,7 @@ proto_reg_handoff_frame(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -1,0 +1,351 @@
+%include {
+
+/* candump_parser.lemon
+ *
+ * Wiretap Library
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
+ *
+ * Support for candump log file format
+ * Copyright (c) 2019 by Maksim Salau <maksim.salau@gmail.com>
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+#include <assert.h>
+#include <string.h>
+#include <wiretap/file_wrappers.h>
+#include "candump_priv.h"
+
+extern void *CandumpParserAlloc(void *(*mallocProc)(size_t));
+extern void CandumpParser(void *yyp, int yymajor, token_t yyminor, candump_state_t *state);
+extern void CandumpParserFree(void *p, void (*freeProc)(void*));
+
+#ifdef CANDUMP_DEBUG
+extern void CandumpParserTrace(FILE *TraceFILE, char *zTracePrompt);
+#endif
+
+static void merge_msg_data(msg_data_t *dst, const msg_data_t *a, const msg_data_t *b)
+{
+    dst->length = a->length + b->length;
+    memcpy(&dst->data[0], &a->data[0], a->length);
+    memcpy(&dst->data[a->length], &b->data[0], b->length);
+}
+
+DIAG_OFF(unreachable-code)
+
+}
+
+%name CandumpParser
+
+%token_prefix TOKEN_
+
+%token_type { token_t }
+
+%token_destructor
+{
+    (void)state;
+    (void)yypParser;
+    (void)yypminor;
+}
+
+%extra_argument { candump_state_t* state }
+
+%syntax_error
+{
+    (void)yypParser;
+    (void)yyminor;
+
+#ifdef CANDUMP_DEBUG
+    const int n = sizeof(yyTokenName) / sizeof(yyTokenName[0]);
+    ws_debug_printf("%s: got token: %s\n", G_STRFUNC, yyTokenName[yymajor]);
+    for (int i = 0; i < n; ++i) {
+        int a = yy_find_shift_action((YYCODETYPE)i, yypParser->yytos->stateno);
+        if (a < YYNSTATE + YYNRULE) {
+            ws_debug_printf("%s: possible token: %s\n", G_STRFUNC, yyTokenName[i]);
+        }
+    }
+#endif
+
+    g_free(state->parse_error);
+    state->parse_error = g_strdup_printf("Syntax Error");
+#ifdef CANDUMP_DEBUG
+    ws_debug_printf("%s: Syntax Error\n", G_STRFUNC);
+#endif
+}
+
+%parse_failure
+{
+    g_free(state->parse_error);
+    state->parse_error = g_strdup("Parse Error");
+#ifdef CANDUMP_DEBUG
+    ws_debug_printf("%s: Parse Error\n", G_STRFUNC);
+#endif
+}
+
+%type msg { msg_t }
+
+%type timestamp { nstime_t }
+%type id { guint32  }
+%type flags { guint8 }
+
+%type byte { guint8 }
+%type data_max_8 { msg_data_t }
+%type data_max_64 { msg_data_t }
+%type data0 { msg_data_t }
+%type data1 { msg_data_t }
+%type data2 { msg_data_t }
+%type data3 { msg_data_t }
+%type data4 { msg_data_t }
+%type data5 { msg_data_t }
+%type data6 { msg_data_t }
+%type data7 { msg_data_t }
+%type data8 { msg_data_t }
+%type data12 { msg_data_t }
+%type data16 { msg_data_t }
+%type data20 { msg_data_t }
+%type data24 { msg_data_t }
+%type data32 { msg_data_t }
+%type data48 { msg_data_t }
+%type data64 { msg_data_t }
+
+%start_symbol line
+
+line ::= maybe_spaces msg(M) .
+{
+#ifdef CANDUMP_DEBUG
+    ws_debug_printf("%s: read message\n", G_STRFUNC);
+#endif
+
+    state->msg          = M;
+    state->is_msg_valid = TRUE;
+}
+
+line ::= maybe_spaces .
+{
+#ifdef CANDUMP_DEBUG
+    ws_debug_printf("%s: read empty line\n", G_STRFUNC);
+#endif
+}
+
+maybe_spaces ::= maybe_spaces SPACE .
+maybe_spaces ::= .
+
+msg(M) ::= timestamp(T) SPACE ifname SPACE id(I) RTR(R) .
+{
+    M.ts          = T;
+    M.is_fd       = FALSE;
+    M.id          = I | CAN_RTR_FLAG;
+    M.data.length = (guint8)R.v0;
+
+    memset(M.data.data, 0, sizeof(M.data.data));
+}
+
+msg(M) ::= timestamp(T) SPACE ifname SPACE id(I) data_max_8(D) .
+{
+    M.ts    = T;
+    M.is_fd = FALSE;
+    M.id    = I;
+    M.data  = D;
+}
+
+msg(M) ::= timestamp(T) SPACE ifname SPACE id(I) flags(F) data_max_64(D) .
+{
+    M.ts    = T;
+    M.is_fd = TRUE;
+    M.id    = I;
+    M.flags = F;
+    M.data  = D;
+}
+
+timestamp(R) ::= TIMESTAMP(A) .
+{
+    R.secs  = (time_t)A.v0;
+    R.nsecs = (int)A.v1 * 1000;
+}
+
+ifname ::= ifname any .
+ifname ::= any .
+
+any ::= UNKNOWN .
+any ::= RTR .
+any ::= STD_ID .
+any ::= EXT_ID .
+any ::= FLAGS .
+any ::= TIMESTAMP .
+any ::= BYTE .
+
+id(R) ::= STD_ID(A) .
+{
+    R = (guint32)A.v0;
+}
+
+id(R) ::= EXT_ID(A) .
+{
+    R = (guint32)A.v0;
+
+    if (!(R & CAN_ERR_FLAG))
+        R |= CAN_EFF_FLAG;
+}
+
+flags(R) ::= FLAGS(A) .
+{
+    R = (guint8)A.v0;
+}
+
+data_max_8 ::= data0 .
+data_max_8 ::= data1 .
+data_max_8 ::= data2 .
+data_max_8 ::= data3 .
+data_max_8 ::= data4 .
+data_max_8 ::= data5 .
+data_max_8 ::= data6 .
+data_max_8 ::= data7 .
+data_max_8 ::= data8 .
+
+data_max_64 ::= data_max_8 .
+data_max_64 ::= data12 .
+data_max_64 ::= data16 .
+data_max_64 ::= data20 .
+data_max_64 ::= data24 .
+data_max_64 ::= data32 .
+data_max_64 ::= data48 .
+data_max_64 ::= data64 .
+
+byte(R) ::= BYTE(A) .
+{
+    R = (guint8)A.v0;
+}
+
+data0(R) ::= .
+{
+    R.length = 0;
+}
+
+data1(R) ::= byte(A) .
+{
+    R.length  = 1;
+    R.data[0] = A;
+}
+
+data2(R) ::= byte(A) byte(B) .
+{
+    R.length  = 2;
+    R.data[0] = A;
+    R.data[1] = B;
+}
+
+data3(R) ::= byte(A) byte(B) byte(C) .
+{
+    R.length  = 3;
+    R.data[0] = A;
+    R.data[1] = B;
+    R.data[2] = C;
+}
+
+data4(R) ::= byte(A) byte(B) byte(C) byte(D) .
+{
+    R.length  = 4;
+    R.data[0] = A;
+    R.data[1] = B;
+    R.data[2] = C;
+    R.data[3] = D;
+}
+
+data5(R)  ::= data4(A)  data1(B) .  { merge_msg_data(&R, &A, &B); }
+data6(R)  ::= data4(A)  data2(B) .  { merge_msg_data(&R, &A, &B); }
+data7(R)  ::= data4(A)  data3(B) .  { merge_msg_data(&R, &A, &B); }
+data8(R)  ::= data4(A)  data4(B) .  { merge_msg_data(&R, &A, &B); }
+data12(R) ::= data8(A)  data4(B) .  { merge_msg_data(&R, &A, &B); }
+data16(R) ::= data8(A)  data8(B) .  { merge_msg_data(&R, &A, &B); }
+data20(R) ::= data16(A) data4(B) .  { merge_msg_data(&R, &A, &B); }
+data24(R) ::= data16(A) data8(B) .  { merge_msg_data(&R, &A, &B); }
+data32(R) ::= data16(A) data16(B) . { merge_msg_data(&R, &A, &B); }
+data48(R) ::= data32(A) data16(B) . { merge_msg_data(&R, &A, &B); }
+data64(R) ::= data32(A) data32(B) . { merge_msg_data(&R, &A, &B); }
+
+%code {
+
+DIAG_ON(unreachable-code)
+
+#include "candump_scanner_lex.h"
+#include "candump_parser.h"
+
+gboolean
+run_candump_parser(candump_state_t *state, int *err, gchar **err_info)
+{
+    int              lex_code;
+    yyscan_t         scanner;
+    void            *parser;
+
+    state->err         = 0;
+    state->err_info    = NULL;
+    state->parse_error = NULL;
+
+    if (candump_lex_init_extra(state, &scanner) != 0)
+    {
+        *err      = errno;
+        *err_info = g_strdup(g_strerror(errno));
+
+        return FALSE;
+    }
+
+    parser = CandumpParserAlloc(g_malloc);
+
+#ifdef CANDUMP_DEBUG
+    CandumpParserTrace(stdout, "parser >> ");
+
+    ws_debug_printf("%s: Starting parsing\n", G_STRFUNC);
+#endif
+
+    do
+    {
+        lex_code = candump_lex(scanner);
+
+#ifdef CANDUMP_DEBUG
+        if (lex_code)
+            ws_debug_printf("%s: Feeding %s '%s'\n",
+                            G_STRFUNC, yyTokenName[lex_code],
+                            candump_get_text(scanner));
+        else
+            ws_debug_printf("%s: Feeding %s\n",
+                            G_STRFUNC, yyTokenName[lex_code]);
+#endif
+
+        CandumpParser(parser, lex_code, state->token, state);
+
+        if (state->err || state->err_info || state->parse_error)
+            break;
+    }
+    while (lex_code);
+
+#ifdef CANDUMP_DEBUG
+    ws_debug_printf("%s: Done (%d)\n", G_STRFUNC, lex_code);
+#endif
+
+    CandumpParserFree(parser, g_free);
+    candump_lex_destroy(scanner);
+
+    if (state->err || state->err_info || state->parse_error)
+    {
+        if (state->err_info)
+        {
+            *err_info = state->err_info;
+            g_free(state->parse_error);
+        }
+        else
+        {
+            *err_info = state->parse_error;
+        }
+
+        if (state->err)
+            *err = state->err;
+        else
+            *err = WTAP_ERR_BAD_FILE;
+
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+}

@@ -366,6 +366,7 @@ static const value_string ll_version_number_vals[] = {
     { 0x07, "4.1" },
     { 0x08, "4.2" },
     { 0x09, "5.0" },
+    { 0x0A, "5.1" },
     { 0, NULL }
 };
 static value_string_ext ll_version_number_vals_ext = VALUE_STRING_EXT_INIT(ll_version_number_vals);
@@ -622,7 +623,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         item = proto_tree_add_item_ret_uint(btle_tree, hf_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
-        PROTO_ITEM_SET_HIDDEN(item);
+        proto_item_set_hidden(item);
         offset += 1;
 
         switch (pdu_type) {
@@ -639,7 +640,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
             copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 address *addr;
 
                 addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
@@ -674,7 +675,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
             copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 address *addr;
 
                 addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
@@ -699,7 +700,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
             copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 address *addr;
 
                 addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
@@ -723,7 +724,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
             copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 address *addr;
 
                 addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
@@ -761,7 +762,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
             copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 address *addr;
 
                 addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
@@ -799,7 +800,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset += 2;
 
             item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN, &data_timeout);
-            proto_item_append_text(item, " (%g msec)", data_timeout*1.25);
+            proto_item_append_text(item, " (%u msec)", data_timeout*10);
             offset += 2;
 
             sub_item = proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_channel_map, tvb, offset, 5, ENC_NA);
@@ -812,7 +813,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_sleep_clock_accuracy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 key[0].length = 1;
                 key[0].key = &interface_id;
                 key[1].length = 1;
@@ -882,10 +883,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 str_addr_dst = (gchar *) wmem_alloc(pinfo->pool, str_addr_len);
 
                 sub_item = proto_tree_add_ether(btle_tree, hf_master_bd_addr, tvb, 0, 0, connection_info->master_bd_addr);
-                PROTO_ITEM_SET_GENERATED(sub_item);
+                proto_item_set_generated(sub_item);
 
                 sub_item = proto_tree_add_ether(btle_tree, hf_slave_bd_addr, tvb, 0, 0, connection_info->slave_bd_addr);
-                PROTO_ITEM_SET_GENERATED(sub_item);
+                proto_item_set_generated(sub_item);
 
                 switch (direction) {
                 case BTLE_DIR_MASTER_SLAVE:
@@ -915,7 +916,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 set_address(&pinfo->net_dst, AT_STRINGZ, (int)strlen(str_addr_dst)+1, str_addr_dst);
                 copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
-                if (!pinfo->fd->flags.visited) {
+                if (!pinfo->fd->visited) {
                     address *addr;
 
                     btle_frame_info = wmem_new0(wmem_file_scope(), btle_frame_info_t);
@@ -987,7 +988,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         proto_tree_add_item(data_header_tree, hf_data_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         item = proto_tree_add_item_ret_uint(btle_tree, hf_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
-        PROTO_ITEM_SET_HIDDEN(item);
+        proto_item_set_hidden(item);
         offset += 1;
 
         switch (llid) {
@@ -997,7 +998,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 pinfo->fragmented = TRUE;
                 if (connection_info && !retransmit) {
-                    if (!pinfo->fd->flags.visited) {
+                    if (!pinfo->fd->visited) {
                         if (connection_info->direction_info[direction].segmentation_started == 1) {
                             if (connection_info->direction_info[direction].segment_len_rem >= length) {
                                 connection_info->direction_info[direction].segment_len_rem = connection_info->direction_info[direction].segment_len_rem - length;
@@ -1083,16 +1084,16 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case 0x02: /* Start of an L2CAP message or a complete L2CAP message with no fragmentation */
             if (length > 0) {
-                guint le_frame_len = tvb_get_letohs(tvb, offset);
-                if (le_frame_len > length) {
+                guint l2cap_len = tvb_get_letohs(tvb, offset);
+                if (l2cap_len + 4 > length) { /* L2CAP PDU Length excludes the 4 octets header */
                     pinfo->fragmented = TRUE;
                     if (connection_info && !retransmit) {
-                        if (!pinfo->fd->flags.visited) {
+                        if (!pinfo->fd->visited) {
                             connection_info->direction_info[direction].segmentation_started = 1;
                             /* The first two octets in the L2CAP PDU contain the length of the entire
                              * L2CAP PDU in octets, excluding the Length and CID fields(4 octets).
                              */
-                            connection_info->direction_info[direction].segment_len_rem = le_frame_len + 4 - length;
+                            connection_info->direction_info[direction].segment_len_rem = l2cap_len + 4 - length;
                             connection_info->direction_info[direction].l2cap_index = l2cap_index;
                             btle_frame_info->more_fragments = 1;
                             btle_frame_info->l2cap_index = l2cap_index;
@@ -1124,7 +1125,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     bthci_acl_data_t  *acl_data;
                     if (connection_info) {
                         /* Add a L2CAP index for completeness */
-                        if (!pinfo->fd->flags.visited) {
+                        if (!pinfo->fd->visited) {
                             btle_frame_info->l2cap_index = l2cap_index;
                             l2cap_index++;
                         }
@@ -1371,7 +1372,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (add_l2cap_index) {
             item = proto_tree_add_uint(btle_tree, hf_l2cap_index, tvb, 0, 0, btle_frame_info->l2cap_index);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
 
         if ((crc_status == CRC_INDETERMINATE) &&
@@ -2078,7 +2079,7 @@ proto_reg_handoff_btle(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

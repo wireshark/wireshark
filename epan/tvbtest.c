@@ -23,7 +23,7 @@ gboolean failed = FALSE;
 
 /* Tests a tvbuff against the expected pattern/length.
  * Returns TRUE if all tests succeeed, FALSE if any test fails */
-gboolean
+static gboolean
 test(tvbuff_t *tvb, const gchar* name,
      guint8* expected_data, guint expected_length, guint expected_reported_length)
 {
@@ -95,7 +95,7 @@ test(tvbuff_t *tvb, const gchar* name,
 		ex_thrown = TRUE;
 	}
 	CATCH_ALL {
-		printf("02: Caught wrong exception: %lu\n", exc->except_id.except_code);
+		printf("03: Caught wrong exception: %lu\n", exc->except_id.except_code);
 	}
 	ENDTRY;
 
@@ -121,7 +121,7 @@ test(tvbuff_t *tvb, const gchar* name,
 		printf("04: Caught wrong exception: ReportedBoundsError\n");
 	}
 	CATCH_ALL {
-		printf("02: Caught wrong exception: %lu\n", exc->except_id.except_code);
+		printf("04: Caught wrong exception: %lu\n", exc->except_id.except_code);
 	}
 	ENDTRY;
 
@@ -135,7 +135,7 @@ test(tvbuff_t *tvb, const gchar* name,
 	/* Test boundary case. A BoundsError exception should not be thrown. */
 	ex_thrown = FALSE;
 	TRY {
-		tvb_get_ptr(tvb, 0, 1);
+		tvb_get_ptr(tvb, 0, length ? 1 : 0);
 	}
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
@@ -147,7 +147,7 @@ test(tvbuff_t *tvb, const gchar* name,
 		printf("05: Caught wrong exception: ReportedBoundsError\n");
 	}
 	CATCH_ALL {
-		printf("02: Caught wrong exception: %lu\n", exc->except_id.except_code);
+		printf("05: Caught wrong exception: %lu\n", exc->except_id.except_code);
 	}
 	ENDTRY;
 
@@ -161,7 +161,7 @@ test(tvbuff_t *tvb, const gchar* name,
 	/* Test boundary case. A BoundsError exception should not be thrown. */
 	ex_thrown = FALSE;
 	TRY {
-		tvb_get_ptr(tvb, -1, 1);
+		tvb_get_ptr(tvb, -1, length ? 1 : 0);
 	}
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
@@ -173,7 +173,7 @@ test(tvbuff_t *tvb, const gchar* name,
 		printf("06: Caught wrong exception: ReportedBoundsError\n");
 	}
 	CATCH_ALL {
-		printf("02: Caught wrong exception: %lu\n", exc->except_id.except_code);
+		printf("06: Caught wrong exception: %lu\n", exc->except_id.except_code);
 	}
 	ENDTRY;
 
@@ -258,7 +258,8 @@ test(tvbuff_t *tvb, const gchar* name,
 
 	/* One big memdup */
 	ptr = (guint8*)tvb_memdup(NULL, tvb, 0, -1);
-	if (memcmp(ptr, expected_data, length) != 0) {
+	if ((length != 0 && memcmp(ptr, expected_data, length) != 0) ||
+	    (length == 0 && ptr != NULL)) {
 		printf("12: Failed TVB=%s Offset=0 Length=-1 "
 				"Bad memdup\n", name);
 		failed = TRUE;
@@ -273,24 +274,17 @@ test(tvbuff_t *tvb, const gchar* name,
 	return TRUE;
 }
 
-gboolean
-skip(tvbuff_t *tvb _U_, gchar* name,
-		guint8* expected_data _U_, guint expected_length _U_)
-{
-	printf("Skipping TVB=%s\n", name);
-	return FALSE;
-}
-
-
-void
+static void
 run_tests(void)
 {
 	int		i, j;
 
 	tvbuff_t	*tvb_parent;
+	tvbuff_t	*tvb_empty;
 	tvbuff_t	*tvb_small[3];
 	tvbuff_t	*tvb_large[3];
 	tvbuff_t	*tvb_subset[6];
+	tvbuff_t	*tvb_empty_subset;
 	guint8		*small[3];
 	guint		small_length[3];
 	guint		small_reported_length[3];
@@ -335,7 +329,11 @@ run_tests(void)
 		tvb_set_free_cb(tvb_large[i], g_free);
 	}
 
-	/* Test the TVBUFF_REAL_DATA objects. */
+	/* Test empty tvb */
+	tvb_empty = tvb_new_child_real_data(tvb_parent, NULL, 0, 1);
+	test(tvb_empty, "Empty", NULL, 0, 1);
+
+	/* Test the "real" tvbuff objects. */
 	test(tvb_small[0], "Small 0", small[0], small_length[0], small_reported_length[0]);
 	test(tvb_small[1], "Small 1", small[1], small_length[1], small_reported_length[1]);
 	test(tvb_small[2], "Small 2", small[2], small_length[2], small_reported_length[2]);
@@ -374,13 +372,17 @@ run_tests(void)
 	tvb_subset[5]		  = tvb_new_subset_length_caplen(tvb_subset[2], 4, 8, 9);
 	subset[5]		  = &small[1][4];
 
-	/* Test the TVBUFF_SUBSET objects. */
+	/* Test the "subset" tvbuff objects. */
 	test(tvb_subset[0], "Subset 0", subset[0], subset_length[0], subset_reported_length[0]);
 	test(tvb_subset[1], "Subset 1", subset[1], subset_length[1], subset_reported_length[1]);
 	test(tvb_subset[2], "Subset 2", subset[2], subset_length[2], subset_reported_length[2]);
 	test(tvb_subset[3], "Subset 3", subset[3], subset_length[3], subset_reported_length[3]);
 	test(tvb_subset[4], "Subset 4", subset[4], subset_length[4], subset_reported_length[4]);
 	test(tvb_subset[5], "Subset 5", subset[5], subset_length[5], subset_reported_length[5]);
+
+	/* Subset of an empty tvb. */
+	tvb_empty_subset = tvb_new_subset_length_caplen(tvb_empty, 0, 0, 1);
+	test(tvb_empty_subset, "Empty Subset", NULL, 0, 1);
 
 	/* One Real */
 	printf("Making Composite 0\n");
@@ -464,7 +466,7 @@ run_tests(void)
 	tvb_composite_append(tvb_comp[5], tvb_comp[3]);
 	tvb_composite_finalize(tvb_comp[5]);
 
-	/* Test the TVBUFF_COMPOSITE objects. */
+	/* Test the "composite" tvbuff objects. */
 	test(tvb_comp[0], "Composite 0", comp[0], comp_length[0], comp_reported_length[0]);
 	test(tvb_comp[1], "Composite 1", comp[1], comp_length[1], comp_reported_length[1]);
 	test(tvb_comp[2], "Composite 2", comp[2], comp_length[2], comp_reported_length[2]);
@@ -498,7 +500,7 @@ main(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

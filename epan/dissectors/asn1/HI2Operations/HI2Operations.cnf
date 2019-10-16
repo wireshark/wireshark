@@ -6,6 +6,7 @@ UmtsHI2Operations UmtsHI2
 PCESP PCESP
 TS101909201 TS101909201
 EN301040	EN301040
+HI3CCLinkData	hi3cclinkdata
 #.MODULE_IMPORT
 
 #.EXPORTS
@@ -14,6 +15,7 @@ EN301040	EN301040
 
 #.PDU
 IRIsContent
+UUS1-Content
 
 #.NO_EMIT
 
@@ -27,6 +29,69 @@ LIMODIFYreq
 LIMODIFYconf
 LISTATUSind
 StatusType
+
+#.FN_HDR UUS1-Content
+
+/* Heuristic test to see if it's our content */
+    gint8    tmp_class;
+    gboolean tmp_pc;
+    gint32   tmp_tag;
+    int      tmp_offset;
+    guint    length = tvb_captured_length(tvb);
+    guint32  tmp_length;
+    gboolean tmp_ind;
+
+    /* Check for min length */
+    if (length < 6){
+      return 0;
+    }
+    /* We start with UUS1-Content ::= SEQUENCE */
+    tmp_offset = get_ber_identifier(tvb, offset, &tmp_class, &tmp_pc, &tmp_tag);
+    if(tmp_class != BER_CLASS_UNI){
+      return 0;
+    }
+    if(tmp_pc != 1){
+      return 0;
+    }
+    if(tmp_tag != BER_UNI_TAG_SEQUENCE){
+      return 0;
+    }
+    /* Get length just to move offset forward */
+    tmp_offset = get_ber_length(tvb, tmp_offset, &tmp_length, &tmp_ind);
+
+    /* Next 2 mandatorry elements
+     *  lawfullInterceptionIdentifier [1] LawfulInterceptionIdentifier,
+     *  communicationIdentifier       [2] CommunicationIdentifier,
+     */
+    get_ber_identifier(tvb, tmp_offset, &tmp_class, &tmp_pc, &tmp_tag);
+    if(tmp_class != BER_CLASS_CON){
+      return 0;
+    }
+    if(tmp_pc != 0){
+      return 0;
+    }
+    if(tmp_tag != 1){
+      return 0;
+    }
+
+#.FN_BODY Network-Element-Identifier/e164-Format VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+  dissect_isup_calling_party_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
+
+#.FN_BODY UUS1-Content/bearer-capability VAL_PTR =&parameter_tvb
+  tvbuff_t *parameter_tvb;
+
+%(DEFAULT_BODY)s
+
+  if (!parameter_tvb)
+    return offset;
+
+  dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), tree);
 
 #.TYPE_RENAME
 

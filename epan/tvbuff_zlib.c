@@ -55,7 +55,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 	guint      bytes_in       = tvb_captured_length_remaining(tvb, offset);
 #endif
 
-	if (tvb == NULL) {
+	if (tvb == NULL || comprlen <= 0) {
 		return NULL;
 	}
 
@@ -310,7 +310,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 #endif
 
 	if (uncompr != NULL) {
-		uncompr_tvb =  tvb_new_real_data((guint8*) uncompr, bytes_out, bytes_out);
+		uncompr_tvb =  tvb_new_real_data(uncompr, bytes_out, bytes_out);
 		tvb_set_free_cb(uncompr_tvb, g_free);
 	}
 	wmem_free(NULL, compr);
@@ -334,7 +334,7 @@ tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comp
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

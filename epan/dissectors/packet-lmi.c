@@ -13,7 +13,7 @@
  * References:
  *
  * http://www.techfest.com/networking/wan/frrel.htm
- * http://www.frforum.com/5000/Approved/FRF.1.2/frf1_2.pdf
+ * https://www.broadband-forum.org/technical/download/FRF.1.2/frf1_2.pdf
  * http://www.cisco.com/univercd/cc/td/doc/cisintwk/ito_doc/frame.htm#xtocid18
  * http://www.net.aapt.com.au/techref/lmimess.htm
  * http://www.raleigh.ibm.com:80/cgi-bin/bookmgr/BOOKS/EZ305800/1.2.4.4
@@ -231,7 +231,7 @@ proto_reg_handoff_lmi(void)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -34,17 +34,34 @@
 	{ "remote-filter", required_argument, NULL, OPT_REMOTE_FILTER}, \
 	{ "remote-count", required_argument, NULL, OPT_REMOTE_COUNT}, \
 	{ "sshkey", required_argument, NULL, OPT_SSHKEY}, \
-	{ "sshkey-passphrase", required_argument, NULL, OPT_SSHKEY_PASSPHRASE}
+	{ "sshkey-passphrase", required_argument, NULL, OPT_SSHKEY_PASSPHRASE}, \
+	{ "proxycommand", required_argument, NULL, OPT_PROXYCOMMAND}
+
+typedef struct _ssh_params {
+	gchar* host;
+	guint16 port;
+	gchar* username;
+	gchar* password;
+	gchar* sshkey_path;
+	gchar* sshkey_passphrase;
+	gchar* proxycommand;
+	gboolean debug;
+} ssh_params_t;
 
 /* Create a ssh connection using all the possible authentication menthods */
-ssh_session create_ssh_connection(const char* hostname, const guint16 port, const char* username,
-	const char* password, const char* sshkey_path, const char* sshkey_passphrase, char** err_info);
+ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_info);
 
 /* Write a formatted message in the channel */
 int ssh_channel_printf(ssh_channel channel, const char* fmt, ...);
 
 /* Clean the current ssh session and channel. */
 void ssh_cleanup(ssh_session* sshs, ssh_channel* channel);
+
+/* Init the ssh_params_t structure */
+ssh_params_t* ssh_params_new(void);
+
+/* Clean the ssh params */
+void ssh_params_free(ssh_params_t* ssh_params);
 
 #endif
 

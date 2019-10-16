@@ -320,12 +320,12 @@ find_and_mark_frame_depended_upon(gpointer data, gpointer user_data)
 
   if (dependent_frame && frames) {
     dependent_fd = frame_data_sequence_find(frames, dependent_frame);
-    dependent_fd->flags.dependent_of_displayed = 1;
+    dependent_fd->dependent_of_displayed = 1;
   }
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

@@ -190,7 +190,7 @@ void proto_reg_handoff_collectd (void);
 static nstime_t
 collectd_time_to_nstime (guint64 t)
 {
-	nstime_t nstime = { 0, 0 };
+	nstime_t nstime = NSTIME_INIT_ZERO;;
 	nstime.secs = (time_t) (t / 1073741824);
 	nstime.nsecs = (int) (((double) (t % 1073741824)) / 1.073741824);
 
@@ -200,8 +200,8 @@ collectd_time_to_nstime (guint64 t)
 static void
 collectd_stats_tree_init (stats_tree *st)
 {
-	st_collectd_packets = stats_tree_create_node (st, "Packets", 0, FALSE);
-	st_collectd_values = stats_tree_create_node (st, "Values", 0, TRUE);
+	st_collectd_packets = stats_tree_create_node (st, "Packets", 0, STAT_DT_INT, FALSE);
+	st_collectd_values = stats_tree_create_node (st, "Values", 0, STAT_DT_INT, TRUE);
 
 	st_collectd_values_hosts = stats_tree_create_pivot (st, "By host",
 							   st_collectd_values);
@@ -211,7 +211,7 @@ collectd_stats_tree_init (stats_tree *st)
 							    st_collectd_values);
 } /* void collectd_stats_tree_init */
 
-static int
+static tap_packet_status
 collectd_stats_tree_packet (stats_tree *st, packet_info *pinfo _U_,
 			    epan_dissect_t *edt _U_, const void *user_data)
 {
@@ -220,7 +220,7 @@ collectd_stats_tree_packet (stats_tree *st, packet_info *pinfo _U_,
 
 	td = (const tap_data_t *)user_data;
 	if (td == NULL)
-		return (-1);
+		return (TAP_PACKET_DONT_REDRAW);
 
 	tick_stat_node (st, "Packets", 0, FALSE);
 	increase_stat_node (st, "Values", 0, TRUE, td->values_num);
@@ -249,7 +249,7 @@ collectd_stats_tree_packet (stats_tree *st, packet_info *pinfo _U_,
 					       sc->string);
 	}
 
-	return (1);
+	return (TAP_PACKET_REDRAW);
 } /* int collectd_stats_tree_packet */
 
 static void
@@ -271,7 +271,7 @@ collectd_proto_tree_add_assembled_metric (tvbuff_t *tvb,
 
 	subtree = proto_tree_add_subtree(root, tvb, offset + 6, length - 6,
 			ett_collectd_dispatch, &root_item, "Assembled metric");
-	PROTO_ITEM_SET_GENERATED (root_item);
+	proto_item_set_generated (root_item);
 
 	proto_tree_add_string (subtree, hf_collectd_data_host, tvb,
 			vdispatch->host_off, vdispatch->host_len,
@@ -319,7 +319,7 @@ collectd_proto_tree_add_assembled_notification (tvbuff_t *tvb,
 
 	subtree = proto_tree_add_subtree(root, tvb, offset + 6, length - 6,
 			ett_collectd_dispatch, &root_item, "Assembled notification");
-	PROTO_ITEM_SET_GENERATED (root_item);
+	proto_item_set_generated (root_item);
 
 	proto_tree_add_string (subtree, hf_collectd_data_host, tvb,
 			ndispatch->host_off, ndispatch->host_len,
@@ -1482,7 +1482,7 @@ void proto_reg_handoff_collectd (void)
 } /* void proto_reg_handoff_collectd */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

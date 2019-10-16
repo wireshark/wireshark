@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef SCTP_GRAPH_DIALOG_H
 #define SCTP_GRAPH_DIALOG_H
@@ -76,7 +77,8 @@ class SCTPGraphDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SCTPGraphDialog(QWidget *parent = 0, struct _sctp_assoc_info *assoc = NULL, capture_file *cf = NULL, int dir = 0);
+    explicit SCTPGraphDialog(QWidget *parent = 0, const _sctp_assoc_info *assoc = NULL,
+            capture_file *cf = NULL, int dir = 0);
     ~SCTPGraphDialog();
     static void save_graph(QDialog *dlg, QCustomPlot *plot);
 
@@ -96,22 +98,24 @@ private slots:
 
     void on_saveButton_clicked();
 
+    void on_relativeTsn_stateChanged(int arg1);
+
 private:
     Ui::SCTPGraphDialog *ui;
-    struct _sctp_assoc_info *selected_assoc;
+    guint16 selected_assoc_id;
     capture_file *cap_file_;
     int frame_num;
     int direction;
     QVector<double> xt, yt, xs, ys, xg, yg, xd, yd, xn, yn;
     QVector<guint32> ft, fs, fg, fd, fn;
     QVector<QString> typeStrings;
-    bool gIsSackChunkPresent;
-    bool gIsNRSackChunkPresent;
+    bool relative;
+    int type;
 
-    void drawGraph(int which);
-    void drawTSNGraph();
-    void drawSACKGraph();
-    void drawNRSACKGraph();
+    void drawGraph(const _sctp_assoc_info* selected_assoc = NULL);
+    void drawTSNGraph(const _sctp_assoc_info* selected_assoc);
+    void drawSACKGraph(const _sctp_assoc_info* selected_assoc);
+    void drawNRSACKGraph(const _sctp_assoc_info* selected_assoc);
 };
 
 #endif // SCTP_GRAPH_DIALOG_H

@@ -19,7 +19,8 @@
 
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
-#include <wsutil/wsjsmn.h>
+#include <epan/proto_data.h>
+#include <wsutil/wsjson.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/unicode-utils.h>
@@ -206,6 +207,8 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	}
 
 	offset = 0;
+	/* XXX*/
+	p_add_proto_data(pinfo->pool, pinfo, proto_json, 0, tvb);
 
 	parser_data.stack = wmem_stack_new(wmem_packet_scope());
 	wmem_stack_push(parser_data.stack, json_tree);
@@ -275,7 +278,7 @@ static void before_object(void *tvbparse_data, const void *wanted_data _U_, tvbp
 		gint idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
 
 		if (JSON_INSIDE_ARRAY(idx)) {
-			ti_compact = proto_tree_add_none_format(tree_compact, hfi_json_object_compact.id, tok->tvb, tok->offset, tok->len, "%d:", idx);
+			ti_compact = proto_tree_add_none_format(tree_compact, &hfi_json_object_compact, tok->tvb, tok->offset, tok->len, "%d:", idx);
 			subtree_compact = proto_item_add_subtree(ti_compact, ett_json_object_compact);
 			json_array_index_increment(data);
 		} else {
@@ -330,7 +333,7 @@ static void before_member(void *tvbparse_data, const void *wanted_data _U_, tvbp
 
 		if (key_tok && key_tok->id == JSON_TOKEN_STRING) {
 			char *key_str = json_string_unescape(key_tok);
-			ti_compact = proto_tree_add_none_format(tree_compact, hfi_json_member_compact.id, tok->tvb, tok->offset, tok->len, "%s:", key_str);
+			ti_compact = proto_tree_add_none_format(tree_compact, &hfi_json_member_compact, tok->tvb, tok->offset, tok->len, "%s:", key_str);
 		} else {
 			ti_compact = proto_tree_add_item(tree_compact, &hfi_json_member_compact, tok->tvb, tok->offset, tok->len, ENC_NA);
 		}
@@ -605,7 +608,7 @@ static void after_value(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 		}
 
 		if (JSON_INSIDE_ARRAY(idx)) {
-			proto_tree_add_none_format(tree_compact, hfi_json_array_item_compact.id, tok->tvb, tok->offset, tok->len, "%d: %s", idx, val_str);
+			proto_tree_add_none_format(tree_compact, &hfi_json_array_item_compact, tok->tvb, tok->offset, tok->len, "%d: %s", idx, val_str);
 			json_array_index_increment(data);
 		} else {
 			proto_item *parent_item = proto_tree_get_parent(tree_compact);
@@ -747,7 +750,7 @@ static void init_json_parser(void) {
 	/* XXX, heur? */
 }
 
-/* This function leverages the libjsmn to undestand if the payload is json or not
+/* This function tries to undestand if the payload is json or not
 */
 static gboolean
 dissect_json_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -755,7 +758,7 @@ dissect_json_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	guint len = tvb_captured_length(tvb);
 	const guint8* buf = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, len, ENC_ASCII);
 
-	if (jsmn_is_json(buf, len) == FALSE)
+	if (json_validate(buf, len) == FALSE)
 		return FALSE;
 
 	return (dissect_json(tvb, pinfo, tree, data) != 0);
@@ -828,6 +831,7 @@ proto_reg_handoff_json(void)
 	dissector_add_string("media_type", "application/jsonrequest", json_handle); /* JSON-RPC over HTTP */
 	dissector_add_string("media_type", "application/dds-web+json", json_handle); /* DDS Web Integration Service over HTTP */
 	dissector_add_string("media_type", "application/vnd.oma.lwm2m+json", json_handle); /* LWM2M JSON over CoAP */
+	dissector_add_string("media_type", "application/problem+json", json_handle); /* RFC 7807 Problem Details for HTTP APIs*/
 	dissector_add_string("grpc_message_type", "application/grpc+json", json_handle);
 	dissector_add_uint_range_with_preference("tcp.port", "", json_file_handle); /* JSON-RPC over TCP */
 	dissector_add_uint_range_with_preference("udp.port", "", json_file_handle); /* JSON-RPC over UDP */
@@ -836,7 +840,7 @@ proto_reg_handoff_json(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

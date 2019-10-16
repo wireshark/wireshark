@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef CAPTURE_FILE_DIALOG_H
 #define CAPTURE_FILE_DIALOG_H
@@ -41,7 +42,7 @@ class CaptureFileDialog : public QFileDialog
     //
     // You can subclass QFileDialog (which we've done here) and add widgets as
     // described at
-    // http://developer.qt.nokia.com/faq/answer/how_can_i_add_widgets_to_my_qfiledialog_instance
+    // https://web.archive.org/web/20100528190736/http://developer.qt.nokia.com/faq/answer/how_can_i_add_widgets_to_my_qfiledialog_instance
     // However, Qt's idea of what a file dialog looks like isn't what Microsoft
     // and Apple think a file dialog looks like.
     //
@@ -67,7 +68,7 @@ public:
 
     int mergeType();
     int selectedFileType();
-    bool isCompressed();
+    wtap_compression_type compressionType();
 
 private:
     capture_file *cap_file_;
@@ -79,7 +80,7 @@ private:
     void addDisplayFilterEdit();
     void addPreview(QVBoxLayout &v_box);
     QString fileExtensionType(int et, bool extension_globs = true);
-    QString fileType(int ft, bool extension_globs = true);
+    QString fileType(int ft, QStringList &suffixes);
     QStringList buildFileOpenTypeList(void);
 
     QVBoxLayout left_v_box_;
@@ -98,7 +99,8 @@ private:
     QRadioButton merge_append_;
 
     QComboBox format_type_;
-    QHash<QString, int>type_hash_;
+    QHash<QString, int> type_hash_;
+    QHash<QString, QStringList> type_suffixes_;
 
     void addGzipControls(QVBoxLayout &v_box);
     void addRangeControls(QVBoxLayout &v_box, packet_range_t *range);
@@ -117,14 +119,17 @@ private:
 #else // Q_OS_WIN
     int file_type_;
     int merge_type_;
-    gboolean compressed_;
+    wtap_compression_type compression_type_;
 #endif // Q_OS_WIN
 
 signals:
 
 public slots:
 
-    int exec();
+#ifndef Q_OS_WIN
+    void accept() Q_DECL_OVERRIDE;
+#endif
+    int exec() Q_DECL_OVERRIDE;
     int open(QString &file_name, unsigned int &type);
     check_savability_t saveAs(QString &file_name, bool must_support_comments);
     check_savability_t exportSelectedPackets(QString &file_name, packet_range_t *range);
@@ -132,6 +137,7 @@ public slots:
 
 private slots:
 #if !defined(Q_OS_WIN)
+    void fixFilenameExtension();
     void preview(const QString & path);
     void on_buttonBox_helpRequested();
 #endif // Q_OS_WIN

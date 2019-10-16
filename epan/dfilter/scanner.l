@@ -111,15 +111,30 @@ static void mark_lval_deprecated(const char *s);
 
 %%
 
-[[:blank:]\n]+	/* ignore whitespace */
+[[:blank:]\n]+		{
+	/* Ignore whitespace, unless set elements are being parsed. Perhaps it
+	 * should have used commas from the beginning, but now we are stuck with
+	 * whitespace as separators. */
+	if (yyextra->in_set) {
+		return simple(TOKEN_WHITESPACE);
+	}
+}
 
 
 
 "("				return simple(TOKEN_LPAREN);
 ")"				return simple(TOKEN_RPAREN);
 ","				return simple(TOKEN_COMMA);
-"{"				return simple(TOKEN_LBRACE);
-"}"				return simple(TOKEN_RBRACE);
+
+"{"[[:blank:]\n]*	{
+	yyextra->in_set = TRUE;
+	return simple(TOKEN_LBRACE);
+}
+[[:blank:]\n]*".."[[:blank:]\n]*	return simple(TOKEN_DOTDOT);
+[[:blank:]\n]*"}"	{
+	yyextra->in_set = FALSE;
+	return simple(TOKEN_RBRACE);
+}
 
 "=="			return simple(TOKEN_TEST_EQ);
 "eq"			return simple(TOKEN_TEST_EQ);
@@ -338,28 +353,40 @@ static void mark_lval_deprecated(const char *s);
         return set_lval(TOKEN_UNPARSED, yytext);
 }
 
-[-\+[:alnum:]_.:]+	{
-	/* Is it a field name? */
+		([.][-+[:alnum:]_:]+)+[.]{0,2} |
+[-+[:alnum:]_:]+([.][-+[:alnum:]_:]+)*[.]{0,2} {
+	/* Is it a field name or some other value (float, integer, bytes, ...)? */
 	header_field_info *hfinfo;
 	df_func_def_t *df_func_def;
+
+	/* Trailing dot is allowed for floats, but make sure that trailing ".."
+	 * is interpreted as a token on its own. */
+	if (strstr(yytext, "..")) {
+		yyless(yyleng-2);
+	}
 
 	hfinfo = proto_registrar_get_byname(yytext);
 	if (hfinfo) {
 		/* Yes, it's a field name */
 		return set_lval(TOKEN_FIELD, hfinfo);
 	}
-	else {
-		/* Is it a function name? */
-		df_func_def = df_func_lookup(yytext);
-		if (df_func_def) {
-		    /* yes, it's a dfilter function */
-		    return set_lval(TOKEN_FUNCTION, df_func_def);
-		}
-		else {
-		    /* No, so treat it as an unparsed string */
-		    return set_lval(TOKEN_UNPARSED, yytext);
-		}
+
+	hfinfo = proto_registrar_get_byalias(yytext);
+	if (hfinfo) {
+		/* Yes, it's an aliased field name */
+		/* XXX Do we need to make a copy of yytext? dfilter_compile
+		 * will dup this later on. */
+		mark_lval_deprecated(yytext);
+		return set_lval(TOKEN_FIELD, hfinfo);
 	}
+
+	df_func_def = df_func_lookup(yytext);
+	if (df_func_def) {
+		/* Yes, it's a dfilter function */
+		return set_lval(TOKEN_FUNCTION, df_func_def);
+	}
+	/* No match, so treat it as an unparsed string */
+	return set_lval(TOKEN_UNPARSED, yytext);
 }
 
 . {
@@ -387,7 +414,9 @@ simple(int token)
 		case TOKEN_RBRACE:
 		case TOKEN_COLON:
 		case TOKEN_COMMA:
+		case TOKEN_DOTDOT:
 		case TOKEN_HYPHEN:
+		case TOKEN_WHITESPACE:
 		case TOKEN_TEST_EQ:
 		case TOKEN_TEST_NE:
 		case TOKEN_TEST_GT:

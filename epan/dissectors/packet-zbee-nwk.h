@@ -210,7 +210,7 @@ extern GHashTable *zbee_table_link_keyring;
 #endif /* PACKET_ZBEE_NWK_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef IO_GRAPH_DIALOG_H
 #define IO_GRAPH_DIALOG_H
@@ -33,6 +34,8 @@ class QCPBars;
 class QCPGraph;
 class QCPItemTracer;
 class QCustomPlot;
+class QCPAxisTicker;
+class QCPAxisTickerDateTime;
 
 // GTK+ sets this to 100000 (NUM_IO_ITEMS)
 const int max_io_items_ = 250000;
@@ -79,7 +82,7 @@ public:
 
 public slots:
     void recalcGraphData(capture_file *cap_file, bool enable_scaling);
-    void captureEvent(CaptureEvent *e);
+    void captureEvent(CaptureEvent e);
     void reloadValueUnitField();
 
 signals:
@@ -90,7 +93,7 @@ signals:
 private:
     // Callbacks for register_tap_listener
     static void tapReset(void *iog_ptr);
-    static gboolean tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *data);
+    static tap_packet_status tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *data);
     static void tapDraw(void *iog_ptr);
 
     void calculateScaledValueUnit();
@@ -142,6 +145,7 @@ public slots:
     void scheduleReplot(bool now = false);
     void scheduleRecalc(bool now = false);
     void scheduleRetap(bool now = false);
+    void modelRowsReset();
     void reloadFields();
 
 protected:
@@ -180,6 +184,9 @@ private:
     bool need_retap_; // Heavy weight: re-read packet data
     bool auto_axes_;
 
+    QSharedPointer<QCPAxisTicker> number_ticker_;
+    QSharedPointer<QCPAxisTickerDateTime> datetime_ticker_;
+
 
 //    void fillGraph();
     void zoomAxes(bool in);
@@ -198,6 +205,7 @@ private:
     bool graphIsEnabled(int row) const;
 
 private slots:
+    void copyFromProfile(QString filename);
     void updateWidgets();
     void graphClicked(QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);
@@ -217,6 +225,7 @@ private slots:
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
     void on_copyToolButton_clicked();
+    void on_clearToolButton_clicked();
     void on_dragRadioButton_toggled(bool checked);
     void on_zoomRadioButton_toggled(bool checked);
     void on_actionReset_triggered();

@@ -322,14 +322,14 @@ static int st_node_errors = -1;
 static void
 hartip_stats_tree_init(stats_tree* st)
 {
-  st_node_packets   = stats_tree_create_node(st, st_str_packets, 0, TRUE);
+  st_node_packets   = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
   st_node_requests  = stats_tree_create_pivot(st, st_str_requests, st_node_packets);
-  st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, TRUE);
-  st_node_publish   = stats_tree_create_node(st, st_str_publish, st_node_packets, TRUE);
-  st_node_errors    = stats_tree_create_node(st, st_str_errors, st_node_packets, TRUE);
+  st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, STAT_DT_INT, TRUE);
+  st_node_publish   = stats_tree_create_node(st, st_str_publish, st_node_packets, STAT_DT_INT, TRUE);
+  st_node_errors    = stats_tree_create_node(st, st_str_errors, st_node_packets, STAT_DT_INT, TRUE);
 }
 
-static int
+static tap_packet_status
 hartip_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
                          epan_dissect_t* edt _U_, const void* p)
 {
@@ -356,7 +356,7 @@ hartip_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
     message_type_node     = st_node_errors;
     break;
   default:
-    return 0;  /* Don't want to track invalid messages for now. */
+    return TAP_PACKET_DONT_REDRAW;  /* Don't want to track invalid messages for now. */
   }
 
   message_id_node_str = val_to_str(tapinfo->message_id,
@@ -367,7 +367,7 @@ hartip_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
   tick_stat_node(st, message_type_node_str, st_node_packets, FALSE);
   tick_stat_node(st, message_id_node_str, message_type_node, FALSE);
 
-  return 1;
+  return TAP_PACKET_REDRAW;
 }
 
 static gint
@@ -1230,7 +1230,7 @@ hartip_set_conversation(packet_info *pinfo)
 {
   conversation_t *conversation = NULL;
 
-  if (!pinfo->fd->flags.visited && (pinfo->ptype == PT_UDP)) {
+  if (!pinfo->fd->visited && (pinfo->ptype == PT_UDP)) {
     /*
      * This function is called for a session initiate send over UDP.
      * The session initiate is sent to the server on port HARTIP_PORT.
@@ -1373,6 +1373,17 @@ static int
 dissect_hartip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                    void *data)
 {
+  /* Simple hueristic check*/
+  const gchar * msg_str = try_val_to_str(tvb_get_guint8(tvb, 1), hartip_message_type_values);
+  if (!msg_str) {
+    return 0;
+  }
+
+  msg_str = try_val_to_str(tvb_get_guint8(tvb, 2), hartip_message_id_values);
+  if (!msg_str) {
+    return 0;
+  }
+
   tcp_dissect_pdus(tvb, pinfo, tree, hartip_desegment, HARTIP_HEADER_LENGTH,
                    get_dissect_hartip_len, dissect_hartip_pdu, data);
   return tvb_reported_length(tvb);
@@ -1383,6 +1394,17 @@ dissect_hartip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                    void *data _U_)
 {
   gint offset = 0;
+
+  /* Simple hueristic check*/
+  const gchar * msg_str = try_val_to_str(tvb_get_guint8(tvb, 1), hartip_message_type_values);
+  if (!msg_str) {
+    return 0;
+  }
+
+  msg_str = try_val_to_str(tvb_get_guint8(tvb, 2), hartip_message_id_values);
+  if (!msg_str) {
+    return 0;
+  }
 
   while (tvb_reported_length_remaining(tvb, offset) >= HARTIP_HEADER_LENGTH)
     offset += dissect_hartip_common(tvb, pinfo, tree, offset);
@@ -2203,7 +2225,7 @@ proto_reg_handoff_hartip(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

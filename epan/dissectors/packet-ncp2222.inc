@@ -1290,7 +1290,7 @@ static const value_string nds_reply_errors[] = {
     { 0xfffffd5f, "(-673) Replica Not On" },
     { 0xfffffd5e, "(-674) Invalid Name Service" },
     { 0xfffffd5d, "(-675) Invalid Task" },
-    { 0xfffffd5c, "(-676) Invalide Connection Handle" },
+    { 0xfffffd5c, "(-676) Invalid Connection Handle" },
     { 0xfffffd5b, "(-677) Invalid Identity" },
     { 0xfffffd5a, "(-678) Duplicate ACL" },
     { 0xfffffd59, "(-679) Partition Already Exists" },
@@ -1327,7 +1327,7 @@ static const value_string nds_reply_errors[] = {
     { 0xfffffd3a, "(-710) Database Read Fail" },
     { 0xfffffd39, "(-711) Invalid Code Page" },
     { 0xfffffd38, "(-712) Invalid Escape Character" },
-    { 0xfffffd37, "(-713) Invalide Delimiters" },
+    { 0xfffffd37, "(-713) Invalid Delimiters" },
     { 0xfffffd36, "(-714) Not Implemented" },
     { 0xfffffd35, "(-715) Checksum Failure" },
     { 0xfffffd34, "(-716) Checksumming Not Supported" },
@@ -6720,7 +6720,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
         return;
     }
     /* Has this already been dissected? */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* Find the conversation whence the request would have come. */
         conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                          ENDPOINT_NCP, nw_connection, nw_connection, 0);
@@ -6831,7 +6831,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
                 /* Subsequent fragments should be offset by 16 since we do not need */
                 /* the additional fragment handle and size fields in our composite data */
                 /* Also do not add retransmitted packets, just mark and return */
-                if (!pinfo->fd->flags.visited)
+                if (!pinfo->fd->visited)
                 {
                     if (sequence != frags[frag_count].sequence) {
                         fd_head = fragment_add_seq_next(&nds_reassembly_table, tvb, 16, pinfo, tid, NULL, len-16, request_value->nds_frag);
@@ -6869,7 +6869,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
                         tid++;
                     }
 
-                    if (!pinfo->fd->flags.visited)
+                    if (!pinfo->fd->visited)
                     {
                         /* Now we need to find the original fragment number. */
                         /* Get the fragment flag */
@@ -6982,7 +6982,8 @@ ncp2222_compile_dfilters(void)
 void
 dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                 guint32 nw_connection, guint8 sequence,
-                guint16 type, proto_tree *volatile ncp_tree)
+                guint16 type, gboolean is_lip_echo_allocate_slot,
+                proto_tree *volatile ncp_tree)
 {
     volatile guint8         func=0;
     volatile guint8         subfunc = 0;
@@ -6994,8 +6995,6 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
     ptvcursor_t             *volatile ptvc = NULL;
     proto_tree              *temp_tree = NULL;
     volatile gboolean       run_req_cond = FALSE;
-    guint32                 length_remaining;
-    guint32                 testvar;
     volatile unsigned long  exception_code;
     const char              *volatile message;
     proto_item              *ti;
@@ -7013,24 +7012,9 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
     /* Determine which ncp_record to use. */
     switch (type) {
     case NCP_ALLOCATE_SLOT:
-        length_remaining = tvb_captured_length_remaining(tvb, 4);
-        if (length_remaining > 4)
-        {
-            testvar = tvb_get_ntohl(tvb, 4);
-            if( testvar == 0x4c495020)
-            {
-                ncp_rec = &ncplip_echo;
-            }
-            else
-            {
-                ncp_rec = &ncp1111_request;
-                if (ncp_echo_conn) {
-                    expert_add_info(pinfo, NULL, &ei_ncp_connection_request);
-                }
-            }
-        }
-        else
-        {
+        if (is_lip_echo_allocate_slot) {
+            ncp_rec = &ncplip_echo;
+        } else {
             ncp_rec = &ncp1111_request;
             if (ncp_echo_conn) {
                 expert_add_info(pinfo, NULL, &ei_ncp_connection_request);
@@ -7087,7 +7071,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* This is the first time we've looked at this packet.
            Keep track of the address and connection whence the request
            came, and the address and connection to which the request
@@ -7203,7 +7187,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
          * information to display anyway. Put it in the tree for filtering and tap use*/
         if (ncp_rec) {
             ti = proto_tree_add_uint_format_value(ncp_tree, hf_ncp_group, tvb, 0, 0, ncp_rec->group, "%s", ncp_groups[ncp_rec->group]);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
 
         exception_code = 0;
@@ -7864,7 +7848,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
         * this EID and its associated name into our hash
         * so that we can resolve the name for other NDS
         * requests. */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         if(add_eid)
         {
             request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
@@ -7924,7 +7908,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
     }
 #endif
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* Find the conversation whence the request would have come. */
         conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                          ENDPOINT_NCP, nw_connection, nw_connection, 0);
@@ -8258,7 +8242,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         ENDPOINT_NCP, nw_connection, nw_connection, 0);
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         request_value = ncp_hash_insert(conversation, sequence, ncp_rec, pinfo->num);
         request_value->req_frame_num = pinfo->num;
         request_value->req_frame_time=pinfo->abs_ts;
@@ -8363,7 +8347,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_item(ncp_tree, hf_ncp_fragment_size, tvb, 12, 4, ENC_LITTLE_ENDIAN);
 
                 proto_tree_add_item(ncp_tree, hf_ncp_message_size, tvb, 16, 4, ENC_LITTLE_ENDIAN);
-
+                nds_prot_flags=tvb_get_letohs(tvb, 22);
                 proto_tree_add_bitmask(ncp_tree, tvb, 22, hf_ncp_nds_flag, ett_ncp, ndsprotflags, ENC_LITTLE_ENDIAN);
 
                 if (nds_version == 0) {
@@ -8488,7 +8472,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     value1 = tvb_get_letohl(tvb, foffset);
                     if ((value1 & 0xf000) == 0xc000)
                     {
-                        proto_tree_add_string(ncp_tree, hf_nds_name_type, tvb, 0, 0, "Return Partion Name");
+                        proto_tree_add_string(ncp_tree, hf_nds_name_type, tvb, 0, 0, "Return Partition Name");
                     }
                     else
                     {
@@ -9231,7 +9215,7 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
         col_set_str(pinfo->cinfo, COL_INFO, "C Ping for NDS");
 
     }
-    if (!pinfo->fd->flags.visited)
+    if (!pinfo->fd->visited)
     {
 
         /* This is the first time we've looked at this packet.
@@ -9313,7 +9297,7 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
                 }
 
                 pi = proto_tree_add_uint(ncp_tree, hf_ncp_nds_verb, tvb, 0, 0, 240);
-                PROTO_ITEM_SET_HIDDEN(pi);
+                proto_item_set_hidden(pi);
 
                 proto_tree_add_bitmask(ncp_tree, tvb, 12, hf_pingflags1, ett_ncp, ncp_pingflags1, ENC_LITTLE_ENDIAN);
                 proto_tree_add_bitmask(ncp_tree, tvb, 14, hf_pingflags2, ett_ncp, ncp_pingflags2, ENC_LITTLE_ENDIAN);
@@ -9337,7 +9321,7 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

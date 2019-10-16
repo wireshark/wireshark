@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef RTP_PLAYER_DIALOG_H
 #define RTP_PLAYER_DIALOG_H
@@ -23,12 +24,12 @@ namespace Ui {
 class RtpPlayerDialog;
 }
 
-struct _rtp_stream_info;
-
 class QCPItemStraightLine;
 class QDialogButtonBox;
 class QMenu;
 class RtpAudioStream;
+class QCPAxisTicker;
+class QCPAxisTickerDateTime;
 
 class RtpPlayerDialog : public WiresharkDialog
 {
@@ -55,13 +56,13 @@ public:
     void reject();
 
     /** Add an RTP stream to play.
-     * MUST be called before exec().
+     * MUST be called before show().
      * Requires src_addr, src_port, dest_addr, dest_port, ssrc, packet_count,
      * setup_frame_number, and start_rel_time.
      *
-     * @param rtp_stream struct with rtp_stream info
+     * @param rtpstream struct with rtpstream info
      */
-    void addRtpStream(struct _rtp_stream_info *rtp_stream);
+    void addRtpStream(rtpstream_info_t *rtpstream);
 
 public slots:
 
@@ -113,13 +114,15 @@ private:
     double start_rel_time_;
     QCPItemStraightLine *cur_play_pos_;
     QString playback_error_;
+    QSharedPointer<QCPAxisTicker> number_ticker_;
+    QSharedPointer<QCPAxisTickerDateTime> datetime_ticker_;
 
-//    const QString streamKey(const struct _rtp_stream_info *rtp_stream);
+//    const QString streamKey(const rtpstream_info_t *rtpstream);
 //    const QString streamKey(const packet_info *pinfo, const struct _rtp_info *rtpinfo);
 
     // Tap callbacks
 //    static void tapReset(void *tapinfo_ptr);
-    static gboolean tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *rtpinfo_ptr);
+    static tap_packet_status tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *rtpinfo_ptr);
     static void tapDraw(void *tapinfo_ptr);
 
     void addPacket(packet_info *pinfo, const struct _rtp_info *rtpinfo);

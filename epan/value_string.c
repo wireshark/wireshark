@@ -17,7 +17,6 @@
 #include "proto.h"
 #include "to_str.h"
 #include "value_string.h"
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 /* REGULAR VALUE STRING */
 
@@ -364,7 +363,7 @@ _try_val_to_str_linear(const guint32 val, value_string_ext *vse)
 static const value_string *
 _try_val_to_str_index(const guint32 val, value_string_ext *vse)
 {
-    guint i;
+    guint32 i;
 
     i = val - vse->_vs_first_value;
     if (i < vse->_vs_num_entries) {
@@ -435,7 +434,7 @@ _try_val_to_str_ext_init(const guint32 val, value_string_ext *vse)
      */
 
     guint32 prev_value;
-    guint   first_value;
+    guint32 first_value;
     guint   i;
 
     DISSECTOR_ASSERT((vs_p[vs_num_entries].value  == 0) &&
@@ -453,14 +452,14 @@ _try_val_to_str_ext_init(const guint32 val, value_string_ext *vse)
         /* XXX: Should check for dups ?? */
         if (type == VS_BIN_TREE) {
             if (prev_value > vs_p[i].value) {
-                ws_g_warning("Extended value string '%s' forced to fall back to linear search:\n"
+                g_warning("Extended value string '%s' forced to fall back to linear search:\n"
                           "  entry %u, value %u [%#x] < previous entry, value %u [%#x]",
                           vse->_vs_name, i, vs_p[i].value, vs_p[i].value, prev_value, prev_value);
                 type = VS_SEARCH;
                 break;
             }
             if (first_value > vs_p[i].value) {
-                ws_g_warning("Extended value string '%s' forced to fall back to linear search:\n"
+                g_warning("Extended value string '%s' forced to fall back to linear search:\n"
                           "  entry %u, value %u [%#x] < first entry, value %u [%#x]",
                           vse->_vs_name, i, vs_p[i].value, vs_p[i].value, first_value, first_value);
                 type = VS_SEARCH;
@@ -480,6 +479,291 @@ _try_val_to_str_ext_init(const guint32 val, value_string_ext *vse)
             break;
         case VS_INDEX:
             vse->_vs_match2 = _try_val_to_str_index;
+            break;
+        default:
+            g_assert_not_reached();
+            break;
+    }
+
+    return vse->_vs_match2(val, vse);
+}
+
+/* EXTENDED 64-BIT VALUE STRING */
+
+/* Extended value strings allow fast(er) val64_string array lookups by
+ * using (if possible) direct access or a binary search of the array.
+ *
+ * If the values in the val64_string array are a contiguous range of values
+ * from min to max, the value will be used as as a direct index into the array.
+ *
+ * If the values in the array are not contiguous (ie: there are "gaps"),
+ * but are in assending order a binary search will be used.
+ *
+ * If direct access or binary search cannot be used, then a linear search
+ * is used and a warning is emitted.
+ *
+ * Note that the val64_string array used with VAL64_STRING_EXT_INIT
+ * *must* be terminated with {0, NULL}).
+ *
+ * Extended value strings are defined at compile time as follows:
+ *   static const val64_string vs[] = { {value1, "string1"},
+ *                                      {value2, "string2"},
+ *                                      ...,
+ *                                      {0, NULL}};
+ *   static val64_string_ext vse = VAL64_STRING_EXT_INIT(vs);
+ *
+ * Extended value strings can be created at runtime by calling
+ *   val64_string_ext_new(<ptr to val64_string array>,
+ *                        <total number of entries in the val64_string_array>,
+ *                        <val64_string_name>);
+ * Note: The <total number of entries in the val64_string_array> should include
+ *       the {0, NULL} entry.
+ */
+
+/* Create a val64_string_ext given a ptr to a val64_string array and the total
+ * number of entries. Note that the total number of entries should include the
+ * required {0, NULL} terminating entry of the array.
+ * Returns a pointer to an epan-scoped'd and initialized val64_string_ext
+ * struct. */
+val64_string_ext *
+val64_string_ext_new(const val64_string *vs, guint vs_tot_num_entries,
+        const gchar *vs_name)
+{
+    val64_string_ext *vse;
+
+    DISSECTOR_ASSERT (vs_name != NULL);
+    DISSECTOR_ASSERT (vs_tot_num_entries > 0);
+    /* Null-terminated value-string ? */
+    DISSECTOR_ASSERT (vs[vs_tot_num_entries-1].strptr == NULL);
+
+    vse                  = wmem_new(wmem_epan_scope(), val64_string_ext);
+    vse->_vs_p           = vs;
+    vse->_vs_num_entries = vs_tot_num_entries - 1;
+    /* We set our 'match' function to the init function, which finishes by
+     * setting the match function properly and then calling it. This is a
+     * simple way to do lazy initialization of extended value strings.
+     * The init function also sets up _vs_first_value for us. */
+    vse->_vs_first_value = 0;
+    vse->_vs_match2      = _try_val64_to_str_ext_init;
+    vse->_vs_name        = vs_name;
+
+    return vse;
+}
+
+void
+val64_string_ext_free(val64_string_ext *vse)
+{
+    wmem_free(wmem_epan_scope(), vse);
+}
+
+/* Like try_val_to_str for extended value strings */
+const gchar *
+try_val64_to_str_ext(const guint64 val, val64_string_ext *vse)
+{
+    if (vse) {
+        const val64_string *vs = vse->_vs_match2(val, vse);
+
+        if (vs) {
+            return vs->strptr;
+        }
+    }
+
+    return NULL;
+}
+
+/* Like try_val_to_str_idx for extended value strings */
+const gchar *
+try_val64_to_str_idx_ext(const guint64 val, val64_string_ext *vse, gint *idx)
+{
+    if (vse) {
+        const val64_string *vs = vse->_vs_match2(val, vse);
+        if (vs) {
+            *idx = (gint) (vs - vse->_vs_p);
+            return vs->strptr;
+        }
+    }
+    *idx = -1;
+    return NULL;
+}
+
+/* Like val_to_str for extended value strings */
+const gchar *
+val64_to_str_ext(const guint64 val, val64_string_ext *vse, const char *fmt)
+{
+    const gchar *ret;
+
+    DISSECTOR_ASSERT(fmt != NULL);
+
+    ret = try_val64_to_str_ext(val, vse);
+    if (ret != NULL)
+        return ret;
+
+    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
+}
+
+gchar *
+val64_to_str_ext_wmem(wmem_allocator_t *scope, const guint64 val, val64_string_ext *vse, const char *fmt)
+{
+    const gchar *ret;
+
+    DISSECTOR_ASSERT(fmt != NULL);
+
+    ret = try_val64_to_str_ext(val, vse);
+    if (ret != NULL)
+        return wmem_strdup(scope, ret);
+
+    return wmem_strdup_printf(scope, fmt, val);
+}
+
+/* Like val_to_str_const for extended value strings */
+const gchar *
+val64_to_str_ext_const(const guint64 val, val64_string_ext *vse,
+        const char *unknown_str)
+{
+    const gchar *ret;
+
+    DISSECTOR_ASSERT(unknown_str != NULL);
+
+    ret = try_val64_to_str_ext(val, vse);
+    if (ret != NULL)
+        return ret;
+
+    return unknown_str;
+}
+
+/* Fallback linear matching algorithm for extended value strings */
+static const val64_string *
+_try_val64_to_str_linear(const guint64 val, val64_string_ext *vse)
+{
+    const val64_string *vs_p = vse->_vs_p;
+    guint i;
+    for (i=0; i<vse->_vs_num_entries; i++) {
+        if (vs_p[i].value == val)
+            return &(vs_p[i]);
+    }
+    return NULL;
+}
+
+/* Constant-time matching algorithm for contiguous extended value strings */
+static const val64_string *
+_try_val64_to_str_index(const guint64 val, val64_string_ext *vse)
+{
+    guint64 i;
+
+    i = val - vse->_vs_first_value;
+    if (i < vse->_vs_num_entries) {
+        g_assert (val == vse->_vs_p[i].value);
+        return &(vse->_vs_p[i]);
+    }
+    return NULL;
+}
+
+/* log(n)-time matching algorithm for sorted extended value strings */
+static const val64_string *
+_try_val64_to_str_bsearch(const guint64 val, val64_string_ext *vse)
+{
+    guint low, i, max;
+    guint64 item;
+
+    for (low = 0, max = vse->_vs_num_entries; low < max; ) {
+        i = (low + max) / 2;
+        item = vse->_vs_p[i].value;
+
+        if (val < item)
+            max = i;
+        else if (val > item)
+            low = i + 1;
+        else
+            return &(vse->_vs_p[i]);
+    }
+    return NULL;
+}
+
+/* Initializes an extended value string. Behaves like a match function to
+ * permit lazy initialization of extended value strings.
+ * - Goes through the val64_string array to determine the fastest possible
+ *   access method.
+ * - Verifies that the val64_string contains no NULL string pointers.
+ * - Verifies that the val64_string is terminated by {0, NULL}
+ */
+const val64_string *
+_try_val64_to_str_ext_init(const guint64 val, val64_string_ext *vse)
+{
+    const val64_string *vs_p           = vse->_vs_p;
+    const guint         vs_num_entries = vse->_vs_num_entries;
+
+    /* The matching algorithm used:
+     * VS_SEARCH   - slow sequential search (as in a normal value string)
+     * VS_BIN_TREE - log(n)-time binary search, the values must be sorted
+     * VS_INDEX    - constant-time index lookup, the values must be contiguous
+     */
+    enum { VS_SEARCH, VS_BIN_TREE, VS_INDEX } type = VS_INDEX;
+
+    /* Note: The val64_string 'value' is *unsigned*, but we do a little magic
+     * to help with value strings that have negative values.
+     *
+     * { -3, -2, -1, 0, 1, 2 }
+     * will be treated as "ascending ordered" (although it isn't technically),
+     * thus allowing constant-time index search
+     *
+     * { -3, -2, 0, 1, 2 } and { -3, -2, -1, 0, 2 }
+     * will both be considered as "out-of-order with gaps", thus falling
+     * back to the slow linear search
+     *
+     * { 0, 1, 2, -3, -2 } and { 0, 2, -3, -2, -1 }
+     * will be considered "ascending ordered with gaps" thus allowing
+     * a log(n)-time 'binary' search
+     *
+     * If you're confused, think of how negative values are represented, or
+     * google two's complement.
+     */
+
+    guint64 prev_value;
+    guint64 first_value;
+    guint   i;
+
+    DISSECTOR_ASSERT((vs_p[vs_num_entries].value  == 0) &&
+                     (vs_p[vs_num_entries].strptr == NULL));
+
+    vse->_vs_first_value = vs_p[0].value;
+    first_value          = vs_p[0].value;
+    prev_value           = first_value;
+
+    for (i = 0; i < vs_num_entries; i++) {
+        DISSECTOR_ASSERT(vs_p[i].strptr != NULL);
+        if ((type == VS_INDEX) && (vs_p[i].value != (i + first_value))) {
+            type = VS_BIN_TREE;
+        }
+        /* XXX: Should check for dups ?? */
+        if (type == VS_BIN_TREE) {
+            if (prev_value > vs_p[i].value) {
+                g_warning("Extended value string '%s' forced to fall back to linear search:\n"
+                          "  entry %u, value %" G_GINT64_MODIFIER "u [%#" G_GINT64_MODIFIER "x] < previous entry, value %" G_GINT64_MODIFIER "u [%#" G_GINT64_MODIFIER "x]",
+                          vse->_vs_name, i, vs_p[i].value, vs_p[i].value, prev_value, prev_value);
+                type = VS_SEARCH;
+                break;
+            }
+            if (first_value > vs_p[i].value) {
+                g_warning("Extended value string '%s' forced to fall back to linear search:\n"
+                          "  entry %u, value %" G_GINT64_MODIFIER "u [%#" G_GINT64_MODIFIER "x] < first entry, value %" G_GINT64_MODIFIER "u [%#" G_GINT64_MODIFIER "x]",
+                          vse->_vs_name, i, vs_p[i].value, vs_p[i].value, first_value, first_value);
+                type = VS_SEARCH;
+                break;
+            }
+        }
+
+        prev_value = vs_p[i].value;
+    }
+
+    switch (type) {
+        case VS_SEARCH:
+            vse->_vs_match2 = _try_val64_to_str_linear;
+            break;
+        case VS_BIN_TREE:
+            vse->_vs_match2 = _try_val64_to_str_bsearch;
+            break;
+        case VS_INDEX:
+            vse->_vs_match2 = _try_val64_to_str_index;
             break;
         default:
             g_assert_not_reached();
@@ -740,8 +1024,37 @@ value_string_ext_match_type_str(const value_string_ext *vse)
     return "[Invalid]";
 }
 
+gboolean
+val64_string_ext_validate(const val64_string_ext *vse)
+{
+    if (vse == NULL)
+        return FALSE;
+#ifndef _WIN32  /* doesn't work on Windows for refs from another DLL ?? */
+    if ((vse->_vs_match2 != _try_val64_to_str_ext_init) &&
+        (vse->_vs_match2 != _try_val64_to_str_linear)   &&
+        (vse->_vs_match2 != _try_val64_to_str_bsearch)  &&
+        (vse->_vs_match2 != _try_val64_to_str_index))
+        return FALSE;
+#endif
+    return TRUE;
+}
+
+const gchar *
+val64_string_ext_match_type_str(const val64_string_ext *vse)
+{
+    if (vse->_vs_match2 == _try_val64_to_str_ext_init)
+        return "[Not Initialized]";
+    if (vse->_vs_match2 == _try_val64_to_str_linear)
+        return "[Linear Search]";
+    if (vse->_vs_match2 == _try_val64_to_str_bsearch)
+        return "[Binary Search]";
+    if (vse->_vs_match2 == _try_val64_to_str_index)
+        return "[Direct (indexed) Access]";
+    return "[Invalid]";
+}
+
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

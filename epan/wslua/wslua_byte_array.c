@@ -18,7 +18,6 @@
 #include "config.h"
 
 #include "wslua.h"
-#include "wsutil/base64.h"
 
 
 /* WSLUA_CONTINUE_MODULE Tvb */
@@ -243,23 +242,25 @@ WSLUA_METHOD ByteArray_subset(lua_State* L) {
 }
 
 WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
-    /* Obtain a base64 decoded `ByteArray`.
+    /* Obtain a Base64 decoded `ByteArray`.
 
        @since 1.11.3
      */
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2;
     gchar *data;
-    size_t len;
+    gsize len;
 
     ba2 = g_byte_array_new();
-    data = (gchar*)g_malloc (ba->len + 1);
-    memcpy(data, ba->data, ba->len);
-    data[ba->len] = '\0';
+    if (ba->len > 1) {
+        data = (gchar*)g_malloc(ba->len + 1);
+        memcpy(data, ba->data, ba->len);
+        data[ba->len] = '\0';
 
-    len = ws_base64_decode_inplace(data);
-    g_byte_array_append(ba2,data,(int)len);
-    g_free(data);
+        g_base64_decode_inplace(data, &len);
+        g_byte_array_append(ba2, data, (int)len);
+        g_free(data);
+    }
 
     pushByteArray(L,ba2);
     WSLUA_RETURN(1); /* The created `ByteArray`. */
@@ -382,7 +383,7 @@ int ByteArray_register(lua_State* L) {
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -6,7 +6,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __IFACE_LISTS_H__
 #define __IFACE_LISTS_H__
@@ -16,12 +17,6 @@ extern "C" {
 #endif /* __cplusplus */
 
 #ifdef HAVE_LIBPCAP
-/*
- * Used when sorting an interface list into alphabetical order by
- * their descriptions.
- */
-extern gint if_list_comparator_alph(const void *first_arg, const void *second_arg);
-
 /*
  * Get the global interface list.  Generate it if we haven't
  * done so already.

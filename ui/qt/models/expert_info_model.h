@@ -20,12 +20,13 @@
 #include <ui/qt/capture_file.h>
 
 #include <epan/expert.h>
+#include <epan/tap.h>
 #include <epan/column-utils.h>
 
 class ExpertPacketItem
 {
 public:
-    ExpertPacketItem(expert_info_t& expert_info, column_info *cinfo, ExpertPacketItem* parent);
+    ExpertPacketItem(const expert_info_t& expert_info, column_info *cinfo, ExpertPacketItem* parent);
     virtual ~ExpertPacketItem();
 
     unsigned int packetNum() const { return packet_num_; }
@@ -108,11 +109,11 @@ public:
     void setGroupBySummary(bool group_by_summary);
 
     // Called from tapPacket
-    void addExpertInfo(struct expert_info_s& expert_info);
+    void addExpertInfo(const struct expert_info_s& expert_info);
 
     // Callbacks for register_tap_listener
     static void tapReset(void *eid_ptr);
-    static gboolean tapPacket(void *eid_ptr, struct _packet_info *pinfo, struct epan_dissect *, const void *data);
+    static tap_packet_status tapPacket(void *eid_ptr, struct _packet_info *pinfo, struct epan_dissect *, const void *data);
     static void tapDraw(void *eid_ptr);
 
 private:

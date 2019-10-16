@@ -1,0 +1,99 @@
+IEEE1609dot12
+
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+	IMPORTS
+	Psid
+	FROM IEEE1609dot2BaseTypes {iso(1) identified-organization(3) ieee(111)
+	standards-association-numbered-series-standards(2) wave-stds(1609)
+	dot2(2) base(1) base-types(2)}
+	;
+psid-system                                                         Psid ::= 0             -- ISO-15628a
+psid-electronic-fee-collection                                      Psid ::= 1             -- ISO-14906
+psid-freight-fleet-management                                       Psid ::= 2             -- ISO-15628
+psid-public-transport                                               Psid ::= 3             -- ISO-15628
+psid-traffic-traveller-information                                  Psid ::= 4             -- ISO-15628
+psid-traffic-control                                                Psid ::= 5             -- ISO-15628
+psid-parking-management                                             Psid ::= 6             -- ISO-15628
+psid-geographic-road-database                                       Psid ::= 7             -- ISO-15628
+psid-medium-range-preinformation                                    Psid ::= 8             -- ISO-15628
+psid-man-machine-interface                                          Psid ::= 9             -- ISO-15628
+psid-intersystem-interface                                          Psid ::= 10            -- ISO-15628
+psid-automatic-vehicle-identification                               Psid ::= 11            -- ISO-17264
+psid-emergency-warning                                              Psid ::= 12            -- ISO-15628
+psid-private                                                        Psid ::= 13            -- ISO-15628
+psid-multi-purpose-payment                                          Psid ::= 14            -- ISO-15628
+psid-dsrc-resource-manager                                          Psid ::= 15            -- ISO-15628
+psid-after-theft-systems                                            Psid ::= 16            -- ISO-15628
+psid-cruise-assist-highway-system                                   Psid ::= 17            -- ISO-15628
+psid-multi-purpose-information-system                               Psid ::= 18            -- ISO-15628
+psid-multi-mobile-information-system                                Psid ::= 19            -- ISO-15628
+psid-efc-compliance-check-communication-applications                Psid ::= 20            -- ISO-TS-12813
+psid-efc-localisation-augmentation-communication-applications       Psid ::= 21            -- ISO-TS-13141
+psid-iso-cen-dsrc-applications-0x16                                 Psid ::= 22            -- ISO 15628
+psid-iso-cen-dsrc-applications-0x17                                 Psid ::= 23            -- ISO 15628
+psid-iso-cen-dsrc-applications-0x18                                 Psid ::= 24            -- ISO 15628
+psid-iso-cen-dsrc-applications-0x19                                 Psid ::= 25            -- ISO 15628
+psid-iso-cen-dsrc-applications-0x1a                                 Psid ::= 26            -- ISO 15628
+psid-iso-cen-dsrc-applications-0x1b                                 Psid ::= 27            -- ISO 15628
+psid-iso-cen-dsrc-applications-0x1c                                 Psid ::= 28            -- ISO 15628
+psid-private-use-0x1d                                               Psid ::= 29            -- IISO 15628
+psid-private-use-0x1e                                               Psid ::= 30            -- IISO 15628
+psid-iso-cen-dsrc-applications-0x1f                                 Psid ::= 31            -- IISO 15628
+psid-vehicle-to-vehicle-safety-and-awarenesss                       Psid ::= 32            -- SAE-J2735
+psid-limited-sensor-vehicle-to-vehicle-safety-and-awarenesss        Psid ::= 33            -- SAE-J2735
+psid-tracked-vehicle-safety-and-awarenesss                          Psid ::= 34            -- SAE-J2735
+psid-wave-security-managements                                      Psid ::= 35            -- IEEE-Std-1609.2
+psid-ca-basic-services                                              Psid ::= 36            -- ETSI-EN-302-637_2
+psid-den-basic-services                                             Psid ::= 37            -- ETSI-EN-302-637_3
+psid-misbehavior-reporting-for-common-applications                  Psid ::= 38            -- CAMP
+psid-vulnerable-road-users-safety-applications                      Psid ::= 39            -- SAE-DSRC-TC
+-- 0x28 to 0x7E 0p28 to 0p7E Not allocated
+psid-testings                                                       Psid ::= 127           -- IEEE-P1609-WG
+psid-differential-gps-corrections-uncompressed                      Psid ::= 128           -- SAE-J2735
+psid-differential-gps-corrections-compressed                        Psid ::= 129           -- SAE-J2735
+psid-intersection-safety-and-awareness                              Psid ::= 130           -- SAE-J2735
+psid-traveller-information-and-roadside-signage                     Psid ::= 131           -- SAE-J2735
+psid-mobile-probe-exchanges                                         Psid ::= 132           -- SAE-J2735
+psid-emergency-and-erratic-vehicles-present-in-roadway              Psid ::= 133           -- SAE-J2735
+psid-remote-management-protocol-execution                           Psid ::= 134           -- ISO-24102-2
+psid-wave-service-advertisement                                     Psid ::= 135           -- IEEE-Std-1609.3
+psid-peer-to-peer-distribution-of-security-management-information   Psid ::= 136           -- CAMP
+psid-traffic-light-manoeuver-service                                Psid ::= 137           -- ISO-19091-ETSI-TS-103-301
+psid-road-and-lane-topology-service                                 Psid ::= 138           -- ISO-19091-ETSI-TS-103-301
+psid-infrastructure-to-vehicle-information-service                  Psid ::= 139           -- ISO-19321-ETSI-TS-103-301
+psid-traffic-light-control-service                                  Psid ::= 140           -- ISO-19091-ETSI-TS-103-301
+psid-geonetworking-management-communications                        Psid ::= 141           -- ETSI-EN-302-636-4-1
+
+-- 0x8e to 0xFF 0p80-09 to 0p80-7F Not allocated
+
+psid-certificate-revocation-list-application                        Psid ::= 256           -- CAMP
+
+-- 0x01-01 to 0x3E-7F 0p80-81 to 0pBD-FF Not allocated
+-- 0x3E-80 to 0x40-1F 0pBE-00 to 0pBF-9F Reserved IEEE P1609 WG 416
+-- 0x40-20 to 0x40-5F 0pBF-A0 to 0pBF-DF Private used IEEE P1609 WG 64
+-- 0x40-60 to 0x40-7F 0pBF-E0 to 0pBF-FF Testing IEEE P1609 WG 32
+-- 16 384 total 2-octet p-encoded values
+
+-- 0x40-80 0pC0-00-00 Cooperative Awareness Message (CAM) processor(deprecated) ETSI deprecated
+-- 0x40-81 0pC0-00-01 Decentralized Environmental Notification Message(DENM) processor(deprecated) ETSI deprecated
+
+psid-vehicle-initiated-distress-notivication                        Psid ::= 16514         -- Wyoming DOT
+-- 0x40-83 to 0x08-40-80 0pc0-00-03 to 0pc8-00-03 Reserved for future assignments by the IEEE registrar
+-- 0x08-40-81 to 0x10-40-7e 0pc8-00-01 to 0pcf-ff-fe Reserved for future assignments by the CEN registrar
+-- 0x10-40-7f to 0x20-40-7d 0pcf-ff-ff to 0pdf-ff-fd Reserved for future assignments by the ISO registrar
+-- 0x20-40-7e 0pdf-ff-fe IPv6 Routing deprecated
+-- 0x20-40-7f 0pdf-ff-ff Reserved for future assignments by the ISO registrar
+-- 2 097 152 total 3-octet p-encoded values
+
+psid-fast-service-advertisement-protocol                            Psid ::= 2113664       -- ISO-24102-5
+psid-its-station-internal-management-communications-protocol        Psid ::= 2113665       -- ISO-24102-4
+psid-veniam-delay-tolerant-networking                               Psid ::= 2113666       -- Venicam.com
+psid-transcore-software-update                                      Psid ::= 2113667       -- Transcore, Inc.
+psid-sra-private-applications-0x204084                              Psid ::= 2113668       -- SRA, Inc,
+psid-sra-private-applications-0x204085                              Psid ::= 2113669       -- SRA, Inc,
+psid-sra-private-applications-0x204086                              Psid ::= 2113670       -- SRA, Inc,
+psid-sra-private-applications-0x204087                              Psid ::= 2113671       -- SRA, Inc,
+psid-ipv6-routing                                                   Psid ::= 270549118     -- IEEE-Std-1609-3
+-- >4 bytes long its-aid/psid Not suported
+
+END

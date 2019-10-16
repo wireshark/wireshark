@@ -119,7 +119,6 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree    *rtacser_tree, *cl_tree;
     int           offset = 0, len;
     guint         event_type;
-    nstime_t      tv;
     gboolean      cts, dcd, dsr, rts, dtr, ring, mbok;
     tvbuff_t      *payload_tvb;
 
@@ -134,9 +133,7 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Time-stamp is stored as 2 x 32-bit unsigned integers, the left and right-hand side of the decimal point respectively */
     /* The format mirrors the timeval struct - absolute Epoch time (seconds since 1/1/1970) with an added microsecond component */
-    tv.secs = tvb_get_ntohl(tvb, offset);
-    tv.nsecs = tvb_get_ntohl(tvb, offset+4)*1000;
-    proto_tree_add_time(rtacser_tree, hf_rtacser_timestamp, tvb, offset, 8, &tv);
+    proto_tree_add_item(rtacser_tree, hf_rtacser_timestamp, tvb, offset, 8, ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
     offset += 8;
 
     /* Set INFO column with RTAC Serial Event Type */
@@ -279,7 +276,7 @@ proto_register_rtacser(void)
     /* RTAC Serial Preference - Payload Protocol in use */
     prefs_register_obsolete_preference(rtacser_module, "rtacserial_payload_proto");
 
-    subdissector_table = register_decode_as_next_proto(proto_rtacser, "RTAC Serial", "rtacser.data",
+    subdissector_table = register_decode_as_next_proto(proto_rtacser, "rtacser.data",
                                                        "RTAC Serial Data Subdissector", rtacser_ppi_prompt);
 }
 
@@ -296,7 +293,7 @@ proto_reg_handoff_rtacser(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

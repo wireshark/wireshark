@@ -15,12 +15,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <wsutil/clopts_common.h>
-#include <wsutil/cmdarg_err.h>
-#include <wsutil/unicode-utils.h>
+#include <ui/clopts_common.h>
+#include <ui/cmdarg_err.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
+#include <cli_main.h>
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
@@ -100,19 +100,19 @@ usage(gboolean is_error)
 }
 
 int
-main(int argc, char **argv)
+main(int argc, char *argv[])
 {
-	char                   *init_progfile_dir_error;
-	int			opt;
-	int			produce_type = -1;
-	char			*produce_filename = NULL;
-	int			produce_max_bytes = 5000;
-	int			produce_count = 1000;
-	randpkt_example		*example;
-	guint8*			type = NULL;
-	int 			allrandom = FALSE;
-	wtap_dumper		*savedump;
-	int 			 ret = EXIT_SUCCESS;
+	char *init_progfile_dir_error;
+	int opt;
+	int produce_type = -1;
+	char *produce_filename = NULL;
+	int produce_max_bytes = 5000;
+	int produce_count = 1000;
+	randpkt_example *example;
+	guint8* type = NULL;
+	int allrandom = FALSE;
+	wtap_dumper *savedump;
+	int ret = EXIT_SUCCESS;
 	static const struct option long_options[] = {
 		{"help", no_argument, NULL, 'h'},
 		{0, 0, 0, 0 }
@@ -127,11 +127,11 @@ main(int argc, char **argv)
 	 * Attempt to get the pathname of the directory containing the
 	 * executable file.
 	 */
-	init_progfile_dir_error = init_progfile_dir(argv[0], main);
+	init_progfile_dir_error = init_progfile_dir(argv[0]);
 	if (init_progfile_dir_error != NULL) {
 		fprintf(stderr,
-		    "capinfos: Can't get pathname of directory containing the capinfos program: %s.\n",
-		    init_progfile_dir_error);
+			"capinfos: Can't get pathname of directory containing the capinfos program: %s.\n",
+			init_progfile_dir_error);
 		g_free(init_progfile_dir_error);
 	}
 
@@ -143,7 +143,6 @@ main(int argc, char **argv)
 	cmdarg_err_init(failure_warning_message, failure_message_cont);
 
 #ifdef _WIN32
-	arg_list_utf_16to8(argc, argv);
 	create_app_running_mutex();
 #endif /* _WIN32 */
 
@@ -186,8 +185,7 @@ main(int argc, char **argv)
 	/* any more command line parameters? */
 	if (argc > optind) {
 		produce_filename = argv[optind];
-	}
-	else {
+	} else {
 		usage(TRUE);
 		ret = INVALID_OPTION;
 		goto clean_exit;
@@ -206,7 +204,7 @@ main(int argc, char **argv)
 		ret = randpkt_example_init(example, produce_filename, produce_max_bytes);
 		if (ret != EXIT_SUCCESS)
 			goto clean_exit;
-		randpkt_loop(example, produce_count);
+		randpkt_loop(example, produce_count, 0);
 	} else {
 		if (type) {
 			fprintf(stderr, "Can't set type in random mode\n");
@@ -225,7 +223,7 @@ main(int argc, char **argv)
 			goto clean_exit;
 
 		while (produce_count-- > 0) {
-			randpkt_loop(example, 1);
+			randpkt_loop(example, 1, 0);
 			produce_type = randpkt_parse_type(NULL);
 
 			savedump = example->dump;
@@ -236,6 +234,7 @@ main(int argc, char **argv)
 				goto clean_exit;
 			}
 			example->dump = savedump;
+			example->filename = produce_filename;
 		}
 	}
 	if (!randpkt_example_close(example)) {
@@ -248,7 +247,7 @@ clean_exit:
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

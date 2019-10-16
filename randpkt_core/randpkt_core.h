@@ -6,7 +6,8 @@
  *
  * Copyright (C) 1999 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __RANDPKT_CORE_H__
 #define __RANDPKT_CORE_H__
@@ -45,7 +46,7 @@ randpkt_example* randpkt_find_example(int type);
 int randpkt_example_init(randpkt_example* example, char* produce_filename, int produce_max_bytes);
 
 /* Loop the packet generation */
-void randpkt_loop(randpkt_example* example, guint64 produce_count);
+void randpkt_loop(randpkt_example* example, guint64 produce_count, guint64 packet_delay_ms);
 
 /* Close the current example */
 gboolean randpkt_example_close(randpkt_example* example);
@@ -53,7 +54,7 @@ gboolean randpkt_example_close(randpkt_example* example);
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

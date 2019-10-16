@@ -34,7 +34,7 @@ VALUE_STRING_ARRAY_GLOBAL_DCL(protobuf_wire_type);
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

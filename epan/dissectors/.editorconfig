@@ -1,10 +1,14 @@
 #
 # Editor configuration
 #
-# http://editorconfig.org/
+# https://editorconfig.org/
 #
 
 [file-file.[ch]]
+indent_style = tab
+indent_size = tab
+
+[file-rbm.[ch]]
 indent_style = tab
 indent_size = tab
 
@@ -181,10 +185,6 @@ indent_size = 3
 
 [packet-bjnp.[ch]]
 indent_size = 2
-
-[packet-bootp.[ch]]
-indent_style = tab
-indent_size = tab
 
 [packet-bootparams.[ch]]
 indent_style = tab
@@ -550,6 +550,10 @@ indent_size = tab
 indent_size = 2
 
 [packet-dect.[ch]]
+indent_style = tab
+indent_size = tab
+
+[packet-dhcp.[ch]]
 indent_style = tab
 indent_size = tab
 
@@ -1317,6 +1321,10 @@ indent_size = 2
 [packet-mesh.[ch]]
 indent_size = 2
 
+[packet-messageanalyzer.[ch]]
+indent_style = tab
+indent_size = tab
+
 [packet-metamako.[ch]]
 indent_size = 2
 
@@ -1465,6 +1473,10 @@ indent_style = tab
 indent_size = tab
 
 [packet-netlink.[ch]]
+indent_style = tab
+indent_size = tab
+
+[packet-netmon.[ch]]
 indent_style = tab
 indent_size = tab
 
@@ -2028,6 +2040,10 @@ indent_size = 2
 indent_size = 2
 
 [packet-tns.[ch]]
+indent_style = tab
+indent_size = tab
+
+[packet-tpm20.c]
 indent_style = tab
 indent_size = tab
 

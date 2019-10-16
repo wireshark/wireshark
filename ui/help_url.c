@@ -6,7 +6,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2000 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -43,7 +44,7 @@ topic_online_url(topic_action_e action)
         return "https://www.wireshark.org/docs/wsug_html_chunked/";
         break;
     case(ONLINEPAGE_FAQ):
-        return "http://www.wireshark.org/faq.html";
+        return "https://www.wireshark.org/faq.html";
         break;
     case(ONLINEPAGE_ASK):
         return "https://ask.wireshark.org";
@@ -218,7 +219,7 @@ topic_action_url(topic_action_e action)
         url = user_guide_url("ChCustProtocolDissectionSection.html");
         break;
     case(HELP_FOLLOW_STREAM_DIALOG):
-        url = user_guide_url("ChAdvFollowTCPSection.html");
+        url = user_guide_url("ChAdvFollowStreamSection.html");
         break;
     case(HELP_SHOW_PACKET_BYTES_DIALOG):
         url = user_guide_url("ChAdvShowPacketBytes.html");
@@ -276,7 +277,6 @@ topic_action_url(topic_action_e action)
         url = user_guide_url("ChIOExportSection.html");
         break;
     case(HELP_EXPORT_BYTES_DIALOG):
-    case(HELP_EXPORT_BYTES_WIN32_DIALOG):
         url = user_guide_url("ChIOExportSection.html#ChIOExportSelectedDialog");
         break;
     case(HELP_EXPORT_OBJECT_LIST):

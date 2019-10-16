@@ -18,12 +18,8 @@
 !define DISPLAY_NAME "${PROGRAM_NAME} ${VERSION} ${BITS}-bit"
 Name "${DISPLAY_NAME}"
 
-!define PROGRAM_NAME_QT "${PROGRAM_NAME}"
-!define PROGRAM_NAME_GTK "${PROGRAM_NAME} Legacy"
-!define PROGRAM_FULL_NAME_QT "The ${PROGRAM_NAME} Network Protocol Analyzer"
-!define PROGRAM_FULL_NAME_GTK "The ${PROGRAM_NAME} Network Protocol Analyzer (classic UI)"
-!define PROGRAM_NAME_PATH_QT "${PROGRAM_NAME}.exe"
-!define PROGRAM_NAME_PATH_GTK "${PROGRAM_NAME}-gtk.exe"
+!define PROGRAM_FULL_NAME "The ${PROGRAM_NAME} Network Protocol Analyzer"
+!define PROGRAM_NAME_PATH "${PROGRAM_NAME}.exe"
 
 !define UNINSTALLER_NAME "uninstall.exe"
 
@@ -75,7 +71,7 @@ UpdateIcons.quit_${UPDATEICONS_UNIQUE}:
     Pop $R0
 
 ; Force the icon cache to refresh
-; http://superuser.com/questions/499078/refresh-icon-cache-without-rebooting
+; https://superuser.com/questions/499078/refresh-icon-cache-without-rebooting
 IfFileExists "$SYSDIR\ie4uinit.exe" 0 +2
 Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
 
@@ -126,7 +122,7 @@ Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
 
 !macro IsWiresharkRunning
 ; See if Wireshark is running
-; http://nsis.sourceforge.net/Check_whether_your_application_is_running
+; https://nsis.sourceforge.io/Check_whether_your_application_is_running
 ${Do}
 
     System::Call 'kernel32::OpenMutex(i 0x100000, b 0, t "Global\${PROGRAM_NAME}-is-running-{9CA78EEA-EA4D-4490-9240-FC01FCEF464B}") i .R0'
@@ -152,7 +148,7 @@ ${Loop}
 !macroend
 
 ;
-; Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+; Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 ;
 ; Local variables:
 ; c-basic-offset: 4

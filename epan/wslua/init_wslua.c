@@ -124,8 +124,6 @@ static expert_field ei_lua_proto_deprecated_note    = EI_INIT;
 static expert_field ei_lua_proto_deprecated_warn    = EI_INIT;
 static expert_field ei_lua_proto_deprecated_error   = EI_INIT;
 
-dissector_handle_t lua_data_handle;
-
 static gboolean
 lua_pinfo_end(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
         void *user_data _U_)
@@ -182,7 +180,7 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
         push_Tvb(L,tvb);
         push_Pinfo(L,pinfo);
         lua_tree = push_TreeItem(L, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
-        PROTO_ITEM_SET_HIDDEN(lua_tree->item);
+        proto_item_set_hidden(lua_tree->item);
 
         if  ( lua_pcall(L,3,1,0) ) {
             proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0, "Lua Error: %s", lua_tostring(L,-1));
@@ -281,7 +279,7 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
     push_Tvb(L,tvb);
     push_Pinfo(L,pinfo);
     lua_tree = push_TreeItem(L, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
-    PROTO_ITEM_SET_HIDDEN(lua_tree->item);
+    proto_item_set_hidden(lua_tree->item);
 
     if  ( lua_pcall(L,3,1,0) ) {
         proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
@@ -402,10 +400,16 @@ static const char *getF(lua_State *LS _U_, void *ud, size_t *size)
     return (*size>0) ? buff : NULL;
 }
 
-static int lua_main_error_handler(lua_State* LS) {
-    const gchar* error =  lua_tostring(LS,1);
-    report_failure("Lua: Error during loading:\n %s",error);
-    return 0;
+static int error_handler_with_callback(lua_State *LS) {
+#if LUA_VERSION_NUM >= 502
+    const char *msg = lua_tostring(LS, 1);
+    luaL_traceback(LS, LS, msg, 1);     /* push message with traceback.  */
+    lua_remove(LS, -2);                 /* remove original msg */
+#else
+    /* Return error message, unmodified */
+    (void)LS;
+#endif
+    return 1;
 }
 
 static void wslua_add_plugin(const gchar *name, const gchar *version, const gchar *filename)
@@ -523,12 +527,14 @@ static gboolean lua_load_script(const gchar* filename, const gchar* dirname, con
 
     lua_settop(L,0);
 
-    lua_pushcfunction(L,lua_main_error_handler);
+    lua_pushcfunction(L, error_handler_with_callback);
+    /* The source argument should start with with '@' to indicate a file. */
+    lua_pushfstring(L, "@%s", filename);
 
 #if LUA_VERSION_NUM >= 502
-    error = lua_load(L,getF,file,filename,NULL);
+    error = lua_load(L, getF, file, lua_tostring(L, -1), NULL);
 #else
-    error = lua_load(L,getF,file,filename);
+    error = lua_load(L, getF, file, lua_tostring(L, -1));
 #endif
 
     switch (error) {
@@ -539,24 +545,40 @@ static gboolean lua_load_script(const gchar* filename, const gchar* dirname, con
             if (file_count > 0) {
                 numargs = lua_script_push_args(file_count);
             }
-            error = lua_pcall(L,numargs,0,1);
-            fclose(file);
-            lua_pop(L,1); /* pop the error handler */
-            return error ? FALSE : TRUE;
-        case LUA_ERRSYNTAX: {
-            report_failure("Lua: syntax error during precompilation of `%s':\n%s",filename,lua_tostring(L,-1));
-            fclose(file);
-            return FALSE;
-        }
+            error = lua_pcall(L, numargs, 0, 1);
+            if (error) {
+                switch (error) {
+                    case LUA_ERRRUN:
+                        report_failure("Lua: Error during loading:\n%s", lua_tostring(L, -1));
+                        break;
+                    case LUA_ERRMEM:
+                        report_failure("Lua: Error during loading: out of memory");
+                        break;
+                    case LUA_ERRERR:
+                        report_failure("Lua: Error during loading: error while retrieving error message");
+                        break;
+                    default:
+                        report_failure("Lua: Error during loading: unknown error %d", error);
+                        break;
+                }
+            }
+            break;
+
+        case LUA_ERRSYNTAX:
+            report_failure("Lua: syntax error: %s", lua_tostring(L, -1));
+            break;
+
         case LUA_ERRMEM:
-            report_failure("Lua: memory allocation error during precompilation of %s",filename);
-            fclose(file);
-            return FALSE;
+            report_failure("Lua: memory allocation error during precompilation of %s", filename);
+            break;
+
         default:
-            report_failure("Lua: unknown error during precompilation of %s: %d",filename,error);
-            fclose(file);
-            return FALSE;
+            report_failure("Lua: unknown error during precompilation of %s: %d", filename, error);
+            break;
     }
+    fclose(file);
+    lua_pop(L, 2);  /* pop the filename and error handler */
+    return error == 0;
 }
 
 /* This one is used to load the init.lua scripts, or anything else
@@ -767,6 +789,7 @@ wslua_allocf(void *ud _U_, void *ptr, size_t osize _U_, size_t nsize)
 void wslua_init(register_cb cb, gpointer client_data) {
     gchar* filename;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
+    gboolean enable_lua = TRUE;
     gboolean run_anyway = FALSE;
     expert_module_t* expert_lua;
     int file_count = 1;
@@ -883,6 +906,14 @@ void wslua_init(register_cb cb, gpointer client_data) {
 
     WSLUA_INIT(L);
 
+#if LUA_VERSION_NUM == 501
+    /* table.unpack was introduced with Lua 5.2, alias it to unpack. */
+    lua_getglobal(L, "table");
+    lua_getglobal(L, "unpack");
+    lua_setfield(L, -2, "unpack");
+    lua_pop(L, 1);
+#endif
+
     if (first_time) {
         proto_lua = proto_register_protocol("Lua Dissection", "Lua Dissection", "_ws.lua");
         proto_register_field_array(proto_lua, hf, array_length(hf));
@@ -915,18 +946,6 @@ void wslua_init(register_cb cb, gpointer client_data) {
 
     /* load system's init.lua */
     filename = get_datafile_path("init.lua");
-    /*
-     * CMake will normally always succeed with get_datafile_path (see also
-     * comments in wslua_get_actual_filename() and get_datafile_dir()), but for
-     * autotools we need to look in the build directory for an autogenerated
-     * epan/wslua/init.lua file.
-     */
-    if (!file_exists(filename) && running_in_build_directory()) {
-        g_free(filename);
-        filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "epan" G_DIR_SEPARATOR_S "wslua"
-                                   G_DIR_SEPARATOR_S "init.lua", get_progfile_dir());
-    }
-
     if (( file_exists(filename))) {
         lua_load_internal_script(filename);
     }
@@ -935,16 +954,25 @@ void wslua_init(register_cb cb, gpointer client_data) {
     filename = NULL;
 
     /* check if lua is to be disabled */
-    lua_getglobal(L,"disable_lua");
+    lua_getglobal(L, "disable_lua"); // 2.6 and earlier, deprecated
+    if (lua_isboolean(L,-1)) {
+        enable_lua = ! lua_toboolean(L,-1);
+    }
+    lua_pop(L,1);  /* pop the getglobal result */
 
-    if (lua_isboolean(L,-1) && lua_toboolean(L,-1)) {
+    lua_getglobal(L, "enable_lua"); // 3.0 and later
+    if (lua_isboolean(L,-1)) {
+        enable_lua = lua_toboolean(L,-1);
+    }
+    lua_pop(L,1);  /* pop the getglobal result */
+
+    if (!enable_lua) {
         /* disable lua */
         lua_close(L);
         L = NULL;
         first_time = FALSE;
         return;
     }
-    lua_pop(L,1);  /* pop the getglobal result */
 
     /* load global scripts */
     lua_load_global_plugins(cb, client_data, FALSE);
@@ -1007,11 +1035,13 @@ void wslua_init(register_cb cb, gpointer client_data) {
     lua_tree = NULL;
     lua_tvb = NULL;
 
-    lua_data_handle = find_dissector("data");
-
     Proto_commit(L);
 
     first_time = FALSE;
+}
+
+void wslua_early_cleanup(void) {
+    wslua_deregister_protocols(L);
 }
 
 void wslua_reload_plugins (register_cb cb, gpointer client_data) {
@@ -1048,7 +1078,7 @@ void wslua_cleanup(void) {
 lua_State* wslua_state(void) { return L; }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

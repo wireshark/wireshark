@@ -11,12 +11,6 @@
 #ifndef __WIN32UTIL_H__
 #define __WIN32UTIL_H__
 
-/*
- * This is included in ABI checking, so protect it with #ifdef _WIN32,
- * so it doesn't break ABI checking on UN*X.
- */
-#ifdef _WIN32
-
 #include "ws_symbol_export.h"
 
 #include <glib.h>
@@ -48,10 +42,10 @@ extern "C" {
 WS_DLL_PUBLIC
 gchar * protect_arg (const gchar *argv);
 
-/** Generate a string for a Win32 error.
+/** Generate a string for a Windows error.
  *
- * @param error The windows error code
- * @return a localized string containing the corresponding error message
+ * @param error The Windows error code
+ * @return a localized UTF-8 string containing the corresponding error message
  */
 WS_DLL_PUBLIC
 const char * win32strerror(DWORD error);
@@ -89,7 +83,5 @@ BOOL win32_create_process(const char *application_name, const char *command_line
 #ifdef	__cplusplus
 }
 #endif
-
-#endif /* _WIN32 */
 
 #endif /* __WIN32UTIL_H__ */

@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <ui/qt/widgets/label_stack.h>
 
@@ -31,7 +32,7 @@ LabelStack::LabelStack(QWidget *parent) :
 #endif
     fillLabel();
 
-    connect(&temporary_timer_, SIGNAL(timeout()), this, SLOT(updateTemporaryStatus()));
+    connect(&temporary_timer_, &QTimer::timeout, this, &LabelStack::updateTemporaryStatus);
 }
 
 void LabelStack::setTemporaryContext(const int ctx) {

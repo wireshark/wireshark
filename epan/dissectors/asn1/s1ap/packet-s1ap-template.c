@@ -10,7 +10,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V15.1.0 (2018-03)
+ * References: 3GPP TS 36.413 V15.7.0 (2019-09)
  */
 
 #include "config.h"
@@ -24,6 +24,8 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/proto_data.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -38,6 +40,7 @@
 #include "packet-cell_broadcast.h"
 #include "packet-gsm_a_common.h"
 #include "packet-ntp.h"
+#include "packet-ngap.h"
 
 #define PNAME  "S1 Application Protocol"
 #define PSNAME "S1AP"
@@ -49,6 +52,7 @@
 void proto_register_s1ap(void);
 void proto_reg_handoff_s1ap(void);
 
+static dissector_handle_t gcsna_handle;
 static dissector_handle_t nas_eps_handle;
 static dissector_handle_t lppa_handle;
 static dissector_handle_t bssgp_handle;
@@ -69,6 +73,8 @@ static int hf_s1ap_E_UTRAN_Trace_ID_TraceRecordingSessionReference = -1;
 static int hf_s1ap_interfacesToTrace_S1_MME = -1;
 static int hf_s1ap_interfacesToTrace_X2 = -1;
 static int hf_s1ap_interfacesToTrace_Uu = -1;
+static int hf_s1ap_interfacesToTrace_F1_C = -1;
+static int hf_s1ap_interfacesToTrace_E1 = -1;
 static int hf_s1ap_interfacesToTrace_Reserved = -1;
 static int hf_s1ap_encryptionAlgorithms_EEA1 = -1;
 static int hf_s1ap_encryptionAlgorithms_EEA2 = -1;
@@ -105,7 +111,8 @@ static int hf_s1ap_NRintegrityProtectionAlgorithms_NIA1 = -1;
 static int hf_s1ap_NRintegrityProtectionAlgorithms_NIA2 = -1;
 static int hf_s1ap_NRintegrityProtectionAlgorithms_NIA3 = -1;
 static int hf_s1ap_NRintegrityProtectionAlgorithms_Reserved = -1;
-static int hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement = -1;
+static int hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_streaming_service = -1;
+static int hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_MTSI_service = -1;
 static int hf_s1ap_UE_Application_Layer_Measurement_Capability_Reserved = -1;
 #include "packet-s1ap-hf.c"
 
@@ -129,6 +136,7 @@ static int ett_s1ap_E_UTRAN_Trace_ID = -1;
 static int ett_s1ap_InterfacesToTrace = -1;
 static int ett_s1ap_EncryptionAlgorithms = -1;
 static int ett_s1ap_IntegrityProtectionAlgorithms = -1;
+static int ett_s1ap_LastVisitedNGRANCellInformation = -1;
 static int ett_s1ap_LastVisitedUTRANCellInformation = -1;
 static int ett_s1ap_SerialNumber = -1;
 static int ett_s1ap_WarningType = -1;
@@ -179,6 +187,7 @@ struct s1ap_private_data {
   const char *obj_id;
   struct s1ap_tai *tai;
   guint16 enb_ue_s1ap_id;
+  gboolean srvcc_ho_cs_only;
 };
 
 enum {
@@ -199,7 +208,6 @@ static guint gbl_s1apSctpPort=SCTP_PORT_S1AP;
 static gboolean g_s1ap_dissect_container = TRUE;
 static gint g_s1ap_dissect_lte_container_as = S1AP_LTE_CONTAINER_AUTOMATIC;
 
-static dissector_handle_t gcsna_handle = NULL;
 static dissector_handle_t s1ap_handle;
 
 /* Dissector tables */
@@ -221,8 +229,6 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
-static int dissect_SourceeNB_ToTargeteNB_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
-static int dissect_TargeteNB_ToSourceeNB_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_InitialUEMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data);
 #if 0
 static int dissect_SourceRNC_ToTargetRNC_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -310,6 +316,12 @@ static const true_false_string s1ap_tfs_activate_do_not_activate = {
   "Activate",
   "Do not activate"
 };
+
+static void
+s1ap_Packet_LossRate_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f %% (%u)", (float)v/10, v);
+}
 
 static struct s1ap_private_data*
 s1ap_get_private_data(packet_info *pinfo)
@@ -453,9 +465,8 @@ proto_reg_handoff_s1ap(void)
   static gboolean Initialized=FALSE;
   static guint SctpPort;
 
-  gcsna_handle = find_dissector_add_dependency("gcsna", proto_s1ap);
-
   if (!Initialized) {
+    gcsna_handle = find_dissector_add_dependency("gcsna", proto_s1ap);
     nas_eps_handle = find_dissector_add_dependency("nas-eps", proto_s1ap);
     lppa_handle = find_dissector_add_dependency("lppa", proto_s1ap);
     bssgp_handle = find_dissector_add_dependency("bssgp", proto_s1ap);
@@ -512,6 +523,14 @@ void proto_register_s1ap(void) {
     { &hf_s1ap_interfacesToTrace_Uu,
       { "Uu", "s1ap.interfacesToTrace.Uu",
         FT_BOOLEAN, 8, TFS(&s1ap_tfs_interfacesToTrace), 0x20,
+        NULL, HFILL }},
+    { &hf_s1ap_interfacesToTrace_F1_C,
+      { "F1-C", "s1ap.interfacesToTrace.F1_C",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_interfacesToTrace), 0x10,
+        NULL, HFILL }},
+    { &hf_s1ap_interfacesToTrace_E1,
+      { "E1", "s1ap.interfacesToTrace.E1",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_interfacesToTrace), 0x08,
         NULL, HFILL }},
     { &hf_s1ap_interfacesToTrace_Reserved,
       { "Reserved", "s1ap.interfacesToTrace.Reserved",
@@ -578,7 +597,7 @@ void proto_register_s1ap(void) {
         FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_s1ap_WarningMessageContents_decoded_page,
-      { "Decoded Page", "lte-rrc.WarningMessageContents.decoded_page",
+      { "Decoded Page", "s1ap.WarningMessageContents.decoded_page",
         FT_STRING, STR_UNICODE, NULL, 0,
         NULL, HFILL }},
     { &hf_s1ap_measurementsToActivate_M1,
@@ -657,13 +676,17 @@ void proto_register_s1ap(void) {
       { "Reserved", "s1ap.NRintegrityProtectionAlgorithms.Reserved",
         FT_UINT16, BASE_HEX, NULL, 0x1fff,
         NULL, HFILL }},
-    { &hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement,
-      { "QoE Measurement", "s1ap.UE_Application_Layer_Measurement_Capability.QoE_Measurement",
+    { &hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_streaming_service,
+      { "QoE Measurement for streaming service", "s1ap.UE_Application_Layer_Measurement_Capability.QoE_Measurement_for_streaming_service",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+        NULL, HFILL }},
+    { &hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_MTSI_service,
+      { "QoE Measurement for MTSI service", "s1ap.UE_Application_Layer_Measurement_Capability.QoE_Measurement_for_MTSI_service",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
         NULL, HFILL }},
     { &hf_s1ap_UE_Application_Layer_Measurement_Capability_Reserved,
       { "Reserved", "s1ap.UE_Application_Layer_Measurement_Capability.Reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x7f,
+        FT_UINT8, BASE_HEX, NULL, 0x3f,
         NULL, HFILL }},
 #include "packet-s1ap-hfarr.c"
   };
@@ -689,6 +712,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_InterfacesToTrace,
     &ett_s1ap_EncryptionAlgorithms,
     &ett_s1ap_IntegrityProtectionAlgorithms,
+    &ett_s1ap_LastVisitedNGRANCellInformation,
     &ett_s1ap_LastVisitedUTRANCellInformation,
     &ett_s1ap_SerialNumber,
     &ett_s1ap_WarningType,

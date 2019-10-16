@@ -3,13 +3,13 @@
 
 <application>
     <id type="desktop">wireshark.desktop</id>
+    <name>Wireshark</name>
+    <summary>Wireshark is the world's foremost protocol analyzer</summary>
+    <content_rating type="oars-1.1"/>
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>GPL-2.0</project_license>
     <!-- NOTE: the below description was copied from packaging/rpm/SPECS/wireshark.spec.in -->
     <description>
-    <p>
-	Wireshark is the world's foremost protocol analyzer.
-    </p>
     <p>
 	Wireshark allows you to examine protocol data stored in files or as it
 	is captured from wired or wireless (WiFi or Bluetooth) networks, USB
@@ -43,8 +43,15 @@
     </description>
     <url type="homepage">https://www.wireshark.org</url>
     <screenshots>
-	<screenshot type="default">http://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Http-cap.png</screenshot>
-	<screenshot>http://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Stevens-graph.png</screenshot>
+	<screenshot type="default">https://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Http-cap.png</screenshot>
+	<screenshot>https://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Stevens-graph.png</screenshot>
     </screenshots>
-    <updatecontact>wireshark-dev_at_wireshark.org</updatecontact>
+    <update_contact>wireshark-dev_at_wireshark.org</update_contact>
+    <releases>
+        <release version="3.0.4" date="2019-09-11"/>
+        <release version="3.0.3" date="2019-07-17"/>
+        <release version="3.0.2" date="2019-05-21"/>
+        <release version="3.0.1" date="2019-04-08"/>
+        <release version="3.0.0" date="2019-02-28"/>
+    </releases>
 </application>

@@ -90,6 +90,24 @@ static int hf_mpls_echo_tlv_fec_gen_ipv4_mask = -1;
 static int hf_mpls_echo_tlv_fec_gen_ipv6 = -1;
 static int hf_mpls_echo_tlv_fec_gen_ipv6_mask = -1;
 static int hf_mpls_echo_tlv_fec_nil_label = -1;
+static int hf_mpls_echo_tlv_fec_igp_ipv4 = -1;
+static int hf_mpls_echo_tlv_fec_igp_ipv6 = -1;
+static int hf_mpls_echo_tlv_fec_igp_mask = -1;
+static int hf_mpls_echo_tlv_fec_igp_protocol = -1;
+static int hf_mpls_echo_tlv_fec_igp_reserved = -1;
+static int hf_mpls_echo_tlv_fec_igp_adj_type = -1;
+static int hf_mpls_echo_tlv_fec_igp_adj_local_ipv4 = -1;
+static int hf_mpls_echo_tlv_fec_igp_adj_local_ipv6 = -1;
+static int hf_mpls_echo_tlv_fec_igp_adj_local_ident = -1;
+static int hf_mpls_echo_tlv_fec_igp_adj_remote_ipv4 = -1;
+static int hf_mpls_echo_tlv_fec_igp_adj_remote_ipv6 = -1;
+static int hf_mpls_echo_tlv_fec_igp_adj_remote_ident = -1;
+static int hf_mpls_echo_tlv_fec_igp_adj_adv_ident_ospf = -1;
+static int hf_mpls_echo_tlv_fec_igp_adj_adv_ident_isis = -1;
+static int hf_mpls_echo_tlv_fec_igp_adj_adv_ident = -1;
+static int hf_mpls_echo_tlv_fec_igp_adj_rec_ident_ospf = -1;
+static int hf_mpls_echo_tlv_fec_igp_adj_rec_ident_isis = -1;
+static int hf_mpls_echo_tlv_fec_igp_adj_rec_ident = -1;
 static int hf_mpls_echo_tlv_ds_map_mtu = -1;
 static int hf_mpls_echo_tlv_ds_map_addr_type = -1;
 static int hf_mpls_echo_tlv_ds_map_res = -1;
@@ -349,6 +367,10 @@ static value_string_ext mpls_echo_tlv_type_names_ext = VALUE_STRING_EXT_INIT(mpl
 #define TLV_FEC_STACK_STATIC_PW            23
 #define TLV_FEC_VENDOR_PRIVATE_START   0xFC00
 #define TLV_FEC_VENDOR_PRIVATE_END     0xFFFF
+/*As per RFC 8287, http://tools.ietf.org/html/rfc8287 Section: 9.1 */
+#define TLV_FEC_STACK_SR_IGP_IPv4          34
+#define TLV_FEC_STACK_SR_IGP_IPv6          35
+#define TLV_FEC_STACK_SR_IGP_ADJ           36
 
 /* FEC sub-TLV Type names */
 static const value_string mpls_echo_tlv_fec_names[] = {
@@ -372,6 +394,9 @@ static const value_string mpls_echo_tlv_fec_names[] = {
     { TLV_FEC_STACK_P2MP_IPv6,      "RSVP P2MP IPv6 Session Query"},
     { TLV_FEC_STACK_STATIC_LSP,     "Static LSP"},
     { TLV_FEC_STACK_STATIC_PW,      "Static Pseudowire"},
+    { TLV_FEC_STACK_SR_IGP_IPv4,    "IPv4 IGP-Prefix Segment ID"},
+    { TLV_FEC_STACK_SR_IGP_IPv6,    "IPv6 IGP-Prefix Segment ID"},
+    { TLV_FEC_STACK_SR_IGP_ADJ,     "IGP-Adjacency Segment ID"},
     { TLV_FEC_VENDOR_PRIVATE_START, "Vendor Private"},
     { 0, NULL}
 };
@@ -428,6 +453,32 @@ const value_string mpls_echo_subtlv_addr_types[] = {
     { SUB_TLV_FEC_UNSPECIFIED,    "Unspecified"},
     { SUB_TLV_FEC_IPV4,           "IPv4"},
     { SUB_TLV_FEC_IPV6,           "IPv6"},
+    { 0, NULL}
+};
+
+/* [RFC 8287] */
+#define SUB_TLV_FEC_SR_PROTO_ANY     0
+#define SUB_TLV_FEC_SR_PROTO_OSPF    1
+#define SUB_TLV_FEC_SR_PROTO_ISIS    2
+
+const value_string mpls_echo_subtlv_sr_protocol_types[] = {
+    { SUB_TLV_FEC_SR_PROTO_ANY,  "Any IGP protocol"},
+    { SUB_TLV_FEC_SR_PROTO_OSPF, "OSPF"},
+    { SUB_TLV_FEC_SR_PROTO_ISIS, "IS-IS"},
+    { 0, NULL}
+};
+
+/* [RFC 8287] */
+#define SUB_TLV_FEC_SR_IGP_ADJ_UNNUMBERED    0
+#define SUB_TLV_FEC_SR_IGP_ADJ_PARALLEL      1
+#define SUB_TLV_FEC_SR_IGP_ADJ_IPv4          4
+#define SUB_TLV_FEC_SR_IGP_ADJ_IPv6          6
+
+const value_string mpls_echo_subtlv_igp_adjacency_types[] = {
+    { SUB_TLV_FEC_SR_IGP_ADJ_UNNUMBERED, "Unnumbered Interface Adjacency"},
+    { SUB_TLV_FEC_SR_IGP_ADJ_PARALLEL,   "Parallel Adjacency"},
+    { SUB_TLV_FEC_SR_IGP_ADJ_IPv4,       "IPv4, Non-parallel Adjacency"},
+    { SUB_TLV_FEC_SR_IGP_ADJ_IPv6,       "IPv6, Non-parallel Adjacency"},
     { 0, NULL}
 };
 
@@ -498,7 +549,8 @@ static const value_string mpls_echo_tlv_ds_map_mp_proto[] = {
     {2, "BGP"},
     {3, "LDP"},
     {4, "RSVP-TE"},
-    {5, "Reserved"},
+    {5, "OSPF"},
+    {6, "IS-IS"},
     {0, NULL}
 };
 
@@ -511,7 +563,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
     proto_tree *ti, *tlv_fec_tree;
     guint16     idx = 1, nil_idx = 1, type, saved_type;
     int         length, nil_length, pad;
-    guint32     label;
+    guint32     label, adj_offset, adj_type, adj_proto;
     guint8      exp, bos, ttl;
 
     while (rem >= 4) { /* Type, Length */
@@ -527,7 +579,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
         tlv_fec_tree = NULL;
 
         if (tree) {
-            tlv_fec_tree = proto_tree_add_subtree_format(tree, tvb, offset, length + 4 + (4-(length%4)),
+            tlv_fec_tree = proto_tree_add_subtree_format(tree, tvb, offset, length + (4-(length%4)),
                                      ett_mpls_echo_tlv_fec, NULL, "FEC Element %u: %s",
                                      idx, val_to_str_ext(type, &mpls_echo_tlv_fec_names_ext,
                                                          "Unknown FEC type (0x%04X)"));
@@ -833,6 +885,88 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                                     tvb, (offset + 28), 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_lspping_tlv_pw_dst_ac_id,
                                     tvb, (offset + 32), 4, ENC_BIG_ENDIAN);
+            }
+            break;
+        case TLV_FEC_STACK_SR_IGP_IPv4:
+            proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_ipv4,
+                                tvb, offset + 4, 4, ENC_NA);
+            proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_mask,
+                                tvb, offset + 8, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_protocol,
+                                tvb, offset + 9, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_reserved,
+                                tvb, offset + 10, 2, ENC_NA);
+            break;
+        case TLV_FEC_STACK_SR_IGP_IPv6:
+            proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_ipv6,
+                                tvb, offset + 4, 32, ENC_NA);
+            proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_mask,
+                                tvb, offset + 36, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_protocol,
+                                tvb, offset + 37, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_reserved,
+                                tvb, offset + 38, 2, ENC_NA);
+            break;
+        case TLV_FEC_STACK_SR_IGP_ADJ:
+            adj_offset = offset +4;
+            proto_tree_add_item_ret_uint(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_type,
+                                tvb, adj_offset, 1, ENC_BIG_ENDIAN, &adj_type);
+            adj_offset += 1;
+            proto_tree_add_item_ret_uint(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_protocol,
+                                tvb, adj_offset, 1, ENC_BIG_ENDIAN, &adj_proto);
+            adj_offset += 1;
+            proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_reserved,
+                                tvb, adj_offset, 2, ENC_NA);
+            adj_offset += 2;
+            switch(adj_type) {
+                case SUB_TLV_FEC_SR_IGP_ADJ_IPv4:
+                    proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_local_ipv4,
+                                        tvb, adj_offset, 4, ENC_NA);
+                    adj_offset += 4;
+                    proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_remote_ipv4,
+                                        tvb, adj_offset, 4, ENC_NA);
+                    adj_offset += 4;
+                    break;
+                case SUB_TLV_FEC_SR_IGP_ADJ_IPv6:
+                    proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_local_ipv6,
+                                        tvb, adj_offset, 16, ENC_NA);
+                    adj_offset += 16;
+                    proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_remote_ipv6,
+                                        tvb, adj_offset, 16, ENC_NA);
+                    adj_offset += 16;
+                    break;
+                case SUB_TLV_FEC_SR_IGP_ADJ_UNNUMBERED:
+                case SUB_TLV_FEC_SR_IGP_ADJ_PARALLEL:
+                    proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_local_ident,
+                                        tvb, adj_offset, 4, ENC_NA);
+                    adj_offset += 4;
+                    proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_remote_ident,
+                                        tvb, adj_offset, 4, ENC_NA);
+                    adj_offset += 4;
+                    break;
+            }
+            switch(adj_proto) {
+                case SUB_TLV_FEC_SR_PROTO_OSPF:
+                    proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_adv_ident_ospf,
+                                        tvb, adj_offset, 4, ENC_NA);
+                    adj_offset += 4;
+                    proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_rec_ident_ospf,
+                                        tvb, adj_offset, 4, ENC_NA);
+                    break;
+                case SUB_TLV_FEC_SR_PROTO_ISIS:
+                    proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_adv_ident_isis,
+                                        tvb, adj_offset, 6, ENC_NA);
+                    adj_offset += 6;
+                    proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_rec_ident_isis,
+                                        tvb, adj_offset, 6, ENC_NA);
+                    break;
+                case SUB_TLV_FEC_SR_PROTO_ANY:
+                    proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_adv_ident,
+                                        tvb, adj_offset, 4, ENC_NA);
+                    adj_offset += 4;
+                    proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_rec_ident,
+                                        tvb, adj_offset, 4, ENC_NA);
+                    break;
             }
             break;
         case TLV_FEC_STACK_RES:
@@ -1554,7 +1688,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
             hidden_item = proto_tree_add_item(mpls_echo_tlv_tree,
                                               hf_mpls_echo_tlv_responder_indent_len, tvb,
                                               offset + 6, 2, ENC_BIG_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
             proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_ipv4,
                                 tvb, offset + 8, 4, ENC_BIG_ENDIAN);
             break;
@@ -1570,7 +1704,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
                                 tvb, offset + 4, 2, ENC_BIG_ENDIAN);
             hidden_item = proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_len,
                                               tvb, offset + 6, 2, ENC_BIG_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
             proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_ipv4,
                                 tvb, offset + 8, 16, ENC_BIG_ENDIAN);
             break;
@@ -1763,6 +1897,7 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         offset += len;
         rem    -= len;
     }
+
 
     return tvb_captured_length(tvb);
 }
@@ -1999,6 +2134,78 @@ proto_register_mpls_echo(void)
         { &hf_mpls_echo_tlv_fec_nil_label,
           { "Label", "mpls_echo.tlv.fec.nil_label",
             FT_UINT24, BASE_DEC, VALS(special_labels), 0x0, "MPLS ECHO TLV FEC Stack NIL Label", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_ipv4,
+          { "IPv4 Prefix", "mpls_echo.tlv.fec.igp_ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP IPv4", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_ipv6,
+          { "IPv6 Prefix", "mpls_echo.tlv.fec.igp_ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP IPv6", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_mask,
+          { "Prefix Length", "mpls_echo.tlv.fec.igp_mask",
+            FT_UINT8, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP Prefix Length", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_protocol,
+          { "Protocol", "mpls_echo.tlv.fec.igp_protocol",
+            FT_UINT8, BASE_DEC, VALS(mpls_echo_subtlv_sr_protocol_types), 0x0, "MPLS ECHO TLV FEC Stack IGP Protocol", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_reserved,
+          { "Reserved", "mpls_echo.tlv.fec.igp_reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP Reserved", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_adj_type,
+          { "Adjacency Type", "mpls_echo.tlv.fec.igp_adj_type",
+            FT_UINT8, BASE_DEC, VALS(mpls_echo_subtlv_igp_adjacency_types), 0x0, "MPLS ECHO TLV FEC Stack IGP Adjacency Type", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_adj_local_ipv4,
+          { "Local Interface ID", "mpls_echo.tlv.fec.igp_adj_local_id.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP Adjacency Local Interface ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_adj_local_ipv6,
+          { "Local Interface ID", "mpls_echo.tlv.fec.igp_adj_local_id.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP Adjacency Local Interface ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_adj_local_ident,
+          { "Local Interface ID", "mpls_echo.tlv.fec.igp_adj_local_id.ident",
+            FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP Adjacency Local Interface ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_adj_remote_ipv4,
+          { "Remote Interface ID", "mpls_echo.tlv.fec.igp_adj_remote_id.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP Adjacency Remote Interface ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_adj_remote_ipv6,
+          { "Remote Interface ID", "mpls_echo.tlv.fec.igp_adj_remote_id.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP Adjacency Remote Interface ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_adj_remote_ident,
+          { "Remote Interface ID", "mpls_echo.tlv.fec.igp_adj_remote_id.ident",
+            FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP Adjacency Remote Interface ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_adj_adv_ident_ospf,
+          { "Advertising Node Identifier Router ID", "mpls_echo.tlv.fec.igp_adj_adv_node_id.ospf",
+            FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP Adjacency Advertising Node Identifier OSPF Router ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_adj_adv_ident_isis,
+          { "Advertising Node Identifier System ID", "mpls_echo.tlv.fec.igp_adj_adv_node_id.isis",
+            FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP Adjacency Advertising Node Identifier IS-IS System ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_adj_adv_ident,
+          { "Advertising Node Identifier", "mpls_echo.tlv.fec.igp_adj_adv_node_id.ident",
+            FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP Adjacency Advertising Node Identifier", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_adj_rec_ident_ospf,
+          { "Receiving Node Identifier Router ID", "mpls_echo.tlv.fec.igp_adj_rec_node_id.ospf",
+            FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP Adjacency Receiving Node Identifier OSPF Router ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_adj_rec_ident_isis,
+          { "Receiving Node Identifier System ID", "mpls_echo.tlv.fec.igp_adj_rec_node_id.isis",
+            FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP Adjacency Receiving Node Identifier IS-IS System ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_igp_adj_rec_ident,
+          { "Receiving Node Identifier", "mpls_echo.tlv.fec.igp_adj_rec_node_id.ident",
+            FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IGP Adjacency Receiving Node Identifier", HFILL}
         },
         { &hf_mpls_echo_tlv_ds_map_mtu,
           { "MTU", "mpls_echo.tlv.ds_map.mtu",
@@ -2550,7 +2757,7 @@ proto_reg_handoff_mpls_echo(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

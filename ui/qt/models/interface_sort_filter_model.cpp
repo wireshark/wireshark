@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <ui/qt/models/interface_tree_model.h>
 #include <ui/qt/models/interface_tree_cache_model.h>
@@ -50,7 +51,7 @@ void InterfaceSortFilterModel::setStoreOnChange(bool storeOnChange)
     _storeOnChange = storeOnChange;
     if ( storeOnChange )
     {
-        connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(resetPreferenceData()));
+        connect(wsApp, &WiresharkApplication::preferencesChanged, this, &InterfaceSortFilterModel::resetPreferenceData);
         resetPreferenceData();
     }
 }

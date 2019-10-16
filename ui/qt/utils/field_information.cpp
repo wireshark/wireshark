@@ -15,7 +15,7 @@ FieldInformation::FieldInformation(field_info *fi, QObject * parent)
 :QObject(parent)
 {
     fi_ = fi;
-    parent_fi_ = 0;
+    parent_fi_ = NULL;
 }
 
 FieldInformation::FieldInformation(proto_node *node, QObject * parent)
@@ -34,7 +34,7 @@ bool FieldInformation::isValid() const
 
     if ( fi_ && fi_->hfinfo )
     {
-        if (fi_->hfinfo->blurb != 0 && fi_->hfinfo->blurb[0] != '\0') {
+        if (fi_->hfinfo->blurb != NULL && fi_->hfinfo->blurb[0] != '\0') {
             ret = true;
         } else {
             ret = QString((fi_->hfinfo->name)).length() > 0;

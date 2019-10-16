@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef FONT_COLOR_PREFERENCES_FRAME_H
 #define FONT_COLOR_PREFERENCES_FRAME_H
@@ -33,6 +34,12 @@ private:
     Ui::FontColorPreferencesFrame *ui;
 
     pref_t *pref_qt_gui_font_name_;
+    pref_t *pref_active_fg_;
+    pref_t *pref_active_bg_;
+    pref_t *pref_active_style_;
+    pref_t *pref_inactive_fg_;
+    pref_t *pref_inactive_bg_;
+    pref_t *pref_inactive_style_;
     pref_t *pref_marked_fg_;
     pref_t *pref_marked_bg_;
     pref_t *pref_ignored_fg_;
@@ -50,8 +57,15 @@ private:
     void changeColor(pref_t *pref);
 
 private slots:
+    void colorChanged(pref_t *pref, const QColor &cc);
     void on_fontPushButton_clicked();
 
+    void on_activeFGPushButton_clicked();
+    void on_activeBGPushButton_clicked();
+    void on_activeStyleComboBox_currentIndexChanged(int index);
+    void on_inactiveFGPushButton_clicked();
+    void on_inactiveBGPushButton_clicked();
+    void on_inactiveStyleComboBox_currentIndexChanged(int index);
     void on_markedFGPushButton_clicked();
     void on_markedBGPushButton_clicked();
     void on_ignoredFGPushButton_clicked();

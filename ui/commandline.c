@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -25,8 +26,8 @@
 
 #include <version_info.h>
 
-#include <wsutil/clopts_common.h>
-#include <wsutil/cmdarg_err.h>
+#include <ui/clopts_common.h>
+#include <ui/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 
 #include <epan/ex-opt.h>
@@ -62,11 +63,8 @@ commandline_print_usage(gboolean for_help_option) {
 #endif
 
     if (for_help_option) {
+        show_help_header("Interactively dump and analyze network traffic.");
         output = stdout;
-        fprintf(output, "Wireshark %s\n"
-            "Interactively dump and analyze network traffic.\n"
-            "See https://www.wireshark.org for more information.\n",
-            get_ws_vcs_version_info());
     } else {
         output = stderr;
     }
@@ -122,7 +120,7 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "Processing:\n");
     fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
     fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
-    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtd\"\n");
+    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtdv\"\n");
     fprintf(output, "  -d %s ...\n", DECODE_AS_ARG_TEMPLATE);
     fprintf(output, "                           \"Decode As\", see the man page for details\n");
     fprintf(output, "                           Example: tcp.port==8888,http\n");
@@ -203,8 +201,7 @@ static void print_no_capture_support_error(void)
 }
 #endif
 
-void commandline_early_options(int argc, char *argv[],
-    GString *comp_info_str, GString *runtime_info_str)
+void commandline_early_options(int argc, char *argv[])
 {
     int opt;
 #ifdef HAVE_LIBPCAP
@@ -230,9 +227,6 @@ void commandline_early_options(int argc, char *argv[],
      *
      * We thus ignore errors - *and* set "opterr" to 0 to suppress the
      * error messages.
-     *
-     * XXX - should we, instead, first call gtk_parse_args(), without
-     * calling gtk_init(), and then call this?
      *
      * In order to handle, for example, -o options, we also need to call it
      * *after* epan_init() gets called, so that the dissectors have had a
@@ -307,7 +301,7 @@ void commandline_early_options(int argc, char *argv[],
 #ifdef _WIN32
                 create_console();
 #endif
-                show_version("Wireshark", comp_info_str, runtime_info_str);
+                show_version();
 #ifdef _WIN32
                 destroy_console();
 #endif

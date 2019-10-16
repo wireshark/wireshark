@@ -20,6 +20,27 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief set_thread_per_monitor_v2_awareness
+ *
+ * Qt <= 5.9 supports setting old (Windows 8.1) per-monitor DPI awareness
+ * via Qt:AA_EnableHighDpiScaling. We do this in main.cpp. In order for
+ * native dialogs to be rendered correctly we need to to set per-monitor
+ * *v2* awareness prior to creating the dialog, which we can do here.
+ * Qt doesn't render correctly when per-monitor v2 awareness is enabled, so
+ * we need to revert our thread context when we're done.
+ *
+ * @return The current thread DPI awareness context, which should
+ * be passed to revert_thread_per_monitor_v2_awareness.
+ */
+HANDLE set_thread_per_monitor_v2_awareness(void);
+
+/**
+ * @brief revert_thread_per_monitor_v2_awareness
+ * @param context
+ */
+void revert_thread_per_monitor_v2_awareness(HANDLE context);
+
 /** Open the "Open" dialog box.
  *
  * @param h_wnd HWND of the parent window.
@@ -46,7 +67,7 @@ check_savability_t win32_check_save_as_with_comments(HWND parent, capture_file *
  * @param cf capture_file Structure for the capture to be saved
  * @param file_name File name. May be empty.
  * @param file_type Wiretap file type.
- * @param compressed Compress the file with gzip.
+ * @param compression_type Compression type to use, or uncompressed.
  * @param must_support_comments TRUE if the file format list should
  * include only file formats that support comments
  *
@@ -54,7 +75,7 @@ check_savability_t win32_check_save_as_with_comments(HWND parent, capture_file *
  */
 gboolean win32_save_as_file(HWND h_wnd, capture_file *cf,
                             GString *file_name, int *file_type,
-                            gboolean *compressed,
+                            wtap_compression_type *compression_type,
                             gboolean must_support_comments);
 
 /** Open the "Export Specified Packets" dialog box.
@@ -63,7 +84,7 @@ gboolean win32_save_as_file(HWND h_wnd, capture_file *cf,
  * @param cf capture_file Structure for the capture to be saved
  * @param file_name File name. May be empty.
  * @param file_type Wiretap file type.
- * @param compressed Compress the file with gzip.
+ * @param compression_type Compression type to use, or uncompressed.
  * @param range Range of packets to export.
  *
  * @return TRUE if packets were discarded when saving, FALSE otherwise
@@ -72,7 +93,7 @@ gboolean win32_export_specified_packets_file(HWND h_wnd,
                                          capture_file *cf,
                                          GString *file_name,
                                          int *file_type,
-                                         gboolean *compressed,
+                                         wtap_compression_type *compression_type,
                                          packet_range_t *range);
 
 
@@ -93,34 +114,6 @@ gboolean win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filt
  */
 void win32_export_file (HWND h_wnd, capture_file *cf, export_type_e export_type);
 
-/** Open the "Export raw bytes" dialog box.
- *
- * @param h_wnd HWND of the parent window.
- * @param cf capture_file Structure for the capture to be saved
- */
-void win32_export_raw_file (HWND h_wnd, capture_file *cf);
-
-/** Open the "Export SSL Session Keys" dialog box.
- *
- * @param h_wnd HWND of the parent window.
- */
-void win32_export_sslkeys_file (HWND h_wnd);
-
-/** Open the "Export Color Filters" dialog box
- *
- * @param h_wnd HWND of the parent window
- * @param cf capture_file Structure for the capture to be saved
- * @param filter_list the list to export
- */
-void win32_export_color_file(HWND h_wnd, capture_file *cf, gpointer filter_list);
-
-/** Open the "Import Color Filters" dialog box
- *
- * @param h_wnd HWND of the parent window
- * @param color_filters the calling widget
- */
-void win32_import_color_file(HWND h_wnd, gpointer color_filters);
-
 /** Open the "Save As" dialog box for stats_tree statistics window.
  *
  * @param h_wnd HWND of the parent window.
@@ -131,8 +124,6 @@ void win32_import_color_file(HWND h_wnd, gpointer color_filters);
  */
 gboolean win32_save_as_statstree(HWND h_wnd, GString *file_name,
 							int *file_type);
-
-void file_set_save_marked_sensitive();
 
 /* Open dialog defines */
 /* #define EWFD_FILTER_BTN    1000 */
@@ -184,12 +175,6 @@ void file_set_save_marked_sensitive();
 #define EWFD_FIRST_LAST_DISP 1018
 #define EWFD_RANGE_DISP      1019
 #define EWFD_IGNORED_DISP    1020
-
-/* Export raw dialog defines. */
-#define EWFD_EXPORTRAW_ST 1000
-
-/* Export SSL Session Keys dialog defines. */
-#define EWFD_EXPORTSSLKEYS_ST 1000
 
 /* Merge dialog defines.  Overlays Open dialog defines above. */
 #define EWFD_MERGE_PREPEND_BTN 1050

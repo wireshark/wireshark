@@ -6,7 +6,7 @@
 local FRAME = "frame"
 local ETH = "eth"
 local IP = "ip"
-local BOOTP = "bootp"
+local DHCP = "dhcp"
 local OTHER = "other"
 local PDISS = "postdissector"
 
@@ -33,9 +33,9 @@ end
 
 -- expected number of runs per type
 -- note ip only runs 3 times because it gets removed
--- and bootp only runs twice because the filter makes it run
+-- and dhcp only runs twice because the filter makes it run
 -- once and then it gets replaced with a different one for the second time
-local taptests = { [FRAME]=4, [ETH]=4, [IP]=3, [BOOTP]=2, [OTHER]=16 }
+local taptests = { [FRAME]=4, [ETH]=4, [IP]=3, [DHCP]=2, [OTHER]=16 }
 local function getResults()
     print("\n-----------------------------\n")
     for k,v in pairs(taptests) do
@@ -165,13 +165,13 @@ local f_eth_dst     = Field.new("eth.dst")
 local f_eth_mac     = Field.new("eth.addr")
 local f_ip_src      = Field.new("ip.src")
 local f_ip_dst      = Field.new("ip.dst")
-local f_bootp_hw    = Field.new("bootp.hw.mac_addr")
-local f_bootp_opt   = Field.new("bootp.option.type")
+local f_dhcp_hw    = Field.new("dhcp.hw.mac_addr")
+local f_dhcp_opt   = Field.new("dhcp.option.type")
 
 local tap_frame = Listener.new(nil,nil,true)
 local tap_eth = Listener.new("eth")
-local tap_ip = Listener.new("ip","bootp")
-local tap_bootp = Listener.new("bootp","bootp.option.dhcp == 1")
+local tap_ip = Listener.new("ip","dhcp")
+local tap_dhcp = Listener.new("dhcp","dhcp.option.dhcp == 1")
 
 local second_time = false
 
@@ -198,13 +198,13 @@ end
 function tap_eth.packet(pinfo,tvb,eth)
     incPktCount(ETH)
 
-    -- on the 4th run of eth, remove the ip one and add a new bootp one
+    -- on the 4th run of eth, remove the ip one and add a new dhcp one
     if getPktCount(ETH) == 4 then
-        testing(ETH,"removing ip tap, replacing bootp tap")
+        testing(ETH,"removing ip tap, replacing dhcp tap")
         tap_ip:remove()
-        tap_bootp:remove()
-        tap_bootp = Listener.new("bootp")
-        tap_bootp.packet = bootp_packet
+        tap_dhcp:remove()
+        tap_dhcp = Listener.new("dhcp")
+        tap_dhcp.packet = dhcp_packet
         second_time = true
     end
 
@@ -242,28 +242,28 @@ function tap_ip.packet(pinfo,tvb,ip)
     setPassed(IP)
 end
 
-bootp_packet = function (pinfo,tvb,bootp)
-    incPktCount(BOOTP)
-    testing(BOOTP,"Bootp")
+dhcp_packet = function (pinfo,tvb,dhcp)
+    incPktCount(DHCP)
+    testing(DHCP,"DHCP")
 
-    test(BOOTP,"arg-1", typeof(pinfo) == "Pinfo")
-    test(BOOTP,"arg-2", typeof(tvb) == "Tvb")
-    test(BOOTP,"arg-3", bootp == nil)
+    test(DHCP,"arg-1", typeof(pinfo) == "Pinfo")
+    test(DHCP,"arg-2", typeof(tvb) == "Tvb")
+    test(DHCP,"arg-3", dhcp == nil)
 
     if not second_time then
-        test(BOOTP,"pinfo.number-1",pinfo.number == getPktCount(BOOTP))
+        test(DHCP,"pinfo.number-1",pinfo.number == getPktCount(DHCP))
     else
-        test(BOOTP,"pinfo.number-1",pinfo.number == 4)
+        test(DHCP,"pinfo.number-1",pinfo.number == 4)
     end
 
     -- check ether addr
     local eth_src1 = tostring(f_eth_src().range)
     local eth_src2 = tostring(tvb:range(6,6))
-    test(BOOTP,"FieldInfo.range-1", eth_src1 == eth_src2)
+    test(DHCP,"FieldInfo.range-1", eth_src1 == eth_src2)
 
-    setPassed(BOOTP)
+    setPassed(DHCP)
 end
-tap_bootp.packet = bootp_packet
+tap_dhcp.packet = dhcp_packet
 
 function tap_frame.reset()
     -- reset never gets called in tshark (sadly)

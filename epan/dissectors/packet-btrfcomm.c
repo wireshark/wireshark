@@ -650,7 +650,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         key[4].length = 1;
         key[4].key = &k_dlci;
 
-        if (!pinfo->fd->flags.visited && frame_type == FRAME_TYPE_SABM) {
+        if (!pinfo->fd->visited && frame_type == FRAME_TYPE_SABM) {
             key[5].length = 0;
             key[5].key = NULL;
 
@@ -870,6 +870,26 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset += 1;
 
     return offset;
+}
+
+static void*
+uat_rfcomm_channels_copy_cb(void *dest, const void *source, size_t len _U_)
+{
+    const uat_rfcomm_channels_t* o = (const uat_rfcomm_channels_t*)source;
+    uat_rfcomm_channels_t* d = (uat_rfcomm_channels_t*)dest;
+
+    d->channel = o->channel;
+    d->payload_proto = o->payload_proto;
+    d->payload_proto_name = g_strdup(o->payload_proto_name);
+
+    return dest;
+}
+
+static void
+uat_rfcomm_channels_free_cb(void *r)
+{
+    uat_rfcomm_channels_t *rec = (uat_rfcomm_channels_t *)r;
+    g_free(rec->payload_proto_name);
 }
 
 void
@@ -1113,7 +1133,7 @@ proto_register_btrfcomm(void)
     /* Decode As handling */
     static build_valid_func btrfcomm_directed_channel_da_build_value[1] = {btrfcomm_directed_channel_value};
     static decode_as_value_t btrfcomm_directed_channel_da_values = {btrfcomm_directed_channel_prompt, 1, btrfcomm_directed_channel_da_build_value};
-    static decode_as_t btrfcomm_directed_channel_da = {"btrfcomm", "RFCOMM Directed Channel", "btrfcomm.dlci", 1, 0, &btrfcomm_directed_channel_da_values, NULL, NULL,
+    static decode_as_t btrfcomm_directed_channel_da = {"btrfcomm", "btrfcomm.dlci", 1, 0, &btrfcomm_directed_channel_da_values, NULL, NULL,
                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     /* Register the protocol name and description */
@@ -1147,9 +1167,9 @@ proto_register_btrfcomm(void)
             &num_rfcomm_channels,
             UAT_AFFECTS_DISSECTION,
             NULL,
+            uat_rfcomm_channels_copy_cb,
             NULL,
-            NULL,
-            NULL,
+            uat_rfcomm_channels_free_cb,
             NULL,
             NULL,
             uat_rfcomm_channels_fields);
@@ -1369,7 +1389,7 @@ proto_reg_handoff_btgnss(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

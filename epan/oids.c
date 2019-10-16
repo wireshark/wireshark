@@ -593,7 +593,7 @@ static void register_mibs(void) {
 				report_failure("Stopped processing module %s due to "
 					"error(s) to prevent potential crash in libsmi.\n"
 					"Module's conformance level: %d.\n"
-					"See details at: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=560325\n",
+					"See details at: https://bugs.debian.org/560325\n",
 					 smiModule->name, smiModule->conformance);
 			}
 			continue;
@@ -660,8 +660,7 @@ static void register_mibs(void) {
 						}
 					}
 
-					hf.hfinfo.strings = vals->data;
-					g_array_free(vals,FALSE);
+					hf.hfinfo.strings = g_array_free(vals, FALSE);
 				}
 #if 0 /* packet-snmp does not handle bits yet */
 			} else if (smiType->basetype == SMI_BASETYPE_BITS && ( smiEnum = smiGetFirstNamedNumber(smiType) )) {

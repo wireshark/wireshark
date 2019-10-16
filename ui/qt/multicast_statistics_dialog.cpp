@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "multicast_statistics_dialog.h"
 
@@ -242,8 +243,8 @@ MulticastStatisticsDialog::MulticastStatisticsDialog(QWidget &parent, CaptureFil
     connect(this, SIGNAL(updateFilter(QString)),
             this, SLOT(updateMulticastParameters()));
 
-    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent *)),
-            this, SLOT(captureEvent(CaptureEvent *)));
+    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
+            this, SLOT(captureEvent(CaptureEvent)));
 
     /* Register the tap listener */
     register_tap_listener_mcast_stream(tapinfo_);
@@ -275,10 +276,13 @@ void MulticastStatisticsDialog::tapDraw(mcaststream_tapinfo_t *tapinfo)
     MulticastStatisticsDialog *ms_dlg = dynamic_cast<MulticastStatisticsDialog *>((MulticastStatisticsDialog*)tapinfo->user_data);
     if (!ms_dlg || !ms_dlg->statsTreeWidget()) return;
 
+    //Clear the tree because the list always starts from the beginning
+    ms_dlg->statsTreeWidget()->clear();
+
     // Add missing rows and update stats
     int cur_row = 0;
-    for (GList *cur = g_list_first(tapinfo->strinfo_list); cur; cur = g_list_next(cur)) {
-        mcast_stream_info_t *stream_info = (mcast_stream_info_t *) cur->data;
+    for (GList *cur = g_list_first(tapinfo->strinfo_list); cur; cur = gxx_list_next(cur)) {
+        mcast_stream_info_t *stream_info = gxx_list_data(mcast_stream_info_t *, cur);
         if (!stream_info) continue;
 
         MulticastStatTreeWidgetItem *ms_ti;
@@ -445,10 +449,10 @@ void MulticastStatisticsDialog::fillTree()
     updateWidgets();
 }
 
-void MulticastStatisticsDialog::captureEvent(CaptureEvent *e)
+void MulticastStatisticsDialog::captureEvent(CaptureEvent e)
 {
-    if ((e->captureContext() == CaptureEvent::File) &&
-            (e->eventType() == CaptureEvent::Closing))
+    if ((e.captureContext() == CaptureEvent::File) &&
+            (e.eventType() == CaptureEvent::Closing))
     {
         /* Remove the stream tap listener */
         remove_tap_listener_mcast_stream(tapinfo_);

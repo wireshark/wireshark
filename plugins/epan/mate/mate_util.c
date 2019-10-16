@@ -1,20 +1,19 @@
 /* mate_util.c
-* MATE -- Meta Analysis Tracing Engine
-* Utility Library: Single Copy Strings and Attribute Value Pairs
-*
-* Copyright 2004, Luis E. Garcia Ontanon <luis@ontanon.org>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ * MATE -- Meta Analysis Tracing Engine
+ * Utility Library: Single Copy Strings and Attribute Value Pairs
+ *
+ * Copyright 2004, Luis E. Garcia Ontanon <luis@ontanon.org>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "mate.h"
 #include "mate_util.h"
 #include <wsutil/file_util.h>
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 
 /***************************************************************************
@@ -125,7 +124,7 @@ gchar* scs_subscribe(SCS_collection* c, const gchar* s) {
 			len = SCS_HUGE_SIZE;
 		} else {
 			len = SCS_HUGE_SIZE;
-			ws_g_warning("mate SCS: string truncated due to huge size");
+			g_warning("mate SCS: string truncated due to huge size");
 		}
 
 		orig = (gchar *)g_slice_alloc(len);
@@ -175,7 +174,7 @@ void scs_unsubscribe(SCS_collection* c, gchar* s) {
 			(*ip)--;
 		}
 	} else {
-		ws_g_warning("unsubscribe: not subscribed");
+		g_warning("unsubscribe: not subscribed");
 	}
 }
 
@@ -1675,7 +1674,7 @@ error:
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

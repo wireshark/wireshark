@@ -40,7 +40,7 @@
 #include "packet-h245.h"
 #include "packet-h323.h"
 #include "packet-q931.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 
 #define PNAME  "H323-MESSAGES"
 #define PSNAME "H.225.0"
@@ -174,7 +174,7 @@ typedef enum _ras_category {
 
 #define NUM_RAS_STATS 7
 
-static gboolean
+static tap_packet_status
 h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
 {
   rtd_data_t* rtd_data = (rtd_data_t*)phs;
@@ -186,7 +186,7 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
 
   if (pi->msg_type != H225_RAS || pi->msg_tag == -1) {
     /* No RAS Message or uninitialized msg_tag -> return */
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
   }
 
   if (pi->msg_tag < 21) {
@@ -196,7 +196,7 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
   }
   else {
     /* No SRT yet (ToDo) */
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
   }
 
   switch(rasmsg_type) {
@@ -228,9 +228,9 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
     break;
 
   default:
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
   }
-  return TRUE;
+  return TAP_PACKET_REDRAW;
 }
 
 #include "packet-h225-fn.c"
@@ -442,10 +442,10 @@ static guint facility_reason_idx[FACILITY_REASONS];
 
 static guint other_idx;
 
-static void h225_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void h225_stat_init(stat_tap_table_ui* new_stat)
 {
   int num_fields = sizeof(h225_stat_fields)/sizeof(stat_tap_table_item);
-  stat_tap_table* table = stat_tap_init_table("H.225 Messages and Message Reasons", num_fields, 0, NULL, gui_callback, gui_data);
+  stat_tap_table* table = stat_tap_init_table("H.225 Messages and Message Reasons", num_fields, 0, NULL);
   int row_idx = 0, msg_idx;
   stat_tap_table_item_type items[sizeof(h225_stat_fields)/sizeof(stat_tap_table_item)];
 
@@ -659,7 +659,7 @@ static void h225_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui
   other_idx = row_idx;
 }
 
-static gboolean
+static tap_packet_status
 h225_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *hpi_ptr)
 {
   stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -668,7 +668,7 @@ h225_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
   int reason_idx = -1;
 
   if(hpi->msg_tag < 0) { /* uninitialized */
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
   }
 
   switch (hpi->msg_type) {
@@ -760,9 +760,9 @@ h225_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
       stat_tap_set_field_data(table, reason_idx, COUNT_COLUMN, msg_data);
     }
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
   }
-  return FALSE;
+  return TAP_PACKET_DONT_REDRAW;
 }
 
 static void
@@ -1018,7 +1018,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                  Mark it as such. */
               pi->is_duplicate = TRUE;
               hidden_item = proto_tree_add_uint(tree, hf_h225_ras_dup, tvb, 0,0, pi->requestSeqNum);
-              PROTO_ITEM_SET_HIDDEN(hidden_item);
+              proto_item_set_hidden(hidden_item);
             }
             break;
           }
@@ -1035,7 +1035,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         proto_tree_add_uint_format(tree, hf_h225_ras_rsp_frame, tvb, 0, 0, h225ras_call->rsp_num,
                                      "The response to this request is in frame %u",
                                      h225ras_call->rsp_num);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
       }
 
     /* end of request message handling*/
@@ -1071,7 +1071,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
           if (msg_category == 3 || msg_category == 5) {
             pi->guid = h225ras_call->guid;
             hidden_item = proto_tree_add_guid(tree, hf_h225_guid, tvb, 0, GUID_LEN, &pi->guid);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
           }
 
           if (h225ras_call->rsp_num == 0) {
@@ -1088,7 +1088,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                  Mark it as such. */
               pi->is_duplicate = TRUE;
               hidden_item = proto_tree_add_uint(tree, hf_h225_ras_dup, tvb, 0,0, pi->requestSeqNum);
-              PROTO_ITEM_SET_HIDDEN(hidden_item);
+              proto_item_set_hidden(hidden_item);
             }
           }
 
@@ -1100,7 +1100,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             /* Indicate the frame to which this is a reply. */
             ti = proto_tree_add_uint_format(tree, hf_h225_ras_req_frame, tvb, 0, 0, h225ras_call->req_num,
               "This is a response to a request in frame %u", h225ras_call->req_num);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             /* Calculate RAS Service Response Time */
             nstime_delta(&delta, &pinfo->abs_ts, &h225ras_call->req_time);
@@ -1108,7 +1108,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
             /* display Ras Service Response Time and make it filterable */
             ti = proto_tree_add_time(tree, hf_h225_ras_deltatime, tvb, 0, 0, &(pi->delta_time));
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
           }
         }
       }
@@ -1117,7 +1117,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

@@ -118,6 +118,7 @@ dfvm_dump(FILE *f, dfilter_t *df)
 			case ANY_BITWISE_AND:
 			case ANY_CONTAINS:
 			case ANY_MATCHES:
+			case ANY_IN_RANGE:
 			case NOT:
 			case RETURN:
 			case IF_TRUE_GOTO:
@@ -252,6 +253,12 @@ dfvm_dump(FILE *f, dfilter_t *df)
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
+			case ANY_IN_RANGE:
+				fprintf(f, "%05d ANY_IN_RANGE\treg#%u in range reg#%u,reg#%u\n",
+					id, arg1->value.numeric, arg2->value.numeric,
+					arg3->value.numeric);
+				break;
+
 			case NOT:
 				fprintf(f, "%05d NOT\n", id);
 				break;
@@ -324,14 +331,19 @@ read_tree(dfilter_t *df, proto_tree *tree, header_field_info *hfinfo, int reg)
 	}
 
 	df->registers[reg] = fvalues;
+	// These values are referenced only, do not try to free it later.
+	df->owns_memory[reg] = FALSE;
 	return TRUE;
 }
 
 
+/* Put a constant value in a register. These will not be cleared by
+ * free_register_overhead. */
 static gboolean
 put_fvalue(dfilter_t *df, fvalue_t *fv, int reg)
 {
 	df->registers[reg] = g_list_append(NULL, fv);
+	df->owns_memory[reg] = FALSE;
 	return TRUE;
 }
 
@@ -357,9 +369,47 @@ any_test(dfilter_t *df, FvalueCmpFunc cmp, int reg1, int reg2)
 	return FALSE;
 }
 
+static gboolean
+any_in_range(dfilter_t *df, int reg1, int reg2, int reg3)
+{
+	GList	*list1, *list_low, *list_high;
+	fvalue_t *low, *high;
 
-/* Free the list nodes w/o freeing the memory that each
- * list node points to. */
+	list1 = df->registers[reg1];
+	list_low = df->registers[reg2];
+	list_high = df->registers[reg3];
+
+	/* The first register contains the values associated with a field, the
+	 * second and third arguments are expected to be a single value for the
+	 * lower and upper bound respectively. These cannot be fields and thus
+	 * the list length MUST be one. This should have been enforced by
+	 * grammar.lemon.
+	 */
+	g_assert(list_low && !g_list_next(list_low));
+	g_assert(list_high && !g_list_next(list_high));
+	low = (fvalue_t *)list_low->data;
+	high = (fvalue_t *)list_high->data;
+
+	while (list1) {
+		fvalue_t *value = (fvalue_t *)list1->data;
+		if (fvalue_ge(value, low) && fvalue_le(value, high)) {
+			return TRUE;
+		}
+		list1 = g_list_next(list1);
+	}
+	return FALSE;
+}
+
+
+static void
+free_owned_register(gpointer data, gpointer user_data _U_)
+{
+	fvalue_t *value = (fvalue_t *)data;
+	FVALUE_FREE(value);
+}
+
+/* Clear registers that were populated during evaluation (leaving constants
+ * intact). If we created the values, then these will be freed as well. */
 static void
 free_register_overhead(dfilter_t* df)
 {
@@ -368,6 +418,10 @@ free_register_overhead(dfilter_t* df)
 	for (i = 0; i < df->num_registers; i++) {
 		df->attempted_load[i] = FALSE;
 		if (df->registers[i]) {
+			if (df->owns_memory[i]) {
+				g_list_foreach(df->registers[i], free_owned_register, NULL);
+				df->owns_memory[i] = FALSE;
+			}
 			g_list_free(df->registers[i]);
 			df->registers[i] = NULL;
 		}
@@ -399,6 +453,7 @@ mk_range(dfilter_t *df, int from_reg, int to_reg, drange_t *d_range)
 	}
 
 	df->registers[to_reg] = to_list;
+	df->owns_memory[to_reg] = TRUE;
 }
 
 
@@ -461,6 +516,8 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				}
 				accum = arg1->value.funcdef->function(param1, param2,
 						&df->registers[arg2->value.numeric]);
+				// functions create a new value, so own it.
+				df->owns_memory[arg2->value.numeric] = TRUE;
 				break;
 
 			case MK_RANGE:
@@ -513,6 +570,13 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 			case ANY_MATCHES:
 				accum = any_test(df, fvalue_matches,
 						arg1->value.numeric, arg2->value.numeric);
+				break;
+
+			case ANY_IN_RANGE:
+				arg3 = insn->arg3;
+				accum = any_in_range(df, arg1->value.numeric,
+						arg2->value.numeric,
+						arg3->value.numeric);
 				break;
 
 			case NOT:
@@ -589,6 +653,7 @@ dfvm_init_const(dfilter_t *df)
 			case ANY_BITWISE_AND:
 			case ANY_CONTAINS:
 			case ANY_MATCHES:
+			case ANY_IN_RANGE:
 			case NOT:
 			case RETURN:
 			case IF_TRUE_GOTO:
@@ -603,7 +668,7 @@ dfvm_init_const(dfilter_t *df)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

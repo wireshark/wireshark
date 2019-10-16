@@ -686,6 +686,8 @@ proto_register_gsm_sms_ud(void)
 
     /* Preferences for GSM SMS UD */
     gsm_sms_ud_module = prefs_register_protocol(proto_gsm_sms_ud, NULL);
+    /* For reading older preference files with "smpp-gsm-sms." preferences */
+    prefs_register_module_alias("smpp-gsm-sms", gsm_sms_ud_module);
     prefs_register_bool_preference(gsm_sms_ud_module,
         "port_number_udh_means_wsp",
         "Port Number IE in UDH always triggers CL-WSP dissection",
@@ -720,7 +722,7 @@ proto_reg_handoff_gsm_sms_ud(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

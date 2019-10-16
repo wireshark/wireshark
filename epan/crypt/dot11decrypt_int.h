@@ -41,7 +41,12 @@
 #define DOT11DECRYPT_SUBTYPE_ACTION			13
 #define DOT11DECRYPT_SUBTYPE_ACTION_NO_ACK		14
 
-/* Min length of encrypted data (TKIP=21bytes, CCMP=17bytes)			*/
+/*
+ * Min length of encrypted data (TKIP=21bytes, CCMP=17bytes)
+ * CCMP = 8 octets of CCMP header, 1 octet of data, 8 octets of MIC.
+ * TKIP = 4 octets of IV/Key ID, 4 octets of Extended IV, 1 octet of data,
+ *  8 octets of MIC, 4 octets of ICV
+ */
 #define	DOT11DECRYPT_CRYPTED_DATA_MINLEN	17
 
 #define DOT11DECRYPT_TA_OFFSET	10
@@ -84,7 +89,7 @@
 
 /*
  * XXX - According to the thread at
- * http://www.wireshark.org/lists/wireshark-dev/200612/msg00384.html we
+ * https://www.wireshark.org/lists/wireshark-dev/200612/msg00384.html we
  * shouldn't have to worry about packing our structs, since the largest
  * elements are 8 bits wide.
  */

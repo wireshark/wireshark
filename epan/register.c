@@ -8,11 +8,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "register.h"
+#include "register-int.h"
 #include "ws_attributes.h"
 
 #include <glib.h>
-#include <wsutil/glib-compat.h>
 #include "epan/dissectors/dissectors.h"
 
 static const char *cur_cb_name = NULL;
@@ -108,7 +107,7 @@ gulong register_count(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 4

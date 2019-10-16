@@ -159,14 +159,15 @@ static void get_time(gchar *string, wtap_rec *rec) {
                     &date.tm_min, &date.tm_sec, &ms)) {
         date.tm_year = 70;
         date.tm_mon -= 1;
+        date.tm_isdst = -1;
         seconds = mktime(&date);
-        rec->ts.secs = (time_t) seconds;
+        rec->ts.secs = seconds;
         rec->ts.nsecs = (int) (ms * 1e6);
         rec->presence_flags = WTAP_HAS_TS;
     } else {
         rec->presence_flags = 0;
         rec->ts.secs = (time_t) 0;
-        rec->ts.nsecs = (int) 0;
+        rec->ts.nsecs = 0;
     }
 }
 
@@ -187,7 +188,7 @@ static gboolean logcat_text_read_packet(FILE_T fh, wtap_rec *rec,
     }
 
     if (WTAP_FILE_TYPE_SUBTYPE_LOGCAT_LONG == file_type &&
-            !g_regex_match_simple(SPECIAL_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW), G_REGEX_MATCH_NOTEMPTY)) {
+            !g_regex_match_simple(SPECIAL_STRING, cbuff, (GRegexCompileFlags)(G_REGEX_ANCHORED | G_REGEX_RAW), G_REGEX_MATCH_NOTEMPTY)) {
         gint64 file_off = 0;
         gchar *lbuff;
         int err;
@@ -230,19 +231,18 @@ static gboolean logcat_text_read_packet(FILE_T fh, wtap_rec *rec,
     } else {
         rec->presence_flags = 0;
         rec->ts.secs = (time_t) 0;
-        rec->ts.nsecs = (int) 0;
+        rec->ts.nsecs = 0;
     }
     memcpy(pd, cbuff, rec->rec_header.packet_header.caplen + 1);
     g_free(cbuff);
     return TRUE;
 }
 
-static gboolean logcat_text_read(wtap *wth, int *err _U_ , gchar **err_info _U_,
-        gint64 *data_offset) {
+static gboolean logcat_text_read(wtap *wth, wtap_rec *rec,
+        Buffer *buf, int *err _U_ , gchar **err_info _U_, gint64 *data_offset) {
     *data_offset = file_tell(wth->fh);
 
-    return logcat_text_read_packet(wth->fh, &wth->rec, wth->rec_data,
-            wth->file_type_subtype);
+    return logcat_text_read_packet(wth->fh, rec, buf, wth->file_type_subtype);
 }
 
 static gboolean logcat_text_seek_read(wtap *wth, gint64 seek_off,
@@ -271,34 +271,34 @@ wtap_open_return_val logcat_text_open(wtap *wth, int *err, gchar **err_info _U_)
         ret = file_gets(cbuff, WTAP_MAX_PACKET_SIZE_STANDARD, wth->fh);
     } while (NULL != ret && !file_eof(wth->fh)
             && ((3 > strlen(cbuff))
-                    || g_regex_match_simple(SPECIAL_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
+                    || g_regex_match_simple(SPECIAL_STRING, cbuff, (GRegexCompileFlags)(G_REGEX_ANCHORED | G_REGEX_RAW),
                             G_REGEX_MATCH_NOTEMPTY)));
 
-    if (g_regex_match_simple(BRIEF_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
+    if (g_regex_match_simple(BRIEF_STRING, cbuff, (GRegexCompileFlags)(G_REGEX_ANCHORED | G_REGEX_RAW),
             G_REGEX_MATCH_NOTEMPTY)) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_BRIEF;
         wth->file_encap = WTAP_ENCAP_LOGCAT_BRIEF;
-    } else if (g_regex_match_simple(TAG_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
+    } else if (g_regex_match_simple(TAG_STRING, cbuff, (GRegexCompileFlags)(G_REGEX_ANCHORED | G_REGEX_RAW),
             G_REGEX_MATCH_NOTEMPTY)) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_TAG;
         wth->file_encap = WTAP_ENCAP_LOGCAT_TAG;
-    } else if (g_regex_match_simple(PROCESS_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
+    } else if (g_regex_match_simple(PROCESS_STRING, cbuff, (GRegexCompileFlags)(G_REGEX_ANCHORED | G_REGEX_RAW),
             G_REGEX_MATCH_NOTEMPTY)) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_PROCESS;
         wth->file_encap = WTAP_ENCAP_LOGCAT_PROCESS;
-    } else if (g_regex_match_simple(TIME_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
+    } else if (g_regex_match_simple(TIME_STRING, cbuff, (GRegexCompileFlags)(G_REGEX_ANCHORED | G_REGEX_RAW),
             G_REGEX_MATCH_NOTEMPTY)) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_TIME;
         wth->file_encap = WTAP_ENCAP_LOGCAT_TIME;
-    } else if (g_regex_match_simple(THREAD_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
+    } else if (g_regex_match_simple(THREAD_STRING, cbuff, (GRegexCompileFlags)(G_REGEX_ANCHORED | G_REGEX_RAW),
             G_REGEX_MATCH_NOTEMPTY)) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_THREAD;
         wth->file_encap = WTAP_ENCAP_LOGCAT_THREAD;
-    } else if (g_regex_match_simple(THREADTIME_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
+    } else if (g_regex_match_simple(THREADTIME_STRING, cbuff, (GRegexCompileFlags)(G_REGEX_ANCHORED | G_REGEX_RAW),
             G_REGEX_MATCH_NOTEMPTY)) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_THREADTIME;
         wth->file_encap = WTAP_ENCAP_LOGCAT_THREADTIME;
-    } else if (g_regex_match_simple(LONG_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
+    } else if (g_regex_match_simple(LONG_STRING, cbuff, (GRegexCompileFlags)(G_REGEX_ANCHORED | G_REGEX_RAW),
             G_REGEX_MATCH_NOTEMPTY)) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_LONG;
         wth->file_encap = WTAP_ENCAP_LOGCAT_LONG;
@@ -445,6 +445,15 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
     /* We can only write packet records. */
     if (rec->rec_type != REC_TYPE_PACKET) {
         *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
+        return FALSE;
+    }
+
+    /*
+     * Make sure this packet doesn't have a link-layer type that
+     * differs from the one for the file.
+     */
+    if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+        *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
         return FALSE;
     }
 
@@ -610,7 +619,7 @@ gboolean logcat_text_long_dump_open(wtap_dumper *wdh, int *err) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

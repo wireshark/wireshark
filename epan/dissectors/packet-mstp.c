@@ -35,25 +35,30 @@ void proto_reg_handoff_mstp(void);
 
 /* MS/TP Frame Type */
 /* Frame Types 8 through 127 are reserved by ASHRAE. */
-#define MSTP_TOKEN                           0
-#define MSTP_POLL_FOR_MASTER                 1
-#define MSTP_REPLY_TO_POLL_FOR_MASTER        2
-#define MSTP_TEST_REQUEST                    3
-#define MSTP_TEST_RESPONSE                   4
-#define MSTP_BACNET_DATA_EXPECTING_REPLY     5
-#define MSTP_BACNET_DATA_NOT_EXPECTING_REPLY 6
-#define MSTP_REPLY_POSTPONED                 7
+#define MSTP_TOKEN                                    0x00
+#define MSTP_POLL_FOR_MASTER                          0x01
+#define MSTP_REPLY_TO_POLL_FOR_MASTER                 0x02
+#define MSTP_TEST_REQUEST                             0x03
+#define MSTP_TEST_RESPONSE                            0x04
+#define MSTP_BACNET_DATA_EXPECTING_REPLY              0x05
+#define MSTP_BACNET_DATA_NOT_EXPECTING_REPLY          0x06
+#define MSTP_REPLY_POSTPONED                          0x07
+#define MSTP_BACNET_EXTENDED_DATA_EXPECTING_REPLY     0x20
+#define MSTP_BACNET_EXTENDED_DATA_NOT_EXPECTING_REPLY 0x21
+
 
 static const value_string
 bacnet_mstp_frame_type_name[] = {
-	{MSTP_TOKEN,                           "Token"},
-	{MSTP_POLL_FOR_MASTER,                 "Poll For Master"},
-	{MSTP_REPLY_TO_POLL_FOR_MASTER,        "Reply To Poll For Master"},
-	{MSTP_TEST_REQUEST,                    "Test_Request"},
-	{MSTP_TEST_RESPONSE,                   "Test_Response"},
-	{MSTP_BACNET_DATA_EXPECTING_REPLY,     "BACnet Data Expecting Reply"},
-	{MSTP_BACNET_DATA_NOT_EXPECTING_REPLY, "BACnet Data Not Expecting Reply"},
-	{MSTP_REPLY_POSTPONED,                 "Reply Postponed"},
+	{MSTP_TOKEN,                                    "Token"},
+	{MSTP_POLL_FOR_MASTER,                          "Poll For Master"},
+	{MSTP_REPLY_TO_POLL_FOR_MASTER,                 "Reply To Poll For Master"},
+	{MSTP_TEST_REQUEST,                             "Test_Request"},
+	{MSTP_TEST_RESPONSE,                            "Test_Response"},
+	{MSTP_BACNET_DATA_EXPECTING_REPLY,              "BACnet Data Expecting Reply"},
+	{MSTP_BACNET_DATA_NOT_EXPECTING_REPLY,          "BACnet Data Not Expecting Reply"},
+	{MSTP_REPLY_POSTPONED,                          "Reply Postponed"},
+	{MSTP_BACNET_EXTENDED_DATA_EXPECTING_REPLY,     "BACnet Extended Data Expecting Reply"},
+	{MSTP_BACNET_EXTENDED_DATA_NOT_EXPECTING_REPLY, "BACnet Extended Data Not Expecting Reply"},
 	/* Frame Types 128 through 255: Proprietary Frames */
 	{0, NULL }
 };
@@ -165,6 +170,135 @@ static int mstp_len(void)
 	return 1;
 }
 
+static guint32 calc_data_crc32(guint8 dataValue, guint32 crc32kValue)
+{
+  guint8 data;
+  guint8 b;
+  guint32 crc;
+
+  data = dataValue;
+  crc = crc32kValue;
+
+  for (b = 0; b < 8; b++)
+  {
+    if ((data & 1) ^ (crc & 1))
+    {
+      crc >>= 1;
+      crc ^= 0xEB31D82E;
+    }
+    else
+    {
+      crc >>= 1;
+    }
+
+    data >>= 1;
+  }
+
+  return crc;
+}
+
+/*
+* Decodes 'length' octets of data located at 'from' and
+* writes the original client data at 'to', restoring any
+* 'mask' octets that may present in the encoded data.
+* Returns the length of the encoded data or zero if error.
+* The length of the encoded value is always smaller or equal to 'length'.
+*/
+static gsize cobs_decode(guint8 *to, const guint8 *from, gsize length, guint8 mask)
+{
+  gsize read_index = 0;
+  gsize write_index = 0;
+  guint8 code;
+  guint8 last_code;
+
+  while (read_index < length)
+  {
+    code = from[read_index] ^ mask;
+    last_code = code;
+    /*
+     * A code octet equal to zero or greater than the length is illegal.
+     */
+    if (code == 0 || read_index + code > length)
+      return 0;
+
+    read_index++;
+    /*
+     * Decode data octets. The code octet is included in the length, but the
+     * terminating zero octet is not. (Note that a data octet of zero should not
+     * occur here since the whole point of COBS encoding is to remove zeroes.)
+     */
+    while (--code > 0)
+      to[write_index++] = from[read_index++] ^ mask;
+
+    /*
+    * Restore the implicit zero at the end of each decoded block
+    * except when it contains exactly 254 non-zero octets or the
+    * end of data has been reached.
+    */
+    if ((last_code != 255) && (read_index < length))
+      to[write_index++] = 0;
+  }
+
+  return write_index;
+}
+
+#define SIZEOF_ENC_CRC 5
+#define CRC32K_INITIAL_VALUE 0xFFFFFFFF
+#define CRC32K_RESIDUE 0x0843323B
+#define MSTP_PREAMBLE_X55 0x55
+
+/*
+* Decodes Encoded Data and Encoded CRC-32K fields at 'from' (of length 'length')
+* and writes the decoded client data at 'to'.
+* Returns length of decoded Data in octets or zero if error.
+* NOTE: Safe to call with 'output' <= 'input' (decodes in place).
+*/
+static gsize cobs_frame_decode(guint8 *to, const guint8 *from, gsize length)
+{
+  gsize data_len;
+  gsize crc_len;
+  guint32 crc32K;
+  guint32 i;
+
+  /* Must have enough room for the encoded CRC-32K value. */
+  if (length < SIZEOF_ENC_CRC)
+    return 0;
+
+  /*
+  * Calculate the CRC32K over the Encoded Data octets before decoding.
+  * NOTE: Adjust 'length' by removing size of Encoded CRC-32K field.
+  */
+  data_len = length - SIZEOF_ENC_CRC;
+  crc32K = CRC32K_INITIAL_VALUE;
+  for (i = 0; i < data_len; i++)
+    crc32K = calc_data_crc32(from[i], crc32K);
+
+  data_len = cobs_decode(to, from, data_len, MSTP_PREAMBLE_X55);
+  /*
+  * Decode the Encoded CRC-32K field and append to data.
+  */
+  crc_len = cobs_decode((guint8 *)(to + data_len),
+    (guint8 *)(from + length - SIZEOF_ENC_CRC),
+    SIZEOF_ENC_CRC, MSTP_PREAMBLE_X55);
+
+  /*
+  * Sanity check length of decoded CRC32K.
+  */
+  if (crc_len != sizeof(guint32))
+    return 0;
+
+  /*
+  * Verify CRC32K of incoming frame.
+  */
+  for (i = 0; i < crc_len; i++)
+    crc32K = calc_data_crc32((to + data_len)[i], crc32K);
+
+  if (crc32K == CRC32K_RESIDUE)
+    return data_len;
+
+  return 0;
+}
+
 /* dissects a BACnet MS/TP frame */
 /* preamble 0x55 0xFF is not included in Cimetrics U+4 output */
 void
@@ -225,7 +359,39 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* dissect BACnet PDU if there is one */
 	offset += 6;
-	if (mstp_tvb_pdu_len > 2) {
+
+  if (mstp_frame_type == MSTP_BACNET_EXTENDED_DATA_EXPECTING_REPLY ||
+      mstp_frame_type == MSTP_BACNET_EXTENDED_DATA_NOT_EXPECTING_REPLY) {
+    /* handle extended frame types differently because their data need to
+       be 'decoded' first */
+    guint8 *decode_base;
+    tvbuff_t *decoded_tvb;
+    guint16 decoded_len = mstp_frame_pdu_len;
+
+    decode_base = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, mstp_frame_pdu_len + 2);
+    decoded_len = (guint16)cobs_frame_decode(decode_base, decode_base, decoded_len + 2);
+    if (decoded_len > 0) {
+      decoded_tvb = tvb_new_real_data(decode_base, decoded_len, decoded_len);
+      tvb_set_child_real_data_tvbuff(tvb, decoded_tvb);
+      add_new_data_source(pinfo, decoded_tvb, "Decoded Data");
+
+      if (!(dissector_try_uint(subdissector_table, (vendorid << 16) + mstp_frame_type,
+        decoded_tvb, pinfo, tree))) {
+        /* Unknown function - dissect the payload as data */
+        call_data_dissector(decoded_tvb, pinfo, tree);
+      }
+
+      proto_tree_add_checksum(subtree, tvb, offset + mstp_frame_pdu_len, hf_mstp_frame_crc16, hf_mstp_frame_checksum_status, &ei_mstp_frame_checksum_bad,
+        pinfo, tvb_get_ntohs(tvb, offset + mstp_frame_pdu_len), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    } else {
+      next_tvb = tvb_new_subset_length(tvb, offset,
+        mstp_tvb_pdu_len);
+      call_data_dissector(next_tvb, pinfo, tree);
+      proto_tree_add_checksum(subtree, tvb, offset + mstp_frame_pdu_len, hf_mstp_frame_crc16, hf_mstp_frame_checksum_status, &ei_mstp_frame_checksum_bad, pinfo, 0,
+        ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+    }
+  }
+  else if (mstp_tvb_pdu_len > 2) {
 		/* remove the 16-bit crc checksum bytes */
 		mstp_tvb_pdu_len -= 2;
 		if (mstp_frame_type < 128) {
@@ -405,10 +571,12 @@ proto_reg_handoff_mstp(void)
 
 	dissector_add_uint("mstp.vendor_frame_type", (0/*VendorID ASHRAE*/ << 16) + MSTP_BACNET_DATA_EXPECTING_REPLY, bacnet_handle);
 	dissector_add_uint("mstp.vendor_frame_type", (0/*VendorID ASHRAE*/ << 16) + MSTP_BACNET_DATA_NOT_EXPECTING_REPLY, bacnet_handle);
+	dissector_add_uint("mstp.vendor_frame_type", (0/*VendorID ASHRAE*/ << 16) + MSTP_BACNET_EXTENDED_DATA_EXPECTING_REPLY, bacnet_handle);
+	dissector_add_uint("mstp.vendor_frame_type", (0/*VendorID ASHRAE*/ << 16) + MSTP_BACNET_EXTENDED_DATA_NOT_EXPECTING_REPLY, bacnet_handle);
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

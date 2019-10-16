@@ -1,0 +1,740 @@
+[[wsluarm]]
+
+// Attributes
+:build_dir: .
+
+== Lua Support in Wireshark
+
+[[wsluarm_intro]]
+
+=== Introduction
+
+Lua is a powerful light-weight programming language designed for extending
+applications. Wireshark contains an embedded Lua 5.2 interpreter which
+can be used to write dissectors, taps, and capture file readers
+and writers.
+
+Wireshark’s Lua interpreter starts by loading a file named `init.lua` from
+Wireshark's link:{wireshark-users-guide-url}ChAppFilesConfigurationSection.html[_global configuration directory_].
+The _global configuration directory_'s `init.lua` controls whether or not Lua
+scripts are enabled via the
+_$$enable_lua$$_ variable. Lua scripts are enabled by
+default. To disable Lua scripts, set the _$$enable_lua$$_ variable to _false_.
+Wireshark 2.6 and earlier enabled or disabled Lua scripts using
+the variable _$$disable_lua$$_ (deprecated). If both _$$enable_lua$$_ and
+_$$disable_lua$$_ are present, _$$disable_lua$$_ is ignored.
+
+If Lua is enabled, Wireshark will try to load a file named `init.lua`
+from the user’s
+link:{wireshark-users-guide-url}ChAppFilesConfigurationSection.html[_personal configuration directory_]
+and all files ending with _.lua_ in the global and the personal
+link:{wireshark-users-guide-url}ChPluginFolders.html[_plugins directory_].
+
+The command line option _$$-X lua_script:$$++file.lua++_ can also be used to load
+specific Lua scripts.
+
+The Lua code is executed after all protocol dissectors are
+initialized and before reading any file.
+
+Wireshark for Windows uses a modified Lua runtime
+(link:https://github.com/Lekensteyn/lua-unicode[lua-unicode]) to
+support Unicode (UTF-8) filesystem paths. This brings consistency with other
+platforms (for example, Linux and macOS).
+
+[[wslua_menu_example]]
+
+=== Example: Creating a Menu with Lua
+
+The code below adds a menu "Lua Dialog Test" under the Tools menu.
+When selected, it opens a dialog prompting the user for input
+and then opens a text window with the output.
+
+[source,lua]
+----
+
+-- Define the menu entry's callback
+local function dialog_menu()
+    local function dialog_func(person,eyes,hair)
+        local window = TextWindow.new("Person Info");
+        local message = string.format("Person %s with %s eyes and %s hair.", person, eyes, hair);
+        window:set(message);
+    end
+
+    new_dialog("Dialog Test",dialog_func,"A Person","Eyes","Hair")
+end
+
+-- Create the menu entry
+register_menu("Lua Dialog Test",dialog_menu,MENU_TOOLS_UNSORTED)
+
+-- Notify the user that the menu was created
+if gui_enabled() then
+   local splash = TextWindow.new("Hello!");
+   splash:set("Wireshark has been enhanced with a useless feature.\n")
+   splash:append("Go to 'Tools->Lua Dialog Test' and check it out!")
+end
+
+----
+
+[[wslua_dissector_example]]
+
+=== Example: Dissector written in Lua
+
+[source,lua]
+----
+local p_multi = Proto("multi", "MultiProto");
+
+local vs_protos = {
+        [2] = "mtp2",
+        [3] = "mtp3",
+        [4] = "alcap",
+        [5] = "h248",
+        [6] = "ranap",
+        [7] = "rnsap",
+        [8] = "nbap"
+}
+
+local f_proto = ProtoField.uint8("multi.protocol", "Protocol", base.DEC, vs_protos)
+local f_dir = ProtoField.uint8("multi.direction", "Direction", base.DEC, { [1] = "incoming", [0] = "outgoing"})
+local f_text = ProtoField.string("multi.text", "Text")
+
+p_multi.fields = { f_proto, f_dir, f_text }
+
+local data_dis = Dissector.get("data")
+
+local protos = {
+        [2] = Dissector.get("mtp2"),
+        [3] = Dissector.get("mtp3"),
+        [4] = Dissector.get("alcap"),
+        [5] = Dissector.get("h248"),
+        [6] = Dissector.get("ranap"),
+        [7] = Dissector.get("rnsap"),
+        [8] = Dissector.get("nbap"),
+        [9] = Dissector.get("rrc"),
+        [10] = DissectorTable.get("sctp.ppi"):get_dissector(3), -- m3ua
+        [11] = DissectorTable.get("ip.proto"):get_dissector(132), -- sctp
+}
+
+function p_multi.dissector(buf, pkt, tree)
+
+        local subtree = tree:add(p_multi, buf(0,2))
+        subtree:add(f_proto, buf(0,1))
+        subtree:add(f_dir, buf(1,1))
+
+        local proto_id = buf(0,1):uint()
+
+        local dissector = protos[proto_id]
+
+        if dissector ~= nil then
+                -- Dissector was found, invoke subdissector with a new Tvb,
+                -- created from the current buffer (skipping first two bytes).
+                dissector:call(buf(2):tvb(), pkt, tree)
+        elseif proto_id < 2 then
+                subtree:add(f_text, buf(2))
+                -- pkt.cols.info:set(buf(2, buf:len() - 3):string())
+        else
+                -- fallback dissector that just shows the raw data.
+                data_dis:call(buf(2):tvb(), pkt, tree)
+        end
+
+end
+
+local wtap_encap_table = DissectorTable.get("wtap_encap")
+local udp_encap_table = DissectorTable.get("udp.port")
+
+wtap_encap_table:add(wtap.USER15, p_multi)
+wtap_encap_table:add(wtap.USER12, p_multi)
+udp_encap_table:add(7555, p_multi)
+----
+
+[[wslua_tap_example]]
+
+=== Example: Listener written in Lua
+
+[source,lua]
+----
+-- This program will register a menu that will open a window with a count of occurrences
+-- of every address in the capture
+
+local function menuable_tap()
+	-- Declare the window we will use
+	local tw = TextWindow.new("Address Counter")
+
+	-- This will contain a hash of counters of appearances of a certain address
+	local ips = {}
+
+	-- this is our tap
+	local tap = Listener.new();
+
+	local function remove()
+		-- this way we remove the listener that otherwise will remain running indefinitely
+		tap:remove();
+	end
+
+	-- we tell the window to call the remove() function when closed
+	tw:set_atclose(remove)
+
+	-- this function will be called once for each packet
+	function tap.packet(pinfo,tvb)
+		local src = ips[tostring(pinfo.src)] or 0
+		local dst = ips[tostring(pinfo.dst)] or 0
+
+		ips[tostring(pinfo.src)] = src + 1
+		ips[tostring(pinfo.dst)] = dst + 1
+	end
+
+	-- this function will be called once every few seconds to update our window
+	function tap.draw(t)
+		tw:clear()
+		for ip,num in pairs(ips) do
+			tw:append(ip .. "\t" .. num .. "\n");
+		end
+	end
+
+	-- this function will be called whenever a reset is needed
+	-- e.g. when reloading the capture file
+	function tap.reset()
+		tw:clear()
+		ips = {}
+	end
+
+	-- Ensure that all existing packets are processed.
+	retap_packets()
+end
+
+-- using this function we register our function
+-- to be called when the user selects the Tools->Test->Packets menu
+register_menu("Test/Packets", menuable_tap, MENU_TOOLS_UNSORTED)
+----
+
+[[wsluarm_modules]]
+
+== Wireshark’s Lua API Reference Manual
+
+This Part of the User Guide describes the Wireshark specific functions in the embedded Lua.
+
+Classes group certain functionality, the following notational conventions are
+used:
+
+* _Class.function()_ represents a class method (named _function_) on class
+  _Class_, taking no arguments.
+
+* _Class.function(a)_ represents a class method taking one argument.
+
+* _Class.function(...)_ represents a class method taking a variable number of
+  arguments.
+
+* _class:method()_ represents an instance method (named _method_) on an instance
+  of class _Class_, taking no arguments. Note the lowercase notation in the
+  documentation to clarify an instance.
+
+* _class.prop_ represents a property _prop_ on the instance of class _Class_.
+
+Trying to access a non-existing property, function or method currently gives an
+error, but do not rely on it as the behavior may change in the future.
+
+
+include::{build_dir}/wsluarm_src/wslua_dumper.adoc[]
+include::{build_dir}/wsluarm_src/wslua_field.adoc[]
+include::{build_dir}/wsluarm_src/wslua_gui.adoc[]
+include::{build_dir}/wsluarm_src/wslua_listener.adoc[]
+include::{build_dir}/wsluarm_src/wslua_pinfo.adoc[]
+include::{build_dir}/wsluarm_src/wslua_proto.adoc[]
+include::{build_dir}/wsluarm_src/wslua_tree.adoc[]
+include::{build_dir}/wsluarm_src/wslua_tvb.adoc[]
+include::{build_dir}/wsluarm_src/wslua_file.adoc[]
+include::{build_dir}/wsluarm_src/wslua_dir.adoc[]
+include::{build_dir}/wsluarm_src/wslua_util.adoc[]
+include::{build_dir}/wsluarm_src/wslua_int64.adoc[]
+include::{build_dir}/wsluarm_src/wslua_struct.adoc[]
+
+[[lua_module_GRegex]]
+
+=== GLib Regular Expressions
+
+Lua has its own native _pattern_ syntax in the string library, but sometimes a
+real regex engine is more useful. Wireshark comes with GLib’s Regex
+implementation, which itself is based on Perl Compatible Regular Expressions
+(PCRE). This engine is exposed into Wireshark’s Lua engine through the
+well-known Lrexlib library, following the same syntax and semantics as the
+Lrexlib PCRE implementation, with a few differences as follows:
+
+* There is no support for using custom locale/chartables
+
+* _dfa_exec()_ doesn't take _ovecsize_ nor _wscount_ arguments
+
+* _dfa_exec()_ returns boolean true for partial match, without subcapture info
+
+* Named subgroups do not return name-keyed entries in the return table (i.e., in
+  match/tfind/exec)
+
+* The _flags()_ function still works, returning all flags, but two new functions
+  _compile_flags()_ and _match_flags()_ return just their respective flags,
+  since GLib has a different and smaller set of such flags, for regex compile
+  vs. match functions
+
+* Using some assertions and POSIX character classes against strings with
+  non-ASCII characters might match high-order characters, because glib always
+  sets PCRE_UCP even if G_REGEX_RAW is set. For example, _[:alpha;]_ matches
+  certain non-ASCII bytes. The following assertions have this issue: _\b_, _\B_,
+  _\s_, _\S_, _\w_, _\W_. The following character classes have this issue:
+  [:alpha:], [:alnum:], [:lower:], [:upper:], [:space:], [:word:], and
+  [:graph:].
+
+* The compile flag G_REGEX_RAW is always set/used, even if you didn't specify
+  it. This is because GLib runs PCRE in UTF-8 mode by default, whereas Lua
+  strings are not UTF-aware.
+
+
+Since: 1.11.3
+
+This page is based on the full documentation for Lrexlib at
+https://rrthomas.github.io/lrexlib/manual.html[]
+
+The GLib Regular expression syntax (which is essentially PCRE syntax) can be
+found at
+https://developer.gnome.org/glib/2.38/glib-regex-syntax.html[]
+
+[[lua_class_GRegex]]
+
+==== GRegex
+
+GLib Regular Expressions based on PCRE.
+
+Since: 1.11.3
+
+[[lua_class_GRegex_notes]]
+
+===== Notes
+
+All functions that take a regular expression pattern as an argument will
+generate an error if that pattern is found invalid by the regex library.
+
+All functions that take a string-type regex argument accept a compiled regex
+too. In this case, the compile flags argument is ignored (should be either
+supplied as nils or omitted).
+
+The capture flag argument _cf_ may also be supplied as a string, whose
+characters stand for compilation flags. Combinations of the following characters
+(case sensitive) are supported:
+
+* _i_ = G_REGEX_CASELESS - Letters in the pattern match both upper- and
+  lowercase letters. This option can be changed within a pattern by a “(?i)”
+  option setting.
+
+* _m_ = G_REGEX_MULTILINE - By default, GRegex treats the strings as
+  consisting of a single line of characters (even if it actually contains
+  newlines). The “start of line” metacharacter (“^”) matches only at the start
+  of the string, while the “end of line” metacharacter (“$”) matches only at
+  the end of the string, or before a terminating newline (unless
+  G_REGEX_DOLLAR_ENDONLY is set). When G_REGEX_MULTILINE is set, the “start of
+  line” and “end of line” constructs match immediately following or
+  immediately before any newline in the string, respectively, as well as at the
+  very start and end. This can be changed within a pattern by a “(?m)” option
+  setting.
+
+* _s_ = G_REGEX_DOTALL - A dot metacharater (“.”) in the pattern matches
+  all characters, including newlines. Without it, newlines are excluded. This
+  option can be changed within a pattern by a ("?s") option setting.
+
+* _x_ = G_REGEX_EXTENDED - Whitespace data characters in the pattern are
+  totally ignored except when escaped or inside a character class. Whitespace
+  does not include the VT character (code 11). In addition, characters between
+  an unescaped “$$#$$” outside a character class and the next newline character,
+  inclusive, are also ignored. This can be changed within a pattern by a
+  “(?x)” option setting.
+
+* _U_ = G_REGEX_UNGREEDY - Inverts the “greediness” of the quantifiers so
+  that they are not greedy by default, but become greedy if followed by “?”.
+  It can also be set by a “(?U)” option setting within the pattern.
+
+[[lua_fn_GRegex_new_pattern_]]
+
+===== GRegex.new(pattern)
+
+Compiles regular expression pattern into a regular expression object whose
+internal representation is corresponding to the library used. The returned
+result then can be used by the methods, e.g. match, exec, etc. Regular
+expression objects are automatically garbage collected.
+
+Since: 1.11.3
+
+[float]
+===== Arguments
+
+pattern:: A Perl-compatible regular expression pattern string
+
+[float]
+===== Returns
+
+The compiled regular expression (a userdata object)
+
+[float]
+===== Errors
+
+* A malformed pattern generates a Lua error
+
+[[lua_fn_GRegex_flags__table__]]
+
+===== GRegex.flags([table])
+
+Returns a table containing the numeric values of the constants defined by the
+regex library, with the keys being the (string) names of the constants. If the
+table argument is supplied then it is used as the output table, otherwise a new
+table is created. The constants contained in the returned table can then be used
+in most functions and methods where compilation flags or execution flags can be
+specified. They can also be used for comparing with return codes of some
+functions and methods for determining the reason of failure.
+
+Since: 1.11.3
+
+[float]
+===== Arguments
+
+table (optional):: A table for placing results into
+
+[float]
+===== Returns
+
+A table filled with the results.
+
+[[lua_fn_GRegex_compile_flags__table__]]
+
+
+===== GRegex.compile_flags([table])
+
+Returns a table containing the numeric values of the constants defined by the
+regex library for compile flags, with the keys being the (string) names of the
+constants. If the table argument is supplied then it is used as the output
+table, otherwise a new table is created.
+
+Since: 1.11.3
+
+[float]
+===== Arguments
+
+table (optional):: A table for placing results into
+
+[float]
+===== Returns
+
+A table filled with the results.
+
+[[lua_fn_GRegex_match_flags__table__]]
+
+===== GRegex.match_flags([table])
+
+Returns a table containing the numeric values of the constants defined by the
+regex library for match flags, with the keys being the (string) names of the
+constants. If the table argument is supplied then it is used as the output
+table, otherwise a new table is created.
+
+Since: 1.11.3
+
+[float]
+===== Arguments
+
+table (optional):: A table for placing results into
+
+[float]
+===== Returns
+
+A table filled with the results.
+
+[[lua_fn_GRegex_match_subject__pattern___init____cf____ef__]]
+
+===== GRegex.match(subject, pattern, [init], [cf], [ef])
+
+Searches for the first match of the regexp pattern in the string subject,
+starting from offset init, subject to flags cf and ef. The pattern is compiled
+each time this is called, unlike the class method _match_ function.
+
+Since: 1.11.3
+
+[float]
+===== Arguments
+
+subject:: Subject string to search
+
+pattern:: A Perl-compatible regular expression pattern string or GRegex object
+
+init (optional):: start offset in the subject (can be negative)
+
+cf (optional):: compilation flags (bitwise OR)
+
+ef (optional):: match execution flags (bitwise OR)
+
+[float]
+===== Returns
+
+On success, returns all substring matches ("captures"), in the order they appear
+in the pattern. false is returned for sub-patterns that did not participate in
+the match. If the pattern specified no captures then the whole matched substring
+is returned. On failure, returns nil.
+
+[[lua_fn_GRegex_find_subject__pattern___init____cf____ef__]]
+
+===== GRegex.find(subject, pattern, [init], [cf], [ef])
+
+Searches for the first match of the regexp pattern in the string subject,
+starting from offset init, subject to flags ef. The pattern is compiled each
+time this is called, unlike the class method _find_ function.
+
+Since: 1.11.3
+
+[float]
+===== Arguments
+
+subject:: Subject string to search
+
+pattern:: A Perl-compatible regular expression pattern string or GRegex object
+
+init (optional):: start offset in the subject (can be negative)
+
+cf (optional):: compilation flags (bitwise OR)
+
+ef (optional):: match execution flags (bitwise OR)
+
+[float]
+===== Returns
+
+On success, returns the start point of the match (a number), the end point of
+the match (a number), and all substring matches ("captures"), in the order they
+appear in the pattern. false is returned for sub-patterns that did not
+participate in the match. On failure, returns nil.
+
+[[lua_fn_GRegex_gmatch_subject__pattern___init____cf____ef__]]
+
+
+===== GRegex.gmatch(subject, pattern, [init], [cf], [ef])
+
+Returns an iterator for repeated matching of the pattern patt in the string
+subj, subject to flags cf and ef. The function is intended for use in the
+generic for Lua construct. The pattern can be a string or a GRegex object
+previously compiled with GRegex.new().
+
+Since: 1.11.3
+
+[float]
+===== Arguments
+
+subject:: Subject string to search
+
+pattern:: A Perl-compatible regular expression pattern string or GRegex object
+
+init (optional):: start offset in the subject (can be negative)
+
+cf (optional):: compilation flags (bitwise OR)
+
+ef (optional):: match execution flags (bitwise OR)
+
+[float]
+===== Returns
+
+The iterator function is called by Lua. On every iteration (that is, on every
+match), it returns all captures in the order they appear in the pattern (or the
+entire match if the pattern specified no captures). The iteration will continue
+till the subject fails to match.
+
+[[lua_fn_GRegex_gsub_subject__pattern___repl____max____cf____ef__]]
+
+===== GRegex.gsub(subject, pattern, [repl], [max], [cf], [ef])
+
+Searches for all matches of the pattern in the string subject and replaces them
+according to the parameters repl and max. The pattern can be a string or a
+GRegex object previously compiled with GRegex.new().
+
+Since: 1.11.3
+
+For details see:
+https://rrthomas.github.io/lrexlib/manual.html#gsub[]
+
+[float]
+===== Arguments
+
+subject:: Subject string to search
+
+pattern:: A Perl-compatible regular expression pattern string or GRegex object
+
+repl (optional):: Substitution source string, function, table, false or nil
+
+max (optional):: Maximum number of matches to search for, or control function, or nil
+
+cf (optional):: Compilation flags (bitwise OR)
+
+ef (optional):: Match execution flags (bitwise OR)
+
+[float]
+===== Returns
+
+On success, returns the subject string with the substitutions made, the number
+of matches found, and the number of substitutions made.
+
+[[lua_fn_GRegex_split_subject__sep___cf____ef__]]
+
+===== GRegex.split(subject, sep, [cf], [ef])
+
+Splits a subject string subj into parts (sections). The sep parameter is a
+regular expression pattern representing separators between the sections. The
+function is intended for use in the generic for Lua construct. The function
+returns an iterator for repeated matching of the pattern sep in the string subj,
+subject to flags cf and ef. The sep pattern can be a string or a GRegex object
+previously compiled with GRegex.new(). Unlike gmatch, there will always be at
+least one iteration pass, even if there are no matches in the subject.
+
+Since: 1.11.3
+
+[float]
+===== Arguments
+
+subject:: Subject string to search
+
+sep:: A Perl-compatible regular expression pattern string or GRegex object
+
+cf (optional):: compilation flags (bitwise OR)
+
+ef (optional):: match execution flags (bitwise OR)
+
+[float]
+===== Returns
+
+The iterator function is called by Lua. On every iteration, it returns a subject
+section (can be an empty string), followed by all captures in the order they
+appear in the sep pattern (or the entire match if the sep pattern specified no
+captures). If there is no match (this can occur only in the last iteration),
+then nothing is returned after the subject section. The iteration will continue
+till the end of the subject.
+
+[[lua_fn_GRegex_version__]]
+
+===== GRegex.version()
+
+Returns a returns a string containing the version of the used library.
+
+Since: 1.11.3
+
+[float]
+===== Returns
+
+The version string
+
+[[lua_fn_gregex_match_subject___init____ef__]]
+
+===== gregex:match(subject, [init], [ef])
+
+Searches for the first match of the regexp pattern in the string subject,
+starting from offset init, subject to flags ef.
+
+Since: 1.11.3
+
+[float]
+===== Arguments
+
+subject:: Subject string to search
+
+init (optional):: start offset in the subject (can be negative)
+
+ef (optional):: match execution flags (bitwise OR)
+
+[float]
+===== Returns
+
+On success, returns all substring matches (“captures”), in the order they appear
+in the pattern. false is returned for sub-patterns that did not participate in
+the match. If the pattern specified no captures then the whole matched substring
+is returned. nil is returned if the pattern did not match.
+
+[[lua_fn_gregex_find_subject___init____ef__]]
+
+===== gregex:find(subject, [init], [ef])
+
+Searches for the first match of the regexp pattern in the string subject,
+starting from offset init, subject to flags ef.
+
+Since: 1.11.3
+
+[float]
+===== Arguments
+
+subject:: Subject string to search
+
+init (optional):: start offset in the subject (can be negative)
+
+ef (optional):: match execution flags (bitwise OR)
+
+[float]
+===== Returns
+
+On success, returns the start point of the match (a number), the end point of
+the match (a number), and all substring matches ("captures"), in the order they
+appear in the pattern. false is returned for sub-patterns that did not
+participate in the match. On failure, returns nil.
+
+[[lua_fn_gregex_exec_subject___init____ef__]]
+
+===== gregex:exec(subject, [init], [ef])
+
+Searches for the first match of the compiled GRegex object in the string
+subject, starting from offset init, subject to the execution match flags ef.
+
+Since: 1.11.3
+
+[float]
+===== Arguments
+
+subject:: Subject string to search
+
+init (optional):: start offset in the subject (can be negative)
+
+ef (optional):: match execution flags (bitwise OR)
+
+[float]
+===== Returns
+
+On success, returns the start point of the first match (a number), the end point
+of the first match (a number), and the offsets of substring matches (“captures”
+in Lua terminology) are returned as a third result, in a table. This table
+contains false in the positions where the corresponding sub-pattern did not
+participate in the match. On failure, returns nil. Example: If the whole match
+is at offsets 10,20 and substring matches are at offsets 12,14 and 16,19 then
+the function returns the following: 10, 20, { 12,14,16,19 }.
+
+[[lua_fn_gregex_dfa_exec_subject___init____ef__]]
+
+===== gregex:dfa_exec(subject, [init], [ef])
+
+Matches a compiled regular expression GRegex object against a given subject
+string subj, using a DFA matching algorithm.
+
+Since: 1.11.3
+
+[float]
+===== Arguments
+
+subject:: Subject string to search
+
+init (optional):: start offset in the subject (can be negative)
+
+ef (optional):: match execution flags (bitwise OR)
+
+[float]
+===== Returns
+
+On success, returns the start point of the matches found (a number), a table
+containing the end points of the matches found, the longer matches first, and
+the number of matches found as the third return value. On failure, returns nil.
+Example: If there are 3 matches found starting at offset 10 and ending at
+offsets 15, 20 and 25 then the function returns the following: 10, { 25,20,15 },
+3
+
+[[lua_fn_gregex___tostring__]]
+
+===== gregex:__tostring()
+
+Returns a string containing debug information about the GRegex object.
+
+Since: 1.11.3
+
+[float]
+===== Returns
+
+The debug string

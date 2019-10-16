@@ -27,13 +27,18 @@
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
 
-#include "packet-ssl.h"
-#include "packet-ssl-utils.h"
+#include <ui/tap-credentials.h>
+#include <tap.h>
+
+#include "packet-tls.h"
+#include "packet-tls-utils.h"
 
 void proto_register_pop(void);
 void proto_reg_handoff_pop(void);
 
 static int proto_pop = -1;
+
+static int credentials_tap = -1;
 
 static int hf_pop_response = -1;
 static int hf_pop_response_indicator = -1;
@@ -66,7 +71,7 @@ static gint ett_pop_data_fragments = -1;
 
 static dissector_handle_t pop_handle;
 static dissector_handle_t imf_handle;
-static dissector_handle_t ssl_handle;
+static dissector_handle_t tls_handle;
 
 #define TCP_PORT_POP            110
 #define TCP_PORT_SSL_POP        995
@@ -109,9 +114,15 @@ struct pop_data_val {
   guint32 msg_read_len;  /* Length of RETR message read so far */
   guint32 msg_tot_len;   /* Total length of RETR message */
   gboolean stls_request;  /* Received STLS request */
+  gchar* username;
+  guint username_num;
 };
 
-
+typedef enum {
+  pop_arg_type_unknown,
+  pop_arg_type_username,
+  pop_arg_type_password
+} pop_arg_type_t;
 
 static gboolean response_is_continuation(const guchar *data);
 
@@ -134,6 +145,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   conversation_t         *conversation = NULL;
   struct pop_data_val    *data_val = NULL;
   gint                   length_remaining;
+  pop_arg_type_t         pop_arg_type = pop_arg_type_unknown;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "POP");
 
@@ -276,6 +288,14 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (g_ascii_strncasecmp(line, "STLS", 4) == 0) {
           data_val->stls_request = TRUE;
         }
+
+        if (g_ascii_strncasecmp(line, "USER", 4) == 0) {
+          pop_arg_type = pop_arg_type_username;
+        }
+
+        if (g_ascii_strncasecmp(line, "PASS", 4) == 0) {
+          pop_arg_type = pop_arg_type_password;
+        }
       } else {
         if (data_val->msg_request) {
           /* this is a response to a RETR or TOP command */
@@ -293,7 +313,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (data_val->stls_request) {
           if (g_ascii_strncasecmp(line, "+OK ", 4) == 0) {
               /* This is the last non-TLS frame. */
-              ssl_starttls_ack(ssl_handle, pinfo, pop_handle);
+              ssl_starttls_ack(tls_handle, pinfo, pop_handle);
           }
           data_val->stls_request = FALSE;
         }
@@ -305,43 +325,62 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   }
 
 
-  if (tree) {
-    /*
-     * Add the rest of the first line as request or
-     * reply param/description.
-     */
-    if (linelen != 0) {
-      proto_tree_add_item(reqresp_tree,
-                          (is_request) ?
-                              hf_pop_request_parameter :
-                              hf_pop_response_description,
-                          tvb, offset, linelen, ENC_ASCII|ENC_NA);
+  /*
+   * Add the rest of the first line as request or
+   * reply param/description.
+   */
+  if (linelen != 0) {
+    tap_credential_t* auth;
+    proto_tree_add_item(reqresp_tree,
+                        (is_request) ?
+                            hf_pop_request_parameter :
+                            hf_pop_response_description,
+                        tvb, offset, linelen, ENC_ASCII|ENC_NA);
+    switch (pop_arg_type) {
+      case pop_arg_type_username:
+        if (!data_val->username && linelen > 0) {
+          data_val->username = tvb_get_string_enc(wmem_file_scope(), tvb, offset, linelen, ENC_NA|ENC_ASCII);;
+          data_val->username_num = pinfo->num;
+        }
+        break;
+      case pop_arg_type_password:
+        auth = wmem_new0(wmem_packet_scope(), tap_credential_t);
+        auth->num = pinfo->num;
+        auth->username_num = data_val->username_num;
+        auth->password_hf_id = hf_pop_request_parameter;
+        auth->username = data_val->username;
+        auth->proto = "POP3";
+        auth->info = wmem_strdup_printf(wmem_packet_scope(), "Username in packet %u", data_val->username_num);
+        tap_queue_packet(credentials_tap, pinfo, auth);
+        break;
+      default:
+        break;
     }
+  }
+  offset = next_offset;
+
+  /*
+   * Show the rest of the request or response as text,
+   * a line at a time.
+   */
+  while (tvb_offset_exists(tvb, offset)) {
+    /*
+     * Find the end of the line.
+     */
+    tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+
+    /*
+     * Put this line.
+     */
+    proto_tree_add_string_format(pop_tree,
+                                 (is_request) ?
+                                     hf_pop_request_data :
+                                     hf_pop_response_data,
+                                 tvb, offset,
+                                 next_offset - offset,
+                                 "", "%s",
+                                 tvb_format_text(tvb, offset, next_offset - offset));
     offset = next_offset;
-
-    /*
-     * Show the rest of the request or response as text,
-     * a line at a time.
-     */
-    while (tvb_offset_exists(tvb, offset)) {
-      /*
-       * Find the end of the line.
-       */
-      tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-
-      /*
-       * Put this line.
-       */
-      proto_tree_add_string_format(pop_tree,
-                                   (is_request) ?
-                                       hf_pop_request_data :
-                                       hf_pop_response_data,
-                                   tvb, offset,
-                                   next_offset - offset,
-                                   "", "%s",
-                                   tvb_format_text(tvb, offset, next_offset - offset));
-      offset = next_offset;
-    }
   }
   return tvb_captured_length(tvb);
 }
@@ -456,6 +495,8 @@ proto_register_pop(void)
 
   expert_pop = expert_register_protocol(proto_pop);
   expert_register_field_array(expert_pop, ei, array_length(ei));
+
+  credentials_tap = register_tap("credentials");
 }
 
 void
@@ -467,12 +508,12 @@ proto_reg_handoff_pop(void)
   /* find the IMF dissector */
   imf_handle = find_dissector_add_dependency("imf", proto_pop);
 
-  /* find the SSL dissector */
-  ssl_handle = find_dissector_add_dependency("ssl", proto_pop);
+  /* find the TLS dissector */
+  tls_handle = find_dissector_add_dependency("tls", proto_pop);
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

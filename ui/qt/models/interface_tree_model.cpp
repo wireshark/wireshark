@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -44,8 +45,8 @@ InterfaceTreeModel::InterfaceTreeModel(QObject *parent) :
     ,stat_cache_(NULL)
 #endif
 {
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(interfaceListChanged()));
-    connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
+    connect(wsApp, &WiresharkApplication::appInitialized, this, &InterfaceTreeModel::interfaceListChanged);
+    connect(wsApp, &WiresharkApplication::localInterfaceListChanged, this, &InterfaceTreeModel::interfaceListChanged);
 }
 
 InterfaceTreeModel::~InterfaceTreeModel(void)
@@ -114,11 +115,15 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             /* Only the name is being displayed */
             if ( col == IFTREE_COL_NAME )
             {
-                return QString(device->display_name);
-            }
-            else if ( col == IFTREE_COL_INTERFACE_NAME )
-            {
                 return QString(device->name);
+            }
+            else if ( col == IFTREE_COL_DESCRIPTION )
+            {
+                return QString(device->friendly_name);
+            }
+            else if ( col == IFTREE_COL_DISPLAY_NAME )
+            {
+                return QString(device->display_name);
             }
             else if ( col == IFTREE_COL_PIPE_PATH )
             {
@@ -147,7 +152,7 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             {
                 return QVariant::fromValue((int)device->if_info.type);
             }
-            else if ( col == IFTREE_COL_INTERFACE_COMMENT )
+            else if ( col == IFTREE_COL_COMMENT )
             {
                 QString comment = gchar_free_to_qstring(capture_dev_user_descr_find(device->name));
                 if ( comment.length() > 0 )
@@ -157,12 +162,20 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             }
             else if ( col == IFTREE_COL_DLT )
             {
-                QString linkname = QObject::tr("DLT %1").arg(device->active_dlt);
-                for (GList *list = device->links; list != NULL; list = g_list_next(list)) {
-                    link_row *linkr = (link_row*)(list->data);
-                    if (linkr->dlt != -1 && linkr->dlt == device->active_dlt) {
-                        linkname = linkr->name;
-                        break;
+                // XXX - this is duplicated in
+                // InterfaceTreeWidgetItem::updateInterfaceColumns;
+                // it should be done in common code somewhere.
+                QString linkname;
+                if (device->active_dlt == -1)
+                    linkname = "Unknown";
+                else {
+                    linkname = QObject::tr("DLT %1").arg(device->active_dlt);
+                    for (GList *list = device->links; list != Q_NULLPTR; list = gxx_list_next(list)) {
+                        link_row *linkr = gxx_list_data(link_row *, list);
+                        if (linkr->dlt == device->active_dlt) {
+                            linkname = linkr->name;
+                            break;
+                        }
                     }
                 }
 
@@ -245,19 +258,23 @@ QVariant InterfaceTreeModel::headerData(int section, Qt::Orientation orientation
             {
                 return tr("Show");
             }
-            else if ( section == IFTREE_COL_INTERFACE_NAME )
-            {
-                return tr("Friendly Name");
-            }
             else if ( section == IFTREE_COL_NAME )
             {
                 return tr("Interface Name");
+            }
+            else if ( section == IFTREE_COL_DESCRIPTION )
+            {
+                return tr("Friendly Name");
+            }
+            else if ( section == IFTREE_COL_DISPLAY_NAME )
+            {
+                return tr("Friendly Name");
             }
             else if ( section == IFTREE_COL_PIPE_PATH )
             {
                 return tr("Local Pipe Path");
             }
-            else if ( section == IFTREE_COL_INTERFACE_COMMENT )
+            else if ( section == IFTREE_COL_COMMENT )
             {
                 return tr("Comment");
             }
@@ -388,7 +405,6 @@ void InterfaceTreeModel::stopStatistic()
 void InterfaceTreeModel::updateStatistic(unsigned int idx)
 {
 #ifdef HAVE_LIBPCAP
-    guint diff;
     if ( ! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len <= (guint) idx )
         return;
 
@@ -403,12 +419,10 @@ void InterfaceTreeModel::updateStatistic(unsigned int idx)
         // We crash (on macOS at least) if we try to do this from ::showEvent.
         stat_cache_ = capture_stat_start(&global_capture_opts);
     }
-    if ( !stat_cache_ )
-        return;
 
     struct pcap_stat stats;
+    unsigned diff = 0;
 
-    diff = 0;
     if ( capture_stats(stat_cache_, device->name, &stats) )
     {
         if ( (int)(stats.ps_recv - device->last_packets) >= 0 )

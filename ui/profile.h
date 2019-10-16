@@ -6,7 +6,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __PROFILE_H__
 #define __PROFILE_H__
@@ -25,6 +26,7 @@ extern "C" {
 #define PROF_STAT_NEW      3
 #define PROF_STAT_CHANGED  4
 #define PROF_STAT_COPY     5
+#define PROF_STAT_IMPORT   6
 
 typedef struct {
     char     *name;             /* profile name */
@@ -32,6 +34,7 @@ typedef struct {
     int       status;
     gboolean  is_global;
     gboolean  from_global;
+    gboolean  is_import;
 } profile_def;
 
 /** @file
@@ -50,11 +53,12 @@ void init_profile_list(void);
  * @param status Current status
  * @param is_global Profile is in the global configuration directory
  * @param from_global Profile is copied from the global configuration directory
+ * @param is_import Profile has been imported and no directory has to be created
  *
  * @return A pointer to the new profile list
  */
 GList *add_to_profile_list(const char *name, const char *parent, int status,
-                           gboolean is_global, gboolean from_global);
+                           gboolean is_global, gboolean from_global, gboolean is_import);
 
 /** Refresh the current (non-edited) profile list.
  */
@@ -119,7 +123,7 @@ gboolean delete_current_profile(void);
 #endif /* __PROFILE_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

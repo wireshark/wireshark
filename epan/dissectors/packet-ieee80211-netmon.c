@@ -35,7 +35,7 @@ static int proto_netmon_802_11 = -1;
 /*
  * Augmented with phy types from
  *
- *    https://msdn.microsoft.com/en-us/library/windows/hardware/ff548741(v=vs.85).aspx
+ *    https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/content/windot11/ne-windot11-_dot11_phy_type
  */
 #define PHY_TYPE_UNKNOWN     0
 #define PHY_TYPE_FHSS        1
@@ -109,11 +109,11 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   /*
    * XXX - is this the NDIS_OBJECT_HEADER structure:
    *
-   *    https://msdn.microsoft.com/en-us/library/windows/hardware/ff566588(v=vs.85).aspx
+   *    https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/content/ntddndis/ns-ntddndis-_ndis_object_header
    *
    * at the beginning of a DOT11_EXTSTA_RECV_CONTEXT structure:
    *
-   *    https://msdn.microsoft.com/en-us/library/windows/hardware/ff548626(v=vs.85).aspx
+   *    https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/content/windot11/ns-windot11-dot11_extsta_recv_context
    *
    * If so, the byte at an offset of 0 would be the appropriate type for the
    * structure following it, i.e. NDIS_OBJECT_TYPE_DEFAULT.
@@ -387,7 +387,7 @@ proto_reg_handoff_netmon_802_11(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

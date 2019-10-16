@@ -44,12 +44,16 @@ typedef struct {
 
 /* CoAP Transaction tracking information */
 typedef struct {
-	guint32  req_frame;
-	guint32  rsp_frame;
-	nstime_t req_time;
+	wmem_map_t    *req_rsp;
 	wmem_strbuf_t *uri_str_strbuf;
 	oscore_info_t *oscore_info;		/* OSCORE transaction to decrypt response */
 } coap_transaction;
+
+typedef struct {
+	guint32  req_frame;
+	guint32  rsp_frame;
+	nstime_t req_time;
+} coap_request_response;
 
 /* common header fields, subtrees and expert info for SSL and DTLS dissectors */
 typedef struct coap_common_dissect {
@@ -81,7 +85,8 @@ typedef struct coap_common_dissect {
 		int opt_location_query;
 		int opt_uri_path;
 		int opt_uri_path_recon;
-		int opt_observe;
+		int opt_observe_req;
+		int opt_observe_rsp;
 		int opt_accept;
 		int opt_if_match;
 		int opt_block_number;
@@ -122,7 +127,7 @@ typedef struct coap_common_dissect {
 } coap_common_dissect_t;
 
 guint8 dissect_coap_code(tvbuff_t *tvb, proto_tree *coap_tree, gint *offset, coap_common_dissect_t *dissect_hf, guint8 *code_class);
-int dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, gint offset, gint offset_end, coap_info *coinfo, coap_common_dissect_t *dissect_hf);
+int dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, gint offset, gint offset_end, guint8 code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf);
 void dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, proto_tree *parent_tree, gint offset, gint offset_end, guint8 code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf, gboolean oscore);
 
 extern const value_string coap_vals_observe_options[];
@@ -136,7 +141,7 @@ coap_common_dissect_t name = {							\
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
-		-1,								\
+		-1, -1,								\
 		},								\
 	/* ett */ {								\
 		-1, -1,								\
@@ -275,7 +280,7 @@ coap_common_dissect_t name = {							\
 	    NULL, HFILL }							\
 	},									\
 	{ & name .hf.opt_object_security_kid_present,				\
-	  { "Key ID Present",  prefix ".opt.object_security_kid",		\
+	  { "Key ID Present",  prefix ".opt.object_security_kid_present",	\
 	    FT_BOOLEAN, 8, NULL, COAP_OBJECT_SECURITY_KID_MASK,			\
 	    NULL, HFILL }							\
 	},									\
@@ -314,9 +319,14 @@ coap_common_dissect_t name = {							\
 	    FT_STRING, BASE_NONE, NULL, 0x0,					\
 	    NULL, HFILL }							\
 	},									\
-	{ & name .hf.opt_observe,						\
+	{ & name .hf.opt_observe_req,						\
 	  { "Observe",  prefix ".opt.observe",					\
 	    FT_UINT32, BASE_DEC, VALS(coap_vals_observe_options), 0x0,		\
+	    NULL, HFILL }							\
+	},									\
+	{ & name .hf.opt_observe_rsp,						\
+	  { "Observe sequence number",  prefix ".opt.observe",			\
+	    FT_UINT32, BASE_DEC, NULL, 0x0,					\
 	    NULL, HFILL }							\
 	},									\
 	{ & name .hf.opt_accept,						\
@@ -387,7 +397,7 @@ coap_common_dissect_t name = {							\
 #endif /* __PACKET_COAP_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

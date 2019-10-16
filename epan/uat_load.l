@@ -357,12 +357,18 @@ comment #[^\n]*\n
 DIAG_ON_FLEX
 
 gboolean
-uat_load(uat_t *uat, char **errx)
+uat_load(uat_t *uat, const gchar *filename, char **errx)
 {
-	gchar *fname = uat_get_actual_filename(uat, FALSE);
+	gchar *fname;
 	FILE *in;
 	yyscan_t scanner;
 	uat_load_scanner_state_t state;
+
+	if (filename) {
+		fname = g_strdup(filename);
+	} else {
+		fname = uat_get_actual_filename(uat, FALSE);
+	}
 
 	if (!fname) {
 		UAT_UPDATE(uat);

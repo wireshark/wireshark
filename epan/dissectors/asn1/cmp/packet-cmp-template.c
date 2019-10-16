@@ -23,6 +23,7 @@
 #include "packet-crmf.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
+#include "packet-pkcs10.h"
 #include "packet-tcp.h"
 #include "packet-http.h"
 #include <epan/prefs.h>
@@ -91,7 +92,6 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	tvbuff_t   *next_tvb;
 	guint32    pdu_len;
 	guint8     pdu_type;
-	nstime_t   ts;
 	proto_item *item=NULL;
 	proto_item *ti=NULL;
 	proto_tree *tree=NULL;
@@ -139,9 +139,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_poll_ref, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			ts.secs = tvb_get_ntohl(tvb, 4);
-			ts.nsecs = 0;
-			proto_tree_add_time(tcptrans_tree, hf_cmp_tcptrans_ttcb, tvb, offset, 4, &ts);
+			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_ttcb, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 			offset += 4;
 			break;
 		case CMP_TYPE_POLLREQ:
@@ -154,9 +152,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_next_poll_ref, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			ts.secs = tvb_get_ntohl(tvb, 4);
-			ts.nsecs = 0;
-			proto_tree_add_time(tcptrans_tree, hf_cmp_tcptrans_ttcb, tvb, offset, 4, &ts);
+			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_ttcb, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 			offset += 4;
 
 			next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_reported_length_remaining(tvb, offset), pdu_len);

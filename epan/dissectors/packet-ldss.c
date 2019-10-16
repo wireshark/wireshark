@@ -319,7 +319,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb, 0, 2, ENC_BIG_ENDIAN);
 	ti = proto_tree_add_uint(ldss_tree, hf_ldss_message_detail,
 			tvb, 0, 0, messageDetail);
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 	proto_tree_add_item(ldss_tree, hf_ldss_digest_type,
 			tvb, 2,	    1,	ENC_BIG_ENDIAN);
 	proto_tree_add_item(ldss_tree, hf_ldss_compression,
@@ -466,13 +466,10 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		 * Compression: 0
 		 * (remote end sends the file identified by the digest) */
 		guint offset = 0;
-		gboolean already_dissected = TRUE;
 
 		col_set_str(pinfo->cinfo, COL_INFO, "LDSS File Transfer (Requesting file - pull)");
 
 		if (transfer_info->req == NULL) {
-
-			already_dissected = FALSE;
 			transfer_info->req = wmem_new0(wmem_file_scope(), ldss_file_request_t);
 			transfer_info->req->file = wmem_new0(wmem_file_scope(), ldss_file_t);
 		}
@@ -490,40 +487,30 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			gint next_offset;
 			const guint8 *line;
 			int linelen;
-			gboolean is_digest_line;
-			guint digest_type_len;
+			guint digest_type_len = 0;
 
 			linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
 			/* Include new-line in line */
-			line = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, linelen+1); /* XXX - memory leak? */
+			line = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, linelen, ENC_ASCII);
 
 			line_tree = proto_tree_add_subtree(ldss_tree, tvb, offset, linelen,
 							 ett_ldss_transfer_req, NULL,
 							 tvb_format_text(tvb, offset, next_offset-offset));
 
-			/* Reduce code duplication processing digest lines.
-			 * There are too many locals to pass to a function - the signature
-			 * looked pretty ugly when I tried! */
-			is_digest_line = FALSE;
-
 			if (strncmp(line,"md5:",4)==0) {
-				is_digest_line = TRUE;
 				digest_type_len = 4;
 				transfer_info->file->digest_type = DIGEST_TYPE_MD5;
 			}
 			else if (strncmp(line, "sha1:", 5)==0) {
-				is_digest_line = TRUE;
 				digest_type_len = 5;
 				transfer_info->file->digest_type = DIGEST_TYPE_SHA1;
 			}
 			else if (strncmp(line, "sha256:", 7)==0) {
-				is_digest_line = TRUE;
 				digest_type_len = 7;
 				transfer_info->file->digest_type = DIGEST_TYPE_SHA256;
 			}
 			else if (strncmp(line, "unknown:", 8)==0) {
-				is_digest_line = TRUE;
 				digest_type_len = 8;
 				transfer_info->file->digest_type = DIGEST_TYPE_UNKNOWN;
 			}
@@ -533,7 +520,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				transfer_info->req->size = g_ascii_strtoull(line+6, NULL, 10);
 				ti = proto_tree_add_uint64(line_tree, hf_ldss_size,
 						tvb, offset+6, linelen-6, transfer_info->req->size);
-				PROTO_ITEM_SET_GENERATED(ti);
+				proto_item_set_generated(ti);
 			}
 			else if (strncmp(line, "Start: ", 7)==0) {
 				/* Sample offset line:
@@ -541,7 +528,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				transfer_info->req->offset = g_ascii_strtoull(line+7, NULL, 10);
 				ti = proto_tree_add_uint64(line_tree, hf_ldss_offset,
 						tvb, offset+7, linelen-7, transfer_info->req->offset);
-				PROTO_ITEM_SET_GENERATED(ti);
+				proto_item_set_generated(ti);
 			}
 			else if (strncmp(line, "Compression: ", 13)==0) {
 				/* Sample compression line:
@@ -549,18 +536,18 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				transfer_info->req->compression = (gint8)strtol(line+13, NULL, 10); /* XXX - bad cast */
 				ti = proto_tree_add_uint(line_tree, hf_ldss_compression,
 						tvb, offset+13, linelen-13, transfer_info->req->compression);
-				PROTO_ITEM_SET_GENERATED(ti);
+				proto_item_set_generated(ti);
 			}
 			else {
 				proto_tree_add_expert(line_tree, pinfo, &ei_ldss_unrecognized_line, tvb, offset, linelen);
 			}
 
-			if (is_digest_line) {
+			if (digest_type_len > 0) {
 				proto_item *tii = NULL;
 
 				/* Sample digest-type/digest line:
 				 * md5:0123456789ABCDEF\n */
-				if (!already_dissected) {
+				if (!transfer_info->file->digest) {
 					GByteArray *digest_bytes;
 
 					digest_bytes = g_byte_array_new();
@@ -579,11 +566,11 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 				tii = proto_tree_add_uint(line_tree, hf_ldss_digest_type,
 						tvb, offset, digest_type_len, transfer_info->file->digest_type);
-				PROTO_ITEM_SET_GENERATED(tii);
+				proto_item_set_generated(tii);
 				tii = proto_tree_add_bytes(line_tree, hf_ldss_digest,
 						tvb, offset+digest_type_len, MIN(linelen-digest_type_len, DIGEST_LEN),
 						transfer_info->file->digest);
-				PROTO_ITEM_SET_GENERATED(tii);
+				proto_item_set_generated(tii);
 			}
 
 			offset = next_offset;
@@ -593,7 +580,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		if (transfer_info->resp_num != 0) {
 			ti = proto_tree_add_uint(ldss_tree, hf_ldss_response_in,
 						 tvb, 0, 0, transfer_info->resp_num);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 		}
 
 		transfer_info->req->num = pinfo->num;
@@ -676,7 +663,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 #endif
 		ti = proto_tree_add_uint(ldss_tree, hf_ldss_digest_type,
 				tvb, 0, 0, transfer_info->file->digest_type);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 		if (transfer_info->file->digest != NULL) {
 			/* This is ugly. You can't add bytes of nonzero length and have
 			 * filtering work correctly unless you give a valid location in
@@ -686,23 +673,23 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			ti = proto_tree_add_bytes(ldss_tree, hf_ldss_digest,
 					tvb, 0, DIGEST_LEN, transfer_info->file->digest);
 		}
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 		ti = proto_tree_add_uint64(ldss_tree, hf_ldss_size,
 				tvb, 0, 0, size);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 		ti = proto_tree_add_uint64(ldss_tree, hf_ldss_offset,
 				tvb, 0, 0, offset);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 		ti = proto_tree_add_uint(ldss_tree, hf_ldss_compression,
 				tvb, 0, 0, compression);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 		/* Link to the request for a pull. */
 		if (transfer_info->broadcast->message_id == MESSAGE_ID_WILLSEND &&
 				transfer_info->req != NULL &&
 				transfer_info->req->num != 0) {
 			ti = proto_tree_add_uint(ldss_tree, hf_ldss_response_to,
 					tvb, 0, 0, transfer_info->req->num);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 		}
 	}
 
@@ -715,21 +702,21 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			     &transfer_info->req->ts);
 		ti = proto_tree_add_time(ldss_tree, hf_ldss_transfer_response_time,
 					 tvb, 0, 0, &pull_response_time);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 	}
 
 	/* Link the transfer back to the initiating broadcast. Response time is
 	 * calculated as the time from broadcast to completed transfer. */
 	ti = proto_tree_add_uint(ldss_tree, hf_ldss_initiated_by,
 				 tvb, 0, 0, transfer_info->broadcast->num);
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 
 	if (transfer_info->resp_num != 0) {
 		nstime_delta(&broadcast_response_time, &transfer_info->resp_ts,
 			     &transfer_info->broadcast->ts);
 		ti = proto_tree_add_time(ldss_tree, hf_ldss_transfer_completed_in,
 					 tvb, 0, 0, &broadcast_response_time);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 	}
 
 	/* This conv got its addr2/port2 set by the TCP dissector because a TCP
@@ -748,12 +735,11 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 static gboolean
 is_broadcast(address* addr)
 {
-	static address broadcast_addr;
 	static const guint8 broadcast_addr_bytes[6] = {
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 	};
+	static const address broadcast_addr = ADDRESS_INIT(AT_ETHER, 6, broadcast_addr_bytes);
 
-	set_address(&broadcast_addr, AT_ETHER, 6, broadcast_addr_bytes);
 	return addresses_equal(addr, &broadcast_addr);
 }
 
@@ -943,7 +929,7 @@ proto_reg_handoff_ldss (void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

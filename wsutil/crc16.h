@@ -55,6 +55,12 @@ WS_DLL_PUBLIC guint16 crc16_ccitt_seed(const guint8 *buf, guint len, guint16 see
  @return the CRC16 checksum for the buffer */
 WS_DLL_PUBLIC guint16 crc16_iso14443a(const guint8 *buf, guint len);
 
+/** Compute the 16bit CRC value of a buffer as defined in USB Specification.
+ @param buf The buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @return the CRC16 checksum for the buffer */
+WS_DLL_PUBLIC guint16 crc16_usb(const guint8 *buf, guint len);
+
 /** Calculates a CRC16 checksum for the given buffer with the polynom
  *  0x5935 using a precompiled CRC table
  * @param buf a pointer to a buffer of the given length

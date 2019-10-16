@@ -4,7 +4,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <stdio.h>
 
@@ -19,6 +20,7 @@
 
 #include <ui/qt/widgets/display_filter_edit.h>
 #include <ui/qt/widgets/display_filter_combo.h>
+#include <ui/qt/utils/color_utils.h>
 #include "wireshark_application.h"
 
 // If we ever add support for multiple windows this will need to be replaced.
@@ -31,43 +33,16 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     // Enabling autocompletion here gives us two simultaneous completions:
     // Inline (highlighted text) for entire filters, handled here and popup
     // completion for fields handled by DisplayFilterEdit.
-    setAutoCompletion(false);
+    setCompleter(0);
     setLineEdit(new DisplayFilterEdit(this, DisplayFilterToApply));
-    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+    // Default is Preferred.
+    setSizePolicy(QSizePolicy::MinimumExpanding, sizePolicy().verticalPolicy());
     setAccessibleName(tr("Display filter selector"));
     cur_display_filter_combo = this;
-    setStyleSheet(
-            "QComboBox {"
-#ifdef Q_OS_MAC
-            "  border: 1px solid gray;"
-#else
-            "  border: 1px solid palette(shadow);"
-#endif
-            "  border-radius: 3px;"
-            "  padding: 0px 0px 0px 0px;"
-            "  margin-left: 0px;"
-            "  min-width: 20em;"
-            " }"
-
-            "QComboBox::drop-down {"
-            "  subcontrol-origin: padding;"
-            "  subcontrol-position: top right;"
-            "  width: 14px;"
-            "  border-left-width: 0px;"
-            " }"
-
-            "QComboBox::down-arrow {"
-            "  image: url(:/stock_icons/14x14/x-filter-dropdown.png);"
-            " }"
-
-            "QComboBox::down-arrow:on { /* shift the arrow when popup is open */"
-            "  top: 1px;"
-            "  left: 1px;"
-            "}"
-            );
+    updateStyleSheet();
     setToolTip(tr("Select from previously used filters."));
 
-    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(updateMaxCount()));
+    connect(wsApp, &WiresharkApplication::preferencesChanged, this, &DisplayFilterCombo::updateMaxCount);
 }
 
 extern "C" void dfilter_recent_combo_write_all(FILE *rf) {
@@ -103,10 +78,49 @@ bool DisplayFilterCombo::event(QEvent *event)
         }
         break;
     }
+    case QEvent::ApplicationPaletteChange:
+        updateStyleSheet();
+        break;
     default:
         break;
     }
     return QComboBox::event(event);
+}
+
+void DisplayFilterCombo::updateStyleSheet()
+{
+    const char *display_mode = ColorUtils::themeIsDark() ? "dark" : "light";
+
+    QString ss = QString(
+                "QComboBox {"
+#ifdef Q_OS_MAC
+                "  border: 1px solid gray;"
+#else
+                "  border: 1px solid palette(shadow);"
+#endif
+                "  border-radius: 3px;"
+                "  padding: 0px 0px 0px 0px;"
+                "  margin-left: 0px;"
+                "  min-width: 20em;"
+                " }"
+
+                "QComboBox::drop-down {"
+                "  subcontrol-origin: padding;"
+                "  subcontrol-position: top right;"
+                "  width: 14px;"
+                "  border-left-width: 0px;"
+                " }"
+
+                "QComboBox::down-arrow {"
+                "  image: url(:/stock_icons/14x14/x-filter-dropdown.%1.png);"
+                " }"
+
+                "QComboBox::down-arrow:on { /* shift the arrow when popup is open */"
+                "  top: 1px;"
+                "  left: 1px;"
+                "}"
+                ).arg(display_mode);
+    setStyleSheet(ss);
 }
 
 bool DisplayFilterCombo::checkDisplayFilter()

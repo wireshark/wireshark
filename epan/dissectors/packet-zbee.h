@@ -766,13 +766,208 @@
 #define ZBEE_MFG_CODE_TCP                   0x1147
 #define ZBEE_MFG_CODE_ROGERS                0x1148
 #define ZBEE_MFG_CODE_CREE                  0x1149
-#define ZBEE_MFG_CODE_ROBERT_BOSCH          0x114a
+#define ZBEE_MFG_CODE_ROBERT_BOSCH_LLC      0x114a
 #define ZBEE_MFG_CODE_IBIS                  0x114b
 #define ZBEE_MFG_CODE_QUIRKY                0x114c
 #define ZBEE_MFG_CODE_EFERGY                0x114d
 #define ZBEE_MFG_CODE_SMARTLABS             0x114e
 #define ZBEE_MFG_CODE_EVERSPRING            0x114f
 #define ZBEE_MFG_CODE_SWANN                 0x1150
+#define ZBEE_MFG_CODE_SONETER               0x1151
+#define ZBEE_MFG_CODE_SAMSUNG_SDS           0x1152
+#define ZBEE_MFG_CODE_UNIBAND_ELECTRO       0x1153
+#define ZBEE_MFG_CODE_ACCTON_TECHNOLOGY     0x1154
+#define ZBEE_MFG_CODE_BOSCH_THERMOTECH      0x1155
+#define ZBEE_MFG_CODE_WINCOR_NIXDORF        0x1156
+#define ZBEE_MFG_CODE_OHSUNG_ELECTRO        0x1157
+#define ZBEE_MFG_CODE_ZEN_WITHIN            0x1158
+#define ZBEE_MFG_CODE_TECH_4_HOME           0x1159
+#define ZBEE_MFG_CODE_NANOLEAF              0x115A
+#define ZBEE_MFG_CODE_KEEN_HOME             0x115B
+#define ZBEE_MFG_CODE_POLY_CONTROL          0x115C
+#define ZBEE_MFG_CODE_EASTFIELD_LIGHT       0x115D
+#define ZBEE_MFG_CODE_IP_DATATEL            0x115E
+#define ZBEE_MFG_CODE_LUMI_UNITED_TECH      0x115F
+#define ZBEE_MFG_CODE_SENGLED_OPTOELEC      0x1160
+#define ZBEE_MFG_CODE_REMOTE_SOLUTION       0x1161
+#define ZBEE_MFG_CODE_ABB_GENWAY_XIAMEN     0x1162
+#define ZBEE_MFG_CODE_ZHEJIANG_REXENSE      0x1163
+#define ZBEE_MFG_CODE_FOREE_TECHNOLOGY      0x1164
+#define ZBEE_MFG_CODE_OPEN_ACCESS_TECH      0x1165
+#define ZBEE_MFG_CODE_INNR_LIGHTNING        0x1166
+#define ZBEE_MFG_CODE_TECHWORLD             0x1167
+#define ZBEE_MFG_CODE_LEEDARSON_LIGHT       0x1168
+#define ZBEE_MFG_CODE_ARZEL_ZONING          0x1169
+#define ZBEE_MFG_CODE_HOLLEY_TECH           0x116A
+#define ZBEE_MFG_CODE_BELDON_TECH           0x116B
+#define ZBEE_MFG_CODE_FLEXTRONICS           0x116C
+#define ZBEE_MFG_CODE_SHENZHEN_MEIAN        0x116D
+#define ZBEE_MFG_CODE_LOWES                 0x116E
+#define ZBEE_MFG_CODE_SIGMA_CONNECT         0x116F
+#define ZBEE_MFG_CODE_WULIAN                0x1171
+#define ZBEE_MFG_CODE_PLUGWISE_BV           0x1172
+#define ZBEE_MFG_CODE_TITAN_PRODUCTS        0x1173
+#define ZBEE_MFG_CODE_ECOSPECTRAL           0x1174
+#define ZBEE_MFG_CODE_D_LINK                0x1175
+#define ZBEE_MFG_CODE_TECHNICOLOR_HOME      0x1176
+#define ZBEE_MFG_CODE_OPPLE_LIGHTING        0x1177
+#define ZBEE_MFG_CODE_WISTRON_NEWEB         0x1178
+#define ZBEE_MFG_CODE_QMOTION_SHADES        0x1179
+#define ZBEE_MFG_CODE_INSTA_ELEKTRO         0x117A
+#define ZBEE_MFG_CODE_SHANGHAI_VANCOUNT     0x117B
+#define ZBEE_MFG_CODE_IKEA_OF_SWEDEN        0x117C
+#define ZBEE_MFG_CODE_RT_RK                 0x117D
+#define ZBEE_MFG_CODE_SHENZHEN_FEIBIT       0x117E
+#define ZBEE_MFG_CODE_EU_CONTROLS           0x117F
+#define ZBEE_MFG_CODE_TELKONET              0x1180
+#define ZBEE_MFG_CODE_THERMAL_SOLUTION      0x1181
+#define ZBEE_MFG_CODE_POM_CUBE              0x1182
+#define ZBEE_MFG_CODE_EI_ELECTRONICS        0x1183
+#define ZBEE_MFG_CODE_OPTOGA                0x1184
+#define ZBEE_MFG_CODE_STELPRO               0x1185
+#define ZBEE_MFG_CODE_LYNXUS_TECH           0x1186
+#define ZBEE_MFG_CODE_SEMICONDUCTOR_COM     0x1187
+#define ZBEE_MFG_CODE_TP_LINK               0x1188
+#define ZBEE_MFG_CODE_LEDVANCE_LLC          0x1189
+#define ZBEE_MFG_CODE_NORTEK                0x118A
+#define ZBEE_MFG_CODE_IREVO_ASSA_ABBLOY     0x118B
+#define ZBEE_MFG_CODE_MIDEA                 0x118C
+#define ZBEE_MFG_CODE_ZF_FRIEDRICHSHAF      0x118D
+#define ZBEE_MFG_CODE_CHECKIT               0x118E
+#define ZBEE_MFG_CODE_ACLARA                0x118F
+#define ZBEE_MFG_CODE_NOKIA                 0x1190
+#define ZBEE_MFG_CODE_GOLDCARD_HIGHTECH     0x1191
+#define ZBEE_MFG_CODE_GEORGE_WILSON         0x1192
+#define ZBEE_MFG_CODE_EASY_SAVER_CO         0x1193
+#define ZBEE_MFG_CODE_ZTE_CORPORATION       0x1194
+#define ZBEE_MFG_CODE_ARRIS                 0x1195
+#define ZBEE_MFG_CODE_RELIANCE_BIG_TV       0x1196
+#define ZBEE_MFG_CODE_INSIGHT_ENERGY        0x1197
+#define ZBEE_MFG_CODE_THOMAS_RESEARCH       0x1198
+#define ZBEE_MFG_CODE_LI_SENG_TECH          0x1199
+#define ZBEE_MFG_CODE_SYSTEM_LEVEL_SOLU     0x119A
+#define ZBEE_MFG_CODE_MATRIX_LABS           0x119B
+#define ZBEE_MFG_CODE_SINOPE_TECH           0x119C
+#define ZBEE_MFG_CODE_JIUZHOU_GREEBLE       0x119D
+#define ZBEE_MFG_CODE_GUANGZHOU_LANVEE      0x119E
+#define ZBEE_MFG_CODE_VENSTAR               0x119F
+#define ZBEE_MFG_CODE_SLV                   0x1200
+#define ZBEE_MFG_CODE_HALO_SMART_LABS       0x1201
+#define ZBEE_MFG_CODE_SCOUT_SECURITY        0x1202
+#define ZBEE_MFG_CODE_ALIBABA_CHINA         0x1203
+#define ZBEE_MFG_CODE_RESOLUTION_PROD       0x1204
+#define ZBEE_MFG_CODE_SMARTLOK_INC          0x1205
+#define ZBEE_MFG_CODE_LUX_PRODUCTS_CORP     0x1206
+#define ZBEE_MFG_CODE_VIMAR_SPA             0x1207
+#define ZBEE_MFG_CODE_UNIVERSAL_LIGHT       0x1208
+#define ZBEE_MFG_CODE_ROBERT_BOSCH_GMBH     0x1209
+#define ZBEE_MFG_CODE_ACCENTURE             0x120A
+#define ZBEE_MFG_CODE_HEIMAN_TECHNOLOGY     0x120B
+#define ZBEE_MFG_CODE_SHENZHEN_HOMA         0x120C
+#define ZBEE_MFG_CODE_VISION_ELECTRO        0x120D
+#define ZBEE_MFG_CODE_LENOVO                0x120E
+#define ZBEE_MFG_CODE_PRESCIENSE_RD         0x120F
+#define ZBEE_MFG_CODE_SHENZHEN_SEASTAR      0x1210
+#define ZBEE_MFG_CODE_SENSATIVE_AB          0x1211
+#define ZBEE_MFG_CODE_SOLAREDGE             0x1212
+#define ZBEE_MFG_CODE_ZIPATO                0x1213
+#define ZBEE_MFG_CODE_CHINA_FIRE_SEC        0x1214
+#define ZBEE_MFG_CODE_QUBY_BV               0x1215
+#define ZBEE_MFG_CODE_HANGZHOU_ROOMBANK     0x1216
+#define ZBEE_MFG_CODE_AMAZON_LAB126         0x1217
+#define ZBEE_MFG_CODE_PAULMANN_LICHT        0x1218
+#define ZBEE_MFG_CODE_SHENZHEN_ORVIBO       0x1219
+#define ZBEE_MFG_CODE_TCI_TELECOMM          0x121A
+#define ZBEE_MFG_CODE_MUELLER_LICHT_INT     0x121B
+#define ZBEE_MFG_CODE_AURORA_LIMITED        0x121C
+#define ZBEE_MFG_CODE_SMART_DCC             0x121D
+#define ZBEE_MFG_CODE_SHANGHAI_UMEINFO      0x121E
+#define ZBEE_MFG_CODE_CARBON_TRACK          0x121F
+#define ZBEE_MFG_CODE_SOMFY                 0x1220
+#define ZBEE_MFG_CODE_VIESSMAN_ELEKTRO      0x1221
+#define ZBEE_MFG_CODE_HILDEBRAND_TECH       0x1222
+#define ZBEE_MFG_CODE_ONKYO_TECH            0x1223
+#define ZBEE_MFG_CODE_SHENZHEN_SUNRICH      0x1224
+#define ZBEE_MFG_CODE_XIU_XIU_TECH          0x1225
+#define ZBEE_MFG_CODE_ZUMTOBEL_GROUP        0x1226
+#define ZBEE_MFG_CODE_SHENZHEN_KAADAS       0x1227
+#define ZBEE_MFG_CODE_SHANGHAI_XIAOYAN      0x1228
+#define ZBEE_MFG_CODE_CYPRESS_SEMICOND      0x1229
+#define ZBEE_MFG_CODE_XAL_GMBH              0x122A
+#define ZBEE_MFG_CODE_INERGY_SYSTEMS        0x122B
+#define ZBEE_MFG_CODE_ALFRED_KARCHER        0x122C
+#define ZBEE_MFG_CODE_ADUROLIGHT_MANU       0x122D
+#define ZBEE_MFG_CODE_GROUPE_MULLER         0x122E
+#define ZBEE_MFG_CODE_V_MARK_ENTERPRI       0x122F
+#define ZBEE_MFG_CODE_LEAD_ENERGY_AG        0x1230
+#define ZBEE_MFG_CODE_UIOT_GROUP            0x1231
+#define ZBEE_MFG_CODE_AXXESS_INDUSTRIES     0x1232
+#define ZBEE_MFG_CODE_THIRD_REALITY_INC     0x1233
+#define ZBEE_MFG_CODE_DSR_CORPORATION       0x1234
+#define ZBEE_MFG_CODE_GUANGZHOU_VENSI       0x1235
+#define ZBEE_MFG_CODE_SCHLAGE_LOCK_ALL      0x1236
+#define ZBEE_MFG_CODE_NET2GRID              0x1237
+#define ZBEE_MFG_CODE_AIRAM_ELECTRIC        0x1238
+#define ZBEE_MFG_CODE_IMMAX_WPB_CZ          0x1239
+#define ZBEE_MFG_CODE_ZIV_AUTOMATION        0x123A
+#define ZBEE_MFG_CODE_HANGZHOU_IMAGIC       0x123B
+#define ZBEE_MFG_CODE_XIAMEN_LEELEN         0x123C
+#define ZBEE_MFG_CODE_OVERKIZ_SAS           0x123D
+#define ZBEE_MFG_CODE_FLONIDAN              0x123E
+#define ZBEE_MFG_CODE_HDL_AUTOATION         0x123F
+#define ZBEE_MFG_CODE_ARDOMUS_NETWORKS      0x1240
+#define ZBEE_MFG_CODE_SAMJIN_CO             0x1241
+#define ZBEE_MFG_CODE_SPRUE_AEGIS_PLC       0x1242
+#define ZBEE_MFG_CODE_INDRA_SISTEMAS        0x1243
+#define ZBEE_MFG_CODE_JBT_SMART_LIGHT       0x1244
+#define ZBEE_MFG_CODE_GE_LIGHTING_CURRE     0x1245
+#define ZBEE_MFG_CODE_DANFOSS               0x1246
+#define ZBEE_MFG_CODE_NIVISS_PHP_SP         0x1247
+#define ZBEE_MFG_CODE_FENGLIYUAN_ENERGY     0x1248
+#define ZBEE_MFG_CODE_NEXELEC               0x1249
+#define ZBEE_MFG_CODE_SICHUAN_BEHOME_PR     0x124A
+#define ZBEE_MFG_CODE_FUJIAN_STARNET        0x124B
+#define ZBEE_MFG_CODE_TOSHIBA_VISUAL_SO     0x124C
+#define ZBEE_MFG_CODE_LATCHABLE_INC         0x124D
+#define ZBEE_MFG_CODE_LS_DEUTSCHLAND        0x124E
+#define ZBEE_MFG_CODE_GLEDOPTO_CO_LTD       0x124F
+#define ZBEE_MFG_CODE_THE_HOME_DEPOT        0x1250
+#define ZBEE_MFG_CODE_NEONLITE_INTERNAT     0x1251
+#define ZBEE_MFG_CODE_ARLO_TECHNOLOGIES     0x1252
+#define ZBEE_MFG_CODE_XINGLUO_TECH          0x1253
+#define ZBEE_MFG_CODE_SIMON_ELECTRIC_CH     0x1254
+#define ZBEE_MFG_CODE_HANGZHOU_GREATSTA     0x1255
+#define ZBEE_MFG_CODE_SEQUENTRIC_ENERGY     0x1256
+#define ZBEE_MFG_CODE_SOLUM_CO_LTD          0x1257
+#define ZBEE_MFG_CODE_EAGLERISE_ELEC        0x1258
+#define ZBEE_MFG_CODE_FANTEM_TECH           0x1259
+#define ZBEE_MFG_CODE_YUNDING_NETWORK       0x125A
+#define ZBEE_MFG_CODE_ATLANTIC_GROUP        0x125B
+#define ZBEE_MFG_CODE_XIAMEN_INTRETECH      0x125C
+#define ZBEE_MFG_CODE_TUYA_GLOBAL_INC       0x125D
+#define ZBEE_MFG_CODE_XIAMEN_DNAKE_INTE     0x125E
+#define ZBEE_MFG_CODE_NIKO_NV               0x125F
+#define ZBEE_MFG_CODE_EMPORIA_ENERGY        0x1260
+#define ZBEE_MFG_CODE_SIKOM_AS              0x1261
+#define ZBEE_MFG_CODE_AXIS_LABS_INC         0x1262
+#define ZBEE_MFG_CODE_CURRENT_PRODUCTS      0x1263
+#define ZBEE_MFG_CODE_METERSIT_SRL          0x1264
+#define ZBEE_MFG_CODE_HORNBACH_BAUMARKT     0x1265
+#define ZBEE_MFG_CODE_DICEWORLD_SRL_A       0x1266
+#define ZBEE_MFG_CODE_ARC_TECHNOLOGY        0x1267
+#define ZBEE_MFG_CODE_KONKE_INFORMATION     0x1268
+#define ZBEE_MFG_CODE_SALTO_SYSTEMS_SL      0x1269
+#define ZBEE_MFG_CODE_SHYUGJ_TECHNOLOGY     0x126A
+#define ZBEE_MFG_CODE_BRAYDEN_AUTOMA        0x126B
+#define ZBEE_MFG_CODE_ENVIRONEXUS_PTY       0x126C
+#define ZBEE_MFG_CODE_ELTRA_NV_SA           0x126D
+#define ZBEE_MFG_CODE_XIAMOMI_COMMUNI       0x126E
+#define ZBEE_MFG_CODE_SHUNCOM_ELECTRON      0x126F
+#define ZBEE_MFG_CODE_VOLTALIS_SA           0x1270
+#define ZBEE_MFG_CODE_FEELUX_CO_LTD         0x1271
+#define ZBEE_MFG_CODE_SMARTPLUS_INC         0x1272
+#define ZBEE_MFG_CODE_HALEMEIER_GMBH        0x1273
+
 
 /* Manufacturer Names */
 #define ZBEE_MFG_CIRRONET                   "Cirronet"
@@ -1098,7 +1293,7 @@
 #define ZBEE_MFG_TCP                        "TCP"
 #define ZBEE_MFG_ROGERS                     "Rogers Communications Partnership"
 #define ZBEE_MFG_CREE                       "Cree"
-#define ZBEE_MFG_ROBERT_BOSCH               "Robert Bosch"
+#define ZBEE_MFG_ROBERT_BOSCH_LLC           "Robert Bosch LLC"
 #define ZBEE_MFG_IBIS                       "Ibis Networks"
 #define ZBEE_MFG_QUIRKY                     "Quirky"
 #define ZBEE_MFG_EFERGY                     "Efergy Technologies"
@@ -1106,6 +1301,200 @@
 #define ZBEE_MFG_EVERSPRING                 "Everspring Industry"
 #define ZBEE_MFG_SWANN                      "Swann Communications"
 #define ZBEE_MFG_TI                         "Texas Instruments"
+#define ZBEE_MFG_SONETER                    "Soneter"
+#define ZBEE_MFG_SAMSUNG_SDS                "Samsung SDS"
+#define ZBEE_MFG_UNIBAND_ELECTRO            "Uniband Electronic Corporation"
+#define ZBEE_MFG_ACCTON_TECHNOLOGY          "Accton Technology Corporation"
+#define ZBEE_MFG_BOSCH_THERMOTECH           "Bosch Thermotechnik GmbH"
+#define ZBEE_MFG_WINCOR_NIXDORF             "Wincor Nixdorf Inc."
+#define ZBEE_MFG_OHSUNG_ELECTRO             "Ohsung Electronics"
+#define ZBEE_MFG_ZEN_WITHIN                 "Zen Within, Inc."
+#define ZBEE_MFG_TECH_4_HOME                "Tech4home, Lda."
+#define ZBEE_MFG_NANOLEAF                   "Nanoleaf"
+#define ZBEE_MFG_KEEN_HOME                  "Keen Home, Inc."
+#define ZBEE_MFG_POLY_CONTROL               "Poly-Control APS"
+#define ZBEE_MFG_EASTFIELD_LIGHT            "Eastfield Lighting Co., Ltd Shenzhen"
+#define ZBEE_MFG_IP_DATATEL                 "IP Datatel, Inc."
+#define ZBEE_MFG_LUMI_UNITED_TECH           "Lumi United Techology, Ltd Shenzhen"
+#define ZBEE_MFG_SENGLED_OPTOELEC           "Sengled Optoelectronics Corp"
+#define ZBEE_MFG_REMOTE_SOLUTION            "Remote Solution Co., Ltd."
+#define ZBEE_MFG_ABB_GENWAY_XIAMEN          "ABB Genway Xiamen Electrical Equipment Co., Ltd."
+#define ZBEE_MFG_ZHEJIANG_REXENSE           "Zhejiang Rexense Tech"
+#define ZBEE_MFG_FOREE_TECHNOLOGY           "ForEE Technology"
+#define ZBEE_MFG_OPEN_ACCESS_TECH           "Open Access Technology Intl."
+#define ZBEE_MFG_INNR_LIGHTNING             "INNR Lighting BV"
+#define ZBEE_MFG_TECHWORLD                  "Techworld Industries"
+#define ZBEE_MFG_LEEDARSON_LIGHT            "Leedarson Lighting Co., Ltd."
+#define ZBEE_MFG_ARZEL_ZONING               "Arzel Zoning"
+#define ZBEE_MFG_HOLLEY_TECH                "Holley Technology"
+#define ZBEE_MFG_BELDON_TECH                "Beldon Technologies"
+#define ZBEE_MFG_FLEXTRONICS                "Flextronics"
+#define ZBEE_MFG_SHENZHEN_MEIAN             "Shenzhen Meian"
+#define ZBEE_MFG_LOWES                      "Lowes"
+#define ZBEE_MFG_SIGMA_CONNECT              "Sigma Connectivity"
+#define ZBEE_MFG_WULIAN                     "Wulian"
+#define ZBEE_MFG_PLUGWISE_BV                "Plugwise B.V."
+#define ZBEE_MFG_TITAN_PRODUCTS             "Titan Products"
+#define ZBEE_MFG_ECOSPECTRAL                "Ecospectral"
+#define ZBEE_MFG_D_LINK                     "D-Link"
+#define ZBEE_MFG_TECHNICOLOR_HOME           "Technicolor Home USA"
+#define ZBEE_MFG_OPPLE_LIGHTING             "Opple Lighting"
+#define ZBEE_MFG_WISTRON_NEWEB              "Wistron NeWeb Corp."
+#define ZBEE_MFG_QMOTION_SHADES             "QMotion Shades"
+#define ZBEE_MFG_INSTA_ELEKTRO              "Insta Elektro GmbH"
+#define ZBEE_MFG_SHANGHAI_VANCOUNT          "Shanghai Vancount"
+#define ZBEE_MFG_IKEA_OF_SWEDEN             "Ikea of Sweden"
+#define ZBEE_MFG_RT_RK                      "RT-RK"
+#define ZBEE_MFG_SHENZHEN_FEIBIT            "Shenzhen Feibit"
+#define ZBEE_MFG_EU_CONTROLS                "EuControls"
+#define ZBEE_MFG_TELKONET                   "Telkonet"
+#define ZBEE_MFG_THERMAL_SOLUTION           "Thermal Solution Resources"
+#define ZBEE_MFG_POM_CUBE                   "PomCube"
+#define ZBEE_MFG_EI_ELECTRONICS             "Ei Electronics"
+#define ZBEE_MFG_OPTOGA                     "Optoga"
+#define ZBEE_MFG_STELPRO                    "Stelpro"
+#define ZBEE_MFG_LYNXUS_TECH                "Lynxus Technologies Corp."
+#define ZBEE_MFG_SEMICONDUCTOR_COM          "Semiconductor Components"
+#define ZBEE_MFG_TP_LINK                    "TP-Link"
+#define ZBEE_MFG_LEDVANCE_LLC               "LEDVANCE LLC."
+#define ZBEE_MFG_NORTEK                     "Nortek"
+#define ZBEE_MFG_IREVO_ASSA_ABBLOY          "iRevo/Assa Abbloy Korea"
+#define ZBEE_MFG_MIDEA                      "Midea"
+#define ZBEE_MFG_ZF_FRIEDRICHSHAF           "ZF Friedrichshafen"
+#define ZBEE_MFG_CHECKIT                    "Checkit"
+#define ZBEE_MFG_ACLARA                     "Aclara"
+#define ZBEE_MFG_NOKIA                      "Nokia"
+#define ZBEE_MFG_GOLDCARD_HIGHTECH          "Goldcard High-tech Co., Ltd."
+#define ZBEE_MFG_GEORGE_WILSON              "George Wilson Industries Ltd."
+#define ZBEE_MFG_EASY_SAVER_CO              "EASY SAVER CO.,INC"
+#define ZBEE_MFG_ZTE_CORPORATION            "ZTE Corporation"
+#define ZBEE_MFG_ARRIS                      "ARRIS"
+#define ZBEE_MFG_RELIANCE_BIG_TV            "Reliance BIG TV"
+#define ZBEE_MFG_INSIGHT_ENERGY             "Insight Energy Ventures/Powerley"
+#define ZBEE_MFG_THOMAS_RESEARCH            "Thomas Research Products (Hubbell Lighting Inc.)"
+#define ZBEE_MFG_LI_SENG_TECH               "Li Seng Technology"
+#define ZBEE_MFG_SYSTEM_LEVEL_SOLU          "System Level Solutions Inc."
+#define ZBEE_MFG_MATRIX_LABS                "Matrix Labs"
+#define ZBEE_MFG_SINOPE_TECH                "Sinope Technologies"
+#define ZBEE_MFG_JIUZHOU_GREEBLE            "Jiuzhou Greeble"
+#define ZBEE_MFG_GUANGZHOU_LANVEE           "Guangzhou Lanvee Tech. Co. Ltd."
+#define ZBEE_MFG_VENSTAR                    "Venstar"
+#define ZBEE_MFG_SLV                        "SLV"
+#define ZBEE_MFG_HALO_SMART_LABS            "Halo Smart Labs"
+#define ZBEE_MFG_SCOUT_SECURITY             "Scout Security Inc."
+#define ZBEE_MFG_ALIBABA_CHINA              "Alibaba China Inc."
+#define ZBEE_MFG_RESOLUTION_PROD            "Resolution Products, Inc."
+#define ZBEE_MFG_SMARTLOK_INC               "Smartlok Inc."
+#define ZBEE_MFG_LUX_PRODUCTS_CORP          "Lux Products Corp."
+#define ZBEE_MFG_VIMAR_SPA                  "Vimar SpA"
+#define ZBEE_MFG_UNIVERSAL_LIGHT            "Universal Lighting Technologies"
+#define ZBEE_MFG_ROBERT_BOSCH_GMBH          "Robert Bosch, GmbH"
+#define ZBEE_MFG_ACCENTURE                  "Accenture"
+#define ZBEE_MFG_HEIMAN_TECHNOLOGY          "Heiman Technology Co., Ltd."
+#define ZBEE_MFG_SHENZHEN_HOMA              "Shenzhen HOMA Technology Co., Ltd."
+#define ZBEE_MFG_VISION_ELECTRO             "Vision-Electronics Technology"
+#define ZBEE_MFG_LENOVO                     "Lenovo"
+#define ZBEE_MFG_PRESCIENSE_RD              "Presciense R&D"
+#define ZBEE_MFG_SHENZHEN_SEASTAR           "Shenzhen Seastar Intelligence Co., Ltd."
+#define ZBEE_MFG_SENSATIVE_AB               "Sensative AB"
+#define ZBEE_MFG_SOLAREDGE                  "SolarEdge"
+#define ZBEE_MFG_ZIPATO                     "Zipato"
+#define ZBEE_MFG_CHINA_FIRE_SEC             "China Fire & Security Sensing Manufacturing (iHorn)"
+#define ZBEE_MFG_QUBY_BV                    "Quby BV"
+#define ZBEE_MFG_HANGZHOU_ROOMBANK          "Hangzhou Roombanker Technology Co., Ltd."
+#define ZBEE_MFG_AMAZON_LAB126              "Amazon Lab126"
+#define ZBEE_MFG_PAULMANN_LICHT             "Paulmann Licht GmbH"
+#define ZBEE_MFG_SHENZHEN_ORVIBO            "Shenzhen Orvibo Electronics Co. Ltd."
+#define ZBEE_MFG_TCI_TELECOMM               "TCI Telecommunications"
+#define ZBEE_MFG_MUELLER_LICHT_INT          "Mueller-Licht International Inc."
+#define ZBEE_MFG_AURORA_LIMITED             "Aurora Limited"
+#define ZBEE_MFG_SMART_DCC                  "SmartDCC"
+#define ZBEE_MFG_SHANGHAI_UMEINFO           "Shanghai UMEinfo Co. Ltd."
+#define ZBEE_MFG_CARBON_TRACK               "carbonTRACK"
+#define ZBEE_MFG_SOMFY                      "Somfy"
+#define ZBEE_MFG_VIESSMAN_ELEKTRO           "Viessmann Elektronik GmbH"
+#define ZBEE_MFG_HILDEBRAND_TECH            "Hildebrand Technology Ltd"
+#define ZBEE_MFG_ONKYO_TECH                 "Onkyo Technology Corporation"
+#define ZBEE_MFG_SHENZHEN_SUNRICH           "Shenzhen Sunricher Technology Ltd."
+#define ZBEE_MFG_XIU_XIU_TECH               "Xiu Xiu Technology Co., Ltd"
+#define ZBEE_MFG_ZUMTOBEL_GROUP             "Zumtobel Group"
+#define ZBEE_MFG_SHENZHEN_KAADAS            "Shenzhen Kaadas Intelligent Technology Co. Ltd"
+#define ZBEE_MFG_SHANGHAI_XIAOYAN           "Shanghai Xiaoyan Technology Co. Ltd"
+#define ZBEE_MFG_CYPRESS_SEMICOND           "Cypress Semiconductor "
+#define ZBEE_MFG_XAL_GMBH                   "XAL GmbH"
+#define ZBEE_MFG_INERGY_SYSTEMS             "Inergy Systems LLC"
+#define ZBEE_MFG_ALFRED_KARCHER             "Alfred Karcher GmbH & Co KG"
+#define ZBEE_MFG_ADUROLIGHT_MANU            "Adurolight Manufacturing "
+#define ZBEE_MFG_GROUPE_MULLER              "Groupe Muller"
+#define ZBEE_MFG_V_MARK_ENTERPRI            "V-Mark Enterprises Inc."
+#define ZBEE_MFG_LEAD_ENERGY_AG             "Lead Energy AG"
+#define ZBEE_MFG_UIOT_GROUP                 "UIOT Group"
+#define ZBEE_MFG_AXXESS_INDUSTRIES          "Axxess Industries Inc."
+#define ZBEE_MFG_THIRD_REALITY_INC          "Third Reality Inc."
+#define ZBEE_MFG_DSR_CORPORATION            "DSR Corporation"
+#define ZBEE_MFG_GUANGZHOU_VENSI            "Guangzhou Vensi Intelligent Technology Co. Ltd."
+#define ZBEE_MFG_SCHLAGE_LOCK_ALL           "Schlage Lock (Allegion)"
+#define ZBEE_MFG_NET2GRID                   "Net2Grid"
+#define ZBEE_MFG_AIRAM_ELECTRIC             "Airam Electric Oy Ab"
+#define ZBEE_MFG_IMMAX_WPB_CZ               "IMMAX WPB CZ"
+#define ZBEE_MFG_ZIV_AUTOMATION             "ZIV Automation"
+#define ZBEE_MFG_HANGZHOU_IMAGIC            "HangZhou iMagicTechnology Co., Ltd"
+#define ZBEE_MFG_XIAMEN_LEELEN              "Xiamen Leelen Technology Co. Ltd."
+#define ZBEE_MFG_OVERKIZ_SAS                "Overkiz SAS"
+#define ZBEE_MFG_FLONIDAN                   "Flonidan A/S"
+#define ZBEE_MFG_HDL_AUTOATION              "HDL Automation Co., Ltd."
+#define ZBEE_MFG_ARDOMUS_NETWORKS           "Ardomus Networks Corporation"
+#define ZBEE_MFG_SAMJIN_CO                  "Samjin Co., Ltd."
+#define ZBEE_MFG_SPRUE_AEGIS_PLC            "Sprue Aegis PLC"
+#define ZBEE_MFG_INDRA_SISTEMAS             "Indra Sistemas, S.A."
+#define ZBEE_MFG_JBT_SMART_LIGHT            "Shenzhen JBT Smart Lighting Co., Ltd."
+#define ZBEE_MFG_GE_LIGHTING_CURRE          "GE Lighting & Current"
+#define ZBEE_MFG_DANFOSS                    "Danfoss A/S"
+#define ZBEE_MFG_NIVISS_PHP_SP              "NIVISS PHP Sp. z o.o. Sp.k."
+#define ZBEE_MFG_FENGLIYUAN_ENERGY          "Shenzhen Fengliyuan Energy Conservating Technology Co. Ltd"
+#define ZBEE_MFG_NEXELEC                    "NEXELEC"
+#define ZBEE_MFG_SICHUAN_BEHOME_PR          "Sichuan Behome Prominent Technology Co., Ltd"
+#define ZBEE_MFG_FUJIAN_STARNET             "Fujian Star-net Communication Co., Ltd."
+#define ZBEE_MFG_TOSHIBA_VISUAL_SO          "Toshiba Visual Solutions Corporation"
+#define ZBEE_MFG_LATCHABLE_INC              "Latchable, Inc."
+#define ZBEE_MFG_LS_DEUTSCHLAND             "L&S Deutschland GmbH"
+#define ZBEE_MFG_GLEDOPTO_CO_LTD            "Gledopto Co., Ltd."
+#define ZBEE_MFG_THE_HOME_DEPOT             "The Home Depot"
+#define ZBEE_MFG_NEONLITE_INTERNAT          "Neonlite International Ltd."
+#define ZBEE_MFG_ARLO_TECHNOLOGIES          "Arlo Technologies, Inc."
+#define ZBEE_MFG_XINGLUO_TECH               "Xingluo Technology Co., Ltd."
+#define ZBEE_MFG_SIMON_ELECTRIC_CH          "Simon Electric (China) Co., Ltd."
+#define ZBEE_MFG_HANGZHOU_GREATSTA          "Hangzhou Greatstar Industrial Co., Ltd."
+#define ZBEE_MFG_SEQUENTRIC_ENERGY          "Sequentric Energy Systems, LLC"
+#define ZBEE_MFG_SOLUM_CO_LTD               "Solum Co., Ltd."
+#define ZBEE_MFG_EAGLERISE_ELEC             "Eaglerise Electric & Electronic (China) Co., Ltd."
+#define ZBEE_MFG_FANTEM_TECH                "Fantem Technologies (Shenzhen) Co., Ltd."
+#define ZBEE_MFG_YUNDING_NETWORK            "Yunding Network Technology (Beijing) Co., Ltd."
+#define ZBEE_MFG_ATLANTIC_GROUP             "Atlantic Group"
+#define ZBEE_MFG_XIAMEN_INTRETECH           "Xiamen Intretech, Inc."
+#define ZBEE_MFG_TUYA_GLOBAL_INC            "Tuya Global Inc."
+#define ZBEE_MFG_XIAMEN_DNAKE_INTE          "Xiamen Dnake Intelligent Technology Co., Ltd"
+#define ZBEE_MFG_NIKO_NV                    "Niko nv"
+#define ZBEE_MFG_EMPORIA_ENERGY             "Emporia Energy"
+#define ZBEE_MFG_SIKOM_AS                   "Sikom AS"
+#define ZBEE_MFG_AXIS_LABS_INC              "AXIS Labs, Inc."
+#define ZBEE_MFG_CURRENT_PRODUCTS           "Current Products Corporation"
+#define ZBEE_MFG_METERSIT_SRL               "MeteRSit SRL"
+#define ZBEE_MFG_HORNBACH_BAUMARKT          "HORNBACH Baumarkt AG"
+#define ZBEE_MFG_DICEWORLD_SRL_A            "DiCEworld s.r.l. a socio unico"
+#define ZBEE_MFG_ARC_TECHNOLOGY             "ARC Technology Co., Ltd"
+#define ZBEE_MFG_KONKE_INFORMATION          "Hangzhou Konke Information Technology Co., Ltd."
+#define ZBEE_MFG_SALTO_SYSTEMS_SL           "SALTO Systems S.L."
+#define ZBEE_MFG_SHYUGJ_TECHNOLOGY          "Shenzhen Shyugj Technology Co., Ltd"
+#define ZBEE_MFG_BRAYDEN_AUTOMA             "Brayden Automation Corporation"
+#define ZBEE_MFG_ENVIRONEXUS_PTY            "Environexus Pty. Ltd."
+#define ZBEE_MFG_ELTRA_NV_SA                "Eltra nv/sa"
+#define ZBEE_MFG_XIAMOMI_COMMUNI            "Xiaomi Communications Co., Ltd."
+#define ZBEE_MFG_SHUNCOM_ELECTRON           "Shanghai Shuncom Electronic Technology Co., Ltd."
+#define ZBEE_MFG_VOLTALIS_SA                "Voltalis S.A"
+#define ZBEE_MFG_FEELUX_CO_LTD              "FEELUX Co., Ltd."
+#define ZBEE_MFG_SMARTPLUS_INC              "SmartPlus Inc."
+#define ZBEE_MFG_HALEMEIER_GMBH             "Halemeier GmbH"
 
 /* Protocol Abbreviations */
 #define ZBEE_PROTOABBREV_NWK                "zbee_nwk"
@@ -1159,6 +1548,7 @@
 #define ZBEE_PROTOABBREV_ZCL_RELHUMMEAS        "zbee_zcl_meas_sensing.relhummeas"
 #define ZBEE_PROTOABBREV_ZCL_TEMPMEAS          "zbee_zcl_meas_sensing.tempmeas"
 #define ZBEE_PROTOABBREV_ZCL_OCCSEN            "zbee_zcl_meas_sensing.occsen"
+#define ZBEE_PROTOABBREV_ZCL_ELECMES           "zbee_zcl_meas_sensing.elecmes"
 #define ZBEE_PROTOABBREV_ZCL_KEEP_ALIVE        "zbee_zcl_se.keep_alive"
 #define ZBEE_PROTOABBREV_ZCL_PRICE             "zbee_zcl_se.price"
 #define ZBEE_PROTOABBREV_ZCL_DRLC              "zbee_zcl_se.drlc"
@@ -1169,6 +1559,7 @@
 #define ZBEE_PROTOABBREV_ZCL_PRE_PAYMENT       "zbee_zcl_se.pp"
 #define ZBEE_PROTOABBREV_ZCL_ENERGY_MANAGEMENT "zbee_zcl_se.em"
 #define ZBEE_PROTOABBREV_ZCL_CALENDAR          "zbee_zcl_se.calendar"
+#define ZBEE_PROTOABBREV_ZCL_DAILY_SCHEDULE    "zbee_zcl_se.daily_schedule"
 #define ZBEE_PROTOABBREV_ZCL_DEVICE_MANAGEMENT "zbee_zcl_se.dm"
 #define ZBEE_PROTOABBREV_ZCL_EVENTS            "zbee_zcl_se.events"
 #define ZBEE_PROTOABBREV_ZCL_MDU_PAIRING       "zbee_zcl_se.mdu_pairing"
@@ -1195,13 +1586,52 @@
 #define ZBEE_ZIGBEE_BEACON_NETWORK_DEPTH              0x78
 #define ZBEE_ZIGBEE_BEACON_END_DEVICE_CAPACITY        0x80
 
+/* ZigBee ZLL Device descriptions */
+#define ZBEE_ZLL_DEVICE_ON_OFF_LIGHT                    0x0000
+#define ZBEE_ZLL_DEVICE_ON_OFF_PLUG_IN_UNIT             0x0010
+#define ZBEE_ZLL_DEVICE_DIMMABLE_LIGHT                  0x0100
+#define ZBEE_ZLL_DEVICE_DIMMABLE_PLUG_IN_UNIT           0x0110
+#define ZBEE_ZLL_DEVICE_COLOR_LIGHT                     0x0200
+#define ZBEE_ZLL_DEVICE_EXTENDED_COLOR_LIGHT            0x0210
+#define ZBEE_ZLL_DEVICE_COLOR_TEMPERATURE_LIGHT         0x0220
+#define ZBEE_ZLL_DEVICE_COLOR_CONTROLLER                0x0800
+#define ZBEE_ZLL_DEVICE_COLOR_SCENE_CONTROLLER          0x0810
+#define ZBEE_ZLL_DEVICE_NON_COLOR_CONTROLLER            0x0820
+#define ZBEE_ZLL_DEVICE_NON_COLOR_SCENE_CONTROLLER      0x0830
+#define ZBEE_ZLL_DEVICE_CONTROL_BRIDGE                  0x0840
+#define ZBEE_ZLL_DEVICE_ON_OFF_SENSOR                   0x0850
+
+/* ZigBee HA Device descriptions */
+#define ZBEE_HA_DEVICE_ON_OFF_LIGHT                     0x0100
+#define ZBEE_HA_DEVICE_DIMMABLE_LIGHT                   0x0101
+#define ZBEE_HA_DEVICE_COLOR_DIMMABLE_LIGHT             0x0102
+#define ZBEE_HA_DEVICE_ON_OFF_LIGHT_SWITCH              0x0103
+#define ZBEE_HA_DEVICE_DIMMER_SWITCH                    0x0104
+#define ZBEE_HA_DEVICE_COLOR_DIMMER_SWITCH              0x0105
+#define ZBEE_HA_DEVICE_LIGHT_SENSOR                     0x0106
+#define ZBEE_HA_DEVICE_OCCUPANCY_SENSOR                 0x0107
+#define ZBEE_HA_DEVICE_ON_OFF_BALLAST                   0x0108
+#define ZBEE_HA_DEVICE_DIMMABLE_BALLAST                 0x0109
+#define ZBEE_HA_DEVICE_ON_OFF_PLUG_IN_UNIT              0x010A
+#define ZBEE_HA_DEVICE_DIMMABLE_PLUG_IN_UNIT            0x010B
+#define ZBEE_HA_DEVICE_COLOR_TEMPERATURE_LIGHT          0x010C
+#define ZBEE_HA_DEVICE_EXTENDED_COLOR_LIGHT             0x010D
+#define ZBEE_HA_DEVICE_LIGHT_LEVEL_SENSOR               0x010E
+#define ZBEE_HA_DEVICE_COLOR_CONTROLLER                 0x0800
+#define ZBEE_HA_DEVICE_COLOR_SCENE_CONTROLLER           0x0810
+#define ZBEE_HA_DEVICE_NON_COLOR_CONTROLLER             0x0820
+#define ZBEE_HA_DEVICE_NON_COLOR_SCENE_CONTROLLER       0x0830
+#define ZBEE_HA_DEVICE_CONTROL_BRIDGE                   0x0840
+#define ZBEE_HA_DEVICE_ON_OFF_SENSOR                    0x0850
+
+/* Helper Functions */
 /* Helper Functions */
 extern guint zbee_get_bit_field(guint input, guint mask);
 
 #endif /* PACKET_ZBEE_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

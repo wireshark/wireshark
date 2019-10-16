@@ -17,18 +17,22 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
+#include <epan/uat.h>
 
 #include "packet-mac-nr.h"
+#include "packet-rlc-nr.h"
 
 void proto_register_mac_nr(void);
 void proto_reg_handoff_mac_nr(void);
 
 /* Described in:
- * 3GPP TS 38.321 NR; Medium Access Control (MAC) protocol specification v15.1.0
+ * 3GPP TS 38.321 NR; Medium Access Control (MAC) protocol specification v15.6.0
  */
 
 /* Initialize the protocol and registered fields. */
 int proto_mac_nr = -1;
+
+static dissector_handle_t rlc_nr_handle;
 
 /* Decoding context */
 static int hf_mac_nr_context = -1;
@@ -37,8 +41,10 @@ static int hf_mac_nr_context_direction = -1;
 static int hf_mac_nr_context_rnti = -1;
 static int hf_mac_nr_context_rnti_type = -1;
 static int hf_mac_nr_context_ueid = -1;
+static int hf_mac_nr_context_sysframe_number = -1;
+static int hf_mac_nr_context_slot_number = -1;
+static int hf_mac_nr_context_harqid = -1;
 static int hf_mac_nr_context_bcch_transport_channel = -1;
-static int hf_mac_nr_context_phr_type2_pcell = -1;
 static int hf_mac_nr_context_phr_type2_othercell = -1;
 
 
@@ -52,6 +58,7 @@ static int hf_mac_nr_dlsch_lcid = -1;
 static int hf_mac_nr_dlsch_sdu = -1;
 static int hf_mac_nr_ulsch_sdu = -1;
 static int hf_mac_nr_bcch_pdu = -1;
+static int hf_mac_nr_pcch_pdu = -1;
 
 static int hf_mac_nr_control_crnti = -1;
 static int hf_mac_nr_control_ue_contention_resolution_identity = -1;
@@ -59,7 +66,11 @@ static int hf_mac_nr_control_timing_advance_tagid = -1;
 static int hf_mac_nr_control_timing_advance_command = -1;
 static int hf_mac_nr_control_se_phr_reserved = -1;
 static int hf_mac_nr_control_se_phr_ph = -1;
-static int hf_mac_nr_control_se_phr_pcmax_c = -1;
+static int hf_mac_nr_control_se_phr_pcmax_f_c = -1;
+static int hf_mac_nr_control_recommended_bit_rate_query_lcid = -1;
+static int hf_mac_nr_control_recommended_bit_rate_query_dir = -1;
+static int hf_mac_nr_control_recommended_bit_rate_query_bit_rate = -1;
+static int hf_mac_nr_control_recommended_bit_rate_query_reserved = -1;
 static int hf_mac_nr_control_me_phr_c7_flag = -1;
 static int hf_mac_nr_control_me_phr_c6_flag = -1;
 static int hf_mac_nr_control_me_phr_c5_flag = -1;
@@ -67,14 +78,60 @@ static int hf_mac_nr_control_me_phr_c4_flag = -1;
 static int hf_mac_nr_control_me_phr_c3_flag = -1;
 static int hf_mac_nr_control_me_phr_c2_flag = -1;
 static int hf_mac_nr_control_me_phr_c1_flag = -1;
+static int hf_mac_nr_control_me_phr_c15_flag = -1;
+static int hf_mac_nr_control_me_phr_c14_flag = -1;
+static int hf_mac_nr_control_me_phr_c13_flag = -1;
+static int hf_mac_nr_control_me_phr_c12_flag = -1;
+static int hf_mac_nr_control_me_phr_c11_flag = -1;
+static int hf_mac_nr_control_me_phr_c10_flag = -1;
+static int hf_mac_nr_control_me_phr_c9_flag = -1;
+static int hf_mac_nr_control_me_phr_c8_flag = -1;
+static int hf_mac_nr_control_me_phr_c23_flag = -1;
+static int hf_mac_nr_control_me_phr_c22_flag = -1;
+static int hf_mac_nr_control_me_phr_c21_flag = -1;
+static int hf_mac_nr_control_me_phr_c20_flag = -1;
+static int hf_mac_nr_control_me_phr_c19_flag = -1;
+static int hf_mac_nr_control_me_phr_c18_flag = -1;
+static int hf_mac_nr_control_me_phr_c17_flag = -1;
+static int hf_mac_nr_control_me_phr_c16_flag = -1;
+static int hf_mac_nr_control_me_phr_c31_flag = -1;
+static int hf_mac_nr_control_me_phr_c30_flag = -1;
+static int hf_mac_nr_control_me_phr_c29_flag = -1;
+static int hf_mac_nr_control_me_phr_c28_flag = -1;
+static int hf_mac_nr_control_me_phr_c27_flag = -1;
+static int hf_mac_nr_control_me_phr_c26_flag = -1;
+static int hf_mac_nr_control_me_phr_c25_flag = -1;
+static int hf_mac_nr_control_me_phr_c24_flag = -1;
 static int hf_mac_nr_control_me_phr_entry = -1;
 static int hf_mac_nr_control_me_phr_p = -1;
 static int hf_mac_nr_control_me_phr_v = -1;
 static int hf_mac_nr_control_me_phr_reserved_2 = -1;
-static int hf_mac_nr_control_me_phr_ph_type2_pcell = -1;
-static int hf_mac_nr_control_me_phr_ph_type2_pscell_or_pucch_scell = -1;
-static int hf_mac_nr_control_me_phr_ph_typex_pcell = -1;
-/* TODO: should expand to 31 entries for 4-byte case */
+static int hf_mac_nr_control_me_phr_ph_type2_spcell = -1;
+static int hf_mac_nr_control_me_phr_ph_type1_pcell = -1;
+static int hf_mac_nr_control_me_phr_ph_c31 = -1;
+static int hf_mac_nr_control_me_phr_ph_c30 = -1;
+static int hf_mac_nr_control_me_phr_ph_c29 = -1;
+static int hf_mac_nr_control_me_phr_ph_c28 = -1;
+static int hf_mac_nr_control_me_phr_ph_c27 = -1;
+static int hf_mac_nr_control_me_phr_ph_c26 = -1;
+static int hf_mac_nr_control_me_phr_ph_c25 = -1;
+static int hf_mac_nr_control_me_phr_ph_c24 = -1;
+static int hf_mac_nr_control_me_phr_ph_c23 = -1;
+static int hf_mac_nr_control_me_phr_ph_c22 = -1;
+static int hf_mac_nr_control_me_phr_ph_c21 = -1;
+static int hf_mac_nr_control_me_phr_ph_c20 = -1;
+static int hf_mac_nr_control_me_phr_ph_c19 = -1;
+static int hf_mac_nr_control_me_phr_ph_c18 = -1;
+static int hf_mac_nr_control_me_phr_ph_c17 = -1;
+static int hf_mac_nr_control_me_phr_ph_c16 = -1;
+static int hf_mac_nr_control_me_phr_ph_c15 = -1;
+static int hf_mac_nr_control_me_phr_ph_c14 = -1;
+static int hf_mac_nr_control_me_phr_ph_c13 = -1;
+static int hf_mac_nr_control_me_phr_ph_c12 = -1;
+static int hf_mac_nr_control_me_phr_ph_c11 = -1;
+static int hf_mac_nr_control_me_phr_ph_c10 = -1;
+static int hf_mac_nr_control_me_phr_ph_c9 = -1;
+static int hf_mac_nr_control_me_phr_ph_c8 = -1;
 static int hf_mac_nr_control_me_phr_ph_c7 = -1;
 static int hf_mac_nr_control_me_phr_ph_c6 = -1;
 static int hf_mac_nr_control_me_phr_ph_c5 = -1;
@@ -83,9 +140,15 @@ static int hf_mac_nr_control_me_phr_ph_c3 = -1;
 static int hf_mac_nr_control_me_phr_ph_c2 = -1;
 static int hf_mac_nr_control_me_phr_ph_c1 = -1;
 static int hf_mac_nr_control_me_phr_reserved = -1;
+static int hf_mac_nr_control_me_phr_pcmax_f_c_type2_spcell = -1;
+static int hf_mac_nr_control_me_phr_pcmax_f_c_type1_pcell = -1;
 /* TODO: is it worth having separate fields for each SCellIndex for this field too? */
-static int hf_mac_nr_control_me_phr_pcmax_c = -1;
-static int hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_reserved = -1;
+static int hf_mac_nr_control_me_phr_pcmax_f_c_typeX = -1;
+static int hf_mac_nr_control_recommended_bit_rate_lcid = -1;
+static int hf_mac_nr_control_recommended_bit_rate_dir = -1;
+static int hf_mac_nr_control_recommended_bit_rate_bit_rate = -1;
+static int hf_mac_nr_control_recommended_bit_rate_reserved = -1;
+static int hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_ad = -1;
 static int hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_serving_cell_id = -1;
 static int hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_bwp_id = -1;
 static int hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_reserved_2 = -1;
@@ -94,6 +157,7 @@ static int hf_mac_nr_control_pucch_spatial_rel_act_deact_reserved = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_serving_cell_id = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_bwp_id = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_pucch_resource_id = -1;
+static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s8 = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s7 = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s6 = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s5 = -1;
@@ -101,15 +165,18 @@ static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s4 = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s3 = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s2 = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s1 = -1;
-static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s0 = -1;
 static int hf_mac_nr_control_sp_srs_act_deact_ad = -1;
-static int hf_mac_nr_control_sp_srs_act_deact_serving_cell_id = -1;
-static int hf_mac_nr_control_sp_srs_act_deact_bwp_id = -1;
+static int hf_mac_nr_control_sp_srs_act_deact_srs_resource_set_cell_id = -1;
+static int hf_mac_nr_control_sp_srs_act_deact_srs_resource_set_bwp_id = -1;
 static int hf_mac_nr_control_sp_srs_act_deact_reserved = -1;
+static int hf_mac_nr_control_sp_srs_act_deact_c = -1;
 static int hf_mac_nr_control_sp_srs_act_deact_sul = -1;
 static int hf_mac_nr_control_sp_srs_act_deact_sp_srs_resource_set_id = -1;
 static int hf_mac_nr_control_sp_srs_act_deact_f = -1;
 static int hf_mac_nr_control_sp_srs_act_deact_resource_id = -1;
+static int hf_mac_nr_control_sp_srs_act_deact_resource_id_ssb = -1;
+static int hf_mac_nr_control_sp_srs_act_deact_resource_serving_cell_id = -1;
+static int hf_mac_nr_control_sp_srs_act_deact_resource_bwp_id = -1;
 static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_reserved = -1;
 static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_serving_cell_id = -1;
 static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_bwp_id = -1;
@@ -121,9 +188,7 @@ static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s3 = -1;
 static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s2 = -1;
 static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s1 = -1;
 static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s0 = -1;
-static int hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_reserved = -1;
 static int hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_serving_cell_id = -1;
-static int hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_bwp_id = -1;
 static int hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_coreset_id = -1;
 static int hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_tci_state_id = -1;
 static int hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_reserved = -1;
@@ -215,6 +280,7 @@ static int hf_mac_nr_control_bsr_long_lcg3 = -1;
 static int hf_mac_nr_control_bsr_long_lcg2 = -1;
 static int hf_mac_nr_control_bsr_long_lcg1 = -1;
 static int hf_mac_nr_control_bsr_long_lcg0 = -1;
+static int hf_mac_nr_control_bsr_trunc_long_bs = -1;
 static int hf_mac_nr_control_bsr_long_bs_lcg0 = -1;
 static int hf_mac_nr_control_bsr_long_bs_lcg1 = -1;
 static int hf_mac_nr_control_bsr_long_bs_lcg2 = -1;
@@ -229,11 +295,19 @@ static int hf_mac_nr_rar_subheader = -1;
 static int hf_mac_nr_rar_e = -1;
 static int hf_mac_nr_rar_t = -1;
 static int hf_mac_nr_rar_reserved = -1;
+static int hf_mac_nr_rar_reserved1 = -1;
 
 static int hf_mac_nr_rar_bi = -1;
 static int hf_mac_nr_rar_rapid = -1;
 static int hf_mac_nr_rar_ta = -1;
 static int hf_mac_nr_rar_grant = -1;
+static int hf_mac_nr_rar_grant_hopping = -1;
+static int hf_mac_nr_rar_grant_fra = -1;
+static int hf_mac_nr_rar_grant_tsa = -1;
+static int hf_mac_nr_rar_grant_mcs = -1;
+static int hf_mac_nr_rar_grant_tcsp = -1;
+static int hf_mac_nr_rar_grant_csi = -1;
+
 static int hf_mac_nr_rar_temp_crnti = -1;
 
 static int hf_mac_nr_padding = -1;
@@ -243,16 +317,153 @@ static int ett_mac_nr = -1;
 static int ett_mac_nr_context = -1;
 static int ett_mac_nr_subheader = -1;
 static int ett_mac_nr_rar_subheader = -1;
+static int ett_mac_nr_rar_grant = -1;
 static int ett_mac_nr_me_phr_entry = -1;
 
 static expert_field ei_mac_nr_no_per_frame_data = EI_INIT;
 static expert_field ei_mac_nr_sdu_length_different_from_dissected = EI_INIT;
 static expert_field ei_mac_nr_unknown_udp_framing_tag = EI_INIT;
+static expert_field ei_mac_nr_dl_sch_control_subheader_after_data_subheader = EI_INIT;
+static expert_field ei_mac_nr_ul_sch_control_subheader_before_data_subheader = EI_INIT;
+
 
 static dissector_handle_t nr_rrc_bcch_bch_handle;
+static dissector_handle_t nr_rrc_bcch_dl_sch_handle;
+static dissector_handle_t nr_rrc_pcch_handle;
+static dissector_handle_t nr_rrc_dl_ccch_handle;
+static dissector_handle_t nr_rrc_ul_ccch_handle;
+static dissector_handle_t nr_rrc_ul_ccch1_handle;
+
+
+/**************************************************************************/
+/* Preferences state                                                      */
+/**************************************************************************/
 
 /* By default try to decode transparent data (BCCH, PCCH and CCCH) data using NR RRC dissector */
 static gboolean global_mac_nr_attempt_rrc_decode = TRUE;
+
+/* Whether should attempt to decode lcid 1-3 SDUs as srb1-3 (i.e. AM RLC) */
+static gboolean global_mac_nr_attempt_srb_decode = TRUE;
+
+/* Which layer info to show in the info column */
+enum layer_to_show {
+    ShowPHYLayer, ShowMACLayer, ShowRLCLayer
+};
+
+/* Which layer's details to show in Info column */
+static gint     global_mac_nr_layer_to_show = (gint)ShowRLCLayer;
+
+
+/***********************************************************************/
+/* How to dissect lcid 3-32 (presume drb logical channels)             */
+
+/* Where to take LCID -> DRB mappings from */
+enum lcid_drb_source {
+    FromStaticTable, FromConfigurationProtocol
+};
+static gint global_mac_nr_lcid_drb_source = (gint)FromStaticTable;
+
+
+static const value_string drb_lcid_vals[] = {
+    { 3,  "LCID 3"},
+    { 4,  "LCID 4"},
+    { 5,  "LCID 5"},
+    { 6,  "LCID 6"},
+    { 7,  "LCID 7"},
+    { 8,  "LCID 8"},
+    { 9,  "LCID 9"},
+    { 10, "LCID 10"},
+    { 11, "LCID 11"},
+    { 12, "LCID 12"},
+    { 13, "LCID 13"},
+    { 14, "LCID 14"},
+    { 15, "LCID 15"},
+    { 16, "LCID 16"},
+    { 17, "LCID 17"},
+    { 18, "LCID 18"},
+    { 19, "LCID 19"},
+    { 20, "LCID 20"},
+    { 21, "LCID 21"},
+    { 22, "LCID 22"},
+    { 23, "LCID 23"},
+    { 24, "LCID 24"},
+    { 25, "LCID 25"},
+    { 26, "LCID 26"},
+    { 27, "LCID 27"},
+    { 28, "LCID 28"},
+    { 29, "LCID 29"},
+    { 30, "LCID 30"},
+    { 31, "LCID 31"},
+    { 32, "LCID 32"},
+    { 0, NULL }
+};
+
+/* N.B. for now, only doing static config, and assume channel has same SN length in both directions */
+typedef enum rlc_bearer_type_t {
+    rlcRaw,
+    rlcTM,
+    rlcUM6,
+    rlcUM12,
+    rlcAM12,
+    rlcAM18
+} rlc_bearer_type_t;
+
+static const value_string rlc_bearer_type_vals[] = {
+    { rlcTM                , "TM"},
+    { rlcUM6               , "UM, SN Len=6"},
+    { rlcUM12              , "UM, SN Len=12"},
+    { rlcAM12              , "AM, SN Len=12"},
+    { rlcAM18              , "AM, SN Len=18"},
+    { 0, NULL }
+};
+
+
+/* Mapping type */
+typedef struct lcid_drb_mapping_t {
+    guint32           lcid;
+    guint32           drbid;
+    rlc_bearer_type_t bearer_type_ul;
+    rlc_bearer_type_t bearer_type_dl;
+} lcid_drb_mapping_t;
+
+/* Mapping entity */
+static lcid_drb_mapping_t *lcid_drb_mappings = NULL;
+static guint num_lcid_drb_mappings = 0;
+
+UAT_VS_DEF(lcid_drb_mappings, lcid, lcid_drb_mapping_t, guint8, 3, "LCID 3")
+UAT_DEC_CB_DEF(lcid_drb_mappings, drbid, lcid_drb_mapping_t)
+UAT_VS_DEF(lcid_drb_mappings, bearer_type_ul, lcid_drb_mapping_t, rlc_bearer_type_t, rlcAM12, "AM")
+UAT_VS_DEF(lcid_drb_mappings, bearer_type_dl, lcid_drb_mapping_t, rlc_bearer_type_t, rlcAM12, "AM")
+
+/* UAT object */
+static uat_t* lcid_drb_mappings_uat;
+
+/* Dynamic mappings (set by configuration protocol)
+   LCID is the index into the array of these */
+typedef struct dynamic_lcid_drb_mapping_t {
+    gboolean valid;
+    gint     drbid;
+    rlc_bearer_type_t bearer_type_ul;
+    rlc_bearer_type_t bearer_type_dl;
+    guint8   ul_priority;  // N.B. not yet in rlc_nr_info
+} dynamic_lcid_drb_mapping_t;
+
+typedef struct ue_dynamic_drb_mappings_t {
+    dynamic_lcid_drb_mapping_t mapping[33];  /* Index is LCID (2-32) */
+    guint8 drb_to_lcid_mappings[33];         /* Also map drbid (1-32) -> lcid */
+} ue_dynamic_drb_mappings_t;
+
+static GHashTable *mac_nr_ue_bearers_hash = NULL;
+
+
+
+
+/* When showing RLC info, count PDUs so can append info column properly */
+static guint8   s_number_of_rlc_pdus_shown = 0;
+
+
+extern int proto_rlc_nr;
+
 
 /* Constants and value strings */
 
@@ -288,6 +499,8 @@ static const value_string bcch_transport_channel_vals[] =
     { 0, NULL }
 };
 
+#define CCCH_LCID                                   0x00
+#define RECOMMENDED_BIT_RATE_LCID                   0x2f
 #define SP_ZP_CSI_RS_RESOURCE_SET_ACT_DEACT_LCID    0x30
 #define PUCCH_SPATIAL_REL_ACT_DEACT_LCID            0x31
 #define SP_SRS_ACT_DEACT_LCID                       0x32
@@ -307,7 +520,7 @@ static const value_string bcch_transport_channel_vals[] =
 
 static const value_string dlsch_lcid_vals[] =
 {
-    { 0,                                           "CCCH"},
+    { CCCH_LCID,                                   "CCCH"},
     { 1,                                           "1"},
     { 2,                                           "2"},
     { 3,                                           "3"},
@@ -340,6 +553,7 @@ static const value_string dlsch_lcid_vals[] =
     { 30,                                          "30"},
     { 31,                                          "31"},
     { 32,                                          "32"},
+    { RECOMMENDED_BIT_RATE_LCID,                   "Recommended Bit Rate"},
     { SP_ZP_CSI_RS_RESOURCE_SET_ACT_DEACT_LCID,    "SP ZP CSI-RS Resource Set Activation/Deactivation"},
     { PUCCH_SPATIAL_REL_ACT_DEACT_LCID,            "PUCCH spatial relation Activation/Deactivation"},
     { SP_SRS_ACT_DEACT_LCID,                       "SP SRS Activation/Deactivation"},
@@ -360,8 +574,11 @@ static const value_string dlsch_lcid_vals[] =
 };
 static value_string_ext dlsch_lcid_vals_ext = VALUE_STRING_EXT_INIT(dlsch_lcid_vals);
 
+#define CCCH_48_BITS_LCID                    0x34
+#define RECOMMENDED_BIT_RATE_QUERY_LCID      0x35
+#define MULTIPLE_ENTRY_PHR_4_LCID            0x36
 #define CONFIGURED_GRANT_CONFIGURATION_LCID  0x37
-#define MULTIPLE_ENTRY_PHR_LCID              0x38
+#define MULTIPLE_ENTRY_PHR_1_LCID            0x38
 #define SINGLE_ENTRY_PHR_LCID                0x39
 #define C_RNTI_LCID                          0x3a
 #define SHORT_TRUNCATED_BSR_LCID             0x3b
@@ -372,7 +589,7 @@ static value_string_ext dlsch_lcid_vals_ext = VALUE_STRING_EXT_INIT(dlsch_lcid_v
 
 static const value_string ulsch_lcid_vals[] =
 {
-    { 0,                                    "CCCH"},
+    { CCCH_LCID,                            "CCCH (64 bits)"},
     { 1,                                    "1"},
     { 2,                                    "2"},
     { 3,                                    "3"},
@@ -405,8 +622,11 @@ static const value_string ulsch_lcid_vals[] =
     { 30,                                   "30"},
     { 31,                                   "31"},
     { 32,                                   "32"},
+    { CCCH_48_BITS_LCID,                    "CCCH (48 bits)"},
+    { RECOMMENDED_BIT_RATE_QUERY_LCID,      "Recommended Bit Rate Query"},
+    { MULTIPLE_ENTRY_PHR_4_LCID,            "Multiple Entry PHR (4 octet C)"},
     { CONFIGURED_GRANT_CONFIGURATION_LCID,  "Configured Grant Confirmation"},
-    { MULTIPLE_ENTRY_PHR_LCID,              "Multiple Entry PHR"},
+    { MULTIPLE_ENTRY_PHR_1_LCID,            "Multiple Entry PHR (1 octet C)"},
     { SINGLE_ENTRY_PHR_LCID,                "Single Entry PHR"},
     { C_RNTI_LCID,                          "C-RNTI"},
     { SHORT_TRUNCATED_BSR_LCID,             "Short Truncated BSR"},
@@ -591,7 +811,7 @@ static const value_string buffer_size_8bits_vals[] =
     { 96,  "3934 < BS <= 4189"},
     { 97,  "4189 < BS <= 4461"},
     { 98,  "4461 < BS <= 4751"},
-    { 99, "4751 < BS <= 5059"},
+    { 99,  "4751 < BS <= 5059"},
     { 100, "5059 < BS <= 5387"},
     { 101, "5387 < BS <= 5737"},
     { 102, "5737 < BS <= 6109"},
@@ -752,6 +972,21 @@ static const value_string buffer_size_8bits_vals[] =
 };
 static value_string_ext buffer_size_8bits_vals_ext = VALUE_STRING_EXT_INIT(buffer_size_8bits_vals);
 
+static const value_string tpc_command_vals[] =
+{
+    { 0,   "-6dB"},
+    { 1,   "-4dB"},
+    { 2,   "-2dB"},
+    { 3,   "0dB"},
+    { 4,   "2dB"},
+    { 5,   "4dB"},
+    { 6,   "6dB"},
+    { 7,   "8dB"},
+    { 0,   NULL }
+};
+
+
+
 static const true_false_string power_backoff_affects_power_management_vals =
 {
     "Power backoff is applied to power management",
@@ -768,6 +1003,12 @@ static const true_false_string activation_deactivation_vals =
 {
     "Activation",
     "Deactivation"
+};
+
+static const true_false_string c_vals =
+{
+    "Octets containing Resource Serving Cell ID field(s) and Resource BWP ID field(s) are present",
+    "Octets containing Resource Serving Cell ID field(s) and Resource BWP ID field(s) are not present"
 };
 
 static const true_false_string sul_vals =
@@ -787,6 +1028,69 @@ static const true_false_string aper_csi_trigger_state_t_vals =
     "Mapped to the codepoint of the DCI CSI request field",
     "Not mapped to the codepoint of the DCI CSI request field"
 };
+
+static const value_string bit_rate_vals[] =
+{
+    { 0, "no bit rate recommendation"},
+    { 1, "0 kbit/s"},
+    { 2, "9 kbit/s"},
+    { 3, "11 kbit/s"},
+    { 4, "13 kbit/s"},
+    { 5, "17 kbit/s"},
+    { 6, "21 kbit/s"},
+    { 7, "25 kbit/s"},
+    { 8, "29 kbit/s"},
+    { 9, "32 kbit/s"},
+    { 10, "36 kbit/s"},
+    { 11, "40 kbit/s"},
+    { 12, "48 kbit/s"},
+    { 13, "56 kbit/s"},
+    { 14, "72 kbit/s"},
+    { 15, "88 kbit/s"},
+    { 16, "104 kbit/s"},
+    { 17, "120 kbit/s"},
+    { 18, "140 kbit/s"},
+    { 19, "160 kbit/s"},
+    { 20, "180 kbit/s"},
+    { 21, "200 kbit/s"},
+    { 22, "220 kbit/s"},
+    { 23, "240 kbit/s"},
+    { 24, "260 kbit/s"},
+    { 25, "280 kbit/s"},
+    { 26, "300 kbit/s"},
+    { 27, "350 kbit/s"},
+    { 28, "400 kbit/s"},
+    { 29, "450 kbit/s"},
+    { 30, "500 kbit/s"},
+    { 31, "600 kbit/s"},
+    { 32, "700 kbit/s"},
+    { 33, "800 kbit/s"},
+    { 34, "900 kbit/s"},
+    { 35, "1000 kbit/s"},
+    { 36, "1100 kbit/s"},
+    { 37, "1200 kbit/s"},
+    { 38, "1300 kbit/s"},
+    { 39, "1400 kbit/s"},
+    { 40, "1500 kbit/s"},
+    { 41, "1750 kbit/s"},
+    { 42, "2000 kbit/s"},
+    { 43, "2250 kbit/s"},
+    { 44, "2500 kbit/s"},
+    { 45, "2750 kbit/s"},
+    { 46, "3000 kbit/s"},
+    { 47, "3500 kbit/s"},
+    { 48, "4000 kbit/s"},
+    { 49, "4500 kbit/s"},
+    { 50, "5000 kbit/s"},
+    { 51, "5500 kbit/s"},
+    { 52, "6000 kbit/s"},
+    { 53, "6500 kbit/s"},
+    { 54, "7000 kbit/s"},
+    { 55, "7500 kbit/s"},
+    { 56, "8000 kbit/s"},
+    { 0, NULL }
+};
+static value_string_ext bit_rate_vals_ext = VALUE_STRING_EXT_INIT(bit_rate_vals);
 
 /* Forward declarations */
 static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*);
@@ -860,7 +1164,7 @@ static void dissect_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
 
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                             "BCCH PDU (%u bytes, on %s transport)  ",
+                             "BCCH PDU (%u bytes, on %s transport) ",
                              tvb_reported_length_remaining(tvb, offset),
                              val_to_str_const(p_mac_nr_info->rntiType,
                                               bcch_transport_channel_vals,
@@ -869,7 +1173,7 @@ static void dissect_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Show which transport layer it came in on (inferred from RNTI type) */
     ti = proto_tree_add_uint(tree, hf_mac_nr_context_bcch_transport_channel,
                              tvb, offset, 0, p_mac_nr_info->rntiType);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /****************************************/
     /* Whole frame is BCCH data             */
@@ -886,14 +1190,43 @@ static void dissect_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (p_mac_nr_info->rntiType == NO_RNTI) {
             protocol_handle = nr_rrc_bcch_bch_handle;
         } else {
-            /* TODO: add handle once NR-RRC spec is updated */
-            protocol_handle = NULL;
+            protocol_handle = nr_rrc_bcch_dl_sch_handle;
         }
 
         /* Hide raw view of bytes */
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
 
         call_with_catch_all(protocol_handle, rrc_tvb, pinfo, tree);
+    }
+}
+
+/* Dissect PCCH PDU */
+static void dissect_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                         proto_item *pdu_ti, int offset, mac_nr_info *p_mac_nr_info _U_)
+{
+    proto_item *ti;
+
+    write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                             "PCCH PDU (%u bytes) ",
+                             tvb_reported_length_remaining(tvb, offset));
+
+    /****************************************/
+    /* Whole frame is PCCH data             */
+
+    /* Always show as raw data */
+    ti = proto_tree_add_item(tree, hf_mac_nr_pcch_pdu,
+                             tvb, offset, -1, ENC_NA);
+
+    if (global_mac_nr_attempt_rrc_decode) {
+
+        /* Attempt to decode payload using NR RRC dissector */
+        tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
+
+        /* Hide raw view of bytes */
+        proto_item_set_hidden(ti);
+
+        call_with_catch_all(nr_rrc_pcch_handle, rrc_tvb, pinfo, tree);
+
     }
 }
 
@@ -902,12 +1235,12 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         mac_nr_info *p_mac_nr_info _U_)
 {
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                             "RAR (RA-RNTI=%u, SFN=%-4u, SF=%u) ",
-                             p_mac_nr_info->rnti, p_mac_nr_info->sysframeNumber, p_mac_nr_info->subframeNumber);
+                             "RAR (RA-RNTI=%u) ",
+                             p_mac_nr_info->rnti);
 
     /* Create hidden 'virtual root' so can filter on mac-nr.rar */
     proto_item *ti = proto_tree_add_item(tree, hf_mac_nr_rar, tvb, offset, -1, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     gboolean E, T;
 
@@ -928,29 +1261,45 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             /* 2 reserved bits */
             proto_tree_add_item(rar_subheader_tree, hf_mac_nr_rar_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-            /* BI */
+            /* BI (4 bits) */
             guint32 BI;
             proto_tree_add_item_ret_uint(rar_subheader_tree, hf_mac_nr_rar_bi, tvb, offset, 1, ENC_BIG_ENDIAN, &BI);
             offset++;
 
             write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
-                                     "BI=%u ", BI);
+                                     "(BI=%u) ", BI);
         }
         else {
             /* RAPID */
             guint32 rapid;
             proto_tree_add_item_ret_uint(rar_subheader_tree, hf_mac_nr_rar_rapid, tvb, offset, 1, ENC_BIG_ENDIAN, &rapid);
             offset++;
+
             if (TRUE) {
                 /* SubPDU.  Not for SI request - TODO: define RAPID range for SI request in mac_nr_info */
+
+                /* 1 reserved bit */
+                proto_tree_add_item(rar_subheader_tree, hf_mac_nr_rar_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
+
                 /* TA (12 bits) */
                 guint32 ta;
                 proto_tree_add_item_ret_uint(rar_subheader_tree, hf_mac_nr_rar_ta, tvb, offset, 2, ENC_BIG_ENDIAN, &ta);
                 offset++;
 
-                /* Grant (20 bits).  TODO: break down! */
-                proto_tree_add_item(rar_subheader_tree, hf_mac_nr_rar_grant, tvb, offset, 3, ENC_BIG_ENDIAN);
-                offset += 3;
+                /* Break down the 27-bits of the grant field, according to 38.213, section 8.2 */
+                static const int *rar_grant_fields[] = {
+                    &hf_mac_nr_rar_grant_hopping,
+                    &hf_mac_nr_rar_grant_fra,
+                    &hf_mac_nr_rar_grant_tsa,
+                    &hf_mac_nr_rar_grant_mcs,
+                    &hf_mac_nr_rar_grant_tcsp,
+                    &hf_mac_nr_rar_grant_csi,
+                    NULL
+                };
+
+                proto_tree_add_bitmask(rar_subheader_tree, tvb, offset, hf_mac_nr_rar_grant,
+                                       ett_mac_nr_rar_grant, rar_grant_fields, ENC_BIG_ENDIAN);
+                offset += 4;
 
                 /* C-RNTI (2 bytes) */
                 guint32 c_rnti;
@@ -980,6 +1329,9 @@ static gboolean is_fixed_sized_lcid(guint8 lcid, guint8 direction)
 {
     if (direction == DIRECTION_UPLINK) {
         switch (lcid) {
+            case CCCH_LCID:
+            case CCCH_48_BITS_LCID:
+            case RECOMMENDED_BIT_RATE_QUERY_LCID:
             case CONFIGURED_GRANT_CONFIGURATION_LCID:
             case SINGLE_ENTRY_PHR_LCID:
             case C_RNTI_LCID:
@@ -993,6 +1345,7 @@ static gboolean is_fixed_sized_lcid(guint8 lcid, guint8 direction)
     }
     else {
         switch (lcid) {
+            case RECOMMENDED_BIT_RATE_LCID:
             case SP_ZP_CSI_RS_RESOURCE_SET_ACT_DEACT_LCID:
             case PUCCH_SPATIAL_REL_ACT_DEACT_LCID:
             case SP_CSI_REPORT_ON_PUCCH_ACT_DEACT_LCID:
@@ -1020,7 +1373,8 @@ static true_false_string subheader_f_vals = {
 
 /* Returns new subtree that was added for this item */
 static proto_item* dissect_me_phr_ph(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                                    const int *ph_item, guint32 *PH, guint32 *offset)
+                                    const int *ph_item, const int *pcmax_f_c_item,
+                                    guint32 *PH, guint32 *offset)
 {
     /* Subtree for this entry */
     proto_item *entry_ti = proto_tree_add_item(tree,
@@ -1045,8 +1399,8 @@ static proto_item* dissect_me_phr_ph(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     if (!V) {
         /* Reserved (2 bits) */
         proto_tree_add_item(entry_tree, hf_mac_nr_control_me_phr_reserved_2, tvb, *offset, 1, ENC_BIG_ENDIAN);
-        /* pcmax_c (6 bits) */
-        proto_tree_add_item(entry_tree, hf_mac_nr_control_me_phr_pcmax_c, tvb, *offset, 1, ENC_BIG_ENDIAN);
+        /* pcmax_f_c (6 bits) */
+        proto_tree_add_item(entry_tree, *pcmax_f_c_item, tvb, *offset, 1, ENC_BIG_ENDIAN);
         (*offset)++;
     }
 
@@ -1055,6 +1409,171 @@ static proto_item* dissect_me_phr_ph(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 }
 
 
+static guint8 get_rlc_seqnum_length(rlc_bearer_type_t rlc_bearer_type)
+{
+    switch (rlc_bearer_type) {
+        case rlcUM6:
+            return 6;
+        case rlcUM12:
+            return 12;
+        case rlcAM12:
+            return 12;
+        case rlcAM18:
+            return 18;
+
+        default:
+            /* Not expected */
+            return 0;
+    }
+}
+
+
+
+/* Lookup bearer details for lcid */
+static gboolean lookup_rlc_bearer_from_lcid(guint16 ueid,
+                                            guint8 lcid,
+                                            guint8 direction,
+                                            rlc_bearer_type_t *rlc_bearer_type,  /* out */
+                                            guint8 *seqnum_length,               /* out */
+                                            gint *drb_id)                        /* out */
+{
+    /* Zero params (in case no match is found) */
+    *rlc_bearer_type = rlcRaw;
+    *seqnum_length    = 0;
+    *drb_id           = 0;
+
+    if (global_mac_nr_lcid_drb_source == (int)FromStaticTable) {
+
+        /* Look up in static (UAT) table */
+        guint m;
+        for (m=0; m < num_lcid_drb_mappings; m++) {
+            if (lcid == lcid_drb_mappings[m].lcid) {
+
+                /* Found, set out parameters */
+                if (direction == DIRECTION_UPLINK) {
+                    *rlc_bearer_type = lcid_drb_mappings[m].bearer_type_ul;
+                }
+                else {
+                    *rlc_bearer_type = lcid_drb_mappings[m].bearer_type_dl;
+                }
+                *seqnum_length = get_rlc_seqnum_length(*rlc_bearer_type);
+                *drb_id = lcid_drb_mappings[m].drbid;
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
+    else {
+        /* Look up the dynamic mappings for this UE */
+        ue_dynamic_drb_mappings_t *ue_mappings = (ue_dynamic_drb_mappings_t *)g_hash_table_lookup(mac_nr_ue_bearers_hash, GUINT_TO_POINTER((guint)ueid));
+        if (!ue_mappings) {
+            return FALSE;
+        }
+
+        /* Look up setting gleaned from configuration protocol */
+        if (!ue_mappings->mapping[lcid].valid) {
+            return FALSE;
+        }
+
+        /* Found, set out params */
+        *rlc_bearer_type = (direction == DIRECTION_UPLINK) ?
+                           ue_mappings->mapping[lcid].bearer_type_ul :
+                           ue_mappings->mapping[lcid].bearer_type_dl;
+        *seqnum_length = get_rlc_seqnum_length(*rlc_bearer_type);
+        *drb_id = ue_mappings->mapping[lcid].drbid;
+
+        return TRUE;
+    }
+}
+
+
+/* Helper function to call RLC dissector for SDUs (where channel params are known) */
+static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                               proto_item *pdu_ti,
+                               int offset, guint16 data_length,
+                               guint8 mode, guint8 direction, guint16 ueid,
+                               guint8 bearerType, guint8 bearerId,
+                               guint8 sequenceNumberLength,
+                               guint8 priority _U_)
+{
+    tvbuff_t            *rb_tvb = tvb_new_subset_length(tvb, offset, data_length);
+    struct rlc_nr_info *p_rlc_nr_info;
+
+    /* Resuse or create RLC info */
+    p_rlc_nr_info = (rlc_nr_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc_nr, 0);
+    if (p_rlc_nr_info == NULL) {
+        p_rlc_nr_info = wmem_new0(wmem_file_scope(), struct rlc_nr_info);
+    }
+
+    /* Fill in details for channel */
+    p_rlc_nr_info->rlcMode = mode;
+    p_rlc_nr_info->direction = direction;
+    /* p_rlc_nr_info->priority = priority; */
+    p_rlc_nr_info->ueid = ueid;
+    p_rlc_nr_info->bearerType = bearerType;
+    p_rlc_nr_info->bearerId = bearerId;
+    p_rlc_nr_info->pduLength = data_length;
+    p_rlc_nr_info->sequenceNumberLength = sequenceNumberLength;
+
+    /* Store info in packet */
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc_nr, 0, p_rlc_nr_info);
+
+    if (global_mac_nr_layer_to_show != ShowRLCLayer) {
+        /* Don't want these columns replaced */
+        col_set_writable(pinfo->cinfo, -1, FALSE);
+    }
+    else {
+        /* Clear info column before first RLC PDU */
+        if (s_number_of_rlc_pdus_shown == 0) {
+            col_clear(pinfo->cinfo, COL_INFO);
+        }
+        else {
+            /* Add a separator and protect column contents here */
+            write_pdu_label_and_info_literal(pdu_ti, NULL, pinfo, "   ||   ");
+            col_set_fence(pinfo->cinfo, COL_INFO);
+        }
+    }
+    s_number_of_rlc_pdus_shown++;
+
+    /* Call it (catch exceptions so that stats will be updated) */
+    call_with_catch_all(rlc_nr_handle, rb_tvb, pinfo, tree);
+
+    /* Let columns be written to again */
+    col_set_writable(pinfo->cinfo, -1, TRUE);
+}
+
+/* see 3GPP 38.133 Table 10.1.17.1-1 */
+static void
+mac_nr_phr_fmt(gchar *s, guint32 v)
+{
+    gint32 val = (gint32)v;
+
+    if (val == 0) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "PH < -32 dB (0)");
+    } else if (val == 63) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "PH >= 38 dB (63)");
+    } else if (val <= 54) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dB <= PH < %d dB (%d)", val - 33, val - 32, val);
+    } else {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dB <= PH < %d dB (%d)", 22 + 2 * (val - 55), 24 + 2 * (val - 55), val);
+    }
+}
+
+/* see 3GPP 38.133 Table 10.1.18.1-1 */
+static void
+mac_nr_pcmax_f_c_fmt(gchar *s, guint32 v)
+{
+    gint32 val = (gint32)v;
+
+    if (val == 0) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Pcmax,f,c < -29 dBm (0)");
+    } else if (val == 63) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Pcmax,f,c >= 33 dBm (63)");
+    } else {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dBm <= Pcmax,f,c < %d dBm (%d)", val - 30, val - 29, val);
+    }
+}
+
 /* UL-SCH and DL-SCH formats have much in common, so handle them in a common
    function */
 static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1062,6 +1581,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    mac_nr_info *p_mac_nr_info,
                                    proto_tree *context_tree _U_)
 {
+    gboolean ces_seen = FALSE;
+    gboolean data_seen = FALSE;
+
+    write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                             "%s ",
+                             (p_mac_nr_info->direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH");
+
     /************************************************************************/
     /* Dissect each sub-pdu.                                             */
     do {
@@ -1091,7 +1617,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* LCID */
         proto_tree_add_uint(subheader_tree,
                             (p_mac_nr_info->direction == DIRECTION_UPLINK) ?
-                                hf_mac_nr_ulsch_lcid : hf_mac_nr_dlsch_lcid,
+                                  hf_mac_nr_ulsch_lcid : hf_mac_nr_dlsch_lcid,
                             tvb, offset, 1, lcid);
         offset++;
 
@@ -1108,43 +1634,151 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
         }
 
-        if (lcid <= 32) {
+        if (lcid <= 32 || (p_mac_nr_info->direction == DIRECTION_UPLINK && lcid == CCCH_48_BITS_LCID)) {
+            proto_item *sch_pdu_ti;
+
+            /* Note whether this sub-pdu gets dissected by RLC/RRC */
+            gboolean dissected_by_upper_layer = FALSE;
 
             /* Add SDU, for now just as hex data */
             if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
-                proto_tree_add_item(subheader_tree, hf_mac_nr_ulsch_sdu,
-                                    tvb, offset, SDU_length, ENC_NA);
+                if (lcid == CCCH_LCID) {
+                    SDU_length = 8;
+                } else if (lcid == CCCH_48_BITS_LCID) {
+                    SDU_length = 6;
+                }
+                sch_pdu_ti = proto_tree_add_item(subheader_tree, hf_mac_nr_ulsch_sdu,
+                                                 tvb, offset, SDU_length, ENC_NA);
             }
             else {
-                proto_tree_add_item(subheader_tree, hf_mac_nr_dlsch_sdu,
-                                    tvb, offset, SDU_length, ENC_NA);
+                sch_pdu_ti = proto_tree_add_item(subheader_tree, hf_mac_nr_dlsch_sdu,
+                                                 tvb, offset, SDU_length, ENC_NA);
             }
-            write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
+
+            /* Call RLC if configured to do so for this SDU */
+            if ((lcid >= 4) && (lcid <= 32)) {
+                /* Look for mapping for this LCID to drb channel set by UAT table */
+                rlc_bearer_type_t rlc_bearer_type;
+                guint8 seqnum_length;
+                gint drb_id;
+
+                // TODO: priority not set.
+                guint8 priority = 0;
+                lookup_rlc_bearer_from_lcid(p_mac_nr_info->ueid,
+                                            lcid,
+                                            p_mac_nr_info->direction,
+                                            &rlc_bearer_type,
+                                            &seqnum_length,
+                                            &drb_id);
+
+                /* Dissect according to channel type */
+                switch (rlc_bearer_type) {
+                    case rlcUM6:
+                    case rlcUM12:
+                        call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, SDU_length,
+                                           RLC_UM_MODE, p_mac_nr_info->direction, p_mac_nr_info->ueid,
+                                           BEARER_TYPE_DRB, drb_id, seqnum_length,
+                                           priority);
+                        dissected_by_upper_layer = TRUE;
+                        break;
+                    case rlcAM12:
+                    case rlcAM18:
+                        call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, SDU_length,
+                                           RLC_AM_MODE, p_mac_nr_info->direction, p_mac_nr_info->ueid,
+                                           BEARER_TYPE_DRB, drb_id, seqnum_length,
+                                           priority);
+                        dissected_by_upper_layer = TRUE;
+                        break;
+                    case rlcTM:
+                        call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, SDU_length,
+                                           RLC_TM_MODE, p_mac_nr_info->direction, p_mac_nr_info->ueid,
+                                           BEARER_TYPE_DRB, drb_id, 0,
+                                           priority);
+                        dissected_by_upper_layer = TRUE;
+                        break;
+                    case rlcRaw:
+                        /* Nothing to do! */
+                        break;
+                }
+            } else if (lcid >= 1 && lcid <= 3) {
+                if (global_mac_nr_attempt_srb_decode) {
+                    /* SRB, call RLC dissector */
+                    /* These are defaults (38.331, 9.2.1) - only priority may be overridden, but not passing in yet. */
+                    call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, SDU_length,
+                                       RLC_AM_MODE, p_mac_nr_info->direction, p_mac_nr_info->ueid,
+                                       BEARER_TYPE_SRB, lcid, 12,
+                                       (lcid == 2) ? 3 : 1);
+                    dissected_by_upper_layer = TRUE;
+                }
+            } else if (global_mac_nr_attempt_rrc_decode) {
+                dissector_handle_t protocol_handle;
+                tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
+
+                if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
+                    protocol_handle = (lcid == CCCH_LCID) ? nr_rrc_ul_ccch1_handle : nr_rrc_ul_ccch_handle;
+                } else {
+                    protocol_handle = nr_rrc_dl_ccch_handle;
+                }
+                /* Hide raw view of bytes */
+                proto_item_set_hidden(sch_pdu_ti);
+                call_with_catch_all(protocol_handle, rrc_tvb, pinfo, tree);
+                dissected_by_upper_layer = TRUE;
+            }
+
+            /* Only write summary to Info column if didn't send to upper_layer dissector */
+            write_pdu_label_and_info(pdu_ti, subheader_ti, dissected_by_upper_layer ? NULL : pinfo,
                                      "(LCID:%u %u bytes) ", lcid, SDU_length);
+
             offset += SDU_length;
+
+
+            if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
+                if (ces_seen) {
+                    expert_add_info_format(pinfo, subheader_ti, &ei_mac_nr_ul_sch_control_subheader_before_data_subheader,
+                                           "UL-SCH: should not have Data SDUs after Control Elements");
+                }
+            }
+            data_seen = TRUE;
         }
         else {
             /* Control Elements */
+
+            /* Add some space to info column between entries */
+            if (data_seen || ces_seen) {
+                col_append_str(pinfo->cinfo, COL_INFO, "  ");
+            }
+
+            if (lcid != PADDING_LCID) {
+                ces_seen = TRUE;
+            }
+
             if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
-                guint32 phr_ph, phr_pcmac_c, c_rnti, lcg_id, bs;
+                guint32 phr_ph, phr_pcmax_f_c, c_rnti, lcg_id, bs, br_lcid, bit_rate;
+                gboolean dir;
 
                 switch (lcid) {
+                    case RECOMMENDED_BIT_RATE_QUERY_LCID:
+                        proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_recommended_bit_rate_query_lcid,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN, &br_lcid);
+                        proto_tree_add_item_ret_boolean(subheader_tree, hf_mac_nr_control_recommended_bit_rate_query_dir,
+                                                        tvb, offset, 1, ENC_BIG_ENDIAN, &dir);
+                        proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_recommended_bit_rate_query_bit_rate,
+                                                     tvb, offset, 2, ENC_BIG_ENDIAN, &bit_rate);
+                        proto_tree_add_item(subheader_tree, hf_mac_nr_control_recommended_bit_rate_query_reserved,
+                                            tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                        write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
+                                                 "(Recommended BR Query LCID=%u Dir=%s BR=%s) ", br_lcid, dir ? "UL" : "DL",
+                                                 val_to_str_ext_const(bit_rate, &bit_rate_vals_ext, "Unknown"));
+                        offset += 2;
+                        break;
                     case CONFIGURED_GRANT_CONFIGURATION_LCID:
                         /* Fixed size of zero bits */
                         write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
                                                          "(Configured Grant Config) ");
                         break;
-                    case MULTIPLE_ENTRY_PHR_LCID:
+                    case MULTIPLE_ENTRY_PHR_1_LCID:
+                    case MULTIPLE_ENTRY_PHR_4_LCID:
                     {
-                        /* Whether this are 1 or 4 bytes of flags depends on
-                           the highest SCellIndex for that UE with a configured UL. Could get this from:
-                           - info added to mac_nr_info struct
-                           - by tracking the highest SCellIndex/carrier-id seen
-                           - by looking at SCell Activation/Deactivation CEs
-                           - by getting updated by RRC signalling
-                           - by following entries based on 1 bye to see if the dissected length matches
-                             SDU_length.
-                         */
                         static const int * me_phr_byte1_flags[] = {
                             &hf_mac_nr_control_me_phr_c7_flag,
                             &hf_mac_nr_control_me_phr_c6_flag,
@@ -1156,12 +1790,54 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             &hf_mac_nr_control_me_phr_reserved,
                             NULL
                         };
-                        proto_tree_add_bitmask_list(subheader_tree, tvb, offset, 1, me_phr_byte1_flags, ENC_NA);
-                        guint8 scell_bitmap1 = tvb_get_guint8(tvb, offset);
+                        static const int * me_phr_byte2_flags[] = {
+                            &hf_mac_nr_control_me_phr_c15_flag,
+                            &hf_mac_nr_control_me_phr_c14_flag,
+                            &hf_mac_nr_control_me_phr_c13_flag,
+                            &hf_mac_nr_control_me_phr_c12_flag,
+                            &hf_mac_nr_control_me_phr_c11_flag,
+                            &hf_mac_nr_control_me_phr_c10_flag,
+                            &hf_mac_nr_control_me_phr_c9_flag,
+                            &hf_mac_nr_control_me_phr_c8_flag,
+                            NULL
+                        };
+                        static const int * me_phr_byte3_flags[] = {
+                            &hf_mac_nr_control_me_phr_c23_flag,
+                            &hf_mac_nr_control_me_phr_c22_flag,
+                            &hf_mac_nr_control_me_phr_c21_flag,
+                            &hf_mac_nr_control_me_phr_c20_flag,
+                            &hf_mac_nr_control_me_phr_c19_flag,
+                            &hf_mac_nr_control_me_phr_c18_flag,
+                            &hf_mac_nr_control_me_phr_c17_flag,
+                            &hf_mac_nr_control_me_phr_c16_flag,
+                            NULL
+                        };
+                        static const int * me_phr_byte4_flags[] = {
+                            &hf_mac_nr_control_me_phr_c31_flag,
+                            &hf_mac_nr_control_me_phr_c30_flag,
+                            &hf_mac_nr_control_me_phr_c29_flag,
+                            &hf_mac_nr_control_me_phr_c28_flag,
+                            &hf_mac_nr_control_me_phr_c27_flag,
+                            &hf_mac_nr_control_me_phr_c26_flag,
+                            &hf_mac_nr_control_me_phr_c25_flag,
+                            &hf_mac_nr_control_me_phr_c24_flag,
+                            NULL
+                        };
                         guint32 start_offset = offset;
+                        guint8 scell_bitmap1;
+                        guint32 scell_bitmap2_3_4;
+                        proto_tree_add_bitmask_list(subheader_tree, tvb, offset, 1, me_phr_byte1_flags, ENC_NA);
+                        scell_bitmap1 = tvb_get_guint8(tvb, offset);
                         offset++;
+                        if (lcid == MULTIPLE_ENTRY_PHR_4_LCID) {
+                            proto_tree_add_bitmask_list(subheader_tree, tvb, offset, 1, me_phr_byte2_flags, ENC_NA);
+                            proto_tree_add_bitmask_list(subheader_tree, tvb, offset+1, 1, me_phr_byte3_flags, ENC_NA);
+                            proto_tree_add_bitmask_list(subheader_tree, tvb, offset+2, 1, me_phr_byte4_flags, ENC_NA);
+                            scell_bitmap2_3_4 = tvb_get_letoh24(tvb, offset); /* read them in little endian on purpose */
+                            offset += 3;
+                        }
 
-                        static const int *ph_fields[] = {
+                        static const int *ph_fields1[] = {
                             &hf_mac_nr_control_me_phr_ph_c1,
                             &hf_mac_nr_control_me_phr_ph_c2,
                             &hf_mac_nr_control_me_phr_ph_c3,
@@ -1170,27 +1846,63 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             &hf_mac_nr_control_me_phr_ph_c6,
                             &hf_mac_nr_control_me_phr_ph_c7,
                         };
+                        static const int *ph_fields2_3_4[] = {
+                            &hf_mac_nr_control_me_phr_ph_c8,
+                            &hf_mac_nr_control_me_phr_ph_c9,
+                            &hf_mac_nr_control_me_phr_ph_c10,
+                            &hf_mac_nr_control_me_phr_ph_c11,
+                            &hf_mac_nr_control_me_phr_ph_c12,
+                            &hf_mac_nr_control_me_phr_ph_c13,
+                            &hf_mac_nr_control_me_phr_ph_c14,
+                            &hf_mac_nr_control_me_phr_ph_c15,
+                            &hf_mac_nr_control_me_phr_ph_c16,
+                            &hf_mac_nr_control_me_phr_ph_c17,
+                            &hf_mac_nr_control_me_phr_ph_c18,
+                            &hf_mac_nr_control_me_phr_ph_c19,
+                            &hf_mac_nr_control_me_phr_ph_c20,
+                            &hf_mac_nr_control_me_phr_ph_c21,
+                            &hf_mac_nr_control_me_phr_ph_c22,
+                            &hf_mac_nr_control_me_phr_ph_c23,
+                            &hf_mac_nr_control_me_phr_ph_c24,
+                            &hf_mac_nr_control_me_phr_ph_c25,
+                            &hf_mac_nr_control_me_phr_ph_c26,
+                            &hf_mac_nr_control_me_phr_ph_c27,
+                            &hf_mac_nr_control_me_phr_ph_c28,
+                            &hf_mac_nr_control_me_phr_ph_c29,
+                            &hf_mac_nr_control_me_phr_ph_c30,
+                            &hf_mac_nr_control_me_phr_ph_c31,
+                        };
 
                         /* PCell entries */
                         guint32 PH;
                         proto_item *entry_ti;
-                        if (p_mac_nr_info->phr_type2_pcell) {
-                             entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, &hf_mac_nr_control_me_phr_ph_type2_pcell, &PH, &offset);
-                            proto_item_append_text(entry_ti, " (Type 2 PCell PH=%u)", PH);
-                        }
                         if (p_mac_nr_info->phr_type2_othercell) {
-                            entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, &hf_mac_nr_control_me_phr_ph_type2_pscell_or_pucch_scell, &PH, &offset);
-                            proto_item_append_text(entry_ti, " (Type2, PSCell or PUCCH SCell PH=%u)", PH);
+                            /* The PH and PCMAX,f,c fields can be either for a LTE or NR cell */
+                            entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, &hf_mac_nr_control_me_phr_ph_type2_spcell,
+                                                         &hf_mac_nr_control_me_phr_pcmax_f_c_type2_spcell, &PH, &offset);
+                            proto_item_append_text(entry_ti, " (Type2, SpCell PH=%u)", PH);
                         }
-                        entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, &hf_mac_nr_control_me_phr_ph_typex_pcell, &PH, &offset);
-                        proto_item_append_text(entry_ti, " (TypeX, PCell PH=%u)", PH);
+                        entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, &hf_mac_nr_control_me_phr_ph_type1_pcell,
+                                                     &hf_mac_nr_control_me_phr_pcmax_f_c_type1_pcell, &PH, &offset);
+                        proto_item_append_text(entry_ti, " (Type1, PCell PH=%u)", PH);
 
 
                         /* SCell entries */
+                        /* The PH and PCMAX,f,c fields can be either for a LTE or NR cell */
                         for (int n=1; n <= 7; n++) {
                             if (scell_bitmap1 & (1 << n)) {
-                                entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, ph_fields[n-1], &PH, &offset);
+                                entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, ph_fields1[n-1],
+                                                             &hf_mac_nr_control_me_phr_pcmax_f_c_typeX, &PH, &offset);
                                 proto_item_append_text(entry_ti, " (SCellIndex %d PH=%u)", n, PH);
+                            }
+                        }
+                        if (lcid == MULTIPLE_ENTRY_PHR_4_LCID) {
+                            for (int n=0; n <= 23; n++) {
+                                if (scell_bitmap2_3_4 & (1 << n)) {
+                                    entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, ph_fields2_3_4[n],
+                                                                 &hf_mac_nr_control_me_phr_pcmax_f_c_typeX, &PH, &offset);
+                                    proto_item_append_text(entry_ti, " (SCellIndex %d PH=%u)", n+8, PH);
+                                }
                             }
                         }
 
@@ -1216,14 +1928,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                      tvb, offset, 1, ENC_BIG_ENDIAN, &phr_ph);
                         offset++;
 
-                        /* R R PCMAXC (6 bits) */
+                        /* R R PCMAX_f_c (6 bits) */
                         proto_tree_add_item(subheader_tree, hf_mac_nr_control_se_phr_reserved,
                                             tvb, offset, 1, ENC_NA);
-                        proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_se_phr_pcmax_c,
-                                                     tvb, offset, 1, ENC_NA, &phr_pcmac_c);
+                        proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_se_phr_pcmax_f_c,
+                                                     tvb, offset, 1, ENC_NA, &phr_pcmax_f_c);
                         offset++;
                         write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
-                                                 "(PHR PH=%u PCMAC_C=%u) ", phr_ph, phr_pcmac_c);
+                                                 "(PHR PH=%u PCMAX_f_c=%u) ", phr_ph, phr_pcmax_f_c);
                         break;
                     case C_RNTI_LCID:
                         proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_crnti,
@@ -1256,8 +1968,39 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             offset++;
                         }
                         break;
-                    case LONG_BSR_LCID:
                     case LONG_TRUNCATED_BSR_LCID:
+                        {
+                            static const int * long_bsr_flags[] = {
+                                &hf_mac_nr_control_bsr_long_lcg7,
+                                &hf_mac_nr_control_bsr_long_lcg6,
+                                &hf_mac_nr_control_bsr_long_lcg5,
+                                &hf_mac_nr_control_bsr_long_lcg4,
+                                &hf_mac_nr_control_bsr_long_lcg3,
+                                &hf_mac_nr_control_bsr_long_lcg2,
+                                &hf_mac_nr_control_bsr_long_lcg1,
+                                &hf_mac_nr_control_bsr_long_lcg0,
+                                NULL
+                            };
+
+                            proto_tree_add_bitmask_list(subheader_tree, tvb, offset, 1, long_bsr_flags, ENC_NA);
+                            guint CE_start = offset;
+                            offset++;
+
+                            while ((offset-CE_start) < SDU_length) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_trunc_long_bs, tvb, offset++, 1, ENC_NA);
+
+                            /* TODO: show in string here how many BSs were seen */
+                            write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
+                                                             "(Long Truncated BSR) ");
+
+                            if (SDU_length > 7) {
+                                proto_tree_add_expert_format(subheader_tree, pinfo, &ei_mac_nr_sdu_length_different_from_dissected,
+                                                             tvb, CE_start, SDU_length,
+                                                             "A Long Truncated BSR subheader should have a length field up to 7 bytes, but "
+                                                             "is set to %u bytes", SDU_length);
+                            }
+                        }
+                        break;
+                    case LONG_BSR_LCID:
                         {
                             static const int * long_bsr_flags[] = {
                                 &hf_mac_nr_control_bsr_long_lcg7,
@@ -1276,46 +2019,74 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             guint CE_start = offset;
                             offset++;
 
-                            /* Show BSR values.  TODO: break out into a function so can report in expert info if
-                               Long BSR case is truncated... */
-                            if ((flags & 0x01) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg0, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x02) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg1, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x04) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg2, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x08) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg3, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x10) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg4, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x20) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg5, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x40) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg6, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x80) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg7, tvb, offset++, 1, ENC_NA);
+                            /* Show BSR values. */
+                            if (flags & 0x01) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg0, tvb, offset++, 1, ENC_NA);
+                            if (flags & 0x02) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg1, tvb, offset++, 1, ENC_NA);
+                            if (flags & 0x04) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg2, tvb, offset++, 1, ENC_NA);
+                            if (flags & 0x08) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg3, tvb, offset++, 1, ENC_NA);
+                            if (flags & 0x10) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg4, tvb, offset++, 1, ENC_NA);
+                            if (flags & 0x20) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg5, tvb, offset++, 1, ENC_NA);
+                            if (flags & 0x40) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg6, tvb, offset++, 1, ENC_NA);
+                            if (flags & 0x80) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg7, tvb, offset++, 1, ENC_NA);
 
-                            /* TODO: check change in offset against PDU_length */
                             /* TODO: show in string here how many BSs were seen */
-                            if (lcid == LONG_BSR_LCID) {
-                                write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
-                                                                 "(Long BSR) ");
-                            }
-                            else {
-                                write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
-                                                                 "(Long Truncated BSR) ");
+                            write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
+                                                             "(Long BSR) ");
+
+
+                            /* Make sure dissected length matches signalled length */
+                            if ((offset - CE_start) != SDU_length) {
+                                proto_tree_add_expert_format(subheader_tree, pinfo, &ei_mac_nr_sdu_length_different_from_dissected,
+                                                             tvb, CE_start, offset-CE_start,
+                                                             "A Long BSR subheader has a length field of %u bytes, but "
+                                                             "dissected %u bytes", SDU_length, offset-CE_start);
+                                /* Assume length was correct, so at least can dissect further subheaders */
+                                offset = CE_start + SDU_length;
                             }
                         }
                         break;
                     case PADDING_LCID:
-                        /* The rest of the PDU is padding */
-                        proto_tree_add_item(subheader_tree, hf_mac_nr_padding, tvb, offset, -1, ENC_NA);
-                        write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(Padding %u bytes) ",
-                                                 tvb_reported_length_remaining(tvb, offset));
-                        /* Move to the end of the frame */
-                        offset = tvb_captured_length(tvb);
+                        {
+                            /* The rest of the PDU is padding */
+                            int pad_len = tvb_reported_length_remaining(tvb, offset);
+                            if (pad_len > 0)
+                                proto_tree_add_item(subheader_tree, hf_mac_nr_padding, tvb, offset, -1, ENC_NA);
+                            write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(Padding %u bytes) ", pad_len);
+                            /* Move to the end of the frame */
+                            offset = tvb_reported_length(tvb);
+                        }
                         break;
                 }
             }
             else {
                 /* Downlink control elements */
-                guint32 ta_tag_id, ta_ta;
+                guint32 ta_tag_id, ta_ta, br_lcid, bit_rate;
+                gboolean dir;
+
+                if (lcid != PADDING_LCID) {
+                    if (data_seen) {
+                        expert_add_info_format(pinfo, subheader_ti, &ei_mac_nr_dl_sch_control_subheader_after_data_subheader,
+                                               "DL-SCH: should not have Control Elements after Data SDUs");
+                    }
+                }
 
                 switch (lcid) {
+                    case RECOMMENDED_BIT_RATE_LCID:
+                        proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_recommended_bit_rate_lcid,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN, &br_lcid);
+                        proto_tree_add_item_ret_boolean(subheader_tree, hf_mac_nr_control_recommended_bit_rate_dir,
+                                                        tvb, offset, 1, ENC_BIG_ENDIAN, &dir);
+                        proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_recommended_bit_rate_bit_rate,
+                                                     tvb, offset, 2, ENC_BIG_ENDIAN, &bit_rate);
+                        proto_tree_add_item(subheader_tree, hf_mac_nr_control_recommended_bit_rate_reserved,
+                                            tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
+                                                 "(Recommended BR LCID=%u Dir=%s BR=%s) ", br_lcid, dir ? "UL" : "DL",
+                                                 val_to_str_ext_const(bit_rate, &bit_rate_vals_ext, "Unknown"));
+                        break;
                     case SP_ZP_CSI_RS_RESOURCE_SET_ACT_DEACT_LCID:
-                        proto_tree_add_item(subheader_tree, hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_reserved,
+                        proto_tree_add_item(subheader_tree, hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_ad,
                                             tvb, offset, 1, ENC_NA);
                         proto_tree_add_item(subheader_tree, hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_serving_cell_id,
                                             tvb, offset, 1, ENC_NA);
@@ -1333,6 +2104,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     case PUCCH_SPATIAL_REL_ACT_DEACT_LCID:
                         {
                             static const int * pucch_spatial_rel_act_deact_flags[] = {
+                                &hf_mac_nr_control_pucch_spatial_rel_act_deact_s8,
                                 &hf_mac_nr_control_pucch_spatial_rel_act_deact_s7,
                                 &hf_mac_nr_control_pucch_spatial_rel_act_deact_s6,
                                 &hf_mac_nr_control_pucch_spatial_rel_act_deact_s5,
@@ -1340,7 +2112,6 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 &hf_mac_nr_control_pucch_spatial_rel_act_deact_s3,
                                 &hf_mac_nr_control_pucch_spatial_rel_act_deact_s2,
                                 &hf_mac_nr_control_pucch_spatial_rel_act_deact_s1,
-                                &hf_mac_nr_control_pucch_spatial_rel_act_deact_s0,
                                 NULL
                             };
                             proto_tree_add_item(subheader_tree, hf_mac_nr_control_pucch_spatial_rel_act_deact_reserved,
@@ -1363,34 +2134,79 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         break;
                     case SP_SRS_ACT_DEACT_LCID:
                         {
-                            gboolean ad;
+                            gboolean ad, c;
                             guint32 start_offset = offset;
+                            guint resources = 0;
+
+                            /* Header */
                             proto_tree_add_item_ret_boolean(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_ad,
                                                             tvb, offset, 1, ENC_NA, &ad);
-                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_serving_cell_id,
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_srs_resource_set_cell_id,
                                                 tvb, offset, 1, ENC_NA);
-                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_bwp_id,
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_srs_resource_set_bwp_id,
                                                 tvb, offset, 1, ENC_NA);
                             offset++;
-                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_reserved,
-                                                tvb, offset, 1, ENC_NA);
+
+                            proto_tree_add_bits_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_reserved,
+                                                     tvb, offset<<3, 2, ENC_NA);
+                            proto_tree_add_item_ret_boolean(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_c,
+                                                            tvb, offset, 1, ENC_NA, &c);
                             proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_sul,
                                                 tvb, offset, 1, ENC_NA);
                             proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_sp_srs_resource_set_id,
                                                 tvb, offset, 1, ENC_NA);
                             offset++;
+
                             if (ad) {
-                                while (offset - start_offset < SDU_length) {
-                                    proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_f,
-                                                        tvb, offset, 1, ENC_NA);
-                                    proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_resource_id,
-                                                        tvb, offset, 1, ENC_NA);
+                                /* Activating - show info for resources */
+                                guint length = c ? (SDU_length-2) / 2 + 2: SDU_length;
+                                while (offset - start_offset < length) {
+                                    gboolean f;
+                                    proto_tree_add_item_ret_boolean(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_f,
+                                                        tvb, offset, 1, ENC_NA, &f);
+                                    guint32 resource_id = tvb_get_guint8(tvb, offset) & 0x7f;
+                                    proto_item *resource_id_ti;
+                                    if (!f && (resource_id & 0x40)) {
+                                        /* SSB case - first bit just indicates type */
+                                        resource_id_ti = proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_resource_id_ssb,
+                                                                             tvb, offset, 1, ENC_NA);
+                                        proto_item_append_text(resource_id_ti, " (SSB)");
+                                    }
+                                    else {
+                                        resource_id_ti = proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_resource_id,
+                                                                             tvb, offset, 1, ENC_NA);
+                                        if (f) {
+                                            proto_item_append_text(resource_id_ti, " (NZP-CSI-RS)");
+                                        }
+                                        else {
+                                            proto_item_append_text(resource_id_ti, " (SRS)");
+                                        }
+                                    }
                                     offset++;
+                                    resources++;
                                 }
 
                             }
-                            write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
-                                                             "(SP SRS Act/Deact) ");
+                            if (c) {
+                                /* Deactivating (no resources) */
+                                while (offset - start_offset < SDU_length) {
+                                    proto_tree_add_bits_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_reserved,
+                                                             tvb, offset<<3, 1, ENC_NA);
+                                    proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_resource_serving_cell_id,
+                                                        tvb, offset, 1, ENC_NA);
+                                    proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_resource_bwp_id,
+                                                        tvb, offset, 1, ENC_NA);
+                                    offset++;
+                                }
+                            }
+
+                            /* Add summary to Info column */
+                            if (ad) {
+                                write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(SP SRS Act/Deact Activate %d resources)", resources);
+                            }
+                            else {
+                                write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(SP SRS Act/Deact Deactivate)");
+                            }
                         }
                         break;
                     case SP_CSI_REPORT_ON_PUCCH_ACT_DEACT_LCID:
@@ -1420,15 +2236,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
                         break;
                     case TCI_STATE_IND_FOR_UE_SPEC_PDCCH_LCID:
-                        proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_reserved,
-                                            tvb, offset, 1, ENC_NA);
                         proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_serving_cell_id,
                                             tvb, offset, 1, ENC_NA);
-                        proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_bwp_id,
-                                            tvb, offset, 1, ENC_NA);
-                        offset++;
                         proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_coreset_id,
-                                            tvb, offset, 1, ENC_NA);
+                                            tvb, offset, 2, ENC_NA);
+                        offset++;
                         proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_tci_state_id,
                                             tvb, offset, 1, ENC_NA);
                         offset++;
@@ -1655,11 +2467,15 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo, "(Contention Resolution) ");
                         break;
                     case PADDING_LCID:
-                        write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo, "(Padding) ");
-
-                        /* The rest of the PDU is padding */
-                        proto_tree_add_item(subheader_tree, hf_mac_nr_padding, tvb, offset, -1, ENC_NA);
-                        offset = tvb_captured_length(tvb);
+                        {
+                            /* The rest of the PDU is padding */
+                            int pad_len = tvb_reported_length_remaining(tvb, offset);
+                            if (pad_len > 0)
+                                proto_tree_add_item(subheader_tree, hf_mac_nr_padding, tvb, offset, -1, ENC_NA);
+                            write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(Padding %u bytes) ", pad_len);
+                            /* Move to the end of the frame */
+                            offset = tvb_reported_length(tvb);
+                        }
                         break;
                 }
             }
@@ -1705,6 +2521,9 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
     /* Clear info column */
     col_clear(pinfo->cinfo, COL_INFO);
 
+    /* Restart this count */
+    s_number_of_rlc_pdus_shown = 0;
+
 
     /*****************************************/
     /* Show context information              */
@@ -1713,54 +2532,67 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
     context_ti = proto_tree_add_string_format(mac_nr_tree, hf_mac_nr_context,
                                               tvb, offset, 0, "", "Context");
     context_tree = proto_item_add_subtree(context_ti, ett_mac_nr_context);
-    PROTO_ITEM_SET_GENERATED(context_ti);
+    proto_item_set_generated(context_ti);
 
     /* Radio type */
     ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_radio_type,
                              tvb, 0, 0, p_mac_nr_info->radioType);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Direction */
     ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_direction,
                              tvb, 0, 0, p_mac_nr_info->direction);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* RNTI type and value */
     if (p_mac_nr_info->rntiType != NO_RNTI) {
         ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_rnti,
                                  tvb, 0, 0, p_mac_nr_info->rnti);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         proto_item_append_text(context_ti, " (RNTI=%u)", p_mac_nr_info->rnti);
     }
 
     ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_rnti_type,
                              tvb, 0, 0, p_mac_nr_info->rntiType);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* UEId */
     if (p_mac_nr_info->ueid != 0) {
         ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_ueid,
                                  tvb, 0, 0, p_mac_nr_info->ueid);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
-    /* Type 2 PCell */
-    ti = proto_tree_add_boolean(context_tree,  hf_mac_nr_context_phr_type2_pcell,
-                                tvb, 0, 0, p_mac_nr_info->phr_type2_pcell);
-    PROTO_ITEM_SET_GENERATED(ti);
+    if (p_mac_nr_info->sfnSlotInfoPresent) {
+        ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_sysframe_number,
+                                 tvb, 0, 0, p_mac_nr_info->sysframeNumber);
+        proto_item_set_generated(ti);
+        ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_slot_number,
+                                 tvb, 0, 0, p_mac_nr_info->slotNumber);
+        proto_item_set_generated(ti);
+    }
 
-    /* Type 2 other */
-    ti = proto_tree_add_boolean(context_tree, hf_mac_nr_context_phr_type2_othercell,
-                                tvb, 0, 0, p_mac_nr_info->phr_type2_othercell);
-    PROTO_ITEM_SET_GENERATED(ti);
+    if (p_mac_nr_info->rntiType == C_RNTI || p_mac_nr_info->rntiType == CS_RNTI) {
+        /* Harqid */
+        ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_harqid,
+                                tvb, 0, 0, p_mac_nr_info->harqid);
+        proto_item_set_generated(ti);
+
+        if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
+            /* Type 2 other */
+            ti = proto_tree_add_boolean(context_tree, hf_mac_nr_context_phr_type2_othercell,
+                                        tvb, 0, 0, p_mac_nr_info->phr_type2_othercell);
+            proto_item_set_generated(ti);
+        }
+    }
 
 
     /* Dissect the MAC PDU itself. Format depends upon RNTI type. */
     switch (p_mac_nr_info->rntiType) {
 
         case P_RNTI:
-            /* PCH PDU */
-//            dissect_pch(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info, tap_info);
+            /* PCCH PDU */
+            dissect_pcch(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info);
             break;
 
         case RA_RNTI:
@@ -1842,18 +2674,23 @@ static gboolean dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                     p_mac_nr_info->ueid = tvb_get_ntohs(tvb, offset);
                     offset += 2;
                     break;
-                case MAC_NR_FRAME_SUBFRAME_TAG:
-                    p_mac_nr_info->sysframeNumber = tvb_get_bits16(tvb, offset<<3, 12, ENC_BIG_ENDIAN);
-                    p_mac_nr_info->subframeNumber = tvb_get_bits8(tvb, ((offset+1)<<3)+4, 4);
-                    offset += 2;
-                    break;
-                case MAC_NR_PHR_TYPE2_PCELL_TAG:
-                    p_mac_nr_info->phr_type2_pcell = tvb_get_guint8(tvb, offset);
+                case MAC_NR_HARQID:
+                    p_mac_nr_info->harqid = tvb_get_guint8(tvb, offset);
                     offset++;
+                    break;
+                case MAC_NR_FRAME_SUBFRAME_TAG:
+                    /* deprecated */
+                    offset += 2;
                     break;
                 case MAC_NR_PHR_TYPE2_OTHERCELL_TAG:
                     p_mac_nr_info->phr_type2_othercell = tvb_get_guint8(tvb, offset);
                     offset++;
+                    break;
+                case MAC_NR_FRAME_SLOT_TAG:
+                    p_mac_nr_info->sfnSlotInfoPresent = TRUE;
+                    p_mac_nr_info->sysframeNumber = tvb_get_ntohs(tvb, offset);
+                    p_mac_nr_info->slotNumber = tvb_get_ntohs(tvb, offset+2);
+                    offset += 4;
                     break;
                 case MAC_NR_PAYLOAD_TAG:
                     /* Have reached data, so set payload length and get out of loop */
@@ -1894,6 +2731,116 @@ static gboolean dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
     return TRUE;
 }
 
+
+/* Callback used as part of configuring a channel mapping using UAT */
+static void* lcid_drb_mapping_copy_cb(void* dest, const void* orig, size_t len _U_)
+{
+    const lcid_drb_mapping_t *o = (const lcid_drb_mapping_t *)orig;
+    lcid_drb_mapping_t       *d = (lcid_drb_mapping_t *)dest;
+
+    /* Copy all items over */
+    d->lcid  = o->lcid;
+    d->drbid = o->drbid;
+    d->bearer_type_ul = o->bearer_type_ul;
+    d->bearer_type_dl = o->bearer_type_dl;
+
+    return d;
+}
+
+static void set_bearer_type(dynamic_lcid_drb_mapping_t *mapping, guint8 rlcMode, guint8 rlcSnLength, guint8 direction)
+{
+    /* Point to field for appropriate direction */
+    rlc_bearer_type_t *type_var = (direction == DIRECTION_UPLINK) ?
+                                   &mapping->bearer_type_ul :
+                                   &mapping->bearer_type_dl;
+
+    switch (rlcMode) {
+        case RLC_AM_MODE:
+            switch (rlcSnLength) {
+                case 12:
+                    *type_var = rlcAM12;
+                    break;
+                case 18:
+                    *type_var = rlcAM18;
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+        case RLC_UM_MODE:
+            switch (rlcSnLength) {
+                case 6:
+                    *type_var = rlcUM6;
+                    break;
+                case 12:
+                    *type_var = rlcUM12;
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+/* Set LCID -> RLC channel mappings from signalling protocol (i.e. RRC or similar). */
+void set_mac_nr_bearer_mapping(nr_drb_mapping_t *drb_mapping)
+{
+    ue_dynamic_drb_mappings_t *ue_mappings;
+    guint8 lcid = 0;
+
+    /* Check lcid range */
+    if (drb_mapping->lcid_present) {
+        lcid = drb_mapping->lcid;
+
+        /* Ignore if LCID is out of range */
+        if ((lcid < 4) || (lcid > 32)) {
+            return;
+        }
+    }
+
+    /* Look for existing UE entry */
+    ue_mappings = (ue_dynamic_drb_mappings_t *)g_hash_table_lookup(mac_nr_ue_bearers_hash,
+                                                                   GUINT_TO_POINTER((guint)drb_mapping->ueid));
+    if (!ue_mappings) {
+        /* If not found, create & add to table */
+        ue_mappings = wmem_new0(wmem_file_scope(), ue_dynamic_drb_mappings_t);
+        g_hash_table_insert(mac_nr_ue_bearers_hash,
+                            GUINT_TO_POINTER((guint)drb_mapping->ueid),
+                            ue_mappings);
+    }
+
+    /* If lcid wasn't supplied, need to try to look up from drbid */
+    if ((lcid == 0) && (drb_mapping->drbid <= 32)) {
+        lcid = ue_mappings->drb_to_lcid_mappings[drb_mapping->drbid];
+    }
+    if (lcid == 0) {
+        /* Still no lcid - give up */
+        return;
+    }
+
+    /* Set array entry */
+    ue_mappings->mapping[lcid].valid = TRUE;
+    ue_mappings->mapping[lcid].drbid = drb_mapping->drbid;
+    ue_mappings->drb_to_lcid_mappings[drb_mapping->drbid] = lcid;
+
+    /* Fill in available RLC info */
+    if (drb_mapping->rlcMode_present) {
+        if (drb_mapping->rlcUlSnLength_present) {
+            set_bearer_type(&ue_mappings->mapping[lcid], drb_mapping->rlcMode, drb_mapping->rlcUlSnLength, DIRECTION_UPLINK);
+        }
+        if (drb_mapping->rlcDlSnLength_present) {
+            set_bearer_type(&ue_mappings->mapping[lcid], drb_mapping->rlcMode, drb_mapping->rlcDlSnLength, DIRECTION_DOWNLINK);
+        }
+    }
+}
+
+
 /* Function to be called from outside this module (e.g. in a plugin) to get per-packet data */
 mac_nr_info *get_mac_nr_proto_data(packet_info *pinfo)
 {
@@ -1905,6 +2852,20 @@ void set_mac_nr_proto_data(packet_info *pinfo, mac_nr_info *p_mac_nr_info)
 {
     p_add_proto_data(wmem_file_scope(), pinfo, proto_mac_nr, 0, p_mac_nr_info);
 }
+
+/* Initializes the hash tables each time a new
+ * file is loaded or re-loaded in wireshark */
+static void mac_nr_init_protocol(void)
+{
+    mac_nr_ue_bearers_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+}
+
+static void mac_nr_cleanup_protocol(void)
+{
+    g_hash_table_destroy(mac_nr_ue_bearers_hash);
+}
+
+
 
 void proto_register_mac_nr(void)
 {
@@ -1948,16 +2909,28 @@ void proto_register_mac_nr(void)
               "User Equipment Identifier associated with message", HFILL
             }
         },
+        { &hf_mac_nr_context_sysframe_number,
+            { "System Frame Number",
+              "mac-nr.sfn", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "System Frame Number associated with message", HFILL
+            }
+        },
+        { &hf_mac_nr_context_slot_number,
+            { "Slot",
+              "mac-nr.slot", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "Slot number associated with message", HFILL
+            }
+        },
+        { &hf_mac_nr_context_harqid,
+            { "HarqId",
+              "mac-nr.harqid", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "HARQ Identifier", HFILL
+            }
+        },
         { &hf_mac_nr_context_bcch_transport_channel,
             { "Transport channel",
               "mac-nr.bcch-transport-channel", FT_UINT8, BASE_DEC, VALS(bcch_transport_channel_vals), 0x0,
               "Transport channel BCCH data was carried on", HFILL
-            }
-        },
-        { &hf_mac_nr_context_phr_type2_pcell,
-            { "PHR Type2 PCell PHR",
-              "mac-nr.type2-pcell", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-              NULL, HFILL
             }
         },
         { &hf_mac_nr_context_phr_type2_othercell,
@@ -2027,6 +3000,12 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
+        { &hf_mac_nr_pcch_pdu,
+            { "PCCH PDU",
+              "mac-nr.pcch.pdu", FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
 
 
         /*********************************/
@@ -2055,6 +3034,13 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
+        { &hf_mac_nr_rar_reserved1,
+            { "Reserved",
+              "mac-nr.rar.reserved", FT_UINT8, BASE_DEC, NULL, 0x80,
+              NULL, HFILL
+            }
+        },
+
         { &hf_mac_nr_rar_subheader,
             { "Subheader",
               "mac-nr.rar.subheader", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -2075,16 +3061,54 @@ void proto_register_mac_nr(void)
         },
         { &hf_mac_nr_rar_ta,
             { "Timing Advance",
-              "mac-nr.rar.ta", FT_UINT16, BASE_DEC, NULL, 0xfff0,
+              "mac-nr.rar.ta", FT_UINT16, BASE_DEC, NULL, 0x7ff8,
               NULL, HFILL
             }
         },
+
         { &hf_mac_nr_rar_grant,
             { "Grant",
-              "mac-nr.rar.grant", FT_UINT24, BASE_DEC, NULL, 0x0fffff,
+              "mac-nr.rar.grant", FT_UINT32, BASE_HEX, NULL, 0x07ffffff,
               "UL Grant details", HFILL
             }
         },
+        { &hf_mac_nr_rar_grant_hopping,
+            { "Frequency hopping flag",
+              "mac-nr.rar.grant.hopping", FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x04000000,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_rar_grant_fra,
+            { "Msg3 PUSCH frequency resource allocation",
+              "mac-nr.rar.grant.fra", FT_UINT32, BASE_DEC, NULL, 0x03fff000,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_rar_grant_tsa,
+            { "Msg3 PUSCH time resource allocation",
+              "mac-nr.rar.grant.tsa", FT_UINT32, BASE_DEC, NULL, 0x00000f00,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_rar_grant_mcs,
+            { "MCS",
+              "mac-nr.rar.grant.mcs", FT_UINT32, BASE_DEC, NULL, 0x000000f0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_rar_grant_tcsp,
+            { "TPC command for Msg3 PUSCH",
+              "mac-nr.rar.grant.tcsp", FT_UINT32, BASE_DEC, VALS(tpc_command_vals), 0x0000000e,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_rar_grant_csi,
+            { "CSI request",
+              "mac-nr.rar.grant.csi", FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
+              NULL, HFILL
+            }
+        },
+
         { &hf_mac_nr_rar_temp_crnti,
             { "Temporary C-RNTI",
               "mac-nr.rar.temp_crnti", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
@@ -2131,13 +3155,38 @@ void proto_register_mac_nr(void)
         },
         { &hf_mac_nr_control_se_phr_ph,
             { "Power Headroom",
-              "mac-nr.control.se-phr.ph", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              "mac-nr.control.se-phr.ph", FT_UINT8, BASE_CUSTOM, CF_FUNC(mac_nr_phr_fmt), 0x3f,
               NULL, HFILL
             }
         },
-        { &hf_mac_nr_control_se_phr_pcmax_c,
-            { "Pcmax,c",
-              "mac-nr.control.se-phr.pcmax_c", FT_UINT8, BASE_DEC, NULL, 0x3f,
+        { &hf_mac_nr_control_se_phr_pcmax_f_c,
+            { "Pcmax,c,f",
+              "mac-nr.control.se-phr.pcmax_f_c", FT_UINT8, BASE_CUSTOM, CF_FUNC(mac_nr_pcmax_f_c_fmt), 0x3f,
+              NULL, HFILL
+            }
+        },
+
+        { &hf_mac_nr_control_recommended_bit_rate_query_lcid,
+            { "LCID",
+              "mac-nr.control.recommended-bit-rate-query.lcid", FT_UINT8, BASE_DEC, NULL, 0xfc,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_recommended_bit_rate_query_dir,
+            { "Direction",
+              "mac-nr.control.recommended-bit-rate-query.dir", FT_BOOLEAN, 8, TFS(&tfs_uplink_downlink), 0x02,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_recommended_bit_rate_query_bit_rate,
+            { "Bit Rate",
+              "mac-nr.control.recommended-bit-rate-query.bit-rate", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &bit_rate_vals_ext, 0x01f8,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_recommended_bit_rate_query_reserved,
+            { "Reserved",
+              "mac-nr.control.recommended-bit-rate-query.reserved", FT_UINT8, BASE_DEC, NULL, 0x07,
               NULL, HFILL
             }
         },
@@ -2168,7 +3217,7 @@ void proto_register_mac_nr(void)
         },
         { &hf_mac_nr_control_me_phr_c3_flag,
             { "C3",
-              "mac-nr.control.me-phr.lcg3", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+              "mac-nr.control.me-phr.c3", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
               "SCellIndex 3 PHR report flag", HFILL
             }
         },
@@ -2182,6 +3231,150 @@ void proto_register_mac_nr(void)
             { "C1",
               "mac-nr.control.me-phr.c1", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
               "SCellIndex 1 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c15_flag,
+            { "C15",
+              "mac-nr.control.me-phr.c15", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
+              "SCellIndex 15 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c14_flag,
+            { "C14",
+              "mac-nr.control.me-phr.c14", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
+              "SCellIndex 14 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c13_flag,
+            { "C13",
+              "mac-nr.control.me-phr.c13", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
+              "SCellIndex 13 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c12_flag,
+            { "C12",
+              "mac-nr.control.me-phr.c12", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
+              "SCellIndex 12 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c11_flag,
+            { "C11",
+              "mac-nr.control.me-phr.c11", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+              "SCellIndex 11 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c10_flag,
+            { "C10",
+              "mac-nr.control.me-phr.c10", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+              "SCellIndex 10 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c9_flag,
+            { "C9",
+              "mac-nr.control.me-phr.c9", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+              "SCellIndex 9 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c8_flag,
+            { "C8",
+              "mac-nr.control.me-phr.c8", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+              "SCellIndex 8 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c23_flag,
+            { "C23",
+              "mac-nr.control.me-phr.c23", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
+              "SCellIndex 23 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c22_flag,
+            { "C22",
+              "mac-nr.control.me-phr.c22", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
+              "SCellIndex 22 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c21_flag,
+            { "C21",
+              "mac-nr.control.me-phr.c21", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
+              "SCellIndex 21 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c20_flag,
+            { "C20",
+              "mac-nr.control.me-phr.c20", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
+              "SCellIndex 20 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c19_flag,
+            { "C19",
+              "mac-nr.control.me-phr.c19", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+              "SCellIndex 19 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c18_flag,
+            { "C18",
+              "mac-nr.control.me-phr.c18", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+              "SCellIndex 18 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c17_flag,
+            { "C17",
+              "mac-nr.control.me-phr.c17", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+              "SCellIndex 17 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c16_flag,
+            { "C16",
+              "mac-nr.control.me-phr.c16", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+              "SCellIndex 16 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c31_flag,
+            { "C31",
+              "mac-nr.control.me-phr.c31", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
+              "SCellIndex 31 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c30_flag,
+            { "C30",
+              "mac-nr.control.me-phr.c30", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
+              "SCellIndex 30 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c29_flag,
+            { "C29",
+              "mac-nr.control.me-phr.c29", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
+              "SCellIndex 29 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c28_flag,
+            { "C28",
+              "mac-nr.control.me-phr.c28", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
+              "SCellIndex 28 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c27_flag,
+            { "C27",
+              "mac-nr.control.me-phr.c27", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+              "SCellIndex 27 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c26_flag,
+            { "C26",
+              "mac-nr.control.me-phr.c26", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+              "SCellIndex 26 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c25_flag,
+            { "C25",
+              "mac-nr.control.me-phr.c25", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+              "SCellIndex 25 PHR report flag", HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_c24_flag,
+            { "C24",
+              "mac-nr.control.me-phr.c24", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+              "SCellIndex 24 PHR report flag", HFILL
             }
         },
         { &hf_mac_nr_control_me_phr_entry,
@@ -2208,25 +3401,163 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
-        { &hf_mac_nr_control_me_phr_ph_type2_pcell,
-            { "Power Headroom (Type2, PCell)",
-              "mac-nr.control.me-phr.ph.type2-pcell", FT_UINT8, BASE_DEC, NULL, 0x3f,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_me_phr_ph_type2_pscell_or_pucch_scell,
-            { "Power Headroom, (Type2, PSCell or PUCCH SCell)",
+        { &hf_mac_nr_control_me_phr_ph_type2_spcell,
+            { "Power Headroom, (Type2, SpCell)",
               "mac-nr.control.me-phr.ph", FT_UINT8, BASE_DEC, NULL, 0x3f,
               NULL, HFILL
             }
         },
-        { &hf_mac_nr_control_me_phr_ph_typex_pcell,
-            { "Power Headroom (TypeX, PCell)",
-              "mac-nr.control.me-phr.ph.typex-pcell", FT_UINT8, BASE_DEC, NULL, 0x3f,
+        { &hf_mac_nr_control_me_phr_ph_type1_pcell,
+            { "Power Headroom (Type1, PCell)",
+              "mac-nr.control.me-phr.ph.type1-pcell", FT_UINT8, BASE_CUSTOM, CF_FUNC(mac_nr_phr_fmt), 0x3f,
               NULL, HFILL
             }
         },
 
+        { &hf_mac_nr_control_me_phr_ph_c31,
+            { "PH for SCellIndex 31",
+              "mac-nr.control.me-phr.ph.c31", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c30,
+            { "PH for SCellIndex 30",
+              "mac-nr.control.me-phr.ph.c30", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c29,
+            { "PH for SCellIndex 29",
+              "mac-nr.control.me-phr.ph.c29", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c28,
+            { "PH for SCellIndex 28",
+              "mac-nr.control.me-phr.ph.c28", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c27,
+            { "PH for SCellIndex 27",
+              "mac-nr.control.me-phr.ph.c27", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c26,
+            { "PH for SCellIndex 26",
+              "mac-nr.control.me-phr.ph.c26", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c25,
+            { "PH for SCellIndex 25",
+              "mac-nr.control.me-phr.ph.c25", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c24,
+            { "PH for SCellIndex 24",
+              "mac-nr.control.me-phr.ph.c24", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c23,
+            { "PH for SCellIndex 23",
+              "mac-nr.control.me-phr.ph.c23", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c22,
+            { "PH for SCellIndex 22",
+              "mac-nr.control.me-phr.ph.c22", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c21,
+            { "PH for SCellIndex 21",
+              "mac-nr.control.me-phr.ph.c21", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c20,
+            { "PH for SCellIndex 20",
+              "mac-nr.control.me-phr.ph.c20", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c19,
+            { "PH for SCellIndex 19",
+              "mac-nr.control.me-phr.ph.c19", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c18,
+            { "PH for SCellIndex 18",
+              "mac-nr.control.me-phr.ph.c18", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c17,
+            { "PH for SCellIndex 17",
+              "mac-nr.control.me-phr.ph.c17", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c16,
+            { "PH for SCellIndex 16",
+              "mac-nr.control.me-phr.ph.c16", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c15,
+            { "PH for SCellIndex 15",
+              "mac-nr.control.me-phr.ph.c15", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c14,
+            { "PH for SCellIndex 14",
+              "mac-nr.control.me-phr.ph.c14", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c13,
+            { "PH for SCellIndex 13",
+              "mac-nr.control.me-phr.ph.c13", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c12,
+            { "PH for SCellIndex 12",
+              "mac-nr.control.me-phr.ph.c12", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c11,
+            { "PH for SCellIndex 11",
+              "mac-nr.control.me-phr.ph.c11", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c10,
+            { "PH for SCellIndex 10",
+              "mac-nr.control.me-phr.ph.c10", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c9,
+            { "PH for SCellIndex 9",
+              "mac-nr.control.me-phr.ph.c9", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c8,
+            { "PH for SCellIndex 8",
+              "mac-nr.control.me-phr.ph.c8", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
         { &hf_mac_nr_control_me_phr_ph_c7,
             { "PH for SCellIndex 7",
               "mac-nr.control.me-phr.ph.c7", FT_UINT8, BASE_DEC, NULL, 0x3f,
@@ -2275,16 +3606,53 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
-        { &hf_mac_nr_control_me_phr_pcmax_c,
-            { "Pcmax,c",
-              "mac-nr.control.me-phr.pcmax_c", FT_UINT8, BASE_DEC, NULL, 0x3f,
+        { &hf_mac_nr_control_me_phr_pcmax_f_c_type2_spcell,
+            { "Pcmax,f,c",
+              "mac-nr.control.me-phr.type2-spcell", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_pcmax_f_c_type1_pcell,
+            { "Pcmax,f,c",
+              "mac-nr.control.me-phr.type1-pcell", FT_UINT8, BASE_CUSTOM, CF_FUNC(mac_nr_pcmax_f_c_fmt), 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_pcmax_f_c_typeX,
+            { "Pcmax,f,c",
+              "mac-nr.control.me-phr.typeX", FT_UINT8, BASE_DEC, NULL, 0x3f,
               NULL, HFILL
             }
         },
 
-        { &hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_reserved,
+        { &hf_mac_nr_control_recommended_bit_rate_lcid,
+            { "LCID",
+              "mac-nr.control.recommended-bit-rate.lcid", FT_UINT8, BASE_DEC, NULL, 0xfc,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_recommended_bit_rate_dir,
+            { "Direction",
+              "mac-nr.control.recommended-bit-rate.dir", FT_BOOLEAN, 8, TFS(&tfs_uplink_downlink), 0x02,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_recommended_bit_rate_bit_rate,
+            { "Bit Rate",
+              "mac-nr.control.recommended-bit-rate.bit-rate", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &bit_rate_vals_ext, 0x01f8,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_recommended_bit_rate_reserved,
             { "Reserved",
-              "mac-nr.control.sp-zp-csi-rs-resource-set-act-deact.reserved", FT_UINT8, BASE_HEX, NULL, 0x80,
+              "mac-nr.control.recommended-bit-rate.reserved", FT_UINT8, BASE_DEC, NULL, 0x07,
+              NULL, HFILL
+            }
+        },
+
+        { &hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_ad,
+            { "Reserved",
+              "mac-nr.control.sp-zp-csi-rs-resource-set-act-deact.ad", FT_BOOLEAN, 8, TFS(&activation_deactivation_vals), 0x80,
               NULL, HFILL
             }
         },
@@ -2336,51 +3704,51 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
+        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s8,
+            { "PUCCH Spatial Relation Info 8",
+              "mac-nr.control.pucch-spatial-rel-act-deact.s8", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x80,
+              NULL, HFILL
+            }
+        },
         { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s7,
             { "PUCCH Spatial Relation Info 7",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s7", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x80,
+              "mac-nr.control.pucch-spatial-rel-act-deact.s7", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x40,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s6,
             { "PUCCH Spatial Relation Info 6",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s6", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x40,
+              "mac-nr.control.pucch-spatial-rel-act-deact.s6", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x20,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s5,
             { "PUCCH Spatial Relation Info 5",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s5", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x20,
+              "mac-nr.control.pucch-spatial-rel-act-deact.s5", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x10,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s4,
             { "PUCCH Spatial Relation Info 4",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s4", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x10,
+              "mac-nr.control.pucch-spatial-rel-act-deact.s4", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x08,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s3,
             { "PUCCH Spatial Relation Info 3",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s3", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x08,
+              "mac-nr.control.pucch-spatial-rel-act-deact.s3", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x04,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s2,
             { "PUCCH Spatial Relation Info 2",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s2", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x04,
+              "mac-nr.control.pucch-spatial-rel-act-deact.s2", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x02,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s1,
             { "PUCCH Spatial Relation Info 1",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s1", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x02,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s0,
-            { "PUCCH Spatial Relation Info 0",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s0", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x01,
+              "mac-nr.control.pucch-spatial-rel-act-deact.s1", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x01,
               NULL, HFILL
             }
         },
@@ -2390,21 +3758,27 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
-        { &hf_mac_nr_control_sp_srs_act_deact_serving_cell_id,
-            { "Serving Cell ID",
-              "mac-nr.control.sp-srs-act-deact.serving-cell-id", FT_UINT8, BASE_DEC, NULL, 0x7c,
+        { &hf_mac_nr_control_sp_srs_act_deact_srs_resource_set_cell_id,
+            { "SRS Resource Set's Cell ID",
+              "mac-nr.control.sp-srs-act-deact.srs-resource-set-cell-id", FT_UINT8, BASE_DEC, NULL, 0x7c,
               NULL, HFILL
             }
         },
-        { &hf_mac_nr_control_sp_srs_act_deact_bwp_id,
-            { "BWP ID",
-              "mac-nr.control.sp-srs-act-deact.bwp-id", FT_UINT8, BASE_DEC, NULL, 0x03,
+        { &hf_mac_nr_control_sp_srs_act_deact_srs_resource_set_bwp_id,
+            { "SRS Resource Set's BWP ID",
+              "mac-nr.control.sp-srs-act-deact.srs-resource-set-bwp-id", FT_UINT8, BASE_DEC, NULL, 0x03,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_sp_srs_act_deact_reserved,
             { "Reserved",
-              "mac-nr.control.sp-srs-act-deact.reserved", FT_UINT8, BASE_HEX, NULL, 0xe0,
+              "mac-nr.control.sp-srs-act-deact.reserved", FT_UINT8, BASE_HEX, NULL, 0x00,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_srs_act_deact_c,
+            { "C",
+              "mac-nr.control.sp-srs-act-deact.c", FT_BOOLEAN, 8, TFS(&c_vals), 0x20,
               NULL, HFILL
             }
         },
@@ -2428,7 +3802,26 @@ void proto_register_mac_nr(void)
         },
         { &hf_mac_nr_control_sp_srs_act_deact_resource_id,
             { "Resource ID",
-              "mac-nr.control.sp-srs-act-deact.sp-srs-resource-set-id", FT_UINT8, BASE_DEC, NULL, 0x7f,
+              "mac-nr.control.sp-srs-act-deact.resource-id", FT_UINT8, BASE_DEC, NULL, 0x7f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_srs_act_deact_resource_id_ssb,
+            { "Resource ID",
+              "mac-nr.control.sp-srs-act-deact.resource-id", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+
+        { &hf_mac_nr_control_sp_srs_act_deact_resource_serving_cell_id,
+            { "Resource Serving Cell ID",
+              "mac-nr.control.sp-srs-act-deact.resource-serving-cell-id", FT_UINT8, BASE_DEC, NULL, 0x7c,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_srs_act_deact_resource_bwp_id,
+            { "Resource BWP ID",
+              "mac-nr.control.sp-srs-act-deact.resource-bwp-id", FT_UINT8, BASE_DEC, NULL, 0x03,
               NULL, HFILL
             }
         },
@@ -2498,33 +3891,21 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
-        { &hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_reserved,
-            { "Reserved",
-              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.reserved", FT_UINT8, BASE_HEX, NULL, 0x80,
-              NULL, HFILL
-            }
-        },
         { &hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_serving_cell_id,
             { "Serving Cell ID",
-              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.serving-cell-id", FT_UINT8, BASE_DEC, NULL, 0x7c,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_bwp_id,
-            { "BWP ID",
-              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.bwp-id", FT_UINT8, BASE_DEC, NULL, 0x03,
+              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.serving-cell-id", FT_UINT8, BASE_DEC, NULL, 0xf8,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_coreset_id,
             { "CORESET ID",
-              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.coreset-id", FT_UINT8, BASE_DEC, NULL, 0xc0,
+              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.coreset-id", FT_UINT16, BASE_DEC, NULL, 0x0780,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_tci_state_id,
             { "TCI State ID",
-              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.tci-state-id", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.tci-state-id", FT_UINT8, BASE_DEC, NULL, 0x7f,
               NULL, HFILL
             }
         },
@@ -2710,13 +4091,13 @@ void proto_register_mac_nr(void)
         },
         { &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_reserved3,
             { "Reserved",
-              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.reserved", FT_UINT8, BASE_HEX, NULL, 0xc0,
+              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.reserved", FT_UINT8, BASE_HEX, NULL, 0x80,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_tci_state_id,
             { "TCI State ID",
-              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.tci-state-id", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.tci-state-id", FT_UINT8, BASE_DEC, NULL, 0x7f,
               NULL, HFILL
             }
         },
@@ -3062,6 +4443,12 @@ void proto_register_mac_nr(void)
               "Logical Channel Group 0", HFILL
             }
         },
+        { &hf_mac_nr_control_bsr_trunc_long_bs,
+            { "Buffer Size",
+              "mac-nr.control.bsr.trunc-bs", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
+              NULL, HFILL
+            }
+        },
         { &hf_mac_nr_control_bsr_long_bs_lcg7,
             { "Buffer Size for LCG7",
               "mac-nr.control.bsr.bs-lcg7", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
@@ -3119,17 +4506,34 @@ void proto_register_mac_nr(void)
         &ett_mac_nr_context,
         &ett_mac_nr_subheader,
         &ett_mac_nr_rar_subheader,
+        &ett_mac_nr_rar_grant,
         &ett_mac_nr_me_phr_entry
     };
 
     static ei_register_info ei[] = {
-        { &ei_mac_nr_no_per_frame_data,                   { "mac-nr.no_per_frame_data", PI_UNDECODED, PI_WARN, "Can't dissect NR MAC frame because no per-frame info was attached!", EXPFILL }},
-        { &ei_mac_nr_sdu_length_different_from_dissected, { "mac-nr.sdu-length-different-from-dissected", PI_UNDECODED, PI_WARN, "Something is wrong with sdu length or dissection is wrong", EXPFILL }},
-        { &ei_mac_nr_unknown_udp_framing_tag,             { "mac-nr.unknown-udp-framing-tag", PI_UNDECODED, PI_WARN, "Unknown UDP framing tag, aborting dissection", EXPFILL }}
+        { &ei_mac_nr_no_per_frame_data,                              { "mac-nr.no_per_frame_data", PI_UNDECODED, PI_WARN, "Can't dissect NR MAC frame because no per-frame info was attached!", EXPFILL }},
+        { &ei_mac_nr_sdu_length_different_from_dissected,            { "mac-nr.sdu-length-different-from-dissected", PI_UNDECODED, PI_WARN, "Something is wrong with sdu length or dissection is wrong", EXPFILL }},
+        { &ei_mac_nr_unknown_udp_framing_tag,                        { "mac-nr.unknown-udp-framing-tag", PI_UNDECODED, PI_WARN, "Unknown UDP framing tag, aborting dissection", EXPFILL }},
+        { &ei_mac_nr_dl_sch_control_subheader_after_data_subheader,  { "mac-nr.ulsch.ce-after-data",  PI_SEQUENCE, PI_WARN, "For DL-SCH PDUs, CEs should come before data", EXPFILL }},
+        { &ei_mac_nr_ul_sch_control_subheader_before_data_subheader, { "mac-nr.dlsch.ce-before-data", PI_SEQUENCE, PI_WARN, "For UL-SCH PDUs, CEs should come after data", EXPFILL }}
     };
 
     module_t *mac_nr_module;
     expert_module_t* expert_mac_nr;
+
+    static const enum_val_t lcid_drb_source_vals[] = {
+        {"from-static-stable",          "From static table",           FromStaticTable},
+        {"from-configuration-protocol", "From configuration protocol", FromConfigurationProtocol},
+        {NULL, NULL, -1}
+    };
+
+    static uat_field_t lcid_drb_mapping_flds[] = {
+        UAT_FLD_VS(lcid_drb_mappings, lcid, "LCID (3-32)", drb_lcid_vals, "The MAC LCID"),
+        UAT_FLD_DEC(lcid_drb_mappings, drbid,"DRBID id (1-32)", "Identifier of logical data channel"),
+        UAT_FLD_VS(lcid_drb_mappings, bearer_type_ul, "UL RLC Bearer Type", rlc_bearer_type_vals, "UL Bearer Mode"),
+        UAT_FLD_VS(lcid_drb_mappings, bearer_type_dl, "DL RLC Bearer Type", rlc_bearer_type_vals, "DL Bearer Mode"),
+        UAT_END_FIELDS
+    };
 
     /* Register protocol. */
     proto_mac_nr = proto_register_protocol("MAC-NR", "MAC-NR", "mac-nr");
@@ -3149,6 +4553,40 @@ void proto_register_mac_nr(void)
         "Attempt to decode BCCH, PCCH and CCCH data using NR RRC dissector",
         &global_mac_nr_attempt_rrc_decode);
 
+    prefs_register_bool_preference(mac_nr_module, "attempt_to_dissect_srb_sdus",
+        "Attempt to dissect LCID 1-3 as srb1-3",
+        "Will call NR RLC dissector with standard settings as per RRC spec",
+        &global_mac_nr_attempt_srb_decode);
+
+    prefs_register_enum_preference(mac_nr_module, "lcid_to_drb_mapping_source",
+        "Source of LCID -> drb channel settings",
+        "Set whether LCID -> drb Table is taken from static table (below) or from "
+        "info learned from control protocol (i.e. RRC)",
+        &global_mac_nr_lcid_drb_source, lcid_drb_source_vals, FALSE);
+
+    lcid_drb_mappings_uat = uat_new("Static LCID -> drb Table",
+                                    sizeof(lcid_drb_mapping_t),
+                                    "drb_bearerconfig",
+                                    TRUE,
+                                    &lcid_drb_mappings,
+                                    &num_lcid_drb_mappings,
+                                    UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
+                                    "",  /* TODO: is this ref to help manual? */
+                                    lcid_drb_mapping_copy_cb,
+                                    NULL,
+                                    NULL,
+                                    NULL,
+                                    NULL,
+                                    lcid_drb_mapping_flds);
+
+    prefs_register_uat_preference(mac_nr_module,
+                                  "drb_table",
+                                  "LCID -> DRB Mappings Table",
+                                  "A table that maps from configurable lcids -> RLC bearer configs",
+                                  lcid_drb_mappings_uat);
+
+    register_init_routine(&mac_nr_init_protocol);
+    register_cleanup_routine(&mac_nr_cleanup_protocol);
 }
 
 void proto_reg_handoff_mac_nr(void)
@@ -3156,12 +4594,18 @@ void proto_reg_handoff_mac_nr(void)
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_mac_nr_heur, "MAC-NR over UDP", "mac_nr_udp", proto_mac_nr, HEURISTIC_DISABLE);
 
+    rlc_nr_handle = find_dissector_add_dependency("rlc-nr", proto_mac_nr);
     nr_rrc_bcch_bch_handle = find_dissector_add_dependency("nr-rrc.bcch.bch", proto_mac_nr);
+    nr_rrc_bcch_dl_sch_handle = find_dissector_add_dependency("nr-rrc.bcch.dl.sch", proto_mac_nr);
+    nr_rrc_pcch_handle = find_dissector_add_dependency("nr-rrc.pcch", proto_mac_nr);
+    nr_rrc_dl_ccch_handle = find_dissector_add_dependency("nr-rrc.dl.ccch", proto_mac_nr);
+    nr_rrc_ul_ccch_handle = find_dissector_add_dependency("nr-rrc.ul.ccch", proto_mac_nr);
+    nr_rrc_ul_ccch1_handle = find_dissector_add_dependency("nr-rrc.ul.ccch1", proto_mac_nr);
 }
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

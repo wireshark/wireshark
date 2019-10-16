@@ -12,7 +12,7 @@
 #define _PACKET_ECATMAILBOX_H_
 
 #include <ws_diag_control.h>
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 
 /* Ensure the same data layout for all platforms */
 
@@ -51,7 +51,6 @@ typedef struct TETHERCAT_MBOX_HEADER
 
 #define ETHERCAT_MBOX_HEADER_LEN ((int) sizeof(ETHERCAT_MBOX_HEADER))
 
-/*/////////////////////////////////////////////////////////////////////////////*/
 /* EoE*/
 #define ETHERNET_FRAMENO_MASK         0x0000000F
 
@@ -147,7 +146,6 @@ typedef struct TETHERCAT_EOE_HEADER
 } ETHERCAT_EOE_HEADER, *PETHERCAT_EOE_HEADER;
 #define ETHERCAT_EOE_HEADER_LEN ((int) sizeof(ETHERCAT_EOE_HEADER))
 
-/*/////////////////////////////////////////////////////////////////////////////*/
 /* CANopen*/
 #define ETHERCAT_COE_TYPE_EMERGENCY 1
 #define ETHERCAT_COE_TYPE_SDOREQ    2
@@ -467,5 +465,5 @@ typedef struct TETHERCAT_SOE_HEADER
 
 extern void init_mbx_header(PETHERCAT_MBOX_HEADER pMbox, tvbuff_t *tvb, gint offset);
 
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 #endif /* _PACKET_ECATMAILBOX_H_ */

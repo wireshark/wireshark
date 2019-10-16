@@ -375,7 +375,7 @@ dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
 
         for (i = 0; cmd != 0 && i < 32; i++) {
 
-            bitValue = 1 << i;
+            bitValue = 1U << i;
 
             if (cmd & bitValue) {
                 switch (bitValue) {
@@ -2294,7 +2294,7 @@ proto_reg_handoff_fmp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __TAP_RLC_GRAPH_H__
 #define __TAP_RLC_GRAPH_H__
@@ -61,9 +62,6 @@ struct rlc_graph {
     guint16         channelId;
     guint8          rlcMode;
     guint8          direction;
-
-    /* Lists of elements to draw. N.B. GTK version only. */
-    struct element_list *elists;
 };
 
 gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *tg, gboolean stream_known,

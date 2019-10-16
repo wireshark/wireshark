@@ -199,7 +199,7 @@ dissect_beep_more(tvbuff_t *tvb, packet_info *pinfo, int offset,
   guint8 more = tvb_get_guint8(tvb, offset);
 
   hidden_item = proto_tree_add_item(tree, hf_beep_more, tvb, offset, 1, ENC_ASCII|ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   switch(more) {
   case '.':
@@ -370,7 +370,7 @@ dissect_beep_int(tvbuff_t *tvb, int offset,
   while (hfa[ind]) {
 
     hidden_item = proto_tree_add_uint(tree, *hfa[ind], tvb, offset, len, ival);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
     ind++;
 
   }
@@ -971,6 +971,8 @@ proto_register_beep(void)
   /* Register our configuration options for BEEP, particularly our port */
 
   beep_module = prefs_register_protocol(proto_beep, apply_beep_prefs);
+  /* For reading older preference files with "bxxp." preferences */
+  prefs_register_module_alias("bxxp", beep_module);
 
   prefs_register_bool_preference(beep_module, "strict_header_terminator",
                                  "BEEP Header Requires CRLF",
@@ -989,10 +991,11 @@ proto_reg_handoff_beep(void)
 
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_BEEP, beep_handle);
 
+  apply_beep_prefs();
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

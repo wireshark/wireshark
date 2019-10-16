@@ -59,10 +59,10 @@
 
 #include <wiretap/wtap.h>
 
-#include <wsutil/cmdarg_err.h>
-#include <wsutil/crash_info.h>
+#include <ui/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
+#include <cli_main.h>
 #include <version_info.h>
 #include <wiretap/wtap_opttypes.h>
 
@@ -80,10 +80,6 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
-#ifdef _WIN32
-#include <wsutil/unicode-utils.h>
-#endif /* _WIN32 */
-
 #include "ui/failure_message.h"
 
 #define INVALID_OPTION 1
@@ -92,14 +88,14 @@
 /*
  * By default capinfos now continues processing
  * the next filename if and when wiretap detects
- * a problem opening a file.
+ * a problem opening or reading a file.
  * Use the '-C' option to revert back to original
  * capinfos behavior which is to abort any
- * additional file processing at first open file
- * failure.
+ * additional file processing at the first file
+ * open or read failure.
  */
 
-static gboolean continue_after_wtap_open_offline_failure = TRUE;
+static gboolean stop_after_failure = FALSE;
 
 /*
  * table report variables
@@ -132,6 +128,8 @@ static gboolean cap_file_size      = TRUE;  /* Report file size           */
 static gboolean cap_comment        = TRUE;  /* Display the capture comment */
 static gboolean cap_file_more_info = TRUE;  /* Report more file info      */
 static gboolean cap_file_idb       = TRUE;  /* Report Interface info      */
+static gboolean cap_file_nrb       = TRUE;  /* Report Name Resolution Block info      */
+static gboolean cap_file_dsb       = TRUE;  /* Report Decryption Secrets Block info      */
 
 static gboolean cap_data_size      = TRUE;  /* Report packet byte size    */
 static gboolean cap_duration       = TRUE;  /* Report capture duration    */
@@ -160,6 +158,10 @@ static gchar file_sha256[HASH_STR_SIZE];
 static gchar file_rmd160[HASH_STR_SIZE];
 static gchar file_sha1[HASH_STR_SIZE];
 
+static guint num_ipv4_addresses;
+static guint num_ipv6_addresses;
+static guint num_decryption_secrets;
+
 /*
  * If we have at least two packets with time stamps, and they're not in
  * order - i.e., the later packet has a time stamp older than the earlier
@@ -177,41 +179,41 @@ typedef enum {
 } order_t;
 
 typedef struct _capture_info {
-  const char    *filename;
-  guint16        file_type;
-  gboolean       iscompressed;
-  int            file_encap;
-  int            file_tsprec;
-  gint64         filesize;
-  wtap_block_t   shb;
-  guint64        packet_bytes;
-  gboolean       times_known;
-  nstime_t       start_time;
-  int            start_time_tsprec;
-  nstime_t       stop_time;
-  int            stop_time_tsprec;
-  guint32        packet_count;
-  gboolean       snap_set;                /* If set in capture file header      */
-  guint32        snaplen;                 /* value from the capture file header */
-  guint32        snaplen_min_inferred;    /* If caplen < len for 1 or more rcds */
-  guint32        snaplen_max_inferred;    /*  ...                               */
-  gboolean       drops_known;
-  guint32        drop_count;
+  const char           *filename;
+  guint16               file_type;
+  wtap_compression_type compression_type;
+  int                   file_encap;
+  int                   file_tsprec;
+  gint64                filesize;
+  wtap_block_t          shb;
+  guint64               packet_bytes;
+  gboolean              times_known;
+  nstime_t              start_time;
+  int                   start_time_tsprec;
+  nstime_t              stop_time;
+  int                   stop_time_tsprec;
+  guint32               packet_count;
+  gboolean              snap_set;                 /* If set in capture file header      */
+  guint32               snaplen;                  /* value from the capture file header */
+  guint32               snaplen_min_inferred;     /* If caplen < len for 1 or more rcds */
+  guint32               snaplen_max_inferred;     /*  ...                               */
+  gboolean              drops_known;
+  guint32               drop_count;
 
-  nstime_t       duration;
-  int            duration_tsprec;
-  double         packet_rate;
-  double         packet_size;
-  double         data_rate;              /* in bytes */
-  gboolean       know_order;
-  order_t        order;
+  nstime_t              duration;
+  int                   duration_tsprec;
+  double                packet_rate;
+  double                packet_size;
+  double                data_rate;                /* in bytes/s */
+  gboolean              know_order;
+  order_t               order;
 
-  int           *encap_counts;           /* array of per_packet encap counts; array has one entry per wtap_encap type */
+  int                  *encap_counts;             /* array of per_packet encap counts; array has one entry per wtap_encap type */
 
-  guint          num_interfaces;         /* number of IDBs, and thus size of interface_packet_counts array */
-  GArray        *interface_packet_counts;  /* array of per_packet interface_id counts; one entry per file IDB */
-  guint32        pkt_interface_id_unknown; /* counts if packet interface_id didn't match a known one */
-  GArray        *idb_info_strings;       /* array of IDB info strings */
+  guint                 num_interfaces;           /* number of IDBs, and thus size of interface_packet_counts array */
+  GArray               *interface_packet_counts;  /* array of per_packet interface_id counts; one entry per file IDB */
+  guint32               pkt_interface_id_unknown; /* counts if packet interface_id didn't match a known one */
+  GArray               *idb_info_strings;         /* array of IDB info strings */
 } capture_info;
 
 static char *decimal_point;
@@ -229,6 +231,8 @@ enable_all_infos(void)
   cap_comment        = TRUE;
   cap_file_more_info = TRUE;
   cap_file_idb       = TRUE;
+  cap_file_nrb       = TRUE;
+  cap_file_dsb       = TRUE;
 
   cap_data_size      = TRUE;
   cap_duration       = TRUE;
@@ -257,6 +261,8 @@ disable_all_infos(void)
   cap_comment        = FALSE;
   cap_file_more_info = FALSE;
   cap_file_idb       = FALSE;
+  cap_file_nrb       = FALSE;
+  cap_file_dsb       = FALSE;
 
   cap_data_size      = FALSE;
   cap_duration       = FALSE;
@@ -580,13 +586,19 @@ print_stats(const gchar *filename, capture_info *cf_info)
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_subtype_string(cf_info->file_type);
-  file_encap_string = wtap_encap_string(cf_info->file_encap);
+  file_encap_string = wtap_encap_description(cf_info->file_encap);
 
   if (filename)           printf     ("File name:           %s\n", filename);
-  if (cap_file_type)      printf     ("File type:           %s%s\n",
-      file_type_string,
-      cf_info->iscompressed ? " (gzip compressed)" : "");
-
+  if (cap_file_type) {
+    const char *compression_type_description;
+    compression_type_description = wtap_compression_type_description(cf_info->compression_type);
+    if (compression_type_description == NULL)
+      printf     ("File type:           %s\n",
+        file_type_string);
+    else
+      printf     ("File type:           %s (%s)\n",
+        file_type_string, compression_type_description);
+  }
   if (cap_file_encap) {
     printf      ("File encapsulation:  %s\n", file_encap_string);
     if (cf_info->file_encap == WTAP_ENCAP_PER_PACKET) {
@@ -595,7 +607,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
       for (i=0; i<WTAP_NUM_ENCAP_TYPES; i++) {
         if (cf_info->encap_counts[i] > 0)
           printf("                     %s (%d)\n",
-                 wtap_encap_string(i), cf_info->encap_counts[i]);
+                 wtap_encap_description(i), cf_info->encap_counts[i]);
       }
     }
   }
@@ -727,6 +739,17 @@ print_stats(const gchar *filename, capture_info *cf_info)
         printf   ("                     Number of packets = %u\n", packet_count);
       }
     }
+
+    if (cap_file_nrb) {
+      if (num_ipv4_addresses != 0)
+        printf   ("Number of resolved IPv4 addresses in file: %u\n", num_ipv4_addresses);
+      if (num_ipv6_addresses != 0)
+        printf   ("Number of resolved IPv6 addresses in file: %u\n", num_ipv6_addresses);
+    }
+    if (cap_file_dsb) {
+      if (num_decryption_secrets != 0)
+        printf   ("Number of decryption secrets in file: %u\n", num_decryption_secrets);
+    }
   }
 }
 
@@ -797,7 +820,7 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_subtype_string(cf_info->file_type);
-  file_encap_string = wtap_encap_string(cf_info->file_encap);
+  file_encap_string = wtap_encap_description(cf_info->file_encap);
 
   if (filename) {
     putquote();
@@ -1048,10 +1071,31 @@ cleanup_capture_info(capture_info *cf_info)
   cf_info->idb_info_strings = NULL;
 }
 
+static void
+count_ipv4_address(const guint addr _U_, const gchar *name _U_)
+{
+  num_ipv4_addresses++;
+}
+
+static void
+count_ipv6_address(const void *addrp _U_, const gchar *name _U_)
+{
+  num_ipv6_addresses++;
+}
+
+static void
+count_decryption_secret(guint32 secrets_type _U_, const void *secrets _U_, guint size _U_)
+{
+  /* XXX - count them based on the secrets type (which is an opaque code,
+     not a small integer)? */
+  num_decryption_secrets++;
+}
+
 static int
-process_cap_file(wtap *wth, const char *filename)
+process_cap_file(const char *filename, gboolean need_separator)
 {
   int                   status = 0;
+  wtap                 *wth;
   int                   err;
   gchar                *err_info;
   gint64                size;
@@ -1061,7 +1105,8 @@ process_cap_file(wtap *wth, const char *filename)
   gint64                bytes  = 0;
   guint32               snaplen_min_inferred = 0xffffffff;
   guint32               snaplen_max_inferred =          0;
-  wtap_rec             *rec;
+  wtap_rec              rec;
+  Buffer                buf;
   capture_info          cf_info;
   gboolean              have_times = TRUE;
   nstime_t              start_time;
@@ -1075,8 +1120,15 @@ process_cap_file(wtap *wth, const char *filename)
   guint                 i;
   wtapng_iface_descriptions_t *idb_info;
 
-  g_assert(wth != NULL);
-  g_assert(filename != NULL);
+  wth = wtap_open_offline(filename, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
+  if (!wth) {
+    cfile_open_failure_message("capinfos", filename, err, err_info);
+    return 2;
+  }
+
+  if (need_separator && long_report) {
+    printf("\n");
+  }
 
   nstime_set_zero(&start_time);
   start_time_tsprec = WTAP_TSPREC_UNKNOWN;
@@ -1101,29 +1153,41 @@ process_cap_file(wtap *wth, const char *filename)
   g_free(idb_info);
   idb_info = NULL;
 
+  /* Register callbacks for new name<->address maps from the file and
+     decryption secrets from the file. */
+  wtap_set_cb_new_ipv4(wth, count_ipv4_address);
+  wtap_set_cb_new_ipv6(wth, count_ipv6_address);
+  wtap_set_cb_new_secrets(wth, count_decryption_secret);
+
+  /* Zero out the counters for the callbacks. */
+  num_ipv4_addresses = 0;
+  num_ipv6_addresses = 0;
+  num_decryption_secrets = 0;
+
   /* Tally up data that we need to parse through the file to find */
-  while (wtap_read(wth, &err, &err_info, &data_offset))  {
-    rec = wtap_get_rec(wth);
-    if (rec->presence_flags & WTAP_HAS_TS) {
+  wtap_rec_init(&rec);
+  ws_buffer_init(&buf, 1514);
+  while (wtap_read(wth, &rec, &buf, &err, &err_info, &data_offset))  {
+    if (rec.presence_flags & WTAP_HAS_TS) {
       prev_time = cur_time;
-      cur_time = rec->ts;
+      cur_time = rec.ts;
       if (packet == 0) {
-        start_time = rec->ts;
-        start_time_tsprec = rec->tsprec;
-        stop_time  = rec->ts;
-        stop_time_tsprec = rec->tsprec;
-        prev_time  = rec->ts;
+        start_time = rec.ts;
+        start_time_tsprec = rec.tsprec;
+        stop_time  = rec.ts;
+        stop_time_tsprec = rec.tsprec;
+        prev_time  = rec.ts;
       }
       if (nstime_cmp(&cur_time, &prev_time) < 0) {
         order = NOT_IN_ORDER;
       }
       if (nstime_cmp(&cur_time, &start_time) < 0) {
         start_time = cur_time;
-        start_time_tsprec = rec->tsprec;
+        start_time_tsprec = rec.tsprec;
       }
       if (nstime_cmp(&cur_time, &stop_time) > 0) {
         stop_time = cur_time;
-        stop_time_tsprec = rec->tsprec;
+        stop_time_tsprec = rec.tsprec;
       }
     } else {
       have_times = FALSE; /* at least one packet has no time stamp */
@@ -1131,33 +1195,33 @@ process_cap_file(wtap *wth, const char *filename)
         order = ORDER_UNKNOWN;
     }
 
-    if (rec->rec_type == REC_TYPE_PACKET) {
-      bytes += rec->rec_header.packet_header.len;
+    if (rec.rec_type == REC_TYPE_PACKET) {
+      bytes += rec.rec_header.packet_header.len;
       packet++;
 
       /* If caplen < len for a rcd, then presumably           */
       /* 'Limit packet capture length' was done for this rcd. */
       /* Keep track as to the min/max actual snapshot lengths */
       /*  seen for this file.                                 */
-      if (rec->rec_header.packet_header.caplen < rec->rec_header.packet_header.len) {
-        if (rec->rec_header.packet_header.caplen < snaplen_min_inferred)
-          snaplen_min_inferred = rec->rec_header.packet_header.caplen;
-        if (rec->rec_header.packet_header.caplen > snaplen_max_inferred)
-          snaplen_max_inferred = rec->rec_header.packet_header.caplen;
+      if (rec.rec_header.packet_header.caplen < rec.rec_header.packet_header.len) {
+        if (rec.rec_header.packet_header.caplen < snaplen_min_inferred)
+          snaplen_min_inferred = rec.rec_header.packet_header.caplen;
+        if (rec.rec_header.packet_header.caplen > snaplen_max_inferred)
+          snaplen_max_inferred = rec.rec_header.packet_header.caplen;
       }
 
-      if ((rec->rec_header.packet_header.pkt_encap > 0) &&
-          (rec->rec_header.packet_header.pkt_encap < WTAP_NUM_ENCAP_TYPES)) {
-        cf_info.encap_counts[rec->rec_header.packet_header.pkt_encap] += 1;
+      if ((rec.rec_header.packet_header.pkt_encap > 0) &&
+          (rec.rec_header.packet_header.pkt_encap < WTAP_NUM_ENCAP_TYPES)) {
+        cf_info.encap_counts[rec.rec_header.packet_header.pkt_encap] += 1;
       } else {
         fprintf(stderr, "capinfos: Unknown packet encapsulation %d in frame %u of file \"%s\"\n",
-                rec->rec_header.packet_header.pkt_encap, packet, filename);
+                rec.rec_header.packet_header.pkt_encap, packet, filename);
       }
 
       /* Packet interface_id info */
-      if (rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+      if (rec.presence_flags & WTAP_HAS_INTERFACE_ID) {
         /* cf_info.num_interfaces is size, not index, so it's one more than max index */
-        if (rec->rec_header.packet_header.interface_id >= cf_info.num_interfaces) {
+        if (rec.rec_header.packet_header.interface_id >= cf_info.num_interfaces) {
           /*
            * OK, re-fetch the number of interfaces, as there might have
            * been an interface that was in the middle of packets, and
@@ -1172,9 +1236,9 @@ process_cap_file(wtap *wth, const char *filename)
           g_free(idb_info);
           idb_info = NULL;
         }
-        if (rec->rec_header.packet_header.interface_id < cf_info.num_interfaces) {
+        if (rec.rec_header.packet_header.interface_id < cf_info.num_interfaces) {
           g_array_index(cf_info.interface_packet_counts, guint32,
-                        rec->rec_header.packet_header.interface_id) += 1;
+                        rec.rec_header.packet_header.interface_id) += 1;
         }
         else {
           cf_info.pkt_interface_id_unknown += 1;
@@ -1192,6 +1256,8 @@ process_cap_file(wtap *wth, const char *filename)
     }
 
   } /* while */
+  wtap_rec_cleanup(&rec);
+  ws_buffer_free(&buf);
 
   /*
    * Get IDB info strings.
@@ -1223,7 +1289,8 @@ process_cap_file(wtap *wth, const char *filename)
           "  (will continue anyway, checksums might be incorrect)\n");
     } else {
         cleanup_capture_info(&cf_info);
-        return 1;
+        wtap_close(wth);
+        return 2;
     }
   }
 
@@ -1234,14 +1301,15 @@ process_cap_file(wtap *wth, const char *filename)
         "capinfos: Can't get size of \"%s\": %s.\n",
         filename, g_strerror(err));
     cleanup_capture_info(&cf_info);
-    return 1;
+    wtap_close(wth);
+    return 2;
   }
 
   cf_info.filesize = size;
 
   /* File Type */
   cf_info.file_type = wtap_file_type_subtype(wth);
-  cf_info.iscompressed = wtap_iscompressed(wth);
+  cf_info.compression_type = wtap_get_compression_type(wth);
 
   /* File Encapsulation */
   cf_info.file_encap = wtap_file_encap(wth);
@@ -1299,6 +1367,7 @@ process_cap_file(wtap *wth, const char *filename)
   }
 
   cleanup_capture_info(&cf_info);
+  wtap_close(wth);
 
   return status;
 }
@@ -1336,6 +1405,10 @@ print_usage(FILE *output)
   fprintf(output, "  -z display average packet size (in bytes)\n");
   fprintf(output, "  -x display average packet rate (in packets/sec)\n");
   fprintf(output, "\n");
+  fprintf(output, "Metadata infos:\n");
+  fprintf(output, "  -n display number of resolved IPv4 and IPv6 addresses\n");
+  fprintf(output, "  -D display number of decryption secrets\n");
+  fprintf(output, "\n");
   fprintf(output, "Output format:\n");
   fprintf(output, "  -L generate long report (default)\n");
   fprintf(output, "  -T generate table report\n");
@@ -1359,7 +1432,7 @@ print_usage(FILE *output)
   fprintf(output, "  -A generate all infos (default)\n");
   fprintf(output, "  -K disable displaying the capture comment\n");
   fprintf(output, "\n");
-  fprintf(output, "Options are processed from left to right order with later options superceding\n");
+  fprintf(output, "Options are processed from left to right order with later options superseding\n");
   fprintf(output, "or adding to earlier options.\n");
   fprintf(output, "\n");
   fprintf(output, "If no options are given the default is to display all infos in long report\n");
@@ -1400,12 +1473,8 @@ hash_to_str(const unsigned char *hash, size_t length, char *str) {
 int
 main(int argc, char *argv[])
 {
-  GString *comp_info_str;
-  GString *runtime_info_str;
   char  *init_progfile_dir_error;
-  wtap  *wth;
-  int    err;
-  gchar *err_info;
+  gboolean need_separator = FALSE;
   int    opt;
   int    overall_error_status = EXIT_SUCCESS;
   static const struct option long_options[] = {
@@ -1428,24 +1497,10 @@ main(int argc, char *argv[])
   /* Get the decimal point. */
   decimal_point = g_strdup(localeconv()->decimal_point);
 
-  /* Get the compile-time version information string */
-  comp_info_str = get_compiled_version_info(NULL, NULL);
-
-  /* Get the run-time version information string */
-  runtime_info_str = get_runtime_version_info(NULL);
-
-  /* Add it to the information to be reported on a crash. */
-  ws_add_crash_info("Capinfos (Wireshark) %s\n"
-         "\n"
-         "%s"
-         "\n"
-         "%s",
-      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
-  g_string_free(comp_info_str, TRUE);
-  g_string_free(runtime_info_str, TRUE);
+  /* Initialize the version information. */
+  ws_init_version_info("Capinfos (Wireshark)", NULL, NULL, NULL);
 
 #ifdef _WIN32
-  arg_list_utf_16to8(argc, argv);
   create_app_running_mutex();
 #endif /* _WIN32 */
 
@@ -1458,7 +1513,7 @@ main(int argc, char *argv[])
    * Attempt to get the pathname of the directory containing the
    * executable file.
    */
-  init_progfile_dir_error = init_progfile_dir(argv[0], main);
+  init_progfile_dir_error = init_progfile_dir(argv[0]);
   if (init_progfile_dir_error != NULL) {
     fprintf(stderr,
             "capinfos: Can't get pathname of directory containing the capinfos program: %s.\n",
@@ -1472,7 +1527,7 @@ main(int argc, char *argv[])
   wtap_init(TRUE);
 
   /* Process the options */
-  while ((opt = getopt_long(argc, argv, "abcdehiklmoqrstuvxyzABCEFHIKLMNQRST", long_options, NULL)) !=-1) {
+  while ((opt = getopt_long(argc, argv, "abcdehiklmnoqrstuvxyzABCDEFHIKLMNQRST", long_options, NULL)) !=-1) {
 
     switch (opt) {
 
@@ -1574,8 +1629,18 @@ main(int argc, char *argv[])
         cap_file_idb = TRUE;
         break;
 
+      case 'n':
+        if (report_all_infos) disable_all_infos();
+        cap_file_nrb = TRUE;
+        break;
+
+      case 'D':
+        if (report_all_infos) disable_all_infos();
+        cap_file_dsb = TRUE;
+        break;
+
       case 'C':
-        continue_after_wtap_open_offline_failure = FALSE;
+        stop_after_failure = TRUE;
         break;
 
       case 'A':
@@ -1627,20 +1692,13 @@ main(int argc, char *argv[])
         break;
 
       case 'h':
-        printf("Capinfos (Wireshark) %s\n"
-               "Print various information (infos) about capture files.\n"
-               "See https://www.wireshark.org for more information.\n",
-               get_ws_vcs_version_info());
+        show_help_header("Print various information (infos) about capture files.");
         print_usage(stdout);
         goto exit;
         break;
 
       case 'v':
-        comp_info_str = get_compiled_version_info(NULL, NULL);
-        runtime_info_str = get_runtime_version_info(NULL);
-        show_version("Capinfos (Wireshark)", comp_info_str, runtime_info_str);
-        g_string_free(comp_info_str, TRUE);
-        g_string_free(runtime_info_str, TRUE);
+        show_version();
         goto exit;
         break;
 
@@ -1695,25 +1753,20 @@ main(int argc, char *argv[])
       if (hd) gcry_md_reset(hd);
     }
 
-    wth = wtap_open_offline(argv[opt], WTAP_TYPE_AUTO, &err, &err_info, FALSE);
-
-    if (!wth) {
-      cfile_open_failure_message("capinfos", argv[opt], err, err_info);
-      overall_error_status = 2; /* remember that an error has occurred */
-      if (!continue_after_wtap_open_offline_failure)
+    status = process_cap_file(argv[opt], need_separator);
+    if (status) {
+      /* Something failed.  It's been reported; remember that processing
+         one file failed and, if -C was specified, stop. */
+      overall_error_status = status;
+      if (stop_after_failure)
         goto exit;
     }
-
-    if (wth) {
-      if ((opt > optind) && (long_report))
-        printf("\n");
-      status = process_cap_file(wth, argv[opt]);
-
-      wtap_close(wth);
-      if (status) {
-        overall_error_status = status;
-        goto exit;
-      }
+    if (status != 2) {
+      /* Either it succeeded or it got a "short read" but printed
+         information anyway.  Note that we need a blank line before
+         the next file's information, to separate it from the
+         previous file. */
+      need_separator = TRUE;
     }
   }
 
@@ -1726,7 +1779,7 @@ exit:
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

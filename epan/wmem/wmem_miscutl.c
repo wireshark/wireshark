@@ -30,7 +30,7 @@ wmem_memdup(wmem_allocator_t *allocator, const void *source, const size_t size)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -68,4 +68,11 @@ WS_DLL_PUBLIC const value_string eap_aka_subtype_vals[];
 
 WS_DLL_PUBLIC const value_string eap_ms_chap_v2_opcode_vals[];
 
+typedef struct _eap_vendor_context {
+  guint32   vendor_type;
+  guint32   vendor_id;
+  guint8    eap_code;
+  guint8    eap_identifier;
+} eap_vendor_context;
+
 #endif
