@@ -122,6 +122,7 @@
 void proto_register_btmesh(void);
 
 static int proto_btmesh = -1;
+static dissector_table_t btmesh_model_vendor_dissector_table;
 
 /*-------------------------------------
  * UAT for BT Mesh
@@ -1859,7 +1860,9 @@ static void
 dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_tree *sub_tree;
+    tvbuff_t *payload_tvb;
     guint32 opcode;
+    guint16 vendor;
     proto_item *netapp_index_item, *app_index_item, *pub_app_index_item, *net_index_item;
     proto_item *relayretransmit_index, *transmit_index;
     proto_item *publishperiod_item, *publishretransmit_item;
@@ -1882,9 +1885,11 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         if (opcode & 0x40) {
             /* Vendor opcode */
             proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor_opcode, tvb, offset, 1, ENC_NA);
-            offset++;
-            proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor, tvb, offset, 2, ENC_NA);
-            offset+=2;
+            vendor = tvb_get_guint16(tvb, offset+1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor, tvb, offset+1, 2, ENC_NA);
+            payload_tvb = tvb_new_subset_remaining(tvb, offset);
+            dissector_try_uint_new(btmesh_model_vendor_dissector_table, vendor, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(vendor));
+            offset+=3;
         } else {
         /* Two octet opcode */
         proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_model_layer_opcode, tvb, offset, 2, ENC_NA, &opcode);
@@ -5821,6 +5826,8 @@ proto_register_btmesh(void)
         "Label UUIDs",
         "Configured Mesh Label UUIDs",
         btmesh_label_uuid_uat);
+
+    btmesh_model_vendor_dissector_table  = register_dissector_table("btmesh.model.vendor",  "BT Mesh model vendor", proto_btmesh, FT_UINT16, BASE_DEC);
 
     register_dissector("btmesh.msg", dissect_btmesh_msg, proto_btmesh);
 
