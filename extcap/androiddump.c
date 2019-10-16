@@ -2410,7 +2410,7 @@ static int capture_android_tcpdump(char *interface, char *fifo,
         closesocket(sock);
         return EXIT_CODE_GENERIC;
     }
-    int encap = (int)data[20];
+    int encap = (int)(swap_byte_order ? GUINT32_SWAP_LE_BE(global_header->network) : global_header->network);
 #ifndef ANDROIDDUMP_USE_LIBPCAP
     encap = wtap_pcap_encap_to_wtap_encap(encap);
 #endif
