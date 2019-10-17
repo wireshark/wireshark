@@ -1400,11 +1400,11 @@ decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, tvb
 
         while (pos < length) {
             chunk_size = tvb_get_ntohl(tvb, offset+pos);
+            pos += 4;
             if (pos+chunk_size > length) {
                 // fail when the declared chunk size does not fit into remaining content
                 goto end;
             }
-            pos += 4;
             rc = snappy_uncompressed_length(&data[pos], chunk_size, &uncompressed_size);
             if (rc != SNAPPY_OK) {
                 goto end;
