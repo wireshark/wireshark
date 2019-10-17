@@ -684,7 +684,7 @@ rval_to_channel_set(const guint32 val, const range_channel_set* ra)
     gint i = 0;
     if (ra)
     {
-        while (*ra[i].channel_set)
+        while (*ra[i].channel_set) /* no such thing as channel 0 - end of list */
         {
             if ((val >= ra[i].value_min) && (val <= ra[i].value_max))
             {
@@ -748,6 +748,7 @@ static const range_channel_set op_class_channel[] = {
     {181, 191, {-1}},
     {192, 254, {-2}},
     {255, 255, {-1}},
+    {0, 0, {0}}, /* no such thing as channel 1 - end of list */
 };
 
 static const range_string op_channel_spacing[] = {
@@ -1591,6 +1592,7 @@ dissect_attr_availability(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, gui
 
                         switch (channel)
                         {
+                        // TODO: replace these magic numbers (or use 802.11 dissector for this)
                         case -3:
                             wmem_strbuf_append_printf(str, "%s", "Derived from regulation ");
                             break;
