@@ -28,6 +28,9 @@
 #include <epan/expert.h>
 #include "packet-wps.h"
 
+extern value_string_ext ieee80211_reason_code_ext;
+extern value_string_ext ieee80211_status_code_ext;
+
 void proto_reg_handoff_ieee1905(void);
 void proto_register_ieee1905(void);
 
@@ -134,9 +137,11 @@ static int hf_ieee1905_ap_local_intf_mac_addr = -1;
 static int hf_ieee1905_ap_local_intf_ssid_len = -1;
 static int hf_ieee1905_ap_local_intf_ssid = -1;
 static int hf_ieee1905_ap_capabilities_flags = -1;
+static int hf_ieee1905_rpt_unsuccessful_associations = -1;
 static int hf_ieee1905_unassoc_sta_metrics_oper_flag = -1;
 static int hf_ieee1905_unassoc_sta_metrics_non_oper_flag = -1;
 static int hf_ieee1905_agent_init_steering = -1;
+static int hf_ieee1905_rpt_unsuccessful_assoc_report = -1;
 static int hf_ieee1905_higher_layer_protocol = -1;
 static int hf_ieee1905_higher_layer_data = -1;
 static int hf_ieee1905_assoc_backhaul_station_mac = -1;
@@ -159,6 +164,7 @@ static int hf_ieee1905_steering_req_op_window = -1;
 static int hf_ieee1905_steering_request_mode_flag = -1;
 static int hf_ieee1905_btm_disassoc_imminent_flag = -1;
 static int hf_ieee1905_btm_abridged_flag = -1;
+static int hf_ieee1905_steering_req_reserved = -1;
 static int hf_ieee1905_steering_btm_disass_timer = -1;
 static int hf_ieee1905_steering_req_sta_count = -1;
 static int hf_ieee1905_steering_req_sta_mac = -1;
@@ -215,6 +221,7 @@ static int hf_ieee1905_channel_prefs_flags = -1;
 static int hf_ieee1905_trans_power_limit_radio_id = -1;
 static int hf_ieee1905_trans_power_limit_eirp = -1;
 static int hf_ieee1905_channel_select_resp_radio_id = -1;
+static int hf_ieee1905_radio_metrics_radio_id = -1;
 static int hf_ieee1905_channel_select_resp_code = -1;
 static int hf_ieee1905_op_channel_report_radio_id = -1;
 static int hf_ieee1905_op_channel_report_classes = -1;
@@ -247,6 +254,7 @@ static int hf_ieee1905_assoc_sta_link_metrics_up_rate = -1;
 static int hf_ieee1905_assoc_sta_link_metrics_rssi = -1;
 static int hf_ieee1905_unassoc_sta_link_channel_count = -1;
 static int hf_ieee1905_unassoc_metrics_channel = -1;
+static int hf_ieee1905_unassoc_metrics_mac_count = -1;
 static int hf_ieee1905_he_max_supported_tx_streams = -1;
 static int hf_ieee1905_he_max_supported_rx_streams = -1;
 static int hf_ieee1905_he_support_80plus_mhz_flag = -1;
@@ -303,23 +311,10 @@ static int hf_ieee1905_beacon_metrics_channel_count = -1;
 static int hf_ieee1905_beacon_metrics_report_len = -1;
 static int hf_ieee1905_beacon_metrics_report_op_class = -1;
 static int hf_ieee1905_beacon_metrics_report_channel_id = -1;
-static int hf_ieee1905_phy_type_flag = -1;
-static int hf_ieee1905_reported_frame_type_flag = -1;
-static int hf_ieee1905_beacon_report_op_class = -1;
-static int hf_ieee1905_beacon_report_channel_no = -1;
-static int hf_ieee1905_beacon_report_meas_start_time = -1;
-static int hf_ieee1905_beacon_report_meas_duration = -1;
-static int hf_ieee1905_beacon_reported_frame_flags = -1;
-static int hf_ieee1905_beacon_report_rcpi = -1;
-static int hf_ieee1905_beacon_report_rsni = -1;
-static int hf_ieee1905_beacon_report_bssid = -1;
-static int hf_ieee1905_beacon_report_ant_id = -1;
-static int hf_ieee1905_beacon_report_tsf = -1;
-static int hf_ieee1905_beacon_report_sub_elt = -1;
-static int hf_ieee1905_beacon_report_sub_elt_len = -1;
-static int hf_ieee1905_beacon_report_sub_elt_body = -1;
+static int hf_ieee1905_measurement_report = -1;
 static int hf_ieee1905_beacon_metrics_response_mac_addr = -1;
-static int hf_ieee1905_beacon_metrics_response_status = -1;
+static int hf_ieee1905_beacon_metrics_response_reserved = -1;
+static int hf_ieee1905_beacon_metrics_response_meas_num = -1;
 static int hf_ieee1905_assoc_sta_traffic_stats_mac_addr = -1;
 static int hf_ieee1905_assoc_sta_traffic_stats_bytes_sent = -1;
 static int hf_ieee1905_assoc_sta_traffic_stats_bytes_rcvd = -1;
@@ -330,6 +325,206 @@ static int hf_ieee1905_assoc_sta_traffic_stats_rx_pkt_errs = -1;
 static int hf_ieee1905_assoc_sta_traffic_stats_retrans_count = -1;
 static int hf_ieee1905_error_code_value = -1;
 static int hf_ieee1905_error_code_mac_addr = -1;
+static int hf_ieee1905_channel_scan_rep_policy = -1;
+static int hf_ieee1905_channel_scan_pol_report = -1;
+static int hf_ieee1905_channel_scan_pol_reserved = -1;
+static int hf_ieee1905_channel_scan_capabilities_radio_num = -1;
+static int hf_ieee1905_channel_scan_capa_radio_id = -1;
+static int hf_ieee1905_channel_scan_capa_flags = -1;
+static int hf_ieee1905_channel_scan_capa_flags_on_boot_only = -1;
+static int hf_ieee1905_channel_scan_capa_flags_scan_impact = -1;
+static int hf_ieee1905_channel_scan_capa_flags_reserved = -1;
+static int hf_ieee1905_channel_scan_capa_min_scan_interval = -1;
+static int hf_ieee1905_channel_scan_capa_class_num = -1;
+static int hf_ieee1905_channel_scan_capa_oper_class = -1;
+static int hf_ieee1905_channel_scan_capa_oper_class_chan_cnt = -1;
+static int hf_ieee1905_channel_scan_capa_channel = -1;
+static int hf_ieee1905_channel_scan_request_flags = -1;
+static int hf_ieee1905_channel_scan_request_flags_fresh_scan = -1;
+static int hf_ieee1905_channel_scan_request_flags_reserved = -1;
+static int hf_ieee1905_channel_scan_request_radio_num = -1;
+static int hf_ieee1905_channel_scan_request_radio_id = -1;
+static int hf_ieee1905_channel_scan_request_class_num = -1;
+static int hf_ieee1905_channel_scan_request_oper_class = -1;
+static int hf_ieee1905_channel_scan_request_oper_class_chan_cnt = -1;
+static int hf_ieee1905_channel_scan_request_channel = -1;
+static int hf_ieee1905_channel_scan_result_radio_id = -1;
+static int hf_ieee1905_channel_scan_result_oper_class = -1;
+static int hf_ieee1905_channel_scan_result_channel = -1;
+static int hf_ieee1905_channel_scan_result_status = -1;
+static int hf_ieee1905_channel_scan_result_timestamp_len = -1;
+static int hf_ieee1905_channel_scan_result_timestamp_string = -1;
+static int hf_ieee1905_channel_scan_result_utilization = -1;
+static int hf_ieee1905_channel_scan_result_noise = -1;
+static int hf_ieee1905_radio_metrics_noise = -1;
+static int hf_ieee1905_radio_metrics_transmit = -1;
+static int hf_ieee1905_radio_metrics_receive_self = -1;
+static int hf_ieee1905_radio_metrics_receive_other = -1;
+static int hf_ieee1905_channel_scan_result_neigh_num = -1;
+static int hf_ieee1905_channel_scan_result_bssid = -1;
+static int hf_ieee1905_channel_scan_result_ssid_len = -1;
+static int hf_ieee1905_channel_scan_result_ssid = -1;
+static int hf_ieee1905_channel_scan_result_sig_level = -1;
+static int hf_ieee1905_channel_scan_result_bw_len = -1;
+static int hf_ieee1905_channel_scan_result_bw = -1;
+static int hf_ieee1905_channel_scan_result_neigh_flags = -1;
+static int hf_ieee1905_channel_scan_result_load_element_present = -1;
+static int hf_ieee1905_channel_scan_result_neigh_reserved = -1;
+static int hf_ieee1905_channel_scan_result_util = -1;
+static int hf_ieee1905_channel_scan_result_sta_count = -1;
+static int hf_ieee1905_channel_scan_result_scan_duration = -1;
+static int hf_ieee1905_channel_scan_result_flags = -1;
+static int hf_ieee1905_channel_scan_result_scan_type = -1;
+static int hf_ieee1905_channel_scan_result_scan_flags_reserved = -1;
+static int hf_ieee1905_timestamp_length = -1;
+static int hf_ieee1905_timestamp_string = -1;
+static int hf_ieee1905_1905_layer_sec_capa_onboarding = -1;
+static int hf_ieee1905_1905_layer_sec_capa_mic_sup = -1;
+static int hf_ieee1905_1905_layer_sec_capa_enc_alg_sup = -1;
+static int hf_ieee1905_group_integrity_key_id = -1;
+static int hf_ieee1905_group_integrity_key_len = -1;
+static int hf_ieee1905_group_integrity_key_bytes = -1;
+static int hf_ieee1905_group_integrity_key_mic_alg = -1;
+static int hf_ieee1905_mic_group_integrity_key_id = -1;
+static int hf_ieee1905_mic_integrity_transmission_counter = -1;
+static int hf_ieee1905_mic_length = -1;
+static int hf_ieee1905_mic_bytes = -1;
+static int hf_ieee1905_encrypted_enc_transmission_count = -1;
+static int hf_ieee1905_encrypted_enc_output_field_len = -1;
+static int hf_ieee1905_encrypted_enc_output_field = -1;
+static int hf_ieee1905_cac_request_radio_count = -1;
+static int hf_ieee1905_cac_request_radio_id = -1;
+static int hf_ieee1905_cac_request_op_class = -1;
+static int hf_ieee1905_cac_request_channel = -1;
+static int hf_ieee1905_cac_request_flags = -1;
+static int hf_ieee1905_cac_request_method = -1;
+static int hf_ieee1905_cac_request_completion_action = -1;
+static int hf_ieee1905_cac_request_completion_unsuccess = -1;
+static int hf_ieee1905_cac_request_reserved = -1;
+static int hf_ieee1905_cac_termination_radio_count = -1;
+static int hf_ieee1905_cac_terminate_radio_id = -1;
+static int hf_ieee1905_cac_terminate_op_class = -1;
+static int hf_ieee1905_cac_terminate_channel = -1;
+static int hf_ieee1905_cac_terminate_action = -1;
+static int hf_ieee1905_cac_completion_rep_radio_count = -1;
+static int hf_ieee1905_cac_completion_radio_id = -1;
+static int hf_ieee1905_cac_completion_op_class = -1;
+static int hf_ieee1905_cac_completion_channel = -1;
+static int hf_ieee1905_cac_completion_status = -1;
+static int hf_ieee1905_cac_completion_radar_count = -1;
+static int hf_ieee1905_cac_comp_radar_op_class = -1;
+static int hf_ieee1905_cac_comp_radar_channel = -1;
+static int hf_ieee1905_cac_status_rpt_active_chan = -1;
+static int hf_ieee1905_cac_status_rpt_avail_op_class = -1;
+static int hf_ieee1905_cac_status_rpt_avail_channel = -1;
+static int hf_ieee1905_cac_status_rpt_avail_minutes = -1;
+static int hf_ieee1905_cac_status_rpt_non_occ_cnt = -1;
+static int hf_ieee1905_cac_status_rpt_non_occ_op_class = -1;
+static int hf_ieee1905_cac_status_rpt_non_occ_channel = -1;
+static int hf_ieee1905_cac_status_rpt_non_occ_seconds = -1;
+static int hf_ieee1905_cac_status_rpt_active_cac_cnt = -1;
+static int hf_ieee1905_cac_status_rpt_active_cac_op_class = -1;
+static int hf_ieee1905_cac_status_rpt_active_cac_channel = -1;
+static int hf_ieee1905_cac_status_rpt_active_cac_seconds = -1;
+static int hf_ieee1905_cac_capa_country_code = -1;
+static int hf_ieee1905_cac_capa_radio_cnt = -1;
+static int hf_ieee1905_cac_capabilities_radio_id = -1;
+static int hf_ieee1905_cac_capabilities_types_num = -1;
+static int hf_ieee1905_cac_capabilities_cac_mode = -1;
+static int hf_ieee1905_cac_capabilities_cac_seconds = -1;
+static int hf_ieee1905_cac_capabilities_op_class_num = -1;
+static int hf_ieee1905_cac_capabilities_op_class = -1;
+static int hf_ieee1905_cac_capabilities_channel_cnt = -1;
+static int hf_ieee1905_cac_capabillity_channel = -1;
+static int hf_ieee1905_multi_ap_version = -1;
+static int hf_ieee1905_max_total_serv_prio_rules = -1;
+static int hf_ieee1905_r2_ap_capa_flags = -1;
+static int hf_ieee1905_byte_counter_units = -1;
+static int hf_ieee1905_r2_ap_capa_flags_reserved = -1;
+static int hf_ieee1905_max_vid_count = -1;
+static int hf_ieee1905_default_802_1q_settings_primary_vlan = -1;
+static int hf_ieee1905_default_802_1q_settings_flags = -1;
+static int hf_ieee1905_default_802_1q_settings_default_pcp = -1;
+static int hf_ieee1905_default_802_1q_settings_reserved = -1;
+static int hf_ieee1905_ap_radio_advanced_capa_radio_id = -1;
+static int hf_ieee1905_radio_advanced_capa_flags = -1;
+static int hf_ieee1905_traffic_separation_policy_num_ssids = -1;
+static int hf_ieee1905_traffic_separation_policy_ssid_len = -1;
+static int hf_ieee1905_traffic_separation_policy_ssid = -1;
+static int hf_ieee1905_traffic_separation_policy_vlanid = -1;
+static int hf_ieee1905_packet_filtering_policy_bssid_num = -1;
+static int hf_ieee1905_packet_filtering_policy_bssid = -1;
+static int hf_ieee1905_packet_filtering_policy_mac_count = -1;
+static int hf_ieee1905_packet_filtering_policy_mac_addr = -1;
+static int hf_ieee1905_ethernet_config_policy_intf_count = -1;
+static int hf_ieee1905_ethernet_config_policy_intf = -1;
+static int hf_ieee1905_ethernet_config_policy_intf_type = -1;
+static int hf_ieee1905_ethernet_config_policy_reserved = -1;
+static int hf_ieee1905_ethernet_config_policy_intf_flags = -1;
+static int hf_ieee1905_r2_error_reason_code = -1;
+static int hf_ieee1905_r2_error_service_prio_rule_id = -1;
+static int hf_ieee1905_operatonal_backhaul_bss_radio_count = -1;
+static int hf_ieee1905_ap_backhaul_bss_radio_identifier = -1;
+static int hf_ieee1905_ap_operational_backhaul_bss_count = -1;
+static int hf_ieee1905_ap_operational_backhaul_bss = -1;
+static int hf_ieee1905_operational_backhaul_bss_config_bitmask = -1;
+static int hf_ieee1905_r1_backhaul_association_disallowed = -1;
+static int hf_ieee1905_r2_above_backaul_association_dissallowed = -1;
+static int hf_ieee1905_ap_operational_backhaul_bss_reserved = -1;
+static int hf_ieee1905_ap_radio_advance_capa_backhaul_bss_traffic_sep = -1;
+static int hf_ieee1905_ap_radio_advance_capa_combined_r1_r2_backhaul = -1;
+static int hf_ieee1905_ap_radio_advance_capa_reserved = -1;
+static int hf_ieee1905_assoc_status_notif_num_bssid = -1;
+static int hf_ieee1905_assoc_status_notif_bssid = -1;
+static int hf_ieee1905_assoc_status_notif_status = -1;
+static int hf_ieee1905_source_info_mac_addr = -1;
+static int hf_ieee1905_tunneled_message_type = -1;
+static int hf_ieee1905_tunneled_data = -1;
+static int hf_ieee1905_status_code_status = -1;
+static int hf_ieee1905_disassociation_reason_code = -1;
+static int hf_ieee1905_backhaul_sta_radio_id = -1;
+static int hf_ieee1905_backhaul_sta_radio_capabilities = -1;
+static int hf_ieee1905_backhaul_sta_radio_capa_mac_included = -1;
+static int hf_ieee1905_backhaul_sta_radio_capa_reserved = -1;
+static int hf_ieee1905_backhaul_sta_addr = -1;
+static int hf_ieee1905_akm_suite_capa_count = -1;
+static int hf_ieee1905_akm_suite_oui = -1;
+static int hf_ieee1905_akm_suite_type = -1;
+static int hf_ieee1905_backhaul_akm_suite_capa_count = -1;
+static int hf_ieee1905_akm_backhaul_suite_oui = -1;
+static int hf_ieee1905_akm_backhaul_suite_type = -1;
+static int hf_ieee1905_fronthaul_akm_suite_capa_count = -1;
+static int hf_ieee1905_akm_fronthaul_suite_oui = -1;
+static int hf_ieee1905_akm_fronthaul_suite_type = -1;
+static int hf_ieee1905_encap_dpp_flags = -1;
+static int hf_ieee1905_dpp_encap_final_destination = -1;
+static int hf_ieee1905_dpp_encap_channel_list = -1;
+static int hf_ieee1905_dpp_encap_reserved = -1;
+static int hf_ieee1905_encap_dpp_sta_mac = -1;
+static int hf_ieee1905_dpp_encap_num_classes = -1;
+static int hf_ieee1905_dpp_encap_op_class = -1;
+static int hf_ieee1905_encap_eapol_payload = -1;
+static int hf_ieee1905_dpp_bootstrapping_uri_radio_id = -1;
+static int hf_ieee1905_dpp_bootstrapping_uri_local_mac_addr = -1;
+static int hf_ieee1905_dpp_bootstrapping_uri_bsta_mac_addr = -1;
+static int hf_ieee1905_dpp_bootstrapping_uri_received = -1;
+static int hf_ieee1905_r2_steering_req_src_bssid = -1;
+static int hf_ieee1905_r2_steering_req_flags = -1;
+static int hf_ieee1905_r2_steering_request_mode_flag = -1;
+static int hf_ieee1905_r2_btm_disassoc_imminent_flag = -1;
+static int hf_ieee1905_r2_btm_abridged_flag = -1;
+static int hf_ieee1905_r2_steering_req_reserved = -1;
+static int hf_ieee1905_r2_steering_op_window = -1;
+static int hf_ieee1905_r2_steering_btm_dissasoc_tmr = -1;
+static int hf_ieee1905_r2_steering_sta_count = -1;
+static int hf_ieee1905_r2_steering_sta_mac = -1;
+static int hf_ieee1905_r2_steering_target_count = -1;
+static int hf_ieee1905_r2_steering_target_bssid = -1;
+static int hf_ieee1905_r2_steering_target_op_class = -1;
+static int hf_ieee1905_r2_steering_target_channel = -1;
+static int hf_ieee1905_r2_steering_reason = -1;
+static int hf_ieee1905_metric_collection_interval = -1;
+static int hf_ieee1905_max_reporting_rate = -1;
 
 static gint ett_ieee1905 = -1;
 static gint ett_ieee1905_flags = -1;
@@ -373,6 +568,7 @@ static gint ett_ap_operational_bss_intf = -1;
 static gint ett_ap_operational_bss_intf_list = -1;
 static gint ett_ap_operational_bss_intf_tree = -1;
 static gint ett_ieee1905_capabilities_flags = -1;
+static gint ett_ieee1905_unsuccessful_associations = -1;
 static gint ett_assoc_control_list = -1;
 static gint ett_ieee1905_steering_request_flags = -1;
 static gint ett_ieee1905_association_event_flags = -1;
@@ -419,10 +615,81 @@ static gint ett_beacon_report_sub_element_tree = -1;
 static gint ett_beacon_metrics_response_report_list = -1;
 static gint ett_beacon_metrics_response_report_tree = -1;
 static gint ett_ieee1905_beacon_reported_flags = -1;
+static gint ett_channel_scan_rep_policy = -1;
+static gint ett_channel_scan_capa_radio_list = -1;
+static gint ett_channel_scan_capa_radio = -1;
+static gint ett_channel_scan_capa_flags = -1;
+static gint ett_channel_scan_capa_class_list = -1;
+static gint ett_channel_scan_capa_class = -1;
+static gint ett_channel_scan_capa_channels = -1;
+static gint ett_channel_scan_request_flags = -1;
+static gint ett_channel_scan_request_radio_list = -1;
+static gint ett_channel_scan_request_radio = -1;
+static gint ett_channel_scan_request_class_list = -1;
+static gint ett_channel_scan_request_class = -1;
+static gint ett_channel_scan_request_channels = -1;
+static gint ett_channel_scan_result_neigh_list = -1;
+static gint ett_channel_scan_result_neigh_flags = -1;
+static gint ett_channel_scan_result_neigh = -1;
+static gint ett_channel_scan_result_flags = -1;
+static gint ett_cac_request_flags = -1;
+static gint ett_cac_request_radio_list = -1;
+static gint ett_cac_request_radio = -1;
+static gint ett_cac_terminate_radio_list = -1;
+static gint ett_cac_terminate_radio = -1;
+static gint ett_cac_completion_radio_list = -1;
+static gint ett_cac_completion_radio = -1;
+static gint ett_cac_completion_radar_list = -1;
+static gint ett_cac_completion_radar = -1;
+static gint ett_cac_status_rpt_avail_list = -1;
+static gint ett_cac_status_rpt_avail_chan = -1;
+static gint ett_cac_status_rpt_non_occupy_list = -1;
+static gint ett_cac_status_rpt_unocc_chan = -1;
+static gint ett_cac_status_rpt_active_cac_list = -1;
+static gint ett_cac_status_rpt_active_cac_tree = -1;
+static gint ett_cac_capabilities_radio_list = -1;
+static gint ett_cac_capabilities_radio_tree = -1;
+static gint ett_cac_capabilities_type_list = -1;
+static gint ett_cac_capabilities_type_tree = -1;
+static gint ett_cac_capabilities_class_list = -1;
+static gint ett_cac_capabilities_class_tree = -1;
+static gint ett_cac_capabilities_channel_list = -1;
+static gint ett_cac_capabilities_channel = -1;
+static gint ett_r2_ap_capa_flags = -1;
+static gint ett_edge_interface_list = -1;
+static gint ett_radio_advanced_capa_flags = -1;
+static gint ett_ap_operational_backhaul_bss_tree = -1;
+static gint ett_ap_operational_backhaul_bss_intf_list = -1;
+static gint ett_ap_operational_backhaul_bss_config_bitmask = -1;
+static gint ett_default_802_1q_settings_flags = -1;
+static gint ett_traffic_separation_ssid_list = -1;
+static gint ett_traffic_separation_ssid = -1;
+static gint ett_packet_filtering_policy_bssid_list = -1;
+static gint ett_packet_filtering_policy_bssid = -1;
+static gint ett_packet_filtering_policy_mac_tree = -1;
+static gint ett_ethernet_config_policy_list = -1;
+static gint ett_ethernet_config_policy = -1;
+static gint ett_ethernet_config_policy_flags = -1;
+static gint ett_backhaul_sta_radio_capa_flags = -1;
+static gint ett_assoc_status_notif_bssid_list = -1;
+static gint ett_assoc_status_notif_bssid_tree = -1;
+static gint ett_akm_suite_list = -1;
+static gint ett_akm_suite = -1;
+static gint ett_backhaul_akm_suite_list = -1;
+static gint ett_backhaul_akm_suite = -1;
+static gint ett_fronthaul_akm_suite_list = -1;
+static gint ett_fronthaul_akm_suite = -1;
+static gint ett_1905_encap_dpp_flags = -1;
+static gint ett_1905_encap_dpp_classes = -1;
+static gint ett_r2_steering_sta_list = -1;
+static gint ett_r2_steering_target_list = -1;
+static gint ett_r2_steering_target = -1;
 
+static expert_field ei_ieee1905_missing_eom = EI_INIT;
 static expert_field ei_ieee1905_malformed_tlv = EI_INIT;
 static expert_field ei_ieee1905_extraneous_data_after_eom = EI_INIT;
 static expert_field ei_ieee1905_extraneous_tlv_data = EI_INIT;
+static expert_field ei_ieee1905_deprecated_tlv = EI_INIT;
 
 #define TOPOLOGY_DISCOVERY_MESSAGE                     0x0000
 #define TOPOLOGY_NOTIFICATION_MESSAGE                  0x0001
@@ -468,6 +735,27 @@ static expert_field ei_ieee1905_extraneous_tlv_data = EI_INIT;
 #define CLIENT_ASSOCIATION_CONTROL_REQUEST_MESSAGE     0x8016
 #define STEERING_COMPLETED_MESSAGE                     0x8017
 #define HIGHER_LAYER_DATA_MESSAGE                      0x8018
+#define BACKHAUL_STEERING_REQUEST_MESSAGE              0x8019
+#define BACKHAUL_STEERING_RESPONSE_MESSAGE             0x801A
+#define CHANNEL_SCAN_REQUEST_MESSAGE                   0x801B
+#define CHANNEL_SCAN_REPORT_MESSAGE                    0x801C
+#define IEEE1905_GROUP_INTEGRITY_KEY_MESSAGE           0x801D
+#define IEEE1905_REKEY_REQUEST_MESSAGE                 0x801E
+#define IEEE1905_DECRYPTION_FAILURE                    0x801F
+#define CAC_REQUEST_MESSAGE                            0x8020
+#define CAC_TERMINATION_MESSAGE                        0x8021
+#define CLIENT_DISASSOCIATION_STATS_MESSAGE            0x8022
+#define SERVICE_PPRIORITIZATION_REQUEST                0x8023
+#define ERROR_RESPONSE_MESSAGE                         0x8024
+#define ASSOCIATION_STATUS_NOTIFICATION_MESSAGE        0x8025
+#define TUNNELLED_MESSAGE                              0x8026
+#define BACKHAUL_STA_CAPABILITY_QUERY_MESSAGE          0x8027
+#define BACKHAUL_STA_CAPABILITY_REPORT_MESSAGE         0x8028
+#define IEEE1905_ENCAP_DPP_MESSAGE                     0x8029
+#define IEEE1905_ENCAP_EAPOL_MESSAGE                   0x8030
+#define DPP_BOOTSTRAPPING_URI_NOTIFICATION_MESSAGE     0x8031
+#define DPP_BOOTSTRAPPING_URI_QUERY_MESSAGE            0x8032
+#define FAILED_CONNECTION_MESSAGE                      0x8033
 
 static const value_string ieee1905_message_type_vals[] = {
   { TOPOLOGY_DISCOVERY_MESSAGE,                  "Topology discovery" },
@@ -514,6 +802,27 @@ static const value_string ieee1905_message_type_vals[] = {
   { CLIENT_ASSOCIATION_CONTROL_REQUEST_MESSAGE,  "Client Association Control Request" },
   { STEERING_COMPLETED_MESSAGE,                  "Steering Completed" },
   { HIGHER_LAYER_DATA_MESSAGE,                   "Higher Layer Data" },
+  { BACKHAUL_STEERING_REQUEST_MESSAGE,           "Backhaul Steering Request" },
+  { BACKHAUL_STEERING_RESPONSE_MESSAGE,          "Backhaul Steering Response" },
+  { CHANNEL_SCAN_REQUEST_MESSAGE,                "Channel Scan Request" },
+  { CHANNEL_SCAN_REPORT_MESSAGE,                 "Channel Scan Report" },
+  { IEEE1905_GROUP_INTEGRITY_KEY_MESSAGE,        "1905 Group Intensity Key" },
+  { IEEE1905_REKEY_REQUEST_MESSAGE,              "1905 Reket Request" },
+  { IEEE1905_DECRYPTION_FAILURE,                 "1905 Decryption Failure" },
+  { CAC_REQUEST_MESSAGE,                         "CAC Request" },
+  { CAC_TERMINATION_MESSAGE,                     "CAC Termination" },
+  { CLIENT_DISASSOCIATION_STATS_MESSAGE,         "Client Disassociation Stats" },
+  { SERVICE_PPRIORITIZATION_REQUEST,             "Service Prioritization ReqUest" },
+  { ERROR_RESPONSE_MESSAGE,                      "Error Response" },
+  { ASSOCIATION_STATUS_NOTIFICATION_MESSAGE,     "Association Status Notification" },
+  { TUNNELLED_MESSAGE,                           "Tunnelled" },
+  { BACKHAUL_STA_CAPABILITY_QUERY_MESSAGE,       "Backhaul STA Capability Query" },
+  { BACKHAUL_STA_CAPABILITY_REPORT_MESSAGE,      "Backhaul STA Capability Report" },
+  { IEEE1905_ENCAP_DPP_MESSAGE,                  "1905 Encap DPP" },
+  { IEEE1905_ENCAP_EAPOL_MESSAGE,                "1905 Encap EAPOL" },
+  { DPP_BOOTSTRAPPING_URI_NOTIFICATION_MESSAGE,  "DPP Bootstrapping URI Notification" },
+  { DPP_BOOTSTRAPPING_URI_QUERY_MESSAGE,         "DPP Bootstrapping URI Query" },
+  { FAILED_CONNECTION_MESSAGE,                   "Failed Connection" },
   { 0, NULL }
 };
 static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(ieee1905_message_type_vals);
@@ -584,6 +893,50 @@ static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(i
 #define AP_CAPABILITY_TLV                       0xA1
 #define ASSOCIATED_STA_TRAFFIC_STATS_TLV        0xA2
 #define ERROR_CODE_TLV                          0xA3
+#define CHANNEL_SCAN_REPORTING_POLICY_TLV       0xA4
+#define CHANNEL_SCAN_CAPABILITIES_TLV           0xA5
+#define CHANNEL_SCAN_REQUEST_TLV                0xA6
+#define CHANNEL_SCAN_RESULT_TLV                 0xA7
+#define TIMESTAMP_TLV                           0xA8
+#define IEEE1905_LAYER_SECURITY_CAPABILITY_TLV  0xA9
+#define GROUP_INTEGRITY_KEY_TLV                 0xAA
+#define MIC_TLV                                 0xAB
+#define ENCRYPTED_TLV                           0xAC
+#define CAC_REQUEST_TLV                         0xAD
+#define CAC_TERMINATION_TLV                     0xAE
+#define CAC_COMPLETION_REPORT_TLV               0xAF
+#define CAC_STATUS_REQUEST_TLV                  0xB0
+#define CAC_STATUS_REPORT_TLV                   0xB1
+#define CAC_CAPABILITIES_TLV                    0xB2
+#define MULTI_AP_VERSION_TLV                    0xB3
+#define R2_AP_CAPABILITY_TLV                    0xB4
+#define DEFAULT_802_1Q_SETTINGS_TLV             0xB5
+#define TRAFFIC_SEPARATION_POLICY_TLV           0xB6
+#define PACKET_FILTERING_POLICY_TLV             0xB7
+#define ETHERNET_CONFIGURATION_POLICY_TLV       0xB8
+#define SERVICE_PRIORITIZATION_RULE_TLV         0xB9
+#define DSCP_MAPPING_TABLE_TLV                  0xBA
+#define SERVICE_PRIORITIZATION_INTERFACE_EXCEPTION_TLV 0xBB
+#define R2_ERROR_CODE_ERROR_TLV                 0xBC
+#define AP_OPERATIONAL_BACKHAUL_BSS_TLV         0xBD
+#define AP_RADIO_ADVANCED_CAPABULITIES_TLV      0xBE
+#define ASSOCIATION_STATUS_NOTIFICATON_TLV      0xBF
+#define SOURCE_INFO_TLV                         0xC0
+#define TUNNELED_MESSAGE_TYPE_TLV               0xC1
+#define TUNNELED_TLV                            0xC2
+#define R2_STEERING_REQUEST_TLV                 0xC3
+#define UNSUCCESSFUL_ASSOCIATION_POLICY_TLV     0xC4
+#define METRIC_COLLECTION_INTERVAL_TLV          0xC5
+#define RADIO_METRICS_TLV                       0xC6
+#define AP_EXTENDED_METRICS_TLV                 0xC7
+#define ASSOCIATED_STA_EXTENDED_LINK_METRICS_TLV 0xC8
+#define STATUS_CODE_TLV                         0xC9
+#define DISASSOCIATION_REASON_CODE_TLV          0xCA
+#define BACKHAUL_STA_RADIO_CAPABILITIES_TLV     0xCB
+#define AKM_SUITE_CAPABILITIES_TLV              0xCC
+#define IEEE1905_ENCAP_DPP_TLV                  0xCD
+#define IEEE1905_ENCAP_EAPOL_TLV                0xCE
+#define DPP_BOOTSTRAPPING_URI_NOTIFICATION_TLV  0xCF
 
 static const value_string ieee1905_tlv_types_vals[] = {
   { EOM_TLV,                                 "End of message" },
@@ -652,6 +1005,48 @@ static const value_string ieee1905_tlv_types_vals[] = {
   { AP_CAPABILITY_TLV,                       "AP capability" },
   { ASSOCIATED_STA_TRAFFIC_STATS_TLV,        "Associated STA Traffic Stats" },
   { ERROR_CODE_TLV,                          "Error Code" },
+  { CHANNEL_SCAN_REPORTING_POLICY_TLV,       "Channel Scan Reporting Policy" },
+  { CHANNEL_SCAN_CAPABILITIES_TLV,           "Channel Scan Capabilities" },
+  { CHANNEL_SCAN_REQUEST_TLV,                "Channel Scan Request" },
+  { CHANNEL_SCAN_RESULT_TLV,                 "Channel Scan Result" },
+  { TIMESTAMP_TLV,                           "Timestamp" },
+  { IEEE1905_LAYER_SECURITY_CAPABILITY_TLV,  "1905 Layer Security Capability" },
+  { GROUP_INTEGRITY_KEY_TLV,                 "Group Integrity Key" },
+  { MIC_TLV,                                 "MIC" },
+  { ENCRYPTED_TLV,                           "Encrypted" },
+  { CAC_REQUEST_TLV,                         "CAC Request" },
+  { CAC_TERMINATION_TLV,                     "CAC Termination" },
+  { CAC_COMPLETION_REPORT_TLV,               "CAC Completion Report" },
+  { CAC_STATUS_REQUEST_TLV,                  "CAC Status Request" },
+  { CAC_STATUS_REPORT_TLV,                   "CAC Status Report" },
+  { CAC_CAPABILITIES_TLV,                    "CAC Capabilities" },
+  { MULTI_AP_VERSION_TLV,                    "Multi AP Version" },
+  { R2_AP_CAPABILITY_TLV,                    "R2 AP Capability" },
+  { DEFAULT_802_1Q_SETTINGS_TLV,             "Default 802.1 Settings" },
+  { TRAFFIC_SEPARATION_POLICY_TLV,           "Traffic Separation Policy" },
+  { PACKET_FILTERING_POLICY_TLV,             "Packet Filtering Policy" },
+  { ETHERNET_CONFIGURATION_POLICY_TLV,      "Ethernet Configuration Policy" },
+  { SERVICE_PRIORITIZATION_RULE_TLV,         "Service Prioritization Rule" },
+  { R2_ERROR_CODE_ERROR_TLV,                 "R2 Error Code" },
+  { AP_OPERATIONAL_BACKHAUL_BSS_TLV,         "AP Operational Backhaul BSS" },
+  { AP_RADIO_ADVANCED_CAPABULITIES_TLV,      "AP Radio Advanced Capabilities" },
+  { ASSOCIATION_STATUS_NOTIFICATON_TLV,      "Associated Status Notification" },
+  { SOURCE_INFO_TLV,                         "Source Info" },
+  { TUNNELED_MESSAGE_TYPE_TLV,               "Tunneled Message Type" },
+  { TUNNELED_TLV,                            "Tunneled" },
+  { R2_STEERING_REQUEST_TLV,                 "R2 Steering Request" },
+  { UNSUCCESSFUL_ASSOCIATION_POLICY_TLV,     "Unsuccessful Association Policy" },
+  { METRIC_COLLECTION_INTERVAL_TLV,          "Metric Collection Interval" },
+  { RADIO_METRICS_TLV,                       "Radio Metrics" },
+  { AP_EXTENDED_METRICS_TLV,                 "AP Extended Metrics" },
+  { ASSOCIATED_STA_EXTENDED_LINK_METRICS_TLV,"Associated STA Extended Link Metrics" },
+  { STATUS_CODE_TLV,                         "Status Code" },
+  { DISASSOCIATION_REASON_CODE_TLV,          "Disassociation Reason Code" },
+  { BACKHAUL_STA_RADIO_CAPABILITIES_TLV,     "Backhaul STA Radio Capabilities" },
+  { AKM_SUITE_CAPABILITIES_TLV,              "AKM Suite Capabilities" },
+  { IEEE1905_ENCAP_DPP_TLV,                  "1905 Encap DPP" },
+  { IEEE1905_ENCAP_EAPOL_TLV,                "1905 Encap EAPOL" },
+  { DPP_BOOTSTRAPPING_URI_NOTIFICATION_TLV,  "DPP Bootstrapping URI Notification" },
   { 0, NULL }
 };
 static value_string_ext ieee1905_tlv_types_vals_ext = VALUE_STRING_EXT_INIT(ieee1905_tlv_types_vals);
@@ -804,6 +1199,11 @@ static const true_false_string tfs_ieee1905_steering_request_mode_flag = {
   "Request is a steering opportunity",
 };
 
+static const true_false_string tfs_ieee1905_report_unsuccessful_association_attempt_flag = {
+  "Report",
+  "Do not Report",
+};
+
 static const true_false_string tfs_ieee1905_btm_disassoc_imminent_flag = {
   "BTM disassociation imminent",
   "BTM disassociation not imminent"
@@ -897,6 +1297,7 @@ static const value_string channel_preference_reason_vals[] = {
   { 0x8, "Operation would prevent backhaul operatoon uding shared radio" },
   { 0x9, "Immediate operation possible on a DFS channel" },
   { 0xA, "DFS channel state unknown" },
+  { 0xB, "Controller DFS Channel Clear Indication" },
   { 0, NULL }
 };
 
@@ -913,40 +1314,6 @@ static const value_string ieee1905_steering_policy_vals[] = {
   { 0x1, "Agent initiated RSSI-based steering mandated" },
   { 0x2, "Agent initiated RSSI-based steering allowed" },
   { 0, NULL}
-};
-
-static const value_string beacon_metrics_status_vals[] = {
-  { 0x00, "Success - Beacon report received from STA" },
-  { 0x40, "Failure - STA supports but no beacon report received" },
-  { 0x80, "Failure - STA does not support beacon reports" },
-  { 0xC0, "Failure - unspecified" },
-  { 0, NULL }
-};
-
-static const value_string condensed_phy_type_vals[] = {
-  { 0, "phy_type_any" },
-  { 1, "phy_type_fhss" },
-  { 2, "phy_type_dsss" },
-  { 3, "phy_type_irbaseband" },
-  { 4, "phy_type_ofdm" },
-  { 5, "phy_type_hrdsss" },
-  { 6, "phy_type_erp" },
-  { 7, "phy_type_ht" },
-  { 8, "phy_type_vht" },
-  { 0, NULL }
-};
-
-static const value_string reported_frame_type_vals[] = {
-  { 0, "Beacon or Probe Response frame" },
-  { 1, "Measurement Pilot frame" },
-  { 0, NULL }
-};
-
-static const value_string beacon_report_sub_element_vals[] = {
-  { 1, "Reported Frame Body" },
-  { 163, "Wite Bandwidth Channel Switch" },
-  { 221, "Vendor Specific" },
-  { 0, NULL }
 };
 
 static const value_string ieee1905_error_code_vals[] = {
@@ -2919,8 +3286,11 @@ dissect_radio_operation_restriction(tvbuff_t *tvb, packet_info *pinfo _U_,
                             tvb, offset, 1, ENC_NA);
         offset++;
 
-        if (channel_count == 0)
+        if (channel_count == 0) {
+            proto_item_set_len(ocpi, offset - start_offset);
+            op_class_index++;
             continue;
+        }
 
         channel_list = proto_tree_add_subtree(op_class_tree, tvb, offset, channel_count * 2,
                         ett_radio_restriction_channel_list, NULL,
@@ -3133,18 +3503,20 @@ dissect_unassociated_sta_link_metric_response(tvbuff_t *tvb, packet_info *pinfo 
 /*
  * Dissect a Steering request TLV
  */
+static const int *steering_flags[] = {
+  &hf_ieee1905_steering_request_mode_flag,
+  &hf_ieee1905_btm_disassoc_imminent_flag,
+  &hf_ieee1905_btm_abridged_flag,
+  &hf_ieee1905_steering_req_reserved,
+  NULL,
+};
+
 static int
 dissect_steering_request(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset, guint16 len)
 {
     guint8 mode = 0;
     guint8 steering_count = 0;
-    static const int *steering_flags[] = {
-      &hf_ieee1905_steering_request_mode_flag,
-      &hf_ieee1905_btm_disassoc_imminent_flag,
-      &hf_ieee1905_btm_abridged_flag,
-      NULL,
-    };
     proto_item *pi = NULL;
     proto_tree *sta_list = NULL, *bssid_list = NULL;
     guint8 target_bssid_count = 0;
@@ -3161,12 +3533,10 @@ dissect_steering_request(tvbuff_t *tvb, packet_info *pinfo _U_,
                            steering_flags, ENC_NA);
     offset++;
 
-    /* If Request Mode is 1, this field is not present. */
-    if (!(mode & 0x80)) {
-        proto_tree_add_item(tree, hf_ieee1905_steering_req_op_window,
-                            tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        offset += 2;
-    }
+    /* If Request Mode is 1, this field is ignored. */
+    proto_tree_add_item(tree, hf_ieee1905_steering_req_op_window,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
 
     proto_tree_add_item(tree, hf_ieee1905_steering_btm_disass_timer,
                         tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -3425,133 +3795,21 @@ dissect_beacon_metrics_query(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 /*
- * Dissect a beacon report
+ * Dissect a measurement report. This should go into ieee80211.c but not
+ * for now. We expect a new TVB that contains only one measurement report.
  */
-static gint16
-dissect_beacon_report(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len)
+static int
+dissect_measurement_report(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree)
 {
-    guint16 start_len = len;
-    guint16 start_offset = 0;
-    proto_tree *sub_element_list = NULL;
-    proto_item *pi = NULL;
-    static const int *reported_frame_info_flags[] = {
-      &hf_ieee1905_phy_type_flag,
-      &hf_ieee1905_reported_frame_type_flag,
-      NULL,
-    };
+    guint8 offset = 0;
+    guint rep_len = tvb_reported_length_remaining(tvb, offset);
 
+    proto_tree_add_item(tree, hf_ieee1905_measurement_report, tvb, offset,
+                        rep_len, ENC_NA);
+    offset += rep_len;
 
-    proto_tree_add_item(tree, hf_ieee1905_beacon_report_op_class, tvb,
-                        offset, 1, ENC_NA);
-    offset++; len--;
-
-    if (len == 0) return start_len; /* We should add an error report */
-
-    proto_tree_add_item(tree, hf_ieee1905_beacon_report_channel_no, tvb,
-                        offset, 1, ENC_NA);
-    offset++; len--;
-
-    /*
-     * In case the next item is truncated ... this is sub optimal. We should
-     * add an error node if it is too short.
-     */
-    if (len < 8) return start_len;
-
-    proto_tree_add_item(tree, hf_ieee1905_beacon_report_meas_start_time, tvb,
-                        offset, 8, ENC_BIG_ENDIAN);
-    offset += 8; len -= 8;
-
-    if (len < 2) return start_len;
-
-    proto_tree_add_item(tree, hf_ieee1905_beacon_report_meas_duration, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
-    offset += 2; len -= 2;
-
-    if (len == 0) return start_len;
-
-    proto_tree_add_bitmask(tree, tvb, offset,
-                           hf_ieee1905_beacon_reported_frame_flags,
-                           ett_ieee1905_beacon_reported_flags,
-                           reported_frame_info_flags, ENC_NA);
-    offset++; len--;
-
-    if (len == 0) return start_len;
-
-    proto_tree_add_item(tree, hf_ieee1905_beacon_report_rcpi, tvb,
-                        offset, 1, ENC_NA);
-    offset++; len--;
-
-    if (len == 0) return start_len;
-
-    proto_tree_add_item(tree, hf_ieee1905_beacon_report_rsni, tvb,
-                        offset, 1, ENC_NA);
-    offset++; len--;
-
-    if (len < 6) return start_len;
-
-    proto_tree_add_item(tree, hf_ieee1905_beacon_report_bssid, tvb,
-                        offset, 6, ENC_NA);
-    offset += 6; len -= 6;
-
-    if (len == 0) return start_len;
-
-    proto_tree_add_item(tree, hf_ieee1905_beacon_report_ant_id, tvb,
-                        offset, 1, ENC_NA);
-    offset++; len--;
-
-    if (len < 4) return start_len;
-
-    proto_tree_add_item(tree, hf_ieee1905_beacon_report_tsf, tvb,
-                        offset, 4, ENC_BIG_ENDIAN);
-    offset += 4; len -= 4;
-
-    if (len < 2) return start_len;
-
-    sub_element_list = proto_tree_add_subtree(tree, tvb, offset, -1,
-                            ett_beacon_report_subelement_list, &pi,
-                            "Sub-element list");
-    start_offset = offset;
-
-    while (len >= 2) {
-        proto_tree *sub_elt_tree = NULL;
-        proto_item *lpi = NULL;
-        guint8 sub_elt_len = 0;
-        guint8 sub_element = tvb_get_guint8(tvb, offset);
-
-        sub_elt_tree = proto_tree_add_subtree_format(sub_element_list, tvb,
-                                offset, -1,
-                                ett_beacon_report_sub_element_tree,
-                                &lpi, "%s", val_to_str(sub_element,
-                                                beacon_report_sub_element_vals,
-                                                "Reserved"));
-        proto_tree_add_item(sub_elt_tree, hf_ieee1905_beacon_report_sub_elt,
-                            tvb, offset, 1, ENC_NA);
-        offset++; len--;
-
-        sub_elt_len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(sub_elt_tree, hf_ieee1905_beacon_report_sub_elt_len,
-                            tvb, offset, 1, ENC_NA);
-        offset++; len--;
-
-        /* Just insert the raw bytes for the moment */
-        if (len > 0) {
-            guint8 insert_len = len > sub_elt_len ? sub_elt_len : len;
-
-            proto_tree_add_item(sub_elt_tree, hf_ieee1905_beacon_report_sub_elt_body,
-                                tvb, offset, insert_len, ENC_NA);
-            offset += insert_len; len -= insert_len;
-
-            proto_item_set_len(lpi, insert_len + 2);
-        }
-
-    }
-
-    proto_item_set_len(pi, offset - start_offset);
-
-    if (len > 0) len--;  /* There can only be one byte left over */
-
-    return start_len - len;
+    return offset;
 }
 
 /*
@@ -3561,25 +3819,24 @@ static int
 dissect_beacon_metrics_response(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset, guint16 len _U_)
 {
-    guint8 response = 0, report_index = 0;
+    guint8 report_index = 0;
     proto_item *pi = NULL;
     proto_tree *report_list = NULL;
     guint saved_offset = 0;
+    guint8 meas_count = 0;
 
     proto_tree_add_item(tree, hf_ieee1905_beacon_metrics_response_mac_addr,
                         tvb, offset, 6, ENC_NA);
     offset += 6;
 
-    response = tvb_get_guint8(tvb, offset);
-    pi = proto_tree_add_item(tree, hf_ieee1905_beacon_metrics_response_status,
+    pi = proto_tree_add_item(tree, hf_ieee1905_beacon_metrics_response_reserved,
                         tvb, offset, 1, ENC_NA);
-    proto_item_append_text(pi, ", %s",
-                        val_to_str(response,
-                           beacon_metrics_status_vals,
-                           "Reserved"));
     offset++;
 
-    len -= 7;
+    meas_count = tvb_get_guint8(tvb, offset);
+    pi = proto_tree_add_item(tree, hf_ieee1905_beacon_metrics_response_meas_num,
+                        tvb, offset, 1, ENC_NA);
+    offset++;
 
     /* Now, the report(s) ... */
     report_list = proto_tree_add_subtree(tree, tvb, offset, -1,
@@ -3587,23 +3844,31 @@ dissect_beacon_metrics_response(tvbuff_t *tvb, packet_info *pinfo _U_,
                             "Measurement report list");
     saved_offset = offset;
 
-    while (len > 0) {
-        guint16 amount = 0;
+    while (meas_count > 0) {
         proto_tree *report_tree = NULL;
         proto_item *lpi = NULL;
+        tvbuff_t *new_tvb = NULL;
+        guint8 new_len = 0;
 
         report_tree = proto_tree_add_subtree_format(report_list, tvb,
                                 offset, -1,
                                 ett_beacon_metrics_response_report_tree,
                                 &lpi, "Beacon report %u", report_index);
 
-        amount = dissect_beacon_report(tvb, pinfo, report_tree, offset, len);
+        /*
+         * This is a measurement report, so the elt-id must be 39. The length
+         * is the next field. Create a new TVB?
+         */
+        new_len = tvb_get_guint8(tvb, offset + 1);
+        new_tvb = tvb_new_subset_length_caplen(tvb, offset + 2, new_len, new_len);
 
-        proto_item_set_len(pi, amount);
+        dissect_measurement_report(new_tvb, pinfo, report_tree);
 
-        len -= amount;
-        offset += amount;
+        proto_item_set_len(lpi, new_len + 2);
+
+        offset += 2 + new_len;
         report_index++;
+        meas_count--;
     }
 
     proto_item_set_len(pi, offset - saved_offset);
@@ -3929,28 +4194,29 @@ dissect_associated_sta_link_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
  */
 static int
 dissect_unassociated_sta_link_metrics_query(tvbuff_t *tvb,
-        packet_info *pinfo _U_, proto_tree *tree, guint offset, guint16 len)
+        packet_info *pinfo _U_, proto_tree *tree, guint offset, guint16 len _U_)
 {
     guint8 channel_count = 0;
+    guint8 mac_count = 0;
     proto_tree *channel_list = NULL;
     proto_tree *sta_mac_list = NULL;
-    proto_item *pi = NULL;
-    guint saved_offset = 0;
+    proto_item *pi = NULL, *ci = NULL;
+    guint saved_offset = 0, chan_saved_offset = 0;
 
     proto_tree_add_item(tree, hf_ieee1905_unassoc_sta_link_metrics_class,
                         tvb, offset, 1, ENC_NA);
     offset++;
-    len--;
 
     channel_count = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_ieee1905_unassoc_sta_link_channel_count,
                         tvb, offset, 1, ENC_NA);
     offset++;
-    len--;
 
     if (channel_count > 0) {
-        channel_list = proto_tree_add_subtree(tree, tvb, offset, channel_count,
-                            ett_sta_link_metrics_query_channel_list, NULL,
+        chan_saved_offset = offset;
+
+        channel_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                            ett_sta_link_metrics_query_channel_list, &ci,
                             "Channel list");
 
         while (channel_count > 0) {
@@ -3959,27 +4225,31 @@ dissect_unassociated_sta_link_metrics_query(tvbuff_t *tvb,
                             tvb, offset, 1, ENC_NA);
             offset++;
             channel_count--;
-            len--;
-        }
-    }
 
-    if (len < 6)  /* Could generate an error if < 6 but > 0 */
-        return offset;
+            mac_count = tvb_get_guint8(tvb, offset);
 
-    /* Since no count of STA MAC addresses, use len. Must be at least one. */
-    sta_mac_list = proto_tree_add_subtree(tree, tvb, offset, -1,
-                            ett_sta_link_link_mac_addr_list, &pi,
-                            "MAC address list");
-    saved_offset = offset;
+            proto_tree_add_item(channel_list,
+                                hf_ieee1905_unassoc_metrics_mac_count,
+                                tvb, offset, 1, ENC_NA);
+            offset += 1;
 
-    while (len >= 6) {
-        proto_tree_add_item(sta_mac_list, hf_ieee1905_unassoc_link_metrics_query_mac,
+            saved_offset = offset;
+            sta_mac_list = proto_tree_add_subtree(channel_list, tvb, offset, -1,
+                                    ett_sta_link_link_mac_addr_list, &pi,
+                                    "MAC address list");
+
+            while (mac_count) {
+                proto_tree_add_item(sta_mac_list,
+                            hf_ieee1905_unassoc_link_metrics_query_mac,
                             tvb, offset, 6, ENC_NA);
-        offset += 6;
-        len -= 6;
-    }
+                offset += 6;
+                mac_count--;
+            }
 
-    proto_item_set_len(pi, offset - saved_offset);
+            proto_item_set_len(pi, offset - saved_offset);
+        }
+        proto_item_set_len(ci, offset - chan_saved_offset);
+    }
 
     return offset;
 }
@@ -4160,7 +4430,7 @@ dissect_associated_sta_traffic_stats(tvbuff_t *tvb,
 }
 
 /*
- * Dissect an Associated STA Traffic Stats TLV
+ * Dissect an Error code TLV
  */
 static int
 dissect_error_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
@@ -4180,6 +4450,2189 @@ dissect_error_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     proto_tree_add_item(tree, hf_ieee1905_error_code_mac_addr, tvb, offset,
                         6, ENC_NA);
     offset += 6;
+
+    return offset;
+}
+
+/*
+ * Dissect a Channel Scan Reporting Policy TLV
+ */
+static const int * channel_scan_rep_policy_headers[] = {
+  &hf_ieee1905_channel_scan_pol_report,
+  &hf_ieee1905_channel_scan_pol_reserved,
+  NULL
+};
+
+static const true_false_string report_independent_scans_tfs = {
+  "Report Independent Channel Scans",
+  "Do not report Independent Channel Scans unless requested"
+};
+
+static int
+dissect_channel_scan_reporting_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee1905_channel_scan_rep_policy,
+                           ett_channel_scan_rep_policy,
+                           channel_scan_rep_policy_headers, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+/*
+ * Dissect a Channel Scan Capabilities TLV
+ */
+static const int *channel_scan_capa_flags_headers[] = {
+  &hf_ieee1905_channel_scan_capa_flags_on_boot_only,
+  &hf_ieee1905_channel_scan_capa_flags_scan_impact,
+  &hf_ieee1905_channel_scan_capa_flags_reserved,
+  NULL
+};
+
+static const true_false_string channel_scan_capa_flags_on_boot_only_tfs = {
+  "Agent can only perform scan on boot",
+  "Agent can perform requested scans"
+};
+
+static const value_string channel_scan_capa_flags_impact_vals[] = {
+  { 0, "No impact" },
+  { 1, "Reduced number of spacial streams" },
+  { 2, "Time slicing impairment" },
+  { 3, "Radio unavailable for >= 2 seconds" },
+  { 0, NULL }
+};
+
+static int
+dissect_channel_scan_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree *radio_list = NULL;
+    proto_item *rli = NULL;
+    guint8 radio_count = 0, radio_num = 0;
+    guint radio_list_start = 0;
+
+    radio_count = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee1905_channel_scan_capabilities_radio_num,
+                        tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    radio_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                        ett_channel_scan_capa_radio_list,
+                                        &rli, "Radio List");
+    radio_list_start = offset;
+
+    while (radio_num < radio_count) {
+        proto_tree *radio_tree = NULL;
+        proto_item *ri = NULL;
+        proto_tree *oper_class_list = NULL;
+        proto_item *cli = NULL;
+        guint start_offset = offset;
+        guint8 oper_class_count = 0, oper_class_num = 0;
+        guint class_start_offset = 0;
+
+        radio_tree = proto_tree_add_subtree_format(radio_list, tvb, offset,
+                                        -1, ett_channel_scan_capa_radio,
+                                        &ri, "Radio %u", radio_num);
+
+        proto_tree_add_item(radio_tree, hf_ieee1905_channel_scan_capa_radio_id,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        proto_tree_add_bitmask(radio_tree, tvb, offset,
+                               hf_ieee1905_channel_scan_capa_flags,
+                               ett_channel_scan_capa_flags,
+                               channel_scan_capa_flags_headers, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(radio_tree,
+                            hf_ieee1905_channel_scan_capa_min_scan_interval,
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        oper_class_count = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(radio_tree, hf_ieee1905_channel_scan_capa_class_num,
+                            tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        oper_class_list = proto_tree_add_subtree(radio_tree, tvb, offset, -1,
+                                             ett_channel_scan_capa_class_list,
+                                             &cli, "Operating Class List");
+
+        class_start_offset = offset;
+        while (oper_class_num < oper_class_count) {
+            guint8 chan_num = 0;
+            proto_tree *oper_class = NULL;
+            proto_item *ci = NULL;
+            gint oper_class_start_offset = offset;
+
+            oper_class = proto_tree_add_subtree_format(oper_class_list, tvb,
+                                                offset, -1,
+                                                ett_channel_scan_capa_class,
+                                                &ci, "Operating Class %d",
+                                                oper_class_num);
+
+
+            proto_tree_add_item(oper_class,
+                                hf_ieee1905_channel_scan_capa_oper_class, tvb,
+                                offset, 1, ENC_NA);
+            offset += 1;
+
+            chan_num = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(oper_class,
+                                hf_ieee1905_channel_scan_capa_oper_class_chan_cnt,
+                                tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (chan_num > 0) {
+                /* Add them */
+                proto_tree *channels = NULL;
+
+                channels = proto_tree_add_subtree(oper_class, tvb, offset, chan_num,
+                                       ett_channel_scan_capa_channels,
+                                       NULL, "Channel List");
+
+                while (chan_num > 0) {
+                    proto_tree_add_item(channels, hf_ieee1905_channel_scan_capa_channel,
+                                        tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                    chan_num--;
+                }
+
+                offset += chan_num;
+            }
+
+            proto_item_set_len(ci, offset - oper_class_start_offset);
+            oper_class_num++;
+        }
+
+        proto_item_set_len(cli, offset - class_start_offset);
+        proto_item_set_len(ri, offset - start_offset);
+        radio_num++;
+    }
+
+    proto_item_set_len(rli, offset - radio_list_start);
+
+    return offset;
+}
+
+/*
+ * Dissect a Channel Scan Request TLV
+ */
+static const int *channel_scan_request_flags_headers[] = {
+  &hf_ieee1905_channel_scan_request_flags_fresh_scan,
+  &hf_ieee1905_channel_scan_request_flags_reserved,
+  NULL
+};
+
+static const true_false_string perform_fresh_scan_tfs = {
+  "Perform a fresh scan",
+  "Return results from previous scan"
+};
+
+static int
+dissect_channel_scan_request(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree *radio_list = NULL;
+    proto_item *rli = NULL;
+    guint8 radio_count = 0, radio_num = 0;
+    guint radio_list_start = 0;
+
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee1905_channel_scan_request_flags,
+                           ett_channel_scan_request_flags,
+                           channel_scan_request_flags_headers, ENC_NA);
+    offset += 1;
+
+    radio_count = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee1905_channel_scan_request_radio_num,
+                        tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    radio_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                        ett_channel_scan_request_radio_list,
+                                        &rli, "Radio List");
+    radio_list_start = offset;
+
+    while (radio_num < radio_count) {
+        proto_tree *radio_tree = NULL;
+        proto_item *ri = NULL;
+        proto_tree *oper_class_list = NULL;
+        proto_item *cli = NULL;
+        guint start_offset = offset;
+        guint8 oper_class_count = 0, oper_class_num = 0;
+        guint class_start_offset = 0;
+
+        radio_tree = proto_tree_add_subtree_format(radio_list, tvb, offset,
+                                        -1, ett_channel_scan_request_radio,
+                                        &ri, "Radio %u", radio_num);
+
+        proto_tree_add_item(radio_tree, hf_ieee1905_channel_scan_request_radio_id,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        oper_class_count = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(radio_tree, hf_ieee1905_channel_scan_request_class_num,
+                            tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        if (oper_class_count > 0) {
+            oper_class_list = proto_tree_add_subtree(radio_tree, tvb, offset, -1,
+                                             ett_channel_scan_request_class_list,
+                                             &cli, "Operating Class List");
+
+            class_start_offset = offset;
+            while (oper_class_num < oper_class_count) {
+                guint8 chan_num = 0;
+                proto_tree *oper_class = NULL;
+                proto_item *ci = NULL;
+                gint oper_class_start_offset = offset;
+
+                oper_class = proto_tree_add_subtree_format(oper_class_list, tvb,
+                                                offset, -1,
+                                                ett_channel_scan_request_class,
+                                                &ci, "Operating Class %d",
+                                                oper_class_num);
+
+
+                proto_tree_add_item(oper_class,
+                                hf_ieee1905_channel_scan_request_oper_class, tvb,
+                                offset, 1, ENC_NA);
+                offset += 1;
+
+                chan_num = tvb_get_guint8(tvb, offset);
+                proto_tree_add_item(oper_class,
+                                hf_ieee1905_channel_scan_request_oper_class_chan_cnt,
+                                tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                if (chan_num > 0) {
+                    /* Add them */
+                    proto_tree *channels = NULL;
+
+                    channels = proto_tree_add_subtree(oper_class, tvb, offset, chan_num,
+                                       ett_channel_scan_request_channels,
+                                       NULL, "Channel List");
+
+                    while (chan_num > 0) {
+                        proto_tree_add_item(channels, hf_ieee1905_channel_scan_request_channel,
+                                        tvb, offset, 1, ENC_NA);
+                        chan_num--;
+                    }
+
+                    offset += chan_num;
+                }
+
+                proto_item_set_len(ci, offset - oper_class_start_offset);
+                oper_class_num++;
+            }
+        }
+
+        proto_item_set_len(cli, offset - class_start_offset);
+        proto_item_set_len(ri, offset - start_offset);
+        radio_num++;
+    }
+
+    proto_item_set_len(rli, offset - radio_list_start);
+
+    return offset;
+}
+
+/*
+ * Dissect a Channel Scan Result TLV
+ */
+static const range_string channel_scan_result_status_rvals[] = {
+  { 0, 0, "Success" },
+  { 1, 1, "Scan not supported on this operating class/channel on this radio" },
+  { 2, 2, "Request too soon after last scan" },
+  { 3, 3, "Radio too busy to perform scan" },
+  { 4, 4, "Scan not completed" },
+  { 5, 5, "Scan aborted" },
+  { 6, 6, "Fresh scan not supported. Radio only supports on-boot scans" },
+  { 7, 255, "Reserved" },
+  { 0, 0, NULL }
+};
+
+static const int *channel_scan_result_neigh_flags[] = {
+  &hf_ieee1905_channel_scan_result_load_element_present,
+  &hf_ieee1905_channel_scan_result_neigh_reserved,
+  NULL
+};
+
+static const int *channel_scan_result_flags[] = {
+  &hf_ieee1905_channel_scan_result_scan_type,
+  &hf_ieee1905_channel_scan_result_scan_flags_reserved,
+  NULL
+};
+
+static const true_false_string channel_scan_result_type_tfs = {
+  "Scan was an Active scan",
+  "Scan was a Passive scan"
+};
+
+static int
+dissect_channel_scan_result(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 status = 0;
+
+    proto_tree_add_item(tree, hf_ieee1905_channel_scan_result_radio_id, tvb,
+                        offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_item(tree, hf_ieee1905_channel_scan_result_oper_class, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee1905_channel_scan_result_channel, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    status = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee1905_channel_scan_result_status, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    if (status == 0) {
+        guint8 timestamp_len = tvb_get_guint8(tvb, offset);
+        guint8 ssid_len;
+        guint16 neighbor_num = 0, neighbor_cnt = 0;
+        proto_tree *neigh_list = NULL;
+        proto_item *nli = NULL;
+        guint saved_offset = 0;
+
+        proto_tree_add_item(tree, hf_ieee1905_channel_scan_result_timestamp_len,
+                            tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_ieee1905_channel_scan_result_timestamp_string,
+                            tvb, offset, timestamp_len, ENC_NA|ENC_ASCII);
+        offset += timestamp_len;
+
+        proto_tree_add_item(tree, hf_ieee1905_channel_scan_result_utilization,
+                            tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_ieee1905_channel_scan_result_noise, tvb,
+                            offset, 1, ENC_NA);
+        offset += 1;
+
+        neighbor_num = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(tree, hf_ieee1905_channel_scan_result_neigh_num,
+                            tvb, offset, 2, ENC_NA);
+        offset += 2;
+
+        if (neighbor_num > 0) {
+            neigh_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                            ett_channel_scan_result_neigh_list,
+                                            &nli, "Neighbor List");
+            saved_offset = offset;
+
+            while (neighbor_cnt < neighbor_num) {
+                proto_tree *neigh_tree = NULL;
+                proto_item *nti = NULL;
+                guint neigh_saved_offset = offset;
+                guint8 channel_bw_len = 0;
+                guint8 flags = 0;
+
+                neigh_tree = proto_tree_add_subtree_format(neigh_list, tvb,
+                                        offset, -1,
+                                        ett_channel_scan_result_neigh,
+                                        &nti, "Neighbor %u", neighbor_cnt);
+
+                proto_tree_add_item(neigh_tree,
+                                hf_ieee1905_channel_scan_result_bssid, tvb,
+                                offset, 6, ENC_NA);
+                offset += 6;
+
+                ssid_len = tvb_get_guint8(tvb, offset);
+                proto_tree_add_item(neigh_tree,
+                                hf_ieee1905_channel_scan_result_ssid_len, tvb,
+                                offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(neigh_tree, hf_ieee1905_channel_scan_result_ssid,
+                                    tvb, offset, ssid_len, ENC_ASCII|ENC_NA);
+                offset += ssid_len;
+
+                proto_tree_add_item(neigh_tree,
+                                    hf_ieee1905_channel_scan_result_sig_level,
+                                    tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                channel_bw_len = tvb_get_guint8(tvb, offset);
+                proto_tree_add_item(neigh_tree, hf_ieee1905_channel_scan_result_bw_len,
+                                tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(neigh_tree, hf_ieee1905_channel_scan_result_bw,
+                                tvb, offset, channel_bw_len, ENC_ASCII|ENC_NA);
+                offset += channel_bw_len;
+
+                flags = tvb_get_guint8(tvb, offset);
+                proto_tree_add_bitmask(neigh_tree, tvb, offset,
+                                   hf_ieee1905_channel_scan_result_neigh_flags,
+                                   ett_channel_scan_result_neigh_flags,
+                                   channel_scan_result_neigh_flags, ENC_NA);
+                offset += 1;
+
+                if (flags & 0x80) {
+                    proto_tree_add_item(neigh_tree, hf_ieee1905_channel_scan_result_util,
+                                     tvb, offset, 1, ENC_NA);
+                    offset += 1;
+
+                    proto_tree_add_item(neigh_tree, hf_ieee1905_channel_scan_result_sta_count,
+                                     tvb, offset, 2, ENC_NA);
+                    offset += 2;
+                }
+
+                proto_item_set_len(nti, offset - neigh_saved_offset);
+                neighbor_cnt++;
+            }
+        }
+
+        proto_item_set_len(nli, offset - saved_offset);
+
+        proto_tree_add_item(tree, hf_ieee1905_channel_scan_result_scan_duration,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_bitmask(tree, tvb, offset,
+                               hf_ieee1905_channel_scan_result_flags,
+                               ett_channel_scan_result_flags,
+                               channel_scan_result_flags, ENC_NA);
+        offset += 1;
+
+    }
+
+    return offset;
+}
+
+/*
+ * Dissect a Timestamp TLV
+ */
+static int
+dissect_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 timestamp_len = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_item(tree, hf_ieee1905_timestamp_length, tvb, offset, 1,
+                        ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee1905_timestamp_string, tvb, offset,
+                        timestamp_len, ENC_NA|ENC_ASCII);
+    offset += timestamp_len;
+
+    return offset;
+}
+
+/*
+ * Dissect a 1905 Layer Security Capability TLV
+ */
+static const range_string onboarding_protocol_supported_rvals[] = {
+  { 0, 0,   "1905 Device Provisioning Protocol" },
+  { 1, 255, "Reserved" },
+  { 0, 0,   NULL }
+};
+
+static const range_string message_integrity_algorithms_sup_rvals[] = {
+  { 0, 0,   "HMAC-SHAR256" },
+  { 1, 255, "Reserved" },
+  { 0, 0,   NULL }
+};
+
+static const range_string message_encryption_algorithms_sup_rvals[] = {
+  { 0, 0,   "AES-SIV" },
+  { 1, 255, "Reserved" },
+  { 0, 0,   NULL }
+};
+
+static int
+dissect_1905_layer_security_capability(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_1905_layer_sec_capa_onboarding, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee1905_1905_layer_sec_capa_mic_sup, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee1905_1905_layer_sec_capa_enc_alg_sup, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+/*
+ * Dissect a Group Integrity Key TLV
+ */
+static const range_string group_integrity_key_mic_alg_rvals[] = {
+  { 0, 0,   "HMAC-SHA256" },
+  { 1, 255, "Reserved" },
+  { 0, 0,   NULL }
+};
+
+static int
+dissect_group_integrity_key(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 key_len = 0;
+
+    proto_tree_add_item(tree, hf_ieee1905_group_integrity_key_id, tvb, offset,
+                        1, ENC_NA);
+    offset += 1;
+
+    key_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee1905_group_integrity_key_len, tvb, offset,
+                        1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee1905_group_integrity_key_bytes, tvb,
+                        offset, key_len, ENC_NA);
+    offset += key_len;
+
+    proto_tree_add_item(tree, hf_ieee1905_group_integrity_key_mic_alg, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+/*
+ * Dissect a MIC TLV
+ */
+static int
+dissect_mic(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint16 mic_len = 0;
+
+    proto_tree_add_item(tree, hf_ieee1905_mic_group_integrity_key_id, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee1905_mic_integrity_transmission_counter,
+                        tvb, offset, 6, ENC_BIG_ENDIAN);
+    offset += 6;
+
+    mic_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee1905_mic_length, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_ieee1905_mic_bytes, tvb, offset, mic_len,
+                        ENC_NA);
+    offset += mic_len;
+
+    return offset;
+}
+
+/*
+ * Dissect an Encrypted TLV
+ */
+static int
+dissect_encrypted(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint16 enc_len = 0;
+
+    proto_tree_add_item(tree, hf_ieee1905_encrypted_enc_transmission_count,
+                        tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    enc_len = tvb_get_letohs(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee1905_encrypted_enc_output_field_len, tvb,
+                        offset, 2, ENC_NA);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_ieee1905_encrypted_enc_output_field, tvb,
+                        offset, enc_len, ENC_NA);
+    offset += enc_len;
+
+    return offset;
+}
+
+/*
+ * Dissect a CAC Request TLV
+ */
+static const int *cac_request_method_flags[] = {
+  &hf_ieee1905_cac_request_method,
+  &hf_ieee1905_cac_request_completion_action,
+  &hf_ieee1905_cac_request_completion_unsuccess,
+  &hf_ieee1905_cac_request_reserved,
+  NULL
+};
+
+static const value_string cac_request_method_vals[] = {
+  { 0, "Continuous CAC" },
+  { 1, "Continuous with dedicated radio" },
+  { 2, "MIMO dimension reduced" },
+  { 3, "Time sliced CAC" },
+  { 4, "Reserved" },
+  { 5, "Reserved" },
+  { 6, "Reserved" },
+  { 7, "Reserved" },
+  { 0, NULL }
+};
+
+static const range_string cac_completion_action_vals[] = {
+  { 0, 0,   "Remain on channel and continue to monitor for radar" },
+  { 1, 1,   "Return to previous state" },
+  { 2, 255, "Reserved" },
+  { 0, 0,   NULL }
+};
+
+static int
+dissect_cac_request(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint radio_count = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_item(tree, hf_ieee1905_cac_request_radio_count, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    if (radio_count > 0) {
+        proto_tree *radio_list = NULL;
+        guint8 radio_num = 0;
+
+        radio_list = proto_tree_add_subtree(tree, tvb, offset, radio_count * 9,
+                                        ett_cac_request_radio_list,
+                                        NULL, "Radio List");
+
+        while (radio_num < radio_count) {
+            proto_tree *radio = NULL;
+
+            radio = proto_tree_add_subtree_format(radio_list, tvb, offset, 9,
+                                           ett_cac_request_radio, NULL,
+                                           "Radio %u", radio_num);
+
+            proto_tree_add_item(radio, hf_ieee1905_cac_request_radio_id, tvb,
+                                offset, 6, ENC_NA);
+            offset += 6;
+
+            proto_tree_add_item(radio, hf_ieee1905_cac_request_op_class, tvb,
+                                offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(radio, hf_ieee1905_cac_request_channel, tvb,
+                                offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_bitmask(radio, tvb, offset,
+                           hf_ieee1905_cac_request_flags,
+                           ett_cac_request_flags,
+                           cac_request_method_flags, ENC_NA);
+            offset += 1;
+
+            radio_num += 1;
+        }
+
+
+    }
+
+    return offset;
+}
+
+/*
+ * Dissect a CAC Termination TLV
+ */
+static int
+dissect_cac_termination(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 radio_count = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_item(tree, hf_ieee1905_cac_termination_radio_count, tvb,
+                        offset, 1, ENC_NA);
+
+    if (radio_count > 0) {
+        proto_tree *radio_list = NULL;
+        guint8 radio_num = 0;
+
+        radio_list = proto_tree_add_subtree(tree, tvb, offset, radio_count * 9,
+                                        ett_cac_terminate_radio_list,
+                                        NULL, "Radio list");
+
+        while (radio_num < radio_count) {
+            proto_tree *radio = NULL;
+
+            radio = proto_tree_add_subtree_format(radio_list, tvb, offset, 9,
+                                           ett_cac_terminate_radio, NULL,
+                                           "Radio %u", radio_num);
+
+            proto_tree_add_item(radio, hf_ieee1905_cac_terminate_radio_id, tvb,
+                                offset, 6, ENC_NA);
+            offset += 6;
+
+            proto_tree_add_item(radio, hf_ieee1905_cac_terminate_op_class, tvb,
+                                offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(radio, hf_ieee1905_cac_terminate_channel, tvb,
+                                offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(radio, hf_ieee1905_cac_terminate_action, tvb,
+                                offset, 1, ENC_NA);
+
+            radio_num += 1;
+        }
+    }
+
+    return offset;
+}
+
+/*
+ * Dissect a CAC Completion Report TLV
+ */
+static const range_string cac_completion_status_rvals[] = {
+  { 0, 0,   "Successful" },
+  { 1, 1,   "Radar detected" },
+  { 2, 2,   "CAC not supportted as requested" },
+  { 3, 3,   "Radio too busy to peform CAC" },
+  { 4, 4,   "Request was considered non conformant to regulations in country of operation" },
+  { 5, 5,   "Other error" },
+  { 6, 255, "Reserved" },
+  { 0, 0, NULL },
+};
+
+static int
+dissect_cac_completion_report(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 radio_count = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_item(tree, hf_ieee1905_cac_completion_rep_radio_count, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    if (radio_count > 0) {
+        proto_tree *radio_list = NULL;
+        guint8 radio_num = 0;
+        guint8 radar_count = 0;
+
+        radio_list = proto_tree_add_subtree(tree, tvb, offset, radio_count * 9,
+                                        ett_cac_completion_radio_list,
+                                        NULL, "Radio list");
+
+        while (radio_num < radio_count) {
+            proto_tree *radio = NULL;
+
+            radio = proto_tree_add_subtree_format(radio_list, tvb, offset, 9,
+                                           ett_cac_completion_radio, NULL,
+                                           "Radio %u", radio_num);
+
+            proto_tree_add_item(radio, hf_ieee1905_cac_completion_radio_id, tvb,
+                                offset, 6, ENC_NA);
+            offset += 6;
+
+            proto_tree_add_item(radio, hf_ieee1905_cac_completion_op_class, tvb,
+                                offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(radio, hf_ieee1905_cac_completion_channel, tvb,
+                                offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(radio, hf_ieee1905_cac_completion_status, tvb,
+                                offset, 1, ENC_NA);
+            offset += 1;
+
+            radar_count = tvb_get_guint8(tvb, offset);
+
+            proto_tree_add_item(radio, hf_ieee1905_cac_completion_radar_count,
+                                tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (radar_count > 0) {
+                proto_tree *radar_det_list = NULL;
+                guint8 radar_num = 0;
+
+                radar_det_list = proto_tree_add_subtree(radio, tvb, offset,
+                                                radar_count * 2,
+                                                ett_cac_completion_radar_list,
+                                                NULL, "Radar detection list");
+                while (radar_num < radar_count) {
+                    proto_tree *radar = NULL;
+
+                    radar = proto_tree_add_subtree_format(radar_det_list, tvb,
+                                                offset, 2,
+                                                ett_cac_completion_radar, NULL,
+                                                "Class/Channel pair %u",
+                                                radar_num);
+
+                    proto_tree_add_item(radar,
+                                        hf_ieee1905_cac_comp_radar_op_class,
+                                        tvb, offset, 1, ENC_NA);
+                    offset += 1;
+
+                    proto_tree_add_item(radar,
+                                        hf_ieee1905_cac_comp_radar_channel,
+                                        tvb, offset, 1, ENC_NA);
+                    offset += 1;
+
+                    radar_num += 1;
+                }
+            }
+
+            radio_num += 1;
+        }
+    }
+
+    return offset;
+}
+
+/*
+ * Dissect a CAC Status Request TLV. Deprecated.
+ */
+static int
+dissect_cac_status_request(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_tlv_data, tvb, offset, len, ENC_NA);
+    expert_add_info(pinfo, tree, &ei_ieee1905_deprecated_tlv);
+    offset += len;
+
+    return offset;
+}
+
+/*
+ * Dissect a CAC Status Report TLV
+ */
+static int
+dissect_cac_status_report(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 channel_count = tvb_get_guint8(tvb, offset);
+    guint8 non_occupancy_count = 0;
+    guint8 active_cac_count = 0;
+
+    proto_tree_add_item(tree, hf_ieee1905_cac_status_rpt_active_chan, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    if (channel_count > 0) {
+        guint8 channel_num = 0;
+        proto_tree *active_chan_list = NULL;
+
+        active_chan_list = proto_tree_add_subtree(tree, tvb, offset,
+                                        4 * channel_count,
+                                        ett_cac_status_rpt_avail_list,
+                                        NULL, "Available Channels List");
+        while (channel_num < channel_count) {
+            proto_tree *active_chan_tree = NULL;
+
+            active_chan_tree = proto_tree_add_subtree_format(active_chan_list,
+                                        tvb, offset, 4,
+                                        ett_cac_status_rpt_avail_chan,
+                                        NULL, "Available Channel %u",
+                                        channel_num);
+
+            proto_tree_add_item(active_chan_tree,
+                                hf_ieee1905_cac_status_rpt_avail_op_class,
+                                tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(active_chan_tree,
+                                hf_ieee1905_cac_status_rpt_avail_channel,
+                                tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(active_chan_tree,
+                                hf_ieee1905_cac_status_rpt_avail_minutes,
+                                tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            channel_num += 1;
+        }
+    }
+
+    non_occupancy_count = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee1905_cac_status_rpt_non_occ_cnt, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    if (non_occupancy_count > 0) {
+        guint8 non_occupancy_num = 0;
+        proto_tree *non_occupancy_list = NULL;
+
+        non_occupancy_list = proto_tree_add_subtree(tree, tvb, offset,
+                                        4 * non_occupancy_count,
+                                        ett_cac_status_rpt_non_occupy_list,
+                                        NULL, "Non-occupancy List");
+        while (non_occupancy_num < non_occupancy_count) {
+            proto_tree *non_occupancy_tree = NULL;
+
+            non_occupancy_tree = proto_tree_add_subtree_format(
+                                        non_occupancy_list, tvb, offset, 4,
+                                        ett_cac_status_rpt_unocc_chan,
+                                        NULL, "Unoccupied Channel %u",
+                                        non_occupancy_num);
+
+            proto_tree_add_item(non_occupancy_tree,
+                                hf_ieee1905_cac_status_rpt_non_occ_op_class,
+                                tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(non_occupancy_tree,
+                                hf_ieee1905_cac_status_rpt_non_occ_channel,
+                                tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(non_occupancy_tree,
+                                hf_ieee1905_cac_status_rpt_non_occ_seconds,
+                                tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            non_occupancy_num += 1;
+        }
+    }
+
+    active_cac_count = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee1905_cac_status_rpt_active_cac_cnt, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    if (active_cac_count > 0) {
+        guint8 active_cac_num = 0;
+        proto_tree *active_cac_list = NULL;
+
+        active_cac_list = proto_tree_add_subtree(tree, tvb, offset,
+                                        5 * active_cac_count,
+                                        ett_cac_status_rpt_active_cac_list,
+                                        NULL, "Active CAC List");
+        while (active_cac_num < active_cac_count) {
+            proto_tree *active_cac_tree = NULL;
+
+            active_cac_tree = proto_tree_add_subtree_format(active_cac_list,
+                                        tvb, offset, 5,
+                                        ett_cac_status_rpt_active_cac_tree,
+                                        NULL, "Active CAC %u",
+                                        active_cac_num);
+
+            proto_tree_add_item(active_cac_tree,
+                                hf_ieee1905_cac_status_rpt_active_cac_op_class,
+                                tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(active_cac_tree,
+                                hf_ieee1905_cac_status_rpt_active_cac_channel,
+                                tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(active_cac_tree,
+                                hf_ieee1905_cac_status_rpt_active_cac_seconds,
+                                tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
+
+            active_cac_num += 1;
+        }
+    }
+
+    return offset;
+}
+
+/*
+ * Dissect a CAC Capabilities TLV
+ */
+static const range_string cac_mode_supported_rvals[] = {
+    { 0, 0,   "Continuous CAC" },
+    { 1, 1,   "Continuous with dedicated radio" },
+    { 2, 2,   "MIMO dimension reduced" },
+    { 3, 3,   "Time sliced CAC" },
+    { 4, 255, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static int
+dissect_cac_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 cac_radios = 0;
+
+    proto_tree_add_item(tree, hf_ieee1905_cac_capa_country_code, tvb, offset,
+                        2, ENC_NA|ENC_ASCII);
+    offset += 2;
+
+    cac_radios = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee1905_cac_capa_radio_cnt, tvb, offset,
+                        1, ENC_NA);
+    offset += 1;
+
+    if (cac_radios > 0) {
+        guint8 radio_num = 0;
+        proto_tree *radio_list = NULL;
+        proto_item *rli = NULL;
+        guint start_offset = offset;
+
+        radio_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                        ett_cac_capabilities_radio_list,
+                                        &rli, "Radio List");
+        while (radio_num < cac_radios) {
+            proto_tree *radio_tree = NULL;
+            guint8 cac_types = 0;
+
+            radio_tree = proto_tree_add_subtree_format(radio_list,
+                                        tvb, offset, 5,
+                                        ett_cac_capabilities_radio_tree,
+                                        NULL, "Radio %u",
+                                        radio_num);
+
+            proto_tree_add_item(radio_tree,
+                                hf_ieee1905_cac_capabilities_radio_id, tvb,
+                                offset, 6, ENC_NA);
+            offset += 6;
+
+            cac_types = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(radio_tree,
+                                hf_ieee1905_cac_capabilities_types_num,
+                                tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (cac_types > 0) {
+                guint8 cac_num = 0;
+                proto_tree *cac_type_list = NULL;
+                proto_item *rci = NULL;
+                guint cac_type_start = offset;
+                guint8 cac_classes = 0;
+
+                cac_type_list = proto_tree_add_subtree(radio_tree, tvb, offset,
+                                        -1, ett_cac_capabilities_type_list,
+                                        &rci, "CAC Type List");
+                while (cac_num < cac_types) {
+                    proto_tree *cac_type_tree = NULL;
+                    proto_item *cti = NULL;
+
+                    cac_type_tree = proto_tree_add_subtree_format(cac_type_list,
+                                        tvb, offset,
+                                        -1, ett_cac_capabilities_type_tree,
+                                        &cti, "CAC Type %u", cac_num);
+
+                    proto_tree_add_item(cac_type_tree,
+                                hf_ieee1905_cac_capabilities_cac_mode, tvb,
+                                offset, 1, ENC_NA);
+                    offset += 1;
+
+                    proto_tree_add_item(cac_type_tree,
+                                hf_ieee1905_cac_capabilities_cac_seconds, tvb,
+                                offset, 3, ENC_BIG_ENDIAN);
+                    offset += 3;
+
+                    cac_classes = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_item(cac_type_tree,
+                                hf_ieee1905_cac_capabilities_op_class_num, tvb,
+                                offset, 1, ENC_NA);
+                    offset += 1;
+
+                    if (cac_classes > 0) {
+                        proto_tree *cac_class_list = NULL;
+                        guint8 cac_class_num = 0;
+                        proto_item *cli = NULL;
+
+                        cac_class_list = proto_tree_add_subtree(cac_type_tree,
+                                tvb, offset, -1,
+                                ett_cac_capabilities_class_list, &cli,
+                                "Class List");
+
+                        while (cac_class_num < cac_classes) {
+                            guint8 channel_cnt = 0;
+                            proto_tree *cac_class_tree = NULL;
+                            guint cac_class_start = offset;
+
+                            cac_class_tree = proto_tree_add_subtree_format(
+                                    cac_class_list, tvb, offset, -1,
+                                    ett_cac_capabilities_class_tree, &cti,
+                                    "Operating Class %u", cac_class_num);
+
+                            proto_tree_add_item(cac_class_tree,
+                                    hf_ieee1905_cac_capabilities_op_class, tvb,
+                                    offset, 1, ENC_NA);
+                            offset += 1;
+
+                            channel_cnt = tvb_get_guint8(tvb, offset);
+                            proto_tree_add_item(cac_class_tree,
+                                    hf_ieee1905_cac_capabilities_channel_cnt,
+                                    tvb, offset, 1, ENC_NA);
+                            offset += 1;
+
+                            if (channel_cnt > 0) {
+                                proto_tree *channel_list = NULL;
+
+                                channel_list = proto_tree_add_subtree(
+                                            cac_class_tree, tvb, offset,
+                                            channel_cnt,
+                                            ett_cac_capabilities_channel_list,
+                                            NULL, "Channel List");
+
+                                while (channel_cnt > 0) {
+                                    proto_tree_add_item(channel_list,
+                                            hf_ieee1905_cac_capabillity_channel,
+                                            tvb, offset, 1, ENC_NA);
+                                    channel_cnt -= 1;
+                                    offset += 1;
+                                }
+                            }
+
+                            proto_item_set_len(cti, offset - cac_class_start);
+                            cac_class_num += 1;
+                        }
+                    }
+                    cac_num += 1;
+                }
+                proto_item_set_len(rci, offset - cac_type_start);
+            }
+
+            radio_num += 1;
+        }
+        proto_item_set_len(rli, offset - start_offset);
+    }
+
+    return offset;
+}
+
+/*
+ * Dissect a Multi-AP Version TLV
+ */
+
+static const range_string multi_ap_version_rvals[] = {
+  { 0, 0,   "Reserved" },
+  { 1, 1,   "Multi-AP Version 1" },
+  { 2, 2,   "Multi-AP Version 2" },
+  { 3, 255, "Reserved" },
+  { 0, 0, NULL }
+};
+
+static int
+dissect_multi_ap_version(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_multi_ap_version, tvb, offset, 1,
+                        ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+/*
+ * Dissect an R2 AP Capabilities TLV
+ */
+static const value_string byte_counter_units_vals[] = {
+  { 0, "bytes" },
+  { 1, "kibibytes (KiB)" },
+  { 2, "mebibytes (MiB)" },
+  { 3, "reserved" },
+  { 0, NULL }
+};
+
+static const int* r2_ap_capa_flags[] = {
+  &hf_ieee1905_byte_counter_units,
+  &hf_ieee1905_r2_ap_capa_flags_reserved,
+  NULL
+};
+
+static int
+dissect_r2_ap_capability(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_max_total_serv_prio_rules, tvb,
+                        offset, 2, ENC_NA);
+    offset += 2;
+
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee1905_r2_ap_capa_flags,
+                           ett_r2_ap_capa_flags,
+                           r2_ap_capa_flags, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee1905_max_vid_count, tvb, offset, 1,
+                        ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+/*
+ * Dissect a Service Prioritization Rule TLV
+ */
+static const int *default_802_1q_settings_flags[] = {
+  &hf_ieee1905_default_802_1q_settings_default_pcp,
+  &hf_ieee1905_default_802_1q_settings_reserved,
+  NULL
+};
+
+static int
+dissect_default_802_1q_settings(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_default_802_1q_settings_primary_vlan, tvb,
+                        offset, 2, ENC_NA);
+    offset += 2;
+
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee1905_default_802_1q_settings_flags,
+                           ett_default_802_1q_settings_flags,
+                           default_802_1q_settings_flags, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+/*
+ * Dissect a Traffic Separation Policy TLV
+ */
+static int
+dissect_traffic_separation_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 ssid_cnt = tvb_get_guint8(tvb, offset);
+    guint8 ssid_num = 0;
+    proto_tree *ssid_list = NULL;
+    proto_item *sli = NULL;
+    guint saved_offset = 0;
+
+    proto_tree_add_item(tree, hf_ieee1905_traffic_separation_policy_num_ssids,
+                        tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    if (ssid_cnt > 0) {
+        ssid_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                        ett_traffic_separation_ssid_list,
+                                        &sli, "SSID List");
+        saved_offset = offset;
+    }
+
+    while (ssid_num < ssid_cnt) {
+        proto_tree *ssid_tree = NULL;
+        proto_item *si = NULL;
+        guint8 ssid_len = tvb_get_guint8(tvb, offset);
+        guint start_offset = offset;
+
+        ssid_tree = proto_tree_add_subtree_format(ssid_list, tvb, offset, -1,
+                                                  ett_traffic_separation_ssid,
+                                                  &si, "SSID %u", ssid_num);
+
+        proto_tree_add_item(ssid_tree,
+                            hf_ieee1905_traffic_separation_policy_ssid_len,
+                            tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(ssid_tree,
+                            hf_ieee1905_traffic_separation_policy_ssid,
+                            tvb, offset, ssid_len, ENC_ASCII|ENC_NA);
+        offset += ssid_len;
+
+        proto_tree_add_item(ssid_tree,
+                            hf_ieee1905_traffic_separation_policy_vlanid, tvb,
+                            offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_item_set_len(si, offset - start_offset);
+        ssid_num++;
+    }
+
+    if (ssid_cnt > 0) {
+        proto_item_set_len(sli, offset - saved_offset);
+    }
+
+    return offset;
+}
+
+/*
+ * Dissect a Packet Filtering Policy TLV
+ */
+static int
+dissect_packet_filtering_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 bssid_num = tvb_get_guint8(tvb, offset);
+    guint8 bssid_cnt = 0;
+    proto_tree *bssid_list = NULL;
+    proto_item *bli = NULL;
+    guint start_offset = 0;
+
+    proto_tree_add_item(tree, hf_ieee1905_packet_filtering_policy_bssid_num,
+                        tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    if (bssid_num == 0) {
+        /* Check if there is any rubbish after the count */
+        return offset;
+    }
+
+    bssid_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                        ett_packet_filtering_policy_bssid_list, &bli,
+                        "BSSID List");
+    start_offset = offset;
+
+    while (bssid_cnt < bssid_num) {
+        proto_tree *bssid_tree = NULL, *mac_tree = NULL;
+        proto_item *bi = NULL;
+        guint bssid_start_offset = offset;
+        guint8 dest_mac_count = 0;
+
+        bssid_tree = proto_tree_add_subtree_format(bssid_list, tvb, offset, -1,
+                                        ett_packet_filtering_policy_bssid,
+                                        &bi, "BSSID %u", bssid_cnt);
+
+        proto_tree_add_item(bssid_tree, hf_ieee1905_packet_filtering_policy_bssid,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        dest_mac_count = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(bssid_tree, hf_ieee1905_packet_filtering_policy_mac_count,
+                            tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        mac_tree = proto_tree_add_subtree(bssid_tree, tvb, offset,
+                                          dest_mac_count * 6,
+                                          ett_packet_filtering_policy_mac_tree,
+                                          NULL, "MAC Address List");
+
+        while (dest_mac_count > 0) {
+            proto_tree_add_item(mac_tree,
+                            hf_ieee1905_packet_filtering_policy_mac_addr,
+                            tvb, offset, 6, ENC_NA);
+            offset += 6;
+            dest_mac_count -= 1;
+        }
+
+        bssid_cnt++;
+
+        proto_item_set_len(bi, offset - bssid_start_offset);
+    }
+
+    proto_item_set_len(bli, offset - start_offset);
+    return offset;
+}
+
+/*
+ * Dissect a Ethernet Configuration Policy TLV
+ */
+static const int *interface_type_header[] = {
+  &hf_ieee1905_ethernet_config_policy_intf_type,
+  &hf_ieee1905_ethernet_config_policy_reserved,
+  NULL
+};
+
+static const value_string ethernet_config_policy_type_vals[] = {
+  { 0, "Mixed Ethernet" },
+  { 1, "WAN Ethernet" },
+  { 2, "Reserved" },
+  { 3, "Reserved" },
+  { 0, NULL }
+};
+
+static int
+dissect_ethernet_configuration_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 interface_count = tvb_get_guint8(tvb, offset);
+    guint8 interface_num = 0;
+    proto_tree *intf_list = NULL;
+
+    proto_tree_add_item(tree, hf_ieee1905_ethernet_config_policy_intf_count,
+                        tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    intf_list = proto_tree_add_subtree(tree, tvb, offset, interface_count * 7,
+                           ett_ethernet_config_policy_list,
+                           NULL, "Interface List");
+
+    while (interface_num < interface_count) {
+        proto_tree *intf_tree = NULL;
+
+        intf_tree = proto_tree_add_subtree_format(intf_list, tvb, offset, 7,
+                                      ett_ethernet_config_policy,
+                                      NULL, "Interface %u", interface_num);
+        proto_tree_add_item(intf_tree, hf_ieee1905_ethernet_config_policy_intf,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        proto_tree_add_bitmask(intf_tree, tvb, offset,
+                           hf_ieee1905_ethernet_config_policy_intf_flags,
+                           ett_ethernet_config_policy_flags,
+                           interface_type_header, ENC_NA);
+        offset += 1;
+
+        interface_num += 1;
+    }
+
+    return offset;
+}
+
+/*
+ * Dissect a Service Prioritization Format TLV
+ */
+static int
+dissect_service_prioritization_rule(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_tlv_data, tvb, offset, len, ENC_NA);
+    offset += len;
+
+    return offset;
+}
+
+/*
+ * Dissect a DSCP Mapping Table TLV
+ */
+static int
+dissect_dscp_mapping_table(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_tlv_data, tvb, offset, len, ENC_NA);
+    offset += len;
+
+    return offset;
+}
+
+/*
+ * Dissect a Service Prioritization Interface Exception TLV
+ */
+static int
+dissect_service_prioritization_interface_exception(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_tlv_data, tvb, offset, len, ENC_NA);
+    offset += len;
+
+    return offset;
+}
+
+/*
+ * Dissect an R2 Error Code TLV
+ */
+static const range_string r2_error_code_rvals[] = {
+  { 0, 0,   "Reserved" },
+  { 1, 1,   "Service Prioritization Rule not found" },
+  { 2, 2,   "Number of Service Prioritization Rules reaced the max supported" },
+  { 3, 3,   "Default PCP or VLAN ID not provided" },
+  { 4, 4,   "Reserved" },
+  { 5, 5,   "Number of unique VID exceeds maximum supported" },
+  { 6, 6,   "Reserved" },
+  { 7, 7,   "Traffic Separation one combined fronthaul and Profile-1 backhaul unsupported" },
+  { 8, 8,   "Traffic Separation on combined Profile-1 backhaul and Profile-2 backhaul unsupported" },
+  { 9, 255, "Reserved" },
+  { 0, 0,   NULL }
+};
+
+static int
+dissect_r2_error_code(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 reason_code = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_item(tree, hf_ieee1905_r2_error_reason_code, tvb, offset, 1,
+                        ENC_NA);
+    offset += 1;
+
+    if (reason_code > 0 && reason_code < 5) {
+        proto_tree_add_item(tree, hf_ieee1905_r2_error_service_prio_rule_id,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    return offset;
+}
+
+/*
+ * Dissect an AP Operational Backhaul BSS TLV:
+ */
+static const int *ap_operational_backhaul_bss_config[] = {
+  &hf_ieee1905_r1_backhaul_association_disallowed,
+  &hf_ieee1905_r2_above_backaul_association_dissallowed,
+  &hf_ieee1905_ap_operational_backhaul_bss_reserved,
+  NULL
+};
+
+static int
+dissect_ap_operational_backhaul_bss(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_item *rpi = NULL;
+    proto_tree *radio_list = NULL;
+    guint8 radio_count = tvb_get_guint8(tvb, offset);
+    guint8 radio_index = 0;
+    guint saved_offset = 0;
+
+    proto_tree_add_item(tree, hf_ieee1905_operatonal_backhaul_bss_radio_count,
+                        tvb, offset, 1, ENC_NA);
+    offset++;
+
+    if (radio_count == 0)
+        return offset;
+
+    radio_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                        ett_ap_operational_bss_list, &rpi,
+                        "AP operational Backhaul BSS radio list");
+    saved_offset = offset;
+
+    while (radio_index < radio_count) {
+        proto_tree *radio_tree = NULL, *backhaul_bss_list = NULL;
+        proto_item *opi = NULL, *ipi = NULL;
+        guint start_offset = offset, list_start_offset;
+        guint8 backhaul_bss_count = 0;
+        guint8 backhaul_bss_index = 0;
+
+        radio_tree = proto_tree_add_subtree_format(radio_list,
+                                    tvb, offset, -1,
+                                    ett_ap_operational_backhaul_bss_tree, &opi,
+                                    "AP operational Backhaul BSS %u",
+                                    radio_index);
+
+        proto_tree_add_item(radio_tree, hf_ieee1905_ap_backhaul_bss_radio_identifier,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        backhaul_bss_count = tvb_get_guint8(tvb, offset);
+
+        proto_tree_add_item(radio_tree, hf_ieee1905_ap_operational_backhaul_bss_count,
+                            tvb, offset, 1, ENC_NA);
+        offset++;
+
+        list_start_offset = offset;
+
+        backhaul_bss_list = proto_tree_add_subtree(radio_tree, tvb, offset, -1,
+                                ett_ap_operational_backhaul_bss_intf_list, &ipi,
+                                "AP operational Backhaul BSS list");
+
+        while (backhaul_bss_index < backhaul_bss_count) {
+            proto_tree *backhaul_bss_tree = NULL;
+            proto_item *itpi = NULL;
+            guint backhaul_bss_offset = offset;
+
+            backhaul_bss_tree = proto_tree_add_subtree_format(backhaul_bss_list,
+                                tvb, offset, -1,
+                                ett_ap_operational_bss_intf_tree, &itpi,
+                                "AP operational Backhaul BSS %u",
+                                backhaul_bss_index);
+
+            proto_tree_add_item(backhaul_bss_tree, hf_ieee1905_ap_operational_backhaul_bss,
+                                tvb, offset, 6, ENC_NA);
+            offset += 6;
+
+            proto_tree_add_bitmask(backhaul_bss_tree, tvb, offset,
+                           hf_ieee1905_operational_backhaul_bss_config_bitmask,
+                           ett_ap_operational_backhaul_bss_config_bitmask,
+                           ap_operational_backhaul_bss_config, ENC_NA);
+            offset += 1;
+
+            proto_item_set_len(itpi, offset - backhaul_bss_offset);
+
+            backhaul_bss_index++;
+        }
+
+        proto_item_set_len(ipi, offset - list_start_offset);
+        proto_item_set_len(opi, offset - start_offset);
+        radio_index++;
+    }
+
+    proto_item_set_len(rpi, offset - saved_offset);
+
+    return offset;
+}
+
+/*
+ * Dissect an AP Radio Advanced Capabilities TLV
+ */
+
+static const int *ap_radio_advanced_capa_flags[] = {
+  &hf_ieee1905_ap_radio_advance_capa_backhaul_bss_traffic_sep,
+  &hf_ieee1905_ap_radio_advance_capa_combined_r1_r2_backhaul,
+  &hf_ieee1905_ap_radio_advance_capa_reserved,
+  NULL
+};
+
+static int
+dissect_ap_radio_advanced_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_ap_radio_advanced_capa_radio_id, tvb,
+                        offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee1905_radio_advanced_capa_flags,
+                           ett_radio_advanced_capa_flags,
+                           ap_radio_advanced_capa_flags, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+/*
+ * Dissect an Association Status Notification TLV:
+ */
+static const range_string assoc_status_notif_status_rvals[] = {
+  { 0, 0,   "No more associations allowed" },
+  { 1, 1,   "Associations allowed" },
+  { 2, 255, "Reserved" },
+  { 0, 0, NULL }
+};
+
+static int
+dissect_association_status_notification(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 num_bssids = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_item(tree, hf_ieee1905_assoc_status_notif_num_bssid, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    if (num_bssids > 0) {
+        proto_tree *bssid_list = NULL;
+        guint8 bssid_num = 0;
+
+        bssid_list = proto_tree_add_subtree(tree, tvb, offset,
+                                7 * num_bssids,
+                                ett_assoc_status_notif_bssid_list, NULL,
+                                "BSSID list");
+        while (bssid_num < num_bssids) {
+            proto_tree *bssid_tree = NULL;
+
+            bssid_tree = proto_tree_add_subtree_format(bssid_list, tvb, offset,
+                                7, ett_assoc_status_notif_bssid_tree, NULL,
+                                "BSSID %u", bssid_num);
+
+            proto_tree_add_item(bssid_tree,
+                                hf_ieee1905_assoc_status_notif_bssid, tvb,
+                                offset, 6, ENC_NA);
+            offset += 6;
+
+            proto_tree_add_item(bssid_tree,
+                                hf_ieee1905_assoc_status_notif_status,
+                                tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            bssid_num++;
+        }
+    }
+
+    return offset;
+}
+
+/*
+ * Dissect a Source Info TLV:
+ */
+static int
+dissect_source_info(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_source_info_mac_addr, tvb, offset,
+                        6, ENC_NA);
+    offset += 6;
+
+    return offset;
+}
+
+/*
+ * Dissect a Tunneled Message Type TLV:
+ */
+static const range_string tunneled_message_type_rvals[] = {
+  { 0, 0,     "Association Request" },
+  { 1, 1,     "Re-Association Request" },
+  { 2, 2,     "BTM Query" },
+  { 3, 3,     "WNM Request" },
+  { 4, 4,     "ANQP Request for Neighbor Report" },
+  { 5, 127,   "DPP Message" },
+  { 128, 255, "Reserved" },
+  { 0, 0, NULL }
+};
+
+static int
+dissect_tunneled_message_type(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_tunneled_message_type, tvb, offset,
+                        1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+/*
+ * Dissect a Tunneled TLV:
+ */
+static int
+dissect_tunneled(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_tunneled_data, tvb, offset, len,
+                        ENC_NA);
+
+    /*
+     * TODO: Save the tunnelled type and then dissect the message
+     */
+    offset += len;
+
+    return offset;
+}
+
+/*
+ * Dissect an R2 Steering Request TLV:
+ */
+static const int *r2_steering_flags[] = {
+  &hf_ieee1905_r2_steering_request_mode_flag,
+  &hf_ieee1905_r2_btm_disassoc_imminent_flag,
+  &hf_ieee1905_r2_btm_abridged_flag,
+  &hf_ieee1905_r2_steering_req_reserved,
+  NULL,
+};
+
+static int
+dissect_r2_steering_request(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 sta_list_count = 0;
+    guint8 target_count = 0;
+    proto_item *steer_item = NULL;
+
+    proto_tree_add_item(tree, hf_ieee1905_r2_steering_req_src_bssid, tvb,
+                        offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee1905_r2_steering_req_flags,
+                           ett_ieee1905_steering_request_flags,
+                           r2_steering_flags, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee1905_r2_steering_op_window, tvb, offset,
+                        2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_ieee1905_r2_steering_btm_dissasoc_tmr, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    sta_list_count = tvb_get_guint8(tvb, offset);
+    steer_item = proto_tree_add_item(tree, hf_ieee1905_r2_steering_sta_count,
+                                     tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    if (sta_list_count == 0) {
+        proto_item_append_text(steer_item, " (Steering request applies to all"
+                                           "AMB capable associated STAs in the"
+                                           "BSS)");
+    } else {
+        proto_tree *amb_list = NULL;
+
+        amb_list = proto_tree_add_subtree(tree, tvb, offset, 6 * sta_list_count,
+                                ett_r2_steering_sta_list, NULL,
+                                "AMB cabable STA list");
+        while (sta_list_count > 0) {
+            proto_tree_add_item(amb_list, hf_ieee1905_r2_steering_sta_mac, tvb,
+                                offset, 6, ENC_NA);
+            offset += 6;
+
+            sta_list_count -= 1;
+        }
+    }
+
+    target_count = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee1905_r2_steering_target_count, tvb, offset,
+                        1, ENC_NA);
+    offset += 1;
+
+    if (target_count > 0) {
+        proto_tree *target_list = NULL;
+        int target_num = 0;
+
+        target_list = proto_tree_add_subtree(tree, tvb, offset,
+                                             9 * target_count,
+                                             ett_r2_steering_target_list,
+                                             NULL, "Target BSS list");
+        while (target_num < target_count) {
+            proto_tree *target = NULL;
+
+            target = proto_tree_add_subtree_format(target_list, tvb, offset, 9,
+                                                   ett_r2_steering_target,
+                                                   NULL, "Target BSS %u",
+                                                   target_num);
+
+            proto_tree_add_item(target, hf_ieee1905_r2_steering_target_bssid,
+                                tvb, offset, 6, ENC_NA);
+            offset += 6;
+
+            proto_tree_add_item(target, hf_ieee1905_r2_steering_target_op_class,
+                                tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(target, hf_ieee1905_r2_steering_target_channel,
+                                tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(target, hf_ieee1905_r2_steering_reason, tvb,
+                                offset, 1, ENC_NA);
+            offset += 1;
+
+            target_num += 1;
+        }
+    }
+
+    return offset;
+}
+
+/*
+ * Dissect an Unsuccessful Association Policy TLV:
+ */
+static int
+dissect_unsuccessful_association_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    static const int *capabilities[] = {
+      &hf_ieee1905_rpt_unsuccessful_assoc_report,
+      NULL,
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee1905_rpt_unsuccessful_associations,
+                           ett_ieee1905_unsuccessful_associations,
+                           capabilities, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_ieee1905_max_reporting_rate, tvb, offset,
+                              4, ENC_NA);
+    offset += 4;
+
+    return offset;
+}
+
+/*
+ * Dissect a Metric Collection Interval TLV:
+ */
+static int
+dissect_metric_collection_interval(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_metric_collection_interval,
+                        tvb, offset, 4, ENC_NA);
+    offset += len;
+
+    return offset;
+}
+
+/*
+ * Dissect a Radio Metrics TLV:
+ */
+static int
+dissect_radio_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_radio_metrics_radio_id,
+						tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+	proto_tree_add_item(tree, hf_ieee1905_radio_metrics_noise, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+	proto_tree_add_item(tree, hf_ieee1905_radio_metrics_transmit, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+	proto_tree_add_item(tree, hf_ieee1905_radio_metrics_receive_self, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+	proto_tree_add_item(tree, hf_ieee1905_radio_metrics_receive_other, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+/*
+ * Dissect an AP Extended Metrics TLV:
+ */
+static int
+dissect_ap_extended_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_tlv_data, tvb, offset, len, ENC_NA);
+    offset += len;
+
+    return offset;
+}
+
+/*
+ * Dissect an Status Code TLV:
+ */
+static int
+dissect_status_code(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_status_code_status, tvb,
+						offset, 2, ENC_NA);
+    offset += 2;
+
+    return offset;
+}
+
+/*
+ * Dissect a Disassociation Reason Code TLV:
+ */
+static int
+dissect_disassociation_reason_code(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_disassociation_reason_code, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+/*
+ * Dissect a Backhaul STA Radio Capabilitoes TLV:
+ */
+static const int *backhaul_sta_radio_capa_flags[] = {
+    &hf_ieee1905_backhaul_sta_radio_capa_mac_included,
+    &hf_ieee1905_backhaul_sta_radio_capa_reserved,
+    NULL
+};
+
+static int
+dissect_backhaul_sta_radio_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 mac_addr_included = 0;
+
+    proto_tree_add_item(tree, hf_ieee1905_backhaul_sta_radio_id, tvb, offset,
+                        6, ENC_NA);
+    offset += 6;
+
+    mac_addr_included = tvb_get_guint8(tvb, offset);
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee1905_backhaul_sta_radio_capabilities,
+                           ett_backhaul_sta_radio_capa_flags,
+                           backhaul_sta_radio_capa_flags, ENC_NA);
+    offset += 1;
+
+    if (mac_addr_included & 0x80) {
+        proto_tree_add_item(tree, hf_ieee1905_backhaul_sta_addr, tvb, offset,
+                            6, ENC_NA);
+        offset += 6;
+    }
+
+    return offset;
+}
+
+/*
+ * Dissect an AKM Suite Capabilities TLV:
+ */
+static int
+dissect_akm_suite_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 akm_suite_count = tvb_get_guint8(tvb, offset);
+    guint8 backhaul_akm_suite_count = 0;
+    guint8 fronthaul_akm_suite_count = 0;
+
+    proto_tree_add_item(tree, hf_ieee1905_akm_suite_capa_count, tvb, offset,
+                        1, ENC_NA);
+    offset += 1;
+
+    if (akm_suite_count > 0) {
+        guint8 suite_num = 0;
+        proto_tree *akm_suite_list = NULL;
+
+        akm_suite_list = proto_tree_add_subtree(tree, tvb, offset,
+                                akm_suite_count * 4,
+                                ett_akm_suite_list, NULL,
+                                "AKM Suite list");
+
+        while (suite_num < akm_suite_count) {
+            proto_tree *akm_suite = NULL;
+
+            akm_suite = proto_tree_add_subtree_format(akm_suite_list, tvb,
+                                offset, 4, ett_akm_suite, NULL,
+                                "AKM Suite %u", suite_num++);
+
+            proto_tree_add_item(akm_suite, hf_ieee1905_akm_suite_oui, tvb,
+                                offset, 3, ENC_NA);
+            offset += 3;
+
+            proto_tree_add_item(akm_suite, hf_ieee1905_akm_suite_type, tvb,
+                                offset, 1, ENC_NA);
+            offset += 1;
+        }
+    }
+
+    backhaul_akm_suite_count = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee1905_backhaul_akm_suite_capa_count, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    if (backhaul_akm_suite_count > 0) {
+        guint8 backhaul_suite_num = 0;
+        proto_tree *backhaul_suite_list = NULL;
+
+        backhaul_suite_list = proto_tree_add_subtree(tree, tvb, offset,
+                                backhaul_akm_suite_count * 4,
+                                ett_backhaul_akm_suite_list, NULL,
+                                "Backhaul AKM Suite list");
+
+        while (backhaul_suite_num < backhaul_akm_suite_count) {
+            proto_tree *backhaul_akm_suite = NULL;
+
+            backhaul_akm_suite = proto_tree_add_subtree_format(backhaul_suite_list,
+                                tvb, offset, 4, ett_backhaul_akm_suite, NULL,
+                                "Backhaul AKM Suite %u", backhaul_suite_num++);
+
+            proto_tree_add_item(backhaul_akm_suite,
+                                hf_ieee1905_akm_backhaul_suite_oui, tvb,
+                                offset, 3, ENC_NA);
+            offset += 3;
+
+            proto_tree_add_item(backhaul_akm_suite,
+                                hf_ieee1905_akm_backhaul_suite_type, tvb,
+                                offset, 1, ENC_NA);
+            offset += 1;
+        }
+    }
+
+    fronthaul_akm_suite_count = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee1905_fronthaul_akm_suite_capa_count, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    if (fronthaul_akm_suite_count > 0) {
+        guint8 fronthaul_suite_num = 0;
+        proto_tree *fronthaul_suite_list = NULL;
+
+        fronthaul_suite_list = proto_tree_add_subtree(tree, tvb, offset,
+                                fronthaul_akm_suite_count * 4,
+                                ett_fronthaul_akm_suite_list, NULL,
+                                "Fronthaul AKM Suite list");
+
+        while (fronthaul_suite_num < fronthaul_akm_suite_count) {
+            proto_tree *fronthaul_akm_suite = NULL;
+
+            fronthaul_akm_suite = proto_tree_add_subtree_format(fronthaul_suite_list,
+                                tvb, offset, 4, ett_fronthaul_akm_suite, NULL,
+                                "Fronthaul AKM Suite %u", fronthaul_suite_num++);
+
+            proto_tree_add_item(fronthaul_akm_suite,
+                                hf_ieee1905_akm_fronthaul_suite_oui, tvb,
+                                offset, 3, ENC_NA);
+            offset += 3;
+
+            proto_tree_add_item(fronthaul_akm_suite,
+                                hf_ieee1905_akm_fronthaul_suite_type, tvb,
+                                offset, 1, ENC_NA);
+            offset += 1;
+        }
+    }
+
+    return offset;
+}
+
+/*
+ * Dissect a 1905 Encap DPP TLV:
+ */
+static const int *ieee1905_encap_dpp_flags[] = {
+  &hf_ieee1905_dpp_encap_final_destination,
+  &hf_ieee1905_dpp_encap_channel_list,
+  &hf_ieee1905_dpp_encap_reserved,
+  NULL
+};
+
+static int
+dissect_1905_encap_dpp(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint8 flags = tvb_get_guint8(tvb, offset);
+
+    offset += 1;
+
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee1905_encap_dpp_flags,
+                           ett_1905_encap_dpp_flags,
+                           ieee1905_encap_dpp_flags, ENC_NA);
+    offset += 1;
+
+    if (flags & 0x80) { /* Final destination */
+        proto_tree_add_item(tree, hf_ieee1905_encap_dpp_sta_mac, tvb, offset,
+                            6, ENC_NA);
+        offset += 1;
+    }
+
+    if (flags & 0x40) { /* Channel list */
+        guint8 num_classes = tvb_get_guint8(tvb, offset);
+
+        proto_tree_add_item(tree, hf_ieee1905_dpp_encap_num_classes, tvb,
+                            offset, 1, ENC_NA);
+        offset += 1;
+
+        if (num_classes > 0) {
+            proto_tree *op_class_list = NULL;
+
+            op_class_list = proto_tree_add_subtree(tree, tvb, offset,
+                                num_classes, ett_1905_encap_dpp_classes, NULL,
+                                "Operating Class list");
+
+            while (num_classes > 0) {
+                proto_tree_add_item(op_class_list,
+                                    hf_ieee1905_dpp_encap_op_class, tvb,
+                                    offset, 1, ENC_NA);
+                offset += 1;
+                num_classes -= 1;
+            }
+        }
+    }
+
+    return offset;
+}
+
+/*
+ * Dissect a 1905 Encap EAPOL TLV:
+ */
+static int
+dissect_1905_encap_eapol(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_encap_eapol_payload, tvb, offset,
+                        len, ENC_NA);
+    offset += len;
+
+    return offset;
+}
+
+/*
+ * Dissect a DPP Bootstrapping URI Notification TLV:
+ */
+static int
+dissect_dpp_bootstrapping_uri_notification(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, guint offset, guint16 len _U_)
+{
+    guint16 uri_len;
+
+    proto_tree_add_item(tree, hf_ieee1905_dpp_bootstrapping_uri_radio_id,
+                        tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_item(tree, hf_ieee1905_dpp_bootstrapping_uri_local_mac_addr,
+                        tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_item(tree, hf_ieee1905_dpp_bootstrapping_uri_bsta_mac_addr,
+                        tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    /* Assume we got the whole URI */
+    uri_len = len - 18;
+    proto_tree_add_item(tree, hf_ieee1905_dpp_bootstrapping_uri_received,
+                        tvb, offset, uri_len, ENC_ASCII|ENC_NA);
+    offset += uri_len;
 
     return offset;
 }
@@ -4488,6 +6941,205 @@ dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo _U_,
         offset = dissect_error_code(tvb, pinfo, tree, offset, tlv_len);
         break;
 
+    case CHANNEL_SCAN_REPORTING_POLICY_TLV:
+        offset = dissect_channel_scan_reporting_policy(tvb, pinfo, tree,
+                                                       offset, tlv_len);
+        break;
+
+    case CHANNEL_SCAN_CAPABILITIES_TLV:
+        offset = dissect_channel_scan_capabilities(tvb, pinfo, tree, offset,
+                                                   tlv_len);
+        break;
+
+    case CHANNEL_SCAN_REQUEST_TLV:
+        offset = dissect_channel_scan_request(tvb, pinfo, tree, offset,
+                                              tlv_len);
+        break;
+
+    case CHANNEL_SCAN_RESULT_TLV:
+        offset = dissect_channel_scan_result(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case TIMESTAMP_TLV:
+        offset = dissect_timestamp(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case IEEE1905_LAYER_SECURITY_CAPABILITY_TLV:
+        offset = dissect_1905_layer_security_capability(tvb, pinfo, tree,
+                                                        offset, tlv_len);
+        break;
+
+    case GROUP_INTEGRITY_KEY_TLV:
+        offset = dissect_group_integrity_key(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case MIC_TLV:
+        offset = dissect_mic(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case ENCRYPTED_TLV:
+        offset = dissect_encrypted(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case CAC_REQUEST_TLV:
+        offset = dissect_cac_request(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case CAC_TERMINATION_TLV:
+        offset = dissect_cac_termination(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case CAC_COMPLETION_REPORT_TLV:
+        offset = dissect_cac_completion_report(tvb, pinfo, tree, offset,
+                                               tlv_len);
+        break;
+
+    case CAC_STATUS_REQUEST_TLV:
+        offset = dissect_cac_status_request(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case CAC_STATUS_REPORT_TLV:
+        offset = dissect_cac_status_report(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case CAC_CAPABILITIES_TLV:
+        offset = dissect_cac_capabilities(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case MULTI_AP_VERSION_TLV:
+        offset = dissect_multi_ap_version(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case R2_AP_CAPABILITY_TLV:
+        offset = dissect_r2_ap_capability(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case DEFAULT_802_1Q_SETTINGS_TLV:
+        offset = dissect_default_802_1q_settings(tvb, pinfo, tree, offset,
+                                                 tlv_len);
+        break;
+
+    case TRAFFIC_SEPARATION_POLICY_TLV:
+        offset = dissect_traffic_separation_policy(tvb, pinfo, tree, offset,
+                                                   tlv_len);
+        break;
+
+    case PACKET_FILTERING_POLICY_TLV:
+        offset = dissect_packet_filtering_policy(tvb, pinfo, tree, offset,
+                                                 tlv_len);
+        break;
+
+    case ETHERNET_CONFIGURATION_POLICY_TLV:
+        offset = dissect_ethernet_configuration_policy(tvb, pinfo, tree,
+                                                       offset, tlv_len);
+        break;
+
+    case SERVICE_PRIORITIZATION_RULE_TLV:
+        offset = dissect_service_prioritization_rule(tvb, pinfo, tree, offset,
+                                                     tlv_len);
+        break;
+
+    case DSCP_MAPPING_TABLE_TLV:
+        offset = dissect_dscp_mapping_table(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case SERVICE_PRIORITIZATION_INTERFACE_EXCEPTION_TLV:
+        offset = dissect_service_prioritization_interface_exception(tvb, pinfo,
+                                                        tree, offset, tlv_len);
+        break;
+
+    case R2_ERROR_CODE_ERROR_TLV:
+        offset = dissect_r2_error_code(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case AP_OPERATIONAL_BACKHAUL_BSS_TLV:
+        offset = dissect_ap_operational_backhaul_bss(tvb, pinfo, tree, offset,
+                                                   tlv_len);
+        break;
+
+    case AP_RADIO_ADVANCED_CAPABULITIES_TLV:
+        offset = dissect_ap_radio_advanced_capabilities(tvb, pinfo, tree,
+                                                        offset, tlv_len);
+        break;
+
+    case ASSOCIATION_STATUS_NOTIFICATON_TLV:
+        offset = dissect_association_status_notification(tvb, pinfo, tree,
+                                                         offset, tlv_len);
+        break;
+
+    case SOURCE_INFO_TLV:
+        offset = dissect_source_info(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case TUNNELED_MESSAGE_TYPE_TLV:
+        offset = dissect_tunneled_message_type(tvb, pinfo, tree, offset,
+                                                tlv_len);
+        break;
+
+    case TUNNELED_TLV:
+        offset = dissect_tunneled(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case R2_STEERING_REQUEST_TLV:
+        offset = dissect_r2_steering_request(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case UNSUCCESSFUL_ASSOCIATION_POLICY_TLV:
+        offset = dissect_unsuccessful_association_policy(tvb, pinfo, tree,
+                                                        offset, tlv_len);
+        break;
+
+    case METRIC_COLLECTION_INTERVAL_TLV:
+        offset = dissect_metric_collection_interval(tvb, pinfo, tree, offset,
+                                                    tlv_len);
+        break;
+
+    case RADIO_METRICS_TLV:
+        offset = dissect_radio_metrics(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case AP_EXTENDED_METRICS_TLV:
+        offset = dissect_ap_extended_metrics(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case ASSOCIATED_STA_EXTENDED_LINK_METRICS_TLV:
+        offset = dissect_associated_sta_link_metrics(tvb, pinfo, tree, offset,
+                                                     tlv_len);
+        break;
+
+    case STATUS_CODE_TLV:
+        offset = dissect_status_code(tvb, pinfo, tree, offset,
+                                                tlv_len);
+        break;
+
+    case DISASSOCIATION_REASON_CODE_TLV:
+        offset = dissect_disassociation_reason_code(tvb, pinfo, tree, offset,
+                                                    tlv_len);
+        break;
+
+    case BACKHAUL_STA_RADIO_CAPABILITIES_TLV:
+        offset = dissect_backhaul_sta_radio_capabilities(tvb, pinfo, tree,
+                                                        offset, tlv_len);
+        break;
+
+    case AKM_SUITE_CAPABILITIES_TLV:
+        offset = dissect_akm_suite_capabilities(tvb, pinfo, tree, offset,
+                                                tlv_len);
+        break;
+
+    case IEEE1905_ENCAP_DPP_TLV:
+        offset = dissect_1905_encap_dpp(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case IEEE1905_ENCAP_EAPOL_TLV:
+        offset = dissect_1905_encap_eapol(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case DPP_BOOTSTRAPPING_URI_NOTIFICATION_TLV:
+        offset = dissect_dpp_bootstrapping_uri_notification(tvb, pinfo, tree,
+                                                            offset, tlv_len);
+        break;
+
     default:
         proto_tree_add_item(tree, hf_ieee1905_tlv_data, tvb, offset, tlv_len, ENC_NA);
         offset += tlv_len;
@@ -4504,12 +7156,13 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *ieee1905_tree;
     guint16    message_type;
     guint       offset = 0;
-    static const int *flags[] = {
+    static const int *flag_headers[] = {
       &hf_ieee1905_last_fragment,
       &hf_ieee1905_relay_indicator,
       NULL
     };
     gboolean eom_seen = 0;
+    guint8 flags = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ieee1905");
 
@@ -4540,8 +7193,9 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(ieee1905_tree, hf_ieee1905_fragment_id, tvb, offset, 1, ENC_NA);
     offset++;
 
+    flags = tvb_get_guint8(tvb, offset);
     proto_tree_add_bitmask(ieee1905_tree, tvb, offset, hf_ieee1905_flags,
-                           ett_ieee1905_flags, flags, ENC_NA);
+                           ett_ieee1905_flags, flag_headers, ENC_NA);
     offset++;
 
     /*
@@ -4552,6 +7206,17 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       guint16 tlv_len;
       proto_item *tlv_tree;
 
+      /* There must be an eom if its the last frag, if not give a expert info */
+      if (((flags & 0x80)) && tvb_reported_length_remaining(tvb, offset) < 3) {
+          expert_add_info(pinfo, tree, &ei_ieee1905_missing_eom);
+          return tvb_captured_length(tvb);
+      }
+
+      /* If there are no more bytes, and not the last frag, exit */
+      if (((flags & 0x80) == 0) &&
+          (tvb_reported_length_remaining(tvb, offset) == 0))
+        break;
+
       tlv_type = tvb_get_guint8(tvb, offset);
       eom_seen = (tlv_type == EOM_TLV);
       tlv_len = tvb_get_ntohs(tvb, offset + 1);
@@ -4559,7 +7224,7 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       tlv_tree = proto_tree_add_subtree(ieee1905_tree, tvb, offset, tlv_len + 3,
                                         ett_tlv, NULL, val_to_str_ext(tlv_type,
                                                 &ieee1905_tlv_types_vals_ext,
-                                                "Unknown: %u"));
+                                                "Unknown: %02x"));
 
       proto_tree_add_item(tlv_tree, hf_ieee1905_tlv_types, tvb, offset, 1, ENC_NA);
       offset++;
@@ -4988,6 +7653,10 @@ proto_register_ieee1905(void)
           { "AP capabilities flags", "ieee1905.ap_capability_flags",
             FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
+		{ &hf_ieee1905_rpt_unsuccessful_associations,
+          { "Report Unsuccessful Associations", "ieee1905.rpt_unsuccessful_assoc",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
         { &hf_ieee1905_unassoc_sta_metrics_oper_flag,
           { "STA link metric reporting operational channels", "ieee1905.link_metric_oper",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80, NULL, HFILL }},
@@ -4999,6 +7668,10 @@ proto_register_ieee1905(void)
         { &hf_ieee1905_agent_init_steering,
           { "Agent-initiated RSSI-based Steering", "ieee1905.agent_init_steering",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20, NULL, HFILL }},
+
+		{ &hf_ieee1905_rpt_unsuccessful_assoc_report,
+          { "Unsuccessful Association Attempts", "ieee1905.report_unsuccessful_associations",
+            FT_BOOLEAN, 8, TFS(&tfs_ieee1905_report_unsuccessful_association_attempt_flag), 0x80, NULL, HFILL }},
 
         { &hf_ieee1905_higher_layer_protocol,
           { "Higher layer protocol", "ieee1905.higher_layer_proto",
@@ -5087,6 +7760,10 @@ proto_register_ieee1905(void)
         { &hf_ieee1905_btm_abridged_flag,
           { "BTM abridged", "ieee1905.steering_req.btm_abridged",
             FT_BOOLEAN, 8, TFS(&tfs_ieee1905_btm_abridged_flag), 0x20, NULL, HFILL }},
+
+        { &hf_ieee1905_steering_req_reserved,
+          { "Reserved", "ieee1905.steering_req.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL }},
 
         { &hf_ieee1905_steering_btm_disass_timer,
           { "BTM disassociation timer", "ieee1905.steering_req.disass_timer",
@@ -5213,23 +7890,23 @@ proto_register_ieee1905(void)
             FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0200, NULL, HFILL}},
 
         { &hf_ieee1905_short_gi_160mhz_flag,
-          { "Short GI support for 160 and 80+80 MHz", "ieee1905.ap_ht.short_gi_160mhz",
+          { "Short GI support for 160 and 80+80 MHz", "ieee1905.ap_vht.short_gi_160mhz",
             FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0100, NULL, HFILL}},
 
         { &hf_ieee1905_vht_support_80plus_mhz_flag,
-          { "VHT support for 80+80 MHz", "ieee1905.ap_ht.vht_80plus_mhz",
+          { "VHT support for 80+80 MHz", "ieee1905.ap_vht.vht_80plus_mhz",
             FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x80, NULL, HFILL}},
 
         { &hf_ieee1905_vht_support_160_mhz_flag,
-          { "VHT support for 160 MHz", "ieee1905.ap_ht.vht_160mhz",
+          { "VHT support for 160 MHz", "ieee1905.ap_vht.vht_160mhz",
             FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x40, NULL, HFILL}},
 
         { &hf_ieee1905_su_beamformer_capable_flag,
-          { "SU beamformer capable", "ieee1905.ap_ht.su_beamformer",
+          { "SU beamformer capable", "ieee1905.ap_vht.su_beamformer",
             FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x20, NULL, HFILL}},
 
         { &hf_ieee1905_mu_beamformer_capable_flag,
-          { "MU beamformer capable", "ieee1905.ap_ht.mu_beamformer",
+          { "MU beamformer capable", "ieee1905.ap_vht.mu_beamformer",
             FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x10, NULL, HFILL}},
 
         { &hf_ieee1905_ap_vht_capabilities_radio_id,
@@ -5311,6 +7988,10 @@ proto_register_ieee1905(void)
           { "Radio unique ID", "ieee1905.channel_select.radio_id",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
+		{ &hf_ieee1905_radio_metrics_radio_id,
+          { "Radio unique ID", "ieee1905.radio_metrics.radio_id",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
         { &hf_ieee1905_channel_select_resp_code,
           { "Response coce", "ieee1905.channel_select.response_code",
             FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -5343,9 +8024,14 @@ proto_register_ieee1905(void)
           { "Supported HE MCS count", "ieee1905.ap_he_capability.he_mcs_count",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
+        { &hf_ieee1905_unassoc_metrics_mac_count,
+          {"MAC address count for channel",
+           "ieee1905.unassoc_sta_link_metrics.mac_count",
+           FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
         { &hf_ieee1905_unassoc_link_metrics_query_mac,
           { "STA MAC address", "ieee1905.unassoc_sta_link_metrics.mac_addr",
-            FT_ETHER, FT_NONE, NULL, 0, NULL, HFILL }},
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_ap_metrics_reporting_interval,
           { "AP metrics reporting interval", "ieee1905.sta_metric_policy.ap_interval",
@@ -5671,72 +8357,20 @@ proto_register_ieee1905(void)
           { "Channel number", "ieee1905.beacon_metrics.channel_number",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-        { &hf_ieee1905_phy_type_flag,
-          { "Condensed PHY type", "ieee1905.beacon_report.phy_type",
-            FT_UINT8, BASE_HEX, VALS(condensed_phy_type_vals), 0xFE, NULL, HFILL }},
-
-        { &hf_ieee1905_reported_frame_type_flag,
-          { "Reportted frame type", "ieee1905.beacon_report.rep_frame_type",
-            FT_UINT8, BASE_HEX, VALS(reported_frame_type_vals), 0x01, NULL, HFILL }},
-
-        { &hf_ieee1905_beacon_report_op_class,
-          { "Operating class", "ieee1905.beacon_report.op_class",
-            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-
-        { &hf_ieee1905_beacon_report_channel_no,
-          { "Channel number", "ieee1905.beacon_report.channel_no",
-            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-
-        { &hf_ieee1905_beacon_report_meas_start_time,
-          { "Measurement start time", "ieee1905.beacon_report.start_time",
-            FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }},
-
-        { &hf_ieee1905_beacon_report_meas_duration,
-          { "Measurement duration", "ieee1905.beacon_report.meas_duration",
-            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-
-        { &hf_ieee1905_beacon_reported_frame_flags,
-          { "Reported frame information", "ieee1905.beacon_report.rfi",
-            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-
-        { &hf_ieee1905_beacon_report_rcpi,
-          { "RCPI", "ieee1905.beacon_report.rcpi",
-            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-
-        { &hf_ieee1905_beacon_report_rsni,
-          { "RSNI", "ieee1905.beacon_report.rsni",
-            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-
-        { &hf_ieee1905_beacon_report_bssid,
-          { "BSSID", "ieee1905.beacon_report.bssid",
-            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-
-        { &hf_ieee1905_beacon_report_ant_id,
-          { "Antenna ID", "ieee1905.beacon_report.antenna_id",
-            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-
-        { &hf_ieee1905_beacon_report_tsf,
-          { "Parent TSF", "ieee1905.beacon_report.parent_tsf",
-            FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-
-        { &hf_ieee1905_beacon_report_sub_elt,
-          { "Sub-element ID", "ieee1905.beacon_report.sub_elt_id",
-            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-
-        { &hf_ieee1905_beacon_report_sub_elt_len,
-          { "Sub-element length", "ieee1905.beacon_report.sub_elt_len",
-            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-
-        { &hf_ieee1905_beacon_report_sub_elt_body,
-          { "Sub-element body", "ieee1905.beacon_report.sub_elt_body",
+        { &hf_ieee1905_measurement_report,
+          { "Measurement Report", "ieee1905.meaurement_report",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_beacon_metrics_response_mac_addr,
           { "STA MAC address", "ieee1905.beacon_metrics.mac_addr",
             FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
-        { &hf_ieee1905_beacon_metrics_response_status,
-          { "Response status", "ieee1905.beacon_metrics.status",
+        { &hf_ieee1905_beacon_metrics_response_reserved,
+          { "Reserved", "ieee1905.beacon_metrics.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_beacon_metrics_response_meas_num,
+          { "Number of Measurements", "ieee1905.beacon_metrics.number_of_measurements",
             FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_assoc_sta_traffic_stats_mac_addr,
@@ -5778,6 +8412,901 @@ proto_register_ieee1905(void)
         { &hf_ieee1905_error_code_mac_addr,
           { "MAC address of error-code STA", "ieee1905.error_code.mac_addr",
             FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_rep_policy,
+          { "Reporting Policy", "ieee1905.channel_scan_reporting_policy",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_pol_report,
+          { "Report Independent Channel Scans",
+            "ieee1905.channel_scan_reporting_policy.report_independent_channel_scans",
+            FT_BOOLEAN, 8, TFS(&report_independent_scans_tfs), 0x01, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_pol_reserved,
+          { "Reserved", "ieee1905.channel_scan_reporting_policy.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xFE, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_capabilities_radio_num,
+          { "Number of radios", "ieee1905.channel_scan_capabilities.num_radios",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_capa_radio_id,
+          { "Radio Unique ID", "ieee1905.channel_scan_capabilities.radio_id",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_capa_flags,
+          { "Flags", "ieee1905.channel_scan_capabilities.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_capa_flags_on_boot_only,
+          { "On boot only", "ieee1905.channel_scan_capabilities.flags.on_boot_only",
+            FT_BOOLEAN, 8, TFS(&channel_scan_capa_flags_on_boot_only_tfs),
+            0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_capa_flags_scan_impact,
+          { "Scan Impact", "ieee1905.channel_scan_capabilities.flags.scan_impact",
+            FT_UINT8, BASE_HEX, VALS(channel_scan_capa_flags_impact_vals), 0x60,
+            NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_capa_flags_reserved,
+          { "Reserved", "ieee1905.channel_scan_capabilities.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_capa_min_scan_interval,
+          { "Minimum Scan Interval", "ieee1905.channel_scan_capabilities.min_scan_interval",
+            FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_seconds,
+            0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_capa_class_num,
+          { "Number of Operating Classes",
+            "ieee1905.channel_scan_capabilities.num_operating_classes",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_capa_oper_class,
+          { "Operating Class", "ieee1905.channel_scan_capabulities.operating_class",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_capa_oper_class_chan_cnt,
+          { "Number of Channels", "ieee1905.channel_scan_capabilities.operating_class.num_channels",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_capa_channel,
+          { "Channel", "ieee1905.channel_scan_capabilities.operating_class.channel",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_request_flags,
+          { "Flags", "ieee1905.channel_scan_request.flags",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_request_flags_fresh_scan,
+          { "Perform Fresh Scan", "ieee1905.channel_scan_request.flags.perform_fresh_scan",
+            FT_BOOLEAN, 8, TFS(&perform_fresh_scan_tfs), 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_request_flags_reserved,
+          { "Reserved", "ieee1905.channel_scan_request.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x7F, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_request_radio_num,
+          { "Number of Radios", "ieee1905.channel_scan_request.number_radios",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_request_radio_id,
+          { "Radio Unique ID", "ieee1905.channel_scan_request.radio_id",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_request_class_num,
+          { "Number of Operating Classes",
+            "ieee1905.channel_scan_request.num_operating_classes",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_request_oper_class,
+          { "Operating Class", "ieee1905.channel_scan_request.operating_class",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_request_oper_class_chan_cnt,
+          { "Number of Channels", "ieee1905.channel_scan_request.operating_class.num_channels",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_request_channel,
+          { "Channel", "ieee1905.channel_scan_request.channel",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_radio_id,
+          { "Radio Unique ID", "ieee1905.channel_scan_result.radio_id",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_oper_class,
+          { "Operating Class", "ieee1905.channel_scan_result.operating_class",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_channel,
+          { "Channel", "ieee1905.channel_scan_result.channel",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_status,
+          { "Status", "ieee1905.channel_scan_result.status",
+            FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(channel_scan_result_status_rvals),
+            0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_timestamp_len,
+          { "Timestamp Length", "ieee1905.channel_scan_result.timestamp_len",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_timestamp_string,
+          { "Timestamp", "ieee1905.channel_scan_result.timestamp",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_utilization,
+          { "Utilization", "ieee1905.channel_scan_result.utilization",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_noise,
+          { "Noise", "ieee1905.channel_scan_result.noise",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_radio_metrics_noise,
+          { "Noise", "ieee1905.radio_metrics.noise",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_radio_metrics_transmit,
+          { "Transmit", "ieee1905.radio_metrics.transmit",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_radio_metrics_receive_self,
+          { "ReceiveSelf", "ieee1905.radio_metrics.receive_self",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_radio_metrics_receive_other,
+          { "ReceiveOther", "ieee1905.radio_metrics.receive_other",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_neigh_num,
+          { "Number of Neighbors", "ieee1905.channel_scan_result.number_of_neighbors",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_bssid,
+          { "BSSID", "ieee1905.channel_scan_result.bssid",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_ssid_len,
+          { "SSID Length", "ieee1905.channel_scan_result.ssid_len",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_ssid,
+          { "SSID", "ieee1905.channel_scan_result.ssid",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_sig_level,
+          { "Signal Strength", "ieee1905.channel_scan_result.signal_strength",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_bw_len,
+          { "Channel BW Length", "ieee1905.channel_scan_result.channel_bw_len",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_bw,
+          { "Channel BW", "ieee1905.channel_scan_result.channel_bw",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_neigh_flags,
+          { "Neighbor Flags", "ieee1905.channel_scan_result.neighbor_flags",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_load_element_present,
+          { "Utilization Present", "ieee1905.channel_scan_result.neighbor_flags.load_element_present",
+            FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_util,
+          { "Channel Utilization", "ieee1905.channel_scan_result.channel_util",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_sta_count,
+          { "Station Cound", "ieee1905.channel_scan_result.station_count",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_neigh_reserved,
+          { "Reserved", "ieee1905.channel_scan_result.neighbor_flags.reserved",
+            FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_scan_duration,
+          { "Scan Duration", "ieee1905.channel_scan_result.scan_duration",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_flags,
+          { "Flags", "ieee1905.channel_scan_result.flags",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_scan_type,
+          { "Scan Type", "ieee1905.channel_scan_result.flags.scan_type",
+            FT_BOOLEAN, 8, TFS(&channel_scan_result_type_tfs), 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_channel_scan_result_scan_flags_reserved,
+          { "Reserved", "ieee1905.channel_scan_result.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x7F, NULL, HFILL }},
+
+        { &hf_ieee1905_timestamp_length,
+          { "Timestamp Length", "ieee1905.timestamp.length",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_timestamp_string,
+          { "Timestamp", "ieee1905.timestamp.timestamp",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_1905_layer_sec_capa_onboarding,
+          { "Onboarding Protocols Supported", "ieee1905.1905_layer_security_capability.onboarding_protocols_supported",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(onboarding_protocol_supported_rvals),
+            0, NULL, HFILL }},
+
+        { &hf_ieee1905_1905_layer_sec_capa_mic_sup,
+          { "Message Integrity Algorithms Supported",
+            "ieee1905.1905_layer_security_capability.message_integrity_algorithms_supported",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(message_integrity_algorithms_sup_rvals),
+            0, NULL, HFILL }},
+
+        { &hf_ieee1905_1905_layer_sec_capa_enc_alg_sup,
+          { "Message Encryption Algorithms Supported",
+            "ieee1905.1905_layer_security_capability.message_encryption_algorithms_supported",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(message_encryption_algorithms_sup_rvals),
+            0, NULL, HFILL }},
+
+        { &hf_ieee1905_group_integrity_key_id,
+          { "Group Integrity Key ID",
+            "ieee1905.group_integrity_key.group_integrity_key_id",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_group_integrity_key_len,
+          { "Group Integrity Key ID Length",
+            "ieee1905.group_integrity_key.group_integrity_key_id_len",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_group_integrity_key_bytes,
+          { "Group Integrity Key",
+            "ieee1905.group_integrity_key.group_integrity_key",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_group_integrity_key_mic_alg,
+          { "MIC Algorithm", "ieee1905.group_integrity_key.mic_algorithm",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(group_integrity_key_mic_alg_rvals),
+            0, NULL, HFILL }},
+
+        { &hf_ieee1905_mic_group_integrity_key_id,
+          { "Group Integity Key ID", "ieee1905.mic.group_integrity_key_id",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_mic_integrity_transmission_counter,
+          { "Integrity Transmission Counter",
+            "ieee1905.mic.integrity_transmission_counter",
+            FT_UINT48, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_mic_length,
+          { "MIC Length", "ieee1905.mic.mic_length",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_mic_bytes,
+          { "MIC", "ieee1905.mic.mic_bytes",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_encrypted_enc_transmission_count,
+          { "Encryption Transmission Counter",
+            "ieee1905.encrypted.encryption_transmission_counter",
+            FT_UINT48, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_encrypted_enc_output_field_len,
+          { "AES-SIV Encrypted Output Length",
+            "ieee1905.encrypted.aes_siv_encrypted_output_length",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_encrypted_enc_output_field,
+          { "AES-SIV Encryption Output",
+            "ieee1905.encrypted.aes_siv_encryption_output",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_request_radio_count,
+          { "Number of Radios", "ieee1905.cac_request.number_of_radios",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_request_radio_id,
+          { "Radio ID", "ieee1905.cac_request.radio_id",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_request_op_class,
+          { "Operating class", "ieee1905.cac_request.operating_class",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_request_channel,
+          { "Channel", "ieee1905.cac_request.channel",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_request_flags,
+          { "Request flags", "ieee1905.cac_request.flags",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_request_method,
+          { "CAC Method", "ieee1905.cac_request.flags.cac_method",
+            FT_UINT8, BASE_DEC, VALS(cac_request_method_vals),
+            0xE0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_request_completion_action,
+          { "Successful Completion Action",
+            "ieee1905.cac_request.flags.successful_completion_action",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(cac_completion_action_vals), 0x18, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_request_completion_unsuccess,
+          { "Unsuccessful Completion Action",
+            "ieee1905.cac_request.flags.unsuccessful_completion_action",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(cac_completion_action_vals), 0x06, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_request_reserved,
+          { "Reserved", "ieee1905.cac_request.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_termination_radio_count,
+          { "Number of Radios", "ieee1905.cac_termination.number_of_radios",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_terminate_radio_id,
+          { "Radio ID", "ieee1905.cac_termination.radio_id",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_terminate_op_class,
+          { "Operating class", "ieee1905.cac_termination.operating_class",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_terminate_channel,
+          { "Channel", "ieee1905.cac_termination.channel",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_terminate_action,
+          { "CAC Termination Action", "ieee1905.cac_termination.action",
+            FT_UINT8, BASE_HEX | BASE_RANGE_STRING,
+            RVALS(cac_completion_action_vals), 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_completion_rep_radio_count,
+          { "Number of radios",
+            "ieee1905.cac_completion_report.number_of_radios",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_completion_radio_id,
+          { "Radio ID", "ieee1905.cac_completion_report.radio_id",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_completion_op_class,
+          { "Operating class", "ieee1905.cac_completion_report.operating_class",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_completion_channel,
+          { "Channel", "ieee1905.cac_completion_report.channel",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_completion_status,
+          { "CAC Completion Status",
+            "ieee1905.cac_completion_report.cac_completion_status",
+            FT_UINT8, BASE_HEX | BASE_RANGE_STRING,
+            RVALS(cac_completion_status_rvals), 0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_completion_radar_count,
+          { "Radar detected count",
+            "ieee1905.cac_completion_report.radar_detected_count",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_comp_radar_op_class,
+          { "Operating class",
+            "ieee1905.cac_completion_report.radar.operating_class",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_comp_radar_channel,
+          { "Channel", "ieee1905.cac_completion_report.radar.channel",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_status_rpt_active_chan,
+          { "Available Channel Count",
+            "ieee1905.cac_status_report.available_channel_count",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_status_rpt_avail_op_class,
+          { "Operating Class",
+            "ieee1905.cac_status_report.available_channel.operating_class",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_status_rpt_avail_channel,
+          { "Channel",
+            "ieee1905.cac_status_report.available_channel.channel",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_status_rpt_avail_minutes,
+          { "Minutes since CAC completed",
+            "ieee1905.cac_status_report.available_channel.minutes_since",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_status_rpt_non_occ_cnt,
+          { "Non-occupied Channel Count",
+            "ieee1905.cac_status_report.non_occupied_channel_count",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_status_rpt_non_occ_op_class,
+          { "Operating Class",
+            "ieee1905.cac_status_report.non_occupoied_channel.operating_class",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_status_rpt_non_occ_channel,
+          { "Channel",
+            "ieee1905.cac_status_report.non_occupied_channel.channel",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_status_rpt_non_occ_seconds,
+          { "Seconds remaining",
+            "ieee1905.cac_status_report.non_occupied_channel.second_remaining",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_status_rpt_active_cac_cnt,
+          { "Active CAC Channel Count",
+            "ieee1905.cac_status_report.active_cac_channel_count",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_status_rpt_active_cac_op_class,
+          { "Operating Class",
+            "ieee1905.cac_status_report.active_cac.operating_class",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_status_rpt_active_cac_channel,
+          { "Channel",
+            "ieee1905.cac_status_report.active_cac.channel",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_status_rpt_active_cac_seconds,
+          { "Seconds remaining",
+            "ieee1905.cac_status_report.active_cac.seconds_remaining",
+            FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_capa_country_code,
+          { "Country Code", "ieee1905.cac_capabilities.country_code",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_capa_radio_cnt,
+          { "Number of radios", "ieee1905.cac_capabilities.number_of_radios",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_capabilities_radio_id,
+          { "Radio ID", "ieee1905.cac_capabilities.radio_id",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_capabilities_types_num,
+          { "Number of types", "ieee1905.cac_capabilities.number_of_types",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_capabilities_cac_mode,
+          { "CAC mode supported",
+            "ieee1905.cac_capabilities.cac_mode_supported",
+            FT_UINT8, BASE_HEX | BASE_RANGE_STRING,
+            RVALS(cac_mode_supported_rvals), 0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_capabilities_cac_seconds,
+          { "Seconds required to complete CAC",
+            "ieee1905.cac_capabilities.seconds_required_to_complete_cac",
+            FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_capabilities_op_class_num,
+          { "Operating Class number",
+            "ieee1905.cac_capabilities.operating_class_number",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_capabilities_op_class,
+          { "Operating Class", "ieee1905.cac_capabilities.operating_class",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_capabilities_channel_cnt,
+          { "Number of channels",
+            "ieee1905.cac_capabilities.number_of_channels",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_cac_capabillity_channel,
+          { "Channel", "ieee1905.cac_capabilities.channel",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_multi_ap_version,
+          { "Multi-AP Version", "ieee1905.multi_ap_version",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(multi_ap_version_rvals), 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_max_total_serv_prio_rules,
+          { "Max Total Number Service Prioritization Rules",
+            "ieee1905.r2_ap_capabilities.max_total_service_prio_rules",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_ap_capa_flags,
+          { "Flags", "ieee1905.r2_ap_capabilities.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_byte_counter_units,
+          { "Byte Counter Units", "ieee1905.r2_ap_capabilities.byte_counter_units",
+            FT_UINT8, BASE_DEC, VALS(byte_counter_units_vals), 0xC0, NULL, HFILL}},
+
+        { &hf_ieee1905_r2_ap_capa_flags_reserved,
+          { "Reserved", "ieee1905.r2_ap_capabilities.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL }},
+
+        { &hf_ieee1905_max_vid_count,
+          { "Max Total Number of VIDs", "ieee1905.r2_ap_capabilities.max_total_number_of_vids",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_default_802_1q_settings_primary_vlan,
+          { "Primary VLAN ID", "ieee1905.service_prioritization_rule.primary_vlan_id",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_default_802_1q_settings_flags,
+          { "Flags", "ieee1905.service_prioritization_rule.flags",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_default_802_1q_settings_default_pcp,
+          { "Primary PCP", "ieee1905.service_prioritization_rule.flags.primary_pcp",
+            FT_UINT8, BASE_HEX, NULL, 0xE0, NULL, HFILL }},
+
+        { &hf_ieee1905_default_802_1q_settings_reserved,
+          { "Reserved", "ieee1905.service_prioritization_rule.fkags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_radio_advanced_capa_radio_id,
+          { "Radio Unique ID", "ieee1905.ap_advanced_capabilities.radio_id",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_radio_advanced_capa_flags,
+          { "AP Radio Advanced Capabilities Flags",
+            "ieee1905.ap_advanced_capabilities.flags",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_traffic_separation_policy_num_ssids,
+          { "Number of SSIDs", "ieee1905.traffic_separation_policy.num_ssids",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_traffic_separation_policy_ssid_len,
+          { "SSID Length", "ieee1905.traffic_separation_policy.ssid_length",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_traffic_separation_policy_ssid,
+          { "SSID", "ieee1905.traffic_separation_policy.ssid",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_traffic_separation_policy_vlanid,
+          { "VLAN ID", "ieee1905.traffic_separation_policy.vlan_id",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_packet_filtering_policy_bssid_num,
+          { "Number of BSSIDs", "ieee1905.packet_filtering_policy.num_bssids",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_packet_filtering_policy_bssid,
+          { "BSSID", "ieee1905.packet_filtering_policy.bssid",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_packet_filtering_policy_mac_count,
+          { "Number of Permitted Destination MAC Addresses",
+            "ieee1905.packet_filtering_policy.num_permitted_mac_addr",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_packet_filtering_policy_mac_addr,
+          { "Permitted Destination MAC Address",
+            "ieee1905.packet_filtering_policy.permitted_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_ethernet_config_policy_intf_count,
+          { "Number of Interfaces",
+            "ieee1905.ethernet_configuration_policy.num_interfaces",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_ethernet_config_policy_intf,
+          { "Interface ID", "ieee1905.ethernet_configuration_policy.interface_id",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_ethernet_config_policy_intf_type,
+          { "Ethernet Interface Type",
+            "ieee1905.ethernet_configuration_policy.intf_type",
+            FT_UINT8, BASE_HEX, VALS(ethernet_config_policy_type_vals),
+            0xC0, NULL, HFILL }},
+
+        { &hf_ieee1905_ethernet_config_policy_reserved,
+          { "Reserved", "ieee1905.ethernet_configuration_policy.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL }},
+
+        { &hf_ieee1905_ethernet_config_policy_intf_flags,
+          { "Flags", "ieee1905.ethernet_configuration_policy.flags",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_error_reason_code,
+          { "Reason Code", "ieee1905.r2_error.reason_code",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(r2_error_code_rvals),
+            0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_error_service_prio_rule_id,
+          { "Service Prioritization Rule ID",
+            "ieee1905.r2_error.service_prioritization_rule_id",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_operatonal_backhaul_bss_radio_count,
+          { "Number of radios", "ieee1905.ap_operational_backhaul_bss.number_of_radios",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_backhaul_bss_radio_identifier,
+          { "Radio Unique ID", "ieee1905.ap_operational_backhaul_bss.radio_id",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_operational_backhaul_bss_count,
+          { "Number of Backhaul BSSes", "ieee1905.ap_operational_backhaul_bss.number_of_backhaul_bsses",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_operational_backhaul_bss,
+          { "BSSID of backhaul BSS", "ieee1905.ap_operational_backhaul_bss.bssid",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_operational_backhaul_bss_config_bitmask,
+          { "Flags", "ieee1905.ap_operational_backhaul_bss.config_bitmask",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_r1_backhaul_association_disallowed,
+          { "R1 Backhaul STA association disallowed",
+            "ieee1905.ap_operational_backhaul_bss.config_bitmask.r1_dissallowed",
+            FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_above_backaul_association_dissallowed,
+          { "R2 and above Backhaul STA association dissallowed",
+            "ieee1905.ap_operational_backhaul_bss.config_bitmask.r2_and_above_dissallowed",
+            FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_operational_backhaul_bss_reserved,
+          { "Reserved", "ieee1905.ap_operational_backhaul_bss.config_bitmask.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_radio_advance_capa_backhaul_bss_traffic_sep,
+          { "Traffic Separation on combined fronthaul and R1-only backhaul",
+            "ieee1905.ap_advanced_capabilities.traffic_sep_on_combined_fronthaul_and_r1_only_backhaul",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
+            0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_radio_advance_capa_combined_r1_r2_backhaul,
+          { "Traffic Separation on combined R1 and R2 and above backhaul",
+            "ieee1905.ap_advanced_capabilities.traffic_sep_on_combined_r1_and_r2_and_backhaul",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
+            0x40, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_radio_advance_capa_reserved,
+          { "Reserved", "ieee1905.ap_advanced_capabilities.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL }},
+
+        { &hf_ieee1905_assoc_status_notif_num_bssid,
+          { "Number of BSSIDs",
+            "ieee1905.association_status_notification.num_bssids",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_assoc_status_notif_bssid,
+          { "BSSID of operated BSS",
+            "ieee1905.associated_status_notification.bssid_of_operated_bss",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_assoc_status_notif_status,
+          { "Status", "ieee1905.associated_status_notification.status",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(assoc_status_notif_status_rvals), 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_source_info_mac_addr,
+          { "Tunneled Source MAC Address",
+            "ieee1905.source_info.tunneled_source_mac_address",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_tunneled_message_type,
+          { "Tunneled protocol payload type",
+            "ieee1905.tunneled_message_type.tunneled_payload_type",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(tunneled_message_type_rvals), 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_tunneled_data,
+          { "Tunneled protocol payload",
+            "ieee1905.tunneled.tunneled_protocol_payload",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_status_code_status,
+          { "Status Code", "ieee1905.status_code.status_code",
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &ieee80211_status_code_ext, 0,
+            NULL, HFILL }},
+
+        { &hf_ieee1905_disassociation_reason_code,
+          { "Reason Code", "ieee1905.disassociation_reason_code.reason_code",
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &ieee80211_reason_code_ext, 0,
+            NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_radio_id,
+          { "Radio ID", "ieee1905.backhaul_sta_radio_capabilities.radio_id",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_radio_capabilities,
+          { "Flags", "ieee1905.backhaul_sta_radio_capabilities.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_radio_capa_mac_included,
+          { "MAC address included",
+            "ieee1905.backhaul_sta_radio_capabilities.mac_address_included",
+            FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_radio_capa_reserved,
+          { "Reserved", "ieee1905.backhaul_sta_radio_capabilities.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x7F, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_addr,
+          { "Backhaul STA MAC address",
+            "ieee1905.backhaul_sta_radio_capabilities.backhaul_sta_mac_address",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_akm_suite_capa_count,
+          { "AKM Suite number", "ieee1905.akm_suite_capabilities.akm_suit_count",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_akm_suite_oui,
+          { "Suite OUI", "ieee1905.akm_suite_capabilities.akm_suite_oui",
+            FT_UINT24, BASE_OUI, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_akm_suite_type,
+          { "AKM Suite type", "ieee1905.akm_suite_capabilities.akm_suite_type",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_akm_backhaul_suite_oui,
+          { "Backhaul Suite OUI",
+            "ieee1905.akm_suite_capabilities.backhaul.backhaul_akm_suite_oui",
+            FT_UINT24, BASE_OUI, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_akm_backhaul_suite_type,
+          { "Backhaul AKM Suite type",
+            "ieee1905.akm_suite_capabilities.backhaul_akm_suite_type",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_akm_suite_capa_count,
+          { "Backhaul AKM Suite count",
+            "ieee1905.akm_suite_capabilities.backhaul_akm_suite_count",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_akm_fronthaul_suite_oui,
+          { "Fronthaul Suite OUI",
+            "ieee1905.akm_suite_capabilities.backhaul.fronthaul_akm_suite_oui",
+            FT_UINT24, BASE_OUI, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_akm_fronthaul_suite_type,
+          { "Fronthaul AKM Suite type",
+            "ieee1905.akm_suite_capabilities.fronthaul_akm_suite_type",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_fronthaul_akm_suite_capa_count,
+          { "Fronthaul AKM Suite count",
+            "ieee1905.akm_suite_capabilities.fronthaul_akm_suite_count",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_encap_dpp_flags,
+          { "Flags", "ieee1905.1905_encap_dpp.flags",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_dpp_encap_final_destination,
+          { "Final destination",
+            "ieee1905.1905_encap_dpp.flags.final_destination",
+            FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_dpp_encap_channel_list,
+          { "Channel list", "ieee1905.1905_encap_dpp.flags.channel_list",
+            FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+
+        { &hf_ieee1905_dpp_encap_reserved,
+          { "Reserved", "ieee1905.1905_encap_dpp.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL }},
+
+        { &hf_ieee1905_encap_dpp_sta_mac,
+          { "STA MAC address", "ieee1905.1905_encap_dpp.sta_mac_address",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_dpp_encap_num_classes,
+          { "Number Operating Classes",
+            "ieee1905.1905_encap_dpp.number_operating_classes",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_dpp_encap_op_class,
+          { "Operating Class", "ieee1905.1905_encap_dpp.operating_class",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_encap_eapol_payload,
+          { "EAPOL frame payload",
+            "ieee1905.1905_encap_eapol.eapol_frame_payload",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_dpp_bootstrapping_uri_radio_id,
+          { "Radio ID", "ieee1905.dpp_bootstrapping_uri_notification.radio_id",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_dpp_bootstrapping_uri_local_mac_addr,
+          { "MAC Address of Local Interface",
+            "ieee1905.dpp_bootstrapping_uri_notification.mac_addr_local_intf",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_dpp_bootstrapping_uri_bsta_mac_addr,
+          { "MAC Address of bSTA",
+            "ieee1905.dpp_bootstrapping_uri_notification.mac_addr_bsta",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_dpp_bootstrapping_uri_received,
+          { "DPP Bootstrapping URI",
+            "ieee1905.dpp_bootstrapping_uri_notification.dpp_bootstrapping_uri",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_steering_req_src_bssid,
+          { "Src BSSID", "ieee1905.r2_steering_request.src_bssid",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_steering_req_flags,
+          { "Flags", "ieee1905.r2_steering_request.flags",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_steering_request_mode_flag,
+          { "Request Mode", "ieee1905.r2_steering_request.flags.request_mode",
+            FT_BOOLEAN, 8, TFS(&tfs_ieee1905_steering_request_mode_flag),
+            0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_btm_disassoc_imminent_flag,
+          { "BTM Disassociation Imminent",
+            "ieee1905.r2_steering_request.flags.btm_disassociation_imminent",
+            FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_btm_abridged_flag,
+          { "BTM Abridged", "ieee1905.r2_steering_request.flags.btm_abridged",
+            FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_steering_req_reserved,
+          { "Reserved", "ieee1905.r2_steering_request.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_steering_op_window,
+          { "Steering Opportunity window",
+            "ieee1905.r2_steering_request.steering_opportunity_window",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_steering_btm_dissasoc_tmr,
+          { "BTM Disassociation Timer",
+            "ieee1905.r2_steering_request.btm_disassociation_timer",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_steering_sta_count,
+          { "STA List Count", "ieee1905.r2_steering_request.sta_list_count",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_steering_sta_mac,
+          { "AMB capable STA MAC",
+            "ieee1905.r2_steering_request.amb_capable_sta_mac",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_steering_target_count,
+          { "Target BSSID Count",
+            "ieee1905.r2_steering_request.target_bssid_count",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_steering_target_bssid,
+          { "Target BSSID", "ieee1905.r2_steering_request.target_bssid",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_steering_target_op_class,
+          { "Target Operating Class",
+            "ieee1905.r2_steering_request.target_operating_class",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_steering_target_channel,
+          { "Target Channel",
+            "ieee1905.r2_steering_request.target_channel",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_steering_reason,
+          { "Reason code", "ieee1905.r2_steering_request.reason_code",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_metric_collection_interval,
+          { "Collection Interval", "ieee1905.metric_collection_interval.interval",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_ieee1905_max_reporting_rate,
+          { "Maximum Reporting Rate", "ieee1905.unsuccessful_assoc.max_report_rate",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ieee1905_extra_tlv_data,
           { "Extraneous TLV data", "ieee1905.extra_tlv_data",
@@ -5831,6 +9360,7 @@ proto_register_ieee1905(void)
         &ett_ap_operational_bss_intf_list,
         &ett_ap_operational_bss_intf_tree,
         &ett_ieee1905_capabilities_flags,
+        &ett_ieee1905_unsuccessful_associations,
         &ett_assoc_control_list,
         &ett_ieee1905_steering_request_flags,
         &ett_ieee1905_association_event_flags,
@@ -5877,9 +9407,82 @@ proto_register_ieee1905(void)
         &ett_beacon_metrics_response_report_list,
         &ett_beacon_metrics_response_report_tree,
         &ett_ieee1905_beacon_reported_flags,
+        &ett_channel_scan_rep_policy,
+        &ett_channel_scan_capa_radio_list,
+        &ett_channel_scan_capa_radio,
+        &ett_channel_scan_capa_flags,
+        &ett_channel_scan_capa_class_list,
+        &ett_channel_scan_capa_class,
+        &ett_channel_scan_capa_channels,
+        &ett_channel_scan_request_flags,
+        &ett_channel_scan_request_radio_list,
+        &ett_channel_scan_request_radio,
+        &ett_channel_scan_request_class_list,
+        &ett_channel_scan_request_class,
+        &ett_channel_scan_request_channels,
+        &ett_channel_scan_result_neigh_list,
+        &ett_channel_scan_result_neigh_flags,
+        &ett_channel_scan_result_neigh,
+        &ett_channel_scan_result_flags,
+        &ett_cac_request_flags,
+        &ett_cac_request_radio_list,
+        &ett_cac_request_radio,
+        &ett_cac_terminate_radio_list,
+        &ett_cac_terminate_radio,
+        &ett_cac_completion_radio_list,
+        &ett_cac_completion_radio,
+        &ett_cac_completion_radar_list,
+        &ett_cac_completion_radar,
+        &ett_cac_status_rpt_avail_list,
+        &ett_cac_status_rpt_avail_chan,
+        &ett_cac_status_rpt_non_occupy_list,
+        &ett_cac_status_rpt_unocc_chan,
+        &ett_cac_status_rpt_active_cac_list,
+        &ett_cac_status_rpt_active_cac_tree,
+        &ett_cac_capabilities_radio_list,
+        &ett_cac_capabilities_radio_tree,
+        &ett_cac_capabilities_type_list,
+        &ett_cac_capabilities_type_tree,
+        &ett_cac_capabilities_class_list,
+        &ett_cac_capabilities_class_tree,
+        &ett_cac_capabilities_channel_list,
+        &ett_cac_capabilities_channel,
+        &ett_r2_ap_capa_flags,
+        &ett_edge_interface_list,
+        &ett_radio_advanced_capa_flags,
+        &ett_ap_operational_backhaul_bss_tree,
+        &ett_ap_operational_backhaul_bss_intf_list,
+        &ett_ap_operational_backhaul_bss_config_bitmask,
+        &ett_default_802_1q_settings_flags,
+        &ett_traffic_separation_ssid_list,
+        &ett_traffic_separation_ssid,
+        &ett_packet_filtering_policy_bssid_list,
+        &ett_packet_filtering_policy_bssid,
+        &ett_packet_filtering_policy_mac_tree,
+        &ett_ethernet_config_policy_list,
+        &ett_ethernet_config_policy,
+        &ett_ethernet_config_policy_flags,
+        &ett_backhaul_sta_radio_capa_flags,
+        &ett_assoc_status_notif_bssid_list,
+        &ett_assoc_status_notif_bssid_tree,
+        &ett_akm_suite_list,
+        &ett_akm_suite,
+        &ett_backhaul_akm_suite_list,
+        &ett_backhaul_akm_suite,
+        &ett_fronthaul_akm_suite_list,
+        &ett_fronthaul_akm_suite,
+        &ett_1905_encap_dpp_flags,
+        &ett_1905_encap_dpp_classes,
+        &ett_r2_steering_sta_list,
+        &ett_r2_steering_target_list,
+        &ett_r2_steering_target,
     };
 
     static ei_register_info ei[] = {
+      { &ei_ieee1905_missing_eom,
+        { "ieee1905.missing_eom", PI_PROTOCOL, PI_ERROR,
+          "EOM TLV is missing", EXPFILL }},
+
       { &ei_ieee1905_malformed_tlv,
         { "ieee1905.tlv.too_short", PI_PROTOCOL, PI_WARN,
           "TLV is too short", EXPFILL }},
@@ -5891,6 +9494,10 @@ proto_register_ieee1905(void)
       { &ei_ieee1905_extraneous_tlv_data,
         { "ieee1905.tlv.extra_data", PI_PROTOCOL, PI_WARN,
            "TLV has extra data", EXPFILL }},
+
+      { &ei_ieee1905_deprecated_tlv,
+        { "ieee1905.tlv.deprecated_tvl", PI_PROTOCOL, PI_WARN,
+          "TLV is deprecated", EXPFILL }},
     };
 
     expert_module_t *expert_ieee1905 = NULL;

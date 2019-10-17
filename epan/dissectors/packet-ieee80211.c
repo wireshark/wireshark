@@ -754,7 +754,7 @@ static const value_string ieee80211_reason_code[] = {
   { 66, "The mesh STA performs channel switch with unspecified reason" },
   { 0,    NULL}
 };
-static value_string_ext ieee80211_reason_code_ext = VALUE_STRING_EXT_INIT(ieee80211_reason_code);
+value_string_ext ieee80211_reason_code_ext = VALUE_STRING_EXT_INIT(ieee80211_reason_code);
 
 /* ************************************************************************* */
 /*                         8.4.1.9 Status Code field                         */
@@ -870,7 +870,7 @@ static const value_string ieee80211_status_code[] = {
   { 113, "Authentication rejected due to unknown Authentication Server" },
   { 0,    NULL}
 };
-static value_string_ext ieee80211_status_code_ext = VALUE_STRING_EXT_INIT(ieee80211_status_code);
+value_string_ext ieee80211_status_code_ext = VALUE_STRING_EXT_INIT(ieee80211_status_code);
 
 static const value_string ieee80211_transition_reasons[] = {
   { 0, "Unspecified" },
