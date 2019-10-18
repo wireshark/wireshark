@@ -1102,6 +1102,9 @@ proto_register_agentx(void)
 
 	proto_register_field_array(proto_agentx, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_dissector("agentx", dissect_agentx, proto_agentx);
+
 }
 
 /* The registration hand-off routine */
