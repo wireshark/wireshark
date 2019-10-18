@@ -88,9 +88,6 @@ test("ProtoField-char-base-dec", not success)
 success = pcall(ProtoField.new, "char base UNIT_STRING", "test.char4", ftypes.CHAR, {" m"}, base.UNIT_STRING)
 test("ProtoField-char-unit-string", not success)
 
-success = pcall(ProtoField.new, "char base RANGE_STRING", "test.char5", ftypes.CHAR, {{1, 2, "Value"}}, base.RANGE_STRING)
-test("ProtoField-char-range-string", success)
-
 -- Field name: empty, illegal, incompatible
 success = pcall(ProtoField.int8, nil, "empty field name 1")
 test("ProtoField-empty-field-name-1", not success)
