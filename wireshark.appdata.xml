@@ -46,5 +46,28 @@
 	<screenshot type="default">https://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Http-cap.png</screenshot>
 	<screenshot>https://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Stevens-graph.png</screenshot>
     </screenshots>
+    <releases>
+        <release version="3.0.6" date="2019-10-22">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.0.6.html</url>
+        </release>
+        <release version="3.0.5" date="2019-09-20">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.0.5.html</url>
+        </release>
+        <release version="3.0.4" date="2019-09-11">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.0.4.html</url>
+        </release>
+        <release version="3.0.3" date="2019-07-17">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.0.3.html</url>
+        </release>
+        <release version="3.0.2" date="2019-05-22">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.0.2.html</url>
+        </release>
+        <release version="3.0.1" date="2019-04-08">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.0.1.html</url>
+        </release>
+        <release version="3.0.0" date="2019-02-28">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.0.0.html</url>
+        </release>
+    </releases>
     <updatecontact>wireshark-dev_at_wireshark.org</updatecontact>
 </application>
