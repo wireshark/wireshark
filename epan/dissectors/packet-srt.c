@@ -950,7 +950,7 @@ void proto_register_srt(void)
             &units_microseconds, 0, NULL, HFILL}},
 
         {&hf_srt_bufavail, {
-            "ACKD_BUFFERLEFT", "srt.rttvar",
+            "ACKD_BUFFERLEFT", "srt.bufavail",
             FT_UINT32, BASE_DEC | BASE_UNIT_STRING,
             &units_pkts, 0, NULL, HFILL}},
 
