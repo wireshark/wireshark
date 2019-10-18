@@ -585,7 +585,7 @@ fragment_table_cleanup(void)
 
 /* add the list of fragments for this sdu to 'tree' */
 static void
-tree_add_fragment_list(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tree *tree)
+tree_add_fragment_list(struct rlc_sdu *sdu, tvbuff_t *tvb,packet_info *pinfo, proto_tree *tree)
 {
     proto_item      *ti;
     proto_tree      *frag_tree;
@@ -608,6 +608,9 @@ tree_add_fragment_list(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tree *tree)
                 sdufrag->len, sdufrag->frame_num, "Frame: %u, payload: none (0 bytes) (Seq: %u)",
                 sdufrag->frame_num, sdufrag->seq);
         }
+
+        mark_frame_as_depended_upon(pinfo, sdufrag->frame_num);
+
         offset += sdufrag->len;
         sdufrag = sdufrag->next;
     }
@@ -1226,7 +1229,7 @@ get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 
     /* reassembly happened here, so create the fragment list */
     if (tree && sdu->fragcnt > 1)
-        tree_add_fragment_list(sdu, sdu->tvb, tree);
+        tree_add_fragment_list(sdu, sdu->tvb, pinfo, tree);
 
     return sdu->tvb;
 }
