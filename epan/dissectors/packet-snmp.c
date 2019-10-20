@@ -1218,7 +1218,8 @@ dissect_snmp_engineid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int o
 {
 	proto_item *item = NULL;
 	guint8 conformance, format;
-	guint32 enterpriseid, seconds;
+	guint32 enterpriseid;
+	time_t seconds;
 	nstime_t ts;
 	int len_remain = len;
 
@@ -1303,13 +1304,17 @@ dissect_snmp_engineid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int o
 			/* most common enterprise-specific format: (ucd|net)-snmp random */
 			if ((enterpriseid==2021)||(enterpriseid==8072)) {
 				proto_item_append_text(item, (enterpriseid==2021) ? ": UCD-SNMP Random" : ": Net-SNMP Random");
-				/* demystify: 4B/8B random, 4B epoch seconds */
+				/* demystify: 4B random, 4B/8B epoch seconds */
 				if ((len_remain==8) || (len_remain==12)) {
-					proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, len_remain - 4, ENC_NA);
-					seconds = tvb_get_letohl(tvb, offset + (len_remain - 4));
+					proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, 4, ENC_NA);
+					if (len_remain==8) {
+						seconds = (time_t)tvb_get_letohl(tvb, offset + 4);
+					} else {
+						seconds = (time_t)tvb_get_letohi64(tvb, offset + 4);
+					}
 					ts.secs = seconds;
 					ts.nsecs = 0;
-					proto_tree_add_time_format_value(tree, hf_snmp_engineid_time, tvb, offset + (len_remain - 4), 4,
+					proto_tree_add_time_format_value(tree, hf_snmp_engineid_time, tvb, offset + 4, len_remain - 4,
 									 &ts, "%s",
 									 abs_time_secs_to_str(wmem_packet_scope(), seconds, ABSOLUTE_TIME_LOCAL, TRUE));
 					offset+=len_remain;
@@ -3000,7 +3005,7 @@ static int dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1795 "./asn1/snmp/packet-snmp-template.c"
+#line 1800 "./asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3767,7 +3772,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2297 "./asn1/snmp/packet-snmp-template.c"
+#line 2302 "./asn1/snmp/packet-snmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -3807,7 +3812,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2313 "./asn1/snmp/packet-snmp-template.c"
+#line 2318 "./asn1/snmp/packet-snmp-template.c"
 	};
 	static ei_register_info ei[] = {
 		{ &ei_snmp_failed_decrypted_data_pdu, { "snmp.failed_decrypted_data_pdu", PI_MALFORMED, PI_WARN, "Failed to decrypt encryptedPDU", EXPFILL }},
