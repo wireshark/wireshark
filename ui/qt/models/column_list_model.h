@@ -60,12 +60,12 @@ public:
         COL_TYPE,
         COL_FIELDS,
         COL_OCCURRENCE
-    } Columns;
+    };
 
     enum {
         OriginalType = Qt::UserRole,
         DisplayedState
-    } UserTypes;
+    };
 
     void saveColumns();
 
