@@ -38,6 +38,8 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     ui->setupUi(this);
 
     model_ = new ColumnListModel();
+    proxyModel_ = new ColumnProxyModel();
+    proxyModel_->setSourceModel(model_);
 
     int one_em = ui->columnTreeView->fontMetrics().height();
     ui->columnTreeView->setColumnWidth(ColumnListModel::COL_FIELDS, one_em * 10);
@@ -55,8 +57,9 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     ui->newToolButton->setStockIcon("list-add");
     ui->deleteToolButton->setStockIcon("list-remove");
 
-    ui->columnTreeView->setModel(model_);
+    ui->columnTreeView->setModel(proxyModel_);
     ui->columnTreeView->setItemDelegate(new ColumnTypeDelegate());
+    ui->columnTreeView->setSortingEnabled(false);
 
     ui->columnTreeView->resizeColumnToContents(ColumnListModel::COL_DISPLAYED);
     ui->columnTreeView->resizeColumnToContents(ColumnListModel::COL_TITLE);
@@ -87,7 +90,7 @@ void ColumnPreferencesFrame::on_deleteToolButton_clicked()
     if ( ui->columnTreeView->selectionModel()->selectedIndexes().count() > 0 )
     {
         QModelIndex selIndex = ui->columnTreeView->selectionModel()->selectedIndexes().at(0);
-        model_->deleteEntry(selIndex.row());
+        model_->deleteEntry(proxyModel_->mapToSource(selIndex).row());
     }
 }
 
@@ -95,6 +98,11 @@ void ColumnPreferencesFrame::selectionChanged(const QItemSelection &/*selected*/
     const QItemSelection &/*deselected*/)
 {
     ui->deleteToolButton->setEnabled( ui->columnTreeView->selectionModel()->selectedIndexes().count() > 0 );
+}
+
+void ColumnPreferencesFrame::on_chkShowDisplayedOnly_stateChanged(int /*state*/)
+{
+    proxyModel_->setShowDisplayedOnly(ui->chkShowDisplayedOnly->checkState() == Qt::Checked ? true : false);
 }
 
 /*

@@ -10,13 +10,10 @@
 #ifndef COLUMN_PREFERENCES_FRAME_H
 #define COLUMN_PREFERENCES_FRAME_H
 
-#include <QFrame>
+#include <ui/qt/models/column_list_model.h>
 
-class QComboBox;
-class QLineEdit;
-class QTreeWidgetItem;
-class ColumnListModel;
-class QItemSelection;
+#include <QFrame>
+#include <QItemSelection>
 
 namespace Ui {
 class ColumnPreferencesFrame;
@@ -27,7 +24,7 @@ class ColumnPreferencesFrame : public QFrame
     Q_OBJECT
 
 public:
-    explicit ColumnPreferencesFrame(QWidget *parent = 0);
+    explicit ColumnPreferencesFrame(QWidget *parent = Q_NULLPTR);
     ~ColumnPreferencesFrame();
 
     void unstash();
@@ -35,11 +32,13 @@ public:
 private:
     Ui::ColumnPreferencesFrame *ui;
     ColumnListModel * model_;
+    ColumnProxyModel * proxyModel_;
 
 private slots:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
+    void on_chkShowDisplayedOnly_stateChanged(int);
 };
 
 #endif // COLUMN_PREFERENCES_FRAME_H

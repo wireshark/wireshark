@@ -35,10 +35,10 @@
       <bool>false</bool>
      </property>
      <property name="sortingEnabled">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <attribute name="headerShowSortIndicator" stdset="0">
-      <bool>true</bool>
+      <bool>false</bool>
      </attribute>
     </widget>
    </item>
@@ -49,6 +49,13 @@
      </item>
      <item>
       <widget class="StockIconToolButton" name="deleteToolButton"/>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="chkShowDisplayedOnly">
+       <property name="text">
+        <string>Show displayed columns only</string>
+       </property>
+      </widget>
      </item>
      <item>
       <spacer name="horizontalSpacer">

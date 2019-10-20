@@ -37,6 +37,30 @@ struct ListElement
 
 static QList<ListElement> store_;
 
+ColumnProxyModel::ColumnProxyModel(QObject * parent) :
+    QSortFilterProxyModel(parent),
+    showDisplayedOnly_(false)
+{}
+
+bool ColumnProxyModel::filterAcceptsRow(int source_row, const QModelIndex &/*source_parent*/) const
+{
+    bool displayed = false;
+    if ( sourceModel() &&
+         sourceModel()->index(source_row, ColumnListModel::COL_DISPLAYED).data(ColumnListModel::DisplayedState).toBool() )
+        displayed = true;
+
+    if ( showDisplayedOnly_ && ! displayed )
+        return false;
+
+    return true;
+}
+
+void ColumnProxyModel::setShowDisplayedOnly(bool set)
+{
+    showDisplayedOnly_ = set;
+    invalidateFilter();
+}
+
 ColumnTypeDelegate::ColumnTypeDelegate(QObject * parent) :
     QStyledItemDelegate(parent)
 {}
@@ -268,9 +292,9 @@ QVariant ColumnListModel::data(const QModelIndex &index, int role) const
         }
     }
     else if ( role == OriginalType )
-    {
         return qVariantFromValue(ne.originalType);
-    }
+    else if ( role == DisplayedState )
+        return qVariantFromValue(ne.displayed);
 
     return QVariant();
 }

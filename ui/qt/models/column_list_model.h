@@ -13,7 +13,22 @@
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
+#include <QSortFilterProxyModel>
 #include <QMimeData>
+
+class ColumnProxyModel : public QSortFilterProxyModel
+{
+public:
+    ColumnProxyModel(QObject *parent = Q_NULLPTR);
+
+    void setShowDisplayedOnly(bool set);
+
+protected:
+    virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
+
+private:
+    bool showDisplayedOnly_;
+};
 
 class ColumnTypeDelegate : public QStyledItemDelegate
 {
@@ -48,7 +63,8 @@ public:
     } Columns;
 
     enum {
-        OriginalType = Qt::UserRole
+        OriginalType = Qt::UserRole,
+        DisplayedState
     } UserTypes;
 
     void saveColumns();
