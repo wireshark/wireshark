@@ -2788,11 +2788,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>macOS Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>macOS Extras</translation>
     </message>
     <message>
         <source>Extra macOS packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Extra macOS Pakete</translation>
     </message>
     <message>
         <source>Name</source>
@@ -4197,11 +4197,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Interfaces not loaded (due to preference). Go to Capture </source>
-        <translation type="unfinished"></translation>
+        <translation>Schnittstellen (aufgrund der Einstellungen) nicht geladen. Gehe zu Mitschnitt</translation>
     </message>
     <message>
         <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie haben keine Berechtigung zum mitschneiden. Sie können &lt;a href=&quot;file://%1&quot;&gt;ChmodBPF installieren&lt;/a&gt; um dies zu beheben.</translation>
     </message>
 </context>
 <context>

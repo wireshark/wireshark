@@ -2788,11 +2788,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>macOS Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>macOS Extras</translation>
     </message>
     <message>
         <source>Extra macOS packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Pacchetti aggiuntivi di macOS</translation>
     </message>
     <message>
         <source>Name</source>
@@ -4197,11 +4197,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Interfaces not loaded (due to preference). Go to Capture </source>
-        <translation type="unfinished"></translation>
+        <translation>Interfacce non caricate (a causa delle preferenze). Vai in Cattura</translation>
     </message>
     <message>
         <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Non hai i permessi per catturare. Puoi &lt;a href=&quot;file://%1&quot;&gt;installare ChmodBPF per correggere&lt;/a&gt;.</translation>
     </message>
 </context>
 <context>
