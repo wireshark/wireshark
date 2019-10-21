@@ -597,7 +597,7 @@ void PacketList::ctxDecodeAsDialog()
     bool create_new = da_action->property("create_new").toBool();
 
     DecodeAsDialog *da_dialog = new DecodeAsDialog(this, cap_file_, create_new);
-    connect(da_dialog, SIGNAL(finished(int)), wsApp, SLOT(flushAppSignals()));
+    connect(da_dialog, SIGNAL(destroyed(QObject*)), wsApp, SLOT(flushAppSignals()));
     da_dialog->setWindowModality(Qt::ApplicationModal);
     da_dialog->setAttribute(Qt::WA_DeleteOnClose);
     da_dialog->show();

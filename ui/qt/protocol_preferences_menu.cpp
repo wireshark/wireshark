@@ -84,7 +84,7 @@ public:
 
     void showUatDialog() {
         UatDialog *uat_dlg = new UatDialog(parentWidget(), prefs_get_uat_value(pref_));
-        connect(uat_dlg, SIGNAL(finished(int)), wsApp, SLOT(flushAppSignals()));
+        connect(uat_dlg, SIGNAL(destroyed(QObject*)), wsApp, SLOT(flushAppSignals()));
         uat_dlg->setWindowModality(Qt::ApplicationModal);
         uat_dlg->setAttribute(Qt::WA_DeleteOnClose);
         uat_dlg->show();

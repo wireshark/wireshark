@@ -2151,8 +2151,7 @@ void MainWindow::on_actionEditConfigurationProfiles_triggered()
 void MainWindow::showPreferencesDialog(QString pane_name)
 {
     PreferencesDialog *pref_dialog = new PreferencesDialog(this);
-    connect(pref_dialog, SIGNAL(finished(int)), wsApp, SLOT(flushAppSignals()));
-
+    connect(pref_dialog, SIGNAL(destroyed(QObject*)), wsApp, SLOT(flushAppSignals()));
     saveWindowGeometry();  // Save in case the layout panes are rearranged
 
     pref_dialog->setPane(pane_name);
@@ -2656,7 +2655,7 @@ void MainWindow::on_actionAnalyzeDisplayFilterMacros_triggered()
     struct epan_uat* dfm_uat;
     dfilter_macro_get_uat(&dfm_uat);
     UatDialog *uat_dlg = new UatDialog(parentWidget(), dfm_uat);
-    connect(uat_dlg, SIGNAL(finished(int)), wsApp, SLOT(flushAppSignals()));
+    connect(uat_dlg, SIGNAL(destroyed(QObject*)), wsApp, SLOT(flushAppSignals()));
 
     uat_dlg->setWindowModality(Qt::ApplicationModal);
     uat_dlg->setAttribute(Qt::WA_DeleteOnClose);
@@ -2705,7 +2704,7 @@ void MainWindow::applyExportObject()
 void MainWindow::on_actionAnalyzeEnabledProtocols_triggered()
 {
     EnabledProtocolsDialog *enable_proto_dialog = new EnabledProtocolsDialog(this);
-    connect(enable_proto_dialog, SIGNAL(finished(int)), wsApp, SLOT(flushAppSignals()));
+    connect(enable_proto_dialog, SIGNAL(destroyed(QObject*)), wsApp, SLOT(flushAppSignals()));
 
     enable_proto_dialog->setWindowModality(Qt::ApplicationModal);
     enable_proto_dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -2721,7 +2720,7 @@ void MainWindow::on_actionAnalyzeDecodeAs_triggered()
     }
 
     DecodeAsDialog *da_dialog = new DecodeAsDialog(this, capture_file_.capFile(), create_new);
-    connect(da_dialog, SIGNAL(finished(int)), wsApp, SLOT(flushAppSignals()));
+    connect(da_dialog, SIGNAL(destroyed(QObject*)), wsApp, SLOT(flushAppSignals()));
 
     da_dialog->setWindowModality(Qt::ApplicationModal);
     da_dialog->setAttribute(Qt::WA_DeleteOnClose);
