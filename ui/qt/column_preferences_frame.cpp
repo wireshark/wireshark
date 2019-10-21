@@ -56,6 +56,7 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
 
     ui->newToolButton->setStockIcon("list-add");
     ui->deleteToolButton->setStockIcon("list-remove");
+    ui->resetToolButton->setStockIcon("x-capture-file-reload");
 
     ui->columnTreeView->setModel(proxyModel_);
     ui->columnTreeView->setItemDelegate(new ColumnTypeDelegate());
@@ -103,6 +104,11 @@ void ColumnPreferencesFrame::selectionChanged(const QItemSelection &/*selected*/
 void ColumnPreferencesFrame::on_chkShowDisplayedOnly_stateChanged(int /*state*/)
 {
     proxyModel_->setShowDisplayedOnly(ui->chkShowDisplayedOnly->checkState() == Qt::Checked ? true : false);
+}
+
+void ColumnPreferencesFrame::on_resetToolButton_clicked()
+{
+    model_->reset();
 }
 
 /*

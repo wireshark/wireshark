@@ -71,6 +71,7 @@ public:
 
     void addEntry();
     void deleteEntry(int row);
+    void reset();
 
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;

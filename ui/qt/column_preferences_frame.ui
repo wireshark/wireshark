@@ -45,10 +45,34 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="StockIconToolButton" name="newToolButton"/>
+      <widget class="StockIconToolButton" name="newToolButton">
+       <property name="toolTip">
+        <string>Add a new column</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
      </item>
      <item>
-      <widget class="StockIconToolButton" name="deleteToolButton"/>
+      <widget class="StockIconToolButton" name="deleteToolButton">
+       <property name="toolTip">
+        <string>Delete selected column</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="resetToolButton">
+       <property name="toolTip">
+        <string>Reset all changes</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="chkShowDisplayedOnly">

@@ -38,6 +38,7 @@ private slots:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
+    void on_resetToolButton_clicked();
     void on_chkShowDisplayedOnly_stateChanged(int);
 };
 

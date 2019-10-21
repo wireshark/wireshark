@@ -468,6 +468,13 @@ void ColumnListModel::deleteEntry(int row)
     emit endRemoveRows();
 }
 
+void ColumnListModel::reset()
+{
+    emit beginResetModel();
+    populate();
+    emit endResetModel();
+}
+
 /*
  * Editor modelines
  *
