@@ -226,6 +226,8 @@ static int hf_nas_5gs_sm_sel_sc_mode = -1;
 static int hf_nas_5gs_sm_mh6_pdu_b1 = -1;
 static int hf_nas_5gs_sm_rqos_b0 = -1;
 static int hf_nas_5gs_sm_5gsm_cause = -1;
+static int hf_nas_5gs_sm_apsi = -1;
+static int hf_nas_5gs_sm_apsr = -1;
 static int hf_nas_5gs_sm_int_prot_max_data_rate_ul = -1;
 static int hf_nas_5gs_sm_int_prot_max_data_rate_dl = -1;
 static int hf_nas_5gs_sm_pdu_ses_type = -1;
@@ -272,6 +274,7 @@ static int hf_nas_5gs_sm_unit_for_session_ambr_dl = -1;
 static int hf_nas_5gs_sm_session_ambr_dl = -1;
 static int hf_nas_5gs_sm_unit_for_session_ambr_ul = -1;
 static int hf_nas_5gs_sm_session_ambr_ul = -1;
+static int hf_nas_5gs_sm_dm_spec_id = -1;
 static int hf_nas_5gs_sm_all_ssc_mode_b0 = -1;
 static int hf_nas_5gs_sm_all_ssc_mode_b1 = -1;
 static int hf_nas_5gs_sm_all_ssc_mode_b2 = -1;
@@ -2515,13 +2518,25 @@ de_nas_5gs_sm_5gsm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 /*
  * 9.11.4.3 Always-on PDU session indication
  */
+static true_false_string tfs_nas_5gs_sm_apsi = {
+    "required",
+    "not allowed"
+};
 
 static guint16
-de_nas_5gs_sm_always_on_pdu_ses_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+de_nas_5gs_sm_always_on_pdu_ses_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    static const int * flags[] = {
+        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_spare_b2,
+        &hf_nas_5gs_spare_b1,
+        &hf_nas_5gs_sm_apsi,
+        NULL
+    };
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
 
     return len;
 }
@@ -2530,11 +2545,19 @@ de_nas_5gs_sm_always_on_pdu_ses_ind(tvbuff_t *tvb, proto_tree *tree, packet_info
  * 9.11.4.4 Always-on PDU session requested
  */
 static guint16
-de_nas_5gs_sm_always_on_pdu_ses_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+de_nas_5gs_sm_always_on_pdu_ses_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    static const int * flags[] = {
+        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_spare_b2,
+        &hf_nas_5gs_spare_b1,
+        &hf_nas_5gs_sm_apsr,
+        NULL
+    };
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
 
     return len;
 }
@@ -3348,11 +3371,11 @@ de_nas_5gs_sm_session_ambr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
  */
 /* The SM PDU DN request container contains a DN-specific identity of the UE in the network access identifier (NAI) format */
 static guint16
-de_nas_5gs_sm_pdu_dn_req_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+de_nas_5gs_sm_pdu_dn_req_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    proto_tree_add_item(tree, hf_nas_5gs_sm_dm_spec_id, tvb, offset, len, ENC_UTF_8|ENC_NA);
 
     return len;
 }
@@ -4754,7 +4777,11 @@ nas_5gs_sm_pdu_ses_est_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     /*55    Maximum number of supported packet filter    Maximum number of suuported packet filter   9.11.4.9    O    TV    3*/
     ELEM_OPT_TV(0x55, NAS_5GS_PDU_TYPE_SM,  DE_NAS_5GS_SM_MAX_NUM_SUP_PKT_FLT, NULL);
 
+    /* B-    Always-on PDU session requested    Always-on PDU session requested 9.11.4.4    O    TV    1 */
+    ELEM_OPT_TV_SHORT(0xB0, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_ALWAYS_ON_PDU_SES_REQ, NULL);
+
     /*39    SM PDU DN request container    SM PDU DN request container 9.11.4.15    O    TLV    3-255 */
+    ELEM_OPT_TV(0x39, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PDU_DN_REQ_CONT, NULL);
 
     /*7B    Extended protocol configuration options    Extended protocol configuration options     9.11.4.2    O    TLV-E    4-65538*/
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
@@ -4792,7 +4819,7 @@ nas_5gs_sm_pdu_ses_est_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     ELEM_MAND_LV(NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_SESSION_AMBR, NULL, ei_nas_5gs_missing_mandatory_elemen);
     /*59    5GSM cause    5GSM cause 9.11.4.2    O    TV    2*/
     ELEM_OPT_TV(0x59, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL);
-    /*29    PDU address    PDU address 9.11.4.4    O    TLV    7 */
+    /*29    PDU address    PDU address 9.11.4.10    O    TLV    7 */
     ELEM_OPT_TLV(0x29, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PDU_ADDRESS, NULL);
     /*56    RQ timer value    GPRS timer 9.10.2.3    O    TV    2*/
     ELEM_OPT_TV(0x56, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - RQ timer value");
@@ -7416,6 +7443,16 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_cause_vals), 0x0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_sm_apsi,
+        { "Always-on PDU session",   "nas_5gs.sm.apsi",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_sm_apsi), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_apsr,
+        { "Always-on PDU session",   "nas_5gs.sm.apsr",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_sm_int_prot_max_data_rate_ul,
         { "Integrity protection maximum data rate for uplink",   "nas_5gs.sm.int_prot_max_data_rate_ul",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_int_prot_max_data_rate_vals), 0x0,
@@ -7659,6 +7696,11 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_sm_session_ambr_ul,
         { "Session-AMBR for uplink",   "nas_5gs.sm.session_ambr_ul",
             FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_dm_spec_id,
+        { "DN-specific identity",   "nas_5gs.sm.dm_spec_id",
+            FT_STRING, STR_UNICODE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_all_ssc_mode_b0,
