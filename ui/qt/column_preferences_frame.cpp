@@ -30,6 +30,8 @@
 #include <QTreeWidgetItemIterator>
 #include <QLineEdit>
 #include <QKeyEvent>
+#include <QMenu>
+#include <QAction>
 
 ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     QFrame(parent),
@@ -53,10 +55,10 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     ui->columnTreeView->viewport()->setAcceptDrops(true);
     ui->columnTreeView->setDropIndicatorShown(true);
     ui->columnTreeView->setDragDropMode(QAbstractItemView::InternalMove);
+    ui->columnTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
     ui->newToolButton->setStockIcon("list-add");
     ui->deleteToolButton->setStockIcon("list-remove");
-    ui->resetToolButton->setStockIcon("x-capture-file-reload");
 
     ui->columnTreeView->setModel(proxyModel_);
     ui->columnTreeView->setItemDelegate(new ColumnTypeDelegate());
@@ -106,7 +108,15 @@ void ColumnPreferencesFrame::on_chkShowDisplayedOnly_stateChanged(int /*state*/)
     proxyModel_->setShowDisplayedOnly(ui->chkShowDisplayedOnly->checkState() == Qt::Checked ? true : false);
 }
 
-void ColumnPreferencesFrame::on_resetToolButton_clicked()
+void ColumnPreferencesFrame::on_columnTreeView_customContextMenuRequested(const QPoint &pos)
+{
+    QMenu * contextMenu = new QMenu(this);
+    QAction * action = contextMenu->addAction(tr("Reset all changes"));
+    connect(action, &QAction::triggered, this, &ColumnPreferencesFrame::resetAction);
+    contextMenu->exec(mapToGlobal(pos));
+}
+
+void ColumnPreferencesFrame::resetAction(bool /*checked*/)
 {
     model_->reset();
 }
