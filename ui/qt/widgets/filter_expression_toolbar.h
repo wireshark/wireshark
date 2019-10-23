@@ -23,6 +23,9 @@ public:
 protected:
     virtual bool event(QEvent *event);
 
+protected:
+    virtual WiresharkMimeData * createMimeData(QString name, int position);
+
 public slots:
     void filterExpressionsChanged();
 

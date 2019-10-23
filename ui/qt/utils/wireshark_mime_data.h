@@ -47,12 +47,15 @@ public:
 
     int position() const;
     QString element() const;
+    QString filter() const;
+    void setFilter(QString);
 
     QString labelText() const override;
 
 private:
 
     QString element_;
+    QString filter_;
     int pos_;
 
 };

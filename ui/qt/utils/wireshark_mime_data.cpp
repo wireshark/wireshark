@@ -49,6 +49,7 @@ void DisplayFilterMimeData::allowPlainText()
 ToolbarEntryMimeData::ToolbarEntryMimeData(QString element, int pos) :
     WiresharkMimeData(),
     element_(element),
+    filter_(QString()),
     pos_(pos)
 {}
 
@@ -65,6 +66,16 @@ QString ToolbarEntryMimeData::labelText() const
 int ToolbarEntryMimeData::position() const
 {
     return pos_;
+}
+
+void ToolbarEntryMimeData::setFilter(QString text)
+{
+    filter_ = text;
+}
+
+QString ToolbarEntryMimeData::filter() const
+{
+    return filter_;
 }
 
 /*

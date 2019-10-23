@@ -13,6 +13,8 @@
 #include <QToolBar>
 #include <QPoint>
 
+class WiresharkMimeData;
+
 class DragDropToolBar : public QToolBar
 {
     Q_OBJECT
@@ -29,6 +31,8 @@ Q_SIGNALS:
     void newFilterDropped(QString description, QString filter);
 
 protected:
+
+    virtual WiresharkMimeData * createMimeData(QString name, int position);
 
     virtual void childEvent(QChildEvent * event);
 

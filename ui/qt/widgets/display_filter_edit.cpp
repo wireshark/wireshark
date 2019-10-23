@@ -538,7 +538,8 @@ void DisplayFilterEdit::dragEnterEvent(QDragEnterEvent *event)
     if ( ! event )
         return;
 
-    if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
+    if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData()) ||
+            qobject_cast<const ToolbarEntryMimeData *>(event->mimeData())) {
         if ( event->source() != this )
         {
             event->setDropAction(Qt::CopyAction);
@@ -556,7 +557,8 @@ void DisplayFilterEdit::dragMoveEvent(QDragMoveEvent *event)
     if ( ! event )
         return;
 
-    if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
+    if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData()) ||
+            qobject_cast<const ToolbarEntryMimeData *>(event->mimeData())) {
         if ( event->source() != this )
         {
             event->setDropAction(Qt::CopyAction);
@@ -574,20 +576,28 @@ void DisplayFilterEdit::dropEvent(QDropEvent *event)
     if ( ! event )
         return;
 
-    /* Moving items around */
+    QString filterText = "";
     if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
         const DisplayFilterMimeData * data = qobject_cast<const DisplayFilterMimeData *>(event->mimeData());
 
+        QString filterText;
+        if ((QApplication::keyboardModifiers() & Qt::AltModifier))
+            filterText = data->field();
+        else
+            filterText = data->filter();
+    }
+    else if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData())) {
+        const ToolbarEntryMimeData * data = qobject_cast<const ToolbarEntryMimeData *>(event->mimeData());
+
+        filterText = data->filter();
+    }
+
+    /* Moving items around */
+    if (filterText.length() > 0) {
         if ( event->source() != this )
         {
             event->setDropAction(Qt::CopyAction);
             event->accept();
-
-            QString filterText;
-            if ((QApplication::keyboardModifiers() & Qt::AltModifier))
-                filterText = data->field();
-            else
-                filterText = data->filter();
 
             bool prepare = QApplication::keyboardModifiers() & Qt::ShiftModifier;
 
