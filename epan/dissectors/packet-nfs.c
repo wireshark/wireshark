@@ -8085,7 +8085,7 @@ dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash)
 
 	proto_tree_add_item(stateid_tree, hf_nfs4_stateid_other, tvb, offset, 12, ENC_NA);
 
-	other_hash = crc16_ccitt_tvb_offset(tvb, offset, 12);
+	other_hash = crc32_ccitt_tvb_offset(tvb, offset, 12);
 	oth_item = proto_tree_add_uint(stateid_tree, hf_nfs4_stateid_other_hash, tvb, offset, 12, other_hash);
 	proto_item_set_generated(oth_item);
 	offset+=12;
@@ -12558,8 +12558,8 @@ proto_register_nfs(void)
 			"StateID Other", "nfs.stateid.other", FT_BYTES, BASE_NONE,
 			NULL, 0, "Unique component of StateID", HFILL }},
 		{ &hf_nfs4_stateid_other_hash,{
-			"StateID Other hash", "nfs.stateid.other_hash", FT_UINT16, BASE_HEX,
-			NULL, 0, "CRC-16 hash", HFILL }},
+			"StateID Other hash", "nfs.stateid.other_hash", FT_UINT32, BASE_HEX,
+			NULL, 0, "CRC-32 hash", HFILL }},
 
 		{ &hf_nfs4_offset, {
 			"offset", "nfs.offset4", FT_UINT64, BASE_DEC,
