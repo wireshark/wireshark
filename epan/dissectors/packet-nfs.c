@@ -418,6 +418,11 @@ static int hf_nfs4_fattr_space_total = -1;
 static int hf_nfs4_fattr_space_used = -1;
 static int hf_nfs4_fattr_mounted_on_fileid = -1;
 static int hf_nfs4_fattr_layout_blksize = -1;
+static int hf_nfs4_mdsthreshold_item = -1;
+static int hf_nfs4_mdsthreshold_hint_mask = -1;
+static int hf_nfs4_mdsthreshold_hint_count = -1;
+static int hf_nfs4_mdsthreshold_mask_count = -1;
+static int hf_nfs4_mdsthreshold_hint_file = -1;
 static int hf_nfs4_fattr_security_label_lfs = -1;
 static int hf_nfs4_fattr_security_label_pi = -1;
 static int hf_nfs4_fattr_security_label_context = -1;
@@ -7033,6 +7038,98 @@ dissect_nfs_fs_layout_type(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 
+static const value_string th4_names_file[] = {
+#define TH4_READ_SIZE             0
+	{	TH4_READ_SIZE,		"Read_Size"		},
+#define TH4_WRITE_SIZE            1
+	{	TH4_WRITE_SIZE,		"Write_Size"		},
+#define TH4_READ_IOSIZE           2
+	{	TH4_READ_IOSIZE,	"Read_IO_Size"		},
+#define TH4_WRITE_IOSIZE          3
+	{	TH4_WRITE_IOSIZE,	"Write_IO_Size"		},
+	{	0,	NULL	}
+};
+static value_string_ext th4_names_ext_file = VALUE_STRING_EXT_INIT(th4_names_file);
+
+
+/* Dissect the threshold_item4 bit attribute for the files layout type */
+static int
+dissect_nfs4_threshold_item_file(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		rpc_call_info_value *civ _U_, proto_tree *attr_tree, proto_item *attr_item _U_,
+		guint32 bit_num, void *battr_data _U_)
+{
+	guint64 size;
+
+	switch (bit_num) {
+		case TH4_READ_SIZE:
+		case TH4_WRITE_SIZE:
+		case TH4_READ_IOSIZE:
+		case TH4_WRITE_IOSIZE:
+			size = tvb_get_ntoh64(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_length, offset);
+			proto_item_append_text(attr_tree, " = %ld", size);
+			break;
+	}
+	return offset;
+}
+
+
+/* Dissect the threshold_item4 structure */
+static int
+dissect_nfs4_threshold_item(tvbuff_t *tvb, int offset, packet_info *pinfo,
+				proto_tree *tree, void *data)
+{
+	guint32 layout_type;
+	static nfs4_bitmap_info_t *bitmap_info_p;
+
+	/* Bitmap info for the files layout type */
+	static nfs4_bitmap_info_t bitmap_info_files = {
+		.vse_names_ext = &th4_names_ext_file,
+		.dissect_battr = dissect_nfs4_threshold_item_file,
+		.hf_mask_label = &hf_nfs4_mdsthreshold_hint_mask,
+		.hf_item_label = &hf_nfs4_mdsthreshold_hint_file,
+		.hf_item_count = &hf_nfs4_mdsthreshold_hint_count,
+		.hf_mask_count = &hf_nfs4_mdsthreshold_mask_count
+	};
+
+	/* Bitmap info for an unsupported layout type,
+	 * just display the bitmap mask and its data */
+	static nfs4_bitmap_info_t bitmap_info_default = {
+		.hf_mask_label = &hf_nfs4_mdsthreshold_hint_mask,
+		.hf_mask_count = &hf_nfs4_mdsthreshold_mask_count,
+		.hf_btmap_data = &hf_nfs4_bitmap_data,
+	};
+
+	/* Get layout type */
+	layout_type = tvb_get_ntohl(tvb, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_layout_type, offset);
+
+	switch (layout_type) {
+		case LAYOUT4_NFSV4_1_FILES:
+			bitmap_info_p = &bitmap_info_files;
+			break;
+		default:
+			bitmap_info_p = &bitmap_info_default;
+			break;
+	}
+	return dissect_nfs4_bitmap(tvb, offset, pinfo, tree, (rpc_call_info_value *)data, bitmap_info_p, NFS4_BITMAP_VALUES, NULL);
+}
+
+
+/* Dissect the fattr4_mdsthreshold structure */
+static int
+dissect_nfs4_mdsthreshold(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
+{
+	int mds_offset = offset;
+
+	offset = dissect_rpc_array(tvb, pinfo, tree, offset,
+		dissect_nfs4_threshold_item, hf_nfs4_mdsthreshold_item);
+	proto_item_set_len(tree, offset - mds_offset);
+
+	return offset;
+}
+
+
 static int
 dissect_nfs4_security_label(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
@@ -7329,6 +7426,10 @@ dissect_nfs4_fattr_value(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case FATTR4_LAYOUT_BLKSIZE:
 			offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_layout_blksize,
 						offset);
+			break;
+
+		case FATTR4_MDSTHRESHOLD:
+			offset = dissect_nfs4_mdsthreshold(tvb, pinfo, offset, attr_tree);
 			break;
 
 		case FATTR4_CLONE_BLOCKSIZE:
@@ -12808,6 +12909,26 @@ proto_register_nfs(void)
 		{ &hf_nfs4_fattr_layout_blksize, {
 			"blksize", "nfs.fattr4.layout_blksize", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_mdsthreshold_item, {
+			"threshold_item4", "nfs.fattr4.threshold_item", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_mdsthreshold_hint_mask, {
+			"hint mask", "nfs.fattr4.threshold_item.hint_mask", FT_UINT32, BASE_HEX,
+			NULL, 0, "MDS threshold hint mask", HFILL }},
+
+		{ &hf_nfs4_mdsthreshold_hint_count, {
+			"hint", "nfs.fattr4.threshold_item.hint_count", FT_UINT32, BASE_DEC,
+			NULL, 0, "MDS threshold hint count", HFILL }},
+
+		{ &hf_nfs4_mdsthreshold_mask_count, {
+			"number of masks", "nfs.fattr4.threshold_item.mask_count", FT_UINT32, BASE_DEC,
+			NULL, 0, "MDS threshold hint mask count", HFILL }},
+
+		{ &hf_nfs4_mdsthreshold_hint_file, {
+			"hint", "nfs.fattr4.threshold_item.hint", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
+			&th4_names_ext_file, 0, "MDS threshold hint", HFILL }},
 
 		{ &hf_nfs4_fattr_security_label_lfs, {
 			"label_format", "nfs.fattr4.security_label.lfs", FT_UINT32, BASE_DEC,
