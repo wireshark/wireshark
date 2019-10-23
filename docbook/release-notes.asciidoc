@@ -8,17 +8,17 @@ include::attributes.asciidoc[]
 
 == What is Wireshark?
 
-Wireshark is the world’s most popular network protocol analyzer. It is
-used for troubleshooting, analysis, development and education.
+Wireshark is the world’s most popular network protocol analyzer.
+It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
 === Bug Fixes
 
-The following vulnerabilities have been fixed:
+// The following vulnerabilities have been fixed:
 
-* wssalink:2019-22[]
-Foo dissector {crash,infinite loop}.
+// * wssalink:2019-22[]
+// Foo dissector {crash,infinite loop}.
 // wsbuglink:xxxxx[].
 // cveidlink:2019-XXXXX[].
 // Fixed in master: xxxxx
@@ -32,6 +32,18 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.12rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Qt interface crashes on a profile with packet list only. wsbuglink:16048[].
+
+* NET-SNMP EngineID Length handling Warning. wsbuglink:16051[].
+
+* Wireshark CMake configuration points to wrong plugin install dir. wsbuglink:16060[].
+
+* ERSPAN Type III over GRE without sequence number not decoded correctly. wsbuglink:16089[].
+
+* Windows dumpcap -v does not display capture library info. wsbuglink:16108[].
+
+* [Regression] FT_CHAR fields not supported in Lua API. wsbuglink:16129[].
 
 === New and Updated Features
 
@@ -50,6 +62,9 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+ERSPAN
+IPv4
+SNMP
 --
 
 === New and Updated Capture File Support
@@ -113,8 +128,8 @@ Q&A site] and on the wireshark-users mailing list. Subscription
 information and archives for all of Wireshark’s mailing lists can be
 found on https://www.wireshark.org/lists/[the web site].
 
-Official Wireshark training and certification are available from
-http://www.wiresharktraining.com/[Wireshark University].
+// Official Wireshark training and certification are available from
+// http://www.wiresharktraining.com/[Wireshark University].
 
 == Frequently Asked Questions
 
