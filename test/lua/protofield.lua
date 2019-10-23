@@ -30,7 +30,7 @@ local function setFailed(name)
 end
 
 -- expected number of runs
-local taptests = { [OTHER]=38 }
+local taptests = { [OTHER]=37 }
 local function getResults()
     print("\n-----------------------------\n")
     for k,v in pairs(taptests) do
