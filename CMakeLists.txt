@@ -3284,6 +3284,17 @@ set_target_properties(test-programs PROPERTIES
 	EXCLUDE_FROM_DEFAULT_BUILD True
 )
 
+# Test suites
+find_program(BASH_EXECUTABLE bash)
+if (BASH_EXECUTABLE)
+	enable_testing()
+	add_test(
+		NAME all_tests
+		COMMAND ${BASH_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/test.sh -c -s all
+		)
+	set_tests_properties(all_tests PROPERTIES TIMEOUT 600)
+endif()
+
 if (GIT_EXECUTABLE)
 	# Update AUTHORS file with entries from git shortlog
 	add_custom_target(
