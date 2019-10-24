@@ -74,8 +74,8 @@ RRCConnectionReconfiguration @rrc_conn_reconf
 RRCConnectionReconfigurationComplete @rrc_conn_reconf_compl
 SCG-Config-r12
 SCG-ConfigInfo-r12
-UEPagingCoverageInformation
-UEPagingCoverageInformation-NB
+UEPagingCoverageInformation           @ue_paging_coverage_info
+UEPagingCoverageInformation-NB        @ue_paging_coverage_info.nb
 UERadioAccessCapabilityInformation    @ue_radio_access_cap_info
 UERadioAccessCapabilityInformation-NB @ue_radio_access_cap_info.nb
 UERadioPagingInformation              @ue_radio_paging_info
