@@ -325,6 +325,7 @@ static int hf_nas_5gs_mm_suci_nai = -1;
 static int hf_nas_5gs_mm_imei = -1;
 static int hf_nas_5gs_mm_imeisv = -1;
 static int hf_nas_5gs_mm_reg_res_sms_allowed = -1;
+static int hf_nas_5gs_mm_reg_res_nssaa_perf = -1;
 static int hf_nas_5gs_mm_reg_res_res = -1;
 static int hf_nas_5gs_amf_region_id = -1;
 static int hf_nas_5gs_amf_set_id = -1;
@@ -337,7 +338,8 @@ static int hf_nas_5gs_nw_feat_sup_mpsi_b7 = -1;
 static int hf_nas_5gs_nw_feat_sup_ims_iwk_n26_b6 = -1;
 static int hf_nas_5gs_nw_feat_sup_ims_emf_b5b4 = -1;
 static int hf_nas_5gs_nw_feat_sup_ims_emc_b3b2 = -1;
-static int hf_nas_5gs_nw_feat_sup_ims_vops_b1b0 = -1;
+static int hf_nas_5gs_nw_feat_sup_ims_vops_3gpp = -1;
+static int hf_nas_5gs_nw_feat_sup_ims_vops_n3gpp = -1;
 
 static int hf_nas_5gs_tac = -1;
 
@@ -805,15 +807,6 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
  * 9.11.3.5    5GS network feature support
  */
 
-
-static const value_string nas_5gs_nw_feat_sup_ims_vops_values[] = {
-    { 0x0, "IMS voice over PS session not supported" },
-    { 0x1, "IMS voice over PS session supported over 3GPP access" },
-    { 0x2, "IMS voice over PS session supported over non - 3GPP access" },
-    { 0x3, "Reserved" },
-    { 0, NULL }
-};
-
 static const value_string nas_5gs_nw_feat_sup_emc_values[] = {
     { 0x0, "Emergency services not supported" },
     { 0x1, "Emergency services supported in NR connected to 5GCN only" },
@@ -841,18 +834,25 @@ de_nas_5gs_mm_5gs_nw_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     gchar *add_string _U_, int string_len _U_)
 {
 
-    static const int * flags[] = {
+    static const int * flags_oct3[] = {
         &hf_nas_5gs_nw_feat_sup_mpsi_b7,
         &hf_nas_5gs_nw_feat_sup_ims_iwk_n26_b6,
         &hf_nas_5gs_nw_feat_sup_ims_emf_b5b4,
         &hf_nas_5gs_nw_feat_sup_ims_emc_b3b2,
-        &hf_nas_5gs_nw_feat_sup_ims_vops_b1b0,
+        &hf_nas_5gs_nw_feat_sup_ims_vops_n3gpp,
+        &hf_nas_5gs_nw_feat_sup_ims_vops_3gpp,
         NULL
     };
 
 
     /* MPSI    IWK N26    EMF    EMC    IMS VoPS    octet 3*/
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_oct3, ENC_BIG_ENDIAN);
+
+    if (len == 1) {
+        return len;
+    }
+
+    /* 5G-LCS 5G-UP CIoT 5G-HC-CP CIoT N3 data 5G-CP CIoT RestrictEC MCSI EMCN3 octet 4*/
 
 
     return len;
@@ -875,9 +875,16 @@ de_nas_5gs_mm_5gs_reg_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-    /* 0 Spare 0 Spare 0 Spare 0 Spare SMS allowed 5GS registration result value */
-    proto_tree_add_item(tree, hf_nas_5gs_mm_reg_res_sms_allowed, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_nas_5gs_mm_reg_res_res, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    static const int* flags[] = {
+        &hf_nas_5gs_mm_reg_res_nssaa_perf,
+        &hf_nas_5gs_mm_reg_res_sms_allowed,
+        &hf_nas_5gs_mm_reg_res_res,
+        NULL
+    };
+
+    /* 0 Spare 0 Spare 0 Spare NSSAA Performed SMS allowed 5GS registration result value */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
 
     return 1;
 }
@@ -7763,14 +7770,19 @@ proto_register_nas_5gs(void)
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_mm_reg_res_res,
+        { "5GS registration result",   "nas_5gs.mm.reg_res.res",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_reg_res_values), 0x07,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_mm_reg_res_sms_allowed,
         { "SMS over NAS",   "nas_5gs.mm.reg_res.sms_all",
             FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x08,
             NULL, HFILL }
         },
-        { &hf_nas_5gs_mm_reg_res_res,
-        { "5GS registration result",   "nas_5gs.mm.reg_res.res",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_reg_res_values), 0x07,
+        { &hf_nas_5gs_mm_reg_res_nssaa_perf,
+        { "NSSAA Performed",   "nas_5gs.mm.reg_res.nssaa_perf",
+            FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
         { &hf_nas_5gs_amf_region_id,
@@ -7793,9 +7805,14 @@ proto_register_nas_5gs(void)
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_nas_5gs_nw_feat_sup_ims_emf_b5b4,
-        { "Emergency service fallback indicator (EMF)",   "nas_5gs.nw_feat_sup.emf",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_nw_feat_sup_emf_values), 0x30,
+        { &hf_nas_5gs_nw_feat_sup_ims_vops_3gpp,
+        { "IMS voice over PS session indicator (IMS VoPS)",   "nas_5gs.nw_feat_sup.vops_3gpp",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_ims_vops_n3gpp,
+        { "IMS voice over PS session over non-3GPP access indicator (IMS-VoPS-N3GPP)",   "nas_5gs.nw_feat_sup.vops_n3gpp",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
             NULL, HFILL }
         },
         { &hf_nas_5gs_nw_feat_sup_ims_emc_b3b2,
@@ -7803,9 +7820,9 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, VALS(nas_5gs_nw_feat_sup_emc_values), 0x0c,
             NULL, HFILL }
         },
-        { &hf_nas_5gs_nw_feat_sup_ims_vops_b1b0,
-        { "IMS voice over PS session indicator (IMS VoPS)",   "nas_5gs.nw_feat_sup.vops",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_nw_feat_sup_ims_vops_values), 0x03,
+        { &hf_nas_5gs_nw_feat_sup_ims_emf_b5b4,
+        { "Emergency service fallback indicator (EMF)",   "nas_5gs.nw_feat_sup.emf",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_nw_feat_sup_emf_values), 0x30,
             NULL, HFILL }
         },
         { &hf_nas_5gs_nw_feat_sup_ims_iwk_n26_b6,
@@ -7818,6 +7835,7 @@ proto_register_nas_5gs(void)
             FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_nw_feat_sup_mpsi), 0x80,
             NULL, HFILL }
         },
+
         { &hf_nas_5gs_tac,
         { "TAC",   "nas_5gs.tac",
             FT_UINT24, BASE_DEC, NULL, 0x0,
