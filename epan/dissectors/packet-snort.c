@@ -39,6 +39,7 @@
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/report_message.h>
 #include <wiretap/wtap-int.h>
 
 #include "snort-config.h"
@@ -1294,17 +1295,20 @@ static void snort_start(void)
 
     if (ws_stat64(pref_snort_binary_filename, &binary_stat) != 0) {
         snort_debug_printf("Can't run snort - executable '%s' not found\n", pref_snort_binary_filename);
+        report_failure("Snort dissector: Can't run snort - executable '%s' not found\n", pref_snort_binary_filename);
         return;
     }
 
     if (ws_stat64(pref_snort_config_filename, &config_stat) != 0) {
         snort_debug_printf("Can't run snort - config file '%s' not found\n", pref_snort_config_filename);
+        report_failure("Snort dissector: Can't run snort - config file '%s' not found\n", pref_snort_config_filename);
         return;
     }
 
 #ifdef S_IXUSR
     if (!(binary_stat.st_mode & S_IXUSR)) {
         snort_debug_printf("Snort binary '%s' is not executable\n", pref_snort_binary_filename);
+        report_failure("Snort dissector: Snort binary '%s' is not executable\n", pref_snort_binary_filename);
         return;
     }
 #endif

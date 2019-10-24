@@ -18,6 +18,7 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/report_message.h>
 
 #include "snort-config.h"
 
@@ -562,6 +563,8 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
         new_config_fd = ws_fopen(substituted_filename, "r");
         if (new_config_fd == NULL) {
             snort_debug_printf("Failed to open config file %s\n", substituted_filename);
+            report_failure("Snort dissector: Failed to open config file %s\n", substituted_filename);
+
             return FALSE;
         }
 
@@ -921,6 +924,7 @@ void create_config(SnortConfig_t **snort_config, const char *snort_config_file)
     config_file_fd = ws_fopen(snort_config_file, "r");
     if (config_file_fd == NULL) {
         snort_debug_printf("Failed to open config file %s\n", snort_config_file);
+        report_failure("Snort dissector: Failed to open config file %s\n", snort_config_file);
         return;
     }
 
