@@ -1451,6 +1451,24 @@ de_nas_5gs_mm_nas_key_set_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     return 1;
 }
 
+/* High nibble version (LEFT_NIBBLE) */
+static guint16
+de_nas_5gs_mm_nas_key_set_id_h1(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    guint32 offset, guint len _U_,
+    gchar* add_string _U_, int string_len _U_)
+{
+    static const int* flags[] = {
+        &hf_nas_5gs_mm_tsc_h1,
+        &hf_nas_5gs_mm_nas_key_set_id_h1,
+        NULL
+    };
+
+    /* NAS key set identifier IEI   TSC     NAS key set identifier */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
+
+    return 1;
+}
+
 
 /*
  *   9.11.3.33    NAS message container
@@ -2042,6 +2060,18 @@ static const value_string nas_5gs_mm_serv_type_vals[] = {
     { 0x04, "Emergency services fallback" },
     { 0x05, "High priority access" },
     {    0, NULL } };
+
+
+static guint16
+de_nas_5gs_mm_serv_type(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    guint32 offset, guint len,
+    gchar* add_string _U_, int string_len _U_)
+{
+
+    proto_tree_add_item(tree, hf_nas_5gs_mm_serv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    return len;
+}
 
 /*
  *   9.11.3.50A    SMS indication
@@ -3657,6 +3687,7 @@ typedef enum
     DE_NAS_5GS_MM_LADN_INF,                  /* 9.11.3.30    LADN information */
     DE_NAS_5GS_MM_MICO_IND,                  /* 9.11.3.31    MICO indication*/
     DE_NAS_5GS_MM_NAS_KEY_SET_ID,            /* 9.11.3.32    NAS key set identifier*/
+    DE_NAS_5GS_MM_NAS_KEY_SET_ID_H!,         /* 9.11.3.32    NAS key set identifier*/
     DE_NAS_5GS_MM_NAS_MSG_CONT,              /* 9.11.3.33    NAS message container*/
     DE_NAS_5GS_MM_NAS_SEC_ALGO,              /* 9.11.3.34    NAS security algorithms*/
     DE_NAS_5GS_MM_NW_NAME,                   /* 9.11.3.35    Network name*/
@@ -3676,7 +3707,7 @@ typedef enum
     DE_NAS_5GS_MM_S1_UE_NW_CAP,              /* 9.11.3.48    S1 UE network capability*/
     DE_NAS_5GS_MM_S1_UE_SEC_CAP,             /* 9.11.3.48A   S1 UE security capability*/
     DE_NAS_5GS_MM_SAL,                       /* 9.11.3.49    Service area list*/
-    DE_NAS_5GS_MM_SERV_TYPE,                 /* 9.11.3.50    Service type,*/ /* Used inline Half octet IE*/
+    DE_NAS_5GS_MM_SERV_TYPE,                 /* 9.11.3.50    Service type,*/
     DE_NAS_5GS_MM_SMS_IND,                   /* 9.11.3.50A   SMS indication */
     DE_NAS_5GS_MM_SOR_TRASP_CONT,            /* 9.11.3.51    SOR transparent container */
     DE_NAS_5GS_MM_TZ,                        /* 9.11.3.52    Time zone*/
@@ -3726,6 +3757,7 @@ static const value_string nas_5gs_mm_elem_strings[] = {
     { DE_NAS_5GS_MM_LADN_INF,                   "LADN information" },                   /* 9.11.3.30    LADN information*/
     { DE_NAS_5GS_MM_MICO_IND,                   "MICO indication" },                    /* 9.11.3.31    MICO indication*/
     { DE_NAS_5GS_MM_NAS_KEY_SET_ID,             "NAS key set identifier" },             /* 9.11.3.32    NAS key set identifier*/
+    { DE_NAS_5GS_MM_NAS_KEY_SET_ID_H1,          "NAS key set identifier" },             /* 9.11.3.32    NAS key set identifier*/
     { DE_NAS_5GS_MM_NAS_MSG_CONT,               "NAS message container" },              /* 9.11.3.33    NAS message container*/
     { DE_NAS_5GS_MM_NAS_SEC_ALGO,               "NAS security algorithms" },            /* 9.11.3.34    NAS security algorithms*/
     { DE_NAS_5GS_MM_NW_NAME,                    "Network name" },                       /* 9.11.3.35    Network name*/
@@ -3802,6 +3834,7 @@ guint16(*nas_5gs_mm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         de_nas_5gs_mm_ladn_inf,                  /* 9.11.3.30    LADN information*/
         de_nas_5gs_mm_mico_ind,                  /* 9.11.3.31    MICO indication*/
         de_nas_5gs_mm_nas_key_set_id,            /* 9.11.3.32    NAS key set identifier*/
+        de_nas_5gs_mm_nas_key_set_id_h1,         /* 9.11.3.32    NAS key set identifier*/
         de_nas_5gs_mm_nas_msg_cont,              /* 9.11.3.33    NAS message container*/
         de_nas_5gs_mm_nas_sec_algo,              /* 9.11.3.34    NAS security algorithms*/
         NULL,                                    /* 9.11.3.35    Network name*/
@@ -3821,7 +3854,7 @@ guint16(*nas_5gs_mm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         NULL,                                    /* 9.11.3.48    S1 UE network capability*/
         NULL,                                    /* 9.11.3.48A   S1 UE security capability*/
         de_nas_5gs_mm_sal,                       /* 9.11.3.49    Service area list*/
-        NULL,                                    /* 9.11.3.50    Service type*/ /* Used Inline Half octet IE */
+        de_nas_5gs_mm_serv_type,                 /* 9.11.3.50    Service type*/
         de_nas_5gs_mm_sms_ind,                   /* 9.11.3.50A   SMS indication */
         de_nas_5gs_mm_sor_trasp_cont,            /* 9.11.3.51    SOR transparent container */
         NULL,                                    /* 9.11.3.52    Time zone*/
@@ -4044,13 +4077,6 @@ nas_5gs_mm_authentication_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 /*
  * 8.2.6 Registration request
  */
-static const int * nas_5gs_registration_req_flags[] = {
-    &hf_nas_5gs_mm_tsc_h1,
-    &hf_nas_5gs_mm_nas_key_set_id_h1,
-    &hf_nas_5gs_mm_for,
-    &hf_nas_5gs_mm_5gs_reg_type,
-    NULL
-};
 
 static void
 nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
@@ -4068,11 +4094,9 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     /* Initalize the private struct */
     nas5gs_get_private_data(pinfo);
 
-    /*   5GS registration type    5GS registration type 9.11.3.7    M    V    1/2  H0*/
     /*    ngKSI    NAS key set identifier 9.11.3.32    M    V    1/2 H1*/
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, nas_5gs_registration_req_flags, ENC_BIG_ENDIAN);
-    curr_offset++;
-    curr_len--;
+    /*   5GS registration type    5GS registration type 9.11.3.7    M    V    1/2  H0*/
+    ELEM_MAND_VV_SHORT(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NAS_KEY_SET_ID, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_REG_TYPE, ei_nas_5gs_missing_mandatory_elemen);
 
     /*    Mobile identity    5GS mobile identity 9.11.3.4    M    LV-E    6-n*/
     ELEM_MAND_LV_E(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_MOBILE_ID, NULL, ei_nas_5gs_missing_mandatory_elemen);
@@ -4351,9 +4375,8 @@ nas_5gs_mm_de_reg_req_ue_orig(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     curr_len = len;
 
     /* De-registration type    De-registration type     9.11.3.18   M   V   1 */
-    ELEM_MAND_V(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_DE_REG_TYPE, NULL, ei_nas_5gs_missing_mandatory_elemen);
-
     /* ngKSI    NAS key set identifier 9.11.3.32    M    V    1/2 H1 */
+    ELEM_MAND_VV_SHORT(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_DE_REG_TYPE, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NAS_KEY_SET_ID_H1, ei_nas_5gs_missing_mandatory_elemen);
 
     /*5GS mobile identity     5GS mobile identity 9.11.3.4    M    LV-E    6-n */
     ELEM_MAND_LV_E(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_MOBILE_ID, NULL, ei_nas_5gs_missing_mandatory_elemen);
@@ -4414,9 +4437,7 @@ nas_5gs_mm_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
     /* ngKSI     NAS key set identifier 9.11.3.29    M    V    1/2 */
     /* Service type    Service type 9.11.3.46    M    V    1/2 */
-    proto_tree_add_item(tree, hf_nas_5gs_mm_serv_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    ELEM_MAND_V(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NAS_KEY_SET_ID, " - ngKSI", ei_nas_5gs_missing_mandatory_elemen);
-
+    ELEM_MAND_VV_SHORT(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NAS_KEY_SET_ID, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_SERV_TYPE, ei_nas_5gs_missing_mandatory_elemen);
     /* 5G-S-TMSI    5GS mobile identity 9.11.3.4    M    LV    6 */
     ELEM_MAND_LV_E(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_MOBILE_ID, NULL, ei_nas_5gs_missing_mandatory_elemen);
     /*40    Uplink data status    Uplink data status         9.11.3.53    O    TLV    4 - 34*/

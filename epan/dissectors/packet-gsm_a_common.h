@@ -1747,6 +1747,7 @@ typedef enum
     DE_NAS_5GS_MM_LADN_INF,                  /* 9.11.3.30    LADN information */
     DE_NAS_5GS_MM_MICO_IND,                  /* 9.11.3.31    MICO indication*/
     DE_NAS_5GS_MM_NAS_KEY_SET_ID,            /* 9.11.3.32    NAS key set identifier*/
+    DE_NAS_5GS_MM_NAS_KEY_SET_ID_H1,         /* 9.11.3.32    NAS key set identifier*/
     DE_NAS_5GS_MM_NAS_MSG_CONT,              /* 9.11.3.33    NAS message container*/
     DE_NAS_5GS_MM_NAS_SEC_ALGO,              /* 9.11.3.34    NAS security algorithms*/
     DE_NAS_5GS_MM_NW_NAME,                   /* 9.11.3.35    Network name*/
