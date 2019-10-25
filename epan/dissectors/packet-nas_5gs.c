@@ -313,6 +313,7 @@ static int ett_nas_5gs_ue_policies_ursp = -1;
 static int ett_nas_5gs_ursp_traff_desc = -1;
 static int ett_nas_5gs_ursp_r_sel_desc_cont = -1;
 static int ett_nas_5gs_updp_upsi_list = -1;
+static int ett_nas_5gs_mm_rej_nssai = -1;
 
 static int hf_nas_5gs_mm_abba = -1;
 static int hf_nas_5gs_mm_supi_fmt = -1;
@@ -412,6 +413,8 @@ static int hf_nas_5gs_os_id = -1;
 static int hf_nas_5gs_os_id_len = -1;
 static int hf_nas_5gs_os_app_id_len = -1;
 static int hf_nas_5gs_os_app_id = -1;
+static int hf_nas_5gs_mm_len_of_rej_s_nssai = -1;
+static int hf_nas_5gs_mm_rej_s_nssai_cause = -1;
 
 static expert_field ei_nas_5gs_extraneous_data = EI_INIT;
 static expert_field ei_nas_5gs_unknown_pd = EI_INIT;
@@ -1877,12 +1880,42 @@ de_nas_5gs_mm_pdu_ses_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 /*
  *   9.11.3.46    Rejected NSSAI
  */
+static const value_string nas_5gs_mm_rej_s_nssai_cause_vals[] = {
+    { 0x00, "S-NSSAI not available in the current PLMN or SNPN" },
+    { 0x01, "S-NSSAI not available in the current registration area" },
+    { 0x02, "Network slice specific authentication and authorization pending for the S-NSSAI" },
+    {    0, NULL } };
+
 static guint16
-de_nas_5gs_mm_rej_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+de_nas_5gs_mm_rej_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    proto_tree* sub_tree;
+    proto_item* item;
+    guint num_items = 1;
+    guint32 curr_offset = offset;
+    guint32 start_offset, nssai_len;
+
+    /* Rejected NSSAI */
+    while ((curr_offset - offset) < len) {
+        start_offset = curr_offset;
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_mm_rej_nssai, &item, "Rejected S-NSSAI %u", num_items);
+
+        /* Length of rejected S-NSSAI Cause value */
+        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_len_of_rej_s_nssai, tvb, offset, 1, ENC_BIG_ENDIAN, &nssai_len);
+        proto_tree_add_item(sub_tree, hf_nas_5gs_mm_rej_s_nssai_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
+        curr_offset++;
+        /* SST */
+        proto_tree_add_item(sub_tree, hf_nas_5gs_mm_sst, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        if (nssai_len > 1) {
+            /* SD    octet 3 - octet 5* */
+            proto_tree_add_item(sub_tree, hf_nas_5gs_mm_sd, tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
+        }
+        proto_item_set_len(item, curr_offset - start_offset);
+    }
 
     return len;
 }
@@ -8235,13 +8268,23 @@ proto_register_nas_5gs(void)
           { "OS App id", "nas_5gs.os_app_id",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL } },
+        { &hf_nas_5gs_mm_len_of_rej_s_nssai,
+        { "Length of rejected S-NSSAI", "nas_5gs.mm.len_of_rej_s_nssai",
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_rej_s_nssai_cause,
+        { "Cause", "nas_5gs.mm.rej_s_nssai.cause",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_rej_s_nssai_cause_vals), 0x0f,
+            NULL, HFILL }
+        },
     };
 
     guint     i;
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    21
+#define NUM_INDIVIDUAL_ELEMS    22
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -8270,6 +8313,7 @@ proto_register_nas_5gs(void)
     ett[18] = &ett_nas_5gs_ursp_traff_desc;
     ett[19] = &ett_nas_5gs_ursp_r_sel_desc_cont;
     ett[20] = &ett_nas_5gs_updp_upsi_list;
+    ett[21] = &ett_nas_5gs_mm_rej_nssai;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
