@@ -35,9 +35,7 @@ extern "C" {
  */
 typedef enum {
   CFILTER_LIST,        /* capture filter list - saved */
-  DFILTER_LIST,        /* display filter list - saved */
-  CFILTER_EDITED_LIST, /* capture filter list - currently edited. GTK+ only. */
-  DFILTER_EDITED_LIST  /* display filter list - currently edited. GTK+ only. */
+  DFILTER_LIST        /* display filter list - saved */
 } filter_list_type_t;
 
 /*
@@ -78,11 +76,6 @@ void remove_from_filter_list(filter_list_type_t list, GList *fl_entry);
  * On error, report the error via the UI.
  */
 void save_filter_list(filter_list_type_t list_type);
-
-/*
- * Clone the filter list so it can be edited. GTK+ only.
- */
-void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type);
 
 /*
  * Free all filter lists

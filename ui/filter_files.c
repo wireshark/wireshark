@@ -33,16 +33,6 @@ static GList *capture_filters = NULL;
 static GList *display_filters = NULL;
 
 /*
- * List of capture filters - currently edited.
- */
-static GList *capture_edited_filters = NULL;
-
-/*
- * List of display filters - currently edited.
- */
-static GList *display_edited_filters = NULL;
-
-/*
  * Read in a list of filters.
  *
  * On error, report the error via the UI.
@@ -79,14 +69,6 @@ void free_filter_lists(void)
     if (display_filters) {
         g_list_free_full(display_filters, free_filter_entry);
         display_filters = NULL;
-    }
-    if (capture_edited_filters) {
-        g_list_free_full(capture_edited_filters, free_filter_entry);
-        capture_edited_filters = NULL;
-    }
-    if (display_edited_filters) {
-        g_list_free_full(display_edited_filters, free_filter_entry);
-        display_edited_filters = NULL;
     }
 }
 
@@ -378,19 +360,6 @@ read_filter_list(filter_list_type_t list_type)
   fclose(ff);
   g_free(filt_name);
   g_free(filt_expr);
-
-  /* init the corresponding edited list */
-  switch (list_type) {
-  case CFILTER_LIST:
-    copy_filter_list(CFILTER_EDITED_LIST, CFILTER_LIST);
-    break;
-  case DFILTER_LIST:
-    copy_filter_list(DFILTER_EDITED_LIST, DFILTER_LIST);
-    break;
-  default:
-    g_assert_not_reached();
-    return;
-  }
 }
 
 /*
@@ -409,14 +378,6 @@ get_filter_list(filter_list_type_t list_type)
 
   case DFILTER_LIST:
     flpp = &display_filters;
-    break;
-
-  case CFILTER_EDITED_LIST:
-    flpp = &capture_edited_filters;
-    break;
-
-  case DFILTER_EDITED_LIST:
-    flpp = &display_edited_filters;
     break;
 
   default:
@@ -600,34 +561,6 @@ save_filter_list(filter_list_type_t list_type)
   }
   g_free(ff_path_new);
   g_free(ff_path);
-}
-
-/*
- * Copy a filter list into another.
- */
-void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type)
-{
-  GList      **flpp_dest;
-  GList      **flpp_src;
-  GList      *flp_src;
-  filter_def *filt;
-
-  g_assert(dest_type != src_type);
-
-  flpp_dest = get_filter_list(dest_type);
-  flpp_src = get_filter_list(src_type);
-  /* throw away the "old" destination list - a NULL list is ok here */
-  while(*flpp_dest) {
-    *flpp_dest = remove_filter_entry(*flpp_dest, g_list_first(*flpp_dest));
-  }
-  g_assert(g_list_length(*flpp_dest) == 0);
-
-  /* copy the list entries */
-  for(flp_src = g_list_first(*flpp_src); flp_src; flp_src = g_list_next(flp_src)) {
-    filt = (filter_def *)(flp_src->data);
-
-    *flpp_dest = add_filter_entry(*flpp_dest, filt->name, filt->strval);
-  }
 }
 
 /*
