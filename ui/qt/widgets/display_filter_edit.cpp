@@ -445,18 +445,15 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word)
 void DisplayFilterEdit::clearFilter()
 {
     clear();
-    QString new_filter;
-    emit filterPackets(new_filter, true);
+    emit filterPackets(QString(), true);
 }
 
 void DisplayFilterEdit::applyDisplayFilter()
 {
-    if (syntaxState() == Invalid) {
+    if (syntaxState() == Invalid)
         return;
-    }
 
-    QString new_filter = text();
-    emit filterPackets(new_filter, true);
+    emit filterPackets(text(), true);
 }
 
 void DisplayFilterEdit::displayFilterSuccess(bool success)
