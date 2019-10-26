@@ -7067,7 +7067,7 @@ dissect_nfs4_threshold_item_file(tvbuff_t *tvb, int offset, packet_info *pinfo _
 		case TH4_WRITE_IOSIZE:
 			size = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_length, offset);
-			proto_item_append_text(attr_tree, " = %ld", size);
+			proto_item_append_text(attr_tree, " = %" G_GUINT64_FORMAT, size);
 			break;
 	}
 	return offset;
