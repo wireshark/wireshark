@@ -641,8 +641,8 @@ static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 	guint16	      num_pmu;
 	gint	      offset;
 	config_frame *frame;
-	phasor_info  *pi;
-	analog_info  *ai;
+	phasor_info  *pi = NULL;
+	analog_info  *ai = NULL;
 	gboolean      frame_not_fragmented;
 
 	/* get a new frame and initialize it */
