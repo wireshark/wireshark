@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2019-10-20)
+# (last updated 2019-10-26)
 
 0	Reserved
 1	NxNetworks
@@ -2883,7 +2883,7 @@
 2879	Sonus Networks, Inc.
 2880	IPHighway Ltd.
 2881	Clarion
-2882	Comtrol Corporation
+2882	Pepperl+Fuchs Comtrol
 2883	Coherent Communications Systems Inc
 2884	ADS Networks
 2885	Chicago-Soft Ltd.
@@ -52485,7 +52485,7 @@
 52674	Schneider Electric / APC NetBotz
 52675	Peddie Institute Co., Ltd.
 52676	Hawaiki Cable Ltd.
-52677	iFuture Service Co.,Ltd.
+52677	iFuture Service Co., Ltd.
 52678	Jit Team Sp. z o.o.
 52679	Advanced Technology Facility
 52680	Australian Paper
@@ -54572,3 +54572,36 @@
 54763	Nous Technologies
 54764	Arilia
 54765	Power supply production (PSP)
+54766	WondaLink Inc.
+54767	Software Service, Inc.
+54768	360 Vision Technology Ltd
+54769	Think Technology
+54770	pargareh system parseh
+54771	ys4fun
+54772	Nuratech Networks LLC
+54773	Papierfabrik Niederauer Mühle GmbH
+54774	Renuka's Castle
+54775	Center for Medical Interoperability
+54776	Dealex
+54777	HP-Hrvatska pošta d.d.
+54778	Hyerpu Tech Co. Ltd
+54779	Schmithuysen TestLab-AG
+54780	Virtual Power Systems
+54781	Griwes Homelab
+54782	BackBox Software LTD
+54783	Delta Networks(Xiamen) Inc.
+54784	ELEKON, s.r.o.
+54785	Schweizerische Mobiliar Versicherungsgesellschaft AG
+54786	X Connections Ltd.
+54787	24CARE
+54788	Collé Sittard Machinehandel B.V.
+54789	MaineHealth
+54790	Taler Systems SA
+54791	dbck
+54792	Osprey Video, Inc
+54793	Innovation Care Partners
+54794	Stamhuis Bouwbedrijf B.V.
+54795	HiveMQ / dc-square GmbH
+54796	Department of Public Instruction - State of Wisconsin
+54797	New England Hernia Center LLC
+54798	Dalian Neusoft University of Information

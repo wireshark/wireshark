@@ -1664,32 +1664,70 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>ColumnListModel</name>
+    <message>
+        <source>Displayed</source>
+        <translation type="unfinished">Affichés</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation type="unfinished">Titre</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Type</translation>
+    </message>
+    <message>
+        <source>Fields</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field Occurence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ColumnPreferencesFrame</name>
     <message>
         <source>Frame</source>
         <translation>Trame</translation>
     </message>
     <message>
+        <source>Add a new column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete selected column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show displayed columns only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Displayed</source>
-        <translation>Affichés</translation>
+        <translation type="vanished">Affichés</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation>Titre</translation>
+        <translation type="vanished">Titre</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Type</translation>
-    </message>
-    <message>
-        <source>Fields</source>
-        <oldsource>Field Name</oldsource>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Type</translation>
     </message>
     <message>
         <source>Field Occurrence</source>
         <oldsource>Field occurrence</oldsource>
-        <translation>Occurrence d&apos;un champ</translation>
+        <translation type="vanished">Occurrence d&apos;un champ</translation>
+    </message>
+    <message>
+        <source>Reset all changes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

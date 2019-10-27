@@ -1688,32 +1688,75 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
 </context>
 <context>
+    <name>ColumnListModel</name>
+    <message>
+        <source>Displayed</source>
+        <translation type="unfinished">Visat</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation type="unfinished">Titel</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Typ</translation>
+    </message>
+    <message>
+        <source>Fields</source>
+        <translation type="unfinished">Fält</translation>
+    </message>
+    <message>
+        <source>Field Occurence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ColumnPreferencesFrame</name>
     <message>
         <source>Frame</source>
         <translation>Ram</translation>
     </message>
     <message>
+        <source>Add a new column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete selected column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show displayed columns only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Displayed</source>
-        <translation>Visat</translation>
+        <translation type="vanished">Visat</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation>Titel</translation>
+        <translation type="vanished">Titel</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Typ</translation>
+        <translation type="vanished">Typ</translation>
     </message>
     <message>
         <source>Fields</source>
         <oldsource>Field Name</oldsource>
-        <translation>Fält</translation>
+        <translation type="vanished">Fält</translation>
     </message>
     <message>
         <source>Field Occurrence</source>
         <oldsource>Field occurrence</oldsource>
-        <translation>Fältförekomst</translation>
+        <translation type="vanished">Fältförekomst</translation>
+    </message>
+    <message>
+        <source>Reset all changes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

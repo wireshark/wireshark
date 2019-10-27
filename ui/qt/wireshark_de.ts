@@ -1688,32 +1688,75 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
 </context>
 <context>
+    <name>ColumnListModel</name>
+    <message>
+        <source>Displayed</source>
+        <translation type="unfinished">Angezeigt</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation type="unfinished">Titel</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Typ</translation>
+    </message>
+    <message>
+        <source>Fields</source>
+        <translation type="unfinished">Feldname</translation>
+    </message>
+    <message>
+        <source>Field Occurence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ColumnPreferencesFrame</name>
     <message>
         <source>Frame</source>
         <translation>Frame</translation>
     </message>
     <message>
+        <source>Add a new column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete selected column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show displayed columns only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Displayed</source>
-        <translation>Angezeigt</translation>
+        <translation type="vanished">Angezeigt</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation>Titel</translation>
+        <translation type="vanished">Titel</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Typ</translation>
+        <translation type="vanished">Typ</translation>
     </message>
     <message>
         <source>Fields</source>
         <oldsource>Field Name</oldsource>
-        <translation>Feldname</translation>
+        <translation type="vanished">Feldname</translation>
     </message>
     <message>
         <source>Field Occurrence</source>
         <oldsource>Field occurrence</oldsource>
-        <translation>Feldhäufigkeit</translation>
+        <translation type="vanished">Feldhäufigkeit</translation>
+    </message>
+    <message>
+        <source>Reset all changes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -1680,32 +1680,75 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>ColumnListModel</name>
+    <message>
+        <source>Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation type="unfinished">題名</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">種別</translation>
+    </message>
+    <message>
+        <source>Fields</source>
+        <translation type="unfinished">フィールド名</translation>
+    </message>
+    <message>
+        <source>Field Occurence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ColumnPreferencesFrame</name>
     <message>
         <source>Frame</source>
         <translation>フレーム</translation>
     </message>
     <message>
+        <source>Add a new column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete selected column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show displayed columns only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Displayed</source>
-        <translation>表示</translation>
+        <translation type="vanished">表示</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation>題名</translation>
+        <translation type="vanished">題名</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>種別</translation>
+        <translation type="vanished">種別</translation>
     </message>
     <message>
         <source>Fields</source>
         <oldsource>Field Name</oldsource>
-        <translation>フィールド名</translation>
+        <translation type="vanished">フィールド名</translation>
     </message>
     <message>
         <source>Field Occurrence</source>
         <oldsource>Field occurrence</oldsource>
-        <translation>フィールド出現位置</translation>
+        <translation type="vanished">フィールド出現位置</translation>
+    </message>
+    <message>
+        <source>Reset all changes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

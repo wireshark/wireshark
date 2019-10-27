@@ -1695,32 +1695,75 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>ColumnListModel</name>
+    <message>
+        <source>Displayed</source>
+        <translation type="unfinished">Показано</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation type="unfinished">Заголовок</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Тип</translation>
+    </message>
+    <message>
+        <source>Fields</source>
+        <translation type="unfinished">Поля</translation>
+    </message>
+    <message>
+        <source>Field Occurence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ColumnPreferencesFrame</name>
     <message>
         <source>Frame</source>
         <translation>Кадр</translation>
     </message>
     <message>
+        <source>Add a new column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete selected column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show displayed columns only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Displayed</source>
-        <translation>Показано</translation>
+        <translation type="vanished">Показано</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation>Заголовок</translation>
+        <translation type="vanished">Заголовок</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Тип</translation>
+        <translation type="vanished">Тип</translation>
     </message>
     <message>
         <source>Fields</source>
         <oldsource>Field Name</oldsource>
-        <translation>Поля</translation>
+        <translation type="vanished">Поля</translation>
     </message>
     <message>
         <source>Field Occurrence</source>
         <oldsource>Field occurrence</oldsource>
-        <translation>Вхождение Поля</translation>
+        <translation type="vanished">Вхождение Поля</translation>
+    </message>
+    <message>
+        <source>Reset all changes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
