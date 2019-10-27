@@ -1987,7 +1987,7 @@ dissect_attr_element_container(proto_tree* attr_tree, tvbuff_t* tvb, gint offset
     {
         guint element_id = tvb_get_guint8(tvb, sub_offset);
         guint element_len = tvb_get_guint8(tvb, sub_offset + 1);
-        const char* msg = val_to_str(element_id, ie_tag_num_vals, "%s");
+        const char* msg = val_to_str(element_id, ie_tag_num_vals, "Unknown element ID (%u)");
 
         sub_tree = proto_tree_add_subtree(attr_tree, tvb, sub_offset, element_len + 2, ett_ie_tree, NULL, msg);
         proto_tree_add_item(sub_tree, hf_nan_attr_container_element_id, tvb, sub_offset, 1, ENC_BIG_ENDIAN);
