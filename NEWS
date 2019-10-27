@@ -1,4 +1,4 @@
-Wireshark 3.0.6 Release Notes
+Wireshark 3.0.7 Release Notes
 
  What is Wireshark?
 
@@ -7,52 +7,13 @@ Wireshark 3.0.6 Release Notes
 
  What’s New
 
-    • On macOS, Wireshark can now be installed by dropping Wireshark.app
-      onto the Applications folder.
-
-    • The macOS installer now ships with Qt 5.12.5. It previously
-      shipped with Qt 5.12.3.
-
   Bug Fixes
 
+   The following vulnerabilities have been fixed:
+
+     • wnpa-sec-2019-22[1] Foo dissector {crash,infinite loop}.
+
    The following bugs have been fixed:
-
-     • macOS installer uses wrong user ID. Bug 6991[1].
-
-     • Using macosx-setup seems to prevent installing pre-built binary.
-       Bug 11399[2].
-
-     • macOS installer package is configured to disallow downgrades. Bug
-       12593[3].
-
-     • extcap: Several issues when capturing from multiple extcap
-       interfaces. Bug 13653[4].
-
-     • Expert Infos Incorrectly Displays Info Column instead of comment.
-       Bug 15516[5].
-
-     • Wireshark does not support USB packets with size greater than 256
-       KiB. Bug 15985[6].
-
-     • IS-IS: add support for decoding TE TLV Type 138 as per RFC 5307.
-       Bug 16012[7].
-
-     • NET-SNMP EngineID Length handling Warning. Bug 16051[8].
-
-     • TLS decryption is very slow on Windows when using a large PMS
-       file compared to Linux/macOS. Bug 16059[9].
-
-     • wireshark-3.0.5/epan/dissectors/packet-nas_5gs.c:2459: bad test
-       ?. Bug 16075[10].
-
-     • ERSPAN Type III over GRE without sequence number not decoded
-       correctly. Bug 16089[11].
-
-     • Windows dumpcap -v does not display capture library info. Bug
-       16108[12].
-
-     • [Regression] FT_CHAR fields not supported in Lua API. Bug
-       16129[13].
 
   New and Updated Features
 
@@ -63,9 +24,6 @@ Wireshark 3.0.6 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
-
-   AgentX, BT L2CAP, ERSPAN, GRE, IPv4, IS-IS, NAS 5GS, OpcUa, SNMP, and
-   SRT
 
   New and Updated Capture File Support
 
@@ -78,14 +36,14 @@ Wireshark 3.0.6 Release Notes
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
-  https://www.wireshark.org/download.html[14].
+  https://www.wireshark.org/download.html[2].
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[15] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -97,39 +55,27 @@ Wireshark 3.0.6 Release Notes
  Getting Help
 
   The User’s Guide, manual pages and various other documentation can be
-  found at https://www.wireshark.org/docs/[16]
+  found at https://www.wireshark.org/docs/[4]
 
-  Community support is available on Wireshark’s Q&A site[17] and on the
+  Community support is available on Wireshark’s Q&A site[5] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[18].
+  for all of Wireshark’s mailing lists can be found on the web site[6].
 
-  Bugs and feature requests can be reported on the bug tracker[19].
+  Bugs and feature requests can be reported on the bug tracker[7].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[20].
+  A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2019-10-23 17:15:46 UTC
+  Last updated 2019-10-27 08:25:35 UTC
 
  References
 
-   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6991
-   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=11399
-   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12593
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13653
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15516
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15985
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16012
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16051
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16059
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16075
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16089
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16108
-  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16129
-  14. https://www.wireshark.org/download.html
-  15. https://www.wireshark.org/download.html#thirdparty
-  16. https://www.wireshark.org/docs/
-  17. https://ask.wireshark.org/
-  18. https://www.wireshark.org/lists/
-  19. https://bugs.wireshark.org/
-  20. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2019-22
+   2. https://www.wireshark.org/download.html
+   3. https://www.wireshark.org/download.html#thirdparty
+   4. https://www.wireshark.org/docs/
+   5. https://ask.wireshark.org/
+   6. https://www.wireshark.org/lists/
+   7. https://bugs.wireshark.org/
+   8. https://www.wireshark.org/faq.html
