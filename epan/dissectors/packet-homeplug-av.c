@@ -814,8 +814,8 @@ static proto_tree *ti_vendor = 0;
 
 #define HOMEPLUG_AV_MMHDR_LEN                   3 /* MM version (1) + MM type (2) */
 
-#define HOMEPLUG_AV_PUBLIC_FRAG_COUNT_MASK  0x0F
-#define HOMEPLUG_AV_PUBLIC_FRAG_INDEX_MASK  0xF0
+#define HOMEPLUG_AV_PUBLIC_FRAG_COUNT_MASK  0xF0
+#define HOMEPLUG_AV_PUBLIC_FRAG_INDEX_MASK  0x0F
 
 /* MME Values */
 /* General MME Types */
@@ -1386,7 +1386,7 @@ static const value_string homeplug_av_mmtype_lsb_vals[] = {
 #define HOMEPLUG_AV_MMTYPE_MSB_MANUF      0x04
 #define HOMEPLUG_AV_MMTYPE_MSB_VENDOR     0x05
 #define HOMEPLUG_AV_MMTYPE_MSB_RSV        0x06
-#define HOMEPLUG_AV_MMTYPE_MSB_MASK       0x06
+#define HOMEPLUG_AV_MMTYPE_MSB_MASK       0xe0
 #define HOMEPLUG_AV_MMTYPE_MSB_SHIFT      (5)
 
 static const value_string homeplug_av_mmtype_msb_vals[] = {
