@@ -1,4 +1,4 @@
-Wireshark 2.6.12 Release Notes
+Wireshark 2.6.13 Release Notes
 
  What is Wireshark?
 
@@ -9,24 +9,11 @@ Wireshark 2.6.12 Release Notes
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed:
+
+     • wnpa-sec-2019-22[1] Foo dissector {crash,infinite loop}.
+
    The following bugs have been fixed:
-
-     • Qt interface crashes on a profile with packet list only. Bug
-       16048[1].
-
-     • NET-SNMP EngineID Length handling Warning. Bug 16051[2].
-
-     • Wireshark CMake configuration points to wrong plugin install dir.
-       Bug 16060[3].
-
-     • ERSPAN Type III over GRE without sequence number not decoded
-       correctly. Bug 16089[4].
-
-     • Windows dumpcap -v does not display capture library info. Bug
-       16108[5].
-
-     • [Regression] FT_CHAR fields not supported in Lua API. Bug
-       16129[6].
 
   New and Updated Features
 
@@ -37,8 +24,6 @@ Wireshark 2.6.12 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
-
-   ERSPAN, IPv4, and SNMP
 
   New and Updated Capture File Support
 
@@ -51,14 +36,14 @@ Wireshark 2.6.12 Release Notes
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
-  https://www.wireshark.org/download.html[7].
+  https://www.wireshark.org/download.html[2].
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[8] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -69,50 +54,45 @@ Wireshark 2.6.12 Release Notes
 
  Known Problems
 
-  The BER dissector might infinitely loop. Bug 1516[9].
+  The BER dissector might infinitely loop. Bug 1516[4].
 
   Capture filters aren’t applied when capturing from named pipes. Bug
-  1814[10].
+  1814[5].
 
   Filtering tshark captures with read filters (-R) no longer works. Bug
-  2234[11].
+  2234[6].
 
-  Application crash when changing real-time option. Bug 4035[12].
+  Application crash when changing real-time option. Bug 4035[7].
 
   Wireshark and TShark will display incorrect delta times in some cases.
-  Bug 4985[13].
+  Bug 4985[8].
 
   Wireshark should let you work with multiple capture files. Bug
-  10488[14].
+  10488[9].
 
  Getting Help
 
-  Community support is available on Wireshark’s Q&A site[15] and on the
+  Community support is available on Wireshark’s Q&A site[10] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[16].
+  for all of Wireshark’s mailing lists can be found on the web site[11].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[17].
+  A complete FAQ is available on the Wireshark web site[12].
 
-  Last updated 2019-10-23 17:15:51 UTC
+  Last updated 2019-10-27 08:40:16 UTC
 
  References
 
-   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16048
-   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16051
-   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16060
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16089
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16108
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16129
-   7. https://www.wireshark.org/download.html
-   8. https://www.wireshark.org/download.html#thirdparty
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
-  15. https://ask.wireshark.org/
-  16. https://www.wireshark.org/lists/
-  17. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2019-22
+   2. https://www.wireshark.org/download.html
+   3. https://www.wireshark.org/download.html#thirdparty
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
+  10. https://ask.wireshark.org/
+  11. https://www.wireshark.org/lists/
+  12. https://www.wireshark.org/faq.html
