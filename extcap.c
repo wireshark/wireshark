@@ -1431,7 +1431,7 @@ GPtrArray *extcap_prepare_arguments(interface_options *interface_opts)
 
                     if (arg_iter->arg_type == EXTCAP_ARG_BOOLFLAG)
                     {
-                        if (extcap_complex_get_bool(arg_iter->default_complex))
+                        if (!stored && extcap_complex_get_bool(arg_iter->default_complex))
                         {
                             add_arg(arg_iter->call);
                         }
