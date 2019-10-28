@@ -419,8 +419,6 @@ static int hf_lustre_cfg_marker_comment = -1;
 static int hf_lustre_rcs = -1;
 static int hf_lustre_rcs_rc = -1;
 static int hf_lustre_fid_array = -1;
-static int hf_lustre_fid_array_nr = -1;
-static int hf_lustre_fid_array_padding = -1;
 static int hf_lustre_fid_array_fid = -1;
 static int hf_lustre_niobuf_remote = -1;
 static int hf_lustre_niobuf_remote_len = -1;
@@ -3895,19 +3893,8 @@ dissect_struct_fid_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
     item = proto_tree_add_item(parent_tree, hf_lustre_fid_array, tvb, offset, data_len, ENC_NA);
     tree = proto_item_add_subtree(item, ett_lustre_fid_array);
-    proto_tree_add_item_ret_uint(tree, hf_lustre_fid_array_nr, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num);
-    offset += 4;
-    proto_tree_add_item(tree, hf_lustre_fid_array_padding, tvb, offset, 4, ENC_NA);
-    offset += 4;
-    proto_tree_add_item(tree, hf_lustre_fid_array_padding, tvb, offset, 8, ENC_NA);
-    offset += 8;
 
-    if (num+1 != data_len/16) {
-        expert_add_info_format(pinfo, tree, &ei_lustre_buflen,
-                               "Buffer Length mismatch: buffer_len:%u !== nr:%u", data_len/16, num+1);
-        num = MIN((data_len/16)-1, num);
-    }
-
+    num = data_len/16;
     for (i = 0; i < num; ++i) {
         offset = dissect_struct_lu_fid(tvb, offset, tree, hf_lustre_fid_array_fid);
     }
@@ -7785,10 +7772,6 @@ proto_register_lustre(void)
         /* FID Array */
         { &hf_lustre_fid_array,
           { "Fid Array", "lustre.fid_array", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &hf_lustre_fid_array_nr,
-          { "Number", "lustre.fid_array.nr", FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-        { &hf_lustre_fid_array_padding,
-          { "padding", "lustre.fid_array.padding", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_lustre_fid_array_fid,
           { "FID", "lustre.fid_array.fid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 
