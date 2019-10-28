@@ -253,14 +253,20 @@ void VoipCallsDialog::prepareFilter()
     QString filter_str;
     QSet<guint16> selected_calls;
     QString frame_numbers;
+    QList<int> rows;
 
     /* Build a new filter based on frame numbers */
     foreach (QModelIndex index, ui->callTreeView->selectionModel()->selectedIndexes()) {
-        voip_calls_info_t *call_info = VoipCallsInfoModel::indexToCallInfo(index);
-        if (!call_info) {
-            return;
+        if ( index.isValid() && ! rows.contains(index.row()) )
+        {
+            voip_calls_info_t *call_info = VoipCallsInfoModel::indexToCallInfo(index);
+            if (!call_info) {
+                return;
+            }
+
+            selected_calls << call_info->call_num;
+            rows << index.row();
         }
-        selected_calls << call_info->call_num;
     }
 
     GList *cur_ga_item = g_queue_peek_nth_link(tapinfo_.graph_analysis->items, 0);
