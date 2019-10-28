@@ -23,6 +23,14 @@
 #define EAPOL_ANNOUNCEMENT_SPECIFIC  7
 #define EAPOL_ANNOUNCEMENT_REQUEST   8
 
+extern int proto_eapol;
+
+#define EAPOL_KEY_FRAME_KEY 0
+typedef struct {
+  guint len;
+  guint8 *data;
+} proto_eapol_key_frame_t;
+
 #endif /* __PACKET_EAPOL_H__ */
 
 /*
