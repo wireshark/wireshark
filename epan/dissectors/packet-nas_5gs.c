@@ -1903,16 +1903,16 @@ de_nas_5gs_mm_rej_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_mm_rej_nssai, &item, "Rejected S-NSSAI %u", num_items);
 
         /* Length of rejected S-NSSAI Cause value */
-        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_len_of_rej_s_nssai, tvb, offset, 1, ENC_BIG_ENDIAN, &nssai_len);
-        proto_tree_add_item(sub_tree, hf_nas_5gs_mm_rej_s_nssai_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_len_of_rej_s_nssai, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &nssai_len);
+        proto_tree_add_item(sub_tree, hf_nas_5gs_mm_rej_s_nssai_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         curr_offset++;
         /* SST */
-        proto_tree_add_item(sub_tree, hf_nas_5gs_mm_sst, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+        proto_tree_add_item(sub_tree, hf_nas_5gs_mm_sst, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        curr_offset += 1;
         if (nssai_len > 1) {
             /* SD    octet 3 - octet 5* */
-            proto_tree_add_item(sub_tree, hf_nas_5gs_mm_sd, tvb, offset, 3, ENC_BIG_ENDIAN);
-            offset += 3;
+            proto_tree_add_item(sub_tree, hf_nas_5gs_mm_sd, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+            curr_offset += 3;
         }
         proto_item_set_len(item, curr_offset - start_offset);
     }
