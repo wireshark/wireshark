@@ -1462,10 +1462,11 @@ static int ProtoField__gc(lua_State* L) {
         return 0;
     }
 
-    /* Note: name, abbrev and blob will be NULL after Proto deregistration. */
+    /* Note: name, abbrev, blob and vs will be NULL after Proto deregistration. */
     g_free(f->name);
     g_free(f->abbrev);
     g_free(f->blob);
+    proto_free_field_strings(f->type, f->base, f->vs);
     g_free(f);
 
     return 0;

@@ -638,6 +638,7 @@ int wslua_deregister_protocols(lua_State* L) {
             /* Memory ownership was previously transferred to epan in Proto_commit */
             f->name = NULL;
             f->abbrev = NULL;
+            f->vs = NULL;
             f->blob = NULL;
 
             f->hfid = -2; /* Deregister ProtoField, freed in ProtoField__gc */

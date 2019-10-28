@@ -79,7 +79,7 @@ test("ProtoField-char", success)
 success = pcall(ProtoField.new, "char base NONE without valuestring", "test.char1", ftypes.CHAR, nil, base.NONE)
 test("ProtoField-char-without-valuestring", not success)
 
-success, test_proto.fields.char2 = pcall(ProtoField.new, "char base NONE with valuestring", "test.char2", ftypes.CHAR, {1, "Value"}, base.NONE)
+success = pcall(ProtoField.new, "char base NONE with valuestring", "test.char2", ftypes.CHAR, {1, "Value"}, base.NONE)
 test("ProtoField-char-with-valuestring", success)
 
 success = pcall(ProtoField.new, "char base DEC", "test.char3", ftypes.CHAR, nil, base.DEC)
@@ -88,7 +88,7 @@ test("ProtoField-char-base-dec", not success)
 success = pcall(ProtoField.new, "char base UNIT_STRING", "test.char4", ftypes.CHAR, {" m"}, base.UNIT_STRING)
 test("ProtoField-char-unit-string", not success)
 
-success, test_proto.fields.char5 = pcall(ProtoField.new, "char base RANGE_STRING", "test.char5", ftypes.CHAR, {{1, 2, "Value"}}, base.RANGE_STRING)
+success = pcall(ProtoField.new, "char base RANGE_STRING", "test.char5", ftypes.CHAR, {{1, 2, "Value"}}, base.RANGE_STRING)
 test("ProtoField-char-range-string", success)
 
 -- Field name: empty, illegal, incompatible

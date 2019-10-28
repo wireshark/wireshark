@@ -2380,6 +2380,13 @@ proto_deregister_field (const int parent, gint hf_id);
 WS_DLL_PUBLIC void
 proto_add_deregistered_data (void *data);
 
+/** Free strings in a field.
+ @param field_type the field type (one of FT_ values)
+ @param field_display field display value (one of BASE_ values)
+ @param field_strings field strings */
+WS_DLL_PUBLIC void
+proto_free_field_strings (ftenum_t field_type, unsigned int field_display, const void *field_strings);
+
 /** Free fields deregistered in proto_deregister_field(). */
 WS_DLL_PUBLIC void
 proto_free_deregistered_fields (void);
