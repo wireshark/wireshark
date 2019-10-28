@@ -416,7 +416,8 @@ bool EnabledProtocolsProxyModel::filterAcceptsSelf(int sourceRow, const QModelIn
 
     QRegExp regex(filter_, Qt::CaseInsensitive);
 
-    if ( protocolType_ == EnabledProtocolItem::Any || protocolType_ == item->type() )
+    if ( ( type_ != EnabledProtocolsProxyModel::EnabledItems && type_ != EnabledProtocolsProxyModel::DisabledItems ) &&
+        ( protocolType_ == EnabledProtocolItem::Any || protocolType_ == item->type() ) )
     {
         if ( ! filter_.isEmpty() )
         {
@@ -429,6 +430,10 @@ bool EnabledProtocolsProxyModel::filterAcceptsSelf(int sourceRow, const QModelIn
         else
             return true;
     }
+    else if ( type_ == EnabledProtocolsProxyModel::EnabledItems && item->enabled() )
+        return true;
+    else if ( type_ == EnabledProtocolsProxyModel::DisabledItems && ! item->enabled() )
+        return true;
 
     return false;
 }

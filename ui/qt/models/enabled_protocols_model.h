@@ -105,7 +105,9 @@ public:
     {
         EveryWhere,
         OnlyProtocol,
-        OnlyDescription
+        OnlyDescription,
+        EnabledItems,
+        DisabledItems
     };
     Q_ENUM(SearchType)
 
