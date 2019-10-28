@@ -4671,6 +4671,7 @@ static int hf_ieee80211_rsn_cap_mfpr = -1;
 static int hf_ieee80211_rsn_cap_mfpc = -1;
 static int hf_ieee80211_rsn_cap_jmr = -1;
 static int hf_ieee80211_rsn_cap_peerkey = -1;
+static int hf_ieee80211_rsn_cap_extended_key_id_iaf = -1;
 static int hf_ieee80211_rsn_pmkid_count = -1;
 static int hf_ieee80211_rsn_pmkid_list = -1;
 static int hf_ieee80211_rsn_pmkid = -1;
@@ -4797,6 +4798,8 @@ static int hf_ieee80211_vs_aerohive_data = -1;
 
 static int hf_ieee80211_vs_mist_ap_name = -1;
 static int hf_ieee80211_vs_mist_data = -1;
+
+static int hf_ieee80211_rsn_ie_ptk_keyid = -1;
 
 static int hf_ieee80211_rsn_ie_gtk_keyid = -1;
 static int hf_ieee80211_rsn_ie_gtk_tx = -1;
@@ -13808,6 +13811,15 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb, int 
       proto_item_append_text(item, ": RSN IGTK");
       break;
     }
+    case 10:
+    {
+      /* IEEE 802.11 - 2016 / Key Data Encapsulation / Data Type=10 - KeyID
+       * This is only used within EAPOL-Key frame Key Data when using Extended Key ID */
+      offset += 1;
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_ptk_keyid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_item_append_text(item, ": RSN PTK");
+      break;
+    }
     default:
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_unknown, tvb, offset, tag_len, ENC_NA);
       proto_item_append_text(item, ": RSN UNKNOWN");
@@ -14522,6 +14534,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     &hf_ieee80211_rsn_cap_mfpc,
     &hf_ieee80211_rsn_cap_jmr,
     &hf_ieee80211_rsn_cap_peerkey,
+    &hf_ieee80211_rsn_cap_extended_key_id_iaf,
     NULL
   };
 
@@ -24945,7 +24958,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           bytes_to_hexstr(out_buff, used_key.KeyData.Wpa.Ptk+32, DOT11DECRYPT_TK_LEN); /* TK is stored in PTK at offset 32 bytes and 16 bytes long */
           out_buff[2*DOT11DECRYPT_TK_LEN] = '\0';
 
-          if (key == 0) { /* encrypted with pairwise key */
+          if (!tvb_get_bits8(tvb, 39, 1)) { /* RA is unicast, encrypted with pairwise key */
             ti = proto_tree_add_string(wep_tree, hf_ieee80211_fc_analysis_tk, tvb, 0, 0, out_buff);
             proto_item_set_generated(ti);
 
@@ -30714,6 +30727,11 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, NULL, 0x0200,
       NULL, HFILL }},
 
+    {&hf_ieee80211_rsn_cap_extended_key_id_iaf,
+     {"Extended Key ID for Individually Addressed Frames",
+      "wlan.rsn.capabilities.extended_key_id_iaf",
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000, NULL, HFILL }},
+
     {&hf_ieee80211_rsn_pmkid_count,
      {"PMKID Count", "wlan.rsn.pmkid.count",
       FT_UINT16, BASE_DEC, NULL, 0,
@@ -33701,6 +33719,11 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_rsn_ie_ptk_keyid,
+     {"KeyID", "wlan.rsn.ie.ptk.keyid",
+      FT_UINT8, BASE_DEC, NULL, 0x03,
+      NULL, HFILL }},
+
     {&hf_ieee80211_rsn_ie_gtk_key,
      {"GTK", "wlan.rsn.ie.gtk.key",
       FT_BYTES, BASE_NONE, NULL, 0,
@@ -35289,7 +35312,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_osen_extended_key_id_iaf,
      {"Extended Key ID for Individually Addressed Frames",
-                "wlan.osn.rsn.extended_key_id_iaf",
+      "wlan.osn.rsn.extended_key_id_iaf",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000, NULL, HFILL }},
 
     {&hf_ieee80211_osen_reserved,

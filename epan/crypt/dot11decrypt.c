@@ -984,13 +984,12 @@ INT Dot11DecryptPacketProcess(
         } else {
             DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptPacketProcess", "TKIP or CCMP encryption", DOT11DECRYPT_DEBUG_LEVEL_3);
 
-            /* If index >= 1, then use the group key.  This will not work if the AP is using
+            /* If the destination is a multicast address use the group key. This will not work if the AP is using
                more than one group key simultaneously.  I've not seen this in practice, however.
                Usually an AP will rotate between the two key index values of 1 and 2 whenever
                it needs to change the group key to be used. */
-            if (DOT11DECRYPT_KEY_INDEX(data[offset+3])>=1){
-
-                DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptPacketProcess", "The key index >= 1. This is encrypted with a group key.", DOT11DECRYPT_DEBUG_LEVEL_3);
+            if (((const DOT11DECRYPT_MAC_FRAME_ADDR4 *)(data))->addr1[0] & 0x01) {
+                DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptPacketProcess", "Broadcast/Multicast address. This is encrypted with a group key.", DOT11DECRYPT_DEBUG_LEVEL_3);
 
                 /* force STA address to broadcast MAC so we load the SA for the groupkey */
                 memcpy(id.sta, broadcast_mac, DOT11DECRYPT_MAC_LEN);
