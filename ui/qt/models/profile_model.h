@@ -90,6 +90,8 @@ public:
     bool resetDefault() const;
 
     QModelIndex activeProfile() const;
+    static QString activeProfileName();
+    static QString activeProfilePath();
 
     GList * at(int row) const;
 
