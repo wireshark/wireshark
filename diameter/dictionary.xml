@@ -7882,6 +7882,7 @@
 				<gavp name="Visited-PLMN-Id"/>
 				<gavp name="Roaming-Information"/>
 				<gavp name="IMEI-Change"/>
+				<gavp name="Terminal-Information "/>
 				<gavp name="Reachability-Information"/>
 				<gavp name="Maximum-UE-Availability-Time"/>
 				<gavp name="EPS-Location-Information"/>
@@ -7890,7 +7891,8 @@
 				<gavp name="Service-Report"/>
 				<gavp name="Loss-Of-Connectivity-Reason"/>
 				<gavp name="Idle-Status-Indication"/>
-				<gavp name="Communication-Failure-Information"/>
+				<gavp name="Idle-Status-Indication"/>
+				<gavp name="PDN-Connectivity-Status-Report"/>
 				<gavp name="Number-Of-UE-Per-Location-Report"/>
 				<gavp name="Visited-PLMN-Id"/>
 			</grouped>
@@ -7916,6 +7918,7 @@
 			<enum name="NUMBER_OF_UES_PRESENT_IN_A_GEOGRAPHICAL_AREA" code="7"/>
 			<enum name="UE_REACHABILITY_AND_IDLE_STATUS_INDICATION" code="8"/>
 			<enum name="AVAILABILITY_AFTER_DDN_FAILURE_AND_IDLE_STATUS_INDICATION" code="9"/>
+			<enum name="PDN_CONNECTIVITY_STATUS " code="10"/>
 		</avp>
 		<avp name="Maximum-Number-of-Reports" code="3128" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
@@ -8183,8 +8186,36 @@
 				<gavp name="MTC-Provider-ID"/>
 			</grouped>
 		</avp>
-		<avp name="MTC-Provider-ID" code="3176" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+		<avp name="MTC-Provider-ID" code="3179" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="PDN-Connectivity-Status-Configuration" code="3180" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Service-Selection"/>
+			</grouped>
+		</avp>
+		<avp name="PDN-Connectivity-Status-Report" code="3181" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Service-Selection"/>
+				<gavp name="PDN-Connectivity-Status-Type"/>
+				<gavp name="PDN-Type"/>
+				<gavp name="Non-IP-PDN-Type-Indicator"/>
+				<gavp name="Non-IP-Data-Delivery-Mechanism"/>
+				<gavp name="Served-Party-IP-Address"/>
+			</grouped>
+		</avp>
+		<avp name="PDN-Connectivity-Status-Type" code="3182" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+			<enum name="CREATED" code="0"/>
+			<enum name="DELETED " code="1"/>
+		</avp>
+		<avp name="Traffic-Profile" code="3183" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+			<enum name="SINGLE_TRANSMISSION_UL " code="0"/>
+			<enum name="SINGLE_TRANSMISSION_D " code="1"/>
+			<enum name="DUAL_TRANSMISSION_UL_WITH_SUBSEQUENT_DL" code="2"/>
+			<enum name="DUAL_TRANSMISSION_DL_WITH_SUBSEQUENT_UL" code="3"/>
+			<enum name="MULTI_TRANSMISSION" code="4"/>
 		</avp>
 		<!--
 		Note: The AVP codes from 3163 to 3199 are reserved for TS 29.336
