@@ -258,6 +258,18 @@ typedef struct mimo_control
 #define ASSOC_COUNTER_KEY 5
 #define STA_KEY 6
 #define BSSID_KEY 7
+#define NONCE_KEY 8
+#define GROUP_CIPHER_KEY 9
+#define CIPHER_KEY 10
+#define AKM_KEY 11
+#define MIC_KEY 12
+#define MIC_LEN_KEY 13
+#define KEY_VERSION_KEY 14
+#define KEY_LEN_KEY 15
+#define KEY_IV_KEY 16
+#define KEY_DATA_KEY 17
+#define KEY_DATA_LEN_KEY 18
+
 /* ************************************************************************* */
 /*  Define some very useful macros that are used to analyze frame types etc. */
 /* ************************************************************************* */
@@ -14523,6 +14535,20 @@ static gboolean is_ft_akm_suite(guint32 akm_suite)
   }
 }
 
+static void
+save_proto_data(tvbuff_t *tvb, packet_info *pinfo, int offset, size_t size, int key)
+{
+  guint8 *data = (guint8 *)wmem_alloc(pinfo->pool, size);
+  tvb_memcpy(tvb, data, offset, size);
+  p_add_proto_data(pinfo->pool, pinfo, proto_wlan, key, data);
+}
+
+static void
+save_proto_data_value(packet_info *pinfo, guint value, int key)
+{
+  p_add_proto_data(pinfo->pool, pinfo, proto_wlan, key, GUINT_TO_POINTER(value));
+}
+
 /*
  * 7.3.2.25 RSNE information element. Common format with OSEN except the
  * verison... should refactor
@@ -14567,6 +14593,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   if (tvb_get_ntoh24(tvb, offset) == OUI_RSN)
   {
     proto_tree_add_item(rsn_gcs_tree, hf_ieee80211_rsn_gcs_80211_type, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
+    save_proto_data_value(pinfo, tvb_get_guint8(tvb, offset + 3), GROUP_CIPHER_KEY);
   } else {
     proto_tree_add_item(rsn_gcs_tree, hf_ieee80211_rsn_gcs_type, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
   }
@@ -14600,6 +14627,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     {
       proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_80211_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
       proto_item_append_text(rsn_pcs_item, " %s", rsn_pcs_return(tvb_get_ntohl(tvb, offset)));
+      save_proto_data_value(pinfo, tvb_get_guint8(tvb, offset + 3), CIPHER_KEY);
     } else {
       proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
     }
@@ -14639,6 +14667,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     {
       proto_tree_add_item(rsn_sub_akms_tree, hf_ieee80211_rsn_akms_80211_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
       proto_item_append_text(rsn_akms_item, " %s", rsn_akms_return(tvb_get_ntohl(tvb, offset)));
+      save_proto_data_value(pinfo, tvb_get_guint8(tvb, offset + 3), AKM_KEY);
 
       packet_data->last_akm_suite = tvb_get_ntohl(tvb, offset);
       if (association_sanity_check) {
@@ -23705,18 +23734,6 @@ crc32_802_tvb_padded(tvbuff_t *tvb, guint hdr_len, guint hdr_size, guint len)
   return (c_crc);
 }
 
-static void save_bssid(tvbuff_t *tvb, packet_info *pinfo, int offset) {
-  guint8 *data = (guint8 *)wmem_alloc(pinfo->pool, 6);
-  tvb_memcpy(tvb, data, offset, 6);
-  p_add_proto_data(pinfo->pool, pinfo, proto_wlan, BSSID_KEY, data);
-}
-
-static void save_sta(tvbuff_t *tvb, packet_info *pinfo, int offset) {
-  guint8 *data = (guint8 *)wmem_alloc(pinfo->pool, 6);
-  tvb_memcpy(tvb, data, offset, 6);
-  p_add_proto_data(pinfo->pool, pinfo, proto_wlan, STA_KEY, data);
-}
-
 typedef enum {
     ENCAP_802_2,
     ENCAP_IPX,
@@ -24472,7 +24489,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         /* for tap */
         set_address_tvb(&whdr->bssid, wlan_bssid_address_type, 6, tvb, bssid_offset);
         /* for dot11decrypt */
-        save_bssid(tvb, pinfo, bssid_offset);
+        save_proto_data(tvb, pinfo, bssid_offset, 6, BSSID_KEY);
       }
 
       if (src_offset) {
@@ -24490,7 +24507,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
       /* for dot11decrypt */
       if (sta_addr_offset > 0) {
-        save_sta(tvb, pinfo, sta_addr_offset);
+        save_proto_data(tvb, pinfo, sta_addr_offset, 6, STA_KEY);
       }
 
       seq_control = tvb_get_letohs(tvb, 22);
@@ -25671,12 +25688,37 @@ try_scan_eapol_keys(packet_info *pinfo, DOT11DECRYPT_HS_MSG_TYPE msg_type)
   guint8 *bssid = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, BSSID_KEY);
   guint8 *sta = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, STA_KEY);
 
+  DOT11DECRYPT_EAPOL_PARSED eapol_parsed;
+  memset(&eapol_parsed, 0, sizeof(eapol_parsed));
+
+  eapol_parsed.msg_type = msg_type;
+  eapol_parsed.len = eapol_key->len;
+  eapol_parsed.key_type = eapol_key->type;
+  eapol_parsed.key_version = (guint8)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_VERSION_KEY));
+  eapol_parsed.key_len = (guint16)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_LEN_KEY));
+  eapol_parsed.key_iv = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_IV_KEY);
+  eapol_parsed.key_data = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_DATA_KEY);
+  eapol_parsed.key_data_len = (guint16)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_DATA_LEN_KEY));
+  eapol_parsed.nonce = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, NONCE_KEY);
+  eapol_parsed.group_cipher = (guint8)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, GROUP_CIPHER_KEY));
+  eapol_parsed.cipher = (guint8)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, CIPHER_KEY));
+  eapol_parsed.akm = (guint8)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, AKM_KEY));
+  eapol_parsed.mic = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MIC_KEY);
+  eapol_parsed.mic_len =
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MIC_LEN_KEY));
+
   if (!eapol_key || !bssid || !sta) {
     return;
   }
 
   gint ret = Dot11DecryptScanEapolForKeys(&dot11decrypt_ctx,
-                                          msg_type,
+                                          &eapol_parsed,
                                           eapol_key->data, eapol_key->len,
                                           bssid, sta,
                                           dec_data, &dec_caplen,
@@ -25716,6 +25758,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   };
   guint16 eapol_data_offset = 76;  /* 92 - 16 */
   guint16 eapol_key_mic_len = determine_mic_len(pinfo, FALSE);
+  save_proto_data_value(pinfo, eapol_key_mic_len, MIC_LEN_KEY);
   eapol_data_offset += eapol_key_mic_len;
   DOT11DECRYPT_HS_MSG_TYPE msg_type = DOT11DECRYPT_HS_MSG_TYPE_INVALID;
 
@@ -25790,15 +25833,9 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   }
   proto_item_set_generated(ti);
 
-  if (!pinfo->fd->visited && msg_type != DOT11DECRYPT_HS_MSG_TYPE_INVALID) {
-    /* Let dot11decrypt engine extract keys from 4-way handshake frames
-     * If there's encrypted key data (GTK) present in eapol frame the
-     * decrypted key data is stored in EAPOL_KEY proto data.
-     */
-    try_scan_eapol_keys(pinfo, msg_type);
-  }
-
   guint16 keydes_version = tvb_get_ntohs(tvb, offset) & KEY_INFO_KEYDES_VERSION_MASK;
+  guint16 key_encrypted = tvb_get_ntohs(tvb, offset) & KEY_INFO_ENCRYPTED_KEY_DATA_MASK;
+  save_proto_data_value(pinfo, keydes_version, KEY_VERSION_KEY);
   proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_wlan_rsna_eapol_wpa_keydes_keyinfo,
                                     ett_keyinfo, wlan_rsna_eapol_wpa_keydes_keyinfo,
                                     ENC_BIG_ENDIAN, BMT_NO_APPEND);
@@ -25806,15 +25843,19 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
 
   proto_tree_add_item(tree, hf_wlan_rsna_eapol_keydes_key_len, tvb, offset,
                       2, ENC_BIG_ENDIAN);
+  save_proto_data_value(pinfo, tvb_get_ntohs(tvb, offset), KEY_LEN_KEY);
   offset += 2;
   proto_tree_add_item(tree, hf_wlan_rsna_eapol_keydes_replay_counter, tvb,
                       offset, 8, ENC_BIG_ENDIAN);
   offset += 8;
   proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_nonce, tvb, offset,
                       32, ENC_NA);
+  save_proto_data(tvb, pinfo, offset, 32, NONCE_KEY);
+
   offset += 32;
   proto_tree_add_item(tree, hf_wlan_rsna_eapol_keydes_key_iv, tvb,
                       offset, 16, ENC_NA);
+  save_proto_data(tvb, pinfo, offset, 16, KEY_IV_KEY);
   offset += 16;
   proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_rsc, tvb, offset,
                       8, ENC_NA);
@@ -25826,12 +25867,26 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   if (eapol_key_mic_len > 0) {
     proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_mic, tvb, offset,
                         eapol_key_mic_len, ENC_NA);
+    save_proto_data(tvb, pinfo, offset, eapol_key_mic_len, MIC_KEY);
     offset += eapol_key_mic_len;
   }
 
   proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_data_len, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
+  save_proto_data_value(pinfo, tvb_get_ntohs(tvb, offset), KEY_DATA_LEN_KEY);
   offset += 2;
+
+  if (eapol_data_len != 0) {
+    save_proto_data(tvb, pinfo, offset, eapol_data_len, KEY_DATA_KEY);
+  }
+  if (!pinfo->fd->visited && key_encrypted && msg_type != DOT11DECRYPT_HS_MSG_TYPE_INVALID) {
+    /* Key data is encrypted so let dot11decrypt engine decrypt and extract the keys
+     * If successful the SA is stored in dot11decrypt context and decrypted key data
+     * is available in EAPOL_KEY proto data.
+     */
+    try_scan_eapol_keys(pinfo, msg_type);
+  }
+
   if (eapol_data_len != 0) {
     ti = proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_data,
                              tvb, offset, eapol_data_len, ENC_NA);
@@ -25884,6 +25939,12 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
                                        tvb_reported_length_remaining(tvb, offset),
                                        -1, NULL);
     }
+  }
+  if (!pinfo->fd->visited && !key_encrypted && msg_type != DOT11DECRYPT_HS_MSG_TYPE_INVALID) {
+    /* Key data was not encrypted so let dot11decrypt engine extract the keys now that
+     * all fields from the EAPOL frame have been parsed.
+     */
+    try_scan_eapol_keys(pinfo, msg_type);
   }
   return tvb_captured_length(tvb);
 }

@@ -28,6 +28,7 @@ extern int proto_eapol;
 #define EAPOL_KEY_FRAME_KEY 0
 typedef struct {
   guint len;
+  guint8 type; /* eapol.keydes.type */
   guint8 *data;
 } proto_eapol_key_frame_t;
 

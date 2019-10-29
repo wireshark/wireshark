@@ -75,7 +75,6 @@
 /****************************************************************************/
 
 
-
 /****************************************************************************/
 /*      Macro definitions                                                       */
 
@@ -159,14 +158,14 @@ static INT Dot11DecryptWepMng(
 
 static INT Dot11DecryptRsna4WHandshake(
     PDOT11DECRYPT_CONTEXT ctx,
-    DOT11DECRYPT_HS_MSG_TYPE msg_type,
-    const UCHAR *data,
+    PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
+    const guint8 *eapol_raw,
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    INT offset,
     const guint tot_len,
     UCHAR *decrypt_data,
     guint *decrypt_len,
     PDOT11DECRYPT_KEY_ITEM key);
+
 /**
  * It checks whether the specified key is corrected or not.
  * @note
@@ -285,24 +284,8 @@ extern "C" {
 
 const guint8 broadcast_mac[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
-#define EAPKEY_MIC_LEN  16  /* length of the MIC key for EAPoL_Key packet's MIC using MD5 */
-#define NONCE_LEN 32
-
 #define TKIP_GROUP_KEY_LEN 32
 #define CCMP_GROUP_KEY_LEN 16
-
-typedef struct {
-    guint8  type;
-    guint8  key_information[2];  /* Make this an array to avoid alignment issues */
-    guint8  key_length[2];  /* Make this an array to avoid alignment issues */
-    guint8  replay_counter[8];
-    guint8  key_nonce[NONCE_LEN];
-    guint8  key_iv[16];
-    guint8  key_sequence_counter[8];  /* also called the RSC */
-    guint8  key_id[8];
-    guint8  key_mic[EAPKEY_MIC_LEN];
-    guint8  key_data_len[2];  /* Make this an array rather than a U16 to avoid alignment shifting */
-} EAPOL_RSN_KEY,  * P_EAPOL_RSN_KEY;
 
 typedef void (*DOT11DECRYPT_PTK_DERIVE_FUNC)(
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
@@ -312,10 +295,13 @@ typedef void (*DOT11DECRYPT_PTK_DERIVE_FUNC)(
     UCHAR *ptk,
     int hash_algo);
 
+#define EAPOL_RSN_KEY_LEN 95
+
 /* Minimum possible key data size (at least one GTK KDE with CCMP key) */
 #define GROUP_KEY_MIN_LEN 8 + CCMP_GROUP_KEY_LEN
 /* Minimum possible group key msg size (group key msg using CCMP as cipher)*/
-#define GROUP_KEY_PAYLOAD_LEN_MIN sizeof(EAPOL_RSN_KEY) + GROUP_KEY_MIN_LEN
+#define GROUP_KEY_PAYLOAD_LEN_MIN \
+    (EAPOL_RSN_KEY_LEN + GROUP_KEY_MIN_LEN)
 
 static void
 Dot11DecryptCopyKey(PDOT11DECRYPT_SEC_ASSOCIATION sa, PDOT11DECRYPT_KEY_ITEM key)
@@ -391,10 +377,10 @@ Dot11DecryptRc4KeyData(const guint8 *decryption_key, guint decryption_key_len,
 
 /* XXX - what if this doesn't get the key? */
 static INT
-Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decryption_key,
-                                   PDOT11DECRYPT_SEC_ASSOCIATION sa, guint eapol_len,
-                                   guint8 *decrypted_data,
-                                   guint *decrypted_len)
+Dot11DecryptDecryptWPABroadcastKey(PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
+                                   guint8 *decryption_key,
+                                   PDOT11DECRYPT_SEC_ASSOCIATION sa,
+                                   guint8 *decrypted_data, guint *decrypted_len)
 {
     guint8 key_version;
     const guint8 *key_data;
@@ -408,13 +394,13 @@ Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decrypt
 
     /* Preparation for decrypting the group key -  determine group key data length */
     /* depending on whether the pairwise key is TKIP or AES encryption key */
-    key_version = DOT11DECRYPT_EAP_KEY_DESCR_VER(pEAPKey->key_information[1]);
+    key_version = eapol_parsed->key_version;
     if (key_version == DOT11DECRYPT_WPA_KEY_VER_NOT_CCMP){
         /* TKIP */
-        key_bytes_len = pntoh16(pEAPKey->key_length);
+        key_bytes_len = eapol_parsed->key_len;
     }else if (key_version == DOT11DECRYPT_WPA_KEY_VER_AES_CCMP){
         /* AES */
-        key_bytes_len = pntoh16(pEAPKey->key_data_len);
+        key_bytes_len = eapol_parsed->key_data_len;
 
         /* AES keys must be at least 128 bits = 16 bytes. */
         if (key_bytes_len < 16) {
@@ -424,7 +410,7 @@ Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decrypt
         /* XXX Ideally group cipher suite type from EAPOL message 2 of 4 should be used to  */
         /* determine key size. As we currently have no way to do this lookup check that key */
         /* is at least 16 bytes (IEEE802.11-2016 Table 12-4 Cipher suite key lengths)       */
-        key_bytes_len = pntoh16(pEAPKey->key_data_len);
+        key_bytes_len = eapol_parsed->key_data_len;
 
         if (key_bytes_len < 16) {
             return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
@@ -432,16 +418,16 @@ Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decrypt
     }
 
     if ((key_bytes_len < GROUP_KEY_MIN_LEN) ||
-        (eapol_len < sizeof(EAPOL_RSN_KEY)) ||
-        (key_bytes_len > eapol_len - sizeof(EAPOL_RSN_KEY))) {
+        (eapol_parsed->len < EAPOL_RSN_KEY_LEN) ||
+        (key_bytes_len > eapol_parsed->len - EAPOL_RSN_KEY_LEN)) {
         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
     }
 
     /* Encrypted key is in the information element field of the EAPOL key packet */
-    key_data = (const guint8 *)pEAPKey + sizeof(EAPOL_RSN_KEY);
+    key_data = eapol_parsed->key_data;
 
     DEBUG_DUMP("Encrypted Broadcast key:", key_data, key_bytes_len);
-    DEBUG_DUMP("KeyIV:", pEAPKey->key_iv, 16);
+    DEBUG_DUMP("KeyIV:", eapol_parsed->key_iv, 16);
     DEBUG_DUMP("decryption_key:", decryption_key, 16);
 
     /* We are rekeying, save old sa */
@@ -468,7 +454,7 @@ Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decrypt
         sa->wpa.key_ver = (key_bytes_len >=TKIP_GROUP_KEY_LEN)?DOT11DECRYPT_WPA_KEY_VER_NOT_CCMP:DOT11DECRYPT_WPA_KEY_VER_AES_CCMP;
 
         /* Build the full decryption key based on the IV and part of the pairwise key */
-        memcpy(new_key, pEAPKey->key_iv, 16);
+        memcpy(new_key, eapol_parsed->key_iv, 16);
         memcpy(new_key+16, decryption_key, 16);
         DEBUG_DUMP("FullDecrKey:", new_key, 32);
         data = Dot11DecryptRc4KeyData(new_key, 32, key_data, key_bytes_len);
@@ -542,7 +528,6 @@ Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decrypt
         } else {
             return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
         }
-
         if (key_length == TKIP_GROUP_KEY_LEN)
             sa->wpa.key_ver = DOT11DECRYPT_WPA_KEY_VER_NOT_CCMP;
         else
@@ -714,67 +699,32 @@ INT Dot11DecryptScanTdlsForKeys(
 
 INT Dot11DecryptScanEapolForKeys(
     PDOT11DECRYPT_CONTEXT ctx,
-    DOT11DECRYPT_HS_MSG_TYPE msg_type,
-    const guint8 *data,
+    PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
+    const guint8 *eapol_raw,
     const guint tot_len,
     const UCHAR bssid[DOT11DECRYPT_MAC_LEN],
     const UCHAR sta[DOT11DECRYPT_MAC_LEN],
     UCHAR *decrypt_data,
     guint *decrypt_len,
-    PDOT11DECRYPT_KEY_ITEM key
-)
+    PDOT11DECRYPT_KEY_ITEM key)
 {
-    guint tot_len_left;
-    guint bodyLength;
     DOT11DECRYPT_SEC_ASSOCIATION_ID id;
     PDOT11DECRYPT_SEC_ASSOCIATION sta_sa;
     PDOT11DECRYPT_SEC_ASSOCIATION sa;
-    guint offset = 0;
-
-    const EAPOL_RSN_KEY *pEAPKey;
 
     /* Callers provide these guarantees, so let's make them explicit. */
     DISSECTOR_ASSERT(tot_len <= DOT11DECRYPT_EAPOL_MAX_LEN);
 
-    offset = 0;
-    tot_len_left = tot_len;
-
     DEBUG_PRINT_LINE("Authentication: EAPOL packet", DEBUG_LEVEL_3);
 
-    if (tot_len_left < 4) {
-        DEBUG_PRINT_LINE("Not EAPOL-Key", DEBUG_LEVEL_3);
-        return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
-    }
-
-
-    /* get and check the body length (IEEE 802.1X-2004, pg. 25) */
-    bodyLength=pntoh16(data+offset+2);
-    if (((tot_len_left-4) < bodyLength) || (bodyLength < sizeof(EAPOL_RSN_KEY))) { /* Only check if frame is long enough for eapol header, ignore tailing garbage, see bug 9065 */
-        DEBUG_PRINT_LINE("EAPOL body too short", DEBUG_LEVEL_3);
-        return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
-    }
-
-    /* skip EAPOL MPDU and go to the first byte of the body */
-    offset+=4;
-    tot_len_left-=4;
-
-    pEAPKey = (const EAPOL_RSN_KEY *) (data+offset);
-
-    if (tot_len_left < 1) {
-        DEBUG_PRINT_LINE("Not EAPOL-Key", DEBUG_LEVEL_3);
-        return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
-    }
     /* check if the key descriptor type is valid (IEEE 802.1X-2004, pg. 27) */
-    if (/*pEAPKey->type!=0x1 &&*/ /* RC4 Key Descriptor Type (deprecated) */
-        pEAPKey->type != DOT11DECRYPT_RSN_WPA2_KEY_DESCRIPTOR &&             /* IEEE 802.11 Key Descriptor Type  (WPA2) */
-        pEAPKey->type != DOT11DECRYPT_RSN_WPA_KEY_DESCRIPTOR)           /* 254 = RSN_KEY_DESCRIPTOR - WPA,              */
+    if (/*eapol_parsed->key_type!=0x1 &&*/ /* RC4 Key Descriptor Type (deprecated) */
+        eapol_parsed->key_type != DOT11DECRYPT_RSN_WPA2_KEY_DESCRIPTOR &&  /* IEEE 802.11 Key Descriptor Type  (WPA2) */
+        eapol_parsed->key_type != DOT11DECRYPT_RSN_WPA_KEY_DESCRIPTOR)     /* 254 = RSN_KEY_DESCRIPTOR - WPA,         */
     {
         DEBUG_PRINT_LINE("Not valid key descriptor type", DEBUG_LEVEL_3);
         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
     }
-
-    /* start with descriptor body */
-    offset+=1;
 
     /* search for a cached Security Association for current BSSID and AP */
     memcpy(id.bssid, bssid, DOT11DECRYPT_MAC_LEN);
@@ -786,7 +736,7 @@ INT Dot11DecryptScanEapolForKeys(
     }
 
     /* It could be a Pairwise Key exchange, check */
-    if (Dot11DecryptRsna4WHandshake(ctx, msg_type, data, sa, offset, tot_len,
+    if (Dot11DecryptRsna4WHandshake(ctx, eapol_parsed, eapol_raw, sa, tot_len,
                                     decrypt_data, decrypt_len, key) == DOT11DECRYPT_RET_SUCCESS_HANDSHAKE)
     {
         return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
@@ -797,7 +747,7 @@ INT Dot11DecryptScanEapolForKeys(
         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
     }
 
-    if (msg_type != DOT11DECRYPT_HS_MSG_TYPE_GHS_1){
+    if (eapol_parsed->msg_type != DOT11DECRYPT_HS_MSG_TYPE_GHS_1){
 
         DEBUG_PRINT_LINE("Not Group handshake message 1", DEBUG_LEVEL_3);
         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
@@ -820,9 +770,9 @@ INT Dot11DecryptScanEapolForKeys(
     }
 
     /* Try to extract the group key and install it in the SA */
-    Dot11DecryptCopyKey(sta_sa, key); /* save key used for decrypting broadcast key */
-    return (Dot11DecryptDecryptWPABroadcastKey(pEAPKey, sta_sa->wpa.ptk+16, sa, tot_len-offset+1,
-                                                decrypt_data, decrypt_len));
+    Dot11DecryptCopyKey(sa, key); /* save key used for decrypting broadcast key */
+    return Dot11DecryptDecryptWPABroadcastKey(eapol_parsed, sta_sa->wpa.ptk + 16,
+                                              sa, decrypt_data, decrypt_len);
 }
 
 INT Dot11DecryptDecryptPacket(
@@ -1358,97 +1308,13 @@ Dot11DecryptWepMng(
     return DOT11DECRYPT_RET_SUCCESS;
 }
 
-static int
-Dot11DecryptGetRsne(
-    const EAPOL_RSN_KEY *pEAPKey,
-    const guint tot_len,
-    int *group_cipher,
-    int *cipher,
-    int *akm)
-{
-    guint16 key_data_len = pntoh16(&pEAPKey->key_data_len);
-    int offset = 0;
-    int offset_rsne;
-    int i;
-    guint16 count;
-    const guint8 *data = ((const guint8 *)pEAPKey) + sizeof(EAPOL_RSN_KEY);
-#ifdef DOT11DECRYPT_DEBUG
-#define MSGBUF_LEN 255
-    CHAR msgbuf[MSGBUF_LEN];
-#endif
-
-    if (key_data_len + sizeof(EAPOL_RSN_KEY) > tot_len) {
-        key_data_len = (guint16)(tot_len - sizeof(EAPOL_RSN_KEY));
-    }
-
-    while (offset < key_data_len - 2) {
-        guint8 element_id = data[offset];
-        guint8 length = data[offset + 1];
-
-        switch (element_id) {
-        case 48:    /* RSN (802.11-2016 9.4.2.35) */
-            offset_rsne = offset + 2;
-            offset_rsne += 2; /* version */
-            if (DOT11DECRYPT_IEEE80211_OUI(data + offset_rsne)) {
-                *group_cipher = data[offset_rsne + 3];
-            }
-            offset_rsne += 4; /* Group Cipher Suite */
-
-            if (offset_rsne + 1 >= key_data_len) {
-                break;
-            }
-            count = pletoh16(data + offset_rsne);
-            offset_rsne += 2; /* Pairwise Ciper Suite Count */
-
-            if (offset_rsne + 4 * count >= key_data_len) {
-                break;;
-            }
-            for (i = 0; i < count; i++) {
-                if (DOT11DECRYPT_IEEE80211_OUI(data + offset_rsne + 4 * i)) {
-                    *cipher = data[offset_rsne + 4 * i + 3];
-                    break;
-                }
-            }
-            offset_rsne += 4 * count; /* Pairwise Cipher Suites */
-
-            count = pletoh16(data + offset_rsne);
-            offset_rsne += 2; /* AKM Suite Count */
-
-            if (offset_rsne + 4 * count >= key_data_len) {
-                break;
-            }
-            for (i = 0; i < count; i++) {
-                if (DOT11DECRYPT_IEEE80211_OUI(data + offset_rsne + 4 * i)) {
-                    *akm = data[offset_rsne + 4 * i + 3];
-                    break;
-                }
-            }
-
-            /* RSN OUI */
-#ifdef DOT11DECRYPT_DEBUG
-            g_snprintf(msgbuf, MSGBUF_LEN, "Pairwise Cipher: %d, Group Cipher: %d AKM: %d",
-                       *cipher, *group_cipher, *akm);
-            DEBUG_PRINT_LINE(msgbuf, DEBUG_LEVEL_3);
-#endif /* DOT11DECRYPT_DEBUG */
-            return 0;
-        }
-        if (!length) {
-            break;
-        }
-        offset += length;
-    }
-    DEBUG_PRINT_LINE("RSNE not found or parse failed", DEBUG_LEVEL_3);
-    return -1;
-}
-
 /* Refer to IEEE 802.11i-2004, 8.5.3, pag. 85 */
 static INT
 Dot11DecryptRsna4WHandshake(
     PDOT11DECRYPT_CONTEXT ctx,
-    DOT11DECRYPT_HS_MSG_TYPE msg_type,
-    const UCHAR *data,
+    PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
+    const guint8 *eapol_raw,
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    INT offset,
     const guint tot_len,
     UCHAR *decrypt_data,
     guint *decrypt_len,
@@ -1460,19 +1326,14 @@ Dot11DecryptRsna4WHandshake(
     INT ret_value=1;
     UCHAR useCache=FALSE;
     UCHAR eapol[DOT11DECRYPT_EAPOL_MAX_LEN];
-    USHORT eapol_len;
 
     if (sa->key!=NULL)
         useCache=TRUE;
 
-    if (tot_len-offset < 2) {
-        DEBUG_PRINT_LINE("Too short to determine the message type", DEBUG_LEVEL_5);
-        return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
-    }
-
-    /* a 4-way handshake packet use a Pairwise key type (IEEE 802.11i-2004, pg. 79) */
-    if (DOT11DECRYPT_EAP_KEY(data[offset+1])!=1) {
-        DEBUG_PRINT_LINE("Group/STAKey message (not used)", DEBUG_LEVEL_5);
+    if (eapol_parsed->len > DOT11DECRYPT_EAPOL_MAX_LEN ||
+        eapol_parsed->key_len > DOT11DECRYPT_EAPOL_MAX_LEN ||
+        eapol_parsed->key_data_len > DOT11DECRYPT_EAPOL_MAX_LEN) {
+        DEBUG_PRINT_LINE("Too large EAPOL frame and/or key data", DEBUG_LEVEL_5);
         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
     }
 
@@ -1487,8 +1348,7 @@ Dot11DecryptRsna4WHandshake(
     /* manage 4-way handshake packets; this step completes the 802.1X authentication process (IEEE 802.11i-2004, pag. 85) */
 
     /* message 1: Authenticator->Supplicant (Sec=0, Mic=0, Ack=1, Inst=0, Key=1(pairwise), KeyRSC=0, Nonce=ANonce, MIC=0) */
-    if (msg_type == DOT11DECRYPT_HS_MSG_TYPE_4WHS_1)
-    {
+    if (eapol_parsed->msg_type == DOT11DECRYPT_HS_MSG_TYPE_4WHS_1) {
         DEBUG_PRINT_LINE("4-way handshake message 1", DEBUG_LEVEL_3);
 
         /* On reception of Message 1, the Supplicant determines whether the Key Replay Counter field value has been        */
@@ -1505,14 +1365,14 @@ Dot11DecryptRsna4WHandshake(
         }
 
         /* save ANonce (from authenticator) to derive the PTK with the SNonce (from the 2 message) */
-        if (tot_len-(offset+12) < 32) {
-            DEBUG_PRINT_LINE("Too short to contain ANonce", DEBUG_LEVEL_5);
+        if (!eapol_parsed->nonce) {
+            DEBUG_PRINT_LINE("ANonce missing", DEBUG_LEVEL_5);
             return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
         }
-        memcpy(sa->wpa.nonce, data+offset+12, 32);
+        memcpy(sa->wpa.nonce, eapol_parsed->nonce, 32);
 
         /* get the Key Descriptor Version (to select algorithm used in decryption -CCMP or TKIP-) */
-        sa->wpa.key_ver=DOT11DECRYPT_EAP_KEY_DESCR_VER(data[offset+1]);
+        sa->wpa.key_ver = eapol_parsed->key_version;
 
         sa->handshake=1;
 
@@ -1520,7 +1380,7 @@ Dot11DecryptRsna4WHandshake(
     }
 
     /* message 2|4: Supplicant->Authenticator (Sec=0|1, Mic=1, Ack=0, Inst=0, Key=1(pairwise), KeyRSC=0, Nonce=SNonce|0, MIC=MIC(KCK,EAPOL)) */
-    if (msg_type == DOT11DECRYPT_HS_MSG_TYPE_4WHS_2) {
+    if (eapol_parsed->msg_type == DOT11DECRYPT_HS_MSG_TYPE_4WHS_2) {
         DEBUG_PRINT_LINE("4-way handshake message 2", DEBUG_LEVEL_3);
 
         /* On reception of Message 2, the Authenticator checks that the key replay counter corresponds to the */
@@ -1529,8 +1389,8 @@ Dot11DecryptRsna4WHandshake(
         /* the Authenticator silently discards Message 2.                                                     */
         /* -> not checked; the Supplicant will send another message 2 (hopefully!)                            */
 
-        if (tot_len - (offset + 12) < 32) {
-            DEBUG_PRINT_LINE("Too short to contain SNonce", DEBUG_LEVEL_5);
+        if (!eapol_parsed->nonce) {
+            DEBUG_PRINT_LINE("SNonce missing", DEBUG_LEVEL_5);
             return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
         }
 
@@ -1570,39 +1430,28 @@ Dot11DecryptRsna4WHandshake(
                 } else {
                     tmp_pkt_key = tmp_key;
                 }
+                memcpy(eapol, eapol_raw, tot_len);
 
-                /* verify the MIC (compare the MIC in the packet included in this message with a MIC calculated with the PTK) */
-                eapol_len=pntoh16(data+offset-3)+4;
-                if ((guint)(tot_len-(offset-5)) < (eapol_len<DOT11DECRYPT_EAPOL_MAX_LEN?eapol_len:DOT11DECRYPT_EAPOL_MAX_LEN)) {
-                    DEBUG_PRINT_LINE("Too short to contain ANonce", DEBUG_LEVEL_5);
-                    return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
-                }
-                memcpy(eapol, &data[offset-5], (eapol_len<DOT11DECRYPT_EAPOL_MAX_LEN?eapol_len:DOT11DECRYPT_EAPOL_MAX_LEN));
-
-                int key_version = DOT11DECRYPT_EAP_KEY_DESCR_VER(data[offset+1]);
+                int key_version = eapol_parsed->key_version;
                 int akm = -1;
                 int cipher = -1;
 
                 if (key_version == 0) {
                 /* PTK derivation is based on Authentication Key Management Type */
-                    int group_cipher = -1;
-                    Dot11DecryptGetRsne((const EAPOL_RSN_KEY *)(data + offset - 1),
-                                        tot_len - (offset - 1),
-                                        &group_cipher, &cipher, &akm);
+                    akm = eapol_parsed->akm;
+                    cipher = eapol_parsed->cipher;
                 }
-
                 /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
                 Dot11DecryptDerivePtk(sa,                            /* authenticator nonce, bssid, station mac */
                                       tmp_pkt_key->KeyData.Wpa.Psk,  /* PSK == PMK */
-                                      data+offset+12,                /* supplicant nonce */
+                                      eapol_parsed->nonce,           /* supplicant nonce */
                                       key_version,
                                       akm,
                                       cipher);
-
                 DEBUG_DUMP("TK",  DOT11DECRYPT_GET_TK(sa->wpa.ptk), 16);
 
                 ret_value=Dot11DecryptRsnaMicCheck(eapol,           /*      eapol frame (header also) */
-                                                   eapol_len,       /*      eapol frame length        */
+                                                   tot_len,         /*      eapol frame length        */
                                                    sa->wpa.ptk,     /*      Key Confirmation Key      */
                                                    key_version,     /*  EAPOL-Key description version */
                                                    akm);
@@ -1644,8 +1493,7 @@ Dot11DecryptRsna4WHandshake(
     }
 
     /* message 3: Authenticator->Supplicant (Sec=1, Mic=1, Ack=1, Inst=0/1, Key=1(pairwise), KeyRSC=???, Nonce=ANonce, MIC=1) */
-    if (msg_type == DOT11DECRYPT_HS_MSG_TYPE_4WHS_3) {
-        const EAPOL_RSN_KEY *pEAPKey;
+    if (eapol_parsed->msg_type == DOT11DECRYPT_HS_MSG_TYPE_4WHS_3) {
         DEBUG_PRINT_LINE("4-way handshake message 3", DEBUG_LEVEL_3);
 
         /* On reception of Message 3, the Supplicant silently discards the message if the Key Replay Counter field     */
@@ -1656,8 +1504,7 @@ Dot11DecryptRsna4WHandshake(
 
         /* If using WPA2 PSK, message 3 will contain an RSN for the group key (GTK KDE).
            In order to properly support decrypting WPA2-PSK packets, we need to parse this to get the group key. */
-        pEAPKey = (const EAPOL_RSN_KEY *)(&(data[offset-1]));
-        if (pEAPKey->type == DOT11DECRYPT_RSN_WPA2_KEY_DESCRIPTOR){
+        if (eapol_parsed->key_type == DOT11DECRYPT_RSN_WPA2_KEY_DESCRIPTOR) {
             PDOT11DECRYPT_SEC_ASSOCIATION broadcast_sa;
             DOT11DECRYPT_SEC_ASSOCIATION_ID id;
 
@@ -1670,13 +1517,13 @@ Dot11DecryptRsna4WHandshake(
                 return DOT11DECRYPT_RET_REQ_DATA;
             }
             Dot11DecryptCopyKey(sa, key); /* save key used for decrypting broadcast key */
-            return (Dot11DecryptDecryptWPABroadcastKey(pEAPKey, sa->wpa.ptk+16, broadcast_sa, tot_len-offset+1,
-                                                       decrypt_data, decrypt_len));
+            return Dot11DecryptDecryptWPABroadcastKey(eapol_parsed, sa->wpa.ptk + 16, broadcast_sa,
+                                                      decrypt_data, decrypt_len);
         }
     }
 
     /* message 4 */
-    if (msg_type == DOT11DECRYPT_HS_MSG_TYPE_4WHS_4) {
+    if (eapol_parsed->msg_type == DOT11DECRYPT_HS_MSG_TYPE_4WHS_4) {
         /* TODO "Note that when the 4-Way Handshake is first used Message 4 is sent in the clear." */
 
         /* TODO check MIC and Replay Counter                                                                     */

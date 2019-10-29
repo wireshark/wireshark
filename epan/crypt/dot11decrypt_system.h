@@ -150,6 +150,23 @@ typedef enum _DOT11DECRYPT_HS_MSG_TYPE {
 	DOT11DECRYPT_HS_MSG_TYPE_GHS_2
 } DOT11DECRYPT_HS_MSG_TYPE;
 
+typedef struct _DOT11DECRYPT_EAPOL_PARSED {
+	DOT11DECRYPT_HS_MSG_TYPE msg_type;
+	guint16 len;
+	guint8 key_type;
+	guint8 key_version;
+	guint16 key_len;
+	guint8 *key_iv;
+	guint8 *key_data;
+	guint16 key_data_len;
+	guint8 group_cipher;
+	guint8 cipher;
+	guint8 akm;
+	guint8 *nonce;
+	guint8 *mic;
+	guint16 mic_len;
+} DOT11DECRYPT_EAPOL_PARSED, *PDOT11DECRYPT_EAPOL_PARSED;
+
 /************************************************************************/
 /*	Function prototype declarations					*/
 
@@ -213,8 +230,8 @@ extern INT Dot11DecryptDecryptPacket(
  * extracting further keys. If keydata hard to be decrypted the decrypted
  * data will be in decrypt_data buffer.
  * @param ctx [IN] Pointer to the current context
- * @param msg_type [IN] Handshake message type
- * @param data [IN] Pointer to a buffer with an EAPOL frame
+ * @param eapol_parsed [IN] Extracted/Parsed pieces of eapol frame
+ * @param eapol_raw [IN] Pointer to a buffer with an EAPOL frame
  * @param tot_len [IN] Total length of the EAPOL frame
  * @param bssid [IN] bssid of AP
  * @param sta [IN] sta MAC address
@@ -248,8 +265,8 @@ extern INT Dot11DecryptDecryptPacket(
  */
 extern INT Dot11DecryptScanEapolForKeys(
     PDOT11DECRYPT_CONTEXT ctx,
-    DOT11DECRYPT_HS_MSG_TYPE msg_type,
-    const guint8 *data,
+    PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
+    const guint8 *eapol_raw,
     const guint tot_len,
     const UCHAR bssid[DOT11DECRYPT_MAC_LEN],
     const UCHAR sta[DOT11DECRYPT_MAC_LEN],
