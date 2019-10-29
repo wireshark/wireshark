@@ -20,6 +20,7 @@
 #include <QTextStream>
 #include <QRegExp>
 #include <QDir>
+#include <QMimeData>
 
 /*
  * Old filter file name.
@@ -156,12 +157,12 @@ bool FilterListModel::setData(const QModelIndex &index, const QVariant &value, i
 Qt::ItemFlags FilterListModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags fl = QAbstractListModel::flags(index);
+    fl |= Qt::ItemIsDropEnabled;
+
     if ( ! index.isValid() || index.row() >= rowCount() )
         return fl;
 
-    QStringList row = storage.at(index.row()).split("\n");
-
-    fl |= Qt::ItemIsEditable;
+    fl |= Qt::ItemIsEditable | Qt::ItemIsDragEnabled;
 
     return fl;
 }
@@ -240,6 +241,65 @@ void FilterListModel::saveList()
     }
 
     file.close();
+}
+
+Qt::DropActions FilterListModel::supportedDropActions() const
+{
+    return Qt::MoveAction;
+}
+
+QStringList FilterListModel::mimeTypes() const
+{
+    return QStringList() << "application/vnd.row.list";
+}
+
+QMimeData *FilterListModel::mimeData(const QModelIndexList &indexes) const
+{
+    QMimeData *mimeData = new QMimeData();
+    QStringList rows;
+
+    foreach (const QModelIndex &index, indexes)
+    {
+        if ( ! rows.contains(QString::number(index.row())) )
+            rows << QString::number(index.row());
+    }
+
+    mimeData->setData("application/vnd.row.list", rows.join(",").toUtf8());
+    return mimeData;
+}
+
+bool FilterListModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int /* column */, const QModelIndex & parent)
+{
+    if ( action != Qt::MoveAction )
+        return true;
+
+    if ( ! data->hasFormat("application/vnd.row.list") )
+        return true;
+
+    QStringList rows = QString(data->data("application/vnd.row.list")).split(",");
+
+    int insertRow = parent.isValid() ? parent.row() : row;
+
+    /* for now, only single rows can be selected */
+    if ( rows.count() > 0 )
+    {
+        bool ok = false;
+        int row = rows[0].toInt(&ok);
+        if ( ok )
+        {
+            int storeTo = insertRow;
+            if ( storeTo < 0 || storeTo >= storage.count() )
+                storeTo = storage.count() - 1;
+            if ( insertRow == -1 )
+                insertRow = rowCount();
+
+            beginResetModel();
+            storage.move(row, storeTo);
+            endResetModel();
+        }
+    }
+
+    return true;
 }
 
 /*

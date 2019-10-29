@@ -14,7 +14,6 @@
 
 #include <ui/qt/models/filter_list_model.h>
 
-class QSortFilterProxyModel;
 class QItemSelection;
 class FilterTreeDelegate;
 
@@ -35,7 +34,6 @@ private:
     Ui::FilterDialog *ui;
 
     FilterListModel * model_;
-    QSortFilterProxyModel * sortModel_;
 
     enum FilterType filter_type_;
     FilterTreeDelegate *filter_tree_delegate_;

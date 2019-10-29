@@ -16,6 +16,9 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QTreeView" name="filterTreeView">
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::DragDrop</enum>
+     </property>
      <property name="sortingEnabled">
       <bool>true</bool>
      </property>

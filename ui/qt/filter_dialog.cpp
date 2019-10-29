@@ -69,6 +69,9 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
     ui->filterTreeWidget->setDropIndicatorShown(true);
     ui->filterTreeWidget->setDragDropMode(QAbstractItemView::InternalMove);
 #endif
+    ui->filterTreeView->setDragEnabled(true);
+    ui->filterTreeView->setAcceptDrops(true);
+    ui->filterTreeView->setDropIndicatorShown(true);
 
     const gchar * filename = NULL;
     QString newFilterText;
@@ -87,9 +90,7 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
     if ( new_filter_.length() > 0 )
         model_->addFilter(newFilterText, new_filter_);
 
-    sortModel_ = new QSortFilterProxyModel(this);
-    sortModel_->setSourceModel(model_);
-    ui->filterTreeView->setModel(sortModel_);
+    ui->filterTreeView->setModel(model_);
 
     ui->filterTreeView->setItemDelegate(new FilterTreeDelegate(this, filter_type));
 
@@ -117,7 +118,7 @@ void FilterDialog::addFilter(QString name, QString filter, bool start_editing)
     {
         QModelIndex idx = model_->addFilter(name, filter);
         if ( start_editing )
-            ui->filterTreeView->edit(sortModel_->mapFromSource(idx));
+            ui->filterTreeView->edit(idx);
     }
 }
 
@@ -161,11 +162,10 @@ void FilterDialog::on_deleteToolButton_clicked()
     QList<int> rows;
     foreach ( QModelIndex idx, selected )
     {
-        QModelIndex original = sortModel_->mapToSource(idx);
-        if ( original.isValid() && ! rows.contains(original.row()) )
+        if ( idx.isValid() && ! rows.contains(idx.row()) )
         {
-            rows << original.row();
-            model_->removeFilter(original);
+            rows << idx.row();
+            model_->removeFilter(idx);
         }
     }
 }
