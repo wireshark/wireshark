@@ -967,7 +967,14 @@
 #define ZBEE_MFG_CODE_FEELUX_CO_LTD         0x1271
 #define ZBEE_MFG_CODE_SMARTPLUS_INC         0x1272
 #define ZBEE_MFG_CODE_HALEMEIER_GMBH        0x1273
+#define ZBEE_MFG_CODE_TRUST_INTL            0x1274
+#define ZBEE_MFG_CODE_DUKE_ENERGY           0x1275
+#define ZBEE_MFG_CODE_CALIX                 0x1276
+#define ZBEE_MFG_CODE_ADEO                  0x1277
 
+#define ZBEE_MFG_CODE_DATEK_WIRLESS         0x1337
+#define ZBEE_MFG_CODE_GEWISS_SPA            0x1994
+#define ZBEE_MFG_CODE_CLIMAX_TECH           0x2794
 
 /* Manufacturer Names */
 #define ZBEE_MFG_CIRRONET                   "Cirronet"
@@ -1495,6 +1502,14 @@
 #define ZBEE_MFG_FEELUX_CO_LTD              "FEELUX Co., Ltd."
 #define ZBEE_MFG_SMARTPLUS_INC              "SmartPlus Inc."
 #define ZBEE_MFG_HALEMEIER_GMBH             "Halemeier GmbH"
+#define ZBEE_MFG_TRUST_INTL                 "Trust International BBV"
+#define ZBEE_MFG_DUKE_ENERGY                "Duke Energy Business Services LLC"
+#define ZBEE_MFG_CALIX                      "Calix, Inc."
+#define ZBEE_MFG_ADEO                       "ADEO"
+
+#define ZBEE_MFG_DATEK_WIRLESS              "Datek Wireless AS"
+#define ZBEE_MFG_GEWISS_SPA                 "Gewiss S.p.A."
+#define ZBEE_MFG_CLIMAX_TECH                "Climax Technology Cp., Ltd."
 
 /* Protocol Abbreviations */
 #define ZBEE_PROTOABBREV_NWK                "zbee_nwk"
