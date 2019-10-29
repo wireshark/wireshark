@@ -41,11 +41,11 @@ since version 3.1.0:
 The following features are new (or have been significantly updated)
 since version 3.0.0:
 
-* Drag&Drop a field to a column header to create a column for that field, or to the
-  display filter input to create a display filter. If a display filter is applied,
-  the new filter can be added using the same rules as "Apply Filter"
-* Drag&Drop a column entry to the display filter to create a filter for it
-* Import profiles from a .zip archive or an existing directory
+* You can drag and drop a field to a column header to create a column for that field, or to the
+  display filter input to create a display filter.
+  If a display filter is applied, the new filter can be added using the same rules as “Apply Filter”
+* You can drag and drop a column entry to the display filter to create a filter for it.
+* You can import profiles from a .zip archive or an existing directory.
 * Dark mode support on macOS and dark theme support on other platforms
   has been improved.
 * Brotli decompression support in HTTP/HTTP2 (requires the brotli library).
