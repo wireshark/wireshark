@@ -516,7 +516,6 @@ static int hf_rtcp_profile_specific_extension_type = -1;
 static int hf_rtcp_profile_specific_extension_length = -1;
 static int hf_rtcp_profile_specific_extension = -1;
 static int hf_rtcp_app_poc1 = -1;
-static int hf_rtcp_app_poc1_subtype = -1;
 static int hf_rtcp_app_poc1_sip_uri = -1;
 static int hf_rtcp_app_poc1_disp_name = -1;
 static int hf_rtcp_app_poc1_priority = -1;
@@ -4458,18 +4457,6 @@ proto_register_rtcp(void)
                 FT_NONE,
                 BASE_NONE,
                 NULL,
-                0x0,
-                NULL, HFILL
-            }
-        },
-        {
-            &hf_rtcp_app_poc1_subtype,
-            {
-                "Subtype",
-                "rtcp.app.PoC1.subtype",
-                FT_UINT8,
-                BASE_DEC,
-                VALS(rtcp_app_poc1_floor_cnt_type_vals),
                 0x0,
                 NULL, HFILL
             }
