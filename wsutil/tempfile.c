@@ -114,6 +114,7 @@ create_tempfile(char **namebuf, const char *pfx, const char *sfx)
   struct tm *tm;
   char timestr[14 + 1];
   gchar *tmp_file;
+  size_t tmp_file_strsize;
   gchar *safe_pfx;
   gchar sep[2] = {0, 0};
 
@@ -154,8 +155,9 @@ create_tempfile(char **namebuf, const char *pfx, const char *sfx)
   sep[0] = G_DIR_SEPARATOR;
   tmp_file = g_strconcat(tmp_dir, sep, safe_pfx, "_", timestr, "_", TMP_FILE_SUFFIX, sfx, NULL);
   g_free(safe_pfx);
-  if (strlen(tmp_file) > tf[idx].len) {
-    tf[idx].len = strlen(tmp_file) + 1;
+  tmp_file_strsize = strlen(tmp_file) + 1;
+  if (tmp_file_strsize > tf[idx].len) {
+    tf[idx].len = tmp_file_strsize;
     tf[idx].path = (char *)g_realloc(tf[idx].path, tf[idx].len);
   }
   g_strlcpy(tf[idx].path, tmp_file, tf[idx].len);
