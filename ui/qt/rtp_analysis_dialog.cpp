@@ -1418,6 +1418,8 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction, 
     ui->progressFrame->showProgress(true, true, &stop_flag);
 
     if (save_format == save_audio_au_) { /* au format */
+        bool showPayloadWarning = TRUE;
+
         if ((fwd_statinfo_.rtp_stats.clock_rate != 8000) ||
             ((rev_statinfo_.rtp_stats.clock_rate != 0) && (rev_statinfo_.rtp_stats.clock_rate != 8000))
            ) {
@@ -1425,10 +1427,27 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction, 
             goto copy_file_err;
         }
 
-        if (((fwd_statinfo_.first_payload_type != PT_PCMU) && (fwd_statinfo_.first_payload_type != PT_PCMA)) ||
-            ((rev_statinfo_.rtp_stats.clock_rate != 0) &&
-             ((rev_statinfo_.first_payload_type != PT_PCMU) && (rev_statinfo_.first_payload_type != PT_PCMA)))) {
-            QMessageBox::warning(this, tr("Warning"), tr("Can save audio with PCM u-law or A-law encoding only"));
+        /* Check for supported codecs */
+        if (rtpstream_is_payload_used(&fwd_statinfo_, PT_PCMU)) { showPayloadWarning=FALSE; }
+        if (rtpstream_is_payload_used(&fwd_statinfo_, PT_PCMA)) { showPayloadWarning=FALSE; }
+        /* ED-137 silence */
+        if (rtpstream_is_payload_used(&fwd_statinfo_, PT_UNDF_123)) { showPayloadWarning=FALSE; }
+        if (rev_statinfo_.rtp_stats.clock_rate != 0)
+        { /* Reverse stream is defined */
+            bool showRevPayloadWarning = TRUE;
+
+            /* Check for supported codecs */
+            if (rtpstream_is_payload_used(&rev_statinfo_, PT_PCMU)) { showRevPayloadWarning=FALSE; }
+            if (rtpstream_is_payload_used(&rev_statinfo_, PT_PCMA)) { showRevPayloadWarning=FALSE; }
+          /* ED-137 silence */
+            if (rtpstream_is_payload_used(&rev_statinfo_, PT_UNDF_123)) { showRevPayloadWarning=FALSE; }
+            if (showRevPayloadWarning) { showPayloadWarning=TRUE; }
+        }
+
+        /* If unsupported coded is used, warn user */
+        if (showPayloadWarning)
+        {
+            QMessageBox::warning(this, tr("Error"), tr("Can save audio with PCM u-law or A-law encoding only"));
             goto copy_file_err;
         }
 

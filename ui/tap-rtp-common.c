@@ -285,6 +285,11 @@ static void update_payload_names(rtpstream_info_t *stream_info, const struct _rt
     g_string_free(payload_type_names, FALSE);
 }
 
+gboolean rtpstream_is_payload_used(const rtpstream_info_t *stream_info, const guint8 payload_type)
+{
+    return stream_info->payload_type_names[payload_type] != NULL;
+}
+
 #define RTPFILE_VERSION "1.0"
 
 /*

@@ -94,6 +94,13 @@ gint rtpstream_info_cmp(gconstpointer aa, gconstpointer bb);
 */
 gboolean rtpstream_info_is_reverse(const rtpstream_info_t *stream_a, rtpstream_info_t *stream_b);
 
+/**
+ * Checks if payload_type is used in rtpstream.
+ *
+ * @returns TRUE if is used
+ */
+gboolean rtpstream_is_payload_used(const rtpstream_info_t *stream_info, const guint8 payload_type);
+
 /****************************************************************************/
 /* INTERFACE */
 
