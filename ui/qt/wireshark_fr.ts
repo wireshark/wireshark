@@ -3594,7 +3594,7 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation>Format d&apos;2change de Fichier JPEG </translation>
+        <translation>Format d&apos;échange de Fichier JPEG (*.jpeg *jpg)</translation>
     </message>
     <message>
         <source>Comma Separated Values (*.csv)</source>
