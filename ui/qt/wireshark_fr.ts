@@ -3810,7 +3810,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation>Format d&apos;2change de Fichier JPEG </translation>
+        <translation>Format d&apos;échange de Fichier JPEG (*.jpeg *jpg)</translation>
     </message>
     <message>
         <source>Comma Separated Values (*.csv)</source>
