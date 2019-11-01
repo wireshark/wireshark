@@ -67,6 +67,7 @@
 #include <epan/etypes.h>
 #include <epan/to_str.h>
 #include <epan/proto_data.h>
+#include <epan/ipproto.h>
 #include <wsutil/str_util.h>
 #include "packet-ip.h"
 #include "packet-ldp.h"
@@ -1845,6 +1846,7 @@ static int hf_bgp_ls_nlri_ipv6_neighbor_address = -1;
 static int hf_bgp_ls_nlri_multi_topology_id = -1;
 static int hf_bgp_ls_nlri_ospf_route_type = -1;
 static int hf_bgp_ls_nlri_ip_reachability_prefix_ip = -1;
+static int hf_bgp_ls_nlri_ip_reachability_prefix_ip6 = -1;
 static int hf_bgp_ls_nlri_node_nlri_type = -1;
 static int hf_bgp_ls_nlri_node_protocol_id = -1;
 static int hf_bgp_ls_nlri_node_identifier = -1;
@@ -3904,7 +3906,7 @@ static int decode_bgp_link_nlri_link_descriptors(tvbuff_t *tvb,
  * Decode Prefix Descriptors
  */
 static int decode_bgp_link_nlri_prefix_descriptors(tvbuff_t *tvb,
-        proto_tree *tree, gint offset, packet_info *pinfo, int length) {
+        proto_tree *tree, gint offset, packet_info *pinfo, int length, int proto) {
 
     guint16 sub_length;
     guint16 type;
@@ -3987,8 +3989,11 @@ static int decode_bgp_link_nlri_prefix_descriptors(tvbuff_t *tvb,
             break;
 
             case BGP_NLRI_TLV_IP_REACHABILITY_INFORMATION:
-                if (decode_prefix4(tlv_sub_tree, pinfo, tlv_sub_item, hf_bgp_ls_nlri_ip_reachability_prefix_ip,
-                               tvb, offset + 4, "Reachability") == -1)
+                if (( proto == IP_PROTO_IPV4 ) && (decode_prefix4(tlv_sub_tree, pinfo, tlv_sub_item, hf_bgp_ls_nlri_ip_reachability_prefix_ip,
+                               tvb, offset + 4, "Reachability") == -1))
+                    return diss_length;
+                if (( proto == IP_PROTO_IPV6 ) && (decode_prefix6(tlv_sub_tree, pinfo, hf_bgp_ls_nlri_ip_reachability_prefix_ip6,
+                               tvb, offset + 4, 0, "Reachability") == -1))
                     return diss_length;
             break;
         }
@@ -5948,7 +5953,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 break;
 
             tmp_length = decode_bgp_link_nlri_prefix_descriptors(tvb, nlri_tree,
-                    offset, pinfo, length);
+                    offset, pinfo, length, IP_PROTO_IPV4);
             if (tmp_length < 1)
                 return -1;
 
@@ -5977,7 +5982,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 break;
 
             tmp_length = decode_bgp_link_nlri_prefix_descriptors(tvb, nlri_tree,
-                    offset, pinfo, length);
+                    offset, pinfo, length, IP_PROTO_IPV6);
             if (tmp_length < 1)
                 return -1;
 
@@ -10034,6 +10039,9 @@ proto_register_bgp(void)
           BASE_DEC, VALS(link_state_prefix_descriptors_ospf_route_type), 0x0, NULL, HFILL}},
       { &hf_bgp_ls_nlri_ip_reachability_prefix_ip,
        { "Reachability prefix", "bgp.ls.nlri_ip_reachability_prefix_ip", FT_IPv4,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_nlri_ip_reachability_prefix_ip6,
+       { "Reachability prefix", "bgp.ls.nlri_ip_reachability_prefix_ip6", FT_IPv6,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_nlri_node_nlri_type,
         { "Link-State NLRI Node NLRI", "bgp.ls.nlri_node", FT_NONE,
