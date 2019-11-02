@@ -10,7 +10,7 @@
  */
 /*
  * Supports:
- * draft-ietf-grow-bmp-07 BGP Monitoring Protocol
+ * RFC7854 BGP Monitoring Protocol
  *
  */
 
@@ -34,6 +34,7 @@ void proto_reg_handoff_bmp(void);
 #define BMP_MSG_TYPE_PEER_UP            0x03    /* Peer Up Notification */
 #define BMP_MSG_TYPE_INIT               0x04    /* Initiation Message */
 #define BMP_MSG_TYPE_TERM               0x05    /* Termination Message */
+#define BMP_MSG_TYPE_ROUTE_MIRRORING    0x06    /* Route Mirroring */
 
 /* BMP Initiation Message Types */
 #define BMP_INIT_INFO_STRING            0x00    /* String */
@@ -42,12 +43,14 @@ void proto_reg_handoff_bmp(void);
 
 /* BMP Per Peer Types */
 #define BMP_PEER_GLOBAL_INSTANCE        0x00    /* Global Instance Peer */
-#define BMP_PEER_L3VPN_INSTANCE         0x01    /* L3VPN Instance Peer */
+#define BMP_PEER_RD_INSTANCE            0x01    /* RD Instance Peer */
+#define BMP_PEER_LOCAL_INSTANCE         0x02    /* Local Instance Peer */
 
 /* BMP Per Peer Header Flags */
 #define BMP_PEER_FLAG_IPV6              0x80    /* V Flag: IPv6 */
 #define BMP_PEER_FLAG_POST_POLICY       0x40    /* L Flag: Post-policy */
-#define BMP_PEER_FLAG_RES               0x3F    /* Reserved */
+#define BMP_PEER_FLAG_AS_PATH           0x40    /* A Flag: AS_PATH */
+#define BMP_PEER_FLAG_RES               0x1F    /* Reserved */
 #define BMP_PEER_FLAG_MASK              0xFF
 
 /* BMP Stat Types */
@@ -60,12 +63,18 @@ void proto_reg_handoff_bmp(void);
 #define BMP_STAT_AS_CONFED_LOOP         0x06    /* Number of updates invalidated due to AS_CONFED loop */
 #define BMP_STAT_ROUTES_ADJ_RIB_IN      0x07    /* Number of routes in Adj-RIBs-In */
 #define BMP_STAT_ROUTES_LOC_RIB         0x08    /* Number of routes in Loc-RIB */
+#define BMP_STAT_ROUTES_PER_ADJ_RIB_IN  0x09    /* Number of routes in per-AFI/SAFI Adj-RIBs-In */
+#define BMP_STAT_ROUTES_PER_LOC_RIB     0x0A    /* Number of routes in per-AFI/SAFI Loc-RIB */
+#define BMP_STAT_UPDATE_TREAT           0x0B    /* Number of updates subjected to treat-as-withdraw treatment */
+#define BMP_STAT_PREFIXES_TREAT         0x0C    /* Number of prefixes subjected to treat-as-withdraw treatment */
+#define BMP_STAT_DUPLICATE_UPDATE       0x0D    /* Number of duplicate update messages received */
 
 /* BMP Peer Down Reason Codes */
 #define BMP_PEER_DOWN_LOCAL_NOTIFY      0x1     /* Local system closed the session with notification */
 #define BMP_PEER_DOWN_LOCAL_NO_NOTIFY   0x2     /* Local system closed the session with FSM code */
 #define BMP_PEER_DOWN_REMOTE_NOTIFY     0x3     /* Remote system closed the session with notification */
 #define BMP_PEER_DOWN_REMOTE_NO_NOTIFY  0x4     /* Remote system closed the session without notification */
+#define BMP_PEER_DOWN_INFO_NO_LONGER    0x5     /* Information for this peer will no longer be sent to the monitoring station for configuration reasons */
 
 /* BMP Termination Message Types */
 #define BMP_TERM_TYPE_STRING            0x00    /* String */
@@ -76,6 +85,7 @@ void proto_reg_handoff_bmp(void);
 #define BMP_TERM_REASON_UNSPECIFIED     0x01    /* Unspecified reason */
 #define BMP_TERM_REASON_RESOURCES       0x02    /* Out of resources */
 #define BMP_TERM_REASON_REDUNDANT       0x03    /* Redundant connection */
+#define BMP_TERM_REASON_PERM_CLOSE      0x04    /* Session permanently administratively closed */
 
 static const value_string bmp_typevals[] = {
     { BMP_MSG_TYPE_ROUTE_MONITORING,    "Route Monitoring" },
@@ -84,6 +94,7 @@ static const value_string bmp_typevals[] = {
     { BMP_MSG_TYPE_PEER_UP,             "Peer Up Notification" },
     { BMP_MSG_TYPE_INIT,                "Initiation Message" },
     { BMP_MSG_TYPE_TERM,                "Termination Message" },
+    { BMP_MSG_TYPE_ROUTE_MIRRORING,     "Route Mirroring" },
     { 0, NULL }
 };
 
@@ -96,7 +107,8 @@ static const value_string init_typevals[] = {
 
 static const value_string peer_typevals[] = {
     { BMP_PEER_GLOBAL_INSTANCE,         "Global Instance Peer" },
-    { BMP_PEER_L3VPN_INSTANCE,          "L3VPN Instance Peer" },
+    { BMP_PEER_RD_INSTANCE,             "RD Instance Peer" },
+    { BMP_PEER_LOCAL_INSTANCE,          "Local Instance Peer" },
     { 0, NULL }
 };
 
@@ -105,6 +117,7 @@ static const value_string down_reason_typevals[] = {
     { BMP_PEER_DOWN_LOCAL_NO_NOTIFY,    "Local System, No Notification" },
     { BMP_PEER_DOWN_REMOTE_NOTIFY,      "Remote System, Notification" },
     { BMP_PEER_DOWN_REMOTE_NO_NOTIFY,   "Remote System, No Notification" },
+    { BMP_PEER_DOWN_INFO_NO_LONGER,     "Peer no longer be sent INformation (Configuration reasons)" },
     { 0, NULL }
 };
 
@@ -119,6 +132,7 @@ static const value_string term_reason_typevals[] = {
     { BMP_TERM_REASON_UNSPECIFIED,      "Unspecified reason" },
     { BMP_TERM_REASON_RESOURCES,        "Out of resources" },
     { BMP_TERM_REASON_REDUNDANT,        "Redundant connection" },
+    { BMP_TERM_REASON_PERM_CLOSE,       "Session permanently administratively closed" },
     { 0, NULL }
 };
 
@@ -132,6 +146,11 @@ static const value_string stat_typevals[] = {
     { BMP_STAT_AS_CONFED_LOOP,          "Invalid AS_CONFED Loop" },
     { BMP_STAT_ROUTES_ADJ_RIB_IN,       "Routes in Adj-RIB-In" },
     { BMP_STAT_ROUTES_LOC_RIB,          "Routes in Loc-RIB" },
+    { BMP_STAT_ROUTES_PER_ADJ_RIB_IN,   "Routes in per-AFI/SAF Adj-RIB-In" },
+    { BMP_STAT_ROUTES_PER_LOC_RIB,      "Routes in per-AFI/SAFLoc-RIB" },
+    { BMP_STAT_UPDATE_TREAT,            "Number of updates subjected to treat-as-withdraw treatment" },
+    { BMP_STAT_PREFIXES_TREAT,          "Number of prefixes subjected to treat-as-withdraw treatment" },
+    { BMP_STAT_DUPLICATE_UPDATE,        "Number of duplicate update messages received" },
     { 0, NULL }
 };
 
@@ -157,6 +176,7 @@ static int hf_peer_type = -1;
 static int hf_peer_flags = -1;
 static int hf_peer_flags_ipv6 = -1;
 static int hf_peer_flags_post_policy = -1;
+static int hf_peer_flags_as_path = -1;
 static int hf_peer_flags_res = -1;
 static int hf_peer_distinguisher = -1;
 static int hf_peer_ipv4_address = -1;
@@ -204,6 +224,7 @@ static gint ett_bmp_init_type = -1;
 static gint ett_bmp_term = -1;
 static gint ett_bmp_term_type = -1;
 static gint ett_bmp_term_types = -1;
+static gint ett_bmp_route_mirroring = -1;
 
 static dissector_handle_t dissector_bgp;
 
@@ -409,6 +430,7 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
     static const int * peer_flags[] = {
         &hf_peer_flags_ipv6,
         &hf_peer_flags_post_policy,
+        &hf_peer_flags_as_path,
         &hf_peer_flags_res,
         NULL
     };
@@ -452,6 +474,7 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
 
     switch (bmp_type) {
         case BMP_MSG_TYPE_ROUTE_MONITORING:
+        case BMP_MSG_TYPE_ROUTE_MIRRORING:
             call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
             break;
         case BMP_MSG_TYPE_STAT_REPORT:
@@ -577,6 +600,9 @@ dissect_bmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         case BMP_MSG_TYPE_TERM:
             arg = ett_bmp_term;
             break;
+        case BMP_MSG_TYPE_ROUTE_MIRRORING:
+            arg = ett_bmp_route_mirroring;
+            break;
         default:
             arg = ett_bmp;
             break;
@@ -601,6 +627,7 @@ dissect_bmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         case BMP_MSG_TYPE_STAT_REPORT:
         case BMP_MSG_TYPE_PEER_DOWN:
         case BMP_MSG_TYPE_PEER_UP:
+        case BMP_MSG_TYPE_ROUTE_MIRRORING:
             dissect_bmp_peer_header(tvb, bmp_tree, pinfo, offset, bmp_type, len);
             break;
         case BMP_MSG_TYPE_TERM:
@@ -673,6 +700,9 @@ proto_register_bmp(void)
         { &hf_peer_flags_post_policy,
             { "Post-policy", "bmp.peer.flags.post_policy", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), BMP_PEER_FLAG_POST_POLICY, NULL, HFILL }},
+        { &hf_peer_flags_as_path,
+            { "AS PATH", "bmp.peer.flags.as_path", FT_BOOLEAN, 8,
+                TFS(&tfs_set_notset), BMP_PEER_FLAG_AS_PATH, NULL, HFILL }},
         { &hf_peer_flags_res,
             { "Reserved", "bmp.peer.flags.reserved", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), BMP_PEER_FLAG_RES, NULL, HFILL }},
@@ -770,6 +800,7 @@ proto_register_bmp(void)
         &ett_bmp_term,
         &ett_bmp_term_type,
         &ett_bmp_term_types,
+        &ett_bmp_route_mirroring,
     };
 
     module_t *bmp_module;
