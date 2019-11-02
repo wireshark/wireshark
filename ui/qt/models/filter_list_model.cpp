@@ -290,8 +290,6 @@ bool FilterListModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
             int storeTo = insertRow;
             if ( storeTo < 0 || storeTo >= storage.count() )
                 storeTo = storage.count() - 1;
-            if ( insertRow == -1 )
-                insertRow = rowCount();
 
             beginResetModel();
             storage.move(row, storeTo);
