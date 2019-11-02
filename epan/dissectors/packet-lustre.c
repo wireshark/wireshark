@@ -3551,7 +3551,7 @@ dissect_struct_hsm_state_set(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
         expert_add_info_format(pinfo, parent_tree, &ei_lustre_buflen,
                                "Buffer Length expected >= 24 length:%u", data_len);
 
-    item = proto_tree_add_item(parent_tree, hf_lustre_hsm_user_state, tvb, offset, data_len, ENC_NA);
+    item = proto_tree_add_item(parent_tree, hf_lustre_hsm_state_set, tvb, offset, data_len, ENC_NA);
     tree = proto_item_add_subtree(item, ett_lustre_hsm_state_set);
     /* struct hsm_state_set { */
     /* 	__u32	hss_valid; */
