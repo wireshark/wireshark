@@ -14,6 +14,7 @@ COMMIT_FILES=$( git diff-index --cached --name-status HEAD^ | grep -v "^D" | cut
 
 for FILE in $COMMIT_FILES; do
 
+    clang-check ../$FILE
     clang-check -analyze ../$FILE
 
 done
