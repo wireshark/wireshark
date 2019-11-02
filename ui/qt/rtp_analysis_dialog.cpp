@@ -894,13 +894,13 @@ void RtpAnalysisDialog::updateStatistics()
     }
 
     QString stats_tables = "<html><head><style>td{vertical-align:bottom;}</style></head><body>\n";
-    stats_tables += QString("<p>%1:%2 " UTF8_LEFT_RIGHT_ARROW)
+    stats_tables += "<h4>Forward</h4>\n";
+    stats_tables += QString("<p>%1:%2 " UTF8_RIGHTWARDS_ARROW)
             .arg(address_to_qstring(&fwd_statinfo_.id.src_addr, true))
             .arg(fwd_statinfo_.id.src_port);
     stats_tables += QString("<br>%1:%2</p>\n")
             .arg(address_to_qstring(&fwd_statinfo_.id.dst_addr, true))
             .arg(fwd_statinfo_.id.dst_port);
-    stats_tables += "<h4>Forward</h4>\n";
     stats_tables += "<p><table>\n";
     stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</td></tr>")
             .arg(int_to_qstring(fwd_statinfo_.id.ssrc, 8, 16));
@@ -933,6 +933,12 @@ void RtpAnalysisDialog::updateStatistics()
     stats_tables += "</table></p>\n";
 
     stats_tables += "<h4>Reverse</h4>\n";
+    stats_tables += QString("<p>%1:%2 " UTF8_RIGHTWARDS_ARROW)
+            .arg(address_to_qstring(&rev_statinfo_.id.src_addr, true))
+            .arg(rev_statinfo_.id.src_port);
+    stats_tables += QString("<br>%1:%2</p>\n")
+            .arg(address_to_qstring(&rev_statinfo_.id.dst_addr, true))
+            .arg(rev_statinfo_.id.dst_port);
     stats_tables += "<p><table>\n";
     stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</td></tr>")
             .arg(int_to_qstring(rev_statinfo_.id.ssrc, 8, 16));
