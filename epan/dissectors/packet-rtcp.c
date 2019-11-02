@@ -1787,21 +1787,18 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         /* Look for a code in the first byte */
         code = tvb_get_guint8(tvb, offset);
         offset += 1;
-        packet_len -= 1;
 
         /* Priority (optional) */
         if (code == 102)
         {
             item_len = tvb_get_guint8(tvb, offset);
             offset += 1;
-            packet_len -= 1;
             if (item_len != 2) /* SHALL be 2 */
                 return offset;
 
             priority = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            packet_len -= 2;
 
             col_append_fstr(pinfo->cinfo, COL_INFO,
                 " \"%s\"",
@@ -1816,7 +1813,6 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             }
             code = tvb_get_guint8(tvb, offset);
             offset += 1;
-            packet_len -= 1;
 
         }
 
@@ -1827,14 +1823,12 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
 
             item_len = tvb_get_guint8(tvb, offset);
             offset += 1;
-            packet_len -= 1;
             if (item_len != 8) /* SHALL be 8 */
                 return offset;
 
             proto_tree_add_item_ret_time_string(PoC1_tree, hf_rtcp_app_poc1_request_ts, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &buff);
 
             offset += 8;
-            packet_len -= 8;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " ts=\"%s\"", buff);
         }
@@ -1850,13 +1844,11 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         /* Stop talking timer (now mandatory) */
         t2timer_code = tvb_get_guint8(tvb, offset);
         offset += 1;
-        packet_len -= 1;
         if (t2timer_code != 101) /* SHALL be 101 */
             return offset;
 
         item_len = tvb_get_guint8(tvb, offset);
         offset += 1;
-        packet_len -= 1;
         if (item_len != 2) /* SHALL be 2 */
             return offset;
 
@@ -1877,7 +1869,6 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             break;
         }
         offset += item_len;
-        packet_len -= item_len;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " stop-talking-time=%u",
             stop_talking_time);
@@ -1889,13 +1880,11 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         }
         participants_code = tvb_get_guint8(tvb, offset);
         offset += 1;
-        packet_len -= 1;
         if (participants_code != 100) /* SHALL be 100 */
             return offset;
 
         item_len = tvb_get_guint8(tvb, offset);
         offset += 1;
-        packet_len -= 1;
         if (item_len != 2) /* SHALL be 2 */
             return offset;
 
@@ -1915,7 +1904,6 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             break;
         }
         offset += item_len;
-        packet_len -= item_len;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " participants=%u",
             participants);
@@ -1995,7 +1983,6 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             if (offset % 4) {
                 int padding2 = (4 - (offset % 4));
                 offset += padding2;
-                packet_len -= padding2;
             }
         }
 
@@ -2005,13 +1992,11 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         }
         participants_code = tvb_get_guint8(tvb, offset);
         offset += 1;
-        packet_len -= 1;
         if (participants_code != 100) { /* SHALL be 100 */
             return offset;
         }
         item_len = tvb_get_guint8(tvb, offset);
         offset += 1;
-        packet_len -= 1;
         if (item_len != 2) { /* SHALL be 2 */
             return offset;
         }
@@ -2034,7 +2019,6 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         col_append_fstr(pinfo->cinfo, COL_INFO, " Participants=%u",
             participants);
         offset += item_len;
-        packet_len -= item_len;
     }
     break;
 
@@ -2060,7 +2044,6 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         }
 
         offset += (item_len + 1);
-        packet_len -= (item_len + 1);
     }
     break;
 
@@ -2085,7 +2068,6 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         /* 15 bits of padding follows */
 
         offset += 2;
-        packet_len -= 4;
     }
     break;
 
@@ -2121,7 +2103,6 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
                 rtcp_app_poc1_reason_code2_vals,
                 "Unknown"));
         offset += 4;
-        packet_len -= 4;
     }
     break;
 
@@ -2146,7 +2127,6 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
 
         /* 16 bits of padding follow */
         offset += 4;
-        packet_len -= 4;
     }
     break;
 
@@ -2178,7 +2158,6 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         /* 1 bytes of padding  follows */
 
         offset += 4;
-        packet_len -= 4;
     }
     break;
 
@@ -2249,7 +2228,6 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
     if (padding) {
         proto_tree_add_item(PoC1_tree, hf_rtcp_app_data_padding, tvb, offset, padding, ENC_BIG_ENDIAN);
         offset += padding;
-        packet_len -= padding;
     }
 
 
