@@ -570,7 +570,23 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     SslDecryptSession *ssl_session;
     SslSession        *session;
     gint               is_from_server;
-    guint8             curr_layer_num_ssl = pinfo->curr_layer_num;
+    /*
+     * A single packet may contain multiple TLS records. Two possible scenarios:
+     *
+     * - Multiple TLS records belonging to the same TLS session.
+     * - TLS within a different encrypted TLS tunnel.
+     *
+     * To support the second case, 'curr_layer_num_ssl' is used as identifier
+     * for the current TLS layer. It is however not a stable identifier for the
+     * second pass (Bug 16109). If the first decrypted record requests
+     * reassembly for HTTP, then the second pass will skip calling the dissector
+     * for the first record. That means that 'pinfo->curr_layer_num' will
+     * actually be lower the second time.
+     *
+     * Since this cannot be easily fixed, we will just break the (hopefully less
+     * common) case of TLS tunneled within TLS.
+     */
+    guint8             curr_layer_num_ssl = 0; // pinfo->curr_layer_num;
 
     ti = NULL;
     ssl_tree   = NULL;
