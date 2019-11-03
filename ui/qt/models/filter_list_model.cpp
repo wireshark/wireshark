@@ -13,6 +13,7 @@
 #include <wsutil/filesystem.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/models/filter_list_model.h>
 #include <ui/qt/models/profile_model.h>
 
@@ -250,7 +251,7 @@ Qt::DropActions FilterListModel::supportedDropActions() const
 
 QStringList FilterListModel::mimeTypes() const
 {
-    return QStringList() << "application/vnd.row.list";
+    return QStringList() << WiresharkMimeData::FilterListMimeType;
 }
 
 QMimeData *FilterListModel::mimeData(const QModelIndexList &indexes) const
@@ -264,7 +265,7 @@ QMimeData *FilterListModel::mimeData(const QModelIndexList &indexes) const
             rows << QString::number(index.row());
     }
 
-    mimeData->setData("application/vnd.row.list", rows.join(",").toUtf8());
+    mimeData->setData(WiresharkMimeData::FilterListMimeType, rows.join(",").toUtf8());
     return mimeData;
 }
 
@@ -273,10 +274,10 @@ bool FilterListModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     if ( action != Qt::MoveAction )
         return true;
 
-    if ( ! data->hasFormat("application/vnd.row.list") )
+    if ( ! data->hasFormat(WiresharkMimeData::FilterListMimeType) )
         return true;
 
-    QStringList rows = QString(data->data("application/vnd.row.list")).split(",");
+    QStringList rows = QString(data->data(WiresharkMimeData::FilterListMimeType)).split(",");
 
     int insertRow = parent.isValid() ? parent.row() : row;
 

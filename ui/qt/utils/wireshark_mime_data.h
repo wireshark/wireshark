@@ -16,6 +16,10 @@ class WiresharkMimeData: public QMimeData {
 public:
     virtual QString labelText() const = 0;
     virtual void allowPlainText();
+
+    static const QString ColoringRulesMimeType;
+    static const QString ColumnListMimeType;
+    static const QString FilterListMimeType;
 };
 
 class DisplayFilterMimeData: public WiresharkMimeData {

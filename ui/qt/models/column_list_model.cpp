@@ -11,6 +11,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/field_filter_edit.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
+#include <ui/qt/utils/wireshark_mime_data.h>
 
 #include <glib.h>
 #include <epan/column-info.h>
@@ -319,6 +320,11 @@ Qt::ItemFlags ColumnListModel::flags(const QModelIndex &index) const
         return Qt::ItemIsDropEnabled | defaultFlags;
 }
 
+QStringList ColumnListModel::mimeTypes() const
+{
+    return QStringList() << WiresharkMimeData::ColumnListMimeType;
+}
+
 QMimeData *ColumnListModel::mimeData(const QModelIndexList &indexes) const
 {
     QMimeData *mimeData = new QMimeData;
@@ -327,14 +333,14 @@ QMimeData *ColumnListModel::mimeData(const QModelIndexList &indexes) const
     if ( indexes.count() > 0 )
         row = indexes.at(0).row();
 
-    mimeData->setText(QString::number(row));
+    mimeData->setData(WiresharkMimeData::ColumnListMimeType, QString::number(row).toUtf8());
     return mimeData;
 }
 
 bool ColumnListModel::canDropMimeData(const QMimeData *data,
     Qt::DropAction /* action */, int /* row */, int /* column */, const QModelIndex &parent) const
 {
-    if (parent.isValid() || data->text().isEmpty() )
+    if (parent.isValid() || ! data->hasFormat(WiresharkMimeData::ColumnListMimeType) )
         return false;
 
     return true;
@@ -357,7 +363,7 @@ bool ColumnListModel::dropMimeData(const QMimeData *data,
         moveTo = rowCount(QModelIndex());
 
     bool ok = false;
-    int moveFrom = data->text().toInt(&ok);
+    int moveFrom = QString(data->data(WiresharkMimeData::ColumnListMimeType)).toInt(&ok);
     if ( ! ok )
         return false;
 

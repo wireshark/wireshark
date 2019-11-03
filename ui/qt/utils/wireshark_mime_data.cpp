@@ -9,6 +9,10 @@
 
 #include <utils/wireshark_mime_data.h>
 
+const QString WiresharkMimeData::ColoringRulesMimeType = "application/vnd.wireshark.coloringrules";
+const QString WiresharkMimeData::ColumnListMimeType = "application/vnd.wireshark.columnlist";
+const QString WiresharkMimeData::FilterListMimeType = "application/vnd.wireshark.filterlist";
+
 void WiresharkMimeData::allowPlainText()
 {
     setText(labelText());
