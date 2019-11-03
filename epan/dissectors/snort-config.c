@@ -22,13 +22,6 @@
 
 #include "snort-config.h"
 
-
-#ifndef _WIN32
-const char* g_file_separator = "/";
-#else
-const char* g_file_separator = "\\";
-#endif
-
 /* Forward declaration */
 static void parse_config_file(SnortConfig_t *snort_config, FILE *config_file_fd, const char *filename, const char *dirname, int recursion_level);
 
@@ -523,7 +516,7 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
     include_filename = read_token(line+accumulated_length, ' ', &length, &accumulated_length, FALSE);
     if (*include_filename != '\0') {
         FILE *new_config_fd;
-        char substituted_filename[512];
+        char *substituted_filename;
         gboolean is_rule_file = FALSE;
 
         /* May need to substitute variables into include path. */
@@ -532,19 +525,18 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
             /* Don't assume $RULE_PATH will end in a file separator */
             if (snort_config->rule_path_is_absolute) {
                 /* Rule path is absolute, so it can go at start */
-                g_snprintf(substituted_filename, 512, "%s%s%s",
+                substituted_filename = g_build_path(G_DIR_SEPARATOR_S,
                            snort_config->rule_path,
-                           g_file_separator,
-                           include_filename + 11);
+                           include_filename + 11,
+                           NULL);
             }
             else {
                 /* Rule path is relative to config directory, so it goes first */
-                g_snprintf(substituted_filename, 512, "%s%s%s%s%s",
+                substituted_filename = g_build_path(G_DIR_SEPARATOR_S,
                            config_directory,
-                           g_file_separator,
                            snort_config->rule_path,
-                           g_file_separator,
-                           include_filename + 11);
+                           include_filename + 11,
+                           NULL);
             }
             is_rule_file = TRUE;
         }
@@ -552,10 +544,11 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
             /* No $RULE_PATH, just use directory and filename */
             /* But may not even need directory if included_folder is absolute! */
             if (!g_path_is_absolute(include_filename)) {
-                g_snprintf(substituted_filename, 512, "%s/%s", config_directory, include_filename);
+                substituted_filename = g_build_path(G_DIR_SEPARATOR_S,
+                            config_directory, include_filename, NULL);
             }
             else {
-                g_strlcpy(substituted_filename, include_filename, 512);
+                substituted_filename = g_strdup(include_filename);
             }
         }
 
@@ -564,7 +557,7 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
         if (new_config_fd == NULL) {
             snort_debug_printf("Failed to open config file %s\n", substituted_filename);
             report_failure("Snort dissector: Failed to open config file %s\n", substituted_filename);
-
+            g_free(substituted_filename);
             return FALSE;
         }
 
@@ -573,6 +566,7 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
             snort_config->stat_rules_files++;
         }
         parse_config_file(snort_config, new_config_fd, substituted_filename, config_directory, recursion_level + 1);
+        g_free(substituted_filename);
 
         /* Close the file */
         fclose(new_config_fd);
