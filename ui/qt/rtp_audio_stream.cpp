@@ -614,8 +614,10 @@ void RtpAudioStream::writeSilence(int samples)
     tempfile_->write(silence_buff, silence_bytes);
     g_free(silence_buff);
 
-    QVector<qint16> visual_fill(samples * visual_sample_rate_ / audio_out_rate_, 0);
-    visual_samples_ += visual_fill;
+    // Silence is inserted to audio file only.
+    // If inserted to visual_samples_ too, it shifts whole waveset
+    //QVector<qint16> visual_fill(samples * visual_sample_rate_ / audio_out_rate_, 0);
+    //visual_samples_ += visual_fill;
 }
 
 void RtpAudioStream::outputStateChanged(QAudio::State new_state)
