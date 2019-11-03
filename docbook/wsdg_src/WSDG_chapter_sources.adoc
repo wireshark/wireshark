@@ -1381,6 +1381,23 @@ Wireshark uses various mime-types for dragging dropping as well as file formats.
 This chapter gives an overview over all the mimetypes being used, as well as the
 data format in which data has to be provided for each individual mimetype.
 
+If not otherwise stated, the data is encoded as a Json Object.
+
+==== Display Filter
+
+**MimeType**: application/vnd.wireshark.displayfilter
+
+Display filters are being dragged and dropped by utilizing this mime type.
+
+[source,json]
+----
+{
+        "filter": "udp.port == 8080",
+        "field": "udp.port",
+        "description": "UDP Port"
+}
+----
+
 ==== Coloring Rules
 
 **MimeType**: application/vnd.wireshark.coloringrules

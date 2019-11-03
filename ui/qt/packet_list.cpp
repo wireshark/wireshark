@@ -71,6 +71,8 @@
 #include <QTimerEvent>
 #include <QTreeWidget>
 #include <QWindow>
+#include <QJsonObject>
+#include <QJsonDocument>
 
 #ifdef Q_OS_WIN
 #include "wsutil/file_util.h"
@@ -669,7 +671,7 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
     if ( event->buttons() & Qt::LeftButton && curIndex.isValid() && curIndex == mouse_pressed_at_ )
     {
         ctx_column_ = curIndex.column();
-        QMimeData * mimeData = nullptr;
+        QMimeData * mimeData = new QMimeData();
         QWidget * content = nullptr;
 
         QString filter = getFilterFromRowAndColumn(curIndex);
@@ -688,18 +690,22 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
                 abbrev = filter;
             }
 
-            mimeData = new DisplayFilterMimeData(name, abbrev, filter);
-            ((DisplayFilterMimeData *)mimeData)->allowPlainText();
-            content = new DragLabel(((DisplayFilterMimeData *)mimeData)->labelText(), this);
+            mimeData->setText(filter);
+
+            QJsonObject filterData;
+            filterData["filter"] = filter;
+            filterData["name"] = abbrev;
+            filterData["description"] = name;
+            QMimeData * mimeData = new QMimeData();
+
+            mimeData->setData(WiresharkMimeData::DisplayFilterMimeType, QJsonDocument(filterData).toJson());
+            content = new DragLabel(QString("%1\n%2").arg(name, abbrev), this);
         }
         else
         {
             QString text = model()->data(curIndex).toString();
             if ( ! text.isEmpty() )
-            {
-                mimeData = new QMimeData();
                 mimeData->setText(text);
-            }
         }
 
         if ( mimeData )

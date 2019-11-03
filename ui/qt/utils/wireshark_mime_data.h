@@ -20,27 +20,7 @@ public:
     static const QString ColoringRulesMimeType;
     static const QString ColumnListMimeType;
     static const QString FilterListMimeType;
-};
-
-class DisplayFilterMimeData: public WiresharkMimeData {
-    Q_OBJECT
-public:
-
-    DisplayFilterMimeData(QString description, QString field, QString filter);
-
-    QString description() const;
-    QString field() const;
-    QString filter() const;
-
-    QString labelText() const override;
-    void allowPlainText() override;
-
-private:
-
-    QString description_;
-    QString filter_;
-    QString field_;
-
+    static const QString DisplayFilterMimeType;
 };
 
 class ToolbarEntryMimeData: public WiresharkMimeData {

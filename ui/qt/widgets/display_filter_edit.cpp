@@ -40,6 +40,8 @@
 #include <QDrag>
 #include <QDropEvent>
 #include <QMimeData>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 // To do:
 // - Get rid of shortcuts and replace them with "n most recently applied filters"?
@@ -535,11 +537,11 @@ void DisplayFilterEdit::applyOrPrepareFilter()
 
 void DisplayFilterEdit::dragEnterEvent(QDragEnterEvent *event)
 {
-    if ( ! event )
+    if ( ! event || ! event->mimeData() )
         return;
 
-    if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData()) ||
-            qobject_cast<const ToolbarEntryMimeData *>(event->mimeData())) {
+    if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData()) ||
+            event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType)) {
         if ( event->source() != this )
         {
             event->setDropAction(Qt::CopyAction);
@@ -554,11 +556,11 @@ void DisplayFilterEdit::dragEnterEvent(QDragEnterEvent *event)
 
 void DisplayFilterEdit::dragMoveEvent(QDragMoveEvent *event)
 {
-    if ( ! event )
+    if ( ! event || ! event->mimeData() )
         return;
 
-    if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData()) ||
-            qobject_cast<const ToolbarEntryMimeData *>(event->mimeData())) {
+    if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData()) ||
+            event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType)) {
         if ( event->source() != this )
         {
             event->setDropAction(Qt::CopyAction);
@@ -573,19 +575,26 @@ void DisplayFilterEdit::dragMoveEvent(QDragMoveEvent *event)
 
 void DisplayFilterEdit::dropEvent(QDropEvent *event)
 {
-    if ( ! event )
+    if ( ! event || ! event->mimeData() )
         return;
 
     QString filterText = "";
-    if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
-        const DisplayFilterMimeData * data = qobject_cast<const DisplayFilterMimeData *>(event->mimeData());
+    if ( event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType) )
+    {
+        QByteArray jsonData = event->mimeData()->data(WiresharkMimeData::DisplayFilterMimeType);
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
+        if ( ! jsonDoc.isObject() )
+            return;
 
-        if ((QApplication::keyboardModifiers() & Qt::AltModifier))
-            filterText = data->field();
-        else
-            filterText = data->filter();
+        QJsonObject data = jsonDoc.object();
+
+        if ((QApplication::keyboardModifiers() & Qt::AltModifier) && data.contains("field"))
+            filterText = data["field"].toString();
+        else if ( data.contains("filter") )
+            filterText = data["filter"].toString();
     }
-    else if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData())) {
+    else if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData()))
+    {
         const ToolbarEntryMimeData * data = qobject_cast<const ToolbarEntryMimeData *>(event->mimeData());
 
         filterText = data->filter();
