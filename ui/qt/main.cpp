@@ -308,14 +308,13 @@ g_log_message_handler(QtMsgType type, const QMessageLogContext &, const QString 
     GLogLevelFlags log_level = G_LOG_LEVEL_DEBUG;
 
     switch (type) {
-    case QtDebugMsg:
-    default:
-        break;
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
     case QtInfoMsg:
         log_level = G_LOG_LEVEL_INFO;
         break;
 #endif
+    // We want qDebug() messages to show up at our default log level.
+    case QtDebugMsg:
     case QtWarningMsg:
         log_level = G_LOG_LEVEL_WARNING;
         break;
@@ -324,6 +323,8 @@ g_log_message_handler(QtMsgType type, const QMessageLogContext &, const QString 
         break;
     case QtFatalMsg:
         log_level = G_LOG_FLAG_FATAL;
+        break;
+    default:
         break;
     }
     g_log(LOG_DOMAIN_MAIN, log_level, "%s", qUtf8Printable(msg));
