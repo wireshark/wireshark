@@ -86,6 +86,7 @@ static dissector_table_t media_type_dissector_table;
  * to missing nbytes of the head length if entire length of message is undetermined. */
 static dissector_table_t streaming_content_type_dissector_table;
 
+#ifdef HAVE_NGHTTP2
 /* The type of reassembly mode contains:
  *  - HTTP2_DATA_REASSEMBLY_MODE_END_STREAM   Complete reassembly at the end of stream. (default)
  *  - HTTP2_DATA_REASSEMBLY_MODE_STREAMING    Determined by the desegment_offset and desegment_len fields returned from subdissector.
@@ -101,6 +102,7 @@ http2_get_data_reassembly_mode(const gchar* content_type)
     return dissector_get_string_handle(streaming_content_type_dissector_table, content_type) ?
             HTTP2_DATA_REASSEMBLY_MODE_STREAMING : HTTP2_DATA_REASSEMBLY_MODE_END_STREAM;
 }
+#endif
 
 /* Decompressed header field */
 typedef struct {
