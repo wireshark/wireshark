@@ -36,6 +36,8 @@ typedef struct _diam_sub_dis_t {
 	guint32 vendor_id;
 	char *avp_str;
 	proto_item* item;          /**< The item created for this AVP*/
+	guint32 subscription_id_type;     /* Store the Subscription-Id-Type for use when we dissect Subscription-Id-Data */
+	guint32 user_equipment_info_type; /* Store the User-Equipment-Info-Type for use when we dissect User-Equipment-Info-Value */
 } diam_sub_dis_t;
 
 #define DIAM_APPID_3GPP_CX      16777216
