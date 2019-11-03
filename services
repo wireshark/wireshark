@@ -996,8 +996,6 @@ sdproxy		1297/tcp/udp
 lpcp		1298/tcp/udp
 hp-sci		1299/tcp/udp
 h323hostcallsc	1300/tcp/udp	# H.323 Secure Call Control Signalling
-ci3-software-1	1301/tcp/udp	# CI3-Software-1
-ci3-software-2	1302/tcp/udp	# CI3-Software-2
 sftsrv		1303/tcp/udp
 boomerang	1304/tcp/udp	# Boomerang
 pe-mike		1305/tcp/udp
