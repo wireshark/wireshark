@@ -580,7 +580,6 @@ void DisplayFilterEdit::dropEvent(QDropEvent *event)
     if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
         const DisplayFilterMimeData * data = qobject_cast<const DisplayFilterMimeData *>(event->mimeData());
 
-        QString filterText;
         if ((QApplication::keyboardModifiers() & Qt::AltModifier))
             filterText = data->field();
         else
