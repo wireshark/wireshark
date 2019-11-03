@@ -2191,6 +2191,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Only enabled protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only disabled protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>any protocol</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2666,14 +2674,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Create a new filter.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2697,10 +2697,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2777,6 +2773,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FilterListModel</name>
+    <message>
+        <source>Filter Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Expression</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

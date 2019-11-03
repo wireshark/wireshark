@@ -144,7 +144,7 @@
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Value</source>
@@ -1675,11 +1675,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished">Заголовок</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Fields</source>
@@ -1711,23 +1711,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show displayed columns only</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Displayed</source>
-        <translation type="vanished">Відображено</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation type="vanished">Заголовок</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">Тип</translation>
-    </message>
-    <message>
-        <source>Field Occurrence</source>
-        <oldsource>Field occurrence</oldsource>
-        <translation type="vanished">Входження Поля</translation>
     </message>
     <message>
         <source>Reset all changes</source>
@@ -1944,7 +1927,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Default</source>
@@ -2191,6 +2174,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Only enabled protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>any protocol</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2200,6 +2187,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>heuristic protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only disabled protocols</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2257,7 +2248,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>EthernetAddressModel</name>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mac Address</source>
@@ -2667,14 +2658,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Create a new filter.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2698,10 +2681,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2778,6 +2757,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FilterListModel</name>
+    <message>
+        <source>Filter Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Expression</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8476,7 +8466,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Path</source>
@@ -8515,7 +8505,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8892,7 +8882,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9298,7 +9288,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UEId</source>
@@ -9724,7 +9714,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Messages</source>
@@ -12096,7 +12086,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Description</source>
@@ -12201,7 +12191,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MA Window (s)</source>

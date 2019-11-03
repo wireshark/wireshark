@@ -1695,7 +1695,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished">Titel</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Type</source>
@@ -1703,7 +1703,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Fields</source>
-        <translation type="unfinished">Fält</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Field Occurence</source>
@@ -1731,28 +1731,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Show displayed columns only</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Displayed</source>
-        <translation type="vanished">Visat</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation type="vanished">Titel</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">Typ</translation>
-    </message>
-    <message>
-        <source>Fields</source>
-        <oldsource>Field Name</oldsource>
-        <translation type="vanished">Fält</translation>
-    </message>
-    <message>
-        <source>Field Occurrence</source>
-        <oldsource>Field occurrence</oldsource>
-        <translation type="vanished">Fältförekomst</translation>
     </message>
     <message>
         <source>Reset all changes</source>
@@ -2218,6 +2196,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Endast beskrivning</translation>
     </message>
     <message>
+        <source>Only enabled protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>any protocol</source>
         <translation>alla protokoll</translation>
     </message>
@@ -2228,6 +2210,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>heuristic protocols</source>
         <translation>heuristiska protokoll</translation>
+    </message>
+    <message>
+        <source>Only disabled protocols</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2694,11 +2680,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Name</source>
-        <translation>Namn</translation>
+        <translation type="vanished">Namn</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation>Filter</translation>
+        <translation type="vanished">Filter</translation>
     </message>
     <message>
         <source>Create a new filter.</source>
@@ -2728,7 +2714,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>New filter</source>
-        <translation>Nytt filter</translation>
+        <translation type="vanished">Nytt filter</translation>
     </message>
     <message>
         <source>New capture filter</source>
@@ -2805,6 +2791,17 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Remove</source>
         <translation>Ta bort</translation>
+    </message>
+</context>
+<context>
+    <name>FilterListModel</name>
+    <message>
+        <source>Filter Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Expression</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

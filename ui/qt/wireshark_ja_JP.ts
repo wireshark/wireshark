@@ -1687,7 +1687,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished">題名</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Type</source>
@@ -1695,7 +1695,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Fields</source>
-        <translation type="unfinished">フィールド名</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Field Occurence</source>
@@ -1723,28 +1723,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show displayed columns only</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Displayed</source>
-        <translation type="vanished">表示</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation type="vanished">題名</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">種別</translation>
-    </message>
-    <message>
-        <source>Fields</source>
-        <oldsource>Field Name</oldsource>
-        <translation type="vanished">フィールド名</translation>
-    </message>
-    <message>
-        <source>Field Occurrence</source>
-        <oldsource>Field occurrence</oldsource>
-        <translation type="vanished">フィールド出現位置</translation>
     </message>
     <message>
         <source>Reset all changes</source>
@@ -2210,6 +2188,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Only enabled protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>any protocol</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2219,6 +2201,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>heuristic protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only disabled protocols</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2685,11 +2671,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Name</source>
-        <translation>名前</translation>
+        <translation type="vanished">名前</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation>フィルタ</translation>
+        <translation type="vanished">フィルタ</translation>
     </message>
     <message>
         <source>Create a new filter.</source>
@@ -2719,7 +2705,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>New filter</source>
-        <translation>新規フィルタ</translation>
+        <translation type="vanished">新規フィルタ</translation>
     </message>
     <message>
         <source>New capture filter</source>
@@ -2795,6 +2781,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FilterListModel</name>
+    <message>
+        <source>Filter Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Expression</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

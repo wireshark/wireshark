@@ -1671,7 +1671,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished">Titre</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Type</source>
@@ -1707,23 +1707,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show displayed columns only</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Displayed</source>
-        <translation type="vanished">Affichés</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation type="vanished">Titre</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">Type</translation>
-    </message>
-    <message>
-        <source>Field Occurrence</source>
-        <oldsource>Field occurrence</oldsource>
-        <translation type="vanished">Occurrence d&apos;un champ</translation>
     </message>
     <message>
         <source>Reset all changes</source>
@@ -2187,6 +2170,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Only enabled protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>any protocol</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2196,6 +2183,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>heuristic protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only disabled protocols</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2663,11 +2654,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Name</source>
-        <translation>Nom</translation>
+        <translation type="vanished">Nom</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation>Filtre</translation>
+        <translation type="vanished">Filtre</translation>
     </message>
     <message>
         <source>Create a new filter.</source>
@@ -2697,7 +2688,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>New filter</source>
-        <translation>Nouveau filtre</translation>
+        <translation type="vanished">Nouveau filtre</translation>
     </message>
     <message>
         <source>New capture filter</source>
@@ -2773,6 +2764,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FilterListModel</name>
+    <message>
+        <source>Filter Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Expression</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3449,13 +3451,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 &lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Zoom arrière axe Y&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Réinitialise le graphique à son état initial&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Droite 10 pixels&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Gauche 10 pixels&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Haut 10 pixels&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Bas 10 pixels&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Droite 1 pixel&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Gauche 1 pixel&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Haut 1 pixel&lt;/td&gt;&lt;/th&gt; 
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Droite 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Gauche 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Haut 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Bas 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Droite 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Gauche 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Haut 1 pixel&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Bas 1 pixel&lt;/td&gt;&lt;/th&gt;
 &lt;/th&gt;
 
@@ -3810,7 +3812,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation>Format d&apos;échange de Fichier JPEG (*.jpeg *jpg)</translation>
+        <translation>Fichier JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Comma Separated Values (*.csv)</source>
@@ -4013,7 +4015,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation>Format d&apos;2change de Fichier JPEG </translation>
+        <translation>Fichier JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
@@ -5410,25 +5412,25 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt; 
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Raccourcis-clavier précieux pour gains de temps surprenants&lt;/h3&gt;
-&lt;table&gt;&lt;tbody&gt; 
+&lt;table&gt;&lt;tbody&gt;
 
 &lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Zoom avant&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Zoom arrière&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Réinitialise le graphique à son état initial&lt;/td&gt;&lt;/th&gt; 
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Réinitialise le graphique à son état initial&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Droite 10 pixels&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Gauche 10 pixels&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Haut 10 pixels&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Bas 10 pixels&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Droite 1 pixel&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Gauche 1 pixel&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Haut 1 pixel&lt;/td&gt;&lt;/th&gt; 
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Droite 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Gauche 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Haut 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Bas 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Droite 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Gauche 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Haut 1 pixel&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Bas1 pixel&lt;/td&gt;&lt;/th&gt;
 
- &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Aller (go) au paquet sous le curseur&lt;/td&gt;&lt;/th&gt; 
+ &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Aller (go) au paquet sous le curseur&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Bascule trainée souris / zoom&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Bascule origine du temps capture / session&lt;/td&gt;&lt;/th&gt;
@@ -5703,19 +5705,19 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">Portable Document Format (*.pdf)</translation>
+        <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">Portable Network Graphics (*.png)</translation>
+        <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished">Windows Bitmap (*.bmp)</translation>
+        <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished">Format d&apos;2change de Fichier JPEG </translation>
+        <translation>Fichier JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
@@ -10217,7 +10219,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation>Format d&apos;2change de Fichier JPEG </translation>
+        <translation>Fichier JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
@@ -10389,10 +10391,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
 &lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Zoom arrière&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Réinitialise le graphique à son état initial&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Droite 10 pixels&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Gauche 10 pixels&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Droite 1 pixel&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Gauche 1 pixel&lt;/td&gt;&lt;/th&gt; 
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Droite 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Gauche 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Droite 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Gauche 1 pixel&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Aller (go) au paquet sous le curseur&lt;/td&gt;&lt;/th&gt;
 
@@ -11456,7 +11458,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation>Format d&apos;2change de Fichier JPEG </translation>
+        <translation>Fichier JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
@@ -11649,7 +11651,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation>Format d&apos;2change de Fichier JPEG </translation>
+        <translation>Fichier JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>ASCII (*.txt)</source>
@@ -12263,13 +12265,13 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
 &lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Zoom arrière axe Y&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Réinitialise le graphique à son état initial&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Droite 10 pixels&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Gauche 10 pixels&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Haut 10 pixels&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Bas 10 pixels&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maj+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Droite 1 pixel&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maj+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Gauche 1 pixel&lt;/td&gt;&lt;/th&gt; 
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maj+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Haut 1 pixel&lt;/td&gt;&lt;/th&gt; 
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Droite 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Gauche 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Haut 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Bas 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maj+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Droite 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maj+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Gauche 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maj+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Haut 1 pixel&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Maj+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Bas 1 pixel&lt;/td&gt;&lt;/th&gt;
 &lt;/th&gt;
 
@@ -12750,7 +12752,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation>Format d&apos;2change de Fichier JPEG </translation>
+        <translation>Fichier JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
