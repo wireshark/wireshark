@@ -42,7 +42,7 @@
 #include <wsutil/report_message.h>
 #include <wiretap/wtap-int.h>
 
-#include "snort-config.h"
+#include "packet-snort-config.h"
 
 /* Forward declarations */
 void proto_register_snort(void);

@@ -1,4 +1,4 @@
-/* snort-config.c
+/* packet-snort-config.c
  *
  * Copyright 2016, Martin Mathieson
  *
@@ -20,7 +20,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/report_message.h>
 
-#include "snort-config.h"
+#include "packet-snort-config.h"
 
 /* Forward declaration */
 static void parse_config_file(SnortConfig_t *snort_config, FILE *config_file_fd, const char *filename, const char *dirname, int recursion_level);
