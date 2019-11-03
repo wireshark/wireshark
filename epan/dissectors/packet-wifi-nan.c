@@ -1470,6 +1470,11 @@ dissect_attr_ndpe(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 att
             offset += tlv_len + 3;
             dissected_len += tlv_len + 3;
             break;
+        default:
+            proto_tree_add_item(tlv_tree, hf_nan_attr_vendor_specific_body, tvb, offset + 3, tlv_len, ENC_NA);
+            offset += tlv_len + 3;
+            dissected_len += tlv_len + 3;
+            break;
         }
     }
 }
