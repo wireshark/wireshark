@@ -159,6 +159,7 @@ static INT Dot11DecryptWepMng(
 
 static INT Dot11DecryptRsna4WHandshake(
     PDOT11DECRYPT_CONTEXT ctx,
+    DOT11DECRYPT_HS_MSG_TYPE msg_type,
     const UCHAR *data,
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
     INT offset,
@@ -713,6 +714,7 @@ INT Dot11DecryptScanTdlsForKeys(
 
 INT Dot11DecryptScanEapolForKeys(
     PDOT11DECRYPT_CONTEXT ctx,
+    DOT11DECRYPT_HS_MSG_TYPE msg_type,
     const guint8 *data,
     const guint tot_len,
     const UCHAR bssid[DOT11DECRYPT_MAC_LEN],
@@ -744,11 +746,6 @@ INT Dot11DecryptScanEapolForKeys(
         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
     }
 
-    /* check if the packet is a EAPOL-Key (0x03) (IEEE 802.1X-2004, pg. 25) */
-    if (data[offset+1]!=3) {
-        DEBUG_PRINT_LINE("Not EAPOL-Key", DEBUG_LEVEL_3);
-        return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
-    }
 
     /* get and check the body length (IEEE 802.1X-2004, pg. 25) */
     bodyLength=pntoh16(data+offset+2);
@@ -789,7 +786,7 @@ INT Dot11DecryptScanEapolForKeys(
     }
 
     /* It could be a Pairwise Key exchange, check */
-    if (Dot11DecryptRsna4WHandshake(ctx, data, sa, offset, tot_len,
+    if (Dot11DecryptRsna4WHandshake(ctx, msg_type, data, sa, offset, tot_len,
                                     decrypt_data, decrypt_len, key) == DOT11DECRYPT_RET_SUCCESS_HANDSHAKE)
     {
         return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
@@ -800,13 +797,9 @@ INT Dot11DecryptScanEapolForKeys(
         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
     }
 
-    /* Verify the bitfields: Key = 0(groupwise) Mic = 1 Ack = 1 Secure = 1 */
-    if (DOT11DECRYPT_EAP_KEY(data[offset+1])!=0 ||
-        DOT11DECRYPT_EAP_ACK(data[offset+1])!=1 ||
-        DOT11DECRYPT_EAP_MIC(data[offset]) != 1 ||
-        DOT11DECRYPT_EAP_SEC(data[offset]) != 1){
+    if (msg_type != DOT11DECRYPT_HS_MSG_TYPE_GHS_1){
 
-        DEBUG_PRINT_LINE("Key bitfields not correct for Group Key", DEBUG_LEVEL_3);
+        DEBUG_PRINT_LINE("Not Group handshake message 1", DEBUG_LEVEL_3);
         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
     }
 
@@ -1452,6 +1445,7 @@ Dot11DecryptGetRsne(
 static INT
 Dot11DecryptRsna4WHandshake(
     PDOT11DECRYPT_CONTEXT ctx,
+    DOT11DECRYPT_HS_MSG_TYPE msg_type,
     const UCHAR *data,
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
     INT offset,
@@ -1493,9 +1487,7 @@ Dot11DecryptRsna4WHandshake(
     /* manage 4-way handshake packets; this step completes the 802.1X authentication process (IEEE 802.11i-2004, pag. 85) */
 
     /* message 1: Authenticator->Supplicant (Sec=0, Mic=0, Ack=1, Inst=0, Key=1(pairwise), KeyRSC=0, Nonce=ANonce, MIC=0) */
-    if (DOT11DECRYPT_EAP_INST(data[offset+1])==0 &&
-        DOT11DECRYPT_EAP_ACK(data[offset+1])==1 &&
-        DOT11DECRYPT_EAP_MIC(data[offset])==0)
+    if (msg_type == DOT11DECRYPT_HS_MSG_TYPE_4WHS_1)
     {
         DEBUG_PRINT_LINE("4-way handshake message 1", DEBUG_LEVEL_3);
 
@@ -1528,155 +1520,131 @@ Dot11DecryptRsna4WHandshake(
     }
 
     /* message 2|4: Supplicant->Authenticator (Sec=0|1, Mic=1, Ack=0, Inst=0, Key=1(pairwise), KeyRSC=0, Nonce=SNonce|0, MIC=MIC(KCK,EAPOL)) */
-    if (DOT11DECRYPT_EAP_INST(data[offset+1])==0 &&
-        DOT11DECRYPT_EAP_ACK(data[offset+1])==0 &&
-        DOT11DECRYPT_EAP_MIC(data[offset])==1)
-    {
-        /* Check key data length to differentiate between message 2 or 4, same as in epan/dissectors/packet-ieee80211.c */
-        if (tot_len-(offset+92) < 2) {
-            DEBUG_PRINT_LINE("Too short to have a key data length", DEBUG_LEVEL_5);
+    if (msg_type == DOT11DECRYPT_HS_MSG_TYPE_4WHS_2) {
+        DEBUG_PRINT_LINE("4-way handshake message 2", DEBUG_LEVEL_3);
+
+        /* On reception of Message 2, the Authenticator checks that the key replay counter corresponds to the */
+        /* outstanding Message 1. If not, it silently discards the message.                                   */
+        /* If the calculated MIC does not match the MIC that the Supplicant included in the EAPOL-Key frame,  */
+        /* the Authenticator silently discards Message 2.                                                     */
+        /* -> not checked; the Supplicant will send another message 2 (hopefully!)                            */
+
+        if (tot_len - (offset + 12) < 32) {
+            DEBUG_PRINT_LINE("Too short to contain SNonce", DEBUG_LEVEL_5);
             return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
         }
-        if (pntoh16(data+offset+92)) {
-            /* message 2 */
-            DEBUG_PRINT_LINE("4-way handshake message 2", DEBUG_LEVEL_3);
 
-            /* On reception of Message 2, the Authenticator checks that the key replay counter corresponds to the */
-            /* outstanding Message 1. If not, it silently discards the message.                                   */
-            /* If the calculated MIC does not match the MIC that the Supplicant included in the EAPOL-Key frame,  */
-            /* the Authenticator silently discards Message 2.                                                     */
-            /* -> not checked; the Supplicant will send another message 2 (hopefully!)                            */
-
-            /* now you can derive the PTK */
-            for (key_index=0; key_index<(INT)ctx->keys_nr || useCache; key_index++) {
-                /* use the cached one, or try all keys */
-                if (!useCache) {
-                    DEBUG_PRINT_LINE("Try WPA key...", DEBUG_LEVEL_3);
-                    tmp_key=&ctx->keys[key_index];
+        /* now you can derive the PTK */
+        for (key_index=0; key_index<(INT)ctx->keys_nr || useCache; key_index++) {
+            /* use the cached one, or try all keys */
+            if (!useCache) {
+                DEBUG_PRINT_LINE("Try WPA key...", DEBUG_LEVEL_3);
+                tmp_key=&ctx->keys[key_index];
+            } else {
+                /* there is a cached key in the security association, if it's a WPA key try it... */
+                if (sa->key!=NULL &&
+                    (sa->key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PWD ||
+                    sa->key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PSK ||
+                    sa->key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PMK)) {
+                        DEBUG_PRINT_LINE("Try cached WPA key...", DEBUG_LEVEL_3);
+                        tmp_key=sa->key;
                 } else {
-                    /* there is a cached key in the security association, if it's a WPA key try it... */
-                    if (sa->key!=NULL &&
-                        (sa->key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PWD ||
-                         sa->key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PSK ||
-                         sa->key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PMK)) {
-                            DEBUG_PRINT_LINE("Try cached WPA key...", DEBUG_LEVEL_3);
-                            tmp_key=sa->key;
-                    } else {
-                        DEBUG_PRINT_LINE("Cached key is of a wrong type, try WPA key...", DEBUG_LEVEL_3);
-                        tmp_key=&ctx->keys[key_index];
-                    }
+                    DEBUG_PRINT_LINE("Cached key is of a wrong type, try WPA key...", DEBUG_LEVEL_3);
+                    tmp_key=&ctx->keys[key_index];
+                }
+            }
+
+            /* obviously, try only WPA keys... */
+            if (tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PWD ||
+                tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PSK ||
+                tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PMK)
+            {
+                if (tmp_key->KeyType == DOT11DECRYPT_KEY_TYPE_WPA_PWD && tmp_key->UserPwd.SsidLen == 0 && ctx->pkt_ssid_len > 0 && ctx->pkt_ssid_len <= DOT11DECRYPT_WPA_SSID_MAX_LEN) {
+                    /* We have a "wildcard" SSID.  Use the one from the packet. */
+                    memcpy(&pkt_key, tmp_key, sizeof(pkt_key));
+                    memcpy(&pkt_key.UserPwd.Ssid, ctx->pkt_ssid, ctx->pkt_ssid_len);
+                    pkt_key.UserPwd.SsidLen = ctx->pkt_ssid_len;
+                    Dot11DecryptRsnaPwd2Psk(pkt_key.UserPwd.Passphrase, pkt_key.UserPwd.Ssid,
+                        pkt_key.UserPwd.SsidLen, pkt_key.KeyData.Wpa.Psk);
+                    tmp_pkt_key = &pkt_key;
+                } else {
+                    tmp_pkt_key = tmp_key;
                 }
 
-                /* obviously, try only WPA keys... */
-                if (tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PWD ||
-                    tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PSK ||
-                    tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PMK)
-                {
-                    if (tmp_key->KeyType == DOT11DECRYPT_KEY_TYPE_WPA_PWD && tmp_key->UserPwd.SsidLen == 0 && ctx->pkt_ssid_len > 0 && ctx->pkt_ssid_len <= DOT11DECRYPT_WPA_SSID_MAX_LEN) {
-                        /* We have a "wildcard" SSID.  Use the one from the packet. */
-                        memcpy(&pkt_key, tmp_key, sizeof(pkt_key));
-                        memcpy(&pkt_key.UserPwd.Ssid, ctx->pkt_ssid, ctx->pkt_ssid_len);
-                         pkt_key.UserPwd.SsidLen = ctx->pkt_ssid_len;
-                        Dot11DecryptRsnaPwd2Psk(pkt_key.UserPwd.Passphrase, pkt_key.UserPwd.Ssid,
-                            pkt_key.UserPwd.SsidLen, pkt_key.KeyData.Wpa.Psk);
-                        tmp_pkt_key = &pkt_key;
-                    } else {
-                        tmp_pkt_key = tmp_key;
-                    }
+                /* verify the MIC (compare the MIC in the packet included in this message with a MIC calculated with the PTK) */
+                eapol_len=pntoh16(data+offset-3)+4;
+                if ((guint)(tot_len-(offset-5)) < (eapol_len<DOT11DECRYPT_EAPOL_MAX_LEN?eapol_len:DOT11DECRYPT_EAPOL_MAX_LEN)) {
+                    DEBUG_PRINT_LINE("Too short to contain ANonce", DEBUG_LEVEL_5);
+                    return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+                }
+                memcpy(eapol, &data[offset-5], (eapol_len<DOT11DECRYPT_EAPOL_MAX_LEN?eapol_len:DOT11DECRYPT_EAPOL_MAX_LEN));
 
-                    /* verify the MIC (compare the MIC in the packet included in this message with a MIC calculated with the PTK) */
-                    eapol_len=pntoh16(data+offset-3)+4;
-                    if ((guint)(tot_len-(offset-5)) < (eapol_len<DOT11DECRYPT_EAPOL_MAX_LEN?eapol_len:DOT11DECRYPT_EAPOL_MAX_LEN)) {
-                        DEBUG_PRINT_LINE("Too short to contain ANonce", DEBUG_LEVEL_5);
-                        return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
-                    }
-                    memcpy(eapol, &data[offset-5], (eapol_len<DOT11DECRYPT_EAPOL_MAX_LEN?eapol_len:DOT11DECRYPT_EAPOL_MAX_LEN));
+                int key_version = DOT11DECRYPT_EAP_KEY_DESCR_VER(data[offset+1]);
+                int akm = -1;
+                int cipher = -1;
 
-                    int key_version = DOT11DECRYPT_EAP_KEY_DESCR_VER(data[offset+1]);
-                    int akm = -1;
-                    int cipher = -1;
+                if (key_version == 0) {
+                /* PTK derivation is based on Authentication Key Management Type */
+                    int group_cipher = -1;
+                    Dot11DecryptGetRsne((const EAPOL_RSN_KEY *)(data + offset - 1),
+                                        tot_len - (offset - 1),
+                                        &group_cipher, &cipher, &akm);
+                }
 
-                    if (key_version == 0) {
-                        /* PTK derivation is based on Authentication Key Management Type */
-                        int group_cipher = -1;
-                        Dot11DecryptGetRsne((const EAPOL_RSN_KEY *)(data + offset - 1),
-                                            tot_len - (offset - 1),
-                                            &group_cipher, &cipher, &akm);
-                    }
+                /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
+                Dot11DecryptDerivePtk(sa,                            /* authenticator nonce, bssid, station mac */
+                                      tmp_pkt_key->KeyData.Wpa.Psk,  /* PSK == PMK */
+                                      data+offset+12,                /* supplicant nonce */
+                                      key_version,
+                                      akm,
+                                      cipher);
 
-                    /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
-                    Dot11DecryptDerivePtk(sa,                            /* authenticator nonce, bssid, station mac */
-                                          tmp_pkt_key->KeyData.Wpa.Psk,  /* PSK == PMK */
-                                          data+offset+12,                /* supplicant nonce */
-                                          key_version,
-                                          akm,
-                                          cipher);
+                DEBUG_DUMP("TK",  DOT11DECRYPT_GET_TK(sa->wpa.ptk), 16);
 
-                    DEBUG_DUMP("TK",  DOT11DECRYPT_GET_TK(sa->wpa.ptk), 16);
-
-                    ret_value=Dot11DecryptRsnaMicCheck(eapol,           /*      eapol frame (header also) */
+                ret_value=Dot11DecryptRsnaMicCheck(eapol,           /*      eapol frame (header also) */
                                                    eapol_len,       /*      eapol frame length        */
                                                    sa->wpa.ptk,     /*      Key Confirmation Key      */
                                                    key_version,     /*  EAPOL-Key description version */
                                                    akm);
-                    /* If the MIC is valid, the Authenticator checks that the RSN information element bit-wise matches       */
-                    /* that from the (Re)Association Request message.                                                        */
-                    /*              i) TODO If these are not exactly the same, the Authenticator uses MLME-DEAUTHENTICATE.request */
-                    /* primitive to terminate the association.                                                               */
-                    /*              ii) If they do match bit-wise, the Authenticator constructs Message 3.                   */
-                }
-
-                if (!ret_value &&
-                    (tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PWD ||
-                    tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PSK ||
-                    tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PMK))
-                {
-                    /* the temporary key is the correct one, cached in the Security Association */
-
-                    sa->key=tmp_key;
-                    break;
-                } else {
-                    /* the cached key was not valid, try other keys */
-
-                    if (useCache==TRUE) {
-                        useCache=FALSE;
-                        key_index--;
-                    }
-                }
+                /* If the MIC is valid, the Authenticator checks that the RSN information element bit-wise matches       */
+                /* that from the (Re)Association Request message.                                                        */
+                /*              i) TODO If these are not exactly the same, the Authenticator uses MLME-DEAUTHENTICATE.request */
+                /* primitive to terminate the association.                                                               */
+                /*              ii) If they do match bit-wise, the Authenticator constructs Message 3.                   */
             }
 
-            if (ret_value) {
-                DEBUG_PRINT_LINE("handshake step failed", DEBUG_LEVEL_3);
-                return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+            if (!ret_value &&
+                (tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PWD ||
+                 tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PSK ||
+                 tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PMK))
+            {
+                /* the temporary key is the correct one, cached in the Security Association */
+
+                sa->key=tmp_key;
+                break;
+            } else {
+                /* the cached key was not valid, try other keys */
+
+                if (useCache==TRUE) {
+                useCache=FALSE;
+                key_index--;
+                }
             }
-
-            sa->handshake=2;
-            sa->validKey=TRUE; /* we can use the key to decode, even if we have not captured the other eapol packets */
-
-            return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
-        } else {
-        /* message 4 */
-
-            /* TODO "Note that when the 4-Way Handshake is first used Message 4 is sent in the clear." */
-
-            /* TODO check MIC and Replay Counter                                                                     */
-            /* On reception of Message 4, the Authenticator verifies that the Key Replay Counter field value is one  */
-            /* that it used on this 4-Way Handshake; if it is not, it silently discards the message.                 */
-            /* If the calculated MIC does not match the MIC that the Supplicant included in the EAPOL-Key frame, the */
-            /* Authenticator silently discards Message 4.                                                            */
-
-            DEBUG_PRINT_LINE("4-way handshake message 4", DEBUG_LEVEL_3);
-
-            sa->handshake=4;
-
-            return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
         }
+
+        if (ret_value) {
+            DEBUG_PRINT_LINE("handshake step failed", DEBUG_LEVEL_3);
+            return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+        }
+
+        sa->handshake=2;
+        sa->validKey=TRUE; /* we can use the key to decode, even if we have not captured the other eapol packets */
+
+        return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
     }
 
     /* message 3: Authenticator->Supplicant (Sec=1, Mic=1, Ack=1, Inst=0/1, Key=1(pairwise), KeyRSC=???, Nonce=ANonce, MIC=1) */
-    if (DOT11DECRYPT_EAP_ACK(data[offset+1])==1 &&
-        DOT11DECRYPT_EAP_MIC(data[offset])==1)
-    {
+    if (msg_type == DOT11DECRYPT_HS_MSG_TYPE_4WHS_3) {
         const EAPOL_RSN_KEY *pEAPKey;
         DEBUG_PRINT_LINE("4-way handshake message 3", DEBUG_LEVEL_3);
 
@@ -1707,6 +1675,22 @@ Dot11DecryptRsna4WHandshake(
         }
     }
 
+    /* message 4 */
+    if (msg_type == DOT11DECRYPT_HS_MSG_TYPE_4WHS_4) {
+        /* TODO "Note that when the 4-Way Handshake is first used Message 4 is sent in the clear." */
+
+        /* TODO check MIC and Replay Counter                                                                     */
+        /* On reception of Message 4, the Authenticator verifies that the Key Replay Counter field value is one  */
+        /* that it used on this 4-Way Handshake; if it is not, it silently discards the message.                 */
+        /* If the calculated MIC does not match the MIC that the Supplicant included in the EAPOL-Key frame, the */
+        /* Authenticator silently discards Message 4.                                                            */
+
+        DEBUG_PRINT_LINE("4-way handshake message 4", DEBUG_LEVEL_3);
+
+        sa->handshake=4;
+
+        return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
+    }
     return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
 }
 

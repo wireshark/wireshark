@@ -140,6 +140,16 @@ typedef struct _DOT11DECRYPT_CONTEXT {
 	INT first_free_index;
 } DOT11DECRYPT_CONTEXT, *PDOT11DECRYPT_CONTEXT;
 
+typedef enum _DOT11DECRYPT_HS_MSG_TYPE {
+	DOT11DECRYPT_HS_MSG_TYPE_INVALID = 0,
+	DOT11DECRYPT_HS_MSG_TYPE_4WHS_1,
+	DOT11DECRYPT_HS_MSG_TYPE_4WHS_2,
+	DOT11DECRYPT_HS_MSG_TYPE_4WHS_3,
+	DOT11DECRYPT_HS_MSG_TYPE_4WHS_4,
+	DOT11DECRYPT_HS_MSG_TYPE_GHS_1,
+	DOT11DECRYPT_HS_MSG_TYPE_GHS_2
+} DOT11DECRYPT_HS_MSG_TYPE;
+
 /************************************************************************/
 /*	Function prototype declarations					*/
 
@@ -203,6 +213,7 @@ extern INT Dot11DecryptDecryptPacket(
  * extracting further keys. If keydata hard to be decrypted the decrypted
  * data will be in decrypt_data buffer.
  * @param ctx [IN] Pointer to the current context
+ * @param msg_type [IN] Handshake message type
  * @param data [IN] Pointer to a buffer with an EAPOL frame
  * @param tot_len [IN] Total length of the EAPOL frame
  * @param bssid [IN] bssid of AP
@@ -237,6 +248,7 @@ extern INT Dot11DecryptDecryptPacket(
  */
 extern INT Dot11DecryptScanEapolForKeys(
     PDOT11DECRYPT_CONTEXT ctx,
+    DOT11DECRYPT_HS_MSG_TYPE msg_type,
     const guint8 *data,
     const guint tot_len,
     const UCHAR bssid[DOT11DECRYPT_MAC_LEN],

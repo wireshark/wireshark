@@ -25644,7 +25644,7 @@ keydata_padding_len(tvbuff_t *tvb)
 }
 
 static void
-try_scan_eapol_keys(packet_info *pinfo)
+try_scan_eapol_keys(packet_info *pinfo, DOT11DECRYPT_HS_MSG_TYPE msg_type)
 {
   guint32 dec_caplen = 0;
   guchar dec_data[DOT11DECRYPT_EAPOL_MAX_LEN];
@@ -25664,6 +25664,7 @@ try_scan_eapol_keys(packet_info *pinfo)
   }
 
   gint ret = Dot11DecryptScanEapolForKeys(&dot11decrypt_ctx,
+                                          msg_type,
                                           eapol_key->data, eapol_key->len,
                                           bssid, sta,
                                           dec_data, &dec_caplen,
@@ -25704,7 +25705,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   guint16 eapol_data_offset = 76;  /* 92 - 16 */
   guint16 eapol_key_mic_len = determine_mic_len(pinfo, FALSE);
   eapol_data_offset += eapol_key_mic_len;
-  gboolean scan_keys = FALSE;
+  DOT11DECRYPT_HS_MSG_TYPE msg_type = DOT11DECRYPT_HS_MSG_TYPE_INVALID;
 
   /*
    * RSNA key descriptors.
@@ -25728,7 +25729,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 1);
 
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 1 of 4)");
-      scan_keys = TRUE;
+      msg_type = DOT11DECRYPT_HS_MSG_TYPE_4WHS_1;
       break;
     }
 
@@ -25737,7 +25738,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 3);
 
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 3 of 4)");
-      scan_keys = TRUE;
+      msg_type = DOT11DECRYPT_HS_MSG_TYPE_4WHS_3;
       break;
     }
 
@@ -25753,12 +25754,12 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
         ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 2);
 
         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
-        scan_keys = TRUE;
+        msg_type = DOT11DECRYPT_HS_MSG_TYPE_4WHS_2;
       } else {
         ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 4);
 
         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
-        scan_keys = TRUE;
+        msg_type = DOT11DECRYPT_HS_MSG_TYPE_4WHS_4;
       }
       break;
     }
@@ -25767,22 +25768,22 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 1);
 
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Group Message 1 of 2)");
-      scan_keys = TRUE;
+      msg_type = DOT11DECRYPT_HS_MSG_TYPE_GHS_1;
     } else {
       ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 2);
 
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Group Message 2 of 2)");
-      scan_keys = TRUE;
+      msg_type = DOT11DECRYPT_HS_MSG_TYPE_GHS_2;
     }
   }
   proto_item_set_generated(ti);
 
-  if (!pinfo->fd->visited && scan_keys) {
+  if (!pinfo->fd->visited && msg_type != DOT11DECRYPT_HS_MSG_TYPE_INVALID) {
     /* Let dot11decrypt engine extract keys from 4-way handshake frames
      * If there's encrypted key data (GTK) present in eapol frame the
      * decrypted key data is stored in EAPOL_KEY proto data.
      */
-    try_scan_eapol_keys(pinfo);
+    try_scan_eapol_keys(pinfo, msg_type);
   }
 
   guint16 keydes_version = tvb_get_ntohs(tvb, offset) & KEY_INFO_KEYDES_VERSION_MASK;
