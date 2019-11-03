@@ -600,8 +600,9 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
         g_strlcpy(name, options+option_start_offset, options_end_offset-option_start_offset);
     }
 
-    /* Do this extraction in one place (may not be number but should be OK) */
-    ws_strtoi32(value, (const gchar**)&value[value_length], &value32);
+    /* Some rule options expect a number, parse it now. Note that any space
+     * after the value will currently result in the number being ignored. */
+    ws_strtoi32(value, NULL, &value32);
 
     /* Think this is space at end of all options - don't compare with option names */
     if (name[0] == '\0') {
@@ -616,7 +617,7 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
         rule->sid = value32;
     }
     else if (strcmp(name, "rev") == 0) {
-        value32 = rule->rev;
+        rule->rev = value32;
     }
     else if (strcmp(name, "content") == 0) {
         int value_start = 0;
