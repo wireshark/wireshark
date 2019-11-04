@@ -200,7 +200,6 @@ dissect_oer_constrained_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx,
     DEBUG_ENTRY("dissect_oer_constrained_integer");
     guint32 val = 0;
 
-    /* XXX We need to hndle negative numbers ?*/
     if (min >= 0) {
         /* 10.2 There are two main cases:
          *      a) The effective value constraint has a lower bound, and that lower bound is zero or positive.
@@ -224,7 +223,29 @@ dissect_oer_constrained_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx,
 
     } else {
         /* b) The effective value constraint has either a negative lower bound or no lower bound. */
-        dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer negative value");
+        if ((min >= -128) && (max <= 127)) {
+            /* 10.4 a a) If the lower bound is greater than or equal to -2^7 (-128) and the upper bound is less than or equal to 2^7-1 (127),
+             * then every value of the integer type shall be encoded as a fixed-size signed number in a one-octet word;
+             */
+            proto_tree_add_item_ret_int(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN, &val);
+            offset++;
+        } else if ((min >= -32768) && (max <= 32767)) {
+            /* if the lower bound is greater than or equal to -2^15 (-32768) and the upper bound is less than or equal to 2^15-1 (32767),
+             * then every value of the integer type shall be encoded as a fixed-size signed number in a two octet word;
+             */
+            proto_tree_add_item_ret_int(tree, hf_index, tvb, offset, 2, ENC_BIG_ENDIAN, &val);
+            offset += 2;
+        } else if ((min >= -2147483648LL) && (max <= 2147483647)) {
+            /* if the lower bound is greater than or equal to -2^31 (-2147483648) and the upper bound is less than or equal to 2^31-1 (2147483647),
+             * then every value of the integer type shall be encoded as a fixed-size signed number in a four-octet word
+             */
+            proto_tree_add_item_ret_int(tree, hf_index, tvb, offset, 4, ENC_BIG_ENDIAN, &val);
+            offset += 4;
+        } else {
+            /* To large not handlet yet*/
+            dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer to large value");
+        }
+
     }
 
     if (value) {
