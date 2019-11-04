@@ -59,13 +59,13 @@ void FilterListModel::reload()
     storage.clear();
 
     /* Try personal config file first */
-    file.setFileName(qstring_strdup(get_persconffile_path((type_ == FilterListModel::Capture) ? CFILTER_FILE_NAME : DFILTER_FILE_NAME, TRUE)));
+    file.setFileName(gchar_free_to_qstring(get_persconffile_path((type_ == FilterListModel::Capture) ? CFILTER_FILE_NAME : DFILTER_FILE_NAME, TRUE)));
     /* Try personal old-style config file next */
     if ( ! file.exists() )
-        file.setFileName(qstring_strdup(get_persconffile_path(FILTER_FILE_NAME, TRUE)));
+        file.setFileName(gchar_free_to_qstring(get_persconffile_path(FILTER_FILE_NAME, TRUE)));
     /* Last but not least, try the global file */
     if ( ! file.exists() )
-        file.setFileName(qstring_strdup(get_datafile_path((type_ == FilterListModel::Capture) ? CFILTER_FILE_NAME : DFILTER_FILE_NAME)));
+        file.setFileName(gchar_free_to_qstring(get_datafile_path((type_ == FilterListModel::Capture) ? CFILTER_FILE_NAME : DFILTER_FILE_NAME)));
 
     /* Still can use the model, just have to start from an empty set */
     if ( ! file.exists() || ! file.open(QIODevice::ReadOnly | QIODevice::Text) )
