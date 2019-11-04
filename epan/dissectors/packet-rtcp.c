@@ -2466,10 +2466,10 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             offset += fld_len;
             packet_len -= fld_len;
             rem_len -= fld_len;
-            if (rem_len < 0) {
+            if (rem_len > 0) {
                 num_ref = 1;
                 /* Floor Participant Reference */
-                while (rem_len < 0) {
+                while (rem_len > 0) {
                     part_tree = proto_tree_add_subtree_format(sub_tree, tvb, offset, 4, ett_rtcp_mcptt_participant_ref, NULL, "Floor Participant Reference %u", num_ref);
                     proto_tree_add_item(part_tree, hf_rtcp_mcptt_participant_ref, tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
