@@ -43,7 +43,7 @@ static int hf_cms_ci_contentType = -1;
 static int dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
 
 
-static const char *object_identifier_id;
+static const char *object_identifier_id = NULL;
 static tvbuff_t *content_tvb = NULL;
 
 static proto_tree *top_tree=NULL;
