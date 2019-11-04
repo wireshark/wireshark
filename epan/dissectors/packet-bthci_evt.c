@@ -581,6 +581,8 @@ static expert_field ei_event_unexpected_parameter = EI_INIT;
 static expert_field ei_event_unknown_command = EI_INIT;
 static expert_field ei_parameter_unexpected = EI_INIT;
 static expert_field ei_manufacturer_data_changed = EI_INIT;
+static expert_field ei_hci_revision_changed = EI_INIT;
+static expert_field ei_lmp_subversion_changed = EI_INIT;
 static expert_field ei_bad_link_type = EI_INIT;
 
 static dissector_table_t vendor_dissector_table;
@@ -4242,14 +4244,14 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
                     }
 
                     if (hci_revision != hci_vendor_data->hci_revision) {
-                        expert_add_info(pinfo, hci_revision_item, &ei_manufacturer_data_changed);
+                        expert_add_info(pinfo, hci_revision_item, &ei_hci_revision_changed);
                         sub_tree = proto_item_add_subtree(hci_revision_item, ett_expert);
                         sub_item = proto_tree_add_uint(sub_tree, hf_changed_in_frame, tvb, 0, 0, hci_vendor_data->change_in_frame);
                         proto_item_set_generated(sub_item);
                     }
 
                     if (lmp_subversion != hci_vendor_data->lmp_subversion) {
-                        expert_add_info(pinfo, lmp_subversion_item, &ei_manufacturer_data_changed);
+                        expert_add_info(pinfo, lmp_subversion_item, &ei_lmp_subversion_changed);
                         sub_tree = proto_item_add_subtree(lmp_subversion_item, ett_expert);
                         sub_item = proto_tree_add_uint(sub_tree, hf_changed_in_frame, tvb, 0, 0, hci_vendor_data->change_in_frame);
                         proto_item_set_generated(sub_item);
@@ -8940,6 +8942,8 @@ proto_register_bthci_evt(void)
         { &ei_event_unknown_command,      { "bthci_evt.expert.event.unknown_command",           PI_PROTOCOL, PI_WARN,      "Unknown command", EXPFILL }},
         { &ei_parameter_unexpected,       { "bthci_evt.expert.parameter.unexpected",            PI_PROTOCOL, PI_WARN,      "Unexpected command parameter", EXPFILL }},
         { &ei_manufacturer_data_changed,  { "bthci_evt.expert.event.manufacturer_data_changed", PI_PROTOCOL, PI_WARN,      "Manufacturer data changed", EXPFILL }},
+        { &ei_hci_revision_changed,       { "bthci_evt.expert.event.hci_revision_changed",      PI_PROTOCOL, PI_WARN,      "HCI Revision changed", EXPFILL }},
+        { &ei_lmp_subversion_changed,     { "bthci_evt.expert.event.lmp_subversion_changed",    PI_PROTOCOL, PI_WARN,      "LMP Subversion changed", EXPFILL }},
         { &ei_bad_link_type,              { "bthci_evt.expert.bad_link_type",                   PI_PROTOCOL, PI_WARN,      "Bad Link type, should be ACL or SCO", EXPFILL }},
     };
 
