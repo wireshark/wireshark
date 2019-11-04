@@ -160,7 +160,7 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "  -o <name>:<value> ...    override preference or recent setting\n");
     fprintf(output, "  -K <keytab>              keytab file to use for kerberos decryption\n");
 #ifndef _WIN32
-    fprintf(output, "  --display=DISPLAY        X display to use\n");
+    fprintf(output, "  --display DISPLAY        X display to use\n");
 #endif
     fprintf(output, "  --fullscreen             start Wireshark in full screen\n");
 
