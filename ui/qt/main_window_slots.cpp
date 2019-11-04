@@ -1978,6 +1978,8 @@ void MainWindow::on_actionEditFindPacket_triggered()
     connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
     if (!main_ui_->searchFrame->isVisible()) {
         showAccordionFrame(main_ui_->searchFrame, true);
+    } else {
+        main_ui_->searchFrame->animatedHide();
     }
     main_ui_->searchFrame->setFocus();
 }
