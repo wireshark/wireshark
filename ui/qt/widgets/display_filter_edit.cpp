@@ -63,6 +63,7 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
     type_(type),
     save_action_(NULL),
     remove_action_(NULL),
+    actions_(Q_NULLPTR),
     bookmark_button_(NULL),
     clear_button_(NULL),
     apply_button_(NULL)
@@ -97,9 +98,7 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
                 "}"
                 "QToolButton::menu-indicator { image: none; }"
                 );
-    }
 
-    if (type_ == DisplayFilterToApply) {
         clear_button_ = new StockIconToolButton(this, "x-filter-clear");
         clear_button_->setCursor(Qt::ArrowCursor);
         clear_button_->setToolTip(tr("Clear display filter"));
@@ -253,6 +252,9 @@ bool DisplayFilterEdit::checkFilter()
 
 void DisplayFilterEdit::checkFilter(const QString& filter_text)
 {
+    if ( text().length() == 0 && actions_ && actions_->checkedAction() )
+        actions_->checkedAction()->setChecked(false);
+
     if (clear_button_) {
         clear_button_->setVisible(!filter_text.isEmpty());
     }
@@ -284,26 +286,20 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
         bool enable_save_action = false;
         bool match = false;
 
-        for (GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = gxx_list_next(df_item)) {
-            if (!df_item->data) continue;
-            filter_def *df_def = gxx_list_data(filter_def *, df_item);
-            if (!df_def->name || !df_def->strval) continue;
+        FilterListModel model(FilterListModel::Display);
+        QModelIndex idx = model.findByExpression(filter_text);
+        if ( idx.isValid() ) {
+            match = true;
 
-            if (filter_text.compare(df_def->strval) == 0) {
-                match = true;
-            }
-        }
-
-        if (match) {
             bookmark_button_->setStockIcon("x-filter-matching-bookmark");
             if (remove_action_) {
                 remove_action_->setData(text());
-                remove_action_->setVisible(true);
+                remove_action_->setEnabled(true);
             }
         } else {
             bookmark_button_->setStockIcon("x-display-filter-bookmark");
             if (remove_action_) {
-                remove_action_->setVisible(false);
+                remove_action_->setEnabled(false);
             }
         }
 
@@ -333,21 +329,34 @@ void DisplayFilterEdit::updateBookmarkMenu()
     connect(remove_action_, &QAction::triggered, this, &DisplayFilterEdit::removeFilter);
     QAction *manage_action = bb_menu->addAction(tr("Manage Display Filters"));
     connect(manage_action, &QAction::triggered, this, &DisplayFilterEdit::showFilters);
-    QAction *expr_action = bb_menu->addAction(tr("Manage Filter Expressions"));
+    QAction *expr_action = bb_menu->addAction(tr("Filter Button Preferences..."));
     connect(expr_action, &QAction::triggered, this, &DisplayFilterEdit::showExpressionPrefs);
     bb_menu->addSeparator();
 
-    for (GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = gxx_list_next(df_item)) {
-        if (!df_item->data) continue;
-        filter_def *df_def = gxx_list_data(filter_def *, df_item);
-        if (!df_def->name || !df_def->strval) continue;
+    FilterListModel model(FilterListModel::Display);
+    QModelIndex idx = model.findByExpression(text());
 
-        int one_em = bb_menu->fontMetrics().height();
-        QString prep_text = QString("%1: %2").arg(df_def->name).arg(df_def->strval);
+    int one_em = bb_menu->fontMetrics().height();
+
+    if ( ! actions_ )
+        actions_ = new QActionGroup(this);
+
+    for(int row = 0; row < model.rowCount(); row++)
+    {
+        QModelIndex nameIdx = model.index(row, FilterListModel::ColumnName);
+        QString name = nameIdx.data().toString();
+        QString expr = model.index(row, FilterListModel::ColumnExpression).data().toString();
+        QString prep_text = QString("%1: %2").arg(name).arg(expr);
+
         prep_text = bb_menu->fontMetrics().elidedText(prep_text, Qt::ElideRight, one_em * 40);
+        QAction * prep_action = bb_menu->addAction(prep_text);
+        prep_action->setCheckable(true);
+        if ( nameIdx == idx )
+            prep_action->setChecked(true);
 
-        QAction *prep_action = bb_menu->addAction(prep_text);
-        prep_action->setData(df_def->strval);
+        prep_action->setProperty("display_filter", expr);
+        actions_->addAction(prep_action);
+
         connect(prep_action, &QAction::triggered, this, &DisplayFilterEdit::applyOrPrepareFilter);
     }
 
@@ -400,15 +409,16 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word)
             }
         }
     }
-    for (const GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = gxx_constlist_next(df_item)) {
-        const filter_def *df_def = gxx_list_data(const filter_def *, df_item);
-        if (!df_def || !df_def->strval) continue;
-        QString saved_filter = df_def->strval;
+    FilterListModel model(FilterListModel::Display);
+    for (int row = 0; row < model.rowCount(); row++)
+    {
+        QString saved_filter = model.index(row, FilterListModel::ColumnExpression).data().toString();
 
         if (isComplexFilter(saved_filter) && !complex_list.contains(saved_filter)) {
             complex_list << saved_filter;
         }
     }
+
     completion_model_->setStringList(complex_list);
     completer()->setCompletionPrefix(field_word);
 
@@ -489,22 +499,23 @@ void DisplayFilterEdit::saveFilter()
 
 void DisplayFilterEdit::removeFilter()
 {
-    QAction *ra = qobject_cast<QAction*>(sender());
-    if (!ra || ra->data().toString().isEmpty()) return;
+    if ( ! actions_ && ! actions_->checkedAction() )
+        return;
 
-    QString remove_filter = ra->data().toString();
+    QAction *ra = actions_->checkedAction();
+    if ( ra->property("display_filter").toString().isEmpty() )
+        return;
 
-    for (GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = gxx_list_next(df_item)) {
-        if (!df_item->data) continue;
-        filter_def *df_def = gxx_list_data(filter_def *, df_item);
-        if (!df_def->name || !df_def->strval) continue;
+    QString remove_filter = ra->property("display_filter").toString();
 
-        if (remove_filter.compare(df_def->strval) == 0) {
-            remove_from_filter_list(DFILTER_LIST, df_item);
-        }
+    FilterListModel model(FilterListModel::Display);
+    QModelIndex idx = model.findByExpression(remove_filter);
+
+    if ( idx.isValid() )
+    {
+        model.removeFilter(idx);
+        model.saveList();
     }
-
-    save_filter_list(DFILTER_LIST);
 
     updateBookmarkMenu();
 }
@@ -525,9 +536,10 @@ void DisplayFilterEdit::showExpressionPrefs()
 void DisplayFilterEdit::applyOrPrepareFilter()
 {
     QAction *pa = qobject_cast<QAction*>(sender());
-    if (!pa || pa->data().toString().isEmpty()) return;
+    if ( ! pa || pa->property("display_filter").toString().isEmpty() )
+        return;
 
-    setText(pa->data().toString());
+    setText(pa->property("display_filter").toString());
 
     // Holding down the Shift key will only prepare filter.
     if (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)) {
