@@ -34,7 +34,6 @@ CaptureEvent::CaptureEvent(Context ctx, EventType evt) :
     _evt(evt),
     _session(Q_NULLPTR)
 {
-    qDebug() << "CaptureEvent [" << ctx <<"]: " << evt;
 }
 
 CaptureEvent::CaptureEvent(Context ctx, EventType evt, QString file) :
@@ -43,7 +42,6 @@ CaptureEvent::CaptureEvent(Context ctx, EventType evt, QString file) :
     _filePath(file),
     _session(Q_NULLPTR)
 {
-    qDebug() << "CaptureEvent [" << ctx <<"]: " << evt << " :: File: " << file;
 }
 
 CaptureEvent::CaptureEvent(Context ctx, EventType evt, capture_session * session) :
@@ -51,7 +49,6 @@ CaptureEvent::CaptureEvent(Context ctx, EventType evt, capture_session * session
     _evt(evt),
     _session(session)
 {
-    qDebug() << "CaptureEvent [" << ctx <<"]: " << evt << " with session";
 }
 
 CaptureEvent::CaptureEvent(const CaptureEvent &ce)
