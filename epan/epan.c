@@ -50,7 +50,7 @@
 #include "follow.h"
 #include "disabled_protos.h"
 #include "decode_as.h"
-#include "dissector_filters.h"
+#include "conversation_filter.h"
 #include "conversation_table.h"
 #include "reassemble.h"
 #include "srt_table.h"

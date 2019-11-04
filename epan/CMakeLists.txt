@@ -93,7 +93,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	decode_as.h
 	diam_dict.h
 	disabled_protos.h
-	dissector_filters.h
+	conversation_filter.h
 	dtd.h
 	dtd_parse.h
 	dvb_chartbl.h
@@ -210,7 +210,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	crc8-tvb.c
 	decode_as.c
 	disabled_protos.c
-	dissector_filters.c
+	conversation_filter.c
 	dvb_chartbl.c
 	epan.c
 	ex-opt.c

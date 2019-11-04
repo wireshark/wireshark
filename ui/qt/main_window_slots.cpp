@@ -46,7 +46,7 @@ DIAG_ON(frame-larger-than=)
 #include "epan/addr_resolv.h"
 #include "epan/column.h"
 #include "epan/dfilter/dfilter-macro.h"
-#include "epan/dissector_filters.h"
+#include "epan/conversation_filter.h"
 #include "epan/epan_dissect.h"
 #include "epan/filter_expressions.h"
 #include "epan/prefs.h"

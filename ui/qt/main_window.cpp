@@ -18,7 +18,7 @@ DIAG_OFF(frame-larger-than=)
 DIAG_ON(frame-larger-than=)
 
 #include <epan/addr_resolv.h>
-#include "epan/dissector_filters.h"
+#include "epan/conversation_filter.h"
 #include <epan/epan_dissect.h>
 #include <wsutil/filesystem.h>
 #include <version_info.h>
