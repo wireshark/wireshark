@@ -119,6 +119,7 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     enable_save_action_(false),
     save_action_(NULL),
     remove_action_(NULL),
+    actions_(Q_NULLPTR),
     bookmark_button_(NULL),
     clear_button_(NULL),
     apply_button_(NULL)
@@ -147,9 +148,7 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
                     "QToolButton::menu-indicator { image: none; }"
             );
         connect(bookmark_button_, &StockIconToolButton::clicked, this, &CaptureFilterEdit::bookmarkClicked);
-    }
 
-    if (!plain_) {
         clear_button_ = new StockIconToolButton(this, "x-filter-clear");
         clear_button_->setCursor(Qt::ArrowCursor);
         clear_button_->setToolTip(QString());
@@ -316,6 +315,9 @@ QPair<const QString, bool> CaptureFilterEdit::getSelectedFilter()
 
 void CaptureFilterEdit::checkFilter(const QString& filter)
 {
+    if ( text().length() == 0 && actions_ && actions_->checkedAction() )
+        actions_->checkedAction()->setChecked(false);
+
     setSyntaxState(Busy);
     popFilterSyntaxStatus();
     setToolTip(QString());
@@ -325,26 +327,20 @@ void CaptureFilterEdit::checkFilter(const QString& filter)
     if (bookmark_button_) {
         bool match = false;
 
-        for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = gxx_list_next(cf_item)) {
-            if (!cf_item->data) continue;
-            filter_def *cf_def = gxx_list_data(filter_def *, cf_item);
-            if (!cf_def->name || !cf_def->strval) continue;
+        FilterListModel model(FilterListModel::Capture);
+        QModelIndex idx = model.findByExpression(text());
+        if ( idx.isValid() ) {
+            match = true;
 
-            if (filter.compare(cf_def->strval) == 0) {
-                match = true;
-            }
-        }
-
-        if (match) {
             bookmark_button_->setStockIcon("x-filter-matching-bookmark");
             if (remove_action_) {
                 remove_action_->setData(text());
-                remove_action_->setVisible(true);
+                remove_action_->setEnabled(true);
             }
         } else {
             bookmark_button_->setStockIcon("x-capture-filter-bookmark");
             if (remove_action_) {
-                remove_action_->setVisible(false);
+                remove_action_->setEnabled(false);
             }
         }
 
@@ -390,17 +386,29 @@ void CaptureFilterEdit::updateBookmarkMenu()
     connect(manage_action, &QAction::triggered, this, &CaptureFilterEdit::showFilters);
     bb_menu->addSeparator();
 
-    for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = gxx_list_next(cf_item)) {
-        if (!cf_item->data) continue;
-        filter_def *cf_def = gxx_list_data(filter_def *, cf_item);
-        if (!cf_def->name || !cf_def->strval) continue;
+    FilterListModel model(FilterListModel::Capture);
+    QModelIndex idx = model.findByExpression(text());
 
-        int one_em = bb_menu->fontMetrics().height();
-        QString prep_text = QString("%1: %2").arg(cf_def->name).arg(cf_def->strval);
+    int one_em = bb_menu->fontMetrics().height();
+
+    if ( ! actions_ )
+        actions_ = new QActionGroup(this);
+
+    for(int row = 0; row < model.rowCount(); row++)
+    {
+        QModelIndex nameIdx = model.index(row, FilterListModel::ColumnName);
+        QString name = nameIdx.data().toString();
+        QString expr = model.index(row, FilterListModel::ColumnExpression).data().toString();
+        QString prep_text = QString("%1: %2").arg(name).arg(expr);
+
         prep_text = bb_menu->fontMetrics().elidedText(prep_text, Qt::ElideRight, one_em * 40);
+        QAction * prep_action = bb_menu->addAction(prep_text);
+        prep_action->setCheckable(true);
+        if ( nameIdx == idx )
+            prep_action->setChecked(true);
 
-        QAction *prep_action = bb_menu->addAction(prep_text);
-        prep_action->setData(cf_def->strval);
+        actions_->addAction(prep_action);
+        prep_action->setProperty("capture_filter", expr);
         connect(prep_action, &QAction::triggered, this, &CaptureFilterEdit::prepareFilter);
     }
 
@@ -463,10 +471,10 @@ void CaptureFilterEdit::buildCompletionList(const QString &primitive_word)
             }
         }
     }
-    for (const GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = gxx_constlist_next(cf_item)) {
-        const filter_def *cf_def = gxx_list_data(const filter_def *, cf_item);
-        if (!cf_def || !cf_def->strval) continue;
-        QString saved_filter = cf_def->strval;
+    FilterListModel model(FilterListModel::Capture);
+    for (int row = 0; row < model.rowCount(); row++)
+    {
+        QString saved_filter = model.index(row, FilterListModel::ColumnExpression).data().toString();
 
         if (isComplexFilter(saved_filter) && !complex_list.contains(saved_filter)) {
             complex_list << saved_filter;
@@ -501,22 +509,22 @@ void CaptureFilterEdit::saveFilter()
 
 void CaptureFilterEdit::removeFilter()
 {
-    QAction *ra = qobject_cast<QAction*>(sender());
-    if (!ra || ra->data().toString().isEmpty()) return;
+    if ( ! actions_ && ! actions_->checkedAction() )
+        return;
 
-    QString remove_filter = ra->data().toString();
+    QAction *ra = actions_->checkedAction();
+    if ( ra->property("capture_filter").toString().isEmpty() )
+        return;
 
-    for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = gxx_list_next(cf_item)) {
-        if (!cf_item->data) continue;
-        filter_def *cf_def = gxx_list_data(filter_def *, cf_item);
-        if (!cf_def->name || !cf_def->strval) continue;
+    QString remove_filter = ra->property("capture_filter").toString();
 
-        if (remove_filter.compare(cf_def->strval) == 0) {
-            remove_from_filter_list(CFILTER_LIST, cf_item);
-        }
+    FilterListModel model(FilterListModel::Capture);
+    QModelIndex idx = model.findByExpression(remove_filter);
+    if ( idx.isValid() )
+    {
+        model.removeFilter(idx);
+        model.saveList();
     }
-
-    save_filter_list(CFILTER_LIST);
 
     updateBookmarkMenu();
 }
@@ -532,10 +540,12 @@ void CaptureFilterEdit::showFilters()
 void CaptureFilterEdit::prepareFilter()
 {
     QAction *pa = qobject_cast<QAction*>(sender());
-    if (!pa || pa->data().toString().isEmpty()) return;
+    if ( ! pa || pa->property("capture_filter").toString().isEmpty() )
+        return;
 
-    QString filter(pa->data().toString());
+    QString filter = pa->property("capture_filter").toString();
     setText(filter);
+
     emit textEdited(filter);
 }
 

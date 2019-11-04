@@ -1179,9 +1179,6 @@ _e_prefs *WiresharkApplication::readConfigurationFiles(bool reset)
     }
 #endif
 
-    /* Read the capture filter file. */
-    read_filter_list(CFILTER_LIST);
-
     return prefs_p;
 }
 
