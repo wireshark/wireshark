@@ -20,11 +20,13 @@
 static FunnelStringDialogHelper dialogHelper;
 
 const int min_edit_width_ = 20; // em widths
-FunnelStringDialog::FunnelStringDialog(const QString title, const QStringList field_name_list, funnel_dlg_cb_t dialog_cb, void *dialog_cb_data) :
+FunnelStringDialog::FunnelStringDialog(const QString title, const QStringList field_name_list, funnel_dlg_cb_t dialog_cb, void *dialog_cb_data,
+    funnel_dlg_cb_data_free_t dialog_data_free_cb) :
     QDialog(NULL),
     ui(new Ui::FunnelStringDialog),
     dialog_cb_(dialog_cb),
-    dialog_cb_data_(dialog_cb_data)
+    dialog_cb_data_(dialog_cb_data),
+    dialog_cb_data_free_(dialog_data_free_cb)
 {
     ui->setupUi(this);
     setWindowTitle(wsApp->windowTitleString(title));
@@ -44,6 +46,10 @@ FunnelStringDialog::FunnelStringDialog(const QString title, const QStringList fi
 
 FunnelStringDialog::~FunnelStringDialog()
 {
+    if (dialog_cb_data_free_) {
+        dialog_cb_data_free_(dialog_cb_data_);
+    }
+
     delete ui;
 }
 
@@ -78,9 +84,9 @@ void FunnelStringDialog::on_buttonBox_accepted()
     dialog_cb_(user_input, dialog_cb_data_);
 }
 
-void FunnelStringDialog::stringDialogNew(const QString title, const QStringList field_name_list, funnel_dlg_cb_t dialog_cb, void *dialog_cb_data)
+void FunnelStringDialog::stringDialogNew(const QString title, const QStringList field_name_list, funnel_dlg_cb_t dialog_cb, void *dialog_cb_data, funnel_dlg_cb_data_free_t dialog_cb_data_free)
 {
-    FunnelStringDialog *fsd = new FunnelStringDialog(title, field_name_list, dialog_cb, dialog_cb_data);
+    FunnelStringDialog *fsd = new FunnelStringDialog(title, field_name_list, dialog_cb, dialog_cb_data, dialog_cb_data_free);
     connect(&dialogHelper, SIGNAL(closeDialogs()), fsd, SLOT(close()));
     fsd->show();
 }
@@ -90,13 +96,13 @@ void FunnelStringDialogHelper::emitCloseDialogs()
     emit closeDialogs();
 }
 
-void string_dialog_new(const gchar *title, const gchar **fieldnames, funnel_dlg_cb_t dialog_cb, void *dialog_cb_data)
+void string_dialog_new(const gchar *title, const gchar **fieldnames, funnel_dlg_cb_t dialog_cb, void *dialog_cb_data, funnel_dlg_cb_data_free_t dialog_cb_data_free)
 {
     QStringList field_name_list;
     for (int i = 0; fieldnames[i]; i++) {
         field_name_list << fieldnames[i];
     }
-    FunnelStringDialog::stringDialogNew(title, field_name_list, dialog_cb, dialog_cb_data);
+    FunnelStringDialog::stringDialogNew(title, field_name_list, dialog_cb, dialog_cb_data, dialog_cb_data_free);
 }
 
 void string_dialogs_close(void)
