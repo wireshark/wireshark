@@ -677,6 +677,7 @@ static expert_field ei_dcerpc_invalid_pdu_authentication_attempt = EI_INIT;
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_dcerpc_long_frame = EI_INIT;
 static expert_field ei_dcerpc_cn_rts_command = EI_INIT;
+static expert_field ei_dcerpc_not_implemented = EI_INIT;
 
 static const guint8 TRAILER_SIGNATURE[] = {0x8a, 0xe3, 0x13, 0x71, 0x02, 0xf4, 0x36, 0x71};
 static tvbuff_t *tvb_trailer_signature = NULL;
@@ -2196,7 +2197,7 @@ dissect_dcerpc_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
 
 int
-dissect_dcerpc_float(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+dissect_dcerpc_float(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                      proto_tree *tree, guint8 *drep,
                      int hfindex, gfloat *pdata)
 {
@@ -2219,9 +2220,9 @@ dissect_dcerpc_float(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         /* ToBeDone: non IEEE floating formats */
         /* Set data to a negative infinity value */
         data = -G_MAXFLOAT;
-        if (tree && hfindex != -1) {
-            proto_tree_add_debug_text(tree, "DCE RPC: dissection of non IEEE floating formats currently not implemented (drep=%u)!", drep[1]);
-        }
+        proto_tree_add_expert_format(tree, pinfo, &ei_dcerpc_not_implemented, tvb, offset, 4,
+                                     "DCE RPC: dissection of non IEEE floating formats currently not implemented (drep=%u)!",
+                                     drep[1]);
     }
     if (pdata)
         *pdata = data;
@@ -2254,9 +2255,9 @@ dissect_dcerpc_double(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         /* ToBeDone: non IEEE double formats */
         /* Set data to a negative infinity value */
         data = -G_MAXDOUBLE;
-        if (tree && hfindex != -1) {
-            proto_tree_add_debug_text(tree, "DCE RPC: dissection of non IEEE double formats currently not implemented (drep=%u)!", drep[1]);
-        }
+        proto_tree_add_expert_format(tree, pinfo, &ei_dcerpc_not_implemented, tvb, offset, 8,
+                                     "DCE RPC: dissection of non IEEE double formats currently not implemented (drep=%u)!",
+                                     drep[1]);
     }
     if (pdata)
         *pdata = data;
@@ -7035,6 +7036,7 @@ proto_register_dcerpc(void)
         /* Generated from convert_proto_tree_add_text.pl */
         { &ei_dcerpc_long_frame, { "dcerpc.long_frame", PI_PROTOCOL, PI_WARN, "Long frame", EXPFILL }},
         { &ei_dcerpc_cn_rts_command, { "dcerpc.cn_rts_command.unknown", PI_PROTOCOL, PI_WARN, "unknown RTS command number", EXPFILL }},
+        { &ei_dcerpc_not_implemented, { "dcerpc.not_implemented", PI_UNDECODED, PI_WARN, "dissection not implemented", EXPFILL }},
     };
 
     /* Decode As handling */
