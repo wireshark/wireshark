@@ -464,7 +464,7 @@ codesign_file () {
 		--entitlements "@CMAKE_SOURCE_DIR@/packaging/macosx/entitlements.plist" \
 		--timestamp \
 		--verbose \
-		"$1" || exit 1
+		"$1"
 }
 
 # XXX We could do this via the productbuild calls in the {,un}install_*_pkg
