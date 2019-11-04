@@ -54,21 +54,22 @@ FilterListModel::FilterListModel(FilterListModel::FilterListType type, QObject *
 
 void FilterListModel::reload()
 {
-    QFile file;
-
     storage.clear();
 
-    /* Try personal config file first */
-    file.setFileName(gchar_free_to_qstring(get_persconffile_path((type_ == FilterListModel::Capture) ? CFILTER_FILE_NAME : DFILTER_FILE_NAME, TRUE)));
-    /* Try personal old-style config file next */
-    if ( ! file.exists() )
-        file.setFileName(gchar_free_to_qstring(get_persconffile_path(FILTER_FILE_NAME, TRUE)));
-    /* Last but not least, try the global file */
-    if ( ! file.exists() )
-        file.setFileName(gchar_free_to_qstring(get_datafile_path((type_ == FilterListModel::Capture) ? CFILTER_FILE_NAME : DFILTER_FILE_NAME)));
+    const char * cfile = (type_ == FilterListModel::Capture) ? CFILTER_FILE_NAME : DFILTER_FILE_NAME;
 
+    /* Try personal config file first */
+    QString fileName = gchar_free_to_qstring(get_persconffile_path(cfile, TRUE));
+    if ( fileName.length() <= 0 || ! QFileInfo::exists(fileName) )
+        fileName = gchar_free_to_qstring(get_persconffile_path(FILTER_FILE_NAME, TRUE));
+    if ( fileName.length() <= 0 || ! QFileInfo::exists(fileName) )
+        fileName = gchar_free_to_qstring(get_datafile_path(cfile));
+    if ( fileName.length() <= 0 || ! QFileInfo::exists(fileName) )
+        return;
+
+    QFile file(fileName);
     /* Still can use the model, just have to start from an empty set */
-    if ( ! file.exists() || ! file.open(QIODevice::ReadOnly | QIODevice::Text) )
+    if ( ! file.open(QIODevice::ReadOnly | QIODevice::Text) )
         return;
 
     QTextStream in(&file);
