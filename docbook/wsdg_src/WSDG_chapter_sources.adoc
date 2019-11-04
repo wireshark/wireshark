@@ -1405,32 +1405,21 @@ Display filters are being dragged and dropped by utilizing this mime type.
 Coloring Rules are being used for dragging and dropping color rules inside the
 coloring rules dialog.
 
-[cols="1,3,1", options="header"]
-|===
-|Name
-|Description
-|Qt/C++ Type
-
-|disabled
-|Is the coloring rule enabled/disabled
-|bool
-
-|name
-|Name to be displayed for it
-|QString
-
-|filter
-|The display filter
-|QString
-
-|foreground
-|Foreground Color
-|QColor
-
-|background
-|Background Color
-|QColor
-|===
+[source,json]
+----
+{
+        "coloringrules" :
+        [
+                {
+                        "disabled": false,
+                        "name": "UDP Ports for 8080",
+                        "filter": "udp.port == 8080",
+                        "foreground": "[0x0000, 0x0000, 0x0000]",
+                        "background": "[0xFFFF, 0xFFFF, 0xFFFF]"
+                }
+        ]
+}
+----
 
 ==== Filter List
 
