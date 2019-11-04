@@ -460,6 +460,17 @@ codesign_file () {
 		"$1"
 }
 
+# XXX We could do this via the productbuild calls in the {,un}install_*_pkg
+# targets in CMakeLists.txt instead.
+productsign_pkg () {
+	mv "$1" "$1.unsigned" || exit 1
+	productsign \
+		--sign "Developer ID Installer: $CODE_SIGN_IDENTITY" \
+		--timestamp \
+		"$1.unsigned" "$1" || exit 1
+	rm -f "$1.unsigned" || exit 1
+}
+
 if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	security find-identity -v -s "$CODE_SIGN_IDENTITY" -p codesigning
 
@@ -494,7 +505,7 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	echo "Signing extra packages"
 	find $bundle/Contents/Resources/Extras -type f -name "*.pkg" | \
 	while read -r extra_pkg ; do
-		codesign_file "$extra_pkg"
+		productsign_pkg "$extra_pkg"
 	done
 
 	echo "Signing secondary executables"
