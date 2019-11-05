@@ -240,8 +240,6 @@ void DisplayFilterEdit::setDefaultPlaceholderText()
 void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
     SyntaxLineEdit::paintEvent(evt);
 
-    alignActionButtons();
-
     if (bookmark_button_) {
         // Draw the right border by hand. We could try to do this in the
         // style sheet but it's a pain.
