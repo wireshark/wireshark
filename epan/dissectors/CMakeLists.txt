@@ -808,6 +808,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-erspan.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-fp-mim.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-marker.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-mcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-metadata.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-oui.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-sm.c
