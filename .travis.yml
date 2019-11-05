@@ -30,6 +30,19 @@ matrix:
         - CXX=g++-8
         - CC=gcc-8
         - PCAP=ON
+    - name: Linux arm64 (gcc-8) with PCAP
+      os: linux
+      arch: arm64
+      addons:
+        apt:
+          update: true
+          sources:
+            - ubuntu-toolchain-r-test
+          packages: g++-8
+      env:
+        - CXX=g++-8
+        - CC=gcc-8
+        - PCAP=ON
     - name: Linux (gcc-8) without PCAP
       os: linux
       addons:
@@ -44,6 +57,13 @@ matrix:
         - PCAP=OFF
     - name: Linux (clang) with PCAP
       os: linux
+      env:
+        - CXX=clang++
+        - CC=clang
+        - PCAP=ON
+    - name: Linux arm64 (clang) with PCAP
+      os: linux
+      arch: arm64
       env:
         - CXX=clang++
         - CC=clang
