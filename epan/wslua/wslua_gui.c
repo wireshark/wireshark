@@ -199,6 +199,7 @@ static void text_win_close_cb(void* data) {
 
     if (cbd->wslua_tw->expired) {
         g_free(cbd->wslua_tw);
+        g_free(cbd);
     } else {
         cbd->wslua_tw->expired = TRUE;
     }
