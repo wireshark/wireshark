@@ -697,6 +697,56 @@ INT Dot11DecryptScanTdlsForKeys(
     return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
 }
 
+static int
+Dot11DecryptGroupHandshake(
+    PDOT11DECRYPT_CONTEXT ctx,
+    PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
+    const UCHAR bssid[DOT11DECRYPT_MAC_LEN],
+    const UCHAR sta[DOT11DECRYPT_MAC_LEN],
+    const guint tot_len,
+    UCHAR *decrypt_data,
+    guint *decrypt_len,
+    PDOT11DECRYPT_KEY_ITEM key)
+{
+    DOT11DECRYPT_SEC_ASSOCIATION_ID id;
+    PDOT11DECRYPT_SEC_ASSOCIATION broadcast_sa;
+    PDOT11DECRYPT_SEC_ASSOCIATION sta_sa;
+
+
+    if (GROUP_KEY_PAYLOAD_LEN_MIN > tot_len) {
+        DEBUG_PRINT_LINE("Message too short for Group Key", DEBUG_LEVEL_3);
+        return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+    }
+
+    if (eapol_parsed->msg_type != DOT11DECRYPT_HS_MSG_TYPE_GHS_1){
+
+        DEBUG_PRINT_LINE("Not Group handshake message 1", DEBUG_LEVEL_3);
+        return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+    }
+
+    /* force STA address to be the broadcast MAC so we create an SA for the groupkey */
+    memcpy(id.sta, broadcast_mac, DOT11DECRYPT_MAC_LEN);
+    memcpy(id.bssid, bssid, DOT11DECRYPT_MAC_LEN);
+
+    /* get the Security Association structure for the broadcast MAC and AP */
+    broadcast_sa = Dot11DecryptGetSaPtr(ctx, &id);
+    if (broadcast_sa == NULL){
+        return DOT11DECRYPT_RET_REQ_DATA;
+    }
+
+    /* Get the SA for the STA, since we need its pairwise key to decrpyt the group key */
+    memcpy(id.sta, sta, DOT11DECRYPT_MAC_LEN);
+    sta_sa = Dot11DecryptGetSaPtr(ctx, &id);
+    if (sta_sa == NULL){
+        return DOT11DECRYPT_RET_REQ_DATA;
+    }
+
+    /* Try to extract the group key and install it in the SA */
+    Dot11DecryptCopyKey(sta_sa, key); /* save key used for decrypting broadcast key */
+    return Dot11DecryptDecryptWPABroadcastKey(eapol_parsed, sta_sa->wpa.ptk + 16,
+                                              broadcast_sa, decrypt_data, decrypt_len);
+}
+
 INT Dot11DecryptScanEapolForKeys(
     PDOT11DECRYPT_CONTEXT ctx,
     PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
@@ -709,7 +759,6 @@ INT Dot11DecryptScanEapolForKeys(
     PDOT11DECRYPT_KEY_ITEM key)
 {
     DOT11DECRYPT_SEC_ASSOCIATION_ID id;
-    PDOT11DECRYPT_SEC_ASSOCIATION sta_sa;
     PDOT11DECRYPT_SEC_ASSOCIATION sa;
 
     /* Callers provide these guarantees, so let's make them explicit. */
@@ -718,7 +767,7 @@ INT Dot11DecryptScanEapolForKeys(
     DEBUG_PRINT_LINE("Authentication: EAPOL packet", DEBUG_LEVEL_3);
 
     /* check if the key descriptor type is valid (IEEE 802.1X-2004, pg. 27) */
-    if (/*eapol_parsed->key_type!=0x1 &&*/ /* RC4 Key Descriptor Type (deprecated) */
+    if (/*eapol_parsed->key_type != 0x1 &&*/ /* RC4 Key Descriptor Type (deprecated) */
         eapol_parsed->key_type != DOT11DECRYPT_RSN_WPA2_KEY_DESCRIPTOR &&  /* IEEE 802.11 Key Descriptor Type  (WPA2) */
         eapol_parsed->key_type != DOT11DECRYPT_RSN_WPA_KEY_DESCRIPTOR)     /* 254 = RSN_KEY_DESCRIPTOR - WPA,         */
     {
@@ -735,44 +784,24 @@ INT Dot11DecryptScanEapolForKeys(
         return DOT11DECRYPT_RET_REQ_DATA;
     }
 
-    /* It could be a Pairwise Key exchange, check */
-    if (Dot11DecryptRsna4WHandshake(ctx, eapol_parsed, eapol_raw, sa, tot_len,
-                                    decrypt_data, decrypt_len, key) == DOT11DECRYPT_RET_SUCCESS_HANDSHAKE)
-    {
-        return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
+    switch (eapol_parsed->msg_type) {
+        case DOT11DECRYPT_HS_MSG_TYPE_4WHS_1:
+        case DOT11DECRYPT_HS_MSG_TYPE_4WHS_2:
+        case DOT11DECRYPT_HS_MSG_TYPE_4WHS_3:
+        case DOT11DECRYPT_HS_MSG_TYPE_4WHS_4:
+            return Dot11DecryptRsna4WHandshake(ctx, eapol_parsed, eapol_raw,
+                                               sa, tot_len,
+                                               decrypt_data, decrypt_len, key);
+        case DOT11DECRYPT_HS_MSG_TYPE_GHS_1:
+            return Dot11DecryptGroupHandshake(ctx, eapol_parsed,
+                                              bssid, sta, tot_len,
+                                              decrypt_data, decrypt_len, key);
+        case DOT11DECRYPT_HS_MSG_TYPE_INVALID:
+        default:
+            DEBUG_PRINT_LINE("Invalid message type", DEBUG_LEVEL_3);
+            break;
     }
-
-    if (GROUP_KEY_PAYLOAD_LEN_MIN > tot_len) {
-        DEBUG_PRINT_LINE("Message too short for Group Key", DEBUG_LEVEL_3);
-        return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
-    }
-
-    if (eapol_parsed->msg_type != DOT11DECRYPT_HS_MSG_TYPE_GHS_1){
-
-        DEBUG_PRINT_LINE("Not Group handshake message 1", DEBUG_LEVEL_3);
-        return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
-    }
-
-    /* force STA address to be the broadcast MAC so we create an SA for the groupkey */
-    memcpy(id.sta, broadcast_mac, DOT11DECRYPT_MAC_LEN);
-
-    /* get the Security Association structure for the broadcast MAC and AP */
-    sa = Dot11DecryptGetSaPtr(ctx, &id);
-    if (sa == NULL){
-        return DOT11DECRYPT_RET_REQ_DATA;
-    }
-
-    /* Get the SA for the STA, since we need its pairwise key to decrpyt the group key */
-    memcpy(id.sta, sta, DOT11DECRYPT_MAC_LEN);
-    sta_sa = Dot11DecryptGetSaPtr(ctx, &id);
-    if (sta_sa == NULL){
-        return DOT11DECRYPT_RET_REQ_DATA;
-    }
-
-    /* Try to extract the group key and install it in the SA */
-    Dot11DecryptCopyKey(sa, key); /* save key used for decrypting broadcast key */
-    return Dot11DecryptDecryptWPABroadcastKey(eapol_parsed, sta_sa->wpa.ptk + 16,
-                                              sa, decrypt_data, decrypt_len);
+    return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
 }
 
 INT Dot11DecryptDecryptPacket(
