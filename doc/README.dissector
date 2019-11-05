@@ -2713,10 +2713,11 @@ find_conversation())
 
 The find_conversation_pinfo prototype:
 
-    extern conversation_t *find_conversation_pinfo(packet_info *pinfo);
+    extern conversation_t *find_conversation_pinfo(packet_info *pinfo, const guint options);
 
 Where:
     packet_info *pinfo = the packet_info structure
+    const guint options = conversation options, NO_ADDR_B and/or NO_PORT_B
 
 The frame number and the addresses necessary for find_conversation() are
 taken from the pinfo structure (as is commonly done).
