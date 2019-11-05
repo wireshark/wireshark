@@ -48,6 +48,8 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/oids.h>
+#include <epan/srt_table.h>
+#include <epan/tap.h>
 #include "packet-ipx.h"
 #include "packet-hpext.h"
 #include "packet-ber.h"
@@ -64,8 +66,10 @@
 #define TCP_PORT_SNMP_TRAP	162
 #define TCP_PORT_SMUX		199
 #define UDP_PORT_SNMP_PATROL 8161
+#define SNMP_NUM_PROCEDURES 8
 
 /* Initialize the protocol and registered fields */
+static int snmp_tap = -1;
 static int proto_snmp = -1;
 static int proto_smux = -1;
 
@@ -160,6 +164,7 @@ static snmp_st_assoc_t *specific_traps = NULL;
 static const char *enterprise_oid = NULL;
 static guint generic_trap = 0;
 static guint32 snmp_version = 0;
+static guint32 RequestID = -1;
 
 static snmp_usm_params_t usm_p = {FALSE,FALSE,0,0,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,FALSE};
 
@@ -180,6 +185,10 @@ static dissector_handle_t snmp_handle;
 static dissector_handle_t data_handle;
 
 static next_tvb_list_t var_list;
+
+static int hf_snmp_response_in = -1;
+static int hf_snmp_response_to = -1;
+static int hf_snmp_time = -1;
 
 static int hf_snmp_v3_flags_auth = -1;
 static int hf_snmp_v3_flags_crypt = -1;
@@ -313,6 +322,16 @@ static const value_string smux_types[] = {
 };
 #endif
 
+/* Procedure names (used in Service Response Time) */
+const value_string snmp_procedure_names[] = {
+	{ 0,	"Get" },
+	{ 1,	"GetNext" },
+	{ 3,	"Set" },
+	{ 5,	"Bulk" },
+	{ 6,	"Inform" },
+	{ 4,	"Register" },
+	{ 0,	NULL }
+};
 
 #define SNMP_IPA    0		/* IP Address */
 #define SNMP_CNT    1		/* Counter (Counter32) */
@@ -330,6 +349,110 @@ static const value_string smux_types[] = {
 
 dissector_table_t value_sub_dissectors_table;
 
+/*
+ * Data structure attached to a conversation, request/response information
+ */
+typedef struct snmp_conv_info_t {
+	wmem_map_t *request_response;
+} snmp_conv_info_t;
+
+static snmp_request_response_t *
+snmp_get_request_response_pointer(wmem_map_t *map, guint32 requestId)
+{
+	snmp_request_response_t *srrp=(snmp_request_response_t *)wmem_map_lookup(map, &requestId);
+	if (!srrp) {
+		srrp=wmem_new0(wmem_file_scope(), snmp_request_response_t);
+		srrp->requestId=requestId;
+		wmem_map_insert(map, &(srrp->requestId), (void *)srrp);
+	}
+
+	return srrp;
+}
+
+static snmp_request_response_t*
+snmp_match_request_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint requestId, guint procedure_id, snmp_conv_info_t *snmp_info)
+{
+	snmp_request_response_t *srrp=NULL;
+
+	DISSECTOR_ASSERT_HINT(snmp_info, "No SNMP info from ASN1 context");
+
+	/* get or create request/response pointer based on request id */
+	srrp=(snmp_request_response_t *)snmp_get_request_response_pointer(snmp_info->request_response, requestId);
+
+	// if not visited fill the request/response data
+	if (!pinfo->fd->visited) {
+		switch(procedure_id)
+		{
+			case SNMP_REQ_GET:
+			case SNMP_REQ_GETNEXT:
+			case SNMP_REQ_SET:
+			case SNMP_REQ_GETBULK:
+			case SNMP_REQ_INFORM:
+				srrp->request_frame_id=pinfo->fd->num;
+				srrp->response_frame_id=0;
+				srrp->request_time=pinfo->abs_ts;
+				srrp->request_procedure_id=procedure_id;
+				break;
+			case SNMP_RES_GET:
+				srrp->response_frame_id=pinfo->fd->num;
+				break;
+			default:
+				return NULL;
+		}
+	}
+
+	/* if request and response was matched */
+	if (srrp->request_frame_id!=0 && srrp->response_frame_id!=0)
+	{
+		proto_item *it;
+
+		// if it is a request
+		if (srrp->request_frame_id == pinfo->fd->num)
+		{
+			it=proto_tree_add_uint(tree, hf_snmp_response_in, tvb, 0, 0, srrp->response_frame_id);
+			proto_item_set_generated(it);
+		} else {
+			nstime_t ns;
+			it=proto_tree_add_uint(tree, hf_snmp_response_to, tvb, 0, 0, srrp->request_frame_id);
+			proto_item_set_generated(it);
+			nstime_delta(&ns, &pinfo->abs_ts, &srrp->request_time);
+			it=proto_tree_add_time(tree, hf_snmp_time, tvb, 0, 0, &ns);
+			proto_item_set_generated(it);
+
+			return srrp;
+		}
+	}
+
+	return NULL;
+}
+
+static void
+snmpstat_init(struct register_srt* srt _U_, GArray* srt_array)
+{
+	srt_stat_table *snmp_srt_table;
+	guint32 i;
+
+	snmp_srt_table = init_srt_table("SNMP Commands", NULL, srt_array, SNMP_NUM_PROCEDURES, NULL, "snmp.data", NULL);
+	for (i = 0; i < SNMP_NUM_PROCEDURES; i++)
+	{
+		init_srt_table_row(snmp_srt_table, i, val_to_str_const(i, snmp_procedure_names, "<unknown>"));
+	}
+}
+
+/* This is called only if request and response was matched -> no need to return anything than TAP_PACKET_REDRAW */
+static tap_packet_status
+snmpstat_packet(void *psnmp, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
+{
+	guint i = 0;
+	srt_stat_table *snmp_srt_table;
+	const snmp_request_response_t *snmp=(const snmp_request_response_t *)psi;
+	srt_data_t *data = (srt_data_t *)psnmp;
+
+	snmp_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
+
+	add_srt_table_data(snmp_srt_table, snmp->request_procedure_id, &snmp->request_time, pinfo);
+	return TAP_PACKET_REDRAW;
+}
 
 static const gchar *
 snmp_lookup_specific_trap (guint specific_trap)
@@ -1798,6 +1921,30 @@ check_ScopedPdu(tvbuff_t* tvb)
 
 #include "packet-snmp-fn.c"
 
+static snmp_conv_info_t*
+snmp_find_conversation_and_get_convo_data(packet_info *pinfo) {
+
+	conversation_t *conversation;
+	snmp_conv_info_t *snmp_info = NULL;
+
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
+		pinfo->srcport, pinfo->destport, 0);
+
+	if( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->num)!=snmp_handle) ) {
+		conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
+			pinfo->srcport, pinfo->destport, 0);
+		conversation_set_dissector(conversation, snmp_handle);
+	}
+
+	snmp_info = (snmp_conv_info_t *)conversation_get_proto_data(conversation, proto_snmp);
+	if (snmp_info == NULL) {
+		snmp_info = wmem_new0(wmem_file_scope(), snmp_conv_info_t);
+		snmp_info->request_response=wmem_map_new(wmem_file_scope(), g_int_hash, g_int_equal);
+
+		conversation_add_proto_data(conversation, proto_snmp, snmp_info);
+	}
+	return snmp_info;
+}
 
 guint
 dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -1816,9 +1963,13 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	proto_tree *snmp_tree = NULL;
 	proto_item *item = NULL;
+
+	snmp_conv_info_t *snmp_info = snmp_find_conversation_and_get_convo_data(pinfo);
+
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
+	asn1_ctx.private_data = snmp_info;
 
 	usm_p.msg_tvb = tvb;
 	usm_p.start_offset = tvb_offset_from_real_beginning(tvb);
@@ -1966,7 +2117,6 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static gint
 dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	conversation_t *conversation;
 	int offset;
 	gint8 tmp_class;
 	gboolean tmp_pc;
@@ -2029,15 +2179,6 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	 * the destination address of this packet, and its port 2 being
 	 * wildcarded, and give it the SNMP dissector as a dissector.
 	 */
-	if (pinfo->destport == UDP_PORT_SNMP) {
-		conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
-					   pinfo->srcport, 0, NO_PORT_B);
-		if( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->num)!=snmp_handle) ) {
-			conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
-					    pinfo->srcport, 0, NO_PORT2);
-			conversation_set_dissector(conversation, snmp_handle);
-		}
-	}
 
 	return dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_snmp, ett_snmp, FALSE);
 }
@@ -2181,6 +2322,15 @@ UAT_CSTRING_CB_DEF(specific_traps, desc, snmp_st_assoc_t)
 void proto_register_snmp(void) {
 	/* List of fields */
 	static hf_register_info hf[] = {
+		{ &hf_snmp_response_in,
+		{ "Response In", "snmp.response_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"The response to this SNMP request is in this frame", HFILL }},
+		{ &hf_snmp_response_to,
+		{ "Response To", "snmp.response_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"This is a response to the SNMP request in this frame", HFILL }},
+		{ &hf_snmp_time,
+		{ "Time", "snmp.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+			"The time between the Request and the Reply", HFILL }},
 		{ &hf_snmp_v3_flags_auth,
 		{ "Authenticated", "snmp.v3.flags.auth", FT_BOOLEAN, 8,
 		    TFS(&tfs_set_notset), TH_AUTH, NULL, HFILL }},
@@ -2455,6 +2605,10 @@ void proto_register_snmp(void) {
 	register_cleanup_routine(cleanup_ue_cache);
 
 	register_ber_syntax_dissector("SNMP", proto_snmp, dissect_snmp_tcp);
+
+	snmp_tap=register_tap("snmp");
+
+	register_srt_table(proto_snmp, NULL, 1, snmpstat_packet, snmpstat_init, NULL);
 }
 
 

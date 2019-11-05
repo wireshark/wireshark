@@ -60,7 +60,6 @@ NotificationName ::= OBJECT IDENTIFIER
 EnterpriseOID ::= OBJECT IDENTIFIER
 NetworkAddress ::= [APPLICATION 0] IMPLICIT OCTET STRING (SIZE (4))
 TimeTicks ::= [APPLICATION 3] IMPLICIT INTEGER (0..4294967295)
-Integer32 ::= INTEGER (-2147483648..2147483647)
 ObjectName ::= OBJECT IDENTIFIER
 --Counter32 ::= [APPLICATION 1] IMPLICIT INTEGER (0..4294967295)
 --Gauge32 ::= [APPLICATION 2] IMPLICIT INTEGER (0..4294967295)
@@ -193,7 +192,7 @@ Report-PDU ::= [8] IMPLICIT PDU
 
 
 PDU ::= SEQUENCE {
-	request-id INTEGER,
+	request-id RequestID,
 	error-status INTEGER {
 		noError(0),
 		tooBig(1),
@@ -219,9 +218,11 @@ PDU ::= SEQUENCE {
 	variable-bindings VarBindList
 }
 
+RequestID ::= INTEGER
+
 -- v2
 BulkPDU ::= SEQUENCE { -- MUST be identical in structure to PDU
-	 request-id Integer32,
+	 request-id RequestID,
 	 non-repeaters INTEGER (0..2147483647),
 	 max-repetitions INTEGER (0..2147483647),
 	 variable-bindings VarBindList
