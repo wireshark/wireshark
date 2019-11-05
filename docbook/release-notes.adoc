@@ -40,6 +40,7 @@ since version 3.1.0:
 * IOGraph automatically adds a graph for the selected display filter if no
   previous graph exists
 * Action buttons for the display filter bar may be aligned left via the context menu
+* Allow extcaps to be loaded from the personal configuration directory
 
 The following features are new (or have been significantly updated)
 since version 3.0.0:

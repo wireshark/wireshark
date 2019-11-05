@@ -233,10 +233,8 @@ FolderListModel::FolderListModel(QObject * parent):
 #endif
 
     /* Extcap */
-    QStringList extPaths = QString(get_extcap_dir()).split(G_SEARCHPATH_SEPARATOR_S);
-
-    foreach(QString path, extPaths)
-        appendRow( QStringList() << tr("Extcap path") << path.trimmed() << tr("Extcap Plugins search path"));
+    appendRow( QStringList() << tr("Personal Extcap path") << QString(get_persconffile_path("extcap", FALSE)).trimmed() << tr("Extcap Plugins search path"));
+    appendRow( QStringList() << tr("Global Extcap path") << QString(get_extcap_dir()).trimmed() << tr("Extcap Plugins search path"));
 
 #ifdef HAVE_MAXMINDDB
     /* MaxMind DB */
