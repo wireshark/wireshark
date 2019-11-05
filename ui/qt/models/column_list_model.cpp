@@ -431,7 +431,7 @@ void ColumnListModel::saveColumns()
 
     for ( int row = 0; row < store_.count(); row++ )
     {
-        fmt_data * cfmt = new fmt_data();
+        fmt_data * cfmt = g_new0(fmt_data, 1);
         ListElement elem = store_.at(row);
 
         cfmt->title = qstring_strdup(elem.title);
