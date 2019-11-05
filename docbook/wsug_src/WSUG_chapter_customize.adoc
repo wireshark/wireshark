@@ -36,7 +36,7 @@ are, simply enter the command _wireshark -h_ and the help information shown in
 .Help information available from Wireshark
 ====
 ----
-Wireshark 2.1.0 (v2.1.0rc0-502-g328fbc0 from master)
+Wireshark 3.1.1 (v3.1.1rc0-629-ge1dc9f82a63c)
 Interactively dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -44,10 +44,9 @@ Usage: wireshark [options] ... [ <infile> ]
 
 Capture interface:
   -i <interface>           name or idx of interface (def: first non-loopback)
-  -f <capfilter|predef:>   packet filter in libpcap filter syntax or
-                           predef:filtername - predefined filtername from GUI
-  -s <snaplen>             packet snapshot length (def: 262144)
-  -p                       don’t capture in promiscuous mode
+  -f <capture filter>      packet filter in libpcap filter syntax
+  -s <snaplen>             packet snapshot length (def: appropriate maximum)
+  -p                       don't capture in promiscuous mode
   -k                       start capturing immediately (def: do nothing)
   -S                       update packet display when new packets are captured
   -l                       turn on automatic scrolling while -S is in use
@@ -68,18 +67,21 @@ Capture output:
   -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs
                            filesize:NUM - switch to next file after NUM KB
                               files:NUM - ringbuffer: replace after NUM files
-RPCAP options:
-  -A <user>:<password>     use RPCAP password authentication
 Input file:
-  -r <infile>              set the filename to read from (no pipes or stdin!)
+  -r <infile>
+  --read-file <infile>     set the filename to read from (no pipes or stdin!)
 
 Processing:
-  -R <read filter>         packet filter in Wireshark display filter syntax
+  -R <read filter>
+  --read-filter <read filter>
+                           packet filter in Wireshark display filter syntax
   -n                       disable all name resolutions (def: all enabled)
   -N <name resolve flags>  enable specific name resolution(s): "mnNtdv"
   -d <layer_type>==<selector>,<decode_as_protocol> ...
-                           "Decode As”, see the man page for details
+                           "Decode As", see the man page for details
                            Example: tcp.port==8888,http
+  --enable-protocol <proto_name>
+                           enable dissection of proto_name
   --disable-protocol <proto_name>
                            disable dissection of proto_name
   --enable-heuristic <short_name>
@@ -89,7 +91,9 @@ Processing:
 
 User interface:
   -C <config profile>      start with specified configuration profile
-  -Y <display filter>      start with the given display filter
+  -Y <display filter>
+  --display-filter <display filter>
+                           start with the given display filter
   -g <packet number>       go to specified packet number after "-r"
   -J <jump filter>         jump to the first packet matching the (display)
                            filter
@@ -104,12 +108,16 @@ Output:
   -w <outfile|->           set the output filename (or '-' for stdout)
 
 Miscellaneous:
-  -h                       display this help and exit
-  -v                       display version info and exit
+  -h
+  --help                   display this help and exit
+  -v
+  --version                display version info and exit
   -P <key>:<path>          persconf:path - personal configuration files
                            persdata:path - personal data files
   -o <name>:<value> ...    override preference or recent setting
   -K <keytab>              keytab file to use for kerberos decryption
+  --display DISPLAY        X display to use
+  --fullscreen             start Wireshark in full screen
 ----
 ====
 

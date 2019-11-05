@@ -114,11 +114,14 @@ commandline_print_usage(gboolean for_help_option) {
 #endif
     /*fprintf(output, "\n");*/
     fprintf(output, "Input file:\n");
-    fprintf(output, "  -r <infile>              set the filename to read from (no pipes or stdin!)\n");
+    fprintf(output, "  -r <infile>\n");
+    fprintf(output, "  --read-file <infile>     set the filename to read from (no pipes or stdin!)\n");
 
     fprintf(output, "\n");
     fprintf(output, "Processing:\n");
-    fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
+    fprintf(output, "  -R <read filter>\n");
+    fprintf(output, "  --read-filter <read filter>\n");
+    fprintf(output, "                           packet filter in Wireshark display filter syntax\n");
     fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
     fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtdv\"\n");
     fprintf(output, "  -d %s ...\n", DECODE_AS_ARG_TEMPLATE);
@@ -136,7 +139,9 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "\n");
     fprintf(output, "User interface:\n");
     fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
-    fprintf(output, "  -Y <display filter>      start with the given display filter\n");
+    fprintf(output, "  -Y <display filter>\n");
+    fprintf(output, "  --display-filter <display filter>\n");
+    fprintf(output, "                           start with the given display filter\n");
     fprintf(output, "  -g <packet number>       go to specified packet number after \"-r\"\n");
     fprintf(output, "  -J <jump filter>         jump to the first packet matching the (display)\n");
     fprintf(output, "                           filter\n");
@@ -153,14 +158,16 @@ commandline_print_usage(gboolean for_help_option) {
 
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
-    fprintf(output, "  -h                       display this help and exit\n");
-    fprintf(output, "  -v                       display version info and exit\n");
+    fprintf(output, "  -h\n");
+    fprintf(output, "  --help                   display this help and exit\n");
+    fprintf(output, "  -v\n");
+    fprintf(output, "  --version                display version info and exit\n");
     fprintf(output, "  -P <key>:<path>          persconf:path - personal configuration files\n");
     fprintf(output, "                           persdata:path - personal data files\n");
     fprintf(output, "  -o <name>:<value> ...    override preference or recent setting\n");
     fprintf(output, "  -K <keytab>              keytab file to use for kerberos decryption\n");
 #ifndef _WIN32
-    fprintf(output, "  --display DISPLAY        X display to use\n");
+    fprintf(output, "  --display <X display>    X display to use\n");
 #endif
     fprintf(output, "  --fullscreen             start Wireshark in full screen\n");
 
