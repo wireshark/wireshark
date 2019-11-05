@@ -7342,7 +7342,7 @@ dissect_SRLData_block(tvbuff_t *tvb, int offset,
     dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_RedundancyInfo, &RedundancyInfo);
     /* bit 2 .. 15 reserved */
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_RedundancyInfo_reserved, &RedundancyInfo);
-    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
     return offset;
 }
 
