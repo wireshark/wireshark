@@ -39,6 +39,7 @@ since version 3.1.0:
 * The Windows packages are now built using Microsoft Visual Studio 2019.
 * IOGraph automatically adds a graph for the selected display filter if no
   previous graph exists
+* Action buttons for the display filter bar may be aligned left via the context menu
 
 The following features are new (or have been significantly updated)
 since version 3.0.0:

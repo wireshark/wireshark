@@ -40,6 +40,7 @@ protected:
     virtual void dragEnterEvent(QDragEnterEvent *event);
     virtual void dragMoveEvent(QDragMoveEvent *event);
     virtual void dropEvent(QDropEvent *event);
+    virtual void contextMenuEvent(QContextMenuEvent *menu);
 
 public slots:
     bool checkFilter();
@@ -58,6 +59,8 @@ private slots:
     void showExpressionPrefs();
     void applyOrPrepareFilter();
 
+    void triggerAlignementAction();
+
 private:
     DisplayFilterEditType type_;
     QString placeholder_text_;
@@ -67,11 +70,14 @@ private:
     StockIconToolButton *bookmark_button_;
     StockIconToolButton *clear_button_;
     StockIconToolButton *apply_button_;
+    bool leftAlignActions_;
 
     void setDefaultPlaceholderText();
     void buildCompletionList(const QString& field_word);
 
     void createFilterTextDropMenu(QDropEvent *event, bool prepare, QString filterText = QString());
+
+    void alignActionButtons();
 
 signals:
     void pushFilterSyntaxStatus(const QString&);

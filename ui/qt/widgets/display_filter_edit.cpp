@@ -13,7 +13,7 @@
 
 #include <epan/dfilter/dfilter.h>
 
-#include <ui/filter_files.h>
+#include <ui/recent.h>
 
 #include <wsutil/utf8_entities.h>
 
@@ -66,7 +66,8 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
     actions_(Q_NULLPTR),
     bookmark_button_(NULL),
     clear_button_(NULL),
-    apply_button_(NULL)
+    apply_button_(NULL),
+    leftAlignActions_(false)
 {
     setAccessibleName(tr("Display filter entry"));
 
@@ -76,77 +77,108 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
 
     setDefaultPlaceholderText();
 
-    //   DFCombo
-    //     Bookmark
-    //     DisplayFilterEdit
-    //     Clear button
-    //     Apply (right arrow)
-    //     Combo drop-down
+    QString buttonStyle = QString(
+        "QToolButton {"
+        "  border: none;"
+        "  background: transparent;" // Disables platform style on Windows.
+        "  padding: 0 0 0 0;"
+        "}"
+        "QToolButton::menu-indicator {"
+        "  image: none;"
+        "}"
+    );
 
     if (type_ == DisplayFilterToApply) {
         bookmark_button_ = new StockIconToolButton(this, "x-display-filter-bookmark");
-        bookmark_button_->setCursor(Qt::ArrowCursor);
         bookmark_button_->setMenu(new QMenu(bookmark_button_));
         bookmark_button_->setPopupMode(QToolButton::InstantPopup);
         bookmark_button_->setToolTip(tr("Manage saved bookmarks."));
         bookmark_button_->setIconSize(QSize(14, 14));
-        bookmark_button_->setStyleSheet(
-                "QToolButton {"
-                "  border: none;"
-                "  background: transparent;" // Disables platform style on Windows.
-                "  padding: 0 0 0 0;"
-                "}"
-                "QToolButton::menu-indicator { image: none; }"
-                );
+        bookmark_button_->setStyleSheet(buttonStyle);
 
         clear_button_ = new StockIconToolButton(this, "x-filter-clear");
-        clear_button_->setCursor(Qt::ArrowCursor);
         clear_button_->setToolTip(tr("Clear display filter"));
         clear_button_->setIconSize(QSize(14, 14));
-        clear_button_->setStyleSheet(
-                "QToolButton {"
-                "  border: none;"
-                "  background: transparent;" // Disables platform style on Windows.
-                "  padding: 0 0 0 0;"
-                "  margin-left: 1px;"
-                "}"
-                );
+        clear_button_->setStyleSheet(buttonStyle);
+        clear_button_->setVisible(false);
+
+        apply_button_ = new StockIconToolButton(this, "x-filter-apply");
+        apply_button_->setEnabled(false);
+        apply_button_->setToolTip(tr("Apply display filter"));
+        apply_button_->setIconSize(QSize(24, 14));
+        apply_button_->setStyleSheet(buttonStyle);
+
         connect(clear_button_, &StockIconToolButton::clicked, this, &DisplayFilterEdit::clearFilter);
+        connect(apply_button_, &StockIconToolButton::clicked, this, &DisplayFilterEdit::applyDisplayFilter);
+        connect(this, &DisplayFilterEdit::returnPressed, this, &DisplayFilterEdit::applyDisplayFilter);
     }
 
     connect(this, &DisplayFilterEdit::textChanged, this,
             static_cast<void (DisplayFilterEdit::*)(const QString &)>(&DisplayFilterEdit::checkFilter));
 
+    connect(wsApp, &WiresharkApplication::appInitialized, this, &DisplayFilterEdit::updateBookmarkMenu);
+    connect(wsApp, &WiresharkApplication::displayFilterListChanged, this, &DisplayFilterEdit::updateBookmarkMenu);
+
+    leftAlignActions_ = recent.gui_geometry_leftalign_actions;
+
+    alignActionButtons();
+}
+
+void DisplayFilterEdit::contextMenuEvent(QContextMenuEvent *event){
+    QMenu *menu = this->createStandardContextMenu();
+    menu->addSeparator();
+    QAction * na = new QAction(tr("Left align buttons"));
+    na->setCheckable(true);
+    na->setChecked(leftAlignActions_);
+    connect(na, &QAction::triggered, this, &DisplayFilterEdit::triggerAlignementAction);
+    menu->addAction(na);
+    menu->exec(event->globalPos());
+}
+
+void DisplayFilterEdit::triggerAlignementAction()
+{
+    leftAlignActions_ = ! leftAlignActions_;
+    if ( qobject_cast<QAction *>(sender()) )
+        qobject_cast<QAction *>(sender())->setChecked(leftAlignActions_);
+
+    recent.gui_geometry_leftalign_actions = leftAlignActions_;
+    write_recent();
+
+    alignActionButtons();
+}
+
+void DisplayFilterEdit::alignActionButtons()
+{
+    int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    QSize bksz, cbsz, apsz;
+    bksz = apsz = cbsz = QSize(0,0);
+
     if (type_ == DisplayFilterToApply) {
-        apply_button_ = new StockIconToolButton(this, "x-filter-apply");
-        apply_button_->setCursor(Qt::ArrowCursor);
-        apply_button_->setEnabled(false);
-        apply_button_->setToolTip(tr("Apply display filter"));
-        apply_button_->setIconSize(QSize(24, 14));
-        apply_button_->setStyleSheet(
-                "QToolButton {"
-                "  border: none;"
-                "  background: transparent;" // Disables platform style on Windows.
-                "  padding: 0 0 0 0;"
-                "}"
-                );
-        connect(apply_button_, &StockIconToolButton::clicked, this, &DisplayFilterEdit::applyDisplayFilter);
-        connect(this, &DisplayFilterEdit::returnPressed, this, &DisplayFilterEdit::applyDisplayFilter);
+        bookmark_button_->setMinimumHeight(contentsRect().height());
+        bookmark_button_->setMaximumHeight(contentsRect().height());
+        bksz = bookmark_button_->sizeHint();
+
+        if ( clear_button_->isVisible() )
+        {
+            cbsz = clear_button_->sizeHint();
+            clear_button_->setMinimumHeight(contentsRect().height());
+            clear_button_->setMaximumHeight(contentsRect().height());
+        }
+
+        apsz = apply_button_->sizeHint();
+        apply_button_->setMinimumHeight(contentsRect().height());
+        apply_button_->setMaximumHeight(contentsRect().height());
     }
 
-    int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    QSize bksz;
-    if (bookmark_button_) {
-        bksz = bookmark_button_->sizeHint();
+    int leftPadding = frameWidth + 1;
+    int leftMargin = bksz.width();
+    int rightMargin = cbsz.width() + apsz.width() + frameWidth + 1;
+    if ( leftAlignActions_ )
+    {
+        leftMargin = rightMargin + bksz.width();
+        rightMargin = 0;
     }
-    QSize cbsz;
-    if (clear_button_) {
-        cbsz = clear_button_->sizeHint();
-    }
-    QSize apsz;
-    if (apply_button_) {
-        apsz = apply_button_->sizeHint();
-    }
+
     setStyleSheet(QString(
             "DisplayFilterEdit {"
             "  padding-left: %1px;"
@@ -154,14 +186,35 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
             "  margin-right: %3px;"
             "}"
             )
-            .arg(frameWidth + 1)
-            .arg(bksz.width())
-            .arg(cbsz.width() + apsz.width() + frameWidth + 1)
-                  );
+            .arg(leftPadding)
+            .arg(leftMargin)
+            .arg(rightMargin)
+    );
 
-    connect(wsApp, &WiresharkApplication::appInitialized, this, &DisplayFilterEdit::updateBookmarkMenu);
-    connect(wsApp, &WiresharkApplication::displayFilterListChanged, this, &DisplayFilterEdit::updateBookmarkMenu);
+    if (clear_button_) {
+        if ( ! leftAlignActions_ )
+        {
+            clear_button_->move(contentsRect().right() - frameWidth - cbsz.width() - apsz.width(),
+                            contentsRect().top());
+        } else {
+            clear_button_->move(contentsRect().left() + bookmark_button_->width(), contentsRect().top());
+        }
+    }
+    if (apply_button_) {
+        if ( ! leftAlignActions_ )
+        {
+            apply_button_->move(contentsRect().right() - frameWidth - apsz.width(),
+                            contentsRect().top());
+        } else {
+            int additionalWidth = bookmark_button_->width();
+            if ( clear_button_ && clear_button_->isVisible() )
+                additionalWidth += clear_button_->width();
 
+            apply_button_->move(contentsRect().left() + additionalWidth, contentsRect().top());
+        }
+    }
+
+    update();
 }
 
 void DisplayFilterEdit::setDefaultPlaceholderText()
@@ -187,6 +240,8 @@ void DisplayFilterEdit::setDefaultPlaceholderText()
 void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
     SyntaxLineEdit::paintEvent(evt);
 
+    alignActionButtons();
+
     if (bookmark_button_) {
         // Draw the right border by hand. We could try to do this in the
         // style sheet but it's a pain.
@@ -198,40 +253,23 @@ void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
         QPainter painter(this);
         painter.setPen(divider_color);
         QRect cr = contentsRect();
-        QSize bksz = bookmark_button_->size();
-        painter.drawLine(bksz.width(), cr.top(), bksz.width(), cr.bottom());
+        int xpos = 0;
+        if ( leftAlignActions_ )
+        {
+            xpos = bookmark_button_->size().width() + apply_button_->size().width();
+            if ( clear_button_->isVisible() )
+                xpos += clear_button_->size().width();
+        }
+        else
+            xpos = bookmark_button_->size().width();
+
+        painter.drawLine(xpos, cr.top(), xpos, cr.bottom());
     }
 }
 
 void DisplayFilterEdit::resizeEvent(QResizeEvent *)
 {
-    QSize cbsz;
-    if (clear_button_) {
-        cbsz = clear_button_->sizeHint();
-    }
-    QSize apsz;
-    if (apply_button_) {
-        apsz = apply_button_->sizeHint();
-    } else {
-        apsz.setHeight(0); apsz.setWidth(0);
-    }
-    int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    if (clear_button_) {
-        clear_button_->move(contentsRect().right() - frameWidth - cbsz.width() - apsz.width(),
-                            contentsRect().top());
-        clear_button_->setMinimumHeight(contentsRect().height());
-        clear_button_->setMaximumHeight(contentsRect().height());
-    }
-    if (apply_button_) {
-        apply_button_->move(contentsRect().right() - frameWidth - apsz.width(),
-                            contentsRect().top());
-        apply_button_->setMinimumHeight(contentsRect().height());
-        apply_button_->setMaximumHeight(contentsRect().height());
-    }
-    if (bookmark_button_) {
-        bookmark_button_->setMinimumHeight(contentsRect().height());
-        bookmark_button_->setMaximumHeight(contentsRect().height());
-    }
+    alignActionButtons();
 }
 
 void DisplayFilterEdit::focusOutEvent(QFocusEvent *event)
@@ -257,6 +295,7 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
 
     if (clear_button_) {
         clear_button_->setVisible(!filter_text.isEmpty());
+        alignActionButtons();
     }
 
     emit popFilterSyntaxStatus();
