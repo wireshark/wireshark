@@ -743,6 +743,14 @@ static int hf_rtcp_mcptt_queueing_cap = -1;
 static int hf_rtcp_mcptt_part_type_len = -1;
 static int hf_rtcp_mcptt_participant_type = -1;
 static int hf_rtcp_mcptt_participant_ref = - 1;
+static int hf_rtcp_mcptt_ssrc = -1;
+static int hf_rtcp_mcptt_num_users = -1;
+static int hf_rtcp_mcptt_user_id_len = -1;
+static int hf_rtcp_spare16 = -1;
+static int hf_rtcp_mcptt_num_ssrc = -1;
+static int hf_rtcp_mcptt_func_alias = -1;
+static int hf_rtcp_mcptt_num_fas = -1;
+static int hf_rtcp_mcptt_fa_len = -1;
 
 /* RTCP fields defining a sub tree */
 static gint ett_rtcp                    = -1;
@@ -2499,14 +2507,78 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         }
         case 14:
             /* SSRC */
+            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            packet_len -= 4;
+            proto_tree_add_item(sub_tree, hf_rtcp_spare16, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            packet_len -= 2;
+            break;
         case 15:
             /* List of Granted Users */
+        {
+            guint32 num_users, user_id_len;
+            /* No of users */
+            proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_users, tvb, offset, 1, ENC_BIG_ENDIAN, &num_users);
+            offset += 1;
+            packet_len -= 1;
+            while (num_users > 0) {
+                proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_user_id_len, tvb, offset, 1, ENC_BIG_ENDIAN, &user_id_len);
+                offset += 1;
+                packet_len -= 1;
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_user_id, tvb, offset, user_id_len, ENC_UTF_8 | ENC_NA);
+                offset += user_id_len;
+                packet_len -= user_id_len;
+                num_users--;
+            }
+            break;
+        }
         case 16:
-            /* List of SSRCs  */
+            /* List of SSRCs */
+        {
+            guint32 num_ssrc;
+            /* Number of SSRCs*/
+            proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_ssrc, tvb, offset, 1, ENC_BIG_ENDIAN, &num_ssrc);
+            offset += 1;
+            packet_len -= 1;
+            proto_tree_add_item(sub_tree, hf_rtcp_spare16, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            packet_len -= 2;
+
+            while (num_ssrc > 0) {
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                packet_len -= 4;
+            }
+            break;
+        }
         case 17:
             /* Functional Alias */
+            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_func_alias, tvb, offset, mcptt_fld_len, ENC_UTF_8 | ENC_NA);
+            offset += mcptt_fld_len;
+            packet_len -= mcptt_fld_len;
+            break;
+
         case 18:
             /* List of Functional Aliases */
+        {
+            guint32 num_fas, fa_len;
+            /* No of FAs */
+            proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_fas, tvb, offset, 1, ENC_BIG_ENDIAN, &num_fas);
+            offset += 1;
+            packet_len -= 1;
+            while (num_fas > 0) {
+                proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_fa_len, tvb, offset, 1, ENC_BIG_ENDIAN, &fa_len);
+                offset += 1;
+                packet_len -= 1;
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_func_alias, tvb, offset, fa_len, ENC_UTF_8 | ENC_NA);
+                offset += fa_len;
+                packet_len -= fa_len;
+                num_fas--;
+            }
+            break;
+        }
+
         case 19:
             /* Location */
         case 20:
@@ -7287,6 +7359,46 @@ proto_register_rtcp(void)
         },
         { &hf_rtcp_mcptt_participant_ref,
             { "Floor Participant Reference", "rtcp.app_data.mcptt.floor_participant_ref",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_ssrc,
+            { "SSRC", "rtcp.app_data.mcptt.rtcp",
+            FT_UINT48, BASE_DEC, NULL, 0xffffffff00000,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_num_users,
+            { "Number of users", "rtcp.app_data.mcptt.num_users",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_user_id_len,
+            { "User ID length", "rtcp.app_data.mcptt.user_id_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_spare16,
+            { "Spare", "rtcp.spare16",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_num_ssrc,
+            { "Number of SSRC", "rtcp.app_data.mcptt.num_ssrc",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_func_alias,
+        { "Functional Alias", "rtcp.mcptt.func_alias",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_fa_len,
+            { "Functional Alias length", "rtcp.app_data.mcptt.fa_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_num_fas,
+            { "Number of Functional Alias", "rtcp.app_data.mcptt.num_fa",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
