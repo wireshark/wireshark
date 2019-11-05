@@ -286,7 +286,7 @@ static void io_graph_free_cb(void* p) {
 
 } // extern "C"
 
-IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
+IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFilter) :
     WiresharkDialog(parent, cf),
     ui(new Ui::IOGraphDialog),
     uat_model_(NULL),
@@ -393,13 +393,22 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     tracer_ = new QCPItemTracer(iop);
 
     loadProfileGraphs();
+    bool filterExists = false;
     if (num_io_graphs_ > 0) {
         for (guint i = 0; i < num_io_graphs_; i++) {
             createIOGraph(i);
+            if ( ioGraphs_.at(i)->filter().compare(displayFilter) == 0 )
+                filterExists = true;
         }
+        if ( ! filterExists && displayFilter.length() > 0 )
+            addGraph(true, tr("Filtered packets"), displayFilter, ColorUtils::graphColor(num_io_graphs_),
+                IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE);
     } else {
         addDefaultGraph(true, 0);
         addDefaultGraph(true, 1);
+        if ( displayFilter.length() > 0 )
+            addGraph(true, tr("Filtered packets"), displayFilter, ColorUtils::graphColor(num_io_graphs_),
+                IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE);
     }
 
     toggleTracerStyle(true);

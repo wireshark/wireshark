@@ -37,6 +37,8 @@ since version 3.1.0:
 * You can once again mark and unmark packets using the middle mouse button.
   This feature went missing around 2009 or so.
 * The Windows packages are now built using Microsoft Visual Studio 2019.
+* IOGraph automatically adds a graph for the selected display filter if no
+  previous graph exists
 
 The following features are new (or have been significantly updated)
 since version 3.0.0:

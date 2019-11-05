@@ -3131,7 +3131,12 @@ void MainWindow::on_actionStatisticsPacketLengths_triggered()
 // -z io,stat
 void MainWindow::statCommandIOGraph(const char *, void *)
 {
-    IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_);
+    const DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
+    QString displayFilter;
+    if ( df_edit )
+        displayFilter = df_edit->text();
+
+    IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_, displayFilter);
     connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
     connect(this, SIGNAL(reloadFields()), iog_dialog, SLOT(reloadFields()));
     iog_dialog->show();
