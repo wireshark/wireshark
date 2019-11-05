@@ -255,7 +255,10 @@ extcap_get_extcap_paths(void)
 {
     GSList *paths = NULL;
 
-    paths = extcap_get_extcap_paths_from_dir(paths, get_persconffile_path("extcap", FALSE));
+    char *persconffile_path = get_persconffile_path("extcap", FALSE);
+    paths = extcap_get_extcap_paths_from_dir(paths, persconffile_path);
+    g_free(persconffile_path);
+
     paths = extcap_get_extcap_paths_from_dir(paths, get_extcap_dir());
 
     return paths;
