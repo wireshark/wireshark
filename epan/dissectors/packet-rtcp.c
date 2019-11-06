@@ -2310,7 +2310,6 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         /* Field ID 8 bits*/
         proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_fld_id, tvb, offset, 1, ENC_BIG_ENDIAN, &mcptt_fld_id);
         offset++;
-        packet_len--;
         /* Length value
          * a length value which is:
          *  - one octet long, if the field ID is less than 192; and
@@ -2323,7 +2322,6 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         }
         proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_fld_len, tvb, offset, len_len, ENC_BIG_ENDIAN, &mcptt_fld_len);
         offset += len_len;
-        packet_len -= len_len;
 
         if ((1 + len_len + mcptt_fld_len) % 4) {
             padding = (4 - ((1 + len_len + mcptt_fld_len) % 4));
@@ -2335,13 +2333,11 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             /* Floor Priority */
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            packet_len -= 2;
             break;
         case 1:
             /* Duration */
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_duration, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            packet_len -= 2;
             break;
         case 2:
         {
@@ -2365,7 +2361,6 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
                 break;
             }
             offset += 2;
-            packet_len -= 2;
             /* If the length field is set to '2', there is no <Reject Phrase> value in the Reject Cause field */
             if (mcptt_fld_len == 2) {
                 break;
@@ -2373,66 +2368,54 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             /* Reject Phrase */
             proto_tree_add_item(sub_tree, hf_rtcp_sdes_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-            packet_len -= 1;
             proto_tree_add_item(sub_tree, hf_rtcp_sdes_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-            packet_len -= 1;
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_rej_phrase, tvb, offset, mcptt_fld_len-4, ENC_UTF_8 | ENC_NA);
             offset += (mcptt_fld_len - 4);
-            packet_len -= (mcptt_fld_len - 4);
             break;
         }
         case 3:
             /* Queue Info*/
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_queue_pos_inf, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-            packet_len -= 1;
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_queue_pri_lev, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-            packet_len -= 1;
             break;
         case 4:
         case 106:
             /* Granted Party's Identity */
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_granted_partys_id, tvb, offset, mcptt_fld_len, ENC_UTF_8 | ENC_NA);
             offset += mcptt_fld_len;
-            packet_len -= mcptt_fld_len;
             break;
         case 5:
             /* Permission to Request the Floor */
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_perm_to_req_floor, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            packet_len -= 2;
             break;
         case 6:
             /* User ID */
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_user_id, tvb, offset, mcptt_fld_len, ENC_UTF_8 | ENC_NA);
             offset += mcptt_fld_len;
-            packet_len -= mcptt_fld_len;
             break;
         case 7:
             /* Queue Size */
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_queue_size, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            packet_len -= 2;
             break;
         case 8:
             /* Message Sequence-Number */
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_msg_seq_num, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            packet_len -= 2;
             break;
         case 9:
             /* Queued User ID */
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_queued_user_id, tvb, offset, mcptt_fld_len, ENC_UTF_8 | ENC_NA);
             offset += mcptt_fld_len;
-            packet_len -= mcptt_fld_len;
             break;
         case 10:
             /* Source */
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_source, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            packet_len -= 2;
             break;
         case 11:
         {
@@ -2442,15 +2425,12 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             /* Track Info */
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_queueing_cap, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-            packet_len -= 1;
             rem_len -= 1;
             proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_part_type_len, tvb, offset, 1, ENC_BIG_ENDIAN, &fld_len);
             offset += 1;
-            packet_len -= 1;
             rem_len -= 1;
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_participant_type, tvb, offset, fld_len, ENC_UTF_8 | ENC_NA);
             offset += fld_len;
-            packet_len -= fld_len;
             rem_len -= fld_len;
             if (rem_len > 0) {
                 num_ref = 1;
@@ -2459,7 +2439,6 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
                     part_tree = proto_tree_add_subtree_format(sub_tree, tvb, offset, 4, ett_rtcp_mcptt_participant_ref, NULL, "Floor Participant Reference %u", num_ref);
                     proto_tree_add_item(part_tree, hf_rtcp_mcptt_participant_ref, tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
-                    packet_len -= 4;
                     rem_len -= 4;
                     num_ref++;
                 }
@@ -2470,7 +2449,6 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             /* Message Type */
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_fld_val, tvb, offset, mcptt_fld_len, ENC_NA);
             offset += mcptt_fld_len;
-            packet_len -= mcptt_fld_len;
             break;
         case 13:
         {
@@ -2480,17 +2458,14 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
                 val_to_str_const(floor_ind, mcptt_floor_ind_vals, "Unknown"));
             offset += 2;
-            packet_len -= 2;
             break;
         }
         case 14:
             /* SSRC */
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            packet_len -= 4;
             proto_tree_add_item(sub_tree, hf_rtcp_spare16, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            packet_len -= 2;
             break;
         case 15:
             /* List of Granted Users */
@@ -2499,14 +2474,11 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             /* No of users */
             proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_users, tvb, offset, 1, ENC_BIG_ENDIAN, &num_users);
             offset += 1;
-            packet_len -= 1;
             while (num_users > 0) {
                 proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_user_id_len, tvb, offset, 1, ENC_BIG_ENDIAN, &user_id_len);
                 offset += 1;
-                packet_len -= 1;
                 proto_tree_add_item(sub_tree, hf_rtcp_mcptt_user_id, tvb, offset, user_id_len, ENC_UTF_8 | ENC_NA);
                 offset += user_id_len;
-                packet_len -= user_id_len;
                 num_users--;
             }
             break;
@@ -2518,15 +2490,12 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             /* Number of SSRCs*/
             proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_ssrc, tvb, offset, 1, ENC_BIG_ENDIAN, &num_ssrc);
             offset += 1;
-            packet_len -= 1;
             proto_tree_add_item(sub_tree, hf_rtcp_spare16, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            packet_len -= 2;
 
             while (num_ssrc > 0) {
                 proto_tree_add_item(sub_tree, hf_rtcp_mcptt_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                packet_len -= 4;
             }
             break;
         }
@@ -2534,7 +2503,6 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             /* Functional Alias */
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_func_alias, tvb, offset, mcptt_fld_len, ENC_UTF_8 | ENC_NA);
             offset += mcptt_fld_len;
-            packet_len -= mcptt_fld_len;
             break;
 
         case 18:
@@ -2544,14 +2512,11 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             /* No of FAs */
             proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_fas, tvb, offset, 1, ENC_BIG_ENDIAN, &num_fas);
             offset += 1;
-            packet_len -= 1;
             while (num_fas > 0) {
                 proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_fa_len, tvb, offset, 1, ENC_BIG_ENDIAN, &fa_len);
                 offset += 1;
-                packet_len -= 1;
                 proto_tree_add_item(sub_tree, hf_rtcp_mcptt_func_alias, tvb, offset, fa_len, ENC_UTF_8 | ENC_NA);
                 offset += fa_len;
-                packet_len -= fa_len;
                 num_fas--;
             }
             break;
@@ -2564,13 +2529,11 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         default:
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_fld_val, tvb, offset, mcptt_fld_len, ENC_NA);
             offset += mcptt_fld_len;
-            packet_len -= mcptt_fld_len;
             break;
         }
         if (padding) {
             proto_tree_add_item(sub_tree, hf_rtcp_app_data_padding, tvb, offset, padding, ENC_BIG_ENDIAN);
             offset += padding;
-            packet_len -= padding;
         }
     }
 
