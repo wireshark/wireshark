@@ -247,6 +247,7 @@ static dissector_handle_t bgp_handle;
 #define EVPN_MC_ETHER_TAG_ROUTE 6 /* draft-ietf-bess-evpn-igmp-mld-proxy-03 */
 #define EVPN_IGMP_JOIN_ROUTE    7 /* draft-ietf-bess-evpn-igmp-mld-proxy-03 */
 #define EVPN_IGMP_LEAVE_ROUTE   8 /* draft-ietf-bess-evpn-igmp-mld-proxy-03 */
+#define EVPN_S_PMSI_A_D_ROUTE   10 /* draft-ietf-bess-evpn-bum-procedure-updates-7 */
 
 #define EVPN_IGMP_MC_FLAG_V1                0x01
 #define EVPN_IGMP_MC_FLAG_V2                0x02
@@ -830,6 +831,7 @@ static const value_string evpnrtypevals[] = {
     { EVPN_MC_ETHER_TAG_ROUTE, "Selective Multicast Ethernet Tag Route" },
     { EVPN_IGMP_JOIN_ROUTE,    "IGMP Join Synch Route" },
     { EVPN_IGMP_LEAVE_ROUTE,   "IGMP Leave Synch Route" },
+    { EVPN_S_PMSI_A_D_ROUTE,   "S-PMSI A-D Route" },
     { 0, NULL }
 };
 
@@ -5131,6 +5133,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
     case EVPN_MC_ETHER_TAG_ROUTE:
     case EVPN_IGMP_JOIN_ROUTE:
     case EVPN_IGMP_LEAVE_ROUTE:
+    case EVPN_S_PMSI_A_D_ROUTE:
 /*
           +---------------------------------------+
           |  RD (8 octets)                        |
@@ -5177,7 +5180,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
 
         if (nlri_len < 15) {
             expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt_len_err,
-                                   "Invalid length (%u) of EVPN NLRI Route Type 6 (Selective Multicast Ethernet Tag Route)", nlri_len);
+                                   "Invalid length (%u) of EVPN NLRI Route Type %u", nlri_len, route_type);
             return -1;
         }
         item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, reader_offset,
