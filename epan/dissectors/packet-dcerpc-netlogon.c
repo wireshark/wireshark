@@ -7923,15 +7923,24 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
     return(buf);
 }
 
-static tvbuff_t* dissect_request_data( tvbuff_t *tvb ,tvbuff_t *auth_tvb ,
-                                       int offset , packet_info *pinfo ,dcerpc_auth_info *auth_info )
+static tvbuff_t* dissect_request_data(tvbuff_t *header_tvb _U_,
+                                      tvbuff_t *payload_tvb,
+                                      tvbuff_t *trailer_tvb _U_,
+                                      tvbuff_t *auth_tvb,
+                                      packet_info *pinfo,
+                                      dcerpc_auth_info *auth_info)
 {
-    return dissect_packet_data(tvb,auth_tvb,offset,pinfo,auth_info,0);
+    return dissect_packet_data(payload_tvb,auth_tvb,0,pinfo,auth_info,0);
 }
-static tvbuff_t* dissect_response_data( tvbuff_t *tvb ,tvbuff_t *auth_tvb ,
-                                        int offset , packet_info *pinfo ,dcerpc_auth_info *auth_info )
+
+static tvbuff_t* dissect_response_data(tvbuff_t *header_tvb _U_,
+                                       tvbuff_t *payload_tvb,
+                                       tvbuff_t *trailer_tvb _U_,
+                                       tvbuff_t *auth_tvb,
+                                       packet_info *pinfo,
+                                       dcerpc_auth_info *auth_info)
 {
-    return dissect_packet_data(tvb,auth_tvb,offset,pinfo,auth_info,1);
+    return dissect_packet_data(payload_tvb,auth_tvb,0,pinfo,auth_info,1);
 }
 
 /* MS-NRPC 2.2.1.3.2 */

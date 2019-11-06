@@ -57,10 +57,12 @@ int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset,
 			     packet_info *pinfo,
 			     proto_tree *tree, dcerpc_info *di, guint8 *drep);
 
-tvbuff_t *wrap_dissect_gssapi_payload(tvbuff_t *data_tvb,
-					tvbuff_t *auth_tvb,
-					int offset,
-					packet_info *pinfo,
-					dcerpc_auth_info *auth_info);
+tvbuff_t *
+wrap_dissect_gssapi_payload(tvbuff_t *header_tvb _U_,
+			    tvbuff_t *payload_tvb,
+			    tvbuff_t *trailer_tvb _U_,
+			    tvbuff_t *auth_tvb,
+			    packet_info *pinfo,
+			    dcerpc_auth_info *auth_info _U_);
 
 #endif /* __PACKET_GSSAPI_H */

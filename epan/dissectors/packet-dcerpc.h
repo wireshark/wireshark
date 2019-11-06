@@ -91,12 +91,14 @@ typedef struct _e_dce_dg_common_hdr_t {
 struct _dcerpc_auth_subdissector_fns;
 
 typedef struct _dcerpc_auth_info {
+  gboolean hdr_signing;
   guint8 auth_type;
   guint8 auth_level;
   guint32 auth_context_id;
   guint8 auth_pad_len;
   guint32 auth_size;
   struct _dcerpc_auth_subdissector_fns *auth_fns;
+  tvbuff_t *auth_hdr_tvb;
   tvbuff_t *auth_tvb;
   proto_item *auth_item;
   proto_tree *auth_tree;
@@ -425,9 +427,10 @@ typedef struct _dcerpc_uuid_value {
 
 /* Authenticated pipe registration functions and miscellanea */
 
-typedef tvbuff_t *(dcerpc_decode_data_fnct_t)(tvbuff_t *data_tvb,
+typedef tvbuff_t *(dcerpc_decode_data_fnct_t)(tvbuff_t *header_tvb,
+					      tvbuff_t *payload_tvb,
+					      tvbuff_t *trailer_tvb,
 					      tvbuff_t *auth_tvb,
-					      int offset,
 					      packet_info *pinfo,
 					      dcerpc_auth_info *auth_info);
 

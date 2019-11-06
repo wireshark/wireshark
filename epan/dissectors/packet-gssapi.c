@@ -670,8 +670,11 @@ wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 tvbuff_t *
-wrap_dissect_gssapi_payload(tvbuff_t *data_tvb, tvbuff_t *auth_tvb,
-			    int offset _U_, packet_info *pinfo,
+wrap_dissect_gssapi_payload(tvbuff_t *header_tvb _U_,
+			    tvbuff_t *payload_tvb,
+			    tvbuff_t *trailer_tvb _U_,
+			    tvbuff_t *auth_tvb,
+			    packet_info *pinfo,
 			    dcerpc_auth_info *auth_info _U_)
 {
 	tvbuff_t *result;
@@ -682,12 +685,12 @@ wrap_dissect_gssapi_payload(tvbuff_t *data_tvb, tvbuff_t *auth_tvb,
 	/* we need a full auth and a full data tvb or else we can't
 	   decrypt anything
 	*/
-	if((!auth_tvb)||(!data_tvb)){
+	if((!auth_tvb)||(!payload_tvb)){
 		return NULL;
 	}
 
 	gssapi_encrypt.decrypt_gssapi_tvb=DECRYPT_GSSAPI_DCE;
-	gssapi_encrypt.gssapi_encrypted_tvb=data_tvb;
+	gssapi_encrypt.gssapi_encrypted_tvb=payload_tvb;
 
 	dissect_gssapi(auth_tvb, pinfo, NULL, &gssapi_encrypt);
 	result=gssapi_encrypt.gssapi_decrypted_tvb;
