@@ -396,7 +396,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     initMainToolbarIcons();
 
-    main_ui_->displayFilterToolBar->insertWidget(main_ui_->actionDisplayFilterExpression, df_combo_box_);
+    main_ui_->displayFilterToolBar->insertWidget(main_ui_->actionNewDisplayFilterExpression, df_combo_box_);
 
     // Make sure filter expressions overflow into a menu instead of a
     // larger toolbar. We do this by adding them to a child toolbar.

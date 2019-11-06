@@ -53,6 +53,8 @@ private slots:
     void clearFilter();
     void changeEvent(QEvent* event);
 
+    void displayFilterExpression();
+
     void saveFilter();
     void removeFilter();
     void showFilters();
