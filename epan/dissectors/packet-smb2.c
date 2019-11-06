@@ -5906,6 +5906,17 @@ static const value_string smb2_channel_vals[] = {
 	{ 0, NULL }
 };
 
+static const value_string smb2_dialect_vals[] = {
+	{ 0x0202,	"SMB 2.0.2" },
+	{ 0x0210,	"SMB 2.1" },
+	{ 0x0300,	"SMB 3.0" },
+	{ 0x0302,	"SMB 3.0.2" },
+	{ 0x0311,	"SMB 3.1.1" },
+	{ 0x02FF,	"SMB2 wildcard" },
+	{ 0, NULL }
+};
+
+
 static void
 dissect_smb2_rdma_v1_blob(tvbuff_t *tvb, packet_info *pinfo _U_,
 			  proto_tree *parent_tree, smb2_info_t *si _U_)
@@ -11547,7 +11558,7 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_dialect,
 			{ "Dialect", "smb2.dialect", FT_UINT16, BASE_HEX,
-			NULL, 0, NULL, HFILL }
+			VALS(smb2_dialect_vals), 0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_security_mode,
