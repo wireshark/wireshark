@@ -226,6 +226,13 @@ ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   proto_tree *tree, int tagged_parameters_len, int ftype,
                                   association_sanity_check_t *association_sanity_check);
 
+
+static void
+save_proto_data(tvbuff_t *tvb, packet_info *pinfo, int offset, size_t size, int key);
+
+static void
+save_proto_data_value(packet_info *pinfo, guint value, int key);
+
 static void try_scan_tdls_keys(tvbuff_t *tvb, packet_info *pinfo, int offset);
 
 static tvbuff_t *
@@ -269,6 +276,8 @@ typedef struct mimo_control
 #define KEY_IV_KEY 16
 #define KEY_DATA_KEY 17
 #define KEY_DATA_LEN_KEY 18
+#define GTK_KEY 19
+#define GTK_LEN_KEY 20
 
 /* ************************************************************************* */
 /*  Define some very useful macros that are used to analyze frame types etc. */
@@ -13793,7 +13802,8 @@ dissect_vendor_ie_wfa(packet_info *pinfo, proto_item *item, tvbuff_t *tag_tvb)
 }
 
 static void
-dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
+dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb,
+                      int offset, guint32 tag_len, packet_info *pinfo)
 {
 
   switch(tvb_get_guint8(tvb, offset)){
@@ -13811,6 +13821,8 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb, int 
       offset += 1;
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_key, tvb, offset, tag_len - 3, ENC_NA);
       proto_item_append_text(item, ": RSN GTK");
+      save_proto_data(tvb, pinfo, offset, tag_len - 3, GTK_KEY);
+      save_proto_data_value(pinfo, tag_len - 3, GTK_LEN_KEY);
       break;
     }
     case 4:
@@ -19976,7 +19988,7 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       dissect_vendor_ie_wpawme(tree, tvb, pinfo, offset, tag_vs_len, field_data->ftype);
       break;
     case OUI_RSN:
-      dissect_vendor_ie_rsn(field_data->item_tag, tree, tvb, offset, tag_vs_len);
+      dissect_vendor_ie_rsn(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
       break;
     case OUI_PRE11N:
       dissect_vendor_ie_ht(tvb, pinfo, tree, offset, field_data->item_tag, field_data->item_tag_length, tag_vs_len);
@@ -25673,57 +25685,70 @@ keydata_padding_len(tvbuff_t *tvb)
 }
 
 static void
-try_scan_eapol_keys(packet_info *pinfo, DOT11DECRYPT_HS_MSG_TYPE msg_type)
+get_eapol_parsed(packet_info *pinfo, PDOT11DECRYPT_EAPOL_PARSED eapol_parsed)
 {
-  guint32 dec_caplen = 0;
+  if (!eapol_parsed) {
+    return;
+  }
+
+  proto_eapol_key_frame_t *eapol_key =
+    (proto_eapol_key_frame_t *)p_get_proto_data(pinfo->pool, pinfo, proto_eapol,
+                                                EAPOL_KEY_FRAME_KEY);
+  if (!eapol_key) {
+    return;
+  }
+  eapol_parsed->len = eapol_key->len;
+  eapol_parsed->key_type = eapol_key->type;
+  eapol_parsed->key_version = (guint8)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_VERSION_KEY));
+  eapol_parsed->key_len = (guint16)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_LEN_KEY));
+  eapol_parsed->key_iv = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_IV_KEY);
+  eapol_parsed->key_data = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_DATA_KEY);
+  eapol_parsed->key_data_len = (guint16)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_DATA_LEN_KEY));
+  eapol_parsed->nonce = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, NONCE_KEY);
+  eapol_parsed->group_cipher = (guint8)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, GROUP_CIPHER_KEY));
+  eapol_parsed->cipher = (guint8)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, CIPHER_KEY));
+  eapol_parsed->akm = (guint8)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, AKM_KEY));
+  eapol_parsed->mic = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MIC_KEY);
+  eapol_parsed->mic_len =
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MIC_LEN_KEY));
+  eapol_parsed->gtk = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, GTK_KEY);
+  eapol_parsed->gtk_len = (guint16)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, GTK_LEN_KEY));
+}
+
+static void
+try_decrypt_keydata(packet_info *pinfo)
+{
+  guint32 dec_caplen;
   guchar dec_data[DOT11DECRYPT_EAPOL_MAX_LEN];
+  DOT11DECRYPT_EAPOL_PARSED eapol_parsed;
   DOT11DECRYPT_KEY_ITEM used_key;
 
   if (!enable_decryption) {
     return;
   }
-  proto_eapol_key_frame_t *eapol_key =
-    (proto_eapol_key_frame_t *)p_get_proto_data(pinfo->pool, pinfo, proto_eapol,
-                                                EAPOL_KEY_FRAME_KEY);
+
   guint8 *bssid = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, BSSID_KEY);
   guint8 *sta = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, STA_KEY);
-
-  DOT11DECRYPT_EAPOL_PARSED eapol_parsed;
-  memset(&eapol_parsed, 0, sizeof(eapol_parsed));
-
-  eapol_parsed.msg_type = msg_type;
-  eapol_parsed.len = eapol_key->len;
-  eapol_parsed.key_type = eapol_key->type;
-  eapol_parsed.key_version = (guint8)
-    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_VERSION_KEY));
-  eapol_parsed.key_len = (guint16)
-    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_LEN_KEY));
-  eapol_parsed.key_iv = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_IV_KEY);
-  eapol_parsed.key_data = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_DATA_KEY);
-  eapol_parsed.key_data_len = (guint16)
-    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_DATA_LEN_KEY));
-  eapol_parsed.nonce = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, NONCE_KEY);
-  eapol_parsed.group_cipher = (guint8)
-    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, GROUP_CIPHER_KEY));
-  eapol_parsed.cipher = (guint8)
-    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, CIPHER_KEY));
-  eapol_parsed.akm = (guint8)
-    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, AKM_KEY));
-  eapol_parsed.mic = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MIC_KEY);
-  eapol_parsed.mic_len =
-    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MIC_LEN_KEY));
-
-  if (!eapol_key || !bssid || !sta) {
+  if (!bssid || !sta) {
     return;
   }
 
-  gint ret = Dot11DecryptScanEapolForKeys(&dot11decrypt_ctx,
-                                          &eapol_parsed,
-                                          eapol_key->data, eapol_key->len,
-                                          bssid, sta,
-                                          dec_data, &dec_caplen,
-                                          &used_key);
-  if (ret == DOT11DECRYPT_RET_SUCCESS_HANDSHAKE && dec_caplen > 0) {
+  memset(&eapol_parsed, 0, sizeof(eapol_parsed));
+  get_eapol_parsed(pinfo, &eapol_parsed);
+
+  gint ret = Dot11DecryptDecryptKeyData(&dot11decrypt_ctx,
+                                        &eapol_parsed,
+                                        bssid, sta,
+                                        dec_data, &dec_caplen,
+                                        &used_key);
+  if (ret == DOT11DECRYPT_RET_SUCCESS && dec_caplen > 0) {
     proto_eapol_keydata_t *eapol = wmem_new(wmem_file_scope(), proto_eapol_keydata_t);
     eapol->used_key = used_key;
     eapol->keydata_len = dec_caplen;
@@ -25732,6 +25757,35 @@ try_scan_eapol_keys(packet_info *pinfo, DOT11DECRYPT_HS_MSG_TYPE msg_type)
     /* Save decrypted eapol keydata for rsna dissector */
     p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, EAPOL_KEY, eapol);
   }
+}
+
+static void
+try_scan_eapol_keys(packet_info *pinfo, DOT11DECRYPT_HS_MSG_TYPE msg_type)
+{
+  DOT11DECRYPT_EAPOL_PARSED eapol_parsed;
+
+  if (!enable_decryption) {
+    return;
+  }
+
+  proto_eapol_key_frame_t *eapol_key =
+    (proto_eapol_key_frame_t *)p_get_proto_data(pinfo->pool, pinfo, proto_eapol,
+                                                EAPOL_KEY_FRAME_KEY);
+  guint8 *bssid = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, BSSID_KEY);
+  guint8 *sta = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, STA_KEY);
+
+  if (!eapol_key || !bssid || !sta) {
+    return;
+  }
+
+  memset(&eapol_parsed, 0, sizeof(eapol_parsed));
+  get_eapol_parsed(pinfo, &eapol_parsed);
+  eapol_parsed.msg_type = msg_type;
+
+  Dot11DecryptScanEapolForKeys(&dot11decrypt_ctx,
+                               &eapol_parsed,
+                               eapol_key->data, eapol_key->len,
+                               bssid, sta);
 }
 
 static int
@@ -25834,7 +25888,6 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   proto_item_set_generated(ti);
 
   guint16 keydes_version = tvb_get_ntohs(tvb, offset) & KEY_INFO_KEYDES_VERSION_MASK;
-  guint16 key_encrypted = tvb_get_ntohs(tvb, offset) & KEY_INFO_ENCRYPTED_KEY_DATA_MASK;
   save_proto_data_value(pinfo, keydes_version, KEY_VERSION_KEY);
   proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_wlan_rsna_eapol_wpa_keydes_keyinfo,
                                     ett_keyinfo, wlan_rsna_eapol_wpa_keydes_keyinfo,
@@ -25879,14 +25932,6 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   if (eapol_data_len != 0) {
     save_proto_data(tvb, pinfo, offset, eapol_data_len, KEY_DATA_KEY);
   }
-  if (!pinfo->fd->visited && key_encrypted && msg_type != DOT11DECRYPT_HS_MSG_TYPE_INVALID) {
-    /* Key data is encrypted so let dot11decrypt engine decrypt and extract the keys
-     * If successful the SA is stored in dot11decrypt context and decrypted key data
-     * is available in EAPOL_KEY proto data.
-     */
-    try_scan_eapol_keys(pinfo, msg_type);
-  }
-
   if (eapol_data_len != 0) {
     ti = proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_data,
                              tvb, offset, eapol_data_len, ENC_NA);
@@ -25894,10 +25939,14 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
         !(keyinfo & KEY_INFO_KEY_TYPE_MASK)) {
       /* RSN: EAPOL-Key Key Data is encrypted.
        * WPA: Group Keys use encrypted Key Data.
-       * Decryption engine has already tried to decrypt this. If decrypted it's
-       * stored in EAPOL_KEY proto data.
        * IEEE 802.11i-2004 8.5.2.
+       * Let decryption engine try to decrypt this and if successful it's
+       * stored in EAPOL_KEY proto data.
        */
+      if (!pinfo->fd->visited) {
+        try_decrypt_keydata(pinfo);
+      }
+
       proto_eapol_keydata_t *eapol;
       eapol = (proto_eapol_keydata_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, EAPOL_KEY);
 
@@ -25910,6 +25959,8 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
 
         if (keydes_version == KEYDES_VER_TYPE1) {
           add_new_data_source(pinfo, next_tvb, "Decrypted RC4 keydata");
+          save_proto_data(next_tvb, pinfo, 0, keydata_len, GTK_KEY);
+          save_proto_data_value(pinfo, keydata_len, GTK_LEN_KEY);
         } else {
           add_new_data_source(pinfo, next_tvb, "Decrypted AES keydata");
           int padding_len = keydata_padding_len(next_tvb);
@@ -25940,8 +25991,9 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
                                        -1, NULL);
     }
   }
-  if (!pinfo->fd->visited && !key_encrypted && msg_type != DOT11DECRYPT_HS_MSG_TYPE_INVALID) {
-    /* Key data was not encrypted so let dot11decrypt engine extract the keys now that
+  if (!pinfo->fd->visited && msg_type != DOT11DECRYPT_HS_MSG_TYPE_INVALID) {
+    /* Key data at this pointer was either not encrypted or dot11decrypt
+     * engine has tried to decrypt keydata. Try to extract the keys now that
      * all fields from the EAPOL frame have been parsed.
      */
     try_scan_eapol_keys(pinfo, msg_type);
