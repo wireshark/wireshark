@@ -2,7 +2,7 @@
   stage: build
   after_script:
     - for builddir in build/packaging/rpm/BUILD/wireshark-*/build build/packaging/rpm/BUILD/wireshark-* build; do [ ! -d "$builddir" ] || break; done
-    - if [ "$CI_JOB_NAME" = "rpm-opensuse-42.3" ]; then export LD_LIBRARY_PATH=$builddir/run; fi
+    - if [ "$CI_JOB_NAME" = "build:rpm-opensuse-42.3" ]; then export LD_LIBRARY_PATH=$builddir/run; fi
     - if [ -f $builddir/run/tshark ]; then $builddir/run/tshark --version; fi
 
 # The custom Ubuntu image pre-installs dependencies and compilers to speed up the build:
