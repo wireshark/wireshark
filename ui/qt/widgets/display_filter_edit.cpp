@@ -131,14 +131,14 @@ void DisplayFilterEdit::contextMenuEvent(QContextMenuEvent *event){
 
     QAction * first = menu->actions().at(0);
 
-    QAction * na = new QAction(tr("Left align buttons"));
+    QAction * na = new QAction(tr("Left align buttons"), this);
     na->setCheckable(true);
     na->setChecked(leftAlignActions_);
     connect(na, &QAction::triggered, this, &DisplayFilterEdit::triggerAlignementAction);
 
     menu->insertAction(first, na);
 
-    na = new QAction(tr("Display Filter Expression" UTF8_HORIZONTAL_ELLIPSIS));
+    na = new QAction(tr("Display Filter Expression" UTF8_HORIZONTAL_ELLIPSIS), this);
     connect(na, &QAction::triggered, this, &DisplayFilterEdit::displayFilterExpression);
     menu->insertAction(first, na);
 
