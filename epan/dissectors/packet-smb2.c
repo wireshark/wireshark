@@ -940,6 +940,25 @@ static const val64_string nfs_type_vals[] = {
 #define SMB2_NUM_PROCEDURES     256
 #define MAX_UNCOMPRESSED_SIZE (1<<24) /* 16MB */
 
+#define SMB2_DIALECT_202  0x0202
+#define SMB2_DIALECT_210  0x0210
+#define SMB2_DIALECT_2FF  0x02FF
+#define SMB2_DIALECT_300  0x0300
+#define SMB2_DIALECT_302  0x0302
+#define SMB2_DIALECT_310  0x0310
+#define SMB2_DIALECT_311  0x0311
+
+static const value_string smb2_dialect_vals[] = {
+	{ SMB2_DIALECT_202, "SMB 2.0.2" },
+	{ SMB2_DIALECT_210, "SMB 2.1" },
+	{ SMB2_DIALECT_2FF, "SMB2 wildcard" },
+	{ SMB2_DIALECT_300, "SMB 3.0" },
+	{ SMB2_DIALECT_302, "SMB 3.0.2" },
+	{ SMB2_DIALECT_310, "SMB 3.1.0 (deprecated; should be 3.1.1)" },
+	{ SMB2_DIALECT_311, "SMB 3.1.1" },
+	{ 0, NULL }
+};
+
 static int dissect_windows_sockaddr_storage(tvbuff_t *, packet_info *, proto_tree *, int, int);
 static void dissect_smb2_error_data(tvbuff_t *, packet_info *, proto_tree *, int, int, smb2_info_t *);
 
@@ -3205,7 +3224,7 @@ static void smb2_generate_decryption_keys(smb2_conv_info_t *conv, smb2_sesid_inf
 	if (memcmp(ses->session_key, zeros, NTLMSSP_KEY_LEN) == 0)
 		return;
 
-	if (conv->dialect == 0x300) {
+	if (conv->dialect == SMB2_DIALECT_300) {
 		smb2_key_derivation(ses->session_key,
 				    NTLMSSP_KEY_LEN,
 				    "SMB2AESCCM", 11,
@@ -3216,7 +3235,7 @@ static void smb2_generate_decryption_keys(smb2_conv_info_t *conv, smb2_sesid_inf
 				    "SMB2AESCCM", 11,
 				    "ServerOut", 10,
 				    ses->client_decryption_key);
-	} else if (conv->dialect >= 0x311) {
+	} else if (conv->dialect >= SMB2_DIALECT_311) {
 		smb2_key_derivation(ses->session_key,
 				    NTLMSSP_KEY_LEN,
 				    "SMBC2SCipherKey", 16,
@@ -4765,7 +4784,7 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo, proto
 		proto_tree_add_item(tree, hf_smb2_dialect, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		if (d >= 0x310) {
+		if (d >= SMB2_DIALECT_310) {
 			supports_smb_3_10 = TRUE;
 		}
 	}
@@ -4887,7 +4906,7 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &s_olb);
 
-	if (si->conv->dialect < 0x310) {
+	if (si->conv->dialect < SMB2_DIALECT_310) {
 		ncc = 0;
 	}
 
@@ -5905,17 +5924,6 @@ static const value_string smb2_channel_vals[] = {
 	{ SMB2_CHANNEL_RDMA_V1_INVALIDATE,	"RDMA V1_INVALIDATE" },
 	{ 0, NULL }
 };
-
-static const value_string smb2_dialect_vals[] = {
-	{ 0x0202,	"SMB 2.0.2" },
-	{ 0x0210,	"SMB 2.1" },
-	{ 0x0300,	"SMB 3.0" },
-	{ 0x0302,	"SMB 3.0.2" },
-	{ 0x0311,	"SMB 3.1.1" },
-	{ 0x02FF,	"SMB2 wildcard" },
-	{ 0, NULL }
-};
-
 
 static void
 dissect_smb2_rdma_v1_blob(tvbuff_t *tvb, packet_info *pinfo _U_,
@@ -9474,7 +9482,7 @@ decrypt_smb_payload(packet_info *pinfo,
 
 	/* g_warning("dialect 0x%x alg 0x%x conv alg 0x%x", sti->conv->dialect, sti->alg, sti->conv->enc_alg); */
 
-	if (sti->conv->dialect == 0x300) {
+	if (sti->conv->dialect == SMB2_DIALECT_300) {
 		/* If we are decrypting in SMB3.0, it must be CCM */
 		sti->conv->enc_alg = SMB2_CIPHER_AES_128_CCM;
 	}
