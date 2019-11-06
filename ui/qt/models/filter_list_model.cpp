@@ -150,6 +150,9 @@ bool FilterListModel::setData(const QModelIndex &index, const QVariant &value, i
     if ( row.count() <= index.column() )
         return false;
 
+    if ( index.column() == FilterListModel::ColumnName && value.toString().contains("\"") )
+        return false;
+
     row[index.column()] = value.toString();
     storage[index.row()] = row.join("\n");
 
@@ -231,7 +234,7 @@ void FilterListModel::saveList()
     QTextStream out(&file);
     for ( int row = 0; row < rowCount(); row++ )
     {
-        QString line = QString("\"%1\"").arg(index(row, ColumnName).data().toString().replace("\\", "\\\\").replace("\"", "\\\""));
+        QString line = QString("\"%1\"").arg(index(row, ColumnName).data().toString());
         line.append(QString(" %1").arg(index(row, ColumnExpression).data().toString()));
 
 #ifdef _WIN32

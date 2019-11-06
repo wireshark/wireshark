@@ -30,17 +30,6 @@
 #include <ui/qt/widgets/display_filter_edit.h>
 #include "wireshark_application.h"
 
-// To do:
-// - Add filter expression button. The right thing to do might be to add an
-//   action inside DisplayFilterEdit.
-// - Show syntax state of each filter? A partial implementation is in place
-//   for capture filters.
-
-enum {
-    name_col_,
-    filter_col_
-};
-
 FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_filter_) :
     GeometryStateDialog(parent),
     ui(new Ui::FilterDialog),
@@ -212,11 +201,10 @@ FilterTreeDelegate::FilterTreeDelegate(QObject *parent, FilterDialog::FilterType
     filter_type_(filter_type)
 {}
 
-
 QWidget *FilterTreeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QWidget * w = Q_NULLPTR;
-    if (index.column() != filter_col_) {
+    if ( index.column() != FilterListModel::ColumnExpression ) {
         w = QStyledItemDelegate::createEditor(parent, option, index);
     }
     else
@@ -227,6 +215,9 @@ QWidget *FilterTreeDelegate::createEditor(QWidget *parent, const QStyleOptionVie
             w = new DisplayFilterEdit(parent, DisplayFilterToEnter);
         }
     }
+
+    if ( qobject_cast<QLineEdit *>(w) && index.column() == FilterListModel::ColumnName )
+        qobject_cast<QLineEdit *>(w)->setValidator(new FilterValidator());
 
     return w;
 }
@@ -240,6 +231,21 @@ void FilterTreeDelegate::setEditorData(QWidget *editor, const QModelIndex &index
 
     if ( qobject_cast<QLineEdit *>(editor) )
         qobject_cast<QLineEdit *>(editor)->setText(index.data().toString());
+}
+
+QValidator::State FilterValidator::validate(QString & input, int & /*pos*/) const
+{
+    /* Making this a list to be able to easily add additional values in the future */
+    QStringList invalidKeys = QStringList() << "\"";
+
+    if ( input.length() <= 0 )
+        return QValidator::Intermediate;
+
+    foreach ( QString key, invalidKeys )
+        if ( input.indexOf(key) >= 0 )
+            return QValidator::Invalid;
+
+    return QValidator::Acceptable;
 }
 
 /*

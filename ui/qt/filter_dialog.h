@@ -14,6 +14,9 @@
 
 #include <ui/qt/models/filter_list_model.h>
 
+#include <QStyledItemDelegate>
+#include <QValidator>
+
 class QItemSelection;
 class FilterTreeDelegate;
 
@@ -58,8 +61,6 @@ private slots:
 // Delegate for editing capture and display filters.
 //
 
-#include <QStyledItemDelegate>
-
 class FilterTreeDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
@@ -72,6 +73,12 @@ public:
 
 private:
     FilterDialog::FilterType filter_type_;
+};
+
+class FilterValidator : public QValidator
+{
+public:
+    virtual QValidator::State validate(QString & input, int & pos) const override;
 };
 
 #endif // FILTER_DIALOG_H
