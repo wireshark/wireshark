@@ -501,7 +501,8 @@ void MainWindow::captureCapturePrepared(capture_session *session) {
 
     /* Disable menu items that make no sense if you're currently running
        a capture. */
-    setForCaptureInProgress(true, session->capture_opts->ifaces);
+    bool handle_toolbars = (session->session_will_restart ? false : true);
+    setForCaptureInProgress(true, handle_toolbars, session->capture_opts->ifaces);
 //    set_capture_if_dialog_for_capture_in_progress(TRUE);
 
 //    /* Don't set up main window for a capture file. */
@@ -515,12 +516,13 @@ void MainWindow::captureCaptureUpdateStarted(capture_session *session) {
        switching to the next multiple file. */
     setTitlebarForCaptureInProgress();
 
-    setForCaptureInProgress(true, session->capture_opts->ifaces);
+    bool handle_toolbars = (session->session_will_restart ? false : true);
+    setForCaptureInProgress(true, handle_toolbars, session->capture_opts->ifaces);
 
     setForCapturedPackets(true);
 }
 
-void MainWindow::captureCaptureUpdateFinished(capture_session *) {
+void MainWindow::captureCaptureUpdateFinished(capture_session *session) {
 
     /* The capture isn't stopping any more - it's stopped. */
     capture_stopping_ = false;
@@ -530,7 +532,8 @@ void MainWindow::captureCaptureUpdateFinished(capture_session *) {
 
     /* Enable menu items that make sense if you're not currently running
      a capture. */
-    setForCaptureInProgress(false);
+    bool handle_toolbars = (session->session_will_restart ? false : true);
+    setForCaptureInProgress(false, handle_toolbars);
     setMenusForCaptureFile();
 
     setWindowIcon(wsApp->normalIcon());
