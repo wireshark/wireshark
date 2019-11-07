@@ -37,7 +37,7 @@
 /*	Decryption algorithms fields size definition (bytes)		*/
 #define	DOT11DECRYPT_WPA_NONCE_LEN		         32
 #define	DOT11DECRYPT_WPA_PTK_LEN			 64	/* TKIP uses 48 bytes, CCMP uses 64 bytes	*/
-#define	DOT11DECRYPT_WPA_MICKEY_LEN		         16
+#define	DOT11DECRYPT_WPA_MICKEY_MAX_LEN			 24
 
 #define	DOT11DECRYPT_WEP_128_KEY_LEN	         16	/* 128 bits	*/
 

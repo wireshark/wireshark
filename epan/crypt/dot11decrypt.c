@@ -178,6 +178,7 @@ static INT Dot11DecryptValidateKey(
     ;
 
 static INT Dot11DecryptRsnaMicCheck(
+    PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
     UCHAR *eapol,
     USHORT eapol_len,
     UCHAR KCK[DOT11DECRYPT_WPA_KCK_LEN],
@@ -1432,7 +1433,8 @@ Dot11DecryptRsna4WHandshake(
                                       cipher);
                 DEBUG_DUMP("TK",  DOT11DECRYPT_GET_TK(sa->wpa.ptk), 16);
 
-                ret_value=Dot11DecryptRsnaMicCheck(eapol,           /*      eapol frame (header also) */
+                ret_value=Dot11DecryptRsnaMicCheck(eapol_parsed,
+                                                   eapol,           /*      eapol frame (header also) */
                                                    tot_len,         /*      eapol frame length        */
                                                    sa->wpa.ptk,     /*      Key Confirmation Key      */
                                                    key_version,     /*  EAPOL-Key description version */
@@ -1565,22 +1567,26 @@ Dot11DecryptGetIntegrityAlgoFromAkm(int akm, int *algo, gboolean *hmac)
 
 static INT
 Dot11DecryptRsnaMicCheck(
+    PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
     UCHAR *eapol,
     USHORT eapol_len,
     UCHAR KCK[DOT11DECRYPT_WPA_KCK_LEN],
     USHORT key_ver,
     int akm)
 {
-    UCHAR mic[DOT11DECRYPT_WPA_MICKEY_LEN];
+    guint8 *mic = eapol_parsed->mic;
+    guint16 mic_len = eapol_parsed->mic_len;
     UCHAR c_mic[32] = { 0 };  /* MIC 16 byte, though HMAC-SHA256 algo need 32 bytes buffer */
     int algo = -1;
     gboolean hmac = TRUE;
 
-    /* copy the MIC from the EAPOL packet */
-    memcpy(mic, eapol+DOT11DECRYPT_WPA_MICKEY_OFFSET+4, DOT11DECRYPT_WPA_MICKEY_LEN);
+    if (!mic || mic_len > DOT11DECRYPT_WPA_MICKEY_MAX_LEN) {
+        DEBUG_PRINT_LINE("Not a valid mic", DEBUG_LEVEL_3);
+        return DOT11DECRYPT_RET_UNSUCCESS;
+    }
 
     /* set to 0 the MIC in the EAPOL packet (to calculate the MIC) */
-    memset(eapol+DOT11DECRYPT_WPA_MICKEY_OFFSET+4, 0, DOT11DECRYPT_WPA_MICKEY_LEN);
+    memset(eapol + DOT11DECRYPT_WPA_MICKEY_OFFSET + 4, 0, mic_len);
 
     if (key_ver==DOT11DECRYPT_WPA_KEY_VER_NOT_CCMP) {
         /* use HMAC-MD5 for the EAPOL-Key MIC */
@@ -1612,9 +1618,9 @@ Dot11DecryptRsnaMicCheck(
     }
 
     /* compare calculated MIC with the Key MIC and return result (0 means success) */
-    DEBUG_DUMP("mic",  mic, DOT11DECRYPT_WPA_MICKEY_LEN);
-    DEBUG_DUMP("c_mic", c_mic, DOT11DECRYPT_WPA_MICKEY_LEN);
-    return memcmp(mic, c_mic, DOT11DECRYPT_WPA_MICKEY_LEN);
+    DEBUG_DUMP("mic",  mic, mic_len);
+    DEBUG_DUMP("c_mic", c_mic, mic_len);
+    return memcmp(mic, c_mic, mic_len);
 }
 
 static INT
