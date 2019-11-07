@@ -47,7 +47,11 @@ BulkPDU/request-id bulkPDU_request-id
 
 #.END
 
-#.FN_BODY RequestID VAL_PTR = &RequestID
+#.FN_BODY PDU/request-id VAL_PTR = &RequestID
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY Integer32 VAL_PTR = &RequestID
 
 %(DEFAULT_BODY)s
 
