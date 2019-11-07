@@ -60,6 +60,7 @@
 
 #include "packet-rtcp.h"
 #include "packet-rtp.h"
+#include "packet-e212.h"
 #include <epan/conversation.h>
 
 #include <epan/prefs.h>
@@ -751,6 +752,17 @@ static int hf_rtcp_mcptt_num_ssrc = -1;
 static int hf_rtcp_mcptt_func_alias = -1;
 static int hf_rtcp_mcptt_num_fas = -1;
 static int hf_rtcp_mcptt_fa_len = -1;
+static int hf_rtcp_mcptt_loc_type = -1;
+static int hf_rtcp_mcptt_cellid = -1;
+static int hf_rtcp_mcptt_enodebid = -1;
+static int hf_rtcp_mcptt_ecgi_eci = -1;
+static int hf_rtcp_mcptt_tac = -1;
+static int hf_rtcp_mcptt_mbms_serv_area = -1;
+static int hf_rtcp_mcptt_mbsfn_area_id = -1;
+static int hf_rtcp_mcptt_lat = -1;
+static int hf_rtcp_mcptt_long = -1;
+static int hf_rtcp_mcptt_msg_type = -1;
+static int hf_rtcp_mcptt_num_loc = -1;
 
 /* RTCP fields defining a sub tree */
 static gint ett_rtcp                    = -1;
@@ -785,6 +797,7 @@ static gint ett_ms_vsr_entry            = -1;
 static gint ett_ms_ds                   = -1;
 static gint ett_rtcp_mcpt = -1;
 static gint ett_rtcp_mcptt_participant_ref = -1;
+static gint ett_rtcp_mcptt_eci = -1;
 
 static expert_field ei_rtcp_bye_reason_not_padded = EI_INIT;
 static expert_field ei_rtcp_xr_block_length_bad = EI_INIT;
@@ -797,6 +810,7 @@ static expert_field ei_rtcp_missing_block_header = EI_INIT;
 static expert_field ei_rtcp_block_length = EI_INIT;
 static expert_field ei_srtcp_encrypted_payload = EI_INIT;
 static expert_field ei_rtcp_rtpfb_transportcc_bad = EI_INIT;
+static expert_field ei_rtcp_mcptt_location_type = EI_INIT;
 
 /* Main dissection function */
 static int dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
@@ -2283,6 +2297,83 @@ static const value_string rtcp_mcptt_source_vals[] = {
     { 0, NULL },
 };
 
+static const value_string rtcp_mcptt_loc_type_vals[] = {
+    { 0x0, "Not provided" },
+    { 0x1, "ECGI" },
+    { 0x2, "Tracking Area" },
+    { 0x3, "PLMN ID" },
+    { 0x4, "MBMS Service Area" },
+    { 0x5, "MBSFN Area ID" },
+    { 0x6, "Geographic coordinates" },
+    { 0, NULL },
+};
+
+static int
+dissect_rtcp_mcptt_location_ie(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree* tree)
+{
+    guint32 loc_type;
+    const int* ECGI_flags[] = {
+        &hf_rtcp_mcptt_enodebid,
+        &hf_rtcp_mcptt_cellid,
+        NULL
+    };
+
+    /* Location  Type */
+    proto_tree_add_item_ret_uint(tree, hf_rtcp_mcptt_loc_type, tvb, offset, 1, ENC_BIG_ENDIAN, &loc_type);
+    offset += 1;
+
+    switch (loc_type) {
+    case 0:
+        /* Not provided */
+        break;
+    case 1:
+        /* ECGI - 56 bits = MCC + MNC + ECI*/
+        dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_ECGI, TRUE);
+        offset += 3;
+        proto_tree_add_bitmask(tree, tvb, offset, hf_rtcp_mcptt_ecgi_eci, ett_rtcp_mcptt_eci, ECGI_flags, ENC_BIG_ENDIAN);
+        offset += 4;
+        break;
+    case 2:
+        /* Tracking Area - 40 bits = MCC + MNC + 16 bits */
+        /* ECGI - 56 bits = MCC + MNC + ECI*/
+        dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_ECGI, TRUE);
+        offset += 3;
+        proto_tree_add_item(tree, hf_rtcp_mcptt_tac, tvb, offset, 2, ENC_NA);
+        offset += 2;
+        break;
+    case 3:
+        /* PLMN ID - 24 bits = MCC+MNC */
+        dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_ECGI, TRUE);
+        offset += 3;
+        break;
+    case 4:
+        /* MBMS Service Area - 16 bits = [0-65535] */
+        proto_tree_add_item(tree, hf_rtcp_mcptt_mbms_serv_area, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        break;
+    case 5:
+        /* MBSFN Area ID - 8 bits = [0-255] */
+        proto_tree_add_item(tree, hf_rtcp_mcptt_mbsfn_area_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        break;
+    case 6:
+        /* Geographic coordinates - 48 bits = latitude in first 24 bits + longitude in last 24 bits coded as
+         * in subclause 6.1 in 3GPP TS 23.032
+         * XXX Make use of dissect_geographical_description() ?
+         */
+        proto_tree_add_item(tree, hf_rtcp_mcptt_lat, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
+        proto_tree_add_item(tree, hf_rtcp_mcptt_long, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
+        break;
+    default:
+        proto_tree_add_expert(tree, pinfo, &ei_rtcp_mcptt_location_type, tvb, offset-1, 1);
+        break;
+    }
+
+    return offset;
+}
+
 /* TS 24.380 */
 static int
 dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree* tree,
@@ -2447,8 +2538,10 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         }
         case 12:
             /* Message Type */
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_fld_val, tvb, offset, mcptt_fld_len, ENC_NA);
-            offset += mcptt_fld_len;
+            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_msg_type, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(sub_tree, hf_rtcp_spare16, tvb, offset, 1, ENC_NA);
+            offset += 1;
             break;
         case 13:
         {
@@ -2524,8 +2617,23 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
 
         case 19:
             /* Location */
+            offset = dissect_rtcp_mcptt_location_ie(tvb, pinfo, offset, sub_tree);
+            break;
         case 20:
             /* List of Locations */
+        {
+            guint32 num_loc;
+            /* Number of SSRCs*/
+            proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_loc, tvb, offset, 1, ENC_BIG_ENDIAN, &num_loc);
+            offset += 1;
+
+            while (num_loc > 0) {
+                offset = dissect_rtcp_mcptt_location_ie(tvb, pinfo, offset, sub_tree);
+                num_loc--;
+            }
+            break;
+        }
+
         default:
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_fld_val, tvb, offset, mcptt_fld_len, ENC_NA);
             offset += mcptt_fld_len;
@@ -7343,6 +7451,61 @@ proto_register_rtcp(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_rtcp_mcptt_loc_type,
+            { "Location Type", "rtcp.app_data.mcptt.loc_type",
+            FT_UINT8, BASE_DEC, VALS(rtcp_mcptt_loc_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_cellid,
+         {"CellId", "rtcp.app_data.mcptt.cellid",
+          FT_UINT32, BASE_DEC, NULL, 0xFF,
+          NULL, HFILL}
+        },
+        { &hf_rtcp_mcptt_enodebid,
+         { "eNodeB Id", "rtcp.app_data.mcptt.enodebid",
+          FT_UINT32, BASE_DEC, NULL, 0x0FFFFF00,
+          NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_ecgi_eci,
+         {"ECI (E-UTRAN Cell Identifier)", "rtcp.app_data.mcptt.ecgi_eci",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        { &hf_rtcp_mcptt_tac,
+            { "Tracking Area Code", "rtcp.app_data.mcptt.tac",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_mbms_serv_area,
+            { "MBMS Service Area", "rtcp.app_data.mcptt.mbms_serv_area",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_mbsfn_area_id,
+            { "MBSFN Area ID", "rtcp.app_data.mcptt.mbsfn_area_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_lat,
+            { "Latitude value", "rtcp.app_data.mcptt.lat",
+            FT_INT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_long,
+            { "Longitude value", "rtcp.app_data.mcptt.long",
+            FT_INT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_msg_type,
+            { "Message Type", "rtcp.app_data.mcptt.msg_type",
+            FT_UINT8, BASE_DEC, VALS(rtcp_mcpt_subtype_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_num_loc,
+            { "Number of Locations", "rtcp.app_data.mcptt.num_loc",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     static gint *ett[] =
@@ -7378,7 +7541,8 @@ proto_register_rtcp(void)
         &ett_ms_vsr_entry,
         &ett_ms_ds,
         &ett_rtcp_mcpt,
-        &ett_rtcp_mcptt_participant_ref
+        &ett_rtcp_mcptt_participant_ref,
+        &ett_rtcp_mcptt_eci
     };
 
     static ei_register_info ei[] = {
@@ -7393,6 +7557,7 @@ proto_register_rtcp(void)
         { &ei_rtcp_block_length, { "rtcp.block_length.invalid", PI_PROTOCOL, PI_WARN, "Block length is greater than packet length", EXPFILL }},
         { &ei_srtcp_encrypted_payload, { "srtcp.encrypted_payload", PI_UNDECODED, PI_WARN, "Encrypted RTCP Payload - not dissected", EXPFILL }},
         { &ei_rtcp_rtpfb_transportcc_bad, { "rtcp.rtpfb.transportcc_bad", PI_MALFORMED, PI_WARN, "Too many packet chunks (more than packet status count)", EXPFILL }},
+        { &ei_rtcp_mcptt_location_type, { "rtcp.mcpttb.location_type_uk", PI_PROTOCOL, PI_WARN, "Unknown location type", EXPFILL }},
     };
 
     module_t *rtcp_module;
