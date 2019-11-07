@@ -52,7 +52,7 @@ void proto_reg_handoff_bmp(void);
 /* BMP Per Peer Header Flags */
 #define BMP_PEER_FLAG_IPV6              0x80    /* V Flag: IPv6 */
 #define BMP_PEER_FLAG_POST_POLICY       0x40    /* L Flag: Post-policy */
-#define BMP_PEER_FLAG_AS_PATH           0x40    /* A Flag: AS_PATH */
+#define BMP_PEER_FLAG_AS_PATH           0x20    /* A Flag: AS_PATH */
 #define BMP_PEER_FLAG_ADJ_RIB_OUT       0x10
 #define BMP_PEER_FLAG_RES               0x0F    /* Reserved */
 #define BMP_PEER_FLAG_MASK              0xFF
@@ -157,9 +157,9 @@ static const value_string stat_typevals[] = {
     { BMP_STAT_ROUTES_LOC_RIB,          "Routes in Loc-RIB" },
     { BMP_STAT_ROUTES_PER_ADJ_RIB_IN,   "Routes in per-AFI/SAF Adj-RIB-In" },
     { BMP_STAT_ROUTES_PER_LOC_RIB,      "Routes in per-AFI/SAFLoc-RIB" },
-    { BMP_STAT_UPDATE_TREAT,            "Number of updates subjected to treat-as-withdraw treatment" },
-    { BMP_STAT_PREFIXES_TREAT,          "Number of prefixes subjected to treat-as-withdraw treatment" },
-    { BMP_STAT_DUPLICATE_UPDATE,        "Number of duplicate update messages received" },
+    { BMP_STAT_UPDATE_TREAT,            "Updates subjected to treat-as-withdraw treatment" },
+    { BMP_STAT_PREFIXES_TREAT,          "Prefixes subjected to treat-as-withdraw treatment" },
+    { BMP_STAT_DUPLICATE_UPDATE,        "Duplicate update messages received" },
     { BMP_STAT_ROUTES_PRE_ADJ_RIB_OUT,      "Routes in pre-policy Adj-RIB-Out" },
     { BMP_STAT_ROUTES_POST_ADJ_RIB_OUT,     "Routes in post-policy Adj-RIB-Out" },
     { BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_OUT,  "Routes in per-AFI/SAFI pre-policy Adj-RIB-Out" },
