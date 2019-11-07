@@ -1219,33 +1219,33 @@ ek_write_name(proto_node *pnode, gchar* suffix, write_json_data* pdata)
 static void
 ek_write_hex(field_info *fi, write_json_data *pdata)
 {
-    if (fi->hfinfo->bitmask!=0) {
+    if (fi->hfinfo->bitmask != 0) {
         switch (fi->value.ftype->ftype) {
             case FT_INT8:
             case FT_INT16:
             case FT_INT24:
             case FT_INT32:
-                json_dumper_value_anyf(pdata->dumper, "%X", (guint) fvalue_get_sinteger(&fi->value));
+                json_dumper_value_anyf(pdata->dumper, "\"%X\"", (guint) fvalue_get_sinteger(&fi->value));
                 break;
             case FT_CHAR:
             case FT_UINT8:
             case FT_UINT16:
             case FT_UINT24:
             case FT_UINT32:
-                json_dumper_value_anyf(pdata->dumper, "%X", fvalue_get_uinteger(&fi->value));
+                json_dumper_value_anyf(pdata->dumper, "\"%X\"", fvalue_get_uinteger(&fi->value));
                 break;
             case FT_INT40:
             case FT_INT48:
             case FT_INT56:
             case FT_INT64:
-                json_dumper_value_anyf(pdata->dumper, "%" G_GINT64_MODIFIER "X", fvalue_get_sinteger64(&fi->value));
+                json_dumper_value_anyf(pdata->dumper, "\"%" G_GINT64_MODIFIER "X\"", fvalue_get_sinteger64(&fi->value));
                 break;
             case FT_UINT40:
             case FT_UINT48:
             case FT_UINT56:
             case FT_UINT64:
             case FT_BOOLEAN:
-                json_dumper_value_anyf(pdata->dumper, "%" G_GINT64_MODIFIER "X", fvalue_get_uinteger64(&fi->value));
+                json_dumper_value_anyf(pdata->dumper, "\"%" G_GINT64_MODIFIER "X\"", fvalue_get_uinteger64(&fi->value));
                 break;
             default:
                 g_assert_not_reached();
