@@ -373,15 +373,11 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
     df_combo_box_ = new DisplayFilterCombo(this);
-    const DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
 
     funnel_statistics_ = new FunnelStatistics(this, capture_file_);
-    connect(df_edit, SIGNAL(textChanged(QString)), funnel_statistics_, SLOT(displayFilterTextChanged(QString)));
-    connect(funnel_statistics_, SIGNAL(setDisplayFilter(QString)), df_edit, SLOT(setText(QString)));
-    connect(funnel_statistics_, SIGNAL(applyDisplayFilter()), df_combo_box_, SLOT(applyDisplayFilter()));
+    connect(funnel_statistics_, &FunnelStatistics::setDisplayFilter, this, &MainWindow::setDisplayFilter);
     connect(funnel_statistics_, SIGNAL(openCaptureFile(QString, QString)),
             this, SLOT(openCaptureFile(QString, QString)));
-    connect(this, SIGNAL(displayFilterSuccess(bool)), df_edit, SLOT(displayFilterSuccess(bool)));
 
     file_set_dialog_ = new FileSetDialog(this);
     connect(file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString)),
