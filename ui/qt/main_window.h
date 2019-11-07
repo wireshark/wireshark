@@ -261,7 +261,7 @@ private:
 
     void externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint depth);
 
-    void setForCaptureInProgress(bool capture_in_progress = false, GArray *ifaces = NULL);
+    void setForCaptureInProgress(bool capture_in_progress = false, bool handle_toolbars = false, GArray *ifaces = NULL);
     QMenu* findOrAddMenu(QMenu *parent_menu, QString& menu_text);
 
     void captureFileReadStarted(const QString &action);

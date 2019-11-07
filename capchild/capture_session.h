@@ -48,7 +48,7 @@ typedef struct _capture_session {
     uid_t     owner;                      /**< owner of the cfile */
     gid_t     group;                      /**< group of the cfile */
 #endif
-    gboolean  session_started;
+    gboolean  session_will_restart;       /**< Set when session will restart */
     guint32   count;                      /**< Total number of frames captured */
     capture_options *capture_opts;        /**< options for this capture */
     capture_file *cf;                     /**< handle to cfile */

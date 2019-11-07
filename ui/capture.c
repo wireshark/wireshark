@@ -410,6 +410,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
         /* (we can only have an open capture file in real_time_mode!) */
         if( ((capture_file *) cap_session->cf)->state != FILE_CLOSED) {
             if(capture_opts->real_time_mode) {
+                cap_session->session_will_restart = TRUE;
                 capture_callback_invoke(capture_cb_capture_update_finished, cap_session);
                 cf_finish_tail((capture_file *)cap_session->cf, &err);
                 cf_close((capture_file *)cap_session->cf);
@@ -651,6 +652,7 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
             /* Tell the GUI we are not doing a capture any more.
                Must be done after the cf_finish_tail(), so file lengths are
                correctly displayed */
+            cap_session->session_will_restart = FALSE;
             capture_callback_invoke(capture_cb_capture_update_finished, cap_session);
 
             /* Finish the capture. */

@@ -2505,7 +2505,7 @@ void MainWindow::changeEvent(QEvent* event)
 }
 
 /* Update main window items based on whether there's a capture in progress. */
-void MainWindow::setForCaptureInProgress(bool capture_in_progress, GArray *ifaces)
+void MainWindow::setForCaptureInProgress(bool capture_in_progress, bool handle_toolbars, GArray *ifaces)
 {
     setMenusForCaptureInProgress(capture_in_progress);
 
@@ -2520,12 +2520,14 @@ void MainWindow::setForCaptureInProgress(bool capture_in_progress, GArray *iface
 //    set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
 #endif
 
-    QList<InterfaceToolbar *> toolbars = findChildren<InterfaceToolbar *>();
-    foreach (InterfaceToolbar *toolbar, toolbars) {
-        if (capture_in_progress) {
-            toolbar->startCapture(ifaces);
-        } else {
-            toolbar->stopCapture();
+    if (handle_toolbars) {
+        QList<InterfaceToolbar *> toolbars = findChildren<InterfaceToolbar *>();
+        foreach (InterfaceToolbar *toolbar, toolbars) {
+            if (capture_in_progress) {
+                toolbar->startCapture(ifaces);
+            } else {
+                toolbar->stopCapture();
+            }
         }
     }
 }
