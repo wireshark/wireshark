@@ -11,6 +11,7 @@
 /*
  * Supports:
  * RFC7854 BGP Monitoring Protocol
+ * RFC8671 Support for Adj-RIB-Out in the BGP Monitoring Protocol (BMP)
  *
  */
 
@@ -41,6 +42,7 @@ void proto_reg_handoff_bmp(void);
 #define BMP_INIT_INFO_STRING            0x00    /* String */
 #define BMP_INIT_SYSTEM_DESCRIPTION     0x01    /* sysDescr */
 #define BMP_INIT_SYSTEM_NAME            0x02    /* sysName  */
+#define BMP_INIT_ADMIN_LABEL            0x04    /* Admin Label */
 
 /* BMP Per Peer Types */
 #define BMP_PEER_GLOBAL_INSTANCE        0x00    /* Global Instance Peer */
@@ -51,7 +53,8 @@ void proto_reg_handoff_bmp(void);
 #define BMP_PEER_FLAG_IPV6              0x80    /* V Flag: IPv6 */
 #define BMP_PEER_FLAG_POST_POLICY       0x40    /* L Flag: Post-policy */
 #define BMP_PEER_FLAG_AS_PATH           0x40    /* A Flag: AS_PATH */
-#define BMP_PEER_FLAG_RES               0x1F    /* Reserved */
+#define BMP_PEER_FLAG_ADJ_RIB_OUT       0x10
+#define BMP_PEER_FLAG_RES               0x0F    /* Reserved */
 #define BMP_PEER_FLAG_MASK              0xFF
 
 /* BMP Stat Types */
@@ -69,6 +72,10 @@ void proto_reg_handoff_bmp(void);
 #define BMP_STAT_UPDATE_TREAT           0x0B    /* Number of updates subjected to treat-as-withdraw treatment */
 #define BMP_STAT_PREFIXES_TREAT         0x0C    /* Number of prefixes subjected to treat-as-withdraw treatment */
 #define BMP_STAT_DUPLICATE_UPDATE       0x0D    /* Number of duplicate update messages received */
+#define BMP_STAT_ROUTES_PRE_ADJ_RIB_OUT         0x0E    /* Number of routes in pre-policy Adj-RIB-Out */
+#define BMP_STAT_ROUTES_POST_ADJ_RIB_OUT        0x0F    /* Number of routes in post-policy Adj-RIB-Out */
+#define BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_OUT     0x10    /* Number of routes in per-AFI/SAFI pre-policy Adj-RIB-Out */
+#define BMP_STAT_ROUTES_POST_PER_ADJ_RIB_OUT    0x11    /* Number of routes in per-AFI/SAFI post-policy Adj RIB-Out */
 
 /* BMP Peer Down Reason Codes */
 #define BMP_PEER_DOWN_LOCAL_NOTIFY      0x1     /* Local system closed the session with notification */
@@ -103,6 +110,7 @@ static const value_string init_typevals[] = {
     { BMP_INIT_INFO_STRING,             "String" },
     { BMP_INIT_SYSTEM_DESCRIPTION,      "sysDescr" },
     { BMP_INIT_SYSTEM_NAME,             "sysName" },
+    { BMP_INIT_ADMIN_LABEL,             "Admin Label" },
     { 0, NULL }
 };
 
@@ -152,6 +160,10 @@ static const value_string stat_typevals[] = {
     { BMP_STAT_UPDATE_TREAT,            "Number of updates subjected to treat-as-withdraw treatment" },
     { BMP_STAT_PREFIXES_TREAT,          "Number of prefixes subjected to treat-as-withdraw treatment" },
     { BMP_STAT_DUPLICATE_UPDATE,        "Number of duplicate update messages received" },
+    { BMP_STAT_ROUTES_PRE_ADJ_RIB_OUT,      "Routes in pre-policy Adj-RIB-Out" },
+    { BMP_STAT_ROUTES_POST_ADJ_RIB_OUT,     "Routes in post-policy Adj-RIB-Out" },
+    { BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_OUT,  "Routes in per-AFI/SAFI pre-policy Adj-RIB-Out" },
+    { BMP_STAT_ROUTES_POST_PER_ADJ_RIB_OUT, "Routes in per-AFI/SAFI post-policy Adj RIB-Out" },
     { 0, NULL }
 };
 
@@ -178,6 +190,7 @@ static int hf_peer_flags = -1;
 static int hf_peer_flags_ipv6 = -1;
 static int hf_peer_flags_post_policy = -1;
 static int hf_peer_flags_as_path = -1;
+static int hf_peer_flags_adj_rib_out = -1;
 static int hf_peer_flags_res = -1;
 static int hf_peer_distinguisher = -1;
 static int hf_peer_ipv4_address = -1;
@@ -220,6 +233,14 @@ static int hf_stat_data_routes_per_loc_rib = -1;
 static int hf_stat_data_update_treat = -1;
 static int hf_stat_data_prefixes_treat = -1;
 static int hf_stat_data_duplicate_update = -1;
+static int hf_stat_data_routes_pre_adj_rib_out = -1;
+static int hf_stat_data_routes_post_adj_rib_out = -1;
+static int hf_stat_data_routes_pre_per_adj_rib_out_afi = -1;
+static int hf_stat_data_routes_pre_per_adj_rib_out_safi = -1;
+static int hf_stat_data_routes_pre_per_adj_rib_out = -1;
+static int hf_stat_data_routes_post_per_adj_rib_out_afi = -1;
+static int hf_stat_data_routes_post_per_adj_rib_out_safi = -1;
+static int hf_stat_data_routes_post_per_adj_rib_out = -1;
 
 /* BMP Termination filed */
 static int hf_term_types = -1;
@@ -428,6 +449,30 @@ dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                 proto_tree_add_item(subtree, hf_stat_data_duplicate_update, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
             break;
+            case BMP_STAT_ROUTES_PRE_ADJ_RIB_OUT:
+                proto_tree_add_item(subtree, hf_stat_data_routes_pre_adj_rib_out, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
+            break;
+            case BMP_STAT_ROUTES_POST_ADJ_RIB_OUT:
+                proto_tree_add_item(subtree, hf_stat_data_routes_post_adj_rib_out, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
+            break;
+            case BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_OUT:
+                proto_tree_add_item(subtree, hf_stat_data_routes_pre_per_adj_rib_out_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_routes_pre_per_adj_rib_out_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_pre_per_adj_rib_out, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
+            break;
+            case BMP_STAT_ROUTES_POST_PER_ADJ_RIB_OUT:
+                proto_tree_add_item(subtree, hf_stat_data_routes_post_per_adj_rib_out_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_routes_post_per_adj_rib_out_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_post_per_adj_rib_out, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
+            break;
             default:
                 proto_tree_add_expert(subtree, pinfo, &ei_stat_data_unknown, tvb, 4, stat_type);
                 offset += stat_len;
@@ -515,6 +560,7 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
         &hf_peer_flags_ipv6,
         &hf_peer_flags_post_policy,
         &hf_peer_flags_as_path,
+        &hf_peer_flags_adj_rib_out,
         &hf_peer_flags_res,
         NULL
     };
@@ -789,6 +835,9 @@ proto_register_bmp(void)
         { &hf_peer_flags_as_path,
             { "AS PATH", "bmp.peer.flags.as_path", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), BMP_PEER_FLAG_AS_PATH, NULL, HFILL }},
+        { &hf_peer_flags_adj_rib_out,
+            { "Adj-RIB-Out", "bmp.peer.flags.adj_rib_out", FT_BOOLEAN, 8,
+                TFS(&tfs_set_notset), BMP_PEER_FLAG_ADJ_RIB_OUT, NULL, HFILL }},
         { &hf_peer_flags_res,
             { "Reserved", "bmp.peer.flags.reserved", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), BMP_PEER_FLAG_RES, NULL, HFILL }},
@@ -900,6 +949,30 @@ proto_register_bmp(void)
                 NULL, 0x0, NULL, HFILL }},
         { &hf_stat_data_duplicate_update,
             { "Number of duplicate update messages received", "bmp.stats.data.duplicate_update", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_pre_adj_rib_out,
+            { "Number of routes in pre-policy Adj-RIBs-Out", "bmp.stats.data.routes_pre_adj_rib_out", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_post_adj_rib_out,
+            { "Number of routes in post-policy Adj-RIBs-Out", "bmp.stats.data.routes_pre_adj_rib_out", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_pre_per_adj_rib_out_afi,
+            { "AFI", "bmp.stats.data.routes_pre_per_adj_rib_out.afi", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_pre_per_adj_rib_out_safi,
+            { "SAFI", "bmp.stats.data.routes_pre_per_adj_rib_out.safi", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_pre_per_adj_rib_out,
+            { "Number of routes in per-AFI/SAFI pre-policy Adj-RIB-Out", "bmp.stats.data.routes_pre_per_adj_rib_out", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_post_per_adj_rib_out_afi,
+            { "AFI", "bmp.stats.data.routes_post_per_adj_rib_out.afi", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_post_per_adj_rib_out_safi,
+            { "SAFI", "bmp.stats.data.routes_post_per_adj_rib_out.safi", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_post_per_adj_rib_out,
+            { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-Out", "bmp.stats.data.routes_post_per_adj_rib_out", FT_UINT64, BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
         /* Termination Message */
         { &hf_term_types,
