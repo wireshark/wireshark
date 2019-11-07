@@ -1379,44 +1379,20 @@ cap_pipe_select(int pipe_fd)
 static int
 cap_open_socket(char *pipename, capture_src *pcap_src, char *errmsg, size_t errmsgl)
 {
-    char *sockname = pipename + 4;
-    struct sockaddr_in sa;
-    char buf[16];
-    char *p;
-    unsigned long port;
-    size_t len;
+    struct sockaddr_storage sa;
     int fd;
 
-    memset(&sa, 0, sizeof(sa));
-
-    p = strchr(sockname, ':');
-    if (p == NULL) {
-        len = strlen(sockname);
-        port = DEF_TCP_PORT;
-    }
-    else {
-        len = p - sockname;
-        port = strtoul(p + 1, &p, 10);
-        if (*p || port > 65535) {
-            goto fail_invalid;
-        }
+    /* Skip the initial "TCP@" in the pipename. */
+    if (ws_socket_ptoa(&sa, pipename + 4, DEF_TCP_PORT) < 0) {
+        g_snprintf(errmsg, (gulong)errmsgl,
+                "The capture session could not be initiated because"
+                "\"%s\" is not a valid socket specification", pipename);
+        pcap_src->cap_pipe_err = PIPERR;
+        return -1;
     }
 
-    if (len > 15) {
-      goto fail_invalid;
-    }
-
-    g_snprintf ( buf,(gulong)len + 1, "%s", sockname );
-    buf[len] = '\0';
-    if (!ws_inet_pton4(buf, (guint32 *)&sa.sin_addr)) {
-        goto fail_invalid;
-    }
-
-    sa.sin_family = AF_INET;
-    sa.sin_port = g_htons((u_short)port);
-
-    if (((fd = (int)socket(AF_INET, SOCK_STREAM, 0)) < 0) ||
-         (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0)) {
+    if ((fd = (int)socket(sa.ss_family, SOCK_STREAM, 0)) < 0 ||
+                connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
         g_snprintf(errmsg, (gulong)errmsgl,
             "The capture session could not be initiated due to the socket error: \n"
 #ifdef _WIN32
@@ -1433,13 +1409,6 @@ cap_open_socket(char *pipename, capture_src *pcap_src, char *errmsg, size_t errm
 
     pcap_src->from_cap_socket = TRUE;
     return fd;
-
-fail_invalid:
-    g_snprintf(errmsg, (gulong)errmsgl,
-        "The capture session could not be initiated because\n"
-        "\"%s\" is not a valid socket specification", pipename);
-    pcap_src->cap_pipe_err = PIPERR;
-    return -1;
 }
 
 /* Wrapper: distinguish between closesocket on Windows; use ws_close

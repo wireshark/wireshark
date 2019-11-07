@@ -64,6 +64,15 @@ WS_DLL_PUBLIC gchar *ws_init_sockets(void);
  */
 WS_DLL_PUBLIC void ws_cleanup_sockets(void);
 
+/*
+ * Convert the strings ipv4_address:port or [ipv6_address]:port to a
+ * sockaddr object. Ports are optional. Receives default port
+ * in host byte order.
+ */
+WS_DLL_PUBLIC int
+ws_socket_ptoa(struct sockaddr_storage *dst, const gchar *src,
+			guint16 def_port);
+
 #ifdef	__cplusplus
 }
 #endif
