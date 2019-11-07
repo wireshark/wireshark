@@ -1159,8 +1159,8 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 		code = dissect_coap_code(tvb, coap_tree, &offset, &dissect_coap_hf, &code_class);
 
-		col_add_str(pinfo->cinfo, COL_INFO,
-			    val_to_str_ext(code, &coap_vals_code_ext, "Unknown %u"));
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
+				   val_to_str_ext(code, &coap_vals_code_ext, "Unknown %u"));
 
 		/* append the header information */
 		proto_item_append_text(coap_root,
