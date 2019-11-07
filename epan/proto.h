@@ -1847,7 +1847,7 @@ proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
  @param length length of data in tvb
  @param value_ptr data to display
  @return the newly created item */
-extern proto_item *
+WS_DLL_PUBLIC proto_item *
 proto_tree_add_oid(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
     gint length, const guint8* value_ptr);
 
@@ -1863,7 +1863,7 @@ proto_tree_add_oid(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
  @param format printf like format string
  @param ... printf like parameters
  @return the newly created item */
-extern proto_item *
+WS_DLL_PUBLIC proto_item *
 proto_tree_add_oid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     gint start, gint length, const guint8* value_ptr, const char *format,
     ...) G_GNUC_PRINTF(7,8);
@@ -1879,7 +1879,7 @@ proto_tree_add_oid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @param format printf like format string
  @param ... printf like parameters
  @return the newly created item */
-extern proto_item *
+WS_DLL_PUBLIC proto_item *
 proto_tree_add_oid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
     gint length, const guint8* value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
