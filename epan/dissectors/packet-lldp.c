@@ -169,6 +169,7 @@ static int hf_ieee_802_1_proto_id = -1;
 static int hf_ieee_802_1_aggregation_status = -1;
 static int hf_ieee_802_1_aggregation_status_cap = -1;
 static int hf_ieee_802_1_aggregation_status_enabled = -1;
+static int hf_ieee_802_1_aggregation_status_porttype = -1;
 static int hf_ieee_802_1_aggregated_port_id = -1;
 static int hf_ieee_8021qau_cnpv_prio0 = -1;
 static int hf_ieee_8021qau_cnpv_prio1 = -1;
@@ -572,6 +573,14 @@ static const value_string chassis_id_subtypes[] = {
 	{ 5,	"Network address"},
 	{ 6,	"Interface name"},
 	{ 7,	"Locally assigned"},
+	{ 0, NULL}
+};
+
+static const value_string porttype_values[] = {
+	{ 0,	"Not specified"},
+	{ 1,	"From aggregation port"},
+	{ 2,	"From aggregator"},
+	{ 3,	"From single-port aggregator"},
 	{ 0, NULL}
 };
 
@@ -2236,6 +2245,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		mac_phy_flags = proto_item_add_subtree(tf, ett_802_1_aggregation);
 		proto_tree_add_item(mac_phy_flags, hf_ieee_802_1_aggregation_status_cap, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(mac_phy_flags, hf_ieee_802_1_aggregation_status_enabled, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mac_phy_flags, hf_ieee_802_1_aggregation_status_porttype, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		offset++;
 
@@ -4905,6 +4915,10 @@ proto_register_lldp(void)
 		{ &hf_ieee_802_1_aggregation_status_enabled,
 			{ "Aggregation Status", "lldp.ieee.802_1.aggregation_status.enabled", FT_BOOLEAN, 8,
 			TFS(&tfs_enabled_disabled), 0x02, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1_aggregation_status_porttype,
+			{ "Aggregation Status", "lldp.ieee.802_1.aggregation_status.porttype", FT_UINT8, BASE_DEC,
+			VALS(porttype_values), 0x0c, NULL, HFILL }
 		},
 		{ &hf_ieee_802_1_aggregated_port_id,
 			{ "Aggregated Port Id", "lldp.ieee.802_1.aggregated_port_id", FT_UINT32, BASE_DEC,
