@@ -2,21 +2,23 @@ language: minimal
 dist: xenial
 matrix:
   include:
-    - name: OSX (clang-9) with PCAP
+    - name: OSX (xcode10.3 clang-1001.0.46.4) with PCAP
       os: osx
+      osx_image: xcode10.3
       compiler: clang
       env: PCAP=ON
-    - name: OSX (clang-9) without PCAP
+    - name: OSX (xcode10.3 clang-1001.0.46.4) without PCAP
       os: osx
+      osx_image: xcode10.3
       compiler: clang
       env: PCAP=OFF
-    - name: OSX (xcode10.1 clang-10) with PCAP
+    - name: OSX (xcode11.2 clang-11.0.0) with PCAP
       os: osx
-      osx_image: xcode10.1
+      osx_image: xcode11.2
       env: PCAP=ON
-    - name: OSX (xcode10.1 clang-10) without PCAP
+    - name: OSX (xcode11.2 clang-11.0.0) without PCAP
       os: osx
-      osx_image: xcode10.1
+      osx_image: xcode11.2
       env: PCAP=OFF
     - name: Linux (gcc-8) with PCAP
       os: linux
