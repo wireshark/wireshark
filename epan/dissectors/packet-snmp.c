@@ -429,9 +429,9 @@ const value_string snmp_procedure_names[] = {
 	{ 0,	"Get" },
 	{ 1,	"GetNext" },
 	{ 3,	"Set" },
+	{ 4,	"Register" },
 	{ 5,	"Bulk" },
 	{ 6,	"Inform" },
-	{ 4,	"Register" },
 	{ 0,	NULL }
 };
 
@@ -466,7 +466,7 @@ snmp_get_request_response_pointer(wmem_map_t *map, guint32 requestId)
 		srrp=wmem_new0(wmem_file_scope(), snmp_request_response_t);
 		srrp->requestId=requestId;
 		wmem_map_insert(map, &(srrp->requestId), (void *)srrp);
-  }
+	}
 
 	return srrp;
 }
@@ -482,7 +482,7 @@ snmp_match_request_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	srrp=(snmp_request_response_t *)snmp_get_request_response_pointer(snmp_info->request_response, requestId);
 
 	// if not visited fill the request/response data
-	if (!pinfo->fd->visited) {
+	if (!PINFO_FD_VISITED(pinfo)) {
 		switch(procedure_id)
 		{
 			case SNMP_REQ_GET:
@@ -3147,7 +3147,7 @@ static int dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 #line 1923 "./asn1/snmp/packet-snmp-template.c"
 
 static snmp_conv_info_t*
-snmp_find_conversation_and_get_convo_data(packet_info *pinfo) {
+snmp_find_conversation_and_get_conv_data(packet_info *pinfo) {
 
 	conversation_t *conversation;
 	snmp_conv_info_t *snmp_info = NULL;
@@ -3189,7 +3189,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *snmp_tree = NULL;
 	proto_item *item = NULL;
 
-	snmp_conv_info_t *snmp_info = snmp_find_conversation_and_get_convo_data(pinfo);
+	snmp_conv_info_t *snmp_info = snmp_find_conversation_and_get_conv_data(pinfo);
 
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -3555,7 +3555,7 @@ void proto_register_snmp(void) {
 			"This is a response to the SNMP request in this frame", HFILL }},
 		{ &hf_snmp_time,
 		{ "Time", "snmp.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-			"The time between the Request and the Reply", HFILL }},
+			"The time between the Request and the Response", HFILL }},
 		{ &hf_snmp_v3_flags_auth,
 		{ "Authenticated", "snmp.v3.flags.auth", FT_BOOLEAN, 8,
 		    TFS(&tfs_set_notset), TH_AUTH, NULL, HFILL }},
