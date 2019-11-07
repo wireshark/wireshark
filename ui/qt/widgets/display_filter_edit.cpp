@@ -135,8 +135,8 @@ void DisplayFilterEdit::contextMenuEvent(QContextMenuEvent *event){
     na->setCheckable(true);
     na->setChecked(leftAlignActions_);
     connect(na, &QAction::triggered, this, &DisplayFilterEdit::triggerAlignementAction);
-
-    menu->insertAction(first, na);
+    menu->addSeparator();
+    menu->addAction(na);
 
     na = new QAction(tr("Display Filter Expression" UTF8_HORIZONTAL_ELLIPSIS), this);
     connect(na, &QAction::triggered, this, &DisplayFilterEdit::displayFilterExpression);
@@ -537,7 +537,8 @@ void DisplayFilterEdit::applyDisplayFilter()
 
 void DisplayFilterEdit::displayFilterSuccess(bool success)
 {
-    apply_button_->setEnabled(!success);
+    if ( apply_button_ )
+        apply_button_->setEnabled(!success);
 }
 
 void DisplayFilterEdit::changeEvent(QEvent* event)
