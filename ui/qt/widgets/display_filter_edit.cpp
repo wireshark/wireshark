@@ -231,7 +231,7 @@ void DisplayFilterEdit::alignActionButtons()
         }
     }
 
-    if (clear_button_) {
+    if (clear_button_ && apply_button_) {
         if ( ! leftAlignActions_ )
         {
             clear_button_->move(contentsRect().right() - frameWidth - cbsz.width() - apsz.width(),
