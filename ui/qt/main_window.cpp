@@ -374,13 +374,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     df_combo_box_ = new DisplayFilterCombo(this);
     const DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
-    connect(df_edit, SIGNAL(pushFilterSyntaxStatus(const QString&)),
-            main_ui_->statusBar, SLOT(pushFilterStatus(const QString&)));
-    connect(df_edit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
-    connect(df_edit, SIGNAL(filterPackets(QString, bool)), this, SLOT(filterPackets(QString, bool)));
-    connect(df_edit, SIGNAL(showPreferencesDialog(QString)),
-            this, SLOT(showPreferencesDialog(QString)));
-    connect(wsApp, SIGNAL(preferencesChanged()), df_edit, SLOT(checkFilter()));
 
     funnel_statistics_ = new FunnelStatistics(this, capture_file_);
     connect(df_edit, SIGNAL(textChanged(QString)), funnel_statistics_, SLOT(displayFilterTextChanged(QString)));

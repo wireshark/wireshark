@@ -26,6 +26,7 @@
 #include <ui/qt/models/pref_models.h>
 #include <ui/qt/filter_action.h>
 #include <ui/qt/display_filter_expression_dialog.h>
+#include <ui/qt/main_window.h>
 #include "wireshark_application.h"
 
 #include <QAction>
@@ -121,6 +122,23 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
 
     connect(wsApp, &WiresharkApplication::appInitialized, this, &DisplayFilterEdit::updateBookmarkMenu);
     connect(wsApp, &WiresharkApplication::displayFilterListChanged, this, &DisplayFilterEdit::updateBookmarkMenu);
+    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(checkFilter()));
+
+    /*
+    connect(df_edit, SIGNAL(pushFilterSyntaxStatus(const QString&)), main_ui_->statusBar, SLOT(pushFilterStatus(const QString&)));
+    connect(df_edit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
+    */
+
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(connectToMainWindow()));
+}
+
+void DisplayFilterEdit::connectToMainWindow()
+{
+    connect(this, SIGNAL(filterPackets(QString, bool)), wsApp->mainWindow(), SLOT(filterPackets(QString, bool)));
+    connect(this, SIGNAL(showPreferencesDialog(QString)),
+            wsApp->mainWindow(), SLOT(showPreferencesDialog(QString)));
+    connect(wsApp->mainWindow(), SIGNAL(displayFilterSuccess(bool)),
+            this, SLOT(displayFilterSuccess(bool)));
 }
 
 void DisplayFilterEdit::contextMenuEvent(QContextMenuEvent *event){

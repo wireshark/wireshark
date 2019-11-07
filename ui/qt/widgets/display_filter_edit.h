@@ -63,6 +63,8 @@ private slots:
 
     void triggerAlignementAction();
 
+    void connectToMainWindow();
+
 private:
     DisplayFilterEditType type_;
     QString placeholder_text_;
