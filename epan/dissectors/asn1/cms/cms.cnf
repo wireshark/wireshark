@@ -122,6 +122,7 @@ FirmwarePackageLoadError/version		fwErrorVersion
   top_tree = tree;
   %(DEFAULT_BODY)s
   content_tvb = NULL;
+  object_identifier_id = NULL;
   top_tree = NULL;
 
 #.FN_PARS ContentType

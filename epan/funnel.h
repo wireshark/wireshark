@@ -31,10 +31,12 @@ typedef struct _funnel_node_t funnel_node_t ; /* XXX Unused? */
 typedef void (*text_win_close_cb_t)(void*);
 
 typedef void (*funnel_dlg_cb_t)(gchar** user_input, void* data);
+typedef void (*funnel_dlg_cb_data_free_t)(void* data);
 
 typedef gboolean (*funnel_bt_cb_t)(funnel_text_window_t* tw, void* data);
 
 typedef void (* funnel_menu_callback)(gpointer);
+typedef void (* funnel_menu_callback_data_free)(gpointer);
 
 typedef struct _funnel_bt_t {
 	funnel_text_window_t* tw;
@@ -62,7 +64,8 @@ typedef struct _funnel_ops_t {
     void (*new_dialog)(const gchar* title,
 		       const gchar** fieldnames,
 		       funnel_dlg_cb_t dlg_cb,
-		       void* data);
+		       void* data,
+		       funnel_dlg_cb_data_free_t dlg_cb_data_free);
 
     void (*close_dialogs)(void);
 
@@ -98,6 +101,7 @@ WS_DLL_PUBLIC void funnel_register_menu(const char *name,
                                  register_stat_group_t group,
                                  funnel_menu_callback callback,
                                  gpointer callback_data,
+                                 funnel_menu_callback_data_free callback_data_free,
                                  gboolean retap);
 void funnel_deregister_menus(void (*callback)(gpointer));
 

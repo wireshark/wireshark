@@ -24,7 +24,7 @@
 #include <epan/ip_opts.h>
 #include <epan/prefs.h>
 #include <epan/conversation_table.h>
-#include <epan/dissector_filters.h>
+#include <epan/conversation_filter.h>
 #include <epan/reassemble.h>
 #include <epan/etypes.h>
 #include <epan/ppptypes.h>

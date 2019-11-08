@@ -44,6 +44,7 @@ static int hf_pn_mrp_sub_tlv_header_length = -1;
 static int hf_pn_mrp_sub_option2 = -1;
 static int hf_pn_mrp_other_mrm_prio = -1;
 static int hf_pn_mrp_other_mrm_sa = -1;
+static int hf_pn_mrp_manufacturer_data = -1;
 
 static gint ett_pn_mrp = -1;
 static gint ett_pn_mrp_type = -1;
@@ -113,10 +114,26 @@ static const value_string pn_mrp_prio_vals[] = {
 #endif
 
 static const value_string pn_mrp_sub_tlv_header_type_vals[] = {
-    { 0x00, "End" },
+    /* 0x00 Reserved */
     { 0x01, "MRP_TestMgrNAck" },
     { 0x02, "MRP_TestPropagate" },
     { 0x03, "MRP_AutoMgr" },
+    /* 0x04 - 0xF0 Reserved for IEC specific functions */
+    { 0xF1, "Manufacturer specific functions" },
+    { 0xF2, "Manufacturer specific functions" },
+    { 0xF3, "Manufacturer specific functions" },
+    { 0xF4, "Manufacturer specific functions" },
+    { 0xF5, "Manufacturer specific functions" },
+    { 0xF6, "Manufacturer specific functions" },
+    { 0xF7, "Manufacturer specific functions" },
+    { 0xF8, "Manufacturer specific functions" },
+    { 0xF9, "Manufacturer specific functions" },
+    { 0xFA, "Manufacturer specific functions" },
+    { 0xFB, "Manufacturer specific functions" },
+    { 0xFC, "Manufacturer specific functions" },
+    { 0xFD, "Manufacturer specific functions" },
+    { 0xFE, "Manufacturer specific functions" },
+    { 0xFF, "Manufacturer specific functions" },
     { 0, NULL },
 };
 
@@ -324,12 +341,13 @@ packet_info *pinfo, proto_tree *tree)
 
     if (u8SubType == 0x00)
     {
-        // IEC area: 0x00: MRP_End;
+        // IEC area: 0x00: Reserved;
         return offset;
     }
-    else if (u8SubType == 0x01)
+    else if ( u8SubType == 0x01 || u8SubType == 0x02 )
     {
         // IEC area: 0x01: MRP_TestMgrNAck;
+        // IEC area: 0x02: MRP_AutoMgr;
 
         /* MRP_Prio */
         offset = dissect_pn_uint16_ret_item(tvb, offset, pinfo, sub_tree, hf_pn_mrp_prio, &u16Prio, &sub_item);
@@ -348,24 +366,11 @@ packet_info *pinfo, proto_tree *tree)
 
         offset = dissect_pn_align4(tvb, offset, pinfo, sub_tree);
     }
-    else if (u8SubType == 0x02)
+    else if ( 0xF1 <= u8SubType )
     {
-        /* MRP_Prio */
-        offset = dissect_pn_uint16_ret_item(tvb, offset, pinfo, sub_tree, hf_pn_mrp_prio, &u16Prio, &sub_item);
-        proto_item_append_text(sub_item, "%s", mrp_Prio2msg(u16Prio));
-
-        /* MRP_SA */
-        offset = dissect_pn_mac(tvb, offset, pinfo, sub_tree, hf_pn_mrp_sa, mac);
-
-        /* MRP_OtherMRMPrio */
-        offset = dissect_pn_uint16_ret_item(tvb, offset, pinfo, sub_tree, hf_pn_mrp_other_mrm_prio,
-            &u16OtherPrio, &sub_item);
-        proto_item_append_text(sub_item, "%s", mrp_Prio2msg(u16OtherPrio));
-
-        /* MRP_OtherMRMSA */
-        offset = dissect_pn_mac(tvb, offset, pinfo, sub_tree, hf_pn_mrp_other_mrm_sa, otherMac);
-
-        offset = dissect_pn_align4(tvb, offset, pinfo, sub_tree);
+        proto_tree_add_string_format(sub_tree, hf_pn_mrp_manufacturer_data, tvb, offset, u8Sublength, "data",
+        "Reserved for vendor specific data: %u byte", u8Sublength);
+        offset += u8Sublength;
     }
     return offset;
 }
@@ -628,6 +633,10 @@ proto_register_pn_mrp (void)
     { &hf_pn_mrp_other_mrm_sa,
       { "MRP_OtherMRMSA", "pn_mrp.other_mrm_sa",
         FT_ETHER, BASE_NONE, 0x0, 0x0,
+        NULL, HFILL }},
+    { &hf_pn_mrp_manufacturer_data,
+      { "MRP_ManufacturerData", "pn_mrp.manufacturer_data",
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }}
     };
 

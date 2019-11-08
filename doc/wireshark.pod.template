@@ -47,7 +47,7 @@ S<[ B<-v> ]>
 S<[ B<-w> E<lt>outfileE<gt> ]>
 S<[ B<-X> E<lt>eXtension optionE<gt> ]>
 S<[ B<-y> E<lt>capture link typeE<gt> ]>
-S<[ B<-Y> E<lt>displaY filterE<gt> ]>
+S<[ B<-Y> E<lt>displaY filterE<gt> | B<--display-filter> E<lt>display filterE<gt> ]>
 S<[ B<-z> E<lt>statisticsE<gt> ]>
 S<[ B<--enable-protocol> E<lt>proto_nameE<gt> ]>
 S<[ B<--disable-protocol> E<lt>proto_nameE<gt> ]>
@@ -1007,6 +1007,26 @@ set, no time stamp types are listed.
 =item --time-stamp-type E<lt>typeE<gt>
 
 Change the interface's timestamp method.
+
+=item --read-file  E<lt>infileE<gt>
+
+Same as -r option.
+
+=item --read-filter  E<lt>read filterE<gt>
+
+Same as -R option.
+
+=item --display-filter  E<lt>display filterE<gt>
+
+Same as -Y option.
+
+=item --verbose
+
+Same as -v option.
+
+=item --help
+
+Same as -h option.
 
 =back
 

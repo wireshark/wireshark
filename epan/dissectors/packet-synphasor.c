@@ -2,6 +2,7 @@
  * Dissector for IEEE C37.118 synchrophasor frames.
  *
  * Copyright 2008, Jens Steinhauser <jens.steinhauser@omicron.at>
+ * Copyright 2019, Dwayne Rich <dwayne_rich@selinc.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -13,6 +14,7 @@
 #include "config.h"
 
 #include <math.h>
+#include <stdio.h>
 
 #include <epan/packet.h>
 #include <epan/crc16-tvb.h>
@@ -38,6 +40,12 @@ static int proto_synphasor	 = -1;
 #define SYNPHASOR_TCP_PORT  4712 /* Not IANA registered */
 #define SYNPHASOR_UDP_PORT  4713 /* Not IANA registered */
 
+/* Config 1 & 2 frames have channel names that are all 16 bytes long */
+/* Config 3 frame channel names have a variable length with a max of 255 characters */
+#define CHNAM_LEN 16
+#define MAX_NAME_LEN 255
+#define G_PMU_ID_LEN 16
+
 /* the ett... variables hold the state (open/close) of the treeview in the GUI */
 static gint ett_synphasor	   = -1; /* root element for this protocol */
   /* used in the common header */
@@ -51,8 +59,15 @@ static gint ett_synphasor	   = -1; /* root element for this protocol */
       static gint ett_conf_annam   = -1;
       static gint ett_conf_dgnam   = -1;
       static gint ett_conf_phconv  = -1;
+      static gint ett_conf_phlist  = -1;
+      static gint ett_conf_phflags = -1;
+      static gint ett_conf_phmod_flags = -1;
+      static gint ett_conf_ph_user_flags = -1;
       static gint ett_conf_anconv  = -1;
+      static gint ett_conf_anlist  = -1;
       static gint ett_conf_dgmask  = -1;
+      static gint ett_conf_chnam   = -1;
+      static gint ett_conf_wgs84   = -1;
   /* used for data frames */
   static gint ett_data		   = -1;
     static gint ett_data_block	   = -1;
@@ -68,7 +83,10 @@ static gint ett_synphasor	   = -1; /* root element for this protocol */
 static int hf_sync		    = -1;
 static int hf_sync_frtype	    = -1;
 static int hf_sync_version	    = -1;
+static int hf_station_name_len	    = -1;
+static int hf_station_name	    = -1;
 static int hf_idcode		    = -1;
+static int hf_g_pmu_id		    = -1;
 static int hf_frsize		    = -1;
 static int hf_soc		    = -1;
 static int hf_timeqal_lsdir	    = -1;
@@ -76,12 +94,42 @@ static int hf_timeqal_lsocc	    = -1;
 static int hf_timeqal_lspend	    = -1;
 static int hf_timeqal_timequalindic = -1;
 static int hf_fracsec		    = -1;
+static int hf_cont_idx		    = -1;
 static int hf_conf_timebase	    = -1;
 static int hf_conf_numpmu	    = -1;
 static int hf_conf_formatb3	    = -1;
 static int hf_conf_formatb2	    = -1;
 static int hf_conf_formatb1	    = -1;
 static int hf_conf_formatb0	    = -1;
+static int hf_conf_chnam_len	    = -1;
+static int hf_conf_chnam	    = -1;
+static int hf_conf_phasor_mod_b15   = -1;
+static int hf_conf_phasor_mod_b10   = -1;
+static int hf_conf_phasor_mod_b09   = -1;
+static int hf_conf_phasor_mod_b08   = -1;
+static int hf_conf_phasor_mod_b07   = -1;
+static int hf_conf_phasor_mod_b06   = -1;
+static int hf_conf_phasor_mod_b05   = -1;
+static int hf_conf_phasor_mod_b04   = -1;
+static int hf_conf_phasor_mod_b03   = -1;
+static int hf_conf_phasor_mod_b02   = -1;
+static int hf_conf_phasor_mod_b01   = -1;
+static int hf_conf_phasor_type_b03  = -1;
+static int hf_conf_phasor_type_b02to00 = -1;
+static int hf_conf_phasor_user_data = -1;
+static int hf_conf_phasor_scale_factor = -1;
+static int hf_conf_phasor_angle_offset = -1;
+static int hf_conf_analog_scale_factor = -1;
+static int hf_conf_analog_offset    = -1;
+static int hf_conf_pmu_lat	    = -1;
+static int hf_conf_pmu_lon	    = -1;
+static int hf_conf_pmu_elev	    = -1;
+static int hf_conf_pmu_lat_unknown  = -1;
+static int hf_conf_pmu_lon_unknown  = -1;
+static int hf_conf_pmu_elev_unknown = -1;
+static int hf_conf_svc_class	    = -1;
+static int hf_conf_window	    = -1;
+static int hf_conf_grp_dly	    = -1;
 static int hf_conf_fnom		    = -1;
 static int hf_conf_cfgcnt	    = -1;
 static int hf_data_statb15	    = -1;
@@ -90,6 +138,8 @@ static int hf_data_statb13	    = -1;
 static int hf_data_statb12	    = -1;
 static int hf_data_statb11	    = -1;
 static int hf_data_statb10	    = -1;
+static int hf_data_statb09	    = -1;
+static int hf_data_statb08to06	    = -1;
 static int hf_data_statb05to04	    = -1;
 static int hf_data_statb03to00	    = -1;
 static int hf_command		    = -1;
@@ -121,18 +171,15 @@ static expert_field ei_synphasor_checksum = EI_INIT;
 
 static dissector_handle_t synphasor_udp_handle;
 
-/* the five different frame types for this protocol */
+/* the different frame types for this protocol */
 enum FrameType {
 	DATA = 0,
 	HEADER,
 	CFG1,
 	CFG2,
-	CMD
+	CMD,
+	CFG3
 };
-
-/* the channel names in the protocol are all 16 bytes
- * long (and don't have to be NULL terminated) */
-#define CHNAM_LEN 16
 
 /* Structures to save CFG frame content. */
 
@@ -147,21 +194,26 @@ typedef enum { V, A } unit_e;
 
 /* holds the information required to dissect a single phasor */
 typedef struct {
-	char	      name[CHNAM_LEN + 1];
+	char	      name[MAX_NAME_LEN + 1];
 	unit_e        unit;
-	guint32	      conv; /* conversation factor in 10^-5 scale */
+	guint32	      conv; /* cfg-2 conversion factor in 10^-5 scale */
+	float	      conv_cfg3; /* cfg-3 conversion scale factor */
+	float	      angle_offset_cfg3; /* cfg-3 angle offset */
 } phasor_info;
 
 /* holds the information for an analog value */
 typedef struct {
-	char	name[CHNAM_LEN + 1];
-	guint32 conv; /* conversation factor, user defined scaling (so it's pretty useless) */
+	char	name[MAX_NAME_LEN + 1];
+	guint32 conv; /* cfg-2 conversion scale factor, user defined scaling (so it's pretty useless) */
+	float	conv_cfg3; /* cfg-3 conversion scale factor */
+	float	offset_cfg3; /* cfg-3 conversion offset */
 } analog_info;
 
 /* holds information required to dissect a single PMU block in a data frame */
 typedef struct {
 	guint16		   id;			/* identifies source of block     */
-	char		   name[CHNAM_LEN + 1];	/* holds STN			  */
+	char		   name[MAX_NAME_LEN + 1];	/* holds STN			  */
+	guint8		   cfg_frame_type;	/* Config Frame Type (1,2,3,...)  */
 	data_format	   format_fr;		/* data format of FREQ and DFREQ  */
 	data_format	   format_ph;		/* data format of PHASORS	  */
 	data_format	   format_an;		/* data format of ANALOG	  */
@@ -176,7 +228,6 @@ typedef struct {
  * an array of config_block members */
 typedef struct {
 	guint32	 fnum;		/* frame number */
-
 	guint16	 id;
 	wmem_array_t	*config_blocks; /* Contains a config_block struct for
 				 * every PMU included in the config frame */
@@ -189,12 +240,14 @@ static const value_string typenames[] = {
 	{ 2, "Configuration Frame 1" },
 	{ 3, "Configuration Frame 2" },
 	{ 4, "Command Frame"	     },
+	{ 5, "Configuration Frame 3" },
 	{ 0, NULL		     }
 };
 
 /* strings for version bits in SYNC */
 static const value_string versionnames[] = {
 	{ 1, "IEEE C37.118-2005 initial publication" },
+	{ 2, "IEEE C37.118.2-2011"		     },
 	{ 0, NULL				     }
 };
 
@@ -243,6 +296,103 @@ static const true_false_string conf_fnomnames = {
 	"60Hz"
 };
 
+static const true_false_string conf_phasor_mod_b15 = {
+	"Modification applied, type not here defined",
+	"None"
+};
+
+static const true_false_string conf_phasor_mod_b10 = {
+	"Pseudo-phasor value (combined from other phasors)",
+	"None"
+};
+
+static const true_false_string conf_phasor_mod_b09 = {
+	"Phasor phase adjusted for rotation",
+	"None"
+};
+
+static const true_false_string conf_phasor_mod_b08 = {
+	"Phasor phase adjusted for calibration",
+	"None"
+};
+
+static const true_false_string conf_phasor_mod_b07 = {
+	"Phasor magnitude adjusted for calibration",
+	"None"
+};
+
+static const true_false_string conf_phasor_mod_b06 = {
+	"Filtered without changing sampling",
+	"None"
+};
+
+static const true_false_string conf_phasor_mod_b05 = {
+	"Down sampled with non-FIR filter",
+	"None"
+};
+
+static const true_false_string conf_phasor_mod_b04 = {
+	"Down sampled with FIR filter",
+	"None"
+};
+
+static const true_false_string conf_phasor_mod_b03 = {
+	"Down sampled by reselection",
+	"None"
+};
+
+static const true_false_string conf_phasor_mod_b02 = {
+	"Up sampled with extrapolation",
+	"None"
+};
+
+static const true_false_string conf_phasor_mod_b01 = {
+	"Up sampled with interpolation",
+	"None"
+};
+
+static const value_string conf_phasor_type[] = {
+	{ 0, "Voltage, Zero sequence" },
+	{ 1, "Voltage, Positive sequence" },
+	{ 2, "Voltage, Negative sequence" },
+	{ 3, "Voltage, Reserved" },
+	{ 4, "Voltage, Phase A" },
+	{ 5, "Voltage, Phase B" },
+	{ 6, "Voltage, Phase C" },
+	{ 7, "Voltage, Reserved" },
+	{ 8, "Current, Zero sequence" },
+	{ 9, "Current, Positive sequence" },
+	{ 10, "Current, Negative sequence" },
+	{ 11, "Current, Reserved" },
+	{ 12, "Current, Phase A" },
+	{ 13, "Current, Phase B" },
+	{ 14, "Current, Phase C" },
+	{ 15, "Current, Reserved" },
+	{ 0, NULL }
+};
+
+static const true_false_string conf_phasor_type_b03 = {
+	"Currrent",
+	"Voltage"
+};
+
+static const value_string conf_phasor_type_b02to00[] = {
+	{ 0, "Zero sequence" },
+	{ 1, "Positive sequence" },
+	{ 2, "Negative sequence" },
+	{ 3, "Reserved" },
+	{ 4, "Phase A" },
+	{ 5, "Phase B" },
+	{ 6, "Phase C" },
+	{ 7, "Reserved" },
+	{ 0, NULL }
+};
+
+static const true_false_string conf_phasor_user_defined = {
+	"Flags set",
+	"No flags set"
+};
+
 /* strings for flags in the STAT word of a data frame */
 static const true_false_string data_statb15names = {
 	"Data is invalid",
@@ -267,6 +417,21 @@ static const true_false_string data_statb11names = {
 static const true_false_string data_statb10names = {
 	"Within 1 minute",
 	"No"
+};
+static const true_false_string data_statb09names = {
+	"Data modified by a post-processing device",
+	"Data not modified"
+};
+static const value_string      data_statb08to06names[] = {
+	{ 0, "Not used" },
+	{ 1, "Estimated maximum time error < 100 ns" },
+	{ 2, "Estimated maximum time error < 1 " UTF8_MICRO_SIGN "s"	  },
+	{ 3, "Estimated maximum time error < 10 " UTF8_MICRO_SIGN "s"	  },
+	{ 4, "Estimated maximum time error < 100 " UTF8_MICRO_SIGN "s"	  },
+	{ 5, "Estimated maximum time error < 1 ms"			  },
+	{ 6, "Estimated maximum time error < 10 ms"			  },
+	{ 7, "Estimated maximum time error > 10 ms or time error unknown" },
+	{ 0, NULL							  }
 };
 static const value_string      data_statb05to04names[] = {
 	{ 0, "Time locked, best quality" },
@@ -303,7 +468,7 @@ static const value_string command_names[] = {
 	{  3, "send HDR frame"	      },
 	{  4, "send CFG-1 frame"      },
 	{  5, "send CFG-2 frame"      },
-	{  6, "unknown command"	      },
+	{  6, "send CFG-3 frame"      },
 	{  7, "unknown command"	      },
 	{  8, "extended frame"	      },
 	{  9, "unknown command"	      },
@@ -315,6 +480,42 @@ static const value_string command_names[] = {
 	{ 15, "unknown command"	      },
 	{  0, NULL		      }
 };
+
+
+/******************************************************************************
+* functions
+******************************************************************************/
+
+/* read in the size length for names found in config 3 frames
+	0 - no name
+	1-255 - length of name
+*/
+static guint8 get_name_length(tvbuff_t *tvb, gint offset)
+{
+	guint8 name_length;
+
+	/* read the size of the name */
+	name_length = tvb_get_guint8(tvb, offset);
+
+	return name_length;
+}
+
+/* Checks the CRC of a synchrophasor frame, 'tvb' has to include the whole
+ * frame, including CRC, the calculated CRC is returned in '*computedcrc'.
+ */
+static gboolean check_crc(tvbuff_t *tvb, guint16 *computedcrc)
+{
+	guint16 crc;
+	guint	len = tvb_get_ntohs(tvb, 2);
+
+	crc = tvb_get_ntohs(tvb, len - 2);
+	*computedcrc = crc16_x25_ccitt_tvb(tvb, len - 2);
+
+	if (crc == *computedcrc)
+		return TRUE;
+
+	return FALSE;
+}
 
 /* Dissects a configuration frame (only the most important stuff, tries
  * to be fast, does no GUI stuff) and returns a pointer to a config_frame
@@ -357,7 +558,7 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
 		/* copy the station name from the tvb to block, and add NULL byte */
 		tvb_memcpy(tvb, block.name, offset, CHNAM_LEN); offset += CHNAM_LEN;
 		block.name[CHNAM_LEN] = '\0';
-
+		block.cfg_frame_type = 2;
 		block.id = tvb_get_ntohs(tvb, offset); offset += 2;
 
 		format_flags	      = tvb_get_ntohs(tvb, offset); offset += 2;
@@ -376,7 +577,7 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
 		anunit = phunit + num_ph * 4;
 		fnom   = anunit + num_an * 4 + num_dg * 4;
 
-		/* read num_ph phasor names and conversation factors */
+		/* read num_ph phasor names and conversion factors */
 		for (i = 0; i != num_ph; i++) {
 			phasor_info  pi;
 			guint32	     conv;
@@ -388,11 +589,13 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
 			conv = tvb_get_ntohl(tvb, phunit + 4 * i);
 			pi.unit = conv & 0xFF000000 ? A : V;
 			pi.conv = conv & 0x00FFFFFF;
+			pi.conv_cfg3 = 1;
+			pi.angle_offset_cfg3 = 0;
 
 			wmem_array_append_one(block.phasors, pi);
 		}
 
-		/* read num_an analog value names and conversation factors */
+		/* read num_an analog value names and conversion factors */
 		for (i = 0; i != num_an; i++) {
 			analog_info ai;
 			guint32	    conv;
@@ -403,6 +606,8 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
 
 			conv = tvb_get_ntohl(tvb, anunit + 4 * i);
 			ai.conv = conv;
+			ai.conv_cfg3 = 1;
+			ai.offset_cfg3 = 0;
 
 			wmem_array_append_one(block.analogs, ai);
 		}
@@ -422,173 +627,192 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
 	}
 
 	return frame;
-}
+} /* config_frame_fast() */
 
-/* Checks the CRC of a synchrophasor frame, 'tvb' has to include the whole
- * frame, including CRC, the calculated CRC is returned in '*computedcrc'.
+/* Dissects a configuration 3 frame (only the most important stuff, tries
+ * to be fast, does no GUI stuff) and returns a pointer to a config_frame
+ * struct that contains all the information from the frame needed to
+ * dissect a DATA frame.
+ *
+ * use 'config_frame_free()' to free the config_frame again
  */
-static gboolean check_crc(tvbuff_t *tvb, guint16 *computedcrc)
+static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 {
-	guint16 crc;
-	guint	len = tvb_get_ntohs(tvb, 2);
+	guint16	      num_pmu;
+	gint	      offset;
+	config_frame *frame;
+	phasor_info  *pi = NULL;
+	analog_info  *ai = NULL;
+	gboolean      frame_not_fragmented;
 
-	crc = tvb_get_ntohs(tvb, len - 2);
-	*computedcrc = crc16_x25_ccitt_tvb(tvb, len - 2);
+	/* get a new frame and initialize it */
+	frame = wmem_new(wmem_file_scope(), config_frame);
 
-	if (crc == *computedcrc)
-		return TRUE;
+	frame->config_blocks = wmem_array_new(wmem_file_scope(), sizeof(config_block));
 
-	return FALSE;
-}
+	// Start with Frame ID
+	offset = 4;
+	frame->id = tvb_get_ntohs(tvb, offset);
 
-/* forward declarations of the subdissectors for the data
- * in the frame that is not common to all types of frames
- */
-static int dissect_config_frame (tvbuff_t *, proto_item *);
-static int dissect_data_frame	(tvbuff_t *, proto_item *, packet_info *);
-static int dissect_command_frame(tvbuff_t *, proto_item *, packet_info *);
-/* to keep 'dissect_common()' shorter */
-static gint dissect_header(tvbuff_t *, proto_tree *);
+	/* Skip to CONT_IDX -- Fragmented Frames not supported at this time */
+	offset += 10;
+	frame_not_fragmented = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) == 0;
 
-/* Dissects the header (common to all types of frames) and then calls
- * one of the subdissectors (declared above) for the rest of the frame.
- */
-static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-	guint8	frame_type;
-	guint16 crc;
-	guint	tvbsize = tvb_reported_length(tvb);
+	/* Skip to number of PMU blocks */
+	offset += 6;
+	num_pmu = tvb_get_ntohs(tvb, offset);
 
-	/* some heuristics */
-	if (tvbsize < 17		    /* 17 bytes = header frame with only a
-					       NULL character, useless but valid */
-	 || tvb_get_guint8(tvb, 0) != 0xAA) /* every synchrophasor frame starts with 0xAA */
-		return 0;
+	/* start of repeating blocks */
+	offset += 2;
+	while ((num_pmu) && (frame_not_fragmented)) {
+		guint16	     format_flags;
+		gint	     num_ph,
+			     num_an,
+			     num_dg;
+		gint	     i;
+		guint8	     name_length;
+		config_block block;
 
-	/* write the protocol name to the info column */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTOCOL_SHORT_NAME);
+		/* initialize the block */
+		block.phasors = wmem_array_new(wmem_file_scope(), sizeof(phasor_info));
+		block.analogs = wmem_array_new(wmem_file_scope(), sizeof(analog_info));
 
-	frame_type = tvb_get_guint8(tvb, 1) >> 4;
+		/* copy the station name from the tvb to block, and add NULL byte */
+		/* first byte is name size */
+		name_length = get_name_length(tvb, offset);
+		offset += 1;
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(frame_type, typenames, "invalid packet type"));
+		tvb_memcpy(tvb, block.name, offset, name_length);
+		offset += name_length;
 
-	/* CFG-2 and DATA frames need special treatment during the first run:
-	 * For CFG-2 frames, a 'config_frame' struct is created to hold the
-	 * information necessary to decode DATA frames. A pointer to this
-	 * struct is saved in the conversation and is copied to the
-	 * per-packet information if a DATA frame is dissected.
-	 */
-	if (!pinfo->fd->visited) {
-		if (CFG2 == frame_type &&
-		    check_crc(tvb, &crc)) {
-			conversation_t *conversation;
+		block.name[name_length] = '\0';
+		block.cfg_frame_type = 3;
 
-			/* fill the config_frame */
-			config_frame *frame = config_frame_fast(tvb);
-			frame->fnum = pinfo->num;
+		/* Block ID and Global PMU ID */
+		block.id = tvb_get_ntohs(tvb, offset);
+		offset += 2;
 
-			/* find a conversation, create a new one if none exists */
-			conversation = find_or_create_conversation(pinfo);
+		/* skip over Global PMU ID */
+		offset += G_PMU_ID_LEN;
 
-			/* remove data from a previous CFG-2 frame, only
-			 * the most recent configuration frame is relevant */
-			if (conversation_get_proto_data(conversation, proto_synphasor))
-				conversation_delete_proto_data(conversation, proto_synphasor);
+		format_flags	      = tvb_get_ntohs(tvb, offset);
+		offset += 2;
 
-			conversation_add_proto_data(conversation, proto_synphasor, frame);
-		}
-		else if (DATA == frame_type) {
-			conversation_t *conversation = find_conversation_pinfo(pinfo, 0);
+		block.format_fr	      = (format_flags & 0x0008) ? floating_point : integer;
+		block.format_an	      = (format_flags & 0x0004) ? floating_point : integer;
+		block.format_ph	      = (format_flags & 0x0002) ? floating_point : integer;
+		block.phasor_notation = (format_flags & 0x0001) ? polar		 : rect;
 
-			if (conversation) {
-				config_frame *conf = (config_frame *)conversation_get_proto_data(conversation, proto_synphasor);
-				/* no problem if 'conf' is NULL, the DATA frame dissector checks this again */
-			p_add_proto_data(wmem_file_scope(), pinfo, proto_synphasor, 0, conf);
+		num_ph = tvb_get_ntohs(tvb, offset);
+		offset += 2;
+
+		num_an = tvb_get_ntohs(tvb, offset);
+		offset += 2;
+
+		num_dg = tvb_get_ntohs(tvb, offset);
+		offset += 2;
+		block.num_dg = num_dg;
+
+		/* grab phasor names */
+		if (num_ph > 0)
+		{
+			pi = (phasor_info *)wmem_alloc(wmem_file_scope(), sizeof(phasor_info)*num_ph);
+
+			for (i = 0; i != num_ph; i++) {
+				/* copy the phasor name from the tvb, and add NULL byte */
+				name_length = get_name_length(tvb, offset);
+				offset += 1;
+
+				tvb_memcpy(tvb, pi[i].name, offset, name_length);
+				offset += name_length;
+
+				pi[i].name[name_length] = '\0';
 			}
 		}
-	} /* if (!visited) */
 
-	{
-		proto_tree *synphasor_tree;
-		proto_item *temp_item;
-		proto_item *sub_item;
+		/* grab analog names */
+		if (num_an > 0)
+		{
+			ai = (analog_info *)wmem_alloc(wmem_file_scope(), sizeof(analog_info)*num_an);
 
-		gint	    offset;
-		guint16	    framesize;
-		tvbuff_t   *sub_tvb;
-		gboolean   crc_good;
+			for (i = 0; i != num_an; i++) {
+				/* copy the phasor name from the tvb, and add NULL byte */
+				name_length = get_name_length(tvb, offset);
+				offset += 1;
 
-		temp_item = proto_tree_add_item(tree, proto_synphasor, tvb, 0, -1, ENC_NA);
-		proto_item_append_text(temp_item, ", %s", val_to_str_const(frame_type, typenames,
-									   ", invalid packet type"));
+				tvb_memcpy(tvb, ai[i].name, offset, name_length);
+				offset += name_length;
 
-		/* synphasor_tree is where from now on all new elements for this protocol get added */
-		synphasor_tree = proto_item_add_subtree(temp_item, ett_synphasor);
-
-		framesize = dissect_header(tvb, synphasor_tree);
-		offset = 14; /* header is 14 bytes long */
-
-		/* check CRC, call appropriate subdissector for the rest of the frame if CRC is correct*/
-		sub_item  = proto_tree_add_item(synphasor_tree, hf_synphasor_data, tvb, offset, tvbsize - 16, ENC_NA);
-		crc_good = check_crc(tvb, &crc);
-		proto_tree_add_checksum(synphasor_tree, tvb, tvbsize - 2, hf_synphasor_checksum, hf_synphasor_checksum_status, &ei_synphasor_checksum,
-								pinfo, crc16_x25_ccitt_tvb(tvb, tvb_get_ntohs(tvb, 2) - 2), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
-		if (!crc_good) {
-			proto_item_append_text(sub_item,  ", not dissected because of wrong checksum");
-		}
-		else {
-			/* create a new tvb to pass to the subdissector
-			   '-16': length of header + 2 CRC bytes */
-			sub_tvb = tvb_new_subset_length_caplen(tvb, offset, tvbsize - 16, framesize - 16);
-
-			/* call subdissector */
-			switch (frame_type) {
-				case DATA:
-					dissect_data_frame(sub_tvb, sub_item, pinfo);
-					break;
-				case HEADER: /* no further dissection is done/needed */
-					proto_item_append_text(sub_item, "Header Frame");
-					break;
-				case CFG1:
-				case CFG2:
-					dissect_config_frame(sub_tvb, sub_item);
-					break;
-				case CMD:
-					dissect_command_frame(sub_tvb, sub_item, pinfo);
-					break;
-
-				default:
-					proto_item_append_text(sub_item, " of unknown type");
+				ai[i].name[name_length] = '\0';
 			}
-			proto_item_append_text(temp_item, " [correct]");
 		}
 
-		/*offset += 2;*/ /* CRC */
+		/* skip digital names */
+		if (num_dg > 0)
+		{
+			for (i = 0; i != num_dg * 16; i++) {
+				name_length = get_name_length(tvb, offset);
+				offset += name_length + 1;
+			}
+		}
+
+		/* get phasor conversion factors */
+		if (num_ph > 0)
+		{
+			for (i = 0; i != num_ph; i++) {
+				guint32 phasor_unit;
+
+				/* get unit */
+				phasor_unit = tvb_get_ntohl(tvb, offset);
+				pi[i].unit = phasor_unit & 0x00000800 ? A : V;
+				pi[i].conv = 1;
+				pi[i].conv_cfg3 = tvb_get_ntohieee_float(tvb, offset + 4);
+				pi[i].angle_offset_cfg3 = tvb_get_ntohieee_float(tvb, offset + 8);
+
+				wmem_array_append_one(block.phasors, pi[i]);
+
+				offset += 12;
+			}
+		}
+
+		/* get analog conversion factors */
+		if (num_an > 0)
+		{
+			for (i = 0; i != num_an; i++) {
+				ai[i].conv = 1;
+				ai[i].conv_cfg3 = tvb_get_ntohieee_float(tvb, offset);
+				ai[i].offset_cfg3 = tvb_get_ntohieee_float(tvb, offset + 4);
+
+				wmem_array_append_one(block.analogs, ai[i]);
+
+				offset += 8;
+			}
+		}
+
+		/* skip digital masks */
+		if (num_dg > 0)
+		{
+			for (i = 0; i != num_dg; i++) {
+				offset += 4;
+			}
+		}
+
+		/* Skip to FNOM */
+		offset += 21;
+
+		/* save FNOM */
+		block.fnom = tvb_get_ntohs(tvb, offset) & 0x0001 ? 50 : 60;
+		offset += 2;
+
+		/* skip CFGCNT - offset ready for next PMU */
+		offset += 2;
+
+		wmem_array_append_one(frame->config_blocks, block);
+		num_pmu--;
 	}
 
-	return tvb_reported_length(tvb);
-} /* dissect_synphasor() */
-
-/* called for synchrophasors over UDP */
-static int dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
-{
-	return dissect_common(tvb, pinfo, tree, data);
-}
-
-/* callback for 'tcp_dissect_pdus()' to give it the length of the frame */
-static guint get_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
-                            int offset, void *data _U_)
-{
-	return tvb_get_ntohs(tvb, offset + 2);
-}
-
-static int dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
-{
-	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_pdu_length, dissect_common, data);
-
-	return tvb_reported_length(tvb);
-}
-
+	return frame;
+} /* config_3_frame_fast() */
 
 /* Dissects the common header of frames.
  *
@@ -636,225 +860,6 @@ static gint dissect_header(tvbuff_t *tvb, proto_tree *tree)
 
 	return framesize;
 }
-
-/* forward declarations of helper functions for 'dissect_config_frame()' */
-static gint dissect_CHNAM  (tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt, const char *prefix);
-static gint dissect_PHUNIT (tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt);
-static gint dissect_ANUNIT (tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt);
-static gint dissect_DIGUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt);
-
-/* dissects a configuration frame (type 1 and 2) and adds fields to 'config_item' */
-static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
-{
-	proto_tree *config_tree;
-	gint	    offset = 0, j;
-	guint16	    num_pmu;
-
-	proto_item_set_text   (config_item, "Configuration data");
-	config_tree = proto_item_add_subtree(config_item, ett_conf);
-
-	/* TIME_BASE and NUM_PMU */
-	offset += 1; /* skip the reserved byte */
-	proto_tree_add_item(config_tree, hf_conf_timebase, tvb, offset, 3, ENC_BIG_ENDIAN); offset += 3;
-	proto_tree_add_item(config_tree, hf_conf_numpmu,   tvb, offset, 2, ENC_BIG_ENDIAN);
-	/* add number of included PMUs to the text in the list view  */
-	num_pmu = tvb_get_ntohs(tvb, offset); offset += 2;
-	proto_item_append_text(config_item, ", %"G_GUINT16_FORMAT" PMU(s) included", num_pmu);
-
-	/* dissect the repeating PMU blocks */
-	for (j = 0; j < num_pmu; j++) {
-		guint16	    num_ph, num_an, num_dg;
-		proto_item *station_item;
-		proto_tree *station_tree;
-		proto_tree *temp_tree;
-		char	   *str;
-
-		gint oldoffset = offset; /* to calculate the length of the whole PMU block later */
-
-		/* STN with new tree to add the rest of the PMU block */
-		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, CHNAM_LEN, ENC_ASCII);
-		station_tree = proto_tree_add_subtree_format(config_tree, tvb, offset, CHNAM_LEN,
-							     ett_conf_station, &station_item,
-							     "Station #%i: \"%s\"", j + 1, str);
-		offset += CHNAM_LEN;
-
-		/* IDCODE */
-		proto_tree_add_item(station_tree, hf_idcode, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
-
-		/* FORMAT */
-		temp_tree = proto_tree_add_subtree(station_tree, tvb, offset, 2, ett_conf_format, NULL,
-						   "Data format in data frame");
-		proto_tree_add_item(temp_tree, hf_conf_formatb3, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(temp_tree, hf_conf_formatb2, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(temp_tree, hf_conf_formatb1, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(temp_tree, hf_conf_formatb0, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
-
-		/* PHNMR, ANNMR, DGNMR */
-		num_ph = tvb_get_ntohs(tvb, offset    );
-		num_an = tvb_get_ntohs(tvb, offset + 2);
-		num_dg = tvb_get_ntohs(tvb, offset + 4);
-		proto_tree_add_uint(station_tree, hf_synphasor_num_phasors, tvb, offset, 2, num_ph);
-		proto_tree_add_uint(station_tree, hf_synphasor_num_analog_values, tvb, offset + 2, 2, num_an);
-		proto_tree_add_uint(station_tree, hf_synphasor_num_digital_status_words, tvb, offset + 4, 2, num_dg);
-		offset += 6;
-
-		/* CHNAM, the channel names */
-		offset = dissect_CHNAM(tvb, station_tree, offset, num_ph     , "Phasor name"	     );
-		offset = dissect_CHNAM(tvb, station_tree, offset, num_an     , "Analog value"	     );
-		offset = dissect_CHNAM(tvb, station_tree, offset, num_dg * 16, "Digital status label");
-
-		/* PHUNIT, ANUINT and DIGUNIT */
-		offset = dissect_PHUNIT (tvb, station_tree, offset, num_ph);
-		offset = dissect_ANUNIT (tvb, station_tree, offset, num_an);
-		offset = dissect_DIGUNIT(tvb, station_tree, offset, num_dg);
-
-		/* FNOM and CFGCNT */
-		proto_tree_add_item(station_tree, hf_conf_fnom,	  tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
-		proto_tree_add_item(station_tree, hf_conf_cfgcnt, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
-
-		/* set the correct length for the "Station :" item */
-		proto_item_set_len(station_item, offset - oldoffset);
-	} /* for() PMU blocks */
-
-	/* DATA_RATE */
-	{
-		gint16 tmp = tvb_get_ntohis(tvb, offset);
-		if (tmp > 0)
-			proto_tree_add_int_format_value(config_tree, hf_synphasor_rate_of_transmission, tvb, offset, 2, tmp,
-                        "%d frame(s) per second", tmp);
-		else
-			proto_tree_add_int_format_value(config_tree, hf_synphasor_rate_of_transmission, tvb, offset, 2, tmp,
-                        "1 frame per %d second(s)", (gint16)-tmp);
-		offset += 2;
-	}
-
-	return offset;
-} /* dissect_config_frame() */
-
-/* forward declarations of helper functions for 'dissect_data_frame()' */
-static gint dissect_PHASORS(tvbuff_t *tvb, proto_tree *tree, config_block *block, gint offset);
-static gint dissect_DFREQ  (tvbuff_t *tvb, proto_tree *tree, config_block *block, gint offset);
-static gint dissect_ANALOG (tvbuff_t *tvb, proto_tree *tree, config_block *block, gint offset);
-static gint dissect_DIGITAL(tvbuff_t *tvb, proto_tree *tree, config_block *block, gint offset);
-
-/* calculates the size (in bytes) of a data frame that the config_block describes */
-#define SYNP_BLOCKSIZE(x) (2							   /* STAT    */ \
-		   + wmem_array_get_count((x).phasors) * (integer == (x).format_ph ? 4 : 8) /* PHASORS */ \
-		   +			                 (integer == (x).format_fr ? 4 : 8) /* (D)FREQ */ \
-		   + wmem_array_get_count((x).analogs) * (integer == (x).format_an ? 2 : 4) /* ANALOG  */ \
-		   + (x).num_dg * 2)					   /* DIGITAL */
-
-/* Dissects a data frame */
-static int dissect_data_frame(tvbuff_t	  *tvb,
-			      proto_item  *data_item, /* all items are placed beneath this item	  */
-			      packet_info *pinfo)     /* used to find the data from a CFG-2 frame */
-{
-	proto_tree   *data_tree;
-	gint	      offset	 = 0;
-	guint	      i;
-	config_frame *conf;
-
-	proto_item_set_text(data_item, "Measurement data");
-	data_tree = proto_item_add_subtree(data_item, ett_data);
-
-	/* search for configuration information to dissect the frame */
-	{
-		gboolean config_found = FALSE;
-		conf = (config_frame *)p_get_proto_data(wmem_file_scope(), pinfo, proto_synphasor, 0);
-
-		if (conf) {
-			/* check if the size of the current frame is the
-			   size of the frame the config_frame describes */
-			size_t reported_size = 0;
-			for (i = 0; i < wmem_array_get_count(conf->config_blocks); i++) {
-				config_block *block = (config_block*)wmem_array_index(conf->config_blocks, i);
-				reported_size += SYNP_BLOCKSIZE(*block);
-			}
-
-			if (tvb_reported_length(tvb) == reported_size) {
-				proto_item_append_text(data_item, ", using frame number %"G_GUINT32_FORMAT" as configuration frame",
-						       conf->fnum);
-				config_found = TRUE;
-			}
-		}
-
-		if (!config_found) {
-			proto_item_append_text(data_item, ", no configuration frame found");
-			return 0;
-		}
-	}
-
-	/* dissect a PMU block for every config_block in the frame */
-	for (i = 0; i < wmem_array_get_count(conf->config_blocks); i++) {
-		config_block *block = (config_block*)wmem_array_index(conf->config_blocks, i);
-
-		proto_tree *block_tree = proto_tree_add_subtree_format(data_tree, tvb, offset, SYNP_BLOCKSIZE(*block),
-								       ett_data_block, NULL,
-								       "Station: \"%s\"", block->name);
-
-		/* STAT */
-		proto_tree *temp_tree = proto_tree_add_subtree(block_tree, tvb, offset, 2, ett_data_stat, NULL, "Flags");
-
-		proto_tree_add_item(temp_tree, hf_data_statb15,	    tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(temp_tree, hf_data_statb14,	    tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(temp_tree, hf_data_statb13,	    tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(temp_tree, hf_data_statb12,	    tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(temp_tree, hf_data_statb11,	    tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(temp_tree, hf_data_statb10,	    tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(temp_tree, hf_data_statb05to04, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(temp_tree, hf_data_statb03to00, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
-
-		/* PHASORS, (D)FREQ, ANALOG, and DIGITAL */
-		offset = dissect_PHASORS(tvb, block_tree, block, offset);
-		offset = dissect_DFREQ	(tvb, block_tree, block, offset);
-		offset = dissect_ANALOG (tvb, block_tree, block, offset);
-		offset = dissect_DIGITAL(tvb, block_tree, block, offset);
-	}
-	return offset;
-} /* dissect_data_frame() */
-
-/* Dissects a command frame and adds fields to config_item.
- *
- * 'pinfo' is used to add the type of command
- * to the INFO column in the packet list.
- */
-static int dissect_command_frame(tvbuff_t    *tvb,
-				 proto_item  *command_item,
-				 packet_info *pinfo)
-{
-	proto_tree *command_tree;
-	guint	    tvbsize	  = tvb_reported_length(tvb);
-	const char *s;
-
-	proto_item_set_text(command_item, "Command data");
-	command_tree = proto_item_add_subtree(command_item, ett_command);
-
-	/* CMD */
-	proto_tree_add_item(command_tree, hf_command, tvb, 0, 2, ENC_BIG_ENDIAN);
-
-	s = val_to_str_const(tvb_get_ntohs(tvb, 0), command_names, "invalid command");
-	col_append_str(pinfo->cinfo, COL_INFO, ", ");
-	col_append_str(pinfo->cinfo, COL_INFO, s);
-
-	if (tvbsize > 2) {
-		if (tvb_get_ntohs(tvb, 0) == 0x0008) {
-			/* Command: Extended Frame, the extra data is ok */
-			proto_item *ti = proto_tree_add_item(command_tree, hf_synphasor_extended_frame_data, tvb, 2, tvbsize - 2, ENC_NA);
-			if (tvbsize % 2)
-				expert_add_info(pinfo, ti, &ei_synphasor_extended_frame_data);
-		}
-		else
-			proto_tree_add_item(command_tree, hf_synphasor_unknown_data, tvb, 2, tvbsize - 2, ENC_NA);
-	}
-
-	return tvbsize;
-} /* dissect_command_frame() */
-
-/****************************************************************/
-/* after this line: helper functions for 'dissect_data_frame()' */
-/****************************************************************/
 
 /* Dissects a single phasor for 'dissect_PHASORS()' */
 static int dissect_single_phasor(tvbuff_t *tvb, int offset,
@@ -930,9 +935,21 @@ static gint dissect_PHASORS(tvbuff_t *tvb, proto_tree *tree, config_block *block
 						block->format_ph,
 						block->phasor_notation);
 
-		/* for values in integer format, apply conversation factor */
-		if (integer == block->format_ph)
-			mag = (mag * pi->conv) * 0.00001;
+		if (block->cfg_frame_type == 3)
+		{
+			/* for values in integer format, apply conversion factor */
+			if (integer == block->format_ph)
+			{
+				mag = (mag * pi->conv_cfg3);
+				phase = phase + pi->angle_offset_cfg3;
+			}
+		}
+		else
+		{
+			/* for values in integer format, apply conversion factor */
+			if (integer == block->format_ph)
+				mag = (mag * pi->conv) * 0.00001;
+		}
 
 		#define SYNP_ANGLE  "/_"
 
@@ -996,17 +1013,44 @@ static gint dissect_ANALOG(tvbuff_t *tvb, proto_tree *tree, config_block *block,
 						floating_point == block->format_an ? 4 : 2, ai->name,
 						"Analog value #%u: \"%s\"", j + 1, ai->name);
 
-		if (floating_point == block->format_an) {
-			gfloat tmp = tvb_get_ntohieee_float(tvb, offset); offset += 4;
-			proto_item_append_text(temp_item, ", %.3f", tmp);
+		if (block->cfg_frame_type == 3)
+		{
+			if (floating_point == block->format_an) {
+				gfloat tmp;
+
+				tmp = tvb_get_ntohieee_float(tvb, offset);
+				offset += 4;
+
+				proto_item_append_text(temp_item, ", %.3f", tmp);
+			}
+			else {
+				/* the "standard" doesn't say if this is signed or unsigned,
+				* so I just use gint16 */
+				gint16 tmp_i;
+				gfloat tmp_f;
+
+				tmp_i = tvb_get_ntohs(tvb, offset);
+				offset += 2;
+
+				tmp_f = (tmp_i * ai->conv_cfg3) + ai->offset_cfg3;
+
+				proto_item_append_text(temp_item, ", %.3f", tmp_f);
+			}
 		}
-		else {
-			/* the "standard" doesn't say if this is signed or unsigned,
-			 * so I just use gint16; the scaling of the conversation factor
-			 * is also "user defined", so I just write it after the analog value */
-			gint16 tmp = tvb_get_ntohs(tvb, offset); offset += 2;
-			proto_item_append_text(temp_item, ", %" G_GINT16_FORMAT " (conversation factor: %#06x)",
-					       tmp, ai->conv);
+		else
+		{
+			if (floating_point == block->format_an) {
+				gfloat tmp = tvb_get_ntohieee_float(tvb, offset); offset += 4;
+				proto_item_append_text(temp_item, ", %.3f", tmp);
+			}
+			else {
+				/* the "standard" doesn't say if this is signed or unsigned,
+				 * so I just use gint16; the scaling of the conversion factor
+				 * is also "user defined", so I just write it after the analog value */
+				gint16 tmp = tvb_get_ntohs(tvb, offset); offset += 2;
+				proto_item_append_text(temp_item, ", %" G_GINT16_FORMAT " (conversion factor: %#06x)",
+						       tmp, ai->conv);
+			}
 		}
 	}
 	return offset;
@@ -1032,10 +1076,6 @@ static gint dissect_DIGITAL(tvbuff_t *tvb, proto_tree *tree, config_block *block
 	return offset;
 }
 
-/*******************************************************************/
-/* after this line:  helper functions for 'dissect_config_frame()' */
-/*******************************************************************/
-
 /* used by 'dissect_config_frame()' to dissect the PHUNIT field */
 static gint dissect_PHUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
 {
@@ -1046,7 +1086,7 @@ static gint dissect_PHUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 		return offset;
 
 	temp_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * cnt, ett_conf_phconv, NULL,
-						  "Phasor conversation factors (%u)", cnt);
+						  "Phasor conversion factors (%u)", cnt);
 
 	/* Conversion factor for phasor channels. Four bytes for each phasor.
 	 * MSB:		  0 = voltage, 1 = current
@@ -1065,6 +1105,78 @@ static gint dissect_PHUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 	return offset;
 }
 
+/* used by 'dissect_config_3_frame()' to dissect the PHSCALE field */
+static gint dissect_PHSCALE(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
+{
+	proto_tree *temp_tree;
+	int i;
+
+	if (0 == cnt) {
+		return offset;
+	}
+
+	temp_tree = proto_tree_add_subtree_format(tree, tvb, offset, 12 * cnt, ett_conf_phconv, NULL,
+						  "Phasor scaling and data flags (%u)", cnt);
+
+	for (i = 0; i < cnt; i++) {
+		proto_tree *single_phasor_scaling_and_flags_tree;
+		proto_tree *phasor_flag1_tree;
+		proto_tree *phasor_flag2_tree;
+		proto_tree *data_flag_tree;
+
+		single_phasor_scaling_and_flags_tree = proto_tree_add_subtree_format(temp_tree, tvb, offset, 12,
+										     ett_conf_phlist, NULL,
+										     "Phasor #%u", i + 1);
+
+		data_flag_tree = proto_tree_add_subtree_format(single_phasor_scaling_and_flags_tree, tvb, offset, 4,
+							       ett_conf_phflags, NULL, "Phasor Data flags: %s",
+							       conf_phasor_type[tvb_get_guint8(tvb, offset + 2)].strptr);
+
+		/* first and second bytes - phasor modification flags*/
+		phasor_flag1_tree = proto_tree_add_subtree_format(data_flag_tree, tvb, offset, 2, ett_conf_phmod_flags,
+								  NULL, "Modification Flags: 0x%04x",
+								  tvb_get_ntohs(tvb, offset));
+
+		proto_tree_add_item(phasor_flag1_tree, hf_conf_phasor_mod_b15, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phasor_flag1_tree, hf_conf_phasor_mod_b10, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phasor_flag1_tree, hf_conf_phasor_mod_b09, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phasor_flag1_tree, hf_conf_phasor_mod_b08, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phasor_flag1_tree, hf_conf_phasor_mod_b07, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phasor_flag1_tree, hf_conf_phasor_mod_b06, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phasor_flag1_tree, hf_conf_phasor_mod_b05, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phasor_flag1_tree, hf_conf_phasor_mod_b04, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phasor_flag1_tree, hf_conf_phasor_mod_b03, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phasor_flag1_tree, hf_conf_phasor_mod_b02, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phasor_flag1_tree, hf_conf_phasor_mod_b01, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		/* third byte - phasor type*/
+		proto_tree_add_item(data_flag_tree, hf_conf_phasor_type_b03, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(data_flag_tree, hf_conf_phasor_type_b02to00, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+
+		/* fourth byte - user designation*/
+		phasor_flag2_tree = proto_tree_add_subtree_format(data_flag_tree, tvb, offset, 1, ett_conf_ph_user_flags,
+								  NULL, "User designated flags: 0x%02x",
+								  tvb_get_guint8(tvb, offset));
+
+		proto_tree_add_item(phasor_flag2_tree, hf_conf_phasor_user_data, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+
+		/* phasor scalefactor */
+		proto_tree_add_item(single_phasor_scaling_and_flags_tree, hf_conf_phasor_scale_factor,
+				    tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+
+		/* angle adjustment */
+		proto_tree_add_item(single_phasor_scaling_and_flags_tree, hf_conf_phasor_angle_offset,
+				    tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+	}
+
+	return offset;
+}
+
 /* used by 'dissect_config_frame()' to dissect the ANUNIT field */
 static gint dissect_ANUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
 {
@@ -1076,9 +1188,9 @@ static gint dissect_ANUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 		return offset;
 
 	temp_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * cnt, ett_conf_anconv, NULL,
-						  "Analog values conversation factors (%u)", cnt);
+						  "Analog values conversion factors (%u)", cnt);
 
-	/* Conversation factor for analog channels. Four bytes for each analog value.
+	/* Conversion factor for analog channels. Four bytes for each analog value.
 	 * MSB: see 'synphasor_conf_anconvnames' in 'synphasor_strings.c'
 	 * Lower 3 Bytes: signed 24-bit word, user-defined scaling
 	 */
@@ -1095,6 +1207,44 @@ static gint dissect_ANUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 
 		proto_item_append_text(temp_item, ", value: %" G_GINT32_FORMAT, tmp);
 
+		offset += 4;
+	}
+
+	return offset;
+}
+
+/* used by 'dissect_config_3_frame()' to dissect the ANSCALE field */
+static gint dissect_ANSCALE(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
+{
+	proto_tree *temp_tree;
+	int i;
+
+	if (0 == cnt) {
+		return offset;
+	}
+
+	temp_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8 * cnt, ett_conf_anconv, NULL,
+						  "Analog values conversion factors (%u)", cnt);
+
+	/* Conversion factor for analog channels. Four bytes for each analog value.
+	 * MSB: see 'synphasor_conf_anconvnames' in 'synphasor_strings.c'
+	 * Lower 3 Bytes: signed 24-bit word, user-defined scaling
+	 */
+	for (i = 0; i < cnt; i++) {
+		proto_tree *single_analog_scalefactor_tree;
+
+		single_analog_scalefactor_tree = proto_tree_add_subtree_format(temp_tree, tvb, offset, 8,
+									       ett_conf_phlist, NULL,
+									       "Analog #%u", i + 1);
+
+		/* analog scalefactor */
+		proto_tree_add_item(single_analog_scalefactor_tree, hf_conf_analog_scale_factor,
+				    tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+
+		/* angle adjustment */
+		proto_tree_add_item(single_analog_scalefactor_tree, hf_conf_analog_offset,
+				    tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 
@@ -1120,10 +1270,8 @@ static gint dissect_DIGUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint c
 	for (i = 0; i < cnt; i++) {
 
 		mask_tree = proto_tree_add_subtree_format(temp_tree, tvb, offset, 4, ett_status_word_mask, NULL, "Mask for status word #%u: ", i + 1);
-		proto_tree_add_item(mask_tree, hf_synphasor_status_word_mask_normal_state, tvb, offset, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(mask_tree, hf_synphasor_status_word_mask_valid_bits, tvb, offset, 4, ENC_BIG_ENDIAN);
-
-		offset += 4;
+		proto_tree_add_item(mask_tree, hf_synphasor_status_word_mask_normal_state, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+		proto_tree_add_item(mask_tree, hf_synphasor_status_word_mask_valid_bits, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
 	}
 
 	return offset;
@@ -1144,7 +1292,7 @@ static gint dissect_CHNAM(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt
 	/* dissect the 'cnt' channel names */
 	for (i = 0; i < cnt; i++) {
 		char *str;
-		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, CHNAM_LEN, ENC_ASCII);
+		str = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, CHNAM_LEN, ENC_ASCII);
 		proto_tree_add_string_format(temp_tree, hf_synphasor_channel_name, tvb, offset, CHNAM_LEN,
 				    str, "%s #%i: \"%s\"", prefix, i+1, str);
 		offset += CHNAM_LEN;
@@ -1153,6 +1301,622 @@ static gint dissect_CHNAM(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt
 	return offset;
 }
 
+/* used by 'dissect_config_3_frame()' to dissect the "channel name"-fields */
+static gint dissect_config_3_CHNAM(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt, const char *prefix)
+{
+	proto_tree *temp_tree, *chnam_tree;
+	int i;
+	guint8 name_length;
+	gint temp_offset;
+	gint subsection_length = 0;
+
+	if (0 == cnt) {
+		return offset;
+	}
+
+	/* get the subsection length */
+	temp_offset = offset;
+	for (i = 0; i < cnt; i++) {
+		name_length = get_name_length(tvb, temp_offset);
+		/* count the length byte and the actual name */
+		subsection_length += name_length + 1;
+		temp_offset += name_length + 1;
+	}
+
+	temp_tree = proto_tree_add_subtree_format(tree, tvb, offset, subsection_length, ett_conf_phnam,
+						  NULL, "%ss (%u)", prefix, cnt);
+
+	/* dissect the 'cnt' channel names */
+	for (i = 0; i < cnt; i++) {
+		char *str;
+
+		name_length = get_name_length(tvb, offset);
+		str = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, name_length, ENC_ASCII);
+		chnam_tree = proto_tree_add_subtree_format(temp_tree, tvb, offset, name_length + 1, ett_conf,
+							   NULL, "%s #%i: \"%s\"", prefix, i + 1, str);
+
+		proto_tree_add_item(chnam_tree, hf_conf_chnam_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+
+		proto_tree_add_string(chnam_tree, hf_conf_chnam, tvb, offset, 1, str);
+		offset += name_length;
+	}
+
+	return offset;
+}
+
+/* dissects a configuration frame (type 1 and 2) and adds fields to 'config_item' */
+static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
+{
+	proto_tree *config_tree;
+	gint	    offset = 0;
+	guint16	    num_pmu, j;
+
+	proto_item_set_text   (config_item, "Configuration data");
+	config_tree = proto_item_add_subtree(config_item, ett_conf);
+
+	/* TIME_BASE and NUM_PMU */
+	offset += 1; /* skip the reserved byte */
+	proto_tree_add_item(config_tree, hf_conf_timebase, tvb, offset, 3, ENC_BIG_ENDIAN); offset += 3;
+	proto_tree_add_item(config_tree, hf_conf_numpmu,   tvb, offset, 2, ENC_BIG_ENDIAN);
+	/* add number of included PMUs to the text in the list view  */
+	num_pmu = tvb_get_ntohs(tvb, offset); offset += 2;
+	proto_item_append_text(config_item, ", %"G_GUINT16_FORMAT" PMU(s) included", num_pmu);
+
+	/* dissect the repeating PMU blocks */
+	for (j = 0; j < num_pmu; j++) {
+		guint16	    num_ph, num_an, num_dg;
+		proto_item *station_item;
+		proto_tree *station_tree;
+		proto_tree *temp_tree;
+		char	   *str;
+
+		gint oldoffset = offset; /* to calculate the length of the whole PMU block later */
+
+		/* STN with new tree to add the rest of the PMU block */
+		str = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, CHNAM_LEN, ENC_ASCII);
+		station_tree = proto_tree_add_subtree_format(config_tree, tvb, offset, CHNAM_LEN,
+							     ett_conf_station, &station_item,
+							     "Station #%i: \"%s\"", j + 1, str);
+		offset += CHNAM_LEN;
+
+		/* IDCODE */
+		proto_tree_add_item(station_tree, hf_idcode, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+
+		/* FORMAT */
+		temp_tree = proto_tree_add_subtree(station_tree, tvb, offset, 2, ett_conf_format, NULL,
+						   "Data format in data frame");
+		proto_tree_add_item(temp_tree, hf_conf_formatb3, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_conf_formatb2, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_conf_formatb1, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_conf_formatb0, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		/* PHNMR, ANNMR, DGNMR */
+		num_ph = tvb_get_ntohs(tvb, offset    );
+		num_an = tvb_get_ntohs(tvb, offset + 2);
+		num_dg = tvb_get_ntohs(tvb, offset + 4);
+		proto_tree_add_uint(station_tree, hf_synphasor_num_phasors, tvb, offset, 2, num_ph);
+		proto_tree_add_uint(station_tree, hf_synphasor_num_analog_values, tvb, offset + 2, 2, num_an);
+		proto_tree_add_uint(station_tree, hf_synphasor_num_digital_status_words, tvb, offset + 4, 2, num_dg);
+		offset += 6;
+
+		/* CHNAM, the channel names */
+		offset = dissect_CHNAM(tvb, station_tree, offset, num_ph     , "Phasor name"	     );
+		offset = dissect_CHNAM(tvb, station_tree, offset, num_an     , "Analog value"	     );
+		offset = dissect_CHNAM(tvb, station_tree, offset, num_dg * 16, "Digital status label");
+
+		/* PHUNIT, ANUINT and DIGUNIT */
+		offset = dissect_PHUNIT (tvb, station_tree, offset, num_ph);
+		offset = dissect_ANUNIT (tvb, station_tree, offset, num_an);
+		offset = dissect_DIGUNIT(tvb, station_tree, offset, num_dg);
+
+		/* FNOM and CFGCNT */
+		proto_tree_add_item(station_tree, hf_conf_fnom,	  tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+		proto_tree_add_item(station_tree, hf_conf_cfgcnt, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+
+		/* set the correct length for the "Station :" item */
+		proto_item_set_len(station_item, offset - oldoffset);
+	} /* for() PMU blocks */
+
+	/* DATA_RATE */
+	{
+		gint16 tmp = tvb_get_ntohis(tvb, offset);
+		if (tmp > 0)
+			proto_tree_add_int_format_value(config_tree, hf_synphasor_rate_of_transmission, tvb, offset, 2, tmp,
+                        "%d frame(s) per second", tmp);
+		else
+			proto_tree_add_int_format_value(config_tree, hf_synphasor_rate_of_transmission, tvb, offset, 2, tmp,
+                        "1 frame per %d second(s)", (gint16)-tmp);
+		offset += 2;
+	}
+
+	return offset;
+} /* dissect_config_frame() */
+
+/* dissects a configuration frame type 3 and adds fields to 'config_item' */
+static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
+{
+	proto_tree *config_tree, *wgs84_tree;
+	gint	    offset = 0;
+	guint16	    num_pmu, j;
+
+	proto_item_set_text(config_item, "Configuration data");
+	config_tree = proto_item_add_subtree(config_item, ett_conf);
+
+	/* CONT_IDX */
+	proto_tree_add_item(config_tree, hf_cont_idx, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	/* TIME_BASE and NUM_PMU */
+	offset += 1; /* skip the reserved byte */
+
+	proto_tree_add_item(config_tree, hf_conf_timebase, tvb, offset, 3, ENC_BIG_ENDIAN);
+	offset += 3;
+
+	proto_tree_add_item(config_tree, hf_conf_numpmu,   tvb, offset, 2, ENC_BIG_ENDIAN);
+
+	/* add number of included PMUs to the text in the list view  */
+	num_pmu = tvb_get_ntohs(tvb, offset);
+	offset += 2;
+
+	proto_item_append_text(config_item, ", %"G_GUINT16_FORMAT" PMU(s) included", num_pmu);
+
+	/* dissect the repeating PMU blocks */
+	for (j = 0; j < num_pmu; j++) {
+		guint16    num_ph, num_an, num_dg, i;
+		guint8     name_length;
+		gint       oldoffset;
+		gfloat     pmu_lat, pmu_long, pmu_elev;
+		proto_item *station_item;
+		proto_tree *station_tree;
+		proto_tree *temp_tree;
+		char       *str, *service_class;
+		char       *unspecified_location = "Unspecified Location";
+		guint8     g_pmu_id_array[G_PMU_ID_LEN];
+
+		oldoffset = offset; /* to calculate the length of the whole PMU block later */
+
+		/* STN with new tree to add the rest of the PMU block */
+		name_length = get_name_length(tvb, offset);
+		str = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, name_length, ENC_ASCII);
+		station_tree = proto_tree_add_subtree_format(config_tree, tvb, offset, name_length + 1,
+							     ett_conf_station, &station_item,
+							     "Station #%i: \"%s\"", j + 1, str);
+
+		/* Station Name Length */
+		proto_tree_add_item(station_tree, hf_station_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+
+		/* Station Name */
+		proto_tree_add_string(station_tree, hf_station_name, tvb, offset, 1, str);
+		offset += name_length;
+
+		/* IDCODE */
+		proto_tree_add_item(station_tree, hf_idcode, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		/* G_PMU_ID */
+		/* A 128 bit display as raw bytes */
+		for (i = 0; i < G_PMU_ID_LEN; i++) {
+			g_pmu_id_array[i] = tvb_get_guint8(tvb, offset + i);
+		}
+
+		proto_tree_add_bytes_format(station_tree, hf_g_pmu_id, tvb, offset, G_PMU_ID_LEN, 0,
+					    "Global PMU ID (raw bytes): %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
+					    g_pmu_id_array[0], g_pmu_id_array[1], g_pmu_id_array[2], g_pmu_id_array[3],
+					    g_pmu_id_array[4], g_pmu_id_array[5], g_pmu_id_array[6], g_pmu_id_array[7],
+					    g_pmu_id_array[8], g_pmu_id_array[9], g_pmu_id_array[10], g_pmu_id_array[11],
+					    g_pmu_id_array[12], g_pmu_id_array[13], g_pmu_id_array[14], g_pmu_id_array[15]);
+		offset += G_PMU_ID_LEN;
+
+		/* FORMAT */
+		temp_tree = proto_tree_add_subtree(station_tree, tvb, offset, 2, ett_conf_format, NULL,
+						   "Data format in data frame");
+		proto_tree_add_item(temp_tree, hf_conf_formatb3, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_conf_formatb2, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_conf_formatb1, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_conf_formatb0, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		/* PHNMR, ANNMR, DGNMR */
+		num_ph = tvb_get_ntohs(tvb, offset    );
+		num_an = tvb_get_ntohs(tvb, offset + 2);
+		num_dg = tvb_get_ntohs(tvb, offset + 4);
+		proto_tree_add_uint(station_tree, hf_synphasor_num_phasors, tvb, offset, 2, num_ph);
+		proto_tree_add_uint(station_tree, hf_synphasor_num_analog_values, tvb, offset + 2, 2, num_an);
+		proto_tree_add_uint(station_tree, hf_synphasor_num_digital_status_words, tvb, offset + 4, 2, num_dg);
+		offset += 6;
+
+		/* CHNAM, the channel names */
+		offset = dissect_config_3_CHNAM(tvb, station_tree, offset, num_ph, "Phasor name");
+		offset = dissect_config_3_CHNAM(tvb, station_tree, offset, num_an, "Analog value");
+		offset = dissect_config_3_CHNAM(tvb, station_tree, offset, num_dg * 16, "Digital label");
+
+		/* PHUNIT, ANUINT and DIGUNIT */
+		offset = dissect_PHSCALE(tvb, station_tree, offset, num_ph);
+		offset = dissect_ANSCALE(tvb, station_tree, offset, num_an);
+
+		offset = dissect_DIGUNIT(tvb, station_tree, offset, num_dg);
+
+		/* subtree for coordinate info*/
+		wgs84_tree = proto_tree_add_subtree_format(station_tree, tvb, offset, 12, ett_conf_wgs84, NULL,
+							   "World Geodetic System 84 data");
+
+		/* preview latitude, longitude, and elevation values */
+		/* INFINITY is an unspecified location, otherwise use the actual float value */
+		pmu_lat = tvb_get_ntohieee_float(tvb, offset);
+		pmu_long = tvb_get_ntohieee_float(tvb, offset + 4);
+		pmu_elev = tvb_get_ntohieee_float(tvb, offset + 8);
+
+		/* PMU_LAT */
+		if ((isinf(pmu_lat) == 1) || (isinf(pmu_lat) == -1)) {
+			proto_tree_add_string(wgs84_tree, hf_conf_pmu_lat_unknown, tvb, offset,
+					      4, unspecified_location);
+		}
+		else {
+			proto_tree_add_item(wgs84_tree, hf_conf_pmu_lat, tvb, offset, 4, ENC_BIG_ENDIAN);
+		}
+		offset += 4;
+
+		/* PMU_LON */
+		if ((isinf(pmu_long) == 1) || (isinf(pmu_long) == -1)) {
+			proto_tree_add_string(wgs84_tree, hf_conf_pmu_lon_unknown, tvb, offset,
+					      4, unspecified_location);
+		}
+		else {
+			proto_tree_add_item(wgs84_tree, hf_conf_pmu_lon, tvb, offset, 4, ENC_BIG_ENDIAN);
+		}
+		offset += 4;
+
+		/* PMU_ELEV */
+		if ((isinf(pmu_elev) == 1) || (isinf(pmu_elev) == -1)) {
+			proto_tree_add_string(wgs84_tree, hf_conf_pmu_elev_unknown, tvb, offset,
+					      4, unspecified_location);
+		}
+		else {
+			proto_tree_add_item(wgs84_tree, hf_conf_pmu_elev, tvb, offset, 4, ENC_BIG_ENDIAN);
+		}
+		offset += 4;
+
+		/* SVC_CLASS */
+		service_class = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 1, ENC_ASCII);
+		if ((strcmp(service_class, "P") == 0) || (strcmp(service_class, "p") == 0)) {
+			proto_tree_add_string(station_tree, hf_conf_svc_class, tvb, offset, 1, "Protection");
+		}
+		else if ((strcmp(service_class, "M") == 0) || (strcmp(service_class, "m") == 0)) {
+			proto_tree_add_string(station_tree, hf_conf_svc_class, tvb, offset, 1, "Monitoring");
+		}
+		else {
+			proto_tree_add_string(station_tree, hf_conf_svc_class, tvb, offset, 1, "Unknown");
+		}
+		offset += 1;
+
+		/* WINDOW */
+		proto_tree_add_item(station_tree, hf_conf_window, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+
+		/*GRP_DLY */
+		proto_tree_add_item(station_tree, hf_conf_grp_dly, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+
+		/* FNOM and CFGCNT */
+		proto_tree_add_item(station_tree, hf_conf_fnom,	  tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(station_tree, hf_conf_cfgcnt, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		/* set the correct length for the "Station :" item */
+		proto_item_set_len(station_item, offset - oldoffset);
+	} /* for() PMU blocks */
+
+	/* DATA_RATE */
+	{
+		gint16 tmp = tvb_get_ntohis(tvb, offset);
+		if (tmp > 0) {
+			proto_tree_add_int_format_value(config_tree, hf_synphasor_rate_of_transmission, tvb, offset, 2, tmp,
+							"%d frame(s) per second", tmp);
+		}
+		else {
+			proto_tree_add_int_format_value(config_tree, hf_synphasor_rate_of_transmission, tvb, offset, 2, tmp,
+							"1 frame per %d second(s)", (gint16)-tmp);
+		}
+		offset += 2;
+	}
+
+	return offset;
+} /* dissect_config_3_frame() */
+
+/* calculates the size (in bytes) of a data frame that the config_block describes */
+#define SYNP_BLOCKSIZE(x) (2							   /* STAT    */ \
+		   + wmem_array_get_count((x).phasors) * (integer == (x).format_ph ? 4 : 8) /* PHASORS */ \
+		   +			                 (integer == (x).format_fr ? 4 : 8) /* (D)FREQ */ \
+		   + wmem_array_get_count((x).analogs) * (integer == (x).format_an ? 2 : 4) /* ANALOG  */ \
+		   + (x).num_dg * 2)					   /* DIGITAL */
+
+/* Dissects a data frame */
+static int dissect_data_frame(tvbuff_t	  *tvb,
+			      proto_item  *data_item, /* all items are placed beneath this item	  */
+			      packet_info *pinfo)     /* used to find the data from a CFG-2 or CFG-3 frame */
+{
+	proto_tree   *data_tree;
+	gint	      offset	 = 0;
+	guint	      i;
+	config_frame *conf;
+
+	proto_item_set_text(data_item, "Measurement data");
+	data_tree = proto_item_add_subtree(data_item, ett_data);
+
+	/* search for configuration information to dissect the frame */
+	{
+		gboolean config_found = FALSE;
+		conf = (config_frame *)p_get_proto_data(wmem_file_scope(), pinfo, proto_synphasor, 0);
+
+		if (conf) {
+			/* check if the size of the current frame is the
+			   size of the frame the config_frame describes */
+			size_t reported_size = 0;
+			for (i = 0; i < wmem_array_get_count(conf->config_blocks); i++) {
+				config_block *block = (config_block*)wmem_array_index(conf->config_blocks, i);
+				reported_size += SYNP_BLOCKSIZE(*block);
+			}
+
+			if (tvb_reported_length(tvb) == reported_size) {
+				proto_item_append_text(data_item, ", using frame number %"G_GUINT32_FORMAT" as configuration frame",
+						       conf->fnum);
+				config_found = TRUE;
+			}
+		}
+
+		if (!config_found) {
+			proto_item_append_text(data_item, ", no configuration frame found");
+			return 0;
+		}
+	}
+
+	/* dissect a PMU block for every config_block in the frame */
+	for (i = 0; i < wmem_array_get_count(conf->config_blocks); i++) {
+		config_block *block = (config_block*)wmem_array_index(conf->config_blocks, i);
+
+		proto_tree *block_tree = proto_tree_add_subtree_format(data_tree, tvb, offset, SYNP_BLOCKSIZE(*block),
+								       ett_data_block, NULL,
+								       "Station: \"%s\"", block->name);
+
+		/* STAT */
+		proto_tree *temp_tree = proto_tree_add_subtree(block_tree, tvb, offset, 2, ett_data_stat, NULL, "Flags");
+
+		proto_tree_add_item(temp_tree, hf_data_statb15,	    tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_data_statb14,	    tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_data_statb13,	    tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_data_statb12,	    tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_data_statb11,	    tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_data_statb10,	    tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_data_statb09,	    tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_data_statb08to06, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_data_statb05to04, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_data_statb03to00, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		/* PHASORS, (D)FREQ, ANALOG, and DIGITAL */
+		offset = dissect_PHASORS(tvb, block_tree, block, offset);
+		offset = dissect_DFREQ	(tvb, block_tree, block, offset);
+		offset = dissect_ANALOG (tvb, block_tree, block, offset);
+		offset = dissect_DIGITAL(tvb, block_tree, block, offset);
+	}
+	return offset;
+} /* dissect_data_frame() */
+
+/* Dissects a command frame and adds fields to config_item.
+ *
+ * 'pinfo' is used to add the type of command
+ * to the INFO column in the packet list.
+ */
+static int dissect_command_frame(tvbuff_t    *tvb,
+				 proto_item  *command_item,
+				 packet_info *pinfo)
+{
+	proto_tree *command_tree;
+	guint	    tvbsize	  = tvb_reported_length(tvb);
+	const char *s;
+
+	proto_item_set_text(command_item, "Command data");
+	command_tree = proto_item_add_subtree(command_item, ett_command);
+
+	/* CMD */
+	proto_tree_add_item(command_tree, hf_command, tvb, 0, 2, ENC_BIG_ENDIAN);
+
+	s = val_to_str_const(tvb_get_ntohs(tvb, 0), command_names, "invalid command");
+	col_append_str(pinfo->cinfo, COL_INFO, ", ");
+	col_append_str(pinfo->cinfo, COL_INFO, s);
+
+	if (tvbsize > 2) {
+		if (tvb_get_ntohs(tvb, 0) == 0x0008) {
+			/* Command: Extended Frame, the extra data is ok */
+			proto_item *ti = proto_tree_add_item(command_tree, hf_synphasor_extended_frame_data, tvb, 2, tvbsize - 2, ENC_NA);
+			if (tvbsize % 2)
+				expert_add_info(pinfo, ti, &ei_synphasor_extended_frame_data);
+		}
+		else
+			proto_tree_add_item(command_tree, hf_synphasor_unknown_data, tvb, 2, tvbsize - 2, ENC_NA);
+	}
+
+	return tvbsize;
+} /* dissect_command_frame() */
+
+/* Dissects the header (common to all types of frames) and then calls
+ * one of the subdissectors (declared above) for the rest of the frame.
+ */
+static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	guint8	frame_type;
+	guint16 crc;
+	guint	tvbsize = tvb_reported_length(tvb);
+
+	/* some heuristics */
+	if (tvbsize < 17		    /* 17 bytes = header frame with only a
+					       NULL character, useless but valid */
+	 || tvb_get_guint8(tvb, 0) != 0xAA) /* every synchrophasor frame starts with 0xAA */
+		return 0;
+
+	/* write the protocol name to the info column */
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTOCOL_SHORT_NAME);
+
+	frame_type = tvb_get_guint8(tvb, 1) >> 4;
+
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(frame_type, typenames, "invalid packet type"));
+
+	/* CFG-2, CFG3, and DATA frames need special treatment during the first run:
+	 * For CFG-2 & CFG-3 frames, a 'config_frame' struct is created to hold the
+	 * information necessary to decode DATA frames. A pointer to this
+	 * struct is saved in the conversation and is copied to the
+	 * per-packet information if a DATA frame is dissected.
+	 */
+	if (!pinfo->fd->visited) {
+		if (CFG2 == frame_type &&
+		    check_crc(tvb, &crc)) {
+			conversation_t *conversation;
+
+			/* fill the config_frame */
+			config_frame *frame = config_frame_fast(tvb);
+			frame->fnum = pinfo->num;
+
+			/* find a conversation, create a new one if none exists */
+			conversation = find_or_create_conversation(pinfo);
+
+			/* remove data from a previous CFG-2 frame, only
+			 * the most recent configuration frame is relevant */
+			if (conversation_get_proto_data(conversation, proto_synphasor))
+				conversation_delete_proto_data(conversation, proto_synphasor);
+
+			conversation_add_proto_data(conversation, proto_synphasor, frame);
+		}
+		else if ((CFG3 == frame_type) && check_crc(tvb, &crc)) {
+			conversation_t *conversation;
+			config_frame *frame;
+
+			/* fill the config_frame */
+			frame = config_3_frame_fast(tvb);
+			frame->fnum = pinfo->num;
+
+			/* find a conversation, create a new one if none exists */
+			conversation = find_or_create_conversation(pinfo);
+
+			/* remove data from a previous CFG-3 frame, only
+			 * the most recent configuration frame is relevant */
+			if (conversation_get_proto_data(conversation, proto_synphasor)) {
+				conversation_delete_proto_data(conversation, proto_synphasor);
+			}
+
+			conversation_add_proto_data(conversation, proto_synphasor, frame);
+		}
+		else if (DATA == frame_type) {
+			conversation_t *conversation = find_conversation_pinfo(pinfo, 0);
+
+			if (conversation) {
+				config_frame *conf = (config_frame *)conversation_get_proto_data(conversation, proto_synphasor);
+				/* no problem if 'conf' is NULL, the DATA frame dissector checks this again */
+			p_add_proto_data(wmem_file_scope(), pinfo, proto_synphasor, 0, conf);
+			}
+		}
+	} /* if (!visited) */
+
+	{
+		proto_tree *synphasor_tree;
+		proto_item *temp_item;
+		proto_item *sub_item;
+
+		gint	    offset;
+		guint16	    framesize;
+		tvbuff_t   *sub_tvb;
+		gboolean   crc_good;
+
+		temp_item = proto_tree_add_item(tree, proto_synphasor, tvb, 0, -1, ENC_NA);
+		proto_item_append_text(temp_item, ", %s", val_to_str_const(frame_type, typenames,
+									   ", invalid packet type"));
+
+		/* synphasor_tree is where from now on all new elements for this protocol get added */
+		synphasor_tree = proto_item_add_subtree(temp_item, ett_synphasor);
+
+		framesize = dissect_header(tvb, synphasor_tree);
+		offset = 14; /* header is 14 bytes long */
+
+		/* check CRC, call appropriate subdissector for the rest of the frame if CRC is correct*/
+		sub_item  = proto_tree_add_item(synphasor_tree, hf_synphasor_data, tvb, offset, tvbsize - 16, ENC_NA);
+		crc_good = check_crc(tvb, &crc);
+		proto_tree_add_checksum(synphasor_tree, tvb, tvbsize - 2, hf_synphasor_checksum, hf_synphasor_checksum_status, &ei_synphasor_checksum,
+								pinfo, crc16_x25_ccitt_tvb(tvb, tvb_get_ntohs(tvb, 2) - 2), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+		if (!crc_good) {
+			proto_item_append_text(sub_item,  ", not dissected because of wrong checksum");
+		}
+		else {
+			/* create a new tvb to pass to the subdissector
+			   '-16': length of header + 2 CRC bytes */
+			sub_tvb = tvb_new_subset_length_caplen(tvb, offset, tvbsize - 16, framesize - 16);
+
+			/* call subdissector */
+			switch (frame_type) {
+				case DATA:
+					dissect_data_frame(sub_tvb, sub_item, pinfo);
+					break;
+				case HEADER: /* no further dissection is done/needed */
+					proto_item_append_text(sub_item, "Header Frame");
+					break;
+				case CFG1:
+				case CFG2:
+					dissect_config_frame(sub_tvb, sub_item);
+					break;
+				case CMD:
+					dissect_command_frame(sub_tvb, sub_item, pinfo);
+					break;
+				case CFG3:
+					/* Note:  The C37.118-2.2001 stanadard is vague on how to handle fragmented frames.
+						  Until further clarification is given, fragmented frames with the CONT_IDX
+						  are not supported. */
+					if (tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) != 0) {
+						proto_item_append_text(sub_item, ", CFG-3 Fragmented Frame (Not Supported)");
+					}
+					else {
+						dissect_config_3_frame(sub_tvb, sub_item);
+					}
+					break;
+				default:
+					proto_item_append_text(sub_item, " of unknown type");
+			}
+			proto_item_append_text(temp_item, " [correct]");
+		}
+
+		/* remaining 2 bytes are the CRC */
+	}
+
+	return tvb_reported_length(tvb);
+} /* dissect_common() */
+
+/* called for synchrophasors over UDP */
+static int dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	return dissect_common(tvb, pinfo, tree, data);
+}
+
+/* callback for 'tcp_dissect_pdus()' to give it the length of the frame */
+static guint get_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
+                            int offset, void *data _U_)
+{
+	return tvb_get_ntohs(tvb, offset + 2);
+}
+
+static int dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_pdu_length, dissect_common, data);
+
+	return tvb_reported_length(tvb);
+}
+
+/*******************************************************************/
+/* after this line:  Wireshark Register Routines                   */
+/*******************************************************************/
+
+/* Register Synchrophasor Protocol with Wireshark*/
 void proto_register_synphasor(void)
 {
 	static hf_register_info hf[] = {
@@ -1164,7 +1928,7 @@ void proto_register_synphasor(void)
 		/* Flags in the Sync word */
 			{ &hf_sync_frtype,
 			{ "Frame Type", "synphasor.frtype", FT_UINT16, BASE_HEX,
-			  VALS(typenames), 0x0070, NULL, HFILL }},
+			   VALS(typenames), 0x0070, NULL, HFILL }},
 
 			{ &hf_sync_version,
 			{ "Version",	"synphasor.version", FT_UINT16, BASE_DEC,
@@ -1174,8 +1938,20 @@ void proto_register_synphasor(void)
 		{ "Framesize", "synphasor.frsize", FT_UINT16, BASE_DEC,
 		  NULL, 0x0, NULL, HFILL }},
 
+		{ &hf_station_name_len,
+		{ "Station name length", "synphasor.station_name_len", FT_UINT8,
+		  BASE_DEC | BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
+
+		{ &hf_station_name,
+		{ "Station name", "synphasor.station_name", FT_STRING, BASE_NONE,
+		  NULL, 0x0, NULL, HFILL }},
+
 		{ &hf_idcode,
-		{ "PMU/DC ID number", "synphasor.idcode", FT_UINT16, BASE_DEC,
+		{ "PMU/PDC ID number", "synphasor.idcode", FT_UINT16, BASE_DEC,
+		  NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_g_pmu_id,
+		{ "Global PMU ID (raw hex bytes)", "synphasor.gpmuid", FT_BYTES, BASE_NONE,
 		  NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_soc,
@@ -1205,6 +1981,10 @@ void proto_register_synphasor(void)
 		  NULL, 0x0, NULL, HFILL }},
 
 	/* Data types for configuration frames */
+		{ &hf_cont_idx,
+		{ "Continuation index", "synphasor.conf.contindx", FT_UINT16, BASE_DEC,
+		  NULL, 0x0, NULL, HFILL }},
+
 		{ &hf_conf_timebase,
 		{ "Resolution of fractional second time stamp", "synphasor.conf.timebase", FT_UINT24, BASE_DEC,
 		  NULL, 0x0, NULL, HFILL }},
@@ -1229,6 +2009,122 @@ void proto_register_synphasor(void)
 		{ &hf_conf_formatb0,
 		{ "Phasor notation", "synphasor.conf.phasor_notation", FT_BOOLEAN, 16,
 		  TFS(&conf_formatb0names), 0x1, NULL, HFILL }},
+
+		{ &hf_conf_chnam_len,
+		{ "Channel name length", "synphasor.conf.chnam_len", FT_UINT8,
+		  BASE_DEC | BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
+
+		{ &hf_conf_chnam,
+		{ "Channel name", "synphasor.conf.chnam_len", FT_STRING, BASE_NONE,
+		  NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_conf_phasor_mod_b15,
+		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		  TFS(&conf_phasor_mod_b15), 0x8000, NULL, HFILL }},
+
+		{ &hf_conf_phasor_mod_b10,
+		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		  TFS(&conf_phasor_mod_b10), 0x0400, NULL, HFILL }},
+
+		{ &hf_conf_phasor_mod_b09,
+		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		  TFS(&conf_phasor_mod_b09), 0x0200, NULL, HFILL }},
+
+		{ &hf_conf_phasor_mod_b08,
+		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		  TFS(&conf_phasor_mod_b08), 0x0100, NULL, HFILL }},
+
+		{ &hf_conf_phasor_mod_b07,
+		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		  TFS(&conf_phasor_mod_b07), 0x0080, NULL, HFILL }},
+
+		{ &hf_conf_phasor_mod_b06,
+		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		  TFS(&conf_phasor_mod_b06), 0x0040, NULL, HFILL }},
+
+		{ &hf_conf_phasor_mod_b05,
+		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		  TFS(&conf_phasor_mod_b05), 0x0020, NULL, HFILL }},
+
+		{ &hf_conf_phasor_mod_b04,
+		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		  TFS(&conf_phasor_mod_b04), 0x0010, NULL, HFILL }},
+
+		{ &hf_conf_phasor_mod_b03,
+		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		  TFS(&conf_phasor_mod_b03), 0x0008, NULL, HFILL }},
+
+		{ &hf_conf_phasor_mod_b02,
+		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		  TFS(&conf_phasor_mod_b02), 0x0004, NULL, HFILL }},
+
+		{ &hf_conf_phasor_mod_b01,
+		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		  TFS(&conf_phasor_mod_b01), 0x0002, NULL, HFILL }},
+
+		{ &hf_conf_phasor_type_b03,
+		{ "Phasor Type", "synphasor.conf.phasor_flags", FT_BOOLEAN, 8,
+		  TFS(&conf_phasor_type_b03), 0x0008, NULL, HFILL }},
+
+		{ &hf_conf_phasor_type_b02to00,
+		{ "Phasor Type", "synphasor.conf.phasor_flags", FT_UINT16, BASE_HEX,
+		  VALS(conf_phasor_type_b02to00), 0x0007, NULL, HFILL }},
+
+		{ &hf_conf_phasor_user_data,
+		{ "Binary format", "synphasor.conf.phasor_user_flags", FT_BOOLEAN, 8,
+		  TFS(&conf_phasor_user_defined), 0x00ff, NULL, HFILL }},
+
+		{ &hf_conf_phasor_scale_factor,
+		{ "Phasor scale factor", "synphasor.conf.phasor_scale_factor", FT_FLOAT,
+		  BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_conf_phasor_angle_offset,
+		{ "Phasor angle offset", "synphasor.conf.phasor_angle_offset", FT_FLOAT,
+		  BASE_NONE | BASE_UNIT_STRING, &units_degree_degrees, 0x0, NULL, HFILL }},
+
+		{ &hf_conf_analog_scale_factor,
+		{ "Analog scale factor", "synphasor.conf.analog_scale_factor", FT_FLOAT,
+		  BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_conf_analog_offset,
+		{ "Analog offset", "synphasor.conf.analog_offset", FT_FLOAT,
+		  BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_conf_pmu_lat,
+		{ "PMU Latitude", "synphasor.conf.pmu_latitude", FT_FLOAT,
+		  BASE_NONE | BASE_UNIT_STRING, &units_degree_degrees, 0x0, NULL, HFILL }},
+
+		{ &hf_conf_pmu_lon,
+		{ "PMU Longitude", "synphasor.conf.pmu_longitude", FT_FLOAT,
+		  BASE_NONE | BASE_UNIT_STRING, &units_degree_degrees, 0x0, NULL, HFILL }},
+
+		{ &hf_conf_pmu_elev,
+		{ "PMU Elevation", "synphasor.conf.pmu_elevation", FT_FLOAT,
+		  BASE_NONE | BASE_UNIT_STRING, &units_meter_meters, 0x0, NULL, HFILL }},
+
+		{ &hf_conf_pmu_lat_unknown,
+		{ "PMU Latitude", "synphasor.conf.pmu_latitude", FT_STRING, BASE_NONE,
+		  NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_conf_pmu_lon_unknown,
+		{ "PMU Longitude", "synphasor.conf.pmu_longitude", FT_STRING, BASE_NONE,
+		  NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_conf_pmu_elev_unknown,
+		{ "PMU Elevation", "synphasor.conf.pmu_elevation", FT_STRING, BASE_NONE,
+		  NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_conf_svc_class,
+		{ "Service class", "synphasor.conf.svc_class", FT_STRING, BASE_NONE,
+		  NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_conf_window,
+		{ "PM window length", "synphasor.conf.window", FT_UINT32,
+		  BASE_DEC | BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0, NULL, HFILL }},
+
+		{ &hf_conf_grp_dly,
+		{ "PM group delay", "synphasor.conf.grp_dly", FT_UINT32,
+		  BASE_DEC | BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0, NULL, HFILL }},
 
 		{ &hf_conf_fnom,
 		{ "Nominal line frequency", "synphasor.conf.fnom", FT_BOOLEAN, 16,
@@ -1264,6 +2160,14 @@ void proto_register_synphasor(void)
 		{ "Configuration changed", "synphasor.data.CFGchange", FT_BOOLEAN, 16,
 		  TFS(&data_statb10names), 0x0400, NULL, HFILL }},
 
+		{ &hf_data_statb09,
+		{ "Data modified indicator", "synphasor.data.data_modified", FT_BOOLEAN, 16,
+		  TFS(&data_statb09names), 0x0200, NULL, HFILL }},
+
+		{ &hf_data_statb08to06,
+		{ "PMU Time Quality", "synphasor.data.pmu_tq", FT_UINT16, BASE_HEX,
+		  VALS(data_statb08to06names), 0x01C0, NULL, HFILL }},
+
 		{ &hf_data_statb05to04,
 		{ "Unlocked time", "synphasor.data.t_unlock", FT_UINT16, BASE_HEX,
 		  VALS(data_statb05to04names), 0x0030, NULL, HFILL }},
@@ -1296,8 +2200,8 @@ void proto_register_synphasor(void)
       { &hf_synphasor_channel_name, { "Channel name", "synphasor.channel_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_synphasor_extended_frame_data, { "Extended frame data", "synphasor.extended_frame_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_synphasor_unknown_data, { "Unknown data", "synphasor.data.unknown", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_synphasor_status_word_mask_normal_state, { "Normal state", "synphasor.status_word_mask.normal_state", FT_UINT32, BASE_HEX, NULL, 0xFFFF0000, NULL, HFILL }},
-      { &hf_synphasor_status_word_mask_valid_bits, { "Valid bits", "synphasor.status_word_mask.valid_bits", FT_UINT32, BASE_HEX, NULL, 0x0000FFFF, NULL, HFILL }},
+      { &hf_synphasor_status_word_mask_normal_state, { "Normal state", "synphasor.status_word_mask.normal_state", FT_UINT16, BASE_HEX, NULL, 0xFFFF, NULL, HFILL }},
+      { &hf_synphasor_status_word_mask_valid_bits, { "Valid bits", "synphasor.status_word_mask.valid_bits", FT_UINT16, BASE_HEX, NULL, 0xFFFF, NULL, HFILL }},
 	};
 
 	/* protocol subtree array */
@@ -1312,8 +2216,15 @@ void proto_register_synphasor(void)
 		&ett_conf_annam,
 		&ett_conf_dgnam,
 		&ett_conf_phconv,
+		&ett_conf_phlist,
+		&ett_conf_phflags,
+		&ett_conf_phmod_flags,
+		&ett_conf_ph_user_flags,
 		&ett_conf_anconv,
+		&ett_conf_anlist,
 		&ett_conf_dgmask,
+		&ett_conf_chnam,
+		&ett_conf_wgs84,
 		&ett_data,
 		&ett_data_block,
 		&ett_data_stat,

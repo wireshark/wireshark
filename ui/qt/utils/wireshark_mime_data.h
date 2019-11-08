@@ -16,27 +16,11 @@ class WiresharkMimeData: public QMimeData {
 public:
     virtual QString labelText() const = 0;
     virtual void allowPlainText();
-};
 
-class DisplayFilterMimeData: public WiresharkMimeData {
-    Q_OBJECT
-public:
-
-    DisplayFilterMimeData(QString description, QString field, QString filter);
-
-    QString description() const;
-    QString field() const;
-    QString filter() const;
-
-    QString labelText() const override;
-    void allowPlainText() override;
-
-private:
-
-    QString description_;
-    QString filter_;
-    QString field_;
-
+    static const QString ColoringRulesMimeType;
+    static const QString ColumnListMimeType;
+    static const QString FilterListMimeType;
+    static const QString DisplayFilterMimeType;
 };
 
 class ToolbarEntryMimeData: public WiresharkMimeData {
@@ -47,12 +31,15 @@ public:
 
     int position() const;
     QString element() const;
+    QString filter() const;
+    void setFilter(QString);
 
     QString labelText() const override;
 
 private:
 
     QString element_;
+    QString filter_;
     int pos_;
 
 };

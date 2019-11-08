@@ -1,4 +1,4 @@
-/* snort-config.c
+/* packet-snort-config.c
  *
  * Copyright 2016, Martin Mathieson
  *
@@ -18,15 +18,9 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/report_message.h>
 
-#include "snort-config.h"
-
-
-#ifndef _WIN32
-const char* g_file_separator = "/";
-#else
-const char* g_file_separator = "\\";
-#endif
+#include "packet-snort-config.h"
 
 /* Forward declaration */
 static void parse_config_file(SnortConfig_t *snort_config, FILE *config_file_fd, const char *filename, const char *dirname, int recursion_level);
@@ -522,7 +516,7 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
     include_filename = read_token(line+accumulated_length, ' ', &length, &accumulated_length, FALSE);
     if (*include_filename != '\0') {
         FILE *new_config_fd;
-        char substituted_filename[512];
+        char *substituted_filename;
         gboolean is_rule_file = FALSE;
 
         /* May need to substitute variables into include path. */
@@ -531,19 +525,18 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
             /* Don't assume $RULE_PATH will end in a file separator */
             if (snort_config->rule_path_is_absolute) {
                 /* Rule path is absolute, so it can go at start */
-                g_snprintf(substituted_filename, 512, "%s%s%s",
+                substituted_filename = g_build_path(G_DIR_SEPARATOR_S,
                            snort_config->rule_path,
-                           g_file_separator,
-                           include_filename + 11);
+                           include_filename + 11,
+                           NULL);
             }
             else {
                 /* Rule path is relative to config directory, so it goes first */
-                g_snprintf(substituted_filename, 512, "%s%s%s%s%s",
+                substituted_filename = g_build_path(G_DIR_SEPARATOR_S,
                            config_directory,
-                           g_file_separator,
                            snort_config->rule_path,
-                           g_file_separator,
-                           include_filename + 11);
+                           include_filename + 11,
+                           NULL);
             }
             is_rule_file = TRUE;
         }
@@ -551,10 +544,11 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
             /* No $RULE_PATH, just use directory and filename */
             /* But may not even need directory if included_folder is absolute! */
             if (!g_path_is_absolute(include_filename)) {
-                g_snprintf(substituted_filename, 512, "%s/%s", config_directory, include_filename);
+                substituted_filename = g_build_path(G_DIR_SEPARATOR_S,
+                            config_directory, include_filename, NULL);
             }
             else {
-                g_strlcpy(substituted_filename, include_filename, 512);
+                substituted_filename = g_strdup(include_filename);
             }
         }
 
@@ -562,6 +556,8 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
         new_config_fd = ws_fopen(substituted_filename, "r");
         if (new_config_fd == NULL) {
             snort_debug_printf("Failed to open config file %s\n", substituted_filename);
+            report_failure("Snort dissector: Failed to open config file %s\n", substituted_filename);
+            g_free(substituted_filename);
             return FALSE;
         }
 
@@ -570,6 +566,7 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
             snort_config->stat_rules_files++;
         }
         parse_config_file(snort_config, new_config_fd, substituted_filename, config_directory, recursion_level + 1);
+        g_free(substituted_filename);
 
         /* Close the file */
         fclose(new_config_fd);
@@ -603,8 +600,9 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
         g_strlcpy(name, options+option_start_offset, options_end_offset-option_start_offset);
     }
 
-    /* Do this extraction in one place (may not be number but should be OK) */
-    ws_strtoi32(value, (const gchar**)&value[value_length], &value32);
+    /* Some rule options expect a number, parse it now. Note that any space
+     * after the value will currently result in the number being ignored. */
+    ws_strtoi32(value, NULL, &value32);
 
     /* Think this is space at end of all options - don't compare with option names */
     if (name[0] == '\0') {
@@ -619,7 +617,7 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
         rule->sid = value32;
     }
     else if (strcmp(name, "rev") == 0) {
-        value32 = rule->rev;
+        rule->rev = value32;
     }
     else if (strcmp(name, "content") == 0) {
         int value_start = 0;
@@ -921,6 +919,7 @@ void create_config(SnortConfig_t **snort_config, const char *snort_config_file)
     config_file_fd = ws_fopen(snort_config_file, "r");
     if (config_file_fd == NULL) {
         snort_debug_printf("Failed to open config file %s\n", snort_config_file);
+        report_failure("Snort dissector: Failed to open config file %s\n", snort_config_file);
         return;
     }
 

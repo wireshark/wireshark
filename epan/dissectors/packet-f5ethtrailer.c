@@ -223,7 +223,7 @@ Notes:
 #include <epan/expert.h>
 #include <epan/proto.h>
 #include <epan/proto_data.h>
-#include <epan/dissector_filters.h>
+#include <epan/conversation_filter.h>
 #include <epan/dissectors/packet-ip.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/etypes.h>

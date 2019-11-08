@@ -102,6 +102,7 @@ struct _wslua_tvbrange {
 struct _wslua_tw {
     funnel_text_window_t* ws_tw;
     gboolean expired;
+    void* close_cb_data;
 };
 
 typedef struct _wslua_field_t {

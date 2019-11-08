@@ -91,7 +91,7 @@
 #include <epan/address_types.h>
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>
-#include <epan/dissector_filters.h>
+#include <epan/conversation_filter.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/strutil.h>

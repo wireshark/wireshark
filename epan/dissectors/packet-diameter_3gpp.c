@@ -467,6 +467,16 @@ static int hf_diameter_3gpp_feature_list_s6t_flags_bit5 = -1;
 static int hf_diameter_3gpp_feature_list_s6t_flags_bit6 = -1;
 static int hf_diameter_3gpp_feature_list_s6t_flags_bit7 = -1;
 static int hf_diameter_3gpp_feature_list_s6t_spare_b31_b8 = -1;
+static int hf_diameter_3gpp_supported_monitoring_events = -1;
+static int hf_diameter_3gpp_supported_monitoring_events_b0 = -1;
+static int hf_diameter_3gpp_supported_monitoring_events_b1 = -1;
+static int hf_diameter_3gpp_supported_monitoring_events_b2 = -1;
+static int hf_diameter_3gpp_supported_monitoring_events_b3 = -1;
+static int hf_diameter_3gpp_supported_monitoring_events_b4 = -1;
+static int hf_diameter_3gpp_supported_monitoring_events_b5 = -1;
+static int hf_diameter_3gpp_supported_monitoring_events_b6 = -1;
+static int hf_diameter_3gpp_supported_monitoring_events_b7 = -1;
+static int hf_diameter_3gpp_supported_monitoring_events_b8 = -1;
 
 static gint diameter_3gpp_qos_subscribed_ett = -1;
 static gint diameter_3gpp_ulr_flags_ett = -1;
@@ -504,6 +514,7 @@ static gint diameter_3gpp_plr_flags_ett = -1;
 static gint diameter_3gpp_pla_flags_ett = -1;
 static gint diameter_3gpp_deferred_location_type_ett = -1;
 static gint diameter_3gpp_rir_flags_ett = -1;
+static guint ett_diameter_3gpp_supported_monitoring_events = -1;
 
 static int hf_diameter_3gpp_feature_list1_rx_flags_bit0 = -1;
 static int hf_diameter_3gpp_feature_list1_rx_flags_bit1 = -1;
@@ -2679,6 +2690,33 @@ dissect_diameter_3gpp_ran_nas_release_cause(tvbuff_t *tvb, packet_info *pinfo _U
     return offset;
 }
 
+/* AVP Code: 3144 Supported-Monitoring-Events*/
+static int
+dissect_diameter_3gpp_supported_monitoring_events(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data)
+{
+    /* Unsigned64 */
+    static const int* flags[] = {
+        &hf_diameter_3gpp_supported_monitoring_events_b8,
+        &hf_diameter_3gpp_supported_monitoring_events_b7,
+        &hf_diameter_3gpp_supported_monitoring_events_b6,
+        &hf_diameter_3gpp_supported_monitoring_events_b5,
+        &hf_diameter_3gpp_supported_monitoring_events_b4,
+        &hf_diameter_3gpp_supported_monitoring_events_b3,
+        &hf_diameter_3gpp_supported_monitoring_events_b2,
+        &hf_diameter_3gpp_supported_monitoring_events_b1,
+        &hf_diameter_3gpp_supported_monitoring_events_b0,
+        NULL
+    };
+
+    diam_sub_dis_t* diam_sub_dis_inf = (diam_sub_dis_t*)data;
+
+    /* Hide the item created in packet-diameter.c and only show the one created here */
+    proto_item_set_hidden(diam_sub_dis_inf->item);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_supported_monitoring_events, ett_diameter_3gpp_supported_monitoring_events, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    return 8;
+}
+
+
 /* AVP Code: 3167 RIR-Flags */
 static int
 dissect_diameter_3gpp_rir_flags(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data)
@@ -3066,6 +3104,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 2819 RAN-NAS-Release-Cause */
     dissector_add_uint("diameter.3gpp", 2819, create_dissector_handle(dissect_diameter_3gpp_ran_nas_release_cause, proto_diameter_3gpp));
+
+    /* AVP Code: 3144 Supported-Monitoring-Events*/
+    dissector_add_uint("diameter.3gpp", 3144, create_dissector_handle(dissect_diameter_3gpp_supported_monitoring_events, proto_diameter_3gpp));
 
     /* AVP Code: 3167 RIR-Flags */
     dissector_add_uint("diameter.3gpp", 3167, create_dissector_handle(dissect_diameter_3gpp_rir_flags, proto_diameter_3gpp));
@@ -5555,7 +5596,56 @@ proto_register_diameter_3gpp(void)
           FT_UINT32, BASE_HEX, NULL, 0xffffff00,
           NULL, HFILL }
         },
-
+         { &hf_diameter_3gpp_supported_monitoring_events,
+         { "Supported-Monitoring-Events", "diameter.3gpp.supported_monitoring_events",
+           FT_UINT64, BASE_HEX, NULL, 0x0,
+           NULL, HFILL }
+         },
+         { &hf_diameter_3gpp_supported_monitoring_events_b0,
+         { "UE and UICC and/or new IMSI-IMEI-SV association", "diameter.3gpp.supported_monitoring_events.b0",
+          FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), 0x0000000000000001,
+           NULL, HFILL }
+         },
+         { &hf_diameter_3gpp_supported_monitoring_events_b1,
+         { "UE-reachability", "diameter.3gpp.supported_monitoring_events.b1",
+          FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), 0x0000000000000002,
+           NULL, HFILL }
+         },
+        { &hf_diameter_3gpp_supported_monitoring_events_b2,
+        { "Location-of-the-UE", "diameter.3gpp.supported_monitoring_events.b2",
+         FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), 0x0000000000000004,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_supported_monitoring_events_b3,
+        { "Loss-of-connectivity", "diameter.3gpp.supported_monitoring_events.b3",
+         FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), 0x0000000000000008,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_supported_monitoring_events_b4,
+        { "Communication-failure", "diameter.3gpp.supported_monitoring_events.b4",
+         FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), 0x0000000000000010,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_supported_monitoring_events_b5,
+        { "Roaming-status", "diameter.3gpp.supported_monitoring_events.b5",
+         FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), 0x0000000000000020,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_supported_monitoring_events_b6,
+        { "Availability after DDN failure", "diameter.3gpp.supported_monitoring_events.b6",
+         FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), 0x0000000000000040,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_supported_monitoring_events_b7,
+        { "Idle Status Indication", "diameter.3gpp.supported_monitoring_events.b7",
+         FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), 0x0000000000000080,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_supported_monitoring_events_b8,
+        { "PDN Connectivity Status", "diameter.3gpp.supported_monitoring_events.b8",
+         FT_BOOLEAN, 64, TFS(&tfs_supported_not_supported), 0x0000000000000100,
+          NULL, HFILL }
+        },
 };
 
 
@@ -5601,7 +5691,8 @@ proto_register_diameter_3gpp(void)
         &diameter_3gpp_plr_flags_ett,
         &diameter_3gpp_pla_flags_ett,
         &diameter_3gpp_deferred_location_type_ett,
-        &diameter_3gpp_rir_flags_ett
+        &diameter_3gpp_rir_flags_ett,
+        &ett_diameter_3gpp_supported_monitoring_events
     };
 
     expert_module_t *expert_diameter_3gpp;

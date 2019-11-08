@@ -12,6 +12,8 @@
 #include <QToolTip>
 #include <QAction>
 #include <QInputDialog>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include <packet_list.h>
 
@@ -40,10 +42,10 @@ PacketListHeader::PacketListHeader(Qt::Orientation orientation, capture_file * c
 
 void PacketListHeader::dragEnterEvent(QDragEnterEvent *event)
 {
-    if ( ! event )
+    if ( ! event || ! event->mimeData() )
         return;
 
-    if ( qobject_cast<const DisplayFilterMimeData *>(event->mimeData()) && event->source() != this->parent() )
+    if ( event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType) && event->source() != this->parent() )
     {
         if ( event->source() != this )
         {
@@ -59,10 +61,10 @@ void PacketListHeader::dragEnterEvent(QDragEnterEvent *event)
 
 void PacketListHeader::dragMoveEvent(QDragMoveEvent *event)
 {
-    if ( ! event )
+    if ( ! event || ! event->mimeData() )
         return;
 
-    if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData()))
+    if ( event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType) )
     {
         if ( event->source() != this )
         {
@@ -78,14 +80,20 @@ void PacketListHeader::dragMoveEvent(QDragMoveEvent *event)
 
 void PacketListHeader::dropEvent(QDropEvent *event)
 {
-    if ( ! event )
+    if ( ! event || ! event->mimeData() )
         return;
 
     /* Moving items around */
-    if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
-        const DisplayFilterMimeData * data = qobject_cast<const DisplayFilterMimeData *>(event->mimeData());
+    if ( event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType) )
+    {
+        QByteArray jsonData = event->mimeData()->data(WiresharkMimeData::DisplayFilterMimeType);
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
+        if ( ! jsonDoc.isObject() )
+            return;
 
-        if ( event->source() != this )
+        QJsonObject data = jsonDoc.object();
+
+        if ( event->source() != this && data.contains("description") && data.contains("field") )
         {
             event->setDropAction(Qt::CopyAction);
             event->accept();
@@ -94,7 +102,7 @@ void PacketListHeader::dropEvent(QDropEvent *event)
             if ( mw )
             {
                 int idx = logicalIndexAt(event->pos());
-                mw->insertColumn(data->description(), data->field(), idx);
+                mw->insertColumn(data["description"].toString(), data["field"].toString(), idx);
             }
 
         } else {

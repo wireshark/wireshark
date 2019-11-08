@@ -325,6 +325,7 @@ static const value_string param_functionnames[] = {
 /**************************************************************************
  * Area names
  */
+#define S7COMM_AREA_DATARECORD              0x01        /* Data record, used with RDREC or firmware updates on CP */
 #define S7COMM_AREA_SYSINFO                 0x03        /* System info of 200 family */
 #define S7COMM_AREA_SYSFLAGS                0x05        /* System flags of 200 family */
 #define S7COMM_AREA_ANAIN                   0x06        /* analog inputs of 200 family */
@@ -343,6 +344,7 @@ static const value_string param_functionnames[] = {
 #define S7COMM_AREA_TIMER200                31          /* IEC timers (200 family) */
 
 static const value_string item_areanames[] = {
+    { S7COMM_AREA_DATARECORD,               "Data record" },
     { S7COMM_AREA_SYSINFO,                  "System info of 200 family" },
     { S7COMM_AREA_SYSFLAGS,                 "System flags of 200 family" },
     { S7COMM_AREA_ANAIN,                    "Analog inputs of 200 family" },
@@ -363,6 +365,7 @@ static const value_string item_areanames[] = {
 };
 
 static const value_string item_areanames_short[] = {
+    { S7COMM_AREA_DATARECORD,               "RECORD" },
     { S7COMM_AREA_SYSINFO,                  "SI200" },
     { S7COMM_AREA_SYSFLAGS,                 "SF200" },
     { S7COMM_AREA_ANAIN,                    "AI200" },
@@ -823,12 +826,14 @@ static const value_string userdata_varstat_trgevent_names[] = {
 #define S7COMM_UD_SUBF_CYCLIC_UNSUBSCRIBE   0x04
 #define S7COMM_UD_SUBF_CYCLIC_CHANGE        0x05
 #define S7COMM_UD_SUBF_CYCLIC_CHANGE_MOD    0x07
+#define S7COMM_UD_SUBF_CYCLIC_RDREC         0x08
 
 static const value_string userdata_cyclic_subfunc_names[] = {
     { S7COMM_UD_SUBF_CYCLIC_TRANSF,         "Cyclic transfer" },
     { S7COMM_UD_SUBF_CYCLIC_UNSUBSCRIBE,    "Unsubscribe" },
     { S7COMM_UD_SUBF_CYCLIC_CHANGE,         "Change driven transfer" },
     { S7COMM_UD_SUBF_CYCLIC_CHANGE_MOD,     "Change driven transfer modify" },
+    { S7COMM_UD_SUBF_CYCLIC_RDREC,          "RDREC" },
     { 0,                                    NULL }
 };
 
@@ -1705,6 +1710,16 @@ static gint hf_s7comm_cycl_interval_timebase = -1;          /* Interval timebase
 static gint hf_s7comm_cycl_interval_time = -1;              /* Interval time, 1 byte, int */
 static gint hf_s7comm_cycl_function = -1;
 static gint hf_s7comm_cycl_jobid = -1;
+
+/* Read record */
+static gint hf_s7comm_rdrec_mlen = -1;                      /* Max. length in bytes of the data record data to be read */
+static gint hf_s7comm_rdrec_index = -1;                     /* Data record number */
+static gint hf_s7comm_rdrec_id = -1;                        /* Diagnostic address */
+static gint hf_s7comm_rdrec_statuslen = -1;                 /* Length of optional status data */
+static gint hf_s7comm_rdrec_statusdata = -1;                /* Optional status data */
+static gint hf_s7comm_rdrec_recordlen = -1;                 /* Length of data record data read */
+static gint hf_s7comm_rdrec_data = -1;                      /* The read data record */
+static gint hf_s7comm_rdrec_reserved1 = -1;
 
 /* PBC, Programmable Block Functions */
 static gint hf_s7comm_pbc_unknown = -1;                     /* unknown, 1 byte */
@@ -2678,37 +2693,55 @@ s7comm_syntaxid_s7any(tvbuff_t *tvb,
     /* Transport size, 1 byte */
     proto_tree_add_item_ret_uint(tree, hf_s7comm_item_transport_size, tvb, offset, 1, ENC_BIG_ENDIAN, &t_size);
     offset += 1;
-    /* Length, 2 bytes */
-    proto_tree_add_item_ret_uint(tree, hf_s7comm_item_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
-    offset += 2;
-    /* DB number, 2 bytes */
-    proto_tree_add_item_ret_uint(tree, hf_s7comm_item_db, tvb, offset, 2, ENC_BIG_ENDIAN, &db);
-    offset += 2;
-    /* Area, 1 byte */
-    proto_tree_add_item_ret_uint(tree, hf_s7comm_item_area, tvb, offset, 1, ENC_BIG_ENDIAN, &area);
-    offset += 1;
-    /* Address, 3 bytes */
-    address_item = proto_tree_add_item_ret_uint(tree, hf_s7comm_item_address, tvb, offset, 3, ENC_BIG_ENDIAN, &a_address);
-    address_item_tree = proto_item_add_subtree(address_item, ett_s7comm_item_address);
-    bytepos = a_address / 8;
-    bitpos = a_address % 8;
-    /* build a full address to show item data directly beside the item */
-    proto_item_append_text(tree, " (%s", val_to_str(area, item_areanames_short, "unknown area 0x%02x"));
-    if (area == S7COMM_AREA_TIMER || area == S7COMM_AREA_COUNTER) {
-        proto_item_append_text(tree, " %d)", a_address);
-        proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_nr, tvb, offset, 3, a_address);
+    /* Special handling of data record */
+    area = tvb_get_guint8(tvb, offset + 4);     /* peek area first */
+    if (area == S7COMM_AREA_DATARECORD) {
+        /* MLEN, 2 bytes */
+        proto_tree_add_item_ret_uint(tree, hf_s7comm_rdrec_mlen, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+        offset += 2;
+        /* INDEX, 2 bytes */
+        proto_tree_add_item_ret_uint(tree, hf_s7comm_rdrec_index, tvb, offset, 2, ENC_BIG_ENDIAN, &db);
+        offset += 2;
+        /* Area, 1 byte */
+        proto_tree_add_uint(tree, hf_s7comm_item_area, tvb, offset, 1, area);
+        offset += 1;
+        /* ID, 3 bytes */
+        proto_tree_add_item_ret_uint(tree, hf_s7comm_rdrec_id, tvb, offset, 3, ENC_BIG_ENDIAN, &a_address);
+        offset += 3;
+        proto_item_append_text(tree, " (RECORD MLEN=%d INDEX=0x%04x ID=%d)", len, db, a_address);
     } else {
-        proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_byte, tvb, offset, 3, a_address);
-        proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_bit, tvb, offset, 3, a_address);
-        if (area == S7COMM_AREA_DB) {
-            proto_item_append_text(tree, " %d.DBX", db);
-        } else if (area == S7COMM_AREA_DI) {
-            proto_item_append_text(tree, " %d.DIX", db);
+        /* Length, 2 bytes */
+        proto_tree_add_item_ret_uint(tree, hf_s7comm_item_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+        offset += 2;
+        /* DB number, 2 bytes */
+        proto_tree_add_item_ret_uint(tree, hf_s7comm_item_db, tvb, offset, 2, ENC_BIG_ENDIAN, &db);
+        offset += 2;
+        /* Area, 1 byte */
+        proto_tree_add_uint(tree, hf_s7comm_item_area, tvb, offset, 1, area);
+        offset += 1;
+        /* Address, 3 bytes */
+        address_item = proto_tree_add_item_ret_uint(tree, hf_s7comm_item_address, tvb, offset, 3, ENC_BIG_ENDIAN, &a_address);
+        address_item_tree = proto_item_add_subtree(address_item, ett_s7comm_item_address);
+        bytepos = a_address / 8;
+        bitpos = a_address % 8;
+        /* build a full address to show item data directly beside the item */
+        proto_item_append_text(tree, " (%s", val_to_str(area, item_areanames_short, "unknown area 0x%02x"));
+        if (area == S7COMM_AREA_TIMER || area == S7COMM_AREA_COUNTER) {
+            proto_item_append_text(tree, " %d)", a_address);
+            proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_nr, tvb, offset, 3, a_address);
+        } else {
+            proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_byte, tvb, offset, 3, a_address);
+            proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_bit, tvb, offset, 3, a_address);
+            if (area == S7COMM_AREA_DB) {
+                proto_item_append_text(tree, " %d.DBX", db);
+            } else if (area == S7COMM_AREA_DI) {
+                proto_item_append_text(tree, " %d.DIX", db);
+            }
+            proto_item_append_text(tree, " %d.%d %s %d)",
+                bytepos, bitpos, val_to_str(t_size, item_transportsizenames, "Unknown transport size: 0x%02x"), len);
         }
-        proto_item_append_text(tree, " %d.%d %s %d)",
-            bytepos, bitpos, val_to_str(t_size, item_transportsizenames, "Unknown transport size: 0x%02x"), len);
+        offset += 3;
     }
-    offset += 3;
     return offset;
 }
 /*******************************************************************************************************
@@ -6030,6 +6063,72 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
 
 /*******************************************************************************************************
  *
+ * PDU Type: User Data -> Function group 2 -> Read record
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_ud_readrec(tvbuff_t *tvb,
+                         proto_tree *tree,
+                         guint8 type,
+                         guint32 offset)
+{
+    guint32 ret_val;
+    guint32 statuslen;
+    guint32 reclen;
+    guint8 item_count;
+
+    if (type == S7COMM_UD_TYPE_REQ) {
+        proto_tree_add_item(tree, hf_s7comm_rdrec_reserved1, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        /* Although here is an item_count field, values above 1 aren't allowed or at least never seen */
+        item_count = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint(tree, hf_s7comm_param_itemcount, tvb, offset, 1, item_count);
+        offset += 1;
+        if (item_count > 0) {
+            offset = s7comm_decode_param_item(tvb, offset, tree, 0);
+        }
+    } else if (type == S7COMM_UD_TYPE_RES) {
+        /* The item with data is used for optional status code similar to the
+         * STATUS output of SFB52 RDREC used in Plc code.
+         */
+        proto_tree_add_item(tree, hf_s7comm_rdrec_reserved1, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        item_count = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint(tree, hf_s7comm_param_itemcount, tvb, offset, 1, item_count);
+        offset += 1;
+        /* As all testsubjects have shown that no more than one item is allowed,
+         * we decode only the first item here.
+         */
+        if (item_count > 0) {
+            proto_tree_add_item_ret_uint(tree, hf_s7comm_data_returncode, tvb, offset, 1, ENC_BIG_ENDIAN, &ret_val);
+            offset += 1;
+            if (ret_val == S7COMM_ITEM_RETVAL_DATA_OK) {
+                proto_tree_add_item(tree, hf_s7comm_data_transport_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+            }
+            proto_tree_add_item_ret_uint(tree, hf_s7comm_rdrec_statuslen, tvb, offset, 1, ENC_BIG_ENDIAN, &statuslen);
+            offset += 1;
+            if (statuslen > 0) {
+                proto_tree_add_item(tree, hf_s7comm_rdrec_statusdata, tvb, offset, statuslen, ENC_NA);
+                offset += statuslen;
+            } else {
+                offset += 1;    /* Fillbyte */
+            }
+            if (ret_val == S7COMM_ITEM_RETVAL_DATA_OK) {
+                proto_tree_add_item_ret_uint(tree, hf_s7comm_rdrec_recordlen, tvb, offset, 2, ENC_BIG_ENDIAN, &reclen);
+                offset += 2;
+                if (reclen > 0) {
+                    proto_tree_add_item(tree, hf_s7comm_rdrec_data, tvb, offset, reclen, ENC_NA);
+                    offset += reclen;
+                }
+            }
+        }
+    }
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
  * PDU Type: User Data -> Function group 2 -> cyclic services
  *
  *******************************************************************************************************/
@@ -6094,6 +6193,10 @@ s7comm_decode_ud_cyclic_subfunc(tvbuff_t *tvb,
             } else if (type == S7COMM_UD_TYPE_RES) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, " JobID=%d", seq_num);
             }
+            break;
+        case S7COMM_UD_SUBF_CYCLIC_RDREC:
+            offset = s7comm_decode_ud_readrec(tvb, data_tree, type, offset);
+            know_data = TRUE;
             break;
     }
 
@@ -7799,6 +7902,32 @@ proto_register_s7comm (void)
           NULL, HFILL }},
         { &hf_s7comm_cycl_jobid,
         { "Job-ID", "s7comm.cyclic.job_id", FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+
+        /* Read record */
+        { &hf_s7comm_rdrec_mlen,
+        { "Rdrec Mlen", "s7comm.readrec.mlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+          "MLEN, Max. length in bytes of the data record data to be read", HFILL }},
+        { &hf_s7comm_rdrec_index,
+        { "Rdrec Index", "s7comm.readrec.index", FT_UINT16, BASE_HEX, NULL, 0x0,
+          "INDEX, Data record number", HFILL }},
+        { &hf_s7comm_rdrec_id,
+        { "Rdrec ID", "s7comm.readrec.id", FT_UINT24, BASE_DEC, NULL, 0x0,
+          "ID, Diagnostic address", HFILL }},
+        { &hf_s7comm_rdrec_statuslen,
+        { "Rdrec Status Len", "s7comm.readrec.statuslen", FT_UINT8, BASE_DEC, NULL, 0x0,
+          "STATUS LEN, Length of status data", HFILL }},
+        { &hf_s7comm_rdrec_statusdata,
+        { "Rdrec Status", "s7comm.readrec.status", FT_BYTES, BASE_NONE, NULL, 0x0,
+          "STATUS, Status data", HFILL }},
+        { &hf_s7comm_rdrec_recordlen,
+        { "Rdrec Len", "s7comm.readrec.len", FT_UINT16, BASE_DEC, NULL, 0x0,
+          "LEN, Length of data record data read", HFILL }},
+        { &hf_s7comm_rdrec_data,
+        { "Rdrec Data", "s7comm.readrec.data", FT_BYTES, BASE_NONE, NULL, 0x0,
+          "DATA, The read data record", HFILL }},
+        { &hf_s7comm_rdrec_reserved1,
+        { "Rdrec reserved", "s7comm.readrec.reserved1", FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL }},
 
         /* PBC, Programmable Block Functions */

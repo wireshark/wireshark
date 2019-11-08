@@ -29,10 +29,10 @@ select the menu:File[Open] menu or toolbar item. Wireshark will then pop up
 the “File Open” dialog box, which is discussed in more detail in <<ChIOOpen>>.
 
 [TIP]
-.It’s convenient to use drag-and-drop
+.You can use drag and drop to open files
 ====
 You can open a file by simply dragging it in your file manager and dropping it
-onto Wireshark’s main window. However, drag-and-drop may not be available in all
+onto Wireshark’s main window. However, drag and drop may not be available in all
 desktop environments.
 ====
 
@@ -359,7 +359,7 @@ There are three ways to merge capture files using Wireshark:
   <<ChIOMergeDialog>>. This menu item will be disabled unless you have loaded a
   capture file.
 
-* Use _drag-and-drop_ to drop multiple files on the main window. Wireshark will
+* Use _drag and drop_ to drop multiple files on the main window. Wireshark will
   try to merge the packets in chronological order from the dropped files into a
   newly created temporary file. If you drop only a single file it will simply
   replace the existing capture.

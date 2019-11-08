@@ -13,8 +13,8 @@
 #include <QObject>
 
 #include "capture_file.h"
-
 #include "funnel_text_dialog.h"
+#include <ui/qt/filter_action.h>
 
 struct _funnel_ops_t;
 struct _funnel_progress_window_t;
@@ -36,9 +36,8 @@ public:
     static const QString &actionName() { return action_name_; }
 
 signals:
-    void setDisplayFilter(const QString filter);
-    void applyDisplayFilter();
     void openCaptureFile(QString cf_path, QString filter);
+    void setDisplayFilter(QString filter, FilterAction::Action action, FilterAction::ActionType filterType);
 
 public slots:
     void funnelActionTriggered();
@@ -49,6 +48,7 @@ private:
     struct _funnel_ops_t *funnel_ops_;
     CaptureFile &capture_file_;
     QByteArray display_filter_;
+    QString prepared_filter_;
 };
 
 extern "C" {

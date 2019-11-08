@@ -3720,6 +3720,12 @@ Connor Newton   <c.newton[AT]samsung.com> {
 	Wi-Fi Alliance Neighbor Awareness Networking (NAN) dissector
 }
 
+Huang Qiangxiong        <qiangxiong.huang[AT]qq.com> {
+	Protobuf dissector
+	gRPC dissector
+	HTTP2 dissector: add streaming mode reassembly and dissecting DATA according to content-type features.
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>

@@ -34,17 +34,22 @@ section below for more details.
 The following features are new (or have been significantly updated)
 since version 3.1.0:
 
-* You can once again mark and unmark packets using the middle mouse button. This feature
-  went missing around 2009 or so.
+* You can once again mark and unmark packets using the middle mouse button.
+  This feature went missing around 2009 or so.
+* The Windows packages are now built using Microsoft Visual Studio 2019.
+* IOGraph automatically adds a graph for the selected display filter if no
+  previous graph exists
+* Action buttons for the display filter bar may be aligned left via the context menu
+* Allow extcaps to be loaded from the personal configuration directory
 
 The following features are new (or have been significantly updated)
 since version 3.0.0:
 
-* Drag&Drop a field to a column header to create a column for that field, or to the
-  display filter input to create a display filter. If a display filter is applied,
-  the new filter can be added using the same rules as "Apply Filter"
-* Drag&Drop a column entry to the display filter to create a filter for it
-* Import profiles from a .zip archive or an existing directory
+* You can drag and drop a field to a column header to create a column for that field, or to the
+  display filter input to create a display filter.
+  If a display filter is applied, the new filter can be added using the same rules as “Apply Filter”
+* You can drag and drop a column entry to the display filter to create a filter for it.
+* You can import profiles from a .zip archive or an existing directory.
 * Dark mode support on macOS and dark theme support on other platforms
   has been improved.
 * Brotli decompression support in HTTP/HTTP2 (requires the brotli library).
@@ -61,6 +66,8 @@ since version 3.0.0:
 * The “Enabled Protocols” Dialog now only enables, disables and inverts protocols based on the set filter selection. The protocol type (standard or heuristic) may also be choosen as a filter value.
 * The “Analyze -> Apply as Filter” and “Analyze -> Prepare a Filter” packet list and detail popup menus now show a preview of their respective filters.
 * Protobuf files (*.proto) can now be configured to enable more precise parsing of serialized Protobuf data (such as gRPC).
+* HTTP2 support streaming mode reassembly. To use this feature, subdissectors can register itself to "streaming_content_type" dissector table and return pinfo->desegment_len and pinfo->desegment_offset to tell HTTP2 when to start and how many additional bytes requires when next called.
+* The message of stream gRPC method can now be parsed with supporting of HTTP2 streaming mode reassembly feature.
 
 // === Removed Features and Support
 

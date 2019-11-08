@@ -3327,6 +3327,13 @@ prefs_register_modules(void)
     prefs_register_obsolete_preference(gui_module, "auto_scroll_on_expand");
     prefs_register_obsolete_preference(gui_module, "auto_scroll_percentage");
 
+    prefs_register_uint_preference(gui_module, "max_export_objects",
+                                   "Maximum number of exported objects",
+                                   "The maximum number of objects that can be exported",
+                                   10,
+                                   &prefs.gui_max_export_objects);
+
+
     /* User Interface : Layout */
     gui_layout_module = prefs_register_subtree(gui_module, "Layout", "Layout", gui_layout_callback);
     /* Adjust the preference effects of layout GUI for better handling of preferences at Wireshark (GUI) level */
@@ -4114,6 +4121,7 @@ pre_init_prefs(void)
     prefs.gui_qt_packet_list_separator = FALSE;
     prefs.gui_qt_show_selected_packet = FALSE;
     prefs.gui_qt_show_file_load_time = FALSE;
+    prefs.gui_max_export_objects     = 1000;
 
     if (prefs.col_list) {
         free_col_info(prefs.col_list);

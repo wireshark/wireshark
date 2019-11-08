@@ -104,14 +104,16 @@ void ExtArgMultiSelect::checkItemsWalker(QStandardItem * item, QStringList defau
 
 QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
 {
-    QStringList defaults;
+    QStringList checked;
 
-    QList<QStandardItem *> items = valueWalker(values, defaults);
+    QList<QStandardItem *> items = valueWalker(values, checked);
     if (items.length() == 0)
         return new QWidget();
 
-    if ( defaultValue().length() > 0 )
-        defaults = defaultValue().split(",", QString::SkipEmptyParts);
+    if ( _argument->pref_valptr && *_argument->pref_valptr )
+    {
+        checked = QString(*_argument->pref_valptr).split(",", QString::SkipEmptyParts);
+    }
 
     viewModel = new QStandardItemModel();
     QList<QStandardItem *>::const_iterator iter = items.constBegin();
@@ -131,7 +133,7 @@ QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     for (int row = 0; row < viewModel->rowCount(); row++ )
-        checkItemsWalker(((QStandardItemModel*)viewModel)->item(row), defaults);
+        checkItemsWalker(((QStandardItemModel*)viewModel)->item(row), checked);
 
     connect ( viewModel,
             SIGNAL(itemChanged(QStandardItem *)),

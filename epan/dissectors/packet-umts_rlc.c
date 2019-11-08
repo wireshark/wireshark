@@ -76,6 +76,7 @@ static const enum_val_t li_size_enumvals[] = {
 static int hf_rlc_seq = -1;
 static int hf_rlc_ext = -1;
 static int hf_rlc_pad = -1;
+static int hf_rlc_reassembled_data = -1;
 static int hf_rlc_frags = -1;
 static int hf_rlc_frag = -1;
 static int hf_rlc_duplicate_of = -1;
@@ -585,7 +586,7 @@ fragment_table_cleanup(void)
 
 /* add the list of fragments for this sdu to 'tree' */
 static void
-tree_add_fragment_list(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tree *tree)
+tree_add_fragment_list(struct rlc_sdu *sdu, tvbuff_t *tvb,packet_info *pinfo, proto_tree *tree)
 {
     proto_item      *ti;
     proto_tree      *frag_tree;
@@ -593,8 +594,9 @@ tree_add_fragment_list(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tree *tree)
     struct rlc_frag *sdufrag;
 
     ti = proto_tree_add_item(tree, hf_rlc_frags, tvb, 0, -1, ENC_NA);
+    proto_item_set_generated(ti);
     frag_tree = proto_item_add_subtree(ti, ett_rlc_fragments);
-    proto_item_append_text(ti, " (%u bytes, %u fragments): ",
+    proto_item_append_text(ti, " (%u bytes, %u fragments) ",
         sdu->len, sdu->fragcnt);
     sdufrag = sdu->frags;
     offset = 0;
@@ -608,9 +610,14 @@ tree_add_fragment_list(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tree *tree)
                 sdufrag->len, sdufrag->frame_num, "Frame: %u, payload: none (0 bytes) (Seq: %u)",
                 sdufrag->frame_num, sdufrag->seq);
         }
+
+        mark_frame_as_depended_upon(pinfo, sdufrag->frame_num);
+
         offset += sdufrag->len;
         sdufrag = sdufrag->next;
     }
+    ti = proto_tree_add_item(ti, hf_rlc_reassembled_data, tvb, 0, -1, ENC_NA);
+    proto_item_set_generated(ti);
 }
 
 /* add the list of fragments for this sdu to 'tree' */
@@ -623,8 +630,9 @@ tree_add_fragment_list_incomplete(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tree
     struct rlc_frag *sdufrag;
 
     ti = proto_tree_add_item(tree, hf_rlc_frags, tvb, 0, 0, ENC_NA);
+    proto_item_set_generated(ti);
     frag_tree = proto_item_add_subtree(ti, ett_rlc_fragments);
-    proto_item_append_text(ti, " (%u bytes, %u fragments): ",
+    proto_item_append_text(ti, " (%u bytes, %u fragments) ",
         sdu->len, sdu->fragcnt);
     sdufrag = sdu->frags;
     offset = 0;
@@ -1226,7 +1234,7 @@ get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 
     /* reassembly happened here, so create the fragment list */
     if (tree && sdu->fragcnt > 1)
-        tree_add_fragment_list(sdu, sdu->tvb, tree);
+        tree_add_fragment_list(sdu, sdu->tvb, pinfo, tree);
 
     return sdu->tvb;
 }
@@ -2889,6 +2897,10 @@ proto_register_rlc(void)
         { &hf_rlc_pad,
           { "Padding", "rlc.padding",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_reassembled_data,
+          { "Reassembled RLC Data", "rlc.reassembled_data",
+            FT_BYTES, BASE_NONE, NULL, 0, "The reassembled payload", HFILL }
         },
         { &hf_rlc_frags,
           { "Reassembled Fragments", "rlc.fragments",

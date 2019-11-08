@@ -10,6 +10,7 @@
 #include <ui/qt/widgets/filter_expression_toolbar.h>
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/models/uat_model.h>
 #include <ui/qt/filter_action.h>
 #include <ui/qt/wireshark_application.h>
@@ -139,6 +140,24 @@ void FilterExpressionToolBar::removeFilter()
         save_migrated_uat("Display expressions", &prefs.filter_expressions_old);
         filterExpressionsChanged();
     }
+}
+
+WiresharkMimeData * FilterExpressionToolBar::createMimeData(QString name, int position)
+{
+    ToolbarEntryMimeData * element = new ToolbarEntryMimeData(name, position);
+    UatModel * uatModel = new UatModel(this, "Display expressions");
+
+    QModelIndex rowIndex;
+    for ( int cnt = 0; cnt < uatModel->rowCount() && ! rowIndex.isValid(); cnt++ )
+    {
+        if ( uatModel->data(uatModel->index(cnt, 1), Qt::DisplayRole).toString().compare(name) == 0 )
+        {
+            rowIndex = uatModel->index(cnt, 2);
+            element->setFilter(rowIndex.data().toString());
+        }
+    }
+
+    return element;
 }
 
 void FilterExpressionToolBar::onActionMoved(QAction* action, int oldPos, int newPos)

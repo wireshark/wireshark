@@ -38,12 +38,14 @@ EnabledProtocolsDialog::EnabledProtocolsDialog(QWidget *parent) :
     ui->cmbSearchType->addItem(tr("Everywhere"), qVariantFromValue(EnabledProtocolsProxyModel::EveryWhere));
     ui->cmbSearchType->addItem(tr("Only Protocols"), qVariantFromValue(EnabledProtocolsProxyModel::OnlyProtocol));
     ui->cmbSearchType->addItem(tr("Only Description"), qVariantFromValue(EnabledProtocolsProxyModel::OnlyDescription));
+    ui->cmbSearchType->addItem(tr("Only enabled protocols"), qVariantFromValue(EnabledProtocolsProxyModel::EnabledItems));
+    ui->cmbSearchType->addItem(tr("Only disabled protocols"), qVariantFromValue(EnabledProtocolsProxyModel::DisabledItems));
 
     ui->cmbProtocolType->addItem(tr("any protocol"), qVariantFromValue(EnabledProtocolItem::Any));
     ui->cmbProtocolType->addItem(tr("non-heuristic protocols"), qVariantFromValue(EnabledProtocolItem::Standard));
     ui->cmbProtocolType->addItem(tr("heuristic protocols"), qVariantFromValue(EnabledProtocolItem::Heuristic));
 
-    QTimer::singleShot(0, this, SLOT(fillTree()));
+    fillTree();
 }
 
 EnabledProtocolsDialog::~EnabledProtocolsDialog()
@@ -116,18 +118,6 @@ void EnabledProtocolsDialog::on_buttonBox_accepted()
 {
     enabled_protocols_model_->applyChanges();
 }
-
-#if 0
-// If we ever find and fix the bug behind queueAppSignal we can re-enable
-// this.
-void EnabledProtocolsDialog::on_buttonBox_clicked(QAbstractButton *button)
-{
-    if (button == ui->buttonBox->button(QDialogButtonBox::Apply))
-    {
-        applyChanges(TRUE);
-    }
-}
-#endif
 
 void EnabledProtocolsDialog::on_buttonBox_helpRequested()
 {

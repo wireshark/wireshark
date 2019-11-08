@@ -74,6 +74,8 @@ SysInfoType16_PDU
 SysInfoType17_PDU
 SysInfoType18_PDU
 SysInfoType19_PDU
+SysInfoTypeSB1_PDU
+SysInfoTypeSB2_PDU
 MasterInformationBlock_PDU
 MeasurementReport_PDU
 
@@ -1003,6 +1005,8 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   /* This is a complete SIB - Call handler according to previous SIB-Type field*/
   subtree = proto_item_add_subtree(actx->created_item, ett_rrc_sib_data_var);
   sib_type = private_data_get_curr_sib_type(actx);
+  col_set_fence(actx->pinfo->cinfo, COL_INFO);
+  col_append_str(actx->pinfo->cinfo, COL_INFO," (");
   switch(sib_type){
     case 0:
       /* mIB */
@@ -1090,9 +1094,20 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
       /* SIB-Type: systemInformationBlockType18 */
       dissect_rrc_SysInfoType18_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
       break;
+    case 27:
+      /* SIB-Type: schedulingBlock1 */
+      dissect_rrc_SysInfoTypeSB1_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 28:
+      /* SIB-Type: schedulingBlock2 */
+      dissect_rrc_SysInfoTypeSB2_PDU(sib_data_tvb, actx->pinfo, subtree, NULL);
+      break;
     default:
       break;
     }
+
+  col_append_str(actx->pinfo->cinfo, COL_INFO,")");
+  col_set_fence(actx->pinfo->cinfo, COL_INFO);
 
 #.FN_BODY RSR-VCC-Info/ims-Information VAL_PTR = &imsInformation_tvb
   tvbuff_t *imsInformation_tvb=NULL;
@@ -1537,5 +1552,192 @@ private_data_set_rlc_ciphering_sqn(actx, rlc_ciphering_sqn);
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [cause=%%s]",
                   val_to_str(value, rrc_ReleaseCause_vals, "Unknown"));
 
-#.END
+#.FN_BODY MasterInformationBlock
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock");
+%(DEFAULT_BODY)s
 
+#.FN_BODY SysInfoType1
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 1");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType2
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 2");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType3
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 3");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType4
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 4");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType5
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 5");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType5bis
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 5bis");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType6
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 6");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType7
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 7");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType11
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 11");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType11bis
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 11bis");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType11ter
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 11ter");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType12
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 12");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType13
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 13");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType13-1
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 13.1");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType13-2
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 13.2");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType13-3
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 13.3");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType13-4
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 13.4");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType14
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 14");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType15
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 15");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType15bis
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 15bis");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType15-1
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 15.1");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType15-1bis
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 15.1bis");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType15-1ter
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 15.1ter");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType15-2
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 15.2");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType15-2bis
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 15.2bis");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType15-2ter
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 15.2ter");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType15-3
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 15.3");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType15-3bis
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 15.3bis");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType15-4
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 15.4");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType15-5
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 15.5");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType15-6
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 15.6");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType15-7
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 15.7");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType15-8
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 15.8");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType16
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 16");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType17
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 17");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType18
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 18");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType19
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 19");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType20
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 20");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType21
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 21");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType22
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 22");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType23
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 23");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType24
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 24");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType25
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SysInfoType 25");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoTypeSB1
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Scheduling Block 1");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoTypeSB2
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Scheduling Block 2");
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoTypeSB3
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Scheduling Block 3");
+%(DEFAULT_BODY)s
+
+#.END

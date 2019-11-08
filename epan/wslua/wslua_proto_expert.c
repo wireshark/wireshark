@@ -110,7 +110,7 @@ WSLUA_CONSTRUCTOR ProtoExpert_new(lua_State* L) {
     pe = g_new(wslua_expert_field_t,1);
 
     pe->ids.ei   = EI_INIT_EI;
-    pe->ids.hf   = EI_INIT_HF;
+    pe->ids.hf   = -2;
     pe->abbrev   = g_strdup(abbr);
     pe->text     = g_strdup(text);
     pe->group    = group;
@@ -140,10 +140,20 @@ WSLUA_METAMETHOD ProtoExpert__tostring(lua_State* L) {
 static int ProtoExpert__gc(lua_State* L) {
     ProtoExpert pe = toProtoExpert(L,1);
 
-    if (pe->ids.hf == -2) {
+    /*
+     * Initialized to -2 in ProtoExpert_new,
+     * changed to -1 in Proto_commit and subsequently replaced by
+     * an allocated number in proto_register_field_array.
+     * Reset to -2 again in wslua_deregister_protocols.
+     */
+    if (pe->ids.hf != -2) {
         /* Only free unregistered and deregistered ProtoExpert */
-        g_free(pe);
+        return 0;
     }
+
+    g_free((gchar *)pe->abbrev);
+    g_free((gchar *)pe->text);
+    g_free(pe);
 
     return 0;
 }

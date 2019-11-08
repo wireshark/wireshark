@@ -22,7 +22,7 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/conversation_table.h>
-#include <epan/dissector_filters.h>
+#include <epan/conversation_filter.h>
 #include <epan/tap.h>
 #include <wsutil/bits_ctz.h>    /* for ws_ctz */
 #include <wsutil/pint.h>

@@ -893,7 +893,7 @@ ReadINIStr $0 "$PLUGINSDIR\NpcapPage.ini" "Field 4" "State"
 StrCmp $0 "0" SecRequired_skip_Npcap
 SetOutPath $INSTDIR
 File "${EXTRA_INSTALLER_DIR}\npcap-${NPCAP_PACKAGE_VERSION}.exe"
-ExecWait '"$INSTDIR\npcap-${NPCAP_PACKAGE_VERSION}.exe" /winpcap_mode=no' $0
+ExecWait '"$INSTDIR\npcap-${NPCAP_PACKAGE_VERSION}.exe" /winpcap_mode=no /loopback_support=no' $0
 DetailPrint "Npcap installer returned $0"
 SecRequired_skip_Npcap:
 
@@ -1269,7 +1269,7 @@ FunctionEnd
 
 Var NPCAP_NAME ; DisplayName from Npcap installation
 Var WINPCAP_NAME ; DisplayName from WinPcap installation
-Var REG_NPCAP_DISPLAY_VERSION ; DisplayVersion from WinPcap installation
+Var NPCAP_DISPLAY_VERSION ; DisplayVersion from Npcap installation
 Var USBPCAP_NAME ; DisplayName from USBPcap installation
 
 Function myShowCallback
@@ -1288,14 +1288,16 @@ Function myShowCallback
     Goto lbl_npcap_done
 
 lbl_npcap_installed:
-    ReadRegDWORD $0 HKEY_LOCAL_MACHINE "SOFTWARE\Npcap" "WinPcapCompatible"
+    ReadRegStr $NPCAP_DISPLAY_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NpcapInst" "DisplayVersion"
     WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 1" "Text" "Currently installed Npcap version"
+    StrCmp $NPCAP_NAME "Npcap" 0 +3
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 2" "Text" "Npcap $NPCAP_DISPLAY_VERSION"
+    Goto +2
     WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 2" "Text" "$NPCAP_NAME"
 
     ; Compare the installed build against the one we have.
-    ReadRegStr $REG_NPCAP_DISPLAY_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NpcapInst" "DisplayVersion"
-    StrCmp $REG_NPCAP_DISPLAY_VERSION "" lbl_npcap_do_install ; Npcap wasn't installed improperly?
-    ${VersionConvert} $REG_NPCAP_DISPLAY_VERSION "" $R0 ; 0.99-r7 -> 0.99.114.7
+    StrCmp $NPCAP_DISPLAY_VERSION "" lbl_npcap_do_install ; Npcap wasn't installed improperly?
+    ${VersionConvert} $NPCAP_DISPLAY_VERSION "" $R0 ; 0.99-r7 -> 0.99.114.7
     ${VersionConvert} "${NPCAP_PACKAGE_VERSION}" "" $R1
     ${VersionCompare} $R0 $R1 $1
     StrCmp $1 "2" lbl_npcap_do_install
@@ -1315,6 +1317,9 @@ lbl_winpcap_installed:
 lbl_npcap_do_install:
     ; seems to be an old version, install newer one
     WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 4" "State" "1"
+    StrCmp $NPCAP_NAME "Npcap" 0 +3
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "The currently installed Npcap $NPCAP_DISPLAY_VERSION will be uninstalled first."
+    Goto +2
     WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "The currently installed $NPCAP_NAME will be uninstalled first."
 
 lbl_npcap_done:

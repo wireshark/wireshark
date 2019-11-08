@@ -108,7 +108,7 @@ eo_draw(void *tapdata)
     gchar* save_in_path = (gchar*)g_hash_table_lookup(eo_opts, proto_get_protocol_filter_name(get_eo_proto_id(object_list->eo)));
     GString *safe_filename = NULL;
     gchar *save_as_fullpath = NULL;
-    int count = 0;
+    guint count = 0;
 
     if (!g_file_test(save_in_path, G_FILE_TEST_IS_DIR)) {
         /* If the destination directory (or its parents) do not exist, create them. */
@@ -137,7 +137,7 @@ eo_draw(void *tapdata)
             }
             save_as_fullpath = g_build_filename(save_in_path, safe_filename->str, NULL);
             g_string_free(safe_filename, TRUE);
-        } while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000);
+        } while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < prefs.gui_max_export_objects);
         count = 0;
         eo_save_entry(save_as_fullpath, entry);
         g_free(save_as_fullpath);

@@ -15,29 +15,16 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTreeWidget" name="filterTreeWidget">
-     <property name="selectionMode">
-      <enum>QAbstractItemView::ExtendedSelection</enum>
+    <widget class="QTreeView" name="filterTreeView">
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::DragDrop</enum>
      </property>
-     <property name="textElideMode">
-      <enum>Qt::ElideMiddle</enum>
+     <property name="sortingEnabled">
+      <bool>true</bool>
      </property>
-     <property name="indentation">
-      <number>0</number>
-     </property>
-     <property name="rootIsDecorated">
-      <bool>false</bool>
-     </property>
-     <column>
-      <property name="text">
-       <string>Name</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Filter</string>
-      </property>
-     </column>
+     <attribute name="headerShowSortIndicator" stdset="0">
+      <bool>true</bool>
+     </attribute>
     </widget>
    </item>
    <item>

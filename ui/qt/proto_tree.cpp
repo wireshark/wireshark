@@ -37,6 +37,8 @@
 #include <QClipboard>
 #include <QWindow>
 #include <QMessageBox>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 // To do:
 // - Fix "apply as filter" behavior.
@@ -733,14 +735,21 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
 
                 if ( filter.length() > 0 )
                 {
-                    DisplayFilterMimeData * dfmd =
-                            new DisplayFilterMimeData(QString(finfo.headerInfo().name), QString(finfo.headerInfo().abbreviation), filter);
-                    dfmd->setText(toString(idx));
+                    QJsonObject filterData;
+                    filterData["filter"] = filter;
+                    filterData["name"] = finfo.headerInfo().abbreviation;
+                    filterData["description"] = finfo.headerInfo().name;
+                    QMimeData * mimeData = new QMimeData();
+
+                    mimeData->setData(WiresharkMimeData::DisplayFilterMimeType, QJsonDocument(filterData).toJson());
+                    mimeData->setText(toString(idx));
 
                     QDrag * drag = new QDrag(this);
-                    drag->setMimeData(dfmd);
+                    drag->setMimeData(mimeData);
 
-                    DragLabel * content = new DragLabel(dfmd->labelText(), this);
+                    QString lblTxt = QString("%1\n%2").arg(finfo.headerInfo().name, finfo.headerInfo().abbreviation);
+
+                    DragLabel * content = new DragLabel(lblTxt, this);
 
                     qreal dpr = window()->windowHandle()->devicePixelRatio();
                     QPixmap pixmap(content->size() * dpr);

@@ -219,17 +219,13 @@ extcap_dump_all(void)
     extcap_get_descriptions(print_extcap_description, NULL);
 }
 
-/**
- * Obtains a list of extcap program paths. Use g_slist_free_full(paths, g_free)
- * to destroy the list.
- */
 static GSList *
-extcap_get_extcap_paths(void)
+extcap_get_extcap_paths_from_dir(GSList * list, const char * dirname)
 {
-    GDir *dir;
-    const char *dirname = get_extcap_dir();
-    const gchar *file;
-    GSList *paths = NULL;
+    GDir * dir;
+    const char * file;
+
+    GSList * paths = list;
 
     if ((dir = g_dir_open(dirname, 0, NULL)) != NULL) {
         while ((file = g_dir_read_name(dir)) != NULL) {
@@ -246,6 +242,24 @@ extcap_get_extcap_paths(void)
         }
         g_dir_close(dir);
     }
+
+    return paths;
+}
+
+/**
+ * Obtains a list of extcap program paths. Use g_slist_free_full(paths, g_free)
+ * to destroy the list.
+ */
+static GSList *
+extcap_get_extcap_paths(void)
+{
+    GSList *paths = NULL;
+
+    char *persconffile_path = get_persconffile_path("extcap", FALSE);
+    paths = extcap_get_extcap_paths_from_dir(paths, persconffile_path);
+    g_free(persconffile_path);
+
+    paths = extcap_get_extcap_paths_from_dir(paths, get_extcap_dir());
 
     return paths;
 }
@@ -1431,7 +1445,7 @@ GPtrArray *extcap_prepare_arguments(interface_options *interface_opts)
 
                     if (arg_iter->arg_type == EXTCAP_ARG_BOOLFLAG)
                     {
-                        if (extcap_complex_get_bool(arg_iter->default_complex))
+                        if (!stored && extcap_complex_get_bool(arg_iter->default_complex))
                         {
                             add_arg(arg_iter->call);
                         }
@@ -1688,6 +1702,9 @@ extcap_ensure_interface(const gchar * toolname, gboolean create_if_nonexist)
         _loaded_interfaces = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, extcap_free_interface);
 
     element = (extcap_info *) g_hash_table_lookup(_loaded_interfaces, toolname );
+    if ( element )
+        return NULL;
+
     if ( ! element && create_if_nonexist )
     {
         g_hash_table_insert(_loaded_interfaces, g_strdup(toolname), g_new0(extcap_info, 1));
@@ -1753,7 +1770,8 @@ process_new_extcap(const char *extcap, char *output)
     element = extcap_ensure_interface(toolname, TRUE);
     if ( element == NULL )
     {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR, "Cannot store interface %s, maybe duplicate?", extcap );
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING,
+            "Cannot store interface %s, already loaded as personal plugin", extcap );
         g_list_foreach(interfaces, remove_extcap_entry, NULL);
         g_list_free(interfaces);
         g_list_free(interface_keys);

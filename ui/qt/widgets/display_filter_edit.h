@@ -11,6 +11,7 @@
 #define DISPLAYFILTEREDIT_H
 
 #include <QDrag>
+#include <QActionGroup>
 
 #include <ui/qt/widgets/syntax_line_edit.h>
 
@@ -39,6 +40,7 @@ protected:
     virtual void dragEnterEvent(QDragEnterEvent *event);
     virtual void dragMoveEvent(QDragMoveEvent *event);
     virtual void dropEvent(QDropEvent *event);
+    virtual void contextMenuEvent(QContextMenuEvent *menu);
 
 public slots:
     bool checkFilter();
@@ -51,25 +53,35 @@ private slots:
     void clearFilter();
     void changeEvent(QEvent* event);
 
+    void displayFilterExpression();
+
     void saveFilter();
     void removeFilter();
     void showFilters();
     void showExpressionPrefs();
     void applyOrPrepareFilter();
 
+    void triggerAlignementAction();
+
+    void connectToMainWindow();
+
 private:
     DisplayFilterEditType type_;
     QString placeholder_text_;
     QAction *save_action_;
     QAction *remove_action_;
+    QActionGroup * actions_;
     StockIconToolButton *bookmark_button_;
     StockIconToolButton *clear_button_;
     StockIconToolButton *apply_button_;
+    bool leftAlignActions_;
 
     void setDefaultPlaceholderText();
     void buildCompletionList(const QString& field_word);
 
     void createFilterTextDropMenu(QDropEvent *event, bool prepare, QString filterText = QString());
+
+    void alignActionButtons();
 
 signals:
     void pushFilterSyntaxStatus(const QString&);

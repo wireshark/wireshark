@@ -10,13 +10,15 @@
  */
 /*
  * Supports:
- * draft-ietf-grow-bmp-07 BGP Monitoring Protocol
+ * RFC7854 BGP Monitoring Protocol
+ * RFC8671 Support for Adj-RIB-Out in the BGP Monitoring Protocol (BMP)
  *
  */
 
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 
 #include "packet-tcp.h"
@@ -34,20 +36,25 @@ void proto_reg_handoff_bmp(void);
 #define BMP_MSG_TYPE_PEER_UP            0x03    /* Peer Up Notification */
 #define BMP_MSG_TYPE_INIT               0x04    /* Initiation Message */
 #define BMP_MSG_TYPE_TERM               0x05    /* Termination Message */
+#define BMP_MSG_TYPE_ROUTE_MIRRORING    0x06    /* Route Mirroring */
 
 /* BMP Initiation Message Types */
 #define BMP_INIT_INFO_STRING            0x00    /* String */
 #define BMP_INIT_SYSTEM_DESCRIPTION     0x01    /* sysDescr */
 #define BMP_INIT_SYSTEM_NAME            0x02    /* sysName  */
+#define BMP_INIT_ADMIN_LABEL            0x04    /* Admin Label */
 
 /* BMP Per Peer Types */
 #define BMP_PEER_GLOBAL_INSTANCE        0x00    /* Global Instance Peer */
-#define BMP_PEER_L3VPN_INSTANCE         0x01    /* L3VPN Instance Peer */
+#define BMP_PEER_RD_INSTANCE            0x01    /* RD Instance Peer */
+#define BMP_PEER_LOCAL_INSTANCE         0x02    /* Local Instance Peer */
 
 /* BMP Per Peer Header Flags */
 #define BMP_PEER_FLAG_IPV6              0x80    /* V Flag: IPv6 */
 #define BMP_PEER_FLAG_POST_POLICY       0x40    /* L Flag: Post-policy */
-#define BMP_PEER_FLAG_RES               0x3F    /* Reserved */
+#define BMP_PEER_FLAG_AS_PATH           0x20    /* A Flag: AS_PATH */
+#define BMP_PEER_FLAG_ADJ_RIB_OUT       0x10
+#define BMP_PEER_FLAG_RES               0x0F    /* Reserved */
 #define BMP_PEER_FLAG_MASK              0xFF
 
 /* BMP Stat Types */
@@ -60,12 +67,22 @@ void proto_reg_handoff_bmp(void);
 #define BMP_STAT_AS_CONFED_LOOP         0x06    /* Number of updates invalidated due to AS_CONFED loop */
 #define BMP_STAT_ROUTES_ADJ_RIB_IN      0x07    /* Number of routes in Adj-RIBs-In */
 #define BMP_STAT_ROUTES_LOC_RIB         0x08    /* Number of routes in Loc-RIB */
+#define BMP_STAT_ROUTES_PER_ADJ_RIB_IN  0x09    /* Number of routes in per-AFI/SAFI Adj-RIBs-In */
+#define BMP_STAT_ROUTES_PER_LOC_RIB     0x0A    /* Number of routes in per-AFI/SAFI Loc-RIB */
+#define BMP_STAT_UPDATE_TREAT           0x0B    /* Number of updates subjected to treat-as-withdraw treatment */
+#define BMP_STAT_PREFIXES_TREAT         0x0C    /* Number of prefixes subjected to treat-as-withdraw treatment */
+#define BMP_STAT_DUPLICATE_UPDATE       0x0D    /* Number of duplicate update messages received */
+#define BMP_STAT_ROUTES_PRE_ADJ_RIB_OUT         0x0E    /* Number of routes in pre-policy Adj-RIB-Out */
+#define BMP_STAT_ROUTES_POST_ADJ_RIB_OUT        0x0F    /* Number of routes in post-policy Adj-RIB-Out */
+#define BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_OUT     0x10    /* Number of routes in per-AFI/SAFI pre-policy Adj-RIB-Out */
+#define BMP_STAT_ROUTES_POST_PER_ADJ_RIB_OUT    0x11    /* Number of routes in per-AFI/SAFI post-policy Adj RIB-Out */
 
 /* BMP Peer Down Reason Codes */
 #define BMP_PEER_DOWN_LOCAL_NOTIFY      0x1     /* Local system closed the session with notification */
 #define BMP_PEER_DOWN_LOCAL_NO_NOTIFY   0x2     /* Local system closed the session with FSM code */
 #define BMP_PEER_DOWN_REMOTE_NOTIFY     0x3     /* Remote system closed the session with notification */
 #define BMP_PEER_DOWN_REMOTE_NO_NOTIFY  0x4     /* Remote system closed the session without notification */
+#define BMP_PEER_DOWN_INFO_NO_LONGER    0x5     /* Information for this peer will no longer be sent to the monitoring station for configuration reasons */
 
 /* BMP Termination Message Types */
 #define BMP_TERM_TYPE_STRING            0x00    /* String */
@@ -76,6 +93,7 @@ void proto_reg_handoff_bmp(void);
 #define BMP_TERM_REASON_UNSPECIFIED     0x01    /* Unspecified reason */
 #define BMP_TERM_REASON_RESOURCES       0x02    /* Out of resources */
 #define BMP_TERM_REASON_REDUNDANT       0x03    /* Redundant connection */
+#define BMP_TERM_REASON_PERM_CLOSE      0x04    /* Session permanently administratively closed */
 
 static const value_string bmp_typevals[] = {
     { BMP_MSG_TYPE_ROUTE_MONITORING,    "Route Monitoring" },
@@ -84,6 +102,7 @@ static const value_string bmp_typevals[] = {
     { BMP_MSG_TYPE_PEER_UP,             "Peer Up Notification" },
     { BMP_MSG_TYPE_INIT,                "Initiation Message" },
     { BMP_MSG_TYPE_TERM,                "Termination Message" },
+    { BMP_MSG_TYPE_ROUTE_MIRRORING,     "Route Mirroring" },
     { 0, NULL }
 };
 
@@ -91,12 +110,14 @@ static const value_string init_typevals[] = {
     { BMP_INIT_INFO_STRING,             "String" },
     { BMP_INIT_SYSTEM_DESCRIPTION,      "sysDescr" },
     { BMP_INIT_SYSTEM_NAME,             "sysName" },
+    { BMP_INIT_ADMIN_LABEL,             "Admin Label" },
     { 0, NULL }
 };
 
 static const value_string peer_typevals[] = {
     { BMP_PEER_GLOBAL_INSTANCE,         "Global Instance Peer" },
-    { BMP_PEER_L3VPN_INSTANCE,          "L3VPN Instance Peer" },
+    { BMP_PEER_RD_INSTANCE,             "RD Instance Peer" },
+    { BMP_PEER_LOCAL_INSTANCE,          "Local Instance Peer" },
     { 0, NULL }
 };
 
@@ -105,6 +126,7 @@ static const value_string down_reason_typevals[] = {
     { BMP_PEER_DOWN_LOCAL_NO_NOTIFY,    "Local System, No Notification" },
     { BMP_PEER_DOWN_REMOTE_NOTIFY,      "Remote System, Notification" },
     { BMP_PEER_DOWN_REMOTE_NO_NOTIFY,   "Remote System, No Notification" },
+    { BMP_PEER_DOWN_INFO_NO_LONGER,     "Peer no longer be sent INformation (Configuration reasons)" },
     { 0, NULL }
 };
 
@@ -119,6 +141,7 @@ static const value_string term_reason_typevals[] = {
     { BMP_TERM_REASON_UNSPECIFIED,      "Unspecified reason" },
     { BMP_TERM_REASON_RESOURCES,        "Out of resources" },
     { BMP_TERM_REASON_REDUNDANT,        "Redundant connection" },
+    { BMP_TERM_REASON_PERM_CLOSE,       "Session permanently administratively closed" },
     { 0, NULL }
 };
 
@@ -132,6 +155,15 @@ static const value_string stat_typevals[] = {
     { BMP_STAT_AS_CONFED_LOOP,          "Invalid AS_CONFED Loop" },
     { BMP_STAT_ROUTES_ADJ_RIB_IN,       "Routes in Adj-RIB-In" },
     { BMP_STAT_ROUTES_LOC_RIB,          "Routes in Loc-RIB" },
+    { BMP_STAT_ROUTES_PER_ADJ_RIB_IN,   "Routes in per-AFI/SAF Adj-RIB-In" },
+    { BMP_STAT_ROUTES_PER_LOC_RIB,      "Routes in per-AFI/SAFLoc-RIB" },
+    { BMP_STAT_UPDATE_TREAT,            "Updates subjected to treat-as-withdraw treatment" },
+    { BMP_STAT_PREFIXES_TREAT,          "Prefixes subjected to treat-as-withdraw treatment" },
+    { BMP_STAT_DUPLICATE_UPDATE,        "Duplicate update messages received" },
+    { BMP_STAT_ROUTES_PRE_ADJ_RIB_OUT,      "Routes in pre-policy Adj-RIB-Out" },
+    { BMP_STAT_ROUTES_POST_ADJ_RIB_OUT,     "Routes in post-policy Adj-RIB-Out" },
+    { BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_OUT,  "Routes in per-AFI/SAFI pre-policy Adj-RIB-Out" },
+    { BMP_STAT_ROUTES_POST_PER_ADJ_RIB_OUT, "Routes in per-AFI/SAFI post-policy Adj RIB-Out" },
     { 0, NULL }
 };
 
@@ -157,6 +189,8 @@ static int hf_peer_type = -1;
 static int hf_peer_flags = -1;
 static int hf_peer_flags_ipv6 = -1;
 static int hf_peer_flags_post_policy = -1;
+static int hf_peer_flags_as_path = -1;
+static int hf_peer_flags_adj_rib_out = -1;
 static int hf_peer_flags_res = -1;
 static int hf_peer_distinguisher = -1;
 static int hf_peer_ipv4_address = -1;
@@ -180,8 +214,33 @@ static int hf_peer_down_data = -1;
 static int hf_stats_count = -1;
 static int hf_stat_type = -1;
 static int hf_stat_len = -1;
-static int hf_stat_data_4 = -1;
-static int hf_stat_data_8 = -1;
+static int hf_stat_data = -1;
+static int hf_stat_data_prefix_rej = -1;
+static int hf_stat_data_prefix_dup = -1;
+static int hf_stat_data_withdraw_dup = -1;
+static int hf_stat_data_cluster_loop = -1;
+static int hf_stat_data_as_loop = -1;
+static int hf_stat_data_inv_originator = -1;
+static int hf_stat_data_as_confed_loop = -1;
+static int hf_stat_data_routes_adj_rib_in = -1;
+static int hf_stat_data_routes_loc_rib = -1;
+static int hf_stat_data_routes_per_adj_rib_in_afi = -1;
+static int hf_stat_data_routes_per_adj_rib_in_safi = -1;
+static int hf_stat_data_routes_per_adj_rib_in = -1;
+static int hf_stat_data_routes_per_loc_rib_afi = -1;
+static int hf_stat_data_routes_per_loc_rib_safi = -1;
+static int hf_stat_data_routes_per_loc_rib = -1;
+static int hf_stat_data_update_treat = -1;
+static int hf_stat_data_prefixes_treat = -1;
+static int hf_stat_data_duplicate_update = -1;
+static int hf_stat_data_routes_pre_adj_rib_out = -1;
+static int hf_stat_data_routes_post_adj_rib_out = -1;
+static int hf_stat_data_routes_pre_per_adj_rib_out_afi = -1;
+static int hf_stat_data_routes_pre_per_adj_rib_out_safi = -1;
+static int hf_stat_data_routes_pre_per_adj_rib_out = -1;
+static int hf_stat_data_routes_post_per_adj_rib_out_afi = -1;
+static int hf_stat_data_routes_post_per_adj_rib_out_safi = -1;
+static int hf_stat_data_routes_post_per_adj_rib_out = -1;
 
 /* BMP Termination filed */
 static int hf_term_types = -1;
@@ -204,6 +263,9 @@ static gint ett_bmp_init_type = -1;
 static gint ett_bmp_term = -1;
 static gint ett_bmp_term_type = -1;
 static gint ett_bmp_term_types = -1;
+static gint ett_bmp_route_mirroring = -1;
+
+static expert_field ei_stat_data_unknown = EI_INIT;
 
 static dissector_handle_t dissector_bgp;
 
@@ -302,7 +364,7 @@ dissect_bmp_peer_up_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 static void
 dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int offset, gint8 flags _U_)
 {
-    guint16 stat_len;
+    guint32 stat_len, stat_type;
     guint32 i;
 
     guint32 stats_count = tvb_get_ntohl(tvb, offset);
@@ -314,20 +376,108 @@ dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         proto_item *ti;
         proto_item *subtree;
 
-        ti = proto_tree_add_item(tree, hf_stat_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item_ret_uint(tree, hf_stat_type, tvb, offset, 2, ENC_BIG_ENDIAN, &stat_type);
         subtree = proto_item_add_subtree(ti, ett_bmp_stat_type);
         offset += 2;
 
-        stat_len = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(subtree, hf_stat_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(subtree, hf_stat_len, tvb, offset, 2, ENC_BIG_ENDIAN, &stat_len);
         offset += 2;
 
-        if (stat_len == 4) {
-            proto_tree_add_item(subtree, hf_stat_data_4, tvb, offset, stat_len, ENC_BIG_ENDIAN);
-        } else {
-            proto_tree_add_item(subtree, hf_stat_data_8, tvb, offset, stat_len, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_stat_data, tvb, offset, stat_len, ENC_NA);
+        switch(stat_type){
+            case BMP_STAT_PREFIX_REJ:
+                proto_tree_add_item(subtree, hf_stat_data_prefix_rej, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            break;
+            case BMP_STAT_PREFIX_DUP:
+                proto_tree_add_item(subtree, hf_stat_data_prefix_dup, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            break;
+            case BMP_STAT_WITHDRAW_DUP:
+                proto_tree_add_item(subtree, hf_stat_data_withdraw_dup, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            break;
+            case BMP_STAT_CLUSTER_LOOP:
+                proto_tree_add_item(subtree, hf_stat_data_cluster_loop, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            break;
+            case BMP_STAT_AS_LOOP:
+                proto_tree_add_item(subtree, hf_stat_data_as_loop, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            break;
+            case BMP_STAT_INV_ORIGINATOR:
+                proto_tree_add_item(subtree, hf_stat_data_inv_originator, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            break;
+            case BMP_STAT_AS_CONFED_LOOP:
+                proto_tree_add_item(subtree, hf_stat_data_as_confed_loop, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            break;
+            case BMP_STAT_ROUTES_ADJ_RIB_IN:
+                proto_tree_add_item(subtree, hf_stat_data_routes_adj_rib_in, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
+            break;
+            case BMP_STAT_ROUTES_LOC_RIB:
+                proto_tree_add_item(subtree, hf_stat_data_routes_loc_rib, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
+            break;
+            case BMP_STAT_ROUTES_PER_ADJ_RIB_IN:
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_adj_rib_in_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_adj_rib_in_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_adj_rib_in, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
+            break;
+            case BMP_STAT_ROUTES_PER_LOC_RIB:
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_loc_rib_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_loc_rib_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_loc_rib, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
+            break;
+            case BMP_STAT_UPDATE_TREAT:
+                proto_tree_add_item(subtree, hf_stat_data_update_treat, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            break;
+            case BMP_STAT_PREFIXES_TREAT:
+                proto_tree_add_item(subtree, hf_stat_data_prefixes_treat, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            break;
+            case BMP_STAT_DUPLICATE_UPDATE:
+                proto_tree_add_item(subtree, hf_stat_data_duplicate_update, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            break;
+            case BMP_STAT_ROUTES_PRE_ADJ_RIB_OUT:
+                proto_tree_add_item(subtree, hf_stat_data_routes_pre_adj_rib_out, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
+            break;
+            case BMP_STAT_ROUTES_POST_ADJ_RIB_OUT:
+                proto_tree_add_item(subtree, hf_stat_data_routes_post_adj_rib_out, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
+            break;
+            case BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_OUT:
+                proto_tree_add_item(subtree, hf_stat_data_routes_pre_per_adj_rib_out_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_routes_pre_per_adj_rib_out_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_pre_per_adj_rib_out, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
+            break;
+            case BMP_STAT_ROUTES_POST_PER_ADJ_RIB_OUT:
+                proto_tree_add_item(subtree, hf_stat_data_routes_post_per_adj_rib_out_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_routes_post_per_adj_rib_out_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_post_per_adj_rib_out, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
+            break;
+            default:
+                proto_tree_add_expert(subtree, pinfo, &ei_stat_data_unknown, tvb, 4, stat_type);
+                offset += stat_len;
+            break;
         }
-        offset += stat_len;
     }
 }
 
@@ -409,6 +559,8 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
     static const int * peer_flags[] = {
         &hf_peer_flags_ipv6,
         &hf_peer_flags_post_policy,
+        &hf_peer_flags_as_path,
+        &hf_peer_flags_adj_rib_out,
         &hf_peer_flags_res,
         NULL
     };
@@ -452,6 +604,7 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
 
     switch (bmp_type) {
         case BMP_MSG_TYPE_ROUTE_MONITORING:
+        case BMP_MSG_TYPE_ROUTE_MIRRORING:
             call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
             break;
         case BMP_MSG_TYPE_STAT_REPORT:
@@ -577,6 +730,9 @@ dissect_bmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         case BMP_MSG_TYPE_TERM:
             arg = ett_bmp_term;
             break;
+        case BMP_MSG_TYPE_ROUTE_MIRRORING:
+            arg = ett_bmp_route_mirroring;
+            break;
         default:
             arg = ett_bmp;
             break;
@@ -601,6 +757,7 @@ dissect_bmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         case BMP_MSG_TYPE_STAT_REPORT:
         case BMP_MSG_TYPE_PEER_DOWN:
         case BMP_MSG_TYPE_PEER_UP:
+        case BMP_MSG_TYPE_ROUTE_MIRRORING:
             dissect_bmp_peer_header(tvb, bmp_tree, pinfo, offset, bmp_type, len);
             break;
         case BMP_MSG_TYPE_TERM:
@@ -626,6 +783,8 @@ dissect_bmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 void
 proto_register_bmp(void)
 {
+    expert_module_t *expert_bmp;
+
     static hf_register_info hf[] = {
         /* BMP Common Header */
         { &hf_bmp_version,
@@ -673,6 +832,12 @@ proto_register_bmp(void)
         { &hf_peer_flags_post_policy,
             { "Post-policy", "bmp.peer.flags.post_policy", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), BMP_PEER_FLAG_POST_POLICY, NULL, HFILL }},
+        { &hf_peer_flags_as_path,
+            { "AS PATH", "bmp.peer.flags.as_path", FT_BOOLEAN, 8,
+                TFS(&tfs_set_notset), BMP_PEER_FLAG_AS_PATH, NULL, HFILL }},
+        { &hf_peer_flags_adj_rib_out,
+            { "Adj-RIB-Out", "bmp.peer.flags.adj_rib_out", FT_BOOLEAN, 8,
+                TFS(&tfs_set_notset), BMP_PEER_FLAG_ADJ_RIB_OUT, NULL, HFILL }},
         { &hf_peer_flags_res,
             { "Reserved", "bmp.peer.flags.reserved", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), BMP_PEER_FLAG_RES, NULL, HFILL }},
@@ -728,13 +893,87 @@ proto_register_bmp(void)
         { &hf_stat_len,
             { "Length", "bmp.stats.length", FT_UINT16, BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
-        { &hf_stat_data_4,
-            { "Data", "bmp.stats.data.4byte", FT_UINT32, BASE_DEC,
+        { &hf_stat_data,
+            { "Data", "bmp.stats.data", FT_BYTES, BASE_NONE,
                 NULL, 0x0, NULL, HFILL }},
-        { &hf_stat_data_8,
-            { "Data", "bmp.stats.data.8byte", FT_UINT64, BASE_DEC,
+        { &hf_stat_data_prefix_rej,
+            { "Number of prefixes rejected by inbound policy", "bmp.stats.data.prefix_rej", FT_UINT32, BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
-
+        { &hf_stat_data_prefix_dup,
+            { "Number of (known) duplicate prefix advertisements", "bmp.stats.data.prefix_dup", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_withdraw_dup,
+            { "Number of (known) duplicate withdraws", "bmp.stats.data.withdraw_dup", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_cluster_loop,
+            { "Number of updates invalidated due to CLUSTER_LIST loop", "bmp.stats.data.cluster_loop", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_as_loop,
+            { "Number of updates invalidated due to AS_PATH loop", "bmp.stats.data.as_loop", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_inv_originator,
+            { "Number of updates invalidated due to ORIGINATOR_ID", "bmp.stats.data.inv_originator", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_as_confed_loop,
+            { "Number of updates invalidated due to a loop found in AS_CONFED_SEQUENCE or AS_CONFED_SET", "bmp.stats.data.as_confed_loop", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_adj_rib_in,
+            { "Number of routes in Adj-RIBs-In", "bmp.stats.data.routes_adj_rib_in", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_loc_rib,
+            { "Number of routes in Loc-RIB", "bmp.stats.data.routes_loc_rib", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_adj_rib_in_afi,
+            { "AFI", "bmp.stats.data.routes_per_adj_rib_in.afi", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_adj_rib_in_safi,
+            { "SAFI", "bmp.stats.data.routes_per_adj_rib_in.safi", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_adj_rib_in,
+            { "Number of routes in per-AFI/SAFI Adj-RIB-In", "bmp.stats.data.routes_per_adj_rib_in", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_loc_rib_afi,
+            { "AFI", "bmp.stats.data.routes_per_loc_rib.afi", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_loc_rib_safi,
+            { "SAFI", "bmp.stats.data.routes_per_loc_rib.safi", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_loc_rib,
+            { "Number of routes in per-AFI/SAFI Adj-RIB-In", "bmp.stats.data.routes_per_loc_rib", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_update_treat,
+            { "Number of updates subjected to treat-as-withdraw", "bmp.stats.data.update_treat", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_prefixes_treat,
+            { "Number of prefixes subjected to treat-as-withdraw", "bmp.stats.data.prefixes_treat", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_duplicate_update,
+            { "Number of duplicate update messages received", "bmp.stats.data.duplicate_update", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_pre_adj_rib_out,
+            { "Number of routes in pre-policy Adj-RIBs-Out", "bmp.stats.data.routes_pre_adj_rib_out", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_post_adj_rib_out,
+            { "Number of routes in post-policy Adj-RIBs-Out", "bmp.stats.data.routes_pre_adj_rib_out", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_pre_per_adj_rib_out_afi,
+            { "AFI", "bmp.stats.data.routes_pre_per_adj_rib_out.afi", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_pre_per_adj_rib_out_safi,
+            { "SAFI", "bmp.stats.data.routes_pre_per_adj_rib_out.safi", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_pre_per_adj_rib_out,
+            { "Number of routes in per-AFI/SAFI pre-policy Adj-RIB-Out", "bmp.stats.data.routes_pre_per_adj_rib_out", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_post_per_adj_rib_out_afi,
+            { "AFI", "bmp.stats.data.routes_post_per_adj_rib_out.afi", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_post_per_adj_rib_out_safi,
+            { "SAFI", "bmp.stats.data.routes_post_per_adj_rib_out.safi", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_post_per_adj_rib_out,
+            { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-Out", "bmp.stats.data.routes_post_per_adj_rib_out", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
         /* Termination Message */
         { &hf_term_types,
             { "Termination Types", "bmp.term.types", FT_NONE, BASE_NONE,
@@ -770,6 +1009,14 @@ proto_register_bmp(void)
         &ett_bmp_term,
         &ett_bmp_term_type,
         &ett_bmp_term_types,
+        &ett_bmp_route_mirroring,
+    };
+
+    static ei_register_info ei[] = {
+        { &ei_stat_data_unknown,
+          { "bmp.stats.data.unknown", PI_UNDECODED, PI_NOTE,
+            "Unknown stats type payload", EXPFILL }
+        },
     };
 
     module_t *bmp_module;
@@ -782,6 +1029,9 @@ proto_register_bmp(void)
 
     proto_register_field_array(proto_bmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_bmp = expert_register_protocol(proto_bmp);
+    expert_register_field_array(expert_bmp, ei, array_length(ei));
 
     bmp_module = prefs_register_protocol(proto_bmp, NULL);
     prefs_register_bool_preference(bmp_module, "desegment",

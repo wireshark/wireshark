@@ -1280,6 +1280,20 @@ bool ProfileModel::checkNameValidity(QString name, QString *msg)
     return true;
 }
 
+QString ProfileModel::activeProfileName()
+{
+    ProfileModel model;
+    QModelIndex idx = model.activeProfile();
+    return idx.data(ProfileModel::COL_NAME).toString();
+}
+
+QString ProfileModel::activeProfilePath()
+{
+    ProfileModel model;
+    QModelIndex idx = model.activeProfile();
+    return idx.data(ProfileModel::DATA_PATH).toString();
+}
+
 /*
  * Editor modelines
  *

@@ -106,6 +106,7 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
                          group,
                          lua_menu_callback,
                          md,
+                         g_free,
                          retap);
 
     WSLUA_RETURN(0);
@@ -198,6 +199,7 @@ static void text_win_close_cb(void* data) {
 
     if (cbd->wslua_tw->expired) {
         g_free(cbd->wslua_tw);
+        g_free(cbd);
     } else {
         cbd->wslua_tw->expired = TRUE;
     }
@@ -247,7 +249,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     dcbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_remove(L,1);
 
-    labels = g_ptr_array_new();
+    labels = g_ptr_array_new_with_free_func(g_free);
 
     top -= 2;
 
@@ -264,7 +266,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
 
     g_ptr_array_add(labels,NULL);
 
-    ops->new_dialog(title, (const gchar**)(labels->pdata), lua_dialog_cb, dcbd);
+    ops->new_dialog(title, (const gchar**)(labels->pdata), lua_dialog_cb, dcbd, g_free);
 
     g_ptr_array_free(labels,TRUE);
 
@@ -431,6 +433,8 @@ WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new `TextWindow` t
     default_cbd->func_ref = 0;
     default_cbd->wslua_tw = tw;
 
+    tw->close_cb_data = (void *)default_cbd;
+
     ops->set_close_cb(tw->ws_tw,text_win_close_cb,default_cbd);
 
     pushTextWindow(L,tw);
@@ -461,6 +465,9 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
     cbd->L = L;
     cbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     cbd->wslua_tw = tw;
+
+    g_free(tw->close_cb_data);
+    tw->close_cb_data = (void *)cbd;
 
     ops->set_close_cb(tw->ws_tw,text_win_close_cb,cbd);
 
@@ -573,6 +580,7 @@ static int TextWindow__gc(lua_State* L) {
             ops->destroy_text_window(tw->ws_tw);
         }
     } else {
+        g_free(tw->close_cb_data);
         g_free(tw);
     }
 

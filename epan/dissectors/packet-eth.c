@@ -17,7 +17,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/conversation_table.h>
-#include <epan/dissector_filters.h>
+#include <epan/conversation_filter.h>
 #include <epan/capture_dissectors.h>
 #include <wsutil/pint.h>
 #include "packet-eth.h"

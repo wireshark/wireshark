@@ -30,7 +30,7 @@ local function setFailed(name)
 end
 
 -- expected number of runs
-local taptests = { [OTHER]=32 }
+local taptests = { [OTHER]=38 }
 local function getResults()
     print("\n-----------------------------\n")
     for k,v in pairs(taptests) do
@@ -71,6 +71,25 @@ local test_proto = Proto.new("test", "Test Proto")
 test_proto.fields.time_field = ProtoField.uint16("test.time", "Time", base.UNIT_STRING, {" sec", " secs"})
 test_proto.fields.dist_field = ProtoField.uint16("test.dist", "Distance", base.UNIT_STRING, {" km"})
 test_proto.fields.filtered_field = ProtoField.uint16("test.filtered", "Filtered Field", base.DEC)
+
+-- Field type: CHAR
+success = pcall(ProtoField.new, "char", "test.char0", ftypes.CHAR)
+test("ProtoField-char", success)
+
+success = pcall(ProtoField.new, "char base NONE without valuestring", "test.char1", ftypes.CHAR, nil, base.NONE)
+test("ProtoField-char-without-valuestring", not success)
+
+success = pcall(ProtoField.new, "char base NONE with valuestring", "test.char2", ftypes.CHAR, {1, "Value"}, base.NONE)
+test("ProtoField-char-with-valuestring", success)
+
+success = pcall(ProtoField.new, "char base DEC", "test.char3", ftypes.CHAR, nil, base.DEC)
+test("ProtoField-char-base-dec", not success)
+
+success = pcall(ProtoField.new, "char base UNIT_STRING", "test.char4", ftypes.CHAR, {" m"}, base.UNIT_STRING)
+test("ProtoField-char-unit-string", not success)
+
+success = pcall(ProtoField.new, "char base RANGE_STRING", "test.char5", ftypes.CHAR, {{1, 2, "Value"}}, base.RANGE_STRING)
+test("ProtoField-char-range-string", success)
 
 -- Field name: empty, illegal, incompatible
 success = pcall(ProtoField.int8, nil, "empty field name 1")

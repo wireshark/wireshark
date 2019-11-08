@@ -130,7 +130,7 @@ class IOGraphDialog : public WiresharkDialog
     Q_OBJECT
 
 public:
-    explicit IOGraphDialog(QWidget &parent, CaptureFile &cf);
+    explicit IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFilter = QString());
     ~IOGraphDialog();
 
     enum UatColumns { colEnabled = 0, colName, colDFilter, colColor, colStyle, colYAxis, colYField, colSMAPeriod, colMaxNum};

@@ -18,12 +18,12 @@
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
+#include <ui/qt/utils/wireshark_mime_data.h>
 
 #include <QMimeData>
-
-
-static const QString new_rule_name_ = QObject::tr("New coloring rule");
-static const QString color_rule_mime_type_ = "application/x-wireshark-coloring-rules";
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 ColoringRuleItem::ColoringRuleItem(bool disabled, QString name, QString filter, QColor foreground, QColor background, ColoringRuleItem* parent)
     : ModelHelperTreeItem<ColoringRuleItem>(parent),
@@ -129,7 +129,7 @@ void ColoringRulesModel::addColor(bool disabled, QString filter, QColor foregrou
 {
     //add rule to top of the list
     beginInsertRows(QModelIndex(), 0, 0);
-    ColoringRuleItem* item = new ColoringRuleItem(disabled, new_rule_name_, filter, foreground, background, root_);
+    ColoringRuleItem* item = new ColoringRuleItem(disabled, tr("New coloring rule"), filter, foreground, background, root_);
     root_->prependChild(item);
     endInsertRows();
 }
@@ -190,7 +190,7 @@ bool ColoringRulesModel::insertRows(int row, int count, const QModelIndex& paren
 
     for (int i = row; i < row + count; i++)
     {
-        ColoringRuleItem* item = new ColoringRuleItem(true, new_rule_name_, "", defaultForeground_, defaultBackground_, root_);
+        ColoringRuleItem* item = new ColoringRuleItem(true, tr("New coloring rule"), "", defaultForeground_, defaultBackground_, root_);
         root_->insertChild(i, item);
     }
 
@@ -386,15 +386,12 @@ QVariant ColoringRulesModel::headerData(int section, Qt::Orientation orientation
 
 Qt::DropActions ColoringRulesModel::supportedDropActions() const
 {
-    return Qt::MoveAction;
+    return Qt::MoveAction | Qt::CopyAction;
 }
 
 QStringList ColoringRulesModel::mimeTypes() const
 {
-    //Just use plain text to transport data
-    QStringList types;
-    types << color_rule_mime_type_;
-    return types;
+    return QStringList() << WiresharkMimeData::ColoringRulesMimeType;
 }
 
 QMimeData* ColoringRulesModel::mimeData(const QModelIndexList &indexes) const
@@ -404,21 +401,28 @@ QMimeData* ColoringRulesModel::mimeData(const QModelIndexList &indexes) const
         return NULL;
 
     QMimeData *mimeData = new QMimeData();
-    QByteArray encodedData;
 
-    QDataStream stream(&encodedData, QIODevice::WriteOnly);
-
-    foreach (const QModelIndex &index, indexes) {
-        //use first column as "filter"
-        if (index.column() == 0) {
-            //Retrieve "native" data to save lots of conversions in the process
-            ColoringRuleItem* item = root_->child(index.row());
-
-            stream << item->disabled_ << item->name_ << item->filter_ << item->foreground_ << item->background_;
+    QJsonArray data;
+    foreach ( const QModelIndex & index, indexes )
+    {
+        if ( index.column() == 0 )
+        {
+            ColoringRuleItem * item = root_->child(index.row());
+            QJsonObject entry;
+            entry["disabled"] = item->disabled_;
+            entry["name"] = item->name_;
+            entry["filter"] = item->filter_;
+            entry["foreground"] = qVariantFromValue(item->foreground_).toString();
+            entry["background"] = qVariantFromValue(item->background_).toString();
+            data.append(entry);
         }
     }
 
-    mimeData->setData(color_rule_mime_type_, encodedData);
+    QJsonObject dataSet;
+    dataSet["coloringrules"] = data;
+    QByteArray encodedData = QJsonDocument(dataSet).toJson();
+
+    mimeData->setData(WiresharkMimeData::ColoringRulesMimeType, encodedData);
     return mimeData;
 }
 
@@ -430,10 +434,7 @@ bool ColoringRulesModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
     if (action == Qt::IgnoreAction)
         return true;
 
-    if (!data->hasFormat(color_rule_mime_type_))
-        return false;
-
-    if (column > 0)
+    if (!data->hasFormat(WiresharkMimeData::ColoringRulesMimeType) || column > 0)
         return false;
 
     int beginRow;
@@ -445,27 +446,35 @@ bool ColoringRulesModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
     else
         beginRow = rowCount();
 
-    bool disabled;
-    QString name;
-    QString filter;
-    QColor foreground;
-    QColor background;
-    ColoringRuleItem* item;
     QList<QVariant> rules;
 
-    QByteArray encodedData = data->data(color_rule_mime_type_);
-    QDataStream stream(&encodedData, QIODevice::ReadOnly);
-    int rows = 0;
+    QJsonDocument encodedData = QJsonDocument::fromJson(data->data(WiresharkMimeData::ColoringRulesMimeType));
+    if ( ! encodedData.isObject() || ! encodedData.object().contains("coloringrules") )
+        return false;
 
-    while (!stream.atEnd()) {
-        stream >> disabled >> name >> filter >> foreground >> background;
+    QJsonArray dataArray = encodedData.object()["coloringrules"].toArray();
 
-        item = new ColoringRuleItem(disabled, name, filter, foreground, background, root_);
+    for ( int row = 0; row < dataArray.count(); row++ )
+    {
+        QJsonObject entry = dataArray.at(row).toObject();
+
+        if ( ! entry.contains("foreground") || ! entry.contains("background") || ! entry.contains("filter") )
+            continue;
+
+        QColor fgColor = entry["foreground"].toVariant().value<QColor>();
+        QColor bgColor = entry["background"].toVariant().value<QColor>();
+
+        ColoringRuleItem * item = new ColoringRuleItem(
+                entry["disabled"].toVariant().toBool(),
+                entry["name"].toString(),
+                entry["filter"].toString(),
+                fgColor,
+                bgColor,
+                root_);
         rules.append(VariantPointer<ColoringRuleItem>::asQVariant(item));
-        ++rows;
     }
 
-    insertRows(beginRow, rows, QModelIndex());
+    insertRows(beginRow, rules.count(), QModelIndex());
     for (int i = 0; i < rules.count(); i++) {
         QModelIndex idx = index(beginRow, 0, QModelIndex());
         setData(idx, rules[i], Qt::UserRole);

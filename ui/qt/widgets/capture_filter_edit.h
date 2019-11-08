@@ -12,6 +12,8 @@
 
 #include <QThread>
 #include <QToolButton>
+#include <QActionGroup>
+
 #include <ui/qt/widgets/syntax_line_edit.h>
 
 class CaptureFilterSyntaxWorker;
@@ -56,6 +58,7 @@ private:
     QString placeholder_text_;
     QAction *save_action_;
     QAction *remove_action_;
+    QActionGroup * actions_;
     StockIconToolButton *bookmark_button_;
     StockIconToolButton *clear_button_;
     StockIconToolButton *apply_button_;

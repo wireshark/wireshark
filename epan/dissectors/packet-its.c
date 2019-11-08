@@ -2337,8 +2337,9 @@ static int
 dissect_its_ItsPduHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 645 "./asn1/its/its.cnf"
   guint8 version = tvb_get_guint8(tvb, 0);
-  if ((offset = dissector_try_uint(its_version_subdissector_table, version, tvb, actx->pinfo, tree))) {
-    return offset;
+  int test_offset = offset;
+  if ((test_offset = dissector_try_uint(its_version_subdissector_table, version, tvb, actx->pinfo, tree))) {
+    return test_offset;
   }
   // Lets try it that way, regarless of version value...
   its_header_t *hdr = wmem_new0(wmem_packet_scope(), its_header_t);
@@ -2347,11 +2348,13 @@ dissect_its_ItsPduHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                    ett_its_ItsPduHeader, its_ItsPduHeader_sequence);
 
   tap_queue_packet(its_tap, actx->pinfo, actx->private_data);
-  tvbuff_t *next_tvb = tvb_new_subset_length(tvb, (offset+7)>>3, -1);
-  if (!dissector_try_uint(its_msgid_subdissector_table, (hdr->version << 16)+hdr->msgId, next_tvb, actx->pinfo, tree)) {
+  tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset >> 3, -1);
+  int data_offset = dissector_try_uint(its_msgid_subdissector_table, (hdr->version << 16)+hdr->msgId, next_tvb, actx->pinfo, tree);
+  if (!data_offset) {
     proto_tree_add_expert(tree, actx->pinfo, &ei_its_no_sub_dis, next_tvb, 0,  - 1);
-    call_data_dissector(next_tvb, actx->pinfo, tree);
+    data_offset = call_data_dissector(next_tvb, actx->pinfo, tree);
   }
+  offset += data_offset;
 
 
   return offset;
@@ -2726,7 +2729,7 @@ dissect_its_CauseCodeType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_its_SubCauseCodeType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 746 "./asn1/its/its.cnf"
+#line 749 "./asn1/its/its.cnf"
   // Overwrite hf_index
   hf_index = *find_subcause_from_cause((CauseCodeType_enum) ((its_private_data_t*)actx->private_data)->cause_code);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -15525,7 +15528,7 @@ dissect_evcsn_ChargingSpotType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_evcsn_TypeOfReceptacle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 679 "./asn1/its/its.cnf"
+#line 682 "./asn1/its/its.cnf"
   tvbuff_t *parameter_tvb = NULL;
   int len;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,

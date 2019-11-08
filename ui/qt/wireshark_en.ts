@@ -1685,11 +1685,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>ColumnPreferencesFrame</name>
-    <message>
-        <source>Frame</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>ColumnListModel</name>
     <message>
         <source>Displayed</source>
         <translation type="unfinished"></translation>
@@ -1704,12 +1700,37 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Fields</source>
-        <oldsource>Field Name</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Field Occurrence</source>
-        <oldsource>Field occurrence</oldsource>
+        <source>Field Occurence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ColumnPreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add a new column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete selected column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show displayed columns only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset all changes</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2167,6 +2188,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Only Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only enabled protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only disabled protocols</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2645,14 +2674,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Create a new filter.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2676,10 +2697,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2756,6 +2773,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FilterListModel</name>
+    <message>
+        <source>Filter Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Expression</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

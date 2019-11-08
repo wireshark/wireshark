@@ -35,7 +35,7 @@
 
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>
-#include <epan/dissector_filters.h>
+#include <epan/conversation_filter.h>
 #include <epan/exported_pdu.h>
 #include <epan/decode_as.h>
 

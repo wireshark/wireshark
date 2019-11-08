@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>550</width>
-    <height>350</height>
+    <height>456</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,41 +24,52 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTreeWidget" name="columnTreeWidget">
-     <column>
-      <property name="text">
-       <string>Displayed</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Title</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Type</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Fields</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Field Occurrence</string>
-      </property>
-     </column>
+    <widget class="QTreeView" name="columnTreeView">
+     <property name="dragEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::InternalMove</enum>
+     </property>
+     <property name="rootIsDecorated">
+      <bool>false</bool>
+     </property>
+     <property name="sortingEnabled">
+      <bool>false</bool>
+     </property>
+     <attribute name="headerShowSortIndicator" stdset="0">
+      <bool>false</bool>
+     </attribute>
     </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="StockIconToolButton" name="newToolButton"/>
+      <widget class="StockIconToolButton" name="newToolButton">
+       <property name="toolTip">
+        <string>Add a new column</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
      </item>
      <item>
-      <widget class="StockIconToolButton" name="deleteToolButton"/>
+      <widget class="StockIconToolButton" name="deleteToolButton">
+       <property name="toolTip">
+        <string>Delete selected column</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="chkShowDisplayedOnly">
+       <property name="text">
+        <string>Show displayed columns only</string>
+       </property>
+      </widget>
      </item>
      <item>
       <spacer name="horizontalSpacer">

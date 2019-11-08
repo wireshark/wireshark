@@ -45,7 +45,7 @@ protected:
         Name = 0,
         Description,
         Value
-    } CopyInfos;
+    };
 
     virtual void contextMenuEvent(QContextMenuEvent *event);
     virtual void timerEvent(QTimerEvent *event);

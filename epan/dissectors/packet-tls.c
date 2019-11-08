@@ -594,7 +594,23 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     SslDecryptSession *ssl_session;
     SslSession        *session;
     gint               is_from_server;
-    guint8             curr_layer_num_ssl = pinfo->curr_layer_num;
+    /*
+     * A single packet may contain multiple TLS records. Two possible scenarios:
+     *
+     * - Multiple TLS records belonging to the same TLS session.
+     * - TLS within a different encrypted TLS tunnel.
+     *
+     * To support the second case, 'curr_layer_num_ssl' is used as identifier
+     * for the current TLS layer. It is however not a stable identifier for the
+     * second pass (Bug 16109). If the first decrypted record requests
+     * reassembly for HTTP, then the second pass will skip calling the dissector
+     * for the first record. That means that 'pinfo->curr_layer_num' will
+     * actually be lower the second time.
+     *
+     * Since this cannot be easily fixed, we will just break the (hopefully less
+     * common) case of TLS tunneled within TLS.
+     */
+    guint8             curr_layer_num_ssl = 0; // pinfo->curr_layer_num;
 
     ti = NULL;
     ssl_tree   = NULL;
@@ -2079,17 +2095,30 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
      *     } Alert;
      */
     proto_tree  *ti;
-    proto_tree  *ssl_alert_tree;
+    proto_tree  *alert_tree = NULL;
     const gchar *level;
     const gchar *desc;
     guint8       level_byte, desc_byte;
 
-    ssl_alert_tree = NULL;
     if (tree)
     {
         ti = proto_tree_add_item(tree, hf_tls_alert_message, tvb,
                                  offset, record_length, ENC_NA);
-        ssl_alert_tree = proto_item_add_subtree(ti, ett_tls_alert);
+        alert_tree = proto_item_add_subtree(ti, ett_tls_alert);
+    }
+
+    /*
+     * Assume that TLS alert records are not fragmented. Any larger message is
+     * assumed to be encrypted.
+     */
+    if (record_length != 2) {
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Encrypted Alert");
+        proto_item_set_text(tree,
+                            "%s Record Layer: Encrypted Alert",
+                            val_to_str_const(session->version, ssl_version_short_names, "TLS"));
+        proto_item_set_text(alert_tree,
+                            "Alert Message: Encrypted Alert");
+        return;
     }
 
     /*
@@ -2098,45 +2127,27 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
 
     /* first lookup the names for the alert level and description */
     level_byte = tvb_get_guint8(tvb, offset); /* grab the level byte */
-    level = try_val_to_str(level_byte, ssl_31_alert_level);
+    level = val_to_str_const(level_byte, ssl_31_alert_level, "Unknown");
 
     desc_byte = tvb_get_guint8(tvb, offset+1); /* grab the desc byte */
-    desc = try_val_to_str(desc_byte, ssl_31_alert_description);
+    desc = val_to_str_const(desc_byte, ssl_31_alert_description, "Unknown");
 
     /* now set the text in the record layer line */
-    if (level && desc)
-    {
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
-                            "Alert (Level: %s, Description: %s)",
-                            level, desc);
-    }
-    else
-    {
-        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Encrypted Alert");
-    }
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+                        "Alert (Level: %s, Description: %s)",
+                        level, desc);
 
     if (tree)
     {
-        if (level && desc)
-        {
-            proto_item_set_text(tree, "%s Record Layer: Alert "
-                                "(Level: %s, Description: %s)",
-                                val_to_str_const(session->version, ssl_version_short_names, "SSL"),
-                                level, desc);
-            proto_tree_add_item(ssl_alert_tree, hf_tls_alert_message_level,
-                                tvb, offset++, 1, ENC_BIG_ENDIAN);
+        proto_item_set_text(tree, "%s Record Layer: Alert "
+                            "(Level: %s, Description: %s)",
+                            val_to_str_const(session->version, ssl_version_short_names, "TLS"),
+                            level, desc);
+        proto_tree_add_item(alert_tree, hf_tls_alert_message_level,
+                            tvb, offset++, 1, ENC_BIG_ENDIAN);
 
-            proto_tree_add_item(ssl_alert_tree, hf_tls_alert_message_description,
-                                tvb, offset++, 1, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-            proto_item_set_text(tree,
-                                "%s Record Layer: Encrypted Alert",
-                                val_to_str_const(session->version, ssl_version_short_names, "SSL"));
-            proto_item_set_text(ssl_alert_tree,
-                                "Alert Message: Encrypted Alert");
-        }
+        proto_tree_add_item(alert_tree, hf_tls_alert_message_description,
+                            tvb, offset++, 1, ENC_BIG_ENDIAN);
     }
 }
 

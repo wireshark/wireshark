@@ -28,6 +28,7 @@ WSLUA_CLASS_DEFINE(ProtoField,FAIL_ON_NULL("null ProtoField"));
 static const wslua_ft_types_t ftenums[] = {
     {"ftypes.NONE", FT_NONE},
     {"ftypes.BOOLEAN", FT_BOOLEAN},
+    {"ftypes.CHAR", FT_CHAR},
     {"ftypes.UINT8", FT_UINT8},
     {"ftypes.UINT16", FT_UINT16},
     {"ftypes.UINT24", FT_UINT24},
@@ -510,7 +511,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
                                            appears in the tree). */
 #define WSLUA_ARG_ProtoField_new_ABBR 2 /* Filter name of the field (the string that
                                            is used in filters). */
-#define WSLUA_ARG_ProtoField_new_TYPE 3 /* Field Type: one of: `ftypes.BOOLEAN`, `ftypes.UINT8`,
+#define WSLUA_ARG_ProtoField_new_TYPE 3 /* Field Type: one of: `ftypes.BOOLEAN`, `ftypes.CHAR`, `ftypes.UINT8`,
         `ftypes.UINT16`, `ftypes.UINT24`, `ftypes.UINT32`, `ftypes.UINT64`, `ftypes.INT8`,
         `ftypes.INT16`, `ftypes.INT24`, `ftypes.INT32`, `ftypes.INT64`, `ftypes.FLOAT`,
         `ftypes.DOUBLE` , `ftypes.ABSOLUTE_TIME`, `ftypes.RELATIVE_TIME`, `ftypes.STRING`,
@@ -586,6 +587,14 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
         }
         break;
     case FT_CHAR:
+        if (nargs < WSLUA_OPTARG_ProtoField_new_BASE || lua_isnil(L, WSLUA_OPTARG_ProtoField_new_BASE)) {
+            base = BASE_OCT; /* Default base for characters (BASE_HEX instead?) */
+        }
+        if (base & BASE_UNIT_STRING) {
+            WSLUA_OPTARG_ERROR(ProtoField_new, BASE, "Character type can not use base.UNIT_STRING");
+            return 0;
+        }
+        /* FALLTHRU */
     case FT_UINT8:
     case FT_UINT16:
     case FT_UINT24:
@@ -596,11 +605,11 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     case FT_INT24:
     case FT_INT32:
     case FT_INT64:
-        if (type != FT_CHAR && base & BASE_UNIT_STRING) {
+        if (base & BASE_UNIT_STRING) {
             base_unit_string = TRUE;
             base &= ~BASE_UNIT_STRING;
         }
-        if (type != FT_CHAR && base & BASE_RANGE_STRING) {
+        if (base & BASE_RANGE_STRING) {
             base_range_string = TRUE;
             base &= ~BASE_RANGE_STRING;
         }
@@ -608,14 +617,15 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
                 WSLUA_OPTARG_ERROR(ProtoField_new, BASE, "Only one of base.UNIT_STRING and base.RANGE_STRING can be specified");
                 return 0;
         }
-
-        if (base == BASE_NONE) {
-            if (type == FT_CHAR)
-                base = BASE_OCT; /* default base for characters (BASE_HEX instead?) */
-            else
-                base = BASE_DEC;  /* Default base for integer */
+        if (type != FT_CHAR && base == BASE_NONE) {
+            base = BASE_DEC;  /* Default base for integer */
         }
-        if ((base != BASE_DEC) &&
+        if (type == FT_CHAR) {
+            if (base != BASE_NONE && base != BASE_HEX && base != BASE_OCT) {
+                luaL_argerror(L, 3, "Base must be either base.NONE, base.HEX or base.OCT");
+                return 0;
+            }
+        } else if ((base != BASE_DEC) &&
             (type == FT_INT8 || type == FT_INT16 || type == FT_INT24 || type == FT_INT32 || type == FT_INT64))
         {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be either base.DEC or base.UNIT_STRING");
@@ -635,6 +645,10 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
             } else {
                 vs32 = value_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING);
             }
+        }
+        if (type == FT_CHAR && base == BASE_NONE && rs32 == NULL && vs32 == NULL) {
+            luaL_argerror(L, 3, "Base base.NONE must be used with a valuestring");
+            return 0;
         }
         break;
     case FT_BOOLEAN:
@@ -791,7 +805,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     ProtoField f;
     const gchar* abbr = check_field_name(L,1,type);
     const gchar* name = luaL_optstring(L,2,abbr);
-    unsigned default_base = (type == FT_FRAMENUM) ? BASE_NONE : BASE_DEC;
+    unsigned default_base = (type == FT_FRAMENUM) ? BASE_NONE : ((type == FT_CHAR) ? BASE_OCT : BASE_DEC);
     unsigned base = (unsigned)luaL_optinteger(L, 3, default_base);
     enum ft_framenum_type framenum_type = FT_FRAMENUM_NONE;
     value_string* vs32 = NULL;
@@ -808,6 +822,11 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
         return 0;
     }
 
+    if (type == FT_CHAR && base & BASE_UNIT_STRING) {
+        luaL_argerror(L, 3, "Character type can not use base.UNIT_STRING");
+        return 0;
+    }
+
     if (base & BASE_UNIT_STRING) {
         base_unit_string = TRUE;
         base &= ~BASE_UNIT_STRING;
@@ -819,13 +838,13 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     if (base & BASE_RANGE_STRING) {
         base_range_string = TRUE;
         base &= ~BASE_RANGE_STRING;
-        if (base == BASE_NONE) {
+        if (type != FT_CHAR && base == BASE_NONE) {
             base = BASE_DEC;
         }
     }
 
     if (base_unit_string && base_range_string) {
-        luaL_argerror(L, 4, "Only one of base.RANGE_STRING and base.UNIT_STRING can be specified");
+        luaL_argerror(L, 3, "Only one of base.RANGE_STRING and base.UNIT_STRING can be specified");
         return 0;
     }
 
@@ -852,6 +871,15 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
             luaL_argerror(L, 3, "FRAMENUM must use base.NONE");
         else if (mask)
             luaL_argerror(L, 5, "FRAMENUM can not have a bitmask");
+    } else if (type == FT_CHAR) {
+        if (base != BASE_NONE && base != BASE_HEX && base != BASE_OCT) {
+            luaL_argerror(L, 3, "Base must be either base.NONE, base.HEX or base.OCT");
+            return 0;
+        }
+        if (base == BASE_NONE && rs32 == NULL && vs32 == NULL) {
+            luaL_argerror(L, 3, "Base base.NONE must be used with a valuestring");
+            return 0;
+        }
     } else if ((base != BASE_DEC) &&
                (type == FT_INT8 || type == FT_INT16 || type == FT_INT24 || type == FT_INT32 || type == FT_INT64)) {
         luaL_argerror(L, 3, "Base must be either base.DEC or base.UNIT_STRING");
@@ -910,10 +938,19 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 }
 
 #define PROTOFIELD_INTEGER(lower,FT) static int ProtoField_##lower(lua_State* L) { return ProtoField_integer(L,FT); }
+/* _WSLUA_CONSTRUCTOR_ ProtoField_char Creates a `ProtoField` of an 8-bit ASCII character. */
+/* WSLUA_ARG_Protofield_char_ABBR Abbreviated name of the field (the string used in filters). */
+/* WSLUA_OPTARG_Protofield_char_NAME Actual name of the field (the string that appears in the tree). */
+/* WSLUA_OPTARG_Protofield_char_BASE One of `base.NONE`, `base.HEX`, `base.OCT` or `base.RANGE_STRING`. */
+/* WSLUA_OPTARG_Protofield_char_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`. */
+/* WSLUA_OPTARG_Protofield_char_MASK Integer mask of this field. */
+/* WSLUA_OPTARG_Protofield_char_DESC Description of the field. */
+/* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
+
 /* _WSLUA_CONSTRUCTOR_ ProtoField_uint8 Creates a `ProtoField` of an unsigned 8-bit integer (i.e., a byte). */
 /* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_uint8_BASE One of `base.DEC`, `base.HEX` or `base.OCT`, `base.DEC_HEX`, `base.HEX_DEC` or `base.UNIT_STRING`. */
+/* WSLUA_OPTARG_Protofield_uint8_BASE One of `base.DEC`, `base.HEX` or `base.OCT`, `base.DEC_HEX`, `base.HEX_DEC`, `base.UNIT_STRING` or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing the unit name for the values if base is `base.UNIT_STRING`. */
 /* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field. */
 /* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field. */
@@ -1009,6 +1046,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_Protofield_framenum_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
 
+PROTOFIELD_INTEGER(char,FT_CHAR)
 PROTOFIELD_INTEGER(uint8,FT_UINT8)
 PROTOFIELD_INTEGER(uint16,FT_UINT16)
 PROTOFIELD_INTEGER(uint24,FT_UINT24)
@@ -1424,10 +1462,11 @@ static int ProtoField__gc(lua_State* L) {
         return 0;
     }
 
-    /* Note: name, abbrev and blob will be NULL after Proto deregistration. */
+    /* Note: name, abbrev, blob and vs will be NULL after Proto deregistration. */
     g_free(f->name);
     g_free(f->abbrev);
     g_free(f->blob);
+    proto_free_field_strings(f->type, f->base, f->vs);
     g_free(f);
 
     return 0;
@@ -1436,6 +1475,7 @@ static int ProtoField__gc(lua_State* L) {
 WSLUA_METHODS ProtoField_methods[] = {
     WSLUA_CLASS_FNREG(ProtoField,new),
     WSLUA_CLASS_FNREG(ProtoField,none),
+    WSLUA_CLASS_FNREG(ProtoField,char),
     WSLUA_CLASS_FNREG(ProtoField,uint8),
     WSLUA_CLASS_FNREG(ProtoField,uint16),
     WSLUA_CLASS_FNREG(ProtoField,uint24),

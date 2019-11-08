@@ -1,4 +1,4 @@
-/* dissector_filters.c
+/* conversation_filter.c
  * Routines for dissector-generated conversation filters for use as
  * display and color filters
  *
@@ -14,7 +14,7 @@
 #include <glib.h>
 #include "packet.h"
 
-#include "dissector_filters.h"
+#include "conversation_filter.h"
 
 
 GList *conv_filter_list = NULL;

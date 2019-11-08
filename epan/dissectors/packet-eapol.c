@@ -13,13 +13,14 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/eapol_keydes_types.h>
+#include <epan/proto_data.h>
 
 #include "packet-eapol.h"
 
 void proto_register_eapol(void);
 void proto_reg_handoff_eapol(void);
 
-static int proto_eapol = -1;
+int proto_eapol = -1;
 static int hf_eapol_version = -1;
 static int hf_eapol_type = -1;
 static int hf_eapol_len = -1;
@@ -116,6 +117,15 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     proto_tree_add_item(eapol_tree, hf_eapol_len, tvb, offset, 2, ENC_BIG_ENDIAN);
   }
   offset += 2;
+
+  /* Save eapol key type packets for IEEE 802.11 dissector */
+  if (!pinfo->fd->visited && eapol_type == EAPOL_KEY) {
+    proto_eapol_key_frame_t *key_frame = wmem_new(pinfo->pool, proto_eapol_key_frame_t);
+    key_frame->len = len;
+    key_frame->data = (guint8 *)wmem_alloc(pinfo->pool, len);
+    tvb_memcpy(tvb, key_frame->data, 0, len);
+    p_add_proto_data(pinfo->pool, pinfo, proto_eapol, EAPOL_KEY_FRAME_KEY, key_frame);
+  }
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
   if (!dissector_try_uint_new(eapol_type_dissector_table,

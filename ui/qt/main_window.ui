@@ -425,6 +425,7 @@
     </widget>
     <addaction name="actionAnalyzeDisplayFilters"/>
     <addaction name="actionAnalyzeDisplayFilterMacros"/>
+    <addaction name="actionDisplayFilterExpression"/>
     <addaction name="separator"/>
     <addaction name="actionAnalyzeCreateAColumn"/>
     <addaction name="menuApplyAsFilter"/>
@@ -756,8 +757,6 @@
    <attribute name="toolBarBreak">
     <bool>true</bool>
    </attribute>
-   <addaction name="actionDisplayFilterExpression"/>
-   <addaction name="separator"/>
    <addaction name="actionNewDisplayFilterExpression"/>
   </widget>
   <widget class="QToolBar" name="wirelessToolBar">
@@ -2597,10 +2596,10 @@
   </action>
   <action name="actionDisplayFilterExpression">
    <property name="text">
-    <string>&amp;Expression…</string>
+    <string>Display Filter &amp;Expression…</string>
    </property>
    <property name="iconText">
-    <string>Expression…</string>
+    <string>Display Filter Expression…</string>
    </property>
    <property name="toolTip">
     <string>Add an expression to the display filter.</string>

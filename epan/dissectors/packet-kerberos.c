@@ -129,8 +129,7 @@ static gint proto_kerberos = -1;
 static gint hf_krb_rm_reserved = -1;
 static gint hf_krb_rm_reclen = -1;
 static gint hf_krb_provsrv_location = -1;
-static gint hf_krb_smb_nt_status = -1;
-static gint hf_krb_smb_unknown = -1;
+static gint hf_krb_pw_salt = -1;
 static gint hf_krb_address_ip = -1;
 static gint hf_krb_address_netbios = -1;
 static gint hf_krb_address_ipv6 = -1;
@@ -383,7 +382,7 @@ static int hf_kerberos_PAC_OPTIONS_FLAGS_forward_to_full_dc = -1;
 static int hf_kerberos_PAC_OPTIONS_FLAGS_resource_based_constrained_delegation = -1;
 
 /*--- End of included file: packet-kerberos-hf.c ---*/
-#line 169 "./asn1/kerberos/packet-kerberos-template.c"
+#line 168 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_kerberos = -1;
@@ -471,7 +470,7 @@ static gint ett_kerberos_PA_FX_FAST_REPLY = -1;
 static gint ett_kerberos_KrbFastArmoredRep = -1;
 
 /*--- End of included file: packet-kerberos-ett.c ---*/
-#line 183 "./asn1/kerberos/packet-kerberos-template.c"
+#line 182 "./asn1/kerberos/packet-kerberos-template.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
 static expert_field ei_kerberos_address = EI_INIT;
@@ -500,7 +499,7 @@ static gboolean gbl_do_col_info;
 #define KERBEROS_ADDR_TYPE_IPV6  24
 
 /*--- End of included file: packet-kerberos-val.h ---*/
-#line 196 "./asn1/kerberos/packet-kerberos-template.c"
+#line 195 "./asn1/kerberos/packet-kerberos-template.c"
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
@@ -1842,34 +1841,18 @@ dissect_krb5_PA_PROV_SRV_LOCATION(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_krb5_PW_SALT(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)
 {
-	guint32 nt_status;
+	guint length;
 
 	/* Microsoft stores a special 12 byte blob here
 	 * guint32 NT_status
 	 * guint32 unknown
 	 * guint32 unknown
-	 * decode everything as this blob for now until we see if anyone
-	 * else ever uses it   or we learn how to tell whether this
-	 * is such an MS blob or not.
+	 * However RFC 4120 section 5.2.7.3 leaves it undefined.
+	 * Therefore we only print the hex value.
 	 */
-	proto_tree_add_item(tree, hf_krb_smb_nt_status, tvb, offset, 4,
-			ENC_LITTLE_ENDIAN);
-	nt_status=tvb_get_letohl(tvb, offset);
-	if(nt_status) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO,
-			" NT Status: %s",
-			val_to_str(nt_status, NT_errors,
-			"Unknown error code %#x"));
-	}
-	offset += 4;
-
-	proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4,
-			ENC_LITTLE_ENDIAN);
-	offset += 4;
-
-	proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4,
-			ENC_LITTLE_ENDIAN);
-	offset += 4;
+	length = tvb_reported_length_remaining(tvb, offset);
+	proto_tree_add_item(tree, hf_krb_pw_salt, tvb, offset, length, ENC_NA);
+	offset += length;
 
 	return offset;
 }
@@ -4611,7 +4594,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 1876 "./asn1/kerberos/packet-kerberos-template.c"
+#line 1859 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -4859,11 +4842,8 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_provsrv_location, {
 		"PROVSRV Location", "kerberos.provsrv_location", FT_STRING, BASE_NONE,
 		NULL, 0, "PacketCable PROV SRV Location", HFILL }},
-	{ &hf_krb_smb_nt_status,
-		{ "NT Status", "kerberos.smb.nt_status", FT_UINT32, BASE_HEX,
-		VALS(NT_errors), 0, "NT Status code", HFILL }},
-	{ &hf_krb_smb_unknown,
-		{ "Unknown", "kerberos.smb.unknown", FT_UINT32, BASE_HEX,
+	{ &hf_krb_pw_salt,
+		{ "pw-salt", "kerberos.pw_salt", FT_BYTES, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 	{ &hf_krb_address_ip, {
 		"IP Address", "kerberos.addr_ip", FT_IPv4, BASE_NONE,
@@ -5813,7 +5793,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 2257 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2237 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -5903,7 +5883,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KrbFastArmoredRep,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 2273 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2253 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {

@@ -153,6 +153,13 @@ static int hf_lustre_ptlrpc_body_pb_last_seen = -1;
 static int hf_lustre_ptlrpc_body_pb_last_xid = -1;
 static int hf_lustre_ptlrpc_body_pb_status = -1;
 static int hf_lustre_ptlrpc_body_pb_handle = -1;
+static int hf_lustre_mdc_swap_layouts = -1;
+static int hf_lustre_mdc_swap_layouts_flags = -1;
+static int hf_lustre_hsm_current_action = -1;
+static int hf_lustre_hsm_current_action_state = -1;
+static int hf_lustre_hsm_current_action_action = -1;
+static int hf_lustre_hsm_archive = -1;
+static int hf_lustre_hsm_archive_id = -1;
 static int hf_lustre_hsm_req = -1;
 static int hf_lustre_hsm_req_action = -1;
 static int hf_lustre_hsm_req_archive_id = -1;
@@ -176,6 +183,11 @@ static int hf_lustre_hsm_us_archive_id = -1;
 static int hf_lustre_hsm_us_in_prog_state = -1;
 static int hf_lustre_hsm_us_in_prog_action = -1;
 static int hf_lustre_hsm_us_ext_info = -1;
+static int hf_lustre_hsm_state_set = -1;
+static int hf_lustre_hsm_hss_valid = -1;
+static int hf_lustre_hsm_hss_archive_id = -1;
+static int hf_lustre_hsm_hss_setmask = -1;
+static int hf_lustre_hsm_hss_clearmask = -1;
 static int hf_lustre_obd_ioobj = -1;
 static int hf_lustre_obd_ioobj_ioo_bufcnt = -1;
 static int hf_lustre_obd_ioobj_ioo_id = -1;
@@ -406,6 +418,8 @@ static int hf_lustre_cfg_marker_tgtname = -1;
 static int hf_lustre_cfg_marker_comment = -1;
 static int hf_lustre_rcs = -1;
 static int hf_lustre_rcs_rc = -1;
+static int hf_lustre_fid_array = -1;
+static int hf_lustre_fid_array_fid = -1;
 static int hf_lustre_niobuf_remote = -1;
 static int hf_lustre_niobuf_remote_len = -1;
 static int hf_lustre_niobuf_remote_flags = -1;
@@ -621,6 +635,7 @@ static int hf_lustre_data = -1;
 static int hf_lustre_name = -1;
 static int hf_lustre_filename = -1;
 static int hf_lustre_secctx_name = -1;
+static int hf_lustre_selinux_pol = -1;
 static int hf_lustre_target = -1;
 static int hf_lustre_eadata = -1;
 static int hf_lustre_idx_info = -1;
@@ -699,8 +714,10 @@ static gint ett_lustre_obd_statfs = -1;
 static gint ett_lustre_obd_ioobj = -1;
 static gint ett_lustre_niobuf_remote = -1;
 static gint ett_lustre_rcs = -1;
+static gint ett_lustre_fid_array = -1;
 static gint ett_lustre_ost_lvb = -1;
 static gint ett_lustre_lu_fid = -1;
+static gint ett_lustre_mdc_swap_layouts = -1;
 static gint ett_lustre_mdt_body = -1;
 static gint ett_lustre_mdt_rec_reint = -1;
 static gint ett_lustre_obd_quotactl = -1;
@@ -759,8 +776,11 @@ static gint ett_lustre_acl = -1;
 static gint ett_lustre_ladvise_hdr = -1;
 static gint ett_lustre_ladvise = -1;
 static gint ett_lustre_hsm_request = -1;
+static gint ett_lustre_hsm_archive = -1;
+static gint ett_lustre_hsm_current_action = -1;
 static gint ett_lustre_hsm_user_item = -1;
 static gint ett_lustre_hsm_extent = -1;
+static gint ett_lustre_hsm_state_set = -1;
 static gint ett_lustre_hsm_progress = -1;
 static gint ett_lustre_hsm_user_state = -1;
 static gint ett_lustre_quota_body = -1;
@@ -915,7 +935,8 @@ VALUE_STRING_ARRAY2(capa_flags_vals);
     XXX(MDS_HSM_CT_REGISTER, 59)               \
     XXX(MDS_HSM_CT_UNREGISTER, 60)             \
     XXX(MDS_SWAP_LAYOUTS, 61)                  \
-    XXX(MDS_LAST_OPC, 62)                      \
+    XXX(MDS_RMFID, 62)                         \
+    XXX(MDS_LAST_OPC, 63)                      \
     XXX(LDLM_ENQUEUE, 101)                     \
     XXX(LDLM_CONVERT, 102)                     \
     XXX(LDLM_CANCEL, 103)                      \
@@ -1379,6 +1400,12 @@ VALUE_STRING_ARRAY(hsm_user_action_vals);
     XXX(HPS_DONE,     3, "Done")
 //VALUE_STRING_ENUM(hsm_progress_state_vals);
 VALUE_STRING_ARRAY(hsm_progress_state_vals);
+
+#define hss_valid_VALUE_STRING_LIST(XXX)        \
+    XXX(HSS_SETMASK, 0x01)                      \
+        XXX(HSS_CLEARMASK, 0x02)                \
+    XXX(HSS_ARCHIVE_ID, 0x04)
+VALUE_STRING_ARRAY2(hss_valid);
 
 /********************************************************************
  *
@@ -3353,6 +3380,30 @@ dissect_struct_llog_cookie_array(tvbuff_t *tvb, int offset, proto_tree *parent_t
 }
 
 static int
+dissect_struct_mdc_swap_layouts(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
+{
+    proto_tree *tree;
+    proto_item *item;
+    guint data_len;
+
+    data_len = LUSTRE_BUFFER_LEN(buf_num);
+
+    if (data_len == 0)
+        return offset;
+
+    item = proto_tree_add_item(parent_tree, hf_lustre_mdc_swap_layouts, tvb, offset, 8, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_lustre_mdc_swap_layouts);
+    /* struct mdc_swap_layouts { */
+    /*     __u64           msl_flags; */
+    /* }   */
+
+    proto_tree_add_item(tree, hf_lustre_mdc_swap_layouts_flags, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    offset += 8;
+
+    return offset;
+}
+
+static int
 dissect_struct_hsm_request(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
     proto_tree *tree;
@@ -3486,6 +3537,44 @@ dissect_struct_hsm_user_state(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 static int
+dissect_struct_hsm_state_set(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint buf_num)
+{
+    proto_tree *tree;
+    proto_item *item;
+    guint data_len;
+
+    data_len = LUSTRE_BUFFER_LEN(buf_num);
+    if (data_len == 0)
+        return offset;
+
+    if (data_len < 24)
+        expert_add_info_format(pinfo, parent_tree, &ei_lustre_buflen,
+                               "Buffer Length expected >= 24 length:%u", data_len);
+
+    item = proto_tree_add_item(parent_tree, hf_lustre_hsm_state_set, tvb, offset, data_len, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_lustre_hsm_state_set);
+    /* struct hsm_state_set { */
+    /* 	__u32	hss_valid; */
+    /* 	__u32	hss_archive_id; */
+    /* 	__u64	hss_setmask; */
+    /* 	__u64	hss_clearmask; */
+    /* }; */
+
+    proto_tree_add_item(tree, hf_lustre_hsm_hss_valid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_lustre_hsm_hss_archive_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    // both of the following are 64-bit ints, but hold a mask that is used with 32-bit ints
+    // elsewhere
+    proto_tree_add_item(tree, hf_lustre_hsm_hss_setmask, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(tree, hf_lustre_hsm_hss_clearmask, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 8;
+
+    return offset;
+}
+
+static int
 dissect_struct_hsm_user_item_array(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
 {
     proto_tree *tree;
@@ -3511,6 +3600,60 @@ dissect_struct_hsm_user_item_array(tvbuff_t *tvb, int offset, proto_tree *parent
     }
     return offset;
 }
+
+static int
+dissect_struct_hsm_current_action(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
+{
+    proto_tree *tree;
+    proto_item *item;
+    guint data_len;
+
+    data_len = LUSTRE_BUFFER_LEN(buf_num);
+    if (data_len == 0)
+        return offset;
+
+    /* 4+4+16 */
+    /* struct hsm_current_action { */
+    /*     /\**  The current undergoing action, if there is one *\/ */
+    /*     /\* state is one of hsm_progress_states *\/ */
+    /*     __u32			hca_state; */
+    /*     /\* action is one of hsm_user_action *\/ */
+    /*     __u32			hca_action; */
+    /*     struct hsm_extent	hca_location; */
+    /* }; */
+
+    item = proto_tree_add_item(parent_tree, hf_lustre_hsm_current_action, tvb, offset, 24, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_lustre_hsm_current_action);
+    proto_tree_add_item(tree, hf_lustre_hsm_current_action_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_lustre_hsm_current_action_action, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    offset = dissect_struct_hsm_extent(tvb, offset, tree);
+
+    return offset;
+}
+
+static int
+dissect_hsm_archive(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
+{
+    proto_tree *tree;
+    proto_item *item;
+    guint data_len, i;
+
+    data_len = LUSTRE_BUFFER_LEN(buf_num);
+
+    item = proto_tree_add_item(parent_tree, hf_lustre_hsm_archive, tvb, offset, data_len, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_lustre_hsm_archive);
+    // @@ First item may be count for older clients c.f. lustre/mdt/mdt_hsm.c::mdt_hsm_ct_register()
+    for (i = 0; i < data_len/4; ++i) {
+        proto_tree_add_item(tree, hf_lustre_hsm_archive_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
+
+    offset = add_extra_padding(tvb, offset, NULL, tree);
+    return offset;
+}
+
 
 /********************************************************************
  *
@@ -3731,6 +3874,29 @@ dissect_rc_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pare
     for (i = 0; i < data_len/4; ++i) {
         proto_tree_add_item(tree, hf_lustre_rcs_rc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
+    }
+
+    offset = add_extra_padding(tvb, offset, pinfo, tree);
+    return offset;
+}
+
+static int
+dissect_struct_fid_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint buf_num)
+{
+    proto_tree *tree;
+    proto_item *item;
+    guint data_len, i, num;
+
+    data_len = LUSTRE_BUFFER_LEN(buf_num);
+    if (data_len == 0)
+        return offset;
+
+    item = proto_tree_add_item(parent_tree, hf_lustre_fid_array, tvb, offset, data_len, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_lustre_fid_array);
+
+    num = data_len/16;
+    for (i = 0; i < num; ++i) {
+        offset = dissect_struct_lu_fid(tvb, offset, tree, hf_lustre_fid_array_fid);
     }
 
     offset = add_extra_padding(tvb, offset, pinfo, tree);
@@ -5441,6 +5607,8 @@ process_opcode_ost(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
          * REP: [OST_BODY][RCS]  */
         offset = dissect_struct_ost_body(tvb, offset, tree);
         if (pb_type == PTL_RPC_MSG_REQUEST) {
+            // @@ iooobj.buf_count determins number of niobufs
+            // niobuf have BUFFERS after them
             offset = dissect_struct_obd_ioobj(tvb, offset, tree, LUSTRE_REC_OFF+1);
             offset = dissect_struct_niobuf_remote(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+2);
             offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+3);
@@ -5668,41 +5836,6 @@ static int
 process_opcode_mds(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * tree, lustre_trans_t *trans, guint32 pb_type)
 {
     switch (trans->opcode) {
-    case MDS_DISCONNECT:
-        /* no data */
-        break;
-    case MDS_GET_ROOT:
-        /* REQ: [mdt body][NAME] */
-        /* REP: [mdt body][capa] */
-        offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
-        if (pb_type == PTL_RPC_MSG_REQUEST)
-            offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_name, LUSTRE_REC_OFF+1);
-        if (pb_type == PTL_RPC_MSG_REPLY)
-            offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+1);
-        break;
-
-    case MDS_SETXATTR:
-        /* Obsolete since 2.0.0, should use MDS_REINT.REINT_SETXATTR */
-        expert_add_info(pinfo, tree, &ei_lustre_obsopc);
-        if(pb_type==PTL_RPC_MSG_REQUEST)
-            /* [mds body] */
-            offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
-        /* if (reply) : [nothing] */
-        break;
-
-    case MDS_GETXATTR:
-        /* REQ: [MDT BODY][CAPA][NAME][EADATA]
-         * REP: [MDT BODY][EADATA] */
-        offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
-        if (pb_type == PTL_RPC_MSG_REQUEST) {
-            offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+1);
-            offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_name, LUSTRE_REC_OFF+2);
-            offset = dissect_struct_eadata(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+3);
-        }
-        if (pb_type == PTL_RPC_MSG_REPLY)
-            offset = dissect_struct_eadata(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+1);
-        break;
-
     case MDS_GETATTR_NAME:
         /* REQ: [MDT BODY][CAPA][NAME]
          * REP: [MDT BODY][mdt_md][acl][capa1][capa2] */
@@ -5723,26 +5856,6 @@ process_opcode_mds(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * t
         }
         break;
 
-    case MDS_PIN:
-    case MDS_UNPIN:
-        /* NEVER USED In a release */
-    case MDS_DONE_WRITING:
-         /* Obsolete since 2.8.0 */
-        expert_add_info(pinfo, tree, &ei_lustre_obsopc);
-        /* [mdt_body] */
-        offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
-        break;
-
-    case MDS_READPAGE:
-        /* page transport: MDS BULK PORTAL */
-    case MDS_SYNC:
-        /* REQ: [MDT BODY][CAPA]
-         * REP: [MDT BODY] */
-        offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
-        if (pb_type == PTL_RPC_MSG_REQUEST)
-            offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+1);
-        break;
-
     case MDS_CLOSE:
         /* REQ: [MDT IOEPOCH][REINT][CAPA]
          * REP: [MDT BODY][MDT MD][LOGCOOKIES][CAPA1][CAPA2] */
@@ -5761,13 +5874,6 @@ process_opcode_mds(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * t
         }
         break;
 
-    case MDS_STATFS:
-        /* REQ: no data
-         * REP: [OBD STATFS] */
-        if (pb_type == PTL_RPC_MSG_REPLY)
-            offset = dissect_struct_obd_statfs(tvb, offset, tree);
-        break;
-
     case MDS_REINT:
         /* the structure depend on the intent_opcode */
         if (pb_type == PTL_RPC_MSG_REQUEST)
@@ -5775,6 +5881,56 @@ process_opcode_mds(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * t
         if (pb_type == PTL_RPC_MSG_REPLY)
             offset = process_opcode_reint_rep(tvb, offset, pinfo, tree, trans);
 
+        break;
+
+    case MDS_CONNECT:
+        /* REQ: generic connect chain ([targetuuid][clientuuid][lustre_handle][obd_connect_data])
+         * REP: [CONNECT DATA] */
+        if (pb_type == PTL_RPC_MSG_REQUEST)
+            offset = dissect_generic_connect(tvb, offset, pinfo, tree);
+        if (pb_type == PTL_RPC_MSG_REPLY || pb_type == PTL_RPC_MSG_ERR) /*[obd_connect_data]*/
+            offset = dissect_struct_obd_connect_data(tvb, offset, pinfo, tree);
+        break;
+
+    case MDS_DISCONNECT:
+        /* no data */
+        break;
+
+    case MDS_GET_ROOT:
+        /* REQ: [mdt body][NAME] */
+        /* REP: [mdt body][capa] */
+        offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
+        if (pb_type == PTL_RPC_MSG_REQUEST)
+            offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_name, LUSTRE_REC_OFF+1);
+        if (pb_type == PTL_RPC_MSG_REPLY)
+            offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+1);
+        break;
+
+    case MDS_STATFS:
+        /* REQ: no data
+         * REP: [OBD STATFS] */
+        if (pb_type == PTL_RPC_MSG_REPLY)
+            offset = dissect_struct_obd_statfs(tvb, offset, tree);
+        break;
+
+        /* case MDS_PIN: NEVER USED In a release */
+        /* case MDS_UNPIN: NEVER USED In a release */
+
+    case MDS_READPAGE: // OUT OF ORDER
+        /* page transport: MDS BULK PORTAL */
+    case MDS_SYNC:
+        /* REQ: [MDT BODY][CAPA]
+         * REP: [MDT BODY] */
+        offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
+        if (pb_type == PTL_RPC_MSG_REQUEST)
+            offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+1);
+        break;
+
+    case MDS_DONE_WRITING:
+         /* Obsolete since 2.8.0 */
+        expert_add_info(pinfo, tree, &ei_lustre_obsopc);
+        /* [mdt_body] */
+        offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
         break;
 
     case MDS_SET_INFO:
@@ -5802,13 +5958,87 @@ process_opcode_mds(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * t
         offset = dissect_struct_obd_quotactl(tvb, offset, tree);
         break;
 
-    case MDS_CONNECT:
-        /* REQ: generic connect chain ([targetuuid][clientuuid][lustre_handle][obd_connect_data])
-         * REP: [CONNECT DATA] */
+    case MDS_GETXATTR:
+        /* REQ: [MDT BODY][CAPA][NAME][EADATA]
+         * REP: [MDT BODY][EADATA] */
+        offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
+        if (pb_type == PTL_RPC_MSG_REQUEST) {
+            offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+1);
+            offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_name, LUSTRE_REC_OFF+2);
+            offset = dissect_struct_eadata(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+3);
+        }
+        if (pb_type == PTL_RPC_MSG_REPLY)
+            offset = dissect_struct_eadata(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+1);
+        break;
+
+    case MDS_SETXATTR:
+        /* Obsolete since 2.0.0, should use MDS_REINT.REINT_SETXATTR */
+        /* REQ: [mdt_body]
+         * REP: no data */
+        expert_add_info(pinfo, tree, &ei_lustre_obsopc);
+        if(pb_type==PTL_RPC_MSG_REQUEST)
+            offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
+        break;
+
+    case MDS_WRITEPAGE:
+        /* Not used, apparently */
+        expert_add_info_format(pinfo, tree, &ei_lustre_badopc, "MDS WRITEPAGE: Unknown decoding");
+        break;
+
+        /* case MDS_IS_SUBDIR: obsolete, never used in a release */
+
+    case MDS_GET_INFO:
+        /* REQ: [KEY][LENGTH]
+         * REP: [VAL] */
+        if (pb_type == PTL_RPC_MSG_REQUEST) {
+            // @@TODO this is actually a string + fill + optional struct : lustre/include/obd.h KEY_*
+            offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_mdt_key, LUSTRE_REC_OFF);
+            // "fid2path" -> [getinfo_fid2path][lu_fid]
+
+            // BUFFER: LUSTRE_REC_OFF+1
+            proto_tree_add_item(tree, hf_lustre_mdt_vallen, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        }
+        if (pb_type == PTL_RPC_MSG_REPLY)
+            offset = display_buffer_data(tvb, pinfo, offset, tree, LUSTRE_REC_OFF, NULL);
+        break;
+
+    case MDS_HSM_STATE_GET:
+        /* REQ: [mdt_body][capa]
+         * REP: [MDT BODY][][HSM USER STATE] */
+        offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
         if (pb_type == PTL_RPC_MSG_REQUEST)
-            offset = dissect_generic_connect(tvb, offset, pinfo, tree);
-        if (pb_type == PTL_RPC_MSG_REPLY || pb_type == PTL_RPC_MSG_ERR) /*[obd_connect_data]*/
-            offset = dissect_struct_obd_connect_data(tvb, offset, pinfo, tree);
+            offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+1);
+        if (pb_type == PTL_RPC_MSG_REPLY)
+            offset = dissect_struct_hsm_user_state(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+1);
+        break;
+
+    case MDS_HSM_STATE_SET:
+        /* REQ: [mdt_body][capa][hsm_state_set]
+         * REP: no data */
+        if (pb_type == PTL_RPC_MSG_REQUEST) {
+            offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
+            offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+1);
+            offset = dissect_struct_hsm_state_set(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+2);
+        }
+        break;
+
+    case MDS_HSM_ACTION:
+        /* REQ: [mdt_body][capa]
+         * REP: [mdt_body][hsm_current_action] */
+        offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
+        if (pb_type == PTL_RPC_MSG_REQUEST)
+            offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+1);
+        if (pb_type == PTL_RPC_MSG_REPLY)
+            offset = dissect_struct_hsm_current_action(tvb, offset, tree, LUSTRE_REC_OFF+1);
+        break;
+
+    case MDS_HSM_PROGRESS:
+        /* REQ: [mdt_body][hsm_progress]
+         * REP: no data */
+        if (pb_type == PTL_RPC_MSG_REQUEST) {
+            offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
+            offset = dissect_struct_hsm_progress(tvb, offset, tree);
+        }
         break;
 
     case MDS_HSM_REQUEST:
@@ -5822,36 +6052,46 @@ process_opcode_mds(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * t
         }
         break;
 
-    case MDS_HSM_PROGRESS:
-        /* REQ: [mdt_body][hsm_progress]
-         * REP: no data */
+    case MDS_HSM_CT_REGISTER:
+       /* REQ: [mdt_body][hsm_archive]
+        * REP: no data */
         if (pb_type == PTL_RPC_MSG_REQUEST) {
             offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
-            offset = dissect_struct_hsm_progress(tvb, offset, tree);
+            offset = dissect_hsm_archive(tvb, offset, tree, LUSTRE_REC_OFF+1);
         }
         break;
 
-    case MDS_HSM_STATE_GET:
-        /* REQ: [mdt_body][capa]
-         * REP: [MDT BODY][HSM USER STATE] */
-        offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
+    case MDS_HSM_CT_UNREGISTER:
+       /* REQ: [mdt_body]
+        * REP: no data */
         if (pb_type == PTL_RPC_MSG_REQUEST)
-            offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+1);
-        if (pb_type == PTL_RPC_MSG_REPLY)
-            offset = dissect_struct_hsm_user_state(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+1);
+            offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
         break;
 
-    case MDS_GET_INFO:
-        /* REQ: [KEY][LENGTH]
-         * REP: [VAL] */
+    case MDS_SWAP_LAYOUTS:
+       /* REQ: [mdt_body][swap_layouts][capa1][capa2][dlm_req]
+        * REP: no data */
         if (pb_type == PTL_RPC_MSG_REQUEST) {
-            offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_mdt_key, LUSTRE_REC_OFF);
-            // BUFFER: LUSTRE_REC_OFF+1
-            proto_tree_add_item(tree, hf_lustre_mdt_vallen, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
+            offset = dissect_struct_mdc_swap_layouts(tvb, offset, tree, LUSTRE_REC_OFF+1);
+            offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+2);
+            offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+3);
+            offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, NULL, LUSTRE_REC_OFF+4);
         }
-        if (pb_type == PTL_RPC_MSG_REPLY)
-            offset = display_buffer_data(tvb, pinfo, offset, tree, LUSTRE_REC_OFF, NULL);
         break;
+
+    case MDS_RMFID:
+       /* REQ: [mdt_body][fid_array][capa1][capa2]
+        * REP: [mdt_body][fid_array][rcs] */
+        offset = dissect_struct_mdt_body(tvb, offset, tree, LUSTRE_REC_OFF);
+        offset = dissect_struct_fid_array(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+1);
+        if (pb_type == PTL_RPC_MSG_REQUEST) {
+            offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+2);
+            offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+3);
+        } else if (pb_type == PTL_RPC_MSG_REPLY)
+            offset = dissect_rc_array(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+2);
+        break;
+
     default:
         expert_add_info_format(pinfo, tree, &ei_lustre_badopc, "UNKNOWN MDS OPCODE: %d (type: %d)", trans->opcode, pb_type);
         break;
@@ -5871,7 +6111,7 @@ process_ldlm_intent_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
      * Basic:           --
      * Default:         [REC REINT]
      * OPEN:            [REC REINT][CAPA1][CAPA2][NAME][EADATA][SECCTX NAME][SECCTX]
-     * CREATE:          [REC REINT][CAPA1][NAME][EADATA][SECCTX NAME][SECCTX]
+     * CREATE:          [REC REINT][CAPA1][NAME][EADATA][SECCTX NAME][SECCTX]([SELINUX])
      * GETATTR:         [MDT BODY][CAPA1][NAME]
      * UNLINK:          [REC REINT][CAPA1][NAME]
      * LAYOUT:          [LAYOUT INTENT][EADATA]
@@ -5899,6 +6139,7 @@ process_ldlm_intent_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
         offset = dissect_struct_eadata(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+5);
         offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_secctx_name, LUSTRE_REC_OFF+6);
         offset = display_buffer_data(tvb, pinfo, offset, tree, LUSTRE_REC_OFF+7, "Security Context");
+        offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_selinux_pol, LUSTRE_REC_OFF+8);
         break;
     case IT_LOOKUP: /* lustre/lmv/lmv_intent.c::lmv_intent_remote() */
     case IT_GETATTR:
@@ -5940,9 +6181,9 @@ process_ldlm_intent_rep(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
      * REP: [DLM REP]...
      * Default:      [MDT BODY][MDT MD][ACL]
      * LAYOUT:       [DLM LVB]
-     * GETATTR:      [MDT BODY][MDT MD][ACL][CAPA1]
-     * CREATE:       [MDT BODY][MDT MD][ACL][CAPA1]
-     * OPEN:         [MDT BODY][MDT MD][ACL][CAPA1][CAPA2]
+     * GETATTR:      [MDT BODY][MDT MD][ACL][CAPA1]([SECCTX])([DEFAULT MDT MD])
+     * CREATE:       same as GETATTR
+     * OPEN:         [MDT BODY][MDT MD][ACL][CAPA1][CAPA2]([NIOBUF])([SECCTX])
      * QUOTA:        [DLM LVB][QUOTA BODY]
      * GETXATTR:     [MDT BODY][MDT MD][ACL][EADATA][EAVALS][EAVALS LENS]
      */
@@ -5966,6 +6207,8 @@ process_ldlm_intent_rep(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
         offset = dissect_struct_acl(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+3);
         offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+4);
         offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+5);
+        offset = dissect_struct_niobuf_remote(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+6);
+        offset = display_buffer_data(tvb, pinfo, offset, tree, LUSTRE_REC_OFF+7, "Security Context");
         break;
     case IT_QUOTA_DQACQ:
     case IT_QUOTA_CONN:
@@ -6819,7 +7062,7 @@ proto_register_lustre(void)
         { &hf_lustre_mdt_rec_reint_ctime,
           { "Cr  Time", "lustre.mdt_rec_reint.ctime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL } },
         { &hf_lustre_mdt_rec_reint_size64,
-          { "Size", "lustre.mdt_rec_reint.size", FT_UINT64, BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
+          { "Size", "lustre.mdt_rec_reint.size64", FT_UINT64, BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
         { &hf_lustre_mdt_rec_reint_blocks,
           { "Blocks", "lustre.mdt_rec_reint.blocks", FT_UINT64, BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
         { &hf_lustre_mdt_rec_reint_bias,
@@ -6838,7 +7081,7 @@ proto_register_lustre(void)
         { &hf_lustre_mdt_rec_reint_time,
           { "Time", "lustre.mdt_rec_reint.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL } },
         { &hf_lustre_mdt_rec_reint_size32,
-          { "Size", "lustre.mdt_rec_reint.size", FT_UINT32, BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
+          { "Size", "lustre.mdt_rec_reint.size32", FT_UINT32, BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
         { &hf_lustre_mdt_rec_reint_rdev,
           { "RDev", "lustre.mdt_rec_reint.rdev", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_lustre_mdt_rec_reint_ioepoch,
@@ -6865,6 +7108,12 @@ proto_register_lustre(void)
           { "Padding", "lustre.mdt_ioepoch.padding", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_lustre_mdt_ioepoch_handle,
           { "Handle", "lustre.mdt_ioepoch.handle", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+
+        /* struct mdc_swap_layouts */
+        { &hf_lustre_mdc_swap_layouts,
+          { "MDC Swap Layouts", "lustre.mdc_swap_layouts", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_lustre_mdc_swap_layouts_flags,
+          { "Flags", "lustre.mdc_swap_layouts.flags", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
 
 
         /************************************************************
@@ -6926,6 +7175,35 @@ proto_register_lustre(void)
             FT_UINT32, BASE_HEX, VALS(hsm_user_action_vals), 0, NULL, HFILL } },
         { &hf_lustre_hsm_us_ext_info,
           { "Extended Info", "lustre.hsm_state_get.ext_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+
+       /* HSM STATE SET */
+        { &hf_lustre_hsm_state_set,
+          { "HSM State Set", "lustre.hsm_state_set", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_lustre_hsm_hss_valid,
+          { "Valid", "lustre.hsm_state_set.valid", FT_UINT32, BASE_HEX, VALS(hss_valid), 0, NULL, HFILL } },
+        { &hf_lustre_hsm_hss_archive_id,
+          { "Archive Id", "lustre.hsm_state_set.archive_id", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_lustre_hsm_hss_setmask,
+          { "Set Mask", "lustre.hsm_state_set.setmask",
+            FT_UINT32, BASE_HEX, VALS(hsm_state_vals), 0, NULL, HFILL } },
+        { &hf_lustre_hsm_hss_clearmask,
+          { "Clear Mask", "lustre.hsm_state_set.clearmask",
+            FT_UINT32, BASE_HEX, VALS(hsm_state_vals), 0, NULL, HFILL } },
+
+       /* HSM CURRENT ACTION */
+        { &hf_lustre_hsm_current_action,
+          { "HSM Current Action", "lustre.hsm_current_action", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_lustre_hsm_current_action_state,
+          { "State", "lustre.hsm_current_action.state", FT_UINT32, BASE_HEX, VALS(hsm_progress_state_vals), 0, NULL, HFILL } },
+        { &hf_lustre_hsm_current_action_action,
+          { "Action", "lustre.hsm_current_action.action", FT_UINT32, BASE_HEX, VALS(hsm_user_action_vals), 0, NULL, HFILL } },
+
+        /* HSM ARCHIVE */
+        { &hf_lustre_hsm_archive,
+          { "HSM Archive", "lustre.hsm_archive", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_lustre_hsm_archive_id,
+          { "ID", "lustre.hsm_archive.id", FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
 
         /************************************************************
          * OBD
@@ -7491,6 +7769,12 @@ proto_register_lustre(void)
         { &hf_lustre_rcs_rc,
           { "RC", "lustre.rcs.rc", FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
+        /* FID Array */
+        { &hf_lustre_fid_array,
+          { "Fid Array", "lustre.fid_array", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_lustre_fid_array_fid,
+          { "FID", "lustre.fid_array.fid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+
         /************************************************************
          * LOV
          */
@@ -7685,9 +7969,9 @@ proto_register_lustre(void)
         { &hf_lustre_ldlm_res_id_name,
           { "Name", "lustre.ldlm_res_id.name", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_lustre_ldlm_res_id_bits,
-          { "Name", "lustre.ldlm_res_id.name", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }},
+          { "Bits", "lustre.ldlm_res_id.bits", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }},
         { &hf_lustre_ldlm_res_id_string,
-          { "Name", "lustre.ldlm_res_id.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+          { "String", "lustre.ldlm_res_id.string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_lustre_ldlm_res_id_type,
           { "Type", "lustre.ldlm_res_id.type", FT_UINT32, BASE_HEX, VALS(mgs_config_body_type_vals), 0, NULL, HFILL }},
 
@@ -8158,6 +8442,8 @@ proto_register_lustre(void)
 
         { &hf_lustre_filename,
           { "filename", "lustre.filename", FT_STRING, BASE_NONE, NULL , 0 , NULL, HFILL}},
+        { &hf_lustre_selinux_pol,
+          { "SELinux Policy", "lustre.selinux_pol", FT_STRING, BASE_NONE, NULL , 0 , NULL, HFILL}},
         { &hf_lustre_target,
           { "target", "lustre.target", FT_STRING, BASE_NONE, NULL , 0 , NULL, HFILL}},
         { &hf_lustre_secctx_name,
@@ -8182,12 +8468,14 @@ proto_register_lustre(void)
         &ett_lustre_obd_ioobj,
         &ett_lustre_niobuf_remote,
         &ett_lustre_rcs,
+        &ett_lustre_fid_array,
         &ett_lustre_ost_lvb,
         &ett_lustre_lu_fid,
         &ett_lustre_obd_quotactl,
         &ett_lustre_obd_dqinfo,
         &ett_lustre_obd_dqblk,
         &ett_lustre_quota_adjust_qunit,
+        &ett_lustre_mdc_swap_layouts,
         &ett_lustre_mdt_body,
         &ett_lustre_mdt_rec_reint,
         &ett_lustre_lov_desc,
@@ -8242,9 +8530,12 @@ proto_register_lustre(void)
         &ett_lustre_acl,
         &ett_lustre_ladvise_hdr,
         &ett_lustre_ladvise,
+        &ett_lustre_hsm_current_action,
         &ett_lustre_hsm_request,
+        &ett_lustre_hsm_archive,
         &ett_lustre_hsm_user_item,
         &ett_lustre_hsm_extent,
+        &ett_lustre_hsm_state_set,
         &ett_lustre_hsm_progress,
         &ett_lustre_hsm_user_state,
         &ett_lustre_quota_body,

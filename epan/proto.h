@@ -1847,7 +1847,7 @@ proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
  @param length length of data in tvb
  @param value_ptr data to display
  @return the newly created item */
-extern proto_item *
+WS_DLL_PUBLIC proto_item *
 proto_tree_add_oid(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
     gint length, const guint8* value_ptr);
 
@@ -1863,7 +1863,7 @@ proto_tree_add_oid(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
  @param format printf like format string
  @param ... printf like parameters
  @return the newly created item */
-extern proto_item *
+WS_DLL_PUBLIC proto_item *
 proto_tree_add_oid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     gint start, gint length, const guint8* value_ptr, const char *format,
     ...) G_GNUC_PRINTF(7,8);
@@ -1879,7 +1879,7 @@ proto_tree_add_oid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @param format printf like format string
  @param ... printf like parameters
  @return the newly created item */
-extern proto_item *
+WS_DLL_PUBLIC proto_item *
 proto_tree_add_oid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
     gint length, const guint8* value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
@@ -2379,6 +2379,13 @@ proto_deregister_field (const int parent, gint hf_id);
  @param data a pointer to data to free */
 WS_DLL_PUBLIC void
 proto_add_deregistered_data (void *data);
+
+/** Free strings in a field.
+ @param field_type the field type (one of FT_ values)
+ @param field_display field display value (one of BASE_ values)
+ @param field_strings field strings */
+WS_DLL_PUBLIC void
+proto_free_field_strings (ftenum_t field_type, unsigned int field_display, const void *field_strings);
 
 /** Free fields deregistered in proto_deregister_field(). */
 WS_DLL_PUBLIC void

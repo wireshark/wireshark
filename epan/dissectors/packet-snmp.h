@@ -19,6 +19,18 @@
 #ifndef PACKET_SNMP_H
 #define PACKET_SNMP_H
 
+#define SNMP_REQ_GET                0
+#define SNMP_REQ_GETNEXT            1
+#define SNMP_REQ_SET                3
+#define SNMP_REQ_GETBULK            5
+#define SNMP_REQ_INFORM             6
+
+#define SNMP_RES_GET                2
+
+#define SNMP_TRAP                   4
+#define SNMP_TRAPV2                 7
+#define SNMP_REPORT                 8
+
 typedef struct _snmp_usm_key {
 	guint8* data;
 	guint len;
@@ -81,6 +93,14 @@ struct _snmp_usm_params_t {
 
 	gboolean authOK;
 };
+
+typedef struct snmp_request_response {
+	guint32 request_frame_id;
+	guint32 response_frame_id;
+	nstime_t request_time;
+	guint requestId;
+	guint request_procedure_id;
+} snmp_request_response_t;
 
 /*
  * Guts of the SNMP dissector - exported for use by protocols such as

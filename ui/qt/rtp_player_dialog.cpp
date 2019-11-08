@@ -275,7 +275,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
         audio_graph->setData(audio_stream->visualTimestamps(relative_timestamps), audio_stream->visualSamples(y_offset));
         audio_graph->removeFromLegend();
         ti->setData(graph_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(audio_graph));
-        RTP_STREAM_DEBUG("Plotting %s, %d samples", ti->text(src_addr_col_).toUtf8().constData(), audio_graph->data()->keys().length());
+        RTP_STREAM_DEBUG("Plotting %s, %d samples", ti->text(src_addr_col_).toUtf8().constData(), audio_graph->data()->size());
 
         QString span_str = QString("%1 - %2 (%3)")
                 .arg(QString::number(audio_stream->startRelTime(), 'g', 3))

@@ -11,7 +11,7 @@ wireshark-filter - Wireshark display filter syntax and reference
 =head1 SYNOPSIS
 
 B<wireshark> [other options]
-S<[ B<-Y> "display filter expression" ]>
+S<[ B<-Y> "display filter expression" | b<--display-filter> "display filter expression" ]>
 
 B<tshark> [other options]
 S<[ B<-Y> "display filter expression" ]>

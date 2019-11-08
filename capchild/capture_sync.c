@@ -128,7 +128,7 @@ capture_session_init(capture_session *cap_session, capture_file *cf)
     cap_session->group                           = getgid();
 #endif
     cap_session->count                           = 0;
-    cap_session->session_started                 = FALSE;
+    cap_session->session_will_restart            = FALSE;
 }
 
 /* Append an arg (realloc) to an argc/argv array */

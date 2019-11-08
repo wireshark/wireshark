@@ -4170,6 +4170,9 @@ get_request(tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 opcode,
     wmem_tree_t     *sub_wmemtree;
     guint32          frame_number, curr_layer_num;
 
+    if (!bluetooth_data)
+        return NULL;
+
     curr_layer_num = pinfo->curr_layer_num;
 
     key[0].length = 1;
@@ -4360,22 +4363,24 @@ get_uuid_from_handle(packet_info *pinfo, guint32 handle,
 
     memset(&uuid, 0, sizeof uuid);
 
-    frame_number = pinfo->num;
+    if (bluetooth_data) {
+        frame_number = pinfo->num;
 
-    key[0].length = 1;
-    key[0].key    = &bluetooth_data->interface_id;
-    key[1].length = 1;
-    key[1].key    = &bluetooth_data->adapter_id;
-    key[2].length = 1;
-    key[2].key    = &handle;
-    key[3].length = 0;
-    key[3].key    = NULL;
+        key[0].length = 1;
+        key[0].key    = &bluetooth_data->interface_id;
+        key[1].length = 1;
+        key[1].key    = &bluetooth_data->adapter_id;
+        key[2].length = 1;
+        key[2].key    = &handle;
+        key[3].length = 0;
+        key[3].key    = NULL;
 
-    sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(handle_to_uuid, key);
-    handle_data = (sub_wmemtree) ? (handle_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
+        sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(handle_to_uuid, key);
+        handle_data = (sub_wmemtree) ? (handle_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
 
-    if (handle_data)
-        uuid = handle_data->uuid;
+        if (handle_data)
+            uuid = handle_data->uuid;
+    }
 
     return uuid;
 }
@@ -4392,27 +4397,29 @@ get_service_uuid_from_handle(packet_info *pinfo, guint32 handle,
 
     memset(&uuid, 0, sizeof uuid);
 
-    frame_number = pinfo->num;
+    if (bluetooth_data) {
+        frame_number = pinfo->num;
 
-    key[0].length = 1;
-    key[0].key    = &bluetooth_data->interface_id;
-    key[1].length = 1;
-    key[1].key    = &bluetooth_data->adapter_id;
-    key[2].length = 1;
-    key[2].key    = &handle;
-    key[3].length = 0;
-    key[3].key    = NULL;
+        key[0].length = 1;
+        key[0].key    = &bluetooth_data->interface_id;
+        key[1].length = 1;
+        key[1].key    = &bluetooth_data->adapter_id;
+        key[2].length = 1;
+        key[2].key    = &handle;
+        key[3].length = 0;
+        key[3].key    = NULL;
 
-    while (handle > 0) {
-        sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(handle_to_uuid, key);
-        handle_data = (sub_wmemtree) ? (handle_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
+        while (handle > 0) {
+            sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(handle_to_uuid, key);
+            handle_data = (sub_wmemtree) ? (handle_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
 
-        if (handle_data && handle_data->type == ATTRIBUTE_TYPE_SERVICE) {
-            uuid = handle_data->uuid;
-            return uuid;
+            if (handle_data && handle_data->type == ATTRIBUTE_TYPE_SERVICE) {
+                uuid = handle_data->uuid;
+                return uuid;
+            }
+
+            handle -= 1;
         }
-
-        handle -= 1;
     }
 
     return uuid;
@@ -4430,30 +4437,32 @@ get_characteristic_uuid_from_handle(packet_info *pinfo, guint32 handle,
 
     memset(&uuid, 0, sizeof uuid);
 
-    frame_number = pinfo->num;
+    if (bluetooth_data) {
+        frame_number = pinfo->num;
 
-    key[0].length = 1;
-    key[0].key    = &bluetooth_data->interface_id;
-    key[1].length = 1;
-    key[1].key    = &bluetooth_data->adapter_id;
-    key[2].length = 1;
-    key[2].key    = &handle;
-    key[3].length = 0;
-    key[3].key    = NULL;
+        key[0].length = 1;
+        key[0].key    = &bluetooth_data->interface_id;
+        key[1].length = 1;
+        key[1].key    = &bluetooth_data->adapter_id;
+        key[2].length = 1;
+        key[2].key    = &handle;
+        key[3].length = 0;
+        key[3].key    = NULL;
 
-    while (handle > 0) {
-        sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(handle_to_uuid, key);
-        handle_data = (sub_wmemtree) ? (handle_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
+        while (handle > 0) {
+            sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(handle_to_uuid, key);
+            handle_data = (sub_wmemtree) ? (handle_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
 
-        if (handle_data && handle_data->type == ATTRIBUTE_TYPE_SERVICE)
-            return uuid;
+            if (handle_data && handle_data->type == ATTRIBUTE_TYPE_SERVICE)
+                return uuid;
 
-        if (handle_data && handle_data->type == ATTRIBUTE_TYPE_CHARACTERISTIC) {
-            uuid = handle_data->uuid;
-            return uuid;
+            if (handle_data && handle_data->type == ATTRIBUTE_TYPE_CHARACTERISTIC) {
+                uuid = handle_data->uuid;
+                return uuid;
+            }
+
+            handle -= 1;
         }
-
-        handle -= 1;
     }
 
     return uuid;
@@ -4464,6 +4473,9 @@ static void col_append_info_by_handle(packet_info *pinfo, guint16 handle, blueto
     bluetooth_uuid_t   service_uuid;
     bluetooth_uuid_t   characteristic_uuid;
     bluetooth_uuid_t   uuid;
+
+    if (!bluetooth_data)
+        return;
 
     service_uuid = get_service_uuid_from_handle(pinfo, handle, bluetooth_data);
     characteristic_uuid = get_characteristic_uuid_from_handle(pinfo, handle, bluetooth_data);
@@ -4609,6 +4621,8 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
     guint32      operator_value;
     guint32      opcode;
     guint32      operand_offset;
+    guint32      interface_id;
+    guint32      adapter_id;
     const gint  **hfs;
     bluetooth_data_t *bluetooth_data = NULL;
 
@@ -5316,7 +5330,13 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        offset = dissect_bd_addr(hf_btatt_reconnection_address, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+        if (bluetooth_data) {
+            interface_id = bluetooth_data->interface_id;
+            adapter_id = bluetooth_data->adapter_id;
+        } else {
+            interface_id = adapter_id = 0;
+        }
+        offset = dissect_bd_addr(hf_btatt_reconnection_address, pinfo, tree, tvb, offset, FALSE, interface_id, adapter_id, NULL);
 
         break;
     case 0x2A04: /* Peripheral Preferred Connection Parameters */
@@ -10360,8 +10380,12 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             btle_mesh_proxy_ctx_t *proxy_ctx;
             proxy_ctx = wmem_new0(wmem_packet_scope(), btle_mesh_proxy_ctx_t);
 
-            proxy_ctx->interface_id = bluetooth_data->interface_id;
-            proxy_ctx->adapter_id = bluetooth_data->adapter_id;
+            if (bluetooth_data) {
+                proxy_ctx->interface_id = bluetooth_data->interface_id;
+                proxy_ctx->adapter_id = bluetooth_data->adapter_id;
+            } else {
+                proxy_ctx->interface_id = proxy_ctx->adapter_id = 0;
+            }
             proxy_ctx->chandle = 0; //TODO
             proxy_ctx->bt_uuid = uuid.bt_uuid;
             proxy_ctx->access_address = 0; //TODO
@@ -10565,20 +10589,22 @@ get_mtu(packet_info *pinfo, bluetooth_data_t *bluetooth_data)
     wmem_tree_t     *sub_wmemtree;
     guint            mtu = 23;
 
-    frame_number = pinfo->num;
+    if (bluetooth_data) {
+        frame_number = pinfo->num;
 
-    key[0].length = 1;
-    key[0].key    = &bluetooth_data->interface_id;
-    key[1].length = 1;
-    key[1].key    = &bluetooth_data->adapter_id;
-    key[2].length = 0;
-    key[2].key    = NULL;
+        key[0].length = 1;
+        key[0].key    = &bluetooth_data->interface_id;
+        key[1].length = 1;
+        key[1].key    = &bluetooth_data->adapter_id;
+        key[2].length = 0;
+        key[2].key    = NULL;
 
-    sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(mtus, key);
-    mtu_data = (sub_wmemtree) ? (mtu_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
+        sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(mtus, key);
+        mtu_data = (sub_wmemtree) ? (mtu_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
 
-    if (mtu_data)
-        mtu = mtu_data->mtu;
+        if (mtu_data)
+            mtu = mtu_data->mtu;
+    }
 
     return mtu;
 }
@@ -10649,42 +10675,43 @@ get_value(packet_info *pinfo, guint32 handle, bluetooth_data_t *bluetooth_data, 
     gboolean          first = TRUE;
     guint8           *data = NULL;
 
+    if (bluetooth_data) {
+        frame_number = pinfo->num;
 
-    frame_number = pinfo->num;
+        key[0].length = 1;
+        key[0].key    = &bluetooth_data->interface_id;
+        key[1].length = 1;
+        key[1].key    = &bluetooth_data->adapter_id;
+        key[2].length = 1;
+        key[2].key    = &handle;
+        key[3].length = 0;
+        key[3].key    = NULL;
 
-    key[0].length = 1;
-    key[0].key    = &bluetooth_data->interface_id;
-    key[1].length = 1;
-    key[1].key    = &bluetooth_data->adapter_id;
-    key[2].length = 1;
-    key[2].key    = &handle;
-    key[3].length = 0;
-    key[3].key    = NULL;
+        sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(fragments, key);
+        while (1) {
+            fragment_data = (sub_wmemtree) ? (fragment_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
+            if (!fragment_data || (fragment_data && fragment_data->offset >= last_offset))
+                break;
 
-    sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(fragments, key);
-    while (1) {
-        fragment_data = (sub_wmemtree) ? (fragment_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
-        if (!fragment_data || (fragment_data && fragment_data->offset >= last_offset))
-            break;
+            if (first) {
+                size = fragment_data->offset + fragment_data->length;
+                data = (guint8 *) wmem_alloc(pinfo->pool, size);
 
-        if (first) {
-            size = fragment_data->offset + fragment_data->length;
-            data = (guint8 *) wmem_alloc(pinfo->pool, size);
+                if (length)
+                    *length = size;
 
-            if (length)
-                *length = size;
+                first = FALSE;
+            } else if (fragment_data->offset + fragment_data->length != last_offset) {
+                break;
+            }
 
-            first = FALSE;
-        } else if (fragment_data->offset + fragment_data->length != last_offset) {
-            break;
+            memcpy(data + fragment_data->offset, fragment_data->data, fragment_data->length);
+
+            if (fragment_data->offset == 0)
+                return data;
+            frame_number = fragment_data->data_in_frame - 1;
+            last_offset = fragment_data->offset;
         }
-
-        memcpy(data + fragment_data->offset, fragment_data->data, fragment_data->length);
-
-        if (fragment_data->offset == 0)
-            return data;
-        frame_number = fragment_data->data_in_frame - 1;
-        last_offset = fragment_data->offset;
     }
 
     if (length)

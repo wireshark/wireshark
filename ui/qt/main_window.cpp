@@ -18,7 +18,7 @@ DIAG_OFF(frame-larger-than=)
 DIAG_ON(frame-larger-than=)
 
 #include <epan/addr_resolv.h>
-#include "epan/dissector_filters.h"
+#include "epan/conversation_filter.h"
 #include <epan/epan_dissect.h>
 #include <wsutil/filesystem.h>
 #include <version_info.h>
@@ -373,22 +373,11 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
     df_combo_box_ = new DisplayFilterCombo(this);
-    const DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
-    connect(df_edit, SIGNAL(pushFilterSyntaxStatus(const QString&)),
-            main_ui_->statusBar, SLOT(pushFilterStatus(const QString&)));
-    connect(df_edit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
-    connect(df_edit, SIGNAL(filterPackets(QString, bool)), this, SLOT(filterPackets(QString, bool)));
-    connect(df_edit, SIGNAL(showPreferencesDialog(QString)),
-            this, SLOT(showPreferencesDialog(QString)));
-    connect(wsApp, SIGNAL(preferencesChanged()), df_edit, SLOT(checkFilter()));
 
     funnel_statistics_ = new FunnelStatistics(this, capture_file_);
-    connect(df_edit, SIGNAL(textChanged(QString)), funnel_statistics_, SLOT(displayFilterTextChanged(QString)));
-    connect(funnel_statistics_, SIGNAL(setDisplayFilter(QString)), df_edit, SLOT(setText(QString)));
-    connect(funnel_statistics_, SIGNAL(applyDisplayFilter()), df_combo_box_, SLOT(applyDisplayFilter()));
+    connect(funnel_statistics_, &FunnelStatistics::setDisplayFilter, this, &MainWindow::setDisplayFilter);
     connect(funnel_statistics_, SIGNAL(openCaptureFile(QString, QString)),
             this, SLOT(openCaptureFile(QString, QString)));
-    connect(this, SIGNAL(displayFilterSuccess(bool)), df_edit, SLOT(displayFilterSuccess(bool)));
 
     file_set_dialog_ = new FileSetDialog(this);
     connect(file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString)),
@@ -396,7 +385,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     initMainToolbarIcons();
 
-    main_ui_->displayFilterToolBar->insertWidget(main_ui_->actionDisplayFilterExpression, df_combo_box_);
+    main_ui_->displayFilterToolBar->insertWidget(main_ui_->actionNewDisplayFilterExpression, df_combo_box_);
 
     // Make sure filter expressions overflow into a menu instead of a
     // larger toolbar. We do this by adding them to a child toolbar.
@@ -2517,7 +2506,7 @@ void MainWindow::changeEvent(QEvent* event)
 }
 
 /* Update main window items based on whether there's a capture in progress. */
-void MainWindow::setForCaptureInProgress(bool capture_in_progress, GArray *ifaces)
+void MainWindow::setForCaptureInProgress(bool capture_in_progress, bool handle_toolbars, GArray *ifaces)
 {
     setMenusForCaptureInProgress(capture_in_progress);
 
@@ -2532,12 +2521,14 @@ void MainWindow::setForCaptureInProgress(bool capture_in_progress, GArray *iface
 //    set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
 #endif
 
-    QList<InterfaceToolbar *> toolbars = findChildren<InterfaceToolbar *>();
-    foreach(InterfaceToolbar *toolbar, toolbars) {
-        if (capture_in_progress) {
-            toolbar->startCapture(ifaces);
-        } else {
-            toolbar->stopCapture();
+    if (handle_toolbars) {
+        QList<InterfaceToolbar *> toolbars = findChildren<InterfaceToolbar *>();
+        foreach(InterfaceToolbar *toolbar, toolbars) {
+            if (capture_in_progress) {
+                toolbar->startCapture(ifaces);
+            } else {
+                toolbar->stopCapture();
+            }
         }
     }
 }

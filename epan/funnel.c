@@ -21,6 +21,7 @@ typedef struct _funnel_menu_t {
     register_stat_group_t group;
     funnel_menu_callback callback;
     gpointer callback_data;
+    funnel_menu_callback_data_free callback_data_free;
     gboolean retap;
     struct _funnel_menu_t* next;
 } funnel_menu_t;
@@ -58,6 +59,9 @@ static void funnel_remove_menu (funnel_menu_t ** menu_list, funnel_menu_t *menu)
                 *menu_list = m->next;
             }
             g_free(m->name);
+            if (m->callback_data_free) {
+                m->callback_data_free(m->callback_data);
+            }
             g_free(m);
             if (p) {
                 m = p->next;
@@ -88,6 +92,7 @@ void funnel_register_menu(const char *name,
                           register_stat_group_t group,
                           funnel_menu_callback callback,
                           gpointer callback_data,
+                          funnel_menu_callback_data_free callback_data_free,
                           gboolean retap)
 {
     funnel_menu_t* m = (funnel_menu_t *)g_malloc(sizeof(funnel_menu_t));
@@ -95,6 +100,7 @@ void funnel_register_menu(const char *name,
     m->group = group;
     m->callback = callback;
     m->callback_data = callback_data;
+    m->callback_data_free = callback_data_free;
     m->retap = retap;
     m->next = NULL;
 

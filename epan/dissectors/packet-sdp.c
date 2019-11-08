@@ -1743,19 +1743,24 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
                 tokenlen = next_offset - offset;
 
+                media_format_item = proto_tree_add_item_ret_string(sdp_media_attribute_tree, hf_media_format, tvb,
+                    offset, tokenlen, ENC_UTF_8 | ENC_NA, wmem_packet_scope(), &payload_type);
 
-                media_format_item = proto_tree_add_item(sdp_media_attribute_tree,
-                                                        hf_media_format, tvb, offset,
-                                                        tokenlen, ENC_UTF_8|ENC_NA);
-                if (!ws_strtou8(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA),
-                        NULL, &media_format) || media_format >= SDP_NO_OF_PT) {
-                    expert_add_info(pinfo, media_format_item, &ei_sdp_invalid_media_format);
-                    return;
+                media_format = 0;
+                if (g_ascii_strncasecmp(payload_type, "MCPTT", 5) != 0) {
+                    if (g_ascii_strncasecmp(payload_type, "TBCP", 4) != 0) {
+                        if (!ws_strtou8(payload_type, NULL, &media_format) || media_format >= SDP_NO_OF_PT) {
+                            expert_add_info(pinfo, media_format_item, &ei_sdp_invalid_media_format);
+                            return;
+                        }
+                        /* Append encoding name to format if known */
+                        if (media_format) {
+                            proto_item_append_text(media_format_item, " [%s]",
+                                transport_info->encoding_name[media_format]);
+                        }
+                    }
                 }
 
-                /* Append encoding name to format if known */
-                proto_item_append_text(media_format_item, " [%s]",
-                                       transport_info->encoding_name[media_format]);
 
 #if 0 /* XXX:  ?? */
                 payload_type = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);

@@ -446,24 +446,30 @@ static int ib_str_len(const address* addr _U_)
 static int ax25_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
     const guint8 *addrdata = (const guint8 *)addr->data;
+    int i, ssid;
     gchar *bufp = buf;
 
-    *bufp++ = printable_char_or_period(addrdata[0] >> 1);
-    *bufp++ = printable_char_or_period(addrdata[1] >> 1);
-    *bufp++ = printable_char_or_period(addrdata[2] >> 1);
-    *bufp++ = printable_char_or_period(addrdata[3] >> 1);
-    *bufp++ = printable_char_or_period(addrdata[4] >> 1);
-    *bufp++ = printable_char_or_period(addrdata[5] >> 1);
-    *bufp++ = '-';
-    bufp = uint_to_str_back(bufp, (addrdata[6] >> 1) & 0x0f);
-    *bufp++ = '\0'; /* NULL terminate */
+    for (i = 0; i < 6; i++) {
+        if (addrdata[i] == 0x40) {
+            /* end of callsign, start of space-padding */
+            break;
+        }
+        *bufp++ = printable_char_or_period(addrdata[i] >> 1);
+    }
+
+    ssid = (addrdata[6] >> 1) & 0x0f;
+    if (ssid != 0) {
+        bufp += g_snprintf(bufp,buf_len-(int)(bufp-buf),"-%d",ssid);
+    } else {
+        *bufp++ = '\0'; /* NULL terminate */
+    }
 
     return (int)(bufp - buf);
 }
 
 static int ax25_addr_str_len(const address* addr _U_)
 {
-    return 21; /* Leaves extra space (10 bytes) just for uint_to_str_back() */
+    return 10; /* callsign (6) + dash (1) + ssid (2) + nul (1) = 10 */
 }
 
 static const char* ax25_col_filter_str(const address* addr _U_, gboolean is_src)

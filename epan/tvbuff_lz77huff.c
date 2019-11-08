@@ -170,7 +170,7 @@ static int PrefixCodeTreeRebuild( struct hf_tree *tree,
 	}
 
 	if (input->size < ENCODED_TREE_SIZE)
-		return FALSE;
+		return -1;
 
 	for (i = 0; i < ENCODED_TREE_SIZE; i++) {
 		symbolInfo[2*i].symbol = 2*i;

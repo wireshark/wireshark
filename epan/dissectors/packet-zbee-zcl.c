@@ -715,6 +715,13 @@ const value_string zbee_mfr_code_names[] = {
     { ZBEE_MFG_CODE_FEELUX_CO_LTD,     ZBEE_MFG_FEELUX_CO_LTD },
     { ZBEE_MFG_CODE_SMARTPLUS_INC,     ZBEE_MFG_SMARTPLUS_INC },
     { ZBEE_MFG_CODE_HALEMEIER_GMBH,    ZBEE_MFG_HALEMEIER_GMBH },
+    { ZBEE_MFG_CODE_TRUST_INTL,        ZBEE_MFG_TRUST_INTL },
+    { ZBEE_MFG_CODE_DUKE_ENERGY,       ZBEE_MFG_DUKE_ENERGY },
+    { ZBEE_MFG_CODE_CALIX,             ZBEE_MFG_CALIX },
+    { ZBEE_MFG_CODE_ADEO,              ZBEE_MFG_ADEO },
+    { ZBEE_MFG_CODE_DATEK_WIRLESS,     ZBEE_MFG_DATEK_WIRLESS },
+    { ZBEE_MFG_CODE_GEWISS_SPA,        ZBEE_MFG_GEWISS_SPA },
+    { ZBEE_MFG_CODE_CLIMAX_TECH,       ZBEE_MFG_CLIMAX_TECH },
     { 0, NULL }
 };
 static value_string_ext zbee_mfr_code_names_ext = VALUE_STRING_EXT_INIT(zbee_mfr_code_names);

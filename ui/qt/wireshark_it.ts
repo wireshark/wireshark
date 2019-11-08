@@ -1688,11 +1688,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
 </context>
 <context>
-    <name>ColumnPreferencesFrame</name>
-    <message>
-        <source>Frame</source>
-        <translation>Frame</translation>
-    </message>
+    <name>ColumnListModel</name>
     <message>
         <source>Displayed</source>
         <translation>Visualizzati</translation>
@@ -1707,13 +1703,38 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Fields</source>
-        <oldsource>Field Name</oldsource>
         <translation>Campi</translation>
     </message>
     <message>
-        <source>Field Occurrence</source>
-        <oldsource>Field occurrence</oldsource>
-        <translation>Occorrenze del campo</translation>
+        <source>Field Occurence</source>
+        <translation>Occorrenza del campo</translation>
+    </message>
+    <message>
+        <source>New Column</source>
+        <translation>Nuova colonna</translation>
+    </message>
+</context>
+<context>
+    <name>ColumnPreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation>Frame</translation>
+    </message>
+    <message>
+        <source>Add a new column</source>
+        <translation>Aggiungi una nuova colonna</translation>
+    </message>
+    <message>
+        <source>Delete selected column</source>
+        <translation>Elimina colonna selezionata</translation>
+    </message>
+    <message>
+        <source>Show displayed columns only</source>
+        <translation>Mostra solo le colonne visualizzate</translation>
+    </message>
+    <message>
+        <source>Reset all changes</source>
+        <translation>Ripristina tutte le modifiche</translation>
     </message>
 </context>
 <context>
@@ -2175,6 +2196,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Solo descrizione</translation>
     </message>
     <message>
+        <source>Only enabled protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>any protocol</source>
         <translation>qualsiasi protocollo</translation>
     </message>
@@ -2185,6 +2210,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>heuristic protocols</source>
         <translation>protocolli euristici</translation>
+    </message>
+    <message>
+        <source>Only disabled protocols</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2651,11 +2680,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Name</source>
-        <translation>Nome</translation>
+        <translation type="vanished">Nome</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation>Filtro</translation>
+        <translation type="vanished">Filtro</translation>
     </message>
     <message>
         <source>Create a new filter.</source>
@@ -2685,7 +2714,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>New filter</source>
-        <translation>Nuovo filtro</translation>
+        <translation type="vanished">Nuovo filtro</translation>
     </message>
     <message>
         <source>New capture filter</source>
@@ -2762,6 +2791,17 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Remove</source>
         <translation>Rimuovi</translation>
+    </message>
+</context>
+<context>
+    <name>FilterListModel</name>
+    <message>
+        <source>Filter Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Expression</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -638,6 +638,7 @@ int wslua_deregister_protocols(lua_State* L) {
             /* Memory ownership was previously transferred to epan in Proto_commit */
             f->name = NULL;
             f->abbrev = NULL;
+            f->vs = NULL;
             f->blob = NULL;
 
             f->hfid = -2; /* Deregister ProtoField, freed in ProtoField__gc */
@@ -648,6 +649,11 @@ int wslua_deregister_protocols(lua_State* L) {
         lua_rawgeti(L, LUA_REGISTRYINDEX, proto->expert_info_table_ref);
         for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
             ProtoExpert pe = checkProtoExpert(L,-1);
+
+            /* Memory ownership was previously transferred to epan in Proto_commit */
+            pe->abbrev = NULL;
+            pe->text = NULL;
+
             pe->ids.hf = -2; /* Deregister ProtoExpert, freed in ProtoExpert__gc */
         }
         lua_pop(L, 1);
@@ -748,10 +754,11 @@ int Proto_commit(lua_State* L) {
             eiri.eiinfo.severity = e->severity;
             eiri.eiinfo.summary  = e->text;
 
-            if (e->ids.ei != EI_INIT_EI || e->ids.hf != EI_INIT_HF) {
+            if (e->ids.ei != EI_INIT_EI || e->ids.hf != -2) {
                 return luaL_error(L,"expert fields can be registered only once");
             }
 
+            e->ids.hf = -1;
             g_array_append_val(proto->eia,eiri);
         }
 

@@ -29,7 +29,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/dissector_filters.h>
+#include <epan/conversation_filter.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>

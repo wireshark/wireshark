@@ -1688,32 +1688,53 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
 </context>
 <context>
+    <name>ColumnListModel</name>
+    <message>
+        <source>Displayed</source>
+        <translation type="unfinished">Visat</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Typ</translation>
+    </message>
+    <message>
+        <source>Fields</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field Occurence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ColumnPreferencesFrame</name>
     <message>
         <source>Frame</source>
         <translation>Ram</translation>
     </message>
     <message>
-        <source>Displayed</source>
-        <translation>Visat</translation>
+        <source>Add a new column</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Title</source>
-        <translation>Titel</translation>
+        <source>Delete selected column</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Typ</translation>
+        <source>Show displayed columns only</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Fields</source>
-        <oldsource>Field Name</oldsource>
-        <translation>Fält</translation>
-    </message>
-    <message>
-        <source>Field Occurrence</source>
-        <oldsource>Field occurrence</oldsource>
-        <translation>Fältförekomst</translation>
+        <source>Reset all changes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2175,6 +2196,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Endast beskrivning</translation>
     </message>
     <message>
+        <source>Only enabled protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>any protocol</source>
         <translation>alla protokoll</translation>
     </message>
@@ -2185,6 +2210,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>heuristic protocols</source>
         <translation>heuristiska protokoll</translation>
+    </message>
+    <message>
+        <source>Only disabled protocols</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2651,11 +2680,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Name</source>
-        <translation>Namn</translation>
+        <translation type="vanished">Namn</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation>Filter</translation>
+        <translation type="vanished">Filter</translation>
     </message>
     <message>
         <source>Create a new filter.</source>
@@ -2685,7 +2714,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>New filter</source>
-        <translation>Nytt filter</translation>
+        <translation type="vanished">Nytt filter</translation>
     </message>
     <message>
         <source>New capture filter</source>
@@ -2762,6 +2791,17 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Remove</source>
         <translation>Ta bort</translation>
+    </message>
+</context>
+<context>
+    <name>FilterListModel</name>
+    <message>
+        <source>Filter Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Expression</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

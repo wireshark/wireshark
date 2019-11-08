@@ -684,7 +684,7 @@ rval_to_channel_set(const guint32 val, const range_channel_set* ra)
     gint i = 0;
     if (ra)
     {
-        while (*ra[i].channel_set)
+        while (*ra[i].channel_set) /* no such thing as channel 0 - end of list */
         {
             if ((val >= ra[i].value_min) && (val <= ra[i].value_max))
             {
@@ -748,6 +748,7 @@ static const range_channel_set op_class_channel[] = {
     {181, 191, {-1}},
     {192, 254, {-2}},
     {255, 255, {-1}},
+    {0, 0, {0}}, /* no such thing as channel 1 - end of list */
 };
 
 static const range_string op_channel_spacing[] = {
@@ -1469,6 +1470,11 @@ dissect_attr_ndpe(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 att
             offset += tlv_len + 3;
             dissected_len += tlv_len + 3;
             break;
+        default:
+            proto_tree_add_item(tlv_tree, hf_nan_attr_vendor_specific_body, tvb, offset + 3, tlv_len, ENC_NA);
+            offset += tlv_len + 3;
+            dissected_len += tlv_len + 3;
+            break;
         }
     }
 }
@@ -1591,6 +1597,7 @@ dissect_attr_availability(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, gui
 
                         switch (channel)
                         {
+                        // TODO: replace these magic numbers (or use 802.11 dissector for this)
                         case -3:
                             wmem_strbuf_append_printf(str, "%s", "Derived from regulation ");
                             break;
@@ -1985,7 +1992,7 @@ dissect_attr_element_container(proto_tree* attr_tree, tvbuff_t* tvb, gint offset
     {
         guint element_id = tvb_get_guint8(tvb, sub_offset);
         guint element_len = tvb_get_guint8(tvb, sub_offset + 1);
-        const char* msg = val_to_str(element_id, ie_tag_num_vals, "%s");
+        const char* msg = val_to_str(element_id, ie_tag_num_vals, "Unknown element ID (%u)");
 
         sub_tree = proto_tree_add_subtree(attr_tree, tvb, sub_offset, element_len + 2, ett_ie_tree, NULL, msg);
         proto_tree_add_item(sub_tree, hf_nan_attr_container_element_id, tvb, sub_offset, 1, ENC_BIG_ENDIAN);
@@ -1993,7 +2000,7 @@ dissect_attr_element_container(proto_tree* attr_tree, tvbuff_t* tvb, gint offset
         proto_tree_add_item(sub_tree, hf_nan_attr_container_element_len, tvb, sub_offset, 1, ENC_BIG_ENDIAN);
         sub_offset++;
 
-        ieee80211_tagged_field_data_t field_data;
+        ieee80211_tagged_field_data_t field_data = { 0 };
         tvbuff_t* ie_tvb = tvb_new_subset_length_caplen(tvb, sub_offset, element_len, element_len);
         field_data.item_tag = sub_tree;
         dissector_try_uint_new(ie_handle_table, element_id, ie_tvb, pinfo, sub_tree, TRUE, &field_data);
@@ -2257,7 +2264,7 @@ dissect_attr_vendor_specific(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, 
 
     guint sub_offset = offset + 3;
     tvbuff_t* ie_tvb = tvb_new_subset_length_caplen(tvb, sub_offset, -1, -1);
-    ieee80211_tagged_field_data_t field_data;
+    ieee80211_tagged_field_data_t field_data = { 0 };
     field_data.item_tag = attr_tree;
     dissector_try_uint_new(ie_handle_table, TAG_VENDOR_SPECIFIC_IE, ie_tvb, pinfo, attr_tree, TRUE, &field_data);
 }

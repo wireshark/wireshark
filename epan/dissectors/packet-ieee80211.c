@@ -57,6 +57,7 @@
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include "packet-eapol.h"
 #include "packet-ipx.h"
 #include "packet-llc.h"
 #include "packet-ieee80211.h"
@@ -225,8 +226,10 @@ ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   proto_tree *tree, int tagged_parameters_len, int ftype,
                                   association_sanity_check_t *association_sanity_check);
 
+static void try_scan_tdls_keys(tvbuff_t *tvb, packet_info *pinfo, int offset);
+
 static tvbuff_t *
-try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, gboolean scan_keys,
+try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len,
             guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer,
             PDOT11DECRYPT_KEY_ITEM used_key);
 
@@ -253,6 +256,8 @@ typedef struct mimo_control
 #define EAPOL_KEY 3
 #define PACKET_DATA_KEY 4
 #define ASSOC_COUNTER_KEY 5
+#define STA_KEY 6
+#define BSSID_KEY 7
 /* ************************************************************************* */
 /*  Define some very useful macros that are used to analyze frame types etc. */
 /* ************************************************************************* */
@@ -754,7 +759,7 @@ static const value_string ieee80211_reason_code[] = {
   { 66, "The mesh STA performs channel switch with unspecified reason" },
   { 0,    NULL}
 };
-static value_string_ext ieee80211_reason_code_ext = VALUE_STRING_EXT_INIT(ieee80211_reason_code);
+value_string_ext ieee80211_reason_code_ext = VALUE_STRING_EXT_INIT(ieee80211_reason_code);
 
 /* ************************************************************************* */
 /*                         8.4.1.9 Status Code field                         */
@@ -870,7 +875,7 @@ static const value_string ieee80211_status_code[] = {
   { 113, "Authentication rejected due to unknown Authentication Server" },
   { 0,    NULL}
 };
-static value_string_ext ieee80211_status_code_ext = VALUE_STRING_EXT_INIT(ieee80211_status_code);
+value_string_ext ieee80211_status_code_ext = VALUE_STRING_EXT_INIT(ieee80211_status_code);
 
 static const value_string ieee80211_transition_reasons[] = {
   { 0, "Unspecified" },
@@ -4671,6 +4676,7 @@ static int hf_ieee80211_rsn_cap_mfpr = -1;
 static int hf_ieee80211_rsn_cap_mfpc = -1;
 static int hf_ieee80211_rsn_cap_jmr = -1;
 static int hf_ieee80211_rsn_cap_peerkey = -1;
+static int hf_ieee80211_rsn_cap_extended_key_id_iaf = -1;
 static int hf_ieee80211_rsn_pmkid_count = -1;
 static int hf_ieee80211_rsn_pmkid_list = -1;
 static int hf_ieee80211_rsn_pmkid = -1;
@@ -4797,6 +4803,8 @@ static int hf_ieee80211_vs_aerohive_data = -1;
 
 static int hf_ieee80211_vs_mist_ap_name = -1;
 static int hf_ieee80211_vs_mist_data = -1;
+
+static int hf_ieee80211_rsn_ie_ptk_keyid = -1;
 
 static int hf_ieee80211_rsn_ie_gtk_keyid = -1;
 static int hf_ieee80211_rsn_ie_gtk_tx = -1;
@@ -10661,6 +10669,10 @@ add_ff_action_tdls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offs
 
   offset += add_ff_category_code(tree, tvb, pinfo, offset);
   code = tvb_get_guint8(tvb, offset);
+
+  /* Extract keys for dot11decrypt engine */
+  try_scan_tdls_keys(tvb, pinfo, offset);
+
   offset += add_ff_tdls_action_code(tree, tvb, pinfo, offset);
   switch (code) {
   case TDLS_SETUP_REQUEST:
@@ -13808,6 +13820,15 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb, int 
       proto_item_append_text(item, ": RSN IGTK");
       break;
     }
+    case 10:
+    {
+      /* IEEE 802.11 - 2016 / Key Data Encapsulation / Data Type=10 - KeyID
+       * This is only used within EAPOL-Key frame Key Data when using Extended Key ID */
+      offset += 1;
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_ptk_keyid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_item_append_text(item, ": RSN PTK");
+      break;
+    }
     default:
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_unknown, tvb, offset, tag_len, ENC_NA);
       proto_item_append_text(item, ": RSN UNKNOWN");
@@ -14131,7 +14152,8 @@ dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
   default:
     proto_tree_add_item(ietree, hf_ieee80211_vs_aruba_data, tvb, offset,
       tag_len, ENC_NA);
-    proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, tag_len));
+    if (tag_len > 0)
+      proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, tag_len));
     break;
   }
 }
@@ -14522,6 +14544,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     &hf_ieee80211_rsn_cap_mfpc,
     &hf_ieee80211_rsn_cap_jmr,
     &hf_ieee80211_rsn_cap_peerkey,
+    &hf_ieee80211_rsn_cap_extended_key_id_iaf,
     NULL
   };
 
@@ -23670,6 +23693,18 @@ crc32_802_tvb_padded(tvbuff_t *tvb, guint hdr_len, guint hdr_size, guint len)
   return (c_crc);
 }
 
+static void save_bssid(tvbuff_t *tvb, packet_info *pinfo, int offset) {
+  guint8 *data = (guint8 *)wmem_alloc(pinfo->pool, 6);
+  tvb_memcpy(tvb, data, offset, 6);
+  p_add_proto_data(pinfo->pool, pinfo, proto_wlan, BSSID_KEY, data);
+}
+
+static void save_sta(tvbuff_t *tvb, packet_info *pinfo, int offset) {
+  guint8 *data = (guint8 *)wmem_alloc(pinfo->pool, 6);
+  tvb_memcpy(tvb, data, offset, 6);
+  p_add_proto_data(pinfo->pool, pinfo, proto_wlan, STA_KEY, data);
+}
+
 typedef enum {
     ENCAP_802_2,
     ENCAP_IPX,
@@ -23744,8 +23779,6 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
   guint8 algorithm=G_MAXUINT8;
   guint32 sec_header=0;
   guint32 sec_trailer=0;
-
-  DOT11DECRYPT_KEY_ITEM  used_key;
 
   p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_DMG_KEY, GINT_TO_POINTER(isDMG));
 
@@ -24423,9 +24456,11 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
       }
 
-      /* for tap */
       if (bssid_offset) {
+        /* for tap */
         set_address_tvb(&whdr->bssid, wlan_bssid_address_type, 6, tvb, bssid_offset);
+        /* for dot11decrypt */
+        save_bssid(tvb, pinfo, bssid_offset);
       }
 
       if (src_offset) {
@@ -24433,6 +24468,17 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
       }
       if (dst_offset) {
         copy_address_shallow(&whdr->dst, &pinfo->dl_dst);
+      }
+
+      if ((flags & FROM_TO_DS) == FLAG_FROM_DS) { /* Receiver address */
+        sta_addr_offset = 4;
+      } else if ((flags & FROM_TO_DS) == FLAG_TO_DS) { /* Transmitter address */
+        sta_addr_offset = ta_offset;
+      }
+
+      /* for dot11decrypt */
+      if (sta_addr_offset > 0) {
+        save_sta(tvb, pinfo, sta_addr_offset);
       }
 
       seq_control = tvb_get_letohs(tvb, 22);
@@ -24491,11 +24537,6 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
               proto_item_set_hidden(hidden_item);
             }
 
-            if ((flags & FROM_TO_DS) == FLAG_FROM_DS) { /* Receiver address */
-              sta_addr_offset = 4;
-            } else if ((flags & FROM_TO_DS) == FLAG_TO_DS) { /* Transmitter address */
-              sta_addr_offset = ta_offset;
-            }
             if (sta_addr_offset > 0) {
               proto_tree_add_item(hdr_tree, hf_ieee80211_addr_staa, tvb, sta_addr_offset, 6, ENC_NA);
               station_name = tvb_get_ether_name(tvb, sta_addr_offset);
@@ -24832,12 +24873,6 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           goto end_of_wlan;
         }
       }
-
-      if (enable_decryption && !pinfo->fd->visited && (len == reported_len)) {
-        /* The processing will take care of 4-way handshake sessions for WPA and WPA2 decryption */
-        next_tvb = try_decrypt(tvb, pinfo, hdr_len, reported_len, TRUE,
-                               &algorithm, &sec_header, &sec_trailer, &used_key);
-      }
       break;
 
     case CONTROL_FRAME:
@@ -24862,11 +24897,10 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *wep_tree    = NULL;
     guint32     iv;
     guint8      key, keybyte;
+    DOT11DECRYPT_KEY_ITEM  used_key;
 
-    if (next_tvb) {
-      /* Already decrypted when searching for keys above. No need to decrypt again */
-    } else if (len == reported_len) {
-      next_tvb = try_decrypt(tvb, pinfo, hdr_len, reported_len, FALSE,
+    if (len == reported_len) {
+      next_tvb = try_decrypt(tvb, pinfo, hdr_len, reported_len,
                              &algorithm, &sec_header, &sec_trailer, &used_key);
     }
 
@@ -24945,7 +24979,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           bytes_to_hexstr(out_buff, used_key.KeyData.Wpa.Ptk+32, DOT11DECRYPT_TK_LEN); /* TK is stored in PTK at offset 32 bytes and 16 bytes long */
           out_buff[2*DOT11DECRYPT_TK_LEN] = '\0';
 
-          if (key == 0) { /* encrypted with pairwise key */
+          if (!tvb_get_bits8(tvb, 39, 1)) { /* RA is unicast, encrypted with pairwise key */
             ti = proto_tree_add_string(wep_tree, hf_ieee80211_fc_analysis_tk, tvb, 0, 0, out_buff);
             proto_item_set_generated(ti);
 
@@ -25609,6 +25643,43 @@ keydata_padding_len(tvbuff_t *tvb)
   return 0;
 }
 
+static void
+try_scan_eapol_keys(packet_info *pinfo, DOT11DECRYPT_HS_MSG_TYPE msg_type)
+{
+  guint32 dec_caplen = 0;
+  guchar dec_data[DOT11DECRYPT_EAPOL_MAX_LEN];
+  DOT11DECRYPT_KEY_ITEM used_key;
+
+  if (!enable_decryption) {
+    return;
+  }
+  proto_eapol_key_frame_t *eapol_key =
+    (proto_eapol_key_frame_t *)p_get_proto_data(pinfo->pool, pinfo, proto_eapol,
+                                                EAPOL_KEY_FRAME_KEY);
+  guint8 *bssid = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, BSSID_KEY);
+  guint8 *sta = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, STA_KEY);
+
+  if (!eapol_key || !bssid || !sta) {
+    return;
+  }
+
+  gint ret = Dot11DecryptScanEapolForKeys(&dot11decrypt_ctx,
+                                          msg_type,
+                                          eapol_key->data, eapol_key->len,
+                                          bssid, sta,
+                                          dec_data, &dec_caplen,
+                                          &used_key);
+  if (ret == DOT11DECRYPT_RET_SUCCESS_HANDSHAKE && dec_caplen > 0) {
+    proto_eapol_keydata_t *eapol = wmem_new(wmem_file_scope(), proto_eapol_keydata_t);
+    eapol->used_key = used_key;
+    eapol->keydata_len = dec_caplen;
+    eapol->keydata = (guint8 *)wmem_memdup(wmem_file_scope(), dec_data, dec_caplen);
+
+    /* Save decrypted eapol keydata for rsna dissector */
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, EAPOL_KEY, eapol);
+  }
+}
+
 static int
 dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -25634,6 +25705,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   guint16 eapol_data_offset = 76;  /* 92 - 16 */
   guint16 eapol_key_mic_len = determine_mic_len(pinfo, FALSE);
   eapol_data_offset += eapol_key_mic_len;
+  DOT11DECRYPT_HS_MSG_TYPE msg_type = DOT11DECRYPT_HS_MSG_TYPE_INVALID;
 
   /*
    * RSNA key descriptors.
@@ -25657,6 +25729,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 1);
 
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 1 of 4)");
+      msg_type = DOT11DECRYPT_HS_MSG_TYPE_4WHS_1;
       break;
     }
 
@@ -25665,6 +25738,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 3);
 
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 3 of 4)");
+      msg_type = DOT11DECRYPT_HS_MSG_TYPE_4WHS_3;
       break;
     }
 
@@ -25680,10 +25754,12 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
         ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 2);
 
         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
+        msg_type = DOT11DECRYPT_HS_MSG_TYPE_4WHS_2;
       } else {
         ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 4);
 
         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
+        msg_type = DOT11DECRYPT_HS_MSG_TYPE_4WHS_4;
       }
       break;
     }
@@ -25692,14 +25768,23 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 1);
 
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Group Message 1 of 2)");
+      msg_type = DOT11DECRYPT_HS_MSG_TYPE_GHS_1;
     } else {
       ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 2);
 
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Group Message 2 of 2)");
+      msg_type = DOT11DECRYPT_HS_MSG_TYPE_GHS_2;
     }
   }
-
   proto_item_set_generated(ti);
+
+  if (!pinfo->fd->visited && msg_type != DOT11DECRYPT_HS_MSG_TYPE_INVALID) {
+    /* Let dot11decrypt engine extract keys from 4-way handshake frames
+     * If there's encrypted key data (GTK) present in eapol frame the
+     * decrypted key data is stored in EAPOL_KEY proto data.
+     */
+    try_scan_eapol_keys(pinfo, msg_type);
+  }
 
   guint16 keydes_version = tvb_get_ntohs(tvb, offset) & KEY_INFO_KEYDES_VERSION_MASK;
   proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_wlan_rsna_eapol_wpa_keydes_keyinfo,
@@ -25753,7 +25838,6 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
         int keydata_len = eapol->keydata_len;
         tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, eapol->keydata,
                                                      keydata_len, keydata_len);
-
         char out_buff[SHORT_STR];
         keydes_tree = proto_item_add_subtree(ti, ett_wlan_rsna_eapol_keydes_data);
 
@@ -25792,9 +25876,21 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   return tvb_captured_length(tvb);
 }
 
+static void try_scan_tdls_keys(tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  if (!enable_decryption) {
+    return;
+  }
+  int len = tvb_captured_length(tvb) - offset;
+  const guint8 *action = tvb_get_ptr(tvb, offset, len);
+  if (action) {
+    Dot11DecryptScanTdlsForKeys(&dot11decrypt_ctx, action, len);
+  }
+}
+
 /* It returns the algorithm used for decryption and the header and trailer lengths. */
 static tvbuff_t *
-try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, gboolean scan_keys,
+try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len,
             guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer,
             PDOT11DECRYPT_KEY_ITEM used_key)
 {
@@ -25809,9 +25905,9 @@ try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, gboolean
   /* get the entire packet                                  */
   enc_data = tvb_get_ptr(tvb, 0, len+offset);
 
-  /*  process packet with Dot11Decrypt                              */
-  gint ret = Dot11DecryptPacketProcess(&dot11decrypt_ctx, enc_data, offset, offset+len,
-                                       dec_data, &dec_caplen, used_key, scan_keys);
+  /* decrypt packet with Dot11Decrypt */
+  gint ret = Dot11DecryptDecryptPacket(&dot11decrypt_ctx, enc_data, offset, offset+len,
+                                       dec_data, &dec_caplen, used_key);
   if (ret == DOT11DECRYPT_RET_SUCCESS) {
     guint8 *tmp;
     *algorithm=used_key->KeyType;
@@ -25839,18 +25935,7 @@ try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, gboolean
         /* decrypt successful, let's set up a new data tvb. */
         decr_tvb = tvb_new_child_real_data(tvb, tmp, len, len);
     }
-  } else if (ret == DOT11DECRYPT_RET_SUCCESS_HANDSHAKE && dec_caplen > 0) {
-      proto_eapol_keydata_t *eapol;
-      eapol = (proto_eapol_keydata_t *)wmem_alloc(wmem_file_scope(),
-                                                  sizeof(proto_eapol_keydata_t));
-      eapol->used_key = *used_key;
-      eapol->keydata_len = dec_caplen;
-      eapol->keydata = (guint8 *)wmem_memdup(wmem_file_scope(), dec_data, dec_caplen);
-
-      /* Save decrypted eapol keydata for rsna dissector */
-      p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, EAPOL_KEY, eapol);
   }
-
   return decr_tvb;
 }
 
@@ -30714,6 +30799,11 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, NULL, 0x0200,
       NULL, HFILL }},
 
+    {&hf_ieee80211_rsn_cap_extended_key_id_iaf,
+     {"Extended Key ID for Individually Addressed Frames",
+      "wlan.rsn.capabilities.extended_key_id_iaf",
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000, NULL, HFILL }},
+
     {&hf_ieee80211_rsn_pmkid_count,
      {"PMKID Count", "wlan.rsn.pmkid.count",
       FT_UINT16, BASE_DEC, NULL, 0,
@@ -33701,6 +33791,11 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_rsn_ie_ptk_keyid,
+     {"KeyID", "wlan.rsn.ie.ptk.keyid",
+      FT_UINT8, BASE_DEC, NULL, 0x03,
+      NULL, HFILL }},
+
     {&hf_ieee80211_rsn_ie_gtk_key,
      {"GTK", "wlan.rsn.ie.gtk.key",
       FT_BYTES, BASE_NONE, NULL, 0,
@@ -35289,7 +35384,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_osen_extended_key_id_iaf,
      {"Extended Key ID for Individually Addressed Frames",
-                "wlan.osn.rsn.extended_key_id_iaf",
+      "wlan.osn.rsn.extended_key_id_iaf",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000, NULL, HFILL }},
 
     {&hf_ieee80211_osen_reserved,

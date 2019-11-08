@@ -1,5 +1,5 @@
 RFC1157-SNMP DEFINITIONS ::= BEGIN
-   
+
 --      IMPORTS
 --          ObjectName, ObjectSyntax, NetworkAddress, IpAddress, TimeTicks
 --              FROM RFC1155-SMI;
@@ -38,7 +38,7 @@ RFC1157-SNMP DEFINITIONS ::= BEGIN
 --Empty ::= NULL
 
   -- hundredths of seconds since an event, usualy the last restart
---TimeTicks ::= [APPLICATION 3] IMPLICIT INTEGER (0..4294967295) 
+--TimeTicks ::= [APPLICATION 3] IMPLICIT INTEGER (0..4294967295)
 
 --Opaque ::= [APPLICATION 4] IMPLICIT OCTET STRING
 
@@ -116,7 +116,7 @@ SNMPv3Message ::= SEQUENCE {
 		-- this element is in same position as in SNMPv1
 		-- and SNMPv2c, allowing recognition
 		-- the value 3 is used for snmpv3
-	msgVersion Version, 
+	msgVersion Version,
 		-- INTEGER ( 0 .. 2147483647 ),
 		-- administrative parameters
 	msgGlobalData HeaderData,
@@ -153,7 +153,7 @@ ScopedPDU ::= SEQUENCE {
 	contextEngineID  SnmpEngineID,
 	contextName      OCTET STRING,
 	data             PDUs
-		-- ANY 
+		-- ANY
 		-- e.g., PDUs as defined in RFC 1905
 }
 
@@ -169,7 +169,7 @@ PDUs ::= CHOICE {
 	getBulkRequest GetBulkRequest-PDU,
 	informRequest InformRequest-PDU,
 	snmpV2-trap SNMPv2-Trap-PDU,
-	report Report-PDU	  	
+	report Report-PDU
 }
 
 -- PDUs
@@ -323,7 +323,7 @@ RReqPDU ::= [APPLICATION 2] IMPLICIT SEQUENCE {
 	subtree ObjectName,
 	priority INTEGER (-1..2147483647), -- the lower the better, "-1" means default
 
-	operation INTEGER { 
+	operation INTEGER {
 		delete(0),    -- remove registration
         readOnly(1),  -- add registration, objects are RO
         readWrite(2)  --   .., objects are RW

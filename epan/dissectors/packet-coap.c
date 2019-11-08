@@ -259,29 +259,35 @@ find_or_create_conversation_noaddrb(packet_info *pinfo, gboolean request)
 	guint32 port_a;
 	guint32 port_b;
 
-	if (request) {
-		addr_a = &pinfo->src;
-		addr_b = &pinfo->dst;
-		port_a = pinfo->srcport;
-		port_b = pinfo->destport;
-	} else {
-		addr_a = &pinfo->dst;
-		addr_b = &pinfo->src;
-		port_a = pinfo->destport;
-		port_b = pinfo->srcport;
-	}
-	/* Have we seen this conversation before? */
-	if((conv = find_conversation(pinfo->num, addr_a, addr_b,
-				     conversation_pt_to_endpoint_type(pinfo->ptype), port_a,
-				     port_b, NO_ADDR_B|NO_PORT_B)) != NULL) {
-		if (pinfo->num > conv->last_frame) {
-			conv->last_frame = pinfo->num;
+	if (pinfo->ptype != PT_TCP) {
+		if (request) {
+			addr_a = &pinfo->src;
+			addr_b = &pinfo->dst;
+			port_a = pinfo->srcport;
+			port_b = pinfo->destport;
+		} else {
+			addr_a = &pinfo->dst;
+			addr_b = &pinfo->src;
+			port_a = pinfo->destport;
+			port_b = pinfo->srcport;
+		}
+		/* Have we seen this conversation before? */
+		if((conv = find_conversation(pinfo->num, addr_a, addr_b,
+					     conversation_pt_to_endpoint_type(pinfo->ptype), port_a,
+					     port_b, NO_ADDR_B|NO_PORT_B)) != NULL) {
+			if (pinfo->num > conv->last_frame) {
+				conv->last_frame = pinfo->num;
+			}
+		} else {
+			/* No, this is a new conversation. */
+			conv = conversation_new(pinfo->num, &pinfo->src,
+						&pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
+						pinfo->srcport, pinfo->destport, NO_ADDR_B|NO_PORT_B);
 		}
 	} else {
-		/* No, this is a new conversation. */
-		conv = conversation_new(pinfo->num, &pinfo->src,
-					&pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
-					pinfo->srcport, pinfo->destport, NO_ADDR_B|NO_PORT_B);
+		/* fetch the conversation created by the TCP dissector */
+		conv = find_conversation_pinfo(pinfo, 0);
+		DISSECTOR_ASSERT(conv);
 	}
 	return conv;
 }
@@ -1021,13 +1027,25 @@ coap_frame_length(tvbuff_t *tvb, guint offset, gint *size)
 		*size = 1;
 		return len;
 	case 13:
+		if (tvb_reported_length_remaining(tvb, offset) < 2) {
+			*size = -1;
+			return 0;
+		}
 		*size = 2;
 		return tvb_get_guint8(tvb, offset + 1) + 13;
 	case 14:
+		if (tvb_reported_length_remaining(tvb, offset) < 3) {
+			*size = -1;
+			return 0;
+		}
 		*size = 3;
 		return tvb_get_ntohs(tvb, offset + 1) + 269;
 	case 15:
-		*size = 4;
+		if (tvb_reported_length_remaining(tvb, offset) < 5) {
+			*size = -1;
+			return 0;
+		}
+		*size = 5;
 		return tvb_get_ntohl(tvb, offset + 1) + 65805;
 	}
 }
@@ -1073,7 +1091,24 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	 */
 	coap_length = tvb_reported_length(tvb);
 	if (is_tcp && !is_websocket) {
+		token_len = tvb_get_guint8(tvb, offset) & 0xf;
 		coap_length = coap_frame_length(tvb, offset, &length_size);
+		if (length_size < 0) {
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+			return tvb_reported_length(tvb);
+		}
+		/*
+		 * Length of the whole CoAP frame includes the (Extended) Length fields
+		 * (1 to 4 bytes), the Code (1 byte) and token length (normally 0 to 8
+		 * bytes), plus everything afterwards.
+		 */
+		coap_length += 1 + token_len + length_size;
+		if (coap_length > tvb_reported_length_remaining(tvb, offset)) {
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = coap_length - tvb_reported_length_remaining(tvb, offset);
+			return tvb_reported_length(tvb);
+		}
 	}
 	coinfo->ctype_str = "";
 	coinfo->ctype_value = DEFAULT_COAP_CTYPE_VALUE;
@@ -1124,8 +1159,8 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 		code = dissect_coap_code(tvb, coap_tree, &offset, &dissect_coap_hf, &code_class);
 
-		col_add_str(pinfo->cinfo, COL_INFO,
-			    val_to_str_ext(code, &coap_vals_code_ext, "Unknown %u"));
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
+				   val_to_str_ext(code, &coap_vals_code_ext, "Unknown %u"));
 
 		/* append the header information */
 		proto_item_append_text(coap_root,
@@ -1343,32 +1378,11 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		dissect_coap_payload(tvb, pinfo, coap_tree, parent_tree, offset, coap_length, code_class, coinfo, &dissect_coap_hf, FALSE);
 	}
 
-	return tvb_captured_length(tvb);
-}
-
-static guint
-get_coap_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
-{
-	guint32 token_len = tvb_get_guint8(tvb, offset) & 0xf;
-	gint length_size;
-	guint32 length = coap_frame_length(tvb, offset, &length_size);
-
-	/*
-	 * Length of the whole CoAP frame includes the (Extended) Length fields
-	 * (1 to 4 bytes), the Code (1 byte) and token length (normally 0 to 8
-	 * bytes), plus everything afterwards.
-	 */
-	return length_size + 1 + token_len + length;
+	return coap_length;
 }
 
 static int
-dissect_coap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-	return dissect_coap_message(tvb, pinfo, tree, TRUE, FALSE);
-}
-
-static int
-dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if (pinfo->ptype != PT_TCP) {
 		/* Assume UDP */
@@ -1377,10 +1391,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		/* WebSockets */
 		return dissect_coap_message(tvb, pinfo, tree, TRUE, TRUE);
 	} else {
-		/* TCP or TLS - support fragmentation. */
-		tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 3, get_coap_pdu_len,
-				dissect_coap_tcp, data);
-		return tvb_reported_length(tvb);
+		return dissect_coap_message(tvb, pinfo, tree, TRUE, FALSE);
 	}
 }
 

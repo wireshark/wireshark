@@ -1695,32 +1695,53 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>ColumnListModel</name>
+    <message>
+        <source>Displayed</source>
+        <translation type="unfinished">Показано</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Тип</translation>
+    </message>
+    <message>
+        <source>Fields</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field Occurence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ColumnPreferencesFrame</name>
     <message>
         <source>Frame</source>
         <translation>Кадр</translation>
     </message>
     <message>
-        <source>Displayed</source>
-        <translation>Показано</translation>
+        <source>Add a new column</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Title</source>
-        <translation>Заголовок</translation>
+        <source>Delete selected column</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Тип</translation>
+        <source>Show displayed columns only</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Fields</source>
-        <oldsource>Field Name</oldsource>
-        <translation>Поля</translation>
-    </message>
-    <message>
-        <source>Field Occurrence</source>
-        <oldsource>Field occurrence</oldsource>
-        <translation>Вхождение Поля</translation>
+        <source>Reset all changes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2182,6 +2203,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Only enabled protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>any protocol</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2191,6 +2216,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>heuristic protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only disabled protocols</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2659,11 +2688,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Name</source>
-        <translation>Имя</translation>
+        <translation type="vanished">Имя</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation>Фильтр</translation>
+        <translation type="vanished">Фильтр</translation>
     </message>
     <message>
         <source>Create a new filter.</source>
@@ -2693,7 +2722,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>New filter</source>
-        <translation>Новый фильтр</translation>
+        <translation type="vanished">Новый фильтр</translation>
     </message>
     <message>
         <source>New capture filter</source>
@@ -2770,6 +2799,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Remove</source>
         <translation>Удалить</translation>
+    </message>
+</context>
+<context>
+    <name>FilterListModel</name>
+    <message>
+        <source>Filter Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Expression</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

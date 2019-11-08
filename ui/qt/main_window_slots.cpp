@@ -46,7 +46,7 @@ DIAG_ON(frame-larger-than=)
 #include "epan/addr_resolv.h"
 #include "epan/column.h"
 #include "epan/dfilter/dfilter-macro.h"
-#include "epan/dissector_filters.h"
+#include "epan/conversation_filter.h"
 #include "epan/epan_dissect.h"
 #include "epan/filter_expressions.h"
 #include "epan/prefs.h"
@@ -501,7 +501,8 @@ void MainWindow::captureCapturePrepared(capture_session *session) {
 
     /* Disable menu items that make no sense if you're currently running
        a capture. */
-    setForCaptureInProgress(true, session->capture_opts->ifaces);
+    bool handle_toolbars = (session->session_will_restart ? false : true);
+    setForCaptureInProgress(true, handle_toolbars, session->capture_opts->ifaces);
 //    set_capture_if_dialog_for_capture_in_progress(TRUE);
 
 //    /* Don't set up main window for a capture file. */
@@ -515,12 +516,13 @@ void MainWindow::captureCaptureUpdateStarted(capture_session *session) {
        switching to the next multiple file. */
     setTitlebarForCaptureInProgress();
 
-    setForCaptureInProgress(true, session->capture_opts->ifaces);
+    bool handle_toolbars = (session->session_will_restart ? false : true);
+    setForCaptureInProgress(true, handle_toolbars, session->capture_opts->ifaces);
 
     setForCapturedPackets(true);
 }
 
-void MainWindow::captureCaptureUpdateFinished(capture_session *) {
+void MainWindow::captureCaptureUpdateFinished(capture_session *session) {
 
     /* The capture isn't stopping any more - it's stopped. */
     capture_stopping_ = false;
@@ -530,7 +532,8 @@ void MainWindow::captureCaptureUpdateFinished(capture_session *) {
 
     /* Enable menu items that make sense if you're not currently running
      a capture. */
-    setForCaptureInProgress(false);
+    bool handle_toolbars = (session->session_will_restart ? false : true);
+    setForCaptureInProgress(false, handle_toolbars);
     setMenusForCaptureFile();
 
     setWindowIcon(wsApp->normalIcon());
@@ -1978,6 +1981,8 @@ void MainWindow::on_actionEditFindPacket_triggered()
     connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
     if (!main_ui_->searchFrame->isVisible()) {
         showAccordionFrame(main_ui_->searchFrame, true);
+    } else {
+        main_ui_->searchFrame->animatedHide();
     }
     main_ui_->searchFrame->setFocus();
 }
@@ -2151,8 +2156,7 @@ void MainWindow::on_actionEditConfigurationProfiles_triggered()
 void MainWindow::showPreferencesDialog(QString pane_name)
 {
     PreferencesDialog *pref_dialog = new PreferencesDialog(this);
-    connect(pref_dialog, SIGNAL(finished(int)), wsApp, SLOT(flushAppSignals()));
-
+    connect(pref_dialog, SIGNAL(destroyed(QObject*)), wsApp, SLOT(flushAppSignals()));
     saveWindowGeometry();  // Save in case the layout panes are rearranged
 
     pref_dialog->setPane(pane_name);
@@ -2656,7 +2660,7 @@ void MainWindow::on_actionAnalyzeDisplayFilterMacros_triggered()
     struct epan_uat* dfm_uat;
     dfilter_macro_get_uat(&dfm_uat);
     UatDialog *uat_dlg = new UatDialog(parentWidget(), dfm_uat);
-    connect(uat_dlg, SIGNAL(finished(int)), wsApp, SLOT(flushAppSignals()));
+    connect(uat_dlg, SIGNAL(destroyed(QObject*)), wsApp, SLOT(flushAppSignals()));
 
     uat_dlg->setWindowModality(Qt::ApplicationModal);
     uat_dlg->setAttribute(Qt::WA_DeleteOnClose);
@@ -2705,7 +2709,7 @@ void MainWindow::applyExportObject()
 void MainWindow::on_actionAnalyzeEnabledProtocols_triggered()
 {
     EnabledProtocolsDialog *enable_proto_dialog = new EnabledProtocolsDialog(this);
-    connect(enable_proto_dialog, SIGNAL(finished(int)), wsApp, SLOT(flushAppSignals()));
+    connect(enable_proto_dialog, SIGNAL(destroyed(QObject*)), wsApp, SLOT(flushAppSignals()));
 
     enable_proto_dialog->setWindowModality(Qt::ApplicationModal);
     enable_proto_dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -2721,7 +2725,7 @@ void MainWindow::on_actionAnalyzeDecodeAs_triggered()
     }
 
     DecodeAsDialog *da_dialog = new DecodeAsDialog(this, capture_file_.capFile(), create_new);
-    connect(da_dialog, SIGNAL(finished(int)), wsApp, SLOT(flushAppSignals()));
+    connect(da_dialog, SIGNAL(destroyed(QObject*)), wsApp, SLOT(flushAppSignals()));
 
     da_dialog->setWindowModality(Qt::ApplicationModal);
     da_dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -3130,7 +3134,12 @@ void MainWindow::on_actionStatisticsPacketLengths_triggered()
 // -z io,stat
 void MainWindow::statCommandIOGraph(const char *, void *)
 {
-    IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_);
+    const DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
+    QString displayFilter;
+    if ( df_edit )
+        displayFilter = df_edit->text();
+
+    IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_, displayFilter);
     connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
     connect(this, SIGNAL(reloadFields()), iog_dialog, SLOT(reloadFields()));
     iog_dialog->show();

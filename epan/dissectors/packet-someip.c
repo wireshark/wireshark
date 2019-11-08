@@ -3298,8 +3298,8 @@ proto_reg_handoff_someip(void) {
         someip_handle_udp = create_dissector_handle(dissect_someip_udp, proto_someip);
         someip_handle_tcp = create_dissector_handle(dissect_someip_tcp, proto_someip);
 
-        heur_dissector_add("udp", dissect_some_ip_heur_udp, "SOME/IP over UDP Heuristic", "SOME/IP UDP Heuristic", proto_someip, HEURISTIC_DISABLE);
-        heur_dissector_add("tcp", dissect_some_ip_heur_tcp, "SOME/IP over TCP Heuristic", "SOME/IP TCP Heuristic", proto_someip, HEURISTIC_DISABLE);
+        heur_dissector_add("udp", dissect_some_ip_heur_udp, "SOME/IP over UDP Heuristic", "SOME/IP_UDP_Heuristic", proto_someip, HEURISTIC_DISABLE);
+        heur_dissector_add("tcp", dissect_some_ip_heur_tcp, "SOME/IP over TCP Heuristic", "SOME/IP_TCP_Heuristic", proto_someip, HEURISTIC_DISABLE);
 
         initialized = TRUE;
     } else {

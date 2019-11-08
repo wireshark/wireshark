@@ -418,6 +418,11 @@ static int hf_nfs4_fattr_space_total = -1;
 static int hf_nfs4_fattr_space_used = -1;
 static int hf_nfs4_fattr_mounted_on_fileid = -1;
 static int hf_nfs4_fattr_layout_blksize = -1;
+static int hf_nfs4_mdsthreshold_item = -1;
+static int hf_nfs4_mdsthreshold_hint_mask = -1;
+static int hf_nfs4_mdsthreshold_hint_count = -1;
+static int hf_nfs4_mdsthreshold_mask_count = -1;
+static int hf_nfs4_mdsthreshold_hint_file = -1;
 static int hf_nfs4_fattr_security_label_lfs = -1;
 static int hf_nfs4_fattr_security_label_pi = -1;
 static int hf_nfs4_fattr_security_label_context = -1;
@@ -590,7 +595,8 @@ static int hf_nfs4_cachethis = -1;
 /* static int hf_nfs4_first_stripe_idx = -1; */
 /* static int hf_nfs4_layout_count = -1; */
 /* static int hf_nfs4_pattern_offset = -1; */
-static int hf_nfs4_notification_bitmap = -1;
+static int hf_nfs4_notification_mask = -1;
+static int hf_nfs4_notification_type = -1;
 static int hf_nfs4_lrs_present = -1;
 static int hf_nfs4_nfl_mirrors = -1;
 static int hf_nfs4_nfl_util = -1;
@@ -625,6 +631,7 @@ static int hf_nfs4_test_stateid_arg = -1;
 static int hf_nfs4_test_stateid_res = -1;
 static int hf_nfs4_seek_data_content = -1;
 /* static int hf_nfs4_impl_id_len = -1; */
+static int hf_nfs4_bitmap_data = -1;
 static int hf_nfs4_huge_bitmap_length = -1;
 static int hf_nfs4_universal_address_ipv4 = -1;
 static int hf_nfs4_universal_address_ipv6 = -1;
@@ -913,9 +920,56 @@ static expert_field ei_nfs_too_many_ops = EI_INIT;
 static expert_field ei_nfs_not_vnx_file = EI_INIT;
 static expert_field ei_protocol_violation = EI_INIT;
 static expert_field ei_nfs_too_many_bitmaps = EI_INIT;
+static expert_field ei_nfs_bitmap_no_dissector = EI_INIT;
+static expert_field ei_nfs_bitmap_skip_value = EI_INIT;
+static expert_field ei_nfs_bitmap_undissected_data = EI_INIT;
 static expert_field ei_nfs4_stateid_deprecated = EI_INIT;
 
 static const true_false_string tfs_read_write = { "Read", "Write" };
+
+/*
+ * Bitmaps are currently used for attributes and state_protect bits.
+ * Currently we don't expect more than 4 words, but future protocol
+ * revisions might add more bits, and in theory an implementation
+ * might legally zero-pad a bitmask out to something longer.  We keep
+ * a generous maximum here just as a sanity check:
+ */
+#define MAX_BITMAPS 100
+
+/* Prototype for function to dissect attribute value */
+typedef int (dissect_bitmap_item_t)(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		rpc_call_info_value *civ, proto_tree *attr_tree, proto_item *attr_item,
+		guint32 bit_num, void *battr_data);
+
+/* Prototype for function to return the header field for the item label */
+typedef int (get_bitmap_hinfo_t)(guint32 bit_num);
+
+/* Bitmap type */
+typedef enum {
+	NFS4_BITMAP_MASK,   /* Dissect the bitmap mask only */
+	NFS4_BITMAP_VALUES  /* Dissect the bitmap mask and their values */
+} nfs4_bitmap_type_t;
+
+/*
+ * Bitmap info structure to customize dissect_nfs4_bitmap() behavior
+ * Do not display the item when its corresponding hf_* label is set to NULL
+ */
+typedef struct _nfs4_bitmap_info_t {
+	value_string_ext       *vse_names_ext; /* Extended value strings which maps bit number to attribute name,
+						* append list of attribute names to the attr mask header line */
+	dissect_bitmap_item_t  *dissect_battr; /* Function to dissect attribute value given by the bit number */
+
+	void *battr_data;      /* Data pass to function dissect_battr */
+
+	int  *hf_mask_label;   /* Label for bitmap mask. If this is set to NULL the mask bytes are just consumed */
+	int  *hf_item_label;   /* Label for bitmap item (see get_item_label below) */
+	int  *hf_item_count;   /* Label for hidden attribute to display the number of bits set */
+	int  *hf_mask_count;   /* Label to display the number of masks in the bitmap */
+	int  *hf_btmap_data;   /* Label to display bitmap value data as an opaque */
+
+	get_bitmap_hinfo_t  *get_item_label;   /* Pointer to function to return a dynamically generated hf variable
+						* for the item label, this takes precedence over hf_item_label */
+} nfs4_bitmap_info_t;
 
 /* Types of fhandles we can dissect */
 static dissector_table_t nfs_fhandle_table;
@@ -6220,6 +6274,205 @@ dissect_nfs_utf8string(tvbuff_t *tvb, int offset,
 
 
 /*
+ *  Generic function to dissect bitmap4 and optionally its corresponding
+ *  opaque data.
+ */
+static int
+dissect_nfs4_bitmap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
+	rpc_call_info_value *civ, nfs4_bitmap_info_t *bitmap_info, nfs4_bitmap_type_t type,
+	const char *name)
+{
+	int attr_offset;
+	int hf_item = -1;
+	guint32  i, j;
+	guint32  count;
+	guint32  bitmap;
+	guint32  bit_num;
+	guint32  bit_set;
+	guint32  num_bitmaps;
+	guint32  end_offset;
+	guint32  mask_offset;
+	guint32  opaque_offset;
+	guint32  opaque_length = 0;
+	guint32  opaque_padding = 0;
+	gboolean no_idx = FALSE;
+	gboolean first_attr = FALSE;
+	gboolean skip_attr_values = FALSE;
+
+	header_field_info *hfinfo;
+
+	proto_item *name_tree   = tree;
+	proto_item *bitmap_item = NULL;
+	proto_tree *bitmap_tree = NULL;
+	proto_item *attr_item   = NULL;
+	proto_tree *attr_tree   = NULL;
+	proto_item *attr_count  = NULL;
+
+	/* Get the number of bitmap masks */
+	num_bitmaps = tvb_get_ntohl(tvb, offset);
+	mask_offset = offset + 4;  /* Offset of first bitmap mask */
+	opaque_offset = mask_offset + 4*num_bitmaps;
+
+	if (type == NFS4_BITMAP_VALUES) {
+		/* Get the length of opaque including padding */
+		opaque_length = tvb_get_ntohl(tvb, opaque_offset);
+		opaque_padding = ((opaque_length % 4) ? (4 - (opaque_length % 4)) : 0);
+		opaque_offset += 4;  /* Starting offset of bitmap values */
+	}
+
+	/* Offset after the bitmap mask and values regardless of type */
+	end_offset = opaque_offset + opaque_length + opaque_padding;
+
+	if (name != NULL) {
+		/* Add subtree if name is given -- all bitmap data will be
+		 * under this main tree */
+		name_tree = proto_tree_add_subtree(tree, tvb, offset, end_offset - offset,
+							ett_nfs4_bitmap, NULL, name);
+	}
+
+	if (type == NFS4_BITMAP_VALUES && num_bitmaps == 0) {
+		expert_add_info(pinfo, name_tree, &ei_protocol_violation);
+		return end_offset;
+	}
+
+	if (num_bitmaps > MAX_BITMAPS) {
+		proto_tree_add_uint(name_tree, hf_nfs4_huge_bitmap_length, tvb, offset, 4, num_bitmaps);
+		expert_add_info(pinfo, name_tree, &ei_nfs_too_many_bitmaps);
+		return end_offset;
+	} else if (bitmap_info->hf_mask_count) {
+		/* Display the number of bitmap masks if the label is given */
+		proto_tree_add_uint(name_tree, *bitmap_info->hf_mask_count, tvb, offset, 4, num_bitmaps);
+	}
+
+	/* Count the number of non-zero masks */
+	count = 0;
+	for (i = 0; i < num_bitmaps; i++) {
+		bitmap = tvb_get_ntohl(tvb, mask_offset + 4*i);
+		if (bitmap > 0)
+			count++;
+	}
+
+	/* If there is only one non-zero bitmap, don't display the bitmap index "[x]". */
+	if (count <= 1)
+		no_idx = TRUE;
+
+	/* Set the offset to the first value */
+	offset = opaque_offset;
+
+	/* Show mask label when the number of bitmap masks is zero */
+	if (num_bitmaps == 0 && name == NULL && name_tree && bitmap_info->hf_mask_label) {
+		/* Get header field to add the mask index to the field name */
+		hfinfo = proto_registrar_get_nth(*bitmap_info->hf_mask_label);
+		bitmap_tree = proto_tree_add_subtree_format(name_tree, tvb, mask_offset, 0,
+						ett_nfs4_bitmap, NULL, "%s:", hfinfo->name);
+	}
+
+	for (i = 0; i < num_bitmaps; i++) {
+		bitmap = tvb_get_ntohl(tvb, mask_offset);
+
+		if (bitmap) {
+			if (name_tree && bitmap_info->hf_mask_label) {
+				if (no_idx) {
+					bitmap_item = proto_tree_add_uint(name_tree, *bitmap_info->hf_mask_label, tvb,
+							mask_offset, 4, bitmap);
+				} else {
+					/* Get header field to add the mask index to the field name */
+					hfinfo = proto_registrar_get_nth(*bitmap_info->hf_mask_label);
+					bitmap_item = proto_tree_add_uint_format(name_tree, *bitmap_info->hf_mask_label, tvb,
+							mask_offset, 4, bitmap, "%s[%u]: 0x%08x", hfinfo->name, i, bitmap);
+				}
+				bitmap_tree = proto_item_add_subtree(bitmap_item, ett_nfs4_bitmap);
+				first_attr = TRUE;
+
+				if (bitmap_info->hf_item_count) {
+					/* Count the number of attribute bits set */
+					for (j = 0, count = 0; j < 32; j++)
+						count += ((bitmap >> j) & 1);
+					hfinfo = proto_registrar_get_nth(*bitmap_info->hf_item_count);
+					attr_count = proto_tree_add_uint_format(bitmap_tree, *bitmap_info->hf_item_count, tvb, mask_offset,
+							4, count, "%u %s%s", count, hfinfo->name, plurality(count, "", "s"));
+					proto_item_set_hidden(attr_count);
+					proto_item_set_generated(attr_count);
+				}
+			}
+
+			for (j = 0; j < 32; j++) {
+				bit_num = 32*i + j;
+				bit_set = ((bitmap >> j) & 1);
+				if (bit_set) {
+					if (bitmap_tree) {
+						if (bitmap_info->vse_names_ext) {
+							/* Append this attribute name to the 'attr mask' header line */
+							proto_item_append_text(bitmap_tree, (first_attr ? " (%s" : ", %s"),
+								val_to_str_ext(bit_num, bitmap_info->vse_names_ext, "Unknown: %u"));
+							first_attr = FALSE;
+						}
+
+						/* Get correct item label */
+						if (bitmap_info->get_item_label)
+							hf_item = bitmap_info->get_item_label(bit_num);
+						else if (bitmap_info->hf_item_label)
+							hf_item = *bitmap_info->hf_item_label;
+
+						if (hf_item != -1) {
+							/* Display label */
+							attr_item = proto_tree_add_uint(bitmap_tree, hf_item, tvb, offset, 0, bit_num);
+						}
+					}
+
+					attr_offset = offset;
+
+					if (skip_attr_values && attr_item) {
+						/* Skip dissecting anymore attribute values since
+						 * a previous attribute value was not dissected */
+						attr_tree = proto_item_add_subtree(attr_item, ett_nfs4_bitmap);
+						expert_add_info(pinfo, attr_tree, &ei_nfs_bitmap_skip_value);
+					} else if (type == NFS4_BITMAP_VALUES && attr_item) {
+						/* Display bit value */
+						attr_tree = proto_item_add_subtree(attr_item, ett_nfs4_bitmap);
+						if (bitmap_info->dissect_battr)
+							offset = bitmap_info->dissect_battr(tvb, offset, pinfo, civ,
+									attr_tree, attr_item, bit_num, bitmap_info->battr_data);
+						if (offset == attr_offset) {
+							/* No value was dissected, this attribute is most likely not
+							 * supported yet so stop dissecting the rest of the bitmap data */
+							expert_add_info(pinfo, attr_tree, &ei_nfs_bitmap_no_dissector);
+							skip_attr_values = TRUE;
+						}
+					}
+
+					if (attr_item)
+						proto_item_set_len(attr_item, offset - attr_offset);
+				}
+			}
+
+			if (bitmap_tree && !first_attr)
+				proto_item_append_text(bitmap_tree, ")");
+		}
+		mask_offset += 4;
+	}
+
+	if (type == NFS4_BITMAP_VALUES) {
+		count = end_offset - offset;
+		if (bitmap_info->hf_btmap_data && offset == (int)opaque_offset) {
+			/* Display opaque data */
+			offset = dissect_nfsdata(tvb, offset-4, name_tree, *bitmap_info->hf_btmap_data);
+		} else if (count == opaque_padding) {
+			/* Everything is good, just consume the padding bytes */
+			offset += opaque_padding;
+		} else if (count > 0) {
+			/* There are still bytes remaining from the opaque
+			 * just consume the bytes */
+			expert_add_info(pinfo, name_tree, &ei_nfs_bitmap_undissected_data);
+			offset = dissect_rpc_bytes(tvb, name_tree, hf_nfs4_bitmap_data, offset, count, FALSE, NULL);
+		}
+	}
+
+	return offset;
+}
+
+
+/*
  * When using RPC-over-RDMA, certain opaque data are eligible for DDP
  * (direct data placement), so these must be reduced by sending just
  * the opaque length with the rest of the NFS packet and the opaque
@@ -6785,6 +7038,98 @@ dissect_nfs_fs_layout_type(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 
+static const value_string th4_names_file[] = {
+#define TH4_READ_SIZE             0
+	{	TH4_READ_SIZE,		"Read_Size"		},
+#define TH4_WRITE_SIZE            1
+	{	TH4_WRITE_SIZE,		"Write_Size"		},
+#define TH4_READ_IOSIZE           2
+	{	TH4_READ_IOSIZE,	"Read_IO_Size"		},
+#define TH4_WRITE_IOSIZE          3
+	{	TH4_WRITE_IOSIZE,	"Write_IO_Size"		},
+	{	0,	NULL	}
+};
+static value_string_ext th4_names_ext_file = VALUE_STRING_EXT_INIT(th4_names_file);
+
+
+/* Dissect the threshold_item4 bit attribute for the files layout type */
+static int
+dissect_nfs4_threshold_item_file(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		rpc_call_info_value *civ _U_, proto_tree *attr_tree, proto_item *attr_item _U_,
+		guint32 bit_num, void *battr_data _U_)
+{
+	guint64 size;
+
+	switch (bit_num) {
+		case TH4_READ_SIZE:
+		case TH4_WRITE_SIZE:
+		case TH4_READ_IOSIZE:
+		case TH4_WRITE_IOSIZE:
+			size = tvb_get_ntoh64(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_length, offset);
+			proto_item_append_text(attr_tree, " = %" G_GUINT64_FORMAT, size);
+			break;
+	}
+	return offset;
+}
+
+
+/* Dissect the threshold_item4 structure */
+static int
+dissect_nfs4_threshold_item(tvbuff_t *tvb, int offset, packet_info *pinfo,
+				proto_tree *tree, void *data)
+{
+	guint32 layout_type;
+	static nfs4_bitmap_info_t *bitmap_info_p;
+
+	/* Bitmap info for the files layout type */
+	static nfs4_bitmap_info_t bitmap_info_files = {
+		.vse_names_ext = &th4_names_ext_file,
+		.dissect_battr = dissect_nfs4_threshold_item_file,
+		.hf_mask_label = &hf_nfs4_mdsthreshold_hint_mask,
+		.hf_item_label = &hf_nfs4_mdsthreshold_hint_file,
+		.hf_item_count = &hf_nfs4_mdsthreshold_hint_count,
+		.hf_mask_count = &hf_nfs4_mdsthreshold_mask_count
+	};
+
+	/* Bitmap info for an unsupported layout type,
+	 * just display the bitmap mask and its data */
+	static nfs4_bitmap_info_t bitmap_info_default = {
+		.hf_mask_label = &hf_nfs4_mdsthreshold_hint_mask,
+		.hf_mask_count = &hf_nfs4_mdsthreshold_mask_count,
+		.hf_btmap_data = &hf_nfs4_bitmap_data,
+	};
+
+	/* Get layout type */
+	layout_type = tvb_get_ntohl(tvb, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_layout_type, offset);
+
+	switch (layout_type) {
+		case LAYOUT4_NFSV4_1_FILES:
+			bitmap_info_p = &bitmap_info_files;
+			break;
+		default:
+			bitmap_info_p = &bitmap_info_default;
+			break;
+	}
+	return dissect_nfs4_bitmap(tvb, offset, pinfo, tree, (rpc_call_info_value *)data, bitmap_info_p, NFS4_BITMAP_VALUES, NULL);
+}
+
+
+/* Dissect the fattr4_mdsthreshold structure */
+static int
+dissect_nfs4_mdsthreshold(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
+{
+	int mds_offset = offset;
+
+	offset = dissect_rpc_array(tvb, pinfo, tree, offset,
+		dissect_nfs4_threshold_item, hf_nfs4_mdsthreshold_item);
+	proto_item_set_len(tree, offset - mds_offset);
+
+	return offset;
+}
+
+
 static int
 dissect_nfs4_security_label(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
@@ -6808,15 +7153,6 @@ dissect_nfs4_mode_umask(tvbuff_t *tvb, proto_tree *tree, int offset)
 #define FATTR4_BITMAP_ONLY 0
 #define FATTR4_DISSECT_VALUES 1
 
-/*
- * Bitmaps are currently used for attributes and state_protect bits.
- * Currently we don't expect more than 4 words, but future protocol
- * revisions might add more bits, and in theory an implementation
- * might legally zero-pad a bitmask out to something longer.  We keep
- * a generous maximum here just as a sanity check:
- */
-#define MAX_BITMAPS 100
-
 #define CHANGE_TYPE_IS_MONOTONIC_INCR 0
 #define CHANGE_TYPE_IS_VERSION_COUNTER 1
 #define CHANGE_TYPE_IS_VERSION_COUNTER_NOPNFS 2
@@ -6833,414 +7169,328 @@ static const value_string names_nfs_change_attr_types[] =
 	{	0,	NULL	}
 };
 
-/* Display each attrmask bitmap and optionally dissect the value.
-*/
+static int
+dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int type, rpc_call_info_value *civ);
+
+/* Display attribute as either required or recommended */
+static int
+nfs4_fattr_item_label(guint32 attr_num)
+{
+	return (attr_num <= FATTR4_RDATTR_ERROR ||
+		attr_num == FATTR4_FILEHANDLE ||
+		attr_num == FATTR4_SUPPATTR_EXCLCREAT) ?
+		hf_nfs4_reqd_attr: hf_nfs4_reco_attr;
+
+}
+
+/* Dissect the value of the attribute given by attr_num */
+static int
+dissect_nfs4_fattr_value(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		rpc_call_info_value *civ, proto_tree *attr_tree,
+		proto_item *attr_item, guint32 attr_num, void *battr_data)
+{
+	guint32 *fattr_obj_type_p = (guint32 *)battr_data;
+	switch (attr_num) {
+		case FATTR4_SUPPORTED_ATTRS:
+		case FATTR4_SUPPATTR_EXCLCREAT:
+			offset = dissect_nfs4_fattrs(tvb, offset, pinfo, attr_tree, FATTR4_BITMAP_ONLY, civ);
+			break;
+
+		case FATTR4_TYPE:
+			*fattr_obj_type_p = tvb_get_ntohl(tvb, offset);
+			if (attr_tree)
+				proto_tree_add_item(attr_tree, hf_nfs4_ftype, tvb, offset, 4,
+					ENC_BIG_ENDIAN);
+			offset += 4;
+			break;
+
+		case FATTR4_FH_EXPIRE_TYPE:
+			offset = dissect_nfs4_fattr_fh_expire_type(tvb,	offset, attr_tree);
+			break;
+
+		case FATTR4_CHANGE:
+			offset = dissect_rpc_uint64(tvb, attr_tree,	hf_nfs4_changeid, offset);
+			break;
+
+		case FATTR4_SIZE:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_size, offset);
+			break;
+
+		case FATTR4_LINK_SUPPORT:
+			offset = dissect_rpc_bool(tvb,
+				attr_tree, hf_nfs4_fattr_link_support, offset);
+			break;
+
+		case FATTR4_SYMLINK_SUPPORT:
+			offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_symlink_support, offset);
+			break;
+
+		case FATTR4_NAMED_ATTR:
+			offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_named_attr, offset);
+			break;
+
+		case FATTR4_FSID:
+			offset = dissect_nfs4_fsid(tvb, offset,	attr_tree, "fattr4_fsid");
+			break;
+
+		case FATTR4_UNIQUE_HANDLES:
+			offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_unique_handles,	offset);
+			break;
+
+		case FATTR4_LEASE_TIME:
+			offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_lease_time, offset);
+			break;
+
+		case FATTR4_RDATTR_ERROR:
+			offset = dissect_nfs4_status(tvb, offset, attr_tree, NULL);
+			break;
+
+		case FATTR4_ACL:
+		case FATTR4_DACL:
+		case FATTR4_SACL:
+			offset = dissect_nfs4_fattr_acl(tvb, offset, pinfo, attr_item, attr_tree,
+				*fattr_obj_type_p, attr_num);
+			break;
+
+		case FATTR4_ACLSUPPORT:
+			offset = dissect_nfs4_fattr_aclsupport(tvb, offset, attr_tree);
+			break;
+
+		case FATTR4_ARCHIVE:
+			offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_archive, offset);
+			break;
+
+		case FATTR4_CANSETTIME:
+			offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_cansettime, offset);
+			break;
+
+		case FATTR4_CASE_INSENSITIVE:
+			offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_case_insensitive, offset);
+			break;
+
+		case FATTR4_CASE_PRESERVING:
+			offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_case_preserving, offset);
+			break;
+
+		case FATTR4_CHOWN_RESTRICTED:
+			offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_chown_restricted, offset);
+			break;
+
+		case FATTR4_FILEID:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_fileid, offset);
+			break;
+
+		case FATTR4_FILES_AVAIL:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_files_avail, offset);
+			break;
+
+		case FATTR4_FILEHANDLE:
+			offset = dissect_nfs4_fh(tvb, offset, pinfo, attr_tree, "fattr4_filehandle", NULL, civ);
+			break;
+
+		case FATTR4_FILES_FREE:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_files_free, offset);
+			break;
+
+		case FATTR4_FILES_TOTAL:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_files_total, offset);
+			break;
+
+		case FATTR4_FS_LOCATIONS:
+			offset = dissect_nfs4_fs_locations(tvb, pinfo, offset, attr_tree,
+				"fattr4_fs_locations");
+			break;
+
+		case FATTR4_HIDDEN:
+			offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_hidden, offset);
+			break;
+
+		case FATTR4_HOMOGENEOUS:
+			offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_homogeneous, offset);
+			break;
+
+		case FATTR4_MAXFILESIZE:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_maxfilesize, offset);
+			break;
+
+		case FATTR4_MAXLINK:
+			offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_maxlink, offset);
+			break;
+
+		case FATTR4_MAXNAME:
+			offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_maxname, offset);
+			break;
+
+		case FATTR4_MAXREAD:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_maxread, offset);
+			break;
+
+		case FATTR4_MAXWRITE:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_maxwrite, offset);
+			break;
+
+		case FATTR4_MIMETYPE:
+			offset = dissect_nfs_utf8string(tvb, offset, attr_tree,	hf_nfs4_fattr_mimetype,
+				NULL);
+			break;
+
+		case FATTR4_MODE:
+			offset = dissect_nfs4_mode(tvb,	offset, attr_tree);
+			break;
+
+		case FATTR4_NO_TRUNC:
+			offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_no_trunc, offset);
+			break;
+
+		case FATTR4_NUMLINKS:
+			offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_numlinks, offset);
+			break;
+
+		case FATTR4_OWNER:
+			offset = dissect_nfs_utf8string(tvb, offset, attr_tree,	hf_nfs4_fattr_owner,
+				NULL);
+			break;
+
+		case FATTR4_OWNER_GROUP:
+			offset = dissect_nfs_utf8string(tvb, offset, attr_tree,
+				hf_nfs4_fattr_owner_group, NULL);
+			break;
+
+		case FATTR4_QUOTA_AVAIL_HARD:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_quota_hard, offset);
+			break;
+
+		case FATTR4_QUOTA_AVAIL_SOFT:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_quota_soft, offset);
+			break;
+
+		case FATTR4_QUOTA_USED:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_quota_used, offset);
+			break;
+
+		case FATTR4_RAWDEV:
+			offset = dissect_nfs4_specdata(tvb, offset, attr_tree);
+			break;
+
+		case FATTR4_SPACE_AVAIL:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_space_avail, offset);
+			break;
+
+		case FATTR4_SPACE_FREE:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_space_free, offset);
+			break;
+
+		case FATTR4_SPACE_TOTAL:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_space_total, offset);
+			break;
+
+		case FATTR4_SPACE_USED:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_space_used, offset);
+			break;
+
+		case FATTR4_SYSTEM:
+			if (attr_tree)
+				dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_system, offset);
+			offset += 4;
+			break;
+
+		case FATTR4_TIME_ACCESS:
+		case FATTR4_TIME_BACKUP:
+		case FATTR4_TIME_CREATE:
+		case FATTR4_TIME_DELTA:
+		case FATTR4_TIME_METADATA:
+		case FATTR4_TIME_MODIFY:
+		case FATTR4_DIR_NOTIF_DELAY:
+		case FATTR4_DIRENT_NOTIF_DELAY:
+		case FATTR4_TIME_DELEG_ACCESS:
+		case FATTR4_TIME_DELEG_MODIFY:
+			if (attr_tree)
+				dissect_nfs4_nfstime(tvb, offset, attr_tree);
+			offset += 12;
+			break;
+
+		case FATTR4_TIME_ACCESS_SET:
+		case FATTR4_TIME_MODIFY_SET:
+			offset = dissect_nfs4_settime(tvb, offset, attr_tree, "settime4");
+			break;
+
+		case FATTR4_MOUNTED_ON_FILEID:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_mounted_on_fileid,
+						 offset);
+			break;
+
+		case FATTR4_FS_LAYOUT_TYPE:
+			offset = dissect_nfs_fs_layout_type(tvb, attr_tree, offset);
+			break;
+
+		case FATTR4_LAYOUT_BLKSIZE:
+			offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_layout_blksize,
+						offset);
+			break;
+
+		case FATTR4_MDSTHRESHOLD:
+			offset = dissect_nfs4_mdsthreshold(tvb, pinfo, offset, attr_tree);
+			break;
+
+		case FATTR4_CLONE_BLOCKSIZE:
+			offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_clone_blocksize,
+						offset);
+			break;
+
+		case FATTR4_SPACE_FREED:
+			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_space_freed,
+						offset);
+			break;
+
+		case FATTR4_CHANGE_ATTR_TYPE:
+			offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_change_attr_type,
+						offset);
+			break;
+
+		case FATTR4_SECURITY_LABEL:
+			offset = dissect_nfs4_security_label(tvb, attr_tree, offset);
+			break;
+
+		case FATTR4_MODE_UMASK:
+			offset = dissect_nfs4_mode_umask(tvb, attr_tree, offset);
+			break;
+
+		case FATTR4_XATTR_SUPPORT:
+			offset = dissect_rpc_bool(tvb,
+				attr_tree, hf_nfs4_fattr_xattr_support, offset);
+			break;
+
+		case FATTR4_OFFLINE:
+			offset = dissect_rpc_bool(tvb,
+				attr_tree, hf_nfs4_fattr_offline, offset);
+			break;
+
+		default:
+			break;
+	}
+
+	return offset;
+}
+
+/* Display each attrmask bitmap and optionally dissect the value. */
 static int
 dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int type, rpc_call_info_value *civ)
 {
-	int	  attr_mask_offset = 0;
-	guint32	  i, j;
-	guint32	  num_bitmaps;
-	guint32	  count		   = 0;
-	guint32	  attr_num;
-	guint32	 *bitmaps	   = NULL;
-	guint32	  bitmap, sl;
-	guint32	  obj_type	   = 0;
-	gboolean  first_attr	   = TRUE;
-	gboolean  no_idx	   = FALSE;
-
-	proto_item *bitmap_item = NULL;
-	proto_tree *bitmap_tree = NULL;
-	proto_item *hitem = NULL;
-	proto_item *attr_item = NULL;
-	proto_tree *attr_tree	= NULL;
-
-	num_bitmaps = tvb_get_ntohl(tvb, offset);
-	offset += 4;
-
-	if (num_bitmaps) {
-		if (num_bitmaps > MAX_BITMAPS) {
-			proto_tree_add_uint(tree, hf_nfs4_huge_bitmap_length, tvb, offset-4, 4, num_bitmaps);
-			expert_add_info(pinfo, tree, &ei_nfs_too_many_bitmaps);
-			return offset;
-		}
-
-		bitmaps = (guint32 *)wmem_alloc(wmem_packet_scope(), num_bitmaps * sizeof(guint32));
-		attr_mask_offset = offset;
-
-		/* Load the array with the bitmap(s) */
-		for (i = 0; i < num_bitmaps; i++) {
-			bitmaps[i] = tvb_get_ntohl(tvb, attr_mask_offset + (i*4));
-			if (bitmaps[i] > 0)
-				count++;
-		}
-		/* If there is only one non-zero bitmap, don't display the bitmap index "[x]". */
-		if (count <= 1)
-			no_idx = TRUE;
-
-		/* If FATTR4_DISSECT_VALUES, set offset to the first value field by skipping the
-		*  attr_bitmap fields and the 4-byte 'total bytes in the values section field';
-		*  otherwise, just skip the bitmaps and offset will be returned. */
-		offset += (num_bitmaps * 4) + (type == FATTR4_DISSECT_VALUES ? 4 : 0);
-
-	} else if (type == FATTR4_DISSECT_VALUES) {
-		expert_add_info(pinfo, tree, &ei_protocol_violation);
-		return offset += 4;
-	}
-
-	if (!tree
-	&& type == FATTR4_BITMAP_ONLY)
-		return offset;
-
-	for (i = 0; i < num_bitmaps; i++)
-	{
-		bitmap = bitmaps[i];
-
-		if (bitmap) {
-			if (tree) {
-				/*
-				* Display the current Attr_mask bitmap (as of RFC 5661 NVSv4.1, there are up to 3) */
-				if (no_idx)
-					bitmap_item = proto_tree_add_uint_format_value(tree, hf_nfs4_attr_mask, tvb,
-						attr_mask_offset, 4, bitmap, "0x%08x", bitmap);
-				else
-					bitmap_item = proto_tree_add_uint_format(tree, hf_nfs4_attr_mask, tvb,
-						attr_mask_offset, 4, bitmap, "Attr mask[%u]: 0x%08x", i, bitmap);
-
-				bitmap_tree = proto_item_add_subtree(bitmap_item, ett_nfs4_bitmap);
-				first_attr = TRUE;
-
-				/* Count the number of attribute bits set */
-				for (count=0; bitmap; bitmap >>= 1)
-					count += (bitmap & 1);
-				bitmap = bitmaps[i];
-				hitem = proto_tree_add_uint_format(bitmap_tree, hf_nfs4_attr_count, tvb, attr_mask_offset, 4, count, "%u attribute%s", count, plurality(count, "", "s"));
-				proto_item_set_hidden(hitem);
-				proto_item_set_generated(hitem);
-			}
-		} else {
-			attr_mask_offset += 4;
-			continue;
-		}
-
-		sl = 0x00000001;
-
-		for (j = 0; j < 32; j++) {
-			attr_num = 32*i + j;
-
-			if (bitmap & sl) {
-				if (bitmap_tree) {
-					/*
-					* Append this attribute name to the 'Attr mask' header line */
-					proto_item_append_text (bitmap_tree, (first_attr ? " (%s" : ", %s"),
-						val_to_str_ext(attr_num, &fattr4_names_ext, "Unknown: %u"));
-					first_attr = FALSE;
-
-					/* Display label: reqd_attr: or reco_attr: */
-					attr_item = proto_tree_add_uint(bitmap_tree,
-						(attr_num <= FATTR4_RDATTR_ERROR ||
-						 attr_num == FATTR4_FILEHANDLE ||
-						 attr_num == FATTR4_SUPPATTR_EXCLCREAT) ?
-						hf_nfs4_reqd_attr: hf_nfs4_reco_attr,
-						tvb, offset, 0, attr_num);
-				}
-				if (type == FATTR4_DISSECT_VALUES)
-				{
-					int attr_offset = offset;
-
-					/* Decode the value of this attribute */
-					if (attr_item)
-						attr_tree = proto_item_add_subtree(attr_item, ett_nfs4_bitmap);
-
-					switch (attr_num)
-					{
-					case FATTR4_SUPPORTED_ATTRS:
-					case FATTR4_SUPPATTR_EXCLCREAT:
-						offset = dissect_nfs4_fattrs(tvb, offset, pinfo, attr_tree, FATTR4_BITMAP_ONLY, civ);
-						break;
-
-					case FATTR4_TYPE:
-						obj_type = tvb_get_ntohl(tvb, offset);
-						if (attr_tree)
-							proto_tree_add_item(attr_tree, hf_nfs4_ftype, tvb, offset, 4,
-								ENC_BIG_ENDIAN);
-						offset += 4;
-						break;
-
-					case FATTR4_FH_EXPIRE_TYPE:
-						offset = dissect_nfs4_fattr_fh_expire_type(tvb,	offset, attr_tree);
-						break;
-
-					case FATTR4_CHANGE:
-						offset = dissect_rpc_uint64(tvb, attr_tree,	hf_nfs4_changeid, offset);
-						break;
-
-					case FATTR4_SIZE:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_size, offset);
-						break;
-
-					case FATTR4_LINK_SUPPORT:
-						offset = dissect_rpc_bool(tvb,
-							attr_tree, hf_nfs4_fattr_link_support, offset);
-						break;
-
-					case FATTR4_SYMLINK_SUPPORT:
-						offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_symlink_support, offset);
-						break;
-
-					case FATTR4_NAMED_ATTR:
-						offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_named_attr, offset);
-						break;
-
-					case FATTR4_FSID:
-						offset = dissect_nfs4_fsid(tvb, offset,	attr_tree, "fattr4_fsid");
-						break;
-
-					case FATTR4_UNIQUE_HANDLES:
-						offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_unique_handles,	offset);
-						break;
-
-					case FATTR4_LEASE_TIME:
-						offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_lease_time, offset);
-						break;
-
-					case FATTR4_RDATTR_ERROR:
-						offset = dissect_nfs4_status(tvb, offset, attr_tree, NULL);
-						break;
-
-					case FATTR4_ACL:
-					case FATTR4_DACL:
-					case FATTR4_SACL:
-						offset = dissect_nfs4_fattr_acl(tvb, offset, pinfo, attr_item, attr_tree,
-							obj_type, attr_num);
-						break;
-
-					case FATTR4_ACLSUPPORT:
-						offset = dissect_nfs4_fattr_aclsupport(tvb, offset, attr_tree);
-						break;
-
-					case FATTR4_ARCHIVE:
-						offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_archive, offset);
-						break;
-
-					case FATTR4_CANSETTIME:
-						offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_cansettime, offset);
-						break;
-
-					case FATTR4_CASE_INSENSITIVE:
-						offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_case_insensitive, offset);
-						break;
-
-					case FATTR4_CASE_PRESERVING:
-						offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_case_preserving, offset);
-						break;
-
-					case FATTR4_CHOWN_RESTRICTED:
-						offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_chown_restricted, offset);
-						break;
-
-					case FATTR4_FILEID:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_fileid, offset);
-						break;
-
-					case FATTR4_FILES_AVAIL:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_files_avail, offset);
-						break;
-
-					case FATTR4_FILEHANDLE:
-						offset = dissect_nfs4_fh(tvb, offset, pinfo, attr_tree, "fattr4_filehandle", NULL, civ);
-						break;
-
-					case FATTR4_FILES_FREE:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_files_free, offset);
-						break;
-
-					case FATTR4_FILES_TOTAL:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_files_total, offset);
-						break;
-
-					case FATTR4_FS_LOCATIONS:
-						offset = dissect_nfs4_fs_locations(tvb, pinfo, offset, attr_tree,
-							"fattr4_fs_locations");
-						break;
-
-					case FATTR4_HIDDEN:
-						offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_hidden, offset);
-						break;
-
-					case FATTR4_HOMOGENEOUS:
-						offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_homogeneous, offset);
-						break;
-
-					case FATTR4_MAXFILESIZE:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_maxfilesize, offset);
-						break;
-
-					case FATTR4_MAXLINK:
-						offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_maxlink, offset);
-						break;
-
-					case FATTR4_MAXNAME:
-						offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_maxname, offset);
-						break;
-
-					case FATTR4_MAXREAD:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_maxread, offset);
-						break;
-
-					case FATTR4_MAXWRITE:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_maxwrite, offset);
-						break;
-
-					case FATTR4_MIMETYPE:
-						offset = dissect_nfs_utf8string(tvb, offset, attr_tree,	hf_nfs4_fattr_mimetype,
-							NULL);
-						break;
-
-					case FATTR4_MODE:
-						offset = dissect_nfs4_mode(tvb,	offset, attr_tree);
-						break;
-
-					case FATTR4_NO_TRUNC:
-						offset = dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_no_trunc, offset);
-						break;
-
-					case FATTR4_NUMLINKS:
-						offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_numlinks, offset);
-						break;
-
-					case FATTR4_OWNER:
-						offset = dissect_nfs_utf8string(tvb, offset, attr_tree,	hf_nfs4_fattr_owner,
-							NULL);
-						break;
-
-					case FATTR4_OWNER_GROUP:
-						offset = dissect_nfs_utf8string(tvb, offset, attr_tree,
-							hf_nfs4_fattr_owner_group, NULL);
-						break;
-
-					case FATTR4_QUOTA_AVAIL_HARD:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_quota_hard, offset);
-						break;
-
-					case FATTR4_QUOTA_AVAIL_SOFT:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_quota_soft, offset);
-						break;
-
-					case FATTR4_QUOTA_USED:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_quota_used, offset);
-						break;
-
-					case FATTR4_RAWDEV:
-						offset = dissect_nfs4_specdata(tvb, offset, attr_tree);
-						break;
-
-					case FATTR4_SPACE_AVAIL:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_space_avail, offset);
-						break;
-
-					case FATTR4_SPACE_FREE:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_space_free, offset);
-						break;
-
-					case FATTR4_SPACE_TOTAL:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_space_total, offset);
-						break;
-
-					case FATTR4_SPACE_USED:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_space_used, offset);
-						break;
-
-					case FATTR4_SYSTEM:
-						if (attr_tree)
-							dissect_rpc_bool(tvb, attr_tree, hf_nfs4_fattr_system, offset);
-						offset += 4;
-						break;
-
-					case FATTR4_TIME_ACCESS:
-					case FATTR4_TIME_BACKUP:
-					case FATTR4_TIME_CREATE:
-					case FATTR4_TIME_DELTA:
-					case FATTR4_TIME_METADATA:
-					case FATTR4_TIME_MODIFY:
-					case FATTR4_DIR_NOTIF_DELAY:
-					case FATTR4_DIRENT_NOTIF_DELAY:
-					case FATTR4_TIME_DELEG_ACCESS:
-					case FATTR4_TIME_DELEG_MODIFY:
-						if (attr_tree)
-							dissect_nfs4_nfstime(tvb, offset, attr_tree);
-						offset += 12;
-						break;
-
-					case FATTR4_TIME_ACCESS_SET:
-					case FATTR4_TIME_MODIFY_SET:
-						offset = dissect_nfs4_settime(tvb, offset, attr_tree, "settime4");
-						break;
-
-					case FATTR4_MOUNTED_ON_FILEID:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_mounted_on_fileid,
-									 offset);
-						break;
-
-					case FATTR4_FS_LAYOUT_TYPE:
-						offset = dissect_nfs_fs_layout_type(tvb, attr_tree, offset);
-						break;
-
-					case FATTR4_LAYOUT_BLKSIZE:
-						offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_layout_blksize,
-									offset);
-						break;
-
-					case FATTR4_CLONE_BLOCKSIZE:
-						offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_clone_blocksize,
-									offset);
-						break;
-
-					case FATTR4_SPACE_FREED:
-						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_space_freed,
-									offset);
-						break;
-
-					case FATTR4_CHANGE_ATTR_TYPE:
-						offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_change_attr_type,
-									offset);
-						break;
-
-					case FATTR4_SECURITY_LABEL:
-						offset = dissect_nfs4_security_label(tvb, attr_tree, offset);
-						break;
-
-					case FATTR4_MODE_UMASK:
-						offset = dissect_nfs4_mode_umask(tvb, attr_tree, offset);
-						break;
-
-					case FATTR4_XATTR_SUPPORT:
-						offset = dissect_rpc_bool(tvb,
-							attr_tree, hf_nfs4_fattr_xattr_support, offset);
-						break;
-
-					case FATTR4_OFFLINE:
-						offset = dissect_rpc_bool(tvb,
-							attr_tree, hf_nfs4_fattr_offline, offset);
-						break;
-
-					default:
-						break;
-					}
-
-					if (attr_item)
-						proto_item_set_len(attr_item, offset - attr_offset);
-				}
-			}
-			sl <<= 1;
-		} /* End of inner loop: test the next bit in this mask */
-
-		if (bitmap_tree)
-			proto_item_append_text(bitmap_tree, ")");
-		attr_mask_offset += 4;
-	} /* End of outer loop, read the next mask */
-
-	return offset;
+	static guint32 fattr_obj_type = 0;
+	nfs4_bitmap_type_t bitmap_type;
+	static nfs4_bitmap_info_t bitmap_info = {
+		.vse_names_ext  = &fattr4_names_ext,
+		.dissect_battr  = dissect_nfs4_fattr_value,
+		.battr_data     = &fattr_obj_type,
+		.hf_mask_label  = &hf_nfs4_attr_mask,
+		.hf_item_count  = &hf_nfs4_attr_count,
+		.get_item_label = nfs4_fattr_item_label
+	};
+
+	fattr_obj_type = 0;
+	bitmap_type = (type == FATTR4_BITMAP_ONLY) ? NFS4_BITMAP_MASK : NFS4_BITMAP_VALUES;
+
+	return dissect_nfs4_bitmap(tvb, offset, pinfo, tree, civ, &bitmap_info, bitmap_type, NULL);
 }
 
 static const value_string names_open4_share_access[] = {
@@ -7936,7 +8186,7 @@ dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash)
 
 	proto_tree_add_item(stateid_tree, hf_nfs4_stateid_other, tvb, offset, 12, ENC_NA);
 
-	other_hash = crc16_ccitt_tvb_offset(tvb, offset, 12);
+	other_hash = crc32_ccitt_tvb_offset(tvb, offset, 12);
 	oth_item = proto_tree_add_uint(stateid_tree, hf_nfs4_stateid_other_hash, tvb, offset, 12, other_hash);
 	proto_item_set_generated(oth_item);
 	offset+=12;
@@ -7972,48 +8222,17 @@ dissect_nfs4_modified_limit(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-/*
- * No FULL DISSECT yet.
- */
 static int
-dissect_nfs4_state_protect_bitmap(tvbuff_t *tvb, int offset,
-				  packet_info *pinfo, proto_tree *tree)
+dissect_nfs4_state_protect_bitmap(tvbuff_t *tvb, int offset, packet_info *pinfo,
+				proto_tree *tree, const char *name)
 {
-	guint32     num_bitmaps;
-	proto_tree *newftree;
-	guint32    *bitmap = NULL;
-	guint32     op;
-	guint32     i;
-	gint        j;
-	guint32     sl;
+	static nfs4_bitmap_info_t bitmap_info = {
+		.vse_names_ext = &names_nfs4_operation_ext,
+		.hf_mask_label = &hf_nfs4_op_mask,
+		.hf_item_label = &hf_nfs4_op
+	};
 
-	num_bitmaps = tvb_get_ntohl(tvb, offset);
-	if (num_bitmaps > MAX_BITMAPS) {
-		proto_tree_add_uint(tree, hf_nfs4_huge_bitmap_length, tvb, offset-4, 4, num_bitmaps);
-		expert_add_info(pinfo, tree, &ei_nfs_too_many_bitmaps);
-		return offset;
-	}
-	newftree = proto_tree_add_subtree(tree, tvb, offset, 4 + num_bitmaps * 4,
-				    ett_nfs4_bitmap, NULL, "operation mask");
-	offset += 4;
-
-	if (num_bitmaps)
-		bitmap = (guint32 *)wmem_alloc(wmem_packet_scope(), num_bitmaps * sizeof(guint32));
-
-	for (i = 0; i < num_bitmaps; i++) {
-		bitmap[i] = tvb_get_ntohl(tvb, offset);
-		sl = 0x00000001;
-		for (j = 0; j < 32; j++) {
-			op = 32 * i + j;
-			if (bitmap[i] & sl) {
-				proto_tree_add_uint(newftree, hf_nfs4_op_mask,
-						    tvb, offset, 4, op);
-			}
-			sl <<= 1;
-		}
-		offset += 4;
-	}
-	return offset;
+	return dissect_nfs4_bitmap(tvb, offset, pinfo, tree, NULL, &bitmap_info, NFS4_BITMAP_MASK, name);
 }
 
 #define SP4_NONE                                0
@@ -8030,8 +8249,8 @@ static int
 dissect_nfs4_state_protect_ops(tvbuff_t *tvb, int offset,
 		packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_nfs4_state_protect_bitmap(tvb, offset, pinfo, tree);
-	offset = dissect_nfs4_state_protect_bitmap(tvb, offset, pinfo, tree);
+	offset = dissect_nfs4_state_protect_bitmap(tvb, offset, pinfo, tree, "spo_must_enforce");
+	offset = dissect_nfs4_state_protect_bitmap(tvb, offset, pinfo, tree, "spo_must_allow");
 	return offset;
 }
 
@@ -8434,103 +8653,14 @@ static value_string_ext io_advise_names_ext = VALUE_STRING_EXT_INIT(io_advise_na
 static int
 dissect_nfs4_io_hints(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	int	  hints_mask_offset = 0;
-	guint32	  i, j;
-	guint32	  num_bitmaps;
-	guint32	  count		   = 0;
-	guint32	  hint_num;
-	guint32	 *bitmaps	   = NULL;
-	guint32	  bitmap, sl;
-	gboolean  first_hint	   = TRUE;
-	gboolean  no_idx	   = FALSE;
+	static nfs4_bitmap_info_t bitmap_info = {
+		.vse_names_ext = &io_advise_names_ext,
+		.hf_mask_label = &hf_nfs4_io_hints_mask,
+		.hf_item_label = &hf_nfs4_io_advise_hint,
+		.hf_item_count = &hf_nfs4_io_hint_count,
+	};
 
-	proto_item *bitmap_item = NULL;
-	proto_tree *bitmap_tree = NULL;
-	proto_item *hitem = NULL;
-
-	num_bitmaps = tvb_get_ntohl(tvb, offset);
-	offset += 4;
-
-	if (!num_bitmaps)
-		return offset;
-
-	if (num_bitmaps > MAX_BITMAPS) {
-		proto_tree_add_uint(tree, hf_nfs4_huge_bitmap_length, tvb, offset-4, 4, num_bitmaps);
-		expert_add_info(pinfo, tree, &ei_nfs_too_many_bitmaps);
-		return offset;
-	}
-
-	bitmaps = (guint32 *)wmem_alloc(wmem_packet_scope(), num_bitmaps * sizeof(guint32));
-	hints_mask_offset = offset;
-
-	/* Load the array with the bitmap(s) */
-	for (i = 0; i < num_bitmaps; i++) {
-		bitmaps[i] = tvb_get_ntohl(tvb, hints_mask_offset + (i*4));
-		if (bitmaps[i] > 0)
-			count++;
-	}
-
-	/* If there is only one non-zero bitmap, don't display the bitmap index "[x]". */
-	if (count <= 1)
-		no_idx = TRUE;
-
-	offset += (num_bitmaps * 4);
-
-	for (i = 0; i < num_bitmaps; i++) {
-		bitmap = bitmaps[i];
-
-		if (bitmap) {
-			if (tree) {
-				/*
-				* Display the current Attr_mask bitmap (as of RFC 5661 NVSv4.1, there are up to 3) */
-				if (no_idx)
-					bitmap_item = proto_tree_add_uint_format_value(tree, hf_nfs4_io_hints_mask, tvb,
-						hints_mask_offset, 4, bitmap, "0x%08x", bitmap);
-				else
-					bitmap_item = proto_tree_add_uint_format(tree, hf_nfs4_io_hints_mask, tvb,
-						hints_mask_offset, 4, bitmap, "Hints mask[%u]: 0x%08x", i, bitmap);
-
-				bitmap_tree = proto_item_add_subtree(bitmap_item, ett_nfs4_bitmap);
-				first_hint = TRUE;
-
-				/* Count the number of hint bits set */
-				for (count=0; bitmap; bitmap >>= 1)
-					count += (bitmap & 1);
-				bitmap = bitmaps[i];
-				hitem = proto_tree_add_uint_format(bitmap_tree, hf_nfs4_io_hint_count, tvb, hints_mask_offset, 4, count, "%u hint%s", count, plurality(count, "", "s"));
-				proto_item_set_hidden(hitem);
-				proto_item_set_generated(hitem);
-			}
-		} else {
-			hints_mask_offset += 4;
-			continue;
-		}
-
-		sl = 0x00000001;
-
-		for (j = 0; j < 32; j++) {
-			hint_num = 32*i + j;
-
-			if (bitmap & sl) {
-				if (bitmap_tree) {
-					/*
-					* Append this attribute name to the 'Hints mask' header line */
-					proto_item_append_text (bitmap_tree, (first_hint ? " (%s" : ", %s"),
-						val_to_str_ext(hint_num, &io_advise_names_ext, "Unknown: %u"));
-					first_hint = FALSE;
-
-					proto_tree_add_uint(bitmap_tree, hf_nfs4_io_advise_hint, tvb, offset, 0, hint_num);
-				}
-			}
-			sl <<= 1;
-		} /* End of inner loop: test the next bit in this mask */
-
-		if (bitmap_tree)
-			proto_item_append_text(bitmap_tree, ")");
-		hints_mask_offset += 4;
-	} /* End of outer loop, read the next mask */
-
-	return offset;
+	return dissect_nfs4_bitmap(tvb, offset, pinfo, tree, NULL, &bitmap_info, NFS4_BITMAP_MASK, NULL);
 }
 
 static int
@@ -8812,30 +8942,26 @@ dissect_nfs_layoutreturn_stateid(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 
+static const value_string notify_deviceid_type4[] = {
+#define NOTIFY_DEVICEID4_CHANGE      1
+	{	NOTIFY_DEVICEID4_CHANGE, "Change" },
+#define NOTIFY_DEVICEID4_DELETE      2
+	{	NOTIFY_DEVICEID4_DELETE, "Delete" },
+	{	0,	NULL	}
+};
+static value_string_ext notify_deviceid_type4_ext = VALUE_STRING_EXT_INIT(notify_deviceid_type4);
+
+
 static int
-dissect_nfs4_notification_bitmap(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_nfs4_notification_bitmap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
-	guint32 bitmap_num;
-	guint i;
+	static nfs4_bitmap_info_t bitmap_info = {
+		.vse_names_ext = &notify_deviceid_type4_ext,
+		.hf_mask_label = &hf_nfs4_notification_mask,
+		.hf_item_label = &hf_nfs4_notification_type,
+	};
 
-	bitmap_num = tvb_get_ntohl(tvb, offset);
-	offset += 4;
-
-	/* https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8611 */
-	if (!tree) {
-		if ((guint)offset > offset + (bitmap_num * 4)) {
-			return tvb_reported_length(tvb);
-		}
-		else {
-			return offset + (bitmap_num * 4);
-		}
-	}
-
-	for (i = 0; i < bitmap_num; i++) {
-		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_notification_bitmap, offset);
-	}
-
-	return offset;
+	return dissect_nfs4_bitmap(tvb, offset, pinfo, tree, NULL, &bitmap_info, NFS4_BITMAP_MASK, NULL);
 }
 
 
@@ -10151,7 +10277,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_nfs4_deviceid(tvb, offset, newftree);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_layout_type, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_count_maxcount, offset);
-			offset = dissect_nfs4_notification_bitmap(tvb, newftree, offset);
+			offset = dissect_nfs4_notification_bitmap(tvb, newftree, pinfo, offset);
 			break;
 
 		case NFS4_OP_GETDEVLIST:
@@ -10776,7 +10902,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 		case NFS4_OP_GETDEVINFO:
 			offset = dissect_nfs4_deviceaddr(tvb, offset, newftree);
-			offset = dissect_nfs4_notification_bitmap(tvb, newftree, offset);
+			offset = dissect_nfs4_notification_bitmap(tvb, newftree, pinfo, offset);
 			break;
 
 		case NFS4_OP_GETDEVLIST:
@@ -12261,6 +12387,10 @@ proto_register_nfs(void)
 			"Opcode", "nfs.opcode", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
 			&names_nfs4_operation_ext, 0, NULL, HFILL }},
 
+		{ &hf_nfs4_op_mask, {
+			"op_mask", "nfs.op_mask", FT_UINT32, BASE_HEX,
+			NULL, 0, "Operation Mask", HFILL }},
+
 		{ &hf_nfs4_main_opcode, {
 			"Main Opcode", "nfs.main_opcode", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
 			&names_nfs4_operation_ext, 0, "Main Operation number", HFILL }},
@@ -12388,7 +12518,7 @@ proto_register_nfs(void)
 
 		{ &hf_nfs4_attr_mask, {
 			"Attr mask", "nfs.attr_mask", FT_UINT32, BASE_HEX,
-			NULL, 0, "ACL attribute mask", HFILL }},
+			NULL, 0, "Attribute mask", HFILL }},
 
 		{ &hf_nfs4_attr_count, {
 			"Attr count", "nfs.attr_count", FT_UINT32, BASE_DEC,
@@ -12529,8 +12659,8 @@ proto_register_nfs(void)
 			"StateID Other", "nfs.stateid.other", FT_BYTES, BASE_NONE,
 			NULL, 0, "Unique component of StateID", HFILL }},
 		{ &hf_nfs4_stateid_other_hash,{
-			"StateID Other hash", "nfs.stateid.other_hash", FT_UINT16, BASE_HEX,
-			NULL, 0, "CRC-16 hash", HFILL }},
+			"StateID Other hash", "nfs.stateid.other_hash", FT_UINT32, BASE_HEX,
+			NULL, 0, "CRC-32 hash", HFILL }},
 
 		{ &hf_nfs4_offset, {
 			"offset", "nfs.offset4", FT_UINT64, BASE_DEC,
@@ -12779,6 +12909,26 @@ proto_register_nfs(void)
 		{ &hf_nfs4_fattr_layout_blksize, {
 			"blksize", "nfs.fattr4.layout_blksize", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_mdsthreshold_item, {
+			"threshold_item4", "nfs.fattr4.threshold_item", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_mdsthreshold_hint_mask, {
+			"hint mask", "nfs.fattr4.threshold_item.hint_mask", FT_UINT32, BASE_HEX,
+			NULL, 0, "MDS threshold hint mask", HFILL }},
+
+		{ &hf_nfs4_mdsthreshold_hint_count, {
+			"hint", "nfs.fattr4.threshold_item.hint_count", FT_UINT32, BASE_DEC,
+			NULL, 0, "MDS threshold hint count", HFILL }},
+
+		{ &hf_nfs4_mdsthreshold_mask_count, {
+			"number of masks", "nfs.fattr4.threshold_item.mask_count", FT_UINT32, BASE_DEC,
+			NULL, 0, "MDS threshold hint mask count", HFILL }},
+
+		{ &hf_nfs4_mdsthreshold_hint_file, {
+			"hint", "nfs.fattr4.threshold_item.hint", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
+			&th4_names_ext_file, 0, "MDS threshold hint", HFILL }},
 
 		{ &hf_nfs4_fattr_security_label_lfs, {
 			"label_format", "nfs.fattr4.security_label.lfs", FT_UINT32, BASE_DEC,
@@ -13162,9 +13312,13 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 #endif
 
-		{ &hf_nfs4_notification_bitmap, {
-			"notification bitmap", "nfs.notificationbitmap", FT_UINT32, BASE_DEC,
+		{ &hf_nfs4_notification_mask, {
+			"notify_mask", "nfs.notify_mask", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_notification_type, {
+			"notify_type", "nfs.notify_type", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
+			&notify_deviceid_type4_ext, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_newtime, {
 			"new time?", "nfs.newtime", FT_BOOLEAN, BASE_NONE,
@@ -13766,10 +13920,6 @@ proto_register_nfs(void)
 			"Execute permission for others", "nfs.mode.exec_other", FT_BOOLEAN, 32,
 			TFS(&tfs_yes_no), 01, NULL, HFILL }},
 
-		{ &hf_nfs4_op_mask, {
-			"op_mask", "nfs.op_mask", FT_UINT32, BASE_DEC,
-			VALS(names_nfs4_operation), 0, "Operation Mask", HFILL }},
-
 		{ &hf_nfs4_sequence_status_flags, {
 			"status flags", "nfs.sequence.flags", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
@@ -13837,6 +13987,10 @@ proto_register_nfs(void)
 		{ &hf_nfs4_seek_data_content, {
 			"data content", "nfs.data_content", FT_UINT32, BASE_DEC,
 			VALS(names_data_content), 0, NULL, HFILL }},
+
+		{ &hf_nfs4_bitmap_data, {
+			"Undissected bitmap data", "nfs.bitmap_data", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_huge_bitmap_length, {
 			"Huge bitmap length", "nfs.huge_bitmap_length", FT_UINT32, BASE_DEC,
@@ -13965,7 +14119,7 @@ proto_register_nfs(void)
 
 		{ &hf_nfs4_io_hints_mask, {
 			"Hint mask", "nfs.hint.mask", FT_UINT32, BASE_HEX,
-			NULL, 0, "ACL attribute mask", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_io_hint_count, {
 			"Hint count", "nfs.hint.count", FT_UINT32, BASE_DEC,
@@ -14358,6 +14512,12 @@ proto_register_nfs(void)
 		{ &ei_protocol_violation, { "nfs.protocol_violation", PI_PROTOCOL, PI_WARN,
 			"Per RFCs 3530 and 5661 an attribute mask is required but was not provided.", EXPFILL }},
 		{ &ei_nfs_too_many_bitmaps, { "nfs.too_many_bitmaps", PI_PROTOCOL, PI_NOTE, "Too many bitmap array items", EXPFILL }},
+		{ &ei_nfs_bitmap_no_dissector, { "nfs.bitmap_no_dissector", PI_PROTOCOL, PI_WARN,
+			"Unknown dissector for bitmap attribute", EXPFILL }},
+		{ &ei_nfs_bitmap_skip_value, { "nfs.bitmap_skip_value", PI_PROTOCOL, PI_WARN,
+			"Not dissecting value since a previous value was not dissected", EXPFILL }},
+		{ &ei_nfs_bitmap_undissected_data, { "nfs.bitmap_undissected_data", PI_PROTOCOL, PI_WARN,
+			"There is some bitmap data left undissected", EXPFILL }},
 		{ &ei_nfs4_stateid_deprecated, { "nfs.stateid.deprecated", PI_PROTOCOL, PI_WARN, "State ID deprecated in CLOSE responses [RFC7530 16.2.5]", EXPFILL }},
 	};
 

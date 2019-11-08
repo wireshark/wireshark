@@ -93,7 +93,7 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
     // Trigger updateWidgets
     ui->fieldTreeWidget->selectionModel()->clear();
 
-    QTimer::singleShot(0, this, SLOT(fillTree()));
+    fillTree();
 }
 
 DisplayFilterExpressionDialog::~DisplayFilterExpressionDialog()
@@ -153,6 +153,8 @@ void DisplayFilterExpressionDialog::fillTree()
 
     wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
     ui->fieldTreeWidget->sortByColumn(0, Qt::AscendingOrder);
+
+    updateWidgets();
 }
 
 void DisplayFilterExpressionDialog::updateWidgets()

@@ -62,7 +62,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/expert.h>
-#include <epan/dissector_filters.h>
+#include <epan/conversation_filter.h>
 #include <epan/proto_data.h>
 
 #include <wsutil/file_util.h>
@@ -1627,7 +1627,7 @@ static const value_string pn_io_index[] = {
     /*0xF843 - 0xF84F reserved */
     { 0xF850, "AutoConfigurarion" },
     { 0xF880, "AssetManagementData" },
-    /*0xF851 - 0xFBFF reserved */
+    /*0xF851 - 0xFBFF reserved except 0xF880*/
     /*0xFC00 - 0xFFFF reserved for profiles */
     { 0, NULL }
 };
@@ -7342,7 +7342,7 @@ dissect_SRLData_block(tvbuff_t *tvb, int offset,
     dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_RedundancyInfo, &RedundancyInfo);
     /* bit 2 .. 15 reserved */
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_RedundancyInfo_reserved, &RedundancyInfo);
-    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
     return offset;
 }
 
@@ -13380,7 +13380,7 @@ proto_register_pn_io (void)
     { &hf_pn_io_mrp_lnknrmax,
       { "MRP_LNKNRmax", "pn_io.mrp_lnknrmax",
         FT_UINT16, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }
+        "number of iterations", HFILL }
     },
     { &hf_pn_io_mrp_version,
       { "MRP_Version", "pn_io.mrp_version",

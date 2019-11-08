@@ -894,13 +894,13 @@ void RtpAnalysisDialog::updateStatistics()
     }
 
     QString stats_tables = "<html><head><style>td{vertical-align:bottom;}</style></head><body>\n";
-    stats_tables += QString("<p>%1:%2 " UTF8_LEFT_RIGHT_ARROW)
+    stats_tables += "<h4>Forward</h4>\n";
+    stats_tables += QString("<p>%1:%2 " UTF8_RIGHTWARDS_ARROW)
             .arg(address_to_qstring(&fwd_statinfo_.id.src_addr, true))
             .arg(fwd_statinfo_.id.src_port);
     stats_tables += QString("<br>%1:%2</p>\n")
             .arg(address_to_qstring(&fwd_statinfo_.id.dst_addr, true))
             .arg(fwd_statinfo_.id.dst_port);
-    stats_tables += "<h4>Forward</h4>\n";
     stats_tables += "<p><table>\n";
     stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</td></tr>")
             .arg(int_to_qstring(fwd_statinfo_.id.ssrc, 8, 16));
@@ -933,6 +933,12 @@ void RtpAnalysisDialog::updateStatistics()
     stats_tables += "</table></p>\n";
 
     stats_tables += "<h4>Reverse</h4>\n";
+    stats_tables += QString("<p>%1:%2 " UTF8_RIGHTWARDS_ARROW)
+            .arg(address_to_qstring(&rev_statinfo_.id.src_addr, true))
+            .arg(rev_statinfo_.id.src_port);
+    stats_tables += QString("<br>%1:%2</p>\n")
+            .arg(address_to_qstring(&rev_statinfo_.id.dst_addr, true))
+            .arg(rev_statinfo_.id.dst_port);
     stats_tables += "<p><table>\n";
     stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</td></tr>")
             .arg(int_to_qstring(rev_statinfo_.id.ssrc, 8, 16));
@@ -1414,6 +1420,8 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction, 
     ui->progressFrame->showProgress(true, true, &stop_flag);
 
     if (save_format == save_audio_au_) { /* au format */
+        bool showPayloadWarning = TRUE;
+
         if ((fwd_statinfo_.rtp_stats.clock_rate != 8000) ||
             ((rev_statinfo_.rtp_stats.clock_rate != 0) && (rev_statinfo_.rtp_stats.clock_rate != 8000))
            ) {
@@ -1421,10 +1429,27 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction, 
             goto copy_file_err;
         }
 
-        if (((fwd_statinfo_.first_payload_type != PT_PCMU) && (fwd_statinfo_.first_payload_type != PT_PCMA)) ||
-            ((rev_statinfo_.rtp_stats.clock_rate != 0) &&
-             ((rev_statinfo_.first_payload_type != PT_PCMU) && (rev_statinfo_.first_payload_type != PT_PCMA)))) {
-            QMessageBox::warning(this, tr("Warning"), tr("Can save audio with PCM u-law or A-law encoding only"));
+        /* Check for supported codecs */
+        if (rtpstream_is_payload_used(&fwd_statinfo_, PT_PCMU)) { showPayloadWarning=FALSE; }
+        if (rtpstream_is_payload_used(&fwd_statinfo_, PT_PCMA)) { showPayloadWarning=FALSE; }
+        /* ED-137 silence */
+        if (rtpstream_is_payload_used(&fwd_statinfo_, PT_UNDF_123)) { showPayloadWarning=FALSE; }
+        if (rev_statinfo_.rtp_stats.clock_rate != 0)
+        { /* Reverse stream is defined */
+            bool showRevPayloadWarning = TRUE;
+
+            /* Check for supported codecs */
+            if (rtpstream_is_payload_used(&rev_statinfo_, PT_PCMU)) { showRevPayloadWarning=FALSE; }
+            if (rtpstream_is_payload_used(&rev_statinfo_, PT_PCMA)) { showRevPayloadWarning=FALSE; }
+          /* ED-137 silence */
+            if (rtpstream_is_payload_used(&rev_statinfo_, PT_UNDF_123)) { showRevPayloadWarning=FALSE; }
+            if (showRevPayloadWarning) { showPayloadWarning=TRUE; }
+        }
+
+        /* If unsupported coded is used, warn user */
+        if (showPayloadWarning)
+        {
+            QMessageBox::warning(this, tr("Error"), tr("Can save audio with PCM u-law or A-law encoding only"));
             goto copy_file_err;
         }
 

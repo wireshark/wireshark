@@ -3231,6 +3231,10 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
         have_options = TRUE;
         options_total_length = options_total_length + 8;
     }
+    if (rec->presence_flags & WTAP_HAS_DROP_COUNT) {
+        have_options = TRUE;
+        options_total_length = options_total_length + 12;
+    }
     if (have_options) {
         /* End-of options tag */
         options_total_length += 4;
@@ -3353,6 +3357,17 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
             return FALSE;
         wdh->bytes_dumped += 4;
         pcapng_debug("pcapng_write_enhanced_packet_block: Wrote Options packet flags: %x", rec->rec_header.packet_header.pack_flags);
+    }
+    if (rec->presence_flags & WTAP_HAS_DROP_COUNT) {
+        option_hdr.type         = OPT_EPB_DROPCOUNT;
+        option_hdr.value_length = 8;
+        if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+            return FALSE;
+        wdh->bytes_dumped += 4;
+        if (!wtap_dump_file_write(wdh, &rec->rec_header.packet_header.drop_count, 8, err))
+            return FALSE;
+        wdh->bytes_dumped += 8;
+        pcapng_debug("pcapng_write_enhanced_packet_block: Wrote Options drop count: %" G_GINT64_MODIFIER "u", rec->rec_header.packet_header.drop_count);
     }
     /* Write end of options if we have options */
     if (have_options) {

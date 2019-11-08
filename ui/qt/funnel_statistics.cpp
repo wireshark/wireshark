@@ -100,7 +100,8 @@ static gboolean menus_registered = FALSE;
 
 FunnelStatistics::FunnelStatistics(QObject *parent, CaptureFile &cf) :
     QObject(parent),
-    capture_file_(cf)
+    capture_file_(cf),
+    prepared_filter_(QString())
 {
     funnel_ops_ = new(struct _funnel_ops_t);
     memset(funnel_ops_, 0, sizeof(struct _funnel_ops_t));
@@ -154,7 +155,8 @@ const char *FunnelStatistics::displayFilter()
 
 void FunnelStatistics::emitSetDisplayFilter(const QString filter)
 {
-    emit setDisplayFilter(filter);
+    prepared_filter_ = filter;
+    emit setDisplayFilter(filter, FilterAction::ActionPrepare, FilterAction::ActionTypePlain);
 }
 
 void FunnelStatistics::reloadPackets()
@@ -169,7 +171,7 @@ void FunnelStatistics::reloadLuaPlugins()
 
 void FunnelStatistics::emitApplyDisplayFilter()
 {
-    emit applyDisplayFilter();
+    emit setDisplayFilter(prepared_filter_, FilterAction::ActionApply, FilterAction::ActionTypePlain);
 }
 
 void FunnelStatistics::emitOpenCaptureFile(QString cf_path, QString filter)

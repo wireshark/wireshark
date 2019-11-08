@@ -22,6 +22,8 @@
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QWindow>
+#include <QJsonObject>
+#include <QJsonDocument>
 
 #define drag_drop_toolbar_action_ "drag_drop_toolbar_action_"
 
@@ -93,6 +95,11 @@ void DragDropToolBar::clear()
     childCounter = 0;
 }
 
+WiresharkMimeData * DragDropToolBar::createMimeData(QString name, int position)
+{
+    return new ToolbarEntryMimeData(name, position);
+}
+
 bool DragDropToolBar::eventFilter(QObject * obj, QEvent * event)
 {
     if ( ! obj->isWidgetType() )
@@ -118,8 +125,7 @@ bool DragDropToolBar::eventFilter(QObject * obj, QEvent * event)
             if ( ! qobject_cast<QToolButton *>(elem) || ! elem->property(drag_drop_toolbar_action_).isValid() )
                 return QToolBar::eventFilter(obj, event);
 
-            ToolbarEntryMimeData * temd =
-                    new ToolbarEntryMimeData(((QToolButton *)elem)->text(), elem->property(drag_drop_toolbar_action_).toInt());
+            WiresharkMimeData * temd = createMimeData(((QToolButton *)elem)->text(), elem->property(drag_drop_toolbar_action_).toInt());
             DragLabel * lbl = new DragLabel(temd->labelText(), this);
             QDrag * drag = new QDrag(this);
             drag->setMimeData(temd);
@@ -142,7 +148,7 @@ bool DragDropToolBar::eventFilter(QObject * obj, QEvent * event)
 
 void DragDropToolBar::dragEnterEvent(QDragEnterEvent *event)
 {
-    if ( ! event )
+    if ( ! event || ! event->mimeData() )
         return;
 
     if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData()))
@@ -153,7 +159,7 @@ void DragDropToolBar::dragEnterEvent(QDragEnterEvent *event)
         } else {
             event->acceptProposedAction();
         }
-    } else if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
+    } else if (event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType)) {
         if ( event->source() != this )
         {
             event->setDropAction(Qt::CopyAction);
@@ -168,7 +174,7 @@ void DragDropToolBar::dragEnterEvent(QDragEnterEvent *event)
 
 void DragDropToolBar::dragMoveEvent(QDragMoveEvent *event)
 {
-    if ( ! event )
+    if ( ! event || ! event->mimeData() )
         return;
 
     if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData()))
@@ -195,7 +201,7 @@ void DragDropToolBar::dragMoveEvent(QDragMoveEvent *event)
         } else {
             event->acceptProposedAction();
         }
-    } else if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
+    } else if (event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType)) {
         if ( event->source() != this )
         {
             event->setDropAction(Qt::CopyAction);
@@ -210,7 +216,7 @@ void DragDropToolBar::dragMoveEvent(QDragMoveEvent *event)
 
 void DragDropToolBar::dropEvent(QDropEvent *event)
 {
-    if ( ! event )
+    if ( ! event || ! event->mimeData() )
         return;
 
     /* Moving items around */
@@ -238,20 +244,24 @@ void DragDropToolBar::dropEvent(QDropEvent *event)
             event->acceptProposedAction();
         }
 
-    } else if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
-        const DisplayFilterMimeData * data = qobject_cast<const DisplayFilterMimeData *>(event->mimeData());
-
-        if ( event->source() != this )
+    } else if (event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType)) {
+        QByteArray jsonData = event->mimeData()->data(WiresharkMimeData::DisplayFilterMimeType);
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
+        if ( jsonDoc.isObject() )
         {
-            event->setDropAction(Qt::CopyAction);
-            event->accept();
+            QJsonObject data = jsonDoc.object();
 
-            emit newFilterDropped(data->description(), data->filter());
+            if ( event->source() != this && data.contains("description") && data.contains("filter") )
+            {
+                event->setDropAction(Qt::CopyAction);
+                event->accept();
 
-        } else {
-            event->acceptProposedAction();
+                emit newFilterDropped(data["description"].toString(), data["filter"].toString());
+
+            } else {
+                event->acceptProposedAction();
+            }
         }
-
     } else {
         event->ignore();
     }

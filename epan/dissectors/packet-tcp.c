@@ -22,7 +22,7 @@
 #include <epan/prefs.h>
 #include <epan/show_exception.h>
 #include <epan/conversation_table.h>
-#include <epan/dissector_filters.h>
+#include <epan/conversation_filter.h>
 #include <epan/sequence_analysis.h>
 #include <epan/reassemble.h>
 #include <epan/decode_as.h>
@@ -4361,6 +4361,35 @@ get_or_create_mptcpd_from_key(struct tcp_analysis* tcpd, tcp_flow_t *fwd, guint6
     return mptcpd;
 }
 
+/* record this mapping */
+static
+void analyze_mapping(struct tcp_analysis *tcpd, packet_info *pinfo, guint16 len, guint64 dsn, gboolean extended, guint32 ssn) {
+
+    /* store mapping only if analysis is enabled and mapping is not unlimited */
+    if (!mptcp_analyze_mappings || !len) {
+        return;
+    }
+
+    if (PINFO_FD_VISITED(pinfo)) {
+        return;
+    }
+
+    /* register SSN range described by the mapping into a subflow interval_tree */
+    mptcp_dss_mapping_t *mapping = NULL;
+    mapping = wmem_new0(wmem_file_scope(), mptcp_dss_mapping_t);
+
+    mapping->rawdsn  = dsn;
+    mapping->extended_dsn = extended;
+    mapping->frame = pinfo->fd->num;
+    mapping->ssn_low = ssn;
+    mapping->ssn_high = ssn + len - 1;
+
+    wmem_itree_insert(tcpd->fwd->mptcp_subflow->ssn2dsn_mappings,
+        mapping->ssn_low,
+        mapping->ssn_high,
+        mapping
+        );
+}
 
 /*
  * The TCP Extensions for Multipath Operation with Multiple Addresses
@@ -4449,8 +4478,11 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             }
             offset += 1;
 
-            /* optlen == 12 => SYN or SYN/ACK; optlen == 20 => ACK */
-            if (optlen == 12 || optlen == 20) {
+            /* optlen == 12 => SYN or SYN/ACK; optlen == 20 => ACK;
+             * optlen == 22 => ACK + data (v1 only);
+             * optlen == 24 => ACK + data + csum (v1 only)
+             */
+            if (optlen == 12 || optlen == 20 || optlen == 22 || optlen == 24) {
 
                 mph->mh_key = tvb_get_ntoh64(tvb,offset);
                 proto_tree_add_uint64(mptcp_tree, hf_tcp_option_mptcp_sender_key, tvb, offset, 8, mph->mh_key);
@@ -4468,9 +4500,10 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 proto_item_set_generated(item);
 
                 /* last ACK of 3WHS, repeats both keys */
-                if (optlen == 20) {
+                if (optlen >= 20) {
                     guint64 recv_key = tvb_get_ntoh64(tvb,offset);
                     proto_tree_add_uint64(mptcp_tree, hf_tcp_option_mptcp_recv_key, tvb, offset, 8, recv_key);
+                    offset += 8;
 
                     if(tcpd->rev->mptcp_subflow->meta
                         && (tcpd->rev->mptcp_subflow->meta->static_flags & MPTCP_META_HAS_KEY)) {
@@ -4482,6 +4515,26 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                     }
                     else {
                         mptcpd = get_or_create_mptcpd_from_key(tcpd, tcpd->rev, recv_key, mph->mh_capable_flags & MPTCP_CAPABLE_CRYPTO_MASK);
+                    }
+                }
+
+                /* MPTCP v1 ACK + data, contains data_len and optional checksum */
+                if (optlen >= 22) {
+                    proto_tree_add_item(mptcp_tree, hf_tcp_option_mptcp_data_lvl_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    mph->mh_dss_length = tvb_get_ntohs(tvb,offset);
+                    offset += 2;
+
+                    if (mph->mh_dss_length == 0) {
+                        expert_add_info(pinfo, mptcp_tree, &ei_mptcp_infinite_mapping);
+                    }
+
+                    /* when data len is present, this MP_CAPABLE also carries an implicit mapping ... */
+                    analyze_mapping(tcpd, pinfo, mph->mh_dss_length, tcpd->fwd->mptcp_subflow->meta->base_dsn + 1, TRUE, tcph->th_seq);
+
+                    /* ... with optional checksum */
+                    if (optlen == 24)
+                    {
+                        proto_tree_add_checksum(mptcp_tree, tvb, offset, hf_tcp_option_mptcp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
                     }
                 }
             }
@@ -4650,29 +4703,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                     /* ignore and continue */
                 }
 
-                /* if mapping analysis enabled and not a */
-                if(mptcp_analyze_mappings && mph->mh_dss_length)
-                {
-
-                    if (!PINFO_FD_VISITED(pinfo))
-                    {
-                        /* register SSN range described by the mapping into a subflow interval_tree */
-                        mptcp_dss_mapping_t *mapping = NULL;
-                        mapping = wmem_new0(wmem_file_scope(), mptcp_dss_mapping_t);
-
-                        mapping->rawdsn  = mph->mh_dss_rawdsn;
-                        mapping->extended_dsn = (mph->mh_dss_flags & MPTCP_DSS_FLAG_DATA_ACK_8BYTES);
-                        mapping->frame = pinfo->fd->num;
-                        mapping->ssn_low = mph->mh_dss_ssn;
-                        mapping->ssn_high = mph->mh_dss_ssn + mph->mh_dss_length-1;
-
-                        wmem_itree_insert(tcpd->fwd->mptcp_subflow->ssn2dsn_mappings,
-                            mph->mh_dss_ssn,
-                            mapping->ssn_high,
-                            mapping
-                            );
-                    }
-                }
+                analyze_mapping(tcpd, pinfo, mph->mh_dss_length, mph->mh_dss_rawdsn, mph->mh_dss_flags & MPTCP_DSS_FLAG_DATA_ACK_8BYTES, mph->mh_dss_ssn);
 
                 if ((int)optlen >= offset-start_offset+4)
                 {

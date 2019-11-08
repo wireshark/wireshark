@@ -13,7 +13,7 @@
 
 #include <glib.h>
 
-#include "epan/dissector_filters.h"
+#include "epan/conversation_filter.h"
 
 #include <QMenu>
 

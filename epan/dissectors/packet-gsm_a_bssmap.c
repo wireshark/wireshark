@@ -5042,7 +5042,7 @@ be_fe_source_cell_id(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_, gu
     curr_offset += dissect_s1ap_EUTRAN_CGI_PDU(new_tvb , pinfo, tree, NULL);
     /* Global eNB ID: Octets (m+1) - n contain the value part of the Global eNB ID IE defined 3GPP TS 36.413 for the source eNB. */
     new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-    curr_offset += dissect_s1ap_Global_ENB_ID_PDU(new_tvb, pinfo, tree, NULL);
+    dissect_s1ap_Global_ENB_ID_PDU(new_tvb, pinfo, tree, NULL);
 
     return(len);
 }

@@ -1,4 +1,4 @@
-/* dissector_filters.h
+/* conversation_filter.h
  * Routines for dissector-generated conversation filters for use as
  * display and color filters
  *
@@ -61,4 +61,4 @@ WS_DLL_PUBLIC GList *conv_filter_list;
 }
 #endif /* __cplusplus */
 
-#endif /* dissector_filters.h */
+#endif /* conversation_filter.h */

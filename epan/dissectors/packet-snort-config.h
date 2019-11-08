@@ -1,4 +1,4 @@
-/* snort-config.h
+/* packet-snort-config.h
  *
  * Copyright 2016, Martin Mathieson
  *
@@ -12,8 +12,8 @@
 
 #include <glib.h>
 
-#ifndef SNORT_CONFIG_H
-#define SNORT_CONFIG_H
+#ifndef __PACKET_SNORT_CONFIG_H__
+#define __PACKET_SNORT_CONFIG_H__
 
 #include "ws_attributes.h"
 

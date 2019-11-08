@@ -71,6 +71,7 @@ set(WIRESHARK_MODEL_HEADERS
 	models/cache_proxy_model.h
 	models/coloring_rules_delegate.h
 	models/coloring_rules_model.h
+	models/column_list_model.h
 	models/decode_as_delegate.h
 	models/decode_as_model.h
 	models/dissector_tables_model.h
@@ -79,6 +80,7 @@ set(WIRESHARK_MODEL_HEADERS
 	models/expert_info_proxy_model.h
 	models/export_objects_model.h
 	models/fileset_entry_model.h
+	models/filter_list_model.h
 	models/info_proxy_model.h
 	models/interface_sort_filter_model.h
 	models/interface_tree_cache_model.h
@@ -298,6 +300,7 @@ set(WIRESHARK_MODEL_SRCS
 	models/cache_proxy_model.cpp
 	models/coloring_rules_delegate.cpp
 	models/coloring_rules_model.cpp
+	models/column_list_model.cpp
 	models/decode_as_delegate.cpp
 	models/decode_as_model.cpp
 	models/dissector_tables_model.cpp
@@ -306,6 +309,7 @@ set(WIRESHARK_MODEL_SRCS
 	models/expert_info_proxy_model.cpp
 	models/export_objects_model.cpp
 	models/fileset_entry_model.cpp
+	models/filter_list_model.cpp
 	models/info_proxy_model.cpp
 	models/interface_sort_filter_model.cpp
 	models/interface_tree_cache_model.cpp

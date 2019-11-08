@@ -9,6 +9,8 @@
  *
  * MobileIPv6 support added by Tomislav Borosa <tomislav.borosa@siemens.hr>
  *
+ * Added support for new IPv6 Hop by Hop PMTU Option  <bob.hinden@gmail.com>
+ *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
@@ -23,7 +25,7 @@
 #include <epan/maxmind_db.h>
 #include <epan/prefs.h>
 #include <epan/conversation_table.h>
-#include <epan/dissector_filters.h>
+#include <epan/conversation_filter.h>
 #include <epan/reassemble.h>
 #include <epan/ipproto.h>
 #include <epan/etypes.h>
@@ -66,6 +68,7 @@ void proto_reg_handoff_ipv6(void);
 #define IP6OPT_PDM                      0x0F    /* 00 0 01111 =  15 */
 #define IP6OPT_EXP_1E                   0x1E    /* 00 0 11110 =  30 */
 #define IP6OPT_QUICKSTART               0x26    /* 00 1 00110 =  38 */
+#define IP6OPT_PMTU                     0x30    /* 00 1 10000 =  48 */
 #define IP6OPT_EXP_3E                   0x3E    /* 00 1 11110 =  62 */
 #define IP6OPT_EXP_5E                   0x5E    /* 01 0 11110 =  94 */
 #define IP6OPT_RPL                      0x63    /* 01 1 00011 =  99 */
@@ -158,6 +161,9 @@ static int hf_ipv6_opt_pad1                     = -1;
 static int hf_ipv6_opt_padn                     = -1;
 static int hf_ipv6_opt_tel                      = -1;
 static int hf_ipv6_opt_rtalert                  = -1;
+static int hf_ipv6_opt_pmtu_min                 = -1;
+static int hf_ipv6_opt_pmtu_rtn                 = -1;
+static int hf_ipv6_opt_pmtu_rtn_flag            = -1;
 static int hf_ipv6_opt_jumbo                    = -1;
 static int hf_ipv6_opt_calipso_doi              = -1;
 static int hf_ipv6_opt_calipso_cmpt_length      = -1;
@@ -552,6 +558,7 @@ static const value_string ipv6_opt_type_vals[] = {
     { IP6OPT_PDM,           "Performance and Diagnostic Metrics" },
     { IP6OPT_EXP_1E,        "Experimental (0x1E)"           },
     { IP6OPT_QUICKSTART,    "Quick-Start"                   },
+    { IP6OPT_PMTU,          "Path MTU Option"               },
     { IP6OPT_EXP_3E,        "Experimental (0x3E)"           },
     { IP6OPT_EXP_5E,        "Experimental (0x5E)"           },
     { IP6OPT_RPL,           "RPL Option"                    },
@@ -617,6 +624,7 @@ enum {
 static const gint _ipv6_opt_type_hdr[][2] = {
     { IP6OPT_TEL,           IPv6_OPT_HDR_DST },
     { IP6OPT_RTALERT,       IPv6_OPT_HDR_HBH },
+    { IP6OPT_PMTU,          IPv6_OPT_HDR_HBH },
     { IP6OPT_CALIPSO,       IPv6_OPT_HDR_HBH },
     { IP6OPT_SMF_DPD,       IPv6_OPT_HDR_HBH },
     { IP6OPT_PDM,           IPv6_OPT_HDR_DST },
@@ -1425,6 +1433,70 @@ dissect_opt_tel(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_
 }
 
 /*
+ * IPv6 Minimum Path MTU Hop by Hop Option
+ *
+
+    Option    Option    Option
+     Type    Data Len   Data
+   +--------+--------+--------+--------+---------+-------+-+
+   |BBCTTTTT|00000100|     Min-PMTU    |     Rtn-PMTU    |R|
+   +--------+--------+--------+--------+---------+-------+-+
+
+     Option Type:
+
+     BB     00   Skip over this option and continue processing.
+
+     C       1   Option data can change en route to the packet's final
+                 destination.
+
+     TTTTT 10000 Option Type assigned from IANA [IANA-HBH].
+
+     Length:  4  The size of the each value field in Option Data
+                 field supports Path MTU values from 0 to 65,535 octets.
+
+     Min-PMTU: n 16-bits.  The minimum PMTU in octets, reflecting the
+                 smallest link MTU that the packet experienced across
+                 the path.  This is called the Reported PMTU.  A value
+                 less than the IPv6 minimum link MTU [RFC8200]
+                 should be ignored.
+
+     Rtn-PMTU: n 15-bits.  The returned mimimum PMTU, carrying the 15
+                 most significant bits of the latest received Min-PMTU
+                 field.  The value zero means that no Reported MTU is
+                 being returned.
+
+     R        n  1-bit.  R-Flag.   Set by the source to signal that
+                 the destination should include the received
+                 Reported PMTU in Rtn-PMTU field.
+
+   [IANA-HBH]
+              "Destination Options and Hop-by-Hop Options",
+              <https://www.iana.org/assignments/ipv6-parameters/
+              ipv6-parameters.xhtml#ipv6-parameters-2>
+*/
+static gint
+dissect_opt_pmtu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
+                        struct opt_proto_item *opt_ti, guint8 opt_len)
+{
+    guint16 val;
+
+    if (opt_len != 4) {
+        expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
+                "PMTU Option: Invalid Length (%u bytes)", opt_len);
+    }
+
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_pmtu_min, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    val = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(opt_tree, hf_ipv6_opt_pmtu_rtn, tvb, offset, 2, val & 0xFFFE);
+    offset += 1;
+    proto_tree_add_boolean(opt_tree, hf_ipv6_opt_pmtu_rtn_flag, tvb, offset, 1, val & 0x0001);
+    offset += 1;
+
+    return offset;
+}
+
+/*
  * IPv6 Router Alert Option
  *
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1962,6 +2034,9 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
             break;
         case IP6OPT_RTALERT:
             offset = dissect_opt_rtalert(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            break;
+        case IP6OPT_PMTU:
+            offset = dissect_opt_pmtu(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_QUICKSTART:
             offset = dissect_opt_quickstart(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len, iph);
@@ -2831,6 +2906,21 @@ proto_register_ipv6(void)
             { "PadN", "ipv6.opt.padn",
                 FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x0,
                 "PadN Option", HFILL }
+        },
+        { &hf_ipv6_opt_pmtu_min,
+            { "Minimum Reported PMTU", "ipv6.opt.pmtu.min",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "The minimum reported PMTU in octets", HFILL }
+        },
+        { &hf_ipv6_opt_pmtu_rtn,
+            { "Return Minimum PMTU", "ipv6.opt.pmtu.rtn",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "The Return Min-PMTU in octets", HFILL }
+        },
+        { &hf_ipv6_opt_pmtu_rtn_flag,
+            { "Return Flag", "ipv6.opt.pmtu.r_flag",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Destination should include the received reported PMTU", HFILL }
         },
         { &hf_ipv6_opt_rtalert,
             { "Router Alert", "ipv6.opt.router_alert",
