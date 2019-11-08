@@ -7,11 +7,7 @@
 <!-- import the main stylesheet -->
 <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl"/>
 
-<!-- use graphics for admons (note, tip, ...)
-<xsl:param name="admon.graphics" select="1"/>
-<xsl:param name="admon.graphics.path">common_graphics/</xsl:param>
-<xsl:param name="admon.graphics.extension" select="'.svg'"/>
--->
+<xsl:param name="htmlhelp.window.geometry">[160,100,950,750]</xsl:param>
 
 <!--
   Tell the WebBrowser control to use the IE9 rendering engine if present so

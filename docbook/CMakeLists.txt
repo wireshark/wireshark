@@ -427,7 +427,7 @@ if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
 endif()
 
 if(WIN32 AND ASCIIDOCTOR_FOUND)
-	XML2HHP(user_guide wsug user-guide.xml)
+	XML2HHP(user_guide wsug "Wireshark User's Guide" user-guide.xml)
 	HHP2CHM(user-guide.hhp)
 	add_custom_target(
 		user_guide_chm
@@ -479,7 +479,7 @@ if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
 endif()
 
 if(WIN32 AND ASCIIDOCTOR_FOUND)
-	XML2HHP(developer_guide	wsdg developer-guide.xml)
+	XML2HHP(developer_guide	wsdg "Wireshark Developer's Guide" developer-guide.xml)
 	HHP2CHM(developer-guide.hhp)
 	add_custom_target(
 		developer_guide_chm
