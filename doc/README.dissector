@@ -97,6 +97,9 @@ PROTOSHORTNAME  An abbreviated name for the protocol; this is displayed
 PROTOABBREV     A name for the protocol for use in filter expressions;
                 it may contain only lower-case letters, digits, and hyphens,
                 underscores, and periods.
+LICENSE         The license this dissector is under. Please use a SPDX License
+                identifier.
+YEARS           The years the above license is valid for.
 FIELDNAME       The displayed name for the header field.
 FIELDABBREV     The abbreviated name for the header field; it may contain
                 only letters, digits, hyphens, underscores, and periods.
@@ -194,6 +197,16 @@ FIELDDESCR      A brief description of the field, or NULL. [Please do not use ""
 If, for example, PROTONAME is "Internet Bogosity Discovery Protocol",
 PROTOSHORTNAME would be "IBDP", and PROTOABBREV would be "ibdp". Try to
 conform with IANA names.
+
+1.2.1 Automatic substitution in code skeleton
+
+Instead of manual substitutions in the code skeleton, a tool to automate it can
+be found under the tools directory. The script is called tools/generate-dissector.py
+and takes all the needed options to generate a compilable dissector. Look at the
+above fields to know how to set them. Some assumptions have been made in the
+generation to shorten the list of required options. The script patches the
+CMakeLists.txt file adding the new dissector in the proper list, alphabetically
+sorted.
 
 1.3 The dissector and the data it receives.
 

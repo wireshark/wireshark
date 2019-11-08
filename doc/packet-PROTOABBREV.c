@@ -1,12 +1,12 @@
 /* packet-PROTOABBREV.c
  * Routines for PROTONAME dissection
- * Copyright 201x, YOUR_NAME <YOUR_EMAIL_ADDRESS>
+ * Copyright YEARS, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: LICENSE
  */
 
 /*
