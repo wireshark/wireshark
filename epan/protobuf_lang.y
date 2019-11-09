@@ -501,6 +501,12 @@ strLit: PT_STRLIT | PT_PROTO2 | PT_PROTO3
 
 DIAG_ON_BYACC
 
+int
+pbl_get_current_lineno(void* scanner)
+{
+    return protobuf_langget_lineno(scanner);
+}
+
 void
 protobuf_langerror(void* yyscanner, protobuf_lang_state_t *state, const char *msg)
 {
@@ -533,8 +539,22 @@ protobuf_langerrorv(void* yyscanner, protobuf_lang_state_t *state, const char *f
     g_free(msg);
 }
 
+void
+pbl_parser_error(protobuf_lang_state_t *state, const char *fmt, ...)
+{
+    char* msg;
+    void* scanner;
+    va_list ap;
+    va_start(ap, fmt);
+    msg = g_strdup_vprintf(fmt, ap);
+    scanner = state ? state->scanner : NULL;
+    protobuf_langerror(scanner, state, msg);
+    va_end(ap);
+    g_free(msg);
+}
+
 static void
-pbl_clear_state(protobuf_lang_state_t *state)
+pbl_clear_state(protobuf_lang_state_t *state, pbl_descriptor_pool_t* pool)
 {
     if (state == NULL) {
         return;
@@ -542,11 +562,16 @@ pbl_clear_state(protobuf_lang_state_t *state)
 
     state->pool = NULL;
     state->file = NULL;
+    state->scanner = NULL;
 
     if (state->lex_string_tokens) {
         g_slist_free_full(state->lex_string_tokens, g_free);
     }
     state->lex_string_tokens = NULL;
+
+    if (pool) {
+        pool->parser_state = NULL;
+    }
 }
 
 static void
@@ -555,14 +580,14 @@ pbl_reinit_state(protobuf_lang_state_t *state, pbl_descriptor_pool_t* pool, cons
     if (state == NULL) {
         return;
     }
+    pbl_clear_state(state, pool);
 
     state->pool = pool;
     state->file = (pbl_file_descriptor_t*) g_hash_table_lookup(pool->proto_files, filepath);
 
-    if (state->lex_string_tokens) {
-        g_slist_free_full(state->lex_string_tokens, g_free);
+    if (pool) {
+        pool->parser_state = state;
     }
-    state->lex_string_tokens = NULL;
 }
 
 int run_pbl_parser(pbl_descriptor_pool_t* pool, gboolean debug)
@@ -587,7 +612,7 @@ int run_pbl_parser(pbl_descriptor_pool_t* pool, gboolean debug)
         fp = ws_fopen(filepath, "r");
         if (fp == NULL) {
             protobuf_langerrorv(NULL, &state, "File does not exists!");
-            pbl_clear_state(&state);
+            pbl_clear_state(&state, pool);
             return -1;
         }
 
@@ -595,19 +620,20 @@ int run_pbl_parser(pbl_descriptor_pool_t* pool, gboolean debug)
         if (status != 0) {
             protobuf_langerrorv(NULL, &state, "Initialize Protocol Buffers Languange scanner failed!\n");
             fclose(fp);
-            pbl_clear_state(&state);
+            pbl_clear_state(&state, pool);
             return status;
         }
 
         /* associate the parser state with the lexical analyzer state */
         protobuf_langset_extra(&state, scanner);
+        state.scanner = scanner;
 
         protobuf_langrestart(fp, scanner);
         status = protobuf_langparse(scanner, &state);
         fclose(fp);
         if (status != 0) {
             /* grammar errors should have been reported during parsing */
-            pbl_clear_state(&state);
+            pbl_clear_state(&state, pool);
             return status;
         }
 

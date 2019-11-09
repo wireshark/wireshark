@@ -17,6 +17,12 @@
 #include "protobuf_lang_tree.h"
 #include "protobuf-helper.h" /* only for PROTOBUF_TYPE_XXX enumeration */
 
+extern int
+pbl_get_current_lineno(void* scanner);
+
+extern void
+pbl_parser_error(protobuf_lang_state_t *state, const char *fmt, ...);
+
 /**
  Reinitialize the protocol buffers pool according to proto files directories.
  @param ppool The output descriptor_pool will be created. If *pool is not NULL, it will free it first.
@@ -123,7 +129,13 @@ pbl_add_proto_file_to_be_parsed(pbl_descriptor_pool_t* pool, const char* filepat
     }
 
     if (path == NULL) {
-        pool->error_cb("Protobuf: file %s does not exist!\n", filepath);
+        if (pool->parser_state) {
+            /* only happened during parsing an 'import' line of a .proto file */
+            pbl_parser_error(pool->parser_state, "file [%s] does not exist!\n", filepath);
+        } else {
+            /* normally happened during initializing a pool by adding files that need be loaded */
+            pool->error_cb("Protobuf: file [%s] does not exist!\n", filepath);
+        }
         return FALSE;
     }
 
@@ -561,6 +573,8 @@ pbl_init_node(pbl_node_t* node, pbl_file_descriptor_t* file, pbl_node_type_t nod
     node->nodetype = nodetype;
     node->name = g_strdup(name);
     node->file = file;
+    node->lineno = (file && file->pool && file->pool->parser_state && file->pool->parser_state->scanner) ?
+                    pbl_get_current_lineno(file->pool->parser_state->scanner) : -1;
 }
 
 /* create a normal node */
@@ -687,16 +701,16 @@ pbl_node_t* pbl_create_option_node(pbl_file_descriptor_t* file,
 pbl_node_t*
 pbl_add_child(pbl_node_t* parent, pbl_node_t* child)
 {
-    pbl_node_t* map_msg = NULL;
+    pbl_node_t* node = NULL;
     if (child == NULL || parent == NULL) {
         return parent;
     }
 
     /* add a message node for mapField first */
     if (child->nodetype == PBL_MAP_FIELD) {
-        map_msg = pbl_create_node(child->file, PBL_MESSAGE, ((pbl_field_descriptor_t*)child)->type_name);
-        pbl_merge_children(map_msg, child);
-        pbl_add_child(parent, map_msg);
+        node = pbl_create_node(child->file, PBL_MESSAGE, ((pbl_field_descriptor_t*)child)->type_name);
+        pbl_merge_children(node, child);
+        pbl_add_child(parent, node);
     }
 
     child->parent = parent;
@@ -709,11 +723,12 @@ pbl_add_child(pbl_node_t* parent, pbl_node_t* child)
         parent->children_by_name = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
     }
 
-    if (g_hash_table_lookup(parent->children_by_name, child->name) && child->file && parent->file
+    node = (pbl_node_t*) g_hash_table_lookup(parent->children_by_name, child->name);
+    if (node && child->file && parent->file
         && child->file->pool && child->file->pool->error_cb) {
         child->file->pool->error_cb(
-            "Protobuf: Warning: \"%s\" of \"%s\" is already defined in file \"%s\".\n",
-            child->name, child->file->filename, parent->file->filename);
+            "Protobuf: Warning: \"%s\" of [%s:%d] is already defined in file [%s:%d].\n",
+            child->name, child->file->filename, child->lineno, node->file->filename, node->lineno);
     }
 
     g_hash_table_insert(parent->children_by_name, child->name, child);

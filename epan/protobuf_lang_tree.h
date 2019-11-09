@@ -49,6 +49,7 @@ typedef struct {
     GHashTable* packages; /* all packages parsed from proto files */
     GHashTable* proto_files; /* all proto files that are parsed or to be parsed */
     GSList* proto_files_to_be_parsed; /* files is to be parsed */
+    struct _protobuf_lang_state_t *parser_state; /* current parser state */
 } pbl_descriptor_pool_t;
 
 /* file descriptor */
@@ -68,6 +69,7 @@ typedef struct pbl_node_t{
     GSList* children; /* child is a pbl_node_t */
     GHashTable* children_by_name; /* take children names as keys */
     pbl_file_descriptor_t* file;
+    int lineno;
 } pbl_node_t;
 
 /* like google::protobuf::MethodDescriptor of protobuf cpp library */
@@ -116,10 +118,11 @@ typedef struct {
 } pbl_option_descriptor_t;
 
 /* parser state */
-typedef struct {
+typedef struct _protobuf_lang_state_t {
     pbl_descriptor_pool_t* pool; /* pool will keep the parsing result */
     pbl_file_descriptor_t* file; /* info of current parsing file */
     GSList* lex_string_tokens;
+    void* scanner;
 } protobuf_lang_state_t;
 
 /* Store chars created by strdup or g_strconcat into protobuf_lang_state_t temporarily,
