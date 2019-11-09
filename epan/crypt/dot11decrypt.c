@@ -2274,12 +2274,12 @@ Dot11DecryptRsnaKdfX(
     memcpy(R + offset, &len_le, 2);
     offset += 2;
 
-    for (i = 0; i < (x + 255) / 256; i++)
+    for (i = 0; i < (x + 255) / (hash_len * 8) ; i++)
     {
         guint16 count_le = GUINT16_TO_LE(i + 1);
         memcpy(R, &count_le, 2);
 
-        if (ws_hmac_buffer(hash_algo, &output[hash_len * i], R, offset, pmk, 32)) {
+        if (ws_hmac_buffer(hash_algo, &output[hash_len * i], R, offset, pmk, hash_len)) {
             return;
         }
     }
