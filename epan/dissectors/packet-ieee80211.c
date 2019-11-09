@@ -13369,6 +13369,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
       if (tvb_get_ntoh24(tvb, offset) == OUI_WPAWME)
       {
         proto_tree_add_item(wpa_mcs_tree, hf_ieee80211_wfa_ie_wpa_mcs_wfa_type, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
+        save_proto_data_value(pinfo, tvb_get_guint8(tvb, offset + 3), GROUP_CIPHER_KEY);
       } else {
         proto_tree_add_item(wpa_mcs_tree, hf_ieee80211_wfa_ie_wpa_mcs_type, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
       }
@@ -13392,6 +13393,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
         {
           proto_tree_add_item(wpa_sub_ucs_tree, hf_ieee80211_wfa_ie_wpa_ucs_wfa_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
           proto_item_append_text(wpa_ucs_item, " %s", wpa_ucs_return(tvb_get_ntohl(tvb, offset)));
+          save_proto_data_value(pinfo, tvb_get_guint8(tvb, offset + 3), CIPHER_KEY);
         } else {
           proto_tree_add_item(wpa_sub_ucs_tree, hf_ieee80211_wfa_ie_wpa_ucs_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
         }
@@ -24952,7 +24954,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
     gboolean    can_decrypt = FALSE;
     proto_tree *wep_tree    = NULL;
     guint32     iv;
-    guint8      key, keybyte;
+    guint8      wep_key, keybyte;
     DOT11DECRYPT_KEY_ITEM  used_key;
 
     if (len == reported_len) {
@@ -24961,7 +24963,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     keybyte = tvb_get_guint8(tvb, hdr_len + 3);
-    key = KEY_OCTET_WEP_KEY(keybyte);
+    wep_key = KEY_OCTET_WEP_KEY(keybyte);
     if ((keybyte & KEY_EXTIV) && (len >= EXTIV_LEN)) {
       /* Extended IV; this frame is likely encrypted with TKIP or CCMP */
       if (tree) {
@@ -25002,7 +25004,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
               EXTIV_LEN, out_buff);
         }
 
-        proto_tree_add_uint(wep_tree, hf_ieee80211_wep_key, tvb, hdr_len + 3, 1, key);
+        proto_tree_add_uint(wep_tree, hf_ieee80211_wep_key, tvb, hdr_len + 3, 1, wep_key);
       }
 
       /* Subtract out the length of the IV. */
@@ -25011,6 +25013,9 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
       ivlen         = EXTIV_LEN;
       /* It is unknown whether this is TKIP or CCMP, so let's not even try to
        * parse TKIP Michael MIC+ICV or CCMP MIC. */
+
+      const guint8 *key = NULL;
+      int key_len;
 
       /* checking for the trailer                            */
       if (next_tvb!=NULL) {
@@ -25032,10 +25037,10 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           can_decrypt   = TRUE;
 
           /* Add Key information to packet */
-          bytes_to_hexstr(out_buff, used_key.KeyData.Wpa.Ptk+32, DOT11DECRYPT_TK_LEN); /* TK is stored in PTK at offset 32 bytes and 16 bytes long */
-          out_buff[2*DOT11DECRYPT_TK_LEN] = '\0';
-
           if (!tvb_get_bits8(tvb, 39, 1)) { /* RA is unicast, encrypted with pairwise key */
+            key_len = Dot11DecryptGetTK(&used_key, &key);
+            bytes_to_hexstr(out_buff, key, key_len);
+            out_buff[2 * key_len] = '\0';
             ti = proto_tree_add_string(wep_tree, hf_ieee80211_fc_analysis_tk, tvb, 0, 0, out_buff);
             proto_item_set_generated(ti);
 
@@ -25046,7 +25051,10 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
             proto_item_set_generated(ti);
 
           } else { /* Encrypted with Group Key */
-            ti = proto_tree_add_string(wep_tree, hf_ieee80211_fc_analysis_gtk, tvb, 0, 0, out_buff); /* GTK is stored in PTK at offset 32 bytes and 16 bytes long */
+            key_len = Dot11DecryptGetGTK(&used_key, &key);
+            bytes_to_hexstr(out_buff, key, key_len);
+            out_buff[2 * key_len] = '\0';
+            ti = proto_tree_add_string(wep_tree, hf_ieee80211_fc_analysis_gtk, tvb, 0, 0, out_buff);
             proto_item_set_generated(ti);
           }
         }
@@ -25077,7 +25085,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         }
       }
       if (tree)
-        proto_tree_add_uint(wep_tree, hf_ieee80211_wep_key, tvb, hdr_len + 3, 1, key);
+        proto_tree_add_uint(wep_tree, hf_ieee80211_wep_key, tvb, hdr_len + 3, 1, wep_key);
 
       /* Subtract out the length of the IV. */
       len          -= 4;
@@ -25989,13 +25997,16 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
           }
         }
         /* Also add the PTK used to to decrypt and validate the keydata. */
-        bytes_to_hexstr(out_buff, eapol->used_key.KeyData.Wpa.Ptk, 16); /* KCK is stored in PTK at offset 0 */
-        out_buff[2*16] = '\0';
+        const guint8 *key = NULL;
+        int len = Dot11DecryptGetKCK(&eapol->used_key, &key);
+        bytes_to_hexstr(out_buff, key, len);
+        out_buff[2 * len] = '\0';
         ti = proto_tree_add_string(keydes_tree, hf_ieee80211_fc_analysis_kck, tvb, 0, 0, out_buff);
         proto_item_set_generated(ti);
 
-        bytes_to_hexstr(out_buff, eapol->used_key.KeyData.Wpa.Ptk+16, 16); /* KEK is stored in PTK at offset 16 */
-        out_buff[2*16] = '\0';
+        len = Dot11DecryptGetKEK(&eapol->used_key, &key);
+        bytes_to_hexstr(out_buff, key, len);
+        out_buff[2 * len] = '\0';
         ti = proto_tree_add_string(keydes_tree, hf_ieee80211_fc_analysis_kek, tvb, 0, 0, out_buff);
         proto_item_set_generated(ti);
       }

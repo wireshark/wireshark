@@ -36,7 +36,7 @@
 
 /*	Decryption algorithms fields size definition (bytes)		*/
 #define	DOT11DECRYPT_WPA_NONCE_LEN		         32
-#define	DOT11DECRYPT_WPA_PTK_LEN			 64	/* TKIP uses 48 bytes, CCMP uses 64 bytes	*/
+#define	DOT11DECRYPT_WPA_PTK_MAX_LEN			 88	/* TKIP 48, CCMP 64, GCMP-256 88 bytes */
 #define	DOT11DECRYPT_WPA_MICKEY_MAX_LEN			 24
 
 #define	DOT11DECRYPT_WEP_128_KEY_LEN	         16	/* 128 bits	*/
@@ -121,7 +121,9 @@ typedef struct _DOT11DECRYPT_SEC_ASSOCIATION {
 		/* the 2nd packet of the 4W handshake			*/
 		INT akm;
 		INT cipher;
-		UCHAR ptk[DOT11DECRYPT_WPA_PTK_LEN];		/* session key used in decryption algorithm	*/
+		INT tmp_group_cipher; /* Keep between HS msg 2 and 3 */
+		UCHAR ptk[DOT11DECRYPT_WPA_PTK_MAX_LEN]; /* session key used in decryption algorithm */
+	    INT ptk_len;
 	} wpa;
 
 
@@ -313,6 +315,26 @@ extern INT Dot11DecryptScanTdlsForKeys(
     const guint8 *data,
     const guint tot_len)
 	;
+
+/**
+ * These are helper functions to retrieve KCK, KEK, TK portion of PTK
+ * for a certain "key"
+ * @param key [IN] Pointer to a key structure containing the key retrieved
+ * from functions Dot11DecryptDecryptPacket, Dot11DecryptKeydata
+ * @param kck [OUT] Pointer to the KCK/KEK/TK portion of PTK.
+ * @return length in bytes of KCK/KEK/TK
+ */
+int
+Dot11DecryptGetKCK(const PDOT11DECRYPT_KEY_ITEM key, const guint8 **kck);
+
+int
+Dot11DecryptGetKEK(const PDOT11DECRYPT_KEY_ITEM key, const guint8 **kek);
+
+int
+Dot11DecryptGetTK(const PDOT11DECRYPT_KEY_ITEM key, const guint8 **tk);
+
+int
+Dot11DecryptGetGTK(const PDOT11DECRYPT_KEY_ITEM key, const guint8 **gtk);
 
 /**
  * It sets a new keys collection to use during packet processing.
