@@ -188,6 +188,14 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LACP");
     col_set_str(pinfo->cinfo, COL_INFO, "Link Aggregation Control Protocol");
 
+    /* FIXME
+     * Validate that the destination MAC address is one of the following
+     * (IEEE 802.1AX-2014 6.2.11.2):
+     * 01-80-C2-00-00-00: Nearest Customer Bridge group address
+     * 01-80-C2-00-00-02: IEEE 802.3 Slow_Protocols_Mulitcast group address
+     * 01-80-C2-00-00-03: Nearest non-TPMR Bridge group address
+     */
+
     /* Add LACP Heading - Note: 1 byte for slowprotocol has been consumed already */
     lacp_item = proto_tree_add_protocol_format(tree, proto_lacp, tvb,
                                                  0, -1, "Link Aggregation Control Protocol");
