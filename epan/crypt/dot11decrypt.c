@@ -237,7 +237,7 @@ static const UCHAR * Dot11DecryptGetBssidAddress(
 static void
 Dot11DecryptDerivePtk(
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    const UCHAR pmk[32],
+    const UCHAR *pmk,
     const UCHAR snonce[32],
     int key_version,
     int akm,
@@ -246,7 +246,7 @@ Dot11DecryptDerivePtk(
 static void
 Dot11DecryptRsnaPrfX(
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    const UCHAR pmk[32],
+    const UCHAR *pmk,
     const UCHAR snonce[32],
     const INT x,        /*      for TKIP 512, for CCMP 384      */
     UCHAR *ptk,
@@ -255,7 +255,7 @@ Dot11DecryptRsnaPrfX(
 static void
 Dot11DecryptRsnaKdfX(
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    const UCHAR pmk[32],
+    const UCHAR *pmk,
     const UCHAR snonce[32],
     const INT x,
     UCHAR *ptk,
@@ -304,7 +304,7 @@ const guint8 broadcast_mac[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
 typedef void (*DOT11DECRYPT_PTK_DERIVE_FUNC)(
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    const UCHAR pmk[32],
+    const UCHAR *pmk,
     const UCHAR snonce[32],
     const INT x,
     UCHAR *ptk,
@@ -966,6 +966,7 @@ INT Dot11DecryptSetKeys(
             if (keys[i].KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PWD) {
                 DEBUG_PRINT_LINE("Set a WPA-PWD key", DEBUG_LEVEL_4);
                 Dot11DecryptRsnaPwd2Psk(keys[i].UserPwd.Passphrase, keys[i].UserPwd.Ssid, keys[i].UserPwd.SsidLen, keys[i].KeyData.Wpa.Psk);
+                keys[i].KeyData.Wpa.PskLen = DOT11DECRYPT_WPA_PWD_PSK_LEN;
             }
 #ifdef DOT11DECRYPT_DEBUG
             else if (keys[i].KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PMK) {
@@ -2116,7 +2117,7 @@ Dot11DecryptGetDeriveAlgoFromAkm(int akm)
 static void
 Dot11DecryptDerivePtk(
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    const UCHAR pmk[32],
+    const UCHAR *pmk,
     const UCHAR snonce[32],
     int key_version,
     int akm,
@@ -2162,7 +2163,7 @@ Dot11DecryptDerivePtk(
 static void
 Dot11DecryptRsnaPrfX(
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    const UCHAR pmk[32],
+    const UCHAR *pmk,
     const UCHAR snonce[32],
     const INT x,        /*      for TKIP 512, for CCMP 384 */
     UCHAR *ptk,
@@ -2220,7 +2221,7 @@ Dot11DecryptRsnaPrfX(
 static void
 Dot11DecryptRsnaKdfX(
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    const UCHAR pmk[32],
+    const UCHAR *pmk,
     const UCHAR snonce[32],
     const INT x,
     UCHAR *ptk,
@@ -2350,7 +2351,7 @@ Dot11DecryptRsnaPwd2Psk(
     Dot11DecryptRsnaPwd2PskStep(pp_ba->data, pp_ba->len, ssid, ssidLength, 4096, 1, m_output);
     Dot11DecryptRsnaPwd2PskStep(pp_ba->data, pp_ba->len, ssid, ssidLength, 4096, 2, &m_output[20]);
 
-    memcpy(output, m_output, DOT11DECRYPT_WPA_PSK_LEN);
+    memcpy(output, m_output, DOT11DECRYPT_WPA_PWD_PSK_LEN);
     g_byte_array_free(pp_ba, TRUE);
 
     return 0;
@@ -2513,7 +2514,8 @@ parse_key_string(gchar* input_string, guint8 key_type)
         res = hex_str_to_bytes(input_string, key_ba, FALSE);
 
         /* Two tokens means that the user should have entered a WPA-BIN key ... */
-        if(!res || ((key_ba->len) != WPA_PSK_KEY_SIZE))
+        if(!res || (key_ba->len != DOT11DECRYPT_WPA_PWD_PSK_LEN &&
+                     key_ba->len != DOT11DECRYPT_WPA_PMK_MAX_LEN))
         {
             g_byte_array_free(key_ba, TRUE);
 

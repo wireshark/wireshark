@@ -25045,8 +25045,8 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
             proto_item_set_generated(ti);
 
             /* Also add the PMK used to to decrypt the packet. (PMK==PSK) */
-            bytes_to_hexstr(out_buff, used_key.KeyData.Wpa.Psk, DOT11DECRYPT_WPA_PSK_LEN); /* 32 bytes */
-            out_buff[2*DOT11DECRYPT_WPA_PSK_LEN] = '\0';
+            bytes_to_hexstr(out_buff, used_key.KeyData.Wpa.Psk, used_key.KeyData.Wpa.PskLen);
+            out_buff[2*used_key.KeyData.Wpa.PskLen] = '\0';
             ti = proto_tree_add_string(wep_tree, hf_ieee80211_fc_analysis_pmk, tvb, 0, 0, out_buff);
             proto_item_set_generated(ti);
 
@@ -26155,9 +26155,10 @@ set_dot11decrypt_keys(void)
         hex_str_to_bytes(dk->key->str, bytes, FALSE);
 
         /* XXX - Pass the correct array of bytes... */
-        if (bytes->len <= DOT11DECRYPT_WPA_PSK_LEN) {
+        if (bytes->len <= DOT11DECRYPT_WPA_PWD_PSK_LEN ||
+            bytes->len == DOT11DECRYPT_WPA_PMK_MAX_LEN) {
           memcpy(key.KeyData.Wpa.Psk, bytes->data, bytes->len);
-
+          key.KeyData.Wpa.PskLen = bytes->len;
           keys->Keys[keys->nKeys] = key;
           keys->nKeys += 1;
         }
