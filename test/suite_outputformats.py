@@ -61,6 +61,10 @@ class case_outputformats(subprocesstest.SubprocessTestCase):
         '''Decode some captures into ek'''
         check_outputformat("ek", expected="dhcp.ek", multiline=True)
 
+    def test_outputformat_ek_raw(self, check_outputformat):
+        '''Decode some captures into ek, with raw data'''
+        check_outputformat("ek", expected="dhcp-raw.ek", multiline=True, extra_args=['-x'])
+
     def test_outputformat_json_select_field(self, check_outputformat):
         '''Checks that the -e option works with -Tjson.'''
         check_outputformat("json", extra_args=['-eframe.number', '-c1'], expected=[
