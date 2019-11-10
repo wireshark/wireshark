@@ -9752,6 +9752,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation type="unfinished">Помилка</translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation type="unfinished"></translation>
     </message>

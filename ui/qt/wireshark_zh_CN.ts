@@ -9829,6 +9829,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation type="unfinished">错误</translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>保存正向流 CSV</translation>
     </message>

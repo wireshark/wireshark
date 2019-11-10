@@ -9852,6 +9852,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Puoi salvare l&apos;audio solo con codifica PCM u-law o A-law </translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation type="unfinished">Errore</translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>Salva CSV del flusso diretto</translation>
     </message>

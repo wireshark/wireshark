@@ -9837,6 +9837,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>PCM u-law か A-law エンコーディングのみ保存できます</translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation type="unfinished">エラー</translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>順方向ストリームをCSVで保存</translation>
     </message>

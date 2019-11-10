@@ -9871,6 +9871,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation type="unfinished">Ошибка</translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>Сохранить прямой поток CSV</translation>
     </message>

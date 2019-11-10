@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2019-11-02)
+# (last updated 2019-11-10)
 
 0	Reserved
 1	NxNetworks
@@ -12049,7 +12049,7 @@
 12179	Alacris Inc.
 12180	ALI Technologies Inc
 12181	Allegheny Energy Global Markets
-12182	Astrium (UK)
+12182	Airbus Space and Defence	# formerly 'Astrium (UK)'
 12183	Baldwin Hackett & Meeks, Inc.
 12184	Bamsco
 12185	Ben Nederland BV
@@ -24740,7 +24740,7 @@
 24895	Medifacts International Inc.
 24896	Microdental Laboratories
 24897	Indel Industria Eletronica Ltda
-24898	d&b audiotechnik GmbH
+24898	d&b audiotechnik GmbH & Co. KG
 24899	Agama Technologies AB
 24900	Aurora Networks (GoBackTV)
 24901	Future Infonet
@@ -47634,7 +47634,7 @@
 47813	Luetze Transportation GmbH
 47814	ChinaUnicom
 47815	Stora Enso Skog AB
-47816	Joseph Workstation
+47816	Joseph Studio
 47817	HAWE Hydraulik SE
 47818	Salzburg AG
 47819	NTT DATA Italia
@@ -54163,7 +54163,7 @@
 54354	The Home Depot Mexico
 54355	Badge Inc.
 54356	Shandong Huachentel Information Technology Co., Ltd.
-54357	Suma Technology Co.，Ltd.
+54357	Suma Technology Co., Ltd.
 54358	TESCOM corp.
 54359	Hillsboro School District
 54360	PPMnet AG
@@ -54635,3 +54635,29 @@
 54826	Cayonyx, LLC
 54827	Noblesse
 54828	KCON IT Consulting
+54829	Realia Technologies, S.L.
+54830	Podiatry Associates of Lake County Inc.
+54831	SIFULAN Malaysian Access Federation
+54832	TAISYS Technologies Co., Ltd.
+54833	Kennedy Baptist College
+54834	Zentera Systems, Inc.
+54835	PocoDicom
+54836	Sterling Endeavours Ltd
+54837	Green Peak Innovations
+54838	Treasury Intelligence Solutions GmbH
+54839	Iridium Satellite LLC
+54840	GLOBAL POWER DESIGN INC.
+54841	GoGet AB
+54842	mcraindrop
+54843	Betriebszentrum IT-SysBw
+54844	JABETTO FOR ESDM
+54845	Universitätsklinikum Augsburg
+54846	Gateshead Health NHS Foundation Trust
+54847	POWER CONVERTER TECH
+54848	Amzetta Technologies LLC
+54849	Loadbalancer.org
+54850	Teradyne, Inc
+54851	Nuts foundation
+54852	KRYPTON Polska Sp. z o.o.
+54853	Cypher Strategic
+54854	Simplifia

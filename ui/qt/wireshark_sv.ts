@@ -9830,6 +9830,10 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation type="unfinished">Fel</translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>Spara framåtströms-CSV</translation>
     </message>
