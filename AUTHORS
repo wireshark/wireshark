@@ -3720,6 +3720,12 @@ Connor Newton   <c.newton[AT]samsung.com> {
 	Wi-Fi Alliance Neighbor Awareness Networking (NAN) dissector
 }
 
+Huang Qiangxiong        <qiangxiong.huang[AT]qq.com> {
+	Protobuf dissector
+	gRPC dissector
+	HTTP2 dissector: add streaming mode reassembly and dissecting DATA according to content-type features.
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
@@ -4253,8 +4259,8 @@ Hiroaki KAWAI		<hiroaki.kawai[AT]gmail.com>
 Hiroshi Ioka		<hirochachacha[AT]gmail.com>
 Hitoshi Irino		<irino[AT]sfc.wide.ad.jp>
 Holger Hans Peter Freyther <holger[AT]moiji-mobile.com>
-Huang Qiangxiong	<qiangxiong.huang[AT]qq.com>
 IWASE Yusuke		<iwase.yusuke0[AT]gmail.com>
+Iain R. Learmonth	<irl[AT]fsfe.org>
 Ian Chard		<ian[AT]chard.org>
 Ido Schimmel		<idosch[AT]mellanox.com>
 Ignacio Martínez	<ignacio.martinez.rivera[AT]gmail.com>
@@ -4511,6 +4517,8 @@ Osman Sakalla		<osman.sakalla[AT]ericsson.com>
 Owen Williams		<williams.owen[AT]gmail.com>
 PHO			<pho[AT]cielonegro.org>
 Pantar Ana		<ana.pantar[AT]gmail.com>
+Paolo Abeni		<pabeni[AT]redhat.com>
+Paolo Abeni		<paolo.abeni[AT]gmail.com>
 Parav Pandit		<paravpandit[AT]yahoo.com>
 Pascal Artho		<pascalartho[AT]gmail.com>
 Pascal Quantin		<pascal[AT]wireshark.org>

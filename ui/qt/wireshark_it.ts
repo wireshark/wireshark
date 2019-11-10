@@ -1636,6 +1636,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>ColoringRulesModel</name>
     <message>
+        <source>New coloring rule</source>
+        <translation type="unfinished">Nuova regola di colorazione</translation>
+    </message>
+    <message>
         <source>Unable to save coloring rules: %1</source>
         <translation>Impossibile salvare le regole di colorazione: %1</translation>
     </message>
@@ -1996,6 +2000,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Applica filtro alla visualizzazione.</translation>
     </message>
     <message>
+        <source>Left align buttons</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter Expression</source>
+        <translation type="unfinished">Espressione del filtro di visualizzazione</translation>
+    </message>
+    <message>
         <source>Apply a read filter %1</source>
         <translation>Applica un filtro di lettura %1</translation>
     </message>
@@ -2016,8 +2028,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Gestisci filtri di visualizzazione</translation>
     </message>
     <message>
+        <source>Filter Button Preferences...</source>
+        <translation type="unfinished">Preferenze pulsante di filtro...</translation>
+    </message>
+    <message>
         <source>Manage Filter Expressions</source>
-        <translation>Gestisci espressioni di filtro</translation>
+        <translation type="vanished">Gestisci espressioni di filtro</translation>
     </message>
 </context>
 <context>
@@ -2197,7 +2213,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Only enabled protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Solo i protocolli abilitati</translation>
+    </message>
+    <message>
+        <source>Only disabled protocols</source>
+        <translation>Solo i protocolli disabilitati</translation>
     </message>
     <message>
         <source>any protocol</source>
@@ -2210,10 +2230,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>heuristic protocols</source>
         <translation>protocolli euristici</translation>
-    </message>
-    <message>
-        <source>Only disabled protocols</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2679,14 +2695,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Finestra</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation type="vanished">Nome</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">Filtro</translation>
-    </message>
-    <message>
         <source>Create a new filter.</source>
         <translation>Crea un nuovo filtro.</translation>
     </message>
@@ -2711,10 +2719,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Open </source>
         <translation>Apri </translation>
-    </message>
-    <message>
-        <source>New filter</source>
-        <translation type="vanished">Nuovo filtro</translation>
     </message>
     <message>
         <source>New capture filter</source>
@@ -2797,11 +2801,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>FilterListModel</name>
     <message>
         <source>Filter Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome filtro</translation>
     </message>
     <message>
         <source>Filter Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Espressione del filtro</translation>
     </message>
 </context>
 <context>
@@ -2958,11 +2962,19 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Extcap path</source>
-        <translation>Percorso Extcap</translation>
+        <translation type="vanished">Percorso Extcap</translation>
     </message>
     <message>
         <source>Extcap Plugins search path</source>
         <translation>Percorso di ricerca plugin Extcap</translation>
+    </message>
+    <message>
+        <source>Personal Extcap path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global Extcap path</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
@@ -3781,6 +3793,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Wireshark I/O Graphs: %1</source>
         <translation>Grafici di I/O di Wireshark: %1</translation>
+    </message>
+    <message>
+        <source>Filtered packets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All packets</source>
@@ -7021,6 +7037,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Riepilogo HCI Bluetooth</translation>
     </message>
     <message>
+        <source>Display Filter &amp;Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No GSM statistics registered</source>
         <translation>Nessuna statistica GSM registrata</translation>
     </message>
@@ -7438,11 +7462,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>&amp;Expression…</source>
-        <translation>&amp;Espressione...</translation>
+        <translation type="vanished">&amp;Espressione...</translation>
     </message>
     <message>
         <source>Expression…</source>
-        <translation>Espressione...</translation>
+        <translation type="vanished">Espressione...</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -9207,7 +9231,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>New coloring rule</source>
-        <translation>Nuova regola di colorazione</translation>
+        <translation type="vanished">Nuova regola di colorazione</translation>
     </message>
     <message>
         <source>Conversation</source>
@@ -10311,6 +10335,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Can save audio with PCM u-law or A-law encoding only</source>
         <translation>Puoi salvare audio solo con codifica u-law e A-law</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Errore</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>

@@ -1643,6 +1643,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>ColoringRulesModel</name>
     <message>
+        <source>New coloring rule</source>
+        <translation type="unfinished">Новое цветовое правило</translation>
+    </message>
+    <message>
         <source>Unable to save coloring rules: %1</source>
         <translation>Невозможно сохранить цветовые правила: %1</translation>
     </message>
@@ -2003,6 +2007,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Left align buttons</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter Expression</source>
+        <translation type="unfinished">Выражение Дисплейного Фильтра</translation>
+    </message>
+    <message>
         <source>Apply a read filter %1</source>
         <translation>Применить фильтр чтения %1</translation>
     </message>
@@ -2023,8 +2035,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Управлять Дисплейными Фильтрами</translation>
     </message>
     <message>
+        <source>Filter Button Preferences...</source>
+        <translation type="unfinished">Параметры Кнопки Фильтра…</translation>
+    </message>
+    <message>
         <source>Manage Filter Expressions</source>
-        <translation>Управлять Выражениями Фильтра</translation>
+        <translation type="vanished">Управлять Выражениями Фильтра</translation>
     </message>
 </context>
 <context>
@@ -2207,6 +2223,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Only disabled protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>any protocol</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2216,10 +2236,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>heuristic protocols</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Only disabled protocols</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2687,14 +2703,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Диалог</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation type="vanished">Имя</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">Фильтр</translation>
-    </message>
-    <message>
         <source>Create a new filter.</source>
         <translation>Создать новый фильтр.</translation>
     </message>
@@ -2719,10 +2727,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Open </source>
         <translation>Открыть</translation>
-    </message>
-    <message>
-        <source>New filter</source>
-        <translation type="vanished">Новый фильтр</translation>
     </message>
     <message>
         <source>New capture filter</source>
@@ -2966,11 +2970,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Extcap path</source>
-        <translation>Путь Extcap</translation>
+        <translation type="vanished">Путь Extcap</translation>
     </message>
     <message>
         <source>Extcap Plugins search path</source>
         <translation>Путь поиска Плагинов Extcap</translation>
+    </message>
+    <message>
+        <source>Personal Extcap path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global Extcap path</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
@@ -3795,6 +3807,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filtered packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7040,6 +7056,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Общие сведения о Bluetooth HCI</translation>
     </message>
     <message>
+        <source>Display Filter &amp;Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No GSM statistics registered</source>
         <translation>Нет зарегистрированной статистики GSM</translation>
     </message>
@@ -7457,11 +7481,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Expression…</source>
-        <translation>&amp;Выражение...</translation>
+        <translation type="vanished">&amp;Выражение...</translation>
     </message>
     <message>
         <source>Expression…</source>
-        <translation>Выражение...</translation>
+        <translation type="vanished">Выражение...</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -9226,7 +9250,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>New coloring rule</source>
-        <translation>Новое цветовое правило</translation>
+        <translation type="vanished">Новое цветовое правило</translation>
     </message>
     <message>
         <source>Conversation</source>
@@ -10330,6 +10354,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Can save audio with PCM u-law or A-law encoding only</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Ошибка</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>

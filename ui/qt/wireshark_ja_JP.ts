@@ -1628,6 +1628,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>ColoringRulesModel</name>
     <message>
+        <source>New coloring rule</source>
+        <translation type="unfinished">新規色付けルール</translation>
+    </message>
+    <message>
         <source>Unable to save coloring rules: %1</source>
         <translation>色付けルール %1 を保存できません</translation>
     </message>
@@ -1988,6 +1992,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Left align buttons</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter Expression</source>
+        <translation type="unfinished">表示フィルタ式</translation>
+    </message>
+    <message>
         <source>Apply a read filter %1</source>
         <translation>読込フィルタ %1 を適用</translation>
     </message>
@@ -2008,8 +2020,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>表示フィルタを管理</translation>
     </message>
     <message>
+        <source>Filter Button Preferences...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Manage Filter Expressions</source>
-        <translation>フィルタ書式を管理</translation>
+        <translation type="vanished">フィルタ書式を管理</translation>
     </message>
 </context>
 <context>
@@ -2192,6 +2208,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Only disabled protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>any protocol</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2201,10 +2221,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>heuristic protocols</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Only disabled protocols</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2670,14 +2686,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>ダイアログ</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation type="vanished">名前</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">フィルタ</translation>
-    </message>
-    <message>
         <source>Create a new filter.</source>
         <translation>新規フィルタを作成します</translation>
     </message>
@@ -2702,10 +2710,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Open </source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New filter</source>
-        <translation type="vanished">新規フィルタ</translation>
     </message>
     <message>
         <source>New capture filter</source>
@@ -2948,11 +2952,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Extcap path</source>
+        <source>Extcap Plugins search path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Extcap Plugins search path</source>
+        <source>Personal Extcap path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global Extcap path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3764,6 +3772,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filtered packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7005,6 +7017,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Bluetooth HCI概要</translation>
     </message>
     <message>
+        <source>Display Filter &amp;Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No GSM statistics registered</source>
         <translation>GSM統計が登録されていません</translation>
     </message>
@@ -7422,11 +7442,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Expression…</source>
-        <translation>書式…(&amp;E)</translation>
+        <translation type="vanished">書式…(&amp;E)</translation>
     </message>
     <message>
         <source>Expression…</source>
-        <translation>書式…</translation>
+        <translation type="vanished">書式…</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -9177,7 +9197,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>New coloring rule</source>
-        <translation>新規色付けルール</translation>
+        <translation type="vanished">新規色付けルール</translation>
     </message>
     <message>
         <source>Conversation</source>
@@ -10281,6 +10301,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Can save audio with PCM u-law or A-law encoding only</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">エラー</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>

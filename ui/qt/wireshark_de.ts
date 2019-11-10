@@ -1636,6 +1636,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 <context>
     <name>ColoringRulesModel</name>
     <message>
+        <source>New coloring rule</source>
+        <translation type="unfinished">Neue Einfärbungsregel</translation>
+    </message>
+    <message>
         <source>Unable to save coloring rules: %1</source>
         <translation>Einfärbungsregeln können nicht gespeichert werden: %1</translation>
     </message>
@@ -1996,6 +2000,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Anzeigenfilter anwenden</translation>
     </message>
     <message>
+        <source>Left align buttons</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter Expression</source>
+        <translation type="unfinished">Anzeigefilterausdruck</translation>
+    </message>
+    <message>
         <source>Apply a read filter %1</source>
         <translation>Lesefilter anwenden %1</translation>
     </message>
@@ -2016,8 +2028,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Anzeigefilter verwalten</translation>
     </message>
     <message>
+        <source>Filter Button Preferences...</source>
+        <translation type="unfinished">Einstellungen Filterknöpfe...</translation>
+    </message>
+    <message>
         <source>Manage Filter Expressions</source>
-        <translation>Filterausdrücke verwalten</translation>
+        <translation type="vanished">Filterausdrücke verwalten</translation>
     </message>
 </context>
 <context>
@@ -2197,7 +2213,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Only enabled protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur aktivierte Protokolle</translation>
+    </message>
+    <message>
+        <source>Only disabled protocols</source>
+        <translation>Nur deaktivierte Protokolle</translation>
     </message>
     <message>
         <source>any protocol</source>
@@ -2210,10 +2230,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>heuristic protocols</source>
         <translation>Protokolle die Heuristik verwenden</translation>
-    </message>
-    <message>
-        <source>Only disabled protocols</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2679,14 +2695,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Dialog</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation type="vanished">Name</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">Filter</translation>
-    </message>
-    <message>
         <source>Create a new filter.</source>
         <translation>Neuen Filter erstellen.</translation>
     </message>
@@ -2711,10 +2719,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Open </source>
         <translation>Öffnen</translation>
-    </message>
-    <message>
-        <source>New filter</source>
-        <translation type="vanished">Neuer Filter</translation>
     </message>
     <message>
         <source>New capture filter</source>
@@ -2797,11 +2801,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>FilterListModel</name>
     <message>
         <source>Filter Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtername</translation>
     </message>
     <message>
         <source>Filter Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Filterausdruck</translation>
     </message>
 </context>
 <context>
@@ -2958,11 +2962,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Extcap path</source>
-        <translation>Extcap Pfad</translation>
+        <translation type="vanished">Extcap Pfad</translation>
     </message>
     <message>
         <source>Extcap Plugins search path</source>
         <translation>Suchpfad für Extcap Plugins</translation>
+    </message>
+    <message>
+        <source>Personal Extcap path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global Extcap path</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
@@ -3781,6 +3793,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Wireshark I/O Graphs: %1</source>
         <translation>Wireshark I/O Graphen: %1</translation>
+    </message>
+    <message>
+        <source>Filtered packets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All packets</source>
@@ -7021,6 +7037,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Bluetooth HCI Zusammenfassung</translation>
     </message>
     <message>
+        <source>Display Filter &amp;Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No GSM statistics registered</source>
         <translation>Keine GSM Statistik registriert</translation>
     </message>
@@ -7438,11 +7462,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&amp;Expression…</source>
-        <translation>Ausdruck...</translation>
+        <translation type="vanished">Ausdruck...</translation>
     </message>
     <message>
         <source>Expression…</source>
-        <translation>Ausdruck...</translation>
+        <translation type="vanished">Ausdruck...</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -9207,7 +9231,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>New coloring rule</source>
-        <translation>Neue Einfärbungsregel</translation>
+        <translation type="vanished">Neue Einfärbungsregel</translation>
     </message>
     <message>
         <source>Conversation</source>
@@ -10311,6 +10335,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Can save audio with PCM u-law or A-law encoding only</source>
         <translation>Audio kann nur mit PCM u-law oder A-law Codierung gespeichert werden</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Fehler</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
