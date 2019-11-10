@@ -12,7 +12,7 @@
  * Supports:
  * RFC7854 BGP Monitoring Protocol
  * RFC8671 Support for Adj-RIB-Out in the BGP Monitoring Protocol (BMP)
- *
+ * draft-ietf-grow-bmp-local-rib-06 Support for Local RIB in BGP Monitoring Protocol (BMP)
  */
 
 #include "config.h"
@@ -42,12 +42,14 @@ void proto_reg_handoff_bmp(void);
 #define BMP_INIT_INFO_STRING            0x00    /* String */
 #define BMP_INIT_SYSTEM_DESCRIPTION     0x01    /* sysDescr */
 #define BMP_INIT_SYSTEM_NAME            0x02    /* sysName  */
+#define BMP_INIT_VRF_TABLE_NAME         0x03    /* VRF/Table Name */
 #define BMP_INIT_ADMIN_LABEL            0x04    /* Admin Label */
 
 /* BMP Per Peer Types */
 #define BMP_PEER_GLOBAL_INSTANCE        0x00    /* Global Instance Peer */
 #define BMP_PEER_RD_INSTANCE            0x01    /* RD Instance Peer */
 #define BMP_PEER_LOCAL_INSTANCE         0x02    /* Local Instance Peer */
+#define BMP_PEER_LOC_RIB_INSTANCE       0x03    /* Loc-RIB Instance Peer */
 
 /* BMP Per Peer Header Flags */
 #define BMP_PEER_FLAG_IPV6              0x80    /* V Flag: IPv6 */
@@ -56,6 +58,10 @@ void proto_reg_handoff_bmp(void);
 #define BMP_PEER_FLAG_ADJ_RIB_OUT       0x10
 #define BMP_PEER_FLAG_RES               0x0F    /* Reserved */
 #define BMP_PEER_FLAG_MASK              0xFF
+
+/* BMP Per Peer Loc-RIB Header Flags : draft-ietf-grow-bmp-local-rib-06 */
+#define BMP_PEER_FLAG_LOC_RIB           0x80    /* F Flag : Loc-RIB */
+#define BMP_PEER_FLAG_LOC_RIB_RES       0x7F    /* Reserved */
 
 /* BMP Stat Types */
 #define BMP_STAT_PREFIX_REJ             0x00    /* Number of prefixes rejected by inbound policy */
@@ -83,6 +89,7 @@ void proto_reg_handoff_bmp(void);
 #define BMP_PEER_DOWN_REMOTE_NOTIFY     0x3     /* Remote system closed the session with notification */
 #define BMP_PEER_DOWN_REMOTE_NO_NOTIFY  0x4     /* Remote system closed the session without notification */
 #define BMP_PEER_DOWN_INFO_NO_LONGER    0x5     /* Information for this peer will no longer be sent to the monitoring station for configuration reasons */
+#define BMP_LOCAL_SYSTEM_CLOSED         0x6     /* Local system CLosed, TLV data Follows */ //draft-ietf-grow-bmp-local-rib-06 TBD3
 
 /* BMP Termination Message Types */
 #define BMP_TERM_TYPE_STRING            0x00    /* String */
@@ -110,6 +117,7 @@ static const value_string init_typevals[] = {
     { BMP_INIT_INFO_STRING,             "String" },
     { BMP_INIT_SYSTEM_DESCRIPTION,      "sysDescr" },
     { BMP_INIT_SYSTEM_NAME,             "sysName" },
+    { BMP_INIT_VRF_TABLE_NAME,          "VRF/Table" },
     { BMP_INIT_ADMIN_LABEL,             "Admin Label" },
     { 0, NULL }
 };
@@ -118,6 +126,7 @@ static const value_string peer_typevals[] = {
     { BMP_PEER_GLOBAL_INSTANCE,         "Global Instance Peer" },
     { BMP_PEER_RD_INSTANCE,             "RD Instance Peer" },
     { BMP_PEER_LOCAL_INSTANCE,          "Local Instance Peer" },
+    { BMP_PEER_LOC_RIB_INSTANCE,        "Loc-RIB Instance Peer" },
     { 0, NULL }
 };
 
@@ -127,6 +136,7 @@ static const value_string down_reason_typevals[] = {
     { BMP_PEER_DOWN_REMOTE_NOTIFY,      "Remote System, Notification" },
     { BMP_PEER_DOWN_REMOTE_NO_NOTIFY,   "Remote System, No Notification" },
     { BMP_PEER_DOWN_INFO_NO_LONGER,     "Peer no longer be sent INformation (Configuration reasons)" },
+    { BMP_LOCAL_SYSTEM_CLOSED,          "Local system CLosed, TLV data Follows" },
     { 0, NULL }
 };
 
@@ -192,6 +202,8 @@ static int hf_peer_flags_post_policy = -1;
 static int hf_peer_flags_as_path = -1;
 static int hf_peer_flags_adj_rib_out = -1;
 static int hf_peer_flags_res = -1;
+static int hf_peer_flags_loc_rib = -1;
+static int hf_peer_flags_loc_rib_res = -1;
 static int hf_peer_distinguisher = -1;
 static int hf_peer_ipv4_address = -1;
 static int hf_peer_ipv6_address = -1;
@@ -552,6 +564,7 @@ static void
 dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint8 bmp_type, guint16 len)
 {
     guint8  flags;
+    guint32 type;
     proto_item *item;
     proto_item *ti;
     proto_item *subtree;
@@ -564,16 +577,25 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
         &hf_peer_flags_res,
         NULL
     };
+    static const int * peer_flags_loc_rib[] = {
+        &hf_peer_flags_loc_rib,
+        &hf_peer_flags_loc_rib_res,
+        NULL
+    };
 
     ti = proto_tree_add_item(tree, hf_peer_header, tvb, offset, len, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_bmp_peer_header);
 
-    proto_tree_add_item(subtree, hf_peer_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(subtree, hf_peer_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
     offset += 1;
 
     flags = tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_bitmask(subtree, tvb, offset, hf_peer_flags, ett_bmp_peer_flags, peer_flags, ENC_NA);
+    if (type == BMP_PEER_LOC_RIB_INSTANCE) {
+        proto_tree_add_bitmask(subtree, tvb, offset, hf_peer_flags, ett_bmp_peer_flags, peer_flags_loc_rib, ENC_NA);
+    } else {
+        proto_tree_add_bitmask(subtree, tvb, offset, hf_peer_flags, ett_bmp_peer_flags, peer_flags, ENC_NA);
+    }
     offset += 1;
 
     item = proto_tree_add_item(subtree, hf_peer_distinguisher, tvb, offset, 8, ENC_NA);
@@ -841,6 +863,12 @@ proto_register_bmp(void)
         { &hf_peer_flags_res,
             { "Reserved", "bmp.peer.flags.reserved", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), BMP_PEER_FLAG_RES, NULL, HFILL }},
+        { &hf_peer_flags_loc_rib,
+            { "Loc-RIB", "bmp.peer.flags.loc_rib", FT_BOOLEAN, 8,
+                TFS(&tfs_set_notset), BMP_PEER_FLAG_LOC_RIB, NULL, HFILL }},
+        { &hf_peer_flags_loc_rib_res,
+            { "Reserved", "bmp.peer.flags.loc_rib.res", FT_BOOLEAN, 8,
+                TFS(&tfs_set_notset), BMP_PEER_FLAG_LOC_RIB_RES, NULL, HFILL }},
         { &hf_peer_distinguisher,
             { "Peer Distinguisher", "bmp.peer.distinguisher", FT_BYTES, BASE_NONE,
                 NULL, 0x0, NULL, HFILL }},
