@@ -1255,7 +1255,7 @@ static void dissect_tunneling_feature( tvbuff_t* tvb, packet_info* pinfo, proto_
   /* 1 byte Feature Identifier */
   if( remaining_len <= 0 )
   {
-    node = proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? Feature Identifier: expected 1 byte" );
+    proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? Feature Identifier: expected 1 byte" );
     ok = 0;
   }
   else
@@ -1276,7 +1276,7 @@ static void dissect_tunneling_feature( tvbuff_t* tvb, packet_info* pinfo, proto_
   name = isResponse ? "Status" : "Reserved";
   if( remaining_len <= 0 )
   {
-    node = proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? %s: expected 1 byte", name );
+    proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? %s: expected 1 byte", name );
     ok = 0;
   }
   else
@@ -1299,7 +1299,7 @@ static void dissect_tunneling_feature( tvbuff_t* tvb, packet_info* pinfo, proto_
   {
     if( service != KIP_TUNNELING_FEATURE_GET && status == 0 )
     {
-      node = proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? Feature Value: missing" );
+      proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? Feature Value: missing" );
       ok = 0;
     }
   }
@@ -2518,7 +2518,7 @@ static guint8 dissect_resetter( tvbuff_t* tvb, packet_info* pinfo, proto_item* i
 
   if( struct_len <= 0 )
   {
-    node = proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? Command, Reserved: expected 2 bytes" );
+    proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? Command, Reserved: expected 2 bytes" );
   }
   else
   {
@@ -2537,7 +2537,7 @@ static guint8 dissect_resetter( tvbuff_t* tvb, packet_info* pinfo, proto_item* i
 
     if( struct_len != 2 )
     {
-      node = proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? Reserved: expected 1 byte" );
+      proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? Reserved: expected 1 byte" );
       ok = 0;
     }
     else
@@ -2717,7 +2717,7 @@ static guint8 dissect_secure_wrapper( guint8 header_length, tvbuff_t* tvb, packe
 
             if( dest_addr )
             {
-              // Try keys associated with IP MCA in keyring.XML
+              // Try keys associateD with IP MCA in keyring.XML
               for( mca_key = knx_keyring_mca_keys; mca_key; mca_key = mca_key->next )
               {
                 if( memcmp( mca_key->mca, dest_addr, 4 ) == 0 )
@@ -2959,7 +2959,7 @@ static guint8 dissect_session_request( tvbuff_t* tvb, packet_info* pinfo, proto_
     /* DH Client Public Value */
     if( size <= 0 )
     {
-      node = proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? DH Client Public Value: missing" );
+      proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? DH Client Public Value: missing" );
       ok = 0;
     }
     else
@@ -3063,7 +3063,7 @@ static guint8 dissect_session_auth( tvbuff_t* tvb, packet_info* pinfo, proto_ite
   /* 1 byte Reserved */
   if( size <= 0 )
   {
-    node = proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? Reserved: expected 1 byte" );
+    proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? Reserved: expected 1 byte" );
     ok = 0;
   }
   else
@@ -3075,7 +3075,7 @@ static guint8 dissect_session_auth( tvbuff_t* tvb, packet_info* pinfo, proto_ite
     /* 1 byte User ID */
     if( size <= 0 )
     {
-      node = proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? User: expected 1 byte" );
+      proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? User: expected 1 byte" );
       ok = 0;
     }
     else
