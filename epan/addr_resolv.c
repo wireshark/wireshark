@@ -2822,7 +2822,7 @@ addr_resolve_pref_init(module_t *nameres)
         dns_server_uats_flds);
     prefs_register_uat_preference(nameres, "dns_servers",
         "DNS Servers",
-        "A table of IPv4 and IPv6 addresses that will be used resolve IP names and addresses",
+        "A table of IPv4 and IPv6 addresses of DNS servers to be used to resolve IP names and addresses",
         dnsserver_uat);
 
     prefs_register_obsolete_preference(nameres, "concurrent_dns");
