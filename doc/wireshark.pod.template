@@ -11,50 +11,11 @@ wireshark - Interactively dump and analyze network traffic
 =head1 SYNOPSIS
 
 B<wireshark>
-S<[ B<-a> E<lt>capture autostop conditionE<gt> ] ...>
-S<[ B<-b> E<lt>capture ring buffer optionE<gt> ] ...>
-S<[ B<-B> E<lt>capture buffer sizeE<gt> ] >
-S<[ B<-c> E<lt>capture packet countE<gt> ]>
-S<[ B<-C> E<lt>configuration profileE<gt> ]>
-S<[ B<-d> E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt> ]>
-S<[ B<-D> ]>
-S<[ B<--display=>E<lt>X display to useE<gt> ] >
-S<[ B<-f> E<lt>capture filterE<gt> ]>
-S<[ B<--fullscreen> ]>
-S<[ B<-g> E<lt>packet numberE<gt> ]>
-S<[ B<-h> ]>
-S<[ B<-H> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
-S<[ B<-I> ]>
-S<[ B<-j> ]>
-S<[ B<-J> E<lt>jump filterE<gt> ]>
-S<[ B<-k> ]>
-S<[ B<-K> E<lt>keytabE<gt> ]>
-S<[ B<-l> ]>
-S<[ B<-L> ]>
-S<[ B<-m> E<lt>fontE<gt> ]>
-S<[ B<-n> ]>
-S<[ B<-N> E<lt>name resolving flagsE<gt> ] >
-S<[ B<-o> E<lt>preference/recent settingE<gt> ] ...>
-S<[ B<-p> ]>
-S<[ B<-P> E<lt>path settingE<gt>]>
-S<[ B<-r> E<lt>infileE<gt> ]>
-S<[ B<-R> E<lt>read (display) filterE<gt> ]>
-S<[ B<-s> E<lt>capture snaplenE<gt> ]>
-S<[ B<-S> ]>
-S<[ B<-t> a|ad|adoy|d|dd|e|r|u|ud|udoy ]>
-S<[ B<-v> ]>
+S<[ B<-f> E<lt>capture filterE<gt> ]>
+S<[ B<-Y> E<lt>displaY filterE<gt> ]>
 S<[ B<-w> E<lt>outfileE<gt> ]>
-S<[ B<-X> E<lt>eXtension optionE<gt> ]>
-S<[ B<-y> E<lt>capture link typeE<gt> ]>
-S<[ B<-Y> E<lt>displaY filterE<gt> | B<--display-filter> E<lt>display filterE<gt> ]>
-S<[ B<-z> E<lt>statisticsE<gt> ]>
-S<[ B<--enable-protocol> E<lt>proto_nameE<gt> ]>
-S<[ B<--disable-protocol> E<lt>proto_nameE<gt> ]>
-S<[ B<--enable-heuristic> E<lt>short_nameE<gt> ]>
-S<[ B<--disable-heuristic> E<lt>short_nameE<gt> ]>
-S<[ B<--list-time-stamp-types> ]>
-S<[ B<--time-stamp-type> E<lt>typeE<gt> ]>
+S<[ B<options> ]>
 S<[ E<lt>infileE<gt> ]>
 
 =head1 DESCRIPTION
@@ -62,7 +23,7 @@ S<[ E<lt>infileE<gt> ]>
 B<Wireshark> is a GUI network protocol analyzer.  It lets you
 interactively browse packet data from a live network or from a
 previously saved capture file.  B<Wireshark>'s native capture file format
-is B<pcap> format, which is also the format used by B<tcpdump> and
+is B<pcapng> format, or B<pcap> which is also the format used by B<tcpdump> and
 various other tools.
 
 B<Wireshark> can read / import the following file formats:
@@ -233,7 +194,7 @@ it from the menus instead.  Those users may just skip this section.
 
 =over 4
 
-=item -a  E<lt>capture autostop conditionE<gt>
+=item -a|--autostop  E<lt>capture autostop conditionE<gt>
 
 Specify a criterion that specifies when B<Wireshark> is to stop writing
 to a capture file.  The criterion is of the form I<test>B<:>I<value>,
@@ -251,10 +212,10 @@ will stop writing to the current capture file and switch to the next one if
 filesize is reached.  Note that the filesize is limited to a maximum value of
 2 GiB.
 
-B<packets>:I<value> switch to the next file after it contains I<value>
+B<packets>:I<value> Stop writing to a capture file after it contains I<value>
 packets. Same as B<-c>E<lt>capture packet countE<gt>.
 
-=item -b  E<lt>capture ring buffer optionE<gt>
+=item -b|--ring-buffer  E<lt>capture ring buffer optionE<gt>
 
 Cause B<Wireshark> to run in "multiple files" mode.  In "multiple files" mode,
 B<Wireshark> will write to several capture files.  When the first capture file
@@ -282,7 +243,7 @@ B<files>:I<value> begin again with the first file after I<value> number of
 files were written (form a ring buffer).  This value must be less than 100000.
 Caution should be used when using large numbers of files: some filesystems do
 not handle many files in a single directory well.  The B<files> criterion
-requires either B<duration>, B<interval> or B<filesize> to be specified to
+requires one of the other critereon to be specified to
 control when to go to the next file.  It should be noted that each B<-b>
 parameter takes exactly one criterion; to specify two criterion, each must be
 preceded by the B<-b> option.
@@ -291,7 +252,7 @@ B<filesize>:I<value> switch to the next file after it reaches a size of
 I<value> kB.  Note that the filesize is limited to a maximum value of 2 GiB.
 
 B<interval>:I<value> switch to the next file when the time is an exact
-multiple of I<value> seconds
+multiple of I<value> seconds.
 
 B<packets>:I<value> switch to the next file after it contains I<value>
 packets.
@@ -299,7 +260,7 @@ packets.
 Example: B<-b filesize:1000 -b files:5> results in a ring buffer of five files
 of size one megabyte each.
 
-=item -B  E<lt>capture buffer sizeE<gt>
+=item -B|--buffer-size  E<lt>capture buffer sizeE<gt>
 
 Set capture buffer size (in MiB, default is 2 MiB).  This is used by
 the capture driver to buffer packet data until that data can be written
@@ -329,6 +290,10 @@ data. Same as B<-a packets:>E<lt>capture packet countE<gt>.
 
 Start with the given configuration profile.
 
+=item --capture-comment E<lt>commentE<gt>
+
+Set the capture file comment, if supported by the capture format.
+
 =item -d  E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt>
 
 Like Wireshark's B<Decode As...> feature, this lets you specify how a
@@ -341,7 +306,7 @@ TCP port 8888 as HTTP.
 
 See the tshark(1) manual page for more examples.
 
-=item -D
+=item -D|--list-interfaces
 
 Print a list of the interfaces on which B<Wireshark> can capture, and
 exit.  For each network interface, a number and an
@@ -360,11 +325,27 @@ network capture must be run from an account with special privileges (for
 example, as root), then, if B<Wireshark> is run with the B<-D> flag and
 is not run from such an account, it will not list any interfaces.
 
-=item --display=E<lt>X display to useE<gt>
+=item --display E<lt>X display to useE<gt>
 
 Specifies the X display to use.  A hostname and screen (otherhost:0.0)
 or just a screen (:0.0) can be specified.  This option is not available
 under Windows.
+
+=item --disable-protocol E<lt>proto_nameE<gt>
+
+Disable dissection of proto_name.
+
+=item --disable-heuristic E<lt>short_nameE<gt>
+
+Disable dissection of heuristic protocol.
+
+=item --enable-protocol E<lt>proto_nameE<gt>
+
+Enable dissection of proto_name.
+
+=item --enable-heuristic E<lt>short_nameE<gt>
+
+Enable dissection of heuristic protocol.
 
 =item -f  E<lt>capture filterE<gt>
 
@@ -391,15 +372,15 @@ F11 key (or Ctrl + Cmd + F for macOS).
 
 After reading in a capture file using the B<-r> flag, go to the given I<packet number>.
 
-=item -h
+=item -h|--help
 
-Print the version and options and exit.
+Print the version number and options and exit.
 
 =item -H
 
 Hide the capture info dialog during live packet capture.
 
-=item -i  E<lt>capture interfaceE<gt>|-
+=item -i|--interface  E<lt>capture interfaceE<gt>|-
 
 Set the name of the network interface or pipe to use for live packet
 capture.
@@ -425,7 +406,7 @@ endianness as the capturing host.
 This option can occur multiple times. When capturing from multiple
 interfaces, the capture file will be saved in pcapng format.
 
-=item -I
+=item -I|--monitor-mode
 
 Put the interface in "monitor mode"; this is supported only on IEEE
 802.11 Wi-Fi interfaces, and supported only on some operating systems.
@@ -477,9 +458,18 @@ Turn on automatic scrolling if the packet display is being updated
 automatically as packets arrive during a capture (as specified by the
 B<-S> flag).
 
-=item -L
+=item -L|--list-data-link-types
 
 List the data link types supported by the interface and exit.
+
+=item --list-time-stamp-types
+
+List time stamp types supported for the interface. If no time stamp type can be
+set, no time stamp types are listed.
+
+=item -m E<lt>fontE<gt>
+
+Set the font name used for most text.
 
 =item -n
 
@@ -527,7 +517,7 @@ specify a user DLT from the command line, you would use
 
     -o "uat:user_dlts:\"User 0 (DLT=147)\",\"cops\",\"0\",\"\",\"0\",\"\""
 
-=item -p
+=item -p|--no-promiscuous-mode
 
 I<Don't> put the interface into promiscuous mode.  Note that the
 interface might be in promiscuous mode for some other reason; hence,
@@ -557,20 +547,20 @@ B<persdata>:I<path> path of personal data files, it's the folder initially
 opened.  After the very first initialization, the recent file will keep the
 folder last used.
 
-=item -r  E<lt>infileE<gt>
+=item -r|--read-file  E<lt>infileE<gt>
 
 Read packet data from I<infile>, can be any supported capture file format
 (including gzipped files).  It's not possible to use named pipes or stdin
 here! To capture from a pipe or from stdin use B<-i ->
 
-=item -R  E<lt>read (display) filterE<gt>
+=item -R|--read-filter  E<lt>read (display) filterE<gt>
 
 When reading a capture file specified with the B<-r> flag, causes the
 specified filter (which uses the syntax of display filters, rather than
 that of capture filters) to be applied to all packets read from the
 capture file; packets not matching the filter are discarded.
 
-=item -s  E<lt>capture snaplenE<gt>
+=item -s|--snapshot-length  E<lt>capture snaplenE<gt>
 
 Set the default snapshot length to use when capturing live data.
 No more than I<snaplen> bytes of each network packet will be read into
@@ -627,13 +617,21 @@ was captured
 
 The default format is relative.
 
-=item -v
+=item --time-stamp-type E<lt>typeE<gt>
 
-Print the version and exit.
+Change the interface's timestamp method. See --list-time-stamp-types.
+
+=item -u E<lt>s|hmsE<gt>
+
+Output format of seconds (def: s: seconds)
+
+=item -v|--version
+
+Print the full version information and exit.
 
 =item -w  E<lt>outfileE<gt>
 
-Set the default capture file name.
+Set the default capture file name, or '-' for standard output.
 
 =item -X E<lt>eXtension optionsE<gt>
 
@@ -656,7 +654,7 @@ file (the file given in the B<-r> command option).
 B<stdin_descr>:I<description> tells B<Wireshark> to use the given description when
 capturing from standard input (B<-i ->).
 
-=item -y  E<lt>capture link typeE<gt>
+=item -y|--linktype  E<lt>capture link typeE<gt>
 
 If a capture is started from the command line with B<-k>, set the data
 link type to use while capturing packets.  The values reported by B<-L>
@@ -669,7 +667,7 @@ the interface specified by the last B<-i> option occurring before
 this option.  If the capture link type is not set specifically,
 the default capture link type is used if provided.
 
-=item -Y  E<lt>displaY filterE<gt>
+=item -Y|--display-filter  E<lt>displaY filterE<gt>
 
 Start with the given display filter.
 
@@ -982,51 +980,6 @@ Show IEEE 802.11 network and station statistics.
 Show WSP packet counters.
 
 =back
-
-=item --enable-protocol E<lt>proto_nameE<gt>
-
-Enable dissection of proto_name.
-
-=item --disable-protocol E<lt>proto_nameE<gt>
-
-Disable dissection of proto_name.
-
-=item --enable-heuristic E<lt>short_nameE<gt>
-
-Enable dissection of heuristic protocol.
-
-=item --disable-heuristic E<lt>short_nameE<gt>
-
-Disable dissection of heuristic protocol.
-
-=item --list-time-stamp-types
-
-List time stamp types supported for the interface. If no time stamp type can be
-set, no time stamp types are listed.
-
-=item --time-stamp-type E<lt>typeE<gt>
-
-Change the interface's timestamp method.
-
-=item --read-file  E<lt>infileE<gt>
-
-Same as -r option.
-
-=item --read-filter  E<lt>read filterE<gt>
-
-Same as -R option.
-
-=item --display-filter  E<lt>display filterE<gt>
-
-Same as -Y option.
-
-=item --verbose
-
-Same as -v option.
-
-=item --help
-
-Same as -h option.
 
 =back
 
