@@ -82,6 +82,7 @@ private:
     void createFilterTextDropMenu(QDropEvent *event, bool prepare, QString filterText = QString());
 
     void alignActionButtons();
+    void updateClearButton();
 
 signals:
     void pushFilterSyntaxStatus(const QString&);

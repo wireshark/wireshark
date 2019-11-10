@@ -330,7 +330,12 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
         actions_->checkedAction()->setChecked(false);
 
     if (clear_button_) {
-        clear_button_->setVisible(!filter_text.isEmpty());
+
+        if ( filter_text.length() > 0 )
+            clear_button_->setVisible(true);
+        else
+            setPlaceholderText("");
+
         alignActionButtons();
     }
 
@@ -542,6 +547,9 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word)
 void DisplayFilterEdit::clearFilter()
 {
     clear();
+
+    updateClearButton();
+
     emit filterPackets(QString(), true);
 }
 
@@ -550,7 +558,16 @@ void DisplayFilterEdit::applyDisplayFilter()
     if (syntaxState() == Invalid)
         return;
 
+    updateClearButton();
+
     emit filterPackets(text(), true);
+}
+
+void DisplayFilterEdit::updateClearButton()
+{
+    setDefaultPlaceholderText();
+    clear_button_->setVisible(!text().isEmpty());
+    alignActionButtons();
 }
 
 void DisplayFilterEdit::displayFilterSuccess(bool success)
