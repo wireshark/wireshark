@@ -15301,9 +15301,18 @@ static guint16 get_mic_len(guint32 akm_suite) {
   }
 }
 
+static conversation_t *find_wlan_conversation_pinfo(packet_info *pinfo)
+{
+  /* HACK to avoid collision with conversation in EAP dissector */
+  pinfo->srcport = GPOINTER_TO_UINT(
+    p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, ASSOC_COUNTER_KEY));
+  pinfo->destport = pinfo->srcport;
+  return find_conversation_pinfo(pinfo, 0);
+}
+
 static guint16 determine_mic_len(packet_info *pinfo, gboolean assoc_frame) {
   guint16 eapol_key_mic_len = 16; /* Default MIC length */
-  conversation_t *conversation = find_conversation_pinfo(pinfo, 0);
+  conversation_t *conversation = find_wlan_conversation_pinfo(pinfo);
   ieee80211_conversation_data_t *conversation_data = NULL;
   ieee80211_packet_data_t *packet_data =
     (ieee80211_packet_data_t*)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, PACKET_DATA_KEY);
@@ -22484,6 +22493,15 @@ ieee_80211_do_association_sanity_check(packet_info *pinfo, association_sanity_ch
   }
 }
 
+static conversation_t *find_or_create_wlan_conversation(packet_info *pinfo)
+{
+  /* HACK to avoid collision with conversation in EAP dissector */
+  pinfo->srcport = GPOINTER_TO_UINT(
+    p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, ASSOC_COUNTER_KEY));
+  pinfo->destport = pinfo->srcport;
+  return find_or_create_conversation(pinfo);
+}
+
 static ieee80211_conversation_data_t* get_or_create_conversation_data(conversation_t *conversation) {
   ieee80211_conversation_data_t *conversation_data = (ieee80211_conversation_data_t*)conversation_get_proto_data(conversation, proto_wlan);
   if (!conversation_data) {
@@ -22540,7 +22558,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
         p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, ASSOC_COUNTER_KEY,
                          GUINT_TO_POINTER(association_counter));
       }
-      conversation = find_or_create_conversation(pinfo);
+      conversation = find_or_create_wlan_conversation(pinfo);
       conversation_data = get_or_create_conversation_data(conversation);
       conversation_data->last_akm_suite = association_sanity_check.last_akm_suite;
       conversation_data->owe_group = association_sanity_check.owe_group;
@@ -22583,7 +22601,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
         p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, ASSOC_COUNTER_KEY,
                          GUINT_TO_POINTER(association_counter));
       }
-      conversation = find_or_create_conversation(pinfo);
+      conversation = find_or_create_wlan_conversation(pinfo);
       conversation_data = get_or_create_conversation_data(conversation);
       conversation_data->last_akm_suite = association_sanity_check.last_akm_suite;
       conversation_data->owe_group = association_sanity_check.owe_group;
@@ -22677,7 +22695,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                          tagged_parameter_tree_len, MGT_DISASS, NULL);
       }
 
-      conversation = find_conversation_pinfo(pinfo, proto_wlan);
+      conversation = find_wlan_conversation_pinfo(pinfo);
       if (conversation) {
         conversation_delete_proto_data(conversation, proto_wlan);
       }
@@ -22719,7 +22737,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                          tagged_parameter_tree_len, MGT_DEAUTHENTICATION, NULL);
       }
 
-      conversation = find_conversation_pinfo(pinfo, proto_wlan);
+      conversation = find_wlan_conversation_pinfo(pinfo);
       if (conversation) {
         conversation_delete_proto_data(conversation, proto_wlan);
       }
@@ -23830,9 +23848,6 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
     p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, ASSOC_COUNTER_KEY,
                      GUINT_TO_POINTER(association_counter));
   }
-  pinfo->srcport = GPOINTER_TO_UINT(
-    p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, ASSOC_COUNTER_KEY));
-  pinfo->destport = pinfo->srcport;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "802.11");
   col_clear(pinfo->cinfo, COL_INFO);
