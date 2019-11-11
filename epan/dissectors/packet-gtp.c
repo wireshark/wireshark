@@ -477,8 +477,54 @@ static expert_field ei_gtp_unknown_extention_header = EI_INIT;
 static expert_field ei_gtp_unknown_pdu_type = EI_INIT;
 
 /* --- PDCP DECODE ADDITIONS --- */
+static gboolean
+pdcp_uat_fld_ip_chk_cb(void* r _U_, const char* ipaddr, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
+{
+    ws_in4_addr ip4_addr;
+    ws_in6_addr ip6_addr;
+
+    /* Check for a valid IPv4 or IPv6 address */
+    if (ipaddr &&
+        (ws_inet_pton6(ipaddr, &ip6_addr) ||
+         ws_inet_pton4(ipaddr, &ip4_addr))) {
+        *err = NULL;
+        return TRUE;
+    }
+
+    *err = g_strdup_printf("No valid IP address given");
+    return FALSE;
+}
+
+#define PDCP_TEID_WILDCARD "*"
+
+static gboolean
+pdcp_uat_fld_teid_chk_cb(void* r _U_, const char* teid, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
+{
+    if (teid) {
+        guint32 val;
+
+        /* Check if it is a wildcard TEID */
+        if (!strcmp(teid, PDCP_TEID_WILDCARD)) {
+            *err = NULL;
+            return TRUE;
+        }
+        /* Check if it is a valid 32bits unsinged integer */
+        if (ws_basestrtou32(teid, NULL, &val, 0)) {
+            *err = NULL;
+            return TRUE;
+        }
+    }
+
+    *err = g_strdup_printf("No valid TEID given");
+    return FALSE;
+}
+
 typedef struct {
-    guint teid;
+    gchar *ip_addr_str;
+    address ip_address;
+    gchar *teid_str;
+    gboolean teid_wildcard;
+    guint32 teid;
     guint header_present;
     enum pdcp_plane plane;
     guint lte_sn_length;
@@ -487,26 +533,89 @@ typedef struct {
     guint rohc_profile;
 } uat_pdcp_lte_keys_record_t;
 
-/* N.B. this is an array/table of the struct above, where ueid is the key */
+/* N.B. this is an array/table of the struct above, where IP address + TEID is the key */
 static uat_pdcp_lte_keys_record_t *uat_pdcp_lte_keys_records = NULL;
 
-#define PDCP_SN_LENGTH_12_BITS_STR "12 BITS"
+static gboolean pdcp_lte_update_cb(void *r, char **err)
+{
+    uat_pdcp_lte_keys_record_t* rec = (uat_pdcp_lte_keys_record_t *)r;
+    ws_in4_addr ip4_addr;
+    ws_in6_addr ip6_addr;
+
+    if (!strcmp(rec->teid_str, PDCP_TEID_WILDCARD)) {
+        rec->teid_wildcard = TRUE;
+        rec->teid = 0;
+    } else if (ws_basestrtou32(rec->teid_str, NULL, &rec->teid, 0)) {
+        rec->teid_wildcard = FALSE;
+    } else {
+        if (err)
+            *err = g_strdup_printf("No valid TEID given");
+        return FALSE;
+    }
+
+    free_address_wmem(wmem_epan_scope(), &rec->ip_address);
+    if (ws_inet_pton6(rec->ip_addr_str, &ip6_addr)) {
+        alloc_address_wmem(wmem_epan_scope(), &rec->ip_address, AT_IPv6, sizeof(ws_in6_addr), &ip6_addr);
+    } else if (ws_inet_pton4(rec->ip_addr_str, &ip4_addr)) {
+        alloc_address_wmem(wmem_epan_scope(), &rec->ip_address, AT_IPv4, sizeof(ws_in4_addr), &ip4_addr);
+    } else {
+        if (err)
+            *err = g_strdup_printf("No valid IP address given");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static void *pdcp_lte_copy_cb(void *n, const void *o, size_t len _U_)
+{
+    uat_pdcp_lte_keys_record_t* new_rec = (uat_pdcp_lte_keys_record_t *)n;
+    const uat_pdcp_lte_keys_record_t* old_rec = (const uat_pdcp_lte_keys_record_t *)o;
+
+    /* Copy UAT fields */
+    new_rec->ip_addr_str = g_strdup(old_rec->ip_addr_str);
+    clear_address(&new_rec->ip_address);
+    new_rec->teid_str = g_strdup(old_rec->teid_str);
+    new_rec->header_present = old_rec->header_present;
+    new_rec->plane = old_rec->plane;
+    new_rec->lte_sn_length = old_rec->lte_sn_length;
+    new_rec->rohc_compression = old_rec->rohc_compression;
+    //new_rec->rohc_mode = old_rec->rohc_mode;
+    new_rec->rohc_profile = old_rec->rohc_profile;
+
+    pdcp_lte_update_cb(new_rec, NULL);
+
+    return new_rec;
+}
+
+static void pdcp_lte_free_cb(void *r)
+{
+    uat_pdcp_lte_keys_record_t* rec = (uat_pdcp_lte_keys_record_t *)r;
+
+    free_address_wmem(wmem_epan_scope(), &rec->ip_address);
+}
+
+#define PDCP_SN_LENGTH_12_BITS_STR "12 bits"
 static const value_string vs_pdcp_lte_sn_length[] = {
-    {PDCP_SN_LENGTH_5_BITS,  "5 BITS"},
-    {PDCP_SN_LENGTH_7_BITS,  "7 BITS"},
+    {PDCP_SN_LENGTH_5_BITS,  "5 bits"},
+    {PDCP_SN_LENGTH_7_BITS,  "7 bits"},
     {PDCP_SN_LENGTH_12_BITS, PDCP_SN_LENGTH_12_BITS_STR},
-    {PDCP_SN_LENGTH_15_BITS, "15 BITS"},
-    {PDCP_SN_LENGTH_18_BITS, "18 BITS"},
+    {PDCP_SN_LENGTH_15_BITS, "15 bits"},
+    {PDCP_SN_LENGTH_18_BITS, "18 bits"},
     {0, NULL}
 };
 
 /* Struct for saving PDCP-NR information about specific TEID */
 typedef struct {
-    guint teid;
+    gchar *ip_addr_str;
+    address ip_address;
+    gchar *teid_str;
+    gboolean teid_wildcard;
+    guint32 teid;
     guint direction;
     /* PDCP_NR_(U|D)L_sdap_hdr_PRESENT bitmask */
     guint sdap_header_present;
-    guint mac_i_presence;
+    guint mac_i_present;
     enum pdcp_nr_plane plane;
     guint pdcp_nr_sn_length;
     guint rohc_compression;
@@ -514,8 +623,67 @@ typedef struct {
     guint rohc_profile;
 } uat_pdcp_nr_keys_record_t;
 
-/* N.B. this is an array/table of the struct above, where ueid is the key */
+/* N.B. this is an array/table of the struct above, where IP address + TEID is the key */
 static uat_pdcp_nr_keys_record_t *uat_pdcp_nr_keys_records = NULL;
+
+static gboolean pdcp_nr_update_cb(void *r, char **err) {
+    uat_pdcp_nr_keys_record_t* rec = (uat_pdcp_nr_keys_record_t *)r;
+    ws_in4_addr ip4_addr;
+    ws_in6_addr ip6_addr;
+
+    if (!strcmp(rec->teid_str, PDCP_TEID_WILDCARD)) {
+        rec->teid_wildcard = TRUE;
+        rec->teid = 0;
+    } else if (ws_basestrtou32(rec->teid_str, NULL, &rec->teid, 0)) {
+        rec->teid_wildcard = FALSE;
+    } else {
+        if (err)
+            *err = g_strdup_printf("No valid TEID given");
+        return FALSE;
+    }
+
+    free_address_wmem(wmem_epan_scope(), &rec->ip_address);
+    if (ws_inet_pton6(rec->ip_addr_str, &ip6_addr)) {
+        alloc_address_wmem(wmem_epan_scope(), &rec->ip_address, AT_IPv6, sizeof(ws_in6_addr), &ip6_addr);
+    } else if (ws_inet_pton4(rec->ip_addr_str, &ip4_addr)) {
+        alloc_address_wmem(wmem_epan_scope(), &rec->ip_address, AT_IPv4, sizeof(ws_in4_addr), &ip4_addr);
+    } else {
+        if (err)
+            *err = g_strdup_printf("No valid IP address given");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static void *pdcp_nr_copy_cb(void *n, const void *o, size_t len _U_) {
+    uat_pdcp_nr_keys_record_t* new_rec = (uat_pdcp_nr_keys_record_t *)n;
+    const uat_pdcp_nr_keys_record_t* old_rec = (const uat_pdcp_nr_keys_record_t *)o;
+
+    /* Copy UAT fields */
+    new_rec->ip_addr_str = g_strdup(old_rec->ip_addr_str);
+    clear_address(&new_rec->ip_address);
+    new_rec->teid_str = g_strdup(old_rec->teid_str);
+    new_rec->direction = old_rec->direction;
+    new_rec->sdap_header_present = old_rec->sdap_header_present;
+    new_rec->mac_i_present = old_rec->mac_i_present;
+    new_rec->plane = old_rec->plane;
+    new_rec->pdcp_nr_sn_length = old_rec->pdcp_nr_sn_length;
+    new_rec->rohc_compression = old_rec->rohc_compression;
+    //new_rec->rohc_mode = old_rec->rohc_mode;
+    new_rec->rohc_profile = old_rec->rohc_profile;
+
+    pdcp_nr_update_cb(new_rec, NULL);
+
+    return new_rec;
+}
+
+static void pdcp_nr_free_cb(void *r)
+{
+    uat_pdcp_nr_keys_record_t* rec = (uat_pdcp_nr_keys_record_t *)r;
+
+    free_address_wmem(wmem_epan_scope(), &rec->ip_address);
+}
 
 #define PDCP_NR_DIRECTION_UPLINK_STR "UL"
 static const value_string vs_direction[] = {
@@ -525,71 +693,70 @@ static const value_string vs_direction[] = {
 };
 
 /* Value sets for each drop-down list in the GUI */
-#define PDCP_NR_SDAP_HEADER_PRESENT_STR "SDAP header NOT present"
+#define PDCP_NR_SDAP_HEADER_NOT_PRESENT_STR "SDAP header NOT present"
 #define PDCP_NR_SDAP_HEADER_NOT_PRESENT 0
 #define PDCP_NR_SDAP_HEADER_PRESENT 1
 static const value_string vs_sdap_header_present[] = {
-    { 0, PDCP_NR_SDAP_HEADER_PRESENT_STR },
+    { 0, PDCP_NR_SDAP_HEADER_NOT_PRESENT_STR },
     { 1, "SDAP header present" },
     { 0, NULL }
 };
 
-#define PDCP_LTE_HEADER_NOT_PRESENT_STR "Header NOT present"
+#define PDCP_LTE_HEADER_PRESENT_STR "Header present"
 #define PDCP_LTE_HEADER_NOT_PRESENT 0
 #define PDCP_LTE_HEADER_PRESENT 1
 
 static const value_string vs_header_present[] = {
-    { 0, PDCP_LTE_HEADER_NOT_PRESENT_STR },
-    { 1, "Header present" },
+    { 0, "Header NOT present" },
+    { 1, PDCP_LTE_HEADER_PRESENT_STR },
     { 0, NULL }
 };
 
 
-#define MAC_I_PRESENCE_FALSE_STR "FALSE"
-static const value_string vs_mac_i_presence[] = {
-    { FALSE, MAC_I_PRESENCE_FALSE_STR },
-    { TRUE, "TRUE" },
+#define MAC_I_PRESENT_FALSE_STR "MAC-I NOT present"
+static const value_string vs_mac_i_present[] = {
+    { FALSE, MAC_I_PRESENT_FALSE_STR },
+    { TRUE, "MAC-I present" },
     { 0, NULL }
 };
 
-#define USER_PLANE_STR "USER PLANE"
+#define USER_PLANE_STR "User plane"
 static const value_string vs_pdcp_plane[] = {
-    { NR_SIGNALING_PLANE, "SIGNALING PLANE" },
+    { NR_SIGNALING_PLANE, "Signaling plane" },
     { NR_USER_PLANE, USER_PLANE_STR },
     { 0, NULL }
 };
 
-#define PDCP_SN_LENGTH_12_BITS_STR "12 BITS"
 static const value_string vs_pdcp_nr_sn_length[] = {
     { PDCP_NR_SN_LENGTH_12_BITS, PDCP_SN_LENGTH_12_BITS_STR },
-    { PDCP_NR_SN_LENGTH_18_BITS, "18 BITS" },
+    { PDCP_NR_SN_LENGTH_18_BITS, "18 bits" },
     { 0, NULL }
 };
 
-#define ROHC_COMPRESSION_TRUE_STR "TRUE"
+#define ROHC_COMPRESSION_FALSE_STR "RoHC NOT compressed"
 static const value_string vs_rohc_compression[] = {
-    { FALSE, "FALSE" },
-    { TRUE, ROHC_COMPRESSION_TRUE_STR },
+    { FALSE, ROHC_COMPRESSION_FALSE_STR },
+    { TRUE, "RoHC compressed" },
     { 0, NULL }
 };
 
-//#define ROHC_MODE_NOT_SET_STR "MODE NOT SET"
+//#define ROHC_MODE_NOT_SET_STR "Mode not set"
 //static const value_string vs_rohc_mode[] = {
 //    { MODE_NOT_SET, ROHC_MODE_NOT_SET_STR },
-//    { UNIDIRECTIONAL, "UNIDIRECTIONAL" },
-//    { OPTIMISTIC_BIDIRECTIONAL, "OPTIMISTIC BIDIRECTIONAL" },
-//    { RELIABLE_BIDIRECTIONAL, "RELIABLE BIDIRECTIONAL" },
+//    { UNIDIRECTIONAL, "Unidirectional" },
+//    { OPTIMISTIC_BIDIRECTIONAL, "Optimistic bidirectional" },
+//    { RELIABLE_BIDIRECTIONAL, "Reliable bidirectional" },
 //    { 0, NULL }
 //};
 
-#define ROHC_PROFILE_RTP_STR "RTP(1)"
-#define ROHC_PROFILE_UNCOMPRESSED_STR "UNCOMPRESSED(0)"
+#define ROHC_PROFILE_RTP_STR "RTP (1)"
+#define ROHC_PROFILE_UNCOMPRESSED_STR "Uncompressed (0)"
 static const value_string vs_rohc_profile[] = {
     { ROHC_PROFILE_UNCOMPRESSED, ROHC_PROFILE_UNCOMPRESSED_STR },
     { ROHC_PROFILE_RTP, ROHC_PROFILE_RTP_STR },
-    { ROHC_PROFILE_UDP, "UDP(2)" },
-    { ROHC_PROFILE_IP, "IP(4)" },
-    { ROHC_PROFILE_UNKNOWN, "UNKNOWN" },
+    { ROHC_PROFILE_UDP, "UDP (2)" },
+    { ROHC_PROFILE_IP, "IP (4)" },
+    { ROHC_PROFILE_UNKNOWN, "Unknown" },
     { 0, NULL }
 };
 
@@ -598,33 +765,26 @@ static uat_t * pdcp_nr_keys_uat = NULL;
 static guint num_pdcp_nr_keys_uat = 0;
 
 /* Default values for a TEID entry */
-UAT_HEX_CB_DEF(uat_pdcp_nr_keys_records, teid, uat_pdcp_nr_keys_record_t)
+UAT_CSTRING_CB_DEF(pdcp_nr_users, ip_addr_str, uat_pdcp_nr_keys_record_t)
+UAT_CSTRING_CB_DEF(pdcp_nr_users, teid_str, uat_pdcp_nr_keys_record_t)
 UAT_VS_DEF(pdcp_nr_users, direction, uat_pdcp_nr_keys_record_t, guint, PDCP_NR_DIRECTION_UPLINK, PDCP_NR_DIRECTION_UPLINK_STR)
-UAT_VS_DEF(pdcp_nr_users, sdap_header_present, uat_pdcp_nr_keys_record_t, guint, PDCP_NR_SDAP_HEADER_PRESENT, PDCP_NR_SDAP_HEADER_PRESENT_STR)
-UAT_VS_DEF(pdcp_nr_users, mac_i_presence, uat_pdcp_nr_keys_record_t, guint, FALSE, MAC_I_PRESENCE_FALSE_STR)
+UAT_VS_DEF(pdcp_nr_users, sdap_header_present, uat_pdcp_nr_keys_record_t, guint, PDCP_NR_SDAP_HEADER_NOT_PRESENT, PDCP_NR_SDAP_HEADER_NOT_PRESENT_STR)
+UAT_VS_DEF(pdcp_nr_users, mac_i_present, uat_pdcp_nr_keys_record_t, guint, FALSE, MAC_I_PRESENT_FALSE_STR)
 UAT_VS_DEF(pdcp_nr_users, plane, uat_pdcp_nr_keys_record_t, enum pdcp_nr_plane, NR_USER_PLANE, USER_PLANE_STR)
 UAT_VS_DEF(pdcp_nr_users, pdcp_nr_sn_length, uat_pdcp_nr_keys_record_t, guint, PDCP_NR_SN_LENGTH_12_BITS, PDCP_SN_LENGTH_12_BITS_STR)
-UAT_VS_DEF(pdcp_nr_users, rohc_compression, uat_pdcp_nr_keys_record_t, guint, TRUE, ROHC_COMPRESSION_TRUE_STR)
+UAT_VS_DEF(pdcp_nr_users, rohc_compression, uat_pdcp_nr_keys_record_t, guint, FALSE, ROHC_COMPRESSION_FALSE_STR)
 //UAT_VS_DEF(pdcp_nr_users, rohc_mode, uat_pdcp_nr_keys_record_t, guint, MODE_NOT_SET, ROHC_MODE_NOT_SET_STR)
 UAT_VS_DEF(pdcp_nr_users, rohc_profile, uat_pdcp_nr_keys_record_t, guint, ROHC_PROFILE_UNCOMPRESSED, ROHC_PROFILE_UNCOMPRESSED_STR)
 
-/* Table from ueid -> uat_pdcp_nr_keys_record_t* */
-static wmem_map_t *pdcp_nr_security_key_hash = NULL;
-
-static uat_pdcp_nr_keys_record_t* look_up_pdcp_nr_keys_record(guint32 teidn)
+static uat_pdcp_nr_keys_record_t* look_up_pdcp_nr_keys_record(packet_info *pinfo, guint32 teidn)
 {
     unsigned int record_id;
 
-    /* Try hash table first (among entries added by set_pdcp_lte_xxx_key() functions) */
-    uat_pdcp_nr_keys_record_t* key_record = (uat_pdcp_nr_keys_record_t*)wmem_map_lookup(pdcp_nr_security_key_hash, GUINT_TO_POINTER((guint)teidn));
-
-    if (key_record != NULL) {
-        return key_record;
-    }
-
-    /* Else look up UAT entries. N.B. linear search... */
+    /* Look up UAT entries. N.B. linear search... */
     for (record_id = 0; record_id < num_pdcp_nr_keys_uat; record_id++) {
-        if (uat_pdcp_nr_keys_records[record_id].teid == teidn) {
+        if (addresses_equal(&uat_pdcp_nr_keys_records[record_id].ip_address, &pinfo->dst) &&
+            (uat_pdcp_nr_keys_records[record_id].teid_wildcard ||
+             uat_pdcp_nr_keys_records[record_id].teid == teidn)) {
             return &uat_pdcp_nr_keys_records[record_id];
         }
     }
@@ -638,48 +798,30 @@ static uat_t * pdcp_lte_keys_uat = NULL;
 static guint num_pdcp_lte_keys_uat = 0;
 
 /* Default values for a TEID entry */
-UAT_HEX_CB_DEF(uat_pdcp_lte_keys_records, teid, uat_pdcp_lte_keys_record_t)
-UAT_VS_DEF(pdcp_lte_users, header_present, uat_pdcp_lte_keys_record_t, guint, PDCP_LTE_HEADER_PRESENT, PDCP_LTE_HEADER_NOT_PRESENT_STR)
+UAT_CSTRING_CB_DEF(pdcp_lte_users, ip_addr_str, uat_pdcp_lte_keys_record_t)
+UAT_CSTRING_CB_DEF(pdcp_lte_users, teid_str, uat_pdcp_lte_keys_record_t)
+UAT_VS_DEF(pdcp_lte_users, header_present, uat_pdcp_lte_keys_record_t, guint, PDCP_LTE_HEADER_PRESENT, PDCP_LTE_HEADER_PRESENT_STR)
 UAT_VS_DEF(pdcp_lte_users, plane, uat_pdcp_lte_keys_record_t, enum pdcp_plane, USER_PLANE, USER_PLANE_STR)
 UAT_VS_DEF(pdcp_lte_users, lte_sn_length, uat_pdcp_lte_keys_record_t, guint, PDCP_NR_SN_LENGTH_12_BITS, PDCP_SN_LENGTH_12_BITS_STR)
-UAT_VS_DEF(pdcp_lte_users, rohc_compression, uat_pdcp_lte_keys_record_t, guint, TRUE, ROHC_COMPRESSION_TRUE_STR)
+UAT_VS_DEF(pdcp_lte_users, rohc_compression, uat_pdcp_lte_keys_record_t, guint, FALSE, ROHC_COMPRESSION_FALSE_STR)
 //UAT_VS_DEF(pdcp_lte_users, rohc_mode, uat_pdcp_lte_keys_record_t, guint, MODE_NOT_SET, ROHC_MODE_NOT_SET_STR)
 UAT_VS_DEF(pdcp_lte_users, rohc_profile, uat_pdcp_lte_keys_record_t, guint, ROHC_PROFILE_UNCOMPRESSED, ROHC_PROFILE_UNCOMPRESSED_STR)
 
-/* Table from ueid -> uat_pdcp_lte_keys_record_t* */
-static wmem_map_t *pdcp_lte_security_key_hash = NULL;
-
-static uat_pdcp_lte_keys_record_t* look_up_pdcp_lte_keys_record(guint32 teidn)
+static uat_pdcp_lte_keys_record_t* look_up_pdcp_lte_keys_record(packet_info *pinfo, guint32 teidn)
 {
     unsigned int record_id;
 
-    /* Try hash table first (among entries added by set_pdcp_lte_xxx_key() functions) */
-    uat_pdcp_lte_keys_record_t* key_record = (uat_pdcp_lte_keys_record_t*)wmem_map_lookup(pdcp_lte_security_key_hash, GUINT_TO_POINTER((guint)teidn));
-
-    if (key_record != NULL) {
-        return key_record;
-    }
-
-    /* Else look up UAT entries. N.B. linear search... */
+    /* Look up UAT entries. N.B. linear search... */
     for (record_id = 0; record_id < num_pdcp_lte_keys_uat; record_id++) {
-        if (uat_pdcp_lte_keys_records[record_id].teid == teidn) {
+        if (addresses_equal(&uat_pdcp_lte_keys_records[record_id].ip_address, &pinfo->dst) &&
+            (uat_pdcp_lte_keys_records[record_id].teid_wildcard ||
+             uat_pdcp_lte_keys_records[record_id].teid == teidn)) {
             return &uat_pdcp_lte_keys_records[record_id];
         }
     }
 
     /* No match at all - return NULL */
     return NULL;
-}
-
-/* Hash table for security state for a UE
-Maps UEId -> pdcp_security_info_t*  */
-static gint pdcp_lte_ueid_hash_equal(gconstpointer v, gconstpointer v2)
-{
-    return (v == v2);
-}
-static guint pdcp_lte_ueid_hash_func(gconstpointer v)
-{
-    return GPOINTER_TO_UINT(v);
 }
 
 /* --- END PDCP NR DECODE ADDITIONS --- */
@@ -9590,7 +9732,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 uat_pdcp_lte_keys_record_t * found_record;
                 tvbuff_t *pdcp_lte_tvb;
 
-                if ((found_record = look_up_pdcp_lte_keys_record((guint32)gtp_hdr->teid))) {
+                if ((found_record = look_up_pdcp_lte_keys_record(pinfo, (guint32)gtp_hdr->teid))) {
                     /* Look for attached packet info! */
                     p_pdcp_info = (struct pdcp_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0);
                     /* If we don't have the data, add it */
@@ -9647,7 +9789,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 /* Check if we have info to call the PDCP dissector */
                 uat_pdcp_nr_keys_record_t* found_record;
 
-                if ((found_record = look_up_pdcp_nr_keys_record((guint32)gtp_hdr->teid))) {
+                if ((found_record = look_up_pdcp_nr_keys_record(pinfo, (guint32)gtp_hdr->teid))) {
                     tvbuff_t *pdcp_tvb;
                     struct pdcp_nr_info temp_data;
 
@@ -9683,7 +9825,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                     } else {
                         temp_data.sdap_header = 0;
                     }
-                    temp_data.maci_present = found_record->mac_i_presence;
+                    temp_data.maci_present = found_record->mac_i_present;
 
                     /* RoHC settings */
                     temp_data.rohc.rohc_compression = found_record->rohc_compression;
@@ -11251,63 +11393,63 @@ proto_register_gtp(void)
     /* --- PDCP DECODE ADDITIONS --- */
 
     static uat_field_t pdcp_lte_keys_uat_flds[] = {
-        UAT_FLD_HEX(uat_pdcp_lte_keys_records, teid, "TEID", "Tunnel Endpoint Identifier"),
+        UAT_FLD_CSTRING_OTHER(pdcp_lte_users, ip_addr_str, "Dst IP address", pdcp_uat_fld_ip_chk_cb, "IPv4 or IPv6 address"),
+        UAT_FLD_CSTRING_OTHER(pdcp_lte_users, teid_str, "TEID value  or \"" PDCP_TEID_WILDCARD "\"", pdcp_uat_fld_teid_chk_cb, "Tunnel Endpoint Identifier"),
         UAT_FLD_VS(pdcp_lte_users, header_present, "Header present", vs_header_present, "Header present flag"),
-        UAT_FLD_VS(pdcp_lte_users, plane, "PLANE", vs_pdcp_plane, "Signaling or user plane"),
-        UAT_FLD_VS(pdcp_lte_users, lte_sn_length, "PDCP SN LENGTH", vs_pdcp_lte_sn_length, "Length of PDCP sequence number"),
+        UAT_FLD_VS(pdcp_lte_users, plane, "Plane", vs_pdcp_plane, "Signaling or user plane"),
+        UAT_FLD_VS(pdcp_lte_users, lte_sn_length, "PDCP SN length", vs_pdcp_lte_sn_length, "Length of PDCP sequence number"),
         UAT_FLD_VS(pdcp_lte_users, rohc_compression, "ROHC compression", vs_rohc_compression, "Header compression"),
         //UAT_FLD_VS(pdcp_lte_users, rohc_mode, "ROHC mode", vs_rohc_mode, "ROHC mode"),
         UAT_FLD_VS(pdcp_lte_users, rohc_profile, "ROHC profile", vs_rohc_profile, "ROHC profile"),
         UAT_END_FIELDS
     };
 
-    pdcp_lte_keys_uat = uat_new("PDCP LTE Keys",
+    pdcp_lte_keys_uat = uat_new("PDCP-LTE Keys",
         sizeof(uat_pdcp_lte_keys_record_t), /* record size */
-        "gtp_pdcp_lte_keys",                /* filename */
+        "gtp_pdcp_lte_keys2",                /* filename */
         TRUE,                               /* from_profile */
         &uat_pdcp_lte_keys_records,         /* data_ptr */
         &num_pdcp_lte_keys_uat,             /* numitems_ptr */
         UAT_AFFECTS_DISSECTION,             /* affects dissection of packets, but not set of named fields */
         NULL,                               /* help */
-        NULL,                               /* copy callback */
-        NULL,                               /* update callback */
-        NULL,                               /* free callback */
+        pdcp_lte_copy_cb,                   /* copy callback */
+        pdcp_lte_update_cb,                 /* update callback */
+        pdcp_lte_free_cb,                   /* free callback */
         NULL,                               /* post update callback */
         NULL,                               /* reset callback */
         pdcp_lte_keys_uat_flds);            /* UAT field definitions */
 
     prefs_register_uat_preference(gtp_module,
         "pdcp_lte_table",
-        "GTP PDCP LTE Keys",
+        "GTP PDCP-LTE Keys",
         "Preconfigured PDCP-LTE Keys",
         pdcp_lte_keys_uat);
 
-    pdcp_lte_security_key_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), pdcp_lte_ueid_hash_func, pdcp_lte_ueid_hash_equal);
-
     static uat_field_t pdcp_nr_keys_uat_flds[] = {
-        UAT_FLD_HEX(uat_pdcp_nr_keys_records, teid, "TEID", "Tunnel Endpoint Identifier"),
+        UAT_FLD_CSTRING_OTHER(pdcp_nr_users, ip_addr_str, "Dst IP address", pdcp_uat_fld_ip_chk_cb, "IPv4 or IPv6 address"),
+        UAT_FLD_CSTRING_OTHER(pdcp_nr_users, teid_str, "TEID value or \"" PDCP_TEID_WILDCARD "\"", pdcp_uat_fld_teid_chk_cb, "Tunnel Endpoint Identifier"),
         UAT_FLD_VS(pdcp_nr_users, direction, "Direction", vs_direction, "Direction"),
         UAT_FLD_VS(pdcp_nr_users, sdap_header_present, "SDAP header present flag", vs_sdap_header_present, "SDAP header present flag"),
-        UAT_FLD_VS(pdcp_nr_users, mac_i_presence, "MAC-I presence flag", vs_mac_i_presence, "MAC-I presence flag"),
-        UAT_FLD_VS(pdcp_nr_users, plane, "PLANE", vs_pdcp_plane, "Signaling or user plane"),
-        UAT_FLD_VS(pdcp_nr_users, pdcp_nr_sn_length, "PDCP SN LENGTH", vs_pdcp_nr_sn_length, "Length of PDCP sequence number"),
+        UAT_FLD_VS(pdcp_nr_users, mac_i_present, "MAC-I present flag", vs_mac_i_present, "MAC-I present flag"),
+        UAT_FLD_VS(pdcp_nr_users, plane, "Plane", vs_pdcp_plane, "Signaling or user plane"),
+        UAT_FLD_VS(pdcp_nr_users, pdcp_nr_sn_length, "PDCP SN length", vs_pdcp_nr_sn_length, "Length of PDCP sequence number"),
         UAT_FLD_VS(pdcp_nr_users, rohc_compression, "ROHC compression", vs_rohc_compression, "Header compression"),
         //UAT_FLD_VS(pdcp_nr_users, rohc_mode, "ROHC mode", vs_rohc_mode, "ROHC mode"),
         UAT_FLD_VS(pdcp_nr_users, rohc_profile, "ROHC profile", vs_rohc_profile, "ROHC profile"),
         UAT_END_FIELDS
     };
 
-    pdcp_nr_keys_uat = uat_new("PDCP NR Keys",
+    pdcp_nr_keys_uat = uat_new("PDCP-NR Keys",
         sizeof(uat_pdcp_nr_keys_record_t), /* record size */
-        "gtp_pdcp_nr_keys",                /* filename */
+        "gtp_pdcp_nr_keys2",                /* filename */
         TRUE,                              /* from_profile */
         &uat_pdcp_nr_keys_records,         /* data_ptr */
         &num_pdcp_nr_keys_uat,             /* numitems_ptr */
         UAT_AFFECTS_DISSECTION,            /* affects dissection of packets, but not set of named fields */
         NULL,                              /* help */
-        NULL,                              /* copy callback */
-        NULL,                              /* update callback */
-        NULL,                              /* free callback */
+        pdcp_nr_copy_cb,                   /* copy callback */
+        pdcp_nr_update_cb,                 /* update callback */
+        pdcp_nr_free_cb,                   /* free callback */
         NULL,                              /* post update callback */
         NULL,                              /* reset callback */
         pdcp_nr_keys_uat_flds);            /* UAT field definitions */
@@ -11317,8 +11459,6 @@ proto_register_gtp(void)
         "GTP PDCP-NR Keys",
         "Preconfigured PDCP-NR Keys",
         pdcp_nr_keys_uat);
-
-    pdcp_nr_security_key_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), pdcp_lte_ueid_hash_func, pdcp_lte_ueid_hash_equal);
 
     /* --- END PDCP NR DECODE ADDITIONS ---*/
 
