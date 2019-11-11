@@ -1668,7 +1668,8 @@ Dot11DecryptRsnaMicCheck(
     guint8 *mic = eapol_parsed->mic;
     guint16 mic_len = eapol_parsed->mic_len;
     guint16 kck_len = Dot11DecryptGetKckLen(akm) / 8;
-    UCHAR c_mic[32] = { 0 };  /* MIC 16 byte, though HMAC-SHA256 algo need 32 bytes buffer */
+    /* MIC 16 or 24 bytes, though HMAC-SHA256 / SHA384 algos need 32 / 48 bytes buffer */
+    UCHAR c_mic[48] = { 0 };
     int algo = -1;
     gboolean hmac = TRUE;
 
