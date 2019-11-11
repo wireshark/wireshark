@@ -4318,6 +4318,23 @@ show_print_file_io_error(int err)
   break;
 #endif
 
+  case EPIPE:
+      /*
+       * This almost certainly means "the next program after us in
+       * the pipeline exited before we were finished writing", so
+       * this isn't a real error, it just means we're done.  (We
+       * don't get SIGPIPE because libwireshark ignores SIGPIPE
+       * to avoid getting killed if writing to the MaxMind process
+       * gets SIGPIPE because that process died.)
+       *
+       * Presumably either that program exited deliberately (for
+       * example, "head -N" read N lines and printed them), in
+       * which case there's no error to report, or it terminated
+       * due to an error or a signal, in which case *that's* the
+       * error and that error has been reported.
+       */
+      break;
+
   default:
     cmdarg_err("An error occurred while printing packets: %s.",
       g_strerror(err));
