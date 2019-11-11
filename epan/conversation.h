@@ -44,9 +44,9 @@ extern "C" {
 #define NO_PORT_B 0x02
 
 /* Flags to handle endpoints */
-#define USE_LAST_ENDPOINT 0x08      /* Use last endpoint created, regardless of type */
+#define USE_LAST_ENDPOINT 0x08		/* Use last endpoint created, regardless of type */
 
-#include "packet.h"		/* for conversation dissector type */
+#include "packet.h"			/* for conversation dissector type */
 
 /* Types of port numbers Wireshark knows about. */
 typedef enum {
@@ -89,16 +89,14 @@ typedef struct conversation_key* conversation_key_t;
 typedef struct conversation {
 	struct conversation *next;	/** pointer to next conversation on hash chain */
 	struct conversation *last;	/** pointer to the last conversation on hash chain */
-	struct conversation *latest_found;
-								/** pointer to the last conversation on hash chain */
-	guint32	conv_index;				/** unique ID for conversation */
+	struct conversation *latest_found; /** pointer to the last conversation on hash chain */
+	guint32	conv_index;		/** unique ID for conversation */
 	guint32 setup_frame;		/** frame number that setup this conversation */
-	/* Assume that setup_frame is also the lowest frame number for now. */
+					/* Assume that setup_frame is also the lowest frame number for now. */
 	guint32 last_frame;		/** highest frame number in this conversation */
-	wmem_tree_t *data_list;			/** list of data associated with conversation */
-	wmem_tree_t *dissector_tree;
-								/** tree containing protocol dissector client associated with conversation */
-	guint	options;			/** wildcard flags */
+	wmem_tree_t *data_list;		/** list of data associated with conversation */
+	wmem_tree_t *dissector_tree;	/** tree containing protocol dissector client associated with conversation */
+	guint	options;		/** wildcard flags */
 	conversation_key_t key_ptr;	/** pointer to the key for this conversation */
 } conversation_t;
 
