@@ -35,15 +35,16 @@ BulkPDU/request-id bulkPDU_request-id
 %(DEFAULT_BODY)s
 	if( (pdu_type!=-1) && snmp_PDUs_vals[pdu_type].strptr ){
 		col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%%s", snmp_PDUs_vals[pdu_type].strptr);
+
+		/* pdu_type is the index, not the tag so convert it to the tag value */
+		pdu_type = snmp_PDUs_vals[pdu_type].value;
+
+		srrp=snmp_match_request_response(tvb, actx->pinfo, tree, RequestID, pdu_type, snmp_info);
+		if (srrp) {
+			tap_queue_packet(snmp_tap, actx->pinfo, srrp);
+		}
 	}
 
-	/* pdu_type is the index, not the tag so convert it to the tag value */
-	pdu_type = snmp_PDUs_vals[pdu_type].value;
-
-	srrp=snmp_match_request_response(tvb, actx->pinfo, tree, RequestID, pdu_type, snmp_info);
-	if (srrp) {
-		tap_queue_packet(snmp_tap, actx->pinfo, srrp);
-	}
 
 #.END
 
