@@ -319,7 +319,7 @@ void CaptureFilterEdit::checkFilter(const QString& filter)
         actions_->checkedAction()->setChecked(false);
 
     setSyntaxState(Busy);
-    popFilterSyntaxStatus();
+    wsApp->popStatus(WiresharkApplication::FilterSyntax);
     setToolTip(QString());
     bool empty = filter.isEmpty();
 
@@ -420,7 +420,7 @@ void CaptureFilterEdit::setFilterSyntaxState(QString filter, int state, QString 
     if (filter.compare(text()) == 0) { // The user hasn't changed the filter
         setSyntaxState((SyntaxState)state);
         if (!err_msg.isEmpty()) {
-            emit pushFilterSyntaxStatus(err_msg);
+            wsApp->pushStatus(WiresharkApplication::FilterSyntax, err_msg);
             setToolTip(err_msg);
         }
     }

@@ -27,7 +27,6 @@ public:
 
 signals:
     void columnEdited();
-    void pushFilterSyntaxStatus(const QString&);
 
 protected:
     virtual void showEvent(QShowEvent *event);

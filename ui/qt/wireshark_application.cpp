@@ -69,6 +69,9 @@
 
 #include <ui/qt/capture_file.h>
 
+#include <ui/qt/main_window.h>
+#include <ui_main_window.h>
+
 #include <QAction>
 #include <QApplication>
 #include <QColorDialog>
@@ -1367,6 +1370,74 @@ void WiresharkApplication::captureEventHandler(CaptureEvent ev)
         break;
     default:
         break;
+    }
+}
+
+void WiresharkApplication::pushStatus(StatusInfo status, const QString &message, const QString &messagetip)
+{
+    if ( ! mainWindow() || ! qobject_cast<MainWindow *>(mainWindow()) )
+        return;
+
+    MainWindow * mw = qobject_cast<MainWindow *>(mainWindow());
+    if ( ! mw->main_ui_ || ! mw->main_ui_->statusBar )
+        return;
+
+    MainStatusBar * bar = mw->main_ui_->statusBar;
+
+    switch(status)
+    {
+        case FilterSyntax:
+            bar->pushGenericStatus(MainStatusBar::STATUS_CTX_FILTER, message);
+            break;
+        case FieldStatus:
+            bar->pushGenericStatus(MainStatusBar::STATUS_CTX_FIELD, message);
+            break;
+        case FileStatus:
+            bar->pushGenericStatus(MainStatusBar::STATUS_CTX_FILE, message, messagetip);
+            break;
+        case ByteStatus:
+            bar->pushGenericStatus(MainStatusBar::STATUS_CTX_BYTE, message);
+            break;
+        case BusyStatus:
+            bar->pushGenericStatus(MainStatusBar::STATUS_CTX_PROGRESS, message, messagetip);
+            break;
+        case TemporaryStatus:
+            bar->pushGenericStatus(MainStatusBar::STATUS_CTX_TEMPORARY, message);
+            break;
+    }
+}
+
+void WiresharkApplication::popStatus(StatusInfo status)
+{
+    if ( ! mainWindow() || ! qobject_cast<MainWindow *>(mainWindow()) )
+        return;
+
+    MainWindow * mw = qobject_cast<MainWindow *>(mainWindow());
+    if ( ! mw->main_ui_ || ! mw->main_ui_->statusBar )
+        return;
+
+    MainStatusBar * bar = mw->main_ui_->statusBar;
+
+    switch(status)
+    {
+        case FilterSyntax:
+            bar->popGenericStatus(MainStatusBar::STATUS_CTX_FILTER);
+            break;
+        case FieldStatus:
+            bar->popGenericStatus(MainStatusBar::STATUS_CTX_FIELD);
+            break;
+        case FileStatus:
+            bar->popGenericStatus(MainStatusBar::STATUS_CTX_FILE);
+            break;
+        case ByteStatus:
+            bar->popGenericStatus(MainStatusBar::STATUS_CTX_BYTE);
+            break;
+        case BusyStatus:
+            bar->popGenericStatus(MainStatusBar::STATUS_CTX_PROGRESS);
+            break;
+        case TemporaryStatus:
+            bar->popGenericStatus(MainStatusBar::STATUS_CTX_TEMPORARY);
+            break;
     }
 }
 

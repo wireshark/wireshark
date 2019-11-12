@@ -39,10 +39,6 @@ CaptureFilterCombo::CaptureFilterCombo(QWidget *parent, bool plain) :
 
     connect(this, &CaptureFilterCombo::interfacesChanged, cf_edit_,
             static_cast<void (CaptureFilterEdit::*)()>(&CaptureFilterEdit::checkFilter));
-    connect(cf_edit_, &CaptureFilterEdit::pushFilterSyntaxStatus,
-            this, &CaptureFilterCombo::pushFilterSyntaxStatus);
-    connect(cf_edit_, &CaptureFilterEdit::popFilterSyntaxStatus,
-            this, &CaptureFilterCombo::popFilterSyntaxStatus);
     connect(cf_edit_, &CaptureFilterEdit::captureFilterSyntaxChanged,
             this, &CaptureFilterCombo::captureFilterSyntaxChanged);
     connect(cf_edit_, &CaptureFilterEdit::startCapture, this, &CaptureFilterCombo::startCapture);

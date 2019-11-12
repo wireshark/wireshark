@@ -242,7 +242,7 @@ void PreferenceEditorFrame::keyPressEvent(QKeyEvent *event)
             if (ui->buttonBox->button(QDialogButtonBox::Ok)->isEnabled()) {
                 on_buttonBox_accepted();
             } else if (ui->preferenceLineEdit->syntaxState() == SyntaxLineEdit::Invalid) {
-                emit pushFilterSyntaxStatus(tr("Invalid value."));
+                wsApp->pushStatus(WiresharkApplication::FilterSyntax, tr("Invalid value."));
             }
         }
     }

@@ -41,16 +41,6 @@
 
 // XXX - The GTK+ code assigns priorities to these and pushes/pops accordingly.
 
-enum StatusContext {
-    STATUS_CTX_MAIN,
-    STATUS_CTX_FILE,
-    STATUS_CTX_FIELD,
-    STATUS_CTX_BYTE,
-    STATUS_CTX_FILTER,
-    STATUS_CTX_PROGRESS,
-    STATUS_CTX_TEMPORARY
-};
-
 Q_DECLARE_METATYPE(ProfileDialog::ProfileAction)
 
 // If we ever add support for multiple windows this will need to be replaced.
@@ -72,7 +62,7 @@ statusbar_push_temporary_msg(const gchar *msg_format, ...)
     push_msg.vsprintf(msg_format, ap);
     va_end(ap);
 
-    cur_main_status_bar_->pushTemporaryStatus(push_msg);
+    wsApp->pushStatus(WiresharkApplication::TemporaryStatus, push_msg);
 }
 
 /*
@@ -195,7 +185,7 @@ void MainStatusBar::showExpert() {
 void MainStatusBar::captureFileClosing() {
     expert_button_->hide();
     progress_frame_.captureFileClosing();
-    popFieldStatus();
+    popGenericStatus(STATUS_CTX_FIELD);
 }
 
 void MainStatusBar::expertUpdate() {
@@ -241,11 +231,11 @@ void MainStatusBar::expertUpdate() {
 void MainStatusBar::setFileName(CaptureFile &cf)
 {
     if (cf.isValid()) {
-        popFileStatus();
+        popGenericStatus(STATUS_CTX_FILE);
         QString msgtip = QString("%1 (%2)")
                 .arg(cf.capFile()->filename)
                 .arg(file_size_to_qstring(cf.capFile()->f_datalen));
-        pushFileStatus(cf.fileName(), msgtip);
+        pushGenericStatus(STATUS_CTX_FILE, cf.fileName(), msgtip);
     }
 }
 
@@ -271,7 +261,7 @@ void MainStatusBar::selectedFieldChanged(FieldInformation * finfo)
     QString item_info;
 
     if ( ! finfo ) {
-        pushFieldStatus(item_info);
+        pushGenericStatus(STATUS_CTX_FIELD, item_info);
         return;
     }
 
@@ -297,38 +287,7 @@ void MainStatusBar::selectedFieldChanged(FieldInformation * finfo)
         }
     }
 
-    pushFieldStatus(item_info);
-}
-
-void MainStatusBar::pushTemporaryStatus(const QString &message) {
-    info_status_.pushText(message, STATUS_CTX_TEMPORARY);
-}
-
-void MainStatusBar::popTemporaryStatus() {
-    info_status_.popText(STATUS_CTX_TEMPORARY);
-}
-
-void MainStatusBar::pushFileStatus(const QString &message, const QString &messagetip) {
-    info_status_.pushText(message, STATUS_CTX_FILE);
-    info_status_.setToolTip(messagetip);
-    expertUpdate();
-}
-
-void MainStatusBar::popFileStatus() {
-    info_status_.popText(STATUS_CTX_FILE);
-    info_status_.setToolTip(QString());
-}
-
-void MainStatusBar::pushFieldStatus(const QString &message) {
-    if (message.isEmpty()) {
-        popFieldStatus();
-    } else {
-        info_status_.pushText(message, STATUS_CTX_FIELD);
-    }
-}
-
-void MainStatusBar::popFieldStatus() {
-    info_status_.popText(STATUS_CTX_FIELD);
+    pushGenericStatus(STATUS_CTX_FIELD, item_info);
 }
 
 void MainStatusBar::highlightedFieldChanged(FieldInformation * finfo)
@@ -350,65 +309,48 @@ void MainStatusBar::highlightedFieldChanged(FieldInformation * finfo)
                 .arg(finfo->headerInfo().abbreviation);
     }
 
-    pushByteStatus(hint);
+    pushGenericStatus(STATUS_CTX_BYTE, hint);
 }
 
-void MainStatusBar::pushByteStatus(const QString &message)
+void MainStatusBar::pushGenericStatus(StatusContext status, const QString &message, const QString &messagetip)
 {
-    if (message.isEmpty()) {
-        popByteStatus();
-    } else {
-        info_status_.pushText(message, STATUS_CTX_BYTE);
-    }
+    LabelStack * stack = &info_status_;
+
+    if ( status == STATUS_CTX_MAIN )
+        stack = &packet_status_;
+
+    if ( message.isEmpty() && status != STATUS_CTX_FILE  && status != STATUS_CTX_TEMPORARY && status != STATUS_CTX_PROGRESS )
+        popGenericStatus(status);
+    else
+        stack->pushText(message, status);
+
+    stack->setToolTip(messagetip);
+
+    if ( status == STATUS_CTX_FILTER || status == STATUS_CTX_FILE )
+        expertUpdate();
+
+    if ( status == STATUS_CTX_PROGRESS )
+        progress_frame_.showBusy(true, false, NULL);
 }
 
-void MainStatusBar::popByteStatus()
+void MainStatusBar::popGenericStatus(StatusContext status)
 {
-    info_status_.popText(STATUS_CTX_BYTE);
-}
+    LabelStack * stack = &info_status_;
 
-void MainStatusBar::pushFilterStatus(const QString &message) {
-    if (message.isEmpty()) {
-        popFilterStatus();
-    } else {
-        info_status_.pushText(message, STATUS_CTX_FILTER);
-    }
-    expertUpdate();
-}
+    if ( status == STATUS_CTX_MAIN )
+        stack = &packet_status_;
 
-void MainStatusBar::popFilterStatus() {
-    info_status_.popText(STATUS_CTX_FILTER);
-}
+    stack->setToolTip(QString());
 
-void MainStatusBar::pushPacketStatus(const QString &message) {
-    if (message.isEmpty()) {
-        popPacketStatus();
-    } else {
-        packet_status_.pushText(message, STATUS_CTX_MAIN);
-    }
-}
+    stack->popText(status);
 
-void MainStatusBar::popPacketStatus() {
-    packet_status_.popText(STATUS_CTX_MAIN);
+    if ( status == STATUS_CTX_PROGRESS )
+        progress_frame_.hide();
 }
 
 void MainStatusBar::setProfileName()
 {
     profile_status_.setText(tr("Profile: %1").arg(get_profile_name()));
-}
-
-void MainStatusBar::pushBusyStatus(const QString &message, const QString &messagetip)
-{
-    info_status_.pushText(message, STATUS_CTX_PROGRESS);
-    info_status_.setToolTip(messagetip);
-    progress_frame_.showBusy(true, false, NULL);
-}
-
-void MainStatusBar::popBusyStatus()
-{
-    info_status_.popText(STATUS_CTX_PROGRESS);
-    info_status_.setToolTip(QString());
-    progress_frame_.hide();
 }
 
 void MainStatusBar::pushProgressStatus(const QString &message, bool animate, bool terminate_is_stop, gboolean *stop_flag)
@@ -420,12 +362,6 @@ void MainStatusBar::pushProgressStatus(const QString &message, bool animate, boo
 void MainStatusBar::updateProgressStatus(int value)
 {
     progress_frame_.setValue(value);
-}
-
-void MainStatusBar::popProgressStatus()
-{
-    info_status_.popText(STATUS_CTX_PROGRESS);
-    progress_frame_.hide();
 }
 
 void MainStatusBar::selectedFrameChanged(int)
@@ -498,8 +434,6 @@ void MainStatusBar::showCaptureStatistics()
     if (packets_str.isEmpty()) {
         packets_str = tr("No Packets");
     }
-    popPacketStatus();
-    pushPacketStatus(packets_str);
 }
 
 void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)
@@ -713,7 +647,7 @@ void MainStatusBar::captureEventHandler(CaptureEvent ev)
         case CaptureEvent::Finished:
         case CaptureEvent::Failed:
         case CaptureEvent::Stopped:
-            popFileStatus();
+            popGenericStatus(STATUS_CTX_FILE);
             break;
         default:
             break;

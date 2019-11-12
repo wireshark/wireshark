@@ -72,6 +72,15 @@ public:
         CaptureOptionsDialog
     };
 
+    enum StatusInfo {
+        FilterSyntax,
+        FieldStatus,
+        FileStatus,
+        BusyStatus,
+        ByteStatus,
+        TemporaryStatus
+    };
+
     void registerUpdate(register_action_e action, const char *message);
     void emitAppSignal(AppSignal signal);
     // Emitting app signals (PacketDissectionChanged in particular) from
@@ -128,6 +137,9 @@ public:
     void doTriggerMenuItem(MainMenuItem menuItem);
 
     void zoomTextFont(int zoomLevel);
+
+    void pushStatus(StatusInfo sinfo, const QString &message, const QString &messagetip = QString());
+    void popStatus(StatusInfo sinfo);
 
 private:
     bool initialized_;

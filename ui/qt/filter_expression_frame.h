@@ -30,7 +30,6 @@ public:
 signals:
     void showPreferencesDialog(QString pane_name);
     void filterExpressionsChanged();
-    void pushFilterSyntaxStatus(const QString&);
 
 protected:
     virtual void showEvent(QShowEvent *event);

@@ -91,6 +91,7 @@ class ProtoTree;
 class WirelessFrame;
 #endif
 class FilterExpressionToolBar;
+class WiresharkApplication;
 
 class QAction;
 class QActionGroup;
@@ -683,6 +684,8 @@ private slots:
 
     void extcap_options_finished(int result);
     void showExtcapOptionsDialog(QString & device_name);
+
+    friend WiresharkApplication;
 };
 
 #endif // MAINWINDOW_H

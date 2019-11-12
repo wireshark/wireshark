@@ -125,11 +125,6 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
     connect(wsApp, &WiresharkApplication::displayFilterListChanged, this, &DisplayFilterEdit::updateBookmarkMenu);
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(checkFilter()));
 
-    /*
-    connect(df_edit, SIGNAL(pushFilterSyntaxStatus(const QString&)), main_ui_->statusBar, SLOT(pushFilterStatus(const QString&)));
-    connect(df_edit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
-    */
-
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(connectToMainWindow()));
 }
 
@@ -349,15 +344,14 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
     switch (syntaxState()) {
     case Deprecated:
     {
-        emit pushFilterSyntaxStatus(syntaxErrorMessage());
+        wsApp->pushStatus(WiresharkApplication::FilterSyntax, syntaxErrorMessage());
         setToolTip(syntaxErrorMessage());
         break;
     }
     case Invalid:
     {
-        QString invalidMsg(tr("Invalid filter: "));
-        invalidMsg.append(syntaxErrorMessage());
-        emit pushFilterSyntaxStatus(invalidMsg);
+        QString invalidMsg = tr("Invalid filter: ").append(syntaxErrorMessage());
+        wsApp->pushStatus(WiresharkApplication::FilterSyntax, syntaxErrorMessage());
         setToolTip(invalidMsg);
         break;
     }
@@ -472,14 +466,14 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word)
 {
     // Push a hint about the current field.
     if (syntaxState() == Valid) {
-        emit popFilterSyntaxStatus();
+        wsApp->popStatus(WiresharkApplication::FilterSyntax);
 
         header_field_info *hfinfo = proto_registrar_get_byname(field_word.toUtf8().constData());
         if (hfinfo) {
             QString cursor_field_msg = QString("%1: %2")
                     .arg(hfinfo->name)
                     .arg(ftype_pretty_name(hfinfo->type));
-            emit pushFilterSyntaxStatus(cursor_field_msg);
+            wsApp->pushStatus(WiresharkApplication::FilterSyntax, cursor_field_msg);
         }
     }
 

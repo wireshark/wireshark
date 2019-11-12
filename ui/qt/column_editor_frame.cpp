@@ -17,6 +17,7 @@
 #include <ui/recent.h>
 
 #include <ui/preference_utils.h>
+#include <ui/qt/wireshark_application.h>
 
 #include "column_editor_frame.h"
 #include <ui_column_editor_frame.h>
@@ -167,11 +168,11 @@ void ColumnEditorFrame::keyPressEvent(QKeyEvent *event)
             if (ui->buttonBox->button(QDialogButtonBox::Ok)->isEnabled()) {
                 on_buttonBox_accepted();
             } else if (ui->fieldsNameLineEdit->syntaxState() == SyntaxLineEdit::Empty) {
-                emit pushFilterSyntaxStatus(tr("Missing fields."));
+                wsApp->pushStatus(WiresharkApplication::FilterSyntax, tr("Missing fields."));
             } else if (ui->fieldsNameLineEdit->syntaxState() != SyntaxLineEdit::Valid) {
-                emit pushFilterSyntaxStatus(tr("Invalid fields."));
+                wsApp->pushStatus(WiresharkApplication::FilterSyntax, tr("Invalid fields."));
             } else if (ui->occurrenceLineEdit->syntaxState() == SyntaxLineEdit::Invalid) {
-                emit pushFilterSyntaxStatus(tr("Invalid occurrence value."));
+                wsApp->pushStatus(WiresharkApplication::FilterSyntax, tr("Invalid occurrence value."));
             }
         }
     }

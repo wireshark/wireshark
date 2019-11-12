@@ -33,7 +33,6 @@ public slots:
 
 signals:
     void showNameResolutionPreferences(const QString module_name);
-    void editAddressStatus(const QString &status);
     void redissectPackets();
 
 protected:

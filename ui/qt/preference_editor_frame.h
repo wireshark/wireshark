@@ -33,7 +33,6 @@ public slots:
 
 signals:
     void showProtocolPreferences(const QString module_name);
-    void pushFilterSyntaxStatus(const QString&);
 
 protected:
     virtual void showEvent(QShowEvent *event);

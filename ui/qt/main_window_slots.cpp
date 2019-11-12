@@ -576,7 +576,7 @@ void MainWindow::captureCaptureFailed(capture_session *) {
 
     // Reset expert information indicator
     main_ui_->statusBar->captureFileClosing();
-    main_ui_->statusBar->popFileStatus();
+    wsApp->popStatus(WiresharkApplication::FileStatus);
 
     setWindowIcon(wsApp->normalIcon());
 
@@ -662,11 +662,11 @@ void MainWindow::captureEventHandler(CaptureEvent ev)
     case CaptureEvent::Merge:
         switch (ev.eventType()) {
         case CaptureEvent::Started:
-            main_ui_->statusBar->popFileStatus();
-            main_ui_->statusBar->pushFileStatus(tr("Merging files"), QString());
+            wsApp->popStatus(WiresharkApplication::FileStatus);
+            wsApp->pushStatus(WiresharkApplication::FileStatus, tr("Merging files"), QString());
             break;
         case CaptureEvent::Finished:
-            main_ui_->statusBar->popFileStatus();
+            wsApp->popStatus(WiresharkApplication::FileStatus);
             break;
         default:
             break;
@@ -678,8 +678,8 @@ void MainWindow::captureEventHandler(CaptureEvent ev)
         case CaptureEvent::Started:
         {
             QFileInfo file_info(ev.filePath());
-            main_ui_->statusBar->popFileStatus();
-            main_ui_->statusBar->pushFileStatus(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(file_info.fileName()));
+            wsApp->popStatus(WiresharkApplication::FileStatus);
+            wsApp->pushStatus(WiresharkApplication::FileStatus, tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(file_info.fileName()));
             break;
         }
         default:
@@ -744,10 +744,10 @@ void MainWindow::captureFileReadStarted(const QString &action) {
     /* Set up main window for a capture file. */
 //    main_set_for_capture_file(TRUE);
 
-    main_ui_->statusBar->popFileStatus();
+    wsApp->popStatus(WiresharkApplication::FileStatus);
     QString msg = QString(tr("%1: %2")).arg(action).arg(capture_file_.fileName());
     QString msgtip = QString();
-    main_ui_->statusBar->pushFileStatus(msg, msgtip);
+    wsApp->pushStatus(WiresharkApplication::FileStatus, msg, msgtip);
     showCapture();
     main_ui_->actionAnalyzeReloadLuaPlugins->setEnabled(false);
     main_ui_->wirelessTimelineWidget->captureFileReadStarted(capture_file_.capFile());
@@ -808,7 +808,7 @@ void MainWindow::captureFileClosed() {
 
     // Reset expert information indicator
     main_ui_->statusBar->captureFileClosing();
-    main_ui_->statusBar->popFileStatus();
+    wsApp->popStatus(WiresharkApplication::FileStatus);
 
     setWSWindowTitle();
     setWindowIcon(wsApp->normalIcon());
@@ -835,7 +835,7 @@ void MainWindow::startCapture() {
     /* did the user ever select a capture interface before? */
     if (global_capture_opts.num_selected == 0) {
         QString msg = QString(tr("No interface selected"));
-        main_ui_->statusBar->pushTemporaryStatus(msg);
+        wsApp->pushStatus(WiresharkApplication::TemporaryStatus, msg);
         main_ui_->actionCaptureStart->setChecked(false);
         return;
     }
@@ -845,7 +845,7 @@ void MainWindow::startCapture() {
     // case, e.g. with QtMacExtras.
     if (!capture_filter_valid_) {
         QString msg = QString(tr("Invalid capture filter"));
-        main_ui_->statusBar->pushTemporaryStatus(msg);
+        wsApp->pushStatus(WiresharkApplication::TemporaryStatus, msg);
         main_ui_->actionCaptureStart->setChecked(false);
         return;
     }
@@ -878,10 +878,10 @@ void MainWindow::startCapture() {
         }
         g_string_append(interface_names, " ");
 
-        main_ui_->statusBar->popFileStatus();
+        wsApp->popStatus(WiresharkApplication::FileStatus);
         QString msg = QString().sprintf("%s<live capture in progress>", interface_names->str);
         QString msgtip = QString().sprintf("to file: %s", (capture_opts->save_file) ? capture_opts->save_file : "");
-        main_ui_->statusBar->pushFileStatus(msg, msgtip);
+        wsApp->pushStatus(WiresharkApplication::FileStatus, msg, msgtip);
         g_string_free(interface_names, TRUE);
 
         /* The capture succeeded, which means the capture filter syntax is
@@ -1938,7 +1938,7 @@ void MainWindow::actionEditCopyTriggered(MainWindow::CopySelected selection_type
         wsApp->clipboard()->setText(clip);
     } else {
         QString err = tr("Couldn't copy text. Try another item.");
-        main_ui_->statusBar->pushTemporaryStatus(err);
+        wsApp->pushStatus(WiresharkApplication::TemporaryStatus, err);
     }
 }
 
@@ -2396,7 +2396,7 @@ void MainWindow::colorizeConversation(bool create_rule)
         guint8 cc_num = colorize_action->data().toUInt();
         gchar *filter = conversation_filter_from_packet(pi);
         if (filter == NULL) {
-            main_ui_->statusBar->pushTemporaryStatus(tr("Unable to build conversation filter."));
+            wsApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("Unable to build conversation filter."));
             return;
         }
 
@@ -2632,7 +2632,7 @@ void MainWindow::matchFieldFilter(FilterAction::Action action, FilterAction::Act
         QString err = tr("No filter available. Try another ");
         err.append(packet_list_->contextMenuActive() ? "column" : "item");
         err.append(".");
-        main_ui_->statusBar->pushTemporaryStatus(err);
+        wsApp->pushStatus(WiresharkApplication::TemporaryStatus, err);
         return;
     }
 
@@ -3498,14 +3498,14 @@ void MainWindow::goToConversationFrame(bool go_next) {
      * coloring */
     filter = conversation_filter_from_packet(pi);
     if (filter == NULL) {
-        main_ui_->statusBar->pushTemporaryStatus(tr("Unable to build conversation filter."));
+        wsApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("Unable to build conversation filter."));
         g_free(filter);
         return;
     }
 
     if (!dfilter_compile(filter, &dfcode, NULL)) {
         /* The attempt failed; report an error. */
-        main_ui_->statusBar->pushTemporaryStatus(tr("Error compiling filter for this conversation."));
+        wsApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("Error compiling filter for this conversation."));
         g_free(filter);
         return;
     }
@@ -3514,7 +3514,7 @@ void MainWindow::goToConversationFrame(bool go_next) {
 
     if (!found_packet) {
         /* We didn't find a packet */
-        main_ui_->statusBar->pushTemporaryStatus(tr("No previous/next packet in conversation."));
+        wsApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("No previous/next packet in conversation."));
     }
 
     dfilter_free(dfcode);
@@ -3592,7 +3592,7 @@ void MainWindow::on_actionCaptureStart_triggered()
 #ifdef HAVE_LIBPCAP
     if (global_capture_opts.num_selected == 0) {
         QString err_msg = tr("No Interface Selected");
-        main_ui_->statusBar->pushTemporaryStatus(err_msg);
+        wsApp->pushStatus(WiresharkApplication::TemporaryStatus, err_msg);
         main_ui_->actionCaptureStart->setChecked(false);
         return;
     }

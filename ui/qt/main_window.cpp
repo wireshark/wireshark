@@ -398,8 +398,6 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->displayFilterToolBar->addWidget(filter_expression_toolbar_);
 
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
-    connect(wireless_frame_, SIGNAL(pushAdapterStatus(const QString&)),
-            main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
     connect(wireless_frame_, SIGNAL(showWirelessPreferences(QString)),
             this, SLOT(showPreferencesDialog(QString)));
 #endif
@@ -412,21 +410,13 @@ MainWindow::MainWindow(QWidget *parent) :
     // https://bugreports.qt-project.org/browse/QTBUG-7174
 
     main_ui_->searchFrame->hide();
-    connect(main_ui_->searchFrame, SIGNAL(pushFilterSyntaxStatus(const QString&)),
-            main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
     connect(main_ui_->searchFrame, SIGNAL(visibilityChanged(bool)),
             main_ui_->actionEditFindPacket, SLOT(setChecked(bool)));
 
     main_ui_->addressEditorFrame->hide();
     main_ui_->columnEditorFrame->hide();
-    connect(main_ui_->columnEditorFrame, SIGNAL(pushFilterSyntaxStatus(const QString&)),
-            main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
     main_ui_->preferenceEditorFrame->hide();
-    connect(main_ui_->preferenceEditorFrame, SIGNAL(pushFilterSyntaxStatus(const QString&)),
-            main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
     main_ui_->filterExpressionFrame->hide();
-    connect(main_ui_->filterExpressionFrame, SIGNAL(pushFilterSyntaxStatus(const QString&)),
-            main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
 
 #ifndef HAVE_LIBPCAP
     main_ui_->menuCapture->setEnabled(false);
@@ -547,13 +537,7 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(startCapture()));
     connect(welcome_page_, SIGNAL(recentFileActivated(QString)),
             this, SLOT(openCaptureFile(QString)));
-    connect(welcome_page_, SIGNAL(pushFilterSyntaxStatus(const QString&)),
-            main_ui_->statusBar, SLOT(pushFilterStatus(const QString&)));
-    connect(welcome_page_, SIGNAL(popFilterSyntaxStatus()),
-            main_ui_->statusBar, SLOT(popFilterStatus()));
 
-    connect(main_ui_->addressEditorFrame, SIGNAL(editAddressStatus(QString)),
-            main_ui_->statusBar, SLOT(pushTemporaryStatus(QString)));
     connect(main_ui_->addressEditorFrame, SIGNAL(redissectPackets()),
             this, SLOT(redissectPackets()));
     connect(main_ui_->addressEditorFrame, SIGNAL(showNameResolutionPreferences(QString)),
@@ -957,7 +941,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event)
         // We could alternatively call setAcceptDrops(!capture_in_progress)
         // in setMenusForCaptureInProgress but that wouldn't provide feedback.
 
-        main_ui_->statusBar->pushTemporaryStatus(tr("Unable to drop files during capture."));
+        wsApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("Unable to drop files during capture."));
         event->setDropAction(Qt::IgnoreAction);
         event->ignore();
         return;
