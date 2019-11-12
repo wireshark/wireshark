@@ -206,9 +206,14 @@ static void plugin_if_mainwindow_get_ws_info(GHashTable * data_set)
     if (cf) {
         ws_info->cf_count = cf->count;
 
-        if (cf->state == FILE_READ_DONE && cf->current_frame) {
-            ws_info->cf_framenr = cf->current_frame->num;
-            ws_info->frame_passed_dfilter = (cf->current_frame->passed_dfilter == 1);
+        QList<int> rows = gbl_cur_main_window_->selectedRows();
+        frame_data * fdata = NULL;
+        if ( rows.count() > 0 )
+            fdata = gbl_cur_main_window_->frameDataForRow(rows.at(0));
+
+        if (cf->state == FILE_READ_DONE && fdata) {
+            ws_info->cf_framenr = fdata->num;
+            ws_info->frame_passed_dfilter = (fdata->passed_dfilter == 1);
         }
         else {
             ws_info->cf_framenr = 0;
@@ -286,7 +291,6 @@ MainWindow::MainWindow(QWidget *parent) :
     , capture_interfaces_dialog_(NULL)
     , info_data_()
 #endif
-    , pdlg_(NULL)
     , display_filter_dlg_(NULL)
     , capture_filter_dlg_(NULL)
 #ifdef _WIN32
@@ -462,6 +466,8 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->wirelessTimelineWidget->setPacketList(packet_list_);
     connect(packet_list_, SIGNAL(frameSelected(int)),
             this, SIGNAL(frameSelected(int)));
+    connect(packet_list_, SIGNAL(framesSelected(QList<int>)),
+            this, SLOT(framesSelected(QList<int>)));
     connect(this, SIGNAL(frameSelected(int)),
             this, SLOT(setMenusForSelectedPacket()));
 
@@ -475,8 +481,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(proto_tree_, SIGNAL(fieldSelected(FieldInformation *)),
             this, SIGNAL(fieldSelected(FieldInformation *)));
-    connect(this, SIGNAL(fieldSelected(FieldInformation *)),
-            proto_tree_, SLOT(selectedFieldChanged(FieldInformation *)));
     connect(packet_list_, SIGNAL(fieldSelected(FieldInformation *)),
             this, SIGNAL(fieldSelected(FieldInformation *)));
     connect(this, SIGNAL(fieldSelected(FieldInformation *)),
@@ -906,7 +910,6 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 #ifdef HAVE_LIBPCAP
     if (capture_interfaces_dialog_) capture_interfaces_dialog_->close();
 #endif
-    if (pdlg_) pdlg_->close();
     // Make sure we kill any open dumpcap processes.
     delete welcome_page_;
 
@@ -1489,7 +1492,7 @@ void MainWindow::exportSelectedPackets() {
     packet_range_t range;
     cf_write_status_t status;
     gchar   *dirname;
-    gboolean discard_comments = FALSE;
+    bool discard_comments = false;
 
     if (!capture_file_.capFile())
         return;
@@ -1499,13 +1502,20 @@ void MainWindow::exportSelectedPackets() {
     range.process_filtered = TRUE;
     range.include_dependents = TRUE;
 
+    QList<int> rows = packet_list_->selectedRows(true);
+
+    QStringList entries;
+    foreach ( int row, rows )
+        entries << QString::number(row);
+    QString selRange = entries.join(",");
+
     for (;;) {
         CaptureFileDialog esp_dlg(this, capture_file_.capFile());
 
         /* If the file has comments, does the format the user selected
            support them?  If not, ask the user whether they want to
            discard the comments or choose a different format. */
-        switch (esp_dlg.exportSelectedPackets(file_name, &range)) {
+        switch (esp_dlg.exportSelectedPackets(file_name, &range, selRange)) {
 
         case SAVE:
             /* The file can be saved in the specified format as is;
@@ -1610,7 +1620,14 @@ void MainWindow::exportDissections(export_type_e export_type) {
     capture_file *cf = capture_file_.capFile();
     g_return_if_fail(cf);
 
-    ExportDissectionDialog *ed_dlg = new ExportDissectionDialog(this, cf, export_type);
+    QList<int> rows = packet_list_->selectedRows(true);
+
+    QStringList entries;
+    foreach ( int row, rows )
+        entries << QString::number(row);
+    QString selRange = entries.join(",");
+
+    ExportDissectionDialog *ed_dlg = new ExportDissectionDialog(this, cf, export_type, selRange);
     ed_dlg->setWindowModality(Qt::ApplicationModal);
     ed_dlg->setAttribute(Qt::WA_DeleteOnClose);
     ed_dlg->show();
@@ -2870,6 +2887,21 @@ void MainWindow::setMwFileName(QString fileName)
 {
     mwFileName_ = fileName;
     return;
+}
+
+QList<int> MainWindow::selectedRows(bool useFrameNum)
+{
+    if ( packet_list_ )
+        return packet_list_->selectedRows(useFrameNum);
+    return QList<int>();
+}
+
+frame_data * MainWindow::frameDataForRow(int row) const
+{
+    if ( packet_list_ )
+        return packet_list_->getFDataForRow(row);
+
+    return Q_NULLPTR;
 }
 
 /*

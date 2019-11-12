@@ -6481,9 +6481,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Find the previous packet</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>&amp;Mark/Unmark Packet</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <oldsource>&amp;Mark/Unmark Packet</oldsource>
+        <translation type="unfinished">
+            <numerusform>&amp;Mark/Unmark Packet</numerusform>
+            <numerusform>&amp;Mark/Unmark Packets</numerusform>
+        </translation>
     </message>
     <message>
         <source>Mark or unmark this packet</source>
@@ -6517,9 +6521,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Go to the previous marked packet</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>&amp;Ignore/Unignore Packet</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
+        <translation type="unfinished">
+            <numerusform>&amp;Ignore/Unignore Packet</numerusform>
+            <numerusform>&amp;Ignore/Unignore Packets</numerusform>
+        </translation>
     </message>
     <message>
         <source>Ignore or unignore this packet</source>

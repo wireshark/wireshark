@@ -32,7 +32,7 @@ class ExportDissectionDialog : public QFileDialog
     Q_OBJECT
 
 public:
-    explicit ExportDissectionDialog(QWidget *parent, capture_file *cap_file, export_type_e export_type);
+    explicit ExportDissectionDialog(QWidget *parent, capture_file *cap_file, export_type_e export_type, QString selRange = QString());
     ~ExportDissectionDialog();
 
 public slots:

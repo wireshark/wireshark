@@ -21,6 +21,7 @@
 
 #include "ui/main_statusbar.h"
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/main_window.h>
 
 #include "capture_file.h"
 #include "main_status_bar.h"
@@ -373,21 +374,26 @@ void MainStatusBar::showCaptureStatistics()
 {
     QString packets_str;
 
+    QList<int> rows;
+    MainWindow * mw = qobject_cast<MainWindow *>(wsApp->mainWindow());
+    if ( mw )
+        rows = mw->selectedRows(true);
+
 #ifdef HAVE_LIBPCAP
     if (cap_file_) {
         /* Do we have any packets? */
         if (cs_fixed_ && cs_count_ > 0) {
-            if (prefs.gui_qt_show_selected_packet && cap_file_->current_frame) {
+            if (prefs.gui_qt_show_selected_packet && rows.count() == 1) {
                 packets_str.append(QString(tr("Selected Packet: %1 %2 "))
-                                   .arg(cap_file_->current_frame->num)
+                                   .arg(rows.at(0))
                                    .arg(UTF8_MIDDLE_DOT));
             }
             packets_str.append(QString(tr("Packets: %1"))
                                .arg(cs_count_));
         } else if (cs_count_ > 0) {
-            if (prefs.gui_qt_show_selected_packet && cap_file_->current_frame) {
+            if (prefs.gui_qt_show_selected_packet && rows.count() == 1) {
                 packets_str.append(QString(tr("Selected Packet: %1 %2 "))
-                                   .arg(cap_file_->current_frame->num)
+                                   .arg(rows.at(0))
                                    .arg(UTF8_MIDDLE_DOT));
             }
             packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 (%3%)"))
@@ -395,6 +401,12 @@ void MainStatusBar::showCaptureStatistics()
                                .arg(cap_file_->displayed_count)
                                .arg((100.0*cap_file_->displayed_count)/cap_file_->count, 0, 'f', 1)
                                .arg(UTF8_MIDDLE_DOT));
+            if(rows.count() > 1) {
+                packets_str.append(QString(tr(" %1 Selected: %2 (%3%)"))
+                                   .arg(UTF8_MIDDLE_DOT)
+                                   .arg(rows.count())
+                                   .arg((100.0*rows.count())/cap_file_->count, 0, 'f', 1));
+            }
             if(cap_file_->marked_count > 0) {
                 packets_str.append(QString(tr(" %1 Marked: %2 (%3%)"))
                                    .arg(UTF8_MIDDLE_DOT)

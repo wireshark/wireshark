@@ -292,9 +292,14 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
     return CANCELLED;
 }
 
-check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, packet_range_t *range) {
+check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, packet_range_t *range, QString selRange) {
     GString *fname = g_string_new(file_name.toUtf8().constData());
     gboolean wespf_status;
+
+    if ( selRange.length() > 0 )
+    {
+        packet_range_convert_selection_str(range, selRange.toUtf8().constData());
+    }
 
     wespf_status = win32_export_specified_packets_file((HWND)parentWidget()->effectiveWinId(), cap_file_, fname, &file_type_, &compression_type_, range);
     file_name = fname->str;
@@ -643,8 +648,8 @@ void CaptureFileDialog::addGzipControls(QVBoxLayout &v_box) {
 
 }
 
-void CaptureFileDialog::addRangeControls(QVBoxLayout &v_box, packet_range_t *range) {
-    packet_range_group_box_.initRange(range);
+void CaptureFileDialog::addRangeControls(QVBoxLayout &v_box, packet_range_t *range, QString selRange) {
+    packet_range_group_box_.initRange(range, selRange);
     v_box.addWidget(&packet_range_group_box_, 0, Qt::AlignTop);
 }
 
@@ -720,7 +725,7 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
     return CANCELLED;
 }
 
-check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, packet_range_t *range) {
+check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, packet_range_t *range, QString selRange) {
     QDialogButtonBox *button_box;
 
     setWindowTitle(wsApp->windowTitleString(tr("Export Specified Packets")));
@@ -729,7 +734,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     setAcceptMode(QFileDialog::AcceptSave);
     setLabelText(FileType, tr("Export as:"));
 
-    addRangeControls(left_v_box_, range);
+    addRangeControls(left_v_box_, range, selRange);
     addGzipControls(right_v_box_);
     button_box = addHelpButton(HELP_EXPORT_FILE_DIALOG);
 

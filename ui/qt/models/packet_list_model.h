@@ -60,9 +60,9 @@ public:
      */
     void resetColumns();
     void resetColorized();
-    void toggleFrameMark(const QModelIndex &fm_index);
+    void toggleFrameMark(const QModelIndexList &indeces);
     void setDisplayedFrameMark(gboolean set);
-    void toggleFrameIgnore(const QModelIndex &i_index);
+    void toggleFrameIgnore(const QModelIndexList &indeces);
     void setDisplayedFrameIgnore(gboolean set);
     void toggleFrameRefTime(const QModelIndex &rt_index);
     void unsetAllFrameRefTime();

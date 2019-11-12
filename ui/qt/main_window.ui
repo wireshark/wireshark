@@ -619,6 +619,10 @@
      <property name="title">
       <string>Copy</string>
      </property>
+     <addaction name="actionCopyListAsText"/>
+     <addaction name="actionCopyListAsCSV"/>
+     <addaction name="actionCopyListAsYAML"/>
+     <addaction name="separator"/>
      <addaction name="actionCopyAllVisibleItems"/>
      <addaction name="actionCopyAllVisibleSelectedTreeItems"/>
      <addaction name="actionEditCopyDescription"/>
@@ -1305,6 +1309,24 @@
     <string notr="true">Ctrl+Alt+Shift+D</string>
    </property>
   </action>
+  <action name="actionCopyListAsText">
+   <property name="text">
+    <string>As Plain &amp;Text…</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionCopyListAsCSV">
+   <property name="text">
+    <string>As &amp;CSV…</string>
+   </property>
+  </action>
+  <action name="actionCopyListAsYAML">
+   <property name="text">
+    <string>As &amp;YAML…</string>
+   </property>
+  </action>
   <action name="actionCopyAllVisibleItems">
    <property name="text">
     <string>All Visible Items</string>
@@ -1407,10 +1429,10 @@
   </action>
   <action name="actionEditMarkPacket">
    <property name="text">
-    <string>&amp;Mark/Unmark Packet</string>
+    <string>&amp;Mark/Unmark Packet(s)</string>
    </property>
    <property name="toolTip">
-    <string>Mark or unmark this packet</string>
+    <string>Mark or unmark each selected packet</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+M</string>
@@ -1462,10 +1484,10 @@
   </action>
   <action name="actionEditIgnorePacket">
    <property name="text">
-    <string>&amp;Ignore/Unignore Packet</string>
+    <string>&amp;Ignore/Unignore Packet(s)</string>
    </property>
    <property name="toolTip">
-    <string>Ignore or unignore this packet</string>
+    <string>Ignore or unignore each selected packet</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+D</string>

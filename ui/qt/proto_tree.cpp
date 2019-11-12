@@ -95,12 +95,25 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
     connect(verticalScrollBar(), SIGNAL(sliderReleased()),
             this, SLOT(updateContentWidth()));
 
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(connectToMainWindow()));
+
     viewport()->installEventFilter(this);
 }
 
 void ProtoTree::clear() {
     proto_tree_model_->setRootNode(NULL);
     updateContentWidth();
+}
+
+void ProtoTree::connectToMainWindow()
+{
+    if ( wsApp->mainWindow() )
+    {
+        connect(wsApp->mainWindow(), SIGNAL(fieldSelected(FieldInformation *)),
+                this, SLOT(selectedFieldChanged(FieldInformation *)));
+        connect(wsApp->mainWindow(), SIGNAL(frameSelected(int)),
+                this, SLOT(selectedFrameChanged(int)));
+    }
 }
 
 void ProtoTree::ctxCopyVisibleItems()
@@ -588,6 +601,12 @@ void ProtoTree::itemDoubleClicked(const QModelIndex &index) {
             QDesktopServices::openUrl(QUrl(url));
         }
     }
+}
+
+void ProtoTree::selectedFrameChanged(int frameNum)
+{
+    if ( frameNum < 0 )
+        proto_tree_model_->setRootNode(Q_NULLPTR);
 }
 
 // Select a field and bring it into view. Intended to be called by external

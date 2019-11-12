@@ -31,12 +31,12 @@ static void packet_range_calc(packet_range_t *range) {
     frame_data    *packet;
 
 
-    range->selected_packet                  = 0;
 
     mark_low                                = 0;
     mark_high                               = 0;
     range->mark_range_cnt                   = 0;
     range->ignored_cnt                      = 0;
+    range->ignored_selection_range_cnt      = 0;
     range->ignored_marked_cnt               = 0;
     range->ignored_mark_range_cnt           = 0;
     range->ignored_user_range_cnt           = 0;
@@ -49,6 +49,7 @@ static void packet_range_calc(packet_range_t *range) {
     range->displayed_mark_range_cnt         = 0;
     range->displayed_plus_dependents_cnt    = 0;
     range->displayed_ignored_cnt            = 0;
+    range->displayed_ignored_selection_range_cnt  = 0;
     range->displayed_ignored_marked_cnt     = 0;
     range->displayed_ignored_mark_range_cnt = 0;
     range->displayed_ignored_user_range_cnt = 0;
@@ -79,8 +80,8 @@ static void packet_range_calc(packet_range_t *range) {
         for(framenum = 1; framenum <= range->cf->count; framenum++) {
             packet = frame_data_sequence_find(range->cf->provider.frames, framenum);
 
-            if (range->cf->current_frame == packet) {
-                range->selected_packet = framenum;
+            if (range->cf->current_frame == packet && range->selection_range == NULL ) {
+                range_add_value(NULL, &(range->selection_range), framenum);
             }
             if (packet->passed_dfilter) {
                 range->displayed_cnt++;
@@ -145,17 +146,6 @@ static void packet_range_calc(packet_range_t *range) {
             }
         }
 
-#if 0
-        /* in case we marked just one packet, we add 1. */
-        if (range->cf->marked_count != 0) {
-            range->mark_range = mark_high - mark_low + 1;
-        }
-
-        /* in case we marked just one packet, we add 1. */
-        if (range->displayed_marked_cnt != 0) {
-            range->displayed_mark_range = displayed_mark_high - displayed_mark_low + 1;
-        }
-#endif
     }
 }
 
@@ -211,6 +201,37 @@ static void packet_range_calc_user(packet_range_t *range) {
     }
 }
 
+static void packet_range_calc_selection(packet_range_t *range) {
+    guint32       framenum;
+    frame_data    *packet;
+
+    range->selection_range_cnt                   = 0;
+    range->ignored_selection_range_cnt           = 0;
+    range->displayed_selection_range_cnt         = 0;
+    range->displayed_ignored_selection_range_cnt = 0;
+
+    g_assert(range->cf != NULL);
+
+    if (range->cf->provider.frames != NULL) {
+        for (framenum = 1; framenum <= range->cf->count; framenum++) {
+            packet = frame_data_sequence_find(range->cf->provider.frames, framenum);
+
+            if (value_is_in_range(range->selection_range, framenum)) {
+                range->selection_range_cnt++;
+                if (packet->ignored) {
+                    range->ignored_selection_range_cnt++;
+                }
+                if (packet->passed_dfilter) {
+                    range->displayed_selection_range_cnt++;
+                    if (packet->ignored) {
+                        range->displayed_ignored_selection_range_cnt++;
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 /* init the range struct */
 void packet_range_init(packet_range_t *range, capture_file *cf) {
@@ -218,15 +239,18 @@ void packet_range_init(packet_range_t *range, capture_file *cf) {
     memset(range, 0, sizeof(packet_range_t));
     range->process    = range_process_all;
     range->user_range = NULL;
+    range->selection_range = NULL;
     range->cf         = cf;
 
     /* calculate all packet range counters */
     packet_range_calc(range);
     packet_range_calc_user(range);
+    packet_range_calc_selection(range);
 }
 
 void packet_range_cleanup(packet_range_t *range) {
     wmem_free(NULL, range->user_range);
+    wmem_free(NULL, range->selection_range);
 }
 
 /* check whether the packet range is OK */
@@ -235,6 +259,10 @@ convert_ret_t packet_range_check(packet_range_t *range) {
         /* Not valid - return the error. */
         return range->user_range_status;
     }
+    if (range->process == range_process_selected && range->selection_range == NULL) {
+        return range->selection_range_status;
+    }
+
     return CVT_NO_ERROR;
 }
 
@@ -270,13 +298,9 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
     case(range_process_all):
         break;
     case(range_process_selected):
-        if (range->selected_done) {
-          return range_processing_finished;
-        }
-        if (fdata->num != range->cf->current_frame->num) {
+        if (value_is_in_range(range->selection_range, fdata->num) == FALSE) {
           return range_process_next;
         }
-        range->selected_done = TRUE;
         break;
     case(range_process_marked):
         if (fdata->marked == FALSE) {
@@ -356,6 +380,32 @@ void packet_range_convert_str(packet_range_t *range, const gchar *es)
     packet_range_calc_user(range);
 } /* packet_range_convert_str */
 
+void packet_range_convert_selection_str(packet_range_t *range, const char *es)
+{
+    range_t *new_range;
+    convert_ret_t ret;
+
+    if (range->selection_range != NULL)
+        wmem_free(NULL, range->selection_range);
+
+    g_assert(range->cf != NULL);
+
+    ret = range_convert_str(NULL, &new_range, es, range->cf->count);
+    if (ret != CVT_NO_ERROR) {
+        /* range isn't valid */
+        range->selection_range                       = NULL;
+        range->selection_range_status                = ret;
+        range->selection_range_cnt                   = 0;
+        range->ignored_selection_range_cnt           = 0;
+        range->displayed_selection_range_cnt         = 0;
+        range->displayed_ignored_selection_range_cnt = 0;
+        return;
+    }
+    range->selection_range = new_range;
+
+    /* calculate new user specified packet range counts */
+    packet_range_calc_selection(range);
+}
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

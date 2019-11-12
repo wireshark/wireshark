@@ -33,6 +33,14 @@ class PacketList : public QTreeView
     Q_OBJECT
 public:
     explicit PacketList(QWidget *parent = 0);
+
+    enum SummaryCopyType {
+        CopyAsText,
+        CopyAsCSV,
+        CopyAsYAML
+    };
+    Q_ENUM(SummaryCopyType)
+
     QMenu *conversationMenu() { return &conv_menu_; }
     QMenu *colorizeMenu() { return &colorize_menu_; }
     void setProtoTree(ProtoTree *proto_tree);
@@ -69,7 +77,13 @@ public:
 
     frame_data * getFDataForRow(int row) const;
 
+    bool multiSelectActive();
+    QList<int> selectedRows(bool useFrameNum = false);
+
+    QString createSummaryText(QModelIndex idx, SummaryCopyType type);
+
 protected:
+
     void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected) override;
     virtual void contextMenuEvent(QContextMenuEvent *event) override;
     void timerEvent(QTimerEvent *event) override;
@@ -78,6 +92,7 @@ protected:
     virtual void mouseReleaseEvent (QMouseEvent *event) override;
     virtual void mouseMoveEvent (QMouseEvent *event) override;
     virtual void resizeEvent(QResizeEvent *event) override;
+    virtual void keyPressEvent(QKeyEvent *event) override;
 
 protected slots:
     void rowsInserted(const QModelIndex &parent, int start, int end) override;
@@ -134,6 +149,7 @@ signals:
     void editProtocolPreference(struct preference *pref, struct pref_module *module);
 
     void frameSelected(int frameNum);
+    void framesSelected(QList<int>);
     void fieldSelected(FieldInformation *);
 
 public slots:

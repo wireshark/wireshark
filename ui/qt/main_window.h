@@ -133,6 +133,9 @@ public:
 
     void insertColumn(QString name, QString abbrev, gint pos = -1);
 
+    QList<int> selectedRows(bool useFrameNum = false);
+    frame_data * frameDataForRow(int row) const;
+
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event);
     virtual bool event(QEvent *event);
@@ -158,7 +161,10 @@ private:
         CopyAllVisibleSelectedTreeItems,
         CopySelectedDescription,
         CopySelectedFieldName,
-        CopySelectedValue
+        CopySelectedValue,
+        CopyListAsText,
+        CopyListAsCSV,
+        CopyListAsYAML
     };
 
     enum FileCloseContext {
@@ -209,7 +215,6 @@ private:
     CaptureInterfacesDialog *capture_interfaces_dialog_;
     info_data_t info_data_;
 #endif
-    PrintDialog *pdlg_;
     FilterDialog *display_filter_dlg_;
     FilterDialog *capture_filter_dlg_;
 
@@ -319,6 +324,8 @@ public slots:
 
     void showWelcome();
     void showCapture();
+
+    void framesSelected(QList<int>);
 
     void setTitlebarForCaptureFile();
     void setWSWindowTitle(QString title = QString());
@@ -459,6 +466,9 @@ private slots:
     void actionEditCopyTriggered(MainWindow::CopySelected selection_type);
     void on_actionCopyAllVisibleItems_triggered();
     void on_actionCopyAllVisibleSelectedTreeItems_triggered();
+    void on_actionCopyListAsText_triggered();
+    void on_actionCopyListAsCSV_triggered();
+    void on_actionCopyListAsYAML_triggered();
     void on_actionEditCopyDescription_triggered();
     void on_actionEditCopyFieldName_triggered();
     void on_actionEditCopyValue_triggered();

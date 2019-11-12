@@ -1130,6 +1130,7 @@ void MainWindow::setMenusForSelectedPacket()
     bool have_frames = false;
     /* A frame is selected */
     bool frame_selected = false;
+    bool multi_selection = false;
     /* A visible packet comes after this one in the selection history */
     bool next_selection_history = false;
     /* A visible packet comes before this one in the selection history */
@@ -1159,20 +1160,31 @@ void MainWindow::setMenusForSelectedPacket()
             << main_ui_->actionViewColorizeConversation9 << main_ui_->actionViewColorizeConversation10;
 
     if (capture_file_.capFile()) {
-        frame_selected = capture_file_.capFile()->current_frame != NULL;
+
+        QList<int> rows = selectedRows();
+        frame_data * current_frame = 0;
+        if ( rows.count() > 0 )
+            current_frame = frameDataForRow(rows.at(0));
+
+        frame_selected = rows.count() == 1;
+        if ( packet_list_->multiSelectActive() )
+        {
+            frame_selected = false;
+            multi_selection = true;
+        }
         next_selection_history = packet_list_->haveNextHistory();
         previous_selection_history = packet_list_->havePreviousHistory();
         have_frames = capture_file_.capFile()->count > 0;
         have_marked = capture_file_.capFile()->marked_count > 0;
-        another_is_marked = have_marked &&
-                !(capture_file_.capFile()->marked_count == 1 && frame_selected && capture_file_.capFile()->current_frame->marked);
+        another_is_marked = have_marked && rows.count() <= 1 &&
+                !(capture_file_.capFile()->marked_count == 1 && frame_selected && current_frame->marked);
         have_filtered = capture_file_.capFile()->displayed_count > 0 && capture_file_.capFile()->displayed_count != capture_file_.capFile()->count;
         have_ignored = capture_file_.capFile()->ignored_count > 0;
         have_time_ref = capture_file_.capFile()->ref_time_count > 0;
-        another_is_time_ref = have_time_ref &&
-                !(capture_file_.capFile()->ref_time_count == 1 && frame_selected && capture_file_.capFile()->current_frame->ref_time);
+        another_is_time_ref = have_time_ref && rows.count() <= 1 &&
+                !(capture_file_.capFile()->ref_time_count == 1 && frame_selected && current_frame->ref_time);
 
-        if (capture_file_.capFile()->edt)
+        if (capture_file_.capFile()->edt && ! multi_selection)
         {
             proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers,
                                       &is_ip, &is_tcp, &is_udp, &is_sctp,
@@ -1183,7 +1195,14 @@ void MainWindow::setMenusForSelectedPacket()
         }
     }
 
-    main_ui_->actionEditMarkPacket->setEnabled(frame_selected);
+    main_ui_->actionEditMarkPacket->setText(tr("&Mark/Unmark Packet(s)", "", selectedRows().count()));
+    main_ui_->actionEditIgnorePacket->setText(tr("&Ignore/Unignore Packet(s)", "", selectedRows().count()));
+
+    main_ui_->actionCopyListAsText->setEnabled(selectedRows().count() > 0);
+    main_ui_->actionCopyListAsCSV->setEnabled(selectedRows().count() > 0);
+    main_ui_->actionCopyListAsYAML->setEnabled(selectedRows().count() > 0);
+
+    main_ui_->actionEditMarkPacket->setEnabled(frame_selected || multi_selection);
     main_ui_->actionEditMarkAllDisplayed->setEnabled(have_frames);
     /* Unlike un-ignore, do not allow unmark of all frames when no frames are displayed  */
     main_ui_->actionEditUnmarkAllDisplayed->setEnabled(have_marked);
@@ -1193,7 +1212,7 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionEditPacketComment->setEnabled(frame_selected && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET));
     main_ui_->actionDeleteAllPacketComments->setEnabled((capture_file_.capFile() != NULL) && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET));
 
-    main_ui_->actionEditIgnorePacket->setEnabled(frame_selected);
+    main_ui_->actionEditIgnorePacket->setEnabled(frame_selected || multi_selection);
     main_ui_->actionEditIgnoreAllDisplayed->setEnabled(have_filtered);
     /* Allow un-ignore of all frames even with no frames currently displayed */
     main_ui_->actionEditUnignoreAllDisplayed->setEnabled(have_ignored);
@@ -1313,7 +1332,7 @@ void MainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
     // Always enable / disable the following items.
     main_ui_->actionFileExportPacketBytes->setEnabled(have_field_info);
 
-    main_ui_->actionCopyAllVisibleItems->setEnabled(capture_file_.capFile() != NULL);
+    main_ui_->actionCopyAllVisibleItems->setEnabled(capture_file_.capFile() != NULL && ! packet_list_->multiSelectActive());
     main_ui_->actionCopyAllVisibleSelectedTreeItems->setEnabled(can_match_selected);
     main_ui_->actionEditCopyDescription->setEnabled(can_match_selected);
     main_ui_->actionEditCopyFieldName->setEnabled(can_match_selected);
@@ -1874,15 +1893,14 @@ void MainWindow::on_actionFilePrint_triggered()
     capture_file *cf = capture_file_.capFile();
     g_return_if_fail(cf);
 
-    if (!pdlg_)
-    {
-        pdlg_ = new PrintDialog(this, cf);
-    }
-    else
-    {
-        pdlg_->cap_file_ = cf;
-    }
+    QList<int> rows = packet_list_->selectedRows(true);
 
+    QStringList entries;
+    foreach ( int row, rows )
+        entries << QString::number(row);
+    QString selRange = entries.join(",");
+
+    PrintDialog * pdlg_ = new PrintDialog(this, cf, selRange);
     pdlg_->setWindowModality(Qt::ApplicationModal);
     pdlg_->show();
 }
@@ -1926,6 +1944,32 @@ void MainWindow::actionEditCopyTriggered(MainWindow::CopySelected selection_type
             clip = proto_tree_->toString(proto_tree_->selectionModel()->selectedIndexes().first());
         }
         break;
+    case CopyListAsText:
+    case CopyListAsCSV:
+    case CopyListAsYAML:
+        if ( packet_list_->selectedRows().count() > 0 )
+        {
+            QList<int> rows = packet_list_->selectedRows();
+            QStringList content;
+            foreach ( int row, rows )
+            {
+                QModelIndex idx = packet_list_->model()->index(row, 0);
+                if ( ! idx.isValid() )
+                    continue;
+
+                PacketList::SummaryCopyType copyType = PacketList::CopyAsText;
+                if ( selection_type == CopyListAsCSV )
+                    copyType = PacketList::CopyAsCSV;
+                else if ( selection_type == CopyListAsYAML )
+                    copyType = PacketList::CopyAsYAML;
+                QString entry = packet_list_->createSummaryText(idx, copyType);
+                content << entry;
+            }
+
+            if ( content.count() > 0 )
+                clip = content.join("\n");
+        }
+        break;
     }
 
     if (clip.length() == 0) {
@@ -1945,6 +1989,21 @@ void MainWindow::actionEditCopyTriggered(MainWindow::CopySelected selection_type
 void MainWindow::on_actionCopyAllVisibleItems_triggered()
 {
     actionEditCopyTriggered(CopyAllVisibleItems);
+}
+
+void MainWindow::on_actionCopyListAsText_triggered()
+{
+    actionEditCopyTriggered(CopyListAsText);
+}
+
+void MainWindow::on_actionCopyListAsCSV_triggered()
+{
+    actionEditCopyTriggered(CopyListAsCSV);
+}
+
+void MainWindow::on_actionCopyListAsYAML_triggered()
+{
+    actionEditCopyTriggered(CopyListAsYAML);
 }
 
 void MainWindow::on_actionCopyAllVisibleSelectedTreeItems_triggered()
@@ -2104,8 +2163,16 @@ void MainWindow::editTimeShiftFinished(int)
 
 void MainWindow::on_actionEditPacketComment_triggered()
 {
+    QList<int> rows = selectedRows();
+    if ( rows.count() != 1 )
+        return;
+
+    frame_data * fdata = frameDataForRow(rows.at(0));
+    if ( ! fdata )
+        return;
+
     PacketCommentDialog* pc_dialog;
-    pc_dialog = new PacketCommentDialog(capture_file_.capFile()->current_frame->num, this, packet_list_->packetComment());
+    pc_dialog = new PacketCommentDialog(fdata->num, this, packet_list_->packetComment());
     connect(pc_dialog, &QDialog::finished, std::bind(&MainWindow::editPacketCommentFinished, this, pc_dialog, std::placeholders::_1));
     pc_dialog->setWindowModality(Qt::ApplicationModal);
     pc_dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -2391,7 +2458,7 @@ void MainWindow::colorizeConversation(bool create_rule)
     QAction *colorize_action = qobject_cast<QAction *>(sender());
     if (!colorize_action) return;
 
-    if (capture_file_.capFile() && capture_file_.capFile()->current_frame) {
+    if (capture_file_.capFile() && selectedRows().count() > 0) {
         packet_info *pi = capture_file_.packetInfo();
         guint8 cc_num = colorize_action->data().toUInt();
         gchar *filter = conversation_filter_from_packet(pi);
@@ -2499,7 +2566,7 @@ void MainWindow::on_actionViewResizeColumns_triggered()
 
 void MainWindow::openPacketDialog(bool from_reference)
 {
-    frame_data * fdata;
+    frame_data * fdata = Q_NULLPTR;
 
     /* Find the frame for which we're popping up a dialog */
     if (from_reference) {
@@ -2508,9 +2575,10 @@ void MainWindow::openPacketDialog(bool from_reference)
             return;
 
         fdata = frame_data_sequence_find(capture_file_.capFile()->provider.frames, framenum);
-    } else {
-        fdata = capture_file_.capFile()->current_frame;
-    }
+    } else if ( selectedRows().count() == 1 ) {
+        fdata = frameDataForRow(selectedRows().at(0));
+    } else if ( selectedRows().count() > 1 )
+        return;
 
     /* If we have a frame, pop up the dialog */
     if (fdata) {
@@ -3857,6 +3925,11 @@ void MainWindow::activatePluginIFToolbar(bool)
             }
         }
     }
+}
+
+void MainWindow::framesSelected(QList<int> /* frames */)
+{
+    setMenusForSelectedPacket();
 }
 
 #ifdef _MSC_VER

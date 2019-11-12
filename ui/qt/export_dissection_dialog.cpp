@@ -46,7 +46,7 @@ static const QStringList export_extensions = QStringList()
 
 #endif
 
-ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *cap_file, export_type_e export_type):
+ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *cap_file, export_type_e export_type, QString selRange):
     QFileDialog(parent),
     export_type_(export_type),
     cap_file_(cap_file)
@@ -119,7 +119,7 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
     /* Default to displayed packets */
     print_args_.range.process_filtered = TRUE;
 
-    packet_range_group_box_.initRange(&print_args_.range);
+    packet_range_group_box_.initRange(&print_args_.range, selRange);
     h_box->addWidget(&packet_range_group_box_);
 
     h_box->addWidget(&packet_format_group_box_, 0, Qt::AlignTop);

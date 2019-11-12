@@ -205,12 +205,6 @@ packet_list_recent_write_all(FILE *rf) {
 
 #define MIN_COL_WIDTH_STR "MMMMMM"
 
-enum copy_summary_type {
-    copy_summary_text_,
-    copy_summary_csv_,
-    copy_summary_yaml_
-};
-
 PacketList::PacketList(QWidget *parent) :
     QTreeView(parent),
     proto_tree_(NULL),
@@ -246,6 +240,8 @@ PacketList::PacketList(QWidget *parent) :
 #if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
     header()->setFirstSectionMovable(true);
 #endif
+
+    setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     // Shrink down to a small but nonzero size in the main splitter.
     int one_em = fontMetrics().height();
@@ -390,6 +386,48 @@ void PacketList::setProtoTree (ProtoTree *proto_tree) {
             &related_packet_delegate_, SLOT(addRelatedFrame(int,ft_framenum_type_t)));
 }
 
+bool PacketList::multiSelectActive()
+{
+    return selectedRows().count() > 1 ? true : false;
+}
+
+QList<int> PacketList::selectedRows(bool useFrameNum)
+{
+    QList<int> rows;
+    if ( selectionModel() && selectionModel()->selectedIndexes().count() > 0 )
+    {
+        foreach ( QModelIndex idx, selectionModel()->selectedIndexes() )
+        {
+            if ( idx.isValid() )
+            {
+                if ( ! useFrameNum && ! rows.contains(idx.row()) )
+                    rows << idx.row();
+                else if ( useFrameNum )
+                {
+                    frame_data * frame = getFDataForRow(idx.row());
+                    if ( frame && ! rows.contains(frame->num) )
+                        rows << frame->num;
+                }
+            }
+        }
+
+        std::sort(rows.begin(), rows.end(), std::less<int>());
+    }
+    else if ( currentIndex().isValid() )
+    {
+        if ( ! useFrameNum )
+            rows << currentIndex().row();
+        else
+        {
+            frame_data *frame = getFDataForRow(currentIndex().row());
+            if ( frame )
+                rows << frame->num;
+        }
+    }
+
+    return rows;
+}
+
 void PacketList::selectionChanged (const QItemSelection & selected, const QItemSelection & deselected)
 {
     QTreeView::selectionChanged(selected, deselected);
@@ -397,13 +435,46 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     if (!cap_file_) return;
 
     int row = -1;
+    static bool multiSelect = false;
 
-    if (selected.isEmpty()) {
-        cf_unselect_packet(cap_file_);
-    } else {
-        row = selected.first().top();
-        cf_select_packet(cap_file_, row);
+    if ( selectionModel() )
+    {
+        if ( selectionModel()->selectedRows(0).count() > 1 )
+        {
+            QList<int> rows;
+            foreach ( QModelIndex idx, selectionModel()->selectedRows(0))
+            {
+                if ( idx.isValid() && ! rows.contains(idx.row()) )
+                    rows << idx.row();
+            }
+
+            emit frameSelected(-1);
+            emit framesSelected(rows);
+            emit fieldSelected(0);
+            cf_unselect_packet(cap_file_);
+
+            /* We have to repaint the content while changing state, as some delegates react to multi-select */
+            if ( ! multiSelect )
+            {
+                related_packet_delegate_.clear();
+                viewport()->update();
+            }
+
+            multiSelect = true;
+
+            return;
+        }
+        else if ( selectionModel()->selectedIndexes().count() > 0 && selectionModel()->selectedIndexes().at(0).isValid() )
+        {
+            multiSelect = false;
+            row = selectionModel()->selectedIndexes().at(0).row();
+        }
     }
+
+    if ( row < 0 )
+        cf_unselect_packet(cap_file_);
+    else
+        cf_select_packet(cap_file_, row);
 
     if (!in_history_ && cap_file_->current_frame) {
         cur_history_++;
@@ -416,6 +487,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     if (proto_tree_) proto_tree_->clear();
 
     emit frameSelected(row);
+    emit framesSelected(QList<int>() << row);
 
     if (!cap_file_->edt) {
         viewport()->update();
@@ -489,6 +561,10 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     proto_prefs_menu_.setModule(module_name);
 
     QModelIndex ctxIndex = indexAt(event->pos());
+
+    if ( selectionModel() && selectionModel()->selectedRows(0).count() > 1 )
+        selectionModel()->select(ctxIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+
     // frameData will be owned by one of the submenus, see below.
     FrameInformation * frameData =
             new FrameInformation(new CaptureFile(this, cap_file_), packet_list_model_->getRowFdata(ctxIndex.row()));
@@ -555,13 +631,13 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     ctx_menu->addMenu(submenu);
 
     QAction * action = submenu->addAction(tr("Summary as Text"));
-    action->setData(copy_summary_text_);
+    action->setData(CopyAsText);
     connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
     action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as CSV"));
-    action->setData(copy_summary_csv_);
+    action->setData(CopyAsCSV);
     connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
     action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as YAML"));
-    action->setData(copy_summary_yaml_);
+    action->setData(CopyAsYAML);
     connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
     submenu->addSeparator();
 
@@ -584,9 +660,9 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 
     // Set menu sensitivity for the current column and set action data.
     if ( frameData )
-        emit frameSelected(frameData->frameNum());
+        emit framesSelected(QList<int>() << frameData->frameNum());
     else
-        emit frameSelected(-1);
+        emit framesSelected(QList<int>());
 
     ctx_menu->exec(event->globalPos());
 }
@@ -653,7 +729,7 @@ void PacketList::mousePressEvent (QMouseEvent *event)
     bool midButton = ( event->buttons() & Qt::MidButton ) == Qt::MidButton;
     if (midButton && cap_file_ && packet_list_model_)
     {
-        packet_list_model_->toggleFrameMark(curIndex);
+        packet_list_model_->toggleFrameMark(QModelIndexList() << curIndex);
         create_far_overlay_ = true;
         packets_bar_update();
     }
@@ -675,7 +751,24 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
         QWidget * content = nullptr;
 
         QString filter = getFilterFromRowAndColumn(curIndex);
-        if ( ! filter.isEmpty() )
+        QList<int> rows = selectedRows();
+        if ( rows.count() > 1 )
+        {
+            QStringList content;
+            foreach ( int row, rows )
+            {
+                QModelIndex idx = model()->index(row, 0);
+                if ( ! idx.isValid() )
+                    continue;
+
+                QString entry = createSummaryText(idx, CopyAsText);
+                content << entry;
+            }
+
+            if ( content.count() > 0 )
+                mimeData->setText(content.join("\n"));
+        }
+        else if ( ! filter.isEmpty() )
         {
             QString abbrev;
             QString name = model()->headerData(curIndex.column(), header()->orientation()).toString();
@@ -696,7 +789,6 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
             filterData["filter"] = filter;
             filterData["name"] = abbrev;
             filterData["description"] = name;
-            QMimeData * mimeData = new QMimeData();
 
             mimeData->setData(WiresharkMimeData::DisplayFilterMimeType, QJsonDocument(filterData).toJson());
             content = new DragLabel(QString("%1\n%2").arg(name, abbrev), this);
@@ -708,7 +800,7 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
                 mimeData->setText(text);
         }
 
-        if ( mimeData )
+        if ( mimeData->hasText() || mimeData->hasFormat(WiresharkMimeData::DisplayFilterMimeType) )
         {
             QDrag * drag = new QDrag(this);
             drag->setMimeData(mimeData);
@@ -723,6 +815,34 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
 
             drag->exec(Qt::CopyAction);
         }
+    }
+}
+
+void PacketList::keyPressEvent(QKeyEvent *event)
+{
+    QTreeView::keyPressEvent(event);
+    if ( event->matches(QKeySequence::Copy) )
+    {
+        QStringList content;
+        if ( model() && selectionModel() && selectionModel()->selectedRows(0).count() > 0 )
+        {
+            QList<int> rows;
+            foreach(QModelIndex row, selectionModel()->selectedRows(0))
+                rows.append(row.row());
+
+            foreach(int row, rows)
+            {
+                QModelIndex idx = model()->index(row, 0);
+                if ( ! idx.isValid() )
+                    continue;
+
+                QString entry = createSummaryText(idx, CopyAsText);
+                content << entry;
+            }
+        }
+
+        if ( content.count() > 0 )
+            wsApp->clipboard()->setText(content.join('\n'), QClipboard::Clipboard);
     }
 }
 
@@ -1376,7 +1496,24 @@ void PacketList::markFrame()
 {
     if (!cap_file_ || !packet_list_model_) return;
 
-    packet_list_model_->toggleFrameMark(currentIndex());
+    QModelIndexList frames;
+
+    if ( selectionModel() && selectionModel()->selectedRows(0).count() > 1 )
+    {
+        QList<int> rows;
+        foreach ( QModelIndex idx, selectionModel()->selectedRows(0) )
+        {
+            if ( idx.isValid() && ! rows.contains(idx.row()) )
+            {
+                frames << idx;
+                rows << idx.row();
+            }
+        }
+    }
+    else
+        frames << currentIndex();
+
+    packet_list_model_->toggleFrameMark(frames);
     create_far_overlay_ = true;
     packets_bar_update();
 }
@@ -1394,7 +1531,25 @@ void PacketList::ignoreFrame()
 {
     if (!cap_file_ || !packet_list_model_) return;
 
-    packet_list_model_->toggleFrameIgnore(currentIndex());
+    QModelIndexList frames;
+
+    if ( selectionModel() && selectionModel()->selectedRows(0).count() > 1 )
+    {
+        QList<int> rows;
+        foreach ( QModelIndex idx, selectionModel()->selectedRows(0) )
+        {
+            if ( idx.isValid() && ! rows.contains(idx.row()) )
+            {
+                frames << idx;
+                rows << idx.row();
+            }
+        }
+    }
+    else
+        frames << currentIndex();
+
+
+    packet_list_model_->toggleFrameIgnore(frames);
     create_far_overlay_ = true;
     int sb_val = verticalScrollBar()->value(); // Surely there's a better way to keep our position?
     setUpdatesEnabled(false);
@@ -1560,19 +1715,13 @@ void PacketList::updateRowHeights(const QModelIndex &ih_index)
     }
 }
 
-void PacketList::copySummary()
+QString PacketList::createSummaryText(QModelIndex idx, SummaryCopyType type)
 {
-    if (!currentIndex().isValid()) return;
-
-    QAction *ca = qobject_cast<QAction*>(sender());
-    if (!ca) return;
-
-    bool ok = false;
-    int copy_type = ca->data().toInt(&ok);
-    if (!ok) return;
+    if ( ! idx.isValid() )
+        return "";
 
     QStringList col_parts;
-    int row = currentIndex().row();
+    int row = idx.row();
     for (int col = 0; col < packet_list_model_->columnCount(); col++) {
         if (get_column_visible(col)) {
             col_parts << packet_list_model_->data(packet_list_model_->index(row, col), Qt::DisplayRole).toString();
@@ -1580,23 +1729,41 @@ void PacketList::copySummary()
     }
 
     QString copy_text;
-    switch (copy_type) {
-    case copy_summary_csv_:
+    switch (type) {
+    case CopyAsCSV:
         copy_text = "\"";
         copy_text += col_parts.join("\",\"");
         copy_text += "\"";
         break;
-    case copy_summary_yaml_:
+    case CopyAsYAML:
         copy_text = "----\n";
         copy_text += QString("# Packet %1 from %2\n").arg(row).arg(cap_file_->filename);
         copy_text += "- ";
         copy_text += col_parts.join("\n- ");
         copy_text += "\n";
         break;
-    case copy_summary_text_:
+    case CopyAsText:
     default:
         copy_text = col_parts.join("\t");
     }
+
+    return copy_text;
+}
+
+void PacketList::copySummary()
+{
+    if (!currentIndex().isValid()) return;
+
+    QAction *ca = qobject_cast<QAction*>(sender());
+    if (!ca) return;
+
+    QVariant type = ca->data();
+    if ( ! type.canConvert<SummaryCopyType>() )
+        return;
+    SummaryCopyType copy_type = type.value<SummaryCopyType>();
+
+    QString copy_text = createSummaryText(currentIndex(), copy_type);
+
     wsApp->clipboard()->setText(copy_text);
 }
 

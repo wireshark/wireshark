@@ -214,22 +214,33 @@ void PacketListModel::resetColorized()
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
-void PacketListModel::toggleFrameMark(const QModelIndex &fm_index)
+void PacketListModel::toggleFrameMark(const QModelIndexList &indeces)
 {
-    if (!cap_file_ || !fm_index.isValid()) return;
+    if (!cap_file_ || indeces.count() <= 0)
+        return;
 
-    PacketListRecord *record = static_cast<PacketListRecord*>(fm_index.internalPointer());
-    if (!record) return;
+    int sectionMax = columnCount() - 1;
 
-    frame_data *fdata = record->frameData();
-    if (!fdata) return;
+    foreach (QModelIndex index, indeces) {
+        if (! index.isValid())
+            continue;
 
-    if (fdata->marked)
-        cf_unmark_frame(cap_file_, fdata);
-    else
-        cf_mark_frame(cap_file_, fdata);
+        PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
+        if (!record)
+            continue;
 
-    emit dataChanged(fm_index, fm_index);
+        frame_data *fdata = record->frameData();
+        if (!fdata)
+            continue;
+
+        if (fdata->marked)
+            cf_unmark_frame(cap_file_, fdata);
+        else
+            cf_mark_frame(cap_file_, fdata);
+
+        dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), sectionMax),
+                QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole);
+    }
 }
 
 void PacketListModel::setDisplayedFrameMark(gboolean set)
@@ -244,20 +255,33 @@ void PacketListModel::setDisplayedFrameMark(gboolean set)
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
-void PacketListModel::toggleFrameIgnore(const QModelIndex &i_index)
+void PacketListModel::toggleFrameIgnore(const QModelIndexList &indeces)
 {
-    if (!cap_file_ || !i_index.isValid()) return;
+    if (!cap_file_ || indeces.count() <= 0)
+        return;
 
-    PacketListRecord *record = static_cast<PacketListRecord*>(i_index.internalPointer());
-    if (!record) return;
+    int sectionMax = columnCount() - 1;
 
-    frame_data *fdata = record->frameData();
-    if (!fdata) return;
+    foreach (QModelIndex index, indeces) {
+        if (! index.isValid())
+            continue;
 
-    if (fdata->ignored)
-        cf_unignore_frame(cap_file_, fdata);
-    else
-        cf_ignore_frame(cap_file_, fdata);
+        PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
+        if (!record)
+            continue;
+
+        frame_data *fdata = record->frameData();
+        if (!fdata)
+            continue;
+
+        if (fdata->ignored)
+            cf_unignore_frame(cap_file_, fdata);
+        else
+            cf_ignore_frame(cap_file_, fdata);
+
+        dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), sectionMax),
+                QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole << Qt::DisplayRole);
+    }
 }
 
 void PacketListModel::setDisplayedFrameIgnore(gboolean set)

@@ -1606,7 +1606,6 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     HWND     cur_ctrl;
     gboolean filtered_active = FALSE;
     TCHAR    static_val[STATIC_LABEL_CHARS];
-    gint     selected_num;
     guint32  ignored_cnt = 0, displayed_ignored_cnt = 0;
     guint32  displayed_cnt;
     gboolean range_valid = TRUE;
@@ -1639,22 +1638,21 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_CURR */
-    selected_num = (g_cf->current_frame) ? g_cf->current_frame->num : 0;
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_CAP);
-    EnableWindow(cur_ctrl, selected_num && !filtered_active);
-    if (range->remove_ignored && g_cf->current_frame && g_cf->current_frame->ignored) {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("0"));
+    EnableWindow(cur_ctrl, range->selection_range_cnt > 0 && !filtered_active);
+    if (range->remove_ignored) {
+        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%d"), range->selection_range_cnt - range->ignored_selection_range_cnt);
     } else {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%d"), selected_num ? 1 : 0);
+        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%d"), range->selection_range_cnt);
     }
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_DISP);
-    EnableWindow(cur_ctrl, selected_num && filtered_active);
-    if (range->remove_ignored && g_cf->current_frame && g_cf->current_frame->ignored) {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("0"));
+    EnableWindow(cur_ctrl, range->displayed_selection_range_cnt > 0 && filtered_active);
+    if (range->remove_ignored) {
+        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%d"), range->displayed_selection_range_cnt - range->displayed_ignored_selection_range_cnt);
     } else {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%d"), selected_num ? 1 : 0);
+        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%d"), range->displayed_selection_range_cnt);
     }
     SetWindowText(cur_ctrl, static_val);
 
@@ -1756,8 +1754,8 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
             displayed_ignored_cnt = range->displayed_ignored_cnt;
             break;
         case(range_process_selected):
-            ignored_cnt = (g_cf->current_frame && g_cf->current_frame->ignored) ? 1 : 0;
-            displayed_ignored_cnt = ignored_cnt;
+            ignored_cnt = range->ignored_selection_range_cnt;
+            displayed_ignored_cnt = range->displayed_ignored_selection_range_cnt;
             break;
         case(range_process_marked):
             ignored_cnt = range->ignored_marked_cnt;

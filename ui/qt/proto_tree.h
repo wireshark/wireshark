@@ -95,6 +95,7 @@ public slots:
     void collapseAll();
     void itemDoubleClicked(const QModelIndex & index);
     void selectedFieldChanged(FieldInformation *);
+    void selectedFrameChanged(int);
 
 protected slots:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
@@ -109,6 +110,7 @@ protected slots:
 
 private slots:
     void updateContentWidth();
+    void connectToMainWindow();
 };
 
 #endif // PROTO_TREE_H
