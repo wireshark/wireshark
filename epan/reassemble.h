@@ -427,7 +427,7 @@ fragment_delete(reassembly_table *table, const packet_info *pinfo,
 /* This struct holds references to all the tree and field handles used when
  * displaying the reassembled fragment tree in the packet details view. A
  * dissector will populate this structure with its own tree and field handles
- * and then invoke show_fragement_tree to have those items added to the packet
+ * and then invoke show_fragment_tree to have those items added to the packet
  * details tree.
  */
 typedef struct _fragment_items {
