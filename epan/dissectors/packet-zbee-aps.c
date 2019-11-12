@@ -19,6 +19,7 @@
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/proto_data.h>
+#include <epan/conversation.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"
@@ -691,6 +692,62 @@ const value_string zbee_aps_t2_btres_status_names[] = {
 #define ZBEE_APS_FRAG_BLOCK7_ACK    0x40
 #define ZBEE_APS_FRAG_BLOCK8_ACK    0x80
 
+/* calculate the extended counter - top 24 bits of the previous counter,
+ * plus our own; then correct for wrapping */
+static guint32
+zbee_aps_calculate_extended_counter(guint32 previous_counter, guint8 raw_counter)
+{
+    guint32 counter = (previous_counter & 0xffffff00) | raw_counter;
+    if ((counter + 0x40) < previous_counter) {
+        counter += 0x100;
+    } else if ((previous_counter + 0x40) < counter) {
+        /* we got an out-of-order packet which happened to go backwards over the
+         * wrap boundary */
+        counter -= 0x100;
+    }
+    return counter;
+}
+
+static struct zbee_aps_conversation_packet_info*
+zbee_aps_conversation_packet_info(packet_info *pinfo, const zbee_nwk_packet *nwk, const zbee_aps_packet *packet)
+{
+    struct zbee_aps_conversation_packet_info    *conv_data_packet;
+
+    conv_data_packet = (struct zbee_aps_conversation_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_zbee_aps, ZBEE_APS_CONVERSATION_PROTO_DATA);
+    if (conv_data_packet == NULL) {
+        conversation_t                      *conv;
+        struct zbee_aps_conversation_info   *conv_data;
+        guint32 counter;
+
+        conv = find_or_create_conversation(pinfo);
+        conv_data = (struct zbee_aps_conversation_info *)conversation_get_proto_data(conv, proto_zbee_aps);
+        if (conv_data == NULL) {
+            conv_data = wmem_new0(wmem_file_scope(), struct zbee_aps_conversation_info);
+            conv_data->a.extended_counter = 0x100;
+            conv_data->a.address = nwk->src;
+            conv_data->b.extended_counter = 0x100;
+            conv_data->b.address = nwk->dst;
+            conversation_add_proto_data(conv, proto_zbee_aps, conv_data);
+        }
+
+        conv_data_packet = wmem_new(wmem_file_scope(), struct zbee_aps_conversation_packet_info);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_zbee_aps, ZBEE_APS_CONVERSATION_PROTO_DATA, conv_data_packet);
+
+        if (((nwk->src == conv_data->a.address) && (packet->type != ZBEE_APS_FCF_ACK)) ||
+                ((nwk->dst == conv_data->a.address) && (packet->type == ZBEE_APS_FCF_ACK))) {
+            counter = zbee_aps_calculate_extended_counter(conv_data->a.extended_counter, packet->counter);
+            conv_data->a.extended_counter = counter;
+        }
+        else {
+            counter = zbee_aps_calculate_extended_counter(conv_data->b.extended_counter, packet->counter);
+            conv_data->b.extended_counter = counter;
+        }
+        conv_data_packet->extended_counter = counter;
+    }
+
+    return conv_data_packet;
+}
+
 /**
  *ZigBee Application Support Sublayer dissector for wireshark.
  *
@@ -701,19 +758,21 @@ const value_string zbee_aps_t2_btres_status_names[] = {
 static int
 dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    tvbuff_t            *payload_tvb = NULL;
-    dissector_handle_t   profile_handle = NULL;
-    dissector_handle_t   zcl_handle = NULL;
+    tvbuff_t                                    *payload_tvb = NULL;
+    dissector_handle_t                          profile_handle = NULL;
+    dissector_handle_t                          zcl_handle = NULL;
 
-    proto_tree          *aps_tree;
-    proto_tree          *field_tree;
-    proto_item          *proto_root;
+    proto_tree                                  *aps_tree;
+    proto_tree                                  *field_tree;
+    proto_item                                  *proto_root;
 
-    zbee_aps_packet      packet;
-    zbee_nwk_packet     *nwk;
+    zbee_aps_packet                             packet;
+    zbee_nwk_packet                             *nwk;
 
-    guint8               fcf;
-    guint8               offset = 0;
+    struct zbee_aps_conversation_packet_info    *conv_data_packet;
+
+    guint8                                      fcf;
+    guint8                                      offset = 0;
 
     static const int   * frag_ack_flags[] = {
         &hf_zbee_aps_block_ack1,
@@ -943,6 +1002,8 @@ dissect_zbee_aps_no_endpt:
         offset += 1;
     }
 
+    conv_data_packet = zbee_aps_conversation_packet_info(pinfo, nwk, &packet);
+
     /* Get and display the extended header, if present. */
     if (packet.ext_header) {
         fcf = tvb_get_guint8(tvb, offset);
@@ -1002,7 +1063,7 @@ dissect_zbee_aps_no_endpt:
          * for each message (fragmented or not). Hash these two together to
          * create the message id for the fragmentation handler.
          */
-        msg_id = ((nwk->src)<<8) + packet.counter;
+        msg_id = ((nwk->src)<<16) + (conv_data_packet->extended_counter & 0xffff);
 
         /* If this is the first block of a fragmented message, than the block
          * number field is the maximum number of blocks in the message. Otherwise
