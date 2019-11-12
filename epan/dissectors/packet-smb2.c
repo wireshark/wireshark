@@ -7598,6 +7598,23 @@ dissect_smb2_SecD_buffer_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 static void
+add_timestamp_to_info_col(tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+	guint32 filetime_high, filetime_low;
+	nstime_t ts;
+
+	filetime_low = tvb_get_letohl(tvb, offset);
+	filetime_high = tvb_get_letohl(tvb, offset + 4);
+
+	ts.secs = filetime_low;
+	ts.nsecs = filetime_high;
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, "@%s",
+            abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_UTC,
+		            FALSE));
+}
+
+static void
 dissect_smb2_TWrp_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
 {
 	proto_item *item = NULL;
@@ -7605,6 +7622,7 @@ dissect_smb2_TWrp_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		item = proto_tree_get_parent(tree);
 		proto_item_append_text(item, ": Timestamp");
 	}
+	add_timestamp_to_info_col(tvb, pinfo, 0);
 	dissect_nt_64bit_time(tvb, tree, 0, hf_smb2_twrp_timestamp);
 }
 
