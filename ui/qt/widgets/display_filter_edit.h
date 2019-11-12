@@ -75,6 +75,7 @@ private:
     StockIconToolButton *clear_button_;
     StockIconToolButton *apply_button_;
     bool leftAlignActions_;
+    QString last_applied_;
 
     void setDefaultPlaceholderText();
     void buildCompletionList(const QString& field_word);

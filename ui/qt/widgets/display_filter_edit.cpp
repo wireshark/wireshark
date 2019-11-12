@@ -69,7 +69,8 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
     bookmark_button_(NULL),
     clear_button_(NULL),
     apply_button_(NULL),
-    leftAlignActions_(false)
+    leftAlignActions_(false),
+    last_applied_(QString())
 {
     setAccessibleName(tr("Display filter entry"));
 
@@ -333,8 +334,10 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
 
         if ( filter_text.length() > 0 )
             clear_button_->setVisible(true);
-        else
-            setPlaceholderText("");
+        else if ( last_applied_.length() > 0 )
+            setPlaceholderText(tr("Current filter: %1").arg(last_applied_));
+        else if ( filter_text.length() <= 0 && last_applied_.length() <= 0 )
+            clear_button_->setVisible(false);
 
         alignActionButtons();
     }
@@ -548,6 +551,7 @@ void DisplayFilterEdit::clearFilter()
 {
     clear();
 
+    last_applied_ = QString();
     updateClearButton();
 
     emit filterPackets(QString(), true);
@@ -557,6 +561,9 @@ void DisplayFilterEdit::applyDisplayFilter()
 {
     if (syntaxState() == Invalid)
         return;
+
+    if ( text().length() > 0 )
+        last_applied_ = text();
 
     updateClearButton();
 
@@ -642,7 +649,9 @@ void DisplayFilterEdit::applyOrPrepareFilter()
     if ( ! pa || pa->property("display_filter").toString().isEmpty() )
         return;
 
-    setText(pa->property("display_filter").toString());
+    QString filterText = pa->property("display_filter").toString();
+    last_applied_ = filterText;
+    setText(filterText);
 
     // Holding down the Shift key will only prepare filter.
     if (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)) {
@@ -730,6 +739,7 @@ void DisplayFilterEdit::dropEvent(QDropEvent *event)
                 return;
             }
 
+            last_applied_ = filterText;
             setText(filterText);
 
             // Holding down the Shift key will only prepare filter.
