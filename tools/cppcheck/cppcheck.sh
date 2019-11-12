@@ -98,7 +98,7 @@ trap : INT
 
 # shellcheck disable=SC2086
 $CPPCHECK --force --enable=style $QUIET    \
-          $SUPPRESSIONS $INCLUDES -i asn1/ \
+          $SUPPRESSIONS $INCLUDES -i epan/dissectors/asn1/ \
           --std=c99 --template=$TEMPLATE   \
           -j $THREADS $TARGET 2>&1 | colorize
 
