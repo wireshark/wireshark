@@ -7597,8 +7597,13 @@ dissect_smb2_SecD_buffer_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	report_create_context_malformed_buffer(tvb, pinfo, tree, "SecD Response");
 }
 
+/*
+ * Add the timestamp to the info column and to the name of the file if
+ * we have not visited this packet before.
+ */
 static void
-add_timestamp_to_info_col(tvbuff_t *tvb, packet_info *pinfo, int offset)
+add_timestamp_to_info_col(tvbuff_t *tvb, packet_info *pinfo, smb2_info_t *si,
+			  int offset)
 {
 	guint32 filetime_high, filetime_low;
 	nstime_t ts;
@@ -7612,6 +7617,21 @@ add_timestamp_to_info_col(tvbuff_t *tvb, packet_info *pinfo, int offset)
 	col_append_fstr(pinfo->cinfo, COL_INFO, "@%s",
             abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_UTC,
 		            FALSE));
+
+	/* Append the timestamp */
+	if (!pinfo->fd->visited) {
+		if (si->saved && si->saved->extra_info_type == SMB2_EI_FILENAME) {
+			gchar *saved_name = (gchar *)si->saved->extra_info;
+			gulong len = (gulong)strlen(saved_name);
+
+			si->saved->extra_info = (gchar *)wmem_alloc(wmem_file_scope(), len + 32 + 1);
+			g_snprintf((gchar *)si->saved->extra_info,
+				   len + 32 + 1 , "%s@%s", (char *)saved_name,
+				   abs_time_to_str(wmem_packet_scope(), &ts,
+					           ABSOLUTE_TIME_UTC, FALSE));
+			wmem_free(wmem_file_scope(), saved_name);
+		}
+	}
 }
 
 static void
@@ -7622,7 +7642,7 @@ dissect_smb2_TWrp_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		item = proto_tree_get_parent(tree);
 		proto_item_append_text(item, ": Timestamp");
 	}
-	add_timestamp_to_info_col(tvb, pinfo, 0);
+	add_timestamp_to_info_col(tvb, pinfo, si, 0);
 	dissect_nt_64bit_time(tvb, tree, 0, hf_smb2_twrp_timestamp);
 }
 
