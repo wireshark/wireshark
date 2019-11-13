@@ -45,6 +45,11 @@ matrix:
         - CXX=g++-8
         - CC=gcc-8
         - PCAP=ON
+    - name: Linux s390x (gcc-7) with PCAP
+      os: linux
+      arch: s390x
+      env:
+        - PCAP=ON
     - name: Linux (gcc-8) without PCAP
       os: linux
       addons:
@@ -66,6 +71,13 @@ matrix:
     - name: Linux arm64 (clang) with PCAP
       os: linux
       arch: arm64
+      env:
+        - CXX=clang++
+        - CC=clang
+        - PCAP=ON
+    - name: Linux s390x (clang) with PCAP
+      os: linux
+      arch: s390x
       env:
         - CXX=clang++
         - CC=clang
