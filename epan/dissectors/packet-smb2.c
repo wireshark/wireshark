@@ -11797,7 +11797,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_share_flags_allow_namespace_caching,
-			{ "Allow namepsace caching", "smb2.share_flags.allow_namespace_caching", FT_BOOLEAN, 32,
+			{ "Allow namespace caching", "smb2.share_flags.allow_namespace_caching", FT_BOOLEAN, 32,
 			NULL, SHARE_FLAGS_allow_namespace_caching, "Clients are allowed to cache the namespace of the specified share", HFILL }
 		},
 
