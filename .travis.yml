@@ -1,5 +1,5 @@
 language: minimal
-dist: xenial
+dist: bionic
 matrix:
   include:
     - name: OSX (xcode10.3 clang-10.0.1) with PCAP
