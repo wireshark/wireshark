@@ -2,12 +2,12 @@ language: minimal
 dist: xenial
 matrix:
   include:
-    - name: OSX (xcode10.3 clang-1001.0.46.4) with PCAP
+    - name: OSX (xcode10.3 clang-10.0.1) with PCAP
       os: osx
       osx_image: xcode10.3
       compiler: clang
       env: PCAP=ON
-    - name: OSX (xcode10.3 clang-1001.0.46.4) without PCAP
+    - name: OSX (xcode10.3 clang-10.0.1) without PCAP
       os: osx
       osx_image: xcode10.3
       compiler: clang
