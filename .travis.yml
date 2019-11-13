@@ -50,6 +50,11 @@ matrix:
       arch: s390x
       env:
         - PCAP=ON
+    - name: Linux ppc64le (gcc-7) with PCAP
+      os: linux
+      arch: ppc64le
+      env:
+        - PCAP=ON
     - name: Linux (gcc-8) without PCAP
       os: linux
       addons:
@@ -78,6 +83,13 @@ matrix:
     - name: Linux s390x (clang) with PCAP
       os: linux
       arch: s390x
+      env:
+        - CXX=clang++
+        - CC=clang
+        - PCAP=ON
+    - name: Linux ppc64le (clang) with PCAP
+      os: linux
+      arch: ppc64le
       env:
         - CXX=clang++
         - CC=clang
