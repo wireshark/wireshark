@@ -434,6 +434,9 @@ void MainStatusBar::showCaptureStatistics()
     if (packets_str.isEmpty()) {
         packets_str = tr("No Packets");
     }
+
+    popGenericStatus(STATUS_CTX_MAIN);
+    pushGenericStatus(STATUS_CTX_MAIN, packets_str);
 }
 
 void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)
