@@ -35,6 +35,13 @@ The following features are new (or have been significantly updated)
 since version 3.1.0:
 
 * Automatic updates are supported on macOS.
+* You can now select multiple packets in the packet list at the same time
+** They can be exported as Text by ”kbd:[Ctrl+C] or kbd:[Cmd+C]” and the corresponding
+  menu in “menu:Edit[Copy > As ...]”
+** They can be marked/unmarked or ignored/unignored at the same time
+** They can be exported and printed using the corresponding menu entries
+  ”menu:File[Export Specified Packets]”, ”menu:File[Export Packet Dissections]”
+  and ”menu:File[Print]”
 * You can now follow HTTP/2 and QUIC streams.
 * You can once again mark and unmark packets using the middle mouse button.
   This feature went missing around 2009 or so.
@@ -61,12 +68,12 @@ since version 3.0.0:
   addition to the existing key log preference (wsbuglink:15571[]).
 * A new tap for extracting credentials from the capture file has been added.
   It can be accessed through the `-z credentials` option in tshark or from the
-  “Tools” menu in Wireshark.
+  “menu:Tools[Credentials]” menu in Wireshark.
 * Editcap can now split files on floating point intervals.
 * Windows .msi packages are now https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-signing-support-requirement-for-windows-and-wsus[signed using SHA-2].
   .exe installers are still dual-signed using SHA-1 and SHA-2.
 * The “Enabled Protocols” Dialog now only enables, disables and inverts protocols based on the set filter selection. The protocol type (standard or heuristic) may also be choosen as a filter value.
-* The “Analyze -> Apply as Filter” and “Analyze -> Prepare a Filter” packet list and detail popup menus now show a preview of their respective filters.
+* The “menu:Analyze[Apply as Filter]” and “menu:Analyze[Prepare a Filter]” packet list and detail popup menus now show a preview of their respective filters.
 * Protobuf files (*.proto) can now be configured to enable more precise parsing of serialized Protobuf data (such as gRPC).
 * HTTP2 support streaming mode reassembly. To use this feature, subdissectors can register itself to "streaming_content_type" dissector table and return pinfo->desegment_len and pinfo->desegment_offset to tell HTTP2 when to start and how many additional bytes requires when next called.
 * The message of stream gRPC method can now be parsed with supporting of HTTP2 streaming mode reassembly feature.
