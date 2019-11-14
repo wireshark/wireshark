@@ -114,6 +114,8 @@ if [ ! -d "$qt_frameworks_dir" ] ; then
 	exit 1
 fi
 
+sparkle_frameworks_dir="@SPARKLE_LIBRARY@"
+
 #
 # Leave the Qt frameworks out of the special processing.
 #
@@ -227,6 +229,10 @@ fi
 # that entry from the Wireshark binary in the package.
 #
 /usr/bin/install_name_tool -delete_rpath "$qt_frameworks_dir" $pkgexec/Wireshark
+
+if [ -d "$sparkle_frameworks_dir" ] ; then
+	cp -r "$sparkle_frameworks_dir" "$pkglib" || exit 1
+fi
 
 # NOTE: we must rpathify *all* files, *including* Qt libraries etc.,
 #

@@ -20,12 +20,15 @@
  * - The schema version (fixed, 0)
  * - The application name (fixed, "Wireshark")
  * - The application version ("<major>.<minor>.<micro>")
- * - The operating system (varable, one of "windows" or "osx")
+ * - The operating system (varable, one of "Windows" or "macOS")
  * - The architecture name (variable, one of "x86", "x86-64")
  * - The locale (fixed, "en-US)
  * - The update channel (variable, one of "development" or "stable") + .xml
  *
  * Based on https://wiki.mozilla.org/Software_Update:Checking_For_Updates
+ *
+ * To do for version 1:
+ * - Distinguish between NSIS (.exe) and WiX (.msi) on Windows.
  */
 
 #ifdef HAVE_SOFTWARE_UPDATE
@@ -35,28 +38,30 @@
 #define SU_LOCALE "en-US"
 #endif /* HAVE_SOFTWARE_UPDATE */
 
-#if defined(HAVE_SOFTWARE_UPDATE) && defined (_WIN32)
+#ifdef HAVE_SOFTWARE_UPDATE
 
 #include "glib.h"
 
+#ifdef _WIN32
 #include <winsparkle.h>
-
 #define SU_OSNAME "Windows"
+#elif defined(__APPLE__)
+#include <macosx/sparkle_bridge.h>
+#define SU_OSNAME "macOS"
+#else
+#error HAVE_SOFTWARE_UPDATE can only be defined for Windows or macOS.
+#endif
 
-static GString *update_url_str = NULL;
+// https://sourceforge.net/p/predef/wiki/Architectures/
+#if defined(__x86_64__) || defined(_M_X64)
+#define SU_ARCH "x86-64"
+#elif defined(defined(__i386__) || defined(_M_IX86)
+#define SU_ARCH "x86"
+#endif
 
-static const char *get_appcast_update_url(software_update_channel_e chan) {
+static char *get_appcast_update_url(software_update_channel_e chan) {
+    GString *update_url_str = g_string_new("");;
     const char *chan_name;
-    const char *arch = "x86";
-
-    if (!update_url_str) {
-        update_url_str = g_string_new("");
-    }
-
-    /* XXX Add WOW64 checks similar to version_info.c? */
-    if (sizeof(arch) != 4) {
-        arch = "x86-64";
-    }
 
     switch (chan) {
         case UPDATE_CHANNEL_DEVELOPMENT:
@@ -72,11 +77,12 @@ static const char *get_appcast_update_url(software_update_channel_e chan) {
                     SU_APPLICATION,
                     VERSION,
                     SU_OSNAME,
-                    arch,
+                    SU_ARCH,
                     chan_name);
-    return update_url_str->str;
+    return g_string_free(update_url_str, FALSE);
 }
 
+#ifdef _WIN32
 /** Initialize software updates.
  */
 void
@@ -115,7 +121,32 @@ extern void software_update_cleanup(void) {
     win_sparkle_cleanup();
 }
 
-#else /* defined(HAVE_SOFTWARE_UPDATE) && defined (_WIN32) */
+#elif defined (__APPLE__)
+/** Initialize software updates.
+ */
+void
+software_update_init(void) {
+    char *update_url = get_appcast_update_url(prefs.gui_update_channel);
+
+    sparkle_software_update_init(update_url, prefs.gui_update_enabled, prefs.gui_update_interval);
+
+    g_free(update_url);
+}
+
+/** Force a software update check.
+ */
+void
+software_update_check(void) {
+    sparkle_software_update_check();
+}
+
+/** Clean up software update checking.
+ */
+void software_update_cleanup(void) {
+}
+#endif
+
+#else /* No updates */
 
 /** Initialize software updates.
  */
@@ -132,18 +163,6 @@ software_update_check(void) {
 /** Clean up software update checking.
  */
 void software_update_cleanup(void) {
-}
-
-/** Check to see if Wireshark can shut down safely (e.g. offer to save the
- *  current capture).
- */
-int software_update_can_shutdown_callback(void) {
-    return FALSE;
-}
-
-/** Shut down Wireshark in preparation for an upgrade.
- */
-void software_update_shutdown_request_callback(void) {
 }
 
 #endif /* defined(HAVE_SOFTWARE_UPDATE) && defined (_WIN32) */

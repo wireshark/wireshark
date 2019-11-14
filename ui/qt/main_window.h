@@ -416,7 +416,7 @@ private slots:
     void openTapParameterDialog(const QString cfg_str, const QString arg, void *userdata);
     void openTapParameterDialog();
 
-#ifdef HAVE_SOFTWARE_UPDATE
+#if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
     void softwareUpdateRequested();
 #endif
 

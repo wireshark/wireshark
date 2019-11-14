@@ -290,7 +290,7 @@
 /* Define to 1 if you have the `setresuid' function. */
 #cmakedefine HAVE_SETRESUID 1
 
-/* Define to 1 if you have the WinSparkle library */
+/* Define to 1 if you have the Sparkle or WinSparkle library */
 #cmakedefine HAVE_SOFTWARE_UPDATE 1
 
 /* Define if you have the 'strptime' function. */

@@ -1642,7 +1642,7 @@ void MainWindow::openTapParameterDialog()
     openTapParameterDialog(cfg_str, NULL, NULL);
 }
 
-#ifdef HAVE_SOFTWARE_UPDATE
+#if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
 void MainWindow::softwareUpdateRequested() {
     // We could call testCaptureFileClose here, but that would give us yet
     // another dialog. Just try again later.

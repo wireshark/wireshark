@@ -223,7 +223,7 @@ extern "C" void menu_recent_file_write_all(FILE *rf) {
     }
 }
 
-#ifdef HAVE_SOFTWARE_UPDATE
+#if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
 /** Check to see if Wireshark can shut down safely (e.g. offer to save the
  *  current capture).
  */
@@ -236,7 +236,7 @@ extern "C" int software_update_can_shutdown_callback(void) {
 extern "C" void software_update_shutdown_request_callback(void) {
     wsApp->softwareUpdateShutdownRequest();
 }
-#endif // HAVE_SOFTWARE_UPDATE
+#endif // HAVE_SOFTWARE_UPDATE && Q_OS_WIN
 
 // Check each recent item in a separate thread so that we don't hang while
 // calling stat(). This is called periodically because files and entire
@@ -861,7 +861,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     QPalette gui_pal = qApp->palette();
     prefs_set_gui_theme_is_dark(gui_pal.windowText().color().value() > gui_pal.window().color().value());
 
-#ifdef HAVE_SOFTWARE_UPDATE
+#if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
     connect(this, SIGNAL(softwareUpdateQuit()), this, SLOT(quit()), Qt::QueuedConnection);
 #endif
 
@@ -1301,7 +1301,7 @@ void WiresharkApplication::zoomTextFont(int zoomLevel)
     emit zoomMonospaceFont(zoomed_font_);
 }
 
-#ifdef HAVE_SOFTWARE_UPDATE
+#if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
 bool WiresharkApplication::softwareUpdateCanShutdown() {
     software_update_ok_ = true;
     // At this point the update is ready to install, but WinSparkle has

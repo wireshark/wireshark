@@ -123,7 +123,7 @@ public:
     const QString windowTitleString(QStringList title_parts);
     const QString windowTitleString(QString title_part) { return windowTitleString(QStringList() << title_part); }
     void applyCustomColorsFromRecent();
-#ifdef HAVE_SOFTWARE_UPDATE
+#if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
     void rejectSoftwareUpdate() { software_update_ok_ = false; }
     bool softwareUpdateCanShutdown();
     void softwareUpdateShutdownRequest();
@@ -156,7 +156,7 @@ private:
     static QString window_title_separator_;
     QList<AppSignal> app_signals_;
     int active_captures_;
-#ifdef HAVE_SOFTWARE_UPDATE
+#if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
     bool software_update_ok_;
 #endif
 
@@ -194,7 +194,7 @@ signals:
     void checkDisplayFilter();
     void fieldsChanged();
     void reloadLuaPlugins();
-#ifdef HAVE_SOFTWARE_UPDATE
+#if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
     // Each of these are called from a separate thread.
     void softwareUpdateRequested();
     void softwareUpdateClose();

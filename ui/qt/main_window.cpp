@@ -365,7 +365,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(updateRecentCaptureStatus(const QString &, qint64, bool)), this, SLOT(updateRecentCaptures()));
     updateRecentCaptures();
 
-#ifdef HAVE_SOFTWARE_UPDATE
+#if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
     connect(wsApp, SIGNAL(softwareUpdateRequested()), this, SLOT(softwareUpdateRequested()),
         Qt::BlockingQueuedConnection);
     connect(wsApp, SIGNAL(softwareUpdateClose()), this, SLOT(close()),

@@ -241,5 +241,22 @@
 	-->
 	<key>LSMinimumSystemVersion</key>
 	<string>@MIN_MACOS_VERSION@</string>
+
+	<!-- Sparkle settings https://sparkle-project.org/documentation/customization/ -->
+	<key>SUFeedURL</key>
+	<string>https://www.wireshark.org/update/0/Wireshark/@PROJECT_MAJOR_VERSION@.@PROJECT_MINOR_VERSION@.@PROJECT_PATCH_VERSION@/macOS/x86-64/en-US/stable.xml</string>
+	<key>SUEnableAutomaticChecks</key>
+	<false/>
+	<key>SUPublicEDKey</key>
+	<string>BeSuPpEZOmOzkON9QMnfIdwyi06P/LcVoik8M5O2bsQ=</string>
+	<key>SUEnableSystemProfiling</key>
+	<false/>
+	<!--
+	  Disable automatic updates here, then enable them at program
+	  startup depending on prefs.gui_update_enabled.
+	-->
+	<key>SUAutomaticallyUpdate</key>
+	<false/>
+
 </dict>
 </plist>

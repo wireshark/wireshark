@@ -1089,6 +1089,7 @@ if(BUILD_wireshark)
 	)
 	if(APPLE)
 		list(APPEND QT_PACKAGELIST Qt5MacExtras)
+		ws_find_package(Sparkle ENABLE_SPARKLE HAVE_SOFTWARE_UPDATE)
 	endif()
 	if(WIN32)
 		list(APPEND QT_PACKAGELIST Qt5WinExtras)
@@ -1651,6 +1652,7 @@ endif()
 
 feature_summary(WHAT ALL)
 
+# Should this be part of libui?
 if(WIN32)
 	set(PLATFORM_UI_SRC
 		ui/win32/console_win32.c
@@ -1663,6 +1665,9 @@ elseif(APPLE)
 	set(PLATFORM_UI_SRC
 		ui/macosx/cocoa_bridge.mm
 	)
+	if (SPARKLE_FOUND)
+		list(APPEND PLATFORM_UI_SRC ui/macosx/sparkle_bridge.m)
+	endif()
 endif()
 
 set(TSHARK_TAP_SRC
@@ -2266,6 +2271,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		${APPLE_APPKIT_LIBRARY}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
+		${SPARKLE_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
 		${WIN_VERSION_LIBRARY}
 		${WINSPARKLE_LIBRARIES}
@@ -2312,6 +2318,7 @@ if(BUILD_wireshark AND QT_FOUND)
 	endif()
 
 	target_link_libraries(wireshark ${wireshark_LIBS})
+	target_include_directories(wireshark SYSTEM PRIVATE ${SPARKLE_INCLUDE_DIR})
 
 	install(
 		TARGETS wireshark
