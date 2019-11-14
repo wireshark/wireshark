@@ -45,8 +45,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex & = QModelIndex()) const;
     QVariant data(const QModelIndex &d_index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole | Qt::ToolTipRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
     gint appendPacket(frame_data *fdata);
     frame_data *getRowFdata(int row);

@@ -97,10 +97,10 @@ bool AStringListListSortFilterProxyModel::lessThan(const QModelIndex &left, cons
 
     if ( numericColumns_.contains(left.column()) || numericColumns_.contains(right.column() ) )
     {
-        float left = leftData.toFloat();
-        float right = rightData.toFloat();
+        float leftD = leftData.toFloat();
+        float rightD = rightData.toFloat();
 
-        return left < right;
+        return leftD < rightD;
     }
 
     return leftData.compare(rightData, sortCaseSensitivity()) < 0;

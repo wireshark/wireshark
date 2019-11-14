@@ -37,6 +37,9 @@ public:
     QString filter_;
     QColor foreground_;
     QColor background_;
+
+    ColoringRuleItem& operator=(ColoringRuleItem& rhs);
+
 };
 
 class ColoringRulesModel : public QAbstractItemModel

@@ -60,6 +60,16 @@ ColoringRuleItem::ColoringRuleItem(const ColoringRuleItem& item)
 {
 }
 
+ColoringRuleItem& ColoringRuleItem::operator=(ColoringRuleItem& rhs)
+{
+    disabled_ = rhs.disabled_;
+    name_ = rhs.name_;
+    filter_ = rhs.filter_;
+    foreground_ = rhs.foreground_;
+    background_ = rhs.background_;
+    return *this;
+}
+
 // Callback for color_filters_clone.
 void
 color_filter_add_cb(color_filter_t *colorf, gpointer user_data)
@@ -454,9 +464,9 @@ bool ColoringRulesModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
 
     QJsonArray dataArray = encodedData.object()["coloringrules"].toArray();
 
-    for ( int row = 0; row < dataArray.count(); row++ )
+    for ( int datarow = 0; datarow < dataArray.count(); datarow++ )
     {
-        QJsonObject entry = dataArray.at(row).toObject();
+        QJsonObject entry = dataArray.at(datarow).toObject();
 
         if ( ! entry.contains("foreground") || ! entry.contains("background") || ! entry.contains("filter") )
             continue;

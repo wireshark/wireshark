@@ -10,6 +10,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#ifndef CREDENTIALS_MODELS_H
+#define CREDENTIALS_MODELS_H
+
 #include <QAbstractListModel>
 #include <QList>
 
@@ -45,6 +48,8 @@ private:
     QList<tap_credential_t*> credentials_;
 
 };
+
+#endif // CREDENTIALS_MODELS_H
 
 /*
  * Editor modelines
