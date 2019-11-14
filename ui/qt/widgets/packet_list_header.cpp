@@ -161,26 +161,25 @@ void PacketListHeader::setCaptureFile(capture_file *cap_file)
 void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
 {
     int sectionIdx = logicalIndexAt(event->pos());
+    char xalign = recent_get_column_xalign(sectionIdx);
     QAction * action = Q_NULLPTR;
     QMenu * contextMenu = new QMenu(this);
     contextMenu->setProperty("column", qVariantFromValue(sectionIdx));
 
     QActionGroup * alignmentActions = new QActionGroup(contextMenu);
-    alignmentActions->setExclusive(true);
+    alignmentActions->setExclusive(false);
     alignmentActions->setProperty("column", qVariantFromValue(sectionIdx));
     action = alignmentActions->addAction(tr("Align Left"));
     action->setCheckable(true);
-    action->setChecked(false);
-    if ( recent_get_column_xalign(sectionIdx) == COLUMN_XALIGN_LEFT || recent_get_column_xalign(sectionIdx) == COLUMN_XALIGN_DEFAULT )
-        action->setChecked(true);
+    action->setChecked(xalign == COLUMN_XALIGN_LEFT ? true : false);
     action->setData(qVariantFromValue(COLUMN_XALIGN_LEFT));
     action = alignmentActions->addAction(tr("Align Center"));
     action->setCheckable(true);
-    action->setChecked(recent_get_column_xalign(sectionIdx) == COLUMN_XALIGN_CENTER ? true : false);
+    action->setChecked(xalign == COLUMN_XALIGN_CENTER ? true : false);
     action->setData(qVariantFromValue(COLUMN_XALIGN_CENTER));
     action = alignmentActions->addAction(tr("Align Right"));
     action->setCheckable(true);
-    action->setChecked(recent_get_column_xalign(sectionIdx) == COLUMN_XALIGN_RIGHT ? true : false);
+    action->setChecked(xalign == COLUMN_XALIGN_RIGHT ? true : false);
     action->setData(qVariantFromValue(COLUMN_XALIGN_RIGHT));
     connect(alignmentActions, &QActionGroup::triggered, this, &PacketListHeader::setAlignment);
 
