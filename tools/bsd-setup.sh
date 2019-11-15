@@ -169,5 +169,5 @@ fi
 
 if [ ! $ADDITIONAL ]
 then
-	echo "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
+	echo -e "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
 fi
