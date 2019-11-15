@@ -1,0 +1,12 @@
+task:
+  freebsd_instance:
+    matrix:
+      - image_family: freebsd-13-0-snap
+      - image_family: freebsd-12-0
+      - image_family: freebsd-11-3-snap
+  setup_script: env ASSUME_ALWAYS_YES=YES tools/bsd-setup.sh --install-optional
+  build_script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja ..
+    - ninja
