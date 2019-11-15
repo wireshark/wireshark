@@ -2271,7 +2271,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		${APPLE_APPKIT_LIBRARY}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
-		${SPARKLE_LIBRARY}
+		${SPARKLE_LIBRARIES}
 		${WIN_WS2_32_LIBRARY}
 		${WIN_VERSION_LIBRARY}
 		${WINSPARKLE_LIBRARIES}
@@ -2318,7 +2318,7 @@ if(BUILD_wireshark AND QT_FOUND)
 	endif()
 
 	target_link_libraries(wireshark ${wireshark_LIBS})
-	target_include_directories(wireshark SYSTEM PRIVATE ${SPARKLE_INCLUDE_DIR})
+	target_include_directories(wireshark SYSTEM PRIVATE ${SPARKLE_INCLUDE_DIRS})
 
 	install(
 		TARGETS wireshark

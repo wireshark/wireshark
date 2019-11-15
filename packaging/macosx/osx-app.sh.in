@@ -114,7 +114,7 @@ if [ ! -d "$qt_frameworks_dir" ] ; then
 	exit 1
 fi
 
-sparkle_frameworks_dir="@SPARKLE_LIBRARY@"
+sparkle_frameworks_dir="@SPARKLE_LIBRARIES@"
 
 #
 # Leave the Qt frameworks out of the special processing.
