@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2019-2020, Dario Lombardo <lomato@gmail.com>
+# Copyright 2019, Dario Lombardo <lomato@gmail.com>
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -38,7 +38,7 @@ def output_file(args):
 
 def read_skeleton():
     skeletonfile = os.path.join(wsdir(), "doc/packet-PROTOABBREV.c")
-    print("Reding skeleton file: " + skeletonfile)
+    print("Reading skeleton file: " + skeletonfile)
     return open(skeletonfile).read()
 
 def replace_fields(buffer, args):
