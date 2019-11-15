@@ -55,7 +55,7 @@
 // https://sourceforge.net/p/predef/wiki/Architectures/
 #if defined(__x86_64__) || defined(_M_X64)
 #define SU_ARCH "x86-64"
-#elif defined(defined(__i386__) || defined(_M_IX86)
+#elif defined(__i386__) || defined(_M_IX86)
 #define SU_ARCH "x86"
 #endif
 
