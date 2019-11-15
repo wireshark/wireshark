@@ -23,7 +23,7 @@ OPTIONS
 		Display this help message.
 
 Icons are positioned and the background image is set in
-arrange_dmg.applescript.
+dmgbuild-settings.py.in.
 "
 }
 

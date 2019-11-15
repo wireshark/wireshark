@@ -231,7 +231,7 @@ fi
 /usr/bin/install_name_tool -delete_rpath "$qt_frameworks_dir" $pkgexec/Wireshark
 
 if [ -d "$sparkle_frameworks_dir" ] ; then
-	cp -r "$sparkle_frameworks_dir" "$pkglib" || exit 1
+	cp -R "$sparkle_frameworks_dir" "$pkglib" || exit 1
 fi
 
 # NOTE: we must rpathify *all* files, *including* Qt libraries etc.,
@@ -466,6 +466,7 @@ codesign_file () {
 	# https://developer.apple.com/documentation/security/hardened_runtime_entitlements?language=objc
 	codesign \
 		--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
+		--force \
 		--options runtime \
 		--entitlements "@CMAKE_SOURCE_DIR@/packaging/macosx/entitlements.plist" \
 		--timestamp \
