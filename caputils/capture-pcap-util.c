@@ -1259,7 +1259,7 @@ get_if_capabilities_pcap_create(interface_options *interface_opts,
 
 pcap_t *
 open_capture_device_pcap_create(
-#if defined(HAVE_PCAP_SET_TSTAMP_PRECISION) || defined (HAVE_PCAP_SET_TSTAMP_TYPE)
+#if defined(HAVE_PCAP_SET_TSTAMP_PRECISION)
     capture_options* capture_opts,
 #else
     capture_options* capture_opts _U_,
