@@ -297,6 +297,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     ui->pte_wireshark->setFrameStyle(QFrame::NoFrame);
     ui->pte_wireshark->viewport()->setAutoFillBackground(false);
+    connect(ui->copyToClipboard, SIGNAL(clicked()), this, SLOT(copyToClipboardTriggered()));
 
 /* Check if it is a dev release... (VERSION_MINOR is odd in dev release) */
 #if VERSION_MINOR & 1
@@ -451,6 +452,19 @@ void AboutDialog::updateWiresharkText()
     message += "<a href=https://www.wireshark.org>https://www.wireshark.org</a> ";
     message += "for more information.</p>\n\n";
     ui->pte_wireshark->setHtml(message);
+
+    /* Save the info for the clipboard copy */
+    clipboardInfo = "";
+    clipboardInfo += vcs_version_info_str + "\n\n";
+    clipboardInfo += gstring_free_to_qbytearray(get_compiled_version_info(get_wireshark_qt_compiled_info,
+                                                                          get_gui_compiled_info)) + "\n";
+    clipboardInfo += gstring_free_to_qbytearray(get_runtime_version_info(get_wireshark_runtime_info));
+}
+
+void AboutDialog::on_copyToClipboard_clicked()
+{
+    QClipboard * clipBoard = QApplication::clipboard();
+    clipBoard->setText(clipboardInfo);
 }
 
 void AboutDialog::urlDoubleClicked(const QModelIndex &idx)
