@@ -15,6 +15,7 @@
  * https://tools.ietf.org/html/draft-ietf-quic-transport-24
  * https://tools.ietf.org/html/draft-ietf-quic-tls-24
  * https://tools.ietf.org/html/draft-ietf-quic-invariants-07
+ * https://tools.ietf.org/html/draft-pauly-quic-datagram-05
  *
  * Currently supported QUIC version(s): draft -21, draft -22, draft -23, draft-24
  * For a table of supported QUIC versions per Wireshark version, see
@@ -140,6 +141,8 @@ static int hf_quic_cc_error_code_tls_alert = -1;
 static int hf_quic_cc_frame_type = -1;
 static int hf_quic_cc_reason_phrase_length = -1;
 static int hf_quic_cc_reason_phrase = -1;
+static int hf_quic_dg_length = -1;
+static int hf_quic_dg = -1;
 
 static expert_field ei_quic_connection_unknown = EI_INIT;
 static expert_field ei_quic_ft_unknown = EI_INIT;
@@ -400,6 +403,8 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_PATH_RESPONSE        0x1b
 #define FT_CONNECTION_CLOSE_TPT 0x1c
 #define FT_CONNECTION_CLOSE_APP 0x1d
+#define FT_DATAGRAM             0x30
+#define FT_DATAGRAM_LENGTH      0x31
 
 static const range_string quic_frame_type_vals[] = {
     { 0x00, 0x00,   "PADDING" },
@@ -424,6 +429,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x1b, 0x1b,   "PATH_RESPONSE" },
     { 0x1c, 0x1c,   "CONNECTION_CLOSE (Transport)" },
     { 0x1d, 0x1d,   "CONNECTION_CLOSE (Application)" },
+    { 0x30, 0x31,   "DATAGRAM" },
     { 0,    0,        NULL },
 };
 
@@ -1288,6 +1294,22 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             if (tls_alert) {
                 proto_item_append_text(ti_ft, " (%s)", tls_alert);
             }
+        }
+        break;
+        case FT_DATAGRAM:
+        case FT_DATAGRAM_LENGTH:{
+            guint32 dg_length;
+            guint64 length;
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", DG");
+            if (frame_type == FT_DATAGRAM_LENGTH) {
+
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_dg_length, tvb, offset, -1, ENC_VARINT_QUIC, &length, &dg_length);
+                offset += dg_length;
+            } else {
+                length = (guint32) tvb_reported_length_remaining(tvb, offset);
+            }
+            proto_tree_add_item(ft_tree, hf_quic_dg, tvb, offset, (guint32)length, ENC_NA);
+            offset += (guint32)length;
         }
         break;
         default:
@@ -2933,6 +2955,17 @@ proto_register_quic(void)
             { "Reason phrase", "quic.cc.reason_phrase",
               FT_STRING, BASE_NONE, NULL, 0x0,
               "A human-readable explanation for why the connection was closed", HFILL }
+        },
+        /* DATAGRAM */
+        { &hf_quic_dg_length,
+            { "Datagram Length", "quic.dg.length",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "Specifying the length of the the datagram in bytes", HFILL }
+        },
+        { &hf_quic_dg,
+            { "Datagram", "quic.dg",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              "The bytes of the datagram to be delivered", HFILL }
         },
     };
 
