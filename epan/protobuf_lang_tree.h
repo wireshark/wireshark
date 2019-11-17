@@ -101,6 +101,7 @@ typedef struct {
 /* like google::protobuf::EnumDescriptor of protobuf cpp library */
 typedef struct {
     pbl_node_t basic_info;
+    GSList* values;
     GHashTable* values_by_number;
 } pbl_enum_descriptor_t;
 
@@ -256,6 +257,14 @@ pbl_enum_descriptor_name(const pbl_enum_descriptor_t* anEnum);
 const char*
 pbl_enum_descriptor_full_name(const pbl_enum_descriptor_t* anEnum);
 
+/* like EnumDescriptor::value_count() */
+int
+pbl_enum_descriptor_value_count(const pbl_enum_descriptor_t* anEnum);
+
+/* like EnumDescriptor::value() */
+const pbl_enum_value_descriptor_t*
+pbl_enum_descriptor_value(const pbl_enum_descriptor_t* anEnum, int value_index);
+
 /* like EnumDescriptor::FindValueByNumber() */
 const pbl_enum_value_descriptor_t*
 pbl_enum_descriptor_FindValueByNumber(const pbl_enum_descriptor_t* anEnum, int number);
@@ -267,6 +276,14 @@ pbl_enum_value_descriptor_name(const pbl_enum_value_descriptor_t* enumValue);
 /* like EnumValueDescriptor::full_name() */
 const char*
 pbl_enum_value_descriptor_full_name(const pbl_enum_value_descriptor_t* enumValue);
+
+/* like EnumValueDescriptor::number() */
+int
+pbl_enum_value_descriptor_number(const pbl_enum_value_descriptor_t* enumValue);
+
+/* visit all message in this pool */
+void
+pbl_foreach_message(const pbl_descriptor_pool_t* pool, void (*cb)(const pbl_message_descriptor_t*, void*), void* userdata);
 
 /*
  * Following are tree building functions.

@@ -1077,6 +1077,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_set_gui_theme_is_dark@Base 2.5.0
  prefs_set_module_effect_flags@Base 2.5.0
  prefs_set_pref@Base 1.9.1
+ prefs_set_preference_effect_fields@Base 3.3.0
  prefs_set_range_value@Base 2.1.0
  prefs_set_range_value_work@Base 2.3.0
  prefs_set_stashed_range_value@Base 2.3.0

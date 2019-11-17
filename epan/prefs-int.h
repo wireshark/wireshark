@@ -142,6 +142,7 @@ WS_DLL_PUBLIC guint32 prefs_get_max_value(pref_t *pref);
 #define PREF_EFFECT_GUI               (1u << 2)
 #define PREF_EFFECT_FONT              (1u << 3)
 #define PREF_EFFECT_GUI_LAYOUT        (1u << 4)
+#define PREF_EFFECT_FIELDS            (1u << 5)
 #define PREF_EFFECT_CUSTOM            (1u << 31)
 
 /** Fetch flags that show the effect of the preference

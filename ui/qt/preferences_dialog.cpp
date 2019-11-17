@@ -264,6 +264,10 @@ void PreferencesDialog::on_buttonBox_accepted()
 
     wsApp->setMonospaceFont(prefs.gui_qt_font_name);
 
+    if (redissect_flags & PREF_EFFECT_FIELDS) {
+        wsApp->queueAppSignal(WiresharkApplication::FieldsChanged);
+    }
+
     if (redissect_flags & PREF_EFFECT_DISSECTION) {
         /* Redissect all the packets, and re-evaluate the display filter. */
         wsApp->queueAppSignal(WiresharkApplication::PacketDissectionChanged);

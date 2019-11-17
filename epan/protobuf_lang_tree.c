@@ -248,14 +248,13 @@ pbl_get_node_full_name(pbl_node_t* node)
     return node->full_name;
 }
 
-/* try to find node globally or in the package of given context */
+/* try to find node globally or in the context or parents (message or package) of the context */
 static const pbl_node_t*
 pbl_find_node_in_context(const pbl_node_t* context, const char* name, pbl_node_type_t nodetype)
 {
-    pbl_node_t* package = NULL;
     const pbl_node_t* node = NULL;
     pbl_descriptor_pool_t* pool = NULL;
-    const char* pack_name;
+    char* parent_name;
     char* full_name;
 
     if (context == NULL || name == NULL) {
@@ -271,39 +270,36 @@ pbl_find_node_in_context(const pbl_node_t* context, const char* name, pbl_node_t
         }
     }
 
-    /* try find node in context first */
-    if (context->children_by_name) {
-        node = (pbl_node_t*) g_hash_table_lookup(context->children_by_name, name);
-        if (node && node->nodetype == nodetype) {
-            return node;
-        }
-    }
-
-    /* find package node */
-    for (node = context; node; node = node->parent) {
-        if (node->nodetype == PBL_PACKAGE) {
-            package = (pbl_node_t*)node;
-            break;
-        }
-    }
     /* find pool */
     if (context->file) {
         pool = context->file->pool;
     }
 
-    /* try find node in package */
-    if (package && pool) {
-        pack_name = pbl_get_node_full_name(package);
-        full_name = (pack_name[0] == 0) ? g_strdup(name) : g_strconcat(pack_name, ".", name, NULL);
-        node = pbl_find_node_in_pool(pool, full_name, nodetype);
-        g_free(full_name);
-        if (node) {
-            return node;
-        }
-    }
-
-    /* try find node in pool directly */
+    /* try find node in the context or parents (message or package) of the context */
     if (pool) {
+        int remaining;
+        parent_name = g_strdup(pbl_get_node_full_name((pbl_node_t*) context));
+        remaining = (int)strlen(parent_name);
+        while (remaining > 0) {
+            full_name = g_strconcat(parent_name, ".", name, NULL);
+            node = pbl_find_node_in_pool(pool, full_name, nodetype);
+            g_free(full_name);
+            if (node) {
+                g_free(parent_name);
+                return node;
+            }
+            /* scan from end to begin, and replace first '.' to '\0' */
+            for (remaining--; remaining > 0; remaining--) {
+                if (parent_name[remaining] == '.') {
+                    /* found a potential parent node name */
+                    parent_name[remaining] = '\0';
+                    break; /* break from the 'for' loop, continue 'while' loop */
+                }
+            }
+        }
+        g_free(parent_name);
+
+        /* try find node in pool directly */
         return pbl_find_node_in_pool(pool, name, nodetype);
     }
 
@@ -538,6 +534,20 @@ pbl_enum_descriptor_full_name(const pbl_enum_descriptor_t* anEnum)
     return pbl_get_node_full_name((pbl_node_t*)anEnum);
 }
 
+/* like EnumDescriptor::value_count() */
+int
+pbl_enum_descriptor_value_count(const pbl_enum_descriptor_t* anEnum)
+{
+    return (anEnum && anEnum->values) ? g_slist_length(anEnum->values) : 0;
+}
+
+/* like EnumDescriptor::value() */
+const pbl_enum_value_descriptor_t*
+pbl_enum_descriptor_value(const pbl_enum_descriptor_t* anEnum, int value_index)
+{
+    return (anEnum && anEnum->values) ? (pbl_enum_value_descriptor_t*) g_slist_nth_data(anEnum->values, value_index) : NULL;
+}
+
 /* like EnumDescriptor::FindValueByNumber() */
 const pbl_enum_value_descriptor_t*
 pbl_enum_descriptor_FindValueByNumber(const pbl_enum_descriptor_t* anEnum, int number)
@@ -562,6 +572,45 @@ pbl_enum_value_descriptor_full_name(const pbl_enum_value_descriptor_t* enumValue
 {
     return pbl_get_node_full_name((pbl_node_t*)enumValue);
 }
+
+/* like EnumValueDescriptor::number() */
+int
+pbl_enum_value_descriptor_number(const pbl_enum_value_descriptor_t* enumValue)
+{
+    return GPOINTER_TO_INT(enumValue->number);
+}
+
+static void
+pbl_traverse_sub_tree(const pbl_node_t* node, void (*cb)(const pbl_message_descriptor_t*, void*), void* userdata)
+{
+    GSList* it;
+    if (node == NULL) {
+        return;
+    }
+
+    if (node->nodetype == PBL_MESSAGE) {
+        (*cb)((const pbl_message_descriptor_t*) node, userdata);
+    }
+
+    if (node->children) {
+        for (it = node->children; it; it = it->next) {
+            pbl_traverse_sub_tree((const pbl_node_t*) it->data, cb, userdata);
+        }
+    }
+}
+
+/* visit all message in this pool */
+void
+pbl_foreach_message(const pbl_descriptor_pool_t* pool, void (*cb)(const pbl_message_descriptor_t*, void*), void* userdata)
+{
+    GHashTableIter it;
+    gpointer key, value;
+    g_hash_table_iter_init (&it, pool->packages);
+    while (g_hash_table_iter_next (&it, &key, &value)) {
+        pbl_traverse_sub_tree((const pbl_node_t*)value, cb, userdata);
+    }
+}
+
 
 /*
  * Following are tree building functions that should only be invoked by protobuf_lang parser.
@@ -746,6 +795,7 @@ pbl_add_child(pbl_node_t* parent, pbl_node_t* child)
         }
     } else if (parent->nodetype == PBL_ENUM && child->nodetype == PBL_ENUM_VALUE) {
         pbl_enum_descriptor_t* anEnum = (pbl_enum_descriptor_t*) parent;
+        anEnum->values = g_slist_append(anEnum->values, child);
         /* add child to values_by_number table */
         if (anEnum->values_by_number == NULL) {
             anEnum->values_by_number = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
@@ -793,6 +843,10 @@ pbl_merge_children(pbl_node_t* to, pbl_node_t* from)
             }
         } else if (from->nodetype == PBL_ENUM) {
             pbl_enum_descriptor_t* anEnum = (pbl_enum_descriptor_t*) from;
+            if (anEnum->values) {
+                g_slist_free(anEnum->values);
+                anEnum->values = NULL;
+            }
             if (anEnum->values_by_number) {
                 g_hash_table_destroy(anEnum->values_by_number);
                 anEnum->values_by_number = NULL;
@@ -841,6 +895,9 @@ pbl_free_node(gpointer anode)
         break;
     case PBL_ENUM:
         enum_node = (pbl_enum_descriptor_t*) node;
+        if (enum_node->values) {
+            g_slist_free(enum_node->values);
+        }
         if (enum_node->values_by_number) {
             g_hash_table_destroy(enum_node->values_by_number);
         }

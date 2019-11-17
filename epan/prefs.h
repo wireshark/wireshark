@@ -513,6 +513,14 @@ void prefs_register_decode_as_preference(module_t *module, const char *name,
 WS_DLL_PUBLIC void prefs_register_obsolete_preference(module_t *module,
     const char *name);
 
+/*
+ * Mark a preference that affects fields change. This works for bool, enum,
+ * int, string (containing filename), range preferences. UAT is not included,
+ * because you can specified UAT_AFFECTS_FIELDS at uat_new().
+ */
+WS_DLL_PUBLIC void prefs_set_preference_effect_fields(module_t *module,
+    const char *name);
+
 
 typedef guint (*pref_cb)(pref_t *pref, gpointer user_data);
 
