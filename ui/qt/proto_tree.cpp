@@ -766,7 +766,7 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
                     QDrag * drag = new QDrag(this);
                     drag->setMimeData(mimeData);
 
-                    QString lblTxt = QString("%1\n%2").arg(finfo.headerInfo().name, finfo.headerInfo().abbreviation);
+                    QString lblTxt = QString("%1\n%2").arg(finfo.headerInfo().name, filter);
 
                     DragLabel * content = new DragLabel(lblTxt, this);
 
