@@ -93,7 +93,7 @@ void PacketListHeader::dropEvent(QDropEvent *event)
 
         QJsonObject data = jsonDoc.object();
 
-        if (event->source() != this && data.contains("description") && data.contains("field"))
+        if ( event->source() != this && data.contains("description") && data.contains("name") )
         {
             event->setDropAction(Qt::CopyAction);
             event->accept();
@@ -102,7 +102,7 @@ void PacketListHeader::dropEvent(QDropEvent *event)
             if (mw)
             {
                 int idx = logicalIndexAt(event->pos());
-                mw->insertColumn(data["description"].toString(), data["field"].toString(), idx);
+                mw->insertColumn(data["description"].toString(), data["name"].toString(), idx);
             }
 
         } else {
