@@ -1846,8 +1846,8 @@ install_sparkle() {
         #
         [ -f Sparkle-$SPARKLE_VERSION.tar.bz2 ] || curl -L -o Sparkle-$SPARKLE_VERSION.tar.bz2 https://github.com/sparkle-project/Sparkle/releases/download/$SPARKLE_VERSION/Sparkle-$SPARKLE_VERSION.tar.bz2 || exit 1
         $no_build && echo "Skipping installation" && return
-        sudo mkdir -f "/usr/local/Sparkle-$SPARKLE_VERSION"
-        sudo tar -C "/usr/local/Sparkle-$SPARKLE_VERSION" -xf Sparkle-$SPARKLE_VERSION.tar.bz2
+        test -d "/usr/local/Sparkle-$SPARKLE_VERSION" || sudo mkdir "/usr/local/Sparkle-$SPARKLE_VERSION"
+        sudo tar -C "/usr/local/Sparkle-$SPARKLE_VERSION" -xpof Sparkle-$SPARKLE_VERSION.tar.bz2
         touch sparkle-$SPARKLE_VERSION-done
     fi
 }
