@@ -88,3 +88,8 @@ class case_outputformats(subprocesstest.SubprocessTestCase):
             {"index": {"_index": "packets-2004-12-05", "_type": "doc"}},
             {"timestamp": "1102274184317", "layers": {"frame_number": ["1"]}}
         ], multiline=True)
+
+    def test_outputformat_ek_filter_field(self, check_outputformat):
+        ''' Check that the option -j works with -Tek.'''
+        check_outputformat("ek", extra_args=['-j', 'dhcp'], expected="dhcp-filter.ek",
+            multiline=True)

@@ -1367,8 +1367,10 @@ ek_write_attr(GSList *attr_instances, write_json_data *pdata)
                 && !ek_check_protocolfilter(pdata->filter, fi->hfinfo->abbrev)) {
 
                 /* print dummy field */
+                json_dumper_begin_object(pdata->dumper);
                 json_dumper_set_member_name(pdata->dumper, "filtered");
                 json_dumper_value_string(pdata->dumper, fi->hfinfo->abbrev);
+                json_dumper_end_object(pdata->dumper);
             } else {
                 ek_write_field_value(fi, pdata);
             }
