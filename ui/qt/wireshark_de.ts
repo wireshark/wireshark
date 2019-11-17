@@ -24,6 +24,14 @@
         <translation>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Programm zur Netzwerkprotokollanalyse&lt;/span&gt;</translation>
     </message>
     <message>
+        <source>Copy the version information to the clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy To Clipboard</source>
+        <translation type="unfinished">In die Zwischenablage kopieren</translation>
+    </message>
+    <message>
         <source>Authors</source>
         <translation>Autoren</translation>
     </message>
@@ -1637,7 +1645,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>ColoringRulesModel</name>
     <message>
         <source>New coloring rule</source>
-        <translation type="unfinished">Neue Einfärbungsregel</translation>
+        <translation>Neue Einfärbungsregel</translation>
     </message>
     <message>
         <source>Unable to save coloring rules: %1</source>
@@ -2001,15 +2009,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Left align buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Links ausgerichtete Knöpfe</translation>
     </message>
     <message>
         <source>Display Filter Expression</source>
-        <translation type="unfinished">Anzeigefilterausdruck</translation>
+        <translation>Anzeigefilterausdruck</translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
         <translation>Lesefilter anwenden %1</translation>
+    </message>
+    <message>
+        <source>Current filter: %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid filter: </source>
@@ -2029,11 +2041,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Filter Button Preferences...</source>
-        <translation type="unfinished">Einstellungen Filterknöpfe...</translation>
-    </message>
-    <message>
-        <source>Manage Filter Expressions</source>
-        <translation type="vanished">Filterausdrücke verwalten</translation>
+        <translation>Einstellungen Filterknöpfe...</translation>
     </message>
 </context>
 <context>
@@ -2961,20 +2969,16 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Globale Lua Plugins</translation>
     </message>
     <message>
-        <source>Extcap path</source>
-        <translation type="vanished">Extcap Pfad</translation>
-    </message>
-    <message>
         <source>Extcap Plugins search path</source>
         <translation>Suchpfad für Extcap Plugins</translation>
     </message>
     <message>
         <source>Personal Extcap path</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerspezifischer Extcap Pfad</translation>
     </message>
     <message>
         <source>Global Extcap path</source>
-        <translation type="unfinished"></translation>
+        <translation>Globaler Extcap Pfad</translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
@@ -3796,7 +3800,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Filtered packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Gefilterte Pakete</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -7038,11 +7042,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Display Filter &amp;Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzeigefilt&amp;erausdruck</translation>
     </message>
     <message>
         <source>Display Filter Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzeigefilterausdruck</translation>
     </message>
     <message>
         <source>No GSM statistics registered</source>
@@ -7459,14 +7463,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Show Linked Packet in New Window</source>
         <translation>Verknüpftes Paket in einem neuen Fenster anzeigen</translation>
-    </message>
-    <message>
-        <source>&amp;Expression…</source>
-        <translation type="vanished">Ausdruck...</translation>
-    </message>
-    <message>
-        <source>Expression…</source>
-        <translation type="vanished">Ausdruck...</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -9230,10 +9226,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>[keine Mitschnittdatei]</translation>
     </message>
     <message>
-        <source>New coloring rule</source>
-        <translation type="vanished">Neue Einfärbungsregel</translation>
-    </message>
-    <message>
         <source>Conversation</source>
         <translation>Verbindungen</translation>
     </message>
@@ -10338,7 +10330,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>

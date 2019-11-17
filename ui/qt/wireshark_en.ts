@@ -24,6 +24,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Copy the version information to the clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy To Clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Authors</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2006,6 +2014,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Apply a read filter %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current filter: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -4,6 +4,7 @@
 # 
 # Translators:
 # ks k, 2019
+# ks k, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: Wireshark\n"

@@ -24,6 +24,14 @@
         <translation>Анализатор сетевых протоколов</translation>
     </message>
     <message>
+        <source>Copy the version information to the clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy To Clipboard</source>
+        <translation type="unfinished">Копировать В Буфер</translation>
+    </message>
+    <message>
         <source>Authors</source>
         <translation>Авторы</translation>
     </message>
@@ -1644,7 +1652,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColoringRulesModel</name>
     <message>
         <source>New coloring rule</source>
-        <translation type="unfinished">Новое цветовое правило</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to save coloring rules: %1</source>
@@ -2019,6 +2027,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Применить фильтр чтения %1</translation>
     </message>
     <message>
+        <source>Current filter: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Invalid filter: </source>
         <translation>Неправильный фильтр: </translation>
     </message>
@@ -2037,10 +2049,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter Button Preferences...</source>
         <translation type="unfinished">Параметры Кнопки Фильтра…</translation>
-    </message>
-    <message>
-        <source>Manage Filter Expressions</source>
-        <translation type="vanished">Управлять Выражениями Фильтра</translation>
     </message>
 </context>
 <context>
@@ -2967,10 +2975,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Global Lua Plugins</source>
         <translation>Глобальные Плагины Lua</translation>
-    </message>
-    <message>
-        <source>Extcap path</source>
-        <translation type="vanished">Путь Extcap</translation>
     </message>
     <message>
         <source>Extcap Plugins search path</source>
@@ -7480,14 +7484,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Показать Связанный Пакет в Новом Окне</translation>
     </message>
     <message>
-        <source>&amp;Expression…</source>
-        <translation type="vanished">&amp;Выражение...</translation>
-    </message>
-    <message>
-        <source>Expression…</source>
-        <translation type="vanished">Выражение...</translation>
-    </message>
-    <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation>Новое Цветовое Правило...</translation>
@@ -9247,10 +9243,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>[no capture file]</source>
         <translation>[нет файла захвата]</translation>
-    </message>
-    <message>
-        <source>New coloring rule</source>
-        <translation type="vanished">Новое цветовое правило</translation>
     </message>
     <message>
         <source>Conversation</source>

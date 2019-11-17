@@ -3137,7 +3137,7 @@ connect-client	3441/tcp/udp	# OC Connect Client
 connect-server	3442/tcp/udp	# OC Connect Server
 ov-nnm-websrv	3443/tcp/udp	# OpenView Network Node Manager WEB Server
 denali-server	3444/tcp/udp	# Denali Server
-monp		3445/tcp/udp	# Media Object Network
+monp		3445/tcp/udp	# Media Object Network Protocol
 3comfaxrpc	3446/tcp/udp	# 3Com FAX RPC port
 directnet	3447/tcp/udp	# DirectNet IM System
 dnc-port	3448/tcp/udp	# Discovery and Net Config

@@ -24,6 +24,14 @@
         <translation>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Analysator av nätverksprotokoll&lt;/span&gt;</translation>
     </message>
     <message>
+        <source>Copy the version information to the clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy To Clipboard</source>
+        <translation type="unfinished">Kopiera till urklipp</translation>
+    </message>
+    <message>
         <source>Authors</source>
         <translation>Upphovsmän</translation>
     </message>
@@ -1637,7 +1645,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>ColoringRulesModel</name>
     <message>
         <source>New coloring rule</source>
-        <translation type="unfinished">Ny färgläggningsregel</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to save coloring rules: %1</source>
@@ -2012,6 +2020,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Använd ett läsningsfilter %1</translation>
     </message>
     <message>
+        <source>Current filter: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Invalid filter: </source>
         <translation>Felaktigt filter: </translation>
     </message>
@@ -2030,10 +2042,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Filter Button Preferences...</source>
         <translation type="unfinished">Filterknappinställningar …</translation>
-    </message>
-    <message>
-        <source>Manage Filter Expressions</source>
-        <translation type="vanished">Hantera filteruttryck</translation>
     </message>
 </context>
 <context>
@@ -2959,10 +2967,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Global Lua Plugins</source>
         <translation>Globala Lua-insticksmoduler</translation>
-    </message>
-    <message>
-        <source>Extcap path</source>
-        <translation type="vanished">Extcap-sökväg</translation>
     </message>
     <message>
         <source>Extcap Plugins search path</source>
@@ -7461,14 +7465,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Visa länkade paket i ett nytt fönster</translation>
     </message>
     <message>
-        <source>&amp;Expression…</source>
-        <translation type="vanished">&amp;Uttryck …</translation>
-    </message>
-    <message>
-        <source>Expression…</source>
-        <translation type="vanished">Uttryck …</translation>
-    </message>
-    <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation>Ny färgläggningsregel …</translation>
@@ -9228,10 +9224,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>[no capture file]</source>
         <translation>[ingen fångstfil]</translation>
-    </message>
-    <message>
-        <source>New coloring rule</source>
-        <translation type="vanished">Ny färgläggningsregel</translation>
     </message>
     <message>
         <source>Conversation</source>

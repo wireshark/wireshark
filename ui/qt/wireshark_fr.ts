@@ -24,6 +24,14 @@
         <translation>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Analyseur de Protocole réseau&lt;/span&gt;</translation>
     </message>
     <message>
+        <source>Copy the version information to the clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy To Clipboard</source>
+        <translation type="unfinished">Copier dans les presse-papiers</translation>
+    </message>
+    <message>
         <source>Authors</source>
         <translation>Auteurs</translation>
     </message>
@@ -1613,7 +1621,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColoringRulesModel</name>
     <message>
         <source>New coloring rule</source>
-        <translation type="unfinished">Nouvelle règle de coloration</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to save coloring rules: %1</source>
@@ -1985,6 +1993,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Apply a read filter %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current filter: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7429,14 +7441,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Expression…</source>
-        <translation type="vanished">&amp;Expression…</translation>
-    </message>
-    <message>
-        <source>Expression…</source>
-        <translation type="vanished">Expression…</translation>
-    </message>
-    <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation type="unfinished"></translation>
@@ -9185,10 +9189,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>[no capture file]</source>
         <translation>[pas de fichier de capture]</translation>
-    </message>
-    <message>
-        <source>New coloring rule</source>
-        <translation type="vanished">Nouvelle règle de coloration</translation>
     </message>
     <message>
         <source>Conversation</source>

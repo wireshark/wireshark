@@ -18,6 +18,10 @@ Wireshark 3.1.1 Release Notes
    The following features are new (or have been significantly updated)
    since version 3.1.0:
 
+     • Automatic updates are supported on macOS.
+
+     • You can now follow HTTP/2 and QUIC streams.
+
      • You can once again mark and unmark packets using the middle mouse
        button. This feature went missing around 2009 or so.
 
@@ -156,7 +160,7 @@ Wireshark 3.1.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[10].
 
-  Last updated 2019-11-10 08:08:24 UTC
+  Last updated 2019-11-17 08:07:46 UTC
 
  References
 

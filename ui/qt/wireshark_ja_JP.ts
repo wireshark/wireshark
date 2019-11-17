@@ -24,6 +24,14 @@
         <translation>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;ネットワークプロトコルアナライザ&lt;/span&gt;</translation>
     </message>
     <message>
+        <source>Copy the version information to the clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy To Clipboard</source>
+        <translation type="unfinished">クリップボードにコピー</translation>
+    </message>
+    <message>
         <source>Authors</source>
         <translation>作者</translation>
     </message>
@@ -1629,7 +1637,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColoringRulesModel</name>
     <message>
         <source>New coloring rule</source>
-        <translation type="unfinished">新規色付けルール</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to save coloring rules: %1</source>
@@ -2004,6 +2012,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>読込フィルタ %1 を適用</translation>
     </message>
     <message>
+        <source>Current filter: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Invalid filter: </source>
         <translation>無効なフィルタ</translation>
     </message>
@@ -2022,10 +2034,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter Button Preferences...</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Manage Filter Expressions</source>
-        <translation type="vanished">フィルタ書式を管理</translation>
     </message>
 </context>
 <context>
@@ -7441,14 +7449,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>新規ウインドウでリンクされたパケットを表示</translation>
     </message>
     <message>
-        <source>&amp;Expression…</source>
-        <translation type="vanished">書式…(&amp;E)</translation>
-    </message>
-    <message>
-        <source>Expression…</source>
-        <translation type="vanished">書式…</translation>
-    </message>
-    <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation>新規対話ルール…</translation>
@@ -9194,10 +9194,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>[no capture file]</source>
         <translation>[キャプチャファイルなし]</translation>
-    </message>
-    <message>
-        <source>New coloring rule</source>
-        <translation type="vanished">新規色付けルール</translation>
     </message>
     <message>
         <source>Conversation</source>

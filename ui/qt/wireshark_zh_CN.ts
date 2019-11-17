@@ -24,6 +24,14 @@
         <translation>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;网络协议分析器&lt;/span&gt;</translation>
     </message>
     <message>
+        <source>Copy the version information to the clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy To Clipboard</source>
+        <translation type="unfinished">复制到剪贴板</translation>
+    </message>
+    <message>
         <source>Authors</source>
         <translation>作者</translation>
     </message>
@@ -1627,7 +1635,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColoringRulesModel</name>
     <message>
         <source>New coloring rule</source>
-        <translation type="unfinished">新着色规则</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to save coloring rules: %1</source>
@@ -2002,6 +2010,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>应用读取过滤器 %1</translation>
     </message>
     <message>
+        <source>Current filter: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Invalid filter: </source>
         <translation>无效的过滤器：</translation>
     </message>
@@ -2020,10 +2032,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter Button Preferences...</source>
         <translation type="unfinished">筛选器按钮首选项...</translation>
-    </message>
-    <message>
-        <source>Manage Filter Expressions</source>
-        <translation type="vanished">管理过滤器表达式</translation>
     </message>
 </context>
 <context>
@@ -2946,10 +2954,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Global Lua Plugins</source>
         <translation>全局 Lua 插件</translation>
-    </message>
-    <message>
-        <source>Extcap path</source>
-        <translation type="vanished">Extcap 路径</translation>
     </message>
     <message>
         <source>Extcap Plugins search path</source>
@@ -7437,14 +7441,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>在新窗口中显示已链接的分组</translation>
     </message>
     <message>
-        <source>&amp;Expression…</source>
-        <translation type="vanished">表达式(&amp;E)…</translation>
-    </message>
-    <message>
-        <source>Expression…</source>
-        <translation type="vanished">表达式…</translation>
-    </message>
-    <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation>新建着色规则…</translation>
@@ -9189,10 +9185,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>[no capture file]</source>
         <translation>[无捕获文件]</translation>
-    </message>
-    <message>
-        <source>New coloring rule</source>
-        <translation type="vanished">新着色规则</translation>
     </message>
     <message>
         <source>Conversation</source>

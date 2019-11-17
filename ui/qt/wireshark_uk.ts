@@ -24,6 +24,14 @@
         <translation>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Аналізатор Мережевих Протоколів&lt;/span&gt;</translation>
     </message>
     <message>
+        <source>Copy the version information to the clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy To Clipboard</source>
+        <translation type="unfinished">Скопіювати До Буферу Обміну</translation>
+    </message>
+    <message>
         <source>Authors</source>
         <translation>Автори</translation>
     </message>
@@ -1617,7 +1625,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColoringRulesModel</name>
     <message>
         <source>New coloring rule</source>
-        <translation type="unfinished">Нове правило розфарбовування</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to save coloring rules: %1</source>
@@ -1989,6 +1997,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Apply a read filter %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current filter: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7389,14 +7401,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Expression…</source>
-        <translation type="vanished">&amp;Вираз...</translation>
-    </message>
-    <message>
-        <source>Expression…</source>
-        <translation type="vanished">Вираз...</translation>
-    </message>
-    <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation type="unfinished"></translation>
@@ -9145,10 +9149,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>[no capture file]</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New coloring rule</source>
-        <translation type="vanished">Нове правило розфарбовування</translation>
     </message>
     <message>
         <source>Conversation</source>
