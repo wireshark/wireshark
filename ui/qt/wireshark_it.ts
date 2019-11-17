@@ -9853,7 +9853,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Errore</translation>
+        <translation>Errore</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
