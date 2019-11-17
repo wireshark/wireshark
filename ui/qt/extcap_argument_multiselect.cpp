@@ -31,9 +31,9 @@ ExtArgMultiSelect::ExtArgMultiSelect(extcap_arg * argument, QObject *parent) :
 
 ExtArgMultiSelect::~ExtArgMultiSelect()
 {
-    if ( treeView != 0 )
+    if (treeView != 0)
         delete treeView;
-    if ( viewModel != 0 )
+    if (viewModel != 0)
         delete viewModel;
 }
 
@@ -42,10 +42,10 @@ QList<QStandardItem *> ExtArgMultiSelect::valueWalker(ExtcapValueList list, QStr
     ExtcapValueList::iterator iter = list.begin();
     QList<QStandardItem *> items;
 
-    while ( iter != list.end() )
+    while (iter != list.end())
     {
         QStandardItem * item = new QStandardItem((*iter).value());
-        if ( (*iter).enabled() == false )
+        if ((*iter).enabled() == false)
         {
             item->setCheckable(false);
         }
@@ -61,7 +61,7 @@ QList<QStandardItem *> ExtArgMultiSelect::valueWalker(ExtcapValueList list, QStr
         item->setSelectable(false);
         item->setEditable(false);
         QList<QStandardItem *> childs = valueWalker((*iter).children(), defaults);
-        if ( childs.length() > 0 )
+        if (childs.length() > 0)
             item->appendRows(childs);
 
         items << item;
@@ -76,12 +76,12 @@ void ExtArgMultiSelect::checkItemsWalker(QStandardItem * item, QStringList defau
     QModelIndexList results;
     QModelIndex index;
 
-    if ( item->hasChildren() )
+    if (item->hasChildren())
     {
         for (int row = 0; row < item->rowCount(); row++)
         {
             QStandardItem * child = item->child(row);
-            if ( child != 0 )
+            if (child != 0)
             {
                 checkItemsWalker(child, defaults);
             }
@@ -90,11 +90,11 @@ void ExtArgMultiSelect::checkItemsWalker(QStandardItem * item, QStringList defau
 
     QString data = item->data(Qt::UserRole).toString();
 
-    if ( defaults.contains(data) )
+    if (defaults.contains(data))
     {
         item->setCheckState(Qt::Checked);
         index = item->index();
-        while ( index.isValid() )
+        while (index.isValid())
         {
             treeView->setExpanded(index, true);
             index = index.parent();
@@ -110,14 +110,14 @@ QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
     if (items.length() == 0)
         return new QWidget();
 
-    if ( _argument->pref_valptr && *_argument->pref_valptr )
+    if (_argument->pref_valptr && *_argument->pref_valptr)
     {
         checked = QString(*_argument->pref_valptr).split(",", QString::SkipEmptyParts);
     }
 
     viewModel = new QStandardItemModel();
     QList<QStandardItem *>::const_iterator iter = items.constBegin();
-    while ( iter != items.constEnd() )
+    while (iter != items.constEnd())
     {
         ((QStandardItemModel *)viewModel)->appendRow((*iter));
         ++iter;
@@ -132,10 +132,10 @@ QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
     treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    for (int row = 0; row < viewModel->rowCount(); row++ )
+    for (int row = 0; row < viewModel->rowCount(); row++)
         checkItemsWalker(((QStandardItemModel*)viewModel)->item(row), checked);
 
-    connect ( viewModel,
+    connect (viewModel,
             SIGNAL(itemChanged(QStandardItem *)),
             SLOT(itemChanged(QStandardItem *)));
 
@@ -144,16 +144,16 @@ QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
 
 QString ExtArgMultiSelect::value()
 {
-    if ( viewModel == 0 )
+    if (viewModel == 0)
         return QString();
 
     QStringList result;
     QModelIndexList checked = viewModel->match(viewModel->index(0, 0), Qt::CheckStateRole, Qt::Checked, -1, Qt::MatchExactly | Qt::MatchRecursive);
-    if ( checked.size() <= 0 )
+    if (checked.size() <= 0)
         return QString();
 
     QModelIndexList::const_iterator iter = checked.constBegin();
-    while ( iter != checked.constEnd() )
+    while (iter != checked.constEnd())
     {
         QModelIndex index = (QModelIndex)(*iter);
 
@@ -174,22 +174,22 @@ bool ExtArgMultiSelect::isValid()
 {
     bool valid = true;
 
-    if ( isRequired() )
+    if (isRequired())
     {
-        if ( viewModel == 0 )
+        if (viewModel == 0)
             valid = false;
         else
         {
             QModelIndexList checked = viewModel->match(viewModel->index(0, 0), Qt::CheckStateRole, Qt::Checked, -1, Qt::MatchExactly | Qt::MatchRecursive);
-            if ( checked.size() <= 0 )
+            if (checked.size() <= 0)
                 valid = false;
         }
     }
 
     QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
     QString txtStyle("QTreeView { background-color: %1; } ");
-    if ( viewModel != 0 )
-        treeView->setStyleSheet( txtStyle.arg(valid ? QString("") : lblInvalidColor) );
+    if (viewModel != 0)
+        treeView->setStyleSheet(txtStyle.arg(valid ? QString("") : lblInvalidColor));
 
     return valid;
 }

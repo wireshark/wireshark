@@ -283,7 +283,7 @@ void WiresharkApplication::helpTopicAction(topic_action_e action)
 {
     QString url = gchar_free_to_qstring(topic_action_url(action));
 
-    if(!url.isEmpty()) {
+    if (!url.isEmpty()) {
         QDesktopServices::openUrl(QUrl(url));
     }
 }
@@ -1337,7 +1337,7 @@ void WiresharkApplication::captureEventHandler(CaptureEvent ev)
 #ifdef HAVE_LIBPCAP
     case CaptureEvent::Update:
     case CaptureEvent::Fixed:
-        switch ( ev.eventType() )
+        switch (ev.eventType())
         {
         case CaptureEvent::Started:
             active_captures_++;
@@ -1355,7 +1355,7 @@ void WiresharkApplication::captureEventHandler(CaptureEvent ev)
     case CaptureEvent::File:
     case CaptureEvent::Reload:
     case CaptureEvent::Rescan:
-        switch ( ev.eventType() )
+        switch (ev.eventType())
         {
         case CaptureEvent::Started:
             QTimer::singleShot(TAP_UPDATE_DEFAULT_INTERVAL / 5, this, SLOT(updateTaps()));
@@ -1375,11 +1375,11 @@ void WiresharkApplication::captureEventHandler(CaptureEvent ev)
 
 void WiresharkApplication::pushStatus(StatusInfo status, const QString &message, const QString &messagetip)
 {
-    if ( ! mainWindow() || ! qobject_cast<MainWindow *>(mainWindow()) )
+    if (! mainWindow() || ! qobject_cast<MainWindow *>(mainWindow()))
         return;
 
     MainWindow * mw = qobject_cast<MainWindow *>(mainWindow());
-    if ( ! mw->main_ui_ || ! mw->main_ui_->statusBar )
+    if (! mw->main_ui_ || ! mw->main_ui_->statusBar)
         return;
 
     MainStatusBar * bar = mw->main_ui_->statusBar;
@@ -1409,11 +1409,11 @@ void WiresharkApplication::pushStatus(StatusInfo status, const QString &message,
 
 void WiresharkApplication::popStatus(StatusInfo status)
 {
-    if ( ! mainWindow() || ! qobject_cast<MainWindow *>(mainWindow()) )
+    if (! mainWindow() || ! qobject_cast<MainWindow *>(mainWindow()))
         return;
 
     MainWindow * mw = qobject_cast<MainWindow *>(mainWindow());
-    if ( ! mw->main_ui_ || ! mw->main_ui_->statusBar )
+    if (! mw->main_ui_ || ! mw->main_ui_->statusBar)
         return;
 
     MainStatusBar * bar = mw->main_ui_->statusBar;

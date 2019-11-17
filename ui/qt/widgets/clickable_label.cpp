@@ -31,9 +31,9 @@ void ClickableLabel::mouseReleaseEvent(QMouseEvent * event)
     /* It has to be ensured, that if the user clicks on the label and then moves away out of
      * the scope of the widget, the event does not fire. Otherwise this behavior differs from
      * the way, the toolbar buttons work for instance */
-    if ( event->pos().x() < 0 || event->pos().x() > size().width() )
+    if (event->pos().x() < 0 || event->pos().x() > size().width())
         return;
-    if ( event->pos().y() < 0 || event->pos().y() > size().height() )
+    if (event->pos().y() < 0 || event->pos().y() > size().height())
         return;
 
     emit clicked();

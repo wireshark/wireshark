@@ -60,16 +60,16 @@ void FilterListModel::reload()
 
     /* Try personal config file first */
     QString fileName = gchar_free_to_qstring(get_persconffile_path(cfile, TRUE));
-    if ( fileName.length() <= 0 || ! QFileInfo::exists(fileName) )
+    if (fileName.length() <= 0 || ! QFileInfo::exists(fileName))
         fileName = gchar_free_to_qstring(get_persconffile_path(FILTER_FILE_NAME, TRUE));
-    if ( fileName.length() <= 0 || ! QFileInfo::exists(fileName) )
+    if (fileName.length() <= 0 || ! QFileInfo::exists(fileName))
         fileName = gchar_free_to_qstring(get_datafile_path(cfile));
-    if ( fileName.length() <= 0 || ! QFileInfo::exists(fileName) )
+    if (fileName.length() <= 0 || ! QFileInfo::exists(fileName))
         return;
 
     QFile file(fileName);
     /* Still can use the model, just have to start from an empty set */
-    if ( ! file.open(QIODevice::ReadOnly | QIODevice::Text) )
+    if (! file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
     QTextStream in(&file);
@@ -77,12 +77,12 @@ void FilterListModel::reload()
     while (!in.atEnd())
     {
         QString line = in.readLine().trimmed();
-        if ( line.startsWith("#") || line.indexOf("\"") <= -1 )
+        if (line.startsWith("#") || line.indexOf("\"") <= -1)
             continue;
 
         rx.indexIn(line);
         QStringList groups = rx.capturedTexts();
-        if ( groups.count() != 3 )
+        if (groups.count() != 3)
             continue;
         addFilter(groups.at(1), groups.at(2));
     }
@@ -111,12 +111,12 @@ int FilterListModel::columnCount(const QModelIndex &/* parent */) const
 
 QVariant FilterListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if ( section >= columnCount() || section < 0 || orientation != Qt::Horizontal )
+    if (section >= columnCount() || section < 0 || orientation != Qt::Horizontal)
         return QVariant();
 
-    if ( role == Qt::DisplayRole )
+    if (role == Qt::DisplayRole)
     {
-        switch ( section ) {
+        switch (section) {
             case ColumnName:
                 return tr("Filter Name");
                 break;
@@ -131,11 +131,11 @@ QVariant FilterListModel::headerData(int section, Qt::Orientation orientation, i
 
 QVariant FilterListModel::data(const QModelIndex &index, int role) const
 {
-    if ( ! index.isValid() || index.row() >= rowCount() )
+    if (! index.isValid() || index.row() >= rowCount())
         return QVariant();
 
     QStringList row = storage.at(index.row()).split("\n");
-    if ( role == Qt::DisplayRole )
+    if (role == Qt::DisplayRole)
         return row.at(index.column());
 
     return QVariant();
@@ -143,14 +143,14 @@ QVariant FilterListModel::data(const QModelIndex &index, int role) const
 
 bool FilterListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if ( ! index.isValid() || index.row() >= rowCount() || role != Qt::EditRole )
+    if (! index.isValid() || index.row() >= rowCount() || role != Qt::EditRole)
         return false;
 
     QStringList row = storage.at(index.row()).split("\n");
-    if ( row.count() <= index.column() )
+    if (row.count() <= index.column())
         return false;
 
-    if ( index.column() == FilterListModel::ColumnName && value.toString().contains("\"") )
+    if (index.column() == FilterListModel::ColumnName && value.toString().contains("\""))
         return false;
 
     row[index.column()] = value.toString();
@@ -164,7 +164,7 @@ Qt::ItemFlags FilterListModel::flags(const QModelIndex &index) const
     Qt::ItemFlags fl = QAbstractListModel::flags(index);
     fl |= Qt::ItemIsDropEnabled;
 
-    if ( ! index.isValid() || index.row() >= rowCount() )
+    if (! index.isValid() || index.row() >= rowCount())
         return fl;
 
     fl |= Qt::ItemIsEditable | Qt::ItemIsDragEnabled;
@@ -173,7 +173,7 @@ Qt::ItemFlags FilterListModel::flags(const QModelIndex &index) const
 }
 QModelIndex FilterListModel::addFilter(QString name, QString expression)
 {
-    if ( name.length() == 0 || expression.length() == 0 )
+    if (name.length() == 0 || expression.length() == 0)
         return QModelIndex();
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
@@ -185,12 +185,12 @@ QModelIndex FilterListModel::addFilter(QString name, QString expression)
 
 QModelIndex FilterListModel::findByName(QString name)
 {
-    if ( name.length() == 0 )
+    if (name.length() == 0)
         return QModelIndex();
 
-    for ( int cnt = 0; cnt < rowCount(); cnt++ )
+    for (int cnt = 0; cnt < rowCount(); cnt++)
     {
-        if ( storage.at(cnt).startsWith(QString("%1\n").arg(name)) )
+        if (storage.at(cnt).startsWith(QString("%1\n").arg(name)))
             return index(cnt, 0);
     }
 
@@ -199,12 +199,12 @@ QModelIndex FilterListModel::findByName(QString name)
 
 QModelIndex FilterListModel::findByExpression(QString expression)
 {
-    if ( expression.length() == 0 )
+    if (expression.length() == 0)
         return QModelIndex();
 
-    for ( int cnt = 0; cnt < rowCount(); cnt++ )
+    for (int cnt = 0; cnt < rowCount(); cnt++)
     {
-        if ( storage.at(cnt).endsWith(QString("\n%1").arg(expression)) )
+        if (storage.at(cnt).endsWith(QString("\n%1").arg(expression)))
             return index(cnt, 0);
     }
 
@@ -213,7 +213,7 @@ QModelIndex FilterListModel::findByExpression(QString expression)
 
 void FilterListModel::removeFilter(QModelIndex idx)
 {
-    if ( ! idx.isValid() || idx.row() >= rowCount() )
+    if (! idx.isValid() || idx.row() >= rowCount())
         return;
 
     beginRemoveRows(QModelIndex(), idx.row(), idx.row());
@@ -228,11 +228,11 @@ void FilterListModel::saveList()
     filename = QString("%1%2%3").arg(ProfileModel::activeProfilePath()).arg(QDir::separator()).arg(filename);
     QFile file(filename);
 
-    if ( ! file.open(QIODevice::WriteOnly | QIODevice::Text) )
+    if (! file.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
     QTextStream out(&file);
-    for ( int row = 0; row < rowCount(); row++ )
+    for (int row = 0; row < rowCount(); row++)
     {
         QString line = QString("\"%1\"").arg(index(row, ColumnName).data().toString());
         line.append(QString(" %1").arg(index(row, ColumnExpression).data().toString()));
@@ -265,7 +265,7 @@ QMimeData *FilterListModel::mimeData(const QModelIndexList &indexes) const
 
     foreach (const QModelIndex &index, indexes)
     {
-        if ( ! rows.contains(QString::number(index.row())) )
+        if (! rows.contains(QString::number(index.row())))
             rows << QString::number(index.row());
     }
 
@@ -275,10 +275,10 @@ QMimeData *FilterListModel::mimeData(const QModelIndexList &indexes) const
 
 bool FilterListModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int /* column */, const QModelIndex & parent)
 {
-    if ( action != Qt::MoveAction )
+    if (action != Qt::MoveAction)
         return true;
 
-    if ( ! data->hasFormat(WiresharkMimeData::FilterListMimeType) )
+    if (! data->hasFormat(WiresharkMimeData::FilterListMimeType))
         return true;
 
     QStringList rows = QString(data->data(WiresharkMimeData::FilterListMimeType)).split(",");
@@ -286,14 +286,14 @@ bool FilterListModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     int insertRow = parent.isValid() ? parent.row() : row;
 
     /* for now, only single rows can be selected */
-    if ( rows.count() > 0 )
+    if (rows.count() > 0)
     {
         bool ok = false;
         int strow = rows[0].toInt(&ok);
-        if ( ok )
+        if (ok)
         {
             int storeTo = insertRow;
-            if ( storeTo < 0 || storeTo >= storage.count() )
+            if (storeTo < 0 || storeTo >= storage.count())
                 storeTo = storage.count() - 1;
 
             beginResetModel();

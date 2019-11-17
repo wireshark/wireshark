@@ -43,7 +43,7 @@ void MainWindow::showWelcome()
 
 void MainWindow::showCapture()
 {
-    main_ui_->mainStack->setCurrentWidget( &master_split_);
+    main_ui_->mainStack->setCurrentWidget(&master_split_);
 }
 
 QWidget* MainWindow::getLayoutWidget(layout_pane_content_e type) {

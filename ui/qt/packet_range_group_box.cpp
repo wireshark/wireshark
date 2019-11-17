@@ -39,7 +39,7 @@ void PacketRangeGroupBox::initRange(packet_range_t *range, QString selRange) {
         pr_ui_->capturedButton->setChecked(true);
     }
 
-    if ( selRange.length() > 0 )
+    if (selRange.length() > 0)
         packet_range_convert_selection_str(range_, selRange.toUtf8().constData());
 
     if (range_->user_range) {

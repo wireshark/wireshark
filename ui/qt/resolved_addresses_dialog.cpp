@@ -115,11 +115,11 @@ ResolvedAddressesDialog::~ResolvedAddressesDialog()
 
 void ResolvedAddressesDialog::on_cmbDataType_currentIndexChanged(QString)
 {
-    if ( ! ethSortModel )
+    if (! ethSortModel)
         return;
 
     QString filter = ui->cmbDataType->currentText();
-    if ( ui->cmbDataType->currentIndex() == 0 )
+    if (ui->cmbDataType->currentIndex() == 0)
     {
         filter.clear();
         ethTypeModel->setFilterType(AStringListListSortFilterProxyModel::FilterNone, 0);
@@ -131,7 +131,7 @@ void ResolvedAddressesDialog::on_cmbDataType_currentIndexChanged(QString)
 
 void ResolvedAddressesDialog::on_txtSearchFilter_textChanged(QString)
 {
-    if ( ! ethSortModel || ui->txtSearchFilter->text().length() < 3 )
+    if (! ethSortModel || ui->txtSearchFilter->text().length() < 3)
         return;
 
     ethSortModel->setFilter(ui->txtSearchFilter->text());
@@ -139,11 +139,11 @@ void ResolvedAddressesDialog::on_txtSearchFilter_textChanged(QString)
 
 void ResolvedAddressesDialog::on_cmbPortFilterType_currentIndexChanged(QString)
 {
-    if ( ! portSortModel )
+    if (! portSortModel)
         return;
 
     QString filter = ui->cmbPortFilterType->currentText();
-    if ( ui->cmbPortFilterType->currentIndex() == 0 )
+    if (ui->cmbPortFilterType->currentIndex() == 0)
     {
         filter.clear();
         portTypeModel->setFilterType(AStringListListSortFilterProxyModel::FilterNone, 2);
@@ -155,7 +155,7 @@ void ResolvedAddressesDialog::on_cmbPortFilterType_currentIndexChanged(QString)
 
 void ResolvedAddressesDialog::on_txtPortFilter_textChanged(QString val)
 {
-    if ( ! portSortModel )
+    if (! portSortModel)
         return;
 
     portSortModel->setFilter(val);

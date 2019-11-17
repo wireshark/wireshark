@@ -42,12 +42,12 @@ PacketListHeader::PacketListHeader(Qt::Orientation orientation, capture_file * c
 
 void PacketListHeader::dragEnterEvent(QDragEnterEvent *event)
 {
-    if ( ! event || ! event->mimeData() )
+    if (! event || ! event->mimeData())
         return;
 
-    if ( event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType) && event->source() != this->parent() )
+    if (event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType) && event->source() != this->parent())
     {
-        if ( event->source() != this )
+        if (event->source() != this)
         {
             event->setDropAction(Qt::CopyAction);
             event->accept();
@@ -61,12 +61,12 @@ void PacketListHeader::dragEnterEvent(QDragEnterEvent *event)
 
 void PacketListHeader::dragMoveEvent(QDragMoveEvent *event)
 {
-    if ( ! event || ! event->mimeData() )
+    if (! event || ! event->mimeData())
         return;
 
-    if ( event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType) )
+    if (event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType))
     {
-        if ( event->source() != this )
+        if (event->source() != this)
         {
             event->setDropAction(Qt::CopyAction);
             event->accept();
@@ -80,26 +80,26 @@ void PacketListHeader::dragMoveEvent(QDragMoveEvent *event)
 
 void PacketListHeader::dropEvent(QDropEvent *event)
 {
-    if ( ! event || ! event->mimeData() )
+    if (! event || ! event->mimeData())
         return;
 
     /* Moving items around */
-    if ( event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType) )
+    if (event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType))
     {
         QByteArray jsonData = event->mimeData()->data(WiresharkMimeData::DisplayFilterMimeType);
         QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
-        if ( ! jsonDoc.isObject() )
+        if (! jsonDoc.isObject())
             return;
 
         QJsonObject data = jsonDoc.object();
 
-        if ( event->source() != this && data.contains("description") && data.contains("field") )
+        if (event->source() != this && data.contains("description") && data.contains("field"))
         {
             event->setDropAction(Qt::CopyAction);
             event->accept();
 
             MainWindow * mw = qobject_cast<MainWindow *>(wsApp->mainWindow());
-            if ( mw )
+            if (mw)
             {
                 int idx = logicalIndexAt(event->pos());
                 mw->insertColumn(data["description"].toString(), data["field"].toString(), idx);
@@ -115,7 +115,7 @@ void PacketListHeader::dropEvent(QDropEvent *event)
 
 void PacketListHeader::mousePressEvent(QMouseEvent *e)
 {
-    if ( e->button() == Qt::LeftButton && sectionIdx < 0 )
+    if (e->button() == Qt::LeftButton && sectionIdx < 0)
     {
         /* No move happening yet */
         int sectIdx = logicalIndexAt(e->localPos().x() - 4, e->localPos().y());
@@ -129,20 +129,20 @@ void PacketListHeader::mousePressEvent(QMouseEvent *e)
 
 void PacketListHeader::mouseMoveEvent(QMouseEvent *e)
 {
-    if ( e->button() == Qt::NoButton || ! ( e->buttons() & Qt::LeftButton) )
+    if (e->button() == Qt::NoButton || ! (e->buttons() & Qt::LeftButton))
     {
         /* no move is happening */
         sectionIdx = -1;
         lastSize = -1;
     }
-    else if ( e->buttons() & Qt::LeftButton )
+    else if (e->buttons() & Qt::LeftButton)
     {
         /* section being moved */
         int triggeredSection = logicalIndexAt(e->localPos().x() - 4, e->localPos().y());
 
-        if ( sectionIdx < 0 )
+        if (sectionIdx < 0)
             sectionIdx = triggeredSection;
-        else if ( sectionIdx == triggeredSection )
+        else if (sectionIdx == triggeredSection)
         {
             /* Only run for the current moving section after a change */
             QString headerName = model()->headerData(sectionIdx, orientation()).toString();
@@ -255,7 +255,7 @@ void PacketListHeader::setAlignment(QAction *action)
         return;
 
     int section = group->property("column").toInt();
-    if ( section >= 0 )
+    if (section >= 0)
     {
         QChar data = action->data().toChar();
         recent_set_column_xalign(section, action->isChecked() ? data.toLatin1() : COLUMN_XALIGN_DEFAULT);
@@ -316,7 +316,7 @@ void PacketListHeader::resizeToContent()
 
     int section = menu->property("column").toInt();
     PacketList * packetList = qobject_cast<PacketList *>(parent());
-    if ( packetList )
+    if (packetList)
         packetList->resizeColumnToContents(section);
 }
 

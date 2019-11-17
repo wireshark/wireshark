@@ -410,7 +410,7 @@ void FollowStreamDialog::on_subStreamNumberSpinBox_valueChanged(int sub_stream_n
         sub_stream_num_new = 0;
         ok = TRUE;
     } else if (follow_type_ == FOLLOW_HTTP2) {
-        if (previous_sub_stream_num_ < sub_stream_num){
+        if (previous_sub_stream_num_ < sub_stream_num) {
             ok = http2_get_stream_id_ge(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
         } else {
             ok = http2_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
@@ -460,7 +460,7 @@ void FollowStreamDialog::resetStream()
     }
     for (cur = follow_info_.payload; cur; cur = gxx_list_next(cur)) {
         follow_record = gxx_list_data(follow_record_t *, cur);
-        if(follow_record->data) {
+        if (follow_record->data) {
             g_byte_array_free(follow_record->data, TRUE);
         }
         g_free(follow_record);
@@ -471,7 +471,7 @@ void FollowStreamDialog::resetStream()
     if (follow_type_ == FOLLOW_TCP) {
         for (cur = follow_info_.fragments[0]; cur; cur = gxx_list_next(cur)) {
             follow_record = gxx_list_data(follow_record_t *, cur);
-            if(follow_record->data) {
+            if (follow_record->data) {
                 g_byte_array_free(follow_record->data, TRUE);
             }
             g_free(follow_record);
@@ -479,7 +479,7 @@ void FollowStreamDialog::resetStream()
         follow_info_.fragments[0] = Q_NULLPTR;
         for (cur = follow_info_.fragments[1]; cur; cur = gxx_list_next(cur)) {
             follow_record = gxx_list_data(follow_record_t *, cur);
-            if(follow_record->data) {
+            if (follow_record->data) {
                 g_byte_array_free(follow_record->data, TRUE);
             }
             g_free(follow_record);
@@ -888,7 +888,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
 
     previous_filter_ = previous_filter;
     /* append the negation */
-    if(!previous_filter.isEmpty()) {
+    if (!previous_filter.isEmpty()) {
         filter_out_filter_ = QString("%1 and !(%2)")
                 .arg(previous_filter).arg(follow_filter);
     }
@@ -1105,7 +1105,7 @@ FollowStreamDialog::readFollowStream()
         skip = FALSE;
         if (!follow_record->is_server) {
             global_pos = &global_client_pos;
-            if(follow_info_.show_stream == FROM_SERVER) {
+            if (follow_info_.show_stream == FROM_SERVER) {
                 skip = TRUE;
             }
         } else {
@@ -1127,7 +1127,7 @@ FollowStreamDialog::readFollowStream()
                         follow_record->is_server,
                         follow_record->packet_num,
                         global_pos);
-            if(frs_return == FRS_PRINT_ERROR)
+            if (frs_return == FRS_PRINT_ERROR)
                 return frs_return;
             if (elapsed_timer.elapsed() > info_update_freq_) {
                 fillHintLabel(ui->teStreamContent->textCursor().position());

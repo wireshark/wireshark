@@ -219,7 +219,7 @@ QVariant ExpertInfoProxyModel::headerData(int section, Qt::Orientation orientati
     return QVariant();
 }
 
-int ExpertInfoProxyModel::columnCount(const QModelIndex& ) const
+int ExpertInfoProxyModel::columnCount(const QModelIndex&) const
 {
     return colProxyLast;
 }

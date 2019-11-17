@@ -355,9 +355,9 @@ bool EnabledProtocolsProxyModel::lessThan(const QModelIndex &left, const QModelI
 
         int compare_ret = 0;
 
-        if (left.column() == EnabledProtocolsModel::colProtocol )
+        if (left.column() == EnabledProtocolsModel::colProtocol)
             compare_ret = left_item->name().compare(right_item->name(), Qt::CaseInsensitive);
-        else if ( left.column() == EnabledProtocolsModel::colDescription )
+        else if (left.column() == EnabledProtocolsModel::colDescription)
             compare_ret = left_item->description().compare(right_item->description(), Qt::CaseInsensitive);
 
         if (compare_ret < 0)
@@ -370,10 +370,10 @@ bool EnabledProtocolsProxyModel::lessThan(const QModelIndex &left, const QModelI
 Qt::ItemFlags EnabledProtocolsProxyModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags flags = Qt::NoItemFlags;
-    if ( index.isValid() )
+    if (index.isValid())
     {
         QModelIndex source = mapToSource(index);
-        if ( filterAcceptsSelf(source.row(), source.parent() ) )
+        if (filterAcceptsSelf(source.row(), source.parent()) )
         {
             flags = Qt::ItemIsEnabled;
             flags |= Qt::ItemIsSelectable;
@@ -386,20 +386,20 @@ Qt::ItemFlags EnabledProtocolsProxyModel::flags(const QModelIndex &index) const
 
 bool EnabledProtocolsProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    if ( filterAcceptsSelf(sourceRow, sourceParent) )
+    if (filterAcceptsSelf(sourceRow, sourceParent))
         return true;
 
 #if 0
     QModelIndex parent = sourceParent;
-    while ( parent.isValid() )
+    while (parent.isValid())
     {
-        if ( filterAcceptsSelf(parent.row(), parent.parent()) )
+        if (filterAcceptsSelf(parent.row(), parent.parent()))
             return true;
         parent = parent.parent();
     }
 #endif
 
-    if ( filterAcceptsChild(sourceRow, sourceParent) )
+    if (filterAcceptsChild(sourceRow, sourceParent))
         return true;
 
     return false;
@@ -408,7 +408,7 @@ bool EnabledProtocolsProxyModel::filterAcceptsRow(int sourceRow, const QModelInd
 bool EnabledProtocolsProxyModel::filterAcceptsSelf(int sourceRow, const QModelIndex &sourceParent) const
 {
     QModelIndex nameIdx = sourceModel()->index(sourceRow, EnabledProtocolsModel::colProtocol, sourceParent);
-    if ( ! nameIdx.isValid() )
+    if (! nameIdx.isValid())
         return false;
     EnabledProtocolItem* item = static_cast<EnabledProtocolItem*>(nameIdx.internalPointer());
     if (! item)
@@ -416,12 +416,12 @@ bool EnabledProtocolsProxyModel::filterAcceptsSelf(int sourceRow, const QModelIn
 
     QRegExp regex(filter_, Qt::CaseInsensitive);
 
-    if ( ( type_ != EnabledProtocolsProxyModel::EnabledItems && type_ != EnabledProtocolsProxyModel::DisabledItems ) &&
-        ( protocolType_ == EnabledProtocolItem::Any || protocolType_ == item->type() ) )
+    if ((type_ != EnabledProtocolsProxyModel::EnabledItems && type_ != EnabledProtocolsProxyModel::DisabledItems) &&
+        (protocolType_ == EnabledProtocolItem::Any || protocolType_ == item->type()) )
     {
-        if ( ! filter_.isEmpty() )
+        if (! filter_.isEmpty())
         {
-            if ( item->name().contains(regex) && type_ != OnlyDescription)
+            if (item->name().contains(regex) && type_ != OnlyDescription)
                 return true;
 
             if (item->description().contains(regex) && type_ != OnlyProtocol)
@@ -430,9 +430,9 @@ bool EnabledProtocolsProxyModel::filterAcceptsSelf(int sourceRow, const QModelIn
         else
             return true;
     }
-    else if ( type_ == EnabledProtocolsProxyModel::EnabledItems && item->enabled() )
+    else if (type_ == EnabledProtocolsProxyModel::EnabledItems && item->enabled())
         return true;
-    else if ( type_ == EnabledProtocolsProxyModel::DisabledItems && ! item->enabled() )
+    else if (type_ == EnabledProtocolsProxyModel::DisabledItems && ! item->enabled())
         return true;
 
     return false;
@@ -441,20 +441,20 @@ bool EnabledProtocolsProxyModel::filterAcceptsSelf(int sourceRow, const QModelIn
 bool EnabledProtocolsProxyModel::filterAcceptsChild(int sourceRow, const QModelIndex &sourceParent) const
 {
     QModelIndex item = sourceModel()->index(sourceRow, EnabledProtocolsModel::colProtocol, sourceParent);
-    if ( ! item.isValid() )
+    if (! item.isValid())
         return false;
 
     int childCount = item.model()->rowCount(item);
-    if ( childCount == 0 )
+    if (childCount == 0)
         return false;
 
-    for ( int i = 0; i < childCount; i++ )
+    for (int i = 0; i < childCount; i++)
     {
-        if ( filterAcceptsSelf(i, item) )
+        if (filterAcceptsSelf(i, item))
             return true;
 #if 0
         /* Recursive search disabled for performance reasons */
-        if ( filterAcceptsChild(i, item) )
+        if (filterAcceptsChild(i, item))
             return true;
 #endif
     }
@@ -473,26 +473,26 @@ void EnabledProtocolsProxyModel::setFilter(const QString& filter, EnabledProtoco
 
 void EnabledProtocolsProxyModel::setItemsEnable(EnabledProtocolsProxyModel::EnableType enableType, QModelIndex parent)
 {
-    if ( ! sourceModel() )
+    if (! sourceModel())
         return;
 
-    if ( ! parent.isValid() )
+    if (! parent.isValid())
         emit beginResetModel();
 
-    for ( int row = 0; row < rowCount(parent); row++ )
+    for (int row = 0; row < rowCount(parent); row++)
     {
         QModelIndex idx = index(row, EnabledProtocolsModel::colProtocol, parent);
 
         QModelIndex sIdx = mapToSource(idx);
-        if ( sIdx.isValid() )
+        if (sIdx.isValid())
         {
             EnabledProtocolItem* item = static_cast<EnabledProtocolItem*>(sIdx.internalPointer());
-            if ( item && ( protocolType_ == EnabledProtocolItem::Any || protocolType_ == item->type() ) )
+            if (item && (protocolType_ == EnabledProtocolItem::Any || protocolType_ == item->type()) )
             {
                 Qt::CheckState enable = idx.data(Qt::CheckStateRole).value<Qt::CheckState>();
-                if ( enableType == Enable )
+                if (enableType == Enable)
                     enable = Qt::Checked;
-                else if ( enableType == Disable )
+                else if (enableType == Disable)
                     enable = Qt::Unchecked;
                 else
                     enable = enable == Qt::Checked ? Qt::Unchecked : Qt::Checked;
@@ -505,7 +505,7 @@ void EnabledProtocolsProxyModel::setItemsEnable(EnabledProtocolsProxyModel::Enab
     }
 
 
-    if ( ! parent.isValid() )
+    if (! parent.isValid())
         emit endResetModel();
 }
 

@@ -137,10 +137,10 @@ void DisplayFilterEdit::connectToMainWindow()
             this, SLOT(displayFilterSuccess(bool)));
 }
 
-void DisplayFilterEdit::contextMenuEvent(QContextMenuEvent *event){
+void DisplayFilterEdit::contextMenuEvent(QContextMenuEvent *event) {
     QMenu *menu = this->createStandardContextMenu();
 
-    if ( menu->actions().count() <= 0 )
+    if (menu->actions().count() <= 0)
         return;
 
     QAction * first = menu->actions().at(0);
@@ -164,7 +164,7 @@ void DisplayFilterEdit::contextMenuEvent(QContextMenuEvent *event){
 void DisplayFilterEdit::triggerAlignementAction()
 {
     leftAlignActions_ = ! leftAlignActions_;
-    if ( qobject_cast<QAction *>(sender()) )
+    if (qobject_cast<QAction *>(sender()))
         qobject_cast<QAction *>(sender())->setChecked(leftAlignActions_);
 
     recent.gui_geometry_leftalign_actions = leftAlignActions_;
@@ -188,7 +188,7 @@ void DisplayFilterEdit::alignActionButtons()
         apply_button_->setMinimumHeight(contentsRect().height());
         apply_button_->setMaximumHeight(contentsRect().height());
 
-        if ( clear_button_->isVisible() )
+        if (clear_button_->isVisible())
         {
             cbsz = clear_button_->sizeHint();
             clear_button_->setMinimumHeight(contentsRect().height());
@@ -199,7 +199,7 @@ void DisplayFilterEdit::alignActionButtons()
     int leftPadding = frameWidth + 1;
     int leftMargin = bksz.width();
     int rightMargin = cbsz.width() + apsz.width() + frameWidth + 1;
-    if ( leftAlignActions_ )
+    if (leftAlignActions_)
     {
         leftMargin = rightMargin + bksz.width() + 2;
         rightMargin = 0;
@@ -218,7 +218,7 @@ void DisplayFilterEdit::alignActionButtons()
     );
 
     if (apply_button_) {
-        if ( ! leftAlignActions_ )
+        if (! leftAlignActions_)
         {
             apply_button_->move(contentsRect().right() - frameWidth - apsz.width(),
                             contentsRect().top());
@@ -228,7 +228,7 @@ void DisplayFilterEdit::alignActionButtons()
     }
 
     if (clear_button_ && apply_button_) {
-        if ( ! leftAlignActions_ )
+        if (! leftAlignActions_)
         {
             clear_button_->move(contentsRect().right() - frameWidth - cbsz.width() - apsz.width(),
                             contentsRect().top());
@@ -266,7 +266,7 @@ void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
 
     if (bookmark_button_ && isEnabled()) {
 
-        if ( ! bookmark_button_->isVisible() )
+        if (! bookmark_button_->isVisible())
         {
             bookmark_button_->setVisible(true);
             apply_button_->setVisible(true);
@@ -286,10 +286,10 @@ void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
         painter.setPen(divider_color);
         QRect cr = contentsRect();
         int xpos = 0;
-        if ( leftAlignActions_ )
+        if (leftAlignActions_)
         {
             xpos = 1 + bookmark_button_->size().width() + apply_button_->size().width();
-            if ( clear_button_->isVisible() )
+            if (clear_button_->isVisible())
                 xpos += clear_button_->size().width();
         }
         else
@@ -322,19 +322,19 @@ bool DisplayFilterEdit::checkFilter()
 
 void DisplayFilterEdit::checkFilter(const QString& filter_text)
 {
-    if ( text().length() == 0 && actions_ && actions_->checkedAction() )
+    if (text().length() == 0 && actions_ && actions_->checkedAction())
         actions_->checkedAction()->setChecked(false);
 
     if (clear_button_) {
 
-        if ( filter_text.length() > 0 )
+        if (filter_text.length() > 0)
             clear_button_->setVisible(true);
-        else if ( last_applied_.length() > 0 )
+        else if (last_applied_.length() > 0)
             setPlaceholderText(tr("Current filter: %1").arg(last_applied_));
-        else if ( filter_text.length() <= 0 && last_applied_.length() <= 0 )
+        else if (filter_text.length() <= 0 && last_applied_.length() <= 0)
             clear_button_->setVisible(false);
 
-        if ( filter_text.length() <= 0 )
+        if (filter_text.length() <= 0)
             wsApp->popStatus(WiresharkApplication::FilterSyntax);
 
         alignActionButtons();
@@ -365,20 +365,20 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
     if (bookmark_button_) {
 
         bookmark_button_->setStockIcon("x-display-filter-bookmark");
-        if ( remove_action_ && save_action_ )
+        if (remove_action_ && save_action_)
         {
             remove_action_->setEnabled(false);
             save_action_->setEnabled(false);
         }
 
-        if ( filter_text.length() > 0 )
+        if (filter_text.length() > 0)
         {
             bool enable_save_action = false;
             bool match = false;
 
             FilterListModel model(FilterListModel::Display);
             QModelIndex idx = model.findByExpression(filter_text);
-            if ( idx.isValid() ) {
+            if (idx.isValid()) {
                 match = true;
 
                 bookmark_button_->setStockIcon("x-filter-matching-bookmark");
@@ -428,10 +428,10 @@ void DisplayFilterEdit::updateBookmarkMenu()
 
     int one_em = bb_menu->fontMetrics().height();
 
-    if ( ! actions_ )
+    if (! actions_)
         actions_ = new QActionGroup(this);
 
-    for(int row = 0; row < model.rowCount(); row++)
+    for (int row = 0; row < model.rowCount(); row++)
     {
         QModelIndex nameIdx = model.index(row, FilterListModel::ColumnName);
         QString name = nameIdx.data().toString();
@@ -441,7 +441,7 @@ void DisplayFilterEdit::updateBookmarkMenu()
         prep_text = bb_menu->fontMetrics().elidedText(prep_text, Qt::ElideRight, one_em * 40);
         QAction * prep_action = bb_menu->addAction(prep_text);
         prep_action->setCheckable(true);
-        if ( nameIdx == idx )
+        if (nameIdx == idx)
             prep_action->setChecked(true);
 
         prep_action->setProperty("display_filter", expr);
@@ -559,7 +559,7 @@ void DisplayFilterEdit::applyDisplayFilter()
     if (syntaxState() == Invalid)
         return;
 
-    if ( text().length() > 0 )
+    if (text().length() > 0)
         last_applied_ = text();
 
     updateClearButton();
@@ -576,7 +576,7 @@ void DisplayFilterEdit::updateClearButton()
 
 void DisplayFilterEdit::displayFilterSuccess(bool success)
 {
-    if ( apply_button_ )
+    if (apply_button_)
         apply_button_->setEnabled(!success);
 }
 
@@ -606,11 +606,11 @@ void DisplayFilterEdit::saveFilter()
 
 void DisplayFilterEdit::removeFilter()
 {
-    if ( ! actions_ && ! actions_->checkedAction() )
+    if (! actions_ && ! actions_->checkedAction())
         return;
 
     QAction *ra = actions_->checkedAction();
-    if ( ra->property("display_filter").toString().isEmpty() )
+    if (ra->property("display_filter").toString().isEmpty())
         return;
 
     QString remove_filter = ra->property("display_filter").toString();
@@ -618,7 +618,7 @@ void DisplayFilterEdit::removeFilter()
     FilterListModel model(FilterListModel::Display);
     QModelIndex idx = model.findByExpression(remove_filter);
 
-    if ( idx.isValid() )
+    if (idx.isValid())
     {
         model.removeFilter(idx);
         model.saveList();
@@ -643,7 +643,7 @@ void DisplayFilterEdit::showExpressionPrefs()
 void DisplayFilterEdit::applyOrPrepareFilter()
 {
     QAction *pa = qobject_cast<QAction*>(sender());
-    if ( ! pa || pa->property("display_filter").toString().isEmpty() )
+    if (! pa || pa->property("display_filter").toString().isEmpty())
         return;
 
     QString filterText = pa->property("display_filter").toString();
@@ -658,12 +658,12 @@ void DisplayFilterEdit::applyOrPrepareFilter()
 
 void DisplayFilterEdit::dragEnterEvent(QDragEnterEvent *event)
 {
-    if ( ! event || ! event->mimeData() )
+    if (! event || ! event->mimeData())
         return;
 
     if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData()) ||
             event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType)) {
-        if ( event->source() != this )
+        if (event->source() != this)
         {
             event->setDropAction(Qt::CopyAction);
             event->accept();
@@ -677,12 +677,12 @@ void DisplayFilterEdit::dragEnterEvent(QDragEnterEvent *event)
 
 void DisplayFilterEdit::dragMoveEvent(QDragMoveEvent *event)
 {
-    if ( ! event || ! event->mimeData() )
+    if (! event || ! event->mimeData())
         return;
 
     if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData()) ||
             event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType)) {
-        if ( event->source() != this )
+        if (event->source() != this)
         {
             event->setDropAction(Qt::CopyAction);
             event->accept();
@@ -696,22 +696,22 @@ void DisplayFilterEdit::dragMoveEvent(QDragMoveEvent *event)
 
 void DisplayFilterEdit::dropEvent(QDropEvent *event)
 {
-    if ( ! event || ! event->mimeData() )
+    if (! event || ! event->mimeData())
         return;
 
     QString filterText = "";
-    if ( event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType) )
+    if (event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType))
     {
         QByteArray jsonData = event->mimeData()->data(WiresharkMimeData::DisplayFilterMimeType);
         QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
-        if ( ! jsonDoc.isObject() )
+        if (! jsonDoc.isObject())
             return;
 
         QJsonObject data = jsonDoc.object();
 
         if ((QApplication::keyboardModifiers() & Qt::AltModifier) && data.contains("field"))
             filterText = data["field"].toString();
-        else if ( data.contains("filter") )
+        else if (data.contains("filter"))
             filterText = data["filter"].toString();
     }
     else if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData()))
@@ -723,14 +723,14 @@ void DisplayFilterEdit::dropEvent(QDropEvent *event)
 
     /* Moving items around */
     if (filterText.length() > 0) {
-        if ( event->source() != this )
+        if (event->source() != this)
         {
             event->setDropAction(Qt::CopyAction);
             event->accept();
 
             bool prepare = QApplication::keyboardModifiers() & Qt::ShiftModifier;
 
-            if ( text().length() > 0 || QApplication::keyboardModifiers() & Qt::MetaModifier)
+            if (text().length() > 0 || QApplication::keyboardModifiers() & Qt::MetaModifier)
             {
                 createFilterTextDropMenu(event, prepare, filterText);
                 return;
@@ -740,7 +740,7 @@ void DisplayFilterEdit::dropEvent(QDropEvent *event)
             setText(filterText);
 
             // Holding down the Shift key will only prepare filter.
-            if ( ! prepare ) {
+            if (! prepare) {
                 applyDisplayFilter();
             }
 
@@ -755,7 +755,7 @@ void DisplayFilterEdit::dropEvent(QDropEvent *event)
 
 void DisplayFilterEdit::createFilterTextDropMenu(QDropEvent *event, bool prepare, QString filterText)
 {
-    if ( filterText.isEmpty() )
+    if (filterText.isEmpty())
         return;
 
     FilterAction::Action filterAct = prepare ? FilterAction::ActionPrepare : FilterAction::ActionApply;

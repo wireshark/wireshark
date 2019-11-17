@@ -80,21 +80,21 @@ bool ApplyLineEdit::emptyAllowed()
 
 bool ApplyLineEdit::isValidText(QString & text, bool ignoreEmptyCheck)
 {
-    if ( text.length() == 0 )
+    if (text.length() == 0)
     {
-        if ( ! ignoreEmptyCheck && ! emptyAllowed_ )
+        if (! ignoreEmptyCheck && ! emptyAllowed_)
             return false;
-        else if ( ignoreEmptyCheck )
+        else if (ignoreEmptyCheck)
             return true;
     }
 
-    if ( regex_.length() > 0 )
+    if (regex_.length() > 0)
     {
-        QRegExp rx ( regex_ );
+        QRegExp rx (regex_);
         QRegExpValidator v(rx, 0);
 
         int pos = 0;
-        if ( ! rx.isValid() || v.validate(text, pos) != QValidator::Acceptable )
+        if (! rx.isValid() || v.validate(text, pos) != QValidator::Acceptable)
             return false;
     }
 
@@ -136,7 +136,7 @@ void ApplyLineEdit::resizeEvent(QResizeEvent *)
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     QSize apsz = apply_button_->sizeHint();
 
-    apply_button_->move((contentsRect().right() + pos().x()) - ( frameWidth + apsz.width() ) - 2,
+    apply_button_->move((contentsRect().right() + pos().x()) - (frameWidth + apsz.width()) - 2,
                         contentsRect().top() + pos().y());
 
     apply_button_->setMinimumHeight(height());
@@ -146,7 +146,7 @@ void ApplyLineEdit::resizeEvent(QResizeEvent *)
 void ApplyLineEdit::onSubmitContent()
 {
     QString data = text();
-    if ( ! isValidText(data) )
+    if (! isValidText(data))
         return;
 
     /* Freeze apply button to signal the text has been sent. Will be unfreezed, if the text in the textbox changes again */

@@ -150,7 +150,7 @@ void UatDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
     }
     case PT_TXTMOD_COLOR:
     {
-        if ( qobject_cast<QColorDialog *>(editor) )
+        if (qobject_cast<QColorDialog *>(editor))
         {
             QColor color(index.model()->data(index, Qt::DecorationRole).toString());
             qobject_cast<QColorDialog *>(editor)->setCurrentColor(color);
@@ -178,7 +178,7 @@ void UatDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
     }
     case PT_TXTMOD_COLOR:
         //do nothing, dialog signals will update table
-        if ( qobject_cast<QColorDialog *>(editor) )
+        if (qobject_cast<QColorDialog *>(editor))
         {
             QColor newColor = qobject_cast<QColorDialog *>(editor)->currentColor();
             ((QAbstractItemModel *)index.model())->setData(index, newColor.name(), Qt::EditRole);

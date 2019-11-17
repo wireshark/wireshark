@@ -32,7 +32,7 @@ bool FieldInformation::isValid() const
 {
     bool ret = false;
 
-    if ( fi_ && fi_->hfinfo )
+    if (fi_ && fi_->hfinfo)
     {
         if (fi_->hfinfo->blurb != NULL && fi_->hfinfo->blurb[0] != '\0') {
             ret = true;
@@ -47,7 +47,7 @@ bool FieldInformation::isValid() const
 bool FieldInformation::isLink() const
 {
     if (fi_ && fi_->hfinfo) {
-        if((fi_->hfinfo->type == FT_FRAMENUM) ||
+        if ((fi_->hfinfo->type == FT_FRAMENUM) ||
                 (FI_GET_FLAG(fi_, FI_URL) && IS_FT_STRING(fi_->hfinfo->type))) {
             return true;
         }
@@ -78,7 +78,7 @@ FieldInformation::HeaderInfo FieldInformation::headerInfo() const
 {
     HeaderInfo header;
 
-    if ( fi_ && fi_->hfinfo )
+    if (fi_ && fi_->hfinfo)
     {
         header.name = fi_->hfinfo->name;
         header.description = fi_->hfinfo->blurb;
@@ -109,7 +109,7 @@ FieldInformation * FieldInformation::parentField() const
 
 bool FieldInformation::tvbContains(FieldInformation *child)
 {
-    if ( fi_ && child && fi_->ds_tvb == child->fieldInfo()->ds_tvb )
+    if (fi_ && child && fi_->ds_tvb == child->fieldInfo()->ds_tvb)
         return true;
 
     return false;
@@ -153,7 +153,7 @@ QString FieldInformation::url()
 FieldInformation::Position FieldInformation::position() const
 {
     Position pos = {-1, -1};
-    if ( fi_ && fi_->ds_tvb )
+    if (fi_ && fi_->ds_tvb)
     {
         int len = (int) tvb_captured_length(fi_->ds_tvb);
 
@@ -162,7 +162,7 @@ FieldInformation::Position FieldInformation::position() const
 
         if (pos.start < 0 || pos.length < 0 || pos.start >= len)
         {
-            if ( fi_->appendix_start >= 0 && fi_->appendix_length > 0 && fi_->appendix_start < len )
+            if (fi_->appendix_start >= 0 && fi_->appendix_length > 0 && fi_->appendix_start < len)
             {
                 pos.start = fi_->appendix_start;
                 pos.length = fi_->appendix_length;
@@ -176,7 +176,7 @@ FieldInformation::Position FieldInformation::position() const
 FieldInformation::Position FieldInformation::appendix() const
 {
     Position pos = {-1, -1};
-    if ( fi_ && fi_->ds_tvb )
+    if (fi_ && fi_->ds_tvb)
     {
         pos.start = fi_->appendix_start;
         pos.length = fi_->appendix_length;
@@ -189,15 +189,15 @@ const QByteArray FieldInformation::printableData()
 {
     QByteArray data;
 
-    if ( fi_ && fi_->ds_tvb )
+    if (fi_ && fi_->ds_tvb)
     {
         FieldInformation::Position pos = position();
         int rem_length = tvb_captured_length_remaining(fi_->ds_tvb, pos.start);
 
         int length = pos.length;
-        if ( length > rem_length )
+        if (length > rem_length)
             length = rem_length;
-        uint8_t * dataSet = (uint8_t *)tvb_memdup(wmem_file_scope(), fi_->ds_tvb, pos.start, length );
+        uint8_t * dataSet = (uint8_t *)tvb_memdup(wmem_file_scope(), fi_->ds_tvb, pos.start, length);
         data = QByteArray::fromRawData((char *)dataSet, length);
     }
 

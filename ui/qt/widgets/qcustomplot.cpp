@@ -2290,8 +2290,8 @@ QCPDataRange QCPDataRange::intersection(const QCPDataRange &other) const
 */
 bool QCPDataRange::intersects(const QCPDataRange &other) const
 {
-   return !( (mBegin > other.mBegin && mBegin >= other.mEnd) ||
-             (mEnd <= other.mBegin && mEnd < other.mEnd) );
+   return !((mBegin > other.mBegin && mBegin >= other.mEnd) ||
+             (mEnd <= other.mBegin && mEnd < other.mEnd));
 }
 
 /*!
@@ -10175,7 +10175,7 @@ void QCPScatterStyle::drawShape(QCPPainter *painter, double x, double y) const
     case ssPlus:
     {
       painter->drawLine(QLineF(x-w,   y, x+w,   y));
-      painter->drawLine(QLineF(  x, y+w,   x, y-w));
+      painter->drawLine(QLineF( x, y+w,   x, y-w));
       break;
     }
     case ssCircle:
@@ -10199,16 +10199,16 @@ void QCPScatterStyle::drawShape(QCPPainter *painter, double x, double y) const
     case ssDiamond:
     {
       QPointF lineArray[4] = {QPointF(x-w,   y),
-                              QPointF(  x, y-w),
+                              QPointF( x, y-w),
                               QPointF(x+w,   y),
-                              QPointF(  x, y+w)};
+                              QPointF( x, y+w)};
       painter->drawPolygon(lineArray, 4);
       break;
     }
     case ssStar:
     {
       painter->drawLine(QLineF(x-w,   y, x+w,   y));
-      painter->drawLine(QLineF(  x, y+w,   x, y-w));
+      painter->drawLine(QLineF( x, y+w,   x, y-w));
       painter->drawLine(QLineF(x-w*0.707, y-w*0.707, x+w*0.707, y+w*0.707));
       painter->drawLine(QLineF(x-w*0.707, y+w*0.707, x+w*0.707, y-w*0.707));
       break;
@@ -10217,7 +10217,7 @@ void QCPScatterStyle::drawShape(QCPPainter *painter, double x, double y) const
     {
       QPointF lineArray[3] = {QPointF(x-w, y+0.755*w),
                               QPointF(x+w, y+0.755*w),
-                              QPointF(  x, y-0.977*w)};
+                              QPointF( x, y-0.977*w)};
       painter->drawPolygon(lineArray, 3);
       break;
     }
@@ -10225,7 +10225,7 @@ void QCPScatterStyle::drawShape(QCPPainter *painter, double x, double y) const
     {
       QPointF lineArray[3] = {QPointF(x-w, y-0.755*w),
                               QPointF(x+w, y-0.755*w),
-                              QPointF(  x, y+0.977*w)};
+                              QPointF( x, y+0.977*w)};
       painter->drawPolygon(lineArray, 3);
       break;
     }
@@ -10240,7 +10240,7 @@ void QCPScatterStyle::drawShape(QCPPainter *painter, double x, double y) const
     {
       painter->drawRect(QRectF(x-w, y-w, mSize, mSize));
       painter->drawLine(QLineF(x-w,   y, x+w*0.95,   y));
-      painter->drawLine(QLineF(  x, y+w,        x, y-w));
+      painter->drawLine(QLineF( x, y+w,        x, y-w));
       break;
     }
     case ssCrossCircle:
@@ -10254,7 +10254,7 @@ void QCPScatterStyle::drawShape(QCPPainter *painter, double x, double y) const
     {
       painter->drawEllipse(QPointF(x, y), w, w);
       painter->drawLine(QLineF(x-w,   y, x+w,   y));
-      painter->drawLine(QLineF(  x, y+w,   x, y-w));
+      painter->drawLine(QLineF( x, y+w,   x, y-w));
       break;
     }
     case ssPeace:

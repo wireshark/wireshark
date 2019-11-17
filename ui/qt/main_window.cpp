@@ -208,7 +208,7 @@ static void plugin_if_mainwindow_get_ws_info(GHashTable * data_set)
 
         QList<int> rows = gbl_cur_main_window_->selectedRows();
         frame_data * fdata = NULL;
-        if ( rows.count() > 0 )
+        if (rows.count() > 0)
             fdata = gbl_cur_main_window_->frameDataForRow(rows.at(0));
 
         if (cf->state == FILE_READ_DONE && fdata) {
@@ -1505,7 +1505,7 @@ void MainWindow::exportSelectedPackets() {
     QList<int> rows = packet_list_->selectedRows(true);
 
     QStringList entries;
-    foreach ( int row, rows )
+    foreach (int row, rows)
         entries << QString::number(row);
     QString selRange = entries.join(",");
 
@@ -1623,7 +1623,7 @@ void MainWindow::exportDissections(export_type_e export_type) {
     QList<int> rows = packet_list_->selectedRows(true);
 
     QStringList entries;
-    foreach ( int row, rows )
+    foreach (int row, rows)
         entries << QString::number(row);
     QString selRange = entries.join(",");
 
@@ -2891,14 +2891,14 @@ void MainWindow::setMwFileName(QString fileName)
 
 QList<int> MainWindow::selectedRows(bool useFrameNum)
 {
-    if ( packet_list_ )
+    if (packet_list_)
         return packet_list_->selectedRows(useFrameNum);
     return QList<int>();
 }
 
 frame_data * MainWindow::frameDataForRow(int row) const
 {
-    if ( packet_list_ )
+    if (packet_list_)
         return packet_list_->getFDataForRow(row);
 
     return Q_NULLPTR;

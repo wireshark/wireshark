@@ -123,7 +123,7 @@ void ColoringRulesModel::addColor(color_filter_t* colorf)
 {
     if (!colorf) return;
 
-    if(strstr(colorf->filter_name, CONVERSATION_COLOR_PREFIX) != NULL) {
+    if (strstr(colorf->filter_name, CONVERSATION_COLOR_PREFIX) != NULL) {
         conversation_colors_ = g_slist_append(conversation_colors_, colorf);
     } else {
         int count = root_->childCount();
@@ -193,7 +193,7 @@ bool ColoringRulesModel::writeColors(QString& err)
 bool ColoringRulesModel::insertRows(int row, int count, const QModelIndex& parent)
 {
     // sanity check insertion
-    if (row < 0 )
+    if (row < 0)
         return false;
 
     beginInsertRows(parent, row, row+(count-1));
@@ -210,7 +210,7 @@ bool ColoringRulesModel::insertRows(int row, int count, const QModelIndex& paren
 
 bool ColoringRulesModel::removeRows(int row, int count, const QModelIndex& parent)
 {
-    if (row < 0 )
+    if (row < 0)
         return false;
 
     beginRemoveRows(parent, row, row+(count-1));
@@ -413,9 +413,9 @@ QMimeData* ColoringRulesModel::mimeData(const QModelIndexList &indexes) const
     QMimeData *mimeData = new QMimeData();
 
     QJsonArray data;
-    foreach ( const QModelIndex & index, indexes )
+    foreach (const QModelIndex & index, indexes)
     {
-        if ( index.column() == 0 )
+        if (index.column() == 0)
         {
             ColoringRuleItem * item = root_->child(index.row());
             QJsonObject entry;
@@ -459,16 +459,16 @@ bool ColoringRulesModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
     QList<QVariant> rules;
 
     QJsonDocument encodedData = QJsonDocument::fromJson(data->data(WiresharkMimeData::ColoringRulesMimeType));
-    if ( ! encodedData.isObject() || ! encodedData.object().contains("coloringrules") )
+    if (! encodedData.isObject() || ! encodedData.object().contains("coloringrules"))
         return false;
 
     QJsonArray dataArray = encodedData.object()["coloringrules"].toArray();
 
-    for ( int datarow = 0; datarow < dataArray.count(); datarow++ )
+    for (int datarow = 0; datarow < dataArray.count(); datarow++)
     {
         QJsonObject entry = dataArray.at(datarow).toObject();
 
-        if ( ! entry.contains("foreground") || ! entry.contains("background") || ! entry.contains("filter") )
+        if (! entry.contains("foreground") || ! entry.contains("background") || ! entry.contains("filter"))
             continue;
 
         QColor fgColor = entry["foreground"].toVariant().value<QColor>();

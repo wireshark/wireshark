@@ -296,7 +296,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     GString *fname = g_string_new(file_name.toUtf8().constData());
     gboolean wespf_status;
 
-    if ( selRange.length() > 0 )
+    if (selRange.length() > 0)
     {
         packet_range_convert_selection_str(range, selRange.toUtf8().constData());
     }
@@ -870,7 +870,7 @@ void CaptureFileDialog::preview(const QString & path)
 
     wth = wtap_open_offline(path.toUtf8().data(), WTAP_TYPE_AUTO, &err, &err_info, TRUE);
     if (wth == NULL) {
-        if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
+        if (err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
             preview_format_.setText(tr("unknown file format"));
         } else {
             preview_format_.setText(tr("error opening file"));
@@ -893,7 +893,7 @@ void CaptureFileDialog::preview(const QString & path)
 
     status = get_stats_for_preview(wth, &stats, &err, &err_info);
 
-    if(status == PREVIEW_READ_ERROR) {
+    if (status == PREVIEW_READ_ERROR) {
         // XXX - give error details?
         g_free(err_info);
         preview_size_.setText(tr("%1, error after %Ln data record(s)", "", stats.records)
@@ -902,7 +902,7 @@ void CaptureFileDialog::preview(const QString & path)
     }
 
     // Packet count
-    if(status == PREVIEW_TIMED_OUT) {
+    if (status == PREVIEW_TIMED_OUT) {
         preview_size_.setText(tr("%1, timed out at %Ln data record(s)", "", stats.data_records)
                               .arg(size_str));
     } else {
@@ -912,7 +912,7 @@ void CaptureFileDialog::preview(const QString & path)
 
     // First packet + elapsed time
     QString first_elapsed;
-    if(stats.have_times) {
+    if (stats.have_times) {
         //
         // We saw at least one record with a time stamp, so we can give
         // a start time (if we have a mix of records with and without
@@ -922,7 +922,7 @@ void CaptureFileDialog::preview(const QString & path)
         ti_time = (long)stats.start_time;
         ti_tm = localtime(&ti_time);
         first_elapsed = "?";
-        if(ti_tm) {
+        if (ti_tm) {
             first_elapsed = QString().sprintf(
                      "%04d-%02d-%02d %02d:%02d:%02d",
                      ti_tm->tm_year + 1900,
@@ -939,7 +939,7 @@ void CaptureFileDialog::preview(const QString & path)
 
     // Elapsed time
     first_elapsed += " / ";
-    if(status == PREVIEW_SUCCEEDED && stats.have_times) {
+    if (status == PREVIEW_SUCCEEDED && stats.have_times) {
         //
         // We didn't time out, so we looked at all packets, and we got
         // at least one packet with a time stamp, so we can calculate
@@ -949,7 +949,7 @@ void CaptureFileDialog::preview(const QString & path)
         // the last one with a time stamp, this may be inaccurate).
         //
         elapsed_time = (unsigned int)(stats.stop_time-stats.start_time);
-        if(elapsed_time/86400) {
+        if (elapsed_time/86400) {
             first_elapsed += QString().sprintf("%02u days %02u:%02u:%02u",
                     elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
         } else {

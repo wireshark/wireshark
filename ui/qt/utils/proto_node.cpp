@@ -73,7 +73,7 @@ int ProtoNode::childrenCount() const
 
     int row_count = 0;
     ChildIterator kids = children();
-    while ( kids.element().isValid() )
+    while (kids.element().isValid())
     {
         row_count++;
         kids.next();
@@ -90,15 +90,15 @@ int ProtoNode::row()
 
     int cur_row = 0;
     ProtoNode::ChildIterator kids = parentNode().children();
-    while ( kids.element().isValid() )
+    while (kids.element().isValid())
     {
-        if ( kids.element().protoNode() == node_ ) {
+        if (kids.element().protoNode() == node_) {
             break;
         }
         cur_row++;
         kids.next();
     }
-    if ( ! kids.element().isValid() ) {
+    if (! kids.element().isValid()) {
         return -1;
     }
     return cur_row;
@@ -134,7 +134,7 @@ ProtoNode::ChildIterator::ChildIterator(ProtoNode::ChildIterator::NodePtr n)
 
 bool ProtoNode::ChildIterator::hasNext()
 {
-    if ( ! node || node->next == Q_NULLPTR )
+    if (! node || node->next == Q_NULLPTR)
         return false;
     return true;
 }

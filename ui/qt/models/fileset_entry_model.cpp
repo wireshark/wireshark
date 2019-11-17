@@ -35,7 +35,7 @@ int FilesetEntryModel::rowCount(const QModelIndex &) const
 
 QVariant FilesetEntryModel::data(const QModelIndex &index, int role) const
 {
-    if ( ! index.isValid() || index.row() >= rowCount() )
+    if (! index.isValid() || index.row() >= rowCount())
         return QVariant();
 
     const fileset_entry *entry = static_cast<fileset_entry*>(index.internalPointer());
@@ -46,7 +46,7 @@ QVariant FilesetEntryModel::data(const QModelIndex &index, int role) const
         case Created:
         {
             QString created = nameToDate(entry->name);
-            if(created.length() < 1) {
+            if (created.length() < 1) {
                 /* if this file doesn't follow the file set pattern, */
                 /* use the creation time of that file if available */
                 /* https://en.wikipedia.org/wiki/ISO_8601 */

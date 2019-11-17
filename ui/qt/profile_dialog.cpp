@@ -82,21 +82,21 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
 
     QMenu * importMenu = new QMenu(import_button_);
     QAction * entry = importMenu->addAction(tr("from zip file"));
-    connect( entry, &QAction::triggered, this, &ProfileDialog::importFromZip);
+    connect(entry, &QAction::triggered, this, &ProfileDialog::importFromZip);
     entry = importMenu->addAction(tr("from directory"));
-    connect( entry, &QAction::triggered, this, &ProfileDialog::importFromDirectory);
+    connect(entry, &QAction::triggered, this, &ProfileDialog::importFromDirectory);
     import_button_->setMenu(importMenu);
 
     QMenu * exportMenu = new QMenu(export_button_);
     export_selected_entry_ = exportMenu->addAction(tr("%Ln selected personal profile(s)", "", 0));
     export_selected_entry_->setProperty(PROFILE_EXPORT_PROPERTY, PROFILE_EXPORT_SELECTED);
-    connect( export_selected_entry_, &QAction::triggered, this, &ProfileDialog::exportProfiles);
+    connect(export_selected_entry_, &QAction::triggered, this, &ProfileDialog::exportProfiles);
     entry = exportMenu->addAction(tr("all personal profiles"));
     entry->setProperty(PROFILE_EXPORT_PROPERTY, PROFILE_EXPORT_ALL);
-    connect( entry, &QAction::triggered, this, &ProfileDialog::exportProfiles);
+    connect(entry, &QAction::triggered, this, &ProfileDialog::exportProfiles);
     export_button_->setMenu(exportMenu);
 #else
-    connect( import_button_, &QPushButton::clicked, this, &ProfileDialog::importFromDirectory);
+    connect(import_button_, &QPushButton::clicked, this, &ProfileDialog::importFromDirectory);
 #endif
 
     resetTreeView();
@@ -124,19 +124,19 @@ ProfileDialog::~ProfileDialog()
 
 void ProfileDialog::keyPressEvent(QKeyEvent *evt)
 {
-    if( pd_ui_->lineProfileFilter->hasFocus() && (evt->key() == Qt::Key_Enter || evt->key() == Qt::Key_Return) )
+    if (pd_ui_->lineProfileFilter->hasFocus() && (evt->key() == Qt::Key_Enter || evt->key() == Qt::Key_Return))
         return;
     QDialog::keyPressEvent(evt);
 }
 
 void ProfileDialog::selectProfile(QString profile)
 {
-    if ( profile.isEmpty() )
+    if (profile.isEmpty())
         profile = QString(get_profile_name());
 
     int row = model_->findByName(profile);
     QModelIndex idx = sort_model_->mapFromSource(model_->index(row, ProfileModel::COL_NAME));
-    if ( idx.isValid() )
+    if (idx.isValid())
         pd_ui_->profileTreeView->selectRow(idx.row());
 }
 
@@ -194,7 +194,7 @@ QModelIndexList ProfileDialog::selectedProfiles()
     foreach (QModelIndex idx, pd_ui_->profileTreeView->selectionModel()->selectedIndexes())
     {
         QModelIndex temp = sort_model_->mapToSource(idx);
-        if ( ! temp.isValid() || profiles.contains(temp) || temp.column() != ProfileModel::COL_NAME )
+        if (! temp.isValid() || profiles.contains(temp) || temp.column() != ProfileModel::COL_NAME)
             continue;
 
         profiles << temp;
@@ -205,7 +205,7 @@ QModelIndexList ProfileDialog::selectedProfiles()
 
 void ProfileDialog::selectionChanged()
 {
-    if ( selectedProfiles().count() == 0 )
+    if (selectedProfiles().count() == 0)
         pd_ui_->profileTreeView->selectRow(0);
 
     updateWidgets();
@@ -224,47 +224,47 @@ void ProfileDialog::updateWidgets()
     QModelIndexList profiles = selectedProfiles();
 
     /* Ensure that the index is always the name column */
-    if ( index.column() != ProfileModel::COL_NAME )
+    if (index.column() != ProfileModel::COL_NAME)
         index = index.sibling(index.row(), ProfileModel::COL_NAME);
 
     /* check if more than one viable profile is selected, and inform the sorting model */
-    if ( profiles.count() > 1 )
+    if (profiles.count() > 1)
         multiple = true;
 
     /* Check if user profiles have been selected and allow export if it is so */
-    for ( int cnt = 0; cnt < profiles.count(); cnt++ )
+    for (int cnt = 0; cnt < profiles.count(); cnt++)
     {
-        if ( ! profiles[cnt].data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! profiles[cnt].data(ProfileModel::DATA_IS_DEFAULT).toBool() )
+        if (! profiles[cnt].data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! profiles[cnt].data(ProfileModel::DATA_IS_DEFAULT).toBool())
             user_profiles++;
     }
-    if ( model_->changesPending() )
+    if (model_->changesPending())
     {
         enable_import = false;
         msg = tr("An import of profiles is not allowed, while changes are pending");
     }
-    else if ( model_->importPending() )
+    else if (model_->importPending())
     {
         enable_import = false;
         msg = tr("An import is pending to be saved. Additional imports are not allowed");
     }
-    import_button_->setToolTip( msg );
-    import_button_->setEnabled( enable_import );
+    import_button_->setToolTip(msg);
+    import_button_->setEnabled(enable_import);
 
 #ifdef HAVE_MINIZIP
     bool contains_user = false;
     bool enable_export = false;
 
-    if ( user_profiles > 0 )
+    if (user_profiles > 0)
         contains_user = true;
 
     /* enable export if no changes are pending */
-    if ( ! model_->changesPending() )
+    if (! model_->changesPending())
         enable_export = true;
 
-    export_button_->setEnabled( enable_export );
-    if ( ! enable_export )
+    export_button_->setEnabled(enable_export);
+    if (! enable_export)
     {
-        if ( ! contains_user )
+        if (! contains_user)
             export_button_->setToolTip(tr("An export of profiles is only allowed for personal profiles"));
         else
             export_button_->setToolTip(tr("An export of profiles is not allowed, while changes are pending"));
@@ -273,22 +273,22 @@ void ProfileDialog::updateWidgets()
 #endif
 
     /* if the current profile is default with reset pending or a global one, deactivate delete */
-    if ( ! multiple )
+    if (! multiple)
     {
-        if ( index.isValid() )
+        if (index.isValid())
         {
-            if ( index.data(ProfileModel::DATA_IS_GLOBAL).toBool() )
+            if (index.data(ProfileModel::DATA_IS_GLOBAL).toBool())
                 enable_del = false;
-            else if ( index.data(ProfileModel::DATA_IS_DEFAULT).toBool() && model_->resetDefault())
+            else if (index.data(ProfileModel::DATA_IS_DEFAULT).toBool() && model_->resetDefault())
                 enable_del = false;
         }
-        else if ( ! index.isValid() )
+        else if (! index.isValid())
             enable_del = false;
     }
 
     QString hintUrl;
     msg.clear();
-    if ( multiple )
+    if (multiple)
     {
         /* multiple profiles are being selected, copy is no longer allowed */
         pd_ui_->copyToolButton->setEnabled(false);
@@ -302,15 +302,15 @@ void ProfileDialog::updateWidgets()
     else
     {
         /* if only one profile is selected, display it's path in the hint label and activate link (if allowed) */
-        if ( index.isValid() )
+        if (index.isValid())
         {
             QString temp = index.data(ProfileModel::DATA_PATH).toString();
-            if ( index.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() && QFileInfo(temp).isDir() )
+            if (index.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() && QFileInfo(temp).isDir())
                 hintUrl = QUrl::fromLocalFile(temp).toString();
             pd_ui_->hintLabel->setText(temp);
             pd_ui_->hintLabel->setToolTip(index.data(Qt::ToolTipRole).toString());
 
-            if ( ! index.data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! index.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
+            if (! index.data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! index.data(ProfileModel::DATA_IS_DEFAULT).toBool())
                 msg = tr("%Ln selected personal profile(s)", "", 1);
         }
 
@@ -324,14 +324,14 @@ void ProfileDialog::updateWidgets()
     if (model_ && model_->rowCount() > 0)
     {
         msg.clear();
-        for ( int row = 0; row < model_->rowCount() && enable_ok; row++ )
+        for (int row = 0; row < model_->rowCount() && enable_ok; row++)
         {
             QModelIndex idx = model_->index(row, ProfileModel::COL_NAME);
             QString name = idx.data().toString();
 
-            if ( ! ProfileModel::checkNameValidity(name, &msg) )
+            if (! ProfileModel::checkNameValidity(name, &msg))
             {
-                if ( idx == index || selectedProfiles().contains(idx) )
+                if (idx == index || selectedProfiles().contains(idx))
                 {
                     hintUrl.clear();
                     pd_ui_->hintLabel->setText(msg);
@@ -341,22 +341,22 @@ void ProfileDialog::updateWidgets()
                 continue;
             }
 
-            if ( model_->checkInvalid(idx) || ( ! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() && model_->checkIfDeleted(idx) ) )
+            if (model_->checkInvalid(idx) || (! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() && model_->checkIfDeleted(idx)) )
             {
-                if ( idx == index )
+                if (idx == index)
                     hintUrl.clear();
                 enable_ok = false;
                 continue;
             }
 
-            if ( idx != index && idx.data().toString().compare(index.data().toString()) == 0 )
+            if (idx != index && idx.data().toString().compare(index.data().toString()) == 0)
             {
                 if (idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() == index.data(ProfileModel::DATA_IS_GLOBAL).toBool())
                     enable_ok = false;
             }
 
             QList<int> rows = model_->findAllByNameAndVisibility(name, idx.data(ProfileModel::DATA_IS_GLOBAL).toBool());
-            if ( rows.count() > 1 )
+            if (rows.count() > 1)
                 enable_ok = false;
         }
     }
@@ -396,7 +396,7 @@ void ProfileDialog::on_newToolButton_clicked()
 void ProfileDialog::on_deleteToolButton_clicked()
 {
     QModelIndexList profiles = selectedProfiles();
-    if ( profiles.count() <= 0 )
+    if (profiles.count() <= 0)
         return;
 
     model_->deleteEntries(profiles);
@@ -404,10 +404,10 @@ void ProfileDialog::on_deleteToolButton_clicked()
     bool isGlobal = model_->activeProfile().data(ProfileModel::DATA_IS_GLOBAL).toBool();
     int row = model_->findByName(model_->activeProfile().data().toString());
     /* If the active profile is deleted, the default is selected next */
-    if ( row < 0 )
+    if (row < 0)
         row = 0;
     QModelIndex newIdx = sort_model_->mapFromSource(model_->index(row, 0));
-    if ( newIdx.data(ProfileModel::DATA_IS_GLOBAL).toBool() != isGlobal )
+    if (newIdx.data(ProfileModel::DATA_IS_GLOBAL).toBool() != isGlobal)
         newIdx =  sort_model_->mapFromSource(model_->index(0, 0));
 
     pd_ui_->profileTreeView->setCurrentIndex(newIdx);
@@ -418,7 +418,7 @@ void ProfileDialog::on_deleteToolButton_clicked()
 void ProfileDialog::on_copyToolButton_clicked()
 {
     QModelIndexList profiles = selectedProfiles();
-    if ( profiles.count() > 1 )
+    if (profiles.count() > 1)
         return;
 
     pd_ui_->lineProfileFilter->setText("");
@@ -426,7 +426,7 @@ void ProfileDialog::on_copyToolButton_clicked()
     sort_model_->setFilterString();
 
     QModelIndex current = pd_ui_->profileTreeView->currentIndex();
-    if ( current.column() != ProfileModel::COL_NAME )
+    if (current.column() != ProfileModel::COL_NAME)
         current = current.sibling(current.row(), ProfileModel::COL_NAME);
 
     QModelIndex source = sort_model_->mapToSource(current);
@@ -452,7 +452,7 @@ void ProfileDialog::on_buttonBox_accepted()
     pd_ui_->buttonBox->setFocus();
 
     QModelIndexList profiles = selectedProfiles();
-    if ( profiles.count() <= 0 )
+    if (profiles.count() <= 0)
         index = QModelIndex();
 
     QModelIndex default_item = sort_model_->mapFromSource(model_->index(0, ProfileModel::COL_NAME));
@@ -496,14 +496,14 @@ void ProfileDialog::on_buttonBox_accepted()
 
     QString profileName;
 
-    if ( ! index.isValid() && model_->lastSetRow() >= 0 )
+    if (! index.isValid() && model_->lastSetRow() >= 0)
     {
         QModelIndex original = model_->index(model_->lastSetRow(), ProfileModel::COL_NAME);
         index = sort_model_->mapFromSource(original);
     }
 
     /* If multiple profiles are selected, do not change the selected profile */
-    if ( index.isValid() && ! item_data_removed && profiles.count() <= 1 )
+    if (index.isValid() && ! item_data_removed && profiles.count() <= 1)
     {
         profileName = model_->data(index).toString();
     }
@@ -521,7 +521,7 @@ void ProfileDialog::on_buttonBox_accepted()
 void ProfileDialog::on_buttonBox_rejected()
 {
     QString msg;
-    if ( ! model_->clearImported(&msg) )
+    if (! model_->clearImported(&msg))
         QMessageBox::critical(this, tr("Error"), msg);
 }
 
@@ -536,7 +536,7 @@ void ProfileDialog::dataChanged(const QModelIndex &idx)
     pd_ui_->cmbProfileTypes->setCurrentIndex(ProfileSortModel::AllProfiles);
 
     pd_ui_->profileTreeView->setFocus();
-    if ( ! idx.isValid() && model_->lastSetRow() >= 0 )
+    if (! idx.isValid() && model_->lastSetRow() >= 0)
     {
         QModelIndex original = model_->index(model_->lastSetRow(), ProfileModel::COL_NAME);
         pd_ui_->profileTreeView->setCurrentIndex(sort_model_->mapFromSource(original));
@@ -567,35 +567,35 @@ void ProfileDialog::filterChanged(const QString &text)
 void ProfileDialog::exportProfiles(bool exportAllPersonalProfiles)
 {
     QAction * action = qobject_cast<QAction *>(sender());
-    if ( action && action->property(PROFILE_EXPORT_PROPERTY).isValid() )
+    if (action && action->property(PROFILE_EXPORT_PROPERTY).isValid())
         exportAllPersonalProfiles = action->property(PROFILE_EXPORT_PROPERTY).toString().compare(PROFILE_EXPORT_ALL) == 0;
 
     QModelIndexList items;
     int skipped = 0;
 
-    if ( ! exportAllPersonalProfiles )
+    if (! exportAllPersonalProfiles)
     {
-        foreach ( QModelIndex idx, selectedProfiles() )
+        foreach (QModelIndex idx, selectedProfiles())
         {
-            if ( ! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
+            if (! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! idx.data(ProfileModel::DATA_IS_DEFAULT).toBool())
                 items << idx;
             else
                 skipped++;
         }
     }
-    else if ( exportAllPersonalProfiles )
+    else if (exportAllPersonalProfiles)
     {
-        for ( int cnt = 0; cnt < sort_model_->rowCount(); cnt++ )
+        for (int cnt = 0; cnt < sort_model_->rowCount(); cnt++)
         {
             QModelIndex idx = sort_model_->index(cnt, ProfileModel::COL_NAME);
-            if ( ! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
+            if (! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! idx.data(ProfileModel::DATA_IS_DEFAULT).toBool())
                 items << sort_model_->mapToSource(idx);
         }
     }
-    if ( items.count() == 0 )
+    if (items.count() == 0)
     {
         QString msg = tr("No profiles found for export");
-        if ( skipped > 0 )
+        if (skipped > 0)
             msg.append(tr(", %Ln profile(s) skipped", "", skipped));
         QMessageBox::critical(this, tr("Exporting profiles"), msg);
         return;
@@ -603,17 +603,17 @@ void ProfileDialog::exportProfiles(bool exportAllPersonalProfiles)
 
     QString zipFile = QFileDialog::getSaveFileName(this, tr("Select zip file for export"), lastOpenDir(), tr("Zip File (*.zip)"));
 
-    if ( zipFile.length() > 0 )
+    if (zipFile.length() > 0)
     {
         QFileInfo fi(zipFile);
-        if ( fi.suffix().length() == 0 || fi.suffix().toLower().compare("zip") != 0 )
+        if (fi.suffix().length() == 0 || fi.suffix().toLower().compare("zip") != 0)
             zipFile += ".zip";
 
         QString err;
-        if ( model_->exportProfiles(zipFile, items, &err) )
+        if (model_->exportProfiles(zipFile, items, &err))
         {
             QString msg = tr("%Ln profile(s) exported", "", items.count());
-            if ( skipped > 0 )
+            if (skipped > 0)
                 msg.append(tr(", %Ln profile(s) skipped", "", skipped));
             QMessageBox::information(this, tr("Exporting profiles"), msg);
 
@@ -623,7 +623,7 @@ void ProfileDialog::exportProfiles(bool exportAllPersonalProfiles)
         else
         {
             QString msg = tr("An error has occurred while exporting profiles");
-             if ( err.length() > 0 )
+             if (err.length() > 0)
                  msg.append(QString("\n\n%1: %3").arg(tr("Error")).arg(err));
             QMessageBox::critical(this, tr("Exporting profiles"), msg);
         }
@@ -635,7 +635,7 @@ void ProfileDialog::importFromZip()
     QString zipFile = QFileDialog::getOpenFileName(this, tr("Select zip file for import"), lastOpenDir(), tr("Zip File (*.zip)"));
 
     QFileInfo fi(zipFile);
-    if ( ! fi.exists() )
+    if (! fi.exists())
         return;
 
     int skipped = 0;
@@ -651,7 +651,7 @@ void ProfileDialog::importFromDirectory()
     QString importDir = QFileDialog::getExistingDirectory(this, tr("Select directory for import"), lastOpenDir());
 
     QFileInfo fi(importDir);
-    if ( ! fi.isDir() )
+    if (! fi.isDir())
         return;
 
     int skipped = 0;
@@ -666,7 +666,7 @@ void ProfileDialog::finishImport(QFileInfo fi, int count, int skipped, QStringLi
     QString msg;
     QMessageBox::Icon icon;
 
-    if ( count == 0 && skipped == 0 )
+    if (count == 0 && skipped == 0)
     {
         icon = QMessageBox::Warning;
         msg = tr("No profiles found for import in %1").arg(fi.fileName());
@@ -675,13 +675,13 @@ void ProfileDialog::finishImport(QFileInfo fi, int count, int skipped, QStringLi
     {
         icon = QMessageBox::Information;
         msg = tr("%Ln profile(s) imported", "", count);
-        if ( skipped > 0 )
+        if (skipped > 0)
             msg.append(tr(", %Ln profile(s) skipped", "", skipped));
     }
 
     storeLastDir(fi.absolutePath());
 
-    if ( count > 0 )
+    if (count > 0)
     {
         import.sort();
         resetTreeView();
@@ -723,7 +723,7 @@ QString ProfileDialog::lastOpenDir()
     }
 
     QDir ld(result);
-    if ( ld.exists() )
+    if (ld.exists())
         return result;
 
     return QString();
@@ -737,12 +737,12 @@ void ProfileDialog::storeLastDir(QString dir)
 
 void ProfileDialog::resetTreeView()
 {
-    if ( model_ )
+    if (model_)
     {
         pd_ui_->profileTreeView->setModel(Q_NULLPTR);
         sort_model_->setSourceModel(Q_NULLPTR);
         model_->disconnect();
-        if ( pd_ui_->profileTreeView->selectionModel() )
+        if (pd_ui_->profileTreeView->selectionModel())
             pd_ui_->profileTreeView->selectionModel()->disconnect();
         delete sort_model_;
         delete model_;
@@ -762,7 +762,7 @@ void ProfileDialog::resetTreeView()
 
     selectionChanged();
 
-    if ( sort_model_->columnCount() <= 1 )
+    if (sort_model_->columnCount() <= 1)
         pd_ui_->profileTreeView->header()->hide();
     else
     {

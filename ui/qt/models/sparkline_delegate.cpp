@@ -37,7 +37,7 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
         return;
     }
 
-    while((qreal) points.length() > steps) {
+    while ((qreal) points.length() > steps) {
         points.removeFirst();
     }
 

@@ -39,10 +39,10 @@ bool WireSharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
     QDir di(directory);
     int files = 0;
 
-    if ( ! fi.exists() || ! di.exists() )
+    if (! fi.exists() || ! di.exists())
         return false;
 
-    if ( ( uf = unzOpen64(zipFile.toUtf8().constData()) ) == Q_NULLPTR )
+    if ((uf = unzOpen64(zipFile.toUtf8().constData())) == Q_NULLPTR)
         return false;
 
     unz_global_info64 gi;
@@ -54,35 +54,35 @@ bool WireSharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
 
     QMap<QString, QString> cleanPaths;
 
-    for ( unsigned int cnt = 0; cnt < nmbr; cnt++ )
+    for (unsigned int cnt = 0; cnt < nmbr; cnt++)
     {
         char filename_inzip[256];
         unz_file_info64 file_info;
         err = unzGetCurrentFileInfo64(uf, &file_info, filename_inzip, sizeof(filename_inzip),
                                       Q_NULLPTR, 0, Q_NULLPTR, 0);
-        if ( err == UNZ_OK )
+        if (err == UNZ_OK)
         {
             QString fileInZip(filename_inzip);
             int fileSize = static_cast<int>(file_info.uncompressed_size);
 
             /* Sanity check for the filen */
-            if ( fileInZip.length() == 0 || ( fileCheck && ! fileCheck(fileInZip, fileSize) ) )
+            if (fileInZip.length() == 0 || (fileCheck && ! fileCheck(fileInZip, fileSize)) )
                 continue;
 
-            if ( di.exists() )
+            if (di.exists())
             {
                 QString fullPath = di.path() + QDir::separator() + fileInZip;
                 QFileInfo fi(fullPath);
                 QString dirPath = fi.absolutePath();
 
                 /* clean up name from import. e.g. illegal characters in name */
-                if ( cleanName )
+                if (cleanName)
                 {
-                    if ( ! cleanPaths.keys().contains(dirPath) )
+                    if (! cleanPaths.keys().contains(dirPath))
                     {
                         QString tempPath = cleanName(dirPath);
                         int cnt = 1;
-                        while ( QFile::exists(tempPath) )
+                        while (QFile::exists(tempPath))
                         {
                             tempPath = cleanName(dirPath) + QString::number(cnt);
                             cnt++;
@@ -91,32 +91,32 @@ bool WireSharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
                     }
 
                     dirPath = cleanPaths[dirPath];
-                    if ( dirPath.length() == 0 )
+                    if (dirPath.length() == 0)
                         continue;
 
                     fi = QFileInfo(dirPath + QDir::separator() + fi.fileName());
                     fullPath = fi.absoluteFilePath();
                 }
-                if ( fullPath.length() == 0 )
+                if (fullPath.length() == 0)
                     continue;
 
                 QDir tP(fi.absolutePath());
-                if ( ! tP.exists() )
+                if (! tP.exists())
                     di.mkpath(fi.absolutePath());
 
-                if ( fileInZip.contains("/") )
+                if (fileInZip.contains("/"))
                 {
                     QString filePath = fi.absoluteFilePath();
                     QFile file(filePath);
-                    if ( ! file.exists() )
+                    if (! file.exists())
                     {
                         err = unzOpenCurrentFile(uf);
-                        if ( err == UNZ_OK )
+                        if (err == UNZ_OK)
                         {
                             char * buf = static_cast<char *>(malloc(IO_BUF_SIZE));
-                            if ( file.open(QIODevice::WriteOnly) )
+                            if (file.open(QIODevice::WriteOnly))
                             {
-                                while ( ( err = unzReadCurrentFile(uf, buf, IO_BUF_SIZE) ) != UNZ_EOF )
+                                while ((err = unzReadCurrentFile(uf, buf, IO_BUF_SIZE)) != UNZ_EOF)
                                     file.write(buf, err);
 
                                 file.close();
@@ -155,9 +155,9 @@ unsigned long qDateToDosDate(QDateTime time)
     QDate ld = time.toLocalTime().date();
 
     int year = ld.year() - 1900;
-    if ( year >= 1980 )
+    if (year >= 1980)
         year -= 1980;
-    else if ( year >= 80 )
+    else if (year >= 80)
         year -= 80;
     else
         year += 20;
@@ -165,7 +165,7 @@ unsigned long qDateToDosDate(QDateTime time)
     int month = ld.month() - 1;
     int day = ld.day();
 
-    if ( year < 0 || year > 207 || month < 1 || month > 31 )
+    if (year < 0 || year > 207 || month < 1 || month > 31)
         return 0;
 
     QTime lt = time.toLocalTime().time();
@@ -189,23 +189,23 @@ void WireSharkZipHelper::addFileToZip(zipFile zf, QString filepath, QString file
 
     QFile fh(filepath);
     /* Checks if a large file block has to be written */
-    bool isLarge = ( fh.size() > UINT32_MAX );
+    bool isLarge = (fh.size() > UINT32_MAX);
 
     err = zipOpenNewFileInZip3_64(zf, fileInZip.toUtf8().constData(), &zi,
                                   Q_NULLPTR, 0, Q_NULLPTR, 0, Q_NULLPTR, Z_DEFLATED, 9 , 0,
                                   -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY,
                                   Q_NULLPTR, 0, static_cast<int>(isLarge));
 
-    if ( err != ZIP_OK )
+    if (err != ZIP_OK)
         return;
 
-    if ( fh.open(QIODevice::ReadOnly) )
+    if (fh.open(QIODevice::ReadOnly))
     {
         char * buf = static_cast<char *>(malloc(IO_BUF_SIZE));
-        while ( ! fh.atEnd() && err == ZIP_OK )
+        while (! fh.atEnd() && err == ZIP_OK)
         {
             qint64 bytesIn = fh.read(buf, IO_BUF_SIZE);
-            if ( bytesIn > 0 && bytesIn <= IO_BUF_SIZE)
+            if (bytesIn > 0 && bytesIn <= IO_BUF_SIZE)
             {
                 err = zipWriteInFileInZip(zf, buf, (unsigned int) bytesIn);
             }
@@ -221,27 +221,27 @@ bool WireSharkZipHelper::zip(QString fileName, QStringList files, QString relati
 {
 
     QFileInfo fi(fileName);
-    if ( fi.exists() )
+    if (fi.exists())
         QFile::remove(fileName);
 
     zipFile zf = zipOpen(fileName.toUtf8().constData(), APPEND_STATUS_CREATE);
-    if ( zf == Q_NULLPTR )
+    if (zf == Q_NULLPTR)
         return false;
 
-    for ( int cnt = 0; cnt < files.count(); cnt++ )
+    for (int cnt = 0; cnt < files.count(); cnt++)
     {
         QFileInfo sf(files.at(cnt));
         QString fileInZip = sf.absoluteFilePath();
         fileInZip.replace(relativeTo, "");
         /* Windows cannot open zip files, if the filenames starts with a separator */
-        while ( fileInZip.length() > 0 && fileInZip.startsWith(QDir::separator()) )
+        while (fileInZip.length() > 0 && fileInZip.startsWith(QDir::separator()))
             fileInZip = fileInZip.right(fileInZip.length() - 1);
 
         WireSharkZipHelper::addFileToZip(zf, sf.absoluteFilePath(), fileInZip);
 
     }
 
-    if ( zipClose(zf, Q_NULLPTR) )
+    if (zipClose(zf, Q_NULLPTR))
         return false;
 
     return true;

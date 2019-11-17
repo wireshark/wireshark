@@ -40,7 +40,7 @@ AdditionalToolBar::~AdditionalToolBar()
 
 AdditionalToolBar * AdditionalToolBar::create(QWidget * parent, ext_toolbar_t * toolbar)
 {
-    if ( g_list_length( toolbar->children ) == 0 )
+    if (g_list_length(toolbar->children) == 0)
         return NULL;
 
     AdditionalToolBar * result = new AdditionalToolBar(toolbar, parent);
@@ -52,16 +52,16 @@ AdditionalToolBar * AdditionalToolBar::create(QWidget * parent, ext_toolbar_t * 
     GList * walker = toolbar->children;
     bool spacerNeeded = true;
 
-    while ( walker && walker->data )
+    while (walker && walker->data)
     {
         ext_toolbar_t * item = gxx_list_data(ext_toolbar_t *, walker);
-        if ( item->type == EXT_TOOLBAR_ITEM )
+        if (item->type == EXT_TOOLBAR_ITEM)
         {
-            if ( item->item_type == EXT_TOOLBAR_STRING )
+            if (item->item_type == EXT_TOOLBAR_STRING)
                 spacerNeeded = false;
 
             QAction * newAction = new AdditionalToolbarWidgetAction(item, result);
-            if ( newAction )
+            if (newAction)
             {
                 result->addAction(newAction);
                 /* Necessary, because enable state is reset upon adding the action */
@@ -69,13 +69,13 @@ AdditionalToolBar * AdditionalToolBar::create(QWidget * parent, ext_toolbar_t * 
             }
         }
 
-        walker = gxx_list_next ( walker );
+        walker = gxx_list_next (walker);
     }
 
-    if ( result->children().count() == 0 )
+    if (result->children().count() == 0)
         return Q_NULLPTR;
 
-    if ( spacerNeeded )
+    if (spacerNeeded)
     {
         QWidget * empty = new QWidget();
         empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
@@ -113,7 +113,7 @@ AdditionalToolbarWidgetAction::AdditionalToolbarWidgetAction(const AdditionalToo
 
 void AdditionalToolbarWidgetAction::captureActive(int activeCaptures)
 {
-    if ( toolbar_item && toolbar_item->capture_only )
+    if (toolbar_item && toolbar_item->capture_only)
     {
         setEnabled(activeCaptures != 0);
     }
@@ -126,10 +126,10 @@ QWidget * AdditionalToolbarWidgetAction::createWidget(QWidget * parent)
 {
     QWidget * barItem = 0;
 
-    if ( toolbar_item->type != EXT_TOOLBAR_ITEM )
+    if (toolbar_item->type != EXT_TOOLBAR_ITEM)
         return barItem;
 
-    switch ( toolbar_item->item_type )
+    switch (toolbar_item->item_type)
     {
     case EXT_TOOLBAR_BUTTON:
         barItem = createButton(toolbar_item, parent);
@@ -145,7 +145,7 @@ QWidget * AdditionalToolbarWidgetAction::createWidget(QWidget * parent)
         break;
     }
 
-    if ( ! barItem )
+    if (! barItem)
         return 0;
 
     barItem->setToolTip(toolbar_item->tooltip);
@@ -161,17 +161,17 @@ QWidget * AdditionalToolbarWidgetAction::createWidget(QWidget * parent)
 static void
 toolbar_button_cb(gpointer item, gpointer item_data, gpointer user_data)
 {
-    if ( ! item || ! item_data || ! user_data )
+    if (! item || ! item_data || ! user_data)
         return;
 
     QPushButton * widget = (QPushButton *)(item_data);
     ext_toolbar_update_t * update_entry = (ext_toolbar_update_t *)user_data;
 
-    if ( widget )
+    if (widget)
     {
-        if ( update_entry->type == EXT_TOOLBAR_UPDATE_VALUE )
+        if (update_entry->type == EXT_TOOLBAR_UPDATE_VALUE)
             widget->setText((gchar *)update_entry->user_data);
-        else if ( update_entry->type == EXT_TOOLBAR_SET_ACTIVE )
+        else if (update_entry->type == EXT_TOOLBAR_SET_ACTIVE)
         {
             bool enableState = GPOINTER_TO_INT(update_entry->user_data) == 1;
             widget->setEnabled(enableState);
@@ -182,7 +182,7 @@ toolbar_button_cb(gpointer item, gpointer item_data, gpointer user_data)
 
 QWidget * AdditionalToolbarWidgetAction::createButton(ext_toolbar_t * item, QWidget * parent)
 {
-    if ( ! item || item->type != EXT_TOOLBAR_ITEM || item->item_type != EXT_TOOLBAR_BUTTON )
+    if (! item || item->type != EXT_TOOLBAR_ITEM || item->item_type != EXT_TOOLBAR_BUTTON)
         return 0;
 
     QPushButton * button = new QPushButton(item->name, parent);
@@ -197,25 +197,25 @@ QWidget * AdditionalToolbarWidgetAction::createButton(ext_toolbar_t * item, QWid
 static void
 toolbar_boolean_cb(gpointer item, gpointer item_data, gpointer user_data)
 {
-    if ( ! item || ! item_data || ! user_data )
+    if (! item || ! item_data || ! user_data)
         return;
 
     QCheckBox * widget = (QCheckBox *)(item_data);
 
     ext_toolbar_update_t * update_entry = (ext_toolbar_update_t *)user_data;
 
-    if ( update_entry->type == EXT_TOOLBAR_UPDATE_VALUE )
+    if (update_entry->type == EXT_TOOLBAR_UPDATE_VALUE)
     {
         bool oldState = false;
-        if ( update_entry->silent )
+        if (update_entry->silent)
             oldState = widget->blockSignals(true);
 
         widget->setCheckState(GPOINTER_TO_INT(update_entry->user_data) == 1 ? Qt::Checked : Qt::Unchecked);
 
-        if ( update_entry->silent )
+        if (update_entry->silent)
             widget->blockSignals(oldState);
     }
-    else if ( update_entry->type == EXT_TOOLBAR_SET_ACTIVE )
+    else if (update_entry->type == EXT_TOOLBAR_SET_ACTIVE)
     {
         bool enableState = GPOINTER_TO_INT(update_entry->user_data) == 1;
         widget->setEnabled(enableState);
@@ -224,7 +224,7 @@ toolbar_boolean_cb(gpointer item, gpointer item_data, gpointer user_data)
 
 QWidget * AdditionalToolbarWidgetAction::createBoolean(ext_toolbar_t * item, QWidget * parent)
 {
-    if ( ! item || item->type != EXT_TOOLBAR_ITEM || item->item_type != EXT_TOOLBAR_BOOLEAN )
+    if (! item || item->type != EXT_TOOLBAR_ITEM || item->item_type != EXT_TOOLBAR_BOOLEAN)
         return 0;
 
     QString defValue = toolbar_item->defvalue;
@@ -242,7 +242,7 @@ QWidget * AdditionalToolbarWidgetAction::createBoolean(ext_toolbar_t * item, QWi
 
 QWidget * AdditionalToolbarWidgetAction::createLabelFrame(ext_toolbar_t * item, QWidget * parent)
 {
-    if ( ! item )
+    if (! item)
         return new QWidget();
 
     QWidget * frame = new QWidget(parent);
@@ -269,25 +269,25 @@ QWidget * AdditionalToolbarWidgetAction::createLabelFrame(ext_toolbar_t * item, 
 static void
 toolbar_string_cb(gpointer item, gpointer item_data, gpointer user_data)
 {
-    if ( ! item || ! item_data || ! user_data )
+    if (! item || ! item_data || ! user_data)
         return;
 
     ApplyLineEdit * edit = (ApplyLineEdit *)(item_data);
 
     ext_toolbar_update_t * update_entry = (ext_toolbar_update_t *)user_data;
 
-    if ( update_entry->type == EXT_TOOLBAR_UPDATE_VALUE )
+    if (update_entry->type == EXT_TOOLBAR_UPDATE_VALUE)
     {
         bool oldState = false;
-        if ( update_entry->silent )
+        if (update_entry->silent)
             oldState = edit->blockSignals(true);
 
         edit->setText((gchar *)update_entry->user_data);
 
-        if ( update_entry->silent )
+        if (update_entry->silent)
             edit->blockSignals(oldState);
     }
-    else if ( update_entry->type == EXT_TOOLBAR_SET_ACTIVE )
+    else if (update_entry->type == EXT_TOOLBAR_SET_ACTIVE)
     {
         bool enableState = GPOINTER_TO_INT(update_entry->user_data) == 1;
         edit->setEnabled(enableState);
@@ -296,7 +296,7 @@ toolbar_string_cb(gpointer item, gpointer item_data, gpointer user_data)
 
 QWidget * AdditionalToolbarWidgetAction::createTextEditor(ext_toolbar_t * item, QWidget * parent)
 {
-    if ( ! item || item->type != EXT_TOOLBAR_ITEM || item->item_type != EXT_TOOLBAR_STRING )
+    if (! item || item->type != EXT_TOOLBAR_ITEM || item->item_type != EXT_TOOLBAR_STRING)
         return 0;
 
     QWidget * frame = createLabelFrame(toolbar_item, parent);
@@ -323,7 +323,7 @@ QWidget * AdditionalToolbarWidgetAction::createTextEditor(ext_toolbar_t * item, 
 static void
 toolbar_selector_cb(gpointer item, gpointer item_data, gpointer user_data)
 {
-    if ( ! item || ! item_data || ! user_data )
+    if (! item || ! item_data || ! user_data)
         return;
 
     QComboBox * comboBox = (QComboBox *)(item_data);
@@ -331,43 +331,43 @@ toolbar_selector_cb(gpointer item, gpointer item_data, gpointer user_data)
 
     bool oldState = false;
 
-    if ( update_entry->silent )
+    if (update_entry->silent)
         oldState = comboBox->blockSignals(true);
 
     QStandardItemModel * sourceModel = (QStandardItemModel *)comboBox->model();
 
-    if ( update_entry->type == EXT_TOOLBAR_SET_ACTIVE )
+    if (update_entry->type == EXT_TOOLBAR_SET_ACTIVE)
     {
         bool enableState = GPOINTER_TO_INT(update_entry->user_data) == 1;
         comboBox->setEnabled(enableState);
     }
-    else if ( update_entry->type != EXT_TOOLBAR_UPDATE_DATA_REMOVE && ! update_entry->user_data )
+    else if (update_entry->type != EXT_TOOLBAR_UPDATE_DATA_REMOVE && ! update_entry->user_data)
         return;
 
-    if ( update_entry->type == EXT_TOOLBAR_UPDATE_VALUE )
+    if (update_entry->type == EXT_TOOLBAR_UPDATE_VALUE)
     {
         QString data = QString((gchar *)update_entry->user_data);
 
-        for(int i = 0; i < sourceModel->rowCount(); i++)
+        for (int i = 0; i < sourceModel->rowCount(); i++)
         {
             QStandardItem * dataValue = ((QStandardItemModel *)sourceModel)->item(i, 0);
             ext_toolbar_value_t * tbValue = VariantPointer<ext_toolbar_value_t>::asPtr(dataValue->data(Qt::UserRole));
-            if ( tbValue && data.compare(QString(tbValue->value)) == 0 )
+            if (tbValue && data.compare(QString(tbValue->value)) == 0)
             {
                 comboBox->setCurrentIndex(i);
                 break;
             }
         }
     }
-    else if ( update_entry->type == EXT_TOOLBAR_UPDATE_DATA )
+    else if (update_entry->type == EXT_TOOLBAR_UPDATE_DATA)
     {
         GList * walker = (GList *)update_entry->user_data;
-        if ( g_list_length(walker) == 0 )
+        if (g_list_length(walker) == 0)
             return;
 
         sourceModel->clear();
 
-        while ( walker && walker->data )
+        while (walker && walker->data)
         {
             ext_toolbar_value_t * listvalue = gxx_list_data(ext_toolbar_value_t *, walker);
 
@@ -378,23 +378,23 @@ toolbar_selector_cb(gpointer item, gpointer item_data, gpointer user_data)
             walker = gxx_list_next(walker);
         }
     }
-    else if ( update_entry->type == EXT_TOOLBAR_UPDATE_DATABYINDEX ||
+    else if (update_entry->type == EXT_TOOLBAR_UPDATE_DATABYINDEX ||
             update_entry->type == EXT_TOOLBAR_UPDATE_DATA_ADD ||
-            update_entry->type == EXT_TOOLBAR_UPDATE_DATA_REMOVE )
+            update_entry->type == EXT_TOOLBAR_UPDATE_DATA_REMOVE)
     {
-        if ( ! update_entry->data_index )
+        if (! update_entry->data_index)
             return;
 
         gchar * idx = (gchar *)update_entry->data_index;
         gchar * display = (gchar *)update_entry->user_data;
 
-        if ( update_entry->type == EXT_TOOLBAR_UPDATE_DATABYINDEX )
+        if (update_entry->type == EXT_TOOLBAR_UPDATE_DATABYINDEX)
         {
-            for ( int i = 0; i < sourceModel->rowCount(); i++ )
+            for (int i = 0; i < sourceModel->rowCount(); i++)
             {
                 QStandardItem * dataValue = sourceModel->item(i, 0);
                 ext_toolbar_value_t * entry = VariantPointer<ext_toolbar_value_t>::asPtr(dataValue->data(Qt::UserRole));
-                if ( entry && g_strcmp0( entry->value, idx) == 0 )
+                if (entry && g_strcmp0(entry->value, idx) == 0)
                 {
                     g_free(entry->display);
                     entry->display = g_strdup(display);
@@ -404,7 +404,7 @@ toolbar_selector_cb(gpointer item, gpointer item_data, gpointer user_data)
                 }
             }
         }
-        else if ( update_entry->type == EXT_TOOLBAR_UPDATE_DATA_ADD )
+        else if (update_entry->type == EXT_TOOLBAR_UPDATE_DATA_ADD)
         {
             ext_toolbar_value_t * listvalue = g_new0(ext_toolbar_value_t, 1);
             listvalue->display = g_strdup(display);
@@ -414,33 +414,33 @@ toolbar_selector_cb(gpointer item, gpointer item_data, gpointer user_data)
             si->setData(VariantPointer<ext_toolbar_value_t>::asQVariant(listvalue), Qt::UserRole);
             sourceModel->appendRow(si);
         }
-        else if ( update_entry->type == EXT_TOOLBAR_UPDATE_DATA_REMOVE )
+        else if (update_entry->type == EXT_TOOLBAR_UPDATE_DATA_REMOVE)
         {
             QList<QStandardItem *> entryList = sourceModel->findItems(display);
             /* Search for index if display did not find anything */
-            if ( entryList.size() == 0 )
+            if (entryList.size() == 0)
                 entryList = sourceModel->findItems(idx);
 
             foreach(QStandardItem *entry, entryList)
             {
                 QModelIndex index = sourceModel->indexFromItem(entry);
-                if ( index.isValid() )
+                if (index.isValid())
                     sourceModel->removeRow(index.row());
             }
         }
     }
 
-    if ( update_entry->silent )
+    if (update_entry->silent)
         comboBox->blockSignals(oldState);
 
 }
 
 QWidget * AdditionalToolbarWidgetAction::createSelector(ext_toolbar_t * item, QWidget * parent)
 {
-    if ( ! item || item->type != EXT_TOOLBAR_ITEM || item->item_type != EXT_TOOLBAR_SELECTOR )
+    if (! item || item->type != EXT_TOOLBAR_ITEM || item->item_type != EXT_TOOLBAR_SELECTOR)
         return 0;
 
-    if ( g_list_length(item->values) == 0 )
+    if (g_list_length(item->values) == 0)
         return 0;
 
     QWidget * frame = createLabelFrame(item, parent);
@@ -452,7 +452,7 @@ QWidget * AdditionalToolbarWidgetAction::createSelector(ext_toolbar_t * item, QW
 
     GList * walker = item->values;
     int selIndex = 0;
-    while ( walker && walker->data )
+    while (walker && walker->data)
     {
         ext_toolbar_value_t * listvalue = gxx_list_data(ext_toolbar_value_t *, walker);
 
@@ -460,7 +460,7 @@ QWidget * AdditionalToolbarWidgetAction::createSelector(ext_toolbar_t * item, QW
         si->setData(VariantPointer<ext_toolbar_value_t>::asQVariant(listvalue), Qt::UserRole);
         sourceModel->appendRow(si);
 
-        if ( listvalue->is_default )
+        if (listvalue->is_default)
             selIndex = sourceModel->rowCount();
 
         walker = gxx_list_next(walker);
@@ -486,22 +486,22 @@ QWidget * AdditionalToolbarWidgetAction::createSelector(ext_toolbar_t * item, QW
 ext_toolbar_t * AdditionalToolbarWidgetAction::extractToolbarItemFromObject(QObject * object)
 {
     QWidget * widget = dynamic_cast<QWidget *>(object);
-    if ( ! widget )
+    if (! widget)
         return 0;
 
     QVariant propValue = widget->property(propertyName);
 
     /* If property is invalid, look if our parent has this property */
-    if ( ! propValue.isValid() )
+    if (! propValue.isValid())
     {
         QWidget * frame = dynamic_cast<QWidget *>(widget->parent());
-        if ( ! frame )
+        if (! frame)
             return 0;
 
         propValue = frame->property(propertyName);
     }
 
-    if ( ! propValue.isValid() )
+    if (! propValue.isValid())
         return 0;
 
     return VariantPointer<ext_toolbar_t>::asPtr(propValue);
@@ -510,7 +510,7 @@ ext_toolbar_t * AdditionalToolbarWidgetAction::extractToolbarItemFromObject(QObj
 void AdditionalToolbarWidgetAction::onButtonClicked()
 {
     ext_toolbar_t * item = extractToolbarItemFromObject(sender());
-    if ( ! item )
+    if (! item)
         return;
 
     item->callback(item, 0, item->user_data);
@@ -519,7 +519,7 @@ void AdditionalToolbarWidgetAction::onButtonClicked()
 void AdditionalToolbarWidgetAction::onCheckBoxChecked(int checkState)
 {
     ext_toolbar_t * item = extractToolbarItemFromObject(sender());
-    if ( ! item )
+    if (! item)
         return;
 
     gboolean value = checkState == Qt::Checked ? true : false;
@@ -530,26 +530,26 @@ void AdditionalToolbarWidgetAction::onCheckBoxChecked(int checkState)
 void AdditionalToolbarWidgetAction::sendTextToCallback()
 {
     ext_toolbar_t * item = extractToolbarItemFromObject(sender());
-    if ( ! item )
+    if (! item)
         return;
 
-    if (item->item_type != EXT_TOOLBAR_STRING )
+    if (item->item_type != EXT_TOOLBAR_STRING)
         return;
 
     ApplyLineEdit * editor = dynamic_cast<ApplyLineEdit *>(sender());
-    if ( ! editor )
+    if (! editor)
     {
         /* Called from button, searching for acompanying line edit */
         QWidget * parent = dynamic_cast<QWidget *>(sender()->parent());
-        if ( parent )
+        if (parent)
         {
             QList<ApplyLineEdit *> children = parent->findChildren<ApplyLineEdit *>();
-            if ( children.count() >= 0 )
+            if (children.count() >= 0)
                 editor = children.at(0);
         }
     }
 
-    if ( editor )
+    if (editor)
         item->callback(item, qstring_strdup(editor->text()), item->user_data);
 }
 
@@ -557,16 +557,16 @@ void AdditionalToolbarWidgetAction::onSelectionInWidgetChanged(int idx)
 {
     QComboBox * editor = dynamic_cast<QComboBox *>(sender());
     ext_toolbar_t * item = extractToolbarItemFromObject(editor);
-    if ( ! item || item->item_type != EXT_TOOLBAR_SELECTOR )
+    if (! item || item->item_type != EXT_TOOLBAR_SELECTOR)
         return;
 
     QStandardItemModel * sourceModel = (QStandardItemModel *) editor->model();
-    if ( sourceModel->rowCount() <= idx )
+    if (sourceModel->rowCount() <= idx)
         return;
 
     QModelIndex mdIdx = sourceModel->index(idx, 0);
     QVariant dataSet = sourceModel->data(mdIdx, Qt::UserRole);
-    if ( dataSet.isValid() )
+    if (dataSet.isValid())
     {
         ext_toolbar_value_t * value_entry = VariantPointer<ext_toolbar_value_t>::asPtr(dataSet);
         item->callback(item, value_entry, item->user_data);

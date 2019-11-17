@@ -87,10 +87,10 @@ void EnabledProtocolsDialog::searchFilterChange()
     EnabledProtocolItem::EnableProtocolType protocol = EnabledProtocolItem::Any;
     QString search_re = ui->search_line_edit_->text();
 
-    if ( ui->cmbSearchType->currentData().canConvert<EnabledProtocolsProxyModel::SearchType>() )
+    if (ui->cmbSearchType->currentData().canConvert<EnabledProtocolsProxyModel::SearchType>())
         type = ui->cmbSearchType->currentData().value<EnabledProtocolsProxyModel::SearchType>();
 
-    if ( ui->cmbProtocolType->currentData().canConvert<EnabledProtocolItem::EnableProtocolType>() )
+    if (ui->cmbProtocolType->currentData().canConvert<EnabledProtocolItem::EnableProtocolType>())
         protocol = ui->cmbProtocolType->currentData().value<EnabledProtocolItem::EnableProtocolType>();
 
     proxyModel_->setFilter(search_re, type, protocol);

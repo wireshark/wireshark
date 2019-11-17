@@ -80,20 +80,20 @@ AStringListListModel(parent)
     while (!ReadFile_authors.atEnd()) {
         QString line = ReadFile_authors.readLine();
 
-        if ( ! readAck && line.trimmed().length() == 0 )
+        if (! readAck && line.trimmed().length() == 0)
                 continue;
-        if ( line.startsWith("------") )
+        if (line.startsWith("------"))
             continue;
 
-        if ( line.contains("Acknowledgements") )
+        if (line.contains("Acknowledgements"))
         {
             readAck = true;
             continue;
         }
-        else if ( rx.indexIn(line) != -1 )
-            appendRow( QStringList() << rx.cap(1).trimmed() << rx.cap(2).trimmed());
+        else if (rx.indexIn(line) != -1)
+            appendRow(QStringList() << rx.cap(1).trimmed() << rx.cap(2).trimmed());
 
-        if ( readAck && (!line.isEmpty() || !acknowledgement_.isEmpty()) )
+        if (readAck && (!line.isEmpty() || !acknowledgement_.isEmpty()))
             acknowledgement_.append(QString("%1\n").arg(line));
     }
     f_authors.close();
@@ -193,54 +193,54 @@ FolderListModel::FolderListModel(QObject * parent):
         AStringListListModel(parent)
 {
     /* "file open" */
-    appendRow( QStringList() << tr("\"File\" dialogs") << get_last_open_dir() << tr("capture files"));
+    appendRow(QStringList() << tr("\"File\" dialogs") << get_last_open_dir() << tr("capture files"));
 
     /* temp */
-    appendRow( QStringList() << tr("Temp") << g_get_tmp_dir() << tr("untitled capture files"));
+    appendRow(QStringList() << tr("Temp") << g_get_tmp_dir() << tr("untitled capture files"));
 
     /* pers conf */
-    appendRow( QStringList() << tr("Personal configuration")
+    appendRow(QStringList() << tr("Personal configuration")
             << gchar_free_to_qstring(get_persconffile_path("", FALSE))
             << tr("dfilters, preferences, ethers, " UTF8_HORIZONTAL_ELLIPSIS));
 
     /* global conf */
     QString dirPath = get_datafile_dir();
     if (! dirPath.isEmpty()) {
-        appendRow ( QStringList() << tr("Global configuration") << dirPath
+        appendRow (QStringList() << tr("Global configuration") << dirPath
                 << tr("dfilters, preferences, manuf, " UTF8_HORIZONTAL_ELLIPSIS));
     }
 
     /* system */
-    appendRow( QStringList() << tr("System") << get_systemfile_dir() << tr("ethers, ipxnets"));
+    appendRow(QStringList() << tr("System") << get_systemfile_dir() << tr("ethers, ipxnets"));
 
     /* program */
-    appendRow( QStringList() << tr("Program") << get_progfile_dir() << tr("program files"));
+    appendRow(QStringList() << tr("Program") << get_progfile_dir() << tr("program files"));
 
 #ifdef HAVE_PLUGINS
     /* pers plugins */
-    appendRow( QStringList() << tr("Personal Plugins") << get_plugins_pers_dir_with_version() << tr("binary plugins"));
+    appendRow(QStringList() << tr("Personal Plugins") << get_plugins_pers_dir_with_version() << tr("binary plugins"));
 
     /* global plugins */
-    appendRow( QStringList() << tr("Global Plugins") << get_plugins_dir_with_version() << tr("binary plugins"));
+    appendRow(QStringList() << tr("Global Plugins") << get_plugins_dir_with_version() << tr("binary plugins"));
 #endif
 
 #ifdef HAVE_LUA
     /* pers plugins */
-    appendRow( QStringList() << tr("Personal Lua Plugins") << get_plugins_pers_dir() << tr("lua scripts"));
+    appendRow(QStringList() << tr("Personal Lua Plugins") << get_plugins_pers_dir() << tr("lua scripts"));
 
     /* global plugins */
-    appendRow( QStringList() << tr("Global Lua Plugins") << get_plugins_dir() << tr("lua scripts"));
+    appendRow(QStringList() << tr("Global Lua Plugins") << get_plugins_dir() << tr("lua scripts"));
 #endif
 
     /* Extcap */
-    appendRow( QStringList() << tr("Personal Extcap path") << QString(get_persconffile_path("extcap", FALSE)).trimmed() << tr("Extcap Plugins search path"));
-    appendRow( QStringList() << tr("Global Extcap path") << QString(get_extcap_dir()).trimmed() << tr("Extcap Plugins search path"));
+    appendRow(QStringList() << tr("Personal Extcap path") << QString(get_persconffile_path("extcap", FALSE)).trimmed() << tr("Extcap Plugins search path"));
+    appendRow(QStringList() << tr("Global Extcap path") << QString(get_extcap_dir()).trimmed() << tr("Extcap Plugins search path"));
 
 #ifdef HAVE_MAXMINDDB
     /* MaxMind DB */
     QStringList maxMindDbPaths = QString(maxmind_db_get_paths()).split(G_SEARCHPATH_SEPARATOR_S);
     foreach(QString path, maxMindDbPaths)
-        appendRow( QStringList() << tr("MaxMind DB path") << path.trimmed() << tr("MaxMind DB database search path"));
+        appendRow(QStringList() << tr("MaxMind DB path") << path.trimmed() << tr("MaxMind DB database search path"));
 #endif
 
 #ifdef HAVE_LIBSMI
@@ -249,13 +249,13 @@ FolderListModel::FolderListModel(QObject * parent):
     QStringList smiPaths = QString(default_mib_path).split(G_SEARCHPATH_SEPARATOR_S);
     g_free(default_mib_path);
     foreach(QString path, smiPaths)
-        appendRow( QStringList() << tr("MIB/PIB path") << path.trimmed() << tr("SMI MIB/PIB search path"));
+        appendRow(QStringList() << tr("MIB/PIB path") << path.trimmed() << tr("SMI MIB/PIB search path"));
 #endif
 
 #ifdef Q_OS_MAC
     /* Mac Extras */
     QString extras_path = wsApp->applicationDirPath() + "/../Resources/Extras";
-    appendRow( QStringList() << tr("macOS Extras") << QDir::cleanPath(extras_path) << tr("Extra macOS packages"));
+    appendRow(QStringList() << tr("macOS Extras") << QDir::cleanPath(extras_path) << tr("Extra macOS packages"));
 
 #endif
 }
@@ -473,19 +473,19 @@ void AboutDialog::urlDoubleClicked(const QModelIndex &idx)
         return;
     }
     QTreeView * table = qobject_cast<QTreeView *>(sender());
-    if ( ! table )
+    if (! table)
         return;
 
     QString urlText = table->model()->data(idx).toString();
-    if ( urlText.isEmpty() )
+    if (urlText.isEmpty())
         return;
 
-    if ( ! QDir(urlText).exists() )
+    if (! QDir(urlText).exists())
     {
-        if ( QMessageBox::question(this, tr("The directory does not exist"),
-                          QString(tr("Should the directory %1 be created?").arg(urlText)) ) == QMessageBox::Yes )
+        if (QMessageBox::question(this, tr("The directory does not exist"),
+                          QString(tr("Should the directory %1 be created?").arg(urlText))) == QMessageBox::Yes)
         {
-            if ( ! QDir().mkdir(urlText) )
+            if (! QDir().mkdir(urlText))
             {
                 QMessageBox::warning(this, tr("The directory could not be created"),
                                      QString(tr("The directory %1 could not be created!").arg(urlText)));
@@ -493,10 +493,10 @@ void AboutDialog::urlDoubleClicked(const QModelIndex &idx)
         }
     }
 
-    if ( QDir(urlText).exists() )
+    if (QDir(urlText).exists())
     {
         QUrl url = QUrl::fromLocalFile(urlText);
-        if ( url.isValid() )
+        if (url.isValid())
             QDesktopServices::openUrl(url);
     }
 }
@@ -504,11 +504,11 @@ void AboutDialog::urlDoubleClicked(const QModelIndex &idx)
 void AboutDialog::handleCopyMenu(QPoint pos)
 {
     QTreeView * tree = qobject_cast<QTreeView *>(sender());
-    if ( ! tree )
+    if (! tree)
         return;
 
     QModelIndex index = tree->indexAt(pos);
-    if ( ! index.isValid() )
+    if (! index.isValid())
         return;
 
     QMenu * menu = new QMenu(this);
@@ -561,7 +561,7 @@ void AboutDialog::copyRowActionTriggered()
 void AboutDialog::copyActionTriggered(bool copyRow)
 {
     QAction * sendingAction = qobject_cast<QAction *>(sender());
-    if ( ! sendingAction )
+    if (! sendingAction)
         return;
 
     QTreeView * tree = VariantPointer<QTreeView>::asPtr(sendingAction->data());
@@ -569,33 +569,33 @@ void AboutDialog::copyActionTriggered(bool copyRow)
     QModelIndexList selIndeces = tree->selectionModel()->selectedIndexes();
 
     int copyColumn = -1;
-    if ( ! copyRow )
+    if (! copyRow)
     {
         QMenu * menu = qobject_cast<QMenu *>(sendingAction->parentWidget());
-        if ( menu )
+        if (menu)
         {
             QPoint menuPosOnTable = tree->mapFromGlobal(menu->pos());
             QModelIndex clickedIndex = tree->indexAt(menuPosOnTable);
-            if ( clickedIndex.isValid() )
+            if (clickedIndex.isValid())
                 copyColumn = clickedIndex.column();
         }
     }
 
     QString clipdata;
-    if ( selIndeces.count() > 0 )
+    if (selIndeces.count() > 0)
     {
         int columnCount = tree->model()->columnCount();
         QList<int> visitedRows;
 
         foreach(QModelIndex index, selIndeces)
         {
-            if ( visitedRows.contains(index.row()) )
+            if (visitedRows.contains(index.row()))
                 continue;
 
             QStringList row;
-            if ( copyRow )
+            if (copyRow)
             {
-                for ( int cnt = 0; cnt < columnCount; cnt++ )
+                for (int cnt = 0; cnt < columnCount; cnt++)
                 {
                     QModelIndex dataIdx = tree->model()->index(index.row(), cnt);
                     row << tree->model()->data(dataIdx).toString();
@@ -603,7 +603,7 @@ void AboutDialog::copyActionTriggered(bool copyRow)
             }
             else
             {
-                if ( copyColumn < 0 )
+                if (copyColumn < 0)
                     copyColumn = index.column();
 
                 QModelIndex dataIdx = tree->model()->index(index.row(), copyColumn);

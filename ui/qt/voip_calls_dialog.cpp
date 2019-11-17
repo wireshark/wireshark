@@ -67,7 +67,7 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     sequence_button_ = ui->buttonBox->addButton(tr("Flow Sequence"), QDialogButtonBox::ApplyRole);
     player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox);
 
-    connect ( ui->todCheckBox, &QAbstractButton::toggled, this, &VoipCallsDialog::switchTimeOfDay);
+    connect (ui->todCheckBox, &QAbstractButton::toggled, this, &VoipCallsDialog::switchTimeOfDay);
 
     copy_button_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ApplyRole);
     QMenu *copy_menu = new QMenu(copy_button_);
@@ -130,7 +130,7 @@ void VoipCallsDialog::contextMenuEvent(QContextMenuEvent *event)
 {
     bool selected = ui->callTreeView->selectionModel()->hasSelection();
 
-    if ( ! selected )
+    if (! selected)
         return;
 
     QMenu popupMenu;
@@ -257,7 +257,7 @@ void VoipCallsDialog::prepareFilter()
 
     /* Build a new filter based on frame numbers */
     foreach (QModelIndex index, ui->callTreeView->selectionModel()->selectedIndexes()) {
-        if ( index.isValid() && ! rows.contains(index.row()) )
+        if (index.isValid() && ! rows.contains(index.row()))
         {
             voip_calls_info_t *call_info = VoipCallsInfoModel::indexToCallInfo(index);
             if (!call_info) {

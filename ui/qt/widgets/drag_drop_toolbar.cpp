@@ -61,12 +61,12 @@ DragDropToolBar::~DragDropToolBar()
 void DragDropToolBar::childEvent(QChildEvent * event)
 {
     /* New action has been added */
-    if ( event->type() == QEvent::ChildAdded )
+    if (event->type() == QEvent::ChildAdded)
     {
-        if ( event->child()->isWidgetType() )
+        if (event->child()->isWidgetType())
         {
             /* Reset if it has moved underneath lower limit */
-            if ( childCounter < 0 )
+            if (childCounter < 0)
                 childCounter = 0;
 
             ((QWidget *)event->child())->installEventFilter(this);
@@ -74,17 +74,17 @@ void DragDropToolBar::childEvent(QChildEvent * event)
             childCounter++;
         }
     }
-    else if ( event->type() == QEvent::ChildRemoved )
+    else if (event->type() == QEvent::ChildRemoved)
     {
         childCounter--;
     }
-    else if ( event->type() == QEvent::ChildPolished )
+    else if (event->type() == QEvent::ChildPolished)
     {
         /* Polish is called every time a child is added or removed. This is implemented by adding
          * all childs again as hidden elements, and afterwards removing the existing ones. Therefore
          * we have to reset child counter here, if a widget is being polished. If this is not being
          * done, crashes will occur after an item has been removed and other items are moved afterwards */
-        if ( event->child()->isWidgetType() )
+        if (event->child()->isWidgetType())
             childCounter = 0;
     }
 }
@@ -102,27 +102,27 @@ WiresharkMimeData * DragDropToolBar::createMimeData(QString name, int position)
 
 bool DragDropToolBar::eventFilter(QObject * obj, QEvent * event)
 {
-    if ( ! obj->isWidgetType() )
+    if (! obj->isWidgetType())
         return QToolBar::eventFilter(obj, event);
 
     QWidget * elem = qobject_cast<QWidget *>(obj);
 
-    if ( ! elem || ( event->type() != QEvent::MouseButtonPress && event->type() != QEvent::MouseMove ) )
+    if (! elem || (event->type() != QEvent::MouseButtonPress && event->type() != QEvent::MouseMove) )
         return QToolBar::eventFilter(obj, event);
 
     QMouseEvent * ev = (QMouseEvent *)event;
 
-    if ( event->type() == QEvent::MouseButtonPress )
+    if (event->type() == QEvent::MouseButtonPress)
     {
-        if ( ev->buttons() & Qt::LeftButton )
+        if (ev->buttons() & Qt::LeftButton)
             dragStartPosition = ev->pos();
     }
-    else if ( event->type() == QEvent::MouseMove )
+    else if (event->type() == QEvent::MouseMove)
     {
-        if ( ( ev->buttons() & Qt::LeftButton ) && (ev->pos() - dragStartPosition).manhattanLength()
+        if ((ev->buttons() & Qt::LeftButton) && (ev->pos() - dragStartPosition).manhattanLength()
                  > QApplication::startDragDistance())
         {
-            if ( ! qobject_cast<QToolButton *>(elem) || ! elem->property(drag_drop_toolbar_action_).isValid() )
+            if (! qobject_cast<QToolButton *>(elem) || ! elem->property(drag_drop_toolbar_action_).isValid())
                 return QToolBar::eventFilter(obj, event);
 
             WiresharkMimeData * temd = createMimeData(((QToolButton *)elem)->text(), elem->property(drag_drop_toolbar_action_).toInt());
@@ -148,7 +148,7 @@ bool DragDropToolBar::eventFilter(QObject * obj, QEvent * event)
 
 void DragDropToolBar::dragEnterEvent(QDragEnterEvent *event)
 {
-    if ( ! event || ! event->mimeData() )
+    if (! event || ! event->mimeData())
         return;
 
     if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData()))
@@ -160,7 +160,7 @@ void DragDropToolBar::dragEnterEvent(QDragEnterEvent *event)
             event->acceptProposedAction();
         }
     } else if (event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType)) {
-        if ( event->source() != this )
+        if (event->source() != this)
         {
             event->setDropAction(Qt::CopyAction);
             event->accept();
@@ -174,20 +174,20 @@ void DragDropToolBar::dragEnterEvent(QDragEnterEvent *event)
 
 void DragDropToolBar::dragMoveEvent(QDragMoveEvent *event)
 {
-    if ( ! event || ! event->mimeData() )
+    if (! event || ! event->mimeData())
         return;
 
     if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData()))
     {
-        QAction * actionAtPos = actionAt(event->pos() );
-        if ( actionAtPos )
+        QAction * actionAtPos = actionAt(event->pos());
+        if (actionAtPos)
         {
             QWidget * widget = widgetForAction(actionAtPos);
-            if ( widget )
+            if (widget)
             {
                 bool success = false;
                 widget->property(drag_drop_toolbar_action_).toInt(&success);
-                if ( ! success )
+                if (! success)
                 {
                     event->ignore();
                     return;
@@ -202,7 +202,7 @@ void DragDropToolBar::dragMoveEvent(QDragMoveEvent *event)
             event->acceptProposedAction();
         }
     } else if (event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType)) {
-        if ( event->source() != this )
+        if (event->source() != this)
         {
             event->setDropAction(Qt::CopyAction);
             event->accept();
@@ -216,7 +216,7 @@ void DragDropToolBar::dragMoveEvent(QDragMoveEvent *event)
 
 void DragDropToolBar::dropEvent(QDropEvent *event)
 {
-    if ( ! event || ! event->mimeData() )
+    if (! event || ! event->mimeData())
         return;
 
     /* Moving items around */
@@ -227,7 +227,7 @@ void DragDropToolBar::dropEvent(QDropEvent *event)
         int oldPos = data->position();
         int newPos = -1;
         QAction * action = actionAt(event->pos());
-        if ( action && actions().at(oldPos) )
+        if (action && actions().at(oldPos))
         {
             widgetForAction(action)->setStyleSheet("QWidget { border: none; };");
             newPos = widgetForAction(action)->property(drag_drop_toolbar_action_).toInt();
@@ -247,11 +247,11 @@ void DragDropToolBar::dropEvent(QDropEvent *event)
     } else if (event->mimeData()->hasFormat(WiresharkMimeData::DisplayFilterMimeType)) {
         QByteArray jsonData = event->mimeData()->data(WiresharkMimeData::DisplayFilterMimeType);
         QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
-        if ( jsonDoc.isObject() )
+        if (jsonDoc.isObject())
         {
             QJsonObject data = jsonDoc.object();
 
-            if ( event->source() != this && data.contains("description") && data.contains("filter") )
+            if (event->source() != this && data.contains("description") && data.contains("filter"))
             {
                 event->setDropAction(Qt::CopyAction);
                 event->accept();
@@ -269,7 +269,7 @@ void DragDropToolBar::dropEvent(QDropEvent *event)
 
 void DragDropToolBar::moveToolbarItems(int fromPos, int newPos)
 {
-    if ( fromPos == newPos )
+    if (fromPos == newPos)
         return;
 
     setUpdatesEnabled(false);
@@ -280,7 +280,7 @@ void DragDropToolBar::moveToolbarItems(int fromPos, int newPos)
     childCounter = 0;
 
     storedActions.move(fromPos, newPos);
-    foreach ( QAction * action, storedActions )
+    foreach (QAction * action, storedActions)
         addAction(action);
 
     setUpdatesEnabled(true);

@@ -21,13 +21,13 @@ CopyFromProfileButton::CopyFromProfileButton(QWidget * parent, QString fileName,
     buttonMenu_(Q_NULLPTR)
 {
     setText(tr("Copy from"));
-    if ( toolTip.length() == 0 )
+    if (toolTip.length() == 0)
         setToolTip(tr("Copy entries from another profile."));
     else {
         setToolTip(toolTip);
     }
 
-    if ( fileName.length() > 0 )
+    if (fileName.length() > 0)
         setFilename(fileName);
 }
 
@@ -35,7 +35,7 @@ void CopyFromProfileButton::setFilename(QString filename)
 {
     setEnabled(false);
 
-    if ( filename.length() <= 0 )
+    if (filename.length() <= 0)
         return;
 
     ProfileModel model(this);
@@ -44,41 +44,41 @@ void CopyFromProfileButton::setFilename(QString filename)
     QList<QAction *> user;
 
     QAction * pa = systemDefault(filename);
-    if ( pa )
+    if (pa)
         global << pa;
 
-    if ( ! buttonMenu_ )
+    if (! buttonMenu_)
         buttonMenu_ = new QMenu();
 
-    if ( buttonMenu_->actions().count() > 0 )
+    if (buttonMenu_->actions().count() > 0)
         buttonMenu_->clear();
 
-    for(int cnt = 0; cnt < model.rowCount(); cnt++)
+    for (int cnt = 0; cnt < model.rowCount(); cnt++)
     {
         QModelIndex idx = model.index(cnt, ProfileModel::COL_NAME);
         QString profilePath = idx.data(ProfileModel::DATA_PATH).toString();
-        if ( ! idx.isValid() || profilePath.isEmpty() )
+        if (! idx.isValid() || profilePath.isEmpty())
             continue;
 
-        if ( ! idx.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() || idx.data(ProfileModel::DATA_IS_SELECTED).toBool() )
+        if (! idx.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() || idx.data(ProfileModel::DATA_IS_SELECTED).toBool())
             continue;
 
         QDir profileDir(profilePath);
-        if ( ! profileDir.exists() )
+        if (! profileDir.exists())
             continue;
 
         QFileInfo fi = profileDir.filePath(filename);
-        if ( ! fi.exists() )
+        if (! fi.exists())
             continue;
 
-        if ( ! config_file_exists_with_entries(fi.absoluteFilePath().toUtf8().constData(), '#') )
+        if (! config_file_exists_with_entries(fi.absoluteFilePath().toUtf8().constData(), '#'))
             continue;
 
         QString name = idx.data().toString();
         pa = new QAction(name, this);
-        if ( idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
+        if (idx.data(ProfileModel::DATA_IS_DEFAULT).toBool())
             buttonMenu_->addAction(pa);
-        else if ( idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() )
+        else if (idx.data(ProfileModel::DATA_IS_GLOBAL).toBool())
             global << pa;
         else
             user << pa;
@@ -92,11 +92,11 @@ void CopyFromProfileButton::setFilename(QString filename)
     buttonMenu_->addActions(user);
     if (global.count() > 0)
     {
-        if ( actions().count() > 0 )
+        if (actions().count() > 0)
             buttonMenu_->addSeparator();
         buttonMenu_->addActions(global);
     }
-    if ( buttonMenu_->actions().count() <= 0 )
+    if (buttonMenu_->actions().count() <= 0)
         return;
 
     connect(buttonMenu_, &QMenu::triggered, this, &CopyFromProfileButton::menuActionTriggered);
@@ -112,7 +112,7 @@ QAction * CopyFromProfileButton::systemDefault(QString filename)
 
     QDir dataDir(get_datafile_dir());
     QString path = dataDir.filePath(filename);
-    if ( QFile::exists(path) )
+    if (QFile::exists(path))
     {
         data = new QAction(tr("System default"), this);
         data->setData(path);
@@ -126,10 +126,10 @@ QAction * CopyFromProfileButton::systemDefault(QString filename)
 
 void CopyFromProfileButton::menuActionTriggered(QAction * action)
 {
-    if ( action->property("profile_filename").toString().length() > 0 )
+    if (action->property("profile_filename").toString().length() > 0)
     {
         QString filename = action->property("profile_filename").toString();
-        if ( QFileInfo::exists(filename) )
+        if (QFileInfo::exists(filename))
             emit copyProfile(filename);
     }
 }

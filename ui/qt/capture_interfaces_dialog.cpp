@@ -537,7 +537,7 @@ void CaptureInterfacesDialog::on_buttonBox_helpRequested()
 
 void CaptureInterfacesDialog::updateInterfaces()
 {
-    if(prefs.capture_pcap_ng) {
+    if (prefs.capture_pcap_ng) {
         ui->rbPcapng->setChecked(true);
     } else {
         ui->rbPcap->setChecked(true);

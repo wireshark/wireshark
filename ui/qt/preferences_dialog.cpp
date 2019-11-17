@@ -50,7 +50,7 @@ module_prefs_unstash(module_t *module, gpointer data)
        could cause packets to be dissected differently. */
     *must_redissect_p |= module->prefs_changed_flags;
 
-    if(prefs_module_has_submodules(module))
+    if (prefs_module_has_submodules(module))
         return prefs_modules_foreach_submodules(module, module_prefs_unstash, data);
 
     return 0;     /* Keep unstashing. */
@@ -67,7 +67,7 @@ module_prefs_clean_stash(module_t *module, gpointer)
         pref_clean_stash(pref, Q_NULLPTR);
     }
 
-    if(prefs_module_has_submodules(module))
+    if (prefs_module_has_submodules(module))
         return prefs_modules_foreach_submodules(module, module_prefs_clean_stash, Q_NULLPTR);
 
     return 0;     /* Keep cleaning modules */

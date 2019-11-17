@@ -1051,7 +1051,7 @@ size_t RtpAnalysisDialog::convert_payload_to_samples(unsigned int payload_type, 
     if (payload_type == PT_PCMU) {
         /* Output sample count is same as input sample count for G.711 */
         sample_count = payload_len;
-        for(size_t i = 0; i < payload_len; i++) {
+        for (size_t i = 0; i < payload_len; i++) {
             tempfile->read((char *)&f_rawvalue, sizeof(f_rawvalue));
             sample = ulaw2linear((unsigned char)f_rawvalue);
             phton16(pd, sample);
@@ -1061,7 +1061,7 @@ size_t RtpAnalysisDialog::convert_payload_to_samples(unsigned int payload_type, 
     } else if (payload_type == PT_PCMA) {
         /* Output sample count is same as input sample count for G.711 */
         sample_count = payload_len;
-        for(size_t i = 0; i < payload_len; i++) {
+        for (size_t i = 0; i < payload_len; i++) {
             tempfile->read((char *)&f_rawvalue, sizeof(f_rawvalue));
             sample = alaw2linear((unsigned char)f_rawvalue);
             phton16(pd, sample);
@@ -1071,7 +1071,7 @@ size_t RtpAnalysisDialog::convert_payload_to_samples(unsigned int payload_type, 
     } else {
         /* Read payload, but ignore it */
         sample_count = 0;
-        for(size_t i = 0; i < payload_len; i++) {
+        for (size_t i = 0; i < payload_len; i++) {
             tempfile->read((char *)&f_rawvalue, sizeof(f_rawvalue));
         }
     }
@@ -1091,7 +1091,7 @@ gboolean RtpAnalysisDialog::saveAudioAUSilence(size_t total_len, QFile *save_fil
     pd_out[0] = pd[0];
     pd_out[1] = pd[1];
     /* Fill whole file with silence */
-    for(size_t i=0; i<total_len; i++) {
+    for (size_t i=0; i<total_len; i++) {
         if (*stop_flag) {
             return FALSE;
         }
@@ -1122,7 +1122,7 @@ gboolean RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTempora
 
         sample_count=convert_payload_to_samples(save_data.payload_type, tempfile ,pd_out, save_data.payload_len);
 
-        if (sample_count > 0 ) {
+        if (sample_count > 0) {
             nchars = 0;
             /* Save payload samples with optional interleaving */
             for (size_t i = 0; i < sample_count; i++) {
@@ -1342,7 +1342,7 @@ gboolean RtpAnalysisDialog::saveAudioRAW(StreamDirection direction, QFile *save_
         ui->progressFrame->setValue(int(tempfile->pos() * 100 / fwd_tempfile_->size()));
 
         if (save_data.payload_len > 0) {
-            for(size_t i = 0; i < save_data.payload_len; i++) {
+            for (size_t i = 0; i < save_data.payload_len; i++) {
                 if (sizeof(f_rawvalue) != tempfile->read((char *)&f_rawvalue, sizeof(f_rawvalue))) {
                     return FALSE;
                 }

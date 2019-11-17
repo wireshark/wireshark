@@ -130,7 +130,7 @@ void PacketDialog::setHintText(FieldInformation * finfo)
 {
     QString hint;
 
-     if ( finfo )
+     if (finfo)
      {
          FieldInformation::Position pos = finfo->position();
          QString field_str;

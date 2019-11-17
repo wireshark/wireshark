@@ -68,7 +68,7 @@ bool EditorFileDialog::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent* key = static_cast<QKeyEvent*>(event);
-        if ( (key->key() == Qt::Key_Tab) && !file_dialog_button_->hasFocus()) {
+        if ((key->key() == Qt::Key_Tab) && !file_dialog_button_->hasFocus()) {
             file_dialog_button_->setFocus();
             return true;
         }

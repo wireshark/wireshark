@@ -27,7 +27,7 @@ InfoProxyModel::~InfoProxyModel()
 
 void InfoProxyModel::appendInfo(QString info)
 {
-    if ( ! infos_.contains(info) )
+    if (! infos_.contains(info))
         infos_ << info;
 }
 
@@ -43,17 +43,17 @@ int InfoProxyModel::rowCount(const QModelIndex &parent) const
 
 QVariant InfoProxyModel::data (const QModelIndex &index, int role) const
 {
-    if ( ! index.isValid() )
+    if (! index.isValid())
         return QVariant();
 
-    if ( index.row() < sourceModel()->rowCount() )
+    if (index.row() < sourceModel()->rowCount())
         return sourceModel()->data(mapToSource(index), role);
 
     int ifIdx = index.row() - sourceModel()->rowCount();
-    if ( index.column() != column_ || ifIdx < 0 || ifIdx >= infos_.count() )
+    if (index.column() != column_ || ifIdx < 0 || ifIdx >= infos_.count())
         return QVariant();
 
-    switch ( role )
+    switch (role)
     {
     case Qt::DisplayRole:
         return infos_.at(ifIdx);
@@ -69,7 +69,7 @@ QVariant InfoProxyModel::data (const QModelIndex &index, int role) const
 
 Qt::ItemFlags InfoProxyModel::flags(const QModelIndex &index) const
 {
-    if ( index.row() < sourceModel()->rowCount() )
+    if (index.row() < sourceModel()->rowCount())
         return sourceModel()->flags(mapToSource(index));
 
     return 0;
@@ -77,7 +77,7 @@ Qt::ItemFlags InfoProxyModel::flags(const QModelIndex &index) const
 
 QModelIndex InfoProxyModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if ( row >= sourceModel()->rowCount() && row < rowCount() )
+    if (row >= sourceModel()->rowCount() && row < rowCount())
         return createIndex(row, column);
 
     return QIdentityProxyModel::index(row, column, parent);
@@ -85,10 +85,10 @@ QModelIndex InfoProxyModel::index(int row, int column, const QModelIndex &parent
 
 QModelIndex InfoProxyModel::mapToSource(const QModelIndex &proxyIndex) const
 {
-    if ( ! proxyIndex.isValid() )
+    if (! proxyIndex.isValid())
         return QModelIndex();
 
-    if ( proxyIndex.row() >= sourceModel()->rowCount() )
+    if (proxyIndex.row() >= sourceModel()->rowCount())
         return QModelIndex();
 
     return QIdentityProxyModel::mapToSource(proxyIndex);
@@ -109,7 +109,7 @@ void InfoProxyModel::setColumn(int column)
 
     if (old_column >= 0) {
         //Notify old column has changed
-        emit dataChanged(index(0, old_column), index(rowCount(), old_column), roles );
+        emit dataChanged(index(0, old_column), index(rowCount(), old_column), roles);
     }
 
     if (column_ >= 0) {

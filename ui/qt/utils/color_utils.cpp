@@ -21,13 +21,13 @@
 // At some point we should probably make these configurable along with the
 // graph and sequence colors.
 
-const QColor ColorUtils::expert_color_comment    = QColor ( 0xb7, 0xf7, 0x74 );        /* Green */
-const QColor ColorUtils::expert_color_chat       = QColor ( 0x80, 0xb7, 0xf7 );        /* Light blue */
-const QColor ColorUtils::expert_color_note       = QColor ( 0xa0, 0xff, 0xff );        /* Bright turquoise */
-const QColor ColorUtils::expert_color_warn       = QColor ( 0xf7, 0xf2, 0x53 );        /* Yellow */
-const QColor ColorUtils::expert_color_error      = QColor ( 0xff, 0x5c, 0x5c );        /* Pale red */
-const QColor ColorUtils::expert_color_foreground = QColor ( 0x00, 0x00, 0x00 );        /* Black */
-const QColor ColorUtils::hidden_proto_item       = QColor ( 0x44, 0x44, 0x44 );        /* Gray */
+const QColor ColorUtils::expert_color_comment    = QColor (0xb7, 0xf7, 0x74);        /* Green */
+const QColor ColorUtils::expert_color_chat       = QColor (0x80, 0xb7, 0xf7);        /* Light blue */
+const QColor ColorUtils::expert_color_note       = QColor (0xa0, 0xff, 0xff);        /* Bright turquoise */
+const QColor ColorUtils::expert_color_warn       = QColor (0xf7, 0xf2, 0x53);        /* Yellow */
+const QColor ColorUtils::expert_color_error      = QColor (0xff, 0x5c, 0x5c);        /* Pale red */
+const QColor ColorUtils::expert_color_foreground = QColor (0x00, 0x00, 0x00);        /* Black */
+const QColor ColorUtils::hidden_proto_item       = QColor (0x44, 0x44, 0x44);        /* Gray */
 
 ColorUtils::ColorUtils(QObject *parent) :
     QObject(parent)

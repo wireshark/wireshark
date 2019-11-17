@@ -22,7 +22,7 @@ ProfileUrlLinkDelegate::ProfileUrlLinkDelegate(QObject *parent) : UrlLinkDelegat
 void ProfileUrlLinkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     /* Only paint links for valid paths */
-    if ( index.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() )
+    if (index.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool())
         UrlLinkDelegate::paint(painter, option, index);
     else
         QStyledItemDelegate::paint(painter, option, index);
@@ -54,33 +54,33 @@ void ProfileTreeView::selectionChanged(const QItemSelection &selected, const QIt
 {
     QTreeView::selectionChanged(selected, deselected);
 
-    if ( model() )
+    if (model())
     {
         int offColumn = model()->columnCount();
         int idxCount = selectedIndexes().count() / offColumn;
         int dselCount = deselected.count() > 0 ? deselected.at(0).indexes().count() / offColumn : 0;
 
         /* Ensure, that the last selected row cannot be deselected */
-        if ( idxCount == 0 && dselCount == 1 )
+        if (idxCount == 0 && dselCount == 1)
         {
             QModelIndex idx = deselected.at(0).indexes().at(0);
             /* If the last item is no longer valid or the row is out of bounds, select default */
-            if ( ! idx.isValid() || idx.row() >= model()->rowCount() )
+            if (! idx.isValid() || idx.row() >= model()->rowCount())
                 idx = model()->index(0, ProfileModel::COL_NAME);
             selectRow(idx.row());
         }
-        else if ( selectedIndexes().count() == 0 )
+        else if (selectedIndexes().count() == 0)
             selectRow(0);
     }
 }
 
 void ProfileTreeView::clicked(const QModelIndex &index)
 {
-    if ( !index.isValid() )
+    if (!index.isValid())
         return;
 
     /* Only paint links for valid paths */
-    if ( index.data(ProfileModel::DATA_INDEX_VALUE_IS_URL).toBool() )
+    if (index.data(ProfileModel::DATA_INDEX_VALUE_IS_URL).toBool())
     {
         QString path = QDir::toNativeSeparators(index.data().toString());
         QDesktopServices::openUrl(QUrl::fromLocalFile(path));
@@ -89,7 +89,7 @@ void ProfileTreeView::clicked(const QModelIndex &index)
 
 void ProfileTreeView::selectRow(int row)
 {
-    if ( row < 0 )
+    if (row < 0)
         return;
 
     setCurrentIndex(model()->index(row, 0));
@@ -103,11 +103,11 @@ void ProfileTreeView::selectRow(int row)
 void ProfileTreeView::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     /* due to the fact, that we allow only row selection, selected rows are always added with all columns */
-    if ( selectedIndexes().count() <= model()->columnCount() )
+    if (selectedIndexes().count() <= model()->columnCount())
         QTreeView::mouseDoubleClickEvent(ev);
 }
 
 bool ProfileTreeView::activeEdit()
 {
-    return ( state() == QAbstractItemView::EditingState );
+    return (state() == QAbstractItemView::EditingState);
 }

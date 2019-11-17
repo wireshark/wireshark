@@ -76,7 +76,7 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
         model_ = new FilterListModel(FilterListModel::Display, this);
     }
 
-    if ( new_filter_.length() > 0 )
+    if (new_filter_.length() > 0)
         model_->addFilter(newFilterText, new_filter_);
 
     ui->filterTreeView->setModel(model_);
@@ -85,7 +85,7 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
 
     ui->filterTreeView->resizeColumnToContents(FilterListModel::ColumnName);
 
-    connect( ui->filterTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FilterDialog::selectionChanged );
+    connect(ui->filterTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FilterDialog::selectionChanged);
 
     QString abs_path = gchar_free_to_qstring(get_persconffile_path(filename, TRUE));
     if (file_exists(abs_path.toUtf8().constData())) {
@@ -103,17 +103,17 @@ FilterDialog::~FilterDialog()
 
 void FilterDialog::addFilter(QString name, QString filter, bool start_editing)
 {
-    if ( model_ )
+    if (model_)
     {
         QModelIndex idx = model_->addFilter(name, filter);
-        if ( start_editing )
+        if (start_editing)
             ui->filterTreeView->edit(idx);
     }
 }
 
 void FilterDialog::updateWidgets()
 {
-    if ( ! ui->filterTreeView->selectionModel() )
+    if (! ui->filterTreeView->selectionModel())
         return;
 
     int num_selected = ui->filterTreeView->selectionModel()->selectedRows().count();
@@ -149,9 +149,9 @@ void FilterDialog::on_deleteToolButton_clicked()
 {
     QModelIndexList selected = ui->filterTreeView->selectionModel()->selectedRows();
     QList<int> rows;
-    foreach ( QModelIndex idx, selected )
+    foreach (QModelIndex idx, selected)
     {
-        if ( idx.isValid() && ! rows.contains(idx.row()) )
+        if (idx.isValid() && ! rows.contains(idx.row()))
         {
             rows << idx.row();
             model_->removeFilter(idx);
@@ -162,7 +162,7 @@ void FilterDialog::on_deleteToolButton_clicked()
 void FilterDialog::on_copyToolButton_clicked()
 {
     QModelIndexList selected = ui->filterTreeView->selectionModel()->selectedRows();
-    if ( selected.count() <= 0 )
+    if (selected.count() <= 0)
         return;
 
     int rowNr = selected.at(0).row();
@@ -204,7 +204,7 @@ FilterTreeDelegate::FilterTreeDelegate(QObject *parent, FilterDialog::FilterType
 QWidget *FilterTreeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QWidget * w = Q_NULLPTR;
-    if ( index.column() != FilterListModel::ColumnExpression ) {
+    if (index.column() != FilterListModel::ColumnExpression) {
         w = QStyledItemDelegate::createEditor(parent, option, index);
     }
     else
@@ -216,7 +216,7 @@ QWidget *FilterTreeDelegate::createEditor(QWidget *parent, const QStyleOptionVie
         }
     }
 
-    if ( qobject_cast<QLineEdit *>(w) && index.column() == FilterListModel::ColumnName )
+    if (qobject_cast<QLineEdit *>(w) && index.column() == FilterListModel::ColumnName)
         qobject_cast<QLineEdit *>(w)->setValidator(new FilterValidator());
 
     return w;
@@ -224,12 +224,12 @@ QWidget *FilterTreeDelegate::createEditor(QWidget *parent, const QStyleOptionVie
 
 void FilterTreeDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    if ( ! editor || ! index.isValid() )
+    if (! editor || ! index.isValid())
         return;
 
     QStyledItemDelegate::setEditorData(editor, index);
 
-    if ( qobject_cast<QLineEdit *>(editor) )
+    if (qobject_cast<QLineEdit *>(editor))
         qobject_cast<QLineEdit *>(editor)->setText(index.data().toString());
 }
 
@@ -238,11 +238,11 @@ QValidator::State FilterValidator::validate(QString & input, int & /*pos*/) cons
     /* Making this a list to be able to easily add additional values in the future */
     QStringList invalidKeys = QStringList() << "\"";
 
-    if ( input.length() <= 0 )
+    if (input.length() <= 0)
         return QValidator::Intermediate;
 
-    foreach ( QString key, invalidKeys )
-        if ( input.indexOf(key) >= 0 )
+    foreach (QString key, invalidKeys)
+        if (input.indexOf(key) >= 0)
             return QValidator::Invalid;
 
     return QValidator::Acceptable;

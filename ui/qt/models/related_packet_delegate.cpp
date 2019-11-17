@@ -42,10 +42,10 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 {
 
     /* This prevents the drawing of related objects, if multiple lines are being selected */
-    if ( wsApp && wsApp->mainWindow() )
+    if (wsApp && wsApp->mainWindow())
     {
         MainWindow * mw = qobject_cast<MainWindow *>(wsApp->mainWindow());
-        if ( mw && mw->selectedRows().count() > 1 )
+        if (mw && mw->selectedRows().count() > 1)
         {
             QStyledItemDelegate::paint(painter, option, index);
             return;
@@ -220,10 +220,10 @@ QSize RelatedPacketDelegate::sizeHint(const QStyleOptionViewItem &option,
                                   const QModelIndex &index) const
 {
     /* This prevents the sizeHint for the delegate, if multiple lines are being selected */
-    if ( wsApp && wsApp->mainWindow() )
+    if (wsApp && wsApp->mainWindow())
     {
         MainWindow * mw = qobject_cast<MainWindow *>(wsApp->mainWindow());
-        if ( mw && mw->selectedRows().count() > 1 )
+        if (mw && mw->selectedRows().count() > 1)
             return QStyledItemDelegate::sizeHint(option, index);
     }
 

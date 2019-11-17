@@ -61,7 +61,7 @@ packet_list_append(column_info *, frame_data *fdata)
 void
 packet_list_recreate_visible_rows(void)
 {
-    if ( glbl_plist_model )
+    if (glbl_plist_model)
         glbl_plist_model->recreateVisibleRows();
 }
 
@@ -101,7 +101,7 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
             }
 
             QWidget * wtWidget = mw->findChild<WirelessTimeline *>();
-            if ( wtWidget && qobject_cast<WirelessTimeline *>(wtWidget) )
+            if (wtWidget && qobject_cast<WirelessTimeline *>(wtWidget))
             {
                 WirelessTimeline * wt = qobject_cast<WirelessTimeline *>(wtWidget);
                 connect(this, SIGNAL(bgColorizationProgress(int, int)),

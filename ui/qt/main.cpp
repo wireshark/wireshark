@@ -504,7 +504,7 @@ int main(int argc, char *qt_argv[])
         /* load the airpcap interfaces */
         g_airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
 
-        if (g_airpcap_if_list == NULL || g_list_length(g_airpcap_if_list) == 0){
+        if (g_airpcap_if_list == NULL || g_list_length(g_airpcap_if_list) == 0) {
             if (err == CANT_GET_AIRPCAP_INTERFACE_LIST && err_str != NULL) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", "Failed to open Airpcap Adapters.");
                 g_free(err_str);
@@ -886,7 +886,7 @@ int main(int argc, char *qt_argv[])
                filter. */
             start_requested_stats();
 
-            if(global_commandline_info.go_to_packet != 0) {
+            if (global_commandline_info.go_to_packet != 0) {
                 /* Jump to the specified frame number, kept for backward
                    compatibility. */
                 cf_goto_frame(CaptureFile::globalCapFile(), global_commandline_info.go_to_packet);

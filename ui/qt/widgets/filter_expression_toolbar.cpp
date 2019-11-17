@@ -40,7 +40,7 @@ FilterExpressionToolBar::FilterExpressionToolBar(QWidget * parent) :
 
     setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect ( this, &QWidget::customContextMenuRequested, this, &FilterExpressionToolBar::onCustomMenuHandler );
+    connect (this, &QWidget::customContextMenuRequested, this, &FilterExpressionToolBar::onCustomMenuHandler);
     connect(this, &DragDropToolBar::actionMoved, this, &FilterExpressionToolBar::onActionMoved);
     connect(this, &DragDropToolBar::newFilterDropped, this, &FilterExpressionToolBar::onFilterDropped);
 
@@ -67,7 +67,7 @@ bool FilterExpressionToolBar::event(QEvent *event)
 void FilterExpressionToolBar::onCustomMenuHandler(const QPoint& pos)
 {
     QAction * filterAction = actionAt(pos);
-    if ( ! filterAction )
+    if (! filterAction)
         return;
 
     QMenu * filterMenu = new QMenu(this);
@@ -134,7 +134,7 @@ void FilterExpressionToolBar::removeFilter()
     int idx = uatRowIndexForFilter(label, expr);
 
     QModelIndex rowIndex = uatModel->index(idx, 0);
-    if ( rowIndex.isValid() ) {
+    if (rowIndex.isValid()) {
         uatModel->removeRow(rowIndex.row());
 
         save_migrated_uat("Display expressions", &prefs.filter_expressions_old);
@@ -148,9 +148,9 @@ WiresharkMimeData * FilterExpressionToolBar::createMimeData(QString name, int po
     UatModel * uatModel = new UatModel(this, "Display expressions");
 
     QModelIndex rowIndex;
-    for ( int cnt = 0; cnt < uatModel->rowCount() && ! rowIndex.isValid(); cnt++ )
+    for (int cnt = 0; cnt < uatModel->rowCount() && ! rowIndex.isValid(); cnt++)
     {
-        if ( uatModel->data(uatModel->index(cnt, 1), Qt::DisplayRole).toString().compare(name) == 0 )
+        if (uatModel->data(uatModel->index(cnt, 1), Qt::DisplayRole).toString().compare(name) == 0)
         {
             rowIndex = uatModel->index(cnt, 2);
             element->setFilter(rowIndex.data().toString());
@@ -163,7 +163,7 @@ WiresharkMimeData * FilterExpressionToolBar::createMimeData(QString name, int po
 void FilterExpressionToolBar::onActionMoved(QAction* action, int oldPos, int newPos)
 {
     gchar* err = NULL;
-    if ( oldPos == newPos )
+    if (oldPos == newPos)
         return;
 
     QString label = action->property(dfe_property_label_).toString();
@@ -171,7 +171,7 @@ void FilterExpressionToolBar::onActionMoved(QAction* action, int oldPos, int new
 
     int idx = uatRowIndexForFilter(label, expr);
 
-    if ( idx > -1 && oldPos > -1 && newPos > -1 )
+    if (idx > -1 && oldPos > -1 && newPos > -1)
     {
         uat_t * table = uat_get_table_by_name("Display expressions");
         uat_move_index(table, oldPos, newPos);
@@ -190,7 +190,7 @@ void FilterExpressionToolBar::disableFilter()
     UatModel * uatModel = new UatModel(this, "Display expressions");
 
     QModelIndex rowIndex = uatModel->index(idx, 0);
-    if ( rowIndex.isValid() ) {
+    if (rowIndex.isValid()) {
         uatModel->setData(rowIndex, QVariant::fromValue(false));
 
         save_migrated_uat("Display expressions", &prefs.filter_expressions_old);
@@ -200,7 +200,7 @@ void FilterExpressionToolBar::disableFilter()
 
 void FilterExpressionToolBar::editFilter()
 {
-    if ( ! sender() )
+    if (! sender())
         return;
 
     QString label = ((QAction *)sender())->property(dfe_property_label_).toString();
@@ -208,13 +208,13 @@ void FilterExpressionToolBar::editFilter()
 
     int idx = uatRowIndexForFilter(label, expr);
 
-    if ( idx > -1 )
+    if (idx > -1)
         emit filterEdit(idx);
 }
 
 void FilterExpressionToolBar::onFilterDropped(QString description, QString filter)
 {
-    if ( filter.length() == 0 )
+    if (filter.length() == 0)
         return;
 
     filter_expression_new(qUtf8Printable(description),
@@ -249,19 +249,19 @@ int FilterExpressionToolBar::uatRowIndexForFilter(QString label, QString express
 {
     int result = -1;
 
-    if ( expression.length() == 0 )
+    if (expression.length() == 0)
         return result;
 
     UatModel * uatModel = new UatModel(this, "Display expressions");
 
     QModelIndex rowIndex;
 
-    if ( label.length() > 0 )
+    if (label.length() > 0)
     {
-        for ( int cnt = 0; cnt < uatModel->rowCount() && ! rowIndex.isValid(); cnt++ )
+        for (int cnt = 0; cnt < uatModel->rowCount() && ! rowIndex.isValid(); cnt++)
         {
-            if ( uatModel->data(uatModel->index(cnt, 1), Qt::DisplayRole).toString().compare(label) == 0 &&
-                    uatModel->data(uatModel->index(cnt, 2), Qt::DisplayRole).toString().compare(expression) == 0 )
+            if (uatModel->data(uatModel->index(cnt, 1), Qt::DisplayRole).toString().compare(label) == 0 &&
+                    uatModel->data(uatModel->index(cnt, 2), Qt::DisplayRole).toString().compare(expression) == 0)
             {
                 rowIndex = uatModel->index(cnt, 2);
             }
@@ -272,7 +272,7 @@ int FilterExpressionToolBar::uatRowIndexForFilter(QString label, QString express
         rowIndex = uatModel->findRowForColumnContent(((QAction *)sender())->data(), 2);
     }
 
-    if ( rowIndex.isValid() )
+    if (rowIndex.isValid())
         result = rowIndex.row();
 
     delete uatModel;

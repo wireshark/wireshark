@@ -67,7 +67,7 @@ public:
     inline pcolor(float red, float green, float blue) : QColor(
             (int) (255*(red * fraction + base)),
             (int) (255*(green * fraction + base)),
-            (int) (255*(blue * fraction + base)) ) { }
+            (int) (255*(blue * fraction + base))) { }
 };
 
 static void reset_rgb(float rgb[TIMELINE_HEIGHT][3])
@@ -498,7 +498,7 @@ WirelessTimeline::paintEvent(QPaintEvent *qpe)
 
     frame_data * topData = packet_list->getFDataForRow(top);
     frame_data * botData = packet_list->getFDataForRow(bottom);
-    if ( ! topData || ! botData )
+    if (! topData || ! botData)
         return;
 
     int x1 = top == -1 ? 0 : position(get_wlan_radio(topData->num)->start_tsf, ratio);

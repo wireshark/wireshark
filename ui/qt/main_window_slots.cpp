@@ -1163,11 +1163,11 @@ void MainWindow::setMenusForSelectedPacket()
 
         QList<int> rows = selectedRows();
         frame_data * current_frame = 0;
-        if ( rows.count() > 0 )
+        if (rows.count() > 0)
             current_frame = frameDataForRow(rows.at(0));
 
         frame_selected = rows.count() == 1;
-        if ( packet_list_->multiSelectActive() )
+        if (packet_list_->multiSelectActive())
         {
             frame_selected = false;
             multi_selection = true;
@@ -1896,7 +1896,7 @@ void MainWindow::on_actionFilePrint_triggered()
     QList<int> rows = packet_list_->selectedRows(true);
 
     QStringList entries;
-    foreach ( int row, rows )
+    foreach (int row, rows)
         entries << QString::number(row);
     QString selRange = entries.join(",");
 
@@ -1947,26 +1947,26 @@ void MainWindow::actionEditCopyTriggered(MainWindow::CopySelected selection_type
     case CopyListAsText:
     case CopyListAsCSV:
     case CopyListAsYAML:
-        if ( packet_list_->selectedRows().count() > 0 )
+        if (packet_list_->selectedRows().count() > 0)
         {
             QList<int> rows = packet_list_->selectedRows();
             QStringList content;
-            foreach ( int row, rows )
+            foreach (int row, rows)
             {
                 QModelIndex idx = packet_list_->model()->index(row, 0);
-                if ( ! idx.isValid() )
+                if (! idx.isValid())
                     continue;
 
                 PacketList::SummaryCopyType copyType = PacketList::CopyAsText;
-                if ( selection_type == CopyListAsCSV )
+                if (selection_type == CopyListAsCSV)
                     copyType = PacketList::CopyAsCSV;
-                else if ( selection_type == CopyListAsYAML )
+                else if (selection_type == CopyListAsYAML)
                     copyType = PacketList::CopyAsYAML;
                 QString entry = packet_list_->createSummaryText(idx, copyType);
                 content << entry;
             }
 
-            if ( content.count() > 0 )
+            if (content.count() > 0)
                 clip = content.join("\n");
         }
         break;
@@ -2164,11 +2164,11 @@ void MainWindow::editTimeShiftFinished(int)
 void MainWindow::on_actionEditPacketComment_triggered()
 {
     QList<int> rows = selectedRows();
-    if ( rows.count() != 1 )
+    if (rows.count() != 1)
         return;
 
     frame_data * fdata = frameDataForRow(rows.at(0));
-    if ( ! fdata )
+    if (! fdata)
         return;
 
     PacketCommentDialog* pc_dialog;
@@ -2556,7 +2556,7 @@ void MainWindow::on_actionViewResetLayout_triggered()
 
 void MainWindow::on_actionViewResizeColumns_triggered()
 {
-    if ( ! packet_list_->model() )
+    if (! packet_list_->model())
         return;
     for (int col = 0; col < packet_list_->model()->columnCount(); col++) {
         packet_list_->resizeColumnToContents(col);
@@ -2575,9 +2575,9 @@ void MainWindow::openPacketDialog(bool from_reference)
             return;
 
         fdata = frame_data_sequence_find(capture_file_.capFile()->provider.frames, framenum);
-    } else if ( selectedRows().count() == 1 ) {
+    } else if (selectedRows().count() == 1) {
         fdata = frameDataForRow(selectedRows().at(0));
-    } else if ( selectedRows().count() > 1 )
+    } else if (selectedRows().count() > 1)
         return;
 
     /* If we have a frame, pop up the dialog */
@@ -3204,7 +3204,7 @@ void MainWindow::statCommandIOGraph(const char *, void *)
 {
     const DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
     QString displayFilter;
-    if ( df_edit )
+    if (df_edit)
         displayFilter = df_edit->text();
 
     IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_, displayFilter);
@@ -3716,7 +3716,7 @@ void MainWindow::on_actionStatisticsResolvedAddresses_triggered()
 {
     QString capFileName;
     wtap* wth = Q_NULLPTR;
-    if ( capture_file_.isValid() )
+    if (capture_file_.isValid())
     {
         capFileName = capture_file_.capFile()->filename;
         wth = capture_file_.capFile()->provider.wth;
@@ -3839,7 +3839,7 @@ void MainWindow::showExtcapOptionsDialog(QString &device_name)
 void MainWindow::insertColumn(QString name, QString abbrev, gint pos)
 {
     gint colnr = 0;
-    if ( name.length() > 0 && abbrev.length() > 0 )
+    if (name.length() > 0 && abbrev.length() > 0)
     {
         colnr = column_prefs_add_custom(COL_CUSTOM, name.toStdString().c_str(), abbrev.toStdString().c_str(), pos);
         packet_list_->columnsChanged();

@@ -203,7 +203,7 @@ void ByteViewText::paintEvent(QPaintEvent *)
         painter.fillRect(offset_rect, palette().window());
     }
 
-    if ( data_.isEmpty() ) {
+    if (data_.isEmpty()) {
         return;
     }
 
@@ -213,7 +213,7 @@ void ByteViewText::paintEvent(QPaintEvent *)
     painter.save();
 
     x_pos_to_column_.clear();
-    while( (int) (row_y + line_height_) < widget_height && offset < (int) data_.count()) {
+    while ((int) (row_y + line_height_) < widget_height && offset < (int) data_.count()) {
         drawLine(&painter, offset, row_y);
         offset += row_width_;
         row_y += line_height_ + leading;

@@ -125,7 +125,7 @@ void FileSetDialog::endAddFile()
     fs_ui_->directoryLabel->setUrl(QUrl::fromLocalFile(dir_name).toString());
     fs_ui_->directoryLabel->setEnabled(true);
 
-    if(cur_idx_ >= 0) {
+    if (cur_idx_ >= 0) {
         fs_ui_->fileSetTree->setCurrentIndex(fileset_entry_model_->index(cur_idx_, 0));
     }
 

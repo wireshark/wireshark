@@ -46,11 +46,11 @@ ColumnProxyModel::ColumnProxyModel(QObject * parent) :
 bool ColumnProxyModel::filterAcceptsRow(int source_row, const QModelIndex &/*source_parent*/) const
 {
     bool displayed = false;
-    if ( sourceModel() &&
-         sourceModel()->index(source_row, ColumnListModel::COL_DISPLAYED).data(ColumnListModel::DisplayedState).toBool() )
+    if (sourceModel() &&
+         sourceModel()->index(source_row, ColumnListModel::COL_DISPLAYED).data(ColumnListModel::DisplayedState).toBool())
         displayed = true;
 
-    if ( showDisplayedOnly_ && ! displayed )
+    if (showDisplayedOnly_ && ! displayed)
         return false;
 
     return true;
@@ -70,14 +70,14 @@ QWidget *ColumnTypeDelegate::createEditor(QWidget *parent,
                                        const QStyleOptionViewItem &option,
                                        const QModelIndex &index) const
 {
-    if ( index.column() == ColumnListModel::COL_TYPE )
+    if (index.column() == ColumnListModel::COL_TYPE)
     {
         QComboBox *editor = new QComboBox(parent);
 
         for (int i = 0; i < NUM_COL_FMTS; i++)
         {
             editor->addItem(col_format_desc(i), QVariant(i));
-            if ( i == index.data().toInt() )
+            if (i == index.data().toInt())
                 editor->setCurrentIndex(i);
         }
 
@@ -85,13 +85,13 @@ QWidget *ColumnTypeDelegate::createEditor(QWidget *parent,
 
         return editor;
     }
-    else if ( index.column() == ColumnListModel::COL_FIELDS )
+    else if (index.column() == ColumnListModel::COL_FIELDS)
     {
         FieldFilterEdit * editor = new FieldFilterEdit(parent);
         editor->setText(index.data().toString());
         return editor;
     }
-    else if ( index.column() == ColumnListModel::COL_OCCURRENCE )
+    else if (index.column() == ColumnListModel::COL_OCCURRENCE)
     {
         SyntaxLineEdit * editor = new SyntaxLineEdit(parent);
         connect(editor, &SyntaxLineEdit::textChanged, editor, &SyntaxLineEdit::checkInteger);
@@ -106,24 +106,24 @@ void ColumnTypeDelegate::setEditorData(QWidget *editor,
                                     const QModelIndex &index) const
 {
     QVariant data = index.model()->data(index);
-    if ( index.column() == ColumnListModel::COL_TYPE )
+    if (index.column() == ColumnListModel::COL_TYPE)
     {
         QComboBox *comboBox = static_cast<QComboBox*>(editor);
         comboBox->setCurrentText(data.toString());
     }
-    else if ( index.column() == ColumnListModel::COL_FIELDS )
+    else if (index.column() == ColumnListModel::COL_FIELDS)
     {
-        if ( qobject_cast<FieldFilterEdit *>(editor) )
+        if (qobject_cast<FieldFilterEdit *>(editor))
             qobject_cast<FieldFilterEdit *>(editor)->setText(data.toString());
     }
-    else if ( index.column() == ColumnListModel::COL_OCCURRENCE )
+    else if (index.column() == ColumnListModel::COL_OCCURRENCE)
     {
-        if ( qobject_cast<SyntaxLineEdit *>(editor) )
+        if (qobject_cast<SyntaxLineEdit *>(editor))
             qobject_cast<SyntaxLineEdit *>(editor)->setText(data.toString());
     }
     else
     {
-        if ( qobject_cast<QLineEdit *>(editor) )
+        if (qobject_cast<QLineEdit *>(editor))
             qobject_cast<QLineEdit *>(editor)->setText(data.toString());
     }
 }
@@ -131,19 +131,19 @@ void ColumnTypeDelegate::setEditorData(QWidget *editor,
 void ColumnTypeDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
                                    const QModelIndex &index) const
 {
-    if ( index.column() == ColumnListModel::COL_TYPE )
+    if (index.column() == ColumnListModel::COL_TYPE)
     {
         QComboBox *comboBox = static_cast<QComboBox*>(editor);
         bool ok = false;
         int value = comboBox->currentData().toInt(&ok);
 
-        if ( ok )
+        if (ok)
             model->setData(index, value, Qt::EditRole);
     }
-    else if ( index.column() == ColumnListModel::COL_FIELDS )
+    else if (index.column() == ColumnListModel::COL_FIELDS)
     {
         FieldFilterEdit * ffe = qobject_cast<FieldFilterEdit *>(editor);
-        if ( ffe && ffe->checkFilter() )
+        if (ffe && ffe->checkFilter())
         {
             QModelIndex typeIndex = index.sibling(index.row(), ColumnListModel::COL_TYPE);
             model->setData(typeIndex, COL_CUSTOM, Qt::EditRole);
@@ -152,25 +152,25 @@ void ColumnTypeDelegate::setModelData(QWidget *editor, QAbstractItemModel *model
         else
             ffe->setText(index.data().toString());
 
-        if ( index.data().toString().length() == 0 )
+        if (index.data().toString().length() == 0)
         {
             QModelIndex typeIndex = index.sibling(index.row(), ColumnListModel::COL_TYPE);
             model->setData(typeIndex, index.data(ColumnListModel::OriginalType).toInt(), Qt::EditRole);
 
         }
     }
-    else if ( index.column() == ColumnListModel::COL_OCCURRENCE )
+    else if (index.column() == ColumnListModel::COL_OCCURRENCE)
     {
         SyntaxLineEdit * sle = qobject_cast<SyntaxLineEdit *>(editor);
         bool ok = false;
-        if ( sle )
+        if (sle)
         {
             sle->checkInteger(index.data().toString());
-            if ( sle->syntaxState() == SyntaxLineEdit::Valid )
+            if (sle->syntaxState() == SyntaxLineEdit::Valid)
                 ok = true;
         }
 
-        if ( ok )
+        if (ok)
         {
             QModelIndex typeIndex = index.sibling(index.row(), ColumnListModel::COL_TYPE);
             model->setData(typeIndex, COL_CUSTOM, Qt::EditRole);
@@ -179,7 +179,7 @@ void ColumnTypeDelegate::setModelData(QWidget *editor, QAbstractItemModel *model
         else
             sle->setText(index.data().toString());
 
-        if ( index.data().toString().length() == 0 )
+        if (index.data().toString().length() == 0)
         {
             QModelIndex typeIndex = index.sibling(index.row(), ColumnListModel::COL_TYPE);
             model->setData(typeIndex, index.data(ColumnListModel::OriginalType).toInt(), Qt::EditRole);
@@ -205,8 +205,8 @@ ColumnListModel::ColumnListModel(QObject * parent):
 
 QVariant ColumnListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if ( section > ColumnListModel::COL_OCCURRENCE || orientation != Qt::Horizontal ||
-        role != Qt::DisplayRole )
+    if (section > ColumnListModel::COL_OCCURRENCE || orientation != Qt::Horizontal ||
+        role != Qt::DisplayRole)
         return QVariant();
 
     return headerTitle(section);
@@ -224,7 +224,7 @@ int ColumnListModel::columnCount(const QModelIndex &/*parent*/) const
 
 QString ColumnListModel::headerTitle(int section) const
 {
-    switch ( section )
+    switch (section)
     {
         case ColumnListModel::COL_DISPLAYED:
             return tr("Displayed");
@@ -264,12 +264,12 @@ void ColumnListModel::populate()
 
 QVariant ColumnListModel::data(const QModelIndex &index, int role) const
 {
-    if ( ! index.isValid() || index.column() >= store_.count() )
+    if (! index.isValid() || index.column() >= store_.count())
         return QVariant();
 
     ListElement ne = store_.at(index.row());
 
-    if ( role == Qt::DisplayRole )
+    if (role == Qt::DisplayRole)
     {
         switch (index.column())
         {
@@ -285,16 +285,16 @@ QVariant ColumnListModel::data(const QModelIndex &index, int role) const
                 return ne.customFields.length() > 0 ? qVariantFromValue(ne.occurrence) : QVariant();
         }
     }
-    else if ( role == Qt::CheckStateRole )
+    else if (role == Qt::CheckStateRole)
     {
-        if ( index.column() == COL_DISPLAYED )
+        if (index.column() == COL_DISPLAYED)
         {
             return ne.displayed ? Qt::Checked : Qt::Unchecked;
         }
     }
-    else if ( role == OriginalType )
+    else if (role == OriginalType)
         return qVariantFromValue(ne.originalType);
-    else if ( role == DisplayedState )
+    else if (role == DisplayedState)
         return qVariantFromValue(ne.displayed);
 
     return QVariant();
@@ -303,13 +303,13 @@ QVariant ColumnListModel::data(const QModelIndex &index, int role) const
 Qt::ItemFlags ColumnListModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
-    if ( index.isValid() && index.row() < store_.count() )
+    if (index.isValid() && index.row() < store_.count())
     {
         ListElement ne = store_.at(index.row());
 
         Qt::ItemFlags flags = Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags;
 
-        if ( index.column() == COL_DISPLAYED )
+        if (index.column() == COL_DISPLAYED)
             flags |= Qt::ItemIsUserCheckable;
 
         flags |= Qt::ItemIsEditable;
@@ -330,7 +330,7 @@ QMimeData *ColumnListModel::mimeData(const QModelIndexList &indexes) const
     QMimeData *mimeData = new QMimeData;
 
     int row = -1;
-    if ( indexes.count() > 0 )
+    if (indexes.count() > 0)
         row = indexes.at(0).row();
 
     mimeData->setData(WiresharkMimeData::ColumnListMimeType, QString::number(row).toUtf8());
@@ -340,7 +340,7 @@ QMimeData *ColumnListModel::mimeData(const QModelIndexList &indexes) const
 bool ColumnListModel::canDropMimeData(const QMimeData *data,
     Qt::DropAction /* action */, int /* row */, int /* column */, const QModelIndex &parent) const
 {
-    if (parent.isValid() || ! data->hasFormat(WiresharkMimeData::ColumnListMimeType) )
+    if (parent.isValid() || ! data->hasFormat(WiresharkMimeData::ColumnListMimeType))
         return false;
 
     return true;
@@ -354,7 +354,7 @@ bool ColumnListModel::dropMimeData(const QMimeData *data,
     if (!canDropMimeData(data, action, row, column, parent))
         return false;
 
-    if (action == Qt::IgnoreAction || parent.isValid() )
+    if (action == Qt::IgnoreAction || parent.isValid())
         return true;
 
     if (row != -1)
@@ -364,13 +364,13 @@ bool ColumnListModel::dropMimeData(const QMimeData *data,
 
     bool ok = false;
     int moveFrom = QString(data->data(WiresharkMimeData::ColumnListMimeType)).toInt(&ok);
-    if ( ! ok )
+    if (! ok)
         return false;
 
-    if ( moveFrom < moveTo )
+    if (moveFrom < moveTo)
         moveTo = moveTo - 1;
 
-    if ( moveTo >= store_.count() )
+    if (moveTo >= store_.count())
         moveTo = store_.count() - 1;
 
     emit beginResetModel();
@@ -387,39 +387,39 @@ Qt::DropActions ColumnListModel::supportedDropActions() const
 
 bool ColumnListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if ( !index.isValid() || ! value.isValid() )
+    if (!index.isValid() || ! value.isValid())
         return false;
 
     bool change = false;
-    if ( role == Qt::CheckStateRole && index.column() == ColumnListModel::COL_DISPLAYED )
+    if (role == Qt::CheckStateRole && index.column() == ColumnListModel::COL_DISPLAYED)
     {
         store_[index.row()].displayed = value.toInt() == Qt::Checked ? true : false;
         change = true;
     }
-    else if ( index.column() == ColumnListModel::COL_TYPE )
+    else if (index.column() == ColumnListModel::COL_TYPE)
     {
         bool ok = false;
         int val = value.toInt(&ok);
-        if ( ok )
+        if (ok)
             store_[index.row()].type = val;
     }
-    else if ( index.column() == ColumnListModel::COL_TITLE )
+    else if (index.column() == ColumnListModel::COL_TITLE)
     {
         store_[index.row()].title = value.toString();
     }
-    else if ( index.column() == ColumnListModel::COL_FIELDS )
+    else if (index.column() == ColumnListModel::COL_FIELDS)
     {
         store_[index.row()].customFields = value.toString();
     }
-    else if ( index.column() == ColumnListModel::COL_OCCURRENCE )
+    else if (index.column() == ColumnListModel::COL_OCCURRENCE)
     {
         bool ok = false;
         int val = value.toInt(&ok);
-        if ( ok )
+        if (ok)
             store_[index.row()].occurrence = val;
     }
 
-    if ( change )
+    if (change)
         emit dataChanged(index, index);
 
     return change;
@@ -429,7 +429,7 @@ void ColumnListModel::saveColumns()
 {
     GList *new_col_list = Q_NULLPTR;
 
-    for ( int row = 0; row < store_.count(); row++ )
+    for (int row = 0; row < store_.count(); row++)
     {
         fmt_data * cfmt = g_new0(fmt_data, 1);
         ListElement elem = store_.at(row);
@@ -438,7 +438,7 @@ void ColumnListModel::saveColumns()
         cfmt->visible = elem.displayed;
         cfmt->fmt = elem.type;
         cfmt->resolved = TRUE;
-        if ( cfmt->fmt == COL_CUSTOM )
+        if (cfmt->fmt == COL_CUSTOM)
         {
             cfmt->custom_fields = qstring_strdup(elem.customFields);
             cfmt->custom_occurrence = elem.occurrence;
