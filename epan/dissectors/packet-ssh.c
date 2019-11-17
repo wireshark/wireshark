@@ -118,6 +118,7 @@ static int hf_ssh_payload = -1;
 static int hf_ssh_encrypted_packet = -1;
 static int hf_ssh_padding_string = -1;
 static int hf_ssh_mac_string = -1;
+static int hf_ssh_direction = -1;
 
 /* Message codes */
 static int hf_ssh_msg_code = -1;
@@ -261,6 +262,12 @@ static dissector_handle_t ssh_handle;
 
 /* 128-191 reserved for client protocols */
 /* 192-255 local extensions */
+
+static const value_string ssh_direction_vals[] = {
+    { CLIENT_TO_SERVER_PROPOSAL, "client-to-server" },
+    { SERVER_TO_CLIENT_PROPOSAL, "server-to-client" },
+    { 0, NULL }
+};
 
 static const value_string ssh2_msg_vals[] = {
     { SSH_MSG_DISCONNECT,                "Disconnect" },
@@ -462,6 +469,9 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
 
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s: ", is_response ? "Server" : "Client");
+    ti = proto_tree_add_boolean_format_value(ssh_tree, hf_ssh_direction, tvb, 0, 0, is_response, "%s",
+        try_val_to_str(is_response, ssh_direction_vals));
+    proto_item_set_generated(ti);
     return tvb_captured_length(tvb);
 }
 
@@ -1293,6 +1303,11 @@ proto_register_ssh(void)
           { "MAC",  "ssh.mac",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Message authentication code", HFILL }},
+
+        { &hf_ssh_direction,
+          { "Direction", "ssh.direction",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Message direction", HFILL }},
 
         { &hf_ssh_msg_code,
           { "Message Code",  "ssh.message_code",
