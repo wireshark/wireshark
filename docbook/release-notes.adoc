@@ -32,6 +32,11 @@ section below for more details.
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
+since version 3.1.1:
+
+* Nothing of note.
+
+The following features are new (or have been significantly updated)
 since version 3.1.0:
 
 * Automatic updates are supported on macOS.
