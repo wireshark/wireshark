@@ -671,12 +671,12 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
                         2, 2, ENC_LITTLE_ENDIAN);
 
     sn = (char *)tvb_memcpy(cmd_tvb, wmem_alloc(wmem_packet_scope(), 21), 4, 20);
-    sn[21] = '\0';
+    sn[20] = '\0';
     proto_tree_add_string(cmd_tree, hf_nvme_identify_ctrl_sn, cmd_tvb,
                           4, 20, sn);
 
     mn = (char *)tvb_memcpy(cmd_tvb, wmem_alloc(wmem_packet_scope(), 41), 24, 40);
-    sn[41] = '\0';
+    mn[40] = '\0';
     proto_tree_add_string(cmd_tree, hf_nvme_identify_ctrl_mn, cmd_tvb,
                           24, 40, mn);
 
