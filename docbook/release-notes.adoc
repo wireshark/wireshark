@@ -36,12 +36,12 @@ since version 3.1.0:
 
 * Automatic updates are supported on macOS.
 * You can now select multiple packets in the packet list at the same time
-** They can be exported as Text by ”kbd:[Ctrl+C] or kbd:[Cmd+C]” and the corresponding
+** They can be exported as Text by “kbd:[Ctrl+C]” or “kbd:[Cmd+C]” and the corresponding
   menu in “menu:Edit[Copy > As ...]”
 ** They can be marked/unmarked or ignored/unignored at the same time
 ** They can be exported and printed using the corresponding menu entries
-  ”menu:File[Export Specified Packets]”, ”menu:File[Export Packet Dissections]”
-  and ”menu:File[Print]”
+  “menu:File[Export Specified Packets]”, “menu:File[Export Packet Dissections]”
+  and “menu:File[Print]”
 * You can now follow HTTP/2 and QUIC streams.
 * You can once again mark and unmark packets using the middle mouse button.
   This feature went missing around 2009 or so.
@@ -50,6 +50,8 @@ since version 3.1.0:
   previous graph exists
 * Action buttons for the display filter bar may be aligned left via the context menu
 * Allow extcaps to be loaded from the personal configuration directory
+* The Windows installers now ship with Qt 5.12.6.
+  They previously shipped with Qt 5.12.4.
 
 The following features are new (or have been significantly updated)
 since version 3.0.0:
@@ -77,6 +79,8 @@ since version 3.0.0:
 * Protobuf files (*.proto) can now be configured to enable more precise parsing of serialized Protobuf data (such as gRPC).
 * HTTP2 support streaming mode reassembly. To use this feature, subdissectors can register itself to "streaming_content_type" dissector table and return pinfo->desegment_len and pinfo->desegment_offset to tell HTTP2 when to start and how many additional bytes requires when next called.
 * The message of stream gRPC method can now be parsed with supporting of HTTP2 streaming mode reassembly feature.
+* The Windows installers now ship with Qt 5.12.4.
+  They previously shipped with Qt 5.12.1.
 
 // === Removed Features and Support
 
