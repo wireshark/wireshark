@@ -13,6 +13,9 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
+The Windows installers now ship with Qt 5.12.6.
+They previously shipped with Qt 5.12.5.
+
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
