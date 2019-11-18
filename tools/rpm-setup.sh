@@ -219,6 +219,9 @@ echo "speex is unavailable" >&2
 add_package ADDITIONAL_LIST libnl3-devel || add_package ADDITIONAL_LIST libnl-devel ||
 echo "libnl3/libnl are unavailable" >&2
 
+add_package ADDITIONAL_LIST ilbc-devel ||
+echo "ilbc is unavailable" >&2
+
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries

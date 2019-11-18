@@ -278,6 +278,9 @@
 /* Define to 1 if you have the bcg729 library. */
 #cmakedefine HAVE_BCG729 1
 
+/* Define to 1 if you have the ilbc library. */
+#cmakedefine HAVE_ILBC 1
+
 /* Define to 1 if you have the speexdsp library. */
 #cmakedefine HAVE_SPEEXDSP 1
 

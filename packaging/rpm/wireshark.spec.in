@@ -20,6 +20,7 @@
 %bcond_with	guides
 %bcond_with	brotli
 %bcond_with	zstd
+%bcond_with	ilbc
 
 # Set at most one of these two:
 # Note that setcap requires rpmbuild 4.7.0 or later.
@@ -340,6 +341,11 @@ cmake3 \
 %if %{with ninja}
   -G Ninja \
 %endif
+%if %{with ilbc}
+  -DENABLE_ILBC=ON \
+%else
+  -DENABLE_ILBC=OFF \
+%endif
 
 %if %{with ninja}
 # Older RPM-based distributions used ninja-build in order to prevent a collision with
@@ -497,6 +503,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libdir}/pkgconfig/wireshark.pc
 
 %changelog
+* Sun Jan 19 2019 Jiri Novak
+- Added ilbc codec as an option
+
 * Fri Nov 22 2019 Gerald Combs
 - c-ares is a required package
 

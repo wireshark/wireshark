@@ -155,6 +155,10 @@ add_package ADDITIONAL_LIST libsystemd-dev ||
 add_package ADDITIONAL_LIST libsystemd-journal-dev ||
 echo "libsystemd-dev is unavailable"
 
+# ilbc library from http://www.deb-multimedia.org
+add_package ADDITIONAL_LIST libilbc-dev ||
+echo "libilbc-dev is unavailable"
+
 # softhsm2 2.0.0: Ubuntu 16.04
 # softhsm2 2.2.0: Debian >= jessie-backports, Ubuntu 18.04
 # softhsm2 >= 2.4.0: Debian >= buster, Ubuntu >= 18.10

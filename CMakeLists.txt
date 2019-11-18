@@ -1154,6 +1154,8 @@ ws_find_package(SPANDSP ENABLE_SPANDSP HAVE_SPANDSP)
 
 ws_find_package(BCG729 ENABLE_BCG729 HAVE_BCG729)
 
+ws_find_package(ILBC ENABLE_ILBC HAVE_ILBC)
+
 # CMake 3.9 and below used 'LIBXML2_LIBRARIES' as the name of the cache entry
 # storing the find_library result. Transfer it to the new cache variable such
 # that reset_find_package can detect and clear outdated cache variables.
@@ -1467,6 +1469,11 @@ if(ENABLE_PLUGINS)
 			plugins/codecs/G729
 		)
 	endif()
+	if(ILBC_FOUND)
+		list(APPEND PLUGIN_SRC_DIRS
+			plugins/codecs/iLBC
+		)
+	endif()
 	if(SBC_FOUND)
 		list(APPEND PLUGIN_SRC_DIRS
 			plugins/codecs/sbc
@@ -1579,6 +1586,11 @@ set_package_properties(BCG729 PROPERTIES
 	DESCRIPTION "G.729 decoder"
 	URL "https://www.linphone.org/technical-corner/bcg729/overview"
 	PURPOSE "Support for G.729 codec in RTP player"
+)
+set_package_properties(ILBC PROPERTIES
+	DESCRIPTION "iLBC decoder"
+	URL "https://github.com/TimothyGu/libilbc"
+	PURPOSE "Support for iLBC codec in RTP player"
 )
 set_package_properties(LIBXML2 PROPERTIES
 	DESCRIPTION "XML parsing library"
@@ -1846,6 +1858,9 @@ if(WIN32)
 	if (BCG729_FOUND)
 		list (APPEND OPTIONAL_DLLS "${BCG729_DLL_DIR}/${BCG729_DLL}")
 	endif(BCG729_FOUND)
+	if (ILBC_FOUND)
+		list (APPEND OPTIONAL_DLLS "${ILBC_DLL_DIR}/${ILBC_DLL}")
+	endif(ILBC_FOUND)
 	if (LIBXML2_FOUND)
 		foreach( _dll ${LIBXML2_DLLS} )
 			list (APPEND OPTIONAL_DLLS "${LIBXML2_DLL_DIR}/${_dll}")
@@ -2974,6 +2989,9 @@ if(RPMBUILD_EXECUTABLE)
 	endif()
 	if (BCG729_FOUND)
 		list(APPEND _rpmbuild_with_args --with bcg729)
+	endif()
+	if (ILBC_FOUND)
+		list(APPEND _rpmbuild_with_args --with ilbc)
 	endif()
 	if (LIBXML2_FOUND)
 		list(APPEND _rpmbuild_with_args --with libxml2)

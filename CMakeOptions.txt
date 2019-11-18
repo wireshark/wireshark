@@ -92,6 +92,7 @@ option(ENABLE_KERBEROS   "Build with Kerberos support" ON)
 option(ENABLE_SBC        "Build with SBC Codec support in RTP Player" ON)
 option(ENABLE_SPANDSP    "Build with G.722/G.726 codecs support in RTP Player" ON)
 option(ENABLE_BCG729     "Build with G.729 codec support in RTP Player" ON)
+option(ENABLE_ILBC       "Build with iLBC codec support in RTP Player" ON)
 option(ENABLE_LIBXML2    "Build with libxml2 support" ON)
 
 # How to install
