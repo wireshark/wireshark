@@ -297,7 +297,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     ui->pte_wireshark->setFrameStyle(QFrame::NoFrame);
     ui->pte_wireshark->viewport()->setAutoFillBackground(false);
-    connect(ui->copyToClipboard, SIGNAL(clicked()), this, SLOT(copyToClipboardTriggered()));
 
 /* Check if it is a dev release... (VERSION_MINOR is odd in dev release) */
 #if VERSION_MINOR & 1
