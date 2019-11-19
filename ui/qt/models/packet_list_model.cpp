@@ -557,11 +557,8 @@ void PacketListModel::emitItemHeightChanged(const QModelIndex &ih_index)
     }
 }
 
-int PacketListModel::rowCount(const QModelIndex &parent) const
+int PacketListModel::rowCount(const QModelIndex &) const
 {
-    if (parent.column() >= prefs.num_cols)
-        return 0;
-
     return visible_rows_.count();
 }
 
