@@ -71,8 +71,10 @@ BrandingText "Wireshark${U+00ae} Installer"
 !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\NEWS.txt"
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "Show News"
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
-!define MUI_FINISHPAGE_RUN "$INSTDIR\${PROGRAM_NAME_PATH}"
-!define MUI_FINISHPAGE_RUN_NOTCHECKED
+; NSIS runs as Administrator and will run Wireshark as Administrator
+; if these are enabled.
+;!define MUI_FINISHPAGE_RUN "$INSTDIR\${PROGRAM_NAME_PATH}"
+;!define MUI_FINISHPAGE_RUN_NOTCHECKED
 
 !define MUI_PAGE_CUSTOMFUNCTION_SHOW myShowCallback
 
