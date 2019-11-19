@@ -7606,13 +7606,16 @@ add_timestamp_to_info_col(tvbuff_t *tvb, packet_info *pinfo, smb2_info_t *si,
 			  int offset)
 {
 	guint32 filetime_high, filetime_low;
+	guint64 ft;
 	nstime_t ts;
 
 	filetime_low = tvb_get_letohl(tvb, offset);
 	filetime_high = tvb_get_letohl(tvb, offset + 4);
 
-	ts.secs = filetime_low;
-	ts.nsecs = filetime_high;
+	ft = ((guint64)filetime_high << 32) | filetime_low;
+	if (!filetime_to_nstime(&ts, ft)) {
+		return;
+	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "@%s",
             abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_UTC,
