@@ -469,6 +469,26 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
             multiSelect = false;
             row = selectionModel()->selectedIndexes().at(0).row();
         }
+
+        /* Handling empty selection */
+        if (selectionModel()->selectedIndexes().count() <= 0)
+        {
+            /* Nothing selected, but multiSelect is still active */
+            if (multiSelect)
+            {
+                multiSelect = false;
+                if (currentIndex().isValid())
+                {
+                    selectionModel()->select(currentIndex(), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows );
+                    return;
+                }
+            }
+            /* Nothing selected, so in WS <= 3.0 nothing was indicated as well */
+            else if (currentIndex().isValid())
+            {
+                setCurrentIndex(QModelIndex());
+            }
+        }
     }
 
     if (row < 0)
