@@ -122,13 +122,14 @@ File Server Remote VSS Protocol (FSRVP)
 FTDI FT USB Bridging Devices (FTDI FT)
 Graylog Extended Log Format over UDP (GELF)
 GSM/3GPP CBSP (Cell Broadcast Service Protocol)
+Linux net_dm (network drop monitor) protocol
 MIDI System Exclusive DigiTech (SYSEX DigiTech)
 Network Controller Sideband Interface (NCSI)
 NR Positioning Protocol A (NRPPa) TS 38.455
 NVM Express over Fabrics for TCP (nvme-tcp)
 OsmoTRX Protocol (GSM Transceiver control and data)
 Scalable service-Oriented MiddlewarE over IP (SOME/IP)
-Linux net_dm (network drop monitor) protocol
+USB 2.0 Link Layer (USBLL)
 --
 
 === Updated Protocol Support
