@@ -549,6 +549,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		case GSMTAP_CHANNEL_AGCH:
 		case GSMTAP_CHANNEL_CBCH51:
 		case GSMTAP_CHANNEL_CBCH52:
+		case GSMTAP_CHANNEL_PTCCH:
 			col_set_str(pinfo->cinfo, COL_RES_NET_DST, "Broadcast");
 			break;
 		default:
