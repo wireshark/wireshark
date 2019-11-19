@@ -415,6 +415,10 @@ QList<int> PacketList::selectedRows(bool useFrameNum)
     }
     else if (currentIndex().isValid())
     {
+        //
+        // XXX - will we ever have a current index but not a selection
+        // model?
+        //
         if (! useFrameNum)
             rows << currentIndex().row();
         else
