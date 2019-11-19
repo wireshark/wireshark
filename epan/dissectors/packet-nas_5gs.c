@@ -2489,11 +2489,57 @@ de_nas_5gs_mm_ul_data_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 }
 
 /*
- * 9.11.4    5GS session management (5GSM) information elements
+ * 9.11.3.58 Non-3GPP NW provided policies
+ * See subclause 10.5.5.37 in 3GPP TS 24.008 [12].
  */
 
  /*
- *       9.11.4.1    5GSM capability
+ * 9.11.3.59 EPS bearer context status
+ * See subclause 9.9.2.1 in 3GPP TS 24.301 [15].
+ */
+
+ /*
+ * 9.11.3.60 Extended DRX parameters
+ * See subclause 10.5.5.32 in 3GPP TS 24.008 [12].
+ */
+
+ /*
+ * 9.11.3.61 Mobile station classmark 2
+ * See subclause 10.5.1.6 in 3GPP TS 24.008 [12].
+ */
+
+ /*
+ * 9.11.3.62 Supported codec list
+ * See subclause 10.5.4.32 in 3GPP TS 24.008 [12].
+ */
+
+ /*
+ * 9.11.3.63 MA PDU session information
+*/
+
+/*
+ * 9.11.3.64 CAG information list
+ */
+
+
+/*
+ * 9.11.4    5GS session management (5GSM) information elements
+ */
+
+/*
+ * 9.11.3.65 Control plane service type
+ */
+
+/*
+ * 9.11.4.1 5GSM capability
+ */
+/*
+ * 9.11.3.66 Release assistance indication
+ * See subclause 9.9.4.25 in 3GPP TS 24.301 [15].
+ */
+
+/*
+ * 9.11.3.67 CIoT small data container
  */
 
 static guint16
@@ -3557,6 +3603,7 @@ de_nas_5gs_cmn_eap_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 /* See subclause 10.5.7.4 in 3GPP TS 24.008 */
 
 /* 9.11.2.5    GPRS timer 3*/
+/* See subclause 10.5.7.4a in 3GPP TS 24.008 [12]. */
 
 /* 9.11.2.6     Intra N1 mode NAS transparent container*/
 static guint16
@@ -4239,13 +4286,13 @@ nas_5gs_mm_registration_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     ELEM_OPT_TLV_E(0x72, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PDU_SES_REACT_RES_ERR_C, NULL);
     /*79    LADN information    LADN information     9.11.3.19    O    TLV-E    11-1579*/
     ELEM_OPT_TLV_E(0x79, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_LADN_INF, NULL);
-    /*B-    MICO indication    MICO indication     9.11.3.21    O    TV    1*/
+    /*B-    MICO indication    MICO indication     9.11.3.31    O    TV    1*/
     ELEM_OPT_TV_SHORT(0xb0, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_MICO_IND, NULL);
     /* 9-    Network slicing indication    Network slicing indication 9.11.3.36    O    TV    1 */
     ELEM_OPT_TV_SHORT(0x90, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NW_SLICING_IND, NULL);
     /*27    Service area list    Service area list     9.11.3.47    O    TLV    6-194*/
     ELEM_OPT_TLV(0x27, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_SAL, NULL);
-    /*5E    T3512 value    GPRS timer 3     9.11.3.21    O    TLV    3*/
+    /*5E    T3512 value    GPRS timer 3     9.11.2.5    O    TLV    3*/
     ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3512 value");
     /*5D    Non-3GPP de-registration timer value    GPRS timer 2     9.11.3.20    O    TLV    3*/
     ELEM_OPT_TLV(0x5D, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - Non-3GPP de-registration timer value");
@@ -4563,7 +4610,7 @@ nas_5gs_mm_conf_upd_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /*15    Allowed NSSAI    NSSAI     9.11.3.28    O    TLV    4-74*/
     ELEM_OPT_TLV(0x15, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NSSAI, " - Allowed NSSAI");
     /*27    Service area list    Service area list     9.11.3.39    O    TLV    6-194 */
-    ELEM_OPT_TLV(0x70, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_SAL, NULL);
+    ELEM_OPT_TLV(0x27, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_SAL, NULL);
     /*43    Full name for network    Network name     9.11.3.26    O    TLV    3-n*/
     ELEM_OPT_TLV(0x43, GSM_A_PDU_TYPE_DTAP, DE_NETWORK_NAME, " - Full name for network");
     /*45    Short name for network    Network name     9.11.3.26    O    TLV    3-n*/
@@ -4576,8 +4623,10 @@ nas_5gs_mm_conf_upd_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     ELEM_OPT_TLV(0x49, GSM_A_PDU_TYPE_DTAP, DE_DAY_SAVING_TIME, NULL);
     /*79    LADN information    LADN information     9.11.3.19    O    TLV-E    11-1579*/
     ELEM_OPT_TLV_E(0x79, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_LADN_INF, NULL);
-    /*B-    MICO indication    MICO indication     9.11.3.21    O    TV    1*/
+    /*B-    MICO indication    MICO indication     9.11.3.31    O    TV    1*/
     ELEM_OPT_TV_SHORT(0xB0, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_MICO_IND, NULL);
+    /* 9-    Network slicing indication    Network slicing indication 9.11.3.36    O    TV    1 */
+    ELEM_OPT_TV_SHORT(0x90, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NW_SLICING_IND, NULL);
     /*31    Configured NSSAI    NSSAI     9.11.3.28    O    TLV    4-74*/
     ELEM_OPT_TLV(0x31, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NSSAI, " - Configured NSSAI");
     /*11    Rejected NSSAI     Rejected NSSAI   9.11.3.42   O   TLV   4-42*/
@@ -4586,6 +4635,11 @@ nas_5gs_mm_conf_upd_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     ELEM_OPT_TLV_E(0x76, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_OP_DEF_ACC_CAT_DEF, NULL);
     /* F-    SMS indication    SMS indication 9.10.3.50A    O    TV    1 */
     ELEM_OPT_TV_SHORT(0xF0, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_SMS_IND, NULL);
+    /* 6C    T3447 value    GPRS timer 3 9.11.2.5    O    TLV    3 */
+    ELEM_OPT_TLV(0x6c, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3447");
+    /* 44    CAG information list    CAG information list 9.11.3.64    O    TLV-E    3-n */
+    /* 67    UE radio capability ID    UE radio capability ID 9.11.3.yy    O    TLV    3-n */
+    /* 68    UE radio capability ID deletion indication    UE radio capability ID deletion indication 9.11.3.69    O    TV    1 */
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -5091,7 +5145,7 @@ nas_5gs_sm_pdu_ses_mod_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     /* 5GSM cause    5GSM cause 9.11.4.1    M    V    1 */
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL, ei_nas_5gs_missing_mandatory_elemen);
 
-    /*37    Back-off timer value    GPRS timer 3 9.11.3.21    O    TLV    3 */
+    /*37    Back-off timer value    GPRS timer 3 9.11.2.5    O    TLV    3 */
     ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Back-off timer value");
 
     /*7B    Extended protocol configuration options    Extended protocol configuration options    9.11.4.2    O    TLV - E    4 - 65538*/
@@ -5265,7 +5319,7 @@ nas_5gs_sm_pdu_ses_rel_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     /* 5GSM cause    5GSM cause 9.11.4.2    M    V    1 */
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL, ei_nas_5gs_missing_mandatory_elemen);
 
-    /*37    Back-off timer value    GPRS timer 3 9.11.3.21    O    TLV    3 */
+    /*37    Back-off timer value    GPRS timer 3 9.11.2.5    O    TLV    3 */
     ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Back-off timer value");
 
     /*78    EAP message    EAP message 9.10.2.2    O    TLV - E    7 - 1503*/
