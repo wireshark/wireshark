@@ -48,6 +48,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
     gint appendPacket(frame_data *fdata);
+    frame_data *getRowFdata(QModelIndex idx);
     frame_data *getRowFdata(int row);
     void ensureRowColorized(int row);
     int visibleIndexOf(frame_data *fdata) const;
@@ -66,7 +67,6 @@ public:
     void setDisplayedFrameIgnore(gboolean set);
     void toggleFrameRefTime(const QModelIndex &rt_index);
     void unsetAllFrameRefTime();
-    void applyTimeShift();
 
     void setMaximumRowHeight(int height);
 

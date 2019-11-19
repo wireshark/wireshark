@@ -1603,7 +1603,7 @@ void PacketList::unsetAllTimeReferences()
 
 void PacketList::applyTimeShift()
 {
-    packet_list_model_->applyTimeShift();
+    packet_list_model_->resetColumns();
     redrawVisiblePackets();
     // XXX emit packetDissectionChanged(); ?
 }

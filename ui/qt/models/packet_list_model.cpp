@@ -25,6 +25,7 @@
 #include "frame_tvbuff.h"
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 #include <ui/qt/main_window.h>
 #include <ui/qt/main_status_bar.h>
@@ -177,25 +178,24 @@ void PacketListModel::clear() {
 void PacketListModel::invalidateAllColumnStrings()
 {
     PacketListRecord::invalidateAllRecords();
-    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
-    emit headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
+    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1),
+            QVector<int>() << Qt::DisplayRole);
 }
 
 void PacketListModel::resetColumns()
 {
     if (cap_file_) {
+        emit beginResetModel();
         PacketListRecord::resetColumns(&cap_file_->cinfo);
+        emit endResetModel();
     }
-    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
-    emit headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
 }
 
 void PacketListModel::resetColorized()
 {
-    foreach (PacketListRecord *record, physical_rows_) {
-        record->resetColorized();
-    }
-    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    PacketListRecord::resetColorization();
+    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1),
+            QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole);
 }
 
 void PacketListModel::toggleFrameMark(const QModelIndexList &indeces)
@@ -236,7 +236,8 @@ void PacketListModel::setDisplayedFrameMark(gboolean set)
             cf_unmark_frame(cap_file_, record->frameData());
         }
     }
-    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1),
+            QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole);
 }
 
 void PacketListModel::toggleFrameIgnore(const QModelIndexList &indeces)
@@ -277,7 +278,8 @@ void PacketListModel::setDisplayedFrameIgnore(gboolean set)
             cf_unignore_frame(cap_file_, record->frameData());
         }
     }
-    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1),
+            QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole << Qt::DisplayRole);
 }
 
 void PacketListModel::toggleFrameRefTime(const QModelIndex &rt_index)
@@ -323,12 +325,6 @@ void PacketListModel::unsetAllFrameRefTime()
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
-void PacketListModel::applyTimeShift()
-{
-    resetColumns();
-    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
-}
-
 void PacketListModel::setMaximumRowHeight(int height)
 {
     max_row_height_ = height;
@@ -337,18 +333,6 @@ void PacketListModel::setMaximumRowHeight(int height)
     //  updated when the data changes on that item."
     emit dataChanged(index(0, 0), index(0, columnCount() - 1));
 }
-
-//void PacketListModel::setMonospaceFont(const QFont &mono_font, int row_height)
-//{
-//    QFontMetrics fm(mono_font_);
-//    mono_font_ = mono_font;
-//    row_height_ = row_height;
-//    line_spacing_ = fm.lineSpacing();
-//}
-
-// The Qt MVC documentation suggests using QSortFilterProxyModel for sorting
-// and filtering. That seems like overkill but it might be something we want
-// to do in the future.
 
 int PacketListModel::sort_column_;
 int PacketListModel::sort_column_is_numeric_;
@@ -661,14 +645,9 @@ QVariant PacketListModel::headerData(int section, Qt::Orientation orientation,
     if (orientation == Qt::Horizontal && section < prefs.num_cols) {
         switch (role) {
         case Qt::DisplayRole:
-            return get_column_title(section);
+            return qVariantFromValue(QString(get_column_title(section)));
         case Qt::ToolTipRole:
-        {
-            gchar *tooltip = get_column_tooltip(section);
-            QVariant data(tooltip);
-            g_free (tooltip);
-            return data;
-        }
+            return qVariantFromValue(gchar_free_to_qstring(get_column_tooltip(section)));
         default:
             break;
         }
@@ -755,6 +734,13 @@ gint PacketListModel::appendPacket(frame_data *fdata)
     }
 
     return pos;
+}
+
+frame_data *PacketListModel::getRowFdata(QModelIndex idx)
+{
+    if (!idx.isValid())
+        return Q_NULLPTR;
+    return getRowFdata(idx.row());
 }
 
 frame_data *PacketListModel::getRowFdata(int row) {
