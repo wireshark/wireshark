@@ -28,6 +28,13 @@ class OverlayScrollBar;
 class QAction;
 class QTimerEvent;
 
+//
+// XXX - Wireshark supports up to 2^32-1 packets in a capture, but
+// row numbers in a QAbstractItemModel are ints, not unsigned ints,
+// so we can only have 2^31-1 rows on ILP32, LP64, and LLP64 platforms.
+// Does that mean we're permanently stuck at a maximum of 2^31-1 packets
+// per capture?
+//
 class PacketList : public QTreeView
 {
     Q_OBJECT
