@@ -84,22 +84,6 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     if (qobject_cast<MainWindow *>(wsApp->mainWindow()))
     {
             MainWindow *mw = qobject_cast<MainWindow *>(wsApp->mainWindow());
-            MainStatusBar *ms = qobject_cast<MainStatusBar *>(mw->statusBar());
-
-            if (ms)
-            {
-                connect(this, SIGNAL(pushBusyStatus(QString)),
-                        ms, SLOT(pushBusyStatus(QString)));
-                connect(this, SIGNAL(popBusyStatus()),
-                        ms, SLOT(popBusyStatus()));
-                connect(this, SIGNAL(pushProgressStatus(QString, bool, bool, gboolean*)),
-                        ms, SLOT(pushProgressStatus(QString, bool, bool, gboolean*)));
-                connect(this, SIGNAL(updateProgressStatus(int)),
-                        ms, SLOT(updateProgressStatus(int)));
-                connect(this, SIGNAL(popProgressStatus()),
-                        ms, SLOT(popProgressStatus()));
-            }
-
             QWidget * wtWidget = mw->findChild<WirelessTimeline *>();
             if (wtWidget && qobject_cast<WirelessTimeline *>(wtWidget))
             {
@@ -390,7 +374,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     // something we can interrupt.
     if (!col_title.isEmpty()) {
         QString busy_msg = tr("Sorting \"%1\"").arg(col_title);
-        emit pushBusyStatus(busy_msg);
+        wsApp->pushStatus(WiresharkApplication::BusyStatus, busy_msg);
     }
 
     busy_timer_.start();
@@ -414,7 +398,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     emit endResetModel();
 
     if (!col_title.isEmpty()) {
-        emit popBusyStatus();
+        wsApp->popStatus(WiresharkApplication::BusyStatus);
     }
 
     if (cap_file_->current_frame) {

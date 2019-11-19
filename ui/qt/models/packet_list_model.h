@@ -74,12 +74,6 @@ signals:
     void goToPacket(int);
     void maxLineCountChanged(const QModelIndex &ih_index) const;
     void itemHeightChanged(const QModelIndex &ih_index);
-    void pushBusyStatus(const QString &status);
-    void popBusyStatus();
-
-    void pushProgressStatus(const QString &status, bool animate, bool terminate_is_stop, gboolean *stop_flag);
-    void updateProgressStatus(int value);
-    void popProgressStatus();
 
     void bgColorizationProgress(int first, int last);
 

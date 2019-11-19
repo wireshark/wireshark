@@ -329,9 +329,6 @@ void MainStatusBar::pushGenericStatus(StatusContext status, const QString &messa
 
     if (status == STATUS_CTX_FILTER || status == STATUS_CTX_FILE)
         expertUpdate();
-
-    if (status == STATUS_CTX_PROGRESS)
-        progress_frame_.showBusy(true, false, NULL);
 }
 
 void MainStatusBar::popGenericStatus(StatusContext status)
@@ -344,25 +341,11 @@ void MainStatusBar::popGenericStatus(StatusContext status)
     stack->setToolTip(QString());
 
     stack->popText(status);
-
-    if (status == STATUS_CTX_PROGRESS)
-        progress_frame_.hide();
 }
 
 void MainStatusBar::setProfileName()
 {
     profile_status_.setText(tr("Profile: %1").arg(get_profile_name()));
-}
-
-void MainStatusBar::pushProgressStatus(const QString &message, bool animate, bool terminate_is_stop, gboolean *stop_flag)
-{
-    info_status_.pushText(message, STATUS_CTX_PROGRESS);
-    progress_frame_.showProgress(animate, terminate_is_stop, stop_flag);
-}
-
-void MainStatusBar::updateProgressStatus(int value)
-{
-    progress_frame_.setValue(value);
 }
 
 void MainStatusBar::selectedFrameChanged(int)
