@@ -34,8 +34,8 @@ PacketListRecord::PacketListRecord(frame_data *frameData) :
     lines_(1),
     line_count_changed_(false),
     data_ver_(0),
-    colorized_(false),
     color_ver_(0),
+    colorized_(false),
     conv_index_(0)
 {
 }
