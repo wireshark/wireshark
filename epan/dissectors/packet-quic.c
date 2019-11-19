@@ -1606,7 +1606,7 @@ quic_create_decoders(packet_info *pinfo, quic_info_data_t *quic_info, quic_ciphe
     guint hash_len = gcry_md_get_algo_dlen(quic_info->hash_algo);
     char *secret = (char *)wmem_alloc0(wmem_packet_scope(), hash_len);
 
-    if (!tls13_get_quic_secret(pinfo, from_server, type, hash_len, secret)) {
+    if (!tls13_get_quic_secret(pinfo, from_server, type, hash_len, hash_len, secret)) {
         *error = "Secrets are not available";
         return FALSE;
     }
@@ -1627,7 +1627,7 @@ quic_get_traffic_secret(packet_info *pinfo, int hash_algo, quic_pp_state_t *pp_s
 {
     guint hash_len = gcry_md_get_algo_dlen(hash_algo);
     char *secret = (char *)wmem_alloc0(wmem_packet_scope(), hash_len);
-    if (!tls13_get_quic_secret(pinfo, !from_client, TLS_SECRET_APP, hash_len, secret)) {
+    if (!tls13_get_quic_secret(pinfo, !from_client, TLS_SECRET_APP, hash_len, hash_len, secret)) {
         return FALSE;
     }
     pp_state->next_secret = (guint8 *)wmem_memdup(wmem_file_scope(), secret, hash_len);
@@ -1970,6 +1970,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     }
     /* Prepare the Initial/Handshake cipher for header/payload decryption. */
     if (!PINFO_FD_VISITED(pinfo) && conn && cipher) {
+#define DIGEST_MIN_SIZE 32  /* SHA256 */
 #define DIGEST_MAX_SIZE 48  /* SHA384 */
         const gchar *error = NULL;
         gchar early_data_secret[DIGEST_MAX_SIZE];
@@ -1980,7 +1981,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
              * ID from the *very first* Client Initial packet. */
             quic_create_initial_decoders(&dcid, &error, conn);
         } else if (long_packet_type == QUIC_LPT_0RTT) {
-            early_data_secret_len = tls13_get_quic_secret(pinfo, FALSE, TLS_SECRET_0RTT_APP, DIGEST_MAX_SIZE, early_data_secret);
+            early_data_secret_len = tls13_get_quic_secret(pinfo, FALSE, TLS_SECRET_0RTT_APP, DIGEST_MIN_SIZE, DIGEST_MAX_SIZE, early_data_secret);
             if (early_data_secret_len == 0) {
                 error = "Secrets are not available";
             }

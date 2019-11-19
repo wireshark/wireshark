@@ -3806,11 +3806,11 @@ tls_get_cipher_info(packet_info *pinfo, guint16 cipher_suite, int *cipher_algo, 
 
 /**
  * Load the QUIC traffic secret from the keylog file.
- * Returns the secret length (at most 'secret_size') and the secret into
+ * Returns the secret length (at most 'secret_max_len') and the secret into
  * 'secret' if a secret was found, or zero otherwise.
  */
 gint
-tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, guint secret_len, guint8 *secret_out)
+tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, guint secret_min_len, guint secret_max_len, guint8 *secret_out)
 {
     GHashTable *key_map;
     const char *label;
@@ -3869,19 +3869,15 @@ tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, gui
     }
 
     StringInfo *secret = (StringInfo *)g_hash_table_lookup(key_map, &ssl->client_random);
-    if (!secret || secret->data_len != secret_len) {
-        ssl_debug_printf("%s Cannot find QUIC %s of size %d, found bad size %d!\n",
-                         G_STRFUNC, label, secret_len, secret ? secret->data_len : 0);
+    if (!secret || secret->data_len < secret_min_len || secret->data_len > secret_max_len) {
+        ssl_debug_printf("%s Cannot find QUIC %s of size %d..%d, found bad size %d!\n",
+                         G_STRFUNC, label, secret_min_len, secret_max_len, secret ? secret->data_len : 0);
         return 0;
     }
 
     ssl_debug_printf("%s Retrieved QUIC traffic secret.\n", G_STRFUNC);
     ssl_print_string("Client Random", &ssl->client_random);
     ssl_print_string(label, secret);
-    if (secret->data_len > secret_len) {
-        ssl_debug_printf("%s Output buffer size is too small!\n", G_STRFUNC);
-        return 0;
-    }
     memcpy(secret_out, secret->data, secret->data_len);
     return secret->data_len;
 }

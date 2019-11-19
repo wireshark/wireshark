@@ -46,7 +46,7 @@ tls13_exporter(packet_info *pinfo, gboolean is_early,
                guint context_length, guint key_length, guchar **out);
 
 gint
-tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, guint secret_len, guint8 *secret_out);
+tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, guint secret_min_len, guint secret_max_len, guint8 *secret_out);
 
 /**
  * Returns the application-layer protocol name (ALPN) for the current TLS
