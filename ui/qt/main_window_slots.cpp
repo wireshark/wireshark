@@ -1966,8 +1966,20 @@ void MainWindow::actionEditCopyTriggered(MainWindow::CopySelected selection_type
                 content << entry;
             }
 
-            if (content.count() > 0)
+            if (content.count() > 0) {
                 clip = content.join("\n");
+                //
+                // Each YAML item ends with a newline, so the string
+                // ends with a newline already if it's CopyListAsYAML.
+                // If we add a newline, there'd be an extra blank
+                // line.
+                //
+                // Otherwise, we've used newlines as separators, not
+                // terminators, so there's no final newline.  Add it.
+                //
+                if (selection_type != CopyListAsYAML)
+                    clip += "\n";
+            }
         }
         break;
     }
