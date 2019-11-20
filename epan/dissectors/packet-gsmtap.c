@@ -536,8 +536,8 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		return tvb_captured_length(tvb);
 
 	if (arfcn & GSMTAP_ARFCN_F_UPLINK) {
-		col_append_str(pinfo->cinfo, COL_RES_NET_SRC, "MS");
-		col_append_str(pinfo->cinfo, COL_RES_NET_DST, "BTS");
+		col_set_str(pinfo->cinfo, COL_RES_NET_SRC, "MS");
+		col_set_str(pinfo->cinfo, COL_RES_NET_DST, "BTS");
 		/* p2p_dir is used by the LAPDm dissector */
 		pinfo->p2p_dir = P2P_DIR_SENT;
 	} else {
