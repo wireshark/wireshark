@@ -43,7 +43,6 @@
 TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const char *filter, const QString &table_name) :
     WiresharkDialog(parent, cf),
     ui(new Ui::TrafficTableDialog),
-    cap_file_(cf),
     filter_(filter),
     nanosecond_timestamps_(false)
 {
