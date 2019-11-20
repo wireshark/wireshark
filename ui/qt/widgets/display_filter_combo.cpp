@@ -35,6 +35,11 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     // completion for fields handled by DisplayFilterEdit.
     setCompleter(0);
     setLineEdit(new DisplayFilterEdit(this, DisplayFilterToApply));
+    // When the combobox menu is not entirely populated, pressing Enter would
+    // normally append entries to the end. However, before doing so it moves the
+    // cursor position to the end of the field which breaks the completer.
+    // Therefore disable this and rely on dfilter_combo_add_recent being called.
+    setInsertPolicy(QComboBox::NoInsert);
     // Default is Preferred.
     setSizePolicy(QSizePolicy::MinimumExpanding, sizePolicy().verticalPolicy());
     setAccessibleName(tr("Display filter selector"));
