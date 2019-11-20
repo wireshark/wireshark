@@ -7,9 +7,9 @@
  *
  * Generated automatically by make-packet-dcm.py from the following sources:
  *
- * DICOM PS3.5 2019a - Data Structures and Encoding
- * DICOM PS3.6 2019a - Data Dictionary
- * DICOM PS3.7 2019a - Message Exchange
+ * DICOM PS3.5 2019e - Data Structures and Encoding
+ * DICOM PS3.6 2019e - Data Dictionary
+ * DICOM PS3.7 2019e - Message Exchange
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -341,6 +341,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x0008225A, "Anatomic Structure Space Or Region Modifier Code Sequence (Trial)", "SQ", "1", -1, 0},
     { 0x0008225C, "On Axis Background Anatomic Structure Code Sequence (Trial)", "SQ", "1", -1, 0},
     { 0x00083001, "Alternate Representation Sequence", "SQ", "1", 0, 0},
+    { 0x00083002, "Available Transfer Syntax UID", "UI", "1-n", 0, 0},
     { 0x00083010, "Irradiation Event UID", "UI", "1-n", 0, 0},
     { 0x00083011, "Source Irradiation Event Sequence", "SQ", "1", 0, 0},
     { 0x00083012, "Radiopharmaceutical Administration Event UID", "UI", "1", 0, 0},
@@ -822,6 +823,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00181008, "Gantry ID", "LO", "1", 0, 0},
     { 0x00181009, "Unique Device Identifier", "UT", "1", 0, 0},
     { 0x0018100A, "UDI Sequence", "SQ", "1", 0, 0},
+    { 0x0018100B, "Manufacturer's Device Class UID", "UI", "1-n", 0, 0},
     { 0x00181010, "Secondary Capture Device ID", "LO", "1", 0, 0},
     { 0x00181011, "Hardcopy Creation Device ID", "LO", "1", -1, 0},
     { 0x00181012, "Date of Secondary Capture", "DA", "1", 0, 0},
@@ -989,6 +991,15 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00181622, "Shutter Presentation Value", "US", "1", 0, 0},
     { 0x00181623, "Shutter Overlay Group", "US", "1", 0, 0},
     { 0x00181624, "Shutter Presentation Color CIELab Value", "US", "3", 0, 0},
+    { 0x00181630, "Outline Shape Type", "CS", "1", 0, 0},
+    { 0x00181631, "Outline Left Vertical Edge", "FD", "1", 0, 0},
+    { 0x00181632, "Outline Right Vertical Edge", "FD", "1", 0, 0},
+    { 0x00181633, "Outline Upper Horizontal Edge", "FD", "1", 0, 0},
+    { 0x00181634, "Outline Lower Horizontal Edge", "FD", "1", 0, 0},
+    { 0x00181635, "Center of Circular Outline", "FD", "2", 0, 0},
+    { 0x00181636, "Diameter of Circular Outline", "FD", "1", 0, 0},
+    { 0x00181637, "Number of Polygonal Vertices", "UL", "1", 0, 0},
+    { 0x00181638, "Vertices of the Polygonal Outline", "OF", "1", 0, 0},
     { 0x00181700, "Collimator Shape", "CS", "1-3", 0, 0},
     { 0x00181702, "Collimator Left Vertical Edge", "IS", "1", 0, 0},
     { 0x00181704, "Collimator Right Vertical Edge", "IS", "1", 0, 0},
@@ -1350,8 +1361,8 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00189366, "X-Ray Source Index", "US", "1", 0, 0},
     { 0x00189367, "X-Ray Source ID", "UC", "1", 0, 0},
     { 0x00189368, "Multi-energy Source Technique", "CS", "1", 0, 0},
-    { 0x00189369, "Source Start Date Time", "DT", "1", 0, 0},
-    { 0x0018936A, "Source End Date Time", "DT", "1", 0, 0},
+    { 0x00189369, "Source Start DateTime", "DT", "1", 0, 0},
+    { 0x0018936A, "Source End DateTime", "DT", "1", 0, 0},
     { 0x0018936B, "Switching Phase Number", "US", "1", 0, 0},
     { 0x0018936C, "Switching Phase Nominal Duration", "DS", "1", 0, 0},
     { 0x0018936D, "Switching Phase Transition Duration", "DS", "1", 0, 0},
@@ -2275,6 +2286,18 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00321067, "Reason for Visit Code Sequence", "SQ", "1", 0, 0},
     { 0x00321070, "Requested Contrast Agent", "LO", "1", 0, 0},
     { 0x00324000, "Study Comments", "LT", "1", -1, 0},
+    { 0x00340001, "Flow Identifier Sequence", "SQ", "1", 0, 0},
+    { 0x00340002, "Flow Identifier", "OB", "1", 0, 0},
+    { 0x00340003, "Flow Transfer Syntax UID", "UI", "1", 0, 0},
+    { 0x00340004, "Flow RTP Sampling Rate", "UL", "1", 0, 0},
+    { 0x00340005, "Source Identifier", "OB", "1", 0, 0},
+    { 0x00340007, "Frame Origin Timestamp", "OB", "1", 0, 0},
+    { 0x00340008, "Includes Imaging Subject", "CS", "1", 0, 0},
+    { 0x00340009, "Frame Usefulness Group Sequence", "SQ", "1", 0, 0},
+    { 0x0034000A, "Real-Time Bulk Data Flow Sequence", "SQ", "1", 0, 0},
+    { 0x0034000B, "Camera Position Group Sequence", "SQ", "1", 0, 0},
+    { 0x0034000C, "Includes Information", "CS", "1", 0, 0},
+    { 0x0034000D, "Time of Frame Group Sequence", "SQ", "1", 0, 0},
     { 0x00380004, "Referenced Patient Alias Sequence", "SQ", "1", 0, 0},
     { 0x00380008, "Visit Status ID", "CS", "1", 0, 0},
     { 0x00380010, "Admission ID", "LO", "1", 0, 0},
@@ -2579,7 +2602,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x0040A125, "Report Status ID (Trial)", "CS", "2", -1, 0},
     { 0x0040A130, "Temporal Range Type", "CS", "1", 0, 0},
     { 0x0040A132, "Referenced Sample Positions", "UL", "1-n", 0, 0},
-    { 0x0040A136, "Referenced Frame Numbers", "US", "1-n", 0, 0},
+    { 0x0040A136, "Referenced Frame Numbers", "US", "1-n", -1, 0},
     { 0x0040A138, "Referenced Time Offsets", "DS", "1-n", 0, 0},
     { 0x0040A13A, "Referenced DateTime", "DT", "1-n", 0, 0},
     { 0x0040A160, "Text Value", "UT", "1", 0, 0},
@@ -2667,6 +2690,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00420012, "MIME Type of Encapsulated Document", "LO", "1", 0, 0},
     { 0x00420013, "Source Instance Sequence", "SQ", "1", 0, 0},
     { 0x00420014, "List of MIME Types", "LO", "1-n", 0, 0},
+    { 0x00420015, "Encapsulated Document Length", "UL", "1", 0, 0},
     { 0x00440001, "Product Package Identifier", "ST", "1", 0, 0},
     { 0x00440002, "Substance Administration Approval", "CS", "1", 0, 0},
     { 0x00440003, "Approval Status Further Description", "LT", "1", 0, 0},
@@ -3605,6 +3629,8 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x04000510, "Encrypted Content Transfer Syntax UID", "UI", "1", 0, 0},
     { 0x04000520, "Encrypted Content", "OB", "1", 0, 0},
     { 0x04000550, "Modified Attributes Sequence", "SQ", "1", 0, 0},
+    { 0x04000551, "Nonconforming Modified Attributes Sequence", "SQ", "1", 0, 0},
+    { 0x04000552, "Nonconforming Data Element Value", "OB", "1", 0, 0},
     { 0x04000561, "Original Attributes Sequence", "SQ", "1", 0, 0},
     { 0x04000562, "Attribute Modification DateTime", "DT", "1", 0, 0},
     { 0x04000563, "Modifying System", "LO", "1", 0, 0},
@@ -3836,6 +3862,9 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x300600C4, "Frame of Reference Transformation Type", "CS", "1", -1, 0},
     { 0x300600C6, "Frame of Reference Transformation Matrix", "DS", "16", 0, 0},
     { 0x300600C8, "Frame of Reference Transformation Comment", "LO", "1", 0, 0},
+    { 0x300600C9, "Patient Location Coordinates Sequence", "SQ", "1", 0, 0},
+    { 0x300600CA, "Patient Location Coordinates Code Sequence", "SQ", "1", 0, 0},
+    { 0x300600CB, "Patient Support Position Sequence", "SQ", "1", 0, 0},
     { 0x30080010, "Measured Dose Reference Sequence", "SQ", "1", 0, 0},
     { 0x30080012, "Measured Dose Description", "ST", "1", 0, 0},
     { 0x30080014, "Measured Dose Type", "CS", "1", 0, 0},
@@ -3985,7 +4014,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x300A007A, "Repeat Fraction Cycle Length", "IS", "1", 0, 0},
     { 0x300A007B, "Fraction Pattern", "LT", "1", 0, 0},
     { 0x300A0080, "Number of Beams", "IS", "1", 0, 0},
-    { 0x300A0082, "Beam Dose Specification Point", "DS", "3", 0, 0},
+    { 0x300A0082, "Beam Dose Specification Point", "DS", "3", -1, 0},
     { 0x300A0083, "Referenced Dose Reference UID", "UI", "1", 0, 0},
     { 0x300A0084, "Beam Dose", "DS", "1", 0, 0},
     { 0x300A0086, "Beam Meterset", "DS", "1", 0, 0},
@@ -4305,6 +4334,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x300A0423, "General Accessory Type", "CS", "1", 0, 0},
     { 0x300A0424, "General Accessory Number", "IS", "1", 0, 0},
     { 0x300A0425, "Source to General Accessory Distance", "FL", "1", 0, 0},
+    { 0x300A0426, "Isocenter to General Accessory Distance", "DS", "1", 0, 0},
     { 0x300A0431, "Applicator Geometry Sequence", "SQ", "1", 0, 0},
     { 0x300A0432, "Applicator Aperture Shape", "CS", "1", 0, 0},
     { 0x300A0433, "Applicator Opening", "FL", "1", 0, 0},
@@ -4331,6 +4361,144 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x300A0510, "Delivered Nominal Range Modulated Region Depths", "FL", "2", 0, 0},
     { 0x300A0511, "Delivered Reference Dose Definition", "CS", "1", 0, 0},
     { 0x300A0512, "Reference Dose Definition", "CS", "1", 0, 0},
+    { 0x300A0600, "RT Control Point Index", "US", "1", 0, 0},
+    { 0x300A0601, "Radiation Generation Mode Index", "US", "1", 0, 0},
+    { 0x300A0602, "Referenced Defined Device Index", "US", "1", 0, 0},
+    { 0x300A0603, "Radiation Dose Identification Index", "US", "1", 0, 0},
+    { 0x300A0604, "Number of RT Control Points", "US", "1", 0, 0},
+    { 0x300A0605, "Referenced Radiation Generation Mode Index", "US", "1", 0, 0},
+    { 0x300A0606, "Treatment Position Index", "US", "1", 0, 0},
+    { 0x300A0607, "Referenced Device Index", "US", "1", 0, 0},
+    { 0x300A0608, "Treatment Position Group Label", "LO", "1", 0, 0},
+    { 0x300A0609, "Treatment Position Group UID", "UI", "1", 0, 0},
+    { 0x300A060A, "Treatment Position Group Sequence", "SQ", "1", 0, 0},
+    { 0x300A060B, "Referenced Treatment Position Index", "US", "1", 0, 0},
+    { 0x300A060C, "Referenced Radiation Dose Identification Index", "US", "1", 0, 0},
+    { 0x300A060D, "RT Accessory Holder Water-Equivalent Thickness", "FD", "1", 0, 0},
+    { 0x300A060E, "Referenced RT Accessory Holder Device Index", "US", "1", 0, 0},
+    { 0x300A060F, "RT Accessory Holder Slot Existence Flag", "CS", "1", 0, 0},
+    { 0x300A0610, "RT Accessory Holder Slot Sequence", "SQ", "1", 0, 0},
+    { 0x300A0611, "RT Accessory Holder Slot ID", "LO", "1", 0, 0},
+    { 0x300A0612, "RT Accessory Holder Slot Distance", "FD", "1", 0, 0},
+    { 0x300A0613, "RT Accessory Slot Distance", "FD", "1", 0, 0},
+    { 0x300A0614, "RT Accessory Holder Definition Sequence", "SQ", "1", 0, 0},
+    { 0x300A0615, "RT Accessory Device Slot ID", "LO", "1", 0, 0},
+    { 0x300A0616, "RT Radiation Sequence", "SQ", "1", 0, 0},
+    { 0x300A0617, "Radiation Dose Sequence", "SQ", "1", 0, 0},
+    { 0x300A0618, "Radiation Dose Identification Sequence", "SQ", "1", 0, 0},
+    { 0x300A0619, "Radiation Dose Identification Label", "LO", "1", 0, 0},
+    { 0x300A061A, "Reference Dose Type", "CS", "1", 0, 0},
+    { 0x300A061B, "Primary Dose Value Indicator", "CS", "1", 0, 0},
+    { 0x300A061C, "Dose Values Sequence", "SQ", "1", 0, 0},
+    { 0x300A061D, "Dose Value Purpose", "CS", "1-n", 0, 0},
+    { 0x300A061E, "Reference Dose Point Coordinates", "FD", "3", 0, 0},
+    { 0x300A061F, "Radiation Dose Values Parameters Sequence", "SQ", "1", 0, 0},
+    { 0x300A0620, "Meterset to Dose Mapping Sequence", "SQ", "1", 0, 0},
+    { 0x300A0621, "Expected In-Vivo Measurement Values Sequence", "SQ", "1", 0, 0},
+    { 0x300A0622, "Expected In-Vivo Measurement Value Index", "US", "1", 0, 0},
+    { 0x300A0623, "Radiation Dose In-Vivo Measurement Label", "LO", "1", 0, 0},
+    { 0x300A0624, "Radiation Dose Central Axis Displacement", "FD", "2", 0, 0},
+    { 0x300A0625, "Radiation Dose Value", "FD", "1", 0, 0},
+    { 0x300A0626, "Radiation Dose Source to Skin Distance", "FD", "1", 0, 0},
+    { 0x300A0627, "Radiation Dose Measurement Point Coordinates", "FD", "3", 0, 0},
+    { 0x300A0628, "Radiation Dose Source to External Contour Distance", "FD", "1", 0, 0},
+    { 0x300A0629, "RT Tolerance Set Sequence", "SQ", "1", 0, 0},
+    { 0x300A062A, "RT Tolerance Set Label", "LO", "1", 0, 0},
+    { 0x300A062B, "Attribute Tolerance Values Sequence", "SQ", "1", 0, 0},
+    { 0x300A062C, "Tolerance Value", "FD", "1", 0, 0},
+    { 0x300A062D, "Patient Support Position Tolerance Sequence", "SQ", "1", 0, 0},
+    { 0x300A062E, "Treatment Time Limit", "FD", "1", 0, 0},
+    { 0x300A062F, "C-Arm Photon-Electron Control Point Sequence", "SQ", "1", 0, 0},
+    { 0x300A0630, "Referenced RT Radiation Sequence", "SQ", "1", 0, 0},
+    { 0x300A0631, "Referenced RT Instance Sequence", "SQ", "1", 0, 0},
+    { 0x300A0632, "Referenced RT Patient Setup Sequence", "SQ", "1", 0, 0},
+    { 0x300A0634, "Source to Patient Surface Distance", "FD", "1", 0, 0},
+    { 0x300A0635, "Treatment Machine Special Mode Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0636, "Intended Number of Fractions", "US", "1", 0, 0},
+    { 0x300A0637, "RT Radiation Set Intent", "CS", "1", 0, 0},
+    { 0x300A0638, "RT Radiation Physical and Geometric Content Detail Flag", "CS", "1", 0, 0},
+    { 0x300A0639, "RT Record Flag", "CS", "1", 0, 0},
+    { 0x300A063A, "Treatment Device Identification Sequence", "SQ", "1", 0, 0},
+    { 0x300A063B, "Referenced RT Physician Intent Sequence", "SQ", "1", 0, 0},
+    { 0x300A063C, "Cumulative Meterset", "FD", "1", 0, 0},
+    { 0x300A063D, "Delivery Rate", "FD", "1", 0, 0},
+    { 0x300A063E, "Delivery Rate Unit Sequence", "SQ", "1", 0, 0},
+    { 0x300A063F, "Treatment Position Sequence", "SQ", "1", 0, 0},
+    { 0x300A0640, "Radiation Source-Axis Distance", "FD", "1", 0, 0},
+    { 0x300A0641, "Number of RT Beam Limiting Devices", "US", "1", 0, 0},
+    { 0x300A0642, "RT Beam Limiting Device Proximal Distance", "FD", "1", 0, 0},
+    { 0x300A0643, "RT Beam Limiting Device Distal Distance", "FD", "1", 0, 0},
+    { 0x300A0644, "Parallel RT Beam Delimiter Device Orientation Label Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0645, "Beam Modifier Orientation Angle", "FD", "1", 0, 0},
+    { 0x300A0646, "Fixed RT Beam Delimiter Device Sequence", "SQ", "1", 0, 0},
+    { 0x300A0647, "Parallel RT Beam Delimiter Device Sequence", "SQ", "1", 0, 0},
+    { 0x300A0648, "Number of Parallel RT Beam Delimiters", "US", "1", 0, 0},
+    { 0x300A0649, "Parallel RT Beam Delimiter Boundaries", "FD", "2-n", 0, 0},
+    { 0x300A064A, "Parallel RT Beam Delimiter Positions", "FD", "2-n", 0, 0},
+    { 0x300A064B, "RT Beam Limiting Device Offset", "FD", "2", 0, 0},
+    { 0x300A064C, "RT Beam Delimiter Geometry Sequence", "SQ", "1", 0, 0},
+    { 0x300A064D, "RT Beam Limiting Device Definition Sequence", "SQ", "1", 0, 0},
+    { 0x300A064E, "Parallel RT Beam Delimiter Opening Mode", "CS", "1", 0, 0},
+    { 0x300A064F, "Parallel RT Beam Delimiter Leaf Mounting Side", "CS", "1-n", 0, 0},
+    { 0x300A0650, "Patient Setup UID", "UI", "1", 0, 0},
+    { 0x300A0651, "Wedge Definition Sequence", "SQ", "1", 0, 0},
+    { 0x300A0652, "Radiation Beam Wedge Angle", "FD", "1", 0, 0},
+    { 0x300A0653, "Radiation Beam Wedge Thin Edge Distance", "FD", "1", 0, 0},
+    { 0x300A0654, "Radiation Beam Effective Wedge Angle", "FD", "1", 0, 0},
+    { 0x300A0655, "Number of Wedge Positions", "US", "1", 0, 0},
+    { 0x300A0656, "RT Beam Limiting Device Opening Sequence", "SQ", "1", 0, 0},
+    { 0x300A0657, "Number of RT Beam Limiting Device Openings", "US", "1", 0, 0},
+    { 0x300A0658, "Radiation Dosimeter Unit Sequence", "SQ", "1", 0, 0},
+    { 0x300A0659, "RT Device Distance Reference Location Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A065A, "Radiation Device Configuration and Commissioning Key Sequence", "SQ", "1", 0, 0},
+    { 0x300A065B, "Patient Support Position Parameter Sequence", "SQ", "1", 0, 0},
+    { 0x300A065C, "Patient Support Position Specification Method", "CS", "1", 0, 0},
+    { 0x300A065D, "Patient Support Position Device Parameter Sequence", "SQ", "1", 0, 0},
+    { 0x300A065E, "Device Order Index", "US", "1", 0, 0},
+    { 0x300A065F, "Patient Support Position Parameter Order Index", "US", "1", 0, 0},
+    { 0x300A0660, "Patient Support Position Device Tolerance Sequence", "SQ", "1", 0, 0},
+    { 0x300A0661, "Patient Support Position Tolerance Order Index", "US", "1", 0, 0},
+    { 0x300A0662, "Compensator Definition Sequence", "SQ", "1", 0, 0},
+    { 0x300A0663, "Compensator Map Orientation", "CS", "1", 0, 0},
+    { 0x300A0664, "Compensator Proximal Thickness Map", "OF", "1", 0, 0},
+    { 0x300A0665, "Compensator Distal Thickness Map", "OF", "1", 0, 0},
+    { 0x300A0666, "Compensator Base Plane Offset", "FD", "1", 0, 0},
+    { 0x300A0667, "Compensator Shape Fabrication Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0668, "Compensator Shape Sequence", "SQ", "1", 0, 0},
+    { 0x300A0669, "Radiation Beam Compensator Milling Tool Diameter", "FD", "1", 0, 0},
+    { 0x300A066A, "Block Definition Sequence", "SQ", "1", 0, 0},
+    { 0x300A066B, "Block Edge Data", "OF", "1", 0, 0},
+    { 0x300A066C, "Block Orientation", "CS", "1", 0, 0},
+    { 0x300A066D, "Radiation Beam Block Thickness", "FD", "1", 0, 0},
+    { 0x300A066E, "Radiation Beam Block Slab Thickness", "FD", "1", 0, 0},
+    { 0x300A066F, "Block Edge Data Sequence", "SQ", "1", 0, 0},
+    { 0x300A0670, "Number of RT Accessory Holders", "US", "1", 0, 0},
+    { 0x300A0671, "General Accessory Definition Sequence", "SQ", "1", 0, 0},
+    { 0x300A0672, "Number of General Accessories", "US", "1", 0, 0},
+    { 0x300A0673, "Bolus Definition Sequence", "SQ", "1", 0, 0},
+    { 0x300A0674, "Number of Boluses", "US", "1", 0, 0},
+    { 0x300A0675, "Equipment Frame of Reference UID", "UI", "1", 0, 0},
+    { 0x300A0676, "Equipment Frame of Reference Description", "ST", "1", 0, 0},
+    { 0x300A0677, "Equipment Reference Point Coordinates Sequence", "SQ", "1", 0, 0},
+    { 0x300A0678, "Equipment Reference Point Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0679, "RT Beam Limiting Device Angle", "FD", "1", 0, 0},
+    { 0x300A067A, "Source Roll Angle", "FD", "1", 0, 0},
+    { 0x300A067B, "Radiation GenerationMode Sequence", "SQ", "1", 0, 0},
+    { 0x300A067C, "Radiation GenerationMode Label", "SH", "1", 0, 0},
+    { 0x300A067D, "Radiation GenerationMode Description", "ST", "1", 0, 0},
+    { 0x300A067E, "Radiation GenerationMode Machine Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A067F, "Radiation Type Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0680, "Nominal Energy", "DS", "1", 0, 0},
+    { 0x300A0681, "Minimum Nominal Energy", "DS", "1", 0, 0},
+    { 0x300A0682, "Maximum Nominal Energy", "DS", "1", 0, 0},
+    { 0x300A0683, "Radiation Fluence Modifier Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0684, "Energy Unit Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0685, "Number of Radiation GenerationModes", "US", "1", 0, 0},
+    { 0x300A0686, "Patient Support Devices Sequence", "SQ", "1", 0, 0},
+    { 0x300A0687, "Number of Patient Support Devices", "US", "1", 0, 0},
+    { 0x300A0688, "RT Beam Modifier Definition Distance", "FD", "1", 0, 0},
+    { 0x300A0689, "Beam Area Limit Sequence", "SQ", "1", 0, 0},
+    { 0x300A068A, "Referenced RT Prescription Sequence", "SQ", "1", 0, 0},
     { 0x300C0002, "Referenced RT Plan Sequence", "SQ", "1", 0, 0},
     { 0x300C0004, "Referenced Beam Sequence", "SQ", "1", 0, 0},
     { 0x300C0006, "Referenced Beam Number", "IS", "1", 0, 0},
@@ -4415,6 +4583,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x3010002C, "Segment Annotation Type Code Sequence", "SQ", "1", 0, 0},
     { 0x3010002D, "Device Label", "LO", "1", 0, 0},
     { 0x3010002E, "Device Type Code Sequence", "SQ", "1", 0, 0},
+    { 0x3010002F, "Segment Annotation Type Modifier Code Sequence", "SQ", "1", 0, 0},
     { 0x30100030, "Patient Equipment Relationship Code Sequence", "SQ", "1", 0, 0},
     { 0x30100031, "Referenced Fiducials UID", "UI", "1", 0, 0},
     { 0x30100032, "Patient Treatment Orientation Sequence", "SQ", "1", 0, 0},
@@ -4503,6 +4672,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x30100086, "Intended Start Day of Week", "LT", "1", 0, 0},
     { 0x30100087, "Weekday Fraction Pattern Sequence", "SQ", "1", 0, 0},
     { 0x30100088, "Delivery Time Structure Code Sequence", "SQ", "1", 0, 0},
+    { 0x30100089, "Treatment Site Modifier Code Sequence", "SQ", "1", 0, 0},
     { 0x40000010, "Arbitrary", "LT", "1", -1, 0},
     { 0x40004000, "Text Comments", "LT", "1", -1, 0},
     { 0x40080040, "Results ID", "SH", "1", -1, 0},
@@ -4725,6 +4895,16 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00020016, "Source Application Entity Title", "AE", "1", 0, 0},
     { 0x00020017, "Sending Application Entity Title", "AE", "1", 0, 0},
     { 0x00020018, "Receiving Application Entity Title", "AE", "1", 0, 0},
+    { 0x00020026, "Source Presentation Address", "UR", "1", 0, 0},
+    { 0x00020027, "Sending Presentation Address", "UR", "1", 0, 0},
+    { 0x00020028, "Receiving Presentation Address", "UR", "1", 0, 0},
+    { 0x00020031, "RTV Meta Information Version", "OB", "1", 0, 0},
+    { 0x00020032, "RTV Communication SOP Class UID", "UI", "1", 0, 0},
+    { 0x00020033, "RTV Communication SOP Instance UID", "UI", "1", 0, 0},
+    { 0x00020035, "RTV Source Identifier", "OB", "1", 0, 0},
+    { 0x00020036, "RTV Flow Identifier", "OB", "1", 0, 0},
+    { 0x00020037, "RTV Flow RTP Sampling Rate", "UL", "1", 0, 0},
+    { 0x00020038, "RTV Flow Actual Frame Duration", "FD", "1", 0, 0},
     { 0x00020100, "Private Information Creator UID", "UI", "1", 0, 0},
     { 0x00020102, "Private Information", "OB", "1", 0, 0},
     { 0x00041130, "File-set ID", "CS", "1", 0, 0},
@@ -4816,6 +4996,9 @@ typedef struct dcm_uid {
 #define DCM_UID_TRANSFER_SYNTAX_RLE_LOSSLESS "1.2.840.10008.1.2.5"
 #define DCM_UID_TRANSFER_SYNTAX_RFC_2557_MIME_ENCAPSULATION_RETIRED "1.2.840.10008.1.2.6.1"
 #define DCM_UID_TRANSFER_SYNTAX_XML_ENCODING_RETIRED "1.2.840.10008.1.2.6.2"
+#define DCM_UID_TRANSFER_SYNTAX_SMPTE_ST_2110_20_UNCOMPRESSED_PROGRESSIVE_ACTIVE_VIDEO "1.2.840.10008.1.2.7.1"
+#define DCM_UID_TRANSFER_SYNTAX_SMPTE_ST_2110_20_UNCOMPRESSED_INTERLACED_ACTIVE_VIDEO "1.2.840.10008.1.2.7.2"
+#define DCM_UID_TRANSFER_SYNTAX_SMPTE_ST_2110_30_PCM_DIGITAL_AUDIO "1.2.840.10008.1.2.7.3"
 #define DCM_UID_SOP_CLASS_MEDIA_STORAGE_DIRECTORY_STORAGE "1.2.840.10008.1.3.10"
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_TALAIRACH_BRAIN_ATLAS_FRAME_OF_REFERENCE "1.2.840.10008.1.4.1.1"
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SPM2_T1_FRAME_OF_REFERENCE "1.2.840.10008.1.4.1.2"
@@ -4837,6 +5020,7 @@ typedef struct dcm_uid {
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SPM2_SINGLESUBJT1_FRAME_OF_REFERENCE "1.2.840.10008.1.4.1.18"
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_ICBM_452_T1_FRAME_OF_REFERENCE "1.2.840.10008.1.4.2.1"
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_ICBM_SINGLE_SUBJECT_MRI_FRAME_OF_REFERENCE "1.2.840.10008.1.4.2.2"
+#define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_IEC_61217_FIXED_COORDINATE_SYSTEM_FRAME_OF_REFERENCE "1.2.840.10008.1.4.3.1"
 #define DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_IRON_COLOR_PALETTE_SOP_INSTANCE "1.2.840.10008.1.5.1"
 #define DCM_UID_WELL_KNOWN_SOP_INSTANCE_PET_COLOR_PALETTE_SOP_INSTANCE "1.2.840.10008.1.5.2"
 #define DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_METAL_BLUE_COLOR_PALETTE_SOP_INSTANCE "1.2.840.10008.1.5.3"
@@ -5063,6 +5247,8 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_RT_ION_BEAMS_TREATMENT_RECORD_STORAGE "1.2.840.10008.5.1.4.1.1.481.9"
 #define DCM_UID_SOP_CLASS_RT_PHYSICIAN_INTENT_STORAGE "1.2.840.10008.5.1.4.1.1.481.10"
 #define DCM_UID_SOP_CLASS_RT_SEGMENT_ANNOTATION_STORAGE "1.2.840.10008.5.1.4.1.1.481.11"
+#define DCM_UID_SOP_CLASS_RT_RADIATION_SET_STORAGE "1.2.840.10008.5.1.4.1.1.481.12"
+#define DCM_UID_SOP_CLASS_C_ARM_PHOTON_ELECTRON_RADIATION_STORAGE "1.2.840.10008.5.1.4.1.1.481.13"
 #define DCM_UID_SOP_CLASS_DICOS_CT_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.501.1"
 #define DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PRESENTATION "1.2.840.10008.5.1.4.1.1.501.2.1"
 #define DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PROCESSING "1.2.840.10008.5.1.4.1.1.501.2.2"
@@ -5108,6 +5294,7 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_WATCH "1.2.840.10008.5.1.4.34.6.2"
 #define DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_PULL "1.2.840.10008.5.1.4.34.6.3"
 #define DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_EVENT "1.2.840.10008.5.1.4.34.6.4"
+#define DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_QUERY "1.2.840.10008.5.1.4.34.6.5"
 #define DCM_UID_SOP_CLASS_RT_BEAMS_DELIVERY_INSTRUCTION_STORAGE "1.2.840.10008.5.1.4.34.7"
 #define DCM_UID_SOP_CLASS_RT_CONVENTIONAL_MACHINE_VERIFICATION "1.2.840.10008.5.1.4.34.8"
 #define DCM_UID_SOP_CLASS_RT_ION_MACHINE_VERIFICATION "1.2.840.10008.5.1.4.34.9"
@@ -5140,6 +5327,10 @@ typedef struct dcm_uid {
 #define DCM_UID_APPLICATION_HOSTING_MODEL_NATIVE_DICOM_MODEL "1.2.840.10008.7.1.1"
 #define DCM_UID_APPLICATION_HOSTING_MODEL_ABSTRACT_MULTI_DIMENSIONAL_IMAGE_MODEL "1.2.840.10008.7.1.2"
 #define DCM_UID_MAPPING_RESOURCE_DICOM_CONTENT "1.2.840.10008.8.1.1"
+#define DCM_UID_SOP_CLASS_VIDEO_ENDOSCOPIC_IMAGE_REAL_TIME_COMMUNICATION "1.2.840.10008.10.1"
+#define DCM_UID_SOP_CLASS_VIDEO_PHOTOGRAPHIC_IMAGE_REAL_TIME_COMMUNICATION "1.2.840.10008.10.2"
+#define DCM_UID_SOP_CLASS_AUDIO_WAVEFORM_REAL_TIME_COMMUNICATION "1.2.840.10008.10.3"
+#define DCM_UID_SOP_CLASS_RENDITION_SELECTION_DOCUMENT_REAL_TIME_COMMUNICATION "1.2.840.10008.10.4"
 #define DCM_UID_LDAP_OID_DICOMDEVICENAME "1.2.840.10008.15.0.3.1"
 #define DCM_UID_LDAP_OID_DICOMDESCRIPTION "1.2.840.10008.15.0.3.2"
 #define DCM_UID_LDAP_OID_DICOMMANUFACTURER "1.2.840.10008.15.0.3.3"
@@ -5225,6 +5416,9 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_TRANSFER_SYNTAX_RLE_LOSSLESS, "RLE Lossless", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_RFC_2557_MIME_ENCAPSULATION_RETIRED, "RFC 2557 MIME encapsulation (Retired)", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_XML_ENCODING_RETIRED, "XML Encoding (Retired)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_SMPTE_ST_2110_20_UNCOMPRESSED_PROGRESSIVE_ACTIVE_VIDEO, "SMPTE ST 2110-20 Uncompressed Progressive Active Video", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_SMPTE_ST_2110_20_UNCOMPRESSED_INTERLACED_ACTIVE_VIDEO, "SMPTE ST 2110-20 Uncompressed Interlaced Active Video", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_SMPTE_ST_2110_30_PCM_DIGITAL_AUDIO, "SMPTE ST 2110-30 PCM Digital Audio", "Transfer Syntax"},
     { DCM_UID_SOP_CLASS_MEDIA_STORAGE_DIRECTORY_STORAGE, "Media Storage Directory Storage", "SOP Class"},
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_TALAIRACH_BRAIN_ATLAS_FRAME_OF_REFERENCE, "Talairach Brain Atlas Frame of Reference", "Well-known frame of reference"},
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SPM2_T1_FRAME_OF_REFERENCE, "SPM2 T1 Frame of Reference", "Well-known frame of reference"},
@@ -5246,6 +5440,7 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SPM2_SINGLESUBJT1_FRAME_OF_REFERENCE, "SPM2 SINGLESUBJT1 Frame of Reference", "Well-known frame of reference"},
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_ICBM_452_T1_FRAME_OF_REFERENCE, "ICBM 452 T1 Frame of Reference", "Well-known frame of reference"},
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_ICBM_SINGLE_SUBJECT_MRI_FRAME_OF_REFERENCE, "ICBM Single Subject MRI Frame of Reference", "Well-known frame of reference"},
+    { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_IEC_61217_FIXED_COORDINATE_SYSTEM_FRAME_OF_REFERENCE, "IEC 61217 Fixed Coordinate System Frame of Reference", "Well-known frame of reference"},
     { DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_IRON_COLOR_PALETTE_SOP_INSTANCE, "Hot Iron Color Palette SOP Instance", "Well-known SOP Instance"},
     { DCM_UID_WELL_KNOWN_SOP_INSTANCE_PET_COLOR_PALETTE_SOP_INSTANCE, "PET Color Palette SOP Instance", "Well-known SOP Instance"},
     { DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_METAL_BLUE_COLOR_PALETTE_SOP_INSTANCE, "Hot Metal Blue Color Palette SOP Instance", "Well-known SOP Instance"},
@@ -5474,6 +5669,8 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_RT_ION_BEAMS_TREATMENT_RECORD_STORAGE, "RT Ion Beams Treatment Record Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_RT_PHYSICIAN_INTENT_STORAGE, "RT Physician Intent Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_RT_SEGMENT_ANNOTATION_STORAGE, "RT Segment Annotation Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_RT_RADIATION_SET_STORAGE, "RT Radiation Set Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_C_ARM_PHOTON_ELECTRON_RADIATION_STORAGE, "C-Arm Photon-Electron Radiation Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_DICOS_CT_IMAGE_STORAGE, "DICOS CT Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PRESENTATION, "DICOS Digital X-Ray Image Storage - For Presentation", "SOP Class"},
     { DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PROCESSING, "DICOS Digital X-Ray Image Storage - For Processing", "SOP Class"},
@@ -5519,6 +5716,7 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_WATCH, "Unified Procedure Step - Watch SOP Class", "SOP Class"},
     { DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_PULL, "Unified Procedure Step - Pull SOP Class", "SOP Class"},
     { DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_EVENT, "Unified Procedure Step - Event SOP Class", "SOP Class"},
+    { DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_QUERY, "Unified Procedure Step - Query SOP Class", "SOP Class"},
     { DCM_UID_SOP_CLASS_RT_BEAMS_DELIVERY_INSTRUCTION_STORAGE, "RT Beams Delivery Instruction Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_RT_CONVENTIONAL_MACHINE_VERIFICATION, "RT Conventional Machine Verification", "SOP Class"},
     { DCM_UID_SOP_CLASS_RT_ION_MACHINE_VERIFICATION, "RT Ion Machine Verification", "SOP Class"},
@@ -5551,6 +5749,10 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_APPLICATION_HOSTING_MODEL_NATIVE_DICOM_MODEL, "Native DICOM Model", "Application Hosting Model"},
     { DCM_UID_APPLICATION_HOSTING_MODEL_ABSTRACT_MULTI_DIMENSIONAL_IMAGE_MODEL, "Abstract Multi-Dimensional Image Model", "Application Hosting Model"},
     { DCM_UID_MAPPING_RESOURCE_DICOM_CONTENT, "DICOM Content Mapping Resource", "Mapping Resource"},
+    { DCM_UID_SOP_CLASS_VIDEO_ENDOSCOPIC_IMAGE_REAL_TIME_COMMUNICATION, "Video Endoscopic Image Real-Time Communication", "SOP Class"},
+    { DCM_UID_SOP_CLASS_VIDEO_PHOTOGRAPHIC_IMAGE_REAL_TIME_COMMUNICATION, "Video Photographic Image Real-Time Communication", "SOP Class"},
+    { DCM_UID_SOP_CLASS_AUDIO_WAVEFORM_REAL_TIME_COMMUNICATION, "Audio Waveform Real-Time Communication", "SOP Class"},
+    { DCM_UID_SOP_CLASS_RENDITION_SELECTION_DOCUMENT_REAL_TIME_COMMUNICATION, "Rendition Selection Document Real-Time Communication", "SOP Class"},
     { DCM_UID_LDAP_OID_DICOMDEVICENAME, "dicomDeviceName", "LDAP OID"},
     { DCM_UID_LDAP_OID_DICOMDESCRIPTION, "dicomDescription", "LDAP OID"},
     { DCM_UID_LDAP_OID_DICOMMANUFACTURER, "dicomManufacturer", "LDAP OID"},
