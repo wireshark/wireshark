@@ -56,8 +56,8 @@ since version 3.1.0:
 * Action buttons for the display filter bar may be aligned left via the context menu
 ** The "Expression..." toolbar entry has been moved to "menu:Analyze[Display filter Expression ...]" as well as to the context menu of the display filter toolbar
 * Allow extcaps to be loaded from the personal configuration directory
-* The Windows installers now ship with Qt 5.12.6.
-  They previously shipped with Qt 5.12.4.
+* The Wireshark 3.1.0 Windows installers ship with Qt 5.12.6.
+  Previous installers shipped with Qt 5.12.4.
 
 The following features are new (or have been significantly updated)
 since version 3.0.0:
@@ -85,8 +85,8 @@ since version 3.0.0:
 * Protobuf files (*.proto) can now be configured to enable more precise parsing of serialized Protobuf data (such as gRPC).
 * HTTP2 support streaming mode reassembly. To use this feature, subdissectors can register itself to "streaming_content_type" dissector table and return pinfo->desegment_len and pinfo->desegment_offset to tell HTTP2 when to start and how many additional bytes requires when next called.
 * The message of stream gRPC method can now be parsed with supporting of HTTP2 streaming mode reassembly feature.
-* The Windows installers now ship with Qt 5.12.4.
-  They previously shipped with Qt 5.12.1.
+* The Wireshark 3.1.0 Windows installers ship with Qt 5.12.4.
+  Previous installers shipped with Qt 5.12.1.
 
 // === Removed Features and Support
 
@@ -104,8 +104,9 @@ since version 3.0.0:
 [commaize]
 --
 3GPP BICC MST (BICC-MST)
-3GPP/GSM Cell Broadcast Service Protocol (cbsp)
 3GPP log packet (LOG3GPP)
+3GPP/GSM Cell Broadcast Service Protocol (cbsp)
+Asynchronous Management Protocol (AMP)
 Bluetooth Mesh Beacon
 Bluetooth Mesh PB-ADV
 Bluetooth Mesh Provisioning PDU
@@ -123,6 +124,8 @@ File Server Remote VSS Protocol (FSRVP)
 FTDI FT USB Bridging Devices (FTDI FT)
 Graylog Extended Log Format over UDP (GELF)
 GSM/3GPP CBSP (Cell Broadcast Service Protocol)
+ITS message - CAMv1
+ITS message - DENMv1
 Linux net_dm (network drop monitor) protocol
 MIDI System Exclusive DigiTech (SYSEX DigiTech)
 Network Controller Sideband Interface (NCSI)
@@ -131,6 +134,7 @@ NVM Express over Fabrics for TCP (nvme-tcp)
 OsmoTRX Protocol (GSM Transceiver control and data)
 Scalable service-Oriented MiddlewarE over IP (SOME/IP)
 USB 2.0 Link Layer (USBLL)
+Wi-Fi Neighbour Awareness Networking (NAN)
 --
 
 === Updated Protocol Support
@@ -146,6 +150,7 @@ Too many protocols have been updated to list here.
 3gpp phone
 Android Logcat Text
 Ascend
+Busmaster log file
 Candump
 Endace ERF
 NetScaler
