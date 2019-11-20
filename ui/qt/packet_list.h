@@ -88,6 +88,7 @@ public:
     QList<int> selectedRows(bool useFrameNum = false);
 
     QString createSummaryText(QModelIndex idx, SummaryCopyType type);
+    QString createHeaderSummaryText(SummaryCopyType type);
 
 protected:
 
@@ -146,6 +147,7 @@ private:
     void applyRecentColumnWidths();
     void scrollViewChanged(bool at_end);
     void colorsChanged();
+    QString joinSummaryRow(QStringList col_parts, int row, SummaryCopyType type);
 
 signals:
     void packetDissectionChanged();

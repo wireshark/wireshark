@@ -1951,17 +1951,24 @@ void MainWindow::actionEditCopyTriggered(MainWindow::CopySelected selection_type
         {
             QList<int> rows = packet_list_->selectedRows();
             QStringList content;
+
+            PacketList::SummaryCopyType copyType = PacketList::CopyAsText;
+            if (selection_type == CopyListAsCSV)
+                copyType = PacketList::CopyAsCSV;
+            else if (selection_type == CopyListAsYAML)
+                copyType = PacketList::CopyAsYAML;
+
+            if ((copyType == PacketList::CopyAsText) ||
+                (copyType == PacketList::CopyAsCSV)) {
+                QString headerEntry = packet_list_->createHeaderSummaryText(copyType);
+                content << headerEntry;
+            }
             foreach (int row, rows)
             {
                 QModelIndex idx = packet_list_->model()->index(row, 0);
                 if (! idx.isValid())
                     continue;
 
-                PacketList::SummaryCopyType copyType = PacketList::CopyAsText;
-                if (selection_type == CopyListAsCSV)
-                    copyType = PacketList::CopyAsCSV;
-                else if (selection_type == CopyListAsYAML)
-                    copyType = PacketList::CopyAsYAML;
                 QString entry = packet_list_->createSummaryText(idx, copyType);
                 content << entry;
             }

@@ -366,6 +366,30 @@ void PacketList::colorsChanged()
     setStyleSheet(active_style + inactive_style + hover_style);
 }
 
+QString PacketList::joinSummaryRow(QStringList col_parts, int row, SummaryCopyType type)
+{
+    QString copy_text;
+    switch (type) {
+    case CopyAsCSV:
+        copy_text = "\"";
+        copy_text += col_parts.join("\",\"");
+        copy_text += "\"";
+        break;
+    case CopyAsYAML:
+        copy_text = "----\n";
+        copy_text += QString("# Packet %1 from %2\n").arg(row).arg(cap_file_->filename);
+        copy_text += "- ";
+        copy_text += col_parts.join("\n- ");
+        copy_text += "\n";
+        break;
+    case CopyAsText:
+    default:
+        copy_text = col_parts.join("\t");
+    }
+
+    return copy_text;
+}
+
 void PacketList::drawRow (QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QTreeView::drawRow(painter, option, index);
@@ -1751,27 +1775,19 @@ QString PacketList::createSummaryText(QModelIndex idx, SummaryCopyType type)
             col_parts << packet_list_model_->data(packet_list_model_->index(row, col), Qt::DisplayRole).toString();
         }
     }
+    return joinSummaryRow(col_parts, row, type);
+}
 
-    QString copy_text;
-    switch (type) {
-    case CopyAsCSV:
-        copy_text = "\"";
-        copy_text += col_parts.join("\",\"");
-        copy_text += "\"";
-        break;
-    case CopyAsYAML:
-        copy_text = "----\n";
-        copy_text += QString("# Packet %1 from %2\n").arg(row).arg(cap_file_->filename);
-        copy_text += "- ";
-        copy_text += col_parts.join("\n- ");
-        copy_text += "\n";
-        break;
-    case CopyAsText:
-    default:
-        copy_text = col_parts.join("\t");
+QString PacketList::createHeaderSummaryText(SummaryCopyType type)
+{
+    QStringList col_parts;
+    for (int col = 0; col < packet_list_model_->columnCount(); ++col)
+    {
+        if (get_column_visible(col)) {
+            col_parts << packet_list_model_->headerData(col, Qt::Orientation::Horizontal, Qt::DisplayRole).toString();
+        }
     }
-
-    return copy_text;
+    return joinSummaryRow(col_parts, 0, type);
 }
 
 void PacketList::copySummary()
