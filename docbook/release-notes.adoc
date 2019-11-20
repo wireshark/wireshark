@@ -3,7 +3,6 @@ include::attributes.adoc[]
 :linkcss:
 
 = Wireshark {wireshark-version} Release Notes
-// AsciiDoc quick reference: https://powerman.name/doc/asciidoc
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
@@ -27,66 +26,14 @@ section below for more details.
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
-//* Wireshark is solely responsible for the decline of shopping malls in your area.
+//* Wireshark exposed details your sordid redneck past, which were subsequently widely dissemenated on social media.
 
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
-since version 3.1.1:
+since version 3.2.0:
 
-* Nothing of note.
-
-The following features are new (or have been significantly updated)
-since version 3.1.0:
-
-* Automatic updates are supported on macOS.
-* You can now select multiple packets in the packet list at the same time
-** They can be exported as Text by “kbd:[Ctrl+C]” or “kbd:[Cmd+C]” and the corresponding
-  menu in “menu:Edit[Copy > As ...]”
-** They can be marked/unmarked or ignored/unignored at the same time
-** They can be exported and printed using the corresponding menu entries
-  “menu:File[Export Specified Packets]”, “menu:File[Export Packet Dissections]”
-  and “menu:File[Print]”
-* You can now follow HTTP/2 and QUIC streams.
-* You can once again mark and unmark packets using the middle mouse button.
-  This feature went missing around 2009 or so.
-* The Windows packages are now built using Microsoft Visual Studio 2019.
-* IOGraph automatically adds a graph for the selected display filter if no
-  previous graph exists
-* Action buttons for the display filter bar may be aligned left via the context menu
-** The "Expression..." toolbar entry has been moved to "menu:Analyze[Display filter Expression ...]" as well as to the context menu of the display filter toolbar
-* Allow extcaps to be loaded from the personal configuration directory
-* The Wireshark 3.1.0 Windows installers ship with Qt 5.12.6.
-  Previous installers shipped with Qt 5.12.4.
-
-The following features are new (or have been significantly updated)
-since version 3.0.0:
-
-* You can drag and drop a field to a column header to create a column for that field, or to the
-  display filter input to create a display filter.
-  If a display filter is applied, the new filter can be added using the same rules as “Apply Filter”
-* You can drag and drop a column entry to the display filter to create a filter for it.
-* You can import profiles from a .zip archive or an existing directory.
-* Dark mode support on macOS and dark theme support on other platforms
-  has been improved.
-* Brotli decompression support in HTTP/HTTP2 (requires the brotli library).
-* The build system now checks for a SpeexDSP system library installation. The
-  bundled Speex resampler code is still provided as a fallback.
-* WireGuard decryption can now be enabled through keys embedded in a pcapng in
-  addition to the existing key log preference (wsbuglink:15571[]).
-* A new tap for extracting credentials from the capture file has been added.
-  It can be accessed through the `-z credentials` option in tshark or from the
-  “menu:Tools[Credentials]” menu in Wireshark.
-* Editcap can now split files on floating point intervals.
-* Windows .msi packages are now https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-signing-support-requirement-for-windows-and-wsus[signed using SHA-2].
-  .exe installers are still dual-signed using SHA-1 and SHA-2.
-* The “Enabled Protocols” Dialog now only enables, disables and inverts protocols based on the set filter selection. The protocol type (standard or heuristic) may also be choosen as a filter value.
-* The “menu:Analyze[Apply as Filter]” and “menu:Analyze[Prepare a Filter]” packet list and detail popup menus now show a preview of their respective filters.
-* Protobuf files (*.proto) can now be configured to enable more precise parsing of serialized Protobuf data (such as gRPC).
-* HTTP2 support streaming mode reassembly. To use this feature, subdissectors can register itself to "streaming_content_type" dissector table and return pinfo->desegment_len and pinfo->desegment_offset to tell HTTP2 when to start and how many additional bytes requires when next called.
-* The message of stream gRPC method can now be parsed with supporting of HTTP2 streaming mode reassembly feature.
-* The Wireshark 3.1.0 Windows installers ship with Qt 5.12.4.
-  Previous installers shipped with Qt 5.12.1.
+* Windows executables and installers are now https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-signing-support-requirement-for-windows-and-wsus[signed using SHA-2 only].
 
 // === Removed Features and Support
 
@@ -103,38 +50,6 @@ since version 3.0.0:
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-3GPP BICC MST (BICC-MST)
-3GPP log packet (LOG3GPP)
-3GPP/GSM Cell Broadcast Service Protocol (cbsp)
-Asynchronous Management Protocol (AMP)
-Bluetooth Mesh Beacon
-Bluetooth Mesh PB-ADV
-Bluetooth Mesh Provisioning PDU
-Bluetooth Mesh Proxy
-CableLabs Layer-3 Protocol IEEE EtherType 0xb4e3 (CL3)
-DCOM IProvideClassInfo
-DCOM ITypeInfo
-Diagnostic Log and Trace (DLT)
-Distributed Replicated Block Device (DRBD)
-Dual Channel Wi-Fi (CL3DCW)
-EBHSCR Protocol (EBHSCR)
-EERO Protocol (EERO)
-evolved Common Public Radio Interface (eCPRI)
-File Server Remote VSS Protocol (FSRVP)
-FTDI FT USB Bridging Devices (FTDI FT)
-Graylog Extended Log Format over UDP (GELF)
-GSM/3GPP CBSP (Cell Broadcast Service Protocol)
-ITS message - CAMv1
-ITS message - DENMv1
-Linux net_dm (network drop monitor) protocol
-MIDI System Exclusive DigiTech (SYSEX DigiTech)
-Network Controller Sideband Interface (NCSI)
-NR Positioning Protocol A (NRPPa) TS 38.455
-NVM Express over Fabrics for TCP (nvme-tcp)
-OsmoTRX Protocol (GSM Transceiver control and data)
-Scalable service-Oriented MiddlewarE over IP (SOME/IP)
-USB 2.0 Link Layer (USBLL)
-Wi-Fi Neighbour Awareness Networking (NAN)
 --
 
 === Updated Protocol Support
@@ -147,15 +62,6 @@ Too many protocols have been updated to list here.
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
-3gpp phone
-Android Logcat Text
-Ascend
-Busmaster log file
-Candump
-Endace ERF
-NetScaler
-pcapng
-Savvius {asterisk}Peek
 --
 
 // === New and Updated Capture Interfaces support
@@ -197,8 +103,8 @@ found on https://www.wireshark.org/lists/[the web site].
 Bugs and feature requests can be reported on
 https://bugs.wireshark.org/[the bug tracker].
 
-Official Wireshark training and certification are available from
-https://www.wiresharktraining.com/[Wireshark University].
+// Official Wireshark training and certification are available from
+// https://www.wiresharktraining.com/[Wireshark University].
 
 == Frequently Asked Questions
 
