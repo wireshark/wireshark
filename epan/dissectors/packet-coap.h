@@ -388,8 +388,8 @@ coap_common_dissect_t name = {							\
 	    "Option length bad", EXPFILL }					\
 	},									\
 	{ & name .ei.opt_object_security_bad,					\
-	  { prefix ".option_object_security_bad", PI_MALFORMED, PI_WARN,	\
-	    "Invalid Object-Security Option Format", EXPFILL }			\
+	  { prefix ".option_oscore_bad", PI_MALFORMED, PI_WARN,	\
+	    "Invalid OSCORE Option Format", EXPFILL }			\
 	},									\
 
 /* }}} */

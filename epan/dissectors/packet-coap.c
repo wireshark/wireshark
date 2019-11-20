@@ -166,13 +166,13 @@ const value_string coap_vals_observe_options[] = {
 #define COAP_OPT_OBSERVE		6	/* core-observe-16 */
 #define COAP_OPT_URI_PORT		7
 #define COAP_OPT_LOCATION_PATH		8
+#define COAP_OPT_OBJECT_SECURITY	9	/* RFC 8613 */
 #define COAP_OPT_URI_PATH		11
 #define COAP_OPT_CONTENT_TYPE		12
 #define COAP_OPT_MAX_AGE		14
 #define COAP_OPT_URI_QUERY		15
 #define COAP_OPT_ACCEPT			17
 #define COAP_OPT_LOCATION_QUERY		20
-#define COAP_OPT_OBJECT_SECURITY	21	/* value used in OSCORE plugtests */
 #define COAP_OPT_BLOCK2			23	/* RFC 7959 / RFC 8323 */
 #define COAP_OPT_BLOCK1			27	/* RFC 7959 / RFC 8323 */
 #define COAP_OPT_SIZE2			28	/* RFC 7959 */
@@ -187,13 +187,13 @@ static const value_string vals_opt_type[] = {
 	{ COAP_OPT_IF_NONE_MATCH,  "If-None-Match" },
 	{ COAP_OPT_URI_PORT,       "Uri-Port" },
 	{ COAP_OPT_LOCATION_PATH,  "Location-Path" },
+	{ COAP_OPT_OBJECT_SECURITY,"OSCORE" },
 	{ COAP_OPT_URI_PATH,       "Uri-Path" },
 	{ COAP_OPT_CONTENT_TYPE,   "Content-Format" },
 	{ COAP_OPT_MAX_AGE,        "Max-age" },
 	{ COAP_OPT_URI_QUERY,      "Uri-Query" },
 	{ COAP_OPT_ACCEPT,         "Accept" },
 	{ COAP_OPT_LOCATION_QUERY, "Location-Query" },
-	{ COAP_OPT_OBJECT_SECURITY,"Object-Security" },
 	{ COAP_OPT_PROXY_URI,      "Proxy-Uri" },
 	{ COAP_OPT_PROXY_SCHEME,   "Proxy-Scheme" },
 	{ COAP_OPT_SIZE1,          "Size1" },
@@ -215,13 +215,13 @@ struct coap_option_range_t {
 	{ COAP_OPT_IF_NONE_MATCH,   0,   0 },
 	{ COAP_OPT_URI_PORT,        0,   2 },
 	{ COAP_OPT_LOCATION_PATH,   0, 255 },
+	{ COAP_OPT_OBJECT_SECURITY, 0, 255 },
 	{ COAP_OPT_URI_PATH,        0, 255 },
 	{ COAP_OPT_CONTENT_TYPE,    0,   2 },
 	{ COAP_OPT_MAX_AGE,         0,   4 },
 	{ COAP_OPT_URI_QUERY,       1, 255 },
 	{ COAP_OPT_ACCEPT,          0,   2 },
 	{ COAP_OPT_LOCATION_QUERY,  0, 255 },
-	{ COAP_OPT_OBJECT_SECURITY, 0, 255 },
 	{ COAP_OPT_PROXY_URI,       1,1034 },
 	{ COAP_OPT_PROXY_SCHEME,    1, 255 },
 	{ COAP_OPT_SIZE1,           0,   4 },
