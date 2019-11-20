@@ -133,6 +133,7 @@ public:
 
     void insertColumn(QString name, QString abbrev, gint pos = -1);
 
+    bool hasSelection();
     QList<int> selectedRows(bool useFrameNum = false);
     frame_data * frameDataForRow(int row) const;
 

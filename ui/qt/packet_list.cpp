@@ -412,30 +412,28 @@ void PacketList::setProtoTree (ProtoTree *proto_tree) {
 
 bool PacketList::multiSelectActive()
 {
-    return selectedRows().count() > 1 ? true : false;
+    return selectionModel()->selectedRows(0).count() > 1 ? true : false;
 }
 
 QList<int> PacketList::selectedRows(bool useFrameNum)
 {
     QList<int> rows;
-    if (selectionModel() && selectionModel()->selectedIndexes().count() > 0)
+    if (selectionModel() && selectionModel()->hasSelection())
     {
-        foreach (QModelIndex idx, selectionModel()->selectedIndexes())
+        foreach (QModelIndex idx, selectionModel()->selectedRows(0))
         {
             if (idx.isValid())
             {
-                if (! useFrameNum && ! rows.contains(idx.row()))
+                if (! useFrameNum)
                     rows << idx.row();
                 else if (useFrameNum)
                 {
                     frame_data * frame = getFDataForRow(idx.row());
-                    if (frame && ! rows.contains(frame->num))
+                    if (frame)
                         rows << frame->num;
                 }
             }
         }
-
-        std::sort(rows.begin(), rows.end(), std::less<int>());
     }
     else if (currentIndex().isValid())
     {
@@ -467,12 +465,13 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 
     if (selectionModel())
     {
-        if (selectionModel()->selectedRows(0).count() > 1)
+        QModelIndexList selRows = selectionModel()->selectedRows(0);
+        if (selRows.count() > 1)
         {
             QList<int> rows;
-            foreach (QModelIndex idx, selectionModel()->selectedRows(0))
+            foreach (QModelIndex idx, selRows)
             {
-                if (idx.isValid() && ! rows.contains(idx.row()))
+                if (idx.isValid())
                     rows << idx.row();
             }
 
@@ -492,14 +491,14 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 
             return;
         }
-        else if (selectionModel()->selectedIndexes().count() > 0 && selectionModel()->selectedIndexes().at(0).isValid())
+        else if (selRows.count() > 0 && selRows.at(0).isValid())
         {
             multiSelect = false;
-            row = selectionModel()->selectedIndexes().at(0).row();
+            row = selRows.at(0).row();
         }
 
         /* Handling empty selection */
-        if (selectionModel()->selectedIndexes().count() <= 0)
+        if (selRows.count() <= 0)
         {
             /* Nothing selected, but multiSelect is still active */
             if (multiSelect)
@@ -872,10 +871,11 @@ void PacketList::keyPressEvent(QKeyEvent *event)
     if (event->matches(QKeySequence::Copy))
     {
         QStringList content;
-        if (model() && selectionModel() && selectionModel()->selectedRows(0).count() > 0)
+        if (model() && selectionModel() && selectionModel()->hasSelection())
         {
             QList<int> rows;
-            foreach(QModelIndex row, selectionModel()->selectedRows(0))
+            QModelIndexList selRows = selectionModel()->selectedRows(0);
+            foreach(QModelIndex row, selRows)
                 rows.append(row.row());
 
             foreach(int row, rows)
@@ -1546,12 +1546,13 @@ void PacketList::markFrame()
 
     QModelIndexList frames;
 
-    if (selectionModel() && selectionModel()->selectedRows(0).count() > 1)
+    if (selectionModel() && selectionModel()->hasSelection())
     {
         QList<int> rows;
-        foreach (QModelIndex idx, selectionModel()->selectedRows(0))
+        QModelIndexList selRows = selectionModel()->selectedRows(0);
+        foreach (QModelIndex idx, selRows)
         {
-            if (idx.isValid() && ! rows.contains(idx.row()))
+            if (idx.isValid())
             {
                 frames << idx;
                 rows << idx.row();
@@ -1581,12 +1582,12 @@ void PacketList::ignoreFrame()
 
     QModelIndexList frames;
 
-    if (selectionModel() && selectionModel()->selectedRows(0).count() > 1)
+    if (selectionModel() && selectionModel()->hasSelection())
     {
         QList<int> rows;
         foreach (QModelIndex idx, selectionModel()->selectedRows(0))
         {
-            if (idx.isValid() && ! rows.contains(idx.row()))
+            if (idx.isValid())
             {
                 frames << idx;
                 rows << idx.row();

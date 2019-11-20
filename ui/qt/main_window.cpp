@@ -2889,6 +2889,13 @@ void MainWindow::setMwFileName(QString fileName)
     return;
 }
 
+bool MainWindow::hasSelection()
+{
+    if (packet_list_)
+        return packet_list_->multiSelectActive();
+    return false;
+}
+
 QList<int> MainWindow::selectedRows(bool useFrameNum)
 {
     if (packet_list_)

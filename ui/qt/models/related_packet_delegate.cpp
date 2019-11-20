@@ -45,7 +45,7 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     if (wsApp && wsApp->mainWindow())
     {
         MainWindow * mw = qobject_cast<MainWindow *>(wsApp->mainWindow());
-        if (mw && mw->selectedRows().count() > 1)
+        if (mw && mw->hasSelection())
         {
             QStyledItemDelegate::paint(painter, option, index);
             return;
