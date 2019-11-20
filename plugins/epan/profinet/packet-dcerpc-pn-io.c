@@ -7622,7 +7622,7 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
                 /* Create new conversation, if no "Ident OK" frame as been dissected yet!
                  * Need to switch dl_src & dl_dst, as current packet is sent by controller and not by device.
                  * All conversations are based on Device MAC as addr1 */
-                conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
+                conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_UDP, 0, 0, 0);
             }
 
             /* Try to get apdu status switch information from the conversation */
@@ -10305,8 +10305,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
 
     /* user specified format? */
     if (u16Index < 0x8000) {
-        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u32RecDataLen, "User Specified Data");
-        return offset;
+        return dissect_pn_user_data(tvb, offset, pinfo, tree, u32RecDataLen, "User Specified Data");
     }
 
     /* profidrive parameter access response */
@@ -10492,6 +10491,10 @@ dissect_IPNIO_Read_resp(tvbuff_t *tvb, int offset,
     pnio_ar_t *ar            = NULL;
 
     offset = dissect_IPNIO_resp_header(tvb, offset, pinfo, tree, di, drep);
+
+    /* When PNIOStatus is Error */
+    if (!tvb_captured_length_remaining(tvb, offset))
+        return offset;
 
     /* IODReadHeader */
     offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
