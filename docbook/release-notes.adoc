@@ -54,6 +54,7 @@ since version 3.1.0:
 * IOGraph automatically adds a graph for the selected display filter if no
   previous graph exists
 * Action buttons for the display filter bar may be aligned left via the context menu
+** The "Expression..." toolbar entry has been moved to "menu:Analyze[Display filter Expression ...]" as well as to the context menu of the display filter toolbar
 * Allow extcaps to be loaded from the personal configuration directory
 * The Windows installers now ship with Qt 5.12.6.
   They previously shipped with Qt 5.12.4.
