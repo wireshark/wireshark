@@ -1855,7 +1855,6 @@ void PacketList::drawNearOverlay()
     int o_height = overlay_sb_->height() * dp_ratio;
     int o_rows = qMin(packet_list_model_->rowCount(), o_height);
     int o_width = (wsApp->fontMetrics().height() * 2 * dp_ratio) + 2; // 2ems + 1-pixel border on either side.
-    int selected_pos = -1;
 
     if (recent.packet_list_colorize && o_rows > 0) {
         QImage overlay(o_width, o_height, QImage::Format_ARGB32_Premultiplied);
@@ -1891,18 +1890,44 @@ void PacketList::drawNearOverlay()
 
         // If the selected packet is in the overlay set selected_pos
         // accordingly. Otherwise, pin it to either the top or bottom.
+        QList<int> positions;
         if (selectionModel()->hasSelection()) {
-            int sel_row = selectionModel()->currentIndex().row();
-            if (sel_row < start) {
-                selected_pos = 0;
-            } else if (sel_row >= end) {
-                selected_pos = overlay.height() - 1;
-            } else {
-                selected_pos = (sel_row - start) * o_height / o_rows;
+
+            QModelIndexList selRows = selectionModel()->selectedRows(0);
+            int last_row = -1;
+            int last_pos = -1;
+            foreach (QModelIndex idx, selRows)
+            {
+                int selected_pos = -1;
+                int sel_row = idx.row();
+                if (sel_row < start) {
+                    selected_pos = 0;
+                } else if (sel_row >= end) {
+                    selected_pos = overlay.height() - 1;
+                } else {
+                    selected_pos = (sel_row - start) * o_height / o_rows;
+                }
+
+                    /* Due to the difference in the display height, we sometimes get empty positions
+                     * inbetween consecutive valid rows. If those are detected, they are signaled as
+                     * being selected as well */
+                if (last_pos >= 0 && selected_pos > (last_pos + 1) && (last_row + 1) == sel_row)
+                {
+                    for (int pos = (last_pos + 1); pos < selected_pos; pos++)
+                    {
+                        if (! positions.contains(pos))
+                            positions << pos;
+                    }
+                }
+                else if (selected_pos != -1 && ! positions.contains(selected_pos))
+                    positions << selected_pos;
+
+                last_row = sel_row;
+                last_pos = selected_pos;
             }
         }
 
-        overlay_sb_->setNearOverlayImage(overlay, packet_list_model_->rowCount(), start, end, selected_pos);
+        overlay_sb_->setNearOverlayImage(overlay, packet_list_model_->rowCount(), start, end, positions);
     } else {
         QImage overlay;
         overlay_sb_->setNearOverlayImage(overlay);
