@@ -442,11 +442,13 @@ dissect_sacch_l1h(tvbuff_t *tvb, proto_tree *tree)
  *   +---+----------+---+----------+-----+---+-----------+------------------+
  */
 static void
-dissect_ptcch_dl(tvbuff_t *tvb, proto_tree *tree)
+dissect_ptcch_dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *sub_tree;
 	proto_item *ti, *gi;
 	int offset;
+
+	col_set_str(pinfo->cinfo, COL_INFO, "Packet Timing Advance Control");
 
 	if (!tree)
 		return;
@@ -686,7 +688,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		case GSMTAP_CHANNEL_PTCCH:
 			/* PTCCH/D carries Timing Advance updates encoded with CS-1 */
 			if (pinfo->p2p_dir == P2P_DIR_RECV) {
-				dissect_ptcch_dl(payload_tvb, tree);
+				dissect_ptcch_dl(payload_tvb, pinfo, tree);
 				return tvb_captured_length(tvb);
 			}
 
