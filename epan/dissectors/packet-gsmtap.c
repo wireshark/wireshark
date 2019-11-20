@@ -481,7 +481,7 @@ handle_lapdm(guint8 sub_type, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static void
-handle_tetra(int channel _U_, tvbuff_t *payload_tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+handle_tetra(int channel, tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int tetra_chan;
 	if (channel < 0 || channel > GSMTAP_TETRA_TCH_F)
