@@ -226,7 +226,7 @@ typedef struct quic_cipher {
  */
 typedef struct quic_pp_state {
     guint8         *next_secret;    /**< Next application traffic secret. */
-    quic_cipher     cipher[2];      /**< Cipher for KEY_PHASE 0/1 */
+    quic_cipher     cipher[2];      /**< Cipher for Key Phase 0/1 */
     guint64         changed_in_pkn; /**< Packet number where key change occurred. */
     gboolean        key_phase : 1;  /**< Current key phase. */
 } quic_pp_state_t;
@@ -452,6 +452,7 @@ static const range_string quic_transport_error_code_vals[] = {
     { 0x0008, 0x0008, "TRANSPORT_PARAMETER_ERROR" },
     { 0x000A, 0x000A, "PROTOCOL_VIOLATION" },
     { 0x000D, 0x000D, "CRYPTO_BUFFER_EXCEEDED" },
+    { 0x000E, 0x000E, "KEY_UPDATE_ERROR" },
     { 0x0100, 0x01FF, "CRYPTO_ERROR" },
     /* 0x40 - 0x3fff Assigned via Specification Required policy. */
     { 0, 0, NULL }
@@ -1663,11 +1664,12 @@ quic_cipher_init(quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *
  * Updates the packet protection secret to the next one.
  */
 static void
-quic_update_key(int hash_algo, quic_pp_state_t *pp_state)
+quic_update_key(guint32 version, int hash_algo, quic_pp_state_t *pp_state)
 {
     guint hash_len = gcry_md_get_algo_dlen(hash_algo);
+    const char *label = is_quic_draft_max(version, 23) ? "traffic upd" : "quic ku";
     gboolean ret = quic_hkdf_expand_label(hash_algo, pp_state->next_secret, hash_len,
-                                          "traffic upd", pp_state->next_secret, hash_len);
+                                          label, pp_state->next_secret, hash_len);
     /* This must always succeed as our hash algorithm was already validated. */
     DISSECTOR_ASSERT(ret);
 }
@@ -1706,7 +1708,7 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
             return NULL;
         }
 
-        // Create initial cipher handles for KEY_PHASE 0 using the 1-RTT keys.
+        // Create initial cipher handles for Key Phase 0 using the 1-RTT keys.
         if (!quic_cipher_prepare(&client_pp->cipher[0], quic_info->hash_algo,
                                  quic_info->cipher_algo, quic_info->cipher_mode, client_pp->next_secret, &error) ||
             !quic_cipher_prepare(&server_pp->cipher[0], quic_info->hash_algo,
@@ -1715,8 +1717,8 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
             return NULL;
         }
         // Rotate the 1-RTT key for the client and server for the next key update.
-        quic_update_key(quic_info->hash_algo, client_pp);
-        quic_update_key(quic_info->hash_algo, server_pp);
+        quic_update_key(quic_info->version, quic_info->hash_algo, client_pp);
+        quic_update_key(quic_info->version, quic_info->hash_algo, server_pp);
     }
 
     // Note: Header Protect cipher does not change after Key Update.
@@ -1767,7 +1769,7 @@ quic_get_pp_cipher(gboolean key_phase, quic_info_data_t *quic_info, gboolean fro
             /* Verified the cipher, use it from now on and rotate the key. */
             quic_cipher_reset(&pp_state->cipher[key_phase]);
             pp_state->cipher[key_phase] = new_cipher;
-            quic_update_key(quic_info->hash_algo, pp_state);
+            quic_update_key(quic_info->version, quic_info->hash_algo, pp_state);
 
             pp_state->key_phase = key_phase;
             //pp_state->changed_in_pkn = pkn;
