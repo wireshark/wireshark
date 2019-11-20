@@ -1311,7 +1311,7 @@
   </action>
   <action name="actionCopyListAsText">
    <property name="text">
-    <string>As Plain &amp;Text…</string>
+    <string>As Plain &amp;Text</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+C</string>
@@ -1319,12 +1319,12 @@
   </action>
   <action name="actionCopyListAsCSV">
    <property name="text">
-    <string>As &amp;CSV…</string>
+    <string>As &amp;CSV</string>
    </property>
   </action>
   <action name="actionCopyListAsYAML">
    <property name="text">
-    <string>As &amp;YAML…</string>
+    <string>As &amp;YAML</string>
    </property>
   </action>
   <action name="actionCopyAllVisibleItems">
