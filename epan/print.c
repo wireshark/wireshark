@@ -1721,7 +1721,6 @@ get_field_data(GSList *src_list, field_info *fi)
             return tvb_get_ptr(src_tvb, fi->start, length);
         }
     }
-    g_assert_not_reached();
     return NULL;  /* not found */
 }
 
