@@ -596,7 +596,7 @@ void ProtoTree::itemDoubleClicked(const QModelIndex &index) {
         if (QApplication::queryKeyboardModifiers() & Qt::ShiftModifier) {
             emit openPacketInNewWindow(true);
         } else {
-            emit goToPacket(finfo.fieldInfo()->value.value.uinteger);
+            wsApp->gotoFrame(finfo.fieldInfo()->value.value.uinteger);
         }
     } else {
         QString url = finfo.url();

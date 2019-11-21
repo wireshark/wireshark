@@ -141,6 +141,8 @@ public:
     void pushStatus(StatusInfo sinfo, const QString &message, const QString &messagetip = QString());
     void popStatus(StatusInfo sinfo);
 
+    void gotoFrame(int frameNum);
+
 private:
     bool initialized_;
     bool is_reloading_lua_;

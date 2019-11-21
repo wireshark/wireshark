@@ -1441,7 +1441,16 @@ void WiresharkApplication::popStatus(StatusInfo status)
     }
 }
 
-/*
+void WiresharkApplication::gotoFrame(int frame)
+{
+    if (! mainWindow() || ! qobject_cast<MainWindow *>(mainWindow()))
+        return;
+
+    MainWindow * mw = qobject_cast<MainWindow *>(mainWindow());
+    mw->gotoFrame(frame);
+}
+
+ /*
  * Editor modelines
  *
  * Local Variables:
