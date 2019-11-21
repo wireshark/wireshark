@@ -59,7 +59,7 @@ void ByteViewTab::connectToMainWindow()
             wsApp->mainWindow(), SIGNAL(fieldHighlight(FieldInformation *)));
 
     /* Connect change of packet selection */
-    connect(wsApp->mainWindow(), SIGNAL(frameSelected(int)), this, SLOT(selectedFrameChanged(int)));
+    connect(wsApp->mainWindow(), SIGNAL(framesSelected(QList<int>)), this, SLOT(selectedFrameChanged(QList<int>)));
     connect(wsApp->mainWindow(), SIGNAL(setCaptureFile(capture_file*)), this, SLOT(setCaptureFile(capture_file*)));
     connect(wsApp->mainWindow(), SIGNAL(fieldSelected(FieldInformation *)), this, SLOT(selectedFieldChanged(FieldInformation *)));
 
@@ -77,7 +77,7 @@ void ByteViewTab::captureActive(int cap)
             tvbuff_t * stored = VariantPointer<tvbuff_t>::asPtr(bvt->property(tvb_data_property));
 
             if (! stored)
-                selectedFrameChanged(-1);
+                selectedFrameChanged(QList<int>());
         }
     }
 }
@@ -227,7 +227,7 @@ void ByteViewTab::setTabsVisible() {
         tabBar()->hide();
 }
 
-void ByteViewTab::selectedFrameChanged(int frameNum)
+void ByteViewTab::selectedFrameChanged(QList<int> frames)
 {
     clear();
     qDeleteAll(findChildren<ByteViewText *>());
@@ -246,7 +246,8 @@ void ByteViewTab::selectedFrameChanged(int frameNum)
         }
     }
 
-    if (frameNum >= 0)
+    /* only show the bytes for single selections */
+    if (frames.count() == 1)
     {
         if (! cap_file_ || ! cap_file_->edt)
             return;
@@ -340,7 +341,7 @@ void ByteViewTab::highlightedFieldChanged(FieldInformation *highlighted)
 
 void ByteViewTab::setCaptureFile(capture_file *cf)
 {
-    selectedFrameChanged(-1);
+    selectedFrameChanged(QList<int>());
 
     cap_file_ = cf;
 }

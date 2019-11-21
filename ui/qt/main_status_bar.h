@@ -81,7 +81,7 @@ public slots:
     void setCaptureFile(capture_file *cf);
     void selectedFieldChanged(FieldInformation *);
     void highlightedFieldChanged(FieldInformation *);
-    void selectedFrameChanged(int);
+    void selectedFrameChanged(QList<int>);
 
     void updateCaptureStatistics(capture_session * cap_session);
     void updateCaptureFixedStatistics(capture_session * cap_session);
@@ -89,6 +89,7 @@ public slots:
     void captureEventHandler(CaptureEvent ev);
 
 private slots:
+    void appInitialized();
     void toggleBackground(bool enabled);
     void setProfileName();
     void switchToProfile();

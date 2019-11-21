@@ -157,7 +157,6 @@ signals:
     void showProtocolPreferences(const QString module_name);
     void editProtocolPreference(struct preference *pref, struct pref_module *module);
 
-    void frameSelected(int frameNum);
     void framesSelected(QList<int>);
     void fieldSelected(FieldInformation *);
 

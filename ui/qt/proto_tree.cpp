@@ -14,6 +14,9 @@
 
 #include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
+#include <epan/epan.h>
+#include <epan/epan_dissect.h>
+#include <cfile.h>
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
@@ -111,8 +114,8 @@ void ProtoTree::connectToMainWindow()
     {
         connect(wsApp->mainWindow(), SIGNAL(fieldSelected(FieldInformation *)),
                 this, SLOT(selectedFieldChanged(FieldInformation *)));
-        connect(wsApp->mainWindow(), SIGNAL(frameSelected(int)),
-                this, SLOT(selectedFrameChanged(int)));
+        connect(wsApp->mainWindow(), SIGNAL(framesSelected(QList<int>)),
+                this, SLOT(selectedFrameChanged(QList<int>)));
     }
 }
 
@@ -603,10 +606,14 @@ void ProtoTree::itemDoubleClicked(const QModelIndex &index) {
     }
 }
 
-void ProtoTree::selectedFrameChanged(int frameNum)
+void ProtoTree::selectedFrameChanged(QList<int> frames)
 {
-    if (frameNum < 0)
+    clear();
+
+    if (frames.count() != 1)
         proto_tree_model_->setRootNode(Q_NULLPTR);
+    else if (cap_file_ && cap_file_->edt && cap_file_->edt->tree)
+        proto_tree_model_->setRootNode(cap_file_->edt->tree);
 }
 
 // Select a field and bring it into view. Intended to be called by external

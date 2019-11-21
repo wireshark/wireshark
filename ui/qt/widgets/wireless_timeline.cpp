@@ -175,7 +175,7 @@ void WirelessTimeline::clip_tsf()
 }
 
 
-void WirelessTimeline::selectedFrameChanged(int)
+void WirelessTimeline::selectedFrameChanged(QList<int>)
 {
     if (isHidden())
         return;
@@ -278,13 +278,15 @@ void WirelessTimeline::captureFileReadFinished()
     zoom_level = 0;
 
     show();
-    selectedFrameChanged(0);
+    selectedFrameChanged(QList<int>());
     // TODO: show or ungrey the toolbar controls
     update();
 }
 
 void WirelessTimeline::appInitialized()
 {
+    connect(wsApp->mainWindow(), SIGNAL(framesSelected(QList<int>)), this, SLOT(selectedFrameChanged(QList<int>)));
+
     GString *error_string;
     error_string = register_tap_listener("wlan_radio_timeline", this, NULL, TL_REQUIRES_NOTHING, tap_timeline_reset, tap_timeline_packet, NULL/*tap_draw_cb tap_draw*/, NULL);
     if (error_string) {

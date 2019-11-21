@@ -167,7 +167,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
 #endif
 
     connect(wsApp, SIGNAL(appInitialized()), splitter, SLOT(show()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(setProfileName()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
     connect(&info_status_, SIGNAL(toggleTemporaryFlash(bool)),
             this, SLOT(toggleBackground(bool)));
     connect(wsApp, SIGNAL(profileNameChanged(const gchar *)),
@@ -348,7 +348,13 @@ void MainStatusBar::setProfileName()
     profile_status_.setText(tr("Profile: %1").arg(get_profile_name()));
 }
 
-void MainStatusBar::selectedFrameChanged(int)
+void MainStatusBar::appInitialized()
+{
+    setProfileName();
+    connect(wsApp->mainWindow(), SIGNAL(framesSelected(QList<int>)), this, SLOT(selectedFrameChanged(QList<int>)));
+}
+
+void MainStatusBar::selectedFrameChanged(QList<int>)
 {
     showCaptureStatistics();
 }

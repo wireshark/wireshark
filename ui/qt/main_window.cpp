@@ -464,12 +464,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     packet_list_ = new PacketList(&master_split_);
     main_ui_->wirelessTimelineWidget->setPacketList(packet_list_);
-    connect(packet_list_, SIGNAL(frameSelected(int)),
-            this, SIGNAL(frameSelected(int)));
-    connect(packet_list_, SIGNAL(framesSelected(QList<int>)),
-            this, SLOT(framesSelected(QList<int>)));
-    connect(this, SIGNAL(frameSelected(int)),
-            this, SLOT(setMenusForSelectedPacket()));
+    connect(packet_list_, SIGNAL(framesSelected(QList<int>)), this, SLOT(setMenusForSelectedPacket()));
+    connect(packet_list_, SIGNAL(framesSelected(QList<int>)), this, SIGNAL(framesSelected(QList<int>)));
 
     proto_tree_ = new ProtoTree(&master_split_);
     proto_tree_->installEventFilter(this);
@@ -562,10 +558,6 @@ MainWindow::MainWindow(QWidget *parent) :
             packet_list_, SLOT(setCaptureFile(capture_file*)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             proto_tree_, SLOT(setCaptureFile(capture_file*)));
-    connect(this, SIGNAL(frameSelected(int)),
-            main_ui_->wirelessTimelineWidget, SLOT(selectedFrameChanged(int)));
-    connect(this, SIGNAL(frameSelected(int)),
-            main_ui_->statusBar, SLOT(selectedFrameChanged(int)));
 
     connect(wsApp, SIGNAL(zoomMonospaceFont(QFont)),
             packet_list_, SLOT(setMonospaceFont(QFont)));
@@ -594,8 +586,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->actionViewCollapseAll, SIGNAL(triggered()),
             proto_tree_, SLOT(collapseAll()));
 
-    connect(packet_list_, SIGNAL(frameSelected(int)),
-            this, SIGNAL(frameSelected(int)));
     connect(packet_list_, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()));
     connect(packet_list_, SIGNAL(showColumnPreferences(QString)),

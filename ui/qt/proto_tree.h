@@ -95,7 +95,7 @@ public slots:
     void collapseAll();
     void itemDoubleClicked(const QModelIndex & index);
     void selectedFieldChanged(FieldInformation *);
-    void selectedFrameChanged(int);
+    void selectedFrameChanged(QList<int>);
 
 protected slots:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);

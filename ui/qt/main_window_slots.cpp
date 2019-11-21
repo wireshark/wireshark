@@ -3946,11 +3946,6 @@ void MainWindow::activatePluginIFToolbar(bool)
     }
 }
 
-void MainWindow::framesSelected(QList<int> /* frames */)
-{
-    setMenusForSelectedPacket();
-}
-
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif

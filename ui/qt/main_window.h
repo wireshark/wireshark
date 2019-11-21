@@ -298,7 +298,8 @@ signals:
     void fieldSelected(FieldInformation *);
     void fieldHighlight(FieldInformation *);
 
-    void frameSelected(int);
+    void framesSelected(QList<int>);
+
     void captureActive(int);
 
 public slots:
@@ -325,8 +326,6 @@ public slots:
 
     void showWelcome();
     void showCapture();
-
-    void framesSelected(QList<int>);
 
     void setTitlebarForCaptureFile();
     void setWSWindowTitle(QString title = QString());

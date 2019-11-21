@@ -475,7 +475,6 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
                     rows << idx.row();
             }
 
-            emit frameSelected(-1);
             emit framesSelected(rows);
             emit fieldSelected(0);
             cf_unselect_packet(cap_file_);
@@ -531,9 +530,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     in_history_ = false;
 
     related_packet_delegate_.clear();
-    if (proto_tree_) proto_tree_->clear();
 
-    emit frameSelected(row);
     emit framesSelected(QList<int>() << row);
 
     if (!cap_file_->edt) {
@@ -542,10 +539,9 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
         return;
     }
 
-    if (proto_tree_ && cap_file_->edt->tree) {
+    if (cap_file_->edt->tree) {
         packet_info *pi = &cap_file_->edt->pi;
         related_packet_delegate_.setCurrentFrame(pi->num);
-        proto_tree_->setRootNode(cap_file_->edt->tree);
         conversation_t *conv = find_conversation_pinfo(pi, 0);
         if (conv) {
             related_packet_delegate_.setConversation(conv);
@@ -1172,7 +1168,9 @@ void PacketList::freeze()
     // It looks like GTK+ sends a cursor-changed signal at this point but Qt doesn't
     // call selectionChanged.
     related_packet_delegate_.clear();
-    proto_tree_->clear();
+
+    /* Clears packet list as well as byteview */
+    emit framesSelected(QList<int>());
 }
 
 void PacketList::thaw(bool restore_selection)
@@ -1185,10 +1183,12 @@ void PacketList::thaw(bool restore_selection)
     // resized the columns manually since they were initially loaded.
     header()->restoreState(column_state_);
 
-    if (restore_selection && frozen_row_ > -1) {
-        // This updates our selection, which redissects the current packet,
-        // which is needed when we're called from MainWindow::layoutPanes.
-        setCurrentIndex(packet_list_model_->index(frozen_row_, 0));
+    if (restore_selection && frozen_row_ > -1 && selectionModel()) {
+        /* This updates our selection, which redissects the current packet,
+         * which is needed when we're called from MainWindow::layoutPanes.
+         * Also, this resets all ProtoTree and ByteView data */
+        QModelIndex restored = packet_list_model_->index(frozen_row_, 0);
+        selectionModel()->select(restored, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     }
     frozen_row_ = -1;
 }
