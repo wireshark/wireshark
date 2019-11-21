@@ -2790,10 +2790,9 @@ void MainWindow::applyExportObject()
         return;
 
     ExportObjectDialog* export_dialog = new ExportObjectDialog(*this, capture_file_, export_action->exportObject());
-
-    connect(export_dialog->getExportObjectView(), SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
-
+    export_dialog->setWindowModality(Qt::ApplicationModal);
+    export_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    export_dialog->show();
 }
 
 void MainWindow::on_actionAnalyzeEnabledProtocols_triggered()

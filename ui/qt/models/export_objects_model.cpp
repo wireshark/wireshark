@@ -267,6 +267,46 @@ bool ExportObjectProxyModel::lessThan(const QModelIndex &source_left, const QMod
     return QSortFilterProxyModel::lessThan(source_left, source_right);
 }
 
+void ExportObjectProxyModel::setContentFilterString(QString filter_)
+{
+    contentFilter_ = filter_;
+    invalidateFilter();
+}
+
+void ExportObjectProxyModel::setTextFilterString(QString filter_)
+{
+    textFilter_ = filter_;
+    invalidateFilter();
+}
+
+bool ExportObjectProxyModel::filterAcceptsRow(int source_row, const QModelIndex &/*source_parent*/) const
+{
+    if (contentFilter_.length() > 0)
+    {
+        QModelIndex idx = sourceModel()->index(source_row, ExportObjectModel::colContent);
+        if (!idx.isValid())
+            return false;
+
+        if (contentFilter_.compare(idx.data().toString()) != 0)
+            return false;
+    }
+
+    if (textFilter_.length() > 0)
+    {
+        QModelIndex hostIdx = sourceModel()->index(source_row, ExportObjectModel::colHostname);
+        QModelIndex fileIdx = sourceModel()->index(source_row, ExportObjectModel::colFilename);
+        if (!hostIdx.isValid() || !fileIdx.isValid())
+            return false;
+
+        QString host = hostIdx.data().toString();
+        QString file = fileIdx.data().toString();
+
+        if (!host.contains(textFilter_) && !file.contains(textFilter_))
+            return false;
+    }
+
+    return true;
+}
 
 
 /* * Editor modelines

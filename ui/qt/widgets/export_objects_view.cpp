@@ -17,11 +17,7 @@ ExportObjectsTreeView::ExportObjectsTreeView(QWidget *parent) : QTreeView(parent
 
 void ExportObjectsTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    if (current.isValid())
-    {
-        int packetNum = model()->data(model()->index(current.row(), ExportObjectModel::colPacket)).toInt();
-        emit goToPacket(packetNum);
-    }
+    emit currentIndexChanged(current);
 
     QTreeView::currentChanged(current, previous);
 }
