@@ -6175,7 +6175,6 @@ static const value_string nas_5gs_mm_message_type_vals[] = {
     { 0x4e,    "Service accept"},
     { 0x4f,    "Control plane service request"},
 
-    { 0x4f,    "Not used in current version" },
     { 0x50,    "Not used in current version" },
     { 0x51,    "Not used in current version" },
     { 0x52,    "Not used in current version" },
@@ -6228,9 +6227,8 @@ static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     nas_5gs_mm_service_req,                     /* 0x4c    Service request */
     nas_5gs_mm_service_rej,                     /* 0x4d    Service reject */
     nas_5gs_mm_service_acc,                     /* 0x4e    Service accept */
-    nas_5gs_mm_control_plane_service_req,       /* 0x4e    Service accept */
+    nas_5gs_mm_control_plane_service_req,       /* 0x4f    Control plane service request */
 
-    nas_5gs_exp_not_dissected_yet,              /* 0x4f    Not used in current version */
     nas_5gs_exp_not_dissected_yet,              /* 0x50    Not used in current version */
     nas_5gs_exp_not_dissected_yet,              /* 0x51    Not used in current version */
     nas_5gs_exp_not_dissected_yet,              /* 0x52    Not used in current version */
