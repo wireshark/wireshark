@@ -1160,7 +1160,6 @@ void MainWindow::setMenusForSelectedPacket()
             << main_ui_->actionViewColorizeConversation9 << main_ui_->actionViewColorizeConversation10;
 
     if (capture_file_.capFile()) {
-
         QList<int> rows = selectedRows();
         frame_data * current_frame = 0;
         if (rows.count() > 0)
@@ -1209,8 +1208,12 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionEditNextMark->setEnabled(another_is_marked);
     main_ui_->actionEditPreviousMark->setEnabled(another_is_marked);
 
-    main_ui_->actionEditPacketComment->setEnabled(frame_selected && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET));
-    main_ui_->actionDeleteAllPacketComments->setEnabled((capture_file_.capFile() != NULL) && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET));
+    GArray * linkTypes = Q_NULLPTR;
+    if (capture_file_.capFile() && capture_file_.capFile()->linktypes)
+        linkTypes = capture_file_.capFile()->linktypes;
+
+    main_ui_->actionEditPacketComment->setEnabled(frame_selected && linkTypes && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET));
+    main_ui_->actionDeleteAllPacketComments->setEnabled(linkTypes && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET));
 
     main_ui_->actionEditIgnorePacket->setEnabled(frame_selected || multi_selection);
     main_ui_->actionEditIgnoreAllDisplayed->setEnabled(have_filtered);
