@@ -34,6 +34,7 @@ The following features are new (or have been significantly updated)
 since version 3.2.0:
 
 * Windows executables and installers are now https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-signing-support-requirement-for-windows-and-wsus[signed using SHA-2 only].
+* Save RTP stream to .au supports any codec with 8000 Hz rate supported by Wireshark (shown in RTP player). If save of audio is not possible (unsupported codec or rate), silence of same length is saved and warning is shown.
 
 // === Removed Features and Support
 
