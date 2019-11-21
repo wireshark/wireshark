@@ -82,6 +82,13 @@ private:
     enum StreamDirection { dir_both_, dir_forward_, dir_reverse_ };
     enum SyncType { sync_unsync_, sync_sync_stream_, sync_sync_file_ };
 
+    /* Save Audio Errors */
+    bool sae_stopped_;
+    bool sae_file_error_;
+    bool sae_unsupported_codec_;
+    bool sae_unsupported_rate_;
+    bool sae_other_error_;
+
     int num_streams_;
 
     rtpstream_info_t fwd_statinfo_;
@@ -126,19 +133,22 @@ private:
 
     void showPlayer();
 
-    size_t convert_payload_to_samples(unsigned int payload_type, QTemporaryFile *tempfile, guint8 *pd_out, size_t expected_nchars);
-    gboolean saveAudioAUSilence(size_t total_len, QFile *save_file, gboolean *stop_flag);
-    gboolean saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTemporaryFile *tempfile, QFile *save_file, qint64 header_end, gboolean *stop_flag, gboolean interleave, size_t prefix_silence);
-    gboolean saveAudioAUBidir(tap_rtp_stat_t &fwd_statinfo, tap_rtp_stat_t &rev_statinfo, QTemporaryFile *fwd_tempfile, QTemporaryFile *rev_tempfile, QFile *save_file, qint64 header_end, gboolean *stop_flag, size_t prefix_silence_fwd, size_t prefix_silence_rev);
-    gboolean saveAudioAU(StreamDirection direction, QFile *save_file, gboolean *stop_flag, RtpAnalysisDialog::SyncType sync);
-    gboolean saveAudioRAW(StreamDirection direction, QFile *save_file, gboolean *stop_flag);
+    size_t convert_payload_to_samples(unsigned int payload_type, QTemporaryFile *tempfile, uint8_t *pd_out, size_t expected_nchars, struct _GHashTable *decoders_hash);
+    bool saveAudioAUSilence(size_t total_len, QFile *save_file, gboolean *stop_flag);
+    bool saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTemporaryFile *tempfile, QFile *save_file, int64_t header_end, gboolean *stop_flag, gboolean interleave, size_t prefix_silence);
+    bool saveAudioAUBidir(tap_rtp_stat_t &fwd_statinfo, tap_rtp_stat_t &rev_statinfo, QTemporaryFile *fwd_tempfile, QTemporaryFile *rev_tempfile, QFile *save_file, int64_t header_end, gboolean *stop_flag, size_t prefix_silence_fwd, size_t prefix_silence_rev);
+    bool saveAudioAU(StreamDirection direction, QFile *save_file, gboolean *stop_flag, RtpAnalysisDialog::SyncType sync);
+    bool saveAudioRAW(StreamDirection direction, QFile *save_file, gboolean *stop_flag);
     void saveAudio(StreamDirection direction, RtpAnalysisDialog::SyncType sync);
     void saveCsv(StreamDirection direction);
 
-    guint32 processNode(proto_node *ptree_node, header_field_info *hfinformation, const gchar* proto_field, bool *ok);
-    guint32 getIntFromProtoTree(proto_tree *protocol_tree, const gchar *proto_name, const gchar *proto_field, bool *ok);
+    uint32_t processNode(proto_node *ptree_node, header_field_info *hfinformation, const gchar* proto_field, bool *ok);
+    uint32_t getIntFromProtoTree(proto_tree *protocol_tree, const gchar *proto_name, const gchar *proto_field, bool *ok);
 
     bool eventFilter(QObject*, QEvent* event);
+
+    void clearSAEErrors();
+    bool isSAEOK();
 };
 
 #endif // RTP_ANALYSIS_DIALOG_H
