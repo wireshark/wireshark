@@ -109,6 +109,11 @@ static dissector_table_t osmo_dissector_table;
 #define ABISIP_OML	0xff
 #define IPAC_PROTO_EXT_CTRL	0x00
 #define IPAC_PROTO_EXT_MGCP	0x01
+#define IPAC_PROTO_EXT_LAC	0x02
+#define IPAC_PROTO_EXT_SMSC	0x03
+#define IPAC_PROTO_EXT_ORC	0x04
+#define IPAC_PROTO_EXT_GSUP	0x05
+#define IPAC_PROTO_EXT_OAP	0x06
 
 static const value_string ipa_protocol_vals[] = {
 	{ 0x00,		"RSL" },
@@ -152,7 +157,9 @@ static const value_string ipa_osmo_proto_vals[] = {
 	{ 0x01,		"MGCP" },
 	{ 0x02,		"LAC" },
 	{ 0x03,		"SMSC" },
+	{ 0x04,		"ORC" },
 	{ 0x05,		"GSUP" },
+	{ 0x06,		"OAP" },
 	{ 0,		NULL }
 };
 
