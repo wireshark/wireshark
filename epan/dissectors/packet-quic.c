@@ -1346,7 +1346,7 @@ quic_decrypt_message(quic_cipher *cipher, tvbuff_t *head, guint header_length,
     guint8         *header;
     guint8          nonce[TLS13_AEAD_NONCE_LENGTH];
     guint8         *buffer;
-    guint8         *atag[16];
+    guint8          atag[16];
     guint           buffer_length;
     const guchar  **error = &result->error;
 
