@@ -35,8 +35,10 @@
 
 #define ARISTA_TIMESTAMP_SUBTYPE 0x01
 
-#define ARISTA_TIMESTAMP_V1 0x10
-#define ARISTA_TIMESTAMP_V2 0x20
+#define ARISTA_TIMESTAMP_64_TAI 0x10
+#define ARISTA_TIMESTAMP_64_UTC 0x110
+#define ARISTA_TIMESTAMP_48_TAI 0x20
+#define ARISTA_TIMESTAMP_48_UTC 0x120
 
 void proto_reg_handoff_avsp(void);
 void proto_register_avsp(void);
@@ -51,10 +53,12 @@ static gint ett_avsp_ts_64 = -1;
 /* avsp variables */
 static int hf_avsp_sub_type = -1;
 static int hf_avsp_ts_version = -1;
-static int hf_avsp_ts_64 = -1;
+static int hf_avsp_ts_64_tai = -1;
+static int hf_avsp_ts_64_utc = -1;
 static int hf_avsp_ts_64_sec = -1;
 static int hf_avsp_ts_64_ns = -1;
-static int hf_avsp_ts_48 = -1;
+static int hf_avsp_ts_48_tai = -1;
+static int hf_avsp_ts_48_utc = -1;
 static int hf_avsp_ts_48_sec = -1;
 static int hf_avsp_ts_48_ns = -1;
 static int hf_avsp_etype = -1;
@@ -70,8 +74,10 @@ static const value_string arista_subtype[] = {
 };
 
 static const value_string ts_versions[] = {
-    {ARISTA_TIMESTAMP_V1, "Version 1"},
-    {ARISTA_TIMESTAMP_V2, "Version 2"},
+    {ARISTA_TIMESTAMP_64_TAI, "Version 1"},
+    {ARISTA_TIMESTAMP_64_UTC, "Version 11"},
+    {ARISTA_TIMESTAMP_48_TAI, "Version 2"},
+    {ARISTA_TIMESTAMP_48_UTC, "Version 12"},
     {0, NULL}
 };
 
@@ -108,11 +114,11 @@ dissect_avsp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
         offset += 2;
 
         switch (version) {
-        case ARISTA_TIMESTAMP_V1:
-            ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_64, tvb, 0, -1,
+        case ARISTA_TIMESTAMP_64_TAI:
+            ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_64_tai, tvb, 0, -1,
                     ENC_NA);
             avsp_64_tree = proto_item_add_subtree(ti, ett_avsp);
-            col_add_fstr(pinfo->cinfo, COL_INFO, "64bit-v1 timestamp");
+            col_add_fstr(pinfo->cinfo, COL_INFO, "64bit TAI timestamp");
             proto_tree_add_item(avsp_64_tree, hf_avsp_ts_64_sec, tvb, offset,
                 4, ENC_BIG_ENDIAN);
             offset += 4;
@@ -120,11 +126,35 @@ dissect_avsp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
                 4, ENC_BIG_ENDIAN);
             offset += 4;
             break;
-        case ARISTA_TIMESTAMP_V2:
-            ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_48, tvb, 0, -1,
+        case ARISTA_TIMESTAMP_64_UTC:
+            ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_64_utc, tvb, 0, -1,
+                    ENC_NA);
+            avsp_64_tree = proto_item_add_subtree(ti, ett_avsp);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "64bit UTC timestamp");
+            proto_tree_add_item(avsp_64_tree, hf_avsp_ts_64_sec, tvb, offset,
+                4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(avsp_64_tree, hf_avsp_ts_64_ns, tvb, offset,
+                4, ENC_BIG_ENDIAN);
+            offset += 4;
+            break;
+        case ARISTA_TIMESTAMP_48_TAI:
+            ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_48_tai, tvb, 0, -1,
                     ENC_NA);
             avsp_48_tree = proto_item_add_subtree(ti, ett_avsp);
-            col_add_fstr(pinfo->cinfo, COL_INFO, "48bit-v2 timestamp");
+            col_add_fstr(pinfo->cinfo, COL_INFO, "48bit TAI timestamp");
+            proto_tree_add_item(avsp_48_tree, hf_avsp_ts_48_sec, tvb, offset,
+                2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(avsp_48_tree, hf_avsp_ts_48_ns, tvb, offset,
+                4, ENC_BIG_ENDIAN);
+            offset += 4;
+            break;
+        case ARISTA_TIMESTAMP_48_UTC:
+            ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_48_utc, tvb, 0, -1,
+                    ENC_NA);
+            avsp_48_tree = proto_item_add_subtree(ti, ett_avsp);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "48bit UTC timestamp");
             proto_tree_add_item(avsp_48_tree, hf_avsp_ts_48_sec, tvb, offset,
                 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -184,8 +214,14 @@ void proto_register_avsp(void)
                 VALS(ts_versions), 0x0,
                 NULL, HFILL}
         },
-        {&hf_avsp_ts_64,
+        {&hf_avsp_ts_64_tai,
             {"Timestamp (TAI)", "avsp.64ts",
+                FT_NONE, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_avsp_ts_64_utc,
+            {"Timestamp (UTC)", "avsp.64ts",
                 FT_NONE, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL}
@@ -202,8 +238,14 @@ void proto_register_avsp(void)
                 NULL, 0x0,
                 NULL, HFILL}
         },
-        {&hf_avsp_ts_48,
-            {"Timestamp", "avsp.48ts",
+        {&hf_avsp_ts_48_tai,
+            {"Timestamp (TAI)", "avsp.48ts",
+                FT_NONE, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_avsp_ts_48_utc,
+            {"Timestamp (UTC)", "avsp.48ts",
                 FT_NONE, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL}
