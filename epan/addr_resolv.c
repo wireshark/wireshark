@@ -69,13 +69,11 @@
 #include <ws2tcpip.h>
 #endif
 
-#ifdef HAVE_C_ARES
-# ifdef _WIN32
-#  define socklen_t unsigned int
-# endif
-# include <ares.h>
-# include <ares_version.h>
-#endif  /* HAVE_C_ARES */
+#ifdef _WIN32
+# define socklen_t unsigned int
+#endif
+#include <ares.h>
+#include <ares_version.h>
 
 #include <glib.h>
 
@@ -295,10 +293,8 @@ e_addr_resolve gbl_resolv_flags = {
     FALSE,  /* vlan_name */
     FALSE   /* ss7 point code names */
 };
-#ifdef HAVE_C_ARES
 static guint name_resolve_concurrency = 500;
 static gboolean resolve_synchronously = FALSE;
-#endif
 
 /*
  *  Global variables (can be changed in GUI sections)
@@ -320,8 +316,6 @@ gchar *g_enterprises_path = NULL;   /* global enterprises file   */
 gchar *g_penterprises_path = NULL;  /* personal enterprises file */
                                     /* first resolving call   */
 
-/* c-ares */
-#ifdef HAVE_C_ARES
 /*
  * Submitted asynchronous queries trigger a callback (c_ares_ghba_cb()).
  * Queries are added to c_ares_queue_head. During processing, queries are
@@ -607,14 +601,6 @@ c_ares_set_dns_servers(void)
         wmem_free(NULL, servers);
     }
 }
-
-#else
-void
-set_resolution_synchrony(gboolean synchronous _U_)
-{
-    /* Nothing to set. */
-}
-#endif /* HAVE_C_ARES */
 
 typedef struct {
     guint32      mask;
@@ -1033,8 +1019,6 @@ fill_dummy_ip6(hashipv6_t* volatile tp)
     g_strlcpy(tp->name, tp->ip6, MAXNAMELEN);
 }
 
-#ifdef HAVE_C_ARES
-
 static void
 c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
     async_dns_queue_msg_t *caqm = (async_dns_queue_msg_t *)arg;
@@ -1061,7 +1045,6 @@ c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
     }
     wmem_free(wmem_epan_scope(), caqm);
 }
-#endif /* HAVE_C_ARES */
 
 /* --------------- */
 static hashipv4_t *
@@ -1104,7 +1087,6 @@ host_lookup(const guint addr)
     if (gbl_resolv_flags.use_external_net_name_resolver) {
         tp->flags |= TRIED_RESOLVE_ADDRESS;
 
-#ifdef HAVE_C_ARES
         if (async_dns_initialized) {
             /* c-ares is initialized, so we can use it */
             if (resolve_synchronously || name_resolve_concurrency == 0) {
@@ -1128,7 +1110,6 @@ host_lookup(const guint addr)
                 wmem_list_append(async_dns_queue_head, (gpointer) caqm);
             }
         }
-#endif
     }
 
     return tp;
@@ -1181,7 +1162,6 @@ host_lookup6(const ws_in6_addr *addr)
     if (gbl_resolv_flags.use_external_net_name_resolver) {
         tp->flags |= TRIED_RESOLVE_ADDRESS;
 
-#ifdef HAVE_C_ARES
         if (async_dns_initialized) {
             /* c-ares is initialized, so we can use it */
             if (resolve_synchronously || name_resolve_concurrency == 0) {
@@ -1205,7 +1185,6 @@ host_lookup6(const ws_in6_addr *addr)
                 wmem_list_append(async_dns_queue_head, (gpointer) caqm);
             }
         }
-#endif
     }
 
     return tp;
@@ -2787,7 +2766,6 @@ addr_resolve_pref_init(module_t *nameres)
             "Whether address/name pairs found in captured DNS packets should be used by Wireshark for name resolution.",
             &gbl_resolv_flags.dns_pkt_addr_resolution);
 
-#ifdef HAVE_C_ARES
     prefs_register_bool_preference(nameres, "use_external_name_resolver",
             "Use an external network name resolver",
             "Use your system's configured name resolver"
@@ -2835,12 +2813,6 @@ addr_resolve_pref_init(module_t *nameres)
             " your DNS server behave badly.",
             10,
             &name_resolve_concurrency);
-#else
-    prefs_register_static_text_preference(nameres, "use_external_name_resolver",
-            "Use an external network name resolver: N/A",
-            "Support for using a concurrent external name resolver was not"
-            " compiled into this version of Wireshark");
-#endif
 
     prefs_register_bool_preference(nameres, "hosts_file_handling",
             "Only use the profile \"hosts\" file",
@@ -2866,9 +2838,7 @@ addr_resolve_pref_init(module_t *nameres)
 
 void addr_resolve_pref_apply(void)
 {
-#ifdef HAVE_C_ARES
     c_ares_set_dns_servers();
-#endif
 }
 
 void
@@ -2882,7 +2852,6 @@ disable_name_resolution(void) {
     gbl_resolv_flags.ss7pc_name                         = FALSE;
 }
 
-#ifdef HAVE_C_ARES
 gboolean
 host_name_lookup_process(void) {
     async_dns_queue_msg_t *caqm;
@@ -2947,25 +2916,6 @@ _host_name_lookup_cleanup(void) {
 #endif
     async_dns_initialized = FALSE;
 }
-
-#else
-
-gboolean
-host_name_lookup_process(void) {
-    gboolean nro = new_resolved_objects;
-
-    new_resolved_objects = FALSE;
-
-    nro |= maxmind_db_lookup_process();
-
-    return nro;
-}
-
-static void
-_host_name_lookup_cleanup(void) {
-}
-
-#endif /* HAVE_C_ARES */
 
 const gchar *
 get_hostname(const guint addr)
@@ -3100,10 +3050,8 @@ host_name_lookup_init(void)
     g_assert(ipv6_hash_table == NULL);
     ipv6_hash_table = wmem_map_new(wmem_epan_scope(), ipv6_oat_hash, ipv6_equal);
 
-#ifdef HAVE_C_ARES
     g_assert(async_dns_queue_head == NULL);
     async_dns_queue_head = wmem_list_new(wmem_epan_scope());
-#endif
 
     if (manually_resolved_ipv4_list == NULL)
         manually_resolved_ipv4_list = wmem_list_new(wmem_epan_scope());
@@ -3129,7 +3077,6 @@ host_name_lookup_init(void)
         report_open_failure(hostspath, errno, FALSE);
     }
     g_free(hostspath);
-#ifdef HAVE_C_ARES
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
     if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
 #endif
@@ -3140,8 +3087,6 @@ host_name_lookup_init(void)
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
     }
 #endif
-#else
-#endif /* HAVE_C_ARES */
 
     if (extra_hosts_files && !gbl_resolv_flags.load_hosts_file_from_profile_only) {
         for (i = 0; i < extra_hosts_files->len; i++) {
@@ -3476,7 +3421,6 @@ eui64_to_display(wmem_allocator_t *allocator, const guint64 addr_eui64)
     return ret;
 } /* eui64_to_display */
 
-#ifdef HAVE_C_ARES
 #define GHI_TIMEOUT (250 * 1000)
 static void
 c_ares_ghi_cb(void *arg, int status, int timeouts _U_, struct hostent *hp) {
@@ -3490,7 +3434,6 @@ c_ares_ghi_cb(void *arg, int status, int timeouts _U_, struct hostent *hp) {
         ahp->copied = hp->h_length;
     }
 }
-#endif /* HAVE_C_ARES */
 
 /* Translate a string, assumed either to be a dotted-quad IPv4 address or
  * a host name, to a numeric IPv4 address.  Return TRUE if we succeed and
@@ -3498,12 +3441,10 @@ c_ares_ghi_cb(void *arg, int status, int timeouts _U_, struct hostent *hp) {
 gboolean
 get_host_ipaddr(const char *host, guint32 *addrp)
 {
-#ifdef HAVE_C_ARES
     struct timeval tv = { 0, GHI_TIMEOUT }, *tvp;
     int nfds;
     fd_set rfds, wfds;
     async_hostent_t ahe;
-#endif
 
     /*
      * XXX - are there places where this is used to translate something
@@ -3524,7 +3465,6 @@ get_host_ipaddr(const char *host, guint32 *addrp)
             return FALSE;
         }
 
-#ifdef HAVE_C_ARES
         if (!async_dns_initialized || name_resolve_concurrency < 1) {
             return FALSE;
         }
@@ -3550,7 +3490,6 @@ get_host_ipaddr(const char *host, guint32 *addrp)
             return TRUE;
         }
         return FALSE;
-#endif
     }
 
     return TRUE;
@@ -3564,12 +3503,10 @@ get_host_ipaddr(const char *host, guint32 *addrp)
 gboolean
 get_host_ipaddr6(const char *host, ws_in6_addr *addrp)
 {
-#ifdef HAVE_C_ARES
     struct timeval tv = { 0, GHI_TIMEOUT }, *tvp;
     int nfds;
     fd_set rfds, wfds;
     async_hostent_t ahe;
-#endif /* HAVE_C_ARES */
 
     if (str_to_ip6(host, addrp))
         return TRUE;
@@ -3591,7 +3528,6 @@ get_host_ipaddr6(const char *host, ws_in6_addr *addrp)
     }
 
     /* try FQDN */
-#ifdef HAVE_C_ARES
     if (!async_dns_initialized || name_resolve_concurrency < 1) {
         return FALSE;
     }
@@ -3616,7 +3552,6 @@ get_host_ipaddr6(const char *host, ws_in6_addr *addrp)
     if (ahe.addr_size == ahe.copied) {
         return TRUE;
     }
-#endif
 
     return FALSE;
 }

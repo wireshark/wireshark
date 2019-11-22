@@ -56,6 +56,7 @@ BASIC_LIST="libglib2.0-dev \
 	libqt5svg5-dev \
 	qtmultimedia5-dev \
 	qt5-default \
+	libc-ares-dev \
 	libpcap-dev \
 	bison \
 	flex \
@@ -65,7 +66,6 @@ BASIC_LIST="libglib2.0-dev \
 	libgcrypt-dev"
 
 ADDITIONAL_LIST="libnl-3-dev \
-	libc-ares-dev \
 	libkrb5-dev \
 	libsmi2-dev \
 	asciidoctor \

@@ -116,8 +116,8 @@ echo "pkg-config is unavailable"
 
 # c-ares: FreeBSD
 # libcares: OpenBSD
-add_package ADDITIONAL_LIST c-ares ||
-add_package ADDITIONAL_LIST libcares ||
+add_package BASIC_LIST c-ares ||
+add_package BASIC_LIST libcares ||
 echo "c-ares is unavailable"
 
 # rubygem-asciidoctor: FreeBSD

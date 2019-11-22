@@ -50,6 +50,7 @@ BASIC_LIST="cmake \
 	bison \
 	perl \
 	tiff-dev \
+	c-ares-dev \
 	qt5-qtbase-dev \
 	qt5-qttools-dev \
 	qt5-qtmultimedia-dev \
@@ -66,7 +67,6 @@ ADDITIONAL_LIST="
 	libxml2-dev \
 	libmaxminddb-dev \
 	krb5-dev \
-	c-ares-dev \
 	lz4-dev \
 	gnutls-dev \
 	snappy-dev \

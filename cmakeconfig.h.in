@@ -43,9 +43,6 @@
 /* Define to 1 if you have the `bpf_image' function. */
 #cmakedefine HAVE_BPF_IMAGE 1
 
-/* Define to use c-ares library */
-#cmakedefine HAVE_C_ARES 1
-
 /* Define to 1 if you have the <fcntl.h> header file. */
 #cmakedefine HAVE_FCNTL_H 1
 

@@ -1028,6 +1028,9 @@ reset_find_package(GTHREAD2)
 find_package(GTHREAD2 REQUIRED)
 reset_find_package(GCRYPT GCRYPT_ERROR_LIBRARY)
 find_package(GCRYPT "1.4.2" REQUIRED)
+# C Asynchronous resolver
+reset_find_package(CARES)
+find_package(CARES "1.5.0" REQUIRED)
 find_package(LEX REQUIRED)
 find_package(YACC REQUIRED)
 find_package(Perl REQUIRED)
@@ -1118,9 +1121,6 @@ ws_find_package(GNUTLS ENABLE_GNUTLS HAVE_LIBGNUTLS "3.2.0")
 
 # Kerberos
 ws_find_package(KERBEROS ENABLE_KERBEROS HAVE_KERBEROS)
-
-# C Asynchronous resolver
-ws_find_package(CARES ENABLE_CARES HAVE_C_ARES "1.5.0")
 
 # Zlib compression
 ws_find_package(ZLIB ENABLE_ZLIB HAVE_ZLIB)
