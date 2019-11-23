@@ -23337,8 +23337,8 @@ static const true_false_string he_trigger_ul_fec_coding_type_tfs = {
 };
 
 static const value_string preferred_ac_vals[] = {
-  { 0, "AC_BK" },
-  { 1, "AC_BE" },
+  { 0, "AC_BE" },
+  { 1, "AC_BK" },
   { 2, "AC_VI" },
   { 3, "AC_VO" },
   { 0, NULL }
