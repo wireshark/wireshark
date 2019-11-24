@@ -29,11 +29,12 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     QComboBox(parent)
 {
     setEditable(true);
-    // Enabling autocompletion here gives us two simultaneous completions:
-    // Inline (highlighted text) for entire filters, handled here and popup
-    // completion for fields handled by DisplayFilterEdit.
-    setCompleter(0);
     setLineEdit(new DisplayFilterEdit(this, DisplayFilterToApply));
+    // setLineEdit will create a new QCompleter that performs inline completion,
+    // be sure to disable that since our DisplayFilterEdit performs its own
+    // popup completion. As QLineEdit's completer is designed for full line
+    // completion, we cannot reuse it for word completion.
+    setCompleter(0);
     // When the combobox menu is not entirely populated, pressing Enter would
     // normally append entries to the end. However, before doing so it moves the
     // cursor position to the end of the field which breaks the completer.
