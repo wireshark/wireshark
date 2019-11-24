@@ -45,7 +45,7 @@
 #include <wireshark_application.h>
 
 CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString &display_filter) :
-    QFileDialog(parent),
+    WiresharkFileDialog(parent),
     cap_file_(cf),
     display_filter_(display_filter),
 #if !defined(Q_OS_WIN)
@@ -236,7 +236,7 @@ void CaptureFileDialog::accept()
         setFocus();
         fixFilenameExtension();
     }
-    QFileDialog::accept();
+    WiresharkFileDialog::accept();
 }
 #endif // ! Q_OS_WIN
 
@@ -687,7 +687,7 @@ int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
         selectFile(file_name);
     }
 
-    if (QFileDialog::exec() && selectedFiles().length() > 0) {
+    if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
         file_name = selectedFiles()[0];
         type = format_type_.currentIndex();
         display_filter_.append(display_filter_edit_->text());
@@ -718,7 +718,7 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
     }
     connect(this, &QFileDialog::filterSelected, this, &CaptureFileDialog::fixFilenameExtension);
 
-    if (QFileDialog::exec() && selectedFiles().length() > 0) {
+    if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
         file_name = selectedFiles()[0];
         return checkSaveAsWithComments(this, cap_file_, selectedFileType());
     }
@@ -754,7 +754,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     }
     connect(this, &QFileDialog::filterSelected, this, &CaptureFileDialog::fixFilenameExtension);
 
-    if (QFileDialog::exec() && selectedFiles().length() > 0) {
+    if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
         file_name = selectedFiles()[0];
         return checkSaveAsWithComments(this, cap_file_, selectedFileType());
     }
@@ -777,7 +777,7 @@ int CaptureFileDialog::merge(QString &file_name) {
     // Grow the dialog to account for the extra widgets.
     resize(width(), height() + right_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
 
-    if (QFileDialog::exec() && selectedFiles().length() > 0) {
+    if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
         file_name.append(selectedFiles()[0]);
         display_filter_.append(display_filter_edit_->text());
 

@@ -18,16 +18,16 @@
 #include "epan/print.h"
 
 #include "ui/file_dialog.h"
+#include <ui/qt/widgets/wireshark_file_dialog.h>
 
 #ifndef Q_OS_WIN
 #include "packet_range_group_box.h"
 #include "packet_format_group_box.h"
 #endif // Q_OS_WIN
 
-#include <QFileDialog>
 #include <QMap>
 
-class ExportDissectionDialog : public QFileDialog
+class ExportDissectionDialog : public WiresharkFileDialog
 {
     Q_OBJECT
 

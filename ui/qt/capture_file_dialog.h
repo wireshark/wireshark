@@ -10,6 +10,8 @@
 #ifndef CAPTURE_FILE_DIALOG_H
 #define CAPTURE_FILE_DIALOG_H
 
+#include <ui/qt/widgets/wireshark_file_dialog.h>
+
 #ifndef Q_OS_WIN
 #include <ui/qt/widgets/display_filter_edit.h>
 #include "packet_range_group_box.h"
@@ -23,7 +25,6 @@
 
 #include "ui/file_dialog.h"
 
-#include <QFileDialog>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QRadioButton>
@@ -31,7 +32,7 @@
 #include <QDialogButtonBox>
 #include <QComboBox>
 
-class CaptureFileDialog : public QFileDialog
+class CaptureFileDialog : public WiresharkFileDialog
 {
     // The GTK+ Open Capture File dialog has the following elements and features:
     //   - The ability to select a capture file from a list of known extensions

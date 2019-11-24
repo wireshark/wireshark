@@ -47,7 +47,7 @@ static const QStringList export_extensions = QStringList()
 #endif
 
 ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *cap_file, export_type_e export_type, QString selRange):
-    QFileDialog(parent),
+    WiresharkFileDialog(parent),
     export_type_(export_type),
     cap_file_(cap_file)
 #if !defined(Q_OS_WIN)
@@ -159,7 +159,7 @@ void ExportDissectionDialog::show()
 {
 #if !defined(Q_OS_WIN)
     if (cap_file_) {
-        QFileDialog::show();
+        WiresharkFileDialog::show();
     }
 #else // Q_OS_WIN
     win32_export_file((HWND)parentWidget()->effectiveWinId(), cap_file_, export_type_);
