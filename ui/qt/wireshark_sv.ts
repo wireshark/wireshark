@@ -5929,6 +5929,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Paket: %1 %4 Visat: %2 (%3 %)</translation>
     </message>
     <message>
+        <source> %1 Selected: %2 (%3%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1 Marked: %2 (%3%)</source>
         <oldsource> %1 Dropped: %2</oldsource>
         <translation> %1 markerade: %2 (%3 %)</translation>
@@ -6542,11 +6546,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>&amp;Mark/Unmark Packet</source>
-        <translation>&amp;Markera/avmarkera paket</translation>
+        <translation type="vanished">&amp;Markera/avmarkera paket</translation>
     </message>
     <message>
         <source>Mark or unmark this packet</source>
-        <translation>Markera eller avmarkera detta paket</translation>
+        <translation type="vanished">Markera eller avmarkera detta paket</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6578,11 +6582,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>&amp;Ignore/Unignore Packet</source>
-        <translation>&amp;Ignorera/avignorera paket</translation>
+        <translation type="vanished">&amp;Ignorera/avignorera paket</translation>
     </message>
     <message>
         <source>Ignore or unignore this packet</source>
-        <translation>Ignorera eller avignorera detta paket</translation>
+        <translation type="vanished">Ignorera eller avignorera detta paket</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -7129,6 +7133,18 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Som vanlig &amp;text …</translation>
     </message>
     <message>
+        <source>As Plain &amp;Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;YAML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All Visible Items</source>
         <translation>Alla synliga objekt</translation>
     </message>
@@ -7151,6 +7167,22 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Find Pre&amp;vious</source>
         <translation>Sök f&amp;öregående</translation>
+    </message>
+    <message>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mark or unmark each selected packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignore or unignore each selected packet</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Time Shift…</source>
@@ -10229,12 +10261,40 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Kan inte synkronisera när endast en kanal är vald</translation>
     </message>
     <message>
+        <source>None of channels was selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward and reverse stream audio</source>
         <translation>Spara framåt och omvänd strömsaudio</translation>
     </message>
     <message>
         <source>Raw (*.raw)</source>
         <translation>Rå (*.raw)</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save was interrupted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save or read of file was failed during saving</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec is not supported, file is incomplete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec rate is not supported, file is incomplete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown error occured</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
@@ -10322,11 +10382,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation>Kan endast spara ljud med 8000 Hz klockhastighet</translation>
+        <translation type="vanished">Kan endast spara ljud med 8000 Hz klockhastighet</translation>
     </message>
     <message>
         <source>Can save audio with PCM u-law or A-law encoding only</source>
-        <translation>Kan endast spara ljud med kodningen PCM u-law eller A-law</translation>
+        <translation type="vanished">Kan endast spara ljud med kodningen PCM u-law eller A-law</translation>
     </message>
     <message>
         <source>Error</source>

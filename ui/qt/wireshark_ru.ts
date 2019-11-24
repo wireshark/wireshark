@@ -5947,6 +5947,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Пакеты: %1 %4 Показаны: %2 (%3%)</translation>
     </message>
     <message>
+        <source> %1 Selected: %2 (%3%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1 Marked: %2 (%3%)</source>
         <oldsource> %1 Dropped: %2</oldsource>
         <translation> %1 Помечены: %2 (%3%)</translation>
@@ -6561,11 +6565,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Mark/Unmark Packet</source>
-        <translation>&amp;Выполнить/Отменить Пометку Пакета</translation>
+        <translation type="vanished">&amp;Выполнить/Отменить Пометку Пакета</translation>
     </message>
     <message>
         <source>Mark or unmark this packet</source>
-        <translation>Пометить этот пакет или отменить пометку</translation>
+        <translation type="vanished">Пометить этот пакет или отменить пометку</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6597,11 +6601,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Ignore/Unignore Packet</source>
-        <translation>&amp;Игнорировать/Отменить Игнорирование Пакета</translation>
+        <translation type="vanished">&amp;Игнорировать/Отменить Игнорирование Пакета</translation>
     </message>
     <message>
         <source>Ignore or unignore this packet</source>
-        <translation>Игнорировать этот пакет или отменить игнорирование</translation>
+        <translation type="vanished">Игнорировать этот пакет или отменить игнорирование</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -7148,6 +7152,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Как Обычный &amp;Текст…</translation>
     </message>
     <message>
+        <source>As Plain &amp;Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;YAML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All Visible Items</source>
         <translation>Все Видимые Пункты</translation>
     </message>
@@ -7170,6 +7186,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Find Pre&amp;vious</source>
         <translation>Найти Пр&amp;едыдущий</translation>
+    </message>
+    <message>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mark or unmark each selected packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignore or unignore each selected packet</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Time Shift…</source>
@@ -10248,12 +10280,40 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Невозможно синхронизировать, если выбран лишь один канал</translation>
     </message>
     <message>
+        <source>None of channels was selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward and reverse stream audio</source>
         <translation>Сохранить прямой и обратный аудиопотоки</translation>
     </message>
     <message>
         <source>Raw (*.raw)</source>
         <translation>Raw (*.raw)</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save was interrupted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save or read of file was failed during saving</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec is not supported, file is incomplete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec rate is not supported, file is incomplete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown error occured</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
@@ -10341,11 +10401,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation>Возможно сохранение аудио только с тактовой частотой 8000 Гц</translation>
-    </message>
-    <message>
-        <source>Can save audio with PCM u-law or A-law encoding only</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Возможно сохранение аудио только с тактовой частотой 8000 Гц</translation>
     </message>
     <message>
         <source>Error</source>

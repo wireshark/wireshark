@@ -1,4 +1,4 @@
-Wireshark 3.1.1 Release Notes
+Wireshark 3.2.0 Release Notes
 
  This is an experimental release intended to test new features for
  Wireshark 3.2.
@@ -16,6 +16,11 @@ Wireshark 3.1.1 Release Notes
   New and Updated Features
 
    The following features are new (or have been significantly updated)
+   since version 3.1.1:
+
+     • Nothing of note.
+
+   The following features are new (or have been significantly updated)
    since version 3.1.0:
 
      • Automatic updates are supported on macOS.
@@ -24,13 +29,13 @@ Wireshark 3.1.1 Release Notes
        same time
 
      • They can be exported as Text by “Ctrl+C” or “Cmd+C” and the
-       corresponding menu in “Edit › Copy › As …​”
+       corresponding menu in “Edit ▸ Copy ▸ As …​”
 
      • They can be marked/unmarked or ignored/unignored at the same time
 
      • They can be exported and printed using the corresponding menu
-       entries “File › Export Specified Packets”, “File › Export Packet
-       Dissections” and “File › Print”
+       entries “File ▸ Export Specified Packets”, “File ▸ Export Packet
+       Dissections” and “File ▸ Print”
 
    You can now follow HTTP/2 and QUIC streams.
 
@@ -46,10 +51,14 @@ Wireshark 3.1.1 Release Notes
    Action buttons for the display filter bar may be aligned left via the
    context menu
 
+     • The "Expression…​" toolbar entry has been moved to "Analyze ▸
+       Display filter Expression …​" as well as to the context menu of
+       the display filter toolbar
+
    Allow extcaps to be loaded from the personal configuration directory
 
-   The Windows installers now ship with Qt 5.12.6. They previously
-   shipped with Qt 5.12.4.
+   The Wireshark 3.1.0 Windows installers ship with Qt 5.12.6. Previous
+   installers shipped with Qt 5.12.4.
 
    The following features are new (or have been significantly updated)
    since version 3.0.0:
@@ -81,7 +90,7 @@ Wireshark 3.1.1 Release Notes
 
      • A new tap for extracting credentials from the capture file has
        been added. It can be accessed through the -z credentials option
-       in tshark or from the “Tools › Credentials” menu in Wireshark.
+       in tshark or from the “Tools ▸ Credentials” menu in Wireshark.
 
      • Editcap can now split files on floating point intervals.
 
@@ -93,7 +102,12 @@ Wireshark 3.1.1 Release Notes
        type (standard or heuristic) may also be choosen as a filter
        value.
 
-     • The “Analyze › Apply as Filter” and “Analyze › Prepare a Filter”
+     • Save RTP stream to .au supports any codec with 8000 Hz rate
+       supported by Wireshark (shown in RTP player). If save of audio is
+       not possible (unsupported codec or rate), silence of same length
+       is saved and warning is shown.
+
+     • The “Analyze ▸ Apply as Filter” and “Analyze ▸ Prepare a Filter”
        packet list and detail popup menus now show a preview of their
        respective filters.
 
@@ -109,27 +123,29 @@ Wireshark 3.1.1 Release Notes
      • The message of stream gRPC method can now be parsed with
        supporting of HTTP2 streaming mode reassembly feature.
 
-     • The Windows installers now ship with Qt 5.12.4. They previously
-       shipped with Qt 5.12.1.
+     • The Wireshark 3.1.0 Windows installers ship with Qt 5.12.4.
+       Previous installers shipped with Qt 5.12.1.
 
   New Protocol Support
 
    3GPP BICC MST (BICC-MST), 3GPP log packet (LOG3GPP), 3GPP/GSM Cell
-   Broadcast Service Protocol (cbsp), Bluetooth Mesh Beacon, Bluetooth
-   Mesh PB-ADV, Bluetooth Mesh Provisioning PDU, Bluetooth Mesh Proxy,
-   CableLabs Layer-3 Protocol IEEE EtherType 0xb4e3 (CL3), DCOM
-   IProvideClassInfo, DCOM ITypeInfo, Diagnostic Log and Trace (DLT),
-   Distributed Replicated Block Device (DRBD), Dual Channel Wi-Fi
-   (CL3DCW), EBHSCR Protocol (EBHSCR), EERO Protocol (EERO), evolved
-   Common Public Radio Interface (eCPRI), File Server Remote VSS
-   Protocol (FSRVP), FTDI FT USB Bridging Devices (FTDI FT), Graylog
-   Extended Log Format over UDP (GELF), GSM/3GPP CBSP (Cell Broadcast
-   Service Protocol), Linux net_dm (network drop monitor) protocol, MIDI
-   System Exclusive DigiTech (SYSEX DigiTech), Network Controller
-   Sideband Interface (NCSI), NR Positioning Protocol A (NRPPa) TS
-   38.455, NVM Express over Fabrics for TCP (nvme-tcp), OsmoTRX Protocol
-   (GSM Transceiver control and data), and Scalable service-Oriented
-   MiddlewarE over IP (SOME/IP)
+   Broadcast Service Protocol (cbsp), Asynchronous Management Protocol
+   (AMP), Bluetooth Mesh Beacon, Bluetooth Mesh PB-ADV, Bluetooth Mesh
+   Provisioning PDU, Bluetooth Mesh Proxy, CableLabs Layer-3 Protocol
+   IEEE EtherType 0xb4e3 (CL3), DCOM IProvideClassInfo, DCOM ITypeInfo,
+   Diagnostic Log and Trace (DLT), Distributed Replicated Block Device
+   (DRBD), Dual Channel Wi-Fi (CL3DCW), EBHSCR Protocol (EBHSCR), EERO
+   Protocol (EERO), evolved Common Public Radio Interface (eCPRI), File
+   Server Remote VSS Protocol (FSRVP), FTDI FT USB Bridging Devices
+   (FTDI FT), Graylog Extended Log Format over UDP (GELF), GSM/3GPP CBSP
+   (Cell Broadcast Service Protocol), ITS message - CAMv1, ITS message -
+   DENMv1, Linux net_dm (network drop monitor) protocol, MIDI System
+   Exclusive DigiTech (SYSEX DigiTech), Network Controller Sideband
+   Interface (NCSI), NR Positioning Protocol A (NRPPa) TS 38.455, NVM
+   Express over Fabrics for TCP (nvme-tcp), OsmoTRX Protocol (GSM
+   Transceiver control and data), Scalable service-Oriented MiddlewarE
+   over IP (SOME/IP), USB 2.0 Link Layer (USBLL), and Wi-Fi Neighbour
+   Awareness Networking (NAN)
 
   Updated Protocol Support
 
@@ -137,8 +153,8 @@ Wireshark 3.1.1 Release Notes
 
   New and Updated Capture File Support
 
-   3gpp phone, Android Logcat Text, Ascend, Candump, Endace ERF,
-   NetScaler, pcapng, and Savvius *Peek
+   3gpp phone, Android Logcat Text, Ascend, Busmaster log file, Candump,
+   Endace ERF, NetScaler, pcapng, and Savvius *Peek
 
  Getting Wireshark
 
@@ -177,7 +193,7 @@ Wireshark 3.1.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[10].
 
-  Last updated 2019-11-18 18:42:46 UTC
+  Last updated 2019-11-24 08:22:44 UTC
 
  References
 

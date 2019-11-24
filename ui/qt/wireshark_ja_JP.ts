@@ -5914,6 +5914,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>パケット数: %1 %4 表示: %2 (%3%)</translation>
     </message>
     <message>
+        <source> %1 Selected: %2 (%3%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1 Marked: %2 (%3%)</source>
         <oldsource> %1 Dropped: %2</oldsource>
         <translation> %1 マーク: %2 (%3%)</translation>
@@ -6526,11 +6530,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Mark/Unmark Packet</source>
-        <translation>パケットをマーク/マーク解除(&amp;M)</translation>
+        <translation type="vanished">パケットをマーク/マーク解除(&amp;M)</translation>
     </message>
     <message>
         <source>Mark or unmark this packet</source>
-        <translation>このパケットをマーク/マーク解除します</translation>
+        <translation type="vanished">このパケットをマーク/マーク解除します</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6562,11 +6566,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Ignore/Unignore Packet</source>
-        <translation>パケットを無視/無視を解除(&amp;I)</translation>
+        <translation type="vanished">パケットを無視/無視を解除(&amp;I)</translation>
     </message>
     <message>
         <source>Ignore or unignore this packet</source>
-        <translation>このパケットを無視するか無視しないようにします</translation>
+        <translation type="vanished">このパケットを無視するか無視しないようにします</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -7113,6 +7117,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>プレインテキストとして…(&amp;T)</translation>
     </message>
     <message>
+        <source>As Plain &amp;Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;YAML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All Visible Items</source>
         <translation>すべての見えている項目</translation>
     </message>
@@ -7135,6 +7151,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Find Pre&amp;vious</source>
         <translation>前を検索(&amp;v)</translation>
+    </message>
+    <message>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mark or unmark each selected packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignore or unignore each selected packet</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Time Shift…</source>
@@ -10199,11 +10231,39 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>None of channels was selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward and reverse stream audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Raw (*.raw)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save was interrupted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save or read of file was failed during saving</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec is not supported, file is incomplete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec rate is not supported, file is incomplete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown error occured</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10289,14 +10349,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Saving %1</source>
         <translation>%1 保存中</translation>
-    </message>
-    <message>
-        <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Can save audio with PCM u-law or A-law encoding only</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
