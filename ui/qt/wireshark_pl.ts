@@ -2516,6 +2516,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Okno</translation>
     </message>
     <message>
+        <source>Content Type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Searching for objects</source>
         <translation>Szukanie obiektów</translation>
     </message>
@@ -2525,6 +2529,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Only display entries containing this string</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Content-Types</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5937,6 +5949,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Pakietów: %1 %4 Wyświetlanych: %2 (%3%)</translation>
     </message>
     <message>
+        <source> %1 Selected: %2 (%3%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1 Marked: %2 (%3%)</source>
         <oldsource> %1 Dropped: %2</oldsource>
         <translation> %1 Oznaczonych: %2 (%3%)</translation>
@@ -6551,11 +6567,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Mark/Unmark Packet</source>
-        <translation>Zaznacz/odznacz pakiet</translation>
-    </message>
-    <message>
-        <source>Mark or unmark this packet</source>
-        <translation>Zaznacz lub odznacz ten pakiet</translation>
+        <translation type="vanished">Zaznacz/odznacz pakiet</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6587,11 +6599,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Ignore/Unignore Packet</source>
-        <translation>Ignoruj/odignoruj pakiet</translation>
-    </message>
-    <message>
-        <source>Ignore or unignore this packet</source>
-        <translation>Ignoruj/odignoruj pakiet</translation>
+        <translation type="vanished">Ignoruj/odignoruj pakiet</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -7136,6 +7144,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>As Plain &amp;Text…</source>
         <translation>Jako tekst…</translation>
+    </message>
+    <message>
+        <source>As Plain &amp;Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;YAML</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Visible Items</source>
@@ -7974,6 +7994,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Rescanning</source>
         <translation>Przeskanowanie</translation>
+    </message>
+    <message>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mark or unmark each selected packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignore or unignore each selected packet</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10237,12 +10273,40 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Nie można zsynchronizować, kiedy tylko jeden kanał jest wybrany</translation>
     </message>
     <message>
+        <source>None of channels was selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward and reverse stream audio</source>
         <translation>Zapisz przewodni i powrotny strumień audio</translation>
     </message>
     <message>
         <source>Raw (*.raw)</source>
         <translation>Surowe dane (*.raw)</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save was interrupted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save or read of file was failed during saving</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec is not supported, file is incomplete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec rate is not supported, file is incomplete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown error occured</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
@@ -10330,11 +10394,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation>Może zapisać audio tylko z próbkowaniem 8000 Hz</translation>
-    </message>
-    <message>
-        <source>Can save audio with PCM u-law or A-law encoding only</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Może zapisać audio tylko z próbkowaniem 8000 Hz</translation>
     </message>
     <message>
         <source>Error</source>

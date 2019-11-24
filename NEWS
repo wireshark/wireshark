@@ -1,4 +1,4 @@
-Wireshark 3.1.1 Release Notes
+Wireshark 3.3.0 Release Notes
 
  This is an experimental release intended to test new features for
  Wireshark 3.2.
@@ -16,120 +16,19 @@ Wireshark 3.1.1 Release Notes
   New and Updated Features
 
    The following features are new (or have been significantly updated)
-   since version 3.1.0:
+   since version 3.2.0:
 
-     • Automatic updates are supported on macOS.
+     • Windows executables and installers are now signed using SHA-2
+       only[1].
 
-     • You can now select multiple packets in the packet list at the
-       same time
+     • Save RTP stream to .au supports any codec with 8000 Hz rate
+       supported by Wireshark (shown in RTP player). If save of audio is
+       not possible (unsupported codec or rate), silence of same length
+       is saved and warning is shown.
 
-     • They can be exported as Text by “Ctrl+C” or “Cmd+C” and the
-       corresponding menu in “Edit › Copy › As …​”
-
-     • They can be marked/unmarked or ignored/unignored at the same time
-
-     • They can be exported and printed using the corresponding menu
-       entries “File › Export Specified Packets”, “File › Export Packet
-       Dissections” and “File › Print”
-
-   You can now follow HTTP/2 and QUIC streams.
-
-   You can once again mark and unmark packets using the middle mouse
-   button. This feature went missing around 2009 or so.
-
-   The Windows packages are now built using Microsoft Visual Studio
-   2019.
-
-   IOGraph automatically adds a graph for the selected display filter if
-   no previous graph exists
-
-   Action buttons for the display filter bar may be aligned left via the
-   context menu
-
-   Allow extcaps to be loaded from the personal configuration directory
-
-   The Windows installers now ship with Qt 5.12.6. They previously
-   shipped with Qt 5.12.4.
-
-   The following features are new (or have been significantly updated)
-   since version 3.0.0:
-
-     • You can drag and drop a field to a column header to create a
-       column for that field, or to the display filter input to create a
-       display filter. If a display filter is applied, the new filter
-       can be added using the same rules as “Apply Filter”
-
-     • You can drag and drop a column entry to the display filter to
-       create a filter for it.
-
-     • You can import profiles from a .zip archive or an existing
-       directory.
-
-     • Dark mode support on macOS and dark theme support on other
-       platforms has been improved.
-
-     • Brotli decompression support in HTTP/HTTP2 (requires the brotli
-       library).
-
-     • The build system now checks for a SpeexDSP system library
-       installation. The bundled Speex resampler code is still provided
-       as a fallback.
-
-     • WireGuard decryption can now be enabled through keys embedded in
-       a pcapng in addition to the existing key log preference (Bug
-       15571[1]).
-
-     • A new tap for extracting credentials from the capture file has
-       been added. It can be accessed through the -z credentials option
-       in tshark or from the “Tools › Credentials” menu in Wireshark.
-
-     • Editcap can now split files on floating point intervals.
-
-     • Windows .msi packages are now signed using SHA-2[2]. .exe
-       installers are still dual-signed using SHA-1 and SHA-2.
-
-     • The “Enabled Protocols” Dialog now only enables, disables and
-       inverts protocols based on the set filter selection. The protocol
-       type (standard or heuristic) may also be choosen as a filter
-       value.
-
-     • The “Analyze › Apply as Filter” and “Analyze › Prepare a Filter”
-       packet list and detail popup menus now show a preview of their
-       respective filters.
-
-     • Protobuf files (*.proto) can now be configured to enable more
-       precise parsing of serialized Protobuf data (such as gRPC).
-
-     • HTTP2 support streaming mode reassembly. To use this feature,
-       subdissectors can register itself to "streaming_content_type"
-       dissector table and return pinfo→desegment_len and
-       pinfo→desegment_offset to tell HTTP2 when to start and how many
-       additional bytes requires when next called.
-
-     • The message of stream gRPC method can now be parsed with
-       supporting of HTTP2 streaming mode reassembly feature.
-
-     • The Windows installers now ship with Qt 5.12.4. They previously
-       shipped with Qt 5.12.1.
+     • C-ares is now a required dependency.
 
   New Protocol Support
-
-   3GPP BICC MST (BICC-MST), 3GPP log packet (LOG3GPP), 3GPP/GSM Cell
-   Broadcast Service Protocol (cbsp), Bluetooth Mesh Beacon, Bluetooth
-   Mesh PB-ADV, Bluetooth Mesh Provisioning PDU, Bluetooth Mesh Proxy,
-   CableLabs Layer-3 Protocol IEEE EtherType 0xb4e3 (CL3), DCOM
-   IProvideClassInfo, DCOM ITypeInfo, Diagnostic Log and Trace (DLT),
-   Distributed Replicated Block Device (DRBD), Dual Channel Wi-Fi
-   (CL3DCW), EBHSCR Protocol (EBHSCR), EERO Protocol (EERO), evolved
-   Common Public Radio Interface (eCPRI), File Server Remote VSS
-   Protocol (FSRVP), FTDI FT USB Bridging Devices (FTDI FT), Graylog
-   Extended Log Format over UDP (GELF), GSM/3GPP CBSP (Cell Broadcast
-   Service Protocol), Linux net_dm (network drop monitor) protocol, MIDI
-   System Exclusive DigiTech (SYSEX DigiTech), Network Controller
-   Sideband Interface (NCSI), NR Positioning Protocol A (NRPPa) TS
-   38.455, NVM Express over Fabrics for TCP (nvme-tcp), OsmoTRX Protocol
-   (GSM Transceiver control and data), and Scalable service-Oriented
-   MiddlewarE over IP (SOME/IP)
 
   Updated Protocol Support
 
@@ -137,20 +36,17 @@ Wireshark 3.1.1 Release Notes
 
   New and Updated Capture File Support
 
-   3gpp phone, Android Logcat Text, Ascend, Candump, Endace ERF,
-   NetScaler, pcapng, and Savvius *Peek
-
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
-  https://www.wireshark.org/download.html[3].
+  https://www.wireshark.org/download.html[2].
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[4] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -162,33 +58,28 @@ Wireshark 3.1.1 Release Notes
  Getting Help
 
   The User’s Guide, manual pages and various other documentation can be
-  found at https://www.wireshark.org/docs/[5]
+  found at https://www.wireshark.org/docs/[4]
 
-  Community support is available on Wireshark’s Q&A site[6] and on the
+  Community support is available on Wireshark’s Q&A site[5] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[7].
+  for all of Wireshark’s mailing lists can be found on the web site[6].
 
-  Bugs and feature requests can be reported on the bug tracker[8].
-
-  Official Wireshark training and certification are available from
-  Wireshark University[9].
+  Bugs and feature requests can be reported on the bug tracker[7].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[10].
+  A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2019-11-18 18:42:46 UTC
+  Last updated 2019-11-24 08:08:47 UTC
 
  References
 
-   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15571
-   2. https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-s
+   1. https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-s
   igning-support-requirement-for-windows-and-wsus
-   3. https://www.wireshark.org/download.html
-   4. https://www.wireshark.org/download.html#thirdparty
-   5. https://www.wireshark.org/docs/
-   6. https://ask.wireshark.org/
-   7. https://www.wireshark.org/lists/
-   8. https://bugs.wireshark.org/
-   9. https://www.wiresharktraining.com/
-  10. https://www.wireshark.org/faq.html
+   2. https://www.wireshark.org/download.html
+   3. https://www.wireshark.org/download.html#thirdparty
+   4. https://www.wireshark.org/docs/
+   5. https://ask.wireshark.org/
+   6. https://www.wireshark.org/lists/
+   7. https://bugs.wireshark.org/
+   8. https://www.wireshark.org/faq.html

@@ -2500,6 +2500,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>对话框</translation>
     </message>
     <message>
+        <source>Content Type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Searching for objects</source>
         <translation>正在搜索对象</translation>
     </message>
@@ -2510,6 +2514,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Only display entries containing this string</source>
         <translation>仅显示包含此字符串的条目</translation>
+    </message>
+    <message>
+        <source>Preview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Content-Types</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Export</source>
@@ -5906,6 +5918,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>分组: %1 %4 已显示: %2 (%3%)</translation>
     </message>
     <message>
+        <source> %1 Selected: %2 (%3%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1 Marked: %2 (%3%)</source>
         <oldsource> %1 Dropped: %2</oldsource>
         <translation> %1 已标记: %2 (%3%)</translation>
@@ -6518,11 +6534,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Mark/Unmark Packet</source>
-        <translation>标记/取消标记 分组(&amp;M)</translation>
-    </message>
-    <message>
-        <source>Mark or unmark this packet</source>
-        <translation>标记或取消标记该分组</translation>
+        <translation type="vanished">标记/取消标记 分组(&amp;M)</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6554,11 +6566,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Ignore/Unignore Packet</source>
-        <translation>忽略/取消忽略 分组(&amp;I)</translation>
-    </message>
-    <message>
-        <source>Ignore or unignore this packet</source>
-        <translation>忽略或取消忽略该分组</translation>
+        <translation type="vanished">忽略/取消忽略 分组(&amp;I)</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -7103,6 +7111,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>As Plain &amp;Text…</source>
         <translation>为纯文本(&amp;T)…</translation>
+    </message>
+    <message>
+        <source>As Plain &amp;Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;YAML</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Visible Items</source>
@@ -7937,6 +7957,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Rescanning</source>
         <translation>正在重新扫描</translation>
+    </message>
+    <message>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mark or unmark each selected packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignore or unignore each selected packet</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10190,12 +10226,40 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>只选择一个通道时无法同步</translation>
     </message>
     <message>
+        <source>None of channels was selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward and reverse stream audio</source>
         <translation>保存正向和反向音频流</translation>
     </message>
     <message>
         <source>Raw (*.raw)</source>
         <translation>原始数据 (*.raw)</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save was interrupted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save or read of file was failed during saving</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec is not supported, file is incomplete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec rate is not supported, file is incomplete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown error occured</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
@@ -10283,11 +10347,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation>只能用 8000 Hz 时钟频率保存音频</translation>
-    </message>
-    <message>
-        <source>Can save audio with PCM u-law or A-law encoding only</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">只能用 8000 Hz 时钟频率保存音频</translation>
     </message>
     <message>
         <source>Error</source>
