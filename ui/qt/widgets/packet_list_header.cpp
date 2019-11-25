@@ -206,7 +206,9 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     for (int cnt = 0; cnt < prefs.num_cols; cnt++) {
         QString title(get_column_title(cnt));
         if (get_column_format(cnt) == COL_CUSTOM) {
-            title.append(QString("\t(%1)").arg(get_column_custom_fields(cnt)));
+            title.append(QString("\t%1").arg(get_column_custom_fields(cnt)));
+        } else {
+            title.append(QString("\t%1").arg(col_format_desc(get_column_format(cnt))));
         }
         QAction *action = new QAction(title, this);
         action->setCheckable(true);
