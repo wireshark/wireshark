@@ -129,7 +129,7 @@ packet_list_select_row_from_data(frame_data *fdata_needle)
     model->flushVisibleRows();
     int row = model->visibleIndexOf(fdata_needle);
     if (row >= 0) {
-        gbl_cur_packet_list->setCurrentIndex(model->index(row, 0));
+        gbl_cur_packet_list->selectionModel()->setCurrentIndex(model->index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
         return TRUE;
     }
 
@@ -959,9 +959,9 @@ void PacketList::setRecentColumnWidth(int col)
 void PacketList::drawCurrentPacket()
 {
     QModelIndex current_index = currentIndex();
-    setCurrentIndex(QModelIndex());
-    if (current_index.isValid()) {
-        setCurrentIndex(current_index);
+    if (selectionModel() && current_index.isValid()) {
+        selectionModel()->clearCurrentIndex();
+        selectionModel()->setCurrentIndex(current_index, QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
     }
 }
 
@@ -1457,10 +1457,10 @@ void PacketList::goNextPacket(void)
     }
 
     if (selectionModel()->hasSelection()) {
-        setCurrentIndex(moveCursor(MoveDown, Qt::NoModifier));
+        selectionModel()->setCurrentIndex(moveCursor(MoveDown, Qt::NoModifier), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     } else {
         // First visible packet.
-        setCurrentIndex(indexAt(viewport()->rect().topLeft()));
+        selectionModel()->setCurrentIndex(indexAt(viewport()->rect().topLeft()), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     }
 
     scrollViewChanged(false);
@@ -1475,12 +1475,12 @@ void PacketList::goPreviousPacket(void)
     }
 
     if (selectionModel()->hasSelection()) {
-        setCurrentIndex(moveCursor(MoveUp, Qt::NoModifier));
+        selectionModel()->setCurrentIndex(moveCursor(MoveUp, Qt::NoModifier), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     } else {
         // Last visible packet.
         QModelIndex last_idx = indexAt(viewport()->rect().bottomLeft());
         if (last_idx.isValid()) {
-            setCurrentIndex(last_idx);
+            selectionModel()->setCurrentIndex(last_idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
         } else {
             goLastPacket();
         }
@@ -1491,7 +1491,7 @@ void PacketList::goPreviousPacket(void)
 
 void PacketList::goFirstPacket(bool user_selected) {
     if (packet_list_model_->rowCount() < 1) return;
-    setCurrentIndex(packet_list_model_->index(0, 0));
+    selectionModel()->setCurrentIndex(packet_list_model_->index(0, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     scrollTo(currentIndex());
 
     if (user_selected) {
@@ -1501,7 +1501,7 @@ void PacketList::goFirstPacket(bool user_selected) {
 
 void PacketList::goLastPacket(void) {
     if (packet_list_model_->rowCount() < 1) return;
-    setCurrentIndex(packet_list_model_->index(packet_list_model_->rowCount() - 1, 0));
+    selectionModel()->setCurrentIndex(packet_list_model_->index(packet_list_model_->rowCount() - 1, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     scrollTo(currentIndex());
 
     scrollViewChanged(false);
@@ -1515,7 +1515,7 @@ void PacketList::goToPacket(int packet, int hf_id)
 
     int row = packet_list_model_->packetNumberToRow(packet);
     if (row >= 0) {
-        setCurrentIndex(packet_list_model_->index(row, 0));
+        selectionModel()->setCurrentIndex(packet_list_model_->index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
         proto_tree_->goToHfid(hf_id);
     }
 
