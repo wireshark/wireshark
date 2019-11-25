@@ -101,6 +101,7 @@ set(WSUG_FILES
 	wsug_src/reordercap-h.txt
 	wsug_src/text2pcap-h.txt
 	wsug_src/tshark-h.txt
+	wsug_src/wireshark-h.txt
 	${COMMON_FILES}
 )
 
