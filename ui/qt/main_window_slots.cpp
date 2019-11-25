@@ -3493,7 +3493,12 @@ void MainWindow::goToConversationFrame(bool go_next) {
     gchar     *filter       = NULL;
     dfilter_t *dfcode       = NULL;
     gboolean   found_packet = FALSE;
-    packet_info *pi = &(capture_file_.capFile()->edt->pi);
+    packet_info *pi = capture_file_.packetInfo();
+
+    if (!pi) {
+        // No packet was selected, or multiple packets were selected.
+        return;
+    }
 
     /* Try to build a conversation
      * filter in the order TCP, UDP, IP, Ethernet and apply the
