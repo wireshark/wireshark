@@ -137,7 +137,7 @@ pkgplugin="$bundle/Contents/PlugIns/wireshark/@PLUGIN_PATH_ID@"
 #
 secondary_binary_list=$( find $pkgexec \! -name Wireshark -type f -perm -0555 -print | sort )
 plugin_library_list=$( find $pkgplugin -name "*.so" -type f -perm -0555 -print | sort )
-bundle_binary_list="Wireshark $secondary_binary_list $plugin_library_list"
+bundle_binary_list="$pkgexec/Wireshark $secondary_binary_list $plugin_library_list"
 
 echo -e "\\nFixing up $bundle..."
 
