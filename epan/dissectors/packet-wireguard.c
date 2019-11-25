@@ -24,6 +24,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
+#include <epan/conversation.h>
 #include <epan/uat.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
@@ -83,6 +84,7 @@ static const char  *pref_keylog_file;
 
 static dissector_handle_t ip_handle;
 #endif /* WG_DECRYPTION_SUPPORTED */
+static dissector_handle_t wg_handle;
 
 
 // Length of AEAD authentication tag
@@ -1578,10 +1580,6 @@ dissect_wg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     const char *message_type_str;
     wg_packet_info_t *wg_pinfo;
 
-    /* Heuristics check: check for reserved bits (zeros) and message type. */
-    if (tvb_reported_length(tvb) < 4 || tvb_get_ntoh24(tvb, 1) != 0)
-        return 0;
-
     message_type = tvb_get_guint8(tvb, 0);
     message_type_str = try_val_to_str(message_type, wg_type_names);
     if (!message_type_str)
@@ -1622,6 +1620,74 @@ dissect_wg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     DISSECTOR_ASSERT_NOT_REACHED();
 }
 
+static gboolean
+dissect_wg_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    /*
+     * Heuristics to detect the WireGuard protocol:
+     * - The first byte must be one of the valid four messages.
+     * - The total packet length depends on the message type, and is fixed for
+     *   three of them. The Data type has a minimum length however.
+     * - The next three bytes are reserved and zero in the official protocol.
+     *   Cloudflare's implementation however uses this field for load balancing
+     *   purposes, so this condition is not checked here for most messages.
+     *   It is checked for data messages to avoid false positives.
+     */
+    guint32     message_type;
+    gboolean    reserved_is_zeroes;
+
+    if (tvb_reported_length(tvb) < 4)
+        return FALSE;
+
+    message_type = tvb_get_guint8(tvb, 0);
+    reserved_is_zeroes = tvb_get_ntoh24(tvb, 1) == 0;
+
+    switch (message_type) {
+        case WG_TYPE_HANDSHAKE_INITIATION:
+            if (tvb_reported_length(tvb) != 148)
+                return FALSE;
+            break;
+
+        case WG_TYPE_HANDSHAKE_RESPONSE:
+            if (tvb_reported_length(tvb) != 92)
+                return FALSE;
+            break;
+
+        case WG_TYPE_COOKIE_REPLY:
+            if (tvb_reported_length(tvb) != 64)
+                return FALSE;
+            if (!reserved_is_zeroes)
+                return FALSE;
+            break;
+
+        case WG_TYPE_TRANSPORT_DATA:
+            if (tvb_reported_length(tvb) < 32)
+                return FALSE;
+            if (!reserved_is_zeroes)
+                return FALSE;
+            break;
+
+        default:
+            return FALSE;
+    }
+
+    /*
+     * Assuming that this is a new handshake, make sure that future messages are
+     * directed to our dissector. This ensures that cookie replies and data
+     * messages using non-zero reserved bytes are still properly recognized.
+     * An edge case occurs when the address or port change. In that case, Data
+     * messages using non-zero reserved bytes will not be recognized. The user
+     * can use Decode As for this case.
+     */
+    if (message_type == WG_TYPE_HANDSHAKE_INITIATION) {
+        conversation_t *conversation = find_or_create_conversation(pinfo);
+        conversation_set_dissector(conversation, wg_handle);
+    }
+
+    dissect_wg(tvb, pinfo, tree, NULL);
+    return TRUE;
+}
+
 static void
 wg_init(void)
 {
@@ -1645,7 +1711,7 @@ proto_register_wg(void)
         },
         { &hf_wg_reserved,
           { "Reserved", "wg.reserved",
-            FT_NONE, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_wg_sender,
@@ -1824,7 +1890,7 @@ proto_register_wg(void)
     expert_wg = expert_register_protocol(proto_wg);
     expert_register_field_array(expert_wg, ei, array_length(ei));
 
-    register_dissector("wg", dissect_wg, proto_wg);
+    wg_handle = register_dissector("wg", dissect_wg, proto_wg);
 
 #ifdef WG_DECRYPTION_SUPPORTED
     wg_module = prefs_register_protocol(proto_wg, NULL);
@@ -1880,7 +1946,8 @@ proto_register_wg(void)
 void
 proto_reg_handoff_wg(void)
 {
-    heur_dissector_add("udp", dissect_wg, "WireGuard", "wg", proto_wg, HEURISTIC_ENABLE);
+    dissector_add_uint_with_preference("udp.port", 0, wg_handle);
+    heur_dissector_add("udp", dissect_wg_heur, "WireGuard", "wg", proto_wg, HEURISTIC_ENABLE);
 
 #ifdef WG_DECRYPTION_SUPPORTED
     ip_handle = find_dissector("ip");
