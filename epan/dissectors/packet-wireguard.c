@@ -1145,8 +1145,12 @@ wg_mac1_key_probe(tvbuff_t *tvb, gboolean is_initiation)
         return NULL;
     }
 
-    const guint8 *mac1_msgdata = tvb_get_ptr(tvb, 0, mac1_offset);
+    guint8 *mac1_msgdata = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, mac1_offset);
     const guint8 *mac1_output = tvb_get_ptr(tvb, mac1_offset, 16);
+
+    // MAC1 is computed over a message with three reserved bytes set to zero.
+    mac1_msgdata[1] = mac1_msgdata[2] = mac1_msgdata[3] = 0;
+
     // Find public key that matches the 16-byte MAC1 field.
     GHashTableIter iter;
     gpointer value;
