@@ -68,7 +68,7 @@ command `choco install` (or its shorthand, `cinst`), e.g.
 
 ==== Install Microsoft Visual Studio
 
-https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16[Download] and install “Microsoft Visual Studio 2019 Community Edition.”
+https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16[Download] and install “Microsoft Visual Studio 2019 Community Edition”.
 This is a small utility that downloads all the other required parts (which are quite large).
 
 Check the checkbox for “Desktop development with {cpp}” and then uncheck
@@ -77,10 +77,10 @@ all the optional components other than the “V{cpp} 2019” item with the
 CMake” (unless you want to use them for purposes other than Wireshark).
 
 You can use Chocolatey to install Visual Studio, using the Visual Studio
-Community and Native Desktop workload packages
+Community and Native Desktop workload packages.
 
 ----
-PS$>choco install -y visualstudio2019community visualstudio2019-workload-nativedesktop
+PS$> choco install -y visualstudio2019community visualstudio2019-workload-nativedesktop
 ----
 
 You can use other Microsoft C compiler variants, but VS2019 is used to
