@@ -70,7 +70,7 @@ $ git config --global log.abbrevcommit true
 .PowerShell
 ----
 PS$># This is a comment
-PS$>choco list -l
+PS$> choco list -l
 ----
 
 .C Source Code

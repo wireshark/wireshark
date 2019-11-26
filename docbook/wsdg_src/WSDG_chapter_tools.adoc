@@ -852,7 +852,7 @@ _win_flex_.
 
 [source,cmd]
 ----
-PS:\>choco install winflexbison
+PS:\> choco install winflexbison
 ----
 
 Native packages are available from other sources such as
@@ -938,7 +938,7 @@ copy status.  You can install it using Chocolatey:
 
 [source,cmd]
 ----
-PS:\>choco install poshgit
+PS:\> choco install poshgit
 ----
 
 [[ChToolsGitGUI]]

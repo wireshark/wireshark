@@ -174,8 +174,8 @@ To install it from Chocolatey run
 --
 ----
 # If you have not already, install Python 3 first and then *restart* the shell.
-PS$>choco install -y python3
-PS$>choco install -y git-review -source python
+PS$> choco install -y python3
+PS$> choco install -y git-review -source python
 # Make sure that "git-review" is present in our path (edit the version as needed).
 PS$>$userpath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User)
 PS$>$userpath += ";C:\Python37\Scripts"

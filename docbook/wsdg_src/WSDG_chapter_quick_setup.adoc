@@ -142,7 +142,7 @@ install Python into the default location (_C:\Python37_).
 Alternatively you can install Python using Chocolatey:
 
 ----
-PS$>choco install -y python3
+PS$> choco install -y python3
 ----
 
 Chocolatey installs Python in _C:\Python37_ by default.
@@ -155,9 +155,9 @@ https://www.activestate.com/ and install Perl into the default location.
 Alternatively you can install Perl using Chocolatey:
 
 ----
-PS$>choco install -y strawberryperl
+PS$> choco install -y strawberryperl
 # ...or...
-PS$>choco install -y activeperl
+PS$> choco install -y activeperl
 ----
 
 [[ChSetupGit]]
@@ -221,7 +221,7 @@ the default location.  Ensure the directory containing cmake.exe is added to you
 Alternatively you can install CMake using Chocolatey:
 
 ----
-PS$>choco install -y cmake
+PS$> choco install -y cmake
 ----
 
 Chocolatey ensures cmake.exe is on your path.
@@ -238,7 +238,7 @@ and the User’s Guide.
 The easiest way to install them on Windows is via Chocolatey:
 
 ----
-PS$>choco install -y asciidoctorj xsltproc docbook-bundle
+PS$> choco install -y asciidoctorj xsltproc docbook-bundle
 ----
 
 Chocolatey ensures that asciidoctorj.exe and xsltproc.exe is on your
@@ -253,7 +253,7 @@ and win_bison.exe is on your path.
 Alternatively you can install Winflexbison using Chocolatey:
 
 ----
-PS$>choco install -y winflexbison
+PS$> choco install -y winflexbison
 ----
 
 Chocolatey ensures win_flex.exe and win_bison.exe are on your path.
