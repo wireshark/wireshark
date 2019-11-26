@@ -19,8 +19,19 @@ SourceNGRANNode-ToTargetNGRANNode-TransparentContainer_PDU
 TargetNGRANNode-ToSourceNGRANNode-TransparentContainer_PDU
 
 #.PDU
-NGAP-PDU
+HandoverCommandTransfer
+HandoverPreparationUnsuccessfulTransfer
+HandoverRequestAcknowledgeTransfer
+HandoverResourceAllocationUnsuccessfulTransfer
 LastVisitedNGRANCellInformation
+NGAP-PDU
+PathSwitchRequestAcknowledgeTransfer
+PathSwitchRequestSetupFailedTransfer
+PDUSessionResourceModifyUnsuccessfulTransfer
+PDUSessionResourceReleaseCommandTransfer
+PDUSessionResourceSetupRequestTransfer
+PDUSessionResourceSetupResponseTransfer
+PDUSessionResourceSetupUnsuccessfulTransfer
 SourceNGRANNode-ToTargetNGRANNode-TransparentContainer
 TargetNGRANNode-ToSourceNGRANNode-TransparentContainer
 
@@ -1281,18 +1292,33 @@ UplinkUEAssociatedNRPPaTransport        N ngap.proc.imsg id-UplinkUEAssociatedNR
 WriteReplaceWarningRequest              N ngap.proc.imsg id-WriteReplaceWarning
 WriteReplaceWarningResponse             N ngap.proc.sout id-WriteReplaceWarning
 
-PDUSessionResourceSetupRequest      S ngap.n2_ie_type "PDU_RES_SETUP_REQ"
-PDUSessionResourceReleaseCommand    S ngap.n2_ie_type "PDU_RES_REL_CMD"
-PDUSessionResourceModifyRequest     S ngap.n2_ie_type "PDU_RES_MOD_REQ"
-HandoverCommand                     S ngap.n2_ie_type "HANDOVER_CMD"
-HandoverRequired                    S ngap.n2_ie_type "HANDOVER_REQUIRED"
-HandoverPreparationFailure          S ngap.n2_ie_type "HANDOVER_PREP_FAIL"
-SourceToTarget-TransparentContainer S ngap.n2_ie_type "SRC_TO_TAR_CONTAINER"
-TargetToSource-TransparentContainer S ngap.n2_ie_type "TAR_TO_SRC_CONTAINER"
-#S ngap.n2_ie_type "RAN_STATUS_TRANS_CONTAINER"
-SONConfigurationTransfer            S ngap.n2_ie_type "SON_CONFIG_TRANSFER"
-NRPPa-PDU                           S ngap.n2_ie_type "NRPPA_PDU"
-UERadioCapability                   S ngap.n2_ie_type "UE_RADIO_CAPABILITY"
+PDUSessionResourceSetupRequestTransfer         S ngap.n2_ie_type "PDU_RES_SETUP_REQ"
+PDUSessionResourceSetupResponseTransfer        S ngap.n2_ie_type "PDU_RES_SETUP_RSP"
+PDUSessionResourceSetupUnsuccessfulTransfer    S ngap.n2_ie_type "PDU_RES_SETUP_FAIL"
+PDUSessionResourceReleaseCommandTransfer       S ngap.n2_ie_type "PDU_RES_REL_CMD"
+PDUSessionResourceReleaseResponseTransfer      S ngap.n2_ie_type "PDU_RES_REL_RSP"
+PDUSessionResourceModifyRequestTransfer        S ngap.n2_ie_type "PDU_RES_MOD_REQ"
+PDUSessionResourceModifyResponseTransfer       S ngap.n2_ie_type "PDU_RES_MOD_RSP"
+PDUSessionResourceModifyUnsuccessfulTransfer   S ngap.n2_ie_type "PDU_RES_MOD_FAIL"
+PDUSessionResourceNotifyTransfer               S ngap.n2_ie_type "PDU_RES_NTY"
+PDUSessionResourceNotifyReleasedTransfer       S ngap.n2_ie_type "PDU_RES_NTY_REL"
+PDUSessionResourceModifyIndicationTransfer     S ngap.n2_ie_type "PDU_RES_MOD_IND"
+PDUSessionResourceModifyConfirmTransfer        S ngap.n2_ie_type "PDU_RES_MOD_CFM"
+PathSwitchRequestTransfer                      S ngap.n2_ie_type "PATH_SWITCH_REQ"
+PathSwitchRequestSetupFailedTransfer           S ngap.n2_ie_type "PATH_SWITCH_SETUP_FAIL"
+PathSwitchRequestAcknowledgeTransfer           S ngap.n2_ie_type "PATH_SWITCH_REQ_ACK"
+PathSwitchRequestUnsuccessfulTransfer          S ngap.n2_ie_type "PATH_SWITCH_REQ_FAIL"
+HandoverRequiredTransfer                       S ngap.n2_ie_type "HANDOVER_REQUIRED"
+HandoverCommandTransfer                        S ngap.n2_ie_type "HANDOVER_CMD"
+HandoverPreparationUnsuccessfulTransfer        S ngap.n2_ie_type "HANDOVER_PREP_FAIL"
+HandoverRequestAcknowledgeTransfer             S ngap.n2_ie_type "HANDOVER_REQ_ACK"
+HandoverResourceAllocationUnsuccessfulTransfer S ngap.n2_ie_type "HANDOVER_RES_ALLOC_FAIL"
+SourceToTarget-TransparentContainer            S ngap.n2_ie_type "SRC_TO_TAR_CONTAINER"
+TargetToSource-TransparentContainer            S ngap.n2_ie_type "TAR_TO_SRC_CONTAINER"
+RANStatusTransfer-TransparentContainer         S ngap.n2_ie_type "RAN_STATUS_TRANS_CONTAINER"
+SONConfigurationTransfer                       S ngap.n2_ie_type "SON_CONFIG_TRANSFER"
+NRPPa-PDU                                      S ngap.n2_ie_type "NRPPA_PDU"
+UERadioCapability                              S ngap.n2_ie_type "UE_RADIO_CAPABILITY"
 
 #.FN_HDR AMFConfigurationUpdate
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "AMFConfigurationUpdate");
