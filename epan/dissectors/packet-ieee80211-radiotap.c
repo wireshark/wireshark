@@ -2580,6 +2580,12 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			break;
 		}
 		case IEEE80211_RADIOTAP_HE:
+			/*
+			 * Presumably this is (whatever draft of) 802.11ax.
+			 * Also, presumably, you won't get the HE_MU field
+			 * without this field.
+			 */
+			phdr.phy = PHDR_802_11_PHY_11AX;
 			dissect_radiotap_he_info(tvb, pinfo, radiotap_tree, offset);
 			break;
 		case IEEE80211_RADIOTAP_HE_MU:
