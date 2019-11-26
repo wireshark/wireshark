@@ -229,6 +229,7 @@ static dissector_handle_t bgp_handle;
 #define BGPTYPE_31                  31 /* Deprecated [RFC8093] */
 #define BGPTYPE_LARGE_COMMUNITY     32 /* RFC8092 */
 #define BGPTYPE_BGPSEC_PATH         33 /* BGPsec_PATH [RFC8205] */
+#define BGPTYPE_D_PATH              36 /* https://tools.ietf.org/html/draft-rabadan-sajassi-bess-evpn-ipvpn-interworking-02 */
 #define BGPTYPE_BGP_PREFIX_SID      40 /* BGP Prefix-SID [draft-ietf-idr-bgp-prefix-sid] */
 #define BGPTYPE_LINK_STATE_OLD_ATTR 99 /* squatted value used by at least 2
                                           implementations before IANA assignment */
@@ -985,6 +986,7 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_31,                  "Deprecated" },
     { BGPTYPE_LARGE_COMMUNITY,     "LARGE_COMMUNITY" },
     { BGPTYPE_BGPSEC_PATH,         "BGPsec_PATH" },
+    { BGPTYPE_D_PATH,              "D_PATH" },
     { BGPTYPE_BGP_PREFIX_SID,      "BGP Prefix-SID" },
     { BGPTYPE_LINK_STATE_OLD_ATTR, "LINK_STATE (unofficial code point)" },
     { BGPTYPE_ATTR_SET,            "ATTR_SET" },
@@ -1677,6 +1679,11 @@ static int hf_bgp_update_path_attribute_bgpsec_sp_len = -1;
 static int hf_bgp_update_path_attribute_bgpsec_ski = -1;
 static int hf_bgp_update_path_attribute_bgpsec_sig_len = -1;
 static int hf_bgp_update_path_attribute_bgpsec_sig = -1;
+static int hf_bgp_update_path_attribute_d_path = -1;
+static int hf_bgp_d_path_ga = -1;
+static int hf_bgp_d_path_la = -1;
+static int hf_bgp_d_path_length = -1;
+static int hf_bgp_d_path_isf_safi = -1;
 static int hf_bgp_evpn_nlri = -1;
 static int hf_bgp_evpn_nlri_rt = -1;
 static int hf_bgp_evpn_nlri_len = -1;
@@ -2246,6 +2253,7 @@ static gint ett_bgp_mpls_labels = -1;
 static gint ett_bgp_pmsi_tunnel_id = -1;
 static gint ett_bgp_aigp_attr = -1;
 static gint ett_bgp_large_communities = -1;
+static gint ett_bgp_dpath = -1;
 static gint ett_bgp_prefix_sid_originator_srgb = -1;
 static gint ett_bgp_prefix_sid_originator_srgb_block = -1;
 static gint ett_bgp_prefix_sid_originator_srgb_blocks = -1;
@@ -8180,6 +8188,48 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                                                  alen, plurality(alen, "", "s"));
                 }
                 break;
+            case BGPTYPE_D_PATH:
+                if(tlen < 8){
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "D-PATH attribute has invalid length (invalid): %u byte%s", tlen,
+                                                 plurality(tlen, "", "s"));
+                    break;
+                }
+                q = o + i + aoff;
+                end = q + tlen;
+                wmem_strbuf_t *dpath_strbuf;
+                dpath_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+                guint8 dpath_len;
+                dpath_len = tvb_get_guint8(tvb, q);
+                proto_tree_add_item(subtree2, hf_bgp_d_path_length, tvb,
+                                        q, 1, ENC_BIG_ENDIAN);
+                q += 1;
+                while (dpath_len > 0 && q < end) {
+                    guint32 ad;
+                    guint16 ld;
+                    ad = tvb_get_ntohl(tvb, q);
+                    ld = tvb_get_ntohs(tvb, q+4);
+                    ti = proto_tree_add_string_format(subtree2, hf_bgp_update_path_attribute_d_path, tvb, q, 6, NULL, "Domain ID: %u:%u", ad, ld);
+                    subtree3 = proto_item_add_subtree(ti, ett_bgp_dpath);
+                    proto_tree_add_item(subtree3, hf_bgp_d_path_ga, tvb,
+                                        q, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(subtree3, hf_bgp_d_path_la, tvb,
+                                        q + 4, 2, ENC_BIG_ENDIAN);
+                    wmem_strbuf_append_printf(dpath_strbuf, " %u:%u", ad, ld);
+                    q += 6;
+                    dpath_len -= 1;
+                }
+                if (dpath_len != 0 || q >= end) {
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "D-PATH list (invalid): %u byte%s", tlen,
+                                                 plurality(tlen, "", "s"));
+                    break;
+                }
+                proto_item_append_text(ti_pa, ":%s", wmem_strbuf_get_str(dpath_strbuf));
+
+                proto_tree_add_item(subtree2, hf_bgp_d_path_isf_safi, tvb,
+                                    q, 1, ENC_BIG_ENDIAN);
+                break;
             default:
                 proto_tree_add_item(subtree2, hf_bgp_update_path_attributes_unknown, tvb, o + i + aoff, tlen, ENC_NA);
                 break;
@@ -9337,6 +9387,23 @@ proto_register_bgp(void)
       { &hf_bgp_pmsi_tunnel_ingress_rep_addr,
         {"Tunnel type ingress replication IP end point", "bgp.update.path_attribute.pmsi.ingress_rep_ip", FT_IPv4, BASE_NONE,
         NULL, 0x0, NULL, HFILL}},
+
+        /* https://tools.ietf.org/html/draft-rabadan-sajassi-bess-evpn-ipvpn-interworking-02 */
+      { &hf_bgp_update_path_attribute_d_path,
+        { "Domain Path Attribute", "bgp.update.path_attribute.dpath", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_d_path_length,
+        {"Domain Path Attribute length", "bgp.update.attribute.dpath.length", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_d_path_ga,
+        { "Global Administrator", "bgp.update.attribute.dpath.ga", FT_UINT32, BASE_DEC,
+          NULL, 0x0, "A four-octet namespace identifier. This SHOULD be an Autonomous System Number", HFILL }},
+      { &hf_bgp_d_path_la,
+        { "Local Administrator", "bgp.update.attribute.dpath.la", FT_UINT16, BASE_DEC,
+          NULL, 0x0, "A two-octet operator-defined value", HFILL }},
+      { &hf_bgp_d_path_isf_safi,
+        { "Inter-Subnet Forwarding SAFI type", "bgp.update.attribute.dpath.isf.safi", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
 
         /* RFC7311 */
       { &hf_bgp_update_path_attribute_aigp,
@@ -10657,6 +10724,7 @@ proto_register_bgp(void)
       &ett_bgp_pmsi_tunnel_id,
       &ett_bgp_aigp_attr,
       &ett_bgp_large_communities,
+      &ett_bgp_dpath,
       &ett_bgp_prefix_sid_label_index,
       &ett_bgp_prefix_sid_ipv6,
       &ett_bgp_prefix_sid_originator_srgb,
