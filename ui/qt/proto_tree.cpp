@@ -287,7 +287,7 @@ void ProtoTree::emitRelatedFrame(int related_frame, ft_framenum_type_t framenum_
 
 void ProtoTree::autoScrollTo(const QModelIndex &index)
 {
-    selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+    selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
     if (!index.isValid()) {
         return;
     }
