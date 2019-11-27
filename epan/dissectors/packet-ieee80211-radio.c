@@ -116,7 +116,7 @@ static const value_string phy_vals[] = {
     { PHDR_802_11_PHY_11AC,          "802.11ac (VHT)" },
     { PHDR_802_11_PHY_11AD,          "802.11ad (DMG)" },
     { PHDR_802_11_PHY_11AH,          "802.11ah (S1G)" },
-    { PHDR_802_11_PHY_11AX,          "802.11ax (HT)" },
+    { PHDR_802_11_PHY_11AX,          "802.11ax (HE)" },
     { 0, NULL }
 };
 
