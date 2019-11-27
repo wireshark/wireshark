@@ -433,13 +433,15 @@ void ProtoTree::foreachTreeNode(proto_node *node, gpointer proto_tree_ptr)
     proto_tree_children_foreach(node, foreachTreeNode, proto_tree_ptr);
 }
 
-// We track item expansion using proto.c:tree_is_expanded. QTreeView
-// tracks it using QTreeViewPrivate::expandedIndexes. When we're handed
-// a new tree, clear expandedIndexes and repopulate it by walking the
-// tree and calling QTreeView::expand above.
+// setRootNode sets the new contents for the protocol tree and subsequently
+// restores the previously expanded state.
 void ProtoTree::setRootNode(proto_node *root_node) {
+    // XXX why do we have this call here?
     setFont(mono_font_);
-    reset(); // clears expandedIndexes.
+
+    // We track item expansion using proto.c:tree_is_expanded.
+    // Replace any existing (possibly invalidated) proto tree by the new tree.
+    // The expanded state will be reset as well and will be re-expanded below.
     proto_tree_model_->setRootNode(root_node);
 
     disconnect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(syncExpanded(QModelIndex)));
@@ -608,12 +610,12 @@ void ProtoTree::itemDoubleClicked(const QModelIndex &index) {
 
 void ProtoTree::selectedFrameChanged(QList<int> frames)
 {
-    clear();
-
-    if (frames.count() != 1)
-        proto_tree_model_->setRootNode(Q_NULLPTR);
-    else if (cap_file_ && cap_file_->edt && cap_file_->edt->tree)
-        proto_tree_model_->setRootNode(cap_file_->edt->tree);
+    if (frames.count() == 1 && cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
+        setRootNode(cap_file_->edt->tree);
+    } else {
+        // Clear the proto tree contents as they have become invalid.
+        proto_tree_model_->setRootNode(NULL);
+    }
 }
 
 // Select a field and bring it into view. Intended to be called by external

@@ -531,6 +531,8 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 
     related_packet_delegate_.clear();
 
+    // The previous dissection state has been invalidated by cf_select_packet
+    // above, receivers must clear the previous state and apply the updated one.
     emit framesSelected(QList<int>() << row);
 
     if (!cap_file_->edt) {
