@@ -96,7 +96,7 @@ dissect_caneth_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     gint8       ext_flag;
     gint8       rtr_flag;
     tvbuff_t*   next_tvb;
-    struct can_identifier can_id;
+    struct can_info can_info;
 
     ti = proto_tree_add_item(tree, proto_can, tvb, 0, -1, ENC_NA);
     can_tree = proto_item_add_subtree(ti, ett_caneth_can);
@@ -107,14 +107,14 @@ dissect_caneth_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     if (ext_flag)
     {
-        can_id.id = raw_can_id & CAN_EFF_MASK;
+        can_info.id = raw_can_id & CAN_EFF_MASK;
     }
     else
     {
-        can_id.id = raw_can_id & CAN_SFF_MASK;
+        can_info.id = raw_can_id & CAN_SFF_MASK;
     }
 
-    can_id.id |= (ext_flag ? CAN_EFF_FLAG : 0) | (rtr_flag ? CAN_RTR_FLAG : 0);
+    can_info.id |= (ext_flag ? CAN_EFF_FLAG : 0) | (rtr_flag ? CAN_RTR_FLAG : 0);
 
     proto_tree_add_item_ret_uint(can_tree, hf_caneth_can_len, tvb, CAN_DLC_OFFSET, 1, ENC_NA, &data_len);
     proto_tree_add_item(can_tree, hf_caneth_can_extflag, tvb, CAN_EXT_FLAG_OFFSET, 1, ENC_NA);
@@ -122,7 +122,7 @@ dissect_caneth_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, data_len);
 
-    if (!dissector_try_payload_new(can_subdissector_table, next_tvb, pinfo, tree, TRUE, &can_id))
+    if (!dissector_try_payload_new(can_subdissector_table, next_tvb, pinfo, tree, TRUE, &can_info))
     {
         call_data_dissector(next_tvb, pinfo, tree);
     }

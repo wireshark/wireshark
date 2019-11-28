@@ -2473,7 +2473,7 @@ static int dissect_1722_acf_can_common(tvbuff_t *tvb, packet_info *pinfo, proto_
     proto_tree         *tree_can_id;
     gint                can_protocol;
     const int         **can_flags;
-    can_identifier_t    can_id;
+    struct can_info     can_info;
 
     tvbuff_t*           next_tvb;
     gint                offset = 0;
@@ -2597,24 +2597,24 @@ static int dissect_1722_acf_can_common(tvbuff_t *tvb, packet_info *pinfo, proto_
     * CAN sub-dissectors expect several flags to be merged into ID that is passed
     * to dissector_try_payload_new. Add them
     */
-    can_id.id = parsed.id;
+    can_info.id = parsed.id;
     if (parsed.is_xtd)
     {
-        can_id.id |= CAN_EFF_FLAG;
+        can_info.id |= CAN_EFF_FLAG;
     }
 
     if (parsed.is_rtr)
     {
-        can_id.id |= CAN_RTR_FLAG;
+        can_info.id |= CAN_RTR_FLAG;
     }
 
     next_tvb = tvb_new_subset_length(tvb, offset, parsed.datalen);
 
     if(!can_heuristic_first)
     {
-        if (!dissector_try_payload_new(can_subdissector_table, next_tvb, pinfo, tree, TRUE, &can_id))
+        if (!dissector_try_payload_new(can_subdissector_table, next_tvb, pinfo, tree, TRUE, &can_info))
         {
-            if(!dissector_try_heuristic(can_heur_subdissector_table, next_tvb, pinfo, tree, &can_heur_dtbl_entry, &can_id))
+            if(!dissector_try_heuristic(can_heur_subdissector_table, next_tvb, pinfo, tree, &can_heur_dtbl_entry, &can_info))
             {
                 call_data_dissector(next_tvb, pinfo, tree);
             }
@@ -2622,9 +2622,9 @@ static int dissect_1722_acf_can_common(tvbuff_t *tvb, packet_info *pinfo, proto_
     }
     else
     {
-        if (!dissector_try_heuristic(can_heur_subdissector_table, next_tvb, pinfo, tree, &can_heur_dtbl_entry, &can_id))
+        if (!dissector_try_heuristic(can_heur_subdissector_table, next_tvb, pinfo, tree, &can_heur_dtbl_entry, &can_info))
         {
-            if(!dissector_try_payload_new(can_subdissector_table, next_tvb, pinfo, tree, FALSE, &can_id))
+            if(!dissector_try_payload_new(can_subdissector_table, next_tvb, pinfo, tree, FALSE, &can_info))
             {
                 call_data_dissector(next_tvb, pinfo, tree);
             }
