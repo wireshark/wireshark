@@ -298,7 +298,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     guint        data_page;
     guint        pdu_format;
     guint        pdu_specific;
-    struct can_identifier can_id;
+    struct can_info can_info;
     char str_dst[10];
     char str_src[4];
 
@@ -314,10 +314,10 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     struct address_reassemble_table* address_reassemble_table_item = NULL;
 
     DISSECTOR_ASSERT(data);
-    can_id = *((struct can_identifier*)data);
+    can_info = *((struct can_info*)data);
 
-    if ((can_id.id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) ||
-        !(can_id.id & CAN_EFF_FLAG))
+    if ((can_info.id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) ||
+        !(can_info.id & CAN_EFF_FLAG))
     {
         /* Error, RTR and frames with standard ids are not for us. */
         return 0;
@@ -326,41 +326,41 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISObus");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    /*priority      = (can_id.id >> 26) & 0x07;*/
-    /*ext_data_page = (can_id.id >> 25) & 0x01;*/
-    data_page     = (can_id.id >> 24) & 0x01;
-    pdu_format    = (can_id.id >> 16) & 0xff;
-    pdu_specific  = (can_id.id >> 8) & 0xff;
-    src_addr      = (can_id.id >> 0 ) & 0xff;
+    /*priority      = (can_info.id >> 26) & 0x07;*/
+    /*ext_data_page = (can_info.id >> 25) & 0x01;*/
+    data_page     = (can_info.id >> 24) & 0x01;
+    pdu_format    = (can_info.id >> 16) & 0xff;
+    pdu_specific  = (can_info.id >> 8) & 0xff;
+    src_addr      = (can_info.id >> 0 ) & 0xff;
 
     ti = proto_tree_add_item(tree, proto_isobus, tvb, 0, tvb_reported_length(tvb), ENC_NA);
     isobus_tree = proto_item_add_subtree(ti, ett_isobus);
 
     /* add COB-ID with function code and node id */
-    can_id_ti = proto_tree_add_uint(isobus_tree, hf_isobus_can_id, tvb, 0, 0, can_id.id);
+    can_id_ti = proto_tree_add_uint(isobus_tree, hf_isobus_can_id, tvb, 0, 0, can_info.id);
     isobus_can_id_tree = proto_item_add_subtree(can_id_ti, ett_isobus_can_id);
 
     /* add priority */
-    ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_priority, tvb, 0, 0, can_id.id);
+    ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_priority, tvb, 0, 0, can_info.id);
     proto_item_set_generated(ti);
 
     /* add extended data page */
-    ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_ext_data_page, tvb, 0, 0, can_id.id);
+    ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_ext_data_page, tvb, 0, 0, can_info.id);
     proto_item_set_generated(ti);
 
     /* add data page */
-    ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_data_page, tvb, 0, 0, can_id.id);
+    ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_data_page, tvb, 0, 0, can_info.id);
     proto_item_set_generated(ti);
 
     /* add pdu format */
     switch(data_page)
     {
     case 0:
-        ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_pdu_format_dp0, tvb, 0, 0, can_id.id);
+        ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_pdu_format_dp0, tvb, 0, 0, can_info.id);
         proto_item_set_generated(ti);
         break;
     case 1:
-        ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_pdu_format_dp1, tvb, 0, 0, can_id.id);
+        ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_pdu_format_dp1, tvb, 0, 0, can_info.id);
         proto_item_set_generated(ti);
         break;
     }
@@ -368,17 +368,17 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     /* add pdu specific */
     if(pdu_format <= 239)
     {
-        ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_dst_addr, tvb, 0, 0, can_id.id);
+        ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_dst_addr, tvb, 0, 0, can_info.id);
             proto_item_set_generated(ti);
     }
     else
     {
-        ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_group_extension, tvb, 0, 0, can_id.id);
+        ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_group_extension, tvb, 0, 0, can_info.id);
             proto_item_set_generated(ti);
     }
 
     /* add source address */
-    ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_src_addr, tvb, 0, 0, can_id.id);
+    ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_src_addr, tvb, 0, 0, can_info.id);
     proto_item_set_generated(ti);
 
     /* put source address in source field */

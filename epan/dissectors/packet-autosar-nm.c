@@ -398,7 +398,7 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
     const int prev_proto = GPOINTER_TO_INT(wmem_list_frame_data(prev_layer));
 
     if (prev_proto != proto_udp) {
-      const can_identifier_t *can_id       = (can_identifier_t *)data;
+      const struct can_info *can_info       = (struct can_info *)data;
       const gboolean          is_can_frame =
         (prev_proto == proto_can) ||
         (prev_proto == proto_canfd) ||
@@ -409,14 +409,14 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
         return 0;
       }
 
-      DISSECTOR_ASSERT(can_id);
+      DISSECTOR_ASSERT(can_info);
 
-      if (can_id->id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
+      if (can_info->id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
         /* Error and RTR frames are not for us. */
         return 0;
       }
 
-      if ((can_id->id & g_autosar_nm_can_id_mask) != (g_autosar_nm_can_id & g_autosar_nm_can_id_mask)) {
+      if ((can_info->id & g_autosar_nm_can_id_mask) != (g_autosar_nm_can_id & g_autosar_nm_can_id_mask)) {
         /* Id doesn't match. The frame is not for us. */
         return 0;
       }

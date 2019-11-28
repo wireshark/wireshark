@@ -1278,7 +1278,7 @@ dissect_obdii_response(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tre
 static int
 dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	struct can_identifier can_id;
+	struct can_info can_info;
 	guint32               can_id_only;
 	struct obdii_packet_info oinfo;
 
@@ -1291,11 +1291,11 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	gboolean id_is_response;
 
 	DISSECTOR_ASSERT(data);
-	can_id      = *((struct can_identifier *) data);
-	can_id_only = can_id.id & CAN_EFF_MASK;
+	can_info      = *((struct can_info *) data);
+	can_id_only = can_info.id & CAN_EFF_MASK;
 
 	/* If we're using 29bit extended ID's then use extended ID parameters */
-	if (can_id.id & CAN_EFF_FLAG)
+	if (can_info.id & CAN_EFF_FLAG)
 	{
 		id_is_query = (can_id_only == ODBII_CAN_QUERY_ID_EFF);
 		id_is_response = ((((can_id_only & ~ODBII_CAN_RESPONSE_ID_LOWER_MASK_EFF) ^ ODBII_CAN_RESPONSE_ID_LOWER_MIN_EFF) == 0) ||
@@ -1309,7 +1309,7 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	}
 
 	/* validate */
-	if (can_id.id & (CAN_ERR_FLAG | CAN_RTR_FLAG))
+	if (can_info.id & (CAN_ERR_FLAG | CAN_RTR_FLAG))
 		return 0;
 
 	if (!(id_is_query || id_is_response))
