@@ -461,7 +461,7 @@ To add comment strings to the first 2 input frames, use:
 =head1 SEE ALSO
 
 pcap(3), wireshark(1), tshark(1), mergecap(1), dumpcap(1), capinfos(1),
-text2pcap(1), od(1), pcap-filter(7) or tcpdump(8)
+text2pcap(1), reordercap(1), od(1), pcap-filter(7) or tcpdump(8)
 
 =head1 NOTES
 
