@@ -405,8 +405,7 @@ void ProtoTree::updateContentWidth()
 
 void ProtoTree::setMonospaceFont(const QFont &mono_font)
 {
-    mono_font_ = mono_font;
-    setFont(mono_font_);
+    setFont(mono_font);
     update();
 }
 

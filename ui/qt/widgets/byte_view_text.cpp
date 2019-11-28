@@ -165,15 +165,15 @@ void ByteViewText::markAppendix(int start, int length)
 
 void ByteViewText::setMonospaceFont(const QFont &mono_font)
 {
-    mono_font_ = QFont(mono_font);
-    mono_font_.setStyleStrategy(QFont::ForceIntegerMetrics);
+    QFont int_font(mono_font);
+    int_font.setStyleStrategy(QFont::ForceIntegerMetrics);
 
-    const QFontMetricsF fm(mono_font_);
+    const QFontMetricsF fm(int_font);
     font_width_  = fm.width('M');
 
-    setFont(mono_font_);
-    viewport()->setFont(mono_font_);
-    layout_->setFont(mono_font_);
+    setFont(int_font);
+    viewport()->setFont(int_font);
+    layout_->setFont(int_font);
 
     // We should probably use ProtoTree::rowHeight.
     line_height_ = fontMetrics().height();

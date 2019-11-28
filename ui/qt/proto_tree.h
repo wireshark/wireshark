@@ -62,7 +62,6 @@ private:
     ProtocolPreferencesMenu proto_prefs_menu_;
     QAction *decode_as_;
     QList<QAction *> copy_actions_;
-    QFont mono_font_;
     int column_resize_timer_;
     QList<QPair<int,int> > selected_hfid_path_; // row, hfinfo
 
