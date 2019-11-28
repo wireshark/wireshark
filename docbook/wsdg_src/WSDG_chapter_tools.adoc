@@ -528,16 +528,16 @@ Studio from the same command prompt, e.g.
 
 [source,cmd]
 ----
-C:\Development\wsbuild32>set PATH="%PATH%;C:\Development\wsbuild32\run\RelwithDebInfo"
-C:\Development\wsbuild32>wireshark.sln
+C:\Development\wsbuild64>set PATH="%PATH%;C:\Development\wsbuild64\run\RelwithDebInfo"
+C:\Development\wsbuild64>wireshark.sln
 ----
 
 for PowerShell use
 
 [source,cmd]
 ----
-PS C:\Development\wsbuild32>$env:PATH += ";$(Convert-Path run\RelWithDebInfo)"
-PS C:\Development\wsbuild32>wireshark.sln
+PS C:\Development\wsbuild64>$env:PATH += ";$(Convert-Path run\RelWithDebInfo)"
+PS C:\Development\wsbuild64>wireshark.sln
 ----
 
 When Visual Studio has finished loading the solution, set the executable to
@@ -578,14 +578,14 @@ PS:\> choco install windbg
 
 To debug Wireshark using WinDbg, open the built copy of Wireshark using
 the File -> Open Executable... menu,
-i.e. C:\Development\wsbuild32\run\RelWithDebInfo\Wireshark.exe.  To set a
+i.e. C:\Development\wsbuild64\run\RelWithDebInfo\Wireshark.exe.  To set a
 breakpoint open the required source file using the File -> Open Source File...
 menu and then click on the required line and press F9.  To run the program,
 press F5.
 
 If you require a non-optimised version, then build using a debug configuration, e.g.
 *`msbuild /m /p:Configuration=Debug Wireshark.sln`*. The build products will be found
-in C:\Development\wsbuild32\run\Debug\.
+in C:\Development\wsbuild64\run\Debug\.
 
 [[ChToolsBash]]
 

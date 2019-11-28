@@ -363,8 +363,8 @@ build directory.
 +
 --
 ----
-> mkdir C:\Development\wsbuild32
-> cd C:\Development\wsbuild32
+> mkdir C:\Development\wsbuild64
+> cd C:\Development\wsbuild64
 ----
 to create and jump into the build directory.
 
@@ -410,7 +410,7 @@ At the end of the CMake generation process the following should be displayed:
 ----
 -- Configuring done
 -- Generating done
--- Build files have been written to: C:/Development/wsbuild32
+-- Build files have been written to: C:/Development/wsbuild64
 ----
 
 If you get any other output, there is an issue in your envirnment that must be rectified before building.
@@ -436,7 +436,7 @@ to build Wireshark.
 
 . Wait for Wireshark to compile. This will take a while, and there will be a lot of text output in the command prompt window
 
-. Run _C:\Development\wsbuild32\run\RelWithDebInfo\Wireshark.exe_ and make sure it starts.
+. Run _C:\Development\wsbuild64\run\RelWithDebInfo\Wireshark.exe_ and make sure it starts.
 
 . Open menu:Help[About]. If it shows your "private" program
 version, e.g.: Version {wireshark-version}-myprotocol123
