@@ -436,9 +436,6 @@ void ProtoTree::foreachTreeNode(proto_node *node, gpointer proto_tree_ptr)
 // setRootNode sets the new contents for the protocol tree and subsequently
 // restores the previously expanded state.
 void ProtoTree::setRootNode(proto_node *root_node) {
-    // XXX why do we have this call here?
-    setFont(mono_font_);
-
     // We track item expansion using proto.c:tree_is_expanded.
     // Replace any existing (possibly invalidated) proto tree by the new tree.
     // The expanded state will be reset as well and will be re-expanded below.
