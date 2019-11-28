@@ -86,6 +86,11 @@
 #define PROTOCOL_BINARY_RESPONSE_ETMPFAIL           0x86
 #define PROTOCOL_BINARY_RESPONSE_XATTR_EINVAL       0x87
 #define PROTOCOL_BINARY_RESPONSE_UNKNOWN_COLLECTION         0x88
+#define PROTOCOL_BINARY_RESPONSE_NO_COLLECTIONS_MANIFEST    0x89
+#define PROTOCOL_BINARY_RESPONSE_CANNOT_APPLY_MANIFEST      0x8a
+#define PROTOCOL_BINARY_RESPONSE_MANIFEST_IS_AHEAD          0x8b
+#define PROTOCOL_BINARY_RESPONSE_UNKNOWN_SCOPE              0x8c
+#define PROTOCOL_BINARY_RESPONSE_DCP_STREAMID_INVALID       0x8d
 #define PROTOCOL_BINARY_RESPONSE_DURABILITY_INVALID_LEVEL         0xa0
 #define PROTOCOL_BINARY_RESPONSE_DURABILITY_IMPOSSIBLE            0xa1
 #define PROTOCOL_BINARY_RESPONSE_SYNC_WRITE_IN_PROGRESS           0xa2
@@ -595,6 +600,16 @@ static const value_string status_vals[] = {
     "There is something wrong with the syntax of the provided XATTR."},
   { PROTOCOL_BINARY_RESPONSE_UNKNOWN_COLLECTION,
     "Operation attempted with an unknown collection."},
+  { PROTOCOL_BINARY_RESPONSE_NO_COLLECTIONS_MANIFEST,
+    "No collections manifest has been set"},
+  { PROTOCOL_BINARY_RESPONSE_CANNOT_APPLY_MANIFEST,
+    "Cannot apply the given manifest"},
+  { PROTOCOL_BINARY_RESPONSE_MANIFEST_IS_AHEAD,
+    "Operation attempted with a manifest ahead of the server"},
+  { PROTOCOL_BINARY_RESPONSE_UNKNOWN_SCOPE,
+    "Operation attempted with an unknown scope."},
+  { PROTOCOL_BINARY_RESPONSE_DCP_STREAMID_INVALID,
+    "DCP Stream ID is invalid"},
   { PROTOCOL_BINARY_RESPONSE_DURABILITY_INVALID_LEVEL,
     "The specified durability level is invalid" },
   { PROTOCOL_BINARY_RESPONSE_DURABILITY_IMPOSSIBLE,
