@@ -25,6 +25,7 @@ void proto_reg_handoff_iso15765(void);
 
 #define ISO15765_PCI_OFFSET 0
 #define ISO15765_PCI_LEN 1
+#define ISO15765_PCI_FD_LEN 2
 
 #define ISO15765_MESSAGE_TYPE_MASK 0xF0
 #define ISO15765_MESSAGE_TYPES_SINGLE_FRAME 0
@@ -33,6 +34,7 @@ void proto_reg_handoff_iso15765(void);
 #define ISO15765_MESSAGE_TYPES_FLOW_CONTROL 3
 
 #define ISO15765_MESSAGE_DATA_LENGTH_MASK 0x0F
+#define ISO15765_FD_MESSAGE_DATA_LENGTH_MASK 0x00FF
 #define ISO15765_MESSAGE_EXTENDED_FRAME_LENGTH_MASK 0x0F
 #define ISO15765_MESSAGE_FRAME_LENGTH_OFFSET (ISO15765_PCI_OFFSET + ISO15765_PCI_LEN)
 #define ISO15765_MESSAGE_FRAME_LENGTH_LEN 1
@@ -145,8 +147,8 @@ static const fragment_items iso15765_frag_items = {
         "ISO15765 fragments"
 };
 
-static guint8
-masked_guint8_value(const guint8 value, const guint8 mask)
+static guint16
+masked_guint16_value(const guint16 value, const guint16 mask)
 {
     return (value & mask) >> ws_ctz(mask);
 }
@@ -160,11 +162,12 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_item *ti;
     proto_item *message_type_item;
     tvbuff_t*   next_tvb = NULL;
-    guint8      pci, message_type;
+    guint16     pci, message_type;
     struct can_info can_info;
     iso15765_identifier_t* iso15765_info;
-    guint8      ae = (addressing == NORMAL_ADDRESSING)?0:1;
-    guint8      frag_id_low = 0;
+    guint8      ae = (addressing == NORMAL_ADDRESSING) ? 0 : 1;
+    guint16     frag_id_low = 0;
+    guint8      pci_len = 0;
     guint32     offset;
     gint32      data_length;
     gboolean    fragmented = FALSE;
@@ -180,7 +183,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISO15765");
-    col_clear(pinfo->cinfo,COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     iso15765_info = (iso15765_identifier_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_iso15765, 0);
 
@@ -197,19 +200,29 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                                             ae + ISO15765_PCI_OFFSET, ISO15765_PCI_LEN, ENC_BIG_ENDIAN);
 
     pci = tvb_get_guint8(tvb, ae + ISO15765_PCI_OFFSET);
-    message_type = masked_guint8_value(pci, ISO15765_MESSAGE_TYPE_MASK);
+    message_type = masked_guint16_value(pci, ISO15765_MESSAGE_TYPE_MASK);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_type, iso15765_message_types, "Unknown (0x%02x)"));
+
     switch(message_type) {
         case ISO15765_MESSAGE_TYPES_SINGLE_FRAME: {
-            offset = ae + ISO15765_PCI_OFFSET + ISO15765_PCI_LEN;
-            data_length = masked_guint8_value(pci, ISO15765_MESSAGE_DATA_LENGTH_MASK);
+            if (can_info.fd && can_info.len > 8) {
+                pci = tvb_get_guint16(tvb, ae + ISO15765_PCI_OFFSET, ENC_BIG_ENDIAN);
+                pci_len = ISO15765_PCI_FD_LEN;
+                offset = ae + ISO15765_PCI_OFFSET + ISO15765_PCI_FD_LEN;
+                data_length = masked_guint16_value(pci, ISO15765_FD_MESSAGE_DATA_LENGTH_MASK);
+            } else {
+                pci_len = ISO15765_PCI_LEN;
+                offset = ae + ISO15765_PCI_OFFSET + ISO15765_PCI_LEN;
+                data_length = masked_guint16_value(pci, ISO15765_MESSAGE_DATA_LENGTH_MASK);
+            }
+
             next_tvb = tvb_new_subset_length_caplen(tvb, offset, data_length, data_length);
             complete = TRUE;
 
             /* Show some info */
             proto_tree_add_item(iso15765_tree, hf_iso15765_data_length, tvb,
-                                ae + ISO15765_PCI_OFFSET, ISO15765_PCI_LEN, ENC_BIG_ENDIAN);
+                                ae + ISO15765_PCI_OFFSET, pci_len, ENC_BIG_ENDIAN);
             col_append_fstr(pinfo->cinfo, COL_INFO, "(Len: %d)", data_length);
             break;
         }
@@ -238,7 +251,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         case ISO15765_MESSAGE_TYPES_CONSECUTIVE_FRAME: {
             offset = ae + ISO15765_PCI_OFFSET + ISO15765_PCI_LEN;
             data_length = tvb_reported_length(tvb) - offset;
-            frag_id_low = masked_guint8_value(pci, ISO15765_MESSAGE_SEQUENCE_NUMBER_MASK);
+            frag_id_low = masked_guint16_value(pci, ISO15765_MESSAGE_SEQUENCE_NUMBER_MASK);
             fragmented = TRUE;
 
             /* Save information */
@@ -253,7 +266,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             break;
         }
         case ISO15765_MESSAGE_TYPES_FLOW_CONTROL: {
-            guint8 status = masked_guint8_value(pci, ISO15765_MESSAGE_DATA_LENGTH_MASK);
+            guint16 status = masked_guint16_value(pci, ISO15765_MESSAGE_DATA_LENGTH_MASK);
             guint8 bs = tvb_get_guint8(tvb, ae + ISO15765_FC_BS_OFFSET);
             guint8 stmin = tvb_get_guint8(tvb, ae + ISO15765_FC_STMIN_OFFSET);
             data_length = 0;
@@ -270,7 +283,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         default:
             expert_add_info_format(pinfo, message_type_item, &ei_iso15765_message_type_bad,
                                    "Bad Message Type value %u <= 3", message_type);
-			return ae + ISO15765_PCI_OFFSET;
+            return ae + ISO15765_PCI_OFFSET;
     }
 
     /* Show data */
@@ -374,8 +387,8 @@ proto_register_iso15765(void)
                     &hf_iso15765_data_length,
                     {
                             "Data length",    "iso15765.data_length",
-                            FT_UINT8,  BASE_DEC,
-                            NULL, ISO15765_MESSAGE_DATA_LENGTH_MASK,
+                            FT_UINT16,  BASE_DEC,
+                            NULL, 0,
                             NULL, HFILL
                     }
             },
@@ -567,8 +580,7 @@ proto_register_iso15765(void)
 
     iso15765_frame_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 
-    reassembly_table_register(&iso15765_reassembly_table,
-                          &addresses_reassembly_table_functions);
+    reassembly_table_register(&iso15765_reassembly_table, &addresses_reassembly_table_functions);
 
     subdissector_table = register_decode_as_next_proto(proto_iso15765, "iso15765.subdissector", "ISO15765 next level dissector", NULL);
 }
