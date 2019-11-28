@@ -2309,9 +2309,10 @@ static const value_string rtcp_mcptt_loc_type_vals[] = {
 };
 
 static int
-dissect_rtcp_mcptt_location_ie(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree* tree)
+dissect_rtcp_mcptt_location_ie(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree* tree, guint32 mcptt_fld_len)
 {
     guint32 loc_type;
+    int start_offset = offset;
     const int* ECGI_flags[] = {
         &hf_rtcp_mcptt_enodebid,
         &hf_rtcp_mcptt_cellid,
@@ -2370,6 +2371,10 @@ dissect_rtcp_mcptt_location_ie(tvbuff_t* tvb, packet_info* pinfo, int offset, pr
         proto_tree_add_expert(tree, pinfo, &ei_rtcp_mcptt_location_type, tvb, offset-1, 1);
         break;
     }
+    if ((guint)(offset - start_offset) != mcptt_fld_len) {
+        proto_tree_add_item(tree, hf_rtcp_app_data_padding, tvb, offset, offset - start_offset, ENC_BIG_ENDIAN);
+        offset += (offset - start_offset);
+    }
 
     return offset;
 }
@@ -2398,6 +2403,7 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
     }
     while (packet_len > 0) {
         int len_len, padding = 0;
+        int start_offset = offset;
         /* Field ID 8 bits*/
         proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_fld_id, tvb, offset, 1, ENC_BIG_ENDIAN, &mcptt_fld_id);
         offset++;
@@ -2617,7 +2623,7 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
 
         case 19:
             /* Location */
-            offset = dissect_rtcp_mcptt_location_ie(tvb, pinfo, offset, sub_tree);
+            offset = dissect_rtcp_mcptt_location_ie(tvb, pinfo, offset, sub_tree, mcptt_fld_len);
             break;
         case 20:
             /* List of Locations */
@@ -2628,7 +2634,7 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             offset += 1;
 
             while (num_loc > 0) {
-                offset = dissect_rtcp_mcptt_location_ie(tvb, pinfo, offset, sub_tree);
+                offset = dissect_rtcp_mcptt_location_ie(tvb, pinfo, offset, sub_tree, mcptt_fld_len);
                 num_loc--;
             }
             break;
@@ -2643,6 +2649,7 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             proto_tree_add_item(sub_tree, hf_rtcp_app_data_padding, tvb, offset, padding, ENC_BIG_ENDIAN);
             offset += padding;
         }
+        packet_len -= offset - start_offset;
     }
 
     return offset;
