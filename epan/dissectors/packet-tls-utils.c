@@ -96,8 +96,8 @@ const value_string ssl_versions[] = {
     { 0x7F1A,               "TLS 1.3 (draft 26)" },
     { 0x7F1B,               "TLS 1.3 (draft 27)" },
     { 0x7F1C,               "TLS 1.3 (draft 28)" },
-    { 0xFB17,               "TLS 1.3 (draft 23) - fb" },
-    { 0xFB1A,               "TLS 1.3 (draft 26) - fb" },
+    { 0xFB17,               "TLS 1.3 (Facebook draft 23)" },
+    { 0xFB1A,               "TLS 1.3 (Facebook draft 26)" },
     { DTLSV1DOT0_OPENSSL_VERSION, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
     { DTLSV1DOT0_VERSION,   "DTLS 1.0" },
     { DTLSV1DOT2_VERSION,   "DTLS 1.2" },
@@ -7430,6 +7430,11 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
         tls13_draft = extract_tls13_draft_version(version);
         if (tls13_draft != 0) {
             /* This is TLS 1.3 (a draft version). */
+            version = TLSV1DOT3_VERSION;
+        }
+        if (version == 0xfb17 || version == 0xfb1a) {
+            /* Unofficial TLS 1.3 draft version for Facebook fizz. */
+            tls13_draft = (guint8)version;
             version = TLSV1DOT3_VERSION;
         }
     }
