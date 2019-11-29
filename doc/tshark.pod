@@ -11,64 +11,12 @@ tshark - Dump and analyze network traffic
 =head1 SYNOPSIS
 
 B<tshark>
-S<[ B<-2> ]>
-S<[ B<-a> E<lt>capture autostop conditionE<gt> ] ...>
-S<[ B<-b> E<lt>capture ring buffer optionE<gt>] ...>
-S<[ B<-B> E<lt>capture buffer sizeE<gt> ] >
-S<[ B<-c> E<lt>capture packet countE<gt> ]>
-S<[ B<-C> E<lt>configuration profileE<gt> ]>
-S<[ B<-d> E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt> ]>
-S<[ B<-D> ]>
-S<[ B<-e> E<lt>fieldE<gt> ]>
-S<[ B<-E> E<lt>field print optionE<gt> ]>
-S<[ B<-f> E<lt>capture filterE<gt> ]>
-S<[ B<-F> E<lt>file formatE<gt> ]>
-S<[ B<-g> ]>
-S<[ B<-h> ]>
-S<[ B<-H> E<lt>input hosts fileE<gt> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
-S<[ B<-I> ]>
-S<[ B<-j> E<lt>protocol match filterE<gt> ]>
-S<[ B<-J> E<lt>protocol match filterE<gt> ]>
-S<[ B<-K> E<lt>keytabE<gt> ]>
-S<[ B<-l> ]>
-S<[ B<-L> ]>
-S<[ B<-n> ]>
-S<[ B<-N> E<lt>name resolving flagsE<gt> ]>
-S<[ B<-o> E<lt>preference settingE<gt> ] ...>
-S<[ B<-O> E<lt>protocolsE<gt> ]>
-S<[ B<-p> ]>
-S<[ B<-P> ]>
-S<[ B<-q> ]>
-S<[ B<-Q> ]>
+S<[ B<-f> E<lt>capture filterE<gt> ]>
+S<[ B<-2> ]>
 S<[ B<-r> E<lt>infileE<gt> ]>
-S<[ B<-R> E<lt>Read filterE<gt> ]>
-S<[ B<-s> E<lt>capture snaplenE<gt> ]>
-S<[ B<-S> E<lt>separatorE<gt> ]>
-S<[ B<-t> a|ad|adoy|d|dd|e|r|u|ud|udoy ]>
-S<[ B<-T> ek|fields|json|jsonraw|pdml|ps|psml|tabs|text ]>
-S<[ B<-u> E<lt>seconds typeE<gt>]>
-S<[ B<-U> E<lt>tap_nameE<gt>]>
-S<[ B<-v> ]>
-S<[ B<-V> ]>
 S<[ B<-w> E<lt>outfileE<gt>|- ]>
-S<[ B<-W> E<lt>file format optionE<gt>]>
-S<[ B<-x> ]>
-S<[ B<-X> E<lt>eXtension optionE<gt>]>
-S<[ B<-y> E<lt>capture link typeE<gt> ]>
-S<[ B<-Y> E<lt>displaY filterE<gt> ]>
-S<[ B<-M> E<lt>auto session resetE<gt> ]>
-S<[ B<-z> E<lt>statisticsE<gt> ]>
-S<[ B<--capture-comment> E<lt>commentE<gt> ]>
-S<[ B<--list-time-stamp-types> ]>
-S<[ B<--time-stamp-type> E<lt>typeE<gt> ]>
-S<[ B<--color> ]>
-S<[ B<--no-duplicate-keys> ]>
-S<[ B<--export-objects> E<lt>protocolE<gt>,E<lt>destdirE<gt> ]>
-S<[ B<--enable-protocol> E<lt>proto_nameE<gt> ]>
-S<[ B<--disable-protocol> E<lt>proto_nameE<gt> ]>
-S<[ B<--enable-heuristic> E<lt>short_nameE<gt> ]>
-S<[ B<--disable-heuristic> E<lt>short_nameE<gt> ]>
+S<[ B<options> ]>
 S<[ E<lt>filterE<gt> ]>
 
 B<tshark>
@@ -210,7 +158,7 @@ entire first pass is done, but allows it to fill in fields that require future
 knowledge, such as 'response in frame #' fields. Also permits reassembly
 frame dependencies to be calculated correctly.
 
-=item -a  E<lt>capture autostop conditionE<gt>
+=item -a|--autostop  E<lt>capture autostop conditionE<gt>
 
 Specify a criterion that specifies when B<TShark> is to stop writing
 to a capture file.  The criterion is of the form I<test>B<:>I<value>,
@@ -233,7 +181,7 @@ the filesize is limited to a maximum value of 2 GiB.
 B<packets>:I<value> switch to the next file after it contains I<value>
 packets. Same as B<-c>E<lt>capture packet countE<gt>.
 
-=item -b  E<lt>capture ring buffer optionE<gt>
+=item -b|--ring-buffer  E<lt>capture ring buffer optionE<gt>
 
 Cause B<TShark> to run in "multiple files" mode.  In "multiple files" mode,
 B<TShark> will write to several capture files.  When the first capture file
@@ -276,10 +224,10 @@ every hour on the hour.
 B<packets>:I<value> switch to the next file after it contains I<value>
 packets.
 
-Example: B<tshark -b filesize:1000 -b files:5> results in a ring buffer of five files
-of size one megabyte each.
+Example: B<tshark -b filesize:1000 -b files:5> results in a ring buffer of five
+files of size one megabyte each.
 
-=item -B  E<lt>capture buffer sizeE<gt>
+=item -B|--buffer-size  E<lt>capture buffer sizeE<gt>
 
 Set capture buffer size (in MiB, default is 2 MiB).  This is used by
 the capture driver to buffer packet data until that data can be written
@@ -323,18 +271,18 @@ TCP port 8888 as HTTP.
 Example: B<tshark -d tcp.port==8888:3,http> will decode any traffic running over
 TCP ports 8888, 8889 or 8890 as HTTP.
 
-Example: B<tshark -d tcp.port==8888-8890,http> will decode any traffic running over
-TCP ports 8888, 8889 or 8890 as HTTP.
+Example: B<tshark -d tcp.port==8888-8890,http> will decode any traffic running
+over TCP ports 8888, 8889 or 8890 as HTTP.
 
 Using an invalid selector or protocol will print out a list of valid selectors
 and protocol names, respectively.
 
 Example: B<tshark -d .> is a quick way to get a list of valid selectors.
 
-Example: B<tshark -d ethertype==0x0800.> is a quick way to get a list of protocols that can be
-selected with an ethertype.
+Example: B<tshark -d ethertype==0x0800.> is a quick way to get a list of
+protocols that can be selected with an ethertype.
 
-=item -D
+=item -D|--list-interfaces
 
 Print a list of the interfaces on which B<TShark> can capture, and
 exit.  For each network interface, a number and an
@@ -411,8 +359,8 @@ the interface specified by the last B<-i> option occurring before
 this option.  If the capture filter expression is not set specifically,
 the default capture filter expression is used if provided.
 
-Pre-defined capture filter names, as shown in the GUI menu item Capture->Capture Filters,
-can be used by prefixing the argument with "predef:".
+Pre-defined capture filter names, as shown in the GUI menu item Capture->Capture
+Filters, can be used by prefixing the argument with "predef:".
 Example: B<tshark -f "predef:MyPredefinedHostOnlyFilter">
 
 =item -F  E<lt>file formatE<gt>
@@ -431,7 +379,8 @@ user's group).
 =item -G  [ E<lt>report typeE<gt> ]
 
 The B<-G> option will cause B<Tshark> to dump one of several types of glossaries
-and then exit.  If no specific glossary type is specified, then the B<fields> report will be generated by default.
+and then exit.  If no specific glossary type is specified, then the B<fields>
+report will be generated by default.
 Using the report type of B<help> lists all the current report types.
 
 The available report types include:
@@ -556,9 +505,7 @@ the type of record.
  * Field 3 = True String
  * Field 4 = False String
 
-=item -h
-
-=item --help
+=item -h|--help
 
 Print the version and options and exit.
 
@@ -570,7 +517,7 @@ to a capture file.  Implies B<-W n>. Can be called multiple times.
 The "hosts" file format is documented at
 L<https://en.wikipedia.org/wiki/Hosts_(file)>.
 
-=item -i  E<lt>capture interfaceE<gt> | -
+=item -i|--interface  E<lt>capture interfaceE<gt> | -
 
 Set the name of the network interface or pipe to use for live packet
 capture.
@@ -596,7 +543,7 @@ endianness as the capturing host.
 This option can occur multiple times. When capturing from multiple
 interfaces, the capture file will be saved in pcapng format.
 
-=item -I
+=item -I|--monitor-mode
 
 Put the interface in "monitor mode"; this is supported only on IEEE
 802.11 Wi-Fi interfaces, and supported only on some operating systems.
@@ -655,7 +602,7 @@ see the dissected data for a packet as soon as B<TShark> sees the
 packet and generates that output, rather than seeing it only when the
 standard output buffer containing that data fills up.
 
-=item -L
+=item -L|--list-data-link-types
 
 List the data link types supported by the interface and exit.  The reported
 link types can be used for the B<-y> option.
@@ -704,7 +651,7 @@ show only the top-level detail line for all other protocols, rather than
 a detailed view of all protocols.  Use the output of "B<tshark -G
 protocols>" to find the abbreviations of the protocols you can specify.
 
-=item -p
+=item -p|--no-promiscuous-mode
 
 I<Don't> put the interface into promiscuous mode.  Note that the
 interface might be in promiscuous mode for some other reason; hence,
@@ -720,9 +667,7 @@ If used after an B<-i> option, the interface specified by the last B<-i>
 option occurring before this option will not be put into the
 promiscuous mode.
 
-=item -P
-
-=item --print
+=item -P|--print
 
 Decode and display the packet summary or details, even if writing raw
 packet data using the B<-w> option, and even if packet output is
@@ -762,14 +707,14 @@ don't print packet information; this is useful if you're using a B<-z>
 option to calculate statistics and don't want the packet information
 printed, just the statistics.
 
-=item -r  E<lt>infileE<gt>
+=item -r|--read-file  E<lt>infileE<gt>
 
 Read packet data from I<infile>, can be any supported capture file format
 (including gzipped files).  It is possible to use named pipes or stdin (-)
 here but only with certain (not compressed) capture file formats (in
 particular: those that can be read without seeking backwards).
 
-=item -R  E<lt>Read filterE<gt>
+=item -R|--read-filter  E<lt>Read filterE<gt>
 
 Cause the specified filter (which uses the syntax of read/display filters,
 rather than that of capture filters) to be applied during the first pass of
@@ -781,7 +726,7 @@ Note that forward-looking fields such as 'response in frame #' cannot be used
 with this filter, since they will not have been calculate when this filter is
 applied.
 
-=item -s  E<lt>capture snaplenE<gt>
+=item -s|--snapshot-length  E<lt>capture snaplenE<gt>
 
 Set the default snapshot length to use when capturing live data.
 No more than I<snaplen> bytes of each network packet will be read into
@@ -920,13 +865,12 @@ B<hms> for hours, minutes and seconds
 
 =item -U E<lt>tap nameE<gt>
 
-PDUs export, exports PDUs from infile to outfile according to the tap name given. Use -Y to filter.
+PDUs export, exports PDUs from infile to outfile according to the tap name given.
+Use -Y to filter.
 
 Enter an empty tap name "" to get a list of available names.
 
-=item -v
-
-=item --version
+=item -v|--version
 
 Print the version and exit.
 
@@ -969,21 +913,23 @@ after printing the summary and/or details, if either are also being displayed.
 Specify an option to be passed to a B<TShark> module.  The eXtension option
 is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
 
-B<lua_script>:I<lua_script_filename> tells B<TShark> to load the given script in addition to the
-default Lua scripts.
+B<lua_script>:I<lua_script_filename> tells B<TShark> to load the given script in
+addition to the default Lua scripts.
 
 B<lua_script>I<num>:I<argument> tells B<TShark> to pass the given argument
-to the lua script identified by 'num', which is the number indexed order of the 'lua_script' command.
-For example, if only one script was loaded with '-X lua_script:my.lua', then '-X lua_script1:foo'
-will pass the string 'foo' to the 'my.lua' script.  If two scripts were loaded, such as '-X lua_script:my.lua'
-and '-X lua_script:other.lua' in that order, then a '-X lua_script2:bar' would pass the string 'bar' to the second lua
-script, namely 'other.lua'.
+to the lua script identified by 'num', which is the number indexed order of the
+'lua_script' command. For example, if only one script was loaded with
+'-X lua_script:my.lua', then '-X lua_script1:foo' will pass the string 'foo' to
+the 'my.lua' script.  If two scripts were loaded, such as '-X lua_script:my.lua'
+and '-X lua_script:other.lua' in that order, then a '-X lua_script2:bar' would
+pass the string 'bar' to the second lua script, namely 'other.lua'.
 
-B<read_format>:I<file_format> tells B<TShark> to use the given file format to read in the
-file (the file given in the B<-r> command option). Providing no I<file_format> argument, or
-an invalid one, will produce a file of available file formats to use.
+B<read_format>:I<file_format> tells B<TShark> to use the given file format to
+read in the file (the file given in the B<-r> command option). Providing no
+I<file_format> argument, or an invalid one, will produce a file of available
+file formats to use.
 
-=item -y  E<lt>capture link typeE<gt>
+=item -y|--linktype  E<lt>capture link typeE<gt>
 
 Set the data link type to use while capturing packets.  The values
 reported by B<-L> are the values that can be used.
@@ -995,7 +941,7 @@ the interface specified by the last B<-i> option occurring before
 this option.  If the capture link type is not set specifically,
 the default capture link type is used if provided.
 
-=item -Y  E<lt>displaY filterE<gt>
+=item -Y|--display-filter  E<lt>displaY filterE<gt>
 
 Cause the specified filter (which uses the syntax of read/display filters,
 rather than that of capture filters) to be applied before printing a
@@ -1088,7 +1034,8 @@ version I<major>.I<minor>.
 Data collected is the number of calls for each procedure, MinSRT, MaxSRT
 and AvgSRT.
 
-Example: S<B<-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0>> will collect data for the CIFS SAMR Interface.
+Example: S<B<-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0>> will
+collect data for the CIFS SAMR Interface.
 
 This option can be used multiple times on the command line.
 
@@ -1104,8 +1051,9 @@ Show DHCP (BOOTP) statistics.
 
 =item B<-z> diameter,avp[,I<cmd.code>,I<field>,I<field>,I<...>]
 
-This option enables extraction of most important diameter fields from large capture files.
-Exactly one text line for each diameter message with matched B<diameter.cmd.code> will be printed.
+This option enables extraction of most important diameter fields from large
+capture files. Exactly one text line for each diameter message with matched
+B<diameter.cmd.code> will be printed.
 
 Empty diameter command code or '*' can be specified to mach any B<diameter.cmd.code>
 
@@ -1141,14 +1089,16 @@ B<-z diameter,avp> option is more powerful than B<-T field> and B<-z proto,colin
 
 Multiple diameter messages in one frame are supported.
 
-Several fields with same name within one diameter message are supported, e.g. I<diameter.Subscription-Id-Data> or I<diameter.Rating-Group>.
+Several fields with same name within one diameter message are supported, e.g.
+I<diameter.Subscription-Id-Data> or I<diameter.Rating-Group>.
 
 Note: B<tshark -q> option is recommended to suppress default B<tshark> output.
 
 =item B<-z> dns,tree[,I<filter>]
 
-Create a summary of the captured DNS packets. General information are collected such as qtype and qclass distribution.
-For some data (as qname length or DNS payload) max, min and average values are also displayed.
+Create a summary of the captured DNS packets. General information are collected
+such as qtype and qclass distribution. For some data (as qname length or DNS
+payload) max, min and average values are also displayed.
 
 =item B<-z> endpoints,I<type>[,I<filter>]
 
@@ -1467,8 +1417,9 @@ all the packets within a 10 millisecond interval.
 
 B<MIN/MAX/AVG(I<field>)I<filter>> - The minimum, maximum, or average field value
 in each interval is calculated.  The specified field must be a named integer,
-float, double or relative time field.  For relative time fields, the output is presented in
-seconds with six decimal digits of precision rounded to the nearest microsecond.
+float, double or relative time field.  For relative time fields, the output is
+presented in seconds with six decimal digits of precision rounded to the nearest
+microsecond.
 
 In the following example, the time of the first Read_AndX call, the last Read_AndX
 response values are displayed and the minimum, maximum, and average Read response times

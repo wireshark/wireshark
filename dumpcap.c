@@ -401,33 +401,39 @@ print_usage(FILE *output)
     fprintf(output, "\nUsage: dumpcap [options] ...\n");
     fprintf(output, "\n");
     fprintf(output, "Capture interface:\n");
-    fprintf(output, "  -i <interface>           name or idx of interface (def: first non-loopback),\n"
+    fprintf(output, "  -i <interface>, --interface <interface>\n");
+    fprintf(output, "                           name or idx of interface (def: first non-loopback),\n"
                     "                           or for remote capturing, use one of these formats:\n"
                     "                               rpcap://<host>/<interface>\n"
                     "                               TCP@<host>:<port>\n");
     fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
+    fprintf(output, "  -s <snaplen>, --snapshot-length <snaplen>\n");
 #ifdef HAVE_PCAP_CREATE
-    fprintf(output, "  -s <snaplen>             packet snapshot length (def: appropriate maximum)\n");
+    fprintf(output, "                           packet snapshot length (def: appropriate maximum)\n");
 #else
-    fprintf(output, "  -s <snaplen>             packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE_STANDARD);
+    fprintf(output, "                           packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE_STANDARD);
 #endif
-    fprintf(output, "  -p                       don't capture in promiscuous mode\n");
+    fprintf(output, "  -p, --no-promiscuous-mode\n");
+    fprintf(output, "                           don't capture in promiscuous mode\n");
 #ifdef HAVE_PCAP_CREATE
-    fprintf(output, "  -I                       capture in monitor mode, if available\n");
+    fprintf(output, "  -I, --monitor-mode       capture in monitor mode, if available\n");
 #endif
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-    fprintf(output, "  -B <buffer size>         size of kernel buffer in MiB (def: %dMiB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
+    fprintf(output, "  -B <buffer size>, --buffer-size <buffer size>\n");
+    fprintf(output, "                           size of kernel buffer in MiB (def: %dMiB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
 #endif
-    fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
+    fprintf(output, "  -y <link type>, --linktype <link type>\n");
+    fprintf(output, "                           link layer type (def: first appropriate)\n");
     fprintf(output, "  --time-stamp-type <type> timestamp method for interface\n");
-    fprintf(output, "  -D                       print list of interfaces and exit\n");
-    fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
+    fprintf(output, "  -D, --list-interfaces    print list of interfaces and exit\n");
+    fprintf(output, "  -L, --list-data-link-types\n");
+    fprintf(output, "                           print list of link-layer types of iface and exit\n");
     fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
 #ifdef HAVE_BPF_IMAGE
     fprintf(output, "  -d                       print generated BPF code for capture filter\n");
 #endif
-    fprintf(output, "  -k                       set channel on wifi interface:\n"
-                    "                           <freq>,[<type>],[<center_freq1>],[<center_freq2>]\n");
+    fprintf(output, "  -k <freq>,[<type>],[<center_freq1>],[<center_freq2>]\n");
+    fprintf(output, "                           set channel on wifi interface\n");
     fprintf(output, "  -S                       print statistics for each interface once per second\n");
     fprintf(output, "  -M                       for -D, -L, and -S, produce machine-readable output\n");
     fprintf(output, "\n");
@@ -444,7 +450,8 @@ print_usage(FILE *output)
 #endif
     fprintf(output, "Stop conditions:\n");
     fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
-    fprintf(output, "  -a <autostop cond.> ...  duration:NUM - stop after NUM seconds\n");
+    fprintf(output, "  -a <autostop cond.> ..., --autostop <autostop cond.> ...\n");
+    fprintf(output, "                           duration:NUM - stop after NUM seconds\n");
     fprintf(output, "                           filesize:NUM - stop this file after NUM kB\n");
     fprintf(output, "                              files:NUM - stop after NUM files\n");
     fprintf(output, "                            packets:NUM - stop after NUM packets\n");
@@ -452,11 +459,13 @@ print_usage(FILE *output)
     fprintf(output, "Output (files):\n");
     fprintf(output, "  -w <filename>            name of file to save (def: tempfile)\n");
     fprintf(output, "  -g                       enable group read access on the output file(s)\n");
-    fprintf(output, "  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs\n");
-    fprintf(output, "                           interval:NUM - create time intervals of NUM secs\n");
+    fprintf(output, "  -b <ringbuffer opt.> ..., --ring-buffer <ringbuffer opt.>\n");
+    fprintf(output, "                           duration:NUM - switch to next file after NUM secs\n");
     fprintf(output, "                           filesize:NUM - switch to next file after NUM kB\n");
     fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
     fprintf(output, "                            packets:NUM - ringbuffer: replace after NUM packets\n");
+    fprintf(output, "                           interval:NUM - switch to next file when the time is\n");
+    fprintf(output, "                                          an exact multiple of NUM secs\n");
     fprintf(output, "  -n                       use pcapng format instead of pcap (default)\n");
     fprintf(output, "  -P                       use libpcap format instead of pcapng\n");
     fprintf(output, "  --capture-comment <comment>\n");
@@ -469,8 +478,8 @@ print_usage(FILE *output)
     fprintf(output, "                           within dumpcap\n");
     fprintf(output, "  -t                       use a separate thread per interface\n");
     fprintf(output, "  -q                       don't report packet capture counts\n");
-    fprintf(output, "  -v                       print version information and exit\n");
-    fprintf(output, "  -h                       display this help and exit\n");
+    fprintf(output, "  -v, --version            print version information and exit\n");
+    fprintf(output, "  -h, --help               display this help and exit\n");
     fprintf(output, "\n");
 #ifdef __linux__
     fprintf(output, "Dumpcap can benefit from an enabled BPF JIT compiler if available.\n");
