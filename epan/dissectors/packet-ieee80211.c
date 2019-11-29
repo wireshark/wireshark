@@ -14563,6 +14563,22 @@ save_proto_data_value(packet_info *pinfo, guint value, int key)
   p_add_proto_data(pinfo->pool, pinfo, proto_wlan, key, GUINT_TO_POINTER(value));
 }
 
+static void
+set_packet_data_last_akm_suite(ieee80211_packet_data_t *packet_data,
+                               guint32 last_akm_suite)
+{
+  packet_data->last_akm_suite_set = TRUE;
+  packet_data->last_akm_suite = last_akm_suite;
+}
+
+static void
+set_conversation_last_akm_suite(ieee80211_conversation_data_t *conv,
+                                guint32 last_akm_suite)
+{
+  conv->last_akm_suite_set = TRUE;
+  conv->last_akm_suite = last_akm_suite;
+}
+
 /*
  * 7.3.2.25 RSNE information element. Common format with OSEN except the
  * verison... should refactor
@@ -14683,7 +14699,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
       proto_item_append_text(rsn_akms_item, " %s", rsn_akms_return(tvb_get_ntohl(tvb, offset)));
       save_proto_data_value(pinfo, tvb_get_guint8(tvb, offset + 3), AKM_KEY);
 
-      packet_data->last_akm_suite = tvb_get_ntohl(tvb, offset);
+      set_packet_data_last_akm_suite(packet_data, tvb_get_ntohl(tvb, offset));
       if (association_sanity_check) {
         guint32 akm_suite = tvb_get_ntohl(tvb, offset);
         association_sanity_check->last_akm_suite = akm_suite;
@@ -15312,7 +15328,8 @@ static conversation_t *find_wlan_conversation_pinfo(packet_info *pinfo)
   return find_conversation_pinfo(pinfo, 0);
 }
 
-static guint16 determine_mic_len(packet_info *pinfo, gboolean assoc_frame) {
+static guint16 determine_mic_len(packet_info *pinfo, gboolean assoc_frame,
+                                 gboolean *defaulted) {
   guint16 eapol_key_mic_len = 16; /* Default MIC length */
   conversation_t *conversation = find_wlan_conversation_pinfo(pinfo);
   ieee80211_conversation_data_t *conversation_data = NULL;
@@ -15326,8 +15343,18 @@ static guint16 determine_mic_len(packet_info *pinfo, gboolean assoc_frame) {
     /* 1st - Use user overridden MIC length setting */
     eapol_key_mic_len = wlan_key_mic_len;
   }
-  else if (conversation_data && !assoc_frame) {
-    /* 2nd - Use AKMS negotiated during association to determine MIC length */
+  else if (!assoc_frame && conversation_data &&
+           conversation_data->discovered_key_mic_len) {
+    /*
+     * 2nd - Use the discovered key mic len.
+     * We will only set the discovered key mic len if it was defaulted
+     * in an earlier call to determine_mic_len, so it should be tested second.
+     */
+      eapol_key_mic_len = conversation_data->discovered_key_mic_len;
+  }
+  else if (!assoc_frame && conversation_data &&
+           conversation_data->last_akm_suite_set) {
+    /* 3rd - Use AKMS negotiated during association to determine MIC length */
     if (conversation_data->last_akm_suite == AKMS_OWE) {
       /* For OWE the the length of MIC depends on the selected group */
       eapol_key_mic_len = get_mic_len_owe(conversation_data->owe_group);
@@ -15336,7 +15363,7 @@ static guint16 determine_mic_len(packet_info *pinfo, gboolean assoc_frame) {
       eapol_key_mic_len = get_mic_len(conversation_data->last_akm_suite);
     }
   }
-  else if (packet_data) {
+  else if (packet_data && packet_data->last_akm_suite_set) {
     /* 3rd - Use AKMS from current packet to determine MIC length */
     if (packet_data->last_akm_suite == AKMS_OWE) {
       /* For OWE the the length of MIC depends on the selected group */
@@ -15345,6 +15372,11 @@ static guint16 determine_mic_len(packet_info *pinfo, gboolean assoc_frame) {
     else {
       eapol_key_mic_len = get_mic_len(packet_data->last_akm_suite);
     }
+  } else {
+    /*
+     * We used the default so say so.
+     */
+    *defaulted = TRUE;
   }
   return eapol_key_mic_len;
 }
@@ -15368,7 +15400,8 @@ dissect_fast_bss_transition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
-  int mic_len = determine_mic_len(pinfo, assoc_frame);
+  gboolean defaulted_mic_len = FALSE;
+  int mic_len = determine_mic_len(pinfo, assoc_frame, &defaulted_mic_len);
   proto_tree_add_item(tree, hf_ieee80211_tag_ft_mic,
                       tvb, offset, mic_len, ENC_NA);
   offset += mic_len;
@@ -22510,6 +22543,7 @@ static ieee80211_conversation_data_t* get_or_create_conversation_data(conversati
     conversation_data = wmem_new(wmem_file_scope(), ieee80211_conversation_data_t);
     conversation_add_proto_data(conversation, proto_wlan, conversation_data);
   }
+  memset(conversation_data, 0, sizeof(ieee80211_conversation_data_t));
   return conversation_data;
 }
 
@@ -22562,7 +22596,8 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       }
       conversation = find_or_create_wlan_conversation(pinfo);
       conversation_data = get_or_create_conversation_data(conversation);
-      conversation_data->last_akm_suite = association_sanity_check.last_akm_suite;
+      set_conversation_last_akm_suite(conversation_data,
+                                      association_sanity_check.last_akm_suite);
       conversation_data->owe_group = association_sanity_check.owe_group;
       break;
 
@@ -22605,7 +22640,8 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       }
       conversation = find_or_create_wlan_conversation(pinfo);
       conversation_data = get_or_create_conversation_data(conversation);
-      conversation_data->last_akm_suite = association_sanity_check.last_akm_suite;
+      set_conversation_last_akm_suite(conversation_data,
+                                      association_sanity_check.last_akm_suite);
       conversation_data->owe_group = association_sanity_check.owe_group;
       break;
 
@@ -25685,6 +25721,7 @@ static int hf_wlan_rsna_eapol_wpa_keydes_mic = -1;
 static int hf_wlan_rsna_eapol_wpa_keydes_data_len = -1;
 static int hf_wlan_rsna_eapol_wpa_keydes_data = -1;
 static int hf_wlan_rsna_eapol_wpa_keydes_padding = -1;
+static int hf_wlan_rsna_eapol_wpa_extraneous = -1;
 
 static gint ett_keyinfo = -1;
 static gint ett_wlan_rsna_eapol_keydes_data = -1;
@@ -25811,10 +25848,102 @@ try_scan_eapol_keys(packet_info *pinfo, DOT11DECRYPT_HS_MSG_TYPE msg_type)
                                bssid, sta);
 }
 
+/*
+ * In some cases we do not know the key mic len from other sources, however
+ * we can figure it out from the first frame in the four-way handshake.
+ *
+ * It defaults to 16 bytes, but if there are more than 16 bytes of zeros before
+ * the eapol data len, then we can adjust upwards. We used steps of 8 bytes
+ * because the MIC len is usually a multiple of 8 in length.
+ *
+ * If we find it, set it in the conversation data for the wlan conversation
+ * found via the pinfo.
+ */
+static void
+discover_key_mic_len1(tvbuff_t *tvb, packet_info *pinfo, guint offset)
+{
+  conversation_t *conversation = find_or_create_wlan_conversation(pinfo);
+  ieee80211_conversation_data_t *conversation_data = get_or_create_conversation_data(conversation);
+  guint16 mic_len = 16;
+
+  /*
+   * The first sixteen bytes at offset should 0. If not, get out of here
+   */
+  if (tvb_get_letoh64(tvb, offset) != 0 ||
+      tvb_get_letoh64(tvb, offset + 8) != 0) {
+    return;
+  }
+
+  offset += 16;
+  /*
+   * Do we have another 8 bytes of zeros? But do not fall off the end!
+   */
+  while ((tvb_captured_length(tvb) > (offset + 8)) &&
+         tvb_get_letoh64(tvb, offset) == 0) {
+    /*
+     * equal to the rest of the data.
+     */
+    mic_len += 8;
+    offset += 8;
+
+  }
+
+  /*
+   * Do the next two bytes give us the length of the remainder?
+   */
+  if (tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) + 2 ==
+      tvb_reported_length_remaining(tvb, offset)) {
+    conversation_data->discovered_key_mic_len = mic_len;
+  }
+}
+
+/*
+ * Sometimes we cannot discover it from the first frame of the four-way
+ * handshake, however, we can still determine it from the second frame.
+ */
+static void
+discover_key_mic_len2(tvbuff_t *tvb, packet_info *pinfo, guint offset)
+{
+  conversation_t *conversation = find_or_create_wlan_conversation(pinfo);
+  ieee80211_conversation_data_t *conversation_data = get_or_create_conversation_data(conversation);
+  guint16 mic_len = 16;
+
+  /*
+   * The KeyMIC should have a 2-byte length field following it, and that
+   * should cover the rest of the captured data ...
+   */
+  offset += 16;
+
+  while ((tvb_captured_length(tvb) > (offset + 2)) &&
+          tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) !=
+            tvb_reported_length_remaining(tvb, offset + 2)) {
+
+    /*
+     * Add 8 more bytes.
+     */
+    mic_len +=8;
+    offset+= 8;
+  }
+
+  /*
+   * Check that we are correct ... ie, the two bytes where we are is the length
+   * of the remaining data, because we might have walked off the end of the
+   * tvb.
+   *
+   * We check against the reported length remaining because the capture might
+   * have been truncated beyond the key data length field.
+   */
+  if (tvb_captured_length_remaining(tvb, offset) >= 2 &&
+      tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) + 2 ==
+        tvb_reported_length_remaining(tvb, offset)) {
+    conversation_data->discovered_key_mic_len = mic_len;
+  }
+}
+
 static int
 dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  int         offset = 0;
+  guint       offset = 0;
   guint16     keyinfo;
   guint16     eapol_data_len;
   proto_tree *keydes_tree;
@@ -25834,7 +25963,8 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
     NULL
   };
   guint16 eapol_data_offset = 76;  /* 92 - 16 */
-  guint16 eapol_key_mic_len = determine_mic_len(pinfo, FALSE);
+  gboolean defaulted_mic_len = FALSE;
+  guint16 eapol_key_mic_len = determine_mic_len(pinfo, FALSE, &defaulted_mic_len);
   save_proto_data_value(pinfo, eapol_key_mic_len, MIC_LEN_KEY);
   eapol_data_offset += eapol_key_mic_len;
   DOT11DECRYPT_HS_MSG_TYPE msg_type = DOT11DECRYPT_HS_MSG_TYPE_INVALID;
@@ -25861,6 +25991,18 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 1);
 
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 1 of 4)");
+      /*
+       * If we defaulted it, then try to determine the mic len and update
+       * structures.
+       */
+      if (defaulted_mic_len) {
+        discover_key_mic_len1(tvb, pinfo, 76);
+        /* Must reset the MIC len */
+        eapol_key_mic_len = determine_mic_len(pinfo, FALSE, &defaulted_mic_len);
+        save_proto_data_value(pinfo, eapol_key_mic_len, MIC_LEN_KEY);
+        eapol_data_offset = 76 + eapol_key_mic_len;
+        eapol_data_len = tvb_get_ntohs(tvb, offset + eapol_data_offset);
+      }
       msg_type = DOT11DECRYPT_HS_MSG_TYPE_4WHS_1;
       break;
     }
@@ -25886,6 +26028,13 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
         ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 2);
 
         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
+        if (defaulted_mic_len) {
+          discover_key_mic_len2(tvb, pinfo, 76);
+          eapol_key_mic_len = determine_mic_len(pinfo, FALSE, &defaulted_mic_len);
+          save_proto_data_value(pinfo, eapol_key_mic_len, MIC_LEN_KEY);
+          eapol_data_offset = 76 + eapol_key_mic_len;
+          eapol_data_len = tvb_get_ntohs(tvb, offset + eapol_data_offset);
+        }
         msg_type = DOT11DECRYPT_HS_MSG_TYPE_4WHS_2;
       } else {
         ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 4);
@@ -25940,12 +26089,10 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
                       ENC_NA);
   offset += 8;
 
-  if (eapol_key_mic_len > 0) {
-    proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_mic, tvb, offset,
-                        eapol_key_mic_len, ENC_NA);
-    save_proto_data(tvb, pinfo, offset, eapol_key_mic_len, MIC_KEY);
-    offset += eapol_key_mic_len;
-  }
+  proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_mic, tvb, offset,
+                      eapol_key_mic_len, ENC_NA);
+  save_proto_data(tvb, pinfo, offset, eapol_key_mic_len, MIC_KEY);
+  offset += eapol_key_mic_len;
 
   proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_data_len, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
@@ -25954,8 +26101,6 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
 
   if (eapol_data_len != 0) {
     save_proto_data(tvb, pinfo, offset, eapol_data_len, KEY_DATA_KEY);
-  }
-  if (eapol_data_len != 0) {
     ti = proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_data,
                              tvb, offset, eapol_data_len, ENC_NA);
     if ((keyinfo & KEY_INFO_ENCRYPTED_KEY_DATA_MASK) ||
@@ -26016,6 +26161,8 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
                                        tvb_reported_length_remaining(tvb, offset),
                                        -1, NULL);
     }
+
+    offset += eapol_data_len;
   }
   if (!pinfo->fd->visited && msg_type != DOT11DECRYPT_HS_MSG_TYPE_INVALID) {
     /* Key data at this pointer was either not encrypted or dot11decrypt
@@ -26023,6 +26170,19 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
      * all fields from the EAPOL frame have been parsed.
      */
     try_scan_eapol_keys(pinfo, msg_type);
+  }
+
+  /*
+   * Do we have extraneous data at the end?
+   */
+  if (offset < (tvb_captured_length(tvb) - 1)) {
+    proto_item *extra;
+    extra = proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_extraneous, tvb,
+                                offset,
+                                tvb_captured_length_remaining(tvb, offset),
+                                ENC_NA);
+    expert_add_info_format(pinfo, extra, &ei_ieee80211_inv_val,
+                           "Extraneous and invalid data in EAPOL frame");
   }
   return tvb_captured_length(tvb);
 }
@@ -37992,6 +38152,10 @@ proto_register_wlan_rsna_eapol(void)
      {"WPA Key Data Padding", "wlan_rsna_eapol.keydes.padding",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
+
+    {&hf_wlan_rsna_eapol_wpa_extraneous,
+     {"WPA EAPOL Extraneous Data", "wlan_rsna_eapol.extraneous",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
   };
 
   static gint *tree_array[] = {

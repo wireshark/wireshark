@@ -32,11 +32,14 @@ typedef struct {
 } association_sanity_check_t;
 
 typedef struct {
+  guint16 discovered_key_mic_len; /* Discovered from the first EAPOL frame */
+  gboolean last_akm_suite_set;    /* Have we set this? */
   guint32 last_akm_suite;
   guint16 owe_group;
 } ieee80211_conversation_data_t;
 
 typedef struct {
+  gboolean last_akm_suite_set;
   guint32 last_akm_suite;
   guint16 owe_group;
 } ieee80211_packet_data_t;
