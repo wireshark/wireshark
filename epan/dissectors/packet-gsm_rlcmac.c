@@ -8206,6 +8206,15 @@ static const value_string cell_change_failure_cause_vals[] = {
   {0, NULL }
 };
 
+/* TS 44.060 section 11.2.28 Uplink Ack/Nack */
+static const value_string channel_coding_scheme_vals[] = {
+  {0x00, "CS-1"},
+  {0x01, "CS-2"},
+  {0x02, "CS-3"},
+  {0x03, "CS-4"},
+  {0, NULL }
+};
+
 static const value_string egprs_modulation_channel_coding_scheme_vals[] = {
   {0x00, "MCS-1"},
   {0x01, "MCS-2"},
@@ -10741,7 +10750,7 @@ proto_register_gsm_rlcmac(void)
 #endif
     { &hf_gprs_channel_coding_command,
       { "CHANNEL_CODING_COMMAND",        "gsm_rlcmac.dl.gprs_channel_coding_command",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, VALS(channel_coding_scheme_vals), 0x0,
         NULL, HFILL
       }
     },
