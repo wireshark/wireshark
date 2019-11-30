@@ -180,6 +180,7 @@ static gint ett_tipc = -1;
 static gint ett_tipc_data = -1;
 
 static expert_field ei_tipc_field_not_specified = EI_INIT;
+static expert_field ei_tipc_invalid_bundle_size = EI_INIT;
 
 static int tipc_address_type = -1;
 
@@ -2087,13 +2088,19 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 			proto_tree_add_item(tipc_tree, hf_tipc_message_bundle, tvb, offset, -1, ENC_NA);
 			while ((guint32)offset < msg_size) {
 				msg_no++;
-				msg_in_bundle_size = tvb_get_ntohl(tvb, offset);
+				msg_in_bundle_size = tvb_get_ntohl(tvb, offset) & 0x1FFFF;
 				item = proto_tree_add_uint_format(tipc_tree, hf_tipc_msg_no_bundle, tvb, offset, 1, msg_no, "%u Message in Bundle", msg_no);
-				proto_item_set_len(item, msg_in_bundle_size);
-				data_tvb = tvb_new_subset_length(tvb, offset, msg_in_bundle_size);
-				col_set_fence(pinfo->cinfo, COL_INFO);
-				dissect_tipc(data_tvb, pinfo, tipc_tree, NULL);
-				offset = offset + msg_in_bundle_size;
+				gint remaining = tvb_reported_length_remaining(tvb, offset);
+				if (remaining > 0 && msg_in_bundle_size <= (guint)remaining) {
+					proto_item_set_len(item, msg_in_bundle_size);
+					data_tvb = tvb_new_subset_length(tvb, offset, msg_in_bundle_size);
+					col_set_fence(pinfo->cinfo, COL_INFO);
+					dissect_tipc(data_tvb, pinfo, tipc_tree, NULL);
+					offset += msg_in_bundle_size;
+				} else {
+					proto_tree_add_expert(tipc_tree, pinfo, &ei_tipc_invalid_bundle_size, tvb, offset, 4);
+					break;
+				}
 			}
 			break;
 		default:
@@ -3037,6 +3044,7 @@ proto_register_tipc(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_tipc_field_not_specified, { "tipc.field_not_specified", PI_PROTOCOL, PI_WARN, "This field is not specified in TIPC v7", EXPFILL }},
+		{ &ei_tipc_invalid_bundle_size, { "tipc.invalid_bundle_size", PI_PROTOCOL, PI_WARN, "Invalid message bundle size", EXPFILL }},
 	};
 
 	module_t *tipc_module;
