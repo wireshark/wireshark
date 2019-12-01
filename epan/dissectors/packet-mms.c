@@ -3538,7 +3538,7 @@ static const value_string mms_T_executionArgument_vals[] = {
 
 static const ber_choice_t T_executionArgument_choice[] = {
   {   0, &hf_mms_simpleString    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_VisibleString },
-  {   1, &hf_mms_encodedString   , -1/*imported*/, -1/*imported*/, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  {   1, &hf_mms_encodedString   , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -3589,7 +3589,7 @@ static const value_string mms_T_executionArgument_01_vals[] = {
 
 static const ber_choice_t T_executionArgument_01_choice[] = {
   {   0, &hf_mms_simpleString    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_VisibleString },
-  {   1, &hf_mms_encodedString   , -1/*imported*/, -1/*imported*/, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  {   1, &hf_mms_encodedString   , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -5343,7 +5343,7 @@ static const value_string mms_T_loadData_vals[] = {
 
 static const ber_choice_t T_loadData_choice[] = {
   {   0, &hf_mms_non_coded       , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_OCTET_STRING },
-  {   1, &hf_mms_coded           , -1/*imported*/, -1/*imported*/, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  {   1, &hf_mms_coded           , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -5417,7 +5417,7 @@ static const value_string mms_T_loadData_01_vals[] = {
 
 static const ber_choice_t T_loadData_01_choice[] = {
   {   0, &hf_mms_non_coded       , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_OCTET_STRING },
-  {   1, &hf_mms_coded           , -1/*imported*/, -1/*imported*/, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  {   1, &hf_mms_coded           , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -5642,7 +5642,7 @@ static const value_string mms_T_executionArgument_02_vals[] = {
 
 static const ber_choice_t T_executionArgument_02_choice[] = {
   {   0, &hf_mms_simpleString    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_VisibleString },
-  {   1, &hf_mms_encodedString   , -1/*imported*/, -1/*imported*/, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  {   1, &hf_mms_encodedString   , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -8159,20 +8159,20 @@ void proto_register_mms(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "Identifier", HFILL }},
     { &hf_mms_ap_title,
-      { "ap-title", "mms.ap_title_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "ap-title", "mms.ap_title",
+        FT_UINT32, BASE_DEC, VALS(acse_AP_title_vals), 0,
         NULL, HFILL }},
     { &hf_mms_ap_invocation_id,
-      { "ap-invocation-id", "mms.ap_invocation_id_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "ap-invocation-id", "mms.ap_invocation_id",
+        FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_mms_ae_qualifier,
-      { "ae-qualifier", "mms.ae_qualifier_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "ae-qualifier", "mms.ae_qualifier",
+        FT_UINT32, BASE_DEC, VALS(acse_ASO_qualifier_vals), 0,
         NULL, HFILL }},
     { &hf_mms_ae_invocation_id,
-      { "ae-invocation-id", "mms.ae_invocation_id_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "ae-invocation-id", "mms.ae_invocation_id",
+        FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_mms_localDetailCalling,
       { "localDetailCalling", "mms.localDetailCalling",
