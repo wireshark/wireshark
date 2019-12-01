@@ -13,8 +13,8 @@
 #ifndef __EXPERT_H__
 #define __EXPERT_H__
 
-#include <epan/packet_info.h>
 #include <epan/proto.h>
+#include <epan/packet_info.h>
 #include "value_string.h"
 #include "ws_symbol_export.h"
 
