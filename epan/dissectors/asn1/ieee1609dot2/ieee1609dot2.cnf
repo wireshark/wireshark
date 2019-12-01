@@ -94,8 +94,9 @@ EncryptedDataEncryptionKey/eciesBrainpoolP256r1 edekEciesBrainpoolP256r1
 
   offset = dissect_oer_constrained_integer_64b_no_ub(tvb, offset, actx, tree, hf_index,
                                                             0U, NO_BOUND, &psid, FALSE);
-  if (my_private_data->unsecured_data) {
+  if ((my_private_data != NULL) && (my_private_data->unsecured_data != NULL)) {
     /* Call next dissector here */
+    ieee1609dot2_set_next_default_psid(actx->pinfo, (guint32)psid);
     dissector_try_uint(unsecured_data_subdissector_table, (guint32) psid, my_private_data->unsecured_data, actx->pinfo, tree);
     my_private_data->unsecured_data = NULL;
   }

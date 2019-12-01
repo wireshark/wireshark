@@ -2114,7 +2114,6 @@ dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tr
 static int
 dissect_sgeonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
 {
-    DISSECTOR_ASSERT(!p_get_proto_data(wmem_file_scope(), pinfo, proto_geonw, 0));
     // Just store the tvbuff for later, as it is embedded inside a secured geonetworking packet
     p_add_proto_data(wmem_file_scope(), pinfo, proto_geonw, 0, tvb);
 
