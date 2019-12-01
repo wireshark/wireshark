@@ -622,7 +622,7 @@ proto_reg_handoff_tcpros(void)
 
 	/* register as heuristic dissector */
 	heur_dissector_add("tcp", dissect_tcpros_heur_tcp, "TCPROS over TCP",
-				"TCPROS_tcp", proto_tcpros, HEURISTIC_DISABLE);
+				"tcpros_tcp", proto_tcpros, HEURISTIC_DISABLE);
 }
 
 
