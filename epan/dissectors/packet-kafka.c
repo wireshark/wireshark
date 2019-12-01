@@ -1357,7 +1357,7 @@ decompress_lz4(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, tv
     do {
         src_size = length - src_offset; // set the number of available octets
         if (src_size == 0) {
-            break;
+            goto end;
         }
         decompressed_buffer = (guchar*)wmem_alloc(pinfo->pool, dst_size);
         rc = LZ4F_decompress(lz4_ctxt, decompressed_buffer, &dst_size,
@@ -1366,8 +1366,7 @@ decompress_lz4(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, tv
             goto end;
         }
         if (dst_size == 0) {
-            // XXX - can this happen?
-            break;
+            goto end;
         }
         tvb_composite_append(composite_tvb,
                              tvb_new_child_real_data(tvb, (guint8*)decompressed_buffer, (guint)dst_size, (gint)dst_size));
