@@ -2428,7 +2428,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Save parameters on capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить параметры при старте захвата</translation>
     </message>
 </context>
 <context>
@@ -2796,11 +2796,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>macOS Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>macOS Extras</translation>
     </message>
     <message>
         <source>Extra macOS packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Пакеты Extra macOS</translation>
     </message>
     <message>
         <source>Name</source>
@@ -4211,11 +4211,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Interfaces not loaded (due to preference). Go to Capture </source>
-        <translation type="unfinished"></translation>
+        <translation>Интерфейсы не загружены (ввиду предпочтения). Перейти к Захвату </translation>
     </message>
     <message>
         <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы не имеете  разрешения выполнять захват. Вы можете &lt;a href=&quot;file://%1&quot;&gt;установить ChmodBPF , чтобы исправить это&lt;/a&gt;.</translation>
     </message>
 </context>
 <context>
@@ -9868,11 +9868,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Can save audio with PCM u-law or A-law encoding only</source>
-        <translation type="unfinished"></translation>
+        <translation>Можно сохранить аудио, используя только кодирование PCM u-law или or A-law</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Ошибка</translation>
+        <translation>Ошибка</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
