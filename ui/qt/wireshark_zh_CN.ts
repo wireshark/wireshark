@@ -778,26 +778,6 @@
         <source>Automatically detect file type</source>
         <translation>自动检测文件类型</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1，%Ln 分组后出错</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1，在分组 %Ln 处超时</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1，%Ln 分组</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>前置分组</translation>
@@ -3019,18 +2999,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Save as</source>
         <oldsource>Save as...</oldsource>
         <translation>另存为</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln 客户端 分组，</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln 服务器 分组，</numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -6521,12 +6489,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>查找上一分组</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet</source>
-        <translation type="vanished">标记/取消标记 分组(&amp;M)</translation>
-    </message>
-    <message>
-        <source>Mark or unmark this packet</source>
-        <translation type="vanished">标记或取消标记该分组</translation>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <oldsource>&amp;Mark/Unmark Packet</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6557,12 +6522,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>转到前一个已标记的分组</translation>
     </message>
     <message>
-        <source>&amp;Ignore/Unignore Packet</source>
-        <translation type="vanished">忽略/取消忽略 分组(&amp;I)</translation>
-    </message>
-    <message>
-        <source>Ignore or unignore this packet</source>
-        <translation type="vanished">忽略或取消忽略该分组</translation>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -7145,15 +7107,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>查找上一个(&amp;v)</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mark or unmark each selected packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7880,13 +7834,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>No Keys</source>
         <translation>无密钥</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>导出 SSL 会话密钥 (%Ln 个密钥)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
@@ -10340,10 +10287,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Saving %1</source>
         <translation>正在保存 %1</translation>
-    </message>
-    <message>
-        <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation type="vanished">只能用 8000 Hz 时钟频率保存音频</translation>
     </message>
     <message>
         <source>Error</source>

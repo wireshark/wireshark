@@ -778,26 +778,6 @@
         <source>Automatically detect file type</source>
         <translation>ファイル種別を自動的に検出</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%Ln パケットの後に %1, エラー </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%Ln パケットにて %1, タイムアウト</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln パケット</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>前にパケットを挿入</translation>
@@ -3023,18 +3003,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Save as</source>
         <oldsource>Save as...</oldsource>
         <translation>として保存</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln クライアントパケット, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln サーバーパケット, </numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -6529,12 +6497,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>前のパケットを検索します</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet</source>
-        <translation type="vanished">パケットをマーク/マーク解除(&amp;M)</translation>
-    </message>
-    <message>
-        <source>Mark or unmark this packet</source>
-        <translation type="vanished">このパケットをマーク/マーク解除します</translation>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <oldsource>&amp;Mark/Unmark Packet</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6565,12 +6530,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>前にマークされたパケットに移動します</translation>
     </message>
     <message>
-        <source>&amp;Ignore/Unignore Packet</source>
-        <translation type="vanished">パケットを無視/無視を解除(&amp;I)</translation>
-    </message>
-    <message>
-        <source>Ignore or unignore this packet</source>
-        <translation type="vanished">このパケットを無視するか無視しないようにします</translation>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -7153,15 +7115,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>前を検索(&amp;v)</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mark or unmark each selected packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7888,13 +7842,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>No Keys</source>
         <translation>キーはありません</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>SSLセッション鍵をエクスポート(%1 鍵%2</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

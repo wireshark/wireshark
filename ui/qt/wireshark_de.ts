@@ -25,11 +25,11 @@
     </message>
     <message>
         <source>Copy the version information to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Versionsinformationen in die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Copy To Clipboard</source>
-        <translation type="unfinished">In die Zwischenablage kopieren</translation>
+        <translation>In die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -783,8 +783,8 @@
         <source>%1, error after %Ln packet(s)</source>
         <oldsource>%1, error after %2 packets</oldsource>
         <translation type="vanished">
+            <numerusform>%1, Fehler nach %Ln Pakete</numerusform>
             <numerusform>%1, Fehler nach %Ln Paket</numerusform>
-            <numerusform>%1, Fehler nach %Ln Paketen</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2021,7 +2021,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Current filter: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktueller Filter: %1</translation>
     </message>
     <message>
         <source>Invalid filter: </source>
@@ -5930,7 +5930,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Ausgewählt: %2 (%3%)</translation>
     </message>
     <message>
         <source> %1 Marked: %2 (%3%)</source>
@@ -6545,12 +6545,9 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Vorheriges Paket finden</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet</source>
-        <translation type="vanished">Paket &amp;markieren</translation>
-    </message>
-    <message>
-        <source>Mark or unmark this packet</source>
-        <translation type="vanished">Paket markieren</translation>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <oldsource>&amp;Mark/Unmark Packet</oldsource>
+        <translation>Paket &amp;markieren</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6581,12 +6578,9 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Zum vorherigen markierten Paket gehen</translation>
     </message>
     <message>
-        <source>&amp;Ignore/Unignore Packet</source>
-        <translation type="vanished">Paket &amp;ignorieren bzw. zurücksetzen</translation>
-    </message>
-    <message>
-        <source>Ignore or unignore this packet</source>
-        <translation type="vanished">Dieses Paket ignorieren bzw. zurücksetzen</translation>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
+        <translation>Paket &amp;ignorieren bzw. zurücksetzen</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -7134,15 +7128,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>As Plain &amp;Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Als reiner &amp;Text...</translation>
     </message>
     <message>
         <source>As &amp;CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Als &amp;CSV</translation>
     </message>
     <message>
         <source>As &amp;YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Als &amp;YAML</translation>
     </message>
     <message>
         <source>All Visible Items</source>
@@ -7169,20 +7163,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Vorheriges finden</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mark or unmark each selected packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Jedes ausgewählte Paket markieren bzw. Markierung rückgängig machen</translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Jedes ausgewählte Paket ignorieren bzw. Ignorieren zurücksetzen</translation>
     </message>
     <message>
         <source>Time Shift…</source>
@@ -10262,7 +10248,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>None of channels was selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde kein Kanal ausgewählt</translation>
     </message>
     <message>
         <source>Save forward and reverse stream audio</source>
@@ -10274,27 +10260,27 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Information</translation>
     </message>
     <message>
         <source>Save was interrupted</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern wurde unterbrochen</translation>
     </message>
     <message>
         <source>Save or read of file was failed during saving</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern oder Lesen der Datei war Fehlerhaft</translation>
     </message>
     <message>
         <source>Codec is not supported, file is incomplete</source>
-        <translation type="unfinished"></translation>
+        <translation>Codec wird nicht unterstützt. Datei ist unvollständig</translation>
     </message>
     <message>
         <source>Codec rate is not supported, file is incomplete</source>
-        <translation type="unfinished"></translation>
+        <translation>Codecrate wird nicht unterstützt. Datei ist unvollständig</translation>
     </message>
     <message>
         <source>Unknown error occured</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Fehler</translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
@@ -10379,14 +10365,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Saving %1</source>
         <translation>Speichere %1</translation>
-    </message>
-    <message>
-        <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation type="vanished">Audio kann nur mit 8000 Hz gespeichert werden</translation>
-    </message>
-    <message>
-        <source>Can save audio with PCM u-law or A-law encoding only</source>
-        <translation type="vanished">Audio kann nur mit PCM u-law oder A-law Codierung gespeichert werden</translation>
     </message>
     <message>
         <source>Error</source>

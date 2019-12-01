@@ -779,29 +779,6 @@
         <source>Automatically detect file type</source>
         <translation>Detektera automatiskt filtyp</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, fel efter %Ln paket</numerusform>
-            <numerusform>%1, fel efter %Ln paket</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, tidsgränsen gick ut efter %Ln paket</numerusform>
-            <numerusform>%1, tidsgränsen gick ut efter %Ln paket</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln paket</numerusform>
-            <numerusform>%1, %Ln paket</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Lägg paket före</translation>
@@ -3032,20 +3009,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>Save as</source>
         <oldsource>Save as...</oldsource>
         <translation>Spara som</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln klientpaket,</numerusform>
-            <numerusform>%Ln klientpaket,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln serverpaket,</numerusform>
-            <numerusform>%Ln serverpaket,</numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -6545,12 +6508,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Sök efter föregående paket</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet</source>
-        <translation type="vanished">&amp;Markera/avmarkera paket</translation>
-    </message>
-    <message>
-        <source>Mark or unmark this packet</source>
-        <translation type="vanished">Markera eller avmarkera detta paket</translation>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <oldsource>&amp;Mark/Unmark Packet</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6581,12 +6541,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Gå till föregående märkta paket</translation>
     </message>
     <message>
-        <source>&amp;Ignore/Unignore Packet</source>
-        <translation type="vanished">&amp;Ignorera/avignorera paket</translation>
-    </message>
-    <message>
-        <source>Ignore or unignore this packet</source>
-        <translation type="vanished">Ignorera eller avignorera detta paket</translation>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -7169,15 +7126,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Sök f&amp;öregående</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mark or unmark each selected packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7904,14 +7853,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>No Keys</source>
         <translation>Inga nycklar</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Exportera SSL-sessionsnycklar (%Ln nyckel)</numerusform>
-            <numerusform>Exportera SSL-sessionsnycklar (%Ln nycklar)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
@@ -8816,13 +8757,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Select zip file for export</source>
         <translation>Välj zip-fil för exporten</translation>
-    </message>
-    <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… %Ln vad personlig profil</numerusform>
-            <numerusform>… %Ln valda personliga profiler</numerusform>
-        </translation>
     </message>
     <message numerus="yes">
         <source>%Ln selected personal profile(s)</source>
@@ -10379,14 +10313,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Saving %1</source>
         <translation>Sparar %1</translation>
-    </message>
-    <message>
-        <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation type="vanished">Kan endast spara ljud med 8000 Hz klockhastighet</translation>
-    </message>
-    <message>
-        <source>Can save audio with PCM u-law or A-law encoding only</source>
-        <translation type="vanished">Kan endast spara ljud med kodningen PCM u-law eller A-law</translation>
     </message>
     <message>
         <source>Error</source>

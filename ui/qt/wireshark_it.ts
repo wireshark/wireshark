@@ -25,11 +25,11 @@
     </message>
     <message>
         <source>Copy the version information to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia le informazioni di versione negli appunti</translation>
     </message>
     <message>
         <source>Copy To Clipboard</source>
-        <translation type="unfinished">Copia negli appunti</translation>
+        <translation>Copia negli appunti</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -2021,7 +2021,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Current filter: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtro attuale: %1</translation>
     </message>
     <message>
         <source>Invalid filter: </source>
@@ -5930,7 +5930,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 selezionati: %2 (%3%)</translation>
     </message>
     <message>
         <source> %1 Marked: %2 (%3%)</source>
@@ -6545,12 +6545,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Vai al pacchetto precedente</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet</source>
-        <translation type="vanished">&amp;Marca/Deseleziona pacchetto</translation>
-    </message>
-    <message>
-        <source>Mark or unmark this packet</source>
-        <translation type="vanished">Marca o rimuovi la selezione di questo pacchetto</translation>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <oldsource>&amp;Mark/Unmark Packet</oldsource>
+        <translation>&amp;Marca/Deseleziona pacchetto</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6581,12 +6578,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Val al prossimo pacchetto marchiato</translation>
     </message>
     <message>
-        <source>&amp;Ignore/Unignore Packet</source>
-        <translation type="vanished">&amp;Ignora/Considera pacchetto</translation>
-    </message>
-    <message>
-        <source>Ignore or unignore this packet</source>
-        <translation type="vanished">Ignora o considera questo pacchetto</translation>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
+        <translation>&amp;Ignora/Considera pacchetto</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -7134,15 +7128,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>As Plain &amp;Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Come &amp;testo semplice</translation>
     </message>
     <message>
         <source>As &amp;CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Come &amp;CSV</translation>
     </message>
     <message>
         <source>As &amp;YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Come &amp;YAML</translation>
     </message>
     <message>
         <source>All Visible Items</source>
@@ -7169,20 +7163,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Tro&amp;va precedente</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mark or unmark each selected packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca o rimuovi ogni pacchetto selezionato</translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignora o considera ogni pacchetto selezionato</translation>
     </message>
     <message>
         <source>Time Shift…</source>
@@ -7909,8 +7895,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation type="vanished">
-            <numerusform>Esporta chiavi della sessione SSL (%Ln chiave)</numerusform>
-            <numerusform>Esporta chiavi della sessione SSL (%Ln chiavi)</numerusform>
+            <numerusform>Esporta chiavi di sessione SSL (%Ln chiave)</numerusform>
+            <numerusform>Esporta chiavi di sessione SSL (%Ln chiavi)</numerusform>
         </translation>
     </message>
     <message>
@@ -10262,7 +10248,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>None of channels was selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuno dei canali è stato selezionato</translation>
     </message>
     <message>
         <source>Save forward and reverse stream audio</source>
@@ -10274,27 +10260,27 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informazioni</translation>
     </message>
     <message>
         <source>Save was interrupted</source>
-        <translation type="unfinished"></translation>
+        <translation>Il salvataggio è stato interrotto</translation>
     </message>
     <message>
         <source>Save or read of file was failed during saving</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvataggio o lettura del file non riuscita durante il salvataggio</translation>
     </message>
     <message>
         <source>Codec is not supported, file is incomplete</source>
-        <translation type="unfinished"></translation>
+        <translation>Il codificatore non è supportato, il file è incompleto</translation>
     </message>
     <message>
         <source>Codec rate is not supported, file is incomplete</source>
-        <translation type="unfinished"></translation>
+        <translation>La velocità di codifica non è supportata, il file è incompleto</translation>
     </message>
     <message>
         <source>Unknown error occured</source>
-        <translation type="unfinished"></translation>
+        <translation>Si è verificato un errore sconosciuto</translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
@@ -10379,14 +10365,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Saving %1</source>
         <translation>Salvataggio di %1</translation>
-    </message>
-    <message>
-        <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation type="vanished">Puoi salvare audio solo con una frequenza di clock di 8000 Hz</translation>
-    </message>
-    <message>
-        <source>Can save audio with PCM u-law or A-law encoding only</source>
-        <translation type="vanished">Puoi salvare audio solo con codifica u-law e A-law</translation>
     </message>
     <message>
         <source>Error</source>
