@@ -25,11 +25,11 @@
     </message>
     <message>
         <source>Copy the version information to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Копировать данные о версии в буфер обмена</translation>
     </message>
     <message>
         <source>Copy To Clipboard</source>
-        <translation type="unfinished">Копировать В Буфер</translation>
+        <translation>Копировать В Буфер</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -229,7 +229,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -272,7 +272,7 @@
     </message>
     <message>
         <source>LMP Subversion</source>
-        <translation type="unfinished">Подверсия LMP</translation>
+        <translation>Подверсия LMP</translation>
     </message>
     <message>
         <source>Manufacturer</source>
@@ -372,7 +372,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -483,7 +483,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -1652,7 +1652,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColoringRulesModel</name>
     <message>
         <source>New coloring rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Новое цветовое правило</translation>
     </message>
     <message>
         <source>Unable to save coloring rules: %1</source>
@@ -1710,19 +1710,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColumnListModel</name>
     <message>
         <source>Displayed</source>
-        <translation type="unfinished">Показано</translation>
+        <translation>Показано</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished"></translation>
+        <translation>Заголовок</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation>Тип</translation>
     </message>
     <message>
         <source>Fields</source>
-        <translation type="unfinished"></translation>
+        <translation>Поля</translation>
     </message>
     <message>
         <source>Field Occurence</source>
@@ -1730,7 +1730,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>New Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Новый Столбец</translation>
     </message>
 </context>
 <context>
@@ -1741,11 +1741,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Add a new column</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить новый столбец</translation>
     </message>
     <message>
         <source>Delete selected column</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить выбранный столбец</translation>
     </message>
     <message>
         <source>Show displayed columns only</source>
@@ -1753,7 +1753,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Reset all changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Сбросить все изменения</translation>
     </message>
 </context>
 <context>
@@ -1807,15 +1807,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>CopyFromProfileButton</name>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">Копировать из</translation>
+        <translation>Копировать из</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation type="unfinished">Копировать записи из другого профиля.</translation>
+        <translation>Копировать записи из другого профиля.</translation>
     </message>
     <message>
         <source>System default</source>
-        <translation type="unfinished"></translation>
+        <translation>Системный по умолчанию</translation>
     </message>
 </context>
 <context>
@@ -1833,31 +1833,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>CredentialsModel</name>
     <message>
         <source>Click to select the packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Щёлкните, чтобы выбрать пакет</translation>
     </message>
     <message>
         <source>Click to select the packet with username</source>
-        <translation type="unfinished"></translation>
+        <translation>Щёлкните, чтобы выбрать пакет с именем пользователя</translation>
     </message>
     <message>
         <source>Username not available</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя пользователя недоступно</translation>
     </message>
     <message>
         <source>Packet No.</source>
-        <translation type="unfinished"></translation>
+        <translation>Пакет №</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished">Протокол</translation>
+        <translation>Протокол</translation>
     </message>
     <message>
         <source>Username</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя пользователя</translation>
     </message>
     <message>
         <source>Additional Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Дополнительная Информация</translation>
     </message>
 </context>
 <context>
@@ -2008,11 +2008,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Clear display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить дисплейный фильтр</translation>
     </message>
     <message>
         <source>Apply display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Применить дисплейный фильтр</translation>
     </message>
     <message>
         <source>Left align buttons</source>
@@ -2020,7 +2020,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display Filter Expression</source>
-        <translation type="unfinished">Выражение Дисплейного Фильтра</translation>
+        <translation>Выражение Дисплейного Фильтра</translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
@@ -2028,7 +2028,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Current filter: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Текущий фильтр: %1</translation>
     </message>
     <message>
         <source>Invalid filter: </source>
@@ -2196,7 +2196,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>in</source>
-        <translation type="unfinished"></translation>
+        <translation>в</translation>
     </message>
     <message>
         <source>Enable All</source>
@@ -2216,15 +2216,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Everywhere</source>
-        <translation type="unfinished"></translation>
+        <translation>Везде</translation>
     </message>
     <message>
         <source>Only Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Только Протоколы</translation>
     </message>
     <message>
         <source>Only Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Только Описание</translation>
     </message>
     <message>
         <source>Only enabled protocols</source>
@@ -2236,7 +2236,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>any protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>любой протокол</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
@@ -6576,8 +6576,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Найти предыдущий пакет</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet</source>
-        <translation type="vanished">&amp;Выполнить/Отменить Пометку Пакета</translation>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <oldsource>&amp;Mark/Unmark Packet</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6608,8 +6609,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Перейти к предыдущему помеченному пакету</translation>
     </message>
     <message>
-        <source>&amp;Ignore/Unignore Packet</source>
-        <translation type="vanished">&amp;Игнорировать/Отменить Игнорирование Пакета</translation>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -7190,6 +7192,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Find Pre&amp;vious</source>
         <translation>Найти Пр&amp;едыдущий</translation>
+    </message>
+    <message>
+        <source>Mark or unmark each selected packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignore or unignore each selected packet</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Time Shift…</source>
@@ -8004,22 +8014,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Rescanning</source>
         <translation>Повторное сканирование</translation>
-    </message>
-    <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mark or unmark each selected packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ignore or unignore each selected packet</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10402,10 +10396,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Saving %1</source>
         <translation>Сохранение %1</translation>
-    </message>
-    <message>
-        <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation type="vanished">Возможно сохранение аудио только с тактовой частотой 8000 Гц</translation>
     </message>
     <message>
         <source>Error</source>

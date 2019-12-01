@@ -6533,8 +6533,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>查找上一分组</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet</source>
-        <translation type="vanished">标记/取消标记 分组(&amp;M)</translation>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <oldsource>&amp;Mark/Unmark Packet</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6565,8 +6566,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>转到前一个已标记的分组</translation>
     </message>
     <message>
-        <source>&amp;Ignore/Unignore Packet</source>
-        <translation type="vanished">忽略/取消忽略 分组(&amp;I)</translation>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -7147,6 +7149,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Find Pre&amp;vious</source>
         <translation>查找上一个(&amp;v)</translation>
+    </message>
+    <message>
+        <source>Mark or unmark each selected packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignore or unignore each selected packet</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Time Shift…</source>
@@ -7957,22 +7967,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Rescanning</source>
         <translation>正在重新扫描</translation>
-    </message>
-    <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mark or unmark each selected packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ignore or unignore each selected packet</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10344,10 +10338,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Saving %1</source>
         <translation>正在保存 %1</translation>
-    </message>
-    <message>
-        <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation type="vanished">只能用 8000 Hz 时钟频率保存音频</translation>
     </message>
     <message>
         <source>Error</source>

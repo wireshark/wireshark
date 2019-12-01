@@ -6117,6 +6117,7 @@ pmcd		44321/tcp/udp	# PCP server (pmcd)
 pmcdproxy	44322/tcp/udp	# PCP server (pmcd) proxy
 pmwebapi	44323/tcp	# HTTP binding for Performance Co-Pilot client API
 cognex-dataman	44444/tcp	# Cognex DataMan Management Protocol
+acronis-backup	44445/tcp	# Acronis Backup Gateway service port
 domiq		44544/udp	# DOMIQ Building Automation
 rbr-debug	44553/tcp/udp	# REALbasic Remote Debug
 asihpi		44600/udp	# AudioScience HPI
