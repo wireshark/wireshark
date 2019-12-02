@@ -432,7 +432,7 @@ static expert_field ei_nas_5gs_not_diss = EI_INIT;
 
 #define NAS_5GS_PLAIN_NAS_MSG 0
 
-static void disect_nas_5gs_updp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset);
+static void dissect_nas_5gs_updp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset);
 
 static const value_string nas_5gs_security_header_type_vals[] = {
     { 0,    "Plain NAS message, not security protected"},
@@ -1696,7 +1696,7 @@ de_nas_5gs_mm_pld_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         }
         break;
     case 5: /* UE policy container */
-        disect_nas_5gs_updp(tvb_new_subset_length(tvb, offset, len), pinfo, tree, 0);
+        dissect_nas_5gs_updp(tvb_new_subset_length(tvb, offset, len), pinfo, tree, 0);
         break;
     default:
         proto_tree_add_item(tree, hf_nas_5gs_mm_pld_cont, tvb, offset, len, ENC_NA);
@@ -3671,28 +3671,6 @@ de_nas_5gs_cmn_eap_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 /* 9.11.2.5    GPRS timer 3*/
 /* See subclause 10.5.7.4a in 3GPP TS 24.008 [12]. */
 
-/* 9.11.2.6     Intra N1 mode NAS transparent container*/
-static guint16
-de_nas_5gs_cmn_intra_n1_mode_nas_trans_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-    guint32 offset, guint len,
-    gchar *add_string _U_, int string_len _U_)
-{
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
-
-    return len;
-}
-
-/* 9.11.2.7     N1 mode to S1 mode NAS transparent containe */
-static guint16
-de_nas_5gs_cmn_n1_to_s1_mode_trans_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-    guint32 offset, guint len,
-    gchar *add_string _U_, int string_len _U_)
-{
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
-
-    return len;
-}
-
 /* 9.11.2.8    S-NSSAI */
 guint16
 de_nas_5gs_cmn_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
@@ -3726,16 +3704,6 @@ de_nas_5gs_cmn_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 }
 
 
-/* 9.10.2.9    S1 mode to N1 mode NAS transparent container */
-static guint16
-de_nas_5gs_cmn_s1_to_n1_mode_trans_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-    guint32 offset, guint len,
-    gchar *add_string _U_, int string_len _U_)
-{
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
-
-    return len;
-}
 /*
  * Note this enum must be of the same size as the element decoding list
  */
@@ -3748,7 +3716,7 @@ typedef enum
     DE_NAS_5GS_CMN_GPRS_TIMER2,                  /* 9.11.2.4     GPRS timer 2*/
     DE_NAS_5GS_CMN_GPRS_TIMER3,                  /* 9.11.2.5     GPRS timer 3*/
     DE_NAS_5GS_CMN_INTRA_N1_MODE_NAS_TRANS_CONT, /* 9.11.2.6     Intra N1 mode NAS transparent container*/
-    DE_NAS_5GS_CMN_N1_TO_S1_MODE_TRANS_CONT,     /* 9.11.2.7     N1 mode to S1 mode NAS transparent containe */
+    DE_NAS_5GS_CMN_N1_TO_S1_MODE_TRANS_CONT,     /* 9.11.2.7     N1 mode to S1 mode NAS transparent container */
     DE_NAS_5GS_CMN_S_NSSAI,                      /* 9.11.2.8     S-NSSAI */
     DE_NAS_5GS_CMN_S1_TO_N1_MODE_TRANS_CONT,     /* 9.11.2.9     S1 mode to N1 mode NAS transparent container */
     DE_NAS_5GS_COMMON_NONE                       /* NONE */
@@ -3784,10 +3752,10 @@ guint16(*nas_5gs_common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info
         NULL,                                        /* 9.11.2.3     GPRS timer*/
         NULL,                                        /* 9.11.2.4     GPRS timer 2*/
         NULL,                                        /* 9.11.2.5     GPRS timer 3*/
-        de_nas_5gs_cmn_intra_n1_mode_nas_trans_cont, /* 9.11.2.6     Intra N1 mode NAS transparent container*/
-        de_nas_5gs_cmn_n1_to_s1_mode_trans_cont,     /* 9.11.2.7     N1 mode to S1 mode NAS transparent containe */
+        NULL,                                        /* 9.11.2.6     Intra N1 mode NAS transparent container*/
+        NULL,                                        /* 9.11.2.7     N1 mode to S1 mode NAS transparent container */
         de_nas_5gs_cmn_s_nssai,                      /* 9.11.2.8     S-NSSAI */
-        de_nas_5gs_cmn_s1_to_n1_mode_trans_cont,     /* 9.11.2.9     S1 mode to N1 mode NAS transparent container */
+        NULL,                                        /* 9.11.2.9     S1 mode to N1 mode NAS transparent container */
         NULL,   /* NONE */
 };
 
@@ -6453,7 +6421,7 @@ dissect_nas_5gs_sm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 }
 
 static void
-disect_nas_5gs_mm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_nas_5gs_mm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 
     const gchar *msg_str;
@@ -6508,7 +6476,7 @@ disect_nas_5gs_mm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 /* D.6.1 UE policy delivery service message type */
 
 static void
-disect_nas_5gs_updp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset)
+dissect_nas_5gs_updp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset)
 {
 
     const gchar* msg_str;
@@ -6636,7 +6604,7 @@ dissect_nas_5gs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     switch (epd) {
     case TGPP_PD_5GMM:
         /* 5GS mobility management messages */
-        disect_nas_5gs_mm_msg(tvb, pinfo, sub_tree, offset);
+        dissect_nas_5gs_mm_msg(tvb, pinfo, sub_tree, offset);
         break;
     case TGPP_PD_5GSM:
         /* 5GS session management messages. */
@@ -6703,6 +6671,7 @@ dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     return tvb_reported_length(tvb);
 }
 
+/* 9.11.2.6 Intra N1 mode NAS transparent container */
 static true_false_string nas_5gs_kacf_tfs = {
     "A new K_AMF has been calculated by the network",
     "A new K_AMF has not been calculated by the network"
@@ -6733,12 +6702,14 @@ de_nas_5gs_intra_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tree, p
     proto_tree_add_item(tree, hf_nas_5gs_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
+/* 9.11.2.7 N1 mode to S1 mode NAS transparent container */
 void
 de_nas_5gs_n1_mode_to_s1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_)
 {
     proto_tree_add_item(tree, hf_nas_5gs_seq_no, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
+/* 9.11.2.9 S1 mode to N1 mode NAS transparent container */
 void
 de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_)
 {
@@ -6862,7 +6833,7 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         subdissector = NULL;
     } else if (!strcmp(n1_msg_class, "UPDP")) {
         /* UD policy delivery service */
-        disect_nas_5gs_updp(tvb, pinfo, tree, 0);
+        dissect_nas_5gs_updp(tvb, pinfo, tree, 0);
         return tvb_captured_length(tvb);
     } else {
         subdissector = NULL;
