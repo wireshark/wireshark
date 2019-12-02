@@ -623,7 +623,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
                <string>Perform MAC layer name resolution while capturing.</string>
               </property>
               <property name="text">
-               <string>Resolve MAC Addresses</string>
+               <string>Resolve MAC addresses</string>
               </property>
              </widget>
             </item>

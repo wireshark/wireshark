@@ -105,6 +105,7 @@ set(WSUG_FILES
 	${COMMON_FILES}
 )
 
+# Note: Images should be minimized using tools/compress-pngs.sh.
 set(WSUG_GRAPHICS
 	wsug_graphics/related-ack.png
 	wsug_graphics/related-current.png
@@ -120,23 +121,14 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-bytes-pane-tabs.png
 	wsug_graphics/ws-bytes-pane.png
 	wsug_graphics/ws-capture-info.png
-	wsug_graphics/ws-capture-interface-details.png
-	wsug_graphics/ws-capture-interfaces.png
-	wsug_graphics/ws-capture-interfaces-win32.png
+	wsug_graphics/ws-capture-interfaces-main-macos.png
+	wsug_graphics/ws-capture-interfaces-main-win32.png
 	wsug_graphics/ws-capture-menu.png
 	wsug_graphics/ws-capture-options.png
-	wsug_graphics/ws-capture-options-compile-selected-bpfs.png
-	wsug_graphics/ws-capture-options-manage-interfaces-local.png
-	wsug_graphics/ws-capture-options-manage-interfaces-pipes.png
-	wsug_graphics/ws-capture-options-manage-interfaces-remote-plus.png
-	wsug_graphics/ws-capture-options-manage-interfaces-remote.png
-	wsug_graphics/ws-capture-options-manage-interfaces.png
 	wsug_graphics/ws-capture-options-output.png
-	wsug_graphics/ws-capture-options-remote-capture.png
-	wsug_graphics/ws-capture-options-remote-interface.png
-	wsug_graphics/ws-capture-options-remote-settings.png
-	wsug_graphics/ws-capture-options-settings.png
-	wsug_graphics/ws-capture-preferences.png
+	wsug_graphics/ws-capture-options-options.png
+	wsug_graphics/ws-capture-options-compile-selected-bpfs.png
+	wsug_graphics/ws-capture-options-output.png
 	wsug_graphics/ws-choose-color-rule.png
 	wsug_graphics/ws-coloring-fields.png
 	wsug_graphics/ws-coloring-rules-dialog.png
@@ -172,6 +164,7 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-list-pane.png
 	wsug_graphics/ws-main-toolbar.png
 	wsug_graphics/ws-main.png
+	wsug_graphics/ws-manage-interfaces.png
 	wsug_graphics/ws-mate-analysis.png
 	wsug_graphics/ws-mate-dns_pane.png
 	wsug_graphics/ws-mate-dns_pdu.png
