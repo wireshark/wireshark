@@ -167,16 +167,9 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-follow-http2-stream.png
 	wsug_graphics/ws-go-menu.png
 	wsug_graphics/ws-goto-packet.png
-	wsug_graphics/ws-gui-colors-preferences.png
-	wsug_graphics/ws-gui-columns-preferences.png
-	wsug_graphics/ws-gui-config-profiles.png
-	wsug_graphics/ws-gui-font-preferences.png
-	wsug_graphics/ws-gui-interface-options.png
-	wsug_graphics/ws-gui-layout-preferences.png
 	wsug_graphics/ws-gui-preferences.png
 	wsug_graphics/ws-help-menu.png
 	wsug_graphics/ws-list-pane.png
-	wsug_graphics/ws-logo.png
 	wsug_graphics/ws-main-toolbar.png
 	wsug_graphics/ws-main.png
 	wsug_graphics/ws-mate-analysis.png
@@ -240,7 +233,6 @@ set(WSUG_GRAPHICS
 	wsug_graphics/toolbar/go-last.png
 	wsug_graphics/toolbar/go-next.png
 	wsug_graphics/toolbar/go-previous.png
-	wsug_graphics/toolbar/stock_apply_20.png
 	wsug_graphics/toolbar/x-capture-file-close.png
 	wsug_graphics/toolbar/x-capture-file-reload.png
 	wsug_graphics/toolbar/x-capture-file-save.png
