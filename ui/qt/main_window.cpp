@@ -47,7 +47,7 @@ DIAG_ON(frame-larger-than=)
 
 #include "byte_view_tab.h"
 #ifdef HAVE_LIBPCAP
-#include "capture_interfaces_dialog.h"
+#include "capture_options_dialog.h"
 #endif
 #include "conversation_colorize_action.h"
 #include "export_dissection_dialog.h"
@@ -288,7 +288,7 @@ MainWindow::MainWindow(QWidget *parent) :
     capture_stopping_(false),
     capture_filter_valid_(false)
 #ifdef HAVE_LIBPCAP
-    , capture_interfaces_dialog_(NULL)
+    , capture_options_dialog_(NULL)
     , info_data_()
 #endif
     , display_filter_dlg_(NULL)
@@ -667,7 +667,7 @@ MainWindow::~MainWindow()
     delete capture_filter_dlg_;
     delete display_filter_dlg_;
 #ifdef HAVE_LIBPCAP
-    delete capture_interfaces_dialog_;
+    delete capture_options_dialog_;
 #endif
 
 #endif
@@ -898,7 +898,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     }
 
 #ifdef HAVE_LIBPCAP
-    if (capture_interfaces_dialog_) capture_interfaces_dialog_->close();
+    if (capture_options_dialog_) capture_options_dialog_->close();
 #endif
     // Make sure we kill any open dumpcap processes.
     delete welcome_page_;

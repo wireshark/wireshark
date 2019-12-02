@@ -1,4 +1,4 @@
-/* capture_interfaces_dialog.h
+/* capture_options_dialog.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,8 +8,8 @@
  */
 
 
-#ifndef CAPTURE_INTERFACES_DIALOG_H
-#define CAPTURE_INTERFACES_DIALOG_H
+#ifndef CAPTURE_OPTIONS_DIALOG_H
+#define CAPTURE_OPTIONS_DIALOG_H
 
 #include <config.h>
 
@@ -24,7 +24,7 @@
 typedef struct if_stat_cache_s if_stat_cache_t;
 
 namespace Ui {
-class CaptureInterfacesDialog;
+class CaptureOptionsDialog;
 }
 
 #include <QStyledItemDelegate>
@@ -52,13 +52,13 @@ private slots:
     void bufferSizeChanged(int value);
 };
 
-class CaptureInterfacesDialog : public GeometryStateDialog
+class CaptureOptionsDialog : public GeometryStateDialog
 {
     Q_OBJECT
 
 public:
-    explicit CaptureInterfacesDialog(QWidget *parent = 0);
-    ~CaptureInterfacesDialog();
+    explicit CaptureOptionsDialog(QWidget *parent = 0);
+    ~CaptureOptionsDialog();
 
     void setTab(int idx);
     void updateInterfaces();
@@ -103,7 +103,7 @@ signals:
     void captureFilterTextEdited(const QString & text);
 
 private:
-    Ui::CaptureInterfacesDialog *ui;
+    Ui::CaptureOptionsDialog *ui;
 
     if_stat_cache_t *stat_cache_;
     QTimer *stat_timer_;
@@ -119,7 +119,7 @@ private:
 
 #endif /* HAVE_LIBPCAP */
 
-#endif // CAPTURE_INTERFACES_DIALOG_H
+#endif // CAPTURE_OPTIONS_DIALOG_H
 
 /*
  * Editor modelines

@@ -221,7 +221,7 @@ void WelcomePage::interfaceSelected()
         welcome_ui_->captureFilterComboBox->lineEdit()->setText(user_filter);
     }
 
-    // Notify others (capture interfaces dialog) that the selection has changed.
+    // Notify others (capture options dialog) that the selection has changed.
     emit interfacesChanged();
 }
 

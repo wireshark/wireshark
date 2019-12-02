@@ -78,7 +78,7 @@
 
 class AccordionFrame;
 class ByteViewTab;
-class CaptureInterfacesDialog;
+class CaptureOptionsDialog;
 class PrintDialog;
 class FileSetDialog;
 class FilterDialog;
@@ -213,7 +213,7 @@ private:
     bool capture_filter_valid_;
 #ifdef HAVE_LIBPCAP
     capture_session cap_session_;
-    CaptureInterfacesDialog *capture_interfaces_dialog_;
+    CaptureOptionsDialog *capture_options_dialog_;
     info_data_t info_data_;
 #endif
     FilterDialog *display_filter_dlg_;

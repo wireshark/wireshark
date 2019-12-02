@@ -1,4 +1,4 @@
-/* capture_interfaces_dialog.cpp
+/* capture_options_dialog.cpp
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -11,9 +11,9 @@
 
 #include <glib.h>
 
-#include "capture_interfaces_dialog.h"
+#include "capture_options_dialog.h"
 #include <ui/qt/widgets/capture_filter_combo.h>
-#include <ui_capture_interfaces_dialog.h>
+#include <ui_capture_options_dialog.h>
 #include "compiled_filter_output.h"
 #include "manage_interfaces_dialog.h"
 
@@ -171,13 +171,13 @@ public:
 
 };
 
-CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
+CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     GeometryStateDialog(parent),
-    ui(new Ui::CaptureInterfacesDialog)
+    ui(new Ui::CaptureOptionsDialog)
 {
     ui->setupUi(this);
     loadGeometry();
-    setWindowTitle(wsApp->windowTitleString(tr("Capture Interfaces")));
+    setWindowTitle(wsApp->windowTitleString(tr("Capture Options")));
 
     stat_timer_ = NULL;
     stat_cache_ = NULL;
@@ -227,7 +227,7 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
 }
 
 /* Update global device selections based on the TreeWidget selection. */
-void CaptureInterfacesDialog::updateGlobalDeviceSelections()
+void CaptureOptionsDialog::updateGlobalDeviceSelections()
 {
 #ifdef HAVE_LIBPCAP
     QTreeWidgetItemIterator iter(ui->interfaceTree);
@@ -254,7 +254,7 @@ void CaptureInterfacesDialog::updateGlobalDeviceSelections()
 }
 
 /* Update TreeWidget selection based on global device selections. */
-void CaptureInterfacesDialog::updateFromGlobalDeviceSelections()
+void CaptureOptionsDialog::updateFromGlobalDeviceSelections()
 {
 #ifdef HAVE_LIBPCAP
     QTreeWidgetItemIterator iter(ui->interfaceTree);
@@ -280,7 +280,7 @@ void CaptureInterfacesDialog::updateFromGlobalDeviceSelections()
 #endif
 }
 
-void CaptureInterfacesDialog::interfaceSelected()
+void CaptureOptionsDialog::interfaceSelected()
 {
     if (sender() == ui->interfaceTree) {
         // Local changes, propagate our changes
@@ -296,7 +296,7 @@ void CaptureInterfacesDialog::interfaceSelected()
     updateWidgets();
 }
 
-void CaptureInterfacesDialog::filterEdited()
+void CaptureOptionsDialog::filterEdited()
 {
     QList<QTreeWidgetItem*> si = ui->interfaceTree->selectedItems();
 
@@ -310,7 +310,7 @@ void CaptureInterfacesDialog::filterEdited()
     }
 }
 
-void CaptureInterfacesDialog::updateWidgets()
+void CaptureOptionsDialog::updateWidgets()
 {
     SyntaxLineEdit *sle = qobject_cast<SyntaxLineEdit *>(ui->captureFilterComboBox->lineEdit());
     if (!sle) {
@@ -327,17 +327,17 @@ void CaptureInterfacesDialog::updateWidgets()
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(can_capture);
 }
 
-CaptureInterfacesDialog::~CaptureInterfacesDialog()
+CaptureOptionsDialog::~CaptureOptionsDialog()
 {
     delete ui;
 }
 
-void CaptureInterfacesDialog::setTab(int idx)
+void CaptureOptionsDialog::setTab(int idx)
 {
     ui->tabWidget->setCurrentIndex(idx);
 }
 
-void CaptureInterfacesDialog::on_capturePromModeCheckBox_toggled(bool checked)
+void CaptureOptionsDialog::on_capturePromModeCheckBox_toggled(bool checked)
 {
     interface_t *device;
     prefs.capture_prom_mode = checked;
@@ -353,7 +353,7 @@ void CaptureInterfacesDialog::on_capturePromModeCheckBox_toggled(bool checked)
     }
 }
 
-void CaptureInterfacesDialog::browseButtonClicked()
+void CaptureOptionsDialog::browseButtonClicked()
 {
     char *open_dir = NULL;
 
@@ -372,7 +372,7 @@ void CaptureInterfacesDialog::browseButtonClicked()
     ui->filenameLineEdit->setText(file_name);
 }
 
-void CaptureInterfacesDialog::interfaceItemChanged(QTreeWidgetItem *item, int column)
+void CaptureOptionsDialog::interfaceItemChanged(QTreeWidgetItem *item, int column)
 {
     QWidget* editor = ui->interfaceTree->indexWidget(ui->interfaceTree->currentIndex());
     if (editor) {
@@ -470,12 +470,12 @@ void CaptureInterfacesDialog::interfaceItemChanged(QTreeWidgetItem *item, int co
     }
 }
 
-void CaptureInterfacesDialog::on_gbStopCaptureAuto_toggled(bool checked)
+void CaptureOptionsDialog::on_gbStopCaptureAuto_toggled(bool checked)
 {
     global_capture_opts.has_file_interval = checked;
 }
 
-void CaptureInterfacesDialog::on_gbNewFileAuto_toggled(bool checked)
+void CaptureOptionsDialog::on_gbNewFileAuto_toggled(bool checked)
 {
     global_capture_opts.multi_files_on = checked;
     ui->stopMBCheckBox->setEnabled(checked?false:true);
@@ -483,37 +483,37 @@ void CaptureInterfacesDialog::on_gbNewFileAuto_toggled(bool checked)
     ui->stopMBComboBox->setEnabled(checked?false:true);
 }
 
-void CaptureInterfacesDialog::on_cbUpdatePacketsRT_toggled(bool checked)
+void CaptureOptionsDialog::on_cbUpdatePacketsRT_toggled(bool checked)
 {
     global_capture_opts.real_time_mode = checked;
 }
 
-void CaptureInterfacesDialog::on_cbAutoScroll_toggled(bool checked)
+void CaptureOptionsDialog::on_cbAutoScroll_toggled(bool checked)
 {
     auto_scroll_live = checked;
 }
 
-void CaptureInterfacesDialog::on_cbExtraCaptureInfo_toggled(bool checked)
+void CaptureOptionsDialog::on_cbExtraCaptureInfo_toggled(bool checked)
 {
     global_capture_opts.show_info = checked;
 }
 
-void CaptureInterfacesDialog::on_cbResolveMacAddresses_toggled(bool checked)
+void CaptureOptionsDialog::on_cbResolveMacAddresses_toggled(bool checked)
 {
     gbl_resolv_flags.mac_name = checked;
 }
 
-void CaptureInterfacesDialog::on_cbResolveNetworkNames_toggled(bool checked)
+void CaptureOptionsDialog::on_cbResolveNetworkNames_toggled(bool checked)
 {
     gbl_resolv_flags.network_name = checked;
 }
 
-void CaptureInterfacesDialog::on_cbResolveTransportNames_toggled(bool checked)
+void CaptureOptionsDialog::on_cbResolveTransportNames_toggled(bool checked)
 {
     gbl_resolv_flags.transport_name = checked;
 }
 
-void CaptureInterfacesDialog::on_buttonBox_accepted()
+void CaptureOptionsDialog::on_buttonBox_accepted()
 {
     if (saveOptionsToPreferences()) {
         emit setFilterValid(true, ui->captureFilterComboBox->lineEdit()->text());
@@ -522,20 +522,20 @@ void CaptureInterfacesDialog::on_buttonBox_accepted()
 }
 
 // Not sure why we have to do this manually.
-void CaptureInterfacesDialog::on_buttonBox_rejected()
+void CaptureOptionsDialog::on_buttonBox_rejected()
 {
     if (saveOptionsToPreferences()) {
         reject();
     }
 }
 
-void CaptureInterfacesDialog::on_buttonBox_helpRequested()
+void CaptureOptionsDialog::on_buttonBox_helpRequested()
 {
     // Probably the wrong URL.
-    wsApp->helpTopicAction(HELP_CAPTURE_INTERFACES_DIALOG);
+    wsApp->helpTopicAction(HELP_CAPTURE_OPTIONS_DIALOG);
 }
 
-void CaptureInterfacesDialog::updateInterfaces()
+void CaptureOptionsDialog::updateInterfaces()
 {
     if (prefs.capture_pcap_ng) {
         ui->rbPcapng->setChecked(true);
@@ -768,23 +768,23 @@ void CaptureInterfacesDialog::updateInterfaces()
     }
 }
 
-void CaptureInterfacesDialog::showEvent(QShowEvent *)
+void CaptureOptionsDialog::showEvent(QShowEvent *)
 {
     updateInterfaces();
 }
 
-void CaptureInterfacesDialog::refreshInterfaceList()
+void CaptureOptionsDialog::refreshInterfaceList()
 {
     updateInterfaces();
     emit interfaceListChanged();
 }
 
-void CaptureInterfacesDialog::updateLocalInterfaces()
+void CaptureOptionsDialog::updateLocalInterfaces()
 {
     updateInterfaces();
 }
 
-void CaptureInterfacesDialog::updateStatistics(void)
+void CaptureOptionsDialog::updateStatistics(void)
 {
     interface_t *device;
 
@@ -810,7 +810,7 @@ void CaptureInterfacesDialog::updateStatistics(void)
     ui->interfaceTree->viewport()->update();
 }
 
-void CaptureInterfacesDialog::on_compileBPF_clicked()
+void CaptureOptionsDialog::on_compileBPF_clicked()
 {
     QStringList interfaces;
     foreach (QTreeWidgetItem *ti, ui->interfaceTree->selectedItems()) {
@@ -823,7 +823,7 @@ void CaptureInterfacesDialog::on_compileBPF_clicked()
     cfo->show();
 }
 
-bool CaptureInterfacesDialog::saveOptionsToPreferences()
+bool CaptureOptionsDialog::saveOptionsToPreferences()
 {
     if (ui->rbPcapng->isChecked()) {
         global_capture_opts.use_pcapng = true;
@@ -1092,7 +1092,7 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
     return true;
 }
 
-void CaptureInterfacesDialog::updateSelectedFilter()
+void CaptureOptionsDialog::updateSelectedFilter()
 {
     // Should match MainWelcome::interfaceSelected.
     QPair <const QString, bool> sf_pair = CaptureFilterEdit::getSelectedFilter();
@@ -1107,7 +1107,7 @@ void CaptureInterfacesDialog::updateSelectedFilter()
     }
 }
 
-void CaptureInterfacesDialog::on_manageButton_clicked()
+void CaptureOptionsDialog::on_manageButton_clicked()
 {
     if (saveOptionsToPreferences()) {
         ManageInterfacesDialog *dlg = new ManageInterfacesDialog(this);
@@ -1115,7 +1115,7 @@ void CaptureInterfacesDialog::on_manageButton_clicked()
     }
 }
 
-void CaptureInterfacesDialog::changeEvent(QEvent* event)
+void CaptureOptionsDialog::changeEvent(QEvent* event)
 {
     if (0 != event)
     {
@@ -1131,7 +1131,7 @@ void CaptureInterfacesDialog::changeEvent(QEvent* event)
     QDialog::changeEvent(event);
 }
 
-interface_t *CaptureInterfacesDialog::getDeviceByName(const QString device_name)
+interface_t *CaptureOptionsDialog::getDeviceByName(const QString device_name)
 {
     for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);

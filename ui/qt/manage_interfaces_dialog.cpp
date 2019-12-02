@@ -15,7 +15,7 @@
 #include "epan/to_str.h"
 #include "capture_opts.h"
 #include "ui/capture_globals.h"
-#include "ui/qt/capture_interfaces_dialog.h"
+#include "ui/qt/capture_options_dialog.h"
 #include <ui/qt/models/interface_tree_cache_model.h>
 #include <ui/qt/models/interface_sort_filter_model.h>
 #ifdef HAVE_PCAP_REMOTE

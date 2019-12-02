@@ -90,7 +90,7 @@ DIAG_ON(frame-larger-than=)
 #include "capture_file_dialog.h"
 #include "capture_file_properties_dialog.h"
 #ifdef HAVE_LIBPCAP
-#include "capture_interfaces_dialog.h"
+#include "capture_options_dialog.h"
 #endif
 #include <ui/qt/utils/color_utils.h>
 #include "coloring_rules_dialog.h"
@@ -3763,40 +3763,40 @@ void MainWindow::on_actionStatisticsProtocolHierarchy_triggered()
 void MainWindow::on_actionCaptureOptions_triggered()
 {
 #ifdef HAVE_LIBPCAP
-    if (!capture_interfaces_dialog_) {
-        capture_interfaces_dialog_ = new CaptureInterfacesDialog(this);
+    if (!capture_options_dialog_) {
+        capture_options_dialog_ = new CaptureOptionsDialog(this);
 
-        connect(capture_interfaces_dialog_, SIGNAL(startCapture()), this, SLOT(startCapture()));
-        connect(capture_interfaces_dialog_, SIGNAL(stopCapture()), this, SLOT(stopCapture()));
+        connect(capture_options_dialog_, SIGNAL(startCapture()), this, SLOT(startCapture()));
+        connect(capture_options_dialog_, SIGNAL(stopCapture()), this, SLOT(stopCapture()));
 
-        connect(capture_interfaces_dialog_, SIGNAL(getPoints(int, PointList*)),
+        connect(capture_options_dialog_, SIGNAL(getPoints(int, PointList*)),
                 this->welcome_page_->getInterfaceFrame(), SLOT(getPoints(int, PointList*)));
-        connect(capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
+        connect(capture_options_dialog_, SIGNAL(interfacesChanged()),
                 this->welcome_page_, SLOT(interfaceSelected()));
-        connect(capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
+        connect(capture_options_dialog_, SIGNAL(interfacesChanged()),
                 this->welcome_page_->getInterfaceFrame(), SLOT(updateSelectedInterfaces()));
-        connect(capture_interfaces_dialog_, SIGNAL(interfaceListChanged()),
+        connect(capture_options_dialog_, SIGNAL(interfaceListChanged()),
                 this->welcome_page_->getInterfaceFrame(), SLOT(interfaceListChanged()));
-        connect(capture_interfaces_dialog_, SIGNAL(captureFilterTextEdited(QString)),
+        connect(capture_options_dialog_, SIGNAL(captureFilterTextEdited(QString)),
                 this->welcome_page_, SLOT(setCaptureFilterText(QString)));
         // Propagate selection changes from main UI to dialog.
         connect(this->welcome_page_, SIGNAL(interfacesChanged()),
-                capture_interfaces_dialog_, SLOT(interfaceSelected()));
+                capture_options_dialog_, SLOT(interfaceSelected()));
 
-        connect(capture_interfaces_dialog_, SIGNAL(setFilterValid(bool, const QString)),
+        connect(capture_options_dialog_, SIGNAL(setFilterValid(bool, const QString)),
                 this, SLOT(startInterfaceCapture(bool, const QString)));
     }
-    capture_interfaces_dialog_->setTab(0);
-    capture_interfaces_dialog_->updateInterfaces();
+    capture_options_dialog_->setTab(0);
+    capture_options_dialog_->updateInterfaces();
 
-    if (capture_interfaces_dialog_->isMinimized()) {
-        capture_interfaces_dialog_->showNormal();
+    if (capture_options_dialog_->isMinimized()) {
+        capture_options_dialog_->showNormal();
     } else {
-        capture_interfaces_dialog_->show();
+        capture_options_dialog_->show();
     }
 
-    capture_interfaces_dialog_->raise();
-    capture_interfaces_dialog_->activateWindow();
+    capture_options_dialog_->raise();
+    capture_options_dialog_->activateWindow();
 #endif
 }
 

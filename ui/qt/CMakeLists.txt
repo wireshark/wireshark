@@ -124,7 +124,7 @@ set(WIRESHARK_QT_HEADERS
 	capture_file_properties_dialog.h
 	capture_filter_syntax_worker.h
 	capture_info_dialog.h
-	capture_interfaces_dialog.h
+	capture_options_dialog.h
 	capture_preferences_frame.h
 	coloring_rules_dialog.h
 	column_preferences_frame.h
@@ -349,7 +349,7 @@ set(WIRESHARK_QT_SRC
 	capture_file_properties_dialog.cpp
 	capture_filter_syntax_worker.cpp
 	capture_info_dialog.cpp
-	capture_interfaces_dialog.cpp
+	capture_options_dialog.cpp
 	capture_preferences_frame.cpp
 	coloring_rules_dialog.cpp
 	column_preferences_frame.cpp
@@ -492,7 +492,7 @@ set(WIRESHARK_QT_UI
 	bluetooth_hci_summary_dialog.ui
 	capture_file_properties_dialog.ui
 	capture_info_dialog.ui
-	capture_interfaces_dialog.ui
+	capture_options_dialog.ui
 	capture_preferences_frame.ui
 	coloring_rules_dialog.ui
 	column_preferences_frame.ui
