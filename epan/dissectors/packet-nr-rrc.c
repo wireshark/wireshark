@@ -40,6 +40,7 @@
 #include "packet-rlc-nr.h"
 #include "packet-lte-rrc.h"
 #include "packet-nr-rrc.h"
+#include "packet-gsm_a_common.h"
 
 #define PNAME  "NR Radio Resource Control (RRC) protocol"
 #define PSNAME "NR RRC"
@@ -244,7 +245,7 @@ typedef enum _T_targetRAT_Type_enum {
 } T_targetRAT_Type_enum;
 
 /*--- End of included file: packet-nr-rrc-val.h ---*/
-#line 57 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 58 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_nr_rrc = -1;
@@ -3251,7 +3252,7 @@ static int hf_nr_rrc_overheatingIndicationProhibitTimer = -1;  /* T_overheatingI
 static int dummy_hf_nr_rrc_eag_field = -1; /* never registered */
 
 /*--- End of included file: packet-nr-rrc-hf.c ---*/
-#line 61 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 62 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 static int hf_nr_rrc_serialNumber_gs = -1;
 static int hf_nr_rrc_serialNumber_msg_code = -1;
 static int hf_nr_rrc_serialNumber_upd_nb = -1;
@@ -4524,7 +4525,7 @@ static gint ett_nr_rrc_T_overheatingAssistanceConfig = -1;
 static gint ett_nr_rrc_OverheatingAssistanceConfig = -1;
 
 /*--- End of included file: packet-nr-rrc-ett.c ---*/
-#line 97 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 98 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 static gint ett_nr_rrc_DedicatedNAS_Message = -1;
 static gint ett_rr_rrc_targetRAT_MessageContainer = -1;
 static gint ett_nr_rrc_nas_Container = -1;
@@ -18259,9 +18260,9 @@ dissect_nr_rrc_T_nas_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &nas_5gs_tvb);
 
-  if (nas_5gs_tvb && nas_5gs_handle) {
+  if (nas_5gs_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_nas_Container);
-    nr_rrc_call_dissector(nas_5gs_handle, nas_5gs_tvb, actx->pinfo, subtree);
+    de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvb, subtree, actx->pinfo);
   }
 
 
@@ -44311,7 +44312,7 @@ static int dissect_UECapabilityEnquiry_v1560_IEs_PDU(tvbuff_t *tvb _U_, packet_i
 
 
 /*--- End of included file: packet-nr-rrc-fn.c ---*/
-#line 379 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 380 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
 void
 proto_register_nr_rrc(void) {
@@ -56312,7 +56313,7 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nr-rrc-hfarr.c ---*/
-#line 387 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 388 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
     { &hf_nr_rrc_serialNumber_gs,
       { "Geographical Scope", "nr-rrc.serialNumber.gs",
@@ -57683,7 +57684,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_OverheatingAssistanceConfig,
 
 /*--- End of included file: packet-nr-rrc-ettarr.c ---*/
-#line 521 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 522 "./asn1/nr-rrc/packet-nr-rrc-template.c"
     &ett_nr_rrc_DedicatedNAS_Message,
     &ett_rr_rrc_targetRAT_MessageContainer,
     &ett_nr_rrc_nas_Container,
@@ -57745,7 +57746,7 @@ proto_register_nr_rrc(void) {
 
 
 /*--- End of included file: packet-nr-rrc-dis-reg.c ---*/
-#line 564 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 565 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
   nr_rrc_etws_cmas_dcs_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
                                                      g_direct_hash, g_direct_equal);
