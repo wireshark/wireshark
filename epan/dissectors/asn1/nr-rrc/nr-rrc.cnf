@@ -446,9 +446,9 @@ RAT-Type TYPE_PREFIX
   tvbuff_t *nas_5gs_tvb = NULL;
   proto_tree *subtree;
 %(DEFAULT_BODY)s
-  if (nas_5gs_tvb && nas_5gs_handle) {
+  if (nas_5gs_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_nas_Container);
-    nr_rrc_call_dissector(nas_5gs_handle, nas_5gs_tvb, actx->pinfo, subtree);
+    de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvb, subtree, actx->pinfo);
   }
 
 #.TYPE_ATTR
