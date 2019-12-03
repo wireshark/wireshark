@@ -810,7 +810,9 @@ static expert_field ei_rtcp_missing_block_header = EI_INIT;
 static expert_field ei_rtcp_block_length = EI_INIT;
 static expert_field ei_srtcp_encrypted_payload = EI_INIT;
 static expert_field ei_rtcp_rtpfb_transportcc_bad = EI_INIT;
+static expert_field ei_rtcp_mcptt_unknown_fld = EI_INIT;
 static expert_field ei_rtcp_mcptt_location_type = EI_INIT;
+static expert_field ei_rtcp_appl_extra_bytes = EI_INIT;
 
 /* Main dissection function */
 static int dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
@@ -2402,10 +2404,11 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         return offset;
     }
     while (packet_len > 0) {
+        proto_item* ti;
         int len_len, padding = 0;
         int start_offset = offset;
         /* Field ID 8 bits*/
-        proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_fld_id, tvb, offset, 1, ENC_BIG_ENDIAN, &mcptt_fld_id);
+        ti = proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_fld_id, tvb, offset, 1, ENC_BIG_ENDIAN, &mcptt_fld_id);
         offset++;
         /* Length value
          * a length value which is:
@@ -2641,6 +2644,7 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         }
 
         default:
+            expert_add_info(pinfo, ti, &ei_rtcp_mcptt_unknown_fld);
             proto_tree_add_item(sub_tree, hf_rtcp_mcptt_fld_val, tvb, offset, mcptt_fld_len, ENC_NA);
             offset += mcptt_fld_len;
             break;
@@ -2650,6 +2654,15 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             offset += padding;
         }
         packet_len -= offset - start_offset;
+        if (packet_len >= 4) {
+            guint32 dword = tvb_get_ntohl(tvb, offset);
+            if (dword == 0) {
+                /* Extra 4 zero bytres */
+                proto_tree_add_expert(sub_tree, pinfo, &ei_rtcp_appl_extra_bytes, tvb, offset, 4);
+                packet_len -= 4;
+                offset += 4;
+            }
+        }
     }
 
     return offset;
@@ -7564,7 +7577,9 @@ proto_register_rtcp(void)
         { &ei_rtcp_block_length, { "rtcp.block_length.invalid", PI_PROTOCOL, PI_WARN, "Block length is greater than packet length", EXPFILL }},
         { &ei_srtcp_encrypted_payload, { "srtcp.encrypted_payload", PI_UNDECODED, PI_WARN, "Encrypted RTCP Payload - not dissected", EXPFILL }},
         { &ei_rtcp_rtpfb_transportcc_bad, { "rtcp.rtpfb.transportcc_bad", PI_MALFORMED, PI_WARN, "Too many packet chunks (more than packet status count)", EXPFILL }},
-        { &ei_rtcp_mcptt_location_type, { "rtcp.mcpttb.location_type_uk", PI_PROTOCOL, PI_WARN, "Unknown location type", EXPFILL }},
+        { &ei_rtcp_mcptt_unknown_fld, { "rtcp.mcptt.unknown_fld", PI_PROTOCOL, PI_WARN, "Unknown field", EXPFILL }},
+        { &ei_rtcp_mcptt_location_type, { "rtcp.mcptt.location_type_uk", PI_PROTOCOL, PI_WARN, "Unknown location type", EXPFILL }},
+        { &ei_rtcp_appl_extra_bytes, { "rtcp.appl.extra_bytres", PI_PROTOCOL, PI_ERROR, "Extra bytes detected", EXPFILL }},
     };
 
     module_t *rtcp_module;
