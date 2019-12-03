@@ -170,17 +170,17 @@ fi
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries
-if [ $ADDITIONAL ]
+if [ $ADDITIONAL != 0 ]
 then
 	ACTUAL_LIST="$ACTUAL_LIST $ADDITIONAL_LIST"
 fi
 
-if [ $DEBDEPS ]
+if [ $DEBDEPS != 0 ]
 then
 	ACTUAL_LIST="$ACTUAL_LIST $DEBDEPS_LIST"
 fi
 
-if [ $TESTDEPS ]
+if [ $TESTDEPS != 0 ]
 then
 	ACTUAL_LIST="$ACTUAL_LIST $TESTDEPS_LIST"
 fi
