@@ -210,7 +210,7 @@ void WirelessFrame::on_helperToolButton_clicked()
 
 void WirelessFrame::on_prefsToolButton_clicked()
 {
-    emit showWirelessPreferences(QString("wlan"));
+    emit showWirelessPreferences("wlan");
 }
 
 void WirelessFrame::getInterfaceInfo()

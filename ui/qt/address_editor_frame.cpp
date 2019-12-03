@@ -130,9 +130,8 @@ void AddressEditorFrame::updateWidgets()
 
 void AddressEditorFrame::on_nameResolutionPreferencesToolButton_clicked()
 {
-    static const QString module_name = "nameres";
     on_buttonBox_rejected();
-    emit showNameResolutionPreferences(module_name);
+    emit showNameResolutionPreferences("nameres");
 }
 
 void AddressEditorFrame::on_addressComboBox_currentIndexChanged(const QString &)

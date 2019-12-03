@@ -538,16 +538,16 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(welcome_page_, SIGNAL(recentFileActivated(QString)),
             this, SLOT(openCaptureFile(QString)));
 
-    connect(main_ui_->addressEditorFrame, SIGNAL(redissectPackets()),
-            this, SLOT(redissectPackets()));
-    connect(main_ui_->addressEditorFrame, SIGNAL(showNameResolutionPreferences(QString)),
-            this, SLOT(showPreferencesDialog(QString)));
-    connect(main_ui_->preferenceEditorFrame, SIGNAL(showProtocolPreferences(QString)),
-            this, SLOT(showPreferencesDialog(QString)));
-    connect(main_ui_->filterExpressionFrame, SIGNAL(showPreferencesDialog(QString)),
-            this, SLOT(showPreferencesDialog(QString)));
-    connect(main_ui_->filterExpressionFrame, SIGNAL(filterExpressionsChanged()),
-            filter_expression_toolbar_, SLOT(filterExpressionsChanged()));
+    connect(main_ui_->addressEditorFrame, &AddressEditorFrame::redissectPackets,
+            this, &MainWindow::redissectPackets);
+    connect(main_ui_->addressEditorFrame, &AddressEditorFrame::showNameResolutionPreferences,
+            this, &MainWindow::showPreferencesDialog);
+    connect(main_ui_->preferenceEditorFrame, &PreferenceEditorFrame::showProtocolPreferences,
+            this, &MainWindow::showPreferencesDialog);
+    connect(main_ui_->filterExpressionFrame, &FilterExpressionFrame::showPreferencesDialog,
+            this, &MainWindow::showPreferencesDialog);
+    connect(main_ui_->filterExpressionFrame, &FilterExpressionFrame::filterExpressionsChanged,
+            filter_expression_toolbar_, &FilterExpressionToolBar::filterExpressionsChanged);
 
     /* Connect change of capture file */
     connect(this, SIGNAL(setCaptureFile(capture_file*)),

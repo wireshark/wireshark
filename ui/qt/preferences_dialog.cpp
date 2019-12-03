@@ -138,9 +138,9 @@ PreferencesDialog::~PreferencesDialog()
     prefs_modules_foreach_submodules(NULL, module_prefs_clean_stash, NULL);
 }
 
-void PreferencesDialog::setPane(const QString pane_name)
+void PreferencesDialog::setPane(const QString module_name)
 {
-    pd_ui_->prefsView->setPane(pane_name);
+    pd_ui_->prefsView->setPane(module_name);
 }
 
 void PreferencesDialog::showEvent(QShowEvent *)
