@@ -177,6 +177,7 @@ static int hf_ieee1905_client_mac_addr = -1;
 static int hf_ieee1905_client_capability_result = -1;
 static int hf_ieee1905_client_capability_frame = -1;
 static int hf_ieee1905_association_flag = -1;
+static int hf_ieee1905_association_event_reserved = -1;
 static int hf_ieee1905_association_client_mac_addr = -1;
 static int hf_ieee1905_association_agent_bssid = -1;
 static int hf_ieee1905_association_event_flags = -1;
@@ -3985,6 +3986,7 @@ dissect_client_association_event(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
     static const int *association_flags[] = {
       &hf_ieee1905_association_flag,
+      &hf_ieee1905_association_event_reserved,
       NULL,
     };
 
@@ -7811,7 +7813,11 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_association_flag,
           { "Association event", "ieee1905.assoc_event.assoc_event",
-            FT_BOOLEAN, 8, TFS(&tfs_ieee1905_association_event_flag), 0x20, NULL, HFILL }},
+            FT_BOOLEAN, 8, TFS(&tfs_ieee1905_association_event_flag), 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_association_event_reserved,
+          { "Reserverd", "ieee1905.assoc_event.assoc_event_reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x7F, NULL, HFILL }},
 
         { &hf_ieee1905_association_client_mac_addr,
           { "Client mac address", "ieee1905.assoc_event.client_mac",
