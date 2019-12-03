@@ -496,7 +496,7 @@ private slots:
     void on_actionDeleteAllPacketComments_triggered();
     void deleteAllPacketCommentsFinished(int result);
     void on_actionEditConfigurationProfiles_triggered();
-    void showPreferencesDialog(QString pane_name);
+    void showPreferencesDialog(QString module_name);
     void on_actionEditPreferences_triggered();
 
     void showHideMainWidgets(QAction *action);

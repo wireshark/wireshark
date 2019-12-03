@@ -167,8 +167,7 @@ void PreferenceEditorFrame::showEvent(QShowEvent *event)
 void PreferenceEditorFrame::on_modulePreferencesToolButton_clicked()
 {
     if (module_) {
-        QString module_name = module_->name;
-        emit showProtocolPreferences(module_name);
+        emit showProtocolPreferences(module_->name);
     }
     on_buttonBox_rejected();
 }

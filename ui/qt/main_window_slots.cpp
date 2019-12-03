@@ -2239,13 +2239,13 @@ void MainWindow::on_actionEditConfigurationProfiles_triggered()
     cp_dialog->show();
 }
 
-void MainWindow::showPreferencesDialog(QString pane_name)
+void MainWindow::showPreferencesDialog(QString module_name)
 {
     PreferencesDialog *pref_dialog = new PreferencesDialog(this);
     connect(pref_dialog, SIGNAL(destroyed(QObject*)), wsApp, SLOT(flushAppSignals()));
     saveWindowGeometry();  // Save in case the layout panes are rearranged
 
-    pref_dialog->setPane(pane_name);
+    pref_dialog->setPane(module_name);
     pref_dialog->setWindowModality(Qt::ApplicationModal);
     pref_dialog->setAttribute(Qt::WA_DeleteOnClose);
     pref_dialog->show();
