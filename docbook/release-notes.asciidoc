@@ -20,7 +20,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2019-22[]
 CMS dissector crash.
 wsbuglink:15961[].
-// cveidlink:2019-XXXXX[].
+cveidlink:2019-19553[].
 // Fixed in master: 23850a3342
 // Fixed in master-3.0: e3872f8795
 // Fixed in master-2.6: 34d2e0d531

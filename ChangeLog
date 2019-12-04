@@ -1,0 +1,390 @@
+commit a546278042
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Dec 3 16:16:33 2019 -0800
+
+    Prep for 2.6.13.
+    
+    Change-Id: I16ed978e8eabc3cc470acf489f1b292027cb1256
+    Reviewed-on: https://code.wireshark.org/review/35307
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 9ed615a3b7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 1 22:02:58 2019 +0000
+
+    NSIS: The "Sshdump" option installs Ciscodump as well.
+    
+    Use consistent capitalization while we're here.
+    
+    Change-Id: I0591654b0e73d33528f9cfe990a1491ce6cccc8b
+    Reviewed-on: https://code.wireshark.org/review/35278
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 63945535ac9232f74abe14c76024ff4c2a542137)
+    Reviewed-on: https://code.wireshark.org/review/35299
+
+commit 0db05e6608
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 1 08:57:39 2019 +0000
+
+    [Automatic update for 2019-12-01]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I41b7bb4303f381b83a8171e6c39675f4b3f022a7
+    Reviewed-on: https://code.wireshark.org/review/35272
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 5c0098c392
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Nov 26 15:24:18 2019 -0800
+
+    Add more support for the 802.11ax PHY.
+    
+    Set it as the PHY type if we see the HE field in a radiotap header, and
+    report that PHY type as "802.11ax" in the generic radio metadata
+    dissector.
+    
+    Change-Id: I181d2717d82bdca73e04b6111b2483ca099d48bb
+    Ping-Bug: 13207
+    Reviewed-on: https://code.wireshark.org/review/35227
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 473900d102244dc83e81c1335ac456e54525ebfe)
+    Reviewed-on: https://code.wireshark.org/review/35240
+
+commit 4fc4ac130b
+Author: Richard Sharpe <realrichardsharpe@gmail.com>
+Date:   Mon May 20 12:28:52 2019 -0400
+
+    wtap: Add support for 802.11ah and 802.11ax PHYs.
+    
+    There may need to be more of these.
+    
+    Bug: 15740
+    Change-Id: I5d3a97ed50d66dfcb85df0ab7053e8a44c531134
+    Reviewed-on: https://code.wireshark.org/review/33280
+    Petri-Dish: Richard Sharpe <realrichardsharpe@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit 2b916d64242aacebb52b64d06738e25fe2ea14e6)
+    Reviewed-on: https://code.wireshark.org/review/35238
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 1d639accce
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Mon Nov 25 03:10:27 2019 +0000
+
+    Qt: fix crash on Next/Previous Packet in Conversation without selection
+    
+    Protect against a NULL edt pointer. That can occur when the packet
+    details view is empty, e.g. when no packet is selected.
+    
+    Bug: 16228
+    Change-Id: Ie9621db4b84b504e4d9cee2add5004df2e383970
+    Reviewed-on: https://code.wireshark.org/review/35204
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Roland Knall <rknall@gmail.com>
+    (cherry picked from commit c9bb676118caade49e2f9365910a76cbc0a5f343)
+    Reviewed-on: https://code.wireshark.org/review/35211
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 6c4c996e02
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 24 09:00:15 2019 +0000
+
+    [Automatic update for 2019-11-24]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I533fb0585b7e037d4715db88f63a4e4151967f02
+    Reviewed-on: https://code.wireshark.org/review/35195
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit d8a02096fd
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Wed Nov 20 16:02:32 2019 +0100
+
+    print: remove assert in get_field_data().
+    
+    The check in the caller suggests this function can fail. The
+    assert should not be necessary, then.
+    
+    Bug: 16218
+    Change-Id: Ic2186f3c51751db61436719bbf5bce609d364d40
+    Reviewed-on: https://code.wireshark.org/review/35162
+    Petri-Dish: Anders Broman <a.broman58@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 986fec7f3ba9db9b60fe209fb5d41ba5d291cde5)
+    Reviewed-on: https://code.wireshark.org/review/35175
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 3ce9766492
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 17 08:46:44 2019 +0000
+
+    [Automatic update for 2019-11-17]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Ia0a39d2fd6a3a8d0ec62b9335e4d4e554008da2c
+    Reviewed-on: https://code.wireshark.org/review/35110
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit c45fdab18b
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Oct 14 21:46:29 2019 +0200
+
+    Fix display of pino protocols in display filter dropdown
+    
+    Qt GUI uses proto_get_first_protocol() to find the list of protocols
+    and build the autocompletion list. As pinfo protocols are stored in
+    another list, they are kept aside.
+    Let's add them in the same list as normal protocols.
+    
+    Bug: 16130
+    Change-Id: I9ff67ea4198a8cc6baf3ded584c48eadfb097092
+    Reviewed-on: https://code.wireshark.org/review/34778
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Reviewed-on: https://code.wireshark.org/review/35060
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+
+commit c83d2ad8bb
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Nov 11 12:31:08 2019 -0800
+
+    Don't report EPIPE errors writing out packet information.
+    
+    EPIPE almost certainly means "the next program after us in the pipeline
+    exited before we were finished writing", so this isn't a real error, it
+    just means we're done.  (We don't get SIGPIPE because libwireshark
+    ignores SIGPIPE to avoid getting killed if writing to the MaxMind
+    process gets SIGPIPE because that process died.)
+    
+    Presumably either that program exited deliberately (for example, "head
+    -N" read N lines and printed them), in which case there's no error to
+    report, or it terminated due to an error or a signal, in which case
+    *that's* the error and that error has been reported.
+    
+    (We don't do that for EINVAL, as that's presumably a real error.  It
+    shows up on Windows in bug 16192, but what we probably want to do there
+    is to, on Windows, use _doserrno, check for the equivalent Windows
+    errors, and, for the default case, convert _doserrno to the appropriate
+    string, using Windows APIs, and report *that* string; the MS C library
+    converts a whole bunch of Windows errors to EINVAL, thus losing
+    information and making it harder to determine what the real error is.
+    
+    Therefore, I'm just marking this with Ping-Bug, as it's only fixing the
+    problem on UN*Xes.)
+    
+    Change-Id: I94c392f478561e29501facd657487716a5882295
+    Ping-Bug: 16192
+    Reviewed-on: https://code.wireshark.org/review/35053
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 560f2e54ba4848fe1b776b29a3d63c2af192a0db)
+    Reviewed-on: https://code.wireshark.org/review/35055
+
+commit 37ade9bfd2
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 10 08:46:08 2019 +0000
+
+    [Automatic update for 2019-11-10]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I7a539a1b310104ff607bae44fe394433dabe0641
+    Reviewed-on: https://code.wireshark.org/review/35043
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 34d2e0d531
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Nov 4 15:08:22 2019 +0100
+
+    CMS: reset object_identifier_id after dissecting ContentInfo
+    
+    Bug: 15961
+    Change-Id: I3d6b3e96103b69f88fcb512da81fa20ff6a1c40e
+    Reviewed-on: https://code.wireshark.org/review/34960
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    Reviewed-by: Roland Knall <rknall@gmail.com>
+    (cherry picked from commit 23850a3342d64b9c9808f14c20bfea6d22b7dc08)
+    Conflicts:
+            epan/dissectors/packet-cms.c
+    Reviewed-on: https://code.wireshark.org/review/34975
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 61b74e14b8
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Nov 4 16:40:01 2019 +0100
+
+    Show correct format of --display command line parameter
+    
+    The --display command line parameter must not have an equal sign
+    between it and the value in order to work. Otherwise it is interpreted
+    as a abbreviation of the display-filter long option.
+    
+    Bug: 16167
+    Change-Id: Ifcdd4cb8c41b24faccf01936a019a318fb1c3e0c
+    Reviewed-on: https://code.wireshark.org/review/34961
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 2336547a5fd239b97d86cb8213a438562d96fc55)
+    Reviewed-on: https://code.wireshark.org/review/34967
+
+commit 4a11cefe7b
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Fri Nov 1 22:24:27 2019 +0100
+
+    BGP: IPv6 Linkstate Prefix Reachability info
+    
+    Add IP version to call the right decode_prefix function.
+    
+    Bug: 16144
+    Change-Id: I06239863b98beeef9ff80e1a8b6e13b4113fb065
+    Reviewed-on: https://code.wireshark.org/review/34913
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Roland Knall <rknall@gmail.com>
+    (cherry picked from commit 7dfe906176d36b24d3cc39457569794b239501f3)
+    Reviewed-on: https://code.wireshark.org/review/34934
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 4c0c9136f8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 3 08:55:09 2019 +0000
+
+    [Automatic update for 2019-11-03]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I3b629e1e4cb5992e48ffac57e3b821da591491b7
+    Reviewed-on: https://code.wireshark.org/review/34920
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit f4f7094775
+Author: Eugene Adell <eugene.adell@gmail.com>
+Date:   Thu Oct 31 11:20:06 2019 -0700
+
+    Correct JPEG file saving for french language
+    
+    Bug: 16165
+    Change-Id: I555cd7fc4265ad8f8766f5e3b0d99b9e2e5b93b9
+    Reviewed-on: https://code.wireshark.org/review/34897
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 35615574e5691c7bf2e09254271ac32c9cf59d95)
+    Reviewed-on: https://code.wireshark.org/review/34899
+
+commit d40c64e1a1
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Oct 30 14:56:32 2019 -0700
+
+    Fix the temporary file string buffer expansion.
+    
+    The buffer needs to be big enough to include the trailing '\0', so we
+    need to compare the buffer's length against strlen(name) + 1, not
+    against strlen(name).
+    
+    Bug: 15751
+    Change-Id: I75ae65f8c818284834d761d9dd911d029cfca3b1
+    Reviewed-on: https://code.wireshark.org/review/34892
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 5459104358d385fa2c1b34dd228e5c47bf3bce2f)
+    Reviewed-on: https://code.wireshark.org/review/34894
+
+commit c6ac9c1657
+Author: John Serock <serock-wireshark-dev@outlook.com>
+Date:   Sun Oct 27 18:28:15 2019 -0400
+
+    HomePlug AV: Fix dissection of MMTYPE and FMI
+    
+    Get MMTYPE MSB from the three most significant bits, bits 5 through 7,
+    instead of bits 1 and 2. Get FMI Fragment count from the four most
+    significant bits instead of the four least significant bits. Get FMI
+    Fragment index from the four least significant bits instead of the four
+    most significant bits.
+    
+    Bug: 16158
+    Change-Id: Ib51789486be4562f76114081cbbf3aa22a41ff2e
+    Reviewed-on: https://code.wireshark.org/review/34868
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 3a0b512b11ad8994e8c6026c0dae4c0007d005ec)
+    Reviewed-on: https://code.wireshark.org/review/34870
+
+commit d612c90c18
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Oct 27 08:52:14 2019 +0000
+
+    [Automatic update for 2019-10-27]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I2a35ecab95f9e1b0bc4bf0a3b87efbcc2d04a0f8
+    Reviewed-on: https://code.wireshark.org/review/34863
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit b77c3a1ddd
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Oct 20 20:36:53 2019 +0200
+
+    SNMP: handle Net-SNMP Engine Id of 12 octets
+    
+    The Net-SNMP code creates an Engine Id size based on the compilation
+    size, either 8 or 12 octets long. The initial change added handling of
+    the '4B/8B random, 4B epoch seconds' format. A different format seems
+    more likely though, hence this change, implementing handling of the
+    '4B random, 4B/8B epoch seconds' format instead.
+    
+    Bug: 16051
+    Change-Id: I8105b0ba69004f6c15e6b1926c677cb4c5b76f17
+    Reviewed-on: https://code.wireshark.org/review/34816
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    (cherry picked from commit 54fac1e3097142062f5ed8e1d34ed5a247d9ed70)
+    Reviewed-on: https://code.wireshark.org/review/34832
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 0d38ae6518
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Oct 23 09:16:52 2019 -0700
+
+    CMake: Enable tests.
+    
+    Add an "all_tests" test which runs `test.sh -c -s all`.
+    
+    Change-Id: I09bad64f4ec4ecc092b21d7e8153244bfa91d4c7
+    Reviewed-on: https://code.wireshark.org/review/34841
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit a9eb8b9778
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Oct 23 12:10:30 2019 -0700
+
+    2.6.12 → 2.6.13.
+    
+    Change-Id: I2379cc337dde3060de6edfef663127ea59c3963e
+    Reviewed-on: https://code.wireshark.org/review/34847
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
