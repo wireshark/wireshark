@@ -268,7 +268,7 @@
 #define ZBEE_APP_STATUS_UNSECURED                   0xaf /*An ASDU was received without any security.*/
 #define ZBEE_APP_STATUS_UNSUPPORTED_ATTRIBUTE       0xb0 /*An APSME-GET.request or APSME-SET.request has been issued with an unknown attribute identifier.*/
 
-#define ZBEE_APS_CONVERSATION_PROTO_DATA            0
+#define ZBEE_APS_NODE_PROTO_DATA                    0
 
 /*  Structure to contain the APS frame information */
 typedef struct{
@@ -296,23 +296,16 @@ typedef struct{
     gboolean    src_present;
 } zbee_aps_packet;
 
-/*  Structure to contain APS conversation endpoint information */
-struct zbee_aps_conversation_endpoint {
+/*  Structure to contain APS node information */
+struct zbee_aps_node_info
+{
     guint32 extended_counter;                         /**> the counter, extended to a 32-bit
                                                        * int to guarantee it increasing monotonically
                                                        */
-    guint16 address;
 };
 
-/*  Structure to contain APS conversation information */
-struct zbee_aps_conversation_info
-{
-    struct zbee_aps_conversation_endpoint a;
-    struct zbee_aps_conversation_endpoint b;
-};
-
-/*  Structure to contain APS conversation information for a packet */
-struct zbee_aps_conversation_packet_info
+/*  Structure to contain APS node information for a packet */
+struct zbee_aps_node_packet_info
 {
     guint32 extended_counter;                         /**> the counter, extended to a 32-bit
                                                        * int to guarantee it increasing monotonically

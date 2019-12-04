@@ -19,7 +19,6 @@
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/proto_data.h>
-#include <epan/conversation.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"
@@ -182,6 +181,8 @@ static const fragment_items zbee_aps_frag_items = {
     /* Tag */
     "APS Message fragments"
 };
+
+static GHashTable *zbee_table_aps_extended_counters = NULL;
 
 /********************/
 /* Field Names      */
@@ -708,44 +709,46 @@ zbee_aps_calculate_extended_counter(guint32 previous_counter, guint8 raw_counter
     return counter;
 }
 
-static struct zbee_aps_conversation_packet_info*
-zbee_aps_conversation_packet_info(packet_info *pinfo, const zbee_nwk_packet *nwk, const zbee_aps_packet *packet)
+static struct zbee_aps_node_packet_info*
+zbee_aps_node_packet_info(packet_info *pinfo,
+                          const zbee_nwk_packet *nwk, const zbee_nwk_hints_t *nwk_hints, const zbee_aps_packet *packet)
 {
-    struct zbee_aps_conversation_packet_info    *conv_data_packet;
+    struct zbee_aps_node_packet_info *node_data_packet;
 
-    conv_data_packet = (struct zbee_aps_conversation_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_zbee_aps, ZBEE_APS_CONVERSATION_PROTO_DATA);
-    if (conv_data_packet == NULL) {
-        conversation_t                      *conv;
-        struct zbee_aps_conversation_info   *conv_data;
+    node_data_packet = (struct zbee_aps_node_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_zbee_aps, ZBEE_APS_NODE_PROTO_DATA);
+    if (node_data_packet == NULL) {
+        ieee802154_short_addr addr16;
+        struct zbee_aps_node_info *node_data;
         guint32 counter;
 
-        conv = find_or_create_conversation(pinfo);
-        conv_data = (struct zbee_aps_conversation_info *)conversation_get_proto_data(conv, proto_zbee_aps);
-        if (conv_data == NULL) {
-            conv_data = wmem_new0(wmem_file_scope(), struct zbee_aps_conversation_info);
-            conv_data->a.extended_counter = 0x100;
-            conv_data->a.address = nwk->src;
-            conv_data->b.extended_counter = 0x100;
-            conv_data->b.address = nwk->dst;
-            conversation_add_proto_data(conv, proto_zbee_aps, conv_data);
-        }
-
-        conv_data_packet = wmem_new(wmem_file_scope(), struct zbee_aps_conversation_packet_info);
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_zbee_aps, ZBEE_APS_CONVERSATION_PROTO_DATA, conv_data_packet);
-
-        if (((nwk->src == conv_data->a.address) && (packet->type != ZBEE_APS_FCF_ACK)) ||
-                ((nwk->dst == conv_data->a.address) && (packet->type == ZBEE_APS_FCF_ACK))) {
-            counter = zbee_aps_calculate_extended_counter(conv_data->a.extended_counter, packet->counter);
-            conv_data->a.extended_counter = counter;
+        if (nwk_hints) {
+            addr16.pan = nwk_hints->src_pan;
         }
         else {
-            counter = zbee_aps_calculate_extended_counter(conv_data->b.extended_counter, packet->counter);
-            conv_data->b.extended_counter = counter;
+            addr16.pan = 0x0000;
         }
-        conv_data_packet->extended_counter = counter;
+        if (packet->type != ZBEE_APS_FCF_ACK) {
+            addr16.addr = nwk->src;
+        }
+        else {
+            addr16.addr = nwk->dst;
+        }
+        node_data = (struct zbee_aps_node_info*) g_hash_table_lookup(zbee_table_aps_extended_counters, &addr16);
+        if (node_data == NULL) {
+            node_data = wmem_new0(wmem_file_scope(), struct zbee_aps_node_info);
+            node_data->extended_counter = 0x100;
+            g_hash_table_insert(zbee_table_aps_extended_counters, wmem_memdup(wmem_file_scope(), &addr16, sizeof(addr16)), node_data);
+        }
+
+        node_data_packet = wmem_new(wmem_file_scope(), struct zbee_aps_node_packet_info);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_zbee_aps, ZBEE_APS_NODE_PROTO_DATA, node_data_packet);
+
+        counter = zbee_aps_calculate_extended_counter(node_data->extended_counter, packet->counter);
+        node_data->extended_counter = counter;
+        node_data_packet->extended_counter = counter;
     }
 
-    return conv_data_packet;
+    return node_data_packet;
 }
 
 /**
@@ -768,8 +771,9 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     zbee_aps_packet                             packet;
     zbee_nwk_packet                             *nwk;
+    zbee_nwk_hints_t                            *nwk_hints;
 
-    struct zbee_aps_conversation_packet_info    *conv_data_packet;
+    struct zbee_aps_node_packet_info            *node_data_packet;
 
     guint8                                      fcf;
     guint8                                      offset = 0;
@@ -793,6 +797,9 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     /* Init. */
     memset(&packet, 0, sizeof(zbee_aps_packet));
+
+    nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+        proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), 0);
 
     /*  Create the protocol tree */
     proto_root = proto_tree_add_protocol_format(tree, proto_zbee_aps, tvb, offset, tvb_captured_length(tvb), "ZigBee Application Support Layer");
@@ -1002,7 +1009,7 @@ dissect_zbee_aps_no_endpt:
         offset += 1;
     }
 
-    conv_data_packet = zbee_aps_conversation_packet_info(pinfo, nwk, &packet);
+    node_data_packet = zbee_aps_node_packet_info(pinfo, nwk, nwk_hints, &packet);
 
     /* Get and display the extended header, if present. */
     if (packet.ext_header) {
@@ -1059,11 +1066,14 @@ dissect_zbee_aps_no_endpt:
         /* Set the fragmented flag. */
         pinfo->fragmented = TRUE;
 
-        /* The source address and APS Counter pair form a unique identifier
-         * for each message (fragmented or not). Hash these two together to
+        /* The source address (short address and PAN ID) and APS Counter pair form a unique identifier
+         * for each message (fragmented or not). Hash these together to
          * create the message id for the fragmentation handler.
          */
-        msg_id = ((nwk->src)<<16) + (conv_data_packet->extended_counter & 0xffff);
+        msg_id = ((nwk->src)<<16) + (node_data_packet->extended_counter & 0xffff);
+        if (nwk_hints) {
+            msg_id ^= (nwk_hints->src_pan)<<16;
+        }
 
         /* If this is the first block of a fragmented message, than the block
          * number field is the maximum number of blocks in the message. Otherwise
@@ -1888,6 +1898,18 @@ zbee_apf_transaction_len(tvbuff_t *tvb, guint offset, guint8 type)
     }
 } /* zbee_apf_transaction_len */
 
+static void
+proto_init_zbee_aps(void)
+{
+    zbee_table_aps_extended_counters  = g_hash_table_new(ieee802154_short_addr_hash, ieee802154_short_addr_equal);
+}
+
+static void
+proto_cleanup_zbee_aps(void)
+{
+    g_hash_table_destroy(zbee_table_aps_extended_counters);
+}
+
 /* The ZigBee Smart Energy version in enum_val_t for the ZigBee Smart Energy version preferences. */
 static const enum_val_t zbee_zcl_protocol_version_enums[] = {
     { "se1.1b",     "SE 1.1b",     ZBEE_SE_VERSION_1_1B },
@@ -2175,6 +2197,9 @@ void proto_register_zbee_aps(void)
         { &ei_zbee_aps_invalid_delivery_mode, { "zbee_aps.invalid_delivery_mode", PI_PROTOCOL, PI_WARN, "Invalid Delivery Mode", EXPFILL }},
         { &ei_zbee_aps_missing_payload, { "zbee_aps.missing_payload", PI_MALFORMED, PI_ERROR, "Missing Payload", EXPFILL }},
     };
+
+    register_init_routine(proto_init_zbee_aps);
+    register_cleanup_routine(proto_cleanup_zbee_aps);
 
     expert_module_t* expert_zbee_aps;
 
