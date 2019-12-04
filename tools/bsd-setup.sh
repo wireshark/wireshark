@@ -153,7 +153,7 @@ esac
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries
-if [ $ADDITIONAL ]
+if [ $ADDITIONAL != 0 ]
 then
 	ACTUAL_LIST="$ACTUAL_LIST $ADDITIONAL_LIST"
 fi
@@ -164,7 +164,7 @@ then
 	exit 2
 fi
 
-if [ ! $ADDITIONAL ]
+if [ $ADDITIONAL == 0 ]
 then
 	echo "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
 fi
