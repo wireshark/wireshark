@@ -1455,7 +1455,9 @@ recent_get_column_width(gint col)
     while (col_l) {
         col_w = (col_width_data *) col_l->data;
         if (col_w->cfmt == cfmt) {
-            if (cfmt != COL_CUSTOM || strcmp (cfield, col_w->cfield) == 0) {
+            if (cfmt != COL_CUSTOM) {
+                return col_w->width;
+            } else if (cfield && strcmp (cfield, col_w->cfield) == 0) {
                 return col_w->width;
             }
         }
@@ -1519,7 +1521,9 @@ recent_get_column_xalign(gint col)
     while (col_l) {
         col_w = (col_width_data *) col_l->data;
         if (col_w->cfmt == cfmt) {
-            if (cfmt != COL_CUSTOM || strcmp (cfield, col_w->cfield) == 0) {
+            if (cfmt != COL_CUSTOM) {
+                return col_w->xalign;
+            } else if (cfield && strcmp (cfield, col_w->cfield) == 0) {
                 return col_w->xalign;
             }
         }
