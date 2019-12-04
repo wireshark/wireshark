@@ -329,6 +329,13 @@ gint64 tvb_get_letohi56(tvbuff_t *tvb, const gint offset);
 guint64 tvb_get_letoh64(tvbuff_t *tvb, const gint offset);
 gint64 tvb_get_letohi64(tvbuff_t *tvb, const gint offset);
 
+NOTE: Although each of the integer accessors above return types with
+specific sizes, the returned values are subject to C's integer promotion
+rules. It's often safer and more useful to use int or guint for 32-bit
+and smaller types, and gint64 or guint64 for 40-bit and larger types.
+Just because a value occupied 16 bits on the wire or over the air
+doesn't mean it will within Wireshark.
+
 Single-precision and double-precision IEEE floating-point numbers:
 
 gfloat tvb_get_letohieee_float(tvbuff_t *tvb, const gint offset);
