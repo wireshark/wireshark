@@ -8,9 +8,6 @@ include::attributes.asciidoc[]
 
 == What is Wireshark?
 
-Wireshark is the world’s most popular network protocol analyzer.
-It is used for troubleshooting, analysis, development and education.
-
 == What’s New
 
 The Windows and macOS installers now ship with Qt 5.12.6.
@@ -20,13 +17,14 @@ They previously shipped with Qt 5.12.5.
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2019-22[]
-CMS dissector crash.
-wsbuglink:15961[].
-cveidlink:2019-19553[].
-// Fixed in master: 23850a3342
-// Fixed in master-3.0: e3872f8795
-// Fixed in master-2.6: 34d2e0d531
+* wssalink:2019-23[]
+Foo dissector {crash,infinite loop}.
+// wsbuglink:xxxxx[].
+// cveidlink:2019-xxxxx[].
+// Fixed in master: xxxxx
+// Fixed in master-3.2: xxxxx
+// Fixed in master-3.0: xxxxx
+// Fixed in master-2.6: xxxxx
 
 The following bugs have been fixed:
 
@@ -35,38 +33,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark slowly leaked water under the kitchen sink over the course of several months, causing a big mess.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.8rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* ws_pipe_wait_for_pipe() can wait on closed handles. wsbuglink:15696[].
-
-* Support for 11ax in PEEKREMOTE. wsbuglink:15740[].
-
-* The temporary file ... could not be opened: Invalid argument. wsbuglink:15751[].
-
-* Reassembling of the two TLS records is not working correctly. wsbuglink:16109[].
-
-* Display Filter Area: Dropdown Missing pkt_comment and tcp.options.sack_perm (likely others). wsbuglink:16130[].
-
-* Display Filter autocompletion should be disabled. wsbuglink:16132[].
-
-* BGP Linkstate IP Reachability information is incorrect. wsbuglink:16144[].
-
-* NGAP: ExpectedUEActivityBehaviour decode error. wsbuglink:16145[].
-
-* HomePlug AV dissector: MMTYPE and FMI fields are dissected incorrectly. wsbuglink:16158[].
-
-* JPEG files cannot be saved on Windows with french language. wsbuglink:16165[].
-
-* X11 --display interpreted as --display-filter which maps to -Y option. wsbuglink:16167[].
-
-* "Create new file automatically after" not working with extcap. wsbuglink:16178[].
-
-* Encrypted TLS alerts sometimes listed as decrypted. wsbuglink:16180[].
-
-* The "Remove Wireshark from the system path" package has "*Add* Wireshark to the system PATH" as its title. wsbuglink:16200[].
-
-* tshark -T ek -x causes get_field_data: code should not be reached. wsbuglink:16218[].
-
-* Crash on Go -> Next/Previous Packet in Conversation when no packet is selected. wsbuglink:16228[].
 
 === New and Updated Features
 
@@ -89,10 +55,6 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-BGP
-HomePlug AV
-IEEE 802.11
-TLS
 --
 
 === New and Updated Capture File Support
