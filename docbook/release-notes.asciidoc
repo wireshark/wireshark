@@ -17,13 +17,14 @@ It is used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2019-22[]
-CMS dissector crash.
-wsbuglink:15961[].
-cveidlink:2019-19553[].
-// Fixed in master: 23850a3342
-// Fixed in master-3.0: e3872f8795
-// Fixed in master-2.6: 34d2e0d531
+* wssalink:2019-23[]
+Foo dissector {crash,infinite loop}.
+// wsbuglink:xxxxx[].
+// cveidlink:2019-xxxxx[].
+// Fixed in master: xxxxx
+// Fixed in master-3.2: xxxxx
+// Fixed in master-3.0: xxxxx
+// Fixed in master-2.6: xxxxx
 
 The following bugs have been fixed:
 
@@ -32,26 +33,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.14rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* Support for 11ax in PEEKREMOTE. wsbuglink:15740[].
-
-* The temporary file ... could not be opened: Invalid argument. wsbuglink:15751[].
-
-* NET-SNMP EngineID Length handling Warning. wsbuglink:16051[].
-
-* Display Filter Area: Dropdown Missing pkt_comment and tcp.options.sack_perm (likely others). wsbuglink:16130[].
-
-* BGP Linkstate IP Reachability information is incorrect. wsbuglink:16144[].
-
-* HomePlug AV dissector: MMTYPE and FMI fields are dissected incorrectly. wsbuglink:16158[].
-
-* JPEG files cannot be saved on Windows with french language. wsbuglink:16165[].
-
-* X11 --display interpreted as --display-filter which maps to -Y option. wsbuglink:16167[].
-
-* tshark -T ek -x causes get_field_data: code should not be reached. wsbuglink:16218[].
-
-* Crash on Go -> Next/Previous Packet in Conversation when no packet is selected. wsbuglink:16228[].
 
 === New and Updated Features
 
@@ -70,11 +51,6 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-BGP
-CMS
-HomePlug AV
-IEEE 802.11
-SNMP
 --
 
 === New and Updated Capture File Support

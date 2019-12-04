@@ -115,7 +115,7 @@ add_library(wiretap
 
 add_dependencies(wiretap version)
 
-set(FULL_SO_VERSION "8.0.13")
+set(FULL_SO_VERSION "8.0.14")
 
 set_target_properties(wiretap PROPERTIES
 	PREFIX "lib"
