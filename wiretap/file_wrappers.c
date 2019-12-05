@@ -659,98 +659,149 @@ gz_head(FILE_T state)
     if (state->in.next[0] == 31) {
         state->in.avail--;
         state->in.next++;
-        if (state->in.avail == 0 && fill_in_buffer(state) == -1)
+
+        /* Make sure the byte after the first byte is present */
+        if (state->in.avail == 0 && fill_in_buffer(state) == -1) {
+            /* Read error. */
             return -1;
-        if (state->in.avail != 0 && state->in.next[0] == 139) {
+        }
+        if (state->in.avail != 0) {
+            if (state->in.next[0] == 139) {
+                /*
+                 * We have what looks like the ID1 and ID2 bytes of a gzip
+                 * header.
+                 * Continue processing the file.
+                 *
+                 * XXX - some capture file formats (I'M LOOKING AT YOU,
+                 * ENDACE!) can have 31 in the first byte of the file
+                 * and 139 in the second byte of the file.  For now, in
+                 * those cases, you lose.
+                 */
 #ifdef HAVE_ZLIB
-            guint8 cm;
-            guint8 flags;
-            guint16 len;
-            guint16 hcrc;
+                guint8 cm;
+                guint8 flags;
+                guint16 len;
+                guint16 hcrc;
 
-            /* we have a gzip header, woo hoo! */
-            state->in.avail--;
-            state->in.next++;
+                state->in.avail--;
+                state->in.next++;
 
-            /* read rest of header */
+                /* read rest of header */
 
-            /* compression method (CM) */
-            if (gz_next1(state, &cm) == -1)
-                return -1;
-            if (cm != 8) {
-                state->err = WTAP_ERR_DECOMPRESS;
-                state->err_info = "unknown compression method";
-                return -1;
-            }
-
-            /* flags (FLG) */
-            if (gz_next1(state, &flags) == -1)
-                return -1;
-            if (flags & 0xe0) {     /* reserved flag bits */
-                state->err = WTAP_ERR_DECOMPRESS;
-                state->err_info = "reserved flag bits set";
-                return -1;
-            }
-
-            /* modification time (MTIME) */
-            if (gz_skipn(state, 4) == -1)
-                return -1;
-
-            /* extra flags (XFL) */
-            if (gz_skipn(state, 1) == -1)
-                return -1;
-
-            /* operating system (OS) */
-            if (gz_skipn(state, 1) == -1)
-                return -1;
-
-            if (flags & 4) {
-                /* extra field - get XLEN */
-                if (gz_next2(state, &len) == -1)
+                /* compression method (CM) */
+                if (gz_next1(state, &cm) == -1)
                     return -1;
+                if (cm != 8) {
+                    state->err = WTAP_ERR_DECOMPRESS;
+                    state->err_info = "unknown compression method";
+                    return -1;
+                }
 
-                /* skip the extra field */
-                if (gz_skipn(state, len) == -1)
+                /* flags (FLG) */
+                if (gz_next1(state, &flags) == -1) {
+                    /* Read error. */
                     return -1;
-            }
-            if (flags & 8) {
-                /* file name */
-                if (gz_skipzstr(state) == -1)
+                }
+                if (flags & 0xe0) {     /* reserved flag bits */
+                    state->err = WTAP_ERR_DECOMPRESS;
+                    state->err_info = "reserved flag bits set";
                     return -1;
-            }
-            if (flags & 16) {
-                /* comment */
-                if (gz_skipzstr(state) == -1)
-                    return -1;
-            }
-            if (flags & 2) {
-                /* header crc */
-                if (gz_next2(state, &hcrc) == -1)
-                    return -1;
-                /* XXX - check the CRC? */
-            }
+                }
 
-            /* set up for decompression */
-            inflateReset(&(state->strm));
-            state->strm.adler = crc32(0L, Z_NULL, 0);
-            state->compression = ZLIB;
-            state->is_compressed = TRUE;
+                /* modification time (MTIME) */
+                if (gz_skipn(state, 4) == -1) {
+                    /* Read error. */
+                    return -1;
+                }
+
+                /* extra flags (XFL) */
+                if (gz_skipn(state, 1) == -1) {
+                    /* Read error. */
+                    return -1;
+                }
+
+                /* operating system (OS) */
+                if (gz_skipn(state, 1) == -1) {
+                    /* Read error. */
+                    return -1;
+                }
+
+                if (flags & 4) {
+                    /* extra field - get XLEN */
+                    if (gz_next2(state, &len) == -1) {
+                        /* Read error. */
+                        return -1;
+                    }
+
+                    /* skip the extra field */
+                    if (gz_skipn(state, len) == -1) {
+                        /* Read error. */
+                        return -1;
+                    }
+                }
+                if (flags & 8) {
+                    /* file name */
+                    if (gz_skipzstr(state) == -1) {
+                        /* Read error. */
+                        return -1;
+                    }
+                }
+                if (flags & 16) {
+                    /* comment */
+                    if (gz_skipzstr(state) == -1) {
+                        /* Read error. */
+                        return -1;
+                    }
+                }
+                if (flags & 2) {
+                    /* header crc */
+                    if (gz_next2(state, &hcrc) == -1) {
+                        /* Read error. */
+                        return -1;
+                    }
+                    /* XXX - check the CRC? */
+                }
+
+                /* set up for decompression */
+                inflateReset(&(state->strm));
+                state->strm.adler = crc32(0L, Z_NULL, 0);
+                state->compression = ZLIB;
+                state->is_compressed = TRUE;
 #ifdef Z_BLOCK
-            if (state->fast_seek) {
-                struct zlib_cur_seek_point *cur = g_new(struct zlib_cur_seek_point,1);
+                if (state->fast_seek) {
+                    struct zlib_cur_seek_point *cur = g_new(struct zlib_cur_seek_point,1);
 
-                cur->pos = cur->have = 0;
-                g_free(state->fast_seek_cur);
-                state->fast_seek_cur = cur;
-                fast_seek_header(state, state->raw_pos - state->in.avail, state->pos, GZIP_AFTER_HEADER);
-            }
+                    cur->pos = cur->have = 0;
+                    g_free(state->fast_seek_cur);
+                    state->fast_seek_cur = cur;
+                    fast_seek_header(state, state->raw_pos - state->in.avail, state->pos, GZIP_AFTER_HEADER);
+                }
 #endif /* Z_BLOCK */
-            return 0;
+                return 0;
 #else /* HAVE_ZLIB */
-            state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
-            state->err_info = "reading gzip-compressed files isn't supported";
-            return -1;
+                state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
+                state->err_info = "reading gzip-compressed files isn't supported";
+                return -1;
 #endif /* HAVE_ZLIB */
+            }
+
+            /*
+             * Not a gzip file.  "Unget" the first character; either:
+             *
+             *    1) we read both of the first two bytes into the
+             *    buffer with the first ws_read, so we can just back
+             *    up by one byte;
+             *
+             *    2) we only read the first byte into the buffer with
+             *    the first ws_read (e.g., because we're reading from
+             *    a pipe and only the first byte had been writen to
+             *    the pipe at that point), and read the second byte
+             *    into the buffer after the first byte in the
+             *    fill_in_buffer call, so we now have two bytes in
+             *    the buffer, and can just back up by one byte.
+             */
+            state->in.avail++;
+            state->in.next--;
         }
     }
 #ifdef HAVE_LIBXZ
