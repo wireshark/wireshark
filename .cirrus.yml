@@ -1,4 +1,5 @@
 task:
+  timeout_in: 120m
   freebsd_instance:
     matrix:
       - image_family: freebsd-13-0-snap
