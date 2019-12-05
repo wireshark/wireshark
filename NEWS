@@ -18,7 +18,10 @@ Wireshark 3.2.0 Release Notes
    The following features are new (or have been significantly updated)
    since version 3.1.1:
 
-     • Nothing of note.
+     • Miscellaneous UI fixes and updates.
+
+     • The macOS installer now ships with Qt 5.12.6. It previously
+       shipped with Qt 5.12.5.
 
    The following features are new (or have been significantly updated)
    since version 3.1.0:
@@ -29,13 +32,13 @@ Wireshark 3.2.0 Release Notes
        same time
 
      • They can be exported as Text by “Ctrl+C” or “Cmd+C” and the
-       corresponding menu in “Edit ▸ Copy ▸ As …​”
+       corresponding menu in “Edit › Copy › As …​”
 
      • They can be marked/unmarked or ignored/unignored at the same time
 
      • They can be exported and printed using the corresponding menu
-       entries “File ▸ Export Specified Packets”, “File ▸ Export Packet
-       Dissections” and “File ▸ Print”
+       entries “File › Export Specified Packets”, “File › Export Packet
+       Dissections” and “File › Print”
 
    You can now follow HTTP/2 and QUIC streams.
 
@@ -51,7 +54,7 @@ Wireshark 3.2.0 Release Notes
    Action buttons for the display filter bar may be aligned left via the
    context menu
 
-     • The "Expression…​" toolbar entry has been moved to "Analyze ▸
+     • The "Expression…​" toolbar entry has been moved to "Analyze ›
        Display filter Expression …​" as well as to the context menu of
        the display filter toolbar
 
@@ -90,7 +93,7 @@ Wireshark 3.2.0 Release Notes
 
      • A new tap for extracting credentials from the capture file has
        been added. It can be accessed through the -z credentials option
-       in tshark or from the “Tools ▸ Credentials” menu in Wireshark.
+       in tshark or from the “Tools › Credentials” menu in Wireshark.
 
      • Editcap can now split files on floating point intervals.
 
@@ -107,7 +110,7 @@ Wireshark 3.2.0 Release Notes
        not possible (unsupported codec or rate), silence of same length
        is saved and warning is shown.
 
-     • The “Analyze ▸ Apply as Filter” and “Analyze ▸ Prepare a Filter”
+     • The “Analyze › Apply as Filter” and “Analyze › Prepare a Filter”
        packet list and detail popup menus now show a preview of their
        respective filters.
 
@@ -193,7 +196,7 @@ Wireshark 3.2.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[10].
 
-  Last updated 2019-12-01 08:22:15 UTC
+  Last updated 2019-12-05 18:33:39 UTC
 
  References
 
