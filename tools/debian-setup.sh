@@ -170,17 +170,17 @@ fi
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries
-if [ $ADDITIONAL != 0 ]
+if [ $ADDITIONAL -ne 0 ]
 then
 	ACTUAL_LIST="$ACTUAL_LIST $ADDITIONAL_LIST"
 fi
 
-if [ $DEBDEPS != 0 ]
+if [ $DEBDEPS -ne 0 ]
 then
 	ACTUAL_LIST="$ACTUAL_LIST $DEBDEPS_LIST"
 fi
 
-if [ $TESTDEPS != 0 ]
+if [ $TESTDEPS -ne 0 ]
 then
 	ACTUAL_LIST="$ACTUAL_LIST $TESTDEPS_LIST"
 fi
@@ -188,17 +188,17 @@ fi
 # shellcheck disable=SC2086
 apt-get install $ACTUAL_LIST $OPTIONS || exit 2
 
-if [ $ADDITIONAL == 0 ]
+if [ $ADDITIONAL -eq 0 ]
 then
 	printf "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
 fi
 
-if [ $DEBDEPS == 0 ]
+if [ $DEBDEPS -eq 0 ]
 then
 	printf "\n*** Debian packages build deps not installed. Rerun with --install-deb-deps to have them.\n"
 fi
 
-if [ $TESTDEPS == 0 ]
+if [ $TESTDEPS -eq 0 ]
 then
 	printf "\n*** Test deps not installed. Rerun with --install-test-deps to have them.\n"
 fi

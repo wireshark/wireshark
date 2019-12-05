@@ -222,7 +222,7 @@ echo "libnl3/libnl are unavailable" >&2
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries
-if [ $ADDITIONAL != 0 ]
+if [ $ADDITIONAL -ne 0 ]
 then
 	ACTUAL_LIST="$ACTUAL_LIST $ADDITIONAL_LIST"
 fi
@@ -230,7 +230,7 @@ fi
 $PM $PM_OPT install $ACTUAL_LIST $OPTIONS
 
 # Now arrange for optional support libraries
-if [ $ADDITIONAL == 0 ]
+if [ $ADDITIONAL -eq 0 ]
 then
 	echo -e "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
 fi
