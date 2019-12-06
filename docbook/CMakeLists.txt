@@ -178,7 +178,6 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-menu.png
 	wsug_graphics/ws-merge-gtk24.png
 	wsug_graphics/ws-merge-win32.png
-	wsug_graphics/ws-nameresolution-preferences.png
 	wsug_graphics/ws-open-gtk24.png
 	wsug_graphics/ws-open-win32.png
 	wsug_graphics/ws-packet-format.png
@@ -187,11 +186,9 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-packet-selected.png
 	wsug_graphics/ws-packet-sep-win.png
 	wsug_graphics/ws-print.png
-	wsug_graphics/ws-printing-preferences.png
 	wsug_graphics/ws-save-as-gtk24.png
 	wsug_graphics/ws-save-as-win32.png
 	wsug_graphics/ws-statistics-menu.png
-	wsug_graphics/ws-stats-compare.png
 	wsug_graphics/ws-stats-conversations.png
 	wsug_graphics/ws-stats-endpoints.png
 	wsug_graphics/ws-stats-hierarchy.png

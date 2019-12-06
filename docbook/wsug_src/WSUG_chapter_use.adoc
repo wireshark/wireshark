@@ -192,7 +192,7 @@ press the Control (or Strg in German) and the K keys together to open the
 
 [[ChUseFileMenuSection]]
 
-=== The “File” menu
+=== The “File” Menu
 
 The Wireshark file menu contains the fields shown in <<ChUseTabFile>>.
 
@@ -501,7 +501,7 @@ image::wsug_graphics/ws-go-menu.png[{screenshot-attrs}]
 
 [[ChUseCaptureMenuSection]]
 
-=== The “Capture” menu
+=== The “Capture” Menu
 
 The Wireshark Capture menu contains the fields shown in <<ChUseTabCap>>.
 
@@ -627,7 +627,7 @@ The Wireshark Statistics menu contains the fields shown in <<ChUseStatistics>>.
 .The “Statistics” Menu
 image::wsug_graphics/ws-statistics-menu.png[{screenshot-attrs}]
 
-All menu items will bring up a new window showing specific statistical information.
+Each menu item brings up a new window showing specific statistics.
 
 [[ChUseStatistics]]
 .Statistics menu items
@@ -675,7 +675,7 @@ The Wireshark Telephony menu contains the fields shown in <<ChUseTelephony>>.
 .The “Telephony” Menu
 image::wsug_graphics/ws-telephony-menu.png[{screenshot-attrs}]
 
-All menu items will bring up a new window showing specific telephony related statistical information.
+Each menu item shows specific telephony related statistics.
 
 [[ChUseTelephony]]
 .Telephony menu items
@@ -699,6 +699,31 @@ All menu items will bring up a new window showing specific telephony related sta
 |menu:SIP Flows[]||See <<ChTelSIPFlows>>
 |menu:SIP Statistics[]||See <<ChTelSIPStatistics>>
 |menu:WAP-WSP Packet Counter[]||See <<ChTelWAPWSPPacketCounter>>
+
+|===
+
+[[ChUseWirelessMenuSection]]
+
+=== The “Wireless” Menu
+
+The Wireless menu lets you analyze Bluetooth and IEEE 802.11 wireless LAN activity as shown in <<ChUseWiresharkWirelessMenu>>.
+
+[[ChUseWiresharkWirelessMenu]]
+.The “Wireless” Menu
+image::wsug_graphics/ws-wireless-menu.png[{screenshot-attrs}]
+
+Each menu item shows specific Bluetooth and IEEE 802.11 statistics.
+
+[[ChUseWireless]]
+.Wireless menu items
+[options="header",cols="3,2,5"]
+|===
+|Menu Item|Accelerator|Description
+
+|menu:Bluetooth ATT Server Attributes[]||See <<ChWirelessBluetoothATTServerAttributes>>
+|menu:Bluetooth Devices[]||See <<ChWirelessBluetoothDevices>>
+|menu:Bluetooth HCI Summary[]||See <<ChWirelessBluetoothHCISummary>>
+|menu:WLAN Traffic[]||See <<ChWirelessWLANTraffic>>
 
 |===
 
