@@ -794,7 +794,7 @@ proto_register_uds(void)
                     &hf_uds_rdbi_data_identifier,
                     {
                             "Data Identifier", "uds.rdbi.data_identifier",
-                            FT_UINT8, BASE_HEX,
+                            FT_UINT16, BASE_HEX,
                             NULL, 0x0,
                             NULL, HFILL
                     }
