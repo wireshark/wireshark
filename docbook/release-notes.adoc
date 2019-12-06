@@ -16,8 +16,9 @@ used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-Many improvements have been made. See the “New and Updated Features”
-section below for more details.
+This is the last release branch with official support for Windows 7 and Windows Server 2008 R2.
+
+Many improvements have been made. See the “New and Updated Features” section below for more details.
 
 // === Bug Fixes
 
