@@ -2173,16 +2173,22 @@ static const value_string opcode_vals[] = {
     {0x0, NULL}
 };
 
+#define ATT_OPCODE_ERROR_RESPONSE               0x01
+#define ATT_OPCODE_EXCHANGE_MTU_REQUEST         0x02
+#define ATT_OPCODE_EXCHANGE_MTU_RESPONSE        0x03
+#define ATT_OPCODE_FIND_INFORMATION_REQUEST     0x04
+#define ATT_OPCODE_FIND_INFORMATION_RESPONSE    0x05
+#define ATT_OPCODE_FIND_BY_TYPE_VALUE_REQUEST   0x06
+#define ATT_OPCODE_FIND_BY_TYPE_VALUE_RESPONSE  0x07
+
 #define ATT_OPCODE_READ_BY_TYPE_REQUEST         0x08
 #define ATT_OPCODE_READ_BY_TYPE_RESPONSE        0x09
-
 #define ATT_OPCODE_READ_REQUEST                 0x0A
 #define ATT_OPCODE_READ_RESPONSE                0x0B
 #define ATT_OPCODE_READ_BLOB_REQUEST            0x0C
 #define ATT_OPCODE_READ_BLOB_RESPONSE           0x0D
 #define ATT_OPCODE_READ_MULTIPLE_REQUEST        0x0E
 #define ATT_OPCODE_READ_MULTIPLE_RESPONSE       0x0F
-
 #define ATT_OPCODE_READ_BY_GROUP_TYPE_REQUEST   0x10
 #define ATT_OPCODE_READ_BY_GROUP_TYPE_RESPONSE  0x11
 
@@ -2190,6 +2196,8 @@ static const value_string opcode_vals[] = {
 #define ATT_OPCODE_WRITE_RESPONSE               0x13
 #define ATT_OPCODE_WRITE_PREPARE_REQUEST        0x16
 #define ATT_OPCODE_WRITE_PREPARE_RESPONSE       0x17
+#define ATT_OPCODE_WRITE_EXECUTE_REQUEST        0x18
+#define ATT_OPCODE_WRITE_EXECUTE_RESPONSE       0x19
 #define ATT_OPCODE_WRITE_COMMAND                0x52
 #define ATT_OPCODE_WRITE_SIGNED_COMMAND         0xD2
 
@@ -4299,7 +4307,7 @@ save_request(packet_info *pinfo, guint8 opcode, union request_parameters_union p
     key[4].length = 0;
     key[4].key    = NULL;
 
-    request_data = wmem_new(wmem_file_scope(), request_data_t);
+    request_data = wmem_new0(wmem_file_scope(), request_data_t);
     request_data->opcode = opcode;
     request_data->request_in_frame = frame_number;
     request_data->response_in_frame = 0;
@@ -10010,7 +10018,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-/* TODO */
+        /* TODO */
         sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
         expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
         offset = tvb_captured_length(tvb);
@@ -10025,7 +10033,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-/* TODO */
+        /* TODO */
         sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
         expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
         offset = tvb_captured_length(tvb);
@@ -10040,7 +10048,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-/* TODO */
+        /* TODO */
         sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
         expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
         offset = tvb_captured_length(tvb);
@@ -10055,7 +10063,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-/* TODO */
+        /* TODO */
         sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
         expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
         offset = tvb_captured_length(tvb);
@@ -10070,7 +10078,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-/* TODO */
+        /* TODO */
         sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
         expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
         offset = tvb_captured_length(tvb);
@@ -10085,7 +10093,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-/* TODO */
+        /* TODO */
         sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
         expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
         offset = tvb_captured_length(tvb);
@@ -10219,7 +10227,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-/* TODO */
+        /* TODO */
         sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
         expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
         offset = tvb_captured_length(tvb);
@@ -10954,7 +10962,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset += 1;
 
             if (format == 1) {
-                while( tvb_reported_length_remaining(tvb, offset) > 0) {
+                while (tvb_reported_length_remaining(tvb, offset) > 0) {
                     sub_item = proto_tree_add_item(main_tree, hf_btatt_information_data, tvb, offset, 4, ENC_NA);
                     sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
 
@@ -10974,7 +10982,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 }
             }
             else if (format == 2) {
-                while( tvb_reported_length_remaining(tvb, offset) > 0) {
+                while (tvb_reported_length_remaining(tvb, offset) > 0) {
                     sub_item = proto_tree_add_item(main_tree, hf_btatt_information_data, tvb, offset, 4, ENC_NA);
                     sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
 
@@ -11031,7 +11039,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
 
     case 0x07: /* Find By Type Value Response */
-        while( tvb_reported_length_remaining(tvb, offset) > 0 ) {
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
             sub_item = proto_tree_add_none_format(main_tree, hf_btatt_handles_info, tvb, offset, 4,
                                             "Handles Info, Handle: 0x%04x, Group End Handle: 0x%04x",
                                             tvb_get_letohs(tvb, offset), tvb_get_letohs(tvb, offset+2));
@@ -11105,7 +11113,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(main_tree, hf_btatt_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            if(length > 0) {
+            if (length > 0) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Attribute List Length: %u",
                                         tvb_reported_length_remaining(tvb, offset)/length);
 
@@ -11208,7 +11216,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
 
     case 0x0d: /* Read Blob Response */
-        if (request_data) {
+        if (request_data && request_data->opcode == (opcode - 1)) {
             dissect_handle(main_tree, pinfo, hf_btatt_handle, tvb, offset, bluetooth_data, &uuid, request_data->parameters.read_write.handle);
 
             col_append_info_by_handle(pinfo, request_data->parameters.read_write.handle, bluetooth_data);
@@ -11275,7 +11283,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
 
     case 0x0f: /* Multiple Read Response */
-        if (request_data) {
+        if (request_data && request_data->opcode == (opcode - 1)) {
             guint  i_handle;
 
             for (i_handle = 0; i_handle < request_data->parameters.read_multiple.number_of_handles; i_handle += 1) {
@@ -11320,7 +11328,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 }
             }
 
-            if (request_data) {
+            if (request_data && request_data->opcode == (opcode - 1)) {
                 sub_item = proto_tree_add_uint(main_tree, hf_btatt_uuid16, tvb, 0, 0, request_data->parameters.read_by_type.uuid.bt_uuid);
                 proto_item_set_generated(sub_item);
             }
@@ -11351,7 +11359,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     case 0x13: /* Write Response */
         /* No parameters */
 
-        if (request_data) {
+        if (request_data && request_data->opcode == (opcode - 1)) {
             dissect_handle(main_tree, pinfo, hf_btatt_handle, tvb, offset, bluetooth_data, &uuid, request_data->parameters.read_write.handle);
 
             dissect_attribute_value(main_tree, NULL, pinfo, tvb, offset, 0, request_data->parameters.read_write.handle, uuid, &att_data);
@@ -11385,9 +11393,9 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN),
                     bluetooth_data);
 
-/* XXX: How to detect there is max data in frame and it is last fragment?
+        /* XXX: How to detect there is max data in frame and it is last fragment?
         (Execute Write Request/Response is good candidate, but there is no one handle) */
-        if (request_data && tvb_captured_length(tvb) < mtu) {
+        if (request_data && request_data->opcode == (opcode - 1) && tvb_captured_length(tvb) < mtu) {
             tvbuff_t  *next_tvb;
             guint      reassembled_length;
             guint8    *reassembled_data;
@@ -11430,7 +11438,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
 
     case 0x1E: /* Handle Value Confirmation */
-        if (request_data) {
+        if (request_data && request_data->opcode == (opcode - 1)) {
             dissect_handle(main_tree, pinfo, hf_btatt_handle, tvb, offset, bluetooth_data, &uuid, request_data->parameters.read_write.handle);
 
             col_append_info_by_handle(pinfo, request_data->parameters.read_write.handle, bluetooth_data);
@@ -11464,7 +11472,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
     }
 
-    if (request_data) {
+    if (request_data && request_data->opcode == (opcode - 1)) {
         if (request_data->request_in_frame > 0  && request_data->request_in_frame != pinfo->num) {
             sub_item = proto_tree_add_uint(main_tree, hf_request_in_frame, tvb, 0, 0, request_data->request_in_frame);
             proto_item_set_generated(sub_item);
