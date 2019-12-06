@@ -94,9 +94,7 @@ platforms:
 
 * Windows 8 / Windows Server 2012
 
-* Windows 7 / Windows Server 2008 R2
-
-Development on Windows Vista, Server 2008, and older versions may be possible but
+Development on Windows 7, Server 2008 R2, Vista, Server 2008, and older versions may be possible but
 is not supported.
 
 [[ChIntroDevelopment]]
