@@ -7349,8 +7349,9 @@ dissect_smb2_ioctl_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	switch (si->status) {
 	/* buffer code */
+	/* if we get BUFFER_OVERFLOW there will be truncated data */
+	case 0x80000005:
 	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
-	case 0x80000005: break;
 	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
 		if (!continue_dissection) return offset;
 	}
