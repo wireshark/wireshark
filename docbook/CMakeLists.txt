@@ -136,12 +136,12 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-decode-as.png
 	wsug_graphics/ws-details-pane-popup-menu.png
 	wsug_graphics/ws-details-pane.png
-	wsug_graphics/ws-display-filter-tcp.png
+	wsug_graphics/ws-display-filter-tcp.png # GTK+
 	wsug_graphics/ws-edit-menu.png
 	wsug_graphics/ws-enabled-protocols.png
 	wsug_graphics/ws-expert-colored-tree.png
 	wsug_graphics/ws-expert-column.png
-	wsug_graphics/ws-expert-infos.png
+	wsug_graphics/ws-expert-infos.png # Outdated
 	wsug_graphics/ws-export-objects.png
 	wsug_graphics/ws-export-pdml.png
 	wsug_graphics/ws-export-plain.png
@@ -150,10 +150,10 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-export-selected.png
 	wsug_graphics/ws-file-import.png
 	wsug_graphics/ws-file-menu.png
-	wsug_graphics/ws-file-set-dialog.png
-	wsug_graphics/ws-filter-add-expression.png
+	wsug_graphics/ws-file-set-dialog.png # GTK+
+	wsug_graphics/ws-filter-add-expression.png # GTK+
 	wsug_graphics/ws-filter-toolbar.png
-	wsug_graphics/ws-filters.png
+	wsug_graphics/ws-filters.png # GTK+
 	wsug_graphics/ws-find-packet.png
 	wsug_graphics/ws-follow-stream.png
 	wsug_graphics/ws-follow-http2-stream.png
@@ -161,7 +161,7 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-goto-packet.png
 	wsug_graphics/ws-gui-preferences.png
 	wsug_graphics/ws-help-menu.png
-	wsug_graphics/ws-list-pane.png
+	wsug_graphics/ws-list-pane.png # Outdated
 	wsug_graphics/ws-main-toolbar.png
 	wsug_graphics/ws-main.png
 	wsug_graphics/ws-manage-interfaces.png
@@ -176,38 +176,38 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-mate-tcp-output.png
 	wsug_graphics/ws-mate-transform.png
 	wsug_graphics/ws-menu.png
-	wsug_graphics/ws-merge-gtk24.png
+	wsug_graphics/ws-merge-qt5.png
 	wsug_graphics/ws-merge-win32.png
-	wsug_graphics/ws-open-gtk24.png
+	wsug_graphics/ws-open-qt5.png
 	wsug_graphics/ws-open-win32.png
-	wsug_graphics/ws-packet-format.png
+	wsug_graphics/ws-packet-format.png # Outdated
 	wsug_graphics/ws-packet-pane-popup-menu.png
-	wsug_graphics/ws-packet-range.png
+	wsug_graphics/ws-packet-range.png # Outdated
 	wsug_graphics/ws-packet-selected.png
 	wsug_graphics/ws-packet-sep-win.png
 	wsug_graphics/ws-print.png
-	wsug_graphics/ws-save-as-gtk24.png
+	wsug_graphics/ws-save-as-qt5.png
 	wsug_graphics/ws-save-as-win32.png
 	wsug_graphics/ws-statistics-menu.png
 	wsug_graphics/ws-stats-conversations.png
 	wsug_graphics/ws-stats-endpoints.png
 	wsug_graphics/ws-stats-hierarchy.png
-	wsug_graphics/ws-stats-iographs.png
-	wsug_graphics/ws-stats-srt-dcerpc-filter.png
-	wsug_graphics/ws-stats-srt-dcerpc.png
-	wsug_graphics/ws-stats-summary.png
+	wsug_graphics/ws-stats-iographs.png # GTK+
+	wsug_graphics/ws-stats-srt-dcerpc-filter.png # GTK+
+	wsug_graphics/ws-stats-srt-dcerpc.png # GTK+
+	wsug_graphics/ws-stats-summary.png # GTK+
 	wsug_graphics/ws-stats-lte-mac-traffic.png
 	wsug_graphics/ws-stats-lte-rlc-traffic.png
-	wsug_graphics/ws-stats-wlan-traffic.png
+	wsug_graphics/ws-stats-wlan-traffic.png # GTK+
 	wsug_graphics/ws-statusbar-empty.png
 	wsug_graphics/ws-statusbar-filter.png
 	wsug_graphics/ws-statusbar-loaded.png
 	wsug_graphics/ws-statusbar-profile.png
 	wsug_graphics/ws-statusbar-selected.png
 	wsug_graphics/ws-tcp-analysis.png
-	wsug_graphics/ws-tel-rtpstream-analysis.png
+	wsug_graphics/ws-tel-rtpstream-analysis.png # GTK+
 	wsug_graphics/ws-telephony-menu.png
-	wsug_graphics/ws-time-reference.png
+	wsug_graphics/ws-time-reference.png # GTK+
 	wsug_graphics/ws-tools-menu.png
 	wsug_graphics/ws-view-menu.png
 	wsug_graphics/toolbar/document-open.png
