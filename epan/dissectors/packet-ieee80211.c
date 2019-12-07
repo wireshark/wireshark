@@ -22899,7 +22899,7 @@ dissect_ieee80211_block_ack_details(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree     *ba_mtid_tree, *ba_mtid_sub_tree;
   guint16         ssn;
   guint64         bmap;
-  guint           f;
+  gint            f;
   proto_item     *ba_bitmap_item;
   proto_tree     *ba_bitmap_tree;
   guint16         aid_tid;
@@ -23121,13 +23121,13 @@ dissect_ieee80211_block_ack_details(tvbuff_t *tvb, packet_info *pinfo _U_,
                                 ett_block_ack_bitmap);
             for (i = 0; i < bitmap_size * 8; i += 64) {
               bmap = tvb_get_letoh64(tvb, offset + i/8);
-              for (f = i; f <  i + ((bitmap_size == 4 ? 4 : 8) * 8); f++) {
+              for (f = 0; f < ((bitmap_size == 4 ? 4 : 8) * 8); f++) {
                 if (bmap & (G_GUINT64_CONSTANT(1) << f))
                   continue;
                 proto_tree_add_uint_format_value(ba_bitmap_tree,
                               hf_ieee80211_block_ack_bitmap_missing_frame,
-                              tvb, offset + (f/8), 1, ssn + f, "%u",
-                              (ssn + f) & 0x0fff);
+                              tvb, offset + ((f + i)/8), 1, ssn + f + i, "%u",
+                              (ssn + f + i) & 0x0fff);
               }
             }
             offset += bitmap_size;
