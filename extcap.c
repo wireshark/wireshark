@@ -293,14 +293,15 @@ extcap_if_executable(const gchar *ifname)
     return interface != NULL ? interface->extcap_path : NULL;
 }
 
-static void
+static gboolean
 extcap_iface_toolbar_add(const gchar *extcap, iface_toolbar *toolbar_entry)
 {
     char *toolname;
+    gboolean ret = FALSE;
 
     if (!extcap || !toolbar_entry)
     {
-        return;
+        return ret;
     }
 
     toolname = g_path_get_basename(extcap);
@@ -308,9 +309,11 @@ extcap_iface_toolbar_add(const gchar *extcap, iface_toolbar *toolbar_entry)
     if (!g_hash_table_lookup(_toolbars, toolname))
     {
         g_hash_table_insert(_toolbars, g_strdup(toolname), toolbar_entry);
+        ret = TRUE;
     }
 
     g_free(toolname);
+    return ret;
 }
 
 static gchar **
@@ -1824,9 +1827,14 @@ process_new_extcap(const char *extcap, char *output)
     if (toolbar_entry && toolbar_entry->menu_title)
     {
         iface_toolbar_add(toolbar_entry);
-        extcap_iface_toolbar_add(extcap, toolbar_entry);
+        if (!extcap_iface_toolbar_add(extcap, toolbar_entry))
+        {
+            extcap_free_toolbar(toolbar_entry);
+            toolbar_entry = NULL;
+        }
     }
 
+    extcap_free_toolbar(toolbar_entry);
     g_list_foreach(interfaces, remove_extcap_entry, NULL);
     g_list_free(interfaces);
     g_list_free(interface_keys);
