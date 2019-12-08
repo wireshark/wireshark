@@ -143,10 +143,8 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-expert-column.png
 	wsug_graphics/ws-expert-infos.png # Outdated
 	wsug_graphics/ws-export-objects.png
-	wsug_graphics/ws-export-pdml.png
-	wsug_graphics/ws-export-plain.png
-	wsug_graphics/ws-export-ps.png
-	wsug_graphics/ws-export-psml.png
+	wsug_graphics/ws-export-packet-dissections.png
+	wsug_graphics/ws-export-specified-packets.png
 	wsug_graphics/ws-export-selected.png
 	wsug_graphics/ws-file-import.png
 	wsug_graphics/ws-file-menu.png
@@ -180,9 +178,9 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-merge-win32.png
 	wsug_graphics/ws-open-qt5.png
 	wsug_graphics/ws-open-win32.png
-	wsug_graphics/ws-packet-format.png # Outdated
+	wsug_graphics/ws-packet-format.png
 	wsug_graphics/ws-packet-pane-popup-menu.png
-	wsug_graphics/ws-packet-range.png # Outdated
+	wsug_graphics/ws-packet-range.png
 	wsug_graphics/ws-packet-selected.png
 	wsug_graphics/ws-packet-sep-win.png
 	wsug_graphics/ws-print.png
