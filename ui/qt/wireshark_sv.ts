@@ -1173,315 +1173,620 @@
     <name>CaptureInterfacesDialog</name>
     <message>
         <source>Input</source>
-        <translation>Indata</translation>
+        <translation type="vanished">Indata</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation>Gränssnitt</translation>
+        <translation type="vanished">Gränssnitt</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>Trafik</translation>
+        <translation type="vanished">Trafik</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>Fångstfilter</translation>
+        <translation type="vanished">Fångstfilter</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du vill troligen aktivera detta.  Vanligen kommer ett nätverkskort endast fånga trafiken som skickas till dess egen nätverksadress.  Om du vill fånga all trafik som nätverkskortet kan &amp;quot;se&amp;quot;, markera detta alternativ.  Se FAQ:n för lite fler detaljer om att fånga paket från ett switchat nätverk.&lt;/p&gt;&lt;/body&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du vill troligen aktivera detta.  Vanligen kommer ett nätverkskort endast fånga trafiken som skickas till dess egen nätverksadress.  Om du vill fånga all trafik som nätverkskortet kan &amp;quot;se&amp;quot;, markera detta alternativ.  Se FAQ:n för lite fler detaljer om att fånga paket från ett switchat nätverk.&lt;/p&gt;&lt;/body&gt;</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation>Utdata</translation>
+        <translation type="vanished">Utdata</translation>
     </message>
     <message>
         <source>Output format:</source>
-        <translation>Utdataformat:</translation>
+        <translation type="vanished">Utdataformat:</translation>
     </message>
     <message>
         <source>pcapng</source>
-        <translation>pcapng</translation>
+        <translation type="vanished">pcapng</translation>
     </message>
     <message>
         <source>pcap</source>
-        <translation>pcap</translation>
+        <translation type="vanished">pcap</translation>
     </message>
     <message>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
-        <translation>Bläddra…</translation>
+        <translation type="vanished">Bläddra…</translation>
     </message>
     <message>
         <source>File:</source>
-        <translation>Fil:</translation>
+        <translation type="vanished">Fil:</translation>
     </message>
     <message>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
-        <translation>megabyte</translation>
+        <translation type="vanished">megabyte</translation>
     </message>
     <message>
         <source>kilobytes</source>
         <oldsource>Kilobytes</oldsource>
-        <translation>kilobyte</translation>
+        <translation type="vanished">kilobyte</translation>
     </message>
     <message>
         <source>seconds</source>
-        <translation>sekunder</translation>
+        <translation type="vanished">sekunder</translation>
     </message>
     <message>
         <source>minutes</source>
-        <translation>minuter</translation>
+        <translation type="vanished">minuter</translation>
     </message>
     <message>
         <source>hours</source>
-        <translation>timmar</translation>
+        <translation type="vanished">timmar</translation>
     </message>
     <message>
         <source>Show capture information during live capture</source>
-        <translation>Visa fångstinformation under live-fångst</translation>
+        <translation type="vanished">Visa fångstinformation under live-fångst</translation>
     </message>
     <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
-        <translation>Sluta fånga efter att det angivna antalet paket har infångats.</translation>
+        <translation type="vanished">Sluta fånga efter att det angivna antalet paket har infångats.</translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of data has been captured.</source>
-        <translation>Sluta fånga efter att den angivna mängden data har infångats.</translation>
+        <translation type="vanished">Sluta fånga efter att den angivna mängden data har infångats.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sluta fånga efter att den angivna mängden data har infångats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sluta fånga efter att den angivna mängden data har infångats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>packets</source>
-        <translation>paket</translation>
+        <translation type="vanished">paket</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>Länknivåhuvud</translation>
+        <translation type="vanished">Länknivåhuvud</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>Promiskuös</translation>
+        <translation type="vanished">Promiskuös</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Provlängd (B)</translation>
+        <translation type="vanished">Provlängd (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>Buffert (MB)</translation>
+        <translation type="vanished">Buffert (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Monitorläge</translation>
+        <translation type="vanished">Monitorläge</translation>
     </message>
     <message>
         <source>Enable promiscuous mode on all interfaces</source>
         <oldsource>Capture in promiscuous mode on all interfaces</oldsource>
-        <translation>Aktivera promiskuöst läge för alla gränssnitt</translation>
+        <translation type="vanished">Aktivera promiskuöst läge för alla gränssnitt</translation>
     </message>
     <message>
         <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
-        <translation>Visa och dölj gränssnitt, lägg till kommentarer och hantera rör och fjärrgränssnitt.</translation>
+        <translation type="vanished">Visa och dölj gränssnitt, lägg till kommentarer och hantera rör och fjärrgränssnitt.</translation>
     </message>
     <message>
         <source>Manage Interfaces…</source>
         <oldsource>Manage Interfaces...</oldsource>
-        <translation>Hantera gränssnitt…</translation>
+        <translation type="vanished">Hantera gränssnitt…</translation>
     </message>
     <message>
         <source>Capture filter for selected interfaces:</source>
         <oldsource>Capture Filter for selected Interfaces:</oldsource>
-        <translation>Fångsfilter för valda gränssnitt:</translation>
+        <translation type="vanished">Fångsfilter för valda gränssnitt:</translation>
     </message>
     <message>
         <source>Compile BPFs</source>
-        <translation>Kompilera BPF:er</translation>
+        <translation type="vanished">Kompilera BPF:er</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ange filnamnet som infångad data skall skrivas till.  Som standard kommer en temporärfil användas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ange filnamnet som infångad data skall skrivas till.  Som standard kommer en temporärfil användas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture to a permanent file</source>
-        <translation>Fånga till en permanent fil</translation>
+        <translation type="vanished">Fånga till en permanent fil</translation>
     </message>
     <message>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
-        <translation>gigabyte</translation>
+        <translation type="vanished">gigabyte</translation>
     </message>
     <message>
         <source>Switch to the next file after the specified number of packets have been captured.</source>
-        <translation>Byt till nästa fil efter det angivna antalet paket har infångats.</translation>
+        <translation type="vanished">Byt till nästa fil efter det angivna antalet paket har infångats.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Istället för att använda en enda fångstfil kommer flera filer skapas.&lt;/p&gt;&lt;p&gt;De genererade filnamnen kommer innehålla ett ökande nummer och starttidpunkten för fångsten.&lt;/p&gt;&lt;p&gt;OBS: om aktiverat MÅSTE åtminstone av kriterierna för ny fil väljas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Istället för att använda en enda fångstfil kommer flera filer skapas.&lt;/p&gt;&lt;p&gt;De genererade filnamnen kommer innehålla ett ökande nummer och starttidpunkten för fångsten.&lt;/p&gt;&lt;p&gt;OBS: om aktiverat MÅSTE åtminstone av kriterierna för ny fil väljas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Create a new file automatically…</source>
-        <translation>Skapa en ny fil automatiskt …</translation>
+        <translation type="vanished">Skapa en ny fil automatiskt …</translation>
     </message>
     <message>
         <source>after</source>
-        <translation>efter</translation>
+        <translation type="vanished">efter</translation>
     </message>
     <message>
         <source>Switch to the next file after the file size exceeds the specified file size.</source>
-        <translation>Byt till nästa fil efter att filstorleken överskrider den angivna filstorleken.</translation>
+        <translation type="vanished">Byt till nästa fil efter att filstorleken överskrider den angivna filstorleken.</translation>
     </message>
     <message>
         <source>Switch to the next file when the time capturing to the current file exceeds the specified time.</source>
-        <translation>Byt till nästa fil när tiden under vilken fångsten gjorts till den nuvarande filen överskrider den angivna tiden.</translation>
+        <translation type="vanished">Byt till nästa fil när tiden under vilken fångsten gjorts till den nuvarande filen överskrider den angivna tiden.</translation>
     </message>
     <message>
         <source>when time is a multiple of</source>
-        <translation>när tiden är en multipel av</translation>
+        <translation type="vanished">när tiden är en multipel av</translation>
     </message>
     <message>
         <source>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
 For example, use 1 hour to have a new file created every hour on the hour.</source>
-        <translation>Byt till nästa fil när (väggklocks)tiden är en jämn multipel av det angivna intervallet
+        <translation type="vanished">Byt till nästa fil när (väggklocks)tiden är en jämn multipel av det angivna intervallet
 Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid hel timma.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Efter att infångandet har bytt till nästa fil och det angivna antalet filer har överskridits tas den äldsta filen bort.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Efter att infångandet har bytt till nästa fil och det angivna antalet filer har överskridits tas den äldsta filen bort.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use a ring buffer with </source>
-        <translation>Använd en ringbuffert med </translation>
+        <translation type="vanished">Använd en ringbuffert med </translation>
     </message>
     <message>
         <source>files</source>
-        <translation>filer</translation>
+        <translation type="vanished">filer</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation>Flaggor</translation>
+        <translation type="vanished">Flaggor</translation>
     </message>
     <message>
         <source>Display Options</source>
-        <translation>Visningsflaggor</translation>
+        <translation type="vanished">Visningsflaggor</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Används denna flagga kommer infångade paket visas omedelbart på huvudskärmen.  Observera: detta kommer sakta ned fångandet, så fler paket kan komma att släppas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Används denna flagga kommer infångade paket visas omedelbart på huvudskärmen.  Observera: detta kommer sakta ned fångandet, så fler paket kan komma att släppas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Update list of packets in real-time</source>
-        <translation>Uppdatera paketlistan i realtid</translation>
+        <translation type="vanished">Uppdatera paketlistan i realtid</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Detta kommer rulla &amp;quot;Paketlistan&amp;quot; automatiskt till det sista fångade paketet, när flaggan &amp;quot;Uppdatera paketlistan i realtid&amp;quot; används.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Detta kommer rulla &amp;quot;Paketlistan&amp;quot; automatiskt till det sista fångade paketet, när flaggan &amp;quot;Uppdatera paketlistan i realtid&amp;quot; används.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Automatically scroll during live capture</source>
-        <translation>Rulla automatiskt under live-fångst</translation>
+        <translation type="vanished">Rulla automatiskt under live-fångst</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visa fångstinformationsdialogen under fångandet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visa fångstinformationsdialogen under fångandet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Name Resolution</source>
-        <translation>Namnuppslagning</translation>
+        <translation type="vanished">Namnuppslagning</translation>
     </message>
     <message>
         <source>Perform MAC layer name resolution while capturing.</source>
-        <translation>Utför namnuppslagning på MAC-nivå under fångandet.</translation>
+        <translation type="vanished">Utför namnuppslagning på MAC-nivå under fångandet.</translation>
     </message>
     <message>
         <source>Resolve MAC Addresses</source>
-        <translation>Slå upp MAC-adresser</translation>
+        <translation type="vanished">Slå upp MAC-adresser</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Utför namnuppslagning på nätverksnivå under fångandet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Utför namnuppslagning på nätverksnivå under fångandet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Resolve network names</source>
-        <translation>Slå upp nätverksnamn</translation>
+        <translation type="vanished">Slå upp nätverksnamn</translation>
     </message>
     <message>
         <source>Perform transport layer name resolution while capturing.</source>
-        <translation>Utför namnuppslagning på transportnivån under fångandet.</translation>
+        <translation type="vanished">Utför namnuppslagning på transportnivån under fångandet.</translation>
     </message>
     <message>
         <source>Resolve transport names</source>
-        <translation>Slå upp transportnamn</translation>
+        <translation type="vanished">Slå upp transportnamn</translation>
     </message>
     <message>
         <source>Stop capture automatically after…</source>
         <oldsource>Stop capture automatically after...</oldsource>
-        <translation>Sluta fånga automatiskt efter …</translation>
+        <translation type="vanished">Sluta fånga automatiskt efter …</translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of time has passed.</source>
-        <translation>Sluta fånga efter den angivna tidsrymden har passerat.</translation>
+        <translation type="vanished">Sluta fånga efter den angivna tidsrymden har passerat.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sluta fånga efter att det angivna antalet paket har fångats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sluta fånga efter att det angivna antalet paket har fångats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sluta fånga efter att det angivna antalet filer har skapats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sluta fånga efter att det angivna antalet filer har skapats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture Interfaces</source>
-        <translation>Fångstgränssnitt</translation>
+        <translation type="vanished">Fångstgränssnitt</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation>Starta</translation>
+        <translation type="vanished">Starta</translation>
     </message>
     <message>
         <source>Leave blank to use a temporary file</source>
-        <translation>Lämna tomt för att använda en temporärfil</translation>
+        <translation type="vanished">Lämna tomt för att använda en temporärfil</translation>
     </message>
     <message>
         <source>Specify a Capture File</source>
-        <translation>Ange en fångstfil</translation>
+        <translation type="vanished">Ange en fångstfil</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="vanished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>Adresser</translation>
+        <translation type="vanished">Adresser</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Adress</translation>
+        <translation type="vanished">Adress</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>inga adresser</translation>
+        <translation type="vanished">inga adresser</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Fel</translation>
+        <translation type="vanished">Fel</translation>
     </message>
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
         <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
-        <translation>Flera filer: den begärda filstorleken är för stor.  Filstorleken får inte vara större än 2 GiB.</translation>
+        <translation type="vanished">Flera filer: den begärda filstorleken är för stor.  Filstorleken får inte vara större än 2 GiB.</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
         <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
-        <translation>Flera filer: inget fångstfilnamn angivet.  Du måste ange ett filnamn ifall du vill använda flera filer.</translation>
+        <translation type="vanished">Flera filer: inget fångstfilnamn angivet.  Du måste ange ett filnamn ifall du vill använda flera filer.</translation>
     </message>
     <message>
         <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
-        <translation>Flera filer: ingen filgräns angiven.  Du måste ange en filstorlek, ett intervall eller ett antal paket för varje fil.</translation>
+        <translation type="vanished">Flera filer: ingen filgräns angiven.  Du måste ange en filstorlek, ett intervall eller ett antal paket för varje fil.</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureOptionsDialog</name>
+    <message>
+        <source>Input</source>
+        <translation type="unfinished">Indata</translation>
+    </message>
+    <message>
+        <source>Interface</source>
+        <translation type="unfinished">Gränssnitt</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">Trafik</translation>
+    </message>
+    <message>
+        <source>Link-layer Header</source>
+        <translation type="unfinished">Länknivåhuvud</translation>
+    </message>
+    <message>
+        <source>Promiscuous</source>
+        <translation type="unfinished">Promiskuös</translation>
+    </message>
+    <message>
+        <source>Snaplen (B)</source>
+        <translation type="unfinished">Provlängd (B)</translation>
+    </message>
+    <message>
+        <source>Buffer (MB)</source>
+        <translation type="unfinished">Buffert (MB)</translation>
+    </message>
+    <message>
+        <source>Monitor Mode</source>
+        <translation type="unfinished">Monitorläge</translation>
+    </message>
+    <message>
+        <source>Capture Filter</source>
+        <translation type="unfinished">Fångstfilter</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du vill troligen aktivera detta.  Vanligen kommer ett nätverkskort endast fånga trafiken som skickas till dess egen nätverksadress.  Om du vill fånga all trafik som nätverkskortet kan &amp;quot;se&amp;quot;, markera detta alternativ.  Se FAQ:n för lite fler detaljer om att fånga paket från ett switchat nätverk.&lt;/p&gt;&lt;/body&gt;</translation>
+    </message>
+    <message>
+        <source>Enable promiscuous mode on all interfaces</source>
+        <translation type="unfinished">Aktivera promiskuöst läge för alla gränssnitt</translation>
+    </message>
+    <message>
+        <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
+        <translation type="unfinished">Visa och dölj gränssnitt, lägg till kommentarer och hantera rör och fjärrgränssnitt.</translation>
+    </message>
+    <message>
+        <source>Manage Interfaces…</source>
+        <translation type="unfinished">Hantera gränssnitt…</translation>
+    </message>
+    <message>
+        <source>Capture filter for selected interfaces:</source>
+        <translation type="unfinished">Fångsfilter för valda gränssnitt:</translation>
+    </message>
+    <message>
+        <source>Compile BPFs</source>
+        <translation type="unfinished">Kompilera BPF:er</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">Utdata</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ange filnamnet som infångad data skall skrivas till.  Som standard kommer en temporärfil användas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Capture to a permanent file</source>
+        <translation type="unfinished">Fånga till en permanent fil</translation>
+    </message>
+    <message>
+        <source>File:</source>
+        <translation type="unfinished">Fil:</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output format:</source>
+        <translation type="unfinished">Utdataformat:</translation>
+    </message>
+    <message>
+        <source>pcapng</source>
+        <translation type="unfinished">pcapng</translation>
+    </message>
+    <message>
+        <source>pcap</source>
+        <translation type="unfinished">pcap</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Istället för att använda en enda fångstfil kommer flera filer skapas.&lt;/p&gt;&lt;p&gt;De genererade filnamnen kommer innehålla ett ökande nummer och starttidpunkten för fångsten.&lt;/p&gt;&lt;p&gt;OBS: om aktiverat MÅSTE åtminstone av kriterierna för ny fil väljas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Create a new file automatically…</source>
+        <translation type="unfinished">Skapa en ny fil automatiskt …</translation>
+    </message>
+    <message>
+        <source>after</source>
+        <translation type="unfinished">efter</translation>
+    </message>
+    <message>
+        <source>Switch to the next file after the specified number of packets have been captured.</source>
+        <translation type="unfinished">Byt till nästa fil efter det angivna antalet paket har infångats.</translation>
+    </message>
+    <message>
+        <source>packets</source>
+        <translation type="unfinished">paket</translation>
+    </message>
+    <message>
+        <source>Switch to the next file after the file size exceeds the specified file size.</source>
+        <translation type="unfinished">Byt till nästa fil efter att filstorleken överskrider den angivna filstorleken.</translation>
+    </message>
+    <message>
+        <source>kilobytes</source>
+        <translation type="unfinished">kilobyte</translation>
+    </message>
+    <message>
+        <source>megabytes</source>
+        <translation type="unfinished">megabyte</translation>
+    </message>
+    <message>
+        <source>gigabytes</source>
+        <translation type="unfinished">gigabyte</translation>
+    </message>
+    <message>
+        <source>Switch to the next file when the time capturing to the current file exceeds the specified time.</source>
+        <translation type="unfinished">Byt till nästa fil när tiden under vilken fångsten gjorts till den nuvarande filen överskrider den angivna tiden.</translation>
+    </message>
+    <message>
+        <source>seconds</source>
+        <translation type="unfinished">sekunder</translation>
+    </message>
+    <message>
+        <source>minutes</source>
+        <translation type="unfinished">minuter</translation>
+    </message>
+    <message>
+        <source>hours</source>
+        <translation type="unfinished">timmar</translation>
+    </message>
+    <message>
+        <source>when time is a multiple of</source>
+        <translation type="unfinished">när tiden är en multipel av</translation>
+    </message>
+    <message>
+        <source>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
+For example, use 1 hour to have a new file created every hour on the hour.</source>
+        <translation type="unfinished">Byt till nästa fil när (väggklocks)tiden är en jämn multipel av det angivna intervallet
+Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid hel timma.</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Efter att infångandet har bytt till nästa fil och det angivna antalet filer har överskridits tas den äldsta filen bort.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Use a ring buffer with </source>
+        <translation type="unfinished">Använd en ringbuffert med </translation>
+    </message>
+    <message>
+        <source>files</source>
+        <translation type="unfinished">filer</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Options</source>
+        <translation type="unfinished">Visningsflaggor</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Används denna flagga kommer infångade paket visas omedelbart på huvudskärmen.  Observera: detta kommer sakta ned fångandet, så fler paket kan komma att släppas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Update list of packets in real-time</source>
+        <translation type="unfinished">Uppdatera paketlistan i realtid</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Detta kommer rulla &amp;quot;Paketlistan&amp;quot; automatiskt till det sista fångade paketet, när flaggan &amp;quot;Uppdatera paketlistan i realtid&amp;quot; används.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Automatically scroll during live capture</source>
+        <translation type="unfinished">Rulla automatiskt under live-fångst</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visa fångstinformationsdialogen under fångandet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Show capture information during live capture</source>
+        <translation type="unfinished">Visa fångstinformation under live-fångst</translation>
+    </message>
+    <message>
+        <source>Name Resolution</source>
+        <translation type="unfinished">Namnuppslagning</translation>
+    </message>
+    <message>
+        <source>Perform MAC layer name resolution while capturing.</source>
+        <translation type="unfinished">Utför namnuppslagning på MAC-nivå under fångandet.</translation>
+    </message>
+    <message>
+        <source>Resolve MAC addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Utför namnuppslagning på nätverksnivå under fångandet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Resolve network names</source>
+        <translation type="unfinished">Slå upp nätverksnamn</translation>
+    </message>
+    <message>
+        <source>Perform transport layer name resolution while capturing.</source>
+        <translation type="unfinished">Utför namnuppslagning på transportnivån under fångandet.</translation>
+    </message>
+    <message>
+        <source>Resolve transport names</source>
+        <translation type="unfinished">Slå upp transportnamn</translation>
+    </message>
+    <message>
+        <source>Stop capture automatically after…</source>
+        <translation type="unfinished">Sluta fånga automatiskt efter …</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sluta fånga efter att det angivna antalet paket har fångats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified number of packets have been captured.</source>
+        <translation type="unfinished">Sluta fånga efter att det angivna antalet paket har infångats.</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sluta fånga efter att det angivna antalet filer har skapats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sluta fånga efter att den angivna mängden data har infångats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified amount of data has been captured.</source>
+        <translation type="unfinished">Sluta fånga efter att den angivna mängden data har infångats.</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified amount of time has passed.</source>
+        <translation type="unfinished">Sluta fånga efter den angivna tidsrymden har passerat.</translation>
+    </message>
+    <message>
+        <source>Capture Options</source>
+        <translation type="unfinished">Fångstalternativ</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Leave blank to use a temporary file</source>
+        <translation type="unfinished">Lämna tomt för att använda en temporärfil</translation>
+    </message>
+    <message>
+        <source>Specify a Capture File</source>
+        <translation type="unfinished">Ange en fångstfil</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <translation type="unfinished">%1: %2</translation>
+    </message>
+    <message>
+        <source>Addresses</source>
+        <translation type="unfinished">Adresser</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation type="unfinished">Adress</translation>
+    </message>
+    <message>
+        <source>no addresses</source>
+        <translation type="unfinished">inga adresser</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Fel</translation>
+    </message>
+    <message>
+        <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
+        <translation type="unfinished">Flera filer: den begärda filstorleken är för stor.  Filstorleken får inte vara större än 2 GiB.</translation>
+    </message>
+    <message>
+        <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
+        <translation type="unfinished">Flera filer: inget fångstfilnamn angivet.  Du måste ange ett filnamn ifall du vill använda flera filer.</translation>
+    </message>
+    <message>
+        <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
+        <translation type="unfinished">Flera filer: ingen filgräns angiven.  Du måste ange en filstorlek, ett intervall eller ett antal paket för varje fil.</translation>
     </message>
 </context>
 <context>

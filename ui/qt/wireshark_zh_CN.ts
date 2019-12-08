@@ -1164,150 +1164,380 @@
     <name>CaptureInterfacesDialog</name>
     <message>
         <source>Input</source>
-        <translation>输入</translation>
+        <translation type="vanished">输入</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation>接口</translation>
+        <translation type="vanished">接口</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>流量</translation>
+        <translation type="vanished">流量</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>捕获过滤器</translation>
+        <translation type="vanished">捕获过滤器</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;您可能希望启用这个功能。网卡通常只会捕获那些发给它自身地址的流量。如果您希望捕获所有网卡能够“看到”的流量，请启用此选项。参见FAQ中关于从交换网络中捕获分组的详细信息。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;您可能希望启用这个功能。网卡通常只会捕获那些发给它自身地址的流量。如果您希望捕获所有网卡能够“看到”的流量，请启用此选项。参见FAQ中关于从交换网络中捕获分组的详细信息。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation>输出</translation>
+        <translation type="vanished">输出</translation>
     </message>
     <message>
         <source>Output format:</source>
-        <translation>输出格式：</translation>
+        <translation type="vanished">输出格式：</translation>
     </message>
     <message>
         <source>pcapng</source>
-        <translation>pcapng</translation>
+        <translation type="vanished">pcapng</translation>
     </message>
     <message>
         <source>pcap</source>
-        <translation>pcap</translation>
+        <translation type="vanished">pcap</translation>
     </message>
     <message>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
-        <translation>浏览…</translation>
+        <translation type="vanished">浏览…</translation>
     </message>
     <message>
         <source>File:</source>
-        <translation>文件:</translation>
+        <translation type="vanished">文件:</translation>
     </message>
     <message>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
-        <translation>兆字节</translation>
+        <translation type="vanished">兆字节</translation>
     </message>
     <message>
         <source>kilobytes</source>
         <oldsource>Kilobytes</oldsource>
-        <translation>千字节</translation>
+        <translation type="vanished">千字节</translation>
     </message>
     <message>
         <source>seconds</source>
-        <translation>秒</translation>
+        <translation type="vanished">秒</translation>
     </message>
     <message>
         <source>minutes</source>
-        <translation>分钟</translation>
+        <translation type="vanished">分钟</translation>
     </message>
     <message>
         <source>hours</source>
-        <translation>小时</translation>
+        <translation type="vanished">小时</translation>
     </message>
     <message>
         <source>Show capture information during live capture</source>
-        <translation>在实时捕获期间显示捕获信息</translation>
+        <translation type="vanished">在实时捕获期间显示捕获信息</translation>
     </message>
     <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
-        <translation>超过指定数量的分组被捕获后，停止捕获。</translation>
+        <translation type="vanished">超过指定数量的分组被捕获后，停止捕获。</translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of data has been captured.</source>
-        <translation>超过指定数量的分组被捕获后，停止捕获。</translation>
+        <translation type="vanished">超过指定数量的分组被捕获后，停止捕获。</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后，停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后，停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>packets</source>
-        <translation>分组</translation>
+        <translation type="vanished">分组</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>链路层头</translation>
+        <translation type="vanished">链路层头</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>混杂</translation>
+        <translation type="vanished">混杂</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Snap长度 (B)</translation>
+        <translation type="vanished">Snap长度 (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>缓存 (MB)</translation>
+        <translation type="vanished">缓存 (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>监控模式</translation>
+        <translation type="vanished">监控模式</translation>
     </message>
     <message>
         <source>Enable promiscuous mode on all interfaces</source>
         <oldsource>Capture in promiscuous mode on all interfaces</oldsource>
-        <translation>在所有接口上使用混杂模式</translation>
+        <translation type="vanished">在所有接口上使用混杂模式</translation>
     </message>
     <message>
         <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
-        <translation>显示和隐藏接口、添加注释、管理管道和远程接口。</translation>
+        <translation type="vanished">显示和隐藏接口、添加注释、管理管道和远程接口。</translation>
     </message>
     <message>
         <source>Manage Interfaces…</source>
         <oldsource>Manage Interfaces...</oldsource>
-        <translation>管理接口…</translation>
+        <translation type="vanished">管理接口…</translation>
     </message>
     <message>
         <source>Capture filter for selected interfaces:</source>
         <oldsource>Capture Filter for selected Interfaces:</oldsource>
-        <translation>所选择接口的捕获过滤器:</translation>
+        <translation type="vanished">所选择接口的捕获过滤器:</translation>
     </message>
     <message>
         <source>Compile BPFs</source>
-        <translation>编译BPFs</translation>
+        <translation type="vanished">编译BPFs</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;输入用于保存捕获数据的文件名。默认情况下，将会使用临时文件。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;输入用于保存捕获数据的文件名。默认情况下，将会使用临时文件。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture to a permanent file</source>
-        <translation>捕获到永久文件</translation>
+        <translation type="vanished">捕获到永久文件</translation>
     </message>
     <message>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
-        <translation>千兆字节</translation>
+        <translation type="vanished">千兆字节</translation>
     </message>
     <message>
         <source>Switch to the next file after the specified number of packets have been captured.</source>
-        <translation>捕获指定数量的分组后切换到下一个文件。</translation>
+        <translation type="vanished">捕获指定数量的分组后切换到下一个文件。</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当捕获切换到下一个文件并且给定的文件数已经达到，最早的文件将会被删除。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Use a ring buffer with </source>
+        <translation type="vanished">使用一个环形缓冲器，采用</translation>
+    </message>
+    <message>
+        <source>files</source>
+        <translation type="vanished">文件</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation type="vanished">选项</translation>
+    </message>
+    <message>
+        <source>Display Options</source>
+        <translation type="vanished">显示选项</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用此功能将会立即在主屏幕中显示捕获的分组。请注意：这将减慢捕获速度，因此可能会增加分组丢失的情况。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Update list of packets in real-time</source>
+        <translation type="vanished">实时更新分组列表</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当“实时更新分组列表”选项启用时，自动滚动“分组列表”到最新捕获的分组。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Automatically scroll during live capture</source>
+        <translation type="vanished">实时捕获时自动滚屏</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获时，显示捕获信息对话框。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Name Resolution</source>
+        <translation type="vanished">解析名称</translation>
+    </message>
+    <message>
+        <source>Perform MAC layer name resolution while capturing.</source>
+        <translation type="vanished">在捕获期间进行 MAC 层名称解析。</translation>
+    </message>
+    <message>
+        <source>Resolve MAC Addresses</source>
+        <translation type="vanished">MAC地址解析</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获期间进行网络层名称解析。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Resolve network names</source>
+        <translation type="vanished">解析网络名称</translation>
+    </message>
+    <message>
+        <source>Perform transport layer name resolution while capturing.</source>
+        <translation type="vanished">在捕获期间进行传输层名称解析。</translation>
+    </message>
+    <message>
+        <source>Resolve transport names</source>
+        <translation type="vanished">解析传输层名称</translation>
+    </message>
+    <message>
+        <source>Stop capture automatically after…</source>
+        <oldsource>Stop capture automatically after...</oldsource>
+        <translation type="vanished">自动停止捕获，在经过…</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified amount of time has passed.</source>
+        <translation type="vanished">经过指定的时间后，停止捕获。</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后，停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;创建的文件超过指定数量后停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Capture Interfaces</source>
+        <translation type="vanished">捕获接口</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation type="vanished">开始</translation>
+    </message>
+    <message>
+        <source>Leave blank to use a temporary file</source>
+        <translation type="vanished">留空使用临时文件</translation>
+    </message>
+    <message>
+        <source>Specify a Capture File</source>
+        <translation type="vanished">指定捕获文件</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <translation type="vanished">%1: %2</translation>
+    </message>
+    <message>
+        <source>Addresses</source>
+        <translation type="vanished">地址</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation type="vanished">地址</translation>
+    </message>
+    <message>
+        <source>no addresses</source>
+        <translation type="vanished">无地址</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="vanished">错误</translation>
+    </message>
+    <message>
+        <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
+        <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
+        <translation type="vanished">多文件：请求文件尺寸太大。文件尺寸不能超过 2 GiB。</translation>
+    </message>
+    <message>
+        <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
+        <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
+        <translation type="vanished">多文件：没有给出捕获文件名。如果您想使用多个文件，必须指定一个文件名。</translation>
+    </message>
+    <message>
+        <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
+        <translation type="vanished">多个文件：没有给出文件限制。您必须为每个文件指定文件大小，间隔或分组数。</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureOptionsDialog</name>
+    <message>
+        <source>Input</source>
+        <translation type="unfinished">输入</translation>
+    </message>
+    <message>
+        <source>Interface</source>
+        <translation type="unfinished">接口</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">流量</translation>
+    </message>
+    <message>
+        <source>Link-layer Header</source>
+        <translation type="unfinished">链路层头</translation>
+    </message>
+    <message>
+        <source>Promiscuous</source>
+        <translation type="unfinished">混杂</translation>
+    </message>
+    <message>
+        <source>Snaplen (B)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Buffer (MB)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Monitor Mode</source>
+        <translation type="unfinished">监控模式</translation>
+    </message>
+    <message>
+        <source>Capture Filter</source>
+        <translation type="unfinished">捕获过滤器</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable promiscuous mode on all interfaces</source>
+        <translation type="unfinished">在所有接口上使用混杂模式</translation>
+    </message>
+    <message>
+        <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
+        <translation type="unfinished">显示和隐藏接口、添加注释、管理管道和远程接口。</translation>
+    </message>
+    <message>
+        <source>Manage Interfaces…</source>
+        <translation type="unfinished">管理接口…</translation>
+    </message>
+    <message>
+        <source>Capture filter for selected interfaces:</source>
+        <translation type="unfinished">所选择接口的捕获过滤器:</translation>
+    </message>
+    <message>
+        <source>Compile BPFs</source>
+        <translation type="unfinished">编译BPFs</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">输出</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;输入用于保存捕获数据的文件名。默认情况下，将会使用临时文件。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Capture to a permanent file</source>
+        <translation type="unfinished">捕获到永久文件</translation>
+    </message>
+    <message>
+        <source>File:</source>
+        <translation type="unfinished">文件:</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation type="unfinished">浏览…</translation>
+    </message>
+    <message>
+        <source>Output format:</source>
+        <translation type="unfinished">输出格式：</translation>
+    </message>
+    <message>
+        <source>pcapng</source>
+        <translation type="unfinished">pcapng</translation>
+    </message>
+    <message>
+        <source>pcap</source>
+        <translation type="unfinished">pcap</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1322,12 +1552,44 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Switch to the next file after the specified number of packets have been captured.</source>
+        <translation type="unfinished">捕获指定数量的分组后切换到下一个文件。</translation>
+    </message>
+    <message>
+        <source>packets</source>
+        <translation type="unfinished">分组</translation>
+    </message>
+    <message>
         <source>Switch to the next file after the file size exceeds the specified file size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>kilobytes</source>
+        <translation type="unfinished">千字节</translation>
+    </message>
+    <message>
+        <source>megabytes</source>
+        <translation type="unfinished">兆字节</translation>
+    </message>
+    <message>
+        <source>gigabytes</source>
+        <translation type="unfinished">千兆字节</translation>
+    </message>
+    <message>
         <source>Switch to the next file when the time capturing to the current file exceeds the specified time.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>seconds</source>
+        <translation type="unfinished">秒</translation>
+    </message>
+    <message>
+        <source>minutes</source>
+        <translation type="unfinished">分钟</translation>
+    </message>
+    <message>
+        <source>hours</source>
+        <translation type="unfinished">小时</translation>
     </message>
     <message>
         <source>when time is a multiple of</source>
@@ -1340,138 +1602,151 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当捕获切换到下一个文件并且给定的文件数已经达到，最早的文件将会被删除。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当捕获切换到下一个文件并且给定的文件数已经达到，最早的文件将会被删除。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use a ring buffer with </source>
-        <translation>使用一个环形缓冲器，采用</translation>
+        <translation type="unfinished">使用一个环形缓冲器，采用</translation>
     </message>
     <message>
         <source>files</source>
-        <translation>文件</translation>
+        <translation type="unfinished">文件</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation>选项</translation>
+        <translation type="unfinished">选项</translation>
     </message>
     <message>
         <source>Display Options</source>
-        <translation>显示选项</translation>
+        <translation type="unfinished">显示选项</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用此功能将会立即在主屏幕中显示捕获的分组。请注意：这将减慢捕获速度，因此可能会增加分组丢失的情况。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用此功能将会立即在主屏幕中显示捕获的分组。请注意：这将减慢捕获速度，因此可能会增加分组丢失的情况。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Update list of packets in real-time</source>
-        <translation>实时更新分组列表</translation>
+        <translation type="unfinished">实时更新分组列表</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当“实时更新分组列表”选项启用时，自动滚动“分组列表”到最新捕获的分组。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当“实时更新分组列表”选项启用时，自动滚动“分组列表”到最新捕获的分组。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Automatically scroll during live capture</source>
-        <translation>实时捕获时自动滚屏</translation>
+        <translation type="unfinished">实时捕获时自动滚屏</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获时，显示捕获信息对话框。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获时，显示捕获信息对话框。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Show capture information during live capture</source>
+        <translation type="unfinished">在实时捕获期间显示捕获信息</translation>
     </message>
     <message>
         <source>Name Resolution</source>
-        <translation>解析名称</translation>
+        <translation type="unfinished">解析名称</translation>
     </message>
     <message>
         <source>Perform MAC layer name resolution while capturing.</source>
-        <translation>在捕获期间进行 MAC 层名称解析。</translation>
+        <translation type="unfinished">在捕获期间进行 MAC 层名称解析。</translation>
     </message>
     <message>
-        <source>Resolve MAC Addresses</source>
-        <translation>MAC地址解析</translation>
+        <source>Resolve MAC addresses</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获期间进行网络层名称解析。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获期间进行网络层名称解析。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Resolve network names</source>
-        <translation>解析网络名称</translation>
+        <translation type="unfinished">解析网络名称</translation>
     </message>
     <message>
         <source>Perform transport layer name resolution while capturing.</source>
-        <translation>在捕获期间进行传输层名称解析。</translation>
+        <translation type="unfinished">在捕获期间进行传输层名称解析。</translation>
     </message>
     <message>
         <source>Resolve transport names</source>
-        <translation>解析传输层名称</translation>
+        <translation type="unfinished">解析传输层名称</translation>
     </message>
     <message>
         <source>Stop capture automatically after…</source>
-        <oldsource>Stop capture automatically after...</oldsource>
-        <translation>自动停止捕获，在经过…</translation>
-    </message>
-    <message>
-        <source>Stop capturing after the specified amount of time has passed.</source>
-        <translation>经过指定的时间后，停止捕获。</translation>
+        <translation type="unfinished">自动停止捕获，在经过…</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后，停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后，停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified number of packets have been captured.</source>
+        <translation type="unfinished">超过指定数量的分组被捕获后，停止捕获。</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;创建的文件超过指定数量后停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;创建的文件超过指定数量后停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Capture Interfaces</source>
-        <translation>捕获接口</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后，停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified amount of data has been captured.</source>
+        <translation type="unfinished">超过指定数量的分组被捕获后，停止捕获。</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified amount of time has passed.</source>
+        <translation type="unfinished">经过指定的时间后，停止捕获。</translation>
+    </message>
+    <message>
+        <source>Capture Options</source>
+        <translation type="unfinished">捕获选项</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation>开始</translation>
+        <translation type="unfinished">开始</translation>
     </message>
     <message>
         <source>Leave blank to use a temporary file</source>
-        <translation>留空使用临时文件</translation>
+        <translation type="unfinished">留空使用临时文件</translation>
     </message>
     <message>
         <source>Specify a Capture File</source>
-        <translation>指定捕获文件</translation>
+        <translation type="unfinished">指定捕获文件</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="unfinished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>地址</translation>
+        <translation type="unfinished">地址</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>地址</translation>
+        <translation type="unfinished">地址</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>无地址</translation>
+        <translation type="unfinished">无地址</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>错误</translation>
+        <translation type="unfinished">错误</translation>
     </message>
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
-        <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
-        <translation>多文件：请求文件尺寸太大。文件尺寸不能超过 2 GiB。</translation>
+        <translation type="unfinished">多文件：请求文件尺寸太大。文件尺寸不能超过 2 GiB。</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
-        <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
-        <translation>多文件：没有给出捕获文件名。如果您想使用多个文件，必须指定一个文件名。</translation>
+        <translation type="unfinished">多文件：没有给出捕获文件名。如果您想使用多个文件，必须指定一个文件名。</translation>
     </message>
     <message>
         <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
-        <translation>多个文件：没有给出文件限制。您必须为每个文件指定文件大小，间隔或分组数。</translation>
+        <translation type="unfinished">多个文件：没有给出文件限制。您必须为每个文件指定文件大小，间隔或分组数。</translation>
     </message>
 </context>
 <context>

@@ -1173,315 +1173,620 @@
     <name>CaptureInterfacesDialog</name>
     <message>
         <source>Input</source>
-        <translation>Input</translation>
+        <translation type="vanished">Input</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation>Interfaccia</translation>
+        <translation type="vanished">Interfaccia</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>Traffico</translation>
+        <translation type="vanished">Traffico</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>Filtro di cattura</translation>
+        <translation type="vanished">Filtro di cattura</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Probabilmente vuoi abilitare questa opzione. Di solito una scheda di rete cattura solo il traffico inviato al proprio indirizzo. Se vuoi catturare tutto il traffico che la scheda di rete può &amp;quot;vedere&amp;quot; marca questa opzione. Leggi le FAQ per avere più dettagli sulle modalità di cattura dei pacchetti in una rete con switch.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Probabilmente vuoi abilitare questa opzione. Di solito una scheda di rete cattura solo il traffico inviato al proprio indirizzo. Se vuoi catturare tutto il traffico che la scheda di rete può &amp;quot;vedere&amp;quot; marca questa opzione. Leggi le FAQ per avere più dettagli sulle modalità di cattura dei pacchetti in una rete con switch.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation>Output</translation>
+        <translation type="vanished">Output</translation>
     </message>
     <message>
         <source>Output format:</source>
-        <translation>Formato dell&apos;output:</translation>
+        <translation type="vanished">Formato dell&apos;output:</translation>
     </message>
     <message>
         <source>pcapng</source>
-        <translation>pcapng</translation>
+        <translation type="vanished">pcapng</translation>
     </message>
     <message>
         <source>pcap</source>
-        <translation>pcap</translation>
+        <translation type="vanished">pcap</translation>
     </message>
     <message>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
-        <translation>Sfoglia...</translation>
+        <translation type="vanished">Sfoglia...</translation>
     </message>
     <message>
         <source>File:</source>
-        <translation>File:</translation>
+        <translation type="vanished">File:</translation>
     </message>
     <message>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
-        <translation>megabyte</translation>
+        <translation type="vanished">megabyte</translation>
     </message>
     <message>
         <source>kilobytes</source>
         <oldsource>Kilobytes</oldsource>
-        <translation>kilobyte</translation>
+        <translation type="vanished">kilobyte</translation>
     </message>
     <message>
         <source>seconds</source>
-        <translation>secondi</translation>
+        <translation type="vanished">secondi</translation>
     </message>
     <message>
         <source>minutes</source>
-        <translation>minuti</translation>
+        <translation type="vanished">minuti</translation>
     </message>
     <message>
         <source>hours</source>
-        <translation>ore</translation>
+        <translation type="vanished">ore</translation>
     </message>
     <message>
         <source>Show capture information during live capture</source>
-        <translation>Mostra le informazioni di cattura durante l&apos;esecuzione della cattura</translation>
+        <translation type="vanished">Mostra le informazioni di cattura durante l&apos;esecuzione della cattura</translation>
     </message>
     <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
-        <translation>Interrompi la cattura dopo che un certo numero di pacchetti sono stati catturati.</translation>
+        <translation type="vanished">Interrompi la cattura dopo che un certo numero di pacchetti sono stati catturati.</translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of data has been captured.</source>
-        <translation>Interrompi la cattura dopo che una certa quantità di dati è stata catturata.</translation>
+        <translation type="vanished">Interrompi la cattura dopo che una certa quantità di dati è stata catturata.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrompi la cattura dopo che una certa quantità di dati è stata catturata.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrompi la cattura dopo che una certa quantità di dati è stata catturata.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>packets</source>
-        <translation>pacchetti</translation>
+        <translation type="vanished">pacchetti</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>Intestazione del livello di collegamento</translation>
+        <translation type="vanished">Intestazione del livello di collegamento</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>Modalità promiscua</translation>
+        <translation type="vanished">Modalità promiscua</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Lunghezza di cattura (B)</translation>
+        <translation type="vanished">Lunghezza di cattura (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>Buffer (MB)</translation>
+        <translation type="vanished">Buffer (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Modalità di monitoraggio</translation>
+        <translation type="vanished">Modalità di monitoraggio</translation>
     </message>
     <message>
         <source>Enable promiscuous mode on all interfaces</source>
         <oldsource>Capture in promiscuous mode on all interfaces</oldsource>
-        <translation>Abilita la modalità promiscua su tutte le interfacce</translation>
+        <translation type="vanished">Abilita la modalità promiscua su tutte le interfacce</translation>
     </message>
     <message>
         <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
-        <translation>Mostra e nascondi le interfacce, aggiungi commenti, e gestisci pipe e interfacce remote.</translation>
+        <translation type="vanished">Mostra e nascondi le interfacce, aggiungi commenti, e gestisci pipe e interfacce remote.</translation>
     </message>
     <message>
         <source>Manage Interfaces…</source>
         <oldsource>Manage Interfaces...</oldsource>
-        <translation>Gestisci le interfacce...</translation>
+        <translation type="vanished">Gestisci le interfacce...</translation>
     </message>
     <message>
         <source>Capture filter for selected interfaces:</source>
         <oldsource>Capture Filter for selected Interfaces:</oldsource>
-        <translation>Filtro di cattura per le interfacce selezionate:</translation>
+        <translation type="vanished">Filtro di cattura per le interfacce selezionate:</translation>
     </message>
     <message>
         <source>Compile BPFs</source>
-        <translation>Compila BPF</translation>
+        <translation type="vanished">Compila BPF</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserisci il nome del file su cui i dati catturati verranno scritti. In modo predefinito, sarà utilizzato un file temporaneo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserisci il nome del file su cui i dati catturati verranno scritti. In modo predefinito, sarà utilizzato un file temporaneo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture to a permanent file</source>
-        <translation>Cattura su un file permanente</translation>
+        <translation type="vanished">Cattura su un file permanente</translation>
     </message>
     <message>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
-        <translation>gigabyte</translation>
+        <translation type="vanished">gigabyte</translation>
     </message>
     <message>
         <source>Switch to the next file after the specified number of packets have been captured.</source>
-        <translation>Passa al file successivo dopo aver catturato il numero di pacchetti specificato.</translation>
+        <translation type="vanished">Passa al file successivo dopo aver catturato il numero di pacchetti specificato.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Invece di usare un singolo file di cattura, saranno creati file multipli.&lt;/p&gt;&lt;p&gt;I nomi di file generati conterranno un numero incrementale e l&apos;orario di inizio della cattura.&lt;/p&gt;&lt;p&gt;NOTA: se abilitata, almeno uno dei criteri per i nuovi file deve essere selezionato.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Invece di usare un singolo file di cattura, saranno creati file multipli.&lt;/p&gt;&lt;p&gt;I nomi di file generati conterranno un numero incrementale e l&apos;orario di inizio della cattura.&lt;/p&gt;&lt;p&gt;NOTA: se abilitata, almeno uno dei criteri per i nuovi file deve essere selezionato.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Create a new file automatically…</source>
-        <translation>Crea un nuovo file automaticamente</translation>
+        <translation type="vanished">Crea un nuovo file automaticamente</translation>
     </message>
     <message>
         <source>after</source>
-        <translation>dopo</translation>
+        <translation type="vanished">dopo</translation>
     </message>
     <message>
         <source>Switch to the next file after the file size exceeds the specified file size.</source>
-        <translation>Passa al file successivo quando la dimensione dei file supera la dimensione dei file specificata.</translation>
+        <translation type="vanished">Passa al file successivo quando la dimensione dei file supera la dimensione dei file specificata.</translation>
     </message>
     <message>
         <source>Switch to the next file when the time capturing to the current file exceeds the specified time.</source>
-        <translation>Passa al file successivo quando il tempo di cattura del file corrente supera il tempo specificato.</translation>
+        <translation type="vanished">Passa al file successivo quando il tempo di cattura del file corrente supera il tempo specificato.</translation>
     </message>
     <message>
         <source>when time is a multiple of</source>
-        <translation>quando il tempo è un multiplo di</translation>
+        <translation type="vanished">quando il tempo è un multiplo di</translation>
     </message>
     <message>
         <source>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
 For example, use 1 hour to have a new file created every hour on the hour.</source>
-        <translation>Passa al file successivo quando l&apos;ora (orolgio a muro) è un multiplo pari dell&apos;intervallo specificato.
+        <translation type="vanished">Passa al file successivo quando l&apos;ora (orolgio a muro) è un multiplo pari dell&apos;intervallo specificato.
 Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dopo che la cattura è passata al file successivo e il numero di file prescelto è stato superato, il file più vecchio sarà rimosso.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dopo che la cattura è passata al file successivo e il numero di file prescelto è stato superato, il file più vecchio sarà rimosso.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use a ring buffer with </source>
-        <translation>Usa un buffer circolare con </translation>
+        <translation type="vanished">Usa un buffer circolare con </translation>
     </message>
     <message>
         <source>files</source>
-        <translation>file</translation>
+        <translation type="vanished">file</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation>Opzioni</translation>
+        <translation type="vanished">Opzioni</translation>
     </message>
     <message>
         <source>Display Options</source>
-        <translation>Opzioni di visualizzazione</translation>
+        <translation type="vanished">Opzioni di visualizzazione</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selezionando questa opzione i pacchetti catturati saranno visualizzati immediatamente sullo schermo principale. Nota: ciò rallenterà la cattura, quindi si potrà osservare un incremento del numero di pacchetti persi.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selezionando questa opzione i pacchetti catturati saranno visualizzati immediatamente sullo schermo principale. Nota: ciò rallenterà la cattura, quindi si potrà osservare un incremento del numero di pacchetti persi.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Update list of packets in real-time</source>
-        <translation>Aggiorna l&apos;elenco dei pacchetti in tempo reale</translation>
+        <translation type="vanished">Aggiorna l&apos;elenco dei pacchetti in tempo reale</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Questa opzione permette di scorrere l&apos;&amp;quot;elenco dei pacchetti&amp;quot; automaticamente fino all&apos;ultimo pacchetto catturato, quando l&apos;opzione &amp;quot;Aggiorna l&apos;elenco dei pacchetti in tempo reale&amp;quot; è stata selezionata.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Questa opzione permette di scorrere l&apos;&amp;quot;elenco dei pacchetti&amp;quot; automaticamente fino all&apos;ultimo pacchetto catturato, quando l&apos;opzione &amp;quot;Aggiorna l&apos;elenco dei pacchetti in tempo reale&amp;quot; è stata selezionata.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Automatically scroll during live capture</source>
-        <translation>Scorri automaticamente durante la cattura</translation>
+        <translation type="vanished">Scorri automaticamente durante la cattura</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra la finestra di informazioni durante la cattura.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra la finestra di informazioni durante la cattura.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Name Resolution</source>
-        <translation>Risoluzione dei nomi</translation>
+        <translation type="vanished">Risoluzione dei nomi</translation>
     </message>
     <message>
         <source>Perform MAC layer name resolution while capturing.</source>
-        <translation>Effettua la risoluzione dei nomi del livello MAC durante la cattura.</translation>
+        <translation type="vanished">Effettua la risoluzione dei nomi del livello MAC durante la cattura.</translation>
     </message>
     <message>
         <source>Resolve MAC Addresses</source>
-        <translation>Risolvi gli indirizzi MAC</translation>
+        <translation type="vanished">Risolvi gli indirizzi MAC</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Effettua la risoluzione dei nomi del livello MAC durante la cattura.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Effettua la risoluzione dei nomi del livello MAC durante la cattura.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Resolve network names</source>
-        <translation>Risolvi i nomi di rete</translation>
+        <translation type="vanished">Risolvi i nomi di rete</translation>
     </message>
     <message>
         <source>Perform transport layer name resolution while capturing.</source>
-        <translation>Risolvi i nomi del livello di trasporto durante la cattura.</translation>
+        <translation type="vanished">Risolvi i nomi del livello di trasporto durante la cattura.</translation>
     </message>
     <message>
         <source>Resolve transport names</source>
-        <translation>Risolvi i nomi di trasporto</translation>
+        <translation type="vanished">Risolvi i nomi di trasporto</translation>
     </message>
     <message>
         <source>Stop capture automatically after…</source>
         <oldsource>Stop capture automatically after...</oldsource>
-        <translation>Interrompi la cattura automaticamente dopo...</translation>
+        <translation type="vanished">Interrompi la cattura automaticamente dopo...</translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of time has passed.</source>
-        <translation>Interrompi la cattura dopo che il tempo specificato è passato.</translation>
+        <translation type="vanished">Interrompi la cattura dopo che il tempo specificato è passato.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrompi la cattura dopo che il numero di pacchetti specificato è stato catturato.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrompi la cattura dopo che il numero di pacchetti specificato è stato catturato.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrompi la cattura dopo che il numero di file specificato è stato creato.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrompi la cattura dopo che il numero di file specificato è stato creato.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture Interfaces</source>
-        <translation>Interfacce di cattura</translation>
+        <translation type="vanished">Interfacce di cattura</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation>Avvia</translation>
+        <translation type="vanished">Avvia</translation>
     </message>
     <message>
         <source>Leave blank to use a temporary file</source>
-        <translation>Lascia vuoto per utilizzare un file temporaneo</translation>
+        <translation type="vanished">Lascia vuoto per utilizzare un file temporaneo</translation>
     </message>
     <message>
         <source>Specify a Capture File</source>
-        <translation>Specifica un file di cattura</translation>
+        <translation type="vanished">Specifica un file di cattura</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="vanished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>Indirizzi</translation>
+        <translation type="vanished">Indirizzi</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Indirizzo</translation>
+        <translation type="vanished">Indirizzo</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>nessun indirizzo</translation>
+        <translation type="vanished">nessun indirizzo</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Errore</translation>
+        <translation type="vanished">Errore</translation>
     </message>
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
         <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
-        <translation>File multipli: la dimensione del file richiesta è troppo grande. La dimensione del file non può essere superiore a 2 GiB.</translation>
+        <translation type="vanished">File multipli: la dimensione del file richiesta è troppo grande. La dimensione del file non può essere superiore a 2 GiB.</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
         <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
-        <translation>File multipli: non è stato fornito un nome del file di cattura! Devi specificare un nome del file se vuoi usare file multipli.</translation>
+        <translation type="vanished">File multipli: non è stato fornito un nome del file di cattura! Devi specificare un nome del file se vuoi usare file multipli.</translation>
     </message>
     <message>
         <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
-        <translation>File multipli: non è stato fornito alcun limite di file. Devi specificare una dimensione del file, l&apos;intervallo o il numero di pacchetti per ogni file.</translation>
+        <translation type="vanished">File multipli: non è stato fornito alcun limite di file. Devi specificare una dimensione del file, l&apos;intervallo o il numero di pacchetti per ogni file.</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureOptionsDialog</name>
+    <message>
+        <source>Input</source>
+        <translation type="unfinished">Input</translation>
+    </message>
+    <message>
+        <source>Interface</source>
+        <translation type="unfinished">Interfaccia</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">Traffico</translation>
+    </message>
+    <message>
+        <source>Link-layer Header</source>
+        <translation type="unfinished">Intestazione del livello di collegamento</translation>
+    </message>
+    <message>
+        <source>Promiscuous</source>
+        <translation type="unfinished">Modalità promiscua</translation>
+    </message>
+    <message>
+        <source>Snaplen (B)</source>
+        <translation type="unfinished">Lunghezza di cattura (B)</translation>
+    </message>
+    <message>
+        <source>Buffer (MB)</source>
+        <translation type="unfinished">Buffer (MB)</translation>
+    </message>
+    <message>
+        <source>Monitor Mode</source>
+        <translation type="unfinished">Modalità di monitoraggio</translation>
+    </message>
+    <message>
+        <source>Capture Filter</source>
+        <translation type="unfinished">Filtro di cattura</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable promiscuous mode on all interfaces</source>
+        <translation type="unfinished">Abilita la modalità promiscua su tutte le interfacce</translation>
+    </message>
+    <message>
+        <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
+        <translation type="unfinished">Mostra e nascondi le interfacce, aggiungi commenti, e gestisci pipe e interfacce remote.</translation>
+    </message>
+    <message>
+        <source>Manage Interfaces…</source>
+        <translation type="unfinished">Gestisci le interfacce...</translation>
+    </message>
+    <message>
+        <source>Capture filter for selected interfaces:</source>
+        <translation type="unfinished">Filtro di cattura per le interfacce selezionate:</translation>
+    </message>
+    <message>
+        <source>Compile BPFs</source>
+        <translation type="unfinished">Compila BPF</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">Output</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserisci il nome del file su cui i dati catturati verranno scritti. In modo predefinito, sarà utilizzato un file temporaneo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Capture to a permanent file</source>
+        <translation type="unfinished">Cattura su un file permanente</translation>
+    </message>
+    <message>
+        <source>File:</source>
+        <translation type="unfinished">File:</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation type="unfinished">Sfoglia...</translation>
+    </message>
+    <message>
+        <source>Output format:</source>
+        <translation type="unfinished">Formato dell&apos;output:</translation>
+    </message>
+    <message>
+        <source>pcapng</source>
+        <translation type="unfinished">pcapng</translation>
+    </message>
+    <message>
+        <source>pcap</source>
+        <translation type="unfinished">pcap</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Invece di usare un singolo file di cattura, saranno creati file multipli.&lt;/p&gt;&lt;p&gt;I nomi di file generati conterranno un numero incrementale e l&apos;orario di inizio della cattura.&lt;/p&gt;&lt;p&gt;NOTA: se abilitata, almeno uno dei criteri per i nuovi file deve essere selezionato.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Create a new file automatically…</source>
+        <translation type="unfinished">Crea un nuovo file automaticamente</translation>
+    </message>
+    <message>
+        <source>after</source>
+        <translation type="unfinished">dopo</translation>
+    </message>
+    <message>
+        <source>Switch to the next file after the specified number of packets have been captured.</source>
+        <translation type="unfinished">Passa al file successivo dopo aver catturato il numero di pacchetti specificato.</translation>
+    </message>
+    <message>
+        <source>packets</source>
+        <translation type="unfinished">pacchetti</translation>
+    </message>
+    <message>
+        <source>Switch to the next file after the file size exceeds the specified file size.</source>
+        <translation type="unfinished">Passa al file successivo quando la dimensione dei file supera la dimensione dei file specificata.</translation>
+    </message>
+    <message>
+        <source>kilobytes</source>
+        <translation type="unfinished">kilobyte</translation>
+    </message>
+    <message>
+        <source>megabytes</source>
+        <translation type="unfinished">megabyte</translation>
+    </message>
+    <message>
+        <source>gigabytes</source>
+        <translation type="unfinished">gigabyte</translation>
+    </message>
+    <message>
+        <source>Switch to the next file when the time capturing to the current file exceeds the specified time.</source>
+        <translation type="unfinished">Passa al file successivo quando il tempo di cattura del file corrente supera il tempo specificato.</translation>
+    </message>
+    <message>
+        <source>seconds</source>
+        <translation type="unfinished">secondi</translation>
+    </message>
+    <message>
+        <source>minutes</source>
+        <translation type="unfinished">minuti</translation>
+    </message>
+    <message>
+        <source>hours</source>
+        <translation type="unfinished">ore</translation>
+    </message>
+    <message>
+        <source>when time is a multiple of</source>
+        <translation type="unfinished">quando il tempo è un multiplo di</translation>
+    </message>
+    <message>
+        <source>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
+For example, use 1 hour to have a new file created every hour on the hour.</source>
+        <translation type="unfinished">Passa al file successivo quando l&apos;ora (orolgio a muro) è un multiplo pari dell&apos;intervallo specificato.
+Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dopo che la cattura è passata al file successivo e il numero di file prescelto è stato superato, il file più vecchio sarà rimosso.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Use a ring buffer with </source>
+        <translation type="unfinished">Usa un buffer circolare con </translation>
+    </message>
+    <message>
+        <source>files</source>
+        <translation type="unfinished">file</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation type="unfinished">Opzioni</translation>
+    </message>
+    <message>
+        <source>Display Options</source>
+        <translation type="unfinished">Opzioni di visualizzazione</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selezionando questa opzione i pacchetti catturati saranno visualizzati immediatamente sullo schermo principale. Nota: ciò rallenterà la cattura, quindi si potrà osservare un incremento del numero di pacchetti persi.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Update list of packets in real-time</source>
+        <translation type="unfinished">Aggiorna l&apos;elenco dei pacchetti in tempo reale</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Questa opzione permette di scorrere l&apos;&amp;quot;elenco dei pacchetti&amp;quot; automaticamente fino all&apos;ultimo pacchetto catturato, quando l&apos;opzione &amp;quot;Aggiorna l&apos;elenco dei pacchetti in tempo reale&amp;quot; è stata selezionata.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Automatically scroll during live capture</source>
+        <translation type="unfinished">Scorri automaticamente durante la cattura</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra la finestra di informazioni durante la cattura.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Show capture information during live capture</source>
+        <translation type="unfinished">Mostra le informazioni di cattura durante l&apos;esecuzione della cattura</translation>
+    </message>
+    <message>
+        <source>Name Resolution</source>
+        <translation type="unfinished">Risoluzione dei nomi</translation>
+    </message>
+    <message>
+        <source>Perform MAC layer name resolution while capturing.</source>
+        <translation type="unfinished">Effettua la risoluzione dei nomi del livello MAC durante la cattura.</translation>
+    </message>
+    <message>
+        <source>Resolve MAC addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Effettua la risoluzione dei nomi del livello MAC durante la cattura.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Resolve network names</source>
+        <translation type="unfinished">Risolvi i nomi di rete</translation>
+    </message>
+    <message>
+        <source>Perform transport layer name resolution while capturing.</source>
+        <translation type="unfinished">Risolvi i nomi del livello di trasporto durante la cattura.</translation>
+    </message>
+    <message>
+        <source>Resolve transport names</source>
+        <translation type="unfinished">Risolvi i nomi di trasporto</translation>
+    </message>
+    <message>
+        <source>Stop capture automatically after…</source>
+        <translation type="unfinished">Interrompi la cattura automaticamente dopo...</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrompi la cattura dopo che il numero di pacchetti specificato è stato catturato.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified number of packets have been captured.</source>
+        <translation type="unfinished">Interrompi la cattura dopo che un certo numero di pacchetti sono stati catturati.</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrompi la cattura dopo che il numero di file specificato è stato creato.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrompi la cattura dopo che una certa quantità di dati è stata catturata.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified amount of data has been captured.</source>
+        <translation type="unfinished">Interrompi la cattura dopo che una certa quantità di dati è stata catturata.</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified amount of time has passed.</source>
+        <translation type="unfinished">Interrompi la cattura dopo che il tempo specificato è passato.</translation>
+    </message>
+    <message>
+        <source>Capture Options</source>
+        <translation type="unfinished">Opzioni di cattura</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Leave blank to use a temporary file</source>
+        <translation type="unfinished">Lascia vuoto per utilizzare un file temporaneo</translation>
+    </message>
+    <message>
+        <source>Specify a Capture File</source>
+        <translation type="unfinished">Specifica un file di cattura</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <translation type="unfinished">%1: %2</translation>
+    </message>
+    <message>
+        <source>Addresses</source>
+        <translation type="unfinished">Indirizzi</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation type="unfinished">Indirizzo</translation>
+    </message>
+    <message>
+        <source>no addresses</source>
+        <translation type="unfinished">nessun indirizzo</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Errore</translation>
+    </message>
+    <message>
+        <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
+        <translation type="unfinished">File multipli: la dimensione del file richiesta è troppo grande. La dimensione del file non può essere superiore a 2 GiB.</translation>
+    </message>
+    <message>
+        <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
+        <translation type="unfinished">File multipli: non è stato fornito un nome del file di cattura! Devi specificare un nome del file se vuoi usare file multipli.</translation>
+    </message>
+    <message>
+        <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
+        <translation type="unfinished">File multipli: non è stato fornito alcun limite di file. Devi specificare una dimensione del file, l&apos;intervallo o il numero di pacchetti per ogni file.</translation>
     </message>
 </context>
 <context>

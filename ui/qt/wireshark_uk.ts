@@ -1154,31 +1154,318 @@
     <name>CaptureInterfacesDialog</name>
     <message>
         <source>Input</source>
-        <translation>Ввід</translation>
+        <translation type="vanished">Ввід</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation>Інтерфейс</translation>
+        <translation type="vanished">Інтерфейс</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>Трафік</translation>
+        <translation type="vanished">Трафік</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>Фільтр Захоплення</translation>
+        <translation type="vanished">Фільтр Захоплення</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ймовірно, ви захочете це ввімкнути. Зазвичай, мережева карта захоплює лише ті пакети, що надсилаються до її власної мережевої адреси. Якщо ж ви хочете захопити весь трафік, що карта може &amp;quot;побачити&amp;quot;, виберіть цю опцію. Перегляньте ЧаПи щодо нюансів захоплення пакетів в мережах з комутацією.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ймовірно, ви захочете це ввімкнути. Зазвичай, мережева карта захоплює лише ті пакети, що надсилаються до її власної мережевої адреси. Якщо ж ви хочете захопити весь трафік, що карта може &amp;quot;побачити&amp;quot;, виберіть цю опцію. Перегляньте ЧаПи щодо нюансів захоплення пакетів в мережах з комутацією.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation>Вивід</translation>
+        <translation type="vanished">Вивід</translation>
     </message>
     <message>
         <source>Output format:</source>
-        <translation>Формат виводу:</translation>
+        <translation type="vanished">Формат виводу:</translation>
+    </message>
+    <message>
+        <source>pcap</source>
+        <translation type="vanished">pcap</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <oldsource>Browse...</oldsource>
+        <translation type="vanished">Перегляд...</translation>
+    </message>
+    <message>
+        <source>File:</source>
+        <translation type="vanished">Файл:</translation>
+    </message>
+    <message>
+        <source>seconds</source>
+        <translation type="vanished">секунд</translation>
+    </message>
+    <message>
+        <source>minutes</source>
+        <translation type="vanished">хвилин</translation>
+    </message>
+    <message>
+        <source>hours</source>
+        <translation type="vanished">годин</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified number of packets have been captured.</source>
+        <translation type="vanished">Зупинити захоплення за наявності вказаної кількості пакетів.</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified amount of data has been captured.</source>
+        <translation type="vanished">Зупинити захоплення по досягненню даними вказаного розміру.</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Зупинити захоплення по досягненню даними вказаного розміру.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>packets</source>
+        <translation type="vanished">пакетів</translation>
+    </message>
+    <message>
+        <source>Link-layer Header</source>
+        <translation type="vanished">Заголовок Канального рівня</translation>
+    </message>
+    <message>
+        <source>Promiscuous</source>
+        <translation type="vanished">Нерозбірливий</translation>
+    </message>
+    <message>
+        <source>Snaplen (B)</source>
+        <translation type="vanished">Роз.знім. (Б)</translation>
+    </message>
+    <message>
+        <source>Buffer (MB)</source>
+        <translation type="vanished">Буфер (МБ)</translation>
+    </message>
+    <message>
+        <source>Monitor Mode</source>
+        <translation type="vanished">Режим Монітора</translation>
+    </message>
+    <message>
+        <source>Enable promiscuous mode on all interfaces</source>
+        <oldsource>Capture in promiscuous mode on all interfaces</oldsource>
+        <translation type="vanished">Ввімкнути нерозбірливий режим на всіх інтерфейсах</translation>
+    </message>
+    <message>
+        <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
+        <translation type="vanished">Показати чи приховати інтерфейси, додати коментарі або ж налаштувати канали чи віддалені інтерфейси.</translation>
+    </message>
+    <message>
+        <source>Manage Interfaces…</source>
+        <oldsource>Manage Interfaces...</oldsource>
+        <translation type="vanished">Керування Інтерфейсами...</translation>
+    </message>
+    <message>
+        <source>Compile BPFs</source>
+        <translation type="vanished">Скомпілювати BPFи</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Введіть ім&apos;я файлу, до якого будуть записані захоплені дані. Зазвичай використовується тимчасовий файл.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Capture to a permanent file</source>
+        <translation type="vanished">Захоплювати до постійного файлу</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Після того, як захоплення перемкнулося на наступний файл, та при перевищенні даної кількості файлів найстаріший файл буде видалено.&lt;/p&gt;&lt;/body&gt;&lt;/html.</translation>
+    </message>
+    <message>
+        <source>Use a ring buffer with </source>
+        <translation type="vanished">Використовувати кільцевий буфер з</translation>
+    </message>
+    <message>
+        <source>files</source>
+        <translation type="vanished">файлів</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation type="vanished">Опції</translation>
+    </message>
+    <message>
+        <source>Display Options</source>
+        <translation type="vanished">Опції Відображення</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;З цією опцією захоплені пакети будуть негайно виводитися на головний екран. Зауважте: це уповільнить захоплення, що, в результаті, може підвищити кількість відкинутих пакетів.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Update list of packets in real-time</source>
+        <translation type="vanished">Оновлювати список пакетів в реальному часі</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Якщо опцію &amp;quot;Оновлювати список пакетів в реальному часі&amp;quot; вибрано, то &amp;quot;Список Пакетів&amp;quot; буде автоматично прокручено до останнього захопленого пакету.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Automatically scroll during live capture</source>
+        <translation type="vanished">Автоматично прокручувати під час захоплення</translation>
+    </message>
+    <message>
+        <source>Name Resolution</source>
+        <translation type="vanished">Визначення Імен</translation>
+    </message>
+    <message>
+        <source>Perform MAC layer name resolution while capturing.</source>
+        <translation type="vanished">Визначати імена на MAC-рівні під час захоплення.</translation>
+    </message>
+    <message>
+        <source>Resolve MAC Addresses</source>
+        <translation type="vanished">Визначати MAC-адреси</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Визначати імена на мережевому рівні під час захоплення.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Resolve network names</source>
+        <translation type="vanished">Визначати мережеві імена</translation>
+    </message>
+    <message>
+        <source>Perform transport layer name resolution while capturing.</source>
+        <translation type="vanished">Визначати імена на транспортному рівні під час захоплення.</translation>
+    </message>
+    <message>
+        <source>Resolve transport names</source>
+        <translation type="vanished">Визначати транспортні імена</translation>
+    </message>
+    <message>
+        <source>Stop capture automatically after…</source>
+        <oldsource>Stop capture automatically after...</oldsource>
+        <translation type="vanished">Автоматично зупинити захоплення після...</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified amount of time has passed.</source>
+        <translation type="vanished">Зупинити захоплення по спливанню вказаного часу.</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Зупинити захоплення за наявності вказаної кількості пакетів.&lt;/p&gt;&lt;/body&gt;&lt;/html.</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Зупинити захоплення за наявності вказаної кількості створених файлів.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Capture Interfaces</source>
+        <translation type="vanished">Інтерфейси Для Захоплення</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation type="vanished">Почати</translation>
+    </message>
+    <message>
+        <source>Specify a Capture File</source>
+        <translation type="vanished">Вкажіть Файл Захоплення</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <translation type="vanished">%1: %2</translation>
+    </message>
+    <message>
+        <source>Addresses</source>
+        <translation type="vanished">Адреси</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation type="vanished">Адреса</translation>
+    </message>
+    <message>
+        <source>no addresses</source>
+        <translation type="vanished">адреси відсутні</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="vanished">Помилка</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureOptionsDialog</name>
+    <message>
+        <source>Input</source>
+        <translation type="unfinished">Ввід</translation>
+    </message>
+    <message>
+        <source>Interface</source>
+        <translation type="unfinished">Інтерфейс</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">Трафік</translation>
+    </message>
+    <message>
+        <source>Link-layer Header</source>
+        <translation type="unfinished">Заголовок Канального рівня</translation>
+    </message>
+    <message>
+        <source>Promiscuous</source>
+        <translation type="unfinished">Нерозбірливий</translation>
+    </message>
+    <message>
+        <source>Snaplen (B)</source>
+        <translation type="unfinished">Роз.знім. (Б)</translation>
+    </message>
+    <message>
+        <source>Buffer (MB)</source>
+        <translation type="unfinished">Буфер (МБ)</translation>
+    </message>
+    <message>
+        <source>Monitor Mode</source>
+        <translation type="unfinished">Режим Монітора</translation>
+    </message>
+    <message>
+        <source>Capture Filter</source>
+        <translation type="unfinished">Фільтр Захоплення</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ймовірно, ви захочете це ввімкнути. Зазвичай, мережева карта захоплює лише ті пакети, що надсилаються до її власної мережевої адреси. Якщо ж ви хочете захопити весь трафік, що карта може &amp;quot;побачити&amp;quot;, виберіть цю опцію. Перегляньте ЧаПи щодо нюансів захоплення пакетів в мережах з комутацією.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Enable promiscuous mode on all interfaces</source>
+        <translation type="unfinished">Ввімкнути нерозбірливий режим на всіх інтерфейсах</translation>
+    </message>
+    <message>
+        <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
+        <translation type="unfinished">Показати чи приховати інтерфейси, додати коментарі або ж налаштувати канали чи віддалені інтерфейси.</translation>
+    </message>
+    <message>
+        <source>Manage Interfaces…</source>
+        <translation type="unfinished">Керування Інтерфейсами...</translation>
+    </message>
+    <message>
+        <source>Capture filter for selected interfaces:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compile BPFs</source>
+        <translation type="unfinished">Скомпілювати BPFи</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">Вивід</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Введіть ім&apos;я файлу, до якого будуть записані захоплені дані. Зазвичай використовується тимчасовий файл.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Capture to a permanent file</source>
+        <translation type="unfinished">Захоплювати до постійного файлу</translation>
+    </message>
+    <message>
+        <source>File:</source>
+        <translation type="unfinished">Файл:</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation type="unfinished">Перегляд...</translation>
+    </message>
+    <message>
+        <source>Output format:</source>
+        <translation type="unfinished">Формат виводу:</translation>
     </message>
     <message>
         <source>pcapng</source>
@@ -1186,118 +1473,7 @@
     </message>
     <message>
         <source>pcap</source>
-        <translation>pcap</translation>
-    </message>
-    <message>
-        <source>Browse…</source>
-        <oldsource>Browse...</oldsource>
-        <translation>Перегляд...</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation>Файл:</translation>
-    </message>
-    <message>
-        <source>megabytes</source>
-        <oldsource>Megabytes</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>kilobytes</source>
-        <oldsource>Kilobytes</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>seconds</source>
-        <translation>секунд</translation>
-    </message>
-    <message>
-        <source>minutes</source>
-        <translation>хвилин</translation>
-    </message>
-    <message>
-        <source>hours</source>
-        <translation>годин</translation>
-    </message>
-    <message>
-        <source>Show capture information during live capture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop capturing after the specified number of packets have been captured.</source>
-        <translation>Зупинити захоплення за наявності вказаної кількості пакетів.</translation>
-    </message>
-    <message>
-        <source>Stop capturing after the specified amount of data has been captured.</source>
-        <translation>Зупинити захоплення по досягненню даними вказаного розміру.</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Зупинити захоплення по досягненню даними вказаного розміру.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>packets</source>
-        <translation>пакетів</translation>
-    </message>
-    <message>
-        <source>Link-layer Header</source>
-        <translation>Заголовок Канального рівня</translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation>Нерозбірливий</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation>Роз.знім. (Б)</translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation>Буфер (МБ)</translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation>Режим Монітора</translation>
-    </message>
-    <message>
-        <source>Enable promiscuous mode on all interfaces</source>
-        <oldsource>Capture in promiscuous mode on all interfaces</oldsource>
-        <translation>Ввімкнути нерозбірливий режим на всіх інтерфейсах</translation>
-    </message>
-    <message>
-        <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
-        <translation>Показати чи приховати інтерфейси, додати коментарі або ж налаштувати канали чи віддалені інтерфейси.</translation>
-    </message>
-    <message>
-        <source>Manage Interfaces…</source>
-        <oldsource>Manage Interfaces...</oldsource>
-        <translation>Керування Інтерфейсами...</translation>
-    </message>
-    <message>
-        <source>Capture filter for selected interfaces:</source>
-        <oldsource>Capture Filter for selected Interfaces:</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Compile BPFs</source>
-        <translation>Скомпілювати BPFи</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Введіть ім&apos;я файлу, до якого будуть записані захоплені дані. Зазвичай використовується тимчасовий файл.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Capture to a permanent file</source>
-        <translation>Захоплювати до постійного файлу</translation>
-    </message>
-    <message>
-        <source>gigabytes</source>
-        <oldsource>Gigabytes</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Switch to the next file after the specified number of packets have been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">pcap</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1312,12 +1488,44 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Switch to the next file after the specified number of packets have been captured.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>packets</source>
+        <translation type="unfinished">пакетів</translation>
+    </message>
+    <message>
         <source>Switch to the next file after the file size exceeds the specified file size.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>kilobytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>megabytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>gigabytes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Switch to the next file when the time capturing to the current file exceeds the specified time.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>seconds</source>
+        <translation type="unfinished">секунд</translation>
+    </message>
+    <message>
+        <source>minutes</source>
+        <translation type="unfinished">хвилин</translation>
+    </message>
+    <message>
+        <source>hours</source>
+        <translation type="unfinished">годин</translation>
     </message>
     <message>
         <source>when time is a multiple of</source>
@@ -1330,96 +1538,111 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Після того, як захоплення перемкнулося на наступний файл, та при перевищенні даної кількості файлів найстаріший файл буде видалено.&lt;/p&gt;&lt;/body&gt;&lt;/html.</translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Після того, як захоплення перемкнулося на наступний файл, та при перевищенні даної кількості файлів найстаріший файл буде видалено.&lt;/p&gt;&lt;/body&gt;&lt;/html.</translation>
     </message>
     <message>
         <source>Use a ring buffer with </source>
-        <translation>Використовувати кільцевий буфер з</translation>
+        <translation type="unfinished">Використовувати кільцевий буфер з</translation>
     </message>
     <message>
         <source>files</source>
-        <translation>файлів</translation>
+        <translation type="unfinished">файлів</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation>Опції</translation>
+        <translation type="unfinished">Опції</translation>
     </message>
     <message>
         <source>Display Options</source>
-        <translation>Опції Відображення</translation>
+        <translation type="unfinished">Опції Відображення</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;З цією опцією захоплені пакети будуть негайно виводитися на головний екран. Зауважте: це уповільнить захоплення, що, в результаті, може підвищити кількість відкинутих пакетів.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;З цією опцією захоплені пакети будуть негайно виводитися на головний екран. Зауважте: це уповільнить захоплення, що, в результаті, може підвищити кількість відкинутих пакетів.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Update list of packets in real-time</source>
-        <translation>Оновлювати список пакетів в реальному часі</translation>
+        <translation type="unfinished">Оновлювати список пакетів в реальному часі</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Якщо опцію &amp;quot;Оновлювати список пакетів в реальному часі&amp;quot; вибрано, то &amp;quot;Список Пакетів&amp;quot; буде автоматично прокручено до останнього захопленого пакету.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Якщо опцію &amp;quot;Оновлювати список пакетів в реальному часі&amp;quot; вибрано, то &amp;quot;Список Пакетів&amp;quot; буде автоматично прокручено до останнього захопленого пакету.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Automatically scroll during live capture</source>
-        <translation>Автоматично прокручувати під час захоплення</translation>
+        <translation type="unfinished">Автоматично прокручувати під час захоплення</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Show capture information during live capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Name Resolution</source>
-        <translation>Визначення Імен</translation>
+        <translation type="unfinished">Визначення Імен</translation>
     </message>
     <message>
         <source>Perform MAC layer name resolution while capturing.</source>
-        <translation>Визначати імена на MAC-рівні під час захоплення.</translation>
+        <translation type="unfinished">Визначати імена на MAC-рівні під час захоплення.</translation>
     </message>
     <message>
-        <source>Resolve MAC Addresses</source>
-        <translation>Визначати MAC-адреси</translation>
+        <source>Resolve MAC addresses</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Визначати імена на мережевому рівні під час захоплення.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Визначати імена на мережевому рівні під час захоплення.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Resolve network names</source>
-        <translation>Визначати мережеві імена</translation>
+        <translation type="unfinished">Визначати мережеві імена</translation>
     </message>
     <message>
         <source>Perform transport layer name resolution while capturing.</source>
-        <translation>Визначати імена на транспортному рівні під час захоплення.</translation>
+        <translation type="unfinished">Визначати імена на транспортному рівні під час захоплення.</translation>
     </message>
     <message>
         <source>Resolve transport names</source>
-        <translation>Визначати транспортні імена</translation>
+        <translation type="unfinished">Визначати транспортні імена</translation>
     </message>
     <message>
         <source>Stop capture automatically after…</source>
-        <oldsource>Stop capture automatically after...</oldsource>
-        <translation>Автоматично зупинити захоплення після...</translation>
-    </message>
-    <message>
-        <source>Stop capturing after the specified amount of time has passed.</source>
-        <translation>Зупинити захоплення по спливанню вказаного часу.</translation>
+        <translation type="unfinished">Автоматично зупинити захоплення після...</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Зупинити захоплення за наявності вказаної кількості пакетів.&lt;/p&gt;&lt;/body&gt;&lt;/html.</translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Зупинити захоплення за наявності вказаної кількості пакетів.&lt;/p&gt;&lt;/body&gt;&lt;/html.</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified number of packets have been captured.</source>
+        <translation type="unfinished">Зупинити захоплення за наявності вказаної кількості пакетів.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Зупинити захоплення за наявності вказаної кількості створених файлів.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Зупинити захоплення за наявності вказаної кількості створених файлів.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Capture Interfaces</source>
-        <translation>Інтерфейси Для Захоплення</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Зупинити захоплення по досягненню даними вказаного розміру.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified amount of data has been captured.</source>
+        <translation type="unfinished">Зупинити захоплення по досягненню даними вказаного розміру.</translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified amount of time has passed.</source>
+        <translation type="unfinished">Зупинити захоплення по спливанню вказаного часу.</translation>
+    </message>
+    <message>
+        <source>Capture Options</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Start</source>
-        <translation>Почати</translation>
+        <translation type="unfinished">Почати</translation>
     </message>
     <message>
         <source>Leave blank to use a temporary file</source>
@@ -1427,36 +1650,34 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Specify a Capture File</source>
-        <translation>Вкажіть Файл Захоплення</translation>
+        <translation type="unfinished">Вкажіть Файл Захоплення</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="unfinished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>Адреси</translation>
+        <translation type="unfinished">Адреси</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Адреса</translation>
+        <translation type="unfinished">Адреса</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>адреси відсутні</translation>
+        <translation type="unfinished">адреси відсутні</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Помилка</translation>
+        <translation type="unfinished">Помилка</translation>
     </message>
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
-        <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
-        <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
