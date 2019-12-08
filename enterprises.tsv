@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2019-11-30)
+# (last updated 2019-12-07)
 
 0	Reserved
 1	NxNetworks
@@ -3105,7 +3105,7 @@
 3101	Experian Information Solutions Inc.
 3102	Kansai Electric Co., Ltd.
 3103	Innet
-3104	Thales Communications GmbH
+3104	Thales Deutschland GmbH
 3105	Vodafone Sweden
 3106	LCI International, Inc.
 3107	City of Los Angeles
@@ -28477,7 +28477,7 @@
 28634	ComAp, a.s.
 28635	Fragnetics LLP
 28636	PHB Eletronica Ltda
-28637	DANSUPPORT
+28637	Itadel	# formerly 'DANSUPPORT'
 28638	Bellomy Research, Inc.
 28639	TxCore, Inc.
 28640	IT Linux
@@ -54751,3 +54751,25 @@
 54942	Telecom Liechtenstein AG
 54943	CSCELECTRONIK
 54944	evolutionQ
+54945	Yaskawa Solectria Solar
+54946	Horizon Energy Group
+54947	QuantiCor Security GmbH
+54948	Tielen Consultancy
+54949	MPS Service
+54950	Lifetrack Radiology Systems
+54951	The Ferguson Group
+54952	High Mountain Computer Services
+54953	Opgal Optronic Industries Ltd.
+54954	IT LEARNING SLOVAKIA, s. r. o.
+54955	Coast Appliances
+54956	Marais Consulting Limited
+54957	Sesto Sp z o.o.
+54958	Simpleway Holding a.s.
+54959	ALKU
+54960	Wrigleys Solicitors LLP
+54961	Spectrum Enterprise
+54962	ManTech
+54963	The Pinnacle Group
+54964	Sina Communication Systems
+54965	Hamilton Medical AG
+54966	I-Consulting Kft.
