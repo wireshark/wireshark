@@ -631,7 +631,7 @@ win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
     ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
-    ofn->lpstrTitle = _T("Wireshark: Export File");
+    ofn->lpstrTitle = _T("Wireshark: Export Packet Dissections");
     ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
                  OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                  OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
