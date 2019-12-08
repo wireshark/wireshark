@@ -1594,7 +1594,9 @@ add_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
     proto_tree_add_item(rr_tree, hf_dns_rr_class, tvb, offset, 2, ENC_BIG_ENDIAN);
   }
   offset += 2;
-  ttl_item = proto_tree_add_item_ret_uint(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ENC_BIG_ENDIAN, &ttl_value);
+  ttl_value = tvb_get_ntohl(tvb, offset);
+  ttl_item = proto_tree_add_uint_format_value(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ttl_value,
+                                              "%s", unsigned_time_secs_to_str(wmem_packet_scope(), ttl_value));
   if (ttl_value & 0x80000000) {
     expert_add_info(pinfo, ttl_item, &ei_ttl_high_bit_set);
   }
