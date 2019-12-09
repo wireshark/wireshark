@@ -261,12 +261,13 @@ wtap_compression_type CaptureFileDialog::compressionType() {
 }
 
 int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
+    QString title_str = wsApp->windowTitleString(tr("Open Capture File"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
     GString *dfilter = g_string_new(display_filter_.toUtf8().constData());
     gboolean wof_status;
 
     // XXX Add a widget->HWND routine to qt_ui_utils and use it instead.
-    wof_status = win32_open_file((HWND)parentWidget()->effectiveWinId(), fname, &type, dfilter);
+    wof_status = win32_open_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), fname, &type, dfilter);
     file_name = fname->str;
     display_filter_ = dfilter->str;
 
@@ -277,10 +278,11 @@ int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
 }
 
 check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_support_all_comments) {
+    QString title_str = wsApp->windowTitleString(tr("Save Capture File As"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
     gboolean wsf_status;
 
-    wsf_status = win32_save_as_file((HWND)parentWidget()->effectiveWinId(), cap_file_, fname, &file_type_, &compression_type_, must_support_all_comments);
+    wsf_status = win32_save_as_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), cap_file_, fname, &file_type_, &compression_type_, must_support_all_comments);
     file_name = fname->str;
 
     g_string_free(fname, TRUE);
@@ -293,6 +295,7 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
 }
 
 check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, packet_range_t *range, QString selRange) {
+    QString title_str = wsApp->windowTitleString(tr("Export Specified Packets"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
     gboolean wespf_status;
 
@@ -301,7 +304,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
         packet_range_convert_selection_str(range, selRange.toUtf8().constData());
     }
 
-    wespf_status = win32_export_specified_packets_file((HWND)parentWidget()->effectiveWinId(), cap_file_, fname, &file_type_, &compression_type_, range);
+    wespf_status = win32_export_specified_packets_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), cap_file_, fname, &file_type_, &compression_type_, range);
     file_name = fname->str;
 
     g_string_free(fname, TRUE);
@@ -314,11 +317,13 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
 }
 
 int CaptureFileDialog::merge(QString &file_name) {
+    QString title_str = wsApp->windowTitleString(tr("Merge Capture File"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
     GString *dfilter = g_string_new(display_filter_.toUtf8().constData());
     gboolean wmf_status;
 
-    wmf_status = win32_merge_file((HWND)parentWidget()->effectiveWinId(), fname, dfilter, &merge_type_);
+
+    wmf_status = win32_merge_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), fname, dfilter, &merge_type_);
     file_name = fname->str;
     display_filter_ = dfilter->str;
 

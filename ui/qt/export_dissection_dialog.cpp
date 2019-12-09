@@ -54,6 +54,7 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
     , save_bt_(NULL)
 #endif /* Q_OS_WIN */
 {
+    setWindowTitle(wsApp->windowTitleString(tr("Export Packet Dissections")));
 
     switch (prefs.gui_fileopen_style) {
 
@@ -87,7 +88,6 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
     QStringList name_filters;
     int last_row;
 
-    setWindowTitle(wsApp->windowTitleString(tr("Export Packet Dissections")));
     setAcceptMode(QFileDialog::AcceptSave);
     setLabelText(FileType, tr("Export As:"));
 
@@ -162,7 +162,7 @@ void ExportDissectionDialog::show()
         QFileDialog::show();
     }
 #else // Q_OS_WIN
-    win32_export_file((HWND)parentWidget()->effectiveWinId(), cap_file_, export_type_);
+    win32_export_file((HWND)parentWidget()->effectiveWinId(), windowTitle().toStdWString().c_str(), cap_file_, export_type_);
 #endif // Q_OS_WIN
 }
 
