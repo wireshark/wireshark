@@ -216,8 +216,16 @@ tvbuff_t *parameter_tvb=NULL;
         de_nas_5gs_n1_mode_to_s1_mode_nas_transparent_cont(parameter_tvb, subtree, actx->pinfo);
       }
     } else {
-      if (nas_5gs_handle)
-        call_dissector(nas_5gs_handle,parameter_tvb,%(ACTX)s->pinfo, tree);
+      if (nas_5gs_handle) {
+        proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NAS_PDU);
+        TRY {
+          call_dissector(nas_5gs_handle, parameter_tvb, actx->pinfo, subtree);
+        }
+        CATCH_BOUNDS_ERRORS {
+          show_exception(tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+        }
+        ENDTRY;
+      }
     }
   }
 
