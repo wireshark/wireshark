@@ -48,7 +48,7 @@ void revert_thread_per_monitor_v2_awareness(HANDLE context);
  * @param type File type
  * @param display_filter a display filter
  */
-gboolean win32_open_file (HWND h_wnd, GString *file_name, unsigned int *type, GString *display_filter);
+gboolean win32_open_file (HWND h_wnd, const wchar_t *title, GString *file_name, unsigned int *type, GString *display_filter);
 
 /** Open the "Save As" dialog box.
  *
@@ -62,7 +62,7 @@ gboolean win32_open_file (HWND h_wnd, GString *file_name, unsigned int *type, GS
  *
  * @return TRUE if packets were discarded when saving, FALSE otherwise
  */
-gboolean win32_save_as_file(HWND h_wnd, capture_file *cf,
+gboolean win32_save_as_file(HWND h_wnd, const wchar_t *title, capture_file *cf,
                             GString *file_name, int *file_type,
                             wtap_compression_type *compression_type,
                             gboolean must_support_comments);
@@ -79,6 +79,7 @@ gboolean win32_save_as_file(HWND h_wnd, capture_file *cf,
  * @return TRUE if packets were discarded when saving, FALSE otherwise
  */
 gboolean win32_export_specified_packets_file(HWND h_wnd,
+                                         const wchar_t *title,
                                          capture_file *cf,
                                          GString *file_name,
                                          int *file_type,
@@ -93,7 +94,7 @@ gboolean win32_export_specified_packets_file(HWND h_wnd,
  * @param display_filter a display filter
  * @param merge_type type of merge
  */
-gboolean win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *merge_type);
+gboolean win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name, GString *display_filter, int *merge_type);
 
 /** Open the "Export" dialog box.
  *
@@ -101,7 +102,7 @@ gboolean win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filt
  * @param cf capture_file Structure for the capture to be saved
  * @param export_type The export type.
  */
-void win32_export_file (HWND h_wnd, capture_file *cf, export_type_e export_type);
+void win32_export_file (HWND h_wnd, const wchar_t *title, capture_file *cf, export_type_e export_type);
 
 /** Open the "Save As" dialog box for stats_tree statistics window.
  *

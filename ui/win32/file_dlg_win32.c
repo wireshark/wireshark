@@ -161,7 +161,7 @@ static unsigned int g_format_type = WTAP_TYPE_AUTO;
  */
 
 gboolean
-win32_open_file (HWND h_wnd, GString *file_name, unsigned int *type, GString *display_filter) {
+win32_open_file (HWND h_wnd, const wchar_t *title, GString *file_name, unsigned int *type, GString *display_filter) {
     OPENFILENAME *ofn;
     TCHAR file_name16[MAX_PATH] = _T("");
     int ofnsize = sizeof(OPENFILENAME);
@@ -199,7 +199,7 @@ win32_open_file (HWND h_wnd, GString *file_name, unsigned int *type, GString *di
     } else {
         ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     }
-    ofn->lpstrTitle = _T("Wireshark: Open Capture File");
+    ofn->lpstrTitle = title;
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER     |
                  OFN_NOCHANGEDIR  | OFN_FILEMUSTEXIST  | OFN_HIDEREADONLY |
                  OFN_ENABLEHOOK   | OFN_SHOWHELP;
@@ -225,7 +225,7 @@ win32_open_file (HWND h_wnd, GString *file_name, unsigned int *type, GString *di
 }
 
 gboolean
-win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_type,
+win32_save_as_file(HWND h_wnd, const wchar_t *title, capture_file *cf, GString *file_name, int *file_type,
                    wtap_compression_type *compression_type,
                    gboolean must_support_all_comments)
 {
@@ -270,7 +270,7 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
     ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
-    ofn->lpstrTitle = _T("Wireshark: Save file as");
+    ofn->lpstrTitle = title;
     ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
                  OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                  OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
@@ -360,7 +360,8 @@ gboolean win32_save_as_statstree(HWND h_wnd, GString *file_name, int *file_type)
 
 
 gboolean
-win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
+win32_export_specified_packets_file(HWND h_wnd, const wchar_t *title,
+                                    capture_file *cf,
                                     GString *file_name,
                                     int *file_type,
                                     wtap_compression_type *compression_type,
@@ -401,7 +402,7 @@ win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
     ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
-    ofn->lpstrTitle = _T("Wireshark: Export Specified Packets");
+    ofn->lpstrTitle = title;
     ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
                  OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                  OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
@@ -442,7 +443,7 @@ win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
 
 
 gboolean
-win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *merge_type) {
+win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name, GString *display_filter, int *merge_type) {
     OPENFILENAME *ofn;
     TCHAR         file_name16[MAX_PATH] = _T("");
     int           ofnsize = sizeof(OPENFILENAME);
@@ -480,7 +481,7 @@ win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *
     } else {
         ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     }
-    ofn->lpstrTitle = _T("Wireshark: Merge with capture file");
+    ofn->lpstrTitle = title;
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER     |
                  OFN_NOCHANGEDIR  | OFN_FILEMUSTEXIST  | OFN_HIDEREADONLY |
                  OFN_ENABLEHOOK   | OFN_SHOWHELP;
@@ -519,7 +520,7 @@ win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *
 }
 
 void
-win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
+win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_type_e export_type) {
     OPENFILENAME     *ofn;
     TCHAR             file_name[MAX_PATH] = _T("");
     char             *dirname;
@@ -542,7 +543,7 @@ win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
     ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
-    ofn->lpstrTitle = _T("Wireshark: Export Packet Dissections");
+    ofn->lpstrTitle = title;
     ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
                  OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                  OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
