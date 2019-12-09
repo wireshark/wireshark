@@ -1,6 +1,6 @@
 -- M3AP-IEs.asn
 --
--- 3GPP TS 36.444 V13.2.0 (2016-03)
+-- 3GPP TS 36.444 V15.0.0 (2018-09)
 -- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-d20.zip
 --
 -- 9.3.5	Information Element Definitions
@@ -13,10 +13,10 @@
 -- **************************************************************
 
 M3AP-IEs {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 eps-Access (21) modules (3) m3ap (5) version1 (1) m3ap-IEs (2) }
 
-DEFINITIONS AUTOMATIC TAGS ::=
+DEFINITIONS AUTOMATIC TAGS ::= 
 
 BEGIN
 
@@ -55,7 +55,7 @@ AllocationAndRetentionPriority-ExtIEs M3AP-PROTOCOL-EXTENSION ::= {
 }
 -- B
 
-BitRate	::= INTEGER (0..10000000000)
+BitRate	::= INTEGER (0..10000000000) 
 
 -- C
 
@@ -287,7 +287,7 @@ TMGI-ExtIEs M3AP-PROTOCOL-EXTENSION ::= {
 
 
 TNL-Information ::= SEQUENCE {
-	iPMCAddress						IPAddress,
+	iPMCAddress						IPAddress, 
 	iPSourceAddress					IPAddress,
 	gTP-DLTEID						GTP-TEID,
 	iE-Extensions					ProtocolExtensionContainer { {TNL-Information-ExtIEs} } OPTIONAL,
@@ -313,3 +313,4 @@ TypeOfError ::= ENUMERATED {
 -- Z
 
 END
+

@@ -1,6 +1,6 @@
 -- M3AP-PDU-Descriptions.asn
 --
--- 3GPP TS 36.444 V13.2.0 (2016-03)
+-- 3GPP TS 36.444 V15.0.0 (2018-09)
 -- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-d20.zip
 --
 -- 9.3.3	Elementary Procedure Definitions
@@ -13,9 +13,9 @@
 -- **************************************************************
 
 M3AP-PDU-Descriptions {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 eps-Access (21) modules (3) m3ap (5) version1 (1) m3ap-PDU-Descriptions (0) }
-DEFINITIONS AUTOMATIC TAGS ::=
+DEFINITIONS AUTOMATIC TAGS ::= 
 
 BEGIN
 

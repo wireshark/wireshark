@@ -1,6 +1,6 @@
 -- M3AP-Containers.asn
 --
--- 3GPP TS 36.444 V13.2.0 (2016-03)
+-- 3GPP TS 36.444 V15.0.0 (2018-09)
 -- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-d20.zip
 --
 -- 9.3.8	Container Definitions
@@ -13,10 +13,10 @@
 -- **************************************************************
 
 M3AP-Containers {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 eps-Access (21) modules (3) m3ap (5) version1 (1) m3ap-Containers (5)  }
 
-DEFINITIONS AUTOMATIC TAGS ::=
+DEFINITIONS AUTOMATIC TAGS ::= 
 
 BEGIN
 
@@ -33,7 +33,7 @@ IMPORTS
 	Criticality,
 	Presence,
 	PrivateIE-ID,
-	ProtocolIE-ID
+	ProtocolIE-ID	
 FROM M3AP-CommonDataTypes;
 
 -- **************************************************************
@@ -122,11 +122,11 @@ WITH SYNTAX {
 --
 -- **************************************************************
 
-ProtocolIE-Container {M3AP-PROTOCOL-IES : IEsSetParam} ::=
+ProtocolIE-Container {M3AP-PROTOCOL-IES : IEsSetParam} ::= 
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-Field {{IEsSetParam}}
 
-ProtocolIE-Single-Container {M3AP-PROTOCOL-IES : IEsSetParam} ::=
+ProtocolIE-Single-Container {M3AP-PROTOCOL-IES : IEsSetParam} ::= 
 	ProtocolIE-Field {{IEsSetParam}}
 
 ProtocolIE-Field {M3AP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
@@ -141,7 +141,7 @@ ProtocolIE-Field {M3AP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
 --
 -- **************************************************************
 
-ProtocolIE-ContainerPair {M3AP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
+ProtocolIE-ContainerPair {M3AP-PROTOCOL-IES-PAIR : IEsSetParam} ::= 
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-FieldPair {{IEsSetParam}}
 
@@ -173,7 +173,7 @@ ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, M3AP-P
 --
 -- **************************************************************
 
-ProtocolExtensionContainer {M3AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::=
+ProtocolExtensionContainer {M3AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= 
 	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
 	ProtocolExtensionField {{ExtensionSetParam}}
 
@@ -189,7 +189,7 @@ ProtocolExtensionField {M3AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENC
 --
 -- **************************************************************
 
-PrivateIE-Container {M3AP-PRIVATE-IES : IEsSetParam} ::=
+PrivateIE-Container {M3AP-PRIVATE-IES : IEsSetParam} ::= 
 	SEQUENCE (SIZE (1..maxPrivateIEs)) OF
 	PrivateIE-Field {{IEsSetParam}}
 
