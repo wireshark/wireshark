@@ -71,7 +71,6 @@ static TCHAR *FILE_EXT_EXPORT[] =
 
 static UINT_PTR CALLBACK open_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK save_as_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT_PTR CALLBACK save_as_statstree_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK export_specified_packets_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK merge_file_hook_proc(HWND mf_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK export_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
@@ -306,58 +305,6 @@ win32_save_as_file(HWND h_wnd, const wchar_t *title, capture_file *cf, GString *
     g_free( (void *) ofn);
     return gsfn_ok;
 }
-
-gboolean win32_save_as_statstree(HWND h_wnd, GString *file_name, int *file_type)
-{
-    OPENFILENAME *ofn;
-    TCHAR  file_name16[MAX_PATH] = _T("");
-    int    ofnsize = sizeof(OPENFILENAME);
-    BOOL gsfn_ok;
-
-    if (!file_name || !file_type)
-        return FALSE;
-
-    if (file_name->len > 0) {
-        StringCchCopy(file_name16, MAX_PATH, utf_8to16(file_name->str));
-    }
-
-    ofn = g_malloc0(sizeof(OPENFILENAME));
-
-    ofn->lStructSize = ofnsize;
-    ofn->hwndOwner = h_wnd;
-    ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
-    ofn->lpstrFilter = _T("Plain text file (.txt)\0*.txt\0Comma separated values (.csv)\0*.csv\0XML document (.xml)\0*.xml\0YAML document (.yaml)\0*.yaml\0");
-    ofn->lpstrCustomFilter = NULL;
-    ofn->nMaxCustFilter = 0;
-    ofn->nFilterIndex = 1;  /* the first entry is the best match; 1-origin indexing */
-    ofn->lpstrFile = file_name16;
-    ofn->nMaxFile = MAX_PATH;
-    ofn->lpstrFileTitle = NULL;
-    ofn->nMaxFileTitle = 0;
-    ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
-    ofn->lpstrTitle = _T("Wireshark: Save stats tree as ...");
-    ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER        |
-                 OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
-                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
-    ofn->lpstrDefExt = NULL;
-    ofn->lpfnHook = save_as_statstree_hook_proc;
-    ofn->lpTemplateName = _T("WIRESHARK_SAVEASSTATSTREENAME_TEMPLATE");
-
-    HANDLE save_da_ctx = set_thread_per_monitor_v2_awareness();
-    gsfn_ok = GetSaveFileName(ofn);
-    revert_thread_per_monitor_v2_awareness(save_da_ctx);
-
-    if (gsfn_ok) {
-        g_string_printf(file_name, "%s", utf_16to8(file_name16));
-        /* What file format was specified? */
-        *file_type = ofn->nFilterIndex - 1;
-    }
-
-    g_sf_hwnd = NULL;
-    g_free( (void *) ofn);
-    return gsfn_ok;
-}
-
 
 gboolean
 win32_export_specified_packets_file(HWND h_wnd, const wchar_t *title,
@@ -1293,26 +1240,6 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param _U_, LPARAM l_para
                     break;
             }
             break;
-        default:
-            break;
-    }
-    return 0;
-}
-
-static UINT_PTR CALLBACK
-save_as_statstree_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param _U_, LPARAM l_param _U_) {
-
-    switch(msg) {
-        case WM_INITDIALOG:
-            g_sf_hwnd = sf_hwnd;
-            break;
-
-        case WM_COMMAND:
-            break;
-
-        case WM_NOTIFY:
-            break;
-
         default:
             break;
     }

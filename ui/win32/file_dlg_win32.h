@@ -104,17 +104,6 @@ gboolean win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name,
  */
 void win32_export_file (HWND h_wnd, const wchar_t *title, capture_file *cf, export_type_e export_type);
 
-/** Open the "Save As" dialog box for stats_tree statistics window.
- *
- * @param h_wnd HWND of the parent window.
- * @param file_name File name. May be empty.
- * @param file_type stats_tree file type.
- *
- * @return FALSE if the dialog was cancelled
- */
-gboolean win32_save_as_statstree(HWND h_wnd, GString *file_name,
-							int *file_type);
-
 /* Open dialog defines */
 /* #define EWFD_FILTER_BTN    1000 */
 #define EWFD_FILTER_LBL    1000
