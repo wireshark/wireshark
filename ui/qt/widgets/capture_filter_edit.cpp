@@ -509,7 +509,7 @@ void CaptureFilterEdit::saveFilter()
 
 void CaptureFilterEdit::removeFilter()
 {
-    if (! actions_ && ! actions_->checkedAction())
+    if (! actions_ || ! actions_->checkedAction())
         return;
 
     QAction *ra = actions_->checkedAction();
