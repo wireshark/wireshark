@@ -19,7 +19,7 @@
 #include <richedit.h>
 #include <strsafe.h>
 
-#include "globals.h"
+#include "file.h"
 
 #include "wsutil/file_util.h"
 #include "wsutil/str_util.h"
@@ -1229,57 +1229,8 @@ build_file_save_type_list(GArray *savable_file_types) {
     return (TCHAR *) g_array_free(sa, FALSE /*free_segment*/);
 }
 
-
-#if 0
-static void
-build_file_format_list(HWND sf_hwnd) {
-    HWND  format_cb;
-    int   ft;
-    guint file_index;
-    guint item_to_select;
-    gchar *s;
-
-    /* Default to the first supported file type, if the file's current
-       type isn't supported. */
-    item_to_select = 0;
-
-    format_cb = GetDlgItem(sf_hwnd, EWFD_FILE_TYPE_COMBO);
-    SendMessage(format_cb, CB_RESETCONTENT, 0, 0);
-
-    /* Check all file types. */
-    file_index = 0;
-    for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-        if (ft == WTAP_FILE_UNKNOWN)
-            continue;  /* not a real file type */
-
-        if (!packet_range_process_all(g_range) || ft != cfile.cd_t) {
-            /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
-            if (!wtap_can_save_with_wiretap(ft, cfile.linktypes))
-                continue;       /* We can't. */
-        }
-
-        /* OK, we can write it out in this type. */
-        if(wtap_file_extensions_string(ft) != NULL) {
-            s = g_strdup_printf("%s (%s)", wtap_file_type_string(ft), wtap_file_extensions_string(ft));
-        } else {
-            s = g_strdup_printf("%s (" ALL_FILES_WILDCARD ")", wtap_file_type_string(ft));
-        }
-        SendMessage(format_cb, CB_ADDSTRING, 0, (LPARAM) utf_8to16(s));
-        g_free(s);
-        SendMessage(format_cb, CB_SETITEMDATA, (LPARAM) file_index, (WPARAM) ft);
-        if (ft == g_filetype) {
-            /* Default to the same format as the file, if it's supported. */
-            item_to_select = file_index;
-        }
-        file_index++;
-    }
-
-    SendMessage(format_cb, CB_SETCURSEL, (WPARAM) item_to_select, 0);
-}
-#endif
-
 static UINT_PTR CALLBACK
-save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
+save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param _U_, LPARAM l_param) {
     HWND           cur_ctrl;
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
     /*int            new_filetype, file_index;*/
@@ -1302,46 +1253,6 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
             break;
         }
         case WM_COMMAND:
-            cur_ctrl = (HWND) l_param;
-
-            switch (w_param) {
-#if 0
-                case (CBN_SELCHANGE << 16) | EWFD_FILE_TYPE_COMBO:
-                    file_index = SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
-                    if (file_index != CB_ERR) {
-                        new_filetype = SendMessage(cur_ctrl, CB_GETITEMDATA, (WPARAM) file_index, 0);
-                        if (new_filetype != CB_ERR) {
-                            if (g_filetype != new_filetype) {
-                                if (wtap_can_save_with_wiretap(new_filetype, cfile.linktypes)) {
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
-                                    EnableWindow(cur_ctrl, TRUE);
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
-                                    EnableWindow(cur_ctrl, TRUE);
-                                } else {
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
-                                    SendMessage(cur_ctrl, BM_SETCHECK, 0, 0);
-                                    EnableWindow(cur_ctrl, FALSE);
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
-                                    EnableWindow(cur_ctrl, FALSE);
-                                }
-                                g_filetype = new_filetype;
-                                cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
-                                if (wtap_dump_can_compress(file_type)) {
-                                    EnableWindow(cur_ctrl);
-                                } else {
-                                    g_compressed = FALSE;
-                                    DisableWindow(cur_ctrl);
-                                }
-                                SendMessage(cur_ctrl, BM_SETCHECK, g_compressed, 0);
-
-                            }
-                        }
-                    }
-                    break;
-#endif
-                default:
-                    break;
-            }
             break;
         case WM_NOTIFY:
             switch (notify->hdr.code) {
@@ -1434,37 +1345,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
         }
         case WM_COMMAND:
             cur_ctrl = (HWND) l_param;
-
-            switch (w_param) {
-#if 0
-                case (CBN_SELCHANGE << 16) | EWFD_FILE_TYPE_COMBO:
-                    file_index = SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
-                    if (file_index != CB_ERR) {
-                        new_filetype = SendMessage(cur_ctrl, CB_GETITEMDATA, (WPARAM) file_index, 0);
-                        if (new_filetype != CB_ERR) {
-                            if (g_filetype != new_filetype) {
-                                if (wtap_can_save_with_wiretap(new_filetype, cfile.linktypes)) {
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
-                                    EnableWindow(cur_ctrl, TRUE);
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
-                                    EnableWindow(cur_ctrl, TRUE);
-                                } else {
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
-                                    SendMessage(cur_ctrl, BM_SETCHECK, 0, 0);
-                                    EnableWindow(cur_ctrl, FALSE);
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
-                                    EnableWindow(cur_ctrl, FALSE);
-                                }
-                                g_filetype = new_filetype;
-                            }
-                        }
-                    }
-                    break;
-#endif
-                default:
-                    range_handle_wm_command(sf_hwnd, cur_ctrl, w_param, g_range);
-                    break;
-            }
+            range_handle_wm_command(sf_hwnd, cur_ctrl, w_param, g_range);
             break;
         case WM_NOTIFY:
             switch (notify->hdr.code) {
