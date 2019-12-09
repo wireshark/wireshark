@@ -7,10 +7,13 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "file.h"
+
 #include <wiretap/wtap.h>
 
 #include "packet_range_group_box.h"
 #include "capture_file_dialog.h"
+
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -19,7 +22,6 @@
 #else // Q_OS_WIN
 
 #include <errno.h>
-#include "file.h"
 #include "wsutil/filesystem.h"
 #include "wsutil/nstime.h"
 #include "wsutil/str_util.h"
@@ -33,13 +35,14 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QMessageBox>
 #include <QSortFilterProxyModel>
 #include <QSpacerItem>
 #include <QVBoxLayout>
 #endif // ! Q_OS_WIN
 
 #include <QPushButton>
+#include <QMessageBox>
+
 #include "epan/prefs.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <wireshark_application.h>
@@ -101,16 +104,7 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString 
 #endif // Q_OS_WIN
 }
 
-check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
-#if defined(Q_OS_WIN)
-        parent
-#endif
-        , capture_file *cf, int file_type) {
-#if defined(Q_OS_WIN)
-    if (!parent || !cf)
-        return CANCELLED;
-    return win32_check_save_as_with_comments((HWND)parent->effectiveWinId(), cf, file_type);
-#else // Q_OS_WIN
+check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *parent, capture_file *cf, int file_type) {
     guint32 comment_types;
 
     /* What types of comments do we have? */
@@ -127,6 +121,7 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
     QPushButton *save_button;
     QPushButton *discard_button;
 
+    msg_dialog.setParent(parent);
     msg_dialog.setIcon(QMessageBox::Question);
     msg_dialog.setText(tr("This capture file contains comments."));
     msg_dialog.setStandardButtons(QMessageBox::Cancel);
@@ -213,7 +208,6 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
 
     /* Just give up. */
     return CANCELLED;
-#endif // Q_OS_WIN
 }
 
 
@@ -286,7 +280,7 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
     g_string_free(fname, TRUE);
 
     if (wsf_status) {
-        return win32_check_save_as_with_comments((HWND)parentWidget()->effectiveWinId(), cap_file_, file_type_);
+        return checkSaveAsWithComments(parentWidget(), cap_file_, file_type_);
     }
 
     return CANCELLED;
@@ -307,7 +301,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     g_string_free(fname, TRUE);
 
     if (wespf_status) {
-        return win32_check_save_as_with_comments((HWND)parentWidget()->effectiveWinId(), cap_file_, file_type_);
+        return checkSaveAsWithComments(parentWidget(), cap_file_, file_type_);
     }
 
     return CANCELLED;
