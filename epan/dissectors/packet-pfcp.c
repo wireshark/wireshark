@@ -6755,12 +6755,26 @@ dissect_pfcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
     /* contain subsequent information element(s) dependent on the type of message. */
     do
     {
+        /* The first octet of header, Bit 3 represents the "FO" (Follow On) flag. */
+        /* If the "FO" flag is set to "1", then another PFCP message follows in the UDP/IP packet */
+        gboolean follow_on = (tvb_get_guint8(tvb, offset) & 0x04);
+
         /* length of the message in octets plus the excluded mandatory part of the PFCP header (the first 4 octets) */
-        guint16 message_length = (tvb_get_guint16(tvb, 2, 0) + 4);
+        guint16 message_length = (tvb_get_guint16(tvb, (offset + 2), 0) + 4);
 
         tvbuff_t *message_tvb = tvb_new_subset_length(tvb, offset, message_length);
         offset += dissect_pfcp_message(message_tvb, pinfo, tree);
 
+        /* Lets warn of faulty FO flag */
+        if (follow_on) {
+            if ((length - offset) == 0) {
+                proto_tree_add_expert_format(tree, pinfo, &ei_pfcp_ie_encoding_error, tvb, offset, -1, "Follow ON flag set but no data left for following message");
+            }
+        } else {
+            if ((length - offset) > 0) {
+                proto_tree_add_expert_format(tree, pinfo, &ei_pfcp_ie_encoding_error, tvb, offset, -1, "Data left for following message but Follow ON flag is not set");
+            }
+        }
     } while (length > (guint)offset);
 
     return length;
