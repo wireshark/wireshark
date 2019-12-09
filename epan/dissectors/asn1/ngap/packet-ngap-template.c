@@ -22,6 +22,8 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/conversation.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 #include <wsutil/wsjson.h>
 
 #include "packet-ngap.h"
@@ -120,6 +122,7 @@ static gint ett_ngap_LastVisitedUTRANCellInformation = -1;
 static gint ett_ngap_LastVisitedGERANCellInformation = -1;
 static gint ett_ngap_NASSecurityParametersFromNGRAN = -1;
 static gint ett_ngap_NASC = -1;
+static gint ett_ngap_NAS_PDU = -1;
 static gint ett_ngap_EN_DCSONConfigurationTransfer = -1;
 #include "packet-ngap-ett.c"
 
@@ -754,6 +757,7 @@ void proto_register_ngap(void) {
     &ett_ngap_LastVisitedGERANCellInformation,
     &ett_ngap_NASSecurityParametersFromNGRAN,
     &ett_ngap_NASC,
+    &ett_ngap_NAS_PDU,
     &ett_ngap_EN_DCSONConfigurationTransfer,
 #include "packet-ngap-ettarr.c"
   };
