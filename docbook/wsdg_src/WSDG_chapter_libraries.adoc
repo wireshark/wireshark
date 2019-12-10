@@ -78,7 +78,7 @@ must be set appropriately.
 === Qt
 
 The Qt library is used to build the UI for Wireshark and is used to provide a
-platform independent UI. Wireshark can be built with Qt 5.2 or later.
+platform independent UI. Wireshark can be built with Qt 5.3 or later.
 
 For more information on the Qt libraries, see <<ChUIQt>>.
 
