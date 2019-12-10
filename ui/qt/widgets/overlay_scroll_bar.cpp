@@ -49,9 +49,7 @@ class OsbProxyStyle : public QProxyStyle
     // wonky, however.
 
     virtual int styleHint(StyleHint hint, const QStyleOption *option = NULL, const QWidget *widget = NULL, QStyleHintReturn *returnData = NULL) const {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 3, 0)
         if (hint == SH_ScrollBar_Transient) return false;
-#endif
 
         return QProxyStyle::styleHint(hint, option, widget, returnData);
     }

@@ -252,9 +252,6 @@ void FollowStreamDialog::findText(bool go_back)
 {
     if (ui->leFind->text().isEmpty()) return;
 
-    /* Version check due to find on teStreamContent. Expects regex since 5.3
-     * https://doc.qt.io/qt-5/qplaintextedit.html#find-1 */
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
     bool found;
     if (use_regex_find_) {
         QRegExp regex(ui->leFind->text());
@@ -262,9 +259,6 @@ void FollowStreamDialog::findText(bool go_back)
     } else {
         found = ui->teStreamContent->find(ui->leFind->text());
     }
-#else
-    bool found = ui->teStreamContent->find(ui->leFind->text());
-#endif
 
     if (found) {
         ui->teStreamContent->setFocus();

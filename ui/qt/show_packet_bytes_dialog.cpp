@@ -223,7 +223,6 @@ void ShowPacketBytesDialog::findText(bool go_back)
 {
     if (ui->leFind->text().isEmpty()) return;
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
     bool found;
     if (use_regex_find_) {
         QRegExp regex(ui->leFind->text());
@@ -231,9 +230,6 @@ void ShowPacketBytesDialog::findText(bool go_back)
     } else {
         found = ui->tePacketBytes->find(ui->leFind->text());
     }
-#else
-    bool found = ui->tePacketBytes->find(ui->leFind->text());
-#endif
 
     if (found) {
         ui->tePacketBytes->setFocus();

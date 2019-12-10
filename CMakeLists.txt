@@ -1233,8 +1233,8 @@ if(GNUTLS_FOUND AND NOT GNUTLS_VERSION VERSION_LESS "3.4.0")
 endif()
 
 if (QT_FOUND)
-	if (Qt5Widgets_VERSION VERSION_LESS 5.2)
-		message(FATAL_ERROR "Qt 5.2 or later is required.")
+	if (Qt5Widgets_VERSION VERSION_LESS 5.3)
+		message(FATAL_ERROR "Qt 5.3 or later is required.")
 	endif()
 	if (Qt5Widgets_VERSION VERSION_GREATER 5.6
 	    AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang"))
