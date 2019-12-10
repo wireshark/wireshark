@@ -130,12 +130,11 @@ typedef struct _extcap_arg {
 } extcap_arg;
 
 typedef struct _extcap_interface {
-    gchar  * call;
-    gchar  * display;
-    gchar  * version;
-    gchar  * help;
-    gchar  * extcap_path;
-    gboolean is_legacy;
+    gchar * call;
+    gchar * display;
+    gchar * version;
+    gchar * help;
+    gchar * extcap_path;
 
     extcap_sentence_type if_type;
 } extcap_interface;
