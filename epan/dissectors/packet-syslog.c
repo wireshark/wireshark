@@ -21,6 +21,7 @@
 #include <epan/strutil.h>
 
 #include "packet-syslog.h"
+#include "packet-acdr.h"
 
 #define UDP_PORT_SYSLOG 514
 
@@ -425,6 +426,8 @@ proto_reg_handoff_syslog(void)
 {
   dissector_add_uint_with_preference("udp.port", UDP_PORT_SYSLOG, syslog_handle);
   dissector_add_for_decode_as_with_preference("tcp.port", syslog_handle);
+
+  dissector_add_uint("acdr.media_type", ACDR_Info, syslog_handle);
 
   /* Find the mtp3 dissector */
   mtp_handle = find_dissector_add_dependency("mtp3", proto_syslog);

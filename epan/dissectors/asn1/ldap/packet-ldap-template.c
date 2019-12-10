@@ -93,6 +93,7 @@
 #include "packet-tls.h"
 #include "packet-tls-utils.h"
 #include "packet-gssapi.h"
+#include "packet-acdr.h"
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -2342,6 +2343,9 @@ proto_reg_handoff_ldap(void)
 #include "packet-ldap-dis-tab.c"
 
  dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE_LDAP, ldap_handle);
+
+ dissector_add_uint("acdr.tls_application_port", 636, ldap_handle);
+ dissector_add_uint("acdr.tls_application", TLS_APP_LDAP, ldap_handle);
 }
 
 static void

@@ -54,10 +54,11 @@ since version 3.2.0:
 === New Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-Cisco MisCabling Protocol (MCP)
-OBSAI UDP-based Communication Protocol (UDPCP)
 [commaize]
 --
+Cisco MisCabling Protocol (MCP)
+OBSAI UDP-based Communication Protocol (UDPCP)
+AudioCodes Debug Recording (ACDR)
 --
 
 === Updated Protocol Support

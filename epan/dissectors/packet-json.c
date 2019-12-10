@@ -28,6 +28,7 @@
 #include <wiretap/wtap.h>
 
 #include "packet-http.h"
+#include "packet-acdr.h"
 
 void proto_register_json(void);
 void proto_reg_handoff_json(void);
@@ -36,6 +37,9 @@ static char *json_string_unescape(tvbparse_elem_t *tok);
 static dissector_handle_t json_handle;
 
 static int proto_json = -1;
+
+//Used to get AC DR proto data
+static int proto_acdr = -1;
 
 static gint ett_json = -1;
 static gint ett_json_array = -1;
@@ -752,8 +756,7 @@ static void init_json_parser(void) {
 	/* XXX, heur? */
 }
 
-/* This function tries to undestand if the payload is json or not
-*/
+/* This function tries to understand if the payload is json or not */
 static gboolean
 dissect_json_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -765,6 +768,18 @@ dissect_json_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 	return (dissect_json(tvb, pinfo, tree, data) != 0);
 }
+
+/* This function tries to understand if the payload is sitting on top of AC DR */
+static gboolean
+dissect_json_acdr_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	guint acdr_prot = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_acdr, 0));
+	if (acdr_prot == ACDR_VoiceAI)
+		return dissect_json_heur(tvb, pinfo, tree, data);
+	return FALSE;
+}
+
+
 
 void
 proto_register_json(void)
@@ -824,6 +839,7 @@ proto_reg_handoff_json(void)
 
 	heur_dissector_add("hpfeeds", dissect_json_heur, "JSON over HPFEEDS", "json_hpfeeds", proto_json, HEURISTIC_ENABLE);
 	heur_dissector_add("db-lsp", dissect_json_heur, "JSON over DB-LSP", "json_db_lsp", proto_json, HEURISTIC_ENABLE);
+	heur_dissector_add("udp", dissect_json_acdr_heur, "JSON over AC DR", "json_acdr", proto_json, HEURISTIC_ENABLE);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_JSON, json_file_handle);
 
 	dissector_add_for_decode_as("udp.port", json_file_handle);
@@ -840,6 +856,8 @@ proto_reg_handoff_json(void)
 	dissector_add_uint_range_with_preference("udp.port", "", json_file_handle); /* JSON-RPC over UDP */
 
 	text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_json);
+
+	proto_acdr = proto_get_id_by_filter_name("acdr");
 }
 
 /*

@@ -22,6 +22,7 @@
 #include "packet-tls-utils.h"
 #include "packet-tn3270.h"
 #include "packet-tn5250.h"
+#include "packet-acdr.h"
 
 void proto_reg_handoff_telnet(void);
 void proto_register_telnet(void);
@@ -2179,6 +2180,9 @@ void
 proto_reg_handoff_telnet(void)
 {
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_TELNET, telnet_handle);
+
+  dissector_add_uint("acdr.tls_application", TLS_APP_TELNET, telnet_handle);
+
   tn3270_handle = find_dissector_add_dependency("tn3270", proto_telnet);
   tn5250_handle = find_dissector_add_dependency("tn5250", proto_telnet);
   tls_handle = find_dissector("tls");

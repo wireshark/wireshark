@@ -32,6 +32,7 @@
 #include "packet-l2tp.h"
 #include "packet-vxlan.h"
 #include "packet-nsh.h"
+#include "packet-acdr.h"
 #include <epan/crc32-tvb.h>
 #include <wiretap/erf.h>
 
@@ -1108,6 +1109,9 @@ proto_reg_handoff_eth(void)
   dissector_add_uint("vxlan.next_proto", VXLAN_ETHERNET, eth_withoutfcs_handle);
   dissector_add_uint("sll.ltype", LINUX_SLL_P_ETHERNET, eth_withoutfcs_handle);
   dissector_add_uint("nsh.next_proto", NSH_ETHERNET, eth_withoutfcs_handle);
+
+  dissector_add_uint("acdr.media_type", ACDR_Control, eth_withoutfcs_handle);
+  dissector_add_uint("acdr.media_type", ACDR_DSP_SNIFFER, eth_withoutfcs_handle);
 
   /*
    * This is to handle the output for the Cisco CMTS "cable intercept"

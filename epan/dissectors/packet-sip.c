@@ -46,6 +46,7 @@
 #include "packet-sip.h"
 
 #include "packet-http.h"
+#include "packet-acdr.h"
 
 #include "packet-sdp.h"  /* SDP needs a transport layer to determine request/response */
 
@@ -7541,6 +7542,9 @@ proto_reg_handoff_sip(void)
     /* Set our port number for future use */
     ssl_dissector_add(sip_tls_port, sip_tcp_handle);
     saved_sip_tls_port = sip_tls_port;
+
+    dissector_add_uint("acdr.tls_application_port", 5061, sip_handle);
+    dissector_add_uint("acdr.tls_application", TLS_APP_SIP, sip_handle);
 
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }

@@ -23,6 +23,7 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/proto_data.h>
+#include "packet-acdr.h"
 
 #include <tap.h>
 #include <ui/tap-credentials.h>
@@ -1661,6 +1662,7 @@ proto_reg_handoff_ftp(void)
 {
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_FTPDATA, ftpdata_handle);
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_FTP, ftp_handle);
+    dissector_add_uint("acdr.tls_application", TLS_APP_FTP, ftp_handle);
 
     data_text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_ftp_data);
 

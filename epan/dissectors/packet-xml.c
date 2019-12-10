@@ -30,6 +30,7 @@
 #include <wsutil/report_message.h>
 
 #include "packet-xml.h"
+#include "packet-acdr.h"
 
 void proto_register_xml(void);
 void proto_reg_handoff_xml(void);
@@ -1510,6 +1511,7 @@ proto_reg_handoff_xml(void)
 
     heur_dissector_add("wtap_file", dissect_xml_heur, "XML file", "xml_wtap", xml_ns.hf_tag, HEURISTIC_ENABLE);
 
+    dissector_add_uint("acdr.tls_application", TLS_APP_XML, xml_handle);
 }
 
 /*

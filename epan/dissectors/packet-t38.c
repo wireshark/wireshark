@@ -54,6 +54,7 @@
 #include "packet-t38.h"
 #include "packet-per.h"
 #include "packet-tpkt.h"
+#include "packet-acdr.h"
 
 void proto_register_t38(void);
 
@@ -107,6 +108,9 @@ static guint32 T30ind_value;
 static guint32 Data_Field_item_num;
 
 static int proto_t38 = -1;
+
+/* Used to get AC DR proto data */
+static int proto_acdr = -1;
 
 /*--- Included file: packet-t38-hf.c ---*/
 #line 1 "./asn1/t38/packet-t38-hf.c"
@@ -1211,6 +1215,15 @@ show_setup_info(tvbuff_t *tvb, proto_tree *tree, t38_conv *p_t38_conversation)
     }
 }
 
+/* This function tries to understand if the payload is sitting on top of AC DR */
+static gboolean
+dissect_t38_acdr_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	guint acdr_prot = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_acdr, 0));
+	if (acdr_prot == ACDR_T38)
+		return dissect_t38_udp(tvb, pinfo, tree, NULL);
+	return FALSE;
+}
 
 
 /* Wireshark Protocol Registration */
@@ -1423,7 +1436,10 @@ proto_reg_handoff_t38(void)
 	t38_tcp_pdu_handle=create_dissector_handle(dissect_t38_tcp_pdu, proto_t38);
 	rtp_handle = find_dissector_add_dependency("rtp", proto_t38);
 	t30_hdlc_handle = find_dissector_add_dependency("t30.hdlc", proto_t38);
+	proto_acdr = proto_get_id_by_filter_name("acdr");
 	data_handle = find_dissector("data");
 	dissector_add_for_decode_as("tcp.port", t38_tcp_handle);
 	dissector_add_for_decode_as("udp.port", t38_udp_handle);
+	heur_dissector_add("udp", dissect_t38_acdr_heur, "T38 over AC DR", "t38_acdr", proto_t38, HEURISTIC_ENABLE);
+	dissector_add_uint("acdr.media_type", ACDR_T38, t38_udp_handle);
 }

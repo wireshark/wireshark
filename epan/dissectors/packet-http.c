@@ -37,6 +37,7 @@
 #include "packet-http.h"
 #include "packet-tcp.h"
 #include "packet-tls.h"
+#include "packet-acdr.h"
 
 #include <ui/tap-credentials.h>
 
@@ -4283,6 +4284,10 @@ proto_reg_handoff_http(void)
 	stats_tree_register("http", "http_req", "HTTP/Requests",         0, http_req_stats_tree_packet,  http_req_stats_tree_init, NULL );
 	stats_tree_register("http", "http_srv", "HTTP/Load Distribution",0, http_reqs_stats_tree_packet, http_reqs_stats_tree_init, NULL );
 	stats_tree_register("http", "http_seq", "HTTP/Request Sequences",0, http_seq_stats_tree_packet,  http_seq_stats_tree_init, NULL );
+
+	dissector_add_uint("acdr.tls_application_port", 443, http_handle);
+	dissector_add_uint("acdr.tls_application", TLS_APP_HTTP, http_handle);
+	dissector_add_uint("acdr.tls_application", TLS_APP_TR069, http_handle);
 }
 
 /*
