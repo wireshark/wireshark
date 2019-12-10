@@ -120,8 +120,7 @@ typedef struct extcap_iface_info {
 typedef struct extcap_run_extcaps_info {
     char    *extcap_path;               /**< Extcap program path, MUST be the first member.  */
     char    *output;                    /**< Output of --extcap-interfaces. */
-    guint    num_interfaces;            /**< Number of discovered interfaces. */
-    gboolean is_legacy;                 /**< Set to TRUE if extcap doesn't accept new parameters. */
+    guint   num_interfaces;             /**< Number of discovered interfaces. */
     extcap_iface_info_t *iface_infos;   /**< Per-interface information. */
 } extcap_run_extcaps_info_t;
 
@@ -433,24 +432,6 @@ extcap_thread_callback(gpointer data, gpointer user_data)
     g_mutex_unlock(&pool->data_mutex);
 }
 
-static const char *
-extcap_get_version(void)
-{
-    static char version[32];
-
-    /* Array is initialized to all-zeros during the first call. */
-    if (*version == 0)
-    {
-        int minor;
-        int major;
-
-        get_ws_version_number(&major, &minor, NULL);
-        g_snprintf(version, 32, "%s=%d.%d", EXTCAP_ARGUMENT_VERSION, major, minor);
-    }
-
-    return version;
-}
-
 /*
  * Run all extcap programs with the given arguments list, invoke the callback to
  * do some processing and return the results.
@@ -616,9 +597,6 @@ extcap_get_if_dlts(const gchar *ifname, char **err_str)
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_LIST_DLTS));
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
         arguments = g_list_append(arguments, g_strdup(ifname));
-
-        if (!interface->is_legacy)
-            arguments = g_list_append(arguments, g_strdup(extcap_get_version()));
 
         extcap_run_one(interface, arguments, cb_dlt, &caps, err_str);
 
@@ -950,9 +928,6 @@ extcap_get_if_configuration(const char *ifname)
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
         arguments = g_list_append(arguments, g_strdup(ifname));
 
-        if (!interface->is_legacy)
-            arguments = g_list_append(arguments, g_strdup(extcap_get_version()));
-
         extcap_run_one(interface, arguments, cb_preference, &ret, NULL);
 
         g_list_free_full(arguments, g_free);
@@ -998,9 +973,6 @@ extcap_get_if_configuration_values(const char * ifname, const char * argname, GH
         args = g_list_append(args, g_strdup(ifname));
         args = g_list_append(args, g_strdup(EXTCAP_ARGUMENT_RELOAD_OPTION));
         args = g_list_append(args, g_strdup(argname));
-
-        if (!interface->is_legacy)
-            args = g_list_append(args, g_strdup(extcap_get_version()));
 
         if ( arguments )
         {
@@ -1141,9 +1113,6 @@ extcap_verify_capture_filter(const char *ifname, const char *filter, gchar **err
         arguments = g_list_append(arguments, g_strdup(filter));
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
         arguments = g_list_append(arguments, g_strdup(ifname));
-
-        if (!interface->is_legacy)
-            arguments = g_list_append(arguments, g_strdup(extcap_get_version()));
 
         extcap_run_one(interface, arguments, cb_verify_filter, &status, err_str);
         g_list_free_full(arguments, g_free);
@@ -1414,7 +1383,6 @@ static
 GPtrArray *extcap_prepare_arguments(interface_options *interface_opts)
 {
     GPtrArray *result = NULL;
-    extcap_interface * interface = extcap_find_interface_for_ifname(interface_opts->name);
 
     if (interface_opts->if_type == IF_EXTCAP)
     {
@@ -1503,10 +1471,6 @@ GPtrArray *extcap_prepare_arguments(interface_options *interface_opts)
         else
         {
             g_hash_table_foreach_remove(interface_opts->extcap_args, extcap_add_arg_and_remove_cb, result);
-        }
-        if (interface && !interface->is_legacy)
-        {
-            add_arg(extcap_get_version());
         }
         add_arg(NULL);
 #undef add_arg
@@ -1778,7 +1742,7 @@ static void remove_extcap_entry(gpointer entry, gpointer data _U_)
 }
 
 static void
-process_new_extcap(const char *extcap, char *output, gboolean is_legacy)
+process_new_extcap(const char *extcap, char *output)
 {
     GList * interfaces = NULL, * control_items = NULL, * walker = NULL;
     extcap_interface * int_iter = NULL;
@@ -1875,7 +1839,6 @@ process_new_extcap(const char *extcap, char *output, gboolean is_legacy)
                 g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  Interface [%s] \"%s\" ", int_iter->call, int_iter->display);
 
             int_iter->extcap_path = g_strdup(extcap);
-            int_iter->is_legacy = is_legacy;
 
             /* Only set the help, if it exists and no parsed help information is present */
             if ( ! int_iter->help && help )
@@ -1963,19 +1926,12 @@ extcap_process_interfaces_cb(thread_pool_t *pool, void *data, char *output)
             continue;
         }
 
-        GList * arguments = NULL;
-
-        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_CONFIG));
-        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
-        arguments = g_list_append(arguments, g_strdup(intf->call));
-
-        if (!info->is_legacy)
-            arguments = g_list_append(arguments, g_strdup(extcap_get_version()));
-
-        arguments = g_list_append(arguments, NULL);
-
-        gchar **argv = extcap_convert_arguments_to_array(arguments);
-
+        const char *argv[] = {
+            EXTCAP_ARGUMENT_CONFIG,
+            EXTCAP_ARGUMENT_INTERFACE,
+            intf->call,
+            NULL
+        };
         extcap_run_task_t *task = g_new0(extcap_run_task_t, 1);
         extcap_iface_info_t *iface_info = &info->iface_infos[i++];
 
@@ -1984,9 +1940,6 @@ extcap_process_interfaces_cb(thread_pool_t *pool, void *data, char *output)
         task->output_cb = extcap_process_config_cb;
         task->data = iface_info;
         iface_info->ifname = g_strdup(intf->call);
-
-        extcap_free_array(argv, g_list_length(arguments));
-        g_list_free_full(arguments, g_free);
 
         thread_pool_push(pool, task, NULL);
     }
@@ -2005,8 +1958,6 @@ extcap_list_interfaces_cb(thread_pool_t *pool, void *data, char *output)
 
     if (!output) {
         /* No output available, schedule a fallback query. */
-        info->is_legacy = TRUE;
-
         const char *argv[] = {
             EXTCAP_ARGUMENT_LIST_INTERFACES,
             NULL
@@ -2020,7 +1971,6 @@ extcap_list_interfaces_cb(thread_pool_t *pool, void *data, char *output)
 
         thread_pool_push(pool, task, NULL);
     } else {
-        info->is_legacy = FALSE;
         extcap_process_interfaces_cb(pool, info, output);
     }
 }
@@ -2051,6 +2001,8 @@ extcap_load_interface_list(void)
 
     if (_loaded_interfaces == NULL)
     {
+        int major = 0;
+        int minor = 0;
         guint count = 0;
         extcap_run_extcaps_info_t *infos;
         GList *unused_arguments = NULL;
@@ -2065,9 +2017,11 @@ extcap_load_interface_list(void)
             _tool_for_ifname = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
         }
 
+        get_ws_version_number(&major, &minor, NULL);
+        char *arg_version = g_strdup_printf("%s=%d.%d", EXTCAP_ARGUMENT_VERSION, major, minor);
         const char *argv[] = {
             EXTCAP_ARGUMENT_LIST_INTERFACES,
-            extcap_get_version(),
+            arg_version,
             NULL
         };
         infos = (extcap_run_extcaps_info_t *)extcap_run_all(argv,
@@ -2079,7 +2033,7 @@ extcap_load_interface_list(void)
             }
 
             // Save new extcap and each discovered interface.
-            process_new_extcap(infos[i].extcap_path, infos[i].output, infos[i].is_legacy);
+            process_new_extcap(infos[i].extcap_path, infos[i].output);
             for (guint j = 0; j < infos[i].num_interfaces; j++) {
                 extcap_iface_info_t *iface_info = &infos[i].iface_infos[j];
 
@@ -2098,6 +2052,7 @@ extcap_load_interface_list(void)
         /* XXX rework cb_preference such that this unused list can be removed. */
         extcap_free_if_configuration(unused_arguments, TRUE);
         extcap_free_extcaps_info_array(infos, count);
+        g_free(arg_version);
     }
 }
 
