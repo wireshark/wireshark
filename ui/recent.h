@@ -140,7 +140,7 @@ extern void recent_init(void);
 /** Cleanup/Frees recent settings (done at shutdown) */
 extern void recent_cleanup(void);
 
-/** Write recent settings file.
+/** Write recent_common settings file.
  *
  * @return TRUE if succeeded, FALSE if failed
  */
