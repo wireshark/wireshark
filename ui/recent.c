@@ -634,7 +634,7 @@ write_recent_enum(FILE *rf, const char *description, const char *name,
         fprintf(rf, "%s: %s\n", name, if_invalid != NULL ? if_invalid : "Unknown");
 }
 
-/* Attempt to write out "recent common" to the user's recent common file.
+/* Attempt to write out "recent common" to the user's recent_common file.
    If we got an error report it with a dialog box and return FALSE,
    otherwise return TRUE. */
 gboolean
@@ -671,9 +671,10 @@ write_recent(void)
     }
     g_free(rf_path);
 
-    fputs("# Recent settings file for Wireshark " VERSION ".\n"
+    fputs("# Common recent settings file for Wireshark " VERSION ".\n"
             "#\n"
-            "# This file is regenerated each time Wireshark is quit.\n"
+            "# This file is regenerated each time Wireshark is quit\n"
+            "# and when changing configuration profile.\n"
             "# So be careful, if you want to make manual changes here.\n"
             "\n"
             "######## Recent capture files (latest last), cannot be altered through command line ########\n"

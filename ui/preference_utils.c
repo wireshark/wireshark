@@ -19,6 +19,7 @@
 #include <epan/packet.h>
 #include <epan/decode_as.h>
 #include <epan/uat-int.h>
+#include <ui/recent.h>
 
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"
@@ -62,7 +63,7 @@ prefs_main_write(void)
                 g_strerror(errno));
         g_free(pf_dir_path);
     } else {
-        /* Write the preferencs out. */
+        /* Write the preferences out. */
         err = write_prefs(&pf_path);
         if (err != 0) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -70,6 +71,9 @@ prefs_main_write(void)
                     g_strerror(err));
             g_free(pf_path);
         }
+        /* Write recent and recent_common files out to ensure sync with prefs. */
+        write_profile_recent();
+        write_recent();
     }
 }
 

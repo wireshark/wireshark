@@ -359,7 +359,7 @@ int WiresharkApplication::monospaceTextSize(const char *str)
 #endif
 }
 
-void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bool write_recent)
+void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bool write_recent_file)
 {
     char  *rf_path;
     int    rf_open_errno;
@@ -402,7 +402,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bo
     /* Get the current geometry, before writing it to disk */
     emit profileChanging();
 
-    if (write_recent && profile_exists(get_profile_name(), FALSE))
+    if (write_recent_file && profile_exists(get_profile_name(), FALSE))
     {
         /* Write recent file for profile we are leaving, if it still exists */
         write_profile_recent();
@@ -454,6 +454,9 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bo
 
     emit localInterfaceListChanged();
     emit packetDissectionChanged();
+
+    /* Write recent_common file to ensure last used profile setting is stored. */
+    write_recent();
 }
 
 void WiresharkApplication::reloadLuaPluginsDelayed()
