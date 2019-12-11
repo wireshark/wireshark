@@ -2274,7 +2274,6 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(tree, hf_extras_max_visible_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
         proto_tree_add_item(tree, hf_extras_high_completed_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
-        offset += 8;
       }
     } else {
       ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
