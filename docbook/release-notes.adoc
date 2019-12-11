@@ -7,7 +7,7 @@ include::attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is the second release candidate for Wireshark 3.2.
+// This is the third release candidate for Wireshark 3.2.
 
 == What is Wireshark?
 
@@ -30,6 +30,11 @@ Many improvements have been made. See the “New and Updated Features” section
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
 
 === New and Updated Features
+
+The following features are new (or have been significantly updated)
+since version 3.2.0rc2:
+
+* Nothing of note.
 
 The following features are new (or have been significantly updated)
 since version 3.2.0rc1:
