@@ -143,14 +143,19 @@ void ColumnTypeDelegate::setModelData(QWidget *editor, QAbstractItemModel *model
     else if (index.column() == ColumnListModel::COL_FIELDS)
     {
         FieldFilterEdit * ffe = qobject_cast<FieldFilterEdit *>(editor);
-        if (ffe && ffe->checkFilter())
+        if (ffe)
         {
-            QModelIndex typeIndex = index.sibling(index.row(), ColumnListModel::COL_TYPE);
-            model->setData(typeIndex, COL_CUSTOM, Qt::EditRole);
-            model->setData(index, ffe->text(), Qt::EditRole);
+            if (ffe->checkFilter())
+            {
+                QModelIndex typeIndex = index.sibling(index.row(), ColumnListModel::COL_TYPE);
+                model->setData(typeIndex, COL_CUSTOM, Qt::EditRole);
+                model->setData(index, ffe->text(), Qt::EditRole);
+            }
+            else
+            {
+                ffe->setText(index.data().toString());
+            }
         }
-        else
-            ffe->setText(index.data().toString());
 
         if (index.data().toString().length() == 0)
         {
@@ -176,8 +181,10 @@ void ColumnTypeDelegate::setModelData(QWidget *editor, QAbstractItemModel *model
             model->setData(typeIndex, COL_CUSTOM, Qt::EditRole);
             model->setData(index, sle->text(), Qt::EditRole);
         }
-        else
+        else if (sle)
+        {
             sle->setText(index.data().toString());
+        }
 
         if (index.data().toString().length() == 0)
         {
