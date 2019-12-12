@@ -1812,10 +1812,14 @@ index_get_extension_name(const per_sequence_t *sequence, int idx)
 static const char *
 index_get_field_name(const per_sequence_t *sequence, int idx)
 {
-	header_field_info *hfi;
+	if (sequence) {
+		header_field_info *hfi = proto_registrar_get_nth(*sequence[idx].p_id);
 
-	hfi = proto_registrar_get_nth(*sequence[idx].p_id);
-	return (hfi) ? hfi->name : "<unknown filed>";
+		if (hfi) {
+			return hfi->name;
+		}
+	}
+	return "<unknown field>";
 }
 
 /* this functions decodes a SEQUENCE
@@ -1841,6 +1845,7 @@ dissect_per_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree
 	guint32 optional_mask[SEQ_MAX_COMPONENTS>>5];
 
 DEBUG_ENTRY("dissect_per_sequence");
+	DISSECTOR_ASSERT(sequence);
 
 	item=proto_tree_add_item(parent_tree, hf_index, tvb, offset>>3, 0, ENC_BIG_ENDIAN);
 	tree=proto_item_add_subtree(item, ett_index);
