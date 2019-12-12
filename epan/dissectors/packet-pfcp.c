@@ -294,6 +294,7 @@ static int hf_pfcp_usage_report_trigger_o6_b3_termr = -1;
 static int hf_pfcp_usage_report_trigger_o6_b2_liusa = -1;
 static int hf_pfcp_usage_report_trigger_o6_b1_timqu = -1;
 static int hf_pfcp_usage_report_trigger_o6_b0_volqu = -1;
+static int hf_pfcp_usage_report_trigger_o7_b1_tebur = -1;
 static int hf_pfcp_usage_report_trigger_o7_b0_evequ = -1;
 
 static int hf_pfcp_volume_measurement = -1;
@@ -3030,6 +3031,8 @@ dissect_pfcp_usage_report_trigger(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     static const int * pfcp_usage_report_trigger_o7_flags[] = {
+        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_usage_report_trigger_o7_b1_tebur,
         &hf_pfcp_usage_report_trigger_o7_b0_evequ,
         NULL
     };
@@ -7404,6 +7407,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_usage_report_trigger_o7_b0_evequ,
         { "EVEQU (Event Quota)", "pfcp.usage_report_trigger_flags.evequ",
             FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_o7_b1_tebur,
+        { "TEMUR (Termination By UP function Report)", "pfcp.usage_report_trigger_flags.tebur",
+            FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_pfcp_usage_report_trigger_o6_b0_volqu,
