@@ -118,6 +118,10 @@ class TextHTMLParser(HTMLParser):
         elif self.skip_wrap:
             block = data
         else:
+            if self.href and data == self.href:
+                # This is a self link. Don't create a footnote.
+                self.href = None
+
             # For normal text, fold multiple whitespace and strip
             # leading and trailing spaces for the whole block (but
             # keep spaces in the middle).
