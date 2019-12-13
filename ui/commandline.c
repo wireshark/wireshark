@@ -199,7 +199,7 @@ commandline_print_usage(gboolean for_help_option) {
  */
 #define LONGOPT_FULL_SCREEN       65536
 
-#define OPTSTRING OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:g:Hh" "jJ:klm:o:P:r:R:Svw:X:Y:z:"
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:g:HhjJ:klm:o:P:r:R:Svw:X:Y:z:"
 static const struct option long_options[] = {
         {"help", no_argument, NULL, 'h'},
         {"read-file", required_argument, NULL, 'r' },
