@@ -4668,24 +4668,24 @@ main(int argc, char *argv[])
 #ifdef HAVE_BPF_IMAGE
 #define OPTSTRING_d "d"
 #else
-#define OPTSTRING_d ""
+#define OPTSTRING_d
 #endif
 
 #ifdef HAVE_PCAP_REMOTE
 #define OPTSTRING_r "r"
 #define OPTSTRING_u "u"
 #else
-#define OPTSTRING_r ""
-#define OPTSTRING_u ""
+#define OPTSTRING_r
+#define OPTSTRING_u
 #endif
 
 #ifdef HAVE_PCAP_SETSAMPLING
 #define OPTSTRING_m "m:"
 #else
-#define OPTSTRING_m ""
+#define OPTSTRING_m
 #endif
 
-#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:" OPTSTRING_d "gh" "k:" OPTSTRING_m "MN:nPq" OPTSTRING_r "St" OPTSTRING_u "vw:Z:"
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:" OPTSTRING_d "ghk:" OPTSTRING_m "MN:nPq" OPTSTRING_r "St" OPTSTRING_u "vw:Z:"
 
 #ifdef DEBUG_CHILD_DUMPCAP
     if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {

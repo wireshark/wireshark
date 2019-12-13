@@ -60,7 +60,7 @@ extern "C" {
 #ifdef HAVE_PCAP_REMOTE
 #define OPTSTRING_A "A:"
 #else
-#define OPTSTRING_A ""
+#define OPTSTRING_A
 #endif
 
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
@@ -69,7 +69,7 @@ extern "C" {
 #define OPTSTRING_B "B:"
 #else
 #define LONGOPT_BUFFER_SIZE
-#define OPTSTRING_B ""
+#define OPTSTRING_B
 #endif
 
 #ifdef HAVE_PCAP_CREATE
@@ -77,7 +77,7 @@ extern "C" {
 #define OPTSTRING_I "I"
 #else
 #define LONGOPT_MONITOR_MODE
-#define OPTSTRING_I ""
+#define OPTSTRING_I
 #endif
 
 #define LONGOPT_CAPTURE_COMMON \
@@ -381,7 +381,7 @@ capture_opts_free_interface_t(interface_t *device);
 }
 #endif /* __cplusplus */
 
-#endif /* capture_opts.h */
+#endif /* __CAPTURE_OPTS_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
