@@ -119,12 +119,10 @@ dissect_m3ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* create the m3ap protocol tree */
-  if (tree) {
-    m3ap_item = proto_tree_add_item(tree, proto_m3ap, tvb, 0, -1, ENC_NA);
-    m3ap_tree = proto_item_add_subtree(m3ap_item, ett_m3ap);
+  m3ap_item = proto_tree_add_item(tree, proto_m3ap, tvb, 0, -1, ENC_NA);
+  m3ap_tree = proto_item_add_subtree(m3ap_item, ett_m3ap);
 
-    dissect_M3AP_PDU_PDU(tvb, pinfo, m3ap_tree, NULL);
-  }
+  dissect_M3AP_PDU_PDU(tvb, pinfo, m3ap_tree, NULL);
   return tvb_captured_length(tvb);
 }
 /*--- proto_register_m3ap -------------------------------------------*/
