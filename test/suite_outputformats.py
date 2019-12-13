@@ -17,9 +17,9 @@ from matchers import *
 
 @fixtures.fixture
 def check_outputformat(cmd_tshark, request, dirs, capture_file):
-    ''' Check a capture file against a sample, in json format. '''
     def check_outputformat_real(format_option, pcap_file='dhcp.pcap',
                                 extra_args=[], expected=None, multiline=False):
+        ''' Check a capture file against a sample, in json format. '''
         self = request.instance
         tshark_proc = self.assertRun([cmd_tshark, '-r', capture_file(pcap_file),
                                       '-T', format_option] + extra_args)
