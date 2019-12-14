@@ -22973,13 +22973,13 @@ dissect_ieee80211_block_ack_details(tvbuff_t *tvb, packet_info *pinfo _U_,
                             ett_block_ack_bitmap);
         for (i = 0; i < 256; i += 64) {
           bmap = tvb_get_letoh64(tvb, offset + i/8);
-          for (f = i; f <  i + 64; f++) {
+          for (f = 0; f < 64; f++) {
             if (bmap & (G_GUINT64_CONSTANT(1) << f))
               continue;
             proto_tree_add_uint_format_value(ba_bitmap_tree,
                           hf_ieee80211_block_ack_bitmap_missing_frame,
-                          tvb, offset + (f/8), 1, ssn + f, "%u",
-                          (ssn + f) & 0x0fff);
+                          tvb, offset + ((i + f)/8), 1, ssn + i + f, "%u",
+                          (ssn + i + f) & 0x0fff);
           }
         }
         offset += 32;
