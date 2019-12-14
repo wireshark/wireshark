@@ -179,7 +179,7 @@ _/usr/local/etc_.
 [float]
 ===== File contents
 
-_preferences_::
+preferences::
 This file contains your Wireshark preferences, including defaults for capturing
 and displaying packets. It is a simple text file containing statements of the
 form:
@@ -199,7 +199,7 @@ If you press the Save button in the “Preferences” dialog box, all the
 current settings are written to the personal preferences file.
 --
 
-_recent_::
+recent::
 This file contains various GUI related settings like the main window position
 and size, the recent files list and such. It is a simple text file containing
 statements of the form:
@@ -212,7 +212,7 @@ variable: value
 It is read at program start and written at program exit.
 --
 
-_cfilters_::
+cfilters::
 This file contains all the capture filters that you have defined and saved. It
 consists of one or more lines, where each line has the following format:
 +
@@ -231,7 +231,7 @@ all the current capture filters are written to the personal capture
 filters file.
 --
 
-_dfilters_::
+dfilters::
 This file contains all the display filters that you have defined and saved. It
 consists of one or more lines, where each line has the following format:
 +
@@ -250,7 +250,7 @@ all the current display filters are written to the personal display
 filters file.
 --
 
-_+++dfilter_macros+++_::
+dfilter_macros::
 This file contains all the display filter macros that you have defined and saved.
 It consists of one or more lines, where each line has the following format:
 +
@@ -272,7 +272,7 @@ More information about Display Filter Macros is available in
 <<ChDisplayFilterMacrosSection>>
 --
 
-_colorfilters_::
+colorfilters::
 This file contains all the color filters that you have defined and saved. It
 consists of one or more lines, where each line has the following format:
 +
@@ -291,7 +291,7 @@ all the current color filters are written to the personal color filters
 file.
 --
 
-_+++disabled_protos+++_::
+disabled_protos::
 Each line in this file specifies a disabled protocol name. The following are
 some examples:
 +
@@ -313,7 +313,7 @@ the current set of disabled protocols is written to the personal
 disabled protocols file.
 --
 
-_ethers_::
+ethers::
 When Wireshark is trying to translate an hardware MAC address to
 a name, it consults the _ethers_ file in the personal configuration
 folder first.  If the address is not found in that file, Wireshark
@@ -334,7 +334,7 @@ The settings from this file are read in when a MAC address is to be
 translated to a name, and never written by Wireshark.
 --
 
-_manuf_::
+manuf::
 At program start, if there is a _manuf_ file in the global
 configuration folder, it is read.
 +
@@ -353,7 +353,7 @@ The settings from this file are read in at program start and never written by
 Wireshark.
 --
 
-_hosts_::
+hosts::
 Wireshark uses the entries in the _hosts_ files to translate IPv4 and
 IPv6 addresses into names.
 +
@@ -377,7 +377,7 @@ The settings from this file are read in at program start and never written by
 Wireshark.
 --
 
-_services_::
+services::
 Wireshark uses the _services_ files to translate port numbers into names.
 +
 At program start, if there is a _services_ file in the global
@@ -398,7 +398,7 @@ The settings from these files are read in at program start and never
 written by Wireshark.
 --
 
-_subnets_::
+subnets::
 Wireshark uses the __subnets__ files to translate an IPv4 address into a
 subnet name.  If no exact match from a __hosts__ file or from DNS is
 found, Wireshark will attempt a partial match for the subnet of the
@@ -431,7 +431,7 @@ The settings from these files are read in at program start and never
 written by Wireshark.
 --
 
-_ipxnets_::
+ipxnets::
 When Wireshark is trying to translate an IPX network number to
 a name, it consults the _ipxnets_ file in the personal configuration
 folder first.  If the address is not found in that file, Wireshark
@@ -451,7 +451,7 @@ The settings from this file are read in when an IPX network number is to
 be translated to a name, and never written by Wireshark.
 --
 
-_vlans_::
+vlans::
 Wireshark uses the _vlans_ file to translate VLAN tag IDs into names.
 +
 If there is a _vlans_ file in the currently active profile folder, it is used. Otherwise the _vlans_ file in the personal configuration folder is used.
@@ -469,7 +469,7 @@ The settings from this file are read in at program start or when changing
 the active profile and are never written by Wireshark.
 --
 
-_ss7pcs_::
+ss7pcs::
 Wireshark uses the _ss7pcs_ file to translate SS7 point codes to node names.
 +
 At program start, if there is a _ss7pcs_ file in the personal
