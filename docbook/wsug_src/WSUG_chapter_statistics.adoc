@@ -99,27 +99,27 @@ The btn:[Copy] button will let you copy the window contents as CSV or YAML.
 
 .Protocol hierarchy columns
 
-_Protocol_:: This protocol’s name
+Protocol:: This protocol’s name
 
-_Percent Packets_:: The percentage of protocol packets relative to all packets in
+Percent Packets:: The percentage of protocol packets relative to all packets in
   the capture
 
-_Packets_:: The total number of packets of this protocol
+Packets:: The total number of packets of this protocol
 
-_Percent Bytes_:: The percentage of protocol bytes relative to the total bytes in
+Percent Bytes:: The percentage of protocol bytes relative to the total bytes in
   the capture
 
-_Bytes_:: The total number of bytes of this protocol
+Bytes:: The total number of bytes of this protocol
 
-_Bits/s_:: The bandwidth of this protocol relative to the capture time
+Bits/s:: The bandwidth of this protocol relative to the capture time
 
-_End Packets_:: The absolute number of packets of this protocol where it
+End Packets:: The absolute number of packets of this protocol where it
   was the highest protocol in the stack (last dissected)
 
-_End Bytes_:: The absolute number of bytes of this protocol where it
+End Bytes:: The absolute number of bytes of this protocol where it
   was the highest protocol in the stack (last dissected)
 
-_End Bits/s_:: The bandwidth of this protocol relative to the capture time where
+End Bits/s:: The bandwidth of this protocol relative to the capture time where
   was the highest protocol in the stack (last dissected)
 
 Packets usually contain multiple protocols. As a result more than one protocol will
@@ -205,43 +205,43 @@ you’re looking for.
 
 .Endpoint and Conversation types
 
-_Bluetooth_:: A MAC-48 address similar to Ethernet.
+Bluetooth:: A MAC-48 address similar to Ethernet.
 
-_Ethernet_:: Identical to the Ethernet device’s MAC-48 identifier.
+Ethernet:: Identical to the Ethernet device’s MAC-48 identifier.
 
-_Fibre Channel_:: A MAC-48 address similar to Ethernet.
+Fibre Channel:: A MAC-48 address similar to Ethernet.
 
-_IEEE 802.11_:: A MAC-48 address similar to Ethernet.
+IEEE 802.11:: A MAC-48 address similar to Ethernet.
 
-_FDDI_:: Identical to the FDDI MAC-48 address.
+FDDI:: Identical to the FDDI MAC-48 address.
 
-_IPv4_:: Identical to the 32-bit IPv4 address.
+IPv4:: Identical to the 32-bit IPv4 address.
 
-_IPv6_:: Identical to the 128-bit IPv6 address.
+IPv6:: Identical to the 128-bit IPv6 address.
 
-_IPX_:: A concatenation of a 32 bit network number and 48 bit node address, by
+IPX:: A concatenation of a 32 bit network number and 48 bit node address, by
 default the Ethernet interface’s MAC-48 address.
 
-_JXTA_:: A 160 bit SHA-1 URN.
+JXTA:: A 160 bit SHA-1 URN.
 
-_NCP_:: Similar to IPX.
+NCP:: Similar to IPX.
 
-_RSVP_:: A combination of varios RSVP session attributes and IPv4 addresses.
+RSVP:: A combination of varios RSVP session attributes and IPv4 addresses.
 
-_SCTP_:: A combination of the host IP addresses (plural) and
+SCTP:: A combination of the host IP addresses (plural) and
 the SCTP port used. So different SCTP ports on the same IP address are different
 SCTP endpoints, but the same SCTP port on different IP addresses of the same
 host are still the same endpoint.
 
-_TCP_:: A combination of the IP address and the TCP port used.
+TCP:: A combination of the IP address and the TCP port used.
 Different TCP ports on the same IP address are different TCP endpoints.
 
-_Token Ring_:: Identical to the Token Ring MAC-48 address.
+Token Ring:: Identical to the Token Ring MAC-48 address.
 
-_UDP_:: A combination of the IP address and the UDP port used, so different UDP
+UDP:: A combination of the IP address and the UDP port used, so different UDP
 ports on the same IP address are different UDP endpoints.
 
-_USB_:: Identical to the 7-bit USB address.
+USB:: Identical to the 7-bit USB address.
 
 [NOTE]
 .Broadcast and multicast endpoints
@@ -514,22 +514,22 @@ image::wsug_graphics/ws-stats-http-requestsequences.png[{screenshot-attrs}]
 
 Show different visual representations of the TCP streams in a capture.
 
-_Time Sequence (Stevens)_:: This is a simple graph of the TCP sequence
+Time Sequence (Stevens):: This is a simple graph of the TCP sequence
 number over time, similar to the ones used in Richard Stevens’ “TCP/IP
 Illustrated” series of books.
 
-_Time Sequence (tcptrace)_:: Shows TCP metrics similar to the
+Time Sequence (tcptrace):: Shows TCP metrics similar to the
 http://www.tcptrace.org/[tcptrace] utility, including forward segments,
 acknowledgements, selective acknowledgements, reverse window sizes, and
 zero windows.
 
-_Throughput_:: Average throughput and goodput.
+Throughput:: Average throughput and goodput.
 
-_Round Trip Time_:: Round trip time vs time or sequence number. RTT is
+Round Trip Time:: Round trip time vs time or sequence number. RTT is
 based on the acknowledgement timestamp corresponding to a particular
 segment.
 
-_Window Scaling_:: Window size and outstanding bytes.
+Window Scaling:: Window size and outstanding bytes.
 
 [[ChStatUDPMulticastGraphs]]
 

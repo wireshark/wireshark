@@ -817,41 +817,49 @@ image::wsug_graphics/ws-filter-add-expression.png[{screenshot-attrs}]
 When you first bring up the Display Filter Expression dialog box you are shown a tree
 of field names, organized by protocol, and a box for selecting a relation.
 
-_Field Name_::
+Field Name::
 Select a protocol field from the protocol field tree. Every protocol with
-filterable fields is listed at the top level. (You can search for a particular
-protocol entry by entering the first few letters of the protocol name). By
+filterable fields is listed at the top level. You can search for a particular
+protocol entry by entering the first few letters of the protocol name. By
 expanding a protocol name you can get a list of the field names available for
 filtering for that protocol.
 
-_Relation_::
+Relation::
 Select a relation from the list of available relation. The _is present_ is a
 unary relation which is true if the selected field is present in a packet. All
 other listed relations are binary relations which require additional data (e.g.
 a _Value_ to match) to complete.
-
++
 When you select a field from the field name list and select a binary relation
 (such as the equality relation ==) you will be given the opportunity to enter a
 value, and possibly some range information.
 
-_Value_::
+Value::
 You may enter an appropriate value in the _Value_ text box. The _Value_ will
-also indicate the type of value for the _field name_ you have selected (like
+also indicate the type of value for the _Field Name_ you have selected (like
 character string).
 
-_Predefined values_::
-Some of the protocol fields have predefined values available, much like enum’s
+Predefined Values::
+Some of the protocol fields have predefined values available, much like enumerations
 in C. If the selected protocol field has such values defined, you can choose one
 of them here.
 
-_Range_::
+Search::
+Lets you search for a full or partial field name or description.
+Regular expressions are supported
+For example, searching for “tcp.*flag” shows the TCP flags fields supported by a wide variety of dissectors, while “^tcp.flag” shows only the TCP flags fields supported by the TCP dissector.
+
+Range::
 A range of integers or a group of ranges, such as `1-12` or `39-42,98-2000`.
 
-_OK_::
+btn:[Help]::
+Opens this section of the User’s Guide.
+
+btn:[OK]::
 When you have built a satisfactory expression click btn:[OK] and a filter string
 will be built for you.
 
-_Cancel_::
+btn:[Cancel]::
 You can leave the “Add Expression...” dialog box without any effect by
 clicking the btn:[Cancel] button.
 
@@ -884,51 +892,51 @@ Wireshark.
 .The “Capture Filters” and “Display Filters” dialog boxes
 image::wsug_graphics/ws-filters.png[{screenshot-attrs}]
 
-_New_::
+New::
 This button adds a new filter to the list of filters. The currently entered
 values from Filter name and Filter string will be used. If any of these fields
 are empty, it will be set to “new”.
 
 
-_Delete_::
+Delete::
 This button deletes the selected filter. It will be greyed out if no filter is
 selected.
 
 
-_Filter_::
+Filter::
 You can select a filter from this list (which will fill in the filter name and
 filter string in the fields down at the bottom of the dialog box).
 
 
-_Filter name:_::
+Filter name:::
 You can change the name of the currently selected filter here.
 +
 The filter name will only be used in this dialog to identify the filter for your
 convenience, it will not be used elsewhere. You can add multiple filters with
 the same name, but this is not very useful.
 
-_Filter string:_::
+Filter string:::
 You can change the filter string of the currently selected filter here. Display
 Filter only: the string will be syntax checked while you are typing.
 
-_Add Expression..._::
+Add Expression...::
 Display Filter only: This button brings up the Add Expression dialog box which
 assists in building filter strings. You can find more information about the Add
 Expression dialog in <<ChWorkFilterAddExpressionSection>>
 
-_OK_::
+OK::
 Display Filter only: This button applies the selected filter to the current
 display and closes the dialog.
 
-_Apply_::
+Apply::
 Display Filter only: This button applies the selected filter to the current
 display, and keeps the dialog open.
 
-_Save_::
+Save::
 Save the current settings in this dialog. The file location and format is
 explained in <<AppFiles>>.
 
-_Close_::
+Close::
 Close this dialog. This will discard unsaved settings.
 
 [[ChWorkDefineFilterMacrosSection]]
