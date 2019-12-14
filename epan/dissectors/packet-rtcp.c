@@ -2598,6 +2598,7 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             while (num_ssrc > 0) {
                 proto_tree_add_item(sub_tree, hf_rtcp_mcptt_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
+                num_ssrc--;
             }
             break;
         }
