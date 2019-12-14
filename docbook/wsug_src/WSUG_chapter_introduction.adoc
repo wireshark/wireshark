@@ -409,17 +409,16 @@ typically more up to date and the HTML format is easier to use.
 
 There are several mailing lists of specific Wireshark topics available:
 
-_wireshark-announce_::
-    This mailing list will inform you about new program releases, which usually
-    appear about every 4-8 weeks.
+link:{wireshark-mailing-lists-url}wireshark-announce[wireshark-announce]::
+    Information about new program releases, which usually appear about every six weeks.
 
-_wireshark-users_::
-    This list is for users of Wireshark.  People post questions about building
-    and using Wireshark, others (hopefully) provide answers.
+link:{wireshark-mailing-lists-url}wireshark-users[wireshark-users]::
+    Topics of interest to users of Wireshark.
+    People typically post questions about using Wireshark and others (hopefully) provide answers.
 
-_wireshark-dev_::
-    This list is for Wireshark developers. If you want to start
-    developing a protocol dissector, join this list.
+link:{wireshark-mailing-lists-url}wireshark-dev[wireshark-dev]::
+    Topics of interest to developers of Wireshark.
+    If you want to develop a protocol dissector or update the user interface, join this list.
 
 You can subscribe to each of these lists from the Wireshark web site:
 {wireshark-mailing-lists-url}. From there, you can choose which mailing
