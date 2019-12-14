@@ -1377,7 +1377,7 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
             tlv_dd_map_tree = proto_tree_add_subtree(tree, tvb, offset - 4, subtlv_length + 4,
                                 ett_mpls_echo_tlv_dd_map, NULL, "Label stack sub-TLV");
 
-            while (rem >= 4) {
+            while (subtlv_length >= 4) {
                 if (tree) {
                     decode_mpls_label(tvb, offset, &label, &tc, &s_bit, &proto);
 
@@ -1390,8 +1390,9 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
                     proto_tree_add_item(tlv_ddstlv_map_tree, hf_mpls_echo_tlv_ddstlv_map_mp_proto,
                                         tvb, offset + 3, 1, ENC_BIG_ENDIAN);
                 }
-                rem    -= 4;
-                offset += 4;
+                subtlv_length -= 4;
+                rem           -= 4;
+                offset        += 4;
                 idx++;
             }
             break;
