@@ -35,14 +35,6 @@ extern "C" {
  * We do not currently have long options corresponding to all short
  * options; we should probably pick appropriate option names for them.
  *
- * For long options with no corresponding short options, we define values
- * outside the range of ASCII graphic characters, make that the last
- * component of the entry for the long option, and have a case for that
- * option in the switch statement.
- *
- * We also pick values < 4096, so as to leave values >= 4096 for
- * other long options.
- *
  * NOTE:
  * for tshark, we're using a leading - in the optstring to prevent getopt()
  * from permuting the argv[] entries, in this case, unknown argv[] entries
@@ -50,9 +42,9 @@ extern "C" {
  * In short: we must not use 1 here, which is another reason to use
  * values outside the range of ASCII graphic characters.
  */
-#define LONGOPT_NUM_CAP_COMMENT   128
-#define LONGOPT_LIST_TSTAMP_TYPES 129
-#define LONGOPT_SET_TSTAMP_TYPE   130
+#define LONGOPT_NUM_CAP_COMMENT   LONGOPT_BASE_CAPTURE+1
+#define LONGOPT_LIST_TSTAMP_TYPES LONGOPT_BASE_CAPTURE+2
+#define LONGOPT_SET_TSTAMP_TYPE   LONGOPT_BASE_CAPTURE+3
 
 /*
  * Options for capturing common to all capturing programs.

@@ -137,13 +137,10 @@
 #define INVALID_CAPTURE 2
 #define INIT_FAILED 2
 
-/*
- * values 128..65535 are capture+dissect options, 65536 is used by
- * ui/commandline.c, so start tshark-specific options 1000 after this
- */
-#define LONGOPT_COLOR (65536+1000)
-#define LONGOPT_NO_DUPLICATE_KEYS (65536+1001)
-#define LONGOPT_ELASTIC_MAPPING_FILTER (65536+1002)
+#define LONGOPT_EXPORT_OBJECTS          LONGOPT_BASE_APPLICATION+1
+#define LONGOPT_COLOR                   LONGOPT_BASE_APPLICATION+2
+#define LONGOPT_NO_DUPLICATE_KEYS       LONGOPT_BASE_APPLICATION+3
+#define LONGOPT_ELASTIC_MAPPING_FILTER  LONGOPT_BASE_APPLICATION+4
 
 #if 0
 #define tshark_debug(...) g_warning(__VA_ARGS__)

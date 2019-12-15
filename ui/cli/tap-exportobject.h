@@ -14,8 +14,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define LONGOPT_EXPORT_OBJECTS  5001
-
 void eo_list_object_types(void);
 
 /* will be called by main each time a --export-objects option is found */
