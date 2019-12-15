@@ -846,7 +846,7 @@ of them here.
 
 Search::
 Lets you search for a full or partial field name or description.
-Regular expressions are supported
+Regular expressions are supported.
 For example, searching for “tcp.*flag” shows the TCP flags fields supported by a wide variety of dissectors, while “^tcp.flag” shows only the TCP flags fields supported by the TCP dissector.
 
 Range::
@@ -867,77 +867,44 @@ clicking the btn:[Cancel] button.
 
 === Defining And Saving Filters
 
-You can define filters with Wireshark and give them labels for later use. This
-can save time in remembering and retyping some of the more complex filters you
-use.
+You create pre-defined filters that appear in the capture and display filter bookmark menus (image:wsug_graphics/toolbar/filter-toolbar-bookmark.png[height=16,width=12]).
+This can save time in remembering and retyping some of the more complex filters you use.
 
-To define a new filter or edit an existing one, select menu:Capture[Capture
-Filters...] or menu:Analyze[Display Filters...]. Wireshark will then pop up the
-Filters dialog as shown in
-<<FiltersDialog>>.
-
-The mechanisms for defining and saving capture filters and display filters are
-almost identical. Both will be described here but the differences between these two
-will be marked as such.
-
-[WARNING]
-====
-You must use btn:[Save] to save your filters permanently. btn:[OK] or
-btn:[Apply] will not save the filters and they will be lost when you close
-Wireshark.
-====
+To create or edit capture filters, select menu:Manage Capture Filters[] from the capture filter bookmark menu or menu:Capture[Capture Filters...] from the main menu.
+Display filters can be created or edited by selecting menu:Manage Display Filters[] from the display filter bookmark menu or menu:Analyze[Display Filters...] from the main menu.
+Wireshark will open the corresponding dialog as shown in <<FiltersDialog>>.
+The two dialogs look and work similar to one another.
+Both are described here, and the differences are noted as needed.
 
 [[FiltersDialog]]
 
 .The “Capture Filters” and “Display Filters” dialog boxes
 image::wsug_graphics/ws-filters.png[{screenshot-attrs}]
 
-New::
-This button adds a new filter to the list of filters. The currently entered
-values from Filter name and Filter string will be used. If any of these fields
-are empty, it will be set to “new”.
-
-
-Delete::
-This button deletes the selected filter. It will be greyed out if no filter is
-selected.
-
-
-Filter::
-You can select a filter from this list (which will fill in the filter name and
-filter string in the fields down at the bottom of the dialog box).
-
-
-Filter name:::
-You can change the name of the currently selected filter here.
+btn:[{plus}]::
+Adds a new filter to the list.
+You can edit the filter name or expression by double-clicking on it.
 +
-The filter name will only be used in this dialog to identify the filter for your
-convenience, it will not be used elsewhere. You can add multiple filters with
-the same name, but this is not very useful.
+The filter name is used in this dialog to identify the filter for your convenience and is not used elsewhere.
+You can create multiple filters with the same name, but this is not very useful.
++
+When typing in a filter string, the background color will change depending on the validity of the filter similar to the main capture and display filter toolbars.
 
-Filter string:::
-You can change the filter string of the currently selected filter here. Display
-Filter only: the string will be syntax checked while you are typing.
+btn:[-]::
+Delete the selected filter.
+This will be greyed out if no filter is selected.
 
-Add Expression...::
-Display Filter only: This button brings up the Add Expression dialog box which
-assists in building filter strings. You can find more information about the Add
-Expression dialog in <<ChWorkFilterAddExpressionSection>>
+// XXX Asciidoctor doesn't seem to allow images in DL terms, otherwise we could use
+// list-copy.template.png here.
+btn:[Copy]::
+Copy the selected filter.
+This will be greyed out if no filter is selected.
 
-OK::
-Display Filter only: This button applies the selected filter to the current
-display and closes the dialog.
+btn:[OK]::
+Saves the filter settings and closes the dialog.
 
-Apply::
-Display Filter only: This button applies the selected filter to the current
-display, and keeps the dialog open.
-
-Save::
-Save the current settings in this dialog. The file location and format is
-explained in <<AppFiles>>.
-
-Close::
-Close this dialog. This will discard unsaved settings.
+btn:[Close]::
+Closes the dialog without saving any changes.
 
 [[ChWorkDefineFilterMacrosSection]]
 
@@ -947,7 +914,7 @@ You can define filter macros with Wireshark and give them labels for later use.
 This can save time in remembering and retyping some of the more complex filters
 you use.
 
-// XXX - add an explanation of this.
+{missing}
 
 [[ChWorkFindPacketSection]]
 
