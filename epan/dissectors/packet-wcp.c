@@ -159,6 +159,7 @@ static gint ett_wcp_field = -1;
 static expert_field ei_wcp_compressed_data_exceeds = EI_INIT;
 static expert_field ei_wcp_uncompressed_data_exceeds = EI_INIT;
 static expert_field ei_wcp_invalid_window_offset = EI_INIT;
+static expert_field ei_wcp_buffer_too_long = EI_INIT;
 /* static expert_field ei_wcp_invalid_match_length = EI_INIT; */
 
 static dissector_handle_t fr_uncompressed_handle;
@@ -262,7 +263,7 @@ dissect_wcp_reset(tvbuff_t *tvb, int offset, proto_tree *tree) {
 }
 
 
-static void wcp_save_data(tvbuff_t *tvb, packet_info *pinfo) {
+static void wcp_save_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree) {
 
 	wcp_window_t *buf_ptr = 0;
 	size_t len;
@@ -273,13 +274,17 @@ static void wcp_save_data(tvbuff_t *tvb, packet_info *pinfo) {
 
 	if ((buf_ptr->buf_cur + len) <= (buf_ptr->buffer + MAX_WIN_BUF_LEN)) {
 		tvb_memcpy(tvb, buf_ptr->buf_cur, 2, len);
-		buf_ptr->buf_cur = buf_ptr->buf_cur + len;
+		buf_ptr->buf_cur += len;
 	} else {
 		guint8 *buf_end = buf_ptr->buffer + MAX_WIN_BUF_LEN;
 		tvb_memcpy(tvb, buf_ptr->buf_cur, 2, buf_end - buf_ptr->buf_cur);
-		tvb_memcpy(tvb, buf_ptr->buffer, (gint) (buf_end - buf_ptr->buf_cur-2),
-			len - (buf_end - buf_ptr->buf_cur));
-		buf_ptr->buf_cur = buf_ptr->buf_cur + len - MAX_WIN_BUF_LEN;
+		if (buf_ptr->buf_cur + len <= buf_end) {
+			tvb_memcpy(tvb, buf_ptr->buffer, (gint) (buf_end - buf_ptr->buf_cur-2),
+				len - (buf_end - buf_ptr->buf_cur));
+			buf_ptr->buf_cur += len - MAX_WIN_BUF_LEN;
+		} else {
+			proto_tree_add_expert(tree, pinfo, &ei_wcp_buffer_too_long, tvb, 0, -1);
+		}
 	}
 }
 
@@ -350,7 +355,7 @@ static int dissect_wcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 	if (cmd == 1) { /* uncompressed data */
 		if (!pinfo->fd->visited) {	/* if first pass */
-			wcp_save_data(tvb, pinfo);
+			wcp_save_data(tvb, pinfo, wcp_tree);
 		}
 		next_tvb = tvb_new_subset_remaining(tvb, wcp_header_len);
 	} else { /* cmd == 0 || (cmd == 0xf && ext_cmd == 0) */
@@ -751,6 +756,7 @@ proto_register_wcp(void)
 		{ &ei_wcp_compressed_data_exceeds, { "wcp.compressed_data.exceeds", PI_MALFORMED, PI_ERROR, "Compressed data exceeds maximum buffer length", EXPFILL }},
 		{ &ei_wcp_uncompressed_data_exceeds, { "wcp.uncompressed_data.exceeds", PI_MALFORMED, PI_ERROR, "Uncompressed data exceeds maximum buffer length", EXPFILL }},
 		{ &ei_wcp_invalid_window_offset, { "wcp.off.invalid", PI_MALFORMED, PI_ERROR, "Offset points outside of visible window", EXPFILL }},
+		{ &ei_wcp_buffer_too_long, { "wcp.buffer_too_long", PI_MALFORMED, PI_ERROR, "Buffer too long", EXPFILL }},
 #if 0
 		{ &ei_wcp_invalid_match_length, { "wcp.len.invalid", PI_MALFORMED, PI_ERROR, "Length greater than offset", EXPFILL }},
 #endif
