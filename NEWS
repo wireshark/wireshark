@@ -1,6 +1,4 @@
-Wireshark 3.2.0rc2 Release Notes
-
- This is the second release candidate for Wireshark 3.2.
+Wireshark 3.2.0 Release Notes
 
  What is Wireshark?
 
@@ -16,6 +14,11 @@ Wireshark 3.2.0rc2 Release Notes
   section below for more details.
 
   New and Updated Features
+
+   The following features are new (or have been significantly updated)
+   since version 3.2.0rc2:
+
+     • Nothing of note.
 
    The following features are new (or have been significantly updated)
    since version 3.2.0rc1:
@@ -39,13 +42,13 @@ Wireshark 3.2.0rc2 Release Notes
        same time
 
      • They can be exported as Text by “Ctrl+C” or “Cmd+C” and the
-       corresponding menu in “Edit › Copy › As …​”
+       corresponding menu in “Edit ▸ Copy ▸ As …​”
 
      • They can be marked/unmarked or ignored/unignored at the same time
 
      • They can be exported and printed using the corresponding menu
-       entries “File › Export Specified Packets”, “File › Export Packet
-       Dissections” and “File › Print”
+       entries “File ▸ Export Specified Packets”, “File ▸ Export Packet
+       Dissections” and “File ▸ Print”
 
    You can now follow HTTP/2 and QUIC streams.
 
@@ -61,7 +64,7 @@ Wireshark 3.2.0rc2 Release Notes
    Action buttons for the display filter bar may be aligned left via the
    context menu
 
-     • The "Expression…​" toolbar entry has been moved to "Analyze ›
+     • The "Expression…​" toolbar entry has been moved to "Analyze ▸
        Display filter Expression …​" as well as to the context menu of
        the display filter toolbar
 
@@ -100,7 +103,7 @@ Wireshark 3.2.0rc2 Release Notes
 
      • A new tap for extracting credentials from the capture file has
        been added. It can be accessed through the -z credentials option
-       in tshark or from the “Tools › Credentials” menu in Wireshark.
+       in tshark or from the “Tools ▸ Credentials” menu in Wireshark.
 
      • Editcap can now split files on floating point intervals.
 
@@ -117,7 +120,7 @@ Wireshark 3.2.0rc2 Release Notes
        not possible (unsupported codec or rate), silence of same length
        is saved and warning is shown.
 
-     • The “Analyze › Apply as Filter” and “Analyze › Prepare a Filter”
+     • The “Analyze ▸ Apply as Filter” and “Analyze ▸ Prepare a Filter”
        packet list and detail popup menus now show a preview of their
        respective filters.
 
@@ -169,14 +172,14 @@ Wireshark 3.2.0rc2 Release Notes
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
-  https://www.wireshark.org/download.html[3].
+  https://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[4] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -188,33 +191,31 @@ Wireshark 3.2.0rc2 Release Notes
  Getting Help
 
   The User’s Guide, manual pages and various other documentation can be
-  found at https://www.wireshark.org/docs/[5]
+  found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[6] and on the
+  Community support is available on Wireshark’s Q&A site[4] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[7].
+  for all of Wireshark’s mailing lists can be found on the web site[5].
 
-  Bugs and feature requests can be reported on the bug tracker[8].
+  Bugs and feature requests can be reported on the bug tracker[6].
 
   Official Wireshark training and certification are available from
-  Wireshark University[9].
+  Wireshark University[7].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[10].
+  A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2019-12-11 20:11:07 UTC
+  Last updated 2019-12-15 08:22:39 UTC
 
  References
 
    1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15571
    2. https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-s
   igning-support-requirement-for-windows-and-wsus
-   3. https://www.wireshark.org/download.html
-   4. https://www.wireshark.org/download.html#thirdparty
-   5. https://www.wireshark.org/docs/
-   6. https://ask.wireshark.org/
-   7. https://www.wireshark.org/lists/
-   8. https://bugs.wireshark.org/
-   9. https://www.wiresharktraining.com/
-  10. https://www.wireshark.org/faq.html
+   3. https://www.wireshark.org/download.html#thirdparty
+   4. https://ask.wireshark.org/
+   5. https://www.wireshark.org/lists/
+   6. https://bugs.wireshark.org/
+   7. https://www.wiresharktraining.com/
+   8. https://www.wireshark.org/faq.html

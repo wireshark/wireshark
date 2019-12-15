@@ -5037,7 +5037,7 @@ atul		7543/tcp/udp	# atul server
 nta-ds		7544/tcp/udp	# FlowAnalyzer DisplayServer
 nta-us		7545/tcp/udp	# FlowAnalyzer UtilityServer
 cfs		7546/tcp/udp	# Cisco Fabric service
-cwmp		7547/tcp/udp	# DSL Forum CWMP
+cwmp		7547/tcp/udp	# Broadband Forum CWMP
 tidp		7548/tcp/udp	# Threat Information Distribution Protocol
 nls-tl		7549/tcp/udp	# Network Layer Signaling Transport Layer
 cloudsignaling	7550/udp	# Cloud Signaling Service
