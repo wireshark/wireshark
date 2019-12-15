@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2019-12-07)
+# (last updated 2019-12-14)
 
 0	Reserved
 1	NxNetworks
@@ -3560,7 +3560,7 @@
 3558	BGS Systemplanung AG
 3559	The Digital Schoolhouse
 3560	Sphere Logic Corporation
-3561	The Broadband Forum	# formerly 'ADSL Forum'
+3561	Broadband Forum (previously 'DSL Forum')
 3562	Jim Marsden Development	# formerly 'Selway Moore Limited'
 3563	National Network Data Services
 3564	Ciphernet
@@ -4934,7 +4934,7 @@
 4937	Stormbreaker Network Services
 4938	Daeyoung Electronic Ind.CO., Ltd.
 4939	Procter & Gamble
-4940	Convergent Communications Services, Inc.
+4940	Converg Media
 4941	Echelon Corporation
 4942	Liberty Press & Letter Service Joseph De Silvis
 4943	Novell GmbH
@@ -6804,7 +6804,7 @@
 6818	Tripwire, Inc.
 6819	Musicfans, Inc.
 6820	Menta Software
-6821	TELECOM Lille1	# formerly 'ENIC'
+6821	IMT Lille Douai	# formerly TELECOM Lille
 6822	University of Cambridge, Card Office
 6823	Distributed Object Technologies, Inc.
 6824	List & Niemann
@@ -9620,7 +9620,7 @@
 9642	Bibop Research, int. S.p.A. Gianugo
 9643	CEULP/ULBRA
 9645	courtade.net
-9646	Cybectec
+9646	Eaton - Cooper Industries (Electrical) Inc.	# formerly 'Cybectec'
 9647	EWIP
 9648	GeekBone Co. LTD
 9649	Hochschule Bremen
@@ -42827,7 +42827,7 @@
 43003	TribalGroup
 43004	Xinguard, Inc.
 43005	University of Technology and Life Sciences in Bydgoszcz
-43006	root-a.net
+43006	root-a
 43007	Gipen Systems
 43008	FRTek
 43009	Vilnius Gallery
@@ -47122,7 +47122,7 @@
 47301	"NR"WEB US
 47302	Alnatura Produktions- und Handels GmbH
 47303	Moratua Solutions
-47304	Ivnosys Soluciones S.L.
+47304	Ivnosys Soluciones S.L.U.
 47305	FoxGuard Solutions
 47306	Jasper
 47307	IgniteNet
@@ -54773,3 +54773,34 @@
 54964	Sina Communication Systems
 54965	Hamilton Medical AG
 54966	I-Consulting Kft.
+54967	Schule fuer Informationstechnik der Bundeswehr
+54968	OCTE
+54969	ETON tech co.,Ltd
+54970	Stichting Nijmeegs Interconfessioneel ziekenhuis Canisius-Wilhelmina
+54971	ANZ Bank New Zealand Limited
+54972	SCUDOS Systems GmbH
+54973	Bren-Tronics, Inc.
+54974	HOSPITAL GENERAL ENSENADA
+54975	Staclar, Inc.
+54976	Hällefors Tierp Skogar AB
+54977	Mag-Audio
+54978	Norbrook Laboratories Ltd
+54979	iFreetion Technologies Inc.
+54980	Ethertronics an AVX Group, EDC division
+54981	BY-SYSTEMS SPRL
+54982	Manitoba Hydro International
+54983	Henan Chengyu Trading Co., Ltd.
+54984	Boliden AB
+54985	Timmins and District Hospital
+54986	TRIBUNAL SUPERIOR ELEITORAL
+54987	BV USA, LLC.
+54988	VT Group
+54989	Davitec
+54990	Kirkland & Ellis LLP
+54991	DIRAK GmbH
+54992	Swisscom Health AG
+54993	Du thu
+54994	Kenstel Networks Limited
+54995	Institut Régional du Travail Social PACA et Corse
+54996	PRXN
+54997	Yui Networks

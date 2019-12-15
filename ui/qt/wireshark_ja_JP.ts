@@ -1163,324 +1163,10 @@
     </message>
 </context>
 <context>
-    <name>CaptureInterfacesDialog</name>
-    <message>
-        <source>Input</source>
-        <translation type="vanished">入力</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation type="vanished">インターフェース</translation>
-    </message>
-    <message>
-        <source>Traffic</source>
-        <translation type="vanished">トラフィック</translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="vanished">キャプチャフィルタ</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">これを有効にした方がよいでしょう。通常ネットワークカードは自身のアドレスに送られたトラフィックのみキャプチャします。もし、ネットワークカードのすべてのトラフィックをキャプチャしたいのでしたら、このオプションをマークしてください。FAQにスイッチングハブのネットワークからパケットをキャプチャする詳細があります。</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation type="vanished">出力</translation>
-    </message>
-    <message>
-        <source>Output format:</source>
-        <translation type="vanished">出力形式:</translation>
-    </message>
-    <message>
-        <source>pcapng</source>
-        <translation type="vanished">pcap-ng形式</translation>
-    </message>
-    <message>
-        <source>pcap</source>
-        <translation type="vanished">pcap形式</translation>
-    </message>
-    <message>
-        <source>Browse…</source>
-        <oldsource>Browse...</oldsource>
-        <translation type="vanished">参照…</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation type="vanished">ファイル:</translation>
-    </message>
-    <message>
-        <source>megabytes</source>
-        <oldsource>Megabytes</oldsource>
-        <translation type="vanished">メガバイト</translation>
-    </message>
-    <message>
-        <source>kilobytes</source>
-        <oldsource>Kilobytes</oldsource>
-        <translation type="vanished">キロバイト</translation>
-    </message>
-    <message>
-        <source>seconds</source>
-        <translation type="vanished">秒</translation>
-    </message>
-    <message>
-        <source>minutes</source>
-        <translation type="vanished">分</translation>
-    </message>
-    <message>
-        <source>hours</source>
-        <translation type="vanished">時</translation>
-    </message>
-    <message>
-        <source>Show capture information during live capture</source>
-        <translation type="vanished">キャプチャ中にキャプチャ情報画面を表示</translation>
-    </message>
-    <message>
-        <source>Stop capturing after the specified number of packets have been captured.</source>
-        <translation type="vanished">指定したパケット数がキャプチャされた後にキャプチャを停止します</translation>
-    </message>
-    <message>
-        <source>Stop capturing after the specified amount of data has been captured.</source>
-        <translation type="vanished">指定したデータ量がキャプチャされたらキャプチャを停止</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定したデータ量がキャプチャされたらキャプチャを停止&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>packets</source>
-        <translation type="vanished">パケット</translation>
-    </message>
-    <message>
-        <source>Link-layer Header</source>
-        <translation type="vanished">リンク層ヘッダ</translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="vanished">プロミスキャス</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="vanished">キャプチャ長(バイト)</translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="vanished">バッファ(メガバイト)</translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="vanished">モニタモード</translation>
-    </message>
-    <message>
-        <source>Enable promiscuous mode on all interfaces</source>
-        <oldsource>Capture in promiscuous mode on all interfaces</oldsource>
-        <translation type="vanished">すべてのインターフェースにおいてプロミスキャスモードを有効化します</translation>
-    </message>
-    <message>
-        <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
-        <translation type="vanished">インターフェースを表示/非表示、コメントの追加、およびパイプとリモートインターフェースを管理します</translation>
-    </message>
-    <message>
-        <source>Manage Interfaces…</source>
-        <oldsource>Manage Interfaces...</oldsource>
-        <translation type="vanished">インターフェース管理…</translation>
-    </message>
-    <message>
-        <source>Capture filter for selected interfaces:</source>
-        <oldsource>Capture Filter for selected Interfaces:</oldsource>
-        <translation type="vanished">選択したインタフェースのキャプチャフィルタ:</translation>
-    </message>
-    <message>
-        <source>Compile BPFs</source>
-        <translation type="vanished">BPF形式をコンパイル</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャしたデータを記録するファイル名を入力してください。デフォルトでは一時ファイルが利用されます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Capture to a permanent file</source>
-        <translation type="vanished">保存ファイルにキャプチャ</translation>
-    </message>
-    <message>
-        <source>gigabytes</source>
-        <oldsource>Gigabytes</oldsource>
-        <translation type="vanished">ギガバイト</translation>
-    </message>
-    <message>
-        <source>Switch to the next file after the specified number of packets have been captured.</source>
-        <translation type="vanished">指定したパケット数がキャプチャされた後に次のファイルに切り替えます</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1つのキャプチャファイルを用いる代わりに複数のファイルが作成されます。&lt;/p&gt;&lt;p&gt;生成されたファイル名は連番とキャプチャ開始時間を含みます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Create a new file automatically…</source>
-        <translation type="vanished">…後に自動的に新ファイルを作成</translation>
-    </message>
-    <message>
-        <source>after</source>
-        <translation type="vanished">後</translation>
-    </message>
-    <message>
-        <source>Switch to the next file after the file size exceeds the specified file size.</source>
-        <translation type="vanished">ファイルサイズが指定したファイルサイズを超過した後に次のファイルに切り替えます</translation>
-    </message>
-    <message>
-        <source>Switch to the next file when the time capturing to the current file exceeds the specified time.</source>
-        <translation type="vanished">現在のファイルをキャプチャしている時間が指定した時間を超過した際に次のファイルに切り替えます</translation>
-    </message>
-    <message>
-        <source>when time is a multiple of</source>
-        <translation type="vanished">時刻が複数の</translation>
-    </message>
-    <message>
-        <source>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
-For example, use 1 hour to have a new file created every hour on the hour.</source>
-        <translation type="vanished">(時計の)時刻が特定の間隔になったら次のファイルに切り替えます。例えば、1時間に設定すると毎時１時間ごとに新しいファイルが作成されます</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャが次のファイルに切り替えられた後、与えられたファイル数を超過したら、最も古いファイルが消されます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Use a ring buffer with </source>
-        <translation type="vanished">リングバッファを用いる</translation>
-    </message>
-    <message>
-        <source>files</source>
-        <translation type="vanished">ファイル</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation type="vanished">オプション</translation>
-    </message>
-    <message>
-        <source>Display Options</source>
-        <translation type="vanished">表示オプション</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;このオプションを用いるとメイン画面ですぐにパケットキャプチャを表示します。注意:この操作はキャプチャを遅くするので、よりパケットをドロップするかもしれません。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Update list of packets in real-time</source>
-        <translation type="vanished">実時間でパケット一覧を更新</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;実際の時間でパケット一覧を更新オプションを用いるとパケット一覧画面はスクロールして最新のパケットを表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Automatically scroll during live capture</source>
-        <translation type="vanished">キャプチャ中に自動スクロール</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャ中にキャプチャ情報画面を表示&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Name Resolution</source>
-        <translation type="vanished">名前解決</translation>
-    </message>
-    <message>
-        <source>Perform MAC layer name resolution while capturing.</source>
-        <translation type="vanished">キャプチャ中にMAC層の名前解決を行います</translation>
-    </message>
-    <message>
-        <source>Resolve MAC Addresses</source>
-        <translation type="vanished">MACアドレス解決</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャ中にネットワーク層の名前解決を実施&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Resolve network names</source>
-        <translation type="vanished">ネットワーク名を解決</translation>
-    </message>
-    <message>
-        <source>Perform transport layer name resolution while capturing.</source>
-        <translation type="vanished">キャプチャ中にトランスポート層の名前解決を行います</translation>
-    </message>
-    <message>
-        <source>Resolve transport names</source>
-        <translation type="vanished">トランスポート層の名前を解決</translation>
-    </message>
-    <message>
-        <source>Stop capture automatically after…</source>
-        <oldsource>Stop capture automatically after...</oldsource>
-        <translation type="vanished">…後に自動的にキャプチャを停止</translation>
-    </message>
-    <message>
-        <source>Stop capturing after the specified amount of time has passed.</source>
-        <translation type="vanished">指定時間が経過した後キャプチャを停止します</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定した数のパケットがキャプチャされた後キャプチャを停止します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定した数のファイルを作成した後キャプチャを停止します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Capture Interfaces</source>
-        <translation type="vanished">キャプチャインターフェース</translation>
-    </message>
-    <message>
-        <source>Start</source>
-        <translation type="vanished">開始</translation>
-    </message>
-    <message>
-        <source>Leave blank to use a temporary file</source>
-        <translation type="vanished">一時ファイルを使うため空白にしておきます</translation>
-    </message>
-    <message>
-        <source>Specify a Capture File</source>
-        <translation type="vanished">キャプチャファイルを指定してください</translation>
-    </message>
-    <message>
-        <source>%1: %2</source>
-        <translation type="vanished">%1: %2</translation>
-    </message>
-    <message>
-        <source>Addresses</source>
-        <translation type="vanished">アドレス</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="vanished">アドレス</translation>
-    </message>
-    <message>
-        <source>no addresses</source>
-        <translation type="vanished">アドレスがありません</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">エラー</translation>
-    </message>
-    <message>
-        <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
-        <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
-        <translation type="vanished">複数ファイル:要求されたファイルサイズが大きすぎます。ファイルサイズは2GBより大きくできません</translation>
-    </message>
-    <message>
-        <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
-        <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
-        <translation type="vanished">複数ファイル:キャプチャファイル名がありません。服すファイルを用いたいのならファイル名を指定しなければなりません</translation>
-    </message>
-    <message>
-        <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
-        <translation type="vanished">複数ファイル:ファイル制限がありません。各ファイルのファイルサイズ、間隔、またはパケット数を指定しなければなりません。</translation>
-    </message>
-</context>
-<context>
     <name>CaptureOptionsDialog</name>
     <message>
         <source>Input</source>
-        <translation type="unfinished">入力</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Interface</source>
@@ -1488,67 +1174,67 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished">トラフィック</translation>
-    </message>
-    <message>
-        <source>Link-layer Header</source>
-        <translation type="unfinished">リンク層ヘッダ</translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="unfinished">プロミスキャス</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="unfinished">キャプチャ長(バイト)</translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="unfinished">バッファ(メガバイト)</translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="unfinished">モニタモード</translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="unfinished">キャプチャフィルタ</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Link-layer Header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Promiscuous</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snaplen (B)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Buffer (MB)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Monitor Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">これを有効にした方がよいでしょう。通常ネットワークカードは自身のアドレスに送られたトラフィックのみキャプチャします。もし、ネットワークカードが&quot;見る&quot;ことのできるすべてのトラフィックをキャプチャしたいのでしたら、このオプションをマークしてください。FAQにスイッチングハブのネットワークからパケットをキャプチャする詳細があります。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
         <source>Enable promiscuous mode on all interfaces</source>
-        <translation type="unfinished">すべてのインターフェースにおいてプロミスキャスモードを有効化します</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
-        <translation type="unfinished">インターフェースを表示/非表示、コメントの追加、およびパイプとリモートインターフェースを管理します</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Manage Interfaces…</source>
-        <translation type="unfinished">インターフェース管理…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture filter for selected interfaces:</source>
-        <translation type="unfinished">選択したインタフェースのキャプチャフィルタ:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Compile BPFs</source>
-        <translation type="unfinished">BPF形式をコンパイル</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">出力</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャしたデータを記録するファイル名を入力してください。デフォルトでは一時ファイルが利用されます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture to a permanent file</source>
-        <translation type="unfinished">保存ファイルにキャプチャ</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File:</source>
@@ -1560,31 +1246,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Output format:</source>
-        <translation type="unfinished">出力形式:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>pcapng</source>
-        <translation type="unfinished">pcap-ng形式</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>pcap</source>
-        <translation type="unfinished">pcap形式</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1つのキャプチャファイルを用いる代わりに複数のファイルが作成されます。&lt;/p&gt;&lt;p&gt;生成されたファイル名は連番とキャプチャ開始時間を含みます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Create a new file automatically…</source>
-        <translation type="unfinished">…後に自動的に新ファイルを作成</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>after</source>
-        <translation type="unfinished">後</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Switch to the next file after the specified number of packets have been captured.</source>
-        <translation type="unfinished">指定したパケット数がキャプチャされた後に次のファイルに切り替えます</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>packets</source>
@@ -1592,56 +1278,56 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Switch to the next file after the file size exceeds the specified file size.</source>
-        <translation type="unfinished">ファイルサイズが指定したファイルサイズを超過した後に次のファイルに切り替えます</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>kilobytes</source>
-        <translation type="unfinished">キロバイト</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>megabytes</source>
-        <translation type="unfinished">メガバイト</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>gigabytes</source>
-        <translation type="unfinished">ギガバイト</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Switch to the next file when the time capturing to the current file exceeds the specified time.</source>
-        <translation type="unfinished">現在のファイルをキャプチャしている時間が指定した時間を超過した際に次のファイルに切り替えます</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>seconds</source>
-        <translation type="unfinished">秒</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>minutes</source>
-        <translation type="unfinished">分</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>hours</source>
-        <translation type="unfinished">時</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>when time is a multiple of</source>
-        <translation type="unfinished">時刻が複数の</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
 For example, use 1 hour to have a new file created every hour on the hour.</source>
-        <translation type="unfinished">(時計の)時刻が特定の間隔になったら次のファイルに切り替えます。例えば、1時間に設定すると毎時１時間ごとに新しいファイルが作成されます</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャが次のファイルに切り替えられた後、与えられたファイル数を超過したら、最も古いファイルが消されます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Use a ring buffer with </source>
-        <translation type="unfinished">リングバッファを用いる</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>files</source>
-        <translation type="unfinished">ファイル</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Options</source>
@@ -1649,39 +1335,39 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display Options</source>
-        <translation type="unfinished">表示オプション</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;このオプションを用いるとメイン画面ですぐにパケットキャプチャを表示します。注意:この操作はキャプチャを遅くするので、よりパケットをドロップするかもしれません。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Update list of packets in real-time</source>
-        <translation type="unfinished">実時間でパケット一覧を更新</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;実際の時間でパケット一覧を更新オプションを用いるとパケット一覧画面はスクロールして最新のパケットを表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Automatically scroll during live capture</source>
-        <translation type="unfinished">キャプチャ中に自動スクロール</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャ中にキャプチャ情報画面を表示&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show capture information during live capture</source>
-        <translation type="unfinished">キャプチャ中にキャプチャ情報画面を表示</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Name Resolution</source>
-        <translation type="unfinished">名前解決</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Perform MAC layer name resolution while capturing.</source>
-        <translation type="unfinished">キャプチャ中にMAC層の名前解決を行います</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resolve MAC addresses</source>
@@ -1689,47 +1375,47 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャ中にネットワーク層の名前解決を実施&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resolve network names</source>
-        <translation type="unfinished">ネットワーク名を解決</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Perform transport layer name resolution while capturing.</source>
-        <translation type="unfinished">キャプチャ中にトランスポート層の名前解決を行います</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resolve transport names</source>
-        <translation type="unfinished">トランスポート層の名前を解決</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Stop capture automatically after…</source>
-        <translation type="unfinished">…後に自動的にキャプチャを停止</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定した数のパケットがキャプチャされた後キャプチャを停止します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
-        <translation type="unfinished">指定したパケット数がキャプチャされた後にキャプチャを停止します</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定した数のファイルを作成した後キャプチャを停止します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定したデータ量がキャプチャされたらキャプチャを停止&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of data has been captured.</source>
-        <translation type="unfinished">指定したデータ量がキャプチャされたらキャプチャを停止</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of time has passed.</source>
-        <translation type="unfinished">指定時間が経過した後キャプチャを停止します</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture Options</source>
@@ -1741,11 +1427,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Leave blank to use a temporary file</source>
-        <translation type="unfinished">一時ファイルを使うため空白にしておきます</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Specify a Capture File</source>
-        <translation type="unfinished">キャプチャファイルを指定してください</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -1753,7 +1439,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Addresses</source>
-        <translation type="unfinished">アドレス</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Address</source>
@@ -1761,7 +1447,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>no addresses</source>
-        <translation type="unfinished">アドレスがありません</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -1769,15 +1455,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
-        <translation type="unfinished">複数ファイル:要求されたファイルサイズが大きすぎます。ファイルサイズは2GBより大きくできません</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
-        <translation type="unfinished">複数ファイル:キャプチャファイル名がありません。服すファイルを用いたいのならファイル名を指定しなければなりません</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
-        <translation type="unfinished">複数ファイル:ファイル制限がありません。各ファイルのファイルサイズ、間隔、またはパケット数を指定しなければなりません。</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4794,27 +4480,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation type="unfinished">プロミスキャス</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation type="unfinished">キャプチャ長(バイト)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation type="unfinished">バッファ(メガバイト)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation type="unfinished">モニタモード</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation type="unfinished">キャプチャフィルタ</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation type="unfinished">アドレス</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Address</source>
