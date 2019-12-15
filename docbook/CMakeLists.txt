@@ -141,7 +141,7 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-enabled-protocols.png
 	wsug_graphics/ws-expert-colored-tree.png
 	wsug_graphics/ws-expert-column.png
-	wsug_graphics/ws-expert-infos.png # Outdated
+	wsug_graphics/ws-expert-information.png
 	wsug_graphics/ws-export-objects.png
 	wsug_graphics/ws-export-packet-dissections.png
 	wsug_graphics/ws-export-specified-packets.png

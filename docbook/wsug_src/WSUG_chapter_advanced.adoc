@@ -189,95 +189,114 @@ pressing btn:[Find Next].
 
 === Expert Information
 
-The expert infos is a kind of log of the anomalies found by Wireshark in a
-capture file.
-
-The general idea behind the following “Expert Info” is to have a better
-display of “uncommon” or just notable network behaviour. This way, both novice
-and expert users will hopefully find probable network problems a lot faster,
-compared to scanning the packet list “manually” .
+Wireshark keeps track of any anomalies and other items of interest it finds in a capture file and shows them in the Expert Information dialog.
+The goal is to give you a better idea of uncommon or notable network behaviour and to let novice and expert users find network problems faster than manually scanning through the packet list.
 
 [WARNING]
-.Expert infos are only a hint
+.Expert information is only a hint
 ====
-Take expert infos as a hint what’s worth looking at, but not more. For example,
-the absence of expert infos doesn’t necessarily mean everything is OK.
+Expert information is the starting point for investigation, not the stopping point.
+Every network is different, and it's up to you to verify that Wireshark’s expert information applies to your particular situation.
+The presence of expert informantion doesn't necessarily indicate a problem and absence of expert information doesn’t necessarily mean everything is OK.
 ====
 
-The amount of expert infos largely depends on the protocol being used. While
-some common protocols like TCP/IP will show detailed expert infos, most other
-protocols currently won’t show any expert infos at all.
+The amount of expert information largely depends on the protocol being used.
+While dissectors for some common protocols like TCP and IP will show detailed information, other dissectors will show little or none.
 
-The following will first describe the components of a single expert info, then
-the User Interface.
+The following describes the components of a single expert information entry along with the expert user interface.
 
 [[ChAdvExpertInfoEntries]]
 
-==== Expert Info Entries
+==== Expert Information Entries
 
-Each expert info will contain the following things which will be described in
-detail below.
+Expert information entries are grouped by severity level (described below) and contain the following:
 
 [[ChAdvTabExpertInfoEntries]]
 
-.Some example expert infos
+.Example expert information items
 [options="header"]
 |===
-|Packet #|Severity|Group|Protocol|Summary
-|1|Note|Sequence|TCP|Duplicate ACK (#1)
-|2|Chat|Sequence|TCP|Connection reset (RST)
-|8|Note|Sequence|TCP|Keep-Alive
-|9|Warn|Sequence|TCP|Fast retransmission (suspected)
+|Packet #|Summary|Group|Protocol
+|592|TCP: [TCP Out-Of-Order] ...|Malformed|TCP
+|1202|DNS: Standard query response ...|Protocol|DNS
+|443|TCP: 80 → 59322 [RST] Seq=12761 Win=0 Len=0|Sequence|TCP
 |===
 
 [[ChAdvExpertSeverity]]
 
 ===== Severity
 
-Every expert info has a specific severity level. The following severity levels
-are used, in parentheses are the colors in which the items will be marked in the
-GUI:
+Every expert information item has a severity level.
+The following levels are used, from lowest to highest.
+Wireshark marks them using different colors, which are shown in parentheses:
 
-* __Chat (grey)__: information about usual workflow, e.g. a TCP packet with the
-  SYN flag set
+Chat [white blue-background]#(blue)#::
+Information about usual workflow, e.g. a TCP packet with the SYN flag set.
 
-* __Note (cyan)__: notable things, e.g. an application returned an “usual”
-  error code like HTTP 404
+Note [black aqua-background]#(cyan)#::
+Notable events, e.g. an application returned a common error code such as HTTP 404.
 
-* __Warn (yellow)__: warning, e.g. application returned an “unusual” error
-  code like a connection problem
+Warn [black yellow-background]#(yellow)#::
+Warnings, e.g. application returned an unusual error code like a connection problem.
 
-* __Error (red)__: serious problem, e.g. [Malformed Packet]
+Error [white red-background]#(red)#::
+Serious problems, such as malformed packets.
 
 [[ChAdvExpertGroup]]
 
+===== Summary
+
+Short explanatory text for each expert information item.
+
 ===== Group
 
-There are some common groups of expert infos. The following are currently implemented:
+Along with severity levels, expert information items are categorized by group.
+The following groups are currently implemented:
 
-* __Checksum__: a checksum was invalid
+Assumption::
+The protocol field has incomplete data and was dissected based on assumed value.
 
-* __Sequence__: protocol sequence suspicious, e.g. sequence wasn’t continuous or
-  a retransmission was detected or ...
+Checksum::
+A checksum was invalid.
 
-* __Response Code__: problem with application response code, e.g. HTTP 404 page
-  not found
+Comment::
+Packet comment.
 
-* __Request Code__: an application request (e.g. File Handle == x), usually Chat
-  level
+Debug::
+Debugging information.
+You shouldn’t see this group in release versions of Wireshark.
 
-* __Undecoded__: dissector incomplete or data can’t be decoded for other reasons
+Decryption::
+A decryption issue.
 
-* __Reassemble__: problems while reassembling, e.g. not all fragments were
-  available or an exception happened while reassembling
+Deprecated::
+The protocol field has been deprecated.
 
-* __Protocol__: violation of protocol specs (e.g. invalid field values or
-  illegal lengths), dissection of this packet is probably continued
+Malformed::
+Malformed packet or dissector has a bug.
+Dissection of this packet aborted.
 
-* __Malformed__: malformed packet or dissector has a bug, dissection of this
-  packet aborted
+Protocol::
+Violation of a protocol’s specification (e.g. invalid field values or illegal lengths).
+Dissection of this packet probably continued.
 
-* __Debug__: debugging (should not occur in release versions)
+Reassemble::
+Problems while reassembling, e.g. not all fragments were available or an exception happened during reassembly.
+
+Request Code::
+An application request (e.g. File Handle == _x_). Usually assigned the Chat severity level.
+
+Response Code::
+An application response code indicates a potential problem, e.g. HTTP 404 page not found.
+
+Security::
+A security problem, e.g. an insecure implementation.
+
+Sequence::
+A protocol sequence number was suspicious, e.g. it wasn’t continuous or a retransmission was detected.
+
+Undecoded::
+Dissection incomplete or data can’t be decoded for other reasons.
 
 It’s possible that more groups will be added in the future.
 
@@ -285,49 +304,65 @@ It’s possible that more groups will be added in the future.
 
 ===== Protocol
 
-The protocol in which the expert info was caused.
+The protocol dissector that created the expert information item.
 
 [[ChAdvExpertSummary]]
 
-===== Summary
-
-Each expert info will also have a short additional text with some further explanation.
-
 [[ChAdvExpertDialog]]
 
-==== “Expert Info” dialog
+==== The “Expert Information” dialog
 
-You can open the expert info dialog by selecting menu:Analyze[Expert Info].
+You can open the expert info dialog by selecting menu:Analyze[Expert Info] or by clicking the expert level indicator in the main status bar.
 
-// XXX - add explanation of the dialogs context menu.
+Right-clicking on an item will allow you to apply or prepare a filter based on the item, copy its summary text, and other tasks.
 
-.The “Expert Info” dialog box
-image::wsug_graphics/ws-expert-infos.png[{screenshot-attrs}]
+.The “Expert Information” dialog box
+image::wsug_graphics/ws-expert-information.png[{screenshot-attrs}]
 
-[[ChAdvExpertDialogTabs]]
+You can choose from the following actions:
 
-===== Errors / Warnings / Notes / Chats tabs
+Limit to display filter::
+Only show expert information items present in packets that match the current display filter.
 
-An easy and quick way to find the most interesting infos (rather than using the
-Details tab), is to have a look at the separate tabs for each severity level. As
-the tab label also contains the number of existing entries, it’s easy to find
-the tab with the most important entries.
+Group by summary::
+Group items by their summary instead of the groups described above.
 
-There are usually a lot of identical expert infos only differing in the packet
-number. These identical infos will be combined into a single line - with a count
-column showing how often they appeared in the capture file. Clicking on the plus
-sign shows the individual packet numbers in a tree view.
+Search::
+Only show items that match the search string, such as “dns”.
+Regular expressions are supported.
 
-[[ChAdvExpertDialogDetails]]
+menu:Show...[]::
+Lets you show or hide each severity level.
+For example, you can deselect Chat and Note severities if desired.
 
-===== Details tab
+btn:[Help]::
+Takes you to this section of the User’s Guide.
 
-The Details tab provides the expert infos in a “log like” view, each entry on
-its own line (much like the packet list). As the amount of expert infos for a
-capture file can easily become very large, getting an idea of the interesting
-infos with this view can take quite a while. The advantage of this tab is to
-have all entries in the sequence as they appeared, this is sometimes a help to
-pinpoint problems.
+btn:[Close]::
+Closes the dialog
+
+// ===== Errors / Warnings / Notes / Chats tabs
+
+// An easy and quick way to find the most interesting infos (rather than using the
+// Details tab), is to have a look at the separate tabs for each severity level. As
+// the tab label also contains the number of existing entries, it’s easy to find
+// the tab with the most important entries.
+
+// There are usually a lot of identical expert infos only differing in the packet
+// number. These identical infos will be combined into a single line - with a count
+// column showing how often they appeared in the capture file. Clicking on the plus
+// sign shows the individual packet numbers in a tree view.
+
+// [[ChAdvExpertDialogDetails]]
+
+// ===== Details tab
+
+// The Details tab provides the expert infos in a “log like” view, each entry on
+// its own line (much like the packet list). As the amount of expert infos for a
+// capture file can easily become very large, getting an idea of the interesting
+// infos with this view can take quite a while. The advantage of this tab is to
+// have all entries in the sequence as they appeared, this is sometimes a help to
+// pinpoint problems.
 
 [[ChAdvExpertColorizedTree]]
 
@@ -336,15 +371,11 @@ pinpoint problems.
 .The “Colorized” protocol details tree
 image::wsug_graphics/ws-expert-colored-tree.png[{screenshot-attrs}]
 
-The protocol field causing an expert info is colorized, e.g. uses a cyan
-background for a note severity level. This color is propagated to the toplevel
-protocol item in the tree, so it’s easy to find the field that caused the expert
-info.
+The packet detail tree marks fields with expert information based on their severity level color, e.g. “Warning” severities have a yellow background.
+This color is propagated to the top-level protocol item in the tree in order to make it easy to find the field that created the expert information.
 
-For the example screenshot above, the IP “Time to live” value is very low
-(only 1), so the corresponding protocol field is marked with a cyan background.
-To easier find that item in the packet tree, the IP protocol toplevel item is
-marked cyan as well.
+For the example screenshot above, the IP “Time to live” value is very low (only 1), so the corresponding protocol field is marked with a cyan background.
+To make it easier find that item in the packet tree, the IP protocol toplevel item is marked cyan as well.
 
 [[ChAdvExpertColumn]]
 
