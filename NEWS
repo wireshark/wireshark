@@ -36,14 +36,14 @@ Wireshark 3.0.8 Release Notes
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
-  https://www.wireshark.org/download.html[2].
+  https://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[3] on the Wireshark web site.
+   be found on the download page[2] on the Wireshark web site.
 
  File Locations
 
@@ -55,27 +55,25 @@ Wireshark 3.0.8 Release Notes
  Getting Help
 
   The User’s Guide, manual pages and various other documentation can be
-  found at https://www.wireshark.org/docs/[4]
+  found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[5] and on the
+  Community support is available on Wireshark’s Q&A site[3] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[6].
+  for all of Wireshark’s mailing lists can be found on the web site[4].
 
-  Bugs and feature requests can be reported on the bug tracker[7].
+  Bugs and feature requests can be reported on the bug tracker[5].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[8].
+  A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2019-12-08 08:37:13 UTC
+  Last updated 2019-12-15 08:37:01 UTC
 
  References
 
    1. https://www.wireshark.org/security/wnpa-sec-2019-23
-   2. https://www.wireshark.org/download.html
-   3. https://www.wireshark.org/download.html#thirdparty
-   4. https://www.wireshark.org/docs/
-   5. https://ask.wireshark.org/
-   6. https://www.wireshark.org/lists/
-   7. https://bugs.wireshark.org/
-   8. https://www.wireshark.org/faq.html
+   2. https://www.wireshark.org/download.html#thirdparty
+   3. https://ask.wireshark.org/
+   4. https://www.wireshark.org/lists/
+   5. https://bugs.wireshark.org/
+   6. https://www.wireshark.org/faq.html
