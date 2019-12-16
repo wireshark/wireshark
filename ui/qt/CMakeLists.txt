@@ -645,6 +645,12 @@ set_source_files_properties(
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
+set_source_files_properties(
+	wireshark-tap-register.c
+	PROPERTIES
+	SKIP_AUTOGEN ON
+)
+
 add_definitions(${QT_DEFINITIONS})
 
 register_tap_files(wireshark-tap-register.c
