@@ -1,3 +1,32 @@
+909ca21252 Prep for 3.2.0.
+eadcadbd4d macOS: More ChmodBPF signing updates.
+b8cb65a2db macOS: Sign the ChmodBPF script.
+310506d7c1 Qt: Don't crash when disabling all protocols.
+e4e823ac9d ieee802.11: Support the latest band id values and fix MHz.
+f61913bf76 MsgPack: add dissector to UDP port decode as list
+63abfab242 PROFINET: Profienergy record dissection
+6dd5a82fcb WSUG: Update the filter dialog section.
+9ab9260e3b FAQ: Update and remove entries.
+787303135f TPNCP: Update tpncp.dat
+fa3982c37b CMake: fix CMake 3.16 warning about CMP0071
+d27bc64922 extcap: remove potential leak.
+cc72c2e8a2 profiles: Try to better sync on disk config state
+bb82f650b6 pcfp: add missing Usage Report Trigger indication
+2796114521 PER: Add a couple of NULL checks.
+5e266102d3 m3ap: Info column lost at filtering.
+2f39d1e4a2 MPLS: fix Downstream Detailed Mapping TLV label stack dissection
+91388f5aac WiFi: Properly parse bitmap sections (CID-1451085)
+ecb810efc2 H265: properly index 2D array (CID 1450950)
+d5344d67f9 WSUG+WSDG: Remove description list formatting.
+c15b725b10 WSUG: Update the mailing list section.
+20c00261f4 [Automatic update for 2019-12-15]
+e24d74cbcc RTCP/MCPT: Limit list of SSRCs (CID 1455251)
+0558578f57 cmdline: cleanup option string definitions
+ab22e8899b html2text: Skip generating footnotes for self-links.
+4c303099aa couchbase: Fix Dead Store
+2e1c65101c 3.2.0rc2 has been released.
+5bcf6eed7c Build 3.2.0rc2.
+932a1a4ddf Win32: Fixup our file dialog titles.
 69c0969551 NAS 5GS: fix LADN Indication ID in Registration Request
 c11a819ffd CMake: Fixup a variable in FindLZ4.cmake
 7534e1ece3 LNET: fix malformed packet error on RDMA Read Request

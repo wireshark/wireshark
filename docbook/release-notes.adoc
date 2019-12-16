@@ -7,18 +7,17 @@ include::attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-// This is the third release candidate for Wireshark 3.2.
-
 == What is Wireshark?
 
-Wireshark is the world’s most popular network protocol analyzer. It is
-used for troubleshooting, analysis, development and education.
+Wireshark is the world’s most popular network protocol analyzer.
+It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
 This is the last release branch with official support for Windows 7 and Windows Server 2008 R2.
 
-Many improvements have been made. See the “New and Updated Features” section below for more details.
+Many improvements have been made.
+See the “New and Updated Features” section below for more details.
 
 // === Bug Fixes
 
@@ -34,12 +33,12 @@ Many improvements have been made. See the “New and Updated Features” section
 The following features are new (or have been significantly updated)
 since version 3.2.0rc2:
 
-* Nothing of note.
+* Minor bug fixes.
 
 The following features are new (or have been significantly updated)
 since version 3.2.0rc1:
 
-* Nothing of note.
+* Minor bug fixes.
 
 The following features are new (or have been significantly updated)
 since version 3.1.1:
@@ -210,8 +209,8 @@ found on https://www.wireshark.org/lists/[the web site].
 Bugs and feature requests can be reported on
 https://bugs.wireshark.org/[the bug tracker].
 
-Official Wireshark training and certification are available from
-https://www.wiresharktraining.com/[Wireshark University].
+// Official Wireshark training and certification are available from
+// https://www.wiresharktraining.com/[Wireshark University].
 
 == Frequently Asked Questions
 
