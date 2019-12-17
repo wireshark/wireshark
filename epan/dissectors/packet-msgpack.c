@@ -22,6 +22,9 @@
 #include <math.h>
 
 void proto_register_msgpack(void);
+void proto_reg_handoff_msgpack(void);
+
+dissector_handle_t msgpack_handle;
 
 static int proto_msgpack = -1;
 
@@ -450,13 +453,18 @@ void proto_register_msgpack(void)
 	};
 
 	proto_msgpack = proto_register_protocol("Message Pack", "MsgPack", "msgpack");
-	register_dissector("msgpack", dissect_msgpack, proto_msgpack);
+	msgpack_handle = register_dissector("msgpack", dissect_msgpack, proto_msgpack);
 
 	expert_msgpack = expert_register_protocol(proto_msgpack);
 	expert_register_field_array(expert_msgpack, ei, array_length(ei));
 
 	proto_register_field_array(proto_msgpack, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void proto_reg_handoff_msgpack(void)
+{
+	dissector_add_for_decode_as("udp.port", msgpack_handle);
 }
 
 /*
