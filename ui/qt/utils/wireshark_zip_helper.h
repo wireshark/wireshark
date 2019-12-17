@@ -20,7 +20,7 @@
 
 #include "minizip/zip.h"
 
-class WireSharkZipHelper
+class WiresharkZipHelper
 {
 public:
     static bool zip(QString zipFile, QStringList files, QString relativeTo = QString());

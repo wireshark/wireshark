@@ -59,9 +59,9 @@ BEGIN
 		-- To octet align the mtpAddress, the MSBs shall be encoded as 0s.
 		...
 	}
--- Wireshark specific	
+-- Wireshark specific
 	MtpAddress ::= OCTET STRING(SIZE(2..4))
-	
+
 	DomainName ::= SEQUENCE
 	{
 		name			[0] IA5String,
@@ -136,7 +136,7 @@ BEGIN
 	}
 
 	SegmentNumber ::= INTEGER(0..65535)
-	
+
 	TransactionResponseAck ::= SEQUENCE OF TransactionAck
 
 	TransactionAck ::= SEQUENCE
@@ -155,7 +155,7 @@ BEGIN
 	-- See clause 14 for IANA considerations with respect to error codes
 
 	ErrorText ::= IA5String
-	
+
 	ContextID ::= INTEGER(0..4294967295)
 	-- Context NULL Value: 0
 	-- Context CHOOSE Value: 4294967294 (0xFFFFFFFE)
@@ -177,7 +177,7 @@ BEGIN
 		commandReply			[3] SEQUENCE OF CommandReply
 	}
 
-	-- WireShark Specific
+	-- Wireshark Specific
 	ContextIDinList ::= INTEGER(0..4294967295)
 
 	ContextRequest ::= SEQUENCE
@@ -188,14 +188,14 @@ BEGIN
 		...,
 		iepscallind				[3] BOOLEAN OPTIONAL,
 		contextProp				[4] SEQUENCE OF PropertyParm OPTIONAL,
-		
-		-- WireShark Specific
+
+		-- Wireshark Specific
 		-- contextList				[5] SEQUENCE OF ContextID OPTIONAL
 		contextList				[5] SEQUENCE OF ContextIDinList OPTIONAL
 		-- Currently the way that WS tracing code's persistent data is
 		-- organized disallows to relate a request to multiple contexts
 	}
-	
+
 -- When returning a contextList, the contextId in the ActionReply construct will
 -- return the contextId from the associated ActionRequest.
 
@@ -258,7 +258,7 @@ BEGIN
 		serviceChangeReply  [7] ServiceChangeReply,
 		...
 	}
-	
+
 	TopologyRequest ::= SEQUENCE
 	{
 		terminationFrom				[0] TerminationID,
@@ -549,15 +549,15 @@ BEGIN
 	}
 
 --	EventName ::= PkgdName
-	EventName ::= OCTET STRING 
+	EventName ::= OCTET STRING
 
 	EventParameter ::= SEQUENCE
 	{
 -- Wireshark specific
 --		eventParameterName			[0] Name,
 --		value						[1] Value,
-		eventParameterName			[0] EventParameterName, 
-		eventParamValue				[1] EventParamValues, 
+		eventParameterName			[0] EventParameterName,
+		eventParamValue				[1] EventParamValues,
 -- end
 		-- For use of extraInfos see the comment related to PropertyParm
 		extraInfo [2] CHOICE
@@ -570,9 +570,9 @@ BEGIN
 	}
 -- Wireshark specific
 	EventParameterName ::= Name
-	
+
 	EventParamValues ::= SEQUENCE OF EventParamValue
-	  
+
 	EventParamValue ::= OCTET STRING
 -- end
 	ServiceChangeRequest ::= SEQUENCE
@@ -691,7 +691,7 @@ BEGIN
 	}
 
 	Name ::= OCTET STRING(SIZE(2))
-	
+
 	PkgdName ::= OCTET STRING(SIZE(4))
 	-- represents Package Name (2 octets) plus property, event,
 	-- signal names or StatisticsID. (2 octets)
@@ -814,7 +814,7 @@ BEGIN
 		digitMapName			[0] DigitMapName,
 		digitMapValue			[1] DigitMapValue
 	}
-	
+
 	SecondEventsDescriptor ::= SEQUENCE
 	{
 		requestID				[0] RequestID OPTIONAL,
@@ -840,7 +840,7 @@ BEGIN
 		notifyBehaviour			[3] NotifyBehaviour OPTIONAL,
 		resetEventsDescriptor	[4] NULL OPTIONAL
 	}
-	
+
 	EventBufferDescriptor ::= SEQUENCE OF EventSpec
 
 	EventSpec ::= SEQUENCE
@@ -852,7 +852,7 @@ BEGIN
 	}
 
 	SignalsDescriptor ::= SEQUENCE OF SignalRequest
-	
+
 	SignalRequest ::=CHOICE
 	{
 		signal					[0] Signal,
@@ -898,7 +898,7 @@ BEGIN
 	}
 
 --	SignalName ::= PkgdName
-	SignalName ::= OCTET STRING 
+	SignalName ::= OCTET STRING
 
 	NotifyCompletion ::= BIT STRING
 	{
@@ -921,11 +921,11 @@ BEGIN
 		} OPTIONAL,
 	...
 	}
--- Wireshark specific	
+-- Wireshark specific
 	SigParameterName ::= Name
-	  
+
 	SigParamValues ::= SEQUENCE OF SigParamValue
-	  
+
 	SigParamValue ::= OCTET STRING
 -- end
 	-- For an AuditCapReply with all events, the RequestID shall be ALL.
@@ -1081,7 +1081,7 @@ BEGIN
 	}
 
 	H221NonStandard ::= SEQUENCE
-	{	
+	{
 		t35CountryCode1				[0] INTEGER(0..255),
 		t35CountryCode2				[1] INTEGER(0..255),	-- country, as per T.35
 		t35Extension				[2] INTEGER(0..255),	-- assigned nationally
