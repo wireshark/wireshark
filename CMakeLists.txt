@@ -1765,15 +1765,9 @@ if (BUILD_xxx2deb)
 	)
 endif()
 
-if(WIN32)
-	set(TEXTIFY_FILES COPYING NEWS README.windows)
-	set(TEXTIFY_MD_FILES README.md)
-	foreach(_text_file ${TEXTIFY_FILES} ${TEXTIFY_MD_FILES})
-		string(REGEX REPLACE ".md$" "" _out_file ${_text_file})
-		set(INSTALL_FILES ${CMAKE_BINARY_DIR}/${_out_file}.txt ${INSTALL_FILES})
-	endforeach()
-else()
-	set(INSTALL_FILES COPYING ${INSTALL_FILES})
+if(NOT WIN32)
+	# We do this for Windows further down in the copy_data_files target.
+	list(APPEND INSTALL_FILES COPYING)
 endif()
 
 set(VERSION_INFO_LIBS
@@ -1973,27 +1967,19 @@ endif(WIN32)
 set(copy_data_files_depends)
 
 if(WIN32)
-	foreach(_text_file ${TEXTIFY_FILES})
-		add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${_text_file}.txt
-			COMMAND ${POWERSHELL_COMMAND} "${CMAKE_SOURCE_DIR}/tools/textify.ps1"
-				-Destination ${CMAKE_BINARY_DIR}
-				${CMAKE_SOURCE_DIR}/${_text_file}
+	foreach(_install_as_txt_file COPYING NEWS README.md README.windows)
+		# On Windows, install some files with a .txt extension so that they're
+		# double-clickable.
+		string(REGEX REPLACE ".md$" "" _no_md_file ${_install_as_txt_file})
+		set(_output_file "${DATAFILE_DIR}/${_no_md_file}.txt")
+		add_custom_command(OUTPUT ${_output_file}
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				${CMAKE_SOURCE_DIR}/${_install_as_txt_file}
+				${_output_file}
 			DEPENDS
-				${CMAKE_SOURCE_DIR}/${_text_file}
+				${CMAKE_SOURCE_DIR}/${_install_as_txt_file}
 		)
-	endforeach()
-	foreach(_md_file ${TEXTIFY_MD_FILES})
-		string(REGEX REPLACE ".md$" ".txt" _text_file ${_md_file})
-		add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${_text_file}
-			COMMAND ${POWERSHELL_COMMAND} "${CMAKE_SOURCE_DIR}/tools/textify.ps1"
-				-Destination ${CMAKE_BINARY_DIR}
-				${CMAKE_SOURCE_DIR}/${_md_file}
-			COMMAND ${CMAKE_COMMAND} -E rename
-				${CMAKE_BINARY_DIR}/${_md_file}.txt
-				${CMAKE_BINARY_DIR}/${_text_file}
-			DEPENDS
-				${CMAKE_SOURCE_DIR}/${_text_file}
-		)
+		list(APPEND copy_data_files_depends "${_output_file}")
 	endforeach()
 endif()
 
