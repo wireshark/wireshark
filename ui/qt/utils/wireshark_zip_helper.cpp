@@ -32,7 +32,7 @@
 #include <QDateTime>
 #include <QMap>
 
-bool WireSharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCheck)(QString, int), QString (*cleanName)(QString))
+bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCheck)(QString, int), QString (*cleanName)(QString))
 {
     unzFile uf = Q_NULLPTR;
     QFileInfo fi(zipFile);
@@ -176,7 +176,7 @@ unsigned long qDateToDosDate(QDateTime time)
     return dosDate << 16 | dosTime;
 }
 
-void WireSharkZipHelper::addFileToZip(zipFile zf, QString filepath, QString fileInZip)
+void WiresharkZipHelper::addFileToZip(zipFile zf, QString filepath, QString fileInZip)
 {
     QFileInfo fi(filepath);
     zip_fileinfo zi;
@@ -217,7 +217,7 @@ void WireSharkZipHelper::addFileToZip(zipFile zf, QString filepath, QString file
     zipCloseFileInZip(zf);
 }
 
-bool WireSharkZipHelper::zip(QString fileName, QStringList files, QString relativeTo)
+bool WiresharkZipHelper::zip(QString fileName, QStringList files, QString relativeTo)
 {
 
     QFileInfo fi(fileName);
@@ -237,7 +237,7 @@ bool WireSharkZipHelper::zip(QString fileName, QStringList files, QString relati
         while (fileInZip.length() > 0 && fileInZip.startsWith(QDir::separator()))
             fileInZip = fileInZip.right(fileInZip.length() - 1);
 
-        WireSharkZipHelper::addFileToZip(zf, sf.absoluteFilePath(), fileInZip);
+        WiresharkZipHelper::addFileToZip(zf, sf.absoluteFilePath(), fileInZip);
 
     }
 

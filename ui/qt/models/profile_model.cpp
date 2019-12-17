@@ -1076,7 +1076,7 @@ bool ProfileModel::exportProfiles(QString filename, QModelIndexList items, QStri
         return false;
     }
 
-    if (WireSharkZipHelper::zip(filename, files, gchar_free_to_qstring(get_profiles_dir()) + QDir::separator()) )
+    if (WiresharkZipHelper::zip(filename, files, gchar_free_to_qstring(get_profiles_dir()) + QDir::separator()) )
         return true;
 
     return false;
@@ -1113,7 +1113,7 @@ int ProfileModel::importProfilesFromZip(QString filename, int * skippedCnt, QStr
     int cnt = 0;
     if (dir.isValid())
     {
-        WireSharkZipHelper::unzip(filename, dir.path(), &ProfileModel::acceptFile, &ProfileModel::cleanName);
+        WiresharkZipHelper::unzip(filename, dir.path(), &ProfileModel::acceptFile, &ProfileModel::cleanName);
         cnt = importProfilesFromDir(dir.path(), skippedCnt, true, result);
     }
 
