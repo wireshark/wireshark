@@ -151,8 +151,8 @@ echo "libbrotli-dev is unavailable" >&2
 
 # libsystemd-journal-dev: Ubuntu 14.04
 # libsystemd-dev: Ubuntu >= 16.04
-add_package DEBDEPS_LIST libsystemd-dev ||
-add_package DEBDEPS_LIST libsystemd-journal-dev ||
+add_package ADDITIONAL_LIST libsystemd-dev ||
+add_package ADDITIONAL_LIST libsystemd-journal-dev ||
 echo "libsystemd-dev is unavailable"
 
 # softhsm2 2.0.0: Ubuntu 16.04

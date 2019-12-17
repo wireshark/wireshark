@@ -75,8 +75,8 @@ class case_extcaps(subprocesstest.SubprocessTestCase):
 
     def test_sdjournal(self, check_extcap_execution):
         ''' extcap interface tests for sdjournal '''
-        if sys.platform == 'win32':
-            fixtures.skip('sdjournal not available on Windows')
+        if not sys.platform.startswith('linux'):
+            fixtures.skip('sdjournal available on Linux only')
         check_extcap_execution("sdjournal")
 
     def test_sshdump(self, check_extcap_execution):
