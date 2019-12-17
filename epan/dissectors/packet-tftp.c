@@ -80,6 +80,7 @@ static expert_field ei_tftp_blocknum_will_wrap = EI_INIT;
 
 #define LIKELY_TSIZE_PROBE_KEY 0
 #define FULL_BLOCKNUM_KEY 1
+#define CONVERSATION_KEY 2
 
 static dissector_handle_t tftp_handle;
 
@@ -732,7 +733,7 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 static int
 dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  conversation_t   *conversation;
+  conversation_t   *conversation = NULL;
 
   /*
    * The first TFTP packet goes to the TFTP port; the second one
@@ -755,26 +756,40 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
    */
   if (value_is_in_range(global_tftp_port_range, pinfo->destport) ||
       (pinfo->match_uint == pinfo->destport)) {
-    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
-                                     pinfo->srcport, 0, NO_PORT_B);
-    if( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->num) != tftp_handle) ){
+    if (!PINFO_FD_VISITED(pinfo)) {
+      /* New read or write request on first pass, so create conversation with client port only */
       conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
                                       pinfo->srcport, 0, NO_PORT2);
       conversation_set_dissector(conversation, tftp_handle);
+      /* Store conversation in this frame */
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_tftp, CONVERSATION_KEY,
+                       (void *)conversation);
+    } else {
+      /* Read or write request, but not first pass, so look up existing conversation */
+      conversation = (conversation_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+                                                        proto_tftp, CONVERSATION_KEY);
     }
   } else {
-    conversation = find_conversation_pinfo(pinfo, 0);
-    if( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->num) != tftp_handle) ){
-      conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
-                                      pinfo->destport, pinfo->srcport, 0);
-      conversation_set_dissector(conversation, tftp_handle);
-    } else if (conversation->options & NO_PORT_B) {
-      if (pinfo->destport == conversation_key_port1(conversation->key_ptr))
-        conversation_set_port2(conversation, pinfo->srcport);
-      else
-        return 0;
+    /* Not the initial read or write request */
+    if (!PINFO_FD_VISITED(pinfo)) {
+      /* During first pass, look for conversation based upon client port */
+      conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
+                                       pinfo->destport, 0, NO_PORT2);
+      if (conversation != NULL) {
+        /* Set other side of conversation (server port) */
+        if (pinfo->destport == conversation_key_port1(conversation->key_ptr))
+          conversation_set_port2(conversation, pinfo->srcport);
+        else
+          /* Direction of conv match must have been wrong - ignore! */
+          return 0;
+      }
+    }
+    if (conversation == NULL) {
+      conversation = find_conversation_pinfo(pinfo, 0);
     }
   }
+  DISSECTOR_ASSERT(conversation);
+
   dissect_tftp_message(tftp_info_for_conversation(conversation), tvb, pinfo, tree);
   return tvb_captured_length(tvb);
 }
