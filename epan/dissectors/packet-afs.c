@@ -895,12 +895,16 @@ static const value_string fs_req[] = {
 	{ 161,		"dfs-lookup" },
 	{ 162,		"dfs-flushcps" },
 	{ 163,		"dfs-symlink" },
+	/* 164-219 are reserved legacy space */
 	{ 220,		"residency" },
+	/* 221-65535 are reserved legacy space */
 	{ 65536, 	"inline-bulk-status" },
 	{ 65537, 	"fetch-data-64" },
 	{ 65538, 	"store-data-64" },
 	{ 65539, 	"give-up-all-callbacks" },
 	{ 65540, 	"get-capabilities" },
+	{ 65541,	"call-back-rxconn-addr" },
+	{ 65542,	"get-statistics-64" },
 	{ 0,		NULL },
 };
 static value_string_ext fs_req_ext = VALUE_STRING_EXT_INIT(fs_req);
@@ -921,6 +925,7 @@ static const value_string cb_req[] = {
 	{ 216,		"get-cellservdb" },
 	{ 217,		"get-local-cell" },
 	{ 218,		"get-cache-config" },
+	/* 219-65535 reserved legacy space */
 	{ 65536,	"get-ce-64" },
 	{ 65537,	"get-cell-by-num" },
 	{ 65538,	"get-capabilities" },
@@ -951,6 +956,8 @@ static const value_string prot_req[] = {
 	{ 519,		"get-host-cps" },
 	{ 520,		"update-entry" },
 	{ 521,		"list-entries" },
+	/* 522-529 are reserved legacy space */
+	{ 530,		"list-supergroups" },
 	{ 0,		NULL },
 };
 static value_string_ext prot_req_ext = VALUE_STRING_EXT_INIT(prot_req);
@@ -1049,6 +1056,8 @@ static const value_string vol_req[] = {
 	{ 128,		"forward-multiple" },
 	{ 65536,	"convert-ro" },
 	{ 65537,	"getsize" },
+	{ 65538,	"dump-v2" },
+	{ 65539,	"partition-info-64" },
 	{ 0,		NULL },
 };
 static value_string_ext vol_req_ext = VALUE_STRING_EXT_INIT(vol_req);
@@ -1362,9 +1371,6 @@ struct afs_request_val {
 };
 
 static wmem_map_t *afs_request_hash = NULL;
-
-/*static GHashTable *afs_fragment_table = NULL; */
-/*static GHashTable *afs_reassembled_table = NULL; */
 static reassembly_table afs_reassembly_table;
 
 /*
@@ -1528,7 +1534,7 @@ dissect_fs_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 				OUT_FS_AFSFid(cursor, "Symlink");
 				break;
 			case 140: /* link */
-				OUT_FS_AFSFetchStatus(cursor, "Symlink Status");
+				OUT_FS_AFSFetchStatus(cursor, "Link Status");
 				break;
 			case 142: /* rmdir */
 				OUT_FS_AFSFetchStatus(cursor, "Directory Status");
