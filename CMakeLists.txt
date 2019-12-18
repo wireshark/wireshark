@@ -2784,6 +2784,7 @@ if(ENABLE_APPLICATION_BUNDLE)
 	# a signed ChmodBPF script.
 	set (install_chmodbpf_component_pkg "${CMAKE_BINARY_DIR}/install.ChmodBPF.pkg")
 	add_custom_command(OUTPUT "${install_chmodbpf_component_pkg}"
+		COMMAND "${CMAKE_SOURCE_DIR}/packaging/macosx/osx-extras.sh"
 		COMMAND pkgbuild
 			--identifier org.wireshark.ChmodBPF.pkg
 			--version 1.1
