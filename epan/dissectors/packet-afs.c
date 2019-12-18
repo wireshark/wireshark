@@ -539,7 +539,8 @@ static void OUT_RXString(ptvcursor_t *cursor, int field)
 	new_offset = ptvcursor_current_offset(cursor);
 
 	/* strings are padded to 32-bit boundary */
-	ptvcursor_advance(cursor, 4-((new_offset-offset)&3));
+	if ((new_offset-offset)&3)
+		ptvcursor_advance(cursor, 4-((new_offset-offset)&3));
 }
 
 /* Output a fixed length vectorized string (each char is a 32 bit int) */
