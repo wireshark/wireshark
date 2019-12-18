@@ -2784,11 +2784,12 @@ static const value_string bss_type[] = {
 
 static const value_string band_id[] = {
   {0x0, "TV white spaces"},
-  {0x1, "Sub-1 GHZ (excluding TV white spaces)"},
-  {0x2, "2.4 GHZ"},
-  {0x3, "3.6 GHZ"},
-  {0x4, "4.9 and 5 GHZ"},
-  {0x5, "60 GHZ"},
+  {0x1, "Sub-1 GHz (excluding TV white spaces)"},
+  {0x2, "2.4 GHz"},
+  {0x3, "3.6 GHz"},
+  {0x4, "4.9 and 5 GHz"},
+  {0x5, "60 GHz"},
+  {0x6, "45 GHz"},
   {0,   NULL}
 };
 
