@@ -6,18 +6,17 @@ include::attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is an experimental release intended to test new features for
-Wireshark 3.2.
+This is an experimental release intended to test new features for Wireshark 3.4.
 
 == What is Wireshark?
 
-Wireshark is the world’s most popular network protocol analyzer. It is
-used for troubleshooting, analysis, development and education.
+Wireshark is the world’s most popular network protocol analyzer.
+It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-Many improvements have been made. See the “New and Updated Features”
-section below for more details.
+Many improvements have been made.
+See the “New and Updated Features” section below for more details.
 
 // === Bug Fixes
 
