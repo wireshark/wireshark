@@ -31,6 +31,9 @@ public:
 protected:
     virtual void applyValuePrivate(gboolean value)
     {
+        if (! proto_can_toggle_protocol(proto_get_id(proto_)) || proto_is_pino(proto_)) {
+            return;
+        }
         proto_set_decoding(proto_get_id(proto_), value);
     }
 
