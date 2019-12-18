@@ -1913,7 +1913,7 @@ if(WIN32)
 				${CMAKE_BINARY_DIR}/${_md_file}.txt
 				${CMAKE_BINARY_DIR}/${_text_file}
 			DEPENDS
-				${CMAKE_SOURCE_DIR}/${_text_file}
+				${CMAKE_SOURCE_DIR}/${_md_file}
 		)
 	endforeach()
 endif()
