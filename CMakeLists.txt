@@ -2780,11 +2780,14 @@ if (MAXMINDDB_FOUND)
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
+	# --preserve-xattr is undocumented but ensures that we install
+	# a signed ChmodBPF script.
 	set (install_chmodbpf_component_pkg "${CMAKE_BINARY_DIR}/install.ChmodBPF.pkg")
 	add_custom_command(OUTPUT "${install_chmodbpf_component_pkg}"
 		COMMAND pkgbuild
 			--identifier org.wireshark.ChmodBPF.pkg
 			--version 1.1
+			--preserve-xattr
 			--root "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/root"
 			--scripts "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/install-scripts"
 			${install_chmodbpf_component_pkg}
