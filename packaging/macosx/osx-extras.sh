@@ -79,7 +79,7 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	# Code Signing Guide, "Testing Conformance with Command Line Tools"
 	codesign --verify --strict --verbose=2 "$chmodbpf" || exit 1
 else
-	echo "Code signing not performed (no identity)"
+	echo "Extras code signing not performed (no identity)"
 fi
 
 exit 0
