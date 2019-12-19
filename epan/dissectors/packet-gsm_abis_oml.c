@@ -1678,7 +1678,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, packet_info *pinfo,
 		if (global_oml_dialect == OML_DIALECT_IPA) switch (tag) {
 		/* proprietary ip.access extensions */
 		case NM_ATT_IPACC_DST_IP:
-			val32 = tvb_get_ntohl(tvb, offset);
+			val32 = tvb_get_ipv4(tvb, offset);
 			proto_tree_add_ipv4(att_tree, hf_attr_ipa_rsl_ip, tvb,
 					    offset, len, val32);
 			break;
