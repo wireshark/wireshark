@@ -241,7 +241,7 @@ dissect_rx_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	item = proto_tree_add_item(parent_tree, hf_rx_abort, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rx_abort);
 
-	/* kvno */
+	/* abort code */
 	proto_tree_add_item(tree, hf_rx_abortcode, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
