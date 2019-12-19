@@ -295,20 +295,10 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 {
 	proto_tree *tree;
 	proto_item *item;
-	guint8 num;
+	guint8 num, reason;
 	int old_offset = offset;
 
-	col_add_fstr(pinfo->cinfo, COL_INFO,
-			"ACK  "
-			"Seq: %lu  "
-			"Call: %lu  "
-			"Source Port: %s  "
-			"Destination Port: %s  ",
-			(unsigned long)seq,
-			(unsigned long)callnumber,
-			udp_port_to_display(wmem_packet_scope(), pinfo->srcport),
-			udp_port_to_display(wmem_packet_scope(), pinfo->destport)
-		);
+
 
 	item = proto_tree_add_item(parent_tree, hf_rx_ack, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rx_ack);
@@ -335,6 +325,7 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 	offset += 4;
 
 	/* reason : 1 byte */
+	reason = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_rx_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
@@ -382,6 +373,19 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 			offset += 4;
 		}
 	}
+
+	col_add_fstr(pinfo->cinfo, COL_INFO,
+			"ACK %s  "
+			"Seq: %lu  "
+			"Call: %lu  "
+			"Source Port: %s  "
+			"Destination Port: %s  ",
+			val_to_str(reason, rx_reason, "%d"),
+			(unsigned long)seq,
+			(unsigned long)callnumber,
+			udp_port_to_display(wmem_packet_scope(), pinfo->srcport),
+			udp_port_to_display(wmem_packet_scope(), pinfo->destport)
+		);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;

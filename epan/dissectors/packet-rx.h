@@ -55,6 +55,7 @@ struct rxinfo {
 #define RX_ACK_TYPE_NACK 0
 #define RX_ACK_TYPE_ACK 1
 
+/* ACK reasons */
 #define RX_ACK_REQUESTED 1
 #define RX_ACK_DUPLICATE 2
 #define RX_ACK_OUT_OF_SEQUENCE 3
