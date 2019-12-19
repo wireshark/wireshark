@@ -1866,9 +1866,8 @@ process_new_extcap(const char *extcap, char *output)
     if (toolbar_entry && toolbar_entry->menu_title)
     {
         iface_toolbar_add(toolbar_entry);
-        if (!extcap_iface_toolbar_add(extcap, toolbar_entry))
+        if (extcap_iface_toolbar_add(extcap, toolbar_entry))
         {
-            extcap_free_toolbar(toolbar_entry);
             toolbar_entry = NULL;
         }
     }
