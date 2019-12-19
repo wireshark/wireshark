@@ -2951,7 +2951,7 @@ proto_register_h264(void)
             NULL, HFILL }
         },
         { &hf_h264_frame_crop_right_offset,
-            { "frame_crop_left_offset",           "h264.frame_crop_right_offset",
+            { "frame_crop_right_offset",           "h264.frame_crop_right_offset",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
