@@ -417,6 +417,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 {
 	proto_tree *tree;
 	proto_item *item;
+	const char *version_type;
 	int offset = 0;
 	struct rxinfo rxinfo;
 	guint8 type;
@@ -521,6 +522,26 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 				"Call: %lu  "
 				"Source Port: %s  "
 				"Destination Port: %s  ",
+				(unsigned long)seq,
+				(unsigned long)callnumber,
+				udp_port_to_display(wmem_packet_scope(), pinfo->srcport),
+				udp_port_to_display(wmem_packet_scope(), pinfo->destport)
+			);
+		break;
+	case RX_PACKET_TYPE_VERSION:
+		/* does not contain any payload */
+		if (rxinfo.cid == 0)
+		    version_type = "NAT ping";
+		else
+		    version_type = "request";
+
+		col_add_fstr(pinfo->cinfo, COL_INFO,
+				"VERSION %s  "
+				"Seq: %lu  "
+				"Call: %lu  "
+				"Source Port: %s  "
+				"Destination Port: %s  ",
+				version_type,
 				(unsigned long)seq,
 				(unsigned long)callnumber,
 				udp_port_to_display(wmem_packet_scope(), pinfo->srcport),
