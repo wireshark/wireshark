@@ -2784,6 +2784,14 @@ if(ENABLE_APPLICATION_BUNDLE)
 	# a signed ChmodBPF script.
 	set (install_chmodbpf_component_pkg "${CMAKE_BINARY_DIR}/install.ChmodBPF.pkg")
 	add_custom_command(OUTPUT "${install_chmodbpf_component_pkg}"
+		COMMAND find
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/root"
+			-type d
+			-exec chmod 755 "{}" +
+		COMMAND chmod 644
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/root/Library/LaunchDaemons/org.wireshark.ChmodBPF.plist"
+		COMMAND chmod 755
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/root/Library/Application Support/Wireshark/ChmodBPF/ChmodBPF"
 		COMMAND "${CMAKE_SOURCE_DIR}/packaging/macosx/osx-extras.sh"
 		COMMAND pkgbuild
 			--identifier org.wireshark.ChmodBPF.pkg
@@ -2838,6 +2846,14 @@ if(ENABLE_APPLICATION_BUNDLE)
 
 	set (install_path_helper_component_pkg "${CMAKE_BINARY_DIR}/install.path_helper.pkg")
 	add_custom_command(OUTPUT "${install_path_helper_component_pkg}"
+		COMMAND find
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/root"
+			-type d
+			-exec chmod 755 "{}" +
+		COMMAND find
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/root"
+			-type f
+			-exec chmod 644 "{}" +
 		COMMAND pkgbuild
 			--identifier org.wireshark.path_helper.pkg
 			--version 1.0
