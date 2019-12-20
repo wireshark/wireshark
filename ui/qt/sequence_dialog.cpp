@@ -191,9 +191,6 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
 
 SequenceDialog::~SequenceDialog()
 {
-    delete key_text_;
-    delete comment_text_;
-    delete seq_diagram_;
     info_->unref();
     delete ui;
 }
