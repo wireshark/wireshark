@@ -392,15 +392,13 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
         return TAP_PACKET_REDRAW;
     }
 
-    if (!tap_device->is_local && tap_device->has_bd_addr) {
-        bd_addr.sprintf("%02x:%02x:%02x:%02x:%02x:%02x", tap_device->bd_addr[0], tap_device->bd_addr[1], tap_device->bd_addr[2], tap_device->bd_addr[3], tap_device->bd_addr[4], tap_device->bd_addr[5]);
-
-        if (bd_addr != tapinfo->bdAddr)
-            return TAP_PACKET_REDRAW;
-    }
-
     if (tap_device->has_bd_addr) {
-        bd_addr.sprintf("%02x:%02x:%02x:%02x:%02x:%02x", tap_device->bd_addr[0], tap_device->bd_addr[1], tap_device->bd_addr[2], tap_device->bd_addr[3], tap_device->bd_addr[4], tap_device->bd_addr[5]);
+        for (int i = 0; i < 6; ++i)
+            bd_addr += QString("%1:").arg(tap_device->bd_addr[0], 2, 16, QChar('0'));
+        bd_addr.remove(bd_addr.length() - 1, 1);
+        if (!tap_device->is_local && bd_addr != tapinfo->bdAddr)
+            return TAP_PACKET_REDRAW;
+
         manuf = get_ether_name(tap_device->bd_addr);
         if (manuf) {
             int pos;
@@ -479,7 +477,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
         updateChanges(tableWidget, field, row_number_hci_version, tapinfo->changes, pinfo);
         item->setText(field);
 
-        field = QString("").sprintf("%u", tap_device->data.local_version.hci_revision);
+        field = QString::number(tap_device->data.local_version.hci_revision);
         item = tableWidget->item(row_number_hci_revision, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_hci_revision, tapinfo->changes, pinfo);
@@ -497,7 +495,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
         updateChanges(tableWidget, field, row_number_lmp_version, tapinfo->changes, pinfo);
         item->setText(field);
 
-        field = QString("").sprintf("%u", tap_device->data.local_version.lmp_subversion);
+        field = QString::number(tap_device->data.local_version.lmp_subversion);
         item = tableWidget->item(row_number_lmp_subversion, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_lmp_subversion, tapinfo->changes, pinfo);
@@ -517,7 +515,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
         updateChanges(tableWidget, field, row_number_lmp_version, tapinfo->changes, pinfo);
         item->setText(field);
 
-        field = QString("").sprintf("%u", tap_device->data.remote_version.lmp_subversion);
+        field = QString::number(tap_device->data.remote_version.lmp_subversion);
         item = tableWidget->item(row_number_lmp_subversion, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_lmp_subversion, tapinfo->changes, pinfo);
@@ -531,7 +529,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
 
         break;
     case BLUETOOTH_DEVICE_VOICE_SETTING:
-        field = QString("").sprintf("0x%04x", tap_device->data.voice_setting);
+        field = QString("%1").arg(tap_device->data.voice_setting, 4, 16, QChar('0'));
         item = tableWidget->item(row_number_voice_setting, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_voice_setting, tapinfo->changes, pinfo);
@@ -539,7 +537,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
 
         break;
     case BLUETOOTH_DEVICE_CLASS_OF_DEVICE:
-        field = QString("").sprintf("0x%06x", tap_device->data.class_of_device);
+        field = QString("%1").arg(tap_device->data.class_of_device, 6, 16, QChar('0'));
         item = tableWidget->item(row_number_class_of_device, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_class_of_device, tapinfo->changes, pinfo);

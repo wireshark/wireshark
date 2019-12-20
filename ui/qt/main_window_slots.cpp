@@ -879,8 +879,10 @@ void MainWindow::startCapture() {
         g_string_append(interface_names, " ");
 
         wsApp->popStatus(WiresharkApplication::FileStatus);
-        QString msg = QString().sprintf("%s<live capture in progress>", interface_names->str);
-        QString msgtip = QString().sprintf("to file: %s", (capture_opts->save_file) ? capture_opts->save_file : "");
+        QString msg = QString("%1<live capture in progress>").arg(interface_names->str);
+        QString msgtip = QString("to file: ");
+        if (capture_opts->save_file)
+            msgtip += capture_opts->save_file;
         wsApp->pushStatus(WiresharkApplication::FileStatus, msg, msgtip);
         g_string_free(interface_names, TRUE);
 

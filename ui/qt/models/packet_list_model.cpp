@@ -645,9 +645,9 @@ QVariant PacketListModel::headerData(int section, Qt::Orientation orientation,
     if (orientation == Qt::Horizontal && section < prefs.num_cols) {
         switch (role) {
         case Qt::DisplayRole:
-            return qVariantFromValue(QString(get_column_title(section)));
+            return QVariant::fromValue(QString(get_column_title(section)));
         case Qt::ToolTipRole:
-            return qVariantFromValue(gchar_free_to_qstring(get_column_tooltip(section)));
+            return QVariant::fromValue(gchar_free_to_qstring(get_column_tooltip(section)));
         default:
             break;
         }

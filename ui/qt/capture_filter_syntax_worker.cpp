@@ -91,7 +91,7 @@ void CaptureFilterSyntaxWorker::start() {
             }
         }
 
-        foreach (gint dlt, active_dlts.toList()) {
+        foreach (gint dlt, active_dlts.values()) {
             pcap_compile_mtx_.lock();
             pd = pcap_open_dead(dlt, DUMMY_SNAPLENGTH);
             if (pd == NULL)
@@ -124,7 +124,7 @@ void CaptureFilterSyntaxWorker::start() {
         }
         // If it's already invalid, don't bother to check extcap
         if (state != SyntaxLineEdit::Invalid) {
-            foreach (guint extcapif, active_extcap.toList()) {
+            foreach (guint extcapif, active_extcap.values()) {
                 interface_t *device;
                 gchar *error = NULL;
 

@@ -12,7 +12,7 @@
 
 #include <QLabel>
 #include <QStack>
-#include <QTime>
+#include <QElapsedTimer>
 #include <QTimer>
 
 class LabelStack : public QLabel
@@ -41,7 +41,7 @@ private:
     int temporary_ctx_;
     QList<StackItem> labels_;
     bool shrinkable_;
-    QTime  temporary_epoch_;
+    QElapsedTimer temporary_epoch_;
     QTimer temporary_timer_;
 
     void fillLabel();

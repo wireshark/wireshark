@@ -35,15 +35,15 @@ EnabledProtocolsDialog::EnabledProtocolsDialog(QWidget *parent) :
     int one_em = ui->protocol_tree_->fontMetrics().height();
     ui->protocol_tree_->setColumnWidth(EnabledProtocolsModel::colProtocol, one_em * 18);
 
-    ui->cmbSearchType->addItem(tr("Everywhere"), qVariantFromValue(EnabledProtocolsProxyModel::EveryWhere));
-    ui->cmbSearchType->addItem(tr("Only Protocols"), qVariantFromValue(EnabledProtocolsProxyModel::OnlyProtocol));
-    ui->cmbSearchType->addItem(tr("Only Description"), qVariantFromValue(EnabledProtocolsProxyModel::OnlyDescription));
-    ui->cmbSearchType->addItem(tr("Only enabled protocols"), qVariantFromValue(EnabledProtocolsProxyModel::EnabledItems));
-    ui->cmbSearchType->addItem(tr("Only disabled protocols"), qVariantFromValue(EnabledProtocolsProxyModel::DisabledItems));
+    ui->cmbSearchType->addItem(tr("Everywhere"), QVariant::fromValue(EnabledProtocolsProxyModel::EveryWhere));
+    ui->cmbSearchType->addItem(tr("Only Protocols"), QVariant::fromValue(EnabledProtocolsProxyModel::OnlyProtocol));
+    ui->cmbSearchType->addItem(tr("Only Description"), QVariant::fromValue(EnabledProtocolsProxyModel::OnlyDescription));
+    ui->cmbSearchType->addItem(tr("Only enabled protocols"), QVariant::fromValue(EnabledProtocolsProxyModel::EnabledItems));
+    ui->cmbSearchType->addItem(tr("Only disabled protocols"), QVariant::fromValue(EnabledProtocolsProxyModel::DisabledItems));
 
-    ui->cmbProtocolType->addItem(tr("any protocol"), qVariantFromValue(EnabledProtocolItem::Any));
-    ui->cmbProtocolType->addItem(tr("non-heuristic protocols"), qVariantFromValue(EnabledProtocolItem::Standard));
-    ui->cmbProtocolType->addItem(tr("heuristic protocols"), qVariantFromValue(EnabledProtocolItem::Heuristic));
+    ui->cmbProtocolType->addItem(tr("any protocol"), QVariant::fromValue(EnabledProtocolItem::Any));
+    ui->cmbProtocolType->addItem(tr("non-heuristic protocols"), QVariant::fromValue(EnabledProtocolItem::Standard));
+    ui->cmbProtocolType->addItem(tr("heuristic protocols"), QVariant::fromValue(EnabledProtocolItem::Heuristic));
 
     fillTree();
 }

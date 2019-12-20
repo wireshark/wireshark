@@ -282,7 +282,7 @@ QVariant ColumnListModel::data(const QModelIndex &index, int role) const
             case ColumnListModel::COL_FIELDS:
                 return ne.customFields;
             case ColumnListModel::COL_OCCURRENCE:
-                return ne.customFields.length() > 0 ? qVariantFromValue(ne.occurrence) : QVariant();
+                return ne.customFields.length() > 0 ? QVariant::fromValue(ne.occurrence) : QVariant();
         }
     }
     else if (role == Qt::CheckStateRole)
@@ -293,9 +293,9 @@ QVariant ColumnListModel::data(const QModelIndex &index, int role) const
         }
     }
     else if (role == OriginalType)
-        return qVariantFromValue(ne.originalType);
+        return QVariant::fromValue(ne.originalType);
     else if (role == DisplayedState)
-        return qVariantFromValue(ne.displayed);
+        return QVariant::fromValue(ne.displayed);
 
     return QVariant();
 }
