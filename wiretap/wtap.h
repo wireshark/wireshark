@@ -770,7 +770,7 @@ struct ieee_802_11ac {
  */
 
 #define PHDR_802_11AD_MIN_FREQUENCY    57000
-#define PHDR_802_11AD_MAX_FREQUENCY    66000
+#define PHDR_802_11AD_MAX_FREQUENCY    71000
 
 #define IS_80211AD(frequency) (((frequency) >= PHDR_802_11AD_MIN_FREQUENCY) &&\
                                ((frequency) <= PHDR_802_11AD_MAX_FREQUENCY))
