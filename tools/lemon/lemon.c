@@ -1627,7 +1627,7 @@ static void stats_line(const char *zLabel, int iValue){
 }
 
 /* The main program.  Parse the command line and do it... */
-int main(int argc, char **argv)
+ int main(int argc, char **argv)
 {
   static int version = 0;
   static int rpflag = 0;
@@ -1638,6 +1638,8 @@ int main(int argc, char **argv)
   static int mhflag = 0;
   static int nolinenosflag = 0;
   static int noResort = 0;
+
+  (void) argc; /* Mark unused, similar to Q_UNUSED */
 
   static struct s_options options[] = {
     {OPT_FLAG, "b", (char*)&basisflag, "Print only the basis in report."},
