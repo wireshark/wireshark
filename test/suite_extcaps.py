@@ -65,8 +65,8 @@ class case_extcaps(subprocesstest.SubprocessTestCase):
 
     def test_dpauxmon(self, check_extcap_execution):
         ''' extcap interface tests for dpauxmon '''
-        if sys.platform == 'win32':
-            fixtures.skip('dpauxmon not available on Windows')
+        if not sys.platform.startswith('linux'):
+            fixtures.skip('dpauxmon available on Linux only')
         check_extcap_execution("dpauxmon")
 
     def test_randpktdump(self, check_extcap_execution):
@@ -76,7 +76,7 @@ class case_extcaps(subprocesstest.SubprocessTestCase):
     def test_sdjournal(self, check_extcap_execution):
         ''' extcap interface tests for sdjournal '''
         if not sys.platform.startswith('linux'):
-            fixtures.skip('sdjournal available on Linux only')
+            fixtures.skip('sdjournal is available on Linux only')
         check_extcap_execution("sdjournal")
 
     def test_sshdump(self, check_extcap_execution):

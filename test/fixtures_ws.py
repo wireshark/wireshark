@@ -148,7 +148,10 @@ def wireshark_command(cmd_wireshark):
 @fixtures.fixture(scope='session')
 def cmd_extcap(program):
     def extcap_name(name):
-        return program(os.path.join('extcap', name))
+        if sys.platform == 'darwin':
+            return program(os.path.join('Wireshark.app/Contents/MacOS/extcap', name))
+        else:
+            return program(os.path.join('extcap', name))
     return extcap_name
 
 
