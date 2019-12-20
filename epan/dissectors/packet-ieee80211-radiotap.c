@@ -1463,10 +1463,10 @@ dissect_radiotap_channel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 	/*
 	 * XXX - special-case 11ad; there's no field to explicitly indicate
-	 * an 11ad packet.  Anything with a frequency >= 60 GHz is treated
-	 * as 11ad.
+	 * an 11ad packet.  Anything with a frequency in the 802.11ad range
+	 * is treated as 11ad.
 	 */
-	if (freq >= 60000)
+	if (IS_80211AD(freq))
 		phdr->phy = PHDR_802_11_PHY_11AD;
 
 	if (tree) {
@@ -1700,10 +1700,10 @@ dissect_radiotap_xchannel(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 		/*
 		 * XXX - special-case 11ad; there's no field to explicitly
-		 * indicate an 11ad packet.  Anything with a frequency >=
-		 * 60 GHz is treated as 11ad.
+		 * indicate an 11ad packet.  Anything with a frequency in
+		 * the 802.11ad range is treated as 11ad.
 		 */
-		if (freq >= 60000)
+		if (IS_80211AD(freq))
 			phdr->phy = PHDR_802_11_PHY_11AD;
 	}
 	phdr->has_channel = TRUE;
