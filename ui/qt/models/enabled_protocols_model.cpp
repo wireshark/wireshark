@@ -236,7 +236,7 @@ QVariant EnabledProtocolsModel::data(const QModelIndex &index, int role) const
         }
         break;
     case DATA_PROTOCOL_TYPE:
-        return qVariantFromValue(item->type());
+        return QVariant::fromValue(item->type());
         break;
     default:
     break;
@@ -500,7 +500,7 @@ void EnabledProtocolsProxyModel::setItemsEnable(EnabledProtocolsProxyModel::Enab
                 else
                     enable = enable == Qt::Checked ? Qt::Unchecked : Qt::Checked;
 
-                sourceModel()->setData(mapToSource(idx), qVariantFromValue(enable), Qt::CheckStateRole);
+                sourceModel()->setData(mapToSource(idx), QVariant::fromValue(enable), Qt::CheckStateRole);
             }
         }
 

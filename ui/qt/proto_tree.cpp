@@ -311,7 +311,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     submenu = ctx_menu.addMenu(tr("Copy"));
     submenu->addAction(tr("All Visible Items"), this, SLOT(ctxCopyVisibleItems()));
     action = submenu->addAction(tr("All Visible Selected Tree Items"), this, SLOT(ctxCopyVisibleItems()));
-    action->setProperty("selected_tree", qVariantFromValue(true));
+    action->setProperty("selected_tree", QVariant::fromValue(true));
     action = submenu->addAction(tr("Description"), this, SLOT(ctxCopySelectedInfo()));
     action->setProperty("field_type", ProtoTree::Description);
     action = submenu->addAction(tr("Field Name"), this, SLOT(ctxCopySelectedInfo()));
@@ -336,7 +336,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
     ctx_menu.addAction(tr("Wiki Protocol Page"), this, SLOT(ctxOpenUrlWiki()));
     action = ctx_menu.addAction(tr("Filter Field Reference"), this, SLOT(ctxOpenUrlWiki()));
-    action->setProperty("field_reference", qVariantFromValue(true));
+    action->setProperty("field_reference", QVariant::fromValue(true));
     ctx_menu.addMenu(&proto_prefs_menu_);
     ctx_menu.addSeparator();
     decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");

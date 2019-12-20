@@ -44,7 +44,7 @@ QVariant CredentialsModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
             case COL_NUM:
-                return qVariantFromValue(auth->num);
+                return QVariant::fromValue(auth->num);
             case COL_PROTO:
                 return QString(auth->proto);
             case COL_USERNAME:
@@ -60,11 +60,11 @@ QVariant CredentialsModel::data(const QModelIndex &index, int role) const
         switch (index.column()) {
             case COL_NUM:
                 if (auth->num > 0)
-                    return qVariantFromValue(auth->num);
+                    return QVariant::fromValue(auth->num);
                 break;
             case COL_USERNAME:
                 if (auth->username_num > 0)
-                    return qVariantFromValue(auth->username_num);
+                    return QVariant::fromValue(auth->username_num);
                 break;
             default:
                 return QVariant();
@@ -72,7 +72,7 @@ QVariant CredentialsModel::data(const QModelIndex &index, int role) const
     }
 
     if (role == CredentialsModel::ColumnHFID)
-        return qVariantFromValue(auth->password_hf_id);
+        return QVariant::fromValue(auth->password_hf_id);
 
     if (role == Qt::ToolTipRole) {
         const QString select_msg(tr("Click to select the packet"));

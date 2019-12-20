@@ -422,8 +422,8 @@ QMimeData* ColoringRulesModel::mimeData(const QModelIndexList &indexes) const
             entry["disabled"] = item->disabled_;
             entry["name"] = item->name_;
             entry["filter"] = item->filter_;
-            entry["foreground"] = qVariantFromValue(item->foreground_).toString();
-            entry["background"] = qVariantFromValue(item->background_).toString();
+            entry["foreground"] = QVariant::fromValue(item->foreground_).toString();
+            entry["background"] = QVariant::fromValue(item->background_).toString();
             data.append(entry);
         }
     }

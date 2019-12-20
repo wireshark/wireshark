@@ -390,7 +390,7 @@ void RtpAudioStream::decode()
 
 const QStringList RtpAudioStream::payloadNames() const
 {
-    QStringList payload_names = payload_names_.toList();
+    QStringList payload_names = payload_names_.values();
     payload_names.sort();
     return payload_names;
 }

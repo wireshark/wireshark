@@ -125,7 +125,7 @@ public:
         // N.B. fields that are set as % using percent_bar_delegate.h
         // for UE headings don't display here...
         for (int n=0; n < 11; n++) {
-            setText(col_type_+n, QString("").sprintf("%u", lcids[n]));
+            setText(col_type_+n, QString::number((uint)lcids[n]));
         }
     }
 

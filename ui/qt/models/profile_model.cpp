@@ -587,11 +587,11 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
     case Qt::ToolTipRole:
         return dataToolTipRole(index);
     case ProfileModel::DATA_STATUS:
-        return qVariantFromValue(prof->status);
+        return QVariant::fromValue(prof->status);
     case ProfileModel::DATA_IS_DEFAULT:
-        return qVariantFromValue(prof->status == PROF_STAT_DEFAULT);
+        return QVariant::fromValue(prof->status == PROF_STAT_DEFAULT);
     case ProfileModel::DATA_IS_GLOBAL:
-        return qVariantFromValue(prof->is_global);
+        return QVariant::fromValue(prof->is_global);
     case ProfileModel::DATA_IS_SELECTED:
         {
             QModelIndex selected = activeProfile();
@@ -599,26 +599,26 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
             if (selprof)
             {
                 if (selprof && selprof->is_global != prof->is_global)
-                    return qVariantFromValue(false);
+                    return QVariant::fromValue(false);
 
                 if (selprof && strcmp(selprof->name, prof->name) == 0)
-                    return qVariantFromValue(true);
+                    return QVariant::fromValue(true);
             }
-            return qVariantFromValue(false);
+            return QVariant::fromValue(false);
         }
     case ProfileModel::DATA_PATH:
         return dataPath(index);
     case ProfileModel::DATA_INDEX_VALUE_IS_URL:
         if (index.column() <= ProfileModel::COL_TYPE)
-            return qVariantFromValue(false);
-        return qVariantFromValue(true);
+            return QVariant::fromValue(false);
+        return QVariant::fromValue(true);
     case ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION:
         if (prof->status == PROF_STAT_NEW || prof->status == PROF_STAT_COPY
              || (prof->status == PROF_STAT_DEFAULT && reset_default_)
              || prof->status == PROF_STAT_CHANGED || prof->is_import)
-            return qVariantFromValue(false);
+            return QVariant::fromValue(false);
         else
-            return qVariantFromValue(true);
+            return QVariant::fromValue(true);
 
     default:
         break;

@@ -265,7 +265,7 @@ QAction * FilterAction::copyFilterAction(QString filter, QWidget *par)
 {
     FilterAction * filterAction = new FilterAction(par, ActionCopy);
     QAction * action = new QAction(QObject::tr("Copy"), par);
-    action->setProperty("filter", qVariantFromValue(filter));
+    action->setProperty("filter", QVariant::fromValue(filter));
     connect(action, &QAction::triggered, filterAction, &FilterAction::copyActionTriggered);
 
     if (filter.isEmpty())

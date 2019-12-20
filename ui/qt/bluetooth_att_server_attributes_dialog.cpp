@@ -281,7 +281,7 @@ tap_packet_status BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_pt
             return TAP_PACKET_REDRAW;
     }
 
-    handle.sprintf("0x%04x", tap_handles->handle);
+    handle = QString("0x%1").arg(tap_handles->handle, 4, 16, QChar('0'));
     uuid = QString(print_numeric_uuid(&tap_handles->uuid));
     uuid_name = QString(print_uuid(&tap_handles->uuid));
 

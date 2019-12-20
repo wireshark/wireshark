@@ -164,23 +164,23 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     char xalign = recent_get_column_xalign(sectionIdx);
     QAction * action = Q_NULLPTR;
     QMenu * contextMenu = new QMenu(this);
-    contextMenu->setProperty("column", qVariantFromValue(sectionIdx));
+    contextMenu->setProperty("column", QVariant::fromValue(sectionIdx));
 
     QActionGroup * alignmentActions = new QActionGroup(contextMenu);
     alignmentActions->setExclusive(false);
-    alignmentActions->setProperty("column", qVariantFromValue(sectionIdx));
+    alignmentActions->setProperty("column", QVariant::fromValue(sectionIdx));
     action = alignmentActions->addAction(tr("Align Left"));
     action->setCheckable(true);
     action->setChecked(xalign == COLUMN_XALIGN_LEFT ? true : false);
-    action->setData(qVariantFromValue(COLUMN_XALIGN_LEFT));
+    action->setData(QVariant::fromValue(COLUMN_XALIGN_LEFT));
     action = alignmentActions->addAction(tr("Align Center"));
     action->setCheckable(true);
     action->setChecked(xalign == COLUMN_XALIGN_CENTER ? true : false);
-    action->setData(qVariantFromValue(COLUMN_XALIGN_CENTER));
+    action->setData(QVariant::fromValue(COLUMN_XALIGN_CENTER));
     action = alignmentActions->addAction(tr("Align Right"));
     action->setCheckable(true);
     action->setChecked(xalign == COLUMN_XALIGN_RIGHT ? true : false);
-    action->setData(qVariantFromValue(COLUMN_XALIGN_RIGHT));
+    action->setData(QVariant::fromValue(COLUMN_XALIGN_RIGHT));
     connect(alignmentActions, &QActionGroup::triggered, this, &PacketListHeader::setAlignment);
 
     contextMenu->addActions(alignmentActions->actions());
