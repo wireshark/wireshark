@@ -30,6 +30,7 @@
 
 #include <wsutil/utf8_entities.h>
 #include <wsutil/pint.h>
+#include <wsutil/str_util.h>
 
 #include "packet-udp.h"
 
@@ -134,6 +135,11 @@ static header_field_info hfi_udp_ts_delta UDP_HFI_INIT =
 static header_field_info hfi_udplite_checksum_coverage UDPLITE_HFI_INIT =
 { "Checksum coverage", "udp.checksum_coverage", FT_UINT16, BASE_DEC, NULL, 0x0,
   NULL, HFILL };
+
+static header_field_info hfi_udp_payload UDP_HFI_INIT =
+{ "Payload", "udp.payload", FT_BYTES, BASE_NONE, NULL, 0x0,
+  NULL, HFILL };
+
 
 static gint ett_udp = -1;
 static gint ett_udp_checksum = -1;
@@ -592,7 +598,7 @@ handle_export_pdu_conversation(packet_info *pinfo, tvbuff_t *tvb, int uh_dport, 
 
 void
 decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                 proto_tree *tree, int uh_sport, int uh_dport, int uh_ulen)
+                 proto_tree *udp_tree, int uh_sport, int uh_dport, int uh_ulen)
 {
   tvbuff_t *next_tvb;
   int low_port, high_port;
@@ -602,6 +608,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   guint8 curr_layer_num = pinfo->curr_layer_num;
   heur_dtbl_entry_t *hdtbl_entry;
   exp_pdu_data_t *exp_pdu_data;
+  proto_tree* tree = proto_tree_get_root(udp_tree);
 
   /* populate per packet data variable */
   udp_p_info = (udp_p_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, pinfo->curr_layer_num);
@@ -619,6 +626,11 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (len > reported_len)
       len = reported_len;
   }
+
+//  proto_tree_add_item(udp_tree, &hfi_udp_payload, tvb, offset, len, ENC_NA);
+  proto_tree_add_bytes_format(udp_tree, &hfi_udp_payload, tvb, offset,
+      -1, NULL, "UDP payload (%u byte%s)", len,
+      plurality(len, "", "s"));
 
   next_tvb = tvb_new_subset_length_caplen(tvb, offset, len, reported_len);
 
@@ -1219,7 +1231,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
    * nothing left in the packet.
    */
   if (!pinfo->flags.in_error_pkt || (tvb_captured_length_remaining(tvb, offset) > 0))
-    decode_udp_ports(tvb, offset, pinfo, tree, udph->uh_sport, udph->uh_dport, udph->uh_ulen);
+    decode_udp_ports(tvb, offset, pinfo, udp_tree, udph->uh_sport, udph->uh_dport, udph->uh_ulen);
 }
 
 static int
@@ -1269,7 +1281,8 @@ proto_register_udp(void)
     &hfi_udp_proc_dst_cmd,
     &hfi_udp_pdu_size,
     &hfi_udp_ts_relative,
-    &hfi_udp_ts_delta
+    &hfi_udp_ts_delta,
+    &hfi_udp_payload
   };
 
   static header_field_info *hfi_lite[] = {
