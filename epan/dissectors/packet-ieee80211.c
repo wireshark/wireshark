@@ -23858,9 +23858,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
   guint16          meshoff     = 0;
   static wlan_hdr_t whdrs[4];
   gboolean         retransmitted;
-  gboolean         isDMG = (phdr->has_frequency ?
-                                IS_80211AD(phdr->frequency) :
-                                FALSE);
+  gboolean         isDMG = (phdr->phy == PHDR_802_11_PHY_11AD);
 
   encap_t     encap_type;
   proto_tree *hdr_tree = NULL;
