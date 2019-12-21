@@ -15,7 +15,7 @@ These statistics range from general information about the loaded capture file
 (like the number of captured packets), to statistics about specific protocols
 (e.g. statistics about the number of HTTP requests and responses captured).
 
-* General statistics:
+.General statistics
 
   - *Capture File Properties* about the capture file.
 
@@ -27,7 +27,7 @@ These statistics range from general information about the loaded capture file
 
   - *I/O Graphs* visualizing the number of packets (or similar) in time.
 
-* Protocol specific statistics:
+.Protocol specific statistics
 
   - *Service Response Time* between request and response of some protocols.
 
@@ -49,31 +49,56 @@ Some of these statistics are described at
 
 [[ChStatSummary]]
 
-=== The “Capture File Properties” Window
+=== The “Capture File Properties” Dialog
 
-General statistics about the current capture file.
+General information about the current capture file.
 
-.The “Capture File Properties” window
-image::wsug_graphics/ws-stats-summary.png[{screenshot-attrs}]
+.The “Capture File Properties” dialog
+image::wsug_graphics/ws-capture-file-properties.png[{screenshot-attrs}]
 
-* __File__: general information about the capture file.
+This dialog shows the following information:
 
-* __Time__: the timestamps when the first and the last packet were captured (and
-  the time between them).
+Details::
+Notable information about the capture file.
 
-* __Capture__: information from the time when the capture was done (only
-  available if the packet data was captured from the network and not loaded from
-  a file).
+File:::
+General information about the capture file, including its full path, size, cryptographic hashes, file format, and encapsulation.
 
-* __Interface__: information about the capture interface.
+Time:::
+The timestamps of the first and the last packet in the file along with their difference.
 
-* __Statistics__: some statistics of the network traffic seen. If a display
-  filter is set, you will see values in the Captured column, and if any
-  packages are marked, you will see values in the Marked column. The values
-  in the _Captured_ column will remain the same as before, while the values
-  in the _Displayed_ column will reflect the values corresponding to the
-  packets shown in the display. The values in the _Marked_ column will
-  reflect the values corresponding to the marked packages.
+Capture:::
+Information about the capture environment.
+This will only be shown for live captures or if this information is present in a saved capture file.
+The pcapng format supports this, while pcap doesn’t.
+
+Interfaces:::
+Information about the capture interface or interfaces.
+
+Statistics:::
+A statistical summary of the capture file.
+If a display filter is set, you will see values in the _Captured_ column, and if any packets are marked, you will see values in the _Marked_ column.
+The values in the _Captured_ column will remain the same as before, while the values in the _Displayed_ column will reflect the values corresponding to the packets shown in the display.
+The values in the _Marked_ column will reflect the values corresponding to the marked packages.
+
+Capture file comments::
+Some capture file formats (notably pcapng) allow a text comment for the entire file.
+You can view and edit this comment here.
+
+btn:[Refresh]::
+Updates the information in the dialog.
+
+btn:[Save Comments]::
+Saves the contents of the “Capture file comments” text entry.
+
+btn:[Close]::
+Closes the dialog
+
+btn:[Copy To Clipboard]::
+Copies the “Details” information to the clipboard.
+
+btn:[Help]::
+Opens this section of the User’s Guide.
 
 [[ChStatResolvedAddresses]]
 
@@ -99,28 +124,32 @@ The btn:[Copy] button will let you copy the window contents as CSV or YAML.
 
 .Protocol hierarchy columns
 
-Protocol:: This protocol’s name
+Protocol::
+This protocol’s name.
 
-Percent Packets:: The percentage of protocol packets relative to all packets in
-  the capture
+Percent Packets::
+The percentage of protocol packets relative to all packets in the capture.
 
-Packets:: The total number of packets of this protocol
+Packets::
+The total number of packets of this protocol.
 
-Percent Bytes:: The percentage of protocol bytes relative to the total bytes in
-  the capture
+Percent Bytes::
+The percentage of protocol bytes relative to the total bytes in the capture.
 
-Bytes:: The total number of bytes of this protocol
+Bytes::
+The total number of bytes of this protocol.
 
-Bits/s:: The bandwidth of this protocol relative to the capture time
+Bits/s::
+The bandwidth of this protocol relative to the capture time.
 
-End Packets:: The absolute number of packets of this protocol where it
-  was the highest protocol in the stack (last dissected)
+End Packets::
+The absolute number of packets of this protocol where it was the highest protocol in the stack (last dissected).
 
-End Bytes:: The absolute number of bytes of this protocol where it
-  was the highest protocol in the stack (last dissected)
+End Bytes::
+The absolute number of bytes of this protocol where it was the highest protocol in the stack (last dissected).
 
-End Bits/s:: The bandwidth of this protocol relative to the capture time where
-  was the highest protocol in the stack (last dissected)
+End Bits/s::
+The bandwidth of this protocol relative to the capture time where was the highest protocol in the stack (last dissected).
 
 Packets usually contain multiple protocols. As a result more than one protocol will
 be counted for each packet. Example: In the screenshot IP has 99.9% and TCP

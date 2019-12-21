@@ -120,6 +120,7 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-bytes-pane-popup-menu.png
 	wsug_graphics/ws-bytes-pane-tabs.png
 	wsug_graphics/ws-bytes-pane.png
+	wsug_graphics/ws-capture-file-properties.png
 	wsug_graphics/ws-capture-info.png
 	wsug_graphics/ws-capture-interfaces-main-macos.png
 	wsug_graphics/ws-capture-interfaces-main-win32.png
@@ -193,7 +194,6 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-stats-iographs.png # GTK+
 	wsug_graphics/ws-stats-srt-dcerpc-filter.png # GTK+
 	wsug_graphics/ws-stats-srt-dcerpc.png # GTK+
-	wsug_graphics/ws-stats-summary.png # GTK+
 	wsug_graphics/ws-stats-lte-mac-traffic.png
 	wsug_graphics/ws-stats-lte-rlc-traffic.png
 	wsug_graphics/ws-stats-wlan-traffic.png # GTK+
