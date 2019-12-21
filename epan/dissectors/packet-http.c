@@ -3598,6 +3598,13 @@ dissect_http_on_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			} else {
 				call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 			}
+			/*
+			 * If a subdissector requests reassembly, be sure not to
+			 * include the preceding HTTP headers.
+			 */
+			if (pinfo->desegment_len) {
+				pinfo->desegment_offset += offset;
+			}
 			break;
 		}
 		len = dissect_http_message(tvb, offset, pinfo, tree, conv_data, "HTTP", proto_http, end_of_stream);
