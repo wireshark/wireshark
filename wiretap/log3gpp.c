@@ -704,7 +704,7 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
       n++;
 
       /* Now skip ahead to find start of data (marked by '$') */
-      for (; (linebuff[n] != '$') && (n <= line_length) && (prot_option_chars <= MAX_PROTOCOL_PAR_STRING);
+      for (; (n <= line_length) && (linebuff[n] != '$') && (prot_option_chars <= MAX_PROTOCOL_PAR_STRING);
            n++,prot_option_chars++)
       {
         protocol_parameters[prot_option_chars] = linebuff[n];
@@ -820,7 +820,7 @@ gboolean get_file_time_stamp(gchar* linebuff, time_t *secs, guint32 *usecs)
 
     /**************************************************************/
     /* First is month. Read until get a space following the month */
-    for (n=0; (linebuff[n] != ' ') && (n < MAX_MONTH_LETTERS); n++)
+    for (n=0; (n < MAX_MONTH_LETTERS) && (linebuff[n] != ' '); n++)
     {
         month[n] = linebuff[n];
     }
