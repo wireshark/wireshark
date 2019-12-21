@@ -689,6 +689,8 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                 typestr = "Cancel request";
             else if (length == 8 && tag == 80877103)
                 typestr = "SSL request";
+            else if (length == 8 && tag == 80877104)
+                typestr = "GSS encrypt request";
             else if (tag == 196608)
                 typestr = "Startup message";
             else
