@@ -1,7 +1,7 @@
 Wireshark 3.3.0 Release Notes
 
  This is an experimental release intended to test new features for
- Wireshark 3.2.
+ Wireshark 3.4.
 
  What is Wireshark?
 
@@ -27,6 +27,15 @@ Wireshark 3.3.0 Release Notes
        is saved and warning is shown.
 
      • C-ares is now a required dependency.
+
+     • Protobuf fields can be dissected as wireshark (header) fields
+       that allows user input the full names of Protobuf fields or
+       messages in Filter toolbar for searching.
+
+     • Dissector based on Protobuf can register itself to a new
+       'protobuf_field' dissector table, which is keyed with the full
+       names of fields, for further parsing fields of BYETS or STRING
+       type.
 
   New Protocol Support
 
@@ -70,7 +79,7 @@ Wireshark 3.3.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2019-12-15 08:07:33 UTC
+  Last updated 2019-12-22 08:06:49 UTC
 
  References
 
