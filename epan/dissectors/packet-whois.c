@@ -118,7 +118,10 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_item_set_generated(ti);
         }
     } else if (tree && whois_trans->rep_frame) {
-        proto_tree_add_item(whois_tree, hf_whois_answer, tvb, 0, -1, ENC_ASCII|ENC_NA);
+        /*
+         * If we know the request frame, show it and the time delta between
+         * the request and the response.
+         */
         if (whois_trans->req_frame) {
             nstime_t ns;
 
@@ -131,6 +134,24 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 ti = proto_tree_add_time(whois_tree, hf_whois_response_time, tvb, 0, 0, &ns);
                 proto_item_set_generated(ti);
             }
+        }
+
+        /*
+         * Show the response as text, a line at a time.
+         */
+	int offset = 0, next_offset;
+        while (tvb_offset_exists(tvb, offset)) {
+            /*
+             * Find the end of the line.
+             */
+            tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+
+            /*
+             * Put this line.
+             */
+            proto_tree_add_item(whois_tree, hf_whois_answer, tvb, offset,
+                next_offset - offset, ENC_ASCII|ENC_NA);
+            offset = next_offset;
         }
     }
 
