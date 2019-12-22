@@ -160,59 +160,23 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
     // Advanced units
     adv_type = proto_registrar_get_ftype(hf_index_);
     switch (adv_type) {
-    case FT_UINT8:
-    case FT_UINT16:
-    case FT_UINT24:
-    case FT_UINT32:
-    case FT_UINT64:
+
     case FT_INT8:
     case FT_INT16:
     case FT_INT24:
     case FT_INT32:
+    case FT_INT40:
+    case FT_INT48:
+    case FT_INT56:
     case FT_INT64:
-        switch (val_units_) {
-        case IOG_ITEM_UNIT_CALC_SUM:
-            value = (double) item->int_tot;
-            break;
-        case IOG_ITEM_UNIT_CALC_MAX:
-            value = (double) item->int_max;
-            break;
-        case IOG_ITEM_UNIT_CALC_MIN:
-            value = (double) item->int_min;
-            break;
-        case IOG_ITEM_UNIT_CALC_AVERAGE:
-            if (item->fields) {
-                value = (double)item->int_tot / item->fields;
-            } else {
-                value = 0;
-            }
-            break;
-        default:
-            break;
-        }
-        break;
-    case FT_FLOAT:
-        switch (val_units_) {
-        case IOG_ITEM_UNIT_CALC_SUM:
-            value = item->float_tot;
-            break;
-        case IOG_ITEM_UNIT_CALC_MAX:
-            value = item->float_max;
-            break;
-        case IOG_ITEM_UNIT_CALC_MIN:
-            value = item->float_min;
-            break;
-        case IOG_ITEM_UNIT_CALC_AVERAGE:
-            if (item->fields) {
-                value = (double)item->float_tot / item->fields;
-            } else {
-                value = 0;
-            }
-            break;
-        default:
-            break;
-        }
-        break;
+    case FT_UINT8:
+    case FT_UINT16:
+    case FT_UINT24:
+    case FT_UINT32:
+    case FT_UINT40:
+    case FT_UINT48:
+    case FT_UINT56:
+    case FT_UINT64:
     case FT_DOUBLE:
         switch (val_units_) {
         case IOG_ITEM_UNIT_CALC_SUM:
@@ -235,6 +199,30 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
             break;
         }
         break;
+
+    case FT_FLOAT:
+        switch (val_units_) {
+        case IOG_ITEM_UNIT_CALC_SUM:
+            value = item->float_tot;
+            break;
+        case IOG_ITEM_UNIT_CALC_MAX:
+            value = item->float_max;
+            break;
+        case IOG_ITEM_UNIT_CALC_MIN:
+            value = item->float_min;
+            break;
+        case IOG_ITEM_UNIT_CALC_AVERAGE:
+            if (item->fields) {
+                value = (double)item->float_tot / item->fields;
+            } else {
+                value = 0;
+            }
+            break;
+        default:
+            break;
+        }
+        break;
+
     case FT_RELATIVE_TIME:
         switch (val_units_) {
         case IOG_ITEM_UNIT_CALC_MAX:

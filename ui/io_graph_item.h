@@ -162,8 +162,8 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
         /* Update the appropriate counters. If fields == 0, this is the first seen
          *  value so set any min/max values accordingly. */
         for (i=0; i < gp->len; i++) {
-            int new_int;
             gint64 new_int64;
+            guint64 new_uint64;
             float new_float;
             double new_double;
             nstime_t *new_time;
@@ -173,61 +173,70 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
             case FT_UINT16:
             case FT_UINT24:
             case FT_UINT32:
-                new_int = fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
+                new_uint64 = fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
 
-                if ((new_int > item->int_max) || (item->fields == 0)) {
-                    item->int_max = new_int;
+                if ((new_uint64 > (guint64)item->int_max) || (item->fields == 0)) {
+                    item->int_max = new_uint64;
+                    item->double_max = (gdouble)new_uint64;
                     if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
                         item->extreme_frame_in_invl = pinfo->num;
                     }
                 }
-                if ((new_int < item->int_min) || (item->fields == 0)) {
-                    item->int_min = new_int;
+                if ((new_uint64 < (guint64)item->int_min) || (item->fields == 0)) {
+                    item->int_min = new_uint64;
+                    item->double_min = (gdouble)new_uint64;
                     if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
                         item->extreme_frame_in_invl = pinfo->num;
                     }
                 }
-                item->int_tot += new_int;
+                item->int_tot += new_uint64;
+                item->double_tot += (gdouble)new_uint64;
                 item->fields++;
                 break;
             case FT_INT8:
             case FT_INT16:
             case FT_INT24:
             case FT_INT32:
-                new_int = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
-                if ((new_int > item->int_max) || (item->fields == 0)) {
-                    item->int_max = new_int;
-                    if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
-                        item->extreme_frame_in_invl = pinfo->num;
-                    }
-                }
-                if ((new_int < item->int_min) || (item->fields == 0)) {
-                    item->int_min = new_int;
-                    if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
-                        item->extreme_frame_in_invl = pinfo->num;
-                    }
-                }
-                item->int_tot += new_int;
-                item->fields++;
-                break;
-            case FT_UINT40:
-            case FT_UINT48:
-            case FT_UINT56:
-            case FT_UINT64:
-                new_int64 = fvalue_get_uinteger64(&((field_info *)gp->pdata[i])->value);
+                new_int64 = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
                 if ((new_int64 > item->int_max) || (item->fields == 0)) {
                     item->int_max = new_int64;
+                    item->double_max = (gdouble)new_int64;
                     if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
                         item->extreme_frame_in_invl = pinfo->num;
                     }
                 }
                 if ((new_int64 < item->int_min) || (item->fields == 0)) {
                     item->int_min = new_int64;
+                    item->double_min = (gdouble)new_int64;
                     if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
                         item->extreme_frame_in_invl = pinfo->num;
                     }
                 }
                 item->int_tot += new_int64;
+                item->double_tot += (gdouble)new_int64;
+                item->fields++;
+                break;
+            case FT_UINT40:
+            case FT_UINT48:
+            case FT_UINT56:
+            case FT_UINT64:
+                new_uint64 = fvalue_get_uinteger64(&((field_info *)gp->pdata[i])->value);
+                if ((new_uint64 > (guint64)item->int_max) || (item->fields == 0)) {
+                    item->int_max = new_uint64;
+                    item->double_max = (gdouble)new_uint64;
+                    if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
+                        item->extreme_frame_in_invl = pinfo->num;
+                    }
+                }
+                if ((new_uint64 < (guint64)item->int_min) || (item->fields == 0)) {
+                    item->int_min = new_uint64;
+                    item->double_min = (gdouble)new_uint64;
+                    if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
+                        item->extreme_frame_in_invl = pinfo->num;
+                    }
+                }
+                item->int_tot += new_uint64;
+                item->double_tot += (gdouble)new_uint64;
                 item->fields++;
                 break;
             case FT_INT40:
@@ -237,17 +246,20 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                 new_int64 = fvalue_get_sinteger64(&((field_info *)gp->pdata[i])->value);
                 if ((new_int64 > item->int_max) || (item->fields == 0)) {
                     item->int_max = new_int64;
+                    item->double_max = (gdouble)new_int64;
                     if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
                         item->extreme_frame_in_invl = pinfo->num;
                     }
                 }
                 if ((new_int64 < item->int_min) || (item->fields == 0)) {
                     item->int_min = new_int64;
+                    item->double_min = (gdouble)new_int64;
                     if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
                         item->extreme_frame_in_invl = pinfo->num;
                     }
                 }
                 item->int_tot += new_int64;
+                item->double_tot += (gdouble)new_int64;
                 item->fields++;
                 break;
             case FT_FLOAT:
