@@ -34,6 +34,7 @@ typedef struct _whois_transaction_t {
     guint32  req_frame;
     guint32  rep_frame;
     nstime_t req_time;
+    guint8*  query;
 } whois_transaction_t;
 
 static int
@@ -60,8 +61,17 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     conversation = find_or_create_conversation(pinfo);
     whois_trans = (whois_transaction_t *)conversation_get_proto_data(conversation, proto_whois);
     if (whois_trans == NULL) {
+        gint newline;
         whois_trans = wmem_new0(wmem_file_scope(), whois_transaction_t);
+        newline = tvb_find_guint8(tvb, 0, -1, '\n');
+        if (newline != -1)
+            whois_trans->query = (guint8*)tvb_memdup(wmem_file_scope(), tvb, 0, newline);
         conversation_add_proto_data(conversation, proto_whois, whois_trans);
+    }
+
+    if (whois_trans->query) {
+        col_append_str(pinfo->cinfo, COL_INFO, ": ");
+        col_append_str(pinfo->cinfo, COL_INFO, whois_trans->query);
     }
 
     len = tvb_reported_length(tvb);
