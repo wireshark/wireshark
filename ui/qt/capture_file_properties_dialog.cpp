@@ -178,7 +178,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
 
     QString format_str = wtap_file_type_subtype_string(summary.file_type);
     const char *compression_type_description = wtap_compression_type_description(summary.compression_type);
-    if (compression_type_description != NULL) {
+    if (compression_type_description != nullptr) {
         format_str += QString(" (%1)").arg(compression_type_description);
     }
     out << table_row_begin
@@ -259,7 +259,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     wtap_block_t shb_inf = wtap_file_get_shb(cap_file_.capFile()->provider.wth);
     char *str;
 
-    if (shb_inf != NULL) {
+    if (shb_inf != nullptr) {
       QString capture_hardware(unknown);
       if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS) {
           if (str[0] != '\0') {
@@ -327,9 +327,9 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         /* Dropped count */
         QString interface_drops(unknown);
         if (iface.drops_known) {
-            interface_drops = QString("%1 (%2 %)").arg(iface.drops).arg(QString::number(
+            interface_drops = QString("%1 (%2%)").arg(iface.drops).arg(QString::number(
                 /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-                summary.packet_count ?(100.0 * (gint64)iface.drops)/summary.packet_count : 0.0f, 'g', 1));
+                summary.packet_count ? (100.0 * (gint64)iface.drops)/summary.packet_count : 0, 'f', 1));
         }
 
         /* Capture filter */
@@ -556,7 +556,7 @@ void CaptureFilePropertiesDialog::fillDetails()
 
 void CaptureFilePropertiesDialog::changeEvent(QEvent* event)
 {
-    if (0 != event)
+    if (event != nullptr)
     {
         switch (event->type())
         {
