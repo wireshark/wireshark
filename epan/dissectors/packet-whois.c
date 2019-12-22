@@ -103,6 +103,14 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         "WHOIS: %s", is_query ? "Query" : "Answer");
     whois_tree = proto_item_add_subtree(ti, ett_whois);
 
+    /*
+     * XXX - WHOIS, as RFC 3912 says, "has no mechanism for indicating
+     * the character set in use."  We assume ASCII; if somebody wants
+     * to support non-ASCII WHOIS requets or responses, they should
+     * add a preference to specify the character encoding.  These
+     * days, it'd probably be UTF-8, but there might be older servers
+     * using other character encodings.
+     */
     if (is_query) {
         expert_ti = proto_tree_add_item(whois_tree, hf_whois_query, tvb, 0, -1, ENC_ASCII|ENC_NA);
         if ((len < 2) || (tvb_memeql(tvb, len - 2, "\r\n", 2))) {
