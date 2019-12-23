@@ -398,6 +398,68 @@ read_keytab_file(const char *filename)
 	}
 }
 
+static krb5_error_code
+decrypt_krb5_with_cb(proto_tree *tree,
+		     packet_info *pinfo,
+		     int usage,
+		     int keytype,
+		     tvbuff_t *cryptotvb,
+		     krb5_error_code (*decrypt_cb_fn)(
+			const krb5_keyblock *key,
+			int usage,
+			void *decrypt_cb_data),
+		     void *decrypt_cb_data)
+{
+	krb5_error_code ret;
+	enc_key_t *ek;
+	krb5_keytab_entry key;
+
+	read_keytab_file_from_preferences();
+
+	for(ek=enc_key_list;ek;ek=ek->next){
+		/* shortcircuit and bail out if enctypes are not matching */
+		if((keytype != -1) && (ek->keytype != keytype)) {
+			continue;
+		}
+
+		key.key.enctype=ek->keytype;
+		key.key.length=ek->keylength;
+		key.key.contents=ek->keyvalue;
+		ret = decrypt_cb_fn(&(key.key), usage, decrypt_cb_data);
+		if(ret == 0) {
+			used_encryption_key(tree, pinfo, ek, usage, cryptotvb);
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+struct decrypt_krb5_data_state {
+	krb5_data input;
+	krb5_data output;
+};
+
+static krb5_error_code
+decrypt_krb5_data_cb(const krb5_keyblock *key,
+		     int usage,
+		     void *decrypt_cb_data)
+{
+	struct decrypt_krb5_data_state *state =
+		(struct decrypt_krb5_data_state *)decrypt_cb_data;
+	krb5_enc_data input;
+
+	memset(&input, 0, sizeof(input));
+	input.enctype = key->enctype;
+	input.ciphertext = state->input;
+
+	return krb5_c_decrypt(krb5_ctx,
+			      key,
+			      usage,
+			      0,
+			      &input,
+			      &state->output);
+}
 
 guint8 *
 decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
@@ -406,10 +468,8 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 					int keytype,
 					int *datalen)
 {
+	struct decrypt_krb5_data_state state;
 	krb5_error_code ret;
-	enc_key_t *ek;
-	krb5_data data = {0,0,NULL};
-	krb5_keytab_entry key;
 	int length = tvb_captured_length(cryptotvb);
 	const guint8 *cryptotext = tvb_get_ptr(cryptotvb, 0, length);
 
@@ -423,40 +483,27 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 		return NULL;
 	}
 
-	read_keytab_file_from_preferences();
-	data.data = (char *)wmem_alloc(pinfo->pool, length);
-	data.length = length;
+	memset(&state, 0, sizeof(state));
+	state.input.length = length;
+	state.input.data = (guint8 *)cryptotext;
+	state.output.data = (char *)wmem_alloc(pinfo->pool, length);
+	state.output.length = length;
 
-	for(ek=enc_key_list;ek;ek=ek->next){
-		krb5_enc_data input;
-
-		/* shortcircuit and bail out if enctypes are not matching */
-		if((keytype != -1) && (ek->keytype != keytype)) {
-			continue;
-		}
-
-		input.enctype = ek->keytype;
-		input.ciphertext.length = length;
-		input.ciphertext.data = (guint8 *)cryptotext;
-
-		key.key.enctype=ek->keytype;
-		key.key.length=ek->keylength;
-		key.key.contents=ek->keyvalue;
-		ret = krb5_c_decrypt(krb5_ctx, &(key.key), usage, 0, &input, &data);
-		if(ret == 0){
-			char *user_data;
-
-			used_encryption_key(tree, pinfo, ek, usage, cryptotvb);
-
-			user_data=data.data;
-			if (datalen) {
-				*datalen = data.length;
-			}
-			return user_data;
-		}
+	ret = decrypt_krb5_with_cb(tree,
+				   pinfo,
+				   usage,
+				   keytype,
+				   cryptotvb,
+				   decrypt_krb5_data_cb,
+				   &state);
+	if (ret != 0) {
+		return NULL;
 	}
 
-	return NULL;
+	if (datalen) {
+		*datalen = state.output.length;
+	}
+	return (guint8 *)state.output.data;
 }
 USES_APPLE_RST
 
