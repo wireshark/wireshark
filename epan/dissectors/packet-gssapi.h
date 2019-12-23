@@ -39,7 +39,9 @@ typedef struct _gssapi_encrypt_info
 {
 	guint16 decrypt_gssapi_tvb;
 	tvbuff_t *gssapi_wrap_tvb;
+	tvbuff_t *gssapi_header_tvb;
 	tvbuff_t *gssapi_encrypted_tvb;
+	tvbuff_t *gssapi_trailer_tvb;
 	tvbuff_t *gssapi_decrypted_tvb;
 	gboolean gssapi_data_encrypted;
 } gssapi_encrypt_info_t;

@@ -1212,11 +1212,8 @@ static void
         gssapi_tvb = tvb_new_subset_length_caplen(sasl_tvb, 4, tmp_length, sasl_len);
 
         /* Attempt decryption of the GSSAPI wrapped data if possible */
-        gssapi_encrypt.gssapi_data_encrypted = FALSE;
+        memset(&gssapi_encrypt, 0, sizeof(gssapi_encrypt));
         gssapi_encrypt.decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
-        gssapi_encrypt.gssapi_wrap_tvb=NULL;
-        gssapi_encrypt.gssapi_encrypted_tvb=NULL;
-        gssapi_encrypt.gssapi_decrypted_tvb=NULL;
         ver_len = call_dissector_with_data(gssapi_wrap_handle, gssapi_tvb, pinfo, sasl_tree, &gssapi_encrypt);
         /* if we could unwrap, do a tvb shuffle */
         if(gssapi_encrypt.gssapi_decrypted_tvb){
