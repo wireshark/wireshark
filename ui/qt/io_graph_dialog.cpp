@@ -88,6 +88,9 @@ static const value_string graph_style_vs[] = {
     { IOGraph::psDot, "Dot" },
     { IOGraph::psSquare, "Square" },
     { IOGraph::psDiamond, "Diamond" },
+    { IOGraph::psCross, "Cross" },
+    { IOGraph::psCircle, "Circle" },
+    { IOGraph::psPlus, "Plus" },
     { 0, NULL }
 };
 
@@ -1750,6 +1753,22 @@ void IOGraph::setPlotStyle(int style)
             graph_->setScatterStyle(QCPScatterStyle::ssDiamond);
         }
         break;
+    case psCross:
+        if (graph_) {
+            graph_->setScatterStyle(QCPScatterStyle::ssCross);
+        }
+        break;
+    case psPlus:
+        if (graph_) {
+            graph_->setScatterStyle(QCPScatterStyle::ssPlus);
+        }
+        break;
+    case psCircle:
+        if (graph_) {
+            graph_->setScatterStyle(QCPScatterStyle::ssCircle);
+        }
+        break;
+
     case psBar:
     case IOGraph::psStackedBar:
         // Stacking set in scanGraphs
