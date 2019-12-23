@@ -76,6 +76,16 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int keytype,
 			int *datalen);
 
+tvbuff_t *
+decrypt_krb5_krb_cfx_dce(proto_tree *tree,
+			 packet_info *pinfo,
+			 int usage,
+			 int keytype,
+			 tvbuff_t *gssapi_header_tvb,
+			 tvbuff_t *gssapi_encrypted_tvb,
+			 tvbuff_t *gssapi_trailer_tvb,
+			 tvbuff_t *checksum_tvb);
+
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
 extern gboolean krb_decrypt;

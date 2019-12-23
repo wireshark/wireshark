@@ -815,6 +815,227 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 }
 USES_APPLE_RST
 
+#ifdef KRB5_CRYPTO_TYPE_SIGN_ONLY
+struct decrypt_krb5_krb_cfx_dce_state {
+	const guint8 *gssapi_header_ptr;
+	guint gssapi_header_len;
+	tvbuff_t *gssapi_encrypted_tvb;
+	guint8 *gssapi_payload;
+	guint gssapi_payload_len;
+	const guint8 *gssapi_trailer_ptr;
+	guint gssapi_trailer_len;
+	tvbuff_t *checksum_tvb;
+	guint8 *checksum;
+	guint checksum_len;
+};
+
+static krb5_error_code
+decrypt_krb5_krb_cfx_dce_cb(const krb5_keyblock *key,
+			    int usage,
+			    void *decrypt_cb_data)
+{
+	struct decrypt_krb5_krb_cfx_dce_state *state =
+		(struct decrypt_krb5_krb_cfx_dce_state *)decrypt_cb_data;
+	unsigned int k5_headerlen = 0;
+	unsigned int k5_headerofs = 0;
+	unsigned int k5_trailerlen = 0;
+	unsigned int k5_trailerofs = 0;
+	size_t _k5_blocksize = 0;
+	guint k5_blocksize;
+	krb5_crypto_iov iov[6];
+	krb5_error_code ret;
+	guint checksum_remain = state->checksum_len;
+	guint checksum_crypt_len;
+
+	memset(iov, 0, sizeof(iov));
+
+	ret = krb5_c_crypto_length(krb5_ctx,
+				   key->enctype,
+				   KRB5_CRYPTO_TYPE_HEADER,
+				   &k5_headerlen);
+	if (ret != 0) {
+		return ret;
+	}
+	if (checksum_remain < k5_headerlen) {
+		return -1;
+	}
+	checksum_remain -= k5_headerlen;
+	k5_headerofs = checksum_remain;
+	ret = krb5_c_crypto_length(krb5_ctx,
+				   key->enctype,
+				   KRB5_CRYPTO_TYPE_TRAILER,
+				   &k5_trailerlen);
+	if (ret != 0) {
+		return ret;
+	}
+	if (checksum_remain < k5_trailerlen) {
+		return -1;
+	}
+	checksum_remain -= k5_trailerlen;
+	k5_trailerofs = checksum_remain;
+	checksum_crypt_len = checksum_remain;
+
+	ret = krb5_c_block_size(krb5_ctx,
+				key->enctype,
+				&_k5_blocksize);
+	if (ret != 0) {
+		return ret;
+	}
+	/*
+	 * The cast is required for the Windows build in order
+	 * to avoid the following warning.
+	 *
+	 * warning C4267: '-=': conversion from 'size_t' to 'guint',
+	 * possible loss of data
+	 */
+	k5_blocksize = (guint)_k5_blocksize;
+	if (checksum_remain < k5_blocksize) {
+		return -1;
+	}
+	checksum_remain -= k5_blocksize;
+	if (checksum_remain < 16) {
+		return -1;
+	}
+
+	tvb_memcpy(state->gssapi_encrypted_tvb,
+		   state->gssapi_payload,
+		   0,
+		   state->gssapi_payload_len);
+	tvb_memcpy(state->checksum_tvb,
+		   state->checksum,
+		   0,
+		   state->checksum_len);
+
+	iov[0].flags = KRB5_CRYPTO_TYPE_HEADER;
+	iov[0].data.data = state->checksum + k5_headerofs;
+	iov[0].data.length = k5_headerlen;
+
+	if (state->gssapi_header_ptr != NULL) {
+		iov[1].flags = KRB5_CRYPTO_TYPE_SIGN_ONLY;
+		iov[1].data.data = (guint8 *)(guintptr)state->gssapi_header_ptr;
+		iov[1].data.length = state->gssapi_header_len;
+	} else {
+		iov[1].flags = KRB5_CRYPTO_TYPE_EMPTY;
+	}
+
+	iov[2].flags = KRB5_CRYPTO_TYPE_DATA;
+	iov[2].data.data = state->gssapi_payload,
+	iov[2].data.length = state->gssapi_payload_len;
+
+	if (state->gssapi_trailer_ptr != NULL) {
+		iov[3].flags = KRB5_CRYPTO_TYPE_SIGN_ONLY;
+		iov[3].data.data = (guint8 *)(guintptr)state->gssapi_trailer_ptr,
+		iov[3].data.length = state->gssapi_trailer_len;
+	} else {
+		iov[3].flags = KRB5_CRYPTO_TYPE_EMPTY;
+	}
+
+	iov[4].flags = KRB5_CRYPTO_TYPE_DATA;
+	iov[4].data.data = state->checksum;
+	iov[4].data.length = checksum_crypt_len;
+
+	iov[5].flags = KRB5_CRYPTO_TYPE_TRAILER;
+	iov[5].data.data = state->checksum + k5_trailerofs;
+	iov[5].data.length = k5_trailerlen;
+
+	return krb5_c_decrypt_iov(krb5_ctx,
+				  key,
+				  usage,
+				  0,
+				  iov,
+				  6);
+}
+
+tvbuff_t *
+decrypt_krb5_krb_cfx_dce(proto_tree *tree,
+			 packet_info *pinfo,
+			 int usage,
+			 int keytype,
+			 tvbuff_t *gssapi_header_tvb,
+			 tvbuff_t *gssapi_encrypted_tvb,
+			 tvbuff_t *gssapi_trailer_tvb,
+			 tvbuff_t *checksum_tvb)
+{
+	struct decrypt_krb5_krb_cfx_dce_state state;
+	tvbuff_t *gssapi_decrypted_tvb = NULL;
+	krb5_error_code ret;
+
+	/* don't do anything if we are not attempting to decrypt data */
+	if (!krb_decrypt) {
+		return NULL;
+	}
+
+	memset(&state, 0, sizeof(state));
+
+	/* make sure we have all the data we need */
+#define __CHECK_TVB_LEN(__tvb) (tvb_captured_length(__tvb) < tvb_reported_length(__tvb))
+	if (gssapi_header_tvb != NULL) {
+		if (__CHECK_TVB_LEN(gssapi_header_tvb)) {
+			return NULL;
+		}
+
+		state.gssapi_header_len = tvb_captured_length(gssapi_header_tvb);
+		state.gssapi_header_ptr = tvb_get_ptr(gssapi_header_tvb,
+						       0,
+						       state.gssapi_header_len);
+	}
+	if (gssapi_encrypted_tvb == NULL || __CHECK_TVB_LEN(gssapi_encrypted_tvb)) {
+		return NULL;
+	}
+	state.gssapi_encrypted_tvb = gssapi_encrypted_tvb;
+	state.gssapi_payload_len = tvb_captured_length(gssapi_encrypted_tvb);
+	state.gssapi_payload = (guint8 *)wmem_alloc0(pinfo->pool, state.gssapi_payload_len);
+	if (state.gssapi_payload == NULL) {
+		return NULL;
+	}
+	if (gssapi_trailer_tvb != NULL) {
+		if (__CHECK_TVB_LEN(gssapi_trailer_tvb)) {
+			return NULL;
+		}
+
+		state.gssapi_trailer_len = tvb_captured_length(gssapi_trailer_tvb);
+		state.gssapi_trailer_ptr = tvb_get_ptr(gssapi_trailer_tvb,
+						       0,
+						       state.gssapi_trailer_len);
+	}
+	if (checksum_tvb == NULL || __CHECK_TVB_LEN(checksum_tvb)) {
+		return NULL;
+	}
+	state.checksum_tvb = checksum_tvb;
+	state.checksum_len = tvb_captured_length(checksum_tvb);
+	state.checksum = (guint8 *)wmem_alloc0(pinfo->pool, state.checksum_len);
+	if (state.checksum == NULL) {
+		return NULL;
+	}
+
+	ret = decrypt_krb5_with_cb(tree,
+				   pinfo,
+				   usage,
+				   keytype,
+				   gssapi_encrypted_tvb,
+				   decrypt_krb5_krb_cfx_dce_cb,
+				   &state);
+	wmem_free(pinfo->pool, state.checksum);
+	if (ret != 0) {
+		wmem_free(pinfo->pool, state.gssapi_payload);
+		return NULL;
+	}
+
+	gssapi_decrypted_tvb = tvb_new_child_real_data(gssapi_encrypted_tvb,
+						       state.gssapi_payload,
+						       state.gssapi_payload_len,
+						       state.gssapi_payload_len);
+	if (gssapi_decrypted_tvb == NULL) {
+		wmem_free(pinfo->pool, state.gssapi_payload);
+		return NULL;
+	}
+
+	return gssapi_decrypted_tvb;
+}
+#else /* NOT KRB5_CRYPTO_TYPE_SIGN_ONLY */
+#define NEED_DECRYPT_KRB5_KRB_CFX_DCE_NOOP 1
+#endif /* NOT KRB5_CRYPTO_TYPE_SIGN_ONLY */
+
 #ifdef HAVE_KRB5_PAC_VERIFY
 /*
  * macOS up to 10.14.5 only has a MIT shim layer on top
@@ -1079,6 +1300,8 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 	return NULL;
 }
 
+#define NEED_DECRYPT_KRB5_KRB_CFX_DCE_NOOP 1
+
 #elif defined (HAVE_LIBNETTLE)
 
 #define SERVICE_KEY_SIZE (DES3_KEY_SIZE + 2)
@@ -1284,6 +1507,21 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 }
 
 #endif	/* HAVE_MIT_KERBEROS / HAVE_HEIMDAL_KERBEROS / HAVE_LIBNETTLE */
+
+#ifdef NEED_DECRYPT_KRB5_KRB_CFX_DCE_NOOP
+tvbuff_t *
+decrypt_krb5_krb_cfx_dce(proto_tree *tree _U_,
+			 packet_info *pinfo _U_,
+			 int usage _U_,
+			 int keytype _U_,
+			 tvbuff_t *gssapi_header_tvb _U_,
+			 tvbuff_t *gssapi_encrypted_tvb _U_,
+			 tvbuff_t *gssapi_trailer_tvb _U_,
+			 tvbuff_t *checksum_tvb _U_)
+{
+	return NULL;
+}
+#endif /* NEED_DECRYPT_KRB5_KRB_CFX_DCE_NOOP */
 
 #define	INET6_ADDRLEN	16
 
@@ -4831,7 +5069,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 2092 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2330 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -6039,7 +6277,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 2479 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2717 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -6129,7 +6367,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KrbFastArmoredRep,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 2495 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2733 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
