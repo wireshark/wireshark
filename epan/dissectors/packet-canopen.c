@@ -28,6 +28,16 @@ static int hf_canopen_pdo_data_string = -1;
 static int hf_canopen_sdo_cmd = -1;
 static int hf_canopen_sdo_cmd_ccs = -1;
 static int hf_canopen_sdo_cmd_scs = -1;
+static int hf_canopen_sdo_cmd_ccs5_subcommand = -1;
+static int hf_canopen_sdo_cmd_scs5_subcommand = -1;
+static int hf_canopen_sdo_cmd_ccs6_subcommand = -1;
+static int hf_canopen_sdo_cmd_scs6_subcommand = -1;
+static int hf_canopen_sdo_cmd_block_crc_support = -1;
+static int hf_canopen_sdo_cmd_block_s = -1;
+static int hf_canopen_sdo_cmd_block_n = -1;
+static int hf_canopen_sdo_cmd_block_blksize = -1;
+static int hf_canopen_sdo_cmd_block_pst = -1;
+static int hf_canopen_sdo_cmd_block_ackseq = -1;
 static int hf_canopen_sdo_cmd_toggle = -1;
 static int hf_canopen_sdo_cmd_updown_n = -1;
 static int hf_canopen_sdo_cmd_updown_c = -1;
@@ -128,16 +138,33 @@ static const int *sdo_cmd_fields_ccs4[] = {
   &hf_canopen_sdo_cmd_ccs,
   NULL
 };
-/* Block upload (ccs=5) decode mask */
-static const int *sdo_cmd_fields_ccs5[] = {
+/* Block upload (ccs=5,cs=0) decode mask */
+static const int *sdo_cmd_fields_ccs5_subcommand0[] = {
   &hf_canopen_sdo_cmd_ccs,
-  /* TODO: full decoding depends on subcommand */
+  &hf_canopen_sdo_cmd_block_crc_support,
+  &hf_canopen_sdo_cmd_ccs5_subcommand,
   NULL
 };
-/* Block download (ccs=6) decode mask */
-static const int *sdo_cmd_fields_ccs6[] = {
+/* Block upload (ccs=5,cs=1,2,3) decode mask */
+static const int *sdo_cmd_fields_ccs5_subcommand1[] = {
   &hf_canopen_sdo_cmd_ccs,
-  /* TODO: full decoding depends on subcommand */
+  &hf_canopen_sdo_cmd_ccs5_subcommand,
+  NULL
+};
+
+/* Block download (ccs=6,cs=0) decode mask */
+static const int *sdo_cmd_fields_ccs6_subcommand0[] = {
+  &hf_canopen_sdo_cmd_ccs,
+  &hf_canopen_sdo_cmd_block_crc_support,
+  &hf_canopen_sdo_cmd_block_s,
+  &hf_canopen_sdo_cmd_ccs6_subcommand,
+  NULL
+};
+/* Block download (ccs=6,cs=1) decode mask */
+static const int *sdo_cmd_fields_ccs6_subcommand1[] = {
+  &hf_canopen_sdo_cmd_ccs,
+  &hf_canopen_sdo_cmd_block_n,
+  &hf_canopen_sdo_cmd_ccs6_subcommand,
   NULL
 };
 
@@ -147,17 +174,19 @@ static const int **_sdo_cmd_fields_ccs[] = {
   sdo_cmd_fields_ccs2,
   sdo_cmd_fields_ccs3,
   sdo_cmd_fields_ccs4,
-  sdo_cmd_fields_ccs5,
-  sdo_cmd_fields_ccs6
 };
 
-static inline const int **
-sdo_cmd_fields_ccs(guint cs)
-{
-    if (cs < array_length(_sdo_cmd_fields_ccs))
-        return _sdo_cmd_fields_ccs[cs];
-    return NULL;
-}
+static const int **_sdo_cmd_fields_ccs5[] = {
+  sdo_cmd_fields_ccs5_subcommand0,
+  sdo_cmd_fields_ccs5_subcommand1,
+  sdo_cmd_fields_ccs5_subcommand1,
+  sdo_cmd_fields_ccs5_subcommand1
+};
+
+static const int **_sdo_cmd_fields_ccs6[] = {
+  sdo_cmd_fields_ccs6_subcommand0,
+  sdo_cmd_fields_ccs6_subcommand1
+};
 
 /* Emergency error register decode mask */
 static const int *em_err_reg_fields[] = {
@@ -204,16 +233,33 @@ static const int *sdo_cmd_fields_scs4[] = {
   &hf_canopen_sdo_cmd_scs,
   NULL
 };
-/* (scs=5) decode mask */
-static const int *sdo_cmd_fields_scs5[] = {
+/* (scs=5,ss=0) decode mask */
+static const int *sdo_cmd_fields_scs5_subcommand0[] = {
   &hf_canopen_sdo_cmd_scs,
-  /* TODO: full decoding depends on subcommand */
+  &hf_canopen_sdo_cmd_block_crc_support,
+  &hf_canopen_sdo_cmd_scs5_subcommand,
   NULL
 };
-/* (scs=6) decode mask */
-static const int *sdo_cmd_fields_scs6[] = {
+/* (scs=5,ss=1,2) decode mask */
+static const int *sdo_cmd_fields_scs5_subcommand1[] = {
   &hf_canopen_sdo_cmd_scs,
-  /* TODO: full decoding depends on subcommand */
+  &hf_canopen_sdo_cmd_scs5_subcommand,
+  NULL
+};
+
+/* (scs=6,ss=0) decode mask */
+static const int *sdo_cmd_fields_scs6_subcommand0[] = {
+  &hf_canopen_sdo_cmd_scs,
+  &hf_canopen_sdo_cmd_block_crc_support,
+  &hf_canopen_sdo_cmd_block_s,
+  &hf_canopen_sdo_cmd_scs6_subcommand,
+  NULL
+};
+/* (scs=6,ss=1) decode mask */
+static const int *sdo_cmd_fields_scs6_subcommand1[] = {
+  &hf_canopen_sdo_cmd_scs,
+  &hf_canopen_sdo_cmd_block_n,
+  &hf_canopen_sdo_cmd_scs6_subcommand,
   NULL
 };
 
@@ -223,18 +269,19 @@ static const int **_sdo_cmd_fields_scs[] = {
   sdo_cmd_fields_scs1,
   sdo_cmd_fields_scs2,
   sdo_cmd_fields_scs3,
-  sdo_cmd_fields_scs4,
-  sdo_cmd_fields_scs5,
-  sdo_cmd_fields_scs6
+  sdo_cmd_fields_scs4
 };
 
-static inline const int **
-sdo_cmd_fields_scs(guint cs)
-{
-    if (cs < array_length(_sdo_cmd_fields_scs))
-        return _sdo_cmd_fields_scs[cs];
-    return NULL;
-}
+static const int **_sdo_cmd_fields_scs5[] = {
+  sdo_cmd_fields_scs5_subcommand0,
+  sdo_cmd_fields_scs5_subcommand1,
+  sdo_cmd_fields_scs5_subcommand1,
+};
+
+static const int **_sdo_cmd_fields_scs6[] = {
+  sdo_cmd_fields_scs6_subcommand0,
+  sdo_cmd_fields_scs6_subcommand1
+};
 
 /* Initialize the subtree pointers */
 static gint ett_canopen = -1;
@@ -482,6 +529,23 @@ static const value_string sdo_scs[] = {
     { 0, NULL}
 };
 
+/* SDO client subcommand meaning */
+static const value_string sdo_client_subcommand_meaning[] = {
+    { 0x00, "Initiate upload/download request"},
+    { 0x01, "End block upload/download request"},
+    { 0x02, "Block upload response"},
+    { 0x03, "Start upload"},
+    { 0, NULL}
+};
+
+/* SDO server subcommand meaning */
+static const value_string sdo_server_subcommand_meaning[] = {
+    { 0x00, "Initiate upload/download response"},
+    { 0x01, "End block upload/download response"},
+    { 0x02, "Block download response"},
+    { 0, NULL}
+};
+
 static const value_string sdo_abort_code[] = {
     { 0x05030000, "Toggle bit not alternated"},
     { 0x05040000, "SDO protocol timed out"},
@@ -716,12 +780,41 @@ canopen_detect_msg_type(guint function_code, guint node_id)
     }
 }
 
+
+static inline const int **
+sdo_cmd_fields_scs(guint cs, guint subcommand)
+{
+    if (cs < array_length(_sdo_cmd_fields_scs))
+        return _sdo_cmd_fields_scs[cs];
+    else if(cs == SDO_SCS_BLOCK_DOWN && subcommand < array_length(_sdo_cmd_fields_scs5))
+        return _sdo_cmd_fields_scs5[subcommand];
+    else if(cs == SDO_SCS_BLOCK_UP  && subcommand < array_length(_sdo_cmd_fields_scs6))
+        return _sdo_cmd_fields_scs6[subcommand];
+    return NULL;
+}
+
+static inline const int **
+sdo_cmd_fields_ccs(guint cs, guint subcommand)
+{
+    if (cs < array_length(_sdo_cmd_fields_ccs))
+        return _sdo_cmd_fields_ccs[cs];
+    else if (cs == SDO_CCS_BLOCK_UP && subcommand < array_length(_sdo_cmd_fields_ccs5))
+        return _sdo_cmd_fields_ccs5[subcommand];
+    else if (cs == SDO_CCS_BLOCK_DOWN && subcommand < array_length(_sdo_cmd_fields_ccs6))
+        return _sdo_cmd_fields_ccs6[subcommand];
+    return NULL;
+}
+
 static void
 dissect_sdo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, guint function_code)
 {
     int offset = 0;
-    guint8 sdo_mux = 0, sdo_data = 0;
-    guint8 sdo_cs = 0;
+    /*number of data bytes*/
+    guint8 sdo_data = 0;
+    /*Field existence*/
+    guint8 sdo_mux = 0, sdo_pst = 0;
+    /*sdo values used to choose dissector*/
+    guint8 sdo_cs = 0, sdo_subcommand = 0;
     const gint **sdo_cmd_fields;
 
     /* get SDO command specifier */
@@ -731,16 +824,6 @@ dissect_sdo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, gu
         col_append_fstr(pinfo->cinfo, COL_INFO,
                 ": %s", val_to_str(sdo_cs, sdo_ccs,
                     "Unknown (0x%x)"));
-
-        sdo_cmd_fields = sdo_cmd_fields_ccs(sdo_cs);
-        if (sdo_cmd_fields == NULL) {
-            proto_tree_add_item(canopen_type_tree, hf_canopen_sdo_cmd, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-            /* XXX Add expert info */
-            return;
-        }
-        proto_tree_add_bitmask(canopen_type_tree, tvb, offset,
-                hf_canopen_sdo_cmd, ett_canopen_sdo_cmd, sdo_cmd_fields, ENC_LITTLE_ENDIAN);
-        offset++;
 
         switch (sdo_cs) {
             case SDO_CCS_DOWN_SEG_REQ:
@@ -760,28 +843,52 @@ dissect_sdo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, gu
                 sdo_data = 0;
                 break;
             case SDO_CS_ABORT_TRANSFER:
-            case SDO_CCS_BLOCK_UP:
-            case SDO_CCS_BLOCK_DOWN:
                 sdo_mux = 1;
                 sdo_data = 4;
+                break;
+            case SDO_CCS_BLOCK_UP:
+                sdo_subcommand = tvb_get_bits8(tvb, 6, 2);
+                if(sdo_subcommand == 0)
+                {
+                  sdo_mux = 1;
+                  /*only the client sends pst*/
+                  sdo_pst = 1;
+                }
+                /*check unused field is empty, otherwise it could be a data block segment
+                 (TODO: add segment decoding)*/
+                if(tvb_get_bits8(tvb, 3, 3) != 0)
+                  return;
+                break;
+            case SDO_CCS_BLOCK_DOWN:
+                sdo_subcommand = tvb_get_bits8(tvb, 7, 1);
+                if(sdo_subcommand == 0)
+                {
+                  sdo_mux = 1;
+                  sdo_data = 4;
+                  /*check unused field is empty, otherwise it could be a data block segment
+                   (TODO: add segment decoding)*/
+                  if(tvb_get_bits8(tvb, 3, 3) != 0)
+                    return;
+                }
+                else
+                {
+                  sdo_data = 2;
+                  /*check unused field is empty, otherwise it could be a data block segment
+                   (TODO: add segment decoding)*/
+                  if(tvb_get_bits8(tvb, 6, 1) != 0)
+                    return;
+                }
                 break;
             default:
                 return;
         }
+
+        sdo_cmd_fields = sdo_cmd_fields_ccs(sdo_cs,sdo_subcommand);
+
     } else {
         col_append_fstr(pinfo->cinfo, COL_INFO,
                 ": %s", val_to_str(sdo_cs, sdo_scs,
                     "Unknown (0x%x)"));
-
-        sdo_cmd_fields = sdo_cmd_fields_scs(sdo_cs);
-        if (sdo_cmd_fields == NULL) {
-            proto_tree_add_item(canopen_type_tree, hf_canopen_sdo_cmd, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-            /* XXX Add expert info */
-            return;
-        }
-        proto_tree_add_bitmask(canopen_type_tree, tvb, offset,
-                hf_canopen_sdo_cmd, ett_canopen_sdo_cmd, sdo_cmd_fields, ENC_LITTLE_ENDIAN);
-        offset++;
 
         switch (sdo_cs) {
             case SDO_SCS_UP_SEQ_RESP:
@@ -801,15 +908,57 @@ dissect_sdo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, gu
                 sdo_data = 0;
                 break;
             case SDO_CS_ABORT_TRANSFER:
-            case SDO_SCS_BLOCK_DOWN:
-            case SDO_SCS_BLOCK_UP:
                 sdo_mux = 1;
                 sdo_data = 4;
+                break;
+            case SDO_SCS_BLOCK_DOWN:
+                sdo_subcommand = tvb_get_bits8(tvb, 6, 2);
+                if(sdo_subcommand == 0)
+                {
+                  sdo_mux = 1;
+                }
+                 /*check unused field is empty, otherwise it could be a data block segment
+                  (TODO: add segment decoding)*/
+                if(tvb_get_bits8(tvb, 3, 3) != 0)
+                  return;
+                break;
+            case SDO_SCS_BLOCK_UP:
+                sdo_subcommand = tvb_get_bits8(tvb, 7, 1);
+                if(sdo_subcommand == 0)
+                {
+                  sdo_mux = 1;
+                  sdo_data = 4;
+                  /*check unused field is empty, otherwise it could be a data block segment
+                   (TODO: add segment decoding)*/
+                  if(tvb_get_bits8(tvb, 3, 3) != 0)
+                    return;
+                }
+                else
+                {
+                  sdo_data = 2;
+                  /*check unused field is empty, otherwise it could be a data block segment
+                   (TODO: add segment decoding)*/
+                  if(tvb_get_bits8(tvb, 6, 1) != 0)
+                    return;
+                }
                 break;
             default:
                 return;
         }
+
+        sdo_cmd_fields = sdo_cmd_fields_scs(sdo_cs,sdo_subcommand);
     }
+
+    if (sdo_cmd_fields == NULL) {
+        proto_tree_add_item(canopen_type_tree, hf_canopen_sdo_cmd, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+        /* XXX Add expert info */
+        return;
+    }
+
+    proto_tree_add_bitmask(canopen_type_tree, tvb, offset,
+            hf_canopen_sdo_cmd, ett_canopen_sdo_cmd, sdo_cmd_fields, ENC_LITTLE_ENDIAN);
+
+    offset++;
 
     if (sdo_mux) {
         /* decode mux */
@@ -822,20 +971,50 @@ dissect_sdo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, gu
         offset++;
     }
 
-    if (sdo_cs == 4) {
+    if (sdo_cs == SDO_CS_ABORT_TRANSFER) {
         /* SDO abort transfer */
         proto_tree_add_item(canopen_type_tree,
                 hf_canopen_sdo_abort_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         return;
     }
 
+    if (sdo_cs == 5) {
+        /*SDO_SCS_BLOCK_DOWN or SDO_CCS_BLOCK_UP*/
+        if(sdo_subcommand == 2)
+        {
+          /*decode ackseq byte)*/
+          proto_tree_add_item(canopen_type_tree,
+                  hf_canopen_sdo_cmd_block_ackseq, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+          offset++;
+        }
+
+        if(sdo_subcommand == 0 || sdo_subcommand == 2)
+        {
+          /*decode blksize byte)*/
+          proto_tree_add_item(canopen_type_tree,
+                  hf_canopen_sdo_cmd_block_blksize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+          offset++;
+        }
+    }
+
+    if (sdo_pst) {
+        /*decode pst byte)*/
+        proto_tree_add_item(canopen_type_tree,
+                hf_canopen_sdo_cmd_block_pst, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+    }
+
     if (sdo_data) {
         proto_tree_add_item(canopen_type_tree,
                 hf_canopen_sdo_data, tvb, offset, sdo_data, ENC_NA);
-    } else {
-        /* Reserved */
-        proto_tree_add_item(canopen_type_tree,
-                hf_canopen_reserved, tvb, offset, 7 - 3 * sdo_mux - sdo_data , ENC_NA);
+        offset += sdo_data;
+    }
+
+    if(offset < 8)
+    {
+      /* Reserved */
+      proto_tree_add_item(canopen_type_tree,
+          hf_canopen_reserved, tvb, offset, 8 - offset, ENC_NA);
     }
 }
 
@@ -1273,12 +1452,62 @@ proto_register_canopen(void)
         },
         { &hf_canopen_sdo_cmd_ccs,
           { "Client command specifier", "canopen.sdo.ccs",
-            FT_UINT8, BASE_HEX, VALS(sdo_ccs), 0xE0,
+            FT_UINT8, BASE_DEC, VALS(sdo_ccs), 0xE0,
             NULL, HFILL }
         },
         { &hf_canopen_sdo_cmd_scs,
-          { "Server command specifier", "canopen.sdo.ccs",
-            FT_UINT8, BASE_HEX, VALS(sdo_scs), 0xE0,
+          { "Server command specifier", "canopen.sdo.scs",
+            FT_UINT8, BASE_DEC, VALS(sdo_scs), 0xE0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_sdo_cmd_ccs5_subcommand,
+          { "Client subcommand", "canopen.sdo.cs",
+            FT_UINT8, BASE_DEC, VALS(sdo_client_subcommand_meaning), 0x03,
+            NULL, HFILL }
+        },
+        { &hf_canopen_sdo_cmd_scs5_subcommand,
+          { "Server command specifier", "canopen.sdo.ss",
+            FT_UINT8, BASE_DEC, VALS(sdo_server_subcommand_meaning), 0x03,
+            NULL, HFILL }
+        },
+        { &hf_canopen_sdo_cmd_ccs6_subcommand,
+          { "Client subcommand", "canopen.sdo.cs",
+            FT_UINT8, BASE_DEC, VALS(sdo_client_subcommand_meaning), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_canopen_sdo_cmd_scs6_subcommand,
+          { "Server command specifier", "canopen.sdo.ss",
+            FT_UINT8, BASE_DEC, VALS(sdo_server_subcommand_meaning), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_canopen_sdo_cmd_block_crc_support,
+          { "CRC support", "canopen.sdo.crc_support",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            "toggle", HFILL }
+        },
+        { &hf_canopen_sdo_cmd_block_s,
+          { "Data set size indicated", "canopen.sdo.s",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            "toggle", HFILL }
+        },
+        { &hf_canopen_sdo_cmd_block_n,
+          { "Non-data byte", "canopen.sdo.n",
+            FT_UINT8, BASE_DEC, NULL, 0x1C,
+            "toggle", HFILL }
+        },
+        { &hf_canopen_sdo_cmd_block_ackseq,
+          { "Number of segments acknowledged", "canopen.sdo.ackseq",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_sdo_cmd_block_blksize,
+          { "Number of segments per block", "canopen.sdo.blksize",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_sdo_cmd_block_pst,
+          { "Protocol switch threshold (bytes)", "canopen.sdo.pst",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_canopen_sdo_cmd_toggle,
