@@ -33,6 +33,7 @@
  * RFC7752 North-Bound Distribution of Link-State and Traffic Engineering (TE)
            Information Using BGP
  * RFC8092 BGP Large Communities Attribute
+ * RFC8214 Virtual Private Wire Service Support in Ethernet VPN
  * draft-ietf-idr-dynamic-cap
  * draft-ietf-idr-bgp-enhanced-route-refresh-02
  * draft-knoll-idr-qos-attribute-03
@@ -48,6 +49,7 @@
  * draft-ietf-bess-evpn-igmp-mld-proxy-03
  * draft-ietf-idr-tunnel-encaps-15
  * draft-ietf-idr-segment-routing-te-policy-08
+ * draft-yu-bess-evpn-l2-attributes-04
 
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
@@ -346,6 +348,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_EXT_COM_STYPE_EVPN_MMAC         0x00    /* MAC Mobility [draft-ietf-l2vpn-pbb-evpn] */
 #define BGP_EXT_COM_STYPE_EVPN_LABEL        0x01    /* ESI MPLS Label [draft-ietf-l2vpn-evpn] */
 #define BGP_EXT_COM_STYPE_EVPN_IMP          0x02    /* ES Import [draft-sajassi-l2vpn-evpn-segment-route] */
+#define BGP_EXT_COM_STYPE_EVPN_L2ATTR       0x04    /* RFC 8214 */
 #define BGP_EXT_COM_STYPE_EVPN_MCFLAGS      0x09    /* draft-ietf-bess-evpn-igmp-mld-proxy */
 #define BGP_EXT_COM_STYPE_EVPN_EVIRT0       0x0a    /* draft-ietf-bess-evpn-igmp-mld-proxy */
 #define BGP_EXT_COM_STYPE_EVPN_EVIRT1       0x0b    /* draft-ietf-bess-evpn-igmp-mld-proxy */
@@ -357,6 +360,15 @@ static dissector_handle_t bgp_handle;
 
 /* RFC 7432 Flag Sticky/Static MAC */
 #define BGP_EXT_COM_EVPN_MMAC_STICKY        0x01    /* Bitmask: Set for sticky/static MAC address */
+
+/* RFC 8214 Flags EVPN L2 Attributes */
+#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_B         0x01    /* Backup PE */
+#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_P         0x02    /* Primary PE */
+#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_C         0x04    /* Control word required */
+/* draft-yu-bess-evpn-l2-attributes-04 */
+#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_F         0x08    /* Send and receive flow label */
+#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_CI        0x10    /* CWI extended community can be included */
+#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_RESERVED  0xFFE0  /* Reserved */
 
 /* EPVN route AD NLRI ESI type */
 #define BGP_NLRI_EVPN_ESI_VALUE             0x00    /* ESI type 0, 9 bytes interger */
@@ -1184,6 +1196,7 @@ static const value_string bgpext_com_stype_tr_evpn[] = {
     { BGP_EXT_COM_STYPE_EVPN_MMAC,    "MAC Mobility" },
     { BGP_EXT_COM_STYPE_EVPN_LABEL,   "ESI MPLS Label" },
     { BGP_EXT_COM_STYPE_EVPN_IMP,     "ES Import" },
+    { BGP_EXT_COM_STYPE_EVPN_L2ATTR,  "Layer 2 Attributes" },
     { BGP_EXT_COM_STYPE_EVPN_MCFLAGS, "Multicast Flags Extended Community" },
     { BGP_EXT_COM_STYPE_EVPN_EVIRT0,  "EVI-RT Type 0 Extended Community" },
     { BGP_EXT_COM_STYPE_EVPN_EVIRT1,  "EVI-RT Type 1 Extended Community" },
@@ -2290,6 +2303,19 @@ static int hf_bgp_ext_com_evpn_mmac_seq = -1;
 static int hf_bgp_ext_com_evpn_esirt = -1;
 static int hf_bgp_ext_com_evpn_mmac_flag_sticky = -1;
 
+/* VPWS Support in EVPN  RFC 8214 */
+/* draft-yu-bess-evpn-l2-attributes-04 */
+
+static int hf_bgp_ext_com_evpn_l2attr_flags = -1;
+static int hf_bgp_ext_com_evpn_l2attr_flag_reserved = -1;
+static int hf_bgp_ext_com_evpn_l2attr_flag_ci = -1;
+static int hf_bgp_ext_com_evpn_l2attr_flag_f = -1;
+static int hf_bgp_ext_com_evpn_l2attr_flag_c = -1;
+static int hf_bgp_ext_com_evpn_l2attr_flag_p = -1;
+static int hf_bgp_ext_com_evpn_l2attr_flag_b = -1;
+static int hf_bgp_ext_com_evpn_l2attr_l2_mtu = -1;
+static int hf_bgp_ext_com_evpn_l2attr_reserved = -1;
+
 /* BGP Cost Community */
 
 static int hf_bgp_ext_com_cost_poi = -1;
@@ -2374,6 +2400,7 @@ static gint ett_bgp_extended_com_fspec_redir = -1; /* extended communities BGP f
 static gint ett_bgp_ext_com_flags = -1; /* extended communities flags tree */
 static gint ett_bgp_ext_com_l2_flags = -1; /* extended commuties tree for l2 services flags */
 static gint ett_bgp_ext_com_evpn_mmac_flags = -1;
+static gint ett_bgp_ext_com_evpn_l2attr_flags = -1;
 static gint ett_bgp_ext_com_cost_cid = -1; /* Cost community CommunityID tree (replace/evaluate after bit) */
 static gint ett_bgp_ext_com_ospf_rt_opt = -1; /* Tree for Options bitfield of OSPF Route Type extended community */
 static gint ett_bgp_ext_com_eigrp_flags = -1; /* Tree for EIGRP route flags */
@@ -7055,6 +7082,27 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                         proto_item_append_text(community_item, " RT: %s", tvb_ether_to_str(tvb, offset+2));
                         break;
 
+                    case BGP_EXT_COM_STYPE_EVPN_L2ATTR:
+                        {
+                        static const int *l2attr_flags[] = {
+                            &hf_bgp_ext_com_evpn_l2attr_flag_reserved,
+                            &hf_bgp_ext_com_evpn_l2attr_flag_ci,
+                            &hf_bgp_ext_com_evpn_l2attr_flag_f,
+                            &hf_bgp_ext_com_evpn_l2attr_flag_c,
+                            &hf_bgp_ext_com_evpn_l2attr_flag_p,
+                            &hf_bgp_ext_com_evpn_l2attr_flag_b,
+                            NULL
+                        };
+
+                        proto_tree_add_bitmask(community_tree, tvb, offset+2, hf_bgp_ext_com_evpn_l2attr_flags,
+                            ett_bgp_ext_com_evpn_l2attr_flags, l2attr_flags, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_evpn_l2attr_l2_mtu, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_evpn_l2attr_reserved, tvb, offset+6, 2, ENC_NA);
+
+                        proto_item_append_text(community_item, " flags: 0x%04x, L2 MTU: %u", tvb_get_ntohs(tvb, offset+2), tvb_get_ntohs(tvb, offset+4));
+                        }
+                        break;
+
                     default:
                         /* The particular EVPN subtype is unknown or the
                          * dissector is not written yet. We will dump the
@@ -10502,6 +10550,33 @@ proto_register_bgp(void)
       { &hf_bgp_ext_com_evpn_esirt,
         { "ES-Import Route Target", "bgp.ext_com_evpn.esi.rt", FT_ETHER, BASE_NONE,
           NULL, 0x0, "Route Target as a MAC Address", HFILL }},
+      { &hf_bgp_ext_com_evpn_l2attr_flags,
+        { "Flags", "bgp.ext_com_evpn.l2attr.flags", FT_UINT16, BASE_HEX,
+          NULL, 0x0, "EVPN L2 attribute flags", HFILL }},
+      { &hf_bgp_ext_com_evpn_l2attr_flag_reserved,
+        { "Reserved", "bgp.ext_com_evpn.l2attr.flag_reserved", FT_UINT16, BASE_HEX,
+          NULL, BGP_EXT_COM_EVPN_L2ATTR_FLAG_RESERVED, NULL, HFILL }},
+      { &hf_bgp_ext_com_evpn_l2attr_flag_ci,
+        { "CI flag", "bgp.ext_com_evpn.l2attr.flag_ci", FT_BOOLEAN, 16,
+          TFS(&tfs_set_notset), BGP_EXT_COM_EVPN_L2ATTR_FLAG_CI, "Control Word Indicator Extended Community can be advertised", HFILL }},
+      { &hf_bgp_ext_com_evpn_l2attr_flag_f,
+        { "F flag", "bgp.ext_com_evpn.l2attr.flag_f", FT_BOOLEAN, 16,
+          TFS(&tfs_set_notset), BGP_EXT_COM_EVPN_L2ATTR_FLAG_F, "PE is capable to send and receive flow label", HFILL }},
+      { &hf_bgp_ext_com_evpn_l2attr_flag_c,
+        { "C flag", "bgp.ext_com_evpn.l2attr.flag_c", FT_BOOLEAN, 16,
+          TFS(&tfs_set_notset), BGP_EXT_COM_EVPN_L2ATTR_FLAG_C, "Control word must be present when sending EVPN packets to this PE", HFILL }},
+      { &hf_bgp_ext_com_evpn_l2attr_flag_p,
+        { "P flag", "bgp.ext_com_evpn.l2attr.flag_p", FT_BOOLEAN, 16,
+          TFS(&tfs_set_notset), BGP_EXT_COM_EVPN_L2ATTR_FLAG_P, "Primary PE", HFILL }},
+      { &hf_bgp_ext_com_evpn_l2attr_flag_b,
+        { "B flag", "bgp.ext_com_evpn.l2attr.flag_b", FT_BOOLEAN, 16,
+          TFS(&tfs_set_notset), BGP_EXT_COM_EVPN_L2ATTR_FLAG_B, "Backup PE", HFILL }},
+      { &hf_bgp_ext_com_evpn_l2attr_l2_mtu,
+        { "L2 MTU", "bgp.ext_com_evpn.l2attr.l2_mtu", FT_UINT16, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_ext_com_evpn_l2attr_reserved,
+        { "Reserved", "bgp.ext_com_evpn.l2attr.reserved", FT_BYTES, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
       /* BGP Cost Community */
       { &hf_bgp_ext_com_cost_poi,
         { "Point of insertion", "bgp.ext_com_cost.poi", FT_UINT8, BASE_DEC,
@@ -11229,6 +11304,7 @@ proto_register_bgp(void)
       &ett_bgp_ext_com_flags,
       &ett_bgp_ext_com_l2_flags,
       &ett_bgp_ext_com_evpn_mmac_flags,
+      &ett_bgp_ext_com_evpn_l2attr_flags,
       &ett_bgp_ext_com_cost_cid,
       &ett_bgp_ext_com_ospf_rt_opt,
       &ett_bgp_ext_com_eigrp_flags,
