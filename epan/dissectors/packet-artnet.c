@@ -2018,7 +2018,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_subswitch, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
-  universe |= tvb_get_guint8(tvb, offset) & 0xF0;
+  universe |= (tvb_get_guint8(tvb, offset) & 0x0F) << 4;
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_oem, tvb,
