@@ -20,8 +20,8 @@
  * See
  *
  *     Protocol Spec: http://www.artisticlicence.com/WebSiteMaster/User%20Guides/art-net.pdf
- *     OEM Codes: Art-Net SDK (http://www.artisticlicence.com/WebSiteMaster/Software/dmxworkshopsetup.msi)
- *     ESTA Codes: http://tsp.plasa.org/tsp/working_groups/CP/mfctrIDs.php
+ *     OEM Codes: https://artisticlicence.com/WebSiteMaster/Software/Art-Net/Art-NetOemCodes.h
+ *     ESTA Codes: https://tsp.esta.org/tsp/working_groups/CP/mfctrIDs.php
  */
 
 void proto_register_artnet(void);
