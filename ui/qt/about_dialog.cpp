@@ -484,7 +484,7 @@ void AboutDialog::urlDoubleClicked(const QModelIndex &idx)
         if (QMessageBox::question(this, tr("The directory does not exist"),
                           QString(tr("Should the directory %1 be created?").arg(urlText))) == QMessageBox::Yes)
         {
-            if (! QDir().mkdir(urlText))
+            if (! QDir().mkpath(urlText))
             {
                 QMessageBox::warning(this, tr("The directory could not be created"),
                                      QString(tr("The directory %1 could not be created!").arg(urlText)));
