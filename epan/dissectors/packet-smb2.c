@@ -882,6 +882,11 @@ static const value_string smb2_comp_alg_types[] = {
 	{ 0, NULL }
 };
 
+#define OPLOCK_BREAK_OPLOCK_STRUCTURE_SIZE 24               /* [MS-SMB2] 2.2.23.1, 2.2.24.1 and 2.2.25.1 */
+#define OPLOCK_BREAK_LEASE_NOTIFICATION_STRUCTURE_SIZE 44   /* [MS-SMB2] 2.2.23.2 Lease Break Notification */
+#define OPLOCK_BREAK_LEASE_ACKNOWLEDGMENT_STRUCTURE_SIZE 36 /* [MS-SMB2] 2.2.24.2 Lease Break Acknowledgment */
+#define OPLOCK_BREAK_LEASE_RESPONSE_STRUCTURE_SIZE 36       /* [MS-SMB2] 2.2.25.2 Lease Break Response */
+
 static const val64_string unique_unsolicited_response[] = {
 	{ 0xffffffffffffffff, "unsolicited response" },
 	{ 0, NULL }
@@ -8736,7 +8741,7 @@ dissect_smb2_break_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	buffer_code = tvb_get_letohs(tvb, offset);
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
-	if (buffer_code == 24) {
+	if (buffer_code == OPLOCK_BREAK_OPLOCK_STRUCTURE_SIZE) {
 		/* OPLOCK Break */
 
 		/* oplock */
@@ -8756,7 +8761,7 @@ dissect_smb2_break_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		return offset;
 	}
 
-	if (buffer_code == 36) {
+	if (buffer_code == OPLOCK_BREAK_LEASE_ACKNOWLEDGMENT_STRUCTURE_SIZE) {
 		/* Lease Break Acknowledgment */
 
 		/* reserved */
@@ -8800,7 +8805,7 @@ dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (!continue_dissection) return offset;
 	}
 
-	if (buffer_code == 24) {
+	if (buffer_code == OPLOCK_BREAK_OPLOCK_STRUCTURE_SIZE) {
 		/* OPLOCK Break Notification */
 
 		/* oplock */
@@ -8824,7 +8829,7 @@ dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		return offset;
 	}
 
-	if (buffer_code == 44) {
+	if (buffer_code == OPLOCK_BREAK_LEASE_NOTIFICATION_STRUCTURE_SIZE) {
 		proto_item *item;
 
 		/* Lease Break Notification */
@@ -8873,7 +8878,7 @@ dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		return offset;
 	}
 
-	if (buffer_code == 36) {
+	if (buffer_code == OPLOCK_BREAK_LEASE_RESPONSE_STRUCTURE_SIZE) {
 		/* Lease Break Response */
 
 		/* reserved */
@@ -9747,6 +9752,46 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 	return offset;
 }
 
+static const char *
+get_special_packet_title(guint16 cmd, guint32 flags, guint64 msg_id, tvbuff_t *tvb, int offset)
+{
+	/*  for some types of packets we don't have request/response packets but something else
+	 *  to show more correct names while displaying them we use this logic to override standard naming convention
+	 */
+
+	guint16 buffer_code;
+	/* detect oplock/lease break packets */
+	if (cmd != SMB2_COM_BREAK) {
+		return NULL;
+	}
+
+	buffer_code = tvb_get_letohs(tvb, offset);
+	if (flags & SMB2_FLAGS_RESPONSE) {
+		switch (buffer_code) {
+		case OPLOCK_BREAK_OPLOCK_STRUCTURE_SIZE:
+			/* note - Notification and Response packets for Oplock Break are equivalent,
+			 * we can distinguish them only via msg_id value */
+			if (msg_id == 0xFFFFFFFFFFFFFFFF)	/* see [MS-SMB2] 3.3.4.6 Object Store Indicates an Oplock Break */
+				return "Oplock Break Notification";
+			else
+				return "Oplock Break Response";
+		case OPLOCK_BREAK_LEASE_NOTIFICATION_STRUCTURE_SIZE:
+			return "Lease Break Notification";
+		case OPLOCK_BREAK_LEASE_RESPONSE_STRUCTURE_SIZE:
+			return "Lease Break Response";
+		}
+	} else {
+		switch (buffer_code) {
+		case OPLOCK_BREAK_OPLOCK_STRUCTURE_SIZE:
+			return "Oplock Break Acknowledgment";
+		case OPLOCK_BREAK_LEASE_ACKNOWLEDGMENT_STRUCTURE_SIZE:
+			return "Lease Break Acknowledgment";
+		}
+	}
+	/* return back to standard notation if we can't detect packet type of break packet */
+	return NULL;
+}
+
 static int
 dissect_smb2_command(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, smb2_info_t *si)
 {
@@ -9754,12 +9799,20 @@ dissect_smb2_command(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
 	proto_item *cmd_item;
 	proto_tree *cmd_tree;
 	int         old_offset = offset;
+	const char *packet_title = get_special_packet_title(si->opcode, si->flags, si->msg_id, tvb, offset);
 
-	cmd_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
-			ett_smb2_command, &cmd_item, "%s %s (0x%02x)",
-			decode_smb2_name(si->opcode),
-			(si->flags & SMB2_FLAGS_RESPONSE)?"Response":"Request",
-			si->opcode);
+	if (packet_title) {
+		cmd_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+				ett_smb2_command, &cmd_item, "%s (0x%02x)",
+				packet_title,
+				si->opcode);
+	} else {
+		cmd_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+				ett_smb2_command, &cmd_item, "%s %s (0x%02x)",
+				decode_smb2_name(si->opcode),
+				(si->flags & SMB2_FLAGS_RESPONSE)?"Response":"Request",
+				si->opcode);
+	}
 
 	cmd_dissector = (si->flags & SMB2_FLAGS_RESPONSE)?
 		smb2_dissector[si->opcode&0xff].response:
@@ -9870,6 +9923,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	guint32		     open_frame,close_frame;
 	smb2_eo_file_info_t *eo_file_info;
 	e_ctx_hnd	    *policy_hnd_hashtablekey;
+	const char	    *packet_title;
 
 	sti = wmem_new(wmem_packet_scope(), smb2_transform_info_t);
 	scti = wmem_new(wmem_packet_scope(), smb2_comp_transform_info_t);
@@ -10024,10 +10078,16 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 
 		proto_item_set_len(header_item, offset);
 
-
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-				decode_smb2_name(si->opcode),
-				(si->flags & SMB2_FLAGS_RESPONSE)?"Response":"Request");
+		/* Check if this is a special packet type and it has non-regular title */
+		packet_title = get_special_packet_title(si->opcode, si->flags, si->msg_id, tvb, offset);
+		if (packet_title) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s", packet_title);
+		} else {
+			/* Regular packets have standard title */
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+					decode_smb2_name(si->opcode),
+					(si->flags & SMB2_FLAGS_RESPONSE)?"Response":"Request");
+		}
 		if (si->status) {
 			col_append_fstr(
 					pinfo->cinfo, COL_INFO, ", Error: %s",
