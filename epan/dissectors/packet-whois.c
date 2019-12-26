@@ -61,11 +61,15 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     conversation = find_or_create_conversation(pinfo);
     whois_trans = (whois_transaction_t *)conversation_get_proto_data(conversation, proto_whois);
     if (whois_trans == NULL) {
-        gint newline;
+        gint linelen;
         whois_trans = wmem_new0(wmem_file_scope(), whois_transaction_t);
-        newline = tvb_find_guint8(tvb, 0, -1, '\n');
-        if (newline != -1)
-            whois_trans->query = tvb_get_string_enc(wmem_file_scope(), tvb, 0, newline, ENC_ASCII|ENC_NA);
+
+        /*
+         * Find the end of the first line.
+         */
+        linelen = tvb_find_line_end(tvb, 0, -1, NULL, FALSE);
+        if (linelen != -1)
+            whois_trans->query = tvb_get_string_enc(wmem_file_scope(), tvb, 0, linelen, ENC_ASCII|ENC_NA);
         conversation_add_proto_data(conversation, proto_whois, whois_trans);
     }
 
