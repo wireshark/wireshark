@@ -469,7 +469,7 @@ void AboutDialog::urlDoubleClicked(const QModelIndex &idx)
             if ( ! QDir().mkpath(urlText) )
             {
                 QMessageBox::warning(this, tr("The directory could not be created"),
-                                     QString(tr("The directory %1 could not be created!").arg(urlText)));
+                                     QString(tr("The directory %1 could not be created.").arg(urlText)));
             }
         }
     }
