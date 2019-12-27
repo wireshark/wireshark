@@ -37013,27 +37013,27 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_HEX, VALS(he_mcs_map_vals), 0xC000, NULL, HFILL }},
 
     {&hf_ieee80211_he_rx_he_mcs_map_lte_80,
-     {"Rx HEX-MCS Map <= 80 MHz", "wlan.ext_tag.he_mcs_map.rx_he_mcs_map_lte_80",
+     {"Rx HE-MCS Map <= 80 MHz", "wlan.ext_tag.he_mcs_map.rx_he_mcs_map_lte_80",
      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_he_tx_he_mcs_map_lte_80,
-     {"Tx HEX-MCS Map <= 80 MHz", "wlan.ext_tag.he_mcs_map.tx_he_mcs_map_lte_80",
+     {"Tx HE-MCS Map <= 80 MHz", "wlan.ext_tag.he_mcs_map.tx_he_mcs_map_lte_80",
      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_he_rx_he_mcs_map_160,
-     {"Rx HEX-MCS Map 160 MHz", "wlan.ext_tag.he_mcs_map.rx_he_mcs_map_160",
+     {"Rx HE-MCS Map 160 MHz", "wlan.ext_tag.he_mcs_map.rx_he_mcs_map_160",
      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_he_tx_he_mcs_map_160,
-     {"Tx HEX-MCS Map 160 MHz", "wlan.ext_tag.he_mcs_map.tx_he_mcs_map_160",
+     {"Tx HE-MCS Map 160 MHz", "wlan.ext_tag.he_mcs_map.tx_he_mcs_map_160",
      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_he_rx_he_mcs_map_80_80,
-     {"Rx HEX-MCS Map 80+80 MHz", "wlan.ext_tag.he_mcs_map.rx_he_mcs_map_80_80",
+     {"Rx HE-MCS Map 80+80 MHz", "wlan.ext_tag.he_mcs_map.rx_he_mcs_map_80_80",
      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_he_tx_he_mcs_map_80_80,
-     {"Tx HEX-MCS Map 80+80 MHz", "wlan.ext_tag.he_mcs_map.tx_he_mcs_map_80_80",
+     {"Tx HE-MCS Map 80+80 MHz", "wlan.ext_tag.he_mcs_map.tx_he_mcs_map_80_80",
      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_he_ppe_thresholds_nss,
