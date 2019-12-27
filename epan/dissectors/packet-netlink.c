@@ -49,6 +49,7 @@ static const value_string netlink_family_vals[] = {
 	{ WS_NETLINK_ECRYPTFS,       "ecryptfs" },
 	{ WS_NETLINK_RDMA,           "RDMA" },
 	{ WS_NETLINK_CRYPTO,         "Crypto layer" },
+	{ WS_NETLINK_SMC,            "SMC monitoring" },
 	{ 0, NULL }
 };
 
@@ -382,7 +383,7 @@ dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding
 
 	hdr_flags = tvb_get_guint16(tvb, offset, encoding);
 	if ((hdr_flags & WS_NLM_F_REQUEST) && (hdr_flags & 0x0f00)) {
-		/* XXX detect based on the protocol family and message type
+		/* TODO detect based on the protocol family and message type
 		 * whether this is a GET, NEW or regular request. */
 		proto_tree_add_bitmask(fh_hdr, tvb, offset, &hfi_netlink_hdr_flags,
 			ett_netlink_hdr_flags, netlink_header_get_flags, encoding);

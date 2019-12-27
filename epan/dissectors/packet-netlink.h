@@ -12,7 +12,7 @@
 
 #include <epan/value_string.h>
 
-/* from <linux/netlink.h> prefixed with WS_ */
+/* from <include/uapi/linux/netlink.h> prefixed with WS_ */
 enum {
 	WS_NETLINK_ROUTE = 0,
 	WS_NETLINK_UNUSED = 1,
@@ -35,10 +35,11 @@ enum {
 	WS_NETLINK_SCSITRANSPORT = 18,
 	WS_NETLINK_ECRYPTFS = 19,
 	WS_NETLINK_RDMA = 20,
-	WS_NETLINK_CRYPTO = 21
+	WS_NETLINK_CRYPTO = 21,
+	WS_NETLINK_SMC = 22
 };
 
-/* from <linux/netlink.h> prefixed with WS_ */
+/* from <include/uapi/linux/netlink.h> prefixed with WS_ */
 enum {
 	WS_NLM_F_REQUEST = 1,    /* It is request message.*/
 	WS_NLM_F_MULTI = 2,      /* Multipart message, terminated by NETLINK_MSG_DONE */
@@ -56,7 +57,14 @@ enum {
 	WS_NLM_F_REPLACE = 0x100,  /* Override existing */
 	WS_NLM_F_EXCL = 0x200,     /* Do not touch, if it exists */
 	WS_NLM_F_CREATE = 0x400,   /* Create, if it does */
-	WS_NLM_F_APPEND = 0x800    /* Add to end of list */
+	WS_NLM_F_APPEND = 0x800,   /* Add to end of list */
+
+	/* Modifiers to DELETE request */
+	WS_NLM_F_NONREC = 0x100,   /* Do not delete recursively */
+
+	/* Flags for ACK message */
+	WS_NLM_F_CAPPED = 0x100,   /* request was capped */
+	WS_NLM_F_ACK_TLVS = 0x200  /* extended ACK TLVs were included */
 };
 
 
@@ -70,7 +78,7 @@ enum {
 	WS_NLMSG_MIN_TYPE     = 0x10    /** type < WS_NLMSG_MIN_TYPE are reserved */
 };
 
-/* from <linux/netfilter.h>. Looks like AF_xxx, except for NFPROTO_ARP */
+/* from <include/uapi/linux/netfilter.h>. Looks like AF_xxx, except for NFPROTO_ARP */
 enum ws_nfproto {
 	WS_NFPROTO_UNSPEC =  0,
 	WS_NFPROTO_INET   =  1,
