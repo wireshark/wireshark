@@ -133,10 +133,10 @@ private:
 
     void showPlayer();
 
-    size_t convert_payload_to_samples(unsigned int payload_type, QTemporaryFile *tempfile, uint8_t *pd_out, size_t expected_nchars, struct _GHashTable *decoders_hash);
+    size_t convert_payload_to_samples(unsigned int payload_type, const gchar *payload_type_names[256], QTemporaryFile *tempfile, uint8_t *pd_out, size_t expected_nchars, struct _GHashTable *decoders_hash);
     bool saveAudioAUSilence(size_t total_len, QFile *save_file, gboolean *stop_flag);
-    bool saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTemporaryFile *tempfile, QFile *save_file, int64_t header_end, gboolean *stop_flag, gboolean interleave, size_t prefix_silence);
-    bool saveAudioAUBidir(tap_rtp_stat_t &fwd_statinfo, tap_rtp_stat_t &rev_statinfo, QTemporaryFile *fwd_tempfile, QTemporaryFile *rev_tempfile, QFile *save_file, int64_t header_end, gboolean *stop_flag, size_t prefix_silence_fwd, size_t prefix_silence_rev);
+    bool saveAudioAUUnidir(tap_rtp_stat_t &statinfo, const gchar *payload_type_names[256], QTemporaryFile *tempfile, QFile *save_file, int64_t header_end, gboolean *stop_flag, gboolean interleave, size_t prefix_silence);
+    bool saveAudioAUBidir(tap_rtp_stat_t &fwd_statinfo, tap_rtp_stat_t &rev_statinfo, const gchar *fwd_payload_type_names[256], const gchar *rev_payload_type_names[256], QTemporaryFile *fwd_tempfile, QTemporaryFile *rev_tempfile, QFile *save_file, int64_t header_end, gboolean *stop_flag, size_t prefix_silence_fwd, size_t prefix_silence_rev);
     bool saveAudioAU(StreamDirection direction, QFile *save_file, gboolean *stop_flag, RtpAnalysisDialog::SyncType sync);
     bool saveAudioRAW(StreamDirection direction, QFile *save_file, gboolean *stop_flag);
     void saveAudio(StreamDirection direction, RtpAnalysisDialog::SyncType sync);
