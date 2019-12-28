@@ -88,7 +88,7 @@ decode_rtp_packet_payload(guint8 payload_type, const gchar *payload_type_str, gu
 
 /****************************************************************************/
 /*
- * Return the number of decoded bytes
+ * @return Number of decoded bytes
  */
 
 size_t

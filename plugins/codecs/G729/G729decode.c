@@ -41,27 +41,27 @@ codec_g729_get_frequency(void *ctx _U_)
 }
 
 static size_t
-codec_g729_decode(void *ctx, const void *input, size_t inputSizeBytes, void *output,
-        size_t *outputSizeBytes)
+codec_g729_decode(void *ctx, const void *inputBytes, size_t inputBytesSize,
+        void *outputSamples, size_t *outputSamplesSize)
 {
     bcg729DecoderChannelContextStruct *state = (bcg729DecoderChannelContextStruct *)ctx;
-    const guint8 *dataIn = (const guint8 *) input;
-    gint16 *dataOut = (gint16 *) output;
+    const guint8 *dataIn = (const guint8 *) inputBytes;
+    gint16 *dataOut = (gint16 *) outputSamples;
     size_t i;
 
     if (!ctx) {
         return 0;
     }
 
-    if (!output || !outputSizeBytes) {
-        return 80*2*(inputSizeBytes/10);
+    if (!outputSamples || !outputSamplesSize) {
+        return 80*2*(inputBytesSize/10);
     }
 
     /* The G729 algorithm encodes 10ms of voice into 80bit (10 bytes).
        Based on the RTP packetization period (usually 20ms), we need to
        pass to the bcg729 decoder chunks of 10ms (10 bytes)
     */
-    for (i = 0; i < (inputSizeBytes/10); i++) {
+    for (i = 0; i < (inputBytesSize/10); i++) {
         /* The bcg729 decoder library fails to declare the second
            argument to bcg729Decoder() to be a const pointer.  If you
            fix it, and some other functions, to use const, the library
@@ -72,8 +72,8 @@ codec_g729_decode(void *ctx, const void *input, size_t inputSizeBytes, void *out
         */
         bcg729Decoder(state, (guint8 *)dataIn + i*10, 10, 0, 0, 0, dataOut + i*80);
     }
-    *outputSizeBytes = 80*2*(inputSizeBytes/10);
-    return *outputSizeBytes;
+    *outputSamplesSize = 80*2*(inputBytesSize/10);
+    return *outputSamplesSize;
 }
 
 void
