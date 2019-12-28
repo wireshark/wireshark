@@ -352,6 +352,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                                  proto_tree *tree)
 {
   proto_tree *tftp_tree;
+  proto_item *root_ti;
   proto_item *ti;
   proto_item *blocknum_item;
   gint        offset    = 0;
@@ -366,8 +367,8 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFTP");
 
   /* Protocol root */
-  ti = proto_tree_add_item(tree, proto_tftp, tvb, offset, -1, ENC_NA);
-  tftp_tree = proto_item_add_subtree(ti, ett_tftp);
+  root_ti = proto_tree_add_item(tree, proto_tftp, tvb, offset, -1, ENC_NA);
+  tftp_tree = proto_item_add_subtree(root_ti, ett_tftp);
 
   /* Opcode */
   opcode = tvb_get_ntohs(tvb, offset);
@@ -453,6 +454,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     break;
 
   case TFTP_DATA:
+    proto_item_set_len(root_ti, 4);
     blocknum_item = proto_tree_add_item_ret_uint(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
                                                  ENC_BIG_ENDIAN, &blocknum);
 
