@@ -117,9 +117,16 @@ def shorten(manuf):
     # & isn't needed when Standalone
     manuf = manuf.replace(" & ", " ")
     # Remove business types and other general terms ("the", "inc", "plc", etc.)
-    manuf = re.sub('\W(' + general_terms + ')(?= )', '', manuf, flags=re.IGNORECASE)
+    plain_manuf = re.sub('\W(' + general_terms + ')(?= )', '', manuf, flags=re.IGNORECASE)
+    # ...but make sure we don't remove everything.
+    if not all(s == ' ' for s in plain_manuf):
+        manuf = plain_manuf
     # Remove all spaces
     manuf = re.sub('\s+', '', manuf)
+
+    if len(manuf) < 1:
+        sys.stderr.write('Manufacturer "{}" shortened to nothing.\n'.format(orig_manuf))
+        sys.exit(1)
 
     # Truncate names to a reasonable length, say, 8 characters. If
     # the string contains UTF-8, this may be substantially more than
