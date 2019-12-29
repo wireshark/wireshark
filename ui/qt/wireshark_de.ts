@@ -92,8 +92,9 @@
         <translation>Das Verzeichnis konnte nicht erstellt werden</translation>
     </message>
     <message>
-        <source>The directory %1 could not be created!</source>
-        <translation>Das Verzeichnis %1 konnte nicht erstellt werden!</translation>
+        <source>The directory %1 could not be created.</source>
+        <oldsource>The directory %1 could not be created!</oldsource>
+        <translation type="unfinished">Das Verzeichnis %1 konnte nicht erstellt werden!</translation>
     </message>
     <message>
         <source>Show in Finder</source>

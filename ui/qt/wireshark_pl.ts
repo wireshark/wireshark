@@ -92,8 +92,9 @@
         <translation>Nie można utworzyć katalogu.</translation>
     </message>
     <message>
-        <source>The directory %1 could not be created!</source>
-        <translation>Nie można utworzyć katalogu %1!</translation>
+        <source>The directory %1 could not be created.</source>
+        <oldsource>The directory %1 could not be created!</oldsource>
+        <translation type="unfinished">Nie można utworzyć katalogu %1!</translation>
     </message>
     <message>
         <source>Show in Finder</source>
