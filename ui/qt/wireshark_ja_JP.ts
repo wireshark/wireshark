@@ -84,8 +84,9 @@
         <translation>ディレクトリを作成できませんでした</translation>
     </message>
     <message>
-        <source>The directory %1 could not be created!</source>
-        <translation>ディレクトリ %1 を作成出来ませんでした</translation>
+        <source>The directory %1 could not be created.</source>
+        <oldsource>The directory %1 could not be created!</oldsource>
+        <translation type="unfinished">ディレクトリ %1 を作成出来ませんでした</translation>
     </message>
     <message>
         <source>Show in Finder</source>
