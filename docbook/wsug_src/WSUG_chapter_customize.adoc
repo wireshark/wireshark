@@ -939,13 +939,9 @@ The textual representation for the value.
 
 === MaxMind Database Paths
 
-If your copy of Wireshark supports
-https://www.maxmind.com/[MaxMind’s] MaxMindDB library, you can use
-their databases to match IP addresses to countries, cites, autonomous
-system numbers, and other bits of information. Some databases are
-https://dev.maxmind.com/geoip/geoip2/downloadable/[available at no
-cost], while others require a licensing fee. See
-https://www.maxmind.com/[the MaxMind web site] for more information.
+If your copy of Wireshark supports https://www.maxmind.com/[MaxMind’s] MaxMindDB library, you can use their databases to match IP addresses to countries, cites, autonomous system numbers, and other bits of information.
+Some databases are https://dev.maxmind.com/geoip/geoip2/geolite2/[available at no cost for registered users], while others require a licensing fee.
+See https://www.maxmind.com/[the MaxMind web site] for more information.
 
 The configuration for the MaxMind database is a user table, as described
 in <<ChUserTable>>, with the following fields:
