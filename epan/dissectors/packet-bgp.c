@@ -46,6 +46,7 @@
  * http://www.iana.org/assignments/bgp-parameters/ (last updated 2012-04-26)
  * RFC8538 Notification Message Support for BGP Graceful Restart
  * draft-ietf-bess-evpn-igmp-mld-proxy-03
+ * draft-ietf-idr-tunnel-encaps-15
 
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
@@ -7293,7 +7294,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
     guint16       encaps_tunnel_type;         /* Encapsulation Tunnel Type */
     guint16       encaps_tunnel_len;          /* Encapsulation TLV Length */
     guint8        encaps_tunnel_subtype;      /* Encapsulation Tunnel Sub-TLV Type */
-    guint8        encaps_tunnel_sublen;       /* Encapsulation TLV Sub-TLV Length */
+    guint16       encaps_tunnel_sublen;       /* Encapsulation TLV Sub-TLV Length */
     guint8        aigp_type;                  /* AIGP TLV type from AIGP attribute */
     guint8        prefix_sid_subtype;         /* BGP Prefix-SID TLV Type */
     guint16       prefix_sid_sublen;          /* BGP Prefix-SID TLV Length */
@@ -7897,38 +7898,44 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                     j = q + encaps_tunnel_len;
                     while ( q < j ) {
                         encaps_tunnel_subtype = tvb_get_guint8(tvb, q);
-                        encaps_tunnel_sublen = tvb_get_guint8(tvb, q + 1);
+                        if (encaps_tunnel_subtype < 128) {
+                            k = 2;
+                            encaps_tunnel_sublen = tvb_get_guint8(tvb, q + 1);
+                        } else {
+                            k = 3;
+                            encaps_tunnel_sublen = tvb_get_ntohs(tvb, q + 1);
+                        }
 
-                        subtree6 = proto_tree_add_subtree_format(subtree5, tvb, q, encaps_tunnel_sublen + 2, ett_bgp_tunnel_tlv_subtree, NULL, "%s (%u bytes)", val_to_str_const(encaps_tunnel_subtype, subtlv_type, "Unknown"), encaps_tunnel_sublen + 2);
+                        subtree6 = proto_tree_add_subtree_format(subtree5, tvb, q, encaps_tunnel_sublen + k, ett_bgp_tunnel_tlv_subtree, NULL, "%s (%u bytes)", val_to_str_const(encaps_tunnel_subtype, subtlv_type, "Unknown"), encaps_tunnel_sublen + k);
 
                         proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_type, tvb, q, 1, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_len, tvb, q + 1, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_len, tvb, q + 1, k - 1, ENC_BIG_ENDIAN);
 
                         switch (encaps_tunnel_subtype) {
                             case TUNNEL_SUBTLV_ENCAPSULATION:
                                 if (encaps_tunnel_type == TUNNEL_TYPE_L2TP_OVER_IP) {
-                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_session_id, tvb, q + 2, 4, ENC_BIG_ENDIAN);
-                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_cookie, tvb, q + 6, encaps_tunnel_sublen - 4, ENC_NA);
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_session_id, tvb, q + k, 4, ENC_BIG_ENDIAN);
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_cookie, tvb, q + k + 4, encaps_tunnel_sublen - 4, ENC_NA);
                                 } else if (encaps_tunnel_type == TUNNEL_TYPE_GRE) {
-                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_gre_key, tvb, q + 2, 4, ENC_BIG_ENDIAN);
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_gre_key, tvb, q + k, 4, ENC_BIG_ENDIAN);
                                 }
                                 break;
                             case TUNNEL_SUBTLV_PROTO_TYPE:
-                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_gre_key, tvb, q + 2, 2, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_gre_key, tvb, q + k, 2, ENC_BIG_ENDIAN);
                                 break;
                             case TUNNEL_SUBTLV_COLOR:
-                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_color_value, tvb, q + 6, 4, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_color_value, tvb, q + k + 4, 4, ENC_BIG_ENDIAN);
                                break;
                             case TUNNEL_SUBTLV_LOAD_BALANCE:
                                 if (encaps_tunnel_type == TUNNEL_TYPE_L2TP_OVER_IP || encaps_tunnel_type == TUNNEL_TYPE_GRE) {
-                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_lb_block_length, tvb, q + 2, 4, ENC_BIG_ENDIAN);
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_lb_block_length, tvb, q + k, 4, ENC_BIG_ENDIAN);
                                 }
                                 break;
                             default:
                                 break;
                         } /* switch (encaps_tunnel_subtype) */
 
-                        q += 2 + encaps_tunnel_sublen; /* type and length + length of value */
+                        q += k + encaps_tunnel_sublen; /* type and length + length of value */
                     }
 
                 }
