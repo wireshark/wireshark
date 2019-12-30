@@ -613,6 +613,12 @@ static int hf_gtpv2_node_name = -1;
 static int hf_gtpv2_length_of_node_realm = -1;
 static int hf_gtpv2_node_realm = -1;
 static int hf_gtpv2_ms_ts = -1;
+static int hf_gtpv2_mon_event_inf_nsur = -1;
+static int hf_gtpv2_mon_event_inf_nsui = -1;
+static int hf_gtpv2_mon_event_inf_scef_reference_id = -1;
+static int hf_gtpv2_mon_event_inf_scef_id_length = -1;
+static int hf_gtpv2_mon_event_inf_scef_id = -1;
+static int hf_gtpv2_mon_event_inf_remaining_number_of_reports = -1;
 static int hf_gtpv2_rohc_profiles_bit0 = -1;
 static int hf_gtpv2_rohc_profiles_bit1 = -1;
 static int hf_gtpv2_rohc_profiles_bit2 = -1;
@@ -1183,8 +1189,8 @@ static gint ett_gtpv2_ies[NUM_GTPV2_IES];
 #define GTPV2_IE_PAGING_AND_SERVICE_INF 186
 #define GTPV2_IE_INTEGER_NUMBER         187
 #define GTPV2_IE_MILLISECOND_TS         188
+#define GTPV2_IE_MON_EVENT_INF          189
 /*
-189    Monitoring Event Information
 190    ECGI List
 191    Remote UE Context
 192    Remote User ID
@@ -7268,6 +7274,33 @@ dissect_gtpv2_ms_ts(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
 }
 
 /*
+ * 8.120        Monitoring Event Information
+ */
+static void
+dissect_gtpv2_mon_event_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+{
+    int   offset = 0;
+    guint32 scef_id_len;
+
+    /* Octet 5 to 8 SCEF Reference ID */
+    proto_tree_add_item(tree, hf_gtpv2_mon_event_inf_scef_reference_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    /* Octet 9 Length of SCEF ID */
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_mon_event_inf_scef_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &scef_id_len);
+    offset++;
+    /* Octet 10 to k SCEF ID */
+    proto_tree_add_item(tree, hf_gtpv2_mon_event_inf_scef_id, tvb, offset, scef_id_len, ENC_UTF_8 | ENC_NA);
+    offset = offset + scef_id_len;
+    /* Octet (k+1) to (k+2) Remaining Number of Reports */
+    proto_tree_add_item(tree, hf_gtpv2_mon_event_inf_remaining_number_of_reports, tvb, offset, 2, ENC_BIG_ENDIAN );
+    offset += 2;
+
+    if(offset < length){
+        proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length- offset);
+    }
+}
+
+/*
  * 8.125 CIoT Optimizations Support Indication
  */
 static void
@@ -8005,8 +8038,8 @@ static const gtpv2_ie_t gtpv2_ies[] = {
 
     {GTPV2_IE_PAGING_AND_SERVICE_INF, dissect_gtpv2_paging_and_service_inf}, /* 186, 8.117 Paging and Service Information */
     {GTPV2_IE_INTEGER_NUMBER, dissect_gtpv2_integer_number},                 /* 187, 8.118 Integer Number */
-    { GTPV2_IE_MILLISECOND_TS, dissect_gtpv2_ms_ts },                        /* 188, 8.119 Millisecond Time Stamp */
-                                                                             /* 189, 8.120 Monitoring Event Information */
+    {GTPV2_IE_MILLISECOND_TS, dissect_gtpv2_ms_ts},                          /* 188, 8.119 Millisecond Time Stamp */
+    {GTPV2_IE_MON_EVENT_INF, dissect_gtpv2_mon_event_inf},                   /* 189, 8.120 Monitoring Event Information */
                                                                              /* 190, 8.121 ECGI List */
                                                                              /* 191, 8.122 Remote UE Context */
                                                                              /* 192, 8.123 Remote User ID */
@@ -8303,8 +8336,15 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         /*Octet 2 - 3 */
         proto_tree_add_item(ie_tree, hf_gtpv2_ie_len, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+
         /* CR Spare Instance Octet 4*/
         proto_tree_add_item(ie_tree, hf_gtpv2_cr, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+        /* ch8.120 breaks the format described in ch8.2.1 */
+        if (type == GTPV2_IE_MON_EVENT_INF) {
+            proto_tree_add_item(ie_tree, hf_gtpv2_mon_event_inf_nsui, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ie_tree, hf_gtpv2_mon_event_inf_nsur, tvb, offset, 1, ENC_BIG_ENDIAN);
+        }
 
         instance = tvb_get_guint8(tvb, offset) & 0x0f;
         proto_tree_add_item(ie_tree, hf_gtpv2_instance, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -10859,6 +10899,36 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_ms_ts,
       { "Millisecond Time Stamp", "gtpv2.ms_ts",
           FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_mon_event_inf_nsur,
+      { "NSUR (Notify SCEF when UE becomes Reachable)", "gtpv2.mon_event_inf.nsur",
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_mon_event_inf_nsui,
+      { "NSUI (Notify SCEF when UE becomes Idle)", "gtpv2.mon_event_inf.nsui",
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_mon_event_inf_scef_reference_id,
+          { "SCEF Reference ID", "gtpv2.mon_event_inf.scef_reference_id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_mon_event_inf_scef_id_length,
+          { "SCEF ID length", "gtpv2.mon_event_inf.scef_id_length",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_mon_event_inf_scef_id,
+          { "SCEF ID", "gtpv2.mon_event_inf.scef_id",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_mon_event_inf_remaining_number_of_reports,
+          { "Remaining Number of Reports", "gtpv2.mon_event_inf.remaining_number_of_reports",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_gtpv2_rohc_profile_flags,
