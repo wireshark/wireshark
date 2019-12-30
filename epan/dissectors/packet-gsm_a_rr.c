@@ -14068,7 +14068,7 @@ proto_register_gsm_a_rr(void)
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_feat_ind_ps_ir,
-              { "pS IR","gsm_a.rr.feature_indicator.cs_ir",
+              { "PS IR","gsm_a.rr.feature_indicator.ps_ir",
                 FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_feat_ind_ps_ir), 0x00,
                 NULL, HFILL }
             },
