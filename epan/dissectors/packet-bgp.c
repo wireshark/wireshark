@@ -188,10 +188,15 @@ static dissector_handle_t bgp_handle;
 #define BGP_ORF_PERMIT      0x00
 #define BGP_ORF_DENY        0x01
 
-/* well-known communities, from RFC1997 */
+/* well-known communities, as defined by IANA  */
+/* https://www.iana.org/assignments/bgp-well-known-communities/bgp-well-known-communities.xhtml */
+#define BGP_COMM_GRACEFUL_SHUTDOWN   0xFFFF0000
+#define BGP_COMM_ACCEPT_OWN          0xFFFF0001
+#define BGP_COMM_BLACKHOLE           0xFFFF029A
 #define BGP_COMM_NO_EXPORT           0xFFFFFF01
 #define BGP_COMM_NO_ADVERTISE        0xFFFFFF02
 #define BGP_COMM_NO_EXPORT_SUBCONFED 0xFFFFFF03
+#define BGP_COMM_NOPEER              0xFFFFFF04
 #define FOURHEX0                     0x00000000
 #define FOURHEXF                     0xFFFF0000
 
@@ -1479,9 +1484,13 @@ static const value_string capability_vals[] = {
 };
 
 static const value_string community_vals[] = {
+    { BGP_COMM_GRACEFUL_SHUTDOWN,   "GRACEFUL_SHUTDOWN" },
+    { BGP_COMM_ACCEPT_OWN,          "ACCEPT_OWN" },
+    { BGP_COMM_BLACKHOLE,           "BLACKHOLE" },
     { BGP_COMM_NO_EXPORT,           "NO_EXPORT" },
     { BGP_COMM_NO_ADVERTISE,        "NO_ADVERTISE" },
     { BGP_COMM_NO_EXPORT_SUBCONFED, "NO_EXPORT_SUBCONFED" },
+    { BGP_COMM_NOPEER,              "NOPEER" },
     { 0,                            NULL }
 };
 
