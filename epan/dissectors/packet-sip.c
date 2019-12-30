@@ -5724,6 +5724,7 @@ static const value_string response_code_vals[] = {
     { 604, "Does Not Exist Anywhere"},
     { 606, "Not Acceptable"},
     { 607, "Unwanted"},
+    { 608, "Rejected"},
     { 699, "Global Failure - Others"},
 
     { 0, NULL}
