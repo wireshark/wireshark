@@ -1,4 +1,4 @@
--- 3GPP TS 36.355 V15.5.0 (2019-09)
+-- 3GPP TS 37.355 V15.0.0 (2019-12)
 --
 
 LPP-PDU-Definitions {
@@ -2913,7 +2913,7 @@ GNSS-GenericAssistanceDataSupport ::=
 
 GNSS-GenericAssistDataSupportElement ::= SEQUENCE {
 	gnss-ID								GNSS-ID,
-	sbas-ID								SBAS-ID						OPTIONAL, -- Cond GNSS‑ID‑SBAS
+	sbas-ID								SBAS-ID						OPTIONAL, -- Cond GNSS-ID-SBAS
 	gnss-TimeModelsSupport				GNSS-TimeModelListSupport
 																	OPTIONAL, -- Cond TimeModSup
 	gnss-DifferentialCorrectionsSupport	GNSS-DifferentialCorrectionsSupport
