@@ -86,4 +86,4 @@
 :multiplication: ×
 :cmd: ⌘
 
-:missing: Not yet written. See https://wiki.wireshark.org/Development/SubmittingPatches.
+:missing: Not yet written. If you would like to fix this, see https://wiki.wireshark.org/Development/SubmittingPatches.

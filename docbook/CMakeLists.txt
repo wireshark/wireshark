@@ -192,6 +192,7 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-stats-endpoints.png
 	wsug_graphics/ws-stats-hierarchy.png
 	wsug_graphics/ws-stats-iographs.png # GTK+
+	wsug_graphics/ws-stats-packet-lengths.png
 	wsug_graphics/ws-stats-srt-dcerpc-filter.png # GTK+
 	wsug_graphics/ws-stats-srt-dcerpc.png # GTK+
 	wsug_graphics/ws-stats-lte-mac-traffic.png

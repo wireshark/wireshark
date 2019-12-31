@@ -903,7 +903,7 @@ This will be greyed out if no filter is selected.
 btn:[OK]::
 Saves the filter settings and closes the dialog.
 
-btn:[Close]::
+btn:[Cancel]::
 Closes the dialog without saving any changes.
 
 [[ChWorkDefineFilterMacrosSection]]

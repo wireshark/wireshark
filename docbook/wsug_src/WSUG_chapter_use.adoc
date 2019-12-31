@@ -72,7 +72,7 @@ other GUI programs.
 [TIP]
 ====
 The layout of the main window can be customized by changing preference settings.
-See <<ChCustPreferencesSection>> for details!
+See <<ChCustPreferencesSection>> for details.
 ====
 
 [[ChUseMainWindowNavSection]]
@@ -905,7 +905,7 @@ addresses), the IP dissector will overwrite this by its own (such as the IP
 addresses), the TCP dissector will overwrite the IP information, and so on.
 
 There are a lot of different columns available. Which columns are displayed can
-be selected by preference settings, see <<ChCustPreferencesSection>>.
+be selected by preference settings. See <<ChCustPreferencesSection>>.
 
 The default columns will show:
 
