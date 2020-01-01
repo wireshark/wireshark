@@ -6,6 +6,7 @@ file_filter = ui/qt/wireshark_<lang>.ts
 source_file = ui/qt/wireshark_en.ts
 source_lang = en
 trans.de = ui/qt/wireshark_de.ts
+trans.es = ui/qt/wireshark_es.ts
 trans.fr = ui/qt/wireshark_fr.ts
 trans.it = ui/qt/wireshark_it.ts
 trans.ja_JP = ui/qt/wireshark_ja_JP.ts
