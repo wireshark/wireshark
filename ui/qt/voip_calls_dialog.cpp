@@ -437,6 +437,7 @@ void VoipCallsDialog::showPlayer()
 
     rtp_player_dialog->setWindowModality(Qt::ApplicationModal);
     rtp_player_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    rtp_player_dialog->setMarkers();
     rtp_player_dialog->show();
 #endif // QT_MULTIMEDIA_LIB
 }

@@ -1022,6 +1022,8 @@ void RtpAnalysisDialog::showPlayer()
     stream_info.packet_count = fwd_statinfo_.packet_count;
     stream_info.setup_frame_number = fwd_statinfo_.setup_frame_number;
     nstime_copy(&stream_info.start_rel_time, &fwd_statinfo_.start_rel_time);
+    nstime_copy(&stream_info.stop_rel_time, &fwd_statinfo_.stop_rel_time);
+    nstime_copy(&stream_info.start_abs_time, &fwd_statinfo_.start_abs_time);
     rtp_player_dialog->addRtpStream(&stream_info);
 
     if (num_streams_ > 1) {
@@ -1030,6 +1032,8 @@ void RtpAnalysisDialog::showPlayer()
         stream_info.packet_count = rev_statinfo_.packet_count;
         stream_info.setup_frame_number = rev_statinfo_.setup_frame_number;
         nstime_copy(&stream_info.start_rel_time, &rev_statinfo_.start_rel_time);
+        nstime_copy(&stream_info.stop_rel_time, &rev_statinfo_.stop_rel_time);
+        nstime_copy(&stream_info.start_abs_time, &rev_statinfo_.start_abs_time);
         rtp_player_dialog->addRtpStream(&stream_info);
     }
 
@@ -1037,6 +1041,7 @@ void RtpAnalysisDialog::showPlayer()
 
     rtp_player_dialog->setWindowModality(Qt::ApplicationModal);
     rtp_player_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    rtp_player_dialog->setMarkers();
     rtp_player_dialog->show();
 #endif // QT_MULTIMEDIA_LIB
 }
@@ -1695,6 +1700,8 @@ void RtpAnalysisDialog::findStreams()
             fwd_statinfo_.packet_count = strinfo->packet_count;
             fwd_statinfo_.setup_frame_number = strinfo->setup_frame_number;
             nstime_copy(&fwd_statinfo_.start_rel_time, &strinfo->start_rel_time);
+            nstime_copy(&fwd_statinfo_.stop_rel_time, &strinfo->stop_rel_time);
+            nstime_copy(&fwd_statinfo_.start_abs_time, &strinfo->start_abs_time);
             num_streams_++;
         }
 
@@ -1703,6 +1710,8 @@ void RtpAnalysisDialog::findStreams()
             rev_statinfo_.packet_count = strinfo->packet_count;
             rev_statinfo_.setup_frame_number = strinfo->setup_frame_number;
             nstime_copy(&rev_statinfo_.start_rel_time, &strinfo->start_rel_time);
+            nstime_copy(&rev_statinfo_.stop_rel_time, &strinfo->stop_rel_time);
+            nstime_copy(&rev_statinfo_.start_abs_time, &strinfo->start_abs_time);
             num_streams_++;
             if (rev_statinfo_.id.ssrc == 0) {
                 rev_statinfo_.id.ssrc = strinfo->id.ssrc;

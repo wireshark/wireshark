@@ -55,6 +55,7 @@ typedef struct _rtpstream_info {
     frame_data     *stop_fd;
     nstime_t        start_rel_time;     /**< relative start time from pinfo */
     nstime_t        stop_rel_time;      /**< relative stop time from pinfo */
+    nstime_t        start_abs_time;     /**< abs start time from pinfo */
     guint16         vlan_id;
     gboolean        tag_vlan_error;
     gboolean        tag_diffserv_error;

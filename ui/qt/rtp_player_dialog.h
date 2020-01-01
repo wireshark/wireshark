@@ -63,6 +63,7 @@ public:
      * @param rtpstream struct with rtpstream info
      */
     void addRtpStream(rtpstream_info_t *rtpstream);
+    void setMarkers();
 
 public slots:
 
@@ -83,6 +84,7 @@ private slots:
     void rescanPackets(bool rescale_axes = false);
     void updateWidgets();
     void graphClicked(QMouseEvent *event);
+    void graphDoubleClicked(QMouseEvent *event);
     void updateHintLabel();
     void resetXAxis();
 
@@ -111,8 +113,13 @@ private slots:
 private:
     Ui::RtpPlayerDialog *ui;
     QMenu *ctx_menu_;
-    double start_rel_time_;
+    double first_stream_rel_start_time_;  // Relative start time of first stream
+    double first_stream_abs_start_time_;  // Absolute start time of first stream
+    double first_stream_rel_stop_time_;  // Relative end time of first stream (ued for streams_length_ calculation
+    double streams_length_;  // Difference between start of first stream and end of last stream
+    double start_marker_time_;    // Always relative time to start of the capture
     QCPItemStraightLine *cur_play_pos_;
+    QCPItemStraightLine *start_marker_pos_;
     QString playback_error_;
     QSharedPointer<QCPAxisTicker> number_ticker_;
     QSharedPointer<QCPAxisTickerDateTime> datetime_ticker_;
@@ -128,10 +135,14 @@ private:
     void addPacket(packet_info *pinfo, const struct _rtp_info *rtpinfo);
     void zoomXAxis(bool in);
     void panXAxis(int x_pixels);
-    double getLowestTimestamp();
-    const QString getHoveredTime();
+    const QString getFormatedTime(double time);
+    const QString getFormatedHoveredTime();
     int getHoveredPacket();
     QString currentOutputDeviceName();
+    double getStartPlayMarker();
+    void drawStartPlayMarker();
+    void setStartPlayMarker(double time);
+    void updateStartStopTime(rtpstream_info_t *rtpstream, int tli_count);
 
 #else // QT_MULTIMEDIA_LIB
 private:

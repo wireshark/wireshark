@@ -45,7 +45,7 @@ public:
     bool isMatch(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info) const;
     //void addRtpStream(const rtpstream_info_t *rtpstream);
     void addRtpPacket(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info);
-    void reset(double start_rel_time);
+    void reset(double global_start_time);
     void decode();
 
     double startRelTime() const { return start_rel_time_; }
@@ -127,6 +127,7 @@ public:
 
     void setJitterBufferSize(int jitter_buffer_size) { jitter_buffer_size_ = jitter_buffer_size; }
     void setTimingMode(TimingMode timing_mode) { timing_mode_ = timing_mode; }
+    void setStartPlayTime(double start_play_time) { start_play_time_ = start_play_time; }
 
 signals:
     void startedPlaying();
@@ -168,6 +169,7 @@ private:
 
     int jitter_buffer_size_;
     TimingMode timing_mode_;
+    double start_play_time_;
 
     void writeSilence(int samples);
     const QString formatDescription(const QAudioFormat & format);

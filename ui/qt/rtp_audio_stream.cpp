@@ -133,9 +133,9 @@ void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const struct
     rtp_packets_ << rtp_packet;
 }
 
-void RtpAudioStream::reset(double start_rel_time)
+void RtpAudioStream::reset(double global_start_time)
 {
-    global_start_rel_time_ = start_rel_time;
+    global_start_rel_time_ = global_start_time;
     stop_rel_time_ = start_rel_time_;
     audio_out_rate_ = 0;
     max_sample_val_ = 1;
@@ -158,6 +158,7 @@ static const int sample_bytes_ = sizeof(SAMPLE) / sizeof(char);
  * XXX - is there a better thing to do here?
  */
 static const int max_silence_samples_ = MAX_SILENCE_FRAMES;
+
 void RtpAudioStream::decode()
 {
     if (rtp_packets_.size() < 1) return;
@@ -402,7 +403,7 @@ const QVector<double> RtpAudioStream::visualTimestamps(bool relative)
 
     QVector<double> adj_timestamps;
     for (int i = 0; i < ts_keys.size(); i++) {
-        adj_timestamps.append(ts_keys[i] + start_abs_offset_);
+        adj_timestamps.append(ts_keys[i] + start_abs_offset_ - start_rel_time_);
     }
     return adj_timestamps;
 }
@@ -429,7 +430,7 @@ const QVector<double> RtpAudioStream::outOfSequenceTimestamps(bool relative)
 
     QVector<double> adj_timestamps;
     for (int i = 0; i < out_of_seq_timestamps_.size(); i++) {
-        adj_timestamps.append(out_of_seq_timestamps_[i] + start_abs_offset_);
+        adj_timestamps.append(out_of_seq_timestamps_[i] + start_abs_offset_ - start_rel_time_);
     }
     return adj_timestamps;
 }
@@ -450,7 +451,7 @@ const QVector<double> RtpAudioStream::jitterDroppedTimestamps(bool relative)
 
     QVector<double> adj_timestamps;
     for (int i = 0; i < jitter_drop_timestamps_.size(); i++) {
-        adj_timestamps.append(jitter_drop_timestamps_[i] + start_abs_offset_);
+        adj_timestamps.append(jitter_drop_timestamps_[i] + start_abs_offset_ - start_rel_time_);
     }
     return adj_timestamps;
 }
@@ -471,7 +472,7 @@ const QVector<double> RtpAudioStream::wrongTimestampTimestamps(bool relative)
 
     QVector<double> adj_timestamps;
     for (int i = 0; i < wrong_timestamp_timestamps_.size(); i++) {
-        adj_timestamps.append(wrong_timestamp_timestamps_[i] + start_abs_offset_);
+        adj_timestamps.append(wrong_timestamp_timestamps_[i] + start_abs_offset_ - start_rel_time_);
     }
     return adj_timestamps;
 }
@@ -492,7 +493,7 @@ const QVector<double> RtpAudioStream::insertedSilenceTimestamps(bool relative)
 
     QVector<double> adj_timestamps;
     for (int i = 0; i < silence_timestamps_.size(); i++) {
-        adj_timestamps.append(silence_timestamps_[i] + start_abs_offset_);
+        adj_timestamps.append(silence_timestamps_[i] + start_abs_offset_ - start_rel_time_);
     }
     return adj_timestamps;
 }
@@ -548,6 +549,8 @@ const QString RtpAudioStream::formatDescription(const QAudioFormat &format)
 
 void RtpAudioStream::startPlaying()
 {
+    qint64 start_pos;
+
     if (audio_output_) return;
 
     if (audio_out_rate_ == 0) {
@@ -586,12 +589,20 @@ void RtpAudioStream::startPlaying()
     audio_output_->setNotifyInterval(65); // ~15 fps
     connect(audio_output_, SIGNAL(stateChanged(QAudio::State)), this, SLOT(outputStateChanged(QAudio::State)));
     connect(audio_output_, SIGNAL(notify()), this, SLOT(outputNotify()));
-    tempfile_->seek(0);
-    audio_output_->start(tempfile_);
-    emit startedPlaying();
-    // QTBUG-6548 StoppedState is not always emitted on error, force a cleanup
-    // in case playback fails immediately.
-    if (audio_output_ && audio_output_->state() == QAudio::StoppedState) {
+    start_pos = (qint64)(start_play_time_ * sample_bytes_ * audio_out_rate_);
+    // Round to sample_bytes_ boundary
+    start_pos = (start_pos / sample_bytes_) * sample_bytes_;
+    if (start_pos < tempfile_->size()) {
+        tempfile_->seek(start_pos);
+        audio_output_->start(tempfile_);
+        emit startedPlaying();
+        // QTBUG-6548 StoppedState is not always emitted on error, force a cleanup
+        // in case playback fails immediately.
+        if (audio_output_ && audio_output_->state() == QAudio::StoppedState) {
+            outputStateChanged(QAudio::StoppedState);
+        }
+    } else {
+        // Report stopped audio if start position is later than stream ends
         outputStateChanged(QAudio::StoppedState);
     }
 }
@@ -648,7 +659,7 @@ void RtpAudioStream::outputStateChanged(QAudio::State new_state)
 
 void RtpAudioStream::outputNotify()
 {
-    emit processedSecs(audio_output_->processedUSecs() / 1000000.0);
+    emit processedSecs((audio_output_->processedUSecs() / 1000000.0) + start_play_time_);
 }
 
 #endif // QT_MULTIMEDIA_LIB

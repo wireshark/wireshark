@@ -659,6 +659,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
         }
         strinfo->start_fd = pinfo->fd;
         strinfo->start_rel_time = pinfo->rel_ts;
+        strinfo->start_abs_time = pinfo->abs_ts;
         strinfo->setup_frame_number = rtp_info->info_setup_frame_num;
         strinfo->call_num = -1;
         strinfo->rtp_event = -1;
