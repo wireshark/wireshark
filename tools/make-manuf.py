@@ -82,6 +82,7 @@ general_terms = '|'.join([
     'ltd',
     'n ?v',
     'oao',
+    'of',
     'open joint stock company',
     'ooo',
     'oy',
