@@ -57,6 +57,8 @@ others:
 
 ===== Linux
 
+* Arch Linux
+
 * Debian GNU/Linux
 
 * Ubuntu
@@ -67,13 +69,11 @@ others:
 
 * IBM S/390 Linux (Red Hat)
 
-* Mandrake Linux
+* Mandriva Linux
 
 * PLD Linux
 
 * Red Hat Linux
-
-* Rock Linux
 
 * Slackware Linux
 
@@ -81,21 +81,21 @@ others:
 
 ==== Microsoft Windows
 
-Wireshark supports Windows natively via the
-https://en.wikipedia.org/wiki/Windows_API[Windows API]. Note that in
-this documentation and elsewhere we tend to use the terms
-“Win32”, “Win”, and “Windows” interchangeably to refer to the
-Windows API. Wireshark runs on and can be compiled on the following
-platforms:
+Wireshark supports Windows natively via the https://en.wikipedia.org/wiki/Windows_API[Windows API].
+Note that in this documentation and elsewhere we tend to use the terms “Win32”, “Win”, and “Windows” interchangeably to refer to the Windows API.
+“Win64” refers to the Windows API on 64-bit platforms.
+Wireshark runs on and can be compiled on the following Windows versions:
 
-* Windows 10 / Windows Server 2016
+* Windows 10 / Windows Server 2016 / Windows Server 2019
 
 * Windows 8.1 / Windows Server 2012 R2
 
 * Windows 8 / Windows Server 2012
 
-Development on Windows 7, Server 2008 R2, Vista, Server 2008, and older versions may be possible but
-is not supported.
+Development on Windows 7, Server 2008 R2, Vista, Server 2008, and older versions may be possible but is not supported.
+
+Some versions of Windows support https://devblogs.microsoft.com/commandline/per-directory-case-sensitivity-and-wsl/[case sensitive directories].
+We don’t officially support building or running Wireshark in this environment, but we will accept patches to fix any issues that might arise.
 
 [[ChIntroDevelopment]]
 
@@ -294,22 +294,21 @@ Each step is represented at the status page by a rectangle, green if it
 succeeded or red if it failed. Most steps provide a link to the corresponding
 console logfile, to get additional information.
 
-The Buildbot runs on a platform collection that represents the different
-"platform specialties" quite well:
+Release packages are built on the following platforms:
 
-* Windows Server 2019 x86 (Win32, little endian, Visual Studio 2017)
+* Windows Server 2019 x86-64 (Win32, little endian, Visual Studio 2019)
 
-* Windows Server 2016 x86-64 (Win64, little endian, Visual Studio 2017)
+* Windows Server 2019 x86-64 (Win64, little endian, Visual Studio 2019)
 
 * Ubuntu 18.04 x86-64 (Linux, little endian, gcc, Clang)
 
 * macOS 10.14 x86-64 (BSD, little endian, Clang)
 
-and two buildslaves that run static code analysis to help spot coding issues:
+Static code analysis and fuzz tests are run on the following platforms:
 
-* Visual Studio Code Analysis (Win64, little endian, VS 2017)
+* Visual Studio Code Analysis (Win64, little endian, VS 2019)
 
-* Clang Code Analysis (Linux, little endian, Clang)
+* Clang Code Analysis, Coverity Scan, and fuzz tests (Linux, little endian, Clang)
 
 Each platform is represented at the status page by a single column, the
 most recent entries are at the top.

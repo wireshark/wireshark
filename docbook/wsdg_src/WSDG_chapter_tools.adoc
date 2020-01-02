@@ -800,7 +800,7 @@ Your version string may vary.
 [discrete]
 ==== Windows
 
-A native Windows version of bison is available in the _winflexbison_
+A native Windows version of bison is available in the _winflexbison3_
 https://chocolatey.org/[Chocolatey] package. Note that the executable is named
 _win_bison_.
 

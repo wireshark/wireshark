@@ -61,7 +61,7 @@ command `choco install` (or its shorthand, `cinst`), e.g.
 [source,cmd]
 ----
 > rem Flex and Bison are required.
-> choco install -y winflexbison
+> choco install -y winflexbison3
 > rem Git, CMake, Perl, Python, etc are also required, but can be installed
 > rem via their respective installation packages.
 > choco install -y git cmake strawberryperl python3
@@ -253,7 +253,7 @@ and win_bison.exe is on your path.
 Alternatively you can install Winflexbison using Chocolatey:
 
 ----
-PS$> choco install -y winflexbison
+PS$> choco install -y winflexbison3
 ----
 
 Chocolatey ensures win_flex.exe and win_bison.exe are on your path.
