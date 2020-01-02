@@ -83,7 +83,12 @@ BrandingText "Wireshark${U+00ae} Installer"
 ; ============================================================================
 
 !insertmacro MUI_PAGE_WELCOME
+
+!define MUI_LICENSEPAGE_TEXT_TOP "Wireshark is distributed under the GNU General Public License."
+!define MUI_LICENSEPAGE_TEXT_BOTTOM "This is not an end user license agreement (EULA). It is provided here for informational purposes only."
+!define MUI_LICENSEPAGE_BUTTON "Noted"
 !insertmacro MUI_PAGE_LICENSE "${STAGING_DIR}\COPYING.txt"
+
 !insertmacro MUI_PAGE_COMPONENTS
 !ifdef QT_DIR
 Page custom DisplayAdditionalTasksPage LeaveAdditionalTasksPage
@@ -158,12 +163,6 @@ Page custom DisplayUSBPcapPage
 
 !insertmacro GetParameters
 !insertmacro GetOptions
-
-; ============================================================================
-; License page configuration
-; ============================================================================
-LicenseText "Wireshark is distributed under the GNU General Public License."
-LicenseData "${STAGING_DIR}\COPYING.txt"
 
 ; ============================================================================
 ; Component page configuration
