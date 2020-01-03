@@ -177,6 +177,7 @@ this safely].
 Tapping usually involves declaring static methods for callbacks, passing `this`
 as the tap data.
 
+[[ChUII18N]]
 ===== Internationalization and Translation
 
 Qt provides a convenient method for translating text: `Qobject::tr()`,
@@ -214,15 +215,29 @@ For more information about Qt Linguist see
 https://doc.qt.io/qt-5/qtlinguist-index.html[its manual].
 
 You can also manage translations online with
-https://www.transifex.com/projects/p/wireshark/[Transifex].
+https://www.transifex.com/wireshark/wireshark/[Transifex].
+Translation resources are organized by type of translation and development branch:
 
-Each week translations are automatically synchronized with the source
-code through the following steps:
+master::
+Qt Linguist resources in the _ui/qt_ in the master branch.
 
-- pull ts from Transifex
-- lupdate ts file
-- push and commit on Gerrit
-- push ts on Transifex
+debian::
+GNU gettext resources in the _debian_ directory in the master branch.
+
+master-_XY_::
+Qt Linguist resources in the _ui/qt_ in the _X.Y_ release branch.
+For example, master-32 matches the Wireshark 3.2 release branch.
+
+debian-_XY_::
+GNU gettext resources in the _debian_ directory in the _X.Y_ release branch.
+For example, debian-32 matches the Wireshark 3.2 release branch.
+
+Each week translations are automatically synchronized with the source code through the following steps:
+
+- Pull changes from Transifex by running `tx pull -f`.
+- Run `lupdate` on the ts files.
+- Push and commit on Gerrit.
+- Push changes to Transifex by running `tx push`.
 
 ===== Colors And Themes
 
