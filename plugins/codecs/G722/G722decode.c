@@ -57,8 +57,8 @@ codec_g722_get_frequency(void *ctx _U_)
 }
 
 static size_t
-codec_g722_decode(void *ctx, const void *input, size_t inputSizeBytes, void *output,
-        size_t *outputSizeBytes)
+codec_g722_decode(void *ctx, const void *inputBytes, size_t inputBytesSize,
+        void *outputSamples, size_t *outputSamplesSize)
 {
     g722_decode_state_t *state = (g722_decode_state_t *)ctx;
 
@@ -66,13 +66,14 @@ codec_g722_decode(void *ctx, const void *input, size_t inputSizeBytes, void *out
         return 0;  /* out-of-memory; */
     }
 
-    if (!output || !outputSizeBytes) {
-        return 4 * inputSizeBytes;
+    if (!outputSamples || !outputSamplesSize) {
+        return 4 * inputBytesSize;
     }
 
     /* g722_decode returns the number of 16-bit samples. */
-    *outputSizeBytes = 2 * g722_decode(state, (int16_t *)output, (const uint8_t *)input, (int)inputSizeBytes);
-    return *outputSizeBytes;
+    *outputSamplesSize = 2 * g722_decode(state, (int16_t *)outputSamples,
+        (const uint8_t *)inputBytes, (int)inputBytesSize);
+    return *outputSamplesSize;
 }
 
 void

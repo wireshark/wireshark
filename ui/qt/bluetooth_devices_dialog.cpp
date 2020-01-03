@@ -286,7 +286,9 @@ tap_packet_status BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_in
     }
 
     if (tap_device->has_bd_addr) {
-        bd_addr.sprintf("%02x:%02x:%02x:%02x:%02x:%02x", tap_device->bd_addr[0], tap_device->bd_addr[1], tap_device->bd_addr[2], tap_device->bd_addr[3], tap_device->bd_addr[4], tap_device->bd_addr[5]);
+        for (int i = 0; i < 6; ++i)
+            bd_addr += QString("%1:").arg(tap_device->bd_addr[0], 2, 16, QChar('0'));
+        bd_addr.remove(bd_addr.length() - 1, 1);
 
         manuf = get_ether_name(tap_device->bd_addr);
         if (manuf) {
@@ -353,14 +355,14 @@ tap_packet_status BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_in
 
     if (tap_device->type == BLUETOOTH_DEVICE_LOCAL_VERSION) {
         item->setText(column_number_hci_version,    val_to_str_const(tap_device->data.local_version.hci_version, bthci_evt_hci_version, "Unknown 0x%02x"));
-        item->setText(column_number_hci_revision,   QString("").sprintf("%u", tap_device->data.local_version.hci_revision));
+        item->setText(column_number_hci_revision,   QString::number(tap_device->data.local_version.hci_revision));
         item->setText(column_number_lmp_version,    val_to_str_const(tap_device->data.local_version.lmp_version, bthci_evt_lmp_version, "Unknown 0x%02x"));
-        item->setText(column_number_lmp_subversion, QString("").sprintf("%u", tap_device->data.local_version.lmp_subversion));
+        item->setText(column_number_lmp_subversion, QString::number(tap_device->data.local_version.lmp_subversion));
         item->setText(column_number_manufacturer,   val_to_str_ext_const(tap_device->data.local_version.manufacturer, &bluetooth_company_id_vals_ext, "Unknown 0x%04x"));
     }
     if (tap_device->type == BLUETOOTH_DEVICE_REMOTE_VERSION) {
         item->setText(column_number_lmp_version,    val_to_str_const(tap_device->data.remote_version.lmp_version, bthci_evt_lmp_version, "Unknown 0x%02x"));
-        item->setText(column_number_lmp_subversion, QString("").sprintf("%u", tap_device->data.remote_version.lmp_subversion));
+        item->setText(column_number_lmp_subversion, QString::number(tap_device->data.remote_version.lmp_subversion));
         item->setText(column_number_manufacturer,   val_to_str_ext_const(tap_device->data.remote_version.manufacturer, &bluetooth_company_id_vals_ext, "Unknown 0x%04x"));
     }
 

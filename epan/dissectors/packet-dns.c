@@ -15,6 +15,43 @@
  * http://datatracker.ietf.org/doc/draft-cheshire-dnsext-multicastdns/
  *  for multicast DNS
  * RFC 4795 for link-local multicast name resolution (LLMNR)
+ *
+ * For the TTL field, see also:
+ *
+ *  RFC 1035 erratum 2130:
+ *
+ *      https://www.rfc-editor.org/errata/eid2130
+ *
+ *  RFC 2181, section 8:
+ *
+ *      https://tools.ietf.org/html/rfc2181#section-8
+ *
+ * RFC 1035 said, in section 3.2.1, that the TTL is "a 32 bit signed
+ * integer" but said, in section 4.1.3, that it's "a 32 bit unsigned
+ * integer"; the erratum notes this
+ *
+ * RFC 2181 says of this:
+ *
+ *      The definition of values appropriate to the TTL field in STD 13 is
+ *      not as clear as it could be, with respect to how many significant
+ *      bits exist, and whether the value is signed or unsigned.  It is
+ *      hereby specified that a TTL value is an unsigned number, with a
+ *      minimum value of 0, and a maximum value of 2147483647.  That is, a
+ *      maximum of 2^31 - 1.  When transmitted, this value shall be encoded
+ *      in the less significant 31 bits of the 32 bit TTL field, with the
+ *      most significant, or sign, bit set to zero.
+ *
+ *      Implementations should treat TTL values received with the most
+ *      significant bit set as if the entire value received was zero.
+ *
+ *      Implementations are always free to place an upper bound on any TTL
+ *      received, and treat any larger values as if they were that upper
+ *      bound.  The TTL specifies a maximum time to live, not a mandatory
+ *      time to live.
+ *
+ * so its resolution is 1) it's unsigned but 2) don't use the uppermost
+ * bit, presumably to avoid problems with implementations that were based
+ * on section 3.2.1 of RFC 1035 rather than on section 4.1.3 of RFC 1035.
  */
 
 #include "config.h"
@@ -428,7 +465,7 @@ static gint ett_dns_csdync_flags = -1;
 
 static expert_field ei_dns_opt_bad_length = EI_INIT;
 static expert_field ei_dns_depr_opc = EI_INIT;
-static expert_field ei_ttl_negative = EI_INIT;
+static expert_field ei_ttl_high_bit_set = EI_INIT;
 static expert_field ei_dns_tsig_alg = EI_INIT;
 static expert_field ei_dns_undecoded_option = EI_INIT;
 static expert_field ei_dns_key_id_buffer_too_short = EI_INIT;
@@ -1523,6 +1560,7 @@ add_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
   const guchar *name, int namelen, int type,
   packet_info *pinfo, gboolean is_mdns)
 {
+  guint32     ttl_value;
   proto_item *ttl_item;
   gchar      **srv_rr_info;
 
@@ -1556,9 +1594,10 @@ add_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
     proto_tree_add_item(rr_tree, hf_dns_rr_class, tvb, offset, 2, ENC_BIG_ENDIAN);
   }
   offset += 2;
-  ttl_item = proto_tree_add_item(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ENC_BIG_ENDIAN);
-  if (tvb_get_ntohl(tvb, offset) & 0x80000000) {
-    expert_add_info(pinfo, ttl_item, &ei_ttl_negative);
+  ttl_item = proto_tree_add_item_ret_uint(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ENC_BIG_ENDIAN, &ttl_value);
+  proto_item_append_text(ttl_item, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), ttl_value));
+  if (ttl_value & 0x80000000) {
+    expert_add_info(pinfo, ttl_item, &ei_ttl_high_bit_set);
   }
 
   offset += 4;
@@ -1972,19 +2011,19 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 4;
 
       ti_soa = proto_tree_add_item(rr_tree, hf_dns_soa_refresh_interval, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti_soa, " (%s)", signed_time_secs_to_str(wmem_packet_scope(), tvb_get_ntohl(tvb, cur_offset)));
+      proto_item_append_text(ti_soa, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), tvb_get_ntohl(tvb, cur_offset)));
       cur_offset += 4;
 
       ti_soa = proto_tree_add_item(rr_tree, hf_dns_soa_retry_interval, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti_soa, " (%s)", signed_time_secs_to_str(wmem_packet_scope(), tvb_get_ntohl(tvb, cur_offset)));
+      proto_item_append_text(ti_soa, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), tvb_get_ntohl(tvb, cur_offset)));
       cur_offset += 4;
 
       ti_soa = proto_tree_add_item(rr_tree, hf_dns_soa_expire_limit, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti_soa, " (%s)", signed_time_secs_to_str(wmem_packet_scope(), tvb_get_ntohl(tvb, cur_offset)));
+      proto_item_append_text(ti_soa, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), tvb_get_ntohl(tvb, cur_offset)));
       cur_offset += 4;
 
       ti_soa = proto_tree_add_item(rr_tree, hf_dns_soa_minimum_ttl, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti_soa, " (%s)", signed_time_secs_to_str(wmem_packet_scope(), tvb_get_ntohl(tvb, cur_offset)));
+      proto_item_append_text(ti_soa, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), tvb_get_ntohl(tvb, cur_offset)));
     }
     break;
 
@@ -3021,7 +3060,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       rr_len     -= 1;
 
       ti = proto_tree_add_item(rr_tree, hf_dns_rrsig_original_ttl, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti, " (%s)", signed_time_secs_to_str(wmem_packet_scope(), tvb_get_ntohl(tvb, cur_offset)));
+      proto_item_append_text(ti, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), tvb_get_ntohl(tvb, cur_offset)));
       cur_offset += 4;
       rr_len     -= 4;
 
@@ -4525,7 +4564,7 @@ proto_register_dns(void)
 
     { &hf_dns_rr_ttl,
       { "Time to live", "dns.resp.ttl",
-        FT_INT32, BASE_DEC, NULL, 0x0,
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         "Response TTL", HFILL }},
 
     { &hf_dns_rr_len,
@@ -5754,7 +5793,7 @@ proto_register_dns(void)
     { &ei_dns_opt_bad_length, { "dns.rr.opt.bad_length", PI_MALFORMED, PI_ERROR, "Length too long for any type of IP address.", EXPFILL }},
     { &ei_dns_undecoded_option, { "dns.undecoded.type", PI_UNDECODED, PI_NOTE, "Undecoded option", EXPFILL }},
     { &ei_dns_depr_opc, { "dns.depr.opc", PI_PROTOCOL, PI_WARN, "Deprecated opcode", EXPFILL }},
-    { &ei_ttl_negative, { "dns.ttl.negative", PI_PROTOCOL, PI_WARN, "TTL can't be negative", EXPFILL }},
+    { &ei_ttl_high_bit_set, { "dns.ttl.high_bit_set", PI_PROTOCOL, PI_WARN, "The uppermost bit of the TTL is set (RFC 2181, section 8)", EXPFILL }},
     { &ei_dns_tsig_alg, { "dns.tsig.noalg", PI_UNDECODED, PI_WARN, "No dissector for algorithm", EXPFILL }},
     { &ei_dns_key_id_buffer_too_short, { "dns.key_id_buffer_too_short", PI_PROTOCOL, PI_WARN, "Buffer too short to compute a key id", EXPFILL }},
     { &ei_dns_retransmit_request, { "dns.retransmit_request", PI_PROTOCOL, PI_WARN, "DNS query retransmission", EXPFILL }},

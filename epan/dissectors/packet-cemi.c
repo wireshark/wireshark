@@ -1213,7 +1213,7 @@ static guint8 dissect_ox( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, p
     return ox;
   }
 
-  node = proto_tree_add_expert_format( list, pinfo, KIP_ERROR, tvb, offset, 0, "? Object Index: expected 1 byte" );
+  proto_tree_add_expert_format( list, pinfo, KIP_ERROR, tvb, offset, 0, "? Object Index: expected 1 byte" );
 
   if( p_error )
   {
@@ -1287,7 +1287,7 @@ static guint8 dissect_pid( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, 
     return pid;
   }
 
-  node = proto_tree_add_expert_format( list, pinfo, KIP_ERROR, tvb, offset, 0, "? Property ID: expected 1 byte" );
+  proto_tree_add_expert_format( list, pinfo, KIP_ERROR, tvb, offset, 0, "? Property ID: expected 1 byte" );
 
   if( p_error )
   {
@@ -1320,7 +1320,7 @@ static guint8 dissect_px( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, p
     return px;
   }
 
-  node = proto_tree_add_expert_format( list, pinfo, KIP_ERROR, tvb, offset, 0, "? Property Index: expected 1 byte" );
+  proto_tree_add_expert_format( list, pinfo, KIP_ERROR, tvb, offset, 0, "? Property Index: expected 1 byte" );
 
   if( p_error )
   {
@@ -1952,7 +1952,7 @@ static void dissect_ia_serial_number_service( tvbuff_t* tvb, packet_info* pinfo,
   {
     if( offset >= size )
     {
-      node = proto_tree_add_expert_format( cemi_list, pinfo, KIP_ERROR, tvb, offset, 0, "? Data: missing" );
+      proto_tree_add_expert_format( cemi_list, pinfo, KIP_ERROR, tvb, offset, 0, "? Data: missing" );
       error = 1;
     }
   }
@@ -2713,7 +2713,7 @@ static void dissect_simple_app_service( tvbuff_t* tvb, packet_info* pinfo, proto
     /* 1 byte Count */
     if( offset >= size )
     {
-      node = proto_tree_add_expert_format( cemi_list, pinfo, KIP_ERROR, tvb, offset, 0, "? Count: expected 1 byte" );
+      proto_tree_add_expert_format( cemi_list, pinfo, KIP_ERROR, tvb, offset, 0, "? Count: expected 1 byte" );
       error = 1;
       --offset;
     }
@@ -2837,7 +2837,7 @@ static void dissect_cemi_transport_layer( tvbuff_t* tvb, packet_info* pinfo, pro
   /* 6 bits TPCI */
   if( offset >= size )
   {
-    node = proto_tree_add_expert_format( cemi_list, pinfo, KIP_ERROR, tvb, offset, 0, "? TPCI: expected 1 byte" );
+    proto_tree_add_expert_format( cemi_list, pinfo, KIP_ERROR, tvb, offset, 0, "? TPCI: expected 1 byte" );
     error = 1;
   }
   else
@@ -2950,7 +2950,7 @@ static void dissect_cemi_link_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tr
   if( size < 2 )
   {
     ai_list = proto_tree_add_subtree( cemi_list, tvb, offset, 0, ett_cemi_ai, &ai_node, "? Additional Info" );
-    node = proto_tree_add_expert_format( ai_list, pinfo, KIP_ERROR, tvb, offset, 0, "? Length: expected 1 byte" );
+    proto_tree_add_expert_format( ai_list, pinfo, KIP_ERROR, tvb, offset, 0, "? Length: expected 1 byte" );
     offset = size;
     error = 1;
   }
@@ -3020,7 +3020,7 @@ static void dissect_cemi_link_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tr
       if( error == 3 )
       {
         proto_item_prepend_text( aie_node, "? " );
-        node = proto_tree_add_expert_format( aie_list, pinfo, KIP_ERROR, tvb, offset, 0, "? Length: expected 1 byte" );
+        proto_tree_add_expert_format( aie_list, pinfo, KIP_ERROR, tvb, offset, 0, "? Length: expected 1 byte" );
         break;
       }
 
@@ -3117,7 +3117,7 @@ static void dissect_cemi_link_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tr
       /* 1 byte Control Field 1 */
       if( offset >= size )
       {
-        node = proto_tree_add_expert_format( cemi_list, pinfo, KIP_ERROR, tvb, offset, 0, "? Ctrl1: expected 1 byte" );
+        proto_tree_add_expert_format( cemi_list, pinfo, KIP_ERROR, tvb, offset, 0, "? Ctrl1: expected 1 byte" );
         error = 1;
       }
       else
@@ -3173,7 +3173,7 @@ static void dissect_cemi_link_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tr
       /* 1 byte Control Field 2 */
       if( offset >= size )
       {
-        node = proto_tree_add_expert_format( cemi_list, pinfo, KIP_ERROR, tvb, offset, 0, "? Ctrl2: expected 1 byte" );
+        proto_tree_add_expert_format( cemi_list, pinfo, KIP_ERROR, tvb, offset, 0, "? Ctrl2: expected 1 byte" );
         error = 1;
       }
       else
@@ -3268,7 +3268,7 @@ static void dissect_cemi_link_layer( tvbuff_t* tvb, packet_info* pinfo, proto_tr
       /* 1 byte NPDU Length */
       if( offset >= size )
       {
-        node = proto_tree_add_expert_format( cemi_list, pinfo, KIP_ERROR, tvb, offset, 0, "? Length: expected 1 byte" );
+        proto_tree_add_expert_format( cemi_list, pinfo, KIP_ERROR, tvb, offset, 0, "? Length: expected 1 byte" );
         error = 1;
       }
       else

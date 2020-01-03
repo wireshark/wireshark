@@ -146,6 +146,16 @@ def wireshark_command(cmd_wireshark):
 
 
 @fixtures.fixture(scope='session')
+def cmd_extcap(program):
+    def extcap_name(name):
+        if sys.platform == 'darwin':
+            return program(os.path.join('Wireshark.app/Contents/MacOS/extcap', name))
+        else:
+            return program(os.path.join('extcap', name))
+    return extcap_name
+
+
+@fixtures.fixture(scope='session')
 def features(cmd_tshark, make_env):
     '''Returns an object describing available features in tshark.'''
     try:

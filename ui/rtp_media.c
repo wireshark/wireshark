@@ -36,20 +36,13 @@ typedef struct _rtp_decoder_t {
  */
 
 size_t
-decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash, unsigned *channels_ptr, unsigned *sample_rate_ptr)
+decode_rtp_packet_payload(guint8 payload_type, const gchar *payload_type_str, guint8 *payload_data, size_t payload_len, SAMPLE **out_buff, GHashTable *decoders_hash, guint *channels_ptr, guint *sample_rate_ptr)
 {
-    unsigned int  payload_type;
     const gchar *p;
     rtp_decoder_t *decoder;
     SAMPLE *tmp_buff = NULL;
     size_t tmp_buff_len;
     size_t decoded_bytes = 0;
-
-    if ((rp->payload_data == NULL) || (rp->info->info_payload_len == 0) ) {
-        return 0;
-    }
-
-    payload_type = rp->info->info_payload_type;
 
     /* Look for registered codecs */
     decoder = (rtp_decoder_t *)g_hash_table_lookup(decoders_hash, GUINT_TO_POINTER(payload_type));
@@ -58,8 +51,8 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
         decoder->handle = NULL;
         decoder->context = NULL;
 
-        if (rp->info->info_payload_type_str && find_codec(rp->info->info_payload_type_str)) {
-            p = rp->info->info_payload_type_str;
+        if (payload_type_str && find_codec(payload_type_str)) {
+            p = payload_type_str;
         } else {
             p = try_val_to_str_ext(payload_type, &rtp_payload_type_short_vals_ext);
         }
@@ -73,9 +66,9 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
     }
     if (decoder->handle) {  /* Decode with registered codec */
         /* if output == NULL and outputSizeBytes == NULL => ask for expected size of the buffer */
-        tmp_buff_len = codec_decode(decoder->handle, decoder->context, rp->payload_data, rp->info->info_payload_len, NULL, NULL);
+        tmp_buff_len = codec_decode(decoder->handle, decoder->context, payload_data, payload_len, NULL, NULL);
         tmp_buff = (SAMPLE *)g_malloc(tmp_buff_len);
-        decoded_bytes = codec_decode(decoder->handle, decoder->context, rp->payload_data, rp->info->info_payload_len, tmp_buff, &tmp_buff_len);
+        decoded_bytes = codec_decode(decoder->handle, decoder->context, payload_data, payload_len, tmp_buff, &tmp_buff_len);
         *out_buff = tmp_buff;
 
         if (channels_ptr) {
@@ -91,6 +84,25 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 
     *out_buff = NULL;
     return 0;
+}
+
+/****************************************************************************/
+/*
+ * @return Number of decoded bytes
+ */
+
+size_t
+decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash, guint *channels_ptr, guint *sample_rate_ptr)
+{
+    guint8  payload_type;
+
+    if ((rp->payload_data == NULL) || (rp->info->info_payload_len == 0) ) {
+        return 0;
+    }
+
+    payload_type = rp->info->info_payload_type;
+
+    return decode_rtp_packet_payload(payload_type, rp->info->info_payload_type_str, rp->payload_data, rp->info->info_payload_len, out_buff, decoders_hash, channels_ptr, sample_rate_ptr);
 }
 
 /****************************************************************************/

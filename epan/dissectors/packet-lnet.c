@@ -903,7 +903,7 @@ dissect_lnet_ib_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 {
     /* We can tell if this is an LNet payload by looking at the first
      * 32-bit word for our magic number. */
-    if (tvb_get_letohl(tvb, 0) != LNET_PROTO_IB_MAGIC)
+    if (tvb_captured_length(tvb) < 4 || tvb_get_letohl(tvb, 0) != LNET_PROTO_IB_MAGIC)
         /* Not an LNet payload. */
         return FALSE;
 

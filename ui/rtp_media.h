@@ -48,6 +48,20 @@ typedef struct _rtp_packet {
  */
 GHashTable *rtp_decoder_hash_table_new(void);
 
+/** Decode payload from an RTP packet
+ *
+ * @param payload_type Payload number
+ * @param payload_type_str Payload name, can be NULL
+ * @param payload_data Payload
+ * @param payload_len Length of payload
+ * @param out_buff Output audio samples.
+ * @param decoders_hash Hash table created with rtp_decoder_hash_table_new.
+ * @param channels_ptr If non-NULL, receives the number of channels in the sample.
+ * @param sample_rate_ptr If non-NULL, receives the sample rate.
+ * @return The number of decoded bytes on success, 0 on failure.
+ */
+size_t decode_rtp_packet_payload(guint8 payload_type, const gchar *payload_type_str, guint8 *payload_data, size_t payload_len, SAMPLE **out_buff, GHashTable *decoders_hash, guint *channels_ptr, guint *sample_rate_ptr);
+
 /** Decode an RTP packet
  *
  * @param rp Wrapper for per-packet RTP tap data.
@@ -57,7 +71,7 @@ GHashTable *rtp_decoder_hash_table_new(void);
  * @param sample_rate_ptr If non-NULL, receives the sample rate.
  * @return The number of decoded bytes on success, 0 on failure.
  */
-size_t decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash, unsigned *channels_ptr, unsigned *sample_rate_ptr);
+size_t decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash, guint *channels_ptr, guint *sample_rate_ptr);
 
 #ifdef __cplusplus
 }

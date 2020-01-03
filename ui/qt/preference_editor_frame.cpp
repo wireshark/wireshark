@@ -167,8 +167,7 @@ void PreferenceEditorFrame::showEvent(QShowEvent *event)
 void PreferenceEditorFrame::on_modulePreferencesToolButton_clicked()
 {
     if (module_) {
-        QString module_name = module_->name;
-        emit showProtocolPreferences(module_name);
+        emit showProtocolPreferences(module_->name);
     }
     on_buttonBox_rejected();
 }
@@ -182,6 +181,7 @@ void PreferenceEditorFrame::on_preferenceLineEdit_returnPressed()
 
 void PreferenceEditorFrame::on_buttonBox_accepted()
 {
+    unsigned int changed_flags = 0;
     unsigned int apply = 0;
     switch(prefs_get_type(pref_)) {
     case PREF_UINT:
@@ -200,6 +200,7 @@ void PreferenceEditorFrame::on_buttonBox_accepted()
     }
 
     if (apply && module_) {
+        changed_flags = module_->prefs_changed_flags;
         pref_unstash_data_t unstashed_data;
 
         unstashed_data.module = module_;
@@ -219,6 +220,9 @@ void PreferenceEditorFrame::on_buttonBox_accepted()
     on_buttonBox_rejected();
     // Emit signals once UI is hidden
     if (apply) {
+        if (changed_flags & PREF_EFFECT_FIELDS) {
+            wsApp->emitAppSignal(WiresharkApplication::FieldsChanged);
+        }
         wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
         wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
     }
@@ -242,7 +246,7 @@ void PreferenceEditorFrame::keyPressEvent(QKeyEvent *event)
             if (ui->buttonBox->button(QDialogButtonBox::Ok)->isEnabled()) {
                 on_buttonBox_accepted();
             } else if (ui->preferenceLineEdit->syntaxState() == SyntaxLineEdit::Invalid) {
-                emit pushFilterSyntaxStatus(tr("Invalid value."));
+                wsApp->pushStatus(WiresharkApplication::FilterSyntax, tr("Invalid value."));
             }
         }
     }

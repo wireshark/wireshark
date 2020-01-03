@@ -36,9 +36,6 @@ public slots:
     void setCaptureFile(capture_file *cf);
     void findFrameWithFilter(QString &filter);
 
-signals:
-    void pushFilterSyntaxStatus(const QString&);
-
 protected:
     virtual void keyPressEvent(QKeyEvent *event);
     void changeEvent(QEvent* event);

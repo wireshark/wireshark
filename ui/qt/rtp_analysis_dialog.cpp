@@ -20,6 +20,8 @@
 
 #include "epan/dissectors/packet-rtp.h"
 
+#include <ui/rtp_media.h>
+
 #include "ui/help_url.h"
 #include "ui/simple_dialog.h"
 #include <wsutil/utf8_entities.h>
@@ -163,7 +165,7 @@ public:
         }
     }
 
-    guint32 frameNum() { return frame_num_; }
+    uint32_t frameNum() { return frame_num_; }
     bool frameStatus() { return ok_; }
 
     QList<QVariant> rowData() {
@@ -209,10 +211,10 @@ public:
         return QTreeWidgetItem::operator <(other);
     }
 private:
-    guint32 frame_num_;
-    guint32 sequence_num_;
-    guint32 pkt_len_;
-    guint32 flags_;
+    uint32_t frame_num_;
+    uint32_t sequence_num_;
+    uint32_t pkt_len_;
+    uint32_t flags_;
     double delta_;
     double jitter_;
     double skew_;
@@ -697,8 +699,8 @@ void RtpAnalysisDialog::resetStatistics()
     memset(&fwd_statinfo_.rtp_stats, 0, sizeof(fwd_statinfo_.rtp_stats));
     memset(&rev_statinfo_.rtp_stats, 0, sizeof(rev_statinfo_.rtp_stats));
 
-    fwd_statinfo_.rtp_stats.first_packet = TRUE;
-    rev_statinfo_.rtp_stats.first_packet = TRUE;
+    fwd_statinfo_.rtp_stats.first_packet = true;
+    rev_statinfo_.rtp_stats.first_packet = true;
     fwd_statinfo_.rtp_stats.reg_pt = PT_UNDEFINED;
     rev_statinfo_.rtp_stats.reg_pt = PT_UNDEFINED;
 
@@ -756,10 +758,10 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
     /* Is this the first packet we got in this direction? */
 //    if (statinfo->flags & STAT_FLAG_FIRST) {
 //        if (saveinfo->fp == NULL) {
-//            saveinfo->saved = FALSE;
+//            saveinfo->saved = false;
 //            saveinfo->error_type = TAP_RTP_FILE_OPEN_ERROR;
 //        } else {
-//            saveinfo->saved = TRUE;
+//            saveinfo->saved = true;
 //        }
 //    }
 
@@ -784,7 +786,7 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
     /* If padding bit is set but the padding count is bigger
      * then the whole RTP data - error with padding count
      */
-    if ((rtpinfo->info_padding_set != FALSE) &&
+    if ((rtpinfo->info_padding_set != false) &&
         (rtpinfo->info_padding_count > rtpinfo->info_payload_len))
     {
         tmpfile->close();
@@ -797,7 +799,7 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
         (rtpinfo->info_payload_type == PT_CN_OLD)) {
     } else { /* All other payloads */
         const char *data;
-        qint64 nchars;
+        int64_t nchars;
         tap_rtp_save_data_t save_data;
 
         if (!rtpinfo->info_all_data_present) {
@@ -972,7 +974,7 @@ void RtpAnalysisDialog::updateStatistics()
     if (rev_statinfo_.rtp_stats.total_nr) {
         stats_tables += QString("<h4>Forward to reverse<br/>start diff %1 s @ %2</h4>")
             .arg((rev_statinfo_.rtp_stats.start_time - fwd_statinfo_.rtp_stats.start_time) / 1000.0, 0, 'f', 6)
-            .arg((gint64)rev_statinfo_.rtp_stats.first_packet_num - (gint64)fwd_statinfo_.rtp_stats.first_packet_num);
+            .arg((int64_t)rev_statinfo_.rtp_stats.first_packet_num - (int64_t)fwd_statinfo_.rtp_stats.first_packet_num);
     }
     stats_tables += "</body></html>\n";
 
@@ -1041,87 +1043,99 @@ void RtpAnalysisDialog::showPlayer()
 
 /* Convert one packet payload to samples in row */
 /* It supports G.711 now, but can be extended to any other codecs */
-size_t RtpAnalysisDialog::convert_payload_to_samples(unsigned int payload_type, QTemporaryFile *tempfile, guint8 *pd_out, size_t payload_len)
+size_t RtpAnalysisDialog::convert_payload_to_samples(unsigned int payload_type, QTemporaryFile *tempfile, uint8_t *pd_out, size_t payload_len, struct _GHashTable *decoders_hash)
 {
-    size_t sample_count;
-    char f_rawvalue;
-    gint16 sample;
-    guint8 pd[4];
+    unsigned int channels = 0;
+    unsigned int sample_rate = 0;
+    /* Payload data are in bytes */
+    uint8_t payload_data[2*4000];
+    size_t decoded_bytes;
+    /* Decoded audio is in samples (2 bytes) */
+    SAMPLE *decode_buff = Q_NULLPTR;
+    size_t decoded_samples;
 
-    if (payload_type == PT_PCMU) {
-        /* Output sample count is same as input sample count for G.711 */
-        sample_count = payload_len;
-        for(size_t i = 0; i < payload_len; i++) {
-            tempfile->read((char *)&f_rawvalue, sizeof(f_rawvalue));
-            sample = ulaw2linear((unsigned char)f_rawvalue);
-            phton16(pd, sample);
-            pd_out[2*i] = pd[0];
-            pd_out[2*i+1] = pd[1];
-        }
-    } else if (payload_type == PT_PCMA) {
-        /* Output sample count is same as input sample count for G.711 */
-        sample_count = payload_len;
-        for(size_t i = 0; i < payload_len; i++) {
-            tempfile->read((char *)&f_rawvalue, sizeof(f_rawvalue));
-            sample = alaw2linear((unsigned char)f_rawvalue);
+    tempfile->read((char *)payload_data, payload_len);
+    if (PT_UNDF_123 == payload_type) {
+        /* 123 is payload used as silence in ED-137 */
+        return 0;
+    }
+
+    /* Decoder returns count of bytes, but data are samples */
+    decoded_bytes = decode_rtp_packet_payload(payload_type, Q_NULLPTR, payload_data, payload_len, &decode_buff, decoders_hash, &channels, &sample_rate);
+    decoded_samples = decoded_bytes/2;
+
+    if (sample_rate != 8000) {
+        sae_unsupported_codec_ = true;
+        decoded_samples = 0;
+    } else if (decoded_samples > 0) {
+        /* Change byte order to network order */
+        for(size_t i = 0; i < decoded_samples; i++) {
+            SAMPLE sample;
+            uint8_t pd[4];
+
+            sample = decode_buff[i];
             phton16(pd, sample);
             pd_out[2*i] = pd[0];
             pd_out[2*i+1] = pd[1];
         }
     } else {
-        /* Read payload, but ignore it */
-        sample_count = 0;
-        for(size_t i = 0; i < payload_len; i++) {
-            tempfile->read((char *)&f_rawvalue, sizeof(f_rawvalue));
-        }
+        sae_unsupported_codec_ = true;
     }
+    g_free(decode_buff);
 
-    return sample_count;
+    return decoded_samples;
 }
 
-gboolean RtpAnalysisDialog::saveAudioAUSilence(size_t total_len, QFile *save_file, gboolean *stop_flag)
+bool RtpAnalysisDialog::saveAudioAUSilence(size_t total_len, QFile *save_file, gboolean *stop_flag)
 {
-    qint64 nchars;
-    guint8 pd_out[2*4000];
-    gint16 silence;
-    guint8 pd[4];
+    int64_t nchars;
+    uint8_t pd_out[2*4000];
+    int16_t silence;
+    uint8_t pd[4];
 
     silence = 0x0000;
     phton16(pd, silence);
     pd_out[0] = pd[0];
     pd_out[1] = pd[1];
     /* Fill whole file with silence */
-    for(size_t i=0; i<total_len; i++) {
+    for (size_t i=0; i<total_len; i++) {
         if (*stop_flag) {
-            return FALSE;
+            sae_stopped_ = true;
+            return false;
         }
         nchars = save_file->write((const char *)pd_out, 2);
         if (nchars < 2) {
-            return FALSE;
+            sae_file_error_ = true;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
-gboolean RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTemporaryFile *tempfile, QFile *save_file, qint64 header_end, gboolean *stop_flag, gboolean interleave, size_t prefix_silence)
+bool RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTemporaryFile *tempfile, QFile *save_file, int64_t header_end, gboolean *stop_flag, gboolean interleave, size_t prefix_silence)
 {
-    qint64 nchars;
-    guint8 pd_out[2*4000];
-    guint8 pd[4];
+    int64_t nchars;
+    uint8_t pd_out[2*4000];
+    uint8_t pd[4];
     tap_rtp_save_data_t save_data;
+    struct _GHashTable *decoders_hash = rtp_decoder_hash_table_new();
 
     while (sizeof(save_data) == tempfile->read((char *)&save_data,sizeof(save_data))) {
         size_t sample_count;
 
         if (*stop_flag) {
-            return FALSE;
+            sae_stopped_ = true;
+            return false;
         }
 
         ui->progressFrame->setValue(int(tempfile->pos() * 100 / tempfile->size()));
 
-        sample_count=convert_payload_to_samples(save_data.payload_type, tempfile ,pd_out, save_data.payload_len);
+        sample_count=convert_payload_to_samples(save_data.payload_type, tempfile , pd_out, save_data.payload_len, decoders_hash);
 
+        if (!isSAEOK()) {
+            return false;
+        }
         if (sample_count > 0 ) {
             nchars = 0;
             /* Save payload samples with optional interleaving */
@@ -1136,33 +1150,34 @@ gboolean RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTempora
                 nchars += save_file->write((const char *)pd, 2);
             }
             if ((size_t)nchars < sample_count*2) {
-                return FALSE;
+                sae_file_error_ = true;
+                return false;
             }
         }
     }
+    g_hash_table_destroy(decoders_hash);
 
-    return TRUE;
+    return true;
 }
 
-gboolean RtpAnalysisDialog::saveAudioAUBidir(tap_rtp_stat_t &fwd_statinfo, tap_rtp_stat_t &rev_statinfo, QTemporaryFile *fwd_tempfile, QTemporaryFile *rev_tempfile, QFile *save_file, qint64 header_end, gboolean *stop_flag, size_t prefix_silence_fwd, size_t prefix_silence_rev)
+bool RtpAnalysisDialog::saveAudioAUBidir(tap_rtp_stat_t &fwd_statinfo, tap_rtp_stat_t &rev_statinfo, QTemporaryFile *fwd_tempfile, QTemporaryFile *rev_tempfile, QFile *save_file, int64_t header_end, gboolean *stop_flag, size_t prefix_silence_fwd, size_t prefix_silence_rev)
 {
-    if (! saveAudioAUUnidir(fwd_statinfo, fwd_tempfile, save_file, header_end, stop_flag, TRUE, prefix_silence_fwd))
-    {
-        return FALSE;
-    }
-    if (! saveAudioAUUnidir(rev_statinfo, rev_tempfile, save_file, header_end+2, stop_flag, TRUE, prefix_silence_rev))
-    {
-        return FALSE;
+    if (!saveAudioAUUnidir(fwd_statinfo, fwd_tempfile, save_file, header_end, stop_flag, true, prefix_silence_fwd)) {
+        return false;
     }
 
-    return TRUE;
+    if (!saveAudioAUUnidir(rev_statinfo, rev_tempfile, save_file, header_end+2, stop_flag, true, prefix_silence_rev)) {
+        return false;
+    }
+
+    return true;
 }
 
-gboolean RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_file, gboolean *stop_flag, RtpAnalysisDialog::SyncType sync)
+bool RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_file, gboolean *stop_flag, RtpAnalysisDialog::SyncType sync)
 {
-    guint8 pd[4];
-    qint64 nchars;
-    qint64 header_end;
+    uint8_t pd[4];
+    int64_t nchars;
+    int64_t header_end;
     size_t fwd_total_len;
     size_t rev_total_len;
     size_t total_len;
@@ -1176,28 +1191,38 @@ gboolean RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_f
     /* the magic word 0x2e736e64 == .snd */
     phton32(pd, 0x2e736e64);
     nchars = save_file->write((const char *)pd, 4);
-    if (nchars != 4)
-        return FALSE;
+    if (nchars != 4) {
+        sae_file_error_ = true;
+        return false;
+    }
     /* header offset == 24 bytes */
     phton32(pd, 24);
     nchars = save_file->write((const char *)pd, 4);
-    if (nchars != 4)
-        return FALSE;
+    if (nchars != 4) {
+        sae_file_error_ = true;
+        return false;
+    }
     /* total length; it is permitted to set this to 0xffffffff */
     phton32(pd, 0xffffffff);
     nchars = save_file->write((const char *)pd, 4);
-    if (nchars != 4)
-        return FALSE;
+    if (nchars != 4) {
+        sae_file_error_ = true;
+        return false;
+    }
     /* encoding format == 16-bit linear PCM */
     phton32(pd, 3);
     nchars = save_file->write((const char *)pd, 4);
-    if (nchars != 4)
-        return FALSE;
+    if (nchars != 4) {
+        sae_file_error_ = true;
+        return false;
+    }
     /* sample rate == 8000 Hz */
     phton32(pd, 8000);
     nchars = save_file->write((const char *)pd, 4);
-    if (nchars != 4)
-        return FALSE;
+    if (nchars != 4) {
+        sae_file_error_ = true;
+        return false;
+    }
     /* channels == 1 or == 2 */
     switch (direction) {
         case dir_forward_: {
@@ -1214,8 +1239,10 @@ gboolean RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_f
         }
     }
     nchars = save_file->write((const char *)pd, 4);
-    if (nchars != 4)
-        return FALSE;
+    if (nchars != 4) {
+        sae_file_error_ = true;
+        return false;
+    }
 
     header_end=save_file->pos();
 
@@ -1239,7 +1266,8 @@ gboolean RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_f
                 /* Only forward channel */
                 /* This branch should not be reached ever */
                 QMessageBox::warning(this, tr("Warning"), tr("Can't synchronize when only one channel is selected"));
-                return FALSE;
+                sae_other_error_ = true;
+                return false;
             } else {
                 /* Two channels */
                 fwd_samples_diff = t_fwd_diff*8000/1000;
@@ -1268,26 +1296,23 @@ gboolean RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_f
         /* Only forward direction */
         case dir_forward_: {
             fwd_total_len = guint32_wraparound_diff(fwd_statinfo_.rtp_stats.timestamp, fwd_statinfo_.rtp_stats.first_timestamp) + fwd_statinfo_.rtp_stats.last_payload_len;
-            if (! saveAudioAUSilence(fwd_total_len + fwd_samples_diff + bidir_samples_diff, save_file, stop_flag))
-            {
-                return FALSE;
+            if (!saveAudioAUSilence(fwd_total_len + fwd_samples_diff + bidir_samples_diff, save_file, stop_flag)) {
+                return false;
             }
-            if (! saveAudioAUUnidir(fwd_statinfo_.rtp_stats, fwd_tempfile_, save_file, header_end, stop_flag, FALSE, fwd_samples_diff + bidir_samples_diff))
-            {
-                return FALSE;
+            if (!saveAudioAUUnidir(fwd_statinfo_.rtp_stats, fwd_tempfile_, save_file, header_end, stop_flag, false, fwd_samples_diff + bidir_samples_diff)) {
+                return false;
             }
             break;
         }
         /* Only reverse direction */
         case dir_reverse_: {
             rev_total_len = guint32_wraparound_diff(rev_statinfo_.rtp_stats.timestamp, rev_statinfo_.rtp_stats.first_timestamp) + rev_statinfo_.rtp_stats.last_payload_len;
-            if (! saveAudioAUSilence(rev_total_len + rev_samples_diff + bidir_samples_diff, save_file, stop_flag))
-            {
-                return FALSE;
+            if (!saveAudioAUSilence(rev_total_len + rev_samples_diff + bidir_samples_diff, save_file, stop_flag)) {
+                return false;
             }
-            if (! saveAudioAUUnidir(rev_statinfo_.rtp_stats, rev_tempfile_, save_file, header_end, stop_flag, FALSE, rev_samples_diff + bidir_samples_diff))
-            {
-                return FALSE;
+
+            if (!saveAudioAUUnidir(rev_statinfo_.rtp_stats, rev_tempfile_, save_file, header_end, stop_flag, false, rev_samples_diff + bidir_samples_diff)) {
+                return false;
             }
             break;
         }
@@ -1296,21 +1321,19 @@ gboolean RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_f
             fwd_total_len = guint32_wraparound_diff(fwd_statinfo_.rtp_stats.timestamp, fwd_statinfo_.rtp_stats.first_timestamp) + fwd_statinfo_.rtp_stats.last_payload_len;
             rev_total_len = guint32_wraparound_diff(rev_statinfo_.rtp_stats.timestamp, rev_statinfo_.rtp_stats.first_timestamp) + rev_statinfo_.rtp_stats.last_payload_len;
             total_len = MAX(fwd_total_len + fwd_samples_diff, rev_total_len + rev_samples_diff);
-            if (! saveAudioAUSilence((total_len + bidir_samples_diff) * 2, save_file, stop_flag))
-            {
-                return FALSE;
+            if (!saveAudioAUSilence((total_len + bidir_samples_diff) * 2, save_file, stop_flag)) {
+                return false;
             }
-            if (! saveAudioAUBidir(fwd_statinfo_.rtp_stats, rev_statinfo_.rtp_stats, fwd_tempfile_, rev_tempfile_, save_file, header_end, stop_flag, fwd_samples_diff + bidir_samples_diff, rev_samples_diff + bidir_samples_diff))
-            {
-                return FALSE;
+            if (!saveAudioAUBidir(fwd_statinfo_.rtp_stats, rev_statinfo_.rtp_stats, fwd_tempfile_, rev_tempfile_, save_file, header_end, stop_flag, fwd_samples_diff + bidir_samples_diff, rev_samples_diff + bidir_samples_diff)) {
+                return false;
             }
         }
     }
 
-    return TRUE;
+    return true;
 }
 
-gboolean RtpAnalysisDialog::saveAudioRAW(StreamDirection direction, QFile *save_file, gboolean *stop_flag)
+bool RtpAnalysisDialog::saveAudioRAW(StreamDirection direction, QFile *save_file, gboolean *stop_flag)
 {
     QFile *tempfile;
     tap_rtp_save_data_t save_data;
@@ -1327,7 +1350,9 @@ gboolean RtpAnalysisDialog::saveAudioRAW(StreamDirection direction, QFile *save_
             break;
         }
         default: {
-            return FALSE;
+            QMessageBox::warning(this, tr("Warning"), tr("None of channels was selected"));
+            sae_other_error_ = true;
+            return false;
         }
     }
 
@@ -1336,24 +1361,27 @@ gboolean RtpAnalysisDialog::saveAudioRAW(StreamDirection direction, QFile *save_
         char f_rawvalue;
 
         if (*stop_flag) {
-            return FALSE;
+            sae_stopped_ = true;
+            return false;
         }
 
         ui->progressFrame->setValue(int(tempfile->pos() * 100 / fwd_tempfile_->size()));
 
         if (save_data.payload_len > 0) {
-            for(size_t i = 0; i < save_data.payload_len; i++) {
+            for (size_t i = 0; i < save_data.payload_len; i++) {
                 if (sizeof(f_rawvalue) != tempfile->read((char *)&f_rawvalue, sizeof(f_rawvalue))) {
-                    return FALSE;
+                    sae_file_error_ = true;
+                    return false;
                 }
                 if (sizeof(f_rawvalue) != save_file->write((char *)&f_rawvalue, sizeof(f_rawvalue))) {
-                    return FALSE;
+                    sae_file_error_ = true;
+                    return false;
                 }
             }
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 // rtp_analysis.c:copy_file
@@ -1405,7 +1433,7 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction, 
     }
 
     QFile      save_file(file_path);
-    gboolean   stop_flag = FALSE;
+    gboolean   stop_flag = false;
 
     save_file.open(QIODevice::WriteOnly);
     fwd_tempfile_->seek(0);
@@ -1419,50 +1447,36 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction, 
     ui->hintLabel->setText(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(save_file.fileName()));
     ui->progressFrame->showProgress(true, true, &stop_flag);
 
+    clearSAEErrors();
     if (save_format == save_audio_au_) { /* au format */
-        bool showPayloadWarning = TRUE;
 
-        if ((fwd_statinfo_.rtp_stats.clock_rate != 8000) ||
-            ((rev_statinfo_.rtp_stats.clock_rate != 0) && (rev_statinfo_.rtp_stats.clock_rate != 8000))
-           ) {
-            QMessageBox::warning(this, tr("Warning"), tr("Can save audio with 8000 Hz clock rate only"));
-            goto copy_file_err;
-        }
-
-        /* Check for supported codecs */
-        if (rtpstream_is_payload_used(&fwd_statinfo_, PT_PCMU)) { showPayloadWarning=FALSE; }
-        if (rtpstream_is_payload_used(&fwd_statinfo_, PT_PCMA)) { showPayloadWarning=FALSE; }
-        /* ED-137 silence */
-        if (rtpstream_is_payload_used(&fwd_statinfo_, PT_UNDF_123)) { showPayloadWarning=FALSE; }
-        if (rev_statinfo_.rtp_stats.clock_rate != 0)
-        { /* Reverse stream is defined */
-            bool showRevPayloadWarning = TRUE;
-
-            /* Check for supported codecs */
-            if (rtpstream_is_payload_used(&rev_statinfo_, PT_PCMU)) { showRevPayloadWarning=FALSE; }
-            if (rtpstream_is_payload_used(&rev_statinfo_, PT_PCMA)) { showRevPayloadWarning=FALSE; }
-          /* ED-137 silence */
-            if (rtpstream_is_payload_used(&rev_statinfo_, PT_UNDF_123)) { showRevPayloadWarning=FALSE; }
-            if (showRevPayloadWarning) { showPayloadWarning=TRUE; }
-        }
-
-        /* If unsupported coded is used, warn user */
-        if (showPayloadWarning)
-        {
-            QMessageBox::warning(this, tr("Error"), tr("Can save audio with PCM u-law or A-law encoding only"));
-            goto copy_file_err;
-        }
-
-        if (! saveAudioAU(direction, &save_file, &stop_flag, sync)) {
-                goto copy_file_err;
+        if (!saveAudioAU(direction, &save_file, &stop_flag, sync)) {
         }
     } else if (save_format == save_audio_raw_) { /* raw format */
-        if (! saveAudioRAW(direction, &save_file, &stop_flag)) {
-            goto copy_file_err;
+        if (!saveAudioRAW(direction, &save_file, &stop_flag)) {
+        }
+    }
+    if (!isSAEOK()) {
+      // Other error was already handled
+        if (!sae_other_error_) {
+            if (sae_stopped_) {
+                QMessageBox::warning(this, tr("Information"), tr("Save was interrupted"));
+            }
+            else if (sae_file_error_) {
+                QMessageBox::warning(this, tr("Error"), tr("Save or read of file was failed during saving"));
+            }
+            else if (sae_unsupported_codec_) {
+                QMessageBox::warning(this, tr("Warning"), tr("Codec is not supported, file is incomplete"));
+            }
+            else if (sae_unsupported_rate_) {
+                QMessageBox::warning(this, tr("Warning"), tr("Codec rate is not supported, file is incomplete"));
+            }
+            else {
+                QMessageBox::warning(this, tr("Warning"), tr("Unknown error occured"));
+            }
         }
     }
 
-copy_file_err:
     ui->progressFrame->hide();
     updateWidgets();
     return;
@@ -1569,6 +1583,24 @@ void RtpAnalysisDialog::graphClicked(QMouseEvent *event)
     }
 }
 
+void RtpAnalysisDialog::clearSAEErrors()
+{ sae_stopped_ = false;
+  sae_file_error_ = false;
+  sae_unsupported_codec_ = false;
+  sae_unsupported_rate_ = false;
+  sae_other_error_ = false;
+}
+
+bool RtpAnalysisDialog::isSAEOK()
+{ return !(sae_stopped_ ||
+           sae_file_error_ ||
+           sae_unsupported_codec_ ||
+           sae_unsupported_rate_ ||
+           sae_other_error_
+         )
+  ;
+}
+
 void RtpAnalysisDialog::findStreams()
 {
     const gchar filter_text[] = "rtp && rtp.version == 2 && rtp.ssrc && (ip || ipv6)";
@@ -1599,7 +1631,7 @@ void RtpAnalysisDialog::findStreams()
 
     epan_dissect_t edt;
 
-    epan_dissect_init(&edt, cap_file_.capFile()->epan, TRUE, FALSE);
+    epan_dissect_init(&edt, cap_file_.capFile()->epan, true, false);
     epan_dissect_prime_with_dfilter(&edt, sfcode);
     epan_dissect_prime_with_hfid(&edt, hfid_rtp_ssrc);
     epan_dissect_run(&edt, cap_file_.capFile()->cd_t, &cap_file_.capFile()->rec,
@@ -1621,10 +1653,10 @@ void RtpAnalysisDialog::findStreams()
     dfilter_free(sfcode);
 
     /* OK, it is an RTP frame. Let's get the IP and port values */
-    rtpstream_id_copy_pinfo(&(edt.pi),&(fwd_statinfo_.id),FALSE);
+    rtpstream_id_copy_pinfo(&(edt.pi),&(fwd_statinfo_.id),false);
 
     /* assume the inverse ip/port combination for the reverse direction */
-    rtpstream_id_copy_pinfo(&(edt.pi),&(rev_statinfo_.id),TRUE);
+    rtpstream_id_copy_pinfo(&(edt.pi),&(rev_statinfo_.id),true);
 
     /* now we need the SSRC value of the current frame */
     GPtrArray *gp = proto_get_finfo_ptr_array(edt.tree, hfid_rtp_ssrc);

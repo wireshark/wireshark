@@ -19,7 +19,6 @@
 #include "wsutil/file_util.h"
 #include "wsutil/pint.h"
 #include "wsutil/str_util.h"
-#include "wsutil/tempfile.h"
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
@@ -33,6 +32,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QUrl>
+#include <QTemporaryFile>
 
 static const QString table_name_ = QObject::tr("Endpoint");
 EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
@@ -200,22 +200,21 @@ QUrl EndpointDialog::createMap(bool json_only)
     g_ptr_array_add(hosts_arr, NULL);
     hostlist_talker_t **hosts = (hostlist_talker_t **)g_ptr_array_free(hosts_arr, FALSE);
 
-    char *map_path = NULL;
-    int fd = create_tempfile(&map_path, "ipmap", ".html");
-    FILE *fp = NULL;
-    if (fd != -1) {
-        fp = ws_fdopen(fd, "wb");
-        if (!fp) {
-            ws_close(fd);
-            fd = -1;
-        }
-    }
-    if (fd == -1) {
+    QTemporaryFile tf("ipmapXXXXXX.html");
+    tf.setAutoRemove(false);
+    if (!tf.open()) {
         QMessageBox::warning(this, tr("Map file error"), tr("Unable to create temporary file"));
         g_free(hosts);
         return QUrl();
     }
-    QString map_path_str(map_path);
+    int fd = tf.handle();
+    FILE* fp = ws_fdopen(fd, "wb");
+    if (fd == -1) {
+        QMessageBox::warning(this, tr("Map file error"), tr("Unable to create temporary file"));
+        g_free(hosts);
+        tf.remove();
+        return QUrl();
+    }
 
     gchar *err_str;
     if (!write_endpoint_geoip_map(fp, json_only, hosts, &err_str)) {
@@ -223,17 +222,17 @@ QUrl EndpointDialog::createMap(bool json_only)
         g_free(err_str);
         g_free(hosts);
         fclose(fp);
-        ws_unlink(qPrintable(map_path_str));
+        tf.remove();
         return QUrl();
     }
     g_free(hosts);
     if (fclose(fp) == EOF) {
         QMessageBox::warning(this, tr("Map file error"), g_strerror(errno));
-        ws_unlink(qPrintable(map_path_str));
+        tf.remove();
         return QUrl();
     }
 
-    return QUrl::fromLocalFile(map_path_str);
+    return QUrl::fromLocalFile(tf.fileName());
 }
 
 void EndpointDialog::openMap()
@@ -241,6 +240,9 @@ void EndpointDialog::openMap()
     QUrl map_file = createMap(false);
     if (!map_file.isEmpty()) {
         QDesktopServices::openUrl(map_file);
+        QString source_file = map_file.toLocalFile();
+        if (!source_file.isEmpty())
+            QFile::remove(source_file);
     }
 }
 

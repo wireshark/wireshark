@@ -274,10 +274,14 @@ void ProtocolPreferencesMenu::boolPreferenceTriggered()
     if (!bpa) return;
 
     module_->prefs_changed_flags |= bpa->setBoolValue();
+    unsigned int changed_flags = module_->prefs_changed_flags;
 
     prefs_apply(module_);
     prefs_main_write();
 
+    if (changed_flags & PREF_EFFECT_FIELDS) {
+        wsApp->emitAppSignal(WiresharkApplication::FieldsChanged);
+    }
     /* Protocol preference changes almost always affect dissection,
        so don't bother checking flags */
     wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
@@ -294,6 +298,9 @@ void ProtocolPreferencesMenu::enumPreferenceTriggered()
         prefs_apply(module_);
         prefs_main_write();
 
+        if (changed_flags & PREF_EFFECT_FIELDS) {
+            wsApp->emitAppSignal(WiresharkApplication::FieldsChanged);
+        }
         /* Protocol preference changes almost always affect dissection,
            so don't bother checking flags */
         wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);

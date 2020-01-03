@@ -74,39 +74,51 @@ commandline_print_usage(gboolean for_help_option) {
 
 #ifdef HAVE_LIBPCAP
     fprintf(output, "Capture interface:\n");
-    fprintf(output, "  -i <interface>           name or idx of interface (def: first non-loopback)\n");
+    fprintf(output, "  -i <interface>, --interface <interface>\n");
+    fprintf(output, "                           name or idx of interface (def: first non-loopback)\n");
     fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
+    fprintf(output, "  -s <snaplen>, --snapshot-length <snaplen>\n");
 #ifdef HAVE_PCAP_CREATE
-    fprintf(output, "  -s <snaplen>             packet snapshot length (def: appropriate maximum)\n");
+    fprintf(output, "                           packet snapshot length (def: appropriate maximum)\n");
 #else
-    fprintf(output, "  -s <snaplen>             packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE_STANDARD);
+    fprintf(output, "                           packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE_STANDARD);
 #endif
-    fprintf(output, "  -p                       don't capture in promiscuous mode\n");
+    fprintf(output, "  -p, --no-promiscuous-mode\n");
+    fprintf(output, "                           don't capture in promiscuous mode\n");
     fprintf(output, "  -k                       start capturing immediately (def: do nothing)\n");
     fprintf(output, "  -S                       update packet display when new packets are captured\n");
     fprintf(output, "  -l                       turn on automatic scrolling while -S is in use\n");
 #ifdef HAVE_PCAP_CREATE
-    fprintf(output, "  -I                       capture in monitor mode, if available\n");
+    fprintf(output, "  -I, --monitor-mode       capture in monitor mode, if available\n");
 #endif
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-    fprintf(output, "  -B <buffer size>         size of kernel buffer (def: %dMB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
+    fprintf(output, "  -B <buffer size>, --buffer-size <buffer size>\n");
+    fprintf(output, "                           size of kernel buffer (def: %dMB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
 #endif
-    fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
+    fprintf(output, "  -y <link type>, --linktype <link type>\n");
+    fprintf(output, "                           link layer type (def: first appropriate)\n");
     fprintf(output, "  --time-stamp-type <type> timestamp method for interface\n");
-    fprintf(output, "  -D                       print list of interfaces and exit\n");
-    fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
+    fprintf(output, "  -D, --list-interfaces    print list of interfaces and exit\n");
+    fprintf(output, "  -L, --list-data-link-types\n");
+    fprintf(output, "                           print list of link-layer types of iface and exit\n");
     fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
     fprintf(output, "\n");
     fprintf(output, "Capture stop conditions:\n");
     fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
-    fprintf(output, "  -a <autostop cond.> ...  duration:NUM - stop after NUM seconds\n");
+    fprintf(output, "  -a <autostop cond.> ..., --autostop <autostop cond.> ...\n");
+    fprintf(output, "                           duration:NUM - stop after NUM seconds\n");
     fprintf(output, "                           filesize:NUM - stop this file after NUM KB\n");
     fprintf(output, "                              files:NUM - stop after NUM files\n");
+    fprintf(output, "                            packets:NUM - stop after NUM packets\n");
     /*fprintf(output, "\n");*/
     fprintf(output, "Capture output:\n");
-    fprintf(output, "  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs\n");
+    fprintf(output, "  -b <ringbuffer opt.> ..., --ring-buffer <ringbuffer opt.>\n");
+    fprintf(output, "                           duration:NUM - switch to next file after NUM secs\n");
     fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
     fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
+    fprintf(output, "                            packets:NUM - switch to next file after NUM packets\n");
+    fprintf(output, "                           interval:NUM - switch to next file when the time is\n");
+    fprintf(output, "                                          an exact multiple of NUM secs\n");
 #endif  /* HAVE_LIBPCAP */
 #ifdef HAVE_PCAP_REMOTE
     fprintf(output, "RPCAP options:\n");
@@ -114,13 +126,12 @@ commandline_print_usage(gboolean for_help_option) {
 #endif
     /*fprintf(output, "\n");*/
     fprintf(output, "Input file:\n");
-    fprintf(output, "  -r <infile>\n");
-    fprintf(output, "  --read-file <infile>     set the filename to read from (no pipes or stdin!)\n");
+    fprintf(output, "  -r <infile>, --read-file <infile>\n");
+    fprintf(output, "                           set the filename to read from (no pipes or stdin!)\n");
 
     fprintf(output, "\n");
     fprintf(output, "Processing:\n");
-    fprintf(output, "  -R <read filter>\n");
-    fprintf(output, "  --read-filter <read filter>\n");
+    fprintf(output, "  -R <read filter>, --read-filter <read filter>\n");
     fprintf(output, "                           packet filter in Wireshark display filter syntax\n");
     fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
     fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtdv\"\n");
@@ -139,15 +150,16 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "\n");
     fprintf(output, "User interface:\n");
     fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
-    fprintf(output, "  -Y <display filter>\n");
-    fprintf(output, "  --display-filter <display filter>\n");
+    fprintf(output, "  -H                       hide the capture info dialog during packet capture\n");
+    fprintf(output, "  -Y <display filter>, --display-filter <display filter>\n");
     fprintf(output, "                           start with the given display filter\n");
     fprintf(output, "  -g <packet number>       go to specified packet number after \"-r\"\n");
     fprintf(output, "  -J <jump filter>         jump to the first packet matching the (display)\n");
     fprintf(output, "                           filter\n");
     fprintf(output, "  -j                       search backwards for a matching packet after \"-J\"\n");
     fprintf(output, "  -m <font>                set the font name used for most text\n");
-    fprintf(output, "  -t a|ad|d|dd|e|r|u|ud    output format of time stamps (def: r: rel. to first)\n");
+    fprintf(output, "  -t a|ad|adoy|d|dd|e|r|u|ud|udoy\n");
+    fprintf(output, "                           format of time stamps (def: r: rel. to first)\n");
     fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
     fprintf(output, "  -X <key>:<value>         eXtension options, see man page for details\n");
     fprintf(output, "  -z <statistics>          show various statistics, see man page for details\n");
@@ -155,13 +167,13 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "\n");
     fprintf(output, "Output:\n");
     fprintf(output, "  -w <outfile|->           set the output filename (or '-' for stdout)\n");
+    fprintf(output, "  --capture-comment <comment>\n");
+    fprintf(output, "                           set the capture file comment, if supported\n");
 
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
-    fprintf(output, "  -h\n");
-    fprintf(output, "  --help                   display this help and exit\n");
-    fprintf(output, "  -v\n");
-    fprintf(output, "  --version                display version info and exit\n");
+    fprintf(output, "  -h, --help               display this help and exit\n");
+    fprintf(output, "  -v, --version            display version info and exit\n");
     fprintf(output, "  -P <key>:<path>          persconf:path - personal configuration files\n");
     fprintf(output, "                           persdata:path - personal data files\n");
     fprintf(output, "  -o <name>:<value> ...    override preference or recent setting\n");
@@ -176,18 +188,9 @@ commandline_print_usage(gboolean for_help_option) {
 #endif
 }
 
-/*
- * For long options with no corresponding short options, we define values
- * outside the range of ASCII graphic characters, make that the last
- * component of the entry for the long option, and have a case for that
- * option in the switch statement.
- *
- * We also pick values >= 65536, so as to leave values from 128 to 65535
- * for capture and dissection options.
- */
-#define LONGOPT_FULL_SCREEN       65536
+#define LONGOPT_FULL_SCREEN     LONGOPT_BASE_GUI+1
 
-#define OPTSTRING OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:g:Hh" "jJ:klm:o:P:r:R:Svw:X:Y:z:"
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:g:HhjJ:klm:o:P:r:R:Svw:X:Y:z:"
 static const struct option long_options[] = {
         {"help", no_argument, NULL, 'h'},
         {"read-file", required_argument, NULL, 'r' },

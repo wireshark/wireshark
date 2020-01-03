@@ -24,6 +24,10 @@
 #include <wsutil/unicode-utils.h>
 #endif
 
+// To do:
+// - Automatically generate part or all of this, e.g. by parsing
+//   the DocBook XML or the chunked HTML.
+
 const char *
 topic_online_url(topic_action_e action)
 {
@@ -164,7 +168,7 @@ topic_action_url(topic_action_e action)
     case(HELP_CONTENT):
         url = user_guide_url( "index.html");
         break;
-    case(HELP_CAPTURE_OPTIONS_DIALOG):
+    case(HELP_CAPTURE_OPTIONS):
         url = user_guide_url("ChCapCaptureOptions.html");
         break;
     case(HELP_CAPTURE_FILTERS_DIALOG):
@@ -197,8 +201,8 @@ topic_action_url(topic_action_e action)
     case(HELP_GOTO_DIALOG):
         url = user_guide_url("ChWorkGoToPacketSection.html");
         break;
-    case(HELP_CAPTURE_INTERFACES_DIALOG):
-        url = user_guide_url("ChCapInterfaceSection.html");
+    case(HELP_CAPTURE_OPTIONS_DIALOG):
+        url = user_guide_url("ChCapCaptureOptions.html");
         break;
     case(HELP_CAPTURE_INFO_DIALOG):
         url = user_guide_url("ChCapRunningSection.html");

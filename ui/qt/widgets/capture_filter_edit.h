@@ -67,8 +67,6 @@ private:
     void buildCompletionList(const QString& primitive_word);
 
 signals:
-    void pushFilterSyntaxStatus(const QString&);
-    void popFilterSyntaxStatus();
     void captureFilterSyntaxChanged(bool valid);
     void startCapture();
     void addBookmark(const QString filter);

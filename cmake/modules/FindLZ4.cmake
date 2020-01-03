@@ -61,7 +61,7 @@ if( LZ4_FOUND )
     file( GLOB _lz4_pdb RELATIVE "${LZ4_DLL_DIR}"
       "${LZ4_DLL_DIR}/lz4*.pdb"
     )
-    set ( LZ4_pdb ${_lz4_pdb}
+    set ( LZ4_PDB ${_lz4_pdb}
       CACHE FILEPATH "LZ4 PDB file name"
     )
     mark_as_advanced( LZ4_DLL_DIR LZ4_DLL LZ4_PDB )

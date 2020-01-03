@@ -183,14 +183,14 @@ const QString FilterAction::actionDirectionName(ActionDirection direction) {
 
 QActionGroup * FilterAction::createFilterGroup(QString filter, bool prepare, bool enabled, QWidget * parent)
 {
-    if ( filter.isEmpty() )
+    if (filter.isEmpty())
         enabled = false;
 
     bool filterEmpty = false;
-    if ( wsApp )
+    if (wsApp)
     {
         QWidget * mainWin = wsApp->mainWindow();
-        if ( qobject_cast<MainWindow *>(mainWin) )
+        if (qobject_cast<MainWindow *>(mainWin))
             filterEmpty = qobject_cast<MainWindow *>(mainWin)->getFilter().isEmpty();
     }
 
@@ -216,7 +216,7 @@ QActionGroup * FilterAction::createFilterGroup(QString filter, bool prepare, boo
     action->setProperty("filterType", FilterAction::ActionTypeOrNot);
     action->setEnabled(!filterEmpty);
     group->setEnabled(enabled);
-    if ( ! filter.isEmpty() )
+    if (! filter.isEmpty())
         connect(group, &QActionGroup::triggered, filterAction, &FilterAction::groupTriggered);
 
     return group;
@@ -224,11 +224,11 @@ QActionGroup * FilterAction::createFilterGroup(QString filter, bool prepare, boo
 
 QMenu * FilterAction::createFilterMenu(FilterAction::Action act, QString filter, bool enabled, QWidget * par)
 {
-    QString title = ( act == FilterAction::ActionApply) ? QObject::tr("Apply as Filter") : QObject::tr("Prepare as Filter");
-    bool prepare = ( act == FilterAction::ActionApply) ? false : true;
+    QString title = (act == FilterAction::ActionApply) ? QObject::tr("Apply as Filter") : QObject::tr("Prepare as Filter");
+    bool prepare = (act == FilterAction::ActionApply) ? false : true;
 
     QMenu * submenu = new QMenu(title, par);
-    if ( filter.length() > 0 )
+    if (filter.length() > 0)
     {
         QAction * comment = submenu->addAction(QString("%1: %2").arg(title).arg(filter));
         comment->setEnabled(false);
@@ -242,17 +242,17 @@ QMenu * FilterAction::createFilterMenu(FilterAction::Action act, QString filter,
 
 void FilterAction::groupTriggered(QAction * action)
 {
-    if ( action && wsApp )
+    if (action && wsApp)
     {
-        if ( action->property("filterType").canConvert<FilterAction::ActionType>() &&
-            sender()->property("filterAction").canConvert<FilterAction::Action>() )
+        if (action->property("filterType").canConvert<FilterAction::ActionType>() &&
+            sender()->property("filterAction").canConvert<FilterAction::Action>())
         {
             FilterAction::Action act = sender()->property("filterAction").value<FilterAction::Action>();
             FilterAction::ActionType type = action->property("filterType").value<FilterAction::ActionType>();
             QString filter = sender()->property("filter").toString();
 
             QWidget * mainWin = wsApp->mainWindow();
-            if ( qobject_cast<MainWindow *>(mainWin) )
+            if (qobject_cast<MainWindow *>(mainWin))
             {
                 MainWindow * mw = qobject_cast<MainWindow *>(mainWin);
                 mw->setDisplayFilter(filter, act, type);
@@ -265,10 +265,10 @@ QAction * FilterAction::copyFilterAction(QString filter, QWidget *par)
 {
     FilterAction * filterAction = new FilterAction(par, ActionCopy);
     QAction * action = new QAction(QObject::tr("Copy"), par);
-    action->setProperty("filter", qVariantFromValue(filter));
+    action->setProperty("filter", QVariant::fromValue(filter));
     connect(action, &QAction::triggered, filterAction, &FilterAction::copyActionTriggered);
 
-    if ( filter.isEmpty() )
+    if (filter.isEmpty())
         action->setEnabled(false);
 
     return action;
@@ -277,11 +277,11 @@ QAction * FilterAction::copyFilterAction(QString filter, QWidget *par)
 void FilterAction::copyActionTriggered()
 {
     QAction * sendAction = qobject_cast<QAction *>(sender());
-    if ( ! sendAction )
+    if (! sendAction)
         return;
 
     QString filter = sendAction->property("filter").toString();
-    if ( filter.length() > 0 )
+    if (filter.length() > 0)
         wsApp->clipboard()->setText(filter);
 }
 

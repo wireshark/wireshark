@@ -121,6 +121,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   /* Save eapol key type packets for IEEE 802.11 dissector */
   if (!pinfo->fd->visited && eapol_type == EAPOL_KEY) {
     proto_eapol_key_frame_t *key_frame = wmem_new(pinfo->pool, proto_eapol_key_frame_t);
+    key_frame->type = 0;
     key_frame->len = len;
     key_frame->data = (guint8 *)wmem_alloc(pinfo->pool, len);
     tvb_memcpy(tvb, key_frame->data, 0, len);
@@ -148,6 +149,16 @@ dissect_eapol_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void*
   proto_tree_add_item(eapol_tree, hf_eapol_keydes_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
   next_tvb = tvb_new_subset_remaining(tvb, offset);
+
+  /* Save keydesc_type for IEEE 802.11 dissector */
+  if (!pinfo->fd->visited) {
+    proto_eapol_key_frame_t *key_frame = (proto_eapol_key_frame_t *)
+      p_get_proto_data(pinfo->pool, pinfo, proto_eapol, EAPOL_KEY_FRAME_KEY);
+    if (key_frame) {
+      key_frame->type = keydesc_type;
+    }
+  }
+
   if (!dissector_try_uint_new(eapol_keydes_type_dissector_table,
                               keydesc_type, next_tvb, pinfo, eapol_tree,
                               FALSE, NULL)) {

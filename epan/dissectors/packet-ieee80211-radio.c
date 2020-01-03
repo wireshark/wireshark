@@ -109,11 +109,14 @@ static const value_string phy_vals[] = {
     { PHDR_802_11_PHY_11_FHSS,       "802.11 FHSS" },
     { PHDR_802_11_PHY_11_IR,         "802.11 IR" },
     { PHDR_802_11_PHY_11_DSSS,       "802.11 DSSS" },
-    { PHDR_802_11_PHY_11B,           "802.11b" },
-    { PHDR_802_11_PHY_11A,           "802.11a" },
-    { PHDR_802_11_PHY_11G,           "802.11g" },
-    { PHDR_802_11_PHY_11N,           "802.11n" },
-    { PHDR_802_11_PHY_11AC,          "802.11ac" },
+    { PHDR_802_11_PHY_11B,           "802.11b (HR/DSSS)" },
+    { PHDR_802_11_PHY_11A,           "802.11a (OFDM)" },
+    { PHDR_802_11_PHY_11G,           "802.11g (ERP)" },
+    { PHDR_802_11_PHY_11N,           "802.11n (HT)" },
+    { PHDR_802_11_PHY_11AC,          "802.11ac (VHT)" },
+    { PHDR_802_11_PHY_11AD,          "802.11ad (DMG)" },
+    { PHDR_802_11_PHY_11AH,          "802.11ah (S1G)" },
+    { PHDR_802_11_PHY_11AX,          "802.11ax (HE)" },
     { 0, NULL }
 };
 

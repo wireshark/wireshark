@@ -38,7 +38,7 @@ ExtcapArgumentFileSelection::ExtcapArgumentFileSelection (extcap_arg * argument,
 
 ExtcapArgumentFileSelection::~ExtcapArgumentFileSelection()
 {
-    if ( textBox != NULL )
+    if (textBox != NULL)
         delete textBox;
 }
 
@@ -62,12 +62,12 @@ QWidget * ExtcapArgumentFileSelection::createEditor(QWidget * parent)
     {
         QString storeValue(prefval);
 
-        if ( storeValue.length() > 0 && storeValue.compare(text) != 0 )
+        if (storeValue.length() > 0 && storeValue.compare(text) != 0)
             text = storeValue.trimmed();
     }
     textBox->setText(text);
 
-    if ( _argument->tooltip != NULL )
+    if (_argument->tooltip != NULL)
     {
         textBox->setToolTip(QString().fromUtf8(_argument->tooltip));
         button->setToolTip(QString().fromUtf8(_argument->tooltip));
@@ -85,7 +85,7 @@ QWidget * ExtcapArgumentFileSelection::createEditor(QWidget * parent)
 
 QString ExtcapArgumentFileSelection::value()
 {
-    if ( textBox == 0 )
+    if (textBox == 0)
         return QString();
     return textBox->text();
 }
@@ -100,10 +100,10 @@ void ExtcapArgumentFileSelection::openFileDialog()
         workingDir = QFileInfo(filename).dir();
 
     QString fileExt(tr("All Files (" ALL_FILES_WILDCARD ")"));
-    if ( _argument->fileextension != NULL )
+    if (_argument->fileextension != NULL)
     {
         QString givenExt = QString().fromUtf8(_argument->fileextension);
-        if ( givenExt.length() != 0 )
+        if (givenExt.length() != 0)
             fileExt.prepend(";;").prepend(givenExt);
     }
 
@@ -111,7 +111,7 @@ void ExtcapArgumentFileSelection::openFileDialog()
         QString().fromUtf8(_argument->display) + " " + tr("Open File"),
         workingDir.absolutePath(), fileExt);
 
-    if ( ! fileExists() || QFileInfo(filename).exists() )
+    if (! fileExists() || QFileInfo(filename).exists())
     {
         textBox->setText(filename);
         emit valueChanged();
@@ -122,19 +122,19 @@ bool ExtcapArgumentFileSelection::isValid()
 {
     bool valid = false;
 
-    if ( textBox->text().length() > 0 )
+    if (textBox->text().length() > 0)
     {
         if (_argument->fileexists)
             valid = QFileInfo(textBox->text()).exists();
         else
             valid = true;
     }
-    else if ( ! isRequired() )
+    else if (! isRequired())
         valid = true;
 
     QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
     QString txtStyle("QLineEdit { background-color: %1; } ");
-    textBox->setStyleSheet( txtStyle.arg(valid ? QString("") : lblInvalidColor) );
+    textBox->setStyleSheet(txtStyle.arg(valid ? QString("") : lblInvalidColor));
 
     return valid;
 }

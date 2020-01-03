@@ -29,7 +29,6 @@ public:
     void setCaptureInProgress(bool capture_in_progress);
 
 signals:
-    void pushAdapterStatus(const QString&);
     void showWirelessPreferences(const QString wlan_module_name);
 
 protected:

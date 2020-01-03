@@ -111,13 +111,14 @@ static int proto_ssh = -1;
 static int hf_ssh_protocol = -1;
 
 /* Framing */
-static int hf_ssh_packet_length= -1;
-static int hf_ssh_packet_length_encrypted= -1;
-static int hf_ssh_padding_length= -1;
-static int hf_ssh_payload= -1;
-static int hf_ssh_encrypted_packet= -1;
-static int hf_ssh_padding_string= -1;
-static int hf_ssh_mac_string= -1;
+static int hf_ssh_packet_length = -1;
+static int hf_ssh_packet_length_encrypted = -1;
+static int hf_ssh_padding_length = -1;
+static int hf_ssh_payload = -1;
+static int hf_ssh_encrypted_packet = -1;
+static int hf_ssh_padding_string = -1;
+static int hf_ssh_mac_string = -1;
+static int hf_ssh_direction = -1;
 
 /* Message codes */
 static int hf_ssh_msg_code = -1;
@@ -132,22 +133,22 @@ static int hf_ssh_kex_algorithms = -1;
 static int hf_ssh_server_host_key_algorithms = -1;
 static int hf_ssh_encryption_algorithms_client_to_server = -1;
 static int hf_ssh_encryption_algorithms_server_to_client = -1;
-static int hf_ssh_mac_algorithms_client_to_server=-1;
-static int hf_ssh_mac_algorithms_server_to_client=-1;
-static int hf_ssh_compression_algorithms_client_to_server=-1;
-static int hf_ssh_compression_algorithms_server_to_client=-1;
-static int hf_ssh_languages_client_to_server=-1;
-static int hf_ssh_languages_server_to_client=-1;
-static int hf_ssh_kex_algorithms_length= -1;
-static int hf_ssh_server_host_key_algorithms_length= -1;
-static int hf_ssh_encryption_algorithms_client_to_server_length= -1;
-static int hf_ssh_encryption_algorithms_server_to_client_length= -1;
-static int hf_ssh_mac_algorithms_client_to_server_length= -1;
-static int hf_ssh_mac_algorithms_server_to_client_length= -1;
-static int hf_ssh_compression_algorithms_client_to_server_length= -1;
-static int hf_ssh_compression_algorithms_server_to_client_length= -1;
-static int hf_ssh_languages_client_to_server_length= -1;
-static int hf_ssh_languages_server_to_client_length= -1;
+static int hf_ssh_mac_algorithms_client_to_server = -1;
+static int hf_ssh_mac_algorithms_server_to_client = -1;
+static int hf_ssh_compression_algorithms_client_to_server = -1;
+static int hf_ssh_compression_algorithms_server_to_client = -1;
+static int hf_ssh_languages_client_to_server = -1;
+static int hf_ssh_languages_server_to_client = -1;
+static int hf_ssh_kex_algorithms_length = -1;
+static int hf_ssh_server_host_key_algorithms_length = -1;
+static int hf_ssh_encryption_algorithms_client_to_server_length = -1;
+static int hf_ssh_encryption_algorithms_server_to_client_length = -1;
+static int hf_ssh_mac_algorithms_client_to_server_length = -1;
+static int hf_ssh_mac_algorithms_server_to_client_length = -1;
+static int hf_ssh_compression_algorithms_client_to_server_length = -1;
+static int hf_ssh_compression_algorithms_server_to_client_length = -1;
+static int hf_ssh_languages_client_to_server_length = -1;
+static int hf_ssh_languages_server_to_client_length = -1;
 static int hf_ssh_first_kex_packet_follows = -1;
 static int hf_ssh_kex_reserved = -1;
 
@@ -262,6 +263,12 @@ static dissector_handle_t ssh_handle;
 /* 128-191 reserved for client protocols */
 /* 192-255 local extensions */
 
+static const value_string ssh_direction_vals[] = {
+    { CLIENT_TO_SERVER_PROPOSAL, "client-to-server" },
+    { SERVER_TO_CLIENT_PROPOSAL, "server-to-client" },
+    { 0, NULL }
+};
+
 static const value_string ssh2_msg_vals[] = {
     { SSH_MSG_DISCONNECT,                "Disconnect" },
     { SSH_MSG_IGNORE,                    "Ignore" },
@@ -361,13 +368,13 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_tree  *ssh_tree;
     proto_item  *ti;
     conversation_t *conversation;
-    int     last_offset, offset = 0;
+    int         last_offset, offset = 0;
 
     gboolean    is_response = (pinfo->destport != pinfo->match_uint),
                 need_desegmentation;
     guint       version;
 
-    struct ssh_flow_data *global_data=NULL;
+    struct ssh_flow_data *global_data = NULL;
     struct ssh_peer_data *peer_data;
 
     conversation = find_or_create_conversation(pinfo);
@@ -375,10 +382,10 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     global_data = (struct ssh_flow_data *)conversation_get_proto_data(conversation, proto_ssh);
     if (!global_data) {
         global_data = (struct ssh_flow_data *)wmem_alloc0(wmem_file_scope(), sizeof(struct ssh_flow_data));
-        global_data->version=SSH_VERSION_UNKNOWN;
-        global_data->kex_specific_dissector=ssh_dissect_kex_dh;
-        global_data->peer_data[CLIENT_PEER_DATA].mac_length=-1;
-        global_data->peer_data[SERVER_PEER_DATA].mac_length=-1;
+        global_data->version = SSH_VERSION_UNKNOWN;
+        global_data->kex_specific_dissector = ssh_dissect_kex_dh;
+        global_data->peer_data[CLIENT_PEER_DATA].mac_length = -1;
+        global_data->peer_data[SERVER_PEER_DATA].mac_length = -1;
 
         conversation_add_proto_data(conversation, proto_ssh, global_data);
     }
@@ -462,6 +469,9 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
 
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s: ", is_response ? "Server" : "Client");
+    ti = proto_tree_add_boolean_format_value(ssh_tree, hf_ssh_direction, tvb, 0, 0, is_response, "%s",
+        try_val_to_str(is_response, ssh_direction_vals));
+    proto_item_set_generated(ti);
     return tvb_captured_length(tvb);
 }
 
@@ -471,13 +481,13 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
         int offset, proto_tree *tree, int is_response,
         gboolean *need_desegmentation)
 {
-    proto_item *ssh2_tree=NULL;
-    int last_offset=offset;
+    proto_item *ssh2_tree = NULL;
+    int last_offset = offset;
 
     struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
 
     if (tree) {
-        wmem_strbuf_t *title=wmem_strbuf_new(wmem_packet_scope(), "SSH Version 2");
+        wmem_strbuf_t *title = wmem_strbuf_new(wmem_packet_scope(), "SSH Version 2");
 
         if (peer_data->enc || peer_data->mac || peer_data->comp) {
             wmem_strbuf_append_printf(title, " (");
@@ -496,7 +506,7 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
             wmem_strbuf_append_printf(title, ")");
         }
 
-        ssh2_tree=proto_tree_add_subtree(tree, tvb, offset, -1, ett_ssh2, NULL, wmem_strbuf_get_str(title));
+        ssh2_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_ssh2, NULL, wmem_strbuf_get_str(title));
     }
 
     if ((peer_data->frame_key_start == 0) ||
@@ -531,7 +541,7 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 
     struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
 
-    ssh1_tree=proto_tree_add_subtree(tree, tvb, offset, -1, ett_ssh1, NULL, "SSH Version 1");
+    ssh1_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_ssh1, NULL, "SSH Version 1");
 
     /*
      * We use "tvb_ensure_captured_length_remaining()" to make sure there
@@ -589,7 +599,7 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
     offset+=4;
-/* padding length */
+    /* padding length */
 
     proto_tree_add_uint(ssh1_tree, hf_ssh_padding_length, tvb,
             offset, padding_length, padding_length);
@@ -619,7 +629,7 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(ssh1_tree, hf_ssh_payload,
             tvb, offset, len, ENC_NA);
     }
-    offset+=len;
+    offset += len;
 
     return offset;
 }
@@ -711,11 +721,11 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
     guint   plen, len;
     guint8  padding_length;
     guint   remain_length;
-    int     last_offset=offset;
+    int     last_offset = offset;
     guint   msg_code;
 
     proto_item *ti;
-    proto_item *key_ex_tree =NULL;
+    proto_item *key_ex_tree = NULL;
 
     struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
 
@@ -776,7 +786,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_uint(tree, hf_ssh_padding_length, tvb, offset, 1, padding_length);
     offset += 1;
 
-    key_ex_tree=proto_tree_add_subtree(tree, tvb, offset, plen-1, ett_key_exchange, NULL, "Key Exchange");
+    key_ex_tree = proto_tree_add_subtree(tree, tvb, offset, plen-1, ett_key_exchange, NULL, "Key Exchange");
 
     /* msg_code */
     msg_code = tvb_get_guint8(tvb, offset);
@@ -837,7 +847,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
     if (len > 0) {
         proto_tree_add_item(key_ex_tree, hf_ssh_payload, tvb, offset, len, ENC_NA);
     }
-    offset +=len;
+    offset += len;
 
     /* padding */
     proto_tree_add_item(tree, hf_ssh_padding_string, tvb, offset, padding_length, ENC_NA);
@@ -973,7 +983,7 @@ ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
                 tvb, offset+4+encrypted_len,
                 peer_data->mac_length, ENC_NA);
     }
-    offset+=len;
+    offset += len;
     return offset;
 }
 
@@ -1043,7 +1053,7 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 
     proto_tree_add_item(tree, hf_ssh_protocol,
                     tvb, offset, protolen, ENC_ASCII|ENC_NA);
-    offset+=linelen;
+    offset += linelen;
     return offset;
 }
 
@@ -1126,8 +1136,8 @@ ssh_gslist_compare_strings(gconstpointer a, gconstpointer b)
 static void
 ssh_choose_algo(gchar *client, gchar *server, gchar **result)
 {
-    gchar **server_strings=NULL;
-    gchar **client_strings=NULL;
+    gchar **server_strings = NULL;
+    gchar **client_strings = NULL;
     gchar **step;
     GSList *server_list = NULL;
 
@@ -1142,7 +1152,7 @@ ssh_choose_algo(gchar *client, gchar *server, gchar **result)
     client_strings = g_strsplit(client, ",", 0);
     for (step = client_strings; *step; step++) {
         GSList *agreed;
-        if ((agreed=g_slist_find_custom(server_list, *step, ssh_gslist_compare_strings))) {
+        if ((agreed = g_slist_find_custom(server_list, *step, ssh_gslist_compare_strings))) {
             *result = wmem_strdup(wmem_file_scope(), (const gchar *)agreed->data);
             break;
         }
@@ -1164,7 +1174,7 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
 
-    key_init_tree=proto_tree_add_subtree(tree, tvb, offset, -1, ett_key_init, &tf, "Algorithms");
+    key_init_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_key_init, &tf, "Algorithms");
     proto_tree_add_item(key_init_tree, hf_ssh_cookie,
                     tvb, offset, 16, ENC_NA);
     offset += 16;
@@ -1293,6 +1303,11 @@ proto_register_ssh(void)
           { "MAC",  "ssh.mac",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Message authentication code", HFILL }},
+
+        { &hf_ssh_direction,
+          { "Direction", "ssh.direction",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Message direction", HFILL }},
 
         { &hf_ssh_msg_code,
           { "Message Code",  "ssh.message_code",

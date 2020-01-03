@@ -49,9 +49,7 @@ class OsbProxyStyle : public QProxyStyle
     // wonky, however.
 
     virtual int styleHint(StyleHint hint, const QStyleOption *option = NULL, const QWidget *widget = NULL, QStyleHintReturn *returnData = NULL) const {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 3, 0)
         if (hint == SH_ScrollBar_Transient) return false;
-#endif
 
         return QProxyStyle::styleHint(hint, option, widget, returnData);
     }
@@ -66,7 +64,7 @@ OverlayScrollBar::OverlayScrollBar(Qt::Orientation orientation, QWidget *parent)
     packet_count_(-1),
     start_pos_(-1),
     end_pos_(-1),
-    selected_pos_(-1)
+    positions_(QList<int>())
 {
     style_ = new OsbProxyStyle();
     setStyle(style_);
@@ -95,14 +93,14 @@ QSize OverlayScrollBar::sizeHint() const
                  QScrollBar::sizeHint().height());
 }
 
-void OverlayScrollBar::setNearOverlayImage(QImage &overlay_image, int packet_count, int start_pos, int end_pos, int selected_pos)
+void OverlayScrollBar::setNearOverlayImage(QImage &overlay_image, int packet_count, int start_pos, int end_pos, QList<int> positions)
 {
     int old_width = packet_map_img_.width();
     packet_map_img_ = overlay_image;
     packet_count_ = packet_count;
     start_pos_ = start_pos;
     end_pos_ = end_pos;
-    selected_pos_ = selected_pos;
+    positions_ = positions;
 
     if (old_width != packet_map_img_.width()) {
         qreal dp_ratio = devicePixelRatio();
@@ -164,12 +162,24 @@ void OverlayScrollBar::paintEvent(QPaintEvent *event)
         pm_painter.drawImage(near_dest, packet_map_img_.scaled(near_dest.size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
         // Selected packet indicator
-        if (selected_pos_ >= 0 && selected_pos_ < packet_map_img_.height()) {
-            pm_painter.save();
-            int no_pos = near_dest.height() * selected_pos_ / packet_map_img_.height();
-            pm_painter.setBrush(palette().highlight().color());
-            pm_painter.drawRect(0, no_pos, pm_size.width(), dp_ratio);
-            pm_painter.restore();
+        if (positions_.count() > 0)
+        {
+            foreach (int selected_pos_, positions_)
+            {
+                if (selected_pos_ >= 0 && selected_pos_ < packet_map_img_.height()) {
+                    pm_painter.save();
+                    int no_pos = near_dest.height() * selected_pos_ / packet_map_img_.height();
+                    int height = dp_ratio;
+                    if ((selected_pos_ + 1) < packet_map_img_.height())
+                    {
+                        int nx_pos =  near_dest.height() * ( selected_pos_ + 1 ) / packet_map_img_.height();
+                        height = (nx_pos - no_pos + 1) > dp_ratio ? nx_pos - no_pos + 1 : dp_ratio;
+                    }
+                    pm_painter.setBrush(palette().highlight().color());
+                    pm_painter.drawRect(0, no_pos, pm_size.width(), height);
+                    pm_painter.restore();
+                }
+            }
         }
 
         // Borders

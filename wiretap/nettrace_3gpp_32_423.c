@@ -176,7 +176,7 @@ nettrace_close(wtap *wth)
 
 	/* delete the temp file */
 	ws_unlink(file_info->tmpname);
-
+	g_free(file_info->tmpname);
 }
 
 /* This attribute specification contains a timestamp that refers to the start of the
@@ -813,7 +813,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	wtap_open_return_val result = WTAP_OPEN_MINE;
 
 	/* pcapng defs */
-	GArray                      *shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+	GArray                      *shb_hdrs;
 	wtap_block_t                 shb_hdr;
 	wtapng_iface_descriptions_t *idb_inf = NULL;
 	wtap_block_t                 int_data;
@@ -839,10 +839,13 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 
 	memset(&exported_pdu_info, 0x0, sizeof(exported_pdu_info_t));
 
-	import_file_fd = create_tempfile(&(file_info->tmpname), "Wireshark_PDU_", NULL);
+	import_file_fd = create_tempfile(&(file_info->tmpname), "Wireshark_PDU_", NULL, NULL);
+	if (import_file_fd < 0)
+		return WTAP_OPEN_ERROR;
 
 	/* Now open a file and dump to it */
 	/* Create data for SHB  */
+	shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 	os_info_str = g_string_new("");
 	get_os_version_info(os_info_str);
 

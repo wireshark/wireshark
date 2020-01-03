@@ -418,7 +418,8 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
         }
 
         for (int i_item = 0; i_item < main_item->childCount(); i_item +=1) {
-            if (main_item->child(i_item)->text(column_number_opcode) == QString("").sprintf("0x%04X", tap_hci->ogf << 10 | tap_hci->ocf)) {
+            if (main_item->child(i_item)->text(column_number_opcode) ==
+                    QString("0x%1").arg(tap_hci->ogf << 10 | tap_hci->ocf, 4, 16, QChar('0'))) {
                 item = main_item->child(i_item);
                 if (tap_hci->type == BLUETOOTH_HCI_SUMMARY_VENDOR_OPCODE && tap_hci->name) {
                     item->setText(column_number_name, tap_hci->name);
@@ -434,9 +435,10 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
                 name = tap_hci->name;
 
             item->setText(column_number_name, name);
-            item->setText(column_number_ogf, QString("").sprintf("0x%02X", tap_hci->ogf));
-            item->setText(column_number_ocf, QString("").sprintf("0x%04X", tap_hci->ocf));
-            item->setText(column_number_opcode, QString("").sprintf("0x%04X", tap_hci->ogf << 10 | tap_hci->ocf));
+            item->setText(column_number_ogf, QString("0x%1").arg(tap_hci->ogf, 2, 16, QChar('0')));
+            item->setText(column_number_ocf, QString("0x%1").arg(tap_hci->ocf, 4, 16, QChar('0')));
+            item->setText(column_number_opcode,
+                          QString("0x%1").arg(tap_hci->ogf << 10 | tap_hci->ocf, 4, 16, QChar('0')));
             if (tap_hci->type == BLUETOOTH_HCI_SUMMARY_OPCODE)
                 item->setText(column_number_occurrence, "0");
             else
@@ -459,11 +461,12 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
 
         frame_item = new QTreeWidgetItem();
         frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->num));
-        frame_item->setText(column_number_ogf, QString("").sprintf("0x%02X", tap_hci->ogf));
-        frame_item->setText(column_number_ocf, QString("").sprintf("0x%04X", tap_hci->ocf));
-        frame_item->setText(column_number_opcode, QString("").sprintf("0x%04X", tap_hci->ogf << 10 | tap_hci->ocf));
+        frame_item->setText(column_number_ogf, QString("0x%1").arg(tap_hci->ogf, 2, 16, QChar('0')));
+        frame_item->setText(column_number_ocf, QString("0x%1").arg(tap_hci->ocf, 4, 16, QChar('0')));
+        frame_item->setText(column_number_opcode, QString("0x%1")
+                            .arg(tap_hci->ogf << 10 | tap_hci->ocf, 4, 16, QChar('0')));
         if (tap_hci->type == BLUETOOTH_HCI_SUMMARY_EVENT_OPCODE)
-            frame_item->setText(column_number_event, QString("").sprintf("0x%02X", tap_hci->event));
+            frame_item->setText(column_number_event, QString("0x%1").arg(tap_hci->event, 2, 16, QChar('0')));
         item->addChild(frame_item);
 
         item_data = wmem_new(wmem_file_scope(), bluetooth_item_data_t);
@@ -478,7 +481,8 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
         main_item = dialog->item_events_;
 
         for (int i_item = 0; i_item < main_item->childCount(); i_item +=1) {
-            if (main_item->child(i_item)->text(column_number_event) == QString("").sprintf("0x%02X", tap_hci->event)) {
+            if (main_item->child(i_item)->text(column_number_event) ==
+                    QString("0x%1").arg(tap_hci->event, 2, 16, QChar('0'))) {
                 item = main_item->child(i_item);
                 if (tap_hci->type == BLUETOOTH_HCI_SUMMARY_VENDOR_EVENT && tap_hci->name)
                     item->setText(column_number_name, tap_hci->name);
@@ -492,7 +496,7 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
                 name = tap_hci->name;
 
             item->setText(column_number_name, name);
-            item->setText(column_number_event, QString("").sprintf("0x%02X", tap_hci->event));
+            item->setText(column_number_event, QString("0x%1").arg(tap_hci->event, 2, 16, QChar('0')));
             item->setText(column_number_occurrence, QString::number(0));
 
             main_item->addChild(item);
@@ -530,7 +534,7 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
 
         frame_item = new QTreeWidgetItem();
         frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->num));
-        frame_item->setText(column_number_event, QString("").sprintf("0x%02X", tap_hci->event));
+        frame_item->setText(column_number_event, QString("0x%1").arg(tap_hci->event, 2, 16, QChar('0')));
         item->addChild(frame_item);
 
         item_data = wmem_new(wmem_file_scope(), bluetooth_item_data_t);
@@ -546,8 +550,10 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
         meta_item = NULL;
 
         for (int i_item = 0; i_item < main_item->childCount(); i_item +=1) {
-            if (main_item->child(i_item)->text(column_number_event) != QString("").sprintf("0x%02X", tap_hci->event))
+            if (main_item->child(i_item)->text(column_number_event) !=
+                    QString("0x%1").arg(tap_hci->event, 2, 16, QChar('0'))) {
                 continue;
+            }
 
             meta_item = main_item->child(i_item);
             break;
@@ -559,8 +565,10 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
         item = NULL;
 
         for (int i_item = 0; i_item < meta_item->childCount(); i_item +=1) {
-            if (meta_item->child(i_item)->text(column_number_subevent) != QString("").sprintf("0x%02X", tap_hci->subevent))
+            if (meta_item->child(i_item)->text(column_number_subevent) !=
+                    QString("0x%1").arg(tap_hci->subevent, 2, 16, QChar('0'))) {
                 continue;
+            }
 
             item = meta_item->child(i_item);
             item->setText(column_number_occurrence, QString::number(item->text(column_number_occurrence).toInt() + 1));
@@ -571,7 +579,7 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
         if (item == NULL) {
             item = new QTreeWidgetItem();
             item->setText(column_number_name, tap_hci->name);
-            item->setText(column_number_subevent, QString("").sprintf("0x%02X", tap_hci->subevent));
+            item->setText(column_number_subevent, QString("0x%1").arg(tap_hci->subevent, 2, 16, QChar('0')));
             item->setText(column_number_occurrence, QString::number(1));
 
             meta_item->addChild(item);
@@ -581,8 +589,8 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
 
         frame_item = new QTreeWidgetItem();
         frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->num));
-        frame_item->setText(column_number_event, QString("").sprintf("0x%02X", tap_hci->event));
-        frame_item->setText(column_number_subevent, QString("").sprintf("0x%02X", tap_hci->subevent));
+        frame_item->setText(column_number_event, QString("0x%1").arg(tap_hci->event, 2, 16, QChar('0')));
+        frame_item->setText(column_number_subevent, QString("0x%1").arg(tap_hci->subevent, 2, 16, QChar('0')));
 
         item_data = wmem_new(wmem_file_scope(), bluetooth_item_data_t);
         item_data->interface_id = tap_hci->interface_id;
@@ -620,7 +628,8 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
         main_item = dialog->item_status_;
 
         for (int i_item = 0; i_item < main_item->childCount(); i_item +=1) {
-            if (main_item->child(i_item)->text(column_number_status) == QString("").sprintf("0x%02X", tap_hci->status)) {
+            if (main_item->child(i_item)->text(column_number_status) ==
+                    QString("0x%1").arg(tap_hci->status, 2, 16, QChar('0'))) {
                 item = main_item->child(i_item);
                 break;
             }
@@ -632,7 +641,7 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
 
             item = new QTreeWidgetItem();
             item->setText(column_number_name, name);
-            item->setText(column_number_status, QString("").sprintf("0x%02X", tap_hci->status));
+            item->setText(column_number_status, QString("0x%1").arg(tap_hci->status, 2, 16, QChar('0')));
 
             main_item->addChild(item);
             item->setHidden(!name.contains(dialog->ui->resultsFilterLineEdit->text(), Qt::CaseInsensitive));
@@ -644,7 +653,7 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
 
         frame_item = new QTreeWidgetItem();
         frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->num));
-        frame_item->setText(column_number_status, QString("").sprintf("0x%02X", tap_hci->status));
+        frame_item->setText(column_number_status, QString("0x%1").arg(tap_hci->status, 2, 16, QChar('0')));
         item->addChild(frame_item);
 
         item_data = wmem_new(wmem_file_scope(), bluetooth_item_data_t);
@@ -658,7 +667,7 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
         main_item = dialog->item_status_;
 
         for (int i_item = 0; i_item < main_item->childCount(); i_item +=1) {
-            if (main_item->child(i_item)->text(column_number_status) == QString("").sprintf("%u", tap_hci->status)) {
+            if (main_item->child(i_item)->text(column_number_status) == QString::number(tap_hci->status)) {
                 item = main_item->child(i_item);
                 break;
             }
@@ -667,7 +676,7 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
         if (!item) {
             item = new QTreeWidgetItem();
             item->setText(column_number_name, tr("Pending"));
-            item->setText(column_number_status, QString("").sprintf("%u", tap_hci->status));
+            item->setText(column_number_status, QString::number(tap_hci->status));
 
             main_item->addChild(item);
             item->setHidden(!name.contains(dialog->ui->resultsFilterLineEdit->text(), Qt::CaseInsensitive));
@@ -679,7 +688,7 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
 
         frame_item = new QTreeWidgetItem();
         frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->num));
-        frame_item->setText(column_number_status, QString("").sprintf("%u", tap_hci->status));
+        frame_item->setText(column_number_status, QString::number(tap_hci->status));
         item->addChild(frame_item);
 
         item_data = wmem_new(wmem_file_scope(), bluetooth_item_data_t);
@@ -693,7 +702,8 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
         main_item = dialog->item_reason_;
 
         for (int i_item = 0; i_item < main_item->childCount(); i_item +=1) {
-            if (main_item->child(i_item)->text(column_number_reason) == QString("").sprintf("0x%02X", tap_hci->reason)) {
+            if (main_item->child(i_item)->text(column_number_reason) ==
+                    QString("0x%1").arg(tap_hci->reason, 2, 16, QChar('0'))) {
                 item = main_item->child(i_item);
                 break;
             }
@@ -705,7 +715,7 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
 
             item = new QTreeWidgetItem();
             item->setText(column_number_name, name);
-            item->setText(column_number_reason, QString("").sprintf("0x%02X", tap_hci->reason));
+            item->setText(column_number_reason, QString("0x%1").arg(tap_hci->reason, 2, 16, QChar('0')));
 
             main_item->addChild(item);
             item->setHidden(!name.contains(dialog->ui->resultsFilterLineEdit->text(), Qt::CaseInsensitive));
@@ -717,7 +727,7 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
 
         frame_item = new QTreeWidgetItem();
         frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->num));
-        frame_item->setText(column_number_reason, QString("").sprintf("0x%02X", tap_hci->reason));
+        frame_item->setText(column_number_reason, QString("0x%1").arg(tap_hci->reason, 2, 16, QChar('0')));
         item->addChild(frame_item);
 
         item_data = wmem_new(wmem_file_scope(), bluetooth_item_data_t);
@@ -731,7 +741,8 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
         main_item = dialog->item_hardware_errors_;
 
         for (int i_item = 0; i_item < main_item->childCount(); i_item +=1) {
-            if (main_item->child(i_item)->text(column_number_hardware_error) == QString("").sprintf("0x%02X", tap_hci->hardware_error)) {
+            if (main_item->child(i_item)->text(column_number_hardware_error) ==
+                    QString("0x%1").arg(tap_hci->hardware_error, 2, 16, QChar('0'))) {
                 item = main_item->child(i_item);
                 break;
             }
@@ -739,8 +750,9 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
 
         if (!item) {
             item = new QTreeWidgetItem();
-            item->setText(column_number_name, QString("").sprintf("Hardware error 0x%02X", tap_hci->hardware_error));
-            item->setText(column_number_hardware_error, QString("").sprintf("0x%02X", tap_hci->hardware_error));
+            const QString error = QString("0x%1").arg(tap_hci->hardware_error, 2, 16, QChar('0'));
+            item->setText(column_number_name, QString("Hardware error %1").arg(error));
+            item->setText(column_number_hardware_error, error);
 
             main_item->addChild(item);
             item->setHidden(!name.contains(dialog->ui->resultsFilterLineEdit->text(), Qt::CaseInsensitive));
@@ -752,7 +764,7 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
 
         frame_item = new QTreeWidgetItem();
         frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->num));
-        frame_item->setText(column_number_hardware_error, QString("").sprintf("0x%02X", tap_hci->hardware_error));
+        frame_item->setText(column_number_hardware_error, QString("0x%1").arg(tap_hci->hardware_error, 2, 16, QChar('0')));
         item->addChild(frame_item);
 
         item_data = wmem_new(wmem_file_scope(), bluetooth_item_data_t);

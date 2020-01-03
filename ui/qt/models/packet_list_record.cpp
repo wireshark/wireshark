@@ -27,12 +27,14 @@
 
 QMap<int, int> PacketListRecord::cinfo_column_;
 unsigned PacketListRecord::col_data_ver_ = 1;
+unsigned PacketListRecord::rows_color_ver_ = 1;
 
 PacketListRecord::PacketListRecord(frame_data *frameData) :
     fdata_(frameData),
     lines_(1),
     line_count_changed_(false),
     data_ver_(0),
+    color_ver_(0),
     colorized_(false),
     conv_index_(0)
 {
@@ -54,7 +56,7 @@ const QString PacketListRecord::columnString(capture_file *cap_file, int column,
         return QString();
     }
 
-    bool dissect_color = colorized && !colorized_;
+    bool dissect_color = ( colorized && !colorized_ ) || ( color_ver_ != rows_color_ver_ );
     if (column >= col_text_.count() || col_text_.at(column).isNull() || data_ver_ != col_data_ver_ || dissect_color) {
         dissect(cap_file, dissect_color);
     }
@@ -78,11 +80,6 @@ void PacketListRecord::resetColumns(column_info *cinfo)
             j++;
         }
     }
-}
-
-void PacketListRecord::resetColorized()
-{
-    colorized_ = false;
 }
 
 void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
@@ -175,6 +172,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
 
     if (dissect_color) {
         colorized_ = true;
+        color_ver_ = rows_color_ver_;
     }
     data_ver_ = col_data_ver_;
 

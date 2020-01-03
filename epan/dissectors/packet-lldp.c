@@ -1342,6 +1342,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	guint16 tempShort;
 	guint32 dataLen = 0;
 	const char *strPtr=NULL;
+        const char *idType=NULL;
 	guint8 addr_family = 0;
 
 	proto_tree	*chassis_tree = NULL;
@@ -1396,6 +1397,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			return -1;
 		}
 
+		idType="MA";
 		strPtr = tvb_ether_to_str(tvb, offset);
 		proto_tree_add_item(chassis_tree, hf_chassis_id_mac, tvb, offset, 6, ENC_NA);
 		pn_lldp_column_info->chassis_id_mac = wmem_strdup(wmem_packet_scope(), strPtr);
@@ -1409,6 +1411,8 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 		addr_family = tvb_get_guint8(tvb,offset);
 
 		offset++;
+
+		idType="NA";
 
 		/* Check for IPv4 or IPv6 */
 		switch(addr_family){
@@ -1463,23 +1467,29 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 		switch(tlvsubType)
 		{
 		case 2: /* Interface alias */
+			idType="IA";
 			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
 			break;
 		case 6: /* Interfae name */
+			idType="IN";
 			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
 			break;
 		case 7: /* Locally assigned */
+			idType="LA";
 			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen-1));
 			pn_lldp_column_info->chassis_id_locally_assigned = wmem_strdup(wmem_packet_scope(), strPtr);
 			break;
 		case 1: /* Chassis component */
+			idType="CC";
 			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
 			break;
 		case 3: /* Port component */
+			idType="PC";
 			strPtr = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, (dataLen-1));
 
 			break;
 		default:
+			idType="Rs";
 			strPtr = "Reserved";
 
 			break;
@@ -1492,6 +1502,10 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	}
 	}
 
+	if (column_info_selection == DEFAULT_COLUMN_INFO)
+	{
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s/%s ", idType, strPtr);
+	}
 	proto_item_append_text(tf, ", Id: %s", strPtr);
 
 	return offset;
@@ -1506,6 +1520,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	guint16 tempShort;
 	guint32 dataLen = 0;
 	const char *strPtr=NULL;
+	const char *idType=NULL;
 	guint8 addr_family = 0;
 
 	proto_tree	*port_tree = NULL;
@@ -1557,6 +1572,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 			return -1;
 		}
 
+		idType = "MA";
 		strPtr = tvb_ether_to_str(tvb, offset);
 		proto_tree_add_item(port_tree, hf_port_id_mac, tvb, offset, 6, ENC_NA);
 
@@ -1568,6 +1584,8 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 		proto_tree_add_item(port_tree, hf_lldp_network_address_family, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		offset++;
+
+		idType = "NA";
 
 		/* Check for IPv4 or IPv6 */
 		switch(addr_family){
@@ -1619,23 +1637,29 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
 		switch (tlvsubType)
 		{
-		case 2: /* Port component */
-			strPtr = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, (dataLen-1));
-			break;
 		case 1: /* Interface alias */
+			idType = "IA";
 			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
 			break;
+		case 2: /* Port component */
+			idType = "PC";
+			strPtr = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, (dataLen-1));
+			break;
 		case 5: /* Interface name */
+			idType = "IN";
 			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
 			break;
 		case 6: /* Agent circuit ID */
+			idType = "AC";
 			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
 			break;
 		case 7: /* Locally assigned */
+			idType = "LA";
 			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen-1));
 			pn_lldp_column_info->port_id_locally_assigned = wmem_strdup(wmem_packet_scope(), strPtr);
 			break;
 		default:
+			idType = "Rs";
 			strPtr = "Reserved";
 			break;
 		}
@@ -1645,7 +1669,10 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 		offset += (dataLen - 1);
 		break;
 	}
-
+	if (column_info_selection == DEFAULT_COLUMN_INFO)
+	{
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s/%s ", idType, strPtr);
+	}
 	proto_item_append_text(tf, ", Id: %s", strPtr);
 
 	return offset;
@@ -1672,7 +1699,7 @@ dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	tempShort = tvb_get_ntohs(tvb, (offset+2));
 	if (column_info_selection == DEFAULT_COLUMN_INFO)
 	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "TTL = %u ", tempShort);
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%u ", tempShort);
 	}
 
 	/* Set port tree */
@@ -1776,14 +1803,14 @@ dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 										ett_system_name, NULL, "System Name = %s", strPtr);
 		if (column_info_selection == DEFAULT_COLUMN_INFO)
 		{
-			col_append_fstr(pinfo->cinfo, COL_INFO, "SysName = %s ", strPtr);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "SysN=%s ", strPtr);
 		}
 	} else {
 		system_subtree = proto_tree_add_subtree_format(tree, tvb, offset, (dataLen + 2),
 										ett_system_desc, NULL, "System Description = %s", strPtr);
 		if (column_info_selection == DEFAULT_COLUMN_INFO)
 		{
-			col_append_fstr(pinfo->cinfo, COL_INFO, "SysDesc = %s ", strPtr);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "SysD=%s ", strPtr);
 		}
 	}
 

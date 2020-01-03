@@ -336,14 +336,14 @@ void LteRlcGraphDialog::keyPressEvent(QKeyEvent *event)
         break;
 
     case Qt::Key_X:             // Zoom X axis only
-        if(event->modifiers() & Qt::ShiftModifier){
+        if (event->modifiers() & Qt::ShiftModifier) {
             zoomXAxis(false);   // upper case X -> Zoom out
         } else {
             zoomXAxis(true);    // lower case x -> Zoom in
         }
         break;
     case Qt::Key_Y:             // Zoom Y axis only
-        if(event->modifiers() & Qt::ShiftModifier){
+        if (event->modifiers() & Qt::ShiftModifier) {
             zoomYAxis(false);   // upper case Y -> Zoom out
         } else {
             zoomYAxis(true);    // lower case y -> Zoom in

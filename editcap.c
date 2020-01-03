@@ -1017,11 +1017,13 @@ main(int argc, char *argv[])
     int           i, j, read_err, write_err;
     gchar        *read_err_info, *write_err_info;
     int           opt;
-#define LONGOPT_NO_VLAN              0x8100
-#define LONGOPT_SKIP_RADIOTAP_HEADER 0x8101
-#define LONGOPT_SEED                 0x8102
-#define LONGOPT_INJECT_SECRETS       0x8103
-#define LONGOPT_DISCARD_ALL_SECRETS  0x8104
+
+#define LONGOPT_NO_VLAN              LONGOPT_BASE_APPLICATION+1
+#define LONGOPT_SKIP_RADIOTAP_HEADER LONGOPT_BASE_APPLICATION+2
+#define LONGOPT_SEED                 LONGOPT_BASE_APPLICATION+3
+#define LONGOPT_INJECT_SECRETS       LONGOPT_BASE_APPLICATION+4
+#define LONGOPT_DISCARD_ALL_SECRETS  LONGOPT_BASE_APPLICATION+5
+
     static const struct option long_options[] = {
         {"novlan", no_argument, NULL, LONGOPT_NO_VLAN},
         {"skip-radiotap-header", no_argument, NULL, LONGOPT_SKIP_RADIOTAP_HEADER},

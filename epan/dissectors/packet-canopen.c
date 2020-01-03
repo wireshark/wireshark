@@ -1067,7 +1067,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     guint        node_id;
     guint32      time_stamp_msec;
     guint32      time_stamp_days;
-    struct can_identifier can_id;
+    struct can_info can_info;
     guint        msg_type_id;
     nstime_t     time_stamp;
     gint         can_data_len = tvb_reported_length(tvb);
@@ -1081,9 +1081,9 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_tree *canopen_type_tree;
 
     DISSECTOR_ASSERT(data);
-    can_id = *((struct can_identifier*)data);
+    can_info = *((struct can_info*)data);
 
-    if (can_id.id & (CAN_ERR_FLAG | CAN_RTR_FLAG | CAN_EFF_FLAG))
+    if (can_info.id & (CAN_ERR_FLAG | CAN_RTR_FLAG | CAN_EFF_FLAG))
     {
         /* Error, RTR and frames with extended ids are not for us. */
         return 0;
@@ -1092,8 +1092,8 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CANopen");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    node_id       = can_id.id & 0x7F;
-    function_code = (can_id.id >> 7) & 0x0F;
+    node_id       = can_info.id & 0x7F;
+    function_code = (can_info.id >> 7) & 0x0F;
 
     msg_type_id = canopen_detect_msg_type(function_code, node_id);
 
@@ -1120,15 +1120,15 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     canopen_tree = proto_item_add_subtree(ti, ett_canopen);
 
     /* add COB-ID with function code and node id */
-    cob_ti = proto_tree_add_uint(canopen_tree, hf_canopen_cob_id, tvb, 0, 0, can_id.id);
+    cob_ti = proto_tree_add_uint(canopen_tree, hf_canopen_cob_id, tvb, 0, 0, can_info.id);
     canopen_cob_tree = proto_item_add_subtree(cob_ti, ett_canopen_cob);
 
     /* add function code */
-    ti = proto_tree_add_uint(canopen_cob_tree, hf_canopen_function_code, tvb, 0, 0, can_id.id);
+    ti = proto_tree_add_uint(canopen_cob_tree, hf_canopen_function_code, tvb, 0, 0, can_info.id);
     proto_item_set_generated(ti);
 
     /* add node id */
-    ti = proto_tree_add_uint(canopen_cob_tree, hf_canopen_node_id, tvb, 0, 0, can_id.id);
+    ti = proto_tree_add_uint(canopen_cob_tree, hf_canopen_node_id, tvb, 0, 0, can_info.id);
     proto_item_set_generated(ti);
 
     /* add CANopen frame type */

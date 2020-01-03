@@ -43,6 +43,7 @@ SUBDIRS = \
 	rfr		\
 	samr		\
 	winreg		\
+	winspool	\
 	witness		\
 	wzcsvc
 
@@ -146,6 +147,11 @@ $(SUBDIRS) $(DONT_BUILD_SUBDIRS): %: ../packet-dcerpc-%.c ../packet-dcerpc-%.h
 
 ../packet-dcerpc-winreg.c \
 ../packet-dcerpc-winreg.h: winreg/winreg.idl winreg/winreg.cnf \
+				misc/misc.idl
+	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
+
+../packet-dcerpc-winspool.c \
+../packet-dcerpc-winspool.h: winspool/winspool.idl winspool/winspool.cnf \
 				misc/misc.idl
 	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
 

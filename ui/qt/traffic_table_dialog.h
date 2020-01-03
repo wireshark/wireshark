@@ -123,7 +123,7 @@ signals:
 protected:
     Ui::TrafficTableDialog *ui;
 
-    CaptureFile &cap_file_;
+//    CaptureFile &cap_file_;
     QString filter_;
     QMenu traffic_type_menu_;
     QPushButton *copy_bt_;

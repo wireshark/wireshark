@@ -4306,44 +4306,47 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                      ENC_UTF_8|ENC_NA);
                             proto_item_set_hidden(ti_c);
 
-                            /* Authentication-Info does not begin with the scheme name */
-                            if (hf_index != POS_AUTHENTICATION_INFO)
-                            {
-                                /* The first time comma_offset is "start of parameters" */
-                                comma_offset = tvb_ws_mempbrk_pattern_guint8(tvb, value_offset, line_end_offset - value_offset, &pbrk_whitespace, NULL);
-                                proto_tree_add_item(sip_element_tree, hf_sip_auth_scheme,
-                                                    tvb, value_offset, comma_offset - value_offset,
-                                                    ENC_UTF_8|ENC_NA);
-                            }else{
-                                /* The first time comma_offset is "start of parameters" */
-                                comma_offset = value_offset;
-                            }
-
-                            /* Parse each individual parameter in the line */
-                            while ((comma_offset = dissect_sip_authorization_item(tvb, sip_element_tree, comma_offset, line_end_offset, &authorization_info)) != -1)
-                            {
-                                if(comma_offset == line_end_offset)
+                            /* Check if we have any parameters */
+                            if ((line_end_offset - value_offset) != 0) {
+                                /* Authentication-Info does not begin with the scheme name */
+                                if (hf_index != POS_AUTHENTICATION_INFO)
                                 {
-                                    /* Line End reached: Stop Parsing */
-                                    break;
+                                    /* The first time comma_offset is "start of parameters" */
+                                    comma_offset = tvb_ws_mempbrk_pattern_guint8(tvb, value_offset, line_end_offset - value_offset, &pbrk_whitespace, NULL);
+                                    proto_tree_add_item(sip_element_tree, hf_sip_auth_scheme,
+                                        tvb, value_offset, comma_offset - value_offset,
+                                        ENC_UTF_8 | ENC_NA);
+                                } else {
+                                    /* The first time comma_offset is "start of parameters" */
+                                    comma_offset = value_offset;
                                 }
 
-                                if(tvb_get_guint8(tvb, comma_offset) != ',')
+                                /* Parse each individual parameter in the line */
+                                while ((comma_offset = dissect_sip_authorization_item(tvb, sip_element_tree, comma_offset, line_end_offset, &authorization_info)) != -1)
                                 {
-                                    /* Undefined value reached: Stop Parsing */
-                                    break;
+                                    if (comma_offset == line_end_offset)
+                                    {
+                                        /* Line End reached: Stop Parsing */
+                                        break;
+                                    }
+
+                                    if (tvb_get_guint8(tvb, comma_offset) != ',')
+                                    {
+                                        /* Undefined value reached: Stop Parsing */
+                                        break;
+                                    }
+                                    comma_offset++; /* skip comma */
                                 }
-                                comma_offset++; /* skip comma */
-                            }
-                            if ((authorization_info.response != NULL) && (global_sip_validate_authorization)) { /* If there is a response, check for valid credentials */
-                                authorization_user = sip_get_authorization(&authorization_info);
-                                if (authorization_user) {
-                                    authorization_info.method = wmem_strdup(wmem_packet_scope(), stat_info->request_method);
-                                    if (!sip_validate_authorization(&authorization_info, authorization_user->password)) {
-                                        proto_tree_add_expert_format(tree, pinfo, &ei_sip_authorization_invalid, tvb, offset, line_end_offset - offset, "SIP digest does not match known password %s", authorization_user->password);
+                                if ((authorization_info.response != NULL) && (global_sip_validate_authorization)) { /* If there is a response, check for valid credentials */
+                                    authorization_user = sip_get_authorization(&authorization_info);
+                                    if (authorization_user) {
+                                        authorization_info.method = wmem_strdup(wmem_packet_scope(), stat_info->request_method);
+                                        if (!sip_validate_authorization(&authorization_info, authorization_user->password)) {
+                                            proto_tree_add_expert_format(tree, pinfo, &ei_sip_authorization_invalid, tvb, offset, line_end_offset - offset, "SIP digest does not match known password %s", authorization_user->password);
+                                        }
                                     }
                                 }
-                            }
+                            } /* Check if we have any parameters */
                         }/*hdr_tree*/
                     break;
 
@@ -5721,6 +5724,7 @@ static const value_string response_code_vals[] = {
     { 604, "Does Not Exist Anywhere"},
     { 606, "Not Acceptable"},
     { 607, "Unwanted"},
+    { 608, "Rejected"},
     { 699, "Global Failure - Others"},
 
     { 0, NULL}

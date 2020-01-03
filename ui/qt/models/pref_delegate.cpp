@@ -42,7 +42,7 @@ QWidget *AdvancedPrefDelegate::createEditor(QWidget *parent, const QStyleOptionV
     case AdvancedPrefsModel::colValue:
         pref = indexToPref(index);
         WiresharkPreference * wspref = PreferenceManager::instance()->getPreference(pref);
-        if ( wspref )
+        if (wspref)
             return wspref->editor(parent, option, index);
         break;
     }
@@ -55,7 +55,7 @@ void AdvancedPrefDelegate::setEditorData(QWidget *editor, const QModelIndex &ind
     PrefsItem* pref = indexToPref(index);
 
     WiresharkPreference * wspref = PreferenceManager::instance()->getPreference(pref);
-    if ( wspref )
+    if (wspref)
     {
         wspref->setData(editor, index);
         return;
@@ -70,7 +70,7 @@ void AdvancedPrefDelegate::setModelData(QWidget *editor, QAbstractItemModel *mod
     PrefsItem* pref = indexToPref(index);
 
     WiresharkPreference * wspref = PreferenceManager::instance()->getPreference(pref);
-    if ( wspref )
+    if (wspref)
     {
         wspref->setModelData(editor, model, index);
         return;

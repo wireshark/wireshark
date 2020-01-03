@@ -76,7 +76,7 @@ ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, QW
     bool dev_found = false;
     guint if_idx;
 
-    if ( dev_name.length() == 0 )
+    if (dev_name.length() == 0)
         return NULL;
 
     for (if_idx = 0; if_idx < global_capture_opts.all_ifaces->len; if_idx++)
@@ -89,7 +89,7 @@ ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, QW
         }
     }
 
-    if ( ! dev_found )
+    if (! dev_found)
         return NULL;
 
     resultDialog = new ExtcapOptionsDialog(parent);
@@ -118,7 +118,7 @@ void ExtcapOptionsDialog::on_buttonBox_accepted()
         /* Starting a new capture with those values */
         prefs.extcap_save_on_start = ui->checkSaveOnStart->checkState() == Qt::Checked;
 
-        if ( prefs.extcap_save_on_start )
+        if (prefs.extcap_save_on_start)
             storeValues();
 
         accept();
@@ -132,54 +132,54 @@ void ExtcapOptionsDialog::anyValueChanged()
     ExtcapArgumentList::const_iterator iter;
 
     /* All arguments are being iterated, to ensure, that any error handling catches all arguments */
-    for(iter = extcapArguments.constBegin(); iter != extcapArguments.constEnd(); ++iter)
+    for (iter = extcapArguments.constBegin(); iter != extcapArguments.constEnd(); ++iter)
     {
         /* The dynamic casts are necessary, because we come here using the Signal/Slot system
          * of Qt, and -in short- Q_OBJECT classes cannot be multiple inherited. Another possibility
          * would be to use Q_INTERFACE, but this causes way more nightmares, and we really just
          * need here an explicit cast for the check functionality */
-        if ( dynamic_cast<ExtArgBool *>((*iter)) != NULL)
+        if (dynamic_cast<ExtArgBool *>((*iter)) != NULL)
         {
-            if ( ! ((ExtArgBool *)*iter)->isValid() )
+            if (! ((ExtArgBool *)*iter)->isValid())
                 allowStart = false;
         }
-        else if ( dynamic_cast<ExtArgRadio *>((*iter)) != NULL)
+        else if (dynamic_cast<ExtArgRadio *>((*iter)) != NULL)
         {
-            if ( ! ((ExtArgRadio *)*iter)->isValid() )
+            if (! ((ExtArgRadio *)*iter)->isValid())
                 allowStart = false;
         }
-        else if ( dynamic_cast<ExtArgSelector *>((*iter)) != NULL)
+        else if (dynamic_cast<ExtArgSelector *>((*iter)) != NULL)
         {
-            if ( ! ((ExtArgSelector *)*iter)->isValid() )
+            if (! ((ExtArgSelector *)*iter)->isValid())
                 allowStart = false;
         }
-        else if ( dynamic_cast<ExtArgMultiSelect *>((*iter)) != NULL)
+        else if (dynamic_cast<ExtArgMultiSelect *>((*iter)) != NULL)
         {
-            if ( ! ((ExtArgMultiSelect *)*iter)->isValid() )
+            if (! ((ExtArgMultiSelect *)*iter)->isValid())
                 allowStart = false;
         }
-        else if ( dynamic_cast<ExtcapArgumentFileSelection *>((*iter)) != NULL)
+        else if (dynamic_cast<ExtcapArgumentFileSelection *>((*iter)) != NULL)
         {
-            if ( ! ((ExtcapArgumentFileSelection *)*iter)->isValid() )
+            if (! ((ExtcapArgumentFileSelection *)*iter)->isValid())
                 allowStart = false;
         }
-        else if ( dynamic_cast<ExtArgNumber *>((*iter)) != NULL)
+        else if (dynamic_cast<ExtArgNumber *>((*iter)) != NULL)
         {
-            if ( ! ((ExtArgNumber *)*iter)->isValid() )
+            if (! ((ExtArgNumber *)*iter)->isValid())
                 allowStart = false;
         }
-        else if ( dynamic_cast<ExtArgText *>((*iter)) != NULL)
+        else if (dynamic_cast<ExtArgText *>((*iter)) != NULL)
         {
-            if ( ! ((ExtArgText *)*iter)->isValid() )
+            if (! ((ExtArgText *)*iter)->isValid())
                 allowStart = false;
         }
-        else if ( dynamic_cast<ExtArgTimestamp *>((*iter)) != NULL)
+        else if (dynamic_cast<ExtArgTimestamp *>((*iter)) != NULL)
         {
-            if ( ! ((ExtArgTimestamp *)*iter)->isValid() )
+            if (! ((ExtArgTimestamp *)*iter)->isValid())
                 allowStart = false;
         }
         else
-            if ( ! (*iter)->isValid() )
+            if (! (*iter)->isValid())
                 allowStart = false;
     }
 
@@ -191,7 +191,7 @@ void ExtcapOptionsDialog::loadArguments()
     GList * arguments = Q_NULLPTR, * walker = Q_NULLPTR, * item = Q_NULLPTR;
     ExtcapArgument * argument = Q_NULLPTR;
 
-    if ( device_name.length() == 0  )
+    if (device_name.length() == 0  )
         return;
 
     extcapArguments.clear();
@@ -202,15 +202,15 @@ void ExtcapOptionsDialog::loadArguments()
     ExtcapArgumentList optional;
 
     walker = arguments;
-    while ( walker != Q_NULLPTR )
+    while (walker != Q_NULLPTR)
     {
         item = g_list_first(gxx_list_data(GList *, walker));
-        while ( item != Q_NULLPTR )
+        while (item != Q_NULLPTR)
         {
             argument = ExtcapArgument::create(gxx_list_data(extcap_arg *, item), this);
-            if ( argument != Q_NULLPTR )
+            if (argument != Q_NULLPTR)
             {
-                if ( argument->isRequired() )
+                if (argument->isRequired())
                     required << argument;
                 else
                     optional << argument;
@@ -221,10 +221,10 @@ void ExtcapOptionsDialog::loadArguments()
         walker = gxx_list_next(walker);
     }
 
-    if ( required.length() > 0 )
+    if (required.length() > 0)
         extcapArguments << required;
 
-    if ( optional.length() > 0 )
+    if (optional.length() > 0)
         extcapArguments << optional;
 
     /* argument items are now owned by ExtcapArgument. Only free the lists */
@@ -239,7 +239,7 @@ void ExtcapOptionsDialog::updateWidgets()
 
     unsigned int counter = 0;
 
-    if ( device_name.length() == 0  )
+    if (device_name.length() == 0  )
         return;
 
     /* find existing layout */
@@ -247,7 +247,7 @@ void ExtcapOptionsDialog::updateWidgets()
     {
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
         QWidget * item = ui->verticalLayout->itemAt(0)->widget();
-        if ( item )
+        if (item)
         {
             ui->verticalLayout->removeItem(ui->verticalLayout->itemAt(0));
             delete item;
@@ -261,7 +261,7 @@ void ExtcapOptionsDialog::updateWidgets()
 
     /* exit if no arguments have been found. This is a precaution, it should
      * never happen, that this dialog get's called without any arguments */
-    if ( extcapArguments.count() == 0 )
+    if (extcapArguments.count() == 0)
     {
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
         return;
@@ -275,22 +275,22 @@ void ExtcapOptionsDialog::updateWidgets()
 
     /* Look for all necessary tabs */
     ExtcapArgumentList::iterator iter = extcapArguments.begin();
-    while ( iter != extcapArguments.end() )
+    while (iter != extcapArguments.end())
     {
         argument = (ExtcapArgument *)(*iter);
         QString groupKey = argument->group();
-        if ( groupKey.length() > 0 )
+        if (groupKey.length() > 0)
         {
-            if ( ! groups.values().contains(groupKey) )
+            if (! groups.values().contains(groupKey))
                 groups.insert(argument->argNr(), groupKey);
         }
-        else if ( ! groups.keys().contains(0) )
+        else if (! groups.keys().contains(0))
         {
             groups.insert(0, defaultKeyName);
             groupKey = defaultKeyName;
         }
 
-        if ( ! layouts.keys().contains(groupKey) )
+        if (! layouts.keys().contains(groupKey))
         {
             QWidget * tabWidget = new QWidget(this);
             QGridLayout * tabLayout = new QGridLayout(tabWidget);
@@ -309,15 +309,15 @@ void ExtcapOptionsDialog::updateWidgets()
      *  3. add both to the layout for the tab widget
      */
     iter = extcapArguments.begin();
-    while ( iter != extcapArguments.end() )
+    while (iter != extcapArguments.end())
     {
         argument = (ExtcapArgument *)(*iter);
         QString groupKey = defaultKeyName;
-        if ( argument->group().length() > 0 )
+        if (argument->group().length() > 0)
             groupKey = argument->group();
 
         /* Skip non-assigned group keys, this happens if the configuration of the extcap is faulty */
-        if ( ! layouts.keys().contains(groupKey) )
+        if (! layouts.keys().contains(groupKey))
         {
             ++iter;
             continue;
@@ -325,17 +325,17 @@ void ExtcapOptionsDialog::updateWidgets()
 
         QGridLayout * layout = ((QGridLayout *)layouts[groupKey]->layout());
         lblWidget = argument->createLabel((QWidget *)this);
-        if ( lblWidget != NULL )
+        if (lblWidget != NULL)
         {
             layout->addWidget(lblWidget, counter, 0, Qt::AlignVCenter);
             editWidget = argument->createEditor((QWidget *) this);
-            if ( editWidget != NULL )
+            if (editWidget != NULL)
             {
                 editWidget->setProperty(QString("extcap").toLocal8Bit(), VariantPointer<ExtcapArgument>::asQVariant(argument));
                 layout->addWidget(editWidget, counter, 1, Qt::AlignVCenter);
             }
 
-            if ( argument->isRequired() && ! argument->isValid() )
+            if (argument->isRequired() && ! argument->isValid())
                 allowStart = false;
 
             connect(argument, SIGNAL(valueChanged()), this, SLOT(anyValueChanged()));
@@ -345,9 +345,9 @@ void ExtcapOptionsDialog::updateWidgets()
         ++iter;
     }
 
-    if ( counter > 0 )
+    if (counter > 0)
     {
-        setStyleSheet ( "QLabel[isRequired=\"true\"] { font-weight: bold; } ");
+        setStyleSheet ("QLabel[isRequired=\"true\"] { font-weight: bold; } ");
 
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(allowStart);
 
@@ -356,10 +356,10 @@ void ExtcapOptionsDialog::updateWidgets()
         /* We should never display the dialog, if no settings are present */
         Q_ASSERT(layouts.count() > 0);
 
-        if ( layouts.count() > 1 )
+        if (layouts.count() > 1)
         {
             QTabWidget * tabs = new QTabWidget(this);
-            foreach ( QString key, groupKeys )
+            foreach (QString key, groupKeys)
             {
                 layouts[key]->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding));
                 tabs->addTab(layouts[key], key);
@@ -368,7 +368,7 @@ void ExtcapOptionsDialog::updateWidgets()
             tabs->setCurrentIndex(0);
             mainWidget = tabs;
         }
-        else if ( layouts.count() == 1 )
+        else if (layouts.count() == 1)
             mainWidget = layouts[layouts.keys().at(0)];
 
         ui->verticalLayout->addWidget(mainWidget);
@@ -377,7 +377,7 @@ void ExtcapOptionsDialog::updateWidgets()
     else
     {
         QList<QString> keys = layouts.keys();
-        foreach ( QString key, keys )
+        foreach (QString key, keys)
             delete(layouts[key]);
     }
 }
@@ -429,7 +429,7 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
 
     ExtcapArgumentList::const_iterator iter;
 
-    for(iter = extcapArguments.constBegin(); iter != extcapArguments.constEnd(); ++iter)
+    for (iter = extcapArguments.constBegin(); iter != extcapArguments.constEnd(); ++iter)
     {
         QString call = (*iter)->call();
         QString value = (*iter)->value();
@@ -437,10 +437,10 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
         if ((*iter)->argument()->arg_type != EXTCAP_ARG_BOOLFLAG && value.length() == 0)
             continue;
 
-        if ( call.length() <= 0 )
+        if (call.length() <= 0)
             continue;
 
-        if ( value.compare((*iter)->defaultValue()) == 0 )
+        if (value.compare((*iter)->defaultValue()) == 0)
             continue;
 
         gchar * call_string = g_strdup(call.toStdString().c_str());
@@ -448,7 +448,7 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
         if (value.length() > 0)
             value_string = g_strdup(value.toStdString().c_str());
 
-        g_hash_table_insert(ret_args, call_string, value_string );
+        g_hash_table_insert(ret_args, call_string, value_string);
     }
 
     if (device->external_cap_args_settings != NULL)
@@ -460,7 +460,7 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
 void ExtcapOptionsDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
     /* Only the save button has the ActionRole */
-    if ( ui->buttonBox->buttonRole(button) == QDialogButtonBox::ResetRole )
+    if (ui->buttonBox->buttonRole(button) == QDialogButtonBox::ResetRole)
         resetValues();
 }
 
@@ -474,10 +474,10 @@ void ExtcapOptionsDialog::resetValues()
     if (count > 0)
     {
         QList<QLayout *> layouts;
-        if ( qobject_cast<QTabWidget *>(ui->verticalLayout->itemAt(0)->widget()) )
+        if (qobject_cast<QTabWidget *>(ui->verticalLayout->itemAt(0)->widget()))
         {
             QTabWidget * tabs = qobject_cast<QTabWidget *>(ui->verticalLayout->itemAt(0)->widget());
-            for ( int cnt = 0; cnt < tabs->count(); cnt++ )
+            for (int cnt = 0; cnt < tabs->count(); cnt++)
             {
                 layouts.append(tabs->widget(cnt)->layout());
             }
@@ -485,25 +485,25 @@ void ExtcapOptionsDialog::resetValues()
         else
             layouts.append(ui->verticalLayout->itemAt(0)->layout());
 
-        for ( int cnt = 0; cnt < layouts.count(); cnt++ )
+        for (int cnt = 0; cnt < layouts.count(); cnt++)
         {
             QGridLayout * layout = qobject_cast<QGridLayout *>(layouts.at(cnt));
-            if ( ! layout )
+            if (! layout)
                 continue;
 
-            for ( int row = 0; row < layout->rowCount(); row++ )
+            for (int row = 0; row < layout->rowCount(); row++)
             {
                 QWidget * child = Q_NULLPTR;
-                if ( layout->itemAtPosition(row, 1) )
+                if (layout->itemAtPosition(row, 1))
                     child = qobject_cast<QWidget *>(layout->itemAtPosition(row, 1)->widget());
 
-                if ( child )
+                if (child)
                 {
                     /* Don't need labels, the edit widget contains the extcapargument property value */
                     ExtcapArgument * arg = 0;
                     QVariant prop = child->property(QString("extcap").toLocal8Bit());
 
-                    if ( prop.isValid() )
+                    if (prop.isValid())
                     {
                         arg = VariantPointer<ExtcapArgument>::asPtr(prop);
 
@@ -514,11 +514,11 @@ void ExtcapOptionsDialog::resetValues()
 
                             /* replacing the edit widget after resetting will lead to default value */
                             QWidget * newWidget = arg->createEditor((QWidget *) this);
-                            if ( newWidget != NULL )
+                            if (newWidget != NULL)
                             {
                                 newWidget->setProperty(QString("extcap").toLocal8Bit(), VariantPointer<ExtcapArgument>::asQVariant(arg));
                                 QLayoutItem * oldItem = layout->replaceWidget(child, newWidget);
-                                if ( oldItem )
+                                if (oldItem)
                                 {
                                     delete child;
                                     delete oldItem;
@@ -534,7 +534,7 @@ void ExtcapOptionsDialog::resetValues()
         }
 
         /* this stores all values to the preferences */
-        if ( doStore )
+        if (doStore)
         {
             storeValues();
             anyValueChanged();
@@ -550,7 +550,7 @@ GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey, bool in
     QString value;
 
     /* All arguments are being iterated, to ensure, that any error handling catches all arguments */
-    for(iter = extcapArguments.constBegin(); iter != extcapArguments.constEnd(); ++iter)
+    for (iter = extcapArguments.constBegin(); iter != extcapArguments.constEnd(); ++iter)
     {
         ExtcapArgument * argument = (ExtcapArgument *)(*iter);
         bool isBoolflag = false;
@@ -559,36 +559,36 @@ GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey, bool in
          * of Qt, and -in short- Q_OBJECT classes cannot be multiple inherited. Another possibility
          * would be to use Q_INTERFACE, but this causes way more nightmares, and we really just
          * need here an explicit cast for the check functionality */
-        if ( dynamic_cast<ExtArgBool *>((*iter)) != NULL)
+        if (dynamic_cast<ExtArgBool *>((*iter)) != NULL)
         {
             value = ((ExtArgBool *)*iter)->prefValue();
             isBoolflag = true;
         }
-        else if ( dynamic_cast<ExtArgRadio *>((*iter)) != NULL)
+        else if (dynamic_cast<ExtArgRadio *>((*iter)) != NULL)
         {
             value = ((ExtArgRadio *)*iter)->prefValue();
         }
-        else if ( dynamic_cast<ExtArgSelector *>((*iter)) != NULL)
+        else if (dynamic_cast<ExtArgSelector *>((*iter)) != NULL)
         {
             value = ((ExtArgSelector *)*iter)->prefValue();
         }
-        else if ( dynamic_cast<ExtArgMultiSelect *>((*iter)) != NULL)
+        else if (dynamic_cast<ExtArgMultiSelect *>((*iter)) != NULL)
         {
             value = ((ExtArgMultiSelect *)*iter)->prefValue();
         }
-        else if ( dynamic_cast<ExtcapArgumentFileSelection *>((*iter)) != NULL)
+        else if (dynamic_cast<ExtcapArgumentFileSelection *>((*iter)) != NULL)
         {
             value = ((ExtcapArgumentFileSelection *)*iter)->prefValue();
         }
-        else if ( dynamic_cast<ExtArgNumber *>((*iter)) != NULL)
+        else if (dynamic_cast<ExtArgNumber *>((*iter)) != NULL)
         {
             value = ((ExtArgNumber *)*iter)->prefValue();
         }
-        else if ( dynamic_cast<ExtArgText *>((*iter)) != NULL)
+        else if (dynamic_cast<ExtArgText *>((*iter)) != NULL)
         {
             value = ((ExtArgText *)*iter)->prefValue();
         }
-        else if ( dynamic_cast<ExtArgTimestamp *>((*iter)) != NULL)
+        else if (dynamic_cast<ExtArgTimestamp *>((*iter)) != NULL)
         {
             value = ((ExtArgTimestamp *)*iter)->prefValue();
         }
@@ -596,10 +596,10 @@ GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey, bool in
             value = (*iter)->prefValue();
 
         QString key = argument->prefKey(device_name);
-        if ( useCallsAsKey )
+        if (useCallsAsKey)
             key = argument->call();
 
-        if ( ( key.length() > 0 ) && ( includeEmptyValues || isBoolflag || value.length() > 0 ) )
+        if ((key.length() > 0) && (includeEmptyValues || isBoolflag || value.length() > 0) )
         {
             gchar * val = g_strdup(value.toStdString().c_str());
 
@@ -614,9 +614,9 @@ void ExtcapOptionsDialog::storeValues()
 {
     GHashTable * entries = getArgumentSettings();
 
-    if ( g_hash_table_size(entries) > 0 )
+    if (g_hash_table_size(entries) > 0)
     {
-        if ( prefs_store_ext_multiple("extcap", entries) )
+        if (prefs_store_ext_multiple("extcap", entries))
             wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
 
     }
@@ -629,11 +629,11 @@ ExtcapValueList ExtcapOptionsDialog::loadValuesFor(int argNum, QString argumentN
     extcap_value * v;
 
     QList<QWidget *> children = findChildren<QWidget *>();
-    foreach ( QWidget * child, children )
+    foreach (QWidget * child, children)
         child->setEnabled(false);
 
     QString argcall = argumentName;
-    if ( argcall.startsWith("--") )
+    if (argcall.startsWith("--"))
         argcall = argcall.right(argcall.size()-2);
 
     GHashTable * entries = getArgumentSettings(true, false);
@@ -643,16 +643,16 @@ ExtcapValueList ExtcapOptionsDialog::loadValuesFor(int argNum, QString argumentN
     for (walker = g_list_first((GList *)(values)); walker != NULL ; walker = walker->next)
     {
         v = (extcap_value *) walker->data;
-        if (v == NULL || v->display == NULL || v->call == NULL )
+        if (v == NULL || v->display == NULL || v->call == NULL)
             break;
 
         /* Only accept values for this argument */
-        if ( v->arg_num != argNum )
+        if (v->arg_num != argNum)
             break;
 
         QString valParent = QString().fromUtf8(v->parent);
 
-        if ( parent.compare(valParent) == 0 )
+        if (parent.compare(valParent) == 0)
         {
 
             QString display = QString().fromUtf8(v->display);
@@ -672,7 +672,7 @@ ExtcapValueList ExtcapOptionsDialog::loadValuesFor(int argNum, QString argumentN
         }
     }
 
-    foreach ( QWidget * child, children )
+    foreach (QWidget * child, children)
         child->setEnabled(true);
 
     return elements;

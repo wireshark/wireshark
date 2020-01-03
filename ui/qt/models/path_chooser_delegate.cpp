@@ -68,7 +68,7 @@ void PathChooserDelegate::browseButtonClicked()
 {
     char *open_dir = NULL;
 
-    switch ( prefs.gui_fileopen_style )
+    switch (prefs.gui_fileopen_style)
     {
 
     case FO_STYLE_LAST_OPENED:
@@ -76,18 +76,18 @@ void PathChooserDelegate::browseButtonClicked()
         break;
 
     case FO_STYLE_SPECIFIED:
-        if ( prefs.gui_fileopen_dir[0] != '\0' )
+        if (prefs.gui_fileopen_dir[0] != '\0')
             open_dir = prefs.gui_fileopen_dir;
         break;
     }
 
     QWidget * qw = new QWidget();
     QString file_name = WiresharkFileDialog::getOpenFileName(qw, tr("Open Pipe"), open_dir);
-    if ( !file_name.isEmpty() )
+    if (!file_name.isEmpty())
     {
         QWidget * parent = ((QPushButton *)sender())->parentWidget();
         QLineEdit * lineEdit = parent->findChild<QLineEdit*>();
-        if ( lineEdit )
+        if (lineEdit)
         {
             lineEdit->setText(file_name);
             emit commitData(parent);
@@ -98,11 +98,11 @@ void PathChooserDelegate::browseButtonClicked()
 
 void PathChooserDelegate::setEditorData(QWidget *editor, const QModelIndex &idx) const
 {
-    if ( idx.isValid() )
+    if (idx.isValid())
     {
         QString content = idx.data().toString();
         QLineEdit * lineEdit = editor->findChild<QLineEdit*>();
-        if ( lineEdit )
+        if (lineEdit)
         {
             lineEdit->setText(content);
         }
@@ -113,10 +113,10 @@ void PathChooserDelegate::setEditorData(QWidget *editor, const QModelIndex &idx)
 
 void PathChooserDelegate::setModelData(QWidget *editor, QAbstractItemModel * model, const QModelIndex &idx) const
 {
-    if ( idx.isValid() )
+    if (idx.isValid())
     {
         QLineEdit * lineEdit = editor->findChild<QLineEdit*>();
-        if ( lineEdit )
+        if (lineEdit)
         {
             model->setData(idx, lineEdit->text());
         }

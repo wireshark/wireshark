@@ -233,14 +233,17 @@ so that it can read traces from various network types, as captured by
 other applications or equipment, even if it cannot itself capture on
 those network types.
 
-=== Does Wireshark work on Windows Vista or Windows Server 2008?
+=== Does Wireshark work on older versions of Windows such as Windows 7?
 
-Yes, but if you want to capture packets as a normal user, you must
-make sure npf.sys is loaded. Wireshark's installer enables this by
-default. This is not a concern if you run Wireshark as Administrator,
-but this is discouraged. See the
-https://wiki.wireshark.org/CaptureSetup/CapturePrivileges#windows[CapturePrivileges]
-page on the wiki for more details.
+Each major release branch of Wireshark supports the versions of Windows that are within their product lifecycle at the time of the “.0” release for that branch.
+For example, Wireshark 3.2.0 was released in December 2019, shortly before Windows 7 reached the end of its extended support in January 2020. As a result, each of the Wireshark 3.2._x_ releases supports Windows 7, even after January 2020.
+See the
+link:https://www.wireshark.org/docs/wsug_html_chunked/ChIntroPlatforms.html[Microsoft Windows section of the User’s Guide]
+and the
+link:https://wiki.wireshark.org/Development/LifeCycle[End Of Life Planning section of the Release Life Cycle wiki page]
+for more details.
+
+Npcap might not work well on Windows 8 and earlier, so you might want to install WinPcap instead.
 
 == Installing Wireshark
 
@@ -253,50 +256,16 @@ named “wireshark-qt”. Find it and install it.
 
 == Building Wireshark
 
-=== I have libpcap installed; why did the configure script not find pcap.h or bpf.h?
+=== Why does building Wireshark fail due to missing headers (.h files)?
 
-Are you sure pcap.h and bpf.h are installed? The official
-distribution of libpcap only installs the libpcap.a library file when
-"make install" is run. To install pcap.h and bpf.h, you must run "make
-install-incl". If you're running Debian or Redhat, make sure you have
-the "libpcap-dev" or "libpcap-devel" packages installed.
+If this is happening on Linux, it's likely due to missing development library packages.
+For example, Debian and Ubuntu ship the GLib library in the libglib2.0-0 package, but ship its header files and other development assets in the libglib2.0-dev package.
 
-It's also possible that pcap.h and bpf.h have been installed in a
-strange location. If this is the case, you may have to tweak aclocal.m4.
-
-== Starting Wireshark
-
-=== When I try to run Wireshark, why does it complain about `sprint_realloc_objid` being undefined?
-
-Wireshark can only be linked with version 4.2.2 or later of UCD SNMP.
-Your version of Wireshark was dynamically linked with such a version of
-UCD SNMP; however, you have an older version of UCD SNMP installed,
-which means that when Wireshark is run, it tries to link to the older
-version, and fails. You will have to replace that version of UCD SNMP
-with version 4.2.2 or a later version.
-
-=== I've installed Wireshark from Fink on macOS; why is it very slow to start up?
-
-When an application is installed on macOS, prior to 10.4, it is
-usually "prebound" to speed up launching the application. (That's what
-the "Optimizing" phase of installation is.)
-
-Fink normally performs prebinding automatically when you install a
-package. However, in some rare cases, for whatever reason the prebinding
-caches get corrupt, and then not only does prebinding fail, but startup
-actually becomes much slower, because the system tries in vain to
-perform prebinding "on the fly" as you launch the application. This
-fails, causing sometimes huge delays.
-
-To fix the prebinding caches, run the command
-
-----
-$ sudo /sw/var/lib/fink/prebound/update-package-prebinding.pl -f
-----
+We maintain setup scripts (_*-setup.sh_) for many major distributions in the _tools_ directory of the Wireshark sources that can install the required development packages for you.
 
 == Crashes and other fatal errors
 
-=== I have an XXX network card on my machine; if I try to capture on it, why does my machine crash or reset itself?
+=== I have an _XXX_ network card on my machine; if I try to capture on it, why does my machine crash or reset itself?
 
 This is almost certainly a problem with one or more of:
 

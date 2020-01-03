@@ -46,14 +46,15 @@ static const QStringList export_extensions = QStringList()
 
 #endif
 
-ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *cap_file, export_type_e export_type):
-    QFileDialog(parent),
+ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *cap_file, export_type_e export_type, QString selRange):
+    WiresharkFileDialog(parent),
     export_type_(export_type),
     cap_file_(cap_file)
 #if !defined(Q_OS_WIN)
     , save_bt_(NULL)
 #endif /* Q_OS_WIN */
 {
+    setWindowTitle(wsApp->windowTitleString(tr("Export Packet Dissections")));
 
     switch (prefs.gui_fileopen_style) {
 
@@ -87,7 +88,6 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
     QStringList name_filters;
     int last_row;
 
-    setWindowTitle(wsApp->windowTitleString(tr("Export Packet Dissections")));
     setAcceptMode(QFileDialog::AcceptSave);
     setLabelText(FileType, tr("Export As:"));
 
@@ -119,7 +119,7 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
     /* Default to displayed packets */
     print_args_.range.process_filtered = TRUE;
 
-    packet_range_group_box_.initRange(&print_args_.range);
+    packet_range_group_box_.initRange(&print_args_.range, selRange);
     h_box->addWidget(&packet_range_group_box_);
 
     h_box->addWidget(&packet_format_group_box_, 0, Qt::AlignTop);
@@ -159,10 +159,10 @@ void ExportDissectionDialog::show()
 {
 #if !defined(Q_OS_WIN)
     if (cap_file_) {
-        QFileDialog::show();
+        WiresharkFileDialog::show();
     }
 #else // Q_OS_WIN
-    win32_export_file((HWND)parentWidget()->effectiveWinId(), cap_file_, export_type_);
+    win32_export_file((HWND)parentWidget()->effectiveWinId(), windowTitle().toStdWString().c_str(), cap_file_, export_type_);
 #endif // Q_OS_WIN
 }
 

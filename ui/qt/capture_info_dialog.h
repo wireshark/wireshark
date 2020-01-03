@@ -13,7 +13,7 @@
 #include "geometry_state_dialog.h"
 
 #include <QAbstractTableModel>
-#include <QTime>
+#include <QElapsedTimer>
 
 struct _capture_info;
 struct _capture_session;
@@ -66,7 +66,7 @@ private:
     struct _capture_info *cap_info_;
     struct _capture_session *cap_session_;
     CaptureInfoModel *ci_model_;
-    QTime duration_;
+    QElapsedTimer duration_;
 };
 
 #endif // CAPTURE_INFO_DIALOG_H

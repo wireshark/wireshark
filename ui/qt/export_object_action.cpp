@@ -25,17 +25,17 @@ ExportObjectAction::ExportObjectAction(QObject *parent, register_eo_t *eo) :
     eo_(eo)
 {
     if (eo_) {
-          setText( QString("%1%2").arg(proto_get_protocol_short_name(find_protocol_by_id(get_eo_proto_id(eo)))).arg(UTF8_HORIZONTAL_ELLIPSIS));
+          setText(QString("%1%2").arg(proto_get_protocol_short_name(find_protocol_by_id(get_eo_proto_id(eo)))).arg(UTF8_HORIZONTAL_ELLIPSIS));
     }
 }
 
 void ExportObjectAction::captureFileEvent(CaptureEvent e)
 {
-    if ( e.captureContext() == CaptureEvent::File )
+    if (e.captureContext() == CaptureEvent::File)
     {
-        if ( e.eventType() == CaptureEvent::Opened )
+        if (e.eventType() == CaptureEvent::Opened)
             setEnabled(true);
-        else if ( e.eventType() == CaptureEvent::Closed )
+        else if (e.eventType() == CaptureEvent::Closed)
             setEnabled(false);
     }
 }

@@ -94,6 +94,8 @@
 #define SPOOLSS_DELETEPRINTERDATAEX			0x51
 #define SPOOLSS_DELETEPRINTERDRIVEREX			0x54
 #define SPOOLSS_ADDPRINTERDRIVEREX			0x59
+#define SPOOLSS_GETCOREPRINTERDRIVERS			0x66
+#define SPOOLSS_GETPRINTERDRIVERPACKAGEPATH		0x68
 
 /* Form types */
 
@@ -276,6 +278,21 @@
 #define PRINTER_ATTRIBUTE_ENABLE_BIDI		0x00000800
 #define PRINTER_ATTRIBUTE_RAW_ONLY		0x00001000
 #define PRINTER_ATTRIBUTE_PUBLISHED             0x00002000
+
+/* Printer Driver attributes */
+
+#define PRINTER_DRIVER_PACKAGE_AWARE		0x00000001
+#define PRINTER_DRIVER_XPS			0x00000002
+#define PRINTER_DRIVER_SANDBOX_ENABLED		0x00000004
+#define PRINTER_DRIVER_CLASS			0x00000008
+#define PRINTER_DRIVER_DERIVED			0x00000010
+#define PRINTER_DRIVER_NOT_SHAREABLE		0x00000020
+#define PRINTER_DRIVER_CATEGORY_FAX		0x00000040
+#define PRINTER_DRIVER_CATEGORY_FILE		0x00000080
+#define PRINTER_DRIVER_CATEGORY_VIRTUAL		0x00000100
+#define PRINTER_DRIVER_CATEGORY_SERVICE		0x00000200
+#define PRINTER_DRIVER_SOFT_RESET_REQUIRED	0x00000400
+#define PRINTER_DRIVER_CATEGORY_3D		0x00001000
 
 /* Setprinter control commands */
 
@@ -545,9 +562,11 @@
 
 /* Printer info level 7 */
 
-#define DS_PUBLISH   1
-#define DS_UPDATE    2
-#define DS_UNPUBLISH 3
+#define DS_PUBLISH	0x00000001
+#define DS_UPDATE	0x00000002
+#define DS_UNPUBLISH	0x00000004
+#define DS_REPUBLISH	0x00000008
+#define DS_PENDING	0x80000000
 
 /* SetJob command values */
 
@@ -556,5 +575,23 @@
 #define JOB_CONTROL_CANCEL             3
 #define JOB_CONTROL_RESTART            4
 #define JOB_CONTROL_DELETE             5
+
+int dissect_USER_LEVEL_CTR(tvbuff_t *tvb, int offset,
+				  packet_info *pinfo, proto_tree *tree,
+				  dcerpc_info *di, guint8 *drep);
+int dissect_NOTIFY_OPTIONS_ARRAY_CTR(tvbuff_t *tvb, int offset,
+				 packet_info *pinfo, proto_tree *tree,
+				 dcerpc_info *di, guint8 *drep);
+int dissect_NOTIFY_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		    proto_tree *tree, dcerpc_info *di, guint8 *drep);
+int dissect_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			       proto_tree *tree, dcerpc_info *di, guint8 *drep);
+int dissect_SPOOL_PRINTER_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			   proto_tree *tree, dcerpc_info *di, guint8 *drep);
+int dissect_spoolss_doc_info_ctr(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			     proto_tree *tree, dcerpc_info *di, guint8 *drep);
+int dissect_FORM_CTR(tvbuff_t *tvb, int offset,
+			    packet_info *pinfo, proto_tree *tree,
+			    dcerpc_info *di, guint8 *drep);
 
 #endif /* packet-dcerpc-spoolss.h */

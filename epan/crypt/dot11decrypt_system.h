@@ -36,8 +36,8 @@
 
 /*	Decryption algorithms fields size definition (bytes)		*/
 #define	DOT11DECRYPT_WPA_NONCE_LEN		         32
-#define	DOT11DECRYPT_WPA_PTK_LEN			 64	/* TKIP uses 48 bytes, CCMP uses 64 bytes	*/
-#define	DOT11DECRYPT_WPA_MICKEY_LEN		         16
+#define	DOT11DECRYPT_WPA_PTK_MAX_LEN			 88	/* TKIP 48, CCMP 64, GCMP-256 88 bytes */
+#define	DOT11DECRYPT_WPA_MICKEY_MAX_LEN			 24
 
 #define	DOT11DECRYPT_WEP_128_KEY_LEN	         16	/* 128 bits	*/
 
@@ -121,7 +121,9 @@ typedef struct _DOT11DECRYPT_SEC_ASSOCIATION {
 		/* the 2nd packet of the 4W handshake			*/
 		INT akm;
 		INT cipher;
-		UCHAR ptk[DOT11DECRYPT_WPA_PTK_LEN];		/* session key used in decryption algorithm	*/
+		INT tmp_group_cipher; /* Keep between HS msg 2 and 3 */
+		UCHAR ptk[DOT11DECRYPT_WPA_PTK_MAX_LEN]; /* session key used in decryption algorithm */
+	    INT ptk_len;
 	} wpa;
 
 
@@ -149,6 +151,25 @@ typedef enum _DOT11DECRYPT_HS_MSG_TYPE {
 	DOT11DECRYPT_HS_MSG_TYPE_GHS_1,
 	DOT11DECRYPT_HS_MSG_TYPE_GHS_2
 } DOT11DECRYPT_HS_MSG_TYPE;
+
+typedef struct _DOT11DECRYPT_EAPOL_PARSED {
+	DOT11DECRYPT_HS_MSG_TYPE msg_type;
+	guint16 len;
+	guint8 key_type;
+	guint8 key_version;
+	guint16 key_len;
+	guint8 *key_iv;
+	guint8 *key_data;
+	guint16 key_data_len;
+	guint8 group_cipher;
+	guint8 cipher;
+	guint8 akm;
+	guint8 *nonce;
+	guint8 *mic;
+	guint16 mic_len;
+	guint8 *gtk;
+	guint16 gtk_len;
+} DOT11DECRYPT_EAPOL_PARSED, *PDOT11DECRYPT_EAPOL_PARSED;
 
 /************************************************************************/
 /*	Function prototype declarations					*/
@@ -207,14 +228,42 @@ extern INT Dot11DecryptDecryptPacket(
 	;
 
 /**
- * This will try to extract keys from an EAPOL frame and add corresponding
- * SAs to current context. If the EAPOL frame keydata is encrypted the
- * function will try to decrypt it (using already known keys) first before
- * extracting further keys. If keydata hard to be decrypted the decrypted
- * data will be in decrypt_data buffer.
+ * This will try to decrypt the encrypted keydata field of an EAPOL KEY frame.
  * @param ctx [IN] Pointer to the current context
- * @param msg_type [IN] Handshake message type
- * @param data [IN] Pointer to a buffer with an EAPOL frame
+ * @param eapol_parsed [IN] Extracted/Parsed pieces of eapol frame
+ * @param bssid [IN] bssid of AP
+ * @param sta [IN] sta MAC address
+ * @param decrypted_data [OUT] Pointer to a buffer that will contain
+ *   decrypted data. Must have room for at least DOT11DECRYPT_EAPOL_MAX_LEN bytes.
+ * @param decrypted_len [OUT] Length of decrypted data.
+ * @param key [OUT] Pointer to a preallocated key structure containing
+ *   the key used during the decryption process (if done). If this parameter
+ *   is set to NULL, the key will be not returned.
+ * @return
+ * - DOT11DECRYPT_RET_SUCCESS: Decryption has been done (decrypt_data and
+ *   decrypt_length will contain the packet data decrypted and the length of
+ *   the new packet)
+ * - DOT11DECRYPT_RET_UNSUCCESS: Generic unspecified error (decrypt_data
+ *   and decrypt_length will be not modified).
+ */
+extern INT
+Dot11DecryptDecryptKeyData(PDOT11DECRYPT_CONTEXT ctx,
+                           PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
+                           const UCHAR bssid[DOT11DECRYPT_MAC_LEN],
+                           const UCHAR sta[DOT11DECRYPT_MAC_LEN],
+                           UCHAR *decrypted_data, guint *decrypted_len,
+                           PDOT11DECRYPT_KEY_ITEM key)
+	;
+
+/**
+ * This will try to extract keys from an EAPOL frame and add corresponding
+ * SAs to current context. eapol_parsed must contain the already parsed EAPOL
+ * key frame and for frames that contain encrypted EAPOL keydata the keydata
+ * must first be decrypted with Dot11DecryptDecryptKeyData before calling this
+ * function.
+ * @param ctx [IN] Pointer to the current context
+ * @param eapol_parsed [IN] Extracted/Parsed pieces of eapol frame
+ * @param eapol_raw [IN] Pointer to a buffer with an EAPOL frame
  * @param tot_len [IN] Total length of the EAPOL frame
  * @param bssid [IN] bssid of AP
  * @param sta [IN] sta MAC address
@@ -232,30 +281,20 @@ extern INT Dot11DecryptDecryptPacket(
  * - DOT11DECRYPT_RET_UNSUCCESS: Generic unspecified error (decrypt_data
  *   and decrypt_length will be not modified).
  * - DOT11DECRYPT_RET_SUCCESS_HANDSHAKE: An eapol handshake packet was successfuly parsed
- *   and key information extracted. The decrypted eapol keydata is copied to
- *   decrypt_data with keydata len in decrypt_len. key param will contain ptk
- *   used to decrypt eapol keydata.
+ *   and key information extracted.
  * - DOT11DECRYPT_RET_NO_VALID_HANDSHAKE: The handshake is invalid or was not used
  *   for some reason. For encrypted packets decryption was still successful.
- * @note
- * The decrypted buffer should be allocated for a size equal or greater
- * than the EAPOL keydata buffer size. Before decryption process original
- * data is copied in the buffer pointed by decrypt_data not to modify the
- * original packet.
  * @note
  * This function is not thread-safe when used in parallel with context
  *  management functions on the same context.
  */
 extern INT Dot11DecryptScanEapolForKeys(
     PDOT11DECRYPT_CONTEXT ctx,
-    DOT11DECRYPT_HS_MSG_TYPE msg_type,
-    const guint8 *data,
+    PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
+    const guint8 *eapol_raw,
     const guint tot_len,
     const UCHAR bssid[DOT11DECRYPT_MAC_LEN],
-    const UCHAR sta[DOT11DECRYPT_MAC_LEN],
-    UCHAR *decrypt_data,
-    guint *decrypt_len,
-    PDOT11DECRYPT_KEY_ITEM key)
+    const UCHAR sta[DOT11DECRYPT_MAC_LEN])
 	;
 
 /**
@@ -276,6 +315,26 @@ extern INT Dot11DecryptScanTdlsForKeys(
     const guint8 *data,
     const guint tot_len)
 	;
+
+/**
+ * These are helper functions to retrieve KCK, KEK, TK portion of PTK
+ * for a certain "key"
+ * @param key [IN] Pointer to a key structure containing the key retrieved
+ * from functions Dot11DecryptDecryptPacket, Dot11DecryptKeydata
+ * @param kck [OUT] Pointer to the KCK/KEK/TK portion of PTK.
+ * @return length in bytes of KCK/KEK/TK
+ */
+int
+Dot11DecryptGetKCK(const PDOT11DECRYPT_KEY_ITEM key, const guint8 **kck);
+
+int
+Dot11DecryptGetKEK(const PDOT11DECRYPT_KEY_ITEM key, const guint8 **kek);
+
+int
+Dot11DecryptGetTK(const PDOT11DECRYPT_KEY_ITEM key, const guint8 **tk);
+
+int
+Dot11DecryptGetGTK(const PDOT11DECRYPT_KEY_ITEM key, const guint8 **gtk);
 
 /**
  * It sets a new keys collection to use during packet processing.

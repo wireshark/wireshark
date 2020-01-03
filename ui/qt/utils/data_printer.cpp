@@ -122,10 +122,10 @@ QString DataPrinter::hexTextDump(const QByteArray printData, bool showASCII)
     QString dataStr;
 
     int cnt = 0;
-    while ( cnt < printData.length() )
+    while (cnt < printData.length())
     {
         byteStr += QString(" %1").arg((uint8_t) printData[cnt], 2, 16, QChar('0'));
-        if ( showASCII )
+        if (showASCII)
         {
             QChar ch(printData[cnt]);
             if (g_ascii_isprint(printData[cnt]))
@@ -137,23 +137,23 @@ QString DataPrinter::hexTextDump(const QByteArray printData, bool showASCII)
     }
 
     int lines = printData.length() / byteLineLength_;
-    if ( printData.length() % byteLineLength_ > 0 )
+    if (printData.length() % byteLineLength_ > 0)
         lines++;
 
-    for ( cnt = 0; cnt < lines; cnt++ )
+    for (cnt = 0; cnt < lines; cnt++)
     {
         int offset = cnt * 0x10;
 
         clipboard_text += QString("%1  ").arg(offset, 4, 16, QChar('0'));
         clipboard_text += byteStr.mid(offset * 3, byteLineLength_ * 3);
 
-        if ( showASCII )
+        if (showASCII)
         {
             /* separation bytes for byte and text */
             clipboard_text += QString(3, ' ');
 
             /* separation bytes last line */
-            if ( cnt == ( lines - 1 ) )
+            if (cnt == (lines - 1) )
             {
                 int remSpace = byteLineLength_ - dataStr.mid(offset, byteLineLength_).length();
                 clipboard_text += QString(remSpace * 3, ' ');
@@ -172,7 +172,7 @@ QString DataPrinter::hexTextDump(const QByteArray printData, bool showASCII)
 DataPrinter * DataPrinter::instance()
 {
     static DataPrinter * inst = Q_NULLPTR;
-    if ( inst == Q_NULLPTR )
+    if (inst == Q_NULLPTR)
         inst = new DataPrinter();
     return inst;
 }
@@ -181,12 +181,12 @@ QActionGroup * DataPrinter::copyActions(QObject * copyClass, QObject * data)
 {
     QActionGroup * actions = new QActionGroup(copyClass);
 
-    if ( ! data && ! dynamic_cast<IDataPrintable *>(copyClass) )
+    if (! data && ! dynamic_cast<IDataPrintable *>(copyClass))
         return actions;
 
     DataPrinter * dpi = DataPrinter::instance();
 
-    if ( data )
+    if (data)
         actions->setProperty("idataprintable", VariantPointer<QObject>::asQVariant(data));
     else
         actions->setProperty("idataprintable", VariantPointer<QObject>::asQVariant(copyClass));
@@ -227,15 +227,15 @@ QActionGroup * DataPrinter::copyActions(QObject * copyClass, QObject * data)
 
 void DataPrinter::copyIDataBytes(bool /* state */)
 {
-    if ( ! dynamic_cast<QAction*>(sender()) )
+    if (! dynamic_cast<QAction*>(sender()))
         return;
 
     QAction * sendingAction = dynamic_cast<QAction *>(sender());
-    if ( ! sendingAction->actionGroup() || ! sendingAction->actionGroup()->property("idataprintable").isValid() )
+    if (! sendingAction->actionGroup() || ! sendingAction->actionGroup()->property("idataprintable").isValid())
         return;
 
     QObject * dataObject = VariantPointer<QObject>::asPtr(sendingAction->actionGroup()->property("idataprintable"));
-    if ( ! dataObject || ! dynamic_cast<IDataPrintable *>(dataObject) )
+    if (! dataObject || ! dynamic_cast<IDataPrintable *>(dataObject))
         return;
 
     int dump_type = sendingAction->property("printertype").toInt();

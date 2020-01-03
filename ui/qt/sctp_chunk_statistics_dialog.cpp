@@ -155,7 +155,7 @@ void SCTPChunkStatisticsDialog::fillTable(bool all, const sctp_assoc_info_t *sel
                 continue;
             temp.hide = 0;
             temp.name[0] = '\0';
-            while(token != NULL) {
+            while (token != NULL) {
                 token = strtok(NULL, ",");
                 if (token) {
                     if ((strstr(token, "Hide"))) {

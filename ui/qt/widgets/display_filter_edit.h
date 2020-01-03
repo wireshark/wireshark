@@ -75,6 +75,7 @@ private:
     StockIconToolButton *clear_button_;
     StockIconToolButton *apply_button_;
     bool leftAlignActions_;
+    QString last_applied_;
 
     void setDefaultPlaceholderText();
     void buildCompletionList(const QString& field_word);
@@ -82,6 +83,7 @@ private:
     void createFilterTextDropMenu(QDropEvent *event, bool prepare, QString filterText = QString());
 
     void alignActionButtons();
+    void updateClearButton();
 
 signals:
     void pushFilterSyntaxStatus(const QString&);

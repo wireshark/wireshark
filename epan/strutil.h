@@ -14,6 +14,7 @@
 #include "ws_symbol_export.h"
 
 #include <epan/wmem/wmem.h>
+#include <wsutil/str_util.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -313,6 +314,24 @@ gchar* ws_strdup_unescape_char (const gchar *str, const gchar chr);
  */
 WS_DLL_PUBLIC
 gchar *string_replace(const gchar* str, const gchar *old_val, const gchar *new_val);
+
+/**
+* format_size_wmem:
+* Based on format_size (wsutil/str_util.h)
+*
+* Given a size, return its value in a human-readable format
+*
+* Prefixes up to "T/Ti" (tera, tebi) are currently supported.
+*
+* @param allocator  An enumeration of the different types of available allocators.
+* @param size The size value
+* @param flags Flags to control the output (unit of measurement,
+* SI vs IEC, etc). Unit, prefix and suffix flags may be ORed together.
+* @return A newly-allocated string representing the value.
+*/
+WS_DLL_PUBLIC
+gchar*
+format_size_wmem(wmem_allocator_t *allocator, gint64 size, format_size_flags_e flags);
 
 #ifdef __cplusplus
 }

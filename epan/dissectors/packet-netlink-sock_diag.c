@@ -38,17 +38,17 @@ static header_field_info *hfi_netlink_sock_diag = NULL;
 enum {
 /* sock diag values for nlmsghdr.nlmsg_type from: */
 
-/* <linux/inet_diag.h> (compat) */
+	/* <include/uapi/linux/inet_diag.h> (compat) */
 	WS_TCPDIAG_GETSOCK     = 18,
 	WS_DCCPDIAG_GETSOCK    = 19,
 
-/* <linux/sock_diag.h> */
+	/* <include/uapi/linux/sock_diag.h> */
 	WS_SOCK_DIAG_BY_FAMILY = 20,
 	WS_SOCK_DESTROY        = 21
 };
 
 enum {
-	/* <bits/socket_type.h> */
+	/* </usr/include/<platform>/bits/socket_type.h> */
 	WS_SOCK_STREAM    =  1,
 	WS_SOCK_DGRAM     =  2,
 	WS_SOCK_RAW       =  3,
@@ -62,28 +62,30 @@ enum {
 /* SOCK_NONBLOCK = 00004000 */
 
 enum ws_unix_diag_show_mask {
-	/* show mask for unix diag from <linux/unix_diag.h> */
+	/* show mask for unix diag from <include/uapi/linux/unix_diag.h> */
 	WS_UDIAG_SHOW_NAME     = 0x01,
 	WS_UDIAG_SHOW_VFS      = 0x02,
 	WS_UDIAG_SHOW_PEER     = 0x04,
 	WS_UDIAG_SHOW_ICONS    = 0x08,
 	WS_UDIAG_SHOW_RQLEN    = 0x10,
-	WS_UDIAG_SHOW_MEMINFO  = 0x20
+	WS_UDIAG_SHOW_MEMINFO  = 0x20,
+	WS_UDIAG_SHOW_UID      = 0X40
 };
 
 enum ws_unix_diag_attr_type {
-	/* netlink attributes for unix diag from <linux/unix_diag.h> */
+	/* netlink attributes for unix diag from <include/uapi/linux/unix_diag.h> */
 	WS_UNIX_DIAG_NAME     = 0,
 	WS_UNIX_DIAG_VFS      = 1,
 	WS_UNIX_DIAG_PEER     = 2,
 	WS_UNIX_DIAG_ICONS    = 3,
 	WS_UNIX_DIAG_RQLEN    = 4,
 	WS_UNIX_DIAG_MEMINFO  = 5,
-	WS_UNIX_DIAG_SHUTDOWN = 6
+	WS_UNIX_DIAG_SHUTDOWN = 6,
+	WS_UNIX_DIAG_UID      = 7
 };
 
 enum ws_inet_diag_attr_type {
-	/* netlink attributes for inet diag from <linux/inet_diag.h> */
+	/* netlink attributes for inet diag from <include/uapi/linux/inet_diag.h> */
 	WS_INET_DIAG_NONE      = 0,
 	WS_INET_DIAG_MEMINFO   = 1,
 	WS_INET_DIAG_INFO      = 2,
@@ -101,25 +103,30 @@ enum ws_inet_diag_attr_type {
 	WS_INET_DIAG_PAD       = 14,
 	WS_INET_DIAG_MARK      = 15,
 	WS_INET_DIAG_BBRINFO   = 16,
+	WS_INET_DIAG_CLASS_ID  = 17,
+	WS_INET_DIAG_MD5SIG    = 18,
+	WS_INET_DIAG_ULP_INFO  = 19,
 };
 
 enum ws_netlink_diag_show_type {
-	/* show mask for netlink diag from <linux/netlink_diag.h> */
+	/* show mask for netlink diag from <include/uapi/linux/netlink_diag.h> */
 	WS_NDIAG_SHOW_MEMINFO   = 0x01,
 	WS_NDIAG_SHOW_GROUPS    = 0x02,
-	WS_NDIAG_SHOW_RING_CFG  = 0x04
+	WS_NDIAG_SHOW_RING_CFG  = 0x04,
+	WS_NDIAG_SHOW_FLAGS     = 0X08,
 };
 
 enum ws_netlink_diag_attr_type {
-	/* netlink attributes for netlink diag from <linux/netlink_diag.h> */
+	/* netlink attributes for netlink diag from <include/uapi/linux/netlink_diag.h> */
 	WS_NETLINK_DIAG_MEMINFO = 0,
 	WS_NETLINK_DIAG_GROUPS  = 1,
 	WS_NETLINK_DIAG_RX_RING = 2,
-	WS_NETLINK_DIAG_TX_RING = 3
+	WS_NETLINK_DIAG_TX_RING = 3,
+	WS_NETLINK_DIAG_FLAGS   = 4,
 };
 
 enum ws_packet_diag_show_mask {
-	/* show mask for packet diag from <linux/packet_diag.h> */
+	/* show mask for packet diag from <include/uapi/linux/packet_diag.h> */
 	WS_PACKET_SHOW_INFO        = 0x01,
 	WS_PACKET_SHOW_MCLIST      = 0x02,
 	WS_PACKET_SHOW_RING_CFG    = 0x04,
@@ -129,7 +136,7 @@ enum ws_packet_diag_show_mask {
 };
 
 enum ws_packet_diag_attr_type {
-	/* netlink attributes for packet diag from <linux/packet_diag.h> */
+	/* netlink attributes for packet diag from <include/uapi/linux/packet_diag.h> */
 	WS_PACKET_DIAG_INFO     = 0,
 	WS_PACKET_DIAG_MCLIST   = 1,
 	WS_PACKET_DIAG_RX_RING  = 2,
@@ -141,7 +148,7 @@ enum ws_packet_diag_attr_type {
 };
 
 enum {
-	/* based on kernel include <net/tcp_states.h> with WS_ without TCP_ (it's not only used by tcp) */
+	/* based on kernel include <include/net/tcp_states.h> with WS_ without TCP_ (it's not only used by tcp) */
 	WS_ESTABLISHED = 1,
 	WS_SYN_SENT    = 2,
 	WS_SYN_RECV    = 3,

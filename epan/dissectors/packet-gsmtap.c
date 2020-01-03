@@ -442,11 +442,13 @@ dissect_sacch_l1h(tvbuff_t *tvb, proto_tree *tree)
  *   +---+----------+---+----------+-----+---+-----------+------------------+
  */
 static void
-dissect_ptcch_dl(tvbuff_t *tvb, proto_tree *tree)
+dissect_ptcch_dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *sub_tree;
 	proto_item *ti, *gi;
 	int offset;
+
+	col_set_str(pinfo->cinfo, COL_INFO, "Packet Timing Advance Control");
 
 	if (!tree)
 		return;
@@ -481,7 +483,7 @@ handle_lapdm(guint8 sub_type, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static void
-handle_tetra(int channel _U_, tvbuff_t *payload_tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+handle_tetra(int channel, tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int tetra_chan;
 	if (channel < 0 || channel > GSMTAP_TETRA_TCH_F)
@@ -536,8 +538,8 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		return tvb_captured_length(tvb);
 
 	if (arfcn & GSMTAP_ARFCN_F_UPLINK) {
-		col_append_str(pinfo->cinfo, COL_RES_NET_SRC, "MS");
-		col_append_str(pinfo->cinfo, COL_RES_NET_DST, "BTS");
+		col_set_str(pinfo->cinfo, COL_RES_NET_SRC, "MS");
+		col_set_str(pinfo->cinfo, COL_RES_NET_DST, "BTS");
 		/* p2p_dir is used by the LAPDm dissector */
 		pinfo->p2p_dir = P2P_DIR_SENT;
 	} else {
@@ -549,6 +551,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		case GSMTAP_CHANNEL_AGCH:
 		case GSMTAP_CHANNEL_CBCH51:
 		case GSMTAP_CHANNEL_CBCH52:
+		case GSMTAP_CHANNEL_PTCCH:
 			col_set_str(pinfo->cinfo, COL_RES_NET_DST, "Broadcast");
 			break;
 		default:
@@ -685,7 +688,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		case GSMTAP_CHANNEL_PTCCH:
 			/* PTCCH/D carries Timing Advance updates encoded with CS-1 */
 			if (pinfo->p2p_dir == P2P_DIR_RECV) {
-				dissect_ptcch_dl(payload_tvb, tree);
+				dissect_ptcch_dl(payload_tvb, pinfo, tree);
 				return tvb_captured_length(tvb);
 			}
 

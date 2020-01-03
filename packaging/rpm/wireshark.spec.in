@@ -12,7 +12,6 @@
 %bcond_with	lua
 %bcond_with	mmdbresolve
 %bcond_with	lz4_and_snappy
-%bcond_with	c_ares
 %bcond_with	spandsp
 %bcond_with	bcg729
 %bcond_with	libxml2
@@ -99,7 +98,6 @@ Requires:	snappy
 %endif
 %endif
 
-%if %{with c_ares}
 %if 0%{?suse_version}
 # SUSE uses these package names (yes 2!):
 BuildRequires:	libcares-devel
@@ -109,7 +107,6 @@ Requires:	libcares2
 # (What other RPM-based distros do will have to be determined...)
 BuildRequires:	c-ares-devel
 Requires:	c-ares
-%endif
 %endif
 
 %if %{with lua}
@@ -309,11 +306,6 @@ cmake3 \
   -DENABLE_LZ4=OFF \
   -DENABLE_SNAPPY=OFF \
 %endif
-%if %{with c_ares}
-  -DENABLE_CARES=ON \
-%else
-  -DENABLE_CARES=OFF \
-%endif
 %if %{with spandsp}
   -DENABLE_SPANDSP=ON \
 %else
@@ -505,6 +497,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libdir}/pkgconfig/wireshark.pc
 
 %changelog
+* Fri Nov 22 2019 Gerald Combs
+- c-ares is a required package
+
 * Thu Aug 15 2019 Gerald Combs
 - Add zstd
 

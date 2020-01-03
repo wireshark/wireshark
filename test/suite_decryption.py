@@ -101,6 +101,28 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
         self.assertTrue(self.grepOutput('Who has 192.168.5.2'))
         self.assertTrue(self.grepOutput('DHCP ACK'))
 
+    def test_80211_wpa3_suite_b_192(self, cmd_tshark, capture_file):
+        '''IEEE 802.11 decode WPA3 Suite B 192-bit'''
+        # Included in git sources test/captures/wpa3-suiteb-192.pcapng.gz
+        self.assertRun((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('wpa3-suiteb-192.pcapng.gz'),
+                '-Tfields',
+                '-e' 'wlan.rsn.ie.gtk.key',
+                '-e' 'wlan.analysis.kck',
+                '-e' 'wlan.analysis.kek',
+                ))
+        # Verify that correct PTKs (KCK, KEK) are derived and GTK correctly dissected
+        self.assertEqual(self.countOutput('^29f92526ccda5a5dfa0ffa44c26f576ee2d45bae7c5f63369103b1edcab206ea\t' \
+                                          'f49ac1a15121f1a597a60a469870450a588ef1f73a1017b1\t' \
+                                          '0289b022b4f54262048d3493834ae591e811870c4520ee1395dd215a6092fbfb$'), 1)
+        self.assertEqual(self.countOutput('^29f92526ccda5a5dfa0ffa44c26f576ee2d45bae7c5f63369103b1edcab206ea\t' \
+                                          '1027c8d5b155ff574158bc50083e28f02e9636a2ac694901\t' \
+                                          'd4814a364419fa881a8593083f51497fe9e30556a91cc5d0b11cd2b3226038e1$'), 1)
+        self.assertEqual(self.countOutput('^29f92526ccda5a5dfa0ffa44c26f576ee2d45bae7c5f63369103b1edcab206ea\t' \
+                                          '35db5e208c9caff2a4e00a54c5346085abaa6f422ef6df81\t' \
+                                          'a14d0d683c01bc631bf142e82dc4995d87364eeacfab75d74cf470683bd10c51$'), 1)
+
     def test_80211_wpa1_gtk_rekey(self, cmd_tshark, capture_file):
         '''Decode WPA1 with multiple GTK rekeys'''
         # Included in git sources test/captures/wpa1-gtk-rekey.pcapng.gz

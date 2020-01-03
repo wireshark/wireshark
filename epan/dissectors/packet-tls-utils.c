@@ -96,8 +96,8 @@ const value_string ssl_versions[] = {
     { 0x7F1A,               "TLS 1.3 (draft 26)" },
     { 0x7F1B,               "TLS 1.3 (draft 27)" },
     { 0x7F1C,               "TLS 1.3 (draft 28)" },
-    { 0xFB17,               "TLS 1.3 (draft 23) - fb" },
-    { 0xFB1A,               "TLS 1.3 (draft 26) - fb" },
+    { 0xFB17,               "TLS 1.3 (Facebook draft 23)" },
+    { 0xFB1A,               "TLS 1.3 (Facebook draft 26)" },
     { DTLSV1DOT0_OPENSSL_VERSION, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
     { DTLSV1DOT0_VERSION,   "DTLS 1.0" },
     { DTLSV1DOT2_VERSION,   "DTLS 1.2" },
@@ -1390,6 +1390,7 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_DISABLE_ACTIVE_MIGRATION, "disable_active_migration" },
     { SSL_HND_QUIC_TP_PREFERRED_ADDRESS, "preferred_address" },
     { SSL_HND_QUIC_TP_ACTIVE_CONNECTION_ID_LIMIT, "active_connection_id_limit" },
+    { SSL_HND_QUIC_TP_MAX_DATAGRAM_FRAME_SIZE, "max_datagram_frame_size" },
     { 0, NULL }
 };
 
@@ -6791,6 +6792,12 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                 proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
                 offset += len;
             break;
+            case SSL_HND_QUIC_TP_MAX_DATAGRAM_FRAME_SIZE:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_datagram_frame_size,
+                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
+                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                offset += len;
+            break;
             default:
                 offset += parameter_length;
                 /*TODO display expert info about unknown ? */
@@ -7423,6 +7430,11 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
         tls13_draft = extract_tls13_draft_version(version);
         if (tls13_draft != 0) {
             /* This is TLS 1.3 (a draft version). */
+            version = TLSV1DOT3_VERSION;
+        }
+        if (version == 0xfb17 || version == 0xfb1a) {
+            /* Unofficial TLS 1.3 draft version for Facebook fizz. */
+            tls13_draft = (guint8)version;
             version = TLSV1DOT3_VERSION;
         }
     }

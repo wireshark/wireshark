@@ -296,7 +296,7 @@ QWidget *InterfaceToolbar::createString(iface_toolbar_control *control)
 
 void InterfaceToolbar::setWidgetValue(QWidget *widget, int command, QByteArray payload)
 {
-    if (QComboBox *combobox = dynamic_cast<QComboBox *>(widget))
+    if (QComboBox *combobox = qobject_cast<QComboBox *>(widget))
     {
         combobox->blockSignals(true);
         switch (command)
@@ -362,7 +362,7 @@ void InterfaceToolbar::setWidgetValue(QWidget *widget, int command, QByteArray p
         }
         combobox->blockSignals(false);
     }
-    else if (InterfaceToolbarLineEdit *lineedit = dynamic_cast<InterfaceToolbarLineEdit *>(widget))
+    else if (InterfaceToolbarLineEdit *lineedit = qobject_cast<InterfaceToolbarLineEdit *>(widget))
     {
         // We don't block signals here because changes are applied with enter or apply button,
         // and we want InterfaceToolbarLineEdit to always syntax check the text.
@@ -377,7 +377,7 @@ void InterfaceToolbar::setWidgetValue(QWidget *widget, int command, QByteArray p
                 break;
         }
     }
-    else if (QCheckBox *checkbox = dynamic_cast<QCheckBox *>(widget))
+    else if (QCheckBox *checkbox = qobject_cast<QCheckBox *>(widget))
     {
         checkbox->blockSignals(true);
         switch (command)
@@ -398,7 +398,7 @@ void InterfaceToolbar::setWidgetValue(QWidget *widget, int command, QByteArray p
         }
         checkbox->blockSignals(false);
     }
-    else if (QPushButton *button = dynamic_cast<QPushButton *>(widget))
+    else if (QPushButton *button = qobject_cast<QPushButton *>(widget))
     {
         if ((command == commandControlSet) &&
             widget->property(interface_role_property).toInt() == INTERFACE_ROLE_CONTROL)
@@ -410,7 +410,11 @@ void InterfaceToolbar::setWidgetValue(QWidget *widget, int command, QByteArray p
 
 void InterfaceToolbar::setInterfaceValue(QString ifname, QWidget *widget, int num, int command, QByteArray payload)
 {
-    if (dynamic_cast<QComboBox *>(widget))
+    if (!widget) {
+        return;
+    }
+
+    if (qobject_cast<QComboBox *>(widget))
     {
         switch (command)
         {
@@ -454,7 +458,7 @@ void InterfaceToolbar::setInterfaceValue(QString ifname, QWidget *widget, int nu
                 break;
         }
     }
-    else if (dynamic_cast<InterfaceToolbarLineEdit *>(widget))
+    else if (qobject_cast<InterfaceToolbarLineEdit *>(widget))
     {
         switch (command)
         {

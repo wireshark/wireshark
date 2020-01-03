@@ -423,6 +423,7 @@ typedef struct _usb_alt_setting_t {
     guint8 interfaceClass;
     guint8 interfaceSubclass;
     guint8 interfaceProtocol;
+    guint8 interfaceNum;
 } usb_alt_setting_t;
 
 typedef struct {
@@ -2308,6 +2309,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
         alternate_setting.interfaceClass = tvb_get_guint8(tvb, offset);
         alternate_setting.interfaceSubclass = tvb_get_guint8(tvb, offset+1);
         alternate_setting.interfaceProtocol = tvb_get_guint8(tvb, offset+2);
+        alternate_setting.interfaceNum = interface_num;
         wmem_array_append_one(usb_trans_info->interface_info->alt_settings, alternate_setting);
 
         if (alt_setting == 0) {
@@ -2319,6 +2321,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
             usb_trans_info->interface_info->interfaceClass = alternate_setting.interfaceClass;
             usb_trans_info->interface_info->interfaceSubclass = alternate_setting.interfaceSubclass;
             usb_trans_info->interface_info->interfaceProtocol = alternate_setting.interfaceProtocol;
+            usb_trans_info->interface_info->interfaceNum      = alternate_setting.interfaceNum;
             usb_trans_info->interface_info->deviceVendor      = usb_conv_info->deviceVendor;
             usb_trans_info->interface_info->deviceProduct     = usb_conv_info->deviceProduct;
         }
@@ -3179,6 +3182,7 @@ dissect_usb_setup_set_interface_request(packet_info *pinfo, proto_tree *tree,
                 iface_conv_info->interfaceClass = alternate_setting->interfaceClass;
                 iface_conv_info->interfaceSubclass = alternate_setting->interfaceSubclass;
                 iface_conv_info->interfaceProtocol = alternate_setting->interfaceProtocol;
+                iface_conv_info->interfaceNum = alternate_setting->interfaceNum;
                 break;
             }
         }

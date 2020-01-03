@@ -36,7 +36,7 @@ FrameInformation::FrameInformation(CaptureFile * capfile, frame_data * fi, QObje
 
 void FrameInformation::loadFrameTree()
 {
-    if ( ! fi_ || ! cap_file_ || !cap_file_->capFile())
+    if (! fi_ || ! cap_file_ || !cap_file_->capFile())
         return;
 
     if (!cf_read_record(cap_file_->capFile(), fi_, &rec_, &buf_))
@@ -63,7 +63,7 @@ bool FrameInformation::isValid()
 {
     bool ret = false;
 
-    if ( fi_ && cap_file_ && edt_.tvb )
+    if (fi_ && cap_file_ && edt_.tvb)
     {
         ret = true;
     }
@@ -78,14 +78,14 @@ frame_data * FrameInformation::frameData() const
 
 int FrameInformation::frameNum() const
 {
-    if ( ! fi_ )
+    if (! fi_)
         return -1;
     return fi_->num;
 }
 
 const QByteArray FrameInformation::printableData()
 {
-    if ( ! fi_ )
+    if (! fi_)
         return QByteArray();
 
 

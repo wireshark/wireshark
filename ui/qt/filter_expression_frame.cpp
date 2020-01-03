@@ -15,6 +15,7 @@
 
 #include <ui/qt/models/uat_model.h>
 #include <ui/qt/models/pref_models.h>
+#include <ui/qt/wireshark_application.h>
 
 #include <QPushButton>
 #include <QKeyEvent>
@@ -68,7 +69,7 @@ void FilterExpressionFrame::editExpression(int exprIdx)
     }
 
     UatModel * uatModel = new UatModel(this, "Display expressions");
-    if ( ! uatModel->index(exprIdx, 1).isValid() )
+    if (! uatModel->index(exprIdx, 1).isValid())
         return;
 
     editExpression_ = exprIdx;
@@ -125,16 +126,16 @@ void FilterExpressionFrame::on_buttonBox_accepted()
     QByteArray expr_ba = ui->displayFilterLineEdit->text().toUtf8();
     QByteArray comment_ba = ui->commentLineEdit->text().toUtf8();
 
-    if ( ui->labelLineEdit->text().length() == 0 || ui->displayFilterLineEdit->text().length() == 0 )
+    if (ui->labelLineEdit->text().length() == 0 || ui->displayFilterLineEdit->text().length() == 0)
         return;
 
-    if ( ! ui->displayFilterLineEdit->checkFilter() )
+    if (! ui->displayFilterLineEdit->checkFilter())
         return;
 
-    if ( editExpression_ >= 0 )
+    if (editExpression_ >= 0)
     {
         UatModel * uatModel = new UatModel(this, "Display expressions");
-        if ( ! uatModel->index(editExpression_, 1).isValid() )
+        if (! uatModel->index(editExpression_, 1).isValid())
             return;
 
         uatModel->setData(uatModel->index(editExpression_, 1), QVariant::fromValue(label_ba));
@@ -169,11 +170,11 @@ void FilterExpressionFrame::keyPressEvent(QKeyEvent *event)
             if (ui->buttonBox->button(QDialogButtonBox::Ok)->isEnabled()) {
                 on_buttonBox_accepted();
             } else if (ui->labelLineEdit->text().length() == 0) {
-                emit pushFilterSyntaxStatus(tr("Missing label."));
+                wsApp->pushStatus(WiresharkApplication::FilterSyntax, tr("Missing label."));
             } else if (ui->displayFilterLineEdit->syntaxState() == SyntaxLineEdit::Empty) {
-                emit pushFilterSyntaxStatus(tr("Missing filter expression."));
+                wsApp->pushStatus(WiresharkApplication::FilterSyntax, tr("Missing filter expression."));
             } else if (ui->displayFilterLineEdit->syntaxState() != SyntaxLineEdit::Valid) {
-                emit pushFilterSyntaxStatus(tr("Invalid filter expression."));
+                wsApp->pushStatus(WiresharkApplication::FilterSyntax, tr("Invalid filter expression."));
             }
         }
     }

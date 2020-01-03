@@ -182,6 +182,8 @@ static const fragment_items zbee_aps_frag_items = {
     "APS Message fragments"
 };
 
+static GHashTable *zbee_table_aps_extended_counters = NULL;
+
 /********************/
 /* Field Names      */
 /********************/
@@ -691,6 +693,64 @@ const value_string zbee_aps_t2_btres_status_names[] = {
 #define ZBEE_APS_FRAG_BLOCK7_ACK    0x40
 #define ZBEE_APS_FRAG_BLOCK8_ACK    0x80
 
+/* calculate the extended counter - top 24 bits of the previous counter,
+ * plus our own; then correct for wrapping */
+static guint32
+zbee_aps_calculate_extended_counter(guint32 previous_counter, guint8 raw_counter)
+{
+    guint32 counter = (previous_counter & 0xffffff00) | raw_counter;
+    if ((counter + 0x40) < previous_counter) {
+        counter += 0x100;
+    } else if ((previous_counter + 0x40) < counter) {
+        /* we got an out-of-order packet which happened to go backwards over the
+         * wrap boundary */
+        counter -= 0x100;
+    }
+    return counter;
+}
+
+static struct zbee_aps_node_packet_info*
+zbee_aps_node_packet_info(packet_info *pinfo,
+                          const zbee_nwk_packet *nwk, const zbee_nwk_hints_t *nwk_hints, const zbee_aps_packet *packet)
+{
+    struct zbee_aps_node_packet_info *node_data_packet;
+
+    node_data_packet = (struct zbee_aps_node_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_zbee_aps, ZBEE_APS_NODE_PROTO_DATA);
+    if (node_data_packet == NULL) {
+        ieee802154_short_addr addr16;
+        struct zbee_aps_node_info *node_data;
+        guint32 counter;
+
+        if (nwk_hints) {
+            addr16.pan = nwk_hints->src_pan;
+        }
+        else {
+            addr16.pan = 0x0000;
+        }
+        if (packet->type != ZBEE_APS_FCF_ACK) {
+            addr16.addr = nwk->src;
+        }
+        else {
+            addr16.addr = nwk->dst;
+        }
+        node_data = (struct zbee_aps_node_info*) g_hash_table_lookup(zbee_table_aps_extended_counters, &addr16);
+        if (node_data == NULL) {
+            node_data = wmem_new0(wmem_file_scope(), struct zbee_aps_node_info);
+            node_data->extended_counter = 0x100;
+            g_hash_table_insert(zbee_table_aps_extended_counters, wmem_memdup(wmem_file_scope(), &addr16, sizeof(addr16)), node_data);
+        }
+
+        node_data_packet = wmem_new(wmem_file_scope(), struct zbee_aps_node_packet_info);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_zbee_aps, ZBEE_APS_NODE_PROTO_DATA, node_data_packet);
+
+        counter = zbee_aps_calculate_extended_counter(node_data->extended_counter, packet->counter);
+        node_data->extended_counter = counter;
+        node_data_packet->extended_counter = counter;
+    }
+
+    return node_data_packet;
+}
+
 /**
  *ZigBee Application Support Sublayer dissector for wireshark.
  *
@@ -701,19 +761,22 @@ const value_string zbee_aps_t2_btres_status_names[] = {
 static int
 dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    tvbuff_t            *payload_tvb = NULL;
-    dissector_handle_t   profile_handle = NULL;
-    dissector_handle_t   zcl_handle = NULL;
+    tvbuff_t                                    *payload_tvb = NULL;
+    dissector_handle_t                          profile_handle = NULL;
+    dissector_handle_t                          zcl_handle = NULL;
 
-    proto_tree          *aps_tree;
-    proto_tree          *field_tree;
-    proto_item          *proto_root;
+    proto_tree                                  *aps_tree;
+    proto_tree                                  *field_tree;
+    proto_item                                  *proto_root;
 
-    zbee_aps_packet      packet;
-    zbee_nwk_packet     *nwk;
+    zbee_aps_packet                             packet;
+    zbee_nwk_packet                             *nwk;
+    zbee_nwk_hints_t                            *nwk_hints;
 
-    guint8               fcf;
-    guint8               offset = 0;
+    struct zbee_aps_node_packet_info            *node_data_packet;
+
+    guint8                                      fcf;
+    guint8                                      offset = 0;
 
     static const int   * frag_ack_flags[] = {
         &hf_zbee_aps_block_ack1,
@@ -734,6 +797,9 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     /* Init. */
     memset(&packet, 0, sizeof(zbee_aps_packet));
+
+    nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+        proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), 0);
 
     /*  Create the protocol tree */
     proto_root = proto_tree_add_protocol_format(tree, proto_zbee_aps, tvb, offset, tvb_captured_length(tvb), "ZigBee Application Support Layer");
@@ -943,6 +1009,8 @@ dissect_zbee_aps_no_endpt:
         offset += 1;
     }
 
+    node_data_packet = zbee_aps_node_packet_info(pinfo, nwk, nwk_hints, &packet);
+
     /* Get and display the extended header, if present. */
     if (packet.ext_header) {
         fcf = tvb_get_guint8(tvb, offset);
@@ -998,11 +1066,14 @@ dissect_zbee_aps_no_endpt:
         /* Set the fragmented flag. */
         pinfo->fragmented = TRUE;
 
-        /* The source address and APS Counter pair form a unique identifier
-         * for each message (fragmented or not). Hash these two together to
+        /* The source address (short address and PAN ID) and APS Counter pair form a unique identifier
+         * for each message (fragmented or not). Hash these together to
          * create the message id for the fragmentation handler.
          */
-        msg_id = ((nwk->src)<<8) + packet.counter;
+        msg_id = ((nwk->src)<<16) + (node_data_packet->extended_counter & 0xffff);
+        if (nwk_hints) {
+            msg_id ^= (nwk_hints->src_pan)<<16;
+        }
 
         /* If this is the first block of a fragmented message, than the block
          * number field is the maximum number of blocks in the message. Otherwise
@@ -1827,6 +1898,18 @@ zbee_apf_transaction_len(tvbuff_t *tvb, guint offset, guint8 type)
     }
 } /* zbee_apf_transaction_len */
 
+static void
+proto_init_zbee_aps(void)
+{
+    zbee_table_aps_extended_counters  = g_hash_table_new(ieee802154_short_addr_hash, ieee802154_short_addr_equal);
+}
+
+static void
+proto_cleanup_zbee_aps(void)
+{
+    g_hash_table_destroy(zbee_table_aps_extended_counters);
+}
+
 /* The ZigBee Smart Energy version in enum_val_t for the ZigBee Smart Energy version preferences. */
 static const enum_val_t zbee_zcl_protocol_version_enums[] = {
     { "se1.1b",     "SE 1.1b",     ZBEE_SE_VERSION_1_1B },
@@ -2114,6 +2197,9 @@ void proto_register_zbee_aps(void)
         { &ei_zbee_aps_invalid_delivery_mode, { "zbee_aps.invalid_delivery_mode", PI_PROTOCOL, PI_WARN, "Invalid Delivery Mode", EXPFILL }},
         { &ei_zbee_aps_missing_payload, { "zbee_aps.missing_payload", PI_MALFORMED, PI_ERROR, "Missing Payload", EXPFILL }},
     };
+
+    register_init_routine(proto_init_zbee_aps);
+    register_cleanup_routine(proto_cleanup_zbee_aps);
 
     expert_module_t* expert_zbee_aps;
 

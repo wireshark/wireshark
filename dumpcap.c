@@ -401,33 +401,39 @@ print_usage(FILE *output)
     fprintf(output, "\nUsage: dumpcap [options] ...\n");
     fprintf(output, "\n");
     fprintf(output, "Capture interface:\n");
-    fprintf(output, "  -i <interface>           name or idx of interface (def: first non-loopback),\n"
+    fprintf(output, "  -i <interface>, --interface <interface>\n");
+    fprintf(output, "                           name or idx of interface (def: first non-loopback),\n"
                     "                           or for remote capturing, use one of these formats:\n"
                     "                               rpcap://<host>/<interface>\n"
                     "                               TCP@<host>:<port>\n");
     fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
+    fprintf(output, "  -s <snaplen>, --snapshot-length <snaplen>\n");
 #ifdef HAVE_PCAP_CREATE
-    fprintf(output, "  -s <snaplen>             packet snapshot length (def: appropriate maximum)\n");
+    fprintf(output, "                           packet snapshot length (def: appropriate maximum)\n");
 #else
-    fprintf(output, "  -s <snaplen>             packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE_STANDARD);
+    fprintf(output, "                           packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE_STANDARD);
 #endif
-    fprintf(output, "  -p                       don't capture in promiscuous mode\n");
+    fprintf(output, "  -p, --no-promiscuous-mode\n");
+    fprintf(output, "                           don't capture in promiscuous mode\n");
 #ifdef HAVE_PCAP_CREATE
-    fprintf(output, "  -I                       capture in monitor mode, if available\n");
+    fprintf(output, "  -I, --monitor-mode       capture in monitor mode, if available\n");
 #endif
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-    fprintf(output, "  -B <buffer size>         size of kernel buffer in MiB (def: %dMiB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
+    fprintf(output, "  -B <buffer size>, --buffer-size <buffer size>\n");
+    fprintf(output, "                           size of kernel buffer in MiB (def: %dMiB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
 #endif
-    fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
+    fprintf(output, "  -y <link type>, --linktype <link type>\n");
+    fprintf(output, "                           link layer type (def: first appropriate)\n");
     fprintf(output, "  --time-stamp-type <type> timestamp method for interface\n");
-    fprintf(output, "  -D                       print list of interfaces and exit\n");
-    fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
+    fprintf(output, "  -D, --list-interfaces    print list of interfaces and exit\n");
+    fprintf(output, "  -L, --list-data-link-types\n");
+    fprintf(output, "                           print list of link-layer types of iface and exit\n");
     fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
 #ifdef HAVE_BPF_IMAGE
     fprintf(output, "  -d                       print generated BPF code for capture filter\n");
 #endif
-    fprintf(output, "  -k                       set channel on wifi interface:\n"
-                    "                           <freq>,[<type>],[<center_freq1>],[<center_freq2>]\n");
+    fprintf(output, "  -k <freq>,[<type>],[<center_freq1>],[<center_freq2>]\n");
+    fprintf(output, "                           set channel on wifi interface\n");
     fprintf(output, "  -S                       print statistics for each interface once per second\n");
     fprintf(output, "  -M                       for -D, -L, and -S, produce machine-readable output\n");
     fprintf(output, "\n");
@@ -444,7 +450,8 @@ print_usage(FILE *output)
 #endif
     fprintf(output, "Stop conditions:\n");
     fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
-    fprintf(output, "  -a <autostop cond.> ...  duration:NUM - stop after NUM seconds\n");
+    fprintf(output, "  -a <autostop cond.> ..., --autostop <autostop cond.> ...\n");
+    fprintf(output, "                           duration:NUM - stop after NUM seconds\n");
     fprintf(output, "                           filesize:NUM - stop this file after NUM kB\n");
     fprintf(output, "                              files:NUM - stop after NUM files\n");
     fprintf(output, "                            packets:NUM - stop after NUM packets\n");
@@ -452,11 +459,13 @@ print_usage(FILE *output)
     fprintf(output, "Output (files):\n");
     fprintf(output, "  -w <filename>            name of file to save (def: tempfile)\n");
     fprintf(output, "  -g                       enable group read access on the output file(s)\n");
-    fprintf(output, "  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs\n");
-    fprintf(output, "                           interval:NUM - create time intervals of NUM secs\n");
+    fprintf(output, "  -b <ringbuffer opt.> ..., --ring-buffer <ringbuffer opt.>\n");
+    fprintf(output, "                           duration:NUM - switch to next file after NUM secs\n");
     fprintf(output, "                           filesize:NUM - switch to next file after NUM kB\n");
     fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
     fprintf(output, "                            packets:NUM - ringbuffer: replace after NUM packets\n");
+    fprintf(output, "                           interval:NUM - switch to next file when the time is\n");
+    fprintf(output, "                                          an exact multiple of NUM secs\n");
     fprintf(output, "  -n                       use pcapng format instead of pcap (default)\n");
     fprintf(output, "  -P                       use libpcap format instead of pcapng\n");
     fprintf(output, "  --capture-comment <comment>\n");
@@ -469,8 +478,8 @@ print_usage(FILE *output)
     fprintf(output, "                           within dumpcap\n");
     fprintf(output, "  -t                       use a separate thread per interface\n");
     fprintf(output, "  -q                       don't report packet capture counts\n");
-    fprintf(output, "  -v                       print version information and exit\n");
-    fprintf(output, "  -h                       display this help and exit\n");
+    fprintf(output, "  -v, --version            print version information and exit\n");
+    fprintf(output, "  -h, --help               display this help and exit\n");
     fprintf(output, "\n");
 #ifdef __linux__
     fprintf(output, "Dumpcap can benefit from an enabled BPF JIT compiler if available.\n");
@@ -1379,44 +1388,20 @@ cap_pipe_select(int pipe_fd)
 static int
 cap_open_socket(char *pipename, capture_src *pcap_src, char *errmsg, size_t errmsgl)
 {
-    char *sockname = pipename + 4;
-    struct sockaddr_in sa;
-    char buf[16];
-    char *p;
-    unsigned long port;
-    size_t len;
+    struct sockaddr_storage sa;
     int fd;
 
-    memset(&sa, 0, sizeof(sa));
-
-    p = strchr(sockname, ':');
-    if (p == NULL) {
-        len = strlen(sockname);
-        port = DEF_TCP_PORT;
-    }
-    else {
-        len = p - sockname;
-        port = strtoul(p + 1, &p, 10);
-        if (*p || port > 65535) {
-            goto fail_invalid;
-        }
+    /* Skip the initial "TCP@" in the pipename. */
+    if (ws_socket_ptoa(&sa, pipename + 4, DEF_TCP_PORT) < 0) {
+        g_snprintf(errmsg, (gulong)errmsgl,
+                "The capture session could not be initiated because"
+                "\"%s\" is not a valid socket specification", pipename);
+        pcap_src->cap_pipe_err = PIPERR;
+        return -1;
     }
 
-    if (len > 15) {
-      goto fail_invalid;
-    }
-
-    g_snprintf ( buf,(gulong)len + 1, "%s", sockname );
-    buf[len] = '\0';
-    if (!ws_inet_pton4(buf, (guint32 *)&sa.sin_addr)) {
-        goto fail_invalid;
-    }
-
-    sa.sin_family = AF_INET;
-    sa.sin_port = g_htons((u_short)port);
-
-    if (((fd = (int)socket(AF_INET, SOCK_STREAM, 0)) < 0) ||
-         (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0)) {
+    if ((fd = (int)socket(sa.ss_family, SOCK_STREAM, 0)) < 0 ||
+                connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
         g_snprintf(errmsg, (gulong)errmsgl,
             "The capture session could not be initiated due to the socket error: \n"
 #ifdef _WIN32
@@ -1433,13 +1418,6 @@ cap_open_socket(char *pipename, capture_src *pcap_src, char *errmsg, size_t errm
 
     pcap_src->from_cap_socket = TRUE;
     return fd;
-
-fail_invalid:
-    g_snprintf(errmsg, (gulong)errmsgl,
-        "The capture session could not be initiated because\n"
-        "\"%s\" is not a valid socket specification", pipename);
-    pcap_src->cap_pipe_err = PIPERR;
-    return -1;
 }
 
 /* Wrapper: distinguish between closesocket on Windows; use ws_close
@@ -3450,10 +3428,10 @@ static gboolean
 capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                          char *errmsg, int errmsg_len)
 {
-    char     *tmpname;
     gchar    *capfile_name;
     gchar    *prefix, *suffix;
     gboolean  is_tempfile;
+    GError   *err_tempfile = NULL;
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_output: %s",
           (capture_opts->save_file) ? capture_opts->save_file : "(not specified)");
@@ -3578,9 +3556,8 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         } else {
             suffix = ".pcap";
         }
-        *save_file_fd = create_tempfile(&tmpname, prefix, suffix);
+        *save_file_fd = create_tempfile(&capfile_name, prefix, suffix, &err_tempfile);
         g_free(prefix);
-        capfile_name = g_strdup(tmpname);
         is_tempfile = TRUE;
     }
 
@@ -3589,7 +3566,8 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         if (is_tempfile) {
             g_snprintf(errmsg, errmsg_len,
                        "The temporary file to which the capture would be saved (\"%s\") "
-                       "could not be opened: %s.", capfile_name, g_strerror(errno));
+                       "could not be opened: %s.", capfile_name, err_tempfile->message);
+            g_error_free(err_tempfile);
         } else {
             if (capture_opts->multi_files_on) {
                 /* Ensures that the ringbuffer is not used. This ensures that
@@ -4690,24 +4668,24 @@ main(int argc, char *argv[])
 #ifdef HAVE_BPF_IMAGE
 #define OPTSTRING_d "d"
 #else
-#define OPTSTRING_d ""
+#define OPTSTRING_d
 #endif
 
 #ifdef HAVE_PCAP_REMOTE
 #define OPTSTRING_r "r"
 #define OPTSTRING_u "u"
 #else
-#define OPTSTRING_r ""
-#define OPTSTRING_u ""
+#define OPTSTRING_r
+#define OPTSTRING_u
 #endif
 
 #ifdef HAVE_PCAP_SETSAMPLING
 #define OPTSTRING_m "m:"
 #else
-#define OPTSTRING_m ""
+#define OPTSTRING_m
 #endif
 
-#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:" OPTSTRING_d "gh" "k:" OPTSTRING_m "MN:nPq" OPTSTRING_r "St" OPTSTRING_u "vw:Z:"
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:" OPTSTRING_d "ghk:" OPTSTRING_m "MN:nPq" OPTSTRING_r "St" OPTSTRING_u "vw:Z:"
 
 #ifdef DEBUG_CHILD_DUMPCAP
     if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {

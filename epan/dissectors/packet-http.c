@@ -421,6 +421,7 @@ const value_string vals_http_status_code[] = {
 	{ 422, "Unprocessable Entity"},            /* RFC 4918 */
 	{ 423, "Locked"},                          /* RFC 4918 */
 	{ 424, "Failed Dependency"},               /* RFC 4918 */
+	{ 425, "Too Early"},                       /* RFC 8470 */
 	{ 426, "Upgrade Required"},                /* RFC 2817 */
 	{ 428, "Precondition Required"},           /* RFC 6585 */
 	{ 429, "Too Many Requests"},               /* RFC 6585 */
@@ -3596,6 +3597,13 @@ dissect_http_on_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				call_dissector_only(conv_data->next_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
 			} else {
 				call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+			}
+			/*
+			 * If a subdissector requests reassembly, be sure not to
+			 * include the preceding HTTP headers.
+			 */
+			if (pinfo->desegment_len) {
+				pinfo->desegment_offset += offset;
 			}
 			break;
 		}

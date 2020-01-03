@@ -28,11 +28,26 @@ class OverlayScrollBar;
 class QAction;
 class QTimerEvent;
 
+//
+// XXX - Wireshark supports up to 2^32-1 packets in a capture, but
+// row numbers in a QAbstractItemModel are ints, not unsigned ints,
+// so we can only have 2^31-1 rows on ILP32, LP64, and LLP64 platforms.
+// Does that mean we're permanently stuck at a maximum of 2^31-1 packets
+// per capture?
+//
 class PacketList : public QTreeView
 {
     Q_OBJECT
 public:
     explicit PacketList(QWidget *parent = 0);
+
+    enum SummaryCopyType {
+        CopyAsText,
+        CopyAsCSV,
+        CopyAsYAML
+    };
+    Q_ENUM(SummaryCopyType)
+
     QMenu *conversationMenu() { return &conv_menu_; }
     QMenu *colorizeMenu() { return &colorize_menu_; }
     void setProtoTree(ProtoTree *proto_tree);
@@ -69,7 +84,14 @@ public:
 
     frame_data * getFDataForRow(int row) const;
 
+    bool multiSelectActive();
+    QList<int> selectedRows(bool useFrameNum = false);
+
+    QString createSummaryText(QModelIndex idx, SummaryCopyType type);
+    QString createHeaderSummaryText(SummaryCopyType type);
+
 protected:
+
     void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected) override;
     virtual void contextMenuEvent(QContextMenuEvent *event) override;
     void timerEvent(QTimerEvent *event) override;
@@ -78,6 +100,7 @@ protected:
     virtual void mouseReleaseEvent (QMouseEvent *event) override;
     virtual void mouseMoveEvent (QMouseEvent *event) override;
     virtual void resizeEvent(QResizeEvent *event) override;
+    virtual void keyPressEvent(QKeyEvent *event) override;
 
 protected slots:
     void rowsInserted(const QModelIndex &parent, int start, int end) override;
@@ -124,6 +147,7 @@ private:
     void applyRecentColumnWidths();
     void scrollViewChanged(bool at_end);
     void colorsChanged();
+    QString joinSummaryRow(QStringList col_parts, int row, SummaryCopyType type);
 
 signals:
     void packetDissectionChanged();
@@ -133,7 +157,7 @@ signals:
     void showProtocolPreferences(const QString module_name);
     void editProtocolPreference(struct preference *pref, struct pref_module *module);
 
-    void frameSelected(int frameNum);
+    void framesSelected(QList<int>);
     void fieldSelected(FieldInformation *);
 
 public slots:

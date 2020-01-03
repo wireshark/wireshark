@@ -1,44 +1,53 @@
-Dumpcap (Wireshark) 3.1.1 (v3.1.1rc0-10-g22e7952e06f0)
+Dumpcap (Wireshark) 3.3.0 (v3.3.0rc0-55-g3c10d7308bde)
 Capture network packets and dump them into a pcapng or pcap file.
 See https://www.wireshark.org for more information.
 
 Usage: dumpcap [options] ...
 
 Capture interface:
-  -i <interface>           name or idx of interface (def: first non-loopback),
+  -i <interface>, --interface <interface>
+                           name or idx of interface (def: first non-loopback),
                            or for remote capturing, use one of these formats:
                                rpcap://<host>/<interface>
                                TCP@<host>:<port>
   -f <capture filter>      packet filter in libpcap filter syntax
-  -s <snaplen>             packet snapshot length (def: appropriate maximum)
-  -p                       don't capture in promiscuous mode
-  -I                       capture in monitor mode, if available
-  -B <buffer size>         size of kernel buffer in MiB (def: 2MiB)
-  -y <link type>           link layer type (def: first appropriate)
+  -s <snaplen>, --snapshot-length <snaplen>
+                           packet snapshot length (def: appropriate maximum)
+  -p, --no-promiscuous-mode
+                           don't capture in promiscuous mode
+  -I, --monitor-mode       capture in monitor mode, if available
+  -B <buffer size>, --buffer-size <buffer size>
+                           size of kernel buffer in MiB (def: 2MiB)
+  -y <link type>, --linktype <link type>
+                           link layer type (def: first appropriate)
   --time-stamp-type <type> timestamp method for interface
-  -D                       print list of interfaces and exit
-  -L                       print list of link-layer types of iface and exit
+  -D, --list-interfaces    print list of interfaces and exit
+  -L, --list-data-link-types
+                           print list of link-layer types of iface and exit
   --list-time-stamp-types  print list of timestamp types for iface and exit
   -d                       print generated BPF code for capture filter
-  -k                       set channel on wifi interface:
-                           <freq>,[<type>],[<center_freq1>],[<center_freq2>]
+  -k <freq>,[<type>],[<center_freq1>],[<center_freq2>]
+                           set channel on wifi interface
   -S                       print statistics for each interface once per second
   -M                       for -D, -L, and -S, produce machine-readable output
 
 Stop conditions:
   -c <packet count>        stop after n packets (def: infinite)
-  -a <autostop cond.> ...  duration:NUM - stop after NUM seconds
+  -a <autostop cond.> ..., --autostop <autostop cond.> ...
+                           duration:NUM - stop after NUM seconds
                            filesize:NUM - stop this file after NUM kB
                               files:NUM - stop after NUM files
                             packets:NUM - stop after NUM packets
 Output (files):
   -w <filename>            name of file to save (def: tempfile)
   -g                       enable group read access on the output file(s)
-  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs
-                           interval:NUM - create time intervals of NUM secs
+  -b <ringbuffer opt.> ..., --ring-buffer <ringbuffer opt.>
+                           duration:NUM - switch to next file after NUM secs
                            filesize:NUM - switch to next file after NUM kB
                               files:NUM - ringbuffer: replace after NUM files
                             packets:NUM - ringbuffer: replace after NUM packets
+                           interval:NUM - switch to next file when the time is
+                                          an exact multiple of NUM secs
   -n                       use pcapng format instead of pcap (default)
   -P                       use libpcap format instead of pcapng
   --capture-comment <comment>
@@ -51,8 +60,8 @@ Miscellaneous:
                            within dumpcap
   -t                       use a separate thread per interface
   -q                       don't report packet capture counts
-  -v                       print version information and exit
-  -h                       display this help and exit
+  -v, --version            print version information and exit
+  -h, --help               display this help and exit
 
 Dumpcap can benefit from an enabled BPF JIT compiler if available.
 You might want to enable it by executing:

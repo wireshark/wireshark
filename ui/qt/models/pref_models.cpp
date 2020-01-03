@@ -29,14 +29,14 @@ pref_t *prefFromPrefPtr(void *pref_ptr)
 
 static void prefInsertPrefPtr(void * pref_ptr, pref_t * pref)
 {
-    if ( ! pref_ptr_to_pref_ )
+    if (! pref_ptr_to_pref_)
         pref_ptr_to_pref_ = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
     gpointer key = (gpointer) pref_ptr;
     gpointer val = (gpointer) pref;
 
     /* Already existing entries will be ignored */
-    if ( (pref = (pref_t *)g_hash_table_lookup(pref_ptr_to_pref_, key) ) == NULL )
+    if ((pref = (pref_t *)g_hash_table_lookup(pref_ptr_to_pref_, key)) == NULL)
         g_hash_table_insert(pref_ptr_to_pref_, key, val);
 }
 
@@ -269,11 +269,11 @@ fill_prefs(module_t *module, gpointer root_ptr)
 
         // .uat is a void * so it wins the "useful key value" prize.
         if (prefs_get_uat_value(pref)) {
-            prefInsertPrefPtr( prefs_get_uat_value(pref), pref);
+            prefInsertPrefPtr(prefs_get_uat_value(pref), pref);
         }
     }
 
-    if(prefs_module_has_submodules(module))
+    if (prefs_module_has_submodules(module))
         return prefs_modules_foreach_submodules(module, fill_prefs, module_item);
 
     return 0;

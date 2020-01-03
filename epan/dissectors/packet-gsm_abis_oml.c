@@ -1514,8 +1514,6 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, packet_info *pinfo,
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		guint i;
 		guint8 tag, val8;
-		guint16 val16;
-		guint32 val32;
 		unsigned int len, len_len, hlen;
 		const struct tlv_def *tdef;
 		proto_item *ti;
@@ -1593,9 +1591,9 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, packet_info *pinfo,
 			break;
 		case NM_ATT_ARFCN_LIST:
 			for (i = 0; i < len; i += 2) {
-				val16 = tvb_get_ntohs(tvb, offset + i);
-				proto_tree_add_uint(att_tree, hf_attr_arfcn,
-						    tvb, offset + i, 2, val16);
+				proto_tree_add_item(att_tree, hf_attr_arfcn,
+						    tvb, offset + i, 2,
+						    ENC_BIG_ENDIAN);
 			}
 			break;
 		case NM_ATT_AVAIL_STATUS:
@@ -1678,14 +1676,12 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, packet_info *pinfo,
 		if (global_oml_dialect == OML_DIALECT_IPA) switch (tag) {
 		/* proprietary ip.access extensions */
 		case NM_ATT_IPACC_DST_IP:
-			val32 = tvb_get_ntohl(tvb, offset);
-			proto_tree_add_ipv4(att_tree, hf_attr_ipa_rsl_ip, tvb,
-					    offset, len, val32);
+			proto_tree_add_item(att_tree, hf_attr_ipa_rsl_ip, tvb,
+					    offset, len, ENC_NA);
 			break;
 		case NM_ATT_IPACC_DST_IP_PORT:
-			val16 = tvb_get_ntohs(tvb, offset);
-			proto_tree_add_uint(att_tree, hf_attr_ipa_rsl_port, tvb,
-					    offset, len, val16);
+			proto_tree_add_item(att_tree, hf_attr_ipa_rsl_port, tvb,
+					    offset, len, ENC_BIG_ENDIAN);
 			break;
 		case NM_ATT_IPACC_LOCATION:
 			proto_tree_add_item(att_tree, hf_attr_ipa_location_name,
@@ -1723,30 +1719,24 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, packet_info *pinfo,
 					    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			break;
 		case NM_ATT_IPACC_NSEI:
-			val16 = tvb_get_ntohs(tvb, offset);
-			proto_tree_add_uint(att_tree, hf_attr_ipa_nsei,
-					   tvb, offset, 2, val16);
+			proto_tree_add_item(att_tree, hf_attr_ipa_nsei,
+					    tvb, offset, 2, ENC_BIG_ENDIAN);
 			break;
 		case NM_ATT_IPACC_NSVCI:
-			val16 = tvb_get_ntohs(tvb, offset);
-			proto_tree_add_uint(att_tree, hf_attr_ipa_nsvci,
-					   tvb, offset, 2, val16);
+			proto_tree_add_item(att_tree, hf_attr_ipa_nsvci,
+					    tvb, offset, 2, ENC_BIG_ENDIAN);
 			break;
 		case NM_ATT_IPACC_BVCI:
-			val16 = tvb_get_ntohs(tvb, offset);
-			proto_tree_add_uint(att_tree, hf_attr_ipa_bvci,
-					   tvb, offset, 2, val16);
+			proto_tree_add_item(att_tree, hf_attr_ipa_bvci,
+					    tvb, offset, 2, ENC_BIG_ENDIAN);
 			break;
 		case NM_ATT_IPACC_NS_LINK_CFG:
-			val16 = tvb_get_ntohs(tvb, offset);
-			proto_tree_add_uint(att_tree, hf_attr_ipa_nsl_sport,
-					   tvb, offset, 2, val16);
-			val32 = tvb_get_ipv4(tvb, offset+2);
-			proto_tree_add_ipv4(att_tree, hf_attr_ipa_nsl_daddr,
-					   tvb, offset+2, 4, val32);
-			val16 = tvb_get_ntohs(tvb, offset+6);
-			proto_tree_add_uint(att_tree, hf_attr_ipa_nsl_dport,
-					   tvb, offset+6, 2, val16);
+			proto_tree_add_item(att_tree, hf_attr_ipa_nsl_sport,
+					    tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(att_tree, hf_attr_ipa_nsl_daddr,
+					   tvb, offset+2, 4, ENC_NA);
+			proto_tree_add_item(att_tree, hf_attr_ipa_nsl_dport,
+					    tvb, offset+6, 2, ENC_BIG_ENDIAN);
 			break;
 		}
 		offset += len;

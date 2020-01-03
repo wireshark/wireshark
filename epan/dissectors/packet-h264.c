@@ -59,6 +59,8 @@ static int hf_h264_bit_depth_luma_minus8                   = -1;
 static int hf_h264_bit_depth_chroma_minus8                 = -1;
 static int hf_h264_qpprime_y_zero_transform_bypass_flag    = -1;
 static int hf_h264_seq_scaling_matrix_present_flag         = -1;
+static int hf_h264_seq_scaling_list_present_flag           = -1;
+static int hf_h264_delta_scale                             = -1;
 static int hf_h264_log2_max_frame_num_minus4               = -1;
 static int hf_h264_pic_order_cnt_type                      = -1;
 static int hf_h264_log2_max_pic_order_cnt_lsb_minus4       = -1;
@@ -718,9 +720,10 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
          *      k+1
          * (-1)    Ceil( k/2 )
          */
-        se_value = (codenum + 1) >> 1;
-        if (!(se_value & 1)) {
-            se_value =  - se_value;
+        if (codenum & 1) {
+            se_value = (codenum + 1) >> 1;
+        } else {
+            se_value = 0 - (codenum >> 1);
         }
         break;
     default:
@@ -887,28 +890,29 @@ dissect_h264_slice_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U
  *
  * scaling_list( scalingList, sizeOfScalingList, useDefaultScalingMatrixFlag )
  */
-/*
 static int
-dissect_h264_scaling_list(proto_tree *tree, tvbuff_t *tvb, gint bit_offset, int hf_index_scalinglist,
-                          guint8 sizeOfScalingList, int hf_index_usedefaultscalingmatrixflag)
+dissect_h264_scaling_list(proto_tree *tree, tvbuff_t *tvb, gint bit_offset, int* hf_index_scalinglist,
+                          guint8 sizeOfScalingList)
 {
-
-    guint8 lastScale = 8;
-    guint8 nextScale = 8:
-    guint8 delta_scale;
+    guint8 j;
+    gint32 lastScale = 8;
+    gint32 nextScale = 8;
+    gint32 delta_scale;
 
     for (j = 0; j < sizeOfScalingList; j++) {
       if (nextScale != 0) {
-          / delta_scale 0 | 1 se(v) /
-          delta_scale = dissect_h264_exp_golomb_code(tree, hf_h264_delta_scale, tvb, &bit_offset);
+          /* delta_scale 0 | 1 se(v) */
+          delta_scale = dissect_h264_exp_golomb_code(tree, hf_h264_delta_scale, tvb, &bit_offset, H264_SE_V);
           nextScale = ( lastScale + delta_scale + 256 ) % 256;
-          useDefaultScalingMatrixFlag = ( j == 0 && nextScale == 0 );
+          /* hf_index_usedefaultscalingmatrixflag = ( j == 0 && nextScale == 0 ); */
+      }
+      hf_index_scalinglist[ j ] = ( nextScale == 0 ) ? lastScale : nextScale;
+      lastScale = hf_index_scalinglist[ j ];
     }
-    scalingList[ j ] = ( nextScale == 0 ) ? lastScale : nextScale
-    lastScale = scalingList[ j ]
-    }
+
+    return bit_offset;
 }
-*/
+
 /* E.1.2 HRD parameters syntax */
 static int
 dissect_h264_hrd_parameters(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint bit_offset)
@@ -1643,7 +1647,8 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
     gint        i;
     guint8      profile_idc, chroma_format_idc, frame_mbs_only_flag, frame_cropping_flag;
     guint8      pic_order_cnt_type, vui_parameters_present_flag, num_ref_frames_in_pic_order_cnt_cycle;
-    guint8      seq_scaling_matrix_present_flag; /* seq_scaling_list_present_flag */
+    guint8      seq_scaling_matrix_present_flag, seq_scaling_list_present_flag;
+    int         ScalingList4x4[6][16], ScalingList8x8[2][64];
 
     /* profile_idc 0 u(8) */
     profile_idc = tvb_get_guint8(tvb, offset);
@@ -1721,22 +1726,18 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
         bit_offset++;
 
         if (seq_scaling_matrix_present_flag) {
-            /*
             for (i = 0; i < 8; i++) {
-                / seq_scaling_list_present_flag[ i ] 0 u(1) /
+                /* seq_scaling_list_present_flag[ i ] 0 u(1) */
                 seq_scaling_list_present_flag = tvb_get_bits8(tvb, bit_offset, 1);
+                proto_tree_add_bits_item(tree, hf_h264_seq_scaling_list_present_flag, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
                 bit_offset++;
                 if (seq_scaling_list_present_flag) {
                     if (i < 6)
-                        scaling_list( ScalingList4x4[ i ], 16, UseDefaultScalingMatrix4x4Flag[ i ])0
-                        dissect_h264_scaling_list()
+                        bit_offset = dissect_h264_scaling_list(tree, tvb, bit_offset, ScalingList4x4[ i ], 16);
                     else
-                        scaling_list( ScalingList8x8[ i - 6 ], 64, UseDefaultScalingMatrix8x8Flag[ i - 6 ] )0
+                        bit_offset = dissect_h264_scaling_list(tree, tvb, bit_offset, ScalingList8x8[ i - 6 ], 64);
                 }
             }
-            */
-            proto_tree_add_expert(tree, pinfo, &ei_h264_undecoded, tvb, bit_offset>>3, -1);
-            return -1;
         }
 
     }
@@ -2865,6 +2866,16 @@ proto_register_h264(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_h264_seq_scaling_list_present_flag,
+            { "seq_scaling_list_present_flag",           "h264.seq_scaling_list_present_flag",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_delta_scale,
+            { "delta_scale",           "h264.delta_scale",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_h264_log2_max_frame_num_minus4,
             { "log2_max_frame_num_minus4",           "h264.log2_max_frame_num_minus4",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2951,7 +2962,7 @@ proto_register_h264(void)
             NULL, HFILL }
         },
         { &hf_h264_frame_crop_right_offset,
-            { "frame_crop_left_offset",           "h264.frame_crop_right_offset",
+            { "frame_crop_right_offset",           "h264.frame_crop_right_offset",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },

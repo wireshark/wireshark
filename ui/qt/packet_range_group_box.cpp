@@ -28,7 +28,7 @@ PacketRangeGroupBox::~PacketRangeGroupBox()
     delete pr_ui_;
 }
 
-void PacketRangeGroupBox::initRange(packet_range_t *range) {
+void PacketRangeGroupBox::initRange(packet_range_t *range, QString selRange) {
     if (!range) return;
 
     range_ = range;
@@ -38,6 +38,9 @@ void PacketRangeGroupBox::initRange(packet_range_t *range) {
     } else {
         pr_ui_->capturedButton->setChecked(true);
     }
+
+    if (selRange.length() > 0)
+        packet_range_convert_selection_str(range_, selRange.toUtf8().constData());
 
     if (range_->user_range) {
         char* tmp_str = range_convert_range(NULL, range_->user_range);
@@ -57,7 +60,6 @@ bool PacketRangeGroupBox::isValid() {
 void PacketRangeGroupBox::updateCounts() {
     SyntaxLineEdit::SyntaxState orig_ss = syntax_state_;
     bool displayed_checked = pr_ui_->displayedButton->isChecked();
-    int selected_num;
     bool can_select;
     bool selected_packets;
     int ignored_cnt = 0, displayed_ignored_cnt = 0;
@@ -94,12 +96,14 @@ void PacketRangeGroupBox::updateCounts() {
     pr_ui_->allDisplayedLabel->setText(QString("%1").arg(label_count));
 
     // Selected / Captured + Displayed
-    selected_num = (range_->cf->current_frame) ? range_->cf->current_frame->num : 0;
-    can_select = (selected_num != 0);
+    can_select = (range_->selection_range_cnt > 0 || range_->displayed_selection_range_cnt > 0);
     if (can_select) {
         pr_ui_->selectedButton->setEnabled(true);
         pr_ui_->selectedCapturedLabel->setEnabled(!displayed_checked);
         pr_ui_->selectedDisplayedLabel->setEnabled(displayed_checked);
+
+        pr_ui_->selectedCapturedLabel->setText(QString::number(range_->selection_range_cnt));
+        pr_ui_->selectedDisplayedLabel->setText(QString::number(range_->displayed_selection_range_cnt));
     } else {
         if (range_->process == range_process_selected) {
             pr_ui_->allButton->setChecked(true);
@@ -107,13 +111,9 @@ void PacketRangeGroupBox::updateCounts() {
         pr_ui_->selectedButton->setEnabled(false);
         pr_ui_->selectedCapturedLabel->setEnabled(false);
         pr_ui_->selectedDisplayedLabel->setEnabled(false);
-    }
-    if ((range_->remove_ignored && can_select && range_->cf->current_frame->ignored) || selected_num < 1) {
+
         pr_ui_->selectedCapturedLabel->setText("0");
         pr_ui_->selectedDisplayedLabel->setText("0");
-    } else {
-        pr_ui_->selectedCapturedLabel->setText("1");
-        pr_ui_->selectedDisplayedLabel->setText("1");
     }
 
     // Marked / Captured + Displayed
@@ -222,8 +222,8 @@ void PacketRangeGroupBox::updateCounts() {
         displayed_ignored_cnt = range_->displayed_ignored_cnt;
         break;
     case(range_process_selected):
-        ignored_cnt = (can_select && range_->cf->current_frame->ignored) ? 1 : 0;
-        displayed_ignored_cnt = ignored_cnt;
+        ignored_cnt = range_->ignored_selection_range_cnt;
+        displayed_ignored_cnt = range_->displayed_ignored_selection_range_cnt;
         break;
     case(range_process_marked):
         ignored_cnt = range_->ignored_marked_cnt;

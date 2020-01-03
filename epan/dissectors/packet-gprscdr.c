@@ -645,7 +645,9 @@ static const value_string gprscdr_rat_type_vals[] = {
     {6, "EUTRAN"},
     {7, "Virtual"},
     {8, "EUTRAN-NB-IoT"},
-    /* 9-100 Spare for future use TS 29.061 */
+    {9, "LTE-M"},
+    {10, "NR"},
+    /* 11-100 Spare for future use TS 29.061 */
     {101, "IEEE 802.16e"},
     {102, "3GPP2 eHRPD"},
     {103, "3GPP2 HRPD"},
@@ -4961,7 +4963,7 @@ int dissect_gprscdr_GPRSRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-gprscdr-fn.c ---*/
-#line 113 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 115 "./asn1/gprscdr/packet-gprscdr-template.c"
 
 
 
@@ -6828,7 +6830,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/
-#line 123 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 125 "./asn1/gprscdr/packet-gprscdr-template.c"
   };
 
   /* List of subtrees */
@@ -6938,7 +6940,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr_WLANOperatorId,
 
 /*--- End of included file: packet-gprscdr-ettarr.c ---*/
-#line 135 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 137 "./asn1/gprscdr/packet-gprscdr-template.c"
         };
 
   static ei_register_info ei[] = {

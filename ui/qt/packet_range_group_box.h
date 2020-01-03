@@ -34,7 +34,7 @@ class PacketRangeGroupBox : public QGroupBox
 public:
     explicit PacketRangeGroupBox(QWidget *parent = 0);
     ~PacketRangeGroupBox();
-    void initRange(packet_range_t *range);
+    void initRange(packet_range_t *range, QString selRange = QString());
     bool isValid();
 
 signals:

@@ -44,19 +44,19 @@ QModelIndex ProtoTreeModel::index(int row, int, const QModelIndex &parent) const
         parent_node = protoNodeFromIndex(parent);
     }
 
-    if (! parent_node.isValid() )
+    if (! parent_node.isValid())
         return QModelIndex();
 
     int cur_row = 0;
     ProtoNode::ChildIterator kids = parent_node.children();
-    while ( kids.element().isValid() )
+    while (kids.element().isValid())
     {
-        if ( cur_row == row )
+        if (cur_row == row)
             break;
         cur_row++;
         kids.next();
     }
-    if ( ! kids.element().isValid() ) {
+    if (! kids.element().isValid()) {
         return QModelIndex();
     }
 
@@ -112,20 +112,20 @@ QVariant ProtoTreeModel::data(const QModelIndex &index, int role) const
         default:
             g_warning("%s:%d Unhandled severity flag: %u", G_STRFUNC, __LINE__, finfo.flag(PI_SEVERITY_MASK));
         }
-        if(finfo.headerInfo().type == FT_PROTOCOL) {
+        if (finfo.headerInfo().type == FT_PROTOCOL) {
             return QApplication::palette().window();
         }
         return QApplication::palette().base();
     }
     case Qt::ForegroundRole:
     {
-        if(finfo.flag(PI_SEVERITY_MASK)) {
+        if (finfo.flag(PI_SEVERITY_MASK)) {
             return ColorUtils::expert_color_foreground;
         }
         if (finfo.isLink()) {
             return ColorUtils::themeLinkBrush();
         }
-        if(finfo.headerInfo().type == FT_PROTOCOL) {
+        if (finfo.headerInfo().type == FT_PROTOCOL) {
             return QApplication::palette().windowText();
         }
         return QApplication::palette().text();

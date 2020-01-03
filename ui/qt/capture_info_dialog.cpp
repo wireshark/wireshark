@@ -113,7 +113,7 @@ CaptureInfoDialog::~CaptureInfoDialog()
 
 void CaptureInfoDialog::updateInfo()
 {
-    int secs = duration_.elapsed() / 1000;
+    int secs = int(duration_.elapsed() / 1000);
     QString duration = tr("%1 packets, %2:%3:%4")
             .arg(cap_info_->counts->total)
             .arg(secs / 3600, 2, 10, QChar('0'))

@@ -26,7 +26,7 @@ AStringListListModel::~AStringListListModel() { display_data_.clear(); }
 void AStringListListModel::appendRow(const QStringList & display_strings, const QString & row_tooltip, const QModelIndex &parent)
 {
     QStringList columns = headerColumns();
-    if ( display_strings.count() != columns.count() )
+    if (display_strings.count() != columns.count())
         return;
 
     emit beginInsertRows(parent, rowCount(), rowCount());
@@ -42,7 +42,7 @@ int AStringListListModel::rowCount(const QModelIndex &) const
 
 int AStringListListModel::columnCount(const QModelIndex &parent) const
 {
-    if ( rowCount(parent) == 0 )
+    if (rowCount(parent) == 0)
         return 0;
 
     return headerColumns().count();
@@ -50,11 +50,11 @@ int AStringListListModel::columnCount(const QModelIndex &parent) const
 
 QVariant AStringListListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if ( orientation == Qt::Vertical )
+    if (orientation == Qt::Vertical)
         return QVariant();
 
     QStringList columns = headerColumns();
-    if ( role == Qt::DisplayRole && section < columns.count() )
+    if (role == Qt::DisplayRole && section < columns.count())
         return QVariant::fromValue(columns[section]);
 
     return QVariant();
@@ -62,17 +62,17 @@ QVariant AStringListListModel::headerData(int section, Qt::Orientation orientati
 
 QVariant AStringListListModel::data(const QModelIndex &index, int role) const
 {
-    if ( ! index.isValid() || index.row() >= rowCount() )
+    if (! index.isValid() || index.row() >= rowCount())
         return QVariant();
 
-    if ( role == Qt::DisplayRole )
+    if (role == Qt::DisplayRole)
     {
         QStringList data = display_data_.at(index.row());
 
-        if ( index.column() < columnCount() )
+        if (index.column() < columnCount())
             return QVariant::fromValue(data.at(index.column()));
     }
-    else if ( role == Qt::ToolTipRole )
+    else if (role == Qt::ToolTipRole)
     {
         QString tooltip = tooltip_data_.at(index.row());
         if (!tooltip.isEmpty()) {
@@ -95,12 +95,12 @@ bool AStringListListSortFilterProxyModel::lessThan(const QModelIndex &left, cons
     QString leftData = left.data().toString();
     QString rightData = right.data().toString();
 
-    if ( numericColumns_.contains(left.column()) || numericColumns_.contains(right.column() ) )
+    if (numericColumns_.contains(left.column()) || numericColumns_.contains(right.column()) )
     {
-        float left = leftData.toFloat();
-        float right = rightData.toFloat();
+        float leftD = leftData.toFloat();
+        float rightD = rightData.toFloat();
 
-        return left < right;
+        return leftD < rightD;
     }
 
     return leftData.compare(rightData, sortCaseSensitivity()) < 0;
@@ -114,14 +114,14 @@ void AStringListListSortFilterProxyModel::setFilter(const QString & filter)
 
 static bool AContainsB(const QVariant &a, const QVariant &b, Qt::CaseSensitivity cs)
 {
-    if ( ! a.canConvert(QVariant::String) || ! b.canConvert(QVariant::String) )
+    if (! a.canConvert(QVariant::String) || ! b.canConvert(QVariant::String))
         return false;
     return a.toString().contains(b.toString(), cs);
 }
 
 static bool AStartsWithB(const QVariant &a, const QVariant &b, Qt::CaseSensitivity cs)
 {
-    if ( ! a.canConvert(QVariant::String) || ! b.canConvert(QVariant::String) )
+    if (! a.canConvert(QVariant::String) || ! b.canConvert(QVariant::String))
         return false;
     return a.toString().startsWith(b.toString(), cs);
 }
@@ -133,12 +133,12 @@ static bool AIsEquivalentToB(const QVariant &a, const QVariant &b, Qt::CaseSensi
 
 bool AStringListListSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    if ( columnsToFilter_.count() == 0 )
+    if (columnsToFilter_.count() == 0)
         return true;
 
     foreach(int column, columnsToFilter_)
     {
-        if ( column >= columnCount() )
+        if (column >= columnCount())
             continue;
 
         QModelIndex chkIdx = sourceModel()->index(sourceRow, column, sourceParent);
@@ -146,7 +146,7 @@ bool AStringListListSortFilterProxyModel::filterAcceptsRow(int sourceRow, const 
 
         /* Default is filter by string a contains string b */
         bool (*compareFunc)(const QVariant&, const QVariant&, Qt::CaseSensitivity) = AContainsB;
-        if ( types_.keys().contains(column) )
+        if (types_.keys().contains(column))
         {
             switch (types_.value(column, FilterByContains))
             {
@@ -165,7 +165,7 @@ bool AStringListListSortFilterProxyModel::filterAcceptsRow(int sourceRow, const 
             }
         }
 
-        if ( compareFunc(dataString, filter_, filterCaseSensitivity()) )
+        if (compareFunc(dataString, filter_, filterCaseSensitivity()))
             return true;
     }
 
@@ -174,14 +174,14 @@ bool AStringListListSortFilterProxyModel::filterAcceptsRow(int sourceRow, const 
 
 void AStringListListSortFilterProxyModel::setFilterType(AStringListListFilterType type, int column)
 {
-    if ( column >= -1 && column < columnCount() )
+    if (column >= -1 && column < columnCount())
     {
-        if ( ! types_.keys().contains(column) )
+        if (! types_.keys().contains(column))
         {
             types_.insert(column, type);
             invalidateFilter();
         }
-        else if ( types_.keys().contains(column) && type != types_[column] )
+        else if (types_.keys().contains(column) && type != types_[column])
         {
             types_[column] = type;
             invalidateFilter();
@@ -191,7 +191,7 @@ void AStringListListSortFilterProxyModel::setFilterType(AStringListListFilterTyp
 
 void AStringListListSortFilterProxyModel::setColumnToFilter(int column)
 {
-    if ( column < columnCount() && ! columnsToFilter_.contains(column) )
+    if (column < columnCount() && ! columnsToFilter_.contains(column))
     {
         columnsToFilter_.append(column);
         invalidateFilter();
@@ -212,7 +212,7 @@ void AStringListListSortFilterProxyModel::clearHiddenColumns()
 
 void AStringListListSortFilterProxyModel::setColumnToHide(int col)
 {
-    if ( ! hiddenColumns_.contains(col) && col > -1 && sourceModel() && sourceModel()->columnCount() > col )
+    if (! hiddenColumns_.contains(col) && col > -1 && sourceModel() && sourceModel()->columnCount() > col)
     {
         hiddenColumns_ << col;
         invalidateFilter();
@@ -223,10 +223,10 @@ bool AStringListListSortFilterProxyModel::filterAcceptsColumn(int sourceColumn, 
 {
     QModelIndex realIndex = sourceModel()->index(0, sourceColumn, sourceParent);
 
-    if ( ! realIndex.isValid() )
+    if (! realIndex.isValid())
         return false;
 
-    if ( hiddenColumns_.contains(sourceColumn) )
+    if (hiddenColumns_.contains(sourceColumn))
         return false;
 
     return true;
@@ -240,7 +240,7 @@ void AStringListListSortFilterProxyModel::clearNumericColumns()
 
 void AStringListListSortFilterProxyModel::setColumnAsNumeric(int col)
 {
-    if ( ! numericColumns_.contains(col) && col > -1 && sourceModel() && sourceModel()->columnCount() > col )
+    if (! numericColumns_.contains(col) && col > -1 && sourceModel() && sourceModel()->columnCount() > col)
     {
         numericColumns_ << col;
         invalidateFilter();
@@ -253,7 +253,7 @@ AStringListListUrlProxyModel::AStringListListUrlProxyModel(QObject * parent):
 
 void AStringListListUrlProxyModel::setUrlColumn(int column)
 {
-    if ( column < columnCount() && ! urls_.contains(column) )
+    if (column < columnCount() && ! urls_.contains(column))
         urls_ << column;
 }
 
@@ -266,17 +266,17 @@ QVariant AStringListListUrlProxyModel::data(const QModelIndex &index, int role) 
 {
     QVariant result = QIdentityProxyModel::data(index, role);
 
-    if ( urls_.contains(index.column()) )
+    if (urls_.contains(index.column()))
     {
-        if ( role == Qt::ForegroundRole )
+        if (role == Qt::ForegroundRole)
         {
-            if ( result.canConvert(QVariant::Brush) )
+            if (result.canConvert(QVariant::Brush))
             {
                 QBrush selected = result.value<QBrush>();
                 selected.setColor(ColorUtils::themeLinkBrush().color());
                 return selected;
             }
-        } else if ( role == Qt::TextColorRole ) {
+        } else if (role == Qt::TextColorRole) {
             return QApplication::palette().link().color();
         }
     }

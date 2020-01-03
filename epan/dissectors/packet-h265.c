@@ -1826,12 +1826,12 @@ dissect_h265_profile_tier_level(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 				}
 				if ((sub_layer_profile_idc[i] >= 1 && sub_layer_profile_idc[i] <= 5) ||
 					sub_layer_profile_idc[i] == 9 ||
-					sub_layer_profile_compatibility_flag[1] ||
-					sub_layer_profile_compatibility_flag[2] ||
-					sub_layer_profile_compatibility_flag[3] ||
-					sub_layer_profile_compatibility_flag[4] ||
-					sub_layer_profile_compatibility_flag[5] ||
-					sub_layer_profile_compatibility_flag[9]) {
+					sub_layer_profile_compatibility_flag[i][1] ||
+					sub_layer_profile_compatibility_flag[i][2] ||
+					sub_layer_profile_compatibility_flag[i][3] ||
+					sub_layer_profile_compatibility_flag[i][4] ||
+					sub_layer_profile_compatibility_flag[i][5] ||
+					sub_layer_profile_compatibility_flag[i][9]) {
 					/* The number of bits in this syntax structure is not affected by this condition */
 					proto_tree_add_bits_item(tree, hf_h265_sub_layer_inbld_flag, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 					bit_offset++;

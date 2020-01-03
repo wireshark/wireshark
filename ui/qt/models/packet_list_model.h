@@ -45,10 +45,10 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex & = QModelIndex()) const;
     QVariant data(const QModelIndex &d_index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole | Qt::ToolTipRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
     gint appendPacket(frame_data *fdata);
+    frame_data *getRowFdata(QModelIndex idx);
     frame_data *getRowFdata(int row);
     void ensureRowColorized(int row);
     int visibleIndexOf(frame_data *fdata) const;
@@ -61,13 +61,12 @@ public:
      */
     void resetColumns();
     void resetColorized();
-    void toggleFrameMark(const QModelIndex &fm_index);
+    void toggleFrameMark(const QModelIndexList &indeces);
     void setDisplayedFrameMark(gboolean set);
-    void toggleFrameIgnore(const QModelIndex &i_index);
+    void toggleFrameIgnore(const QModelIndexList &indeces);
     void setDisplayedFrameIgnore(gboolean set);
     void toggleFrameRefTime(const QModelIndex &rt_index);
     void unsetAllFrameRefTime();
-    void applyTimeShift();
 
     void setMaximumRowHeight(int height);
 
@@ -75,12 +74,6 @@ signals:
     void goToPacket(int);
     void maxLineCountChanged(const QModelIndex &ih_index) const;
     void itemHeightChanged(const QModelIndex &ih_index);
-    void pushBusyStatus(const QString &status);
-    void popBusyStatus();
-
-    void pushProgressStatus(const QString &status, bool animate, bool terminate_is_stop, gboolean *stop_flag);
-    void updateProgressStatus(int value);
-    void popProgressStatus();
 
     void bgColorizationProgress(int first, int last);
 

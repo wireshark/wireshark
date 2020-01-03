@@ -7,10 +7,13 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "file.h"
+
 #include <wiretap/wtap.h>
 
 #include "packet_range_group_box.h"
 #include "capture_file_dialog.h"
+
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -19,7 +22,6 @@
 #else // Q_OS_WIN
 
 #include <errno.h>
-#include "file.h"
 #include "wsutil/filesystem.h"
 #include "wsutil/nstime.h"
 #include "wsutil/str_util.h"
@@ -33,19 +35,20 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QMessageBox>
 #include <QSortFilterProxyModel>
 #include <QSpacerItem>
 #include <QVBoxLayout>
 #endif // ! Q_OS_WIN
 
 #include <QPushButton>
+#include <QMessageBox>
+
 #include "epan/prefs.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <wireshark_application.h>
 
 CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString &display_filter) :
-    QFileDialog(parent),
+    WiresharkFileDialog(parent),
     cap_file_(cf),
     display_filter_(display_filter),
 #if !defined(Q_OS_WIN)
@@ -101,16 +104,7 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString 
 #endif // Q_OS_WIN
 }
 
-check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
-#if defined(Q_OS_WIN)
-        parent
-#endif
-        , capture_file *cf, int file_type) {
-#if defined(Q_OS_WIN)
-    if (!parent || !cf)
-        return CANCELLED;
-    return win32_check_save_as_with_comments((HWND)parent->effectiveWinId(), cf, file_type);
-#else // Q_OS_WIN
+check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *parent, capture_file *cf, int file_type) {
     guint32 comment_types;
 
     /* What types of comments do we have? */
@@ -127,6 +121,7 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
     QPushButton *save_button;
     QPushButton *discard_button;
 
+    msg_dialog.setParent(parent);
     msg_dialog.setIcon(QMessageBox::Question);
     msg_dialog.setText(tr("This capture file contains comments."));
     msg_dialog.setStandardButtons(QMessageBox::Cancel);
@@ -213,7 +208,6 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
 
     /* Just give up. */
     return CANCELLED;
-#endif // Q_OS_WIN
 }
 
 
@@ -236,7 +230,7 @@ void CaptureFileDialog::accept()
         setFocus();
         fixFilenameExtension();
     }
-    QFileDialog::accept();
+    WiresharkFileDialog::accept();
 }
 #endif // ! Q_OS_WIN
 
@@ -261,12 +255,13 @@ wtap_compression_type CaptureFileDialog::compressionType() {
 }
 
 int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
+    QString title_str = wsApp->windowTitleString(tr("Open Capture File"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
     GString *dfilter = g_string_new(display_filter_.toUtf8().constData());
     gboolean wof_status;
 
     // XXX Add a widget->HWND routine to qt_ui_utils and use it instead.
-    wof_status = win32_open_file((HWND)parentWidget()->effectiveWinId(), fname, &type, dfilter);
+    wof_status = win32_open_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), fname, &type, dfilter);
     file_name = fname->str;
     display_filter_ = dfilter->str;
 
@@ -277,43 +272,52 @@ int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
 }
 
 check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_support_all_comments) {
+    QString title_str = wsApp->windowTitleString(tr("Save Capture File As"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
     gboolean wsf_status;
 
-    wsf_status = win32_save_as_file((HWND)parentWidget()->effectiveWinId(), cap_file_, fname, &file_type_, &compression_type_, must_support_all_comments);
+    wsf_status = win32_save_as_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), cap_file_, fname, &file_type_, &compression_type_, must_support_all_comments);
     file_name = fname->str;
 
     g_string_free(fname, TRUE);
 
     if (wsf_status) {
-        return win32_check_save_as_with_comments((HWND)parentWidget()->effectiveWinId(), cap_file_, file_type_);
+        return checkSaveAsWithComments(parentWidget(), cap_file_, file_type_);
     }
 
     return CANCELLED;
 }
 
-check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, packet_range_t *range) {
+check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, packet_range_t *range, QString selRange) {
+    QString title_str = wsApp->windowTitleString(tr("Export Specified Packets"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
     gboolean wespf_status;
 
-    wespf_status = win32_export_specified_packets_file((HWND)parentWidget()->effectiveWinId(), cap_file_, fname, &file_type_, &compression_type_, range);
+    if (selRange.length() > 0)
+    {
+        packet_range_convert_selection_str(range, selRange.toUtf8().constData());
+    }
+
+    wespf_status = win32_export_specified_packets_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), cap_file_, fname, &file_type_, &compression_type_, range);
     file_name = fname->str;
 
     g_string_free(fname, TRUE);
 
     if (wespf_status) {
-        return win32_check_save_as_with_comments((HWND)parentWidget()->effectiveWinId(), cap_file_, file_type_);
+        return checkSaveAsWithComments(parentWidget(), cap_file_, file_type_);
     }
 
     return CANCELLED;
 }
 
 int CaptureFileDialog::merge(QString &file_name) {
+    QString title_str = wsApp->windowTitleString(tr("Merge Capture File"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
     GString *dfilter = g_string_new(display_filter_.toUtf8().constData());
     gboolean wmf_status;
 
-    wmf_status = win32_merge_file((HWND)parentWidget()->effectiveWinId(), fname, dfilter, &merge_type_);
+
+    wmf_status = win32_merge_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), fname, dfilter, &merge_type_);
     file_name = fname->str;
     display_filter_ = dfilter->str;
 
@@ -643,8 +647,8 @@ void CaptureFileDialog::addGzipControls(QVBoxLayout &v_box) {
 
 }
 
-void CaptureFileDialog::addRangeControls(QVBoxLayout &v_box, packet_range_t *range) {
-    packet_range_group_box_.initRange(range);
+void CaptureFileDialog::addRangeControls(QVBoxLayout &v_box, packet_range_t *range, QString selRange) {
+    packet_range_group_box_.initRange(range, selRange);
     v_box.addWidget(&packet_range_group_box_, 0, Qt::AlignTop);
 }
 
@@ -682,7 +686,7 @@ int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
         selectFile(file_name);
     }
 
-    if (QFileDialog::exec() && selectedFiles().length() > 0) {
+    if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
         file_name = selectedFiles()[0];
         type = format_type_.currentIndex();
         display_filter_.append(display_filter_edit_->text());
@@ -713,14 +717,14 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
     }
     connect(this, &QFileDialog::filterSelected, this, &CaptureFileDialog::fixFilenameExtension);
 
-    if (QFileDialog::exec() && selectedFiles().length() > 0) {
+    if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
         file_name = selectedFiles()[0];
         return checkSaveAsWithComments(this, cap_file_, selectedFileType());
     }
     return CANCELLED;
 }
 
-check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, packet_range_t *range) {
+check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, packet_range_t *range, QString selRange) {
     QDialogButtonBox *button_box;
 
     setWindowTitle(wsApp->windowTitleString(tr("Export Specified Packets")));
@@ -729,7 +733,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     setAcceptMode(QFileDialog::AcceptSave);
     setLabelText(FileType, tr("Export as:"));
 
-    addRangeControls(left_v_box_, range);
+    addRangeControls(left_v_box_, range, selRange);
     addGzipControls(right_v_box_);
     button_box = addHelpButton(HELP_EXPORT_FILE_DIALOG);
 
@@ -749,7 +753,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     }
     connect(this, &QFileDialog::filterSelected, this, &CaptureFileDialog::fixFilenameExtension);
 
-    if (QFileDialog::exec() && selectedFiles().length() > 0) {
+    if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
         file_name = selectedFiles()[0];
         return checkSaveAsWithComments(this, cap_file_, selectedFileType());
     }
@@ -772,7 +776,7 @@ int CaptureFileDialog::merge(QString &file_name) {
     // Grow the dialog to account for the extra widgets.
     resize(width(), height() + right_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
 
-    if (QFileDialog::exec() && selectedFiles().length() > 0) {
+    if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
         file_name.append(selectedFiles()[0]);
         display_filter_.append(display_filter_edit_->text());
 
@@ -865,7 +869,7 @@ void CaptureFileDialog::preview(const QString & path)
 
     wth = wtap_open_offline(path.toUtf8().data(), WTAP_TYPE_AUTO, &err, &err_info, TRUE);
     if (wth == NULL) {
-        if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
+        if (err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
             preview_format_.setText(tr("unknown file format"));
         } else {
             preview_format_.setText(tr("error opening file"));
@@ -888,7 +892,7 @@ void CaptureFileDialog::preview(const QString & path)
 
     status = get_stats_for_preview(wth, &stats, &err, &err_info);
 
-    if(status == PREVIEW_READ_ERROR) {
+    if (status == PREVIEW_READ_ERROR) {
         // XXX - give error details?
         g_free(err_info);
         preview_size_.setText(tr("%1, error after %Ln data record(s)", "", stats.records)
@@ -897,7 +901,7 @@ void CaptureFileDialog::preview(const QString & path)
     }
 
     // Packet count
-    if(status == PREVIEW_TIMED_OUT) {
+    if (status == PREVIEW_TIMED_OUT) {
         preview_size_.setText(tr("%1, timed out at %Ln data record(s)", "", stats.data_records)
                               .arg(size_str));
     } else {
@@ -907,7 +911,7 @@ void CaptureFileDialog::preview(const QString & path)
 
     // First packet + elapsed time
     QString first_elapsed;
-    if(stats.have_times) {
+    if (stats.have_times) {
         //
         // We saw at least one record with a time stamp, so we can give
         // a start time (if we have a mix of records with and without
@@ -917,16 +921,14 @@ void CaptureFileDialog::preview(const QString & path)
         ti_time = (long)stats.start_time;
         ti_tm = localtime(&ti_time);
         first_elapsed = "?";
-        if(ti_tm) {
-            first_elapsed = QString().sprintf(
-                     "%04d-%02d-%02d %02d:%02d:%02d",
-                     ti_tm->tm_year + 1900,
-                     ti_tm->tm_mon + 1,
-                     ti_tm->tm_mday,
-                     ti_tm->tm_hour,
-                     ti_tm->tm_min,
-                     ti_tm->tm_sec
-                     );
+        if (ti_tm) {
+            first_elapsed = QString("%1-%2-%3 %4:%5:%6")
+                    .arg(ti_tm->tm_year + 1900, 4, QChar('0'))
+                    .arg(ti_tm->tm_mon + 1, 2, QChar('0'))
+                    .arg(ti_tm->tm_mday, 2, QChar('0'))
+                    .arg(ti_tm->tm_hour, 2, QChar('0'))
+                    .arg(ti_tm->tm_min, 2, QChar('0'))
+                    .arg(ti_tm->tm_sec, 2, QChar('0'));
         }
     } else {
         first_elapsed = tr("unknown");
@@ -934,7 +936,7 @@ void CaptureFileDialog::preview(const QString & path)
 
     // Elapsed time
     first_elapsed += " / ";
-    if(status == PREVIEW_SUCCEEDED && stats.have_times) {
+    if (status == PREVIEW_SUCCEEDED && stats.have_times) {
         //
         // We didn't time out, so we looked at all packets, and we got
         // at least one packet with a time stamp, so we can calculate
@@ -944,13 +946,14 @@ void CaptureFileDialog::preview(const QString & path)
         // the last one with a time stamp, this may be inaccurate).
         //
         elapsed_time = (unsigned int)(stats.stop_time-stats.start_time);
-        if(elapsed_time/86400) {
-            first_elapsed += QString().sprintf("%02u days %02u:%02u:%02u",
-                    elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
-        } else {
-            first_elapsed += QString().sprintf("%02u:%02u:%02u",
-                    elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+        if (elapsed_time/86400) {
+            first_elapsed += QString("%1 days ").arg(elapsed_time/86400, 2, QChar('0'));
+            elapsed_time = elapsed_time % 86400;
         }
+        first_elapsed += QString("%2:%3:%4")
+                .arg(elapsed_time%86400/3600, 2, QChar('0'))
+                .arg(elapsed_time%3600/60, 2, QChar('0'))
+                .arg(elapsed_time%60, 2, QChar('0'));
     } else {
         first_elapsed += tr("unknown");
     }

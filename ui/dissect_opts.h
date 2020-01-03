@@ -26,25 +26,12 @@ extern "C" {
  * Long options.
  * We do not currently have long options corresponding to all short
  * options; we should probably pick appropriate option names for them.
- *
- * For long options with no corresponding short options, we define values
- * outside the range of ASCII graphic characters, make that the last
- * component of the entry for the long option, and have a case for that
- * option in the switch statement.
- *
- * We also pick values >= 4096, so as not to collide with capture options,
- * and <= 65535, so as to leave values > 65535 for options specific to a
- * program.
  */
 
-/*
- * Non-capture long-only options should start here, to avoid collision
- * with capture options.
- */
-#define LONGOPT_DISABLE_PROTOCOL  4096
-#define LONGOPT_ENABLE_HEURISTIC  4097
-#define LONGOPT_DISABLE_HEURISTIC 4098
-#define LONGOPT_ENABLE_PROTOCOL   4099
+#define LONGOPT_DISABLE_PROTOCOL  LONGOPT_BASE_DISSECTOR+1
+#define LONGOPT_ENABLE_HEURISTIC  LONGOPT_BASE_DISSECTOR+2
+#define LONGOPT_DISABLE_HEURISTIC LONGOPT_BASE_DISSECTOR+3
+#define LONGOPT_ENABLE_PROTOCOL   LONGOPT_BASE_DISSECTOR+4
 
 /*
  * Options for dissecting common to all dissecting programs.

@@ -174,8 +174,8 @@ To install it from Chocolatey run
 --
 ----
 # If you have not already, install Python 3 first and then *restart* the shell.
-PS$>choco install -y python3
-PS$>choco install -y git-review -source python
+PS$> choco install -y python3
+PS$> choco install -y git-review -source python
 # Make sure that "git-review" is present in our path (edit the version as needed).
 PS$>$userpath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User)
 PS$>$userpath += ";C:\Python37\Scripts"
@@ -1362,16 +1362,6 @@ It might take some time, even on fast machines.
 If everything went well, you will now find something like:
 _WiresharkPortable_{wireshark-version}.paf.exe_ in
 the _packaging/portableapps_ directory.
-
-
-[[ChSrcVersioning]]
-
-==== Packaging Guidelines
-
-The following guidelines should be followed by anyone creating and
-distributing third-party Wireshark packages or redistributing official
-Wireshark packages.
-
 
 [[ChSrcMimeTypes]]
 

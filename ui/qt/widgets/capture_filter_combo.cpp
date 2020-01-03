@@ -26,11 +26,12 @@ CaptureFilterCombo::CaptureFilterCombo(QWidget *parent, bool plain) :
     cf_edit_ = new CaptureFilterEdit(this, plain);
 
     setEditable(true);
-    // Enabling autocompletion here gives us two simultaneous completions:
-    // Inline (highlighted text) for entire filters, handled here and popup
-    // completion for fields handled by CaptureFilterEdit.
-    setCompleter(0);
     setLineEdit(cf_edit_);
+    // setLineEdit will create a new QCompleter that performs inline completion,
+    // be sure to disable that since our CaptureFilterEdit performs its own
+    // popup completion. As QLineEdit's completer is designed for full line
+    // completion, we cannot reuse it for word completion.
+    setCompleter(0);
     // Default is Preferred.
     setSizePolicy(QSizePolicy::MinimumExpanding, sizePolicy().verticalPolicy());
     setInsertPolicy(QComboBox::NoInsert);
@@ -39,10 +40,6 @@ CaptureFilterCombo::CaptureFilterCombo(QWidget *parent, bool plain) :
 
     connect(this, &CaptureFilterCombo::interfacesChanged, cf_edit_,
             static_cast<void (CaptureFilterEdit::*)()>(&CaptureFilterEdit::checkFilter));
-    connect(cf_edit_, &CaptureFilterEdit::pushFilterSyntaxStatus,
-            this, &CaptureFilterCombo::pushFilterSyntaxStatus);
-    connect(cf_edit_, &CaptureFilterEdit::popFilterSyntaxStatus,
-            this, &CaptureFilterCombo::popFilterSyntaxStatus);
     connect(cf_edit_, &CaptureFilterEdit::captureFilterSyntaxChanged,
             this, &CaptureFilterCombo::captureFilterSyntaxChanged);
     connect(cf_edit_, &CaptureFilterEdit::startCapture, this, &CaptureFilterCombo::startCapture);

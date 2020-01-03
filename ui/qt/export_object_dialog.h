@@ -19,6 +19,8 @@
 
 #include "wireshark_dialog.h"
 
+#include <QKeyEvent>
+
 class QTreeWidgetItem;
 class QAbstractButton;
 
@@ -34,23 +36,26 @@ public:
     explicit ExportObjectDialog(QWidget &parent, CaptureFile &cf, register_eo_t* eo);
     ~ExportObjectDialog();
 
-    ExportObjectsTreeView* getExportObjectView();
-
 public slots:
     void show();
+
+protected:
+    virtual void keyPressEvent(QKeyEvent *evt);
 
 private slots:
     void accept();
     void captureEvent(CaptureEvent e);
     void on_buttonBox_helpRequested();
     void on_buttonBox_clicked(QAbstractButton *button);
+    void on_cmbContentType_currentIndexChanged(int index);
 
-private slots:
-    void modelDataChanged(const QModelIndex &topLeft);
+    void modelDataChanged(const QModelIndex &topLeft, int from, int to);
     void modelRowsReset();
 
+    void currentHasChanged(QModelIndex current);
+
 private:
-    void saveCurrentEntry();
+    void saveCurrentEntry(QString *tempFile = Q_NULLPTR);
     void saveAllEntries();
 
     Ui::ExportObjectDialog *eo_ui_;
@@ -59,6 +64,10 @@ private:
     QPushButton *save_all_bt_;
     ExportObjectModel model_;
     ExportObjectProxyModel proxyModel_;
+
+    QStringList contentTypes;
+
+    void updateContentTypes();
 };
 
 #endif // EXPORT_OBJECT_DIALOG_H

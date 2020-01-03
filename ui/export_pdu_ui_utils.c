@@ -34,12 +34,17 @@ static void
 exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
 {
     int   import_file_fd;
-    char *tmpname, *capfile_name, *comment;
+    char *capfile_name, *comment;
     int   err;
 
     /* Choose a random name for the temporary import buffer */
-    import_file_fd = create_tempfile(&tmpname, "Wireshark_PDU_", NULL);
-    capfile_name = g_strdup(tmpname);
+    GError *err_tempfile = NULL;
+    import_file_fd = create_tempfile(&capfile_name, "Wireshark_PDU_", NULL, &err_tempfile);
+    if (import_file_fd < 0) {
+        failure_alert_box("Temporary file could not be created: %s", err_tempfile->message);
+        g_error_free(err_tempfile);
+        goto end;
+    }
 
     comment = g_strdup_printf("Dump of PDUs from %s", cfile.filename);
     err = exp_pdu_open(exp_pdu_tap_data, import_file_fd, comment);

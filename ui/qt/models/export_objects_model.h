@@ -74,8 +74,17 @@ public:
 
     explicit ExportObjectProxyModel(QObject * parent = Q_NULLPTR);
 
+    void setContentFilterString(QString contentFilter);
+    void setTextFilterString(QString textFilter);
+
 protected:
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+
+private:
+    QString contentFilter_;
+    QString textFilter_;
+
 };
 
 #endif // EXPORT_OBJECTS_MODEL_H

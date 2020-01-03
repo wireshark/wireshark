@@ -59,7 +59,7 @@ void ByteViewTab::connectToMainWindow()
             wsApp->mainWindow(), SIGNAL(fieldHighlight(FieldInformation *)));
 
     /* Connect change of packet selection */
-    connect(wsApp->mainWindow(), SIGNAL(frameSelected(int)), this, SLOT(selectedFrameChanged(int)));
+    connect(wsApp->mainWindow(), SIGNAL(framesSelected(QList<int>)), this, SLOT(selectedFrameChanged(QList<int>)));
     connect(wsApp->mainWindow(), SIGNAL(setCaptureFile(capture_file*)), this, SLOT(setCaptureFile(capture_file*)));
     connect(wsApp->mainWindow(), SIGNAL(fieldSelected(FieldInformation *)), this, SLOT(selectedFieldChanged(FieldInformation *)));
 
@@ -68,16 +68,16 @@ void ByteViewTab::connectToMainWindow()
 
 void ByteViewTab::captureActive(int cap)
 {
-    if ( cap == 0 )
+    if (cap == 0)
     {
         QList<ByteViewText *> allBVTs = findChildren<ByteViewText *>();
-        if ( allBVTs.count() > 0 )
+        if (allBVTs.count() > 0)
         {
             ByteViewText * bvt = allBVTs.at(0);
             tvbuff_t * stored = VariantPointer<tvbuff_t>::asPtr(bvt->property(tvb_data_property));
 
-            if ( ! stored )
-                selectedFrameChanged(-1);
+            if (! stored)
+                selectedFrameChanged(QList<int>());
         }
     }
 }
@@ -89,11 +89,11 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
     }
 
     packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII;
-    if ( cap_file_ && cap_file_->current_frame )
+    if (cap_file_ && cap_file_->current_frame)
         encoding = (packet_char_enc)cap_file_->current_frame->encoding;
 
     QByteArray data;
-    if ( tvb ) {
+    if (tvb) {
         int data_len = (int) tvb_captured_length(tvb);
         if (data_len > 0) {
             // Note: this does not copy the data and will be invalidated when
@@ -106,7 +106,7 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
     byte_view_text->setAccessibleName(name);
     byte_view_text->setMonospaceFont(wsApp->monospaceFont(true));
 
-    if ( tvb )
+    if (tvb)
     {
         byte_view_text->setProperty(tvb_data_property, VariantPointer<tvbuff_t>::asQVariant(tvb));
 
@@ -124,15 +124,15 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
 
 void ByteViewTab::byteViewTextHovered(int idx)
 {
-    if ( idx >= 0 && edt_ )
+    if (idx >= 0 && edt_)
     {
         tvbuff_t * tvb = VariantPointer<tvbuff_t>::asPtr(sender()->property(tvb_data_property));
         proto_tree * tree = edt_->tree;
 
-        if ( tvb && tree )
+        if (tvb && tree)
         {
             field_info * fi = proto_find_field_from_offset(tree, idx, tvb);
-            if ( fi )
+            if (fi)
             {
                 FieldInformation finfo(fi, this);
                 highlightedFieldChanged(&finfo);
@@ -147,15 +147,15 @@ void ByteViewTab::byteViewTextHovered(int idx)
 
 void ByteViewTab::byteViewTextMarked(int idx)
 {
-    if ( idx >= 0 && edt_ )
+    if (idx >= 0 && edt_)
     {
         tvbuff_t * tvb = VariantPointer<tvbuff_t>::asPtr(sender()->property(tvb_data_property));
         proto_tree * tree = edt_->tree;
 
-        if ( tvb && tree )
+        if (tvb && tree)
         {
             field_info * fi = proto_find_field_from_offset(tree, idx, tvb);
-            if ( fi )
+            if (fi)
             {
                 FieldInformation finfo(fi, this);
                 emit fieldSelected(&finfo);
@@ -171,7 +171,7 @@ ByteViewText * ByteViewTab::findByteViewTextForTvb(tvbuff_t * search_tvb, int * 
 {
 
     ByteViewText * item = 0;
-    if ( ! search_tvb )
+    if (! search_tvb)
         return item;
 
     bool found = false;
@@ -182,13 +182,13 @@ ByteViewText * ByteViewTab::findByteViewTextForTvb(tvbuff_t * search_tvb, int * 
     {
         ByteViewText * bvt = allBVTs.at(i);
         tvbuff_t * stored = VariantPointer<tvbuff_t>::asPtr(bvt->property(tvb_data_property));
-        if ( stored == search_tvb )
+        if (stored == search_tvb)
         {
             found = true;
         }
-        else if ( stored )
+        else if (stored)
         {
-            if ( stored->length >= length && tvb_memeql(search_tvb, 0, tvb_get_ptr(stored, 0, length), length ) == 0 )
+            if (stored->length >= length && tvb_memeql(search_tvb, 0, tvb_get_ptr(stored, 0, length), length) == 0)
             {
                 /* In packetDialog we do not match, because we came from different data sources.
                  * Assuming the capture files match, this should be a sufficient enough difference */
@@ -196,10 +196,10 @@ ByteViewText * ByteViewTab::findByteViewTextForTvb(tvbuff_t * search_tvb, int * 
             }
         }
 
-        if ( found )
+        if (found)
         {
             int wdgIdx = bvt->property("tab_index").toInt();
-            if ( idx )
+            if (idx)
             {
                 *idx = wdgIdx;
             }
@@ -227,7 +227,7 @@ void ByteViewTab::setTabsVisible() {
         tabBar()->hide();
 }
 
-void ByteViewTab::selectedFrameChanged(int frameNum)
+void ByteViewTab::selectedFrameChanged(QList<int> frames)
 {
     clear();
     qDeleteAll(findChildren<ByteViewText *>());
@@ -246,9 +246,10 @@ void ByteViewTab::selectedFrameChanged(int frameNum)
         }
     }
 
-    if ( frameNum >= 0 )
+    /* only show the bytes for single selections */
+    if (frames.count() == 1)
     {
-        if ( ! cap_file_ || ! cap_file_->edt )
+        if (! cap_file_ || ! cap_file_->edt)
             return;
 
         /* This code relies on a dissection, which had happened somewhere else. It also does not
@@ -286,7 +287,7 @@ void ByteViewTab::selectedFieldChanged(FieldInformation *selected)
         const field_info *fi = selected->fieldInfo();
 
         int idx = 0;
-        if ( fi )
+        if (fi)
             byte_view_text = findByteViewTextForTvb(fi->ds_tvb, &idx);
 
         if (cap_file_->search_in_progress && (cap_file_->hex || (cap_file_->string && cap_file_->packet_data))) {
@@ -340,7 +341,7 @@ void ByteViewTab::highlightedFieldChanged(FieldInformation *highlighted)
 
 void ByteViewTab::setCaptureFile(capture_file *cf)
 {
-    selectedFrameChanged(-1);
+    selectedFrameChanged(QList<int>());
 
     cap_file_ = cf;
 }

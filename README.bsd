@@ -28,7 +28,7 @@ can be found at the following sites:
 
 If you want to use the Wireshark GUI, install one or both of these toolkits:
 
-    Qt 5.2 or later:
+    Qt 5.3 or later:
 	 http://download.qt-project.org/official_releases/qt/
 
 

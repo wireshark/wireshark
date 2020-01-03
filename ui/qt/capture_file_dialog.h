@@ -10,6 +10,8 @@
 #ifndef CAPTURE_FILE_DIALOG_H
 #define CAPTURE_FILE_DIALOG_H
 
+#include <ui/qt/widgets/wireshark_file_dialog.h>
+
 #ifndef Q_OS_WIN
 #include <ui/qt/widgets/display_filter_edit.h>
 #include "packet_range_group_box.h"
@@ -23,7 +25,6 @@
 
 #include "ui/file_dialog.h"
 
-#include <QFileDialog>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QRadioButton>
@@ -31,7 +32,7 @@
 #include <QDialogButtonBox>
 #include <QComboBox>
 
-class CaptureFileDialog : public QFileDialog
+class CaptureFileDialog : public WiresharkFileDialog
 {
     // The GTK+ Open Capture File dialog has the following elements and features:
     //   - The ability to select a capture file from a list of known extensions
@@ -103,7 +104,7 @@ private:
     QHash<QString, QStringList> type_suffixes_;
 
     void addGzipControls(QVBoxLayout &v_box);
-    void addRangeControls(QVBoxLayout &v_box, packet_range_t *range);
+    void addRangeControls(QVBoxLayout &v_box, packet_range_t *range, QString selRange = QString());
     QDialogButtonBox *addHelpButton(topic_action_e help_topic);
 
     QStringList buildFileSaveAsTypeList(bool must_support_comments);
@@ -132,7 +133,7 @@ public slots:
     int exec() Q_DECL_OVERRIDE;
     int open(QString &file_name, unsigned int &type);
     check_savability_t saveAs(QString &file_name, bool must_support_comments);
-    check_savability_t exportSelectedPackets(QString &file_name, packet_range_t *range);
+    check_savability_t exportSelectedPackets(QString &file_name, packet_range_t *range, QString selRange = QString());
     int merge(QString &file_name);
 
 private slots:

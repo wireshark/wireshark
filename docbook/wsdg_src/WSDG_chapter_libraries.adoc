@@ -78,7 +78,7 @@ must be set appropriately.
 === Qt
 
 The Qt library is used to build the UI for Wireshark and is used to provide a
-platform independent UI. Wireshark can be built with Qt 5.2 or later.
+platform independent UI. Wireshark can be built with Qt 5.3 or later.
 
 For more information on the Qt libraries, see <<ChUIQt>>.
 
@@ -363,7 +363,9 @@ If libmaxminddb library isn't already installed or available as a
 package for your platform, you can get it at
 https://github.com/maxmind/libmaxminddb[].
 
-We provide a package for Windows at
+We provide packages for Windows at
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
+and
 https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsSparkle]]

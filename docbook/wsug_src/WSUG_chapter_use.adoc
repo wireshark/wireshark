@@ -192,7 +192,7 @@ press the Control (or Strg in German) and the K keys together to open the
 
 [[ChUseFileMenuSection]]
 
-=== The “File” menu
+=== The “File” Menu
 
 The Wireshark file menu contains the fields shown in <<ChUseTabFile>>.
 
@@ -501,7 +501,7 @@ image::wsug_graphics/ws-go-menu.png[{screenshot-attrs}]
 
 [[ChUseCaptureMenuSection]]
 
-=== The “Capture” menu
+=== The “Capture” Menu
 
 The Wireshark Capture menu contains the fields shown in <<ChUseTabCap>>.
 
@@ -627,7 +627,7 @@ The Wireshark Statistics menu contains the fields shown in <<ChUseStatistics>>.
 .The “Statistics” Menu
 image::wsug_graphics/ws-statistics-menu.png[{screenshot-attrs}]
 
-All menu items will bring up a new window showing specific statistical information.
+Each menu item brings up a new window showing specific statistics.
 
 [[ChUseStatistics]]
 .Statistics menu items
@@ -675,7 +675,7 @@ The Wireshark Telephony menu contains the fields shown in <<ChUseTelephony>>.
 .The “Telephony” Menu
 image::wsug_graphics/ws-telephony-menu.png[{screenshot-attrs}]
 
-All menu items will bring up a new window showing specific telephony related statistical information.
+Each menu item shows specific telephony related statistics.
 
 [[ChUseTelephony]]
 .Telephony menu items
@@ -699,6 +699,31 @@ All menu items will bring up a new window showing specific telephony related sta
 |menu:SIP Flows[]||See <<ChTelSIPFlows>>
 |menu:SIP Statistics[]||See <<ChTelSIPStatistics>>
 |menu:WAP-WSP Packet Counter[]||See <<ChTelWAPWSPPacketCounter>>
+
+|===
+
+[[ChUseWirelessMenuSection]]
+
+=== The “Wireless” Menu
+
+The Wireless menu lets you analyze Bluetooth and IEEE 802.11 wireless LAN activity as shown in <<ChUseWiresharkWirelessMenu>>.
+
+[[ChUseWiresharkWirelessMenu]]
+.The “Wireless” Menu
+image::wsug_graphics/ws-wireless-menu.png[{screenshot-attrs}]
+
+Each menu item shows specific Bluetooth and IEEE 802.11 statistics.
+
+[[ChUseWireless]]
+.Wireless menu items
+[options="header",cols="3,2,5"]
+|===
+|Menu Item|Accelerator|Description
+
+|menu:Bluetooth ATT Server Attributes[]||See <<ChWirelessBluetoothATTServerAttributes>>
+|menu:Bluetooth Devices[]||See <<ChWirelessBluetoothDevices>>
+|menu:Bluetooth HCI Summary[]||See <<ChWirelessBluetoothHCISummary>>
+|menu:WLAN Traffic[]||See <<ChWirelessWLANTraffic>>
 
 |===
 
@@ -1039,37 +1064,32 @@ This statusbar is shown while no capture file is loaded, e.g. when Wireshark is 
 .The Statusbar with a loaded capture file
 image::wsug_graphics/ws-statusbar-loaded.png[{statusbar-attrs}]
 
-* *The colorized bullet* on the left shows the highest expert info level found
-  in the currently loaded capture file. Hovering the mouse over this icon will
-  show a textual description of the expert info level, and clicking the icon
-  will bring up the Expert Infos dialog box. For a detailed description of
-  expert info, see <<ChAdvExpert>>.
+The colorized bullet...:: on the left shows the highest expert information level found in the currently loaded capture file.
+Hovering the mouse over this icon will show a description of the expert info level, and clicking the icon will bring up the Expert Information dialog box.
+For a detailed description of this dialog and each expert level, see <<ChAdvExpert>>.
 
-* *The left side* shows information about the capture file, its name, its size
-  and the elapsed time while it was being captured. Hovering over a file name
-  will show its full path and size.
+The edit icon...:: on the left side lets you add a comment to the capture file using the <<ChStatSummary,Capture File Properties>> dialog.
 
-* *The middle part* shows the current number of packets in the capture file. The
-  following values are displayed:
+The left side...:: shows the capture file name by default.
+It also shows field information when hovering over and selecting items in the packet detail and packet bytes panes, as well as general notifications.
 
-  - _Packets:_ The number of captured packets.
+The middle...:: shows the current number of packets in the capture file.
+The following values are displayed:
 
-  - _Displayed:_ The number of packets currently being displayed.
+Packets::: The number of captured packets.
 
-  - _Marked:_ The number of marked packets (only displayed if packets are
-  marked).
+Displayed::: The number of packets currently being displayed.
 
-  - _Dropped:_ The number of dropped packets (only displayed if Wireshark was
-  unable to capture all packets).
+Marked::: The number of marked packets. Only displayed if you marked any packets.
 
-  - _Ignored:_ The number of ignored packets (only displayed if packets are
-  ignored).
+Dropped::: The number of dropped packets Only displayed if Wireshark was unable to capture all packets.
 
-  - _Load time:_ The time it took to load the capture (wall clock time).
+Ignored::: The number of ignored packets Only displayed if you ignored any packets.
 
-* *The right side* shows the selected configuration profile. Clicking in this
-  part of the statusbar will bring up a menu with all available configuration
-  profiles, and selecting from this list will change the configuration profile.
+//Load time::: The time it took to load the capture (wall clock time).
+
+The right side...:: shows the selected configuration profile.
+Clicking on this part of the statusbar will bring up a menu with all available configuration profiles, and selecting from this list will change the configuration profile.
 
 [[ChUseWiresharkStatusbarProfile]]
 .The Statusbar with a configuration profile menu
@@ -1081,14 +1101,12 @@ For a detailed description of configuration profiles, see <<ChCustConfigProfiles
 .The Statusbar with a selected protocol field
 image::wsug_graphics/ws-statusbar-selected.png[{statusbar-attrs}]
 
-This is displayed if you have selected a protocol field from the “Packet
-Details” pane.
-
+This is displayed if you have selected a protocol field in the “Packet Details” pane.
 
 [TIP]
 ====
-The value between the parentheses (in this example “ipv6.src”) can be used as a
-display filter, representing the selected protocol field.
+The value between the parentheses (in this example “ipv6.src”) is the display filter field for the selected item.
+You can become more familiar with display filter fields by selecting different packet detail items.
 ====
 
 [[ChUseWiresharkStatusbarFilter]]
@@ -1096,8 +1114,7 @@ display filter, representing the selected protocol field.
 .The Statusbar with a display filter message
 image::wsug_graphics/ws-statusbar-filter.png[{statusbar-attrs}]
 
-This is displayed if you are trying to use a display filter which may have
-unexpected results. For a detailed description, see
-<<ChWorkBuildDisplayFilterMistake>>.
+This is displayed if you are trying to use a display filter which may have unexpected results.
+For a detailed description see <<ChWorkBuildDisplayFilterMistake>>.
 
 // End of WSUG Chapter 3

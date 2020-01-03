@@ -29,6 +29,7 @@ set(PIDL_DISSECTOR_NAMES
 	samr
 	#srvsvc
 	winreg
+	winspool
 	witness
 	#wkssvc
 	wzcsvc
@@ -91,6 +92,10 @@ set(PIDL_DISSECTOR_srvsvc_EXTRA_DEPS
 	idl_types.h
 )
 set(PIDL_DISSECTOR_winreg_EXTRA_DEPS
+	misc/misc.idl
+)
+set(PIDL_DISSECTOR_winspool_EXTRA_DEPS
+	idl_types.h
 	misc/misc.idl
 )
 set(PIDL_DISSECTOR_witness_EXTRA_DEPS

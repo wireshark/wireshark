@@ -24,6 +24,14 @@
         <translation>Анализатор сетевых протоколов</translation>
     </message>
     <message>
+        <source>Copy the version information to the clipboard</source>
+        <translation>Копировать данные о версии в буфер обмена</translation>
+    </message>
+    <message>
+        <source>Copy To Clipboard</source>
+        <translation>Копировать В Буфер</translation>
+    </message>
+    <message>
         <source>Authors</source>
         <translation>Авторы</translation>
     </message>
@@ -84,8 +92,9 @@
         <translation>Каталог не может быть создан</translation>
     </message>
     <message>
-        <source>The directory %1 could not be created!</source>
-        <translation>Каталог %1 не может быть создан!</translation>
+        <source>The directory %1 could not be created.</source>
+        <oldsource>The directory %1 could not be created!</oldsource>
+        <translation type="unfinished">Каталог %1 не может быть создан!</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -221,7 +230,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -264,7 +273,7 @@
     </message>
     <message>
         <source>LMP Subversion</source>
-        <translation type="unfinished">Подверсия LMP</translation>
+        <translation>Подверсия LMP</translation>
     </message>
     <message>
         <source>Manufacturer</source>
@@ -364,7 +373,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -475,7 +484,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -1169,318 +1178,307 @@
     </message>
 </context>
 <context>
-    <name>CaptureInterfacesDialog</name>
+    <name>CaptureOptionsDialog</name>
     <message>
         <source>Input</source>
-        <translation>Ввод</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation>Интерфейс</translation>
+        <translation type="unfinished">Интерфейс</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>Трафик</translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation>Фильтр Захвата</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Вероятно, Вы хотите это включить. Обычно сетевая плата будет захватывать только трафик, посланный на её собственный сетевой адрес. Если Вы хотите захватить весь трафик, который сетевая плата может &amp;quot;видеть&amp;quot;, включите эту опцию. Смотрите раздел FAQ для получения дополнительной информации о захвате пакетов из коммутируемой сети.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation>Вывод</translation>
-    </message>
-    <message>
-        <source>Output format:</source>
-        <translation>Формат вывода:</translation>
-    </message>
-    <message>
-        <source>pcapng</source>
-        <translation>pcapng</translation>
-    </message>
-    <message>
-        <source>pcap</source>
-        <translation>pcap</translation>
-    </message>
-    <message>
-        <source>Browse…</source>
-        <oldsource>Browse...</oldsource>
-        <translation>Просмотр...</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation>Файл:</translation>
-    </message>
-    <message>
-        <source>megabytes</source>
-        <oldsource>Megabytes</oldsource>
-        <translation>мегабайты</translation>
-    </message>
-    <message>
-        <source>kilobytes</source>
-        <oldsource>Kilobytes</oldsource>
-        <translation>килобайты</translation>
-    </message>
-    <message>
-        <source>seconds</source>
-        <translation>секунды</translation>
-    </message>
-    <message>
-        <source>minutes</source>
-        <translation>минуты</translation>
-    </message>
-    <message>
-        <source>hours</source>
-        <translation>часы</translation>
-    </message>
-    <message>
-        <source>Show capture information during live capture</source>
-        <translation>Показывать информацию о захвате при захвате в реальном времени</translation>
-    </message>
-    <message>
-        <source>Stop capturing after the specified number of packets have been captured.</source>
-        <translation>Остановить захват после достижения указанного числа захваченных пакетов.</translation>
-    </message>
-    <message>
-        <source>Stop capturing after the specified amount of data has been captured.</source>
-        <translation>Остановить захват после достижения указанного объёма захваченных данных.</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Остановить захват после достижения указанного объёма захваченных данных.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>packets</source>
-        <translation>пакеты</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>Заголовок уровня Link</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>Смешанный</translation>
+        <translation type="unfinished">Смешанный</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Длина снимка (Байт)</translation>
+        <translation type="unfinished">Длина снимка (Байт)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>Буфер (МБайт)</translation>
+        <translation type="unfinished">Буфер (МБайт)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Режим Мониторинга</translation>
+        <translation type="unfinished">Режим Мониторинга</translation>
+    </message>
+    <message>
+        <source>Capture Filter</source>
+        <translation type="unfinished">Фильтр Захвата</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Вероятно, Вы хотите это включить. Обычно сетевая плата будет захватывать только трафик, посланный на её собственный сетевой адрес. Если Вы хотите захватить весь трафик, который сетевая плата может &amp;quot;видеть&amp;quot;, включите эту опцию. Смотрите раздел FAQ для получения дополнительной информации о захвате пакетов из коммутируемой сети.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable promiscuous mode on all interfaces</source>
-        <oldsource>Capture in promiscuous mode on all interfaces</oldsource>
-        <translation>Включить смешанный режим для всех интерфейсов</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
-        <translation>Показать и скрыть интерфейсы, добавить комментарии, управлять соединениями и удалёнными интерфейсами.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Manage Interfaces…</source>
-        <oldsource>Manage Interfaces...</oldsource>
-        <translation>Управлять Интерфейсами...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture filter for selected interfaces:</source>
-        <oldsource>Capture Filter for selected Interfaces:</oldsource>
-        <translation>Фильтр захвата для выбранных интерфейсов:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Compile BPFs</source>
-        <translation>Компилировать BPFы</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Введите имя файла, в который будут записаны захваченные данные. По умолчанию будет использован временный файл.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture to a permanent file</source>
-        <translation>Захватывать в постоянный файл</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>gigabytes</source>
-        <oldsource>Gigabytes</oldsource>
-        <translation>гигабайты</translation>
+        <source>File:</source>
+        <translation type="unfinished">Файл:</translation>
     </message>
     <message>
-        <source>Switch to the next file after the specified number of packets have been captured.</source>
-        <translation>Переключить на следующий файл после достижения указанного числа захваченных пакетов.</translation>
+        <source>Browse…</source>
+        <translation type="unfinished">Просмотр...</translation>
+    </message>
+    <message>
+        <source>Output format:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>pcapng</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>pcap</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Вместо использования одиночного файла захвата будет создано множество файлов.&lt;/p&gt;&lt;p&gt;Сгенерированные имена файлов будут содержать увеличивающееся на 1 значение и время начала захвата.&lt;/p&gt;&lt;p&gt;ОБРАТИТЬ ВНИМАНИЕ: Если включено, минимум один из критериев нового файла ДОЛЖЕН быть выбран.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Create a new file automatically…</source>
-        <translation>Автоматически создать новый файл...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>after</source>
-        <translation>после</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the next file after the specified number of packets have been captured.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>packets</source>
+        <translation type="unfinished">пакеты</translation>
     </message>
     <message>
         <source>Switch to the next file after the file size exceeds the specified file size.</source>
-        <translation>Переключить на следующий файл после достижения размером файла указанного заранее размера.</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>kilobytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>megabytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>gigabytes</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Switch to the next file when the time capturing to the current file exceeds the specified time.</source>
-        <translation>Переключить на следующий файл, когда время захвата в текущий файл превысит заранее указанное время.</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>seconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>minutes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>hours</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>when time is a multiple of</source>
-        <translation>когда время - это множество</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
 For example, use 1 hour to have a new file created every hour on the hour.</source>
-        <translation>Переключить на следующий файл, когда время (настенных часов) превысит указанный интервал.
-Например, используйте 1 час, чтобы получить новый файл, который создаётся на 1 час каждый час работы.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;После переключения записи захваченных данных на следующий файл и указанное число файлов будет превышено, самый старый файл будет удалён.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Use a ring buffer with </source>
-        <translation>Использовать кольцевой буфер с</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>files</source>
-        <translation>файлы</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Options</source>
-        <translation>Опции</translation>
+        <translation type="unfinished">Опции</translation>
     </message>
     <message>
         <source>Display Options</source>
-        <translation>Показать Опции</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Использование этой опции позволит показывать захваченные пакеты немедленно на главном экране. Обратите внимание: это уменьшит скорость захвата, поэтому может увеличиться потеря пакетов.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Update list of packets in real-time</source>
-        <translation>Обновлять список пакетов в реальном времени</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Это позволит прокручивать &amp;quot;Список Пакетов&amp;quot; автоматически к последнему захваченному пакету, когда &amp;quot;Опция обновления списка пакетов в реальном времени &amp;quot; включена.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Automatically scroll during live capture</source>
-        <translation>Автоматический скроллинг во время захвата в реальном времени</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Показывать диалоговую информацию о захвате во время захвата.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show capture information during live capture</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Name Resolution</source>
-        <translation>Разрешение Имён</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Perform MAC layer name resolution while capturing.</source>
-        <translation>Выполнять разрешение имён MAC-уровня во время захвата.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Resolve MAC Addresses</source>
-        <translation>Разрешить MAC-адреса</translation>
+        <source>Resolve MAC addresses</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Выполнять разрешение имён сетевого уровня во время захвата.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resolve network names</source>
-        <translation>Разрешить сетевые имена</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Perform transport layer name resolution while capturing.</source>
-        <translation>Выполнять разрешение имён транспортного уровня во время захвата.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resolve transport names</source>
-        <translation>Разрешить имена транспортного уровня</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Stop capture automatically after…</source>
-        <oldsource>Stop capture automatically after...</oldsource>
-        <translation>Автоматически остановить захват после…</translation>
-    </message>
-    <message>
-        <source>Stop capturing after the specified amount of time has passed.</source>
-        <translation>Прекратить захват после окончания указанного времени.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Остановить захват после достижения указанного числа захваченных пакетов.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified number of packets have been captured.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Остановить захват после достижения указанного числа созданных файлов.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Capture Interfaces</source>
-        <translation>Интерфейсы Захвата</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified amount of data has been captured.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop capturing after the specified amount of time has passed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture Options</source>
+        <translation type="unfinished">Опции Захвата</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation>Старт</translation>
+        <translation type="unfinished">Старт</translation>
     </message>
     <message>
         <source>Leave blank to use a temporary file</source>
-        <translation>Оставить пустым, чтобы использовать временный файл</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Specify a Capture File</source>
-        <translation>Указать Файл Захвата</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="unfinished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>Адреса</translation>
+        <translation type="unfinished">Адреса</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Адрес</translation>
+        <translation type="unfinished">Адрес</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>нет адресов</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Ошибка</translation>
+        <translation type="unfinished">Ошибка</translation>
     </message>
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
-        <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
-        <translation>Множество файлов: Запрошенный размер файла слишком велик. Размер файла не может превышать 2 ГБайт.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
-        <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
-        <translation>Множество файлов: Не указано имя файла захвата. Вы должны указать имя файла, если хотите использовать множество файлов.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
-        <translation>Множество файлов: Не указано ограничение для файла. Вы должны указать размер файла, интервал или число пакетов для каждого файла.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1643,6 +1641,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>ColoringRulesModel</name>
     <message>
+        <source>New coloring rule</source>
+        <translation>Новое цветовое правило</translation>
+    </message>
+    <message>
         <source>Unable to save coloring rules: %1</source>
         <translation>Невозможно сохранить цветовые правила: %1</translation>
     </message>
@@ -1698,19 +1700,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColumnListModel</name>
     <message>
         <source>Displayed</source>
-        <translation type="unfinished">Показано</translation>
+        <translation>Показано</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished"></translation>
+        <translation>Заголовок</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation>Тип</translation>
     </message>
     <message>
         <source>Fields</source>
-        <translation type="unfinished"></translation>
+        <translation>Поля</translation>
     </message>
     <message>
         <source>Field Occurence</source>
@@ -1718,7 +1720,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>New Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Новый Столбец</translation>
     </message>
 </context>
 <context>
@@ -1729,11 +1731,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Add a new column</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить новый столбец</translation>
     </message>
     <message>
         <source>Delete selected column</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить выбранный столбец</translation>
     </message>
     <message>
         <source>Show displayed columns only</source>
@@ -1741,7 +1743,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Reset all changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Сбросить все изменения</translation>
     </message>
 </context>
 <context>
@@ -1795,15 +1797,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>CopyFromProfileButton</name>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">Копировать из</translation>
+        <translation>Копировать из</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation type="unfinished">Копировать записи из другого профиля.</translation>
+        <translation>Копировать записи из другого профиля.</translation>
     </message>
     <message>
         <source>System default</source>
-        <translation type="unfinished"></translation>
+        <translation>Системный по умолчанию</translation>
     </message>
 </context>
 <context>
@@ -1821,31 +1823,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>CredentialsModel</name>
     <message>
         <source>Click to select the packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Щёлкните, чтобы выбрать пакет</translation>
     </message>
     <message>
         <source>Click to select the packet with username</source>
-        <translation type="unfinished"></translation>
+        <translation>Щёлкните, чтобы выбрать пакет с именем пользователя</translation>
     </message>
     <message>
         <source>Username not available</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя пользователя недоступно</translation>
     </message>
     <message>
         <source>Packet No.</source>
-        <translation type="unfinished"></translation>
+        <translation>Пакет №</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished">Протокол</translation>
+        <translation>Протокол</translation>
     </message>
     <message>
         <source>Username</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя пользователя</translation>
     </message>
     <message>
         <source>Additional Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Дополнительная Информация</translation>
     </message>
 </context>
 <context>
@@ -1996,15 +1998,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Clear display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить дисплейный фильтр</translation>
     </message>
     <message>
         <source>Apply display filter</source>
+        <translation>Применить дисплейный фильтр</translation>
+    </message>
+    <message>
+        <source>Left align buttons</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter Expression</source>
+        <translation>Выражение Дисплейного Фильтра</translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
         <translation>Применить фильтр чтения %1</translation>
+    </message>
+    <message>
+        <source>Current filter: %1</source>
+        <translation>Текущий фильтр: %1</translation>
     </message>
     <message>
         <source>Invalid filter: </source>
@@ -2023,8 +2037,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Управлять Дисплейными Фильтрами</translation>
     </message>
     <message>
-        <source>Manage Filter Expressions</source>
-        <translation>Управлять Выражениями Фильтра</translation>
+        <source>Filter Button Preferences...</source>
+        <translation type="unfinished">Параметры Кнопки Фильтра…</translation>
     </message>
 </context>
 <context>
@@ -2172,7 +2186,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>in</source>
-        <translation type="unfinished"></translation>
+        <translation>в</translation>
     </message>
     <message>
         <source>Enable All</source>
@@ -2192,23 +2206,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Everywhere</source>
-        <translation type="unfinished"></translation>
+        <translation>Везде</translation>
     </message>
     <message>
         <source>Only Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Только Протоколы</translation>
     </message>
     <message>
         <source>Only Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Только Описание</translation>
     </message>
     <message>
         <source>Only enabled protocols</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>any protocol</source>
+        <source>Only disabled protocols</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>any protocol</source>
+        <translation>любой протокол</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
@@ -2216,10 +2234,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>heuristic protocols</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Only disabled protocols</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2495,6 +2509,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Диалог</translation>
     </message>
     <message>
+        <source>Content Type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Searching for objects</source>
         <translation>Поиск объектов</translation>
     </message>
@@ -2505,6 +2523,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Only display entries containing this string</source>
         <translation>Показывать только записи, содержащие эту строку</translation>
+    </message>
+    <message>
+        <source>Preview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Content-Types</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Export</source>
@@ -2687,14 +2713,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Диалог</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation type="vanished">Имя</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">Фильтр</translation>
-    </message>
-    <message>
         <source>Create a new filter.</source>
         <translation>Создать новый фильтр.</translation>
     </message>
@@ -2719,10 +2737,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Open </source>
         <translation>Открыть</translation>
-    </message>
-    <message>
-        <source>New filter</source>
-        <translation type="vanished">Новый фильтр</translation>
     </message>
     <message>
         <source>New capture filter</source>
@@ -2965,12 +2979,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Глобальные Плагины Lua</translation>
     </message>
     <message>
-        <source>Extcap path</source>
-        <translation>Путь Extcap</translation>
-    </message>
-    <message>
         <source>Extcap Plugins search path</source>
         <translation>Путь поиска Плагинов Extcap</translation>
+    </message>
+    <message>
+        <source>Personal Extcap path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global Extcap path</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
@@ -3795,6 +3813,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filtered packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5927,6 +5949,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Пакеты: %1 %4 Показаны: %2 (%3%)</translation>
     </message>
     <message>
+        <source> %1 Selected: %2 (%3%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1 Marked: %2 (%3%)</source>
         <oldsource> %1 Dropped: %2</oldsource>
         <translation> %1 Помечены: %2 (%3%)</translation>
@@ -6540,12 +6566,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Найти предыдущий пакет</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet</source>
-        <translation>&amp;Выполнить/Отменить Пометку Пакета</translation>
-    </message>
-    <message>
-        <source>Mark or unmark this packet</source>
-        <translation>Пометить этот пакет или отменить пометку</translation>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <oldsource>&amp;Mark/Unmark Packet</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6576,12 +6599,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Перейти к предыдущему помеченному пакету</translation>
     </message>
     <message>
-        <source>&amp;Ignore/Unignore Packet</source>
-        <translation>&amp;Игнорировать/Отменить Игнорирование Пакета</translation>
-    </message>
-    <message>
-        <source>Ignore or unignore this packet</source>
-        <translation>Игнорировать этот пакет или отменить игнорирование</translation>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -7040,6 +7060,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Общие сведения о Bluetooth HCI</translation>
     </message>
     <message>
+        <source>Display Filter &amp;Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No GSM statistics registered</source>
         <translation>Нет зарегистрированной статистики GSM</translation>
     </message>
@@ -7120,6 +7148,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Как Обычный &amp;Текст…</translation>
     </message>
     <message>
+        <source>As Plain &amp;Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;YAML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All Visible Items</source>
         <translation>Все Видимые Пункты</translation>
     </message>
@@ -7142,6 +7182,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Find Pre&amp;vious</source>
         <translation>Найти Пр&amp;едыдущий</translation>
+    </message>
+    <message>
+        <source>Mark or unmark each selected packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignore or unignore each selected packet</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Time Shift…</source>
@@ -7454,14 +7502,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show Linked Packet in New Window</source>
         <translation>Показать Связанный Пакет в Новом Окне</translation>
-    </message>
-    <message>
-        <source>&amp;Expression…</source>
-        <translation>&amp;Выражение...</translation>
-    </message>
-    <message>
-        <source>Expression…</source>
-        <translation>Выражение...</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -9225,10 +9265,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>[нет файла захвата]</translation>
     </message>
     <message>
-        <source>New coloring rule</source>
-        <translation>Новое цветовое правило</translation>
-    </message>
-    <message>
         <source>Conversation</source>
         <translation>Диалог</translation>
     </message>
@@ -10232,12 +10268,40 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Невозможно синхронизировать, если выбран лишь один канал</translation>
     </message>
     <message>
+        <source>None of channels was selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward and reverse stream audio</source>
         <translation>Сохранить прямой и обратный аудиопотоки</translation>
     </message>
     <message>
         <source>Raw (*.raw)</source>
         <translation>Raw (*.raw)</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save was interrupted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save or read of file was failed during saving</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec is not supported, file is incomplete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec rate is not supported, file is incomplete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown error occured</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
@@ -10324,12 +10388,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Сохранение %1</translation>
     </message>
     <message>
-        <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation>Возможно сохранение аудио только с тактовой частотой 8000 Гц</translation>
-    </message>
-    <message>
-        <source>Can save audio with PCM u-law or A-law encoding only</source>
-        <translation type="unfinished"></translation>
+        <source>Error</source>
+        <translation type="unfinished">Ошибка</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>

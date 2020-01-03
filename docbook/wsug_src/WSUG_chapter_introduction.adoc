@@ -154,12 +154,11 @@ analysis is single-threaded and won’t benefit much from multi-core systems.
 
 Wireshark should support any version of Windows that is still within its
 https://windows.microsoft.com/en-us/windows/lifecycle[extended support
-lifetime]. At the time of writing this includes Windows 10, 8, 7,
+lifetime]. At the time of writing this includes Windows 10, 8.1,
 Server 2019,
 Server 2016,
 Server 2012 R2,
-Server 2012,
-and Server 2008 R2.
+and Server 2012.
 It also requires the following:
 
 * The Universal C Runtime. This is included with Windows 10 and Windows
@@ -198,26 +197,32 @@ party libraries on which we depend or due to necessary features that are only
 present in newer versions of Windows such as hardened security or memory
 management.
 
-* Wireshark 2.2 was the last release to support Windows Vista and Windows
-Server 2008 (non-R2)
+* Wireshark 3.2 was the last release branch to officially support Windows 7 and Windows Server 2008 R2.
+* Wireshark 2.2 was the last release branch to support Windows Vista and Windows Server 2008 sans R2
 * Wireshark 1.12 was the last release branch to support Windows Server 2003.
 * Wireshark 1.10 was the last release branch to officially support Windows XP.
 
 See the link:{wireshark-wiki-url}Development/LifeCycle[Wireshark
 release lifecycle] page for more details.
 
-==== UNIX / Linux
+==== macOS
 
-Wireshark runs on most UNIX and UNIX-like platforms including macOS and
-Linux. The system requirements should be comparable to the Windows
-values listed above.
+Similar to Windows, supported macOS versions depend on third party libraries and on Apple’s requirements.
+The system requirements should be comparable to the specifications listed above for Windows.
+
+* Wireshark 2.6 was the last release branch to support Mac OS X 10.6 and 10.7 and OS X 10.8 to 10.11.
+* Wireshark 2.0 was the last release branch to support OS X on 32-bit Intel.
+* Wireshark 1.8 was the last release branch to support Mac OS X on PowerPC.
+
+==== UNIX, Linux, and BSD
+
+Wireshark runs on most UNIX and UNIX-like platforms including Linux and most BSD variants.
+The system requirements should be comparable to the specifications listed above for Windows.
 
 Binary packages are available for most Unices and Linux distributions
 including the following platforms:
 
 * Alpine Linux
-
-* Apple macOS
 
 * Canonical Ubuntu
 
@@ -245,7 +250,7 @@ mailto:{wireshark-dev-list-email}[].
 
 [[ChIntroDownload]]
 
-=== Where to get Wireshark
+=== Where To Get Wireshark
 
 You can get the latest copy of the program from the Wireshark website at
 {wireshark-download-url}. The download page should automatically
@@ -262,7 +267,7 @@ the wireshark-announce mailing list. You will find more details in
 [[ChIntroHistory]]
 
 
-=== A brief history of Wireshark
+=== A Brief History Of Wireshark
 
 In late 1997 Gerald Combs needed a tool for tracking down network problems
 and wanted to learn more about networking so he started writing Ethereal (the
@@ -299,7 +304,7 @@ In 2015 Wireshark 2.0 was released, which featured a new user interface.
 
 [[ChIntroMaintenance]]
 
-=== Development and maintenance of Wireshark
+=== Development And Maintenance Of Wireshark
 
 Wireshark was initially developed by Gerald Combs. Ongoing development and
 maintenance of Wireshark is handled by the Wireshark team, a loose group of
@@ -338,7 +343,7 @@ available on the download page of the Wireshark website:
 
 [[ChIntroHelp]]
 
-=== Reporting problems and getting help
+=== Reporting Problems And Getting Help
 
 If you have problems or need help with Wireshark there are several places that
 may be of interest (besides this guide, of course).
@@ -404,17 +409,16 @@ typically more up to date and the HTML format is easier to use.
 
 There are several mailing lists of specific Wireshark topics available:
 
-_wireshark-announce_::
-    This mailing list will inform you about new program releases, which usually
-    appear about every 4-8 weeks.
+link:{wireshark-mailing-lists-url}wireshark-announce[wireshark-announce]::
+    Information about new program releases, which usually appear about every six weeks.
 
-_wireshark-users_::
-    This list is for users of Wireshark.  People post questions about building
-    and using Wireshark, others (hopefully) provide answers.
+link:{wireshark-mailing-lists-url}wireshark-users[wireshark-users]::
+    Topics of interest to users of Wireshark.
+    People typically post questions about using Wireshark and others (hopefully) provide answers.
 
-_wireshark-dev_::
-    This list is for Wireshark developers. If you want to start
-    developing a protocol dissector, join this list.
+link:{wireshark-mailing-lists-url}wireshark-dev[wireshark-dev]::
+    Topics of interest to developers of Wireshark.
+    If you want to develop a protocol dissector or update the user interface, join this list.
 
 You can subscribe to each of these lists from the Wireshark web site:
 {wireshark-mailing-lists-url}. From there, you can choose which mailing
@@ -455,20 +459,22 @@ When reporting problems with Wireshark please supply the following information:
   place where things go wrong. Please don’t give something like: “I get a
   warning while doing x” as this won’t give a good idea where to look.
 
-[NOTE]
-.Don’t send large files
-====
-Do not send large files (> 1 MB) to the mailing lists. Instead, provide a
-download link. For bugs and feature requests, you can create an issue on
-link:{wireshark-bugs-url}[Bugzilla] and upload the file there.
-====
-
 [WARNING]
 .Don’t send confidential information!
 ====
 If you send capture files to the mailing lists be sure they don’t contain any
 sensitive or confidential information like passwords or personally identifiable
 information (PII).
+
+In many cases you can use a tool like link:https://www.tracewrangler.com/[TraceWrangler] to sanitize a capture file before sharing it.
+====
+
+[NOTE]
+.Don’t send large files
+====
+Do not send large files (> 1 MB) to the mailing lists. Instead, provide a
+download link. For bugs and feature requests, you can create an issue on
+link:{wireshark-bugs-url}[Bugzilla] and upload the file there.
 ====
 
 ==== Reporting Crashes on UNIX/Linux platforms

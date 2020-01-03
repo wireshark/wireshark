@@ -70,7 +70,9 @@ static const value_string gprscdr_rat_type_vals[] = {
     {6, "EUTRAN"},
     {7, "Virtual"},
     {8, "EUTRAN-NB-IoT"},
-    /* 9-100 Spare for future use TS 29.061 */
+    {9, "LTE-M"},
+    {10, "NR"},
+    /* 11-100 Spare for future use TS 29.061 */
     {101, "IEEE 802.16e"},
     {102, "3GPP2 eHRPD"},
     {103, "3GPP2 HRPD"},

@@ -162,16 +162,16 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     proto_tree *j1939_tree, *can_tree, *msg_tree;
 
     gint offset = 0;
-    struct can_identifier can_id;
+    struct can_info can_info;
     guint32 data_length = tvb_reported_length(tvb);
     guint32 pgn;
     guint8 *src_addr, *dest_addr;
 
     DISSECTOR_ASSERT(data);
-    can_id = *((struct can_identifier*)data);
+    can_info = *((struct can_info*)data);
 
-    if ((can_id.id & CAN_ERR_FLAG) ||
-        !(can_id.id & CAN_EFF_FLAG))
+    if ((can_info.id & CAN_ERR_FLAG) ||
+        !(can_info.id & CAN_EFF_FLAG))
     {
         /* Error frames and frames with standards ids are not for us */
         return 0;
@@ -184,51 +184,51 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     j1939_tree = proto_item_add_subtree(ti, ett_j1939);
 
     can_tree = proto_tree_add_subtree_format(j1939_tree, tvb, 0, 0,
-                    ett_j1939_can, NULL, "CAN Identifier: 0x%08x", can_id.id);
-    can_id_item = proto_tree_add_uint(can_tree, hf_j1939_can_id, tvb, 0, 0, can_id.id);
+                    ett_j1939_can, NULL, "CAN Identifier: 0x%08x", can_info.id);
+    can_id_item = proto_tree_add_uint(can_tree, hf_j1939_can_id, tvb, 0, 0, can_info.id);
     proto_item_set_generated(can_id_item);
-    ti = proto_tree_add_uint(can_tree, hf_j1939_priority, tvb, 0, 0, can_id.id);
+    ti = proto_tree_add_uint(can_tree, hf_j1939_priority, tvb, 0, 0, can_info.id);
     proto_item_set_generated(ti);
-    ti = proto_tree_add_uint(can_tree, hf_j1939_extended_data_page, tvb, 0, 0, can_id.id);
+    ti = proto_tree_add_uint(can_tree, hf_j1939_extended_data_page, tvb, 0, 0, can_info.id);
     proto_item_set_generated(ti);
-    ti = proto_tree_add_uint(can_tree, hf_j1939_data_page, tvb, 0, 0, can_id.id);
+    ti = proto_tree_add_uint(can_tree, hf_j1939_data_page, tvb, 0, 0, can_info.id);
     proto_item_set_generated(ti);
-    ti = proto_tree_add_uint(can_tree, hf_j1939_pdu_format, tvb, 0, 0, can_id.id);
+    ti = proto_tree_add_uint(can_tree, hf_j1939_pdu_format, tvb, 0, 0, can_info.id);
     proto_item_set_generated(ti);
-    ti = proto_tree_add_uint(can_tree, hf_j1939_pdu_specific, tvb, 0, 0, can_id.id);
+    ti = proto_tree_add_uint(can_tree, hf_j1939_pdu_specific, tvb, 0, 0, can_info.id);
     proto_item_set_generated(ti);
-    ti = proto_tree_add_uint(can_tree, hf_j1939_src_addr, tvb, 0, 0, can_id.id);
+    ti = proto_tree_add_uint(can_tree, hf_j1939_src_addr, tvb, 0, 0, can_info.id);
     proto_item_set_generated(ti);
 
     /* Set source address */
     src_addr = (guint8*)wmem_alloc(pinfo->pool, 1);
-    *src_addr = (guint8)(can_id.id & 0xFF);
+    *src_addr = (guint8)(can_info.id & 0xFF);
     set_address(&pinfo->src, j1939_address_type, 1, (const void*)src_addr);
 
-    pgn = (can_id.id & 0x3FFFF00) >> 8;
+    pgn = (can_info.id & 0x3FFFF00) >> 8;
 
     /* If PF < 240, PS is destination address, last byte of PGN is cleared */
-    if (((can_id.id & 0xFF0000) >> 16) < 240)
+    if (((can_info.id & 0xFF0000) >> 16) < 240)
     {
         pgn &= 0x3FF00;
 
-        ti = proto_tree_add_uint(can_tree, hf_j1939_dst_addr, tvb, 0, 0, can_id.id);
+        ti = proto_tree_add_uint(can_tree, hf_j1939_dst_addr, tvb, 0, 0, can_info.id);
         proto_item_set_generated(ti);
     }
     else
     {
-        ti = proto_tree_add_uint(can_tree, hf_j1939_group_extension, tvb, 0, 0, can_id.id);
+        ti = proto_tree_add_uint(can_tree, hf_j1939_group_extension, tvb, 0, 0, can_info.id);
         proto_item_set_generated(ti);
     }
 
     /* Fill in "destination" address even if its "broadcast" */
     dest_addr = (guint8*)wmem_alloc(pinfo->pool, 1);
-    *dest_addr = (guint8)((can_id.id & 0xFF00) >> 8);
+    *dest_addr = (guint8)((can_info.id & 0xFF00) >> 8);
     set_address(&pinfo->dst, j1939_address_type, 1, (const void*)dest_addr);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "PGN: %-6"  PRIu32, pgn);
 
-    if (can_id.id & CAN_RTR_FLAG)
+    if (can_info.id & CAN_RTR_FLAG)
     {
         /* RTR frames don't have payload */
         col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", "(Remote Transmission Request)");

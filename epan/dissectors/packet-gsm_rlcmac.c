@@ -42,6 +42,7 @@
 #include "packet-gsm_a_rr.h"
 
 #include "packet-gsm_rlcmac.h"
+#include "packet-gsm_a_common.h"
 
 void proto_register_gsm_rlcmac(void);
 void proto_reg_handoff_gsm_rlcmac(void);
@@ -648,7 +649,6 @@ static int hf_dl_timeslot_allocation = -1;
 
 /* < Packet Paging Request message content > */
 static int hf_mobile_identity_length_of_mobile_identity_contents = -1;
-static int hf_mobile_identity_mobile_identity_contents = -1;
 static int hf_page_request_for_rr_conn_channel_needed = -1;
 static int hf_page_request_for_rr_conn_emlpp_priority = -1;
 static int hf_page_request_ptmsi = -1;
@@ -4471,13 +4471,28 @@ CSN_DESCR_END(DTM_Channel_Request_Description_t)
 typedef struct
 {
   guint8 Length_of_Mobile_Identity_contents;/* bit (4) */
-  guint8 Mobile_Identity[8];/* octet (val (Length of Mobile Identity contents)) */
+  /* NOTE: the rest is handled by cb_parse_mi() */
 } Mobile_Identity_t; /* helper */
+
+static CSN_CallBackStatus_t cb_parse_mi(proto_tree *tree, tvbuff_t *tvb,
+                                        void *_mi_length, void *_param2 _U_,
+                                        int bit_offset, int ett_csn1 _U_,
+                                        packet_info *pinfo)
+{
+  guint8 mi_length = *((guint8 *) _mi_length);
+
+  /* de_mid() requires an octet-aligned buffer */
+  tvbuff_t *mi_tvb = tvb_new_octet_aligned(tvb, bit_offset, mi_length << 3);
+  add_new_data_source(pinfo, mi_tvb, "Mobile Identity");
+  de_mid(mi_tvb, tree, pinfo, 0, -1, NULL, 0);
+
+  return mi_length << 3;
+}
 
 static const
 CSN_DESCR_BEGIN(Mobile_Identity_t)
   M_UINT       (Mobile_Identity_t,  Length_of_Mobile_Identity_contents,  4, &hf_mobile_identity_length_of_mobile_identity_contents),
-  M_VAR_ARRAY  (Mobile_Identity_t, Mobile_Identity, Length_of_Mobile_Identity_contents, 0, &hf_mobile_identity_mobile_identity_contents),
+  M_CALLBACK   (Mobile_Identity_t,  cb_parse_mi, Length_of_Mobile_Identity_contents, Length_of_Mobile_Identity_contents),
 CSN_DESCR_END  (Mobile_Identity_t)
 
 static const
@@ -8206,6 +8221,15 @@ static const value_string cell_change_failure_cause_vals[] = {
   {0, NULL }
 };
 
+/* TS 44.060 section 11.2.28 Uplink Ack/Nack */
+static const value_string channel_coding_scheme_vals[] = {
+  {0x00, "CS-1"},
+  {0x01, "CS-2"},
+  {0x02, "CS-3"},
+  {0x03, "CS-4"},
+  {0, NULL }
+};
+
 static const value_string egprs_modulation_channel_coding_scheme_vals[] = {
   {0x00, "MCS-1"},
   {0x01, "MCS-2"},
@@ -10741,7 +10765,7 @@ proto_register_gsm_rlcmac(void)
 #endif
     { &hf_gprs_channel_coding_command,
       { "CHANNEL_CODING_COMMAND",        "gsm_rlcmac.dl.gprs_channel_coding_command",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, VALS(channel_coding_scheme_vals), 0x0,
         NULL, HFILL
       }
     },
@@ -12753,12 +12777,6 @@ proto_register_gsm_rlcmac(void)
 /* < Packet Paging Request message content > */
     { &hf_mobile_identity_length_of_mobile_identity_contents,
       { "Length_of_Mobile_Identity_contents",        "gsm_rlcmac.dl.ppr_length_of_mobile_identity_contents",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        NULL, HFILL
-      }
-    },
-    { &hf_mobile_identity_mobile_identity_contents,
-      { "Mobile_Identity_contents",        "gsm_rlcmac.dl.ppr_mobile_identity_contents",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }

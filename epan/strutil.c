@@ -1657,6 +1657,15 @@ string_replace(const gchar* str, const gchar *old_val, const gchar *new_val)
     return new_str;
 }
 
+gchar*
+format_size_wmem(wmem_allocator_t *allocator, gint64 size, format_size_flags_e flags)
+{
+    gchar *str = format_size(size, flags);
+    gchar *ptr = wmem_strdup(allocator, str);
+    g_free(str);
+    return ptr;
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

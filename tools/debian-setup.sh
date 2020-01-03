@@ -56,6 +56,7 @@ BASIC_LIST="libglib2.0-dev \
 	libqt5svg5-dev \
 	qtmultimedia5-dev \
 	qt5-default \
+	libc-ares-dev \
 	libpcap-dev \
 	bison \
 	flex \
@@ -65,7 +66,6 @@ BASIC_LIST="libglib2.0-dev \
 	libgcrypt-dev"
 
 ADDITIONAL_LIST="libnl-3-dev \
-	libc-ares-dev \
 	libkrb5-dev \
 	libsmi2-dev \
 	asciidoctor \
@@ -151,8 +151,8 @@ echo "libbrotli-dev is unavailable" >&2
 
 # libsystemd-journal-dev: Ubuntu 14.04
 # libsystemd-dev: Ubuntu >= 16.04
-add_package DEBDEPS_LIST libsystemd-dev ||
-add_package DEBDEPS_LIST libsystemd-journal-dev ||
+add_package ADDITIONAL_LIST libsystemd-dev ||
+add_package ADDITIONAL_LIST libsystemd-journal-dev ||
 echo "libsystemd-dev is unavailable"
 
 # softhsm2 2.0.0: Ubuntu 16.04
@@ -170,17 +170,17 @@ fi
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries
-if [ $ADDITIONAL ]
+if [ $ADDITIONAL -ne 0 ]
 then
 	ACTUAL_LIST="$ACTUAL_LIST $ADDITIONAL_LIST"
 fi
 
-if [ $DEBDEPS ]
+if [ $DEBDEPS -ne 0 ]
 then
 	ACTUAL_LIST="$ACTUAL_LIST $DEBDEPS_LIST"
 fi
 
-if [ $TESTDEPS ]
+if [ $TESTDEPS -ne 0 ]
 then
 	ACTUAL_LIST="$ACTUAL_LIST $TESTDEPS_LIST"
 fi
@@ -188,17 +188,17 @@ fi
 # shellcheck disable=SC2086
 apt-get install $ACTUAL_LIST $OPTIONS || exit 2
 
-if [ $ADDITIONAL == 0 ]
+if [ $ADDITIONAL -eq 0 ]
 then
 	printf "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
 fi
 
-if [ $DEBDEPS == 0 ]
+if [ $DEBDEPS -eq 0 ]
 then
 	printf "\n*** Debian packages build deps not installed. Rerun with --install-deb-deps to have them.\n"
 fi
 
-if [ $TESTDEPS == 0 ]
+if [ $TESTDEPS -eq 0 ]
 then
 	printf "\n*** Test deps not installed. Rerun with --install-test-deps to have them.\n"
 fi

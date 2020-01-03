@@ -153,7 +153,7 @@ TapParameterDialog *RpcServiceResponseTimeDialog::createDceRpcSrtDialog(QWidget 
     if (args_l.length() > 1) {
         // XXX Switch to QUuid.
         unsigned d1, d2, d3, d4_0, d4_1, d4_2, d4_3, d4_4, d4_5, d4_6, d4_7;
-        if(sscanf(args_l[0].toUtf8().constData(),
+        if (sscanf(args_l[0].toUtf8().constData(),
                   "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                   &d1, &d2, &d3,
                   &d4_0, &d4_1, &d4_2, &d4_3, &d4_4, &d4_5, &d4_6, &d4_7) == 11) {

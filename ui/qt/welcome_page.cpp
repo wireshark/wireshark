@@ -83,10 +83,6 @@ WelcomePage::WelcomePage(QWidget *parent) :
     connect(welcome_ui_->interfaceFrame, SIGNAL(itemSelectionChanged()), this, SLOT(interfaceSelected()));
     connect(welcome_ui_->captureFilterComboBox->lineEdit(), SIGNAL(textEdited(QString)),
             this, SLOT(captureFilterTextEdited(QString)));
-    connect(welcome_ui_->captureFilterComboBox, SIGNAL(pushFilterSyntaxStatus(const QString&)),
-            this, SIGNAL(pushFilterSyntaxStatus(const QString&)));
-    connect(welcome_ui_->captureFilterComboBox, SIGNAL(popFilterSyntaxStatus()),
-            this, SIGNAL(popFilterSyntaxStatus()));
     connect(welcome_ui_->captureFilterComboBox, SIGNAL(captureFilterSyntaxChanged(bool)),
             this, SIGNAL(captureFilterSyntaxChanged(bool)));
     connect(welcome_ui_->captureFilterComboBox, SIGNAL(startCapture()),
@@ -225,7 +221,7 @@ void WelcomePage::interfaceSelected()
         welcome_ui_->captureFilterComboBox->lineEdit()->setText(user_filter);
     }
 
-    // Notify others (capture interfaces dialog) that the selection has changed.
+    // Notify others (capture options dialog) that the selection has changed.
     emit interfacesChanged();
 }
 

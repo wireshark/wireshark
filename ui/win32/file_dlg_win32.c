@@ -19,7 +19,7 @@
 #include <richedit.h>
 #include <strsafe.h>
 
-#include "globals.h"
+#include "file.h"
 
 #include "wsutil/file_util.h"
 #include "wsutil/str_util.h"
@@ -71,7 +71,6 @@ static TCHAR *FILE_EXT_EXPORT[] =
 
 static UINT_PTR CALLBACK open_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK save_as_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT_PTR CALLBACK save_as_statstree_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK export_specified_packets_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK merge_file_hook_proc(HWND mf_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK export_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
@@ -161,7 +160,7 @@ static unsigned int g_format_type = WTAP_TYPE_AUTO;
  */
 
 gboolean
-win32_open_file (HWND h_wnd, GString *file_name, unsigned int *type, GString *display_filter) {
+win32_open_file (HWND h_wnd, const wchar_t *title, GString *file_name, unsigned int *type, GString *display_filter) {
     OPENFILENAME *ofn;
     TCHAR file_name16[MAX_PATH] = _T("");
     int ofnsize = sizeof(OPENFILENAME);
@@ -199,7 +198,7 @@ win32_open_file (HWND h_wnd, GString *file_name, unsigned int *type, GString *di
     } else {
         ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     }
-    ofn->lpstrTitle = _T("Wireshark: Open Capture File");
+    ofn->lpstrTitle = title;
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER     |
                  OFN_NOCHANGEDIR  | OFN_FILEMUSTEXIST  | OFN_HIDEREADONLY |
                  OFN_ENABLEHOOK   | OFN_SHOWHELP;
@@ -224,97 +223,8 @@ win32_open_file (HWND h_wnd, GString *file_name, unsigned int *type, GString *di
     return gofn_ok;
 }
 
-check_savability_t
-win32_check_save_as_with_comments(HWND parent, capture_file *cf, int file_type)
-{
-    guint32        comment_types;
-    gint           response;
-
-    /* What types of comments do we have? */
-    comment_types = cf_comment_types(cf);
-
-    /* Does the file's format support all the comments we have? */
-    if (wtap_dump_supports_comment_types(file_type, comment_types)) {
-        /* Yes.  Let the save happen; we can save all the comments, so
-           there's no need to delete them. */
-        return SAVE;
-    }
-
-    /* No. Are there formats in which we can write this file that
-       supports all the comments in this file? */
-    if (wtap_dump_can_write(cf->linktypes, comment_types)) {
-        /* Yes.  Offer the user a choice of "Save in a format that
-           supports comments", "Discard comments and save in the
-           format you selected", or "Cancel", meaning "don't bother
-           saving the file at all".
-
-           XXX - given that we no longer support releases prior to
-           Windows Vista, we should use a task dialog:
-
-               https://docs.microsoft.com/en-us/windows/win32/controls/bumper-task-dialog-task-dialogs-reference
-
-           created with TaskDialogIndirect():
-
-               https://docs.microsoft.com/en-us/windows/win32/api/commctrl/nf-commctrl-taskdialogindirect
-
-           because the TASKDIALOGCONFIG structure
-
-               https://docs.microsoft.com/en-us/windows/win32/api/commctrl/ns-commctrl-taskdialogconfig
-
-           supports adding custom buttons, with custom labels, unlike
-           a MessageBox(), which doesn't appear to offer a clean way to
-           do that. */
-        response = MessageBox(parent,
-  _T("The capture has comments, but the file format you chose ")
-  _T("doesn't support comments.  Do you want to discard the comments ")
-  _T("and save in the format you chose?"),
-                              _T("Wireshark: Save File As"),
-                              MB_YESNOCANCEL|MB_ICONWARNING|MB_DEFBUTTON2);
-    } else {
-        /* No.  Offer the user a choice of "Discard comments and
-           save in the format you selected" or "Cancel".
-
-           XXX - see rant above. */
-        response = MessageBox(parent,
-  _T("The capture has comments, but no file format in which it ")
-  _T("can be saved supports comments.  Do you want to discard ")
-  _T("the comments and save in the format you chose?"),
-                              _T("Wireshark: Save File As"),
-                              MB_OKCANCEL|MB_ICONWARNING|MB_DEFBUTTON2);
-    }
-
-    switch (response) {
-
-    case IDNO: /* "No" means "Save in another format" in the first dialog */
-        /* OK, the only other format we support is pcapng.  Make that
-           the one and only format in the combo box, and return to
-           let the user continue with the dialog.
-
-           XXX - removing all the formats from the combo box will clear
-           the compressed checkbox; get the current value and restore
-           it.
-
-           XXX - we know pcapng can be compressed; if we ever end up
-           supporting saving comments in a format that *can't* be
-           compressed, such as NetMon format, we must check this. */
-        /* XXX - need a compressed checkbox here! */
-        return SAVE_IN_ANOTHER_FORMAT;
-
-    case IDYES: /* "Yes" means "Discard comments and save" in the first dialog */
-    case IDOK:  /* "OK" means "Discard comments and save" in the second dialog */
-        /* Save without the comments and, if that succeeds, delete the
-           comments. */
-        return SAVE_WITHOUT_COMMENTS;
-
-    case IDCANCEL:
-    default:
-        /* Just give up. */
-        return CANCELLED;
-    }
-}
-
 gboolean
-win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_type,
+win32_save_as_file(HWND h_wnd, const wchar_t *title, capture_file *cf, GString *file_name, int *file_type,
                    wtap_compression_type *compression_type,
                    gboolean must_support_all_comments)
 {
@@ -359,7 +269,7 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
     ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
-    ofn->lpstrTitle = _T("Wireshark: Save file as");
+    ofn->lpstrTitle = title;
     ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
                  OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                  OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
@@ -396,60 +306,9 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
     return gsfn_ok;
 }
 
-gboolean win32_save_as_statstree(HWND h_wnd, GString *file_name, int *file_type)
-{
-    OPENFILENAME *ofn;
-    TCHAR  file_name16[MAX_PATH] = _T("");
-    int    ofnsize = sizeof(OPENFILENAME);
-    BOOL gsfn_ok;
-
-    if (!file_name || !file_type)
-        return FALSE;
-
-    if (file_name->len > 0) {
-        StringCchCopy(file_name16, MAX_PATH, utf_8to16(file_name->str));
-    }
-
-    ofn = g_malloc0(sizeof(OPENFILENAME));
-
-    ofn->lStructSize = ofnsize;
-    ofn->hwndOwner = h_wnd;
-    ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
-    ofn->lpstrFilter = _T("Plain text file (.txt)\0*.txt\0Comma separated values (.csv)\0*.csv\0XML document (.xml)\0*.xml\0YAML document (.yaml)\0*.yaml\0");
-    ofn->lpstrCustomFilter = NULL;
-    ofn->nMaxCustFilter = 0;
-    ofn->nFilterIndex = 1;  /* the first entry is the best match; 1-origin indexing */
-    ofn->lpstrFile = file_name16;
-    ofn->nMaxFile = MAX_PATH;
-    ofn->lpstrFileTitle = NULL;
-    ofn->nMaxFileTitle = 0;
-    ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
-    ofn->lpstrTitle = _T("Wireshark: Save stats tree as ...");
-    ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER        |
-                 OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
-                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
-    ofn->lpstrDefExt = NULL;
-    ofn->lpfnHook = save_as_statstree_hook_proc;
-    ofn->lpTemplateName = _T("WIRESHARK_SAVEASSTATSTREENAME_TEMPLATE");
-
-    HANDLE save_da_ctx = set_thread_per_monitor_v2_awareness();
-    gsfn_ok = GetSaveFileName(ofn);
-    revert_thread_per_monitor_v2_awareness(save_da_ctx);
-
-    if (gsfn_ok) {
-        g_string_printf(file_name, "%s", utf_16to8(file_name16));
-        /* What file format was specified? */
-        *file_type = ofn->nFilterIndex - 1;
-    }
-
-    g_sf_hwnd = NULL;
-    g_free( (void *) ofn);
-    return gsfn_ok;
-}
-
-
 gboolean
-win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
+win32_export_specified_packets_file(HWND h_wnd, const wchar_t *title,
+                                    capture_file *cf,
                                     GString *file_name,
                                     int *file_type,
                                     wtap_compression_type *compression_type,
@@ -490,7 +349,7 @@ win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
     ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
-    ofn->lpstrTitle = _T("Wireshark: Export Specified Packets");
+    ofn->lpstrTitle = title;
     ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
                  OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                  OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
@@ -531,7 +390,7 @@ win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
 
 
 gboolean
-win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *merge_type) {
+win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name, GString *display_filter, int *merge_type) {
     OPENFILENAME *ofn;
     TCHAR         file_name16[MAX_PATH] = _T("");
     int           ofnsize = sizeof(OPENFILENAME);
@@ -569,7 +428,7 @@ win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *
     } else {
         ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     }
-    ofn->lpstrTitle = _T("Wireshark: Merge with capture file");
+    ofn->lpstrTitle = title;
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER     |
                  OFN_NOCHANGEDIR  | OFN_FILEMUSTEXIST  | OFN_HIDEREADONLY |
                  OFN_ENABLEHOOK   | OFN_SHOWHELP;
@@ -608,7 +467,7 @@ win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *
 }
 
 void
-win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
+win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_type_e export_type) {
     OPENFILENAME     *ofn;
     TCHAR             file_name[MAX_PATH] = _T("");
     char             *dirname;
@@ -631,7 +490,7 @@ win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
     ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
-    ofn->lpstrTitle = _T("Wireshark: Export File");
+    ofn->lpstrTitle = title;
     ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
                  OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                  OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
@@ -1318,57 +1177,8 @@ build_file_save_type_list(GArray *savable_file_types) {
     return (TCHAR *) g_array_free(sa, FALSE /*free_segment*/);
 }
 
-
-#if 0
-static void
-build_file_format_list(HWND sf_hwnd) {
-    HWND  format_cb;
-    int   ft;
-    guint file_index;
-    guint item_to_select;
-    gchar *s;
-
-    /* Default to the first supported file type, if the file's current
-       type isn't supported. */
-    item_to_select = 0;
-
-    format_cb = GetDlgItem(sf_hwnd, EWFD_FILE_TYPE_COMBO);
-    SendMessage(format_cb, CB_RESETCONTENT, 0, 0);
-
-    /* Check all file types. */
-    file_index = 0;
-    for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-        if (ft == WTAP_FILE_UNKNOWN)
-            continue;  /* not a real file type */
-
-        if (!packet_range_process_all(g_range) || ft != cfile.cd_t) {
-            /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
-            if (!wtap_can_save_with_wiretap(ft, cfile.linktypes))
-                continue;       /* We can't. */
-        }
-
-        /* OK, we can write it out in this type. */
-        if(wtap_file_extensions_string(ft) != NULL) {
-            s = g_strdup_printf("%s (%s)", wtap_file_type_string(ft), wtap_file_extensions_string(ft));
-        } else {
-            s = g_strdup_printf("%s (" ALL_FILES_WILDCARD ")", wtap_file_type_string(ft));
-        }
-        SendMessage(format_cb, CB_ADDSTRING, 0, (LPARAM) utf_8to16(s));
-        g_free(s);
-        SendMessage(format_cb, CB_SETITEMDATA, (LPARAM) file_index, (WPARAM) ft);
-        if (ft == g_filetype) {
-            /* Default to the same format as the file, if it's supported. */
-            item_to_select = file_index;
-        }
-        file_index++;
-    }
-
-    SendMessage(format_cb, CB_SETCURSEL, (WPARAM) item_to_select, 0);
-}
-#endif
-
 static UINT_PTR CALLBACK
-save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
+save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param _U_, LPARAM l_param) {
     HWND           cur_ctrl;
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
     /*int            new_filetype, file_index;*/
@@ -1391,46 +1201,6 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
             break;
         }
         case WM_COMMAND:
-            cur_ctrl = (HWND) l_param;
-
-            switch (w_param) {
-#if 0
-                case (CBN_SELCHANGE << 16) | EWFD_FILE_TYPE_COMBO:
-                    file_index = SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
-                    if (file_index != CB_ERR) {
-                        new_filetype = SendMessage(cur_ctrl, CB_GETITEMDATA, (WPARAM) file_index, 0);
-                        if (new_filetype != CB_ERR) {
-                            if (g_filetype != new_filetype) {
-                                if (wtap_can_save_with_wiretap(new_filetype, cfile.linktypes)) {
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
-                                    EnableWindow(cur_ctrl, TRUE);
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
-                                    EnableWindow(cur_ctrl, TRUE);
-                                } else {
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
-                                    SendMessage(cur_ctrl, BM_SETCHECK, 0, 0);
-                                    EnableWindow(cur_ctrl, FALSE);
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
-                                    EnableWindow(cur_ctrl, FALSE);
-                                }
-                                g_filetype = new_filetype;
-                                cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
-                                if (wtap_dump_can_compress(file_type)) {
-                                    EnableWindow(cur_ctrl);
-                                } else {
-                                    g_compressed = FALSE;
-                                    DisableWindow(cur_ctrl);
-                                }
-                                SendMessage(cur_ctrl, BM_SETCHECK, g_compressed, 0);
-
-                            }
-                        }
-                    }
-                    break;
-#endif
-                default:
-                    break;
-            }
             break;
         case WM_NOTIFY:
             switch (notify->hdr.code) {
@@ -1476,26 +1246,6 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     return 0;
 }
 
-static UINT_PTR CALLBACK
-save_as_statstree_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param _U_, LPARAM l_param _U_) {
-
-    switch(msg) {
-        case WM_INITDIALOG:
-            g_sf_hwnd = sf_hwnd;
-            break;
-
-        case WM_COMMAND:
-            break;
-
-        case WM_NOTIFY:
-            break;
-
-        default:
-            break;
-    }
-    return 0;
-}
-
 #define RANGE_TEXT_MAX 128
 static UINT_PTR CALLBACK
 export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
@@ -1523,37 +1273,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
         }
         case WM_COMMAND:
             cur_ctrl = (HWND) l_param;
-
-            switch (w_param) {
-#if 0
-                case (CBN_SELCHANGE << 16) | EWFD_FILE_TYPE_COMBO:
-                    file_index = SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
-                    if (file_index != CB_ERR) {
-                        new_filetype = SendMessage(cur_ctrl, CB_GETITEMDATA, (WPARAM) file_index, 0);
-                        if (new_filetype != CB_ERR) {
-                            if (g_filetype != new_filetype) {
-                                if (wtap_can_save_with_wiretap(new_filetype, cfile.linktypes)) {
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
-                                    EnableWindow(cur_ctrl, TRUE);
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
-                                    EnableWindow(cur_ctrl, TRUE);
-                                } else {
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
-                                    SendMessage(cur_ctrl, BM_SETCHECK, 0, 0);
-                                    EnableWindow(cur_ctrl, FALSE);
-                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
-                                    EnableWindow(cur_ctrl, FALSE);
-                                }
-                                g_filetype = new_filetype;
-                            }
-                        }
-                    }
-                    break;
-#endif
-                default:
-                    range_handle_wm_command(sf_hwnd, cur_ctrl, w_param, g_range);
-                    break;
-            }
+            range_handle_wm_command(sf_hwnd, cur_ctrl, w_param, g_range);
             break;
         case WM_NOTIFY:
             switch (notify->hdr.code) {
@@ -1606,7 +1326,6 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     HWND     cur_ctrl;
     gboolean filtered_active = FALSE;
     TCHAR    static_val[STATIC_LABEL_CHARS];
-    gint     selected_num;
     guint32  ignored_cnt = 0, displayed_ignored_cnt = 0;
     guint32  displayed_cnt;
     gboolean range_valid = TRUE;
@@ -1639,22 +1358,21 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_CURR */
-    selected_num = (g_cf->current_frame) ? g_cf->current_frame->num : 0;
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_CAP);
-    EnableWindow(cur_ctrl, selected_num && !filtered_active);
-    if (range->remove_ignored && g_cf->current_frame && g_cf->current_frame->ignored) {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("0"));
+    EnableWindow(cur_ctrl, range->selection_range_cnt > 0 && !filtered_active);
+    if (range->remove_ignored) {
+        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%d"), range->selection_range_cnt - range->ignored_selection_range_cnt);
     } else {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%d"), selected_num ? 1 : 0);
+        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%d"), range->selection_range_cnt);
     }
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_DISP);
-    EnableWindow(cur_ctrl, selected_num && filtered_active);
-    if (range->remove_ignored && g_cf->current_frame && g_cf->current_frame->ignored) {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("0"));
+    EnableWindow(cur_ctrl, range->displayed_selection_range_cnt > 0 && filtered_active);
+    if (range->remove_ignored) {
+        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%d"), range->displayed_selection_range_cnt - range->displayed_ignored_selection_range_cnt);
     } else {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%d"), selected_num ? 1 : 0);
+        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%d"), range->displayed_selection_range_cnt);
     }
     SetWindowText(cur_ctrl, static_val);
 
@@ -1756,8 +1474,8 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
             displayed_ignored_cnt = range->displayed_ignored_cnt;
             break;
         case(range_process_selected):
-            ignored_cnt = (g_cf->current_frame && g_cf->current_frame->ignored) ? 1 : 0;
-            displayed_ignored_cnt = ignored_cnt;
+            ignored_cnt = range->ignored_selection_range_cnt;
+            displayed_ignored_cnt = range->displayed_ignored_selection_range_cnt;
             break;
         case(range_process_marked):
             ignored_cnt = range->ignored_marked_cnt;

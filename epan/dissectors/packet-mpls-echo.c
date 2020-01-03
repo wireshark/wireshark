@@ -90,6 +90,11 @@ static int hf_mpls_echo_tlv_fec_gen_ipv4_mask = -1;
 static int hf_mpls_echo_tlv_fec_gen_ipv6 = -1;
 static int hf_mpls_echo_tlv_fec_gen_ipv6_mask = -1;
 static int hf_mpls_echo_tlv_fec_nil_label = -1;
+static int hf_mpls_echo_tlv_fec_pw_ipv6_128_sender = -1;
+static int hf_mpls_echo_tlv_fec_pw_ipv6_128_remote = -1;
+static int hf_mpls_echo_tlv_fec_pw_ipv6_128_pw_id = -1;
+static int hf_mpls_echo_tlv_fec_pw_ipv6_128_pw_type = -1;
+static int hf_mpls_echo_tlv_fec_pw_ipv6_128_mbz = -1;
 static int hf_mpls_echo_tlv_fec_igp_ipv4 = -1;
 static int hf_mpls_echo_tlv_fec_igp_ipv6 = -1;
 static int hf_mpls_echo_tlv_fec_igp_mask = -1;
@@ -365,6 +370,9 @@ static value_string_ext mpls_echo_tlv_type_names_ext = VALUE_STRING_EXT_INIT(mpl
 /*As per RFC 6426, http://tools.ietf.org/html/rfc6426 Section: 2.3 */
 #define TLV_FEC_STACK_STATIC_LSP           22
 #define TLV_FEC_STACK_STATIC_PW            23
+/*As per RFC 8029, https://tools.ietf.org/html/rfc8029 Section 3.2 */
+#define TLV_FEC_STACK_PW_IPv6_FEC_128      24
+#define TLV_FEC_STACK_PW_IPv6_FEC_129      25
 #define TLV_FEC_VENDOR_PRIVATE_START   0xFC00
 #define TLV_FEC_VENDOR_PRIVATE_END     0xFFFF
 /*As per RFC 8287, http://tools.ietf.org/html/rfc8287 Section: 9.1 */
@@ -382,9 +390,9 @@ static const value_string mpls_echo_tlv_fec_names[] = {
     { TLV_FEC_STACK_VPN_IPv4,       "VPN IPv4 prefix"},
     { TLV_FEC_STACK_VPN_IPv6,       "VPN IPv6 prefix"},
     { TLV_FEC_STACK_L2_VPN,         "L2 VPN endpoint"},
-    { TLV_FEC_STACK_L2_CID_OLD,     "FEC 128 Pseudowire (old)"},
-    { TLV_FEC_STACK_L2_CID_NEW,     "FEC 128 Pseudowire (new)"},
-    { TLV_FEC_STACK_L2_FEC_129,     "FEC 129 Pseudowire"},
+    { TLV_FEC_STACK_L2_CID_OLD,     "FEC 128 Pseudowire - IPv4 (Deprecated)"},
+    { TLV_FEC_STACK_L2_CID_NEW,     "FEC 128 Pseudowire - IPv4"},
+    { TLV_FEC_STACK_L2_FEC_129,     "FEC 129 Pseudowire - IPv4"},
     { TLV_FEC_STACK_BGP_LAB_v4,     "BGP labeled IPv4 prefix"},
     { TLV_FEC_STACK_BGP_LAB_v6,     "BGP labeled IPv6 prefix"},
     { TLV_FEC_STACK_GEN_IPv4,       "Generic IPv4 prefix"},
@@ -394,6 +402,8 @@ static const value_string mpls_echo_tlv_fec_names[] = {
     { TLV_FEC_STACK_P2MP_IPv6,      "RSVP P2MP IPv6 Session Query"},
     { TLV_FEC_STACK_STATIC_LSP,     "Static LSP"},
     { TLV_FEC_STACK_STATIC_PW,      "Static Pseudowire"},
+    { TLV_FEC_STACK_PW_IPv6_FEC_128,"FEC 128 Pseudowire - IPv6"},
+    { TLV_FEC_STACK_PW_IPv6_FEC_129,"FEC 129 Pseudowire - IPv6"},
     { TLV_FEC_STACK_SR_IGP_IPv4,    "IPv4 IGP-Prefix Segment ID"},
     { TLV_FEC_STACK_SR_IGP_IPv6,    "IPv6 IGP-Prefix Segment ID"},
     { TLV_FEC_STACK_SR_IGP_ADJ,     "IGP-Adjacency Segment ID"},
@@ -779,6 +789,27 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                                     tvb, offset + 4, 16, ENC_NA);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_gen_ipv6_mask,
                                     tvb, offset + 20, 1, ENC_BIG_ENDIAN);
+            }
+            break;
+        case TLV_FEC_STACK_PW_IPv6_FEC_128:
+            if (length != 38) {
+                expert_add_info_format(pinfo, ti, &ei_mpls_echo_tlv_fec_len,
+                                       "Invalid FEC Sub-TLV Length "
+                                       "(claimed %u, should be %u)",
+                                       length, 38);
+                return;
+            }
+            if (tree) {
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_pw_ipv6_128_sender,
+                                    tvb, offset + 4, 16, ENC_NA);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_pw_ipv6_128_remote,
+                                    tvb, offset + 20, 16, ENC_NA);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_pw_ipv6_128_pw_id,
+                                    tvb, offset + 36, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_pw_ipv6_128_pw_type,
+                                    tvb, offset + 38, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_pw_ipv6_128_mbz,
+                                    tvb, offset + 40, 2, ENC_BIG_ENDIAN);
             }
             break;
         case TLV_FEC_STACK_NIL:
@@ -1377,7 +1408,7 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
             tlv_dd_map_tree = proto_tree_add_subtree(tree, tvb, offset - 4, subtlv_length + 4,
                                 ett_mpls_echo_tlv_dd_map, NULL, "Label stack sub-TLV");
 
-            while (rem >= 4) {
+            while (subtlv_length >= 4) {
                 if (tree) {
                     decode_mpls_label(tvb, offset, &label, &tc, &s_bit, &proto);
 
@@ -1390,8 +1421,9 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
                     proto_tree_add_item(tlv_ddstlv_map_tree, hf_mpls_echo_tlv_ddstlv_map_mp_proto,
                                         tvb, offset + 3, 1, ENC_BIG_ENDIAN);
                 }
-                rem    -= 4;
-                offset += 4;
+                subtlv_length -= 4;
+                rem           -= 4;
+                offset        += 4;
                 idx++;
             }
             break;
@@ -2134,6 +2166,26 @@ proto_register_mpls_echo(void)
         { &hf_mpls_echo_tlv_fec_nil_label,
           { "Label", "mpls_echo.tlv.fec.nil_label",
             FT_UINT24, BASE_DEC, VALS(special_labels), 0x0, "MPLS ECHO TLV FEC Stack NIL Label", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_pw_ipv6_128_sender,
+          { "Sender's PE Address", "mpls_echo.tlv.fec.pw_ipv6_128_sender",
+            FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC PW IPV6 FEC 128 SENDER", HFILL }
+        },
+        { &hf_mpls_echo_tlv_fec_pw_ipv6_128_remote,
+          { "Remote's PE Address", "mpls_echo.tlv.fec.pw_ipv6_128_remote",
+            FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC PW IPV6 FEC 128 REMOTE", HFILL }
+        },
+        { &hf_mpls_echo_tlv_fec_pw_ipv6_128_pw_id,
+          { "PW ID", "mpls_echo.tlv.fec.fec.pw_ipv6_128_pwid",
+            FT_UINT16, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV FEC PW IPV6 FEC 128 PW ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_pw_ipv6_128_pw_type,
+          { "PW TYPE", "mpls_echo.tlv.fec.fec.pw_ipv6_128_pw_type",
+            FT_UINT16, BASE_DEC, VALS(fec_vc_types_vals), 0x0, "MPLS ECHO TLV FEC PW IPV6 FEC 128 PW TYPE", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_pw_ipv6_128_mbz,
+          { "MBZ", "mpls_echo.tlv.fec.fec.pw_ipv6_128_mbz",
+            FT_UINT16, BASE_HEX, NULL, 0x0, "MPLS ECHO TLV FEC PW IPV6 FEC 128 MBZ", HFILL}
         },
         { &hf_mpls_echo_tlv_fec_igp_ipv4,
           { "IPv4 Prefix", "mpls_echo.tlv.fec.igp_ipv4",

@@ -151,7 +151,7 @@ ENDMACRO(XML2HTML)
 #       wsug or wsdg
 #       user-guide.xml or developer-guide.xml
 #)
-MACRO(XML2HHP _target_dep _guide _dbk_source)
+MACRO(XML2HHP _target_dep _guide _title _dbk_source)
     # We depend on the docbook target to avoid parallel builds.
     SET(_dbk_dep ${_target_dep}_docbook)
     GET_FILENAME_COMPONENT( _source_base_name ${_dbk_source} NAME_WE )
@@ -174,16 +174,16 @@ MACRO(XML2HHP _target_dep _guide _dbk_source)
         # Dumb down our title. HTML Help can render most of our content
         # correctly because we tell it to use the IE9 rendering engine in
         # custom_layer_chm.xsl. However, this doesn't apply to the window
-        # title. Neither "’", "'", nor "&#8217;" will render correctly, so
-        # just remove everything between "Developer", "User", and their
-        # respective trailing "s"es.
+        # title or TOC. Neither "’" nor "&#8217;" will render correctly,
+        # so just add a _title argument and set it in CMakeLists.txt.
         COMMAND ${PERL_EXECUTABLE} -p
-            -e "s|er.*s Guide</title>|ers Guide</title>|"
-            < ${_dbk_source}
-            > ${_docbook_plain_title}
+           -e "s|<title>Wireshark.*s Guide</title>|<title>${_title}</title>|"
+           < ${_dbk_source}
+           > ${_docbook_plain_title}
         COMMAND ${XSLTPROC_EXECUTABLE}
             --path "${_xsltproc_path}"
             --stringparam base.dir ${_basedir}/
+            --stringparam htmlhelp.title ${_title}
             --stringparam htmlhelp.chm ${_output_chm}
             --stringparam htmlhelp.hhp ${_output_hhp}
             --stringparam htmlhelp.hhc ${_output_toc_hhc}

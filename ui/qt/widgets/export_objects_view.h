@@ -21,7 +21,7 @@ public:
     ExportObjectsTreeView(QWidget *parent = 0);
 
 signals:
-    void goToPacket(int packet_num);
+    void currentIndexChanged(const QModelIndex &current);
 
 protected slots:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);

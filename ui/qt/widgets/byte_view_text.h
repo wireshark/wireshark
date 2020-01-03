@@ -94,8 +94,7 @@ private:
 
     static const int separator_interval_;
 
-    // Fonts and colors
-    QFont mono_font_;
+    // Colors
     QColor offset_normal_fg_;
     QColor offset_field_fg_;
 

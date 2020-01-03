@@ -248,7 +248,7 @@ class SubprocessTestCase(unittest.TestCase):
             return False
         return True
 
-    def startProcess(self, proc_args, stdin=None, env=None, shell=False):
+    def startProcess(self, proc_args, stdin=None, env=None, shell=False, cwd=None):
         '''Start a process in the background. Returns a subprocess.Popen object.
 
         You typically wait for it using waitProcess() or assertWaitProcess().'''
@@ -260,7 +260,7 @@ class SubprocessTestCase(unittest.TestCase):
             # fixture (via a test method parameter or class decorator).
             assert not (env is None and hasattr(self, '_fixture_request')), \
                 "Decorate class with @fixtures.mark_usefixtures('test_env')"
-        proc = LoggingPopen(proc_args, stdin=stdin, env=env, shell=shell, log_fd=self.log_fd)
+        proc = LoggingPopen(proc_args, stdin=stdin, env=env, shell=shell, log_fd=self.log_fd, cwd=cwd)
         self.processes.append(proc)
         return proc
 
@@ -277,14 +277,14 @@ class SubprocessTestCase(unittest.TestCase):
         process.wait_and_log()
         self.assertEqual(process.returncode, expected_return)
 
-    def runProcess(self, args, env=None, shell=False):
+    def runProcess(self, args, env=None, shell=False, cwd=None):
         '''Start a process and wait for it to finish.'''
-        process = self.startProcess(args, env=env, shell=shell)
+        process = self.startProcess(args, env=env, shell=shell, cwd=cwd)
         process.wait_and_log()
         return process
 
-    def assertRun(self, args, env=None, shell=False, expected_return=0):
+    def assertRun(self, args, env=None, shell=False, expected_return=0, cwd=None):
         '''Start a process and wait for it to finish. Check its return code.'''
-        process = self.runProcess(args, env=env, shell=shell)
+        process = self.runProcess(args, env=env, shell=shell, cwd=cwd)
         self.assertEqual(process.returncode, expected_return)
         return process

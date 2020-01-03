@@ -91,7 +91,8 @@ typedef enum {
     format_size_unit_packets   = 5,     /**< "packets" */
     format_size_unit_packets_s = 6,     /**< "packets/s" */
     format_size_prefix_si    = 0 << 8,  /**< SI (power of 1000) prefixes will be used. */
-    format_size_prefix_iec   = 1 << 8   /**< IEC (power of 1024) prefixes will be used. */
+    format_size_prefix_iec   = 1 << 8,  /**< IEC (power of 1024) prefixes will be used. */
+    format_size_suffix_no_space = 1 << 16  /**< Omit space between value and unit. */
     /* XXX format_size_prefix_default_for_this_particular_os ? */
 } format_size_flags_e;
 
@@ -101,7 +102,7 @@ typedef enum {
  *
  * @param size The size value
  * @param flags Flags to control the output (unit of measurement,
- * SI vs IEC, etc). Unit and prefix flags may be ORed together.
+ * SI vs IEC, etc). Unit, prefix and suffix flags may be ORed together.
  * @return A newly-allocated string representing the value.
  */
 WS_DLL_PUBLIC

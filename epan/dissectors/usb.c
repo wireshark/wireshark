@@ -17824,6 +17824,7 @@ static const value_string usb_products_vals[] = {
     { 0x1493001b, "Emu [Ambit3 Peak]" },
     { 0x1493001c, "Finch [Ambit3 Sport]" },
     { 0x1493001d, "Greentit [Ambit2 R]" },
+    { 0x1493001e, "Ibisbill [Ambit3 Run]" },
     { 0x1498a090, "DVB-T Tuner" },
     { 0x149a2107, "DBX1 DSP core" },
     { 0x14aa0001, "Avermedia AverTV DVBT USB1.1 (cold)" },

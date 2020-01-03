@@ -6,7 +6,6 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-
 set( PROTOCOL_NAME m3ap )
 
 set( PROTO_OPT )

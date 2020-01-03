@@ -17,9 +17,9 @@ from matchers import *
 
 @fixtures.fixture
 def check_outputformat(cmd_tshark, request, dirs, capture_file):
-    ''' Check a capture file against a sample, in json format. '''
     def check_outputformat_real(format_option, pcap_file='dhcp.pcap',
                                 extra_args=[], expected=None, multiline=False):
+        ''' Check a capture file against a sample, in json format. '''
         self = request.instance
         tshark_proc = self.assertRun([cmd_tshark, '-r', capture_file(pcap_file),
                                       '-T', format_option] + extra_args)
@@ -61,6 +61,10 @@ class case_outputformats(subprocesstest.SubprocessTestCase):
         '''Decode some captures into ek'''
         check_outputformat("ek", expected="dhcp.ek", multiline=True)
 
+    def test_outputformat_ek_raw(self, check_outputformat):
+        '''Decode some captures into ek, with raw data'''
+        check_outputformat("ek", expected="dhcp-raw.ek", multiline=True, extra_args=['-x'])
+
     def test_outputformat_json_select_field(self, check_outputformat):
         '''Checks that the -e option works with -Tjson.'''
         check_outputformat("json", extra_args=['-eframe.number', '-c1'], expected=[
@@ -84,3 +88,8 @@ class case_outputformats(subprocesstest.SubprocessTestCase):
             {"index": {"_index": "packets-2004-12-05", "_type": "doc"}},
             {"timestamp": "1102274184317", "layers": {"frame_number": ["1"]}}
         ], multiline=True)
+
+    def test_outputformat_ek_filter_field(self, check_outputformat):
+        ''' Check that the option -j works with -Tek.'''
+        check_outputformat("ek", extra_args=['-j', 'dhcp'], expected="dhcp-filter.ek",
+            multiline=True)

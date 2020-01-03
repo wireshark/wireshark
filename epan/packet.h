@@ -512,15 +512,15 @@ WS_DLL_PUBLIC heur_dtbl_entry_t* find_heur_dissector_by_unique_short_name(const 
 /** Add a sub-dissector to a heuristic dissector list.
  *  Call this in the proto_handoff function of the sub-dissector.
  *
- * @param name the name of the "parent" protocol, e.g. "tcp"
+ * @param name the name of the heuristic dissector table into which to register the dissector, e.g. "tcp"
  * @param dissector the sub-dissector to be registered
  * @param display_name the string used to present heuristic to user, e.g. "HTTP over TCP"
- * @param short_name the string used for "internal" use to identify heuristic, e.g. "http_tcp"
+ * @param internal_name the string used for "internal" use to identify heuristic, e.g. "http_tcp"
  * @param proto the protocol id of the sub-dissector
  * @param enable initially enabled or not
  */
 WS_DLL_PUBLIC void heur_dissector_add(const char *name, heur_dissector_t dissector,
-    const char *display_name, const char *short_name, const int proto, heuristic_enable_e enable);
+    const char *display_name, const char *internal_name, const int proto, heuristic_enable_e enable);
 
 /** Remove a sub-dissector from a heuristic dissector list.
  *  Call this in the prefs_reinit function of the sub-dissector.

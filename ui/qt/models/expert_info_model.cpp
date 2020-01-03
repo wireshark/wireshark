@@ -333,7 +333,7 @@ int ExpertInfoModel::rowCount(const QModelIndex &parent) const
     return 0;
 }
 
-int ExpertInfoModel::columnCount(const QModelIndex& ) const
+int ExpertInfoModel::columnCount(const QModelIndex&) const
 {
     return colLast;
 }

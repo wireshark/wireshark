@@ -26,8 +26,6 @@ public:
 
 signals:
     void interfacesChanged();
-    void pushFilterSyntaxStatus(const QString&);
-    void popFilterSyntaxStatus();
     void captureFilterSyntaxChanged(bool valid);
     void startCapture();
 

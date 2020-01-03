@@ -1,6 +1,6 @@
 // Common attributes
 
-:wireshark-version: 3.1.1
+:wireshark-version: 3.3.0
 
 // Required for btn, kbd:, and menu: macros.
 :experimental:
@@ -25,9 +25,8 @@
 :wireshark-authors-url: {wireshark-main-url}about.html#authors
 :wireshark-buildbot-url: https://buildbot.wireshark.org/wireshark-master/waterfall
 :wireshark-code-browse-url: {wireshark-code-review-url}/gitweb?p=wireshark.git
-:wireshark-developers-guide-url: {wireshark-docs-url}wsdg_html_chunked/
+:wireshark-developers-guide-url: {wireshark-main-url}docs/wsdg_html_chunked/
 :wireshark-display-filter-reference-url: {wireshark-main-url}docs/dfref/
-:wireshark-docs-url: {wireshark-main-url}docs/
 :wireshark-download-url: {wireshark-main-url}download.html
 :wireshark-faq-url: {wireshark-main-url}faq.html
 :wireshark-git-anonhttp-url: \https://code.wireshark.org/review/wireshark
@@ -36,7 +35,7 @@
 :wireshark-mailing-lists-url: {wireshark-main-url}lists/
 :wireshark-man-page-url: {wireshark-main-url}docs/man-pages/
 :wireshark-snapshots-url: {wireshark-main-url}download/automated/src/
-:wireshark-users-guide-url: {wireshark-docs-url}wsug_html_chunked/
+:wireshark-users-guide-url: {wireshark-main-url}docs/wsug_html_chunked/
 
 // External URLs
 :tcpdump-main-url: https://www.tcpdump.org/
@@ -87,4 +86,4 @@
 :multiplication: ×
 :cmd: ⌘
 
-:missing: Not yet written. See https://wiki.wireshark.org/Development/SubmittingPatches
+:missing: Not yet written. See https://wiki.wireshark.org/Development/SubmittingPatches.

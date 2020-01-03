@@ -159,7 +159,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
         }
 
         //put the rest of the protocols in the combo box
-        QList<QString> da_list = da_set.toList();
+        QList<QString> da_list = da_set.values();
         std::sort(da_list.begin(), da_list.end());
 
         foreach (table_ui_name, da_list) {
@@ -267,7 +267,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
 
         //QMap already sorts the keys (protocols) alphabetically
         QMap<QString, dissector_info_t*>::iterator protocol;
-        for(protocol = protocols.begin(); protocol != protocols.end(); ++protocol)
+        for (protocol = protocols.begin(); protocol != protocols.end(); ++protocol)
         {
             editor->addItem(protocol.key(), VariantPointer<dissector_info_t>::asQVariant(protocol.value()));
         }

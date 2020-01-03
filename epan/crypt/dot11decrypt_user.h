@@ -43,7 +43,8 @@
 #define	DOT11DECRYPT_WPA_PASSPHRASE_MAX_LEN	63	/* null-terminated string, the actual length of the storage is 64	*/
 #define	DOT11DECRYPT_WPA_SSID_MIN_LEN			0
 #define	DOT11DECRYPT_WPA_SSID_MAX_LEN			32
-#define	DOT11DECRYPT_WPA_PSK_LEN				32
+#define	DOT11DECRYPT_WPA_PMK_MAX_LEN				48
+#define	DOT11DECRYPT_WPA_PWD_PSK_LEN				32
 /*																										*/
 /*																										*/
 /******************************************************************************/
@@ -124,8 +125,12 @@ typedef struct _DOT11DECRYPT_KEY_ITEM {
 		 * calculated.
 		 */
 		struct DOT11DECRYPT_KEY_ITEMDATA_WPA {
-			UCHAR Psk[DOT11DECRYPT_WPA_PSK_LEN];
-			UCHAR Ptk[DOT11DECRYPT_WPA_PTK_LEN];
+			UCHAR Psk[DOT11DECRYPT_WPA_PMK_MAX_LEN];
+			UCHAR Ptk[DOT11DECRYPT_WPA_PTK_MAX_LEN];
+			UINT8 PskLen;
+			UINT8 PtkLen;
+			UINT8 Akm;
+			UINT8 Cipher;
 		} Wpa;
 	} KeyData;
 

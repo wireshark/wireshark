@@ -643,7 +643,7 @@ static int hf_gtpv2_csg_info_rep_action_b0 = -1;
 static int hf_gtpv2_csg_info_rep_action_b1 = -1;
 static int hf_gtpv2_csg_info_rep_action_b2 = -1;
 static int hf_gtpv2_gnodeb_id_len = -1;
-static int hf_gtpv2_godeb_id = -1;
+static int hf_gtpv2_gnodeb_id = -1;
 static int hf_gtpv2_5gs_tac = -1;
 static int hf_gtpv2_en_gnb_id_len = -1;
 static int hf_gtpv2_5tac;
@@ -2965,8 +2965,8 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
             return str;
     }
 
-    /* 8.21.8  Macro eNodeB ID field */
-    if (flags & GTPv2_ULI_MACRO_eNB_ID_MASK)
+    /* 8.21.8  Extended Macro eNodeB ID field */
+    if (flags & GTPv2_ULI_EXT_MACRO_eNB_ID_MASK)
     {
         proto_item_append_text(item, "Ext Macro eNodeB ID ");
         part_tree = proto_tree_add_subtree(tree, tvb, offset, 7,
@@ -5304,8 +5304,9 @@ dissect_gtpv2_gnodeb_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int
      */
 
     proto_tree_add_item(tree, hf_gtpv2_gnodeb_id_len, tvb, *offset, 1, ENC_BIG_ENDIAN);
+    *offset += 1;
 
-    proto_tree_add_item_ret_uint(tree, hf_gtpv2_godeb_id, tvb, *offset, 4, ENC_BIG_ENDIAN, &gnodeb_id);
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_gnodeb_id, tvb, *offset, 4, ENC_BIG_ENDIAN, &gnodeb_id);
     *offset += 4;
 
     str = wmem_strdup_printf(wmem_packet_scope(), "%s, gNodeB ID 0x%x",
@@ -11005,8 +11006,8 @@ void proto_register_gtpv2(void)
           FT_UINT8, BASE_DEC, NULL, 0x3f,
           NULL, HFILL}
       },
-      { &hf_gtpv2_godeb_id,
-      { "gNodeB ID", "gtpv2.godeb_id",
+      { &hf_gtpv2_gnodeb_id,
+      { "gNodeB ID", "gtpv2.gnodeb_id",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },

@@ -21,13 +21,13 @@
 // At some point we should probably make these configurable along with the
 // graph and sequence colors.
 
-const QColor ColorUtils::expert_color_comment    = QColor ( 0xb7, 0xf7, 0x74 );        /* Green */
-const QColor ColorUtils::expert_color_chat       = QColor ( 0x80, 0xb7, 0xf7 );        /* Light blue */
-const QColor ColorUtils::expert_color_note       = QColor ( 0xa0, 0xff, 0xff );        /* Bright turquoise */
-const QColor ColorUtils::expert_color_warn       = QColor ( 0xf7, 0xf2, 0x53 );        /* Yellow */
-const QColor ColorUtils::expert_color_error      = QColor ( 0xff, 0x5c, 0x5c );        /* Pale red */
-const QColor ColorUtils::expert_color_foreground = QColor ( 0x00, 0x00, 0x00 );        /* Black */
-const QColor ColorUtils::hidden_proto_item       = QColor ( 0x44, 0x44, 0x44 );        /* Gray */
+const QColor ColorUtils::expert_color_comment    = QColor (0xb7, 0xf7, 0x74);        /* Green */
+const QColor ColorUtils::expert_color_chat       = QColor (0x80, 0xb7, 0xf7);        /* Light blue */
+const QColor ColorUtils::expert_color_note       = QColor (0xa0, 0xff, 0xff);        /* Bright turquoise */
+const QColor ColorUtils::expert_color_warn       = QColor (0xf7, 0xf2, 0x53);        /* Yellow */
+const QColor ColorUtils::expert_color_error      = QColor (0xff, 0x5c, 0x5c);        /* Pale red */
+const QColor ColorUtils::expert_color_foreground = QColor (0x00, 0x00, 0x00);        /* Black */
+const QColor ColorUtils::hidden_proto_item       = QColor (0x44, 0x44, 0x44);        /* Gray */
 
 ColorUtils::ColorUtils(QObject *parent) :
     QObject(parent)
@@ -146,23 +146,25 @@ bool ColorUtils::themeIsDark()
     return wsApp->palette().windowText().color().lightness() > wsApp->palette().window().color().lightness();
 }
 
-// As of 5.12.3, Qt always uses Qt::blue for the link color, which is
+// Qt < 5.12.6 on macOS always uses Qt::blue for the link color, which is
 // unreadable when using a dark theme. Changing the application palette
 // via ...Application::setPalette is problematic, since QGuiApplication
 // sets a flag (ApplicationPaletteExplicitlySet) which keeps us from
 // catching theme changes.
 //
 // themeLinkBrush and themeLinkStyle provide convenience routines for
-// fetching the link brush and style. We can remove them if Qt ever fixes
-// the link color.
+// fetching the link brush and style.
 //
 // We could also override WiresharkApplication::palette, but keeping the
 // routines together here seemed to make more sense.
 QBrush ColorUtils::themeLinkBrush()
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 12, 6)
+    // https://bugreports.qt.io/browse/QTBUG-71740
     if (themeIsDark()) {
         return QBrush(tango_sky_blue_2);
     }
+#endif
     return wsApp->palette().link();
 }
 

@@ -2886,13 +2886,13 @@ vnc_h264_encoding(tvbuff_t *tvb, gint *offset, proto_tree *tree)
 
 	VNC_BYTES_NEEDED(16);
 
-	/*0 == P-Frame; 1 == B-Frame; 2 == I-Frame*/
-	proto_tree_add_item(tree, hf_vnc_h264_slice_type,
+	nbytes = tvb_get_ntohl(tvb, *offset);
+	proto_tree_add_item(tree, hf_vnc_h264_nbytes,
 			    tvb, *offset, 4, ENC_BIG_ENDIAN);
 	*offset += 4;
 
-	nbytes = tvb_get_ntohl(tvb, *offset);
-	proto_tree_add_item(tree, hf_vnc_h264_nbytes,
+	/*0 == P-Frame; 1 == B-Frame; 2 == I-Frame*/
+	proto_tree_add_item(tree, hf_vnc_h264_slice_type,
 			    tvb, *offset, 4, ENC_BIG_ENDIAN);
 	*offset += 4;
 

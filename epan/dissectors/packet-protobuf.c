@@ -145,7 +145,20 @@ static int ett_protobuf_packed_repeated = -1;
 static gboolean try_dissect_as_string = FALSE;
 static gboolean show_all_possible_field_types = FALSE;
 static gboolean dissect_bytes_as_string = FALSE;
+static gboolean old_dissect_bytes_as_string = FALSE;
 static gboolean show_details = FALSE;
+static gboolean pbf_as_hf = FALSE; /* dissect protobuf fields as header fields of wireshark */
+
+/* dynamic wireshark header fields for protobuf fields */
+static hf_register_info *dynamic_hf = NULL;
+static guint dynamic_hf_size = 0;
+/* the key is full name of protobuf fields, the value is header field id */
+static GHashTable *pbf_hf_hash = NULL;
+
+/* Protobuf field value subdissector table list.
+ * Only valid for the value of PROTOBUF_TYPE_BYTES or PROTOBUF_TYPE_STRING fields.
+ */
+static dissector_table_t protobuf_field_subdissector_table;
 
 static dissector_handle_t protobuf_handle;
 
@@ -400,10 +413,27 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
     gint32 int32_value;
     char* buf;
     gboolean add_datatype = TRUE;
-    proto_item* ti;
+    proto_item* ti = NULL;
+    proto_tree* subtree = NULL;
     const char* enum_value_name = NULL;
     const PbwDescriptor* sub_message_desc = NULL;
     const PbwEnumDescriptor* enum_desc = NULL;
+    int* hf_id_ptr = NULL;
+    const gchar* field_full_name = field_desc ? pbw_FieldDescriptor_full_name(field_desc) : NULL;
+    proto_tree* field_tree = proto_item_get_subtree(ti_field);
+    proto_tree* field_parent_tree = proto_tree_get_parent_tree(field_tree);
+    proto_tree* pbf_tree = field_tree;
+
+    if (pbf_as_hf && field_full_name) {
+        hf_id_ptr = (int*)g_hash_table_lookup(pbf_hf_hash, field_full_name);
+        DISSECTOR_ASSERT_HINT(hf_id_ptr && (*hf_id_ptr) > 0, "hf must have been initialized properly");
+    }
+
+    if (pbf_as_hf && hf_id_ptr && !show_details) {
+        /* set ti_field (Field(x)) item hidden if there is header_field */
+        proto_item_set_hidden(ti_field);
+        pbf_tree = field_parent_tree;
+    }
 
     if (prepend_text == NULL) {
         prepend_text = "";
@@ -418,6 +448,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         if (is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%lf", double_value);
         }
+        if (hf_id_ptr) {
+            proto_tree_add_double(pbf_tree, *hf_id_ptr, tvb, offset, length, double_value);
+        }
         break;
 
     case PROTOBUF_TYPE_FLOAT:
@@ -426,6 +459,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         proto_item_append_text(ti_field, "%s %f", prepend_text, float_value);
         if (is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%f", float_value);
+        }
+        if (hf_id_ptr) {
+            proto_tree_add_float(pbf_tree, *hf_id_ptr, tvb, offset, length, float_value);
         }
         break;
 
@@ -437,6 +473,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         if (is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%" G_GINT64_MODIFIER "d", int64_value);
         }
+        if (hf_id_ptr) {
+            proto_tree_add_int64(pbf_tree, *hf_id_ptr, tvb, offset, length, int64_value);
+        }
         break;
 
     case PROTOBUF_TYPE_UINT64:
@@ -445,6 +484,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         proto_item_append_text(ti_field, "%s %" G_GINT64_MODIFIER "u", prepend_text, value);
         if (is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%" G_GINT64_MODIFIER "u", value);
+        }
+        if (hf_id_ptr) {
+            proto_tree_add_uint64(pbf_tree, *hf_id_ptr, tvb, offset, length, value);
         }
         break;
 
@@ -456,7 +498,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         if (is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%d", int32_value);
         }
-
+        if (hf_id_ptr) {
+            proto_tree_add_int(pbf_tree, *hf_id_ptr, tvb, offset, length, int32_value);
+        }
         break;
 
     case PROTOBUF_TYPE_ENUM:
@@ -485,6 +529,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
             }
 
         }
+        if (hf_id_ptr) {
+            proto_tree_add_int(pbf_tree, *hf_id_ptr, tvb, offset, length, int32_value);
+        }
         break;
 
     case PROTOBUF_TYPE_BOOL:
@@ -494,29 +541,43 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         if (is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%s", value ? "true" : "false");
         }
+        if (hf_id_ptr) {
+            proto_tree_add_boolean(pbf_tree, *hf_id_ptr, tvb, offset, length, (guint32)value);
+        }
         break;
 
     case PROTOBUF_TYPE_BYTES:
         if (!dissect_bytes_as_string) {
+            if (hf_id_ptr) {
+                ti = proto_tree_add_bytes_format_value(pbf_tree, *hf_id_ptr, tvb, offset, length, NULL, "(%u bytes)", length);
+            }
             break;
         }
         /* or continue dissect BYTES as STRING */
         /* FALLTHROUGH */
     case PROTOBUF_TYPE_STRING:
-        proto_tree_add_item_ret_display_string(value_tree, hf_protobuf_value_string, tvb, offset, length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &buf);
+        ti = proto_tree_add_item_ret_display_string(value_tree, hf_protobuf_value_string, tvb, offset, length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &buf);
         proto_item_append_text(ti_field, "%s %s", prepend_text, buf);
         if (is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%s", buf);
+        }
+        if (hf_id_ptr) {
+            ti = proto_tree_add_item_ret_display_string(pbf_tree, *hf_id_ptr, tvb, offset, length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &buf);
         }
         break;
 
     case PROTOBUF_TYPE_GROUP: /* This feature is deprecated. GROUP is identical to Nested MESSAGE. */
     case PROTOBUF_TYPE_MESSAGE:
+        subtree = field_tree;
+        if (hf_id_ptr) {
+            ti = proto_tree_add_bytes_format_value(pbf_tree, *hf_id_ptr, tvb, offset, length, NULL, "(%u bytes)", length);
+            subtree = proto_item_add_subtree(ti, ett_protobuf_message);
+        }
         if (field_desc) {
             sub_message_desc = pbw_FieldDescriptor_message_type(field_desc);
             if (sub_message_desc) {
                 dissect_protobuf_message(tvb, offset, length, pinfo,
-                    proto_item_get_subtree(ti_field), sub_message_desc, FALSE);
+                    subtree, sub_message_desc, FALSE);
             } else {
                 expert_add_info(pinfo, ti_field, &et_protobuf_message_type_not_found);
             }
@@ -532,6 +593,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         if (is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%u", (guint32)value);
         }
+        if (hf_id_ptr) {
+            proto_tree_add_uint(pbf_tree, *hf_id_ptr, tvb, offset, length, (guint32)value);
+        }
         break;
 
     case PROTOBUF_TYPE_SINT32:
@@ -540,6 +604,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         proto_item_append_text(ti_field, "%s %d", prepend_text, int32_value);
         if (is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%d", int32_value);
+        }
+        if (hf_id_ptr) {
+            proto_tree_add_int(pbf_tree, *hf_id_ptr, tvb, offset, length, int32_value);
         }
         break;
 
@@ -550,12 +617,30 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         if (is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%" G_GINT64_MODIFIER "d", int64_value);
         }
+        if (hf_id_ptr) {
+            proto_tree_add_int64(pbf_tree, *hf_id_ptr, tvb, offset, length, int64_value);
+        }
         break;
 
     default:
         /* ignore unknown field type */
         add_datatype = FALSE;
         break;
+    }
+
+    /* try dissect field value according to protobuf_field dissector table */
+    if (field_full_name && (field_type == PROTOBUF_TYPE_BYTES || field_type == PROTOBUF_TYPE_STRING)) {
+        /* determine the tree passing to the subdissector */
+        subtree = value_tree;
+        if (ti) {
+            subtree = proto_item_get_subtree(ti);
+            if (!subtree) {
+                subtree = proto_item_add_subtree(ti, ett_protobuf_value);
+            }
+        }
+
+        dissector_try_string(protobuf_field_subdissector_table, field_full_name,
+            tvb_new_subset_length(tvb, offset, length), pinfo, subtree, NULL);
     }
 
     if (add_datatype)
@@ -664,6 +749,10 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
         }
     }
 
+    /* move ti_field_number and ti_wire after ti_field_type (or field_type) for good look */
+    proto_tree_move_item(field_tree, (ti_field_type ? ti_field_type : ti_field_name), ti_wire);
+    proto_tree_move_item(field_tree, (ti_field_type ? ti_field_type : ti_field_name), ti_field_number);
+
     /* determine value_length, uint of numeric value and maybe value_length_size according to wire_type */
     switch (wire_type)
     {
@@ -769,9 +858,31 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
     const gchar* message_name = "<UNKNOWN> Message Type";
     guint max_offset = offset + length;
 
-    message_tree = proto_tree_add_subtree(protobuf_tree, tvb, offset, length, ett_protobuf_message, &ti_message, "Message");
     if (message_desc) {
         message_name = pbw_Descriptor_full_name(message_desc);
+    }
+
+    if (pbf_as_hf && message_desc) {
+        /* support filtering with message name as wireshark field name */
+        int *hf_id_ptr = (int*)g_hash_table_lookup(pbf_hf_hash, message_name);
+        DISSECTOR_ASSERT_HINT(hf_id_ptr && (*hf_id_ptr) > 0, "hf of message should initialized properly");
+        ti_message = proto_tree_add_item(protobuf_tree, *hf_id_ptr, tvb, offset, length, ENC_NA);
+        proto_item_set_text(ti_message, "Message: %s", message_name);
+
+        if (show_details) {
+            /* show "Message" item and add its fields under this item */
+            message_tree = proto_item_add_subtree(ti_message, ett_protobuf_message);
+        } else {
+            /* hidden "Message" item (but still can be filtered by wireshark field name with "pbm.xxx" prefix),
+             * and add its fields under the parent (field or protobuf protocol) item directly */
+            proto_item_set_hidden(ti_message);
+            message_tree = protobuf_tree;
+            ti_message = proto_tree_get_parent(message_tree);
+            proto_item_append_text(ti_message, " (Message: %s)", message_name);
+        }
+    } else {
+        message_tree = proto_tree_add_subtree_format(protobuf_tree, tvb, offset, length, ett_protobuf_message,
+            &ti_message, "Message: %s", message_name);
     }
 
     if (is_top_level) {
@@ -781,7 +892,6 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
         col_clear(pinfo->cinfo, COL_INFO);
     }
 
-    proto_item_append_text(ti_message, ": %s", message_name);
     /* support filtering with message name */
     ti = proto_tree_add_string(message_tree, hf_protobuf_message_name, tvb, offset, length, message_name);
     proto_item_set_generated(ti);
@@ -1000,6 +1110,197 @@ update_protobuf_udp_message_types(void)
 }
 
 static void
+deregister_header_fields(void)
+{
+    if (dynamic_hf) {
+        /* Deregister all fields */
+        for (guint i = 0; i < dynamic_hf_size; i++) {
+            proto_deregister_field(proto_protobuf, *(dynamic_hf[i].p_id));
+            g_free(dynamic_hf[i].p_id);
+            /* dynamic_hf[i].name and .abbrev will be freed by proto_add_deregistered_data */
+        }
+
+        proto_add_deregistered_data(dynamic_hf);
+        dynamic_hf = NULL;
+        dynamic_hf_size = 0;
+    }
+
+    if (pbf_hf_hash) {
+        g_hash_table_destroy(pbf_hf_hash);
+        pbf_hf_hash = NULL;
+    }
+}
+
+/* convert the names of the enum's values to value_string array */
+static value_string*
+enum_to_value_string(const PbwEnumDescriptor* enum_desc)
+{
+    value_string* vals;
+    int i, value_count;
+    if (enum_desc == NULL || (value_count = pbw_EnumDescriptor_value_count(enum_desc)) == 0) {
+        return NULL;
+    }
+
+    vals = g_new0(value_string, value_count + 1);
+    for (i = 0; i < value_count; i++) {
+        const PbwEnumValueDescriptor* enum_value_desc = pbw_EnumDescriptor_value(enum_desc, i);
+        vals[i].value = pbw_EnumValueDescriptor_number(enum_value_desc);
+        vals[i].strptr = g_strdup(pbw_EnumValueDescriptor_name(enum_value_desc));
+    }
+    /* the strptr of last element of vals must be NULL */
+    return vals;
+}
+
+/* create wireshark header fields according to each message's fields
+ * and add them into pbf_as_hf hash table */
+static void
+collect_fields(const PbwDescriptor* message, void* userdata)
+{
+    wmem_list_t* hf_list = (wmem_list_t*) userdata;
+    hf_register_info* hf;
+    const PbwFieldDescriptor* field_desc;
+    const PbwEnumDescriptor* enum_desc;
+    int i, field_type, total_num = pbw_Descriptor_field_count(message);
+
+    /* add message as field */
+    hf = g_new0(hf_register_info, 1);
+    hf->p_id = g_new(gint, 1);
+    *(hf->p_id) = -1;
+    hf->hfinfo.name = g_strdup(pbw_Descriptor_name(message));
+    hf->hfinfo.abbrev = g_strdup_printf("pbm.%s", pbw_Descriptor_full_name(message));
+    hf->hfinfo.type = FT_BYTES;
+    hf->hfinfo.display = BASE_NONE;
+    wmem_list_append(hf_list, hf);
+    g_hash_table_insert(pbf_hf_hash, g_strdup(pbw_Descriptor_full_name(message)), hf->p_id);
+
+    /* add fields of this message as fields */
+    for (i = 0; i < total_num; i++) {
+        field_desc = pbw_Descriptor_field(message, i);
+        field_type = pbw_FieldDescriptor_type(field_desc);
+        if (field_type <= PROTOBUF_TYPE_NONE ||field_type > PROTOBUF_MAX_FIELD_TYPE) {
+            /* not a valid field type */
+            continue;
+        }
+        hf = g_new0(hf_register_info, 1);
+        hf->p_id = g_new(gint, 1);
+        *(hf->p_id) = -1;
+
+        hf->hfinfo.name = g_strdup(pbw_FieldDescriptor_name(field_desc));
+        hf->hfinfo.abbrev = g_strdup_printf("pbf.%s", pbw_FieldDescriptor_full_name(field_desc));
+        switch (field_type) {
+        case PROTOBUF_TYPE_DOUBLE:
+            hf->hfinfo.type = FT_DOUBLE;
+            hf->hfinfo.display = BASE_NONE;
+            break;
+
+        case PROTOBUF_TYPE_FLOAT:
+            hf->hfinfo.type = FT_FLOAT;
+            hf->hfinfo.display = BASE_NONE;
+            break;
+
+        case PROTOBUF_TYPE_INT64:
+        case PROTOBUF_TYPE_SFIXED64:
+        case PROTOBUF_TYPE_SINT64:
+            hf->hfinfo.type = FT_INT64;
+            hf->hfinfo.display = BASE_DEC;
+            break;
+
+        case PROTOBUF_TYPE_UINT64:
+        case PROTOBUF_TYPE_FIXED64:
+            hf->hfinfo.type = FT_UINT64;
+            hf->hfinfo.display = BASE_DEC;
+            break;
+
+        case PROTOBUF_TYPE_INT32:
+        case PROTOBUF_TYPE_SFIXED32:
+        case PROTOBUF_TYPE_SINT32:
+            hf->hfinfo.type = FT_INT32;
+            hf->hfinfo.display = BASE_DEC;
+            break;
+
+        case PROTOBUF_TYPE_UINT32:
+        case PROTOBUF_TYPE_FIXED32:
+            hf->hfinfo.type = FT_UINT32;
+            hf->hfinfo.display = BASE_DEC;
+            break;
+
+        case PROTOBUF_TYPE_ENUM:
+            hf->hfinfo.type = FT_INT32;
+            hf->hfinfo.display = BASE_DEC;
+            enum_desc = pbw_FieldDescriptor_enum_type(field_desc);
+            if (enum_desc) {
+                hf->hfinfo.strings = enum_to_value_string(enum_desc);
+            }
+            break;
+
+        case PROTOBUF_TYPE_BOOL:
+            hf->hfinfo.type = FT_BOOLEAN;
+            hf->hfinfo.display = BASE_NONE;
+            break;
+
+        case PROTOBUF_TYPE_BYTES:
+            hf->hfinfo.type = dissect_bytes_as_string ? FT_STRING : FT_BYTES;
+            hf->hfinfo.display = BASE_NONE;
+            break;
+
+        case PROTOBUF_TYPE_STRING:
+            hf->hfinfo.type = FT_STRING;
+            hf->hfinfo.display = BASE_NONE;
+            break;
+
+        case PROTOBUF_TYPE_GROUP:
+        case PROTOBUF_TYPE_MESSAGE:
+            hf->hfinfo.type = FT_BYTES;
+            hf->hfinfo.display = BASE_NONE;
+            break;
+
+        default:
+            /* should not happen */
+            break;
+        }
+
+        wmem_list_append(hf_list, hf);
+        g_hash_table_insert(pbf_hf_hash, g_strdup(pbw_FieldDescriptor_full_name(field_desc)), hf->p_id);
+    }
+}
+
+static void
+update_header_fields(gboolean force_reload)
+{
+    if (!force_reload && pbf_as_hf && dynamic_hf) {
+        /* If initialized, do nothing. */
+        return;
+    }
+    deregister_header_fields();
+
+    if (pbf_as_hf) {
+        int i;
+        wmem_list_frame_t *it;
+        wmem_list_t* hf_list = wmem_list_new(NULL);
+        pbf_hf_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+        DISSECTOR_ASSERT(pbw_pool);
+        pbw_foreach_message(pbw_pool, collect_fields, hf_list);
+        dynamic_hf_size = wmem_list_count(hf_list);
+        if (dynamic_hf_size == 0) {
+            deregister_header_fields();
+            return;
+        }
+        dynamic_hf = g_new0(hf_register_info, dynamic_hf_size);
+
+        for (it = wmem_list_head(hf_list), i = 0; it; it = wmem_list_frame_next(it), i++) {
+            hf_register_info* hf = (hf_register_info*) wmem_list_frame_data(it);
+            /* copy hf_register_info structure */
+            dynamic_hf[i] = *hf;
+            g_free(hf);
+            HFILL_INIT(dynamic_hf[i]);
+        }
+
+        wmem_destroy_list(hf_list);
+        proto_register_field_array(proto_protobuf, dynamic_hf, dynamic_hf_size);
+    }
+}
+
+static void
 protobuf_reinit(int target)
 {
     guint i;
@@ -1061,6 +1362,7 @@ protobuf_reinit(int target)
         }
 
         g_free(source_paths);
+        update_header_fields(TRUE);
     }
 
     /* check if the message types of UDP port exist */
@@ -1224,7 +1526,7 @@ proto_register_protobuf(void)
     proto_register_field_array(proto_protobuf, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    protobuf_module = prefs_register_protocol(proto_protobuf, NULL);
+    protobuf_module = prefs_register_protocol(proto_protobuf, proto_reg_handoff_protobuf);
 
     protobuf_search_paths_uat = uat_new("Protobuf Search Paths",
         sizeof(protobuf_search_path_t),
@@ -1245,6 +1547,16 @@ proto_register_protobuf(void)
     prefs_register_uat_preference(protobuf_module, "search_paths", "Protobuf search paths",
         "Specify the directories where .proto files are recursively loaded from, or in which to search for imports.",
         protobuf_search_paths_uat);
+
+    prefs_register_bool_preference(protobuf_module, "pbf_as_hf",
+        "Dissect Protobuf fields as Wireshark fields.",
+        "If Protobuf messages and fields are defined in loaded .proto files,"
+        " they will be dissected as wireshark fields if this option is turnned on."
+        " The names of all these wireshark fields will be prefixed with \"pbf.\" (for fields)"
+        " or \"pbm.\" (for messages) followed by their full names in the .proto files.",
+        &pbf_as_hf);
+
+    prefs_set_preference_effect_fields(protobuf_module, "pbf_as_hf");
 
     prefs_register_bool_preference(protobuf_module, "show_details",
         "Show details of message, fields and enums.",
@@ -1291,6 +1603,15 @@ proto_register_protobuf(void)
         "Try to show all possible field types for each undefined field according to wire type.",
         &show_all_possible_field_types);
 
+    prefs_register_static_text_preference(protobuf_module, "field_dissector_table_note",
+        "Subdissector can register itself in \"protobuf_field\" dissector table for parsing"
+        " the value of the field of bytes or string type.",
+        "The key of \"protobuf_field\" table is the full name of field.");
+
+    protobuf_field_subdissector_table =
+        register_dissector_table("protobuf_field", "Protobuf field subdissector table",
+            proto_protobuf, FT_STRING, BASE_NONE);
+
     expert_protobuf = expert_register_protocol(proto_protobuf);
     expert_register_field_array(expert_protobuf, ei, array_length(ei));
 
@@ -1300,6 +1621,12 @@ proto_register_protobuf(void)
 void
 proto_reg_handoff_protobuf(void)
 {
+    if (protobuf_dissector_called) {
+        update_header_fields( /* if bytes_as_string preferences changed, we force reload header fields */
+            (old_dissect_bytes_as_string && !dissect_bytes_as_string) || (!old_dissect_bytes_as_string && dissect_bytes_as_string)
+        );
+    }
+    old_dissect_bytes_as_string = dissect_bytes_as_string;
     dissector_add_string("grpc_message_type", "application/grpc", protobuf_handle);
     dissector_add_string("grpc_message_type", "application/grpc+proto", protobuf_handle);
 }

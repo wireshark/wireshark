@@ -32,10 +32,10 @@ public:
      *        -1 means no packet is selected.
      * @param end_pos The last packet number represented by the image. -1
      *        means no packet is selected.
-     * @param selected_pos The position of the selected packet within the
-     *        image. -1 means no packet is selected.
+     * @param positions The positions of the selected packets within the
+     *        image.
      */
-    void setNearOverlayImage(QImage &overlay_image, int packet_count = -1, int start_pos = -1, int end_pos = -1, int selected_pos = -1);
+    void setNearOverlayImage(QImage &overlay_image, int packet_count = -1, int start_pos = -1, int end_pos = -1, QList<int> positions = QList<int>());
 
     /** Set the "far" overlay image.
      * @param mp_image An image showing the position of marked, ignored,
@@ -70,7 +70,7 @@ private:
     int packet_count_;
     int start_pos_;
     int end_pos_;
-    int selected_pos_;
+    QList<int> positions_;
 
 };
 

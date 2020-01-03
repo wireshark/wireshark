@@ -4298,9 +4298,7 @@ sharkd_session_main(void)
 			return 2;
 		}
 
-#if defined(HAVE_C_ARES) || defined(HAVE_MAXMINDDB)
 		host_name_lookup_process();
-#endif
 
 		sharkd_session_process(buf, tokens, ret);
 	}

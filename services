@@ -3137,7 +3137,7 @@ connect-client	3441/tcp/udp	# OC Connect Client
 connect-server	3442/tcp/udp	# OC Connect Server
 ov-nnm-websrv	3443/tcp/udp	# OpenView Network Node Manager WEB Server
 denali-server	3444/tcp/udp	# Denali Server
-monp		3445/tcp/udp	# Media Object Network
+monp		3445/tcp/udp	# Media Object Network Protocol
 3comfaxrpc	3446/tcp/udp	# 3Com FAX RPC port
 directnet	3447/tcp/udp	# DirectNet IM System
 dnc-port	3448/tcp/udp	# Discovery and Net Config
@@ -5037,7 +5037,7 @@ atul		7543/tcp/udp	# atul server
 nta-ds		7544/tcp/udp	# FlowAnalyzer DisplayServer
 nta-us		7545/tcp/udp	# FlowAnalyzer UtilityServer
 cfs		7546/tcp/udp	# Cisco Fabric service
-cwmp		7547/tcp/udp	# DSL Forum CWMP
+cwmp		7547/tcp/udp	# Broadband Forum CWMP
 tidp		7548/tcp/udp	# Threat Information Distribution Protocol
 nls-tl		7549/tcp/udp	# Network Layer Signaling Transport Layer
 cloudsignaling	7550/udp	# Cloud Signaling Service
@@ -5309,6 +5309,8 @@ openqueue	8764/tcp/udp	# OPENQUEUE
 ultraseek-http	8765/tcp/udp	# Ultraseek HTTP
 amcs		8766/tcp/udp	# Agilent Connectivity Service
 core-of-source	8767/tcp	# Online mobile multiplayer game
+sandpolis	8768/tcp	# Sandpolis Server
+oktaauthenticat	8769/tcp	# Okta MultiPlatform Access Mgmt for Cloud Svcs
 dpap		8770/tcp/udp	# Digital Photo Access Protocol (iPhoto)
 uec		8778/tcp	# Stonebranch Universal Enterprise Controller
 msgclnt		8786/tcp/udp	# Message Client
@@ -6116,6 +6118,7 @@ pmcd		44321/tcp/udp	# PCP server (pmcd)
 pmcdproxy	44322/tcp/udp	# PCP server (pmcd) proxy
 pmwebapi	44323/tcp	# HTTP binding for Performance Co-Pilot client API
 cognex-dataman	44444/tcp	# Cognex DataMan Management Protocol
+acronis-backup	44445/tcp	# Acronis Backup Gateway service port
 domiq		44544/udp	# DOMIQ Building Automation
 rbr-debug	44553/tcp/udp	# REALbasic Remote Debug
 asihpi		44600/udp	# AudioScience HPI

@@ -20,10 +20,10 @@ class PrefModuleTreeView : public QTreeView
 public:
     PrefModuleTreeView(QWidget *parent = 0);
 
-    void setPane(const QString pane_name);
+    void setPane(const QString module_name);
 
 signals:
-    void goToPane(QString pane);
+    void goToPane(QString module_name);
 
 protected slots:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);

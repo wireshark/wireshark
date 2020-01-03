@@ -31,8 +31,8 @@ project(${_project_name} C CXX)
 # Updated by tools/make-version.pl
 set(GIT_REVISION 0)
 set(PROJECT_MAJOR_VERSION 3)
-set(PROJECT_MINOR_VERSION 1)
-set(PROJECT_PATCH_VERSION 1)
+set(PROJECT_MINOR_VERSION 3)
+set(PROJECT_PATCH_VERSION 0)
 set(PROJECT_BUILD_VERSION ${GIT_REVISION})
 set(PROJECT_VERSION_EXTENSION "")
 
@@ -1028,6 +1028,9 @@ reset_find_package(GTHREAD2)
 find_package(GTHREAD2 REQUIRED)
 reset_find_package(GCRYPT GCRYPT_ERROR_LIBRARY)
 find_package(GCRYPT "1.4.2" REQUIRED)
+# C Asynchronous resolver
+reset_find_package(CARES)
+find_package(CARES "1.5.0" REQUIRED)
 find_package(LEX REQUIRED)
 find_package(YACC REQUIRED)
 find_package(Perl REQUIRED)
@@ -1089,6 +1092,7 @@ if(BUILD_wireshark)
 	)
 	if(APPLE)
 		list(APPEND QT_PACKAGELIST Qt5MacExtras)
+		ws_find_package(Sparkle ENABLE_SPARKLE HAVE_SOFTWARE_UPDATE)
 	endif()
 	if(WIN32)
 		list(APPEND QT_PACKAGELIST Qt5WinExtras)
@@ -1117,9 +1121,6 @@ ws_find_package(GNUTLS ENABLE_GNUTLS HAVE_LIBGNUTLS "3.2.0")
 
 # Kerberos
 ws_find_package(KERBEROS ENABLE_KERBEROS HAVE_KERBEROS)
-
-# C Asynchronous resolver
-ws_find_package(CARES ENABLE_CARES HAVE_C_ARES "1.5.0")
 
 # Zlib compression
 ws_find_package(ZLIB ENABLE_ZLIB HAVE_ZLIB)
@@ -1232,8 +1233,8 @@ if(GNUTLS_FOUND AND NOT GNUTLS_VERSION VERSION_LESS "3.4.0")
 endif()
 
 if (QT_FOUND)
-	if (Qt5Widgets_VERSION VERSION_LESS 5.2)
-		message(FATAL_ERROR "Qt 5.2 or later is required.")
+	if (Qt5Widgets_VERSION VERSION_LESS 5.3)
+		message(FATAL_ERROR "Qt 5.3 or later is required.")
 	endif()
 	if (Qt5Widgets_VERSION VERSION_GREATER 5.6
 	    AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang"))
@@ -1651,6 +1652,7 @@ endif()
 
 feature_summary(WHAT ALL)
 
+# Should this be part of libui?
 if(WIN32)
 	set(PLATFORM_UI_SRC
 		ui/win32/console_win32.c
@@ -1663,6 +1665,9 @@ elseif(APPLE)
 	set(PLATFORM_UI_SRC
 		ui/macosx/cocoa_bridge.mm
 	)
+	if (SPARKLE_FOUND)
+		list(APPEND PLATFORM_UI_SRC ui/macosx/sparkle_bridge.m)
+	endif()
 endif()
 
 set(TSHARK_TAP_SRC
@@ -1760,15 +1765,9 @@ if (BUILD_xxx2deb)
 	)
 endif()
 
-if(WIN32)
-	set(TEXTIFY_FILES COPYING NEWS README.windows)
-	set(TEXTIFY_MD_FILES README.md)
-	foreach(_text_file ${TEXTIFY_FILES} ${TEXTIFY_MD_FILES})
-		string(REGEX REPLACE ".md$" "" _out_file ${_text_file})
-		set(INSTALL_FILES ${CMAKE_BINARY_DIR}/${_out_file}.txt ${INSTALL_FILES})
-	endforeach()
-else()
-	set(INSTALL_FILES COPYING ${INSTALL_FILES})
+if(NOT WIN32)
+	# We do this for Windows further down in the copy_data_files target.
+	list(APPEND INSTALL_FILES COPYING)
 endif()
 
 set(VERSION_INFO_LIBS
@@ -1968,27 +1967,19 @@ endif(WIN32)
 set(copy_data_files_depends)
 
 if(WIN32)
-	foreach(_text_file ${TEXTIFY_FILES})
-		add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${_text_file}.txt
-			COMMAND ${POWERSHELL_COMMAND} "${CMAKE_SOURCE_DIR}/tools/textify.ps1"
-				-Destination ${CMAKE_BINARY_DIR}
-				${CMAKE_SOURCE_DIR}/${_text_file}
+	foreach(_install_as_txt_file COPYING NEWS README.md README.windows)
+		# On Windows, install some files with a .txt extension so that they're
+		# double-clickable.
+		string(REGEX REPLACE ".md$" "" _no_md_file ${_install_as_txt_file})
+		set(_output_file "${DATAFILE_DIR}/${_no_md_file}.txt")
+		add_custom_command(OUTPUT ${_output_file}
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				${CMAKE_SOURCE_DIR}/${_install_as_txt_file}
+				${_output_file}
 			DEPENDS
-				${CMAKE_SOURCE_DIR}/${_text_file}
+				${CMAKE_SOURCE_DIR}/${_install_as_txt_file}
 		)
-	endforeach()
-	foreach(_md_file ${TEXTIFY_MD_FILES})
-		string(REGEX REPLACE ".md$" ".txt" _text_file ${_md_file})
-		add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${_text_file}
-			COMMAND ${POWERSHELL_COMMAND} "${CMAKE_SOURCE_DIR}/tools/textify.ps1"
-				-Destination ${CMAKE_BINARY_DIR}
-				${CMAKE_SOURCE_DIR}/${_md_file}
-			COMMAND ${CMAKE_COMMAND} -E rename
-				${CMAKE_BINARY_DIR}/${_md_file}.txt
-				${CMAKE_BINARY_DIR}/${_text_file}
-			DEPENDS
-				${CMAKE_SOURCE_DIR}/${_text_file}
-		)
+		list(APPEND copy_data_files_depends "${_output_file}")
 	endforeach()
 endif()
 
@@ -2266,6 +2257,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		${APPLE_APPKIT_LIBRARY}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
+		${SPARKLE_LIBRARIES}
 		${WIN_WS2_32_LIBRARY}
 		${WIN_VERSION_LIBRARY}
 		${WINSPARKLE_LIBRARIES}
@@ -2312,6 +2304,7 @@ if(BUILD_wireshark AND QT_FOUND)
 	endif()
 
 	target_link_libraries(wireshark ${wireshark_LIBS})
+	target_include_directories(wireshark SYSTEM PRIVATE ${SPARKLE_INCLUDE_DIRS})
 
 	install(
 		TARGETS wireshark
@@ -2773,11 +2766,23 @@ if (MAXMINDDB_FOUND)
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
+	# --preserve-xattr is undocumented but ensures that we install
+	# a signed ChmodBPF script.
 	set (install_chmodbpf_component_pkg "${CMAKE_BINARY_DIR}/install.ChmodBPF.pkg")
 	add_custom_command(OUTPUT "${install_chmodbpf_component_pkg}"
+		COMMAND find
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/root"
+			-type d
+			-exec chmod 755 "{}" +
+		COMMAND chmod 644
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/root/Library/LaunchDaemons/org.wireshark.ChmodBPF.plist"
+		COMMAND chmod 755
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/root/Library/Application Support/Wireshark/ChmodBPF/ChmodBPF"
+		COMMAND "${CMAKE_SOURCE_DIR}/packaging/macosx/osx-extras.sh"
 		COMMAND pkgbuild
 			--identifier org.wireshark.ChmodBPF.pkg
 			--version 1.1
+			--preserve-xattr
 			--root "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/root"
 			--scripts "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/install-scripts"
 			${install_chmodbpf_component_pkg}
@@ -2827,6 +2832,14 @@ if(ENABLE_APPLICATION_BUNDLE)
 
 	set (install_path_helper_component_pkg "${CMAKE_BINARY_DIR}/install.path_helper.pkg")
 	add_custom_command(OUTPUT "${install_path_helper_component_pkg}"
+		COMMAND find
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/root"
+			-type d
+			-exec chmod 755 "{}" +
+		COMMAND find
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/root"
+			-type f
+			-exec chmod 644 "{}" +
 		COMMAND pkgbuild
 			--identifier org.wireshark.path_helper.pkg
 			--version 1.0
@@ -3284,6 +3297,7 @@ set(_test_group_list
 	suite_dfilter.group_uint64
 	suite_dissection
 	suite_dissectors.group_asterix
+	suite_extcaps
 	suite_fileformats
 	suite_follow
 	suite_io

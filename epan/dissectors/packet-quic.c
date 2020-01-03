@@ -15,6 +15,7 @@
  * https://tools.ietf.org/html/draft-ietf-quic-transport-24
  * https://tools.ietf.org/html/draft-ietf-quic-tls-24
  * https://tools.ietf.org/html/draft-ietf-quic-invariants-07
+ * https://tools.ietf.org/html/draft-pauly-quic-datagram-05
  *
  * Currently supported QUIC version(s): draft -21, draft -22, draft -23, draft-24
  * For a table of supported QUIC versions per Wireshark version, see
@@ -140,6 +141,8 @@ static int hf_quic_cc_error_code_tls_alert = -1;
 static int hf_quic_cc_frame_type = -1;
 static int hf_quic_cc_reason_phrase_length = -1;
 static int hf_quic_cc_reason_phrase = -1;
+static int hf_quic_dg_length = -1;
+static int hf_quic_dg = -1;
 
 static expert_field ei_quic_connection_unknown = EI_INIT;
 static expert_field ei_quic_ft_unknown = EI_INIT;
@@ -223,7 +226,7 @@ typedef struct quic_cipher {
  */
 typedef struct quic_pp_state {
     guint8         *next_secret;    /**< Next application traffic secret. */
-    quic_cipher     cipher[2];      /**< Cipher for KEY_PHASE 0/1 */
+    quic_cipher     cipher[2];      /**< Cipher for Key Phase 0/1 */
     guint64         changed_in_pkn; /**< Packet number where key change occurred. */
     gboolean        key_phase : 1;  /**< Current key phase. */
 } quic_pp_state_t;
@@ -400,6 +403,8 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_PATH_RESPONSE        0x1b
 #define FT_CONNECTION_CLOSE_TPT 0x1c
 #define FT_CONNECTION_CLOSE_APP 0x1d
+#define FT_DATAGRAM             0x30
+#define FT_DATAGRAM_LENGTH      0x31
 
 static const range_string quic_frame_type_vals[] = {
     { 0x00, 0x00,   "PADDING" },
@@ -424,6 +429,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x1b, 0x1b,   "PATH_RESPONSE" },
     { 0x1c, 0x1c,   "CONNECTION_CLOSE (Transport)" },
     { 0x1d, 0x1d,   "CONNECTION_CLOSE (Application)" },
+    { 0x30, 0x31,   "DATAGRAM" },
     { 0,    0,        NULL },
 };
 
@@ -446,6 +452,7 @@ static const range_string quic_transport_error_code_vals[] = {
     { 0x0008, 0x0008, "TRANSPORT_PARAMETER_ERROR" },
     { 0x000A, 0x000A, "PROTOCOL_VIOLATION" },
     { 0x000D, 0x000D, "CRYPTO_BUFFER_EXCEEDED" },
+    { 0x000E, 0x000E, "KEY_UPDATE_ERROR" },
     { 0x0100, 0x01FF, "CRYPTO_ERROR" },
     /* 0x40 - 0x3fff Assigned via Specification Required policy. */
     { 0, 0, NULL }
@@ -1290,6 +1297,22 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             }
         }
         break;
+        case FT_DATAGRAM:
+        case FT_DATAGRAM_LENGTH:{
+            guint32 dg_length;
+            guint64 length;
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", DG");
+            if (frame_type == FT_DATAGRAM_LENGTH) {
+
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_dg_length, tvb, offset, -1, ENC_VARINT_QUIC, &length, &dg_length);
+                offset += dg_length;
+            } else {
+                length = (guint32) tvb_reported_length_remaining(tvb, offset);
+            }
+            proto_tree_add_item(ft_tree, hf_quic_dg, tvb, offset, (guint32)length, ENC_NA);
+            offset += (guint32)length;
+        }
+        break;
         default:
             expert_add_info_format(pinfo, ti_ft, &ei_quic_ft_unknown, "Unknown Frame Type %u", frame_type);
         break;
@@ -1323,7 +1346,7 @@ quic_decrypt_message(quic_cipher *cipher, tvbuff_t *head, guint header_length,
     guint8         *header;
     guint8          nonce[TLS13_AEAD_NONCE_LENGTH];
     guint8         *buffer;
-    guint8         *atag[16];
+    guint8          atag[16];
     guint           buffer_length;
     const guchar  **error = &result->error;
 
@@ -1584,7 +1607,7 @@ quic_create_decoders(packet_info *pinfo, quic_info_data_t *quic_info, quic_ciphe
     guint hash_len = gcry_md_get_algo_dlen(quic_info->hash_algo);
     char *secret = (char *)wmem_alloc0(wmem_packet_scope(), hash_len);
 
-    if (!tls13_get_quic_secret(pinfo, from_server, type, hash_len, secret)) {
+    if (!tls13_get_quic_secret(pinfo, from_server, type, hash_len, hash_len, secret)) {
         *error = "Secrets are not available";
         return FALSE;
     }
@@ -1605,7 +1628,7 @@ quic_get_traffic_secret(packet_info *pinfo, int hash_algo, quic_pp_state_t *pp_s
 {
     guint hash_len = gcry_md_get_algo_dlen(hash_algo);
     char *secret = (char *)wmem_alloc0(wmem_packet_scope(), hash_len);
-    if (!tls13_get_quic_secret(pinfo, !from_client, TLS_SECRET_APP, hash_len, secret)) {
+    if (!tls13_get_quic_secret(pinfo, !from_client, TLS_SECRET_APP, hash_len, hash_len, secret)) {
         return FALSE;
     }
     pp_state->next_secret = (guint8 *)wmem_memdup(wmem_file_scope(), secret, hash_len);
@@ -1641,11 +1664,12 @@ quic_cipher_init(quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *
  * Updates the packet protection secret to the next one.
  */
 static void
-quic_update_key(int hash_algo, quic_pp_state_t *pp_state)
+quic_update_key(guint32 version, int hash_algo, quic_pp_state_t *pp_state)
 {
     guint hash_len = gcry_md_get_algo_dlen(hash_algo);
+    const char *label = is_quic_draft_max(version, 23) ? "traffic upd" : "quic ku";
     gboolean ret = quic_hkdf_expand_label(hash_algo, pp_state->next_secret, hash_len,
-                                          "traffic upd", pp_state->next_secret, hash_len);
+                                          label, pp_state->next_secret, hash_len);
     /* This must always succeed as our hash algorithm was already validated. */
     DISSECTOR_ASSERT(ret);
 }
@@ -1684,7 +1708,7 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
             return NULL;
         }
 
-        // Create initial cipher handles for KEY_PHASE 0 using the 1-RTT keys.
+        // Create initial cipher handles for Key Phase 0 using the 1-RTT keys.
         if (!quic_cipher_prepare(&client_pp->cipher[0], quic_info->hash_algo,
                                  quic_info->cipher_algo, quic_info->cipher_mode, client_pp->next_secret, &error) ||
             !quic_cipher_prepare(&server_pp->cipher[0], quic_info->hash_algo,
@@ -1693,8 +1717,8 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
             return NULL;
         }
         // Rotate the 1-RTT key for the client and server for the next key update.
-        quic_update_key(quic_info->hash_algo, client_pp);
-        quic_update_key(quic_info->hash_algo, server_pp);
+        quic_update_key(quic_info->version, quic_info->hash_algo, client_pp);
+        quic_update_key(quic_info->version, quic_info->hash_algo, server_pp);
     }
 
     // Note: Header Protect cipher does not change after Key Update.
@@ -1745,7 +1769,7 @@ quic_get_pp_cipher(gboolean key_phase, quic_info_data_t *quic_info, gboolean fro
             /* Verified the cipher, use it from now on and rotate the key. */
             quic_cipher_reset(&pp_state->cipher[key_phase]);
             pp_state->cipher[key_phase] = new_cipher;
-            quic_update_key(quic_info->hash_algo, pp_state);
+            quic_update_key(quic_info->version, quic_info->hash_algo, pp_state);
 
             pp_state->key_phase = key_phase;
             //pp_state->changed_in_pkn = pkn;
@@ -1948,6 +1972,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     }
     /* Prepare the Initial/Handshake cipher for header/payload decryption. */
     if (!PINFO_FD_VISITED(pinfo) && conn && cipher) {
+#define DIGEST_MIN_SIZE 32  /* SHA256 */
 #define DIGEST_MAX_SIZE 48  /* SHA384 */
         const gchar *error = NULL;
         gchar early_data_secret[DIGEST_MAX_SIZE];
@@ -1958,7 +1983,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
              * ID from the *very first* Client Initial packet. */
             quic_create_initial_decoders(&dcid, &error, conn);
         } else if (long_packet_type == QUIC_LPT_0RTT) {
-            early_data_secret_len = tls13_get_quic_secret(pinfo, FALSE, TLS_SECRET_0RTT_APP, DIGEST_MAX_SIZE, early_data_secret);
+            early_data_secret_len = tls13_get_quic_secret(pinfo, FALSE, TLS_SECRET_0RTT_APP, DIGEST_MIN_SIZE, DIGEST_MAX_SIZE, early_data_secret);
             if (early_data_secret_len == 0) {
                 error = "Secrets are not available";
             }
@@ -2933,6 +2958,17 @@ proto_register_quic(void)
             { "Reason phrase", "quic.cc.reason_phrase",
               FT_STRING, BASE_NONE, NULL, 0x0,
               "A human-readable explanation for why the connection was closed", HFILL }
+        },
+        /* DATAGRAM */
+        { &hf_quic_dg_length,
+            { "Datagram Length", "quic.dg.length",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "Specifying the length of the the datagram in bytes", HFILL }
+        },
+        { &hf_quic_dg,
+            { "Datagram", "quic.dg",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              "The bytes of the datagram to be delivered", HFILL }
         },
     };
 

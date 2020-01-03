@@ -1,0 +1,58 @@
+# Conformance file for winspool
+
+#iremotewinspool_dissect_struct_sec_desc_buf
+HF_FIELD hf_iremotewinspool_sec_desc_buf_len "Sec Desc Buf Len" "iremotewinspool.sec_desc_buf_len" FT_UINT32 BASE_DEC NULL 0 "" "" ""
+
+#TYPE winreg_AccessMask "offset = winreg_dissect_bitmap_AccessMask(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE sec_desc_buf "offset = iremotewinspool_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_UserLevelCtr "offset = dissect_USER_LEVEL_CTR(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_NotifyInfo "offset = dissect_NOTIFY_INFO(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_NotifyOption "offset = dissect_NOTIFY_OPTIONS_ARRAY_CTR(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_DevmodeContainer "offset = dissect_DEVMODE_CTR(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_SetPrinterInfoCtr "offset = dissect_SPOOL_PRINTER_INFO(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_DocumentInfoCtr "offset = dissect_spoolss_doc_info_ctr(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_AddFormInfoCtr "offset = dissect_FORM_CTR(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+
+# these are all TODO!
+TYPE spoolss_TimeCtr "offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_JobInfoContainer "offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE RPC_BIDI_REQUEST_CONTAINER "offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE RPC_BIDI_RESPONSE_CONTAINER "offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_AddDriverInfoCtr "offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_SetPortInfoContainer "offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_PortVarContainer "offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_MonitorContainer "offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_CorePrinterDriver "offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_PrintPropertyValue "offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_PrintNamedProperty "offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE spoolss_BranchOfficeJobDataContainer "offset = dissect_ndr_byte_array(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL NULL
+
+CODE START
+	#include "packet-smb.h"
+	#include "packet-smb-browse.h"
+
+extern struct access_mask_info spoolss_printer_access_mask_info;
+
+static int
+iremotewinspool_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+{
+	guint32 len;
+
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+		hf_iremotewinspool_sec_desc_buf_len, &len);
+
+	dissect_nt_sec_desc(
+		tvb, offset, pinfo, tree, drep, TRUE, len,
+		&spoolss_printer_access_mask_info);
+
+	offset += len;
+
+	return offset;
+}
+
+CODE END

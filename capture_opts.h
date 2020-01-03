@@ -35,14 +35,6 @@ extern "C" {
  * We do not currently have long options corresponding to all short
  * options; we should probably pick appropriate option names for them.
  *
- * For long options with no corresponding short options, we define values
- * outside the range of ASCII graphic characters, make that the last
- * component of the entry for the long option, and have a case for that
- * option in the switch statement.
- *
- * We also pick values < 4096, so as to leave values >= 4096 for
- * other long options.
- *
  * NOTE:
  * for tshark, we're using a leading - in the optstring to prevent getopt()
  * from permuting the argv[] entries, in this case, unknown argv[] entries
@@ -50,9 +42,9 @@ extern "C" {
  * In short: we must not use 1 here, which is another reason to use
  * values outside the range of ASCII graphic characters.
  */
-#define LONGOPT_NUM_CAP_COMMENT   128
-#define LONGOPT_LIST_TSTAMP_TYPES 129
-#define LONGOPT_SET_TSTAMP_TYPE   130
+#define LONGOPT_NUM_CAP_COMMENT   LONGOPT_BASE_CAPTURE+1
+#define LONGOPT_LIST_TSTAMP_TYPES LONGOPT_BASE_CAPTURE+2
+#define LONGOPT_SET_TSTAMP_TYPE   LONGOPT_BASE_CAPTURE+3
 
 /*
  * Options for capturing common to all capturing programs.
@@ -60,7 +52,7 @@ extern "C" {
 #ifdef HAVE_PCAP_REMOTE
 #define OPTSTRING_A "A:"
 #else
-#define OPTSTRING_A ""
+#define OPTSTRING_A
 #endif
 
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
@@ -69,7 +61,7 @@ extern "C" {
 #define OPTSTRING_B "B:"
 #else
 #define LONGOPT_BUFFER_SIZE
-#define OPTSTRING_B ""
+#define OPTSTRING_B
 #endif
 
 #ifdef HAVE_PCAP_CREATE
@@ -77,7 +69,7 @@ extern "C" {
 #define OPTSTRING_I "I"
 #else
 #define LONGOPT_MONITOR_MODE
-#define OPTSTRING_I ""
+#define OPTSTRING_I
 #endif
 
 #define LONGOPT_CAPTURE_COMMON \
@@ -381,7 +373,7 @@ capture_opts_free_interface_t(interface_t *device);
 }
 #endif /* __cplusplus */
 
-#endif /* capture_opts.h */
+#endif /* __CAPTURE_OPTS_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

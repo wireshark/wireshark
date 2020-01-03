@@ -15,6 +15,22 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/*
+ * Long options.
+ * For long options with no corresponding short options, we define values
+ * outside the range of ASCII graphic characters, make that the last
+ * component of the entry for the long option, and have a case for that
+ * option in the switch statement.
+ */
+// Base value for capture related long options
+#define LONGOPT_BASE_CAPTURE        1000
+// Base value for dissector related long options
+#define LONGOPT_BASE_DISSECTOR      2000
+// Base value for application specific long options
+#define LONGOPT_BASE_APPLICATION    3000
+// Base value for GUI specific long options
+#define LONGOPT_BASE_GUI            4000
+
 extern int
 get_natural_int(const char *string, const char *name);
 

@@ -47,16 +47,19 @@ typedef struct packet_range_tag {
     convert_ret_t   user_range_status;
 
     /* calculated values */
-    guint32  selected_packet;       /* the currently selected packet */
+    range_t        *selection_range;       /* the currently selected packets */
+    convert_ret_t   selection_range_status;
 
     /* current packet counts (captured) */
     capture_file *cf;                     /* Associated capture file. */
     guint32       mark_range_cnt;         /* packets in marked range */
     guint32       user_range_cnt;         /* packets in user specified range */
+    guint32       selection_range_cnt;    /* packets in the selected range */
     guint32       ignored_cnt;            /* packets ignored */
     guint32       ignored_marked_cnt;     /* packets ignored and marked */
     guint32       ignored_mark_range_cnt; /* packets ignored in marked range */
     guint32       ignored_user_range_cnt; /* packets ignored in user specified range */
+    guint32       ignored_selection_range_cnt;    /* packets ignored in the selected range */
 
     /* current packet counts (displayed) */
     guint32  displayed_cnt;
@@ -64,10 +67,12 @@ typedef struct packet_range_tag {
     guint32  displayed_marked_cnt;
     guint32  displayed_mark_range_cnt;
     guint32  displayed_user_range_cnt;
+    guint32  displayed_selection_range_cnt;
     guint32  displayed_ignored_cnt;
     guint32  displayed_ignored_marked_cnt;
     guint32  displayed_ignored_mark_range_cnt;
     guint32  displayed_ignored_user_range_cnt;
+    guint32  displayed_ignored_selection_range_cnt;
 
     /* "enumeration" values */
     gboolean marked_range_active;   /* marked range is currently processed */
@@ -101,6 +106,9 @@ extern range_process_e packet_range_process_packet(packet_range_t *range, frame_
 
 /* convert user given string to the internal user specified range representation */
 extern void packet_range_convert_str(packet_range_t *range, const gchar *es);
+
+/* convert user given string to the internal selection specified range representation */
+extern void packet_range_convert_selection_str(packet_range_t *range, const gchar *es);
 
 #ifdef __cplusplus
 }

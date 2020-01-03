@@ -69,6 +69,20 @@ static int hf_nvme_cmd_rsvd3 = -1;
 static int hf_nvme_identify_cntid = -1;
 static int hf_nvme_identify_rsvd = -1;
 static int hf_nvme_identify_cns = -1;
+static int hf_nvme_identify_ns_nsze = -1;
+static int hf_nvme_identify_ns_ncap = -1;
+static int hf_nvme_identify_ns_nuse = -1;
+static int hf_nvme_identify_ns_nsfeat = -1;
+static int hf_nvme_identify_ns_nlbaf = -1;
+static int hf_nvme_identify_ns_flbas = -1;
+static int hf_nvme_identify_ns_mc = -1;
+static int hf_nvme_identify_ns_dpc = -1;
+static int hf_nvme_identify_ns_dps = -1;
+static int hf_nvme_identify_ns_nmic = -1;
+static int hf_nvme_identify_ns_nguid = -1;
+static int hf_nvme_identify_ns_eui64 = -1;
+static int hf_nvme_identify_ns_lbafs = -1;
+static int hf_nvme_identify_ns_lbaf = -1;
 static int hf_nvme_identify_ctrl_vid = -1;
 static int hf_nvme_identify_ctrl_ssvid = -1;
 static int hf_nvme_identify_ctrl_sn = -1;
@@ -89,6 +103,7 @@ static int hf_nvme_identify_ctrl_sgls = -1;
 static int hf_nvme_identify_ctrl_subnqn = -1;
 static int hf_nvme_identify_ctrl_ioccsz = -1;
 static int hf_nvme_identify_ctrl_iorcsz = -1;
+static int hf_nvme_identify_nslist_nsid = -1;
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -137,7 +152,9 @@ static gint ett_data = -1;
 #define NVME_IOQ_OPC_RESV_ACQUIRE           0x11
 #define NVME_IOQ_OPC_RESV_RELEASE           0x15
 
+#define NVME_IDENTIFY_CNS_IDENTIFY_NS       0x0
 #define NVME_IDENTIFY_CNS_IDENTIFY_CTRL     0x1
+#define NVME_IDENTIFY_CNS_IDENTIFY_NSLIST   0x2
 
 
 #define NVME_CQE_SCT_GENERIC     0x0
@@ -567,6 +584,82 @@ dissect_nvme_rwc_common_word_10_11_12_14_15(tvbuff_t *cmd_tvb, proto_tree *cmd_t
                         62, 2, ENC_LITTLE_ENDIAN);
 }
 
+static void dissect_nvme_identify_ns_lbafs(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
+{
+    proto_item *ti, *lbafs_tree, *item;
+    int lbaf_off, i;
+    guint8 nlbaf, lbads;
+    guint16 ms;
+    guint32 lbaf_raw;
+
+    nlbaf = tvb_get_guint8(cmd_tvb, 25) + 1; // +1 for zero-base value
+
+    ti = proto_tree_add_item(cmd_tree, hf_nvme_identify_ns_lbafs, cmd_tvb,
+                             128, 64, ENC_NA);
+    lbafs_tree = proto_item_add_subtree(ti, ett_data);
+
+    for (i = 0; i < nlbaf; i++) {
+        lbaf_off = 128 + i * 4;
+
+        lbaf_raw = tvb_get_guint32(cmd_tvb, lbaf_off, ENC_LITTLE_ENDIAN);
+        ms = lbaf_raw & 0xFF;
+        lbads = (lbaf_raw >> 16) & 0xF;
+        item = proto_tree_add_item(lbafs_tree, hf_nvme_identify_ns_lbaf,
+                                   cmd_tvb, lbaf_off, 4, ENC_LITTLE_ENDIAN);
+        proto_item_set_text(item, "LBAF%d: lbads %d ms %d", i, lbads, ms);
+    }
+}
+
+static void dissect_nvme_identify_ns_resp(tvbuff_t *cmd_tvb,
+                                            proto_tree *cmd_tree)
+{
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ns_nsze, cmd_tvb,
+                        0, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ns_ncap, cmd_tvb,
+                        8, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ns_nuse, cmd_tvb,
+                        16, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ns_nsfeat, cmd_tvb,
+                        24, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ns_nlbaf, cmd_tvb,
+                        25, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ns_flbas, cmd_tvb,
+                        26, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ns_mc, cmd_tvb,
+                        27, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ns_dpc, cmd_tvb,
+                        28, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ns_dps, cmd_tvb,
+                        29, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ns_nmic, cmd_tvb,
+                        30, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ns_nguid, cmd_tvb,
+                        104, 16, ENC_NA);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ns_eui64, cmd_tvb,
+                        120, 8, ENC_NA);
+
+    dissect_nvme_identify_ns_lbafs(cmd_tvb, cmd_tree);
+
+}
+
+static void dissect_nvme_identify_nslist_resp(tvbuff_t *cmd_tvb,
+                                              proto_tree *cmd_tree)
+{
+    guint32 nsid;
+    int off;
+    proto_item *item;
+
+    for (off = 0; off < 4096; off += 4) {
+        nsid = tvb_get_guint32(cmd_tvb, off, ENC_LITTLE_ENDIAN);
+        if (nsid == 0)
+            break;
+
+        item = proto_tree_add_item(cmd_tree, hf_nvme_identify_nslist_nsid,
+                                   cmd_tvb, off, 4, ENC_LITTLE_ENDIAN);
+        proto_item_set_text(item, "nsid[%d]: %d", off / 4, nsid);
+    }
+}
+
 static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
                                             proto_tree *cmd_tree)
 {
@@ -578,12 +671,12 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
                         2, 2, ENC_LITTLE_ENDIAN);
 
     sn = (char *)tvb_memcpy(cmd_tvb, wmem_alloc(wmem_packet_scope(), 21), 4, 20);
-    sn[21] = '\0';
+    sn[20] = '\0';
     proto_tree_add_string(cmd_tree, hf_nvme_identify_ctrl_sn, cmd_tvb,
                           4, 20, sn);
 
     mn = (char *)tvb_memcpy(cmd_tvb, wmem_alloc(wmem_packet_scope(), 41), 24, 40);
-    sn[41] = '\0';
+    mn[40] = '\0';
     proto_tree_add_string(cmd_tree, hf_nvme_identify_ctrl_mn, cmd_tvb,
                           24, 40, mn);
 
@@ -625,8 +718,14 @@ static void dissect_nvme_identify_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree,
                                        struct nvme_cmd_ctx *cmd_ctx)
 {
     switch(cmd_ctx->resp_type) {
+    case NVME_IDENTIFY_CNS_IDENTIFY_NS:
+        dissect_nvme_identify_ns_resp(cmd_tvb, cmd_tree);
+        break;
     case NVME_IDENTIFY_CNS_IDENTIFY_CTRL:
         dissect_nvme_identify_ctrl_resp(cmd_tvb, cmd_tree);
+        break;
+    case NVME_IDENTIFY_CNS_IDENTIFY_NSLIST:
+        dissect_nvme_identify_nslist_resp(cmd_tvb, cmd_tree);
         break;
     default:
         break;
@@ -997,6 +1096,64 @@ proto_register_nvme(void)
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
 
+        /* Identify NS response */
+        { &hf_nvme_identify_ns_nsze,
+            { "Namespace Size (NSZE)", "nvme.cmd.identify.ns.nsze",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ns_ncap,
+            { "Namespace Capacity (NCAP)", "nvme.cmd.identify.ns.ncap",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ns_nuse,
+            { "Namespace Utilization (NUSE)", "nvme.cmd.identify.ns.nuse",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ns_nsfeat,
+            { "Namespace Features (NSFEAT)", "nvme.cmd.identify.ns.nsfeat",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ns_nlbaf,
+            { "Number of LBA Formats (NLBAF)", "nvme.cmd.identify.ns.nlbaf",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ns_flbas,
+            { "Formatted LBA Size (FLBAS)", "nvme.cmd.identify.ns.flbas",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ns_mc,
+            { "Metadata Capabilities (MC)", "nvme.cmd.identify.ns.mc",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ns_dpc,
+            { "End-to-end Data Protection Capabilities (DPC)", "nvme.cmd.identify.ns.dpc",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ns_dps,
+            { "End-to-end Data Protection Type Settings (DPS)", "nvme.cmd.identify.ns.dps",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ns_nmic,
+            { "Namespace Multi-path I/O and Namespace Sharing Capabilities (NMIC)",
+              "nvme.cmd.identify.ns.nmic", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ns_nguid,
+            { "Namespace Globally Unique Identifier (NGUID)", "nvme.cmd.identify.ns.nguid",
+               FT_BYTES, STR_ASCII, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ns_eui64,
+            { "IEEE Extended Unique Identifier (EUI64)", "nvme.cmd.identify.ns.eui64",
+               FT_BYTES, STR_ASCII, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ns_lbafs,
+            { "LBA Formats", "nvme.cmd.identify.ns.lbafs",
+               FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ns_lbaf,
+            { "LBA Format", "nvme.cmd.identify.ns.lbaf",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+
         /* Identify Ctrl response */
         { &hf_nvme_identify_ctrl_vid,
             { "PCI Vendor ID (VID)", "nvme.cmd.identify.ctrl.vid",
@@ -1079,6 +1236,11 @@ proto_register_nvme(void)
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
 
+        /* Identify nslist response */
+        { &hf_nvme_identify_nslist_nsid,
+            { "Namespace list element", "nvme.cmd.identify.nslist.nsid",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
 
         /* NVMe Response fields */
         { &hf_nvme_cqe_sts,

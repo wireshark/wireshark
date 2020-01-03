@@ -183,6 +183,18 @@ pbw_EnumDescriptor_full_name(const PbwEnumDescriptor* anEnum) {
     return pbl_enum_descriptor_full_name((const pbl_enum_descriptor_t*) anEnum);
 }
 
+/* like EnumDescriptor::value_count() */
+int
+pbw_EnumDescriptor_value_count(const PbwEnumDescriptor* anEnum) {
+    return pbl_enum_descriptor_value_count((const pbl_enum_descriptor_t*) anEnum);
+}
+
+/* like EnumDescriptor::value() */
+const PbwEnumValueDescriptor*
+pbw_EnumDescriptor_value(const PbwEnumDescriptor* anEnum, int value_index) {
+    return (const PbwEnumValueDescriptor*) pbl_enum_descriptor_value((const pbl_enum_descriptor_t*) anEnum, value_index);
+}
+
 /* like EnumDescriptor::FindValueByNumber() */
 const PbwEnumValueDescriptor*
 pbw_EnumDescriptor_FindValueByNumber(const PbwEnumDescriptor* anEnum, int number) {
@@ -198,7 +210,20 @@ pbw_EnumValueDescriptor_name(const PbwEnumValueDescriptor* enumValue) {
 /* like EnumValueDescriptor::full_name() */
 const char*
 pbw_EnumValueDescriptor_full_name(const PbwEnumValueDescriptor* enumValue) {
-    return  pbl_enum_value_descriptor_full_name((const pbl_enum_value_descriptor_t*) enumValue);
+    return pbl_enum_value_descriptor_full_name((const pbl_enum_value_descriptor_t*) enumValue);
+}
+
+/* like EnumValueDescriptor::number() */
+int
+pbw_EnumValueDescriptor_number(const PbwEnumValueDescriptor* enumValue) {
+    return pbl_enum_value_descriptor_number((const pbl_enum_value_descriptor_t*) enumValue);
+}
+
+/* visit all messages of this pool */
+void
+pbw_foreach_message(const PbwDescriptorPool* pool, void (*cb)(const PbwDescriptor* message, void* userdata), void* userdata)
+{
+    pbl_foreach_message((const pbl_descriptor_pool_t*) pool, (void (*)(const pbl_message_descriptor_t*, void*)) cb, userdata);
 }
 
 /*

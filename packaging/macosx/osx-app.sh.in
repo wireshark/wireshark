@@ -114,6 +114,8 @@ if [ ! -d "$qt_frameworks_dir" ] ; then
 	exit 1
 fi
 
+sparkle_frameworks_dir="@SPARKLE_LIBRARIES@"
+
 #
 # Leave the Qt frameworks out of the special processing.
 #
@@ -135,7 +137,7 @@ pkgplugin="$bundle/Contents/PlugIns/wireshark/@PLUGIN_PATH_ID@"
 #
 secondary_binary_list=$( find $pkgexec \! -name Wireshark -type f -perm -0555 -print | sort )
 plugin_library_list=$( find $pkgplugin -name "*.so" -type f -perm -0555 -print | sort )
-bundle_binary_list="Wireshark $secondary_binary_list $plugin_library_list"
+bundle_binary_list="$pkgexec/Wireshark $secondary_binary_list $plugin_library_list"
 
 echo -e "\\nFixing up $bundle..."
 
@@ -227,6 +229,10 @@ fi
 # that entry from the Wireshark binary in the package.
 #
 /usr/bin/install_name_tool -delete_rpath "$qt_frameworks_dir" $pkgexec/Wireshark
+
+if [ -d "$sparkle_frameworks_dir" ] ; then
+	cp -R "$sparkle_frameworks_dir" "$pkglib" || exit 1
+fi
 
 # NOTE: we must rpathify *all* files, *including* Qt libraries etc.,
 #
@@ -460,6 +466,7 @@ codesign_file () {
 	# https://developer.apple.com/documentation/security/hardened_runtime_entitlements?language=objc
 	codesign \
 		--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
+		--force \
 		--options runtime \
 		--entitlements "@CMAKE_SOURCE_DIR@/packaging/macosx/entitlements.plist" \
 		--timestamp \

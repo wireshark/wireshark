@@ -69,6 +69,9 @@
 
 #include <ui/qt/capture_file.h>
 
+#include <ui/qt/main_window.h>
+#include <ui_main_window.h>
+
 #include <QAction>
 #include <QApplication>
 #include <QColorDialog>
@@ -220,7 +223,7 @@ extern "C" void menu_recent_file_write_all(FILE *rf) {
     }
 }
 
-#ifdef HAVE_SOFTWARE_UPDATE
+#if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
 /** Check to see if Wireshark can shut down safely (e.g. offer to save the
  *  current capture).
  */
@@ -233,7 +236,7 @@ extern "C" int software_update_can_shutdown_callback(void) {
 extern "C" void software_update_shutdown_request_callback(void) {
     wsApp->softwareUpdateShutdownRequest();
 }
-#endif // HAVE_SOFTWARE_UPDATE
+#endif // HAVE_SOFTWARE_UPDATE && Q_OS_WIN
 
 // Check each recent item in a separate thread so that we don't hang while
 // calling stat(). This is called periodically because files and entire
@@ -280,7 +283,7 @@ void WiresharkApplication::helpTopicAction(topic_action_e action)
 {
     QString url = gchar_free_to_qstring(topic_action_url(action));
 
-    if(!url.isEmpty()) {
+    if (!url.isEmpty()) {
         QDesktopServices::openUrl(QUrl(url));
     }
 }
@@ -356,7 +359,7 @@ int WiresharkApplication::monospaceTextSize(const char *str)
 #endif
 }
 
-void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bool write_recent)
+void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bool write_recent_file)
 {
     char  *rf_path;
     int    rf_open_errno;
@@ -399,7 +402,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bo
     /* Get the current geometry, before writing it to disk */
     emit profileChanging();
 
-    if (write_recent && profile_exists(get_profile_name(), FALSE))
+    if (write_recent_file && profile_exists(get_profile_name(), FALSE))
     {
         /* Write recent file for profile we are leaving, if it still exists */
         write_profile_recent();
@@ -451,6 +454,9 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bo
 
     emit localInterfaceListChanged();
     emit packetDissectionChanged();
+
+    /* Write recent_common file to ensure last used profile setting is stored. */
+    write_recent();
 }
 
 void WiresharkApplication::reloadLuaPluginsDelayed()
@@ -858,7 +864,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     QPalette gui_pal = qApp->palette();
     prefs_set_gui_theme_is_dark(gui_pal.windowText().color().value() > gui_pal.window().color().value());
 
-#ifdef HAVE_SOFTWARE_UPDATE
+#if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
     connect(this, SIGNAL(softwareUpdateQuit()), this, SLOT(quit()), Qt::QueuedConnection);
 #endif
 
@@ -1298,7 +1304,7 @@ void WiresharkApplication::zoomTextFont(int zoomLevel)
     emit zoomMonospaceFont(zoomed_font_);
 }
 
-#ifdef HAVE_SOFTWARE_UPDATE
+#if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
 bool WiresharkApplication::softwareUpdateCanShutdown() {
     software_update_ok_ = true;
     // At this point the update is ready to install, but WinSparkle has
@@ -1334,7 +1340,7 @@ void WiresharkApplication::captureEventHandler(CaptureEvent ev)
 #ifdef HAVE_LIBPCAP
     case CaptureEvent::Update:
     case CaptureEvent::Fixed:
-        switch ( ev.eventType() )
+        switch (ev.eventType())
         {
         case CaptureEvent::Started:
             active_captures_++;
@@ -1352,7 +1358,7 @@ void WiresharkApplication::captureEventHandler(CaptureEvent ev)
     case CaptureEvent::File:
     case CaptureEvent::Reload:
     case CaptureEvent::Rescan:
-        switch ( ev.eventType() )
+        switch (ev.eventType())
         {
         case CaptureEvent::Started:
             QTimer::singleShot(TAP_UPDATE_DEFAULT_INTERVAL / 5, this, SLOT(updateTaps()));
@@ -1370,7 +1376,84 @@ void WiresharkApplication::captureEventHandler(CaptureEvent ev)
     }
 }
 
-/*
+void WiresharkApplication::pushStatus(StatusInfo status, const QString &message, const QString &messagetip)
+{
+    if (! mainWindow() || ! qobject_cast<MainWindow *>(mainWindow()))
+        return;
+
+    MainWindow * mw = qobject_cast<MainWindow *>(mainWindow());
+    if (! mw->main_ui_ || ! mw->main_ui_->statusBar)
+        return;
+
+    MainStatusBar * bar = mw->main_ui_->statusBar;
+
+    switch(status)
+    {
+        case FilterSyntax:
+            bar->pushGenericStatus(MainStatusBar::STATUS_CTX_FILTER, message);
+            break;
+        case FieldStatus:
+            bar->pushGenericStatus(MainStatusBar::STATUS_CTX_FIELD, message);
+            break;
+        case FileStatus:
+            bar->pushGenericStatus(MainStatusBar::STATUS_CTX_FILE, message, messagetip);
+            break;
+        case ByteStatus:
+            bar->pushGenericStatus(MainStatusBar::STATUS_CTX_BYTE, message);
+            break;
+        case BusyStatus:
+            bar->pushGenericStatus(MainStatusBar::STATUS_CTX_PROGRESS, message, messagetip);
+            break;
+        case TemporaryStatus:
+            bar->pushGenericStatus(MainStatusBar::STATUS_CTX_TEMPORARY, message);
+            break;
+    }
+}
+
+void WiresharkApplication::popStatus(StatusInfo status)
+{
+    if (! mainWindow() || ! qobject_cast<MainWindow *>(mainWindow()))
+        return;
+
+    MainWindow * mw = qobject_cast<MainWindow *>(mainWindow());
+    if (! mw->main_ui_ || ! mw->main_ui_->statusBar)
+        return;
+
+    MainStatusBar * bar = mw->main_ui_->statusBar;
+
+    switch(status)
+    {
+        case FilterSyntax:
+            bar->popGenericStatus(MainStatusBar::STATUS_CTX_FILTER);
+            break;
+        case FieldStatus:
+            bar->popGenericStatus(MainStatusBar::STATUS_CTX_FIELD);
+            break;
+        case FileStatus:
+            bar->popGenericStatus(MainStatusBar::STATUS_CTX_FILE);
+            break;
+        case ByteStatus:
+            bar->popGenericStatus(MainStatusBar::STATUS_CTX_BYTE);
+            break;
+        case BusyStatus:
+            bar->popGenericStatus(MainStatusBar::STATUS_CTX_PROGRESS);
+            break;
+        case TemporaryStatus:
+            bar->popGenericStatus(MainStatusBar::STATUS_CTX_TEMPORARY);
+            break;
+    }
+}
+
+void WiresharkApplication::gotoFrame(int frame)
+{
+    if (! mainWindow() || ! qobject_cast<MainWindow *>(mainWindow()))
+        return;
+
+    MainWindow * mw = qobject_cast<MainWindow *>(mainWindow());
+    mw->gotoFrame(frame);
+}
+
+ /*
  * Editor modelines
  *
  * Local Variables:

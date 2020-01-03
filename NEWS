@@ -1,7 +1,7 @@
-Wireshark 3.1.1 Release Notes
+Wireshark 3.3.0 Release Notes
 
  This is an experimental release intended to test new features for
- Wireshark 3.2.
+ Wireshark 3.4.
 
  What is Wireshark?
 
@@ -16,80 +16,28 @@ Wireshark 3.1.1 Release Notes
   New and Updated Features
 
    The following features are new (or have been significantly updated)
-   since version 3.1.0:
+   since version 3.2.0:
 
-     • You can once again mark and unmark packets using the middle mouse
-       button. This feature went missing around 2009 or so.
+     • Windows executables and installers are now signed using SHA-2
+       only[1].
 
-     • The Windows packages are now built using Microsoft Visual Studio
-       2019.
+     • Save RTP stream to .au supports any codec with 8000 Hz rate
+       supported by Wireshark (shown in RTP player). If save of audio is
+       not possible (unsupported codec or rate), silence of same length
+       is saved and warning is shown.
 
-   The following features are new (or have been significantly updated)
-   since version 3.0.0:
+     • C-ares is now a required dependency.
 
-     • Drag&Drop a field to a column header to create a column for that
-       field, or to the display filter input to create a display filter.
-       If a display filter is applied, the new filter can be added using
-       the same rules as "Apply Filter"
+     • Protobuf fields can be dissected as wireshark (header) fields
+       that allows user input the full names of Protobuf fields or
+       messages in Filter toolbar for searching.
 
-     • Drag&Drop a column entry to the display filter to create a filter
-       for it
-
-     • Import profiles from a .zip archive or an existing directory
-
-     • Dark mode support on macOS and dark theme support on other
-       platforms has been improved.
-
-     • Brotli decompression support in HTTP/HTTP2 (requires the brotli
-       library).
-
-     • The build system now checks for a SpeexDSP system library
-       installation. The bundled Speex resampler code is still provided
-       as a fallback.
-
-     • WireGuard decryption can now be enabled through keys embedded in
-       a pcapng in addition to the existing key log preference (Bug
-       15571[1]).
-
-     • A new tap for extracting credentials from the capture file has
-       been added. It can be accessed through the -z credentials option
-       in tshark or from the “Tools” menu in Wireshark.
-
-     • Editcap can now split files on floating point intervals.
-
-     • Windows .msi packages are now signed using SHA-2[2]. .exe
-       installers are still dual-signed using SHA-1 and SHA-2.
-
-     • The “Enabled Protocols” Dialog now only enables, disables and
-       inverts protocols based on the set filter selection. The protocol
-       type (standard or heuristic) may also be choosen as a filter
-       value.
-
-     • The “Analyze → Apply as Filter” and “Analyze → Prepare a Filter”
-       packet list and detail popup menus now show a preview of their
-       respective filters.
-
-     • Protobuf files (*.proto) can now be configured to enable more
-       precise parsing of serialized Protobuf data (such as gRPC).
+     • Dissector based on Protobuf can register itself to a new
+       'protobuf_field' dissector table, which is keyed with the full
+       names of fields, for further parsing fields of BYETS or STRING
+       type.
 
   New Protocol Support
-
-   3GPP BICC MST (BICC-MST), 3GPP log packet (LOG3GPP), 3GPP/GSM Cell
-   Broadcast Service Protocol (cbsp), Bluetooth Mesh Beacon, Bluetooth
-   Mesh PB-ADV, Bluetooth Mesh Provisioning PDU, Bluetooth Mesh Proxy,
-   CableLabs Layer-3 Protocol IEEE EtherType 0xb4e3 (CL3), DCOM
-   IProvideClassInfo, DCOM ITypeInfo, Diagnostic Log and Trace (DLT),
-   Distributed Replicated Block Device (DRBD), Dual Channel Wi-Fi
-   (CL3DCW), EBHSCR Protocol (EBHSCR), EERO Protocol (EERO), evolved
-   Common Public Radio Interface (eCPRI), File Server Remote VSS
-   Protocol (FSRVP), FTDI FT USB Bridging Devices (FTDI FT), Graylog
-   Extended Log Format over UDP (GELF), GSM/3GPP CBSP (Cell Broadcast
-   Service Protocol), Linux net_dm (network drop monitor) protocol, MIDI
-   System Exclusive DigiTech (SYSEX DigiTech), Network Controller
-   Sideband Interface (NCSI), NR Positioning Protocol A (NRPPa) TS
-   38.455, NVM Express over Fabrics for TCP (nvme-tcp), OsmoTRX Protocol
-   (GSM Transceiver control and data), and Scalable service-Oriented
-   MiddlewarE over IP (SOME/IP)
 
   Updated Protocol Support
 
@@ -97,20 +45,17 @@ Wireshark 3.1.1 Release Notes
 
   New and Updated Capture File Support
 
-   3gpp phone, Android Logcat Text, Ascend, Candump, Endace ERF,
-   NetScaler, pcapng, and Savvius *Peek
-
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
-  https://www.wireshark.org/download.html[3].
+  https://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[4] on the Wireshark web site.
+   be found on the download page[2] on the Wireshark web site.
 
  File Locations
 
@@ -122,33 +67,26 @@ Wireshark 3.1.1 Release Notes
  Getting Help
 
   The User’s Guide, manual pages and various other documentation can be
-  found at https://www.wireshark.org/docs/[5]
+  found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[6] and on the
+  Community support is available on Wireshark’s Q&A site[3] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[7].
+  for all of Wireshark’s mailing lists can be found on the web site[4].
 
-  Bugs and feature requests can be reported on the bug tracker[8].
-
-  Official Wireshark training and certification are available from
-  Wireshark University[9].
+  Bugs and feature requests can be reported on the bug tracker[5].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[10].
+  A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2019-11-03 08:10:04 UTC
+  Last updated 2019-12-29 08:07:47 UTC
 
  References
 
-   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15571
-   2. https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-s
+   1. https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-s
   igning-support-requirement-for-windows-and-wsus
-   3. https://www.wireshark.org/download.html
-   4. https://www.wireshark.org/download.html#thirdparty
-   5. https://www.wireshark.org/docs/
-   6. https://ask.wireshark.org/
-   7. https://www.wireshark.org/lists/
-   8. https://bugs.wireshark.org/
-   9. https://www.wiresharktraining.com/
-  10. https://www.wireshark.org/faq.html
+   2. https://www.wireshark.org/download.html#thirdparty
+   3. https://ask.wireshark.org/
+   4. https://www.wireshark.org/lists/
+   5. https://bugs.wireshark.org/
+   6. https://www.wireshark.org/faq.html

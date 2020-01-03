@@ -51,7 +51,7 @@ S<B<--remote-interface>=E<lt>the router interfaceE<gt>>
 
 =head1 DESCRIPTION
 
-B<ciscodump> is an extcap tool that relys on Cisco EPC to allow a user to run a remote capture
+B<Ciscodump> is an extcap tool that relys on Cisco EPC to allow a user to run a remote capture
 on a Cisco router in a SSH connection. The minimum IOS version supporting this feature is 12.4(20)T. More details can be
 found here:
 https://www.cisco.com/c/en/us/products/collateral/ios-nx-os-software/ios-embedded-packet-capture/datasheet_c78-502727.html

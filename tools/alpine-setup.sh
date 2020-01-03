@@ -50,6 +50,7 @@ BASIC_LIST="cmake \
 	bison \
 	perl \
 	tiff-dev \
+	c-ares-dev \
 	qt5-qtbase-dev \
 	qt5-qttools-dev \
 	qt5-qtmultimedia-dev \
@@ -66,7 +67,6 @@ ADDITIONAL_LIST="
 	libxml2-dev \
 	libmaxminddb-dev \
 	krb5-dev \
-	c-ares-dev \
 	lz4-dev \
 	gnutls-dev \
 	snappy-dev \
@@ -94,7 +94,7 @@ add_package() {
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries
-if [ $ADDITIONAL != 0 ]
+if [ $ADDITIONAL -ne 0 ]
 then
 	ACTUAL_LIST="$ACTUAL_LIST $ADDITIONAL_LIST"
 fi
@@ -102,7 +102,7 @@ fi
 apk update || exit 2
 apk add $ACTUAL_LIST $OPTIONS || exit 2
 
-if [ $ADDITIONAL == 0 ]
+if [ $ADDITIONAL -eq 0 ]
 then
 	printf "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
 fi

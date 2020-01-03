@@ -1,13 +1,13 @@
 language: minimal
-dist: xenial
+dist: bionic
 matrix:
   include:
-    - name: OSX (xcode10.3 clang-1001.0.46.4) with PCAP
+    - name: OSX (xcode10.3 clang-10.0.1) with PCAP
       os: osx
       osx_image: xcode10.3
       compiler: clang
       env: PCAP=ON
-    - name: OSX (xcode10.3 clang-1001.0.46.4) without PCAP
+    - name: OSX (xcode10.3 clang-10.0.1) without PCAP
       os: osx
       osx_image: xcode10.3
       compiler: clang
@@ -20,7 +20,7 @@ matrix:
       os: osx
       osx_image: xcode11.2
       env: PCAP=OFF
-    - name: Linux (gcc-8) with PCAP
+    - name: Linux amd64 (gcc-8) with PCAP
       os: linux
       addons:
         apt:
@@ -45,7 +45,17 @@ matrix:
         - CXX=g++-8
         - CC=gcc-8
         - PCAP=ON
-    - name: Linux (gcc-8) without PCAP
+    - name: Linux s390x (gcc-7) with PCAP
+      os: linux
+      arch: s390x
+      env:
+        - PCAP=ON
+    - name: Linux ppc64le (gcc-7) with PCAP
+      os: linux
+      arch: ppc64le
+      env:
+        - PCAP=ON
+    - name: Linux amd64 (gcc-8) without PCAP
       os: linux
       addons:
         apt:
@@ -57,7 +67,7 @@ matrix:
         - CXX=g++-8
         - CC=gcc-8
         - PCAP=OFF
-    - name: Linux (clang) with PCAP
+    - name: Linux amd64 (clang) with PCAP
       os: linux
       env:
         - CXX=clang++
@@ -70,7 +80,21 @@ matrix:
         - CXX=clang++
         - CC=clang
         - PCAP=ON
-    - name: Linux (clang) without PCAP
+    - name: Linux s390x (clang) with PCAP
+      os: linux
+      arch: s390x
+      env:
+        - CXX=clang++
+        - CC=clang
+        - PCAP=ON
+    - name: Linux ppc64le (clang) with PCAP
+      os: linux
+      arch: ppc64le
+      env:
+        - CXX=clang++
+        - CC=clang
+        - PCAP=ON
+    - name: Linux amd64 (clang) without PCAP
       os: linux
       env:
         - CXX=clang++

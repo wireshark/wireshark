@@ -177,6 +177,14 @@ pbw_EnumDescriptor_name(const PbwEnumDescriptor* anEnum);
 const char*
 pbw_EnumDescriptor_full_name(const PbwEnumDescriptor* anEnum);
 
+/* like EnumDescriptor::value_count() */
+int
+pbw_EnumDescriptor_value_count(const PbwEnumDescriptor* anEnum);
+
+/* like EnumDescriptor::value() */
+const PbwEnumValueDescriptor*
+pbw_EnumDescriptor_value(const PbwEnumDescriptor* anEnum, int value_index);
+
 /* like EnumDescriptor::FindValueByNumber() */
 const PbwEnumValueDescriptor*
 pbw_EnumDescriptor_FindValueByNumber(const PbwEnumDescriptor* anEnum, int number);
@@ -188,6 +196,14 @@ pbw_EnumValueDescriptor_name(const PbwEnumValueDescriptor* enumValue);
 /* like EnumValueDescriptor::full_name() */
 const char*
 pbw_EnumValueDescriptor_full_name(const PbwEnumValueDescriptor* enumValue);
+
+/* like EnumValueDescriptor::number() */
+int
+pbw_EnumValueDescriptor_number(const PbwEnumValueDescriptor* enumValue);
+
+/* visit all messages of this pool */
+void
+pbw_foreach_message(const PbwDescriptorPool* pool, void (*cb)(const PbwDescriptor* message, void* userdata), void* userdata);
 
 #ifdef __cplusplus
 }

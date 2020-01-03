@@ -491,13 +491,14 @@ dissect_bcp_protocol_header(proto_tree *bcp_tree, tvbuff_t *tvb,
  */
 static int dissect_bluecom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint cmd, flags, blocknb, segcode=0;
+    guint cmd, flags, blocknb;
     volatile guint block;
     guint len;
     volatile guint offset = 0;
     proto_tree *bcp_tree = NULL;
     proto_item *bcp_item_base = NULL;
     tvbuff_t *block_tvb;
+    guint segcode = 0;
 
     /* set protocol name column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "bluecom");

@@ -315,11 +315,11 @@ QPair<const QString, bool> CaptureFilterEdit::getSelectedFilter()
 
 void CaptureFilterEdit::checkFilter(const QString& filter)
 {
-    if ( text().length() == 0 && actions_ && actions_->checkedAction() )
+    if (text().length() == 0 && actions_ && actions_->checkedAction())
         actions_->checkedAction()->setChecked(false);
 
     setSyntaxState(Busy);
-    popFilterSyntaxStatus();
+    wsApp->popStatus(WiresharkApplication::FilterSyntax);
     setToolTip(QString());
     bool empty = filter.isEmpty();
 
@@ -329,7 +329,7 @@ void CaptureFilterEdit::checkFilter(const QString& filter)
 
         FilterListModel model(FilterListModel::Capture);
         QModelIndex idx = model.findByExpression(text());
-        if ( idx.isValid() ) {
+        if (idx.isValid()) {
             match = true;
 
             bookmark_button_->setStockIcon("x-filter-matching-bookmark");
@@ -391,10 +391,10 @@ void CaptureFilterEdit::updateBookmarkMenu()
 
     int one_em = bb_menu->fontMetrics().height();
 
-    if ( ! actions_ )
+    if (! actions_)
         actions_ = new QActionGroup(this);
 
-    for(int row = 0; row < model.rowCount(); row++)
+    for (int row = 0; row < model.rowCount(); row++)
     {
         QModelIndex nameIdx = model.index(row, FilterListModel::ColumnName);
         QString name = nameIdx.data().toString();
@@ -404,7 +404,7 @@ void CaptureFilterEdit::updateBookmarkMenu()
         prep_text = bb_menu->fontMetrics().elidedText(prep_text, Qt::ElideRight, one_em * 40);
         QAction * prep_action = bb_menu->addAction(prep_text);
         prep_action->setCheckable(true);
-        if ( nameIdx == idx )
+        if (nameIdx == idx)
             prep_action->setChecked(true);
 
         actions_->addAction(prep_action);
@@ -420,7 +420,7 @@ void CaptureFilterEdit::setFilterSyntaxState(QString filter, int state, QString 
     if (filter.compare(text()) == 0) { // The user hasn't changed the filter
         setSyntaxState((SyntaxState)state);
         if (!err_msg.isEmpty()) {
-            emit pushFilterSyntaxStatus(err_msg);
+            wsApp->pushStatus(WiresharkApplication::FilterSyntax, err_msg);
             setToolTip(err_msg);
         }
     }
@@ -509,18 +509,18 @@ void CaptureFilterEdit::saveFilter()
 
 void CaptureFilterEdit::removeFilter()
 {
-    if ( ! actions_ && ! actions_->checkedAction() )
+    if (! actions_ || ! actions_->checkedAction())
         return;
 
     QAction *ra = actions_->checkedAction();
-    if ( ra->property("capture_filter").toString().isEmpty() )
+    if (ra->property("capture_filter").toString().isEmpty())
         return;
 
     QString remove_filter = ra->property("capture_filter").toString();
 
     FilterListModel model(FilterListModel::Capture);
     QModelIndex idx = model.findByExpression(remove_filter);
-    if ( idx.isValid() )
+    if (idx.isValid())
     {
         model.removeFilter(idx);
         model.saveList();
@@ -540,7 +540,7 @@ void CaptureFilterEdit::showFilters()
 void CaptureFilterEdit::prepareFilter()
 {
     QAction *pa = qobject_cast<QAction*>(sender());
-    if ( ! pa || pa->property("capture_filter").toString().isEmpty() )
+    if (! pa || pa->property("capture_filter").toString().isEmpty())
         return;
 
     QString filter = pa->property("capture_filter").toString();

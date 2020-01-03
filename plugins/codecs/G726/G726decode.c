@@ -73,8 +73,8 @@ codec_g726_get_frequency(void *ctx _U_)
 }
 
 static size_t
-codec_g726_decode(void *ctx, const void *input, size_t inputSizeBytes, void *output,
-        size_t *outputSizeBytes)
+codec_g726_decode(void *ctx, const void *inputBytes, size_t inputBytesSize,
+        void *outputSamples, size_t *outputSamplesSize)
 {
     g726_codec_ctx *state = (g726_codec_ctx *)ctx;
 
@@ -82,7 +82,7 @@ codec_g726_decode(void *ctx, const void *input, size_t inputSizeBytes, void *out
         return 0;  /* out-of-memory; */
     }
 
-    if (!output || !outputSizeBytes) {
+    if (!outputSamples || !outputSamplesSize) {
         /*
          * sample rate 8kHz, for bitrate 16kHz we have 16/8 = 2 bits/sample, so
          * 1 input byte (8 bits) will expand to four 16-bit samples. Likewise,
@@ -90,12 +90,12 @@ codec_g726_decode(void *ctx, const void *input, size_t inputSizeBytes, void *out
          * bitsPerSample = bitRate / sampleRate (8kHz).
          * outputBytes = (inputBits / bitsPerSample) * sizeof(sample)
          */
-        return inputSizeBytes * 8 / (state->bit_rate / 8000) * 2;
+        return inputBytesSize * 8 / (state->bit_rate / 8000) * 2;
     }
 
     /* g726_decode returns the number of 16-bit samples. */
-    *outputSizeBytes = 2 * g726_decode(state->state, (int16_t *)output, (const uint8_t *) input, (int)inputSizeBytes);
-    return *outputSizeBytes;
+    *outputSamplesSize = 2 * g726_decode(state->state, (int16_t *)outputSamples, (const uint8_t *) inputBytes, (int)inputBytesSize);
+    return *outputSamplesSize;
 }
 
 void

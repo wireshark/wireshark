@@ -11,12 +11,14 @@
 #define __PACKET_SOCKETCAN_H__
 
 /* Structure that gets passed between dissectors. */
-struct can_identifier
+struct can_info
 {
 	guint32 id;
+	guint32 len;
+	gboolean fd;
 };
 
-typedef struct can_identifier can_identifier_t;
+typedef struct can_info can_info_t;
 
 /* controller area network (CAN) kernel definitions
  * These masks are usually defined within <linux/can.h> but are not

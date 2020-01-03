@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-usb.h"
 
 /* protocols and header fields */
@@ -123,6 +124,16 @@ static dissector_handle_t mbim_control_handle;
 static dissector_handle_t mbim_descriptor_handle;
 static dissector_handle_t mbim_bulk_handle;
 static dissector_handle_t eth_withoutfcs_handle;
+
+static expert_field ei_unexpected_controlling_iface = EI_INIT;
+
+static wmem_tree_t* controlling_ifaces = NULL;
+
+typedef struct _controlling_iface {
+    guint16 interfaceClass;
+    guint16 interfaceSubclass;
+    guint16 interfaceProtocol;
+} controlling_iface_t;
 
 #define CS_INTERFACE 0x24
 #define CS_ENDPOINT  0x25
@@ -398,12 +409,17 @@ void proto_register_usb_com(void);
 void proto_reg_handoff_usb_com(void);
 
 static int
-dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
     guint8 offset = 0, type, subtype;
     proto_tree *subtree;
     proto_tree *subtree_capabilities;
     proto_item *subitem_capabilities;
+
+    if (!usb_conv_info) {
+        return 0;
+    }
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, tvb_captured_length(tvb), ett_usb_com, NULL, "COMMUNICATIONS DESCRIPTOR");
 
@@ -443,15 +459,49 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     proto_tree_add_item(subtree_capabilities, hf_usb_com_descriptor_acm_capabilities_comm_features, tvb, 3, 1, ENC_LITTLE_ENDIAN);
                     offset = 4;
                     break;
-                case 0x06:
+                case 0x06: {
+                    proto_item *control_item;
+                    guint32 k_bus_id;
+                    guint32 k_device_address;
+                    guint32 k_subordinate_id;
+                    guint32 k_frame_number;
+                    wmem_tree_key_t key[] = {
+                        { .length = 1, .key = &k_bus_id },
+                        { .length = 1, .key = &k_device_address },
+                        { .length = 1, .key = &k_subordinate_id },
+                        { .length = 1, .key = &k_frame_number },
+                        { .length = 0, .key = NULL },
+                    };
+                    controlling_iface_t *master_info = NULL;
+                    guint32  master;
+
+                    k_bus_id = usb_conv_info->bus_id;
+                    k_device_address = usb_conv_info->device_address;
+                    k_frame_number = pinfo->num;
+
                     offset = 3;
-                    proto_tree_add_item(subtree, hf_usb_com_descriptor_control_interface, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    control_item = proto_tree_add_item_ret_uint(subtree, hf_usb_com_descriptor_control_interface, tvb, offset, 1, ENC_LITTLE_ENDIAN, &master);
+
+                    if (master != usb_conv_info->interfaceNum) {
+                        expert_add_info(pinfo, control_item, &ei_unexpected_controlling_iface);
+                    } else if (!PINFO_FD_VISITED(pinfo)) {
+                        master_info = wmem_new(wmem_file_scope(), controlling_iface_t);
+                        master_info->interfaceClass = usb_conv_info->interfaceClass;
+                        master_info->interfaceSubclass = usb_conv_info->interfaceSubclass;
+                        master_info->interfaceProtocol = usb_conv_info->interfaceProtocol;
+                    }
+
                     offset += 1;
                     while (tvb_reported_length_remaining(tvb,offset) > 0) {
-                        proto_tree_add_item(subtree, hf_usb_com_descriptor_subordinate_interface, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item_ret_uint(subtree, hf_usb_com_descriptor_subordinate_interface, tvb, offset, 1, ENC_LITTLE_ENDIAN, &k_subordinate_id);
                         offset += 1;
+
+                        if (master_info) {
+                            wmem_tree_insert32_array(controlling_ifaces, key, master_info);
+                        }
                     }
                     break;
+                }
                 case 0x0f:
                     proto_tree_add_item(subtree, hf_usb_com_descriptor_ecm_mac_address, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset += 1;
@@ -676,20 +726,60 @@ static int
 dissect_usb_com_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
+    guint32 k_bus_id;
+    guint32 k_device_address;
+    guint32 k_subordinate_id;
+    wmem_tree_key_t key[] = {
+        { .length = 1, .key = &k_bus_id },
+        { .length = 1, .key = &k_device_address },
+        { .length = 1, .key = &k_subordinate_id },
+        { .length = 0, .key = NULL },
+    };
+    wmem_tree_t *wmem_tree;
+    controlling_iface_t *master_iface = NULL;
 
-    if (usb_conv_info) {
-        switch (usb_conv_info->interfaceProtocol)
-        {
-            case 0x01: /* Network Transfer Block */
-            case 0x02: /* Network Transfer Block (IP + DSS) */
-                return call_dissector_only(mbim_bulk_handle, tvb, pinfo, tree, NULL);
-            default:
-                break;
+    if (!usb_conv_info) {
+        return 0;
+    }
+
+    if ((usb_conv_info->interfaceClass != IF_CLASS_CDC_DATA) || (usb_conv_info->interfaceSubclass != 0)) {
+        /* As per Communications Device Class Revision 1.2 subclass is currently unused for CDC Data and should be zero
+         * If it is not, then we are either dealing with malformed descriptor or a new CDC Revision.
+         */
+        return 0;
+    }
+
+    k_bus_id = usb_conv_info->bus_id;
+    k_device_address = usb_conv_info->device_address;
+    k_subordinate_id = usb_conv_info->interfaceNum;
+
+    wmem_tree = (wmem_tree_t*)wmem_tree_lookup32_array(controlling_ifaces, key);
+    if (wmem_tree) {
+        master_iface = (controlling_iface_t *)wmem_tree_lookup32_le(wmem_tree, pinfo->num);
+    }
+
+    if (master_iface) {
+        if (master_iface->interfaceClass == IF_CLASS_COMMUNICATIONS) {
+            if ((master_iface->interfaceSubclass == COM_SUBCLASS_ENCM) &&
+                (master_iface->interfaceProtocol == 0) &&
+                (usb_conv_info->interfaceProtocol == 0)) {
+                /* Ethernet without FCS */
+                return call_dissector_only(eth_withoutfcs_handle, tvb, pinfo, tree, NULL);
+            }
         }
     }
 
-    /* By default, assume it is ethernet without FCS */
-    return call_dissector_only(eth_withoutfcs_handle, tvb, pinfo, tree, NULL);
+
+    switch (usb_conv_info->interfaceProtocol) {
+        case 0x01: /* Network Transfer Block */
+        case 0x02: /* Network Transfer Block (IP + DSS) */
+            return call_dissector_only(mbim_bulk_handle, tvb, pinfo, tree, NULL);
+        default:
+            break;
+    }
+
+    /* Unknown (class, subclass, protocol) tuple. Do not attempt dissection. */
+    return 0;
 }
 
 static int
@@ -1051,9 +1141,20 @@ proto_register_usb_com(void)
         &ett_usb_com_descriptor_ecm_nb_mc_filters
     };
 
+    static ei_register_info ei[] = {
+        { &ei_unexpected_controlling_iface, { "usbcom.descriptor.control_interface.unexpected_iface", PI_MALFORMED, PI_ERROR, "Unexpected controlling interface index (report to wireshark.org)", EXPFILL }},
+    };
+
+    expert_module_t* expert_usb_com;
+
+    controlling_ifaces = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
     proto_usb_com = proto_register_protocol("USB Communications and CDC Control", "USBCOM", "usbcom");
     proto_register_field_array(proto_usb_com, hf, array_length(hf));
     proto_register_subtree_array(usb_com_subtrees, array_length(usb_com_subtrees));
+
+    expert_usb_com = expert_register_protocol(proto_usb_com);
+    expert_register_field_array(expert_usb_com, ei, array_length(ei));
 }
 
 void

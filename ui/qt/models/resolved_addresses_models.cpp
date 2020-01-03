@@ -42,7 +42,7 @@ ipv4_hash_table_resolved_to_qstringlist(gpointer, gpointer value, gpointer sl_pt
     QStringList *string_list = (QStringList *) sl_ptr;
     hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *) value;
 
-    if((ipv4_hash_table_entry->flags & NAME_RESOLVED)) {
+    if ((ipv4_hash_table_entry->flags & NAME_RESOLVED)) {
         QString entry = QString("%1\t%2")
                 .arg(ipv4_hash_table_entry->ip)
                 .arg(ipv4_hash_table_entry->name);
@@ -56,7 +56,7 @@ ipv6_hash_table_resolved_to_qstringlist(gpointer, gpointer value, gpointer sl_pt
     QStringList *string_list = (QStringList *) sl_ptr;
     hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *) value;
 
-    if((ipv6_hash_table_entry->flags & NAME_RESOLVED)) {
+    if ((ipv6_hash_table_entry->flags & NAME_RESOLVED)) {
         QString entry = QString("%1\t%2")
                 .arg(ipv6_hash_table_entry->ip6)
                 .arg(ipv6_hash_table_entry->name);
@@ -231,7 +231,7 @@ void PortsModel::populate()
     QStringList values;
 
     wmem_map_t *serv_port_hashtable = get_serv_port_hashtable();
-    if(serv_port_hashtable){
+    if (serv_port_hashtable) {
         wmem_map_foreach(serv_port_hashtable, serv_port_hash_to_qstringlist, &values);
     }
 

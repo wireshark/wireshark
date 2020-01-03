@@ -137,13 +137,10 @@
 #define INVALID_CAPTURE 2
 #define INIT_FAILED 2
 
-/*
- * values 128..65535 are capture+dissect options, 65536 is used by
- * ui/commandline.c, so start tshark-specific options 1000 after this
- */
-#define LONGOPT_COLOR (65536+1000)
-#define LONGOPT_NO_DUPLICATE_KEYS (65536+1001)
-#define LONGOPT_ELASTIC_MAPPING_FILTER (65536+1002)
+#define LONGOPT_EXPORT_OBJECTS          LONGOPT_BASE_APPLICATION+1
+#define LONGOPT_COLOR                   LONGOPT_BASE_APPLICATION+2
+#define LONGOPT_NO_DUPLICATE_KEYS       LONGOPT_BASE_APPLICATION+3
+#define LONGOPT_ELASTIC_MAPPING_FILTER  LONGOPT_BASE_APPLICATION+4
 
 #if 0
 #define tshark_debug(...) g_warning(__VA_ARGS__)
@@ -329,37 +326,48 @@ print_usage(FILE *output)
 
 #ifdef HAVE_LIBPCAP
   fprintf(output, "Capture interface:\n");
-  fprintf(output, "  -i <interface>           name or idx of interface (def: first non-loopback)\n");
+  fprintf(output, "  -i <interface>, --interface <interface>\n");
+  fprintf(output, "                           name or idx of interface (def: first non-loopback)\n");
   fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
+  fprintf(output, "  -s <snaplen>, --snapshot-length <snaplen>\n");
 #ifdef HAVE_PCAP_CREATE
-  fprintf(output, "  -s <snaplen>             packet snapshot length (def: appropriate maximum)\n");
+  fprintf(output, "                           packet snapshot length (def: appropriate maximum)\n");
 #else
-  fprintf(output, "  -s <snaplen>             packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE_STANDARD);
+  fprintf(output, "                           packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE_STANDARD);
 #endif
-  fprintf(output, "  -p                       don't capture in promiscuous mode\n");
+  fprintf(output, "  -p, --no-promiscuous-mode\n");
+  fprintf(output, "                           don't capture in promiscuous mode\n");
 #ifdef HAVE_PCAP_CREATE
-  fprintf(output, "  -I                       capture in monitor mode, if available\n");
+  fprintf(output, "  -I, --monitor-mode       capture in monitor mode, if available\n");
 #endif
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-  fprintf(output, "  -B <buffer size>         size of kernel buffer (def: %dMB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
+  fprintf(output, "  -B <buffer size>, --buffer-size <buffer size>\n");
+  fprintf(output, "                           size of kernel buffer (def: %dMB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
 #endif
-  fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
+  fprintf(output, "  -y <link type>, --linktype <link type>\n");
+  fprintf(output, "                           link layer type (def: first appropriate)\n");
   fprintf(output, "  --time-stamp-type <type> timestamp method for interface\n");
-  fprintf(output, "  -D                       print list of interfaces and exit\n");
-  fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
+  fprintf(output, "  -D, --list-interfaces    print list of interfaces and exit\n");
+  fprintf(output, "  -L, --list-data-link-types\n");
+  fprintf(output, "                           print list of link-layer types of iface and exit\n");
   fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
   fprintf(output, "\n");
   fprintf(output, "Capture stop conditions:\n");
   fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
-  fprintf(output, "  -a <autostop cond.> ...  duration:NUM - stop after NUM seconds\n");
+  fprintf(output, "  -a <autostop cond.> ..., --autostop <autostop cond.> ...\n");
+  fprintf(output, "                           duration:NUM - stop after NUM seconds\n");
   fprintf(output, "                           filesize:NUM - stop this file after NUM KB\n");
   fprintf(output, "                              files:NUM - stop after NUM files\n");
+  fprintf(output, "                            packets:NUM - stop after NUM packets\n");
   /*fprintf(output, "\n");*/
   fprintf(output, "Capture output:\n");
-  fprintf(output, "  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs\n");
-  fprintf(output, "                           interval:NUM - create time intervals of NUM secs\n");
+  fprintf(output, "  -b <ringbuffer opt.> ..., --ring-buffer <ringbuffer opt.>\n");
+  fprintf(output, "                           duration:NUM - switch to next file after NUM secs\n");
   fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
   fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
+  fprintf(output, "                            packets:NUM - switch to next file after NUM packets\n");
+  fprintf(output, "                           interval:NUM - switch to next file when the time is\n");
+  fprintf(output, "                                          an exact multiple of NUM secs\n");
 #endif  /* HAVE_LIBPCAP */
 #ifdef HAVE_PCAP_REMOTE
   fprintf(output, "RPCAP options:\n");
@@ -367,15 +375,18 @@ print_usage(FILE *output)
 #endif
   /*fprintf(output, "\n");*/
   fprintf(output, "Input file:\n");
-  fprintf(output, "  -r <infile|->            set the filename to read from (or '-' for stdin)\n");
+  fprintf(output, "  -r <infile>, --read-file <infile>\n");
+  fprintf(output, "                           set the filename to read from (or '-' for stdin)\n");
 
   fprintf(output, "\n");
   fprintf(output, "Processing:\n");
   fprintf(output, "  -2                       perform a two-pass analysis\n");
   fprintf(output, "  -M <packet count>        perform session auto reset\n");
-  fprintf(output, "  -R <read filter>         packet Read filter in Wireshark display filter syntax\n");
+  fprintf(output, "  -R <read filter>, --read-filter <read filter>\n");
+  fprintf(output, "                           packet Read filter in Wireshark display filter syntax\n");
   fprintf(output, "                           (requires -2)\n");
-  fprintf(output, "  -Y <display filter>      packet displaY filter in Wireshark display filter\n");
+  fprintf(output, "  -Y <display filter>, --display-filter <display filter>\n");
+  fprintf(output, "                           packet displaY filter in Wireshark display filter\n");
   fprintf(output, "                           syntax\n");
   fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
   fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtdv\"\n");
@@ -401,6 +412,8 @@ print_usage(FILE *output)
   fprintf(output, "  -w <outfile|->           write packets to a pcap-format file named \"outfile\"\n");
 #endif
   fprintf(output, "                           (or '-' for stdout)\n");
+  fprintf(output, "  --capture-comment <comment>\n");
+  fprintf(output, "                           set the capture file comment, if supported\n");
   fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
 #ifdef PCAP_NG_DEFAULT
   fprintf(output, "  -F <output file type>    set the output file type, default is pcapng\n");
@@ -411,7 +424,7 @@ print_usage(FILE *output)
   fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
   fprintf(output, "  -O <protocols>           Only show packet details of these protocols, comma\n");
   fprintf(output, "                           separated\n");
-  fprintf(output, "  -P                       print packet summary even when writing to a file\n");
+  fprintf(output, "  -P, --print              print packet summary even when writing to a file\n");
   fprintf(output, "  -S <separator>           the line separator to print between packets\n");
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
   fprintf(output, "  -T pdml|ps|psml|json|jsonraw|ek|tabs|text|fields|?\n");
@@ -432,7 +445,8 @@ print_usage(FILE *output)
   fprintf(output, "     aggregator=,|/s|<char> select comma, space, printable character as\n");
   fprintf(output, "                           aggregator\n");
   fprintf(output, "     quote=d|s|n           select double, single, no quotes for values\n");
-  fprintf(output, "  -t a|ad|d|dd|e|r|u|ud|?  output format of time stamps (def: r: rel. to first)\n");
+  fprintf(output, "  -t a|ad|adoy|d|dd|e|r|u|ud|udoy\n");
+  fprintf(output, "                           output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
   fprintf(output, "  -l                       flush standard output after each packet\n");
   fprintf(output, "  -q                       be more quiet on stdout (e.g. when using statistics)\n");
@@ -443,11 +457,9 @@ print_usage(FILE *output)
   fprintf(output, "  -X <key>:<value>         eXtension options, see the man page for details\n");
   fprintf(output, "  -U tap_name              PDUs export mode, see the man page for details\n");
   fprintf(output, "  -z <statistics>          various statistics, see the man page for details\n");
-  fprintf(output, "  --capture-comment <comment>\n");
-  fprintf(output, "                           add a capture comment to the newly created\n");
-  fprintf(output, "                           output file (only for pcapng)\n");
-  fprintf(output, "  --export-objects <protocol>,<destdir> save exported objects for a protocol to\n");
-  fprintf(output, "                           a directory named \"destdir\"\n");
+  fprintf(output, "  --export-objects <protocol>,<destdir>\n");
+  fprintf(output, "                           save exported objects for a protocol to a directory\n");
+  fprintf(output, "                           named \"destdir\"\n");
   fprintf(output, "  --color                  color output text similarly to the Wireshark GUI,\n");
   fprintf(output, "                           requires a terminal with 24-bit color support\n");
   fprintf(output, "                           Also supplies color attributes to pdml and psml formats\n");
@@ -460,8 +472,8 @@ print_usage(FILE *output)
 
   fprintf(output, "\n");
   fprintf(output, "Miscellaneous:\n");
-  fprintf(output, "  -h                       display this help and exit\n");
-  fprintf(output, "  -v                       display version info and exit\n");
+  fprintf(output, "  -h, --help               display this help and exit\n");
+  fprintf(output, "  -v, --version            display version info and exit\n");
   fprintf(output, "  -o <name>:<value> ...    override preference setting\n");
   fprintf(output, "  -K <keytab>              keytab file to use for kerberos decryption\n");
   fprintf(output, "  -G [report]              dump one of several available reports and exit\n");
@@ -4317,6 +4329,23 @@ show_print_file_io_error(int err)
 "too close to, or over your disk quota.");
   break;
 #endif
+
+  case EPIPE:
+      /*
+       * This almost certainly means "the next program after us in
+       * the pipeline exited before we were finished writing", so
+       * this isn't a real error, it just means we're done.  (We
+       * don't get SIGPIPE because libwireshark ignores SIGPIPE
+       * to avoid getting killed if writing to the MaxMind process
+       * gets SIGPIPE because that process died.)
+       *
+       * Presumably either that program exited deliberately (for
+       * example, "head -N" read N lines and printed them), in
+       * which case there's no error to report, or it terminated
+       * due to an error or a signal, in which case *that's* the
+       * error and that error has been reported.
+       */
+      break;
 
   default:
     cmdarg_err("An error occurred while printing packets: %s.",

@@ -88,6 +88,9 @@ static const value_string graph_style_vs[] = {
     { IOGraph::psDot, "Dot" },
     { IOGraph::psSquare, "Square" },
     { IOGraph::psDiamond, "Diamond" },
+    { IOGraph::psCross, "Cross" },
+    { IOGraph::psCircle, "Circle" },
+    { IOGraph::psPlus, "Plus" },
     { 0, NULL }
 };
 
@@ -181,7 +184,7 @@ static void io_graph_sma_period_set_cb(void* rec, const char* buf, guint len, co
         }
     }
 
-    for(i=0; ( cstr = ((const value_string*)vs)[i].strptr ) ;i++) {
+    for (i=0; (cstr = ((const value_string*)vs)[i].strptr) ;i++) {
         if (g_str_equal(cstr,str)) {
             ((io_graph_settings_t*)rec)->sma_period = (guint32)((const value_string*)vs)[i].value;
             g_free(str);
@@ -194,8 +197,8 @@ static void io_graph_sma_period_set_cb(void* rec, const char* buf, guint len, co
 static void io_graph_sma_period_tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* vs, const void* u2 _U_)
 {
     guint i;
-    for(i=0;((const value_string*)vs)[i].strptr;i++) {
-        if ( ((const value_string*)vs)[i].value == ((io_graph_settings_t*)rec)->sma_period ) {
+    for (i=0;((const value_string*)vs)[i].strptr;i++) {
+        if (((const value_string*)vs)[i].value == ((io_graph_settings_t*)rec)->sma_period) {
             *out_ptr = g_strdup(((const value_string*)vs)[i].strptr);
             *out_len = (unsigned)strlen(*out_ptr);
             return;
@@ -223,7 +226,7 @@ static gboolean sma_period_chk_enum(void* u1 _U_, const char* strptr, guint len,
         }
     }
 
-    for(i=0;vs[i].strptr;i++) {
+    for (i=0;vs[i].strptr;i++) {
         if (g_strcmp0(vs[i].strptr,str) == 0) {
             *err = NULL;
             g_free(str);
@@ -397,16 +400,16 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     if (num_io_graphs_ > 0) {
         for (guint i = 0; i < num_io_graphs_; i++) {
             createIOGraph(i);
-            if ( ioGraphs_.at(i)->filter().compare(displayFilter) == 0 )
+            if (ioGraphs_.at(i)->filter().compare(displayFilter) == 0)
                 filterExists = true;
         }
-        if ( ! filterExists && displayFilter.length() > 0 )
+        if (! filterExists && displayFilter.length() > 0)
             addGraph(true, tr("Filtered packets"), displayFilter, ColorUtils::graphColor(num_io_graphs_),
                 IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE);
     } else {
         addDefaultGraph(true, 0);
         addDefaultGraph(true, 1);
-        if ( displayFilter.length() > 0 )
+        if (displayFilter.length() > 0)
             addGraph(true, tr("Filtered packets"), displayFilter, ColorUtils::graphColor(num_io_graphs_),
                 IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE);
     }
@@ -647,14 +650,14 @@ void IOGraphDialog::keyPressEvent(QKeyEvent *event)
         zoomAxes(true);
         break;
     case Qt::Key_X:             // Zoom X axis only
-        if(event->modifiers() & Qt::ShiftModifier){
+        if (event->modifiers() & Qt::ShiftModifier) {
             zoomXAxis(false);   // upper case X -> Zoom out
         } else {
             zoomXAxis(true);    // lower case x -> Zoom in
         }
         break;
     case Qt::Key_Y:             // Zoom Y axis only
-        if(event->modifiers() & Qt::ShiftModifier){
+        if (event->modifiers() & Qt::ShiftModifier) {
             zoomYAxis(false);   // upper case Y -> Zoom out
         } else {
             zoomYAxis(true);    // lower case y -> Zoom in
@@ -1750,6 +1753,22 @@ void IOGraph::setPlotStyle(int style)
             graph_->setScatterStyle(QCPScatterStyle::ssDiamond);
         }
         break;
+    case psCross:
+        if (graph_) {
+            graph_->setScatterStyle(QCPScatterStyle::ssCross);
+        }
+        break;
+    case psPlus:
+        if (graph_) {
+            graph_->setScatterStyle(QCPScatterStyle::ssPlus);
+        }
+        break;
+    case psCircle:
+        if (graph_) {
+            graph_->setScatterStyle(QCPScatterStyle::ssCircle);
+        }
+        break;
+
     case psBar:
     case IOGraph::psStackedBar:
         // Stacking set in scanGraphs

@@ -20,11 +20,11 @@
 
 #include "minizip/zip.h"
 
-class WireSharkZipHelper
+class WiresharkZipHelper
 {
 public:
     static bool zip(QString zipFile, QStringList files, QString relativeTo = QString());
-    static bool unzip(QString zipFile, QString directory, bool (*fileCheck)(QString fileName, int fileSize) = Q_NULLPTR, QString (*cleanName)(QString name) = Q_NULLPTR );
+    static bool unzip(QString zipFile, QString directory, bool (*fileCheck)(QString fileName, int fileSize) = Q_NULLPTR, QString (*cleanName)(QString name) = Q_NULLPTR);
 
 protected:
     static void addFileToZip(zipFile zf, QString filepath, QString fileInZip);

@@ -21,6 +21,7 @@
 
 #include "ui/main_statusbar.h"
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/main_window.h>
 
 #include "capture_file.h"
 #include "main_status_bar.h"
@@ -41,16 +42,6 @@
 
 // XXX - The GTK+ code assigns priorities to these and pushes/pops accordingly.
 
-enum StatusContext {
-    STATUS_CTX_MAIN,
-    STATUS_CTX_FILE,
-    STATUS_CTX_FIELD,
-    STATUS_CTX_BYTE,
-    STATUS_CTX_FILTER,
-    STATUS_CTX_PROGRESS,
-    STATUS_CTX_TEMPORARY
-};
-
 Q_DECLARE_METATYPE(ProfileDialog::ProfileAction)
 
 // If we ever add support for multiple windows this will need to be replaced.
@@ -69,10 +60,14 @@ statusbar_push_temporary_msg(const gchar *msg_format, ...)
     if (!cur_main_status_bar_) return;
 
     va_start(ap, msg_format);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
+    push_msg = QString::vasprintf(msg_format, ap);
+#else
     push_msg.vsprintf(msg_format, ap);
+#endif
     va_end(ap);
 
-    cur_main_status_bar_->pushTemporaryStatus(push_msg);
+    wsApp->pushStatus(WiresharkApplication::TemporaryStatus, push_msg);
 }
 
 /*
@@ -176,7 +171,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
 #endif
 
     connect(wsApp, SIGNAL(appInitialized()), splitter, SLOT(show()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(setProfileName()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
     connect(&info_status_, SIGNAL(toggleTemporaryFlash(bool)),
             this, SLOT(toggleBackground(bool)));
     connect(wsApp, SIGNAL(profileNameChanged(const gchar *)),
@@ -195,7 +190,7 @@ void MainStatusBar::showExpert() {
 void MainStatusBar::captureFileClosing() {
     expert_button_->hide();
     progress_frame_.captureFileClosing();
-    popFieldStatus();
+    popGenericStatus(STATUS_CTX_FIELD);
 }
 
 void MainStatusBar::expertUpdate() {
@@ -241,11 +236,11 @@ void MainStatusBar::expertUpdate() {
 void MainStatusBar::setFileName(CaptureFile &cf)
 {
     if (cf.isValid()) {
-        popFileStatus();
+        popGenericStatus(STATUS_CTX_FILE);
         QString msgtip = QString("%1 (%2)")
                 .arg(cf.capFile()->filename)
                 .arg(file_size_to_qstring(cf.capFile()->f_datalen));
-        pushFileStatus(cf.fileName(), msgtip);
+        pushGenericStatus(STATUS_CTX_FILE, cf.fileName(), msgtip);
     }
 }
 
@@ -270,16 +265,16 @@ void MainStatusBar::selectedFieldChanged(FieldInformation * finfo)
 {
     QString item_info;
 
-    if ( ! finfo ) {
-        pushFieldStatus(item_info);
+    if (! finfo) {
+        pushGenericStatus(STATUS_CTX_FIELD, item_info);
         return;
     }
 
     FieldInformation::HeaderInfo hInfo = finfo->headerInfo();
 
-    if ( hInfo.isValid )
+    if (hInfo.isValid)
     {
-        if ( hInfo.description.length() > 0 ) {
+        if (hInfo.description.length() > 0) {
             item_info.append(hInfo.description);
         } else {
             item_info.append(hInfo.name);
@@ -288,7 +283,7 @@ void MainStatusBar::selectedFieldChanged(FieldInformation * finfo)
 
     if (!item_info.isEmpty()) {
         int finfo_length;
-        if ( hInfo.isValid )
+        if (hInfo.isValid)
             item_info.append(" (" + hInfo.abbreviation + ")");
 
         finfo_length = finfo->position().length + finfo->appendix().length;
@@ -297,45 +292,14 @@ void MainStatusBar::selectedFieldChanged(FieldInformation * finfo)
         }
     }
 
-    pushFieldStatus(item_info);
-}
-
-void MainStatusBar::pushTemporaryStatus(const QString &message) {
-    info_status_.pushText(message, STATUS_CTX_TEMPORARY);
-}
-
-void MainStatusBar::popTemporaryStatus() {
-    info_status_.popText(STATUS_CTX_TEMPORARY);
-}
-
-void MainStatusBar::pushFileStatus(const QString &message, const QString &messagetip) {
-    info_status_.pushText(message, STATUS_CTX_FILE);
-    info_status_.setToolTip(messagetip);
-    expertUpdate();
-}
-
-void MainStatusBar::popFileStatus() {
-    info_status_.popText(STATUS_CTX_FILE);
-    info_status_.setToolTip(QString());
-}
-
-void MainStatusBar::pushFieldStatus(const QString &message) {
-    if (message.isEmpty()) {
-        popFieldStatus();
-    } else {
-        info_status_.pushText(message, STATUS_CTX_FIELD);
-    }
-}
-
-void MainStatusBar::popFieldStatus() {
-    info_status_.popText(STATUS_CTX_FIELD);
+    pushGenericStatus(STATUS_CTX_FIELD, item_info);
 }
 
 void MainStatusBar::highlightedFieldChanged(FieldInformation * finfo)
 {
     QString hint;
 
-    if ( finfo )
+    if (finfo)
     {
         FieldInformation::Position pos = finfo->position();
         QString field_str;
@@ -350,46 +314,37 @@ void MainStatusBar::highlightedFieldChanged(FieldInformation * finfo)
                 .arg(finfo->headerInfo().abbreviation);
     }
 
-    pushByteStatus(hint);
+    pushGenericStatus(STATUS_CTX_BYTE, hint);
 }
 
-void MainStatusBar::pushByteStatus(const QString &message)
+void MainStatusBar::pushGenericStatus(StatusContext status, const QString &message, const QString &messagetip)
 {
-    if (message.isEmpty()) {
-        popByteStatus();
-    } else {
-        info_status_.pushText(message, STATUS_CTX_BYTE);
-    }
+    LabelStack * stack = &info_status_;
+
+    if (status == STATUS_CTX_MAIN)
+        stack = &packet_status_;
+
+    if (message.isEmpty() && status != STATUS_CTX_FILE  && status != STATUS_CTX_TEMPORARY && status != STATUS_CTX_PROGRESS)
+        popGenericStatus(status);
+    else
+        stack->pushText(message, status);
+
+    stack->setToolTip(messagetip);
+
+    if (status == STATUS_CTX_FILTER || status == STATUS_CTX_FILE)
+        expertUpdate();
 }
 
-void MainStatusBar::popByteStatus()
+void MainStatusBar::popGenericStatus(StatusContext status)
 {
-    info_status_.popText(STATUS_CTX_BYTE);
-}
+    LabelStack * stack = &info_status_;
 
-void MainStatusBar::pushFilterStatus(const QString &message) {
-    if (message.isEmpty()) {
-        popFilterStatus();
-    } else {
-        info_status_.pushText(message, STATUS_CTX_FILTER);
-    }
-    expertUpdate();
-}
+    if (status == STATUS_CTX_MAIN)
+        stack = &packet_status_;
 
-void MainStatusBar::popFilterStatus() {
-    info_status_.popText(STATUS_CTX_FILTER);
-}
+    stack->setToolTip(QString());
 
-void MainStatusBar::pushPacketStatus(const QString &message) {
-    if (message.isEmpty()) {
-        popPacketStatus();
-    } else {
-        packet_status_.pushText(message, STATUS_CTX_MAIN);
-    }
-}
-
-void MainStatusBar::popPacketStatus() {
-    packet_status_.popText(STATUS_CTX_MAIN);
+    stack->popText(status);
 }
 
 void MainStatusBar::setProfileName()
@@ -397,38 +352,13 @@ void MainStatusBar::setProfileName()
     profile_status_.setText(tr("Profile: %1").arg(get_profile_name()));
 }
 
-void MainStatusBar::pushBusyStatus(const QString &message, const QString &messagetip)
+void MainStatusBar::appInitialized()
 {
-    info_status_.pushText(message, STATUS_CTX_PROGRESS);
-    info_status_.setToolTip(messagetip);
-    progress_frame_.showBusy(true, false, NULL);
+    setProfileName();
+    connect(wsApp->mainWindow(), SIGNAL(framesSelected(QList<int>)), this, SLOT(selectedFrameChanged(QList<int>)));
 }
 
-void MainStatusBar::popBusyStatus()
-{
-    info_status_.popText(STATUS_CTX_PROGRESS);
-    info_status_.setToolTip(QString());
-    progress_frame_.hide();
-}
-
-void MainStatusBar::pushProgressStatus(const QString &message, bool animate, bool terminate_is_stop, gboolean *stop_flag)
-{
-    info_status_.pushText(message, STATUS_CTX_PROGRESS);
-    progress_frame_.showProgress(animate, terminate_is_stop, stop_flag);
-}
-
-void MainStatusBar::updateProgressStatus(int value)
-{
-    progress_frame_.setValue(value);
-}
-
-void MainStatusBar::popProgressStatus()
-{
-    info_status_.popText(STATUS_CTX_PROGRESS);
-    progress_frame_.hide();
-}
-
-void MainStatusBar::selectedFrameChanged(int)
+void MainStatusBar::selectedFrameChanged(QList<int>)
 {
     showCaptureStatistics();
 }
@@ -437,21 +367,26 @@ void MainStatusBar::showCaptureStatistics()
 {
     QString packets_str;
 
+    QList<int> rows;
+    MainWindow * mw = qobject_cast<MainWindow *>(wsApp->mainWindow());
+    if (mw)
+        rows = mw->selectedRows(true);
+
 #ifdef HAVE_LIBPCAP
     if (cap_file_) {
         /* Do we have any packets? */
         if (cs_fixed_ && cs_count_ > 0) {
-            if (prefs.gui_qt_show_selected_packet && cap_file_->current_frame) {
+            if (prefs.gui_qt_show_selected_packet && rows.count() == 1) {
                 packets_str.append(QString(tr("Selected Packet: %1 %2 "))
-                                   .arg(cap_file_->current_frame->num)
+                                   .arg(rows.at(0))
                                    .arg(UTF8_MIDDLE_DOT));
             }
             packets_str.append(QString(tr("Packets: %1"))
                                .arg(cs_count_));
         } else if (cs_count_ > 0) {
-            if (prefs.gui_qt_show_selected_packet && cap_file_->current_frame) {
+            if (prefs.gui_qt_show_selected_packet && rows.count() == 1) {
                 packets_str.append(QString(tr("Selected Packet: %1 %2 "))
-                                   .arg(cap_file_->current_frame->num)
+                                   .arg(rows.at(0))
                                    .arg(UTF8_MIDDLE_DOT));
             }
             packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 (%3%)"))
@@ -459,19 +394,25 @@ void MainStatusBar::showCaptureStatistics()
                                .arg(cap_file_->displayed_count)
                                .arg((100.0*cap_file_->displayed_count)/cap_file_->count, 0, 'f', 1)
                                .arg(UTF8_MIDDLE_DOT));
-            if(cap_file_->marked_count > 0) {
+            if (rows.count() > 1) {
+                packets_str.append(QString(tr(" %1 Selected: %2 (%3%)"))
+                                   .arg(UTF8_MIDDLE_DOT)
+                                   .arg(rows.count())
+                                   .arg((100.0*rows.count())/cap_file_->count, 0, 'f', 1));
+            }
+            if (cap_file_->marked_count > 0) {
                 packets_str.append(QString(tr(" %1 Marked: %2 (%3%)"))
                                    .arg(UTF8_MIDDLE_DOT)
                                    .arg(cap_file_->marked_count)
                                    .arg((100.0*cap_file_->marked_count)/cap_file_->count, 0, 'f', 1));
             }
-            if(cap_file_->drops_known) {
+            if (cap_file_->drops_known) {
                 packets_str.append(QString(tr(" %1 Dropped: %2 (%3%)"))
                                    .arg(UTF8_MIDDLE_DOT)
                                    .arg(cap_file_->drops)
                                    .arg((100.0*cap_file_->drops)/cap_file_->count, 0, 'f', 1));
             }
-            if(cap_file_->ignored_count > 0) {
+            if (cap_file_->ignored_count > 0) {
                 packets_str.append(QString(tr(" %1 Ignored: %2 (%3%)"))
                                    .arg(UTF8_MIDDLE_DOT)
                                    .arg(cap_file_->ignored_count)
@@ -482,7 +423,7 @@ void MainStatusBar::showCaptureStatistics()
                     .arg(UTF8_MIDDLE_DOT)
                     .arg(cap_file_->packet_comment_count));
             }
-            if(prefs.gui_qt_show_file_load_time && !cap_file_->is_tempfile) {
+            if (prefs.gui_qt_show_file_load_time && !cap_file_->is_tempfile) {
                 /* Loading an existing file */
                 gulong computed_elapsed = cf_get_computed_elapsed(cap_file_);
                 packets_str.append(QString(tr(" %1  Load time: %2:%3.%4"))
@@ -498,8 +439,9 @@ void MainStatusBar::showCaptureStatistics()
     if (packets_str.isEmpty()) {
         packets_str = tr("No Packets");
     }
-    popPacketStatus();
-    pushPacketStatus(packets_str);
+
+    popGenericStatus(STATUS_CTX_MAIN);
+    pushGenericStatus(STATUS_CTX_MAIN, packets_str);
 }
 
 void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)
@@ -544,33 +486,33 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
     QActionGroup global(this);
     QActionGroup user(this);
 
-    for(int cnt = 0; cnt < model.rowCount(); cnt++)
+    for (int cnt = 0; cnt < model.rowCount(); cnt++)
     {
         QModelIndex idx = model.index(cnt, ProfileModel::COL_NAME);
-        if ( ! idx.isValid() )
+        if (! idx.isValid())
             continue;
 
 
         QAction * pa = Q_NULLPTR;
         QString name = idx.data().toString();
-        if ( idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
+        if (idx.data(ProfileModel::DATA_IS_DEFAULT).toBool())
         {
             pa = profile_menu_.addAction(name);
         }
-        else if ( idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() )
+        else if (idx.data(ProfileModel::DATA_IS_GLOBAL).toBool())
         {
             /* Check if this profile does not exist as user */
-            if ( cnt == model.findByName(name) )
+            if (cnt == model.findByName(name))
                 pa = global.addAction(name);
         }
         else
             pa = user.addAction(name);
 
-        if ( ! pa )
+        if (! pa)
             continue;
 
         pa->setCheckable(true);
-        if ( idx.data(ProfileModel::DATA_IS_SELECTED).toBool() )
+        if (idx.data(ProfileModel::DATA_IS_SELECTED).toBool())
             pa->setChecked(true);
 
         pa->setFont(idx.data(Qt::FontRole).value<QFont>());
@@ -591,7 +533,7 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
         bool enable_edit = false;
 
         QModelIndex idx = model.activeProfile();
-        if ( ! idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() && ! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() )
+        if (! idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() && ! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool())
             enable_edit = true;
 
         profile_menu_.setTitle(tr("Switch to"));
@@ -618,10 +560,10 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
         action->setProperty("dialog_action_", (int)ProfileDialog::ImportDirProfile);
         ctx_menu_.addMenu(importMenu);
 
-        if ( model.userProfilesExist() )
+        if (model.userProfilesExist())
         {
             QMenu * exportMenu = new QMenu(tr("Export"));
-            if ( enable_edit )
+            if (enable_edit)
             {
                 action = exportMenu->addAction(tr("selected personal profile"), this, SLOT(manageProfile()));
                 action->setProperty("dialog_action_", (int)ProfileDialog::ExportSingleProfile);
@@ -687,7 +629,7 @@ void MainStatusBar::captureEventHandler(CaptureEvent ev)
     {
 #ifdef HAVE_LIBPCAP
     case CaptureEvent::Update:
-        switch ( ev.eventType() )
+        switch (ev.eventType())
         {
         case CaptureEvent::Continued:
             updateCaptureStatistics(ev.capSession());
@@ -697,7 +639,7 @@ void MainStatusBar::captureEventHandler(CaptureEvent ev)
         }
         break;
     case CaptureEvent::Fixed:
-        switch ( ev.eventType() )
+        switch (ev.eventType())
         {
         case CaptureEvent::Continued:
             updateCaptureFixedStatistics(ev.capSession());
@@ -708,12 +650,12 @@ void MainStatusBar::captureEventHandler(CaptureEvent ev)
         break;
 #endif
     case CaptureEvent::Save:
-        switch ( ev.eventType() )
+        switch (ev.eventType())
         {
         case CaptureEvent::Finished:
         case CaptureEvent::Failed:
         case CaptureEvent::Stopped:
-            popFileStatus();
+            popGenericStatus(STATUS_CTX_FILE);
             break;
         default:
             break;

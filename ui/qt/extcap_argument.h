@@ -41,7 +41,7 @@ public:
     void setChildren(ExtcapValueList children);
     ExtcapValueList children()
     {
-        if ( _children.length() == 0 )
+        if (_children.length() == 0)
             return ExtcapValueList();
         return _children;
     }

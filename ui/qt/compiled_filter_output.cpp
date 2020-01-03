@@ -53,9 +53,9 @@ CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QStringList &intList
 
 CompiledFilterOutput::~CompiledFilterOutput()
 {
-    // For some reason closing this dialog either lowers the Capture Interfaces dialog
+    // For some reason closing this dialog either lowers the Capture Options dialog
     // or raises the main window. Work around the problem for now by manually raising
-    // and activating our parent (presumably the Capture Interfaces dialog).
+    // and activating our parent (presumably the Capture Options dialog).
     if (parentWidget()) {
         parentWidget()->raise();
         parentWidget()->activateWindow();

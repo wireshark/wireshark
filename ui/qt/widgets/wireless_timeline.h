@@ -67,7 +67,6 @@ protected:
 
 public slots:
     void bgColorizationProgress(int first, int last);
-    void selectedFrameChanged(int frameNum);
     void appInitialized();
 
 protected:
@@ -94,6 +93,9 @@ protected:
     capture_file *capfile;
 
     GHashTable* radio_packet_list;
+
+protected slots:
+    void selectedFrameChanged(QList<int>);
 };
 
 #endif // WIRELESS_TIMELINE_H

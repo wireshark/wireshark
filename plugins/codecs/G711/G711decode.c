@@ -110,24 +110,24 @@ codec_g711u_get_frequency(void *ctx _U_)
 }
 
 static size_t
-codec_g711u_decode(void *ctx _U_, const void *input, size_t inputSizeBytes, void *output,
-        size_t *outputSizeBytes)
+codec_g711u_decode(void *ctx _U_, const void *inputBytes, size_t inputBytesSize,
+        void *outputSamples, size_t *outputSamplesSize)
 {
-    const guint8 *dataIn = (const guint8 *) input;
-    gint16       *dataOut = (gint16 *) output;
+    const guint8 *dataIn = (const guint8 *) inputBytes;
+    gint16       *dataOut = (gint16 *) outputSamples;
     size_t       i;
 
-    if (!output || !outputSizeBytes) {
-        return inputSizeBytes * 2;
+    if (!outputSamples || !outputSamplesSize) {
+        return inputBytesSize * 2;
     }
 
-    for (i = 0; i < inputSizeBytes; i++)
+    for (i = 0; i < inputBytesSize; i++)
     {
         dataOut[i] = ulaw_exp_table[dataIn[i]];
     }
 
-    *outputSizeBytes = inputSizeBytes * 2;
-    return inputSizeBytes * 2;
+    *outputSamplesSize = inputBytesSize * 2;
+    return inputBytesSize * 2;
 }
 
 static void *
@@ -155,24 +155,24 @@ codec_g711a_get_frequency(void *ctx _U_)
 }
 
 static size_t
-codec_g711a_decode(void *ctx _U_, const void *input, size_t inputSizeBytes, void *output,
-        size_t *outputSizeBytes)
+codec_g711a_decode(void *ctx _U_, const void *inputBytes, size_t inputBytesSize,
+        void *outputSamples, size_t *outputSamplesSize)
 {
-    const guint8 *dataIn = (const guint8 *) input;
-    gint16       *dataOut = (gint16 *) output;
+    const guint8 *dataIn = (const guint8 *) inputBytes;
+    gint16       *dataOut = (gint16 *) outputSamples;
     size_t       i;
 
-    if (!output || !outputSizeBytes) {
-        return inputSizeBytes * 2;
+    if (!outputSamples || !outputSamplesSize) {
+        return inputBytesSize * 2;
     }
 
-    for (i = 0; i < inputSizeBytes; i++)
+    for (i = 0; i < inputBytesSize; i++)
     {
         dataOut[i] = alaw_exp_table[dataIn[i]];
     }
 
-    *outputSizeBytes = inputSizeBytes * 2;
-    return inputSizeBytes * 2;
+    *outputSamplesSize = inputBytesSize * 2;
+    return inputBytesSize * 2;
 }
 
 void

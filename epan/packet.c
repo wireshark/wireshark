@@ -2584,6 +2584,28 @@ get_dissector_table_param(const char *name)
 	return sub_dissectors->param;
 }
 
+static void
+check_valid_heur_name_or_fail(const char *heur_name)
+{
+	gboolean found_invalid = proto_check_field_name(heur_name);
+
+	/* Additionally forbid upper case characters. */
+	if (!found_invalid) {
+		for (guint i = 0; heur_name[i]; i++) {
+			if (g_ascii_isupper(heur_name[i])) {
+				found_invalid = TRUE;
+				break;
+			}
+		}
+	}
+
+	if (found_invalid) {
+		g_error("Hueristic Protocol internal name \"%s\" has one or more invalid characters."
+			" Allowed are lowercase, digits, '-', '_' and non-repeating '.'."
+			" This might be caused by an inappropriate plugin or a development error.", heur_name);
+	}
+}
+
 /* Finds a heuristic dissector table by table name. */
 heur_dissector_list_t
 find_heur_dissector_list(const char *name)
@@ -2602,7 +2624,7 @@ heur_dtbl_entry_t* find_heur_dissector_by_unique_short_name(const char *short_na
 }
 
 void
-heur_dissector_add(const char *name, heur_dissector_t dissector, const char *display_name, const char *short_name, const int proto, heuristic_enable_e enable)
+heur_dissector_add(const char *name, heur_dissector_t dissector, const char *display_name, const char *internal_name, const int proto, heuristic_enable_e enable)
 {
 	heur_dissector_list_t  sub_dissectors = find_heur_dissector_list(name);
 	const char            *proto_name;
@@ -2646,17 +2668,20 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const char *dis
 		}
 	}
 
+	/* Make sure short_name is "parsing friendly" since it should only be used internally */
+	check_valid_heur_name_or_fail(internal_name);
+
 	/* Ensure short_name is unique */
-	if (g_hash_table_lookup(heuristic_short_names, short_name) != NULL) {
+	if (g_hash_table_lookup(heuristic_short_names, internal_name) != NULL) {
 		g_error("Duplicate heuristic short_name \"%s\"!"
-			" This might be caused by an inappropriate plugin or a development error.", short_name);
+			" This might be caused by an inappropriate plugin or a development error.", internal_name);
 	}
 
 	hdtbl_entry = g_slice_new(heur_dtbl_entry_t);
 	hdtbl_entry->dissector = dissector;
 	hdtbl_entry->protocol  = find_protocol_by_id(proto);
 	hdtbl_entry->display_name = display_name;
-	hdtbl_entry->short_name = g_strdup(short_name);
+	hdtbl_entry->short_name = g_strdup(internal_name);
 	hdtbl_entry->list_name = g_strdup(name);
 	hdtbl_entry->enabled   = (enable == HEURISTIC_ENABLE);
 

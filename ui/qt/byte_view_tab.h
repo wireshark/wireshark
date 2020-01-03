@@ -36,7 +36,7 @@ public slots:
     /* Set the capture file */
     void setCaptureFile(capture_file *cf);
     /* Creates the tabs and data, depends on an dissection which has already run */
-    void selectedFrameChanged(int);
+    void selectedFrameChanged(QList<int>);
     /* Selects or marks a field */
     void selectedFieldChanged(FieldInformation *);
     /* Highlights field */

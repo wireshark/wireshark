@@ -14,8 +14,8 @@
 /* net_dm (network drop monitor) is a netlink-based protocol via which alerts
  * about dropped packets are sent to user space
  *
- * Relevant header file:
- * https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git/tree/include/uapi/linux/net_dropmon.h
+ * Relevant Linux kernel header file:
+ * include/uapi/linux/net_dropmon.h
  *
  * Man page:
  * man 1 dropwatch

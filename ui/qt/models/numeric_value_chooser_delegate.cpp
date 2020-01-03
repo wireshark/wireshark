@@ -62,11 +62,11 @@ QWidget* NumericValueChooserDelegate::createEditor(QWidget *parent, const QStyle
 
 void NumericValueChooserDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    if ( index.isValid() )
+    if (index.isValid())
     {
         bool canConvert = false;
         int val = index.data().toInt(&canConvert);
-        if ( ! canConvert )
+        if (! canConvert)
             val = _default;
 
         QSpinBox * spinBox = qobject_cast<QSpinBox *>(editor);
@@ -78,7 +78,7 @@ void NumericValueChooserDelegate::setEditorData(QWidget *editor, const QModelInd
 
 void NumericValueChooserDelegate::setModelData(QWidget *editor, QAbstractItemModel * model, const QModelIndex &index) const
 {
-    if ( index.isValid() ) {
+    if (index.isValid()) {
         QSpinBox * spinBox = qobject_cast<QSpinBox *>(editor);
         model->setData(index, _default == spinBox->value() ? _defReturn : QVariant::fromValue(spinBox->value()));
     } else {

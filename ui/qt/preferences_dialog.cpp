@@ -50,7 +50,7 @@ module_prefs_unstash(module_t *module, gpointer data)
        could cause packets to be dissected differently. */
     *must_redissect_p |= module->prefs_changed_flags;
 
-    if(prefs_module_has_submodules(module))
+    if (prefs_module_has_submodules(module))
         return prefs_modules_foreach_submodules(module, module_prefs_unstash, data);
 
     return 0;     /* Keep unstashing. */
@@ -67,7 +67,7 @@ module_prefs_clean_stash(module_t *module, gpointer)
         pref_clean_stash(pref, Q_NULLPTR);
     }
 
-    if(prefs_module_has_submodules(module))
+    if (prefs_module_has_submodules(module))
         return prefs_modules_foreach_submodules(module, module_prefs_clean_stash, Q_NULLPTR);
 
     return 0;     /* Keep cleaning modules */
@@ -138,9 +138,9 @@ PreferencesDialog::~PreferencesDialog()
     prefs_modules_foreach_submodules(NULL, module_prefs_clean_stash, NULL);
 }
 
-void PreferencesDialog::setPane(const QString pane_name)
+void PreferencesDialog::setPane(const QString module_name)
 {
-    pd_ui_->prefsView->setPane(pane_name);
+    pd_ui_->prefsView->setPane(module_name);
 }
 
 void PreferencesDialog::showEvent(QShowEvent *)
@@ -263,6 +263,10 @@ void PreferencesDialog::on_buttonBox_accepted()
 #endif
 
     wsApp->setMonospaceFont(prefs.gui_qt_font_name);
+
+    if (redissect_flags & PREF_EFFECT_FIELDS) {
+        wsApp->queueAppSignal(WiresharkApplication::FieldsChanged);
+    }
 
     if (redissect_flags & PREF_EFFECT_DISSECTION) {
         /* Redissect all the packets, and re-evaluate the display filter. */

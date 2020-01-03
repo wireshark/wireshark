@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2019-11-02)
+# (last updated 2019-12-26)
 
 0	Reserved
 1	NxNetworks
@@ -3105,7 +3105,7 @@
 3101	Experian Information Solutions Inc.
 3102	Kansai Electric Co., Ltd.
 3103	Innet
-3104	Thales Communications GmbH
+3104	Thales Deutschland GmbH
 3105	Vodafone Sweden
 3106	LCI International, Inc.
 3107	City of Los Angeles
@@ -3560,7 +3560,7 @@
 3558	BGS Systemplanung AG
 3559	The Digital Schoolhouse
 3560	Sphere Logic Corporation
-3561	The Broadband Forum	# formerly 'ADSL Forum'
+3561	Broadband Forum (previously 'DSL Forum')
 3562	Jim Marsden Development	# formerly 'Selway Moore Limited'
 3563	National Network Data Services
 3564	Ciphernet
@@ -4354,7 +4354,7 @@
 4353	Builders Network Ltd
 4354	NetDragon Ltd
 4355	RapidStream, Inc.
-4356	Inform GmbH & Co. KG
+4356	inform solutions GmbH
 4357	Coteng
 4358	Ziatech Corporation
 4359	TelGen Corporation
@@ -4934,7 +4934,7 @@
 4937	Stormbreaker Network Services
 4938	Daeyoung Electronic Ind.CO., Ltd.
 4939	Procter & Gamble
-4940	Convergent Communications Services, Inc.
+4940	Converg Media
 4941	Echelon Corporation
 4942	Liberty Press & Letter Service Joseph De Silvis
 4943	Novell GmbH
@@ -6804,7 +6804,7 @@
 6818	Tripwire, Inc.
 6819	Musicfans, Inc.
 6820	Menta Software
-6821	TELECOM Lille1	# formerly 'ENIC'
+6821	IMT Lille Douai	# formerly TELECOM Lille
 6822	University of Cambridge, Card Office
 6823	Distributed Object Technologies, Inc.
 6824	List & Niemann
@@ -9620,7 +9620,7 @@
 9642	Bibop Research, int. S.p.A. Gianugo
 9643	CEULP/ULBRA
 9645	courtade.net
-9646	Cybectec
+9646	Eaton - Cooper Industries (Electrical) Inc.	# formerly 'Cybectec'
 9647	EWIP
 9648	GeekBone Co. LTD
 9649	Hochschule Bremen
@@ -12049,7 +12049,7 @@
 12179	Alacris Inc.
 12180	ALI Technologies Inc
 12181	Allegheny Energy Global Markets
-12182	Astrium (UK)
+12182	Airbus Space and Defence	# formerly 'Astrium (UK)'
 12183	Baldwin Hackett & Meeks, Inc.
 12184	Bamsco
 12185	Ben Nederland BV
@@ -12519,7 +12519,7 @@
 12649	Utfors AB
 12650	Administrative Management Group, Inc.
 12651	Alaska Department of Labor
-12652	Aminor
+12652	Eivind Olsen Datakonsulent
 12653	Armitel
 12654	ATH system
 12655	exceet Secure Solutions GmbH	# formerly 'AuthentiDate International AG'
@@ -13957,7 +13957,7 @@
 14091	Hawker College
 14092	University of Rhode Island
 14093	Medibase Technologies Co., Ltd.
-14094	Snow B.V.
+14094	Sue B.V.	# formerly 'Snow B.V.'
 14095	TechDirection
 14096	Forlink Software Corporation Inc.
 14097	ITW-Informationstechnik GmbH
@@ -18295,7 +18295,7 @@
 18441	National Football League
 18442	Vimatix
 18443	Netsys.IT GbR
-18444	Sandwich.Net Internet Services
+18444	Sandwich.Net, LLC
 18445	Datacard Corporation
 18446	Ascendant Technologies, Inc.
 18447	Willis Consulting
@@ -19643,7 +19643,7 @@
 19794	IP Security Consulting
 19795	AssetHouse Technology Ltd
 19796	Jostens Inc
-19797	Stefan Fiedler KEG
+19797	sourceheads Information Technology GmbH	# formerly 'Stefan Fiedler KEG'
 19798	FBIS
 19799	Jeremy McMillan
 19800	Derek Balling
@@ -23009,7 +23009,7 @@
 23162	Ecole Supérieure d'Informatique
 23163	Defensor del Pueblo
 23164	Revieworld Ltd
-23165	SAFE-Biopharma Association
+23165	SAFE Identity
 23166	Automatyka
 23167	Operation Mobilisation
 23168	Orchard View Community Network
@@ -24740,7 +24740,7 @@
 24895	Medifacts International Inc.
 24896	Microdental Laboratories
 24897	Indel Industria Eletronica Ltda
-24898	d&b audiotechnik GmbH
+24898	d&b audiotechnik GmbH & Co. KG
 24899	Agama Technologies AB
 24900	Aurora Networks (GoBackTV)
 24901	Future Infonet
@@ -28477,7 +28477,7 @@
 28634	ComAp, a.s.
 28635	Fragnetics LLP
 28636	PHB Eletronica Ltda
-28637	DANSUPPORT
+28637	Itadel	# formerly 'DANSUPPORT'
 28638	Bellomy Research, Inc.
 28639	TxCore, Inc.
 28640	IT Linux
@@ -29968,7 +29968,7 @@
 30127	Deft Labs Inc.
 30128	Neovest, Inc.
 30129	Trask solutions
-30130	Hyperwave AG
+30130	Hyperwave GmbH
 30131	OMA
 30132	ANAC
 30133	iControl Networks
@@ -30141,7 +30141,7 @@
 30300	Internetworking & Broadband Consulting Co., Ltd.
 30301	Invada Records Pty Ltd
 30302	NuSuara Technologies Sdn Bhd
-30303	KomSens
+30303	IoT-Lab.org
 30304	CHAMBRE D'AGRICULTURE DU BAS-RHIN
 30305	ITIS Holdings PLC
 30306	SATEL Oy
@@ -36798,7 +36798,7 @@
 36966	CCDMD
 36967	FNet
 36968	Ocom Communications, Inc.
-36969	NELLS Electronic Systems, Inc.
+36969	NELLS ELECTRONIC SYSTEMS (NES)
 36970	FinanceScout24 GmbH
 36971	Transcend Communication Beijing Co.,Ltd
 36972	Banco Central de Honduras
@@ -42827,7 +42827,7 @@
 43003	TribalGroup
 43004	Xinguard, Inc.
 43005	University of Technology and Life Sciences in Bydgoszcz
-43006	root-a.net
+43006	root-a
 43007	Gipen Systems
 43008	FRTek
 43009	Vilnius Gallery
@@ -43948,7 +43948,7 @@
 44124	bit media e-solutions gmbh.
 44125	Lanyo Networks Co., LTD.
 44126	Lookhere Design
-44127	Borderlight AB
+44127	Primlight AB
 44128	MapGear
 44129	beijing yunzheng telecommunication technology Co, LTD
 44130	Michael Ghazi
@@ -44898,7 +44898,7 @@
 45076	HamLogin.com
 45077	Sestek Ses ve Iletisim Bilgisayar Teknolojileri San. ve Tic. A.S.
 45078	QoS Solutions
-45079	i2p informatikai kft.
+45079	i4p informatikai kft.
 45080	Kerio Technologies, Inc.
 45081	Increase Qingdao Information Technology Co., Ltd.
 45082	PT. Tekno Inovasi Asia
@@ -47122,7 +47122,7 @@
 47301	"NR"WEB US
 47302	Alnatura Produktions- und Handels GmbH
 47303	Moratua Solutions
-47304	Ivnosys Soluciones S.L.
+47304	Ivnosys Soluciones S.L.U.
 47305	FoxGuard Solutions
 47306	Jasper
 47307	IgniteNet
@@ -47634,7 +47634,7 @@
 47813	Luetze Transportation GmbH
 47814	ChinaUnicom
 47815	Stora Enso Skog AB
-47816	Joseph Workstation
+47816	Joseph Studio
 47817	HAWE Hydraulik SE
 47818	Salzburg AG
 47819	NTT DATA Italia
@@ -48377,9 +48377,9 @@
 48556	bellaflora Gartencenter GmbH
 48557	OOO LOYALTY PROGRAM Koshelek
 48558	Trinity Grammar School
-48559	Rosenberger Technology (Kunshan) Co., Ltd
+48559	Rosenberger Technologies Co., Ltd.
 48560	Almnäs Bruk AB
-48561	Munksjö Paper AB
+48561	Ahlstrom-Munksjö AB
 48562	KENDRIS AG
 48563	ANEXIA Internetdienstleistungs GmbH
 48564	Autoland Deutschland Inh. Wilfried Wilhelm Anclam, e. K.
@@ -52883,7 +52883,7 @@
 53072	Prime Syntax
 53073	cocoon-it Projektbüro
 53074	SPG Co., Ltd
-53075	Vinetech.,LTD
+53075	Vinetech Co., Ltd.
 53076	IT Craft YSA GmbH
 53077	Copernicus Science Centre
 53078	Advanced Information Management
@@ -53771,7 +53771,7 @@
 53960	Gateview Technologies
 53961	WaferPath Inc.
 53962	Cannonia
-53963	Jundo Online, LLC
+53963	Shanghai Jundo International Logistics Co., Ltd.	# formerly 'Jundo Online, LLC'
 53964	T&T sistemi R&D
 53965	Julian Kotysch
 53966	jamaillia.net
@@ -54163,7 +54163,7 @@
 54354	The Home Depot Mexico
 54355	Badge Inc.
 54356	Shandong Huachentel Information Technology Co., Ltd.
-54357	Suma Technology Co.，Ltd.
+54357	Suma Technology Co., Ltd.
 54358	TESCOM corp.
 54359	Hillsboro School District
 54360	PPMnet AG
@@ -54502,7 +54502,7 @@
 54693	CFAO
 54694	South Correctional Entity
 54695	Satelles, Inc.
-54696	AlphaTechT
+54696	AlphaTech
 54697	Oxbotica
 54698	Suburban Pulmonary Medicine, PC
 54699	JoVa
@@ -54635,3 +54635,220 @@
 54826	Cayonyx, LLC
 54827	Noblesse
 54828	KCON IT Consulting
+54829	Realia Technologies, S.L.
+54830	Podiatry Associates of Lake County Inc.
+54831	SIFULAN Malaysian Access Federation
+54832	TAISYS Technologies Co., Ltd.
+54833	Kennedy Baptist College
+54834	Zentera Systems, Inc.
+54835	PocoDicom
+54836	Sterling Endeavours Ltd
+54837	Green Peak Innovations
+54838	Treasury Intelligence Solutions GmbH
+54839	Iridium Satellite LLC
+54840	GLOBAL POWER DESIGN INC.
+54841	GoGet AB
+54842	mcraindrop
+54843	Betriebszentrum IT-SysBw
+54844	JABETTO FOR ESDM
+54845	Universitätsklinikum Augsburg
+54846	Gateshead Health NHS Foundation Trust
+54847	POWER CONVERTER TECH
+54848	Amzetta Technologies LLC
+54849	Loadbalancer.org
+54850	Teradyne, Inc
+54851	Nuts foundation
+54852	KRYPTON Polska Sp. z o.o.
+54853	Cypher Strategic
+54854	Simplifia
+54855	Brigantia Learning Trust
+54856	Electro Design Pty Ltd
+54857	UAB "Affidea Lietuva"
+54858	T-CZ a.s.
+54859	GTI Technologies Inc
+54860	US Home Automation LLC
+54861	Starr Companies
+54862	Milano Engineering GmbH
+54863	Geo Blue
+54864	PoEWit Technologies Inc
+54865	Migräne-Klinik Königstein Verwaltungsgesellschaft mbH
+54866	Image Ingegration Inc
+54867	Morgan Properties
+54868	Onomondo
+54869	Blade Group
+54870	COMET-Group
+54871	Fundamental Research
+54872	Laumer Vertriebs- und Verwaltungs GmbH
+54873	Aggregate Solutions LLC
+54874	Exyte AG
+54875	Civica
+54876	IPI GmbH
+54877	Implaneo Dental Labor Regensburg GmbH
+54878	Schonfeld
+54879	MANTELECTRIC S.A.
+54880	Neil Stone
+54881	Shine Corporate Ltd
+54882	Fiserv GIOLabs
+54883	Keewin display Co. Ltd
+54884	Tano Systems LLC
+54885	Sdrsystems.Net
+54886	Capacicom
+54887	Jamestown US-Immobilien GmbH
+54888	Premier Medical Concierge
+54889	Walker IT Group LLC
+54890	Roechling Medical Lancaster, LLC.
+54891	NTHU Library
+54892	HENZ ICT
+54893	Anord Mardix Inc.
+54894	Pason Power
+54895	NorthEast Treatment Centers
+54896	北京荣达千里科技有限公司 (Beijing Rongda Qianli Technology Co., Ltd.)
+54897	Antarctic Group
+54898	bekeris.net
+54899	B3E
+54900	GuangZhou HungTa Intelligent Technology
+54901	Safe-Com Wireless LLC
+54902	WIS International
+54903	Minim Inc.
+54904	HCS Electronics
+54905	EXISCOM SAC
+54906	MEDSOFT
+54907	MET Norway
+54908	Vivid Inc.
+54909	Altenergy Power System Inc.
+54910	Beijing INNOVIS Technology Co., Ltd.
+54911	Univa Corporation
+54912	XeL Technology Inc.
+54913	Codarra Advanced Systems
+54914	AP Pension
+54915	Glodia Corporation
+54916	IDEMIA Identity & Security France
+54917	Northern Health & Social Care Trust
+54918	Solnet  S.A
+54919	Chengdu Dongfangshengxing Electronics Co.,Ltd
+54920	Cancer Center Middle Georgia
+54921	Cohesion Data Corp.
+54922	Zing sp. z o.o.
+54923	U&S Services, Inc.
+54924	Oradat Systems
+54925	LaserAnimation Sollinger GmbH
+54926	Southwest Reinsurance, Inc.
+54927	Burckhardt Compression AG
+54928	Aquarius Production Company
+54929	Socialdemokraterna
+54930	The Bravo's
+54931	Duvel Moortgat NV
+54932	Validated ID, SL
+54933	Joint Stock Company «Academician A.L.Mints Radiotechnical Institute»
+54934	Ministerio del Interior
+54935	Center for Cancer and Blood Disorders
+54936	Karma Computing
+54937	WiTech és Társa Kreatív Mérnöki Iroda Kft.
+54938	ARDIS Solutions
+54939	Preh GmbH
+54940	GEA Group AG
+54941	Startup Stack LLC
+54942	Telecom Liechtenstein AG
+54943	CSCELECTRONIK
+54944	evolutionQ
+54945	Yaskawa Solectria Solar
+54946	Horizon Energy Group
+54947	QuantiCor Security GmbH
+54948	Tielen Consultancy
+54949	MPS Service
+54950	Lifetrack Radiology Systems
+54951	The Ferguson Group
+54952	High Mountain Computer Services
+54953	Opgal Optronic Industries Ltd.
+54954	IT LEARNING SLOVAKIA, s. r. o.
+54955	Coast Appliances
+54956	Marais Consulting Limited
+54957	Sesto Sp z o.o.
+54958	Simpleway Holding a.s.
+54959	ALKU
+54960	Wrigleys Solicitors LLP
+54961	Spectrum Enterprise
+54962	ManTech
+54963	The Pinnacle Group
+54964	Sina Communication Systems
+54965	Hamilton Medical AG
+54966	I-Consulting Kft.
+54967	Schule fuer Informationstechnik der Bundeswehr
+54968	OCTE
+54969	ETON tech co.,Ltd
+54970	Stichting Nijmeegs Interconfessioneel ziekenhuis Canisius-Wilhelmina
+54971	ANZ Bank New Zealand Limited
+54972	SCUDOS Systems GmbH
+54973	Bren-Tronics, Inc.
+54974	HOSPITAL GENERAL ENSENADA
+54975	Staclar, Inc.
+54976	Hällefors Tierp Skogar AB
+54977	Mag-Audio
+54978	Norbrook Laboratories Ltd
+54979	iFreetion Technologies Inc.
+54980	Ethertronics an AVX Group, EDC division
+54981	BY-SYSTEMS SPRL
+54982	Manitoba Hydro International
+54983	Henan Chengyu Trading Co., Ltd.
+54984	Boliden AB
+54985	Timmins and District Hospital
+54986	TRIBUNAL SUPERIOR ELEITORAL
+54987	BV USA, LLC.
+54988	VT Group
+54989	Davitec
+54990	Kirkland & Ellis LLP
+54991	DIRAK GmbH
+54992	Swisscom Health AG
+54993	Du thu
+54994	Kenstel Networks Limited
+54995	Institut Régional du Travail Social PACA et Corse
+54996	PRXN
+54997	Yui Networks
+54998	Keramist
+54999	Uniview Europe B.V.
+55000	Local
+55001	eSite Power Systems AB
+55002	Shenzhen Putianan Network Technology Co., Ltd.
+55003	mapway
+55004	Bridge Alliance
+55005	Wesley Clover Solutions - North America, Inc
+55006	AltexSoft, Inc.
+55007	OST
+55008	BEXT Inc.
+55009	rueen system
+55010	Nacionalna sluzba za zaposljavanje Republike Srbije
+55011	Theritory fund of obligatory medical insurance of Kemerovo region
+55012	Fourthline
+55013	Bolicom Innovation Technology (Beijing) Co., Ltd.
+55014	Private ptm-Akademie
+55015	Healthdirect Australia
+55016	The Office for Information technologies and eGovernment
+55017	Lifecycle Software Ltd
+55018	Cermaq Group AS
+55019	TCU Financial Group Credit Union
+55020	Netheos
+55021	S.S. White Technologies Inc.
+55022	Brick Token, S.L.
+55023	Beijing Orient View Technology Co., Ltd.
+55024	NIBE AirSite AB
+55025	RayPlus
+55026	MORCTEST
+55027	Capsule Technologie SAS
+55028	Occam Networks Limited
+55029	GARDENA GmbH
+55030	Michael W Lucas
+55031	netadvance Kft.
+55032	South West London and St George's Mental Health NHS Trust
+55033	BItBoxUSA
+55034	Apstra
+55035	OuterShadows Group
+55036	SentrId
+55037	Walker Information
+55038	PlusClouds
+55039	Farktronix
+55040	Heissler Informatik
+55041	Dept of Chemistry, University of Oxford
+55042	Hutchison 3G UK Limited
+55043	Gruber Schanksysteme
+55044	Japan Communications Inc.
+55045	One Network

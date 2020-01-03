@@ -34,6 +34,7 @@ typedef struct _whois_transaction_t {
     guint32  req_frame;
     guint32  rep_frame;
     nstime_t req_time;
+    guint8*  query;
 } whois_transaction_t;
 
 static int
@@ -60,8 +61,21 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     conversation = find_or_create_conversation(pinfo);
     whois_trans = (whois_transaction_t *)conversation_get_proto_data(conversation, proto_whois);
     if (whois_trans == NULL) {
+        gint linelen;
         whois_trans = wmem_new0(wmem_file_scope(), whois_transaction_t);
+
+        /*
+         * Find the end of the first line.
+         */
+        linelen = tvb_find_line_end(tvb, 0, -1, NULL, FALSE);
+        if (linelen != -1)
+            whois_trans->query = tvb_get_string_enc(wmem_file_scope(), tvb, 0, linelen, ENC_ASCII|ENC_NA);
         conversation_add_proto_data(conversation, proto_whois, whois_trans);
+    }
+
+    if (whois_trans->query) {
+        col_append_str(pinfo->cinfo, COL_INFO, ": ");
+        col_append_str(pinfo->cinfo, COL_INFO, whois_trans->query);
     }
 
     len = tvb_reported_length(tvb);
@@ -103,6 +117,14 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         "WHOIS: %s", is_query ? "Query" : "Answer");
     whois_tree = proto_item_add_subtree(ti, ett_whois);
 
+    /*
+     * XXX - WHOIS, as RFC 3912 says, "has no mechanism for indicating
+     * the character set in use."  We assume ASCII; if somebody wants
+     * to support non-ASCII WHOIS requets or responses, they should
+     * add a preference to specify the character encoding.  These
+     * days, it'd probably be UTF-8, but there might be older servers
+     * using other character encodings.
+     */
     if (is_query) {
         expert_ti = proto_tree_add_item(whois_tree, hf_whois_query, tvb, 0, -1, ENC_ASCII|ENC_NA);
         if ((len < 2) || (tvb_memeql(tvb, len - 2, "\r\n", 2))) {
@@ -118,7 +140,10 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_item_set_generated(ti);
         }
     } else if (tree && whois_trans->rep_frame) {
-        proto_tree_add_item(whois_tree, hf_whois_answer, tvb, 0, -1, ENC_ASCII|ENC_NA);
+        /*
+         * If we know the request frame, show it and the time delta between
+         * the request and the response.
+         */
         if (whois_trans->req_frame) {
             nstime_t ns;
 
@@ -131,6 +156,24 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 ti = proto_tree_add_time(whois_tree, hf_whois_response_time, tvb, 0, 0, &ns);
                 proto_item_set_generated(ti);
             }
+        }
+
+        /*
+         * Show the response as text, a line at a time.
+         */
+	int offset = 0, next_offset;
+        while (tvb_offset_exists(tvb, offset)) {
+            /*
+             * Find the end of the line.
+             */
+            tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+
+            /*
+             * Put this line.
+             */
+            proto_tree_add_item(whois_tree, hf_whois_answer, tvb, offset,
+                next_offset - offset, ENC_ASCII|ENC_NA);
+            offset = next_offset;
         }
     }
 

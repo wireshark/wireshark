@@ -46,6 +46,8 @@
  * http://www.iana.org/assignments/bgp-parameters/ (last updated 2012-04-26)
  * RFC8538 Notification Message Support for BGP Graceful Restart
  * draft-ietf-bess-evpn-igmp-mld-proxy-03
+ * draft-ietf-idr-tunnel-encaps-15
+ * draft-ietf-idr-segment-routing-te-policy-08
 
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
@@ -126,6 +128,7 @@ static dissector_handle_t bgp_handle;
 
 /* BGP MPLS information */
 #define BGP_MPLS_BOTTOM_L_STACK 0x000001
+#define BGP_MPLS_TRAFFIC_CLASS  0x00000E
 #define BGP_MPLS_LABEL          0xFFFFF0
 
 /* AS_PATH segment types */
@@ -229,6 +232,7 @@ static dissector_handle_t bgp_handle;
 #define BGPTYPE_31                  31 /* Deprecated [RFC8093] */
 #define BGPTYPE_LARGE_COMMUNITY     32 /* RFC8092 */
 #define BGPTYPE_BGPSEC_PATH         33 /* BGPsec_PATH [RFC8205] */
+#define BGPTYPE_D_PATH              36 /* https://tools.ietf.org/html/draft-rabadan-sajassi-bess-evpn-ipvpn-interworking-02 */
 #define BGPTYPE_BGP_PREFIX_SID      40 /* BGP Prefix-SID [draft-ietf-idr-bgp-prefix-sid] */
 #define BGPTYPE_LINK_STATE_OLD_ATTR 99 /* squatted value used by at least 2
                                           implementations before IANA assignment */
@@ -582,6 +586,7 @@ static dissector_handle_t bgp_handle;
 #define TUNNEL_TYPE_IPV6_TUNNEL  14
 #define TUNNEL_TYPE_SR_TE_POLICY 15
 #define TUNNEL_TYPE_BARE         16
+#define TUNNEL_TYPE_SR_TUNNEL    17
 
 /*RFC 6514 PMSI Tunnel Types */
 #define PMSI_TUNNEL_NOPRESENT    0
@@ -615,7 +620,49 @@ static dissector_handle_t bgp_handle;
 #define TUNNEL_SUBTLV_PREFIX_SID    11
 #define TUNNEL_SUBTLV_PREFERENCE    12
 #define TUNNEL_SUBTLV_BINDING_SID   13
+#define TUNNEL_SUBTLV_ENLP          14
+#define TUNNEL_SUBTLV_PRIORITY      15
 #define TUNNEL_SUBTLV_SEGMENT_LIST  128
+#define TUNNEL_SUBTLV_POLICY_NAME   129
+
+/* BGP Tunnel SubTLV VXLAN Flags bitmask */
+#define TUNNEL_SUBTLV_VXLAN_VALID_VNID          0x80
+#define TUNNEL_SUBTLV_VXLAN_VALID_MAC           0x40
+#define TUNNEL_SUBTLV_VXLAN_RESERVED            0x3F
+
+/* BGP Tunnel SubTLV VXLAN GPE Flags bitmask */
+#define TUNNEL_SUBTLV_VXLAN_GPE_VERSION         0xC0
+#define TUNNEL_SUBTLV_VXLAN_GPE_VALID_VNID      0x20
+#define TUNNEL_SUBTLV_VXLAN_GPE_RESERVED        0x1F
+
+/* BGP Tunnel SubTLV NVGRE Flags bitmask */
+#define TUNNEL_SUBTLV_NVGRE_VALID_VNID          0x80
+#define TUNNEL_SUBTLV_NVGRE_VALID_MAC           0x40
+#define TUNNEL_SUBTLV_NVGRE_RESERVED            0x3F
+
+/* BGP Tunnel SubTLV Binding SID Flags bitmask */
+#define TUNNEL_SUBTLV_BINDING_SPECIFIED         0x80
+#define TUNNEL_SUBTLV_BINDING_INVALID           0x40
+#define TUNNEL_SUBTLV_BINDING_RESERVED          0x3F
+
+/* BGP Segment List SubTLV Types */
+#define TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_A   1
+#define TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_B   2
+#define TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_C   3
+#define TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_D   4
+#define TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_E   5
+#define TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_F   6
+#define TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_G   7
+#define TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_H   8
+#define TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_WEIGHT   9
+#define TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_I   10
+#define TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_J   11
+#define TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_K   12
+
+/* BGP Tunnel SubTLV Segment List SubTLV Flags bitmask */
+#define TUNNEL_SUBTLV_SEGMENT_LIST_SUB_VERIFICATION      0x80
+#define TUNNEL_SUBTLV_SEGMENT_LIST_SUB_ALGORITHM         0x40
+#define TUNNEL_SUBTLV_SEGMENT_LIST_SUB_RESERVED          0x3F
 
 /* Link-State NLRI types */
 #define LINK_STATE_NODE_NLRI                    1
@@ -985,6 +1032,7 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_31,                  "Deprecated" },
     { BGPTYPE_LARGE_COMMUNITY,     "LARGE_COMMUNITY" },
     { BGPTYPE_BGPSEC_PATH,         "BGPsec_PATH" },
+    { BGPTYPE_D_PATH,              "D_PATH" },
     { BGPTYPE_BGP_PREFIX_SID,      "BGP Prefix-SID" },
     { BGPTYPE_LINK_STATE_OLD_ATTR, "LINK_STATE (unofficial code point)" },
     { BGPTYPE_ATTR_SET,            "ATTR_SET" },
@@ -1041,24 +1089,53 @@ static const value_string bgp_attr_tunnel_type[] = {
     { TUNNEL_TYPE_IPV6_TUNNEL,  "IPv6 Tunnel" },
     { TUNNEL_TYPE_SR_TE_POLICY, "SR TE Policy Type" },
     { TUNNEL_TYPE_BARE,         "Bare" },
+    { TUNNEL_TYPE_SR_TUNNEL,    "SR Tunnel" },
     { 0, NULL }
 };
 
 static const value_string subtlv_type[] = {
-    { TUNNEL_SUBTLV_ENCAPSULATION, "ENCAPSULATION" },
-    { TUNNEL_SUBTLV_PROTO_TYPE,    "PROTOCOL_TYPE" },
-    { TUNNEL_SUBTLV_IPSEC_TA,      "IPsec Tunnel Authenticator" },
-    { TUNNEL_SUBTLV_COLOR,         "COLOR" },
-    { TUNNEL_SUBTLV_LOAD_BALANCE,  "LOAD_BALANCE" },
-    { TUNNEL_SUBTLV_REMOTE_ENDPOINT,"Remote Endpoint" },
-    { TUNNEL_SUBTLV_IPV4_DS_FIELD, "IPv4 DS Field" },
+    { TUNNEL_SUBTLV_ENCAPSULATION,  "ENCAPSULATION" },
+    { TUNNEL_SUBTLV_PROTO_TYPE,     "PROTOCOL_TYPE" },
+    { TUNNEL_SUBTLV_IPSEC_TA,       "IPsec Tunnel Authenticator" },
+    { TUNNEL_SUBTLV_COLOR,          "COLOR" },
+    { TUNNEL_SUBTLV_LOAD_BALANCE,   "LOAD_BALANCE" },
+    { TUNNEL_SUBTLV_REMOTE_ENDPOINT,"Tunnel Egress Endpoint" },
+    { TUNNEL_SUBTLV_IPV4_DS_FIELD,  "IPv4 DS Field" },
     { TUNNEL_SUBTLV_UDP_DST_PORT,   "UDP Destination Port" },
     { TUNNEL_SUBTLV_EMBEDDED_LABEL, "Embedded Label Handling" },
     { TUNNEL_SUBTLV_MPLS_LABEL,     "MPLS Label Stack" },
     { TUNNEL_SUBTLV_PREFIX_SID,     "Prefix SID" },
     { TUNNEL_SUBTLV_PREFERENCE,     "Preference" },
     { TUNNEL_SUBTLV_BINDING_SID,    "Binding SID" },
+    { TUNNEL_SUBTLV_ENLP,           "ENLP" },
+    { TUNNEL_SUBTLV_PRIORITY,       "Priority" },
     { TUNNEL_SUBTLV_SEGMENT_LIST,   "Segment List" },
+    { TUNNEL_SUBTLV_POLICY_NAME,    "Policy Name" },
+    { 0, NULL }
+};
+
+static const value_string bgp_enlp_type[] = {
+    { 0 , "Reserved" },
+    { 1 , "Push IPv4, do not push IPv6" },
+    { 2 , "Push IPv6, do not push IPv4" },
+    { 3 , "Push IPv4, push IPv6" },
+    { 4 , "Do not push" },
+    { 0, NULL }
+};
+
+static const value_string bgp_sr_policy_list_type[] = {
+    { TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_A,      "Type A MPLS SID sub-TLV" },
+    { TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_B,      "Type B SRv6 SID sub-TLV" },
+    { TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_C,      "Type C IPv4 Node and SID sub-TLV" },
+    { TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_D,      "Type D IPv6 Node and SID for SR-MPLS sub-TLV" },
+    { TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_E,      "Type E IPv4 Node, index and SID sub-TLV" },
+    { TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_F,      "Type F IPv4 Local/Remote addresses and SID sub-TLV" },
+    { TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_G,      "Type G IPv6 Node, index for remote and local pair and SID for SR-MPLS sub-TLV" },
+    { TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_H,      "Type H IPv6 Local/Remote addresses and SID sub-TLV" },
+    { TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_WEIGHT, "Weight sub-TLV" },
+    { TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_I,      "Type I IPv6 Node and SID for SRv6 sub-TLV" },
+    { TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_J,      "Type J IPv6 Node, index for remote and local pair and SID for SRv6 sub-TLV" },
+    { TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_K,      "Type K IPv6 Local/Remote addresses and SID for SRv6 sub-TLV" },
     { 0, NULL }
 };
 
@@ -1677,6 +1754,11 @@ static int hf_bgp_update_path_attribute_bgpsec_sp_len = -1;
 static int hf_bgp_update_path_attribute_bgpsec_ski = -1;
 static int hf_bgp_update_path_attribute_bgpsec_sig_len = -1;
 static int hf_bgp_update_path_attribute_bgpsec_sig = -1;
+static int hf_bgp_update_path_attribute_d_path = -1;
+static int hf_bgp_d_path_ga = -1;
+static int hf_bgp_d_path_la = -1;
+static int hf_bgp_d_path_length = -1;
+static int hf_bgp_d_path_isf_safi = -1;
 static int hf_bgp_evpn_nlri = -1;
 static int hf_bgp_evpn_nlri_rt = -1;
 static int hf_bgp_evpn_nlri_len = -1;
@@ -1738,6 +1820,61 @@ static int hf_bgp_update_encaps_tunnel_subtlv_cookie = -1;
 static int hf_bgp_update_encaps_tunnel_subtlv_gre_key = -1;
 static int hf_bgp_update_encaps_tunnel_subtlv_color_value = -1;
 static int hf_bgp_update_encaps_tunnel_subtlv_lb_block_length = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_value = -1;
+
+/* draft-ietf-idr-tunnel-encaps */
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_valid_vnid = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_valid_mac = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_reserved = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_vnid = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_mac = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_reserved = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_version = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_valid_vnid = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_reserved = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_vnid = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_reserved = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_valid_vnid = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_valid_mac = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_reserved = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_vnid = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_mac = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_reserved = -1;
+
+/* draft-ietf-idr-segment-routing-te-policy */
+static int hf_bgp_update_encaps_tunnel_subtlv_pref_flags = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_pref_reserved = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_pref_preference = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_specified = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_invalid = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_reserved = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_reserved = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_sid= -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_enlp_flags = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_enlp_reserved = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_enlp_enlp = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_priority_priority = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_priority_reserved = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_reserved = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_type = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_length = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_data = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_verification = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_algorithm = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_reserved = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_reserved = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_mpls_label = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_traffic_class = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_bottom_stack = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_ttl = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_policy_name_reserved = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_policy_name_name = -1;
 
 /* RFC 6514 PMSI Tunnel Attribute */
 static int hf_bgp_pmsi_tunnel_flags = -1;
@@ -1819,6 +1956,13 @@ static int hf_bgp_mcast_vpn_nlri_source_addr_ipv6 = -1;
 static int hf_bgp_mcast_vpn_nlri_group_addr_ipv4 = -1;
 static int hf_bgp_mcast_vpn_nlri_group_addr_ipv6 = -1;
 static int hf_bgp_mcast_vpn_nlri_route_key = -1;
+
+/* BGP SR policy nlri field */
+static int hf_bgp_sr_policy_nlri_length = - 1;
+static int hf_bgp_sr_policy_nlri_distinguisher = - 1;
+static int hf_bgp_sr_policy_nlri_policy_color = - 1;
+static int hf_bgp_sr_policy_nlri_endpoint_v4 = - 1;
+static int hf_bgp_sr_policy_nlri_endpoint_v6 = - 1;
 
 /* BGP-LS */
 
@@ -2246,6 +2390,7 @@ static gint ett_bgp_mpls_labels = -1;
 static gint ett_bgp_pmsi_tunnel_id = -1;
 static gint ett_bgp_aigp_attr = -1;
 static gint ett_bgp_large_communities = -1;
+static gint ett_bgp_dpath = -1;
 static gint ett_bgp_prefix_sid_originator_srgb = -1;
 static gint ett_bgp_prefix_sid_originator_srgb_block = -1;
 static gint ett_bgp_prefix_sid_originator_srgb_blocks = -1;
@@ -2255,6 +2400,9 @@ static gint ett_bgp_bgpsec_secure_path = -1;
 static gint ett_bgp_bgpsec_secure_path_segment = -1;
 static gint ett_bgp_bgpsec_signature_block = -1;
 static gint ett_bgp_bgpsec_signature_segment = -1;
+static gint ett_bgp_vxlan = -1;
+static gint ett_bgp_binding_sid = -1;
+static gint ett_bgp_segment_list = -1;
 
 static expert_field ei_bgp_marker_invalid = EI_INIT;
 static expert_field ei_bgp_cap_len_bad = EI_INIT;
@@ -3308,6 +3456,27 @@ decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi)
 
     /* route type field (1 byte) + length field (1 byte) + length */
     return 2 + length;
+}
+
+/*
+ * Decode an SR Policy SAFI as defined in draft-ietf-idr-segment-routing-te-policy-08
+ */
+static int
+decode_sr_policy_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi)
+{
+   proto_tree_add_item(tree, hf_bgp_sr_policy_nlri_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+   offset += 1;
+   proto_tree_add_item(tree, hf_bgp_sr_policy_nlri_distinguisher, tvb, offset, 4, ENC_NA);
+   offset += 4;
+   proto_tree_add_item(tree, hf_bgp_sr_policy_nlri_policy_color, tvb, offset, 4, ENC_NA);
+   offset += 4;
+   if (afi == AFNUM_INET) {
+       proto_tree_add_item(tree, hf_bgp_sr_policy_nlri_endpoint_v4, tvb, offset, 4, ENC_BIG_ENDIAN);
+       return 13;
+   } else {
+       proto_tree_add_item(tree, hf_bgp_sr_policy_nlri_endpoint_v6, tvb, offset, 4, ENC_NA);
+       return 25;
+   }
 }
 
 /*
@@ -5457,7 +5626,11 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                                         length, ip4addr.addr);
                 total_length = 1 + 2 + length; /* length field + Tunnel Id + IPv4 len */
                 break;
-
+            case SAFNUM_SR_POLICY:
+                total_length = decode_sr_policy_nlri(tree, tvb, offset, afi);
+                if (total_length < 0)
+                    return -1;
+                break;
             case SAFNUM_LAB_VPNUNICAST:
             case SAFNUM_LAB_VPNMULCAST:
             case SAFNUM_LAB_VPNUNIMULC:
@@ -5643,6 +5816,12 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 proto_tree_add_ipv6(prefix_tree, hf_addr6, tvb, offset, length, &ip6addr);
 
                 total_length = (1 + 2) + length; /* length field + Tunnel Id + IPv4 len */
+                break;
+
+            case SAFNUM_SR_POLICY:
+                total_length = decode_sr_policy_nlri(tree, tvb, offset, afi);
+                if (total_length < 0)
+                    return -1;
                 break;
 
             case SAFNUM_LAB_VPNUNICAST:
@@ -7276,6 +7455,8 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
     proto_tree    *subtree4;                  /* subtree for attributes   */
     proto_tree    *subtree5;                  /* subtree for attributes   */
     proto_tree    *subtree6;                  /* subtree for attributes   */
+    proto_tree    *subtree7;                  /* subtree for attributes   */
+    proto_tree    *subtree8;                  /* subtree for attributes   */
     proto_tree    *attr_set_subtree;          /* subtree for attr_set     */
     proto_tree    *as_path_segment_tree;      /* subtree for AS_PATH segments */
     gint          number_as_segment=0;        /* Number As segment        */
@@ -7293,7 +7474,8 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
     guint16       encaps_tunnel_type;         /* Encapsulation Tunnel Type */
     guint16       encaps_tunnel_len;          /* Encapsulation TLV Length */
     guint8        encaps_tunnel_subtype;      /* Encapsulation Tunnel Sub-TLV Type */
-    guint8        encaps_tunnel_sublen;       /* Encapsulation TLV Sub-TLV Length */
+    guint16       encaps_tunnel_sublen;       /* Encapsulation TLV Sub-TLV Length */
+    guint16       encaps_tunnel_sub_totallen; /* Encapsulation TLV Sub-TLV Length + Type + Length field */
     guint8        aigp_type;                  /* AIGP TLV type from AIGP attribute */
     guint8        prefix_sid_subtype;         /* BGP Prefix-SID TLV Type */
     guint16       prefix_sid_sublen;          /* BGP Prefix-SID TLV Length */
@@ -7303,6 +7485,8 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
     guint16       sigblocklen;                /* BGPsec Signature Block length */
     guint8        secpathcount;               /* Number of Secure Path Segments */
     guint16       sig_len;                    /* Length of BGPsec Signature */
+    guint32       segment_subtlv_type;        /* Segment List SubTLV Type */
+    guint32       segment_subtlv_length;      /* Segment List SubTLV Length */
 
     o = tvb_off;
     junk_emstr = wmem_strbuf_new_label(wmem_packet_scope());
@@ -7897,42 +8081,218 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                     j = q + encaps_tunnel_len;
                     while ( q < j ) {
                         encaps_tunnel_subtype = tvb_get_guint8(tvb, q);
-                        encaps_tunnel_sublen = tvb_get_guint8(tvb, q + 1);
-
-                        subtree6 = proto_tree_add_subtree_format(subtree5, tvb, q, encaps_tunnel_sublen + 2, ett_bgp_tunnel_tlv_subtree, NULL, "%s (%u bytes)", val_to_str_const(encaps_tunnel_subtype, subtlv_type, "Unknown"), encaps_tunnel_sublen + 2);
-
+                        if (encaps_tunnel_subtype < 128) {
+                            encaps_tunnel_sublen = tvb_get_guint8(tvb, q + 1);
+                            encaps_tunnel_sub_totallen = encaps_tunnel_sublen + 2;
+                        } else {
+                            encaps_tunnel_sublen = tvb_get_ntohs(tvb, q + 1);
+                            encaps_tunnel_sub_totallen = encaps_tunnel_sublen + 3;
+                        }
+                        subtree6 = proto_tree_add_subtree_format(subtree5, tvb, q, encaps_tunnel_sub_totallen,
+                                             ett_bgp_tunnel_tlv_subtree, NULL, "%s (%u bytes)",
+                                             val_to_str_const(encaps_tunnel_subtype, subtlv_type, "Unknown"), encaps_tunnel_sub_totallen);
                         proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_type, tvb, q, 1, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_len, tvb, q + 1, 1, ENC_BIG_ENDIAN);
+                        q += 1;
+                        if (encaps_tunnel_subtype < 128) {
+                            proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_len, tvb, q, 1, ENC_BIG_ENDIAN);
+                            q += 1;
+                        } else {
+                            proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_len, tvb, q, 2, ENC_BIG_ENDIAN);
+                            q += 2;
+                        }
 
                         switch (encaps_tunnel_subtype) {
                             case TUNNEL_SUBTLV_ENCAPSULATION:
+                                {
+                                static const int * vxlan_flags[] = {
+                                    &hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_valid_vnid,
+                                    &hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_valid_mac,
+                                    &hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_reserved,
+                                    NULL
+                                    };
+                                static const int * vxlan_gpe_flags[] = {
+                                    &hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_version,
+                                    &hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_valid_vnid,
+                                    &hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_reserved,
+                                    NULL
+                                    };
+                                static const int * nvgre_flags[] = {
+                                    &hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_valid_vnid,
+                                    &hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_valid_mac,
+                                    &hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_reserved,
+                                    NULL
+                                    };
                                 if (encaps_tunnel_type == TUNNEL_TYPE_L2TP_OVER_IP) {
-                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_session_id, tvb, q + 2, 4, ENC_BIG_ENDIAN);
-                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_cookie, tvb, q + 6, encaps_tunnel_sublen - 4, ENC_NA);
-                                } else if (encaps_tunnel_type == TUNNEL_TYPE_GRE) {
-                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_gre_key, tvb, q + 2, 4, ENC_BIG_ENDIAN);
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_session_id, tvb, q, 4, ENC_BIG_ENDIAN);
+                                    q += 4;
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_cookie, tvb, q, encaps_tunnel_sublen - 4, ENC_NA);
+                                    q += (encaps_tunnel_sublen - 4);
+                                } else if (encaps_tunnel_type == TUNNEL_TYPE_GRE || encaps_tunnel_type == TUNNEL_TYPE_MPLS_IN_GRE) {
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_gre_key, tvb, q, 4, ENC_BIG_ENDIAN);
+                                    q += 4;
+                                } else if (encaps_tunnel_type == TUNNEL_TYPE_VXLAN) {
+                                    proto_tree_add_bitmask(subtree6, tvb, q, hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags,
+                                            ett_bgp_vxlan, vxlan_flags, ENC_BIG_ENDIAN);
+                                    q += 1;
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_vxlan_vnid, tvb, q, 3, ENC_BIG_ENDIAN);
+                                    q += 3;
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_vxlan_mac, tvb, q, 6, ENC_NA);
+                                    q += 6;
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_vxlan_reserved, tvb, q, 2, ENC_BIG_ENDIAN);
+                                    q += 2;
+                                } else if (encaps_tunnel_type == TUNNEL_TYPE_VXLAN_GPE) {
+                                    proto_tree_add_bitmask(subtree6, tvb, q, hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags,
+                                            ett_bgp_vxlan, vxlan_gpe_flags, ENC_BIG_ENDIAN);
+                                    q += 1;
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_reserved, tvb, q, 2, ENC_BIG_ENDIAN);
+                                    q += 2;
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_vnid, tvb, q, 3, ENC_BIG_ENDIAN);
+                                    q += 3;
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_reserved, tvb, q, 1, ENC_BIG_ENDIAN);
+                                    q += 1;
+                                } else if (encaps_tunnel_type == TUNNEL_TYPE_NVGRE) {
+                                    proto_tree_add_bitmask(subtree6, tvb, q, hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags,
+                                            ett_bgp_vxlan, nvgre_flags, ENC_BIG_ENDIAN);
+                                    q += 1;
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_nvgre_vnid, tvb, q, 3, ENC_BIG_ENDIAN);
+                                    q += 3;
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_nvgre_mac, tvb, q, 6, ENC_NA);
+                                    q += 6;
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_nvgre_reserved, tvb, q, 2, ENC_BIG_ENDIAN);
+                                    q += 2;
+                                }
                                 }
                                 break;
                             case TUNNEL_SUBTLV_PROTO_TYPE:
-                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_gre_key, tvb, q + 2, 2, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_gre_key, tvb, q, 2, ENC_BIG_ENDIAN);
+                                q += 2;
                                 break;
                             case TUNNEL_SUBTLV_COLOR:
-                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_color_value, tvb, q + 6, 4, ENC_BIG_ENDIAN);
-                               break;
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_color_value, tvb, q, 4, ENC_BIG_ENDIAN);
+                                q += 4;
+                                break;
                             case TUNNEL_SUBTLV_LOAD_BALANCE:
                                 if (encaps_tunnel_type == TUNNEL_TYPE_L2TP_OVER_IP || encaps_tunnel_type == TUNNEL_TYPE_GRE) {
-                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_lb_block_length, tvb, q + 2, 4, ENC_BIG_ENDIAN);
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_lb_block_length, tvb, q, 4, ENC_BIG_ENDIAN);
+                                    q += 4;
                                 }
                                 break;
+                            case TUNNEL_SUBTLV_PREFERENCE:
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_pref_flags, tvb, q, 1, ENC_BIG_ENDIAN);
+                                q += 1;
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_pref_reserved, tvb, q, 1, ENC_BIG_ENDIAN);
+                                q += 1;
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_pref_preference, tvb, q, 4, ENC_NA);
+                                q += 4;
+                                break;
+                            case TUNNEL_SUBTLV_BINDING_SID:
+                                {
+                                static const int * flags[] = {
+                                    &hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_specified,
+                                    &hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_invalid,
+                                    &hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_reserved,
+                                    NULL
+                                    };
+
+                                proto_tree_add_bitmask(subtree6, tvb, q, hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags,
+                                        ett_bgp_binding_sid, flags, ENC_BIG_ENDIAN);
+                                q += 1;
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_binding_sid_reserved,
+                                        tvb, q, 1, ENC_BIG_ENDIAN);
+                                q += 1;
+                                if (encaps_tunnel_sublen > 2) {
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_binding_sid_sid, tvb, q,
+                                            encaps_tunnel_sublen - 2, ENC_NA);
+                                    q += (encaps_tunnel_sublen - 2);
+                                }
+                                }
+                                break;
+                            case TUNNEL_SUBTLV_ENLP:
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_enlp_flags, tvb, q, 1, ENC_BIG_ENDIAN);
+                                q += 1;
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_enlp_reserved, tvb, q, 1, ENC_BIG_ENDIAN);
+                                q += 1;
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_enlp_enlp, tvb, q, 1, ENC_BIG_ENDIAN);
+                                q += 1;
+                                break;
+                            case TUNNEL_SUBTLV_PRIORITY:
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_priority_priority, tvb, q, 1, ENC_BIG_ENDIAN);
+                                q += 1;
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_priority_reserved, tvb, q, 1, ENC_BIG_ENDIAN);
+                                q += 1;
+                                break;
+                            case TUNNEL_SUBTLV_SEGMENT_LIST:
+                                {
+                                static const int * flags[] = {
+                                    &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_verification,
+                                    &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_algorithm,
+                                    &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_reserved,
+                                    NULL
+                                    };
+
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_segment_list_reserved, tvb, q, 1, ENC_BIG_ENDIAN);
+                                q += 1;
+                                ti = proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv, tvb, q,
+                                        encaps_tunnel_sublen - 1, ENC_NA);
+                                encaps_tunnel_sublen -= 1;
+                                subtree7 = proto_item_add_subtree(ti, ett_bgp_segment_list);
+                                while (encaps_tunnel_sublen > 2) {
+                                    segment_subtlv_type = tvb_get_guint8(tvb, q);
+                                    segment_subtlv_length = tvb_get_guint8(tvb, q + 1);
+                                    subtree8 = proto_tree_add_subtree_format(subtree7, tvb, q, segment_subtlv_length + 2,
+                                            ett_bgp_segment_list, NULL, "SubTLV: %s", val_to_str_const(segment_subtlv_type,
+                                            bgp_sr_policy_list_type, "Unknown"));
+                                    proto_tree_add_item(subtree8, hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_type, tvb, q, 1, ENC_BIG_ENDIAN);
+                                    q += 1;
+                                    proto_tree_add_item(subtree8, hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_length, tvb, q, 1, ENC_BIG_ENDIAN);
+                                    q += 1;
+                                    if (segment_subtlv_length > 0) {
+                                        switch(segment_subtlv_type) {
+                                            /* TODO: Dissect further subTLVs data as defined in draft-ietf-idr-segment-routing-te-policy-08 section 2.4.3.2 */
+                                            case TUNNEL_SUBTLV_SEGMENT_LIST_SUB_TYPE_A:
+                                                proto_tree_add_bitmask(subtree8, tvb, q, hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags,
+                                                        ett_bgp_segment_list, flags, ENC_BIG_ENDIAN);
+                                                q += 1;
+                                                proto_tree_add_item(subtree8, hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_reserved,
+                                                        tvb, q, 1, ENC_NA);
+                                                q += 1;
+                                                proto_tree_add_item(subtree8, hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_mpls_label,
+                                                        tvb, q, 3, ENC_BIG_ENDIAN);
+                                                q += 2;
+                                                proto_tree_add_item(subtree8, hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_traffic_class,
+                                                        tvb, q, 1, ENC_BIG_ENDIAN);
+                                                proto_tree_add_item(subtree8, hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_bottom_stack,
+                                                        tvb, q, 1, ENC_BIG_ENDIAN);
+                                                q += 1;
+                                                proto_tree_add_item(subtree8, hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_ttl,
+                                                        tvb, q, 1, ENC_BIG_ENDIAN);
+                                                q += 1;
+                                                break;
+                                            default:
+                                                proto_tree_add_item(subtree8, hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_data,
+                                                        tvb, q, segment_subtlv_length, ENC_NA);
+                                                q += segment_subtlv_length;
+                                                break;
+                                        }
+                                    }
+                                    encaps_tunnel_sublen -= (segment_subtlv_length + 2);
+                                }
+                                }
+                                break;
+                            case TUNNEL_SUBTLV_POLICY_NAME:
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_policy_name_reserved, tvb, q, 1, ENC_BIG_ENDIAN);
+                                q += 1;
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_policy_name_name, tvb, q,
+                                        encaps_tunnel_sublen - 1, ENC_ASCII|ENC_NA);
+                                q += (encaps_tunnel_sublen - 1);
+                                break;
                             default:
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_value, tvb, q, encaps_tunnel_sublen, ENC_NA);
+                                q += encaps_tunnel_sublen;
                                 break;
                         } /* switch (encaps_tunnel_subtype) */
-
-                        q += 2 + encaps_tunnel_sublen; /* type and length + length of value */
                     }
-
                 }
-
                 break;
             case BGPTYPE_AIGP:
                 q = o + i + aoff;
@@ -8179,6 +8539,48 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                                                  "Attribute set (invalid): %u bytes%s",
                                                  alen, plurality(alen, "", "s"));
                 }
+                break;
+            case BGPTYPE_D_PATH:
+                if(tlen < 8){
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "D-PATH attribute has invalid length (invalid): %u byte%s", tlen,
+                                                 plurality(tlen, "", "s"));
+                    break;
+                }
+                q = o + i + aoff;
+                end = q + tlen;
+                wmem_strbuf_t *dpath_strbuf;
+                dpath_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+                guint8 dpath_len;
+                dpath_len = tvb_get_guint8(tvb, q);
+                proto_tree_add_item(subtree2, hf_bgp_d_path_length, tvb,
+                                        q, 1, ENC_BIG_ENDIAN);
+                q += 1;
+                while (dpath_len > 0 && q < end) {
+                    guint32 ad;
+                    guint16 ld;
+                    ad = tvb_get_ntohl(tvb, q);
+                    ld = tvb_get_ntohs(tvb, q+4);
+                    ti = proto_tree_add_string_format(subtree2, hf_bgp_update_path_attribute_d_path, tvb, q, 6, NULL, "Domain ID: %u:%u", ad, ld);
+                    subtree3 = proto_item_add_subtree(ti, ett_bgp_dpath);
+                    proto_tree_add_item(subtree3, hf_bgp_d_path_ga, tvb,
+                                        q, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(subtree3, hf_bgp_d_path_la, tvb,
+                                        q + 4, 2, ENC_BIG_ENDIAN);
+                    wmem_strbuf_append_printf(dpath_strbuf, " %u:%u", ad, ld);
+                    q += 6;
+                    dpath_len -= 1;
+                }
+                if (dpath_len != 0 || q >= end) {
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "D-PATH list (invalid): %u byte%s", tlen,
+                                                 plurality(tlen, "", "s"));
+                    break;
+                }
+                proto_item_append_text(ti_pa, ":%s", wmem_strbuf_get_str(dpath_strbuf));
+
+                proto_tree_add_item(subtree2, hf_bgp_d_path_isf_safi, tvb,
+                                    q, 1, ENC_BIG_ENDIAN);
                 break;
             default:
                 proto_tree_add_item(subtree2, hf_bgp_update_path_attributes_unknown, tvb, o + i + aoff, tlen, ENC_NA);
@@ -9338,6 +9740,23 @@ proto_register_bgp(void)
         {"Tunnel type ingress replication IP end point", "bgp.update.path_attribute.pmsi.ingress_rep_ip", FT_IPv4, BASE_NONE,
         NULL, 0x0, NULL, HFILL}},
 
+        /* https://tools.ietf.org/html/draft-rabadan-sajassi-bess-evpn-ipvpn-interworking-02 */
+      { &hf_bgp_update_path_attribute_d_path,
+        { "Domain Path Attribute", "bgp.update.path_attribute.dpath", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_d_path_length,
+        {"Domain Path Attribute length", "bgp.update.attribute.dpath.length", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_d_path_ga,
+        { "Global Administrator", "bgp.update.attribute.dpath.ga", FT_UINT32, BASE_DEC,
+          NULL, 0x0, "A four-octet namespace identifier. This SHOULD be an Autonomous System Number", HFILL }},
+      { &hf_bgp_d_path_la,
+        { "Local Administrator", "bgp.update.attribute.dpath.la", FT_UINT16, BASE_DEC,
+          NULL, 0x0, "A two-octet operator-defined value", HFILL }},
+      { &hf_bgp_d_path_isf_safi,
+        { "Inter-Subnet Forwarding SAFI type", "bgp.update.attribute.dpath.isf.safi", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+
         /* RFC7311 */
       { &hf_bgp_update_path_attribute_aigp,
         { "AIGP Attribute", "bgp.update.path_attribute.aigp", FT_NONE, BASE_NONE,
@@ -9429,7 +9848,7 @@ proto_register_bgp(void)
         { "Type code", "bgp.update.encaps_tunnel_tlv_type", FT_UINT16, BASE_DEC,
           VALS(bgp_attr_tunnel_type), 0x0, NULL, HFILL}},
       { &hf_bgp_update_encaps_tunnel_subtlv_len,
-        { "length", "bgp.update.encaps_tunnel_tlv_sublen", FT_UINT8,
+        { "length", "bgp.update.encaps_tunnel_tlv_sublen", FT_UINT16,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_encaps_tunnel_subtlv_type,
         { "Type code", "bgp.update.encaps_tunnel_subtlv_type", FT_UINT8, BASE_DEC,
@@ -9449,6 +9868,159 @@ proto_register_bgp(void)
       { &hf_bgp_update_encaps_tunnel_subtlv_lb_block_length,
         { "Load-balancing block length", "bgp.update.encaps_tunnel_tlv_subtlv_lb_block_length", FT_UINT16,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags,
+        { "Flags", "bgp.update.encaps_tunnel_tlv_subtlv.vxlan.flags", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_valid_vnid,
+        { "Valid VN-ID", "bgp.update.encaps_tunnel_tlv_subtlv.vxlan.flags.valid_vnid", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), TUNNEL_SUBTLV_VXLAN_VALID_VNID, NULL, HFILL }},
+      { &hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_valid_mac,
+        { "Valid MAC address", "bgp.update.encaps_tunnel_tlv_subtlv.vxlan.flags.valid_mac", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), TUNNEL_SUBTLV_VXLAN_VALID_MAC, NULL, HFILL }},
+      { &hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_reserved,
+        { "Reserved", "bgp.update.encaps_tunnel_tlv_subtlv.vxlan.flags.reserved", FT_UINT8,
+          BASE_HEX, NULL, TUNNEL_SUBTLV_VXLAN_RESERVED, NULL, HFILL }},
+      { &hf_bgp_update_encaps_tunnel_subtlv_vxlan_vnid,
+        { "VN-ID", "bgp.update.encaps_tunnel_tlv_subtlv.vxlan.vnid", FT_UINT24,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_vxlan_mac,
+        { "MAC", "bgp.update.encaps_tunnel_tlv_subtlv.vxlan.mac", FT_ETHER,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_vxlan_reserved,
+        { "Reserved", "bgp.update.encaps_tunnel_tlv_subtlv.vxlan.reserved", FT_UINT16,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags,
+        { "Flags", "bgp.update.encaps_tunnel_tlv_subtlv.vxlan_gpe.flags", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_version,
+        { "Version", "bgp.update.encaps_tunnel_tlv_subtlv.vxlan_gpe.flags.version", FT_UINT8,
+          BASE_DEC, NULL, TUNNEL_SUBTLV_VXLAN_GPE_VERSION, NULL, HFILL }},
+      { &hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_valid_vnid,
+        { "Valid VN-ID", "bgp.update.encaps_tunnel_tlv_subtlv.vxlan_gpe.flags.valid_vnid", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), TUNNEL_SUBTLV_VXLAN_GPE_VALID_VNID, NULL, HFILL }},
+      { &hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_reserved,
+        { "Reserved", "bgp.update.encaps_tunnel_tlv_subtlv.vxlan_gpe.flags.reserved", FT_UINT8,
+          BASE_HEX, NULL, TUNNEL_SUBTLV_VXLAN_GPE_RESERVED, NULL, HFILL }},
+      { &hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_vnid,
+        { "VN-ID", "bgp.update.encaps_tunnel_tlv_subtlv.vxlan_gpe.vnid", FT_UINT24,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_reserved,
+        { "Reserved", "bgp.update.encaps_tunnel_tlv_subtlv.vxlan_gpe.reserved", FT_UINT16,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags,
+        { "Flags", "bgp.update.encaps_tunnel_tlv_subtlv.nvgre.flags", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_valid_vnid,
+        { "Valid VN-ID", "bgp.update.encaps_tunnel_tlv_subtlv.nvgre.flags.valid_vnid", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), TUNNEL_SUBTLV_NVGRE_VALID_VNID, NULL, HFILL }},
+      { &hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_valid_mac,
+        { "Valid MAC address", "bgp.update.encaps_tunnel_tlv_subtlv.nvgre.flags.valid_mac", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), TUNNEL_SUBTLV_NVGRE_VALID_MAC, NULL, HFILL }},
+      { &hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_reserved,
+        { "Reserved", "bgp.update.encaps_tunnel_tlv_subtlv.nvgre.flags.reserved", FT_UINT8,
+          BASE_HEX, NULL, TUNNEL_SUBTLV_NVGRE_RESERVED, NULL, HFILL }},
+      { &hf_bgp_update_encaps_tunnel_subtlv_nvgre_vnid,
+        { "VN-ID", "bgp.update.encaps_tunnel_tlv_subtlv.nvgre.vnid", FT_UINT24,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_nvgre_mac,
+        { "MAC", "bgp.update.encaps_tunnel_tlv_subtlv.nvgre.mac", FT_ETHER,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_nvgre_reserved,
+        { "Reserved", "bgp.update.encaps_tunnel_tlv_subtlv.nvgre.reserved", FT_UINT16,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_value,
+        { "Value", "bgp.update.encaps_tunnel_tlv_subtlv.value", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_pref_flags,
+        { "Flags", "bgp.update.encaps_tunnel_tlv_subtlv.pref.flags", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_pref_reserved,
+        { "Reserved", "bgp.update.encaps_tunnel_tlv_subtlv.pref.reserved", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_pref_preference,
+        { "Preference", "bgp.update.encaps_tunnel_tlv_subtlv.pref.preference", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags,
+        { "Flags", "bgp.update.encaps_tunnel_tlv_subtlv.binding_sid.flags", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_specified,
+        { "Specified-BSID-only", "bgp.update.encaps_tunnel_tlv_subtlv.binding_sid.flags.specified", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), TUNNEL_SUBTLV_BINDING_SPECIFIED, NULL, HFILL }},
+      { &hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_invalid,
+        { "Drop Upon Invalid", "bgp.update.encaps_tunnel_tlv_subtlv.binding_sid.flags.invalid", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), TUNNEL_SUBTLV_BINDING_INVALID, NULL, HFILL }},
+      { &hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_reserved,
+        { "Reserved", "bgp.update.encaps_tunnel_tlv_subtlv.binding_sid.flags.reserved", FT_UINT8,
+          BASE_HEX, NULL, TUNNEL_SUBTLV_BINDING_RESERVED, NULL, HFILL }},
+      { &hf_bgp_update_encaps_tunnel_subtlv_binding_sid_reserved,
+        { "Reserved", "bgp.update.encaps_tunnel_tlv_subtlv.binding_sid.reserved", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_binding_sid_sid,
+        { "Binding SID", "bgp.update.encaps_tunnel_tlv_subtlv.binding_sid.sid", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_enlp_flags,
+        { "Flags", "bgp.update.encaps_tunnel_tlv_subtlv.enlp.flags", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_enlp_reserved,
+        { "Reserved", "bgp.update.encaps_tunnel_tlv_subtlv.enlp.reserved", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_enlp_enlp,
+        { "ENLP", "bgp.update.encaps_tunnel_tlv_subtlv.enlp.preference", FT_UINT8,
+          BASE_DEC, VALS(bgp_enlp_type), 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_priority_priority,
+        { "Priority", "bgp.update.encaps_tunnel_tlv_subtlv.priority.priority", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_priority_reserved,
+        { "Reserved", "bgp.update.encaps_tunnel_tlv_subtlv.priority.reserved", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_reserved,
+        { "Reserved", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list.reserved", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv,
+        { "sub-TLVs", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list.subtlv", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_type,
+        { "Type", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list.subtlv.type", FT_UINT8,
+          BASE_DEC, VALS(bgp_sr_policy_list_type), 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_length,
+        { "Length", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list.subtlv.length", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags,
+        { "Flags", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.flags", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_verification,
+        { "SID verification", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.flags.verification", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), TUNNEL_SUBTLV_SEGMENT_LIST_SUB_VERIFICATION, NULL, HFILL }},
+      { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_algorithm,
+        { "SR Algorithm id", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.flags.algorithm", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), TUNNEL_SUBTLV_SEGMENT_LIST_SUB_ALGORITHM, NULL, HFILL }},
+      { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_reserved,
+        { "Reserved", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.flags.reserved", FT_UINT8,
+          BASE_HEX, NULL, TUNNEL_SUBTLV_SEGMENT_LIST_SUB_RESERVED, NULL, HFILL }},
+      { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_reserved,
+        { "Reserved", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.reserved", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_mpls_label,
+        { "MPLS Label", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.mpls_label", FT_UINT24,
+          BASE_HEX, NULL, BGP_MPLS_LABEL, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_traffic_class,
+        { "Traffic Class", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.mpls_label", FT_UINT8,
+          BASE_HEX, NULL, BGP_MPLS_TRAFFIC_CLASS, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_bottom_stack,
+        { "Bottom-of-Stack", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.bottom_stack", FT_BOOLEAN,
+          8, NULL, BGP_MPLS_BOTTOM_L_STACK, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_ttl,
+        { "TTL", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.ttl", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_data,
+        { "Data", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list.subtlv.data", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_policy_name_reserved,
+        { "Reserved", "bgp.update.encaps_tunnel_tlv_subtlv.policy_name.reserved", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_policy_name_name,
+        { "Policy name", "bgp.update.encaps_tunnel_tlv_subtlv.policy_name.name", FT_STRING,
+          STR_ASCII, NULL, 0x0, NULL, HFILL}},
 
       /* BGP update path attribut SSA SAFI (deprecated IETF draft) */
       { &hf_bgp_ssa_t,
@@ -9554,6 +10126,22 @@ proto_register_bgp(void)
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_mcast_vpn_nlri_route_key,
         { "Route Key", "bgp.mcast_vpn_nlri_route_key", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      /* sr policy nlri*/
+      { &hf_bgp_sr_policy_nlri_length,
+        { "NLRI length", "bgp.sr_policy_nlri_length", FT_UINT8,
+          BASE_DEC, NULL, 0x0, "NLRI length in bits", HFILL}},
+      { &hf_bgp_sr_policy_nlri_distinguisher,
+        { "Distinguisher", "bgp.sr_policy_nlri_distinguisher", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_sr_policy_nlri_policy_color,
+        { "Policy color", "bgp.sr_policy_nlri_policy_color", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_sr_policy_nlri_endpoint_v4,
+        { "Endpoint", "bgp.sr_policy_nlri_endpoint_ipv4", FT_IPv4,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_sr_policy_nlri_endpoint_v6,
+        { "Endpoint", "bgp.sr_policy_nlri_endpoint_ipv6", FT_IPv6,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
         /* Bgp flow spec nlri and capability */
       { &hf_bgp_flowspec_nlri_t,
@@ -10657,6 +11245,7 @@ proto_register_bgp(void)
       &ett_bgp_pmsi_tunnel_id,
       &ett_bgp_aigp_attr,
       &ett_bgp_large_communities,
+      &ett_bgp_dpath,
       &ett_bgp_prefix_sid_label_index,
       &ett_bgp_prefix_sid_ipv6,
       &ett_bgp_prefix_sid_originator_srgb,
@@ -10666,6 +11255,9 @@ proto_register_bgp(void)
       &ett_bgp_bgpsec_secure_path_segment,
       &ett_bgp_bgpsec_signature_block,
       &ett_bgp_bgpsec_signature_segment,
+      &ett_bgp_vxlan,
+      &ett_bgp_binding_sid,
+      &ett_bgp_segment_list,
     };
     static ei_register_info ei[] = {
         { &ei_bgp_marker_invalid, { "bgp.marker_invalid", PI_MALFORMED, PI_ERROR, "Marker is not all ones", EXPFILL }},

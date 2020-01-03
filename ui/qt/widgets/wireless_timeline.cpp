@@ -67,7 +67,7 @@ public:
     inline pcolor(float red, float green, float blue) : QColor(
             (int) (255*(red * fraction + base)),
             (int) (255*(green * fraction + base)),
-            (int) (255*(blue * fraction + base)) ) { }
+            (int) (255*(blue * fraction + base))) { }
 };
 
 static void reset_rgb(float rgb[TIMELINE_HEIGHT][3])
@@ -175,7 +175,7 @@ void WirelessTimeline::clip_tsf()
 }
 
 
-void WirelessTimeline::selectedFrameChanged(int)
+void WirelessTimeline::selectedFrameChanged(QList<int>)
 {
     if (isHidden())
         return;
@@ -278,13 +278,15 @@ void WirelessTimeline::captureFileReadFinished()
     zoom_level = 0;
 
     show();
-    selectedFrameChanged(0);
+    selectedFrameChanged(QList<int>());
     // TODO: show or ungrey the toolbar controls
     update();
 }
 
 void WirelessTimeline::appInitialized()
 {
+    connect(wsApp->mainWindow(), SIGNAL(framesSelected(QList<int>)), this, SLOT(selectedFrameChanged(QList<int>)));
+
     GString *error_string;
     error_string = register_tap_listener("wlan_radio_timeline", this, NULL, TL_REQUIRES_NOTHING, tap_timeline_reset, tap_timeline_packet, NULL/*tap_draw_cb tap_draw*/, NULL);
     if (error_string) {
@@ -498,7 +500,7 @@ WirelessTimeline::paintEvent(QPaintEvent *qpe)
 
     frame_data * topData = packet_list->getFDataForRow(top);
     frame_data * botData = packet_list->getFDataForRow(bottom);
-    if ( ! topData || ! botData )
+    if (! topData || ! botData)
         return;
 
     int x1 = top == -1 ? 0 : position(get_wlan_radio(topData->num)->start_tsf, ratio);

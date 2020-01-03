@@ -352,7 +352,7 @@ bool DissectorTablesProxyModel::lessThan(const QModelIndex &left, const QModelIn
 
 bool DissectorTablesProxyModel::filterAcceptItem(DissectorTablesItem& item) const
 {
-    if ( filter_.isEmpty() )
+    if (filter_.isEmpty())
         return true;
 
     if (item.tableName().contains(filter_, Qt::CaseInsensitive) || item.shortName().contains(filter_, Qt::CaseInsensitive))

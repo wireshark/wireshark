@@ -165,7 +165,7 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
                 dup_nr=g_ntohs(sack_header->nr_of_dups);
                 if (nr>0) {  // Gap Reports green
                     gap = &sack_header->gaps[0];
-                    for(i=0;i<nr; i++) {
+                    for (i=0;i<nr; i++) {
                         gap_start=g_ntohs(gap->start);
                         gap_end = g_ntohs(gap->end);
                         for (j=gap_start; j<=gap_end; j++) {

@@ -18,10 +18,35 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Text Filter:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="filterLine">
+       <property name="toolTip">
+        <string>Only display entries containing this string</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Content Type:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cmbContentType"/>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="ExportObjectsTreeView" name="objectTree">
-     <property name="sortingEnabled">
-      <bool>true</bool>
-     </property>
      <property name="rootIsDecorated">
       <bool>false</bool>
      </property>
@@ -30,6 +55,9 @@
      </property>
      <property name="itemsExpandable">
       <bool>false</bool>
+     </property>
+     <property name="sortingEnabled">
+      <bool>true</bool>
      </property>
      <property name="expandsOnDoubleClick">
       <bool>false</bool>
@@ -97,30 +125,12 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="filterLayout" stretch="0,0,0">
-     <item alignment="Qt::AlignLeft">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Text Filter:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="filterLine">
-       <property name="toolTip">
-        <string>Only display entries containing this string</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Close|QDialogButtonBox::Help|QDialogButtonBox::Save|QDialogButtonBox::SaveAll</set>
+      <set>QDialogButtonBox::Close|QDialogButtonBox::Help|QDialogButtonBox::Open|QDialogButtonBox::Save|QDialogButtonBox::SaveAll</set>
      </property>
     </widget>
    </item>
@@ -133,6 +143,7 @@
    <header>widgets/export_objects_view.h</header>
   </customwidget>
  </customwidgets>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

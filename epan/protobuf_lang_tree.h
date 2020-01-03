@@ -49,6 +49,7 @@ typedef struct {
     GHashTable* packages; /* all packages parsed from proto files */
     GHashTable* proto_files; /* all proto files that are parsed or to be parsed */
     GSList* proto_files_to_be_parsed; /* files is to be parsed */
+    struct _protobuf_lang_state_t *parser_state; /* current parser state */
 } pbl_descriptor_pool_t;
 
 /* file descriptor */
@@ -68,6 +69,7 @@ typedef struct pbl_node_t{
     GSList* children; /* child is a pbl_node_t */
     GHashTable* children_by_name; /* take children names as keys */
     pbl_file_descriptor_t* file;
+    int lineno;
 } pbl_node_t;
 
 /* like google::protobuf::MethodDescriptor of protobuf cpp library */
@@ -99,6 +101,7 @@ typedef struct {
 /* like google::protobuf::EnumDescriptor of protobuf cpp library */
 typedef struct {
     pbl_node_t basic_info;
+    GSList* values;
     GHashTable* values_by_number;
 } pbl_enum_descriptor_t;
 
@@ -116,10 +119,11 @@ typedef struct {
 } pbl_option_descriptor_t;
 
 /* parser state */
-typedef struct {
+typedef struct _protobuf_lang_state_t {
     pbl_descriptor_pool_t* pool; /* pool will keep the parsing result */
     pbl_file_descriptor_t* file; /* info of current parsing file */
     GSList* lex_string_tokens;
+    void* scanner;
 } protobuf_lang_state_t;
 
 /* Store chars created by strdup or g_strconcat into protobuf_lang_state_t temporarily,
@@ -253,6 +257,14 @@ pbl_enum_descriptor_name(const pbl_enum_descriptor_t* anEnum);
 const char*
 pbl_enum_descriptor_full_name(const pbl_enum_descriptor_t* anEnum);
 
+/* like EnumDescriptor::value_count() */
+int
+pbl_enum_descriptor_value_count(const pbl_enum_descriptor_t* anEnum);
+
+/* like EnumDescriptor::value() */
+const pbl_enum_value_descriptor_t*
+pbl_enum_descriptor_value(const pbl_enum_descriptor_t* anEnum, int value_index);
+
 /* like EnumDescriptor::FindValueByNumber() */
 const pbl_enum_value_descriptor_t*
 pbl_enum_descriptor_FindValueByNumber(const pbl_enum_descriptor_t* anEnum, int number);
@@ -264,6 +276,14 @@ pbl_enum_value_descriptor_name(const pbl_enum_value_descriptor_t* enumValue);
 /* like EnumValueDescriptor::full_name() */
 const char*
 pbl_enum_value_descriptor_full_name(const pbl_enum_value_descriptor_t* enumValue);
+
+/* like EnumValueDescriptor::number() */
+int
+pbl_enum_value_descriptor_number(const pbl_enum_value_descriptor_t* enumValue);
+
+/* visit all message in this pool */
+void
+pbl_foreach_message(const pbl_descriptor_pool_t* pool, void (*cb)(const pbl_message_descriptor_t*, void*), void* userdata);
 
 /*
  * Following are tree building functions.

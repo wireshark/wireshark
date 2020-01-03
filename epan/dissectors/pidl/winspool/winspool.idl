@@ -1,0 +1,878 @@
+#include "idl_types.h"
+
+/*
+ * IRemoteWinspool interface definitions
+ *
+ * This IDL defines the "Print System Asynchronous Remote Protocol" MS-PAR
+ * interface.
+ *
+ * Currently only eight functions in this interface have no matching functions
+ * in the "spoolss" interface. All other functions have a 1-to-1 match but
+ * different opcodes than the spoolss interface.
+ *
+ * Every request on this interface requires a object uuid of
+ * "9940CA8E-512F-4C58-88A9-61098D6896BD" to be sent along with the DCE/RPC
+ * header.
+ *
+ * On Windows, this interface uses [ncacn_ip_tcp] transport and requires
+ * DCERPC_AUTH_TYPE_SPNEGO and at least DCERPC_AUTH_LEVEL_PACKET authentication.
+ *
+ *
+ */
+
+import "misc.idl", "winreg.idl", "spoolss.idl";
+
+[
+	uuid("76f03f96-cdfd-44fc-a22c-64950A001209"),
+	version(1.0),
+	endpoint("ncacn_ip_tcp:"),
+	pointer_default(unique),
+	helpstring("IRemoteWinspool SubSystem")
+]
+	interface iremotewinspool
+{
+#if 0
+	/*
+	 * pidl does not yet have a real [context_handle] implementation, so we
+	 * just use some defines here.
+	 */
+
+	typedef [context_handle] void *GDI_HANDLE;
+	typedef [context_handle] void *PRINTER_HANDLE;
+	typedef [context_handle] void *RMTNTFY_HANDLE;
+#else
+#define GDI_HANDLE policy_handle
+#define PRINTER_HANDLE policy_handle
+#define RMTNTFY_HANDLE policy_handle
+#endif
+
+	const string IREMOTEWINSPOOL_OBJECT_GUID = "9940CA8E-512F-4C58-88A9-61098D6896BD";
+
+	/******************/
+	/* Function: 0x00 */
+
+	typedef struct {
+		spoolss_NotifyInfo *pInfo;
+	} winspool_NOTIFY_REPLY_CONTAINER;
+
+	typedef struct {
+		spoolss_NotifyOption *pOptions;
+	} winspool_NOTIFY_OPTIONS_CONTAINER;
+
+	[public] WERROR winspool_AsyncOpenPrinter(
+		[in,unique] [string,charset(UTF16)] uint16 *pPrinterName,
+		[out] PRINTER_HANDLE *pHandle,
+		[in,unique] [string,charset(UTF16)] uint16 *pDatatype,
+		[in] spoolss_DevmodeContainer *pDevModeContainer,
+		[in] uint32 AccessRequired,
+		[in] spoolss_UserLevelCtr *pClientInfo
+	);
+
+	/******************/
+	/* Function: 0x01 */
+
+	WERROR winspool_AsyncAddPrinter(
+		[in,unique] [string,charset(UTF16)] uint16 *pName,
+		[in] spoolss_SetPrinterInfoCtr *pPrinterContainer,
+		[in] spoolss_DevmodeContainer *pDevModeContainer,
+		[in] sec_desc_buf *pSecurityContainer,
+		[in] spoolss_UserLevelCtr *pClientInfo,
+		[out] PRINTER_HANDLE *pHandle
+	);
+
+	/******************/
+	/* Function: 0x02 */
+
+	WERROR winspool_AsyncSetJob(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] uint32 JobId,
+		[in, unique] spoolss_JobInfoContainer *pJobContainer,
+		[in] uint32 Command
+	);
+
+	/******************/
+	/* Function: 0x03 */
+
+	WERROR winspool_AsyncGetJob(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] uint32 JobId,
+		[in] uint32 Level,
+		[in, out, unique, size_is(cbBuf)] uint8 *pJob,
+		[in] uint32 cbBuf,
+		[out] uint32 *pcbNeeded
+	);
+
+	/******************/
+	/* Function: 0x04 */
+
+	WERROR winspool_AsyncEnumJobs(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] uint32 FirstJob,
+		[in] uint32 NoJobs,
+		[in] uint32 Level,
+		[in, out, unique, size_is(cbBuf)] uint8 *pJob,
+		[in] uint32 cbBuf,
+		[out] uint32 *pcbNeeded,
+		[out] uint32 *pcReturned
+	);
+
+	/******************/
+	/* Function: 0x05 */
+
+	WERROR winspool_AsyncAddJob(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] uint32 Level,
+		[in, out, unique, size_is(cbBuf)] uint8 *pAddJob,
+		[in] uint32 cbBuf,
+		[out] uint32 *pcbNeeded
+	);
+
+	/******************/
+	/* Function: 0x06 */
+
+	WERROR winspool_AsyncScheduleJob(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] uint32 JobId
+	);
+
+	/******************/
+	/* Function: 0x07 */
+
+	WERROR winspool_AsyncDeletePrinter(
+		[in] PRINTER_HANDLE hPrinter
+	);
+
+	/******************/
+	/* Function: 0x08 */
+
+	[public] WERROR winspool_AsyncSetPrinter(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] spoolss_SetPrinterInfoCtr *pPrinterContainer,
+		[in] spoolss_DevmodeContainer *pDevModeContainer,
+		[in] sec_desc_buf *pSecurityContainer,
+		[in] uint32 Command
+	);
+
+	/******************/
+	/* Function: 0x09 */
+
+	[public] WERROR winspool_AsyncGetPrinter(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] uint32 Level,
+		[in, out, unique, size_is(cbBuf)] uint8 *pPrinter,
+		[in] uint32 cbBuf,
+		[out] uint32 *pcbNeeded
+	);
+
+	/******************/
+	/* Function: 0x0a */
+
+	WERROR winspool_AsyncStartDocPrinter(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] spoolss_DocumentInfoCtr *pDocInfoContainer,
+		[out] uint32 *pJobId
+	);
+
+	/******************/
+	/* Function: 0x0b */
+
+	WERROR winspool_AsyncStartPagePrinter(
+		[in] PRINTER_HANDLE hPrinter
+	);
+
+	/******************/
+	/* Function: 0x0c */
+
+	WERROR winspool_AsyncWritePrinter(
+		[in] PRINTER_HANDLE hPrinter,
+		[in, size_is(cbBuf)] uint8 *pBuf,
+		[in] uint32 cbBuf,
+		[out] uint32 *pcWritten
+	);
+
+	/******************/
+	/* Function: 0x0d */
+
+	WERROR winspool_AsyncEndPagePrinter(
+		[in] PRINTER_HANDLE hPrinter
+	);
+
+	/******************/
+	/* Function: 0x0e */
+
+	WERROR winspool_AsyncEndDocPrinter(
+		[in] PRINTER_HANDLE hPrinter
+	);
+
+	/******************/
+	/* Function: 0x0f */
+
+	WERROR winspool_AsyncAbortPrinter(
+		[in] PRINTER_HANDLE hPrinter
+	);
+
+	/******************/
+	/* Function: 0x10 */
+
+	[public] WERROR winspool_AsyncGetPrinterData(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] [string,charset(UTF16)] uint16 *pValueName,
+		[out] uint32 *pType,
+		[out, size_is(nSize)] uint8 *pData,
+		[in] uint32 nSize,
+		[out] uint32 *pcbNeeded
+	);
+
+	/******************/
+	/* Function: 0x11 */
+
+	WERROR winspool_AsyncGetPrinterDataEx(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] [string,charset(UTF16)] uint16 *pKeyName,
+		[in] [string,charset(UTF16)] uint16 *pValueName,
+		[out] uint32 *pType,
+		[out, size_is(nSize)] uint8 *pData,
+		[in] uint32 nSize,
+		[out] uint32 *pcbNeeded
+	);
+
+	/******************/
+	/* Function: 0x12 */
+
+	WERROR winspool_AsyncSetPrinterData(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] [string,charset(UTF16)] uint16 *pValueName,
+		[in] uint32 Type,
+		[in, size_is(cbData)] uint8 *pData,
+		[in] uint32 cbData
+	);
+
+	/******************/
+	/* Function: 0x13 */
+
+	WERROR winspool_AsyncSetPrinterDataEx(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] [string,charset(UTF16)] uint16 *pKeyName,
+		[in] [string,charset(UTF16)] uint16 *pValueName,
+		[in] uint32 Type,
+		[in, size_is(cbData)] uint8 *pData,
+		[in] uint32 cbData
+	);
+
+	/******************/
+	/* Function: 0x14 */
+
+	[public] WERROR winspool_AsyncClosePrinter(
+		[in, out] PRINTER_HANDLE *phPrinter
+	);
+
+	/******************/
+	/* Function: 0x15 */
+
+	WERROR winspool_AsyncAddForm(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] spoolss_AddFormInfoCtr *pFormInfoContainer
+	);
+
+	/******************/
+	/* Function: 0x16 */
+
+	WERROR winspool_AsyncDeleteForm(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] [string,charset(UTF16)] uint16 *pFormName
+	);
+
+	/******************/
+	/* Function: 0x17 */
+
+	WERROR winspool_AsyncGetForm(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] [string,charset(UTF16)] uint16 *pFormName,
+		[in] uint32 Level,
+		[in, out, unique, size_is(cbBuf)] uint8 *pForm,
+		[in] uint32 cbBuf,
+		[out] uint32 *pcbNeeded
+	);
+
+	/******************/
+	/* Function: 0x18 */
+
+	WERROR winspool_AsyncSetForm(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] [string,charset(UTF16)] uint16 *pFormName,
+		[in] spoolss_AddFormInfoCtr *pFormInfoContainer
+	);
+
+	/******************/
+	/* Function: 0x19 */
+
+	[public] WERROR winspool_AsyncEnumForms(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] uint32 Level,
+		[in, out, unique, size_is(cbBuf)] uint8 *pForm,
+		[in]  uint32 cbBuf,
+		[out] uint32 *pcbNeeded,
+		[out] uint32 *pcReturned
+	);
+
+	/******************/
+	/* Function: 0x1a */
+
+	[public] WERROR winspool_AsyncGetPrinterDriver(
+		[in] PRINTER_HANDLE hPrinter,
+		[in,unique] [string,charset(UTF16)] uint16 *pEnvironment,
+		[in] uint32 Level,
+		[in, out, unique, size_is(cbBuf)] uint8 *pDriver,
+		[in] uint32 cbBuf,
+		[out] uint32 *pcbNeeded,
+		[in] uint32 dwClientMajorVersion,
+		[in] uint32 dwClientMinorVersion,
+		[out] uint32 *pdwServerMaxVersion,
+		[out] uint32 *pdwServerMinVersion
+	);
+
+	/******************/
+	/* Function: 0x1b */
+
+	WERROR winspool_AsyncEnumPrinterData(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] uint32 dwIndex,
+		[out, size_is(cbValueName/2)] uint16 *pValueName,
+		[in]  uint32 cbValueName,
+		[out] uint32 *pcbValueName,
+		[out] uint32 *pType,
+		[out, size_is(cbData)] uint8 *pData,
+		[in]  uint32 cbData,
+		[out] uint32 *pcbData
+	);
+
+	/******************/
+	/* Function: 0x1c */
+
+	[public] WERROR winspool_AsyncEnumPrinterDataEx(
+		[in]  PRINTER_HANDLE hPrinter,
+		[in] [string,charset(UTF16)] uint16 *pKeyName,
+		[out, size_is(cbEnumValues)] uint8 *pEnumValues,
+		[in]  uint32 cbEnumValues,
+		[out] uint32 *pcbEnumValues,
+		[out] uint32 *pnEnumValues
+	);
+
+	/******************/
+	/* Function: 0x1d */
+
+	[public] WERROR winspool_AsyncEnumPrinterKey(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] [string,charset(UTF16)] uint16 *pKeyName,
+		[out, size_is(cbSubkey/2)] uint16 *pSubkey,
+		[in]  uint32 cbSubkey,
+		[out] uint32 *pcbSubkey
+	);
+
+	/******************/
+	/* Function: 0x1e */
+
+	WERROR winspool_AsyncDeletePrinterData(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] [string,charset(UTF16)] uint16 *pValueName
+	);
+
+	/******************/
+	/* Function: 0x1f */
+
+	WERROR winspool_AsyncDeletePrinterDataEx(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] [string,charset(UTF16)] uint16 *pKeyName,
+		[in] [string,charset(UTF16)] uint16 *pValueName
+	);
+
+	/******************/
+	/* Function: 0x20 */
+
+	WERROR winspool_AsyncDeletePrinterKey(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] [string,charset(UTF16)] uint16 *pKeyName
+	);
+
+	/******************/
+	/* Function: 0x21 */
+
+	WERROR winspool_AsyncXcvData(
+		[in] PRINTER_HANDLE hXcv,
+		[in] [string,charset(UTF16)] uint16 *pszDataName,
+		[in, size_is(cbInputData)] uint8 *pInputData,
+		[in] uint32 cbInputData,
+		[out, size_is(cbOutputData)] uint8 *pOutputData,
+		[in] uint32 cbOutputData,
+		[out] uint32 *pcbOutputNeeded,
+		[in, out] uint32 *pdwStatus
+	);
+
+	/******************/
+	/* Function: 0x22 */
+
+	WERROR winspool_AsyncSendRecvBidiData (
+		[in] PRINTER_HANDLE hPrinter,
+		[in,unique] [string,charset(UTF16)] uint16 *pAction,
+		[in] RPC_BIDI_REQUEST_CONTAINER* pReqData,
+		[out] RPC_BIDI_RESPONSE_CONTAINER** ppRespData
+	);
+
+	/******************/
+	/* Function: 0x23 */
+
+	WERROR winspool_AsyncCreatePrinterIC(
+		[in] PRINTER_HANDLE hPrinter,
+		[out] GDI_HANDLE *pHandle,
+		[in] spoolss_DevmodeContainer *pDevModeContainer
+	);
+
+	/******************/
+	/* Function: 0x24 */
+
+	WERROR winspool_AsyncPlayGdiScriptOnPrinterIC(
+		[in] GDI_HANDLE hPrinterIC,
+		[in, size_is(cIn)] uint8 *pIn,
+		[in] uint32 cIn,
+		[out, size_is(cOut)] uint8 *pOut,
+		[in] uint32 cOut,
+		[in] uint32 ul
+	);
+
+	/******************/
+	/* Function: 0x25 */
+
+	WERROR winspool_AsyncDeletePrinterIC(
+		[in, out] GDI_HANDLE *phPrinterIC
+	);
+
+	/******************/
+	/* Function: 0x26 */
+
+	WERROR winspool_AsyncEnumPrinters(
+		[in] uint32 Flags,
+		[in,unique] [string,charset(UTF16)] uint16 *pName,
+		[in] uint32 Level,
+		[in, out, unique, size_is(cbBuf)] uint8 *pPrinterEnum,
+		[in]  uint32 cbBuf,
+		[out] uint32 *pcbNeeded,
+		[out] uint32 *pcReturned
+	);
+
+	/******************/
+	/* Function: 0x27 */
+
+	[public] WERROR winspool_AsyncAddPrinterDriver(
+		[in,unique] [string,charset(UTF16)] uint16 *pName,
+		[in] spoolss_AddDriverInfoCtr *pDriverContainer,
+		[in] uint32 dwFileCopyFlags
+	);
+
+	/******************/
+	/* Function: 0x28 */
+
+	WERROR winspool_AsyncEnumPrinterDrivers(
+		[in,unique] [string,charset(UTF16)] uint16 *pName,
+		[in,unique] [string,charset(UTF16)] uint16 *pEnvironment,
+		[in] uint32 Level,
+		[in, out, unique, size_is(cbBuf)] uint8 *pDrivers,
+		[in] uint32 cbBuf,
+		[out] uint32 *pcbNeeded,
+		[out] uint32 *pcReturned
+	);
+
+	/******************/
+	/* Function: 0x29 */
+
+	[public] WERROR winspool_AsyncGetPrinterDriverDirectory(
+		[in,unique] [string,charset(UTF16)] uint16 *pName,
+		[in,unique] [string,charset(UTF16)] uint16 *pEnvironment,
+		[in] uint32 Level,
+		[in, out, unique, size_is(cbBuf)] uint8 *pDriverDirectory,
+		[in] uint32 cbBuf,
+		[out] uint32 *pcbNeeded
+	);
+
+	/******************/
+	/* Function: 0x2a */
+
+	WERROR winspool_AsyncDeletePrinterDriver(
+		[in,unique] [string,charset(UTF16)] uint16 *pName,
+		[in] [string,charset(UTF16)] uint16 *pEnvironment,
+		[in] [string,charset(UTF16)] uint16 *pDriverName
+	);
+
+	/******************/
+	/* Function: 0x2b */
+
+	WERROR winspool_AsyncDeletePrinterDriverEx(
+		[in,unique] [string,charset(UTF16)] uint16 *pName,
+		[in] [string,charset(UTF16)] uint16 *pEnvironment,
+		[in] [string,charset(UTF16)] uint16 *pDriverName,
+		[in] uint32 dwDeleteFlag,
+		[in] uint32 dwVersionNum
+	);
+
+	/******************/
+	/* Function: 0x2c */
+
+	WERROR winspool_AsyncAddPrintProcessor(
+		[in,unique] [string,charset(UTF16)] uint16 *pName,
+		[in] [string,charset(UTF16)] uint16 *pEnvironment,
+		[in] [string,charset(UTF16)] uint16 *pPathName,
+		[in] [string,charset(UTF16)] uint16 *pPrintProcessorName
+	);
+
+	/******************/
+	/* Function: 0x2d */
+
+	WERROR winspool_AsyncEnumPrintProcessors(
+		[in,unique] [string,charset(UTF16)] uint16 *pName,
+		[in,unique] [string,charset(UTF16)] uint16 *pEnvironment,
+		[in] uint32 Level,
+		[in, out, unique, size_is(cbBuf)] uint8 *pPrintProcessorInfo,
+		[in] uint32 cbBuf,
+		[out] uint32 *pcbNeeded,
+		[out] uint32 *pcReturned
+	);
+
+	/******************/
+	/* Function: 0x2e */
+
+	WERROR winspool_AsyncGetPrintProcessorDirectory(
+		[in,unique] [string,charset(UTF16)] uint16 *pName,
+		[in,unique] [string,charset(UTF16)] uint16 *pEnvironment,
+		[in] uint32 Level,
+		[in, out, unique, size_is(cbBuf)] uint8 *pPrintProcessorDirectory,
+		[in] uint32 cbBuf,
+		[out] uint32 *pcbNeeded
+	);
+
+	/******************/
+	/* Function: 0x2f */
+
+	WERROR winspool_AsyncEnumPorts(
+		[in,unique] [string,charset(UTF16)] uint16 *pName,
+		[in] uint32 Level,
+		[in, out, unique, size_is(cbBuf)] uint8 *pPort,
+		[in]  uint32 cbBuf,
+		[out] uint32 *pcbNeeded,
+		[out] uint32 *pcReturned
+	);
+
+	/******************/
+	/* Function: 0x30 */
+
+	WERROR winspool_AsyncEnumMonitors(
+		[in,unique] [string,charset(UTF16)] uint16 *pName,
+		[in] uint32 Level,
+		[in, out, unique, size_is(cbBuf)] uint8 *pMonitor,
+		[in]  uint32 cbBuf,
+		[out] uint32 *pcbNeeded,
+		[out] uint32 *pcReturned
+	);
+
+	/******************/
+	/* Function: 0x31 */
+
+	WERROR winspool_AsyncAddPort(
+		[in,unique] [string,charset(UTF16)] uint16 *pName,
+		[in] spoolss_SetPortInfoContainer *pPortContainer,
+		[in] spoolss_PortVarContainer *pPortVarContainer,
+		[in] [string,charset(UTF16)] uint16 *pMonitorName
+	);
+
+	/******************/
+	/* Function: 0x32 */
+
+	WERROR winspool_AsyncSetPort(
+		[in,unique] [string,charset(UTF16)] uint16 *pName,
+		[in,unique] [string,charset(UTF16)] uint16 *pPortName,
+		[in] spoolss_SetPortInfoContainer *pPortContainer
+	);
+
+	/******************/
+	/* Function: 0x33 */
+
+	WERROR winspool_AsyncAddMonitor(
+		[in,unique] [string,charset(UTF16)] uint16 *Name,
+		[in] spoolss_MonitorContainer *pMonitorContainer
+	);
+
+	/******************/
+	/* Function: 0x34 */
+
+	WERROR winspool_AsyncDeleteMonitor(
+		[in,unique] [string,charset(UTF16)] uint16 *Name,
+		[in,unique] [string,charset(UTF16)] uint16 *pEnvironment,
+		[in] [string,charset(UTF16)] uint16 *pMonitorName
+	);
+
+	/******************/
+	/* Function: 0x35 */
+
+	WERROR winspool_AsyncDeletePrintProcessor(
+		[in,unique] [string,charset(UTF16)] uint16 *Name,
+		[in,unique] [string,charset(UTF16)] uint16 *pEnvironment,
+		[in] [string,charset(UTF16)] uint16 *pPrintProcessorName
+	);
+
+	/******************/
+	/* Function: 0x36 */
+
+	WERROR winspool_AsyncEnumPrintProcessorDatatypes(
+		[in,unique] [string,charset(UTF16)] uint16 *pName,
+		[in,unique] [string,charset(UTF16)] uint16 *pPrintProcessorName,
+		[in] uint32 Level,
+		[in, out, unique, size_is(cbBuf)] uint8 *pDatatypes,
+		[in]  uint32 cbBuf,
+		[out] uint32 *pcbNeeded,
+		[out] uint32 *pcReturned
+	);
+
+	/******************/
+	/* Function: 0x37 */
+
+	WERROR winspool_AsyncAddPerMachineConnection(
+		[in,unique] [string,charset(UTF16)] uint16 *pServer,
+		[in] [string,charset(UTF16)] uint16 *pPrinterName,
+		[in] [string,charset(UTF16)] uint16 *pPrintServer,
+		[in] [string,charset(UTF16)] uint16 *pProvider
+	);
+
+	/******************/
+	/* Function: 0x38 */
+
+	WERROR winspool_AsyncDeletePerMachineConnection(
+		[in,unique] [string,charset(UTF16)] uint16 *pServer,
+		[in] [string,charset(UTF16)] uint16 *pPrinterName
+	);
+
+	/******************/
+	/* Function: 0x39 */
+
+	WERROR winspool_AsyncEnumPerMachineConnections(
+		[in,unique] [string,charset(UTF16)] uint16 *pServer,
+		[in, out, unique, size_is(cbBuf)] uint8 *pPrinterEnum,
+		[in]  uint32 cbBuf,
+		[out] uint32 *pcbNeeded,
+		[out] uint32 *pcReturned
+	);
+
+	/******************/
+	/* Function: 0x3a */
+
+	typedef enum {
+		winspool_PropertyTypeString = 1,
+		winspool_PropertyTypeInt32 = 2,
+		winspool_PropertyTypeInt64 = 3,
+		winspool_PropertyTypeByte = 4,
+		winspool_PropertyTypeTime = 5,
+		winspool_PropertyTypeDevMode = 6,
+		winspool_PropertyTypeSD = 7,
+		winspool_PropertyTypeNotificationReply = 8,
+		winspool_PropertyTypeNotificationOptions = 9
+	} winspool_PrintPropertyType;
+
+	typedef [ms_union,switch_type(winspool_PrintPropertyType)] union {
+		[case(winspool_PropertyTypeString)]	[string,charset(UTF16)] uint16 *propertyString;
+		[case(winspool_PropertyTypeInt32)]	uint32 propertyInt32;
+		[case(winspool_PropertyTypeInt64)]	hyper propertyInt64;
+		[case(winspool_PropertyTypeByte)]	uint8 propertyByte;
+		[case(winspool_PropertyTypeTime)]	spoolss_TimeCtr propertyTimeContainer;
+		[case(winspool_PropertyTypeDevMode)]	spoolss_DevmodeContainer propertyDevModeContainer;
+		[case(winspool_PropertyTypeSD)]		sec_desc_buf propertySDContainer;
+		[case(winspool_PropertyTypeNotificationReply)]	winspool_NOTIFY_REPLY_CONTAINER propertyReplyContainer;
+		[case(winspool_PropertyTypeNotificationOptions)] winspool_NOTIFY_OPTIONS_CONTAINER propertyOptionsContainer;
+	} winspool_PrintPropertyValueUnion;
+
+	typedef struct {
+		winspool_PrintPropertyType PropertyType;
+		[switch_is(PropertyType)] winspool_PrintPropertyValueUnion value;
+	} winspool_PrintPropertyValue;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *propertyName;
+		winspool_PrintPropertyValue propertyValue;
+	} winspool_PrintNamedProperty;
+
+	typedef struct {
+		[range(0,50)] uint32 numberOfProperties;
+		[size_is(numberOfProperties), unique] winspool_PrintNamedProperty *propertiesCollection;
+	} winspool_PrintPropertiesCollection;
+
+	[public] HRESULT winspool_SyncRegisterForRemoteNotifications(
+		[in]    PRINTER_HANDLE                  hPrinter,
+		[in]    winspool_PrintPropertiesCollection *pNotifyFilter,
+		[out]   RMTNTFY_HANDLE                 *phRpcHandle
+	);
+
+	/******************/
+	/* Function: 0x3b */
+
+	HRESULT winspool_SyncUnRegisterForRemoteNotifications(
+		[in, out]   RMTNTFY_HANDLE             *phRpcHandle
+	);
+
+	/******************/
+	/* Function: 0x3c */
+
+	HRESULT winspool_SyncRefreshRemoteNotifications(
+		[in]    RMTNTFY_HANDLE                  hRpcHandle,
+		[in]    winspool_PrintPropertiesCollection *pNotifyFilter,
+		[out]   winspool_PrintPropertiesCollection **ppNotifyData
+	);
+
+	/******************/
+	/* Function: 0x3d */
+
+	HRESULT winspool_AsyncGetRemoteNotifications(
+		[in]    RMTNTFY_HANDLE                  hRpcHandle,
+		[out]   winspool_PrintPropertiesCollection **ppNotifyData
+	);
+
+	/******************/
+	/* Function: 0x3e */
+
+	typedef [bitmap32bit] bitmap {
+		IPDFP_FLAG_NONE			= 0x00000000,
+		IPDFP_COPY_ALL_FILES		= 0x00000001
+	} winspool_InstallPrinterDriverFromPackageFlags;
+
+	HRESULT winspool_AsyncInstallPrinterDriverFromPackage(
+		[in,unique] [string,charset(UTF16)] uint16 *pszServer,
+		[in,unique] [string,charset(UTF16)] uint16 *pszInfPath,
+		[in] [string,charset(UTF16)] uint16 *pszDriverName,
+		[in] [string,charset(UTF16)] uint16 *pszEnvironment,
+		[in] winspool_InstallPrinterDriverFromPackageFlags dwFlags
+	);
+
+	/******************/
+	/* Function: 0x3f */
+
+	typedef [bitmap32bit] bitmap {
+		UPDP_FLAG_NONE		= 0x00000000,
+		UPDP_UPLOAD_ALWAYS	= 0x00000002,
+		UPDP_CHECK_DRIVERSTORE	= 0x00000004
+	} winspool_UploadPrinterDriverPackageFlags;
+
+	HRESULT winspool_AsyncUploadPrinterDriverPackage(
+		[in,unique] [string,charset(UTF16)] uint16 *pszServer,
+		[in] [string,charset(UTF16)] uint16 *pszInfPath,
+		[in] [string,charset(UTF16)] uint16 *pszEnvironment,
+		[in] winspool_UploadPrinterDriverPackageFlags dwFlags,
+		[in, out, unique, size_is(*pcchDestInfPath)] [charset(UTF16)] uint16 *pszDestInfPath,
+		[in, out]                  uint32 *pcchDestInfPath
+	);
+
+	/******************/
+	/* Function: 0x40 */
+
+	[public] HRESULT winspool_AsyncGetCorePrinterDrivers(
+		[in,unique] [string,charset(UTF16)] uint16 *pszServer,
+		[in] [string,charset(UTF16)] uint16 *pszEnvironment,
+		[in]                       uint32     cchCoreDrivers,
+		[in, size_is(cchCoreDrivers)]  uint16 *pszzCoreDriverDependencies,
+		[in]                       uint32     cCorePrinterDrivers,
+		[out, size_is(cCorePrinterDrivers)]  spoolss_CorePrinterDriver *pCorePrinterDrivers
+	);
+
+	/******************/
+	/* Function: 0x41 */
+
+	HRESULT winspool_AsyncCorePrinterDriverInstalled(
+		[in,unique] [string,charset(UTF16)] uint16 *pszServer,
+		[in] [string,charset(UTF16)] uint16 *pszEnvironment,
+		[in]                       GUID      CoreDriverGUID,
+		[in]                       NTTIME  ftDriverDate,
+		[in]                       hyper dwlDriverVersion,
+		[out]       int *pbDriverInstalled
+	);
+
+	/******************/
+	/* Function: 0x42 */
+
+	HRESULT winspool_AsyncGetPrinterDriverPackagePath(
+		[in,unique] [string,charset(UTF16)] uint16 *pszServer,
+		[in] [string,charset(UTF16)] uint16 *pszEnvironment,
+		[in,unique] [string,charset(UTF16)] uint16 *pszLanguage,
+		[in] [string,charset(UTF16)] uint16 *pszPackageID,
+		[in, out, unique, size_is(cchDriverPackageCab)]  uint16 *pszDriverPackageCab,
+		[in]                       uint32  cchDriverPackageCab,
+		[out]                      uint32 *pcchRequiredSize
+	);
+
+	/******************/
+	/* Function: 0x43 */
+
+	HRESULT winspool_AsyncDeletePrinterDriverPackage(
+		[in,unique] [string,charset(UTF16)] uint16 *pszServer,
+		[in] [string,charset(UTF16)] uint16 *pszInfPath,
+		[in] [string,charset(UTF16)] uint16 *pszEnvironment
+	);
+
+	/******************/
+	/* Function: 0x44 */
+
+	WERROR winspool_AsyncReadPrinter(
+		[in]                    PRINTER_HANDLE  hPrinter,
+		[out, size_is(cbBuf)]   uint8 *pBuf,
+		[in]                    uint32           cbBuf,
+		[out]                   uint32 *pcNoBytesRead
+	);
+
+	/******************/
+	/* Function: 0x45 */
+
+	WERROR winspool_AsyncResetPrinter(
+		[in]                    PRINTER_HANDLE     hPrinter,
+		[in,unique] [string,charset(UTF16)] uint16 *pDatatype,
+		[in]                    spoolss_DevmodeContainer *pDevModeContainer
+	);
+
+	/******************/
+	/* Function: 0x46 */
+
+	WERROR winspool_AsyncGetJobNamedPropertyValue(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] uint32 JobId,
+		[in] [string,charset(UTF16)] uint16 *pszName,
+		[out] spoolss_PrintPropertyValue *pValue
+	);
+
+	/******************/
+	/* Function: 0x47 */
+
+	[public] WERROR winspool_AsyncSetJobNamedProperty(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] uint32 JobId,
+		[in] spoolss_PrintNamedProperty *pProperty
+	);
+
+	/******************/
+	/* Function: 0x48 */
+
+	WERROR winspool_AsyncDeleteJobNamedProperty(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] uint32 JobId,
+		[in] [string,charset(UTF16)] uint16 *pszName
+	);
+
+	/******************/
+	/* Function: 0x49 */
+
+	WERROR winspool_AsyncEnumJobNamedProperties(
+		[in] PRINTER_HANDLE hPrinter,
+		[in] uint32 JobId,
+		[out] uint32 *pcProperties,
+		[out, size_is(,*pcProperties)] spoolss_PrintNamedProperty **ppProperties
+	);
+
+	/******************/
+	/* Function: 0x4a */
+
+	WERROR winspool_AsyncLogJobInfoForBranchOffice(
+		[in] PRINTER_HANDLE hPrinter,
+		[in,ref] spoolss_BranchOfficeJobDataContainer *pBranchOfficeJobDataContainer
+	);
+}

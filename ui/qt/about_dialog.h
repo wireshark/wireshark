@@ -95,6 +95,7 @@ private:
 
     Ui::AboutDialog *ui;
     QString script_pattern;
+    QString clipboardInfo;
 
 private slots:
     void urlDoubleClicked(const QModelIndex &);
@@ -103,6 +104,7 @@ private slots:
     void copyActionTriggered(bool row = false);
     void copyRowActionTriggered();
     void on_tblPlugins_doubleClicked(const QModelIndex &index);
+    void on_copyToClipboard_clicked();
 };
 
 #endif // ABOUT_DIALOG_H

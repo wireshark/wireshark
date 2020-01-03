@@ -762,9 +762,9 @@ WS_DLL_PUBLIC gboolean tvb_ascii_isprint(tvbuff_t *tvb, const gint offset,
  *  if "deseg" is false, return the amount of data remaining in
  *  the buffer.
  *
- * Set "*next_offset" to the offset of the character past the line
- * terminator, or past the end of the buffer if we don't find a line
- * terminator.  (It's not set if we return -1.)
+ * If "next_offset" is not NULL, set "*next_offset" to the offset of the
+ * character past the line terminator, or past the end of the buffer if
+ * we don't find a line terminator.  (It's not set if we return -1.)
  */
 WS_DLL_PUBLIC gint tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len,
     gint *next_offset, const gboolean desegment);
@@ -783,9 +783,9 @@ WS_DLL_PUBLIC gint tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len,
  * the end), or the amount of data remaining in the buffer if we don't
  * find a line terminator.
  *
- * Set "*next_offset" to the offset of the character past the line
- * terminator, or past the end of the buffer if we don't find a line
- * terminator.
+ * If "next_offset" is not NULL, set "*next_offset" to the offset of the
+ * character past the line terminator, or past the end of the buffer if
+ * we don't find a line terminator.
  */
 WS_DLL_PUBLIC gint tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset,
     int len, gint *next_offset);

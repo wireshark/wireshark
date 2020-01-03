@@ -210,7 +210,7 @@ void WirelessFrame::on_helperToolButton_clicked()
 
 void WirelessFrame::on_prefsToolButton_clicked()
 {
-    emit showWirelessPreferences(QString("wlan"));
+    emit showWirelessPreferences("wlan");
 }
 
 void WirelessFrame::getInterfaceInfo()
@@ -297,6 +297,8 @@ void WirelessFrame::setInterfaceInfo()
 
     if (cur_iface.isEmpty() || cur_chan_idx < 0 || cur_type_idx < 0) return;
 
+    QString err_str;
+
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211) && defined(HAVE_LIBPCAP)
     int frequency = ui->channelComboBox->itemData(cur_chan_idx).toInt();
     int chan_type = ui->channelTypeComboBox->itemData(cur_type_idx).toInt();
@@ -325,8 +327,7 @@ void WirelessFrame::setInterfaceInfo()
 
     /* Parse the error msg */
     if (ret) {
-        QString err_str = tr("Unable to set channel or offset.");
-        emit pushAdapterStatus(err_str);
+        err_str = tr("Unable to set channel or offset.");
     }
 #elif defined(HAVE_AIRPCAP)
     int frequency = ui->channelComboBox->itemData(cur_chan_idx).toInt();
@@ -334,16 +335,18 @@ void WirelessFrame::setInterfaceInfo()
     if (frequency < 0 || chan_type < 0) return;
 
     if (ws80211_set_freq(cur_iface.toUtf8().constData(), frequency, chan_type, -1, -1) != 0) {
-        QString err_str = tr("Unable to set channel or offset.");
-        emit pushAdapterStatus(err_str);
+        err_str = tr("Unable to set channel or offset.");
     }
 #endif
 
     if (cur_fcs_idx >= 0) {
         if (ws80211_set_fcs_validation(cur_iface.toUtf8().constData(), (enum ws80211_fcs_validation) cur_fcs_idx) != 0) {
-            QString err_str = tr("Unable to set FCS validation behavior.");
-            emit pushAdapterStatus(err_str);
+            err_str = tr("Unable to set FCS validation behavior.");
         }
+    }
+
+    if (!err_str.isEmpty()) {
+        wsApp->pushStatus(WiresharkApplication::TemporaryStatus, err_str);
     }
 
     getInterfaceInfo();

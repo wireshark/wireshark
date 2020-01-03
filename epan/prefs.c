@@ -1964,6 +1964,15 @@ prefs_register_obsolete_preference(module_t *module, const char *name)
     register_preference(module, name, NULL, NULL, PREF_OBSOLETE);
 }
 
+void
+prefs_set_preference_effect_fields(module_t *module, const char *name)
+{
+    pref_t * pref = prefs_find_preference(module, name);
+    if (pref) {
+        prefs_set_effect_flags(pref, prefs_get_effect_flags(pref) | PREF_EFFECT_FIELDS);
+    }
+}
+
 /*
  * Check to see if a preference is obsolete.
  */

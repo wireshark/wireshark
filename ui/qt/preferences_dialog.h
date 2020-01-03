@@ -33,7 +33,12 @@ public:
     explicit PreferencesDialog(QWidget *parent = 0);
     ~PreferencesDialog();
 
-    void setPane(const QString pane_name);
+    /**
+     * Show the preference pane corresponding to the a preference module name.
+     * @param module_name A preference module name, e.g. the "name" parameter passed
+     * to prefs_register_module or a protocol name.
+     */
+    void setPane(const QString module_name);
 
 protected:
     void showEvent(QShowEvent *evt);

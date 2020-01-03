@@ -43,25 +43,25 @@ codec_l16_get_frequency(void *ctx _U_)
 }
 
 static size_t
-codec_l16_decode(void *ctx _U_, const void *input, size_t inputSizeBytes,
-                 void *output, size_t *outputSizeBytes)
+codec_l16_decode(void *ctx _U_, const void *inputBytes, size_t inputBytesSize,
+                 void *outputSamples, size_t *outputSamplesSize)
 {
-    const guint16 *dataIn  = (const guint16 *)input;
-    guint16       *dataOut = (guint16 *)output;
+    const guint16 *dataIn  = (const guint16 *)inputBytes;
+    guint16       *dataOut = (guint16 *)outputSamples;
     size_t         i;
 
-    if (!output || !outputSizeBytes)
+    if (!outputSamples || !outputSamplesSize)
     {
-        return inputSizeBytes;
+        return inputBytesSize;
     }
 
-    for (i=0; i<inputSizeBytes/2; i++)
+    for (i=0; i<inputBytesSize/2; i++)
     {
         dataOut[i] = g_ntohs(dataIn[i]);
     }
 
-    *outputSizeBytes = inputSizeBytes;
-    return *outputSizeBytes;
+    *outputSamplesSize = inputBytesSize;
+    return *outputSamplesSize;
 }
 
 void

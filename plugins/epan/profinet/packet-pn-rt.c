@@ -127,7 +127,7 @@ static const value_string pn_rt_frame_info_function_meaning_output_conv[] = {
 };
 
 static const true_false_string tfs_pn_rt_ds_redundancy =
-    {"Redundancy has no meaning for OutputCRs / One primary AR of a given AR-set is present" , "None primary AR of a given AR-set is present" };
+    { "None primary AR of a given AR-set is present",  "Redundancy has no meaning for OutputCRs / One primary AR of a given AR-set is present" };
 
 static const value_string pn_rt_frag_status_error[] = {
     { 0x00, "reserved" },

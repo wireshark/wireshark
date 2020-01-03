@@ -77,7 +77,7 @@ void WiresharkDialog::setWindowSubtitle(const QString &subtitle)
 
 void WiresharkDialog::dialogCleanup(bool closeDialog)
 {
-    if ( closeDialog )
+    if (closeDialog)
     {
         // Cancel any taps in progress?
         // cap_file_.setCaptureStopFlag();

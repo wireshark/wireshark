@@ -94,7 +94,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_progfile_dir@Base 1.12.0~rc1
  get_resource_usage@Base 2.3.0
  get_systemfile_dir@Base 1.12.0~rc1
- get_tempfile_path@Base 1.12.0~rc1
  has_global_profiles@Base 1.12.0~rc1
  hkdf_expand@Base 2.5.1
  ieee80211_chan_to_mhz@Base 1.99.7
@@ -221,6 +220,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_pipe_spawn_async@Base 2.5.1
  ws_pipe_spawn_sync@Base 2.5.1
  ws_read_string_from_pipe@Base 2.5.0
+ ws_socket_ptoa@Base 3.1.1
  ws_strtoi16@Base 2.3.0
  ws_strtoi32@Base 2.3.0
  ws_strtoi64@Base 2.3.0

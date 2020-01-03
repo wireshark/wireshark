@@ -13,7 +13,6 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <epan/expert.h>
 void proto_register_babel(void);
 void proto_reg_handoff_babel(void);
 
@@ -43,6 +42,7 @@ static int hf_babel_message_hopcount = -1;
 static int hf_babel_message_index = -1;
 static int hf_babel_subtlv = -1;
 static int hf_babel_subtlv_type = -1;
+static int hf_babel_subtlv_len = -1;
 static int hf_babel_subtlv_diversity = -1;
 
 static gint ett_subtree = -1;
@@ -51,8 +51,6 @@ static gint ett_unicast = -1;
 static gint ett_subtlv = -1;
 static gint ett_timestamp = -1;
 static gint ett_mandatory = -1;
-
-static expert_field ei_babel_subtlv_invalid_length = EI_INIT;
 
 #define UDP_PORT_RANGE_BABEL "6696"
 
@@ -249,8 +247,8 @@ format_timestamp(const guint32 i)
 }
 
 static int
-dissect_babel_subtlvs(tvbuff_t * tvb, packet_info *pinfo, guint8 type,
-                      guint16 beg, guint16 end, proto_tree *message_tree)
+dissect_babel_subtlvs(tvbuff_t * tvb, guint8 type, guint16 beg,
+                      guint16 end, proto_tree *message_tree)
 {
     proto_tree *channel_tree = NULL;
     proto_item *sub_item;
@@ -258,31 +256,31 @@ dissect_babel_subtlvs(tvbuff_t * tvb, packet_info *pinfo, guint8 type,
     int i = 0;
 
     while(beg < end) {
-        proto_tree *subtlv_tree = NULL;
+        proto_tree *subtlv_tree;
         subtype = tvb_get_guint8(tvb, beg);
-        sublen = tvb_get_guint8(tvb, beg+1);
+        if (subtype != MESSAGE_SUB_PAD1) {
+            sublen = tvb_get_guint8(tvb, beg+1);
+        } else {
+            sublen = 0;
+        }
 
         sub_item =
           proto_tree_add_uint_format(message_tree, hf_babel_subtlv,
-                                     tvb, beg, sublen, subtype,
-                                     "Sub TLV %s (%u)",
+                                     tvb, beg, sublen + ((subtype == MESSAGE_SUB_PAD1) ? 1 : 2),
+                                     subtype, "Sub TLV %s (%u)",
                                      val_to_str_const(subtype, subtlvs, "unknown"),
                                      subtype);
-        if (sublen == 0) {
-            expert_add_info(pinfo, sub_item, &ei_babel_subtlv_invalid_length);
-            break;
-        }
+        subtlv_tree = proto_item_add_subtree(sub_item, ett_subtlv);
 
-        if (message_tree) {
-            subtlv_tree = proto_item_add_subtree(sub_item, ett_subtlv);
-            proto_tree_add_item(subtlv_tree, hf_babel_subtlv_type,
-                                tvb, beg+2, 1, ENC_BIG_ENDIAN);
-        }
-
+        proto_tree_add_item(subtlv_tree, hf_babel_subtlv_type,
+                            tvb, beg, 1, ENC_BIG_ENDIAN);
         if(subtype == MESSAGE_SUB_PAD1){
-            beg += sublen;
+            beg += 1;
             continue;
         }
+        proto_tree_add_item(subtlv_tree, hf_babel_subtlv_len,
+                            tvb, beg+1, 1, ENC_BIG_ENDIAN);
+
         if ((MANDATORY_FLAG & subtype) != 0) {
             proto_tree_add_subtree_format(subtlv_tree, tvb, beg+2, sublen,
                                           ett_mandatory, NULL, "Mandatory");
@@ -404,7 +402,7 @@ dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(message_tree, hf_babel_message_interval,
                                     tvb, message + 6, 2, ENC_BIG_ENDIAN);
                 if(len > 6)
-                    dissect_babel_subtlvs(tvb, pinfo, type, message + 8,
+                    dissect_babel_subtlvs(tvb, type, message + 8,
                                           message + 2 + len, message_tree);
             } else if (type == MESSAGE_IHU) {
                 proto_tree    *subtree;
@@ -426,7 +424,7 @@ dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(subtree, hf_babel_message_prefix,
                                     tvb, message + 4, len - 2, ENC_NA);
                 if (rc < len - 6)
-                    dissect_babel_subtlvs(tvb, pinfo, type, message + 8 + rc,
+                    dissect_babel_subtlvs(tvb, type, message + 8 + rc,
                                           message + 2 + len, message_tree);
             } else if (type == MESSAGE_ROUTER_ID) {
                 proto_tree_add_item(message_tree, hf_babel_message_routerid,
@@ -488,7 +486,7 @@ dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(subtree, hf_babel_message_prefix,
                                     tvb, message + 12, len - 10, ENC_NA);
                 if (((guint8)rc) < len - 10)
-                    dissect_babel_subtlvs(tvb, pinfo, type, message + 12 + rc,
+                    dissect_babel_subtlvs(tvb, type, message + 12 + rc,
                                           message + 2 + len, message_tree);
             } else if (type == MESSAGE_REQUEST) {
                 proto_tree    *subtree;
@@ -679,6 +677,10 @@ proto_register_babel(void)
           { "Sub-TLV Type", "babel.subtlv.type", FT_UINT8, BASE_DEC,
           VALS(subtlvs), 0, NULL, HFILL }
         },
+        { &hf_babel_subtlv_len,
+          { "Sub-TLV Length", "babel.subtlv.length", FT_UINT8, BASE_DEC,
+          VALS(subtlvs), 0, NULL, HFILL }
+        },
         { &hf_babel_subtlv_diversity,
           { "Channel", "babel.subtlv.diversity.channel", FT_UINT8, BASE_DEC,
           NULL, 0, NULL, HFILL  }
@@ -696,18 +698,11 @@ proto_register_babel(void)
         &ett_mandatory
     };
 
-    static ei_register_info ei[] = {
-        { &ei_babel_subtlv_invalid_length, { "babel.subtlv.invalid_length", PI_PROTOCOL, PI_ERROR, "Invalid Sub-TLV length", EXPFILL }},
-    };
-    expert_module_t *expert_babel;
-
     proto_babel =
         proto_register_protocol("Babel Routing Protocol", "Babel", "babel");
 
     proto_register_field_array(proto_babel, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    expert_babel = expert_register_protocol(proto_babel);
-    expert_register_field_array(expert_babel, ei, array_length(ei));
 }
 
 void

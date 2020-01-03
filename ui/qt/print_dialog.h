@@ -30,17 +30,16 @@ class PrintDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit PrintDialog(QWidget *parent = 0, capture_file *cf = NULL);
+    explicit PrintDialog(QWidget *parent = 0, capture_file *cf = NULL, QString selRange = QString());
     ~PrintDialog();
+
     gboolean printHeader();
     gboolean printLine(int indent, const char *line);
 
 protected:
-    void keyPressEvent(QKeyEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event) override;
 
 private:
-    void printPackets(QPrinter *printer = NULL, bool in_preview = false);
-
     Ui::PrintDialog *pd_ui_;
 
     QPrinter printer_;
@@ -58,6 +57,8 @@ private:
     print_stream_t stream_;
     int page_pos_;
     bool in_preview_;
+
+    void printPackets(QPrinter *printer = NULL, bool in_preview = false);
 
 private slots:
     void paintPreview(QPrinter *printer);

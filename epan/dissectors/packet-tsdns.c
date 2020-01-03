@@ -144,7 +144,8 @@ void proto_reg_handoff_tsdns(void)
 
   tsdns_handle = create_dissector_handle(dissect_tsdns, proto_tsdns);
 
-  dissector_add_uint_with_preference("tcp.port", TSDNS_PORT, tsdns_handle);
+  /* Default port to not dissect the protocol*/
+  dissector_add_uint_with_preference("tcp.port", 0, tsdns_handle);
 }
 
 /*

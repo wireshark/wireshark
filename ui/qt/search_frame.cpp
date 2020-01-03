@@ -373,13 +373,13 @@ void SearchFrame::on_findButton_clicked()
     case df_search_:
         if (!dfilter_compile(sf_ui_->searchLineEdit->text().toUtf8().constData(), &dfp, NULL)) {
             err_string = tr("Invalid filter.");
-            emit pushFilterSyntaxStatus(err_string);
+            wsApp->pushStatus(WiresharkApplication::FilterSyntax, err_string);
             return;
         }
 
         if (dfp == NULL) {
             err_string = tr("That filter doesn't test anything.");
-            emit pushFilterSyntaxStatus(err_string);
+            wsApp->pushStatus(WiresharkApplication::FilterSyntax, err_string);
             return;
         }
         break;
@@ -387,7 +387,7 @@ void SearchFrame::on_findButton_clicked()
         bytes = convert_string_to_hex(sf_ui_->searchLineEdit->text().toUtf8().constData(), &nbytes);
         if (bytes == NULL) {
             err_string = tr("That's not a valid hex string.");
-            emit pushFilterSyntaxStatus(err_string);
+            wsApp->pushStatus(WiresharkApplication::FilterSyntax, err_string);
             return;
         }
         cap_file_->hex = TRUE;
@@ -396,7 +396,7 @@ void SearchFrame::on_findButton_clicked()
     case regex_search_:
         if (sf_ui_->searchLineEdit->text().isEmpty()) {
             err_string = tr("You didn't specify any text for which to search.");
-            emit pushFilterSyntaxStatus(err_string);
+            wsApp->pushStatus(WiresharkApplication::FilterSyntax, err_string);
             return;
         }
         cap_file_->string = TRUE;
@@ -414,14 +414,14 @@ void SearchFrame::on_findButton_clicked()
             break;
         default:
             err_string = tr("No valid character set selected. Please report this to the development team.");
-            emit pushFilterSyntaxStatus(err_string);
+            wsApp->pushStatus(WiresharkApplication::FilterSyntax, err_string);
             return;
         }
         string = convert_string_case(sf_ui_->searchLineEdit->text().toUtf8().constData(), cap_file_->case_type);
         break;
     default:
         err_string = tr("No valid search type selected. Please report this to the development team.");
-        emit pushFilterSyntaxStatus(err_string);
+        wsApp->pushStatus(WiresharkApplication::FilterSyntax, err_string);
         return;
     }
 
@@ -437,7 +437,7 @@ void SearchFrame::on_findButton_clicked()
         break;
     default:
         err_string = tr("No valid search area selected. Please report this to the development team.");
-        emit pushFilterSyntaxStatus(err_string);
+        wsApp->pushStatus(WiresharkApplication::FilterSyntax, err_string);
         return;
     }
 
@@ -451,12 +451,12 @@ void SearchFrame::on_findButton_clicked()
         if (!found_packet) {
             /* We didn't find a packet */
             err_string = tr("No packet contained those bytes.");
-            emit pushFilterSyntaxStatus(err_string);
+            wsApp->pushStatus(WiresharkApplication::FilterSyntax, err_string);
             return;
         }
     } else if (cap_file_->string) {
         if (search_type == regex_search_ && !cap_file_->regex) {
-            emit pushFilterSyntaxStatus(regex_error_);
+            wsApp->pushStatus(WiresharkApplication::FilterSyntax, regex_error_);
             return;
         }
         if (cap_file_->summary_data) {
@@ -465,7 +465,7 @@ void SearchFrame::on_findButton_clicked()
             g_free(string);
             if (!found_packet) {
                 err_string = tr("No packet contained that string in its Info column.");
-                emit pushFilterSyntaxStatus(err_string);
+                wsApp->pushStatus(WiresharkApplication::FilterSyntax, err_string);
                 return;
             }
         } else if (cap_file_->decode_data) {
@@ -474,7 +474,7 @@ void SearchFrame::on_findButton_clicked()
             g_free(string);
             if (!found_packet) {
                 err_string = tr("No packet contained that string in its dissected display.");
-                emit pushFilterSyntaxStatus(err_string);
+                wsApp->pushStatus(WiresharkApplication::FilterSyntax, err_string);
                 return;
             }
         } else if (cap_file_->packet_data && string) {
@@ -483,7 +483,7 @@ void SearchFrame::on_findButton_clicked()
             g_free(string);
             if (!found_packet) {
                 err_string = tr("No packet contained that string in its converted data.");
-                emit pushFilterSyntaxStatus(err_string);
+                wsApp->pushStatus(WiresharkApplication::FilterSyntax, err_string);
                 return;
             }
         }
@@ -493,7 +493,7 @@ void SearchFrame::on_findButton_clicked()
         dfilter_free(dfp);
         if (!found_packet) {
             err_string = tr("No packet matched that filter.");
-            emit pushFilterSyntaxStatus(err_string);
+            wsApp->pushStatus(WiresharkApplication::FilterSyntax, err_string);
             g_free(bytes);
             return;
         }

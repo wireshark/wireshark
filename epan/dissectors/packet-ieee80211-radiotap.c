@@ -1722,6 +1722,15 @@ dissect_radiotap_channel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		}
 		break;
 	}
+
+	/*
+	 * XXX - special-case 11ad; there's no field to explicitly indicate
+	 * an 11ad packet.  Anything with a frequency in the 802.11ad range
+	 * is treated as 11ad.
+	 */
+	if (IS_80211AD(freq))
+		phdr->phy = PHDR_802_11_PHY_11AD;
+
 	if (tree) {
 		gchar	   *chan_str;
 		static const int * channel_flags[] = {
@@ -1969,6 +1978,14 @@ dissect_radiotap_xchannel(tvbuff_t *tvb, packet_info *pinfo _U_,
 		 */
 		phdr->has_frequency = TRUE;
 		phdr->frequency = freq;
+
+		/*
+		 * XXX - special-case 11ad; there's no field to explicitly
+		 * indicate an 11ad packet.  Anything with a frequency in
+		 * the 802.11ad range is treated as 11ad.
+		 */
+		if (IS_80211AD(freq))
+			phdr->phy = PHDR_802_11_PHY_11AD;
 	}
 	phdr->has_channel = TRUE;
 	phdr->channel = tvb_get_guint8(tvb, offset + 6);
@@ -2450,9 +2467,12 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			mcs_known = tvb_get_guint8(tvb, offset);
 			/*
 			 * If there's actually any data here, not an
-			 * empty field, this is 802.11n.
+			 * empty field, this is 802.11n - unless we've
+			 * seen a frequency >= 60 GHz and already set
+			 * it to 802.11ad.
 			 */
-			if (mcs_known != 0) {
+			if (mcs_known != 0 &&
+			    phdr.phy != PHDR_802_11_PHY_11AD) {
 				phdr.phy = PHDR_802_11_PHY_11N;
 				memset(&phdr.phy_info.info_11n, 0, sizeof(phdr.phy_info.info_11n));
 			}
@@ -2862,6 +2882,12 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			break;
 		}
 		case IEEE80211_RADIOTAP_HE:
+			/*
+			 * Presumably this is (whatever draft of) 802.11ax.
+			 * Also, presumably, you won't get the HE_MU field
+			 * without this field.
+			 */
+			phdr.phy = PHDR_802_11_PHY_11AX;
 			dissect_radiotap_he_info(tvb, pinfo, radiotap_tree, offset);
 			break;
 		case IEEE80211_RADIOTAP_HE_MU:

@@ -1,41 +1,55 @@
-TShark (Wireshark) 3.1.1 (v3.1.1rc0-10-g22e7952e06f0)
+TShark (Wireshark) 3.3.0 (v3.3.0rc0-55-g3c10d7308bde)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
 Usage: tshark [options] ...
 
 Capture interface:
-  -i <interface>           name or idx of interface (def: first non-loopback)
+  -i <interface>, --interface <interface>
+                           name or idx of interface (def: first non-loopback)
   -f <capture filter>      packet filter in libpcap filter syntax
-  -s <snaplen>             packet snapshot length (def: appropriate maximum)
-  -p                       don't capture in promiscuous mode
-  -I                       capture in monitor mode, if available
-  -B <buffer size>         size of kernel buffer (def: 2MB)
-  -y <link type>           link layer type (def: first appropriate)
+  -s <snaplen>, --snapshot-length <snaplen>
+                           packet snapshot length (def: appropriate maximum)
+  -p, --no-promiscuous-mode
+                           don't capture in promiscuous mode
+  -I, --monitor-mode       capture in monitor mode, if available
+  -B <buffer size>, --buffer-size <buffer size>
+                           size of kernel buffer (def: 2MB)
+  -y <link type>, --linktype <link type>
+                           link layer type (def: first appropriate)
   --time-stamp-type <type> timestamp method for interface
-  -D                       print list of interfaces and exit
-  -L                       print list of link-layer types of iface and exit
+  -D, --list-interfaces    print list of interfaces and exit
+  -L, --list-data-link-types
+                           print list of link-layer types of iface and exit
   --list-time-stamp-types  print list of timestamp types for iface and exit
 
 Capture stop conditions:
   -c <packet count>        stop after n packets (def: infinite)
-  -a <autostop cond.> ...  duration:NUM - stop after NUM seconds
+  -a <autostop cond.> ..., --autostop <autostop cond.> ...
+                           duration:NUM - stop after NUM seconds
                            filesize:NUM - stop this file after NUM KB
                               files:NUM - stop after NUM files
+                            packets:NUM - stop after NUM packets
 Capture output:
-  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs
-                           interval:NUM - create time intervals of NUM secs
+  -b <ringbuffer opt.> ..., --ring-buffer <ringbuffer opt.>
+                           duration:NUM - switch to next file after NUM secs
                            filesize:NUM - switch to next file after NUM KB
                               files:NUM - ringbuffer: replace after NUM files
+                            packets:NUM - switch to next file after NUM packets
+                           interval:NUM - switch to next file when the time is
+                                          an exact multiple of NUM secs
 Input file:
-  -r <infile|->            set the filename to read from (or '-' for stdin)
+  -r <infile>, --read-file <infile>
+                           set the filename to read from (or '-' for stdin)
 
 Processing:
   -2                       perform a two-pass analysis
   -M <packet count>        perform session auto reset
-  -R <read filter>         packet Read filter in Wireshark display filter syntax
+  -R <read filter>, --read-filter <read filter>
+                           packet Read filter in Wireshark display filter syntax
                            (requires -2)
-  -Y <display filter>      packet displaY filter in Wireshark display filter
+  -Y <display filter>, --display-filter <display filter>
+                           packet displaY filter in Wireshark display filter
                            syntax
   -n                       disable all name resolutions (def: all enabled)
   -N <name resolve flags>  enable specific name resolution(s): "mnNtdv"
@@ -55,13 +69,15 @@ Processing:
 Output:
   -w <outfile|->           write packets to a pcapng-format file named "outfile"
                            (or '-' for stdout)
+  --capture-comment <comment>
+                           set the capture file comment, if supported
   -C <config profile>      start with specified configuration profile
   -F <output file type>    set the output file type, default is pcapng
                            an empty "-F" option will list the file types
   -V                       add output of packet tree        (Packet Details)
   -O <protocols>           Only show packet details of these protocols, comma
                            separated
-  -P                       print packet summary even when writing to a file
+  -P, --print              print packet summary even when writing to a file
   -S <separator>           the line separator to print between packets
   -x                       add output of hex and ASCII dump (Packet Bytes)
   -T pdml|ps|psml|json|jsonraw|ek|tabs|text|fields|?
@@ -82,7 +98,8 @@ Output:
      aggregator=,|/s|<char> select comma, space, printable character as
                            aggregator
      quote=d|s|n           select double, single, no quotes for values
-  -t a|ad|d|dd|e|r|u|ud|?  output format of time stamps (def: r: rel. to first)
+  -t a|ad|adoy|d|dd|e|r|u|ud|udoy
+                           output format of time stamps (def: r: rel. to first)
   -u s|hms                 output format of seconds (def: s: seconds)
   -l                       flush standard output after each packet
   -q                       be more quiet on stdout (e.g. when using statistics)
@@ -93,11 +110,9 @@ Output:
   -X <key>:<value>         eXtension options, see the man page for details
   -U tap_name              PDUs export mode, see the man page for details
   -z <statistics>          various statistics, see the man page for details
-  --capture-comment <comment>
-                           add a capture comment to the newly created
-                           output file (only for pcapng)
-  --export-objects <protocol>,<destdir> save exported objects for a protocol to
-                           a directory named "destdir"
+  --export-objects <protocol>,<destdir>
+                           save exported objects for a protocol to a directory
+                           named "destdir"
   --color                  color output text similarly to the Wireshark GUI,
                            requires a terminal with 24-bit color support
                            Also supplies color attributes to pdml and psml formats
@@ -109,8 +124,8 @@ Output:
                            specified protocols within the mapping file
 
 Miscellaneous:
-  -h                       display this help and exit
-  -v                       display version info and exit
+  -h, --help               display this help and exit
+  -v, --version            display version info and exit
   -o <name>:<value> ...    override preference setting
   -K <keytab>              keytab file to use for kerberos decryption
   -G [report]              dump one of several available reports and exit

@@ -345,7 +345,6 @@ typedef tvbparse_t* Parser;
 typedef tvbparse_wanted_t* Rule;
 typedef tvbparse_elem_t* Node;
 typedef tvbparse_action_t* Shortcut;
-typedef struct _wslua_main* WireShark;
 typedef struct _wslua_dir* Dir;
 typedef struct _wslua_private_table* PrivateTable;
 typedef gchar* Struct;

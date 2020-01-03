@@ -11,6 +11,14 @@
 #ifndef __SOFTWARE_UPDATE_H__
 #define __SOFTWARE_UPDATE_H__
 
+/** @file
+ *  Automatic update routines.
+ *
+ * Routines that integrate with WinSparkle on Windows and Sparkle on
+ * macOS.
+ * @ingroup main_ui_group
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -33,6 +41,7 @@ extern void software_update_check(void);
  */
 extern void software_update_cleanup(void);
 
+#ifdef _WIN32
 /** Check to see if Wireshark can shut down safely (e.g. offer to save the
  *  current capture). Called from a separate thread.
  *
@@ -46,6 +55,7 @@ extern int software_update_can_shutdown_callback(void);
  * Does nothing on platforms that don't support software updates.
  */
 extern void software_update_shutdown_request_callback(void);
+#endif
 
 #ifdef __cplusplus
 }

@@ -190,10 +190,10 @@ QModelIndex UatModel::findRowForColumnContent(QVariant columnContent, int column
     if (! columnContent.isValid())
         return QModelIndex();
 
-    for(int i = 0; i < rowCount(); i++)
+    for (int i = 0; i < rowCount(); i++)
     {
         QVariant r_expr = data(index(i, columnToCheckAgainst), role);
-        if ( r_expr == columnContent )
+        if (r_expr == columnContent)
             return index(i, columnToCheckAgainst);
     }
 

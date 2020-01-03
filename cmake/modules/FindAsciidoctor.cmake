@@ -64,7 +64,17 @@ if(ASCIIDOCTOR_EXECUTABLE)
                 ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
                 ${ARGN}
         )
-        add_custom_target(generate_${_output_xml} DEPENDS ${_output_xml})
+        if(CMAKE_GENERATOR MATCHES "Visual Studio")
+            add_custom_command(
+                OUTPUT
+                    ${_output_xml}-stamp
+                COMMAND ${CMAKE_COMMAND} -E touch ${_output_xml}-stamp
+                DEPENDS ${_output_xml}
+            )
+            add_custom_target(generate_${_output_xml} DEPENDS ${_output_xml}-stamp)
+        else()
+            add_custom_target(generate_${_output_xml} DEPENDS ${_output_xml})
+        endif()
         set_asciidoctor_target_properties(generate_${_output_xml})
         unset(_output_xml)
     ENDMACRO()

@@ -268,6 +268,8 @@
 #define ZBEE_APP_STATUS_UNSECURED                   0xaf /*An ASDU was received without any security.*/
 #define ZBEE_APP_STATUS_UNSUPPORTED_ATTRIBUTE       0xb0 /*An APSME-GET.request or APSME-SET.request has been issued with an unknown attribute identifier.*/
 
+#define ZBEE_APS_NODE_PROTO_DATA                    0
+
 /*  Structure to contain the APS frame information */
 typedef struct{
     gboolean    indirect_mode;  /* ZigBee 2004 and Earlier  */
@@ -293,6 +295,22 @@ typedef struct{
     gboolean    dst_present;
     gboolean    src_present;
 } zbee_aps_packet;
+
+/*  Structure to contain APS node information */
+struct zbee_aps_node_info
+{
+    guint32 extended_counter;                         /**> the counter, extended to a 32-bit
+                                                       * int to guarantee it increasing monotonically
+                                                       */
+};
+
+/*  Structure to contain APS node information for a packet */
+struct zbee_aps_node_packet_info
+{
+    guint32 extended_counter;                         /**> the counter, extended to a 32-bit
+                                                       * int to guarantee it increasing monotonically
+                                                       */
+};
 
 /* ZigBee Smart Energy version used for preferences */
 extern gint  gPREF_zbee_se_protocol_version;

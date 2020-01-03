@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -58,6 +57,50 @@ def open_url(url):
 
     return (body, dict(response.info()))
 
+# These are applied after punctuation has been removed.
+# More examples at https://en.wikipedia.org/wiki/Incorporation_(business)
+general_terms = '|'.join([
+    'a/s',
+    'ab', # Also follows "Oy", which is covered below.
+    'ag',
+    'b ?v',
+    'closed joint stock company',
+    'co',
+    'company',
+    'corp',
+    'corporation',
+    'de c ?v', # Follows "S.A.", which is covered separately below.
+    'gmbh',
+    'holding',
+    'inc',
+    'incorporated',
+    'jsc',
+    'kg',
+    'k k', # "K.K." as in "kabushiki kaisha", but not "K+K" as in "K+K Messtechnik".
+    'limited',
+    'llc',
+    'ltd',
+    'n ?v',
+    'oao',
+    'of',
+    'open joint stock company',
+    'ooo',
+    'oy',
+    'oyj',
+    'plc',
+    'pty',
+    'pvt',
+    's ?a ?r ?l',
+    's ?a',
+    's ?p ?a',
+    'sp ?k',
+    's ?r ?l',
+    'systems',
+    'the',
+    'zao',
+    'z ?o ?o'
+    ])
+
 def shorten(manuf):
     '''Convert a long manufacturer name to abbreviated and short names'''
     # Normalize whitespace.
@@ -66,17 +109,25 @@ def shorten(manuf):
     # Add exactly one space on each end.
     # XXX This appears to be for the re.sub below.
     manuf = u' {} '.format(manuf)
-    # Convert to consistent case
-    manuf = manuf.title()
+    # Convert all caps to title case
+    if manuf.isupper():
+        manuf = manuf.title()
     # Remove any punctuation
     # XXX Use string.punctuation? Note that it includes '-' and '*'.
-    manuf = re.sub(u"[',.()]", ' ', manuf)
+    manuf = re.sub(u"[\"',.()]", ' ', manuf)
     # & isn't needed when Standalone
     manuf = manuf.replace(" & ", " ")
-    # Remove any "the", "inc", "plc" ...
-    manuf = re.sub('\W(the|incorporated|inc|plc|systems|corporation|corp|s/a|a/s|ab|ag|kg|gmbh|company|co|limited|ltd|holding|spa)(?= )', '', manuf, flags=re.IGNORECASE)
+    # Remove business types and other general terms ("the", "inc", "plc", etc.)
+    plain_manuf = re.sub('\W(' + general_terms + ')(?= )', '', manuf, flags=re.IGNORECASE)
+    # ...but make sure we don't remove everything.
+    if not all(s == ' ' for s in plain_manuf):
+        manuf = plain_manuf
     # Remove all spaces
     manuf = re.sub('\s+', '', manuf)
+
+    if len(manuf) < 1:
+        sys.stderr.write('Manufacturer "{}" shortened to nothing.\n'.format(orig_manuf))
+        sys.exit(1)
 
     # Truncate names to a reasonable length, say, 8 characters. If
     # the string contains UTF-8, this may be substantially more than

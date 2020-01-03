@@ -90,7 +90,7 @@ void ColumnPreferencesFrame::on_newToolButton_clicked()
 
 void ColumnPreferencesFrame::on_deleteToolButton_clicked()
 {
-    if ( ui->columnTreeView->selectionModel()->selectedIndexes().count() > 0 )
+    if (ui->columnTreeView->selectionModel()->selectedIndexes().count() > 0)
     {
         QModelIndex selIndex = ui->columnTreeView->selectionModel()->selectedIndexes().at(0);
         model_->deleteEntry(proxyModel_->mapToSource(selIndex).row());
@@ -100,7 +100,7 @@ void ColumnPreferencesFrame::on_deleteToolButton_clicked()
 void ColumnPreferencesFrame::selectionChanged(const QItemSelection &/*selected*/,
     const QItemSelection &/*deselected*/)
 {
-    ui->deleteToolButton->setEnabled( ui->columnTreeView->selectionModel()->selectedIndexes().count() > 0 );
+    ui->deleteToolButton->setEnabled(ui->columnTreeView->selectionModel()->selectedIndexes().count() > 0);
 }
 
 void ColumnPreferencesFrame::on_chkShowDisplayedOnly_stateChanged(int /*state*/)

@@ -63,7 +63,7 @@ new_page_pd(print_stream_t *self)
 
 } // extern "C"
 
-PrintDialog::PrintDialog(QWidget *parent, capture_file *cf) :
+PrintDialog::PrintDialog(QWidget *parent, capture_file *cf, QString selRange) :
     QDialog(parent),
     pd_ui_(new Ui::PrintDialog),
     cur_printer_(NULL),
@@ -110,7 +110,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf) :
     printer_.setDocName(display_basename);
     g_free(display_basename);
 
-    pd_ui_->rangeGroupBox->initRange(&print_args_.range);
+    pd_ui_->rangeGroupBox->initRange(&print_args_.range, selRange);
 
     pd_ui_->buttonBox->addButton(print_bt_, QDialogButtonBox::ActionRole);
     pd_ui_->buttonBox->addButton(tr("Page &Setup" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ResetRole);
@@ -132,8 +132,6 @@ PrintDialog::~PrintDialog()
     packet_range_cleanup(&print_args_.range);
     delete pd_ui_;
 }
-
-// Public
 
 gboolean PrintDialog::printHeader()
 {

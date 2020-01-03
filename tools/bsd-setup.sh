@@ -116,8 +116,8 @@ echo "pkg-config is unavailable"
 
 # c-ares: FreeBSD
 # libcares: OpenBSD
-add_package ADDITIONAL_LIST c-ares ||
-add_package ADDITIONAL_LIST libcares ||
+add_package BASIC_LIST c-ares ||
+add_package BASIC_LIST libcares ||
 echo "c-ares is unavailable"
 
 # rubygem-asciidoctor: FreeBSD
@@ -156,18 +156,18 @@ esac
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries
-if [ $ADDITIONAL ]
+if [ $ADDITIONAL -ne 0 ]
 then
 	ACTUAL_LIST="$ACTUAL_LIST $ADDITIONAL_LIST"
 fi
 
 $PM $PM_OPTIONS $ACTUAL_LIST $OPTIONS
-if [ $? != 0 ]
+if [ $? -ne 0 ]
 then
 	exit 2
 fi
 
-if [ ! $ADDITIONAL ]
+if [ $ADDITIONAL -eq 0 ]
 then
-	echo "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
+	echo -e "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
 fi

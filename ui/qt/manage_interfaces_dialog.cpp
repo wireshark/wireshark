@@ -15,7 +15,7 @@
 #include "epan/to_str.h"
 #include "capture_opts.h"
 #include "ui/capture_globals.h"
-#include "ui/qt/capture_interfaces_dialog.h"
+#include "ui/qt/capture_options_dialog.h"
 #include <ui/qt/models/interface_tree_cache_model.h>
 #include <ui/qt/models/interface_sort_filter_model.h>
 #ifdef HAVE_PCAP_REMOTE
@@ -210,7 +210,7 @@ ManageInterfacesDialog::~ManageInterfacesDialog()
 
 void ManageInterfacesDialog::onSelectionChanged(const QItemSelection &sel, const QItemSelection &)
 {
-    ui->delPipe->setEnabled( sel.count() > 0 );
+    ui->delPipe->setEnabled(sel.count() > 0);
 }
 
 void ManageInterfacesDialog::updateWidgets()
@@ -300,7 +300,7 @@ void ManageInterfacesDialog::on_delPipe_clicked()
      * to only select single items. */
     QModelIndex selIndex = ui->pipeView->selectionModel()->selectedIndexes().at(0);
 
-    sourceModel->deleteDevice( pipeProxyModel->mapToSource(selIndex) );
+    sourceModel->deleteDevice(pipeProxyModel->mapToSource(selIndex));
     updateWidgets();
 }
 #endif
@@ -502,7 +502,7 @@ void ManageInterfacesDialog::remoteAccepted()
 {
     QTreeWidgetItemIterator it(ui->remoteList);
 
-    while(*it) {
+    while (*it) {
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if ((*it)->text(col_r_host_dev_).compare(device->name))

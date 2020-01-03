@@ -37,7 +37,7 @@ static header_field_info *hfi_netlink_netfilter = NULL;
 
 #define NETLINK_NETFILTER_HFI_INIT HFI_INIT(proto_netlink_netfilter)
 
-/* nfnetlink subsystems from <linux/netfilter/nfnetlink.h> */
+/* nfnetlink subsystems from <include/uapi/linux/netfilter/nfnetlink.h> */
 enum {
 	WS_NFNL_SUBSYS_NONE              =  0,
 	WS_NFNL_SUBSYS_CTNETLINK         =  1,
@@ -51,15 +51,16 @@ enum {
 	WS_NFNL_SUBSYS_CTHELPER          =  9,
 	WS_NFNL_SUBSYS_NFTABLES          = 10,
 	WS_NFNL_SUBSYS_NFT_COMPAT        = 11,
+	WS_NFNL_SUBSYS_COUNT             = 12,
 };
 
-/* nfnetlink ULOG subsystem types from <linux/netfilter/nfnetlink_log.h> */
+/* nfnetlink ULOG subsystem types from <include/uapi/linux/netfilter/nfnetlink_log.h> */
 enum ws_nfulnl_msg_types {
 	WS_NFULNL_MSG_PACKET = 0,
 	WS_NFULNL_MSG_CONFIG = 1
 };
 
-/* Macros for "hook function responses" from <linux/netfilter.h> */
+/* Macros for "hook function responses" from <include/uapi/linux/netfilter.h> */
 enum ws_verdict_types {
 	WS_NF_DROP      = 0,
 	WS_NF_ACCEPT    = 1,
@@ -77,7 +78,7 @@ enum ws_nf_inet_hooks {
 	WS_NF_INET_POST_ROUTING = 4,
 };
 
-/* from <linux/netfilter/nf_conntrack_common.h> */
+/* from <include/uapi/linux/netfilter/nf_conntrack_common.h> */
 enum ws_ip_conntrack_info {
 	WS_IP_CT_ESTABLISHED,
 	WS_IP_CT_RELATED,
@@ -117,6 +118,8 @@ enum ws_ip_conntrack_status {
 	WS_IPS_UNTRACKED = (1 << WS_IPS_UNTRACKED_BIT),
 	WS_IPS_HELPER_BIT = 13,
 	WS_IPS_HELPER = (1 << WS_IPS_HELPER_BIT),
+	WS_IPS_OFFLOAD_BIT = 14,
+	WS_IPS_OFFLOAD = (1 << WS_IPS_OFFLOAD_BIT),
 };
 
 enum nfexp_flags {
@@ -125,13 +128,13 @@ enum nfexp_flags {
 	WS_NF_CT_EXPECT_USERSPACE   = (1 << 2),
 };
 
-/* from <linux/netfilter/nf_conntrack_tuple_common.h> */
+/* from <include/uapi/linux/netfilter/nf_conntrack_tuple_common.h> */
 enum ws_ip_conntrack_dir {
 	WS_IP_CT_DIR_ORIGINAL       = 0,
 	WS_IP_CT_DIR_REPLY          = 1,
 };
 
-/* nfnetlink QUEUE subsystem types from <linux/netfilter/nfnetlink_queue.h> */
+/* nfnetlink QUEUE subsystem types from <include/uapi/linux/netfilter/nfnetlink_queue.h> */
 enum ws_nfqnl_msg_types {
 	WS_NFQNL_MSG_PACKET         = 0,
 	WS_NFQNL_MSG_VERDICT        = 1,
@@ -186,7 +189,7 @@ enum ws_nfqnl_attr_config {
 	WS_NFQA_CFG_FLAGS           = 5,
 };
 
-/* from <linux/netfilter/nfnetlink_conntrack.h> */
+/* from <include/uapi/linux/netfilter/nfnetlink_conntrack.h> */
 enum ws_ctattr_tuple {
 	WS_CTA_TUPLE_UNSPEC         = 0,
 	WS_CTA_TUPLE_IP             = 1,
@@ -238,6 +241,7 @@ enum ws_ctattr_expect {
 };
 
 enum ws_ctattr_expect_nat {
+	WS_CTA_EXPECT_NAT_UNSPEC    = 0,
 	WS_CTA_EXPECT_NAT_DIR       = 1,
 	WS_CTA_EXPECT_NAT_TUPLE     = 2,
 };
@@ -267,6 +271,7 @@ enum ws_ctattr_type {
 	WS_CTA_MARK_MASK            = 21,
 	WS_CTA_LABELS               = 22,
 	WS_CTA_LABELS_MASK          = 23,
+	WS_CTA_SYNPROXY             = 24,
 };
 
 enum ws_ctattr_help {
@@ -276,12 +281,13 @@ enum ws_ctattr_help {
 };
 
 enum ws_ctattr_seqadj {
+	WS_CTA_SEQADJ_UNSPEC           = 0,
 	WS_CTA_SEQADJ_CORRECTION_POS   = 1,
 	WS_CTA_SEQADJ_OFFSET_BEFORE    = 2,
 	WS_CTA_SEQADJ_OFFSET_AFTER     = 3,
 };
 
-/* from <linux/netfilter/ipset/ip_set.h> */
+/* from <include/uapi/linux/netfilter/ipset/ip_set.h> */
 enum ws_ipset_cmd {
 	WS_IPSET_CMD_NONE           = 0,
 	WS_IPSET_CMD_PROTOCOL       = 1,
@@ -297,6 +303,8 @@ enum ws_ipset_cmd {
 	WS_IPSET_CMD_TEST           = 11,
 	WS_IPSET_CMD_HEADER         = 12,
 	WS_IPSET_CMD_TYPE           = 13,
+	WS_IPSET_CMD_GET_BYNAME     = 14,
+	WS_IPSET_CMD_GET_BYINDEX    = 15,
 };
 
 /* Attributes at command level */
@@ -311,6 +319,7 @@ enum ws_ipset_attr {
 	WS_IPSET_ATTR_ADT           = 8,
 	WS_IPSET_ATTR_LINENO        = 9,
 	WS_IPSET_ATTR_PROTOCOL_MIN  = 10,
+	WS_IPSET_ATTR_INDEX         = 11,
 };
 
 /* CADT-specific attributes (Create/Abstract Data Type) */
@@ -577,6 +586,7 @@ static const value_string nfct_attr_vals[] = {
 	{ WS_CTA_MARK_MASK,             "Mark mask" },
 	{ WS_CTA_LABELS,                "LABELS" },
 	{ WS_CTA_LABELS_MASK,           "LABELS_MASK" },
+	{ WS_CTA_SYNPROXY,              "SYNPROXY" },
 	{ 0, NULL }
 };
 
@@ -587,6 +597,7 @@ static const value_string nfct_help_attr_vals[] = {
 };
 
 static const value_string nfct_seqadj_attr_vals[] = {
+	{ WS_CTA_SEQADJ_UNSPEC,         "Unspecified" },
 	{ WS_CTA_SEQADJ_CORRECTION_POS, "Correction position" },
 	{ WS_CTA_SEQADJ_OFFSET_BEFORE,  "Offset before" },
 	{ WS_CTA_SEQADJ_OFFSET_AFTER,   "Offset after" },
@@ -672,7 +683,13 @@ static header_field_info hfi_nfct_attr_status_flag_helper NETLINK_NETFILTER_HFI_
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_HELPER,
 		"Conntrack got a helper explicitly attached via CT target", HFILL };
 
+static header_field_info hfi_nfct_attr_status_flag_offload NETLINK_NETFILTER_HFI_INIT =
+	{ "Offload", "netlink-netfilter.ct_attr.status.offload",
+		FT_UINT32, BASE_DEC, NULL, WS_IPS_OFFLOAD,
+		NULL, HFILL };
+
 static const int *hfi_nfct_attr_status_flags[] = {
+	&hfi_nfct_attr_status_flag_offload.id,
 	&hfi_nfct_attr_status_flag_helper.id,
 	&hfi_nfct_attr_status_flag_untracked.id,
 	&hfi_nfct_attr_status_flag_template.id,
@@ -1494,6 +1511,8 @@ static const value_string ipset_command_vals[] = {
 	{ WS_IPSET_CMD_TEST,        "Test an element in a set" },
 	{ WS_IPSET_CMD_HEADER,      "Get set header data only" },
 	{ WS_IPSET_CMD_TYPE,        "Get set type" },
+	{ WS_IPSET_CMD_GET_BYNAME,  "Get set by name" },
+	{ WS_IPSET_CMD_GET_BYINDEX, "Get set by index" },
 	{ 0, NULL }
 };
 
@@ -1508,6 +1527,7 @@ static const value_string ipset_attr_vals[] = {
 	{ WS_IPSET_ATTR_ADT,            "Multiple data containers" },
 	{ WS_IPSET_ATTR_LINENO,         "Restore lineno" },
 	{ WS_IPSET_ATTR_PROTOCOL_MIN,   "Minimal supported version number" },
+	{ WS_IPSET_ATTR_INDEX,          "Index" },
 	{ 0, NULL }
 };
 
@@ -1799,6 +1819,7 @@ dissect_ipset_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, i
 
 		case WS_IPSET_ATTR_LINENO:
 		case WS_IPSET_ATTR_PROTOCOL_MIN:
+		case WS_IPSET_ATTR_INDEX:
 			/* TODO */
 			return 0;
 	}
@@ -1827,6 +1848,7 @@ static const value_string netlink_netfilter_subsystem_vals[] = {
 	{ WS_NFNL_SUBSYS_CTHELPER,          "Connection Tracking Helpers" },
 	{ WS_NFNL_SUBSYS_NFTABLES,          "Netfilter tables" },
 	{ WS_NFNL_SUBSYS_NFT_COMPAT,        "x_tables compatibility layer for nf_tables" },
+	{ WS_NFNL_SUBSYS_COUNT,             "Count" },
 	{ 0, NULL }
 };
 
@@ -1944,6 +1966,7 @@ proto_register_netlink_netfilter(void)
 		&hfi_nfct_attr_status_flag_template,
 		&hfi_nfct_attr_status_flag_untracked,
 		&hfi_nfct_attr_status_flag_helper,
+		&hfi_nfct_attr_status_flag_offload,
 		&hfi_nfct_attr_timeout,
 		&hfi_nfct_attr_id,
 		&hfi_nfct_help_attr,
