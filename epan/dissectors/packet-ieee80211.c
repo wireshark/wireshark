@@ -660,6 +660,7 @@ static const value_string wfa_subtype_vals[] = {
   { WFA_SUBTYPE_DPP, "Device Provisioning Protocol" },
   { WFA_SUBTYPE_IEEE1905_MULTI_AP, "IEEE1905 Multi-AP" },
   { WFA_SUBTYPE_OWE_TRANSITION_MODE, "OWE Transition Mode" },
+  { WFA_SUBTYPE_WIFI_60G, "60GHz Information Element" },
   { 0, NULL }
 };
 
@@ -5461,6 +5462,15 @@ static int hf_ieee80211_fils_encrypted_data = -1;
 static int hf_ieee80211_fils_wrapped_data = -1;
 static int hf_ieee80211_fils_nonce = -1;
 
+/* wfa 60g ie tree */
+static int hf_ieee80211_wfa_60g_attr = -1;
+static int hf_ieee80211_wfa_60g_attr_id = -1;
+static int hf_ieee80211_wfa_60g_attr_len = -1;
+
+static int hf_ieee80211_wfa_60g_attr_cap_sta_mac_addr = -1;
+static int hf_ieee80211_wfa_60g_attr_cap_recv_amsdu_frames = -1;
+static int hf_ieee80211_wfa_60g_attr_cap_reserved = -1;
+
 /* ************************************************************************* */
 /*                              802.11AX fields                              */
 /* ************************************************************************* */
@@ -6009,6 +6019,8 @@ static expert_field ei_ieee80211_twt_setup_not_supported_neg_type = EI_INIT;
 static expert_field ei_ieee80211_twt_setup_bad_command = EI_INIT;
 static expert_field ei_ieee80211_invalid_control_word = EI_INIT;
 static expert_field ei_ieee80211_invalid_control_id = EI_INIT;
+static expert_field ei_ieee80211_wfa_60g_attr_len_invalid = EI_INIT;
+static expert_field ei_ieee80211_wfa_60g_unknown_attribute = EI_INIT;
 
 /* 802.11ad trees */
 static gint ett_dynamic_alloc_tree = -1;
@@ -6026,6 +6038,8 @@ static gint ett_allocation_tree = -1;
 static gint ett_sta_info = -1;
 
 static gint ett_ieee80211_esp = -1;
+
+static gint ett_ieee80211_wfa_60g_attr = -1;
 
 /* 802.11ah trees */
 static gint ett_twt_tear_down_tree = -1;
@@ -13819,6 +13833,68 @@ dissect_hs20_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
      offset += 2;
   }
 
+  return offset;
+}
+
+enum ieee80211_wfa_60g_attr {
+  /* 0 Reserved */
+  WIFI_60G_ATTR_CAPABILITY = 1,
+  /* 2 - 225 Reserved */
+};
+
+static const value_string ieee80211_wfa_60g_attr_ids[] = {
+  { WIFI_60G_ATTR_CAPABILITY, "60GHz Capability" },
+  { 0, NULL }
+};
+
+static int
+dissect_wfa_60g_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  gint end = tvb_reported_length(tvb);
+  int offset = 0;
+  guint8 id;
+  guint16 len;
+  proto_tree *wf60g_tree;
+  proto_item *attrs;
+
+  while (offset < end) {
+    if (end - offset < 2) {
+      expert_add_info_format(pinfo, tree, &ei_ieee80211_wfa_60g_attr_len_invalid, "Packet too short for Wi-Fi 60G attribute");
+      break;
+    }
+
+    id = tvb_get_guint8(tvb, offset);
+    len = tvb_get_ntohs(tvb, offset + 1);
+    attrs = proto_tree_add_item(tree, hf_ieee80211_wfa_60g_attr, tvb, offset, 0, ENC_NA);
+    proto_item_append_text(attrs, ": %s", val_to_str(id, ieee80211_wfa_60g_attr_ids,
+                                             "Unknown attribute ID (%u)"));
+    wf60g_tree = proto_item_add_subtree(attrs, ett_ieee80211_wfa_60g_attr);
+    proto_tree_add_item(wf60g_tree, hf_ieee80211_wfa_60g_attr_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(wf60g_tree, hf_ieee80211_wfa_60g_attr_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+
+    switch (id) {
+    case WIFI_60G_ATTR_CAPABILITY:
+      if (len - offset < 7) {
+        expert_add_info_format(pinfo, tree, &ei_ieee80211_wfa_60g_attr_len_invalid, "Packet too short for 60G capability attribute");
+        break;
+      }
+
+      proto_tree_add_item(wf60g_tree, hf_ieee80211_wfa_60g_attr_cap_sta_mac_addr, tvb, offset, 6, ENC_NA);
+      offset += 6;
+      proto_tree_add_item(wf60g_tree, hf_ieee80211_wfa_60g_attr_cap_recv_amsdu_frames, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(wf60g_tree, hf_ieee80211_wfa_60g_attr_cap_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+      offset += 1;
+      break;
+    default:
+      proto_tree_add_expert_format(tree, pinfo, &ei_ieee80211_wfa_60g_unknown_attribute, tvb,
+                                         offset, len+2, "Unknown attribute ID (%u)", id);
+    }
+
+    offset += len;
+  }
   return offset;
 }
 
@@ -36298,6 +36374,37 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_DEC, NULL, 0x08,
       NULL, HFILL }},
 
+    /* 60g ie  */
+    {&hf_ieee80211_wfa_60g_attr,
+     {"Attribute", "wlan.60g.attr",
+      FT_NONE, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_60g_attr_id,
+     {"Attribute ID", "wlan.60g.attr.id",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_wfa_60g_attr_ids), 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_60g_attr_len,
+     {"Attribute Length", "wlan.60g.attr.length",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_60g_attr_cap_sta_mac_addr,
+     {"STA Address", "wlan.60g.attr.60g_cap.sta_mac_addr",
+      FT_ETHER, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_60g_attr_cap_recv_amsdu_frames,
+     {"Receive Capability AMSDU", "wlan.60g.attr.60g_cap.recv_amsdu",
+      FT_UINT8, BASE_DEC, NULL, 0x01,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_60g_attr_cap_reserved,
+     {"Reserved", "wlan.60g.attr.60g_cap.reserved",
+      FT_UINT8, BASE_DEC, NULL, 0xfe,
+      NULL, HFILL }},
+
     {&hf_ieee80211_mysterious_olpc_stuff,
      {"Mysterious OLPC stuff", "wlan.mysterious_olpc_stuff",
       FT_NONE, BASE_NONE, NULL, 0x0,
@@ -37797,7 +37904,7 @@ proto_register_ieee80211(void)
     &ett_sta_info,
 
     &ett_ieee80211_esp,
-
+    &ett_ieee80211_wfa_60g_attr,
     &ett_gas_resp_fragment,
     &ett_gas_resp_fragments,
 
@@ -37991,6 +38098,10 @@ proto_register_ieee80211(void)
       { "wlan.dmg_subtype.bad", PI_MALFORMED, PI_ERROR,
         "Bad DMG type/subtype", EXPFILL }},
 
+    { &ei_ieee80211_wfa_60g_attr_len_invalid,
+      { "wlan.60g.attr.length.invalid", PI_MALFORMED, PI_ERROR,
+        "Attribute length invalid", EXPFILL }},
+
     { &ei_ieee80211_vht_action,
       { "wlan.vht.action.undecoded", PI_UNDECODED, PI_NOTE,
         "All subtype of VHT Action is not yet supported by Wireshark", EXPFILL }},
@@ -37998,6 +38109,10 @@ proto_register_ieee80211(void)
     { &ei_ieee80211_mesh_peering_unexpected,
       { "wlan.peering.unexpected", PI_MALFORMED, PI_ERROR,
         "Unexpected Self-protected action", EXPFILL }},
+
+    { &ei_ieee80211_wfa_60g_unknown_attribute,
+      { "wlan.attr.unknown", PI_MALFORMED, PI_ERROR,
+        "Attribute unknown", EXPFILL }},
 
     { &ei_ieee80211_fcs,
       { "wlan.fcs.bad_checksum", PI_MALFORMED, PI_ERROR,
@@ -38511,6 +38626,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_HS20_INDICATION, create_dissector_handle(dissect_hs20_indication, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_OSEN, create_dissector_handle(dissect_hs20_osen, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_OWE_TRANSITION_MODE, create_dissector_handle(dissect_owe_transition_mode, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_WIFI_60G, create_dissector_handle(dissect_wfa_60g_ie, -1));
 }
 
 /*

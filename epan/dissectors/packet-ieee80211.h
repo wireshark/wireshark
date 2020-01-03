@@ -294,6 +294,7 @@ typedef struct anqp_info_dissector_data {
 #define WFA_SUBTYPE_HS20_ANQP                  17
 #define WFA_SUBTYPE_OSEN                       18
 #define WFA_SUBTYPE_NAN_IE                     19
+#define WFA_SUBTYPE_WIFI_60G                   23
 #define WFA_SUBTYPE_NAN_ACTION                 24
 #define WFA_SUBTYPE_DPP                        26
 #define WFA_SUBTYPE_IEEE1905_MULTI_AP          27 /* ox1B */
