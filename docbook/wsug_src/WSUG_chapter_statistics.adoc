@@ -335,6 +335,8 @@ Information is broken down by packet length ranges as shown above.
 
 Packet Lengths::
 The range of packet lengths.
++
+Ranges can be configured in the “Statistics -> Stats Tree” section of the <<ChCustPreferencesSection,Preferences Dialog>>.
 
 Count::
 The number of packets that fall into this range.
