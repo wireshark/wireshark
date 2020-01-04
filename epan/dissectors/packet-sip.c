@@ -4337,7 +4337,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                     }
                                     comma_offset++; /* skip comma */
                                 }
-                                if ((authorization_info.response != NULL) && (global_sip_validate_authorization)) { /* If there is a response, check for valid credentials */
+                                if ((authorization_info.response != NULL) && (global_sip_validate_authorization) &&
+                                        (authorization_info.username != NULL) && (authorization_info.realm != NULL)) { /* If there is a response, check for valid credentials */
                                     authorization_user = sip_get_authorization(&authorization_info);
                                     if (authorization_user) {
                                         authorization_info.method = wmem_strdup(wmem_packet_scope(), stat_info->request_method);
