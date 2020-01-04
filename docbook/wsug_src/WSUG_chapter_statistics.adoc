@@ -417,6 +417,17 @@ The btn:[Copy] button will copy values from selected graphs to the clipboard in 
 Click in the graph to select the first package in the selected interval.
 ====
 
+// Applies to the Qt verson:
+// .Missing Values Are Zero
+
+// Wireshark's I/O Graph window doesn’t distinguish between missing and zero values.
+// For _plain_ scatter plots, it is assumed that zero values indicate missing data, and those values are ommitted.
+// Zero values are shown in line graphs, bar charts, and _calculated_ scatter plots.
+// Scatter plots are considered calculated if they have a calculated Y axis field or if a moving average is set.
+
+// If you need to display zero values in a scatter plot, you can do so by making the Y Axis a calculated field.
+// For example, the calculated equivalent of “Packets” is a “COUNT FRAMES” Y Axis with a Y Field set to “frame”.
+
 [[ChStatSRT]]
 
 === Service Response Time

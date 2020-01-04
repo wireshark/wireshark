@@ -57,6 +57,9 @@
 // - Use scroll bars?
 // - Scroll during live captures
 // - Set ticks per pixel (e.g. pressing "2" sets 2 tpp).
+// - Explicitly handle missing values, e.g. via NAN.
+// - Add a "show missing" or "show zero" option to the UAT?
+//   It would add yet another graph configuration column.
 
 const qreal graph_line_width_ = 1.0;
 
@@ -458,7 +461,7 @@ void IOGraphDialog::copyFromProfile(QString filename)
     }
 }
 
-void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, int color_idx, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average)
+void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average)
 {
     // should not fail, but you never know.
     if (!uat_model_->insertRows(uat_model_->rowCount(), 1)) {
@@ -476,7 +479,7 @@ void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, int co
     uat_model_->setData(uat_model_->index(currentRow, colStyle), val_to_str_const(style, graph_style_vs, "None"));
     uat_model_->setData(uat_model_->index(currentRow, colYAxis), val_to_str_const(value_units, y_axis_vs, "Packets"));
     uat_model_->setData(uat_model_->index(currentRow, colYField), yfield);
-    uat_model_->setData(uat_model_->index(currentRow, colSMAPeriod), val_to_str_const(moving_average, moving_avg_vs, "None"));
+    uat_model_->setData(uat_model_->index(currentRow, colSMAPeriod), val_to_str_const((guint32) moving_average, moving_avg_vs, "None"));
 
     // due to an EditTrigger, this will also start editing.
     ui->graphUat->setCurrentIndex(new_index);
@@ -532,11 +535,11 @@ void IOGraphDialog::addDefaultGraph(bool enabled, int idx)
 {
     switch (idx % 2) {
     case 0:
-        addGraph(enabled, tr("All packets"), QString(), ColorUtils::graphColor(idx),
+        addGraph(enabled, tr("All Packets"), QString(), ColorUtils::graphColor(idx),
                  IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE);
         break;
     default:
-        addGraph(enabled, tr("TCP errors"), "tcp.analysis.flags", ColorUtils::graphColor(idx),
+        addGraph(enabled, tr("TCP Errors"), "tcp.analysis.flags", ColorUtils::graphColor(4), // 4 = red
                  IOGraph::psBar, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE);
         break;
     }
@@ -1884,7 +1887,7 @@ void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
     unsigned int mavg_in_average_count = 0, mavg_left = 0, mavg_right = 0;
     unsigned int mavg_to_remove = 0, mavg_to_add = 0;
     double mavg_cumulated = 0;
-    QCPAxis *x_axis = NULL;
+    QCPAxis *x_axis = nullptr;
 
     if (graph_) {
         graph_->data()->clear();
@@ -1927,8 +1930,17 @@ void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
             ts += start_time_;
         }
         double val = getItemValue(i, cap_file);
+        // Should we show this value? Yes, if
+        // - It's for a line or bar graph
+        // - It's a scatter plot with a calculated value.
+        bool show_value = val != 0.0 || (graph_ && graph_->scatterStyle().shape() == QCPScatterStyle::ssNone);
+
+        if (val_units_ >= IOG_ITEM_UNIT_CALC_SUM) {
+            show_value = true;
+        }
 
         if (moving_avg_period_ > 0) {
+            show_value = true;
             if (i != 0) {
                 mavg_left++;
                 if (mavg_left > moving_avg_period_ / 2) {
@@ -1950,7 +1962,7 @@ void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
             }
         }
 
-        if (graph_) {
+        if (graph_ && show_value) {
             graph_->addData(ts, val);
         }
         if (bars_) {
