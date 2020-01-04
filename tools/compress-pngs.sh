@@ -10,35 +10,34 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-FILE_LIST_CMD="find . -type f -name \"*.png\""
-
-if [ -n "$1" ] ; then
-    FILE_LIST_CMD="echo $1"
-fi
+while getopts h OPTCHAR
+do
+    case $OPTCHAR in
+    h|?)
+        echo "Usage: compress-pngs.sh file1.png [file2.png] ..." 1>&1
+        exit 0
+        ;;
+    esac
+done
 
 # Other utilities:
 # PNGOUT (http://advsys.net/ken/utils.htm). Closed source.
 # pngquant (https://pngquant.org/). Lossy.
 
 JOBS=8
-export FILE_LIST_CMD
+PNG_FILES=$(printf "%q " "$@")
+export PNG_FILES
 (
-    echo -n "PNG_FILES ="
-    bash -c "$FILE_LIST_CMD" | while read -r PNG_FILE ; do
-        echo -e " \\"
-        echo -e -n "\\t${PNG_FILE}"
-
-    done
     cat <<"FIN"
 
 all: $(PNG_FILES)
 
 $(PNG_FILES): FORCE
 	@echo Compressing $@
-	@hash oxipng 2>/dev/null  && oxipng -o 4 --strip safe "$@"
-	@hash optipng 2>/dev/null  && optipng -o3 -quiet "$@"
-	@hash advpng 2>/dev/null   && advpng -z -4 "$@"
-	@hash advdef 2>/dev/null   && advdef -z -4 "$@"
+	@hash oxipng   2>/dev/null && oxipng --opt 4 --strip safe "$@"
+	@hash optipng  2>/dev/null && optipng -o3 -quiet "$@"
+	@hash advpng   2>/dev/null && advpng --recompress --shrink-insane "$@"
+	@hash advdef   2>/dev/null && advdef --recompress --shrink-insane "$@"
 	@hash pngcrush 2>/dev/null && pngcrush -q -ow -brute -reduce -noforce "$@" pngout.$$$$.png
 
 FORCE:
