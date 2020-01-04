@@ -46,13 +46,15 @@ QWidget * ExtcapArgumentFileSelection::createEditor(QWidget * parent)
 {
     QString text = defaultValue();
     QString buttonText(UTF8_HORIZONTAL_ELLIPSIS);
+    QString buttonClearText(tr("Clear"));
 
     QWidget * fileWidget = new QWidget(parent);
     QHBoxLayout * editLayout = new QHBoxLayout();
     QMargins margins = editLayout->contentsMargins();
     editLayout->setContentsMargins(0, 0, 0, margins.bottom());
     fileWidget->setContentsMargins(margins.left(), margins.right(), 0, margins.bottom());
-    QPushButton * button = new QPushButton(buttonText, fileWidget);
+    QPushButton * buttonSelect = new QPushButton(buttonText, fileWidget);
+    QPushButton * buttonClear = new QPushButton(buttonClearText, fileWidget);
 
     textBox = new QLineEdit(text, parent);
     textBox->setReadOnly(true);
@@ -70,13 +72,15 @@ QWidget * ExtcapArgumentFileSelection::createEditor(QWidget * parent)
     if (_argument->tooltip != NULL)
     {
         textBox->setToolTip(QString().fromUtf8(_argument->tooltip));
-        button->setToolTip(QString().fromUtf8(_argument->tooltip));
+        buttonSelect->setToolTip(QString().fromUtf8(_argument->tooltip));
     }
 
-    connect(button, SIGNAL(clicked()), (QObject *)this, SLOT(openFileDialog()));
+    connect(buttonSelect, SIGNAL(clicked()), (QObject *)this, SLOT(openFileDialog()));
+    connect(buttonClear, SIGNAL(clicked()), (QObject *)this, SLOT(clearFilename()));
 
     editLayout->addWidget(textBox);
-    editLayout->addWidget(button);
+    editLayout->addWidget(buttonSelect);
+    editLayout->addWidget(buttonClear);
 
     fileWidget->setLayout(editLayout);
 
@@ -107,15 +111,34 @@ void ExtcapArgumentFileSelection::openFileDialog()
             fileExt.prepend(";;").prepend(givenExt);
     }
 
-    filename = WiresharkFileDialog::getOpenFileName((QWidget *)(textBox->parent()),
-        QString().fromUtf8(_argument->display) + " " + tr("Open File"),
-        workingDir.absolutePath(), fileExt);
+    if (fileExists())
+    {
+        /* UI should check that the file exists */
+        filename = WiresharkFileDialog::getOpenFileName((QWidget*)(textBox->parent()),
+            QString().fromUtf8(_argument->display) + " " + tr("Open File"),
+            workingDir.absolutePath(), fileExt);
+    }
+    else
+    {
+        /* File might or might not exist. Actual overwrite handling is extcap specific
+         * (e.g. boolflag argument if user wants to always overwrite the file)
+         */
+        filename = WiresharkFileDialog::getSaveFileName((QWidget*)(textBox->parent()),
+            QString().fromUtf8(_argument->display) + " " + tr("Select File"),
+            workingDir.absolutePath(), fileExt, nullptr, QFileDialog::Option::DontConfirmOverwrite);
+    }
 
-    if (! fileExists() || QFileInfo(filename).exists())
+    if (! filename.isEmpty() && (! fileExists() || QFileInfo(filename).exists()))
     {
         textBox->setText(filename);
         emit valueChanged();
     }
+}
+
+void ExtcapArgumentFileSelection::clearFilename()
+{
+    textBox->clear();
+    emit valueChanged();
 }
 
 bool ExtcapArgumentFileSelection::isValid()

@@ -37,7 +37,8 @@ protected:
 private slots:
     /* opens the file dialog */
     void openFileDialog();
-
+    /* clears previously entered filename */
+    void clearFilename();
 };
 
 #endif /* UI_QT_EXTCAP_ARGUMENT_FILE_H_ */
