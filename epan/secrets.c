@@ -377,6 +377,9 @@ uat_pkcs11_libs_load_all(void)
         ret = gnutls_pkcs11_add_provider(libname, NULL);
 #ifdef WIN32
         }
+        if (provider_lib) {
+            FreeLibrary(provider_lib);
+        }
 #endif
         if (ret) {
             if (!err) {
