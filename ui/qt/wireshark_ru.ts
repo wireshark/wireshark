@@ -93,8 +93,7 @@
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <oldsource>The directory %1 could not be created!</oldsource>
-        <translation type="unfinished">Каталог %1 не может быть создан!</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show in Finder</source>

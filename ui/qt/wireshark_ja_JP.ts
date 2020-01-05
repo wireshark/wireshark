@@ -25,11 +25,11 @@
     </message>
     <message>
         <source>Copy the version information to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>バージョン情報をクリップボードにコピーします</translation>
     </message>
     <message>
         <source>Copy To Clipboard</source>
-        <translation type="unfinished">クリップボードにコピー</translation>
+        <translation>クリップボードにコピー</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -93,8 +93,7 @@
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <oldsource>The directory %1 could not be created!</oldsource>
-        <translation type="unfinished">ディレクトリ %1 を作成出来ませんでした</translation>
+        <translation>ディレクトリ %1 を作成できませんでした</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -271,7 +270,7 @@
     </message>
     <message>
         <source>LMP Subversion</source>
-        <translation type="unfinished">LMPサブバージョン</translation>
+        <translation>LMP サブバージョン</translation>
     </message>
     <message>
         <source>Manufacturer</source>
@@ -778,6 +777,13 @@
     <message>
         <source>Automatically detect file type</source>
         <translation>ファイル種別を自動的に検出</translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln packet(s)</source>
+        <oldsource>%1, error after %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%Ln パケットの後に %1 エラー </numerusform>
+        </translation>
     </message>
     <message>
         <source>Prepend packets</source>
