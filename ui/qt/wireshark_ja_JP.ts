@@ -85,8 +85,7 @@
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <oldsource>The directory %1 could not be created!</oldsource>
-        <translation type="unfinished">ディレクトリ %1 を作成出来ませんでした</translation>
+        <translation>ディレクトリ %1 を作成できませんでした</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -2781,11 +2780,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>macOS Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>macOS エキストラ</translation>
     </message>
     <message>
         <source>Extra macOS packages</source>
-        <translation type="unfinished"></translation>
+        <translation>エキストラ macOS パッケージ</translation>
     </message>
     <message>
         <source>Name</source>
@@ -4184,11 +4183,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Interfaces not loaded (due to preference). Go to Capture </source>
-        <translation type="unfinished"></translation>
+        <translation>(設定により)インタフェースがロードされませんでした。キャプチャへ移動</translation>
     </message>
     <message>
         <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャする許可がありません。ChmodBPFをインストールすることでこれを修正できます。</translation>
     </message>
 </context>
 <context>
@@ -9839,7 +9838,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">エラー</translation>
+        <translation>エラー</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>

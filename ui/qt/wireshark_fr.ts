@@ -85,7 +85,6 @@
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <oldsource>The directory %1 could not be created!</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
