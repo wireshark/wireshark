@@ -22,6 +22,13 @@
 void proto_register_netlink_nl80211(void);
 void proto_reg_handoff_netlink_nl80211(void);
 
+typedef struct  {
+    packet_info *pinfo;
+    struct packet_netlink_data *data;
+
+    int encoding; /* copy of data->encoding */
+} netlink_nl80211_info_t;
+
 static dissector_handle_t ieee80211_handle;
 static dissector_table_t ieee80211_tag_dissector_table;
 
@@ -3730,9 +3737,9 @@ static header_field_info hfi_nl80211_dbm NETLINK_NL80211_HFI_INIT =
       NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_nl80211_generic(tvbuff_t *tvb, void *data, proto_tree *tree, _U_ int nla_type, int offset, int len)
+dissect_nl80211_generic(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type _U_, int offset, int len)
 {
-    genl_info_t *genl_info = (genl_info_t *)data;
+    netlink_nl80211_info_t *info = (netlink_nl80211_info_t *)data;
     /*
      * No specific dissection available, apply arbitrary heuristics to
      * determine whether we have an u16 or u32 field and treat others as
@@ -3740,13 +3747,13 @@ dissect_nl80211_generic(tvbuff_t *tvb, void *data, proto_tree *tree, _U_ int nla
      */
     if (len) {
         if (len == 2) {
-            proto_tree_add_item(tree, &hfi_nl80211_attr_value16, tvb, offset, len, genl_info->encoding);
+            proto_tree_add_item(tree, &hfi_nl80211_attr_value16, tvb, offset, len, info->encoding);
         } else if (len == 4) {
-            proto_tree_add_item(tree, &hfi_nl80211_attr_value32, tvb, offset, len, genl_info->encoding);
+            proto_tree_add_item(tree, &hfi_nl80211_attr_value32, tvb, offset, len, info->encoding);
         } else if (len == 8) {
-            proto_tree_add_item(tree, &hfi_nl80211_attr_value64, tvb, offset, len, genl_info->encoding);
+            proto_tree_add_item(tree, &hfi_nl80211_attr_value64, tvb, offset, len, info->encoding);
         } else {
-            proto_tree_add_item(tree, &hfi_nl80211_attr_value, tvb, offset, len, genl_info->encoding);
+            proto_tree_add_item(tree, &hfi_nl80211_attr_value, tvb, offset, len, info->encoding);
         }
         offset += len;
     }
@@ -3763,13 +3770,13 @@ struct attr_lookup {
 static int
 dissect_nested_attr(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len, const struct attr_lookup *nested)
 {
-    genl_info_t *genl_info = (genl_info_t *)data;
+    netlink_nl80211_info_t *info = (netlink_nl80211_info_t *)data;
     for (int i = 0; nested[i].hfi; i++) {
         if (nested[i].attr_type != (nla_type & NLA_TYPE_MASK)) {
             continue;
         }
-        offset = dissect_netlink_attributes(tvb, nested[i].hfi, *nested[i].ett, genl_info,
-                                            genl_info->data, tree, offset, len,
+        offset = dissect_netlink_attributes(tvb, nested[i].hfi, *nested[i].ett, info,
+                                            info->data, tree, offset, len,
                                             nested[i].func ? nested[i].func : dissect_nl80211_generic);
         break;
     }
@@ -3779,14 +3786,14 @@ dissect_nested_attr(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, i
 static int
 dissect_nested_attr_array(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len, const struct attr_lookup *nested_arr)
 {
-    genl_info_t *genl_info = (genl_info_t *)data;
+    netlink_nl80211_info_t *info = (netlink_nl80211_info_t *)data;
     for (int i = 0; nested_arr[i].hfi; i++) {
         if (nested_arr[i].attr_type != (nla_type & NLA_TYPE_MASK)) {
             continue;
         }
         offset = dissect_netlink_attributes_array(tvb, nested_arr[i].hfi, *nested_arr[i].ett,
-                                                  *nested_arr[i].ett, genl_info,
-                                                  genl_info->data, tree, offset, len,
+                                                  *nested_arr[i].ett, info,
+                                                  info->data, tree, offset, len,
                                                   nested_arr[i].func ?
                                                    nested_arr[i].func : dissect_nl80211_generic);
        break;
@@ -3797,36 +3804,34 @@ dissect_nested_attr_array(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_t
 static int
 dissect_value(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len, const struct attr_lookup *values)
 {
-    genl_info_t *genl_info = (genl_info_t *)data;
+    netlink_nl80211_info_t *info = (netlink_nl80211_info_t *)data;
     for (int i = 0; values[i].hfi; i++) {
         if (values[i].attr_type != (nla_type & NLA_TYPE_MASK)) {
             continue;
         }
-        proto_tree_add_item(tree, values[i].hfi, tvb, offset, len, genl_info->encoding);
+        proto_tree_add_item(tree, values[i].hfi, tvb, offset, len, info->encoding);
         return offset + len;
     }
     return offset;
 }
 
-static packet_info *m_pinfo = NULL; /* TODO find a better way to pass pinfo to functions */
-
 static int
-dissect_tag(tvbuff_t *tvb, proto_tree *tree _U_, int offset, int len, guint8 tag)
+dissect_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len, guint8 tag)
 {
     proto_item *item;
     ieee80211_tagged_field_data_t field_data = { 0 };
     tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, len);
     proto_tree *subtree = proto_tree_add_subtree(tree, next_tvb, 0, -1, ett_nl80211_tag, &item, "Attribute Value");
-    dissector_try_uint_new(ieee80211_tag_dissector_table, tag, next_tvb, m_pinfo, subtree, FALSE, &field_data);
+    dissector_try_uint_new(ieee80211_tag_dissector_table, tag, next_tvb, pinfo, subtree, FALSE, &field_data);
     return offset +  len;
 }
 
 static int
-dissect_information_elements(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
+dissect_information_elements(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len)
 {
     int offset_end = offset + len;
     while (offset < offset_end) {
-        int tlen = add_tagged_field(m_pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+        int tlen = add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
         if (tlen == 0) {
             break;
         }
@@ -3900,10 +3905,11 @@ dissect_nl80211_bss(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, i
         offset = dissect_value(tvb, data, tree, nla_type, offset, len, values);
     }
     if (offset < offset_end) {
+        netlink_nl80211_info_t *info = (netlink_nl80211_info_t *)data;
         switch (type) {
         case WS_NL80211_BSS_INFORMATION_ELEMENTS:
         case WS_NL80211_BSS_BEACON_IES:
-            offset = dissect_information_elements(tvb, tree, offset, len);
+            offset = dissect_information_elements(tvb, info->pinfo, tree, offset, len);
             break;
         default:
             offset = dissect_nl80211_generic(tvb, data, tree, nla_type, offset, len);
@@ -3959,14 +3965,14 @@ dissect_nl80211_sta_info(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_ty
         offset = dissect_nested_attr_array(tvb, data, tree, nla_type, offset, len, nested_arr);
     }
     if (offset < offset_end) {
-        genl_info_t *genl_info = (genl_info_t *)data;
+        netlink_nl80211_info_t *info = (netlink_nl80211_info_t *)data;
         switch (type) {
         case WS_NL80211_STA_INFO_SIGNAL:
         case WS_NL80211_STA_INFO_SIGNAL_AVG:
         case WS_NL80211_STA_INFO_BEACON_SIGNAL_AVG:
         case WS_NL80211_STA_INFO_ACK_SIGNAL:
         case WS_NL80211_STA_INFO_ACK_SIGNAL_AVG:
-            proto_tree_add_item(tree, &hfi_nl80211_dbm, tvb, offset, len, genl_info->encoding);
+            proto_tree_add_item(tree, &hfi_nl80211_dbm, tvb, offset, len, info->encoding);
             offset += len;
             break;
         default:
@@ -4061,6 +4067,7 @@ dissect_nl80211_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type,
         offset = dissect_value(tvb, data, tree, nla_type, offset, len, values);
     }
     if (offset < offset_end) {
+        netlink_nl80211_info_t *info = (netlink_nl80211_info_t *)data;
         tvbuff_t *next_tvb;
         proto_tree *subtree;
         proto_item *item;
@@ -4072,19 +4079,19 @@ dissect_nl80211_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type,
         case WS_NL80211_ATTR_IE_PROBE_RESP:
         case WS_NL80211_ATTR_IE_ASSOC_RESP:
         case WS_NL80211_ATTR_CSA_IES:
-            offset = dissect_information_elements(tvb, tree, offset, len);
+            offset = dissect_information_elements(tvb, info->pinfo, tree, offset, len);
             break;
         case WS_NL80211_ATTR_HT_CAPABILITY:
-            offset = dissect_tag(tvb, tree, offset, len, 45 /* TAG_HT_CAPABILITY */);
+            offset = dissect_tag(tvb, info->pinfo, tree, offset, len, 45 /* TAG_HT_CAPABILITY */);
             break;
         case WS_NL80211_ATTR_VHT_CAPABILITY:
-            offset = dissect_tag(tvb, tree, offset, len, 191 /* TAG_VHT_CAPABILITY */);
+            offset = dissect_tag(tvb, info->pinfo, tree, offset, len, 191 /* TAG_VHT_CAPABILITY */);
             break;
         case WS_NL80211_ATTR_FRAME:
             next_tvb = tvb_new_subset_length(tvb, offset, len);
             subtree = proto_tree_add_subtree(tree, next_tvb, 0, -1, ett_nl80211_frame,
                                              &item, "Attribute Value");
-            call_dissector(ieee80211_handle, next_tvb, m_pinfo, subtree);
+            call_dissector(ieee80211_handle, next_tvb, info->pinfo, subtree);
             break;
         /* TODO add more fields here? */
         default:
@@ -4098,6 +4105,7 @@ dissect_nl80211_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type,
 static int
 dissect_netlink_nl80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    netlink_nl80211_info_t info;
     genl_info_t *genl_info = (genl_info_t *)data;
     proto_tree *nlmsg_tree;
     proto_item *pi;
@@ -4107,7 +4115,6 @@ dissect_netlink_nl80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "nl80211");
     col_clear(pinfo->cinfo, COL_INFO);
-    m_pinfo = pinfo;
 
     offset = dissect_genl_header(tvb, genl_info, &hfi_nl80211_commands);
 
@@ -4115,10 +4122,14 @@ dissect_netlink_nl80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     if (!tvb_reported_length_remaining(tvb, offset))
             return offset;
 
+    info.data = genl_info->data;
+    info.encoding = genl_info->encoding;
+    info.pinfo = pinfo;
+
     pi = proto_tree_add_item(tree, proto_registrar_get_nth(proto_netlink_nl80211), tvb, offset, -1, ENC_NA);
     nlmsg_tree = proto_item_add_subtree(pi, ett_nl80211);
 
-    offset = dissect_netlink_attributes(tvb, &hfi_nl80211_attrs, ett_nl80211_attrs, genl_info, genl_info->data, nlmsg_tree, offset, -1, dissect_nl80211_attrs);
+    offset = dissect_netlink_attributes(tvb, &hfi_nl80211_attrs, ett_nl80211_attrs, &info, info.data, nlmsg_tree, offset, -1, dissect_nl80211_attrs);
 
     return offset;
 }
