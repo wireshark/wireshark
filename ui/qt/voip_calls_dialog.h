@@ -65,6 +65,7 @@ private:
     QPushButton *sequence_button_;
     QPushButton *player_button_;
     QPushButton *copy_button_;
+    bool voip_calls_tap_listeners_removed_;
 
     // Tap callbacks
 //    static void tapReset(void *tapinfo_ptr);
