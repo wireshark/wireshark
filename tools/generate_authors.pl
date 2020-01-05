@@ -37,35 +37,23 @@ my $trailer = "
 
 = Acknowledgements =
 
-Dan Lasley <dlasley[AT]promus.com> gave permission for his
-dumpit() hex-dump routine to be used.
+Dan Lasley <dlasley[AT]promus.com> gave permission for his dumpit() hex-dump routine to be used.
 
-Mattia Cazzola <mattiac[AT]alinet.it> provided a patch to the
-hex dump display routine.
+Mattia Cazzola <mattiac[AT]alinet.it> provided a patch to the hex dump display routine.
 
-We use the exception module from Kazlib, a C library written by
-Kaz Kylheku <kaz[AT]kylheku.com>. Thanks go to him for
-his well-written library. The Kazlib home page can be found at
-http://www.kylheku.com/~kaz/kazlib.html
+We use the exception module from Kazlib, a C library written by Kaz Kylheku <kaz[AT]kylheku.com>. Thanks go to him for his well-written library. The Kazlib home page can be found at http://www.kylheku.com/~kaz/kazlib.html
 
-We use Lua BitOp, written by Mike Pall, for bitwise operations
-on numbers in Lua. The Lua BitOp home page can be found at
-https://bitop.luajit.org
+We use Lua BitOp, written by Mike Pall, for bitwise operations on numbers in Lua. The Lua BitOp home page can be found at https://bitop.luajit.org
 
-snax <snax[AT]shmoo.com> gave permission to use his(?) weak key
-detection code from Airsnort.
+snax <snax[AT]shmoo.com> gave permission to use his(?) weak key detection code from Airsnort.
 
 IANA gave permission for their port-numbers file to be used.
 
-We use the natural order string comparison algorithm, written by
-Martin Pool <mbp[AT]sourcefrog.net>.
+We use the natural order string comparison algorithm, written by Martin Pool <mbp[AT]sourcefrog.net>.
 
-Emanuel Eichhammer <support[AT]qcustomplot.com> granted permission
-to use QCustomPlot.
+Emanuel Eichhammer <support[AT]qcustomplot.com> granted permission to use QCustomPlot.
 
-Insecure.Com LLC (\"The Nmap Project\") has granted the Wireshark
-Foundation permission to distribute Npcap with our Windows
-installers.
+Insecure.Com LLC (\"The Nmap Project\") has granted the Wireshark Foundation permission to distribute Npcap with our Windows installers.
 ";
 
 my $git_log_text = "
