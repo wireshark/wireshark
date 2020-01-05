@@ -375,10 +375,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
     f_license.open(QFile::ReadOnly | QFile::Text);
     QTextStream ReadFile_license(&f_license);
 
-    ui->pte_License->setFont(wsApp->monospaceFont());
     ui->pte_License->insertPlainText(ReadFile_license.readAll());
     ui->pte_License->moveCursor(QTextCursor::Start);
-
 }
 
 AboutDialog::~AboutDialog()
