@@ -266,6 +266,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 			COMMAND ${POWERSHELL_COMMAND} "${_wix_source_dir}/windeployqt-to-wix.ps1"
 				-Executable $<TARGET_FILE:wireshark>
 				-FilePath ${_wix_binary_dir}/QtDependentComponents.wxs
+			DEPENDS "${_wix_source_dir}/windeployqt-to-wix.ps1"
 		)
 
 		# SNMPMibs.wxs. Collects all MIBs in "output" snmp/mibs

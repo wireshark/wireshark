@@ -69,6 +69,9 @@ try {
     if ($qtVersion -ge "5.3") {
         # Qt 5.3 or later. Windeployqt is present and works
 
+        # windeployqt lists translation files that it don't exist (e.g.
+        # qtbase_ar.qm), so we handle those by hand.
+        # https://bugreports.qt.io/browse/QTBUG-65974
         $wdqtList = windeployqt `
             --release `
             --no-compiler-runtime `
