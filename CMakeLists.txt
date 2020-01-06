@@ -1954,10 +1954,8 @@ if(WIN32)
 		add_custom_command(TARGET pdb_zip_package POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E remove -f "${_pdb_zip}"
 			COMMAND ${ZIP_EXECUTABLE} a -tzip -mmt=on "${_pdb_zip_win}"
-				*.pdb *.lib
-				extcap/*.pdb
-				${PLUGIN_VERSION_DIR}/epan/*.pdb
-				${PLUGIN_VERSION_DIR}/wiretap/*.pdb
+				-bb2
+				-r *.pdb *.lib
 			WORKING_DIRECTORY "${_dll_output_dir}"
 		)
 	endif()
