@@ -39,7 +39,7 @@ pbw_reinit_DescriptorPool(PbwDescriptorPool** pool, const char** directories, pb
 int
 pbw_load_proto_file(PbwDescriptorPool* pool, const char* filename) {
     if (pbl_add_proto_file_to_be_parsed((pbl_descriptor_pool_t*) pool, filename)) {
-        return run_pbl_parser((pbl_descriptor_pool_t*) pool, FALSE);
+        return run_pbl_parser((pbl_descriptor_pool_t*) pool);
     } else {
         return 2;
     }

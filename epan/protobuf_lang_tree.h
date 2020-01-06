@@ -162,7 +162,7 @@ gboolean
 pbl_add_proto_file_to_be_parsed(pbl_descriptor_pool_t* pool, const char* filepath);
 
 /* run C protocol buffers languange parser, return 0 if successed */
-int run_pbl_parser(pbl_descriptor_pool_t* pool, gboolean debug);
+int run_pbl_parser(pbl_descriptor_pool_t* pool);
 
 /* like descriptor_pool::FindMethodByName */
 const pbl_method_descriptor_t*

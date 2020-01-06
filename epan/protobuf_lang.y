@@ -68,7 +68,6 @@ void protobuf_langerrorv(void* yyscanner, protobuf_lang_state_t *state, const ch
 DIAG_OFF_BYACC
 %}
 
-%debug
 %expect 23 /* suppress the warning about these conflicts */
 
 %union {
@@ -590,7 +589,7 @@ pbl_reinit_state(protobuf_lang_state_t *state, pbl_descriptor_pool_t* pool, cons
     }
 }
 
-int run_pbl_parser(pbl_descriptor_pool_t* pool, gboolean debug)
+int run_pbl_parser(pbl_descriptor_pool_t* pool)
 {
     protobuf_lang_state_t state = {0};
     yyscan_t scanner;
@@ -598,8 +597,6 @@ int run_pbl_parser(pbl_descriptor_pool_t* pool, gboolean debug)
     FILE * fp;
     int status;
     const char* filepath;
-
-    protobuf_langdebug = debug ? 1 : 0;
 
     it = pool->proto_files_to_be_parsed;
     while (it) {
