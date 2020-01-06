@@ -52,7 +52,49 @@ static const value_string status_vals[] = {
     {0, NULL}
 };
 
+#define MSC_SUBCLASS_SCSI_COMMAND_SET_NOT_REPORTED 0x00
+#define MSC_SUBCLASS_RBC                           0x01
+#define MSC_SUBCLASS_MMC_5_ATAPI                   0x02
+#define MSC_SUBCLASS_OBSOLETE_QIC_157              0x03
+#define MSC_SUBCLASS_UFI                           0x04
+#define MSC_SUBCLASS_OBSOLETE_SFF_8070I            0x05
+#define MSC_SUBCLASS_SCSI_TRANSPARENT_COMMAND_SET  0x06
+#define MSC_SUBCLASS_LSD_FS                        0x07
+#define MSC_SUBCLASS_IEEE_1667                     0x08
+#define MSC_SUBCLASS_VENDOR                        0xFF
 
+static const value_string usb_massstorage_subclass_vals[] = {
+    {MSC_SUBCLASS_SCSI_COMMAND_SET_NOT_REPORTED, "SCSI command set not reported"},
+    {MSC_SUBCLASS_RBC,                           "RBC"},
+    {MSC_SUBCLASS_MMC_5_ATAPI,                   "MMC-5 (ATAPI)"},
+    {MSC_SUBCLASS_OBSOLETE_QIC_157,              "Obsolete (was QIC-157)"},
+    {MSC_SUBCLASS_UFI,                           "UFI"},
+    {MSC_SUBCLASS_OBSOLETE_SFF_8070I,            "Obsolete (was SFF-8070i)"},
+    {MSC_SUBCLASS_SCSI_TRANSPARENT_COMMAND_SET,  "SCSI transparent command set"},
+    {MSC_SUBCLASS_LSD_FS,                        "LSD FS"},
+    {MSC_SUBCLASS_IEEE_1667,                     "IEEE 1667"},
+    {MSC_SUBCLASS_VENDOR,                        "Specific to device vendor"},
+    {0, NULL}
+};
+value_string_ext ext_usb_massstorage_subclass_vals = VALUE_STRING_EXT_INIT(usb_massstorage_subclass_vals);
+
+#define MSC_PROTOCOL_CBI_NO_INTERRUPT   0x00
+#define MSC_PROTOCOL_CBI_WITH_INTERRUPT 0x01
+#define MSC_PROTOCOL_OBSOLETE           0x02
+#define MSC_PROTOCOL_BULK_ONLY          0x50
+#define MSC_PROTOCOL_UAS                0x62
+#define MSC_PROTOCOL_VENDOR             0xFF
+
+static const value_string usb_massstorage_protocol_vals[] = {
+    {MSC_PROTOCOL_CBI_NO_INTERRUPT,   "Control/Bulk/Interrupt (CBI) Transport with command completion interrupt"},
+    {MSC_PROTOCOL_CBI_WITH_INTERRUPT, "Control/Bulk/Interrupt (CBI) Transport with no command completion interrupt"},
+    {MSC_PROTOCOL_OBSOLETE,           "Obsolete"},
+    {MSC_PROTOCOL_BULK_ONLY,          "Bulk-Only (BBB) Transport"},
+    {MSC_PROTOCOL_UAS,                "UAS"},
+    {MSC_PROTOCOL_VENDOR,             "Specific to device vendor"},
+    {0, NULL}
+};
+value_string_ext usb_massstorage_protocol_vals_ext = VALUE_STRING_EXT_INIT(usb_massstorage_protocol_vals);
 
 
 static void
