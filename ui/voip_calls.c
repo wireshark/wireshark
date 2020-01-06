@@ -567,6 +567,10 @@ rtp_reset(void *tap_offset_ptr)
     tapinfo->rtp_stream_list = NULL;
     tapinfo->nrtp_streams = 0;
 
+    if (tapinfo->graph_analysis) {
+            sequence_analysis_list_free(tapinfo->graph_analysis);
+    }
+
     if (tapinfo->tap_reset) {
         tapinfo->tap_reset(tapinfo);
     }
