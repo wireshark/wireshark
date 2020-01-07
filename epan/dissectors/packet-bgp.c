@@ -1936,6 +1936,8 @@ static int hf_bgp_aigp_accu_igp_metric = -1;
 static int hf_bgp_update_mpls_label = -1;
 static int hf_bgp_update_mpls_label_value = -1;
 static int hf_bgp_update_mpls_label_value_20bits = -1;
+static int hf_bgp_update_mpls_traffic_class = -1;
+static int hf_bgp_update_mpls_bottom_stack = -1;
 
 /* BGP update path attribute SSA SAFI Specific attribute (deprecated should we keep it ?) */
 
@@ -7067,13 +7069,23 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                         break;
 
                     case BGP_EXT_COM_STYPE_EVPN_LABEL:
+                        {
+                        proto_item *ti;
+
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_l2_esi_label_flag, tvb, offset+2, 1, ENC_BIG_ENDIAN);
                         /* Octets at offsets 3 and 4 are reserved perf RFC 7432 Section 7.5 */
                         proto_tree_add_item(community_tree, hf_bgp_update_mpls_label_value, tvb, offset+5, 3, ENC_BIG_ENDIAN);
+                        ti = proto_tree_add_item(community_tree, hf_bgp_update_mpls_label_value_20bits, tvb, offset+5, 3, ENC_BIG_ENDIAN);
+                        proto_item_set_generated(ti);
+                        ti = proto_tree_add_item(community_tree, hf_bgp_update_mpls_traffic_class, tvb, offset+5, 3, ENC_BIG_ENDIAN);
+                        proto_item_set_generated(ti);
+                        ti = proto_tree_add_item(community_tree, hf_bgp_update_mpls_bottom_stack, tvb, offset+5, 3, ENC_BIG_ENDIAN);
+                        proto_item_set_generated(ti);
 
                         proto_item_append_text(community_item, " %s, Label: %u",
                                 (tvb_get_guint8(tvb, offset+2) & BGP_EXT_COM_ESI_LABEL_FLAGS) ? tfs_esi_label_flag.true_string : tfs_esi_label_flag.false_string,
-                                tvb_get_ntoh24(tvb,offset+5));
+                                tvb_get_ntoh24(tvb,offset+5) >> 4);
+                        }
                         break;
 
                     case BGP_EXT_COM_STYPE_EVPN_IMP:
@@ -9730,6 +9742,12 @@ proto_register_bgp(void)
       { &hf_bgp_update_mpls_label_value,
         { "MPLS Label", "bgp.update.path_attribute.mpls_label_value", FT_UINT24,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_mpls_traffic_class,
+        { "Traffic Class", "bgp.update.path_attribute.mpls_traffic_class", FT_UINT24,
+          BASE_HEX, NULL, BGP_MPLS_TRAFFIC_CLASS, NULL, HFILL}},
+      { &hf_bgp_update_mpls_bottom_stack,
+        { "Bottom-of-Stack", "bgp.update.path_attribute.mpls_bottom_stack", FT_BOOLEAN,
+          24, NULL, BGP_MPLS_BOTTOM_L_STACK, NULL, HFILL}},
       { &hf_bgp_pmsi_tunnel_rsvp_p2mp_id, /* RFC4875 section 19 */
         { "RSVP P2MP id", "bgp.update.path_attribute.pmsi.rsvp.id", FT_IPv4, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
