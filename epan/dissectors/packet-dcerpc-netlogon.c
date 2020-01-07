@@ -6652,7 +6652,7 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
 #endif
             if( flags & NETLOGON_FLAG_AES )
             {
-#ifdef HAVE_KERBEROS
+#if defined(HAVE_KERBEROS) && GCRYPT_VERSION_NUMBER >= 0x010800 /* 1.8.0 */
                 guint8 salt_buf[16] = { 0 };
                 guint8 sha256[HASH_SHA2_256_LENGTH];
                 guint64 calculated_cred;
@@ -7705,6 +7705,7 @@ static int get_seal_key(const guint8 *session_key,int key_len,guint8* seal_key)
 
 }
 
+#if GCRYPT_VERSION_NUMBER >= 0x010800 /* 1.8.0 */
 static guint64 uncrypt_sequence_aes(guint8* session_key,guint64 checksum,guint64 enc_seq,unsigned char is_server _U_)
 {
     gcry_error_t err;
@@ -7747,6 +7748,7 @@ static guint64 uncrypt_sequence_aes(guint8* session_key,guint64 checksum,guint64
     gcry_cipher_close(cipher_hd);
     return enc_seq;
 }
+#endif
 
 static guint64 uncrypt_sequence_strong(guint8* session_key,guint64 checksum,guint64 enc_seq,unsigned char is_server _U_)
 {
@@ -7784,9 +7786,11 @@ static guint64 uncrypt_sequence_strong(guint8* session_key,guint64 checksum,guin
 
 static guint64 uncrypt_sequence(guint32 flags, guint8* session_key,guint64 checksum,guint64 enc_seq,unsigned char is_server _U_)
 {
+#if GCRYPT_VERSION_NUMBER >= 0x010800 /* 1.8.0 */
     if (flags & NETLOGON_FLAG_AES) {
         return uncrypt_sequence_aes(session_key, checksum, enc_seq, is_server);
     }
+#endif
 
     if (flags & NETLOGON_FLAG_STRONGKEY) {
         return uncrypt_sequence_strong(session_key, checksum, enc_seq, is_server);
@@ -7795,6 +7799,7 @@ static guint64 uncrypt_sequence(guint32 flags, guint8* session_key,guint64 check
     return 0;
 }
 
+#if GCRYPT_VERSION_NUMBER >= 0x010800 /* 1.8.0 */
 static gcry_error_t prepare_decryption_cipher_aes(netlogon_auth_vars *vars,
                                                   gcry_cipher_hd_t *_cipher_hd)
 {
@@ -7833,6 +7838,7 @@ static gcry_error_t prepare_decryption_cipher_aes(netlogon_auth_vars *vars,
     *_cipher_hd = cipher_hd;
     return 0;
 }
+#endif
 
 static gcry_error_t prepare_decryption_cipher_strong(netlogon_auth_vars *vars,
                                                      gcry_cipher_hd_t *_cipher_hd)
@@ -7879,9 +7885,11 @@ static gcry_error_t prepare_decryption_cipher(netlogon_auth_vars *vars,
 {
     *_cipher_hd = NULL;
 
+#if GCRYPT_VERSION_NUMBER >= 0x010800 /* 1.8.0 */
     if (vars->flags & NETLOGON_FLAG_AES) {
         return prepare_decryption_cipher_aes(vars, _cipher_hd);
     }
+#endif
 
     if (vars->flags & NETLOGON_FLAG_STRONGKEY) {
         return prepare_decryption_cipher_strong(vars, _cipher_hd);
