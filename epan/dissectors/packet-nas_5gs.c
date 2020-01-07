@@ -341,6 +341,8 @@ static int hf_nas_5gs_nw_feat_sup_ims_emf_b5b4 = -1;
 static int hf_nas_5gs_nw_feat_sup_ims_emc_b3b2 = -1;
 static int hf_nas_5gs_nw_feat_sup_ims_vops_3gpp = -1;
 static int hf_nas_5gs_nw_feat_sup_ims_vops_n3gpp = -1;
+static int hf_nas_5gs_nw_feat_sup_emcn3 = -1;
+static int hf_nas_5gs_nw_feat_sup_mcsi = -1;
 
 static int hf_nas_5gs_tac = -1;
 
@@ -837,6 +839,7 @@ de_nas_5gs_mm_5gs_nw_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
+    guint32 curr_offset = offset;
 
     static const int * flags_oct3[] = {
         &hf_nas_5gs_nw_feat_sup_mpsi_b7,
@@ -848,16 +851,31 @@ de_nas_5gs_mm_5gs_nw_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
         NULL
     };
 
+    static const int * flags_oct4[] = {
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_spare_b6,
+        &hf_nas_5gs_spare_b5,
+        &hf_nas_5gs_spare_b4,
+        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_spare_b2,
+        &hf_nas_5gs_nw_feat_sup_mcsi,
+        &hf_nas_5gs_nw_feat_sup_emcn3,
+        NULL
+    };
 
     /* MPSI    IWK N26    EMF    EMC    IMS VoPS    octet 3*/
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_oct3, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_oct3, ENC_BIG_ENDIAN);
+    curr_offset++;
 
     if (len == 1) {
         return len;
     }
 
     /* 5G-LCS 5G-UP CIoT 5G-HC-CP CIoT N3 data 5G-CP CIoT RestrictEC MCSI EMCN3 octet 4*/
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_oct4, ENC_BIG_ENDIAN);
+    curr_offset++;
 
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
 
     return len;
 }
@@ -8058,6 +8076,16 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_nw_feat_sup_mpsi_b7,
         { "MPS indicator (MPSI)",   "nas_5gs.nw_feat_sup.mpsi",
             FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_nw_feat_sup_mpsi), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_emcn3,
+        { "Emergency services over non-3GPP access (EMCN3)",   "nas_5gs.nw_feat_sup.emcn3",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_mcsi,
+        { "MCS indicator (MCSI)",   "nas_5gs.nw_feat_sup.mcsi",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
             NULL, HFILL }
         },
 
