@@ -3,6 +3,8 @@
 ; Name and version information
 ; ============================================================================
 
+Unicode true
+
 !ifdef NSIS_INCLUDE_DIR
 !addincludedir ${NSIS_INCLUDE_DIR}
 !endif
