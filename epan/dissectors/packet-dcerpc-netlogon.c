@@ -557,11 +557,23 @@ static const true_false_string user_account_control_account_disabled= {
 };
 
 typedef struct _netlogon_auth_key {
-    address src;
-    address dst;
-    guint32 srcport;
-    guint32 dstport;
-    char * name;
+    /*
+     * For now we only match the client and server ip
+     * addresses, as keys can be used across tcp connections.
+     *
+     * Also note that ServerChallenge and ServerAuthenticate
+     * can be on different tcp connections!
+     *
+     * TODO:
+     * * We could have a challenge table indexed by client, server
+     *   and computer name
+     * * A good ServerAuthenticate could fill a session key table
+     *   indexed by computer name.
+     * * A DCERPC bind/alter context could lookup the session key table
+     *   and copy the session key to the DCERPC connection/auth_context.
+     */
+    address client;
+    address server;
 } netlogon_auth_key;
 
 static gint
@@ -569,33 +581,18 @@ netlogon_auth_equal (gconstpointer k1, gconstpointer k2)
 {
     const netlogon_auth_key *key1 = (const netlogon_auth_key *)k1;
     const netlogon_auth_key *key2 = (const netlogon_auth_key *)k2;
-    if(key1->name == NULL || key2->name ==NULL)
-        return ((key1->srcport == key2->srcport) && (key1->dstport == key2->dstport) && addresses_equal(&key1->src,&key2->src) &&
-                addresses_equal(&key1->dst,&key2->dst));
-    else
-        return ((strcmp(key1->name,key2->name)==0) && addresses_equal(&key1->src,&key2->src) &&
-                addresses_equal(&key1->dst,&key2->dst));
+
+    return (addresses_equal(&key1->client,&key2->client) && addresses_equal(&key1->server,&key2->server));
 }
 
 static guint
 netlogon_auth_hash (gconstpointer k)
 {
     const netlogon_auth_key *key1 = (const netlogon_auth_key *)k;
-    guint hash_val1;
-    if(key1->name == NULL) {
-        hash_val1 = key1->dstport;
-        hash_val1 += key1->srcport;
-    }
-    else {
-        unsigned int i = 0;
-        hash_val1 = 0;
-        for(i=0; key1->name[i]; i++) {
-            hash_val1 += key1->name[i];
-        }
-    }
+    guint hash_val1 = 0;
 
-    hash_val1 = add_address_to_hash(hash_val1, &key1->src);
-    hash_val1 = add_address_to_hash(hash_val1, &key1->dst);
+    hash_val1 = add_address_to_hash(hash_val1, &key1->client);
+    hash_val1 = add_address_to_hash(hash_val1, &key1->server);
     return hash_val1;
 }
 static int
@@ -2372,23 +2369,15 @@ netlogon_dissect_netrlogonsamlogoff_reply(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static void generate_hash_key(packet_info *pinfo,unsigned char is_server,netlogon_auth_key *key,char* name)
+static void generate_hash_key(packet_info *pinfo,unsigned char is_server,netlogon_auth_key *key)
 {
     if(is_server) {
-        key->dstport = pinfo->srcport;
-        key->srcport = pinfo->destport;
-        copy_address_shallow(&key->dst,&pinfo->src);
-        copy_address_shallow(&key->src,&pinfo->dst);
-        /* name has been durably allocated */
-        key->name = name;
+        copy_address_shallow(&key->server,&pinfo->src);
+        copy_address_shallow(&key->client,&pinfo->dst);
     }
     else {
-        copy_address_shallow(&key->dst,&pinfo->dst);
-        copy_address_shallow(&key->src,&pinfo->src);
-        key->dstport = pinfo->destport;
-        key->srcport = pinfo->srcport;
-        /* name has been durably allocated */
-        key->name = name;
+        copy_address_shallow(&key->server,&pinfo->dst);
+        copy_address_shallow(&key->client,&pinfo->src);
     }
 
 }
@@ -2433,12 +2422,12 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
     vars->next_start = -1;
     vars->next = NULL;
 
-    generate_hash_key(pinfo,0,&key,NULL);
+    generate_hash_key(pinfo,0,&key);
     existing_vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths, &key);
     if (!existing_vars) {
         netlogon_auth_key *k = (netlogon_auth_key *)wmem_memdup(wmem_file_scope(), &key, sizeof(netlogon_auth_key));
-        copy_address_wmem(wmem_file_scope(), &k->src, &key.src);
-        copy_address_wmem(wmem_file_scope(), &k->dst, &key.dst);
+        copy_address_wmem(wmem_file_scope(), &k->client, &key.client);
+        copy_address_wmem(wmem_file_scope(), &k->server, &key.server);
         debugprintf("Adding initial vars with this start packet = %d\n",vars->start);
         wmem_map_insert(netlogon_auths, k, vars);
     }
@@ -2457,31 +2446,6 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
             existing_vars->next = vars;
         }
     }
-    /* used by other rpc that use schannel ie lsa */
-#if 0
-    generate_hash_key(pinfo,0,&key,vars->client_name);
-    existing_vars = NULL;
-    existing_vars = wmem_map_lookup(schannel_auths, key);
-    if (!existing_vars)
-    {
-        netlogon_auth_key *k = (netlogon_auth_key *)wmem_memdup(wmem_file_scope(), &key, sizeof(netlogon_auth_key));
-        copy_address_wmem(wmem_file_scope(), &k->src, &key.src);
-        copy_address_wmem(wmem_file_scope(), &k->dst, &key.dst);
-        wmem_map_insert(schannel_auths, k, vars);
-    }
-    else
-    {
-        while(existing_vars->next != NULL && existing_vars->start <= vars->start) {
-            existing_vars = existing_vars->next;
-        }
-        if(existing_vars->next != NULL || existing_vars == vars) {
-            debugprintf("It seems that I already record this vars (schannel hash)%d\n",vars->start);
-        }
-        else {
-            existing_vars->next_start = pinfo->num;
-            existing_vars->next = vars;
-        }
-#endif
     return offset;
 }
 
@@ -2493,7 +2457,7 @@ netlogon_dissect_netrserverreqchallenge_reply(tvbuff_t *tvb, int offset,
     netlogon_auth_key key;
     guint64 server_challenge;
 
-    generate_hash_key(pinfo,1,&key,NULL);
+    generate_hash_key(pinfo,1,&key);
     vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths,(gconstpointer*) &key);
 
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
@@ -6622,7 +6586,7 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
     offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
                               hf_netlogon_rc, NULL);
 
-    generate_hash_key(pinfo, 1 , &key, NULL);
+    generate_hash_key(pinfo, 1 , &key);
 
     vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths, &key);
     if(vars != NULL) {
@@ -7909,7 +7873,7 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
     netlogon_auth_key key;
     /*debugprintf("Dissection of request data offset %d len=%d on packet %d\n",offset,tvb_length_remaining(tvb,offset),pinfo->num);*/
 
-    generate_hash_key(pinfo,is_server,&key,NULL);
+    generate_hash_key(pinfo,is_server,&key);
     vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths, &key);
 
     if(vars != NULL  ) {
@@ -7984,7 +7948,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint64 confounder = 0;
     int update_vars = 0;
 
-    generate_hash_key(pinfo,is_server,&key,NULL);
+    generate_hash_key(pinfo,is_server,&key);
     vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths,(gconstpointer*) &key);
     if(  ! (seen.isseen && seen.num == pinfo->num) ) {
         /*
