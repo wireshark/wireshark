@@ -303,7 +303,7 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, header_field_info *hfi_type, in
 				}
 			}
 
-			if (!cb(tvb, data, attr_tree, rta_type, offset, rta_len - 4)) {
+			if (!cb(tvb, data, nl_data, attr_tree, rta_type, offset, rta_len - 4)) {
 				proto_tree_add_item(attr_tree, &hfi_netlink_attr_data, tvb, offset, rta_len - 4, encoding);
 			}
 		} else {
@@ -424,7 +424,7 @@ dissect_netlink_error(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding)
 }
 
 static int
-dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data _U_)
+dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint16     protocol, hatype;
 	proto_item *ti;
@@ -519,15 +519,15 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 		 * Try to invoke subdissectors for non-control messages.
 		 */
 		if (msg_type >= WS_NLMSG_MIN_TYPE && pkt_len > 16) {
-			struct packet_netlink_data data;
+			struct packet_netlink_data nl_data;
 
-			data.magic = PACKET_NETLINK_MAGIC;
-			data.encoding = encoding;
-			data.type = msg_type;
+			nl_data.magic = PACKET_NETLINK_MAGIC;
+			nl_data.encoding = encoding;
+			nl_data.type = msg_type;
 
 			next_tvb = tvb_new_subset_length(tvb, offset, pkt_len);
 
-			if (dissector_try_uint_new(netlink_dissector_table, protocol, next_tvb, pinfo, tree, TRUE, &data)) {
+			if (dissector_try_uint_new(netlink_dissector_table, protocol, next_tvb, pinfo, tree, TRUE, &nl_data)) {
 				dissected = TRUE;
 			}
 		}

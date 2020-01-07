@@ -32,8 +32,8 @@ void proto_register_netlink_generic(void);
 void proto_reg_handoff_netlink_generic(void);
 
 typedef struct {
-	struct packet_netlink_data *data;
-	int             encoding; /* copy of data->encoding */
+	struct packet_netlink_data *nl_data;
+	int             encoding; /* copy of nl_data->encoding */
 
 	/* Values parsed from the attributes (only valid in this packet). */
 	guint16         family_id;
@@ -182,7 +182,7 @@ static const int *genl_ctrl_op_flags_fields[] = {
 };
 
 static int
-dissect_genl_ctrl_ops_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+dissect_genl_ctrl_ops_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int nla_type, int offset, int len)
 {
 	enum ws_genl_ctrl_op_attr type = (enum ws_genl_ctrl_op_attr) nla_type;
 	genl_ctrl_info_t *info = (genl_ctrl_info_t *) data;
@@ -226,7 +226,7 @@ static header_field_info hfi_genl_ctrl_group_id NETLINK_GENERIC_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_genl_ctrl_groups_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+dissect_genl_ctrl_groups_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int nla_type, int offset, int len)
 {
 	enum ws_genl_ctrl_group_attr type = (enum ws_genl_ctrl_group_attr) nla_type;
 	genl_ctrl_info_t *info = (genl_ctrl_info_t *) data;
@@ -286,7 +286,7 @@ static header_field_info hfi_genl_ctrl_groups_attr NETLINK_GENERIC_HFI_INIT =
 	  VALS(genl_ctrl_group_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
 static int
-dissect_genl_ctrl_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+dissect_genl_ctrl_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
 {
 	enum ws_genl_ctrl_attr type = (enum ws_genl_ctrl_attr) nla_type;
 	genl_ctrl_info_t *info = (genl_ctrl_info_t *) data;
@@ -330,10 +330,10 @@ dissect_genl_ctrl_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_typ
 		}
 		break;
 	case WS_CTRL_ATTR_OPS:
-		offset = dissect_netlink_attributes_array(tvb, &hfi_genl_ctrl_ops_attr, ett_genl_ctrl_ops, ett_genl_ctrl_ops_attr, info, info->data, tree, offset, len, dissect_genl_ctrl_ops_attrs);
+		offset = dissect_netlink_attributes_array(tvb, &hfi_genl_ctrl_ops_attr, ett_genl_ctrl_ops, ett_genl_ctrl_ops_attr, info, nl_data, tree, offset, len, dissect_genl_ctrl_ops_attrs);
 		break;
 	case WS_CTRL_ATTR_MCAST_GROUPS:
-		offset = dissect_netlink_attributes_array(tvb, &hfi_genl_ctrl_groups_attr, ett_genl_ctrl_groups, ett_genl_ctrl_groups_attr, info, info->data, tree, offset, len, dissect_genl_ctrl_groups_attrs);
+		offset = dissect_netlink_attributes_array(tvb, &hfi_genl_ctrl_groups_attr, ett_genl_ctrl_groups, ett_genl_ctrl_groups_attr, info, nl_data, tree, offset, len, dissect_genl_ctrl_groups_attrs);
 		break;
 	}
 
@@ -359,18 +359,18 @@ dissect_genl_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, v
 		return 0;
 	}
 
-	info.data = genl_info->data;
+	info.nl_data = genl_info->nl_data;
 	info.encoding = genl_info->encoding;
 	info.family_id = 0;
 	info.family_name = NULL;
 
-	offset = dissect_genl_header(tvb, genl_info, &hfi_genl_ctrl_cmd);
+	offset = dissect_genl_header(tvb, genl_info, genl_info->nl_data, &hfi_genl_ctrl_cmd);
 
 	/* Return if command has no payload */
 	if (!tvb_reported_length_remaining(tvb, offset))
 	    return offset;
 
-	dissect_netlink_attributes(tvb, &hfi_genl_ctrl_attr, ett_genl_ctrl_attr, &info, info.data, genl_info->genl_tree, offset, -1, dissect_genl_ctrl_attrs);
+	dissect_netlink_attributes(tvb, &hfi_genl_ctrl_attr, ett_genl_ctrl_attr, &info, genl_info->nl_data, genl_info->genl_tree, offset, -1, dissect_genl_ctrl_attrs);
 
 	/*
 	 * Remember association of dynamic ID with the family name such that
@@ -401,7 +401,7 @@ static header_field_info hfi_genl_reserved NETLINK_GENERIC_HFI_INIT =
 	{ "Reserved", "genl.reserved", FT_NONE, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
-int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, header_field_info *hfi_cmd)
+int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, struct packet_netlink_data *nl_data _U_, header_field_info *hfi_cmd)
 {
 	int offset = 0;
 
@@ -418,9 +418,9 @@ int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, header_field_info
 }
 
 static int
-dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data)
+dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	struct packet_netlink_data *data = (struct packet_netlink_data *)_data;
+	struct packet_netlink_data *nl_data = (struct packet_netlink_data *) data;
 	genl_info_t info;
 	proto_tree *nlmsg_tree;
 	proto_item *pi, *pi_type;
@@ -428,7 +428,7 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	tvbuff_t *next_tvb;
 	int offset = 0;
 
-	DISSECTOR_ASSERT(data && data->magic == PACKET_NETLINK_MAGIC);
+	DISSECTOR_ASSERT(nl_data && nl_data->magic == PACKET_NETLINK_MAGIC);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Netlink generic");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -437,13 +437,13 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	nlmsg_tree = proto_item_add_subtree(pi, ett_netlink_generic);
 
 	/* Netlink message header (nlmsghdr) */
-	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, data->encoding, &hfi_genl_family_id, &pi_type);
-	family_name = (const char *)wmem_map_lookup(genl_family_map, GUINT_TO_POINTER(data->type));
+	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, &hfi_genl_family_id, &pi_type);
+	family_name = (const char *)wmem_map_lookup(genl_family_map, GUINT_TO_POINTER(nl_data->type));
 	proto_item_append_text(pi_type, " (%s)", family_name ? family_name : "Unknown");
 
 	/* Populate info from Generic Netlink message header (genlmsghdr) */
-	info.data = data;
-	info.encoding = data->encoding;
+	info.nl_data = nl_data;
+	info.encoding = nl_data->encoding;
 	info.genl_tree = nlmsg_tree;
 	info.cmd = tvb_get_guint8(tvb, offset);
 
@@ -459,7 +459,7 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	}
 
 	/* No subdissector added the genl header, do it now. */
-	offset = dissect_genl_header(next_tvb, &info, NULL);
+	offset = dissect_genl_header(next_tvb, &info, nl_data, NULL);
 	if (tvb_reported_length_remaining(tvb, offset)) {
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_data_dissector(next_tvb, pinfo, tree);

@@ -92,8 +92,8 @@ enum ws_net_dm_origin {
 
 struct netlink_net_dm_info {
 	packet_info *pinfo;
-	struct packet_netlink_data *data;
-	int encoding; /* copy of data->encoding */
+	struct packet_netlink_data *nl_data;
+	int encoding; /* copy of nl_data->encoding */
 	guint16 protocol; /* protocol for packet payload */
 };
 
@@ -266,7 +266,7 @@ static header_field_info hfi_net_dm_stats_dropped NETLINK_NET_DM_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_net_dm_attrs_port(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+dissect_net_dm_attrs_port(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int nla_type, int offset, int len)
 {
 	enum ws_net_dm_attrs_port type = (enum ws_net_dm_attrs_port) nla_type & NLA_TYPE_MASK;
 	struct netlink_net_dm_info *info = (struct netlink_net_dm_info *) data;
@@ -287,7 +287,7 @@ dissect_net_dm_attrs_port(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_t
 }
 
 static int
-dissect_net_dm_attrs_stats(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+dissect_net_dm_attrs_stats(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int nla_type, int offset, int len)
 {
 	enum ws_net_dm_attrs_port type = (enum ws_net_dm_attrs_port) nla_type & NLA_TYPE_MASK;
 	struct netlink_net_dm_info *info = (struct netlink_net_dm_info *) data;
@@ -302,7 +302,7 @@ dissect_net_dm_attrs_stats(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_
 }
 
 static int
-dissect_net_dm_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
 {
 	enum ws_net_dm_attrs type = (enum ws_net_dm_attrs) nla_type & NLA_TYPE_MASK;
 	struct netlink_net_dm_info *info = (struct netlink_net_dm_info *) data;
@@ -325,7 +325,7 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, 
 		proto_item_append_text(tree, ": %s", str);
 		return 1;
 	case WS_NET_DM_ATTR_IN_PORT:
-		return dissect_netlink_attributes(tvb, &hfi_net_dm_attrs_port, ett_net_dm_attrs_in_port, info, info->data, tree, offset, len,
+		return dissect_netlink_attributes(tvb, &hfi_net_dm_attrs_port, ett_net_dm_attrs_in_port, info, nl_data, tree, offset, len,
 						  dissect_net_dm_attrs_port);
 	case WS_NET_DM_ATTR_TIMESTAMP:
 		timestamp = tvb_get_guint64(tvb, offset, info->encoding);
@@ -361,10 +361,10 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, 
 		proto_tree_add_item(tree, &hfi_net_dm_queue_len, tvb, offset, len, info->encoding);
 		return 1;
 	case WS_NET_DM_ATTR_STATS:
-		return dissect_netlink_attributes(tvb, &hfi_net_dm_attrs_stats, ett_net_dm_attrs_stats, info, info->data, tree, offset, len,
+		return dissect_netlink_attributes(tvb, &hfi_net_dm_attrs_stats, ett_net_dm_attrs_stats, info, nl_data, tree, offset, len,
 						  dissect_net_dm_attrs_stats);
 	case WS_NET_DM_ATTR_HW_STATS:
-		return dissect_netlink_attributes(tvb, &hfi_net_dm_attrs_stats, ett_net_dm_attrs_hw_stats, info, info->data, tree, offset, len,
+		return dissect_netlink_attributes(tvb, &hfi_net_dm_attrs_stats, ett_net_dm_attrs_hw_stats, info, nl_data, tree, offset, len,
 						  dissect_net_dm_attrs_stats);
 	case WS_NET_DM_ATTR_ORIGIN:
 		proto_tree_add_item(tree, &hfi_net_dm_origin, tvb, offset, len, info->encoding);
@@ -378,10 +378,10 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, 
 		proto_item_append_text(tree, ": %s", str);
 		return 1;
 	case WS_NET_DM_ATTR_HW_ENTRIES:
-		return dissect_netlink_attributes(tvb, &hfi_net_dm_attrs, ett_net_dm_attrs_hw_entries, info, info->data, tree, offset, len,
+		return dissect_netlink_attributes(tvb, &hfi_net_dm_attrs, ett_net_dm_attrs_hw_entries, info, nl_data, tree, offset, len,
 						  dissect_net_dm_attrs);
 	case WS_NET_DM_ATTR_HW_ENTRY:
-		return dissect_netlink_attributes(tvb, &hfi_net_dm_attrs, ett_net_dm_attrs_hw_entry, info, info->data, tree, offset, len,
+		return dissect_netlink_attributes(tvb, &hfi_net_dm_attrs, ett_net_dm_attrs_hw_entry, info, nl_data, tree, offset, len,
 						  dissect_net_dm_attrs);
 	case WS_NET_DM_ATTR_HW_TRAP_COUNT:
 		proto_item_append_text(tree, ": %u", tvb_get_guint32(tvb, offset, info->encoding));
@@ -413,7 +413,7 @@ dissect_netlink_net_dm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Generic netlink header */
-	offset = dissect_genl_header(tvb, genl_info, &hfi_net_dm_commands);
+	offset = dissect_genl_header(tvb, genl_info, genl_info->nl_data, &hfi_net_dm_commands);
 
 	/* Not all commands have a payload */
 	if (!tvb_reported_length_remaining(tvb, offset))
@@ -424,10 +424,10 @@ dissect_netlink_net_dm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 	info.encoding = genl_info->encoding;
 	info.pinfo = pinfo;
-	info.data = genl_info->data;
+	info.nl_data = genl_info->nl_data;
 	info.protocol = 0;
 
-	offset = dissect_netlink_attributes(tvb, &hfi_net_dm_attrs, ett_net_dm_attrs, &info, genl_info->data, nlmsg_tree, offset, -1, dissect_net_dm_attrs);
+	offset = dissect_netlink_attributes(tvb, &hfi_net_dm_attrs, ett_net_dm_attrs, &info, genl_info->nl_data, nlmsg_tree, offset, -1, dissect_net_dm_attrs);
 
 	return offset;
 }

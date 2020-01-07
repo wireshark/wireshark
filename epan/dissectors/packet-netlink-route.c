@@ -25,9 +25,9 @@ void proto_reg_handoff_netlink_route(void);
 
 struct netlink_route_info {
 	packet_info *pinfo;
-	struct packet_netlink_data *data;
+	struct packet_netlink_data *nl_data;
 
-	int encoding; /* copy of data->encoding */
+	int encoding; /* copy of nl_data->encoding */
 	gboolean legacy;
 };
 
@@ -332,8 +332,6 @@ static gint ett_netlink_route_attr_linkstats = -1;
 static gint ett_netlink_route_attr_linkstats_rxerrs = -1;
 static gint ett_netlink_route_attr_linkstats_txerrs = -1;
 
-typedef int netlink_route_attributes_cb_t(tvbuff_t *, struct netlink_route_info *, proto_tree *, int rta_type, int offset, int len);
-
 static void
 _fill_label_value_string_bitmask(char *label, guint32 value, const value_string *vals)
 {
@@ -362,7 +360,7 @@ _fill_label_value_string_bitmask(char *label, guint32 value, const value_string 
 }
 
 static int
-dissect_netlink_route_attributes(tvbuff_t *tvb, header_field_info *hfi_type, struct netlink_route_info *info, proto_tree *tree, int offset, netlink_route_attributes_cb_t cb)
+dissect_netlink_route_attributes(tvbuff_t *tvb, header_field_info *hfi_type, struct netlink_route_info *info, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, netlink_attributes_cb_t cb)
 {
 	/* XXX, it's *almost* the same:
 	 *  - rtnetlink is using struct rtattr with shorts
@@ -370,7 +368,7 @@ dissect_netlink_route_attributes(tvbuff_t *tvb, header_field_info *hfi_type, str
 	 */
 
 	/* XXX, nice */
-	return dissect_netlink_attributes(tvb, hfi_type, ett_netlink_route_attr, info, info->data, tree, offset, -1, (netlink_attributes_cb_t *) cb);
+	return dissect_netlink_attributes(tvb, hfi_type, ett_netlink_route_attr, info, nl_data, tree, offset, -1, cb);
 }
 
 /* Interface */
@@ -440,7 +438,7 @@ static header_field_info hfi_netlink_route_ifi_change NETLINK_ROUTE_HFI_INIT =
 
 
 static int
-dissect_netlink_route_ifinfomsg(tvbuff_t *tvb, struct netlink_route_info *info, proto_tree *tree, int offset)
+dissect_netlink_route_ifinfomsg(tvbuff_t *tvb, struct netlink_route_info *info, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *if_flags_tree;
@@ -770,7 +768,7 @@ static header_field_info* linkstat_txerr_hfis[] = {
 };
 
 static int
-dissect_netlink_route_ifla_linkstats(tvbuff_t *tvb, struct netlink_route_info *info, proto_tree *tree, int offset, int byte_size) {
+dissect_netlink_route_ifla_linkstats(tvbuff_t *tvb, struct netlink_route_info *info, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int offset, int byte_size) {
 	proto_tree* rxerr_subtree;
 	const gint rxerr_hfis_len = (sizeof(linkstat_rxerr_hfis) / sizeof(header_field_info*));
 	proto_tree* txerr_subtree;
@@ -798,8 +796,9 @@ dissect_netlink_route_ifla_linkstats(tvbuff_t *tvb, struct netlink_route_info *i
 }
 
 static int
-dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, struct netlink_route_info *info, proto_tree *tree, int rta_type, int offset, int len)
+dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int rta_type, int offset, int len)
 {
+	struct netlink_route_info *info = (struct netlink_route_info *)data;
 	enum ws_ifla_attr_type type = (enum ws_ifla_attr_type) rta_type;
 	const guint8* str;
 	proto_tree* subtree;
@@ -861,10 +860,10 @@ dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, struct netlink_route_info *info,
 			return 1;
 		case WS_IFLA_STATS:
 			subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_netlink_route_attr_linkstats, NULL, "Statistics");
-			return dissect_netlink_route_ifla_linkstats(tvb, info, subtree, offset, 4);
+			return dissect_netlink_route_ifla_linkstats(tvb, info, nl_data, subtree, offset, 4);
 		case WS_IFLA_STATS64:
 			subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_netlink_route_attr_linkstats, NULL, "Statistics");
-			return dissect_netlink_route_ifla_linkstats(tvb, info, subtree, offset, 8);
+			return dissect_netlink_route_ifla_linkstats(tvb, info, nl_data, subtree, offset, 8);
 		case WS_IFLA_QDISC:
 			proto_tree_add_item_ret_string(tree, &hfi_netlink_route_ifla_qdisc, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
 			proto_item_append_text(tree, ": %s", str);
@@ -949,7 +948,7 @@ static header_field_info hfi_netlink_route_ifa_index NETLINK_ROUTE_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_netlink_route_ifaddrmsg(tvbuff_t *tvb, struct netlink_route_info *info, proto_tree *tree, int offset)
+dissect_netlink_route_ifaddrmsg(tvbuff_t *tvb, struct netlink_route_info *info, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int offset)
 {
 	proto_tree_add_item(tree, &hfi_netlink_route_ifa_family,    tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -1010,8 +1009,9 @@ static header_field_info hfi_netlink_route_ifa_addr4 NETLINK_ROUTE_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, struct netlink_route_info *info _U_, proto_tree *tree, int rta_type, int offset, int len)
+dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int rta_type, int offset, int len)
 {
+	struct netlink_route_info *info = (struct netlink_route_info *)data;
 	enum ws_ifa_attr_type type = (enum ws_ifa_attr_type) rta_type;
 	const guint8* str;
 
@@ -1130,7 +1130,7 @@ static header_field_info hfi_netlink_route_rt_flags NETLINK_ROUTE_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_netlink_route_rtmsg(tvbuff_t *tvb, struct netlink_route_info *info, proto_tree *tree, int offset)
+dissect_netlink_route_rtmsg(tvbuff_t *tvb, struct netlink_route_info *info, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int offset)
 {
 	proto_tree_add_item(tree, &hfi_netlink_route_rt_family,   tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -1215,8 +1215,9 @@ static header_field_info hfi_netlink_route_rta_oif NETLINK_ROUTE_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_netlink_route_route_attrs(tvbuff_t *tvb, struct netlink_route_info *info, proto_tree *tree, int rta_type, int offset, int len)
+dissect_netlink_route_route_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int rta_type, int offset, int len)
 {
+	struct netlink_route_info *info = (struct netlink_route_info *)data;
 	enum ws_rta_attr_type type = (enum ws_rta_attr_type) rta_type;
 
 	switch (type) {
@@ -1286,7 +1287,7 @@ static header_field_info hfi_netlink_route_nd_type NETLINK_ROUTE_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_netlink_route_ndmsg(tvbuff_t *tvb, struct netlink_route_info *info, proto_tree *tree, int offset)
+dissect_netlink_route_ndmsg(tvbuff_t *tvb, struct netlink_route_info *info, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int offset)
 {
 	proto_tree_add_item(tree, &hfi_netlink_route_nd_family, tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -1380,15 +1381,15 @@ static header_field_info hfi_netlink_route_nltype NETLINK_ROUTE_HFI_INIT =
 	  &netlink_route_type_vals_ext, 0x00, NULL, HFILL };
 
 static int
-dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data)
+dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	struct netlink_route_info info;
-	struct packet_netlink_data *data = (struct packet_netlink_data *)_data;
+	struct packet_netlink_data *nl_data = (struct packet_netlink_data *)data;
 	proto_tree *nlmsg_tree;
 	proto_item *pi;
 	int offset = 0;
 
-	DISSECTOR_ASSERT(data && data->magic == PACKET_NETLINK_MAGIC);
+	DISSECTOR_ASSERT(nl_data && nl_data->magic == PACKET_NETLINK_MAGIC);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Netlink route");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -1397,49 +1398,49 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	nlmsg_tree = proto_item_add_subtree(pi, ett_netlink_route);
 
 	/* Netlink message header (nlmsghdr) */
-	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, data->encoding, &hfi_netlink_route_nltype, NULL);
+	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, &hfi_netlink_route_nltype, NULL);
 
-	info.encoding = data->encoding;
+	info.encoding = nl_data->encoding;
 	info.pinfo = pinfo;
-	info.data = data;
+	info.nl_data = nl_data;
 
-	switch (data->type) {
+	switch (nl_data->type) {
 		case WS_RTM_NEWLINK:
 		case WS_RTM_DELLINK:
 		case WS_RTM_GETLINK:
 			/* backward compatibility with legacy tools; 16 is sizeof(struct ifinfomsg) */
-			info.legacy = (data->type == WS_RTM_GETLINK) && (tvb_reported_length_remaining(tvb, offset) < 16);
-			offset = dissect_netlink_route_ifinfomsg(tvb, &info, nlmsg_tree, offset);
+			info.legacy = (nl_data->type == WS_RTM_GETLINK) && (tvb_reported_length_remaining(tvb, offset) < 16);
+			offset = dissect_netlink_route_ifinfomsg(tvb, &info, nl_data, nlmsg_tree, offset);
 			/* Optional attributes */
-			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_ifla_attr_type, &info, nlmsg_tree, offset, dissect_netlink_route_ifla_attrs);
+			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_ifla_attr_type, &info, nl_data, nlmsg_tree, offset, dissect_netlink_route_ifla_attrs);
 			break;
 
 		case WS_RTM_NEWADDR:
 		case WS_RTM_DELADDR:
 		case WS_RTM_GETADDR:
 			/* backward compatibility with legacy tools; 8 is sizeof(struct ifaddrmsg) */
-			info.legacy = (data->type == WS_RTM_GETADDR) && (tvb_reported_length_remaining(tvb, offset) < 8);
-			offset = dissect_netlink_route_ifaddrmsg(tvb, &info, nlmsg_tree, offset);
+			info.legacy = (nl_data->type == WS_RTM_GETADDR) && (tvb_reported_length_remaining(tvb, offset) < 8);
+			offset = dissect_netlink_route_ifaddrmsg(tvb, &info, nl_data, nlmsg_tree, offset);
 			/* Optional attributes */
-			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_ifa_attr_type, &info, nlmsg_tree, offset, dissect_netlink_route_ifa_attrs);
+			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_ifa_attr_type, &info, nl_data, nlmsg_tree, offset, dissect_netlink_route_ifa_attrs);
 			break;
 
 		case WS_RTM_NEWROUTE:
 		case WS_RTM_DELROUTE:
 		case WS_RTM_GETROUTE:
 			/* backward compatibility with legacy tools; 12 is sizeof(struct rtmsg) */
-			info.legacy = (data->type == WS_RTM_GETROUTE) && (tvb_reported_length_remaining(tvb, offset) < 12);
-			offset = dissect_netlink_route_rtmsg(tvb, &info, nlmsg_tree, offset);
+			info.legacy = (nl_data->type == WS_RTM_GETROUTE) && (tvb_reported_length_remaining(tvb, offset) < 12);
+			offset = dissect_netlink_route_rtmsg(tvb, &info, nl_data, nlmsg_tree, offset);
 			/* Optional attributes */
-			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_rta_attr_type, &info, nlmsg_tree, offset, dissect_netlink_route_route_attrs);
+			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_rta_attr_type, &info, nl_data, nlmsg_tree, offset, dissect_netlink_route_route_attrs);
 			break;
 
 		case WS_RTM_NEWNEIGH:
 		case WS_RTM_DELNEIGH:
 		case WS_RTM_GETNEIGH:
 			/* backward compatibility with legacy tools; 12 is sizeof(struct ndmsg) */
-			info.legacy = (data->type == WS_RTM_GETNEIGH) && (tvb_reported_length_remaining(tvb, offset) < 12);
-			offset = dissect_netlink_route_ndmsg(tvb, &info, nlmsg_tree, offset);
+			info.legacy = (nl_data->type == WS_RTM_GETNEIGH) && (tvb_reported_length_remaining(tvb, offset) < 12);
+			offset = dissect_netlink_route_ndmsg(tvb, &info, nl_data, nlmsg_tree, offset);
 			break;
 	}
 
