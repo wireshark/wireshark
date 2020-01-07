@@ -19,10 +19,19 @@
 #include "wireshark_dialog.h"
 
 #include <QMap>
+#include <QTreeWidgetItem>
 
 namespace Ui {
 class RtpPlayerDialog;
 }
+
+typedef enum {
+    channel_none,         // Mute
+    channel_mono,         // Play
+    channel_stereo_left,  // L
+    channel_stereo_right, // R
+    channel_stereo_both   // L+R
+} channel_mode_t;
 
 class QCPItemStraightLine;
 class QDialogButtonBox;
@@ -104,6 +113,7 @@ private slots:
     void on_actionMoveRight1_triggered();
     void on_actionGoToPacket_triggered();
     void on_streamTreeWidget_itemSelectionChanged();
+    void on_streamTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, const int column);
     void on_outputDeviceComboBox_currentIndexChanged(const QString &);
     void on_jitterSpinBox_valueChanged(double);
     void on_timingComboBox_currentIndexChanged(int);
@@ -123,6 +133,7 @@ private:
     QString playback_error_;
     QSharedPointer<QCPAxisTicker> number_ticker_;
     QSharedPointer<QCPAxisTickerDateTime> datetime_ticker_;
+    bool stereo_available_;
 
 //    const QString streamKey(const rtpstream_info_t *rtpstream);
 //    const QString streamKey(const packet_info *pinfo, const struct _rtp_info *rtpinfo);
@@ -135,14 +146,17 @@ private:
     void addPacket(packet_info *pinfo, const struct _rtp_info *rtpinfo);
     void zoomXAxis(bool in);
     void panXAxis(int x_pixels);
-    const QString getFormatedTime(double time);
+    const QString getFormatedTime(double f_time);
     const QString getFormatedHoveredTime();
     int getHoveredPacket();
     QString currentOutputDeviceName();
     double getStartPlayMarker();
     void drawStartPlayMarker();
-    void setStartPlayMarker(double time);
+    void setStartPlayMarker(double new_time);
     void updateStartStopTime(rtpstream_info_t *rtpstream, int tli_count);
+    void setChannelMode(QTreeWidgetItem *ti, channel_mode_t channel_mode);
+    channel_mode_t changeChannelMode(channel_mode_t channel_mode);
+    bool isStereoAvailable();
 
 #else // QT_MULTIMEDIA_LIB
 private:
