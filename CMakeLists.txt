@@ -3170,9 +3170,22 @@ if (DOXYGEN_EXECUTABLE)
 		COMMAND ${DOXYGEN_EXECUTABLE} doxygen.cfg
 	)
 
+	if (WIN32)
+		add_custom_target(wsar_html_perms DEPENDS wsar_html)
+	else()
+		add_custom_target(wsar_html_perms
+			COMMAND find wsar_html
+				-type d
+				-exec chmod 755 "{}" +
+			COMMAND find wsar_html
+				-type f
+				-exec chmod 644 "{}" +
+			DEPENDS wsar_html)
+	endif()
+
 	add_custom_target(wsar_html_zip
 		COMMAND ${CMAKE_COMMAND} -E tar "cfv" "wsar_html.zip" --format=zip wsar_html
-		DEPENDS wsar_html
+		DEPENDS wsar_html_perms
 	)
 	set_target_properties(wsar_html wsar_html_zip PROPERTIES
 		FOLDER "Docs"
