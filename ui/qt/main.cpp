@@ -240,27 +240,6 @@ get_gui_compiled_info(GString *str)
 #else
     g_string_append(str, ", with SpeexDSP (using bundled resampler)");
 #endif
-
-    /* SBC */
-#ifdef HAVE_SBC
-    g_string_append(str, ", with SBC");
-#else
-    g_string_append(str, ", without SBC");
-#endif
-
-    /* SpanDSP (G.722, G.726) */
-#ifdef HAVE_SPANDSP
-    g_string_append(str, ", with SpanDSP");
-#else
-    g_string_append(str, ", without SpanDSP");
-#endif
-
-    /* BCG729 (G.729) */
-#ifdef HAVE_BCG729
-    g_string_append(str, ", with bcg729");
-#else
-    g_string_append(str, ", without bcg729");
-#endif
 }
 
 // xxx copied from ../gtk/main.c
