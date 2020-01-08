@@ -578,6 +578,10 @@ extern "C" {
 #define ETHERTYPE_NSH			0x894F	/* Network Service Header (draft-ietf-sfc-nsh-01.txt) */
 #endif
 
+#ifndef ETHERTYPE_PA_HBBACKUP
+#define ETHERTYPE_PA_HBBACKUP		0x8988	/* Paloalto Networks Cluster heartbeat backup via mgmt interfaces */
+#endif
+
 #ifndef ETHERTYPE_LOOP
 #define ETHERTYPE_LOOP			0x9000	/* used for layer 2 testing (do i see my own frames on the wire) */
 #endif
