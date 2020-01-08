@@ -25,9 +25,6 @@ void proto_reg_handoff_netlink_route(void);
 
 struct netlink_route_info {
 	packet_info *pinfo;
-	struct packet_netlink_data *nl_data;
-
-	int encoding; /* copy of nl_data->encoding */
 	gboolean legacy;
 };
 
@@ -438,12 +435,12 @@ static header_field_info hfi_netlink_route_ifi_change NETLINK_ROUTE_HFI_INIT =
 
 
 static int
-dissect_netlink_route_ifinfomsg(tvbuff_t *tvb, struct netlink_route_info *info, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int offset)
+dissect_netlink_route_ifinfomsg(tvbuff_t *tvb, struct netlink_route_info *info, struct packet_netlink_data *nl_data, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *if_flags_tree;
 
-	proto_tree_add_item(tree, &hfi_netlink_route_ifi_family, tvb, offset, 1, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_route_ifi_family, tvb, offset, 1, nl_data->encoding);
 	offset += 1;
 
 	if (info->legacy)
@@ -452,23 +449,23 @@ dissect_netlink_route_ifinfomsg(tvbuff_t *tvb, struct netlink_route_info *info, 
 	/* XXX padding, check if 0 */
 	offset += 1;
 
-	proto_tree_add_item(tree, &hfi_netlink_route_ifi_type, tvb, offset, 2, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_route_ifi_type, tvb, offset, 2, nl_data->encoding);
 	offset += 2;
 
-	proto_tree_add_item(tree, &hfi_netlink_route_ifi_index, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_route_ifi_index, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
-	ti = proto_tree_add_item(tree, &hfi_netlink_route_ifi_flags, tvb, offset, 4, info->encoding);
+	ti = proto_tree_add_item(tree, &hfi_netlink_route_ifi_flags, tvb, offset, 4, nl_data->encoding);
 	if_flags_tree = proto_item_add_subtree(ti, ett_netlink_route_if_flags);
 
 	if (if_flags_tree) {
-		proto_tree_add_item(if_flags_tree, &hfi_netlink_route_ifi_flags_iff_up, tvb, offset, 4, info->encoding);
-		proto_tree_add_item(if_flags_tree, &hfi_netlink_route_ifi_flags_iff_broadcast, tvb, offset, 4, info->encoding);
+		proto_tree_add_item(if_flags_tree, &hfi_netlink_route_ifi_flags_iff_up, tvb, offset, 4, nl_data->encoding);
+		proto_tree_add_item(if_flags_tree, &hfi_netlink_route_ifi_flags_iff_broadcast, tvb, offset, 4, nl_data->encoding);
 		/* XXX */
 	}
 	offset += 4;
 
-	proto_tree_add_item(tree, &hfi_netlink_route_ifi_change, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_route_ifi_change, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
 	return offset;
@@ -768,26 +765,27 @@ static header_field_info* linkstat_txerr_hfis[] = {
 };
 
 static int
-dissect_netlink_route_ifla_linkstats(tvbuff_t *tvb, struct netlink_route_info *info, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int offset, int byte_size) {
+dissect_netlink_route_ifla_linkstats(tvbuff_t *tvb, struct netlink_route_info *info _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int byte_size)
+{
 	proto_tree* rxerr_subtree;
 	const gint rxerr_hfis_len = (sizeof(linkstat_rxerr_hfis) / sizeof(header_field_info*));
 	proto_tree* txerr_subtree;
 	const gint txerr_hfis_len = (sizeof(linkstat_txerr_hfis) / sizeof(header_field_info*));
 
 	for (size_t i = 0; i < (sizeof(linkstat_root_hfis) / sizeof(header_field_info*)); i++) {
-		proto_tree_add_item(tree, linkstat_root_hfis[i], tvb, offset, byte_size, info->encoding);
+		proto_tree_add_item(tree, linkstat_root_hfis[i], tvb, offset, byte_size, nl_data->encoding);
 		offset += byte_size;
 	}
 
 	rxerr_subtree = proto_tree_add_subtree(tree, tvb, offset, byte_size * rxerr_hfis_len, ett_netlink_route_attr_linkstats_rxerrs, NULL, "Rx errors");
 	for (gint i = 0; i < rxerr_hfis_len; i++) {
-		proto_tree_add_item(rxerr_subtree, linkstat_rxerr_hfis[i], tvb, offset, byte_size, info->encoding);
+		proto_tree_add_item(rxerr_subtree, linkstat_rxerr_hfis[i], tvb, offset, byte_size, nl_data->encoding);
 		offset += byte_size;
 	}
 
 	txerr_subtree = proto_tree_add_subtree(tree, tvb, offset, byte_size * txerr_hfis_len, ett_netlink_route_attr_linkstats_txerrs, NULL, "Tx errors");
 	for (gint i = 0; i < txerr_hfis_len; i++) {
-		proto_tree_add_item(txerr_subtree, linkstat_txerr_hfis[i], tvb, offset, byte_size, info->encoding);
+		proto_tree_add_item(txerr_subtree, linkstat_txerr_hfis[i], tvb, offset, byte_size, nl_data->encoding);
 		offset += byte_size;
 	}
 
@@ -809,54 +807,54 @@ dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, void *data, struct packet_netlin
 			return 1;
 		case WS_IFLA_MTU:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_mtu, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_mtu, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_TXQLEN:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_txqlen, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_txqlen, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_OPERSTATE:
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_operstate, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_operstate, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_PROMISCUITY:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_promiscuity, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_promiscuity, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_NUM_TX_QUEUES:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_txqnum, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_txqnum, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_NUM_RX_QUEUES:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_rxqnum, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_rxqnum, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_GROUP:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_group, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_group, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_GSO_MAX_SEGS:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_gso_maxsegs, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_gso_maxsegs, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_GSO_MAX_SIZE:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_gso_maxsize, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_gso_maxsize, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_CARRIER:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_carrier, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_carrier, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_CARRIER_CHANGES:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_carrier_changes, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_carrier_changes, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_ADDRESS:
 			proto_item_append_text(tree, ": %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, len, ':'));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_hwaddr, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_hwaddr, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_BROADCAST:
 			proto_item_append_text(tree, ": %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, len, ':'));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_broadcast, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_broadcast, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_STATS:
 			subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_netlink_route_attr_linkstats, NULL, "Statistics");
@@ -869,28 +867,28 @@ dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, void *data, struct packet_netlin
 			proto_item_append_text(tree, ": %s", str);
 			return 1;
 		case WS_IFLA_MAP:
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_memstart, tvb, offset, 8, info->encoding);
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_memend, tvb, offset + 8, 8, info->encoding);
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_baseaddr, tvb, offset + 16, 8, info->encoding);
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_irq, tvb, offset + 24, 2, info->encoding);
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_dma, tvb, offset + 26, 1, info->encoding);
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_port, tvb, offset + 27, 1, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_memstart, tvb, offset, 8, nl_data->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_memend, tvb, offset + 8, 8, nl_data->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_baseaddr, tvb, offset + 16, 8, nl_data->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_irq, tvb, offset + 24, 2, nl_data->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_dma, tvb, offset + 26, 1, nl_data->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_port, tvb, offset + 27, 1, nl_data->encoding);
 			return 1;
 		case WS_IFLA_CARRIER_UP_COUNT:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_carrier_up_count, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_carrier_up_count, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_CARRIER_DOWN_COUNT:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_carrier_down_count, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_carrier_down_count, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_MIN_MTU:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_min_mtu, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_min_mtu, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_MAX_MTU:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-			proto_tree_add_item(tree, &hfi_netlink_route_ifla_max_mtu, tvb, offset, len, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_max_mtu, tvb, offset, len, nl_data->encoding);
 			return 1;
 
 		default:
@@ -948,7 +946,7 @@ static header_field_info hfi_netlink_route_ifa_index NETLINK_ROUTE_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_netlink_route_ifaddrmsg(tvbuff_t *tvb, struct netlink_route_info *info, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int offset)
+dissect_netlink_route_ifaddrmsg(tvbuff_t *tvb, struct netlink_route_info *info, struct packet_netlink_data *nl_data, proto_tree *tree, int offset)
 {
 	proto_tree_add_item(tree, &hfi_netlink_route_ifa_family,    tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -965,7 +963,7 @@ dissect_netlink_route_ifaddrmsg(tvbuff_t *tvb, struct netlink_route_info *info, 
 	proto_tree_add_item(tree, &hfi_netlink_route_ifa_scope,	    tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	proto_tree_add_item(tree, &hfi_netlink_route_ifa_index,	    tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_route_ifa_index,	    tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
 	return offset;
@@ -1009,9 +1007,8 @@ static header_field_info hfi_netlink_route_ifa_addr4 NETLINK_ROUTE_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int rta_type, int offset, int len)
+dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int rta_type, int offset, int len)
 {
-	struct netlink_route_info *info = (struct netlink_route_info *)data;
 	enum ws_ifa_attr_type type = (enum ws_ifa_attr_type) rta_type;
 	const guint8* str;
 
@@ -1022,7 +1019,7 @@ dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, void *data, struct packet_netlink
 			return 1;
 
 		case WS_IFA_FLAGS:
-			proto_tree_add_item(tree, &hfi_netlink_route_ifa_flags32, tvb, offset, 4, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifa_flags32, tvb, offset, 4, nl_data->encoding);
 			return 1;
 		case WS_IFA_ADDRESS:
 		case WS_IFA_LOCAL:
@@ -1130,7 +1127,7 @@ static header_field_info hfi_netlink_route_rt_flags NETLINK_ROUTE_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_netlink_route_rtmsg(tvbuff_t *tvb, struct netlink_route_info *info, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int offset)
+dissect_netlink_route_rtmsg(tvbuff_t *tvb, struct netlink_route_info *info, struct packet_netlink_data *nl_data, proto_tree *tree, int offset)
 {
 	proto_tree_add_item(tree, &hfi_netlink_route_rt_family,   tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -1159,7 +1156,7 @@ dissect_netlink_route_rtmsg(tvbuff_t *tvb, struct netlink_route_info *info, stru
 	proto_tree_add_item(tree, &hfi_netlink_route_rt_type,     tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	proto_tree_add_item(tree, &hfi_netlink_route_rt_flags,    tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_route_rt_flags,    tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
 	return offset;
@@ -1215,16 +1212,15 @@ static header_field_info hfi_netlink_route_rta_oif NETLINK_ROUTE_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_netlink_route_route_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int rta_type, int offset, int len)
+dissect_netlink_route_route_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int rta_type, int offset, int len)
 {
-	struct netlink_route_info *info = (struct netlink_route_info *)data;
 	enum ws_rta_attr_type type = (enum ws_rta_attr_type) rta_type;
 
 	switch (type) {
 		case WS_RTA_IIF:
 			if (len == 4) {
 				proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-				proto_tree_add_item(tree, &hfi_netlink_route_rta_iif, tvb, offset, 4, info->encoding);
+				proto_tree_add_item(tree, &hfi_netlink_route_rta_iif, tvb, offset, 4, nl_data->encoding);
 				return 1;
 			}
 			return 0;
@@ -1232,7 +1228,7 @@ dissect_netlink_route_route_attrs(tvbuff_t *tvb, void *data, struct packet_netli
 		case WS_RTA_OIF:
 			if (len == 4) {
 				proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-				proto_tree_add_item(tree, &hfi_netlink_route_rta_oif, tvb, offset, 4, info->encoding);
+				proto_tree_add_item(tree, &hfi_netlink_route_rta_oif, tvb, offset, 4, nl_data->encoding);
 				return 1;
 			}
 			return 0;
@@ -1287,7 +1283,7 @@ static header_field_info hfi_netlink_route_nd_type NETLINK_ROUTE_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_netlink_route_ndmsg(tvbuff_t *tvb, struct netlink_route_info *info, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int offset)
+dissect_netlink_route_ndmsg(tvbuff_t *tvb, struct netlink_route_info *info, struct packet_netlink_data *nl_data, proto_tree *tree, int offset)
 {
 	proto_tree_add_item(tree, &hfi_netlink_route_nd_family, tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -1298,10 +1294,10 @@ dissect_netlink_route_ndmsg(tvbuff_t *tvb, struct netlink_route_info *info, stru
 	/* XXX, 3B padding */
 	offset += 3;
 
-	proto_tree_add_item(tree, &hfi_netlink_route_nd_index, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_route_nd_index, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
-	proto_tree_add_item(tree, &hfi_netlink_route_nd_state, tvb, offset, 2, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_route_nd_state, tvb, offset, 2, nl_data->encoding);
 	offset += 2;
 
 	proto_tree_add_item(tree, &hfi_netlink_route_nd_flags, tvb, offset, 1, ENC_NA);
@@ -1400,9 +1396,7 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	/* Netlink message header (nlmsghdr) */
 	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, &hfi_netlink_route_nltype, NULL);
 
-	info.encoding = nl_data->encoding;
 	info.pinfo = pinfo;
-	info.nl_data = nl_data;
 
 	switch (nl_data->type) {
 		case WS_RTM_NEWLINK:

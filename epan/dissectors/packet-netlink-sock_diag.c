@@ -22,9 +22,6 @@ void proto_reg_handoff_netlink_sock_diag(void);
 
 typedef struct {
 	packet_info *pinfo;
-	struct packet_netlink_data *nl_data;
-
-	int encoding; /* copy of nl_data->encoding */
 } netlink_sock_diag_info_t;
 
 static int proto_netlink_sock_diag;
@@ -271,7 +268,7 @@ static header_field_info hfi_netlink_sock_diag_wmem_queued NETLINK_SOCK_DIAG_HFI
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_sock_diag_meminfo(proto_tree *tree, netlink_sock_diag_info_t *info, struct packet_netlink_data *nl_data _U_, tvbuff_t *tvb, int offset, int len)
+dissect_sock_diag_meminfo(proto_tree *tree, netlink_sock_diag_info_t *info _U_, struct packet_netlink_data *nl_data, tvbuff_t *tvb, int offset, int len)
 {
 	static header_field_info *hfis[] = {
 		&hfi_netlink_sock_diag_rmem_alloc,
@@ -290,7 +287,7 @@ dissect_sock_diag_meminfo(proto_tree *tree, netlink_sock_diag_info_t *info, stru
 		return 0;
 
 	for (i = 0; len >= 4 && i < G_N_ELEMENTS(hfis); i++) {
-		proto_tree_add_item(tree, hfis[i], tvb, offset, 4, info->encoding);
+		proto_tree_add_item(tree, hfis[i], tvb, offset, 4, nl_data->encoding);
 		offset += 4; len -= 4;
 	}
 
@@ -396,7 +393,7 @@ dissect_netlink_unix_sock_diag_reply_attrs(tvbuff_t *tvb, void *data, struct pac
 		case WS_UNIX_DIAG_PEER:
 			if (len == 4) {
 				proto_item_append_text(tree, ": Peer inode %u", tvb_get_letohl(tvb, offset));
-				proto_tree_add_item(tree, &hfi_netlink_sock_diag_unix_peer_inode, tvb, offset, 4, info->encoding);
+				proto_tree_add_item(tree, &hfi_netlink_sock_diag_unix_peer_inode, tvb, offset, 4, nl_data->encoding);
 				return 1;
 			}
 			return 0;
@@ -404,8 +401,8 @@ dissect_netlink_unix_sock_diag_reply_attrs(tvbuff_t *tvb, void *data, struct pac
 		case WS_UNIX_DIAG_RQLEN:
 			if (len == 8) {
 				/* XXX, if socket in WS_LISTEN it's reporting sk->sk_receive_queue.qlen, sk->sk_max_ack_backlog */
-				proto_tree_add_item(tree, &hfi_netlink_sock_diag_rqueue, tvb, offset, 4, info->encoding);
-				proto_tree_add_item(tree, &hfi_netlink_sock_diag_wqueue, tvb, offset, 4, info->encoding);
+				proto_tree_add_item(tree, &hfi_netlink_sock_diag_rqueue, tvb, offset, 4, nl_data->encoding);
+				proto_tree_add_item(tree, &hfi_netlink_sock_diag_wqueue, tvb, offset, 4, nl_data->encoding);
 				return 1;
 			}
 			return 0;
@@ -444,7 +441,7 @@ dissect_sock_diag_unix_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, stru
 	_dissect_padding(tree, tvb, offset, 1);
 	offset += 1;
 
-	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inode, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inode, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
 	sock_diag_proto_tree_add_cookie(tree, info, nl_data, tvb, offset);
@@ -484,20 +481,20 @@ static header_field_info hfi_netlink_sock_diag_unix_show_meminfo NETLINK_SOCK_DI
 	  TFS(&_tfs_show_do_not_show), WS_UDIAG_SHOW_MEMINFO, NULL, HFILL };
 
 static int
-dissect_sock_diag_unix_request_show(tvbuff_t *tvb, netlink_sock_diag_info_t *info, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int offset)
+dissect_sock_diag_unix_request_show(tvbuff_t *tvb, netlink_sock_diag_info_t *info _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *flags_tree;
 
-	ti = proto_tree_add_item(tree, &hfi_netlink_sock_diag_unix_show, tvb, offset, 4, info->encoding);
+	ti = proto_tree_add_item(tree, &hfi_netlink_sock_diag_unix_show, tvb, offset, 4, nl_data->encoding);
 	flags_tree = proto_item_add_subtree(ti, ett_netlink_sock_diag_show);
 
-	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_unix_show_name, tvb, offset, 4, info->encoding);
-	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_unix_show_vfs, tvb, offset, 4, info->encoding);
-	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_unix_show_peer, tvb, offset, 4, info->encoding);
-	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_unix_show_icons, tvb, offset, 4, info->encoding);
-	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_unix_show_rqlen, tvb, offset, 4, info->encoding);
-	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_unix_show_meminfo, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_unix_show_name, tvb, offset, 4, nl_data->encoding);
+	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_unix_show_vfs, tvb, offset, 4, nl_data->encoding);
+	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_unix_show_peer, tvb, offset, 4, nl_data->encoding);
+	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_unix_show_icons, tvb, offset, 4, nl_data->encoding);
+	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_unix_show_rqlen, tvb, offset, 4, nl_data->encoding);
+	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_unix_show_meminfo, tvb, offset, 4, nl_data->encoding);
 	/* XXX, unknown */
 
 	offset += 4;
@@ -520,7 +517,7 @@ dissect_sock_diag_unix_request(tvbuff_t *tvb, netlink_sock_diag_info_t *info, st
 	/* states */
 	offset += 4;
 
-	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inode, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inode, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
 	offset = dissect_sock_diag_unix_request_show(tvb, info, nl_data, tree, offset);
@@ -566,16 +563,16 @@ dissect_sock_diag_inet_attributes(tvbuff_t *tvb, void *data, struct packet_netli
 	switch (type) {
 		case WS_INET_DIAG_MEMINFO:
 			if (len == 16) {
-				proto_tree_add_item(tree, &hfi_netlink_sock_diag_rmem_alloc, tvb, offset, 4, info->encoding);
+				proto_tree_add_item(tree, &hfi_netlink_sock_diag_rmem_alloc, tvb, offset, 4, nl_data->encoding);
 				offset += 4;
 
-				proto_tree_add_item(tree, &hfi_netlink_sock_diag_wmem_queued, tvb, offset, 4, info->encoding);
+				proto_tree_add_item(tree, &hfi_netlink_sock_diag_wmem_queued, tvb, offset, 4, nl_data->encoding);
 				offset += 4;
 
-				proto_tree_add_item(tree, &hfi_netlink_sock_diag_fwd_alloc, tvb, offset, 4, info->encoding);
+				proto_tree_add_item(tree, &hfi_netlink_sock_diag_fwd_alloc, tvb, offset, 4, nl_data->encoding);
 				offset += 4;
 
-				proto_tree_add_item(tree, &hfi_netlink_sock_diag_wmem_alloc, tvb, offset, 4, info->encoding);
+				proto_tree_add_item(tree, &hfi_netlink_sock_diag_wmem_alloc, tvb, offset, 4, nl_data->encoding);
 				/*offset += 4;*/
 
 				return 1;
@@ -675,7 +672,7 @@ dissect_sock_diag_inet_sockid(tvbuff_t *tvb, netlink_sock_diag_info_t *info, str
 			break;
 	}
 
-	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inet_interface, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inet_interface, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
 	sock_diag_proto_tree_add_cookie(tree, info, nl_data, tvb, offset);
@@ -722,16 +719,16 @@ dissect_sock_diag_inet_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, stru
 	/* XXX expires */
 	offset += 4;
 
-	proto_tree_add_item(tree, &hfi_netlink_sock_diag_rqueue, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_rqueue, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
-	proto_tree_add_item(tree, &hfi_netlink_sock_diag_wqueue, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_wqueue, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
 	/* XXX uid */
 	offset += 4;
 
-	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inode, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inode, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
 	return dissect_netlink_attributes(tvb, &hfi_netlink_sock_diag_inet_attr, ett_netlink_sock_diag_attr, info, nl_data, tree, offset, -1, dissect_sock_diag_inet_attributes);
@@ -840,16 +837,16 @@ dissect_sock_diag_netlink_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, s
 	proto_tree_add_item(tree, &hfi_netlink_sock_diag_state, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	proto_tree_add_item(tree, &hfi_netlink_sock_diag_netlink_port_id, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_netlink_port_id, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
-	proto_tree_add_item(tree, &hfi_netlink_sock_diag_netlink_dst_port_id, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_netlink_dst_port_id, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
 	/* XXX dst group */
 	offset += 4;
 
-	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inode, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inode, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
 	sock_diag_proto_tree_add_cookie(tree, info, nl_data, tvb, offset);
@@ -877,17 +874,17 @@ static header_field_info hfi_netlink_sock_diag_netlink_show_ring_cfg NETLINK_SOC
 	  TFS(&_tfs_show_do_not_show), WS_NDIAG_SHOW_RING_CFG, NULL, HFILL };
 
 static int
-dissect_sock_diag_netlink_request_show(tvbuff_t *tvb, netlink_sock_diag_info_t *info, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int offset)
+dissect_sock_diag_netlink_request_show(tvbuff_t *tvb, netlink_sock_diag_info_t *info _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *flags_tree;
 
-	ti = proto_tree_add_item(tree, &hfi_netlink_sock_diag_netlink_show, tvb, offset, 4, info->encoding);
+	ti = proto_tree_add_item(tree, &hfi_netlink_sock_diag_netlink_show, tvb, offset, 4, nl_data->encoding);
 	flags_tree = proto_item_add_subtree(ti, ett_netlink_sock_diag_show);
 
-	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_netlink_show_meminfo, tvb, offset, 4, info->encoding);
-	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_netlink_show_groups, tvb, offset, 4, info->encoding);
-	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_netlink_show_ring_cfg, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_netlink_show_meminfo, tvb, offset, 4, nl_data->encoding);
+	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_netlink_show_groups, tvb, offset, 4, nl_data->encoding);
+	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_netlink_show_ring_cfg, tvb, offset, 4, nl_data->encoding);
 	/* XXX, unknown */
 
 	offset += 4;
@@ -908,7 +905,7 @@ dissect_sock_diag_netlink_request(tvbuff_t *tvb, netlink_sock_diag_info_t *info,
 	_dissect_padding(tree, tvb, offset, 2);
 	offset += 2;
 
-	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inode, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inode, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
 	offset = dissect_sock_diag_netlink_request_show(tvb, info, nl_data, tree, offset);
@@ -974,10 +971,10 @@ dissect_sock_diag_packet_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, st
 	proto_tree_add_item(tree, &hfi_netlink_sock_diag_type, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	proto_tree_add_item(tree, &hfi_netlink_sock_diag_packet_proto, tvb, offset, 2, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_packet_proto, tvb, offset, 2, nl_data->encoding);
 	offset += 2;
 
-	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inode, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inode, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
 	sock_diag_proto_tree_add_cookie(tree, info, nl_data, tvb, offset);
@@ -1017,20 +1014,20 @@ static header_field_info hfi_netlink_sock_diag_packet_show_filter NETLINK_SOCK_D
 	  TFS(&_tfs_show_do_not_show), WS_PACKET_SHOW_FILTER, NULL, HFILL };
 
 static int
-dissect_sock_diag_packet_request_show(tvbuff_t *tvb, netlink_sock_diag_info_t *info, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int offset)
+dissect_sock_diag_packet_request_show(tvbuff_t *tvb, netlink_sock_diag_info_t *info _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *flags_tree;
 
-	ti = proto_tree_add_item(tree, &hfi_netlink_sock_diag_packet_show, tvb, offset, 4, info->encoding);
+	ti = proto_tree_add_item(tree, &hfi_netlink_sock_diag_packet_show, tvb, offset, 4, nl_data->encoding);
 	flags_tree = proto_item_add_subtree(ti, ett_netlink_sock_diag_show);
 
-	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_packet_show_info, tvb, offset, 4, info->encoding);
-	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_packet_show_mclist, tvb, offset, 4, info->encoding);
-	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_packet_show_ring_cfg, tvb, offset, 4, info->encoding);
-	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_packet_show_fanout, tvb, offset, 4, info->encoding);
-	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_packet_show_meminfo, tvb, offset, 4, info->encoding);
-	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_packet_show_filter, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_packet_show_info, tvb, offset, 4, nl_data->encoding);
+	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_packet_show_mclist, tvb, offset, 4, nl_data->encoding);
+	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_packet_show_ring_cfg, tvb, offset, 4, nl_data->encoding);
+	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_packet_show_fanout, tvb, offset, 4, nl_data->encoding);
+	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_packet_show_meminfo, tvb, offset, 4, nl_data->encoding);
+	proto_tree_add_item(flags_tree, &hfi_netlink_sock_diag_packet_show_filter, tvb, offset, 4, nl_data->encoding);
 	/* XXX, unknown */
 
 	offset += 4;
@@ -1050,7 +1047,7 @@ dissect_sock_diag_packet_request(tvbuff_t *tvb, netlink_sock_diag_info_t *info, 
 	_dissect_padding(tree, tvb, offset, 2);
 	offset += 2;
 
-	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inode, tvb, offset, 4, info->encoding);
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inode, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
 	offset = dissect_sock_diag_packet_request_show(tvb, info, nl_data, tree, offset);
@@ -1133,9 +1130,7 @@ dissect_netlink_sock_diag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	/* Netlink message header (nlmsghdr) */
 	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, &hfi_netlink_sock_diag_nltype, NULL);
 
-	info.encoding = nl_data->encoding;
 	info.pinfo = pinfo;
-	info.nl_data = nl_data;
 
 	switch (nl_data->type) {
 		case WS_TCPDIAG_GETSOCK:

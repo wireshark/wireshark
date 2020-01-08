@@ -32,9 +32,6 @@ void proto_register_netlink_generic(void);
 void proto_reg_handoff_netlink_generic(void);
 
 typedef struct {
-	struct packet_netlink_data *nl_data;
-	int             encoding; /* copy of nl_data->encoding */
-
 	/* Values parsed from the attributes (only valid in this packet). */
 	guint16         family_id;
 	const guint8   *family_name;
@@ -182,10 +179,9 @@ static const int *genl_ctrl_op_flags_fields[] = {
 };
 
 static int
-dissect_genl_ctrl_ops_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int nla_type, int offset, int len)
+dissect_genl_ctrl_ops_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
 {
 	enum ws_genl_ctrl_op_attr type = (enum ws_genl_ctrl_op_attr) nla_type;
-	genl_ctrl_info_t *info = (genl_ctrl_info_t *) data;
 	proto_tree *ptree = proto_tree_get_parent_tree(tree);
 	guint32 value;
 
@@ -194,7 +190,7 @@ dissect_genl_ctrl_ops_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_dat
 		break;
 	case WS_CTRL_ATTR_OP_ID:
 		if (len == 4) {
-			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_op_id, tvb, offset, 4, info->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_op_id, tvb, offset, 4, nl_data->encoding, &value);
 			proto_item_append_text(tree, ": %u", value);
 			proto_item_append_text(ptree, ", id=%u", value);
 			offset += 4;
@@ -205,7 +201,7 @@ dissect_genl_ctrl_ops_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_dat
 			guint64 op_flags;
 			/* XXX it would be nice if the flag names are appended to the tree */
 			proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, &hfi_genl_ctrl_op_flags,
-				ett_genl_ctrl_op_flags, genl_ctrl_op_flags_fields, info->encoding, BMT_NO_FALSE, &op_flags);
+				ett_genl_ctrl_op_flags, genl_ctrl_op_flags_fields, nl_data->encoding, BMT_NO_FALSE, &op_flags);
 			proto_item_append_text(tree, ": 0x%08x", (guint32)op_flags);
 			proto_item_append_text(ptree, ", flags=0x%08x", (guint32)op_flags);
 			offset += 4;
@@ -226,10 +222,9 @@ static header_field_info hfi_genl_ctrl_group_id NETLINK_GENERIC_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_genl_ctrl_groups_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int nla_type, int offset, int len)
+dissect_genl_ctrl_groups_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
 {
 	enum ws_genl_ctrl_group_attr type = (enum ws_genl_ctrl_group_attr) nla_type;
-	genl_ctrl_info_t *info = (genl_ctrl_info_t *) data;
 	proto_tree *ptree = proto_tree_get_parent_tree(tree);
 	guint32 value;
 	const guint8 *strval;
@@ -245,7 +240,7 @@ dissect_genl_ctrl_groups_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_
 		break;
 	case WS_CTRL_ATTR_MCAST_GRP_ID:
 		if (len == 4) {
-			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_group_id, tvb, offset, 4, info->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_group_id, tvb, offset, 4, nl_data->encoding, &value);
 			proto_item_append_text(tree, ": %u", value);
 			proto_item_append_text(ptree, ", id=%u", value);
 			offset += 4;
@@ -297,7 +292,7 @@ dissect_genl_ctrl_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *n
 		break;
 	case WS_CTRL_ATTR_FAMILY_ID:
 		if (len == 2) {
-			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_family_id, tvb, offset, 2, info->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_family_id, tvb, offset, 2, nl_data->encoding, &value);
 			proto_item_append_text(tree, ": %#x", value);
 			info->family_id = value;
 			offset += 2;
@@ -310,21 +305,21 @@ dissect_genl_ctrl_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *n
 		break;
 	case WS_CTRL_ATTR_VERSION:
 		if (len == 4) {
-			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_version, tvb, offset, 4, info->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_version, tvb, offset, 4, nl_data->encoding, &value);
 			proto_item_append_text(tree, ": %u", value);
 			offset += 4;
 		}
 		break;
 	case WS_CTRL_ATTR_HDRSIZE:
 		if (len == 4) {
-			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_hdrsize, tvb, offset, 4, info->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_hdrsize, tvb, offset, 4, nl_data->encoding, &value);
 			proto_item_append_text(tree, ": %u", value);
 			offset += 4;
 		}
 		break;
 	case WS_CTRL_ATTR_MAXATTR:
 		if (len == 4) {
-			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_maxattr, tvb, offset, 4, info->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_maxattr, tvb, offset, 4, nl_data->encoding, &value);
 			proto_item_append_text(tree, ": %u", value);
 			offset += 4;
 		}
@@ -359,8 +354,6 @@ dissect_genl_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, v
 		return 0;
 	}
 
-	info.nl_data = genl_info->nl_data;
-	info.encoding = genl_info->encoding;
 	info.family_id = 0;
 	info.family_name = NULL;
 
@@ -401,7 +394,7 @@ static header_field_info hfi_genl_reserved NETLINK_GENERIC_HFI_INIT =
 	{ "Reserved", "genl.reserved", FT_NONE, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
-int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, struct packet_netlink_data *nl_data _U_, header_field_info *hfi_cmd)
+int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, struct packet_netlink_data *nl_data, header_field_info *hfi_cmd)
 {
 	int offset = 0;
 
@@ -412,7 +405,7 @@ int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, struct packet_net
 	offset++;
 	proto_tree_add_item(genl_info->genl_tree, &hfi_genl_version, tvb, offset, 1, ENC_NA);
 	offset++;
-	proto_tree_add_item(genl_info->genl_tree, &hfi_genl_reserved, tvb, offset, 2, genl_info->encoding);
+	proto_tree_add_item(genl_info->genl_tree, &hfi_genl_reserved, tvb, offset, 2, nl_data->encoding);
 	offset += 2;
 	return offset;
 }
@@ -443,7 +436,6 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	/* Populate info from Generic Netlink message header (genlmsghdr) */
 	info.nl_data = nl_data;
-	info.encoding = nl_data->encoding;
 	info.genl_tree = nlmsg_tree;
 	info.cmd = tvb_get_guint8(tvb, offset);
 

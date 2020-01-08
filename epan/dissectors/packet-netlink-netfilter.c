@@ -21,10 +21,6 @@ void proto_reg_handoff_netlink_netfilter(void);
 
 typedef struct {
 	packet_info *pinfo;
-	struct packet_netlink_data *nl_data;
-
-	int encoding; /* copy of nl_data->encoding */
-
 	guint16 hw_protocol; /* protocol for NFQUEUE packet payloads. */
 } netlink_netfilter_info_t;
 
@@ -1085,10 +1081,9 @@ static header_field_info hfi_nfq_config_flags NETLINK_NETFILTER_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_nfq_config_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int nla_type, int offset, int len)
+dissect_nfq_config_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
 {
 	enum ws_nfqnl_attr_config type = (enum ws_nfqnl_attr_config) nla_type;
-	netlink_netfilter_info_t *info = (netlink_netfilter_info_t *) data;
 
 	switch (type) {
 		case WS_NFQA_CFG_UNSPEC:
@@ -1116,21 +1111,21 @@ dissect_nfq_config_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *
 
 		case WS_NFQA_CFG_QUEUE_MAXLEN:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_config_queue_maxlen, tvb, offset, 4, info->encoding);
+				proto_tree_add_item(tree, &hfi_nfq_config_queue_maxlen, tvb, offset, 4, nl_data->encoding);
 				offset += 4;
 			}
 			break;
 
 		case WS_NFQA_CFG_MASK:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_config_mask, tvb, offset, 4, info->encoding);
+				proto_tree_add_item(tree, &hfi_nfq_config_mask, tvb, offset, 4, nl_data->encoding);
 				offset += 4;
 			}
 			break;
 
 		case WS_NFQA_CFG_FLAGS:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_config_flags, tvb, offset, 4, info->encoding);
+				proto_tree_add_item(tree, &hfi_nfq_config_flags, tvb, offset, 4, nl_data->encoding);
 				offset += 4;
 			}
 			break;
@@ -1474,7 +1469,7 @@ static header_field_info hfi_netlink_netfilter_ulog_type NETLINK_NETFILTER_HFI_I
 	  VALS(netlink_netfilter_ulog_type_vals), 0x00FF, NULL, HFILL };
 
 static int
-dissect_netfilter_ulog(tvbuff_t *tvb, netlink_netfilter_info_t *info, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int offset)
+dissect_netfilter_ulog(tvbuff_t *tvb, netlink_netfilter_info_t *info, struct packet_netlink_data *nl_data, proto_tree *tree, int offset)
 {
 	enum ws_nfulnl_msg_types type = (enum ws_nfulnl_msg_types) (nl_data->type & 0xff);
 	tvbuff_t *next_tvb;
@@ -1906,9 +1901,7 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 			break;
 	}
 
-	info.encoding = nl_data->encoding;
 	info.pinfo = pinfo;
-	info.nl_data = nl_data;
 	info.hw_protocol = 0;
 
 	switch (nl_data->type >> 8) {

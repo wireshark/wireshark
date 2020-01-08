@@ -129,7 +129,6 @@ int dissect_netlink_attributes_array(tvbuff_t *tvb, header_field_info *hfi_type,
  */
 typedef struct {
 	struct packet_netlink_data *nl_data;
-	int             encoding; /* copy of nl_data->encoding */
 
 	/* For internal use by genl. */
 	proto_tree     *genl_tree;
