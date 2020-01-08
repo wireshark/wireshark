@@ -2316,12 +2316,10 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   version = tvb_get_guint8(tvb, 0) >> 4;
 
   if(version == 4){
-    dissect_ip_v4(tvb, pinfo, tree, data);
-    return tvb_captured_length(tvb);
+    return dissect_ip_v4(tvb, pinfo, tree, data);
   }
   if(version == 6){
-    call_dissector(ipv6_handle, tvb, pinfo, tree);
-    return tvb_captured_length(tvb);
+    return call_dissector(ipv6_handle, tvb, pinfo, tree);
   }
 
   /* Bogus IP version */
