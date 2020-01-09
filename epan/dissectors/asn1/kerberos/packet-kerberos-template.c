@@ -296,7 +296,11 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
 }
 
-#ifdef HAVE_MIT_KERBEROS
+#endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
+
+#if defined(HAVE_MIT_KERBEROS)
+
+#ifdef HAVE_KRB5_PAC_VERIFY
 static void used_signing_key(proto_tree *tree, packet_info *pinfo,
 			     enc_key_t *ek, tvbuff_t *tvb,
 			     krb5_cksumtype checksum,
@@ -310,11 +314,7 @@ static void used_signing_key(proto_tree *tree, packet_info *pinfo,
 				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
 				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
 }
-#endif /* HAVE_MIT_KERBEROS */
-
-#endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
-
-#if defined(HAVE_MIT_KERBEROS)
+#endif /* HAVE_KRB5_PAC_VERIFY */
 
 static krb5_context krb5_ctx;
 
@@ -460,6 +460,16 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 }
 USES_APPLE_RST
 
+#ifdef HAVE_KRB5_PAC_VERIFY
+/*
+ * macOS up to 10.14.5 only has a MIT shim layer on top
+ * of heimdal. It means that krb5_pac_verify() is not available
+ * in /usr/lib/libkrb5.dylib
+ *
+ * https://opensource.apple.com/tarballs/Heimdal/Heimdal-520.260.1.tar.gz
+ * https://opensource.apple.com/tarballs/MITKerberosShim/MITKerberosShim-71.200.1.tar.gz
+ */
+
 extern krb5_error_code
 krb5int_c_mandatory_cksumtype(krb5_context, krb5_enctype, krb5_cksumtype *);
 
@@ -554,6 +564,7 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 
 	krb5_pac_free(krb5_ctx, pac);
 }
+#endif /* HAVE_KRB5_PAC_VERIFY */
 
 #elif defined(HAVE_HEIMDAL_KERBEROS)
 static krb5_context krb5_ctx;
@@ -2009,7 +2020,7 @@ dissect_krb5_AD_WIN2K_PAC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 	guint32 version;
 	guint32 i;
 
-#ifdef HAVE_MIT_KERBEROS
+#if defined(HAVE_MIT_KERBEROS) && defined(HAVE_KRB5_PAC_VERIFY)
 	verify_krb5_pac(tree, actx, tvb);
 #endif
 

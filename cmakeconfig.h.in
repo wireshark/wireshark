@@ -88,6 +88,9 @@
 /* Define to use heimdal kerberos */
 #cmakedefine HAVE_HEIMDAL_KERBEROS 1
 
+/* Define to 1 if you have the `krb5_pac_verify' function. */
+#cmakedefine HAVE_KRB5_PAC_VERIFY 1
+
 /* Define to 1 if you have the `inflatePrime' function. */
 #cmakedefine HAVE_INFLATEPRIME 1
 
