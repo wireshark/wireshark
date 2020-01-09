@@ -418,7 +418,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
     guint idx;
     tpncp_data_field_info *current_tpncp_data_field_info = NULL;
     hf_register_info hf_entr;
-    gboolean registered_struct_ids[MAX_TPNCP_DB_SIZE];
+    gboolean* registered_struct_ids = wmem_alloc0_array(wmem_epan_scope(), gboolean, MAX_TPNCP_DB_SIZE);
 
     static hf_register_info hf_tpncp[] = {
         {
@@ -518,8 +518,6 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
             }
         }
     };
-
-    memset(registered_struct_ids, 0, sizeof (registered_struct_ids));
 
     /* Register common fields of hf_register_info structure. */
     hf_entr.hfinfo.type = FT_NONE;
