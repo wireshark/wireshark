@@ -3371,6 +3371,11 @@ prefs_register_modules(void)
                                    "Enable Packet List Separator",
                                    &prefs.gui_qt_packet_list_separator);
 
+    prefs_register_bool_preference(gui_layout_module, "packet_header_column_definition.enabled",
+                                    "Show column definition in packet list header",
+                                    "Show column definition in packet list header",
+                                    &prefs.gui_qt_packet_header_column_definition);
+
     prefs_register_bool_preference(gui_layout_module, "show_selected_packet.enabled",
                                    "Show selected packet in the Status Bar",
                                    "Show selected packet in the Status Bar",
@@ -4119,6 +4124,7 @@ pre_init_prefs(void)
     prefs.gui_interfaces_show_hidden = FALSE;
     prefs.gui_interfaces_remote_display = TRUE;
     prefs.gui_qt_packet_list_separator = FALSE;
+    prefs.gui_qt_packet_header_column_definition = TRUE;
     prefs.gui_qt_show_selected_packet = FALSE;
     prefs.gui_qt_show_file_load_time = FALSE;
     prefs.gui_max_export_objects     = 1000;

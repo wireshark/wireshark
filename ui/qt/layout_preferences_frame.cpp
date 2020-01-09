@@ -46,11 +46,15 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
              "}"
              ).arg(ui->packetListSeparatorCheckBox->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left());
     ui->packetListSeparatorCheckBox->setStyleSheet(indent_ss);
+    ui->packetListHeaderShowColumnDefinition->setStyleSheet(indent_ss);
     ui->statusBarShowSelectedPacketCheckBox->setStyleSheet(indent_ss);
     ui->statusBarShowFileLoadTimeCheckBox->setStyleSheet(indent_ss);
 
     pref_packet_list_separator_ = prefFromPrefPtr(&prefs.gui_qt_packet_list_separator);
     ui->packetListSeparatorCheckBox->setChecked(prefs_get_bool_value(pref_packet_list_separator_, pref_stashed));
+
+    pref_packet_header_column_definition_ = prefFromPrefPtr(&prefs.gui_qt_packet_header_column_definition);
+    ui->packetListHeaderShowColumnDefinition->setChecked(prefs_get_bool_value(pref_packet_header_column_definition_, pref_stashed));
 
     pref_show_selected_packet_ = prefFromPrefPtr(&prefs.gui_qt_show_selected_packet);
     ui->statusBarShowSelectedPacketCheckBox->setChecked(prefs_get_bool_value(pref_show_selected_packet_, pref_stashed));
@@ -293,6 +297,7 @@ void LayoutPreferencesFrame::on_restoreButtonBox_clicked(QAbstractButton *)
     updateWidgets();
 
     ui->packetListSeparatorCheckBox->setChecked(prefs_get_bool_value(pref_packet_list_separator_, pref_default));
+    ui->packetListHeaderShowColumnDefinition->setChecked(prefs_get_bool_value(pref_packet_header_column_definition_, pref_default));
     ui->statusBarShowSelectedPacketCheckBox->setChecked(prefs_get_bool_value(pref_show_selected_packet_, pref_default));
     ui->statusBarShowFileLoadTimeCheckBox->setChecked(prefs_get_bool_value(pref_show_file_load_time_, pref_default));
 }
@@ -300,6 +305,11 @@ void LayoutPreferencesFrame::on_restoreButtonBox_clicked(QAbstractButton *)
 void LayoutPreferencesFrame::on_packetListSeparatorCheckBox_toggled(bool checked)
 {
     prefs_set_bool_value(pref_packet_list_separator_, (gboolean) checked, pref_stashed);
+}
+
+void LayoutPreferencesFrame::on_packetListHeaderShowColumnDefinition_toggled(bool checked)
+{
+    prefs_set_bool_value(pref_packet_header_column_definition_, (gboolean) checked, pref_stashed);
 }
 
 void LayoutPreferencesFrame::on_statusBarShowSelectedPacketCheckBox_toggled(bool checked)

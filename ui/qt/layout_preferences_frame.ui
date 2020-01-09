@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>414</width>
-    <height>287</height>
+    <height>409</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -359,6 +359,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="packetListHeaderShowColumnDefinition">
+     <property name="text">
+      <string>Show column definition in column context menu</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer_3">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -423,8 +430,8 @@
  <connections/>
  <buttongroups>
   <buttongroup name="layoutButtonGroup"/>
-  <buttongroup name="pane2ButtonGroup"/>
   <buttongroup name="pane3ButtonGroup"/>
+  <buttongroup name="pane2ButtonGroup"/>
   <buttongroup name="pane1ButtonGroup"/>
  </buttongroups>
 </ui>
