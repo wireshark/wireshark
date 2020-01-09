@@ -26,7 +26,7 @@ class RelatedPacketDelegate : public QStyledItemDelegate
 public:
     RelatedPacketDelegate(QWidget *parent = 0);
     void clear();
-    void setCurrentFrame(guint32 current_frame) { current_frame_ = current_frame; }
+    void setCurrentFrame(guint32 current_frame);
     void setConversation(struct conversation *conv);
 
 public slots:

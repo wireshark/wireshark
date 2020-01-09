@@ -280,9 +280,19 @@ void RelatedPacketDelegate::clear()
     conv_ = NULL;
 }
 
+void RelatedPacketDelegate::setCurrentFrame(guint32 current_frame)
+ {
+    current_frame_ = current_frame;
+    foreach (int frame_num, related_frames_.keys()) {
+        addRelatedFrame(frame_num, related_frames_[frame_num]);
+    }
+ }
+
 void RelatedPacketDelegate::addRelatedFrame(int frame_num, ft_framenum_type_t framenum_type)
 {
-    related_frames_[frame_num] = framenum_type;
+    if (!related_frames_.keys().contains(frame_num))
+        related_frames_[frame_num] = framenum_type;
+
     // Last match wins. Last match might not make sense, however.
     if (current_frame_ > 0) {
         switch (framenum_type) {
