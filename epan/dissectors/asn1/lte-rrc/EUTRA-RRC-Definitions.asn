@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.7.0 (2019-09)
+-- 3GPP TS 36.331 V15.8.0 (2019-12)
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -769,7 +769,7 @@ MeasReportAppLayer-r15 ::=		SEQUENCE {
 
 MeasReportAppLayer-r15-IEs ::=		SEQUENCE {
 	measReportAppLayerContainer-r15		OCTET STRING (SIZE(1..8000))			OPTIONAL,
-	serviceType							ENUMERATED {qoe, qoemtsi, spare6, spare5, spare4, spare3, spare2, spare1}		OPTIONAL,
+	serviceType-r15						ENUMERATED {qoe, qoemtsi, spare6, spare5, spare4, spare3, spare2, spare1}		OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
@@ -1697,7 +1697,7 @@ RRC-InactiveConfig-r15::=		SEQUENCE {
 	periodic-RNAU-timer-r15			ENUMERATED {min5, min10, min20, min30, min60,
 											min120, min360, min720}		OPTIONAL,	--Need OR
 	nextHopChainingCount-r15		NextHopChainingCount		OPTIONAL,	--Cond INACTIVE
-	nonCriticalExtension			SEQUENCE{}		OPTIONAL
+	dummy							SEQUENCE{}		OPTIONAL
 }
 
 RAN-NotificationAreaInfo-r15	::= CHOICE {
@@ -2106,7 +2106,7 @@ RRCConnectionSetupComplete-v1530-IEs ::= SEQUENCE {
 }
 
 RRCConnectionSetupComplete-v1540-IEs ::= SEQUENCE {
-	gummei-Type-v1540					ENUMERATED {mappedFrom5G}		OPTIONAL,
+	gummei-Type-v1540					ENUMERATED {mappedFrom5G-v1540}	OPTIONAL,
 	guami-Type-r15						ENUMERATED {native, mapped}		OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
@@ -2158,7 +2158,7 @@ RRCEarlyDataRequest-r15 ::=		SEQUENCE {
 
 RRCEarlyDataRequest-r15-IEs ::=	SEQUENCE {
 	s-TMSI-r15						S-TMSI,
-	establishmentCause-r15			ENUMERATED {	mo-Data-r15, delayTolerantAccess-r15},
+	establishmentCause-r15			ENUMERATED {mo-Data, delayTolerantAccess},
 	dedicatedInfoNAS-r15				DedicatedInfoNAS,
 	nonCriticalExtension				SEQUENCE {}			OPTIONAL
 }
@@ -10925,7 +10925,7 @@ OtherConfig-r9 ::= SEQUENCE	{
 			release					NULL,
 			setup					SEQUENCE{
 				measConfigAppLayerContainer-r15		OCTET STRING (SIZE(1..1000)),
-				serviceType							ENUMERATED {qoe, qoemtsi, spare6, spare5, spare4, spare3, spare2, spare1}
+				serviceType-r15						ENUMERATED {qoe, qoemtsi, spare6, spare5, spare4, spare3, spare2, spare1}
 			}
 		}	OPTIONAL,	-- Need ON	
 		ailc-BitConfig-r15				BOOLEAN							OPTIONAL,	-- Need ON
