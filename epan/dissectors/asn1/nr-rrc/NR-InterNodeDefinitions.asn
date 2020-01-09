@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V15.7.0 (2019-09)
+-- 3GPP TS 38.331 V15.8.0 (2019-12)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -96,7 +96,11 @@ AS-Config ::=                           SEQUENCE {
     sourceRB-SN-Config                      OCTET STRING (CONTAINING RadioBearerConfig)     OPTIONAL,
     sourceSCG-NR-Config                     OCTET STRING (CONTAINING RRCReconfiguration)    OPTIONAL,
     sourceSCG-EUTRA-Config                  OCTET STRING                                    OPTIONAL
+    ]],
+    [[
+    sourceSCG-Configured                    ENUMERATED {true}                               OPTIONAL
     ]]
+
 }
 
 AS-Context ::=                          SEQUENCE {
@@ -478,7 +482,7 @@ MeasTiming ::= SEQUENCE {
     }                                                                                   OPTIONAL,
 ...,
     [[    
-    ssb-ToMeasure-v1540                     SSB-ToMeasure                               OPTIONAL,
+    ssb-ToMeasure                           SSB-ToMeasure                               OPTIONAL,
     physCellId                              PhysCellId                                  OPTIONAL
     ]]
 }

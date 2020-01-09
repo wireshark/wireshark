@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V15.7.0 (2019-09)
+-- 3GPP TS 38.331 V15.8.0 (2019-12)
 
 NR-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -33,7 +33,6 @@ BCCH-DL-SCH-MessageType ::=     CHOICE {
 
 -- TAG-BCCH-DL-SCH-MESSAGE-STOP
 -- TAG-DL-CCCH-MESSAGE-START
-
 
 DL-CCCH-Message ::=             SEQUENCE {
     message                         DL-CCCH-MessageType
@@ -147,7 +146,7 @@ UL-DCCH-MessageType ::=         CHOICE {
         ueCapabilityInformation         UECapabilityInformation,
         counterCheckResponse            CounterCheckResponse,
         ueAssistanceInformation         UEAssistanceInformation,
-        failureInformation              FailureInformation,
+        failureInformation              FailureInformation, 
         ulInformationTransferMRDC       ULInformationTransferMRDC,
         scgFailureInformation           SCGFailureInformation,
         scgFailureInformationEUTRA      SCGFailureInformationEUTRA
@@ -435,7 +434,7 @@ RRCReconfiguration-v1560-IEs ::=            SEQUENCE {
 MRDC-SecondaryCellGroupConfig ::=       SEQUENCE {
     mrdc-ReleaseAndAdd                  ENUMERATED {true}                                                         OPTIONAL,   -- Need N
     mrdc-SecondaryCellGroup             CHOICE {
-        nr-SCG                              OCTET STRING  (CONTAINING RRCReconfiguration),
+        nr-SCG                              OCTET STRING  (CONTAINING RRCReconfiguration), 
         eutra-SCG                           OCTET STRING
     }
 }
@@ -625,9 +624,9 @@ RRCResume-IEs ::=                   SEQUENCE {
 }
 
 RRCResume-v1560-IEs ::=             SEQUENCE {
-    radioBearerConfig2                  OCTET STRING (CONTAINING RadioBearerConfig)                            OPTIONAL, -- Need M
-    sk-Counter                          SK-Counter                                                             OPTIONAL,
-    nonCriticalExtension                SEQUENCE{}                                                             OPTIONAL
+    radioBearerConfig2                  OCTET STRING (CONTAINING RadioBearerConfig)                             OPTIONAL, -- Need M
+    sk-Counter                          SK-Counter                                                              OPTIONAL, -- Need N
+    nonCriticalExtension                SEQUENCE{}                                                              OPTIONAL
 }
 
 -- TAG-RRCRESUME-STOP
@@ -754,12 +753,12 @@ EstablishmentCause ::=              ENUMERATED {
 
 RRCSystemInfoRequest ::=            SEQUENCE {
     criticalExtensions                  CHOICE {
-        rrcSystemInfoRequest-r15            RRCSystemInfoRequest-r15-IEs,
+        rrcSystemInfoRequest                RRCSystemInfoRequest-IEs,
         criticalExtensionsFuture            SEQUENCE {}
     }
 }
 
-RRCSystemInfoRequest-r15-IEs ::=    SEQUENCE {
+RRCSystemInfoRequest-IEs ::=    SEQUENCE {
     requested-SI-List                   BIT STRING (SIZE (maxSI-Message)),  --32bits
     spare                               BIT STRING (SIZE (12))
 }
@@ -1348,7 +1347,7 @@ BeamFailureRecoveryConfig ::=       SEQUENCE {
     beamFailureRecoveryTimer            ENUMERATED {ms10, ms20, ms40, ms60, ms80, ms100, ms150, ms200}            OPTIONAL, -- Need M
     ...,
     [[
-    msg1-SubcarrierSpacing-v1530        SubcarrierSpacing                                                         OPTIONAL  -- Need M
+    msg1-SubcarrierSpacing              SubcarrierSpacing                                                         OPTIONAL  -- Need M
     ]]
 }
 
@@ -1535,7 +1534,7 @@ CellGroupConfig ::=                         SEQUENCE {
     sCellToReleaseList                          SEQUENCE (SIZE (1..maxNrofSCells)) OF SCellIndex            OPTIONAL,   -- Need N
     ...,
     [[
-    reportUplinkTxDirectCurrent-v1530           ENUMERATED {true}                                           OPTIONAL    -- Cond BWP-Reconfig
+    reportUplinkTxDirectCurrent                 ENUMERATED {true}                                           OPTIONAL    -- Cond BWP-Reconfig
     ]]
 }
 
@@ -1594,7 +1593,7 @@ CellReselectionPriority ::=             INTEGER (0..7)
 CellReselectionSubPriority ::=          ENUMERATED {oDot2, oDot4, oDot6, oDot8}
 
 -- TAG-CELLRESELECTIONSUBPRIORITY-STOP
--- TAG-CGI-Info-EUTRA-START
+-- TAG-CGI-INFOEUTRA-START
 
 CGI-InfoEUTRA ::=                    SEQUENCE {
     cgi-info-EPC                            SEQUENCE {
@@ -1607,7 +1606,7 @@ CGI-InfoEUTRA ::=                    SEQUENCE {
     freqBandIndicatorPriority               ENUMERATED {true}                                                           OPTIONAL
 }
 
--- TAG-CGI-Info-EUTRA-STOP
+-- TAG-CGI-INFOEUTRA-STOP
 -- TAG-CGI-INFO-NR-START
 
 CGI-InfoNR ::=                    SEQUENCE {
@@ -2097,9 +2096,9 @@ CSI-ResourcePeriodicityAndOffset ::=    CHOICE {
 CSI-RS-ResourceConfigMobility ::=   SEQUENCE {
     subcarrierSpacing                   SubcarrierSpacing,
     csi-RS-CellList-Mobility            SEQUENCE (SIZE (1..maxNrofCSI-RS-CellsRRM)) OF CSI-RS-CellMobility,
-    ... ,
+    ...,
     [[
-    refServCellIndex-v1530              ServCellIndex                                                           OPTIONAL    -- Need S
+    refServCellIndex                    ServCellIndex                                                           OPTIONAL    -- Need S
     ]]
 
 
@@ -2249,7 +2248,7 @@ DownlinkConfigCommonSIB ::=     SEQUENCE {
 }
 
 
-BCCH-Config ::=                 SEQUENCE {
+BCCH-Config ::=                 SEQUENCE { 
     modificationPeriodCoeff         ENUMERATED {n2, n4, n8, n16},
     ...
 }
@@ -2632,10 +2631,10 @@ MeasObjectNR ::=                    SEQUENCE {
     blackCellsToAddModList              SEQUENCE (SIZE (1..maxNrofPCI-Ranges)) OF PCI-RangeElement      OPTIONAL,   -- Need N
     whiteCellsToRemoveList              PCI-RangeIndexList                                              OPTIONAL,   -- Need N
     whiteCellsToAddModList              SEQUENCE (SIZE (1..maxNrofPCI-Ranges)) OF PCI-RangeElement      OPTIONAL,   -- Need N
-    ... ,
+    ...,
     [[
-    freqBandIndicatorNR-v1530           FreqBandIndicatorNR                                             OPTIONAL,   -- Need R
-    measCycleSCell-v1530                ENUMERATED {sf160, sf256, sf320, sf512, sf640, sf1024, sf1280}  OPTIONAL    -- Need R
+    freqBandIndicatorNR                 FreqBandIndicatorNR                                             OPTIONAL,   -- Need R
+    measCycleSCell                      ENUMERATED {sf160, sf256, sf320, sf512, sf640, sf1024, sf1280}  OPTIONAL    -- Need R
     ]]
 }
 
@@ -2688,7 +2687,7 @@ MeasObjectToAddMod ::=                      SEQUENCE {
     measObjectId                                MeasObjectId,
     measObject                                  CHOICE {
         measObjectNR                                MeasObjectNR,
-        ... ,
+        ...,
         measObjectEUTRA                             MeasObjectEUTRA
     }
 }
@@ -2776,7 +2775,8 @@ MeasResultEUTRA ::=                     SEQUENCE {
     eutra-PhysCellId                        PhysCellId,
     measResult                              MeasQuantityResultsEUTRA,
 
-    cgi-Info                                CGI-InfoEUTRA                                                               OPTIONAL,...
+    cgi-Info                                CGI-InfoEUTRA                                                               OPTIONAL,
+    ...
 }
 
 MultiBandInfoListEUTRA ::=              SEQUENCE (SIZE (1..maxMultiBands)) OF FreqBandIndicatorEUTRA
@@ -3320,7 +3320,7 @@ PUCCH-Config ::=                        SEQUENCE {
     format3                                 CHOICE {release NULL, setup PUCCH-FormatConfig }                                   OPTIONAL, -- Need M
     format4                                 CHOICE {release NULL, setup PUCCH-FormatConfig }                                   OPTIONAL, -- Need M
 
-    schedulingRequestResourceToAddModList   SEQUENCE (SIZE (1..maxNrofSR-Resources)) OF SchedulingRequestResourceConfig
+    schedulingRequestResourceToAddModList   SEQUENCE (SIZE (1..maxNrofSR-Resources)) OF SchedulingRequestResourceConfig   
                                                                                                                   OPTIONAL, -- Need N
     schedulingRequestResourceToReleaseList  SEQUENCE (SIZE (1..maxNrofSR-Resources)) OF SchedulingRequestResourceId
                                                                                                                   OPTIONAL, -- Need N
@@ -3477,7 +3477,7 @@ PUCCH-SpatialRelationInfoId ::=         INTEGER (1..maxNrofSpatialRelationInfos)
 
 PUCCH-TPC-CommandConfig ::=             SEQUENCE {
     tpc-IndexPCell                          INTEGER (1..15)                         OPTIONAL,   -- Cond PDCCH-OfSpcell
-    tpc-IndexPUCCH-SCell                    INTEGER (1..15)                         OPTIONAL,   -- Cond PDCCH-ofSpCellOrPUCCH-Scell
+    tpc-IndexPUCCH-SCell                    INTEGER (1..15)                         OPTIONAL,   -- Cond PDCCH-ofSpCellOrPUCCH-SCell
     ...
 }
 
@@ -3728,7 +3728,7 @@ CFRA ::=                    SEQUENCE {
     },
     ...,
     [[
-    totalNumberOfRA-Preambles-v1530 INTEGER (1..63)                                                         OPTIONAL -- Cond Occasions
+    totalNumberOfRA-Preambles INTEGER (1..63)                                                         OPTIONAL -- Cond Occasions
     ]]
 }
 
@@ -4250,7 +4250,7 @@ RLF-TimersAndConstants ::=          SEQUENCE {
     n311                                ENUMERATED {n1, n2, n3, n4, n5, n6, n8, n10},
     ...,
     [[
-    t311-v1530                          ENUMERATED {ms1000, ms3000, ms5000, ms10000, ms15000, ms20000, ms30000}
+    t311                                ENUMERATED {ms1000, ms3000, ms5000, ms10000, ms15000, ms20000, ms30000}
     ]]
 }
 
@@ -4342,7 +4342,7 @@ SCS-SpecificCarrier ::=             SEQUENCE {
     carrierBandwidth                    INTEGER (1..maxNrofPhysicalResourceBlocks),
     ...,
     [[
-    txDirectCurrentLocation-v1530   INTEGER (0..4095)                                       OPTIONAL            -- Need S
+    txDirectCurrentLocation         INTEGER (0..4095)                                       OPTIONAL            -- Need S
     ]]
 }
 
@@ -4728,7 +4728,7 @@ SRS-ResourceSet ::=                     SEQUENCE {
             slotOffset                              INTEGER (1..32)                                     OPTIONAL, -- Need S
             ...,
             [[
-            aperiodicSRS-ResourceTriggerList-v1530      SEQUENCE (SIZE(1..maxNrofSRS-TriggerStates-2))
+            aperiodicSRS-ResourceTriggerList            SEQUENCE (SIZE(1..maxNrofSRS-TriggerStates-2))
                                                             OF INTEGER (1..maxNrofSRS-TriggerStates-1)  OPTIONAL  -- Need M
             ]]
         },
@@ -4841,7 +4841,7 @@ SRS-TPC-CommandConfig ::=               SEQUENCE {
     fieldTypeFormat2-3                      INTEGER (0..1)                                                      OPTIONAL,   -- Need R
     ...,
     [[
-    startingBitOfFormat2-3SUL-v1530     INTEGER (1..31)                                                         OPTIONAL    -- Need R
+    startingBitOfFormat2-3SUL           INTEGER (1..31)                                                         OPTIONAL    -- Need R
     ]]
 }
 
@@ -4937,7 +4937,7 @@ QCL-Info ::=                        SEQUENCE {
 TCI-StateId ::=                     INTEGER (0..maxNrofTCI-States-1)
 
 -- TAG-TCI-STATEID-STOP
--- TAG-TDD-UL-DL-CONFIG-START
+-- TAG-TDD-UL-DL-CONFIGCOMMON-START
 
 TDD-UL-DL-ConfigCommon ::=          SEQUENCE {
     referenceSubcarrierSpacing          SubcarrierSpacing,
@@ -4958,9 +4958,12 @@ TDD-UL-DL-Pattern ::=               SEQUENCE {
     ]]
 }
 
+-- TAG-TDD-UL-DL-CONFIGCOMMON-STOP
+-- TAG-TDD-UL-DL-CONFIGDEDICATED-START
+
 TDD-UL-DL-ConfigDedicated ::=       SEQUENCE {
     slotSpecificConfigurationsToAddModList      SEQUENCE (SIZE (1..maxNrofSlots)) OF TDD-UL-DL-SlotConfig       OPTIONAL, -- Need N
-    slotSpecificConfigurationsToreleaseList     SEQUENCE (SIZE (1..maxNrofSlots)) OF TDD-UL-DL-SlotIndex        OPTIONAL, -- Need N
+    slotSpecificConfigurationsToReleaseList     SEQUENCE (SIZE (1..maxNrofSlots)) OF TDD-UL-DL-SlotIndex        OPTIONAL, -- Need N
     ...
 }
 
@@ -4978,7 +4981,7 @@ TDD-UL-DL-SlotConfig ::=            SEQUENCE {
 
 TDD-UL-DL-SlotIndex ::=             INTEGER (0..maxNrofSlots-1)
 
--- TAG-TDD-UL-DL-CONFIG-STOP
+-- TAG-TDD-UL-DL-CONFIGDEDICATED-STOP
 -- TAG-TRACKINGAREACODE-START
 
 TrackingAreaCode ::= BIT STRING (SIZE (24))
@@ -5133,6 +5136,8 @@ BandCombinationList-v1560 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandComb
 
 BandCombinationList-v1570 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1570
 
+BandCombinationList-v1580 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1580
+
 BandCombination ::=                 SEQUENCE {
     bandList                            SEQUENCE (SIZE (1..maxSimultaneousBands)) OF BandParameters,
     featureSetCombination               FeatureSetCombinationId,
@@ -5161,6 +5166,10 @@ BandCombination-v1560::=            SEQUENCE {
 
 BandCombination-v1570 ::=           SEQUENCE {
     ca-ParametersEUTRA-v1570            CA-ParametersEUTRA-v1570
+}
+
+BandCombination-v1580 ::=           SEQUENCE {
+    mrdc-Parameters-v1580               MRDC-Parameters-v1580
 }
 
 BandParameters ::=                      CHOICE {
@@ -5643,7 +5652,7 @@ EUTRA-ParametersCommon ::=      SEQUENCE {
     multiNS-Pmax-EUTRA                  ENUMERATED {supported}          OPTIONAL,
     rs-SINR-MeasEUTRA                   ENUMERATED {supported}          OPTIONAL,
     ...,
-    [[
+    [[ 
     ne-DC                               ENUMERATED {supported}          OPTIONAL
     ]]
 
@@ -5958,7 +5967,7 @@ ModulationOrder ::= ENUMERATED {bpsk-halfpi, bpsk, qpsk, qam16, qam64, qam256}
 
 MRDC-Parameters ::= SEQUENCE {
     singleUL-Transmission               ENUMERATED {supported}              OPTIONAL,
-    dynamicPowerSharing                 ENUMERATED {supported}              OPTIONAL,
+    dynamicPowerSharingENDC             ENUMERATED {supported}              OPTIONAL,
     tdm-Pattern                         ENUMERATED {supported}              OPTIONAL,
     ul-SharingEUTRA-NR                  ENUMERATED {tdm, fdm, both}         OPTIONAL,
     ul-SwitchingTimeEUTRA-NR            ENUMERATED {type1, type2}           OPTIONAL,
@@ -5967,9 +5976,13 @@ MRDC-Parameters ::= SEQUENCE {
     ...,
     [[
     dualPA-Architecture                 ENUMERATED {supported}              OPTIONAL,
-    intraBandENDC-Support-v1540         ENUMERATED {non-contiguous, both}   OPTIONAL,
+    intraBandENDC-Support               ENUMERATED {non-contiguous, both}   OPTIONAL,
     ul-TimingAlignmentEUTRA-NR          ENUMERATED {required}               OPTIONAL
     ]]
+}
+
+MRDC-Parameters-v1580 ::= SEQUENCE {
+	dynamicPowerSharingNEDC             ENUMERATED {supported}              OPTIONAL
 }
 
 -- TAG-MRDC-PARAMETERS-STOP
@@ -6255,7 +6268,7 @@ BandNR ::=                          SEQUENCE {
     pusch-256QAM                        ENUMERATED {supported}                          OPTIONAL,
     ue-PowerClass                       ENUMERATED {pc1, pc2, pc3, pc4}                 OPTIONAL,
     rateMatchingLTE-CRS                 ENUMERATED {supported}                          OPTIONAL,
-    channelBWs-DL-v1530                 CHOICE {
+    channelBWs-DL                       CHOICE {
         fr1                                 SEQUENCE {
             scs-15kHz                           BIT STRING (SIZE (10))                      OPTIONAL,
             scs-30kHz                           BIT STRING (SIZE (10))                      OPTIONAL,
@@ -6266,7 +6279,7 @@ BandNR ::=                          SEQUENCE {
             scs-120kHz                          BIT STRING (SIZE (3))                       OPTIONAL
         }
     }                                                                                   OPTIONAL,
-    channelBWs-UL-v1530                 CHOICE {
+    channelBWs-UL                       CHOICE {
         fr1                                 SEQUENCE {
             scs-15kHz                           BIT STRING (SIZE (10))                      OPTIONAL,
             scs-30kHz                           BIT STRING (SIZE (10))                      OPTIONAL,
@@ -6310,6 +6323,9 @@ RF-ParametersMRDC ::=                   SEQUENCE {
     ]],
     [[
     supportedBandCombinationList-v1570      BandCombinationList-v1570           OPTIONAL
+    ]],
+    [[
+    supportedBandCombinationList-v1580      BandCombinationList-v1580           OPTIONAL
     ]]
 }
 
