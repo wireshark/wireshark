@@ -166,12 +166,12 @@ static header_field_info hfi_netlink_attr_type NETLINK_HFI_INIT =
 		NULL, 0x0000, "Netlink Attribute type", HFILL };
 
 static header_field_info hfi_netlink_attr_type_nested NETLINK_HFI_INIT =
-	{ "Nested", "netlink.attr_type.nested", FT_UINT16, BASE_DEC,
-		NULL, NLA_F_NESTED, "Carries nested attributes", HFILL };
+	{ "Nested", "netlink.attr_type.nested", FT_BOOLEAN, 16,
+		TFS(&tfs_true_false), NLA_F_NESTED, "Carries nested attributes", HFILL };
 
 static header_field_info hfi_netlink_attr_type_net_byteorder NETLINK_HFI_INIT =
-	{ "Network byte order", "netlink.attr_type.net_byteorder", FT_UINT16, BASE_DEC,
-		NULL, NLA_F_NET_BYTEORDER, "Payload stored in network byte order", HFILL };
+	{ "Network byte order", "netlink.attr_type.net_byteorder", FT_BOOLEAN, 16,
+		TFS(&tfs_true_false), NLA_F_NET_BYTEORDER, "Payload stored in host or network byte order", HFILL };
 
 static header_field_info hfi_netlink_attr_index NETLINK_HFI_INIT =
 	{ "Index", "netlink.attr_index", FT_UINT16, BASE_DEC,
@@ -281,7 +281,12 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, header_field_info *hfi_type, in
 			type_tree = proto_item_add_subtree(type_item, ett_netlink_attr_type);
 			proto_tree_add_item(type_tree, &hfi_netlink_attr_type_nested, tvb, offset, 2, encoding);
 			proto_tree_add_item(type_tree, &hfi_netlink_attr_type_net_byteorder, tvb, offset, 2, encoding);
-			proto_tree_add_item(type_tree, hfi_type, tvb, offset, 2, encoding);
+			/* The hfi_type _must_ have NLA_TYPE_MASK in it's definition, otherwise the nested/net_byteorder
+			 * flags influence the retrieved value. Since this is impossible to enforce (apart from using
+			 * a nasty DISSECTOR_ASSERT perhaps) we'll just have to make sure to feed in the properly
+			 * masked value. Luckily we already have it: 'type' is the value we need.
+			 */
+			proto_tree_add_uint(type_tree, hfi_type, tvb, offset, 2, type);
 			offset += 2;
 
 			if (rta_type & NLA_F_NESTED)
