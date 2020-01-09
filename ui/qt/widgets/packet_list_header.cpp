@@ -205,18 +205,25 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
 
     for (int cnt = 0; cnt < prefs.num_cols; cnt++) {
         QString title(get_column_title(cnt));
+        QString detail;
         if (get_column_format(cnt) == COL_CUSTOM) {
-            title.append(QString("\t%1").arg(get_column_custom_fields(cnt)));
+            detail = get_column_custom_fields(cnt);
         } else {
-            title.append(QString("\t%1").arg(col_format_desc(get_column_format(cnt))));
+            detail = col_format_desc(get_column_format(cnt));
         }
+
+        if (prefs.gui_qt_packet_header_column_definition)
+            title.append(QString("\t%1").arg(detail));
+
         QAction *action = new QAction(title, this);
+        action->setToolTip(detail);
         action->setCheckable(true);
         action->setChecked(get_column_visible(cnt));
         action->setData(QVariant::fromValue(cnt));
         connect(action, &QAction::triggered, this, &PacketListHeader::columnVisibilityTriggered);
         contextMenu->addAction(action);
     }
+    contextMenu->setToolTipsVisible(true);
 
     contextMenu->addSeparator();
 
