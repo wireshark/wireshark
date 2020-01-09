@@ -13,6 +13,10 @@
 
 #include "caputils/capture_ifinfo.h"
 
+#ifdef Q_OS_WIN
+#include "caputils/capture-wpcap.h"
+#endif
+
 #include "ui/qt/interface_frame.h"
 #include <ui/qt/wireshark_application.h>
 
@@ -264,28 +268,36 @@ void InterfaceFrame::toggleRemoteInterfaces()
 }
 #endif
 
-#include <QDebug>
 void InterfaceFrame::resetInterfaceTreeDisplay()
 {
     ui->warningLabel->setText(tr("No interfaces found"));
     ui->warningLabel->hide();
 
+    if (!haveCapturePermissions())
+    {
+#if defined(Q_OS_WIN)
+        ui->warningLabel->setText(tr("<p>Local interfaces are unavailable because no capture driver is installed.</p>"
+            "<p>You can fix this by installing <a href=\"https://nmap.org/npcap/\">Npcap</a> or <a href=\"https://www.winpcap.org/install/default.htm\">WinPcap</a>.</p>"));
+        ui->warningLabel->show();
+        return;
+#elif defined(Q_OS_MAC)
+        QString install_chmodbpf_path = wsApp->applicationDirPath() + "/../Resources/Extras/Install ChmodBPF.pkg";
+        ui->warningLabel->setText(tr("<p>Local interfaces are unavailable due to insufficient permissions.</p>"
+            "<p>You can fix this by <a href=\"file://%1\">installing ChmodBPF</a>.</p>")
+            .arg(install_chmodbpf_path));
+        ui->warningLabel->show();
+        return;
+#endif
+    }
+
     if (proxy_model_.rowCount() == 0)
     {
         ui->interfaceTree->hide();
-        ui->warningLabel->show();
         ui->warningLabel->setText(proxy_model_.interfaceError());
         if (prefs.capture_no_interface_load) {
             ui->warningLabel->setText(tr("Interfaces not loaded (due to preference). Go to Capture " UTF8_RIGHTWARDS_ARROW " Refresh Interfaces to load."));
         }
-    }
-    else if (!haveCapturePermissions())
-    {
-#ifdef Q_OS_MAC
-        QString install_chmodbpf_path = wsApp->applicationDirPath() + "/../Resources/Extras/Install ChmodBPF.pkg";
-        ui->warningLabel->setText(tr("You don't have permission to capture. You can <a href=\"file://%1\">install ChmodBPF to fix this</a>.").arg(install_chmodbpf_path));
         ui->warningLabel->show();
-#endif
     }
     else
     {
@@ -299,7 +311,9 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
 
 bool InterfaceFrame::haveCapturePermissions() const
 {
-#ifdef Q_OS_MAC
+#if defined(Q_OS_WIN)
+    return has_wpcap;
+#elif defined(Q_OS_MAC)
     QFileInfo bpf0_fi = QFileInfo("/dev/bpf0");
     return bpf0_fi.isReadable() && bpf0_fi.isWritable();
 #else
