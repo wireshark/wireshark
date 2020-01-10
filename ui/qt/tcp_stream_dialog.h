@@ -68,9 +68,12 @@ private:
     QCPGraph *tput_graph_;
     QCPGraph *goodput_graph_;
     QCPGraph *seg_graph_;
+    QCPErrorBars *seg_eb_;
     QCPGraph *ack_graph_;
     QCPGraph *sack_graph_;
+    QCPErrorBars *sack_eb_;
     QCPGraph *sack2_graph_;
+    QCPErrorBars *sack2_eb_;
     QCPGraph *rwin_graph_;
     QCPGraph *dup_ack_graph_;
     QCPGraph *zero_win_graph_;
