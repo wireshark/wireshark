@@ -616,7 +616,7 @@ void WiresharkApplication::checkForDbar()
 
     // We have a list of context menu handler CLSIDs. Now look for
     // offending DLLs.
-    foreach (QString clsid, clsids.toList()) {
+    foreach (QString clsid, clsids.values()) {
         QString inproc_path = QString("HKEY_CLASSES_ROOT\\CLSID\\%1\\InprocServer32").arg(clsid);
         QSettings inproc_reg(inproc_path, QSettings::NativeFormat);
         QString inproc_default = inproc_reg.value(".").toString();

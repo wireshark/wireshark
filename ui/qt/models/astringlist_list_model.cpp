@@ -266,19 +266,12 @@ QVariant AStringListListUrlProxyModel::data(const QModelIndex &index, int role) 
 {
     QVariant result = QIdentityProxyModel::data(index, role);
 
-    if (urls_.contains(index.column()))
+    if (role == Qt::ForegroundRole && urls_.contains(index.column())
+            && result.canConvert(QVariant::Brush))
     {
-        if (role == Qt::ForegroundRole)
-        {
-            if (result.canConvert(QVariant::Brush))
-            {
-                QBrush selected = result.value<QBrush>();
-                selected.setColor(ColorUtils::themeLinkBrush().color());
-                return selected;
-            }
-        } else if (role == Qt::TextColorRole) {
-            return QApplication::palette().link().color();
-        }
+        QBrush selected = result.value<QBrush>();
+        selected.setColor(ColorUtils::themeLinkBrush().color());
+        return selected;
     }
 
     return result;
