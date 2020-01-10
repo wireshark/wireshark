@@ -30,6 +30,7 @@ static gint hf_setup_lvalue_data_size = -1;
 static gint hf_setup_lvalue_event_char = -1;
 static gint hf_setup_lvalue_error_char = -1;
 static gint hf_setup_lvalue_latency_time = -1;
+static gint hf_setup_lvalue_bitmask = -1;
 static gint hf_setup_hvalue = -1;
 static gint hf_setup_hvalue_dtr = -1;
 static gint hf_setup_hvalue_rts = -1;
@@ -40,6 +41,7 @@ static gint hf_setup_hvalue_stop_bits = -1;
 static gint hf_setup_hvalue_break_bit = -1;
 static gint hf_setup_hvalue_trigger = -1;
 static gint hf_setup_hvalue_error_replacement = -1;
+static gint hf_setup_hvalue_bitmode = -1;
 static gint hf_setup_lindex = -1;
 static gint hf_setup_lindex_port_ab = -1;
 static gint hf_setup_lindex_port_abcd = -1;
@@ -85,17 +87,49 @@ static gint ett_setdata_hvalue = -1;
 static gint ett_modem_status = -1;
 static gint ett_line_status = -1;
 
+static dissector_handle_t ftdi_mpsse_handle;
+
 static expert_field ei_undecoded = EI_INIT;
 
 static dissector_handle_t ftdi_ft_handle;
 
 static wmem_tree_t *request_info = NULL;
+static wmem_tree_t *bitmode_info = NULL;
+
+typedef enum {
+    FTDI_CHIP_UNKNOWN,
+    FTDI_CHIP_FT8U232AM,
+    FTDI_CHIP_FT232B,
+    FTDI_CHIP_FT2232D,
+    FTDI_CHIP_FT232R,
+    FTDI_CHIP_FT2232H,
+    FTDI_CHIP_FT4232H,
+    FTDI_CHIP_FT232H,
+    FTDI_CHIP_X_SERIES,
+} FTDI_CHIP;
+
+typedef enum {
+    FTDI_INTERFACE_UNKNOWN,
+    FTDI_INTERFACE_A,
+    FTDI_INTERFACE_B,
+    FTDI_INTERFACE_C,
+    FTDI_INTERFACE_D,
+} FTDI_INTERFACE;
 
 typedef struct _request_data {
     guint32  bus_id;
     guint32  device_address;
     guint8   request;
+    guint8   hvalue;
+    guint8   lindex;
 } request_data_t;
+
+typedef struct _bitmode_data {
+    guint32        bus_id;
+    guint32        device_address;
+    FTDI_INTERFACE interface;
+    guint8         bitmode;
+} bitmode_data_t;
 
 #define REQUEST_RESET           0x00
 #define REQUEST_MODEM_CTRL      0x01
@@ -107,6 +141,7 @@ typedef struct _request_data {
 #define REQUEST_SET_ERROR_CHAR  0x07
 #define REQUEST_SET_LAT_TIMER   0x09
 #define REQUEST_GET_LAT_TIMER   0x0A
+#define REQUEST_SET_BITMODE     0x0B
 
 static const value_string request_vals[] = {
     {REQUEST_RESET,           "Reset"},
@@ -119,6 +154,7 @@ static const value_string request_vals[] = {
     {REQUEST_SET_ERROR_CHAR,  "SetErrorChar"},
     {REQUEST_SET_LAT_TIMER,   "SetLatTimer"},
     {REQUEST_GET_LAT_TIMER,   "GetLatTimer"},
+    {REQUEST_SET_BITMODE,     "SetBitMode"},
     {0, NULL}
 };
 static value_string_ext request_vals_ext  = VALUE_STRING_EXT_INIT(request_vals);
@@ -185,28 +221,32 @@ static const value_string error_replacement_vals[] = {
     {0, NULL}
 };
 
+#define BITMODE_RESET   0x00
+#define BITMODE_BITBANG 0x01
+#define BITMODE_MPSSE   0x02
+#define BITMODE_SYNCBB  0x04
+#define BITMODE_MCU     0x08
+#define BITMODE_OPTO    0x10
+#define BITMODE_CBUS    0x20
+#define BITMODE_SYNCFF  0x40
+#define BITMODE_FT1284  0x80
+
+
+static const value_string bitmode_vals[] = {
+    {BITMODE_RESET,   "switch off bitbang mode, back to regular serial / FIFO"},
+    {BITMODE_BITBANG, "classical asynchronous bitbang mode, introduced with B-type chips"},
+    {BITMODE_MPSSE,   "MPSSE mode, available on 2232x chips"},
+    {BITMODE_SYNCBB,  "synchronous bitbang mode, available on 2232x and R-type chips"},
+    {BITMODE_MCU,     "MCU Host Bus Emulation mode, available on 2232x chips"},
+    {BITMODE_OPTO,    "Fast Opto-Isolated Serial Interface Mode, available on 2232x chips"},
+    {BITMODE_CBUS,    "Bitbang on CBUS pins of R-type chips, configure in EEPROM before"},
+    {BITMODE_SYNCFF,  "Single Channel Synchronous FIFO mode, available on 2232H chips"},
+    {BITMODE_FT1284,  "FT1284 mode, available on 232H chips"},
+    {0, NULL}
+};
+
 void proto_register_ftdi_ft(void);
 void proto_reg_handoff_ftdi_ft(void);
-
-typedef enum {
-    FTDI_CHIP_UNKNOWN,
-    FTDI_CHIP_FT8U232AM,
-    FTDI_CHIP_FT232B,
-    FTDI_CHIP_FT2232D,
-    FTDI_CHIP_FT232R,
-    FTDI_CHIP_FT2232H,
-    FTDI_CHIP_FT4232H,
-    FTDI_CHIP_FT232H,
-    FTDI_CHIP_X_SERIES,
-} FTDI_CHIP;
-
-typedef enum {
-    FTDI_INTERFACE_UNKNOWN,
-    FTDI_INTERFACE_A,
-    FTDI_INTERFACE_B,
-    FTDI_INTERFACE_C,
-    FTDI_INTERFACE_D,
-} FTDI_INTERFACE;
 
 /* It is assumed that this function is called only when the device is known
  * to be FTDI FT chip and thus the VID and PID is not checked here.
@@ -261,6 +301,25 @@ endpoint_to_interface(usb_conv_info_t *usb_conv_info)
         return FTDI_INTERFACE_C;
     case 0x07: /* D OUT */
     case 0x08: /* D IN */
+        return FTDI_INTERFACE_D;
+    default:
+        return FTDI_INTERFACE_UNKNOWN;
+    }
+}
+
+static FTDI_INTERFACE
+lindex_to_interface(guint8 lindex)
+{
+    switch (lindex)
+    {
+    case 0: /* ANY, default to A */
+    case 1:
+        return FTDI_INTERFACE_A;
+    case 2:
+        return FTDI_INTERFACE_B;
+    case 3:
+        return FTDI_INTERFACE_C;
+    case 4:
         return FTDI_INTERFACE_D;
     default:
         return FTDI_INTERFACE_UNKNOWN;
@@ -557,6 +616,26 @@ dissect_response_get_lat_timer(tvbuff_t *tvb, packet_info *pinfo _U_, gint offse
 }
 
 static gint
+dissect_request_set_bitmode(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_tree *tree)
+{
+    gint offset_start = offset;
+
+    proto_tree_add_item(tree, hf_setup_lvalue_bitmask, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_setup_hvalue_bitmode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_setup_lindex_port_abcd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_setup_hindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    return offset - offset_start;
+}
+
+static gint
 dissect_modem_status_bytes(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_tree *tree)
 {
     static const int *modem_status_bits[] = {
@@ -587,6 +666,54 @@ dissect_modem_status_bytes(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, p
     offset++;
 
     return 2;
+}
+
+static void
+record_interface_mode(packet_info *pinfo, usb_conv_info_t *usb_conv_info, FTDI_INTERFACE interface, guint8 bitmode)
+{
+    guint32         k_bus_id = usb_conv_info->bus_id;
+    guint32         k_device_address = usb_conv_info->device_address;
+    guint32         k_interface = (guint32)interface;
+    wmem_tree_key_t key[] = {
+        {1, &k_bus_id},
+        {1, &k_device_address},
+        {1, &k_interface},
+        {1, &pinfo->num},
+        {0, NULL}
+    };
+    bitmode_data_t *bitmode_data = NULL;
+
+    bitmode_data = wmem_new(wmem_file_scope(), bitmode_data_t);
+    bitmode_data->bus_id = usb_conv_info->bus_id;
+    bitmode_data->device_address = usb_conv_info->device_address;
+    bitmode_data->interface = interface;
+    bitmode_data->bitmode = bitmode;
+    wmem_tree_insert32_array(bitmode_info, key, bitmode_data);
+}
+
+static guint8
+get_recorded_interface_mode(packet_info *pinfo, usb_conv_info_t *usb_conv_info, FTDI_INTERFACE interface)
+{
+    guint32         k_bus_id = usb_conv_info->bus_id;
+    guint32         k_device_address = usb_conv_info->device_address;
+    guint32         k_interface = (guint32)interface;
+    wmem_tree_key_t key[] = {
+        {1, &k_bus_id},
+        {1, &k_device_address},
+        {1, &k_interface},
+        {1, &pinfo->num},
+        {0, NULL}
+    };
+
+    bitmode_data_t *bitmode_data = NULL;
+    bitmode_data = (bitmode_data_t *)wmem_tree_lookup32_array_le(bitmode_info, key);
+    if (bitmode_data && bitmode_data->bus_id == k_bus_id && bitmode_data->device_address == k_device_address &&
+        bitmode_data->interface == interface)
+    {
+        return bitmode_data->bitmode;
+    }
+
+    return 0; /* Default to 0, which is plain serial data */
 }
 
 static gint
@@ -641,12 +768,17 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         {
             gint         bytes_dissected;
             guint8       brequest;
+            guint8       hvalue;
+            guint8       lindex;
 
             brequest = tvb_get_guint8(tvb, offset);
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
                 val_to_str_ext_const(brequest, &request_vals_ext, "Unknown"));
             proto_tree_add_item(main_tree, hf_setup_brequest, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
+
+            hvalue = tvb_get_guint8(tvb, offset + 1);
+            lindex = tvb_get_guint8(tvb, offset + 2);
 
             switch (brequest)
             {
@@ -683,6 +815,9 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case REQUEST_GET_LAT_TIMER:
                 bytes_dissected = dissect_request_get_lat_timer(tvb, pinfo, offset, main_tree);
                 break;
+            case REQUEST_SET_BITMODE:
+                bytes_dissected = dissect_request_set_bitmode(tvb, pinfo, offset, main_tree);
+                break;
             default:
                 bytes_dissected = 0;
                 break;
@@ -703,6 +838,8 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             request_data->bus_id = usb_conv_info->bus_id;
             request_data->device_address = usb_conv_info->device_address;
             request_data->request = brequest;
+            request_data->hvalue = hvalue;
+            request_data->lindex = lindex;
             wmem_tree_insert32_array(request_info, key, request_data);
         }
         else
@@ -721,6 +858,10 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     break;
                 case REQUEST_GET_LAT_TIMER:
                     offset += dissect_response_get_lat_timer(tvb, pinfo, offset, main_tree);
+                    break;
+                case REQUEST_SET_BITMODE:
+                    /* TODO: Record interface mode only if the control request has succeeded */
+                    record_interface_mode(pinfo, usb_conv_info, lindex_to_interface(request_data->lindex), request_data->hvalue);
                     break;
                 default:
                     break;
@@ -788,8 +929,18 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         bytes = tvb_reported_length_remaining(tvb, offset);
         if (bytes > 0)
         {
+            guint8 bitmode;
+
             col_append_fstr(pinfo->cinfo, COL_INFO, " %d bytes", bytes);
             proto_tree_add_item(main_tree, payload_hf, tvb, offset, bytes, ENC_NA);
+
+            bitmode = get_recorded_interface_mode(pinfo, usb_conv_info, interface);
+            if (bitmode == BITMODE_MPSSE)
+            {
+                tvbuff_t *mpsse_payload_tvb = tvb_new_subset_remaining(tvb, offset);
+                call_dissector(ftdi_mpsse_handle, mpsse_payload_tvb, pinfo, tree);
+            }
+
             offset += bytes;
         }
     }
@@ -858,6 +1009,11 @@ proto_register_ftdi_ft(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "Latency time in milliseconds", HFILL }
         },
+        { &hf_setup_lvalue_bitmask,
+          { "Bit Mask", "ftdift.lValue",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_setup_hvalue,
           { "hValue", "ftdift.hValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -906,6 +1062,11 @@ proto_register_ftdi_ft(void)
         { &hf_setup_hvalue_error_replacement,
           { "hValue", "ftdift.hValue",
             FT_UINT8, BASE_HEX, VALS(error_replacement_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_setup_hvalue_bitmode,
+          { "Bit Mode", "ftdift.hValue",
+            FT_UINT8, BASE_HEX, VALS(bitmode_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lindex,
@@ -1097,6 +1258,7 @@ proto_register_ftdi_ft(void)
     };
 
     request_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    bitmode_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_ftdi_ft = proto_register_protocol("FTDI FT USB", "FTDI FT", "ftdift");
     proto_register_field_array(proto_ftdi_ft, hf, array_length(hf));
@@ -1121,9 +1283,15 @@ proto_reg_handoff_ftdi_ft(void)
     dissector_add_uint("usb.product", (0x0403 << 16) | 0x6015, ftdi_ft_handle);
 
     /* Devices that use FTDI FT converter with changed Vendor ID */
+    dissector_add_uint("usb.product", (0x15ba << 16) | 0x0003, ftdi_ft_handle); /* Olimex ARM-USB-OCD */
+    dissector_add_uint("usb.product", (0x15ba << 16) | 0x0004, ftdi_ft_handle); /* Olimex ARM-USB-TINY */
+    dissector_add_uint("usb.product", (0x15ba << 16) | 0x002a, ftdi_ft_handle); /* Olimex ARM-USB-TINY-H */
+    dissector_add_uint("usb.product", (0x15ba << 16) | 0x002b, ftdi_ft_handle); /* Olimex ARM-USB-OCD-H */
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x607c, ftdi_ft_handle); /* OpenVizsla USB sniffer/analyzer */
 
     dissector_add_for_decode_as("usb.device", ftdi_ft_handle);
+
+    ftdi_mpsse_handle = find_dissector_add_dependency("ftdi-mpsse", proto_ftdi_ft);
 }
 
 /*

@@ -1058,6 +1058,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fractalgeneratorprotocol.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-frame.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ftdi-ft.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ftdi-mpsse.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ftp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fw1.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-g723.c
