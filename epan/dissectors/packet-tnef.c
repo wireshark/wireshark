@@ -363,6 +363,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     offset += 2;
 
     if(tag & 0x80000000) {
+      const guint8* name_string = NULL;
 
       /* it is a named property */
       proto_tree_add_item(tag_tree, hf_tnef_property_tag_set, tvb, offset, 16, ENC_LITTLE_ENDIAN);
@@ -375,26 +376,24 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
       if(tag_kind == 0) {
         proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
-
-        proto_item_append_text(prop_item, " [Named Property]");
       } else {
-        char *name_string = NULL;
-
         tag_length = tvb_get_letohl(tvb, offset);
         proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
 
-        proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_string, tvb, offset, tag_length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_string(tag_tree, hf_tnef_property_tag_name_string, tvb, offset, tag_length,
+          ENC_UTF_16|ENC_LITTLE_ENDIAN, wmem_packet_scope(), &name_string);
         offset += tag_length;
 
         if((padding = (4 - tag_length % 4)) != 4) {
           proto_tree_add_item(tag_tree, hf_tnef_property_padding, tvb, offset, padding, ENC_NA);
           offset += padding;
         }
-
-        proto_item_append_text(prop_item, " [Named Property: %s]", name_string);
-
       }
+      proto_item_append_text(prop_item, " [Named Property");
+      if (name_string)
+        proto_item_append_text(prop_item, ": %s", name_string);
+      proto_item_append_text(prop_item, "]");
     }
 
     switch(tag) {
